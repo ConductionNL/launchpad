@@ -5,7 +5,7 @@
  * The card head carries what the renderer reports: the source line under the
  * title and the "Outage" tag (REQ-IFRAME-005).
  *
- * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+ * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
  */
 
 import { mount } from '@vue/test-utils'

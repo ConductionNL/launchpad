@@ -13,7 +13,7 @@
  * - `connection`: what the connection behind the embed knows, when one signs
  *   in: `{account?: string, error?: string, errorAt?: string}` (ISO time).
  *
- * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+ * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
  */
 
 /**
@@ -30,7 +30,7 @@ export const OUTAGE_REASONS = ['blocked', 'unreachable', 'timeout', 'error', 'un
  *
  * @param {object|null|undefined} content The placement content.
  * @return {boolean} True for `kind: 'report'`.
- * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+ * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
  */
 export function isReport(content) {
 	return content?.kind === 'report'
@@ -41,7 +41,7 @@ export function isReport(content) {
  *
  * @param {string} url The embed URL.
  * @return {string} The host, e.g. `app.powerbi.com`.
- * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+ * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
  */
 export function embedHost(url) {
 	if (typeof url !== 'string' || url.trim() === '') {
@@ -59,7 +59,7 @@ export function embedHost(url) {
  *
  * @param {object|null|undefined} content The placement content.
  * @return {string} The account name.
- * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+ * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
  */
 function connectionAccount(content) {
 	const account = content?.connection?.account
@@ -74,7 +74,7 @@ function connectionAccount(content) {
  * @param {object|null|undefined} content The placement content.
  * @param {function(string, string, object=): string} t The translate function.
  * @return {string} The source line.
- * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+ * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
  */
 export function embedSourceLine(content, t) {
 	const host = embedHost(content?.url)
@@ -98,7 +98,7 @@ export function embedSourceLine(content, t) {
  * @param {string} reason The widget's failure reason.
  * @param {function(string, string, object=): string} t The translate function.
  * @return {string} The cause.
- * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+ * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
  */
 export function ownCause(reason, t) {
 	switch (reason) {
@@ -120,7 +120,7 @@ export function ownCause(reason, t) {
  *
  * @param {Date} date The moment.
  * @return {string} HH:MM in local time.
- * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+ * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
  */
 export function clockTime(date) {
 	return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
@@ -138,7 +138,7 @@ export function clockTime(date) {
  * @param {Date} input.now The current time.
  * @param {function(string, string, object=): string} t The translate function.
  * @return {string} E.g. "Gave an error today at 09:30: token expired".
- * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+ * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
  */
 export function outageCauseLine({ content, reason, failedAt, now }, t) {
 	let cause

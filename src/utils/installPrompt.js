@@ -26,7 +26,7 @@ let capturedPrompt = null
  *
  * @param {Event} event The `beforeinstallprompt` event.
  * @return {void}
- * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+ * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
  */
 export function capturePrompt(event) {
 	if (event && typeof event.preventDefault === 'function') {
@@ -40,7 +40,7 @@ export function capturePrompt(event) {
  * (Safari on iOS).
  *
  * @return {object|null} The prompt event.
- * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+ * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
  */
 export function installPrompt() {
 	return capturedPrompt
@@ -50,7 +50,7 @@ export function installPrompt() {
  * Forget the captured prompt: a prompt can be shown only once.
  *
  * @return {void}
- * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+ * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
  */
 export function clearPrompt() {
 	capturedPrompt = null
@@ -61,7 +61,7 @@ export function clearPrompt() {
  *
  * @param {Window} win The window.
  * @return {boolean} True in standalone display mode.
- * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+ * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
  */
 export function isStandalone(win) {
 	if (!win) {
@@ -83,7 +83,7 @@ export function isStandalone(win) {
  *
  * @param {Storage|null} storage The browser storage.
  * @return {number|null} Milliseconds since the epoch.
- * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+ * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
  */
 export function readNotNowAt(storage) {
 	try {
@@ -100,7 +100,7 @@ export function readNotNowAt(storage) {
  * @param {Storage|null} storage The browser storage.
  * @param {number} now Milliseconds since the epoch.
  * @return {void}
- * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+ * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
  */
 export function writeNotNowAt(storage, now) {
 	try {
@@ -123,7 +123,7 @@ export function writeNotNowAt(storage, now) {
  * @param {number|null} state.notNowAt When "Not now" was chosen, or null.
  * @param {number} state.now Milliseconds since the epoch.
  * @return {boolean} True when the banner shows.
- * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+ * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
  */
 export function shouldShowInstallBanner({ width, standalone, kiosk, isPublic, notNowAt, now }) {
 	if (!(Number(width) < PHONE_MAX_WIDTH) || standalone === true || kiosk === true || isPublic === true) {

@@ -474,7 +474,7 @@ export default {
 		 *
 		 * @param {{subtitle?: string, outage?: boolean}|null} status The renderer's head status.
 		 * @return {void}
-		 * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
 		 */
 		onRendererStatus(status) {
 			this.headStatus = {

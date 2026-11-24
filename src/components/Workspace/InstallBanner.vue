@@ -71,7 +71,7 @@ function browserStorage() {
  * (board LpMobiel). Install opens the browser's prompt, or shows the steps
  * where the browser has none; Not now hides it on this device for 30 days.
  *
- * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+ * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
  */
 export default {
 	name: 'InstallBanner',
@@ -102,7 +102,7 @@ export default {
 		 * Whether the banner shows now.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+		 * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
 		 */
 		shown() {
 			return shouldShowInstallBanner({
@@ -120,7 +120,7 @@ export default {
 	 * Follow the width and a finished install.
 	 *
 	 * @return {void}
-	 * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+	 * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
 	 */
 	mounted() {
 		window.addEventListener('resize', this.onResize)
@@ -131,7 +131,7 @@ export default {
 	 * Stop following them.
 	 *
 	 * @return {void}
-	 * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+	 * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
 	 */
 	beforeUnmount() {
 		window.removeEventListener('resize', this.onResize)
@@ -145,7 +145,7 @@ export default {
 		 * Follow the viewport width.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+		 * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
 		 */
 		onResize() {
 			this.width = window.innerWidth
@@ -155,7 +155,7 @@ export default {
 		 * The page was installed: the banner goes.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+		 * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
 		 */
 		onInstalled() {
 			this.standalone = true
@@ -166,7 +166,7 @@ export default {
 		 * browser offers none.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+		 * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
 		 */
 		async install() {
 			const prompt = installPrompt()
@@ -190,7 +190,7 @@ export default {
 		 * Hide the banner on this device for 30 days.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+		 * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
 		 */
 		notNow() {
 			const now = Date.now()

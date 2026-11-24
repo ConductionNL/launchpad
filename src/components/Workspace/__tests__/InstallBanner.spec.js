@@ -5,7 +5,7 @@
  * InstallBanner: the phone offer to put LaunchPad on the home screen
  * (platform-baseline REQ-PLB-009, board LpMobiel).
  *
- * @spec openspec/changes/phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
+ * @spec openspec/changes/archive/2026-11-24-phone-install-banner/specs/platform-baseline/spec.md#requirement-a-phone-offers-to-put-launchpad-on-the-home-screen-req-plb-009
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

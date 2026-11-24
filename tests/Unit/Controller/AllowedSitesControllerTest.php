@@ -59,29 +59,44 @@ class AllowedSitesControllerTest extends TestCase {
 		);
 	}//end controllerWith()
 
+	/**
+	 * Shows and replaces the list.
+	 *
+	 * @return void
+	 */
 	public function testShowsAndReplacesTheList(): void {
 		$values     = [];
 		$controller = $this->controllerWith(values: $values);
 
 		$saved = $controller->update(sites: [['host' => 'App.PowerBI.com', 'embed' => true, 'fetch' => false]]);
-		$this->assertSame(200, $saved->getStatus());
-		$this->assertSame(['sites' => [['host' => 'app.powerbi.com', 'embed' => true, 'fetch' => false]]], $saved->getData());
-		$this->assertSame($saved->getData(), $controller->show()->getData());
+		$this->assertSame(expected: 200, actual: $saved->getStatus());
+		$this->assertSame(expected: ['sites' => [['host' => 'app.powerbi.com', 'embed' => true, 'fetch' => false]]], actual: $saved->getData());
+		$this->assertSame(expected: $saved->getData(), actual: $controller->show()->getData());
 	}//end testShowsAndReplacesTheList()
 
+	/**
+	 * Refuses an entry that is not a host.
+	 *
+	 * @return void
+	 */
 	public function testRefusesAnEntryThatIsNotAHost(): void {
 		$values   = [];
 		$response = $this->controllerWith(values: $values)->update(sites: [['host' => '*.example.com', 'embed' => true]]);
 
-		$this->assertSame(400, $response->getStatus());
-		$this->assertStringContainsString('is not a host name', $response->getData()['message']);
-		$this->assertArrayNotHasKey('allowed_sites', $values);
+		$this->assertSame(expected: 400, actual: $response->getStatus());
+		$this->assertStringContainsString(needle: 'is not a host name', haystack: $response->getData()['message']);
+		$this->assertArrayNotHasKey(key: 'allowed_sites', array: $values);
 	}//end testRefusesAnEntryThatIsNotAHost()
 
+	/**
+	 * Both endpoints are for administrators only.
+	 *
+	 * @return void
+	 */
 	public function testBothEndpointsAreForAdministratorsOnly(): void {
 		foreach (['show', 'update'] as $method) {
 			$attributes = (new ReflectionMethod(AllowedSitesController::class, $method))->getAttributes(AuthorizedAdminSetting::class);
-			$this->assertCount(1, $attributes, $method);
+			$this->assertCount(expectedCount: 1, haystack: $attributes, message: $method);
 		}
 	}//end testBothEndpointsAreForAdministratorsOnly()
 }//end class

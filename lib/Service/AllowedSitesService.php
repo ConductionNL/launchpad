@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
-use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\InvalidAllowedSiteException;
 use OCP\IAppConfig;
 
 /**
@@ -153,13 +153,13 @@ class AllowedSitesService {
 	 *
 	 * @return list<array{host: string, embed: bool, fetch: bool}> The stored list.
 	 *
-	 * @throws InvalidArgumentException When an entry is not a site with a host and a purpose.
+	 * @throws InvalidAllowedSiteException When an entry is not a site with a host and a purpose.
 	 *
 	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function setSites(mixed $sites): array {
 		if (is_array(value: $sites) === false) {
-			throw new InvalidArgumentException(message: 'The allowed websites must be a list.');
+			throw new InvalidAllowedSiteException(message: 'The allowed websites must be a list.');
 		}
 
 		$clean = [];
@@ -195,7 +195,11 @@ class AllowedSitesService {
 
 		$added = 0;
 		foreach ($hosts as $raw) {
-			$host = is_string(value: $raw) === true ? self::normaliseHost(raw: $raw) : null;
+			if (is_string(value: $raw) === false) {
+				continue;
+			}
+
+			$host = self::normaliseHost(raw: $raw);
 			if ($host === null || ($sites[$host][$purpose] ?? false) === true) {
 				continue;
 			}
@@ -270,11 +274,11 @@ class AllowedSitesService {
 	 *
 	 * @return array{host: string, embed: bool, fetch: bool}|null
 	 *
-	 * @throws InvalidArgumentException When the entry is not a site with a host and a purpose.
+	 * @throws InvalidAllowedSiteException When the entry is not a site with a host and a purpose.
 	 */
 	private function readSubmittedSite(mixed $entry): ?array {
 		if (is_array(value: $entry) === false || is_string(value: $entry['host'] ?? null) === false) {
-			throw new InvalidArgumentException(message: 'Every allowed website needs a host and a purpose.');
+			throw new InvalidAllowedSiteException(message: 'Every allowed website needs a host and a purpose.');
 		}
 
 		if (trim(string: $entry['host']) === '') {
@@ -283,7 +287,7 @@ class AllowedSitesService {
 
 		$host = self::normaliseHost(raw: $entry['host']);
 		if ($host === null) {
-			throw new InvalidArgumentException(
+			throw new InvalidAllowedSiteException(
 				message: sprintf('"%s" is not a host name. Enter a host such as www.example.com.', trim(string: $entry['host']))
 			);
 		}
@@ -291,7 +295,7 @@ class AllowedSitesService {
 		$embed = ($entry['embed'] ?? false) === true;
 		$fetch = ($entry['fetch'] ?? false) === true;
 		if ($embed === false && $fetch === false) {
-			throw new InvalidArgumentException(
+			throw new InvalidAllowedSiteException(
 				message: sprintf('Choose whether %s may be embedded, fetched from, or both.', $host)
 			);
 		}

@@ -22,14 +22,14 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\InvalidAllowedSiteException;
 use OCA\LaunchPad\Service\AllowedSitesService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
-use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http\DataResponse;
 use OCP\IRequest;
 
 /**
@@ -55,13 +55,13 @@ class AllowedSitesController extends Controller {
 	/**
 	 * The allowed websites.
 	 *
-	 * @return JSONResponse `{sites: [{host, embed, fetch}]}`.
+	 * @return DataResponse `{sites: [{host, embed, fetch}]}`.
 	 *
 	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-	public function show(): JSONResponse {
-		return new JSONResponse(['sites' => $this->allowedSites->getSites()]);
+	public function show(): DataResponse {
+		return new DataResponse(['sites' => $this->allowedSites->getSites()]);
 	}//end show()
 
 	/**
@@ -69,16 +69,16 @@ class AllowedSitesController extends Controller {
 	 *
 	 * @param mixed $sites The sites, each `{host, embed, fetch}`.
 	 *
-	 * @return JSONResponse `{sites}` as stored, or `{message}` with 400.
+	 * @return DataResponse `{sites}` as stored, or `{message}` with 400.
 	 *
 	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-	public function update(mixed $sites = []): JSONResponse {
+	public function update(mixed $sites = []): DataResponse {
 		try {
-			return new JSONResponse(['sites' => $this->allowedSites->setSites(sites: $sites)]);
-		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+			return new DataResponse(['sites' => $this->allowedSites->setSites(sites: $sites)]);
+		} catch (InvalidAllowedSiteException $e) {
+			return new DataResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		}
 	}//end update()
 }//end class

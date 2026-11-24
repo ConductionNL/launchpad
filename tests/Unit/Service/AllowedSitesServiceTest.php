@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use InvalidArgumentException;
+use OCA\LaunchPad\Exception\InvalidAllowedSiteException;
 use OCA\LaunchPad\Service\AllowedSitesService;
 use OCA\LaunchPad\Service\HostAllowList;
 use OCA\LaunchPad\Service\IframeService;
@@ -85,33 +85,45 @@ class AllowedSitesServiceTest extends TestCase {
 		];
 	}//end failClosedValues()
 
+	/**
+	 * An unusable list allows nothing.
+	 *
+	 * @param string $raw From the data provider.
+	 *
+	 * @return void
+	 */
 	#[DataProvider('failClosedValues')]
 	public function testAnUnusableListAllowsNothing(string $raw): void {
 		$values  = ['allowed_sites' => $raw];
 		$service = new AllowedSitesService(appConfig: $this->configWith(values: $values));
 
-		$this->assertSame([], $service->hostsFor(purpose: 'embed'));
-		$this->assertSame([], $service->hostsFor(purpose: 'fetch'));
-		$this->assertFalse($service->permits(url: 'https://app.powerbi.com/r', purpose: 'embed'));
+		$this->assertSame(expected: [], actual: $service->hostsFor(purpose: 'embed'));
+		$this->assertSame(expected: [], actual: $service->hostsFor(purpose: 'fetch'));
+		$this->assertFalse(condition: $service->permits(url: 'https://app.powerbi.com/r', purpose: 'embed'));
 	}//end testAnUnusableListAllowsNothing()
 
+	/**
+	 * Each host is allowed for its purpose only.
+	 *
+	 * @return void
+	 */
 	public function testEachHostIsAllowedForItsPurposeOnly(): void {
 		$values  = ['allowed_sites' => self::BOARD_LIST];
 		$service = new AllowedSitesService(appConfig: $this->configWith(values: $values));
 
-		$this->assertSame(['www.zuiddrecht.nl', 'app.powerbi.com'], $service->hostsFor(purpose: 'embed'));
-		$this->assertSame(['www.zuiddrecht.nl', 'kcc-api.zuiddrecht.nl'], $service->hostsFor(purpose: 'fetch'));
-		$this->assertSame([], $service->hostsFor(purpose: 'other'));
+		$this->assertSame(expected: ['www.zuiddrecht.nl', 'app.powerbi.com'], actual: $service->hostsFor(purpose: 'embed'));
+		$this->assertSame(expected: ['www.zuiddrecht.nl', 'kcc-api.zuiddrecht.nl'], actual: $service->hostsFor(purpose: 'fetch'));
+		$this->assertSame(expected: [], actual: $service->hostsFor(purpose: 'other'));
 
 		// Power BI may be embedded, not called.
-		$this->assertTrue($service->permits(url: 'https://APP.powerbi.com/reportEmbed', purpose: 'embed'));
-		$this->assertFalse($service->permits(url: 'https://app.powerbi.com/api', purpose: 'fetch'));
+		$this->assertTrue(condition: $service->permits(url: 'https://APP.powerbi.com/reportEmbed', purpose: 'embed'));
+		$this->assertFalse(condition: $service->permits(url: 'https://app.powerbi.com/api', purpose: 'fetch'));
 		// The KCC API may be called, not embedded.
-		$this->assertTrue($service->permits(url: 'https://kcc-api.zuiddrecht.nl/wachttijd', purpose: 'fetch'));
-		$this->assertFalse($service->permits(url: 'https://kcc-api.zuiddrecht.nl/', purpose: 'embed'));
+		$this->assertTrue(condition: $service->permits(url: 'https://kcc-api.zuiddrecht.nl/wachttijd', purpose: 'fetch'));
+		$this->assertFalse(condition: $service->permits(url: 'https://kcc-api.zuiddrecht.nl/', purpose: 'embed'));
 		// Exact hosts only, and a URL without a host never passes.
-		$this->assertFalse($service->permits(url: 'https://a.app.powerbi.com/', purpose: 'embed'));
-		$this->assertFalse($service->permits(url: 'not a url', purpose: 'embed'));
+		$this->assertFalse(condition: $service->permits(url: 'https://a.app.powerbi.com/', purpose: 'embed'));
+		$this->assertFalse(condition: $service->permits(url: 'not a url', purpose: 'embed'));
 	}//end testEachHostIsAllowedForItsPurposeOnly()
 
 	/**
@@ -132,11 +144,24 @@ class AllowedSitesServiceTest extends TestCase {
 		];
 	}//end hostSpellings()
 
+	/**
+	 * Normalises a host.
+	 *
+	 * @param string  $raw      From the data provider.
+	 * @param ?string $expected From the data provider.
+	 *
+	 * @return void
+	 */
 	#[DataProvider('hostSpellings')]
 	public function testNormalisesAHost(string $raw, ?string $expected): void {
-		$this->assertSame($expected, AllowedSitesService::normaliseHost(raw: $raw));
+		$this->assertSame(expected: $expected, actual: AllowedSitesService::normaliseHost(raw: $raw));
 	}//end testNormalisesAHost()
 
+	/**
+	 * Stores the list normalised and merges duplicates.
+	 *
+	 * @return void
+	 */
 	public function testStoresTheListNormalisedAndMergesDuplicates(): void {
 		$values  = [];
 		$service = new AllowedSitesService(appConfig: $this->configWith(values: $values));
@@ -152,9 +177,9 @@ class AllowedSitesServiceTest extends TestCase {
 			['host' => 'app.powerbi.com', 'embed' => true, 'fetch' => true],
 			['host' => 'kcc-api.zuiddrecht.nl', 'embed' => false, 'fetch' => true],
 		];
-		$this->assertSame($expected, $stored);
-		$this->assertSame($expected, json_decode(json: $values['allowed_sites'], associative: true));
-		$this->assertSame($expected, $service->getSites());
+		$this->assertSame(expected: $expected, actual: $stored);
+		$this->assertSame(expected: $expected, actual: json_decode(json: $values['allowed_sites'], associative: true));
+		$this->assertSame(expected: $expected, actual: $service->getSites());
 	}//end testStoresTheListNormalisedAndMergesDuplicates()
 
 	/**
@@ -170,65 +195,98 @@ class AllowedSitesServiceTest extends TestCase {
 		];
 	}//end refusedLists()
 
+	/**
+	 * Refuses an entry that is not a site.
+	 *
+	 * @param mixed  $sites   From the data provider.
+	 * @param string $message From the data provider.
+	 *
+	 * @return void
+	 */
 	#[DataProvider('refusedLists')]
 	public function testRefusesAnEntryThatIsNotASite(mixed $sites, string $message): void {
 		$config = $this->createMock(originalClassName: IAppConfig::class);
 		$config->expects($this->never())->method('setValueString');
 		$service = new AllowedSitesService(appConfig: $config);
 
-		$this->expectException(InvalidArgumentException::class);
-		$this->expectExceptionMessage($message);
+		$this->expectException(exception: InvalidAllowedSiteException::class);
+		$this->expectExceptionMessage(message: $message);
 		$service->setSites(sites: $sites);
 	}//end testRefusesAnEntryThatIsNotASite()
 
+	/**
+	 * Adds hosts for a purpose keeping the list.
+	 *
+	 * @return void
+	 */
 	public function testAddsHostsForAPurposeKeepingTheList(): void {
 		$values  = ['allowed_sites' => '[{"host":"app.powerbi.com","embed":true,"fetch":false}]'];
 		$service = new AllowedSitesService(appConfig: $this->configWith(values: $values));
 
-		$this->assertSame(2, $service->addHosts(hosts: ['App.PowerBI.com', 'kcc-api.zuiddrecht.nl', 'not a host', 7], purpose: 'fetch'));
-		$this->assertSame(0, $service->addHosts(hosts: ['kcc-api.zuiddrecht.nl'], purpose: 'fetch'));
+		$this->assertSame(expected: 2, actual: $service->addHosts(hosts: ['App.PowerBI.com', 'kcc-api.zuiddrecht.nl', 'not a host', 7], purpose: 'fetch'));
+		$this->assertSame(expected: 0, actual: $service->addHosts(hosts: ['kcc-api.zuiddrecht.nl'], purpose: 'fetch'));
 		$this->assertSame(
-			[
+			expected: [
 				['host' => 'app.powerbi.com', 'embed' => true, 'fetch' => true],
 				['host' => 'kcc-api.zuiddrecht.nl', 'embed' => false, 'fetch' => true],
 			],
-			$service->getSites()
+			actual: $service->getSites()
 		);
 	}//end testAddsHostsForAPurposeKeepingTheList()
 
+	/**
+	 * Adding nothing writes nothing.
+	 *
+	 * @return void
+	 */
 	public function testAddingNothingWritesNothing(): void {
 		$config = $this->createMock(originalClassName: IAppConfig::class);
 		$config->method('getValueString')->willReturn('');
 		$config->expects($this->never())->method('setValueString');
 
-		$this->assertSame(0, (new AllowedSitesService(appConfig: $config))->addHosts(hosts: [], purpose: 'embed'));
+		$this->assertSame(expected: 0, actual: (new AllowedSitesService(appConfig: $config))->addHosts(hosts: [], purpose: 'embed'));
 	}//end testAddingNothingWritesNothing()
 
+	/**
+	 * A feature list also admits the hosts for its purpose.
+	 *
+	 * @return void
+	 */
 	public function testAFeatureListAlsoAdmitsTheHostsForItsPurpose(): void {
 		$values = ['allowed_sites' => self::BOARD_LIST, 'livetile_allowed_hosts' => '["old.example.com"]'];
 		$config = $this->configWith(values: $values);
 
 		$fetch = new HostAllowList(appConfig: $config, configKey: 'livetile_allowed_hosts', purpose: 'fetch');
-		$this->assertTrue($fetch->permits(url: 'https://old.example.com/x'));
-		$this->assertTrue($fetch->permits(url: 'https://kcc-api.zuiddrecht.nl/wachttijd'));
-		$this->assertFalse($fetch->permits(url: 'https://app.powerbi.com/x'));
-		$this->assertSame(['old.example.com', 'www.zuiddrecht.nl', 'kcc-api.zuiddrecht.nl'], $fetch->hosts());
+		$this->assertTrue(condition: $fetch->permits(url: 'https://old.example.com/x'));
+		$this->assertTrue(condition: $fetch->permits(url: 'https://kcc-api.zuiddrecht.nl/wachttijd'));
+		$this->assertFalse(condition: $fetch->permits(url: 'https://app.powerbi.com/x'));
+		$this->assertSame(expected: ['old.example.com', 'www.zuiddrecht.nl', 'kcc-api.zuiddrecht.nl'], actual: $fetch->hosts());
 
 		// Without a purpose the list reads only its own key, as before.
 		$own = new HostAllowList(appConfig: $config, configKey: 'livetile_allowed_hosts');
-		$this->assertFalse($own->permits(url: 'https://kcc-api.zuiddrecht.nl/'));
-		$this->assertSame(['old.example.com'], $own->hosts());
+		$this->assertFalse(condition: $own->permits(url: 'https://kcc-api.zuiddrecht.nl/'));
+		$this->assertSame(expected: ['old.example.com'], actual: $own->hosts());
 	}//end testAFeatureListAlsoAdmitsTheHostsForItsPurpose()
 
+	/**
+	 * An empty feature list still admits the hosts for its purpose only.
+	 *
+	 * @return void
+	 */
 	public function testAnEmptyFeatureListStillAdmitsTheHostsForItsPurposeOnly(): void {
 		$values = ['allowed_sites' => self::BOARD_LIST];
 		$fetch  = new HostAllowList(appConfig: $this->configWith(values: $values), configKey: 'healthping_allowed_hosts', purpose: 'fetch');
 
-		$this->assertTrue($fetch->permits(url: 'https://kcc-api.zuiddrecht.nl/'));
-		$this->assertFalse($fetch->permits(url: 'https://app.powerbi.com/'));
-		$this->assertFalse($fetch->permits(url: 'https://evil.example.net/'));
+		$this->assertTrue(condition: $fetch->permits(url: 'https://kcc-api.zuiddrecht.nl/'));
+		$this->assertFalse(condition: $fetch->permits(url: 'https://app.powerbi.com/'));
+		$this->assertFalse(condition: $fetch->permits(url: 'https://evil.example.net/'));
 	}//end testAnEmptyFeatureListStillAdmitsTheHostsForItsPurposeOnly()
 
+	/**
+	 * Embed and image hosts include the embed sites.
+	 *
+	 * @return void
+	 */
 	public function testEmbedAndImageHostsIncludeTheEmbedSites(): void {
 		$values = [
 			'allowed_sites'        => self::BOARD_LIST,
@@ -242,12 +300,12 @@ class AllowedSitesServiceTest extends TestCase {
 			clientService: $this->createMock(originalClassName: IClientService::class),
 			logger: $this->createMock(originalClassName: LoggerInterface::class)
 		);
-		$this->assertSame(['status.example.com', 'www.zuiddrecht.nl', 'app.powerbi.com'], $iframe->getAllowedHosts());
-		$this->assertTrue($iframe->isHostAllowed(url: 'https://app.powerbi.com/reportEmbed'));
-		$this->assertFalse($iframe->isHostAllowed(url: 'https://kcc-api.zuiddrecht.nl/'));
+		$this->assertSame(expected: ['status.example.com', 'www.zuiddrecht.nl', 'app.powerbi.com'], actual: $iframe->getAllowedHosts());
+		$this->assertTrue(condition: $iframe->isHostAllowed(url: 'https://app.powerbi.com/reportEmbed'));
+		$this->assertFalse(condition: $iframe->isHostAllowed(url: 'https://kcc-api.zuiddrecht.nl/'));
 
 		$images = new ImageHostService(appConfig: $config);
-		$this->assertSame(['images.example.com'], $images->getAllowedHosts());
-		$this->assertSame(['images.example.com', 'www.zuiddrecht.nl', 'app.powerbi.com'], $images->getPermittedHosts());
+		$this->assertSame(expected: ['images.example.com'], actual: $images->getAllowedHosts());
+		$this->assertSame(expected: ['images.example.com', 'www.zuiddrecht.nl', 'app.powerbi.com'], actual: $images->getPermittedHosts());
 	}//end testEmbedAndImageHostsIncludeTheEmbedSites()
 }//end class

@@ -70,10 +70,15 @@ class MergeAllowedSitesTest extends TestCase {
 			allowedSites: new AllowedSitesService(appConfig: $config),
 			logger: $this->createMock(originalClassName: LoggerInterface::class)
 		);
-		$this->assertNotSame('', $step->getName());
+		$this->assertNotSame(expected: '', actual: $step->getName());
 		$step->run(output: $output);
 	}//end runStep()
 
+	/**
+	 * Existing lists survive the upgrade with their purpose.
+	 *
+	 * @return void
+	 */
 	public function testExistingListsSurviveTheUpgradeWithTheirPurpose(): void {
 		$values = [
 			'livetile_allowed_hosts'            => '["kcc-api.zuiddrecht.nl"]',
@@ -89,32 +94,45 @@ class MergeAllowedSitesTest extends TestCase {
 		$this->runStep(config: $config, output: $output);
 
 		$this->assertSame(
-			[
+			expected: [
 				['host' => 'app.powerbi.com', 'embed' => true, 'fetch' => false],
 				['host' => 'www.zuiddrecht.nl', 'embed' => true, 'fetch' => true],
 				['host' => 'images.example.com', 'embed' => true, 'fetch' => false],
 				['host' => 'kcc-api.zuiddrecht.nl', 'embed' => false, 'fetch' => true],
 			],
-			(new AllowedSitesService(appConfig: $config))->getSites()
+			actual: (new AllowedSitesService(appConfig: $config))->getSites()
 		);
-		$this->assertSame('1', $values[MergeAllowedSites::DONE_KEY]);
+		$this->assertSame(expected: '1', actual: $values[MergeAllowedSites::DONE_KEY]);
 		// The per-feature lists are kept as they are.
-		$this->assertSame('["kcc-api.zuiddrecht.nl"]', $values['livetile_allowed_hosts']);
+		$this->assertSame(expected: '["kcc-api.zuiddrecht.nl"]', actual: $values['livetile_allowed_hosts']);
 	}//end testExistingListsSurviveTheUpgradeWithTheirPurpose()
 
+	/**
+	 * Runs only once.
+	 *
+	 * @return void
+	 */
 	public function testRunsOnlyOnce(): void {
 		$values = [MergeAllowedSites::DONE_KEY => '1', 'livetile_allowed_hosts' => '["kcc-api.zuiddrecht.nl"]'];
 		$config = $this->configWith(values: $values);
 
 		$this->runStep(config: $config, output: $this->createMock(originalClassName: IOutput::class));
 
-		$this->assertArrayNotHasKey('allowed_sites', $values);
+		$this->assertArrayNotHasKey(key: 'allowed_sites', array: $values);
 	}//end testRunsOnlyOnce()
 
+	/**
+	 * A failure is a warning and leaves the step to run again.
+	 *
+	 * @return void
+	 */
 	public function testAFailureIsAWarningAndLeavesTheStepToRunAgain(): void {
 		$config = $this->createMock(originalClassName: IAppConfig::class);
 		$config->method('getValueString')->willReturnCallback(
-			static fn (string $app, string $key, string $default = ''): string => $key === 'iframe_allowed_hosts' ? '["app.powerbi.com"]' : $default
+			static fn (string $app, string $key, string $default = ''): string => match ($key) {
+				'iframe_allowed_hosts' => '["app.powerbi.com"]',
+				default => $default,
+			}
 		);
 		$config->method('setValueString')->willThrowException(new RuntimeException('database gone'));
 		$output = $this->createMock(originalClassName: IOutput::class);

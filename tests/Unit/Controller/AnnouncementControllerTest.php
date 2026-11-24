@@ -242,22 +242,6 @@ class AnnouncementControllerTest extends TestCase {
 	}//end testReach()
 
 	/**
-	 * The form's target group picker: editors get the groups, readers 403.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
-	 */
-	public function testGroups(): void {
-		$this->service->method('isAuthor')->willReturnOnConsecutiveCalls(false, true);
-		$this->service->method('targetGroups')->willReturn([['id' => 'burgerzaken', 'displayName' => 'Burgerzaken']]);
-
-		$this->assertSame(403, $this->controller()->groups()->getStatus());
-		$this->assertSame(['groups' => [['id' => 'burgerzaken', 'displayName' => 'Burgerzaken']]], $this->controller()->groups()->getData());
-		$this->assertSame(['announcement.manage', 'announcement.manage'], $this->checked);
-	}//end testGroups()
-
-	/**
 	 * Follow and unfollow answer the categories followed.
 	 *
 	 * @return void

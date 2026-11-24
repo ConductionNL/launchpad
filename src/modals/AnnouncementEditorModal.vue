@@ -369,13 +369,16 @@ export default {
 
 	watch: {
 		'form.targetGroups': {
+			/** @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006 */
 			handler() {
 				this.loadReach()
 			},
+
 			deep: true,
 		},
 	},
 
+	/** @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006 */
 	mounted() {
 		this.loadGroups()
 		this.loadReach()

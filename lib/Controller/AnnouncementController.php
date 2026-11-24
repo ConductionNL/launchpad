@@ -209,24 +209,6 @@ class AnnouncementController extends Controller {
 	}//end reach()
 
 	/**
-	 * `GET /api/announcements/groups`: the groups the form offers as the target group.
-	 *
-	 * @return JSONResponse
-	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
-	 */
-	#[NoAdminRequired]
-	public function groups(): JSONResponse {
-		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(run: function (string $userId): JSONResponse {
-			if ($this->announcements->isAuthor(userId: $userId) === false) {
-				throw new ForbiddenException(message: 'Only announcement editors may list the target groups');
-			}
-
-			return new JSONResponse(['groups' => $this->announcements->targetGroups()]);
-		});
-	}//end groups()
-
-	/**
 	 * `POST /api/announcements/follows`: follow a category.
 	 *
 	 * @return JSONResponse

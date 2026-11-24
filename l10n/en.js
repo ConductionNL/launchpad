@@ -2,7 +2,6 @@ OC.L10N.register(
     "launchpad",
     {
     "Display" : "Display",
-    "Theme" : "Theme",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.",
     "Sign in for employees" : "Sign in for employees",
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once.",

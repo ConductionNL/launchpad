@@ -1482,6 +1482,26 @@
         "Confirmed {date}": "Konfirmuar më {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Shfaqen {shown} nga {total}. Shkarkimi jep listën e plotë me datën dhe orën e çdo konfirmimi.",
         "Department in read confirmations": "Departamenti në konfirmimet e leximit",
-        "Could not load the read-receipt report.": "Raporti i konfirmimeve të leximit nuk u ngarkua dot."
+        "Could not load the read-receipt report.": "Raporti i konfirmimeve të leximit nuk u ngarkua dot.",
+        "Who sees this widget?": "Kush e sheh këtë widget?",
+        "If all rules match": "Nëse përputhen të gjitha rregullat",
+        "If one rule matches": "Nëse përputhet një rregull",
+        "Show when ALL of these match": "Shfaq kur përputhen TË GJITHA këto",
+        "View as": "Shiko si",
+        "Moment": "Moment",
+        "Times": "Oraret",
+        "Profile field": "Fushë profili",
+        "{list} or {last}": "{list} ose {last}",
+        "{name} is in {groups}": "{name} është në {groups}",
+        "{name} is not in {groups}": "{name} nuk është në {groups}",
+        "{moment} is within the times": "{moment} është brenda orareve",
+        "{moment} is outside the times": "{moment} është jashtë orareve",
+        "{moment} is within the period": "{moment} është brenda periudhës",
+        "{moment} is outside the period": "{moment} është jashtë periudhës",
+        "the profile field {field} of {name} matches": "fusha e profilit {field} e {name} përputhet",
+        "the profile field {field} of {name} does not match": "fusha e profilit {field} e {name} nuk përputhet",
+        "{name} sees this widget: no rule limits who sees it.": "{name} e sheh këtë widget: asnjë rregull nuk kufizon se kush e sheh.",
+        "{name} sees this widget, because {reasons}.": "{name} e sheh këtë widget, sepse {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} nuk e sheh këtë widget, sepse {reasons}."
     }
 }

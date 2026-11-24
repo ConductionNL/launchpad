@@ -22,7 +22,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use DateTimeInterface;
 use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Db\ConditionalRuleMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -90,9 +89,11 @@ class ConditionalService implements ConditionalServiceInterface {
 	 * @return bool `true` when the placement is visible for the user.
 	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function checkRulesForPlacement(int $placementId, string $userId): bool {
-		if ($this->placementMapper->find(id: $placementId)->getIsVisible() === 0) {
+		$placement = $this->placementMapper->find(id: $placementId);
+		if ($placement->getIsVisible() === 0) {
 			return false;
 		}
 
@@ -106,7 +107,8 @@ class ConditionalService implements ConditionalServiceInterface {
 
 		return $this->visibilityChecker->checkRules(
 			rules: $rules,
-			userId: $userId
+			userId: $userId,
+			match: $placement->getRuleMatch()
 		);
 	}//end checkRulesForPlacement()
 
@@ -126,6 +128,7 @@ class ConditionalService implements ConditionalServiceInterface {
 	 * @return array<int, array<string, mixed>> The placements to render, in order.
 	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function visiblePlacements(array $placements, string $userId, bool $canEdit): array {
 		$rulesByPlacement = $this->rulesByPlacement(placements: $placements);
@@ -133,8 +136,9 @@ class ConditionalService implements ConditionalServiceInterface {
 		$visible = [];
 		foreach ($placements as $placement) {
 			$rules  = ($rulesByPlacement[(int)($placement['id'] ?? 0)] ?? []);
+			$match  = (string)($placement['ruleMatch'] ?? WidgetPlacement::RULE_MATCH_ANY);
 			$hidden = (int)($placement['isVisible'] ?? 1) === 0
-				|| ($rules !== [] && $this->visibilityChecker->checkRules(rules: $rules, userId: $userId) === false);
+				|| ($rules !== [] && $this->visibilityChecker->checkRules(rules: $rules, userId: $userId, match: $match) === false);
 			if ($hidden === true && $canEdit === false) {
 				continue;
 			}
@@ -145,6 +149,7 @@ class ConditionalService implements ConditionalServiceInterface {
 
 		return $visible;
 	}//end visiblePlacements()
+
 
 	/**
 	 * The rules of the given placements, keyed by placement ID.
@@ -183,36 +188,25 @@ class ConditionalService implements ConditionalServiceInterface {
 	 * the controller from the request body, never loaded from or written to
 	 * `ConditionalRuleMapper`.
 	 *
-	 * @param ConditionalRule[] $rules The candidate rule set
-	 *                                 (not persisted).
-	 * @param string $userId The previewing user's
-	 *                       UID (used only for
-	 *                       `attribute` rules,
-	 *                       which have no override
-	 *                       in the preview
-	 *                       context).
-	 * @param string[] $groupsOverride The audience groups to
-	 *                                 test `group` rules
-	 *                                 against.
-	 * @param DateTimeInterface|null $nowOverride The moment to test
-	 *                                            `time` / `date` rules
-	 *                                            against.
+	 * @param ConditionalRule[] $rules   The candidate rule set (not
+	 *                                   persisted).
+	 * @param string            $userId  The user to evaluate as: their
+	 *                                   profile values for `attribute`
+	 *                                   rules, and their own groups when
+	 *                                   the context names none.
+	 * @param RuleSetContext    $context The groups, moment and match mode
+	 *                                   (REQ-VIS-014) to test against.
 	 *
 	 * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
 	 *
 	 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 	 */
-	public function previewRules(
-		array $rules,
-		string $userId,
-		array $groupsOverride,
-		?DateTimeInterface $nowOverride,
-	): array {
+	public function previewRules(array $rules, string $userId, RuleSetContext $context): array {
 		return $this->visibilityChecker->evaluateRuleSet(
 			rules: $rules,
 			userId: $userId,
-			groupsOverride: $groupsOverride,
-			nowOverride: $nowOverride
+			context: $context
 		);
 	}//end previewRules()
 

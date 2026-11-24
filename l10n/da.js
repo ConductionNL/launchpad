@@ -1582,7 +1582,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Bekræftet {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} af {total} vist. Download giver hele listen med dato og klokkeslæt for hver bekræftelse.",
     "Department in read confirmations" : "Afdeling i læsebekræftelser",
-    "Could not load the read-receipt report." : "Rapporten over læsebekræftelser kunne ikke indlæses."
+    "Could not load the read-receipt report." : "Rapporten over læsebekræftelser kunne ikke indlæses.",
+    "Who sees this widget?" : "Hvem ser denne widget?",
+    "If all rules match" : "Hvis alle regler passer",
+    "If one rule matches" : "Hvis én regel passer",
+    "Show when ALL of these match" : "Vis når ALLE disse passer",
+    "View as" : "Vis som",
+    "Moment" : "Tidspunkt",
+    "Times" : "Tider",
+    "Profile field" : "Profilfelt",
+    "{list} or {last}" : "{list} eller {last}",
+    "{name} is in {groups}" : "{name} er i {groups}",
+    "{name} is not in {groups}" : "{name} er ikke i {groups}",
+    "{moment} is within the times" : "{moment} er inden for tiderne",
+    "{moment} is outside the times" : "{moment} er uden for tiderne",
+    "{moment} is within the period" : "{moment} er inden for perioden",
+    "{moment} is outside the period" : "{moment} er uden for perioden",
+    "the profile field {field} of {name} matches" : "profilfeltet {field} for {name} passer",
+    "the profile field {field} of {name} does not match" : "profilfeltet {field} for {name} passer ikke",
+    "{name} sees this widget: no rule limits who sees it." : "{name} ser denne widget: ingen regel begrænser, hvem der ser den.",
+    "{name} sees this widget, because {reasons}." : "{name} ser denne widget, fordi {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} ser ikke denne widget, fordi {reasons}."
 },
 "nplurals=2; plural=(n != 1);"
 );

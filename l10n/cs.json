@@ -1484,6 +1484,26 @@
         "Confirmed {date}": "Potvrzeno {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Zobrazeno {shown} z {total}. Stažení dá úplný seznam s datem a časem každého potvrzení.",
         "Department in read confirmations": "Oddělení v potvrzeních o přečtení",
-        "Could not load the read-receipt report.": "Přehled potvrzení o přečtení se nepodařilo načíst."
+        "Could not load the read-receipt report.": "Přehled potvrzení o přečtení se nepodařilo načíst.",
+        "Who sees this widget?": "Kdo vidí tento widget?",
+        "If all rules match": "Pokud platí všechna pravidla",
+        "If one rule matches": "Pokud platí jedno pravidlo",
+        "Show when ALL of these match": "Zobrazit, když platí VŠECHNA z nich",
+        "View as": "Zobrazit jako",
+        "Moment": "Okamžik",
+        "Times": "Časy",
+        "Profile field": "Pole profilu",
+        "{list} or {last}": "{list} nebo {last}",
+        "{name} is in {groups}": "{name} je ve skupině {groups}",
+        "{name} is not in {groups}": "{name} není ve skupině {groups}",
+        "{moment} is within the times": "{moment} je v rámci časů",
+        "{moment} is outside the times": "{moment} je mimo časy",
+        "{moment} is within the period": "{moment} je v rámci období",
+        "{moment} is outside the period": "{moment} je mimo období",
+        "the profile field {field} of {name} matches": "pole profilu {field} uživatele {name} odpovídá",
+        "the profile field {field} of {name} does not match": "pole profilu {field} uživatele {name} neodpovídá",
+        "{name} sees this widget: no rule limits who sees it.": "{name} vidí tento widget: žádné pravidlo neomezuje, kdo ho vidí.",
+        "{name} sees this widget, because {reasons}.": "{name} vidí tento widget, protože {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} nevidí tento widget, protože {reasons}."
     }
 }

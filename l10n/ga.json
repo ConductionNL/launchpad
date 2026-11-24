@@ -1488,6 +1488,26 @@
         "Confirmed {date}": "Deimhnithe {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} as {total} á dtaispeáint. Tugann an íoslódáil an liosta iomlán le dáta agus am gach deimhnithe.",
         "Department in read confirmations": "Roinn sna deimhnithe léite",
-        "Could not load the read-receipt report.": "Níorbh fhéidir tuarascáil na ndeimhnithe léite a lódáil."
+        "Could not load the read-receipt report.": "Níorbh fhéidir tuarascáil na ndeimhnithe léite a lódáil.",
+        "Who sees this widget?": "Cé a fheiceann an ghiuirléid seo?",
+        "If all rules match": "Má mheaitseálann gach riail",
+        "If one rule matches": "Má mheaitseálann riail amháin",
+        "Show when ALL of these match": "Taispeáin nuair a mheaitseálann GACH ceann díobh seo",
+        "View as": "Féach mar",
+        "Moment": "Nóiméad",
+        "Times": "Amanna",
+        "Profile field": "Réimse próifíle",
+        "{list} or {last}": "{list} nó {last}",
+        "{name} is in {groups}": "Tá {name} in {groups}",
+        "{name} is not in {groups}": "Níl {name} in {groups}",
+        "{moment} is within the times": "Tá {moment} laistigh de na hamanna",
+        "{moment} is outside the times": "Tá {moment} lasmuigh de na hamanna",
+        "{moment} is within the period": "Tá {moment} laistigh den tréimhse",
+        "{moment} is outside the period": "Tá {moment} lasmuigh den tréimhse",
+        "the profile field {field} of {name} matches": "meaitseálann réimse próifíle {field} de chuid {name}",
+        "the profile field {field} of {name} does not match": "ní mheaitseálann réimse próifíle {field} de chuid {name}",
+        "{name} sees this widget: no rule limits who sees it.": "Feiceann {name} an ghiuirléid seo: níl aon riail ag teorannú cé a fheiceann í.",
+        "{name} sees this widget, because {reasons}.": "Feiceann {name} an ghiuirléid seo, mar {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "Ní fheiceann {name} an ghiuirléid seo, mar {reasons}."
     }
 }

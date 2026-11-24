@@ -2471,7 +2471,27 @@ OC.L10N.register(
     "Not yet" : "Nog niet",
     "Confirmed {date}" : "Bevestigd {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} van {total} getoond. Downloaden geeft de volledige lijst met datum en tijd van elke bevestiging.",
-    "Department in read confirmations" : "Afdeling in leesbevestigingen"
+    "Department in read confirmations" : "Afdeling in leesbevestigingen",
+    "Who sees this widget?" : "Wie ziet deze widget?",
+    "If all rules match" : "Als alle regels kloppen",
+    "If one rule matches" : "Als één regel klopt",
+    "Show when ALL of these match" : "Tonen als ALLE regels kloppen",
+    "View as" : "Bekijk als",
+    "Moment" : "Moment",
+    "Times" : "Tijden",
+    "Profile field" : "Profielveld",
+    "{list} or {last}" : "{list} of {last}",
+    "{name} is in {groups}" : "{name} zit in {groups}",
+    "{name} is not in {groups}" : "{name} zit niet in {groups}",
+    "{moment} is within the times" : "{moment} valt binnen de tijden",
+    "{moment} is outside the times" : "{moment} valt buiten de tijden",
+    "{moment} is within the period" : "{moment} valt binnen de periode",
+    "{moment} is outside the period" : "{moment} valt buiten de periode",
+    "the profile field {field} of {name} matches" : "het profielveld {field} van {name} klopt",
+    "the profile field {field} of {name} does not match" : "het profielveld {field} van {name} klopt niet",
+    "{name} sees this widget: no rule limits who sees it." : "{name} ziet deze widget: geen regel beperkt wie hem ziet.",
+    "{name} sees this widget, because {reasons}." : "{name} ziet deze widget, omdat {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} ziet deze widget niet, omdat {reasons}."
 },
 "nplurals=2; plural=(n != 1);"
 );

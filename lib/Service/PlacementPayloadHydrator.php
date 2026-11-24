@@ -130,6 +130,7 @@ class PlacementPayloadHydrator {
 	 * @param array<string, mixed> $payload   The placement payload.
 	 *
 	 * @return void
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function applyLayout(WidgetPlacement $placement, array $payload): void {
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
@@ -141,6 +142,13 @@ class PlacementPayloadHydrator {
 		$placement->setIsVisible((int)($payload['isVisible'] ?? 1));
 		$placement->setShowTitle((int)($payload['showTitle'] ?? 1));
 		$placement->setSortOrder((int)($payload['sortOrder'] ?? 0));
+		// How the visibility rules combine (REQ-VIS-014); anything but `all` is `any`.
+		$ruleMatch = WidgetPlacement::RULE_MATCH_ANY;
+		if (($payload['ruleMatch'] ?? null) === WidgetPlacement::RULE_MATCH_ALL) {
+			$ruleMatch = WidgetPlacement::RULE_MATCH_ALL;
+		}
+
+		$placement->setRuleMatch($ruleMatch);
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 	}//end applyLayout()
 

@@ -1482,6 +1482,26 @@
         "Confirmed {date}": "Bestätegt {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} vu(n) {total} ugewisen. Eroflueden gëtt déi komplett Lëscht mat Datum an Auerzäit vun all Bestätegung.",
         "Department in read confirmations": "Departement an de Liesbestätegungen",
-        "Could not load the read-receipt report.": "De Rapport vun de Liesbestätegunge konnt net geluede ginn."
+        "Could not load the read-receipt report.": "De Rapport vun de Liesbestätegunge konnt net geluede ginn.",
+        "Who sees this widget?": "Wien gesäit dëse Widget?",
+        "If all rules match": "Wann all Reegelen zoutreffen",
+        "If one rule matches": "Wann eng Reegel zoutrëfft",
+        "Show when ALL of these match": "Weisen, wann ALL dës zoutreffen",
+        "View as": "Ukucken als",
+        "Moment": "Moment",
+        "Times": "Zäiten",
+        "Profile field": "Profilfeld",
+        "{list} or {last}": "{list} oder {last}",
+        "{name} is in {groups}": "{name} ass an {groups}",
+        "{name} is not in {groups}": "{name} ass net an {groups}",
+        "{moment} is within the times": "{moment} ass bannent den Zäiten",
+        "{moment} is outside the times": "{moment} ass baussent den Zäiten",
+        "{moment} is within the period": "{moment} ass bannent der Period",
+        "{moment} is outside the period": "{moment} ass baussent der Period",
+        "the profile field {field} of {name} matches": "d'Profilfeld {field} vun {name} trëfft zou",
+        "the profile field {field} of {name} does not match": "d'Profilfeld {field} vun {name} trëfft net zou",
+        "{name} sees this widget: no rule limits who sees it.": "{name} gesäit dëse Widget: keng Reegel limitéiert, wien en gesäit.",
+        "{name} sees this widget, because {reasons}.": "{name} gesäit dëse Widget, well {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} gesäit dëse Widget net, well {reasons}."
     }
 }

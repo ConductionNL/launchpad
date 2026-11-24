@@ -1582,7 +1582,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Подтверждено {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Показано {shown} из {total}. При скачивании вы получите полный список с датой и временем каждого подтверждения.",
     "Department in read confirmations" : "Отдел в подтверждениях прочтения",
-    "Could not load the read-receipt report." : "Не удалось загрузить отчёт о подтверждениях прочтения."
+    "Could not load the read-receipt report." : "Не удалось загрузить отчёт о подтверждениях прочтения.",
+    "Who sees this widget?" : "Кто видит этот виджет?",
+    "If all rules match" : "Если выполняются все правила",
+    "If one rule matches" : "Если выполняется одно правило",
+    "Show when ALL of these match" : "Показывать, когда выполняются ВСЕ из них",
+    "View as" : "Просмотр от имени",
+    "Moment" : "Момент",
+    "Times" : "Время",
+    "Profile field" : "Поле профиля",
+    "{list} or {last}" : "{list} или {last}",
+    "{name} is in {groups}" : "{name} входит в {groups}",
+    "{name} is not in {groups}" : "{name} не входит в {groups}",
+    "{moment} is within the times" : "{moment} попадает в указанное время",
+    "{moment} is outside the times" : "{moment} не попадает в указанное время",
+    "{moment} is within the period" : "{moment} попадает в период",
+    "{moment} is outside the period" : "{moment} не попадает в период",
+    "the profile field {field} of {name} matches" : "поле профиля {field} пользователя {name} совпадает",
+    "the profile field {field} of {name} does not match" : "поле профиля {field} пользователя {name} не совпадает",
+    "{name} sees this widget: no rule limits who sees it." : "{name} видит этот виджет: ни одно правило не ограничивает, кто его видит.",
+    "{name} sees this widget, because {reasons}." : "{name} видит этот виджет, потому что {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} не видит этот виджет, потому что {reasons}."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

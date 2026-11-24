@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "LaunchPad",
-        "version": "1.1.16-unstable.20261124121030",
+        "version": "1.1.16-unstable.20261124160000",
         "description": "The JSON API of LaunchPad, the dashboard app for Nextcloud: dashboards and their widgets and tiles, kiosk screens, public shares, role-based layouts and permissions, templates and the admin settings behind them.\n\nEvery path is served under `/api/v1/`, the version this document describes. The unversioned `/api/` paths keep working, are deprecated, and name their `/api/v1/` successor in a `Link` header next to a `Deprecation` header. Errors are RFC 9457 problem details (`application/problem+json`), and every response carries an `API-Version` header. Paths that implement an external standard keep the formats of that standard and are not described here.",
         "contact": {
             "name": "Conduction B.V.",
@@ -13619,7 +13619,7 @@
                 "operationId": "visibility-preview-preview",
                 "x-launchpad-stability": "internal",
                 "summary": "Preview the effective visibility of a supplied rule set for a supplied audience/date context",
-                "description": "Preview the effective visibility of a supplied rule set for a supplied audience/date context. Never writes to `oc_launchpad_conditional_rules` — the rules array in the request body is only ever materialised as transient, in-memory `ConditionalRule` entities passed straight into the evaluation pipeline and discarded at the end of the request. Needs a signed-in Nextcloud user.",
+                "description": "Preview the effective visibility of a supplied rule set for a supplied audience/date context. Never writes to `oc_launchpad_conditional_rules` — the rules array in the request body is only ever materialised as transient, in-memory `ConditionalRule` entities passed straight into the evaluation pipeline and discarded at the end of the request. With `context.userId` the rules are evaluated as that person: their own groups and profile values, resolved server-side (\"View as\", REQ-CVUI-006). Viewing as someone other than yourself needs a `placementId` you may edit the rules of. The body may also carry `match` (`any`, the default, or `all`, REQ-VIS-014) and `placementId` (the placement whose rules are edited, needed to view as another person). Needs a signed-in Nextcloud user.",
                 "tags": [
                     "visibility-preview"
                 ],
@@ -13642,8 +13642,10 @@
                                             "array",
                                             "null"
                                         ],
-                                        "description": "`{groups?: string[], datetime?: string}`."
-                                    }
+                                        "description": "`{groups?: string[], datetime?: string, userId?: string}`."
+                                    },
+                                    "match": {},
+                                    "placementId": {}
                                 }
                             }
                         }
@@ -13668,6 +13670,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
                     }
                 }
             }
@@ -14299,6 +14304,7 @@
                                 "type": "object",
                                 "properties": {
                                     "content": {},
+                                    "ruleMatch": {},
                                     "calculatedFields": {
                                         "type": "array",
                                         "items": {

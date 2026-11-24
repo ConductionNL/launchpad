@@ -722,6 +722,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * @param WidgetPlacement $placement The placement to snapshot.
 	 *
 	 * @return array<string, mixed> The comparable field values.
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function templateFieldSnapshot(WidgetPlacement $placement): array {
 		return [
@@ -752,6 +753,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 			'reacknowledgeOnChange' => $placement->getReacknowledgeOnChange(),
 			'acknowledgementContentVersion' => $placement->getAcknowledgementContentVersion(),
 			'announcementKey' => $placement->getAnnouncementKey(),
+			'ruleMatch' => $placement->getRuleMatch(),
 		];
 	}//end templateFieldSnapshot()
 
@@ -781,6 +783,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *                                  from.
 	 *
 	 * @return void
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function applyTemplateFields(
 		WidgetPlacement $copy,
@@ -813,6 +816,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		$copy->setReacknowledgeOnChange($template->getReacknowledgeOnChange());
 		$copy->setAcknowledgementContentVersion($template->getAcknowledgementContentVersion());
 		$copy->setAnnouncementKey($template->getAnnouncementKey());
+		$copy->setRuleMatch($template->getRuleMatch());
 		$copy->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
@@ -827,6 +831,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * @param int $dashboardId The target copy's dashboard ID.
 	 *
 	 * @return WidgetPlacement The new (uninserted) placement entity.
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function cloneTemplatePlacementInto(
 		WidgetPlacement $template,
@@ -861,6 +866,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		$clone->setReacknowledgeOnChange($template->getReacknowledgeOnChange());
 		$clone->setAcknowledgementContentVersion($template->getAcknowledgementContentVersion());
 		$clone->setAnnouncementKey($template->getAnnouncementKey());
+		$clone->setRuleMatch($template->getRuleMatch());
 		$clone->setTemplatePlacementId($template->getId());
 
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');

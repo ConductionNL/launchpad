@@ -1482,6 +1482,26 @@
         "Confirmed {date}": "Επιβεβαιώθηκε {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Εμφανίζονται {shown} από {total}. Η λήψη δίνει την πλήρη λίστα με την ημερομηνία και την ώρα κάθε επιβεβαίωσης.",
         "Department in read confirmations": "Τμήμα στις επιβεβαιώσεις ανάγνωσης",
-        "Could not load the read-receipt report.": "Δεν ήταν δυνατή η φόρτωση της αναφοράς επιβεβαιώσεων ανάγνωσης."
+        "Could not load the read-receipt report.": "Δεν ήταν δυνατή η φόρτωση της αναφοράς επιβεβαιώσεων ανάγνωσης.",
+        "Who sees this widget?": "Ποιος βλέπει αυτό το γραφικό στοιχείο;",
+        "If all rules match": "Αν ισχύουν όλοι οι κανόνες",
+        "If one rule matches": "Αν ισχύει ένας κανόνας",
+        "Show when ALL of these match": "Εμφάνιση όταν ισχύουν ΟΛΟΙ αυτοί",
+        "View as": "Προβολή ως",
+        "Moment": "Στιγμή",
+        "Times": "Ώρες",
+        "Profile field": "Πεδίο προφίλ",
+        "{list} or {last}": "{list} ή {last}",
+        "{name} is in {groups}": "Ο/Η {name} ανήκει σε {groups}",
+        "{name} is not in {groups}": "Ο/Η {name} δεν ανήκει σε {groups}",
+        "{moment} is within the times": "{moment} είναι εντός των ωρών",
+        "{moment} is outside the times": "{moment} είναι εκτός των ωρών",
+        "{moment} is within the period": "{moment} είναι εντός της περιόδου",
+        "{moment} is outside the period": "{moment} είναι εκτός της περιόδου",
+        "the profile field {field} of {name} matches": "το πεδίο προφίλ {field} του χρήστη {name} ταιριάζει",
+        "the profile field {field} of {name} does not match": "το πεδίο προφίλ {field} του χρήστη {name} δεν ταιριάζει",
+        "{name} sees this widget: no rule limits who sees it.": "{name}: βλέπει αυτό το γραφικό στοιχείο· κανένας κανόνας δεν περιορίζει ποιος το βλέπει.",
+        "{name} sees this widget, because {reasons}.": "{name}: βλέπει αυτό το γραφικό στοιχείο, επειδή {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name}: δεν βλέπει αυτό το γραφικό στοιχείο, επειδή {reasons}."
     }
 }

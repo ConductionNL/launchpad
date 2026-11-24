@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\RuleSetContext;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\LaunchPad\Db\ConditionalRule;
@@ -118,7 +119,7 @@ class VisibilityRuleSetGoldenTest extends TestCase {
 		if ($method === 'check') {
 			$result = $checker->checkRules(rules: $rules, userId: $userId);
 		} else {
-			$result = $checker->evaluateRuleSet(rules: $rules, userId: $userId, groupsOverride: $groups, nowOverride: $now);
+			$result = $checker->evaluateRuleSet(rules: $rules, userId: $userId, context: new RuleSetContext(options: ['groups' => $groups, 'now' => $now]));
 		}
 
 		return ['result' => $result, 'log' => $log];

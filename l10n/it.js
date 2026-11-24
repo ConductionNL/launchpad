@@ -1582,7 +1582,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Confermato il {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} di {total} mostrati. Il download fornisce l'elenco completo con data e ora di ogni conferma.",
     "Department in read confirmations" : "Reparto nelle conferme di lettura",
-    "Could not load the read-receipt report." : "Impossibile caricare il rapporto delle conferme di lettura."
+    "Could not load the read-receipt report." : "Impossibile caricare il rapporto delle conferme di lettura.",
+    "Who sees this widget?" : "Chi vede questo widget?",
+    "If all rules match" : "Se tutte le regole corrispondono",
+    "If one rule matches" : "Se una regola corrisponde",
+    "Show when ALL of these match" : "Mostra se TUTTE queste corrispondono",
+    "View as" : "Visualizza come",
+    "Moment" : "Momento",
+    "Times" : "Orari",
+    "Profile field" : "Campo del profilo",
+    "{list} or {last}" : "{list} o {last}",
+    "{name} is in {groups}" : "{name} è in {groups}",
+    "{name} is not in {groups}" : "{name} non è in {groups}",
+    "{moment} is within the times" : "{moment} rientra negli orari",
+    "{moment} is outside the times" : "{moment} è fuori dagli orari",
+    "{moment} is within the period" : "{moment} rientra nel periodo",
+    "{moment} is outside the period" : "{moment} è fuori dal periodo",
+    "the profile field {field} of {name} matches" : "il campo del profilo {field} di {name} corrisponde",
+    "the profile field {field} of {name} does not match" : "il campo del profilo {field} di {name} non corrisponde",
+    "{name} sees this widget: no rule limits who sees it." : "{name} vede questo widget: nessuna regola limita chi lo vede.",
+    "{name} sees this widget, because {reasons}." : "{name} vede questo widget, perché {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} non vede questo widget, perché {reasons}."
 },
 "nplurals=2; plural=(n != 1);"
 );

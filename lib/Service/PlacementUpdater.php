@@ -231,6 +231,24 @@ class PlacementUpdater {
 	}//end applyAcknowledgementCadence()
 
 	/**
+	 * Apply the rule match mode when present: `all` or `any`. The
+	 * controller refuses any other value before it gets here; anything
+	 * else that slips through is stored as `any`.
+	 *
+	 * @param WidgetPlacement $placement The placement entity.
+	 * @param array $data The update data.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	public function applyRuleMatch(WidgetPlacement $placement, array $data): void {
+		if (isset($data['ruleMatch']) === true) {
+			$placement->setRuleMatch(WidgetPlacement::normalRuleMatch(value: $data['ruleMatch']));
+		}
+	}//end applyRuleMatch()
+
+	/**
 	 * Mint the stable announcement identity the first time the requirement
 	 * is enabled (REQ-ACK-001 / design D2).
 	 *

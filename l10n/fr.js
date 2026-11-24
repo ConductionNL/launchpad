@@ -1582,7 +1582,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Confirmé le {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} sur {total} affiché(s). Le téléchargement donne la liste complète avec la date et l'heure de chaque confirmation.",
     "Department in read confirmations" : "Service dans les confirmations de lecture",
-    "Could not load the read-receipt report." : "Le rapport des confirmations de lecture n'a pas pu être chargé."
+    "Could not load the read-receipt report." : "Le rapport des confirmations de lecture n'a pas pu être chargé.",
+    "Who sees this widget?" : "Qui voit ce widget ?",
+    "If all rules match" : "Si toutes les règles correspondent",
+    "If one rule matches" : "Si une règle correspond",
+    "Show when ALL of these match" : "Afficher si TOUTES ces règles correspondent",
+    "View as" : "Voir en tant que",
+    "Moment" : "Moment",
+    "Times" : "Horaires",
+    "Profile field" : "Champ de profil",
+    "{list} or {last}" : "{list} ou {last}",
+    "{name} is in {groups}" : "{name} fait partie de {groups}",
+    "{name} is not in {groups}" : "{name} ne fait pas partie de {groups}",
+    "{moment} is within the times" : "{moment} est dans les horaires",
+    "{moment} is outside the times" : "{moment} est en dehors des horaires",
+    "{moment} is within the period" : "{moment} est dans la période",
+    "{moment} is outside the period" : "{moment} est en dehors de la période",
+    "the profile field {field} of {name} matches" : "le champ de profil {field} de {name} correspond",
+    "the profile field {field} of {name} does not match" : "le champ de profil {field} de {name} ne correspond pas",
+    "{name} sees this widget: no rule limits who sees it." : "{name} voit ce widget : aucune règle ne limite qui le voit.",
+    "{name} sees this widget, because {reasons}." : "{name} voit ce widget, car {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} ne voit pas ce widget, car {reasons}."
 },
 "nplurals=2; plural=(n > 1);"
 );

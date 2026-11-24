@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\RuleSetContext;
 use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Service\RuleEvaluatorService;
 use OCA\LaunchPad\Service\VisibilityChecker;
@@ -24,7 +25,7 @@ class VisibilityCheckerTest extends TestCase {
 	private RuleEvaluatorService $ruleEvaluator;
 
 	protected function setUp(): void {
-		$this->ruleEvaluator = $this->createMock(RuleEvaluatorService::class);
+		$this->ruleEvaluator = $this->createMock(originalClassName: RuleEvaluatorService::class);
 		$this->checker = new VisibilityChecker(
 			ruleEvaluator: $this->ruleEvaluator,
 		);
@@ -38,44 +39,44 @@ class VisibilityCheckerTest extends TestCase {
 	}
 
 	private function createRuleWithId(bool $isInclude, int $id): ConditionalRule {
-		$rule = $this->createRule($isInclude);
+		$rule = $this->createRule(isInclude: $isInclude);
 		$rule->setId($id);
 		return $rule;
 	}
 
 	public function testNoRulesReturnsVisible(): void {
 		$this->assertTrue(
-			$this->checker->checkRules(rules: [], userId: 'alice')
+			condition: $this->checker->checkRules(rules: [], userId: 'alice')
 		);
 	}
 
 	public function testSingleIncludeRuleMatching(): void {
-		$rule = $this->createRule(true);
+		$rule = $this->createRule(isInclude: true);
 		$this->ruleEvaluator->method('evaluateRule')->willReturn(true);
 
 		$this->assertTrue(
-			$this->checker->checkRules(rules: [$rule], userId: 'alice')
+			condition: $this->checker->checkRules(rules: [$rule], userId: 'alice')
 		);
 	}
 
 	public function testSingleIncludeRuleNotMatching(): void {
-		$rule = $this->createRule(true);
+		$rule = $this->createRule(isInclude: true);
 		$this->ruleEvaluator->method('evaluateRule')->willReturn(false);
 
 		$this->assertFalse(
-			$this->checker->checkRules(rules: [$rule], userId: 'alice')
+			condition: $this->checker->checkRules(rules: [$rule], userId: 'alice')
 		);
 	}
 
 	public function testIncludeRulesOrLogicOneMatches(): void {
-		$rule1 = $this->createRule(true);
-		$rule2 = $this->createRule(true);
+		$rule1 = $this->createRule(isInclude: true);
+		$rule2 = $this->createRule(isInclude: true);
 
 		$this->ruleEvaluator->method('evaluateRule')
 			->willReturnOnConsecutiveCalls(false, true);
 
 		$this->assertTrue(
-			$this->checker->checkRules(
+			condition: $this->checker->checkRules(
 				rules: [$rule1, $rule2],
 				userId: 'alice'
 			)
@@ -83,13 +84,13 @@ class VisibilityCheckerTest extends TestCase {
 	}
 
 	public function testIncludeRulesOrLogicNoneMatch(): void {
-		$rule1 = $this->createRule(true);
-		$rule2 = $this->createRule(true);
+		$rule1 = $this->createRule(isInclude: true);
+		$rule2 = $this->createRule(isInclude: true);
 
 		$this->ruleEvaluator->method('evaluateRule')->willReturn(false);
 
 		$this->assertFalse(
-			$this->checker->checkRules(
+			condition: $this->checker->checkRules(
 				rules: [$rule1, $rule2],
 				userId: 'alice'
 			)
@@ -97,32 +98,32 @@ class VisibilityCheckerTest extends TestCase {
 	}
 
 	public function testSingleExcludeRuleMatching(): void {
-		$rule = $this->createRule(false);
+		$rule = $this->createRule(isInclude: false);
 		$this->ruleEvaluator->method('evaluateRule')->willReturn(true);
 
 		$this->assertFalse(
-			$this->checker->checkRules(rules: [$rule], userId: 'alice')
+			condition: $this->checker->checkRules(rules: [$rule], userId: 'alice')
 		);
 	}
 
 	public function testSingleExcludeRuleNotMatching(): void {
-		$rule = $this->createRule(false);
+		$rule = $this->createRule(isInclude: false);
 		$this->ruleEvaluator->method('evaluateRule')->willReturn(false);
 
 		$this->assertTrue(
-			$this->checker->checkRules(rules: [$rule], userId: 'alice')
+			condition: $this->checker->checkRules(rules: [$rule], userId: 'alice')
 		);
 	}
 
 	public function testExcludeRulesAndLogicAnyMatchHides(): void {
-		$rule1 = $this->createRule(false);
-		$rule2 = $this->createRule(false);
+		$rule1 = $this->createRule(isInclude: false);
+		$rule2 = $this->createRule(isInclude: false);
 
 		$this->ruleEvaluator->method('evaluateRule')
 			->willReturnOnConsecutiveCalls(true, false);
 
 		$this->assertFalse(
-			$this->checker->checkRules(
+			condition: $this->checker->checkRules(
 				rules: [$rule1, $rule2],
 				userId: 'alice'
 			)
@@ -130,8 +131,8 @@ class VisibilityCheckerTest extends TestCase {
 	}
 
 	public function testMixedRulesIncludePassesExcludeFails(): void {
-		$include = $this->createRule(true);
-		$exclude = $this->createRule(false);
+		$include = $this->createRule(isInclude: true);
+		$exclude = $this->createRule(isInclude: false);
 
 		$this->ruleEvaluator->method('evaluateRule')
 			->willReturnCallback(function ($rule) {
@@ -141,7 +142,7 @@ class VisibilityCheckerTest extends TestCase {
 
 		// Include passes (OR: one matches), but exclude fails (match = hide)
 		$this->assertFalse(
-			$this->checker->checkRules(
+			condition: $this->checker->checkRules(
 				rules: [$include, $exclude],
 				userId: 'alice'
 			)
@@ -149,8 +150,8 @@ class VisibilityCheckerTest extends TestCase {
 	}
 
 	public function testMixedRulesIncludePassesExcludePasses(): void {
-		$include = $this->createRule(true);
-		$exclude = $this->createRule(false);
+		$include = $this->createRule(isInclude: true);
+		$exclude = $this->createRule(isInclude: false);
 
 		$this->ruleEvaluator->method('evaluateRule')
 			->willReturnCallback(function ($rule) {
@@ -159,7 +160,7 @@ class VisibilityCheckerTest extends TestCase {
 			});
 
 		$this->assertTrue(
-			$this->checker->checkRules(
+			condition: $this->checker->checkRules(
 				rules: [$include, $exclude],
 				userId: 'alice'
 			)
@@ -174,19 +175,19 @@ class VisibilityCheckerTest extends TestCase {
 	// -----------------------------------------------------------------------
 
 	public function testEvaluateRuleSetReportsMatchedIncludeRuleId(): void {
-		$rule = $this->createRuleWithId(true, 1);
+		$rule = $this->createRuleWithId(isInclude: true, id: 1);
 		$this->ruleEvaluator->method('evaluateRule')->willReturn(true);
 
 		$result = $this->checker->evaluateRuleSet(rules: [$rule], userId: 'alice');
 
-		$this->assertTrue($result['visible']);
-		$this->assertSame([1], $result['matchedIncludeRuleIds']);
-		$this->assertSame([], $result['matchedExcludeRuleIds']);
+		$this->assertTrue(condition: $result['visible']);
+		$this->assertSame(expected: [1], actual: $result['matchedIncludeRuleIds']);
+		$this->assertSame(expected: [], actual: $result['matchedExcludeRuleIds']);
 	}
 
 	public function testEvaluateRuleSetReportsMatchedExcludeRuleIdAsOverrideReason(): void {
-		$include = $this->createRuleWithId(true, 1);
-		$exclude = $this->createRuleWithId(false, 2);
+		$include = $this->createRuleWithId(isInclude: true, id: 1);
+		$exclude = $this->createRuleWithId(isInclude: false, id: 2);
 		$this->ruleEvaluator->method('evaluateRule')->willReturn(true);
 
 		$result = $this->checker->evaluateRuleSet(
@@ -194,23 +195,23 @@ class VisibilityCheckerTest extends TestCase {
 			userId: 'alice'
 		);
 
-		$this->assertFalse($result['visible']);
-		$this->assertSame([1], $result['matchedIncludeRuleIds']);
-		$this->assertSame([2], $result['matchedExcludeRuleIds']);
+		$this->assertFalse(condition: $result['visible']);
+		$this->assertSame(expected: [1], actual: $result['matchedIncludeRuleIds']);
+		$this->assertSame(expected: [2], actual: $result['matchedExcludeRuleIds']);
 	}
 
 	public function testCheckRulesIsAThinWrapperOverEvaluateRuleSet(): void {
-		$rule = $this->createRuleWithId(true, 1);
+		$rule = $this->createRuleWithId(isInclude: true, id: 1);
 		$this->ruleEvaluator->method('evaluateRule')->willReturn(true);
 
 		$bool = $this->checker->checkRules(rules: [$rule], userId: 'alice');
 		$set = $this->checker->evaluateRuleSet(rules: [$rule], userId: 'alice');
 
-		$this->assertSame($set['visible'], $bool);
+		$this->assertSame(expected: $set['visible'], actual: $bool);
 	}
 
 	public function testEvaluateRuleSetForwardsGroupsOverrideToRuleEvaluator(): void {
-		$rule = $this->createRuleWithId(true, 1);
+		$rule = $this->createRuleWithId(isInclude: true, id: 1);
 		$this->ruleEvaluator->expects($this->once())
 			->method('evaluateRule')
 			->with(
@@ -224,9 +225,63 @@ class VisibilityCheckerTest extends TestCase {
 		$result = $this->checker->evaluateRuleSet(
 			rules: [$rule],
 			userId: 'alice',
-			groupsOverride: ['marketing']
+			context: new RuleSetContext(options: ['groups' => ['marketing']])
 		);
 
-		$this->assertTrue($result['visible']);
+		$this->assertTrue(condition: $result['visible']);
+	}
+
+	/**
+	 * In `all` mode every include rule must match; in `any` mode one does.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 *
+	 * @return void
+	 */
+	public function testAllModeNeedsEveryIncludeRule(): void {
+		$rules = [$this->createRuleWithId(isInclude: true, id: 1), $this->createRuleWithId(isInclude: true, id: 2)];
+		$this->ruleEvaluator->method('evaluateRule')
+			->willReturnCallback(static fn (ConditionalRule $rule): bool => $rule->getId() === 1);
+
+		$all = $this->checker->evaluateRuleSet(rules: $rules, userId: 'alice', context: new RuleSetContext(options: ['match' => 'all']));
+		$any = $this->checker->evaluateRuleSet(rules: $rules, userId: 'alice', context: new RuleSetContext(options: ['match' => 'any']));
+
+		$this->assertFalse(condition: $all['visible']);
+		$this->assertSame(expected: [1], actual: $all['matchedIncludeRuleIds']);
+		$this->assertTrue(condition: $any['visible']);
+		$this->assertFalse(condition: $this->checker->checkRules(rules: $rules, userId: 'alice', match: 'all'));
+		$this->assertTrue(condition: $this->checker->checkRules(rules: $rules, userId: 'alice'));
+	}
+
+	/**
+	 * In `all` mode a widget shows when every include rule matches, and an
+	 * exclude rule that matches still hides it.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 *
+	 * @return void
+	 */
+	public function testAllModeKeepsExcludeRulesHiding(): void {
+		$include = [$this->createRuleWithId(isInclude: true, id: 1), $this->createRuleWithId(isInclude: true, id: 2)];
+		$exclude = $this->createRuleWithId(isInclude: false, id: 3);
+		$this->ruleEvaluator->method('evaluateRule')->willReturn(true);
+
+		$this->assertFalse(condition: $this->checker->checkRules(rules: [...$include, $exclude], userId: 'alice', match: 'all'));
+		$this->assertTrue(condition: $this->checker->checkRules(rules: $include, userId: 'alice', match: 'all'));
+	}
+
+	/**
+	 * In `all` mode no include rules still means no restriction.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 *
+	 * @return void
+	 */
+	public function testAllModeWithoutIncludeRulesIsVisible(): void {
+		$this->ruleEvaluator->method('evaluateRule')->willReturn(false);
+
+		$exclude = $this->createRuleWithId(isInclude: false, id: 3);
+		$this->assertTrue(condition: $this->checker->checkRules(rules: [$exclude], userId: 'alice', match: 'all'));
+		$this->assertTrue(condition: $this->checker->checkRules(rules: [], userId: 'alice', match: 'all'));
 	}
 }

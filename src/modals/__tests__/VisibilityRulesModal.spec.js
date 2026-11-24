@@ -24,7 +24,7 @@ vi.mock('../../services/api.js', () => ({
 }))
 
 const ConditionalVisibilityEditorStub = {
-	props: ['placementId', 'availableGroups'],
+	props: ['placementId', 'availableGroups', 'ruleMatch'],
 	template: '<div class="editor-stub" :data-placement-id="placementId" />',
 }
 
@@ -101,5 +101,22 @@ describe('VisibilityRulesModal', () => {
 		await flushPromises()
 
 		expect(wrapper.findComponent(ConditionalVisibilityEditorStub).props('availableGroups')).toEqual([])
+	})
+})
+
+describe('VisibilityRulesModal — Who sees this widget?', () => {
+	// @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	it('is titled Who sees this widget? with the widget and the dashboard under it', () => {
+		const wrapper = mountModal({ widgetTitle: 'News', dashboardName: 'Home', ruleMatch: 'all' })
+		expect(wrapper.find('[data-test="visibility-rules-title"]').text()).toBe('Who sees this widget?')
+		expect(wrapper.find('[data-test="visibility-rules-subtitle"]').text()).toBe('News · Home')
+		expect(wrapper.findComponent(ConditionalVisibilityEditorStub).props('ruleMatch')).toBe('all')
+	})
+
+	it('leaves the line out when neither name is known, and passes the saved mode on', async () => {
+		const wrapper = mountModal()
+		expect(wrapper.find('[data-test="visibility-rules-subtitle"]').exists()).toBe(false)
+		await wrapper.findComponent(ConditionalVisibilityEditorStub).vm.$emit('ruleMatchChanged', 'all')
+		expect(wrapper.emitted('ruleMatchChanged')).toEqual([['all']])
 	})
 })

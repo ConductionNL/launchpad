@@ -1482,6 +1482,26 @@
         "Confirmed {date}": "Confirmado a {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} de {total} mostrados. A transferência dá a lista completa com a data e a hora de cada confirmação.",
         "Department in read confirmations": "Departamento nas confirmações de leitura",
-        "Could not load the read-receipt report.": "Não foi possível carregar o relatório de confirmações de leitura."
+        "Could not load the read-receipt report.": "Não foi possível carregar o relatório de confirmações de leitura.",
+        "Who sees this widget?": "Quem vê este widget?",
+        "If all rules match": "Se todas as regras corresponderem",
+        "If one rule matches": "Se uma regra corresponder",
+        "Show when ALL of these match": "Mostrar quando TODAS estas corresponderem",
+        "View as": "Ver como",
+        "Moment": "Momento",
+        "Times": "Horários",
+        "Profile field": "Campo do perfil",
+        "{list} or {last}": "{list} ou {last}",
+        "{name} is in {groups}": "{name} está em {groups}",
+        "{name} is not in {groups}": "{name} não está em {groups}",
+        "{moment} is within the times": "{moment} está dentro dos horários",
+        "{moment} is outside the times": "{moment} está fora dos horários",
+        "{moment} is within the period": "{moment} está dentro do período",
+        "{moment} is outside the period": "{moment} está fora do período",
+        "the profile field {field} of {name} matches": "o campo do perfil {field} de {name} corresponde",
+        "the profile field {field} of {name} does not match": "o campo do perfil {field} de {name} não corresponde",
+        "{name} sees this widget: no rule limits who sees it.": "{name} vê este widget: nenhuma regra limita quem o vê.",
+        "{name} sees this widget, because {reasons}.": "{name} vê este widget, porque {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} não vê este widget, porque {reasons}."
     }
 }

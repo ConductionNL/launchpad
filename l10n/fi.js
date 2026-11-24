@@ -1582,7 +1582,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Kuitattu {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown}/{total} näytetään. Lataus antaa koko luettelon jokaisen kuittauksen päivämäärällä ja kellonajalla.",
     "Department in read confirmations" : "Osasto lukukuittauksissa",
-    "Could not load the read-receipt report." : "Lukukuittausraporttia ei voitu ladata."
+    "Could not load the read-receipt report." : "Lukukuittausraporttia ei voitu ladata.",
+    "Who sees this widget?" : "Kuka näkee tämän pienoisohjelman?",
+    "If all rules match" : "Jos kaikki säännöt täsmäävät",
+    "If one rule matches" : "Jos yksi sääntö täsmää",
+    "Show when ALL of these match" : "Näytä, kun KAIKKI nämä täsmäävät",
+    "View as" : "Näytä käyttäjänä",
+    "Moment" : "Hetki",
+    "Times" : "Ajat",
+    "Profile field" : "Profiilikenttä",
+    "{list} or {last}" : "{list} tai {last}",
+    "{name} is in {groups}" : "{name} kuuluu ryhmään {groups}",
+    "{name} is not in {groups}" : "{name} ei kuulu ryhmään {groups}",
+    "{moment} is within the times" : "{moment} on aikojen sisällä",
+    "{moment} is outside the times" : "{moment} on aikojen ulkopuolella",
+    "{moment} is within the period" : "{moment} on jakson sisällä",
+    "{moment} is outside the period" : "{moment} on jakson ulkopuolella",
+    "the profile field {field} of {name} matches" : "käyttäjän {name} profiilikenttä {field} täsmää",
+    "the profile field {field} of {name} does not match" : "käyttäjän {name} profiilikenttä {field} ei täsmää",
+    "{name} sees this widget: no rule limits who sees it." : "{name} näkee tämän pienoisohjelman: mikään sääntö ei rajaa, kuka sen näkee.",
+    "{name} sees this widget, because {reasons}." : "{name} näkee tämän pienoisohjelman, koska {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} ei näe tätä pienoisohjelmaa, koska {reasons}."
 },
 "nplurals=2; plural=(n != 1);"
 );

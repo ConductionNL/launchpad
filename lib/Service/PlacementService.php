@@ -187,6 +187,7 @@ class PlacementService {
 	 * @return WidgetPlacement The updated widget placement.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-35
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function updatePlacement(
 		int $placementId,
@@ -210,6 +211,10 @@ class PlacementService {
 			data: $data
 		);
 		$this->updaters->placementUpdater->applyAcknowledgementUpdates(
+			placement: $placement,
+			data: $data
+		);
+		$this->updaters->placementUpdater->applyRuleMatch(
 			placement: $placement,
 			data: $data
 		);

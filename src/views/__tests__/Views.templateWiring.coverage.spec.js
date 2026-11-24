@@ -155,7 +155,7 @@ const stubs = {
 		props: { open: Boolean, placement: Object },
 	}),
 	VisibilityRulesModal: passthrough('VisibilityRulesModal', {
-		props: { open: Boolean, placementId: [Number, String] },
+		props: { open: Boolean, placementId: [Number, String], widgetTitle: String, dashboardName: String, ruleMatch: String },
 	}),
 }
 
@@ -555,6 +555,28 @@ describe('Views — grid items', () => {
 		editor = wrapper.findComponent({ name: 'CnWidgetStyleEditorModal' })
 		expect(editor.props('show')).toBe(true)
 	}, 90000)
+
+	// @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-dialog-is-in-the-widgets-menu-req-cvui-007
+	it('"Who sees this widget?" in the widget\'s menu opens the dialog for that widget', async () => {
+		const news = { ...widget, customTitle: 'News', ruleMatch: 'all' }
+		const { wrapper, dashStore } = await mountViews({ widgetPlacements: [news] })
+		dashStore.refreshPlacementVisibility = vi.fn()
+
+		await wrapper.findComponent({ name: 'WidgetWrapper' }).vm.$emit('whoSees', news)
+		await flushPromises()
+
+		const modal = wrapper.findComponent({ name: 'VisibilityRulesModal' })
+		expect(modal.props('open')).toBe(true)
+		expect(modal.props('placementId')).toBe(news.id)
+		expect(modal.props('widgetTitle')).toBe('News')
+		expect(modal.props('dashboardName')).toBe('Home')
+		expect(modal.props('ruleMatch')).toBe('all')
+
+		await modal.vm.$emit('ruleMatchChanged', 'any')
+		expect(dashStore.widgetPlacements[0].ruleMatch).toBe('any')
+		expect(dashStore.refreshPlacementVisibility).toHaveBeenCalled()
+		expect(modal.props('ruleMatch')).toBe('any')
+	}, 90000)
 })
 
 describe('Views — right-click context menu', () => {
@@ -822,7 +844,6 @@ describe('Views — the reactions bar at the foot', () => {
 		const bar = wrapper.find('.stub-reactions').element
 		expect(grid).toBeTruthy()
 		expect(bar).toBeTruthy()
-		// eslint-disable-next-line no-bitwise
 		expect(grid.compareDocumentPosition(bar) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
 	}, 90000)
 })

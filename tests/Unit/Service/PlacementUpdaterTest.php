@@ -45,7 +45,10 @@ class PlacementUpdaterTest extends TestCase {
 			data: ['gridX' => 5, 'gridY' => 6, 'gridWidth' => 7, 'gridHeight' => 8]
 		);
 
-		$this->assertSame([5, 6, 7, 8], [$placement->getGridX(), $placement->getGridY(), $placement->getGridWidth(), $placement->getGridHeight()]);
+		$this->assertSame(
+			expected: [5, 6, 7, 8],
+			actual: [$placement->getGridX(), $placement->getGridY(), $placement->getGridWidth(), $placement->getGridHeight()]
+		);
 	}
 
 	public function testGridUpdatesLeaveAbsentAndNullKeysAlone(): void {
@@ -53,7 +56,10 @@ class PlacementUpdaterTest extends TestCase {
 
 		(new PlacementUpdater())->applyGridUpdates(placement: $placement, data: ['gridY' => 9, 'gridWidth' => null]);
 
-		$this->assertSame([1, 9, 3, 4], [$placement->getGridX(), $placement->getGridY(), $placement->getGridWidth(), $placement->getGridHeight()]);
+		$this->assertSame(
+			expected: [1, 9, 3, 4],
+			actual: [$placement->getGridX(), $placement->getGridY(), $placement->getGridWidth(), $placement->getGridHeight()]
+		);
 	}
 
 	public function testDisplayUpdatesApplyEveryField(): void {
@@ -71,12 +77,12 @@ class PlacementUpdaterTest extends TestCase {
 			]
 		);
 
-		$this->assertSame(0, $placement->getIsVisible());
-		$this->assertSame(0, $placement->getShowTitle());
-		$this->assertSame('Mine', $placement->getCustomTitle());
-		$this->assertSame('icon-star', $placement->getCustomIcon());
-		$this->assertSame(['background' => '#ffffff'], $placement->getStyleConfigArray());
-		$this->assertSame(['text' => 'hello'], $placement->getContentArray());
+		$this->assertSame(expected: 0, actual: $placement->getIsVisible());
+		$this->assertSame(expected: 0, actual: $placement->getShowTitle());
+		$this->assertSame(expected: 'Mine', actual: $placement->getCustomTitle());
+		$this->assertSame(expected: 'icon-star', actual: $placement->getCustomIcon());
+		$this->assertSame(expected: ['background' => '#ffffff'], actual: $placement->getStyleConfigArray());
+		$this->assertSame(expected: ['text' => 'hello'], actual: $placement->getContentArray());
 	}
 
 	public function testVideoContentUpdateKeepsAutoplayMutedAndFillsDefaults(): void {
@@ -89,9 +95,9 @@ class PlacementUpdaterTest extends TestCase {
 		);
 
 		$content = $placement->getContentArray();
-		$this->assertTrue($content['muted']);
-		$this->assertTrue($content['controls']);
-		$this->assertSame('16:9', $content['aspectRatio']);
+		$this->assertTrue(condition: $content['muted']);
+		$this->assertTrue(condition: $content['controls']);
+		$this->assertSame(expected: '16:9', actual: $content['aspectRatio']);
 	}
 
 	public function testDisplayUpdatesIgnoreNonArrayContent(): void {
@@ -100,7 +106,7 @@ class PlacementUpdaterTest extends TestCase {
 
 		(new PlacementUpdater())->applyDisplayUpdates(placement: $placement, data: ['content' => 'not-an-array']);
 
-		$this->assertSame(['text' => 'keep'], $placement->getContentArray());
+		$this->assertSame(expected: ['text' => 'keep'], actual: $placement->getContentArray());
 	}
 
 	public function testEmptyDeadlineIsStoredAsNoDeadlineAndEmptyPromptKept(): void {
@@ -112,8 +118,8 @@ class PlacementUpdaterTest extends TestCase {
 			data: ['acknowledgementPrompt' => '', 'acknowledgementDeadline' => '']
 		);
 
-		$this->assertSame('', $placement->getAcknowledgementPrompt());
-		$this->assertNull($placement->getAcknowledgementDeadline());
+		$this->assertSame(expected: '', actual: $placement->getAcknowledgementPrompt());
+		$this->assertNull(actual: $placement->getAcknowledgementDeadline());
 	}
 
 	public function testNullPromptClearsTheStoredPrompt(): void {
@@ -122,7 +128,7 @@ class PlacementUpdaterTest extends TestCase {
 
 		(new PlacementUpdater())->applyAcknowledgementUpdates(placement: $placement, data: ['acknowledgementPrompt' => null]);
 
-		$this->assertNull($placement->getAcknowledgementPrompt());
+		$this->assertNull(actual: $placement->getAcknowledgementPrompt());
 	}
 
 	public function testCadenceCoercesTheFlagAndAcceptsPositiveVersions(): void {
@@ -133,8 +139,8 @@ class PlacementUpdaterTest extends TestCase {
 			data: ['reacknowledgeOnChange' => '1', 'acknowledgementContentVersion' => '3']
 		);
 
-		$this->assertSame(1, $placement->getReacknowledgeOnChange());
-		$this->assertSame(3, $placement->getAcknowledgementContentVersion());
+		$this->assertSame(expected: 1, actual: $placement->getReacknowledgeOnChange());
+		$this->assertSame(expected: 3, actual: $placement->getAcknowledgementContentVersion());
 	}
 
 	public function testNonPositiveVersionNeverRewindsTheStoredVersion(): void {
@@ -146,7 +152,7 @@ class PlacementUpdaterTest extends TestCase {
 		$updater->applyAcknowledgementUpdates(placement: $placement, data: ['acknowledgementContentVersion' => -2]);
 		$updater->applyAcknowledgementUpdates(placement: $placement, data: ['acknowledgementContentVersion' => 'abc']);
 
-		$this->assertSame(4, $placement->getAcknowledgementContentVersion());
+		$this->assertSame(expected: 4, actual: $placement->getAcknowledgementContentVersion());
 	}
 
 	public function testExistingAnnouncementKeyIsNotRotated(): void {
@@ -155,8 +161,8 @@ class PlacementUpdaterTest extends TestCase {
 
 		(new PlacementUpdater())->applyAcknowledgementUpdates(placement: $placement, data: ['requiresAcknowledgement' => true]);
 
-		$this->assertSame(1, $placement->getRequiresAcknowledgement());
-		$this->assertSame('fixed-key', $placement->getAnnouncementKey());
+		$this->assertSame(expected: 1, actual: $placement->getRequiresAcknowledgement());
+		$this->assertSame(expected: 'fixed-key', actual: $placement->getAnnouncementKey());
 	}
 
 	public function testEmptyAnnouncementKeyIsMintedAsUuidV4(): void {
@@ -165,7 +171,10 @@ class PlacementUpdaterTest extends TestCase {
 
 		(new PlacementUpdater())->applyAcknowledgementUpdates(placement: $placement, data: ['requiresAcknowledgement' => 1]);
 
-		$this->assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $placement->getAnnouncementKey());
+		$this->assertMatchesRegularExpression(
+			pattern: '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/',
+			string: $placement->getAnnouncementKey()
+		);
 	}
 
 	public function testNoKeyIsMintedWhileAcknowledgementIsNotRequired(): void {
@@ -173,6 +182,43 @@ class PlacementUpdaterTest extends TestCase {
 
 		(new PlacementUpdater())->applyAcknowledgementUpdates(placement: $placement, data: ['requiresAcknowledgement' => 0]);
 
-		$this->assertNull($placement->getAnnouncementKey());
+		$this->assertNull(actual: $placement->getAnnouncementKey());
+	}
+
+	/**
+	 * The match mode is set when given, `all` kept and anything else stored
+	 * as `any`; absent, it is left as it is (REQ-VIS-014).
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 *
+	 * @return void
+	 */
+	public function testTheRuleMatchIsApplied(): void {
+		$placement = $this->placement();
+		$updater = new PlacementUpdater();
+
+		$this->assertSame(expected: 'any', actual: $placement->getRuleMatch());
+		$updater->applyRuleMatch(placement: $placement, data: ['ruleMatch' => 'all']);
+		$this->assertSame(expected: 'all', actual: $placement->getRuleMatch());
+		$updater->applyRuleMatch(placement: $placement, data: ['gridX' => 1]);
+		$this->assertSame(expected: 'all', actual: $placement->getRuleMatch());
+		$updater->applyRuleMatch(placement: $placement, data: ['ruleMatch' => 'most']);
+		$this->assertSame(expected: 'any', actual: $placement->getRuleMatch());
+	}
+
+	/**
+	 * Export carries the mode and import reads it back, defaulting to `any`.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 *
+	 * @return void
+	 */
+	public function testTheRuleMatchTravelsThroughExportAndImport(): void {
+		$placement = $this->placement();
+		$placement->setRuleMatch('all');
+		$hydrator = new \OCA\LaunchPad\Service\PlacementPayloadHydrator();
+
+		$this->assertSame(expected: 'all', actual: $hydrator->hydrate(dashboardId: 2, payload: $placement->jsonSerialize())->getRuleMatch());
+		$this->assertSame(expected: 'any', actual: $hydrator->hydrate(dashboardId: 2, payload: ['widgetId' => 'news'])->getRuleMatch());
 	}
 }

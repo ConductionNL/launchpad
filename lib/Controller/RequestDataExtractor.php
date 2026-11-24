@@ -84,6 +84,8 @@ class RequestDataExtractor {
 		'acknowledgementDeadline',
 		'reacknowledgeOnChange',
 		'acknowledgementContentVersion',
+		// Whether all or one include rule must match (REQ-VIS-014).
+		'ruleMatch',
 	];
 
 	/**

@@ -1582,7 +1582,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Bestätigt {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} von {total} angezeigt. Herunterladen liefert die vollständige Liste mit Datum und Uhrzeit jeder Bestätigung.",
     "Department in read confirmations" : "Abteilung in Lesebestätigungen",
-    "Could not load the read-receipt report." : "Der Bericht zu den Lesebestätigungen konnte nicht geladen werden."
+    "Could not load the read-receipt report." : "Der Bericht zu den Lesebestätigungen konnte nicht geladen werden.",
+    "Who sees this widget?" : "Wer sieht dieses Widget?",
+    "If all rules match" : "Wenn alle Regeln zutreffen",
+    "If one rule matches" : "Wenn eine Regel zutrifft",
+    "Show when ALL of these match" : "Anzeigen, wenn ALLE davon zutreffen",
+    "View as" : "Ansehen als",
+    "Moment" : "Zeitpunkt",
+    "Times" : "Zeiten",
+    "Profile field" : "Profilfeld",
+    "{list} or {last}" : "{list} oder {last}",
+    "{name} is in {groups}" : "{name} ist in {groups}",
+    "{name} is not in {groups}" : "{name} ist nicht in {groups}",
+    "{moment} is within the times" : "{moment} liegt innerhalb der Zeiten",
+    "{moment} is outside the times" : "{moment} liegt außerhalb der Zeiten",
+    "{moment} is within the period" : "{moment} liegt innerhalb des Zeitraums",
+    "{moment} is outside the period" : "{moment} liegt außerhalb des Zeitraums",
+    "the profile field {field} of {name} matches" : "das Profilfeld {field} von {name} trifft zu",
+    "the profile field {field} of {name} does not match" : "das Profilfeld {field} von {name} trifft nicht zu",
+    "{name} sees this widget: no rule limits who sees it." : "{name} sieht dieses Widget: keine Regel schränkt ein, wer es sieht.",
+    "{name} sees this widget, because {reasons}." : "{name} sieht dieses Widget, weil {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} sieht dieses Widget nicht, weil {reasons}."
 },
 "nplurals=2; plural=(n != 1);"
 );

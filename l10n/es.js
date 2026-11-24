@@ -1582,7 +1582,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Confirmado el {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} de {total} mostrados. Al descargar obtiene la lista completa con la fecha y la hora de cada confirmación.",
     "Department in read confirmations" : "Departamento en las confirmaciones de lectura",
-    "Could not load the read-receipt report." : "No se pudo cargar el informe de confirmaciones de lectura."
+    "Could not load the read-receipt report." : "No se pudo cargar el informe de confirmaciones de lectura.",
+    "Who sees this widget?" : "¿Quién ve este widget?",
+    "If all rules match" : "Si se cumplen todas las reglas",
+    "If one rule matches" : "Si se cumple una regla",
+    "Show when ALL of these match" : "Mostrar si se cumplen TODAS estas",
+    "View as" : "Ver como",
+    "Moment" : "Momento",
+    "Times" : "Horarios",
+    "Profile field" : "Campo del perfil",
+    "{list} or {last}" : "{list} o {last}",
+    "{name} is in {groups}" : "{name} está en {groups}",
+    "{name} is not in {groups}" : "{name} no está en {groups}",
+    "{moment} is within the times" : "{moment} está dentro del horario",
+    "{moment} is outside the times" : "{moment} está fuera del horario",
+    "{moment} is within the period" : "{moment} está dentro del periodo",
+    "{moment} is outside the period" : "{moment} está fuera del periodo",
+    "the profile field {field} of {name} matches" : "el campo del perfil {field} de {name} coincide",
+    "the profile field {field} of {name} does not match" : "el campo del perfil {field} de {name} no coincide",
+    "{name} sees this widget: no rule limits who sees it." : "{name} ve este widget: ninguna regla limita quién lo ve.",
+    "{name} sees this widget, because {reasons}." : "{name} ve este widget, porque {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} no ve este widget, porque {reasons}."
 },
 "nplurals=2; plural=(n != 1);"
 );

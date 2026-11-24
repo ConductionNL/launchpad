@@ -1582,7 +1582,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Patvirtinta {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Rodoma {shown} iš {total}. Atsisiuntę gausite visą sąrašą su kiekvieno patvirtinimo data ir laiku.",
     "Department in read confirmations" : "Skyrius perskaitymo patvirtinimuose",
-    "Could not load the read-receipt report." : "Nepavyko įkelti perskaitymo patvirtinimų ataskaitos."
+    "Could not load the read-receipt report." : "Nepavyko įkelti perskaitymo patvirtinimų ataskaitos.",
+    "Who sees this widget?" : "Kas mato šį valdiklį?",
+    "If all rules match" : "Jei atitinka visos taisyklės",
+    "If one rule matches" : "Jei atitinka viena taisyklė",
+    "Show when ALL of these match" : "Rodyti, kai atitinka VISOS šios",
+    "View as" : "Žiūrėti kaip",
+    "Moment" : "Momentas",
+    "Times" : "Laikai",
+    "Profile field" : "Profilio laukas",
+    "{list} or {last}" : "{list} arba {last}",
+    "{name} is in {groups}" : "{name} yra grupėje {groups}",
+    "{name} is not in {groups}" : "{name} nėra grupėje {groups}",
+    "{moment} is within the times" : "{moment} patenka į laikus",
+    "{moment} is outside the times" : "{moment} nepatenka į laikus",
+    "{moment} is within the period" : "{moment} patenka į laikotarpį",
+    "{moment} is outside the period" : "{moment} nepatenka į laikotarpį",
+    "the profile field {field} of {name} matches" : "naudotojo {name} profilio laukas {field} atitinka",
+    "the profile field {field} of {name} does not match" : "naudotojo {name} profilio laukas {field} neatitinka",
+    "{name} sees this widget: no rule limits who sees it." : "{name} mato šį valdiklį: jokia taisyklė neriboja, kas jį mato.",
+    "{name} sees this widget, because {reasons}." : "{name} mato šį valdiklį, nes {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} nemato šio valdiklio, nes {reasons}."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

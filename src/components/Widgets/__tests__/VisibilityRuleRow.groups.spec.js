@@ -59,17 +59,18 @@ describe('group pickers', () => {
 		])
 	})
 
-	it('the preview picker offers the same groups, with tag fetching off', async () => {
+	it('a group rule\'s card shows its groups as chips, by display name', async () => {
+		const { api } = await import('../../../services/api.js')
+		api.getWidgetRules.mockResolvedValueOnce({
+			data: { rules: [{ id: 1, ruleType: 'group', ruleConfig: { groups: ['kcc', 'gone'] }, isInclude: true }] },
+		})
 		const wrapper = mount(ConditionalVisibilityEditor, {
-			props: { placementId: 10, availableGroups: ['admin', 'sales'] },
+			props: { placementId: 10, availableGroups: [{ id: 'kcc', displayName: 'KCC' }] },
 			global: { stubs },
 		})
 		await flushPromises()
-		const picker = wrapper.findComponent(SelectTags)
-		expect(picker.props('fetchTags')).toBe(false)
-		expect(picker.props('options')).toEqual([
-			{ id: 'admin', displayName: 'admin' },
-			{ id: 'sales', displayName: 'sales' },
-		])
+		const chips = wrapper.findAll('[data-test="rule-card-value"] .conditional-visibility-editor__chip')
+		expect(chips.map((chip) => chip.text())).toEqual(['KCC', 'gone'])
+		expect(wrapper.find('[data-test="rule-card-kind"]').text()).toBe('Groups')
 	})
 })

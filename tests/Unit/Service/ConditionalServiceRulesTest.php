@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\RuleSetContext;
 use DateTimeImmutable;
 use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Db\ConditionalRuleMapper;
@@ -74,16 +75,16 @@ class ConditionalServiceRulesTest extends TestCase {
 	 * @return void
 	 */
 	protected function setUp(): void {
-		$this->rules = $this->createMock(ConditionalRuleMapper::class);
-		$this->evaluator = $this->createMock(RuleEvaluatorService::class);
-		$this->visibility = $this->createMock(VisibilityChecker::class);
+		$this->rules = $this->createMock(originalClassName: ConditionalRuleMapper::class);
+		$this->evaluator = $this->createMock(originalClassName: RuleEvaluatorService::class);
+		$this->visibility = $this->createMock(originalClassName: VisibilityChecker::class);
 		$this->placements = $this->createMock(originalClassName: WidgetPlacementMapper::class);
 		$this->service = new ConditionalService(
 			ruleMapper: $this->rules,
 			ruleEvaluator: $this->evaluator,
 			visibilityChecker: $this->visibility,
 			placementMapper: $this->placements,
-			dashboardMapper: $this->createMock(DashboardMapper::class),
+			dashboardMapper: $this->createMock(originalClassName: DashboardMapper::class),
 		);
 	}//end setUp()
 
@@ -112,10 +113,10 @@ class ConditionalServiceRulesTest extends TestCase {
 	 * @return void
 	 */
 	public function testARuleIsEvaluatedByTheEvaluator(): void {
-		$rule = self::rule('group', ['group' => 'staff'], true);
+		$rule = self::rule(type: 'group', config: ['group' => 'staff'], isInclude: true);
 		$this->evaluator->expects(self::once())->method('evaluateRule')->with($rule, 'alice')->willReturn(false);
 
-		self::assertFalse($this->service->evaluateRule($rule, 'alice'));
+		self::assertFalse(condition: $this->service->evaluateRule($rule, 'alice'));
 	}//end testARuleIsEvaluatedByTheEvaluator()
 
 	/**
@@ -124,13 +125,13 @@ class ConditionalServiceRulesTest extends TestCase {
 	 * @return void
 	 */
 	public function testAPlacementIsVisibleWithoutRulesOtherwiseTheCheckerDecides(): void {
-		$stored = [self::rule('group', ['group' => 'staff'], true)];
+		$stored = [self::rule(type: 'group', config: ['group' => 'staff'], isInclude: true)];
 		$this->rules->method('findByPlacementId')->willReturnMap([[1, []], [2, $stored]]);
 		$this->visibility->expects(self::once())->method('checkRules')->with($stored, 'alice')->willReturn(false);
 
-		self::assertTrue($this->service->checkRulesForPlacement(1, 'alice'));
-		self::assertFalse($this->service->checkRulesForPlacement(2, 'alice'));
-		self::assertSame($stored, $this->service->getRules(2));
+		self::assertTrue(condition: $this->service->checkRulesForPlacement(1, 'alice'));
+		self::assertFalse(condition: $this->service->checkRulesForPlacement(2, 'alice'));
+		self::assertSame(expected: $stored, actual: $this->service->getRules(2));
 	}//end testAPlacementIsVisibleWithoutRulesOtherwiseTheCheckerDecides()
 
 	/**
@@ -154,12 +155,13 @@ class ConditionalServiceRulesTest extends TestCase {
 	 * @return void
 	 */
 	public function testAPreviewPassesTheOverridesThrough(): void {
-		$rules = [self::rule('time', ['from' => '09:00'], true)];
+		$rules = [self::rule(type: 'time', config: ['from' => '09:00'], isInclude: true)];
 		$now = new DateTimeImmutable('2026-05-04T10:00:00Z');
 		$verdict = ['visible' => true, 'reasons' => ['time window']];
-		$this->visibility->expects(self::once())->method('evaluateRuleSet')->with($rules, 'alice', ['admin'], $now)->willReturn($verdict);
+		$context = new RuleSetContext(options: ['groups' => ['admin'], 'now' => $now, 'match' => 'all']);
+		$this->visibility->expects(self::once())->method('evaluateRuleSet')->with($rules, 'alice', $context)->willReturn($verdict);
 
-		self::assertSame($verdict, $this->service->previewRules($rules, 'alice', ['admin'], $now));
+		self::assertSame(expected: $verdict, actual: $this->service->previewRules(rules: $rules, userId: 'alice', context: $context));
 	}//end testAPreviewPassesTheOverridesThrough()
 
 	/**
@@ -172,11 +174,11 @@ class ConditionalServiceRulesTest extends TestCase {
 
 		$rule = $this->service->addRule(7, 'group', ['group' => 'staff'], false);
 
-		self::assertSame(7, $rule->getWidgetPlacementId());
-		self::assertSame('group', $rule->getRuleType());
-		self::assertSame(['group' => 'staff'], $rule->getRuleConfigArray());
-		self::assertFalse($rule->getIsInclude());
-		self::assertNotFalse(DateTimeImmutable::createFromFormat(DATE_ATOM, (string)$rule->getCreatedAt()));
+		self::assertSame(expected: 7, actual: $rule->getWidgetPlacementId());
+		self::assertSame(expected: 'group', actual: $rule->getRuleType());
+		self::assertSame(expected: ['group' => 'staff'], actual: $rule->getRuleConfigArray());
+		self::assertFalse(condition: $rule->getIsInclude());
+		self::assertNotFalse(condition: DateTimeImmutable::createFromFormat(DATE_ATOM, (string)$rule->getCreatedAt()));
 	}//end testANewRuleIsStoredWithItsFields()
 
 	/**
@@ -185,15 +187,21 @@ class ConditionalServiceRulesTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUpdateChangesOnlyTheGivenFields(): void {
-		$stored = self::rule('group', ['group' => 'staff'], true);
+		$stored = self::rule(type: 'group', config: ['group' => 'staff'], isInclude: true);
 		$this->rules->method('find')->with(3)->willReturn($stored);
-		$this->rules->expects(self::exactly(2))->method('update')->willReturnArgument(0);
+		$this->rules->expects(self::exactly(count: 2))->method('update')->willReturnArgument(0);
 
 		$updated = $this->service->updateRule(3, ['isInclude' => false]);
-		self::assertSame(['group', ['group' => 'staff'], false], [$updated->getRuleType(), $updated->getRuleConfigArray(), $updated->getIsInclude()]);
+		self::assertSame(
+			expected: ['group', ['group' => 'staff'], false],
+			actual: [$updated->getRuleType(), $updated->getRuleConfigArray(), $updated->getIsInclude()]
+		);
 
 		$updated = $this->service->updateRule(3, ['ruleType' => 'time', 'ruleConfig' => ['from' => '08:00']]);
-		self::assertSame(['time', ['from' => '08:00'], false], [$updated->getRuleType(), $updated->getRuleConfigArray(), $updated->getIsInclude()]);
+		self::assertSame(
+			expected: ['time', ['from' => '08:00'], false],
+			actual: [$updated->getRuleType(), $updated->getRuleConfigArray(), $updated->getIsInclude()]
+		);
 	}//end testAnUpdateChangesOnlyTheGivenFields()
 
 	/**
@@ -202,11 +210,11 @@ class ConditionalServiceRulesTest extends TestCase {
 	 * @return void
 	 */
 	public function testARuleIsFoundAndDeletedById(): void {
-		$stored = self::rule('group', [], true);
+		$stored = self::rule(type: 'group', config: [], isInclude: true);
 		$this->rules->method('find')->with(9)->willReturn($stored);
 		$this->rules->expects(self::once())->method('delete')->with($stored);
 
-		self::assertSame($stored, $this->service->findRule(9));
+		self::assertSame(expected: $stored, actual: $this->service->findRule(9));
 		$this->service->deleteRule(9);
 	}//end testARuleIsFoundAndDeletedById()
 }//end class

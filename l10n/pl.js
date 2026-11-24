@@ -1582,7 +1582,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Potwierdzono {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Pokazano {shown} z {total}. Pobranie daje pełną listę z datą i godziną każdego potwierdzenia.",
     "Department in read confirmations" : "Dział w potwierdzeniach przeczytania",
-    "Could not load the read-receipt report." : "Nie udało się wczytać raportu potwierdzeń przeczytania."
+    "Could not load the read-receipt report." : "Nie udało się wczytać raportu potwierdzeń przeczytania.",
+    "Who sees this widget?" : "Kto widzi ten widżet?",
+    "If all rules match" : "Jeśli wszystkie reguły pasują",
+    "If one rule matches" : "Jeśli jedna reguła pasuje",
+    "Show when ALL of these match" : "Pokaż, gdy WSZYSTKIE z nich pasują",
+    "View as" : "Zobacz jako",
+    "Moment" : "Moment",
+    "Times" : "Godziny",
+    "Profile field" : "Pole profilu",
+    "{list} or {last}" : "{list} lub {last}",
+    "{name} is in {groups}" : "{name} jest w {groups}",
+    "{name} is not in {groups}" : "{name} nie jest w {groups}",
+    "{moment} is within the times" : "{moment} mieści się w godzinach",
+    "{moment} is outside the times" : "{moment} jest poza godzinami",
+    "{moment} is within the period" : "{moment} mieści się w okresie",
+    "{moment} is outside the period" : "{moment} jest poza okresem",
+    "the profile field {field} of {name} matches" : "pole profilu {field} użytkownika {name} pasuje",
+    "the profile field {field} of {name} does not match" : "pole profilu {field} użytkownika {name} nie pasuje",
+    "{name} sees this widget: no rule limits who sees it." : "{name} widzi ten widżet: żadna reguła nie ogranicza, kto go widzi.",
+    "{name} sees this widget, because {reasons}." : "{name} widzi ten widżet, ponieważ {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} nie widzi tego widżetu, ponieważ {reasons}."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

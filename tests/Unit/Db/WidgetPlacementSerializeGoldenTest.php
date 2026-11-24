@@ -33,12 +33,12 @@ class WidgetPlacementSerializeGoldenTest extends TestCase {
 		$placement->setWidgetId('w/x');
 
 		$this->assertSame(
-			'{"id":5,"dashboardId":2,"widgetId":"w\/x","gridX":0,"gridY":0,"gridWidth":4,"gridHeight":4,'
+			expected: '{"id":5,"dashboardId":2,"widgetId":"w\/x","gridX":0,"gridY":0,"gridWidth":4,"gridHeight":4,'
 			. '"isCompulsory":0,"isVisible":1,"styleConfig":{},"customTitle":null,"customIcon":null,"content":{},"calculatedFields":[],'
-			. '"showTitle":1,"sortOrder":0,"requiresAcknowledgement":0,"acknowledgementPrompt":null,'
+			. '"showTitle":1,"sortOrder":0,"ruleMatch":"any","requiresAcknowledgement":0,"acknowledgementPrompt":null,'
 			. '"acknowledgementDeadline":null,"reacknowledgeOnChange":0,"acknowledgementContentVersion":1,'
 			. '"announcementKey":null,"templatePlacementId":null,"version":0,"createdAt":null,"updatedAt":null}',
-			json_encode($placement->jsonSerialize())
+			actual: json_encode($placement->jsonSerialize())
 		);
 	}
 
@@ -57,16 +57,16 @@ class WidgetPlacementSerializeGoldenTest extends TestCase {
 		$placement->setTileLinkValue('mail');
 
 		$data = $placement->jsonSerialize();
-		$this->assertSame(['color' => 'red'], $data['styleConfig']);
-		$this->assertSame(['widgetId' => 'x'], $data['content']);
+		$this->assertSame(expected: ['color' => 'red'], actual: $data['styleConfig']);
+		$this->assertSame(expected: ['widgetId' => 'x'], actual: $data['content']);
 		$this->assertSame(
-			['tileType', 'tileTitle', 'tileIcon', 'tileIconType', 'tileBackgroundColor', 'tileTextColor', 'tileLinkType', 'tileLinkValue'],
-			array_slice(array_keys($data), 26)
+			expected: ['tileType', 'tileTitle', 'tileIcon', 'tileIconType', 'tileBackgroundColor', 'tileTextColor', 'tileLinkType', 'tileLinkValue'],
+			actual: array_slice(array_keys($data), 27)
 		);
 		$this->assertSame(
-			['custom', 'Mail', 'mail', 'class', '#000', '#fff', 'app', 'mail'],
-			array_slice(array_values($data), 26)
+			expected: ['custom', 'Mail', 'mail', 'class', '#000', '#fff', 'app', 'mail'],
+			actual: array_slice(array_values($data), 27)
 		);
-		$this->assertCount(34, $data);
+		$this->assertCount(expectedCount: 35, haystack: $data);
 	}
 }

@@ -1482,6 +1482,26 @@
         "Confirmed {date}": "Confermà ils {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} da {total} mussads. La telechargiada dat la glista cumpletta cun data ed ura da mintga confermaziun.",
         "Department in read confirmations": "Departament en las confermaziuns da lectura",
-        "Could not load the read-receipt report.": "Il rapport da las confermaziuns da lectura n'ha betg pudì vegnir chargià."
+        "Could not load the read-receipt report.": "Il rapport da las confermaziuns da lectura n'ha betg pudì vegnir chargià.",
+        "Who sees this widget?": "Tgi vesa quest widget?",
+        "If all rules match": "Sch'tut las reglas correspundan",
+        "If one rule matches": "Sch'ina regla correspunda",
+        "Show when ALL of these match": "Mussar sche TUT quellas correspundan",
+        "View as": "Guardar sco",
+        "Moment": "Mument",
+        "Times": "Uras",
+        "Profile field": "Champ dal profil",
+        "{list} or {last}": "{list} u {last}",
+        "{name} is in {groups}": "{name} è en {groups}",
+        "{name} is not in {groups}": "{name} n'è betg en {groups}",
+        "{moment} is within the times": "{moment} è entaifer las uras",
+        "{moment} is outside the times": "{moment} è ordaifer las uras",
+        "{moment} is within the period": "{moment} è entaifer la perioda",
+        "{moment} is outside the period": "{moment} è ordaifer la perioda",
+        "the profile field {field} of {name} matches": "il champ dal profil {field} da {name} correspunda",
+        "the profile field {field} of {name} does not match": "il champ dal profil {field} da {name} na correspunda betg",
+        "{name} sees this widget: no rule limits who sees it.": "{name} vesa quest widget: nagina regla na limitescha tgi che al vesa.",
+        "{name} sees this widget, because {reasons}.": "{name} vesa quest widget, perquai che {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} na vesa betg quest widget, perquai che {reasons}."
     }
 }

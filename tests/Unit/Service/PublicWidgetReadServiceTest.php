@@ -24,12 +24,14 @@ use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\Kernel\Contracts\WeatherServiceInterface;
 use OCA\LaunchPad\Service\LiveTileService;
 use OCA\LaunchPad\Service\PublicWidgetReadService;
+use OCA\LaunchPad\Service\PublicWidgetSources;
 use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \OCA\LaunchPad\Service\PublicWidgetReadService
+ * @covers \OCA\LaunchPad\Service\PublicWidgetSources
  */
 class PublicWidgetReadServiceTest extends TestCase {
 
@@ -60,29 +62,34 @@ class PublicWidgetReadServiceTest extends TestCase {
 	 */
 	private array $placements = [];
 
+	/**
+	 * Mappers over one shared dashboard, `today`, and the stored placements.
+	 *
+	 * @return void
+	 */
 	protected function setUp(): void {
-		$this->dashMapper = $this->createMock(DashboardMapper::class);
+		$this->dashMapper = $this->createMock(originalClassName: DashboardMapper::class);
 		$this->dashMapper->method('findByUuid')->willReturnCallback(static function (string $uuid): Dashboard {
 			if ($uuid !== 'today') {
-				throw new DoesNotExistException('gone');
+				throw new DoesNotExistException(msg: 'gone');
 			}
 			$dashboard = new Dashboard();
 			$dashboard->setId(self::SHARED_ID);
 			return $dashboard;
 		});
 
-		$this->placementMapper = $this->createMock(WidgetPlacementMapper::class);
+		$this->placementMapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
 		$this->placementMapper->method('find')->willReturnCallback(function (int $id): WidgetPlacement {
 			if (isset($this->placements[$id]) === false) {
-				throw new DoesNotExistException('none');
+				throw new DoesNotExistException(msg: 'none');
 			}
 			return $this->placements[$id];
 		});
 
-		$this->weather = $this->createMock(WeatherServiceInterface::class);
-		$this->liveData = $this->createMock(LiveTileService::class);
-		$this->announcements = $this->createMock(AnnouncementServiceInterface::class);
-	}
+		$this->weather = $this->createMock(originalClassName: WeatherServiceInterface::class);
+		$this->liveData = $this->createMock(originalClassName: LiveTileService::class);
+		$this->announcements = $this->createMock(originalClassName: AnnouncementServiceInterface::class);
+	}//end setUp()
 
 	/**
 	 * The service, with or without visibility rules.
@@ -95,12 +102,10 @@ class PublicWidgetReadServiceTest extends TestCase {
 		return new PublicWidgetReadService(
 			dashMapper: $this->dashMapper,
 			placementMapper: $this->placementMapper,
-			weather: $this->weather,
-			liveData: $this->liveData,
-			announcements: $this->announcements,
+			sources: new PublicWidgetSources(weather: $this->weather, liveData: $this->liveData, announcements: $this->announcements),
 			visibility: $visibility,
 		);
-	}
+	}//end service()
 
 	/**
 	 * Store a placement.
@@ -117,16 +122,16 @@ class PublicWidgetReadServiceTest extends TestCase {
 		$placement->setId($id);
 		$placement->setWidgetId($widgetId);
 		$placement->setDashboardId($dashboardId);
-		$placement->setContentArray($content);
+		$placement->setContentArray(content: $content);
 		$this->placements[$id] = $placement;
-	}
+	}//end place()
 
 	/**
-	 * A published announcement.
+	 * A published announcement for everyone.
 	 *
-	 * @param string       $title    The title.
-	 * @param string       $kind     news or notice.
-	 * @param string|null  $category The category.
+	 * @param string      $title    The title.
+	 * @param string      $kind     news or notice.
+	 * @param string|null $category The category.
 	 *
 	 * @return Announcement
 	 */
@@ -138,105 +143,149 @@ class PublicWidgetReadServiceTest extends TestCase {
 		$item->setCategory($category);
 		$item->setStatus('published');
 		$item->setAuthorId('karin');
-		$item->setTargetGroupList([]);
+		$item->setTargetGroupList(groups: []);
 		return $item;
-	}
+	}//end announcement()
 
+	/**
+	 * A placement on another dashboard is refused, and nothing is fetched for it.
+	 *
+	 * @return void
+	 */
 	public function testAPlacementNotOnTheSharedDashboardIsRefused(): void {
 		$this->place(id: 1, widgetId: 'weather', dashboardId: 99);
 		$this->weather->expects($this->never())->method('resolveForPlacement');
 
-		$this->expectException(DoesNotExistException::class);
+		$this->expectException(exception: DoesNotExistException::class);
 
 		$this->service()->read(dashboardUuids: ['today'], placementId: 1);
-	}
+	}//end testAPlacementNotOnTheSharedDashboardIsRefused()
 
+	/**
+	 * A share whose dashboard was deleted shares no placement.
+	 *
+	 * @return void
+	 */
 	public function testADeletedSharedDashboardSharesNothing(): void {
 		$this->place(id: 1, widgetId: 'weather');
 
-		$this->expectException(DoesNotExistException::class);
+		$this->expectException(exception: DoesNotExistException::class);
 
 		$this->service()->read(dashboardUuids: ['gone'], placementId: 1);
-	}
+	}//end testADeletedSharedDashboardSharesNothing()
 
+	/**
+	 * An unknown placement is refused.
+	 *
+	 * @return void
+	 */
 	public function testAnUnknownPlacementIsRefused(): void {
-		$this->expectException(DoesNotExistException::class);
+		$this->expectException(exception: DoesNotExistException::class);
 
 		$this->service()->read(dashboardUuids: ['today'], placementId: 404);
-	}
+	}//end testAnUnknownPlacementIsRefused()
 
+	/**
+	 * A widget that is not a news, weather or live data widget reads nothing.
+	 *
+	 * @return void
+	 */
 	public function testAWidgetThatIsNotLiveIsRefused(): void {
 		$this->place(id: 2, widgetId: 'files');
 
-		$this->expectException(DoesNotExistException::class);
+		$this->expectException(exception: DoesNotExistException::class);
 
 		$this->service()->read(dashboardUuids: ['today'], placementId: 2);
-	}
+	}//end testAWidgetThatIsNotLiveIsRefused()
 
+	/**
+	 * A widget the visibility rules hide from a visitor is refused.
+	 *
+	 * @return void
+	 */
 	public function testAWidgetTheRulesHideIsRefused(): void {
 		$this->place(id: 3, widgetId: 'weather');
-		$visibility = $this->createMock(ConditionalServiceInterface::class);
+		$visibility = $this->createMock(originalClassName: ConditionalServiceInterface::class);
 		$visibility->expects($this->once())->method('visiblePlacements')
 			->with($this->anything(), '', false)
-			->willReturn([]);
+			->willReturn(value: []);
 		$this->weather->expects($this->never())->method('resolveForPlacement');
 
-		$this->expectException(DoesNotExistException::class);
+		$this->expectException(exception: DoesNotExistException::class);
 
-		$this->service($visibility)->read(dashboardUuids: ['today'], placementId: 3);
-	}
+		$this->service(visibility: $visibility)->read(dashboardUuids: ['today'], placementId: 3);
+	}//end testAWidgetTheRulesHideIsRefused()
 
+	/**
+	 * The weather reads for the shared placement, without a viewing user.
+	 *
+	 * @return void
+	 */
 	public function testTheWeatherReadsForTheSharedPlacement(): void {
 		$this->place(id: 4, widgetId: 'weather');
-		$visibility = $this->createMock(ConditionalServiceInterface::class);
-		$visibility->method('visiblePlacements')->willReturnArgument(0);
+		$visibility = $this->createMock(originalClassName: ConditionalServiceInterface::class);
+		$visibility->method('visiblePlacements')->willReturnArgument(argumentIndex: 0);
 		$this->weather->expects($this->once())->method('resolveForPlacement')
 			->with(4, '')
-			->willReturn(['location' => 'Zuiddrecht', 'tempValue' => 12]);
+			->willReturn(value: ['location' => 'Zuiddrecht', 'tempValue' => 12]);
 
-		$result = $this->service($visibility)->read(dashboardUuids: ['menu', 'today'], placementId: 4);
+		$result = $this->service(visibility: $visibility)->read(dashboardUuids: ['menu', 'today'], placementId: 4);
 
-		$this->assertSame(['widget' => 'weather', 'data' => ['location' => 'Zuiddrecht', 'tempValue' => 12]], $result);
-	}
+		$this->assertSame(expected: ['widget' => 'weather', 'data' => ['location' => 'Zuiddrecht', 'tempValue' => 12]], actual: $result);
+	}//end testTheWeatherReadsForTheSharedPlacement()
 
+	/**
+	 * The live data value reads for the shared placement.
+	 *
+	 * @return void
+	 */
 	public function testTheLiveDataValueReadsForTheSharedPlacement(): void {
 		$this->place(id: 5, widgetId: 'livetile');
 		$this->liveData->expects($this->once())->method('resolveForPlacement')
 			->with(5)
-			->willReturn(['value' => '12 min']);
+			->willReturn(value: ['value' => '12 min']);
 
 		$result = $this->service()->read(dashboardUuids: ['today'], placementId: 5);
 
-		$this->assertSame(['widget' => 'livetile', 'data' => ['value' => '12 min']], $result);
-	}
+		$this->assertSame(expected: ['widget' => 'livetile', 'data' => ['value' => '12 min']], actual: $result);
+	}//end testTheLiveDataValueReadsForTheSharedPlacement()
 
-	public function testTheNewsListsOnlyTheAnnouncementsForEveryone(): void {
+	/**
+	 * The news lists the announcements for everyone, never one for a group nor a notice, without author.
+	 *
+	 * @return void
+	 */
+	public function testTheNewsListsOnlyTheAnnouncementsForEveryoneAndNoNotices(): void {
 		$this->place(id: 6, widgetId: 'announcements');
-		// The service gives only the announcements for everyone; one targeted at a
-		// group is never among them, so it never reaches an anonymous visitor.
-		$this->announcements->expects($this->once())->method('visibleToEveryone')
-			->willReturn([$this->announcement('Stadskantoor open'), $this->announcement('Storing', 'notice')]);
-		$this->announcements->expects($this->never())->method('visibleTo');
+		$forGroup = $this->announcement(title: 'Inloopspreekuur privacy');
+		$forGroup->setTargetGroupList(groups: ['Medewerkers']);
+		$this->announcements->expects($this->once())->method('visibleTo')->with('')
+			->willReturn(value: [$this->announcement(title: 'Stadskantoor open'), $this->announcement(title: 'Storing', kind: 'notice'), $forGroup]);
 
 		$result = $this->service()->read(dashboardUuids: ['today'], placementId: 6);
 
-		$this->assertSame('announcements', $result['widget']);
-		$this->assertSame(['Stadskantoor open'], array_column($result['data']['announcements'], 'title'));
-		$this->assertArrayNotHasKey('authorId', $result['data']['announcements'][0]);
-		$this->assertArrayNotHasKey('targetGroups', $result['data']['announcements'][0]);
-	}
+		$this->assertSame(expected: 'announcements', actual: $result['widget']);
+		$this->assertSame(expected: ['Stadskantoor open'], actual: array_column($result['data']['announcements'], 'title'));
+		$this->assertArrayNotHasKey(key: 'authorId', array: $result['data']['announcements'][0]);
+		$this->assertArrayNotHasKey(key: 'targetGroups', array: $result['data']['announcements'][0]);
+	}//end testTheNewsListsOnlyTheAnnouncementsForEveryoneAndNoNotices()
 
+	/**
+	 * The news keeps to the widget's category and limit.
+	 *
+	 * @return void
+	 */
 	public function testTheNewsKeepsToTheWidgetsCategoryAndLimit(): void {
 		$this->place(id: 7, widgetId: 'announcements', content: ['category' => 'Gemeente', 'limit' => 2]);
-		$this->announcements->method('visibleToEveryone')->willReturn([
-			$this->announcement('Een', category: 'Gemeente'),
-			$this->announcement('Anders', category: 'Sport'),
-			$this->announcement('Twee', category: 'Gemeente'),
-			$this->announcement('Drie', category: 'Gemeente'),
+		$this->announcements->method('visibleTo')->willReturn(value: [
+			$this->announcement(title: 'Een', category: 'Gemeente'),
+			$this->announcement(title: 'Anders', category: 'Sport'),
+			$this->announcement(title: 'Twee', category: 'Gemeente'),
+			$this->announcement(title: 'Drie', category: 'Gemeente'),
 		]);
 
 		$result = $this->service()->read(dashboardUuids: ['today'], placementId: 7);
 
-		$this->assertSame(['Een', 'Twee'], array_column($result['data']['announcements'], 'title'));
-	}
-}
+		$this->assertSame(expected: ['Een', 'Twee'], actual: array_column($result['data']['announcements'], 'title'));
+	}//end testTheNewsKeepsToTheWidgetsCategoryAndLimit()
+}//end class

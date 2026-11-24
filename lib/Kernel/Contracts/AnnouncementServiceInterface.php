@@ -62,15 +62,6 @@ interface AnnouncementServiceInterface {
 	public function visibleTo(string $userId): array;
 
 	/**
-	 * The published announcements an anonymous visitor sees now: those targeted at everyone, newest first.
-	 *
-	 * @return list<\OCA\LaunchPad\Db\Announcement>
-	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
-	 */
-	public function visibleToEveryone(): array;
-
-	/**
 	 * The drafts a user may see: every draft for an administrator, their own for an author, none otherwise.
 	 *
 	 * @param string $userId The user.

@@ -32,15 +32,13 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use Closure;
-use Exception;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
-use OCA\LaunchPad\Service\KioskService;
-use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\PublicShareService;
 use OCA\LaunchPad\Service\PublicWidgetReadService;
+use OCA\LaunchPad\Service\PublicWidgetTokens;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -50,7 +48,6 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\IRequest;
-use Psr\Log\LoggerInterface;
 
 /**
  * Live widget data for anonymous visitors of a shared dashboard.
@@ -72,20 +69,14 @@ class PublicWidgetController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest                $request      HTTP request.
-	 * @param PublicWidgetReadService $reads        Reads a live widget's data.
-	 * @param PublicShareService      $shares       Opens a public share token.
-	 * @param KioskService            $kiosk        Opens a kiosk playlist token.
-	 * @param PublicShareContext      $shareContext Marks the request as a read-only bearer.
-	 * @param LoggerInterface         $logger       PSR-3 logger.
+	 * @param IRequest                $request HTTP request.
+	 * @param PublicWidgetReadService $reads   Reads a live widget's data.
+	 * @param PublicWidgetTokens      $tokens  Opens a share or playlist token.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly PublicWidgetReadService $reads,
-		private readonly PublicShareService $shares,
-		private readonly KioskService $kiosk,
-		private readonly PublicShareContext $shareContext,
-		private readonly LoggerInterface $logger,
+		private readonly PublicWidgetTokens $tokens,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -106,15 +97,12 @@ class PublicWidgetController extends Controller {
 	#[BruteForceProtection(action: PublicShareService::ACTION_SHARE_ACCESS)]
 	public function share(string $token, int $placementId): DataResponse {
 		return $this->answer(
-			token: $token,
 			placementId: $placementId,
-			dashboards: fn (): array => [
-				$this->shares->sharedDashboardUuid(
-					token: $token,
-					ipAddress: $this->request->getRemoteAddress(),
-					password: $this->headerPassword()
-				),
-			]
+			dashboards: fn (): array => $this->tokens->shareDashboards(
+				token: $token,
+				ipAddress: $this->request->getRemoteAddress(),
+				password: $this->headerPassword()
+			)
 		);
 	}//end share()
 
@@ -134,9 +122,8 @@ class PublicWidgetController extends Controller {
 	#[BruteForceProtection(action: PublicShareService::ACTION_SHARE_ACCESS)]
 	public function kiosk(string $token, int $placementId): DataResponse {
 		return $this->answer(
-			token: $token,
 			placementId: $placementId,
-			dashboards: fn (): array => $this->kiosk->playlistDashboardUuids(token: $token)
+			dashboards: fn (): array => $this->tokens->kioskDashboards(token: $token)
 		);
 	}//end kiosk()
 
@@ -146,15 +133,14 @@ class PublicWidgetController extends Controller {
 	 * An unknown token is throttled as a failed share access; a placement
 	 * that is not a live widget on those dashboards is a plain 404.
 	 *
-	 * @param string                       $token       The token.
-	 * @param integer                      $placementId The placement.
-	 * @param Closure(): list<string>      $dashboards  Opens the token: the UUIDs of the dashboards it shows.
+	 * @param integer                 $placementId The placement.
+	 * @param Closure(): list<string> $dashboards  Opens the token: the UUIDs of the dashboards it shows.
 	 *
 	 * @return DataResponse
 	 *
 	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
-	private function answer(string $token, int $placementId, Closure $dashboards): DataResponse {
+	private function answer(int $placementId, Closure $dashboards): DataResponse {
 		try {
 			$uuids = $dashboards();
 		} catch (SharePasswordRequiredException) {
@@ -165,19 +151,10 @@ class PublicWidgetController extends Controller {
 			return $response;
 		}
 
-		// A bearer request: any mutation on this path trips ShareReadOnlyException.
-		$this->shareContext->markBearer(token: $token);
-
 		try {
 			$result = $this->reads->read(dashboardUuids: $uuids, placementId: $placementId);
 		} catch (DoesNotExistException) {
 			return new DataResponse(data: ['error' => 'Not found'], statusCode: Http::STATUS_NOT_FOUND);
-		} catch (Exception $exception) {
-			$this->logger->error(
-				message: 'Public widget read failed',
-				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
-			);
-			return new DataResponse(data: ['error' => 'Internal error'], statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		if (isset($result['data']['error']) === true) {

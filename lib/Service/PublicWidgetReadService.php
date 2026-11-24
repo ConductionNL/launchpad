@@ -30,9 +30,7 @@ use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
-use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
 use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
-use OCA\LaunchPad\Kernel\Contracts\WeatherServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
@@ -75,17 +73,13 @@ class PublicWidgetReadService {
 	 *
 	 * @param DashboardMapper                  $dashMapper      Resolves the shared dashboards.
 	 * @param WidgetPlacementMapper            $placementMapper Loads the placement asked for.
-	 * @param WeatherServiceInterface          $weather         Resolves a weather reading.
-	 * @param LiveTileService                  $liveData        Resolves a live data value.
-	 * @param AnnouncementServiceInterface     $announcements   The announcements for everyone.
+	 * @param PublicWidgetSources              $sources         The weather, live data and announcements.
 	 * @param ConditionalServiceInterface|null $visibility      Applies the widget visibility rules.
 	 */
 	public function __construct(
 		private readonly DashboardMapper $dashMapper,
 		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly WeatherServiceInterface $weather,
-		private readonly LiveTileService $liveData,
-		private readonly AnnouncementServiceInterface $announcements,
+		private readonly PublicWidgetSources $sources,
 		private readonly ?ConditionalServiceInterface $visibility = null,
 	) {
 	}//end __construct()
@@ -114,11 +108,11 @@ class PublicWidgetReadService {
 		return match ($widget) {
 			self::WIDGET_WEATHER => [
 				'widget' => $widget,
-				'data' => $this->weather->resolveForPlacement(placementId: $placementId, userId: ''),
+				'data' => $this->sources->weather->resolveForPlacement(placementId: $placementId, userId: ''),
 			],
 			self::WIDGET_LIVE_DATA => [
 				'widget' => $widget,
-				'data' => $this->liveData->resolveForPlacement(placementId: $placementId),
+				'data' => $this->sources->liveData->resolveForPlacement(placementId: $placementId),
 			],
 			self::WIDGET_NEWS => [
 				'widget' => $widget,
@@ -196,9 +190,12 @@ class PublicWidgetReadService {
 			$limit = self::DEFAULT_NEWS_LIMIT;
 		}
 
+		// No reader: only what is targeted at everyone; the target check is
+		// repeated so a group's news can never reach an anonymous visitor.
 		$items = array_filter(
-			$this->announcements->visibleToEveryone(),
-			static fn (Announcement $item): bool => $item->getKind() !== Announcement::KIND_NOTICE
+			$this->sources->announcements->visibleTo(userId: ''),
+			static fn (Announcement $item): bool => $item->getTargetGroupList() === []
+				&& $item->getKind() !== Announcement::KIND_NOTICE
 				&& ($category === '' || $item->getCategory() === $category)
 		);
 

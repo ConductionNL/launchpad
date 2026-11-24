@@ -64,8 +64,15 @@ class SetupWizardServiceTest extends TestCase {
 		);
 	}
 
+	/**
+	 * The wizard has five steps and no storage step.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
+	 */
 	public function testWizardHasFiveStepsWithoutAStorageStep(): void {
-		$this->assertSame(5, SetupWizardService::STEP_COUNT);
+		$this->assertSame(expected: 5, actual: SetupWizardService::STEP_COUNT);
 		$this->assertFalse(method_exists(SetupWizardService::class, 'setContentStorage'));
 		$this->assertFalse(method_exists(SetupWizardService::class, 'getContentStorage'));
 		$this->assertFalse(method_exists(SetupWizardService::class, 'hasGroupfolderApp'));
@@ -84,7 +91,7 @@ class SetupWizardServiceTest extends TestCase {
 		$state = $this->service->getWizardState();
 
 		$this->assertSame(2, $state['currentRecommendedStep']);
-		$this->assertCount(5, $state['stepStatuses']);
+		$this->assertCount(expectedCount: 5, haystack: $state['stepStatuses']);
 		$this->assertSame('pending', $state['stepStatuses']['2']);
 	}
 
@@ -117,7 +124,7 @@ class SetupWizardServiceTest extends TestCase {
 
 		$this->assertTrue($state['complete']);
 		$this->assertSame('done', $state['stepStatuses']['5']);
-		$this->assertCount(5, $state['stepStatuses']);
+		$this->assertCount(expectedCount: 5, haystack: $state['stepStatuses']);
 		// Steps 3/4 are 'skipped' (sibling capabilities pending), so the
 		// first non-'done' status is Step 3. The wizard "complete" flag
 		// is the source of truth for hiding the banner; the recommended

@@ -125,6 +125,24 @@ class AnnouncementService implements AnnouncementServiceInterface {
 	}//end visibleTo()
 
 	/**
+	 * The published announcements an anonymous visitor sees now: those
+	 * targeted at everyone (no target groups), newest first. One targeted at
+	 * groups is never among them (REQ-PSHR-011).
+	 *
+	 * @return list<Announcement>
+	 *
+	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 */
+	public function visibleToEveryone(): array {
+		return array_values(
+			array_filter(
+				$this->announcements->findLive(now: $this->now()),
+				static fn (Announcement $announcement): bool => $announcement->getTargetGroupList() === []
+			)
+		);
+	}//end visibleToEveryone()
+
+	/**
 	 * The drafts a user may see: every draft for an administrator, their own for an author, none otherwise.
 	 *
 	 * @param string $userId The user.

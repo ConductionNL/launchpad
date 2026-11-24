@@ -247,6 +247,7 @@ class PublicShareServiceTest extends TestCase {
 		foreach ([
 			[PublicShareService::class, 'createPublicShare', 'password'],
 			[PublicShareService::class, 'renderShareContent', 'password'],
+			[PublicShareService::class, 'sharedDashboardUuid', 'password'],
 			[PublicShareService::class, 'unlockShare', 'password'],
 			[\OCA\LaunchPad\Controller\PublicShareController::class, 'create', 'password'],
 			[\OCA\LaunchPad\Controller\PublicShareController::class, 'unlock', 'password'],
@@ -312,6 +313,47 @@ class PublicShareServiceTest extends TestCase {
 		$this->expectException(SharePasswordRequiredException::class);
 
 		$this->service->renderShareContent(token: 'tok', ipAddress: '127.0.0.1');
+	}
+
+	/**
+	 * A widget's read opens the share's dashboard without counting a visit.
+	 *
+	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 */
+	public function testSharedDashboardUuidOpensTheShareWithoutCountingAVisit(): void {
+		$share = new PublicShare();
+		$share->setToken('tok');
+		$share->setRevokedAt(null);
+		$share->setExpiresAt(null);
+		$share->setPasswordHash(null);
+		$share->setDashboardUuid('some-uuid');
+
+		$this->shareMapper->method('findByToken')->willReturn($share);
+		$this->shareMapper->expects($this->never())->method('incrementViewCount');
+
+		$this->assertSame('some-uuid', $this->service->sharedDashboardUuid(token: 'tok', ipAddress: '127.0.0.1'));
+	}
+
+	/**
+	 * A widget's read is behind the share's password gate.
+	 *
+	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 */
+	public function testSharedDashboardUuidNeedsThePassword(): void {
+		$share = new PublicShare();
+		$share->setToken('tok');
+		$share->setRevokedAt(null);
+		$share->setExpiresAt(null);
+		$share->setPasswordHash('$2y$hash');
+		$share->setDashboardUuid('some-uuid');
+
+		$this->shareMapper->method('findByToken')->willReturn($share);
+		$this->hasher->method('verify')->willReturn(false);
+		$this->throttler->expects($this->once())->method('registerAttempt');
+
+		$this->expectException(SharePasswordRequiredException::class);
+
+		$this->service->sharedDashboardUuid(token: 'tok', ipAddress: '127.0.0.1', password: 'wrong');
 	}
 
 	public function testRenderValidTokenWithoutPasswordSucceeds(): void {

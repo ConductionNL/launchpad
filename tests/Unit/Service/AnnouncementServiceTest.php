@@ -155,6 +155,29 @@ class AnnouncementServiceTest extends TestCase {
 	}//end service()
 
 	/**
+	 * An anonymous visitor sees only the published news for everyone, never news targeted at a group.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 */
+	public function testEveryoneSeesOnlyNewsForEveryone(): void {
+		$service = $this->service();
+		$forAll = $service->create(userId: 'karin', input: ['title' => 'Stadskantoor open', 'expiresAt' => self::UNTIL]);
+		$forGroup = $service->create(
+			userId: 'karin',
+			input: ['title' => 'Inloopspreekuur privacy', 'targetGroups' => ['Medewerkers'], 'expiresAt' => self::UNTIL]
+		);
+		$service->create(userId: 'karin', input: ['title' => 'Nog een concept', 'expiresAt' => self::UNTIL]);
+		$this->assertSame([], $service->visibleToEveryone());
+
+		$service->publish('karin', $forAll->getUuid());
+		$service->publish('karin', $forGroup->getUuid());
+
+		$this->assertSame(['Stadskantoor open'], array_map(static fn (Announcement $a): string => $a->getTitle(), $service->visibleToEveryone()));
+	}//end testEveryoneSeesOnlyNewsForEveryone()
+
+	/**
 	 * Karin publishes news for Medewerkers: Pieter sees it, Sanne neither lists nor reads it.
 	 *
 	 * @return void

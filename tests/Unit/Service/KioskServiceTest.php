@@ -374,6 +374,41 @@ class KioskServiceTest extends TestCase {
 	// renderPlaylist
 	// -------------------------------------------------------------------------
 
+	/**
+	 * A playlist's widgets read through the dashboards it shows, each once.
+	 *
+	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 */
+	public function testPlaylistDashboardUuidsListsEachEntryOnce(): void {
+		$playlist = new KioskPlaylist();
+		$playlist->setToken('tok');
+		$playlist->setEntries(
+			(string)json_encode(
+				[
+					['dashboardUuid' => 'today', 'dwellSeconds' => 15],
+					['dashboardUuid' => 'menu', 'dwellSeconds' => 25],
+					['dashboardUuid' => 'today', 'dwellSeconds' => 15],
+				]
+			)
+		);
+		$this->playlistMapper->method('findByToken')->willReturn($playlist);
+
+		$this->assertSame(['today', 'menu'], $this->service->playlistDashboardUuids(token: 'tok'));
+	}
+
+	/**
+	 * An unknown playlist token reads nothing.
+	 *
+	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 */
+	public function testPlaylistDashboardUuidsUnknownTokenThrowsNotFound(): void {
+		$this->playlistMapper->method('findByToken')->willThrowException(new DoesNotExistException('not found'));
+
+		$this->expectException(PlaylistNotFoundException::class);
+
+		$this->service->playlistDashboardUuids(token: 'bogus');
+	}
+
 	public function testRenderPlaylistUnknownTokenThrowsNotFound(): void {
 		$this->playlistMapper
 			->method('findByToken')

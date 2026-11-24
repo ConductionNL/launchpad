@@ -369,6 +369,56 @@ class PublicShareService {
 		#[\SensitiveParameter]
 		?string $password = null,
 	): array {
+		$share = $this->openShare(token: $token, ipAddress: $ipAddress, password: $password);
+
+		return $this->shareContent(share: $share, visit: new PublicShareVisit(token: $token, ipAddress: $ipAddress));
+	}//end renderShareContent()
+
+	/**
+	 * The UUID of the dashboard an active share shows, behind the same token
+	 * and password gate as the render, without counting a visit: a widget on
+	 * the shared page reads its data through it (REQ-PSHR-011).
+	 *
+	 * @param string      $token     The share token.
+	 * @param string      $ipAddress Client IP address for throttling.
+	 * @param string|null $password  Plaintext password supplied by the client.
+	 *
+	 * @return string The shared dashboard's UUID.
+	 *
+	 * @throws ShareNotFoundException When token invalid, revoked, or expired.
+	 * @throws SharePasswordRequiredException When password is required but not supplied or wrong.
+	 *
+	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 */
+	public function sharedDashboardUuid(
+		string $token,
+		string $ipAddress,
+		#[\SensitiveParameter]
+		?string $password = null,
+	): string {
+		return (string)$this->openShare(token: $token, ipAddress: $ipAddress, password: $password)->getDashboardUuid();
+	}//end sharedDashboardUuid()
+
+	/**
+	 * The active share behind a token, once its password gate is passed.
+	 *
+	 * @param string      $token     The share token.
+	 * @param string      $ipAddress Client IP address for throttling.
+	 * @param string|null $password  Plaintext password supplied by the client.
+	 *
+	 * @return PublicShare The opened share.
+	 *
+	 * @throws ShareNotFoundException When token invalid, revoked, or expired.
+	 * @throws SharePasswordRequiredException When password is required but not supplied or wrong.
+	 *
+	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 */
+	private function openShare(
+		string $token,
+		string $ipAddress,
+		#[\SensitiveParameter]
+		?string $password,
+	): PublicShare {
 		$share = $this->resolveActiveShare(token: $token, ipAddress: $ipAddress);
 
 		// Password gate.
@@ -381,8 +431,8 @@ class PublicShareService {
 			throw new SharePasswordRequiredException();
 		}
 
-		return $this->shareContent(share: $share, visit: new PublicShareVisit(token: $token, ipAddress: $ipAddress));
-	}//end renderShareContent()
+		return $share;
+	}//end openShare()
 
 	/**
 	 * Whether a password-protected share was opened without a password.

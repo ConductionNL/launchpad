@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} en {last}",
+    "{list} and {count} more" : "{list} en nog {count}",
+    "One widget does not work on a phone and is hidden: {names}." : "1 widget werkt niet op een telefoon en is verborgen: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "{count} widgets werken niet op een telefoon en zijn verborgen: {names}.",
+    "Which?" : "Welke?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Sommige widgets hebben een groter scherm nodig, daarom verbergt een telefoon ze. Op een tablet of computer ziet u ze gewoon.",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Het thema is voor elk dashboard hetzelfde. De eigen kleuren van dit dashboard stelt u in onder Eigen uitstraling.",
     "Sign in for employees" : "Inloggen voor medewerkers",
     "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. This tour is shown once." : "De standaarden waarmee elk dashboard begint: wie dashboards mag maken, het rechtenniveau en het raster. Deze rondleiding ziet u één keer.",

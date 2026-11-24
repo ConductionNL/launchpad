@@ -1426,6 +1426,12 @@
         "Year": "Év",
         "Display": "Megjelenítés",
         "Theme": "Téma",
-        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "A téma minden irányítópulton ugyanaz. Ennek az irányítópultnak a saját színeit a „Saját megjelenés” alatt állíthatja be."
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "A téma minden irányítópulton ugyanaz. Ennek az irányítópultnak a saját színeit a „Saját megjelenés” alatt állíthatja be.",
+        "{list} and {last}": "{list} és {last}",
+        "{list} and {count} more": "{list} és még {count}",
+        "One widget does not work on a phone and is hidden: {names}.": "Egy widget nem működik telefonon, ezért rejtve van: {names}.",
+        "{count} widgets do not work on a phone and are hidden: {names}.": "{count} widget nem működik telefonon, ezért rejtve van: {names}.",
+        "Which?": "Melyek?",
+        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Egyes widgeteknek nagyobb képernyő kell, ezért a telefon elrejti őket. Táblagépen vagy számítógépen a szokásos módon látja őket."
     }
 }

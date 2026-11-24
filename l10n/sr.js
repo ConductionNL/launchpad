@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} и {last}",
+    "{list} and {count} more" : "{list} и још {count}",
+    "One widget does not work on a phone and is hidden: {names}." : "Један виџет не ради на телефону и сакривен је: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "Број виџета који не раде на телефону и сакривени су: {count}. {names}.",
+    "Which?" : "Који?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Неким виџетима треба већи екран, па их телефон сакрива. На таблету или рачунару видите их као и обично.",
     "Display" : "Приказ",
     "Theme" : "Тема",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Тема је иста за сваку контролну таблу. Сопствене боје ове табле постављате под „Сопствени изглед“.",

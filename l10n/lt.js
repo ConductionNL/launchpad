@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} ir {last}",
+    "{list} and {count} more" : "{list} ir dar {count}",
+    "One widget does not work on a phone and is hidden: {names}." : "Vienas valdiklis neveikia telefone ir yra paslėptas: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "Valdiklių, kurie neveikia telefone ir yra paslėpti: {count}. {names}.",
+    "Which?" : "Kurie?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Kai kuriems valdikliams reikia didesnio ekrano, todėl telefonas juos paslepia. Planšetėje ar kompiuteryje juos matote kaip įprasta.",
     "Display" : "Rodinys",
     "Theme" : "Tema",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Tema visoms skydelių lentoms yra ta pati. Šios lentos spalvas nustatote skiltyje „Sava išvaizda“.",

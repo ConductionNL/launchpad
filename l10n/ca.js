@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} i {last}",
+    "{list} and {count} more" : "{list} i {count} més",
+    "One widget does not work on a phone and is hidden: {names}." : "Un giny no funciona en un telèfon i està amagat: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "{count} ginys no funcionen en un telèfon i estan amagats: {names}.",
+    "Which?" : "Quins?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Alguns ginys necessiten una pantalla més gran, per això un telèfon els amaga. En una tauleta o un ordinador els veieu com sempre.",
     "Display" : "Visualització",
     "Theme" : "Tema",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "El tema és el mateix per a cada tauler. Els colors propis d'aquest tauler es defineixen a «Aspecte propi».",

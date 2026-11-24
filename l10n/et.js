@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "{list} and {last}" : "{list} ja {last}",
+    "{list} and {count} more" : "{list} ja veel {count}",
+    "One widget does not work on a phone and is hidden: {names}." : "Üks vidin ei tööta telefonis ja on peidetud: {names}.",
+    "{count} widgets do not work on a phone and are hidden: {names}." : "{count} vidinat ei tööta telefonis ja on peidetud: {names}.",
+    "Which?" : "Millised?",
+    "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual." : "Mõni vidin vajab suuremat ekraani, seepärast peidab telefon selle. Tahvelarvutis või arvutis näete neid nagu tavaliselt.",
     "Display" : "Kuva",
     "Theme" : "Teema",
     "The theme is the same for every dashboard. Set this dashboard's own colours under Own look." : "Teema on kõigil töölaudadel sama. Selle töölaua oma värvid määrad jaotises „Oma välimus“.",

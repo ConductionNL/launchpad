@@ -1426,6 +1426,12 @@
         "Year": "År",
         "Display": "Visning",
         "Theme": "Tema",
-        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Temaet er det samme for alle dashbord. Dette dashbordets egne farger angir du under «Eget utseende»."
+        "The theme is the same for every dashboard. Set this dashboard's own colours under Own look.": "Temaet er det samme for alle dashbord. Dette dashbordets egne farger angir du under «Eget utseende».",
+        "{list} and {last}": "{list} og {last}",
+        "{list} and {count} more": "{list} og {count} til",
+        "One widget does not work on a phone and is hidden: {names}.": "En widget fungerer ikke på en telefon og er skjult: {names}.",
+        "{count} widgets do not work on a phone and are hidden: {names}.": "{count} widgeter fungerer ikke på en telefon og er skjult: {names}.",
+        "Which?": "Hvilke?",
+        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Noen widgeter trenger en større skjerm, så en telefon skjuler dem. På et nettbrett eller en datamaskin ser du dem som vanlig."
     }
 }

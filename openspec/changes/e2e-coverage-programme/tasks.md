@@ -93,6 +93,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 3.4 `grid-layout`: 56 scenarios, 16 cited.
   - Spec written: `tests/e2e/grid-layout-drag-resize.spec.ts`, `grid-layout-keyboard.spec.ts`, `grid-layout-placement.spec.ts`, `grid-layout-rendering.spec.ts` (helper `support/ownDashboard.ts`), 56 scenarios cited in total (fixme tests for suspected defects, see the PR), 8 excluded, not yet run (cloud, 2026-11-19)
   - Spec written: `tests/e2e/responsive-grid-breakpoints.spec.ts` (new scenario app-tiles-four-to-a-row-on-a-phone from the four-column phone step; the one-column phone asserts, cited by a scenario that no longer exists, now read four columns), 2 scenarios cited (app-tiles-four-to-a-row-on-a-phone, below-smallest-breakpoint, which was cited by a 1600 px test), not yet run (cloud, 2026-11-24)
+  - Spec written: `tests/e2e/widget-collision-placement.spec.ts` (four citations of slugs no grid-layout scenario carries removed; the occupied-grid test now asserts the bottom-append rule, that no existing widget moves, instead of the retired push-down), 0 scenarios cited, not yet run (cloud, 2026-11-24)
 - [ ] 3.5 `setup-wizard`: 55 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/setup-wizard.spec.ts`, 42 scenarios cited (14 of them as `test.fixme` for suspected defects, see the PR), 9 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.6 `footer-customization`: 47 scenarios, 0 cited, blanket.
@@ -117,6 +118,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 22 of 22 green, every listed test run (checked against `playwright test --list`).
 - [ ] 3.14 `dashboard-kiosk-mode`: 23 scenarios, 0 cited.
   - Spec written: tests/e2e/dashboard-kiosk-mode.spec.ts (new), 24 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Spec written: `tests/e2e/dashboard-kiosk-mode.spec.ts`, `tests/e2e/kiosk-position-indicator.spec.ts` (synced in by #1766), 30 scenarios in the spec now, 26 cited, 4 excluded with a reason (playlist read-only marker, shared throttle bucket, refresh clamp with no input, watchdog never built), 0 uncited; not yet run (cloud, 2026-11-24)
 - [x] 3.15 `dashboard-switcher`: 20 scenarios, 11 cited.
   - Spec written: tests/e2e/dashboard-switcher.spec.ts (new), 19 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 15 green, every listed test run (checked against `playwright test --list`).
@@ -130,6 +132,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 4 of 4 green.
 - [ ] 3.19 `effective-default-marker`: 5 scenarios, 0 cited.
   - Written: `tests/e2e/effective-default-marker.spec.ts` cites all 5 scenarios, and their exclusions are removed from the spec. Open: the CI run that shows they ran, and the seen-to-fail mutation pass.
+  - Spec written: `tests/e2e/effective-default-marker.spec.ts`, 5 scenarios cited, 0 excluded; "the pin wins over a group fallback" no longer skips when no group dashboard is on screen but asserts one is (SeedDefaultDashboard provisions it), so it can fail; not yet run (cloud, 2026-11-24)
 
 ## 4. Tier 3, widgets
 

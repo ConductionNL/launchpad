@@ -120,3 +120,13 @@ for (const rule of webpackConfig.module.rules) {
 }
 
 module.exports = webpackConfig
+
+// The minimizer forks one worker per CPU core less one by default, and each
+// worker holds a chunk and its source map while it minifies. On a 14-core box
+// that put the production build above 10 GB; a few workers finish about as
+// fast, because the largest chunks dominate the minify time anyway.
+for (const minimizer of webpackConfig.optimization?.minimizer || []) {
+	if (minimizer && minimizer.options) {
+		minimizer.options.parallel = Number(process.env.LAUNCHPAD_MINIFY_WORKERS || 2)
+	}
+}

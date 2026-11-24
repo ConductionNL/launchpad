@@ -93,6 +93,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 3.4 `grid-layout`: 56 scenarios, 16 cited.
   - Spec written: `tests/e2e/grid-layout-drag-resize.spec.ts`, `grid-layout-keyboard.spec.ts`, `grid-layout-placement.spec.ts`, `grid-layout-rendering.spec.ts` (helper `support/ownDashboard.ts`), 56 scenarios cited in total (fixme tests for suspected defects, see the PR), 8 excluded, not yet run (cloud, 2026-11-19)
   - Spec written: `tests/e2e/responsive-grid-breakpoints.spec.ts` (new scenario app-tiles-four-to-a-row-on-a-phone from the four-column phone step; the one-column phone asserts, cited by a scenario that no longer exists, now read four columns), 2 scenarios cited (app-tiles-four-to-a-row-on-a-phone, below-smallest-breakpoint, which was cited by a 1600 px test), not yet run (cloud, 2026-11-24)
+  - Spec written: `tests/e2e/widget-collision-placement.spec.ts` (four citations of slugs no grid-layout scenario carries removed; the occupied-grid test now asserts the bottom-append rule, that no existing widget moves, instead of the retired push-down), 0 scenarios cited, not yet run (cloud, 2026-11-24)
 - [ ] 3.5 `setup-wizard`: 55 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/setup-wizard.spec.ts`, 42 scenarios cited (14 of them as `test.fixme` for suspected defects, see the PR), 9 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.6 `footer-customization`: 47 scenarios, 0 cited, blanket.

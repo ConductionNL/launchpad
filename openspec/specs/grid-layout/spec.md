@@ -349,6 +349,7 @@ The grid MUST support keyboard navigation and screen reader compatibility.
 - THEN focus MUST move sequentially through widget placements
 - AND each focused widget MUST have a visible focus indicator
 - NOTE: Keyboard navigation is NOT currently implemented.
+@e2e exclude never built: view-mode Tab stops are deliberately omitted, CnDashboardGrid sets `tabindex` only while `keyboardActive` (keyboardRepositioning && editable && !reflowed, @conduction/nextcloud-vue 2.203.0 CnDashboardGrid.vue `itemTabindex`); edit-mode Tab order and focus ring are cited under grid-item-is-keyboard-focusable (tests/e2e/grid-layout-keyboard.spec.ts)
 
 #### Scenario: Keyboard widget movement in edit mode
 - GIVEN the dashboard is in edit mode
@@ -356,6 +357,7 @@ The grid MUST support keyboard navigation and screen reader compatibility.
 - WHEN the user presses Arrow keys while holding a modifier key (e.g., Ctrl+Arrow)
 - THEN the widget MUST move one grid cell in the arrow direction
 - NOTE: Keyboard movement is NOT currently implemented.
+@e2e exclude never built: Ctrl+Arrow is not a binding, CnDashboardGrid's item keydown returns early on any Alt/Ctrl/Meta modifier (@conduction/nextcloud-vue 2.203.0 CnDashboardGrid.vue); keyboard movement shipped instead as REQ-GRID-KBD-002 (plain arrows, Shift+arrows), cited under nudging-position-with-arrow-keys and resizing-with-shiftarrow-keys
 
 #### Scenario: Screen reader announces widget positions
 - GIVEN a screen reader is active

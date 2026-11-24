@@ -12,12 +12,15 @@
  * pointer event is used once the page is in edit mode, except where a scenario
  * compares the keyboard menu with the right-click menu.
  *
+ * keyboard-navigation-between-widgets and keyboard-widget-movement-in-edit-mode
+ * (REQ-GRID-008) carry a never-built exclusion in the spec: view mode has no
+ * tab stops and Ctrl+Arrow is no binding; keyboard movement shipped as
+ * REQ-GRID-KBD-002, tested below. The accessible-name scenarios live in
+ * grid-layout-accessible-name.spec.ts: they are expected red, and this file
+ * runs serially, so a red there would skip every test after it here.
+ *
  * Gate-19 @e2e traceability:
- *   @e2e grid-layout::keyboard-navigation-between-widgets
- *   @e2e grid-layout::keyboard-widget-movement-in-edit-mode
- *   @e2e grid-layout::screen-reader-announces-widget-positions
  *   @e2e grid-layout::grid-item-is-keyboard-focusable
- *   @e2e grid-layout::screen-reader-announces-the-widget
  *   @e2e grid-layout::opening-the-move-panel-via-keyboard
  *   @e2e grid-layout::nudging-position-with-arrow-keys
  *   @e2e grid-layout::resizing-with-shiftarrow-keys
@@ -42,7 +45,6 @@ import {
 	setUpOwnDashboard,
 	tearDownOwnDashboard,
 } from './support/ownDashboard.ts'
-import { API } from './support/principals.ts'
 
 const MENU = '[data-testid="widget-context-menu"]'
 const PANEL = '[data-test="widget-move-panel"]'
@@ -103,31 +105,6 @@ async function openEditing(browser: Browser, count: number) {
 }
 
 /**
- * Press Tab until a grid item holds focus, recording each grid item reached,
- * until `count` distinct items have had focus.
- *
- * @param page The page.
- * @param count How many distinct items to visit.
- * @return The `gs-id` of each grid item in the order focus reached it.
- */
-async function tabThroughItems(page: Page, count: number): Promise<number[]> {
-	const visited: number[] = []
-	for (let press = 0; press < 120 && new Set(visited).size < count; press++) {
-		await page.keyboard.press('Tab')
-		const id = await page.evaluate(() => {
-			const el = document.activeElement
-			return el && el.classList.contains('grid-stack-item')
-				? Number(el.getAttribute('gs-id'))
-				: null
-		})
-		if (id !== null && visited[visited.length - 1] !== id) {
-			visited.push(id)
-		}
-	}
-	return visited
-}
-
-/**
  * Focus a widget and open its move panel with the keyboard only.
  *
  * @param page The page.
@@ -165,86 +142,6 @@ function countSaves(page: Page, dashboardId: number): () => number {
 	})
 	return () => saves
 }
-
-// @e2e grid-layout::keyboard-navigation-between-widgets
-test.fixme('in view mode Tab moves through the widgets with a visible focus ring', async ({
-	browser,
-}) => {
-	// Product disagrees: CnDashboardGrid only makes items tab stops while the
-	// grid is editable (`keyboardActive` = keyboardRepositioning && editable,
-	// node_modules/@conduction/nextcloud-vue/src/components/CnDashboardGrid/CnDashboardGrid.vue:585-596).
-	// In view mode `tabindex` is omitted, so Tab never lands on a widget.
-	const ids = await seed([
-		{ x: 0, y: 0, w: 4, h: 2 },
-		{ x: 4, y: 0, w: 4, h: 2 },
-	])
-	const { context, page } = await openOwnDashboard(browser, own!, 2)
-	try {
-		expect(await tabThroughItems(page, 2)).toEqual(ids)
-		const outline = await page.evaluate(
-			() => getComputedStyle(document.activeElement!).outlineStyle,
-		)
-		expect(outline).not.toBe('none')
-	} finally {
-		await context.close()
-	}
-})
-
-// @e2e grid-layout::keyboard-widget-movement-in-edit-mode
-test.fixme('in edit mode Ctrl+Arrow moves the focused widget one cell', async ({
-	browser,
-}) => {
-	// Product disagrees: CnDashboardGrid's item keydown handler returns early on
-	// any Ctrl/Alt/Meta modifier (CnDashboardGrid.vue:1320-1322); a plain arrow
-	// moves the widget and Shift+arrow resizes it.
-	const [only] = await seed([{ x: 2, y: 1, w: 4, h: 2 }])
-	const { context, page } = await openEditing(browser, 1)
-	try {
-		await item(page, only).focus()
-		const saved = nextLayoutSave(page, own!.id)
-		await page.keyboard.press('Control+ArrowRight')
-		expect((await saved).status()).toBe(200)
-		expect((await renderedRects(page)).get(only)).toEqual({
-			x: 3,
-			y: 1,
-			w: 4,
-			h: 2,
-		})
-		expect((await placementRects(own!.owner.api, own!.id)).get(only)).toEqual({
-			x: 3,
-			y: 1,
-			w: 4,
-			h: 2,
-		})
-	} finally {
-		await context.close()
-	}
-})
-
-// @e2e grid-layout::screen-reader-announces-widget-positions
-test.fixme('a focused widget is announced with its title, position and size', async ({
-	browser,
-}) => {
-	// Product disagrees on the title: the accessible name is built from
-	// `title || name || label || widgetTitle || widgetId` (CnDashboardGrid.vue:504-514)
-	// and src/views/Views.vue:262-273 passes no `itemLabel`, so a text widget
-	// titled "Team Announcements" is announced as "text, column 1 of 12, …".
-	const [only] = await seed([{ x: 0, y: 0, w: 4, h: 2 }])
-	const titled = await own!.owner.api.put(`${API}/widgets/${only}`, {
-		data: { customTitle: 'Team Announcements' },
-	})
-	expect(titled.status(), await titled.text()).toBe(200)
-	const { context, page } = await openEditing(browser, 1)
-	try {
-		await item(page, only).focus()
-		await expect(item(page, only)).toBeFocused()
-		await expect(item(page, only)).toHaveAccessibleName(
-			'Team Announcements, column 1 of 12, row 1, 4 columns wide, 2 rows tall',
-		)
-	} finally {
-		await context.close()
-	}
-})
 
 // @e2e grid-layout::grid-item-is-keyboard-focusable
 test('in edit mode Tab lands on each of three widgets in turn with a visible focus ring', async ({
@@ -287,31 +184,6 @@ test('in edit mode Tab lands on each of three widgets in turn with a visible foc
 			}
 		}
 		expect(visited).toEqual(ids)
-	} finally {
-		await context.close()
-	}
-})
-
-// @e2e grid-layout::screen-reader-announces-the-widget
-test.fixme('a widget titled "Team Announcements" is a group named "Widget: Team Announcements"', async ({
-	browser,
-}) => {
-	// Product disagrees: see the note on screen-reader-announces-widget-positions.
-	// No "Widget: " prefix exists in either the library or LaunchPad, and the
-	// title is not used (CnDashboardGrid.vue:504-514, src/views/Views.vue:262-273).
-	const [only] = await seed([{ x: 0, y: 0, w: 4, h: 2 }])
-	const titled = await own!.owner.api.put(`${API}/widgets/${only}`, {
-		data: { customTitle: 'Team Announcements' },
-	})
-	expect(titled.status(), await titled.text()).toBe(200)
-	const { context, page } = await openEditing(browser, 1)
-	try {
-		await expect(
-			page.getByRole('group', {
-				name: 'Widget: Team Announcements',
-				exact: true,
-			}),
-		).toHaveCount(1)
 	} finally {
 		await context.close()
 	}

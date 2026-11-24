@@ -97,6 +97,7 @@ export default {
 		 * The menu's accessible name.
 		 *
 		 * @return {string}
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-dialog-is-in-the-widgets-menu-req-cvui-007
 		 */
 		menuLabel() {
 			return t('launchpad', 'Widget menu')

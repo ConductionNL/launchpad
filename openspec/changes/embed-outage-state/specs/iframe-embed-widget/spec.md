@@ -11,14 +11,5 @@ An embedded page or report SHALL show under its title where it comes from ("Embe
 - **GIVEN** the Power BI connection failed at 09:30 with an expired token
 - **THEN** the card shows Outage, the cause with 09:30, Reload and Open in a new tab
 
-#### Scenario: Cause unknown
-
-- **GIVEN** the embed failed and neither the connection nor the widget knows why
-- **THEN** the card shows Outage and "The report could not be loaded", with Reload and Open in a new tab, and no cause line
-
-#### Scenario: Not an outage
-
-- **GIVEN** the embed has no URL, or its host was taken off the allow-list
-- **THEN** the card keeps its REQ-IFRAME-004 text and shows no Outage tag
 
 Content keys the widget reads for this (all optional): `kind` (`report` for an embedded report, otherwise a page) and `connection` (`{account, error, errorAt}`, what the connection behind the embed knows when one signs in). Without `connection.error`, the cause is what the widget found itself (the site refuses framing, could not be reached, did not finish loading, a network error) and the time is when it saw that.

@@ -347,6 +347,11 @@ export default {
 		 * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
 		 */
 		headStatus: {
+			/**
+			 * @param {{subtitle: string, outage: boolean}} status The head status.
+			 * @return {void}
+			 * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+			 */
 			handler(status) {
 				this.$emit('status', status)
 			},

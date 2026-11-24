@@ -52,6 +52,16 @@ describe('recentWorkRows', () => {
 		expect(rows.map((row) => row.title)).toEqual(['b.pdf'])
 	})
 
+	it('leaves out the older activity of a file the reader deleted later (REQ-WDG-032)', () => {
+		const rows = recentWorkRows([
+			{ app: 'files', type: 'file_deleted', subject: 'You deleted concept.docx', object_type: 'files', object_id: 7, object_name: '/concept.docx', link: '/f/7', datetime: NOW.toISOString() },
+			{ app: 'files', type: 'file_changed', object_type: 'files', object_id: 7, object_name: '/concept.docx', link: '/f/7', datetime: NOW.toISOString() },
+			{ app: 'files', type: 'file_created', object_type: 'files', object_id: 7, object_name: '/concept.docx', link: '/f/7', datetime: NOW.toISOString() },
+			{ app: 'files', type: 'file_changed', object_type: 'files', object_id: 8, object_name: '/plan.pdf', link: '/f/8', datetime: NOW.toISOString() },
+		], 6, NOW, 'en-GB')
+		expect(rows.map((row) => row.title)).toEqual(['plan.pdf'])
+	})
+
 	it('shows a file saved again under a new id once', () => {
 		const rows = recentWorkRows([
 			{ app: 'files', object_type: 'files', object_id: 1, object_name: '/a/plan.pdf', link: '/f/1', datetime: NOW.toISOString() },

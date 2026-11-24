@@ -17,7 +17,6 @@
  * Gate-19 @e2e traceability:
  *   @e2e dashboards::admin-opens-the-group-dashboards-tab
  *   @e2e dashboards::admin-creates-a-group-shared-dashboard
- *   @e2e dashboards::admin-deletes-the-last-dashboard-in-a-group
  *   @e2e dashboards::non-admin-cannot-open-the-tab
  *   @e2e dashboards::non-admin-cannot-create-a-group-shared-dashboard
  *   @e2e dashboards::non-admin-cannot-update-delete-or-set-default-a-group-shared-dashboard
@@ -241,8 +240,9 @@ test.describe('dashboards — group dashboards for administrators (REQ-DASH-015,
 		).toContainText(name)
 	})
 
-	// Not a scenario verdict on its own: the server half of the scenario below,
-	// which runs while the toast half is a suspected bug.
+	// Not a scenario verdict on its own: the server half of
+	// admin-deletes-the-last-dashboard-in-a-group, whose toast half runs,
+	// expected red, in dashboards-refusals-and-guards.spec.ts.
 	test('the last dashboard of a group cannot be deleted: 400, and it stays for its members', async () => {
 		const gid = await group('lastapi')
 		const only = await groupDashboard(gid, `E2E Only one ${T}`)
@@ -254,50 +254,6 @@ test.describe('dashboards — group dashboards for administrators (REQ-DASH-015,
 			`${API}/dashboards/group/${gid}/${only.uuid}`,
 		)
 		expect(refused.status()).toBe(400)
-		expect((await listGroup(gid)).map((dash) => dash.uuid)).toEqual([only.uuid])
-		expect((await visibleRows(bob!.api)).map((row) => row.uuid)).toContain(
-			only.uuid,
-		)
-	})
-
-	// @e2e dashboards::admin-deletes-the-last-dashboard-in-a-group
-	test.fixme('deleting the last dashboard of a group is refused with a toast that explains the guard', async ({
-		page,
-	}) => {
-		// SUSPECTED BUG: the guard reaches the browser without its reason.
-		// DashboardService::deleteGroupShared() throws a plain
-		// Exception(ERR_LAST_IN_GROUP) (lib/Service/DashboardService.php:1503),
-		// which DashboardApiController::deleteGroup() turns into
-		// 400 {"error": "Operation failed"} (lib/Controller/DashboardApiController.php:1326).
-		// The store only explains the guard for error code
-		// `last_group_dashboard` (src/stores/groupDashboards.js:33,199-203), so
-		// the admin is shown the generic "Failed to delete dashboard".
-		const gid = await group('last')
-		const only = await groupDashboard(gid, `E2E Last one ${T}`)
-		expect(
-			(await admin.post(`${API}/dashboards/${only.uuid}/publish`)).status(),
-		).toBe(200)
-
-		await openTab(page)
-		await page.locator(`[data-test="group-dashboards-manage-${gid}"]`).click()
-		const manage = page.locator('[data-test="manage-group-dashboards-modal"]')
-		await manage.locator(`[data-test="mgd-delete-${only.uuid}"]`).click()
-		const answered = page.waitForResponse(
-			(res) =>
-				res.request().method() === 'DELETE'
-				&& res.url().endsWith(`/api/dashboards/group/${gid}/${only.uuid}`),
-		)
-		await page
-			.getByRole('dialog', { name: 'Delete dashboard' })
-			.getByRole('button', { name: 'Delete' })
-			.click()
-		expect((await answered).status()).toBe(400)
-
-		await expect(
-			page
-				.locator('.toastify')
-				.filter({ hasText: 'Last dashboard cannot be deleted' }),
-		).toBeVisible()
 		expect((await listGroup(gid)).map((dash) => dash.uuid)).toEqual([only.uuid])
 		expect((await visibleRows(bob!.api)).map((row) => row.uuid)).toContain(
 			only.uuid,

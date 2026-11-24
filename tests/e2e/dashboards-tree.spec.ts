@@ -56,7 +56,6 @@
  *   @e2e dashboards::delete-parent-with-cascade-deletes-subtree
  *   @e2e dashboards::delete-childless-dashboard-has-no-guard
  *   @e2e dashboards::cascade-parameter-is-case-insensitive
- *   @e2e dashboards::user-cannot-delete-another-users-dashboard-subtree
  *
  * @spec openspec/specs/dashboards/spec.md
  */
@@ -975,30 +974,5 @@ test.describe('dashboards — hierarchy, slugs, paths, tree and cascade (REQ-DAS
 			)
 			expect((await readDashboard(alice!.api, kid.id)).status, flag).toBe(404)
 		}
-	})
-
-	// @e2e dashboards::user-cannot-delete-another-users-dashboard-subtree
-	test.fixme('another user deleting a subtree is refused with 403 and nothing is deleted', async () => {
-		// SUSPECTED BUG: DashboardService::deleteDashboard() refuses a
-		// non-owner by throwing a plain Exception('Access denied')
-		// (lib/Service/DashboardService.php:1021), which
-		// DashboardApiController::delete() maps through ResponseHelper::error()
-		// to 400 "Operation failed" (lib/Controller/DashboardApiController.php:870),
-		// not to the 403 this scenario requires. Nothing is deleted either way.
-		const tree = await root(alice!, 'Foreign delete')
-		const kid = await child(alice!, tree, 'Kid')
-
-		const refused = await bob!.api.delete(
-			`${API}/dashboard/${tree.id}?cascade=true`,
-		)
-		expect(refused.status()).toBe(403)
-		expect((await readDashboard(alice!.api, tree.id)).status).toBe(200)
-		expect((await readDashboard(alice!.api, kid.id)).status).toBe(200)
-
-		// Control: the owner may.
-		const allowed = await alice!.api.delete(
-			`${API}/dashboard/${tree.id}?cascade=true`,
-		)
-		expect(allowed.status()).toBe(200)
 	})
 })

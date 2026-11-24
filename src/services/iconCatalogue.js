@@ -59,6 +59,14 @@ export function loadIconCatalogue() {
  * @spec openspec/specs/dashboard-icons/spec.md#req-icon-009
  */
 export const LAZY_ICON_CATALOGUE = new Proxy(ICON_CATALOGUE, {
+	/**
+	 * Read from the catalogue, starting its load on the first read.
+	 *
+	 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-009
+	 * @param {Array<object>} target The catalogue.
+	 * @param {string|symbol} key The property read.
+	 * @return {unknown} The property's value.
+	 */
 	get(target, key) {
 		if (!catalogueLoad) {
 			loadIconCatalogue().catch(() => {})

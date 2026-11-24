@@ -956,6 +956,7 @@ export default {
 		/**
 		 * Whether each lazily mounted dialog or modal is open now.
 		 *
+		 * @spec exclude load-time split of the dialogs, no behaviour of its own
 		 * @return {object} Open flags keyed like `mountedModals`.
 		 */
 		openModals() {
@@ -1496,6 +1497,7 @@ export default {
 			/**
 			 * Mount a dialog or modal when it first opens.
 			 *
+			 * @spec exclude load-time split of the dialogs, no behaviour of its own
 			 * @param {object} open The open flags.
 			 */
 			handler(open) {

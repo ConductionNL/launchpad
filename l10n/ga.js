@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "What do you think of this dashboard?" : "Cad é do mheas ar an deais seo?",
+    "today {time}" : "inniu {time}",
+    "Last updated {when}" : "Nuashonraithe go deireanach {when}",
+    "Last updated by {name}, {when}" : "Nuashonraithe go deireanach ag {name}, {when}",
     "{list} and {last}" : "{list} agus {last}",
     "{list} and {count} more" : "{list} agus {count} eile",
     "One widget does not work on a phone and is hidden: {names}." : "Ní oibríonn giuirléid amháin ar fhón agus tá sí i bhfolach: {names}.",

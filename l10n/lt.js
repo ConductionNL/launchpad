@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "What do you think of this dashboard?" : "Ką manote apie šį skydelį?",
+    "today {time}" : "šiandien {time}",
+    "Last updated {when}" : "Paskutinį kartą atnaujinta {when}",
+    "Last updated by {name}, {when}" : "Paskutinį kartą atnaujino {name}, {when}",
     "{list} and {last}" : "{list} ir {last}",
     "{list} and {count} more" : "{list} ir dar {count}",
     "One widget does not work on a phone and is hidden: {names}." : "Vienas valdiklis neveikia telefone ir yra paslėptas: {names}.",

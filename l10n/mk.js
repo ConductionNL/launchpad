@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "What do you think of this dashboard?" : "Што мислите за оваа контролна табла?",
+    "today {time}" : "денес {time}",
+    "Last updated {when}" : "Последно ажурирано {when}",
+    "Last updated by {name}, {when}" : "Последно ажурирал(а) {name}, {when}",
     "{list} and {last}" : "{list} и {last}",
     "{list} and {count} more" : "{list} и уште {count}",
     "One widget does not work on a phone and is hidden: {names}." : "Еден виџет не работи на телефон и е скриен: {names}.",

@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "What do you think of this dashboard?" : "Mit gondol erről az irányítópultról?",
+    "today {time}" : "ma {time}",
+    "Last updated {when}" : "Utoljára frissítve: {when}",
+    "Last updated by {name}, {when}" : "Utoljára frissítette: {name}, {when}",
     "{list} and {last}" : "{list} és {last}",
     "{list} and {count} more" : "{list} és még {count}",
     "One widget does not work on a phone and is hidden: {names}." : "Egy widget nem működik telefonon, ezért rejtve van: {names}.",

@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "What do you think of this dashboard?" : "Wat vindt u van dit dashboard?",
+    "today {time}" : "vandaag {time}",
+    "Last updated {when}" : "Laatst bijgewerkt {when}",
+    "Last updated by {name}, {when}" : "Laatst bijgewerkt door {name}, {when}",
     "{list} and {last}" : "{list} en {last}",
     "{list} and {count} more" : "{list} en nog {count}",
     "One widget does not work on a phone and is hidden: {names}." : "1 widget werkt niet op een telefoon en is verborgen: {names}.",

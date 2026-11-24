@@ -4,12 +4,15 @@
 -->
 
 <template>
-	<div
+	<section
 		v-if="summary && summary.enabled"
 		class="dashboard-reactions"
-		role="group"
 		:aria-label="t('launchpad', 'Reactions')"
 		data-testid="dashboard-reactions">
+		<p class="dashboard-reactions__question" data-testid="dashboard-reactions-question">
+			{{ t('launchpad', 'What do you think of this dashboard?') }}
+		</p>
+		<div class="dashboard-reactions__chips" role="group" :aria-label="t('launchpad', 'Reactions')">
 		<button
 			v-for="emoji in shown"
 			:key="emoji"
@@ -41,25 +44,84 @@
 			@click="toggle(emoji)">
 			<span aria-hidden="true">{{ emoji }}</span>
 		</button>
-	</div>
+		</div>
+		<p
+			v-if="lastChangeLine"
+			class="dashboard-reactions__last-change"
+			data-testid="dashboard-reactions-last-change">
+			{{ lastChangeLine }}
+		</p>
+	</section>
 </template>
 
 <script>
-import { t } from '@nextcloud/l10n'
+import { getCanonicalLocale, t } from '@nextcloud/l10n'
 import { mapActions, mapState } from 'pinia'
 import { TEXT_PROP } from '../../constants/propDefinitions.js'
 import { api } from '../../services/api.js'
 import { useDashboardStore } from '../../stores/dashboard.js'
 
+/** Milliseconds in a day. */
+const DAY_MS = 86400000
+
 /**
- * DashboardReactions: the reactions bar under the dashboard title. Each
+ * The moment of a change as the boards word it: "today 08:30" for today,
+ * the weekday within the last week, the date before that.
+ *
+ * @param {Date} changed The moment of the change.
+ * @param {Date} now The current moment.
+ * @param {string} locale BCP 47 locale.
+ * @return {string} The moment.
+ * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+ */
+function whenText(changed, now, locale) {
+	const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+	if (changed.getTime() >= startOfToday) {
+		return t('launchpad', 'today {time}', {
+			time: changed.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
+		})
+	}
+	if (changed.getTime() >= startOfToday - 6 * DAY_MS) {
+		return changed.toLocaleDateString(locale, { weekday: 'long' })
+	}
+	return changed.toLocaleDateString(locale, { day: 'numeric', month: 'long' })
+}
+
+/**
+ * The last-change line of the reactions bar: "Last updated by <name>,
+ * <when>", or "Last updated <when>" without a name.
+ *
+ * @param {{name?: string, at?: string|null}|null|undefined} lastChange The summary's last change.
+ * @param {Date} now The current moment.
+ * @param {string} locale BCP 47 locale.
+ * @return {string} The line, or '' without a usable time.
+ * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+ */
+export function lastChangeText(lastChange, now, locale) {
+	const changed = new Date(lastChange?.at ?? '')
+	if (Number.isNaN(changed.getTime())) {
+		return ''
+	}
+	const when = whenText(changed, now, locale)
+	const name = typeof lastChange.name === 'string' ? lastChange.name.trim() : ''
+	if (name === '') {
+		return t('launchpad', 'Last updated {when}', { when }, undefined, { escape: false })
+	}
+	return t('launchpad', 'Last updated by {name}, {when}', { name, when }, undefined, { escape: false })
+}
+
+/**
+ * DashboardReactions: the reactions bar at the foot of the dashboard, a
+ * card over the full width that asks what the viewer thinks of it. Each
  * emoji with a count, the viewer's own marked (aria-pressed); a click
  * toggles the viewer's reaction; the allowed emoji nobody used yet are
  * offered too. Hovering or focusing a count names who reacted. Absent when
  * reactions are off globally or for the dashboard (the summary says
- * `enabled: false`).
+ * `enabled: false`). After the reactions it names who last changed the
+ * dashboard, and when.
  *
  * @spec openspec/specs/dashboard-reactions/spec.md
+ * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
  */
 export default {
 	name: 'DashboardReactions',
@@ -103,6 +165,16 @@ export default {
 				? this.summary.allowed
 				: []
 			return allowed.filter((e) => !this.shown.includes(e))
+		},
+
+		/**
+		 * "Last updated by <name>, <when>" from the summary's last change.
+		 *
+		 * @return {string} The line, or '' when the change is unknown.
+		 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+		 */
+		lastChangeLine() {
+			return lastChangeText(this.summary?.lastChange, new Date(), getCanonicalLocale())
 		},
 	},
 
@@ -212,8 +284,33 @@ export default {
 .dashboard-reactions {
 	display: flex;
 	flex-wrap: wrap;
+	gap: 8px 16px;
+	align-items: center;
+	margin: 8px;
+	padding: 12px 16px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-large);
+	background: var(--color-main-background);
+}
+
+.dashboard-reactions__question,
+.dashboard-reactions__last-change {
+	margin: 0;
+}
+
+.dashboard-reactions__question {
+	font-weight: bold;
+}
+
+.dashboard-reactions__chips {
+	display: flex;
+	flex-wrap: wrap;
 	gap: 6px;
-	margin: 0 8px 8px;
+}
+
+.dashboard-reactions__last-change {
+	margin-inline-start: auto;
+	color: var(--color-text-maxcontrast);
 }
 
 .dashboard-reactions__chip {

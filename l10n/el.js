@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "What do you think of this dashboard?" : "Τι πιστεύετε για αυτόν τον πίνακα ελέγχου;",
+    "today {time}" : "σήμερα {time}",
+    "Last updated {when}" : "Τελευταία ενημέρωση {when}",
+    "Last updated by {name}, {when}" : "Τελευταία ενημέρωση από {name}, {when}",
     "{list} and {last}" : "{list} και {last}",
     "{list} and {count} more" : "{list} και {count} ακόμη",
     "One widget does not work on a phone and is hidden: {names}." : "Ένα γραφικό στοιχείο δεν λειτουργεί σε τηλέφωνο και είναι κρυφό: {names}.",

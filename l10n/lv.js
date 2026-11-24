@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "What do you think of this dashboard?" : "Ko jūs domājat par šo informācijas paneli?",
+    "today {time}" : "šodien {time}",
+    "Last updated {when}" : "Pēdējoreiz atjaunināts {when}",
+    "Last updated by {name}, {when}" : "Pēdējoreiz atjaunināja {name}, {when}",
     "{list} and {last}" : "{list} un {last}",
     "{list} and {count} more" : "{list} un vēl {count}",
     "One widget does not work on a phone and is hidden: {names}." : "Viens logrīks nedarbojas tālrunī un ir paslēpts: {names}.",

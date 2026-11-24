@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "What do you think of this dashboard?" : "Що ви думаєте про цю панель?",
+    "today {time}" : "сьогодні {time}",
+    "Last updated {when}" : "Останнє оновлення {when}",
+    "Last updated by {name}, {when}" : "Останнє оновлення: {name}, {when}",
     "{list} and {last}" : "{list} і {last}",
     "{list} and {count} more" : "{list} і ще {count}",
     "One widget does not work on a phone and is hidden: {names}." : "Один віджет не працює на телефоні й прихований: {names}.",

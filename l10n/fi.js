@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "What do you think of this dashboard?" : "Mitä mieltä olet tästä koontinäytöstä?",
+    "today {time}" : "tänään {time}",
+    "Last updated {when}" : "Päivitetty viimeksi {when}",
+    "Last updated by {name}, {when}" : "Päivittänyt viimeksi {name}, {when}",
     "{list} and {last}" : "{list} ja {last}",
     "{list} and {count} more" : "{list} ja {count} muuta",
     "One widget does not work on a phone and is hidden: {names}." : "Yksi pienoissovellus ei toimi puhelimessa ja on piilotettu: {names}.",

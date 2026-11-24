@@ -201,7 +201,7 @@ export function endTimeProblem(publishAt, expiresAt, now) {
  *
  * @param {string} date The `date` input value, `YYYY-MM-DD`.
  * @return {string|null}
- * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  */
 export function confirmBeforeIso(date) {
 	return date ? toIso(`${date}T23:59`) : null
@@ -215,7 +215,7 @@ export function confirmBeforeIso(date) {
  * @param {string|null} confirmBefore The deadline, ISO 8601, or null.
  * @param {Date} now The current moment, standing in for an empty publish time.
  * @return {string} The refusal, or ''.
- * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  */
 export function confirmBeforeProblem(publishAt, confirmBefore, now) {
 	if (!confirmBefore) {
@@ -254,7 +254,7 @@ export function visibleUntilText(expiresAt, locale) {
  * @param {string} publishAt The publish time (`datetime-local`), '' for when it is published.
  * @param {string} [locale] BCP 47 locale.
  * @return {string}
- * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
  */
 export function previewNoteText(publishAt, locale) {
 	const when = visibleUntilText(publishAt, locale)
@@ -270,7 +270,7 @@ export function previewNoteText(publishAt, locale) {
  * @param {Array<object>} groups `{id, displayName}` from the server.
  * @param {Array<string>} chosen The chosen group ids.
  * @return {Array<object>}
- * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
  */
 export function groupChoices(groups, chosen) {
 	const known = new Set(groups.map((group) => group.id))
@@ -290,9 +290,9 @@ export function groupChoices(groups, chosen) {
  * news item can ask for a read confirmation before a date; the preview then
  * shows "I have read this" and "Confirm before <date>" (REQ-ANN-007).
  *
- * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  *
- * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
  * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
  */
@@ -335,7 +335,7 @@ export default {
 		 * The kind as two choice cards (REQ-ANN-006).
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 		 */
 		kindOptions() {
 			return [
@@ -346,7 +346,7 @@ export default {
 
 		/**
 		 * @return {Array<object>} The target group picker's options.
-		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 		 */
 		groupOptions() {
 			return groupChoices(this.groups, this.form.targetGroups)
@@ -354,7 +354,7 @@ export default {
 
 		/**
 		 * @return {string} Who sees the preview, and until when.
-		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 		 */
 		previewNote() {
 			return previewNoteText(this.form.publishAt, getCanonicalLocale())
@@ -370,7 +370,7 @@ export default {
 
 		/**
 		 * @return {object} The fields the API takes.
-		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 		 */
 		payload() {
 			const isNotice = this.form.kind === 'notice'
@@ -420,7 +420,7 @@ export default {
 
 	watch: {
 		'form.targetGroups': {
-			/** @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006 */
+			/** @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006 */
 			handler() {
 				this.loadReach()
 			},
@@ -429,7 +429,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006 */
+	/** @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006 */
 	mounted() {
 		this.loadGroups()
 		this.loadReach()
@@ -443,7 +443,7 @@ export default {
 		 * Save the announcement and publish it, or schedule it for its
 		 * publish time, in one step (REQ-ANN-006).
 		 *
-		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 		 * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 		 */
 		async submit() {
@@ -485,7 +485,7 @@ export default {
 		 * Load the groups the target group picker offers.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 		 */
 		async loadGroups() {
 			try {

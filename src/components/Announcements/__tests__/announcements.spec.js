@@ -336,7 +336,7 @@ describe('AnnouncementEditorModal', () => {
 		expect(announcementsApi.create).not.toHaveBeenCalled()
 	})
 
-	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+	// @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 	it('shows the form and "This is how it looks" side by side, the kind as two choice cards', async () => {
 		const wrapper = mountWith(AnnouncementEditorModal)
 		await flushPromises()
@@ -356,7 +356,7 @@ describe('AnnouncementEditorModal', () => {
 		expect(wrapper.text()).not.toContain('Allow comments and following')
 	})
 
-	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+	// @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 	it('Write a news item: the preview shows the title at once, without saving', async () => {
 		const wrapper = mountWith(AnnouncementEditorModal)
 		await flushPromises()
@@ -371,7 +371,7 @@ describe('AnnouncementEditorModal', () => {
 		expect(announcementsApi.update).not.toHaveBeenCalled()
 	})
 
-	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+	// @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 	it('offers the groups and counts the reach again when the target group changes', async () => {
 		announcementsApi.reach.mockResolvedValueOnce(120).mockResolvedValueOnce(42)
 		const wrapper = mountWith(AnnouncementEditorModal)
@@ -395,7 +395,7 @@ describe('AnnouncementEditorModal', () => {
 		expect(logger.error).toHaveBeenCalledTimes(2)
 	})
 
-	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+	// @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 	it('says only the author sees the preview until the publication time', async () => {
 		const wrapper = mountWith(AnnouncementEditorModal)
 		expect(wrapper.find('[data-test="editor-preview-note"]').text()).toBe('Only you see this preview until you publish the announcement.')
@@ -433,7 +433,7 @@ describe('AnnouncementEditorModal', () => {
 		expect(announcementsApi.create).not.toHaveBeenCalled()
 	})
 
-	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+	// @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 	it('saves and schedules a notice in one step, and checks "Preview as" before', async () => {
 		announcementsApi.create.mockResolvedValue({ uuid: 'u1' })
 		announcementsApi.reachFor.mockResolvedValue({ reach: 42, reachesUser: false })
@@ -495,7 +495,7 @@ describe('AnnouncementEditorModal', () => {
 		expect(wrapper.find('[data-test="editor-publish"]').attributes('disabled')).toBeDefined()
 	})
 
-	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+	// @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 	it('keeps chosen groups the list does not hold, and names the preview audience', () => {
 		expect(groupChoices([{ id: 'a', displayName: 'A' }], ['a', 'gone'])).toEqual([{ id: 'a', displayName: 'A' }, { id: 'gone', displayName: 'gone' }])
 		expect(previewNoteText('', 'nl-NL')).toBe('Only you see this preview until you publish the announcement.')
@@ -522,7 +522,7 @@ describe('AnnouncementEditorModal', () => {
 describe('Read confirmation (REQ-ANN-007)', () => {
 	const ASKING = { uuid: 'r', kind: 'news', title: 'New procedure', requiresConfirmation: true, confirmBefore: '2026-10-30T22:59:00Z', publishAt: '2026-10-26T08:00:00Z' }
 
-	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	// @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	it('Confirm before Friday: the card shows "I have read this" and the date, then that the reader confirmed', async () => {
 		const wrapper = mountWith(AnnouncementCard, { announcement: ASKING, canReport: true })
 		expect(wrapper.find('[data-test="announcement-confirm-before"]').text()).toMatch(/^Confirm before .*30/)
@@ -542,7 +542,7 @@ describe('Read confirmation (REQ-ANN-007)', () => {
 		expect(confirmBeforeLabel('not a date')).toBe('')
 	})
 
-	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	// @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	it('the widget confirms, marks the card, and opens the read confirmations for the author', async () => {
 		announcementsApi.list.mockResolvedValue({
 			announcements: [ASKING],
@@ -568,7 +568,7 @@ describe('Read confirmation (REQ-ANN-007)', () => {
 		expect(wrapper.findComponent({ name: 'AcknowledgementReportModal' }).props('open')).toBe(false)
 	})
 
-	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	// @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	it('a failed confirmation says so and leaves the button', async () => {
 		announcementsApi.list.mockResolvedValue({ announcements: [ASKING], reactions: {}, followedCategories: [], canAuthor: false })
 		announcementsApi.readState.mockRejectedValue(new Error('offline'))
@@ -585,7 +585,7 @@ describe('Read confirmation (REQ-ANN-007)', () => {
 		expect(readConfirmationState({ confirmed: ['a', 5], receipts: 'x' })).toEqual({ confirmed: ['a'], receipts: [] })
 	})
 
-	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	// @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	it('the form asks for it with a date, and the preview shows "I have read this" and "Confirm before"', async () => {
 		announcementsApi.groups.mockResolvedValue([])
 		announcementsApi.reach.mockResolvedValue(4)
@@ -612,7 +612,7 @@ describe('Read confirmation (REQ-ANN-007)', () => {
 		expect(wrapper.vm.payload.confirmBefore).toBeNull()
 	})
 
-	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	// @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	it('refuses a confirm-before date that is not after the publish time, before any call', async () => {
 		announcementsApi.groups.mockResolvedValue([])
 		announcementsApi.reach.mockResolvedValue(4)
@@ -636,7 +636,7 @@ describe('Read confirmation (REQ-ANN-007)', () => {
 		expect(confirmBeforeIso('')).toBeNull()
 	})
 
-	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	// @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	it('sends the question and its deadline with the announcement', async () => {
 		announcementsApi.groups.mockResolvedValue([])
 		announcementsApi.reach.mockResolvedValue(4)

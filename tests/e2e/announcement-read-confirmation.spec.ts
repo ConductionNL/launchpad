@@ -10,7 +10,7 @@
  *
  * Written in the cloud lane without a live instance; it runs in the nightly.
  *
- * @e2e openspec/changes/announcement-form-board-sync/specs/announcements/spec.md
+ * @e2e openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md
  */
 
 import type { APIRequestContext, Locator, Page } from '@playwright/test'

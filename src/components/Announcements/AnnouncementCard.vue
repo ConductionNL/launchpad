@@ -87,7 +87,7 @@ import ThumbUpOutline from 'vue-material-design-icons/ThumbUpOutline.vue'
  * @param {string|null} confirmBefore The deadline, ISO 8601.
  * @param {string} [locale] BCP 47 locale.
  * @return {string}
- * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  */
 export function confirmBeforeLabel(confirmBefore, locale) {
 	const date = confirmBefore ? new Date(confirmBefore) : null
@@ -106,7 +106,7 @@ export function confirmBeforeLabel(confirmBefore, locale) {
  * and, for its author, Read confirmations (REQ-ANN-007).
  *
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
- * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  */
 export default {
 	name: 'AnnouncementCard',
@@ -156,7 +156,7 @@ export default {
 
 		/**
 		 * @return {string} "Confirm before 30 October", or '' without a deadline.
-		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 		 */
 		confirmBeforeText() {
 			return confirmBeforeLabel(this.announcement.confirmBefore, getCanonicalLocale())

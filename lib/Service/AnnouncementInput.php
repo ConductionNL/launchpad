@@ -84,7 +84,7 @@ class AnnouncementInput {
 	 *
 	 * @throws InvalidArgumentException When the deadline is not a date or not after the publish time.
 	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	private function applyConfirmationFields(Announcement $announcement, array $input): void {
 		if (array_key_exists('requiresConfirmation', $input) === true) {

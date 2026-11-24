@@ -297,7 +297,7 @@ export default {
 		 *
 		 * @param {string} uuid the new announcement uuid.
 		 * @return {void}
-		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 		 */
 		announcementUuid(uuid) {
 			if (this.open && uuid) {
@@ -328,7 +328,7 @@ export default {
 		 *
 		 * @return {Promise<void>} resolves once the report is loaded.
 		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 		 */
 		async loadReport() {
 			this.loading = true

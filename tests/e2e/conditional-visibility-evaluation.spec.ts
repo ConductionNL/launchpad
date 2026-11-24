@@ -142,26 +142,6 @@ async function tileWith(
 }
 
 /**
- * The server's verdict for the tile's owner.
- *
- * @param viewer the owner.
- * @param tile the tile.
- * @param shown the expected verdict.
- * @param why what the expectation means.
- */
-async function expectVerdict(
-	viewer: Viewer,
-	tile: { pid: number },
-	shown: boolean,
-	why: string,
-): Promise<void> {
-	expect(
-		(await readRules(viewer.who.api, tile.pid)).isVisible,
-		`server verdict: ${why}`,
-	).toBe(shown)
-}
-
-/**
  * Reload a viewer's dashboard and check which tiles are rendered.
  *
  * @param viewer the logged-in viewer.
@@ -286,8 +266,14 @@ test.describe('REQ-VIS-005 group rules', () => {
 		const forAlice = await tileWith(v('alice'), 'group include', [rule])
 		const forBob = await tileWith(v('bob'), 'group include', [rule])
 
-		await expectVerdict(v('alice'), forAlice, true, 'alice is in marketing')
-		await expectVerdict(v('bob'), forBob, false, 'bob is only in engineering')
+		expect(
+			(await readRules(v('alice').who.api, forAlice.pid)).isVisible,
+			`server verdict: alice is in marketing`,
+		).toBe(true)
+		expect(
+			(await readRules(v('bob').who.api, forBob.pid)).isVisible,
+			`server verdict: bob is only in engineering`,
+		).toBe(false)
 		await expectRendered(v('alice'), [
 			{ ...forAlice, shown: true, why: 'alice is in marketing' },
 		])
@@ -303,8 +289,14 @@ test.describe('REQ-VIS-005 group rules', () => {
 		const forCarol = await tileWith(v('carol'), 'group exclude', [rule])
 		const forBob = await tileWith(v('bob'), 'group exclude', [rule])
 
-		await expectVerdict(v('carol'), forCarol, false, 'carol is a contractor')
-		await expectVerdict(v('bob'), forBob, true, 'bob is not a contractor')
+		expect(
+			(await readRules(v('carol').who.api, forCarol.pid)).isVisible,
+			`server verdict: carol is a contractor`,
+		).toBe(false)
+		expect(
+			(await readRules(v('bob').who.api, forBob.pid)).isVisible,
+			`server verdict: bob is not a contractor`,
+		).toBe(true)
 		await expectRendered(v('carol'), [
 			{ ...forCarol, shown: false, why: 'carol is a contractor' },
 		])
@@ -319,18 +311,14 @@ test.describe('REQ-VIS-005 group rules', () => {
 		const forDave = await tileWith(v('dave'), 'partial match', [rule])
 		const forBob = await tileWith(v('bob'), 'partial match', [rule])
 
-		await expectVerdict(
-			v('dave'),
-			forDave,
-			true,
-			'dave is in engineering, marketing and all-staff',
-		)
-		await expectVerdict(
-			v('bob'),
-			forBob,
-			false,
-			'bob shares engineering with dave but not marketing',
-		)
+		expect(
+			(await readRules(v('dave').who.api, forDave.pid)).isVisible,
+			`server verdict: dave is in engineering, marketing and all-staff`,
+		).toBe(true)
+		expect(
+			(await readRules(v('bob').who.api, forBob.pid)).isVisible,
+			`server verdict: bob shares engineering with dave but not marketing`,
+		).toBe(false)
 		await expectRendered(v('dave'), [
 			{ ...forDave, shown: true, why: 'one of three groups matches' },
 		])
@@ -348,18 +336,14 @@ test.describe('REQ-VIS-005 group rules', () => {
 			include('group', { groups: [G.marketing] }),
 		])
 
-		await expectVerdict(
-			v('dave'),
-			empty,
-			false,
-			'an empty groups list never matches',
-		)
-		await expectVerdict(
-			v('dave'),
-			control,
-			true,
-			'CONTROL: the same user passes a real group rule',
-		)
+		expect(
+			(await readRules(v('dave').who.api, empty.pid)).isVisible,
+			`server verdict: an empty groups list never matches`,
+		).toBe(false)
+		expect(
+			(await readRules(v('dave').who.api, control.pid)).isVisible,
+			`server verdict: CONTROL: the same user passes a real group rule`,
+		).toBe(true)
 		await expectRendered(v('dave'), [
 			{ ...empty, shown: false, why: 'an empty groups list never matches' },
 			{
@@ -393,27 +377,36 @@ test.describe('REQ-VIS-006 time rules', () => {
 		const outside = await tileWith(v('bob'), 'time outside', [
 			include('time', NEVER_TIME),
 		])
-		await expectVerdict(v('bob'), inside, true, 'now is inside 00:00-23:59')
-		await expectVerdict(v('bob'), outside, false, 'now is on no allowed day')
+		expect(
+			(await readRules(v('bob').who.api, inside.pid)).isVisible,
+			`server verdict: now is inside 00:00-23:59`,
+		).toBe(true)
+		expect(
+			(await readRules(v('bob').who.api, outside.pid)).isVisible,
+			`server verdict: now is on no allowed day`,
+		).toBe(false)
 		await expectRendered(v('bob'), [
 			{ ...inside, shown: true, why: 'inside the window' },
 			{ ...outside, shown: false, why: 'outside the window' },
 		])
 	})
 
-	// @e2e conditional-visibility::time-window-spanning-midnight-known-limitation
-	test('a 22:00-06:00 inclusion shows the widget at 02:00 and not at noon', async () => {
+	// @e2e conditional-visibility::time-window-spanning-midnight
+	test('a 22:00-06:00 inclusion shows the widget at 02:00 and 23:00, and not at noon or 06:30', async () => {
+		// startTime > endTime wraps: it matches from 22:00 to midnight AND from
+		// midnight to 06:00. Both halves are asserted, and a moment just past
+		// each end, so neither "always" nor a non-wrapping 22:00-06:00 (which
+		// matches nothing) can pass.
 		const night = [include('time', { startTime: '22:00', endTime: '06:00' })]
-		expect(
-			await previewVisible(v('bob').who.api, night, {
-				datetime: '2026-11-18T12:00:00',
-			}),
-		).toBe(false)
-		expect(
-			await previewVisible(v('bob').who.api, night, {
-				datetime: '2026-11-18T02:00:00',
-			}),
-		).toBe(true)
+		const at = async (time: string): Promise<boolean> =>
+			previewVisible(v('bob').who.api, night, {
+				datetime: `2026-11-18T${time}:00`,
+			})
+		expect(await at('02:00'), '02:00 is in the after-midnight half').toBe(true)
+		expect(await at('23:00'), '23:00 is in the before-midnight half').toBe(true)
+		expect(await at('12:00'), 'noon is outside the window').toBe(false)
+		expect(await at('06:30'), '06:30 is past the end time').toBe(false)
+		expect(await at('21:30'), '21:30 is before the start time').toBe(false)
 	})
 
 	// @e2e conditional-visibility::time-evaluation-uses-server-timezone-not-configurable
@@ -473,8 +466,14 @@ test.describe('REQ-VIS-006 time rules', () => {
 		const noDay = await tileWith(v('bob'), 'no day', [
 			include('time', NEVER_TIME),
 		])
-		await expectVerdict(v('bob'), anyDay, true, 'today is in the list')
-		await expectVerdict(v('bob'), noDay, false, 'today is not in the list')
+		expect(
+			(await readRules(v('bob').who.api, anyDay.pid)).isVisible,
+			`server verdict: today is in the list`,
+		).toBe(true)
+		expect(
+			(await readRules(v('bob').who.api, noDay.pid)).isVisible,
+			`server verdict: today is not in the list`,
+		).toBe(false)
 		await expectRendered(v('bob'), [
 			{ ...anyDay, shown: true, why: 'today is an allowed day' },
 			{ ...noDay, shown: false, why: 'today is not an allowed day' },
@@ -518,13 +517,14 @@ test.describe('REQ-VIS-006 time rules', () => {
 		const control = await tileWith(v('bob'), 'time defaults control', [
 			include('time', NEVER_TIME),
 		])
-		await expectVerdict(v('bob'), live, true, 'the defaults cover the whole day')
-		await expectVerdict(
-			v('bob'),
-			control,
-			false,
-			'CONTROL: a time rule can hide',
-		)
+		expect(
+			(await readRules(v('bob').who.api, live.pid)).isVisible,
+			`server verdict: the defaults cover the whole day`,
+		).toBe(true)
+		expect(
+			(await readRules(v('bob').who.api, control.pid)).isVisible,
+			`server verdict: CONTROL: a time rule can hide`,
+		).toBe(false)
 		await expectRendered(v('bob'), [
 			{ ...live, shown: true, why: 'the defaults cover the whole day' },
 			{ ...control, shown: false, why: 'CONTROL: a time rule can hide' },
@@ -556,8 +556,14 @@ test.describe('REQ-VIS-007 date rules', () => {
 		const outside = await tileWith(v('bob'), 'date outside', [
 			include('date', { startDate: FUTURE_START, endDate: FUTURE_END }),
 		])
-		await expectVerdict(v('bob'), inside, true, 'today is in the range')
-		await expectVerdict(v('bob'), outside, false, 'today is before the range')
+		expect(
+			(await readRules(v('bob').who.api, inside.pid)).isVisible,
+			`server verdict: today is in the range`,
+		).toBe(true)
+		expect(
+			(await readRules(v('bob').who.api, outside.pid)).isVisible,
+			`server verdict: today is before the range`,
+		).toBe(false)
 		await expectRendered(v('bob'), [
 			{ ...inside, shown: true, why: 'today is in the range' },
 			{ ...outside, shown: false, why: 'today is before the range' },
@@ -584,8 +590,14 @@ test.describe('REQ-VIS-007 date rules', () => {
 		const notYet = await tileWith(v('bob'), 'no end not yet', [
 			include('date', { startDate: FUTURE_START }),
 		])
-		await expectVerdict(v('bob'), started, true, 'the start date has passed')
-		await expectVerdict(v('bob'), notYet, false, 'the start date is still ahead')
+		expect(
+			(await readRules(v('bob').who.api, started.pid)).isVisible,
+			`server verdict: the start date has passed`,
+		).toBe(true)
+		expect(
+			(await readRules(v('bob').who.api, notYet.pid)).isVisible,
+			`server verdict: the start date is still ahead`,
+		).toBe(false)
 		await expectRendered(v('bob'), [
 			{ ...started, shown: true, why: 'the start date has passed' },
 			{ ...notYet, shown: false, why: 'the start date is still ahead' },
@@ -612,8 +624,14 @@ test.describe('REQ-VIS-007 date rules', () => {
 		const ended = await tileWith(v('bob'), 'no start ended', [
 			include('date', { endDate: PAST_END }),
 		])
-		await expectVerdict(v('bob'), running, true, 'the end date is still ahead')
-		await expectVerdict(v('bob'), ended, false, 'the end date has passed')
+		expect(
+			(await readRules(v('bob').who.api, running.pid)).isVisible,
+			`server verdict: the end date is still ahead`,
+		).toBe(true)
+		expect(
+			(await readRules(v('bob').who.api, ended.pid)).isVisible,
+			`server verdict: the end date has passed`,
+		).toBe(false)
 		await expectRendered(v('bob'), [
 			{ ...running, shown: true, why: 'the end date is still ahead' },
 			{ ...ended, shown: false, why: 'the end date has passed' },
@@ -660,8 +678,14 @@ test.describe('REQ-VIS-008 attribute rules', () => {
 		const forAlice = await tileWith(v('alice'), 'language nl', [rule])
 		const forBob = await tileWith(v('bob'), 'language nl', [rule])
 
-		await expectVerdict(v('bob'), forBob, false, 'bob has language en')
-		await expectVerdict(v('alice'), forAlice, true, 'alice has language nl')
+		expect(
+			(await readRules(v('bob').who.api, forBob.pid)).isVisible,
+			`server verdict: bob has language en`,
+		).toBe(false)
+		expect(
+			(await readRules(v('alice').who.api, forAlice.pid)).isVisible,
+			`server verdict: alice has language nl`,
+		).toBe(true)
 		await expectRendered(v('alice'), [
 			{ ...forAlice, shown: true, why: 'alice has language nl' },
 		])
@@ -680,8 +704,14 @@ test.describe('REQ-VIS-008 attribute rules', () => {
 		const forCarol = await tileWith(v('carol'), 'language not en', [rule])
 		const forBob = await tileWith(v('bob'), 'language not en', [rule])
 
-		await expectVerdict(v('bob'), forBob, false, 'bob has language en')
-		await expectVerdict(v('carol'), forCarol, true, 'carol has language de')
+		expect(
+			(await readRules(v('bob').who.api, forBob.pid)).isVisible,
+			`server verdict: bob has language en`,
+		).toBe(false)
+		expect(
+			(await readRules(v('carol').who.api, forCarol.pid)).isVisible,
+			`server verdict: carol has language de`,
+		).toBe(true)
 		await expectRendered(v('carol'), [
 			{ ...forCarol, shown: true, why: 'de is not en' },
 		])
@@ -700,13 +730,14 @@ test.describe('REQ-VIS-008 attribute rules', () => {
 		const forDave = await tileWith(v('dave'), 'email contains', [rule])
 		const forBob = await tileWith(v('bob'), 'email contains', [rule])
 
-		await expectVerdict(
-			v('dave'),
-			forDave,
-			true,
-			'dave has a @company.com address',
-		)
-		await expectVerdict(v('bob'), forBob, false, 'bob has an address elsewhere')
+		expect(
+			(await readRules(v('dave').who.api, forDave.pid)).isVisible,
+			`server verdict: dave has a @company.com address`,
+		).toBe(true)
+		expect(
+			(await readRules(v('bob').who.api, forBob.pid)).isVisible,
+			`server verdict: bob has an address elsewhere`,
+		).toBe(false)
 		await expectRendered(v('dave'), [
 			{ ...forDave, shown: true, why: 'a @company.com address' },
 		])
@@ -733,18 +764,14 @@ test.describe('REQ-VIS-008 attribute rules', () => {
 			}),
 		])
 
-		await expectVerdict(
-			v('bob'),
-			included,
-			false,
-			'an unknown attribute never matches an inclusion',
-		)
-		await expectVerdict(
-			v('bob'),
-			excluded,
-			true,
-			'an unknown attribute never matches an exclusion',
-		)
+		expect(
+			(await readRules(v('bob').who.api, included.pid)).isVisible,
+			`server verdict: an unknown attribute never matches an inclusion`,
+		).toBe(false)
+		expect(
+			(await readRules(v('bob').who.api, excluded.pid)).isVisible,
+			`server verdict: an unknown attribute never matches an exclusion`,
+		).toBe(true)
 		await expectRendered(v('bob'), [
 			{ ...included, shown: false, why: 'inclusion on an unknown attribute' },
 			{ ...excluded, shown: true, why: 'exclusion on an unknown attribute' },
@@ -762,13 +789,14 @@ test.describe('REQ-VIS-009 several rules together', () => {
 		const forCarol = await tileWith(v('carol'), 'marketing or sales', rules)
 		const forBob = await tileWith(v('bob'), 'marketing or sales', rules)
 
-		await expectVerdict(
-			v('carol'),
-			forCarol,
-			true,
-			'carol is in sales, not marketing',
-		)
-		await expectVerdict(v('bob'), forBob, false, 'bob is in neither')
+		expect(
+			(await readRules(v('carol').who.api, forCarol.pid)).isVisible,
+			`server verdict: carol is in sales, not marketing`,
+		).toBe(true)
+		expect(
+			(await readRules(v('bob').who.api, forBob.pid)).isVisible,
+			`server verdict: bob is in neither`,
+		).toBe(false)
 		await expectRendered(v('carol'), [
 			{ ...forCarol, shown: true, why: 'one inclusion matches' },
 		])
@@ -802,13 +830,14 @@ test.describe('REQ-VIS-009 several rules together', () => {
 		]
 		const forBob = await tileWith(v('bob'), 'none match', rules)
 		const forAlice = await tileWith(v('alice'), 'none match', rules)
-		await expectVerdict(v('bob'), forBob, false, 'neither inclusion matches bob')
-		await expectVerdict(
-			v('alice'),
-			forAlice,
-			true,
-			'CONTROL: the group inclusion matches alice',
-		)
+		expect(
+			(await readRules(v('bob').who.api, forBob.pid)).isVisible,
+			`server verdict: neither inclusion matches bob`,
+		).toBe(false)
+		expect(
+			(await readRules(v('alice').who.api, forAlice.pid)).isVisible,
+			`server verdict: CONTROL: the group inclusion matches alice`,
+		).toBe(true)
 		await expectRendered(v('bob'), [
 			{ ...forBob, shown: false, why: 'no inclusion matches' },
 		])
@@ -845,18 +874,14 @@ test.describe('REQ-VIS-009 several rules together', () => {
 			include('group', { groups: [G.marketing] }),
 			exclude('date', { startDate: FUTURE_START, endDate: FUTURE_END }),
 		])
-		await expectVerdict(
-			v('alice'),
-			overridden,
-			false,
-			'the exclusion matches today',
-		)
-		await expectVerdict(
-			v('alice'),
-			notOverridden,
-			true,
-			'the exclusion does not match today',
-		)
+		expect(
+			(await readRules(v('alice').who.api, overridden.pid)).isVisible,
+			`server verdict: the exclusion matches today`,
+		).toBe(false)
+		expect(
+			(await readRules(v('alice').who.api, notOverridden.pid)).isVisible,
+			`server verdict: the exclusion does not match today`,
+		).toBe(true)
 		await expectRendered(v('alice'), [
 			{ ...overridden, shown: false, why: 'the exclusion matches today' },
 			{
@@ -879,13 +904,14 @@ test.describe('REQ-VIS-009 several rules together', () => {
 		expect(Number(placement?.isVisible), 'GIVEN isVisible: 1').toBe(1)
 		expect((await readRules(v('bob').who.api, bare.pid)).rules).toEqual([])
 
-		await expectVerdict(v('bob'), bare, true, 'no rules means no restriction')
-		await expectVerdict(
-			v('bob'),
-			ruled,
-			false,
-			'CONTROL: a rule bob fails hides',
-		)
+		expect(
+			(await readRules(v('bob').who.api, bare.pid)).isVisible,
+			`server verdict: no rules means no restriction`,
+		).toBe(true)
+		expect(
+			(await readRules(v('bob').who.api, ruled.pid)).isVisible,
+			`server verdict: CONTROL: a rule bob fails hides`,
+		).toBe(false)
 		await expectRendered(v('bob'), [
 			{ ...bare, shown: true, why: 'no rules means no restriction' },
 			{ ...ruled, shown: false, why: 'CONTROL: a rule bob fails hides' },
@@ -903,13 +929,14 @@ test.describe('REQ-VIS-009 several rules together', () => {
 			exclude('group', { groups: [G.contractors] }),
 			exclude('date', { startDate: PAST_START }),
 		])
-		await expectVerdict(v('bob'), quiet, true, 'no exclusion matches')
-		await expectVerdict(
-			v('bob'),
-			firing,
-			false,
-			'CONTROL: one exclusion matches',
-		)
+		expect(
+			(await readRules(v('bob').who.api, quiet.pid)).isVisible,
+			`server verdict: no exclusion matches`,
+		).toBe(true)
+		expect(
+			(await readRules(v('bob').who.api, firing.pid)).isVisible,
+			`server verdict: CONTROL: one exclusion matches`,
+		).toBe(false)
 		await expectRendered(v('bob'), [
 			{ ...quiet, shown: true, why: 'no exclusion matches' },
 			{ ...firing, shown: false, why: 'one exclusion matches' },
@@ -940,18 +967,14 @@ test.describe('REQ-VIS-010 evaluation pipeline', () => {
 		expect(flags.get(off.pid), 'GIVEN isVisible: 0').toBe(0)
 		expect(flags.get(on.pid), 'CONTROL: isVisible: 1').toBe(1)
 
-		await expectVerdict(
-			v('bob'),
-			on,
-			true,
-			'CONTROL: the same three rules show a visible placement',
-		)
-		await expectVerdict(
-			v('bob'),
-			off,
-			false,
-			'isVisible 0 hides regardless of rules',
-		)
+		expect(
+			(await readRules(v('bob').who.api, on.pid)).isVisible,
+			`server verdict: CONTROL: the same three rules show a visible placement`,
+		).toBe(true)
+		expect(
+			(await readRules(v('bob').who.api, off.pid)).isVisible,
+			`server verdict: isVisible 0 hides regardless of rules`,
+		).toBe(false)
 		await expectRendered(v('bob'), [
 			{ ...on, shown: true, why: 'isVisible 1 and every rule matches' },
 			{ ...off, shown: false, why: 'isVisible 0' },
@@ -972,8 +995,14 @@ test.describe('REQ-VIS-010 evaluation pipeline', () => {
 			(await readRules(v('bob').who.api, failing.pid)).rules,
 			'both rules are loaded',
 		).toHaveLength(2)
-		await expectVerdict(v('bob'), failing, false, 'neither rule matches')
-		await expectVerdict(v('bob'), passing, true, 'one rule matches')
+		expect(
+			(await readRules(v('bob').who.api, failing.pid)).isVisible,
+			`server verdict: neither rule matches`,
+		).toBe(false)
+		expect(
+			(await readRules(v('bob').who.api, passing.pid)).isVisible,
+			`server verdict: one rule matches`,
+		).toBe(true)
 		await expectRendered(v('bob'), [
 			{ ...failing, shown: false, why: 'neither rule matches' },
 			{ ...passing, shown: true, why: 'one rule matches' },
@@ -997,12 +1026,10 @@ test.describe('REQ-VIS-010 evaluation pipeline', () => {
 			expect(read.rules).toEqual([])
 			expect(read.isVisible, `${name}: no rules`).toBe(true)
 		}
-		await expectVerdict(
-			v('alice'),
-			control,
-			false,
-			'CONTROL: alice is not in engineering',
-		)
+		expect(
+			(await readRules(v('alice').who.api, control.pid)).isVisible,
+			`server verdict: CONTROL: alice is not in engineering`,
+		).toBe(false)
 		await expectRendered(v('alice'), [
 			{ ...tiles[0].tile, shown: true, why: 'no rules' },
 			{ ...control, shown: false, why: 'CONTROL: a rule alice fails' },

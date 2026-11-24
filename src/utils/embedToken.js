@@ -263,3 +263,58 @@ export function embedAdminSearch(subjectType, subjectId, dashboardId = null) {
 		embedDashboard: String(dashboardId ?? ''),
 	}).toString()
 }
+
+/**
+ * The embed tokens of one dashboard: tokens for the dashboard itself and
+ * tokens for one of its widget placements (REQ-EMB-011).
+ *
+ * @param {Array<object>} tokens Every token's metadata.
+ * @param {string} dashboardUuid The dashboard's uuid.
+ * @param {Array<string|number>} placementIds The ids of the dashboard's widget placements.
+ * @return {Array<object>}
+ * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+ */
+export function tokensForDashboard(tokens, dashboardUuid, placementIds = []) {
+	const placements = new Set((placementIds ?? []).map((id) => String(id)))
+	return (tokens ?? []).filter((token) => {
+		const type = token?.subject?.type
+		const id = String(token?.subject?.id ?? '')
+		if (type === 'dashboard') {
+			return id !== '' && id === String(dashboardUuid ?? '')
+		}
+		return type === 'widget' && placements.has(id)
+	})
+}
+
+/**
+ * Escape a value for an HTML attribute.
+ *
+ * @param {string} value The value.
+ * @return {string}
+ * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+ */
+function attribute(value) {
+	return String(value ?? '')
+		.replace(/&/g, '&amp;')
+		.replace(/"/g, '&quot;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+}
+
+/**
+ * The code a website pastes to show a token's subject: an iframe on the
+ * public embed route. The JWT is filled in only right after issue; later
+ * the placeholder `YOUR_TOKEN` stands in, since the token is shown once.
+ *
+ * @param {object} token The token's metadata ({name, subject: {type, id}}).
+ * @param {string} appUrl The absolute address of the app (`https://host/index.php/apps/launchpad`).
+ * @param {string} [jwt] The issued JWT, when it is still at hand.
+ * @return {string}
+ * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+ */
+export function embedCode(token, appUrl, jwt = '') {
+	const type = token?.subject?.type === 'widget' ? 'widget' : 'dashboard'
+	const id = encodeURIComponent(String(token?.subject?.id ?? ''))
+	const src = `${String(appUrl ?? '').replace(/\/+$/, '')}/embed/${type}/${id}?token=${encodeURIComponent(jwt || 'YOUR_TOKEN')}`
+	return `<iframe src="${attribute(src)}" title="${attribute(token?.name)}" width="100%" height="480" style="border:0" loading="lazy"></iframe>`
+}

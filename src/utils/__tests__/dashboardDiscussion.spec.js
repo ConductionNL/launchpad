@@ -9,7 +9,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { discussionAvailable, isCollaborative } from '../dashboardDiscussion.js'
+import { conversationEnabled, discussionAvailable, isCollaborative } from '../dashboardDiscussion.js'
 
 describe('discussionAvailable', () => {
 	it('needs both OpenRegister and Talk', () => {
@@ -40,5 +40,17 @@ describe('isCollaborative', () => {
 	it('is false for an admin template and for no dashboard', () => {
 		expect(isCollaborative({ dashboard: { id: 2, uuid: 't', type: 'admin_template' }, ownShares: [{}] })).toBe(false)
 		expect(isCollaborative({ dashboard: null })).toBe(false)
+	})
+})
+
+/** @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006 */
+describe('conversationEnabled', () => {
+	it('shows the conversation unless the dashboard switched it off', () => {
+		expect(conversationEnabled({ conversationEnabled: null })).toBe(true)
+		expect(conversationEnabled({})).toBe(true)
+		expect(conversationEnabled(null)).toBe(true)
+		expect(conversationEnabled({ conversationEnabled: 1 })).toBe(true)
+		expect(conversationEnabled({ conversationEnabled: 0 })).toBe(false)
+		expect(conversationEnabled({ conversationEnabled: false })).toBe(false)
 	})
 })

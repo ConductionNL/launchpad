@@ -973,6 +973,28 @@ export const useDashboardStore = defineStore('dashboard', {
 		},
 
 		/**
+		 * Merge changed fields into a loaded dashboard and, when it is open,
+		 * into the active one, so the page follows a setting stored elsewhere.
+		 *
+		 * @param {string} uuid The dashboard's uuid.
+		 * @param {object} fields The changed fields.
+		 * @return {void}
+		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+		 */
+		applyFieldsPatch(uuid, fields) {
+			if (!uuid || !fields) {
+				return
+			}
+			const idx = this.dashboards.findIndex((d) => d.uuid === uuid)
+			if (idx >= 0) {
+				this.dashboards[idx] = { ...this.dashboards[idx], ...fields }
+			}
+			if (this.activeDashboard?.uuid === uuid) {
+				this.activeDashboard = { ...this.activeDashboard, ...fields }
+			}
+		},
+
+		/**
 		 * Resolve the effective publication status for a dashboard,
 		 * applying client-side lazy materialisation of scheduled-as-
 		 * published rows for instant UI feedback (REQ-DASH-034). The

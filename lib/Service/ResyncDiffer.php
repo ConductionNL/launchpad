@@ -37,12 +37,16 @@ use OCA\LaunchPad\Db\WidgetPlacement;
 class ResyncDiffer {
 
 	/**
-	 * Where a placement whose template placement is gone goes, per strategy;
-	 * `toRemove` for a strategy not listed (REQ-RESYNC-006).
+	 * Where a placement whose template placement is gone goes, per strategy
+	 * (REQ-RESYNC-006).
 	 *
 	 * @var array<string, string>
 	 */
-	private const REMOVED_FROM_TEMPLATE = [TemplateResyncService::STRATEGY_ADD_ONLY => 'toPreserve'];
+	private const REMOVED_FROM_TEMPLATE = [
+		TemplateResyncService::STRATEGY_OVERWRITE => 'toRemove',
+		TemplateResyncService::STRATEGY_MERGE => 'toRemove',
+		TemplateResyncService::STRATEGY_ADD_ONLY => 'toPreserve',
+	];
 
 	/**
 	 * The strategy this differ diffs for; see {@see self::bound()}.
@@ -82,7 +86,12 @@ class ResyncDiffer {
 	 */
 	public function bound(string $strategy, int $columns): self {
 		$bound           = clone $this;
-		$bound->strategy = $strategy;
+		// An unknown strategy diffs as `merge`, as it always did; the entry points reject it first.
+		$bound->strategy = TemplateResyncService::STRATEGY_MERGE;
+		if (isset(self::REMOVED_FROM_TEMPLATE[$strategy]) === true) {
+			$bound->strategy = $strategy;
+		}
+
 		$bound->columns  = max(1, $columns);
 
 		return $bound;
@@ -253,7 +262,7 @@ class ResyncDiffer {
 
 		if (isset($templateById[$originId]) === false) {
 			// The admin removed it from the template: gone, except under `add_only`.
-			return [(self::REMOVED_FROM_TEMPLATE[$this->strategy] ?? 'toRemove'), $copy];
+			return [self::REMOVED_FROM_TEMPLATE[$this->strategy], $copy];
 		}
 
 		return $this->classifyMatched(copy: $copy, template: $templateById[$originId]);

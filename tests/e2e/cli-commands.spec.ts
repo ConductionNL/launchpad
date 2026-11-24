@@ -29,8 +29,12 @@
  * Scenarios still excluded carry their reason in the spec: features that were
  * never built (feed tokens, exit 3, exit 5, `--json` on import), a migration
  * whose body is empty, an instance without the language-content table, an
- * installed template older than the shipped one, an exception no input can
- * provoke, and the two code-review conventions.
+ * exception no input can provoke, and the two code-review conventions.
+ *
+ * An installed template older than the shipped one is staged, not needed: the
+ * installed version is an app value (rewound through occ) and the installed
+ * widgets are rows (changed through support/instanceDb.ts), which is exactly
+ * what an instance that installed an older release holds.
  *
  * Gate-19 @e2e traceability:
  *   @e2e cli-commands::discover-all-launchpad-commands
@@ -72,6 +76,7 @@
  *   @e2e cli-commands::an-unknown-group-stops-the-install
  *   @e2e cli-commands::an-update-refuses-the-options-that-change-who-gets-the-template
  *   @e2e cli-commands::an-unknown-template-id-lists-the-shipped-ones
+ *   @e2e cli-commands::an-operator-updates-the-installed-template-and-reads-what-changed
  *
  * @spec openspec/specs/cli-commands/spec.md
  */
@@ -97,8 +102,10 @@ import {
 	publication,
 	readDashboard,
 } from './support/dashboardHierarchy.ts'
+import { selectRows, updateRows } from './support/instanceDb.ts'
 import {
 	appPathOnInstance,
+	appValue,
 	describeRun,
 	existsOnInstance,
 	logDuring,
@@ -106,6 +113,7 @@ import {
 	readOnInstance,
 	removeOnInstance,
 	runOcc,
+	setIntAppValue,
 	writeOnInstance,
 } from './support/occ.ts'
 import {
@@ -1336,6 +1344,95 @@ test.describe('REQ-CLI-012 install a shipped template', () => {
 		expect([...after.entries()].sort(), 'nothing was written').toEqual(
 			[...before.entries()].sort(),
 		)
+	})
+
+	// @e2e cli-commands::an-operator-updates-the-installed-template-and-reads-what-changed
+	test('--update --dry-run prints the widget changes and writes nothing; without it the same changes are applied', async () => {
+		// Stage an older install of the template the first test installed: the
+		// installed version one below the shipped one, the header widget
+		// replaced by another (one added, one removed on update) and the
+		// calendar moved (one changed).
+		const uuid = await appValue('shipped_template_mijn-werkdag')
+		expect(uuid, 'mijn-werkdag is installed (by the --group test)').toMatch(/^[0-9a-f-]{36}$/i)
+		const template = (await templatesByUuid()).get(uuid!)
+		expect(template, 'the installed template is an admin template').toBeDefined()
+		const shipped = Number(await appValue('shipped_template_version_mijn-werkdag'))
+		expect(shipped, 'the shipped version is recorded').toBeGreaterThanOrEqual(1)
+		const older = shipped - 1
+		await setIntAppValue('shipped_template_version_mijn-werkdag', older)
+
+		const where = { dashboard_id: template!.id }
+		const header = await updateRows(
+			'launchpad_widget_placements',
+			{ widget_id: 'clock', custom_title: `E2E extra ${RUN}` },
+			{ ...where, widget_id: 'header' },
+		)
+		expect(header, 'the template has one header widget to replace').toBe(1)
+		const calendar = await updateRows(
+			'launchpad_widget_placements',
+			{ grid_x: 0 },
+			{ ...where, widget_id: 'calendar' },
+		)
+		expect(calendar, 'the template has one calendar widget to move').toBe(1)
+
+		const placements = async () =>
+			(await selectRows('launchpad_widget_placements', where))
+				.map((r) => JSON.stringify(Object.entries(r).sort()))
+				.sort()
+		const staged = await placements()
+
+		const changeLines = (out: string): string[] =>
+			out.split('\n').filter((l) => /^ {2}[+~-] (added|removed|changed):/.test(l))
+		const expectChanges = (lines: string[], out: string): void => {
+			expect(
+				lines.filter((l) => l.startsWith('  + added:')).some((l) => l.includes('header')),
+				`one line for the header that comes back\n${out}`,
+			).toBe(true)
+			expect(
+				lines.filter((l) => l.startsWith('  - removed:')).some((l) => l.includes(`E2E extra ${RUN} (clock)`)),
+				`one line for the widget that goes\n${out}`,
+			).toBe(true)
+			expect(
+				lines.filter((l) => l.startsWith('  ~ changed:')).some((l) =>
+					l.includes('Agenda vandaag (calendar) (position)'),
+				),
+				`one line for the moved calendar, naming what changed\n${out}`,
+			).toBe(true)
+			expect(lines, `exactly those three\n${out}`).toHaveLength(3)
+		}
+
+		const dry = await runOcc('launchpad:template:install', 'mijn-werkdag', '--update', '--dry-run')
+		expect(dry.code, describeRun(dry)).toBe(0)
+		expect(dry.stdout, describeRun(dry)).toContain('Dry run, nothing written.')
+		expect(dry.stdout).toContain(`from version ${older} to version ${shipped}`)
+		const dryLines = changeLines(dry.stdout)
+		expectChanges(dryLines, dry.stdout)
+		expect(await placements(), 'a dry run writes no widget').toEqual(staged)
+		expect(
+			Number(await appValue('shipped_template_version_mijn-werkdag')),
+			'a dry run leaves the installed version',
+		).toBe(older)
+
+		const run = await runOcc('launchpad:template:install', 'mijn-werkdag', '--update')
+		expect(run.code, describeRun(run)).toBe(0)
+		expect(run.stdout, describeRun(run)).not.toContain('Dry run')
+		expect(run.stdout).toContain(`Updated template mijn-werkdag from version ${older} to version ${shipped}`)
+		expect(changeLines(run.stdout), 'the same lines as the dry run').toEqual(dryLines)
+		expect(run.stdout, 'how many members\' copies changed').toMatch(
+			/Members with a copy of this template: \d+\. (Copies changed: \d+|Their copies are updated in the background)\./,
+		)
+
+		expect(
+			Number(await appValue('shipped_template_version_mijn-werkdag')),
+			'the installed version is now the shipped one',
+		).toBe(shipped)
+		const after = await selectRows('launchpad_widget_placements', where)
+		expect(after.filter((r) => r.widget_id === 'clock'), 'the extra widget is gone').toHaveLength(0)
+		expect(after.filter((r) => r.widget_id === 'header'), 'the header is back').toHaveLength(1)
+		expect(
+			Number(after.find((r) => r.widget_id === 'calendar')?.grid_x),
+			'the calendar is back where the template puts it',
+		).toBe(8)
 	})
 
 	// @e2e cli-commands::an-unknown-template-id-lists-the-shipped-ones

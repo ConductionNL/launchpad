@@ -51,6 +51,8 @@ OC.L10N.register(
     "Widget %s moved" : "Widget %s moved",
     "Widget %s resized" : "Widget %s resized",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s and %n more change", "%s and %n more changes"],
+    "Template %s" : "Template %s",
+    "Updated from the template" : "Updated from the template",
     "Admin settings" : "Admin settings",
     "Look" : "Look",
     "Accent color" : "Accent color",

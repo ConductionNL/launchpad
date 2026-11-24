@@ -44,6 +44,8 @@ OC.L10N.register(
     "Widget %s moved" : "Pienoissovellus %s siirretty",
     "Widget %s resized" : "Pienoissovelluksen %s kokoa muutettu",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s ja %n muu muutos", "%s ja %n muuta muutosta"],
+    "Template %s" : "Malli %s",
+    "Updated from the template" : "Päivitetty mallista",
     "Admin settings" : "Ylläpitäjän asetukset",
     "Features & roadmap" : "Ominaisuudet ja tiekartta",
     "Maximum dashboards per user" : "Koontinäyttöjen enimmäismäärä käyttäjää kohden",

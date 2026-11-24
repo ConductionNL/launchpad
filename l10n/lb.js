@@ -44,6 +44,8 @@ OC.L10N.register(
     "Widget %s moved" : "Widget %s verréckelt",
     "Widget %s resized" : "Gréisst vum Widget %s geännert",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s an nach %n Ännerung", "%s an nach %n Ännerungen"],
+    "Template %s" : "Schabloun %s",
+    "Updated from the template" : "Vun der Schabloun aktualiséiert",
     "Admin settings" : "Admin settings",
     "Features & roadmap" : "Funktiounen a Roadmap",
     "Maximum dashboards per user" : "Maximal Dashboards pro Benotzer",

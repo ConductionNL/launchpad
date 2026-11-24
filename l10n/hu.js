@@ -44,6 +44,8 @@ OC.L10N.register(
     "Widget %s moved" : "%s modul áthelyezve",
     "Widget %s resized" : "%s modul átméretezve",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s és még %n módosítás", "%s és még %n módosítás"],
+    "Template %s" : "%s sablon",
+    "Updated from the template" : "Frissítve a sablonból",
     "Admin settings" : "Rendszergazdai beállítások",
     "Features & roadmap" : "Funkciók és ütemterv",
     "Maximum dashboards per user" : "Felhasználónkénti maximális irányítópultok száma",

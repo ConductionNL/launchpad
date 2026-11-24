@@ -1437,6 +1437,8 @@
         "{count} widgets do not work on a phone and are hidden: {names}.": "Število gradnikov, ki ne delujejo na telefonu in so skriti: {count}. {names}.",
         "Which?": "Kateri?",
         "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Nekateri gradniki potrebujejo večji zaslon, zato jih telefon skrije. Na tablici ali računalniku jih vidite kot običajno.",
+        "Template %s": "Predloga %s",
+        "Updated from the template": "Posodobljeno iz predloge",
         "What do you think of this dashboard?": "Kaj menite o tej nadzorni plošči?",
         "today {time}": "danes {time}",
         "Last updated {when}": "Nazadnje posodobljeno {when}",

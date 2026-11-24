@@ -44,6 +44,8 @@ OC.L10N.register(
     "Widget %s moved" : "Bogadh giuirléid %s",
     "Widget %s resized" : "Athraíodh méid ghiuirléid %s",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s agus %n athrú eile", "%s agus %n athrú eile", "%s agus %n athrú eile", "%s agus %n n-athrú eile", "%s agus %n athrú eile"],
+    "Template %s" : "Teimpléad %s",
+    "Updated from the template" : "Nuashonraithe ón teimpléad",
     "Admin settings" : "Socruithe riaracháin",
     "Features & roadmap" : "Gnéithe agus treochlár",
     "Maximum dashboards per user" : "Uaslíon deais-chláir in aghaidh an úsáideora",

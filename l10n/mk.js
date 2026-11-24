@@ -44,6 +44,8 @@ OC.L10N.register(
     "Widget %s moved" : "Виџетот %s е преместен",
     "Widget %s resized" : "Променета големина на виџетот %s",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s и уште %n промена", "%s и уште %n промени"],
+    "Template %s" : "Шаблон %s",
+    "Updated from the template" : "Ажурирано од шаблонот",
     "Admin settings" : "Административни параметри",
     "Features & roadmap" : "Функции и патоказ",
     "Maximum dashboards per user" : "Максимален број контролни табли по корисник",

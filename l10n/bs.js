@@ -44,6 +44,8 @@ OC.L10N.register(
     "Widget %s moved" : "Widget %s premješten",
     "Widget %s resized" : "Promijenjena veličina widgeta %s",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s i još %n promjena", "%s i još %n promjene", "%s i još %n promjena"],
+    "Template %s" : "Predložak %s",
+    "Updated from the template" : "Ažurirano iz predloška",
     "Admin settings" : "Admin settings",
     "Features & roadmap" : "Funkcije i plan razvoja",
     "Maximum dashboards per user" : "Maksimalan broj nadzornih ploča po korisniku",

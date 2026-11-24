@@ -44,6 +44,8 @@ OC.L10N.register(
     "Widget %s moved" : "Джаджата %s е преместена",
     "Widget %s resized" : "Променен размер на джаджата %s",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s и още %n промяна", "%s и още %n промени"],
+    "Template %s" : "Шаблон %s",
+    "Updated from the template" : "Обновено от шаблона",
     "Admin settings" : "Административни настройки",
     "Features & roadmap" : "Функции и пътна карта",
     "Maximum dashboards per user" : "Максимален брой табла на потребител",

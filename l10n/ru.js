@@ -44,6 +44,8 @@ OC.L10N.register(
     "Widget %s moved" : "Виджет %s перемещён",
     "Widget %s resized" : "Изменён размер виджета %s",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s и ещё %n изменение", "%s и ещё %n изменения", "%s и ещё %n изменений"],
+    "Template %s" : "Шаблон %s",
+    "Updated from the template" : "Обновлено из шаблона",
     "Admin settings" : "Параметры сервера",
     "Features & roadmap" : "Функции и дорожная карта",
     "Maximum dashboards per user" : "Максимальное количество панелей на пользователя",

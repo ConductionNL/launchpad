@@ -44,6 +44,8 @@ OC.L10N.register(
     "Widget %s moved" : "Vidin %s teisaldatud",
     "Widget %s resized" : "Vidina %s suurust muudeti",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s ja veel %n muudatus", "%s ja veel %n muudatust"],
+    "Template %s" : "Mall %s",
+    "Updated from the template" : "Uuendatud mallist",
     "Admin settings" : "Administreerimise seaded",
     "Features & roadmap" : "Funktsioonid ja teekaart",
     "Maximum dashboards per user" : "Töölaudade maksimumarv kasutaja kohta",

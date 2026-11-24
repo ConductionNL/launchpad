@@ -44,6 +44,8 @@ OC.L10N.register(
     "Widget %s moved" : "Viðmótshluti %s færður",
     "Widget %s resized" : "Stærð viðmótshluta %s breytt",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s og %n breyting í viðbót", "%s og %n breytingar í viðbót"],
+    "Template %s" : "Sniðmát %s",
+    "Updated from the template" : "Uppfært úr sniðmátinu",
     "Admin settings" : "Stillingar stjórnunar",
     "Features & roadmap" : "Eiginleikar og vegvísir",
     "Maximum dashboards per user" : "Hámarksfjöldi mælaborða á notanda",

@@ -44,6 +44,8 @@ OC.L10N.register(
     "Widget %s moved" : "Widget %s flyttet",
     "Widget %s resized" : "Størrelse på widget %s ændret",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s og %n ændring mere", "%s og %n ændringer mere"],
+    "Template %s" : "Skabelon %s",
+    "Updated from the template" : "Opdateret fra skabelonen",
     "Admin settings" : "Systemindstillinger",
     "Features & roadmap" : "Funktioner og køreplan",
     "Maximum dashboards per user" : "Maksimalt antal dashboards pr. bruger",

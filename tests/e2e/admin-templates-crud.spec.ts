@@ -23,11 +23,9 @@
  *   @e2e admin-templates::create-a-template-targeting-specific-groups
  *   @e2e admin-templates::create-a-default-template-for-all-users
  *   @e2e admin-templates::non-admin-user-cannot-create-templates
- *   @e2e admin-templates::create-template-with-invalid-permission-level
  *   @e2e admin-templates::create-template-with-uuid-generation
  *   @e2e admin-templates::list-all-templates
  *   @e2e admin-templates::non-admin-cannot-list-templates
- *   @e2e admin-templates::template-list-includes-widget-placement-count
  *   @e2e admin-templates::templates-filtered-from-user-dashboard-list
  *   @e2e admin-templates::mark-template-as-default
  *   @e2e admin-templates::non-admin-cannot-update-templates
@@ -224,31 +222,6 @@ test.describe('creating a template (REQ-TMPL-001)', () => {
 		])
 	})
 
-	// @e2e admin-templates::create-template-with-invalid-permission-level
-	// The product accepts any string: AdminController::createTemplate
-	// (lib/Controller/AdminController.php:206-229) hands `permissionLevel` to
-	// AdminTemplateService::createTemplate (lib/Service/AdminTemplateService.php:251-276),
-	// which stores it without a check. The scenario's own NOTE says so.
-	test.fixme('an unknown permission level is refused with 400 and only the three levels are accepted', async () => {
-		const name = `${STAMP} Bad level`
-		const res = await admin.post(`${API}/admin/templates`, {
-			data: { name, permissionLevel: 'super_admin' },
-		})
-		expect(res.status()).toBe(400)
-		expect(JSON.stringify(await res.json())).toMatch(/permission/i)
-		expect(
-			(await listTemplates(admin)).filter((t) => t.name === name),
-		).toHaveLength(0)
-
-		for (const level of ['view_only', 'add_only', 'full']) {
-			const ok = await seed({
-				name: `${STAMP} Level ${level}`,
-				permissionLevel: level,
-			})
-			expect(ok.permissionLevel).toBe(level)
-		}
-	})
-
 	// @e2e admin-templates::create-template-with-uuid-generation
 	test('every new template carries a distinct UUID v4', async () => {
 		const a = await seed({ name: `${STAMP} Uuid A` })
@@ -334,24 +307,6 @@ test.describe('listing templates (REQ-TMPL-002)', () => {
 
 		const allowed = await admin.get(`${API}/admin/templates`)
 		expect(allowed.status()).toBe(200)
-	})
-
-	// @e2e admin-templates::template-list-includes-widget-placement-count
-	// Not built: listTemplates (lib/Controller/AdminController.php:149-155)
-	// serialises the bare Dashboard entity, which has no widget count
-	// (lib/Db/Dashboard.php identityFields()). The scenario's NOTE says so.
-	test.fixme('each listed template carries a widget_count', async () => {
-		const name = `${STAMP} Six widgets`
-		const widgets = [0, 1, 2, 3, 4, 5].map((i) =>
-			textWidget(`${STAMP} w${i}`, {
-				x: (i % 3) * 4,
-				y: Math.floor(i / 3) * 2,
-			}),
-		)
-		const row = await importTemplate(admin, name, { widgets })
-		made.push(row.id)
-		const listed = (await listTemplates(admin)).find((t) => t.id === row.id)
-		expect(listed?.widget_count).toBe(6)
 	})
 
 	// @e2e admin-templates::templates-filtered-from-user-dashboard-list

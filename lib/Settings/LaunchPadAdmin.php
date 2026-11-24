@@ -37,7 +37,7 @@ class LaunchPadAdmin implements IDelegatedSettings {
 	 *
 	 * @param IURLGenerator $urlGenerator Builds the address of the administration page.
 	 *
-	 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-nextclouds-settings-point-to-the-page-req-adm-031
+	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-nextclouds-settings-point-to-the-page-req-adm-031
 	 */
 	public function __construct(
 		private readonly IURLGenerator $urlGenerator,
@@ -49,7 +49,7 @@ class LaunchPadAdmin implements IDelegatedSettings {
 	 *
 	 * @return TemplateResponse The template response.
 	 *
-	 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-nextclouds-settings-point-to-the-page-req-adm-031
+	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-nextclouds-settings-point-to-the-page-req-adm-031
 	 */
 	public function getForm(): TemplateResponse {
 		return new TemplateResponse(

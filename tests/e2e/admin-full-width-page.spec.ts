@@ -14,7 +14,7 @@
  * Written from the change's scenarios; it runs in the nightly against a
  * live instance.
  *
- * @e2e openspec/changes/admin-full-width-page/specs/admin-settings/spec.md
+ * @e2e openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md
  */
 
 import type { Page } from '@playwright/test'

@@ -48,7 +48,7 @@ export default {
 		 * @return {string} The page's URL.
 		 *
 		 * @spec openspec/changes/launchpad-manifest-tier-3/specs/manifest-routing/spec.md#requirement-req-route-006-a-declared-page-names-a-component-that-exists
-		 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+		 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 		 */
 		target() {
 			return adminPageUrl(this.tab)

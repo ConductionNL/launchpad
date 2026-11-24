@@ -80,6 +80,7 @@ class DashboardService {
 		'seedDefaults' => false,
 		'seedSet'      => self::SEED_SET_DEFAULT,
 		'menuAppIds'   => [],
+		'gridColumns'  => null,
 	];
 
 	/**
@@ -788,6 +789,7 @@ class DashboardService {
 	public function createDashboard(string $userId, string $name, array $options=[]): Dashboard {
 		$options += self::CREATE_DEFAULTS;
 		$this->assertMayCreate(userId: $userId, parentUuid: $options['parentUuid']);
+		$options['gridColumns'] ??= $this->defaultGridColumns();
 
 		$dashboard = $this->builders->dashboardFactory->create(
 			userId: $userId,
@@ -846,8 +848,27 @@ class DashboardService {
 			'parentUuid'  => $options['parentUuid'],
 			'slug'        => $options['slug'],
 			'sortOrder'   => $options['sortOrder'],
+			'gridColumns' => $options['gridColumns'],
 		];
 	}//end factoryOptions()
+
+	/**
+	 * The grid columns a new dashboard gets when the create names none: the
+	 * administrator's default (REQ-ASET-006), 12 when it is unset or not one
+	 * of the offered counts.
+	 *
+	 * @return int The column count.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md
+	 */
+	private function defaultGridColumns(): int {
+		$value = $this->stores->settingMapper->getValue(key: AdminSetting::KEY_DEFAULT_GRID_COLUMNS, default: 12);
+		if (is_numeric($value) === true && in_array((int)$value, [6, 8, 12], true) === true) {
+			return (int)$value;
+		}
+
+		return 12;
+	}//end defaultGridColumns()
 
 	/**
 	 * Set a new dashboard's icon when one was given.

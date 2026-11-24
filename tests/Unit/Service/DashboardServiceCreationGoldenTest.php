@@ -152,7 +152,7 @@ class DashboardServiceCreationGoldenTest extends TestCase {
 			'mutable',
 			'quota:alice',
 			"parent:'p-1'",
-			'factory:alice:Board:{"description":"D","parentUuid":"p-1","slug":"board","sortOrder":4}',
+			'factory:alice:Board:{"description":"D","parentUuid":"p-1","slug":"board","sortOrder":4,"gridColumns":12}',
 			"slug:'p-1':board",
 			'deactivate:alice',
 			"insert:icon='star'",
@@ -175,7 +175,7 @@ class DashboardServiceCreationGoldenTest extends TestCase {
 
 		$this->assertSame([
 			'parent:NULL',
-			'factory:{"description":null,"parentUuid":null,"slug":null,"sortOrder":0}',
+			'factory:{"description":null,"parentUuid":null,"slug":null,"sortOrder":0,"gridColumns":12}',
 			'deactivate:bob',
 			'insert:icon=NULL',
 		], $this->log);

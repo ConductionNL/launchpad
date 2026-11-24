@@ -92,7 +92,7 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	public function testGroupsAreHeadedBySectionHeadings(): void {
 		$expected = [
 			'Mijn werkplek'        => ['Mijn apps', 'Samenwerken'],
-			'Intranet Zuiddrecht'  => ['Samenwerken', 'Nieuws en media', 'Wegwijs'],
+			'Intranet Zuiddrecht'  => ['Samenwerken', 'Nieuws en media', "Collega's", 'Wegwijs'],
 			'Team Vergunningen'    => ['Apps van het team'],
 		];
 		// LpWerkplek heads each group of tiles in its own column.

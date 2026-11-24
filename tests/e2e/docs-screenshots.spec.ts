@@ -38,6 +38,7 @@ import type { Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
 import * as fs from 'fs'
 import * as path from 'path'
+import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 
 const SHOT_ROOT = path.resolve(
 	__dirname,
@@ -75,9 +76,7 @@ async function shoot(
  * Open the slide-in dashboard sidebar.
  */
 async function openSidebar(page: Page): Promise<void> {
-	const toggle = page.locator('.launchpad-sidebar-toggle').first()
-	await toggle.click()
-	await expect(page.locator('.dashboard-switcher-sidebar')).toBeVisible()
+	await openDashboardSwitcher(page)
 }
 
 /**
@@ -110,7 +109,7 @@ test.describe.configure({ mode: 'default' })
 test.beforeEach(async ({ page }) => {
 	page.setViewportSize({ width: 1280, height: 800 })
 	await page.goto('/apps/launchpad/')
-	await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 15_000 })
+	await page.waitForSelector(MORE_MENU, { timeout: 15_000 })
 })
 
 // ---------------------------------------------------------------------------
@@ -372,7 +371,7 @@ test.describe('docs: user track', () => {
 		// 08-deep-link-landed: navigate to a known slug and screenshot the landed state
 		const slug = 'newman-validation' // assumed to exist in the seeded test env; adjust as needed
 		await page.goto(`/apps/launchpad/${slug}`)
-		await page.waitForSelector('.launchpad-sidebar-toggle')
+		await page.waitForSelector(MORE_MENU)
 		await shoot(page, 'user', '08-deep-link-landed.png')
 
 		// 08-url-after-switch: switch to a different dashboard via the sidebar
@@ -504,7 +503,7 @@ test.describe('docs: admin track', () => {
 	test('A3 group defaults — admin cog + member view', async ({ page }) => {
 		// Switch back to LaunchPad workspace as admin to find a group dashboard
 		await page.goto('/apps/launchpad/')
-		await page.waitForSelector('.launchpad-sidebar-toggle')
+		await page.waitForSelector(MORE_MENU)
 		await openSidebar(page)
 		const groupRow = page
 			.locator('[data-source="group"], [data-source="default"]')

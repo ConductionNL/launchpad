@@ -209,10 +209,9 @@ class DemoSeedWidgets {
 	 * The type-specific fields of a tile: an app tile for an enabled app when
 	 * that type exists, a launcher tile otherwise.
 	 *
-	 * A tile whose address opens an app that is not enabled stays an app tile,
-	 * which names the app as not available; as a launcher tile it would link
-	 * to a page that does not exist. Without the app tile type such a tile is
-	 * not placed.
+	 * A tile whose address opens an app that is not enabled is left out: as a
+	 * launcher tile it would link to a page that does not exist, and as an app
+	 * tile it would show "not available" on a demo dashboard.
 	 *
 	 * @param array<string, mixed> $tile The catalogue tile.
 	 *
@@ -224,11 +223,11 @@ class DemoSeedWidgets {
 		$enabled  = $appId !== '' && isset($this->enabledApps[$appId]) === true;
 		$missing  = $appId !== '' && $enabled === false && str_contains((string)($tile['url'] ?? ''), '/apps/' . $appId . '/') === true;
 		$appTiles = isset($this->knownTypes[self::APP_TILE_TYPE]);
-		if ($missing === true && $appTiles === false) {
+		if ($missing === true) {
 			return null;
 		}
 
-		if (($enabled === true || $missing === true) && $appTiles === true) {
+		if ($enabled === true && $appTiles === true) {
 			$content = ['appId' => $appId, 'colour' => $colour, 'showCount' => true];
 			// The board's glyph and the app's own counter (LpVandaag).
 			if (is_string($tile['icon'] ?? null) === true) {

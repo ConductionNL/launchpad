@@ -100,17 +100,18 @@ class DemoSeedWidgetsTest extends TestCase {
 	}//end testTileIsALauncherTileInItsTokenColourWithoutAppTileType()
 
 	/**
-	 * Tile of a disabled app is an app tile, which names the app as not available.
+	 * Tile of a disabled app is left out of the seeded dashboard.
 	 *
 	 * @return void
 	 */
-	public function testTileOfADisabledAppIsAnAppTile(): void {
-		$result = $this->expander(types: ['app-tile', 'tile'])->expand(entries: [['tile' => 'talk']]);
+	public function testTileOfADisabledAppIsLeftOut(): void {
+		$result = $this->expander(types: ['app-tile', 'tile'])->expand(entries: [['tile' => 'talk'], ['tile' => 'topdesk']]);
 
-		$this->assertSame(expected: 'app-tile', actual: $result['placed'][0]['widgetId']);
-		$this->assertSame(expected: 'spreed', actual: $result['placed'][0]['content']['appId']);
-		$this->assertArrayNotHasKey(key: 'tileLinkValue', array: $result['placed'][0]);
-	}//end testTileOfADisabledAppIsAnAppTile()
+		// A demo dashboard shows no "not available" tile: the Talk tile is not placed.
+		$this->assertCount(expectedCount: 1, haystack: $result['placed']);
+		$this->assertSame(expected: 'tile', actual: $result['placed'][0]['widgetId']);
+		$this->assertCount(expectedCount: 1, haystack: $result['skipped']);
+	}//end testTileOfADisabledAppIsLeftOut()
 
 	/**
 	 * Tile of a disabled app whose address opens another app stays a launcher tile.

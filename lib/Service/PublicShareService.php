@@ -424,54 +424,23 @@ class PublicShareService {
 	): PublicShare {
 		$share = $this->resolveActiveShare(token: $token, ipAddress: $ipAddress);
 
-		// Password gate.
-		if ($this->lacksPassword(share: $share, password: $password) === true) {
+		// Password gate: an open share passes, a protected one needs the right password.
+		$hash = $share->getPasswordHash();
+		if ($hash === null) {
+			return $share;
+		}
+
+		if ($password === null || $password === '') {
 			throw new SharePasswordRequiredException();
 		}
 
-		if ($this->rejectsPassword(share: $share, password: $password) === true) {
+		if ($this->hasher->verify(message: $password, hash: $hash) === false) {
 			$this->registerPasswordFailure(ipAddress: $ipAddress);
 			throw new SharePasswordRequiredException();
 		}
 
 		return $share;
 	}//end openShare()
-
-	/**
-	 * Whether a password-protected share was opened without a password.
-	 *
-	 * @param PublicShare $share    The active share.
-	 * @param string|null $password The supplied password.
-	 *
-	 * @return bool True when a password is needed but missing.
-	 */
-	private function lacksPassword(
-		PublicShare $share,
-		#[\SensitiveParameter]
-		?string $password,
-	): bool {
-		return $share->getPasswordHash() !== null && ($password === null || $password === '');
-	}//end lacksPassword()
-
-	/**
-	 * Whether a password-protected share was opened with a wrong password.
-	 *
-	 * @param PublicShare $share    The active share.
-	 * @param string|null $password The supplied, non-empty password.
-	 *
-	 * @return bool True when the password does not match.
-	 */
-	private function rejectsPassword(
-		PublicShare $share,
-		#[\SensitiveParameter]
-		?string $password,
-	): bool {
-		return $share->getPasswordHash() !== null
-			&& $this->hasher->verify(
-				message: (string)$password,
-				hash: (string)$share->getPasswordHash()
-			) === false;
-	}//end rejectsPassword()
 
 	/**
 	 * Record a failed password attempt for throttling.

@@ -9,6 +9,10 @@
  * The admin picks a fresh public link of a fresh dashboard; the setting is put
  * back to what it was afterwards. Visitors run in contexts with an empty jar.
  *
+ * The start-page dashboard also carries an "Opening hours" text widget whose
+ * content is a Markdown list, so the same visitor proves REQ-PSHR-012: the
+ * public start page renders the list as list items, not as raw text.
+ *
  * @e2e openspec/specs/dashboard-public-share/spec.md
  */
 
@@ -27,6 +31,7 @@ const STAFF = {
 }
 const API = '/index.php/apps/launchpad/api'
 const NAME = `Bibliotheek Noord ${Date.now()}`
+const OPENING_HOURS = '- Monday 9:00 to 17:00\n- Tuesday *closed*'
 
 let admin: APIRequestContext
 let dashboardId = 0
@@ -66,6 +71,18 @@ test.beforeAll(async () => {
 	expect(created.status(), await created.text()).toBeLessThan(300)
 	const dash = (await created.json()).dashboard
 	dashboardId = Number(dash.id)
+	const text = await admin.post(`${API}/dashboard/${dashboardId}/widgets`, {
+		data: {
+			widgetId: 'text',
+			gridX: 0,
+			gridY: 0,
+			gridWidth: 4,
+			gridHeight: 3,
+			customTitle: 'Opening hours',
+			content: { title: 'Opening hours', text: OPENING_HOURS, contentMode: 'markdown' },
+		},
+	})
+	expect(text.status(), await text.text()).toBeLessThan(300)
 	const share = await admin.post(`${API}/dashboards/${dash.uuid}/public-share`, { data: {} })
 	expect(share.status(), await share.text()).toBe(201)
 	const token = (await share.json()).token as string
@@ -93,6 +110,26 @@ test('a signed-out visitor of the plain address lands on the start page', async 
 		const signInLink = page.getByRole('link', { name: 'Sign in' })
 		await expect(signInLink).toBeVisible()
 		expect(await signInLink.getAttribute('href')).toMatch(/\/login\?direct=1$/)
+	} finally {
+		await page.context().close()
+	}
+})
+
+// @e2e dashboard-public-share::opening-hours-as-a-list
+test('the public start page shows the Opening hours Markdown as a list', async ({ browser }) => {
+	const page = await visitor(browser)
+	try {
+		await page.goto('/')
+		const widget = page.locator('.public-share-view__widget-text')
+		await expect(widget).toBeVisible({ timeout: 30_000 })
+		const items = widget.locator('li')
+		await expect(items).toHaveCount(2)
+		await expect(items.nth(0)).toHaveText('Monday 9:00 to 17:00')
+		await expect(items.nth(1)).toHaveText('Tuesday closed')
+		await expect(widget.locator('li em')).toHaveText('closed')
+		// Raw Markdown would show the list markers and the asterisks as text.
+		await expect(widget).not.toContainText('- Monday')
+		await expect(widget).not.toContainText('*closed*')
 	} finally {
 		await page.context().close()
 	}

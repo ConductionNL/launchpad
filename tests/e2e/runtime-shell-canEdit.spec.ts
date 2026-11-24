@@ -15,8 +15,6 @@
  *   @e2e runtime-shell::no-sidebar-toggle
  *   @e2e runtime-shell::all-dashboards-opens-the-switcher
  *   @e2e runtime-shell::no-active-dashboard-select-control
- *   @e2e runtime-shell::empty-state-with-allow-user-dashboards
- *   @e2e runtime-shell::empty-state-without-allow-user-dashboards
  *   @e2e action-authorization::fresh-install-is-usable-by-non-admins
  *
  * @spec openspec/changes/runtime-shell/tasks.md#task-9
@@ -142,7 +140,9 @@ test.describe('REQ-SHELL-005: empty state', () => {
 		}
 	})
 
-	// @e2e runtime-shell::empty-state-with-allow-user-dashboards
+	// Cites no scenario: "Empty state with creation enabled", the scenario this
+	// exercises, carries a reasoned exclusion in the spec (unreachable since #361),
+	// and the slug it used to cite matches no heading in the spec.
 	test('empty state renders with Create CTA when allowUserDashboards is true', async ({
 		browser,
 	}) => {
@@ -171,7 +171,9 @@ test.describe('REQ-SHELL-005: empty state', () => {
 		}
 	})
 
-	// @e2e runtime-shell::empty-state-without-allow-user-dashboards
+	// Cites no scenario: "Empty state with creation disabled", the scenario this
+	// exercises, carries a reasoned exclusion in the spec (unreachable since #361),
+	// and the slug it used to cite matches no heading in the spec.
 	test('empty state renders without Create CTA when allowUserDashboards is false', async ({
 		browser,
 	}) => {

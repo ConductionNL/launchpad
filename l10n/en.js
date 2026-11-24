@@ -2093,7 +2093,13 @@ OC.L10N.register(
     "Only you see this preview until {when}." : "Only you see this preview until {when}.",
     "Shown in the Announcements widget." : "Shown in the Announcements widget.",
     "Maintenance notice" : "Maintenance notice",
-    "Shown at the top of every dashboard until the end time." : "Shown at the top of every dashboard until the end time."
+    "Shown at the top of every dashboard until the end time." : "Shown at the top of every dashboard until the end time.",
+    "Ask for read confirmation" : "Ask for read confirmation",
+    "Confirm before" : "Confirm before",
+    "Confirm before {date}" : "Confirm before {date}",
+    "You confirmed you have read this" : "You confirmed you have read this",
+    "The confirm-before date must be after the publish time" : "The confirm-before date must be after the publish time",
+    "Your read confirmation could not be saved" : "Your read confirmation could not be saved"
 },
 "nplurals=2; plural=(n != 1);"
 );

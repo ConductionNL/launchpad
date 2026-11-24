@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Mostrado no topo de cada painel até à hora de fim.",
     "Information" : "Informação",
     "Warning" : "Aviso",
-    "Something went wrong" : "Algo correu mal"
+    "Something went wrong" : "Algo correu mal",
+    "Ask for read confirmation" : "Pedir confirmação de leitura",
+    "Confirm before" : "Confirmar até",
+    "Confirm before {date}" : "Confirmar até {date}",
+    "You confirmed you have read this" : "Confirmou que leu isto",
+    "The confirm-before date must be after the publish time" : "A data limite de confirmação tem de ser posterior à data de publicação",
+    "Your read confirmation could not be saved" : "Não foi possível guardar a sua confirmação de leitura"
 },
 "nplurals=2; plural=(n != 1);"
 );

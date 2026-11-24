@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Minden irányítópult tetején megjelenik a befejezés idejéig.",
     "Information" : "Információ",
     "Warning" : "Figyelmeztetés",
-    "Something went wrong" : "Valami hiba történt"
+    "Something went wrong" : "Valami hiba történt",
+    "Ask for read confirmation" : "Olvasási visszaigazolás kérése",
+    "Confirm before" : "Visszaigazolás eddig",
+    "Confirm before {date}" : "Visszaigazolás eddig: {date}",
+    "You confirmed you have read this" : "Visszaigazolta, hogy elolvasta",
+    "The confirm-before date must be after the publish time" : "A visszaigazolás határidejének a közzététel után kell lennie",
+    "Your read confirmation could not be saved" : "Az olvasási visszaigazolást nem sikerült menteni"
 },
 "nplurals=2; plural=(n != 1);"
 );

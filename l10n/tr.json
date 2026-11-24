@@ -1546,6 +1546,12 @@
         "Shown at the top of every dashboard until the end time.": "Bitiş zamanına kadar her panonun en üstünde gösterilir.",
         "Information": "Bilgi",
         "Warning": "Uyarı",
-        "Something went wrong": "Bir şeyler ters gitti"
+        "Something went wrong": "Bir şeyler ters gitti",
+        "Ask for read confirmation": "Okundu onayı iste",
+        "Confirm before": "Son onay tarihi",
+        "Confirm before {date}": "Son onay tarihi {date}",
+        "You confirmed you have read this": "Bunu okuduğunuzu onayladınız",
+        "The confirm-before date must be after the publish time": "Onay son tarihi yayın zamanından sonra olmalıdır",
+        "Your read confirmation could not be saved": "Okundu onayınız kaydedilemedi"
     }
 }

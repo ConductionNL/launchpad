@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Birt efst á hverju stjórnborði fram að lokatíma.",
     "Information" : "Upplýsingar",
     "Warning" : "Viðvörun",
-    "Something went wrong" : "Eitthvað fór úrskeiðis"
+    "Something went wrong" : "Eitthvað fór úrskeiðis",
+    "Ask for read confirmation" : "Biðja um lesstaðfestingu",
+    "Confirm before" : "Staðfesta fyrir",
+    "Confirm before {date}" : "Staðfesta fyrir {date}",
+    "You confirmed you have read this" : "Þú hefur staðfest að þú hafir lesið þetta",
+    "The confirm-before date must be after the publish time" : "Staðfestingarfresturinn verður að vera eftir birtingartímanum",
+    "Your read confirmation could not be saved" : "Ekki tókst að vista lesstaðfestinguna þína"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

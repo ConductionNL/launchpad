@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Taispeántar ag barr gach deais é go dtí an t-am deiridh.",
     "Information" : "Faisnéis",
     "Warning" : "Rabhadh",
-    "Something went wrong" : "Chuaigh rud éigin mícheart"
+    "Something went wrong" : "Chuaigh rud éigin mícheart",
+    "Ask for read confirmation" : "Iarr deimhniú léite",
+    "Confirm before" : "Deimhnigh roimh",
+    "Confirm before {date}" : "Deimhnigh roimh {date}",
+    "You confirmed you have read this" : "Dheimhnigh tú gur léigh tú é seo",
+    "The confirm-before date must be after the publish time" : "Ní mór an dáta deimhnithe a bheith tar éis an ama foilsithe",
+    "Your read confirmation could not be saved" : "Níorbh fhéidir do dheimhniú léite a shábháil"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

@@ -1548,6 +1548,12 @@
         "Shown at the top of every dashboard until the end time.": "Паказваецца ўверсе кожнай панэлі да часу заканчэння.",
         "Information": "Інфармацыя",
         "Warning": "Папярэджанне",
-        "Something went wrong": "Нешта пайшло не так"
+        "Something went wrong": "Нешта пайшло не так",
+        "Ask for read confirmation": "Папрасіць пацвярджэння прачытання",
+        "Confirm before": "Пацвердзіць да",
+        "Confirm before {date}": "Пацвердзіць да {date}",
+        "You confirmed you have read this": "Вы пацвердзілі, што прачыталі гэта",
+        "The confirm-before date must be after the publish time": "Тэрмін пацвярджэння павінен быць пазней за час публікацыі",
+        "Your read confirmation could not be saved": "Не ўдалося захаваць ваша пацвярджэнне прачытання"
     }
 }

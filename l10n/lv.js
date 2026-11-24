@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Tiek rādīts katra informācijas paneļa augšdaļā līdz beigu laikam.",
     "Information" : "Informācija",
     "Warning" : "Brīdinājums",
-    "Something went wrong" : "Kaut kas nogāja greizi"
+    "Something went wrong" : "Kaut kas nogāja greizi",
+    "Ask for read confirmation" : "Pieprasīt izlasīšanas apstiprinājumu",
+    "Confirm before" : "Apstiprināt līdz",
+    "Confirm before {date}" : "Apstiprināt līdz {date}",
+    "You confirmed you have read this" : "Jūs apstiprinājāt, ka to esat izlasījis",
+    "The confirm-before date must be after the publish time" : "Apstiprināšanas termiņam jābūt pēc publicēšanas laika",
+    "Your read confirmation could not be saved" : "Jūsu izlasīšanas apstiprinājumu neizdevās saglabāt"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

@@ -2521,7 +2521,13 @@ OC.L10N.register(
     "Only you see this preview until {when}." : "Alleen u ziet dit voorbeeld tot {when}.",
     "Shown in the Announcements widget." : "Getoond in de widget Aankondigingen.",
     "Maintenance notice" : "Onderhoudsmelding",
-    "Shown at the top of every dashboard until the end time." : "Getoond bovenaan elk dashboard tot de eindtijd."
+    "Shown at the top of every dashboard until the end time." : "Getoond bovenaan elk dashboard tot de eindtijd.",
+    "Ask for read confirmation" : "Vraag om leesbevestiging",
+    "Confirm before" : "Bevestigen vóór",
+    "Confirm before {date}" : "Bevestigen vóór {date}",
+    "You confirmed you have read this" : "U hebt bevestigd dat u dit hebt gelezen",
+    "The confirm-before date must be after the publish time" : "De datum voor bevestiging moet na het publicatiemoment liggen",
+    "Your read confirmation could not be saved" : "Uw leesbevestiging kon niet worden opgeslagen"
 },
 "nplurals=2; plural=(n != 1);"
 );

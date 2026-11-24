@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Prikazuje se na vrhu svake nadzorne ploče do vremena završetka.",
     "Information" : "Informacija",
     "Warning" : "Upozorenje",
-    "Something went wrong" : "Nešto je pošlo po zlu"
+    "Something went wrong" : "Nešto je pošlo po zlu",
+    "Ask for read confirmation" : "Zatraži potvrdu čitanja",
+    "Confirm before" : "Potvrdi do",
+    "Confirm before {date}" : "Potvrdi do {date}",
+    "You confirmed you have read this" : "Potvrdili ste da ste ovo pročitali",
+    "The confirm-before date must be after the publish time" : "Rok za potvrdu mora biti nakon vremena objave",
+    "Your read confirmation could not be saved" : "Vašu potvrdu čitanja nije bilo moguće spremiti"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

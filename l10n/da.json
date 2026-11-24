@@ -1546,6 +1546,12 @@
         "Shown at the top of every dashboard until the end time.": "Vises øverst på hvert dashboard indtil sluttidspunktet.",
         "Information": "Information",
         "Warning": "Advarsel",
-        "Something went wrong": "Noget gik galt"
+        "Something went wrong": "Noget gik galt",
+        "Ask for read confirmation": "Bed om læsebekræftelse",
+        "Confirm before": "Bekræft senest",
+        "Confirm before {date}": "Bekræft senest {date}",
+        "You confirmed you have read this": "Du har bekræftet, at du har læst dette",
+        "The confirm-before date must be after the publish time": "Fristen for bekræftelse skal ligge efter udgivelsestidspunktet",
+        "Your read confirmation could not be saved": "Din læsebekræftelse kunne ikke gemmes"
     }
 }

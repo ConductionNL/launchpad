@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Kuvatakse iga töölaua ülaosas kuni lõpuajani.",
     "Information" : "Teave",
     "Warning" : "Hoiatus",
-    "Something went wrong" : "Midagi läks valesti"
+    "Something went wrong" : "Midagi läks valesti",
+    "Ask for read confirmation" : "Küsi lugemise kinnitust",
+    "Confirm before" : "Kinnita enne",
+    "Confirm before {date}" : "Kinnita enne {date}",
+    "You confirmed you have read this" : "Olete kinnitanud, et lugesite selle läbi",
+    "The confirm-before date must be after the publish time" : "Kinnitamise tähtaeg peab olema pärast avaldamisaega",
+    "Your read confirmation could not be saved" : "Teie lugemise kinnitust ei õnnestunud salvestada"
 },
 "nplurals=2; plural=(n != 1);"
 );

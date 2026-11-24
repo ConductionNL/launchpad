@@ -1546,6 +1546,12 @@
         "Shown at the top of every dashboard until the end time.": "Показва се най-горе на всяко табло до крайния час.",
         "Information": "Информация",
         "Warning": "Предупреждение",
-        "Something went wrong": "Нещо се обърка"
+        "Something went wrong": "Нещо се обърка",
+        "Ask for read confirmation": "Изискване на потвърждение за прочитане",
+        "Confirm before": "Потвърдете до",
+        "Confirm before {date}": "Потвърдете до {date}",
+        "You confirmed you have read this": "Потвърдихте, че сте прочели това",
+        "The confirm-before date must be after the publish time": "Срокът за потвърждение трябва да е след часа на публикуване",
+        "Your read confirmation could not be saved": "Потвърждението ви за прочитане не можа да бъде запазено"
     }
 }

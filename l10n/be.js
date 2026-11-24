@@ -1637,6 +1637,12 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Паказваецца ўверсе кожнай панэлі да часу заканчэння.",
     "Information" : "Інфармацыя",
     "Warning" : "Папярэджанне",
-    "Something went wrong" : "Нешта пайшло не так"
+    "Something went wrong" : "Нешта пайшло не так",
+    "Ask for read confirmation" : "Папрасіць пацвярджэння прачытання",
+    "Confirm before" : "Пацвердзіць да",
+    "Confirm before {date}" : "Пацвердзіць да {date}",
+    "You confirmed you have read this" : "Вы пацвердзілі, што прачыталі гэта",
+    "The confirm-before date must be after the publish time" : "Тэрмін пацвярджэння павінен быць пазней за час публікацыі",
+    "Your read confirmation could not be saved" : "Не ўдалося захаваць ваша пацвярджэнне прачытання"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

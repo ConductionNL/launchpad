@@ -1548,6 +1548,12 @@
         "Shown at the top of every dashboard until the end time.": "Prikazuje se na vrhu svake kontrolne table do vremena završetka.",
         "Information": "Informacija",
         "Warning": "Upozorenje",
-        "Something went wrong": "Nešto nije u redu"
+        "Something went wrong": "Nešto nije u redu",
+        "Ask for read confirmation": "Zatraži potvrdu čitanja",
+        "Confirm before": "Potvrdi do",
+        "Confirm before {date}": "Potvrdi do {date}",
+        "You confirmed you have read this": "Potvrdili ste da ste ovo pročitali",
+        "The confirm-before date must be after the publish time": "Rok za potvrdu mora biti nakon vremena objave",
+        "Your read confirmation could not be saved": "Vašu potvrdu čitanja nije bilo moguće sačuvati"
     }
 }

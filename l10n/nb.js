@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Vises øverst på hvert dashbord frem til sluttidspunktet.",
     "Information" : "Informasjon",
     "Warning" : "Advarsel",
-    "Something went wrong" : "Noe gikk galt"
+    "Something went wrong" : "Noe gikk galt",
+    "Ask for read confirmation" : "Be om lesebekreftelse",
+    "Confirm before" : "Bekreft innen",
+    "Confirm before {date}" : "Bekreft innen {date}",
+    "You confirmed you have read this" : "Du har bekreftet at du har lest dette",
+    "The confirm-before date must be after the publish time" : "Fristen for bekreftelse må være etter publiseringstidspunktet",
+    "Your read confirmation could not be saved" : "Lesebekreftelsen din kunne ikke lagres"
 },
 "nplurals=2; plural=(n != 1);"
 );

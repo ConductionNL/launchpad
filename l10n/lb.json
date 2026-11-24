@@ -1546,6 +1546,12 @@
         "Shown at the top of every dashboard until the end time.": "Gëtt bis zur Schlusszäit uewen op all Dashboard ugewisen.",
         "Information": "Informatioun",
         "Warning": "Warnung",
-        "Something went wrong": "Eppes ass schifgaangen"
+        "Something went wrong": "Eppes ass schifgaangen",
+        "Ask for read confirmation": "Lieskonfirmatioun ufroen",
+        "Confirm before": "Confirméieren bis",
+        "Confirm before {date}": "Confirméieren bis {date}",
+        "You confirmed you have read this": "Dir hutt confirméiert, datt Dir dat gelies hutt",
+        "The confirm-before date must be after the publish time": "D'Confirmatiounsdatum muss no der Verëffentlechungszäit sinn",
+        "Your read confirmation could not be saved": "Är Lieskonfirmatioun konnt net gespäichert ginn"
     }
 }

@@ -1546,6 +1546,12 @@
         "Shown at the top of every dashboard until the end time.": "Εμφανίζεται στην κορυφή κάθε πίνακα ελέγχου μέχρι την ώρα λήξης.",
         "Information": "Πληροφορία",
         "Warning": "Προειδοποίηση",
-        "Something went wrong": "Κάτι πήγε στραβά"
+        "Something went wrong": "Κάτι πήγε στραβά",
+        "Ask for read confirmation": "Ζητήστε επιβεβαίωση ανάγνωσης",
+        "Confirm before": "Επιβεβαίωση έως",
+        "Confirm before {date}": "Επιβεβαίωση έως {date}",
+        "You confirmed you have read this": "Επιβεβαιώσατε ότι το διαβάσατε",
+        "The confirm-before date must be after the publish time": "Η προθεσμία επιβεβαίωσης πρέπει να είναι μετά τον χρόνο δημοσίευσης",
+        "Your read confirmation could not be saved": "Δεν ήταν δυνατή η αποθήκευση της επιβεβαίωσης ανάγνωσης"
     }
 }

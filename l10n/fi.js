@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Näytetään jokaisen koontinäytön yläosassa päättymisaikaan asti.",
     "Information" : "Tiedoksi",
     "Warning" : "Varoitus",
-    "Something went wrong" : "Jokin meni pieleen"
+    "Something went wrong" : "Jokin meni pieleen",
+    "Ask for read confirmation" : "Pyydä lukukuittaus",
+    "Confirm before" : "Vahvista viimeistään",
+    "Confirm before {date}" : "Vahvista viimeistään {date}",
+    "You confirmed you have read this" : "Olet vahvistanut lukeneesi tämän",
+    "The confirm-before date must be after the publish time" : "Vahvistuksen määräajan on oltava julkaisuajan jälkeen",
+    "Your read confirmation could not be saved" : "Lukukuittaustasi ei voitu tallentaa"
 },
 "nplurals=2; plural=(n != 1);"
 );

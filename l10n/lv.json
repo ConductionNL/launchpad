@@ -1548,6 +1548,12 @@
         "Shown at the top of every dashboard until the end time.": "Tiek rādīts katra informācijas paneļa augšdaļā līdz beigu laikam.",
         "Information": "Informācija",
         "Warning": "Brīdinājums",
-        "Something went wrong": "Kaut kas nogāja greizi"
+        "Something went wrong": "Kaut kas nogāja greizi",
+        "Ask for read confirmation": "Pieprasīt izlasīšanas apstiprinājumu",
+        "Confirm before": "Apstiprināt līdz",
+        "Confirm before {date}": "Apstiprināt līdz {date}",
+        "You confirmed you have read this": "Jūs apstiprinājāt, ka to esat izlasījis",
+        "The confirm-before date must be after the publish time": "Apstiprināšanas termiņam jābūt pēc publicēšanas laika",
+        "Your read confirmation could not be saved": "Jūsu izlasīšanas apstiprinājumu neizdevās saglabāt"
     }
 }

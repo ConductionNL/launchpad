@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Visas överst på varje instrumentpanel fram till sluttiden.",
     "Information" : "Information",
     "Warning" : "Varning",
-    "Something went wrong" : "Något gick fel"
+    "Something went wrong" : "Något gick fel",
+    "Ask for read confirmation" : "Be om läsbekräftelse",
+    "Confirm before" : "Bekräfta senast",
+    "Confirm before {date}" : "Bekräfta senast {date}",
+    "You confirmed you have read this" : "Du har bekräftat att du har läst detta",
+    "The confirm-before date must be after the publish time" : "Sista dag för bekräftelse måste vara efter publiceringstiden",
+    "Your read confirmation could not be saved" : "Din läsbekräftelse kunde inte sparas"
 },
 "nplurals=2; plural=(n != 1);"
 );

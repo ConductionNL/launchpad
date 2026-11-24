@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Zobrazené navrchu každého prehľadu až do času ukončenia.",
     "Information" : "Informácia",
     "Warning" : "Varovanie",
-    "Something went wrong" : "Niečo sa pokazilo"
+    "Something went wrong" : "Niečo sa pokazilo",
+    "Ask for read confirmation" : "Požiadať o potvrdenie prečítania",
+    "Confirm before" : "Potvrdiť do",
+    "Confirm before {date}" : "Potvrdiť do {date}",
+    "You confirmed you have read this" : "Potvrdili ste, že ste si to prečítali",
+    "The confirm-before date must be after the publish time" : "Termín potvrdenia musí byť po čase zverejnenia",
+    "Your read confirmation could not be saved" : "Vaše potvrdenie prečítania sa nepodarilo uložiť"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

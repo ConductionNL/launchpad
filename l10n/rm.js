@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Vegn mussà sisum mintga dashboard fin a l'ura da fin.",
     "Information" : "Infurmaziun",
     "Warning" : "Avertiment",
-    "Something went wrong" : "Insatge è ì mal"
+    "Something went wrong" : "Insatge è ì mal",
+    "Ask for read confirmation" : "Dumandar ina confermaziun da lectura",
+    "Confirm before" : "Confermar fin",
+    "Confirm before {date}" : "Confermar fin {date}",
+    "You confirmed you have read this" : "Vus avais confermà che Vus avais legì quai",
+    "The confirm-before date must be after the publish time" : "La data da confermaziun sto esser suenter il temp da publicaziun",
+    "Your read confirmation could not be saved" : "Vossa confermaziun da lectura n'ha betg pudì vegnir memorisada"
 },
 "nplurals=2; plural=(n != 1);"
 );

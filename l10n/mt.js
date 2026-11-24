@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Jintwera fuq nett ta' kull dashboard sal-ħin tat-tmiem.",
     "Information" : "Informazzjoni",
     "Warning" : "Twissija",
-    "Something went wrong" : "Xi ħaġa marret ħażin"
+    "Something went wrong" : "Xi ħaġa marret ħażin",
+    "Ask for read confirmation" : "Itlob konferma tal-qari",
+    "Confirm before" : "Ikkonferma qabel",
+    "Confirm before {date}" : "Ikkonferma qabel {date}",
+    "You confirmed you have read this" : "Ikkonfermajt li qrajt dan",
+    "The confirm-before date must be after the publish time" : "Id-data tal-konferma trid tkun wara l-ħin tal-pubblikazzjoni",
+    "Your read confirmation could not be saved" : "Il-konferma tal-qari tiegħek ma setgħetx tiġi ssejvjata"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

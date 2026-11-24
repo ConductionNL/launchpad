@@ -1646,7 +1646,13 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Afișat în partea de sus a fiecărui tablou de bord până la ora de sfârșit.",
     "Information" : "Informație",
     "Warning" : "Avertisment",
-    "Something went wrong" : "Ceva nu a mers bine"
+    "Something went wrong" : "Ceva nu a mers bine",
+    "Ask for read confirmation" : "Solicită confirmarea citirii",
+    "Confirm before" : "Confirmă până la",
+    "Confirm before {date}" : "Confirmă până la {date}",
+    "You confirmed you have read this" : "Ați confirmat că ați citit acest lucru",
+    "The confirm-before date must be after the publish time" : "Termenul de confirmare trebuie să fie după momentul publicării",
+    "Your read confirmation could not be saved" : "Confirmarea citirii nu a putut fi salvată"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

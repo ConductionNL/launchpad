@@ -101,13 +101,11 @@ import {
 	appPathOnInstance,
 	describeRun,
 	existsOnInstance,
-	logFileOnInstance,
-	logMessagesSince,
+	logDuring,
 	onInstance,
 	readOnInstance,
 	removeOnInstance,
 	runOcc,
-	sizeOnInstance,
 	writeOnInstance,
 } from './support/occ.ts'
 import {
@@ -343,42 +341,6 @@ async function listedRows(
 function helpSection(stdout: string): string {
 	const index = stdout.indexOf('\nHelp:\n')
 	return index === -1 ? '' : stdout.slice(index + '\nHelp:\n'.length)
-}
-
-/**
- * Run `body` with Nextcloud logging at info level, so the audit line
- * (`$logger->info`) is written, and hand back the messages logged meanwhile.
- *
- * @param body what to run.
- * @return the new log messages.
- */
-async function auditedRun(body: () => Promise<void>): Promise<string[]> {
-	const before = await runOcc('config:system:get', 'loglevel')
-	const previous = before.code === 0 ? before.stdout.trim() : null
-	const set = await runOcc(
-		'config:system:set',
-		'loglevel',
-		'--value=1',
-		'--type=integer',
-	)
-	expect(set.code, describeRun(set)).toBe(0)
-	try {
-		const logFile = await logFileOnInstance()
-		const offset = await sizeOnInstance(logFile)
-		await body()
-		return await logMessagesSince(logFile, offset)
-	} finally {
-		if (previous === null) {
-			await runOcc('config:system:delete', 'loglevel')
-		} else {
-			await runOcc(
-				'config:system:set',
-				'loglevel',
-				`--value=${previous}`,
-				'--type=integer',
-			)
-		}
-	}
 }
 
 /** The audit lines among log messages, for one command. */
@@ -703,7 +665,7 @@ test.describe('REQ-CLI-003 dashboard management', () => {
 		const two = await dashboard(admin, 'child two', { parentUuid: parent.uuid })
 
 		let result: RunResult | null = null
-		const messages = await auditedRun(async () => {
+		const messages = await logDuring(async () => {
 			result = await runOcc(
 				'launchpad:dashboard:delete',
 				parent.uuid,
@@ -1194,7 +1156,7 @@ test.describe('REQ-CLI-010 audit logging', () => {
 	// @e2e cli-commands::audit-log-on-success
 	test('a successful run writes one audit line in the contract format', async () => {
 		let result: RunResult | null = null
-		const messages = await auditedRun(async () => {
+		const messages = await logDuring(async () => {
 			result = await runOcc(
 				'launchpad:dashboard:list',
 				`--user=${alice!.username}`,
@@ -1212,7 +1174,7 @@ test.describe('REQ-CLI-010 audit logging', () => {
 	// @e2e cli-commands::audit-log-truncates-long-args
 	test('arguments over 100 characters are cut to 100 with a trailing ...', async () => {
 		const long = `e2e-cli-${'x'.repeat(130)}`
-		const messages = await auditedRun(async () => {
+		const messages = await logDuring(async () => {
 			await runOcc('launchpad:dashboard:list', `--group=${long}`)
 		})
 		const lines = auditLines(messages, 'dashboard:list')
@@ -1230,7 +1192,7 @@ test.describe('REQ-CLI-010 audit logging', () => {
 	// @e2e cli-commands::byuser-is-cli-for-cron-invoked-commands
 	test('launchpad:cleanup:scan, run with no session, is audited as byUser=cli', async () => {
 		let result: RunResult | null = null
-		const messages = await auditedRun(async () => {
+		const messages = await logDuring(async () => {
 			result = await runOcc('launchpad:cleanup:scan')
 		})
 		expect([0, 1], describeRun(result!)).toContain(result!.code)

@@ -90,8 +90,6 @@ The system MUST expose an authenticated endpoint that records a view event when 
 
 #### Scenario: Dedup cache key is per dashboard and viewer hash
 
-@e2e exclude the cache key and its TTL are internal; no API exposes the cache. tests/Unit/Service/UniqueViewerDedupTest.php::testSecondsUntilNextUtcMidnightIsPositive and ::testIsNewUniqueViewerReturnsTrueOnFirstView cover the TTL helper and the single cache write, but no test asserts the key format or that the TTL passed to set() is the seconds until midnight.
-
 - GIVEN user "alice" (userId: 1) posts a view event for dashboard "uuid-101" on 2026-05-01
 - WHEN the system checks for a duplicate within the same UTC day
 - THEN the system MUST use a cache key of the form `launchpad_anlt_{dashboardUuid}_{viewerHash}`
@@ -155,8 +153,6 @@ The system MUST count unique viewers per day using privacy-preserving hashing wi
 - THEN `uniqueViewerCount = 2` for (dashboardUuid='uuid-104', viewBucket='2026-05-01')
 
 #### Scenario: Hash stored in cache, not in database
-
-@e2e exclude the salt read, the hash and the cache write are internal and have no HTTP read. tests/Unit/Service/UniqueViewerDedupTest.php::testIsNewUniqueViewerReturnsTrueOnFirstView / ::testIsNewUniqueViewerReturnsFalseOnRepeat and tests/Unit/Service/AnalyticsServiceTest.php::testRecordViewEventLeavesUniqueAtZeroForRepeatViewer pin it; the CSV columns asserted in tests/e2e/dashboard-view-analytics.spec.ts show no user id or hash leaves the table.
 
 - GIVEN user "diana" (userId: 4) posts a view event for dashboard "uuid-105" on 2026-05-01
 - WHEN the system increments uniqueViewerCount

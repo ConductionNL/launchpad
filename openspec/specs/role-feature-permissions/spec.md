@@ -455,7 +455,6 @@ edited MUST be kept as it is.
 - THEN the widget MUST be added
 
 #### Scenario: An upgrade widens the old shipped rule and keeps an edited one
-@e2e exclude an upgrade repair step, which no HTTP request can trigger; pinned by BroadenDefaultWidgetRuleTest::testTheShippedRuleIsWidened and BroadenDefaultWidgetRuleTest::testAnEditedRuleIsKept
 
 - GIVEN an instance whose `default` rule allows only `["activity", "recommendations"]` and denies nothing
 - WHEN LaunchPad is upgraded
@@ -463,7 +462,6 @@ edited MUST be kept as it is.
 - AND when an administrator had changed the `default` rule, it MUST stay as the administrator left it
 
 #### Scenario: An upgrade widens the shipped group rules and keeps an edited one
-@e2e exclude an upgrade repair step, which no HTTP request can trigger; pinned by BroadenShippedGroupWidgetRulesTest::testTheShippedRulesAreWidened, BroadenShippedGroupWidgetRulesTest::testEditedAndMissingRulesAreKept and SeedRolePermissionsGoldenTest::testSeedMatchesTheRecordedFixture
 
 - GIVEN an instance whose `hrm` rule allows only `["activity", "recommendations", "notes", "calendar", "user_status"]` and denies `["system_monitor"]`, as older versions seeded it
 - AND user "fatima" belongs only to group `"hrm"` and opens a group dashboard with a `text` widget

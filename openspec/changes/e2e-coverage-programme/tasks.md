@@ -36,6 +36,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 1.7 `role-feature-permissions`: 27 scenarios, 0 cited. Queued 2026-09-11, after the permissions PR.
   - Spec written: `tests/e2e/role-feature-permissions.spec.ts` (helpers in `tests/e2e/fixtures/role-feature-permissions.ts`), 27 scenarios cited, not yet run (cloud, 2026-11-19)
   - Spec written: `tests/e2e/role-feature-permissions-upgrade.spec.ts` (REQ-RFP-011: the two upgrade scenarios, staged with `occ maintenance:repair` against the old shipped `default` and `hrm` rules; both exclusions replaced), 2 scenarios cited (new), role-feature-permissions now 30 of 31 cited, 1 excluded with a reason, not yet run (cloud, 2026-11-24)
+  - Spec written: `tests/e2e/role-feature-permissions-fresh-install.spec.ts` (REQ-RFP-011 "A fresh install lets every user add a LaunchPad widget": every rule deleted through the admin API, then `occ maintenance:repair` runs `SeedRolePermissions` as an install does; a user in no group adds a `text` widget (201) and is refused `notes` (403) under the seeded `default` rule; the exclusion replaced), 1 scenario cited (new), role-feature-permissions now 31 of 31 cited, 0 excluded, not yet run (cloud, 2026-11-24)
 - [x] 1.8 `launchpad-enterprise-security-access`: 15 scenarios, 0 cited, blanket. Done 2026-09-11: the blanket is replaced by 15 per-scenario verdicts, all `never built`. `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`).
 
 ## 2. Tier 1, data integrity
@@ -99,6 +100,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/grid-layout-drag-resize.spec.ts`, `grid-layout-keyboard.spec.ts`, `grid-layout-placement.spec.ts`, `grid-layout-rendering.spec.ts` (helper `support/ownDashboard.ts`), 56 scenarios cited in total (fixme tests for suspected defects, see the PR), 8 excluded, not yet run (cloud, 2026-11-19)
   - Spec written: `tests/e2e/responsive-grid-breakpoints.spec.ts` (new scenario app-tiles-four-to-a-row-on-a-phone from the four-column phone step; the one-column phone asserts, cited by a scenario that no longer exists, now read four columns), 2 scenarios cited (app-tiles-four-to-a-row-on-a-phone, below-smallest-breakpoint, which was cited by a 1600 px test), not yet run (cloud, 2026-11-24)
   - Spec written: `tests/e2e/widget-collision-placement.spec.ts` (four citations of slugs no grid-layout scenario carries removed; the occupied-grid test now asserts the bottom-append rule, that no existing widget moves, instead of the retired push-down), 0 scenarios cited, not yet run (cloud, 2026-11-24)
+  - Spec written: `tests/e2e/grid-layout-accessible-name.spec.ts` (new), `tests/e2e/grid-layout-keyboard.spec.ts`, 2 scenarios cited (screen-reader-announces-widget-positions, screen-reader-announces-the-widget: they were `test.fixme`, which gate 19 does not count, and now run and are expected red until the grid item's accessible name uses the widget title), 2 excluded as never built (keyboard-navigation-between-widgets, keyboard-widget-movement-in-edit-mode: view mode has no tab stops and Ctrl+Arrow is no binding; movement shipped as REQ-GRID-KBD-002), grid-layout 0 uncited, not yet run (cloud, 2026-11-24)
 - [ ] 3.5 `setup-wizard`: 55 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/setup-wizard.spec.ts`, 42 scenarios cited (14 of them as `test.fixme` for suspected defects, see the PR), 9 excluded, not yet run (cloud, 2026-11-19)
 - [ ] 3.6 `footer-customization`: 47 scenarios, 0 cited, blanket.
@@ -179,6 +181,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/quicklinks-widget.spec.ts`, `quicklinks-widget-interaction.spec.ts`, `quicklinks-widget-form.spec.ts`; 0 scenarios excluded, 36 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.13 `divider-widget`: 29 scenarios, 3 cited.
   - Spec written: tests/e2e/divider-widget.spec.ts, 24 scenarios cited, not yet run (cloud, 2026-11-19), 2 excluded with a reason
+  - Recount (cloud, 2026-11-24): 29 scenarios, 27 cited, 2 excluded, 0 uncited (gate-19 report mode). The spec was kept current by the widget-picker changes (a58030e7, 907dd48e, 22 Nov). Listed by `playwright test --list`, not yet run.
 - [x] 4.14 `clock-weather-widgets`: 21 scenarios, 0 cited.
   - Spec written: tests/e2e/clock-weather-widgets.spec.ts, 15 scenarios cited, not yet run (cloud, 2026-11-19), 6 excluded with a reason
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 16 green; the remaining test is the existing fixme for a requirement that was never built.
@@ -199,16 +202,19 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 15 green, every listed test run (checked against `playwright test --list`).
 - [ ] 4.20 `launchpad-meeting-calendar-actions`: 14 scenarios, 0 cited, blanket.
   - Spec written: none, 0 scenarios cited, 14 excluded as never built, not yet run (cloud, 2026-11-19). The blanket is replaced by 14 per-scenario verdicts. `launchpad_meeting_actions` and `meeting-actions` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`); the existing `calendar` widget reads LaunchPad's own events endpoint, not CalDAV or decidesk.
+  - Recount (cloud, 2026-11-24): 14 scenarios, 14 excluded, 0 uncited. Still never built: `meeting-actions` is in neither `src/constants/widgetRegistry.js`, `lib/widget-types.json` nor `src/manifest.json`. One correction to the line above: since c1be6d0d and 3b33c019 the `calendar` widget does read Nextcloud's CalDAV calendars, but it is still not this widget and has no decidesk path.
 - [x] 4.21 `label-widget`: 12 scenarios, 11 cited.
   - Spec written: tests/e2e/label-widget-content-edit.spec.ts, 1 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 2 of 2 green, every listed test run (checked against `playwright test --list`).
 - [ ] 4.22 `launchpad-file-access-widget`: 12 scenarios, 0 cited, blanket.
   - Spec written: none, 0 scenarios cited, 12 excluded as never built, not yet run (cloud, 2026-11-19). The blanket is replaced by 12 per-scenario verdicts. `launchpad_file_access` and `file-access` appear in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`); opening a file from the existing `files` widget belongs to the files-widget spec.
+  - Recount (cloud, 2026-11-24): 12 scenarios, 12 excluded, 0 uncited. Still never built: no `file-access` widget type in the registry, `lib/widget-types.json` or the manifest.
 - [x] 4.23 `container-widget`: 8 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/container-widget.spec.ts, tests/e2e/container-tile-sorting.spec.ts, 11 scenarios cited, not yet run (cloud, 2026-11-19), 1 excluded with a reason
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): container-widget 7 of 7 and container-tile-sorting 6 of 6 green.
 - [ ] 4.24 `nc-dashboard-widget-proxy`: 4 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/nc-dashboard-widget-proxy.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Recount (cloud, 2026-11-24): 4 scenarios, 4 cited, 0 excluded, 0 uncited. Spec updated with the picker changes of 907dd48e; listed by `playwright test --list`, not yet run.
 
 ## 5. Tier 4, admin, operations and integrations
 

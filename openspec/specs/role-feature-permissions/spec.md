@@ -447,7 +447,6 @@ versions seeded MUST be widened the same way, its denials kept. A group rule an 
 edited MUST be kept as it is.
 
 #### Scenario: A fresh install lets every user add a LaunchPad widget
-@e2e exclude the seed runs once at install, before any test, and the e2e suite replaces the `default` rule with its own fixture (tests/e2e/fixtures/role-feature-permissions.ts); pinned by SeedRolePermissionsGoldenTest::testSeedMatchesTheRecordedFixture and WidgetTypeListTest::testTheShippedListReads
 
 - GIVEN LaunchPad is installed and the seeded `default` rule is untouched
 - AND user "sem" belongs to no group that has a rule of its own

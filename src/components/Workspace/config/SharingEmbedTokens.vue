@@ -27,6 +27,14 @@
 			</div>
 		</NcNoteCard>
 
+		<!-- Withdraw asks for the reason, as the admin Embeds tab does. -->
+		<RevokeEmbedTokenDialog
+			v-if="revoking !== null"
+			open
+			:name="revoking.name"
+			@confirm="revoke"
+			@update:open="closeRevoke" />
+
 		<NcNoteCard v-if="error !== ''" type="error" data-test="sharing-embed-error">
 			{{ error }}
 		</NcNoteCard>
@@ -106,12 +114,6 @@
 			</div>
 		</template>
 
-		<RevokeEmbedTokenDialog
-			v-if="revoking"
-			:open="true"
-			:name="revoking.name"
-			@update:open="revoking = $event ? revoking : null"
-			@confirm="revoke" />
 	</div>
 </template>
 
@@ -310,6 +312,19 @@ export default {
 			} catch (error) {
 				this.error = error?.response?.data?.message || t('launchpad', 'The embed token could not be revoked.')
 				logger.error('Failed to revoke embed token:', error)
+			}
+		},
+
+		/**
+		 * Close the Withdraw dialog without withdrawing.
+		 *
+		 * @param {boolean} open Whether the dialog stays open.
+		 * @return {void}
+		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/embedded-analytics/spec.md#requirement-embed-tokens-on-the-sharing-tab-req-emb-011
+		 */
+		closeRevoke(open) {
+			if (!open) {
+				this.revoking = null
 			}
 		},
 

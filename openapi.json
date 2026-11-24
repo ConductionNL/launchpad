@@ -5709,7 +5709,10 @@
                                         ],
                                         "description": "Optional sibling sort order (REQ-DASH-029). NULL ⇒ 0."
                                     },
-                                    "widgets": {}
+                                    "widgets": {},
+                                    "gridColumns": {
+                                        "type": "integer"
+                                    }
                                 }
                             }
                         }

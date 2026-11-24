@@ -24,10 +24,8 @@
  *   @e2e tiles::tile-background-and-text-colors-applied
  *   @e2e tiles::nl-design-system-css-override
  *   @e2e tiles::tile-fills-grid-cell-completely
- *   @e2e tiles::edit-button-visible-in-edit-mode
  *   @e2e tiles::edit-button-hidden-in-view-mode
  *   @e2e tiles::edit-button-click-emits-event
- *   @e2e tiles::tile-editor
  *   @e2e tiles::new-tile-placement-uses-standard-content-shape
  *
  * @spec openspec/specs/tiles/spec.md
@@ -447,30 +445,6 @@ test('in view mode a tile has no edit control', async ({ browser }) => {
 	}
 })
 
-// @e2e tiles::edit-button-visible-in-edit-mode
-test.fixme('in edit mode a settings button labelled "Edit tile" sits at the top-right of the tile', async ({
-	browser,
-}) => {
-	// Product disagrees on the name: the top-right control is the shared
-	// CnWidgetEditCog, whose button is labelled "Tile menu"; "Edit tile" is
-	// the item in the menu it opens (src/components/TileWidget.vue:22-29).
-	const { context, page } = await open(browser)
-	try {
-		await enterEditMode(page)
-		const t = tile(page, EMOJI)
-		const button = t.getByRole('button', { name: 'Edit tile', exact: true })
-		await expect(button).toBeVisible()
-		const tileBox = await t.boundingBox()
-		const box = await button.boundingBox()
-		expect(
-			tileBox!.x + tileBox!.width - (box!.x + box!.width),
-		).toBeLessThanOrEqual(16)
-		expect(box!.y - tileBox!.y).toBeLessThanOrEqual(16)
-	} finally {
-		await context.close()
-	}
-})
-
 // @e2e tiles::edit-button-click-emits-event
 test('choosing Edit on a tile in edit mode opens the tile editor and does not follow the link', async ({
 	browser,
@@ -488,46 +462,6 @@ test('choosing Edit on a tile in edit mode opens the tile editor and does not fo
 		await expect(editor.getByLabel('Title')).toHaveValue(EMOJI)
 		expect(page.url()).toBe(before)
 		expect(context.pages()).toHaveLength(1)
-	} finally {
-		await context.close()
-	}
-})
-
-// @e2e tiles::tile-editor
-test.fixme('the tile editor has title, icon, icon type, colour and link fields and saves through the API', async ({
-	browser,
-}) => {
-	// Product disagrees: TileEditor has no icon-type field — it derives
-	// `iconType` from the chosen icon (src/modals/TileEditor.vue:581-592). The
-	// save goes to `PUT /api/widgets/{placementId}` (src/views/Views.vue:2668-2678),
-	// the reusable `/api/tiles` endpoints being 410 Gone (REQ-TILE-001).
-	const { context, page } = await open(browser)
-	try {
-		await enterEditMode(page)
-		await tile(page, CLASS).getByRole('button', { name: 'Tile menu' }).click()
-		await page.getByRole('menuitem', { name: 'Edit tile' }).click()
-		const editor = page.getByRole('dialog', { name: 'Edit Tile' })
-		await expect(editor.getByLabel('Title')).toHaveValue(CLASS)
-		await expect(editor.getByText('Icon', { exact: true }).first()).toBeVisible()
-		await expect(editor.getByLabel(/icon type/i)).toBeVisible()
-		await expect(editor.getByText('Background Color')).toBeVisible()
-		await expect(editor.getByText('Text Color')).toBeVisible()
-		await expect(editor.locator('[data-testid="tile-link-type"]')).toBeVisible()
-		await expect(editor.getByLabel('URL')).toBeVisible()
-
-		const renamed = `${CLASS} hernoemd`
-		await editor.getByLabel('Title').fill(renamed)
-		const saved = page.waitForResponse(
-			(res) =>
-				res.request().method() === 'PUT'
-				&& res.url().includes(`/api/widgets/${ids[CLASS]}`),
-		)
-		await editor.getByRole('button', { name: 'Save' }).click()
-		expect((await saved).status()).toBe(200)
-		const stored = (await readPlacements(own.owner.api, own.id)).find(
-			(p) => Number(p.id) === ids[CLASS],
-		)!
-		expect(stored.tileTitle).toBe(renamed)
 	} finally {
 		await context.close()
 	}

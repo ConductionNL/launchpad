@@ -343,14 +343,15 @@ test.describe('widget context menu (REQ-WDG-015..017)', () => {
 
 	// @e2e widgets::popover-stays-within-viewport-on-bottom-edge
 	//
-	// FIXME — suspected product bug. useGridManager.js:386-387 clamps with a
+	// EXPECTED RED until the product is fixed (it was test.fixme, so it
+	// never ran although gate-19 counted it) — suspected product bug. useGridManager.js:386-387 clamps with a
 	// fixed DEFAULT_MENU_HEIGHT of 245 px, measured (its own comment) when the
 	// popover had FIVE items, ~232.5 px. WidgetContextMenu.vue now renders SIX
 	// (Edit, Move, Visibility rules…, Read confirmation…, Remove, Cancel —
 	// "Read confirmation…" landed in e19d5d86, a month after the constant), so
 	// the popover is ~277 px tall and a click 20 px above the bottom edge is
 	// clamped to `innerHeight - 245`, leaving its last ~30 px below the fold.
-	test.fixme('near the bottom edge the popover is shifted up to stay on screen', async ({
+	test('near the bottom edge the popover is shifted up to stay on screen', async ({
 		page,
 	}) => {
 		const { w1 } = await twoLabels('bottom')

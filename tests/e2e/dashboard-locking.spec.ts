@@ -159,9 +159,14 @@ async function aliceDashboardIdByUuid(uuid: string): Promise<number | null> {
 	const res = await alice!.api.get(`${API}/dashboards`)
 	expect(res.status(), await res.text()).toBe(200)
 	const body = await res.json()
+	// `GET /api/dashboards` answers `{items, quota}` (REQ-QUOTA-006), or the
+	// bare list without the quota service. Reading only `dashboards` / `data`
+	// found nothing, so the cascade tests failed on "the import must restore
+	// alice's dashboard" although the import had landed it.
 	const list: Array<{ id: number; uuid: string }> = Array.isArray(body)
 		? body
-		: (body.dashboards ?? body.data ?? [])
+		: (body.items ?? body.dashboards ?? body.data ?? [])
+	expect(Array.isArray(list), JSON.stringify(body)).toBe(true)
 	const hit = list.find((d) => d.uuid === uuid)
 	return hit ? Number(hit.id) : null
 }

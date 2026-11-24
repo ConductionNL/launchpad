@@ -1627,7 +1627,26 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Разговор до това табло",
     "Show the conversation beside the dashboard" : "Показване на разговора до таблото",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Това табло е само ваше. Споделете го с хора или група и разговорът ще се появи и тук.",
-    "The conversation setting could not be saved." : "Настройката на разговора не можа да бъде запазена."
+    "The conversation setting could not be saved." : "Настройката на разговора не можа да бъде запазена.",
+    "New announcement" : "Ново съобщение",
+    "Target group" : "Целева група",
+    "Level" : "Ниво",
+    "Readers may dismiss this notice" : "Читателите могат да скрият това известие",
+    "Allow comments and following" : "Разрешаване на коментари и следване",
+    "Publish on (optional)" : "Публикуване на (по избор)",
+    "This is how it looks" : "Ето как изглежда",
+    "Preview as (user id)" : "Преглед като (потребителски ID)",
+    "Check" : "Проверка",
+    "{user} sees this announcement" : "{user} вижда това съобщение",
+    "{user} does not see this announcement" : "{user} не вижда това съобщение",
+    "Only you see this preview until you publish the announcement." : "Само вие виждате този преглед, докато не публикувате съобщението.",
+    "Only you see this preview until {when}." : "Само вие виждате този преглед до {when}.",
+    "Shown in the Announcements widget." : "Показва се в джаджата Съобщения.",
+    "Maintenance notice" : "Известие за поддръжка",
+    "Shown at the top of every dashboard until the end time." : "Показва се най-горе на всяко табло до крайния час.",
+    "Information" : "Информация",
+    "Warning" : "Предупреждение",
+    "Something went wrong" : "Нещо се обърка"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1627,7 +1627,26 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Conversație lângă acest tablou de bord",
     "Show the conversation beside the dashboard" : "Afișați conversația lângă tabloul de bord",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Acest tablou de bord este doar al dvs. Partajați-l cu persoane sau un grup și conversația va apărea și aici.",
-    "The conversation setting could not be saved." : "Setarea conversației nu a putut fi salvată."
+    "The conversation setting could not be saved." : "Setarea conversației nu a putut fi salvată.",
+    "New announcement" : "Anunț nou",
+    "Target group" : "Grup țintă",
+    "Level" : "Nivel",
+    "Readers may dismiss this notice" : "Cititorii pot închide această notificare",
+    "Allow comments and following" : "Permite comentarii și urmărire",
+    "Publish on (optional)" : "Publică pe (opțional)",
+    "This is how it looks" : "Așa arată",
+    "Preview as (user id)" : "Previzualizare ca (ID utilizator)",
+    "Check" : "Verifică",
+    "{user} sees this announcement" : "{user} vede acest anunț",
+    "{user} does not see this announcement" : "{user} nu vede acest anunț",
+    "Only you see this preview until you publish the announcement." : "Doar dumneavoastră vedeți această previzualizare până publicați anunțul.",
+    "Only you see this preview until {when}." : "Doar dumneavoastră vedeți această previzualizare până la {when}.",
+    "Shown in the Announcements widget." : "Afișat în widgetul Anunțuri.",
+    "Maintenance notice" : "Notificare de mentenanță",
+    "Shown at the top of every dashboard until the end time." : "Afișat în partea de sus a fiecărui tablou de bord până la ora de sfârșit.",
+    "Information" : "Informație",
+    "Warning" : "Avertisment",
+    "Something went wrong" : "Ceva nu a mers bine"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

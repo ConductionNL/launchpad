@@ -1627,7 +1627,26 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Rozmowa obok tego pulpitu",
     "Show the conversation beside the dashboard" : "Pokaż rozmowę obok pulpitu",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Ten pulpit należy tylko do Ciebie. Udostępnij go osobom lub grupie, a rozmowa pojawi się również tutaj.",
-    "The conversation setting could not be saved." : "Nie udało się zapisać ustawienia rozmowy."
+    "The conversation setting could not be saved." : "Nie udało się zapisać ustawienia rozmowy.",
+    "New announcement" : "Nowe ogłoszenie",
+    "Target group" : "Grupa docelowa",
+    "Level" : "Poziom",
+    "Readers may dismiss this notice" : "Czytelnicy mogą odrzucić ten komunikat",
+    "Allow comments and following" : "Zezwalaj na komentarze i obserwowanie",
+    "Publish on (optional)" : "Opublikuj dnia (opcjonalnie)",
+    "This is how it looks" : "Tak to wygląda",
+    "Preview as (user id)" : "Podgląd jako (identyfikator użytkownika)",
+    "Check" : "Sprawdź",
+    "{user} sees this announcement" : "{user} widzi to ogłoszenie",
+    "{user} does not see this announcement" : "{user} nie widzi tego ogłoszenia",
+    "Only you see this preview until you publish the announcement." : "Tylko Ty widzisz ten podgląd, dopóki nie opublikujesz ogłoszenia.",
+    "Only you see this preview until {when}." : "Tylko Ty widzisz ten podgląd do {when}.",
+    "Shown in the Announcements widget." : "Wyświetlane w widżecie Ogłoszenia.",
+    "Maintenance notice" : "Komunikat o konserwacji",
+    "Shown at the top of every dashboard until the end time." : "Wyświetlane u góry każdego pulpitu do czasu zakończenia.",
+    "Information" : "Informacja",
+    "Warning" : "Ostrzeżenie",
+    "Something went wrong" : "Coś poszło nie tak"
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

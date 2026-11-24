@@ -1627,7 +1627,26 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Розмова поруч із цією панеллю",
     "Show the conversation beside the dashboard" : "Показувати розмову поруч із панеллю",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Ця панель лише ваша. Поділіться нею з людьми чи групою, і розмова з'явиться також тут.",
-    "The conversation setting could not be saved." : "Не вдалося зберегти налаштування розмови."
+    "The conversation setting could not be saved." : "Не вдалося зберегти налаштування розмови.",
+    "New announcement" : "Нове оголошення",
+    "Target group" : "Цільова група",
+    "Level" : "Рівень",
+    "Readers may dismiss this notice" : "Читачі можуть приховати це повідомлення",
+    "Allow comments and following" : "Дозволити коментарі та стеження",
+    "Publish on (optional)" : "Опублікувати (необов'язково)",
+    "This is how it looks" : "Ось як це виглядає",
+    "Preview as (user id)" : "Перегляд від імені (ID користувача)",
+    "Check" : "Перевірити",
+    "{user} sees this announcement" : "{user} бачить це оголошення",
+    "{user} does not see this announcement" : "{user} не бачить це оголошення",
+    "Only you see this preview until you publish the announcement." : "Лише ви бачите цей попередній перегляд, доки не опублікуєте оголошення.",
+    "Only you see this preview until {when}." : "Лише ви бачите цей попередній перегляд до {when}.",
+    "Shown in the Announcements widget." : "Показується у віджеті «Оголошення».",
+    "Maintenance notice" : "Повідомлення про техобслуговування",
+    "Shown at the top of every dashboard until the end time." : "Показується вгорі кожної панелі до часу завершення.",
+    "Information" : "Інформація",
+    "Warning" : "Попередження",
+    "Something went wrong" : "Щось пішло не так"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

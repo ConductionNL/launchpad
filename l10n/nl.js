@@ -2512,7 +2512,16 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Gesprek bij dit dashboard",
     "Show the conversation beside the dashboard" : "Toon het gesprek naast het dashboard",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Dit dashboard is alleen van u. Deel het met personen of een groep en het gesprek verschijnt hier ook.",
-    "The conversation setting could not be saved." : "De gespreksinstelling kon niet worden opgeslagen."
+    "The conversation setting could not be saved." : "De gespreksinstelling kon niet worden opgeslagen.",
+    "Target group" : "Doelgroep",
+    "Allow comments and following" : "Reacties en volgen toestaan",
+    "Publish on (optional)" : "Publiceren op (optioneel)",
+    "This is how it looks" : "Zo ziet het eruit",
+    "Only you see this preview until you publish the announcement." : "Alleen u ziet dit voorbeeld totdat u de aankondiging publiceert.",
+    "Only you see this preview until {when}." : "Alleen u ziet dit voorbeeld tot {when}.",
+    "Shown in the Announcements widget." : "Getoond in de widget Aankondigingen.",
+    "Maintenance notice" : "Onderhoudsmelding",
+    "Shown at the top of every dashboard until the end time." : "Getoond bovenaan elk dashboard tot de eindtijd."
 },
 "nplurals=2; plural=(n != 1);"
 );

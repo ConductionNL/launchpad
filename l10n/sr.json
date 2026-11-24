@@ -1529,6 +1529,25 @@
         "Conversation beside this dashboard": "Разговор поред ове контролне табле",
         "Show the conversation beside the dashboard": "Прикажи разговор поред контролне табле",
         "This dashboard is yours alone. Share it with people or a group and the conversation appears here too.": "Ова контролна табла је само ваша. Поделите је са особама или групом и разговор ће се појавити и овде.",
-        "The conversation setting could not be saved.": "Подешавање разговора није могло да се сачува."
+        "The conversation setting could not be saved.": "Подешавање разговора није могло да се сачува.",
+        "New announcement": "Ново обавештење",
+        "Target group": "Циљна група",
+        "Level": "Ниво",
+        "Readers may dismiss this notice": "Читаоци могу да одбаце ово обавештење",
+        "Allow comments and following": "Дозволи коментаре и праћење",
+        "Publish on (optional)": "Објави дана (опционо)",
+        "This is how it looks": "Овако изгледа",
+        "Preview as (user id)": "Преглед као (ИД корисника)",
+        "Check": "Провери",
+        "{user} sees this announcement": "{user} види ово обавештење",
+        "{user} does not see this announcement": "{user} не види ово обавештење",
+        "Only you see this preview until you publish the announcement.": "Само ви видите овај преглед док не објавите обавештење.",
+        "Only you see this preview until {when}.": "Само ви видите овај преглед до {when}.",
+        "Shown in the Announcements widget.": "Приказује се у виџету Обавештења.",
+        "Maintenance notice": "Обавештење о одржавању",
+        "Shown at the top of every dashboard until the end time.": "Приказује се на врху сваке контролне табле до времена завршетка.",
+        "Information": "Информација",
+        "Warning": "Упозорење",
+        "Something went wrong": "Нешто није у реду"
     }
 }

@@ -100,6 +100,10 @@
             "description": "List, read, write, publish and follow announcements."
         },
         {
+            "name": "announcement-groups",
+            "description": "The target group picker's list."
+        },
+        {
             "name": "attention",
             "description": "The attention sources endpoint."
         },
@@ -4980,6 +4984,38 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/announcements/groups": {
+            "get": {
+                "operationId": "announcement-groups-index",
+                "x-launchpad-stability": "internal",
+                "summary": "`GET /api/announcements/groups`: the groups the form offers as the target group",
+                "description": "GET /api/announcements/groups: the groups the announcement form offers as the target group, by display name. Announcement editors only. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement-groups"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
                     }
                 }
             }

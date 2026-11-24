@@ -1527,6 +1527,25 @@
         "Conversation beside this dashboard": "Gespréich nieft dësem Dashboard",
         "Show the conversation beside the dashboard": "D'Gespréich nieft dem Dashboard weisen",
         "This dashboard is yours alone. Share it with people or a group and the conversation appears here too.": "Dësen Dashboard gehéiert just Iech. Deelt en mat Leit oder enger Grupp an d'Gespréich erschéngt och hei.",
-        "The conversation setting could not be saved.": "D'Astellung vum Gespréich konnt net gespäichert ginn."
+        "The conversation setting could not be saved.": "D'Astellung vum Gespréich konnt net gespäichert ginn.",
+        "New announcement": "Nei Matteelung",
+        "Target group": "Zilgrupp",
+        "Level": "Niveau",
+        "Readers may dismiss this notice": "Lieser dierfen dësen Hiweis zoumaachen",
+        "Allow comments and following": "Kommentarer a Verfollegen erlaben",
+        "Publish on (optional)": "Publizéieren den (optional)",
+        "This is how it looks": "Esou gesäit et aus",
+        "Preview as (user id)": "Virschau als (Benotzer-ID)",
+        "Check": "Iwwerpréiwen",
+        "{user} sees this announcement": "{user} gesäit dës Matteelung",
+        "{user} does not see this announcement": "{user} gesäit dës Matteelung net",
+        "Only you see this preview until you publish the announcement.": "Nëmmen Dir gesitt dës Virschau, bis Dir d'Mattelung publizéiert.",
+        "Only you see this preview until {when}.": "Nëmmen Dir gesitt dës Virschau bis {when}.",
+        "Shown in the Announcements widget.": "Gëtt am Widget Mattelungen ugewisen.",
+        "Maintenance notice": "Ënnerhalts-Hiweis",
+        "Shown at the top of every dashboard until the end time.": "Gëtt bis zur Schlusszäit uewen op all Dashboard ugewisen.",
+        "Information": "Informatioun",
+        "Warning": "Warnung",
+        "Something went wrong": "Eppes ass schifgaangen"
     }
 }

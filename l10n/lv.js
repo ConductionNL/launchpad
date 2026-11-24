@@ -1627,7 +1627,26 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Saruna blakus šim panelim",
     "Show the conversation beside the dashboard" : "Rādīt sarunu blakus panelim",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Šis panelis ir tikai jūsu. Kopīgojiet to ar personām vai grupu, un saruna parādīsies arī šeit.",
-    "The conversation setting could not be saved." : "Sarunas iestatījumu nevarēja saglabāt."
+    "The conversation setting could not be saved." : "Sarunas iestatījumu nevarēja saglabāt.",
+    "New announcement" : "Jauns paziņojums",
+    "Target group" : "Mērķgrupa",
+    "Level" : "Līmenis",
+    "Readers may dismiss this notice" : "Lasītāji var aizvērt šo paziņojumu",
+    "Allow comments and following" : "Atļaut komentārus un sekošanu",
+    "Publish on (optional)" : "Publicēt (neobligāti)",
+    "This is how it looks" : "Lūk, kā tas izskatās",
+    "Preview as (user id)" : "Priekšskatīt kā (lietotāja ID)",
+    "Check" : "Pārbaudīt",
+    "{user} sees this announcement" : "{user} redz šo paziņojumu",
+    "{user} does not see this announcement" : "{user} neredz šo paziņojumu",
+    "Only you see this preview until you publish the announcement." : "Tikai jūs redzat šo priekšskatījumu, līdz publicējat paziņojumu.",
+    "Only you see this preview until {when}." : "Tikai jūs redzat šo priekšskatījumu līdz {when}.",
+    "Shown in the Announcements widget." : "Tiek rādīts logrīkā Paziņojumi.",
+    "Maintenance notice" : "Paziņojums par apkopi",
+    "Shown at the top of every dashboard until the end time." : "Tiek rādīts katra informācijas paneļa augšdaļā līdz beigu laikam.",
+    "Information" : "Informācija",
+    "Warning" : "Brīdinājums",
+    "Something went wrong" : "Kaut kas nogāja greizi"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

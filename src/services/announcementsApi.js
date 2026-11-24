@@ -74,6 +74,16 @@ export const announcementsApi = {
 		return (await axios.post(`${base()}/${uuid}/publish`)).data
 	},
 
+	/**
+	 * The groups the announcement form offers as the target group.
+	 *
+	 * @return {Promise<Array<object>>} `{id, displayName}`, sorted by name.
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+	 */
+	async groups() {
+		return (await axios.get(`${base()}/groups`)).data.groups ?? []
+	},
+
 	/** @param {Array<string>} groups The target groups. @return {Promise<number>} How many people they reach. */
 	async reach(groups) {
 		return (await axios.get(`${base()}/reach`, { params: { groups } })).data.reach ?? 0

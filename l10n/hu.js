@@ -1627,7 +1627,26 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Beszélgetés az irányítópult mellett",
     "Show the conversation beside the dashboard" : "A beszélgetés megjelenítése az irányítópult mellett",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Ez az irányítópult csak az öné. Ossza meg személyekkel vagy egy csoporttal, és a beszélgetés itt is megjelenik.",
-    "The conversation setting could not be saved." : "A beszélgetés beállítása nem menthető."
+    "The conversation setting could not be saved." : "A beszélgetés beállítása nem menthető.",
+    "New announcement" : "Új közlemény",
+    "Target group" : "Célcsoport",
+    "Level" : "Szint",
+    "Readers may dismiss this notice" : "Az olvasók elvethetik ezt az értesítést",
+    "Allow comments and following" : "Hozzászólások és követés engedélyezése",
+    "Publish on (optional)" : "Közzététel ekkor (nem kötelező)",
+    "This is how it looks" : "Így néz ki",
+    "Preview as (user id)" : "Előnézet mint (felhasználói azonosító)",
+    "Check" : "Ellenőrzés",
+    "{user} sees this announcement" : "{user} látja ezt a közleményt",
+    "{user} does not see this announcement" : "{user} nem látja ezt a közleményt",
+    "Only you see this preview until you publish the announcement." : "Ezt az előnézetet csak Ön látja, amíg közzé nem teszi a közleményt.",
+    "Only you see this preview until {when}." : "Ezt az előnézetet csak Ön látja eddig: {when}.",
+    "Shown in the Announcements widget." : "A Közlemények widgetben jelenik meg.",
+    "Maintenance notice" : "Karbantartási értesítés",
+    "Shown at the top of every dashboard until the end time." : "Minden irányítópult tetején megjelenik a befejezés idejéig.",
+    "Information" : "Információ",
+    "Warning" : "Figyelmeztetés",
+    "Something went wrong" : "Valami hiba történt"
 },
 "nplurals=2; plural=(n != 1);"
 );

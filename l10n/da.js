@@ -1627,7 +1627,26 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Samtale ved siden af dette dashboard",
     "Show the conversation beside the dashboard" : "Vis samtalen ved siden af dashboardet",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Dette dashboard er kun dit. Del det med personer eller en gruppe, så vises samtalen også her.",
-    "The conversation setting could not be saved." : "Samtaleindstillingen kunne ikke gemmes."
+    "The conversation setting could not be saved." : "Samtaleindstillingen kunne ikke gemmes.",
+    "New announcement" : "Ny meddelelse",
+    "Target group" : "Målgruppe",
+    "Level" : "Niveau",
+    "Readers may dismiss this notice" : "Læsere må afvise denne besked",
+    "Allow comments and following" : "Tillad kommentarer og følgning",
+    "Publish on (optional)" : "Udgiv den (valgfrit)",
+    "This is how it looks" : "Sådan ser det ud",
+    "Preview as (user id)" : "Forhåndsvis som (bruger-id)",
+    "Check" : "Kontrollér",
+    "{user} sees this announcement" : "{user} ser denne meddelelse",
+    "{user} does not see this announcement" : "{user} ser ikke denne meddelelse",
+    "Only you see this preview until you publish the announcement." : "Kun du ser denne forhåndsvisning, indtil du udgiver meddelelsen.",
+    "Only you see this preview until {when}." : "Kun du ser denne forhåndsvisning indtil {when}.",
+    "Shown in the Announcements widget." : "Vises i widgetten Meddelelser.",
+    "Maintenance notice" : "Vedligeholdelsesbesked",
+    "Shown at the top of every dashboard until the end time." : "Vises øverst på hvert dashboard indtil sluttidspunktet.",
+    "Information" : "Information",
+    "Warning" : "Advarsel",
+    "Something went wrong" : "Noget gik galt"
 },
 "nplurals=2; plural=(n != 1);"
 );

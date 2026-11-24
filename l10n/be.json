@@ -1529,6 +1529,25 @@
         "Conversation beside this dashboard": "Размова побач з гэтай панэллю",
         "Show the conversation beside the dashboard": "Паказваць размову побач з панэллю",
         "This dashboard is yours alone. Share it with people or a group and the conversation appears here too.": "Гэтая панэль толькі ваша. Падзяліцеся ёю з людзьмі або групай, і размова з'явіцца тут таксама.",
-        "The conversation setting could not be saved.": "Не ўдалося захаваць наладу размовы."
+        "The conversation setting could not be saved.": "Не ўдалося захаваць наладу размовы.",
+        "New announcement": "Новае аб'яўленне",
+        "Target group": "Мэтавая група",
+        "Level": "Узровень",
+        "Readers may dismiss this notice": "Чытачы могуць схаваць гэтае паведамленне",
+        "Allow comments and following": "Дазволіць каментарыі і падпіску",
+        "Publish on (optional)": "Апублікаваць (неабавязкова)",
+        "This is how it looks": "Вось як гэта выглядае",
+        "Preview as (user id)": "Прагляд ад імя (ID карыстальніка)",
+        "Check": "Праверыць",
+        "{user} sees this announcement": "{user} бачыць гэтае аб'яўленне",
+        "{user} does not see this announcement": "{user} не бачыць гэтае аб'яўленне",
+        "Only you see this preview until you publish the announcement.": "Толькі вы бачыце гэты папярэдні прагляд, пакуль не апублікуеце аб'яўленне.",
+        "Only you see this preview until {when}.": "Толькі вы бачыце гэты папярэдні прагляд да {when}.",
+        "Shown in the Announcements widget.": "Паказваецца ў віджэце «Аб'яўленні».",
+        "Maintenance notice": "Паведамленне пра тэхабслугоўванне",
+        "Shown at the top of every dashboard until the end time.": "Паказваецца ўверсе кожнай панэлі да часу заканчэння.",
+        "Information": "Інфармацыя",
+        "Warning": "Папярэджанне",
+        "Something went wrong": "Нешта пайшло не так"
     }
 }

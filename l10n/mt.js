@@ -1627,7 +1627,26 @@ OC.L10N.register(
     "Conversation beside this dashboard" : "Konversazzjoni ħdejn dan id-dashboard",
     "Show the conversation beside the dashboard" : "Uri l-konversazzjoni ħdejn id-dashboard",
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Dan id-dashboard huwa tiegħek biss. Aqsmu ma' nies jew grupp u l-konversazzjoni tidher hawn ukoll.",
-    "The conversation setting could not be saved." : "L-issettjar tal-konversazzjoni ma setax jiġi ssejvjat."
+    "The conversation setting could not be saved." : "L-issettjar tal-konversazzjoni ma setax jiġi ssejvjat.",
+    "New announcement" : "Avviż ġdid",
+    "Target group" : "Grupp fil-mira",
+    "Level" : "Livell",
+    "Readers may dismiss this notice" : "Il-qarrejja jistgħu jwarrbu dan l-avviż",
+    "Allow comments and following" : "Ippermetti kummenti u segwiment",
+    "Publish on (optional)" : "Ippubblika fi (mhux obbligatorju)",
+    "This is how it looks" : "Hekk jidher",
+    "Preview as (user id)" : "Dehra minn qabel bħala (ID tal-utent)",
+    "Check" : "Iċċekkja",
+    "{user} sees this announcement" : "{user} jara dan l-avviż",
+    "{user} does not see this announcement" : "{user} ma jarax dan l-avviż",
+    "Only you see this preview until you publish the announcement." : "Int biss tara din id-dehra minn qabel sakemm tippubblika l-avviż.",
+    "Only you see this preview until {when}." : "Int biss tara din id-dehra minn qabel sa {when}.",
+    "Shown in the Announcements widget." : "Jintwera fil-widget Avviżi.",
+    "Maintenance notice" : "Avviż ta' manutenzjoni",
+    "Shown at the top of every dashboard until the end time." : "Jintwera fuq nett ta' kull dashboard sal-ħin tat-tmiem.",
+    "Information" : "Informazzjoni",
+    "Warning" : "Twissija",
+    "Something went wrong" : "Xi ħaġa marret ħażin"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

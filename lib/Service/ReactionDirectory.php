@@ -42,7 +42,7 @@ class ReactionDirectory {
 	 * @param IUserManager $userManager Display name resolution for the reactors-by-emoji endpoint.
 	 * @param DashboardVersionMapper|null $versionMapper The saved versions, for who last changed a dashboard.
 	 *
-	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
 	 */
 	public function __construct(
 		public readonly IAppConfig $appConfig,

@@ -5,7 +5,7 @@
  * ProfileFieldsTab: one field is the Department of read confirmations;
  * marking another unmarks the first (REQ-ACK-010).
  *
- * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+ * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
  */
 
 import axios from '@nextcloud/axios'

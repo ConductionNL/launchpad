@@ -174,7 +174,7 @@ export default {
 
 		/**
 		 * @return {string} "Read confirmations: <title>".
-		 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 		 */
 		heading() {
 			return this.title
@@ -184,7 +184,7 @@ export default {
 
 		/**
 		 * @return {string} "Announcement · <dashboard>".
-		 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 		 */
 		eyebrow() {
 			return this.dashboardName
@@ -194,7 +194,7 @@ export default {
 
 		/**
 		 * @return {{confirmed: number, audience: number, left: number, percent: number}} The counts.
-		 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 		 */
 		counts() {
 			return receiptCounts(this.report)
@@ -205,7 +205,7 @@ export default {
 		 * still to go and the deadline ('' without one).
 		 *
 		 * @return {{confirmed: string, left: string, deadline: string}} The parts.
-		 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 		 */
 		summary() {
 			return {
@@ -217,7 +217,7 @@ export default {
 
 		/**
 		 * @return {string} How many rows are shown, and what Download gives.
-		 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 		 */
 		shownLine() {
 			return t('launchpad', '{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.', { shown: this.shownRows.length, total: this.counts.audience })
@@ -225,7 +225,7 @@ export default {
 
 		/**
 		 * @return {string} The deadline in the reader's language, or ''.
-		 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 		 */
 		deadline() {
 			return receiptDate(this.report?.deadline, { weekday: 'long', day: 'numeric', month: 'long' })
@@ -233,7 +233,7 @@ export default {
 
 		/**
 		 * @return {Array<{id: string, label: string}>} The filters.
-		 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 		 */
 		filterOptions() {
 			const labels = {
@@ -246,7 +246,7 @@ export default {
 
 		/**
 		 * @return {Array<object>} The rows the chosen filter shows.
-		 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 		 */
 		shownRows() {
 			return filterReceipts(this.report?.rows, this.filter)
@@ -292,7 +292,7 @@ export default {
 		/**
 		 * @param {object} row A report row.
 		 * @return {string} "Confirmed <date>" or "Not yet".
-		 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 		 */
 		statusLabel(row) {
 			if (row.status !== 'acknowledged') {

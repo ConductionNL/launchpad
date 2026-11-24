@@ -812,7 +812,7 @@ describe('Views — states without a full dashboard', () => {
 
 describe('Views — the reactions bar at the foot', () => {
 	/**
-	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
 	 */
 	it('renders the reactions bar after the grid, under the last widget', async () => {
 		const { wrapper } = await mountViews({

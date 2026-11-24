@@ -135,7 +135,7 @@ export default {
 		 *
 		 * @return {boolean}
 		 * @spec openspec/specs/widgets/spec.md
-		 * @spec openspec/changes/recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-the-search-widget-can-search-the-internet-req-wdg-033
+		 * @spec openspec/changes/archive/2026-11-24-recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-the-search-widget-can-search-the-internet-req-wdg-033
 		 */
 		webLayout() {
 			return this.content?.layout === 'web'
@@ -147,7 +147,7 @@ export default {
 		 *
 		 * @return {{name: string, url: string}}
 		 * @spec openspec/specs/widgets/spec.md
-		 * @spec openspec/changes/recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-the-search-widget-can-search-the-internet-req-wdg-033
+		 * @spec openspec/changes/archive/2026-11-24-recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-the-search-widget-can-search-the-internet-req-wdg-033
 		 */
 		engine() {
 			const engine = this.content?.engine
@@ -210,7 +210,7 @@ export default {
 		 *
 		 * @return {void}
 		 * @spec openspec/specs/widgets/spec.md
-		 * @spec openspec/changes/recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-the-search-widget-can-search-the-internet-req-wdg-033
+		 * @spec openspec/changes/archive/2026-11-24-recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-the-search-widget-can-search-the-internet-req-wdg-033
 		 */
 		searchWeb() {
 			const query = this.webQuery.trim()

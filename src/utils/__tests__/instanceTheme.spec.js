@@ -4,7 +4,7 @@
  *
  * The instance theme name the dashboard settings show read-only (REQ-THM-004).
  *
- * @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
+ * @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'

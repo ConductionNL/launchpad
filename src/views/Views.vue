@@ -680,7 +680,7 @@ function dashboardUpdateData({ name, description, icon, parentUuid, slug, look, 
  *
  * @param {object} vm The Views instance.
  * @return {Array<object>} The placements.
- * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+ * @spec openspec/changes/archive/2026-11-24-phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
  */
 function viewerPlacementsOf(vm) {
 	const all = (vm.widgetPlacements || []).filter(
@@ -1116,7 +1116,7 @@ export default {
 		 * grid. Empty in edit mode and on a larger screen (board LpMobiel).
 		 *
 		 * @return {Array<string>}
-		 * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+		 * @spec openspec/changes/archive/2026-11-24-phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
 		 */
 		phoneHiddenTitles() {
 			if (this.isEditMode || !isPhoneWidth(this.viewportWidth)) {
@@ -1143,7 +1143,7 @@ export default {
 		 *
 		 * @return {boolean}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
-		 * @spec openspec/changes/start-page-board-sync/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-greets-the-reader
+		 * @spec openspec/changes/archive/2026-11-24-start-page-board-sync/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-greets-the-reader
 		 */
 		hasGroundHeader() {
 			return this.shownPlacements.some(
@@ -1226,7 +1226,7 @@ export default {
 		 * (REQ-ACK-010), '' when none is.
 		 *
 		 * @return {string} The widget title.
-		 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 		 */
 		ackReportTitle() {
 			const placement = (this.widgetPlacements || []).find((p) => p.announcementKey === this.ackReportKey)
@@ -1832,7 +1832,7 @@ export default {
 		 * Follow the viewport width for the phone rule.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+		 * @spec openspec/changes/archive/2026-11-24-phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
 		 */
 		onViewportResize() {
 			this.viewportWidth = window.innerWidth

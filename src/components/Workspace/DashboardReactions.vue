@@ -72,7 +72,7 @@ const DAY_MS = 86400000
  * @param {Date} now The current moment.
  * @param {string} locale BCP 47 locale.
  * @return {string} The moment.
- * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+ * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
  */
 function whenText(changed, now, locale) {
 	const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
@@ -95,7 +95,7 @@ function whenText(changed, now, locale) {
  * @param {Date} now The current moment.
  * @param {string} locale BCP 47 locale.
  * @return {string} The line, or '' without a usable time.
- * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+ * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
  */
 export function lastChangeText(lastChange, now, locale) {
 	const changed = new Date(lastChange?.at ?? '')
@@ -121,7 +121,7 @@ export function lastChangeText(lastChange, now, locale) {
  * dashboard, and when.
  *
  * @spec openspec/specs/dashboard-reactions/spec.md
- * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+ * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
  */
 export default {
 	name: 'DashboardReactions',
@@ -171,7 +171,7 @@ export default {
 		 * "Last updated by <name>, <when>" from the summary's last change.
 		 *
 		 * @return {string} The line, or '' when the change is unknown.
-		 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+		 * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
 		 */
 		lastChangeLine() {
 			return lastChangeText(this.summary?.lastChange, new Date(), getCanonicalLocale())

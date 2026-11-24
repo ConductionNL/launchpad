@@ -6,7 +6,7 @@
  * header placement of the start page template renders the day-part greeting,
  * the first name, the date and the ISO week number.
  *
- * @spec openspec/changes/start-page-board-sync/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-greets-the-reader
+ * @spec openspec/changes/archive/2026-11-24-start-page-board-sync/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-greets-the-reader
  */
 
 import { mount } from '@vue/test-utils'

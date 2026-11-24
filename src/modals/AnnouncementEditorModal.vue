@@ -138,7 +138,7 @@ export function toIso(value) {
  * @param {string} expiresAt The end time (`datetime-local`).
  * @param {Date} now The current moment, standing in for an empty publish time.
  * @return {string} The refusal, or ''.
- * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+ * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
  */
 export function endTimeProblem(publishAt, expiresAt, now) {
 	const end = toIso(expiresAt)
@@ -159,7 +159,7 @@ export function endTimeProblem(publishAt, expiresAt, now) {
  * @param {string} expiresAt The end time (`datetime-local`).
  * @param {string} [locale] BCP 47 locale.
  * @return {string}
- * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+ * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
  */
 export function visibleUntilText(expiresAt, locale) {
 	const iso = toIso(expiresAt)
@@ -180,7 +180,7 @@ export function visibleUntilText(expiresAt, locale) {
  * and administrators see.
  *
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
- * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+ * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
  */
 export default {
 	name: 'AnnouncementEditorModal',
@@ -252,7 +252,7 @@ export default {
 		 * The end time as the preview names it.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+		 * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 		 */
 		visibleUntil() {
 			return visibleUntilText(this.form.expiresAt, getCanonicalLocale())
@@ -263,7 +263,7 @@ export default {
 		 * schedules rather than publishes.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+		 * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 		 */
 		scheduled() {
 			const start = toIso(this.form.publishAt)
@@ -284,7 +284,7 @@ export default {
 		 * Save the draft and show the preview with its reach.
 		 *
 		 * @spec openspec/changes/engagement-announcements/tasks.md#task-8
-		 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+		 * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 		 */
 		async toPreview() {
 			const problem = endTimeProblem(this.form.publishAt, this.form.expiresAt, new Date())

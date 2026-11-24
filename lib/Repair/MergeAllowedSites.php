@@ -44,7 +44,7 @@ use Throwable;
  * feed lists into `allowed_sites`, so nothing that worked stops working.
  * The per-feature lists are kept as they are.
  *
- * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+ * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
  */
 class MergeAllowedSites implements IRepairStep {
 
@@ -87,7 +87,7 @@ class MergeAllowedSites implements IRepairStep {
 	 *
 	 * @return string The step name.
 	 *
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function getName(): string {
 		return 'Merge the per-feature host lists into the allowed websites list';
@@ -101,7 +101,7 @@ class MergeAllowedSites implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function run(IOutput $output): void {
 		if ($this->appConfig->getValueString(app: Application::APP_ID, key: self::DONE_KEY, default: '') === '1') {

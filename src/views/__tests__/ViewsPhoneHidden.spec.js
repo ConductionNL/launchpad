@@ -7,7 +7,7 @@
  * nothing is hidden (launchpad-mobile-remote-access REQ-MRA-007). Asked
  * through the page's own computed, with the registry lookup replaced.
  *
- * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+ * @spec openspec/changes/archive/2026-11-24-phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
  */
 
 import { beforeAll, describe, expect, it, vi } from 'vitest'

@@ -15,7 +15,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+ * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
  */
 
 declare(strict_types=1);

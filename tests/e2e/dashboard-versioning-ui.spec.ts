@@ -19,11 +19,26 @@
  * all. The save and restore flows run as the administrator on a dashboard the
  * administrator owns.
  *
+ * The tab draws the columns When, By and What changed, and marks the newest
+ * version "Current version" (REQ-VERSUI-001 as board LpVersies draws it).
+ *
+ * WHAT CHANGED (REQ-VERSUI-004). Pieter, a throwaway owner named "Pieter
+ * Jansen", moves the widget Nieuws on his "Intranet Zuiddrecht" with the
+ * keyboard (edit mode, the widget menu's Move), and the Versions tab then
+ * reads "Widget Nieuws moved" by Pieter Jansen. An automatic version holds the
+ * state a save replaced and notes what changed since the version before it,
+ * at most one per 60 seconds per dashboard (REQ-VERS-001), so the version
+ * that records the move is the one the next save writes once that window has
+ * passed: the test saves the dashboard again over the API until it appears.
+ * Written from the scenarios of the change version-change-notes; it runs in
+ * the nightly against a live instance.
+ *
  * Gate-19 @e2e traceability:
  *   @e2e dashboard-versioning::owner-opens-the-history
  *   @e2e dashboard-versioning::colleague-sees-no-entry
  *   @e2e dashboard-versioning::named-snapshot
  *   @e2e dashboard-versioning::restore-last-weeks-layout
+ *   @e2e dashboard-versioning::a-widget-moved
  *
  * @spec openspec/specs/dashboard-versioning/spec.md
  */
@@ -39,7 +54,8 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { MORE_MENU, openDashboardSettings } from './support/dashboardSwitcher.ts'
+import { enterEditMode, MORE_MENU, openDashboardSettings } from './support/dashboardSwitcher.ts'
+import { quietFirstVisit } from './support/firstVisit.ts'
 import {
 	adminContext,
 	API,
@@ -57,6 +73,7 @@ const DIALOG = '[data-testid="version-history"]'
 const ROW = '[data-testid="version-row"]'
 
 let admin: APIRequestContext
+let adminName = ADMIN_USER
 let originalAllowUserDash: unknown = null
 
 /**
@@ -170,6 +187,9 @@ test.beforeAll(async () => {
 	const settings = await admin.get(`${API}/admin/settings`)
 	expect(settings.status()).toBe(200)
 	originalAllowUserDash = (await settings.json()).allowUserDashboards ?? null
+	const me = await admin.get('/ocs/v1.php/cloud/user?format=json')
+	expect(me.status(), await me.text()).toBe(200)
+	adminName = (await me.json()).ocs?.data?.['display-name'] || ADMIN_USER
 })
 
 test.afterAll(async () => {
@@ -215,17 +235,23 @@ test.describe('REQ-VERSUI-001 who sees "Version history"', () => {
 
 				const rows = dialog.locator(ROW)
 				await expect(rows).toHaveCount(4)
+				const headings = dialog.locator('thead th')
+				await expect(headings.nth(0)).toHaveText('When')
+				await expect(headings.nth(1)).toHaveText('By')
+				await expect(headings.nth(2)).toHaveText('What changed')
 				for (const [i, n] of [4, 3, 2, 1].entries()) {
 					const cells = rows.nth(i).locator('td')
-					await expect(cells.nth(0)).toHaveText(String(n))
-					// Date: rendered, and not left as the raw `Y-m-d H:i:s` string.
-					await expect(cells.nth(1)).toContainText(
-						String(new Date().getFullYear()),
-					)
-					await expect(cells.nth(1)).not.toHaveText(/^\d{4}-\d{2}-\d{2} /)
-					await expect(cells.nth(2)).toHaveText(ADMIN_USER)
-					await expect(cells.nth(3)).toHaveText(`week ${n}`)
+					// When: rendered ("today 10:12"), not the raw `Y-m-d H:i:s` string.
+					await expect(cells.nth(0)).toHaveText(/^today /)
+					await expect(cells.nth(0)).not.toHaveText(/^\d{4}-\d{2}-\d{2} /)
+					await expect(cells.nth(1)).toHaveText(adminName)
+					await expect(cells.nth(2)).toHaveText(`week ${n}`)
 				}
+				// The newest is marked as the current version, and only it.
+				await expect(dialog.locator('[data-testid="version-current"]')).toHaveCount(1)
+				await expect(
+					rows.first().locator('[data-testid="version-current"]'),
+				).toHaveText('Current version')
 			} finally {
 				await context.close()
 			}
@@ -335,10 +361,12 @@ test.describe('REQ-VERSUI-002 / REQ-VERSUI-003 saving and restoring from the dia
 
 		const rows = dialog.locator(ROW)
 		await expect(rows).toHaveCount(2)
-		await expect(rows.first().locator('td').nth(0)).toHaveText('2')
-		await expect(rows.first().locator('td').nth(3)).toHaveText(
+		await expect(rows.first().locator('td').nth(2)).toHaveText(
 			'before the reorganisation',
 		)
+		await expect(
+			rows.first().locator('[data-testid="version-current"]'),
+		).toBeVisible()
 
 		// The server holds it too.
 		const list = await admin.get(`${API}/dashboards/${dash.uuid}/versions`)
@@ -383,7 +411,7 @@ test.describe('REQ-VERSUI-002 / REQ-VERSUI-003 saving and restoring from the dia
 		// The confirmation names the version's date.
 		const confirm = page.locator('[data-testid-modal="cn-confirm-dialog"]')
 		await expect(confirm).toBeVisible()
-		await expect(confirm).toContainText(fridayDate)
+		await expect(confirm).toContainText(String(new Date().getFullYear()))
 		const restored = page.waitForResponse(
 			(r) =>
 				r.request().method() === 'POST'
@@ -396,10 +424,10 @@ test.describe('REQ-VERSUI-002 / REQ-VERSUI-003 saving and restoring from the dia
 
 		// The list now holds a new top entry: the pre-restore copy.
 		const top = dialog.locator(ROW).first()
-		await expect(top.locator('td').nth(0)).toHaveText('3')
-		await expect(top.locator('td').nth(3)).toHaveText(
+		await expect(top.locator('td').nth(2)).toHaveText(
 			'Saved automatically before a restore',
 		)
+		await expect(top.locator('[data-testid="version-current"]')).toBeVisible()
 
 		// And that copy is Monday's layout.
 		const v3 = await admin.get(`${API}/dashboards/${dash.uuid}/versions/3`)
@@ -415,5 +443,112 @@ test.describe('REQ-VERSUI-002 / REQ-VERSUI-003 saving and restoring from the dia
 			timeout: 15_000,
 		})
 		await expect(grid.filter({ hasText: 'Monday layout' })).toHaveCount(0)
+	})
+})
+
+test.describe('REQ-VERSUI-004 each automatic version says what changed', () => {
+	// @e2e dashboard-versioning::a-widget-moved
+	test('Pieter moves the widget Nieuws and the Versions tab reads "Widget Nieuws moved" by Pieter Jansen', async ({
+		browser,
+	}) => {
+		test.setTimeout(240_000)
+		let pieter: Principal | null = null
+		let dash: SeededDashboard | null = null
+		try {
+			pieter = await createPrincipal(admin, 'e2e-versui-mover')
+			await assertActingAs(pieter.api, pieter.username)
+			const named = await admin.put(
+				`/ocs/v1.php/cloud/users/${encodeURIComponent(pieter.username)}`,
+				{ form: { key: 'displayname', value: 'Pieter Jansen' } },
+			)
+			expect(named.ok(), `set the display name -> ${named.status()}`).toBeTruthy()
+			await quietFirstVisit(pieter.api)
+			const enable = await admin.put(`${API}/admin/settings`, {
+				data: { allowUserDash: true },
+			})
+			expect(enable.status(), await enable.text()).toBe(200)
+
+			// GIVEN: Intranet Zuiddrecht with the widget Nieuws.
+			dash = await createActiveDashboard(pieter.api, `${STAMP} Intranet Zuiddrecht`)
+			await clearSeededWidgets(pieter.api, dash.id)
+			const nieuws = await addTextWidget(pieter.api, dash.id, 'Nieuws van deze week')
+			const titled = await pieter.api.put(`${API}/widgets/${nieuws}`, {
+				data: { customTitle: 'Nieuws' },
+			})
+			expect(titled.status(), await titled.text()).toBe(200)
+
+			const { context, page } = await loginAs(
+				browser,
+				pieter.username,
+				pieter.password,
+			)
+			try {
+				await page.goto('/index.php/apps/launchpad/')
+				await enterEditMode(page)
+
+				// WHEN: Pieter moves Nieuws two columns to the right, with the
+				// keyboard: the widget menu's Move, ArrowRight twice, Enter.
+				const item = page
+					.locator('.grid-stack-item')
+					.filter({ has: page.locator(`[data-placement-id="${nieuws}"]`) })
+				await expect(item).toBeVisible({ timeout: 20_000 })
+				const saved = page.waitForResponse(
+					(r) =>
+						r.request().method() === 'PUT'
+						&& new URL(r.url()).pathname.endsWith(`/api/dashboard/${dash!.id}`),
+					{ timeout: 30_000 },
+				)
+				await item.focus()
+				await page.keyboard.press('Enter')
+				await expect(page.locator('[data-testid="widget-context-menu"]')).toBeVisible()
+				await page.locator('[data-testid="ctx-move"]').focus()
+				await page.keyboard.press('Enter')
+				const panel = page.locator('[data-test="widget-move-panel"]')
+				await expect(panel).toBeVisible()
+				await page.keyboard.press('ArrowRight')
+				await page.keyboard.press('ArrowRight')
+				await page.keyboard.press('Enter')
+				await expect(panel).toBeHidden()
+				expect((await saved).status()).toBe(200)
+				const after = await pieter.api.get(`${API}/dashboard/${dash.id}`)
+				const moved = ((await after.json()).placements as Array<{ id: number; gridX: number }>)
+					.find((p) => p.id === nieuws)
+				expect(moved?.gridX, 'the move is stored').toBeGreaterThan(0)
+
+				// THEN: the snapshot is written by the next save once the
+				// 60-second window has passed, and says what changed.
+				await expect
+					.poll(
+						async () => {
+							const put = await pieter!.api.put(`${API}/dashboard/${dash!.id}`, {
+								data: { name: dash!.name },
+							})
+							expect(put.status(), await put.text()).toBe(200)
+							const list = await pieter!.api.get(
+								`${API}/dashboards/${dash!.uuid}/versions`,
+							)
+							expect(list.status(), await list.text()).toBe(200)
+							return ((await list.json()).versions as Array<{ note: string | null }>)
+								.map((v) => v.note)
+						},
+						{ timeout: 120_000, intervals: [5_000, 10_000, 15_000] },
+					)
+					.toContain('Widget Nieuws moved')
+
+				await page.goto('/index.php/apps/launchpad/')
+				const dialog = await openVersionHistory(page)
+				const row = dialog.locator(ROW).filter({ hasText: 'Widget Nieuws moved' })
+				await expect(row).toHaveCount(1)
+				await expect(row.locator('td').nth(1)).toHaveText('Pieter Jansen')
+				await expect(row.locator('td').nth(2)).toHaveText('Widget Nieuws moved')
+			} finally {
+				await context.close()
+			}
+		} finally {
+			if (pieter !== null) {
+				await removeSeededDashboard(pieter.api, dash)
+			}
+			await removePrincipal(admin, pieter)
+		}
 	})
 })

@@ -68,7 +68,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 *
 	 * @return WidgetPlacement The stored placement.
 	 *
-	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
 	 */
 	public function insert(Entity $entity): Entity {
 		self::ensureAnnouncementKey(placement: $entity);
@@ -83,7 +83,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 *
 	 * @return WidgetPlacement The stored placement.
 	 *
-	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
 	 */
 	public function update(Entity $entity): Entity {
 		self::ensureAnnouncementKey(placement: $entity);
@@ -101,7 +101,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 *
 	 * @SuppressWarnings(PHPMD.StaticAccess) UuidV4 is a pure generator of random v4 UUIDs.
 	 *
-	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
 	 */
 	public static function ensureAnnouncementKey(Entity $placement): bool {
 		if (($placement instanceof WidgetPlacement) === false
@@ -122,7 +122,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 *
 	 * @return WidgetPlacement[]
 	 *
-	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
 	 */
 	public function findAcknowledgedWithoutKey(): array {
 		$qb = $this->selectWhere(match: ['requires_acknowledgement' => 1]);

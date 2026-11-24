@@ -69,7 +69,7 @@ class SetupWizardServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
+	 * @spec openspec/changes/archive/2026-11-24-setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
 	 */
 	public function testWizardHasFiveStepsWithoutAStorageStep(): void {
 		$this->assertSame(expected: 5, actual: SetupWizardService::STEP_COUNT);
@@ -137,7 +137,7 @@ class SetupWizardServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
+	 * @spec openspec/changes/archive/2026-11-24-setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
 	 */
 	public function testAStoredFooterHasNoStepOfItsOwn(): void {
 		$this->settingMapper->method('getValue')

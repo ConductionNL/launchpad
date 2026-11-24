@@ -1011,7 +1011,7 @@ export const api = {
 	 * the server (REQ-ASET-021).
 	 *
 	 * @return {Promise} Axios response resolving to `{ sites }`.
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	getAllowedSites() {
 		return axios.get(`${baseUrl}/api/admin/allowed-sites`)
@@ -1023,7 +1023,7 @@ export const api = {
 	 *
 	 * @param {Array<{host: string, embed: boolean, fetch: boolean}>} sites The sites.
 	 * @return {Promise} Axios response resolving to the stored `{ sites }`.
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	updateAllowedSites(sites) {
 		return axios.put(`${baseUrl}/api/admin/allowed-sites`, { sites })

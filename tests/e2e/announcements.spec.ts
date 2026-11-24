@@ -112,16 +112,14 @@ test.afterAll(async () => {
 
 // @e2e announcements::notice-without-an-end-time
 test('a notice without an end time is not published', async () => {
+	// Since announcement-show-until (REQ-ANN-001) the server already refuses
+	// to create an announcement without "Show until", so it never reaches
+	// publish.
 	const created = await admin.post(`${API}/announcements`, {
 		data: { kind: 'notice', level: 'warning', title: `Zonder einde ${STAMP}`, dismissible: true },
 	})
-	expect(created.status(), await created.text()).toBe(201)
-	const uuid = (await created.json()).uuid as string
-	announcements.push(uuid)
-
-	const published = await admin.post(`${API}/announcements/${uuid}/publish`)
-	expect(published.status()).toBe(400)
-	expect((await published.json()).message).toBe('A notice needs an end time')
+	expect(created.status(), await created.text()).toBe(400)
+	expect(await created.text()).toMatch(/Show until|expiresAt|end time/)
 })
 
 // @e2e announcements::maintenance-banner

@@ -96,7 +96,7 @@ import { logger } from '../../utils/logger.js'
  * AllowedSitesSettings — the General tab's "Allowed websites" block
  * (REQ-ASET-021): hosts with their purpose, Add website and Save.
  *
- * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+ * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
  */
 export default {
 	name: 'AllowedSitesSettings',
@@ -122,7 +122,7 @@ export default {
 	computed: {
 		/**
 		 * @return {Array<{id: string, label: string}>} The purposes, translated.
-		 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+		 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 		 */
 		purposeOptions() {
 			const labels = {
@@ -134,7 +134,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021 */
+	/** @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021 */
 	created() {
 		this.newPurpose = this.optionFor('embed')
 		this.load()
@@ -146,7 +146,7 @@ export default {
 		/**
 		 * @param {string} purpose The purpose id.
 		 * @return {{id: string, label: string}} Its select option.
-		 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+		 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 		 */
 		optionFor(purpose) {
 			return this.purposeOptions.find((option) => option.id === purpose) ?? this.purposeOptions[0]
@@ -156,7 +156,7 @@ export default {
 		 * Read the stored list.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+		 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 		 */
 		async load() {
 			try {
@@ -173,7 +173,7 @@ export default {
 		 * Add the entered host with the chosen purpose (saved with Save).
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+		 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 		 */
 		add() {
 			this.rows = addRow(this.rows, this.newHost, this.newPurpose?.id ?? 'embed')
@@ -184,7 +184,7 @@ export default {
 		 * @param {string} host The row's host.
 		 * @param {{id: string}|null} option The chosen purpose.
 		 * @return {void}
-		 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+		 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 		 */
 		setPurpose(host, option) {
 			this.rows = addRow(this.rows, host, option?.id ?? 'embed')
@@ -193,7 +193,7 @@ export default {
 		/**
 		 * @param {string} host The row's host.
 		 * @return {void}
-		 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+		 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 		 */
 		removeRow(host) {
 			this.rows = this.rows.filter((row) => row.host !== host)
@@ -203,7 +203,7 @@ export default {
 		 * Save the list; the server's refusal is shown as it is.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+		 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 		 */
 		async save() {
 			this.saving = true

@@ -34,9 +34,14 @@
  * The admin page is `/settings/admin/launchpad` (the banner lives in the
  * General tab of AdminSettings.vue). The spec still names
  * `/apps/launchpad/admin/dashboards`, which is a deep-link slug in the SPA, not
- * the admin section. The step counter reads "Step n / 6" (six steps, REQ-WIZ-002
- * and decision 131); two scenarios still say "/ 7" from before the storage step
- * was retired, and are asserted against the six steps their requirement names.
+ * the admin section. The step counter reads "Step n / 5": five steps, Welcome,
+ * Groups, Examples, Roles and Done (REQ-WIZ-012). The storage step was retired
+ * by decision 131 and the footer step by setup-five-steps-and-admin-tour; the
+ * footer is set on the admin tab Organisatiemenu.
+ *
+ * The five-step walk (REQ-WIZ-012, "No footer step") is written from the
+ * scenarios of the change setup-five-steps-and-admin-tour and runs in the
+ * nightly against a live instance.
  *
  * Tests marked `test.fixme` are written to their scenario and fail against the
  * product; the comment on each names the file and line that disagrees.
@@ -52,7 +57,8 @@
  *   @e2e setup-wizard::back-button-returns-to-previous-step
  *   @e2e setup-wizard::skip-button-jumps-to-next-step-without-commitment
  *   @e2e setup-wizard::step-1-has-no-form-only-explanatory-text
- *   @e2e setup-wizard::step-6-shows-summary-and-finish-button
+ *   @e2e setup-wizard::step-5-shows-summary-and-finish-button
+ *   @e2e setup-wizard::no-footer-step
  *   @e2e setup-wizard::finish-button-completes-wizard
  *   @e2e setup-wizard::wizard-progress-persists-across-back-navigation
  *   @e2e setup-wizard::step-2-embeds-existing-group-priority-order-admin-component
@@ -67,9 +73,6 @@
  *   @e2e setup-wizard::step-4-is-skippable
  *   @e2e setup-wizard::no-group-selected-is-equivalent-to-skip
  *   @e2e setup-wizard::only-one-group-can-have-admin-role-per-wizard-run
- *   @e2e setup-wizard::step-5-shows-footer-editor
- *   @e2e setup-wizard::footer-edits-persist-immediately
- *   @e2e setup-wizard::step-5-is-skippable
  *   @e2e setup-wizard::endpoint-returns-complete-state-on-fresh-instance
  *   @e2e setup-wizard::endpoint-returns-recommended-step-for-re-runs
  *   @e2e setup-wizard::endpoint-returns-completetrue-when-wizard-finished
@@ -113,7 +116,7 @@ const FOOTER_API = `${API}/admin/footer-settings`
 const RUN = Date.now()
 const GROUP_A = `e2e-wizard-a-${RUN}`
 const GROUP_B = `e2e-wizard-b-${RUN}`
-const TOTAL = 6
+const TOTAL = 5
 const STEP_STATUSES = ['done', 'pending', 'skipped']
 
 const NOT_FRESH =
@@ -126,8 +129,7 @@ const STEP_HEADINGS: Record<number, string> = {
 	2: 'Group priority order',
 	3: 'Demo data',
 	4: 'Admin roles',
-	5: 'Footer configuration',
-	6: 'All set',
+	5: 'All set',
 }
 
 type WizardState = {
@@ -248,7 +250,7 @@ async function openWizard(page: Page, via: 'banner' | 'rerun'): Promise<Locator>
 	const root = wizard(page)
 	await expect(root).toBeVisible({ timeout: 20_000 })
 	await expect(root.locator('[data-test="setup-wizard-counter"]')).toHaveText(
-		/Step \d \/ 6/,
+		/Step \d \/ 5/,
 	)
 	return root
 }
@@ -399,7 +401,6 @@ function expectStateShape(state: WizardState): void {
 		'3',
 		'4',
 		'5',
-		'6',
 	])
 	for (const status of Object.values(state.stepStatuses)) {
 		expect(STEP_STATUSES).toContain(status)
@@ -483,9 +484,9 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		)
 	})
 
-	// SUSPECTED BUG: src/modals/SetupWizardModal.vue:208 jumps to
+	// SUSPECTED BUG: src/modals/SetupWizardModal.vue:185 jumps to
 	// `currentRecommendedStep` whenever `complete` is false, and on a fresh
-	// instance that is never 1 (lib/Service/SetupWizardService.php:169 returns
+	// instance that is never 1 (lib/Service/SetupWizardService.php:168 returns
 	// the first non-done step, and step 2 is pending). So "Run setup wizard"
 	// opens at Step 2, not at Step 1 (Welcome).
 	test.fixme('the banner call-to-action opens the wizard at Step 1', async ({
@@ -498,8 +499,8 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		await expectStep(root, 1)
 	})
 
-	// SUSPECTED BUG: same cause as above, SetupWizardModal.vue:208.
-	test.fixme('the wizard starts at Step 1 with counter 1 / 6', async ({
+	// SUSPECTED BUG: same cause as above, SetupWizardModal.vue:185.
+	test.fixme('the wizard starts at Step 1 with counter 1 / 5', async ({
 		page,
 	}) => {
 		// @e2e setup-wizard::wizard-starts-at-step-1
@@ -507,7 +508,7 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 
 		const root = await openWizard(page, 'banner')
 		await expect(root.locator('[data-test="setup-wizard-counter"]')).toHaveText(
-			'Step 1 / 6',
+			'Step 1 / 5',
 		)
 		await expect(root.locator('.setup-wizard__step > h3')).toHaveText('Welcome')
 	})
@@ -530,9 +531,9 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		expect((await readState()).complete).toBe(false)
 	})
 
-	// SUSPECTED BUG: lib/Service/SetupWizardService.php:142-156 reports steps
-	// 3, 4 and 5 as "skipped" from the start (not "pending"), and
-	// resolveRecommendedStep (:169) therefore answers 2, not 1.
+	// SUSPECTED BUG: lib/Service/SetupWizardService.php:154-160 reports steps
+	// 3 and 4 as "skipped" from the start (not "pending"), and
+	// resolveRecommendedStep (:168) therefore answers 2, not 1.
 	test.fixme('the state endpoint on a fresh instance', async () => {
 		// @e2e setup-wizard::endpoint-returns-complete-state-on-fresh-instance
 		test.skip(!fresh, NOT_FRESH)
@@ -548,7 +549,6 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 				3: 'pending',
 				4: 'pending',
 				5: 'pending',
-				6: 'pending',
 			},
 		})
 	})
@@ -584,7 +584,7 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 			const body: WizardState = await done.json()
 			expectStateShape(body)
 			expect(body.complete).toBe(true)
-			expect(body.stepStatuses['6']).toBe('done')
+			expect(body.stepStatuses['5']).toBe('done')
 
 			// Re-read: the flag is stored, and the GET agrees with the POST body.
 			const reread = await readState()
@@ -794,7 +794,7 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		const root = await openWizard(page, 'rerun')
 		await expectStep(root, 1)
 		await expect(root.locator('.setup-wizard__step > p')).toHaveText(
-			'Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.',
+			'This setup sets the groups, the example dashboards and the roles, in five steps. Existing dashboards stay as they are.',
 		)
 		await expect(
 			root.locator(
@@ -1257,80 +1257,49 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		expect(await readJson<RoleRow[]>(ROLES_API)).toEqual(rolesBefore)
 	})
 
-	// SUSPECTED BUG (spec vs product): Step 5 is a stub. src/modals/SetupWizardModal.vue:84-106
-	// shows the description and a "not yet available" note (data-test="footer-stub");
-	// there is no Structured mode editor.
-	test.fixme('Step 5 shows the Structured mode footer editor', async ({
+	test('the wizard walks five steps without a footer step and finishes', async ({
 		page,
 	}) => {
-		// @e2e setup-wizard::step-5-shows-footer-editor
-		const root = await openWizard(page, 'rerun')
-		await goToStep(root, 5)
-		const step = root.locator('.setup-wizard__step')
-		await expect(step).toContainText(
-			'Customize the footer content and appearance for your intranet.',
-		)
-		await expect(step.getByText('Structured mode')).toBeVisible()
-		await expect(step.getByRole('textbox').first()).toBeEditable()
-		await expect(root.locator('[data-test="footer-stub"]')).toHaveCount(0)
-	})
-
-	// SUSPECTED BUG (spec vs product): Step 5 stub, SetupWizardModal.vue:84-106.
-	test.fixme('footer edits on Step 5 are stored on Next', async ({ page }) => {
-		// @e2e setup-wizard::footer-edits-persist-immediately
-		const before = await readJson<Record<string, unknown>>(FOOTER_API)
-		try {
-			const root = await openWizard(page, 'rerun')
-			await goToStep(root, 5)
-			const text = `E2E footer ${RUN}`
-			await root
-				.locator('.setup-wizard__step')
-				.getByRole('textbox')
-				.first()
-				.fill(text)
-			await root.locator('[data-test="setup-wizard-next"]').click()
-			await expectStep(root, 6)
-			const after = await readJson<Record<string, unknown>>(FOOTER_API)
-			expect(JSON.stringify(after.footerConfig)).toContain(text)
-			await page.goto('/index.php/apps/launchpad')
-			expect(
-				JSON.stringify(
-					(await readJson<Record<string, unknown>>(FOOTER_API))
-						.footerConfig,
-				),
-			).toContain(text)
-		} finally {
-			await admin.put(FOOTER_API, { data: before })
-		}
-	})
-
-	test('Skip on Step 5 moves to Step 6 and changes no footer setting', async ({
-		page,
-	}) => {
-		// @e2e setup-wizard::step-5-is-skippable
-		const stateBefore = await readState()
-		test.skip(
-			stateBefore.stepStatuses['5'] === 'done',
-			'a footer config was stored earlier on this instance, so Step 5 reports done; '
-				+ 'the GIVEN needs an instance without one (the CI fixture)',
-		)
+		// @e2e setup-wizard::no-footer-step
 		const footerBefore = await readJson<unknown>(FOOTER_API)
-		const root = await openWizard(page, 'rerun')
-		await goToStep(root, 5)
+		const state = await readState()
+		expect(Object.keys(state.stepStatuses)).toHaveLength(5)
 
+		const root = await openWizard(page, 'rerun')
+		await expectStep(root, 1)
 		const writes = await writesDuring(page, async () => {
-			await root.locator('[data-test="setup-wizard-skip"]').click()
-			await expectStep(root, 6)
+			for (let step = 1; step <= TOTAL; step++) {
+				await expectStep(root, step)
+				await expect(root).not.toContainText('Footer configuration')
+				await expect(root.locator('[data-test="footer-stub"]')).toHaveCount(0)
+				if (step < TOTAL) {
+					await expect(
+						root.locator('[data-test="setup-wizard-next"]'),
+					).toHaveText('Next')
+					await root.locator('[data-test="setup-wizard-next"]').click()
+				}
+			}
 		})
-		expect(writes).toEqual([])
+		expect(writes.filter((w) => w.includes('/footer'))).toEqual([])
+		await expect(root.locator('[data-test="setup-wizard-next"]')).toHaveText(
+			'Finish',
+		)
+
+		const finished = completeCall(page)
+		await root.locator('[data-test="setup-wizard-next"]').click()
+		const response = await finished
+		expect(response.status()).toBe(200)
+		const body: WizardState = await response.json()
+		expectStateShape(body)
+		expect(body.complete).toBe(true)
+		await expect(wizard(page)).toBeHidden()
 		expect(await readJson<unknown>(FOOTER_API)).toEqual(footerBefore)
-		expect((await readState()).stepStatuses['5']).toBe('skipped')
 	})
 
-	test('Step 6 shows the summary and a Finish button that completes', async ({
+	test('Step 5 shows the summary and a Finish button that completes', async ({
 		page,
 	}) => {
-		// @e2e setup-wizard::step-6-shows-summary-and-finish-button
+		// @e2e setup-wizard::step-5-shows-summary-and-finish-button
 		const root = await openWizard(page, 'rerun')
 		await goToStep(root, TOTAL)
 		await expect(root.locator('.setup-wizard__step > p')).toHaveText(

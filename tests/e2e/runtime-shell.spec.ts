@@ -43,7 +43,15 @@
  *   @e2e runtime-shell::opening-flows-from-more-ends-the-tour
  *   @e2e runtime-shell::a-finished-tour-stays-closed
  *   @e2e runtime-shell::an-administrators-first-visit-to-the-admin-page
+ *   @e2e runtime-shell::the-tour-visits-the-six-tabs-in-order
  *   @e2e runtime-shell::a-finished-admin-tour-stays-closed
+ *
+ * The admin tour's six stops ("Step 1 of 6": General, Templates, Roles and
+ * rights, Sharing, Kiosk, Demo data) are written from the scenarios of the
+ * change setup-five-steps-and-admin-tour and run in the nightly against a
+ * live instance. The stops carry the English tab names of src/manifest.json
+ * (`launchpad:admin-getting-started`): "Roles and rights" is the tab
+ * "Roles and permissions".
  *
  * @spec openspec/specs/runtime-shell/spec.md
  */
@@ -93,6 +101,16 @@ const FIRST_STEP_TITLE = 'Here you switch between dashboards'
 
 /** The body of the tour's second step, the Flows task. */
 const FLOWS_STEP_BODY = 'Reports and Flows are under More as well.'
+
+/** The admin tour's six stops, in order (src/manifest.json, board LpBeheerAlgemeen). */
+const ADMIN_TOUR_STOPS = [
+	'General',
+	'Templates',
+	'Roles and permissions',
+	'Sharing',
+	'Kiosk',
+	'Demo data',
+]
 
 /** The support note, by its accessible name or by the library's test id. */
 function supportNote(page: Page): Locator {
@@ -759,8 +777,15 @@ test.describe('REQ-SHELL-011: the admin page tour', () => {
 			await page.goto(ADMIN_PAGE_URL)
 			const card = page.locator(TOUR_CARD)
 			await expect(card.locator('.cn-walkthrough__title')).toHaveText(
-				'General settings',
+				'General',
 				{ timeout: 30_000 },
+			)
+			await expect(card.locator('.cn-walkthrough__counter')).toHaveText(
+				'Step 1 of 6',
+			)
+			// The first stop says the tour is shown once.
+			await expect(card.locator('.cn-walkthrough__body')).toContainText(
+				'This tour is shown once.',
 			)
 			// On the general settings tab, spotlighting its settings card.
 			await expect(adminTab(page, 'general')).toHaveAttribute(
@@ -780,6 +805,37 @@ test.describe('REQ-SHELL-011: the admin page tour', () => {
 		}
 	})
 
+	// @e2e runtime-shell::the-tour-visits-the-six-tabs-in-order
+	test('Next five times walks General, Templates, Roles, Sharing, Kiosk and Demo data', async ({
+		browser,
+	}) => {
+		const noor = await freshAdministrator()
+		const { context, page } = await sessionOf(browser, noor)
+		try {
+			await page.goto(ADMIN_PAGE_URL)
+			const card = page.locator(TOUR_CARD)
+			const title = card.locator('.cn-walkthrough__title')
+			const counter = card.locator('.cn-walkthrough__counter')
+			await expect(title).toHaveText(ADMIN_TOUR_STOPS[0], { timeout: 30_000 })
+			await expect(counter).toHaveText('Step 1 of 6')
+
+			const visited = [(await title.innerText()).trim()]
+			for (let stop = 2; stop <= ADMIN_TOUR_STOPS.length; stop++) {
+				await card.getByRole('button', { name: /next/i }).click()
+				await expect(counter).toHaveText(`Step ${stop} of 6`)
+				await expect(title).toHaveText(ADMIN_TOUR_STOPS[stop - 1])
+				// Each stop says in one line what is set on its tab.
+				await expect(card.locator('.cn-walkthrough__body')).not.toBeEmpty()
+				visited.push((await title.innerText()).trim())
+			}
+			expect(visited).toEqual(ADMIN_TOUR_STOPS)
+			// The sixth stop is the last: it finishes instead of going on.
+			await expect(card.getByRole('button', { name: /finish/i })).toBeVisible()
+		} finally {
+			await context.close()
+		}
+	})
+
 	// @e2e runtime-shell::a-finished-admin-tour-stays-closed
 	test('a finished admin tour does not start again', async ({ browser }) => {
 		const noor = await freshAdministrator()
@@ -789,13 +845,8 @@ test.describe('REQ-SHELL-011: the admin page tour', () => {
 			const card = first.page.locator(TOUR_CARD)
 			const title = card.locator('.cn-walkthrough__title')
 			// CONTROL: the tour starts for her before she finishes it.
-			await expect(title).toHaveText('General settings', { timeout: 30_000 })
-			for (const next of [
-				'Templates',
-				'Roles and permissions',
-				'Sharing',
-				'Operations',
-			]) {
+			await expect(title).toHaveText(ADMIN_TOUR_STOPS[0], { timeout: 30_000 })
+			for (const next of ADMIN_TOUR_STOPS.slice(1)) {
 				await card.getByRole('button', { name: /next/i }).click()
 				await expect(title).toHaveText(next)
 			}

@@ -38,7 +38,7 @@ use OCA\LaunchPad\Kernel\Contracts\SetupWizardServiceInterface;
  * heuristic can read. Five steps: Welcome, Groups, Examples, Roles, Done
  * (REQ-WIZ-012); the footer is set on its own admin tab, not here.
  *
- * @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
+ * @spec openspec/changes/archive/2026-11-24-setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
  */
 class SetupWizardService implements SetupWizardServiceInterface {
 	/**
@@ -69,7 +69,7 @@ class SetupWizardService implements SetupWizardServiceInterface {
 	 *                                                                                             The wizard state payload.
 	 *
 	 * @spec openspec/specs/setup-wizard/spec.md
-	 * @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
+	 * @spec openspec/changes/archive/2026-11-24-setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
 	 */
 	public function getWizardState(): array {
 		$complete = $this->isWizardComplete();
@@ -126,7 +126,7 @@ class SetupWizardService implements SetupWizardServiceInterface {
 	 *
 	 * @return array<int,string> Step number → status.
 	 *
-	 * @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
+	 * @spec openspec/changes/archive/2026-11-24-setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
 	 */
 	private function computeStepStatuses(bool $complete): array {
 		$settings = $this->settingMapper->getAllAsArray();

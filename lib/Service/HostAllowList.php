@@ -73,7 +73,7 @@ final class HostAllowList {
 	 * @return boolean True only when the host is explicitly allow-listed.
 	 *
 	 * @spec openspec/specs/service-health-ping/spec.md
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function permits(string $url): bool {
 		$host = parse_url(url: $url, component: PHP_URL_HOST);
@@ -99,7 +99,7 @@ final class HostAllowList {
 	 * @return string[]
 	 *
 	 * @spec openspec/specs/image-widget/spec.md#requirement-req-img-006-external-image-hosts-are-allow-listed-by-an-administrator
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function hosts(): array {
 		$hosts = $this->ownHosts();

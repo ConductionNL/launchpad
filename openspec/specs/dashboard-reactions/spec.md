@@ -297,7 +297,7 @@ When a dashboard is deleted, ALL reactions on that dashboard MUST be removed.
 
 ### Requirement: REQ-RXN-010 A viewer can react from the dashboard
 
-In view mode a reactions bar MUST show under the dashboard title with each emoji and its count, mark the viewer's own reactions, and toggle the viewer's reaction on click. It MUST offer only the allowed emoji, and MUST be absent when reactions are disabled globally or for the dashboard.
+In view mode a reactions bar MUST show at the foot of the dashboard, under the last widget and over the full width, as a card that asks "What do you think of this dashboard?" before each emoji and its count and names who last changed the dashboard and when after them. It MUST mark the viewer's own reactions and toggle the viewer's reaction on click. It MUST offer only the allowed emoji, and MUST be absent when reactions are disabled globally or for the dashboard.
 
 #### Scenario: Add and remove
 

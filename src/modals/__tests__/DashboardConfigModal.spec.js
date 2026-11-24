@@ -182,7 +182,7 @@ describe('DashboardConfigModal tab split', () => {
 		)
 	})
 
-	// @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	// @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
 	it('draws Own look on the Details tab, with no layout preset field', () => {
 		const wrapper = mountModal()
 		const general = wrapper.find('[data-test="config-panel-general"]')
@@ -196,7 +196,7 @@ describe('DashboardConfigModal tab split', () => {
 		expect(wrapper.find('[data-test="config-panel-look"]').exists()).toBe(false)
 	})
 
-	// @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
+	// @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
 	it('shows the instance theme read-only under Display, with no theme choice or layout field', () => {
 		const wrapper = mountModal()
 		const general = wrapper.find('[data-test="config-panel-general"]')

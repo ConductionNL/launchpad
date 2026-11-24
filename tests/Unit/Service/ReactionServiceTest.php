@@ -440,7 +440,7 @@ class ReactionServiceTest extends TestCase {
 	 * The summary names the author of the newest version and its time
 	 * (reactions-bar-at-the-foot REQ-RXN-010).
 	 *
-	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
 	 *
 	 * @return void
 	 */
@@ -467,7 +467,7 @@ class ReactionServiceTest extends TestCase {
 	/**
 	 * An author without an account (a template re-sync) is named as stored.
 	 *
-	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
 	 *
 	 * @return void
 	 */
@@ -494,7 +494,7 @@ class ReactionServiceTest extends TestCase {
 	 * Without versions the summary gives the dashboard's change time
 	 * without a name, and null when that is unknown too.
 	 *
-	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
 	 *
 	 * @return void
 	 */
@@ -519,7 +519,7 @@ class ReactionServiceTest extends TestCase {
 	 * A version read that fails leaves only the dashboard's own time, and a
 	 * directory without the version mapper reads none.
 	 *
-	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
 	 *
 	 * @return void
 	 */

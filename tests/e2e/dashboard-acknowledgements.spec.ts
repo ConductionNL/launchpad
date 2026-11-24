@@ -46,8 +46,8 @@
  *   @e2e dashboard-acknowledgements::the-key-reaches-the-dashboard
  *   @e2e dashboard-acknowledgements::who-has-not-confirmed
  *
- * The last two are the delta scenarios of the open change
- * `read-receipts-dialog` (REQ-ACK-009, REQ-ACK-010).
+ * The last two came from the change `read-receipts-dialog` (REQ-ACK-009,
+ * REQ-ACK-010), archived 2026-11-24.
  *
  * @spec openspec/specs/dashboard-acknowledgements/spec.md
  */

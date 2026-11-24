@@ -393,7 +393,7 @@ class AcknowledgementControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 	 */
 	public function testReportRowsCarryTheNameAndDepartment(): void {
 		$this->groupManager->method('isAdmin')->willReturn(true);

@@ -5,7 +5,7 @@
  * The read confirmations dialog's numbers and rows (REQ-ACK-010). Pure, so
  * the counts and the filters run under vitest with nothing mocked.
  *
- * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+ * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
  */
 
 /** @type {string[]} The filters, in the order the dialog offers them. */
@@ -17,7 +17,7 @@ export const FILTERS = ['everyone', 'confirmed', 'pending']
  *
  * @param {object|null} report The report.
  * @return {{confirmed: number, audience: number, left: number, percent: number}} The counts.
- * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+ * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
  */
 export function receiptCounts(report) {
 	const rows = Array.isArray(report?.rows) ? report.rows : []
@@ -38,7 +38,7 @@ export function receiptCounts(report) {
  * @param {Array<object>} rows The report rows.
  * @param {string} filter `everyone`, `confirmed` or `pending`.
  * @return {Array<object>} The rows to show.
- * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+ * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
  */
 export function filterReceipts(rows, filter) {
 	const list = Array.isArray(rows) ? rows : []
@@ -56,7 +56,7 @@ export function filterReceipts(rows, filter) {
  *
  * @param {string} name The display name.
  * @return {string} The initials, upper case.
- * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+ * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
  */
 export function initialsOf(name) {
 	const words = String(name ?? '').trim().split(/\s+/).filter((word) => word !== '')
@@ -74,7 +74,7 @@ export function initialsOf(name) {
  * @param {string|null} value The stored date.
  * @param {object} [options] Intl options.
  * @return {string} The date.
- * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+ * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
  */
 export function receiptDate(value, options = { day: 'numeric', month: 'long', year: 'numeric' }) {
 	if (!value) {

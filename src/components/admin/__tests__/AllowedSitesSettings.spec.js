@@ -7,7 +7,7 @@
  * PUT /api/admin/allowed-sites; a refusal shows the server's message
  * (REQ-ASET-021).
  *
- * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+ * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

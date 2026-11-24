@@ -5,4 +5,4 @@
 - [x] Translations: new welcome text in every shipped locale; strings only the footer step used removed
 - [x] Admin tour `launchpad:admin-getting-started`: six stops General, Templates, Roles and rights, Sharing, Kiosk, Demo data, each with one line of explanation
 - [x] Unit tests: `SetupWizardServiceTest` (five steps, no footer status), `SetupWizardModal.spec.js` (five steps, no footer editor), the admin tour step list
-- [ ] Playwright: `tests/e2e/setup-wizard.spec.ts` walks five steps and finishes; the admin tour shows "1 of 6" on a first visit
+- [x] Playwright: `tests/e2e/setup-wizard.spec.ts` walks five steps and finishes; the admin tour shows "1 of 6" on a first visit (written, runs in nightly: tests/e2e/setup-wizard.spec.ts, tests/e2e/runtime-shell.spec.ts)

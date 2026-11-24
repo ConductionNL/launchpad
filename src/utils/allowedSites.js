@@ -6,7 +6,7 @@
  * its purpose, Embed, Fetch or Embed and fetch. Pure, so the mapping runs
  * under vitest with nothing mocked; the server normalises and checks hosts.
  *
- * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+ * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
  */
 
 /** @type {string[]} The purposes, in the order the select offers them. */
@@ -17,7 +17,7 @@ export const PURPOSES = ['embed', 'fetch', 'both']
  *
  * @param {{embed?: boolean, fetch?: boolean}} site The site.
  * @return {'embed'|'fetch'|'both'} The purpose; `embed` when neither is set.
- * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+ * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
  */
 export function purposeOf(site) {
 	if (site?.embed === true && site?.fetch === true) {
@@ -32,7 +32,7 @@ export function purposeOf(site) {
  * @param {string} host The host.
  * @param {string} purpose `embed`, `fetch` or `both`.
  * @return {{host: string, embed: boolean, fetch: boolean}} The site.
- * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+ * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
  */
 export function siteFor(host, purpose) {
 	return {
@@ -47,7 +47,7 @@ export function siteFor(host, purpose) {
  *
  * @param {object} data The answer, `{sites}`.
  * @return {Array<{host: string, purpose: string}>} The rows.
- * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+ * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
  */
 export function rowsFrom(data) {
 	const sites = Array.isArray(data?.sites) ? data.sites : []
@@ -64,7 +64,7 @@ export function rowsFrom(data) {
  * @param {string} host The entered host.
  * @param {string} purpose The chosen purpose.
  * @return {Array<{host: string, purpose: string}>} The new rows.
- * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+ * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
  */
 export function addRow(rows, host, purpose) {
 	const entered = String(host ?? '').trim()

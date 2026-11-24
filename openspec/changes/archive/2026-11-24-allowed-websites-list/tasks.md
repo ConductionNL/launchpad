@@ -6,4 +6,4 @@
 - [x] General tab block "Allowed websites": list, purpose select, Add website, Save
 - [x] Translations in every shipped locale
 - [x] Unit tests: purpose per feature (embed-only host refused for fetch and the other way), normalisation, invalid host, the merge on upgrade
-- [ ] Playwright: add a host with Fetch, configure a live tile on it, and see an embed on the same host refused
+- [x] Playwright: add a host with Fetch, configure a live tile on it, and see an embed on the same host refused (written, runs in nightly: tests/e2e/allowed-websites-list.spec.ts)

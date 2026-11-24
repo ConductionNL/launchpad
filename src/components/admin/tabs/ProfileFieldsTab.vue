@@ -187,7 +187,7 @@ export default {
 		 * @param {number} index Position in the list.
 		 * @param {boolean} checked Whether it is now the department.
 		 * @return {void}
-		 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 		 */
 		setDepartment(index, checked) {
 			this.fields = this.fields.map((field, position) => ({

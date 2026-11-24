@@ -6,4 +6,4 @@
 - [x] Demo seed: the intranet announcement widget asks for confirmation and gets its key
 - [x] Translations in every shipped locale
 - [x] Unit tests: key is stable, report counts, filter Not confirmed yet
-- [ ] Playwright: as an editor of Intranet Zuiddrecht open Read receipts and filter
+- [x] Playwright: as an editor of Intranet Zuiddrecht open Read receipts and filter (written, runs in nightly: tests/e2e/dashboard-acknowledgements.spec.ts)

@@ -6,7 +6,7 @@
  * tab Versions of the dashboard settings (REQ-VERSUI-001, board LpVersies).
  * The menu still tells the host when it opens.
  *
- * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-the-owner-sees-the-version-history-req-versui-001
+ * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-the-owner-sees-the-version-history-req-versui-001
  */
 
 import { mount } from '@vue/test-utils'

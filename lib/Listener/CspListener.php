@@ -80,7 +80,7 @@ class CspListener implements IEventListener {
 	 *
 	 * @spec openspec/specs/iframe-embed-widget/spec.md
 	 * @spec openspec/specs/image-widget/spec.md#requirement-req-img-006-external-image-hosts-are-allow-listed-by-an-administrator
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function handle(Event $event): void {
 		if (($event instanceof AddContentSecurityPolicyEvent) === false || $this->isLaunchPadRequest() === false) {

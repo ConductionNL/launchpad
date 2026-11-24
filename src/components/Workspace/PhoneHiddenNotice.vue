@@ -41,7 +41,7 @@ import { phoneHiddenSentence } from '../../utils/phoneHiddenWidgets.js'
  * them (three, then "and N more"), with "Which?" explaining why. It offers
  * no desktop layout (board LpMobiel).
  *
- * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+ * @spec openspec/changes/archive/2026-11-24-phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
  */
 export default {
 	name: 'PhoneHiddenNotice',
@@ -70,7 +70,7 @@ export default {
 		 * The notice sentence, empty when nothing is hidden.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+		 * @spec openspec/changes/archive/2026-11-24-phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
 		 */
 		sentence() {
 			return phoneHiddenSentence(this.titles)

@@ -130,7 +130,7 @@ const stubs = {
 	CnAddWidgetModal: passthrough('CnAddWidgetModal', {
 		props: { show: Boolean, editingWidget: Object },
 		// Mirrors CnNcDashboardWidgetForm, which reads the injected catalog.
-		inject: { widgets: { default: null } },
+		inject: { widgets: { default: null }, cnOffersPeriodField: { default: false } },
 		template:
 			'<ul class="stub-add-widget"><li v-for="w in widgets || []" :key="w.id">{{ w.id }}</li></ul>',
 	}),
@@ -356,6 +356,11 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		expect(form.props('show')).toBe(true)
 		expect(wrapper.vm.customWidgetPreselectedType).toBeNull()
 		expect(wrapper.vm.customWidgetInitialType).toBe('text')
+	}, 90000)
+
+	it('offers the widget forms a date field for the dashboard period (REQ-DPD-002)', async () => {
+		const { wrapper } = await mountViews()
+		expect(wrapper.findComponent({ name: 'CnAddWidgetModal' }).vm.cnOffersPeriodField).toBe(true)
 	}, 90000)
 
 	it('the Meer menu\'s "Set as default" toggles the pinned default dashboard over HTTP', async () => {

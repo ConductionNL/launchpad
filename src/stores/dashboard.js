@@ -696,15 +696,19 @@ export const useDashboardStore = defineStore('dashboard', {
 				// now `{items: [...], quota: {...}}`. Stay tolerant of older
 				// backends that returned a bare array so a version skew never
 				// blanks the dashboard list.
-				const payload = (await fetchVisibleDashboards()).data
+				// The list and the active dashboard do not depend on each
+				// other, so they are asked for together: one round trip, not two.
+				const [visibleResponse, activeResponse] = await Promise.all([
+					fetchVisibleDashboards(),
+					api.getActiveDashboard(),
+				])
+				const payload = visibleResponse.data
 				const quota = quotaOf(payload)
 				if (quota !== null) {
 					this.quota = quota
 				}
 				this.dashboards = dashboardRowsOf(payload)
 
-				// Load the active dashboard
-				const activeResponse = await api.getActiveDashboard()
 				if (activeResponse.data) {
 					this.activeDashboard = activeDashboardOf(activeResponse.data)
 					this.widgetPlacements = activeResponse.data.placements || []

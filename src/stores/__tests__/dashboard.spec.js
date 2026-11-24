@@ -371,6 +371,27 @@ describe('useDashboardStore — loadDashboards source plumbing', () => {
 		expect(store.dashboards[2].source).toBe('default')
 	})
 
+	it('asks for the active dashboard without waiting for the list', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+
+		let answerList
+		mockApi.getVisibleDashboards.mockReturnValue(new Promise((resolve) => {
+			answerList = resolve
+		}))
+		mockApi.getActiveDashboard.mockResolvedValue({ data: { dashboard: { id: 1, uuid: 'a' }, placements: [{ id: 9 }] } })
+
+		const load = store.loadDashboards()
+		await Promise.resolve()
+		expect(mockApi.getActiveDashboard).toHaveBeenCalledTimes(1)
+
+		answerList({ data: [{ id: 1, uuid: 'a', source: 'user', name: 'Mine' }] })
+		await load
+
+		expect(store.dashboards).toHaveLength(1)
+		expect(store.widgetPlacements).toEqual([{ id: 9 }])
+	})
+
 	it('falls back to /api/dashboards and tags rows as `source: "user"`', async () => {
 		const { useDashboardStore } = await import('../dashboard.js')
 		const store = useDashboardStore()

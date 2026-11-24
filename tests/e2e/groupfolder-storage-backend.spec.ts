@@ -16,11 +16,14 @@
  *   - no serialised dashboard carries a `content` key (the entity property
  *     and its `jsonSerialize()` key were removed with the backend tree).
  *
- * The "No storage commands" scenario lists occ commands, which Playwright
- * cannot run; it carries an `@e2e exclude` in the spec.
+ * The "No storage commands" scenario lists the occ commands on the instance
+ * through support/occ.ts, the way an administrator would, and checks that no
+ * storage command is among them, against a listing that does hold the
+ * launchpad commands.
  *
  * Gate-19 @e2e traceability:
  *   @e2e groupfolder-storage-backend::a-dashboard-has-no-content-blob
+ *   @e2e groupfolder-storage-backend::no-storage-commands
  *
  * @spec openspec/specs/groupfolder-storage-backend/spec.md
  */
@@ -28,6 +31,7 @@
 import type { OwnDashboard } from './support/ownDashboard.ts'
 
 import { expect, test } from '@playwright/test'
+import { describeRun, runOcc } from './support/occ.ts'
 import {
 	readPlacements,
 	seedTextWidget,
@@ -57,7 +61,10 @@ function payload(body: any): any {
 function listItems(body: any): Array<Record<string, unknown>> {
 	const data = payload(body)
 	const items = Array.isArray(data) ? data : data?.items
-	expect(Array.isArray(items), `no dashboard list in ${JSON.stringify(body)}`).toBe(true)
+	expect(
+		Array.isArray(items),
+		`no dashboard list in ${JSON.stringify(body)}`,
+	).toBe(true)
 	return items as Array<Record<string, unknown>>
 }
 
@@ -88,10 +95,16 @@ test.describe('groupfolder-storage-backend: dashboards live in the database only
 		expect(listed.status(), await listed.text()).toBe(200)
 		const items = listItems(await listed.json())
 		const mine = items.find((d) => Number(d.id) === own!.id)
-		expect(mine, `dashboard ${own!.id} missing from ${JSON.stringify(items)}`).toBeTruthy()
+		expect(
+			mine,
+			`dashboard ${own!.id} missing from ${JSON.stringify(items)}`,
+		).toBeTruthy()
 		expect(Object.keys(mine!)).not.toContain('content')
 		for (const item of items) {
-			expect(Object.keys(item), `dashboard ${item.id} carries a content key`).not.toContain('content')
+			expect(
+				Object.keys(item),
+				`dashboard ${item.id} carries a content key`,
+			).not.toContain('content')
 		}
 
 		// GET /api/dashboard/{id} — where the widgets are served, next to the dashboard.
@@ -104,9 +117,14 @@ test.describe('groupfolder-storage-backend: dashboards live in the database only
 
 		const placements = await readPlacements(api, own!.id)
 		const placed = placements.find((p) => Number(p.id) === placementId)
-		expect(placed, `placement ${placementId} missing from ${JSON.stringify(placements)}`).toBeTruthy()
+		expect(
+			placed,
+			`placement ${placementId} missing from ${JSON.stringify(placements)}`,
+		).toBeTruthy()
 		expect(placed!.widgetId).toBe('text')
-		expect(JSON.stringify(placed!.content ?? placed!.config ?? placed)).toContain(text)
+		expect(
+			JSON.stringify(placed!.content ?? placed!.config ?? placed),
+		).toContain(text)
 
 		// GET /api/dashboard — the active dashboard the shell boots with.
 		const active = await api.get(`${API}/dashboard`)
@@ -115,5 +133,32 @@ test.describe('groupfolder-storage-backend: dashboards live in the database only
 		const activeDash = activeBody?.dashboard ?? activeBody
 		expect(Number(activeDash?.id), JSON.stringify(activeBody)).toBe(own!.id)
 		expect(Object.keys(activeDash)).not.toContain('content')
+	})
+})
+
+test.describe('groupfolder-storage-backend: no storage commands', () => {
+	// @e2e groupfolder-storage-backend::no-storage-commands
+	test('No storage commands: occ lists no launchpad storage or groupfolder command', async () => {
+		const result = await runOcc('list', '--format=json')
+		expect(result.code, describeRun(result)).toBe(0)
+		const names = (
+			(JSON.parse(result.stdout).commands ?? []) as Array<{ name: string }>
+		).map((c) => c.name)
+
+		// The listing is the real one: it holds launchpad's own commands.
+		expect(names).toEqual(
+			expect.arrayContaining(['launchpad:dashboard:list', 'launchpad:export']),
+		)
+
+		const launchpad = names.filter((n) => n.startsWith('launchpad:'))
+		expect(names).not.toContain('launchpad:storage:migrate-to-groupfolder')
+		expect(
+			launchpad.filter((n) => n.startsWith('launchpad:storage')),
+			'launchpad:storage:* commands',
+		).toEqual([])
+		expect(
+			launchpad.filter((n) => /storage|groupfolder/i.test(n)),
+			'storage toggle or groupfolder commands',
+		).toEqual([])
 	})
 })

@@ -206,6 +206,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 20 Nov on development with #1444: 6 of 6 green.
 - [ ] 5.3 `cli-commands`: 53 scenarios, 0 cited, blanket.
   - Spec written: none (tests/e2e/cli-commands.spec.ts not created), 0 scenarios cited, 60 excluded with reasons, not yet run (cloud, 2026-11-19)
+  - Spec written: tests/e2e/cli-commands.spec.ts (+ tests/e2e/support/occ.ts), 39 scenarios cited, 21 excluded with reasons, not yet run (cloud, 2026-11-24). The old "Playwright cannot run occ" reason was wrong: the suite already runs occ on the instance.
 - [x] 5.4 `activity-feed-integration`: 52 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/activity-feed-integration.spec.ts, 21 scenarios cited, not yet run (cloud, 2026-11-19), 39 excluded with reasons
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 22 of 22 green, every listed test run (checked against `playwright test --list`).
@@ -235,6 +236,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 5.14 `groupfolder-storage-backend`: 0 scenarios, 0 cited. Has no scenarios. Decide whether the spec is still wanted.
   - Decided: keep it. The spec is marked `status: withdrawn` and records why the capability was retired (launchpad#87) and what was removed. With no requirements and no scenarios it owes gate-19 nothing; archiving or deleting it is a separate change (cloud, 2026-11-19)
   - Spec written: tests/e2e/groupfolder-storage-backend.spec.ts, 1 scenario cited, 1 excluded with reason, not yet run (cloud, 2026-11-24). The spec has since gained REQ-GFSB-011 with 2 scenarios, so it does owe gate-19 now.
+  - Spec written: tests/e2e/groupfolder-storage-backend.spec.ts, 2 scenarios cited, 0 excluded, not yet run (cloud, 2026-11-24). "No storage commands" now lists the occ commands through tests/e2e/support/occ.ts.
 
 ## 6. Close the programme
 

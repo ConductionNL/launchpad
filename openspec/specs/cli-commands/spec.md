@@ -144,7 +144,6 @@ Commands are registered via Nextcloud's standard pattern:
 The system MUST establish `launchpad:` as the canonical namespace prefix for ALL LaunchPad CLI commands. Every command name MUST begin with `launchpad:` followed by a verb-noun or category-verb pattern (e.g., `launchpad:export`, `launchpad:dashboard:list`, `launchpad:cleanup:scan`). No LaunchPad command SHALL use a bare name or a different prefix.
 
 #### Scenario: Discover all LaunchPad commands
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: no test pins the `occ list launchpad` listing, its descriptions or its order. Every name in lib/Command/ starts with `launchpad:` (read from setName), but nothing asserts it.
 
 - GIVEN a Nextcloud operator runs `php occ list launchpad`
 - WHEN the system enumerates all registered commands
@@ -153,7 +152,6 @@ The system MUST establish `launchpad:` as the canonical namespace prefix for ALL
 - AND the list is alphabetically ordered by full command name
 
 #### Scenario: Sibling specs all fall under the namespace
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: no test asserts the registered names; appinfo/info.xml registers launchpad:export, launchpad:import, launchpad:import:confluence and launchpad:demo-showcases:install, none collide, unpinned.
 
 - GIVEN the `dashboard-export-import` spec defines `launchpad:export` and `launchpad:import`
 - AND the `confluence-html-import` spec defines `launchpad:import:confluence`
@@ -171,7 +169,6 @@ The system MUST establish `launchpad:` as the canonical namespace prefix for ALL
 - AND the convention is enforced by code review and ADR reference
 
 #### Scenario: Commands with multi-level verbs
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: no test runs `occ list launchpad:i18n`; the name launchpad:i18n:copy-navigation is only exercised through tests/Unit/Command/I18nNavigationCommandsGoldenTest.php::testCopyNavigation.
 
 - GIVEN the command `launchpad:i18n:copy-navigation --from=nl --to=en`
 - WHEN an operator runs it
@@ -179,7 +176,6 @@ The system MUST establish `launchpad:` as the canonical namespace prefix for ALL
 - AND `php occ list launchpad:i18n` returns only i18n-related commands
 
 #### Scenario: Namespace not shared with other apps
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: it is a property of the Symfony/occ namespace lookup across apps; no test exists.
 
 - GIVEN another Nextcloud app (e.g., Calendar) registers `occ calendar:list`
 - WHEN `php occ list launchpad` is run
@@ -191,7 +187,6 @@ The system MUST establish `launchpad:` as the canonical namespace prefix for ALL
 Every LaunchPad command MUST support three consistent global flags: `--quiet|-q` (suppress non-essential output), `--json` (emit machine-readable JSON), and `--no-interaction|-n` (skip prompts). These flags MUST be defined in the shared `CommandBase` abstract class so all commands inherit them without duplication.
 
 #### Scenario: Quiet mode suppresses progress but not errors
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/DashboardListCommandGoldenTest.php::testScopesAndOutput (--quiet prints nothing) and tests/Unit/Command/CommandErrorGoldenTest.php::testPrintedFailuresMatchTheRecordedFixture (the "quiet" cases still print the error on stderr with the error exit code).
 
 - GIVEN an operator runs `php occ launchpad:dashboard:list --quiet`
 - WHEN the command finishes
@@ -200,7 +195,6 @@ Every LaunchPad command MUST support three consistent global flags: `--quiet|-q`
 - AND the exit code is correct (0 for success, non-zero for error)
 
 #### Scenario: JSON flag emits structured output only
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/DashboardListCommandGoldenTest.php::testScopesAndOutput (the --json envelope) and tests/Unit/Service/CommandServiceTest.php::testEnvelopeSuccessShape and ::testEncodeEnvelopeProducesValidJson. Escaping of newlines/special characters in data is not pinned.
 
 - GIVEN an operator runs `php occ launchpad:dashboard:list --json`
 - WHEN the command finishes
@@ -209,7 +203,6 @@ Every LaunchPad command MUST support three consistent global flags: `--quiet|-q`
 - AND newlines and special characters in data are properly escaped
 
 #### Scenario: No-interaction flag skips prompts in CI
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/DashboardDeleteCommandTest.php::testDeletionsMatchTheRecording (deletes with --no-interaction, exit 0) and tests/Unit/Command/DashboardDeleteCommandConfirmTest.php::testEventTypeFallbackAndMissingDispatcher. The exit 3 path was never built: no command returns EXIT_PERMISSION_DENIED (grep lib/Command).
 
 - GIVEN a CI script runs `php occ launchpad:dashboard:delete a1b2c3d4 --no-interaction`
 - WHEN the command would normally prompt "Delete dashboard X? (y/N)"
@@ -217,7 +210,7 @@ Every LaunchPad command MUST support three consistent global flags: `--quiet|-q`
 - AND the exit code is 0 on success or 3 on permission denied
 
 #### Scenario: All three flags combine cleanly
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: never built for this command: lib/Command/ImportCommand.php extends Symfony Command, not CommandBase, so `launchpad:import --json` is an unknown option. No test exists.
+@e2e exclude Never built: lib/Command/ImportCommand.php extends Symfony Command, not CommandBase, so `launchpad:import --json` is an unknown option and the scenario has no product to run against. No test exists.
 
 - GIVEN `php occ launchpad:import --file=/tmp/x.zip --quiet --no-interaction --json`
 - WHEN the import runs
@@ -225,7 +218,6 @@ Every LaunchPad command MUST support three consistent global flags: `--quiet|-q`
 - AND all three flags work together without conflict
 
 #### Scenario: Global flags inherited by every command
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: the flags are registered once in lib/Command/CommandBase.php::configure(); their working on children is pinned by tests/Unit/Command/DashboardListCommandGoldenTest.php::testScopesAndOutput, tests/Unit/Command/DashboardDumpCommandsGoldenTest.php::testShowCommandOutput and tests/Unit/Command/I18nNavigationCommandsGoldenTest.php::testMigrateLanguageStructure. No test reads --help output.
 
 - GIVEN any newly registered `launchpad:*` command extending `CommandBase`
 - WHEN `php occ launchpad:my-new-command --help` is run
@@ -237,7 +229,6 @@ Every LaunchPad command MUST support three consistent global flags: `--quiet|-q`
 The system MUST provide four new operator-facing dashboard commands: `launchpad:dashboard:list`, `launchpad:dashboard:show`, `launchpad:dashboard:delete`, and `launchpad:dashboard:debug-share`. These MUST cover listing with filters, full-config inspection, safe deletion with cascade option, and support-oriented sharing/state diagnostics.
 
 #### Scenario: List dashboards with optional filters
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/DashboardListCommandGoldenTest.php::testScopesAndOutput and ::testRefusedFilters (the --user and --status filters and the --json dashboard objects).
 
 - GIVEN an admin runs `php occ launchpad:dashboard:list --user=alice --status=published`
 - WHEN the system queries dashboards
@@ -245,7 +236,6 @@ The system MUST provide four new operator-facing dashboard commands: `launchpad:
 - AND with `--json` the data field MUST be an array of dashboard objects with uuid, name, status, owner
 
 #### Scenario: Show one dashboard's full widget tree
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/DashboardDumpCommandsGoldenTest.php::testShowCommandOutput (dashboard plus widget placements, plain and in the --json envelope).
 
 - GIVEN `php occ launchpad:dashboard:show a1b2c3d4-e5f6-4789-abcd-ef1234567890`
 - WHEN the command runs
@@ -254,7 +244,6 @@ The system MUST provide four new operator-facing dashboard commands: `launchpad:
 - AND with `--json` the data is wrapped in the standard response schema
 
 #### Scenario: Delete without cascade fails when children exist
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/CommandErrorGoldenTest.php::testPrintedFailuresMatchTheRecordedFixture (cases "delete parent plain/json": exit 2, the --cascade message on stderr) and tests/Unit/Command/DashboardDeleteCommandTest.php::testDeletionsMatchTheRecording ("parent without cascade": nothing deleted).
 
 - GIVEN `php occ launchpad:dashboard:delete a1b2c3d4 --no-interaction`
 - WHEN the dashboard has child dashboards (depends on `dashboard-tree` capability)
@@ -263,7 +252,6 @@ The system MUST provide four new operator-facing dashboard commands: `launchpad:
 - AND stderr MUST print "Use --cascade to also delete child dashboards"
 
 #### Scenario: Delete with cascade removes children
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/DashboardDeleteCommandTest.php::testDeletionsMatchTheRecording ("parent cascade": the subtree is deleted, exit 0); the audit line is pinned generically by tests/Unit/Command/CommandAuditTrailTest.php::testARunIsAuditedUnderItsOwnName, not for a cascade.
 
 - GIVEN `php occ launchpad:dashboard:delete a1b2c3d4 --cascade --no-interaction`
 - WHEN the dashboard and its two children exist
@@ -272,7 +260,6 @@ The system MUST provide four new operator-facing dashboard commands: `launchpad:
 - AND the audit log records the cascaded deletion
 
 #### Scenario: Debug-share prints all sharing state for support
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/DashboardDumpCommandsGoldenTest.php::testDebugShareCommandOutput (the six keys and the share rows).
 
 - GIVEN `php occ launchpad:dashboard:debug-share a1b2c3d4 --json`
 - WHEN the command queries the sharing and locking state
@@ -329,7 +316,6 @@ The system MUST provide the command `launchpad:user:revoke-feed-token <uid>` to 
 The system MUST provide three i18n commands: `launchpad:i18n:export-strings` (extract translatable strings to POT), `launchpad:i18n:migrate-language-structure` (one-time flat-to-per-language-table migration, depends on `dashboard-language-content`), and `launchpad:i18n:copy-navigation --from=<lang> --to=<lang>` (clone org-navigation tree across language variants). Each command MUST document its prerequisites in `--help`.
 
 #### Scenario: Export translatable strings to POT
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/I18nExportStringsCommandTest.php::testACheckoutStillWritesTheDefaultPot and tests/Unit/Command/I18nExportStringsCollectionTest.php::testOnlySourceFilesUnderLibAndSrcAreRead.
 
 - GIVEN a developer runs `php occ launchpad:i18n:export-strings` on a development checkout
 - WHEN the command scans `lib/` and `src/` for i18n markers
@@ -338,7 +324,6 @@ The system MUST provide three i18n commands: `launchpad:i18n:export-strings` (ex
 - AND the file contains all discovered translatable strings
 
 #### Scenario: A signed release is never written to
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by the two release-tree refusal tests in tests/Unit/Command/I18nExportStringsCommandTest.php (exit 2, names --output, no file added).
 
 - GIVEN the app is a signed release, so `appinfo/signature.json` exists
 - WHEN an operator runs `php occ launchpad:i18n:export-strings` without `--output`, or with an `--output` path inside the app folder
@@ -346,14 +331,13 @@ The system MUST provide three i18n commands: `launchpad:i18n:export-strings` (ex
 - AND the exit code MUST be 2, with a message naming `--output`
 
 #### Scenario: The POT file goes where the operator says
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/I18nExportStringsCommandTest.php::testADashPrintsThePot and its release-tree outside-path test.
 
 - WHEN an operator runs the command with `--output=<path>` outside the app folder, or `--output=-`
 - THEN the POT file MUST be written to that path, or printed to standard output
 - AND the exit code MUST be 0
 
 #### Scenario: Migrate language structure one-time
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned only as a zero-row run by tests/Unit/Command/I18nNavigationCommandsGoldenTest.php::testMigrateLanguageStructure; the command body migrates nothing (lib/Command/I18nMigrateLanguageStructureCommand.php sets $migrated = 0), so the migration itself was never built.
+@e2e exclude Never built: the command body migrates nothing (lib/Command/I18nMigrateLanguageStructureCommand.php sets $migrated = 0), so there is no migration to observe; tests/Unit/Command/I18nNavigationCommandsGoldenTest.php::testMigrateLanguageStructure pins only the zero-row run. tests/e2e/cli-commands.spec.ts runs the command with --json for its envelope.
 
 - GIVEN the old flat-language storage schema is in place
 - AND the `dashboard-language-content` capability is enabled
@@ -363,7 +347,7 @@ The system MUST provide three i18n commands: `launchpad:i18n:export-strings` (ex
 - AND rerunning the command MUST be idempotent (already migrated rows are skipped, exit code 0)
 
 #### Scenario: Migration aborts when capability is absent
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/I18nNavigationCommandsGoldenTest.php::testMigrateLanguageStructure (exit 1, CAPABILITY_MISSING, the message).
+@e2e exclude Needs an instance without the dashboard-language-content table; the e2e instance has it, and dropping a schema table from a test is not something to do to a running instance. Pinned by tests/Unit/Command/I18nNavigationCommandsGoldenTest.php::testMigrateLanguageStructure (exit 1, CAPABILITY_MISSING, the message).
 
 - GIVEN the `dashboard-language-content` capability is not installed
 - WHEN an admin runs `php occ launchpad:i18n:migrate-language-structure`
@@ -371,7 +355,7 @@ The system MUST provide three i18n commands: `launchpad:i18n:export-strings` (ex
 - AND stderr MUST print "dashboard-language-content capability is required"
 
 #### Scenario: Copy navigation tree between language variants
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: never built: lib/Command/I18nCopyNavigationCommand.php reports `copied: 0` without copying; tests/Unit/Command/I18nNavigationCommandsGoldenTest.php::testCopyNavigation pins only that zero-node run.
+@e2e exclude Never built: lib/Command/I18nCopyNavigationCommand.php reports `copied: 0` without copying, so no node can be seen to be cloned; tests/Unit/Command/I18nNavigationCommandsGoldenTest.php::testCopyNavigation pins only that zero-node run.
 
 - GIVEN a Dutch (`nl`) navigation tree with 12 nodes exists
 - WHEN an admin runs `php occ launchpad:i18n:copy-navigation --from=nl --to=en`
@@ -380,7 +364,6 @@ The system MUST provide three i18n commands: `launchpad:i18n:export-strings` (ex
 - AND the exit code MUST be 0
 
 #### Scenario: Copy navigation fails on unknown language
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/I18nNavigationCommandsGoldenTest.php::testCopyNavigation (exit 4, "No navigation tree found for language"), though the product keys it on the table being absent, not on the language having no data.
 
 - GIVEN `php occ launchpad:i18n:copy-navigation --from=xx --to=en` where `xx` has no navigation data
 - WHEN the command looks up the source language
@@ -392,14 +375,12 @@ The system MUST provide three i18n commands: `launchpad:i18n:export-strings` (ex
 All LaunchPad commands MUST emit exactly one of the six standard exit codes (0, 1, 2, 3, 4, 5) on every execution path, including panics and unhandled exceptions. No command SHALL exit with any other code. The exit codes MUST be defined as constants in the shared `CommandService` and referenced consistently.
 
 #### Scenario: Success exit code 0
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/DashboardListCommandGoldenTest.php::testScopesAndOutput (exit 0).
 
 - GIVEN `php occ launchpad:dashboard:list` completes with no errors
 - WHEN the exit code is inspected via `echo $?`
 - THEN the value MUST be `0`
 
 #### Scenario: Invalid argument exit code 2
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/DashboardDumpCommandsGoldenTest.php::testShowCommandOutput (exit 2, "Invalid UUID format").
 
 - GIVEN `php occ launchpad:dashboard:show not-a-uuid`
 - WHEN the command validates the UUID argument
@@ -415,7 +396,6 @@ All LaunchPad commands MUST emit exactly one of the six standard exit codes (0, 
 - AND stderr MUST print "Permission denied: administrator required"
 
 #### Scenario: Resource not found exit code 4
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/CommandErrorGoldenTest.php::testPrintedFailuresMatchTheRecordedFixture ("delete missing": exit 4, "Dashboard not found"); show shares the same CommandBase::emitDashboardNotFound, and tests/Unit/Command/DashboardDumpCommandsGoldenTest.php::testShowCommandOutput asserts only a non-zero exit for it.
 
 - GIVEN `php occ launchpad:dashboard:show 00000000-0000-0000-0000-000000000000` where that UUID is absent
 - WHEN the command queries the database
@@ -435,7 +415,6 @@ All LaunchPad commands MUST emit exactly one of the six standard exit codes (0, 
 All commands invoked with `--json` MUST emit a single JSON object to stdout conforming to the schema `{success: bool, exitCode: int, data: object|array|null, errors: [{code, message, context}]}`. No other text or whitespace MUST appear before or after the JSON object on stdout.
 
 #### Scenario: Successful JSON response
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/DashboardListCommandGoldenTest.php::testScopesAndOutput (data.dashboards array in the envelope).
 
 - GIVEN `php occ launchpad:dashboard:list --json`
 - WHEN the command finds 3 dashboards
@@ -459,7 +438,6 @@ All commands invoked with `--json` MUST emit a single JSON object to stdout conf
 - AND each error object MUST have `code`, `message`, and `context` fields
 
 #### Scenario: stdout clean of non-JSON bytes
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned for CommandBase commands by tests/Unit/Command/CommandErrorGoldenTest.php::testPrintedFailuresMatchTheRecordedFixture (json cases: stdout is the envelope, stderr empty) and tests/Unit/Command/CommandBaseFailureTest.php::testJsonFailureEmitsAnErrorEnvelope. Commands outside CommandBase have no --json.
 
 - GIVEN any command run with `--json`
 - WHEN the output is piped to `jq .`
@@ -479,7 +457,6 @@ All commands invoked with `--json` MUST emit a single JSON object to stdout conf
 All LaunchPad CLI commands MUST be registered in `appinfo/info.xml` under a `<commands>` element listing each command's fully qualified class name. No command SHALL be discoverable by Nextcloud unless it appears in this block. Each class MUST extend a shared `CommandBase` abstract class (itself extending `OC\Core\Command\Base`).
 
 #### Scenario: Commands are registered at install
-@e2e exclude Static registration in appinfo/info.xml read by Nextcloud at app load, no HTTP outcome; no test reads the <commands> block or runs occ list.
 
 - GIVEN a fresh LaunchPad installation with `appinfo/info.xml` containing a `<commands>` block
 - WHEN Nextcloud loads the app
@@ -487,7 +464,6 @@ All LaunchPad CLI commands MUST be registered in `appinfo/info.xml` under a `<co
 - AND `php occ launchpad:dashboard:list --help` MUST display the command's help text
 
 #### Scenario: New sibling-spec command added to info.xml
-@e2e exclude Static registration in appinfo/info.xml (ExportCommand is listed), no HTTP outcome; no test exists.
 
 - GIVEN `lib/Command/ExportCommand.php` is created for `launchpad:export`
 - WHEN its class is added to the `<commands>` block in `appinfo/info.xml`
@@ -506,7 +482,6 @@ All LaunchPad CLI commands MUST be registered in `appinfo/info.xml` under a `<co
 Every LaunchPad command MUST implement `getDescription()` (one-line, ≤60 chars, for `occ list`) and `getHelp()` (multi-line, for `--help`) covering command purpose, all arguments with types and constraints, all flags with defaults, and at least two examples. Commands without adequate help text MUST NOT pass the quality gate.
 
 #### Scenario: One-line description in occ list
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: no test checks description length; several are over 60 characters (CleanupScanCommand, CleanupPurgeCommand, SetupCommand, ImportConfluenceCommand, TemplateInstallCommand).
 
 - GIVEN an operator runs `php occ list launchpad`
 - WHEN the system enumerates commands
@@ -518,7 +493,6 @@ Every LaunchPad command MUST implement `getDescription()` (one-line, ≤60 chars
   ```
 
 #### Scenario: Detailed help via --help
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: no test reads --help output.
 
 - GIVEN `php occ launchpad:dashboard:list --help`
 - WHEN the command outputs help
@@ -526,14 +500,12 @@ Every LaunchPad command MUST implement `getDescription()` (one-line, ≤60 chars
 - AND example: `$ php occ launchpad:dashboard:list --user=alice --status=published --json`
 
 #### Scenario: Help documents global flags
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: no test reads --help output; the flags come from lib/Command/CommandBase.php::configure().
 
 - GIVEN `php occ launchpad:dashboard:delete --help`
 - WHEN the help text is displayed
 - THEN it MUST document `--quiet, -q`, `--json`, and `--no-interaction, -n`
 
 #### Scenario: No undocumented or hidden commands
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: no test reads --help output; no command calls setHidden (grep lib/Command).
 
 - GIVEN any command registered in `appinfo/info.xml`
 - WHEN `php occ launchpad:<name> --help` is run
@@ -541,7 +513,6 @@ Every LaunchPad command MUST implement `getDescription()` (one-line, ≤60 chars
 - AND no argument or flag SHALL be hidden from help output
 
 #### Scenario: Examples are realistic
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: no test reads --help output; the examples are in lib/Command/I18nCopyNavigationCommand.php::configureCommand().
 
 - GIVEN `php occ launchpad:i18n:copy-navigation --help`
 - WHEN the examples section is read
@@ -552,7 +523,6 @@ Every LaunchPad command MUST implement `getDescription()` (one-line, ≤60 chars
 Every LaunchPad command MUST write exactly one audit line to Nextcloud's main log on completion (whether success or failure). The line MUST follow the format `[launchpad] cli <command> <args> exitCode=<n> durationMs=<ms> byUser=<uid|cli>` and MUST be written even when the command fails.
 
 #### Scenario: Audit log on success
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Service/CommandServiceTest.php::testFormatAuditLineUsesContractFormat and ::testAuditEmitsSingleInfoLine, and tests/Unit/Command/CommandAuditTrailTest.php::testARunIsAuditedUnderItsOwnName. The log file has no API read.
 
 - GIVEN an admin runs `php occ launchpad:dashboard:list --user=alice`
 - WHEN the command completes with exit code 0
@@ -573,7 +543,6 @@ Every LaunchPad command MUST write exactly one audit line to Nextcloud's main lo
   ```
 
 #### Scenario: Audit log truncates long args
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Service/CommandServiceTest.php::testFormatAuditLineTruncatesLongArgs.
 
 - GIVEN `php occ launchpad:import --file=/very/long/path/to/archive.zip --preserve-uuids`
 - WHEN the args string exceeds 100 characters
@@ -581,14 +550,13 @@ Every LaunchPad command MUST write exactly one audit line to Nextcloud's main lo
 - AND a trailing `...` MUST indicate truncation
 
 #### Scenario: byUser is "cli" for cron-invoked commands
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/CommandBaseFailureTest.php::testPlainFailureWritesToStderr and ::testUnresolvableCallerAuditsAsCli.
 
 - GIVEN a cron job invokes `php occ launchpad:cleanup:scan`
 - WHEN no Nextcloud session is active
 - THEN the audit line MUST use `byUser=cli`
 
 #### Scenario: Log written even on unhandled exception
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/CommandBaseFailureTest.php::testJsonFailureEmitsAnErrorEnvelope (exit 1, one audit line with exitCode=1).
+@e2e exclude No input makes a command throw on a healthy instance, so an e2e cannot provoke the uncaught exception. Pinned by tests/Unit/Command/CommandBaseFailureTest.php::testJsonFailureEmitsAnErrorEnvelope (exit 1, one audit line with exitCode=1).
 
 - GIVEN a command throws an uncaught exception
 - WHEN the exception propagates
@@ -600,7 +568,6 @@ Every LaunchPad command MUST write exactly one audit line to Nextcloud's main lo
 The command `php occ list launchpad` MUST enumerate all registered `launchpad:*` commands in alphabetical order with one-line descriptions. Pre-existing LaunchPad commands that existed before this spec MUST continue to work unchanged; this spec only mandates the namespace convention and global flags for new commands. Future commands SHALL NOT be accepted without namespace compliance.
 
 #### Scenario: Full command listing is alphabetical
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: the order and layout are Symfony occ list behaviour; no test exists.
 
 - GIVEN LaunchPad has 8+ registered commands
 - WHEN `php occ list launchpad` is run
@@ -608,14 +575,13 @@ The command `php occ list launchpad` MUST enumerate all registered `launchpad:*`
 - AND descriptions MUST be left-aligned within the 80-char terminal width
 
 #### Scenario: Filtering the listing by sub-namespace
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: Symfony occ list namespace filtering; no test exists.
 
 - GIVEN `php occ list launchpad:dashboard`
 - WHEN the operator runs the command
 - THEN only commands starting with `launchpad:dashboard:` MUST be shown
 
 #### Scenario: Pre-existing commands are not broken
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: the pre-existing commands keep their own golden tests, e.g. tests/Unit/Command/ExportCommandGoldenTest.php::testSiteArchive and tests/Unit/Command/ImportCommandGoldenTest.php::testImportCommandOutput.
+@e2e exclude A regression property over the commands that predate this spec, with no single outcome to assert; their behaviour is pinned by their own golden tests, e.g. tests/Unit/Command/ExportCommandGoldenTest.php::testSiteArchive and tests/Unit/Command/ImportCommandGoldenTest.php::testImportCommandOutput. tests/e2e/cli-commands.spec.ts does run their --help.
 
 - GIVEN a pre-existing LaunchPad command (registered before this spec) uses a different naming convention
 - WHEN this spec is implemented
@@ -631,7 +597,6 @@ The command `php occ list launchpad` MUST enumerate all registered `launchpad:*`
 - NOTE Enforcement is by convention and code review, not runtime validation
 
 #### Scenario: occ list links to --help for each command
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: no test reads --help output.
 
 - GIVEN an operator sees `launchpad:i18n:export-strings` in `php occ list launchpad` output
 - WHEN they run `php occ launchpad:i18n:export-strings --help`
@@ -651,21 +616,19 @@ The command `php occ list launchpad` MUST enumerate all registered `launchpad:*`
 The command MUST print the template's UUID, its version, its groups and whether it is the default. It MUST name the widgets no app on the instance registers. When personal dashboards are off it MUST say that members will see the template read-only and that its compulsory widgets have no effect (REQ-TMPL-019). Run a second time without `--force`, it MUST add nothing and MUST apply `--group` and `--default` again. It MUST exit 0 on success and 1 on an unknown id, an unknown group or a failed install.
 
 #### Scenario: A deploy script installs the template for a group
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/TemplateInstallCommandTest.php::testInstallsForAGroup.
 - GIVEN the group "medewerkers" exists and `mijn-werkdag` is not installed
 - WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --group=medewerkers`
 - THEN the command MUST exit 0 and print the new template's UUID
 - AND the template MUST target the group "medewerkers"
 
 #### Scenario: An unknown group stops the install
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Service/ShippedTemplateServiceTest.php::testAnUnknownGroupStopsTheInstall (nothing added) and tests/Unit/Command/TemplateInstallCommandTest.php::testAnUnknownGroupExitsOne.
 - GIVEN no group "medewerkerz" exists
 - WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --group=medewerkerz`
 - THEN the command MUST exit 1 and name the group
 - AND no template MUST be added
 
 #### Scenario: An operator updates the installed template and reads what changed
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/TemplateInstallCommandTest.php::testUpdatePrintsWhatChanges and ::testADryRunSaysNothingWasWritten.
+@e2e exclude Needs an installed mijn-werkdag older than the shipped version, and an instance only ever has the version it ships, so the diff cannot be staged from e2e. Pinned by tests/Unit/Command/TemplateInstallCommandTest.php::testUpdatePrintsWhatChanges and ::testADryRunSaysNothingWasWritten.
 - GIVEN `mijn-werkdag` is installed at version 2 and LaunchPad ships version 3
 - WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --update --dry-run`
 - THEN the command MUST exit 0, print "Dry run, nothing written." and one line per widget added, removed and changed
@@ -674,12 +637,10 @@ The command MUST print the template's UUID, its version, its groups and whether 
 - THEN the command MUST exit 0, print the same lines and how many members' copies changed
 
 #### Scenario: An update refuses the options that change who gets the template
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/TemplateInstallCommandTest.php::testUpdateRefusesTheOptionsThatChangeWhoGetsTheTemplate.
 - WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --update --group=bestuur`
 - THEN the command MUST exit 1 and say `--update` cannot be combined with `--group`, `--default` or `--force`
 - AND nothing MUST be written
 
 #### Scenario: An unknown template id lists the shipped ones
-@e2e exclude A console (occ) command, no HTTP or browser surface and Playwright cannot run occ: pinned by tests/Unit/Command/TemplateInstallCommandTest.php::testAnUnknownIdExitsOne.
 - WHEN an operator runs `php occ launchpad:template:install does-not-exist`
 - THEN the command MUST exit 1 and list the shipped template ids

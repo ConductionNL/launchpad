@@ -12,7 +12,7 @@
 
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { nextTick, ref } from 'vue'
 import WidgetRenderer from '../WidgetRenderer.vue'
 import { useCalculatedFieldsStore } from '../../stores/calculatedFields.js'
 import { useTileStore } from '../../stores/tiles.js'
@@ -52,6 +52,17 @@ describe('WidgetRenderer dispatch computeds', () => {
 		expect(computed.normalizedContent.call({ placement: { content: { a: 1 } } })).toEqual({ a: 1 })
 		expect(computed.normalizedContent.call({ placement: { content: null } })).toEqual({})
 		expect(computed.normalizedContent.call({ placement: undefined })).toEqual({})
+	})
+
+	it('gives a registry renderer its content with the dashboard period on a dated source (REQ-DPD-002)', () => {
+		const content = { label: 'Zaken', source: { register: 'zaken', schema: 'zaak', periodField: 'startDate' } }
+		const dated = computed.periodContent.call({ normalizedContent: content, dashboardPeriod: ref('year') })
+		expect(Object.keys(dated.source.filter)).toEqual(['startDate[gte]', 'startDate[lte]'])
+		expect(dated.source.filter['startDate[gte]']).toBe(`${new Date().getFullYear()}-01-01`)
+
+		expect(computed.periodContent.call({ normalizedContent: content, dashboardPeriod: null })).toBe(content)
+		const embed = { url: 'https://app.powerbi.com/x' }
+		expect(computed.periodContent.call({ normalizedContent: embed, dashboardPeriod: ref('quarter') })).toBe(embed)
 	})
 
 	it('finds a registry renderer only for a known, non-empty string widget id', () => {

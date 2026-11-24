@@ -10,7 +10,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { addressWithPeriod, namesPeriod, periodFieldOf, PERIODS, periodStart, readPeriod, withPeriod } from '../dashboardPeriod.js'
+import { addressWithPeriod, contentWithPeriod, namesPeriod, periodFieldOf, PERIODS, periodStart, readPeriod, withPeriod } from '../dashboardPeriod.js'
 
 const NOW = new Date(2026, 10, 23, 14, 30)
 
@@ -77,5 +77,43 @@ describe('withPeriod', () => {
 		const source = { register: 'zaken' }
 		expect(withPeriod(source, '', 'year', NOW)).toBe(source)
 		expect(withPeriod(null, 'startDate', 'year', NOW)).toBeNull()
+	})
+})
+
+describe('contentWithPeriod', () => {
+	const range = { 'startDate[gte]': '2026-10-01', 'startDate[lte]': NOW.toISOString() }
+
+	it('adds the period to the stat card\'s source', () => {
+		const content = { label: 'Zaken', source: { register: 'zaken', schema: 'zaak', metric: 'count', filter: { status: 'open' }, periodField: 'startDate' } }
+		expect(contentWithPeriod(content, 'quarter', NOW).source.filter).toEqual({ status: 'open', ...range })
+		expect(content.source.filter).toEqual({ status: 'open' })
+	})
+
+	it('adds the period to the stats block\'s and the chart\'s data source', () => {
+		const block = { title: 'Open', dataSource: { register: 'zaken', schema: 'zaak', periodField: 'startDate' } }
+		expect(contentWithPeriod(block, 'quarter', NOW).dataSource.filter).toEqual(range)
+
+		const nested = { props: { chartKind: 'bar', dataSource: { register: 'zaken', schema: 'zaak', periodField: 'startDate' } } }
+		const dated = contentWithPeriod(nested, 'quarter', NOW)
+		expect(dated.props.dataSource.filter).toEqual(range)
+		expect(dated.props.chartKind).toBe('bar')
+	})
+
+	it('adds the period to the table, whose content is its own source', () => {
+		const table = { register: 'zaken', schema: 'zaak', filter: { status: 'open' }, limit: 10, periodField: 'startDate' }
+		const dated = contentWithPeriod(table, 'quarter', NOW)
+		expect(dated.filter).toEqual({ status: 'open', ...range })
+		expect(dated.limit).toBe(10)
+		expect(periodFieldOf(table)).toBe('startDate')
+		expect(namesPeriod([{ content: table }])).toBe(true)
+	})
+
+	it('leaves content without a period field, an unknown period and no content as they are', () => {
+		const table = { register: 'zaken', schema: 'zaak', filter: {} }
+		const embed = { url: 'https://app.powerbi.com/x' }
+		expect(contentWithPeriod(table, 'quarter', NOW)).toBe(table)
+		expect(contentWithPeriod(embed, 'year', NOW)).toBe(embed)
+		expect(contentWithPeriod({ source: { periodField: 'startDate' } }, 'decade', NOW)).toEqual({ source: { periodField: 'startDate' } })
+		expect(contentWithPeriod(null, 'year', NOW)).toBeNull()
 	})
 })

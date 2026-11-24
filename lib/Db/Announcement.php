@@ -56,6 +56,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setExpiresAt(?DateTime $expiresAt)
  * @method int getAllowComments()
  * @method void setAllowComments(int $allowComments)
+ * @method int getRequiresConfirmation()
+ * @method void setRequiresConfirmation(int $requiresConfirmation)
+ * @method DateTime|null getConfirmBefore()
+ * @method void setConfirmBefore(?DateTime $confirmBefore)
  * @method string|null getAuthorId()
  * @method void setAuthorId(string $authorId)
  * @method DateTime|null getNotifiedAt()
@@ -164,6 +168,20 @@ class Announcement extends Entity implements JsonSerializable {
 	protected int $allowComments = 0;
 
 	/**
+	 * 1 when the audience is asked to confirm they have read it (REQ-ANN-007).
+	 *
+	 * @var int
+	 */
+	protected int $requiresConfirmation = 0;
+
+	/**
+	 * The date to confirm before, or null for no deadline (REQ-ANN-007).
+	 *
+	 * @var DateTime|null
+	 */
+	protected ?DateTime $confirmBefore = null;
+
+	/**
 	 * The author.
 	 *
 	 * @var ?string
@@ -193,11 +211,15 @@ class Announcement extends Entity implements JsonSerializable {
 
 	/**
 	 * Constructor.
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function __construct() {
 		$this->addType(fieldName: 'id', type: 'integer');
 		$this->addType(fieldName: 'dismissible', type: 'integer');
 		$this->addType(fieldName: 'allowComments', type: 'integer');
+		$this->addType(fieldName: 'requiresConfirmation', type: 'integer');
+		$this->addType(fieldName: 'confirmBefore', type: 'datetime');
 		$this->addType(fieldName: 'publishAt', type: 'datetime');
 		$this->addType(fieldName: 'expiresAt', type: 'datetime');
 		$this->addType(fieldName: 'notifiedAt', type: 'datetime');
@@ -251,6 +273,7 @@ class Announcement extends Entity implements JsonSerializable {
 	 * @return array<string, mixed>
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function jsonSerialize(): array {
 		return [
@@ -267,6 +290,8 @@ class Announcement extends Entity implements JsonSerializable {
 			'publishAt' => self::iso(date: $this->publishAt),
 			'expiresAt' => self::iso(date: $this->expiresAt),
 			'allowComments' => $this->allowComments === 1,
+			'requiresConfirmation' => $this->requiresConfirmation === 1,
+			'confirmBefore' => self::iso(date: $this->confirmBefore),
 			'authorId' => $this->authorId,
 			'createdAt' => self::iso(date: $this->createdAt),
 			'updatedAt' => self::iso(date: $this->updatedAt),

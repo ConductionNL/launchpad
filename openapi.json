@@ -4495,7 +4495,7 @@
                 "operationId": "admin-resync-template",
                 "x-launchpad-stability": "internal",
                 "summary": "Push an updated admin template to its already-provisioned user copies (REQ-RESYNC-001)",
-                "description": "Push an updated admin template to its already-provisioned user copies (REQ-RESYNC-001). Body: `{strategy: \"overwrite\"|\"merge\", dryRun: bool}`. Dry-run (the default) computes and returns the plan — affected copies plus per-copy add/update/remove/preserve counts — without mutating anything. A real run (`dryRun: false`) applies inline for small target groups or enqueues `\\OCA\\LaunchPad\\BackgroundJob\\TemplateResyncJob` for large ones, writes one audit record, and notifies every affected user. Admin-guarded twice over — the `AuthorizedAdminSetting` attribute plus the explicit `self::assertAdmin()` guard — matching this controller's other mutating admin actions (export/import/footer). Needs an administrator, or a user the matching admin setting is delegated to.",
+                "description": "Push an updated admin template to its already-provisioned user copies (REQ-RESYNC-001). Body: `{strategy: \"overwrite\"|\"merge\"|\"add_only\", dryRun: bool}`. Dry-run (the default) computes and returns the plan — affected copies plus per-copy add/update/remove/preserve counts — without mutating anything. A real run (`dryRun: false`) applies inline for small target groups or enqueues `\\OCA\\LaunchPad\\BackgroundJob\\TemplateResyncJob` for large ones, writes one audit record, and notifies every affected user. Admin-guarded twice over — the `AuthorizedAdminSetting` attribute plus the explicit `self::assertAdmin()` guard — matching this controller's other mutating admin actions (export/import/footer). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "admin"
                 ],
@@ -4519,7 +4519,7 @@
                                 "properties": {
                                     "strategy": {
                                         "type": "string",
-                                        "description": "`'overwrite'` or `'merge'`."
+                                        "description": "`'overwrite'`, `'merge'` or `'add_only'`."
                                     },
                                     "dryRun": {
                                         "type": "boolean",

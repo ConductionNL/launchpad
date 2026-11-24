@@ -94,6 +94,8 @@ use stdClass;
  * @method int getVersion()
  * @method void setVersion(int $version)
  * @method void setTemplatePlacementId(?int $templatePlacementId)
+ * @method string|null getSyncedLayout()
+ * @method void setSyncedLayout(?string $syncedLayout)
  * @method void setRuleMatch(?string $ruleMatch)
  * @method string|null getCreatedAt()
  * @method void setCreatedAt(?string $createdAt)
@@ -369,6 +371,17 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	 * @var integer|null
 	 */
 	protected ?int $templatePlacementId = null;
+
+	/**
+	 * The grid layout (`gridX,gridY,gridWidth,gridHeight`) the template gave
+	 * this placement when it was last provisioned or re-synced. Null when
+	 * unknown (user-added, or written before the column existed). A `merge`
+	 * re-sync keeps the owner's layout when the current layout differs from
+	 * it (REQ-RESYNC-007).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $syncedLayout = null;
 
 	/**
 	 * Whether all include rules must match (`all`) or one is enough (`any`).

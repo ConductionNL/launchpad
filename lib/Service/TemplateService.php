@@ -269,6 +269,7 @@ class TemplateService {
 	 *
 	 * @return WidgetPlacement The cloned placement entity.
 	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
 	private function clonePlacement(
 		WidgetPlacement $source,
@@ -328,6 +329,9 @@ class TemplateService {
 		// admin re-sync can reconcile this placement against the template
 		// while leaving genuinely user-added placements alone.
 		$placement->setTemplatePlacementId($source->getId());
+		// REQ-RESYNC-007: the layout the template gave this copy, so a later
+		// `merge` re-sync can tell whether the owner moved the widget.
+		(new PlacementLayout())->stamp(placement: $placement);
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 		$placement->setCreatedAt($now);
 		$placement->setUpdatedAt($now);

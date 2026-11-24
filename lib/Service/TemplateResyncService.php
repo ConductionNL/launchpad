@@ -71,6 +71,12 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	public const STRATEGY_MERGE = 'merge';
 
 	/**
+	 * Add the template placements a copy lacks, at the first free spot, and
+	 * change nothing else (REQ-RESYNC-006).
+	 */
+	public const STRATEGY_ADD_ONLY = 'add_only';
+
+	/**
 	 * The only accepted `strategy` values (REQ-RESYNC-001 "Invalid
 	 * strategy is rejected").
 	 *
@@ -79,6 +85,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	public const VALID_STRATEGIES = [
 		self::STRATEGY_OVERWRITE,
 		self::STRATEGY_MERGE,
+		self::STRATEGY_ADD_ONLY,
 	];
 
 	/**
@@ -105,8 +112,11 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * @param LoggerInterface      $logger PSR-3 logger.
 	 * @param ResyncFollowUps      $followUps What happens to a changed copy: its personal layers are pruned
 	 *                                        (REQ-DWMS-001) and it gets a version by the template (REQ-VERSUI-005).
+	 * @param PlacementLayout      $layout    Reads and stamps a placement's layout (REQ-RESYNC-007).
+	 * @param FreeSpotFinder       $freeSpots Where an added widget goes under `add_only` (REQ-RESYNC-006).
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
 	public function __construct(
 		private readonly ResyncStores $stores,
@@ -114,6 +124,8 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		private readonly INotificationManager $notificationManager,
 		private readonly LoggerInterface $logger,
 		private readonly ResyncFollowUps $followUps,
+		private readonly PlacementLayout $layout = new PlacementLayout(),
+		private readonly FreeSpotFinder $freeSpots = new FreeSpotFinder(),
 	) {
 	}//end __construct()
 
@@ -126,7 +138,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * and the provisioned-copy count.
 	 *
 	 * @param int $templateId The admin template's dashboard ID.
-	 * @param string $strategy `'overwrite'` or `'merge'`.
+	 * @param string $strategy `'overwrite'`, `'merge'` or `'add_only'`.
 	 * @param bool $dryRun When true, compute and return the plan
 	 *                     without mutating anything.
 	 * @param string $actingAdminId The acting admin's NC user ID (for the
@@ -256,9 +268,11 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * @param string $strategy `'overwrite'` or `'merge'`.
 	 *
 	 * @return array<string, mixed> `{templateId, strategy, totalCopies,
-	 *                              affectedCount, copies: [...]}`.
+	 *                              affectedCount, copies: [...], gained,
+	 *                              lost, changedByOwnerCount}`.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md#requirement-req-resync-002-dry-run-reports-the-plan-without-mutating
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 	 */
 	public function planResync(int $templateId, string $strategy): array {
 		$template = $this->getValidatedTemplate(templateId: $templateId);
@@ -271,15 +285,18 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 
 		$copyReports = [];
 		$affectedCount = 0;
+		$copyLayouts = [];
 
 		foreach ($copies as $copy) {
 			$copyPlacements = $this->stores->placementMapper->findByDashboardId(
 				dashboardId: $copy->getId()
 			);
+			$copyLayouts[] = $copyPlacements;
 			$diff = $this->diffCopy(
 				templatePlacements: $templatePlacements,
 				copyPlacements: $copyPlacements,
-				strategy: $strategy
+				strategy: $strategy,
+				columns: $this->columnsOf(copy: $copy)
 			);
 
 			$hasChanges = $this->diffHasChanges(diff: $diff);
@@ -301,8 +318,29 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 			'totalCopies' => count($copies),
 			'affectedCount' => $affectedCount,
 			'copies' => $copyReports,
-		];
+		] + (new TemplateRolloutSummary(layout: $this->layout))->summarize(
+			templatePlacements: $templatePlacements,
+			copies: $copyLayouts
+		);
 	}//end planResync()
+
+	/**
+	 * The copy's grid column count; 12 when unset.
+	 *
+	 * @param Dashboard $copy The copy.
+	 *
+	 * @return int The column count, at least 1.
+	 *
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 */
+	private function columnsOf(Dashboard $copy): int {
+		$columns = (int)$copy->getGridColumns();
+		if ($columns < 1) {
+			return 12;
+		}
+
+		return $columns;
+	}//end columnsOf()
 
 	/**
 	 * Recompute the plan and apply it, per copy, inside its own
@@ -383,7 +421,8 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		$diff = $this->diffCopy(
 			templatePlacements: $tally->templatePlacements,
 			copyPlacements: $this->stores->placementMapper->findByDashboardId(dashboardId: $copy->getId()),
-			strategy: $tally->strategy
+			strategy: $tally->strategy,
+			columns: $this->columnsOf(copy: $copy)
 		);
 		$changed = $this->diffHasChanges(diff: $diff);
 		$error = null;
@@ -506,11 +545,12 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		$this->stores->db->beginTransaction();
 
 		try {
-			foreach ($diff['toAdd'] as $templatePlacement) {
+			foreach ($diff['toAdd'] as $index => $templatePlacement) {
 				$this->stores->placementMapper->insert(
 					entity: $this->cloneTemplatePlacementInto(
 						template: $templatePlacement,
-						dashboardId: $copy->getId()
+						dashboardId: $copy->getId(),
+						spot: ($diff['addSpots'][$index] ?? null)
 					)
 				);
 			}
@@ -518,7 +558,8 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 			foreach ($diff['toUpdate'] as $pair) {
 				$this->applyTemplateFields(
 					copy: $pair['copy'],
-					template: $pair['template']
+					template: $pair['template'],
+					keepLayout: $pair['keepLayout']
 				);
 				$this->stores->placementMapper->update(entity: $pair['copy']);
 			}
@@ -571,27 +612,38 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * Compulsory widgets receive no special-case handling: they are
 	 * ordinary template placements, so the `toAdd` (restore) / `toUpdate`
 	 * (align position+flags) branches above already reconcile them under
-	 * BOTH strategies, satisfying REQ-RESYNC-004 without a separate code
+	 * EVERY strategy, satisfying REQ-RESYNC-004 without a separate code
 	 * path.
+	 *
+	 * Under `add_only` (REQ-RESYNC-006) a non-compulsory placement is never
+	 * updated or removed, and each addition gets the first free spot on the
+	 * copy (`addSpots`, by `toAdd` index). Under `merge` a placement the
+	 * owner moved or resized keeps its layout (REQ-RESYNC-007).
 	 *
 	 * @param WidgetPlacement[] $templatePlacements The template's current
 	 *                                              placements.
 	 * @param WidgetPlacement[] $copyPlacements The copy's current
 	 *                                          placements.
-	 * @param string $strategy `'overwrite'` or
-	 *                         `'merge'`.
+	 * @param string $strategy `'overwrite'`, `'merge'`
+	 *                         or `'add_only'`.
+	 * @param int $columns The copy's grid column count.
 	 *
 	 * @return array{
 	 *     toAdd: WidgetPlacement[],
-	 *     toUpdate: array<int, array{copy: WidgetPlacement, template: WidgetPlacement}>,
+	 *     addSpots: array<int, array{gridX:int,gridY:int,gridWidth:int,gridHeight:int}>,
+	 *     toUpdate: array<int, array{copy: WidgetPlacement, template: WidgetPlacement, keepLayout: bool}>,
 	 *     toRemove: WidgetPlacement[],
 	 *     toPreserve: WidgetPlacement[]
 	 * }
+	 *
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
 	private function diffCopy(
 		array $templatePlacements,
 		array $copyPlacements,
 		string $strategy,
+		int $columns=12,
 	): array {
 		$templateById = [];
 		foreach ($templatePlacements as $tp) {
@@ -611,7 +663,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 				$matchedTemplateIds[$originId] = true;
 			}
 
-			[$bucket, $entry] = $this->classifyCopyPlacement(copy: $cp, templateById: $templateById);
+			[$bucket, $entry] = $this->classifyCopyPlacement(copy: $cp, templateById: $templateById, strategy: $strategy);
 			if ($bucket === null) {
 				// No known origin — a genuinely user-added placement.
 				$bucket = 'toPreserve';
@@ -623,16 +675,57 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 			$buckets[$bucket][] = $entry;
 		}//end foreach
 
+		$toAdd = $this->unmatchedTemplatePlacements(
+			templatePlacements: $templatePlacements,
+			matchedTemplateIds: $matchedTemplateIds
+		);
+
+		$addSpots = [];
+		if ($strategy === self::STRATEGY_ADD_ONLY) {
+			$addSpots = $this->freeSpotsFor(toAdd: $toAdd, copyPlacements: $copyPlacements, columns: $columns);
+		}
+
 		return [
-			'toAdd' => $this->unmatchedTemplatePlacements(
-				templatePlacements: $templatePlacements,
-				matchedTemplateIds: $matchedTemplateIds
-			),
+			'toAdd' => $toAdd,
+			'addSpots' => $addSpots,
 			'toUpdate' => $buckets['toUpdate'],
 			'toRemove' => $buckets['toRemove'],
 			'toPreserve' => $buckets['toPreserve'],
 		];
 	}//end diffCopy()
+
+	/**
+	 * The spot each added placement takes on a copy under `add_only`: its
+	 * template spot when free, else the first free one, never over a widget
+	 * already on the copy or added before it (REQ-RESYNC-006).
+	 *
+	 * @param WidgetPlacement[] $toAdd          The template placements to add.
+	 * @param WidgetPlacement[] $copyPlacements The copy's placements.
+	 * @param int               $columns        The copy's grid column count.
+	 *
+	 * @return array<int, array{gridX:int,gridY:int,gridWidth:int,gridHeight:int}> The spots, by `toAdd` index.
+	 *
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 */
+	private function freeSpotsFor(array $toAdd, array $copyPlacements, int $columns): array {
+		$occupied = array_map(
+			fn (WidgetPlacement $placement): array => $this->layout->rectOf(placement: $placement),
+			array_values($copyPlacements)
+		);
+
+		$spots = [];
+		foreach ($toAdd as $index => $templatePlacement) {
+			$spot = $this->freeSpots->place(
+				occupied: $occupied,
+				columns: $columns,
+				wanted: $this->layout->rectOf(placement: $templatePlacement)
+			);
+			$spots[$index] = $spot;
+			$occupied[]    = $spot;
+		}
+
+		return $spots;
+	}//end freeSpotsFor()
 
 	/**
 	 * Classify one copy placement against the template placements it may
@@ -644,29 +737,49 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * both strategies. A placement with no known origin is user-added: the
 	 * bucket is null and the strategy decides.
 	 *
+	 * Under `add_only` nothing but a compulsory placement is touched: a
+	 * removed or changed template placement stays as the copy has it
+	 * (REQ-RESYNC-006). Under `merge` a non-compulsory placement the owner
+	 * moved or resized keeps its layout and takes the template's other
+	 * fields (REQ-RESYNC-007).
+	 *
 	 * @param WidgetPlacement             $copy         The copy placement.
 	 * @param array<int, WidgetPlacement> $templateById The template placements by ID.
+	 * @param string                      $strategy     The re-sync strategy.
 	 *
-	 * @return array{0: string|null, 1: WidgetPlacement|array{copy: WidgetPlacement, template: WidgetPlacement}}
+	 * @return array{0: string|null, 1: WidgetPlacement|array{copy: WidgetPlacement, template: WidgetPlacement, keepLayout: bool}}
 	 *     The bucket name (null for a user-added placement) and the entry to put in it.
+	 *
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
-	private function classifyCopyPlacement(WidgetPlacement $copy, array $templateById): array {
+	private function classifyCopyPlacement(WidgetPlacement $copy, array $templateById, string $strategy): array {
 		$originId = $copy->getTemplatePlacementId();
 		if ($originId === null) {
 			return [null, $copy];
 		}
 
+		$addOnly = ($strategy === self::STRATEGY_ADD_ONLY);
 		if (isset($templateById[$originId]) === false) {
-			return ['toRemove', $copy];
+			return [($addOnly === true) ? 'toPreserve' : 'toRemove', $copy];
 		}
 
-		$template = $templateById[$originId];
-		if ($this->placementDiffers(copy: $copy, template: $template) === true) {
+		$template   = $templateById[$originId];
+		$compulsory = ((int)$template->getIsCompulsory() === 1);
+		if ($addOnly === true && $compulsory === false) {
+			return ['toPreserve', $copy];
+		}
+
+		$keepLayout = $strategy === self::STRATEGY_MERGE
+			&& $compulsory === false
+			&& $this->layout->ownerMoved(placement: $copy) === true;
+		if ($this->placementDiffers(copy: $copy, template: $template, keepLayout: $keepLayout) === true) {
 			return [
 				'toUpdate',
 				[
 					'copy' => $copy,
 					'template' => $template,
+					'keepLayout' => $keepLayout,
 				],
 			];
 		}
@@ -763,14 +876,27 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *
 	 * @param WidgetPlacement $copy The copy's placement.
 	 * @param WidgetPlacement $template The matching template placement.
+	 * @param bool $keepLayout When true the grid fields are not compared
+	 *                         (the owner's layout stays, REQ-RESYNC-007).
 	 *
 	 * @return bool True when the copy needs to be updated to match.
+	 *
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
 	private function placementDiffers(
 		WidgetPlacement $copy,
 		WidgetPlacement $template,
+		bool $keepLayout=false,
 	): bool {
-		return $this->templateFieldSnapshot(placement: $copy) !== $this->templateFieldSnapshot(placement: $template);
+		$copyFields     = $this->templateFieldSnapshot(placement: $copy);
+		$templateFields = $this->templateFieldSnapshot(placement: $template);
+		if ($keepLayout === true) {
+			$grid           = array_flip(PlacementLayout::FIELDS);
+			$copyFields     = array_diff_key($copyFields, $grid);
+			$templateFields = array_diff_key($templateFields, $grid);
+		}
+
+		return $copyFields !== $templateFields;
 	}//end placementDiffers()
 
 	/**
@@ -778,17 +904,25 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * the template placement's current fields (REQ-RESYNC-004 "position
 	 * and flags aligned").
 	 *
+	 * With `$keepLayout` the copy keeps its own position and size and only
+	 * its layout baseline is left as it was (REQ-RESYNC-007); otherwise the
+	 * template's layout becomes the copy's baseline.
+	 *
 	 * @param WidgetPlacement $copy The copy's placement (mutated).
 	 * @param WidgetPlacement $template The template placement to copy
 	 *                                  from.
+	 * @param bool $keepLayout Whether the owner's layout stays.
 	 *
 	 * @return void
 	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
 	private function applyTemplateFields(
 		WidgetPlacement $copy,
 		WidgetPlacement $template,
+		bool $keepLayout=false,
 	): void {
+		$ownLayout = $this->layout->rectOf(placement: $copy);
 		$copy->setWidgetId($template->getWidgetId());
 		$copy->setGridX($template->getGridX());
 		$copy->setGridY($template->getGridY());
@@ -820,6 +954,13 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		$copy->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
+
+		if ($keepLayout === true) {
+			$this->layout->apply(placement: $copy, rect: $ownLayout);
+			return;
+		}
+
+		$this->layout->stamp(placement: $copy);
 	}//end applyTemplateFields()
 
 	/**
@@ -829,13 +970,18 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *
 	 * @param WidgetPlacement $template The template placement to clone.
 	 * @param int $dashboardId The target copy's dashboard ID.
+	 * @param array{gridX:int,gridY:int,gridWidth:int,gridHeight:int}|null $spot Where it goes
+	 *                                                                          (`add_only`); null keeps
+	 *                                                                          the template's spot.
 	 *
 	 * @return WidgetPlacement The new (uninserted) placement entity.
 	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
 	private function cloneTemplatePlacementInto(
 		WidgetPlacement $template,
 		int $dashboardId,
+		?array $spot=null,
 	): WidgetPlacement {
 		$clone = new WidgetPlacement();
 		$clone->setDashboardId($dashboardId);
@@ -868,6 +1014,11 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		$clone->setAnnouncementKey($template->getAnnouncementKey());
 		$clone->setRuleMatch($template->getRuleMatch());
 		$clone->setTemplatePlacementId($template->getId());
+		if ($spot !== null) {
+			$this->layout->apply(placement: $clone, rect: $spot);
+		}
+
+		$this->layout->stamp(placement: $clone);
 
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 		$clone->setCreatedAt($now);
@@ -888,12 +1039,14 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *
 	 * @return void
 	 *
-	 * @throws InvalidArgumentException When not `overwrite` or `merge`.
+	 * @throws InvalidArgumentException When not `overwrite`, `merge` or `add_only`.
+	 *
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
 	private function assertValidStrategy(string $strategy): void {
 		if (in_array(needle: $strategy, haystack: self::VALID_STRATEGIES, strict: true) === false) {
 			throw new InvalidArgumentException(
-				message: 'Invalid strategy: only "overwrite" and "merge" are accepted'
+				message: 'Invalid strategy: only "overwrite", "merge" and "add_only" are accepted'
 			);
 		}
 	}//end assertValidStrategy()

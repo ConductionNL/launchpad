@@ -162,11 +162,14 @@ test.describe.serial('effective-default marker (REQ-EDM-001..005)', () => {
 		try {
 			// The instance-wide default dashboard (SeedDefaultDashboard) is a
 			// group dashboard every account sees: the fallback the pin must beat.
+			// It is provisioned on install and after every upgrade, so its absence
+			// is a failure, not a reason to skip: a skip here would let the
+			// scenario pass without the fallback it is about ever being on screen.
 			const groupRows = page.locator(`${ROW}[data-source="group"], ${ROW}[data-source="default"]`)
-			test.skip(
-				(await groupRows.count()) === 0,
-				'no group dashboard is visible to the account on this instance',
-			)
+			await expect(
+				groupRows.first(),
+				'a group (or default-group) dashboard is visible to the account, as SeedDefaultDashboard guarantees',
+			).toBeVisible()
 			await expect(row(page, NAME_A).locator(MARKER)).toHaveCount(1)
 			await expect(groupRows.locator(MARKER)).toHaveCount(0)
 			await expect(page.locator(`${ROW} ${MARKER}`)).toHaveCount(1)

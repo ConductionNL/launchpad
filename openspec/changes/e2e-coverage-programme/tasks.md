@@ -117,6 +117,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 22 of 22 green, every listed test run (checked against `playwright test --list`).
 - [ ] 3.14 `dashboard-kiosk-mode`: 23 scenarios, 0 cited.
   - Spec written: tests/e2e/dashboard-kiosk-mode.spec.ts (new), 24 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Spec written: `tests/e2e/dashboard-kiosk-mode.spec.ts`, `tests/e2e/kiosk-position-indicator.spec.ts` (synced in by #1766), 30 scenarios in the spec now, 26 cited, 4 excluded with a reason (playlist read-only marker, shared throttle bucket, refresh clamp with no input, watchdog never built), 0 uncited; not yet run (cloud, 2026-11-24)
 - [x] 3.15 `dashboard-switcher`: 20 scenarios, 11 cited.
   - Spec written: tests/e2e/dashboard-switcher.spec.ts (new), 19 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 15 green, every listed test run (checked against `playwright test --list`).
@@ -130,6 +131,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 4 of 4 green.
 - [ ] 3.19 `effective-default-marker`: 5 scenarios, 0 cited.
   - Written: `tests/e2e/effective-default-marker.spec.ts` cites all 5 scenarios, and their exclusions are removed from the spec. Open: the CI run that shows they ran, and the seen-to-fail mutation pass.
+  - Spec written: `tests/e2e/effective-default-marker.spec.ts`, 5 scenarios cited, 0 excluded; "the pin wins over a group fallback" no longer skips when no group dashboard is on screen but asserts one is (SeedDefaultDashboard provisions it), so it can fail; not yet run (cloud, 2026-11-24)
 
 ## 4. Tier 3, widgets
 

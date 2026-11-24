@@ -1435,6 +1435,22 @@
         "What do you think of this dashboard?": "Mida te sellest töölauast arvate?",
         "today {time}": "täna {time}",
         "Last updated {when}": "Viimati uuendatud {when}",
-        "Last updated by {name}, {when}": "Viimati uuendas {name}, {when}"
+        "Last updated by {name}, {when}": "Viimati uuendas {name}, {when}",
+        "Embedded report": "Manustatud aruanne",
+        "Embedded page": "Manustatud leht",
+        "Signed in as {name}": "Sisse logitud kui {name}",
+        "Outage": "Rike",
+        "The report could not be loaded": "Aruannet ei õnnestunud laadida",
+        "The page could not be loaded": "Lehte ei õnnestunud laadida",
+        "Gave an error: {cause}": "Tekkis viga: {cause}",
+        "Gave an error today at {time}: {cause}": "Tekkis viga täna kell {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Tekkis viga {date} kell {time}: {cause}",
+        "the site refuses to be embedded": "sait keeldub manustamisest",
+        "the site could not be reached": "saidiga ei saadud ühendust",
+        "the page did not finish loading": "leht ei laadinud lõpuni",
+        "a network error": "võrguviga",
+        "Reload": "Laadi uuesti",
+        "Open in a new tab": "Ava uuel vahekaardil",
+        "Open {title} in a new tab": "Ava {title} uuel vahekaardil"
     }
 }

@@ -1526,6 +1526,22 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Асабістая панэль · адкрываецца першай",
     "Shared with you" : "Абагулена з вамі",
     "Last changed {when}" : "Апошняя змена {when}",
-    "Last changed today {time}" : "Апошняя змена сёння {time}"
+    "Last changed today {time}" : "Апошняя змена сёння {time}",
+    "Embedded report" : "Убудаваная справаздача",
+    "Embedded page" : "Убудаваная старонка",
+    "Signed in as {name}" : "Вы ўвайшлі як {name}",
+    "Outage" : "Збой",
+    "The report could not be loaded" : "Не ўдалося загрузіць справаздачу",
+    "The page could not be loaded" : "Не ўдалося загрузіць старонку",
+    "Gave an error: {cause}" : "Адбылася памылка: {cause}",
+    "Gave an error today at {time}: {cause}" : "Адбылася памылка сёння ў {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Адбылася памылка {date} у {time}: {cause}",
+    "the site refuses to be embedded" : "сайт забараняе ўбудаванне",
+    "the site could not be reached" : "сайт быў недаступны",
+    "the page did not finish loading" : "старонка не загрузілася да канца",
+    "a network error" : "памылка сеткі",
+    "Reload" : "Перазагрузіць",
+    "Open in a new tab" : "Адкрыць у новай укладцы",
+    "Open {title} in a new tab" : "Адкрыць {title} у новай укладцы"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Persónulegt mælaborð · opnast fyrst",
     "Shared with you" : "Deilt með þér",
     "Last changed {when}" : "Síðast breytt {when}",
-    "Last changed today {time}" : "Síðast breytt í dag {time}"
+    "Last changed today {time}" : "Síðast breytt í dag {time}",
+    "Embedded report" : "Ívafin skýrsla",
+    "Embedded page" : "Ívafin síða",
+    "Signed in as {name}" : "Skráð inn sem {name}",
+    "Outage" : "Bilun",
+    "The report could not be loaded" : "Ekki tókst að hlaða skýrslunni",
+    "The page could not be loaded" : "Ekki tókst að hlaða síðunni",
+    "Gave an error: {cause}" : "Villa kom upp: {cause}",
+    "Gave an error today at {time}: {cause}" : "Villa kom upp í dag kl. {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Villa kom upp {date} kl. {time}: {cause}",
+    "the site refuses to be embedded" : "vefurinn neitar að vera ívafinn",
+    "the site could not be reached" : "ekki náðist í vefinn",
+    "the page did not finish loading" : "síðan kláraði ekki að hlaðast",
+    "a network error" : "netvilla",
+    "Reload" : "Endurhlaða",
+    "Open in a new tab" : "Opna í nýjum flipa",
+    "Open {title} in a new tab" : "Opna {title} í nýjum flipa"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

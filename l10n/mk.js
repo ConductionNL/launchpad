@@ -1526,7 +1526,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Лична контролна табла · се отвора прва",
     "Shared with you" : "Споделено со вас",
     "Last changed {when}" : "Последна промена {when}",
-    "Last changed today {time}" : "Последна промена денес {time}"
+    "Last changed today {time}" : "Последна промена денес {time}",
+    "Embedded report" : "Вграден извештај",
+    "Embedded page" : "Вградена страница",
+    "Signed in as {name}" : "Најавени како {name}",
+    "Outage" : "Прекин",
+    "The report could not be loaded" : "Извештајот не можеше да се вчита",
+    "The page could not be loaded" : "Страницата не можеше да се вчита",
+    "Gave an error: {cause}" : "Се појави грешка: {cause}",
+    "Gave an error today at {time}: {cause}" : "Се појави грешка денес во {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Се појави грешка на {date} во {time}: {cause}",
+    "the site refuses to be embedded" : "страницата одбива да биде вградена",
+    "the site could not be reached" : "страницата не беше достапна",
+    "the page did not finish loading" : "страницата не заврши со вчитување",
+    "a network error" : "мрежна грешка",
+    "Reload" : "Вчитај повторно",
+    "Open in a new tab" : "Отвори во нов таб",
+    "Open {title} in a new tab" : "Отвори {title} во нов таб"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

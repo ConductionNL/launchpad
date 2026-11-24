@@ -1526,7 +1526,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Perséinlecht Dashboard · gëtt als éischt opgemaach",
     "Shared with you" : "Mat Iech gedeelt",
     "Last changed {when}" : "Lescht geännert {when}",
-    "Last changed today {time}" : "Lescht geännert haut {time}"
+    "Last changed today {time}" : "Lescht geännert haut {time}",
+    "Embedded report" : "Agebetten Rapport",
+    "Embedded page" : "Agebette Säit",
+    "Signed in as {name}" : "Ugemellt als {name}",
+    "Outage" : "Stéierung",
+    "The report could not be loaded" : "De Rapport konnt net geluede ginn",
+    "The page could not be loaded" : "D'Säit konnt net geluede ginn",
+    "Gave an error: {cause}" : "Feeler: {cause}",
+    "Gave an error today at {time}: {cause}" : "Feeler haut um {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Feeler den {date} um {time}: {cause}",
+    "the site refuses to be embedded" : "de Site refuséiert agebett ze ginn",
+    "the site could not be reached" : "de Site war net erreechbar",
+    "the page did not finish loading" : "d'Säit gouf net komplett gelueden",
+    "a network error" : "en Netzwierkfeeler",
+    "Reload" : "Nei lueden",
+    "Open in a new tab" : "An engem neien Tab opmaachen",
+    "Open {title} in a new tab" : "{title} an engem neien Tab opmaachen"
 },
 "nplurals=2; plural=(n != 1);"
 );

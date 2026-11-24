@@ -1743,7 +1743,6 @@ OC.L10N.register(
     "Open {title} in a new tab" : "{title} openen in een nieuw tabblad",
     "This embed has not been configured yet." : "Deze insluiting is nog niet ingesteld.",
     "This page could not be loaded." : "Deze pagina kon niet worden geladen.",
-    "This site does not allow itself to be embedded. Its owner blocks framing, which cannot be overridden here." : "Deze site staat niet toe dat je hem insluit. De eigenaar blokkeert dat, en dat is hier niet te omzeilen.",
     "Allow forms" : "Formulieren toestaan",
     "Allow popups" : "Pop-ups toestaan",
     "Allow same-origin" : "Zelfde oorsprong toestaan",
@@ -2428,7 +2427,21 @@ OC.L10N.register(
     "Heading" : "Kop",
     "Explanation" : "Toelichting",
     "One line under the heading. Leave empty for none." : "Eén regel onder de kop. Laat leeg voor geen.",
-    "Give the heading a title" : "Geef de kop een titel"
+    "Give the heading a title" : "Geef de kop een titel",
+    "Embedded report" : "Ingesloten rapport",
+    "Signed in as {name}" : "Aangemeld als {name}",
+    "Outage" : "Storing",
+    "The report could not be loaded" : "Het rapport kon niet worden geladen",
+    "The page could not be loaded" : "De pagina kon niet worden geladen",
+    "Gave an error: {cause}" : "Gaf een fout: {cause}",
+    "Gave an error today at {time}: {cause}" : "Gaf vandaag om {time} een fout: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Gaf op {date} om {time} een fout: {cause}",
+    "the site refuses to be embedded" : "de site weigert ingesloten te worden",
+    "the site could not be reached" : "de site was niet bereikbaar",
+    "the page did not finish loading" : "de pagina laadde niet volledig",
+    "a network error" : "een netwerkfout",
+    "Reload" : "Opnieuw laden",
+    "Open in a new tab" : "Openen in een nieuw tabblad"
 },
 "nplurals=2; plural=(n != 1);"
 );

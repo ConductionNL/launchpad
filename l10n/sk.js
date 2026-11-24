@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Osobný panel · otvorí sa ako prvý",
     "Shared with you" : "Zdieľané s vami",
     "Last changed {when}" : "Naposledy zmenené {when}",
-    "Last changed today {time}" : "Naposledy zmenené dnes {time}"
+    "Last changed today {time}" : "Naposledy zmenené dnes {time}",
+    "Embedded report" : "Vložený prehľad",
+    "Embedded page" : "Vložená stránka",
+    "Signed in as {name}" : "Prihlásený ako {name}",
+    "Outage" : "Výpadok",
+    "The report could not be loaded" : "Prehľad sa nepodarilo načítať",
+    "The page could not be loaded" : "Stránku sa nepodarilo načítať",
+    "Gave an error: {cause}" : "Nastala chyba: {cause}",
+    "Gave an error today at {time}: {cause}" : "Nastala chyba dnes o {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Nastala chyba {date} o {time}: {cause}",
+    "the site refuses to be embedded" : "web odmieta byť vložený",
+    "the site could not be reached" : "web nebol dostupný",
+    "the page did not finish loading" : "stránka sa nedonačítala",
+    "a network error" : "chyba siete",
+    "Reload" : "Načítať znova",
+    "Open in a new tab" : "Otvoriť na novej karte",
+    "Open {title} in a new tab" : "Otvoriť {title} na novej karte"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Személyes irányítópult · elsőként nyílik meg",
     "Shared with you" : "Megosztva Önnel",
     "Last changed {when}" : "Utoljára módosítva: {when}",
-    "Last changed today {time}" : "Utoljára módosítva: ma {time}"
+    "Last changed today {time}" : "Utoljára módosítva: ma {time}",
+    "Embedded report" : "Beágyazott jelentés",
+    "Embedded page" : "Beágyazott oldal",
+    "Signed in as {name}" : "Bejelentkezve mint {name}",
+    "Outage" : "Üzemzavar",
+    "The report could not be loaded" : "A jelentést nem sikerült betölteni",
+    "The page could not be loaded" : "Az oldalt nem sikerült betölteni",
+    "Gave an error: {cause}" : "Hiba történt: {cause}",
+    "Gave an error today at {time}: {cause}" : "Hiba történt ma {time}-kor: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Hiba történt {date} {time}-kor: {cause}",
+    "the site refuses to be embedded" : "a webhely nem engedi a beágyazást",
+    "the site could not be reached" : "a webhely nem volt elérhető",
+    "the page did not finish loading" : "az oldal betöltése nem fejeződött be",
+    "a network error" : "hálózati hiba",
+    "Reload" : "Újratöltés",
+    "Open in a new tab" : "Megnyitás új lapon",
+    "Open {title} in a new tab" : "{title} megnyitása új lapon"
 },
 "nplurals=2; plural=(n != 1);"
 );

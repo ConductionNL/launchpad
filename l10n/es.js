@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Panel personal · se abre primero",
     "Shared with you" : "Compartido con usted",
     "Last changed {when}" : "Última modificación {when}",
-    "Last changed today {time}" : "Última modificación hoy {time}"
+    "Last changed today {time}" : "Última modificación hoy {time}",
+    "Embedded report" : "Informe incrustado",
+    "Embedded page" : "Página incrustada",
+    "Signed in as {name}" : "Sesión iniciada como {name}",
+    "Outage" : "Interrupción",
+    "The report could not be loaded" : "No se pudo cargar el informe",
+    "The page could not be loaded" : "No se pudo cargar la página",
+    "Gave an error: {cause}" : "Dio un error: {cause}",
+    "Gave an error today at {time}: {cause}" : "Dio un error hoy a las {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Dio un error el {date} a las {time}: {cause}",
+    "the site refuses to be embedded" : "el sitio no permite ser incrustado",
+    "the site could not be reached" : "no se pudo acceder al sitio",
+    "the page did not finish loading" : "la página no terminó de cargarse",
+    "a network error" : "un error de red",
+    "Reload" : "Recargar",
+    "Open in a new tab" : "Abrir en una pestaña nueva",
+    "Open {title} in a new tab" : "Abrir {title} en una pestaña nueva"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -33,15 +33,24 @@
 			:buttons="widgetButtons"
 			:headerLink="headerLink"
 			:headerActions="headerActions"
+			:subtitle="headStatus.subtitle"
 			:borderless="isChromelessFrame"
 			:flush="isChromelessFrame || rendersOwnHeader"
 			:showRefresh="false"
 			:showRequestFeature="false"
 			:showActions="showActionsMenu">
+			<!-- REQ-IFRAME-005: the "Outage" tag in the card head, by icon-free
+			     text so it never relies on colour alone. -->
+			<template v-if="headStatus.outage" #title-meta>
+				<span class="launchpad-widget__outage-tag" data-testid="widget-outage-tag">
+					{{ t('launchpad', 'Outage') }}
+				</span>
+			</template>
 			<WidgetRenderer
 				:widget="widget"
 				:placement="placement"
 				:editMode="editMode"
+				@status="onRendererStatus"
 				@editRequest="$emit('edit', placement)" />
 		</CnWidgetWrapper>
 
@@ -206,6 +215,14 @@ export default {
 	},
 
 	emits: ['remove', 'style', 'edit', 'acknowledged', 'hideForMe'],
+
+	data() {
+		return {
+			// What the renderer reports for the card head (REQ-IFRAME-005):
+			// the source line under the title and the outage tag.
+			headStatus: { subtitle: '', outage: false },
+		}
+	},
 
 	computed: {
 		/**
@@ -449,10 +466,40 @@ export default {
 			return this.placement.styleConfig || {}
 		},
 	},
+
+	methods: {
+		/**
+		 * Keep the card-head state a renderer reports (REQ-IFRAME-005): the
+		 * source line under the title and whether the "Outage" tag shows.
+		 *
+		 * @param {{subtitle?: string, outage?: boolean}|null} status The renderer's head status.
+		 * @return {void}
+		 * @spec openspec/changes/embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 */
+		onRendererStatus(status) {
+			this.headStatus = {
+				subtitle: typeof status?.subtitle === 'string' ? status.subtitle : '',
+				outage: status?.outage === true,
+			}
+		},
+	},
 }
 </script>
 
 <style scoped>
+.launchpad-widget__outage-tag {
+	display: inline-flex;
+	align-items: center;
+	padding: 0 8px;
+	border-radius: var(--border-radius-pill, 12px);
+	border: 1px solid var(--color-error);
+	color: var(--color-error-text, var(--color-error));
+	font-size: 0.75rem;
+	font-weight: 600;
+	line-height: 20px;
+	white-space: nowrap;
+}
+
 .launchpad-widget {
 	position: relative;
 	height: 100%;

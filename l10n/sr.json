@@ -1437,6 +1437,22 @@
         "What do you think of this dashboard?": "Шта мислите о овој контролној табли?",
         "today {time}": "данас {time}",
         "Last updated {when}": "Последње ажурирано {when}",
-        "Last updated by {name}, {when}": "Последње ажурирао/ла {name}, {when}"
+        "Last updated by {name}, {when}": "Последње ажурирао/ла {name}, {when}",
+        "Embedded report": "Уграђени извештај",
+        "Embedded page": "Уграђена страница",
+        "Signed in as {name}": "Пријављени као {name}",
+        "Outage": "Прекид рада",
+        "The report could not be loaded": "Извештај није могао да се учита",
+        "The page could not be loaded": "Страница није могла да се учита",
+        "Gave an error: {cause}": "Дошло је до грешке: {cause}",
+        "Gave an error today at {time}: {cause}": "Дошло је до грешке данас у {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Дошло је до грешке {date} у {time}: {cause}",
+        "the site refuses to be embedded": "сајт одбија уграђивање",
+        "the site could not be reached": "сајт није био доступан",
+        "the page did not finish loading": "страница се није до краја учитала",
+        "a network error": "мрежна грешка",
+        "Reload": "Поново учитај",
+        "Open in a new tab": "Отвори у новој картици",
+        "Open {title} in a new tab": "Отвори {title} у новој картици"
     }
 }

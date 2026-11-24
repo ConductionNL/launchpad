@@ -1437,6 +1437,22 @@
         "What do you think of this dashboard?": "Co si myslíte o tomto přehledu?",
         "today {time}": "dnes {time}",
         "Last updated {when}": "Naposledy aktualizováno {when}",
-        "Last updated by {name}, {when}": "Naposledy aktualizoval(a) {name}, {when}"
+        "Last updated by {name}, {when}": "Naposledy aktualizoval(a) {name}, {when}",
+        "Embedded report": "Vložený přehled",
+        "Embedded page": "Vložená stránka",
+        "Signed in as {name}": "Přihlášen jako {name}",
+        "Outage": "Výpadek",
+        "The report could not be loaded": "Přehled se nepodařilo načíst",
+        "The page could not be loaded": "Stránku se nepodařilo načíst",
+        "Gave an error: {cause}": "Nastala chyba: {cause}",
+        "Gave an error today at {time}: {cause}": "Nastala chyba dnes v {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Nastala chyba {date} v {time}: {cause}",
+        "the site refuses to be embedded": "web odmítá být vložen",
+        "the site could not be reached": "web nebyl dostupný",
+        "the page did not finish loading": "stránka se nedonačetla",
+        "a network error": "chyba sítě",
+        "Reload": "Načíst znovu",
+        "Open in a new tab": "Otevřít na nové kartě",
+        "Open {title} in a new tab": "Otevřít {title} na nové kartě"
     }
 }

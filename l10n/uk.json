@@ -1437,6 +1437,22 @@
         "What do you think of this dashboard?": "Що ви думаєте про цю панель?",
         "today {time}": "сьогодні {time}",
         "Last updated {when}": "Останнє оновлення {when}",
-        "Last updated by {name}, {when}": "Останнє оновлення: {name}, {when}"
+        "Last updated by {name}, {when}": "Останнє оновлення: {name}, {when}",
+        "Embedded report": "Вбудований звіт",
+        "Embedded page": "Вбудована сторінка",
+        "Signed in as {name}": "Ви увійшли як {name}",
+        "Outage": "Збій",
+        "The report could not be loaded": "Не вдалося завантажити звіт",
+        "The page could not be loaded": "Не вдалося завантажити сторінку",
+        "Gave an error: {cause}": "Сталася помилка: {cause}",
+        "Gave an error today at {time}: {cause}": "Сталася помилка сьогодні о {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Сталася помилка {date} о {time}: {cause}",
+        "the site refuses to be embedded": "сайт забороняє вбудовування",
+        "the site could not be reached": "сайт був недоступний",
+        "the page did not finish loading": "сторінка не завантажилася до кінця",
+        "a network error": "помилка мережі",
+        "Reload": "Перезавантажити",
+        "Open in a new tab": "Відкрити в новій вкладці",
+        "Open {title} in a new tab": "Відкрити {title} в новій вкладці"
     }
 }

@@ -1437,6 +1437,22 @@
         "What do you think of this dashboard?": "Co sądzisz o tym pulpicie?",
         "today {time}": "dzisiaj {time}",
         "Last updated {when}": "Ostatnia aktualizacja {when}",
-        "Last updated by {name}, {when}": "Ostatnio zaktualizował(a) {name}, {when}"
+        "Last updated by {name}, {when}": "Ostatnio zaktualizował(a) {name}, {when}",
+        "Embedded report": "Osadzony raport",
+        "Embedded page": "Osadzona strona",
+        "Signed in as {name}": "Zalogowano jako {name}",
+        "Outage": "Awaria",
+        "The report could not be loaded": "Nie udało się załadować raportu",
+        "The page could not be loaded": "Nie udało się załadować strony",
+        "Gave an error: {cause}": "Wystąpił błąd: {cause}",
+        "Gave an error today at {time}: {cause}": "Wystąpił błąd dziś o {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Wystąpił błąd {date} o {time}: {cause}",
+        "the site refuses to be embedded": "witryna nie pozwala na osadzenie",
+        "the site could not be reached": "witryna była nieosiągalna",
+        "the page did not finish loading": "strona nie załadowała się do końca",
+        "a network error": "błąd sieci",
+        "Reload": "Załaduj ponownie",
+        "Open in a new tab": "Otwórz w nowej karcie",
+        "Open {title} in a new tab": "Otwórz {title} w nowej karcie"
     }
 }

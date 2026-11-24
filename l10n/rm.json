@@ -1435,6 +1435,22 @@
         "What do you think of this dashboard?": "Tge pensais Vus da quest dashboard?",
         "today {time}": "oz {time}",
         "Last updated {when}": "Actualisà l'ultima giada {when}",
-        "Last updated by {name}, {when}": "Actualisà l'ultima giada da {name}, {when}"
+        "Last updated by {name}, {when}": "Actualisà l'ultima giada da {name}, {when}",
+        "Embedded report": "Rapport integrà",
+        "Embedded page": "Pagina integrada",
+        "Signed in as {name}": "Annunzià sco {name}",
+        "Outage": "Disturbi",
+        "The report could not be loaded": "Il rapport n'ha betg pudì vegnir chargià",
+        "The page could not be loaded": "La pagina n'ha betg pudì vegnir chargiada",
+        "Gave an error: {cause}": "Errur: {cause}",
+        "Gave an error today at {time}: {cause}": "Errur oz a las {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Errur ils {date} a las {time}: {cause}",
+        "the site refuses to be embedded": "la website refusa d'esser integrada",
+        "the site could not be reached": "la website n'era betg cuntanschibla",
+        "the page did not finish loading": "la pagina n'è betg vegnida chargiada dal tuttafatg",
+        "a network error": "ina errur da la rait",
+        "Reload": "Chargiar da nov",
+        "Open in a new tab": "Avrir en in nov tab",
+        "Open {title} in a new tab": "Avrir {title} en in nov tab"
     }
 }

@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Asmeninis skydelis · atidaromas pirmas",
     "Shared with you" : "Bendrinama su jumis",
     "Last changed {when}" : "Paskutinį kartą keista {when}",
-    "Last changed today {time}" : "Paskutinį kartą keista šiandien {time}"
+    "Last changed today {time}" : "Paskutinį kartą keista šiandien {time}",
+    "Embedded report" : "Įterpta ataskaita",
+    "Embedded page" : "Įterptas puslapis",
+    "Signed in as {name}" : "Prisijungta kaip {name}",
+    "Outage" : "Sutrikimas",
+    "The report could not be loaded" : "Nepavyko įkelti ataskaitos",
+    "The page could not be loaded" : "Nepavyko įkelti puslapio",
+    "Gave an error: {cause}" : "Įvyko klaida: {cause}",
+    "Gave an error today at {time}: {cause}" : "Įvyko klaida šiandien {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Įvyko klaida {date} {time}: {cause}",
+    "the site refuses to be embedded" : "svetainė neleidžia būti įterpta",
+    "the site could not be reached" : "svetainė buvo nepasiekiama",
+    "the page did not finish loading" : "puslapis nebaigė įsikelti",
+    "a network error" : "tinklo klaida",
+    "Reload" : "Įkelti iš naujo",
+    "Open in a new tab" : "Atidaryti naujoje kortelėje",
+    "Open {title} in a new tab" : "Atidaryti {title} naujoje kortelėje"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

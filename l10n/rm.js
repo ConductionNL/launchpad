@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Dashboard persunal · vegn avert sco emprim",
     "Shared with you" : "Partì cun Vus",
     "Last changed {when}" : "Midà la davosa giada {when}",
-    "Last changed today {time}" : "Midà la davosa giada oz {time}"
+    "Last changed today {time}" : "Midà la davosa giada oz {time}",
+    "Embedded report" : "Rapport integrà",
+    "Embedded page" : "Pagina integrada",
+    "Signed in as {name}" : "Annunzià sco {name}",
+    "Outage" : "Disturbi",
+    "The report could not be loaded" : "Il rapport n'ha betg pudì vegnir chargià",
+    "The page could not be loaded" : "La pagina n'ha betg pudì vegnir chargiada",
+    "Gave an error: {cause}" : "Errur: {cause}",
+    "Gave an error today at {time}: {cause}" : "Errur oz a las {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Errur ils {date} a las {time}: {cause}",
+    "the site refuses to be embedded" : "la website refusa d'esser integrada",
+    "the site could not be reached" : "la website n'era betg cuntanschibla",
+    "the page did not finish loading" : "la pagina n'è betg vegnida chargiada dal tuttafatg",
+    "a network error" : "ina errur da la rait",
+    "Reload" : "Chargiar da nov",
+    "Open in a new tab" : "Avrir en in nov tab",
+    "Open {title} in a new tab" : "Avrir {title} en in nov tab"
 },
 "nplurals=2; plural=(n != 1);"
 );

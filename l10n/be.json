@@ -1437,6 +1437,22 @@
         "What do you think of this dashboard?": "Што вы думаеце пра гэтую панэль?",
         "today {time}": "сёння {time}",
         "Last updated {when}": "Апошняе абнаўленне {when}",
-        "Last updated by {name}, {when}": "Апошняе абнаўленне: {name}, {when}"
+        "Last updated by {name}, {when}": "Апошняе абнаўленне: {name}, {when}",
+        "Embedded report": "Убудаваная справаздача",
+        "Embedded page": "Убудаваная старонка",
+        "Signed in as {name}": "Вы ўвайшлі як {name}",
+        "Outage": "Збой",
+        "The report could not be loaded": "Не ўдалося загрузіць справаздачу",
+        "The page could not be loaded": "Не ўдалося загрузіць старонку",
+        "Gave an error: {cause}": "Адбылася памылка: {cause}",
+        "Gave an error today at {time}: {cause}": "Адбылася памылка сёння ў {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Адбылася памылка {date} у {time}: {cause}",
+        "the site refuses to be embedded": "сайт забараняе ўбудаванне",
+        "the site could not be reached": "сайт быў недаступны",
+        "the page did not finish loading": "старонка не загрузілася да канца",
+        "a network error": "памылка сеткі",
+        "Reload": "Перазагрузіць",
+        "Open in a new tab": "Адкрыць у новай укладцы",
+        "Open {title} in a new tab": "Адкрыць {title} у новай укладцы"
     }
 }

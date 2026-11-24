@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Isiklik töölaud · avaneb esimesena",
     "Shared with you" : "Teiega jagatud",
     "Last changed {when}" : "Viimati muudetud {when}",
-    "Last changed today {time}" : "Viimati muudetud täna {time}"
+    "Last changed today {time}" : "Viimati muudetud täna {time}",
+    "Embedded report" : "Manustatud aruanne",
+    "Embedded page" : "Manustatud leht",
+    "Signed in as {name}" : "Sisse logitud kui {name}",
+    "Outage" : "Rike",
+    "The report could not be loaded" : "Aruannet ei õnnestunud laadida",
+    "The page could not be loaded" : "Lehte ei õnnestunud laadida",
+    "Gave an error: {cause}" : "Tekkis viga: {cause}",
+    "Gave an error today at {time}: {cause}" : "Tekkis viga täna kell {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Tekkis viga {date} kell {time}: {cause}",
+    "the site refuses to be embedded" : "sait keeldub manustamisest",
+    "the site could not be reached" : "saidiga ei saadud ühendust",
+    "the page did not finish loading" : "leht ei laadinud lõpuni",
+    "a network error" : "võrguviga",
+    "Reload" : "Laadi uuesti",
+    "Open in a new tab" : "Ava uuel vahekaardil",
+    "Open {title} in a new tab" : "Ava {title} uuel vahekaardil"
 },
 "nplurals=2; plural=(n != 1);"
 );

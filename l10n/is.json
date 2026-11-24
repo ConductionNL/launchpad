@@ -1435,6 +1435,22 @@
         "What do you think of this dashboard?": "Hvað finnst þér um þetta mælaborð?",
         "today {time}": "í dag {time}",
         "Last updated {when}": "Síðast uppfært {when}",
-        "Last updated by {name}, {when}": "Síðast uppfært af {name}, {when}"
+        "Last updated by {name}, {when}": "Síðast uppfært af {name}, {when}",
+        "Embedded report": "Ívafin skýrsla",
+        "Embedded page": "Ívafin síða",
+        "Signed in as {name}": "Skráð inn sem {name}",
+        "Outage": "Bilun",
+        "The report could not be loaded": "Ekki tókst að hlaða skýrslunni",
+        "The page could not be loaded": "Ekki tókst að hlaða síðunni",
+        "Gave an error: {cause}": "Villa kom upp: {cause}",
+        "Gave an error today at {time}: {cause}": "Villa kom upp í dag kl. {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Villa kom upp {date} kl. {time}: {cause}",
+        "the site refuses to be embedded": "vefurinn neitar að vera ívafinn",
+        "the site could not be reached": "ekki náðist í vefinn",
+        "the page did not finish loading": "síðan kláraði ekki að hlaðast",
+        "a network error": "netvilla",
+        "Reload": "Endurhlaða",
+        "Open in a new tab": "Opna í nýjum flipa",
+        "Open {title} in a new tab": "Opna {title} í nýjum flipa"
     }
 }

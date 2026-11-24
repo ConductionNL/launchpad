@@ -1535,7 +1535,23 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Tauler personal · s'obre primer",
     "Shared with you" : "Compartit amb vós",
     "Last changed {when}" : "Darrer canvi {when}",
-    "Last changed today {time}" : "Darrer canvi avui {time}"
+    "Last changed today {time}" : "Darrer canvi avui {time}",
+    "Embedded report" : "Informe incrustat",
+    "Embedded page" : "Pàgina incrustada",
+    "Signed in as {name}" : "Sessió iniciada com a {name}",
+    "Outage" : "Interrupció",
+    "The report could not be loaded" : "No s'ha pogut carregar l'informe",
+    "The page could not be loaded" : "No s'ha pogut carregar la pàgina",
+    "Gave an error: {cause}" : "Ha donat un error: {cause}",
+    "Gave an error today at {time}: {cause}" : "Ha donat un error avui a les {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Ha donat un error el {date} a les {time}: {cause}",
+    "the site refuses to be embedded" : "el lloc no permet ser incrustat",
+    "the site could not be reached" : "no s'ha pogut accedir al lloc",
+    "the page did not finish loading" : "la pàgina no ha acabat de carregar-se",
+    "a network error" : "un error de xarxa",
+    "Reload" : "Torna a carregar",
+    "Open in a new tab" : "Obre en una pestanya nova",
+    "Open {title} in a new tab" : "Obre {title} en una pestanya nova"
 },
 "nplurals=2; plural=(n != 1);"
 );

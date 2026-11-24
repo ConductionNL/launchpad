@@ -1526,6 +1526,22 @@ OC.L10N.register(
     "Personal dashboard · opens first" : "Лична контролна табла · отвара се прва",
     "Shared with you" : "Подељено са вама",
     "Last changed {when}" : "Последња измена {when}",
-    "Last changed today {time}" : "Последња измена данас {time}"
+    "Last changed today {time}" : "Последња измена данас {time}",
+    "Embedded report" : "Уграђени извештај",
+    "Embedded page" : "Уграђена страница",
+    "Signed in as {name}" : "Пријављени као {name}",
+    "Outage" : "Прекид рада",
+    "The report could not be loaded" : "Извештај није могао да се учита",
+    "The page could not be loaded" : "Страница није могла да се учита",
+    "Gave an error: {cause}" : "Дошло је до грешке: {cause}",
+    "Gave an error today at {time}: {cause}" : "Дошло је до грешке данас у {time}: {cause}",
+    "Gave an error on {date} at {time}: {cause}" : "Дошло је до грешке {date} у {time}: {cause}",
+    "the site refuses to be embedded" : "сајт одбија уграђивање",
+    "the site could not be reached" : "сајт није био доступан",
+    "the page did not finish loading" : "страница се није до краја учитала",
+    "a network error" : "мрежна грешка",
+    "Reload" : "Поново учитај",
+    "Open in a new tab" : "Отвори у новој картици",
+    "Open {title} in a new tab" : "Отвори {title} у новој картици"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

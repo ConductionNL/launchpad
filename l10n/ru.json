@@ -1437,6 +1437,22 @@
         "What do you think of this dashboard?": "Что вы думаете об этой панели?",
         "today {time}": "сегодня {time}",
         "Last updated {when}": "Последнее обновление {when}",
-        "Last updated by {name}, {when}": "Последнее обновление: {name}, {when}"
+        "Last updated by {name}, {when}": "Последнее обновление: {name}, {when}",
+        "Embedded report": "Встроенный отчёт",
+        "Embedded page": "Встроенная страница",
+        "Signed in as {name}": "Вход выполнен как {name}",
+        "Outage": "Сбой",
+        "The report could not be loaded": "Не удалось загрузить отчёт",
+        "The page could not be loaded": "Не удалось загрузить страницу",
+        "Gave an error: {cause}": "Произошла ошибка: {cause}",
+        "Gave an error today at {time}: {cause}": "Произошла ошибка сегодня в {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Произошла ошибка {date} в {time}: {cause}",
+        "the site refuses to be embedded": "сайт запрещает встраивание",
+        "the site could not be reached": "сайт был недоступен",
+        "the page did not finish loading": "страница не загрузилась до конца",
+        "a network error": "сетевая ошибка",
+        "Reload": "Перезагрузить",
+        "Open in a new tab": "Открыть в новой вкладке",
+        "Open {title} in a new tab": "Открыть {title} в новой вкладке"
     }
 }

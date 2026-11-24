@@ -1437,6 +1437,22 @@
         "What do you think of this dashboard?": "Ko jūs domājat par šo informācijas paneli?",
         "today {time}": "šodien {time}",
         "Last updated {when}": "Pēdējoreiz atjaunināts {when}",
-        "Last updated by {name}, {when}": "Pēdējoreiz atjaunināja {name}, {when}"
+        "Last updated by {name}, {when}": "Pēdējoreiz atjaunināja {name}, {when}",
+        "Embedded report": "Iegults pārskats",
+        "Embedded page": "Iegulta lapa",
+        "Signed in as {name}": "Pieteicies kā {name}",
+        "Outage": "Darbības traucējums",
+        "The report could not be loaded": "Pārskatu neizdevās ielādēt",
+        "The page could not be loaded": "Lapu neizdevās ielādēt",
+        "Gave an error: {cause}": "Radās kļūda: {cause}",
+        "Gave an error today at {time}: {cause}": "Radās kļūda šodien plkst. {time}: {cause}",
+        "Gave an error on {date} at {time}: {cause}": "Radās kļūda {date} plkst. {time}: {cause}",
+        "the site refuses to be embedded": "vietne atsakās tikt iegulta",
+        "the site could not be reached": "vietne nebija sasniedzama",
+        "the page did not finish loading": "lapa netika līdz galam ielādēta",
+        "a network error": "tīkla kļūda",
+        "Reload": "Pārlādēt",
+        "Open in a new tab": "Atvērt jaunā cilnē",
+        "Open {title} in a new tab": "Atvērt {title} jaunā cilnē"
     }
 }

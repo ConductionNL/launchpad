@@ -15,6 +15,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 
 - [ ] 1.1 `admin-settings`: 83 scenarios, 2 cited, blanket. Access requirements in progress 2026-09-11. Its settings-behaviour scenarios stay open under this task.
   - Spec written: `tests/e2e/admin-settings-api.spec.ts`, `tests/e2e/admin-settings-dashboard-effects.spec.ts`, `tests/e2e/admin-settings-groups.spec.ts`, `tests/e2e/admin-settings-ui.spec.ts` (helper `tests/e2e/support/adminSettings.ts`), 58 scenarios cited, 13 excluded with a reason, blanket removed, not yet run (cloud, 2026-11-19)
+  - Spec written: `tests/e2e/allowed-websites-list.spec.ts` (REQ-ASET-021: the Embed half, a host added with Embed takes an embedded page and refuses a live tile, and the upgrade merge of the per-feature lists, run through `occ maintenance:repair`), 2 scenarios cited (new), admin-settings now 62 of 75 cited, 13 excluded with a reason, 0 uncited, not yet run (cloud, 2026-11-24)
 - [x] 1.2 `admin-roles`: 55 scenarios, 0 cited, blanket. In progress 2026-09-11.
   - Spec written: `tests/e2e/admin-roles.spec.ts`, `tests/e2e/admin-roles-enforcement.spec.ts` (helper `tests/e2e/support/roles.ts`), 55 scenarios cited, 0 excluded, blanket removed, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 43 of 43 green, every listed test run (checked against `playwright test --list`).

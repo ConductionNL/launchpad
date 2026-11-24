@@ -48,14 +48,14 @@ class ResyncFollowUps {
 	 * @param PersonalLayerService         $personalLayers Drops personal-layer entries for removed placements
 	 *                                                     (REQ-DWMS-001).
 	 * @param DashboardVersionService|null $versions       Writes the version a changed copy gets; null writes none.
-	 * @param IL10N|null                   $l10n           The app's translations; null keeps the English source strings.
+	 * @param IL10N                        $l10n           The app's translations for the author and the note.
 	 *
 	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function __construct(
 		public readonly PersonalLayerService $personalLayers,
+		private readonly IL10N $l10n,
 		private readonly ?DashboardVersionService $versions=null,
-		private readonly ?IL10N $l10n=null,
 	) {
 	}//end __construct()
 
@@ -79,7 +79,7 @@ class ResyncFollowUps {
 		$this->versions->captureSnapshot(
 			dashboard: $copy,
 			createdBy: $this->templateAuthor(templateName: $templateName),
-			options: ['note' => $this->translate(text: 'Updated from the template', parameters: []), 'explicit' => true]
+			options: ['note' => $this->l10n->t('Updated from the template'), 'explicit' => true]
 		);
 	}//end recordTemplateVersion()
 
@@ -94,24 +94,8 @@ class ResyncFollowUps {
 	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function templateAuthor(string $templateName): string {
-		$author = $this->translate(text: 'Template %s', parameters: [trim($templateName)]);
+		$author = $this->l10n->t('Template %s', [trim($templateName)]);
 
 		return rtrim(mb_substr($author, 0, self::MAX_AUTHOR_LENGTH));
 	}//end templateAuthor()
-
-	/**
-	 * Translate a source string with sprintf parameters.
-	 *
-	 * @param string       $text       The English source string.
-	 * @param list<string> $parameters The values for its placeholders.
-	 *
-	 * @return string The translated text.
-	 */
-	private function translate(string $text, array $parameters): string {
-		if ($this->l10n !== null) {
-			return $this->l10n->t($text, $parameters);
-		}
-
-		return vsprintf($text, $parameters);
-	}//end translate()
 }//end class

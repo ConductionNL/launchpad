@@ -111,7 +111,7 @@ class TemplateResyncServiceTest extends TestCase {
 			activityPublisher: $this->activityPublisher,
 			notificationManager: $this->notificationManager,
 			logger: $this->logger,
-			followUps: new ResyncFollowUps(personalLayers: $this->personalLayers)
+			followUps: new ResyncFollowUps(personalLayers: $this->personalLayers, l10n: $this->englishL10n())
 		);
 	}
 
@@ -567,6 +567,20 @@ class TemplateResyncServiceTest extends TestCase {
 	// ---------------------------------------------------------------
 
 	/**
+	 * Translations that keep the English source strings.
+	 *
+	 * @return IL10N The translations.
+	 */
+	private function englishL10n(): IL10N {
+		$l10n = $this->createMock(originalClassName: IL10N::class);
+		$l10n->method('t')->willReturnCallback(
+			static fn (string $text, array $parameters=[]): string => vsprintf($text, $parameters)
+		);
+
+		return $l10n;
+	}
+
+	/**
 	 * A service that writes versions through the given version service and translations.
 	 *
 	 * @param DashboardVersionService $versions The version service.
@@ -587,7 +601,11 @@ class TemplateResyncServiceTest extends TestCase {
 			activityPublisher: $this->activityPublisher,
 			notificationManager: $this->notificationManager,
 			logger: $this->logger,
-			followUps: new ResyncFollowUps(personalLayers: $this->personalLayers, versions: $versions, l10n: $l10n)
+			followUps: new ResyncFollowUps(
+				personalLayers: $this->personalLayers,
+				l10n: ($l10n ?? $this->englishL10n()),
+				versions: $versions
+			)
 		);
 	}
 

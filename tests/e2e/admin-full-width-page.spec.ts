@@ -40,7 +40,9 @@ const ADMIN_PAGE = `${APP}/admin`
  * @param label The tab's English label.
  */
 async function expectAdminPageOn(page: Page, tab: string, label: string): Promise<void> {
-	await expect(page).toHaveURL(new RegExp(`/apps/launchpad/admin/${tab}(\\?|#|$)`))
+	// /admin is General's address too: the router leaves the default tab out.
+	const address = tab === 'general' ? '(/general)?' : `/${tab}`
+	await expect(page).toHaveURL(new RegExp(`/apps/launchpad/admin${address}(\\?|#|$)`))
 	const title = page.locator('.cn-admin-settings-shell__title')
 	await expect(title).toHaveText(`Launchpad administration: ${label.toLocaleLowerCase()}`, { timeout: 60_000 })
 	await expect(page.getByTestId('cn-admin-settings-breadcrumbs')).toContainText(
@@ -59,7 +61,9 @@ async function expectAdminPageOn(page: Page, tab: string, label: string): Promis
 	const tabs = await page.getByTestId('cn-admin-settings-tabs').boundingBox()
 	expect(content, 'the content area rendered').not.toBeNull()
 	expect(tabs, 'the tab strip rendered').not.toBeNull()
-	expect(content!.x, 'no menu to the left of the content').toBeLessThan(1)
+	// Nextcloud keeps an 8px body margin around the content; a navigation
+	// panel beside it would be some 300px wide.
+	expect(content!.x, 'no menu to the left of the content').toBeLessThan(16)
 	expect(tabs!.width, 'the tabs span the content').toBeGreaterThan(content!.width * 0.8)
 }
 
@@ -145,7 +149,8 @@ test.describe('REQ-ADM-031 Nextcloud\'s settings point to the page', () => {
 		await expect(entry).toBeVisible({ timeout: 30_000 })
 		await expect(entry).toContainText('The Launchpad administration is on a page of its own.')
 		const link = entry.getByRole('link', { name: 'Open Launchpad administration' })
-		await expect(link).toHaveAttribute('href', /\/apps\/launchpad\/admin\/general$/)
+		// The router leaves the default tab out of the address: /admin opens General.
+		await expect(link).toHaveAttribute('href', /\/apps\/launchpad\/admin(\/general)?$/)
 		await expect(page.getByTestId('cn-admin-settings-tabs')).toHaveCount(0)
 
 		await link.click()

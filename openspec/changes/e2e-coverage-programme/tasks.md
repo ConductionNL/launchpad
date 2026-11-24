@@ -77,6 +77,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: openspec/specs/launchpad-compliance-audit-panel/spec.md (no e2e file; never built), 0 scenarios cited, not yet run (cloud, 2026-11-19). 18 excluded as never built.
 - [ ] 2.11 `dashboard-acknowledgements`: 16 scenarios, 3 cited.
   - Spec written: tests/e2e/dashboard-acknowledgements.spec.ts, tests/e2e/dashboard-acknowledgements-template.spec.ts, tests/e2e/dashboard-acknowledgements-ask.spec.ts, 22 scenarios cited, not yet run (cloud, 2026-11-19). 2 excluded with a reason.
+  - Spec written: tests/e2e/dashboard-acknowledgements.spec.ts (the report test follows the Read confirmations dialog of #1749, whose `ack-count`/`pending-count` it asserted are gone: it now reads the summary, the bar, the status badges, the Not confirmed yet filter and the department column; it also cites the two delta scenarios of the open change `read-receipts-dialog`), 16 scenarios cited in this file (2 new), not yet run (cloud, 2026-11-24)
 
 ## 3. Tier 2, core surfaces
 

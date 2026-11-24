@@ -18,6 +18,7 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import { NcSelect } from '@nextcloud/vue'
+import { TEXT_PROP } from '../../../constants/propDefinitions.js'
 import { fetchDateFields } from '../../../utils/periodDateFields.js'
 
 /**
@@ -36,13 +37,13 @@ export default {
 
 	props: {
 		/** The source's register. */
-		register: { type: String, default: '' },
+		register: TEXT_PROP,
 
 		/** The source's schema. */
-		schema: { type: String, default: '' },
+		schema: TEXT_PROP,
 
 		/** The chosen date field, '' for none. */
-		modelValue: { type: String, default: '' },
+		modelValue: TEXT_PROP,
 	},
 
 	emits: ['update:modelValue'],

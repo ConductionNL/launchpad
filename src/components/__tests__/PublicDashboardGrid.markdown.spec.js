@@ -5,7 +5,7 @@
  * A text widget on a public link or kiosk screen renders its Markdown,
  * sanitised as on the dashboard (REQ-PSHR-012).
  *
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-text-in-markdown-on-public-screens-req-pshr-012
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-text-in-markdown-on-public-screens-req-pshr-012
  */
 
 import { mount } from '@vue/test-utils'

@@ -318,7 +318,7 @@ class PublicShareServiceTest extends TestCase {
 	/**
 	 * A widget's read opens the share's dashboard without counting a visit.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 *
 	 * @return void
 	 */
@@ -342,7 +342,7 @@ class PublicShareServiceTest extends TestCase {
 	/**
 	 * A widget's read is behind the share's password gate.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 *
 	 * @return void
 	 */

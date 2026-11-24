@@ -24,7 +24,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 
 declare(strict_types=1);
@@ -52,7 +52,7 @@ use OCP\IRequest;
 /**
  * Live widget data for anonymous visitors of a shared dashboard.
  *
- * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 class PublicWidgetController extends Controller {
 
@@ -89,7 +89,7 @@ class PublicWidgetController extends Controller {
 	 *
 	 * @return DataResponse 200 with `{widget, data}`, 401 when a password is needed, 404 otherwise.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -114,7 +114,7 @@ class PublicWidgetController extends Controller {
 	 *
 	 * @return DataResponse 200 with `{widget, data}`, 404 otherwise.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -138,7 +138,7 @@ class PublicWidgetController extends Controller {
 	 *
 	 * @return DataResponse
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
 	private function answer(int $placementId, Closure $dashboards): DataResponse {
 		try {
@@ -172,7 +172,7 @@ class PublicWidgetController extends Controller {
 	 *
 	 * @return string|null The password, or null when none was sent.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
 	private function headerPassword(): ?string {
 		$password = $this->request->getHeader('X-Share-Password');

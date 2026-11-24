@@ -377,7 +377,7 @@ class KioskServiceTest extends TestCase {
 	/**
 	 * A playlist's widgets read through the dashboards it shows, each once, without deleted ones.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 *
 	 * @return void
 	 */
@@ -412,7 +412,7 @@ class KioskServiceTest extends TestCase {
 	/**
 	 * An unknown playlist token reads nothing.
 	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 *
 	 * @return void
 	 */

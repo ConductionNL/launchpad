@@ -228,6 +228,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 15 green.
 - [ ] 5.8 `launchpad-adopt-or-abstractions`: 20 scenarios, 1 cited.
   - Spec written: tests/e2e/launchpad-adopt-or-abstractions.spec.ts (+ tests/e2e/support/orWidget.ts), 3 new scenarios cited (4 with manifest-boot.spec.ts), 16 excluded with reasons, not yet run (cloud, 2026-11-19)
+  - Spec written: tests/e2e/or-absent.spec.ts, 2 more scenarios cited (install and sharing on an OR-less instance, made by disabling openregister/openconnector through occ for the file), 6 cited, 14 excluded with reasons, not yet run (cloud, 2026-11-24)
 - [x] 5.9 `infrastructure-helpers`: 17 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/infrastructure-helpers.spec.ts, 14 scenarios cited, 3 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 14 of 14 green.
@@ -239,6 +240,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 4 of 4 green.
 - [ ] 5.12 `runtime-or-consumption`: 11 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/runtime-or-consumption.spec.ts (+ tests/e2e/support/orWidget.ts), 7 scenarios cited, 4 excluded with reasons, not yet run (cloud, 2026-11-19)
+  - Spec written: tests/e2e/or-absent.spec.ts, 2 more scenarios cited (boot without OR, the OR-data widget's empty state without OR), 8 cited, 2 excluded with reasons (both never built), not yet run (cloud, 2026-11-24)
 - [ ] 5.13 `license-header-consistency`: 7 scenarios, 0 cited, blanket.
   - Spec written: no spec file, 0 scenarios cited, 7 excluded with reasons, one per requirement; the blanket is gone. Every scenario reads checked-in files or CI behaviour, not a running instance. REQ-LIC-003 does not hold: 12 files under `src/` still name `LaunchPad Contributors` (cloud, 2026-11-19)
 - [ ] 5.14 `groupfolder-storage-backend`: 0 scenarios, 0 cited. Has no scenarios. Decide whether the spec is still wanted.

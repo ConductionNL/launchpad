@@ -434,6 +434,11 @@ describe('expandToRecords (LpVandaag one card per record)', () => {
 		expect(new Set(items.map((i) => i.key)).size).toBe(2)
 	})
 
+	it('names each card\'s action by the source when the source names one (REQ-ATT-007)', () => {
+		const items = expandToRecords([{ ...entry, actionLabel: 'Zaak openen', objects: [{ id: 'a1', title: 'A' }, { id: 'b2', title: 'B' }] }], (schema) => `Open ${schema}`)
+		expect(items.map((i) => i.actionLabel)).toEqual(['Zaak openen', 'Zaak openen'])
+	})
+
 	it('keeps a source that listed no records as one item', () => {
 		expect(expandToRecords([{ ...entry, objects: [] }], () => 'Open')).toEqual([{ ...entry, objects: [] }])
 	})

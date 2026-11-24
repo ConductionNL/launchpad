@@ -73,9 +73,52 @@ export function recentWhen(value, now, locale) {
 }
 
 /**
+ * Whether an activity is the reader removing something.
+ *
+ * @param {object} activity An Activity API entry.
+ * @return {boolean} True for a delete.
+ * @spec openspec/changes/archive/2026-11-24-recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-recent-work-shows-where-the-reader-left-off-req-wdg-032
+ */
+function isDeletion(activity) {
+	return /deleted|_delete/.test(String(activity.type ?? '')) || /deleted/.test(String(activity.subject ?? ''))
+}
+
+/**
+ * The two keys one thing is known by: its object, and its name within its
+ * app (the same file saved again gets a new id).
+ *
+ * @param {object} activity An Activity API entry.
+ * @param {string} name The thing's name.
+ * @return {Array<string>} The object key and the name key.
+ * @spec openspec/changes/archive/2026-11-24-recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-recent-work-shows-where-the-reader-left-off-req-wdg-032
+ */
+function thingKeys(activity, name) {
+	return [`${activity.object_type ?? ''}:${activity.object_id ?? name}`, `${activity.app ?? ''}:${name}`]
+}
+
+/**
+ * Whether an activity names a thing a row can show: a name that is not
+ * only an id, a link, and an app the author chose.
+ *
+ * @param {object} activity An Activity API entry.
+ * @param {string} name The thing's name.
+ * @param {Array<string>} apps Only these apps' activity, all when empty.
+ * @return {boolean} True when it can be a row.
+ * @spec openspec/changes/archive/2026-11-24-recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-recent-work-shows-where-the-reader-left-off-req-wdg-032
+ */
+function isShowable(activity, name, apps) {
+	if (name === '' || UUID.test(name) || !activity.link) {
+		return false
+	}
+	return apps.length === 0 || apps.includes(activity.app)
+}
+
+/**
  * The rows recent work shows for the reader's own activity: one row per
  * thing (its newest activity), named by the thing and not by the action,
- * with the app and when below it.
+ * with the app and when below it. Something the reader removed is not work
+ * to pick up again, and neither is its older activity: the feed is newest
+ * first, so the delete marks the thing as seen before that comes.
  *
  * @param {Array<object>} activities The Activity API's own-activity entries, newest first.
  * @param {number} limit The most rows to show.
@@ -91,28 +134,20 @@ export function recentWorkRows(activities, limit, now, locale, apps = []) {
 	const seen = new Set()
 	for (const activity of Array.isArray(activities) ? activities : []) {
 		const name = String(activity?.object_name ?? '').split('/').filter(Boolean).pop() || ''
-		// Something the reader removed is not work to pick up again.
-		if (/deleted|_delete/.test(String(activity.type ?? '')) || /deleted/.test(String(activity.subject ?? ''))) {
+		const keys = thingKeys(activity, name)
+		if (isDeletion(activity)) {
+			if (name !== '') {
+				keys.forEach((k) => seen.add(k))
+			}
 			continue
 		}
-		if (name === '' || UUID.test(name) || !activity.link) {
+		if (!isShowable(activity, name, apps) || keys.some((k) => seen.has(k))) {
 			continue
 		}
-		if (apps.length > 0 && !apps.includes(activity.app)) {
-			continue
-		}
-		// One row per thing: the same file saved again gets a new id, so the
-		// name within its app counts as the same thing too.
-		const key = `${activity.object_type ?? ''}:${activity.object_id ?? name}`
-		const nameKey = `${activity.app ?? ''}:${name}`
-		if (seen.has(key) || seen.has(nameKey)) {
-			continue
-		}
-		seen.add(key)
-		seen.add(nameKey)
+		keys.forEach((k) => seen.add(k))
 		const app = APP_LABELS[activity.app] ?? activity.app ?? ''
 		rows.push({
-			key,
+			key: keys[0],
 			title: name,
 			meta: [app, recentWhen(activity.datetime, now, locale)].filter(Boolean).join(' · '),
 			link: activity.link,

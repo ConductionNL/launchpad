@@ -51,7 +51,7 @@ cannot render on mobile (e.g. complex multi-column tables) MUST set
 
 #### Scenario: Registry entry missing the field fails the completeness test
 
-@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. widgetRegistry.completeness.spec.js checks no such field, and it is a vitest, not a browser behaviour.
+@e2e exclude not built as specified: `mobileReady` exists since phone-hidden-widgets-named (archived 2026-11-24), but only `ai-assistant` declares it (src/constants/widgetRegistry.js) and an entry without it counts as phone-ready (src/utils/phoneHiddenWidgets.js isPhoneReady). No completeness test requires the field, and that test would be a vitest, not a browser behaviour.
 
 - **GIVEN** a registry entry omits `mobileReady`
 - **WHEN** `npm test` runs the completeness test
@@ -60,7 +60,7 @@ cannot render on mobile (e.g. complex multi-column tables) MUST set
 
 #### Scenario: Every shipped widget declares the field
 
-@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. No registry entry carries the field, and no test checks for it.
+@e2e exclude not built as specified: `mobileReady` exists since phone-hidden-widgets-named (archived 2026-11-24), but only `ai-assistant` declares it (src/constants/widgetRegistry.js) and an entry without it counts as phone-ready (src/utils/phoneHiddenWidgets.js isPhoneReady). The canonical widgets do not carry the field, and no test checks for it; a registry inspection, not a browser behaviour, in any case.
 
 - **GIVEN** the canonical widget set (`calendar`, `container`,
   `divider`, `files`, `header`, `image`, `label`, `link`, `links`,
@@ -81,7 +81,7 @@ extension).
 
 #### Scenario: Manifest declaration matches registry
 
-@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. src/manifest.json has no top-level widgets[] since 2cf53831, and scripts/check-manifest.js compares no such field; a CLI check in any case.
+@e2e exclude never built: src/manifest.json has no top-level widgets[] since 2cf53831 and does not mention `mobileReady`, and scripts/check-manifest.js compares no such field; a CLI check in any case.
 
 - **GIVEN** the registry sets `tile.mobileReady = true`
 - **WHEN** `npm run check:manifest` runs
@@ -90,7 +90,7 @@ extension).
 
 #### Scenario: Mismatch fails the check
 
-@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. scripts/check-manifest.js has no registry comparison and there is no `compliance-audit` widget type; a CLI check in any case.
+@e2e exclude never built: scripts/check-manifest.js has no registry comparison and does not mention `mobileReady`, and there is no `compliance-audit` widget type; a CLI check in any case.
 
 - **GIVEN** the registry sets `compliance-audit.mobileReady = false`
 - **AND** the manifest sets `compliance-audit.mobileReady = true`
@@ -109,16 +109,12 @@ the desktop breakpoint at the cost of horizontal scroll).
 
 #### Scenario: Mobile viewport hides non-ready widgets
 
-@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. Nothing filters placements by viewport, and `git log --all -S'hidden on mobile'` finds no notice in any commit. The generic one-column reflow on a phone is cited under grid-layout::single-column-on-mobile.
-
 - **GIVEN** a dashboard with 6 placements (4 mobile-ready, 2 not)
 - **WHEN** the viewport is 375 px (mobile)
 - **THEN** only the 4 mobile-ready widget DOM nodes MUST render
 - **AND** the notice MUST display `2 widgets hidden on mobile`
 
 #### Scenario: Desktop viewport renders all
-
-@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. The GIVEN (four mobile-ready, two not) cannot be set up, and the absent mobile notice cannot fail to be absent when no notice exists.
 
 - **GIVEN** the same dashboard
 - **WHEN** the viewport is 1280 px
@@ -127,7 +123,7 @@ the desktop breakpoint at the cost of horizontal scroll).
 
 #### Scenario: Force desktop layout link
 
-@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. There is no mobile notice and no "view desktop layout" link (`git log --all -S'desktop layout'` is empty).
+@e2e exclude withdrawn by REQ-MRA-007, which replaces the "view desktop layout" link and says there SHALL be no forced desktop layout on a phone. phone-hidden-widgets-named.spec.ts asserts no desktop-layout link is shown (pieter-on-his-phone).
 
 - **GIVEN** the mobile notice is visible
 - **WHEN** the viewer clicks "view desktop layout"
@@ -144,7 +140,7 @@ switcher, or any non-grid affordance.
 
 #### Scenario: All non-mobile dashboard shows empty-state
 
-@e2e exclude never built: `mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json. The empty-state string "This dashboard has no mobile-ready widgets" appears in no commit (`git log --all -S'mobile-ready'` is empty).
+@e2e exclude never built: phones hide `mobileReady: false` widgets since phone-hidden-widgets-named, but no empty-state exists for a dashboard where every widget is hidden: "no mobile-ready widgets" appears nowhere in src, and REQ-MRA-007 removed the desktop-layout CTA it would point at.
 
 - **GIVEN** a dashboard where all 4 placements have
   `mobileReady: false`
@@ -156,7 +152,7 @@ switcher, or any non-grid affordance.
 
 #### Scenario: Other affordances stay live
 
-@e2e exclude never built: its GIVEN is the mobile empty-state, which does not exist (`mobileReady` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), nor in nc-vue's registry, src/constants/widgetRegistry.js, lib/widget-types.json or src/manifest.json). The dashboard switcher itself is cited by the dashboard-switcher specs.
+@e2e exclude never built: its GIVEN is the phone empty-state of REQ-MRA-004, which does not exist (see the scenario above). The dashboard switcher itself is cited by the dashboard-switcher specs.
 
 - **GIVEN** the empty-state is rendered
 - **WHEN** the viewer opens the dashboard switcher

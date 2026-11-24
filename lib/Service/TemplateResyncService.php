@@ -304,11 +304,9 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 				dashboardId: $copy->getId()
 			);
 			$copyLayouts[] = $copyPlacements;
-			$diff = $this->differ->diff(
+			$diff = $this->differ->bound(strategy: $strategy, columns: $this->columnsOf(copy: $copy))->diff(
 				templatePlacements: $templatePlacements,
-				copyPlacements: $copyPlacements,
-				strategy: $strategy,
-				columns: $this->columnsOf(copy: $copy)
+				copyPlacements: $copyPlacements
 			);
 
 			$hasChanges = $this->differ->hasChanges(diff: $diff);
@@ -430,11 +428,9 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * @return void
 	 */
 	private function resyncCopy(TemplateResyncTally $tally, Dashboard $copy): void {
-		$diff = $this->differ->diff(
+		$diff = $this->differ->bound(strategy: $tally->strategy, columns: $this->columnsOf(copy: $copy))->diff(
 			templatePlacements: $tally->templatePlacements,
-			copyPlacements: $this->stores->placementMapper->findByDashboardId(dashboardId: $copy->getId()),
-			strategy: $tally->strategy,
-			columns: $this->columnsOf(copy: $copy)
+			copyPlacements: $this->stores->placementMapper->findByDashboardId(dashboardId: $copy->getId())
 		);
 		$changed = $this->differ->hasChanges(diff: $diff);
 		$error = null;

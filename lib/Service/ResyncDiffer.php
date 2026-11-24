@@ -45,6 +45,20 @@ class ResyncDiffer {
 	private const REMOVED_FROM_TEMPLATE = [TemplateResyncService::STRATEGY_ADD_ONLY => 'toPreserve'];
 
 	/**
+	 * The strategy this differ diffs for; see {@see self::bound()}.
+	 *
+	 * @var string
+	 */
+	private string $strategy = TemplateResyncService::STRATEGY_MERGE;
+
+	/**
+	 * The copy's grid column count; see {@see self::bound()}.
+	 *
+	 * @var integer
+	 */
+	private int $columns = 12;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param PlacementLayout $layout    Reads a placement's layout and its baseline.
@@ -55,6 +69,24 @@ class ResyncDiffer {
 		private readonly FreeSpotFinder $freeSpots = new FreeSpotFinder(),
 	) {
 	}//end __construct()
+
+	/**
+	 * A differ for one strategy and one copy's grid width.
+	 *
+	 * @param string $strategy `'overwrite'`, `'merge'` or `'add_only'`.
+	 * @param int    $columns  The copy's grid column count.
+	 *
+	 * @return self The bound differ; this one is left as it was.
+	 *
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 */
+	public function bound(string $strategy, int $columns): self {
+		$bound           = clone $this;
+		$bound->strategy = $strategy;
+		$bound->columns  = max(1, $columns);
+
+		return $bound;
+	}//end bound()
 
 	/**
 	 * Partition one copy's placements against the template's current
@@ -91,9 +123,6 @@ class ResyncDiffer {
 	 *                                              placements.
 	 * @param WidgetPlacement[] $copyPlacements The copy's current
 	 *                                          placements.
-	 * @param string $strategy `'overwrite'`, `'merge'`
-	 *                         or `'add_only'`.
-	 * @param int $columns The copy's grid column count.
 	 *
 	 * @return array{
 	 *     toAdd: WidgetPlacement[],
@@ -109,8 +138,6 @@ class ResyncDiffer {
 	public function diff(
 		array $templatePlacements,
 		array $copyPlacements,
-		string $strategy,
-		int $columns=12,
 	): array {
 		$templateById = [];
 		foreach ($templatePlacements as $tp) {
@@ -130,11 +157,11 @@ class ResyncDiffer {
 				$matchedTemplateIds[$originId] = true;
 			}
 
-			[$bucket, $entry] = $this->classifyCopyPlacement(copy: $cp, templateById: $templateById, strategy: $strategy);
+			[$bucket, $entry] = $this->classifyCopyPlacement(copy: $cp, templateById: $templateById);
 			if ($bucket === null) {
 				// No known origin — a genuinely user-added placement.
 				$bucket = 'toPreserve';
-				if ($strategy === TemplateResyncService::STRATEGY_OVERWRITE) {
+				if ($this->strategy === TemplateResyncService::STRATEGY_OVERWRITE) {
 					$bucket = 'toRemove';
 				}
 			}
@@ -148,8 +175,8 @@ class ResyncDiffer {
 		);
 
 		$addSpots = [];
-		if ($strategy === TemplateResyncService::STRATEGY_ADD_ONLY) {
-			$addSpots = $this->freeSpotsFor(toAdd: $toAdd, copyPlacements: $copyPlacements, columns: $columns);
+		if ($this->strategy === TemplateResyncService::STRATEGY_ADD_ONLY) {
+			$addSpots = $this->freeSpotsFor(toAdd: $toAdd, copyPlacements: $copyPlacements);
 		}
 
 		return [
@@ -168,13 +195,12 @@ class ResyncDiffer {
 	 *
 	 * @param WidgetPlacement[] $toAdd          The template placements to add.
 	 * @param WidgetPlacement[] $copyPlacements The copy's placements.
-	 * @param int               $columns        The copy's grid column count.
 	 *
 	 * @return array<int, array{gridX:int,gridY:int,gridWidth:int,gridHeight:int}> The spots, by `toAdd` index.
 	 *
 	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
-	private function freeSpotsFor(array $toAdd, array $copyPlacements, int $columns): array {
+	private function freeSpotsFor(array $toAdd, array $copyPlacements): array {
 		$occupied = array_map(
 			fn (WidgetPlacement $placement): array => $this->layout->rectOf(placement: $placement),
 			array_values($copyPlacements)
@@ -184,7 +210,7 @@ class ResyncDiffer {
 		foreach ($toAdd as $index => $templatePlacement) {
 			$spot = $this->freeSpots->place(
 				occupied: $occupied,
-				columns: $columns,
+				columns: $this->columns,
 				wanted: $this->layout->rectOf(placement: $templatePlacement)
 			);
 			$spots[$index] = $spot;
@@ -212,7 +238,6 @@ class ResyncDiffer {
 	 *
 	 * @param WidgetPlacement             $copy         The copy placement.
 	 * @param array<int, WidgetPlacement> $templateById The template placements by ID.
-	 * @param string                      $strategy     The re-sync strategy.
 	 *
 	 * @return array{0: string|null, 1: WidgetPlacement|array{copy: WidgetPlacement, template: WidgetPlacement, keepLayout: bool}}
 	 *     The bucket name (null for a user-added placement) and the entry to put in it.
@@ -220,27 +245,43 @@ class ResyncDiffer {
 	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
-	private function classifyCopyPlacement(WidgetPlacement $copy, array $templateById, string $strategy): array {
+	private function classifyCopyPlacement(WidgetPlacement $copy, array $templateById): array {
 		$originId = $copy->getTemplatePlacementId();
 		if ($originId === null) {
 			return [null, $copy];
 		}
 
-		$addOnly = ($strategy === TemplateResyncService::STRATEGY_ADD_ONLY);
 		if (isset($templateById[$originId]) === false) {
 			// The admin removed it from the template: gone, except under `add_only`.
-			return [(self::REMOVED_FROM_TEMPLATE[$strategy] ?? 'toRemove'), $copy];
+			return [(self::REMOVED_FROM_TEMPLATE[$this->strategy] ?? 'toRemove'), $copy];
 		}
 
-		$template   = $templateById[$originId];
+		return $this->classifyMatched(copy: $copy, template: $templateById[$originId]);
+	}//end classifyCopyPlacement()
+
+	/**
+	 * Classify a copy placement whose template placement still exists.
+	 *
+	 * @param WidgetPlacement $copy     The copy placement.
+	 * @param WidgetPlacement $template The template placement it came from.
+	 *
+	 * @return array{0: string, 1: WidgetPlacement|array{copy: WidgetPlacement, template: WidgetPlacement, keepLayout: bool}}
+	 *     The bucket name and the entry to put in it.
+	 *
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
+	 */
+	private function classifyMatched(WidgetPlacement $copy, WidgetPlacement $template): array {
 		$compulsory = ((int)$template->getIsCompulsory() === 1);
-		if ($addOnly === true && $compulsory === false) {
+		if ($this->strategy === TemplateResyncService::STRATEGY_ADD_ONLY && $compulsory === false) {
 			return ['toPreserve', $copy];
 		}
 
-		$ignore = $this->ownerLayoutFields(copy: $copy, template: $template, strategy: $strategy);
+		$ignore = array_flip($this->ownerLayoutFields(copy: $copy, template: $template));
+		$differs = array_diff_key($this->templateFieldSnapshot(placement: $copy), $ignore)
+			!== array_diff_key($this->templateFieldSnapshot(placement: $template), $ignore);
 
-		if ($this->placementDiffers(copy: $copy, template: $template, ignore: $ignore) === true) {
+		if ($differs === true) {
 			return [
 				'toUpdate',
 				[
@@ -252,7 +293,7 @@ class ResyncDiffer {
 		}
 
 		return ['toPreserve', $copy];
-	}//end classifyCopyPlacement()
+	}//end classifyMatched()
 
 	/**
 	 * The grid fields a matched placement keeps from its owner, so the diff
@@ -260,14 +301,13 @@ class ResyncDiffer {
 	 *
 	 * @param WidgetPlacement $copy     The copy's placement.
 	 * @param WidgetPlacement $template The template placement it came from.
-	 * @param string          $strategy The re-sync strategy.
 	 *
 	 * @return array<int, string> The grid fields when the owner's position and size stay, else none.
 	 *
 	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
-	private function ownerLayoutFields(WidgetPlacement $copy, WidgetPlacement $template, string $strategy): array {
-		if ($strategy !== TemplateResyncService::STRATEGY_MERGE || (int)$template->getIsCompulsory() === 1) {
+	private function ownerLayoutFields(WidgetPlacement $copy, WidgetPlacement $template): array {
+		if ($this->strategy !== TemplateResyncService::STRATEGY_MERGE || (int)$template->getIsCompulsory() === 1) {
 			return [];
 		}
 
@@ -321,7 +361,7 @@ class ResyncDiffer {
 	/**
 	 * The reconcilable field snapshot compared for equality and applied
 	 * on update. Kept as one array so the equality check
-	 * ({@see self::placementDiffers()}) and the field-copy
+	 * (the diff) and the field-copy
 	 * (applyTemplateFields / cloneTemplatePlacementInto)
 	 * can never silently drift apart (the field-copy lives in
 	 * {@see TemplateResyncService}).
@@ -363,29 +403,4 @@ class ResyncDiffer {
 			'ruleMatch' => $placement->getRuleMatch(),
 		];
 	}//end templateFieldSnapshot()
-
-	/**
-	 * Whether a copy placement's reconcilable fields differ from its
-	 * matching template placement's current fields.
-	 *
-	 * @param WidgetPlacement $copy The copy's placement.
-	 * @param WidgetPlacement $template The matching template placement.
-	 * @param array<int, string> $ignore Fields not compared: the grid fields
-	 *                                   when the owner's layout stays
-	 *                                   (REQ-RESYNC-007).
-	 *
-	 * @return bool True when the copy needs to be updated to match.
-	 *
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
-	 */
-	private function placementDiffers(
-		WidgetPlacement $copy,
-		WidgetPlacement $template,
-		array $ignore=[],
-	): bool {
-		$skip = array_flip($ignore);
-
-		return array_diff_key($this->templateFieldSnapshot(placement: $copy), $skip)
-			!== array_diff_key($this->templateFieldSnapshot(placement: $template), $skip);
-	}//end placementDiffers()
 }//end class

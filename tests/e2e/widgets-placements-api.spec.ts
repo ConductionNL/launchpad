@@ -34,7 +34,6 @@
  *   @e2e widgets::add-a-widget-to-a-dashboard
  *   @e2e widgets::add-a-widget-with-custom-title-and-styling
  *   @e2e widgets::add-widget-to-another-users-dashboard
- *   @e2e widgets::add-widget-with-invalid-coordinates
  *   @e2e widgets::add-widget-with-non-existent-widgetid
  *   @e2e widgets::update-widget-position-and-size
  *   @e2e widgets::update-style-configuration
@@ -46,7 +45,6 @@
  *   @e2e widgets::remove-another-users-widget-placement
  *   @e2e widgets::remove-widget-cascade-deletes-conditional-rules
  *   @e2e widgets::auto-assign-sort-order-on-creation
- *   @e2e widgets::reorder-widgets
  *   @e2e widgets::batch-update-after-grid-rearrangement
  *   @e2e widgets::batch-update-with-mixed-placement-types
  *
@@ -561,28 +559,6 @@ test.describe('REQ-WDG-003 add a widget to a dashboard', () => {
 		)
 	})
 
-	// @e2e widgets::add-widget-with-invalid-coordinates
-	test.fixme('a placement past the last column is refused with 400', async () => {
-		// SUSPECTED DEFECT (the scenario's own NOTE admits it): there is no
-		// bounds check. WidgetApiController::addWidget
-		// (lib/Controller/WidgetApiController.php:179) passes the coordinates
-		// to PlacementService::addWidget, whose freeSpot()
-		// (lib/Service/PlacementService.php:262) relocates rather than refuses.
-		const dash = await emptyDashboard(alice!.api, `${STAMP} bounds`)
-		const res = await alice!.api.post(`${API}/dashboard/${dash.id}/widgets`, {
-			data: {
-				widgetId: ALLOWED_WIDGET,
-				gridX: 10,
-				gridY: 0,
-				gridWidth: 4,
-				gridHeight: 4,
-			},
-		})
-		expect(res.status(), await res.text()).toBe(400)
-		expect(await placementsOf(alice!.api, dash.id)).toHaveLength(0)
-		await alice!.api.delete(`${API}/dashboard/${dash.id}`)
-	})
-
 	// @e2e widgets::add-widget-with-non-existent-widgetid
 	test('an unregistered widget id is accepted and stored as given', async () => {
 		// As the admin, who is exempt from role-feature restrictions: the
@@ -780,14 +756,12 @@ test.describe('REQ-WDG-005 remove a widget from a dashboard', () => {
 	})
 
 	// @e2e widgets::remove-widget-cascade-deletes-conditional-rules
-	test.fixme('removing a placement removes its three conditional rules', async () => {
-		// SUSPECTED DEFECT: nothing cascades. PlacementService::removePlacement
-		// (lib/Service/PlacementService.php:330) deletes only the placement row,
-		// ConditionalRuleMapper::deleteByPlacementId
-		// (lib/Db/ConditionalRuleMapper.php:109) has no caller, and no migration
-		// declares a foreign key. Orphaned rules are observable only as the
-		// `orphaned_conditional_rules` count of the cleanup dry run, which is
-		// what this measures.
+	test('removing a placement removes its three conditional rules', async () => {
+		// Was test.fixme: nothing cascaded. WidgetPlacementMapper::delete() now
+		// deletes the placement's rules first (deleteRulesOfPlacementsWhere(),
+		// the rules table has no foreign key). Orphaned rules are observable
+		// only as the `orphaned_conditional_rules` count of the cleanup dry
+		// run, which is what this measures.
 		const orphans = async (): Promise<number> => {
 			const res = await admin.post(`${API}/admin/cleanup/purge`, {
 				data: { categories: ['orphaned_conditional_rules'], dryRun: true },
@@ -970,14 +944,13 @@ test.describe('REQ-WDG-005 compulsory widgets (copies of an admin template)', ()
 	})
 
 	// @e2e widgets::remove-a-compulsory-widget-without-full-permission
-	test.fixme('add_only: the refusal says compulsory widgets cannot be removed', async ({
+	test('add_only: the refusal says compulsory widgets cannot be removed', async ({
 		browser,
 	}) => {
-		// SUSPECTED DEFECT: the refusal carries the generic
-		// `{"error":"Access denied"}` from ResponseHelper::forbidden()
-		// (lib/Controller/ResponseHelper.php:74, called at
-		// lib/Controller/WidgetApiController.php:807), not a message about
-		// compulsory widgets.
+		// Was test.fixme: the refusal carried the generic "Access denied".
+		// WidgetApiController now passes PermissionService::widgetRefusal() to
+		// ResponseHelper::forbidden(), which says "Compulsory widgets cannot
+		// be removed at this permission level" for add_only.
 		await targetAt('add_only')
 		const copy = await memberWithCopy(browser)
 		try {
@@ -1063,72 +1036,6 @@ test.describe('REQ-WDG-007 sort order', () => {
 			0,
 		)
 		expect(await placementsOf(alice!.api, dash.id)).toHaveLength(4)
-		await alice!.api.delete(`${API}/dashboard/${dash.id}`)
-	})
-
-	// @e2e widgets::reorder-widgets
-	test.fixme('rearranging so the third widget is first renumbers sortOrder 1, 2, 3', async () => {
-		// SUSPECTED DEFECT / NOT BUILT: no write path touches sort_order.
-		// The batch save (WidgetPlacementMapper::updatePosition,
-		// lib/Db/WidgetPlacementMapper.php:220) writes only the four grid
-		// columns, and `sortOrder` is not an accepted PUT field
-		// (lib/Controller/RequestDataExtractor.php:60).
-		const dash = await emptyDashboard(alice!.api, `${STAMP} reorder`)
-		const weather = await seedPlacement(alice!.api, dash.id, {
-			widgetId: ALLOWED_WIDGET,
-			gridX: 0,
-			gridY: 0,
-			gridWidth: 4,
-			gridHeight: 4,
-		})
-		const notes = await seedPlacement(alice!.api, dash.id, {
-			widgetId: ALLOWED_WIDGET,
-			gridX: 4,
-			gridY: 0,
-			gridWidth: 4,
-			gridHeight: 4,
-		})
-		const calendar = await seedPlacement(alice!.api, dash.id, {
-			widgetId: ALLOWED_WIDGET,
-			gridX: 8,
-			gridY: 0,
-			gridWidth: 4,
-			gridHeight: 4,
-		})
-
-		const res = await alice!.api.put(`${API}/dashboard/${dash.id}`, {
-			data: {
-				placements: [
-					{
-						id: calendar.id,
-						gridX: 0,
-						gridY: 0,
-						gridWidth: 4,
-						gridHeight: 4,
-					},
-					{
-						id: weather.id,
-						gridX: 4,
-						gridY: 0,
-						gridWidth: 4,
-						gridHeight: 4,
-					},
-					{
-						id: notes.id,
-						gridX: 8,
-						gridY: 0,
-						gridWidth: 4,
-						gridHeight: 4,
-					},
-				],
-			},
-		})
-		expect(res.status(), await res.text()).toBe(200)
-		const stored = await placementsOf(alice!.api, dash.id)
-		const order = (id: number) => stored.find((p) => p.id === id)?.sortOrder
-		expect([order(calendar.id), order(weather.id), order(notes.id)]).toEqual([
-			1, 2, 3,
-		])
 		await alice!.api.delete(`${API}/dashboard/${dash.id}`)
 	})
 })

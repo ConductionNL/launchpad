@@ -185,10 +185,6 @@
 				@openSettings="openConfigModal"
 				@done="toggleEditMode"
 				@dock="editBarDock = $event" />
-			<!-- engagement-dashboard-reactions-bar REQ-RXN-010: view mode. -->
-			<DashboardReactions
-				v-if="activeDashboard?.uuid && !isEditMode"
-				:dashboardUuid="activeDashboard.uuid" />
 			<!-- openregister-leaf-integrations REQ-LEAF-002: the Talk
 			     discussion of a shared or group dashboard; the access chain
 			     is documented in DashboardDiscussion. -->
@@ -350,6 +346,11 @@
 					</template>
 				</NcEmptyContent>
 			</div>
+			<!-- reactions-bar-at-the-foot REQ-RXN-010: view mode, at the foot
+			     of the dashboard under the last widget, over the full width. -->
+			<DashboardReactions
+				v-if="activeDashboard?.uuid && !isEditMode"
+				:dashboardUuid="activeDashboard.uuid" />
 		</div>
 
 		<!-- Widget picker modal -->

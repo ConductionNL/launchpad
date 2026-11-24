@@ -34,11 +34,16 @@
  * `npm run test:e2e` after starting the dev stack.
  *
  * Gate-19 @e2e traceability:
- *   @e2e dashboard-sharing::owner-adds-a-user-share
- *   @e2e dashboard-sharing::owner-changes-permission-level-persists
- *   @e2e dashboard-sharing::owner-removes-a-share-persists
- *   @e2e dashboard-sharing::recipient-sees-shared-dashboard
  *   @e2e dashboard-sharing::a-user-drives-the-full-sharing-flow-through-the-browser
+ *
+ * The four tests below are the steps of that one scenario (add, change the
+ * level, remove, and the recipient's view), each asserted across a reload.
+ * They used to carry four slugs of their own (`owner-adds-a-user-share`,
+ * `owner-changes-permission-level-persists`, `owner-removes-a-share-persists`,
+ * `recipient-sees-shared-dashboard`) that match no heading in the spec. The
+ * HTTP scenarios they resemble ("Owner adds a share", "Recipient sees a
+ * shared dashboard in their list") assert status codes and response fields a
+ * DOM test does not see, and are cited by `ci/dashboard-share-api.spec.ts`.
  *
  * @spec openspec/specs/dashboard-sharing/spec.md
  */

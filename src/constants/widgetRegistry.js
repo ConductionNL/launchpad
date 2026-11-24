@@ -233,6 +233,9 @@ registerDashboardWidget('ai-assistant', {
 	},
 	displayName: 'Assistant',
 	icon: 'RobotOutline',
+	// The chat panel needs a wide screen: board LpMobiel names "Assistent"
+	// among the widgets a phone hides (REQ-MRA-007).
+	mobileReady: false,
 })
 
 // `attention`: "First today", the ranked list of what the user's apps say

@@ -10,13 +10,10 @@
  * project's storage state) on a dashboard seeded for the run, removed
  * afterwards.
  *
- * KNOWN GAP, LEFT RUNNING ON PURPOSE: a widget is hidden on a phone when its
- * registry entry says `mobileReady: false` (src/utils/phoneHiddenWidgets.js
- * isPhoneReady). No entry in src/constants/widgetRegistry.js or in
- * @conduction/nextcloud-vue's widget registry sets that flag yet, so on a
- * live instance nothing is hidden and this test fails until the assistant
- * widget (`ai-assistant`, the board's "Assistent") is marked. It is not
- * skipped, so the gap stays visible.
+ * A widget is hidden on a phone when its registry entry says
+ * `mobileReady: false` (src/utils/phoneHiddenWidgets.js isPhoneReady); the
+ * assistant widget (`ai-assistant`, the board's "Assistent") is marked so in
+ * src/constants/widgetRegistry.js, which is why the test seeds two of them.
  *
  * Written from the change's scenarios; it runs in the nightly against a
  * live instance.

@@ -91,8 +91,14 @@ export function recentWorkRows(activities, limit, now, locale, apps = []) {
 	const seen = new Set()
 	for (const activity of Array.isArray(activities) ? activities : []) {
 		const name = String(activity?.object_name ?? '').split('/').filter(Boolean).pop() || ''
-		// Something the reader removed is not work to pick up again.
+		// Something the reader removed is not work to pick up again, and
+		// neither is its older activity (saved, created): the feed is newest
+		// first, so the delete marks the thing as seen before those come.
 		if (/deleted|_delete/.test(String(activity.type ?? '')) || /deleted/.test(String(activity.subject ?? ''))) {
+			if (name !== '') {
+				seen.add(`${activity.object_type ?? ''}:${activity.object_id ?? name}`)
+				seen.add(`${activity.app ?? ''}:${name}`)
+			}
 			continue
 		}
 		if (name === '' || UUID.test(name) || !activity.link) {

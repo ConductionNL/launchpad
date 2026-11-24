@@ -220,10 +220,9 @@ test('the file Pieter just saved is listed once, named by the file, with files a
 	}
 })
 
-// A deletion is its own activity, and recentWorkRows (RecentWorkWidget.vue)
-// leaves that one out. The earlier "created" activity of the same file
-// stays in the stream, so this is where a file that is gone could still
-// show; the scenario says it must not.
+// A deletion is its own activity; recentWorkRows (RecentWorkWidget.vue)
+// leaves it out and also the file's earlier "created" and "changed"
+// activity, which come after it in the newest-first stream.
 // @e2e widgets::a-deleted-file-is-not-work-to-pick-up
 test('a draft Pieter deleted is not listed', async ({ browser }) => {
 	test.skip(!activityAvailable, NO_ACTIVITY)

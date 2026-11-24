@@ -204,3 +204,12 @@ describe('section-heading (REQ-WDG-031)', () => {
 		expect(getWidgetTypeEntry('section-heading').minHeight).toBe(1)
 	})
 })
+
+describe('phone readiness (REQ-MRA-007)', () => {
+	it('marks the assistant as not ready for a phone and leaves other types shown', async () => {
+		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		const { isPhoneReady } = await import('../../utils/phoneHiddenWidgets.js')
+		expect(isPhoneReady(getWidgetTypeEntry('ai-assistant'))).toBe(false)
+		expect(isPhoneReady(getWidgetTypeEntry('clock'))).toBe(true)
+	})
+})

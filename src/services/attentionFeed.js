@@ -248,7 +248,7 @@ export async function checkSource(source, ctx) {
  * records stays one item.
  *
  * @param {Array<object>} entries Ranked entries that need attention.
- * @param {function(string, object): string} label Names the action, given the schema.
+ * @param {function(string, object): string} label Names the action, given the schema, when the source names none.
  * @return {Array<object>} The items.
  * @spec openspec/specs/attention-feed/spec.md#req-att-004
  * @spec openspec/changes/archive/2026-11-24-start-page-board-sync/specs/attention-feed/spec.md#requirement-vandaag-eerst-can-draw-one-card-per-record-req-att-007
@@ -269,7 +269,8 @@ export function expandToRecords(entries, label) {
 				id: `${entry.id}/${id}`,
 				title: String(record.title || record.name || id),
 				reason: entry.title,
-				actionLabel: label(entry.schema, record),
+				// The source's own action ("Zaak openen") first (REQ-ATT-007).
+				actionLabel: entry.actionLabel || label(entry.schema, record),
 				href: generateUrl(`${entry.itemPath}/${encodeURIComponent(id)}`),
 			})
 		}

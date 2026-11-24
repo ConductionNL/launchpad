@@ -25,11 +25,9 @@
  * with what they answer: the sources endpoint declares dossiq's "decision
  * term ends today" source and the OpenRegister search lists two cases.
  *
- * The item-card test is written to its scenario and is expected to FAIL
- * against the product: SUSPECTED BUG, AttentionWidget.vue (`load`, the label
- * callback handed to `expandToRecords`) names every card "Open {schema}" and
- * never the source's own action label, so "Zaak openen" does not show. It is
- * left running on purpose.
+ * The item cards carry the source's own action label ("Zaak openen");
+ * `expandToRecords` (src/services/attentionFeed.js) falls back to
+ * "Open {item}" only when the source names none.
  *
  * Written from the change's scenarios (start-page-board-sync); it runs in
  * the nightly against a live instance.

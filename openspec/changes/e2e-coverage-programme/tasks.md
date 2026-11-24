@@ -226,6 +226,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: no spec file, 0 scenarios cited, 7 excluded with reasons, one per requirement; the blanket is gone. Every scenario reads checked-in files or CI behaviour, not a running instance. REQ-LIC-003 does not hold: 12 files under `src/` still name `LaunchPad Contributors` (cloud, 2026-11-19)
 - [ ] 5.14 `groupfolder-storage-backend`: 0 scenarios, 0 cited. Has no scenarios. Decide whether the spec is still wanted.
   - Decided: keep it. The spec is marked `status: withdrawn` and records why the capability was retired (launchpad#87) and what was removed. With no requirements and no scenarios it owes gate-19 nothing; archiving or deleting it is a separate change (cloud, 2026-11-19)
+  - Spec written: tests/e2e/groupfolder-storage-backend.spec.ts, 1 scenario cited, 1 excluded with reason, not yet run (cloud, 2026-11-24). The spec has since gained REQ-GFSB-011 with 2 scenarios, so it does owe gate-19 now.
 
 ## 6. Close the programme
 

@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Twissija",
     "Something went wrong" : "Xi ħaġa marret ħażin",
     "Date field for the period" : "Qasam tad-data għall-perjodu",
-    "None: the widget does not follow the period" : "Xejn: il-widget ma jsegwix il-perjodu"
+    "None: the widget does not follow the period" : "Xejn: il-widget ma jsegwix il-perjodu",
+    "Ask for read confirmation" : "Itlob konferma tal-qari",
+    "Confirm before" : "Ikkonferma qabel",
+    "Confirm before {date}" : "Ikkonferma qabel {date}",
+    "You confirmed you have read this" : "Ikkonfermajt li qrajt dan",
+    "The confirm-before date must be after the publish time" : "Id-data tal-konferma trid tkun wara l-ħin tal-pubblikazzjoni",
+    "Your read confirmation could not be saved" : "Il-konferma tal-qari tiegħek ma setgħetx tiġi ssejvjata"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

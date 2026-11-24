@@ -1875,6 +1875,12 @@
         "Warning": "Warning",
         "Something went wrong": "Something went wrong",
         "Date field for the period": "Date field for the period",
-        "None: the widget does not follow the period": "None: the widget does not follow the period"
+        "None: the widget does not follow the period": "None: the widget does not follow the period",
+        "Ask for read confirmation": "Ask for read confirmation",
+        "Confirm before": "Confirm before",
+        "Confirm before {date}": "Confirm before {date}",
+        "You confirmed you have read this": "You confirmed you have read this",
+        "The confirm-before date must be after the publish time": "The confirm-before date must be after the publish time",
+        "Your read confirmation could not be saved": "Your read confirmation could not be saved"
     }
 }

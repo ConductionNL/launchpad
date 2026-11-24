@@ -26,6 +26,7 @@ namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use DateTimeInterface;
+use InvalidArgumentException;
 use JsonSerializable;
 use OCP\AppFramework\Db\Entity;
 
@@ -56,6 +57,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setExpiresAt(?DateTime $expiresAt)
  * @method int getAllowComments()
  * @method void setAllowComments(int $allowComments)
+ * @method int getRequiresConfirmation()
+ * @method void setRequiresConfirmation(int $requiresConfirmation)
+ * @method DateTime|null getConfirmBefore()
+ * @method void setConfirmBefore(?DateTime $confirmBefore)
  * @method string|null getAuthorId()
  * @method void setAuthorId(string $authorId)
  * @method DateTime|null getNotifiedAt()
@@ -164,6 +169,20 @@ class Announcement extends Entity implements JsonSerializable {
 	protected int $allowComments = 0;
 
 	/**
+	 * 1 when the audience is asked to confirm they have read it (REQ-ANN-007).
+	 *
+	 * @var int
+	 */
+	protected int $requiresConfirmation = 0;
+
+	/**
+	 * The date to confirm before, or null for no deadline (REQ-ANN-007).
+	 *
+	 * @var DateTime|null
+	 */
+	protected ?DateTime $confirmBefore = null;
+
+	/**
 	 * The author.
 	 *
 	 * @var ?string
@@ -193,11 +212,15 @@ class Announcement extends Entity implements JsonSerializable {
 
 	/**
 	 * Constructor.
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function __construct() {
 		$this->addType(fieldName: 'id', type: 'integer');
 		$this->addType(fieldName: 'dismissible', type: 'integer');
 		$this->addType(fieldName: 'allowComments', type: 'integer');
+		$this->addType(fieldName: 'requiresConfirmation', type: 'integer');
+		$this->addType(fieldName: 'confirmBefore', type: 'datetime');
 		$this->addType(fieldName: 'publishAt', type: 'datetime');
 		$this->addType(fieldName: 'expiresAt', type: 'datetime');
 		$this->addType(fieldName: 'notifiedAt', type: 'datetime');
@@ -246,11 +269,34 @@ class Announcement extends Entity implements JsonSerializable {
 	}//end iso()
 
 	/**
+	 * Settle the read confirmation after a change: without the question
+	 * there is no deadline; with it, a deadline must lie after the publish
+	 * time, so readers get time to confirm (REQ-ANN-007).
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the deadline is not after the publish time.
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	public function settleConfirmation(): void {
+		if ($this->requiresConfirmation !== 1) {
+			$this->setConfirmBefore(null);
+			return;
+		}
+
+		if ($this->confirmBefore !== null && $this->publishAt !== null && $this->confirmBefore <= $this->publishAt) {
+			throw new InvalidArgumentException('The confirm-before date must be after the publish time');
+		}
+	}//end settleConfirmation()
+
+	/**
 	 * The announcement as the API answers it.
 	 *
 	 * @return array<string, mixed>
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function jsonSerialize(): array {
 		return [
@@ -267,6 +313,8 @@ class Announcement extends Entity implements JsonSerializable {
 			'publishAt' => self::iso(date: $this->publishAt),
 			'expiresAt' => self::iso(date: $this->expiresAt),
 			'allowComments' => $this->allowComments === 1,
+			'requiresConfirmation' => $this->requiresConfirmation === 1,
+			'confirmBefore' => self::iso(date: $this->confirmBefore),
 			'authorId' => $this->authorId,
 			'createdAt' => self::iso(date: $this->createdAt),
 			'updatedAt' => self::iso(date: $this->updatedAt),

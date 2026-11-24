@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Avertisment",
     "Something went wrong" : "Ceva nu a mers bine",
     "Date field for the period" : "Câmp de dată pentru perioadă",
-    "None: the widget does not follow the period" : "Niciunul: widgetul nu urmează perioada"
+    "None: the widget does not follow the period" : "Niciunul: widgetul nu urmează perioada",
+    "Ask for read confirmation" : "Solicită confirmarea citirii",
+    "Confirm before" : "Confirmă până la",
+    "Confirm before {date}" : "Confirmă până la {date}",
+    "You confirmed you have read this" : "Ați confirmat că ați citit acest lucru",
+    "The confirm-before date must be after the publish time" : "Termenul de confirmare trebuie să fie după momentul publicării",
+    "Your read confirmation could not be saved" : "Confirmarea citirii nu a putut fi salvată"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

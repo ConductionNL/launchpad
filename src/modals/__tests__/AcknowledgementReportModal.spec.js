@@ -11,6 +11,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import AcknowledgementReportModal from '../AcknowledgementReportModal.vue'
+import { announcementsApi } from '../../services/announcementsApi.js'
 import { api } from '../../services/api.js'
 
 vi.mock('../../services/api.js', () => ({
@@ -18,6 +19,10 @@ vi.mock('../../services/api.js', () => ({
 		getAcknowledgementReport: vi.fn(),
 		getAcknowledgementReportCsvUrl: vi.fn((key) => `/csv/${key}`),
 	},
+}))
+
+vi.mock('../../services/announcementsApi.js', () => ({
+	announcementsApi: { receipts: vi.fn() },
 }))
 
 const stubs = {
@@ -131,5 +136,22 @@ describe('AcknowledgementReportModal', () => {
 		await wrapper.setProps({ announcementKey: 'other' })
 		await flushPromises()
 		expect(api.getAcknowledgementReport).toHaveBeenLastCalledWith('other')
+	})
+
+	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	it('reads an announcement\'s confirmations from the announcements API, without Download', async () => {
+		announcementsApi.receipts.mockResolvedValue(REPORT)
+		const wrapper = mountModal({ announcementKey: '', announcementUuid: 'u-1', dashboardName: '' })
+		await flushPromises()
+
+		expect(announcementsApi.receipts).toHaveBeenCalledWith('u-1')
+		expect(api.getAcknowledgementReport).not.toHaveBeenCalled()
+		expect(wrapper.find('[data-testid="ack-summary"]').text()).toContain('1 of 3 confirmed')
+		expect(wrapper.find('[data-testid="acknowledgement-report-csv"]').exists()).toBe(false)
+
+		announcementsApi.receipts.mockResolvedValue({ ...REPORT, rows: [] })
+		await wrapper.setProps({ announcementUuid: 'u-2' })
+		await flushPromises()
+		expect(announcementsApi.receipts).toHaveBeenLastCalledWith('u-2')
 	})
 })

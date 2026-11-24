@@ -65,6 +65,14 @@
 					</template>
 					<template v-else>
 						<NcTextField v-model="form.category" :label="t('launchpad', 'Category')" data-test="editor-category" />
+						<!-- REQ-ANN-007: ask the audience to confirm they have read it, before a date. -->
+						<NcCheckboxRadioSwitch v-model="form.requiresConfirmation" data-test="editor-requires-confirmation">
+							{{ t('launchpad', 'Ask for read confirmation') }}
+						</NcCheckboxRadioSwitch>
+						<label v-if="form.requiresConfirmation" class="announcement-editor__label">
+							{{ t('launchpad', 'Confirm before') }}
+							<input v-model="form.confirmBefore" type="date" data-test="editor-confirm-before">
+						</label>
 						<NcCheckboxRadioSwitch v-model="form.allowComments" data-test="editor-comments">
 							{{ t('launchpad', 'Allow comments and following') }}
 						</NcCheckboxRadioSwitch>
@@ -188,6 +196,38 @@ export function endTimeProblem(publishAt, expiresAt, now) {
 }
 
 /**
+ * The "Confirm before" date as the moment it ends: the end of that day in
+ * the author's time zone, or null without a date (REQ-ANN-007).
+ *
+ * @param {string} date The `date` input value, `YYYY-MM-DD`.
+ * @return {string|null}
+ * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ */
+export function confirmBeforeIso(date) {
+	return date ? toIso(`${date}T23:59`) : null
+}
+
+/**
+ * Why the read confirmation cannot go on: a "Confirm before" date that is
+ * not after the publish time; '' when it can (REQ-ANN-007).
+ *
+ * @param {string} publishAt The publish time (`datetime-local`), '' for when it is published.
+ * @param {string|null} confirmBefore The deadline, ISO 8601, or null.
+ * @param {Date} now The current moment, standing in for an empty publish time.
+ * @return {string} The refusal, or ''.
+ * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ */
+export function confirmBeforeProblem(publishAt, confirmBefore, now) {
+	if (!confirmBefore) {
+		return ''
+	}
+	const start = toIso(publishAt) ?? now.toISOString()
+	return new Date(confirmBefore) <= new Date(start)
+		? t('launchpad', 'The confirm-before date must be after the publish time')
+		: ''
+}
+
+/**
  * The end time as the preview names it, "30 October 17:00" in the
  * reader's language, or '' without one.
  *
@@ -246,7 +286,11 @@ export function groupChoices(groups, chosen) {
  * the same card or banner readers get that follows every field without
  * saving, with the number of people the targeting reaches and "Preview as"
  * one person (REQ-ANN-004). It ends with Cancel and one primary action:
- * Schedule, or Publish when Publish on is empty or past (REQ-ANN-006).
+ * Schedule, or Publish when Publish on is empty or past (REQ-ANN-006). A
+ * news item can ask for a read confirmation before a date; the preview then
+ * shows "I have read this" and "Confirm before <date>" (REQ-ANN-007).
+ *
+ * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  *
  * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
@@ -280,6 +324,8 @@ export default {
 				allowComments: true,
 				publishAt: '',
 				expiresAt: '',
+				requiresConfirmation: false,
+				confirmBefore: '',
 			},
 		}
 	},
@@ -322,7 +368,10 @@ export default {
 			]
 		},
 
-		/** @return {object} The fields the API takes. */
+		/**
+		 * @return {object} The fields the API takes.
+		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 */
 		payload() {
 			const isNotice = this.form.kind === 'notice'
 			return {
@@ -336,6 +385,8 @@ export default {
 				allowComments: isNotice ? false : this.form.allowComments,
 				publishAt: toIso(this.form.publishAt),
 				expiresAt: toIso(this.form.expiresAt),
+				requiresConfirmation: !isNotice && this.form.requiresConfirmation,
+				confirmBefore: !isNotice && this.form.requiresConfirmation ? confirmBeforeIso(this.form.confirmBefore) : null,
 			}
 		},
 
@@ -400,6 +451,7 @@ export default {
 				return
 			}
 			const problem = endTimeProblem(this.form.publishAt, this.form.expiresAt, new Date())
+				|| confirmBeforeProblem(this.form.publishAt, this.payload.confirmBefore, new Date())
 			if (problem !== '') {
 				this.error = problem
 				return

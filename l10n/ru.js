@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Предупреждение",
     "Something went wrong" : "Что-то пошло не так",
     "Date field for the period" : "Поле даты для периода",
-    "None: the widget does not follow the period" : "Нет: виджет не следует периоду"
+    "None: the widget does not follow the period" : "Нет: виджет не следует периоду",
+    "Ask for read confirmation" : "Запросить подтверждение прочтения",
+    "Confirm before" : "Подтвердить до",
+    "Confirm before {date}" : "Подтвердить до {date}",
+    "You confirmed you have read this" : "Вы подтвердили, что прочитали это",
+    "The confirm-before date must be after the publish time" : "Срок подтверждения должен быть позже времени публикации",
+    "Your read confirmation could not be saved" : "Не удалось сохранить ваше подтверждение прочтения"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

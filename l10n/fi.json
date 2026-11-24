@@ -1548,6 +1548,12 @@
         "Warning": "Varoitus",
         "Something went wrong": "Jokin meni pieleen",
         "Date field for the period": "Jakson päivämääräkenttä",
-        "None: the widget does not follow the period": "Ei mitään: pienoisohjelma ei seuraa jaksoa"
+        "None: the widget does not follow the period": "Ei mitään: pienoisohjelma ei seuraa jaksoa",
+        "Ask for read confirmation": "Pyydä lukukuittaus",
+        "Confirm before": "Vahvista viimeistään",
+        "Confirm before {date}": "Vahvista viimeistään {date}",
+        "You confirmed you have read this": "Olet vahvistanut lukeneesi tämän",
+        "The confirm-before date must be after the publish time": "Vahvistuksen määräajan on oltava julkaisuajan jälkeen",
+        "Your read confirmation could not be saved": "Lukukuittaustasi ei voitu tallentaa"
     }
 }

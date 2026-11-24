@@ -1550,6 +1550,12 @@
         "Warning": "Попередження",
         "Something went wrong": "Щось пішло не так",
         "Date field for the period": "Поле дати для періоду",
-        "None: the widget does not follow the period": "Немає: віджет не стежить за періодом"
+        "None: the widget does not follow the period": "Немає: віджет не стежить за періодом",
+        "Ask for read confirmation": "Попросити підтвердження прочитання",
+        "Confirm before": "Підтвердити до",
+        "Confirm before {date}": "Підтвердити до {date}",
+        "You confirmed you have read this": "Ви підтвердили, що прочитали це",
+        "The confirm-before date must be after the publish time": "Термін підтвердження має бути пізніше за час публікації",
+        "Your read confirmation could not be saved": "Не вдалося зберегти ваше підтвердження прочитання"
     }
 }

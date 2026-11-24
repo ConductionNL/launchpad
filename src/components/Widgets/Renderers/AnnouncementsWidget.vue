@@ -42,8 +42,12 @@
 				<AnnouncementCard
 					:announcement="item"
 					:reactions="reactionsOf(item.uuid)"
+					:confirmed="readConfirmations.confirmed.includes(item.uuid)"
+					:canReport="readConfirmations.receipts.includes(item.uuid)"
 					@toggleLike="toggleLike"
-					@openComments="openComments">
+					@openComments="openComments"
+					@confirmRead="confirmRead"
+					@openReceipts="openReceipts">
 					<div v-if="openUuid === item.uuid" class="announcements-widget__comments" data-test="announcement-comment-list">
 						<ul>
 							<li v-for="comment in comments" :key="comment.id">
@@ -68,6 +72,12 @@
 			</li>
 		</ul>
 
+		<AcknowledgementReportModal
+			:open="receiptsItem !== null"
+			:announcementUuid="receiptsItem ? receiptsItem.uuid : ''"
+			:title="receiptsItem ? receiptsItem.title : ''"
+			@close="receiptsItem = null" />
+
 		<AnnouncementEditorModal
 			v-if="editorOpen"
 			@close="editorOpen = false"
@@ -78,24 +88,42 @@
 <script>
 import { t } from '@nextcloud/l10n'
 import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
+import AcknowledgementReportModal from '../../../modals/AcknowledgementReportModal.vue'
 import AnnouncementEditorModal from '../../../modals/AnnouncementEditorModal.vue'
 import AnnouncementCard from '../../Announcements/AnnouncementCard.vue'
 import { announcementsApi } from '../../../services/announcementsApi.js'
 import { logger } from '../../../utils/logger.js'
 
 /**
+ * The read confirmation state of the list: the uuids the reader confirmed
+ * and the ones whose read confirmations the reader may open (REQ-ANN-007).
+ *
+ * @param {object|undefined} state `{confirmed, receipts}` from the server.
+ * @return {{confirmed: Array<string>, receipts: Array<string>}}
+ * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ */
+export function readConfirmationState(state) {
+	const list = (value) => (Array.isArray(value) ? value.filter((uuid) => typeof uuid === 'string') : [])
+	return { confirmed: list(state?.confirmed), receipts: list(state?.receipts) }
+}
+
+/**
  * AnnouncementsWidget — the news announcements that reach the reader,
  * newest first, with a category filter, like and comment counts, comments,
  * and follow per category (REQ-ANN-001..003). Notices are not listed here;
  * they show as banners above the grid (REQ-ANN-005). Authors get a "New
- * announcement" button that opens the editor with its preview step.
+ * announcement" button that opens the editor with its preview step. A
+ * reader confirms "I have read this"; the author opens who confirmed
+ * (REQ-ANN-007).
+ *
+ * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  *
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
  */
 export default {
 	name: 'AnnouncementsWidget',
 
-	components: { AnnouncementCard, AnnouncementEditorModal, NcButton, NcSelect, NcTextField },
+	components: { AcknowledgementReportModal, AnnouncementCard, AnnouncementEditorModal, NcButton, NcSelect, NcTextField },
 
 	props: {
 		/** Placement content: `category` (initial filter) and `limit`. */
@@ -118,6 +146,8 @@ export default {
 			comments: [],
 			draftComment: '',
 			editorOpen: false,
+			readConfirmations: { confirmed: [], receipts: [] },
+			receiptsItem: null,
 		}
 	},
 
@@ -155,15 +185,26 @@ export default {
 	methods: {
 		t,
 
-		/** @spec openspec/changes/engagement-announcements/tasks.md#task-7 */
+		/**
+		 * @spec openspec/changes/engagement-announcements/tasks.md#task-7
+		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 */
 		async load() {
 			this.loading = true
 			try {
-				const data = await announcementsApi.list()
+				// The read state is asked beside the list, never after it (REQ-ANN-007).
+				const [data, readState] = await Promise.all([
+					announcementsApi.list(),
+					announcementsApi.readState().catch((error) => {
+						logger.error('Failed to load the read confirmations:', error)
+						return null
+					}),
+				])
 				this.announcements = Array.isArray(data.announcements) ? data.announcements : []
 				this.reactions = data.reactions ?? {}
 				this.followed = Array.isArray(data.followedCategories) ? data.followedCategories : []
 				this.canAuthor = data.canAuthor === true
+				this.readConfirmations = readConfirmationState(readState)
 				this.error = ''
 			} catch (error) {
 				logger.error('Failed to load announcements:', error)
@@ -254,6 +295,35 @@ export default {
 			} catch (error) {
 				logger.error('Failed to change the follow:', error)
 			}
+		},
+
+		/**
+		 * "I have read this": confirm, then the card says so.
+		 *
+		 * @param {string} uuid The announcement.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 */
+		async confirmRead(uuid) {
+			try {
+				await announcementsApi.confirmRead(uuid)
+				if (!this.readConfirmations.confirmed.includes(uuid)) {
+					this.readConfirmations = { ...this.readConfirmations, confirmed: [...this.readConfirmations.confirmed, uuid] }
+				}
+			} catch (error) {
+				logger.error('Failed to confirm the announcement:', error)
+				this.error = t('launchpad', 'Your read confirmation could not be saved')
+			}
+		},
+
+		/**
+		 * Open the read confirmations of one announcement.
+		 *
+		 * @param {string} uuid The announcement.
+		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 */
+		openReceipts(uuid) {
+			this.receiptsItem = this.announcements.find((item) => item.uuid === uuid) ?? null
 		},
 
 		/** @spec openspec/changes/engagement-announcements/tasks.md#task-8 */

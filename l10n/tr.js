@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Uyarı",
     "Something went wrong" : "Bir şeyler ters gitti",
     "Date field for the period" : "Dönem için tarih alanı",
-    "None: the widget does not follow the period" : "Yok: pencere öğesi dönemi izlemez"
+    "None: the widget does not follow the period" : "Yok: pencere öğesi dönemi izlemez",
+    "Ask for read confirmation" : "Okundu onayı iste",
+    "Confirm before" : "Son onay tarihi",
+    "Confirm before {date}" : "Son onay tarihi {date}",
+    "You confirmed you have read this" : "Bunu okuduğunuzu onayladınız",
+    "The confirm-before date must be after the publish time" : "Onay son tarihi yayın zamanından sonra olmalıdır",
+    "Your read confirmation could not be saved" : "Okundu onayınız kaydedilemedi"
 },
 "nplurals=2; plural=(n != 1);"
 );

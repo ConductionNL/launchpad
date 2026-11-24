@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Предупреждение",
     "Something went wrong" : "Нещо се обърка",
     "Date field for the period" : "Поле за дата за периода",
-    "None: the widget does not follow the period" : "Няма: джаджата не следва периода"
+    "None: the widget does not follow the period" : "Няма: джаджата не следва периода",
+    "Ask for read confirmation" : "Изискване на потвърждение за прочитане",
+    "Confirm before" : "Потвърдете до",
+    "Confirm before {date}" : "Потвърдете до {date}",
+    "You confirmed you have read this" : "Потвърдихте, че сте прочели това",
+    "The confirm-before date must be after the publish time" : "Срокът за потвърждение трябва да е след часа на публикуване",
+    "Your read confirmation could not be saved" : "Потвърждението ви за прочитане не можа да бъде запазено"
 },
 "nplurals=2; plural=(n != 1);"
 );

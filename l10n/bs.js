@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Upozorenje",
     "Something went wrong" : "Nešto nije u redu",
     "Date field for the period" : "Polje datuma za period",
-    "None: the widget does not follow the period" : "Nijedno: widget ne prati period"
+    "None: the widget does not follow the period" : "Nijedno: widget ne prati period",
+    "Ask for read confirmation" : "Zatraži potvrdu čitanja",
+    "Confirm before" : "Potvrdi do",
+    "Confirm before {date}" : "Potvrdi do {date}",
+    "You confirmed you have read this" : "Potvrdili ste da ste ovo pročitali",
+    "The confirm-before date must be after the publish time" : "Rok za potvrdu mora biti nakon vremena objave",
+    "Your read confirmation could not be saved" : "Vašu potvrdu čitanja nije bilo moguće sačuvati"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

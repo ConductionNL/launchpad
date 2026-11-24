@@ -1548,6 +1548,12 @@
         "Warning": "Warnung",
         "Something went wrong": "Etwas ist schiefgelaufen",
         "Date field for the period": "Datumsfeld für den Zeitraum",
-        "None: the widget does not follow the period": "Keins: Das Widget folgt dem Zeitraum nicht"
+        "None: the widget does not follow the period": "Keins: Das Widget folgt dem Zeitraum nicht",
+        "Ask for read confirmation": "Lesebestätigung anfordern",
+        "Confirm before": "Bestätigen bis",
+        "Confirm before {date}": "Bestätigen bis {date}",
+        "You confirmed you have read this": "Sie haben bestätigt, dass Sie dies gelesen haben",
+        "The confirm-before date must be after the publish time": "Das Bestätigungsdatum muss nach dem Veröffentlichungszeitpunkt liegen",
+        "Your read confirmation could not be saved": "Ihre Lesebestätigung konnte nicht gespeichert werden"
     }
 }

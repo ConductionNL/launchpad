@@ -1648,7 +1648,13 @@ OC.L10N.register(
     "Warning" : "Varning",
     "Something went wrong" : "Något gick fel",
     "Date field for the period" : "Datumfält för perioden",
-    "None: the widget does not follow the period" : "Inget: widgeten följer inte perioden"
+    "None: the widget does not follow the period" : "Inget: widgeten följer inte perioden",
+    "Ask for read confirmation" : "Be om läsbekräftelse",
+    "Confirm before" : "Bekräfta senast",
+    "Confirm before {date}" : "Bekräfta senast {date}",
+    "You confirmed you have read this" : "Du har bekräftat att du har läst detta",
+    "The confirm-before date must be after the publish time" : "Sista dag för bekräftelse måste vara efter publiceringstiden",
+    "Your read confirmation could not be saved" : "Din läsbekräftelse kunde inte sparas"
 },
 "nplurals=2; plural=(n != 1);"
 );

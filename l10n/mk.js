@@ -1639,7 +1639,13 @@ OC.L10N.register(
     "Warning" : "Предупредување",
     "Something went wrong" : "Нешто тргна наопаку",
     "Date field for the period" : "Поле за датум за периодот",
-    "None: the widget does not follow the period" : "Нема: виџетот не го следи периодот"
+    "None: the widget does not follow the period" : "Нема: виџетот не го следи периодот",
+    "Ask for read confirmation" : "Побарај потврда за читање",
+    "Confirm before" : "Потврди до",
+    "Confirm before {date}" : "Потврди до {date}",
+    "You confirmed you have read this" : "Потврдивте дека го прочитавте ова",
+    "The confirm-before date must be after the publish time" : "Рокот за потврда мора да биде по времето на објавување",
+    "Your read confirmation could not be saved" : "Вашата потврда за читање не можеше да се зачува"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

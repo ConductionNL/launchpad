@@ -108,4 +108,28 @@ class AcknowledgementMapperTest extends TestCase {
 		$this->assertSame(1, $ack->getId());
 		$this->assertContains('qb1.insert("launchpad_acknowledgements")', $recorder->calls);
 	}//end testRecordInsertsAStampedAcknowledgement()
+
+	/**
+	 * The keys a user confirmed come from one IN query, each once; no keys asks nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	public function testFindKeysConfirmedByAsksOnceForAllKeys(): void {
+		$recorder = new QueryRecorder(test: $this);
+		$recorder->rows = [
+			['id' => 1, 'announcement_key' => 'announcement-a', 'user_id' => 'alice', 'content_version' => 1],
+			['id' => 2, 'announcement_key' => 'announcement-a', 'user_id' => 'alice', 'content_version' => 2],
+		];
+		$mapper = new AcknowledgementMapper($recorder->connection());
+
+		$this->assertSame(expected: ['announcement-a'], actual: $mapper->findKeysConfirmedBy('alice', ['announcement-a', 'announcement-b']));
+		$this->assertContains(needle: 'qb1.where("eq(\\"user_id\\", \\":p1\\", null)")', haystack: $recorder->calls);
+		$this->assertContains(needle: 'qb1.createNamedParameter(["announcement-a","announcement-b"], 102, null)', haystack: $recorder->calls);
+
+		$empty = new QueryRecorder(test: $this);
+		$this->assertSame(expected: [], actual: (new AcknowledgementMapper($empty->connection()))->findKeysConfirmedBy('alice', []));
+		$this->assertSame(expected: [], actual: $empty->calls);
+	}//end testFindKeysConfirmedByAsksOnceForAllKeys()
 }//end class

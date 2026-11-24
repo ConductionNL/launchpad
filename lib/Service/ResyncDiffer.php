@@ -233,7 +233,7 @@ class ResyncDiffer {
 			return ['toPreserve', $copy];
 		}
 
-		$keepLayout = $this->keepsOwnerLayout(copy: $copy, compulsory: $compulsory, strategy: $strategy);
+		$keepLayout = ($strategy === TemplateResyncService::STRATEGY_MERGE) && $this->keepsOwnerLayout(copy: $copy, template: $template);
 		$ignore = [];
 		if ($keepLayout === true) {
 			$ignore = PlacementLayout::FIELDS;
@@ -254,21 +254,18 @@ class ResyncDiffer {
 	}//end classifyCopyPlacement()
 
 	/**
-	 * Whether a matched placement keeps the owner's layout: under `merge`, for
+	 * Whether a matched placement keeps the owner's layout under `merge`: for
 	 * a non-compulsory widget the owner moved or resized (REQ-RESYNC-007).
 	 *
-	 * @param WidgetPlacement $copy       The copy's placement.
-	 * @param bool            $compulsory Whether the template placement is compulsory.
-	 * @param string          $strategy   The re-sync strategy.
+	 * @param WidgetPlacement $copy     The copy's placement.
+	 * @param WidgetPlacement $template The template placement it came from.
 	 *
 	 * @return bool True when the owner's position and size stay.
 	 *
-	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag) $compulsory is a fact about the template placement, not a mode switch.
-	 *
 	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
-	private function keepsOwnerLayout(WidgetPlacement $copy, bool $compulsory, string $strategy): bool {
-		if ($strategy !== TemplateResyncService::STRATEGY_MERGE || $compulsory === true) {
+	private function keepsOwnerLayout(WidgetPlacement $copy, WidgetPlacement $template): bool {
+		if ((int)$template->getIsCompulsory() === 1) {
 			return false;
 		}
 

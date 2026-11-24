@@ -99,6 +99,20 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	public const ASYNC_THRESHOLD = 50;
 
 	/**
+	 * Diffs a copy against the template (REQ-RESYNC-003, REQ-RESYNC-006, REQ-RESYNC-007).
+	 *
+	 * @var ResyncDiffer
+	 */
+	private readonly ResyncDiffer $differ;
+
+	/**
+	 * Reads and stamps a placement's layout (REQ-RESYNC-007).
+	 *
+	 * @var PlacementLayout
+	 */
+	private readonly PlacementLayout $layout;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ResyncStores         $stores The dashboard and placement mappers, the database and the job list.
@@ -112,8 +126,6 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * @param LoggerInterface      $logger PSR-3 logger.
 	 * @param ResyncFollowUps      $followUps What happens to a changed copy: its personal layers are pruned
 	 *                                        (REQ-DWMS-001) and it gets a version by the template (REQ-VERSUI-005).
-	 * @param ResyncDiffer         $differ    Diffs a copy against the template (REQ-RESYNC-003, 006, 007).
-	 * @param PlacementLayout      $layout    Reads and stamps a placement's layout (REQ-RESYNC-007).
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
@@ -124,9 +136,9 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		private readonly INotificationManager $notificationManager,
 		private readonly LoggerInterface $logger,
 		private readonly ResyncFollowUps $followUps,
-		private readonly ResyncDiffer $differ = new ResyncDiffer(),
-		private readonly PlacementLayout $layout = new PlacementLayout(),
 	) {
+		$this->layout = new PlacementLayout();
+		$this->differ = new ResyncDiffer(layout: $this->layout);
 	}//end __construct()
 
 	/**
@@ -547,9 +559,8 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		try {
 			foreach ($diff['toAdd'] as $index => $templatePlacement) {
 				$this->stores->placementMapper->insert(
-					entity: $this->cloneTemplatePlacementInto(
-						template: $templatePlacement,
-						dashboardId: $copy->getId(),
+					entity: $this->placedClone(
+						clone: $this->cloneTemplatePlacementInto(template: $templatePlacement, dashboardId: $copy->getId()),
 						spot: ($diff['addSpots'][$index] ?? null)
 					)
 				);
@@ -645,9 +656,6 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *
 	 * @param WidgetPlacement $template The template placement to clone.
 	 * @param int $dashboardId The target copy's dashboard ID.
-	 * @param array{gridX:int,gridY:int,gridWidth:int,gridHeight:int}|null $spot Where it goes
-	 *                                                                          (`add_only`); null keeps
-	 *                                                                          the template's spot.
 	 *
 	 * @return WidgetPlacement The new (uninserted) placement entity.
 	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
@@ -656,7 +664,6 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	private function cloneTemplatePlacementInto(
 		WidgetPlacement $template,
 		int $dashboardId,
-		?array $spot=null,
 	): WidgetPlacement {
 		$clone = new WidgetPlacement();
 		$clone->setDashboardId($dashboardId);
@@ -689,10 +696,6 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 		$clone->setAnnouncementKey($template->getAnnouncementKey());
 		$clone->setRuleMatch($template->getRuleMatch());
 		$clone->setTemplatePlacementId($template->getId());
-		if ($spot !== null) {
-			$this->layout->apply(placement: $clone, rect: $spot);
-		}
-
 		$this->layout->stamp(placement: $clone);
 
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
@@ -701,6 +704,26 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 
 		return $clone;
 	}//end cloneTemplatePlacementInto()
+
+	/**
+	 * Put an added clone on its `add_only` spot and make that its baseline
+	 * (REQ-RESYNC-006); without a spot it keeps the template's.
+	 *
+	 * @param WidgetPlacement                                               $clone The new placement (mutated).
+	 * @param array{gridX:int,gridY:int,gridWidth:int,gridHeight:int}|null $spot  The spot, or null.
+	 *
+	 * @return WidgetPlacement The placement.
+	 *
+	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 */
+	private function placedClone(WidgetPlacement $clone, ?array $spot): WidgetPlacement {
+		if ($spot !== null) {
+			$this->layout->apply(placement: $clone, rect: $spot);
+			$this->layout->stamp(placement: $clone);
+		}
+
+		return $clone;
+	}//end placedClone()
 
 	// ---------------------------------------------------------------
 	// Validation

@@ -63,6 +63,10 @@ class TemplateRolloutSummary {
 	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 	 */
 	public function summarize(array $templatePlacements, array $copies): array {
+		if ($copies === []) {
+			return ['gained' => [], 'lost' => [], 'changedByOwnerCount' => 0];
+		}
+
 		$held = [];
 		foreach ($templatePlacements as $templatePlacement) {
 			$held[(int)$templatePlacement->getId()] = 0;
@@ -88,7 +92,7 @@ class TemplateRolloutSummary {
 		);
 
 		return [
-			'gained'              => $this->gained(templatePlacements: $templatePlacements, held: $held, hasCopies: ($copies !== [])),
+			'gained'              => $this->gained(templatePlacements: $templatePlacements, held: $held),
 			'lost'                => array_values($lost),
 			'changedByOwnerCount' => $changed,
 		];
@@ -99,14 +103,13 @@ class TemplateRolloutSummary {
 	 *
 	 * @param WidgetPlacement[] $templatePlacements The template's placements.
 	 * @param array<int, int>   $held               Per template placement id, the number of copies holding it.
-	 * @param bool              $hasCopies          Whether the template has copies at all.
 	 *
 	 * @return array<int, string> The names.
 	 */
-	private function gained(array $templatePlacements, array $held, bool $hasCopies): array {
+	private function gained(array $templatePlacements, array $held): array {
 		$gained = [];
 		foreach ($templatePlacements as $templatePlacement) {
-			if ($hasCopies === true && $held[(int)$templatePlacement->getId()] === 0) {
+			if ($held[(int)$templatePlacement->getId()] === 0) {
 				$gained[] = $this->nameOf(placement: $templatePlacement);
 			}
 		}

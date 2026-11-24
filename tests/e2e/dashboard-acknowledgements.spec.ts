@@ -43,6 +43,11 @@
  *   @e2e dashboard-acknowledgements::without-a-template-the-users-own-copy-sets-the-current-version
  *   @e2e dashboard-acknowledgements::report-exports-as-csv-compliance-evidence
  *   @e2e dashboard-acknowledgements::read-the-report
+ *   @e2e dashboard-acknowledgements::the-key-reaches-the-dashboard
+ *   @e2e dashboard-acknowledgements::who-has-not-confirmed
+ *
+ * The last two are the delta scenarios of the open change
+ * `read-receipts-dialog` (REQ-ACK-009, REQ-ACK-010).
  *
  * @spec openspec/specs/dashboard-acknowledgements/spec.md
  */
@@ -85,6 +90,9 @@ const NOTICE = `Integriteitscode ${RUN}`
 const OTHER = `Kantine ${RUN}`
 const PROMPT = 'Ik heb de 2026 integriteitscode gelezen en begrepen'
 const PAST_DEADLINE = isoDate(-2)
+const PROFILE_DEFINITIONS =
+	'/index.php/apps/launchpad/api/profile-fields/definitions'
+const PROFILE_OWN = '/index.php/apps/launchpad/api/profile-fields/me'
 const GUARD_MESSAGE =
 	'Only an admin or the template owner may set an acknowledgement requirement'
 
@@ -543,40 +551,136 @@ test('the report exports as CSV with one row per audience member', async () => {
 })
 
 // @e2e dashboard-acknowledgements::read-the-report
-test('the author opens Read receipts on the dashboard: 3 confirmed, the 4 pending names, a CSV', async ({
+// @e2e dashboard-acknowledgements::the-key-reaches-the-dashboard
+// @e2e dashboard-acknowledgements::who-has-not-confirmed
+test('the author opens Read confirmations on the dashboard: 3 of 7 confirmed, the 4 pending names with their department, a CSV', async ({
 	browser,
 }) => {
+	// The administrator marks one profile field as the department
+	// (REQ-ACK-010); bob and erin, two of the pending, fill it in. The
+	// existing definitions are kept and restored, and no other field may be
+	// the department at the same time.
+	const definitions = await admin.get(PROFILE_DEFINITIONS)
+	expect(definitions.status(), await definitions.text()).toBe(200)
+	const definitionsBefore = ((await definitions.json()).fields ?? []) as Array<
+		Record<string, unknown>
+	>
+	const department = {
+		key: `e2e_ack_afdeling_${RUN}`,
+		label: 'Afdeling',
+		type: 'text',
+		source: 'self',
+		searchable: false,
+		shownInWidget: false,
+		visibility: 'everyone',
+		department: true,
+	}
+	const marked = await admin.put(PROFILE_DEFINITIONS, {
+		data: {
+			fields: [
+				...definitionsBefore.map((f) => ({ ...f, department: false })),
+				department,
+			],
+		},
+	})
+	expect(marked.status(), await marked.text()).toBe(200)
+	const departments: Record<string, string> = {
+		[bob!.username]: `Burgerzaken ${RUN}`,
+		[erin!.username]: `Vergunningen ${RUN}`,
+	}
+	for (const who of [bob, erin]) {
+		const saved = await who!.api.put(PROFILE_OWN, {
+			data: { values: { [department.key]: departments[who!.username] } },
+		})
+		expect(saved.status(), await saved.text()).toBe(200)
+	}
+
 	const { context, page } = await loginAs(browser, tom!.username, tom!.password)
 	try {
+		// THEN (REQ-ACK-009): the placement tom's dashboard loads carries its
+		// announcementKey …
+		const loaded = await placementWithText(tom!.api, source!.id, NOTICE)
+		expect(loaded.announcementKey).toBe(KEY)
 		await page.goto('/index.php/apps/launchpad/')
 		const more = page.locator(MORE_MENU)
 		await expect(more).toBeVisible({ timeout: 30_000 })
 		await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
-		await page
-			.locator('[data-testid="launchpad-more-menu-item-read-receipts"]')
-			.click()
+		// … and Read receipts appears in the More menu, which it only does
+		// when a loaded placement asks for confirmation and has its key.
+		const item = page.locator(
+			'[data-testid="launchpad-more-menu-item-read-receipts"]',
+		)
+		await expect(item).toBeVisible()
+		await item.click()
 
 		const report = page.locator('[data-testid="acknowledgement-report"]')
 		await expect(report).toBeVisible({ timeout: 15_000 })
-		// THEN: 3 confirmed (alice, carol, dave) …
-		await expect(report.locator('[data-testid="ack-count"]')).toHaveText(
-			/Acknowledged:\s*3\b/,
+		await expect(report.locator('h2')).toHaveText(/^Read confirmations/)
+		await expect(
+			report.locator('[data-testid="ack-report-eyebrow"]'),
+		).toHaveText(`Announcement · Intranet ${RUN}`)
+		// THEN: 3 confirmed (alice, carol, dave) of the live audience of 7 …
+		const summary = report.locator('[data-testid="ack-summary"]')
+		await expect(summary).toContainText('3 of 7 confirmed')
+		// … with 4 still to go (bob, tom, and the share recipients erin and
+		// pieter).
+		await expect(summary).toContainText('4 to go')
+		await expect(report.locator('[data-testid="ack-bar"]')).toHaveAttribute(
+			'aria-valuenow',
+			String(Math.round((3 / 7) * 100)),
 		)
-		// … and the 4 pending names (bob, tom, and the share recipients erin
-		// and pieter).
-		await expect(report.locator('[data-testid="pending-count"]')).toHaveText(
-			/Pending:\s*4\b/,
-		)
+		const rows = report.locator('tbody tr')
+		await expect(rows).toHaveCount(7)
 		for (const who of [bob, tom, erin, pieter]) {
 			const row = report.locator(`[data-testid="ack-row-${who!.username}"]`)
 			await expect(row).toContainText(who!.username)
-			await expect(row).toContainText('Pending')
+			await expect(row).toContainText('Not yet')
+			await expect(row).not.toContainText('Confirmed')
+		}
+		for (const who of [alice, carol, dave]) {
+			const row = report.locator(`[data-testid="ack-row-${who!.username}"]`)
+			await expect(row).toContainText(who!.username)
+			await expect(row).toContainText('Confirmed')
+			await expect(row).not.toContainText('Not yet')
+		}
+
+		// AND: "Not confirmed yet" narrows the list to exactly the 4 pending
+		// names, and the note says so.
+		await report.locator('[data-testid="ack-filter-pending"]').click()
+		await expect(
+			report.locator('[data-testid="ack-filter-pending"]'),
+		).toHaveAttribute('aria-pressed', 'true')
+		await expect(rows).toHaveCount(4)
+		for (const who of [bob, tom, erin, pieter]) {
+			await expect(
+				report.locator(`[data-testid="ack-row-${who!.username}"]`),
+			).toContainText('Not yet')
+		}
+		// … each with their department: the field's label heads the column,
+		// bob and erin show their own value, tom and pieter filled in none.
+		await expect(report.locator('thead th').nth(1)).toHaveText('Afdeling')
+		for (const who of [bob, erin]) {
+			await expect(
+				report
+					.locator(`[data-testid="ack-row-${who!.username}"] td`)
+					.nth(1),
+			).toHaveText(departments[who!.username])
+		}
+		for (const who of [tom, pieter]) {
+			await expect(
+				report
+					.locator(`[data-testid="ack-row-${who!.username}"] td`)
+					.nth(1),
+			).toHaveText('—')
 		}
 		for (const who of [alice, carol, dave]) {
 			await expect(
 				report.locator(`[data-testid="ack-row-${who!.username}"]`),
-			).toContainText('Acknowledged')
+			).toHaveCount(0)
 		}
+		await expect(report.locator('[data-testid="ack-shown"]')).toContainText(
+			'4 of 7 shown',
+		)
 
 		// AND: the CSV downloads, one row per audience member.
 		const downloading = page.waitForEvent('download')
@@ -588,6 +692,9 @@ test('the author opens Read receipts on the dashboard: 3 confirmed, the 4 pendin
 		expect(lines).toContain(`"${bob!.username}","pending",""`)
 	} finally {
 		await context.close()
+		await admin.put(PROFILE_DEFINITIONS, {
+			data: { fields: definitionsBefore },
+		})
 	}
 })
 

@@ -1432,6 +1432,8 @@
         "One widget does not work on a phone and is hidden: {names}.": "Egy widget nem működik telefonon, ezért rejtve van: {names}.",
         "{count} widgets do not work on a phone and are hidden: {names}.": "{count} widget nem működik telefonon, ezért rejtve van: {names}.",
         "Which?": "Melyek?",
-        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Egyes widgeteknek nagyobb képernyő kell, ezért a telefon elrejti őket. Táblagépen vagy számítógépen a szokásos módon látja őket."
+        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Egyes widgeteknek nagyobb képernyő kell, ezért a telefon elrejti őket. Táblagépen vagy számítógépen a szokásos módon látja őket.",
+        "Template %s": "%s sablon",
+        "Updated from the template": "Frissítve a sablonból"
     }
 }

@@ -40,6 +40,8 @@ OC.L10N.register(
     "Widget %s moved" : "Valdiklis %s perkeltas",
     "Widget %s resized" : "Pakeistas valdiklio %s dydis",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s ir dar %n pakeitimas", "%s ir dar %n pakeitimai", "%s ir dar %n pakeitimų"],
+    "Template %s" : "Šablonas %s",
+    "Updated from the template" : "Atnaujinta iš šablono",
     "Admin settings" : "Administravimo nustatymai",
     "Features & roadmap" : "Funkcijos ir planas",
     "Maximum dashboards per user" : "Didžiausias skydelių skaičius vienam naudotojui",

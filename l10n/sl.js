@@ -40,6 +40,8 @@ OC.L10N.register(
     "Widget %s moved" : "Pripomoček %s premaknjen",
     "Widget %s resized" : "Velikost pripomočka %s spremenjena",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s in še %n sprememba", "%s in še %n spremembi", "%s in še %n spremembe", "%s in še %n sprememb"],
+    "Template %s" : "Predloga %s",
+    "Updated from the template" : "Posodobljeno iz predloge",
     "Admin settings" : "Skrbniške nastavitve",
     "Features & roadmap" : "Funkcije in načrt razvoja",
     "Maximum dashboards per user" : "Največje število nadzornih plošč na uporabnika",

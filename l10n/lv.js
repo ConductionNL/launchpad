@@ -40,6 +40,8 @@ OC.L10N.register(
     "Widget %s moved" : "Logrīks %s pārvietots",
     "Widget %s resized" : "Mainīts logrīka %s izmērs",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s un vēl %n izmaiņu", "%s un vēl %n izmaiņa", "%s un vēl %n izmaiņas"],
+    "Template %s" : "Veidne %s",
+    "Updated from the template" : "Atjaunināts no veidnes",
     "Admin settings" : "Pārvaldīšanas iestatījumi",
     "Features & roadmap" : "Funkcijas un ceļvedis",
     "Maximum dashboards per user" : "Maksimālais informācijas paneļu skaits uz lietotāju",

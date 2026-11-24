@@ -40,6 +40,8 @@ OC.L10N.register(
     "Widget %s moved" : "Widget %s přesunut",
     "Widget %s resized" : "Změněna velikost widgetu %s",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s a %n další změna", "%s a %n další změny", "%s a %n dalších změn"],
+    "Template %s" : "Šablona %s",
+    "Updated from the template" : "Aktualizováno ze šablony",
     "Admin settings" : "Nastavení pro správu",
     "Features & roadmap" : "Funkce a plán vývoje",
     "Maximum dashboards per user" : "Maximální počet dashboardů na uživatele",

@@ -40,6 +40,8 @@ OC.L10N.register(
     "Widget %s moved" : "Widget %s mutat",
     "Widget %s resized" : "Widget %s redimensionat",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s și încă %n modificare", "%s și încă %n modificări", "%s și încă %n de modificări"],
+    "Template %s" : "Șablon %s",
+    "Updated from the template" : "Actualizat din șablon",
     "Admin settings" : "Setări de administrare",
     "Features & roadmap" : "Funcții și foaie de parcurs",
     "Maximum dashboards per user" : "Numărul maxim de tablouri de bord per utilizator",

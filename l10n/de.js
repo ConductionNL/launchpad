@@ -40,6 +40,8 @@ OC.L10N.register(
     "Widget %s moved" : "Widget %s verschoben",
     "Widget %s resized" : "Größe von Widget %s geändert",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s und %n weitere Änderung", "%s und %n weitere Änderungen"],
+    "Template %s" : "Vorlage %s",
+    "Updated from the template" : "Aus der Vorlage aktualisiert",
     "Admin settings" : "Administrationseinstellungen",
     "Features & roadmap" : "Funktionen und Roadmap",
     "Maximum dashboards per user" : "Maximale Dashboards pro Benutzer",

@@ -40,6 +40,8 @@ OC.L10N.register(
     "Widget %s moved" : "Przeniesiono widżet %s",
     "Widget %s resized" : "Zmieniono rozmiar widżetu %s",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s i %n inna zmiana", "%s i %n inne zmiany", "%s i %n innych zmian"],
+    "Template %s" : "Szablon %s",
+    "Updated from the template" : "Zaktualizowano z szablonu",
     "Admin settings" : "Ustawienia administracyjne",
     "Features & roadmap" : "Funkcje i plan rozwoju",
     "Maximum dashboards per user" : "Maksymalna liczba pulpitów na użytkownika",

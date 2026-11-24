@@ -40,6 +40,8 @@ OC.L10N.register(
     "Widget %s moved" : "Giny %s mogut",
     "Widget %s resized" : "Giny %s redimensionat",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s i %n canvi més", "%s i %n canvis més"],
+    "Template %s" : "Plantilla %s",
+    "Updated from the template" : "Actualitzat des de la plantilla",
     "Admin settings" : "Paràmetres d'administració",
     "Features & roadmap" : "Funcions i full de ruta",
     "Maximum dashboards per user" : "Màxim de taulers per usuari",

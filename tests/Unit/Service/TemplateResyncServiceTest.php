@@ -38,11 +38,13 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\PersonalLayerService;
 use OCA\LaunchPad\Service\TemplateResyncService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\BackgroundJob\IJobList;
 use OCP\IDBConnection;
+use OCP\IL10N;
 use OCP\Notification\IManager as INotificationManager;
 use OCP\Notification\INotification;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -555,6 +557,175 @@ class TemplateResyncServiceTest extends TestCase {
 			->with('launchpad.template_resync.layer_prune_failed', $this->callback(static fn (array $context): bool => $context['dashboardId'] === 101));
 
 		$result = $this->service->applyResync(templateId: 1, strategy: TemplateResyncService::STRATEGY_OVERWRITE, actingAdminId: 'admin1');
+
+		$this->assertSame(1, $result['affectedCount']);
+	}
+
+	// ---------------------------------------------------------------
+	// The version a re-synced copy gets (REQ-VERSUI-005)
+	// ---------------------------------------------------------------
+
+	/**
+	 * A service that writes versions through the given version service and translations.
+	 *
+	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 */
+	private function serviceWithVersions(DashboardVersionService $versions, ?IL10N $l10n = null): TemplateResyncService {
+		return new TemplateResyncService(
+			stores: new ResyncStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				db: $this->db,
+				jobList: $this->jobList
+			),
+			activityPublisher: $this->activityPublisher,
+			notificationManager: $this->notificationManager,
+			logger: $this->logger,
+			personalLayers: $this->personalLayers,
+			versions: $versions,
+			l10n: $l10n
+		);
+	}
+
+	/**
+	 * Wire one template (id 1, "Marketing Dashboard") with one placement and one copy (id 100) without it.
+	 */
+	private function oneChangedCopy(): Dashboard {
+		$this->dashboardMapper->method('find')->willReturn($this->makeTemplate());
+		$copy = $this->makeCopy(id: 100, userId: 'erin');
+		$this->dashboardMapper->method('findByBasedOnTemplate')->willReturn([$copy]);
+		$this->placementMapper->method('findByDashboardId')->willReturnMap([
+			[1, [$this->makePlacement(id: 10, dashboardId: 1, widgetId: 'links')]],
+			[100, []],
+		]);
+
+		return $copy;
+	}
+
+	/**
+	 * A changed copy gets a version by "Template {name}" with the note "Updated from the template".
+	 *
+	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 */
+	public function testAReSyncedCopyGetsAVersionByTheTemplate(): void {
+		$copy = $this->oneChangedCopy();
+		$versions = $this->createMock(DashboardVersionService::class);
+		$versions->expects($this->once())->method('captureSnapshot')->with(
+			$copy,
+			'Template Marketing Dashboard',
+			['note' => 'Updated from the template', 'explicit' => true]
+		);
+
+		$result = $this->serviceWithVersions(versions: $versions)->applyResync(
+			templateId: 1,
+			strategy: TemplateResyncService::STRATEGY_MERGE,
+			actingAdminId: 'admin1'
+		);
+
+		$this->assertSame(1, $result['affectedCount']);
+	}
+
+	/**
+	 * The author and the note follow the translations.
+	 *
+	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 */
+	public function testTheTemplateVersionIsTranslated(): void {
+		$copy = $this->oneChangedCopy();
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnCallback(static fn (string $text, array $parameters = []): string => match ($text) {
+			'Template %s' => vsprintf('Sjabloon %s', $parameters),
+			'Updated from the template' => 'Bijgewerkt vanuit het sjabloon',
+			default => $text,
+		});
+		$versions = $this->createMock(DashboardVersionService::class);
+		$versions->expects($this->once())->method('captureSnapshot')->with(
+			$copy,
+			'Sjabloon Marketing Dashboard',
+			['note' => 'Bijgewerkt vanuit het sjabloon', 'explicit' => true]
+		);
+
+		$this->serviceWithVersions(versions: $versions, l10n: $l10n)->applyResync(
+			templateId: 1,
+			strategy: TemplateResyncService::STRATEGY_MERGE,
+			actingAdminId: 'admin1'
+		);
+	}
+
+	/**
+	 * A long template name is cut to the 64 characters the version author holds.
+	 *
+	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 */
+	public function testALongTemplateNameIsCutToTheAuthorColumn(): void {
+		$template = $this->makeTemplate();
+		$template->setName(str_repeat('Ä', 80));
+		$this->dashboardMapper->method('find')->willReturn($template);
+		$this->dashboardMapper->method('findByBasedOnTemplate')->willReturn([$this->makeCopy(id: 100, userId: 'erin')]);
+		$this->placementMapper->method('findByDashboardId')->willReturnMap([
+			[1, [$this->makePlacement(id: 10, dashboardId: 1, widgetId: 'links')]],
+			[100, []],
+		]);
+		$author = null;
+		$versions = $this->createMock(DashboardVersionService::class);
+		$versions->method('captureSnapshot')->willReturnCallback(
+			static function (Dashboard $dashboard, string $createdBy) use (&$author) {
+				$author = $createdBy;
+				return null;
+			}
+		);
+
+		$this->serviceWithVersions(versions: $versions)->applyResync(
+			templateId: 1,
+			strategy: TemplateResyncService::STRATEGY_MERGE,
+			actingAdminId: 'admin1'
+		);
+
+		$this->assertSame('Template ' . str_repeat('Ä', 55), $author);
+	}
+
+	/**
+	 * An unchanged copy gets no version.
+	 *
+	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 */
+	public function testAnUnchangedCopyGetsNoVersion(): void {
+		$this->dashboardMapper->method('find')->willReturn($this->makeTemplate());
+		$this->dashboardMapper->method('findByBasedOnTemplate')->willReturn([$this->makeCopy(id: 101, userId: 'bob')]);
+		$this->placementMapper->method('findByDashboardId')->willReturnMap([
+			[1, [$this->makePlacement(id: 10, dashboardId: 1, widgetId: 'links')]],
+			[101, [$this->makePlacement(id: 300, dashboardId: 101, widgetId: 'links', templatePlacementId: 10)]],
+		]);
+		$versions = $this->createMock(DashboardVersionService::class);
+		$versions->expects($this->never())->method('captureSnapshot');
+
+		$result = $this->serviceWithVersions(versions: $versions)->applyResync(
+			templateId: 1,
+			strategy: TemplateResyncService::STRATEGY_MERGE,
+			actingAdminId: 'admin1'
+		);
+
+		$this->assertSame(0, $result['affectedCount']);
+	}
+
+	/**
+	 * A failing version write is logged and the copy still counts as re-synced.
+	 *
+	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 */
+	public function testAFailedVersionWriteIsLoggedAndTheReSyncStillCounts(): void {
+		$this->oneChangedCopy();
+		$versions = $this->createMock(DashboardVersionService::class);
+		$versions->method('captureSnapshot')->willThrowException(new \RuntimeException('versions down'));
+		$this->logger->expects($this->once())
+			->method('warning')
+			->with('launchpad.template_resync.version_failed', $this->callback(static fn (array $context): bool => $context['dashboardId'] === 100));
+
+		$result = $this->serviceWithVersions(versions: $versions)->applyResync(
+			templateId: 1,
+			strategy: TemplateResyncService::STRATEGY_MERGE,
+			actingAdminId: 'admin1'
+		);
 
 		$this->assertSame(1, $result['affectedCount']);
 	}

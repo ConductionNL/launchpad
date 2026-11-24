@@ -15,6 +15,11 @@
  * succeed in the same test. Rendering lives in
  * footer-customization-render.spec.ts.
  *
+ * The three per-dashboard override scenarios that write a footer mode
+ * (custom-mode-requires-html, mode-change-clears-stale-html,
+ * only-dashboard-owner-can-set-custom-footer) run, expected red, in
+ * footer-customization-override-defects.spec.ts.
+ *
  * The footer is instance-wide. `beforeAll` snapshots all five footer keys and
  * the personal-dashboard flags; `afterAll` writes them back.
  *
@@ -36,9 +41,6 @@
  *   @e2e footer-customization::images-with-src-only
  *   @e2e footer-customization::nested-tags
  *   @e2e footer-customization::dashboard-with-inherit-mode-default
- *   @e2e footer-customization::custom-mode-requires-html
- *   @e2e footer-customization::mode-change-clears-stale-html
- *   @e2e footer-customization::only-dashboard-owner-can-set-custom-footer
  *   @e2e footer-customization::invalid-color-values-rejected
  *   @e2e footer-customization::get-footer-settings
  *   @e2e footer-customization::update-footer-settings
@@ -67,9 +69,7 @@ import {
 	API,
 	assertActingAs,
 	createPrincipal,
-	publishForRecipients,
 	removePrincipal,
-	shareWith,
 } from './support/principals.ts'
 
 const RUN = Date.now()
@@ -527,113 +527,5 @@ test.describe
 		expect(dashboard.dashboardFooterMode).toBe('inherit')
 		expect(dashboard.dashboardFooterHtml).toBeNull()
 		// The render clause is in footer-customization-render.spec.ts.
-	})
-
-	/*
-	 * SUSPECTED BUG for the three fixme tests below.
-	 * lib/Controller/DashboardApiController.php:608-641 update() builds its
-	 * patch from name, description, placements, icon, parentUuid, slug,
-	 * sortOrder, defaultLinkTarget and the look fields only. It never reads
-	 * `dashboardFooterMode` or `dashboardFooterHtml`, so
-	 * DashboardService::applyFooterUpdates() (lib/Service/DashboardService.php:3911)
-	 * never sees them: a PUT that sets a footer mode answers 200 and changes
-	 * nothing. The scenarios say `{uuid}`; the real route is
-	 * `PUT /api/dashboard/{id}` with the numeric id.
-	 */
-
-	// @e2e footer-customization::custom-mode-requires-html
-	test.fixme('custom mode without footer HTML is refused with 400', async () => {
-		const id = await createDashboard(alice!.api, `E2E Footer NoHtml ${RUN}`)
-
-		const refused = await alice!.api.put(`${API}/dashboard/${id}`, {
-			data: { dashboardFooterMode: 'custom' },
-		})
-		expect(refused.status()).toBe(400)
-		const body = await refused.json()
-		expect(String(body.message ?? body.error)).toMatch(/custom/i)
-		expect(String(body.message ?? body.error)).toMatch(/html/i)
-		const dashboard = await readDashboard(alice!.api, id)
-		expect(dashboard.dashboardFooterMode).toBe('inherit')
-
-		// With HTML the same request is accepted, so the 400 is about the HTML.
-		const allowed = await alice!.api.put(`${API}/dashboard/${id}`, {
-			data: {
-				dashboardFooterMode: 'custom',
-				dashboardFooterHtml: '<p>Mine</p>',
-			},
-		})
-		expect(allowed.status(), await allowed.text()).toBe(200)
-		expect((await readDashboard(alice!.api, id)).dashboardFooterMode).toBe(
-			'custom',
-		)
-	})
-
-	// @e2e footer-customization::mode-change-clears-stale-html
-	test.fixme('switching custom to inherit clears the stored footer HTML', async () => {
-		await resetFooter(admin, {
-			footerEnabled: true,
-			footerHtml: '<p>Global footer</p>',
-		})
-		const id = await createDashboard(alice!.api, `E2E Footer Clear ${RUN}`)
-
-		const custom = await alice!.api.put(`${API}/dashboard/${id}`, {
-			data: {
-				dashboardFooterMode: 'custom',
-				dashboardFooterHtml: '<p>Old footer</p>',
-			},
-		})
-		expect(custom.status(), await custom.text()).toBe(200)
-		const seeded = await readDashboard(alice!.api, id)
-		expect(seeded.dashboardFooterMode).toBe('custom')
-		expect(seeded.dashboardFooterHtml).toBe('<p>Old footer</p>')
-
-		const inherit = await alice!.api.put(`${API}/dashboard/${id}`, {
-			data: { dashboardFooterMode: 'inherit' },
-		})
-		expect(inherit.status(), await inherit.text()).toBe(200)
-		const after = await readDashboard(alice!.api, id)
-		expect(after.dashboardFooterMode).toBe('inherit')
-		expect(after.dashboardFooterHtml).toBeNull()
-		// "Subsequent renders use the global footer": when the payload carries
-		// the resolved footer it is the global one.
-		if (Object.hasOwn(after, 'effectiveFooter')) {
-			expect((after.effectiveFooter as { html?: unknown }).html).toBe(
-				'<p>Global footer</p>',
-			)
-		}
-	})
-
-	// @e2e footer-customization::only-dashboard-owner-can-set-custom-footer
-	test.fixme('a view-only recipient is refused with 403; the owner may set custom', async () => {
-		const id = await createDashboard(alice!.api, `E2E Footer Owner ${RUN}`)
-		await publishForRecipients(alice!.api, id)
-		await shareWith(alice!.api, id, bob!.username, 'view_only')
-		await expect
-			.poll(async () =>
-				(await bob!.api.get(`${API}/dashboard/${id}`)).status(),
-			)
-			.toBe(200)
-
-		const refused = await bob!.api.put(`${API}/dashboard/${id}`, {
-			data: {
-				dashboardFooterMode: 'custom',
-				dashboardFooterHtml: '<p>Bob was here</p>',
-			},
-		})
-		expect(refused.status()).toBe(403)
-		const untouched = await readDashboard(alice!.api, id)
-		expect(untouched.dashboardFooterMode).toBe('inherit')
-		expect(untouched.dashboardFooterHtml).toBeNull()
-
-		const allowed = await alice!.api.put(`${API}/dashboard/${id}`, {
-			data: {
-				dashboardFooterMode: 'custom',
-				dashboardFooterHtml: '<p>Alice footer</p>',
-			},
-		})
-		expect(allowed.status(), await allowed.text()).toBe(200)
-		const owned = await readDashboard(alice!.api, id)
-		expect(owned.dashboardFooterMode).toBe('custom')
-		expect(owned.dashboardFooterHtml).toBe('<p>Alice footer</p>')
 	})
 })

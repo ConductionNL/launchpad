@@ -61,6 +61,7 @@ Users MUST be able to create new personal dashboards with a name, optional descr
 - THEN the system MUST return HTTP 400 with a validation error
 - AND `gridColumns` MUST only accept positive integers (minimum 1, maximum 24)
 - NOTE: Grid column validation is NOT currently implemented
+@e2e exclude never built: the create path validates no column count, DashboardApiController::create() reads only `gridColumns` and offeredGridColumns() turns any count outside 6, 8 and 12 into null, the administrator's default, with 201 (the snake_case `grid_columns` is not read at all); the only refusal of a column count is the update path's 6/8/12 rule of REQ-DASH-038, not the 1..24 range this scenario names
 
 #### Scenario: Create a dashboard without a name
 - GIVEN a logged-in Nextcloud user "alice"
@@ -257,6 +258,7 @@ Dashboard names MUST be validated for length and content.
 - THEN the system MUST return HTTP 400 with a validation error
 - AND dashboard names MUST be between 1 and 255 characters
 - NOTE: Name length validation is NOT currently implemented
+@e2e exclude never built: nothing on the create path checks the name's length, resolveCreateParams() and resolveCreateBody() pass the name through as given and DashboardFactory::create() sets it unchecked; no unit test pins a limit
 
 #### Scenario: Duplicate dashboard names allowed
 - GIVEN user "alice" already has a dashboard named "Work"

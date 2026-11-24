@@ -1577,6 +1577,24 @@
 		"validator": false,
 		"default": null
 	},
+	"../../components/Workspace/config/SharingConversation.vue | dashboard": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Workspace/config/SharingConversation.vue | shared": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Workspace/config/SharingEmbedTokens.vue | dashboard": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/Workspace/config/VersionsTab.vue | dashboardUuid": {
 		"type": "String",
 		"required": false,

@@ -517,6 +517,19 @@
 						</NcButton>
 					</div>
 				</div>
+
+				<!-- REQ-LEAF-006: the Talk conversation beside a shared dashboard. -->
+				<SharingConversation
+					v-if="!isCreate && canManageShares"
+					:dashboard="dashboard"
+					:shared="isSharedDashboard"
+					@update:conversationEnabled="onConversationChanged" />
+
+				<!-- REQ-EMB-011: the dashboard's embed tokens. The embed token
+				     API is admin-only, so the part is too. -->
+				<SharingEmbedTokens
+					v-if="!isCreate && canManageShares && isAdmin && currentTab === 'sharing'"
+					:dashboard="dashboard" />
 			</div>
 			<!-- /sharing panel -->
 
@@ -622,11 +635,13 @@ import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import Translate from 'vue-material-design-icons/Translate.vue'
 import DetailsTab from '../components/Workspace/config/DetailsTab.vue'
 import LanguagesTab from '../components/Workspace/config/LanguagesTab.vue'
+import SharingConversation from '../components/Workspace/config/SharingConversation.vue'
 import { FLAG_PROP, LIST_PROP, NULLABLE_OBJECT_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
 import { DASHBOARD_ICON_CATALOGUE } from '../services/iconCatalogue.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
+import { isCollaborative } from '../utils/dashboardDiscussion.js'
 import { accentCheck, normaliseHex } from '../utils/dashboardLook.js'
 import { hierarchyPresets } from '../utils/hierarchyPresets.js'
 import { instanceThemeName } from '../utils/instanceTheme.js'
@@ -634,6 +649,7 @@ import { logger } from '../utils/logger.js'
 import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
 /* Loaded when their tab opens: they bring the export editor and the store. */
+const SharingEmbedTokens = defineAsyncComponent(() => import('../components/Workspace/config/SharingEmbedTokens.vue'))
 const ExportsTab = defineAsyncComponent(() => import('../components/Workspace/config/ExportsTab.vue'))
 const PublicationTab = defineAsyncComponent(() => import('../components/Workspace/config/PublicationTab.vue'))
 const VersionsTab = defineAsyncComponent(() => import('../components/Workspace/config/VersionsTab.vue'))
@@ -662,6 +678,8 @@ export default {
 		DetailsTab,
 		ExportsTab,
 		LanguagesTab,
+		SharingConversation,
+		SharingEmbedTokens,
 		PublicationTab,
 		VersionsTab,
 		NcModal,
@@ -679,6 +697,15 @@ export default {
 		Check,
 		Lock,
 		CnIconBrowser,
+	},
+
+	inject: {
+		// Server-computed admin flag (PageController initial state); only
+		// decides whether the embed tokens show. The server checks again.
+		isAdmin: {
+			from: 'isAdmin',
+			default: false,
+		},
 	},
 
 	props: {
@@ -927,6 +954,16 @@ export default {
 			return status === 'draft' || status === 'scheduled'
 		},
 
+		/**
+		 * Whether the dashboard is shared: a group dashboard or one with stored shares.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+		 */
+		isSharedDashboard() {
+			return isCollaborative({ dashboard: this.dashboard, ownShares: this.serverShares })
+		},
+
 		/** @spec openspec/specs/dashboards/spec.md */
 		canManageShares() {
 			// Only the owner can see / manage shares.
@@ -1133,6 +1170,19 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * The conversation switch was stored: let the open page follow it.
+		 *
+		 * @param {number} value 1 shows the conversation, 0 hides it.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+		 */
+		async onConversationChanged(value) {
+			// Loaded on use: the store module reads the user's language on import.
+			const { useDashboardStore } = await import('../stores/dashboard.js')
+			useDashboardStore().applyFieldsPatch(this.dashboard?.uuid, { conversationEnabled: value })
+		},
+
 		t,
 
 		/**

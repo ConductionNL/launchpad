@@ -76,6 +76,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setCommentsEnabled(?int $commentsEnabled)
  * @method int|null getReactionsEnabled()
  * @method void setReactionsEnabled(?int $reactionsEnabled)
+ * @method int|null getConversationEnabled()
+ * @method void setConversationEnabled(?int $conversationEnabled)
  * @method string getDashboardFooterMode()
  * @method void setDashboardFooterMode(string $dashboardFooterMode)
  * @method string|null getThemeAccent()
@@ -580,6 +582,15 @@ class Dashboard extends Entity implements JsonSerializable {
 	protected ?string $hierarchies = null;
 
 	/**
+	 * Whether a shared dashboard shows its Talk conversation beside it
+	 * (REQ-LEAF-006): 0 hides it, NULL or 1 shows it. NULL is the state of
+	 * every dashboard from before the switch, so they keep showing it.
+	 *
+	 * @var int|null
+	 */
+	protected ?int $conversationEnabled = null;
+
+	/**
 	 * Per-dashboard footer HTML (REQ-FTR-006).
 	 *
 	 * Sanitised server-side via the same allow-list as the global
@@ -676,6 +687,8 @@ class Dashboard extends Entity implements JsonSerializable {
 		// Nullable SMALLINT (NULL / 0 / 1) — REQ-CMNT-007.
 		$this->addType(fieldName: 'reactionsEnabled', type: 'integer');
 		// SMALLINT NULL in DB — null means follow global setting (REQ-RXN-006).
+		$this->addType(fieldName: 'conversationEnabled', type: 'integer');
+		// SMALLINT NULL in DB — 0 hides the conversation, null or 1 shows it (REQ-LEAF-006).
 	}//end __construct()
 
 	/**
@@ -809,6 +822,8 @@ class Dashboard extends Entity implements JsonSerializable {
 			'commentsEnabled' => $this->commentsEnabled,
 			// REQ-RXN-006 — null/1/0 tri-state.
 			'reactionsEnabled' => $this->reactionsEnabled,
+			// REQ-LEAF-006 — 0 hides the conversation, null/1 shows it.
+			'conversationEnabled' => $this->conversationEnabled,
 		];
 	}//end identityFields()
 

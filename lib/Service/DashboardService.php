@@ -3774,6 +3774,7 @@ class DashboardService {
 		$this->applyLookUpdates(dashboard: $dashboard, data: $data);
 		$this->applyLinkTargetUpdate(dashboard: $dashboard, data: $data);
 		$this->applyHierarchiesUpdate(dashboard: $dashboard, data: $data);
+		$this->applyConversationUpdate(dashboard: $dashboard, data: $data);
 
 		$dashboard->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
@@ -3960,6 +3961,38 @@ class DashboardService {
 
 		$dashboard->setHierarchiesArray(DashboardHierarchies::validated(value: $data['hierarchies']));
 	}//end applyHierarchiesUpdate()
+
+	/**
+	 * Apply the patched conversation switch, when the payload names it:
+	 * true shows the Talk conversation beside a shared dashboard, false
+	 * hides it, null returns to the default (shown).
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the value is not a boolean or null.
+	 *
+	 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+	 */
+	private function applyConversationUpdate(Dashboard $dashboard, array $data): void {
+		if (array_key_exists(key: 'conversationEnabled', array: $data) === false) {
+			return;
+		}
+
+		$value = $data['conversationEnabled'];
+		if ($value === null) {
+			$dashboard->setConversationEnabled(null);
+			return;
+		}
+
+		if (is_bool($value) === false && in_array(needle: $value, haystack: [0, 1], strict: true) === false) {
+			throw new InvalidArgumentException(message: 'conversationEnabled must be true, false or null');
+		}
+
+		$dashboard->setConversationEnabled((int) $value);
+	}//end applyConversationUpdate()
 
 	/**
 	 * Apply a patched placement position list, when the payload has one.

@@ -26,7 +26,7 @@ import { CnIntegrationTab } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
 import { NULLABLE_OBJECT_PROP } from '../../constants/propDefinitions.js'
 import { api } from '../../services/api.js'
-import { discussionAvailable, isCollaborative } from '../../utils/dashboardDiscussion.js'
+import { conversationEnabled, discussionAvailable, isCollaborative } from '../../utils/dashboardDiscussion.js'
 
 /**
  * The Talk discussion of a shared or group dashboard
@@ -76,9 +76,11 @@ export default {
 		 *
 		 * @return {boolean}
 		 * @spec openspec/changes/openregister-leaf-integrations/tasks.md#task-5
+		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
 		 */
 		shown() {
 			return discussionAvailable()
+				&& conversationEnabled(this.dashboard)
 				&& isCollaborative({ dashboard: this.dashboard, sharedWithMe: this.sharedWithMe, ownShares: this.ownShares })
 		},
 

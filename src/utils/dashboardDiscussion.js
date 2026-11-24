@@ -42,3 +42,16 @@ export function isCollaborative({ dashboard, sharedWithMe = [], ownShares = [] }
 	}
 	return Array.isArray(ownShares) && ownShares.length > 0
 }
+
+/**
+ * Whether a dashboard's own switch lets its conversation show
+ * (REQ-LEAF-006): only an explicit 0 (or false) hides it.
+ *
+ * @param {object|null} dashboard The dashboard.
+ * @return {boolean}
+ * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+ */
+export function conversationEnabled(dashboard) {
+	const value = dashboard?.conversationEnabled
+	return value !== 0 && value !== false
+}

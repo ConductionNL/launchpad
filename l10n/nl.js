@@ -2493,7 +2493,26 @@ OC.L10N.register(
     "{name} sees this widget, because {reasons}." : "{name} ziet deze widget, omdat {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} ziet deze widget niet, omdat {reasons}.",
     "The Launchpad administration is on a page of its own." : "Het beheer van Launchpad staat op een eigen pagina.",
-    "Open Launchpad administration" : "Open Launchpad-beheer"
+    "Open Launchpad administration" : "Open Launchpad-beheer",
+    "Embed on your website" : "Insluiten op uw website",
+    "Show this dashboard, or one of its widgets, on another website with an embed token." : "Toon dit dashboard, of een van de widgets, op een andere website met een insluittoken.",
+    "Token {name} has been created. Copy it now: it is not shown again." : "Token {name} is aangemaakt. Kopieer het nu: het wordt niet opnieuw getoond.",
+    "No embed tokens for this dashboard yet." : "Nog geen insluittokens voor dit dashboard.",
+    "Shows" : "Toont",
+    "Allowed website" : "Toegestane website",
+    "State" : "Status",
+    "Withdraw {name}" : "{name} intrekken",
+    "Withdraw" : "Intrekken",
+    "Code for the website" : "Code voor de website",
+    "Copy code" : "Code kopiëren",
+    "Create new embed token" : "Nieuw insluittoken",
+    "The whole dashboard" : "Het hele dashboard",
+    "Widget {name}" : "Widget {name}",
+    "Revoked on {date} ({reason})" : "Ingetrokken op {date} ({reason})",
+    "Conversation beside this dashboard" : "Gesprek bij dit dashboard",
+    "Show the conversation beside the dashboard" : "Toon het gesprek naast het dashboard",
+    "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Dit dashboard is alleen van u. Deel het met personen of een groep en het gesprek verschijnt hier ook.",
+    "The conversation setting could not be saved." : "De gespreksinstelling kon niet worden opgeslagen."
 },
 "nplurals=2; plural=(n != 1);"
 );

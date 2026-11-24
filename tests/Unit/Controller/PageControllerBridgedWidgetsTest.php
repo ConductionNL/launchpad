@@ -22,6 +22,7 @@ namespace OCA\LaunchPad\Tests\Unit\Controller;
 
 use OCA\LaunchPad\Controller\PageSettingsSources;
 use OCA\LaunchPad\Controller\PageSources;
+use OCA\LaunchPad\Controller\PageDashboards;
 use OCA\LaunchPad\Controller\PageController;
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\AdminTemplateService;
@@ -62,7 +63,7 @@ class PageControllerBridgedWidgetsTest extends TestCase {
 			sources: new PageSources(
 				initialState: $this->createMock(IInitialState::class),
 				widgetService: $widgetService,
-				dashboardService: $this->createMock(DashboardService::class),
+				dashboards: new PageDashboards(dashboardService: $this->createMock(DashboardService::class)),
 				adminTemplateService: $this->createMock(AdminTemplateService::class)
 			),
 			userSession: $this->createMock(IUserSession::class),

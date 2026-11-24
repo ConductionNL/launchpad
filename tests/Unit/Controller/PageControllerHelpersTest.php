@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\PageDashboards;
 use OCA\LaunchPad\Controller\PageController;
 use OCA\LaunchPad\Controller\PageSettingsSources;
 use OCA\LaunchPad\Controller\PageSources;
@@ -74,7 +75,7 @@ class PageControllerHelpersTest extends TestCase {
 			sources: new PageSources(
 				initialState: $this->createMock(IInitialState::class),
 				widgetService: $this->widgets,
-				dashboardService: $this->dashboards,
+				dashboards: new PageDashboards(dashboardService: $this->dashboards),
 				adminTemplateService: $this->templates
 			),
 			userSession: $this->session,
@@ -115,7 +116,7 @@ class PageControllerHelpersTest extends TestCase {
 			sources: new PageSources(
 				initialState: $this->createMock(IInitialState::class),
 				widgetService: $this->widgets,
-				dashboardService: $this->dashboards,
+				dashboards: new PageDashboards(dashboardService: $this->dashboards),
 				adminTemplateService: $this->templates
 			),
 			userSession: $this->session,

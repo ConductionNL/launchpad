@@ -24,6 +24,7 @@ namespace Unit\Controller;
 
 use OCA\LaunchPad\Controller\DashboardApiServices;
 use OCA\LaunchPad\Controller\DashboardPayloads;
+use OCA\LaunchPad\Controller\PageDashboards;
 use OCA\LaunchPad\Controller\PageController;
 use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Service\ActionAuthService;
@@ -200,9 +201,8 @@ class PageControllerIndexTest extends TestCase {
 			sources: new PageSources(
 				initialState: $initialState,
 				widgetService: $this->widgets,
-				dashboardService: $this->dashboards,
-				adminTemplateService: $this->templates,
-				dashboardPayloads: $payloads
+				dashboards: new PageDashboards(dashboardService: $this->dashboards, payloads: $payloads),
+				adminTemplateService: $this->templates
 			),
 			userSession: $this->session,
 			settings: new PageSettingsSources(

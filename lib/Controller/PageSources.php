@@ -36,23 +36,36 @@ use OCP\AppFramework\Services\IInitialState;
  */
 class PageSources {
 	/**
+	 * Dashboard listing + resolver (also exposes the `allow_user_dashboards`
+	 * flag — REQ-ASET-003).
+	 *
+	 * @var DashboardService
+	 */
+	public readonly DashboardService $dashboardService;
+
+	/**
+	 * The first dashboard load the page carries, or null to let the store fetch.
+	 *
+	 * @var DashboardPayloads|null
+	 */
+	public readonly ?DashboardPayloads $dashboardPayloads;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param IInitialState        $initialState The Nextcloud initial-state service.
 	 * @param WidgetService        $widgetService Available-widgets descriptor formatter.
-	 * @param DashboardService     $dashboardService Dashboard listing + resolver (also exposes the
-	 *                                               `allow_user_dashboards` flag — REQ-ASET-003).
+	 * @param PageDashboards       $dashboards The dashboard service and the first-load builder.
 	 * @param AdminTemplateService $adminTemplateService Primary-group routing resolver (REQ-TMPL-012,
 	 *                                                   REQ-TMPL-013).
-	 * @param DashboardPayloads|null $dashboardPayloads The first dashboard load the page carries
-	 *                                                  (dashboard-first-load-from-initial-state).
 	 */
 	public function __construct(
 		public readonly IInitialState $initialState,
 		public readonly WidgetService $widgetService,
-		public readonly DashboardService $dashboardService,
+		PageDashboards $dashboards,
 		public readonly AdminTemplateService $adminTemplateService,
-		public readonly ?DashboardPayloads $dashboardPayloads=null,
 	) {
+		$this->dashboardService = $dashboards->dashboardService;
+		$this->dashboardPayloads = $dashboards->payloads;
 	}//end __construct()
 }//end class

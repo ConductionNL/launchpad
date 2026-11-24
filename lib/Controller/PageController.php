@@ -155,8 +155,6 @@ class PageController extends Controller {
 		$descriptors = $this->splitDescriptors(visible: $visible);
 		$activeState = $this->describeActive(active: $active, userId: $userId);
 
-		$allowUserDashboards = $this->sources->dashboardService->getAllowUserDashboards();
-
 		$builder = new InitialStateBuilder(
 			initialState: $this->sources->initialState,
 			page: Page::WORKSPACE
@@ -172,7 +170,7 @@ class PageController extends Controller {
 			->setDashboardSource($activeState['dashboardSource'])
 			->setGroupDashboards($descriptors['group'])
 			->setUserDashboards($descriptors['user'])
-			->setAllowUserDashboards($allowUserDashboards);
+			->setAllowUserDashboards($this->sources->dashboardService->getAllowUserDashboards());
 
 		// Tile-quick-search REQ-QSEARCH-004: read the admin-configured
 		// no-match fallback target. `getSettings()` already resolves the

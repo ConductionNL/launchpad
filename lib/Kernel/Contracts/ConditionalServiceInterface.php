@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Kernel\Contracts;
 
-use DateTimeInterface;
 use OCA\LaunchPad\Db\ConditionalRule;
+use OCA\LaunchPad\Service\RuleSetContext;
 
 /**
  * Contract of ConditionalService.
@@ -86,34 +86,15 @@ interface ConditionalServiceInterface {
 	 * the controller from the request body, never loaded from or written to
 	 * `ConditionalRuleMapper`.
 	 *
-	 * @param \OCA\LaunchPad\Db\ConditionalRule[] $rules The candidate rule set
-	 *                                 (not persisted).
-	 * @param string $userId The previewing user's
-	 *                       UID (used only for
-	 *                       `attribute` rules,
-	 *                       which have no override
-	 *                       in the preview
-	 *                       context).
-	 * @param string[]|null $groupsOverride The audience groups to
-	 *                                      test `group` rules
-	 *                                      against; null tests the
-	 *                                      user's own groups.
-	 * @param DateTimeInterface|null $nowOverride The moment to test
-	 *                                            `time` / `date` rules
-	 *                                            against.
-	 * @param string $match `any` or `all` (REQ-VIS-014).
+	 * @param \OCA\LaunchPad\Db\ConditionalRule[] $rules   The candidate rule set (not persisted).
+	 * @param string                               $userId  The user to evaluate as.
+	 * @param RuleSetContext                       $context The groups, moment and match mode.
 	 *
 	 * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
 	 *
 	 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
 	 */
-	public function previewRules(
-		array $rules,
-		string $userId,
-		?array $groupsOverride,
-		?DateTimeInterface $nowOverride,
-		string $match = 'any',
-	): array;
+	public function previewRules(array $rules, string $userId, RuleSetContext $context): array;
 
 	/**
 	 * Get rules for a placement.

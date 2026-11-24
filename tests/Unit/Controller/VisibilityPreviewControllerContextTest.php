@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Service\RuleSetContext;
 use DateTime;
 use Exception;
 use OCA\LaunchPad\Controller\VisibilityPreviewController;
@@ -40,7 +41,7 @@ class VisibilityPreviewControllerContextTest extends TestCase {
 	 * @return void
 	 */
 	protected function setUp(): void {
-		$this->service = $this->createMock(ConditionalService::class);
+		$this->service = $this->createMock(originalClassName: ConditionalService::class);
 	}//end setUp()
 
 	/**
@@ -51,7 +52,7 @@ class VisibilityPreviewControllerContextTest extends TestCase {
 	 * @return VisibilityPreviewController
 	 */
 	private function controller(?string $userId = 'alice'): VisibilityPreviewController {
-		return new VisibilityPreviewController($this->createMock(IRequest::class), $this->service, $userId);
+		return new VisibilityPreviewController($this->createMock(originalClassName: IRequest::class), $this->service, $userId);
 	}//end controller()
 
 	/**
@@ -62,7 +63,7 @@ class VisibilityPreviewControllerContextTest extends TestCase {
 	public function testAnAnonymousPreviewIsUnauthorised(): void {
 		$this->service->expects(self::never())->method('previewRules');
 
-		self::assertSame(Http::STATUS_UNAUTHORIZED, $this->controller(null)->preview([], [])->getStatus());
+		self::assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $this->controller(userId: null)->preview([], [])->getStatus());
 	}//end testAnAnonymousPreviewIsUnauthorised()
 
 	/**
@@ -81,8 +82,8 @@ class VisibilityPreviewControllerContextTest extends TestCase {
 
 		foreach ($cases as [$context, $message]) {
 			$response = $this->controller()->preview([], $context);
-			self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-			self::assertSame(['error' => $message], $response->getData());
+			self::assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+			self::assertSame(expected: ['error' => $message], actual: $response->getData());
 		}
 	}//end testMalformedContextIsRefused()
 
@@ -96,14 +97,15 @@ class VisibilityPreviewControllerContextTest extends TestCase {
 		$this->service->expects(self::once())->method('previewRules')->with(
 			[],
 			'alice',
-			['staff', 'admin'],
-			self::callback(static fn (DateTime $now): bool => $now->format('Y-m-d H:i') === '2026-05-04 09:30')
+			self::callback(callback: static fn (RuleSetContext $context): bool => $context->groups === ['staff', 'admin']
+				&& $context->now->format('Y-m-d H:i') === '2026-05-04 09:30'
+				&& $context->match === 'any')
 		)->willReturn($verdict);
 
 		$response = $this->controller()->preview(null, ['groups' => ['a' => 'staff', 'b' => 'admin'], 'datetime' => '2026-05-04 09:30']);
 
-		self::assertSame(Http::STATUS_OK, $response->getStatus());
-		self::assertSame($verdict, $response->getData());
+		self::assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		self::assertSame(expected: $verdict, actual: $response->getData());
 	}//end testTheContextIsPassedToThePreview()
 
 	/**
@@ -116,13 +118,13 @@ class VisibilityPreviewControllerContextTest extends TestCase {
 		$this->service->expects(self::once())->method('previewRules')->with(
 			[],
 			'alice',
-			[],
-			self::callback(static fn (DateTime $now): bool => $now >= $before && $now <= new DateTime())
+			self::callback(callback: static fn (RuleSetContext $context): bool => $context->groups === []
+				&& $context->now >= $before && $context->now <= new DateTime())
 		)->willThrowException(new Exception('evaluator exploded'));
 
 		$response = $this->controller()->preview(null, null);
 
-		self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-		self::assertSame(['error' => 'Preview failed'], $response->getData());
+		self::assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+		self::assertSame(expected: ['error' => 'Preview failed'], actual: $response->getData());
 	}//end testAFailingPreviewIsAGenericRefusal()
 }//end class

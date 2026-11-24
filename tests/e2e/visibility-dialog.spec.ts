@@ -174,3 +174,61 @@ test('View as a person in the group on a Tuesday at 10:00 says they see the widg
 	await page.locator('[data-test="rule-match-any"]').click()
 	await expect(page.locator('[data-test="rule-match-any"]')).toHaveAttribute('aria-checked', 'true')
 })
+
+/**
+ * Store how the News widget's rules combine, then preview its stored rules
+ * as the person in the group on Saturday 17 October 10:00, outside the
+ * Monday-to-Friday times, in the mode the placement now holds.
+ *
+ * @param mode `all` or `any`.
+ * @return Whether the person sees the widget, and the mode read back.
+ */
+async function saturdayVerdict(mode: string): Promise<{ visible: boolean; stored: string }> {
+	const saved = await admin.put(`${API}/widgets/${placementId}`, { data: { ruleMatch: mode } })
+	expect(saved.status(), await saved.text()).toBe(200)
+	const stored = String((await saved.json()).ruleMatch)
+
+	const rules = await admin.get(`${API}/widgets/${placementId}/rules`)
+	expect(rules.status(), await rules.text()).toBe(200)
+	const preview = await admin.post(`${API}/visibility/preview`, {
+		data: {
+			rules: (await rules.json()).rules,
+			context: { userId: sanne!.username, datetime: '2026-10-17T10:00:00' },
+			match: stored,
+			placementId,
+		},
+	})
+	expect(preview.status(), await preview.text()).toBe(200)
+	return { visible: (await preview.json()).visible === true, stored }
+}
+
+// @e2e conditional-visibility::all-rules-must-match
+test('with all rules required, the person in the group does not see the widget on Saturday', async () => {
+	const { visible, stored } = await saturdayVerdict('all')
+	expect(stored).toBe('all')
+	expect(visible, 'the time rule does not match on Saturday, so the widget is hidden').toBe(false)
+
+	const refused = await admin.put(`${API}/widgets/${placementId}`, { data: { ruleMatch: 'most' } })
+	expect(refused.status(), 'only any or all are accepted').toBe(400)
+})
+
+// @e2e conditional-visibility::one-rule-is-enough
+test('with one rule enough, the person in the group sees the widget on Saturday', async () => {
+	const { visible, stored } = await saturdayVerdict('any')
+	expect(stored).toBe('any')
+	expect(visible, 'the group rule matches, so the widget is visible').toBe(true)
+})
+
+// @e2e conditional-visibility-editor::viewing-as-another-person-needs-the-rules-editor
+test('someone who may not edit the widget\'s rules cannot view it as another person', async () => {
+	const refused = await sanne!.api.post(`${API}/visibility/preview`, {
+		data: { rules: [], context: { userId: 'admin' }, placementId },
+	})
+	expect(refused.status(), await refused.text()).toBe(403)
+
+	// CONTROL: viewing as yourself needs no such right.
+	const own = await sanne!.api.post(`${API}/visibility/preview`, {
+		data: { rules: [], context: { userId: sanne!.username } },
+	})
+	expect(own.status(), await own.text()).toBe(200)
+})

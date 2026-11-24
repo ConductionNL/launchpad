@@ -29,10 +29,11 @@ use OCA\LaunchPad\Service\ConditionalService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\RuleEvaluatorService;
 use OCA\LaunchPad\Service\UserAttributeResolver;
+use OCA\LaunchPad\Service\ViewAsGuard;
 use OCA\LaunchPad\Service\VisibilityChecker;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -50,12 +51,13 @@ class VisibilityPreviewControllerViewAsTest extends TestCase {
 	 */
 	private $permissions;
 
+
 	/**
-	 * Which users exist.
+	 * The request body beside `rules` and `context`: `match`, `placementId`.
 	 *
-	 * @var IUserManager&MockObject
+	 * @var array<string, mixed>
 	 */
-	private $users;
+	private array $body = [];
 
 	/**
 	 * The preview controller over the real evaluation pipeline, called by
@@ -64,31 +66,44 @@ class VisibilityPreviewControllerViewAsTest extends TestCase {
 	 * @return VisibilityPreviewController
 	 */
 	private function controller(): VisibilityPreviewController {
-		$templates = $this->createMock(AdminTemplateService::class);
+		$templates = $this->createMock(originalClassName: AdminTemplateService::class);
 		$templates->method('getUserGroupIdsFor')->willReturnMap([['sanne', ['KCC']], ['alice', []]]);
 		$evaluator = new RuleEvaluatorService(
 			adminTemplateService: $templates,
-			attrResolver: $this->createMock(UserAttributeResolver::class)
+			attrResolver: $this->createMock(originalClassName: UserAttributeResolver::class)
 		);
 		$service = new ConditionalService(
-			ruleMapper: $this->createMock(ConditionalRuleMapper::class),
+			ruleMapper: $this->createMock(originalClassName: ConditionalRuleMapper::class),
 			ruleEvaluator: $evaluator,
 			visibilityChecker: new VisibilityChecker(ruleEvaluator: $evaluator),
-			placementMapper: $this->createMock(WidgetPlacementMapper::class),
-			dashboardMapper: $this->createMock(DashboardMapper::class),
+			placementMapper: $this->createMock(originalClassName: WidgetPlacementMapper::class),
+			dashboardMapper: $this->createMock(originalClassName: DashboardMapper::class),
 		);
-		$this->permissions = $this->createMock(PermissionService::class);
-		$this->users = $this->createMock(IUserManager::class);
-		$this->users->method('userExists')->willReturnCallback(static fn (string $uid): bool => $uid === 'sanne');
+		$this->permissions = $this->createMock(originalClassName: PermissionService::class);
+
+		$request = $this->createMock(originalClassName: IRequest::class);
+		$request->method('getParam')->willReturnCallback(fn (string $key): mixed => ($this->body[$key] ?? null));
 
 		return new VisibilityPreviewController(
-			request: $this->createMock(IRequest::class),
+			request: $request,
 			conditionalService: $service,
 			userId: 'alice',
-			permissionService: $this->permissions,
-			userManager: $this->users,
+			viewAsGuard: new ViewAsGuard(permissionService: $this->permissions, userId: 'alice'),
 		);
 	}//end controller()
+
+	/**
+	 * Ask a preview with the given body.
+	 *
+	 * @param VisibilityPreviewController $controller The controller.
+	 * @param array<string, mixed>        $body       `rules`, `context`, `match`, `placementId`.
+	 *
+	 * @return JSONResponse The answer.
+	 */
+	private function ask(VisibilityPreviewController $controller, array $body): JSONResponse {
+		$this->body = $body;
+		return $controller->preview(rules: ($body['rules'] ?? []), context: ($body['context'] ?? []));
+	}//end ask()
 
 	/**
 	 * Group KCC and Monday to Friday 08:00 to 17:00, as the board's example.
@@ -118,15 +133,21 @@ class VisibilityPreviewControllerViewAsTest extends TestCase {
 		$this->permissions->expects(self::once())->method('verifyPlacementOwnership')
 			->with('alice', 10)->willReturn(new WidgetPlacement());
 
-		$response = $controller->preview(
-			rules: self::rules(),
-			context: ['userId' => 'sanne', 'datetime' => '2026-10-13 10:00'],
-			match: 'all',
-			placementId: 10
+		$response = $this->ask(
+			controller: $controller,
+			body: [
+				'rules' => self::rules(),
+				'context' => ['userId' => 'sanne', 'datetime' => '2026-10-13 10:00'],
+				'match' => 'all',
+				'placementId' => 10,
+			]
 		);
 
-		self::assertSame(Http::STATUS_OK, $response->getStatus());
-		self::assertSame(['visible' => true, 'matchedIncludeRuleIds' => [1, 2], 'matchedExcludeRuleIds' => []], $response->getData());
+		self::assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		self::assertSame(
+			expected: ['visible' => true, 'matchedIncludeRuleIds' => [1, 2], 'matchedExcludeRuleIds' => []],
+			actual: $response->getData()
+		);
 	}//end testSanneSeesTheWidget()
 
 	/**
@@ -140,12 +161,18 @@ class VisibilityPreviewControllerViewAsTest extends TestCase {
 		$this->permissions->method('verifyPlacementOwnership')->willReturn(new WidgetPlacement());
 		$context = ['userId' => 'sanne', 'datetime' => '2026-10-17 10:00'];
 
-		$all = $controller->preview(rules: self::rules(), context: $context, match: 'all', placementId: 10)->getData();
-		$any = $controller->preview(rules: self::rules(), context: $context, match: 'any', placementId: 10)->getData();
+		$all = $this->ask(
+			controller: $controller,
+			body: ['rules' => self::rules(), 'context' => $context, 'match' => 'all', 'placementId' => 10]
+		)->getData();
+		$any = $this->ask(
+			controller: $controller,
+			body: ['rules' => self::rules(), 'context' => $context, 'match' => 'any', 'placementId' => 10]
+		)->getData();
 
-		self::assertFalse($all['visible']);
-		self::assertTrue($any['visible']);
-		self::assertSame([1], $any['matchedIncludeRuleIds']);
+		self::assertFalse(condition: $all['visible']);
+		self::assertTrue(condition: $any['visible']);
+		self::assertSame(expected: [1], actual: $any['matchedIncludeRuleIds']);
 	}//end testTheMatchModeDecidesOnSaturday()
 
 	/**
@@ -159,8 +186,8 @@ class VisibilityPreviewControllerViewAsTest extends TestCase {
 
 		$response = $controller->preview(rules: self::rules(), context: ['userId' => 'alice', 'groups' => ['KCC'], 'datetime' => '2026-10-13 10:00']);
 
-		self::assertSame(Http::STATUS_OK, $response->getStatus());
-		self::assertSame([2], $response->getData()['matchedIncludeRuleIds']);
+		self::assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		self::assertSame(expected: [2], actual: $response->getData()['matchedIncludeRuleIds']);
 	}//end testViewingAsYourselfUsesYourGroups()
 
 	/**
@@ -172,28 +199,27 @@ class VisibilityPreviewControllerViewAsTest extends TestCase {
 		$controller = $this->controller();
 		$this->permissions->method('verifyPlacementOwnership')->willThrowException(new Exception('denied'));
 
-		$withoutPlacement = $controller->preview(rules: self::rules(), context: ['userId' => 'sanne']);
-		$notOwner = $controller->preview(rules: self::rules(), context: ['userId' => 'sanne'], placementId: 10);
+		$withoutPlacement = $this->ask(controller: $controller, body: ['rules' => self::rules(), 'context' => ['userId' => 'sanne']]);
+		$notOwner = $this->ask(controller: $controller, body: ['rules' => self::rules(), 'context' => ['userId' => 'sanne'], 'placementId' => 10]);
 
-		self::assertSame(Http::STATUS_FORBIDDEN, $withoutPlacement->getStatus());
-		self::assertSame(Http::STATUS_FORBIDDEN, $notOwner->getStatus());
+		self::assertSame(expected: Http::STATUS_FORBIDDEN, actual: $withoutPlacement->getStatus());
+		self::assertSame(expected: Http::STATUS_FORBIDDEN, actual: $notOwner->getStatus());
 	}//end testViewingAsSomeoneElseNeedsTheRulesEditor()
 
 	/**
-	 * An unknown person or an unknown match mode is refused.
+	 * An unknown match mode is refused; an unknown person is in no group.
 	 *
 	 * @return void
 	 */
-	public function testUnknownPersonOrModeIsRefused(): void {
+	public function testAnUnknownModeIsRefused(): void {
 		$controller = $this->controller();
 		$this->permissions->method('verifyPlacementOwnership')->willReturn(new WidgetPlacement());
 
-		$nobody = $controller->preview(rules: [], context: ['userId' => 'nobody'], placementId: 10);
-		$mode = $controller->preview(rules: [], context: [], match: 'most');
+		$nobody = $this->ask(controller: $controller, body: ['context' => ['userId' => 'nobody'], 'placementId' => 10]);
+		$mode = $this->ask(controller: $controller, body: ['match' => 'most']);
 
-		self::assertSame(Http::STATUS_BAD_REQUEST, $nobody->getStatus());
-		self::assertSame(['error' => 'Unknown person to view as'], $nobody->getData());
-		self::assertSame(Http::STATUS_BAD_REQUEST, $mode->getStatus());
-		self::assertSame(['error' => 'match must be any or all'], $mode->getData());
-	}//end testUnknownPersonOrModeIsRefused()
+		self::assertSame(expected: Http::STATUS_OK, actual: $nobody->getStatus());
+		self::assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $mode->getStatus());
+		self::assertSame(expected: ['error' => 'match must be any or all'], actual: $mode->getData());
+	}//end testAnUnknownModeIsRefused()
 }//end class

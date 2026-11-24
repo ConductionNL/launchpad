@@ -71,36 +71,36 @@ class WidgetApiControllerRuleMatchTest extends TestCase {
 	 * @return WidgetApiController
 	 */
 	private function controller(array $params): WidgetApiController {
-		$request = $this->createMock(IRequest::class);
+		$request = $this->createMock(originalClassName: IRequest::class);
 		$request->method('getParam')->willReturnCallback(
 			static fn (string $key, mixed $default = null): mixed => ($params[$key] ?? $default)
 		);
-		$user = $this->createMock(IUser::class);
+		$user = $this->createMock(originalClassName: IUser::class);
 		$user->method('getUID')->willReturn('jan');
-		$session = $this->createMock(IUserSession::class);
+		$session = $this->createMock(originalClassName: IUserSession::class);
 		$session->method('getUser')->willReturn($user);
 
-		$this->widgetService = $this->createMock(WidgetService::class);
-		$this->permissions = $this->createMock(PermissionService::class);
+		$this->widgetService = $this->createMock(originalClassName: WidgetService::class);
+		$this->permissions = $this->createMock(originalClassName: PermissionService::class);
 		$this->permissions->method('canStyleWidget')->willReturn(true);
 
 		return new WidgetApiController(
 			request: $request,
 			sources: new WidgetApiSources(
 				widgetService: $this->widgetService,
-				newsWidgetService: $this->createMock(NewsWidgetService::class),
-				calendarService: $this->createMock(CalendarWidgetService::class),
-				placementService: $this->createMock(WidgetPlacementService::class)
+				newsWidgetService: $this->createMock(originalClassName: NewsWidgetService::class),
+				calendarService: $this->createMock(originalClassName: CalendarWidgetService::class),
+				placementService: $this->createMock(originalClassName: WidgetPlacementService::class)
 			),
 			access: new WidgetApiAccess(
 				permissionService: $this->permissions,
 				policy: new WidgetApiPolicy(
-					roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
-					logger: $this->createMock(LoggerInterface::class)
+					roleFeaturePerm: $this->createMock(originalClassName: RoleFeaturePermissionService::class),
+					logger: $this->createMock(originalClassName: LoggerInterface::class)
 				)
 			),
 			context: new ActorResponses(
-				actor: new RequestActor(userSession: $session, actionAuth: $this->createMock(ActionAuthService::class)),
+				actor: new RequestActor(userSession: $session, actionAuth: $this->createMock(originalClassName: ActionAuthService::class)),
 				responses: new UserResponses(userId: 'jan', responseHelper: new ResponseHelper(logger: new NullLogger()))
 			)
 		);
@@ -117,8 +117,8 @@ class WidgetApiControllerRuleMatchTest extends TestCase {
 
 		$response = $controller->updatePlacement(placementId: 10);
 
-		self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-		self::assertSame('ruleMatch must be any or all', $response->getData()['message']);
+		self::assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+		self::assertSame(expected: 'ruleMatch must be any or all', actual: $response->getData()['message']);
 	}//end testAnUnknownModeIsRefused()
 
 	/**
@@ -131,7 +131,7 @@ class WidgetApiControllerRuleMatchTest extends TestCase {
 		$this->permissions->method('verifyPlacementOwnership')->willThrowException(new Exception('denied'));
 		$this->widgetService->expects(self::never())->method('updatePlacement');
 
-		self::assertSame(Http::STATUS_FORBIDDEN, $controller->updatePlacement(placementId: 10)->getStatus());
+		self::assertSame(expected: Http::STATUS_FORBIDDEN, actual: $controller->updatePlacement(placementId: 10)->getStatus());
 	}//end testOnlyTheRulesEditorMayChangeTheMode()
 
 	/**
@@ -150,8 +150,8 @@ class WidgetApiControllerRuleMatchTest extends TestCase {
 
 		$response = $controller->updatePlacement(placementId: 10);
 
-		self::assertSame(Http::STATUS_OK, $response->getStatus());
-		self::assertSame('all', $response->getData()['ruleMatch']);
+		self::assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		self::assertSame(expected: 'all', actual: $response->getData()['ruleMatch']);
 	}//end testTheOwnersModeIsSaved()
 
 	/**
@@ -164,6 +164,6 @@ class WidgetApiControllerRuleMatchTest extends TestCase {
 		$this->permissions->expects(self::never())->method('verifyPlacementOwnership');
 		$this->widgetService->method('updatePlacement')->willReturn(new WidgetPlacement());
 
-		self::assertSame(Http::STATUS_OK, $controller->updatePlacement(placementId: 10)->getStatus());
+		self::assertSame(expected: Http::STATUS_OK, actual: $controller->updatePlacement(placementId: 10)->getStatus());
 	}//end testAnUpdateWithoutAModeIsNotChecked()
 }//end class

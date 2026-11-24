@@ -2,8 +2,8 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The conditional-visibility rule builder — the "Visibility rules…" modal
- * reached from a placement's right-click context menu
+ * The conditional-visibility rule builder — the "Who sees this widget?"
+ * dialog reached from a placement's right-click context menu
  * (conditional-visibility-editor REQ-CVUI-001..005).
  *
  * WHY A BROWSER
@@ -404,12 +404,41 @@ async function pickGroup(
 	await page.keyboard.press('Escape')
 }
 
+/**
+ * Pick the person to view as (View as, REQ-CVUI-004/006). Typed first, so
+ * the people search narrows to the stamped user, then chosen from the list.
+ *
+ * @param page the page.
+ * @param username the person to view as.
+ */
+async function pickPerson(page: Page, username: string): Promise<void> {
+	const input = page.locator('[data-test="preview-person"] input, input[data-test="preview-person"]').first()
+	await input.click()
+	await input.fill(username)
+	const option = page.locator('.vs__dropdown-option').filter({ hasText: username })
+	await expect(option, `the people search must offer "${username}"`).toHaveCount(1, { timeout: 15_000 })
+	await option.click()
+	await page.keyboard.press('Escape')
+}
+
+/**
+ * Set the moment to view at.
+ *
+ * @param page the page.
+ * @param moment a `datetime-local` value, e.g. `2026-07-23T14:30`.
+ */
+async function pickMoment(page: Page, moment: string): Promise<void> {
+	await page.locator('[data-test="preview-datetime"] input, input[data-test="preview-datetime"]').first().fill(moment)
+}
+
 /** The body of the last `POST /api/visibility/preview` the page sent. */
 function lastPreviewBody(
 	writes: Array<{ method: string; url: string; body: string }>,
 ): {
 	rules: Array<Record<string, unknown>>
-	context: { groups: string[]; datetime: string | null }
+	context: { groups: string[]; datetime: string | null; userId?: string }
+	match?: string
+	placementId?: number
 } {
 	return lastWrite(writes, 'POST', '/api/visibility/preview') as never
 }
@@ -1425,6 +1454,30 @@ test.describe('conditional-visibility editor — legible semantics (REQ-CVUI-003
 })
 
 test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI-005)', () => {
+	/*
+	 * View as one person at one moment: a person in `marketing` and one in
+	 * `engineering`, so a group rule naming `marketing` matches one and not
+	 * the other.
+	 */
+	let marketer: Principal | null = null
+	let engineer: Principal | null = null
+
+	test.beforeAll(async () => {
+		const api = await adminApi()
+		marketer = await createPrincipal(api, 'cve-marketer')
+		await addToGroup(api, marketer.username, GROUP.marketing)
+		engineer = await createPrincipal(api, 'cve-engineer')
+		await addToGroup(api, engineer.username, GROUP.engineering)
+		await api.dispose()
+	})
+
+	test.afterAll(async () => {
+		const api = await adminApi()
+		await removePrincipal(api, marketer)
+		await removePrincipal(api, engineer)
+		await api.dispose()
+	})
+
 	test.beforeEach(async () => {
 		const api = await adminApi()
 		await clearRules(api)
@@ -1555,7 +1608,7 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 	})
 
 	// @e2e conditional-visibility-editor::preview-shows-visible-for-a-matching-audience
-	test('previewing as the matching group shows Visible, with icon and text, and names the matched include rule', async ({
+	test('viewing as a person in the matching group shows Visible, with icon and text, and names the matched include rule', async ({
 		page,
 	}) => {
 		const api = await adminApi()
@@ -1573,11 +1626,11 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 			'CONTROL: the editor must hold the one seeded include rule',
 		).toHaveCount(1)
 
-		await pickGroup(page, '[data-test="preview-groups"]', page, GROUP.marketing)
-		await page.locator('[data-test="preview-datetime"]').fill('2026-07-23T14:30')
+		await pickPerson(page, marketer!.username)
+		await pickMoment(page, '2026-07-23T14:30')
 		await runPreviewAndWait(page)
 
-		// The request: the current rule set, and the chosen context. The
+		// The request: the current rule set, the person and the moment. The
 		// editor sends the datetime-local value as an ISO instant, computed in
 		// the browser's own timezone, so the expectation is computed there too.
 		const expectedInstant = await page.evaluate(() =>
@@ -1592,8 +1645,10 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 				isInclude: true,
 			},
 		])
-		expect(body.context.groups).toEqual([GROUP.marketing])
+		expect(body.context.userId, 'the preview must view as the chosen person').toBe(marketer!.username)
+		expect(body.context.groups, 'the person\'s own groups count, none are sent').toEqual([])
 		expect(body.context.datetime).toBe(expectedInstant)
+		expect(body.placementId).toBe(placementId)
 
 		// The verdict: text AND an icon, so it is not carried by colour alone.
 		const verdict = page.locator(
@@ -1616,10 +1671,13 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 		await expect(
 			page.locator('[data-test="preview-matched-exclude"]'),
 		).toHaveCount(0)
+		await expect(page.locator('[data-test="visibility-sentence"]')).toHaveText(
+			`${marketer!.username} sees this widget, because ${marketer!.username} is in ${GROUP.marketing}.`,
+		)
 	})
 
 	// @e2e conditional-visibility-editor::preview-shows-hidden-for-a-non-matching-audience
-	test('previewing as a group the rule does not name shows Hidden and indicates no matched include rule', async ({
+	test('viewing as a person outside the group the rule names shows Hidden and indicates no matched include rule', async ({
 		page,
 	}) => {
 		const api = await adminApi()
@@ -1633,16 +1691,11 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 		const writes = recordWrites(page)
 		await openVisibilityEditor(page)
 
-		// "at any datetime": the datetime field is left empty.
-		await pickGroup(
-			page,
-			'[data-test="preview-groups"]',
-			page,
-			GROUP.engineering,
-		)
+		// "at any moment": the moment field keeps its default, now.
+		await pickPerson(page, engineer!.username)
 		await runPreviewAndWait(page)
 
-		expect(lastPreviewBody(writes).context.groups).toEqual([GROUP.engineering])
+		expect(lastPreviewBody(writes).context.userId).toBe(engineer!.username)
 		await expect(page.locator(PREVIEW_VERDICT)).toHaveText(/^\s*Hidden\s*$/)
 		await expect(
 			page.locator('[data-test="preview-result"] .eye-off-icon svg'),
@@ -1653,17 +1706,21 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 			'no include rule may be indicated as matched',
 		).toHaveCount(0)
 
+		await expect(page.locator('[data-test="visibility-sentence"]')).toHaveText(
+			`${engineer!.username} does not see this widget, because ${engineer!.username} is not in ${GROUP.marketing}.`,
+		)
+
 		/*
 		 * CONTROL. "No include rule indicated" is also what a broken indicator
-		 * would show. Adding the matching group to the audience must flip the
+		 * would show. Viewing as a person in the matching group must flip the
 		 * verdict and make the indicator appear, which proves it can.
 		 */
-		await pickGroup(page, '[data-test="preview-groups"]', page, GROUP.marketing)
+		await pickPerson(page, marketer!.username)
 		await runPreviewAndWait(page)
 		await expect(page.locator(PREVIEW_VERDICT)).toHaveText(/^\s*Visible\s*$/)
 		await expect(
 			page.locator('[data-test="preview-matched-include"]'),
-			'CONTROL: with the matching group added, the include rule must be indicated',
+			'CONTROL: viewing as a person in the matching group, the include rule must be indicated',
 		).toHaveCount(1)
 	})
 
@@ -1697,8 +1754,8 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 		await activateSwitch(draft.locator('[data-test="rule-mode-exclude"]'))
 		await expect(page.locator(ROW_EXCLUDE)).toHaveCount(1)
 
-		await pickGroup(page, '[data-test="preview-groups"]', page, GROUP.marketing)
-		await page.locator('[data-test="preview-datetime"]').fill('2026-07-15T10:00')
+		await pickPerson(page, marketer!.username)
+		await pickMoment(page, '2026-07-15T10:00')
 		await runPreviewAndWait(page)
 
 		const body = lastPreviewBody(writes)
@@ -1723,6 +1780,9 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 			'the matched exclude rule must be indicated as the reason',
 		).toHaveCount(1)
 		await expect(reason).toContainText('2026-07-01')
+		await expect(page.locator('[data-test="visibility-sentence"]')).toHaveText(
+			/^.+ does not see this widget, because .+ is within the period\.$/,
+		)
 	})
 
 	// @e2e conditional-visibility-editor::preview-rejects-an-invalid-rule-set

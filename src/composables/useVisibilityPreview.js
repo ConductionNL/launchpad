@@ -48,21 +48,21 @@ function toPreviewRule(rule) {
  * — when given — who to view as, how the rules combine and the placement.
  *
  * @param {object[]} rules the in-editor rule set
- * @param {object} context `{groups?, datetime?, userId?}`
- * @param {object} options `{match?, placementId?}`
+ * @param {object} context `{groups?, datetime?, userId?, match?, placementId?}`
  * @return {object} the request body
  * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
-export function previewBody(rules, context, options = {}) {
+export function previewBody(rules, context) {
+	const given = context || {}
 	const body = {
 		rules: (rules || []).map(toPreviewRule),
-		context: previewContext(context || {}),
+		context: previewContext(given),
 	}
-	if (options.match) {
-		body.match = options.match
+	if (given.match) {
+		body.match = given.match
 	}
-	if (options.placementId !== null && options.placementId !== undefined) {
-		body.placementId = Number(options.placementId)
+	if (given.placementId !== null && given.placementId !== undefined) {
+		body.placementId = Number(given.placementId)
 	}
 	return body
 }
@@ -91,7 +91,7 @@ function previewContext(context) {
  *
  * @return {{
  *   state: {loading: boolean, error: (Error|null), result: (object|null)},
- *   runPreview: (rules: object[], context: {groups: string[], datetime: string}) => Promise<object>,
+ *   runPreview: (rules: object[], context: object) => Promise<object>,
  *   reset: () => void,
  * }}
  * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date
@@ -110,20 +110,20 @@ export function useVisibilityPreview() {
 	 *
 	 * @param {object[]} rules the current in-editor rule set (unsaved edits
 	 *   included — REQ-CVUI-004 "Preview evaluates unsaved edits")
-	 * @param {object} context `{groups?: string[], datetime: string, userId?: string}`;
-	 *   with `userId` the rules are evaluated as that person (View as)
-	 * @param {object} [options] `{match?: 'any'|'all', placementId?: number}`:
-	 *   how the include rules combine, and the placement whose rules these are
+	 * @param {object} context `{groups?: string[], datetime: string, userId?: string,
+	 *   match?: 'any'|'all', placementId?: number}`; with `userId` the rules are
+	 *   evaluated as that person (View as), `match` says how the include rules
+	 *   combine, `placementId` names the placement whose rules these are
 	 * @return {Promise<{visible: boolean, matchedIncludeRuleIds: number[], matchedExcludeRuleIds: number[]}>}
 	 *   the preview result
 	 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date
 	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 	 */
-	async function runPreview(rules, context, options = {}) {
+	async function runPreview(rules, context) {
 		state.loading = true
 		state.error = null
 		try {
-			const body = previewBody(rules, context, options)
+			const body = previewBody(rules, context)
 			const { data } = await api.previewVisibility(body)
 			const result = data && data.data ? data.data : data
 			state.result = result

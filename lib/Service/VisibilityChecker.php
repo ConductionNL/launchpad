@@ -19,7 +19,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use Closure;
-use DateTimeInterface;
 use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Db\WidgetPlacement;
 
@@ -64,7 +63,7 @@ class VisibilityChecker {
 		return $this->evaluateRuleSet(
 			rules: $rules,
 			userId: $userId,
-			match: $match
+			context: new RuleSetContext(options: ['match' => $match])
 		)['visible'];
 	}//end checkRules()
 
@@ -76,39 +75,32 @@ class VisibilityChecker {
 	 * {@see self::checkRules()} (both call this method — `checkRules()` just
 	 * discards the matched-id detail) so the preview path
 	 * (conditional-visibility-editor spec, REQ-CVUI-005) can never diverge
-	 * from render-time visibility. `$groupsOverride` / `$nowOverride` are
+	 * from render-time visibility. The context's groups and moment are
 	 * forwarded to {@see RuleEvaluatorService::evaluateRule()} and are only
-	 * ever non-null when called from the preview controller.
+	 * ever set by the preview; its match mode says whether all include rules
+	 * must match (REQ-VIS-014).
 	 *
-	 * @param ConditionalRule[] $rules The rules to check.
-	 * @param string $userId The user ID.
-	 * @param string[]|null $groupsOverride Preview-only group
-	 *                                      override.
-	 * @param DateTimeInterface|null $nowOverride Preview-only clock
-	 *                                            override.
-	 * @param string $match `any` (one include rule is enough) or
-	 *                      `all` (every include rule must match).
+	 * @param ConditionalRule[]   $rules   The rules to check.
+	 * @param string              $userId  The user ID.
+	 * @param RuleSetContext|null $context Groups, moment and match mode;
+	 *                                     null for the user's own groups,
+	 *                                     now, and `any`.
 	 *
 	 * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
 	 *
 	 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
 	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
-	public function evaluateRuleSet(
-		array $rules,
-		string $userId,
-		?array $groupsOverride = null,
-		?DateTimeInterface $nowOverride = null,
-		string $match = WidgetPlacement::RULE_MATCH_ANY,
-	): array {
+	public function evaluateRuleSet(array $rules, string $userId, ?RuleSetContext $context = null): array {
+		$context ??= new RuleSetContext();
 		$matches = fn (ConditionalRule $rule): bool => $this->ruleEvaluator->evaluateRule(
 			rule: $rule,
 			userId: $userId,
-			groupsOverride: $groupsOverride,
-			nowOverride: $nowOverride
+			groupsOverride: $context->groups,
+			nowOverride: $context->now
 		) === true;
 
-		return $this->evaluateWith(rules: $rules, matches: $matches, match: $match);
+		return $this->evaluateWith(rules: $rules, how: ['matches' => $matches, 'match' => $context->match]);
 	}//end evaluateRuleSet()
 
 	/**
@@ -116,15 +108,17 @@ class VisibilityChecker {
 	 * all required with `$match = 'all'` (an empty include group passes),
 	 * exclude rules AND-ed.
 	 *
-	 * @param ConditionalRule[]              $rules   The rules to evaluate.
-	 * @param Closure(ConditionalRule): bool $matches Whether one rule matches.
-	 * @param string                         $match   `any` or `all`.
+	 * @param ConditionalRule[]                                         $rules The rules to evaluate.
+	 * @param array{matches: Closure(ConditionalRule): bool, match: string} $how   Whether one rule
+	 *                                                                             matches, and `any`
+	 *                                                                             or `all`.
 	 *
 	 * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
 	 *
 	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
-	private function evaluateWith(array $rules, Closure $matches, string $match): array {
+	private function evaluateWith(array $rules, array $how): array {
+		$matches = $how['matches'];
 		$includeRules = $this->filterByType(
 			rules: $rules,
 			isInclude: true
@@ -137,7 +131,7 @@ class VisibilityChecker {
 		// Include rules: an empty group passes, otherwise one match (OR) or,
 		// in `all` mode, every rule must match.
 		$includeIds = $this->matchingRuleIds(rules: $includeRules, matches: $matches);
-		if (self::includePasses(includeRules: $includeRules, includeIds: $includeIds, match: $match) === false) {
+		if (count($includeIds) < self::neededMatches(includeCount: count($includeRules), match: $how['match'])) {
 			return [
 				'visible' => false,
 				'matchedIncludeRuleIds' => $includeIds,
@@ -156,29 +150,23 @@ class VisibilityChecker {
 	}//end evaluateWith()
 
 	/**
-	 * Whether the include rules let the widget through: no include rules
-	 * pass; in `all` mode every include rule must have matched, otherwise
-	 * one is enough.
+	 * How many include rules must match for the widget to show: none when
+	 * there are no include rules, all of them in `all` mode, else one.
 	 *
-	 * @param ConditionalRule[] $includeRules The include rules.
-	 * @param int[]             $includeIds   The ids of those that matched.
-	 * @param string            $match        `any` or `all`.
+	 * @param int    $includeCount The number of include rules.
+	 * @param string $match        `any` or `all`.
 	 *
-	 * @return bool True when the include rules pass.
+	 * @return int The number that must match.
 	 *
 	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
-	private static function includePasses(array $includeRules, array $includeIds, string $match): bool {
-		if ($includeRules === []) {
-			return true;
-		}
-
+	private static function neededMatches(int $includeCount, string $match): int {
 		if ($match === WidgetPlacement::RULE_MATCH_ALL) {
-			return count($includeIds) === count($includeRules);
+			return $includeCount;
 		}
 
-		return $includeIds !== [];
-	}//end includePasses()
+		return min($includeCount, 1);
+	}//end neededMatches()
 
 	/**
 	 * Filter rules by include/exclude type.

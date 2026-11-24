@@ -617,10 +617,13 @@ export default {
 		},
 
 		/**
-		 * Write a persisted rule and merge the server's copy into its row.
+		 * Write a persisted rule, merge the server's copy into its row and
+		 * close the card's editor.
 		 *
 		 * @param {object} row The persisted rule row.
 		 * @param {object} payload Rule fields to write.
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		async updateSavedRule(row, payload) {
 			const { data } = await api.updateRule(row.id, payload)
@@ -824,11 +827,12 @@ export default {
 			const person = this.previewPerson
 			const moment = this.previewDatetime ? new Date(this.previewDatetime) : new Date()
 			try {
-				await this.preview.runPreview(
-					this.rules,
-					{ userId: person?.id || null, datetime: moment.toISOString() },
-					{ match: this.matchMode, placementId: this.placementId },
-				)
+				await this.preview.runPreview(this.rules, {
+					userId: person?.id || null,
+					datetime: moment.toISOString(),
+					match: this.matchMode,
+					placementId: this.placementId,
+				})
 				this.previewSubject = {
 					name: person?.displayName || person?.id || '',
 					moment: formatMoment(moment, getLanguage()),

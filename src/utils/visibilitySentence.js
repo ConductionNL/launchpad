@@ -180,13 +180,12 @@ export function joinList(items, orList = false) {
  * Why one rule matches or does not, in the person's terms: "Sanne de Vries
  * is in KCC", "Tuesday 13 October 10:00 is within the times".
  *
- * @param {object} rule The rule.
- * @param {boolean} matched Whether it matched for the person.
+ * @param {{rule: object, matched: boolean}} deciding The rule, and whether it matched for the person.
  * @param {{name: string, moment: string, groupNames: {[key: string]: string}}} who The person, moment and group names.
  * @return {string} The reason.
  * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
-export function ruleReason(rule, matched, who) {
+export function ruleReason({ rule, matched }, who) {
 	const vars = {
 		name: who.name,
 		moment: who.moment,
@@ -243,7 +242,7 @@ export function visibilitySentence({ name, moment, rules, result, groupNames = {
 		return ''
 	}
 	const who = { name, moment, groupNames }
-	const reasons = joinList(decidingRules(rules || [], result).map(({ rule, matched }) => ruleReason(rule, matched, who)))
+	const reasons = joinList(decidingRules(rules || [], result).map((deciding) => ruleReason(deciding, who)))
 	if (reasons === '') {
 		return result.visible
 			? t('launchpad', '{name} sees this widget: no rule limits who sees it.', { name }, undefined, { escape: false })

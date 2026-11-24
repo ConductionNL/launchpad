@@ -52,6 +52,30 @@ export function loadIconCatalogue() {
 }
 
 /**
+ * {@link ICON_CATALOGUE} for an app-wide provide: the first read, which is a
+ * picker rendering, starts {@link loadIconCatalogue}, so a page that never
+ * opens a picker never fetches `@mdi/js`.
+ *
+ * @spec openspec/specs/dashboard-icons/spec.md#req-icon-009
+ */
+export const LAZY_ICON_CATALOGUE = new Proxy(ICON_CATALOGUE, {
+	/**
+	 * Read from the catalogue, starting its load on the first read.
+	 *
+	 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-009
+	 * @param {Array<object>} target The catalogue.
+	 * @param {string|symbol} key The property read.
+	 * @return {unknown} The property's value.
+	 */
+	get(target, key) {
+		if (!catalogueLoad) {
+			loadIconCatalogue().catch(() => {})
+		}
+		return Reflect.get(target, key)
+	},
+})
+
+/**
  * The dashboard icon picker's catalogue: the names of the shared icon
  * registry (`DASHBOARD_ICONS` in nextcloud-vue), so a picked icon is stored
  * as its registry name (REQ-ICON-003). Tiles and the organisation navigation

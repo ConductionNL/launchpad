@@ -24,6 +24,7 @@ namespace OCA\LaunchPad\Db;
 use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
 use InvalidArgumentException;
+use OCA\LaunchPad\Service\UuidV4;
 use OCP\AppFramework\Db\Entity;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -58,6 +59,82 @@ class WidgetPlacementMapper extends QBMapper {
 			entityClass: WidgetPlacement::class
 		);
 	}//end __construct()
+
+	/**
+	 * Insert a placement; one that asks for confirmation gets its
+	 * announcement key first (REQ-ACK-009).
+	 *
+	 * @param WidgetPlacement $entity The placement.
+	 *
+	 * @return WidgetPlacement The stored placement.
+	 *
+	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+	 */
+	public function insert(Entity $entity): Entity {
+		self::ensureAnnouncementKey(placement: $entity);
+		return parent::insert(entity: $entity);
+	}//end insert()
+
+	/**
+	 * Update a placement; one that asks for confirmation and has no
+	 * announcement key yet gets one, and a key it has is kept (REQ-ACK-009).
+	 *
+	 * @param WidgetPlacement $entity The placement.
+	 *
+	 * @return WidgetPlacement The stored placement.
+	 *
+	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+	 */
+	public function update(Entity $entity): Entity {
+		self::ensureAnnouncementKey(placement: $entity);
+		return parent::update(entity: $entity);
+	}//end update()
+
+	/**
+	 * Give a placement that asks for confirmation a stable announcement key
+	 * when it has none. A key once given is never replaced, so content edits
+	 * keep the readers' confirmations and the editor's report together.
+	 *
+	 * @param Entity $placement The placement.
+	 *
+	 * @return bool True when a key was given.
+	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) UuidV4 is a pure generator of random v4 UUIDs.
+	 *
+	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+	 */
+	public static function ensureAnnouncementKey(Entity $placement): bool {
+		if (($placement instanceof WidgetPlacement) === false
+			|| $placement->getRequiresAcknowledgement() !== 1
+			|| (string)$placement->getAnnouncementKey() !== ''
+		) {
+			return false;
+		}
+
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$placement->setAnnouncementKey(UuidV4::generate());
+		return true;
+	}//end ensureAnnouncementKey()
+
+	/**
+	 * Every placement that asks for confirmation but has no announcement key
+	 * yet: rows written before keys were given on every save (REQ-ACK-009).
+	 *
+	 * @return WidgetPlacement[]
+	 *
+	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+	 */
+	public function findAcknowledgedWithoutKey(): array {
+		$qb = $this->selectWhere(match: ['requires_acknowledgement' => 1]);
+		$qb->andWhere(
+			$qb->expr()->orX(
+				$qb->expr()->isNull(x: 'announcement_key'),
+				$qb->expr()->eq(x: 'announcement_key', y: $qb->createNamedParameter(value: ''))
+			)
+		);
+
+		return $this->findEntities(query: $qb);
+	}//end findAcknowledgedWithoutKey()
 
 	/**
 	 * Find placement by ID.
@@ -206,7 +283,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 *
 	 * @throws InvalidArgumentException When the entity is not a widget placement.
 	 *
-	 * @spec openspec/specs/conditional-visibility/spec.md#requirement-req-vis-011
+	 * @spec openspec/specs/conditional-visibility/spec.md#requirement-rule-cascade-deletion-req-vis-011
 	 */
 	public function delete(Entity $entity): Entity {
 		if (($entity instanceof WidgetPlacement) === false) {

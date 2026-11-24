@@ -238,11 +238,7 @@ class ResyncDiffer {
 			return ['toPreserve', $copy];
 		}
 
-		$keepLayout = ($strategy === TemplateResyncService::STRATEGY_MERGE) && $this->keepsOwnerLayout(copy: $copy, template: $template);
-		$ignore = [];
-		if ($keepLayout === true) {
-			$ignore = PlacementLayout::FIELDS;
-		}
+		$ignore = $this->ownerLayoutFields(copy: $copy, template: $template, strategy: $strategy);
 
 		if ($this->placementDiffers(copy: $copy, template: $template, ignore: $ignore) === true) {
 			return [
@@ -250,7 +246,7 @@ class ResyncDiffer {
 				[
 					'copy' => $copy,
 					'template' => $template,
-					'keepLayout' => $keepLayout,
+					'keepLayout' => ($ignore !== []),
 				],
 			];
 		}
@@ -259,23 +255,28 @@ class ResyncDiffer {
 	}//end classifyCopyPlacement()
 
 	/**
-	 * Whether a matched placement keeps the owner's layout under `merge`: for
-	 * a non-compulsory widget the owner moved or resized (REQ-RESYNC-007).
+	 * The grid fields a matched placement keeps from its owner, so the diff
+	 * does not compare them: under `merge`, for a non-compulsory widget the owner moved or resized (REQ-RESYNC-007).
 	 *
 	 * @param WidgetPlacement $copy     The copy's placement.
 	 * @param WidgetPlacement $template The template placement it came from.
+	 * @param string          $strategy The re-sync strategy.
 	 *
-	 * @return bool True when the owner's position and size stay.
+	 * @return array<int, string> The grid fields when the owner's position and size stay, else none.
 	 *
 	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
-	private function keepsOwnerLayout(WidgetPlacement $copy, WidgetPlacement $template): bool {
-		if ((int)$template->getIsCompulsory() === 1) {
-			return false;
+	private function ownerLayoutFields(WidgetPlacement $copy, WidgetPlacement $template, string $strategy): array {
+		if ($strategy !== TemplateResyncService::STRATEGY_MERGE || (int)$template->getIsCompulsory() === 1) {
+			return [];
 		}
 
-		return $this->layout->ownerMoved(placement: $copy);
-	}//end keepsOwnerLayout()
+		if ($this->layout->ownerMoved(placement: $copy) === false) {
+			return [];
+		}
+
+		return PlacementLayout::FIELDS;
+	}//end ownerLayoutFields()
 
 	/**
 	 * Template placements the copy has no counterpart for — i.e. the

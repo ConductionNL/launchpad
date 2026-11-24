@@ -7,7 +7,7 @@
     "tools": [
       {
         "name": "composer",
-        "version": "2.10.2"
+        "version": "2.8.12"
       },
       {
         "vendor": "cyclonedx",
@@ -830,8 +830,8 @@
       "type": "library",
       "name": "nextcloud-vue",
       "group": "@conduction",
-      "version": "2.193.1",
-      "bom-ref": "launchpad@1.0.0|@conduction/nextcloud-vue@2.193.1",
+      "version": "2.203.0",
+      "bom-ref": "launchpad@1.0.0|@conduction/nextcloud-vue@2.203.0",
       "licenses": [
         {
           "license": {
@@ -839,15 +839,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/%40conduction/nextcloud-vue@2.193.1",
+      "purl": "pkg:npm/%40conduction/nextcloud-vue@2.203.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/@conduction/nextcloud-vue/-/nextcloud-vue-2.193.1.tgz",
+          "url": "https://registry.npmjs.org/@conduction/nextcloud-vue/-/nextcloud-vue-2.203.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "deefc65164cfdfdc95ceb1f5549770347fc5d858ff84b339e98faddf8b421ce191726fd7321846b3dfbb5f3ab78b2201263f318c61f342281ff775c7bfcef76f"
+              "content": "b5e3f0e39ab553281a32e5e0ad40505c8d99e92fa5452897eb44caea62ac1b57e97de44bd5382723b84429504c894a9d480eae59a3229fcf35b20a4452224364"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -865,7 +865,7 @@
           "name": "dialogs",
           "group": "@nextcloud",
           "version": "7.6.0",
-          "bom-ref": "launchpad@1.0.0|@conduction/nextcloud-vue@2.193.1|@nextcloud/dialogs@7.6.0",
+          "bom-ref": "launchpad@1.0.0|@conduction/nextcloud-vue@2.203.0|@nextcloud/dialogs@7.6.0",
           "licenses": [
             {
               "license": {
@@ -899,7 +899,7 @@
               "name": "initial-state",
               "group": "@nextcloud",
               "version": "3.0.0",
-              "bom-ref": "launchpad@1.0.0|@conduction/nextcloud-vue@2.193.1|@nextcloud/dialogs@7.6.0|@nextcloud/initial-state@3.0.0",
+              "bom-ref": "launchpad@1.0.0|@conduction/nextcloud-vue@2.203.0|@nextcloud/dialogs@7.6.0|@nextcloud/initial-state@3.0.0",
               "licenses": [
                 {
                   "license": {
@@ -21169,8 +21169,8 @@
     {
       "type": "library",
       "name": "schema-utils",
-      "version": "4.3.3",
-      "bom-ref": "launchpad@1.0.0|schema-utils@4.3.3",
+      "version": "4.8.5",
+      "bom-ref": "launchpad@1.0.0|schema-utils@4.8.5",
       "licenses": [
         {
           "license": {
@@ -21178,15 +21178,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/schema-utils@4.3.3",
+      "purl": "pkg:npm/schema-utils@4.8.5",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/schema-utils/-/schema-utils-4.3.3.tgz",
+          "url": "https://registry.npmjs.org/schema-utils/-/schema-utils-4.8.5.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "79f94af3012dc8e13afa1b1a4553f1bd42980a9460ccba834dbf24aef02c448c0e1a51e84a060b8015e8b9b1a02ddd9f4f8d7f39461d6f8f2fe24e1658742eac"
+              "content": "2b54513fb6935006369465cdccfc2330ae8030ccdb113769177a533cc1271ff46ba663f1e8ad57e3bfe049e6eb57ed48f6945c829c19c2aa58065c9902c9628b"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -21196,41 +21196,6 @@
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/schema-utils"
-        }
-      ],
-      "components": [
-        {
-          "type": "library",
-          "name": "ajv-formats",
-          "version": "2.1.1",
-          "bom-ref": "launchpad@1.0.0|schema-utils@4.3.3|ajv-formats@2.1.1",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT"
-              }
-            }
-          ],
-          "purl": "pkg:npm/ajv-formats@2.1.1",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/ajv-formats/-/ajv-formats-2.1.1.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "5b1d0ac79da1c44ec2d7c8643048206251227ea599b58691828b89a2bf9631d3e743210ad77be0116c9536ea7b4a879ea0b32caf891fe61e9d396d75235e4c50"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/schema-utils/node_modules/ajv-formats"
-            }
-          ]
         }
       ]
     },

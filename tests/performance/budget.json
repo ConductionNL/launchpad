@@ -1,0 +1,6 @@
+{
+	"app": "launchpad",
+	"pages": [
+		{ "name": "Workspace", "path": "/index.php/apps/launchpad/" }
+	]
+}

@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "błąd sieci",
     "Reload" : "Załaduj ponownie",
     "Open in a new tab" : "Otwórz w nowej karcie",
-    "Open {title} in a new tab" : "Otwórz {title} w nowej karcie"
+    "Open {title} in a new tab" : "Otwórz {title} w nowej karcie",
+    "Allowed websites" : "Dozwolone witryny",
+    "Widgets may only embed pages and fetch data from these sites." : "Widżety mogą osadzać strony i pobierać dane tylko z tych witryn.",
+    "Purpose of {host}" : "Przeznaczenie {host}",
+    "Remove {host}" : "Usuń {host}",
+    "No websites on this list yet." : "Na tej liście nie ma jeszcze witryn.",
+    "Website" : "Witryna",
+    "A host such as www.example.com, without https:// or a path." : "Host, np. www.example.com, bez https:// i ścieżki.",
+    "Purpose" : "Przeznaczenie",
+    "Add website" : "Dodaj witrynę",
+    "Embed" : "Osadzanie",
+    "Fetch" : "Pobieranie",
+    "Embed and fetch" : "Osadzanie i pobieranie",
+    "Allowed websites saved." : "Zapisano dozwolone witryny.",
+    "The allowed websites could not be saved." : "Nie udało się zapisać dozwolonych witryn."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

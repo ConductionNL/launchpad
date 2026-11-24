@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "një gabim rrjeti",
     "Reload" : "Ringarko",
     "Open in a new tab" : "Hape në skedë të re",
-    "Open {title} in a new tab" : "Hape {title} në skedë të re"
+    "Open {title} in a new tab" : "Hape {title} në skedë të re",
+    "Allowed websites" : "Sajte të lejuara",
+    "Widgets may only embed pages and fetch data from these sites." : "Widget-et mund të ngulitin faqe dhe të marrin të dhëna vetëm nga këto sajte.",
+    "Purpose of {host}" : "Qëllimi i {host}",
+    "Remove {host}" : "Hiq {host}",
+    "No websites on this list yet." : "Ende nuk ka sajte në këtë listë.",
+    "Website" : "Sajt",
+    "A host such as www.example.com, without https:// or a path." : "Një strehë si www.example.com, pa https:// ose shteg.",
+    "Purpose" : "Qëllimi",
+    "Add website" : "Shto sajt",
+    "Embed" : "Ngulit",
+    "Fetch" : "Merr",
+    "Embed and fetch" : "Ngulit dhe merr",
+    "Allowed websites saved." : "Sajtet e lejuara u ruajtën.",
+    "The allowed websites could not be saved." : "Sajtet e lejuara nuk u ruajtën dot."
 },
 "nplurals=2; plural=(n != 1);"
 );

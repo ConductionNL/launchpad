@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "bir ağ hatası",
     "Reload" : "Yeniden yükle",
     "Open in a new tab" : "Yeni sekmede aç",
-    "Open {title} in a new tab" : "{title} öğesini yeni sekmede aç"
+    "Open {title} in a new tab" : "{title} öğesini yeni sekmede aç",
+    "Allowed websites" : "İzin verilen web siteleri",
+    "Widgets may only embed pages and fetch data from these sites." : "Widget'lar yalnızca bu sitelerden sayfa gömebilir ve veri alabilir.",
+    "Purpose of {host}" : "{host} amacı",
+    "Remove {host}" : "{host} öğesini kaldır",
+    "No websites on this list yet." : "Bu listede henüz web sitesi yok.",
+    "Website" : "Web sitesi",
+    "A host such as www.example.com, without https:// or a path." : "https:// veya yol olmadan www.example.com gibi bir ana bilgisayar.",
+    "Purpose" : "Amaç",
+    "Add website" : "Web sitesi ekle",
+    "Embed" : "Göm",
+    "Fetch" : "Veri al",
+    "Embed and fetch" : "Göm ve veri al",
+    "Allowed websites saved." : "İzin verilen web siteleri kaydedildi.",
+    "The allowed websites could not be saved." : "İzin verilen web siteleri kaydedilemedi."
 },
 "nplurals=2; plural=(n != 1);"
 );

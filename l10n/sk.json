@@ -1453,6 +1453,20 @@
         "a network error": "chyba siete",
         "Reload": "Načítať znova",
         "Open in a new tab": "Otvoriť na novej karte",
-        "Open {title} in a new tab": "Otvoriť {title} na novej karte"
+        "Open {title} in a new tab": "Otvoriť {title} na novej karte",
+        "Allowed websites": "Povolené weby",
+        "Widgets may only embed pages and fetch data from these sites.": "Widgety smú vkladať stránky a načítavať údaje len z týchto webov.",
+        "Purpose of {host}": "Účel {host}",
+        "Remove {host}": "Odobrať {host}",
+        "No websites on this list yet.": "Na tomto zozname zatiaľ nie sú žiadne weby.",
+        "Website": "Web",
+        "A host such as www.example.com, without https:// or a path.": "Hostiteľ ako www.example.com, bez https:// a cesty.",
+        "Purpose": "Účel",
+        "Add website": "Pridať web",
+        "Embed": "Vkladať",
+        "Fetch": "Načítavať",
+        "Embed and fetch": "Vkladať a načítavať",
+        "Allowed websites saved.": "Povolené weby uložené.",
+        "The allowed websites could not be saved.": "Povolené weby sa nepodarilo uložiť."
     }
 }

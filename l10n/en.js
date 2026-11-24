@@ -2012,7 +2012,21 @@ OC.L10N.register(
     "a network error" : "a network error",
     "Reload" : "Reload",
     "Open in a new tab" : "Open in a new tab",
-    "Open {title} in a new tab" : "Open {title} in a new tab"
+    "Open {title} in a new tab" : "Open {title} in a new tab",
+    "Allowed websites" : "Allowed websites",
+    "Widgets may only embed pages and fetch data from these sites." : "Widgets may only embed pages and fetch data from these sites.",
+    "Purpose of {host}" : "Purpose of {host}",
+    "Remove {host}" : "Remove {host}",
+    "No websites on this list yet." : "No websites on this list yet.",
+    "Website" : "Website",
+    "A host such as www.example.com, without https:// or a path." : "A host such as www.example.com, without https:// or a path.",
+    "Purpose" : "Purpose",
+    "Add website" : "Add website",
+    "Embed" : "Embed",
+    "Fetch" : "Fetch",
+    "Embed and fetch" : "Embed and fetch",
+    "Allowed websites saved." : "Allowed websites saved.",
+    "The allowed websites could not be saved." : "The allowed websites could not be saved."
 },
 "nplurals=2; plural=(n != 1);"
 );

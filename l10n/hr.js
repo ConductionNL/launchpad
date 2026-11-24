@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "mrežna pogreška",
     "Reload" : "Ponovno učitaj",
     "Open in a new tab" : "Otvori u novoj kartici",
-    "Open {title} in a new tab" : "Otvori {title} u novoj kartici"
+    "Open {title} in a new tab" : "Otvori {title} u novoj kartici",
+    "Allowed websites" : "Dopuštena web-mjesta",
+    "Widgets may only embed pages and fetch data from these sites." : "Widgeti smiju ugrađivati stranice i dohvaćati podatke samo s ovih web-mjesta.",
+    "Purpose of {host}" : "Namjena za {host}",
+    "Remove {host}" : "Ukloni {host}",
+    "No websites on this list yet." : "Na ovom popisu još nema web-mjesta.",
+    "Website" : "Web-mjesto",
+    "A host such as www.example.com, without https:// or a path." : "Host poput www.example.com, bez https:// i putanje.",
+    "Purpose" : "Namjena",
+    "Add website" : "Dodaj web-mjesto",
+    "Embed" : "Ugradnja",
+    "Fetch" : "Dohvaćanje",
+    "Embed and fetch" : "Ugradnja i dohvaćanje",
+    "Allowed websites saved." : "Dopuštena web-mjesta spremljena.",
+    "The allowed websites could not be saved." : "Dopuštena web-mjesta nije bilo moguće spremiti."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

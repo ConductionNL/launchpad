@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "tīkla kļūda",
     "Reload" : "Pārlādēt",
     "Open in a new tab" : "Atvērt jaunā cilnē",
-    "Open {title} in a new tab" : "Atvērt {title} jaunā cilnē"
+    "Open {title} in a new tab" : "Atvērt {title} jaunā cilnē",
+    "Allowed websites" : "Atļautās vietnes",
+    "Widgets may only embed pages and fetch data from these sites." : "Logrīki drīkst iegult lapas un iegūt datus tikai no šīm vietnēm.",
+    "Purpose of {host}" : "{host} mērķis",
+    "Remove {host}" : "Noņemt {host}",
+    "No websites on this list yet." : "Šajā sarakstā vēl nav nevienas vietnes.",
+    "Website" : "Vietne",
+    "A host such as www.example.com, without https:// or a path." : "Resursdators, piemēram, www.example.com, bez https:// vai ceļa.",
+    "Purpose" : "Mērķis",
+    "Add website" : "Pievienot vietni",
+    "Embed" : "Iegult",
+    "Fetch" : "Iegūt",
+    "Embed and fetch" : "Iegult un iegūt",
+    "Allowed websites saved." : "Atļautās vietnes saglabātas.",
+    "The allowed websites could not be saved." : "Atļautās vietnes neizdevās saglabāt."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

@@ -1451,6 +1451,20 @@
         "a network error": "σφάλμα δικτύου",
         "Reload": "Επαναφόρτωση",
         "Open in a new tab": "Άνοιγμα σε νέα καρτέλα",
-        "Open {title} in a new tab": "Άνοιγμα του {title} σε νέα καρτέλα"
+        "Open {title} in a new tab": "Άνοιγμα του {title} σε νέα καρτέλα",
+        "Allowed websites": "Επιτρεπόμενοι ιστότοποι",
+        "Widgets may only embed pages and fetch data from these sites.": "Τα γραφικά στοιχεία μπορούν να ενσωματώνουν σελίδες και να ανακτούν δεδομένα μόνο από αυτούς τους ιστότοπους.",
+        "Purpose of {host}": "Σκοπός του {host}",
+        "Remove {host}": "Αφαίρεση του {host}",
+        "No websites on this list yet.": "Δεν υπάρχουν ακόμη ιστότοποι σε αυτή τη λίστα.",
+        "Website": "Ιστότοπος",
+        "A host such as www.example.com, without https:// or a path.": "Ένας κεντρικός υπολογιστής όπως www.example.com, χωρίς https:// ή διαδρομή.",
+        "Purpose": "Σκοπός",
+        "Add website": "Προσθήκη ιστότοπου",
+        "Embed": "Ενσωμάτωση",
+        "Fetch": "Ανάκτηση",
+        "Embed and fetch": "Ενσωμάτωση και ανάκτηση",
+        "Allowed websites saved.": "Οι επιτρεπόμενοι ιστότοποι αποθηκεύτηκαν.",
+        "The allowed websites could not be saved.": "Δεν ήταν δυνατή η αποθήκευση των επιτρεπόμενων ιστότοπων."
     }
 }

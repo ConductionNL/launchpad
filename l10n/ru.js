@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "сетевая ошибка",
     "Reload" : "Перезагрузить",
     "Open in a new tab" : "Открыть в новой вкладке",
-    "Open {title} in a new tab" : "Открыть {title} в новой вкладке"
+    "Open {title} in a new tab" : "Открыть {title} в новой вкладке",
+    "Allowed websites" : "Разрешённые сайты",
+    "Widgets may only embed pages and fetch data from these sites." : "Виджеты могут встраивать страницы и получать данные только с этих сайтов.",
+    "Purpose of {host}" : "Назначение {host}",
+    "Remove {host}" : "Удалить {host}",
+    "No websites on this list yet." : "В этом списке пока нет сайтов.",
+    "Website" : "Сайт",
+    "A host such as www.example.com, without https:// or a path." : "Хост, например www.example.com, без https:// и пути.",
+    "Purpose" : "Назначение",
+    "Add website" : "Добавить сайт",
+    "Embed" : "Встраивание",
+    "Fetch" : "Получение данных",
+    "Embed and fetch" : "Встраивание и получение данных",
+    "Allowed websites saved." : "Разрешённые сайты сохранены.",
+    "The allowed websites could not be saved." : "Не удалось сохранить разрешённые сайты."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

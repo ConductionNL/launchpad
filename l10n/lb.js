@@ -1542,7 +1542,21 @@ OC.L10N.register(
     "a network error" : "en Netzwierkfeeler",
     "Reload" : "Nei lueden",
     "Open in a new tab" : "An engem neien Tab opmaachen",
-    "Open {title} in a new tab" : "{title} an engem neien Tab opmaachen"
+    "Open {title} in a new tab" : "{title} an engem neien Tab opmaachen",
+    "Allowed websites" : "Erlaabt Websäiten",
+    "Widgets may only embed pages and fetch data from these sites." : "Widgete däerfe Säite just vun dëse Websäiten abetten an Donnéeë just vun hinnen ofruffen.",
+    "Purpose of {host}" : "Zweck vun {host}",
+    "Remove {host}" : "{host} ewechhuelen",
+    "No websites on this list yet." : "Op dëser Lëscht stinn nach keng Websäiten.",
+    "Website" : "Websäit",
+    "A host such as www.example.com, without https:// or a path." : "E Host wéi www.example.com, ouni https:// oder Pfad.",
+    "Purpose" : "Zweck",
+    "Add website" : "Websäit derbäisetzen",
+    "Embed" : "Abetten",
+    "Fetch" : "Ofruffen",
+    "Embed and fetch" : "Abetten an ofruffen",
+    "Allowed websites saved." : "Erlaabt Websäite gespäichert.",
+    "The allowed websites could not be saved." : "Déi erlaabt Websäite konnten net gespäichert ginn."
 },
 "nplurals=2; plural=(n != 1);"
 );

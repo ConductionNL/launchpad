@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "o eroare de rețea",
     "Reload" : "Reîncarcă",
     "Open in a new tab" : "Deschide într-o filă nouă",
-    "Open {title} in a new tab" : "Deschide {title} într-o filă nouă"
+    "Open {title} in a new tab" : "Deschide {title} într-o filă nouă",
+    "Allowed websites" : "Site-uri permise",
+    "Widgets may only embed pages and fetch data from these sites." : "Widgeturile pot încorpora pagini și prelua date doar de pe aceste site-uri.",
+    "Purpose of {host}" : "Scopul pentru {host}",
+    "Remove {host}" : "Elimină {host}",
+    "No websites on this list yet." : "Încă nu există site-uri în această listă.",
+    "Website" : "Site",
+    "A host such as www.example.com, without https:// or a path." : "O gazdă precum www.example.com, fără https:// sau cale.",
+    "Purpose" : "Scop",
+    "Add website" : "Adaugă site",
+    "Embed" : "Încorporare",
+    "Fetch" : "Preluare",
+    "Embed and fetch" : "Încorporare și preluare",
+    "Allowed websites saved." : "Site-urile permise au fost salvate.",
+    "The allowed websites could not be saved." : "Site-urile permise nu au putut fi salvate."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

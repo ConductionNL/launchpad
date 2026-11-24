@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "võrguviga",
     "Reload" : "Laadi uuesti",
     "Open in a new tab" : "Ava uuel vahekaardil",
-    "Open {title} in a new tab" : "Ava {title} uuel vahekaardil"
+    "Open {title} in a new tab" : "Ava {title} uuel vahekaardil",
+    "Allowed websites" : "Lubatud veebisaidid",
+    "Widgets may only embed pages and fetch data from these sites." : "Vidinad tohivad lehti manustada ja andmeid tuua ainult nendelt saitidelt.",
+    "Purpose of {host}" : "{host} eesmärk",
+    "Remove {host}" : "Eemalda {host}",
+    "No websites on this list yet." : "Selles loendis pole veel ühtegi veebisaiti.",
+    "Website" : "Veebisait",
+    "A host such as www.example.com, without https:// or a path." : "Host nagu www.example.com, ilma https:// ja rajata.",
+    "Purpose" : "Eesmärk",
+    "Add website" : "Lisa veebisait",
+    "Embed" : "Manusta",
+    "Fetch" : "Too",
+    "Embed and fetch" : "Manusta ja too",
+    "Allowed websites saved." : "Lubatud veebisaidid salvestati.",
+    "The allowed websites could not be saved." : "Lubatud veebisaite ei õnnestunud salvestada."
 },
 "nplurals=2; plural=(n != 1);"
 );

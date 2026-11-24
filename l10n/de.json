@@ -1451,6 +1451,20 @@
         "a network error": "ein Netzwerkfehler",
         "Reload": "Neu laden",
         "Open in a new tab": "In einem neuen Tab öffnen",
-        "Open {title} in a new tab": "{title} in einem neuen Tab öffnen"
+        "Open {title} in a new tab": "{title} in einem neuen Tab öffnen",
+        "Allowed websites": "Erlaubte Websites",
+        "Widgets may only embed pages and fetch data from these sites.": "Widgets dürfen nur Seiten von diesen Websites einbetten und Daten von ihnen abrufen.",
+        "Purpose of {host}": "Zweck von {host}",
+        "Remove {host}": "{host} entfernen",
+        "No websites on this list yet.": "Auf dieser Liste stehen noch keine Websites.",
+        "Website": "Website",
+        "A host such as www.example.com, without https:// or a path.": "Ein Host wie www.example.com, ohne https:// oder Pfad.",
+        "Purpose": "Zweck",
+        "Add website": "Website hinzufügen",
+        "Embed": "Einbetten",
+        "Fetch": "Abrufen",
+        "Embed and fetch": "Einbetten und abrufen",
+        "Allowed websites saved.": "Erlaubte Websites gespeichert.",
+        "The allowed websites could not be saved.": "Die erlaubten Websites konnten nicht gespeichert werden."
     }
 }

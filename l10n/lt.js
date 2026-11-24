@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "tinklo klaida",
     "Reload" : "Įkelti iš naujo",
     "Open in a new tab" : "Atidaryti naujoje kortelėje",
-    "Open {title} in a new tab" : "Atidaryti {title} naujoje kortelėje"
+    "Open {title} in a new tab" : "Atidaryti {title} naujoje kortelėje",
+    "Allowed websites" : "Leidžiamos svetainės",
+    "Widgets may only embed pages and fetch data from these sites." : "Valdikliai gali įterpti puslapius ir gauti duomenis tik iš šių svetainių.",
+    "Purpose of {host}" : "{host} paskirtis",
+    "Remove {host}" : "Pašalinti {host}",
+    "No websites on this list yet." : "Šiame sąraše dar nėra svetainių.",
+    "Website" : "Svetainė",
+    "A host such as www.example.com, without https:// or a path." : "Serveris, pvz., www.example.com, be https:// ir kelio.",
+    "Purpose" : "Paskirtis",
+    "Add website" : "Pridėti svetainę",
+    "Embed" : "Įterpti",
+    "Fetch" : "Gauti",
+    "Embed and fetch" : "Įterpti ir gauti",
+    "Allowed websites saved." : "Leidžiamos svetainės išsaugotos.",
+    "The allowed websites could not be saved." : "Nepavyko išsaugoti leidžiamų svetainių."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

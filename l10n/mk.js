@@ -1542,7 +1542,21 @@ OC.L10N.register(
     "a network error" : "мрежна грешка",
     "Reload" : "Вчитај повторно",
     "Open in a new tab" : "Отвори во нов таб",
-    "Open {title} in a new tab" : "Отвори {title} во нов таб"
+    "Open {title} in a new tab" : "Отвори {title} во нов таб",
+    "Allowed websites" : "Дозволени веб-страници",
+    "Widgets may only embed pages and fetch data from these sites." : "Виџетите смеат да вградуваат страници и да преземаат податоци само од овие веб-страници.",
+    "Purpose of {host}" : "Намена за {host}",
+    "Remove {host}" : "Отстрани {host}",
+    "No websites on this list yet." : "На оваа листа сè уште нема веб-страници.",
+    "Website" : "Веб-страница",
+    "A host such as www.example.com, without https:// or a path." : "Хост како www.example.com, без https:// и патека.",
+    "Purpose" : "Намена",
+    "Add website" : "Додај веб-страница",
+    "Embed" : "Вградување",
+    "Fetch" : "Преземање",
+    "Embed and fetch" : "Вградување и преземање",
+    "Allowed websites saved." : "Дозволените веб-страници се зачувани.",
+    "The allowed websites could not be saved." : "Дозволените веб-страници не можеа да се зачуваат."
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

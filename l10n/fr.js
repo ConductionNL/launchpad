@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "une erreur réseau",
     "Reload" : "Recharger",
     "Open in a new tab" : "Ouvrir dans un nouvel onglet",
-    "Open {title} in a new tab" : "Ouvrir {title} dans un nouvel onglet"
+    "Open {title} in a new tab" : "Ouvrir {title} dans un nouvel onglet",
+    "Allowed websites" : "Sites web autorisés",
+    "Widgets may only embed pages and fetch data from these sites." : "Les widgets ne peuvent intégrer des pages et récupérer des données que depuis ces sites.",
+    "Purpose of {host}" : "Usage de {host}",
+    "Remove {host}" : "Retirer {host}",
+    "No websites on this list yet." : "Aucun site web sur cette liste pour l'instant.",
+    "Website" : "Site web",
+    "A host such as www.example.com, without https:// or a path." : "Un hôte tel que www.example.com, sans https:// ni chemin.",
+    "Purpose" : "Usage",
+    "Add website" : "Ajouter un site web",
+    "Embed" : "Intégrer",
+    "Fetch" : "Récupérer",
+    "Embed and fetch" : "Intégrer et récupérer",
+    "Allowed websites saved." : "Sites web autorisés enregistrés.",
+    "The allowed websites could not be saved." : "Les sites web autorisés n'ont pas pu être enregistrés."
 },
 "nplurals=2; plural=(n > 1);"
 );

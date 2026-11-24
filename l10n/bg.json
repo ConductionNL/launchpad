@@ -1451,6 +1451,20 @@
         "a network error": "мрежова грешка",
         "Reload": "Презареждане",
         "Open in a new tab": "Отваряне в нов раздел",
-        "Open {title} in a new tab": "Отваряне на {title} в нов раздел"
+        "Open {title} in a new tab": "Отваряне на {title} в нов раздел",
+        "Allowed websites": "Разрешени уебсайтове",
+        "Widgets may only embed pages and fetch data from these sites.": "Джаджите могат да вграждат страници и да извличат данни само от тези сайтове.",
+        "Purpose of {host}": "Предназначение на {host}",
+        "Remove {host}": "Премахване на {host}",
+        "No websites on this list yet.": "В този списък все още няма уебсайтове.",
+        "Website": "Уебсайт",
+        "A host such as www.example.com, without https:// or a path.": "Хост като www.example.com, без https:// и път.",
+        "Purpose": "Предназначение",
+        "Add website": "Добавяне на уебсайт",
+        "Embed": "Вграждане",
+        "Fetch": "Извличане",
+        "Embed and fetch": "Вграждане и извличане",
+        "Allowed websites saved.": "Разрешените уебсайтове са запазени.",
+        "The allowed websites could not be saved.": "Разрешените уебсайтове не можаха да бъдат запазени."
     }
 }

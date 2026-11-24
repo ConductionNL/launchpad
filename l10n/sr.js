@@ -1542,6 +1542,20 @@ OC.L10N.register(
     "a network error" : "мрежна грешка",
     "Reload" : "Поново учитај",
     "Open in a new tab" : "Отвори у новој картици",
-    "Open {title} in a new tab" : "Отвори {title} у новој картици"
+    "Open {title} in a new tab" : "Отвори {title} у новој картици",
+    "Allowed websites" : "Дозвољени сајтови",
+    "Widgets may only embed pages and fetch data from these sites." : "Виџети смеју да уграђују странице и преузимају податке само са ових сајтова.",
+    "Purpose of {host}" : "Намена за {host}",
+    "Remove {host}" : "Уклони {host}",
+    "No websites on this list yet." : "На овој листи још нема сајтова.",
+    "Website" : "Сајт",
+    "A host such as www.example.com, without https:// or a path." : "Хост као што је www.example.com, без https:// и путање.",
+    "Purpose" : "Намена",
+    "Add website" : "Додај сајт",
+    "Embed" : "Уграђивање",
+    "Fetch" : "Преузимање",
+    "Embed and fetch" : "Уграђивање и преузимање",
+    "Allowed websites saved." : "Дозвољени сајтови су сачувани.",
+    "The allowed websites could not be saved." : "Дозвољене сајтове није било могуће сачувати."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

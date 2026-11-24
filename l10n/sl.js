@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Potrjeno {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Prikazanih {shown} od {total}. Prenos da celoten seznam z datumom in uro vsake potrditve.",
     "Department in read confirmations" : "Oddelek v potrditvah branja",
-    "Could not load the read-receipt report." : "Poročila o potrditvah branja ni bilo mogoče naložiti."
+    "Could not load the read-receipt report." : "Poročila o potrditvah branja ni bilo mogoče naložiti.",
+    "Who sees this widget?" : "Kdo vidi ta gradnik?",
+    "Edit widget" : "Uredi gradnik",
+    "Delete widget" : "Izbriši gradnik",
+    "Widget menu" : "Meni gradnika"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

@@ -1573,7 +1573,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Bestätegt {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} vu(n) {total} ugewisen. Eroflueden gëtt déi komplett Lëscht mat Datum an Auerzäit vun all Bestätegung.",
     "Department in read confirmations" : "Departement an de Liesbestätegungen",
-    "Could not load the read-receipt report." : "De Rapport vun de Liesbestätegunge konnt net geluede ginn."
+    "Could not load the read-receipt report." : "De Rapport vun de Liesbestätegunge konnt net geluede ginn.",
+    "Who sees this widget?" : "Wien gesäit dëse Widget?",
+    "Edit widget" : "Widget änneren",
+    "Delete widget" : "Widget läschen",
+    "Widget menu" : "Widget-Menü"
 },
 "nplurals=2; plural=(n != 1);"
 );

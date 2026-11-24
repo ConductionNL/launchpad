@@ -1573,6 +1573,10 @@ OC.L10N.register(
     "Confirmed {date}" : "Потврђено {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Приказано {shown} од {total}. Преузимање даје целу листу са датумом и временом сваке потврде.",
     "Department in read confirmations" : "Одељење у потврдама читања",
-    "Could not load the read-receipt report." : "Извештај о потврдама читања није могао да се учита."
+    "Could not load the read-receipt report." : "Извештај о потврдама читања није могао да се учита.",
+    "Who sees this widget?" : "Ко види овај виџет?",
+    "Edit widget" : "Уреди виџет",
+    "Delete widget" : "Обриши виџет",
+    "Widget menu" : "Мени виџета"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

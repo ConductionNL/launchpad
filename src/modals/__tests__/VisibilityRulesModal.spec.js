@@ -102,4 +102,16 @@ describe('VisibilityRulesModal', () => {
 
 		expect(wrapper.findComponent(ConditionalVisibilityEditorStub).props('availableGroups')).toEqual([])
 	})
+
+	it('is titled "Who sees this widget?" with the widget and dashboard under it', () => {
+		const wrapper = mountModal({ widgetName: 'News', dashboardName: 'Intranet' })
+		expect(wrapper.find('.visibility-rules__title').text()).toBe('Who sees this widget?')
+		expect(wrapper.find('[data-test="visibility-rules-context"]').text()).toBe('News · Intranet')
+	})
+
+	it('shows only the known half of the line, and no line when neither is known', () => {
+		expect(mountModal({ widgetName: 'News' }).find('[data-test="visibility-rules-context"]').text()).toBe('News')
+		expect(mountModal({ dashboardName: ' Intranet ' }).find('[data-test="visibility-rules-context"]').text()).toBe('Intranet')
+		expect(mountModal().find('[data-test="visibility-rules-context"]').exists()).toBe(false)
+	})
 })

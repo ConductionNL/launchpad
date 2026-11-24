@@ -1093,6 +1093,12 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Widgets/WidgetEditMenu.vue | removeLocked": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Widgets/WidgetRowFilter.vue | modelValue": {
 		"type": "String",
 		"required": false,
@@ -2110,6 +2116,18 @@
 		"validator": false,
 		"default": [],
 		"fresh": true
+	},
+	"../../modals/VisibilityRulesModal.vue | widgetName": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../modals/VisibilityRulesModal.vue | dashboardName": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
 	},
 	"../../modals/WidgetMovePanel.vue | open": {
 		"type": "Boolean",

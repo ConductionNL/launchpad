@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Confermà ils {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} da {total} mussads. La telechargiada dat la glista cumpletta cun data ed ura da mintga confermaziun.",
     "Department in read confirmations" : "Departament en las confermaziuns da lectura",
-    "Could not load the read-receipt report." : "Il rapport da las confermaziuns da lectura n'ha betg pudì vegnir chargià."
+    "Could not load the read-receipt report." : "Il rapport da las confermaziuns da lectura n'ha betg pudì vegnir chargià.",
+    "Who sees this widget?" : "Tgi vesa quest widget?",
+    "Edit widget" : "Modifitgar il widget",
+    "Delete widget" : "Stizzar il widget",
+    "Widget menu" : "Menu dal widget"
 },
 "nplurals=2; plural=(n != 1);"
 );

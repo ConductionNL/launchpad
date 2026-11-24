@@ -99,15 +99,15 @@ describe('WidgetWrapper — chrome and frame', () => {
 		expect(mountWrapper({ id: 1, widgetId: 'data', isCompulsory: true }, { removeLocked: true }).vm.canRemove).toBe(false)
 	})
 
-	it('tells the edit cog to leave Delete out when removal is locked', () => {
-		const CogStub = { name: 'CnWidgetEditCog', props: ['canDelete'], template: '<div />' }
+	it('tells the widget menu to leave Delete out when removal is locked', () => {
+		const MenuStub = { name: 'WidgetEditMenu', props: ['removeLocked'], template: '<div />' }
 		const cog = (props) => shallowMount(WidgetWrapper, {
 			propsData: { placement: { id: 1, widgetId: 'data', isCompulsory: 1 }, widget: { title: 'Widget' }, editMode: true, ...props },
 			mocks: { t: (_app, key) => key },
-			global: { stubs: { CnWidgetEditCog: CogStub } },
-		}).findComponent(CogStub)
-		expect(cog({}).props('canDelete')).toBe(true)
-		expect(cog({ removeLocked: true }).props('canDelete')).toBe(false)
+			global: { stubs: { WidgetEditMenu: MenuStub } },
+		}).findComponent(MenuStub)
+		expect(cog({}).props('removeLocked')).toBe(false)
+		expect(cog({ removeLocked: true }).props('removeLocked')).toBe(true)
 	})
 })
 
@@ -129,14 +129,20 @@ describe('WidgetWrapper — acknowledgement gate', () => {
 		expect(wrapper.emitted('acknowledged')).toEqual([[placement]])
 	})
 
-	it('forwards the edit cog\'s edit and remove with the placement and its id', () => {
+	it('forwards the widget menu\'s edit, visibility and remove with the placement and its id', () => {
 		const placement = { id: 9, widgetId: 'data' }
 		const wrapper = mountWrapper(placement, { editMode: true })
-		const cog = wrapper.findComponent({ name: 'CnWidgetEditCog' })
-		expect(cog.exists()).toBe(true)
-		cog.vm.$emit('edit')
-		cog.vm.$emit('remove')
+		const menu = wrapper.findComponent({ name: 'WidgetEditMenu' })
+		expect(menu.exists()).toBe(true)
+		menu.vm.$emit('edit')
+		menu.vm.$emit('visibility')
+		menu.vm.$emit('remove')
 		expect(wrapper.emitted('edit')).toEqual([[placement]])
+		expect(wrapper.emitted('visibility')).toEqual([[placement]])
 		expect(wrapper.emitted('remove')).toEqual([[9]])
+	})
+
+	it('shows no widget menu outside edit mode', () => {
+		expect(mountWrapper({ id: 9, widgetId: 'data' }).findComponent({ name: 'WidgetEditMenu' }).exists()).toBe(false)
 	})
 })

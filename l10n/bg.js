@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Потвърдено на {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Показани {shown} от {total}. Изтеглянето дава пълния списък с датата и часа на всяко потвърждение.",
     "Department in read confirmations" : "Отдел в потвържденията за прочитане",
-    "Could not load the read-receipt report." : "Отчетът за потвържденията за прочитане не можа да бъде зареден."
+    "Could not load the read-receipt report." : "Отчетът за потвържденията за прочитане не можа да бъде зареден.",
+    "Who sees this widget?" : "Кой вижда тази джаджа?",
+    "Edit widget" : "Редактиране на джаджата",
+    "Delete widget" : "Изтриване на джаджата",
+    "Widget menu" : "Меню на джаджата"
 },
 "nplurals=2; plural=(n != 1);"
 );

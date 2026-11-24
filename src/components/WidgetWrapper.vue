@@ -111,13 +111,10 @@
 			<DragVertical :size="16" />
 		</span>
 		<div v-if="editMode" class="launchpad-widget__cog">
-			<CnWidgetEditCog
-				icon="kebab"
-				:menuLabel="t('launchpad', 'Widget menu')"
-				:editLabel="t('launchpad', 'Edit widget')"
-				:deleteLabel="t('launchpad', 'Delete widget')"
-				:canDelete="canRemove"
+			<WidgetEditMenu
+				:removeLocked="!canRemove"
 				@edit="$emit('edit', placement)"
+				@visibility="$emit('visibility', placement)"
 				@remove="$emit('remove', placement.id)" />
 		</div>
 	</div>
@@ -125,7 +122,6 @@
 
 <script>
 import {
-	CnWidgetEditCog,
 	CnWidgetWrapper,
 	NcActionButton,
 	NcActions,
@@ -136,6 +132,7 @@ import DragVertical from 'vue-material-design-icons/DragVertical.vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
+import WidgetEditMenu from './Widgets/WidgetEditMenu.vue'
 import {
 	FLAG_PROP,
 	LIST_PROP,
@@ -167,13 +164,13 @@ export default {
 
 	components: {
 		CnWidgetWrapper,
-		CnWidgetEditCog,
 		CodeTags,
 		DragVertical,
 		EyeOff,
 		NcActionButton,
 		NcActionLink,
 		NcActions,
+		WidgetEditMenu,
 		WidgetRenderer,
 		AcknowledgementPrompt,
 	},
@@ -214,7 +211,7 @@ export default {
 		embedHref: TEXT_PROP,
 	},
 
-	emits: ['remove', 'style', 'edit', 'acknowledged', 'hideForMe'],
+	emits: ['remove', 'style', 'edit', 'visibility', 'acknowledged', 'hideForMe'],
 
 	data() {
 		return {

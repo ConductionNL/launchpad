@@ -314,6 +314,7 @@
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
 							@edit="handleContextMenuEdit(item)"
+							@visibility="handleContextMenuVisibilityRules(item)"
 							@acknowledged="onWidgetAcknowledged"
 							@hideForMe="onHideForMe" />
 					</div>
@@ -482,12 +483,15 @@
 			@close="closeMovePanel" />
 
 		<!-- Per-widget conditional-visibility editor (conditional-visibility
-		     spec). Opened from the context menu's "Visibility rules…" item;
+		     spec). Opened from "Who sees this widget?" in the widget's menu
+		     and in the right-click context menu;
 		     gated on `canEdit` so only dashboard owners reach it. -->
 		<VisibilityRulesModal
 			v-if="mountedModals.visibility"
 			:open="isVisibilityModalOpen"
 			:placementId="visibilityPlacementId"
+			:widgetName="visibilityWidgetName"
+			:dashboardName="activeDashboard?.name || ''"
 			@close="closeVisibilityRules"
 			@ruleAdded="onVisibilityRulesChanged"
 			@ruleUpdated="onVisibilityRulesChanged"
@@ -1221,6 +1225,17 @@ export default {
 		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 		 * @return {string[]} the announcement keys.
 		 */
+		/**
+		 * The title of the widget whose visibility rules are open, '' when none is.
+		 *
+		 * @return {string} The widget title.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		visibilityWidgetName() {
+			const placement = (this.widgetPlacements || []).find((p) => p.id === this.visibilityPlacementId)
+			return placement ? resolveWidgetTitle(placement, this.availableWidgets) : ''
+		},
+
 		/**
 		 * The title of the announcement whose read confirmations are open
 		 * (REQ-ACK-010), '' when none is.

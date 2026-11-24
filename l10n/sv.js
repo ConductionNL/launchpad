@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Bekräftad {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} av {total} visas. Hämta ger hela listan med datum och tid för varje bekräftelse.",
     "Department in read confirmations" : "Avdelning i läsbekräftelser",
-    "Could not load the read-receipt report." : "Rapporten över läsbekräftelser kunde inte läsas in."
+    "Could not load the read-receipt report." : "Rapporten över läsbekräftelser kunde inte läsas in.",
+    "Who sees this widget?" : "Vem ser den här widgeten?",
+    "Edit widget" : "Redigera widget",
+    "Delete widget" : "Ta bort widget",
+    "Widget menu" : "Widgetmeny"
 },
 "nplurals=2; plural=(n != 1);"
 );

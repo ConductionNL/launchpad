@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Patvirtinta {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Rodoma {shown} iš {total}. Atsisiuntę gausite visą sąrašą su kiekvieno patvirtinimo data ir laiku.",
     "Department in read confirmations" : "Skyrius perskaitymo patvirtinimuose",
-    "Could not load the read-receipt report." : "Nepavyko įkelti perskaitymo patvirtinimų ataskaitos."
+    "Could not load the read-receipt report." : "Nepavyko įkelti perskaitymo patvirtinimų ataskaitos.",
+    "Who sees this widget?" : "Kas mato šį valdiklį?",
+    "Edit widget" : "Redaguoti valdiklį",
+    "Delete widget" : "Ištrinti valdiklį",
+    "Widget menu" : "Valdiklio meniu"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

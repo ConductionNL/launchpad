@@ -1482,6 +1482,10 @@
         "Confirmed {date}": "Staðfest {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} af {total} sýnd. Niðurhal gefur allan listann með dagsetningu og tíma hverrar staðfestingar.",
         "Department in read confirmations": "Deild í lestrarstaðfestingum",
-        "Could not load the read-receipt report.": "Ekki tókst að hlaða skýrslu um lestrarstaðfestingar."
+        "Could not load the read-receipt report.": "Ekki tókst að hlaða skýrslu um lestrarstaðfestingar.",
+        "Who sees this widget?": "Hver sér þessa græju?",
+        "Edit widget": "Breyta græju",
+        "Delete widget": "Eyða græju",
+        "Widget menu": "Valmynd græju"
     }
 }

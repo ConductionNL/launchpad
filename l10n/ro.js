@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Confirmat pe {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Se afișează {shown} din {total}. Descărcarea oferă lista completă cu data și ora fiecărei confirmări.",
     "Department in read confirmations" : "Departament în confirmările de citire",
-    "Could not load the read-receipt report." : "Raportul confirmărilor de citire nu a putut fi încărcat."
+    "Could not load the read-receipt report." : "Raportul confirmărilor de citire nu a putut fi încărcat.",
+    "Who sees this widget?" : "Cine vede acest widget?",
+    "Edit widget" : "Editează widgetul",
+    "Delete widget" : "Șterge widgetul",
+    "Widget menu" : "Meniul widgetului"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

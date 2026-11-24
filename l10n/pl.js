@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Potwierdzono {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Pokazano {shown} z {total}. Pobranie daje pełną listę z datą i godziną każdego potwierdzenia.",
     "Department in read confirmations" : "Dział w potwierdzeniach przeczytania",
-    "Could not load the read-receipt report." : "Nie udało się wczytać raportu potwierdzeń przeczytania."
+    "Could not load the read-receipt report." : "Nie udało się wczytać raportu potwierdzeń przeczytania.",
+    "Who sees this widget?" : "Kto widzi ten widżet?",
+    "Edit widget" : "Edytuj widżet",
+    "Delete widget" : "Usuń widżet",
+    "Widget menu" : "Menu widżetu"
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

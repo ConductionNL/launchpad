@@ -1482,6 +1482,10 @@
         "Confirmed {date}": "Επιβεβαιώθηκε {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Εμφανίζονται {shown} από {total}. Η λήψη δίνει την πλήρη λίστα με την ημερομηνία και την ώρα κάθε επιβεβαίωσης.",
         "Department in read confirmations": "Τμήμα στις επιβεβαιώσεις ανάγνωσης",
-        "Could not load the read-receipt report.": "Δεν ήταν δυνατή η φόρτωση της αναφοράς επιβεβαιώσεων ανάγνωσης."
+        "Could not load the read-receipt report.": "Δεν ήταν δυνατή η φόρτωση της αναφοράς επιβεβαιώσεων ανάγνωσης.",
+        "Who sees this widget?": "Ποιος βλέπει αυτό το γραφικό στοιχείο;",
+        "Edit widget": "Επεξεργασία γραφικού στοιχείου",
+        "Delete widget": "Διαγραφή γραφικού στοιχείου",
+        "Widget menu": "Μενού γραφικού στοιχείου"
     }
 }

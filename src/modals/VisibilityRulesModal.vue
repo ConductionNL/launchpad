@@ -8,12 +8,18 @@
 		v-if="open"
 		class="launchpad-modal"
 		size="normal"
-		:name="t('launchpad', 'Visibility rules')"
+		:name="t('launchpad', 'Who sees this widget?')"
 		@close="$emit('close')">
 		<div class="visibility-rules" data-test="visibility-rules-modal">
 			<h2 class="visibility-rules__title">
-				{{ t('launchpad', 'Visibility rules') }}
+				{{ t('launchpad', 'Who sees this widget?') }}
 			</h2>
+			<p
+				v-if="context !== ''"
+				class="visibility-rules__context"
+				data-test="visibility-rules-context">
+				{{ context }}
+			</p>
 
 			<ConditionalVisibilityEditor
 				:placementId="placementId"
@@ -30,7 +36,7 @@
 import { NcModal } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import ConditionalVisibilityEditor from '../components/Widgets/ConditionalVisibilityEditor.vue'
-import { FLAG_PROP, LIST_PROP } from '../constants/propDefinitions.js'
+import { FLAG_PROP, LIST_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
 
 /**
@@ -59,6 +65,12 @@ export default {
 
 		/** Optional group-id list for the group-rule picker. */
 		availableGroups: LIST_PROP,
+
+		/** The widget's title, for the line under the dialog title. */
+		widgetName: TEXT_PROP,
+
+		/** The dashboard's name, for the line under the dialog title. */
+		dashboardName: TEXT_PROP,
 	},
 
 	emits: ['close', 'ruleAdded', 'ruleUpdated', 'ruleRemoved'],
@@ -70,6 +82,20 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The line under the title: "<widget> · <dashboard>", either alone
+		 * when the other is unknown, '' when both are.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		context() {
+			return [this.widgetName, this.dashboardName]
+				.map((part) => String(part ?? '').trim())
+				.filter((part) => part !== '')
+				.join(' · ')
+		},
+
 		/**
 		 * The groups the pickers offer: the passed list, else the instance's groups.
 		 *
@@ -126,6 +152,11 @@ export default {
 }
 
 .visibility-rules__title {
-	margin: 0 0 8px;
+	margin: 0 0 4px;
+}
+
+.visibility-rules__context {
+	margin: 0 0 12px;
+	color: var(--color-text-maxcontrast);
 }
 </style>

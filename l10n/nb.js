@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Bekreftet {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} av {total} vist. Last ned gir hele listen med dato og klokkeslett for hver bekreftelse.",
     "Department in read confirmations" : "Avdeling i lesebekreftelser",
-    "Could not load the read-receipt report." : "Rapporten over lesebekreftelser kunne ikke lastes inn."
+    "Could not load the read-receipt report." : "Rapporten over lesebekreftelser kunne ikke lastes inn.",
+    "Who sees this widget?" : "Hvem ser denne modulen?",
+    "Edit widget" : "Rediger modul",
+    "Delete widget" : "Slett modul",
+    "Widget menu" : "Modulmeny"
 },
 "nplurals=2; plural=(n != 1);"
 );

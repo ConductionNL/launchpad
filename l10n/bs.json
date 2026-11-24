@@ -1484,6 +1484,10 @@
         "Confirmed {date}": "Potvrđeno {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Prikazano {shown} od {total}. Preuzimanje daje cijelu listu s datumom i vremenom svake potvrde.",
         "Department in read confirmations": "Odjel u potvrdama čitanja",
-        "Could not load the read-receipt report.": "Izvještaj o potvrdama čitanja nije se mogao učitati."
+        "Could not load the read-receipt report.": "Izvještaj o potvrdama čitanja nije se mogao učitati.",
+        "Who sees this widget?": "Ko vidi ovaj widget?",
+        "Edit widget": "Uredi widget",
+        "Delete widget": "Izbriši widget",
+        "Widget menu": "Meni widgeta"
     }
 }

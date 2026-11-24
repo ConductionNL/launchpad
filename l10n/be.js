@@ -1573,6 +1573,10 @@ OC.L10N.register(
     "Confirmed {date}" : "Пацверджана {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Паказана {shown} з {total}. Спампоўка дае поўны спіс з датай і часам кожнага пацверджання.",
     "Department in read confirmations" : "Аддзел у пацверджаннях прачытання",
-    "Could not load the read-receipt report." : "Не ўдалося загрузіць справаздачу аб пацверджаннях прачытання."
+    "Could not load the read-receipt report." : "Не ўдалося загрузіць справаздачу аб пацверджаннях прачытання.",
+    "Who sees this widget?" : "Хто бачыць гэты віджэт?",
+    "Edit widget" : "Рэдагаваць віджэт",
+    "Delete widget" : "Выдаліць віджэт",
+    "Widget menu" : "Меню віджэта"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

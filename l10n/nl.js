@@ -2471,7 +2471,8 @@ OC.L10N.register(
     "Not yet" : "Nog niet",
     "Confirmed {date}" : "Bevestigd {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} van {total} getoond. Downloaden geeft de volledige lijst met datum en tijd van elke bevestiging.",
-    "Department in read confirmations" : "Afdeling in leesbevestigingen"
+    "Department in read confirmations" : "Afdeling in leesbevestigingen",
+    "Who sees this widget?" : "Wie ziet deze widget?"
 },
 "nplurals=2; plural=(n != 1);"
 );

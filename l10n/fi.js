@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Kuitattu {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown}/{total} näytetään. Lataus antaa koko luettelon jokaisen kuittauksen päivämäärällä ja kellonajalla.",
     "Department in read confirmations" : "Osasto lukukuittauksissa",
-    "Could not load the read-receipt report." : "Lukukuittausraporttia ei voitu ladata."
+    "Could not load the read-receipt report." : "Lukukuittausraporttia ei voitu ladata.",
+    "Who sees this widget?" : "Kuka näkee tämän pienoisohjelman?",
+    "Edit widget" : "Muokkaa pienoisohjelmaa",
+    "Delete widget" : "Poista pienoisohjelma",
+    "Widget menu" : "Pienoisohjelman valikko"
 },
 "nplurals=2; plural=(n != 1);"
 );

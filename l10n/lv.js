@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Apstiprināts {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Parādīti {shown} no {total}. Lejupielāde dod pilnu sarakstu ar katra apstiprinājuma datumu un laiku.",
     "Department in read confirmations" : "Nodaļa izlasīšanas apstiprinājumos",
-    "Could not load the read-receipt report." : "Izlasīšanas apstiprinājumu pārskatu neizdevās ielādēt."
+    "Could not load the read-receipt report." : "Izlasīšanas apstiprinājumu pārskatu neizdevās ielādēt.",
+    "Who sees this widget?" : "Kas redz šo logrīku?",
+    "Edit widget" : "Rediģēt logrīku",
+    "Delete widget" : "Dzēst logrīku",
+    "Widget menu" : "Logrīka izvēlne"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

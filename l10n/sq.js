@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Konfirmuar më {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Shfaqen {shown} nga {total}. Shkarkimi jep listën e plotë me datën dhe orën e çdo konfirmimi.",
     "Department in read confirmations" : "Departamenti në konfirmimet e leximit",
-    "Could not load the read-receipt report." : "Raporti i konfirmimeve të leximit nuk u ngarkua dot."
+    "Could not load the read-receipt report." : "Raporti i konfirmimeve të leximit nuk u ngarkua dot.",
+    "Who sees this widget?" : "Kush e sheh këtë widget?",
+    "Edit widget" : "Ndrysho widget-in",
+    "Delete widget" : "Fshi widget-in",
+    "Widget menu" : "Menuja e widget-it"
 },
 "nplurals=2; plural=(n != 1);"
 );

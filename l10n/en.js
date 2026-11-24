@@ -2043,7 +2043,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Confirmed {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.",
     "Department in read confirmations" : "Department in read confirmations",
-    "Could not load the read-receipt report." : "Could not load the read-receipt report."
+    "Could not load the read-receipt report." : "Could not load the read-receipt report.",
+    "Who sees this widget?" : "Who sees this widget?",
+    "Edit widget" : "Edit widget",
+    "Delete widget" : "Delete widget",
+    "Widget menu" : "Widget menu"
 },
 "nplurals=2; plural=(n != 1);"
 );

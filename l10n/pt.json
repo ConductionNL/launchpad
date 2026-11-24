@@ -1482,6 +1482,10 @@
         "Confirmed {date}": "Confirmado a {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} de {total} mostrados. A transferência dá a lista completa com a data e a hora de cada confirmação.",
         "Department in read confirmations": "Departamento nas confirmações de leitura",
-        "Could not load the read-receipt report.": "Não foi possível carregar o relatório de confirmações de leitura."
+        "Could not load the read-receipt report.": "Não foi possível carregar o relatório de confirmações de leitura.",
+        "Who sees this widget?": "Quem vê este widget?",
+        "Edit widget": "Editar widget",
+        "Delete widget": "Eliminar widget",
+        "Widget menu": "Menu do widget"
     }
 }

@@ -32,7 +32,7 @@
 			role="menuitem"
 			data-testid="ctx-visibility-rules"
 			@click="onVisibilityRules">
-			{{ t('launchpad', 'Visibility rules…') }}
+			{{ t('launchpad', 'Who sees this widget?') }}
 		</button>
 		<button
 			type="button"

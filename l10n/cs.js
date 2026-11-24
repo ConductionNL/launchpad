@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Potvrzeno {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Zobrazeno {shown} z {total}. Stažení dá úplný seznam s datem a časem každého potvrzení.",
     "Department in read confirmations" : "Oddělení v potvrzeních o přečtení",
-    "Could not load the read-receipt report." : "Přehled potvrzení o přečtení se nepodařilo načíst."
+    "Could not load the read-receipt report." : "Přehled potvrzení o přečtení se nepodařilo načíst.",
+    "Who sees this widget?" : "Kdo vidí tento widget?",
+    "Edit widget" : "Upravit widget",
+    "Delete widget" : "Smazat widget",
+    "Widget menu" : "Nabídka widgetu"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

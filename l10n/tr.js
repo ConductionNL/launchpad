@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "{date} tarihinde onaylandı",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{total} kayıttan {shown} gösteriliyor. İndirme, her onayın tarih ve saatini içeren tam listeyi verir.",
     "Department in read confirmations" : "Okundu onaylarında departman",
-    "Could not load the read-receipt report." : "Okundu onayları raporu yüklenemedi."
+    "Could not load the read-receipt report." : "Okundu onayları raporu yüklenemedi.",
+    "Who sees this widget?" : "Bu widget'ı kimler görüyor?",
+    "Edit widget" : "Widget'ı düzenle",
+    "Delete widget" : "Widget'ı sil",
+    "Widget menu" : "Widget menüsü"
 },
 "nplurals=2; plural=(n != 1);"
 );

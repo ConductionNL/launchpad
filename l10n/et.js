@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Kinnitatud {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Näidatud {shown}/{total}. Allalaadimine annab täieliku nimekirja iga kinnituse kuupäeva ja kellaajaga.",
     "Department in read confirmations" : "Osakond lugemiskinnitustes",
-    "Could not load the read-receipt report." : "Lugemiskinnituste aruannet ei õnnestunud laadida."
+    "Could not load the read-receipt report." : "Lugemiskinnituste aruannet ei õnnestunud laadida.",
+    "Who sees this widget?" : "Kes seda vidinat näeb?",
+    "Edit widget" : "Muuda vidinat",
+    "Delete widget" : "Kustuta vidin",
+    "Widget menu" : "Vidina menüü"
 },
 "nplurals=2; plural=(n != 1);"
 );

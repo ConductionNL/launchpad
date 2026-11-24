@@ -34,7 +34,7 @@ function mountMenu(props = {}) {
 }
 
 describe('WidgetContextMenu', () => {
-	it('REQ-WDG-015: renders six items — Edit, Move, Visibility rules…, Read confirmation…, Remove, Cancel', () => {
+	it('REQ-WDG-015: renders six items — Edit, Move, Who sees this widget?, Read confirmation…, Remove, Cancel', () => {
 		const wrapper = mountMenu()
 		const buttons = wrapper.findAll('.widget-context-menu__item')
 		expect(buttons.length).toBe(6)
@@ -42,7 +42,7 @@ describe('WidgetContextMenu', () => {
 		expect(labels).toEqual([
 			'Edit',
 			'Move',
-			'Visibility rules…',
+			'Who sees this widget?',
 			'Read confirmation…',
 			'Remove',
 			'Cancel',

@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Ikkonfermat fl-{date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Qed jintwerew {shown} minn {total}. It-tniżżil jagħti l-lista sħiħa bid-data u l-ħin ta' kull konferma.",
     "Department in read confirmations" : "Dipartiment fil-konfermi tal-qari",
-    "Could not load the read-receipt report." : "Ir-rapport tal-konfermi tal-qari ma setax jitgħabba."
+    "Could not load the read-receipt report." : "Ir-rapport tal-konfermi tal-qari ma setax jitgħabba.",
+    "Who sees this widget?" : "Min jara dan il-widget?",
+    "Edit widget" : "Editja l-widget",
+    "Delete widget" : "Ħassar il-widget",
+    "Widget menu" : "Menu tal-widget"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

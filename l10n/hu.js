@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Visszaigazolva: {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{total} közül {shown} látható. A letöltés a teljes listát adja minden visszaigazolás dátumával és idejével.",
     "Department in read confirmations" : "Osztály az olvasási visszaigazolásokban",
-    "Could not load the read-receipt report." : "Az olvasási visszaigazolások jelentését nem sikerült betölteni."
+    "Could not load the read-receipt report." : "Az olvasási visszaigazolások jelentését nem sikerült betölteni.",
+    "Who sees this widget?" : "Ki látja ezt a modult?",
+    "Edit widget" : "Modul szerkesztése",
+    "Delete widget" : "Modul törlése",
+    "Widget menu" : "Modul menü"
 },
 "nplurals=2; plural=(n != 1);"
 );

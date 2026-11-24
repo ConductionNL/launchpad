@@ -1582,7 +1582,11 @@ OC.L10N.register(
     "Confirmed {date}" : "Deimhnithe {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} as {total} á dtaispeáint. Tugann an íoslódáil an liosta iomlán le dáta agus am gach deimhnithe.",
     "Department in read confirmations" : "Roinn sna deimhnithe léite",
-    "Could not load the read-receipt report." : "Níorbh fhéidir tuarascáil na ndeimhnithe léite a lódáil."
+    "Could not load the read-receipt report." : "Níorbh fhéidir tuarascáil na ndeimhnithe léite a lódáil.",
+    "Who sees this widget?" : "Cé a fheiceann an giuirléid seo?",
+    "Edit widget" : "Cuir an giuirléid in eagar",
+    "Delete widget" : "Scrios an giuirléid",
+    "Widget menu" : "Roghchlár an ghiuirléid"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

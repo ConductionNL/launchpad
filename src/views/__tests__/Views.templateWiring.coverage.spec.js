@@ -155,7 +155,7 @@ const stubs = {
 		props: { open: Boolean, placement: Object },
 	}),
 	VisibilityRulesModal: passthrough('VisibilityRulesModal', {
-		props: { open: Boolean, placementId: [Number, String] },
+		props: { open: Boolean, placementId: [Number, String], widgetName: String, dashboardName: String },
 	}),
 }
 
@@ -622,6 +622,19 @@ describe('Views — right-click context menu', () => {
 		const modal = wrapper.findComponent({ name: 'VisibilityRulesModal' })
 		expect(modal.props('open')).toBe(true)
 		expect(modal.props('placementId')).toBe(21)
+	}, 90000)
+
+	it('"Who sees this widget?" in the widget\'s own menu opens the rules dialog with the widget and dashboard named', async () => {
+		const named = { ...placement, customTitle: 'Agenda' }
+		const { wrapper } = await mountViews({ widgetPlacements: [named] })
+		await wrapper.findComponent({ name: 'WidgetWrapper' }).vm.$emit('visibility')
+		await flushPromises()
+
+		const modal = wrapper.findComponent({ name: 'VisibilityRulesModal' })
+		expect(modal.props('open')).toBe(true)
+		expect(modal.props('placementId')).toBe(21)
+		expect(modal.props('widgetName')).toBe('Agenda')
+		expect(modal.props('dashboardName')).toBe('Home')
 	}, 90000)
 
 	it('"Read confirmation" opens its dialog; closing it without saving drops it', async () => {

@@ -89,11 +89,21 @@ test.afterAll(async () => {
 	}
 })
 
+// @e2e announcements::write-a-news-item
 // @e2e announcements::confirm-before-friday
 test('the author writes and schedules an announcement with a read confirmation', async ({ page }) => {
 	const editor = await openEditor(page)
 	const title = `Nieuwe werkwijze ${STAMP}`
+	const sent: string[] = []
+	page.on('request', (req) => {
+		if (req.url().includes('/api/announcements') && ['POST', 'PUT'].includes(req.method())) {
+			sent.push(req.url())
+		}
+	})
 	await editor.locator('input[data-test="editor-title"], [data-test="editor-title"] input').first().fill(title)
+	// Write a news item: the preview shows the title at once, without saving.
+	await expect(editor.locator('[data-test="editor-preview-pane"] [data-test="announcement-card"] h4')).toHaveText(title)
+	expect(sent).toEqual([])
 	await editor.locator('[data-test="editor-publish-at"]').fill(dayAhead(2).local)
 	await editor.locator('[data-test="editor-expires-at"]').fill(dayAhead(14, 17).local)
 	await editor.locator('[data-test="editor-requires-confirmation"]').click()

@@ -12,6 +12,7 @@
  * @category Controller
  * @package  OCA\LaunchPad\Controller
  * @author   Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
  * @license  EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @link     https://conduction.nl
  *

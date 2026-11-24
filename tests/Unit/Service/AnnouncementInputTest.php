@@ -173,9 +173,18 @@ class AnnouncementInputTest extends TestCase {
 			'groups not an array'  => [['title' => 'X', 'targetGroups' => 'hr'], 'targetGroups must be a list of group ids'],
 			'date not a string'    => [['title' => 'X', 'publishAt' => 20261123], 'publishAt must be an ISO 8601 date'],
 			'date not a date'      => [['title' => 'X', 'expiresAt' => 'next tuesday-ish'], 'expiresAt must be an ISO 8601 date'],
-			'deadline not a date'  => [['title' => 'X', 'requiresConfirmation' => true, 'confirmBefore' => 'before the weekend-ish'], 'confirmBefore must be an ISO 8601 date'],
-			'deadline at publish'  => [['title' => 'X', 'requiresConfirmation' => true, 'publishAt' => '2026-10-26T09:00:00+00:00', 'confirmBefore' => '2026-10-26T09:00:00+00:00'], 'The confirm-before date must be after the publish time'],
-			'deadline before'      => [['title' => 'X', 'requiresConfirmation' => true, 'publishAt' => '2026-10-31T09:00:00+00:00', 'confirmBefore' => '2026-10-30T23:59:00+00:00'], 'The confirm-before date must be after the publish time'],
+			'deadline not a date'  => [
+				['title' => 'X', 'requiresConfirmation' => true, 'confirmBefore' => 'before the weekend-ish'],
+				'confirmBefore must be an ISO 8601 date',
+			],
+			'deadline at publish'  => [
+				['title' => 'X', 'requiresConfirmation' => true, 'publishAt' => '2026-10-26T09:00:00+00:00', 'confirmBefore' => '2026-10-26T09:00:00+00:00'],
+				'The confirm-before date must be after the publish time',
+			],
+			'deadline before'      => [
+				['title' => 'X', 'requiresConfirmation' => true, 'publishAt' => '2026-10-31T09:00:00+00:00', 'confirmBefore' => '2026-10-30T23:59:00+00:00'],
+				'The confirm-before date must be after the publish time',
+			],
 		];
 	}//end refusedInputs()
 

@@ -37,6 +37,14 @@ use OCA\LaunchPad\Db\WidgetPlacement;
 class ResyncDiffer {
 
 	/**
+	 * Where a placement whose template placement is gone goes, per strategy;
+	 * `toRemove` for a strategy not listed (REQ-RESYNC-006).
+	 *
+	 * @var array<string, string>
+	 */
+	private const REMOVED_FROM_TEMPLATE = [TemplateResyncService::STRATEGY_ADD_ONLY => 'toPreserve'];
+
+	/**
 	 * Constructor.
 	 *
 	 * @param PlacementLayout $layout    Reads a placement's layout and its baseline.
@@ -219,12 +227,9 @@ class ResyncDiffer {
 		}
 
 		$addOnly = ($strategy === TemplateResyncService::STRATEGY_ADD_ONLY);
-		if (isset($templateById[$originId]) === false && $addOnly === true) {
-			return ['toPreserve', $copy];
-		}
-
 		if (isset($templateById[$originId]) === false) {
-			return ['toRemove', $copy];
+			// The admin removed it from the template: gone, except under `add_only`.
+			return [(self::REMOVED_FROM_TEMPLATE[$strategy] ?? 'toRemove'), $copy];
 		}
 
 		$template   = $templateById[$originId];

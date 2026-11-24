@@ -328,7 +328,7 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		})
 		const { wrapper } = await mountViews()
 		const picker = () => wrapper.findComponent({ name: 'WidgetPickerModal' })
-		expect(picker().vm.$attrs.open).toBe(false)
+		expect(picker().exists()).toBe(false)
 
 		wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('addWidget')
 		await flushPromises()
@@ -378,6 +378,7 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		const menu = wrapper.findComponent({ name: 'DashboardMoreMenu' })
 		expect(menu.vm.$attrs.canScheduleExports).toBeUndefined()
 
+		await wrapper.setData({ isConfigModalOpen: true })
 		const config = wrapper.findComponent({ name: 'DashboardConfigModal' })
 		expect(config.vm.$attrs.canManagePublication).toBe(true)
 		expect(config.vm.$attrs.canScheduleExports).toBe(true)
@@ -391,6 +392,7 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		const { wrapper } = await mountViews()
 		const menu = wrapper.findComponent({ name: 'DashboardMoreMenu' })
 		expect(menu.vm.$attrs.canViewHistory).toBeUndefined()
+		await wrapper.setData({ isConfigModalOpen: true })
 		expect(wrapper.findComponent({ name: 'DashboardConfigModal' }).vm.$attrs.canViewVersions).toBe(true)
 	}, 90000)
 
@@ -471,7 +473,7 @@ describe('Views — read receipts and the colleagues editing', () => {
 			],
 		})
 		const report = () => wrapper.findComponent({ name: 'AcknowledgementReportModal' })
-		expect(report().props('open')).toBe(false)
+		expect(report().exists()).toBe(false)
 
 		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('readReceipts')
 		expect(report().props('open')).toBe(true)
@@ -796,6 +798,7 @@ describe('Views — states without a full dashboard', () => {
 	it('offers no versions and no duplicate for a dashboard without a uuid', async () => {
 		await mountViews({ activeDashboard: { id: 5, name: 'Legacy', isOwner: true } })
 
+		await wrapper.setData({ isConfigModalOpen: true })
 		expect(wrapper.findComponent({ name: 'DashboardConfigModal' }).vm.$attrs.canViewVersions).toBe(false)
 		expect(wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$attrs.canDuplicate).toBe(false)
 	}, 90000)

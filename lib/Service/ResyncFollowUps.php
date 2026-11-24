@@ -47,8 +47,8 @@ class ResyncFollowUps {
 	 *
 	 * @param PersonalLayerService         $personalLayers Drops personal-layer entries for removed placements
 	 *                                                     (REQ-DWMS-001).
-	 * @param DashboardVersionService|null $versions       Writes the version a changed copy gets; null writes none.
 	 * @param IL10N                        $l10n           The app's translations for the author and the note.
+	 * @param DashboardVersionService|null $versions       Writes the version a changed copy gets; null writes none.
 	 *
 	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */

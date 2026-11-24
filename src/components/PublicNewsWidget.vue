@@ -37,7 +37,7 @@
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
-import { NcLoadingIcon } from '@nextcloud/vue'
+import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 
 /**
  * PublicNewsWidget: the news (announcements) widget as an anonymous

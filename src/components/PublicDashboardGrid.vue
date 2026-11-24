@@ -106,10 +106,14 @@
 <script>
 import { CnTextWidget } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
-import PublicNewsWidget from './PublicNewsWidget.vue'
-import LiveTileWidget from './Widgets/Renderers/LiveTileWidget.vue'
-import WeatherWidget from './Widgets/Renderers/WeatherWidget.vue'
+import { defineAsyncComponent } from 'vue'
 import { LIST_PROP } from '../constants/propDefinitions.js'
+
+// The live widgets load only when a shared dashboard has one, so a public
+// page without them does not download their code (ADR-124).
+const LiveTileWidget = defineAsyncComponent(() => import('./Widgets/Renderers/LiveTileWidget.vue'))
+const PublicNewsWidget = defineAsyncComponent(() => import('./PublicNewsWidget.vue'))
+const WeatherWidget = defineAsyncComponent(() => import('./Widgets/Renderers/WeatherWidget.vue'))
 
 const STATIC_WIDGET_KINDS = ['label', 'header', 'text', 'image', 'link', 'divider']
 

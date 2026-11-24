@@ -275,3 +275,30 @@ describe('DashboardPublicShareView unlock', () => {
 		await flushPromises()
 	})
 })
+
+describe('DashboardPublicShareView live widgets (REQ-PSHR-011)', () => {
+	it('hands the grid a read through the share token, without a password on an open link', async () => {
+		axios.get.mockResolvedValueOnce({ data: { dashboard: { name: 'Open board' }, share: {}, placements: [] } })
+		const wrapper = await mountView()
+		axios.get.mockResolvedValueOnce({ data: { widget: 'weather', data: {} } })
+
+		const grid = wrapper.findComponent({ name: 'PublicDashboardGrid' })
+		await grid.vm.$attrs.readWidget(4)
+
+		expect(axios.get).toHaveBeenLastCalledWith('/index.php/apps/launchpad/s/ab%2Fc%20d/placements/4', { headers: {} })
+	})
+
+	it('passes the password the link was unlocked with to the live widget reads', async () => {
+		axios.get.mockRejectedValueOnce(httpError(401, { passwordRequired: true }))
+		const wrapper = await mountView()
+		axios.post.mockResolvedValue({ data: { access: true } })
+		axios.get.mockResolvedValueOnce({ data: { dashboard: { name: 'Secret board' }, share: {}, placements: [] } })
+		await dialog(wrapper).vm.$emit('unlock', 'hunter2')
+		await flushPromises()
+		axios.get.mockResolvedValueOnce({ data: { widget: 'weather', data: {} } })
+
+		await wrapper.findComponent({ name: 'PublicDashboardGrid' }).vm.$attrs.readWidget(4)
+
+		expect(axios.get).toHaveBeenLastCalledWith('/index.php/apps/launchpad/s/ab%2Fc%20d/placements/4', { headers: { 'X-Share-Password': 'hunter2' } })
+	})
+})

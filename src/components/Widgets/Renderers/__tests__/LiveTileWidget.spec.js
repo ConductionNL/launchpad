@@ -251,3 +251,26 @@ describe('LiveTileWidget — REQ-LIVETILE-004 click-through', () => {
 		expect(wrapper.element.tagName).toBe('DIV')
 	})
 })
+
+describe('LiveTileWidget — REQ-PSHR-011 a public screen passes its own reading source', () => {
+	it('reads through readingSource instead of the signed-in endpoint', async () => {
+		const readingSource = vi.fn().mockResolvedValue({ value: 7, formatted: '7', badge: null, stale: false })
+		const wrapper = mount(LiveTileWidget, {
+			propsData: { content: {}, placement: { id: 3 }, readingSource },
+		})
+		await flushPromises()
+		expect(readingSource).toHaveBeenCalledWith(3)
+		expect(fetchLiveTileValue).not.toHaveBeenCalled()
+		expect(wrapper.vm.reading.value).toBe(7)
+	})
+
+	it('shows the failed state when the token-scoped read is refused', async () => {
+		const readingSource = vi.fn().mockRejectedValue(new Error('404'))
+		const wrapper = mount(LiveTileWidget, {
+			propsData: { content: {}, placement: { id: 3 }, readingSource },
+		})
+		await flushPromises()
+		expect(wrapper.vm.reading).toBeNull()
+		expect(wrapper.find('.live-tile-widget__state--error').exists()).toBe(true)
+	})
+})

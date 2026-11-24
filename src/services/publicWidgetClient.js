@@ -14,15 +14,16 @@ import { generateUrl } from '@nextcloud/router'
 /**
  * A reader of one placement's `{widget, data}` through a token route.
  *
- * @param {string} url The route, with `{token}` and `{placementId}`.
+ * @param {string} route The route prefix, `s` (share) or `kiosk`.
  * @param {string} token The share or playlist token.
  * @param {object} headers The request headers.
  * @return {function((number|string)): Promise<{widget: string, data: object}>} The reader.
  * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
-function tokenReader(url, token, headers) {
+function tokenReader(route, token, headers) {
+	const base = generateUrl('/apps/launchpad') + '/' + route + '/' + encodeURIComponent(token) + '/placements/'
 	return async (placementId) => {
-		const response = await axios.get(generateUrl(url, { token, placementId }), { headers })
+		const response = await axios.get(base + encodeURIComponent(String(placementId)), { headers })
 		return response?.data || {}
 	}
 }
@@ -38,7 +39,7 @@ function tokenReader(url, token, headers) {
  */
 export function shareWidgetReader(token, password = null) {
 	const headers = password ? { 'X-Share-Password': password } : {}
-	return tokenReader('/apps/launchpad/s/{token}/placements/{placementId}', token, headers)
+	return tokenReader('s', token, headers)
 }
 
 /**
@@ -49,5 +50,5 @@ export function shareWidgetReader(token, password = null) {
  * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 export function kioskWidgetReader(token) {
-	return tokenReader('/apps/launchpad/kiosk/{token}/placements/{placementId}', token, {})
+	return tokenReader('kiosk', token, {})
 }

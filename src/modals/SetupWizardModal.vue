@@ -30,7 +30,7 @@
 						{{
 							t(
 								'launchpad',
-								'Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.',
+								'This setup sets the groups, the example dashboards and the roles, in five steps. Existing dashboards stay as they are.',
 							)
 						}}
 					</p>
@@ -80,33 +80,8 @@
 					</p>
 				</div>
 
-				<!-- Step 5 — Footer config (REQ-WIZ-007; sibling capability pending) -->
-				<!-- TODO: footer-customization integration — footer is currently
-				     surfaced through admin endpoints (FooterService + AdminSetting
-				     KEY_FOOTER_*); build a FooterSettingsPanel.vue and swap the
-				     stub below. -->
+				<!-- Step 5 — Done (REQ-WIZ-012 final step) -->
 				<div v-else-if="currentStep === 5" class="setup-wizard__step">
-					<h3>{{ t('launchpad', 'Footer configuration') }}</h3>
-					<p>
-						{{
-							t(
-								'launchpad',
-								'Customize the footer content and appearance for your intranet.',
-							)
-						}}
-					</p>
-					<p class="setup-wizard__note" data-test="footer-stub">
-						{{
-							t(
-								'launchpad',
-								'The footer-customization capability is not yet available; this step will activate once it ships.',
-							)
-						}}
-					</p>
-				</div>
-
-				<!-- Step 6 — Done (REQ-WIZ-002 final step) -->
-				<div v-else-if="currentStep === 6" class="setup-wizard__step">
 					<h3>{{ t('launchpad', 'All set') }}</h3>
 					<p>
 						{{
@@ -158,15 +133,16 @@ import { api } from '../services/api.js'
 import { logger } from '../utils/logger.js'
 
 /**
- * SetupWizardModal — multi-step first-run wizard (REQ-WIZ-002).
+ * SetupWizardModal — the five-step first-run wizard (REQ-WIZ-012):
+ * Welcome, Groups, Examples, Roles, Done.
  *
  * The shell owns navigation state; per-step bodies inline simple UI for
- * Welcome / Done and embed canonical sibling components for Group order.
- * The storage step was retired (decision 131). Steps 3-5 render
- * lightweight stubs because their sibling capabilities
- * (demo-data-showcases, admin-roles, footer-customization) ship on
- * parallel branches; the merge agent reconciles by replacing
- * the stub blocks with the real embeds.
+ * Welcome / Done and embed canonical sibling components for the group
+ * order and the demo data. The storage step was retired (decision 131)
+ * and the footer step too: the footer is set on its own admin tab. Step 4
+ * renders a stub until an admin-roles panel exists.
+ *
+ * @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
  */
 export default {
 	name: 'SetupWizardModal',
@@ -180,10 +156,11 @@ export default {
 
 	emits: ['close', 'completed'],
 
+	/** @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps */
 	data() {
 		return {
 			currentStep: 1,
-			totalSteps: 6,
+			totalSteps: 5,
 			loading: false,
 			completed: false,
 		}

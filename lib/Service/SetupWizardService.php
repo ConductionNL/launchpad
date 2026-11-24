@@ -33,17 +33,20 @@ use OCA\LaunchPad\Kernel\Contracts\SetupWizardServiceInterface;
  *
  * Status values follow the spec (REQ-WIZ-008): `'done'`, `'skipped'`,
  * `'pending'`. The wizard "pending" state means a step has not been
- * traversed yet (no sibling setting written). `'skipped'` is reserved for
- * the optional steps 4/5 — when their guarded capability isn't available,
- * the heuristic returns `'skipped'` so the UI can collapse the step.
+ * traversed yet (no sibling setting written). `'skipped'` marks the
+ * optional steps 3/4 whose sibling capability writes no setting the
+ * heuristic can read. Five steps: Welcome, Groups, Examples, Roles, Done
+ * (REQ-WIZ-012); the footer is set on its own admin tab, not here.
+ *
+ * @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
  */
 class SetupWizardService implements SetupWizardServiceInterface {
 	/**
-	 * Total number of wizard steps (REQ-WIZ-002).
+	 * Total number of wizard steps (REQ-WIZ-012).
 	 *
 	 * @var integer
 	 */
-	public const STEP_COUNT = 6;
+	public const STEP_COUNT = 5;
 
 	/**
 	 * Constructor.
@@ -60,12 +63,13 @@ class SetupWizardService implements SetupWizardServiceInterface {
 	 *
 	 * Shape: `{complete: bool, currentRecommendedStep: int,
 	 *         stepStatuses: array<string,string>}`. Step 1 is always
-	 * `'done'`; Step 6 stays `'pending'` until the admin clicks Finish.
+	 * `'done'`; Step 5 stays `'pending'` until the admin clicks Finish.
 	 *
 	 * @return array{complete: bool, currentRecommendedStep: int, stepStatuses: array<int,string>}
 	 *                                                                                             The wizard state payload.
 	 *
 	 * @spec openspec/specs/setup-wizard/spec.md
+	 * @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
 	 */
 	public function getWizardState(): array {
 		$complete = $this->isWizardComplete();
@@ -121,13 +125,14 @@ class SetupWizardService implements SetupWizardServiceInterface {
 	 * @param boolean $complete Whether the wizard has been completed.
 	 *
 	 * @return array<int,string> Step number → status.
+	 *
+	 * @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
 	 */
 	private function computeStepStatuses(bool $complete): array {
 		$settings = $this->settingMapper->getAllAsArray();
 
 		$groupOrder = ($settings[AdminSetting::KEY_GROUP_ORDER] ?? null);
 		$hasGroup = (is_array($groupOrder) === true && count($groupOrder) > 0);
-		$hasFooter = isset($settings[AdminSetting::KEY_FOOTER_CONFIG]);
 
 		// Steps 3 (demos) and 4 (admin-roles) live in sibling capabilities
 		// not yet implemented in this branch; surface them as `'skipped'`
@@ -137,11 +142,6 @@ class SetupWizardService implements SetupWizardServiceInterface {
 		$statusGroup = 'pending';
 		if ($hasGroup === true) {
 			$statusGroup = 'done';
-		}
-
-		$statusFooter = 'skipped';
-		if ($hasFooter === true) {
-			$statusFooter = 'done';
 		}
 
 		$statusDone = 'pending';
@@ -154,8 +154,7 @@ class SetupWizardService implements SetupWizardServiceInterface {
 			'2' => $statusGroup,
 			'3' => 'skipped',
 			'4' => 'skipped',
-			'5' => $statusFooter,
-			'6' => $statusDone,
+			'5' => $statusDone,
 		];
 	}//end computeStepStatuses()
 

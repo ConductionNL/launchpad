@@ -358,7 +358,7 @@ export default {
 		},
 
 		/**
-		 * A token's state: Active with its views, Revoked with the date and reason, or Expired.
+		 * A token's state: Active, Revoked with the date and reason, or Expired.
 		 *
 		 * @param {object} token The token.
 		 * @return {string}
@@ -375,9 +375,7 @@ export default {
 			if (status === 'expired') {
 				return t('launchpad', 'Expired')
 			}
-			return Number.isFinite(token?.viewCount)
-				? t('launchpad', 'Active, {count} views', { count: token.viewCount })
-				: t('launchpad', 'Active')
+			return t('launchpad', 'Active')
 		},
 	},
 }

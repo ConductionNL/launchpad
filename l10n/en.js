@@ -2063,7 +2063,26 @@ OC.L10N.register(
     "the profile field {field} of {name} does not match" : "the profile field {field} of {name} does not match",
     "{name} sees this widget: no rule limits who sees it." : "{name} sees this widget: no rule limits who sees it.",
     "{name} sees this widget, because {reasons}." : "{name} sees this widget, because {reasons}.",
-    "{name} does not see this widget, because {reasons}." : "{name} does not see this widget, because {reasons}."
+    "{name} does not see this widget, because {reasons}." : "{name} does not see this widget, because {reasons}.",
+    "Embed on your website" : "Embed on your website",
+    "Show this dashboard, or one of its widgets, on another website with an embed token." : "Show this dashboard, or one of its widgets, on another website with an embed token.",
+    "Token {name} has been created. Copy it now: it is not shown again." : "Token {name} has been created. Copy it now: it is not shown again.",
+    "No embed tokens for this dashboard yet." : "No embed tokens for this dashboard yet.",
+    "Shows" : "Shows",
+    "Allowed website" : "Allowed website",
+    "State" : "State",
+    "Withdraw {name}" : "Withdraw {name}",
+    "Withdraw" : "Withdraw",
+    "Code for the website" : "Code for the website",
+    "Copy code" : "Copy code",
+    "Create new embed token" : "Create new embed token",
+    "The whole dashboard" : "The whole dashboard",
+    "Widget {name}" : "Widget {name}",
+    "Revoked on {date} ({reason})" : "Revoked on {date} ({reason})",
+    "Conversation beside this dashboard" : "Conversation beside this dashboard",
+    "Show the conversation beside the dashboard" : "Show the conversation beside the dashboard",
+    "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "This dashboard is yours alone. Share it with people or a group and the conversation appears here too.",
+    "The conversation setting could not be saved." : "The conversation setting could not be saved."
 },
 "nplurals=2; plural=(n != 1);"
 );

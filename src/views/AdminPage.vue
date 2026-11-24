@@ -55,7 +55,7 @@ export default {
 	 * Hand the administration's initial state to the tabs, as the
 	 * settings page's own entry did.
 	 *
-	 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 	 */
 	setup() {
 		for (const [key, value] of Object.entries(loadInitialState('admin'))) {
@@ -69,7 +69,7 @@ export default {
 		 * initial state.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+		 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 		 */
 		servedHere() {
 			return isAdminPagePath(bootPath())
@@ -79,7 +79,7 @@ export default {
 		 * The open tab: the route's, or General.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+		 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 		 */
 		currentTab() {
 			return adminTab(this.tab)
@@ -92,7 +92,7 @@ export default {
 		 *
 		 * @param {string} id The tab's id.
 		 * @return {void}
-		 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+		 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 		 */
 		openTab(id) {
 			if (id === this.currentTab || !this.$router) {

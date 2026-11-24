@@ -153,13 +153,15 @@ test.describe('anonymous public share', () => {
 		// --- CONTROL, before any share exists ----------------------------
 		// A well-formed token that was never issued. If this returns 200 the
 		// endpoint is not consulting the token at all, and every later
-		// assertion in this test is meaningless.
+		// assertion in this test is meaningless. REQ-PSHR-004 "Invalid token
+		// returns 404" names the exact status: a 500 or a 403 here is a
+		// failure too, not merely "not 200".
 		const unissued = 'a'.repeat(64)
 		const bogus = await anon.get(`/index.php/apps/launchpad/s/${unissued}/data`)
 		expect(
 			bogus.status(),
-			'an unissued token must not return dashboard data — if it does, the token is not being checked',
-		).not.toBe(200)
+			`an unissued token must answer 404, not dashboard data and not another error: ${await bogus.text()}`,
+		).toBe(404)
 
 		// --- publish -----------------------------------------------------
 		const share = await admin.post(
@@ -217,15 +219,31 @@ test.describe('anonymous public share', () => {
 		const revoked = await admin.delete(
 			`/index.php/apps/launchpad/api/dashboards/${uuid}/public-shares/${shareId}`,
 		)
-		expect(revoked.status(), await revoked.text()).toBeLessThan(300)
+		// REQ-PSHR-003 "Soft-revoke a public share": HTTP 204 (No Content).
+		expect(revoked.status(), await revoked.text()).toBe(204)
 
+		// "AND NOT hard-delete the row": `revokeShare` looks the share up
+		// among ALL of the dashboard's shares, revoked ones included, and
+		// throws not-found for an id it cannot find. So a second DELETE of
+		// the same id answers 204 only while the row still exists; after a
+		// hard delete it answers 404.
+		const revokedAgain = await admin.delete(
+			`/index.php/apps/launchpad/api/dashboards/${uuid}/public-shares/${shareId}`,
+		)
+		expect(
+			revokedAgain.status(),
+			`a second revoke must find the soft-revoked row (a 404 means it was hard-deleted): ${await revokedAgain.text()}`,
+		).toBe(204)
+
+		// REQ-PSHR-004 "Revoked token returns 404": the same status as a
+		// token that never existed, so the response does not leak that it did.
 		const afterRevoke = await anon.get(
 			`/index.php/apps/launchpad/s/${token}/data`,
 		)
 		expect(
 			afterRevoke.status(),
-			'a revoked token must stop serving data — this is the assertion that proves the token gates the route',
-		).not.toBe(200)
+			`a revoked token must answer 404, exactly as an unissued one: ${await afterRevoke.text()}`,
+		).toBe(404)
 
 		// Leave the instance as it was found.
 		if (priorAllowUserDash === false) {

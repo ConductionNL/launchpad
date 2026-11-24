@@ -17,7 +17,7 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+ * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -44,7 +44,7 @@ use OCP\Util;
 /**
  * The administration page.
  *
- * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+ * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
  */
 class AdminPageController extends Controller {
 	/**
@@ -82,7 +82,7 @@ class AdminPageController extends Controller {
 	 * @param AdminFormState  $formState    The initial state of the administration.
 	 * @param IURLGenerator   $urlGenerator Builds the address of a tab.
 	 *
-	 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 	 */
 	public function __construct(
 		IRequest $request,
@@ -103,7 +103,7 @@ class AdminPageController extends Controller {
 	 *
 	 * @return TemplateResponse|RedirectResponse The page, the 403, or the redirect to General.
 	 *
-	 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 	 */
 	#[NoCSRFRequired]
 	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
@@ -141,7 +141,7 @@ class AdminPageController extends Controller {
 	 *
 	 * @SuppressWarnings(PHPMD.StaticAccess) Nextcloud registers page assets only through OCP\Util.
 	 *
-	 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 	 */
 	protected function addAssets(): void {
 		Util::addScript(application: Application::APP_ID, file: 'launchpad-main');

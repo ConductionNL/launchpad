@@ -503,7 +503,7 @@ export default {
 
 	emits: ['tabChange'],
 
-	/** @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030 */
+	/** @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030 */
 	data() {
 		return {
 			loading: true,
@@ -691,7 +691,7 @@ export default {
 		 * Open the tab the address names when it changes (Back, Forward).
 		 *
 		 * @param {string} tab The tab the address names.
-		 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+		 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 		 */
 		tab(tab) {
 			this.showTab(adminTab(tab))
@@ -721,7 +721,7 @@ export default {
 		await this.loadWizardState()
 	},
 
-	/** @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030 */
+	/** @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030 */
 	mounted() {
 		this.showTab(this.activeTab)
 	},
@@ -733,7 +733,7 @@ export default {
 		 *
 		 * @param {string} id The id of the newly opened tab.
 		 * @spec openspec/specs/admin-settings/spec.md
-		 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+		 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 		 */
 		onTabChange(id) {
 			this.activeTab = id
@@ -744,7 +744,7 @@ export default {
 		 * Open a tab without a click: the one the address names.
 		 *
 		 * @param {string} id The tab's id.
-		 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+		 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 		 */
 		showTab(id) {
 			this.activeTab = id

@@ -6,7 +6,7 @@
  * Launchpad page over the full width (admin-settings REQ-ADM-030). The tab
  * is in the path, so a link opens it and switching tabs changes it.
  *
- * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+ * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
  */
 
 import { generateUrl } from '@nextcloud/router'
@@ -43,7 +43,7 @@ export const ADMIN_TABS = [
  *
  * @param {string} [tab] The tab the address names.
  * @return {string} A tab id.
- * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+ * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
  */
 export function adminTab(tab) {
 	return ADMIN_TABS.includes(tab) ? tab : DEFAULT_ADMIN_TAB
@@ -54,7 +54,7 @@ export function adminTab(tab) {
  *
  * @param {string} [tab] The tab.
  * @return {string} The URL.
- * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+ * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
  */
 export function adminPageUrl(tab = DEFAULT_ADMIN_TAB) {
 	// The tab is one of ADMIN_TABS, so it needs no encoding.
@@ -67,7 +67,7 @@ export function adminPageUrl(tab = DEFAULT_ADMIN_TAB) {
  *
  * @param {string} pathname The pathname.
  * @return {boolean} True for `…/apps/launchpad/admin` and its tabs.
- * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+ * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
  */
 export function isAdminPagePath(pathname) {
 	return /\/apps\/launchpad\/admin(?:\/|$)/.test(String(pathname ?? ''))

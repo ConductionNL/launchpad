@@ -352,7 +352,7 @@
 					"widgetId": "header",
 					"gridX": 0,
 					"gridY": 0,
-					"gridWidth": 12,
+					"gridWidth": 6,
 					"gridHeight": 2,
 					"showTitle": 0,
 					"content": {
@@ -362,34 +362,14 @@
 						"showWeek": true,
 						"greetingLine": true,
 						"ground": true,
-						"emblem": true,
-						"fillHeight": true,
-						"fitRows": true
-					}
-				},
-				{
-					"widgetId": "attention",
-					"gridX": 0,
-					"gridY": 2,
-					"gridWidth": 12,
-					"gridHeight": 3,
-					"showTitle": 0,
-					"customTitle": "Vandaag eerst",
-					"content": {
-						"title": "Vandaag eerst",
-						"layout": "columns",
-						"columns": 3,
-						"limit": 3,
-						"showActions": false,
-						"fitRows": true,
-						"itemCards": true
+						"emblem": true
 					}
 				},
 				{
 					"widgetId": "stat",
-					"gridX": 0,
-					"gridY": 5,
-					"gridWidth": 3,
+					"gridX": 6,
+					"gridY": 0,
+					"gridWidth": 2,
 					"gridHeight": 2,
 					"showTitle": 0,
 					"content": {
@@ -411,78 +391,14 @@
 							}
 						},
 						"link": "/index.php/apps/dossiq/",
-						"hideWhenUnavailable": true,
-						"fitRows": true
+						"hideWhenUnavailable": true
 					}
 				},
 				{
 					"widgetId": "stat",
-					"gridX": 6,
-					"gridY": 5,
-					"gridWidth": 3,
-					"gridHeight": 2,
-					"showTitle": 0,
-					"content": {
-						"label": "pipelinq · Klantcontact",
-						"caption": "open vragen",
-						"icon": "Phone",
-						"layout": "horizontal",
-						"format": {
-							"style": "decimal",
-							"decimals": 0
-						},
-						"source": {
-							"register": "pipelinq",
-							"schema": "ticket",
-							"metric": "count",
-							"filter": {
-								"assignee": "@me",
-								"status": [
-									"new",
-									"in_progress",
-									"awaiting_customer"
-								]
-							}
-						},
-						"link": "/index.php/apps/pipelinq/",
-						"hideWhenUnavailable": true,
-						"fitRows": true
-					}
-				},
-				{
-					"widgetId": "stat",
-					"gridX": 9,
-					"gridY": 5,
-					"gridWidth": 3,
-					"gridHeight": 2,
-					"showTitle": 0,
-					"content": {
-						"label": "decidiq · Besluitvorming",
-						"caption": "wachten op uw stem",
-						"icon": "Gavel",
-						"layout": "horizontal",
-						"format": {
-							"style": "decimal",
-							"decimals": 0
-						},
-						"source": {
-							"register": "decidiq",
-							"schema": "decision",
-							"metric": "count",
-							"filter": {
-								"lifecycle": "voting"
-							}
-						},
-						"link": "/index.php/apps/decidiq/",
-						"hideWhenUnavailable": true,
-						"fitRows": true
-					}
-				},
-				{
-					"widgetId": "stat",
-					"gridX": 3,
-					"gridY": 5,
-					"gridWidth": 3,
+					"gridX": 8,
+					"gridY": 0,
+					"gridWidth": 2,
 					"gridHeight": 2,
 					"showTitle": 0,
 					"content": {
@@ -505,74 +421,95 @@
 							}
 						},
 						"link": "/index.php/apps/dossiq/",
-						"hideWhenUnavailable": true,
-						"fitRows": true
+						"hideWhenUnavailable": true
 					}
 				},
 				{
-					"tile": "zaaksysteem",
+					"widgetId": "weather",
+					"gridX": 10,
+					"gridY": 0,
+					"gridWidth": 2,
+					"gridHeight": 2,
+					"showTitle": 0,
+					"customTitle": "Weer Zuiddrecht",
+					"content": {
+						"location": "",
+						"unitsOverride": "metric",
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "attention",
 					"gridX": 0,
-					"gridY": 7,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true,
-					"fitRows": true,
-					"pinned": true
+					"gridY": 2,
+					"gridWidth": 8,
+					"gridHeight": 3,
+					"showTitle": 0,
+					"customTitle": "Vandaag eerst",
+					"content": {
+						"title": "Vandaag eerst",
+						"layout": "columns",
+						"columns": 2,
+						"limit": 2,
+						"showActions": false,
+						"itemCards": true
+					}
 				},
 				{
-					"tile": "outlook",
-					"gridX": 1,
-					"gridY": 7,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true,
-					"fitRows": true,
-					"pinned": true
+					"widgetId": "text",
+					"gridX": 8,
+					"gridY": 2,
+					"gridWidth": 4,
+					"gridHeight": 3,
+					"showTitle": 1,
+					"customTitle": "Nieuwe werkwijze Woo-verzoeken vanaf 1 november",
+					"content": {
+						"text": "Vanaf 1 november registreert u elk Woo-verzoek in dossiq, ook als het via de balie of de telefoon binnenkomt. Het team informatie toetst daarna binnen twee werkdagen. Lees de werkinstructie voordat u een nieuw verzoek aanneemt.",
+						"contentMode": "markdown",
+						"showActions": false
+					},
+					"requiresAcknowledgement": 1,
+					"acknowledgementPrompt": "Ik heb de nieuwe werkwijze gelezen",
+					"acknowledgementDeadline": "+4 days"
 				},
 				{
-					"tile": "topdesk",
+					"widgetId": "section-heading",
 					"gridX": 0,
-					"gridY": 9,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true,
-					"fitRows": true
+					"gridY": 5,
+					"gridWidth": 12,
+					"gridHeight": 1,
+					"showTitle": 0,
+					"content": {
+						"title": "Vandaag aan het werk",
+						"description": "Mail, agenda, zaken en werkpakketten"
+					}
 				},
 				{
-					"tile": "raadsinformatie",
-					"gridX": 1,
-					"gridY": 9,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true,
-					"fitRows": true,
-					"status": "down"
-				},
-				{
-					"tile": "kadaster",
+					"widgetId": "nc-widget",
 					"gridX": 0,
-					"gridY": 11,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true,
-					"fitRows": true
-				},
-				{
-					"tile": "talk",
-					"gridX": 1,
-					"gridY": 11,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true,
-					"fitRows": true,
-					"badge": 2
+					"gridY": 6,
+					"gridWidth": 3,
+					"gridHeight": 7,
+					"showTitle": 1,
+					"customTitle": "Ongelezen mail",
+					"content": {
+						"title": "Ongelezen mail",
+						"widgetId": "mail-unread",
+						"displayMode": "vertical",
+						"showActions": false,
+						"showHeader": false,
+						"headerLink": {
+							"label": "Mail openen",
+							"href": "/apps/mail/"
+						}
+					}
 				},
 				{
 					"widgetId": "calendar",
-					"gridX": 2,
-					"gridY": 7,
-					"gridWidth": 5,
-					"gridHeight": 8,
+					"gridX": 3,
+					"gridY": 6,
+					"gridWidth": 3,
+					"gridHeight": 7,
 					"showTitle": 1,
 					"customTitle": "Agenda vandaag",
 					"content": {
@@ -595,10 +532,96 @@
 					}
 				},
 				{
-					"gridX": 7,
-					"gridY": 7,
-					"gridWidth": 5,
-					"gridHeight": 8,
+					"widgetId": "assigned-cases",
+					"gridX": 6,
+					"gridY": 6,
+					"gridWidth": 3,
+					"gridHeight": 7,
+					"showTitle": 1,
+					"customTitle": "Mijn zaken",
+					"content": {
+						"register": "dossiq",
+						"schema": "case",
+						"limit": 4,
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "work-packages",
+					"gridX": 9,
+					"gridY": 6,
+					"gridWidth": 3,
+					"gridHeight": 7,
+					"showTitle": 1,
+					"customTitle": "Mijn werkpakketten",
+					"content": {
+						"scope": "mine",
+						"project": "",
+						"limit": 4,
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "section-heading",
+					"gridX": 0,
+					"gridY": 13,
+					"gridWidth": 12,
+					"gridHeight": 1,
+					"showTitle": 0,
+					"content": {
+						"title": "Kennis en nieuws",
+						"description": "De wiki, het nieuws van Communicatie en waar u gebleven was"
+					}
+				},
+				{
+					"widgetId": "wiki-pages",
+					"gridX": 0,
+					"gridY": 14,
+					"gridWidth": 4,
+					"gridHeight": 6,
+					"showTitle": 1,
+					"customTitle": "Wiki",
+					"content": {
+						"space": "",
+						"limit": 3,
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "announcements",
+					"gridX": 4,
+					"gridY": 14,
+					"gridWidth": 4,
+					"gridHeight": 6,
+					"showTitle": 1,
+					"customTitle": "Nieuws",
+					"content": {
+						"category": "",
+						"limit": 4,
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "text",
+					"gridX": 8,
+					"gridY": 14,
+					"gridWidth": 4,
+					"gridHeight": 3,
+					"showTitle": 1,
+					"customTitle": "Van de gemeentesecretaris",
+					"content": {
+						"text": "De begroting 2027 ligt bij de raad. Dank aan iedereen die de afgelopen weken extra uren heeft gemaakt. Op donderdag praat ik u in de kantine bij, om 12.30.\n\n*Hanneke Visser, gemeentesecretaris*",
+						"fontSize": "14px",
+						"textAlign": "left",
+						"contentMode": "markdown",
+						"showActions": false
+					}
+				},
+				{
+					"gridX": 8,
+					"gridY": 17,
+					"gridWidth": 4,
+					"gridHeight": 3,
 					"showTitle": 1,
 					"customTitle": "Verder waar u was",
 					"widgetId": "recent-work",
@@ -613,10 +636,10 @@
 					},
 					"fallback": {
 						"widgetId": "nc-widget",
-						"gridX": 7,
-						"gridY": 7,
-						"gridWidth": 5,
-						"gridHeight": 8,
+						"gridX": 8,
+						"gridY": 17,
+						"gridWidth": 4,
+						"gridHeight": 3,
 						"showTitle": 1,
 						"customTitle": "Verder waar u was",
 						"content": {
@@ -627,264 +650,180 @@
 							"showActions": false
 						}
 					}
-				}
-			]
-		},
-		{
-			"key": "werkplek",
-			"board": "LpWerkplek",
-			"uuid": "8a3e5c10-1f2b-4c3d-9e4f-000000000002",
-			"name": "Mijn werkplek",
-			"icon": "ViewDashboard",
-			"type": "user",
-			"owner": "pieter",
-			"gridColumns": 12,
-			"permissionLevel": "full",
-			"widgets": [
-				{
-					"widgetId": "section-heading",
-					"gridX": 0,
-					"gridY": 0,
-					"gridWidth": 4,
-					"gridHeight": 1,
-					"showTitle": 0,
-					"content": {
-						"title": "Mijn apps",
-						"description": "Eén tegel per app, elk een eigen widget"
-					}
-				},
-				{
-					"tile": "zaaksysteem",
-					"gridX": 0,
-					"gridY": 1,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true,
-					"pinned": true
-				},
-				{
-					"tile": "outlook",
-					"gridX": 1,
-					"gridY": 1,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true,
-					"pinned": true
-				},
-				{
-					"tile": "topdesk",
-					"gridX": 2,
-					"gridY": 1,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true
-				},
-				{
-					"tile": "raadsinformatie",
-					"gridX": 3,
-					"gridY": 1,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true,
-					"status": "down"
-				},
-				{
-					"tile": "kadaster",
-					"gridX": 0,
-					"gridY": 3,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true
-				},
-				{
-					"tile": "declaraties",
-					"gridX": 1,
-					"gridY": 3,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true
 				},
 				{
 					"widgetId": "section-heading",
-					"gridX": 4,
-					"gridY": 0,
-					"gridWidth": 4,
+					"gridX": 0,
+					"gridY": 20,
+					"gridWidth": 12,
 					"gridHeight": 1,
 					"showTitle": 0,
 					"content": {
-						"title": "Samenwerken",
-						"description": "De tegels van het team"
+						"title": "Collega's",
+						"description": "Wie nieuw is, wie jarig is en wie wat weet"
 					}
 				},
 				{
-					"tile": "talk",
-					"gridX": 4,
-					"gridY": 1,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true,
-					"badge": 2
-				},
-				{
-					"tile": "agenda",
-					"gridX": 5,
-					"gridY": 1,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true
-				},
-				{
-					"tile": "word",
-					"gridX": 6,
-					"gridY": 1,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true
-				},
-				{
-					"tile": "bestanden",
-					"gridX": 7,
-					"gridY": 1,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true
-				},
-				{
-					"tile": "smoelenboek",
-					"gridX": 4,
-					"gridY": 3,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true
-				},
-				{
-					"tile": "verlof",
-					"gridX": 5,
-					"gridY": 3,
-					"gridWidth": 1,
-					"gridHeight": 2,
-					"iconOnly": true
-				},
-				{
-					"widgetId": "clock",
-					"gridX": 8,
-					"gridY": 0,
-					"gridWidth": 4,
-					"gridHeight": 3,
-					"showTitle": 1,
-					"customTitle": "Klok",
-					"content": {
-						"style": "digital",
-						"hourFormat": "24",
-						"timezone": "Europe/Amsterdam",
-						"showDate": true,
-						"showActions": false
-					}
-				},
-				{
-					"widgetId": "weather",
-					"gridX": 8,
-					"gridY": 3,
-					"gridWidth": 4,
-					"gridHeight": 4,
-					"showTitle": 1,
-					"customTitle": "Weer Zuiddrecht",
-					"content": {
-						"location": "",
-						"unitsOverride": "metric",
-						"showActions": false
-					}
-				},
-				{
-					"widgetId": "search",
+					"widgetId": "people",
 					"gridX": 0,
-					"gridY": 5,
-					"gridWidth": 8,
-					"gridHeight": 2,
-					"showTitle": 1,
-					"customTitle": "Zoeken op internet",
-					"content": {
-						"placeholder": "Zoek op internet",
-						"fallbackTarget": "",
-						"showActions": false,
-						"layout": "web",
-						"engine": {
-							"name": "DuckDuckGo",
-							"url": "https://duckduckgo.com/?q={q}"
-						}
-					}
-				},
-				{
-					"widgetId": "nc-widget",
-					"gridX": 0,
-					"gridY": 7,
-					"gridWidth": 8,
+					"gridY": 21,
+					"gridWidth": 4,
 					"gridHeight": 5,
 					"showTitle": 1,
-					"customTitle": "Mail",
+					"customTitle": "Nieuwe collega's",
 					"content": {
-						"title": "Mail",
-						"widgetId": "mail-unread",
-						"displayMode": "vertical",
-						"showActions": false,
-						"showHeader": false,
-						"headerLink": {
-							"label": "Mail openen",
-							"href": "/apps/mail/"
-						}
+						"layout": "list",
+						"filters": [],
+						"excludeDisabled": true,
+						"sortBy": "createdAt",
+						"columns": 2,
+						"showActions": false
 					}
 				},
 				{
-					"widgetId": "calendar",
-					"gridX": 0,
-					"gridY": 12,
-					"gridWidth": 4,
-					"gridHeight": 6,
-					"showTitle": 1,
-					"customTitle": "Agenda",
-					"content": {
-						"title": "Agenda",
-						"viewMode": "agenda",
-						"daysAhead": 0,
-						"colorByCalendar": false,
-						"internalCalendars": [
-							"personal"
-						],
-						"externalIcsUrls": [],
-						"showTitle": false,
-						"showViewModes": false,
-						"showActions": false,
-						"agendaLayout": "stacked"
-					}
-				},
-				{
-					"widgetId": "files",
+					"widgetId": "people",
 					"gridX": 4,
-					"gridY": 12,
+					"gridY": 21,
 					"gridWidth": 4,
-					"gridHeight": 6,
+					"gridHeight": 5,
 					"showTitle": 1,
-					"customTitle": "Bestanden",
+					"customTitle": "Verjaardagen",
 					"content": {
-						"folderPath": "/Vergunningen",
-						"fileId": null,
-						"viewMode": "list",
-						"showThumbnails": true,
-						"mimeTypeFilter": [],
-						"allowUpload": true,
-						"allowDelete": false,
-						"sortBy": "modified",
-						"sortDescending": true,
-						"showActions": false,
-						"layout": "compact"
+						"layout": "list",
+						"filters": [],
+						"excludeDisabled": true,
+						"sortBy": "birthday",
+						"columns": 2,
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "people",
+					"gridX": 8,
+					"gridY": 21,
+					"gridWidth": 4,
+					"gridHeight": 5,
+					"showTitle": 1,
+					"customTitle": "Vind een collega op expertise",
+					"content": {
+						"layout": "list",
+						"filters": [],
+						"excludeDisabled": true,
+						"sortBy": "displayName",
+						"columns": 2,
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "section-heading",
+					"gridX": 0,
+					"gridY": 26,
+					"gridWidth": 12,
+					"gridHeight": 1,
+					"showTitle": 0,
+					"content": {
+						"title": "Wegwijs",
+						"description": "Snel naar de vaste plekken van het intranet"
+					}
+				},
+				{
+					"widgetId": "menu",
+					"gridX": 0,
+					"gridY": 27,
+					"gridWidth": 4,
+					"gridHeight": 7,
+					"showTitle": 1,
+					"customTitle": "Intranetmenu",
+					"content": {
+						"items": [
+							{
+								"label": "Werken bij Zuiddrecht",
+								"url": "",
+								"icon": "",
+								"children": [
+									{
+										"label": "Vacatures",
+										"url": "https://werkenbij.zuiddrecht.nl/"
+									},
+									{
+										"label": "Onboarding",
+										"url": "https://intranet.zuiddrecht.nl/onboarding"
+									},
+									{
+										"label": "Opleidingen",
+										"url": "https://intranet.zuiddrecht.nl/opleidingen"
+									}
+								]
+							},
+							{
+								"label": "Faciliteiten",
+								"url": "",
+								"icon": "",
+								"children": [
+									{
+										"label": "Ruimte reserveren",
+										"url": "https://intranet.zuiddrecht.nl/ruimtes"
+									},
+									{
+										"label": "Parkeren",
+										"url": "https://intranet.zuiddrecht.nl/parkeren"
+									},
+									{
+										"label": "Kantine",
+										"url": "https://intranet.zuiddrecht.nl/kantine"
+									}
+								]
+							},
+							{
+								"label": "Organisatie",
+								"url": "",
+								"icon": "",
+								"children": [
+									{
+										"label": "Afdelingen",
+										"url": "https://intranet.zuiddrecht.nl/afdelingen"
+									},
+									{
+										"label": "Ondernemingsraad",
+										"url": "https://intranet.zuiddrecht.nl/or"
+									},
+									{
+										"label": "Bestuur",
+										"url": "https://www.zuiddrecht.nl/bestuur"
+									}
+								]
+							}
+						],
+						"style": "tree",
+						"orientation": "vertical",
+						"showIcons": false,
+						"expandedByDefault": true,
+						"activeItemHighlight": "none",
+						"showActions": false
+					}
+				},
+				{
+					"widgetId": "text",
+					"gridX": 4,
+					"gridY": 27,
+					"gridWidth": 4,
+					"gridHeight": 7,
+					"showTitle": 1,
+					"customTitle": "Werken op het stadskantoor",
+					"content": {
+						"text": "**Flexplekken**\n\n- Reserveer een plek via de app Werkplek, uiterlijk de avond ervoor.\n- Een stilteplek op de 3e verdieping is er alleen voor geconcentreerd werk.\n- Laat de plek om 17:30 leeg achter.\n\n**Openingstijden gebouw**\n\n| Dag | Open | Receptie |\n|---|---|---|\n| Maandag tot donderdag | 07:00 tot 19:00 | 08:00 tot 17:30 |\n| Vrijdag | 07:00 tot 17:00 | 08:00 tot 16:00 |\n| Zaterdag | 09:00 tot 12:00, alleen Burgerzaken | |",
+						"fontSize": "14px",
+						"textAlign": "left",
+						"contentMode": "markdown",
+						"showActions": false
 					}
 				},
 				{
 					"widgetId": "links",
 					"gridX": 8,
-					"gridY": 12,
+					"gridY": 27,
 					"gridWidth": 4,
-					"gridHeight": 6,
+					"gridHeight": 7,
 					"showTitle": 1,
 					"customTitle": "Bladwijzers",
 					"content": {
@@ -945,54 +884,204 @@
 					}
 				},
 				{
-					"widgetId": "wiki-pages",
+					"widgetId": "section-heading",
 					"gridX": 0,
-					"gridY": 18,
-					"gridWidth": 4,
-					"gridHeight": 6,
-					"showTitle": 1,
-					"customTitle": "Wiki",
+					"gridY": 34,
+					"gridWidth": 6,
+					"gridHeight": 1,
+					"showTitle": 0,
 					"content": {
-						"space": "",
-						"limit": 3,
-						"showActions": false
+						"title": "Mijn apps",
+						"description": "Eén tegel per app, elk een eigen widget"
 					}
 				},
 				{
-					"widgetId": "work-packages",
+					"widgetId": "section-heading",
+					"gridX": 6,
+					"gridY": 34,
+					"gridWidth": 6,
+					"gridHeight": 1,
+					"showTitle": 0,
+					"content": {
+						"title": "Samenwerken",
+						"description": "De tegels van het team"
+					}
+				},
+				{
+					"tile": "zaaksysteem",
+					"gridX": 0,
+					"gridY": 35,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true,
+					"pinned": true
+				},
+				{
+					"tile": "outlook",
+					"gridX": 1,
+					"gridY": 35,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true,
+					"pinned": true
+				},
+				{
+					"tile": "topdesk",
+					"gridX": 2,
+					"gridY": 35,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true
+				},
+				{
+					"tile": "raadsinformatie",
+					"gridX": 3,
+					"gridY": 35,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true,
+					"status": "down"
+				},
+				{
+					"tile": "kadaster",
 					"gridX": 4,
-					"gridY": 18,
+					"gridY": 35,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true
+				},
+				{
+					"tile": "declaraties",
+					"gridX": 5,
+					"gridY": 35,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true
+				},
+				{
+					"tile": "talk",
+					"gridX": 6,
+					"gridY": 35,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true,
+					"badge": 2
+				},
+				{
+					"tile": "agenda",
+					"gridX": 7,
+					"gridY": 35,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true
+				},
+				{
+					"tile": "word",
+					"gridX": 8,
+					"gridY": 35,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true
+				},
+				{
+					"tile": "bestanden",
+					"gridX": 9,
+					"gridY": 35,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true
+				},
+				{
+					"tile": "smoelenboek",
+					"gridX": 10,
+					"gridY": 35,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true
+				},
+				{
+					"tile": "verlof",
+					"gridX": 11,
+					"gridY": 35,
+					"gridWidth": 1,
+					"gridHeight": 2,
+					"iconOnly": true
+				}
+			]
+		},
+		{
+			"key": "werkplek",
+			"board": "LpWerkplek",
+			"uuid": "8a3e5c10-1f2b-4c3d-9e4f-000000000002",
+			"name": "Mijn werkplek",
+			"icon": "ViewDashboard",
+			"type": "user",
+			"owner": "pieter",
+			"gridColumns": 12,
+			"permissionLevel": "full",
+			"widgets": [
+				{
+					"widgetId": "clock",
+					"gridX": 8,
+					"gridY": 0,
 					"gridWidth": 4,
-					"gridHeight": 6,
+					"gridHeight": 3,
 					"showTitle": 1,
-					"customTitle": "Mijn werkpakketten",
+					"customTitle": "Klok",
 					"content": {
-						"scope": "mine",
-						"project": "",
-						"limit": 4,
+						"style": "digital",
+						"hourFormat": "24",
+						"timezone": "Europe/Amsterdam",
+						"showDate": true,
 						"showActions": false
 					}
 				},
 				{
-					"widgetId": "assigned-cases",
-					"gridX": 8,
-					"gridY": 18,
+					"widgetId": "search",
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 8,
+					"gridHeight": 2,
+					"showTitle": 1,
+					"customTitle": "Zoeken op internet",
+					"content": {
+						"placeholder": "Zoek op internet",
+						"fallbackTarget": "",
+						"showActions": false,
+						"layout": "web",
+						"engine": {
+							"name": "DuckDuckGo",
+							"url": "https://duckduckgo.com/?q={q}"
+						}
+					}
+				},
+				{
+					"widgetId": "files",
+					"gridX": 0,
+					"gridY": 2,
 					"gridWidth": 4,
 					"gridHeight": 6,
 					"showTitle": 1,
-					"customTitle": "Mijn zaken",
+					"customTitle": "Bestanden",
 					"content": {
-						"register": "dossiq",
-						"schema": "case",
-						"limit": 4,
-						"showActions": false
+						"folderPath": "/Vergunningen",
+						"fileId": null,
+						"viewMode": "list",
+						"showThumbnails": true,
+						"mimeTypeFilter": [],
+						"allowUpload": true,
+						"allowDelete": false,
+						"sortBy": "modified",
+						"sortDescending": true,
+						"showActions": false,
+						"layout": "compact"
 					}
 				},
 				{
 					"widgetId": "text",
-					"gridX": 0,
-					"gridY": 24,
-					"gridWidth": 8,
+					"gridX": 4,
+					"gridY": 2,
+					"gridWidth": 4,
 					"gridHeight": 4,
 					"showTitle": 1,
 					"customTitle": "Notities",
@@ -1007,7 +1096,7 @@
 				{
 					"widgetId": "quicklinks",
 					"gridX": 8,
-					"gridY": 24,
+					"gridY": 3,
 					"gridWidth": 4,
 					"gridHeight": 4,
 					"showTitle": 1,
@@ -1053,8 +1142,8 @@
 				},
 				{
 					"widgetId": "link",
-					"gridX": 8,
-					"gridY": 28,
+					"gridX": 4,
+					"gridY": 6,
 					"gridWidth": 4,
 					"gridHeight": 3,
 					"showTitle": 1,
@@ -1070,8 +1159,8 @@
 				},
 				{
 					"widgetId": "menu",
-					"gridX": 0,
-					"gridY": 28,
+					"gridX": 8,
+					"gridY": 7,
 					"gridWidth": 4,
 					"gridHeight": 8,
 					"showTitle": 1,

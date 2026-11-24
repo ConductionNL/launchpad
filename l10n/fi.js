@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Näytetään jokaisen koontinäytön yläosassa päättymisaikaan asti.",
     "Information" : "Tiedoksi",
     "Warning" : "Varoitus",
-    "Something went wrong" : "Jokin meni pieleen"
+    "Something went wrong" : "Jokin meni pieleen",
+    "Date field for the period" : "Jakson päivämääräkenttä",
+    "None: the widget does not follow the period" : "Ei mitään: pienoisohjelma ei seuraa jaksoa"
 },
 "nplurals=2; plural=(n != 1);"
 );

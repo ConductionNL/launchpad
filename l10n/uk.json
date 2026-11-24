@@ -1548,6 +1548,8 @@
         "Shown at the top of every dashboard until the end time.": "Показується вгорі кожної панелі до часу завершення.",
         "Information": "Інформація",
         "Warning": "Попередження",
-        "Something went wrong": "Щось пішло не так"
+        "Something went wrong": "Щось пішло не так",
+        "Date field for the period": "Поле дати для періоду",
+        "None: the widget does not follow the period": "Немає: віджет не стежить за періодом"
     }
 }

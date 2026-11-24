@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Taispeántar ag barr gach deais é go dtí an t-am deiridh.",
     "Information" : "Faisnéis",
     "Warning" : "Rabhadh",
-    "Something went wrong" : "Chuaigh rud éigin mícheart"
+    "Something went wrong" : "Chuaigh rud éigin mícheart",
+    "Date field for the period" : "Réimse dáta don tréimhse",
+    "None: the widget does not follow the period" : "Dada: ní leanann an giuirléid an tréimhse"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

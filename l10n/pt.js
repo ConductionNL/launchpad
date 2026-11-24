@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Mostrado no topo de cada painel até à hora de fim.",
     "Information" : "Informação",
     "Warning" : "Aviso",
-    "Something went wrong" : "Algo correu mal"
+    "Something went wrong" : "Algo correu mal",
+    "Date field for the period" : "Campo de data para o período",
+    "None: the widget does not follow the period" : "Nenhum: o widget não segue o período"
 },
 "nplurals=2; plural=(n != 1);"
 );

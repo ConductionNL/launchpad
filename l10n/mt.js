@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Jintwera fuq nett ta' kull dashboard sal-ħin tat-tmiem.",
     "Information" : "Informazzjoni",
     "Warning" : "Twissija",
-    "Something went wrong" : "Xi ħaġa marret ħażin"
+    "Something went wrong" : "Xi ħaġa marret ħażin",
+    "Date field for the period" : "Qasam tad-data għall-perjodu",
+    "None: the widget does not follow the period" : "Xejn: il-widget ma jsegwix il-perjodu"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

@@ -2303,6 +2303,8 @@
         "Shown at the top of every dashboard until the end time.": "Getoond bovenaan elk dashboard tot de eindtijd.",
         "Information": "Informatie",
         "Warning": "Waarschuwing",
-        "Something went wrong": "Er is iets misgegaan"
+        "Something went wrong": "Er is iets misgegaan",
+        "Date field for the period": "Datumveld voor de periode",
+        "None: the widget does not follow the period": "Geen: de widget volgt de periode niet"
     }
 }

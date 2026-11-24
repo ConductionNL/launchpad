@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Показується вгорі кожної панелі до часу завершення.",
     "Information" : "Інформація",
     "Warning" : "Попередження",
-    "Something went wrong" : "Щось пішло не так"
+    "Something went wrong" : "Щось пішло не так",
+    "Date field for the period" : "Поле дати для періоду",
+    "None: the widget does not follow the period" : "Немає: віджет не стежить за періодом"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

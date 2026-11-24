@@ -2093,7 +2093,9 @@ OC.L10N.register(
     "Only you see this preview until {when}." : "Only you see this preview until {when}.",
     "Shown in the Announcements widget." : "Shown in the Announcements widget.",
     "Maintenance notice" : "Maintenance notice",
-    "Shown at the top of every dashboard until the end time." : "Shown at the top of every dashboard until the end time."
+    "Shown at the top of every dashboard until the end time." : "Shown at the top of every dashboard until the end time.",
+    "Date field for the period" : "Date field for the period",
+    "None: the widget does not follow the period" : "None: the widget does not follow the period"
 },
 "nplurals=2; plural=(n != 1);"
 );

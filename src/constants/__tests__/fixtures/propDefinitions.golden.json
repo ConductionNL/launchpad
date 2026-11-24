@@ -801,6 +801,24 @@
 		},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/PeriodFieldSelect.vue | register": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Widgets/Renderers/PeriodFieldSelect.vue | schema": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Widgets/Renderers/PeriodFieldSelect.vue | modelValue": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
 	"../../components/Widgets/Renderers/RecentWorkWidget.vue | content": {
 		"type": "Object",
 		"required": false,

@@ -80,13 +80,78 @@ function isoDay(date) {
  * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 export function periodFieldOf(content) {
-	const sources = [content?.source, content?.dataSource, content?.props?.dataSource]
-	for (const source of sources) {
-		if (source && typeof source === 'object' && typeof source.periodField === 'string' && source.periodField.trim() !== '') {
-			return source.periodField.trim()
+	for (const source of registerSourcesOf(content)) {
+		const field = ownPeriodField(source)
+		if (field !== '') {
+			return field
 		}
 	}
 	return ''
+}
+
+/**
+ * The period field one source names itself, or ''.
+ *
+ * @param {object|null} source A register source.
+ * @return {string} The field name, or ''.
+ */
+function ownPeriodField(source) {
+	if (source && typeof source === 'object' && typeof source.periodField === 'string') {
+		return source.periodField.trim()
+	}
+	return ''
+}
+
+/**
+ * The register sources a widget's content carries: the stat card's
+ * `content.source`, the chart's `content.dataSource` (also under `props`),
+ * and the table's content itself, which names `register` and `filter` at
+ * its top level.
+ *
+ * @param {object|null} content The placement content.
+ * @return {Array<object>} The sources, objects only.
+ */
+function registerSourcesOf(content) {
+	if (!content || typeof content !== 'object') {
+		return []
+	}
+	const sources = [content.source, content.dataSource, content.props?.dataSource]
+	if (typeof content.register === 'string') {
+		sources.push(content)
+	}
+	return sources.filter((source) => source && typeof source === 'object')
+}
+
+/**
+ * A widget's content with the period added to every register source that
+ * names a period field: the stat card's, the stats block's, the chart's and
+ * the table's (REQ-DPD-002). Content without one is returned as it is, so a
+ * widget that does not follow the period never claims to.
+ *
+ * @param {object} content The placement content.
+ * @param {string} period The chosen period.
+ * @param {Date} now The current moment.
+ * @return {object} The content, a copy when a source changed.
+ * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+ */
+export function contentWithPeriod(content, period, now) {
+	if (!content || typeof content !== 'object' || !PERIODS.includes(period)) {
+		return content
+	}
+	let next = content
+	if (ownPeriodField(content.source) !== '') {
+		next = { ...next, source: withPeriod(content.source, ownPeriodField(content.source), period, now) }
+	}
+	if (ownPeriodField(content.dataSource) !== '') {
+		next = { ...next, dataSource: withPeriod(content.dataSource, ownPeriodField(content.dataSource), period, now) }
+	}
+	if (ownPeriodField(content.props?.dataSource) !== '') {
+		next = { ...next, props: { ...content.props, dataSource: withPeriod(content.props.dataSource, ownPeriodField(content.props.dataSource), period, now) } }
+	}
+	if (typeof content.register === 'string' && ownPeriodField(content) !== '') {
+		next = { ...next, filter: withPeriod(content, ownPeriodField(content), period, now).filter }
+	}
+	return next
 }
 
 /**

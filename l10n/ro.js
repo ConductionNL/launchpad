@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Afișat în partea de sus a fiecărui tablou de bord până la ora de sfârșit.",
     "Information" : "Informație",
     "Warning" : "Avertisment",
-    "Something went wrong" : "Ceva nu a mers bine"
+    "Something went wrong" : "Ceva nu a mers bine",
+    "Date field for the period" : "Câmp de dată pentru perioadă",
+    "None: the widget does not follow the period" : "Niciunul: widgetul nu urmează perioada"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

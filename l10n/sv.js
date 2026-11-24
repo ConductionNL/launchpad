@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Visas överst på varje instrumentpanel fram till sluttiden.",
     "Information" : "Information",
     "Warning" : "Varning",
-    "Something went wrong" : "Något gick fel"
+    "Something went wrong" : "Något gick fel",
+    "Date field for the period" : "Datumfält för perioden",
+    "None: the widget does not follow the period" : "Inget: widgeten följer inte perioden"
 },
 "nplurals=2; plural=(n != 1);"
 );

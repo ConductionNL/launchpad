@@ -29,6 +29,7 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardReactionMapper;
+use OCA\LaunchPad\Db\DashboardVersion;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\DB\Exception as DbException;
 
@@ -378,8 +379,69 @@ class ReactionService {
 			'enabled' => true,
 			// The reactions bar offers only these (REQ-RXN-007, REQ-RXN-010).
 			'allowed' => $this->getAllowedEmojis(),
+			// The bar names who last changed the dashboard (REQ-RXN-010).
+			'lastChange' => $this->lastChange(dashboard: $dashboard),
 		];
 	}//end buildSummary()
+
+	/**
+	 * Who last changed the dashboard and when: the newest saved version's
+	 * author and time, else the dashboard's own change time without a name.
+	 * Null when neither is known.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return array{name: string, at: string|null}|null The last change.
+	 *
+	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 */
+	private function lastChange(Dashboard $dashboard): ?array {
+		$version = $this->newestVersion(dashboardUuid: (string)$dashboard->getUuid());
+		if ($version !== null) {
+			$author = (string)$version->getCreatedBy();
+			$name   = $author;
+			if ($author !== '') {
+				$name = $this->directory->userManager->get(uid: $author)?->getDisplayName() ?? $author;
+			}
+
+			return [
+				'name' => $name,
+				'at' => $version->getCreatedAt() ?? $dashboard->getUpdatedAt(),
+			];
+		}
+
+		$updatedAt = $dashboard->getUpdatedAt();
+		if ($updatedAt === null || $updatedAt === '') {
+			return null;
+		}
+
+		return ['name' => '', 'at' => $updatedAt];
+	}//end lastChange()
+
+	/**
+	 * The newest saved version of a dashboard, or null without versions or
+	 * when they cannot be read.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 *
+	 * @return DashboardVersion|null The newest version.
+	 *
+	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 */
+	private function newestVersion(string $dashboardUuid): ?DashboardVersion {
+		$mapper = $this->directory->versionMapper;
+		if ($mapper === null) {
+			return null;
+		}
+
+		try {
+			$rows = $mapper->findLatestByDashboard(dashboardUuid: $dashboardUuid, limit: 1);
+		} catch (DbException) {
+			return null;
+		}
+
+		return $rows[0] ?? null;
+	}//end newestVersion()
 
 	/**
 	 * List reactors for a single emoji on a dashboard, capped at

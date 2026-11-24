@@ -27,6 +27,8 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardReaction;
 use OCA\LaunchPad\Db\DashboardReactionMapper;
+use OCA\LaunchPad\Db\DashboardVersion;
+use OCA\LaunchPad\Db\DashboardVersionMapper;
 use OCA\LaunchPad\Service\PermissionDeniedException;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\ReactionsDisabledException;
@@ -48,6 +50,8 @@ class ReactionServiceTest extends TestCase {
 	private IAppConfig&MockObject $appConfig;
 	private IUserManager&MockObject $userManager;
 	private ReactionService $service;
+	/** The dashboard the versioned service reads. */
+	private ?Dashboard $dashboard = null;
 
 	protected function setUp(): void {
 		$this->reactionMapper = $this->createMock(originalClassName: DashboardReactionMapper::class);
@@ -400,5 +404,128 @@ class ReactionServiceTest extends TestCase {
 
 		$this->assertSame($this->service->getAllowedEmojis(), $summary['allowed']);
 		$this->assertNotEmpty($summary['allowed']);
+	}
+
+	/**
+	 * A service whose directory can read the saved versions.
+	 *
+	 * @param DashboardVersionMapper $versionMapper The version mapper.
+	 *
+	 * @return ReactionService The service.
+	 */
+	private function serviceWithVersions(DashboardVersionMapper $versionMapper): ReactionService {
+		$this->dashboardMapper->method('findByUuid')->willReturnCallback(fn () => $this->dashboard);
+		$this->permissionService->method('canViewDashboard')->willReturn(true);
+		$this->appConfig->method('getValueBool')->willReturn(true);
+		$this->reactionMapper->method('countByEmoji')->willReturn([]);
+		$this->reactionMapper->method('findByUser')->willReturn([]);
+
+		return new ReactionService(
+			reactionMapper: $this->reactionMapper,
+			dashboardMapper: $this->dashboardMapper,
+			permissionService: $this->permissionService,
+			directory: new ReactionDirectory(
+				appConfig: $this->appConfig,
+				userManager: $this->userManager,
+				versionMapper: $versionMapper
+			)
+		);
+	}
+
+	/**
+	 * The summary names the author of the newest version and its time
+	 * (reactions-bar-at-the-foot REQ-RXN-010).
+	 *
+	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 */
+	public function testTheSummaryNamesWhoLastChangedTheDashboard(): void {
+		$this->dashboard = $this->makeDashboard(perDashFlag: 1);
+		$version = new DashboardVersion();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$version->setCreatedBy('comm');
+		$version->setCreatedAt('2026-11-24T08:30:00+00:00');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$versions = $this->createMock(originalClassName: DashboardVersionMapper::class);
+		$versions->expects($this->once())->method('findLatestByDashboard')
+			->with('dash-123', 1)->willReturn([$version]);
+		$user = $this->createMock(originalClassName: IUser::class);
+		$user->method('getDisplayName')->willReturn('Communicatie');
+		$this->userManager->method('get')->with('comm')->willReturn($user);
+
+		$summary = $this->serviceWithVersions(versionMapper: $versions)
+			->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice');
+
+		$this->assertSame(['name' => 'Communicatie', 'at' => '2026-11-24T08:30:00+00:00'], $summary['lastChange']);
+	}
+
+	/**
+	 * An author without an account (a template re-sync) is named as stored.
+	 *
+	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 */
+	public function testAnAuthorWithoutAnAccountIsNamedAsStored(): void {
+		$this->dashboard = $this->makeDashboard(perDashFlag: 1);
+		$version = new DashboardVersion();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$version->setCreatedBy('Template Intranet');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$versions = $this->createMock(originalClassName: DashboardVersionMapper::class);
+		$versions->method('findLatestByDashboard')->willReturn([$version]);
+		$this->userManager->method('get')->willReturn(null);
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->dashboard->setUpdatedAt('2026-11-23 10:00:00');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$summary = $this->serviceWithVersions(versionMapper: $versions)
+			->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice');
+
+		$this->assertSame(['name' => 'Template Intranet', 'at' => '2026-11-23 10:00:00'], $summary['lastChange']);
+	}
+
+	/**
+	 * Without versions the summary gives the dashboard's change time
+	 * without a name, and null when that is unknown too.
+	 *
+	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 */
+	public function testWithoutVersionsTheSummaryGivesOnlyTheTime(): void {
+		$this->dashboard = $this->makeDashboard(perDashFlag: 1);
+		$versions = $this->createMock(originalClassName: DashboardVersionMapper::class);
+		$versions->method('findLatestByDashboard')->willReturn([]);
+		$service = $this->serviceWithVersions(versionMapper: $versions);
+
+		$this->assertNull($service->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice')['lastChange']);
+
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->dashboard->setUpdatedAt('2026-11-23 10:00:00');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->assertSame(
+			['name' => '', 'at' => '2026-11-23 10:00:00'],
+			$service->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice')['lastChange']
+		);
+	}
+
+	/**
+	 * A version read that fails leaves only the dashboard's own time, and a
+	 * directory without the version mapper reads none.
+	 *
+	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 */
+	public function testAFailedVersionReadFallsBackToTheDashboardTime(): void {
+		$this->dashboard = $this->makeDashboard(perDashFlag: 1);
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->dashboard->setUpdatedAt('2026-11-23 10:00:00');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$versions = $this->createMock(originalClassName: DashboardVersionMapper::class);
+		$versions->method('findLatestByDashboard')->willThrowException(new DbException('down'));
+
+		$summary = $this->serviceWithVersions(versionMapper: $versions)
+			->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice');
+
+		$this->assertSame(['name' => '', 'at' => '2026-11-23 10:00:00'], $summary['lastChange']);
+
+		$this->dashboardMapper->method('findByUuid')->willReturn($this->dashboard);
+		$plain = $this->service->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice');
+		$this->assertSame(['name' => '', 'at' => '2026-11-23 10:00:00'], $plain['lastChange']);
 	}
 }

@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "What do you think of this dashboard?" : "Hvað finnst þér um þetta mælaborð?",
+    "today {time}" : "í dag {time}",
+    "Last updated {when}" : "Síðast uppfært {when}",
+    "Last updated by {name}, {when}" : "Síðast uppfært af {name}, {when}",
     "{list} and {last}" : "{list} og {last}",
     "{list} and {count} more" : "{list} og {count} í viðbót",
     "One widget does not work on a phone and is hidden: {names}." : "Ein græja virkar ekki í síma og er falin: {names}.",

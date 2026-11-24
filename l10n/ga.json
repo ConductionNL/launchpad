@@ -1438,6 +1438,10 @@
         "One widget does not work on a phone and is hidden: {names}.": "Ní oibríonn giuirléid amháin ar fhón agus tá sí i bhfolach: {names}.",
         "{count} widgets do not work on a phone and are hidden: {names}.": "Líon na ngiuirléidí nach n-oibríonn ar fhón agus atá i bhfolach: {count}. {names}.",
         "Which?": "Cé acu?",
-        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Teastaíonn scáileán níos mó ó roinnt giuirléidí, mar sin cuireann fón i bhfolach iad. Ar thaibléad nó ar ríomhaire feiceann tú iad mar is gnáth."
+        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Teastaíonn scáileán níos mó ó roinnt giuirléidí, mar sin cuireann fón i bhfolach iad. Ar thaibléad nó ar ríomhaire feiceann tú iad mar is gnáth.",
+        "What do you think of this dashboard?": "Cad é do mheas ar an deais seo?",
+        "today {time}": "inniu {time}",
+        "Last updated {when}": "Nuashonraithe go deireanach {when}",
+        "Last updated by {name}, {when}": "Nuashonraithe go deireanach ag {name}, {when}"
     }
 }

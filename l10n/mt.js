@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "What do you think of this dashboard?" : "X'taħseb dwar dan id-dashboard?",
+    "today {time}" : "illum {time}",
+    "Last updated {when}" : "Aġġornat l-aħħar {when}",
+    "Last updated by {name}, {when}" : "Aġġornat l-aħħar minn {name}, {when}",
     "{list} and {last}" : "{list} u {last}",
     "{list} and {count} more" : "{list} u {count} oħra",
     "One widget does not work on a phone and is hidden: {names}." : "Widget wieħed ma jaħdimx fuq telefon u huwa moħbi: {names}.",

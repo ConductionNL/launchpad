@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "What do you think of this dashboard?" : "Bu pano hakkında ne düşünüyorsunuz?",
+    "today {time}" : "bugün {time}",
+    "Last updated {when}" : "Son güncelleme {when}",
+    "Last updated by {name}, {when}" : "Son güncelleyen {name}, {when}",
     "{list} and {last}" : "{list} ve {last}",
     "{list} and {count} more" : "{list} ve {count} tane daha",
     "One widget does not work on a phone and is hidden: {names}." : "Bir pencere öğesi telefonda çalışmıyor ve gizlendi: {names}.",

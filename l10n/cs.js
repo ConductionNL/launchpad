@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "What do you think of this dashboard?" : "Co si myslíte o tomto přehledu?",
+    "today {time}" : "dnes {time}",
+    "Last updated {when}" : "Naposledy aktualizováno {when}",
+    "Last updated by {name}, {when}" : "Naposledy aktualizoval(a) {name}, {when}",
     "{list} and {last}" : "{list} a {last}",
     "{list} and {count} more" : "{list} a {count} další",
     "One widget does not work on a phone and is hidden: {names}." : "Jeden widget nefunguje na telefonu a je skrytý: {names}.",

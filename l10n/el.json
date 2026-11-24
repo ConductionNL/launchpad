@@ -1432,6 +1432,10 @@
         "One widget does not work on a phone and is hidden: {names}.": "Ένα γραφικό στοιχείο δεν λειτουργεί σε τηλέφωνο και είναι κρυφό: {names}.",
         "{count} widgets do not work on a phone and are hidden: {names}.": "{count} γραφικά στοιχεία δεν λειτουργούν σε τηλέφωνο και είναι κρυφά: {names}.",
         "Which?": "Ποια;",
-        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Ορισμένα γραφικά στοιχεία χρειάζονται μεγαλύτερη οθόνη, γι' αυτό το τηλέφωνο τα κρύβει. Σε tablet ή υπολογιστή τα βλέπετε κανονικά."
+        "Some widgets need a larger screen, so a phone hides them. On a tablet or computer you see them as usual.": "Ορισμένα γραφικά στοιχεία χρειάζονται μεγαλύτερη οθόνη, γι' αυτό το τηλέφωνο τα κρύβει. Σε tablet ή υπολογιστή τα βλέπετε κανονικά.",
+        "What do you think of this dashboard?": "Τι πιστεύετε για αυτόν τον πίνακα ελέγχου;",
+        "today {time}": "σήμερα {time}",
+        "Last updated {when}": "Τελευταία ενημέρωση {when}",
+        "Last updated by {name}, {when}": "Τελευταία ενημέρωση από {name}, {when}"
     }
 }

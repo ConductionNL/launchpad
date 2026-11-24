@@ -106,7 +106,7 @@ const stubs = {
 	AcknowledgementReportModal: passthrough('AcknowledgementReportModal', {
 		props: { open: Boolean, announcementKey: String },
 	}),
-	DashboardReactions: passthrough('DashboardReactions'),
+	DashboardReactions: passthrough('DashboardReactions', { template: '<div class="stub-reactions" />' }),
 	DashboardLanguageHeading: passthrough('DashboardLanguageHeading'),
 	DashboardBreadcrumb: passthrough('DashboardBreadcrumb'),
 	EditLockBanner: passthrough('EditLockBanner', { props: { status: String } }),
@@ -807,5 +807,22 @@ describe('Views — states without a full dashboard', () => {
 		await mountViews({ availableWidgets: [{ id: 'calendar' }, { id: 'mail' }] })
 
 		expect(wrapper.findAll('.stub-add-widget li').map((li) => li.text())).toEqual(['calendar', 'mail'])
+	}, 90000)
+})
+
+describe('Views — the reactions bar at the foot', () => {
+	/**
+	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 */
+	it('renders the reactions bar after the grid, under the last widget', async () => {
+		const { wrapper } = await mountViews({
+			widgetPlacements: [{ id: 1, widgetId: 'text', gridX: 0, gridY: 0, gridWidth: 4, gridHeight: 2 }],
+		})
+		const grid = wrapper.find('.stub-grid').element
+		const bar = wrapper.find('.stub-reactions').element
+		expect(grid).toBeTruthy()
+		expect(bar).toBeTruthy()
+		// eslint-disable-next-line no-bitwise
+		expect(grid.compareDocumentPosition(bar) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
 	}, 90000)
 })

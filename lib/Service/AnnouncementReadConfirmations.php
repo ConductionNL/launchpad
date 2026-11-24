@@ -279,8 +279,9 @@ class AnnouncementReadConfirmations {
 		$targets = $announcement->getTargetGroupList();
 		if ($targets === []) {
 			$this->userManager->callForSeenUsers(
-				callback: static function (IUser $user) use (&$members): void {
+				callback: static function (IUser $user) use (&$members): bool {
 					$members[$user->getUID()] = true;
+					return true;
 				}
 			);
 		}

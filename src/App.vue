@@ -64,7 +64,7 @@ import AnalyticsOptOutSettings from './views/settings/AnalyticsOptOutSettings.vu
 import ProfileFieldsSettings from './views/settings/ProfileFieldsSettings.vue'
 import { REQUIRED_OBJECT_PROP } from './constants/propDefinitions.js'
 import customComponents from './customComponents.js'
-import { ICON_CATALOGUE, loadIconCatalogue } from './services/iconCatalogue.js'
+import { LAZY_ICON_CATALOGUE } from './services/iconCatalogue.js'
 import { isKioskMode } from './utils/kioskMode.js'
 import { permits } from './utils/permissions.js'
 
@@ -170,7 +170,7 @@ export default {
 		return {
 			runtimeManifest: this.runtimeManifest,
 			manifestLoading: this.manifestLoading,
-			cnIconCatalogue: ICON_CATALOGUE,
+			cnIconCatalogue: LAZY_ICON_CATALOGUE,
 			// runtime-shell REQ-SHELL-009: what `StartPageMenu` reads. A
 			// computed ref, because provide() runs once and the route changes.
 			launchpadChrome: computed(() => this.chromeState),
@@ -390,9 +390,6 @@ export default {
 	mounted() {
 		window.addEventListener('hashchange', this.openUserSettingsFromHash)
 		this.openUserSettingsFromHash()
-		// The icon pickers' catalogue loads once the page has painted.
-		const idle = window.requestIdleCallback || ((callback) => window.setTimeout(callback, 1000))
-		idle(() => loadIconCatalogue().catch(() => {}))
 	},
 
 	/** @spec openspec/specs/people-widget/spec.md */

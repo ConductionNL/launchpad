@@ -145,6 +145,7 @@
 
 		<!-- Delete confirmation, with the number of dashboards under it. -->
 		<DeleteDashboardDialog
+			v-if="mountedModals.deleteDialog"
 			:open="deleteTarget !== null"
 			:name="deleteTarget?.name ?? ''"
 			:childCount="deleteChildCount"
@@ -155,6 +156,7 @@
 
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
+			v-if="mountedModals.ackReport"
 			:open="ackReportOpen"
 			:announcementKey="ackReportKey"
 			@close="ackReportOpen = false" />
@@ -349,6 +351,7 @@
 
 		<!-- Widget picker modal -->
 		<WidgetPickerModal
+			v-if="mountedModals.widgetPicker"
 			:open="isWidgetModalOpen"
 			:widgets="availableWidgets"
 			:placedWidgetIds="placedWidgetIds"
@@ -382,6 +385,7 @@
 
 		<!-- Dashboard configuration modal (also used for creating a new dashboard) -->
 		<DashboardConfigModal
+			v-if="mountedModals.config"
 			:open="isConfigModalOpen"
 			:dashboard="configModalMode === 'create' ? null : activeDashboard"
 			:mode="configModalMode"
@@ -414,11 +418,13 @@
 
 		<!-- Tile editor modal -->
 		<BookmarkImportModal
+			v-if="mountedModals.bookmarkImport"
 			:open="isBookmarkImportOpen"
 			:importBookmarks="importChosenBookmarks"
 			@close="isBookmarkImportOpen = false" />
 
 		<TileEditor
+			v-if="mountedModals.tileEditor"
 			:open="isTileEditorOpen"
 			:tile="editingTile"
 			@close="closeTileEditor"
@@ -461,6 +467,7 @@
 		     placement through the same pure `nudgePlacement()` helper the
 		     drag path's collision model uses. -->
 		<WidgetMovePanel
+			v-if="mountedModals.movePanel"
 			:open="movePanelOpen"
 			:placement="movePanelPlacement"
 			:allPlacements="widgetPlacements"
@@ -472,6 +479,7 @@
 		     spec). Opened from the context menu's "Visibility rules…" item;
 		     gated on `canEdit` so only dashboard owners reach it. -->
 		<VisibilityRulesModal
+			v-if="mountedModals.visibility"
 			:open="isVisibilityModalOpen"
 			:placementId="visibilityPlacementId"
 			@close="closeVisibilityRules"
@@ -493,7 +501,7 @@ import {
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { mapActions, mapState } from 'pinia'
-import { computed, nextTick, provide, reactive, ref, shallowRef } from 'vue'
+import { computed, defineAsyncComponent, nextTick, provide, reactive, ref, shallowRef } from 'vue'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import TileWidget from '../components/TileWidget.vue'
@@ -516,15 +524,16 @@ import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import InstallBanner from '../components/Workspace/InstallBanner.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
-import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
-import ReadConfirmationDialog from '../dialogs/ReadConfirmationDialog.vue'
-import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
-import BookmarkImportModal from '../modals/BookmarkImportModal.vue'
-import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
-import TileEditor from '../modals/TileEditor.vue'
-import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
-import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
-import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
+// The dialogs and modals load the first time they open, not with the page.
+const DeleteDashboardDialog = defineAsyncComponent(() => import('../dialogs/DeleteDashboardDialog.vue'))
+const ReadConfirmationDialog = defineAsyncComponent(() => import('../dialogs/ReadConfirmationDialog.vue'))
+const AcknowledgementReportModal = defineAsyncComponent(() => import('../modals/AcknowledgementReportModal.vue'))
+const BookmarkImportModal = defineAsyncComponent(() => import('../modals/BookmarkImportModal.vue'))
+const DashboardConfigModal = defineAsyncComponent(() => import('../modals/DashboardConfigModal.vue'))
+const TileEditor = defineAsyncComponent(() => import('../modals/TileEditor.vue'))
+const VisibilityRulesModal = defineAsyncComponent(() => import('../modals/VisibilityRulesModal.vue'))
+const WidgetMovePanel = defineAsyncComponent(() => import('../modals/WidgetMovePanel.vue'))
+const WidgetPickerModal = defineAsyncComponent(() => import('../modals/WidgetPickerModal.vue'))
 import { createFilterTelemetry } from '../composables/filterTelemetry.js'
 // Composables
 import { useDashboardFilterSession } from '../composables/useDashboardFilterSession.js'
@@ -845,6 +854,8 @@ export default {
 			stopKiosk: null,
 			kioskRefresh: null,
 			isEditMode: false,
+			/** The dialogs and modals opened at least once, which stay mounted from then on. */
+			mountedModals: {},
 			/**
 			 * The greeting row's actions element the top-right controls are
 			 * teleported into, or null while they float (headerActionsDock.js).
@@ -942,6 +953,24 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Whether each lazily mounted dialog or modal is open now.
+		 *
+		 * @return {object} Open flags keyed like `mountedModals`.
+		 */
+		openModals() {
+			return {
+				deleteDialog: this.deleteTarget !== null,
+				ackReport: this.ackReportOpen,
+				widgetPicker: this.isWidgetModalOpen,
+				config: this.isConfigModalOpen,
+				bookmarkImport: this.isBookmarkImportOpen,
+				tileEditor: this.isTileEditorOpen,
+				movePanel: this.movePanelOpen,
+				visibility: this.isVisibilityModalOpen,
+			}
+		},
+
 		/**
 		 * The active dashboard's own look as scoped CSS variables, or no style
 		 * for a dashboard that follows the theme (REQ-THM-001).
@@ -1462,6 +1491,22 @@ export default {
 	},
 
 	watch: {
+		openModals: {
+			immediate: true,
+			/**
+			 * Mount a dialog or modal when it first opens.
+			 *
+			 * @param {object} open The open flags.
+			 */
+			handler(open) {
+				for (const [key, isOpen] of Object.entries(open)) {
+					if (isOpen) {
+						this.mountedModals[key] = true
+					}
+				}
+			},
+		},
+
 		/**
 		 * The calculated fields re-evaluate when the dashboard's filters change (REQ-CALC-003).
 		 *

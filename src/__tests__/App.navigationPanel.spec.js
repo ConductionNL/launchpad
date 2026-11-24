@@ -31,7 +31,7 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 	CnNotificationPreferences: { name: 'CnNotificationPreferences', template: '<div />' },
 }))
 vi.mock('../customComponents.js', () => ({ default: {} }))
-vi.mock('../services/iconCatalogue.js', () => ({ ICON_CATALOGUE: [], loadIconCatalogue: () => Promise.resolve([]) }))
+vi.mock('../services/iconCatalogue.js', () => ({ ICON_CATALOGUE: [], LAZY_ICON_CATALOGUE: [], loadIconCatalogue: () => Promise.resolve([]) }))
 
 import App, { DASHBOARD_ROUTES, panelEntriesFor } from '../App.vue'
 import {

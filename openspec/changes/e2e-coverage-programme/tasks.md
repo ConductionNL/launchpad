@@ -36,6 +36,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 1.7 `role-feature-permissions`: 27 scenarios, 0 cited. Queued 2026-09-11, after the permissions PR.
   - Spec written: `tests/e2e/role-feature-permissions.spec.ts` (helpers in `tests/e2e/fixtures/role-feature-permissions.ts`), 27 scenarios cited, not yet run (cloud, 2026-11-19)
   - Spec written: `tests/e2e/role-feature-permissions-upgrade.spec.ts` (REQ-RFP-011: the two upgrade scenarios, staged with `occ maintenance:repair` against the old shipped `default` and `hrm` rules; both exclusions replaced), 2 scenarios cited (new), role-feature-permissions now 30 of 31 cited, 1 excluded with a reason, not yet run (cloud, 2026-11-24)
+  - Spec written: `tests/e2e/role-feature-permissions-fresh-install.spec.ts` (REQ-RFP-011 "A fresh install lets every user add a LaunchPad widget": every rule deleted through the admin API, then `occ maintenance:repair` runs `SeedRolePermissions` as an install does; a user in no group adds a `text` widget (201) and is refused `notes` (403) under the seeded `default` rule; the exclusion replaced), 1 scenario cited (new), role-feature-permissions now 31 of 31 cited, 0 excluded, not yet run (cloud, 2026-11-24)
 - [x] 1.8 `launchpad-enterprise-security-access`: 15 scenarios, 0 cited, blanket. Done 2026-09-11: the blanket is replaced by 15 per-scenario verdicts, all `never built`. `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`).
 
 ## 2. Tier 1, data integrity

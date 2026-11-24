@@ -1654,7 +1654,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Confermar fin {date}",
     "You confirmed you have read this" : "Vus avais confermà che Vus avais legì quai",
     "The confirm-before date must be after the publish time" : "La data da confermaziun sto esser suenter il temp da publicaziun",
-    "Your read confirmation could not be saved" : "Vossa confermaziun da lectura n'ha betg pudì vegnir memorisada"
+    "Your read confirmation could not be saved" : "Vossa confermaziun da lectura n'ha betg pudì vegnir memorisada",
+    "{title}: embedded pages are not included in the download" : "{title}: paginas integradas n'èn betg cuntegnidas en la telechargiada"
 },
 "nplurals=2; plural=(n != 1);"
 );

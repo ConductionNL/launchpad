@@ -35,9 +35,11 @@ describe('DashboardPageHeader', () => {
 		expect(wrapper.find('.' + PAGE_HEADER_DOCK_CLASS).exists()).toBe(true)
 	})
 
-	it('offers no action of its own: Edit and Add widget are in the More menu (LpWerkplek)', () => {
-		for (const props of [{}, { source: 'group' }, { isDefault: true }]) {
-			expect(mountHeader(props).find('button').exists()).toBe(false)
+	it('offers Download as its only action of its own: Edit and Add widget are in the More menu (LpWerkplek)', () => {
+		for (const props of [{}, { source: 'group' }, { isDefault: true }, { permissionLevel: 'view_only' }]) {
+			const buttons = mountHeader(props).findAll('button')
+			expect(buttons).toHaveLength(1)
+			expect(buttons[0].attributes('data-testid')).toBe('dashboard-download')
 		}
 	})
 
@@ -119,5 +121,18 @@ describe('lastChangedText', () => {
 	it('says nothing without a usable date', () => {
 		expect(lastChangedText(null, NOW, 'nl')).toBe('')
 		expect(lastChangedText('not a date', NOW, 'nl')).toBe('')
+	})
+})
+
+// @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
+describe('Download (REQ-DPD-003)', () => {
+	it('prints the dashboard in the reader\'s browser, also with view-only rights', async () => {
+		const print = vi.spyOn(window, 'print').mockImplementation(() => {})
+		const wrapper = mountHeader({ permissionLevel: 'view_only', dashboard: { name: 'Managementinformatie', description: '', updatedAt: null } })
+		const button = wrapper.find('[data-testid="dashboard-download"]')
+		expect(button.text()).toBe('Download')
+		await button.trigger('click')
+		expect(print).toHaveBeenCalledTimes(1)
+		print.mockRestore()
 	})
 })

@@ -1554,6 +1554,7 @@
         "Confirm before {date}": "Confirmer avant le {date}",
         "You confirmed you have read this": "Vous avez confirmé avoir lu ceci",
         "The confirm-before date must be after the publish time": "La date limite de confirmation doit être postérieure à la date de publication",
-        "Your read confirmation could not be saved": "Votre confirmation de lecture n’a pas pu être enregistrée"
+        "Your read confirmation could not be saved": "Votre confirmation de lecture n’a pas pu être enregistrée",
+        "{title}: embedded pages are not included in the download": "{title} : les pages intégrées ne sont pas incluses dans le téléchargement"
     }
 }

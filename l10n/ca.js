@@ -1654,7 +1654,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Confirmeu abans del {date}",
     "You confirmed you have read this" : "Heu confirmat que ho heu llegit",
     "The confirm-before date must be after the publish time" : "La data límit de confirmació ha de ser posterior a la de publicació",
-    "Your read confirmation could not be saved" : "No s’ha pogut desar la vostra confirmació de lectura"
+    "Your read confirmation could not be saved" : "No s’ha pogut desar la vostra confirmació de lectura",
+    "{title}: embedded pages are not included in the download" : "{title}: les pàgines incrustades no s'inclouen a la baixada"
 },
 "nplurals=2; plural=(n != 1);"
 );

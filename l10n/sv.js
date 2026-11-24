@@ -1654,7 +1654,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Bekräfta senast {date}",
     "You confirmed you have read this" : "Du har bekräftat att du har läst detta",
     "The confirm-before date must be after the publish time" : "Sista dag för bekräftelse måste vara efter publiceringstiden",
-    "Your read confirmation could not be saved" : "Din läsbekräftelse kunde inte sparas"
+    "Your read confirmation could not be saved" : "Din läsbekräftelse kunde inte sparas",
+    "{title}: embedded pages are not included in the download" : "{title}: inbäddade sidor ingår inte i nedladdningen"
 },
 "nplurals=2; plural=(n != 1);"
 );

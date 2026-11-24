@@ -1,0 +1,38 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * Download the dashboard (REQ-DPD-003): the PDF is the page printed in the
+ * reader's browser. Print the dashboard name, its meta line and the widgets;
+ * the chosen period stays visible; Nextcloud's top bar, the docked menu and the
+ * Download button are left out.
+ */
+
+@media print {
+	#header,
+	#body-user #header,
+	.app-navigation,
+	.launchpad-page-header__dock,
+	.launchpad-print-hide {
+		display: none !important;
+	}
+
+	html,
+	body,
+	#content,
+	#content-vue,
+	#app-content,
+	#app-content-vue,
+	#launchpad-app {
+		height: auto !important;
+		min-height: 0 !important;
+		overflow: visible !important;
+		margin: 0 !important;
+		padding-top: 0 !important;
+		background: #fff !important;
+	}
+
+	.grid-stack-item {
+		break-inside: avoid;
+	}
+}

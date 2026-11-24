@@ -69,6 +69,7 @@ import '@conduction/nextcloud-vue/css/index.css'
 import './styles/workspace.css'
 import './styles/modals.css'
 import './styles/kiosk.css'
+import './styles/print.css'
 registerBuiltinDashboardWidgets()
 
 // The library's own strings ("Good afternoon, {name}" in the greeting header,

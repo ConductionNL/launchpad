@@ -1654,7 +1654,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Apstiprināt līdz {date}",
     "You confirmed you have read this" : "Jūs apstiprinājāt, ka to esat izlasījis",
     "The confirm-before date must be after the publish time" : "Apstiprināšanas termiņam jābūt pēc publicēšanas laika",
-    "Your read confirmation could not be saved" : "Jūsu izlasīšanas apstiprinājumu neizdevās saglabāt"
+    "Your read confirmation could not be saved" : "Jūsu izlasīšanas apstiprinājumu neizdevās saglabāt",
+    "{title}: embedded pages are not included in the download" : "{title}: iegultās lapas lejupielādē nav iekļautas"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

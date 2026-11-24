@@ -1645,7 +1645,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Confirméieren bis {date}",
     "You confirmed you have read this" : "Dir hutt confirméiert, datt Dir dat gelies hutt",
     "The confirm-before date must be after the publish time" : "D'Confirmatiounsdatum muss no der Verëffentlechungszäit sinn",
-    "Your read confirmation could not be saved" : "Är Lieskonfirmatioun konnt net gespäichert ginn"
+    "Your read confirmation could not be saved" : "Är Lieskonfirmatioun konnt net gespäichert ginn",
+    "{title}: embedded pages are not included in the download" : "{title}: agebett Säite sinn net am Download dobäi"
 },
 "nplurals=2; plural=(n != 1);"
 );

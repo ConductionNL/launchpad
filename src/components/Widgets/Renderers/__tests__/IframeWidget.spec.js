@@ -392,3 +392,21 @@ describe('IframeWidget outage state (REQ-IFRAME-005)', () => {
 		expect(empty.emitted('status').at(-1)[0]).toEqual({ subtitle: '', outage: false })
 	})
 })
+
+// @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
+describe('IframeWidget — REQ-DPD-003 in a downloaded dashboard', () => {
+	it('names the embedded page with a line that it is not included', async () => {
+		const wrapper = mount(IframeWidget, {
+			propsData: { content: { url: 'https://bi.example.com/report', title: 'Rapport Sociaal domein' } },
+		})
+		await flushPromises()
+		const note = wrapper.find('[data-testid="iframe-widget-print-note"]')
+		expect(note.exists()).toBe(true)
+		expect(note.text()).toBe('Rapport Sociaal domein: embedded pages are not included in the download')
+	})
+
+	it('names an untitled embed as an embedded page', () => {
+		const wrapper = mount(IframeWidget, { propsData: { content: { url: 'https://bi.example.com/report' } } })
+		expect(wrapper.find('[data-testid="iframe-widget-print-note"]').text()).toBe('Embedded page: embedded pages are not included in the download')
+	})
+})

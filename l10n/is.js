@@ -1654,7 +1654,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Staðfesta fyrir {date}",
     "You confirmed you have read this" : "Þú hefur staðfest að þú hafir lesið þetta",
     "The confirm-before date must be after the publish time" : "Staðfestingarfresturinn verður að vera eftir birtingartímanum",
-    "Your read confirmation could not be saved" : "Ekki tókst að vista lesstaðfestinguna þína"
+    "Your read confirmation could not be saved" : "Ekki tókst að vista lesstaðfestinguna þína",
+    "{title}: embedded pages are not included in the download" : "{title}: ívafðar síður eru ekki með í niðurhalinu"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

@@ -1560,6 +1560,7 @@
         "Confirm before {date}": "Deimhnigh roimh {date}",
         "You confirmed you have read this": "Dheimhnigh tú gur léigh tú é seo",
         "The confirm-before date must be after the publish time": "Ní mór an dáta deimhnithe a bheith tar éis an ama foilsithe",
-        "Your read confirmation could not be saved": "Níorbh fhéidir do dheimhniú léite a shábháil"
+        "Your read confirmation could not be saved": "Níorbh fhéidir do dheimhniú léite a shábháil",
+        "{title}: embedded pages are not included in the download": "{title}: níl leathanaigh leabaithe san íoslódáil"
     }
 }

@@ -50,8 +50,8 @@ ignore the period, and its card SHALL NOT claim to follow it. The period SHALL w
 
 The header SHALL offer "Download" (nl "Downloaden") to everyone who can open the dashboard, also with view-only
 rights. It SHALL give the reader the dashboard as a PDF, rendered as the reader sees it now, with the period and the
-cross-widget filter applied and the reader's own visibility rules respected, through the renderer that scheduled
-exports use. Nothing SHALL be stored or sent. A widget the renderer cannot draw (an embedded page) SHALL be named in the
+cross-widget filter applied and the reader's own visibility rules respected, rendered in the reader's own browser
+(print styles and the browser's print dialog; decision 24 Nov 2026), not on the server. Nothing SHALL be stored or sent. A widget the renderer cannot draw (an embedded page) SHALL be named in the
 PDF with a line that it is not included. The kiosk view and the public view SHALL NOT offer it.
 
 #### Scenario: Pieter downloads the quarter

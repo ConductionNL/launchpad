@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Informasjon",
     "Warning" : "Advarsel",
     "Something went wrong" : "Noe gikk galt",
+    "Date field for the period" : "Datofelt for perioden",
+    "None: the widget does not follow the period" : "Ingen: modulen følger ikke perioden",
     "Ask for read confirmation" : "Be om lesebekreftelse",
     "Confirm before" : "Bekreft innen",
     "Confirm before {date}" : "Bekreft innen {date}",

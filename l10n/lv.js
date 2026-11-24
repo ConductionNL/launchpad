@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Informācija",
     "Warning" : "Brīdinājums",
     "Something went wrong" : "Kaut kas nogāja greizi",
+    "Date field for the period" : "Perioda datuma lauks",
+    "None: the widget does not follow the period" : "Nav: logrīks neseko periodam",
     "Ask for read confirmation" : "Pieprasīt izlasīšanas apstiprinājumu",
     "Confirm before" : "Apstiprināt līdz",
     "Confirm before {date}" : "Apstiprināt līdz {date}",

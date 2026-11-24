@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Informazzjoni",
     "Warning" : "Twissija",
     "Something went wrong" : "Xi ħaġa marret ħażin",
+    "Date field for the period" : "Qasam tad-data għall-perjodu",
+    "None: the widget does not follow the period" : "Xejn: il-widget ma jsegwix il-perjodu",
     "Ask for read confirmation" : "Itlob konferma tal-qari",
     "Confirm before" : "Ikkonferma qabel",
     "Confirm before {date}" : "Ikkonferma qabel {date}",

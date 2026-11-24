@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Informație",
     "Warning" : "Avertisment",
     "Something went wrong" : "Ceva nu a mers bine",
+    "Date field for the period" : "Câmp de dată pentru perioadă",
+    "None: the widget does not follow the period" : "Niciunul: widgetul nu urmează perioada",
     "Ask for read confirmation" : "Solicită confirmarea citirii",
     "Confirm before" : "Confirmă până la",
     "Confirm before {date}" : "Confirmă până la {date}",

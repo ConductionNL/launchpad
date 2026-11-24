@@ -1547,6 +1547,8 @@
         "Information": "Información",
         "Warning": "Advertencia",
         "Something went wrong": "Algo salió mal",
+        "Date field for the period": "Campo de fecha para el período",
+        "None: the widget does not follow the period": "Ninguno: el widget no sigue el período",
         "Ask for read confirmation": "Solicitar confirmación de lectura",
         "Confirm before": "Confirmar antes del",
         "Confirm before {date}": "Confirmar antes del {date}",

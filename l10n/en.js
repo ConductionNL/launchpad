@@ -2094,6 +2094,8 @@ OC.L10N.register(
     "Shown in the Announcements widget." : "Shown in the Announcements widget.",
     "Maintenance notice" : "Maintenance notice",
     "Shown at the top of every dashboard until the end time." : "Shown at the top of every dashboard until the end time.",
+    "Date field for the period" : "Date field for the period",
+    "None: the widget does not follow the period" : "None: the widget does not follow the period",
     "Ask for read confirmation" : "Ask for read confirmation",
     "Confirm before" : "Confirm before",
     "Confirm before {date}" : "Confirm before {date}",

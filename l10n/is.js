@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Upplýsingar",
     "Warning" : "Viðvörun",
     "Something went wrong" : "Eitthvað fór úrskeiðis",
+    "Date field for the period" : "Dagsetningarreitur fyrir tímabilið",
+    "None: the widget does not follow the period" : "Ekkert: græjan fylgir ekki tímabilinu",
     "Ask for read confirmation" : "Biðja um lesstaðfestingu",
     "Confirm before" : "Staðfesta fyrir",
     "Confirm before {date}" : "Staðfesta fyrir {date}",

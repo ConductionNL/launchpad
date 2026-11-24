@@ -13,7 +13,7 @@
 		<component
 			:is="registryEntry.renderer"
 			v-if="registryEntry"
-			:content="normalizedContent"
+			:content="periodContent"
 			:placement="placement"
 			v-bind="rendererProps"
 			@data="onWidgetData"
@@ -79,6 +79,7 @@ import {
 	NcLoadingIcon,
 } from '@conduction/nextcloud-vue'
 import { mapActions, storeToRefs } from 'pinia'
+import { unref } from 'vue'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import TileWidget from './TileWidget.vue'
 import CalculatedValues from './Widgets/CalculatedFields/CalculatedValues.vue'
@@ -96,6 +97,7 @@ import {
 import { useCalculatedFieldsStore } from '../stores/calculatedFields.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useWidgetStore } from '../stores/widgets.js'
+import { contentWithPeriod } from '../utils/dashboardPeriod.js'
 import { logger } from '../utils/logger.js'
 import { placementContent } from '../utils/placementContent.js'
 
@@ -170,6 +172,11 @@ export default {
 		return buildWidgetDataProvide(() => this.placement?.id, () => this.placement?.content)
 	},
 
+	inject: {
+		/** The period the dashboard's dated widgets follow (REQ-DPD-002), a ref, or null. */
+		dashboardPeriod: { from: 'dashboardPeriod', default: null },
+	},
+
 	props: {
 		widget: NULLABLE_OBJECT_PROP,
 
@@ -207,6 +214,24 @@ export default {
 		 */
 		normalizedContent() {
 			return placementContent(this.placement)
+		},
+
+		/**
+		 * The content a registry renderer gets: with the dashboard's period on
+		 * every register source that names a period field, so the stat card,
+		 * stats block, chart and table count only the chosen period. A widget
+		 * without a period field gets its content as stored.
+		 *
+		 * @return {object} the content.
+		 *
+		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 */
+		periodContent() {
+			const period = unref(this.dashboardPeriod)
+			if (!period) {
+				return this.normalizedContent
+			}
+			return contentWithPeriod(this.normalizedContent, period, new Date())
 		},
 
 		/**

@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Bilgi",
     "Warning" : "Uyarı",
     "Something went wrong" : "Bir şeyler ters gitti",
+    "Date field for the period" : "Dönem için tarih alanı",
+    "None: the widget does not follow the period" : "Yok: pencere öğesi dönemi izlemez",
     "Ask for read confirmation" : "Okundu onayı iste",
     "Confirm before" : "Son onay tarihi",
     "Confirm before {date}" : "Son onay tarihi {date}",

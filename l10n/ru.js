@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Информация",
     "Warning" : "Предупреждение",
     "Something went wrong" : "Что-то пошло не так",
+    "Date field for the period" : "Поле даты для периода",
+    "None: the widget does not follow the period" : "Нет: виджет не следует периоду",
     "Ask for read confirmation" : "Запросить подтверждение прочтения",
     "Confirm before" : "Подтвердить до",
     "Confirm before {date}" : "Подтвердить до {date}",

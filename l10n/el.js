@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Πληροφορία",
     "Warning" : "Προειδοποίηση",
     "Something went wrong" : "Κάτι πήγε στραβά",
+    "Date field for the period" : "Πεδίο ημερομηνίας για την περίοδο",
+    "None: the widget does not follow the period" : "Κανένα: το γραφικό στοιχείο δεν ακολουθεί την περίοδο",
     "Ask for read confirmation" : "Ζητήστε επιβεβαίωση ανάγνωσης",
     "Confirm before" : "Επιβεβαίωση έως",
     "Confirm before {date}" : "Επιβεβαίωση έως {date}",

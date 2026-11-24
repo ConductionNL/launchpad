@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Információ",
     "Warning" : "Figyelmeztetés",
     "Something went wrong" : "Valami hiba történt",
+    "Date field for the period" : "Dátummező az időszakhoz",
+    "None: the widget does not follow the period" : "Nincs: a widget nem követi az időszakot",
     "Ask for read confirmation" : "Olvasási visszaigazolás kérése",
     "Confirm before" : "Visszaigazolás eddig",
     "Confirm before {date}" : "Visszaigazolás eddig: {date}",

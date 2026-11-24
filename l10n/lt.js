@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Informacija",
     "Warning" : "Įspėjimas",
     "Something went wrong" : "Kažkas nepavyko",
+    "Date field for the period" : "Laikotarpio datos laukas",
+    "None: the widget does not follow the period" : "Nėra: valdiklis neseka laikotarpio",
     "Ask for read confirmation" : "Prašyti patvirtinti perskaitymą",
     "Confirm before" : "Patvirtinti iki",
     "Confirm before {date}" : "Patvirtinti iki {date}",

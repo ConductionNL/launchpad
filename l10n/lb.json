@@ -1547,6 +1547,8 @@
         "Information": "Informatioun",
         "Warning": "Warnung",
         "Something went wrong": "Eppes ass schifgaangen",
+        "Date field for the period": "Datumsfeld fir d'Period",
+        "None: the widget does not follow the period": "Keent: de Widget follegt der Period net",
         "Ask for read confirmation": "Lieskonfirmatioun ufroen",
         "Confirm before": "Confirméieren bis",
         "Confirm before {date}": "Confirméieren bis {date}",

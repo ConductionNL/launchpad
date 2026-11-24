@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Informacja",
     "Warning" : "Ostrzeżenie",
     "Something went wrong" : "Coś poszło nie tak",
+    "Date field for the period" : "Pole daty dla okresu",
+    "None: the widget does not follow the period" : "Brak: widżet nie podąża za okresem",
     "Ask for read confirmation" : "Poproś o potwierdzenie przeczytania",
     "Confirm before" : "Potwierdź do",
     "Confirm before {date}" : "Potwierdź do {date}",

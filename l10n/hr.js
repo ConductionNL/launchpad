@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Informacija",
     "Warning" : "Upozorenje",
     "Something went wrong" : "Nešto je pošlo po zlu",
+    "Date field for the period" : "Polje datuma za razdoblje",
+    "None: the widget does not follow the period" : "Nijedno: widget ne prati razdoblje",
     "Ask for read confirmation" : "Zatraži potvrdu čitanja",
     "Confirm before" : "Potvrdi do",
     "Confirm before {date}" : "Potvrdi do {date}",

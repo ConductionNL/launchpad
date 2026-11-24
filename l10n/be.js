@@ -1638,6 +1638,8 @@ OC.L10N.register(
     "Information" : "Інфармацыя",
     "Warning" : "Папярэджанне",
     "Something went wrong" : "Нешта пайшло не так",
+    "Date field for the period" : "Поле даты для перыяду",
+    "None: the widget does not follow the period" : "Няма: віджэт не ідзе за перыядам",
     "Ask for read confirmation" : "Папрасіць пацвярджэння прачытання",
     "Confirm before" : "Пацвердзіць да",
     "Confirm before {date}" : "Пацвердзіць да {date}",

@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Informacion",
     "Warning" : "Paralajmërim",
     "Something went wrong" : "Diçka shkoi keq",
+    "Date field for the period" : "Fusha e datës për periudhën",
+    "None: the widget does not follow the period" : "Asnjë: widget-i nuk ndjek periudhën",
     "Ask for read confirmation" : "Kërko konfirmim leximi",
     "Confirm before" : "Konfirmo përpara",
     "Confirm before {date}" : "Konfirmo përpara {date}",

@@ -1553,6 +1553,8 @@
         "Information": "Faisnéis",
         "Warning": "Rabhadh",
         "Something went wrong": "Chuaigh rud éigin mícheart",
+        "Date field for the period": "Réimse dáta don tréimhse",
+        "None: the widget does not follow the period": "Dada: ní leanann an giuirléid an tréimhse",
         "Ask for read confirmation": "Iarr deimhniú léite",
         "Confirm before": "Deimhnigh roimh",
         "Confirm before {date}": "Deimhnigh roimh {date}",

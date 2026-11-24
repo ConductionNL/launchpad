@@ -33,6 +33,13 @@
 			:value="registerValue"
 			@update:content="onRegisterContent" />
 
+		<PeriodFieldSelect
+			v-if="source === 'register'"
+			:register="registerSource.register"
+			:schema="registerSource.schema"
+			:modelValue="periodField"
+			@update:modelValue="setPeriodField" />
+
 		<template v-else-if="kind === 'pie'">
 			<div
 				v-for="(row, index) in slices"
@@ -116,6 +123,7 @@ import { CnChartWidgetForm } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
 import { NcButton, NcCheckboxRadioSwitch, NcSelect, NcTextField } from '@nextcloud/vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
+import PeriodFieldSelect from './PeriodFieldSelect.vue'
 import { NULLABLE_OBJECT_PROP, OBJECT_PROP } from '../../../constants/propDefinitions.js'
 
 let domIdCounter = 0
@@ -187,7 +195,7 @@ function linesOf(content) {
 export default {
 	name: 'ChartSourceForm',
 
-	components: { CnChartWidgetForm, Delete, NcButton, NcCheckboxRadioSwitch, NcSelect, NcTextField },
+	components: { CnChartWidgetForm, Delete, NcButton, NcCheckboxRadioSwitch, NcSelect, NcTextField, PeriodFieldSelect },
 
 	props: {
 		/**
@@ -219,6 +227,7 @@ export default {
 			slices: kind === 'pie' ? slicesOf(initial) : [],
 			categoriesText: Array.isArray(initial.categories) ? initial.categories.join(', ') : '',
 			lines: kind === 'graph' ? linesOf(initial) : [],
+			periodField: typeof initial.dataSource?.periodField === 'string' ? initial.dataSource.periodField : '',
 		}
 	},
 
@@ -233,6 +242,17 @@ export default {
 		},
 
 		/**
+		 * The register and schema the register query reads, for the period's date field.
+		 *
+		 * @return {{register: string, schema: string}}
+		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 */
+		registerSource() {
+			const dataSource = this.registerContent?.dataSource || {}
+			return { register: String(dataSource.register || ''), schema: String(dataSource.schema || '') }
+		},
+
+		/**
 		 * The content the widget saves.
 		 *
 		 * @return {object}
@@ -241,7 +261,7 @@ export default {
 		assembledContent() {
 			const { labels, series, colorMap, categories, dataSource, ...preset } = this.initial
 			if (this.source === 'register') {
-				return { ...preset, source: 'register', ...this.registerContent }
+				return { ...preset, source: 'register', ...this.registerContent, dataSource: this.datedSource(this.registerContent.dataSource) }
 			}
 			if (this.kind === 'pie') {
 				const shown = this.slices.filter((row) => row.label.trim() !== '')
@@ -297,6 +317,31 @@ export default {
 				this.addLine()
 				return
 			}
+			this.emitContent()
+		},
+
+		/**
+		 * The register query's data source with the period's date field, or without one when none is chosen.
+		 *
+		 * @param {object|null} dataSource The data source.
+		 * @return {object|null}
+		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 */
+		datedSource(dataSource) {
+			if (!dataSource || typeof dataSource !== 'object') {
+				return dataSource
+			}
+			const { periodField, ...rest } = dataSource
+			return this.periodField === '' ? rest : { ...rest, periodField: this.periodField }
+		},
+
+		/**
+		 * @param {string} field The date field for the period, '' for none.
+		 *
+		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 */
+		setPeriodField(field) {
+			this.periodField = typeof field === 'string' ? field : ''
 			this.emitContent()
 		},
 

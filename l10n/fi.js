@@ -1647,6 +1647,8 @@ OC.L10N.register(
     "Information" : "Tiedoksi",
     "Warning" : "Varoitus",
     "Something went wrong" : "Jokin meni pieleen",
+    "Date field for the period" : "Jakson päivämääräkenttä",
+    "None: the widget does not follow the period" : "Ei mitään: pienoisohjelma ei seuraa jaksoa",
     "Ask for read confirmation" : "Pyydä lukukuittaus",
     "Confirm before" : "Vahvista viimeistään",
     "Confirm before {date}" : "Vahvista viimeistään {date}",

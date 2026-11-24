@@ -1547,6 +1547,8 @@
         "Information": "Information",
         "Warning": "Advarsel",
         "Something went wrong": "Noget gik galt",
+        "Date field for the period": "Datofelt for perioden",
+        "None: the widget does not follow the period": "Ingen: widgetten følger ikke perioden",
         "Ask for read confirmation": "Bed om læsebekræftelse",
         "Confirm before": "Bekræft senest",
         "Confirm before {date}": "Bekræft senest {date}",

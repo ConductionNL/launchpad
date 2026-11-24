@@ -344,8 +344,13 @@ test.describe('REQ-SHARE-010 revoke every share granted to one recipient', () =>
 		).toEqual(nineBefore)
 
 		// And bob, who lost both, no longer reaches 5 or 7 but still reaches 9.
-		expect((await readDashboard(bob!, five.id)).status()).not.toBe(200)
-		expect((await readDashboard(bob!, seven.id)).status()).not.toBe(200)
+		// REQ-SHARE-003: a dashboard that exists but is no longer shared with
+		// the caller is refused (403), not reported missing; "not 200" would
+		// also pass a 404 or a 500.
+		const fiveAfter = await readDashboard(bob!, five.id)
+		expect(fiveAfter.status(), await fiveAfter.text()).toBe(403)
+		const sevenAfter = await readDashboard(bob!, seven.id)
+		expect(sevenAfter.status(), await sevenAfter.text()).toBe(403)
 		expect((await readDashboard(bob!, nine.id)).status()).toBe(200)
 	})
 })

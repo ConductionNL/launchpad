@@ -11,7 +11,7 @@
  *  - no pointer/mouse events are required to drive any of this
  */
 
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 import WidgetMovePanel from '../WidgetMovePanel.vue'
 
@@ -130,5 +130,16 @@ describe('WidgetMovePanel', () => {
 		expect(panel.attributes('role')).toBe('group')
 		expect(panel.attributes('aria-label')).toBeTruthy()
 		expect(panel.attributes('tabindex')).toBe('0')
+	})
+
+	it('a panel that mounts already open takes the keyboard focus', async () => {
+		const wrapper = mount(WidgetMovePanel, {
+			propsData: { open: true, placement: { id: 'p1', gridX: 3, gridY: 2, gridWidth: 4, gridHeight: 4 }, allPlacements: [], gridColumns: 12 },
+			stubs,
+			attachTo: document.body,
+		})
+		await flushPromises()
+		expect(document.activeElement).toBe(wrapper.find('[data-test="widget-move-panel"]').element)
+		wrapper.unmount()
 	})
 })

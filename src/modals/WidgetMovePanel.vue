@@ -214,18 +214,25 @@ export default {
 		 * @param {boolean} isOpen Whether the panel is now open.
 		 * @spec openspec/specs/grid-layout/spec.md
 		 */
-		open(isOpen) {
-			if (isOpen) {
-				this.working = this.initialRect()
-				this.$nextTick(() => {
-					if (
-						this.$refs.panel
-						&& typeof this.$refs.panel.focus === 'function'
-					) {
-						this.$refs.panel.focus()
-					}
-				})
-			}
+		open: {
+			immediate: true,
+			/**
+			 * @spec openspec/specs/grid-layout/spec.md
+			 * @param {boolean} isOpen Whether the panel is now open.
+			 */
+			handler(isOpen) {
+				if (isOpen) {
+					this.working = this.initialRect()
+					this.$nextTick(() => {
+						if (
+							this.$refs.panel
+							&& typeof this.$refs.panel.focus === 'function'
+						) {
+							this.$refs.panel.focus()
+						}
+					})
+				}
+			},
 		},
 
 		/** @spec openspec/specs/grid-layout/spec.md */

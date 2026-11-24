@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Bitiş zamanına kadar her panonun en üstünde gösterilir.",
     "Information" : "Bilgi",
     "Warning" : "Uyarı",
-    "Something went wrong" : "Bir şeyler ters gitti"
+    "Something went wrong" : "Bir şeyler ters gitti",
+    "Date field for the period" : "Dönem için tarih alanı",
+    "None: the widget does not follow the period" : "Yok: pencere öğesi dönemi izlemez"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Εμφανίζεται στην κορυφή κάθε πίνακα ελέγχου μέχρι την ώρα λήξης.",
     "Information" : "Πληροφορία",
     "Warning" : "Προειδοποίηση",
-    "Something went wrong" : "Κάτι πήγε στραβά"
+    "Something went wrong" : "Κάτι πήγε στραβά",
+    "Date field for the period" : "Πεδίο ημερομηνίας για την περίοδο",
+    "None: the widget does not follow the period" : "Κανένα: το γραφικό στοιχείο δεν ακολουθεί την περίοδο"
 },
 "nplurals=2; plural=(n != 1);"
 );

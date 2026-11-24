@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Minden irányítópult tetején megjelenik a befejezés idejéig.",
     "Information" : "Információ",
     "Warning" : "Figyelmeztetés",
-    "Something went wrong" : "Valami hiba történt"
+    "Something went wrong" : "Valami hiba történt",
+    "Date field for the period" : "Dátummező az időszakhoz",
+    "None: the widget does not follow the period" : "Nincs: a widget nem követi az időszakot"
 },
 "nplurals=2; plural=(n != 1);"
 );

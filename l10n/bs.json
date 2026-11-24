@@ -1548,6 +1548,8 @@
         "Shown at the top of every dashboard until the end time.": "Prikazuje se na vrhu svake kontrolne table do vremena završetka.",
         "Information": "Informacija",
         "Warning": "Upozorenje",
-        "Something went wrong": "Nešto nije u redu"
+        "Something went wrong": "Nešto nije u redu",
+        "Date field for the period": "Polje datuma za period",
+        "None: the widget does not follow the period": "Nijedno: widget ne prati period"
     }
 }

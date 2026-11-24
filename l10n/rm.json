@@ -1546,6 +1546,8 @@
         "Shown at the top of every dashboard until the end time.": "Vegn mussà sisum mintga dashboard fin a l'ura da fin.",
         "Information": "Infurmaziun",
         "Warning": "Avertiment",
-        "Something went wrong": "Insatge è ì mal"
+        "Something went wrong": "Insatge è ì mal",
+        "Date field for the period": "Champ da data per la perioda",
+        "None: the widget does not follow the period": "Nagin: il widget na suonda betg la perioda"
     }
 }

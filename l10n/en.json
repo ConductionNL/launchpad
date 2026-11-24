@@ -1873,6 +1873,8 @@
         "Shown at the top of every dashboard until the end time.": "Shown at the top of every dashboard until the end time.",
         "Information": "Information",
         "Warning": "Warning",
-        "Something went wrong": "Something went wrong"
+        "Something went wrong": "Something went wrong",
+        "Date field for the period": "Date field for the period",
+        "None: the widget does not follow the period": "None: the widget does not follow the period"
     }
 }

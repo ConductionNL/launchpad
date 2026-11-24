@@ -1548,6 +1548,8 @@
         "Shown at the top of every dashboard until the end time.": "Показывается вверху каждой панели до времени окончания.",
         "Information": "Информация",
         "Warning": "Предупреждение",
-        "Something went wrong": "Что-то пошло не так"
+        "Something went wrong": "Что-то пошло не так",
+        "Date field for the period": "Поле даты для периода",
+        "None: the widget does not follow the period": "Нет: виджет не следует периоду"
     }
 }

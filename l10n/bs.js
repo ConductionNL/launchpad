@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Prikazuje se na vrhu svake kontrolne table do vremena završetka.",
     "Information" : "Informacija",
     "Warning" : "Upozorenje",
-    "Something went wrong" : "Nešto nije u redu"
+    "Something went wrong" : "Nešto nije u redu",
+    "Date field for the period" : "Polje datuma za period",
+    "None: the widget does not follow the period" : "Nijedno: widget ne prati period"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

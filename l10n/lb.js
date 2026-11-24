@@ -1637,7 +1637,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Gëtt bis zur Schlusszäit uewen op all Dashboard ugewisen.",
     "Information" : "Informatioun",
     "Warning" : "Warnung",
-    "Something went wrong" : "Eppes ass schifgaangen"
+    "Something went wrong" : "Eppes ass schifgaangen",
+    "Date field for the period" : "Datumsfeld fir d'Period",
+    "None: the widget does not follow the period" : "Keent: de Widget follegt der Period net"
 },
 "nplurals=2; plural=(n != 1);"
 );

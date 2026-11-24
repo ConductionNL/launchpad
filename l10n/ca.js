@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Es mostra a la part superior de cada tauler fins a l'hora de final.",
     "Information" : "Informació",
     "Warning" : "Advertència",
-    "Something went wrong" : "Alguna cosa ha anat malament"
+    "Something went wrong" : "Alguna cosa ha anat malament",
+    "Date field for the period" : "Camp de data per al període",
+    "None: the widget does not follow the period" : "Cap: el giny no segueix el període"
 },
 "nplurals=2; plural=(n != 1);"
 );

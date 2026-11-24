@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Kuvatakse iga töölaua ülaosas kuni lõpuajani.",
     "Information" : "Teave",
     "Warning" : "Hoiatus",
-    "Something went wrong" : "Midagi läks valesti"
+    "Something went wrong" : "Midagi läks valesti",
+    "Date field for the period" : "Perioodi kuupäevaväli",
+    "None: the widget does not follow the period" : "Puudub: vidin ei järgi perioodi"
 },
 "nplurals=2; plural=(n != 1);"
 );

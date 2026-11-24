@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Rodoma kiekvieno skydelio viršuje iki pabaigos laiko.",
     "Information" : "Informacija",
     "Warning" : "Įspėjimas",
-    "Something went wrong" : "Kažkas nepavyko"
+    "Something went wrong" : "Kažkas nepavyko",
+    "Date field for the period" : "Laikotarpio datos laukas",
+    "None: the widget does not follow the period" : "Nėra: valdiklis neseka laikotarpio"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

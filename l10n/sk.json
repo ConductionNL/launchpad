@@ -1548,6 +1548,8 @@
         "Shown at the top of every dashboard until the end time.": "Zobrazené navrchu každého prehľadu až do času ukončenia.",
         "Information": "Informácia",
         "Warning": "Varovanie",
-        "Something went wrong": "Niečo sa pokazilo"
+        "Something went wrong": "Niečo sa pokazilo",
+        "Date field for the period": "Dátumové pole pre obdobie",
+        "None: the widget does not follow the period": "Žiadne: widget nesleduje obdobie"
     }
 }

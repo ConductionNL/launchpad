@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Tiek rādīts katra informācijas paneļa augšdaļā līdz beigu laikam.",
     "Information" : "Informācija",
     "Warning" : "Brīdinājums",
-    "Something went wrong" : "Kaut kas nogāja greizi"
+    "Something went wrong" : "Kaut kas nogāja greizi",
+    "Date field for the period" : "Perioda datuma lauks",
+    "None: the widget does not follow the period" : "Nav: logrīks neseko periodam"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

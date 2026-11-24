@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Показва се най-горе на всяко табло до крайния час.",
     "Information" : "Информация",
     "Warning" : "Предупреждение",
-    "Something went wrong" : "Нещо се обърка"
+    "Something went wrong" : "Нещо се обърка",
+    "Date field for the period" : "Поле за дата за периода",
+    "None: the widget does not follow the period" : "Няма: джаджата не следва периода"
 },
 "nplurals=2; plural=(n != 1);"
 );

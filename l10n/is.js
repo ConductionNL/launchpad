@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Birt efst á hverju stjórnborði fram að lokatíma.",
     "Information" : "Upplýsingar",
     "Warning" : "Viðvörun",
-    "Something went wrong" : "Eitthvað fór úrskeiðis"
+    "Something went wrong" : "Eitthvað fór úrskeiðis",
+    "Date field for the period" : "Dagsetningarreitur fyrir tímabilið",
+    "None: the widget does not follow the period" : "Ekkert: græjan fylgir ekki tímabilinu"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

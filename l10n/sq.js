@@ -1646,7 +1646,9 @@ OC.L10N.register(
     "Shown at the top of every dashboard until the end time." : "Shfaqet në krye të çdo paneli deri në orën e përfundimit.",
     "Information" : "Informacion",
     "Warning" : "Paralajmërim",
-    "Something went wrong" : "Diçka shkoi keq"
+    "Something went wrong" : "Diçka shkoi keq",
+    "Date field for the period" : "Fusha e datës për periudhën",
+    "None: the widget does not follow the period" : "Asnjë: widget-i nuk ndjek periudhën"
 },
 "nplurals=2; plural=(n != 1);"
 );

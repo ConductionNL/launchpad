@@ -2521,7 +2521,9 @@ OC.L10N.register(
     "Only you see this preview until {when}." : "Alleen u ziet dit voorbeeld tot {when}.",
     "Shown in the Announcements widget." : "Getoond in de widget Aankondigingen.",
     "Maintenance notice" : "Onderhoudsmelding",
-    "Shown at the top of every dashboard until the end time." : "Getoond bovenaan elk dashboard tot de eindtijd."
+    "Shown at the top of every dashboard until the end time." : "Getoond bovenaan elk dashboard tot de eindtijd.",
+    "Date field for the period" : "Datumveld voor de periode",
+    "None: the widget does not follow the period" : "Geen: de widget volgt de periode niet"
 },
 "nplurals=2; plural=(n != 1);"
 );

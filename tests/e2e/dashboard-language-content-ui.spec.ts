@@ -20,6 +20,12 @@
  *   @e2e dashboard-language-content::reader-in-german
  *
  * @spec openspec/specs/dashboard-language-content/spec.md
+ *
+ * One test is EXPECTED RED until the product is fixed: reader-in-dutch. It
+ * was `test.fixme`, so no test of it ever executed although gate-19 counted
+ * it. DashboardTranslationApiController::resolveLocaleVariant() never reads
+ * the reader's language, so Jan is served the English primary. This file is
+ * not serial, so the red test does not skip the ones after it.
  */
 
 import type {
@@ -376,12 +382,12 @@ test.describe('REQ-LANGUI-001 the owner manages language versions', () => {
 })
 
 test.describe("REQ-LANGUI-002 the workspace page shows the reader's language", () => {
-	// SUSPECTED BUG: the resolver the heading reads never consults the
+	// EXPECTED RED: the resolver the heading reads never consults the
 	// reader's language. lib/Controller/DashboardTranslationApiController.php:527-531
 	// (resolveLocaleVariant) passes `preferredLanguage: ''`, so a Dutch reader
 	// is served the English primary with `isFallback: true` and the page
 	// shows the English name and the "primary language" note.
-	test.fixme('Jan, reading in Dutch, sees the Dutch name and description', async ({
+	test('Jan, reading in Dutch, sees the Dutch name and description', async ({
 		browser,
 	}) => {
 		// @e2e dashboard-language-content::reader-in-dutch

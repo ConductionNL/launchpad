@@ -310,31 +310,36 @@ class KioskService {
 	}//end renderEntry()
 
 	/**
-	 * The UUIDs of the dashboards a playlist shows: a widget on the screen
-	 * reads its data through the playlist's token (REQ-PSHR-011).
+	 * The ids of the dashboards a playlist shows, leaving out deleted ones:
+	 * a widget on the screen reads its data through the playlist's token
+	 * (REQ-PSHR-011).
 	 *
 	 * @param string $token The playlist token.
 	 *
-	 * @return list<string> The entries' dashboard UUIDs.
+	 * @return list<int> The entries' dashboard ids.
 	 *
 	 * @throws PlaylistNotFoundException When the token is unknown or revoked.
 	 *
 	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
-	public function playlistDashboardUuids(string $token): array {
+	public function playlistDashboardIds(string $token): array {
 		try {
 			$playlist = $this->stores->playlistMapper->findByToken(token: $token);
 		} catch (DoesNotExistException) {
 			throw new PlaylistNotFoundException();
 		}
 
-		$uuids = [];
+		$ids = [];
 		foreach ($playlist->getEntriesArray() as $entry) {
-			$uuids[] = (string)($entry['dashboardUuid'] ?? '');
+			try {
+				$ids[] = (int)$this->stores->dashMapper->findByUuid(uuid: (string)($entry['dashboardUuid'] ?? ''))->getId();
+			} catch (DoesNotExistException) {
+				continue;
+			}
 		}
 
-		return array_values(array_unique(array_filter($uuids, static fn (string $uuid): bool => $uuid !== '')));
-	}//end playlistDashboardUuids()
+		return array_values(array_unique($ids));
+	}//end playlistDashboardIds()
 
 	/**
 	 * The read-only render payload of one playlist entry, or null when its

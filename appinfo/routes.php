@@ -208,7 +208,7 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
 		['name' => 'publicShare#unlock', 'url' => '/s/{token}/unlock', 'verb' => 'POST',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
-		// public-live-widgets REQ-PSHR-011: a news, weather or live data widget's data on the shared page.
+		// Public-live-widgets REQ-PSHR-011: a news, weather or live data widget's data on the shared page.
 		['name' => 'publicWidget#share', 'url' => '/s/{token}/placements/{placementId}', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+', 'placementId' => '\d+']],
 		['name' => 'page#publicShare', 'url' => '/s/{token}', 'verb' => 'GET',
@@ -234,7 +234,7 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// One entry, fetched by the player just before it shows it (REQ-KIOSK-004).
 		['name' => 'kiosk#renderEntry', 'url' => '/kiosk/{token}/dashboards/{uuid}', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+', 'uuid' => '[A-Za-z0-9\-]+']],
-		// public-live-widgets REQ-PSHR-011: a news, weather or live data widget's data on the screen.
+		// Public-live-widgets REQ-PSHR-011: a news, weather or live data widget's data on the screen.
 		['name' => 'publicWidget#kiosk', 'url' => '/kiosk/{token}/placements/{placementId}', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+', 'placementId' => '\d+']],
 

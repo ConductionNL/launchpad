@@ -84,12 +84,12 @@ class PublicWidgetControllerTest extends TestCase {
 	 */
 	public function testAShareReadsThroughItsDashboardWithTheHeaderPassword(): void {
 		$this->request->method('getHeader')->with('X-Share-Password')->willReturn(value: 'geheim');
-		$this->shares->expects($this->once())->method('sharedDashboardUuid')
+		$this->shares->expects($this->once())->method('sharedDashboardId')
 			->with('tok', '10.0.0.1', 'geheim')
-			->willReturn(value: 'today');
+			->willReturn(value: 7);
 		$this->shareContext->expects($this->once())->method('markBearer')->with('tok');
 		$this->reads->expects($this->once())->method('read')
-			->with(['today'], 4)
+			->with([7], 4)
 			->willReturn(value: ['widget' => 'weather', 'data' => ['tempValue' => 12]]);
 
 		$response = $this->controller()->share(token: 'tok', placementId: 4);
@@ -105,7 +105,7 @@ class PublicWidgetControllerTest extends TestCase {
 	 */
 	public function testAPasswordProtectedShareWithoutThePasswordAnswers401(): void {
 		$this->request->method('getHeader')->willReturn(value: '');
-		$this->shares->method('sharedDashboardUuid')->with('tok', '10.0.0.1', null)
+		$this->shares->method('sharedDashboardId')->with('tok', '10.0.0.1', null)
 			->willThrowException(exception: new SharePasswordRequiredException());
 		$this->reads->expects($this->never())->method('read');
 
@@ -122,7 +122,7 @@ class PublicWidgetControllerTest extends TestCase {
 	 */
 	public function testAnUnknownShareTokenIsThrottled(): void {
 		$this->request->method('getHeader')->willReturn(value: '');
-		$this->shares->method('sharedDashboardUuid')->willThrowException(exception: new ShareNotFoundException());
+		$this->shares->method('sharedDashboardId')->willThrowException(exception: new ShareNotFoundException());
 		$this->shareContext->expects($this->never())->method('markBearer');
 
 		$response = $this->controller()->share(token: 'bogus', placementId: 4);
@@ -132,15 +132,30 @@ class PublicWidgetControllerTest extends TestCase {
 	}//end testAnUnknownShareTokenIsThrottled()
 
 	/**
+	 * A share whose dashboard was deleted answers 404 and is throttled.
+	 *
+	 * @return void
+	 */
+	public function testAShareOfADeletedDashboardIsThrottled(): void {
+		$this->request->method('getHeader')->willReturn(value: '');
+		$this->shares->method('sharedDashboardId')->willThrowException(exception: new DoesNotExistException(msg: 'deleted'));
+
+		$response = $this->controller()->share(token: 'tok', placementId: 4);
+
+		$this->assertSame(expected: Http::STATUS_NOT_FOUND, actual: $response->getStatus());
+		$this->assertTrue(condition: $response->isThrottled());
+	}//end testAShareOfADeletedDashboardIsThrottled()
+
+	/**
 	 * A kiosk screen reads through the dashboards of its playlist.
 	 *
 	 * @return void
 	 */
 	public function testAKioskReadsThroughItsPlaylistsDashboards(): void {
-		$this->kiosk->method('playlistDashboardUuids')->with('tok')->willReturn(value: ['today', 'menu']);
+		$this->kiosk->method('playlistDashboardIds')->with('tok')->willReturn(value: [7, 3]);
 		$this->shareContext->expects($this->once())->method('markBearer')->with('tok');
 		$this->reads->expects($this->once())->method('read')
-			->with(['today', 'menu'], 6)
+			->with([7, 3], 6)
 			->willReturn(value: ['widget' => 'announcements', 'data' => ['announcements' => []]]);
 
 		$response = $this->controller()->kiosk(token: 'tok', placementId: 6);
@@ -155,7 +170,7 @@ class PublicWidgetControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnknownPlaylistTokenIsThrottled(): void {
-		$this->kiosk->method('playlistDashboardUuids')->willThrowException(exception: new PlaylistNotFoundException());
+		$this->kiosk->method('playlistDashboardIds')->willThrowException(exception: new PlaylistNotFoundException());
 
 		$response = $this->controller()->kiosk(token: 'bogus', placementId: 6);
 
@@ -169,7 +184,7 @@ class PublicWidgetControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAPlacementNotOnTheDashboardAnswers404WithoutThrottling(): void {
-		$this->kiosk->method('playlistDashboardUuids')->willReturn(value: ['today']);
+		$this->kiosk->method('playlistDashboardIds')->willReturn(value: [7]);
 		$this->reads->method('read')->willThrowException(exception: new DoesNotExistException(msg: 'not shared'));
 
 		$response = $this->controller()->kiosk(token: 'tok', placementId: 99);
@@ -184,7 +199,7 @@ class PublicWidgetControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAFailedWeatherReadingAnswers502(): void {
-		$this->kiosk->method('playlistDashboardUuids')->willReturn(value: ['today']);
+		$this->kiosk->method('playlistDashboardIds')->willReturn(value: [7]);
 		$this->reads->method('read')->willReturn(value: ['widget' => 'weather', 'data' => ['error' => 'provider_unreachable']]);
 
 		$response = $this->controller()->kiosk(token: 'tok', placementId: 4);
@@ -199,7 +214,7 @@ class PublicWidgetControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testAFailedLiveDataReadingAnswers404(): void {
-		$this->kiosk->method('playlistDashboardUuids')->willReturn(value: ['today']);
+		$this->kiosk->method('playlistDashboardIds')->willReturn(value: [7]);
 		$this->reads->method('read')->willReturn(value: ['widget' => 'livetile', 'data' => ['error' => 'not_configured']]);
 
 		$response = $this->controller()->kiosk(token: 'tok', placementId: 5);

@@ -375,7 +375,7 @@ class PublicShareService {
 	}//end renderShareContent()
 
 	/**
-	 * The UUID of the dashboard an active share shows, behind the same token
+	 * The id of the dashboard an active share shows, behind the same token
 	 * and password gate as the render, without counting a visit: a widget on
 	 * the shared page reads its data through it (REQ-PSHR-011).
 	 *
@@ -383,21 +383,24 @@ class PublicShareService {
 	 * @param string      $ipAddress Client IP address for throttling.
 	 * @param string|null $password  Plaintext password supplied by the client.
 	 *
-	 * @return string The shared dashboard's UUID.
+	 * @return integer The shared dashboard's id.
 	 *
 	 * @throws ShareNotFoundException When token invalid, revoked, or expired.
 	 * @throws SharePasswordRequiredException When password is required but not supplied or wrong.
+	 * @throws DoesNotExistException When the shared dashboard was deleted.
 	 *
 	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
-	public function sharedDashboardUuid(
+	public function sharedDashboardId(
 		string $token,
 		string $ipAddress,
 		#[\SensitiveParameter]
 		?string $password = null,
-	): string {
-		return (string)$this->openShare(token: $token, ipAddress: $ipAddress, password: $password)->getDashboardUuid();
-	}//end sharedDashboardUuid()
+	): int {
+		$share = $this->openShare(token: $token, ipAddress: $ipAddress, password: $password);
+
+		return (int)$this->dashMapper->findByUuid(uuid: (string)$share->getDashboardUuid())->getId();
+	}//end sharedDashboardId()
 
 	/**
 	 * The active share behind a token, once its password gate is passed.

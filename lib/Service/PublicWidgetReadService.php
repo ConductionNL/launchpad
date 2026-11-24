@@ -27,7 +27,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\Db\Announcement;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
@@ -71,13 +70,11 @@ class PublicWidgetReadService {
 	/**
 	 * Constructor.
 	 *
-	 * @param DashboardMapper                  $dashMapper      Resolves the shared dashboards.
 	 * @param WidgetPlacementMapper            $placementMapper Loads the placement asked for.
 	 * @param PublicWidgetSources              $sources         The weather, live data and announcements.
 	 * @param ConditionalServiceInterface|null $visibility      Applies the widget visibility rules.
 	 */
 	public function __construct(
-		private readonly DashboardMapper $dashMapper,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly PublicWidgetSources $sources,
 		private readonly ?ConditionalServiceInterface $visibility = null,
@@ -92,8 +89,8 @@ class PublicWidgetReadService {
 	 * live data widget; anything else is refused as not found, so a token
 	 * never reads a widget of another dashboard.
 	 *
-	 * @param list<string> $dashboardUuids The dashboards the token shows.
-	 * @param integer      $placementId    The placement asked for.
+	 * @param list<int> $dashboardIds The dashboards the token shows.
+	 * @param integer   $placementId  The placement asked for.
 	 *
 	 * @return array{widget: string, data: array<string, mixed>} The widget type and its data.
 	 *
@@ -101,8 +98,8 @@ class PublicWidgetReadService {
 	 *
 	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
-	public function read(array $dashboardUuids, int $placementId): array {
-		$placement = $this->sharedPlacement(dashboardUuids: $dashboardUuids, placementId: $placementId);
+	public function read(array $dashboardIds, int $placementId): array {
+		$placement = $this->sharedPlacement(dashboardIds: $dashboardIds, placementId: $placementId);
 		$widget    = $placement->getWidgetId();
 
 		return match ($widget) {
@@ -126,8 +123,8 @@ class PublicWidgetReadService {
 	 * The placement asked for, when it is on a shared dashboard and a
 	 * visitor who cannot edit sees it.
 	 *
-	 * @param list<string> $dashboardUuids The dashboards the token shows.
-	 * @param integer      $placementId    The placement asked for.
+	 * @param list<int> $dashboardIds The dashboards the token shows.
+	 * @param integer   $placementId  The placement asked for.
 	 *
 	 * @return WidgetPlacement The placement.
 	 *
@@ -135,9 +132,9 @@ class PublicWidgetReadService {
 	 *
 	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
-	private function sharedPlacement(array $dashboardUuids, int $placementId): WidgetPlacement {
+	private function sharedPlacement(array $dashboardIds, int $placementId): WidgetPlacement {
 		$placement = $this->placementMapper->find(id: $placementId);
-		if (in_array($placement->getDashboardId(), $this->dashboardIds(uuids: $dashboardUuids), true) === false) {
+		if (in_array($placement->getDashboardId(), $dashboardIds, true) === false) {
 			throw new DoesNotExistException(msg: 'Not on a shared dashboard');
 		}
 
@@ -149,28 +146,6 @@ class PublicWidgetReadService {
 
 		return $placement;
 	}//end sharedPlacement()
-
-	/**
-	 * The ids of the dashboards that still exist among the given UUIDs.
-	 *
-	 * @param list<string> $uuids The dashboard UUIDs.
-	 *
-	 * @return list<int> Their ids.
-	 *
-	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
-	 */
-	private function dashboardIds(array $uuids): array {
-		$ids = [];
-		foreach ($uuids as $uuid) {
-			try {
-				$ids[] = (int)$this->dashMapper->findByUuid(uuid: $uuid)->getId();
-			} catch (DoesNotExistException) {
-				continue;
-			}
-		}
-
-		return $ids;
-	}//end dashboardIds()
 
 	/**
 	 * The news items for everyone, newest first, in the widget's category

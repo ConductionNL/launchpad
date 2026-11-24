@@ -28,6 +28,7 @@ namespace OCA\LaunchPad\Service;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
+use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
  * The dashboards a public share or kiosk playlist token shows.
@@ -56,10 +57,11 @@ class PublicWidgetTokens {
 	 * @param string      $ipAddress Client IP address for throttling.
 	 * @param string|null $password  The share password, when sent.
 	 *
-	 * @return list<string> The shared dashboard's UUID.
+	 * @return list<int> The shared dashboard's id.
 	 *
 	 * @throws ShareNotFoundException When token invalid, revoked, or expired.
 	 * @throws SharePasswordRequiredException When password is required but not supplied or wrong.
+	 * @throws DoesNotExistException When the shared dashboard was deleted.
 	 *
 	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
@@ -69,10 +71,10 @@ class PublicWidgetTokens {
 		#[\SensitiveParameter]
 		?string $password,
 	): array {
-		$uuid = $this->shares->sharedDashboardUuid(token: $token, ipAddress: $ipAddress, password: $password);
+		$dashboardId = $this->shares->sharedDashboardId(token: $token, ipAddress: $ipAddress, password: $password);
 		$this->shareContext->markBearer(token: $token);
 
-		return [$uuid];
+		return [$dashboardId];
 	}//end shareDashboards()
 
 	/**
@@ -80,16 +82,16 @@ class PublicWidgetTokens {
 	 *
 	 * @param string $token The playlist token.
 	 *
-	 * @return list<string> The entries' dashboard UUIDs.
+	 * @return list<int> The entries' dashboard ids.
 	 *
 	 * @throws PlaylistNotFoundException When the token is unknown or revoked.
 	 *
 	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 	 */
 	public function kioskDashboards(string $token): array {
-		$uuids = $this->kiosk->playlistDashboardUuids(token: $token);
+		$dashboardIds = $this->kiosk->playlistDashboardIds(token: $token);
 		$this->shareContext->markBearer(token: $token);
 
-		return $uuids;
+		return $dashboardIds;
 	}//end kioskDashboards()
 }//end class

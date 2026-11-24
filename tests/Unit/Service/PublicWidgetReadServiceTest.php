@@ -15,8 +15,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Tests\Unit\Service;
 
 use OCA\LaunchPad\Db\Announcement;
-use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
@@ -40,9 +38,6 @@ class PublicWidgetReadServiceTest extends TestCase {
 	 */
 	private const SHARED_ID = 7;
 
-	/** @var DashboardMapper&MockObject */
-	private $dashMapper;
-
 	/** @var WidgetPlacementMapper&MockObject */
 	private $placementMapper;
 
@@ -63,21 +58,11 @@ class PublicWidgetReadServiceTest extends TestCase {
 	private array $placements = [];
 
 	/**
-	 * Mappers over one shared dashboard, `today`, and the stored placements.
+	 * A placement mapper over the stored placements; the shared dashboard has id 7.
 	 *
 	 * @return void
 	 */
 	protected function setUp(): void {
-		$this->dashMapper = $this->createMock(originalClassName: DashboardMapper::class);
-		$this->dashMapper->method('findByUuid')->willReturnCallback(static function (string $uuid): Dashboard {
-			if ($uuid !== 'today') {
-				throw new DoesNotExistException(msg: 'gone');
-			}
-			$dashboard = new Dashboard();
-			$dashboard->setId(self::SHARED_ID);
-			return $dashboard;
-		});
-
 		$this->placementMapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
 		$this->placementMapper->method('find')->willReturnCallback(function (int $id): WidgetPlacement {
 			if (isset($this->placements[$id]) === false) {
@@ -100,7 +85,6 @@ class PublicWidgetReadServiceTest extends TestCase {
 	 */
 	private function service(?ConditionalServiceInterface $visibility = null): PublicWidgetReadService {
 		return new PublicWidgetReadService(
-			dashMapper: $this->dashMapper,
 			placementMapper: $this->placementMapper,
 			sources: new PublicWidgetSources(weather: $this->weather, liveData: $this->liveData, announcements: $this->announcements),
 			visibility: $visibility,
@@ -158,21 +142,21 @@ class PublicWidgetReadServiceTest extends TestCase {
 
 		$this->expectException(exception: DoesNotExistException::class);
 
-		$this->service()->read(dashboardUuids: ['today'], placementId: 1);
+		$this->service()->read(dashboardIds: [self::SHARED_ID], placementId: 1);
 	}//end testAPlacementNotOnTheSharedDashboardIsRefused()
 
 	/**
-	 * A share whose dashboard was deleted shares no placement.
+	 * A token that shows no dashboard shares no placement.
 	 *
 	 * @return void
 	 */
-	public function testADeletedSharedDashboardSharesNothing(): void {
+	public function testATokenWithoutDashboardsSharesNothing(): void {
 		$this->place(id: 1, widgetId: 'weather');
 
 		$this->expectException(exception: DoesNotExistException::class);
 
-		$this->service()->read(dashboardUuids: ['gone'], placementId: 1);
-	}//end testADeletedSharedDashboardSharesNothing()
+		$this->service()->read(dashboardIds: [], placementId: 1);
+	}//end testATokenWithoutDashboardsSharesNothing()
 
 	/**
 	 * An unknown placement is refused.
@@ -182,7 +166,7 @@ class PublicWidgetReadServiceTest extends TestCase {
 	public function testAnUnknownPlacementIsRefused(): void {
 		$this->expectException(exception: DoesNotExistException::class);
 
-		$this->service()->read(dashboardUuids: ['today'], placementId: 404);
+		$this->service()->read(dashboardIds: [self::SHARED_ID], placementId: 404);
 	}//end testAnUnknownPlacementIsRefused()
 
 	/**
@@ -195,7 +179,7 @@ class PublicWidgetReadServiceTest extends TestCase {
 
 		$this->expectException(exception: DoesNotExistException::class);
 
-		$this->service()->read(dashboardUuids: ['today'], placementId: 2);
+		$this->service()->read(dashboardIds: [self::SHARED_ID], placementId: 2);
 	}//end testAWidgetThatIsNotLiveIsRefused()
 
 	/**
@@ -213,7 +197,7 @@ class PublicWidgetReadServiceTest extends TestCase {
 
 		$this->expectException(exception: DoesNotExistException::class);
 
-		$this->service(visibility: $visibility)->read(dashboardUuids: ['today'], placementId: 3);
+		$this->service(visibility: $visibility)->read(dashboardIds: [self::SHARED_ID], placementId: 3);
 	}//end testAWidgetTheRulesHideIsRefused()
 
 	/**
@@ -229,7 +213,7 @@ class PublicWidgetReadServiceTest extends TestCase {
 			->with(4, '')
 			->willReturn(value: ['location' => 'Zuiddrecht', 'tempValue' => 12]);
 
-		$result = $this->service(visibility: $visibility)->read(dashboardUuids: ['menu', 'today'], placementId: 4);
+		$result = $this->service(visibility: $visibility)->read(dashboardIds: [3, self::SHARED_ID], placementId: 4);
 
 		$this->assertSame(expected: ['widget' => 'weather', 'data' => ['location' => 'Zuiddrecht', 'tempValue' => 12]], actual: $result);
 	}//end testTheWeatherReadsForTheSharedPlacement()
@@ -245,7 +229,7 @@ class PublicWidgetReadServiceTest extends TestCase {
 			->with(5)
 			->willReturn(value: ['value' => '12 min']);
 
-		$result = $this->service()->read(dashboardUuids: ['today'], placementId: 5);
+		$result = $this->service()->read(dashboardIds: [self::SHARED_ID], placementId: 5);
 
 		$this->assertSame(expected: ['widget' => 'livetile', 'data' => ['value' => '12 min']], actual: $result);
 	}//end testTheLiveDataValueReadsForTheSharedPlacement()
@@ -262,7 +246,7 @@ class PublicWidgetReadServiceTest extends TestCase {
 		$this->announcements->expects($this->once())->method('visibleTo')->with('')
 			->willReturn(value: [$this->announcement(title: 'Stadskantoor open'), $this->announcement(title: 'Storing', kind: 'notice'), $forGroup]);
 
-		$result = $this->service()->read(dashboardUuids: ['today'], placementId: 6);
+		$result = $this->service()->read(dashboardIds: [self::SHARED_ID], placementId: 6);
 
 		$this->assertSame(expected: 'announcements', actual: $result['widget']);
 		$this->assertSame(expected: ['Stadskantoor open'], actual: array_column($result['data']['announcements'], 'title'));
@@ -284,7 +268,7 @@ class PublicWidgetReadServiceTest extends TestCase {
 			$this->announcement(title: 'Drie', category: 'Gemeente'),
 		]);
 
-		$result = $this->service()->read(dashboardUuids: ['today'], placementId: 7);
+		$result = $this->service()->read(dashboardIds: [self::SHARED_ID], placementId: 7);
 
 		$this->assertSame(expected: ['Een', 'Twee'], actual: array_column($result['data']['announcements'], 'title'));
 	}//end testTheNewsKeepsToTheWidgetsCategoryAndLimit()

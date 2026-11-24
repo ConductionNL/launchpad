@@ -375,11 +375,13 @@ class KioskServiceTest extends TestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * A playlist's widgets read through the dashboards it shows, each once.
+	 * A playlist's widgets read through the dashboards it shows, each once, without deleted ones.
 	 *
 	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 *
+	 * @return void
 	 */
-	public function testPlaylistDashboardUuidsListsEachEntryOnce(): void {
+	public function testPlaylistDashboardIdsListsEachDashboardOnce(): void {
 		$playlist = new KioskPlaylist();
 		$playlist->setToken('tok');
 		$playlist->setEntries(
@@ -387,26 +389,39 @@ class KioskServiceTest extends TestCase {
 				[
 					['dashboardUuid' => 'today', 'dwellSeconds' => 15],
 					['dashboardUuid' => 'menu', 'dwellSeconds' => 25],
+					['dashboardUuid' => 'gone', 'dwellSeconds' => 25],
 					['dashboardUuid' => 'today', 'dwellSeconds' => 15],
 				]
 			)
 		);
 		$this->playlistMapper->method('findByToken')->willReturn($playlist);
+		$this->dashMapper->method('findByUuid')->willReturnCallback(
+			function (string $uuid): Dashboard {
+				if ($uuid === 'gone') {
+					throw new DoesNotExistException('deleted');
+				}
+				$dashboard = new Dashboard();
+				$dashboard->setId(['today' => 7, 'menu' => 3][$uuid]);
+				return $dashboard;
+			}
+		);
 
-		$this->assertSame(['today', 'menu'], $this->service->playlistDashboardUuids(token: 'tok'));
+		$this->assertSame(expected: [7, 3], actual: $this->service->playlistDashboardIds(token: 'tok'));
 	}
 
 	/**
 	 * An unknown playlist token reads nothing.
 	 *
 	 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 *
+	 * @return void
 	 */
-	public function testPlaylistDashboardUuidsUnknownTokenThrowsNotFound(): void {
+	public function testPlaylistDashboardIdsUnknownTokenThrowsNotFound(): void {
 		$this->playlistMapper->method('findByToken')->willThrowException(new DoesNotExistException('not found'));
 
-		$this->expectException(PlaylistNotFoundException::class);
+		$this->expectException(exception: PlaylistNotFoundException::class);
 
-		$this->service->playlistDashboardUuids(token: 'bogus');
+		$this->service->playlistDashboardIds(token: 'bogus');
 	}
 
 	public function testRenderPlaylistUnknownTokenThrowsNotFound(): void {

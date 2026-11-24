@@ -134,7 +134,7 @@ class PublicWidgetController extends Controller {
 	 * that is not a live widget on those dashboards is a plain 404.
 	 *
 	 * @param integer                 $placementId The placement.
-	 * @param Closure(): list<string> $dashboards  Opens the token: the UUIDs of the dashboards it shows.
+	 * @param Closure(): list<int>    $dashboards  Opens the token: the ids of the dashboards it shows.
 	 *
 	 * @return DataResponse
 	 *
@@ -142,17 +142,17 @@ class PublicWidgetController extends Controller {
 	 */
 	private function answer(int $placementId, Closure $dashboards): DataResponse {
 		try {
-			$uuids = $dashboards();
+			$dashboardIds = $dashboards();
 		} catch (SharePasswordRequiredException) {
 			return new DataResponse(data: ['passwordRequired' => true], statusCode: Http::STATUS_UNAUTHORIZED);
-		} catch (ShareNotFoundException | PlaylistNotFoundException) {
+		} catch (ShareNotFoundException | PlaylistNotFoundException | DoesNotExistException) {
 			$response = new DataResponse(data: ['error' => 'Not found'], statusCode: Http::STATUS_NOT_FOUND);
 			$response->throttle(['action' => PublicShareService::ACTION_SHARE_ACCESS]);
 			return $response;
 		}
 
 		try {
-			$result = $this->reads->read(dashboardUuids: $uuids, placementId: $placementId);
+			$result = $this->reads->read(dashboardIds: $dashboardIds, placementId: $placementId);
 		} catch (DoesNotExistException) {
 			return new DataResponse(data: ['error' => 'Not found'], statusCode: Http::STATUS_NOT_FOUND);
 		}

@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "en nettverksfeil",
     "Reload" : "Last inn på nytt",
     "Open in a new tab" : "Åpne i en ny fane",
-    "Open {title} in a new tab" : "Åpne {title} i en ny fane"
+    "Open {title} in a new tab" : "Åpne {title} i en ny fane",
+    "Allowed websites" : "Tillatte nettsteder",
+    "Widgets may only embed pages and fetch data from these sites." : "Moduler kan bare bygge inn sider og hente data fra disse nettstedene.",
+    "Purpose of {host}" : "Formål for {host}",
+    "Remove {host}" : "Fjern {host}",
+    "No websites on this list yet." : "Det er ingen nettsteder på listen ennå.",
+    "Website" : "Nettsted",
+    "A host such as www.example.com, without https:// or a path." : "En vert som www.example.com, uten https:// eller sti.",
+    "Purpose" : "Formål",
+    "Add website" : "Legg til nettsted",
+    "Embed" : "Bygg inn",
+    "Fetch" : "Hent",
+    "Embed and fetch" : "Bygg inn og hent",
+    "Allowed websites saved." : "Tillatte nettsteder lagret.",
+    "The allowed websites could not be saved." : "De tillatte nettstedene kunne ikke lagres."
 },
 "nplurals=2; plural=(n != 1);"
 );

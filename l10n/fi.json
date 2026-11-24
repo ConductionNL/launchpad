@@ -1451,6 +1451,20 @@
         "a network error": "verkkovirhe",
         "Reload": "Lataa uudelleen",
         "Open in a new tab": "Avaa uudessa välilehdessä",
-        "Open {title} in a new tab": "Avaa {title} uudessa välilehdessä"
+        "Open {title} in a new tab": "Avaa {title} uudessa välilehdessä",
+        "Allowed websites": "Sallitut sivustot",
+        "Widgets may only embed pages and fetch data from these sites.": "Pienoisohjelmat saavat upottaa sivuja ja hakea tietoja vain näiltä sivustoilta.",
+        "Purpose of {host}": "Kohteen {host} käyttötarkoitus",
+        "Remove {host}": "Poista {host}",
+        "No websites on this list yet.": "Listalla ei ole vielä sivustoja.",
+        "Website": "Sivusto",
+        "A host such as www.example.com, without https:// or a path.": "Isäntä, kuten www.example.com, ilman https://-alkua tai polkua.",
+        "Purpose": "Käyttötarkoitus",
+        "Add website": "Lisää sivusto",
+        "Embed": "Upota",
+        "Fetch": "Hae",
+        "Embed and fetch": "Upota ja hae",
+        "Allowed websites saved.": "Sallitut sivustot tallennettu.",
+        "The allowed websites could not be saved.": "Sallittuja sivustoja ei voitu tallentaa."
     }
 }

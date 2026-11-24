@@ -1542,6 +1542,20 @@ OC.L10N.register(
     "a network error" : "памылка сеткі",
     "Reload" : "Перазагрузіць",
     "Open in a new tab" : "Адкрыць у новай укладцы",
-    "Open {title} in a new tab" : "Адкрыць {title} у новай укладцы"
+    "Open {title} in a new tab" : "Адкрыць {title} у новай укладцы",
+    "Allowed websites" : "Дазволеныя сайты",
+    "Widgets may only embed pages and fetch data from these sites." : "Віджэты могуць убудоўваць старонкі і атрымліваць даныя толькі з гэтых сайтаў.",
+    "Purpose of {host}" : "Прызначэнне {host}",
+    "Remove {host}" : "Выдаліць {host}",
+    "No websites on this list yet." : "У гэтым спісе яшчэ няма сайтаў.",
+    "Website" : "Сайт",
+    "A host such as www.example.com, without https:// or a path." : "Хост, напрыклад www.example.com, без https:// і шляху.",
+    "Purpose" : "Прызначэнне",
+    "Add website" : "Дадаць сайт",
+    "Embed" : "Убудоўванне",
+    "Fetch" : "Атрыманне даных",
+    "Embed and fetch" : "Убудоўванне і атрыманне даных",
+    "Allowed websites saved." : "Дазволеныя сайты захаваны.",
+    "The allowed websites could not be saved." : "Не ўдалося захаваць дазволеныя сайты."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

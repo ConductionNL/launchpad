@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "omrežna napaka",
     "Reload" : "Znova naloži",
     "Open in a new tab" : "Odpri v novem zavihku",
-    "Open {title} in a new tab" : "Odpri {title} v novem zavihku"
+    "Open {title} in a new tab" : "Odpri {title} v novem zavihku",
+    "Allowed websites" : "Dovoljena spletna mesta",
+    "Widgets may only embed pages and fetch data from these sites." : "Gradniki smejo vdelati strani in pridobivati podatke le s teh spletnih mest.",
+    "Purpose of {host}" : "Namen {host}",
+    "Remove {host}" : "Odstrani {host}",
+    "No websites on this list yet." : "Na tem seznamu še ni spletnih mest.",
+    "Website" : "Spletno mesto",
+    "A host such as www.example.com, without https:// or a path." : "Gostitelj, kot je www.example.com, brez https:// ali poti.",
+    "Purpose" : "Namen",
+    "Add website" : "Dodaj spletno mesto",
+    "Embed" : "Vdelava",
+    "Fetch" : "Pridobivanje",
+    "Embed and fetch" : "Vdelava in pridobivanje",
+    "Allowed websites saved." : "Dovoljena spletna mesta so shranjena.",
+    "The allowed websites could not be saved." : "Dovoljenih spletnih mest ni bilo mogoče shraniti."
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

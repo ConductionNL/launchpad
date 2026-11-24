@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "un error de xarxa",
     "Reload" : "Torna a carregar",
     "Open in a new tab" : "Obre en una pestanya nova",
-    "Open {title} in a new tab" : "Obre {title} en una pestanya nova"
+    "Open {title} in a new tab" : "Obre {title} en una pestanya nova",
+    "Allowed websites" : "Llocs web permesos",
+    "Widgets may only embed pages and fetch data from these sites." : "Els ginys només poden incrustar pàgines i obtenir dades d'aquests llocs.",
+    "Purpose of {host}" : "Ús de {host}",
+    "Remove {host}" : "Treu {host}",
+    "No websites on this list yet." : "Encara no hi ha cap lloc web en aquesta llista.",
+    "Website" : "Lloc web",
+    "A host such as www.example.com, without https:// or a path." : "Un amfitrió com www.example.com, sense https:// ni camí.",
+    "Purpose" : "Ús",
+    "Add website" : "Afegeix un lloc web",
+    "Embed" : "Incrusta",
+    "Fetch" : "Obté",
+    "Embed and fetch" : "Incrusta i obté",
+    "Allowed websites saved." : "S'han desat els llocs web permesos.",
+    "The allowed websites could not be saved." : "No s'han pogut desar els llocs web permesos."
 },
 "nplurals=2; plural=(n != 1);"
 );

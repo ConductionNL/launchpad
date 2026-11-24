@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "hálózati hiba",
     "Reload" : "Újratöltés",
     "Open in a new tab" : "Megnyitás új lapon",
-    "Open {title} in a new tab" : "{title} megnyitása új lapon"
+    "Open {title} in a new tab" : "{title} megnyitása új lapon",
+    "Allowed websites" : "Engedélyezett webhelyek",
+    "Widgets may only embed pages and fetch data from these sites." : "A widgetek csak ezekről a webhelyekről ágyazhatnak be oldalakat és kérhetnek le adatokat.",
+    "Purpose of {host}" : "{host} célja",
+    "Remove {host}" : "{host} eltávolítása",
+    "No websites on this list yet." : "Ezen a listán még nincs webhely.",
+    "Website" : "Webhely",
+    "A host such as www.example.com, without https:// or a path." : "Egy gazdagép, például www.example.com, https:// és elérési út nélkül.",
+    "Purpose" : "Cél",
+    "Add website" : "Webhely hozzáadása",
+    "Embed" : "Beágyazás",
+    "Fetch" : "Lekérés",
+    "Embed and fetch" : "Beágyazás és lekérés",
+    "Allowed websites saved." : "Az engedélyezett webhelyek mentve.",
+    "The allowed websites could not be saved." : "Az engedélyezett webhelyeket nem sikerült menteni."
 },
 "nplurals=2; plural=(n != 1);"
 );

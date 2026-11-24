@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "żball tan-netwerk",
     "Reload" : "Għabbi mill-ġdid",
     "Open in a new tab" : "Iftaħ f'tab ġdida",
-    "Open {title} in a new tab" : "Iftaħ {title} f'tab ġdida"
+    "Open {title} in a new tab" : "Iftaħ {title} f'tab ġdida",
+    "Allowed websites" : "Siti tal-web permessi",
+    "Widgets may only embed pages and fetch data from these sites." : "Il-widgets jistgħu jinkorporaw paġni u jiġbru data minn dawn is-siti biss.",
+    "Purpose of {host}" : "L-iskop ta' {host}",
+    "Remove {host}" : "Neħħi {host}",
+    "No websites on this list yet." : "Għad m'hemm l-ebda sit tal-web f'din il-lista.",
+    "Website" : "Sit tal-web",
+    "A host such as www.example.com, without https:// or a path." : "Host bħal www.example.com, mingħajr https:// jew mogħdija.",
+    "Purpose" : "Skop",
+    "Add website" : "Żid sit tal-web",
+    "Embed" : "Inkorpora",
+    "Fetch" : "Iġbor",
+    "Embed and fetch" : "Inkorpora u iġbor",
+    "Allowed websites saved." : "Is-siti tal-web permessi ġew salvati.",
+    "The allowed websites could not be saved." : "Is-siti tal-web permessi ma setgħux jiġu salvati."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

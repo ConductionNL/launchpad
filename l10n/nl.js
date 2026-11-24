@@ -2441,7 +2441,21 @@ OC.L10N.register(
     "the page did not finish loading" : "de pagina laadde niet volledig",
     "a network error" : "een netwerkfout",
     "Reload" : "Opnieuw laden",
-    "Open in a new tab" : "Openen in een nieuw tabblad"
+    "Open in a new tab" : "Openen in een nieuw tabblad",
+    "Allowed websites" : "Toegestane websites",
+    "Widgets may only embed pages and fetch data from these sites." : "Widgets mogen alleen pagina's insluiten en gegevens ophalen van deze sites.",
+    "Purpose of {host}" : "Doel van {host}",
+    "Remove {host}" : "{host} verwijderen",
+    "No websites on this list yet." : "Er staan nog geen websites op deze lijst.",
+    "Website" : "Website",
+    "A host such as www.example.com, without https:// or a path." : "Een host zoals www.example.com, zonder https:// of pad.",
+    "Purpose" : "Doel",
+    "Add website" : "Website toevoegen",
+    "Embed" : "Insluiten",
+    "Fetch" : "Ophalen",
+    "Embed and fetch" : "Insluiten en ophalen",
+    "Allowed websites saved." : "Toegestane websites opgeslagen.",
+    "The allowed websites could not be saved." : "De toegestane websites konden niet worden opgeslagen."
 },
 "nplurals=2; plural=(n != 1);"
 );

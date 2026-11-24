@@ -254,6 +254,9 @@
 				</div>
 				</CnSettingsSection>
 
+				<!-- REQ-ASET-021: the outside websites widgets may embed or fetch from. -->
+				<AllowedSitesSettings />
+
 				<!-- launcher-tile-launch-types: program schemes and sign-on templates. -->
 				<TileLaunchSettings />
 
@@ -412,6 +415,7 @@ import {
 import { generateUrl } from '@nextcloud/router'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
 import AdminCustomCss from './AdminCustomCss.vue'
+import AllowedSitesSettings from './AllowedSitesSettings.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
 import AppCatalogueTab from './tabs/AppCatalogueTab.vue'
 import CommunitiesTab from './tabs/CommunitiesTab.vue'
@@ -438,6 +442,7 @@ export default {
 
 	components: {
 		AdminCustomCss,
+		AllowedSitesSettings,
 		CnAdminSettingsShell,
 		CnSettingsSection,
 		CnWalkthrough,

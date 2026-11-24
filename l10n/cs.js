@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "chyba sítě",
     "Reload" : "Načíst znovu",
     "Open in a new tab" : "Otevřít na nové kartě",
-    "Open {title} in a new tab" : "Otevřít {title} na nové kartě"
+    "Open {title} in a new tab" : "Otevřít {title} na nové kartě",
+    "Allowed websites" : "Povolené weby",
+    "Widgets may only embed pages and fetch data from these sites." : "Widgety smí vkládat stránky a načítat data jen z těchto webů.",
+    "Purpose of {host}" : "Účel {host}",
+    "Remove {host}" : "Odebrat {host}",
+    "No websites on this list yet." : "Na tomto seznamu zatím nejsou žádné weby.",
+    "Website" : "Web",
+    "A host such as www.example.com, without https:// or a path." : "Hostitel jako www.example.com, bez https:// a cesty.",
+    "Purpose" : "Účel",
+    "Add website" : "Přidat web",
+    "Embed" : "Vkládat",
+    "Fetch" : "Načítat",
+    "Embed and fetch" : "Vkládat a načítat",
+    "Allowed websites saved." : "Povolené weby uloženy.",
+    "The allowed websites could not be saved." : "Povolené weby se nepodařilo uložit."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

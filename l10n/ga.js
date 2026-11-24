@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "earráid líonra",
     "Reload" : "Athlódáil",
     "Open in a new tab" : "Oscail i gcluaisín nua",
-    "Open {title} in a new tab" : "Oscail {title} i gcluaisín nua"
+    "Open {title} in a new tab" : "Oscail {title} i gcluaisín nua",
+    "Allowed websites" : "Suíomhanna gréasáin ceadaithe",
+    "Widgets may only embed pages and fetch data from these sites." : "Ní féidir le giuirléidí leathanaigh a leabú ná sonraí a fháil ach ó na suíomhanna seo.",
+    "Purpose of {host}" : "Cuspóir {host}",
+    "Remove {host}" : "Bain {host}",
+    "No websites on this list yet." : "Níl aon suíomh gréasáin ar an liosta seo fós.",
+    "Website" : "Suíomh gréasáin",
+    "A host such as www.example.com, without https:// or a path." : "Óstach ar nós www.example.com, gan https:// ná cosán.",
+    "Purpose" : "Cuspóir",
+    "Add website" : "Cuir suíomh gréasáin leis",
+    "Embed" : "Leabú",
+    "Fetch" : "Faigh",
+    "Embed and fetch" : "Leabú agus faigh",
+    "Allowed websites saved." : "Sábháladh na suíomhanna gréasáin ceadaithe.",
+    "The allowed websites could not be saved." : "Níorbh fhéidir na suíomhanna gréasáin ceadaithe a shábháil."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

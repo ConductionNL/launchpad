@@ -1551,7 +1551,21 @@ OC.L10N.register(
     "a network error" : "ett nätverksfel",
     "Reload" : "Läs in igen",
     "Open in a new tab" : "Öppna i en ny flik",
-    "Open {title} in a new tab" : "Öppna {title} i en ny flik"
+    "Open {title} in a new tab" : "Öppna {title} i en ny flik",
+    "Allowed websites" : "Tillåtna webbplatser",
+    "Widgets may only embed pages and fetch data from these sites." : "Widgetar får bara bädda in sidor och hämta data från dessa webbplatser.",
+    "Purpose of {host}" : "Syfte för {host}",
+    "Remove {host}" : "Ta bort {host}",
+    "No websites on this list yet." : "Det finns inga webbplatser på listan ännu.",
+    "Website" : "Webbplats",
+    "A host such as www.example.com, without https:// or a path." : "En värd som www.example.com, utan https:// eller sökväg.",
+    "Purpose" : "Syfte",
+    "Add website" : "Lägg till webbplats",
+    "Embed" : "Bädda in",
+    "Fetch" : "Hämta",
+    "Embed and fetch" : "Bädda in och hämta",
+    "Allowed websites saved." : "Tillåtna webbplatser sparade.",
+    "The allowed websites could not be saved." : "De tillåtna webbplatserna kunde inte sparas."
 },
 "nplurals=2; plural=(n != 1);"
 );

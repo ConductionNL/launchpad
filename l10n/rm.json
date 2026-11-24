@@ -1451,6 +1451,20 @@
         "a network error": "ina errur da la rait",
         "Reload": "Chargiar da nov",
         "Open in a new tab": "Avrir en in nov tab",
-        "Open {title} in a new tab": "Avrir {title} en in nov tab"
+        "Open {title} in a new tab": "Avrir {title} en in nov tab",
+        "Allowed websites": "Websites permessas",
+        "Widgets may only embed pages and fetch data from these sites.": "Ils widgets dastgan integrar paginas e retschaiver datas mo da questas websites.",
+        "Purpose of {host}": "Intent da {host}",
+        "Remove {host}": "Allontanar {host}",
+        "No websites on this list yet.": "Sin questa glista n'hai anc naginas websites.",
+        "Website": "Website",
+        "A host such as www.example.com, without https:// or a path.": "In host sco www.example.com, senza https:// u percurs.",
+        "Purpose": "Intent",
+        "Add website": "Agiuntar ina website",
+        "Embed": "Integrar",
+        "Fetch": "Retschaiver",
+        "Embed and fetch": "Integrar e retschaiver",
+        "Allowed websites saved.": "Websites permessas memorisadas.",
+        "The allowed websites could not be saved.": "Las websites permessas n'han betg pudì vegnir memorisadas."
     }
 }

@@ -1451,6 +1451,20 @@
         "a network error": "um erro de rede",
         "Reload": "Recarregar",
         "Open in a new tab": "Abrir num novo separador",
-        "Open {title} in a new tab": "Abrir {title} num novo separador"
+        "Open {title} in a new tab": "Abrir {title} num novo separador",
+        "Allowed websites": "Sites permitidos",
+        "Widgets may only embed pages and fetch data from these sites.": "Os widgets só podem incorporar páginas e obter dados destes sites.",
+        "Purpose of {host}": "Utilização de {host}",
+        "Remove {host}": "Remover {host}",
+        "No websites on this list yet.": "Ainda não há sites nesta lista.",
+        "Website": "Site",
+        "A host such as www.example.com, without https:// or a path.": "Um anfitrião como www.example.com, sem https:// nem caminho.",
+        "Purpose": "Utilização",
+        "Add website": "Adicionar site",
+        "Embed": "Incorporar",
+        "Fetch": "Obter",
+        "Embed and fetch": "Incorporar e obter",
+        "Allowed websites saved.": "Sites permitidos guardados.",
+        "The allowed websites could not be saved.": "Não foi possível guardar os sites permitidos."
     }
 }

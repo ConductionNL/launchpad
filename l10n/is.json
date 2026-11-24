@@ -1451,6 +1451,20 @@
         "a network error": "netvilla",
         "Reload": "Endurhlaða",
         "Open in a new tab": "Opna í nýjum flipa",
-        "Open {title} in a new tab": "Opna {title} í nýjum flipa"
+        "Open {title} in a new tab": "Opna {title} í nýjum flipa",
+        "Allowed websites": "Leyfð vefsvæði",
+        "Widgets may only embed pages and fetch data from these sites.": "Viðmótshlutar mega aðeins ívefja síður og sækja gögn frá þessum vefsvæðum.",
+        "Purpose of {host}": "Tilgangur {host}",
+        "Remove {host}": "Fjarlægja {host}",
+        "No websites on this list yet.": "Engin vefsvæði eru á listanum enn.",
+        "Website": "Vefsvæði",
+        "A host such as www.example.com, without https:// or a path.": "Hýsill eins og www.example.com, án https:// eða slóðar.",
+        "Purpose": "Tilgangur",
+        "Add website": "Bæta við vefsvæði",
+        "Embed": "Ívefja",
+        "Fetch": "Sækja",
+        "Embed and fetch": "Ívefja og sækja",
+        "Allowed websites saved.": "Leyfð vefsvæði vistuð.",
+        "The allowed websites could not be saved.": "Ekki tókst að vista leyfð vefsvæði."
     }
 }

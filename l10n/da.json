@@ -1451,6 +1451,20 @@
         "a network error": "en netværksfejl",
         "Reload": "Genindlæs",
         "Open in a new tab": "Åbn i en ny fane",
-        "Open {title} in a new tab": "Åbn {title} i en ny fane"
+        "Open {title} in a new tab": "Åbn {title} i en ny fane",
+        "Allowed websites": "Tilladte websteder",
+        "Widgets may only embed pages and fetch data from these sites.": "Widgets må kun indlejre sider og hente data fra disse websteder.",
+        "Purpose of {host}": "Formål for {host}",
+        "Remove {host}": "Fjern {host}",
+        "No websites on this list yet.": "Der er endnu ingen websteder på listen.",
+        "Website": "Websted",
+        "A host such as www.example.com, without https:// or a path.": "En vært som www.example.com, uden https:// eller sti.",
+        "Purpose": "Formål",
+        "Add website": "Tilføj websted",
+        "Embed": "Indlejr",
+        "Fetch": "Hent",
+        "Embed and fetch": "Indlejr og hent",
+        "Allowed websites saved.": "Tilladte websteder gemt.",
+        "The allowed websites could not be saved.": "De tilladte websteder kunne ikke gemmes."
     }
 }

@@ -32,7 +32,10 @@
 					<span class="kiosk-player__date">{{ clockDate }}</span>
 				</p>
 			</header>
-			<PublicDashboardGrid class="kiosk-player__grid" :placements="current.placements || []" />
+			<PublicDashboardGrid
+				class="kiosk-player__grid"
+				:placements="current.placements || []"
+				:readWidget="readWidget" />
 			<!-- REQ-KIOSKUI-003: where the playlist is, as text, not a control;
 			     hidden from screen readers, which hear the change below. -->
 			<p
@@ -76,6 +79,7 @@ import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import PublicDashboardGrid from '../components/PublicDashboardGrid.vue'
 import { REQUIRED_TEXT_PROP } from '../constants/propDefinitions.js'
+import { kioskWidgetReader } from '../services/publicWidgetClient.js'
 import { houseEmblem } from '../utils/houseEmblem.js'
 import { hideCursorWhenIdle } from '../utils/kioskMode.js'
 
@@ -155,6 +159,16 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The live widgets' token-scoped read through this playlist (REQ-PSHR-011).
+		 *
+		 * @return {function((number|string)): Promise<object>} The read.
+		 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+		 */
+		readWidget() {
+			return kioskWidgetReader(this.token)
+		},
+
 		/**
 		 * The emblem of the house style, else Nextcloud's logo.
 		 *

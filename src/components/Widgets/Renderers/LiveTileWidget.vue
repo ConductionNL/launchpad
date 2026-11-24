@@ -180,6 +180,19 @@ export default {
 		 * @type {{id?: number|string}|null}
 		 */
 		placement: NULLABLE_OBJECT_PROP,
+
+		/**
+		 * Where the reading comes from instead of LaunchPad's per-placement
+		 * endpoint: a function of the placement id that resolves the reading.
+		 * A public link or kiosk screen passes its token-scoped read here
+		 * (REQ-PSHR-011); null (the default) is the signed-in dashboard.
+		 *
+		 * @type {(function((number|string)): Promise<object>)|null}
+		 */
+		readingSource: {
+			type: Function,
+			default: null,
+		},
 	},
 
 	data() {
@@ -456,11 +469,12 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/live-data-tile-widget/spec.md
+		 * @spec openspec/changes/public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 		 */
 		async load() {
 			await loadPlacementReading(this, {
 				placementId: this.placement?.id,
-				fetch: fetchLiveTileValue,
+				fetch: this.readingSource ?? fetchLiveTileValue,
 				unsaved: t(
 					'launchpad',
 					'This tile is not available until it is saved.',

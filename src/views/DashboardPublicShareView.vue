@@ -70,7 +70,7 @@ start page (`startPage`) it carries a bar with the organisation's name and a
 				</p>
 			</header>
 
-			<PublicDashboardGrid :placements="placements" />
+			<PublicDashboardGrid :placements="placements" :readWidget="readWidget" />
 		</div>
 	</div>
 </template>
@@ -79,7 +79,7 @@ start page (`startPage`) it carries a bar with the organisation's name and a
 import axios from '@nextcloud/axios'
 import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
-import { defineComponent, onMounted, ref } from 'vue'
+import { computed, defineComponent, onMounted, ref } from 'vue'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import AlertCircleIcon from 'vue-material-design-icons/AlertCircle.vue'
@@ -87,6 +87,7 @@ import EyeOutlineIcon from 'vue-material-design-icons/EyeOutline.vue'
 import LoginIcon from 'vue-material-design-icons/Login.vue'
 import PublicDashboardGrid from '../components/PublicDashboardGrid.vue'
 import PublicSharePasswordDialog from '../dialogs/PublicSharePasswordDialog.vue'
+import { shareWidgetReader } from '../services/publicWidgetClient.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
 import { houseEmblem } from '../utils/houseEmblem.js'
 import { isKioskMode } from '../utils/kioskMode.js'
@@ -142,6 +143,10 @@ export default defineComponent({
 		const showPasswordModal = ref(false)
 		const unlocking = ref(false)
 		const unlockError = ref(null)
+		// The password the link opened with: the live widgets' reads pass
+		// it too, behind the same gate (REQ-PSHR-011).
+		const sharePassword = ref(null)
+		const readWidget = computed(() => shareWidgetReader(props.token, sharePassword.value))
 
 		const errorTitle = ref(t('launchpad', 'Not available'))
 		const errorDescription = ref(
@@ -165,6 +170,7 @@ export default defineComponent({
 				placements.value = Array.isArray(data.placements)
 					? data.placements
 					: []
+				sharePassword.value = password
 				showPasswordModal.value = false
 			} catch (err) {
 				if (
@@ -254,6 +260,7 @@ export default defineComponent({
 			dashboard,
 			share,
 			placements,
+			readWidget,
 			error,
 			errorTitle,
 			errorDescription,

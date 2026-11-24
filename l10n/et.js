@@ -1603,6 +1603,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name} näeb seda vidinat: ükski reegel ei piira, kes seda näeb.",
     "{name} sees this widget, because {reasons}." : "{name} näeb seda vidinat, sest {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} ei näe seda vidinat, sest {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Launchpadi haldus asub eraldi lehel.",
+    "Open Launchpad administration" : "Ava Launchpadi haldus",
     "Embed on your website" : "Manusta oma veebisaidile",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Näita seda töölauda või üht selle vidinat teisel veebisaidil manustamislubaga.",
     "Token {name} has been created. Copy it now: it is not shown again." : "Luba {name} on loodud. Kopeeri see kohe: seda ei näidata uuesti.",

@@ -1603,6 +1603,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name} látja ezt a widgetet: egy szabály sem korlátozza, ki látja.",
     "{name} sees this widget, because {reasons}." : "{name} látja ezt a widgetet, mert {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} nem látja ezt a widgetet, mert {reasons}.",
+    "The Launchpad administration is on a page of its own." : "A Launchpad adminisztrációja külön oldalon található.",
+    "Open Launchpad administration" : "Launchpad-adminisztráció megnyitása",
     "Embed on your website" : "Beágyazás a webhelyére",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Jelenítse meg ezt az irányítópultot vagy egyik modulját egy másik webhelyen beágyazási tokennel.",
     "Token {name} has been created. Copy it now: it is not shown again." : "A(z) {name} token létrejött. Másolja ki most: többé nem jelenik meg.",

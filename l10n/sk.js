@@ -1603,6 +1603,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name} vidí tento widget: žiadne pravidlo neobmedzuje, kto ho vidí.",
     "{name} sees this widget, because {reasons}." : "{name} vidí tento widget, pretože {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} nevidí tento widget, pretože {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Správa Launchpadu má vlastnú stránku.",
+    "Open Launchpad administration" : "Otvoriť správu Launchpadu",
     "Embed on your website" : "Vložiť na váš web",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Zobrazte tento panel alebo jeden z jeho widgetov na inom webe pomocou tokenu na vloženie.",
     "Token {name} has been created. Copy it now: it is not shown again." : "Token {name} bol vytvorený. Skopírujte ho teraz: znova sa nezobrazí.",

@@ -278,14 +278,14 @@ test.describe('app chrome (ADR-114)', () => {
 		// personal-settings entry in particular is a nav widget with no
 		// equivalent in `.workspace-shell`, so there is nothing here to assert
 		// about it. What survives is the half that is about LaunchPad rather
-		// than about the nav component, and it is a Nextcloud settings route
-		// rather than one of this app's own, which is why it still passes.
-		await page.goto('/settings/admin/launchpad', {
+		// than about the nav component: the administration, a page of the app
+		// itself (admin-settings REQ-ADM-030).
+		await page.goto('/apps/launchpad/admin', {
 			waitUntil: 'domcontentloaded',
 		})
 		await expect(
 			page.locator('#app-content, main').first(),
-			'the admin settings section did not render',
+			'the administration page did not render',
 		).toBeVisible({ timeout: 30_000 })
 	})
 

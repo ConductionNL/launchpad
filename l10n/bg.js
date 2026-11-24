@@ -1603,6 +1603,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name} вижда тази джаджа: никое правило не ограничава кой я вижда.",
     "{name} sees this widget, because {reasons}." : "{name} вижда тази джаджа, защото {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} не вижда тази джаджа, защото {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Администрирането на Launchpad е на отделна страница.",
+    "Open Launchpad administration" : "Отваряне на администрирането на Launchpad",
     "Embed on your website" : "Вграждане във вашия уебсайт",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Покажете това табло или някоя от неговите джаджи на друг уебсайт с токен за вграждане.",
     "Token {name} has been created. Copy it now: it is not shown again." : "Токенът {name} е създаден. Копирайте го сега: няма да бъде показан отново.",

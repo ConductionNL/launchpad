@@ -196,21 +196,22 @@
       "route": "/admin/templates",
       "type": "custom",
       "title": "Templates",
-      "component": "AdminSettingsRedirect",
+      "component": "AdminPage",
       "permission": "admin",
-      "_note": "REDIRECTS to /settings/admin/launchpad. TemplatesPage is a TAB inside the Nextcloud admin section, not a page of its own; routing it in-app would render half an admin surface next to the real one.",
+      "_note": "The administration page (admin-settings REQ-ADM-030) on its Templates tab. TemplatesPage is a TAB of the administration, so this route opens that tab rather than a page of its own.",
       "config": {
-        "documentationUrl": "https://launchpad.conduction.nl"
+        "documentationUrl": "https://launchpad.conduction.nl",
+        "tab": "templates"
       }
     },
     {
       "id": "admin-settings",
-      "route": "/admin/settings",
+      "route": "/admin/:tab?",
       "type": "custom",
       "title": "Admin settings",
-      "component": "AdminSettingsRedirect",
+      "component": "AdminPage",
       "permission": "admin",
-      "_note": "REDIRECTS to /settings/admin/launchpad. The admin surface is a Nextcloud settings section (lib/Settings/LaunchPadAdmin.php, mounted by src/admin.js), not an in-app page — the component this once named, AdminSettingsPage, has never existed. The route resolves so the menu entry is not a dead link, and lands where the functionality is."
+      "_note": "The administration, a Launchpad page over the full width (admin-settings REQ-ADM-030): the shell's top bar and More menu, no settings menu, the tabs over the full width. The tab is the route's; the server renders /apps/launchpad/admin/<tab> only for a (delegated) administrator (AdminPageController). Nextcloud's settings entry links here (lib/Settings/LaunchPadAdmin.php)."
     },
     {
       "id": "Flows",
@@ -495,6 +496,7 @@
         "id": "launchpad:getting-started",
         "title": "Getting started",
         "trigger": "first-visit",
+        "startOn": ["Workspace", "dashboard-detail"],
         "steps": [
           {
             "id": "dashboards",

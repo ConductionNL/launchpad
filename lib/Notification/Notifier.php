@@ -137,6 +137,8 @@ class Notifier implements INotifier {
 	 * @param INotification $notification The notification.
 	 *
 	 * @return string The URL.
+	 *
+	 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 	 */
 	private function linkFor(INotification $notification): string {
 		if ($notification->getSubject() === 'announcement_published') {
@@ -148,16 +150,13 @@ class Notifier implements INotifier {
 		}
 
 		if ($notification->getSubject() === 'embed_token_revoked') {
-			return $this->urlGenerator->linkToRouteAbsolute(routeName: 'settings.AdminSettings.index', arguments: ['section' => 'launchpad']);
+			return $this->adminPageLink(tab: 'embeds');
 		}
 
 		// The app catalogue (launcher-app-catalogue): a request opens the admin
-		// section where it is decided; a decision opens LaunchPad, where Add lists the catalogue.
+		// tab where it is decided; a decision opens LaunchPad, where Add lists the catalogue.
 		if ($notification->getSubject() === 'app_requested') {
-			return $this->urlGenerator->linkToRouteAbsolute(
-				routeName: 'settings.AdminSettings.index',
-				arguments: ['section' => 'launchpad']
-			);
+			return $this->adminPageLink(tab: 'app-catalogue');
 		}
 
 		if ($notification->getSubject() === 'app_request_decided') {
@@ -170,6 +169,19 @@ class Notifier implements INotifier {
 
 		return $this->buildDashboardUrl(objectId: $notification->getObjectId());
 	}//end linkFor()
+
+	/**
+	 * The administration page on one tab (REQ-ADM-030).
+	 *
+	 * @param string $tab The tab.
+	 *
+	 * @return string The absolute URL.
+	 *
+	 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+	 */
+	private function adminPageLink(string $tab): string {
+		return $this->urlGenerator->linkToRouteAbsolute(routeName: 'launchpad.adminPage.show', arguments: ['tab' => $tab]);
+	}//end adminPageLink()
 
 	/**
 	 * Render the subject and message text of a notification.

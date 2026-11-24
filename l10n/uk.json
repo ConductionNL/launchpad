@@ -1505,6 +1505,8 @@
         "{name} sees this widget: no rule limits who sees it.": "{name} бачить цей віджет: жодне правило не обмежує, хто його бачить.",
         "{name} sees this widget, because {reasons}.": "{name} бачить цей віджет, тому що {reasons}.",
         "{name} does not see this widget, because {reasons}.": "{name} не бачить цей віджет, тому що {reasons}.",
+        "The Launchpad administration is on a page of its own.": "Адміністрування Launchpad розміщено на окремій сторінці.",
+        "Open Launchpad administration": "Відкрити адміністрування Launchpad",
         "Embed on your website": "Вбудувати на ваш вебсайт",
         "Show this dashboard, or one of its widgets, on another website with an embed token.": "Показуйте цю панель або один з її віджетів на іншому вебсайті за допомогою токена вбудовування.",
         "Token {name} has been created. Copy it now: it is not shown again.": "Токен {name} створено. Скопіюйте його зараз: він більше не буде показаний.",

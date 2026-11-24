@@ -1509,6 +1509,8 @@
         "{name} sees this widget: no rule limits who sees it.": "Feiceann {name} an ghiuirléid seo: níl aon riail ag teorannú cé a fheiceann í.",
         "{name} sees this widget, because {reasons}.": "Feiceann {name} an ghiuirléid seo, mar {reasons}.",
         "{name} does not see this widget, because {reasons}.": "Ní fheiceann {name} an ghiuirléid seo, mar {reasons}.",
+        "The Launchpad administration is on a page of its own.": "Tá riarachán Launchpad ar a leathanach féin.",
+        "Open Launchpad administration": "Oscail riarachán Launchpad",
         "Embed on your website": "Leabaigh ar do shuíomh gréasáin",
         "Show this dashboard, or one of its widgets, on another website with an embed token.": "Taispeáin an deais seo, nó ceann dá ghiuirléidí, ar shuíomh gréasáin eile le comhartha leabaithe.",
         "Token {name} has been created. Copy it now: it is not shown again.": "Cruthaíodh an comhartha {name}. Cóipeáil anois é: ní thaispeánfar arís é.",

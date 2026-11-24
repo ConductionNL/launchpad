@@ -13,13 +13,14 @@
  */
 
 import { defineAsyncComponent } from 'vue'
-import AdminSettingsRedirect from './views/AdminSettingsRedirect.vue'
 
 // The dashboard view and everything under it load as a chunk of their own,
 // fetched when the dashboard route first renders.
 const WorkspaceApp = defineAsyncComponent(() => import(/* webpackChunkName: "workspace" */ './views/WorkspaceApp.vue').then((m) => m.default))
+const AdminPage = defineAsyncComponent(() => import(/* webpackChunkName: "admin-page" */ './views/AdminPage.vue').then((m) => m.default))
 
 export default {
 	WorkspaceApp: { kind: 'page', component: WorkspaceApp },
-	AdminSettingsRedirect: { kind: 'page', component: AdminSettingsRedirect },
+	// The administration (admin-settings REQ-ADM-030), loaded with the admin routes.
+	AdminPage: { kind: 'page', component: AdminPage },
 }

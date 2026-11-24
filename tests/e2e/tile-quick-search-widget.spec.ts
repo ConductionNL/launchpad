@@ -63,7 +63,7 @@ const APP_URL = '/index.php/apps/launchpad'
 const API = '/index.php/apps/launchpad/api'
 const SETTINGS = `${API}/admin/settings`
 const SHORTCUTS = `${API}/admin/search-shortcuts`
-const ADMIN_PAGE = '/index.php/settings/admin/launchpad'
+const ADMIN_PAGE = '/index.php/apps/launchpad/admin'
 
 // Stable hooks shipped by RuntimeShellSearch.vue.
 const INPUT = '[data-test="quick-search-input"]'

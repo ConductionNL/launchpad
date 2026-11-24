@@ -1503,6 +1503,8 @@
         "{name} sees this widget: no rule limits who sees it.": "{name} e sheh këtë widget: asnjë rregull nuk kufizon se kush e sheh.",
         "{name} sees this widget, because {reasons}.": "{name} e sheh këtë widget, sepse {reasons}.",
         "{name} does not see this widget, because {reasons}.": "{name} nuk e sheh këtë widget, sepse {reasons}.",
+        "The Launchpad administration is on a page of its own.": "Administrimi i Launchpad ndodhet në një faqe më vete.",
+        "Open Launchpad administration": "Hap administrimin e Launchpad",
         "Embed on your website": "Ngulit në faqen tuaj të internetit",
         "Show this dashboard, or one of its widgets, on another website with an embed token.": "Shfaqni këtë panel, ose një nga widget-et e tij, në një faqe tjetër interneti me një token ngulitjeje.",
         "Token {name} has been created. Copy it now: it is not shown again.": "Tokeni {name} u krijua. Kopjojeni tani: nuk do të shfaqet më.",

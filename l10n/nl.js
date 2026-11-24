@@ -2492,6 +2492,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name} ziet deze widget: geen regel beperkt wie hem ziet.",
     "{name} sees this widget, because {reasons}." : "{name} ziet deze widget, omdat {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} ziet deze widget niet, omdat {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Het beheer van Launchpad staat op een eigen pagina.",
+    "Open Launchpad administration" : "Open Launchpad-beheer",
     "Embed on your website" : "Insluiten op uw website",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Toon dit dashboard, of een van de widgets, op een andere website met een insluittoken.",
     "Token {name} has been created. Copy it now: it is not shown again." : "Token {name} is aangemaakt. Kopieer het nu: het wordt niet opnieuw getoond.",

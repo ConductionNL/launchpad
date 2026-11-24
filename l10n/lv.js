@@ -1603,6 +1603,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name} redz šo logrīku: neviens noteikums neierobežo, kas to redz.",
     "{name} sees this widget, because {reasons}." : "{name} redz šo logrīku, jo {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} neredz šo logrīku, jo {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Launchpad administrēšana atrodas atsevišķā lapā.",
+    "Open Launchpad administration" : "Atvērt Launchpad administrēšanu",
     "Embed on your website" : "Iegult savā tīmekļa vietnē",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Rādiet šo paneli vai kādu no tā logrīkiem citā tīmekļa vietnē ar iegulšanas pilnvaru.",
     "Token {name} has been created. Copy it now: it is not shown again." : "Pilnvara {name} ir izveidota. Nokopējiet to tagad: tā vairs netiks rādīta.",

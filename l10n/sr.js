@@ -1594,6 +1594,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name} види овај виџет: ниједно правило не ограничава ко га види.",
     "{name} sees this widget, because {reasons}." : "{name} види овај виџет јер {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} не види овај виџет јер {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Администрација Launchpad-а налази се на засебној страници.",
+    "Open Launchpad administration" : "Отвори администрацију Launchpad-а",
     "Embed on your website" : "Уградите на свој веб-сајт",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Прикажите ову контролну таблу, или један од њених виџета, на другом веб-сајту помоћу токена за уградњу.",
     "Token {name} has been created. Copy it now: it is not shown again." : "Токен {name} је направљен. Копирајте га сада: неће бити поново приказан.",

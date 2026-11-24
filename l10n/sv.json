@@ -1503,6 +1503,8 @@
         "{name} sees this widget: no rule limits who sees it.": "{name} ser den här widgeten: ingen regel begränsar vem som ser den.",
         "{name} sees this widget, because {reasons}.": "{name} ser den här widgeten, eftersom {reasons}.",
         "{name} does not see this widget, because {reasons}.": "{name} ser inte den här widgeten, eftersom {reasons}.",
+        "The Launchpad administration is on a page of its own.": "Administrationen av Launchpad finns på en egen sida.",
+        "Open Launchpad administration": "Öppna Launchpad-administrationen",
         "Embed on your website": "Bädda in på din webbplats",
         "Show this dashboard, or one of its widgets, on another website with an embed token.": "Visa den här instrumentpanelen, eller en av dess widgetar, på en annan webbplats med en inbäddningstoken.",
         "Token {name} has been created. Copy it now: it is not shown again.": "Token {name} har skapats. Kopiera den nu: den visas inte igen.",

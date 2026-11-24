@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use OCA\LaunchPad\Controller\AdminCleanupController;
+use OCA\LaunchPad\Controller\AdminPageController;
 use OCA\LaunchPad\Controller\ResourceController;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -48,6 +49,7 @@ class AdminRoutesAnswerLikeNextcloudTest extends TestCase {
 			'multipart upload' => [ResourceController::class, 'uploadMultipart'],
 			'cleanup scan' => [AdminCleanupController::class, 'scan'],
 			'cleanup purge' => [AdminCleanupController::class, 'purge'],
+			'administration page' => [AdminPageController::class, 'show'],
 		];
 	}//end adminRoutes()
 

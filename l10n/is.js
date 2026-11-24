@@ -1603,6 +1603,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name} sér þessa græju: engin regla takmarkar hver sér hana.",
     "{name} sees this widget, because {reasons}." : "{name} sér þessa græju, vegna þess að {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} sér ekki þessa græju, vegna þess að {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Stjórnun Launchpad er á sérstakri síðu.",
+    "Open Launchpad administration" : "Opna stjórnun Launchpad",
     "Embed on your website" : "Fella inn á vefsvæðið þitt",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Sýndu þetta stjórnborð, eða eina af einingum þess, á öðru vefsvæði með innfellingartóka.",
     "Token {name} has been created. Copy it now: it is not shown again." : "Tókinn {name} hefur verið búinn til. Afritaðu hann núna: hann verður ekki sýndur aftur.",

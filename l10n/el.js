@@ -1603,6 +1603,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name}: βλέπει αυτό το γραφικό στοιχείο· κανένας κανόνας δεν περιορίζει ποιος το βλέπει.",
     "{name} sees this widget, because {reasons}." : "{name}: βλέπει αυτό το γραφικό στοιχείο, επειδή {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name}: δεν βλέπει αυτό το γραφικό στοιχείο, επειδή {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Η διαχείριση του Launchpad βρίσκεται σε δική της σελίδα.",
+    "Open Launchpad administration" : "Άνοιγμα διαχείρισης Launchpad",
     "Embed on your website" : "Ενσωμάτωση στον ιστότοπό σας",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Εμφανίστε αυτόν τον πίνακα ελέγχου, ή ένα από τα γραφικά στοιχεία του, σε άλλον ιστότοπο με ένα διακριτικό ενσωμάτωσης.",
     "Token {name} has been created. Copy it now: it is not shown again." : "Το διακριτικό {name} δημιουργήθηκε. Αντιγράψτε το τώρα: δεν θα εμφανιστεί ξανά.",

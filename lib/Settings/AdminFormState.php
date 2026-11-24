@@ -64,6 +64,7 @@ class AdminFormState {
 	 * @return void
 	 *
 	 * @spec openspec/specs/initial-state-contract/spec.md#requirement-versioned-key-set-per-page-req-init-002
+	 * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
 	 */
 	public function provide(): void {
 		$allGroups = [];
@@ -108,6 +109,9 @@ class AdminFormState {
 			->setLinkCreateFileExtensions(
 				$this->sources->fileService->getAllowedExtensions()
 			)
+			// The page renders in the Launchpad shell only for a (delegated)
+			// administrator, whose More menu then offers the admin entries.
+			->setIsAdmin(true)
 			->apply();
 	}//end provide()
 }//end class

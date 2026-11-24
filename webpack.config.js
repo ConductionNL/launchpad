@@ -9,7 +9,6 @@ const webpack = require('webpack')
 
 webpackConfig.entry = {
 	main: path.join(__dirname, 'src', 'main.js'),
-	admin: path.join(__dirname, 'src', 'admin.js'),
 	// Anonymous read-only public-share page (/apps/launchpad/s/{token}).
 	public: path.join(__dirname, 'src', 'public.js'),
 	// Login-page redirect to the public start page (sharing-public-start-page D2).

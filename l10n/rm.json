@@ -1503,6 +1503,8 @@
         "{name} sees this widget: no rule limits who sees it.": "{name} vesa quest widget: nagina regla na limitescha tgi che al vesa.",
         "{name} sees this widget, because {reasons}.": "{name} vesa quest widget, perquai che {reasons}.",
         "{name} does not see this widget, because {reasons}.": "{name} na vesa betg quest widget, perquai che {reasons}.",
+        "The Launchpad administration is on a page of its own.": "L'administraziun da Launchpad è sin ina pagina separada.",
+        "Open Launchpad administration": "Avrir l'administraziun da Launchpad",
         "Embed on your website": "Integrar en Vossa pagina d'internet",
         "Show this dashboard, or one of its widgets, on another website with an embed token.": "Mussai quest dashboard, u in da ses widgets, sin in'autra pagina d'internet cun in token d'integraziun.",
         "Token {name} has been created. Copy it now: it is not shown again.": "Il token {name} è vegnì creà. Copiai el ussa: el na vegn betg mussà anc ina giada.",

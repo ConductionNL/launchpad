@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `AdminSettingsRedirect.vue`: on mount it sends the
- * browser to Launchpad's admin settings page, and shows a link to the same
- * page for when the redirect does not happen.
+ * browser to the Launchpad administration page on the route's tab
+ * (admin-settings REQ-ADM-030), and shows a link to the same page for when
+ * the redirect does not happen.
  */
 
 import { mount } from '@vue/test-utils'
@@ -38,17 +39,25 @@ afterEach(() => {
 })
 
 describe('AdminSettingsRedirect', () => {
-	it('sends the browser to the admin settings page on mount', () => {
+	it('sends the browser to the administration page on mount', () => {
 		mount(AdminSettingsRedirect)
 
-		expect(window.location.href).toBe('/index.php/settings/admin/launchpad')
+		expect(window.location.href).toBe('/index.php/apps/launchpad/admin/general')
+	})
+
+	it('opens the tab it is given, and General for an unknown one', () => {
+		mount(AdminSettingsRedirect, { props: { tab: 'templates' } })
+		expect(window.location.href).toBe('/index.php/apps/launchpad/admin/templates')
+
+		mount(AdminSettingsRedirect, { props: { tab: 'settings' } })
+		expect(window.location.href).toBe('/index.php/apps/launchpad/admin/general')
 	})
 
 	it('shows a link to the same page as a fallback', () => {
 		const wrapper = mount(AdminSettingsRedirect)
 
 		const link = wrapper.find('[data-testid="AdminSettingsRedirect"] a')
-		expect(link.attributes('href')).toBe('/index.php/settings/admin/launchpad')
+		expect(link.attributes('href')).toBe('/index.php/apps/launchpad/admin/general')
 		expect(link.text()).toBe('Continue to the administration settings')
 		expect(wrapper.find('p').text()).toBe('Opening the administration settings…')
 	})

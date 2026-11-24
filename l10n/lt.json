@@ -1505,6 +1505,8 @@
         "{name} sees this widget: no rule limits who sees it.": "{name} mato šį valdiklį: jokia taisyklė neriboja, kas jį mato.",
         "{name} sees this widget, because {reasons}.": "{name} mato šį valdiklį, nes {reasons}.",
         "{name} does not see this widget, because {reasons}.": "{name} nemato šio valdiklio, nes {reasons}.",
+        "The Launchpad administration is on a page of its own.": "Launchpad administravimas yra atskirame puslapyje.",
+        "Open Launchpad administration": "Atidaryti Launchpad administravimą",
         "Embed on your website": "Įterpti į savo svetainę",
         "Show this dashboard, or one of its widgets, on another website with an embed token.": "Rodykite šį skydelį ar vieną iš jo valdiklių kitoje svetainėje naudodami įterpimo raktą.",
         "Token {name} has been created. Copy it now: it is not shown again.": "Raktas {name} sukurtas. Nukopijuokite jį dabar: jis daugiau nebus rodomas.",

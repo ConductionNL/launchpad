@@ -50,7 +50,7 @@ import {
 	removePrincipal,
 } from './support/principals.ts'
 
-const SETTINGS_PAGE = `${BASE}/index.php/settings/admin/launchpad`
+const SETTINGS_PAGE = `${BASE}/index.php/apps/launchpad/admin`
 const WORKSPACE = '/index.php/apps/launchpad/'
 const DISABLED_TEXT = 'Personal dashboards are not enabled by your administrator'
 
@@ -163,8 +163,11 @@ test.describe('REQ-ASET-008 the admin settings page', () => {
 		await expect(entry).toBeVisible({ timeout: 30_000 })
 		await expect(entry).toContainText('LaunchPad')
 
+		// The section links on to the administration page (REQ-ADM-031).
 		await entry.click()
 		await expect(page).toHaveURL(/\/settings\/admin\/launchpad/)
+		await page.getByTestId('launchpad-admin-settings-link').getByRole('link').click()
+		await expect(page).toHaveURL(/\/apps\/launchpad\/admin\/general/)
 		await adminTab(page, 'general').click()
 		await expect(page.getByTestId('admin-default-settings')).toBeVisible({
 			timeout: 30_000,

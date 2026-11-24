@@ -1594,6 +1594,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name} gesäit dëse Widget: keng Reegel limitéiert, wien en gesäit.",
     "{name} sees this widget, because {reasons}." : "{name} gesäit dëse Widget, well {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} gesäit dëse Widget net, well {reasons}.",
+    "The Launchpad administration is on a page of its own." : "D'Administratioun vu Launchpad ass op enger eegener Säit.",
+    "Open Launchpad administration" : "Launchpad-Administratioun opmaachen",
     "Embed on your website" : "Op Ärer Websäit abetten",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Weist dësen Dashboard, oder ee vu sengen Widgets, op enger anerer Websäit mat engem Abettungstoken.",
     "Token {name} has been created. Copy it now: it is not shown again." : "Den Token {name} gouf erstallt. Kopéiert en elo: hie gëtt net nach eng Kéier gewisen.",

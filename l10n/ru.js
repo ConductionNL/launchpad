@@ -1603,6 +1603,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name} видит этот виджет: ни одно правило не ограничивает, кто его видит.",
     "{name} sees this widget, because {reasons}." : "{name} видит этот виджет, потому что {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} не видит этот виджет, потому что {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Администрирование Launchpad находится на отдельной странице.",
+    "Open Launchpad administration" : "Открыть администрирование Launchpad",
     "Embed on your website" : "Встроить на ваш сайт",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Показывайте эту панель или один из её виджетов на другом сайте с помощью токена встраивания.",
     "Token {name} has been created. Copy it now: it is not shown again." : "Токен {name} создан. Скопируйте его сейчас: он больше не будет показан.",

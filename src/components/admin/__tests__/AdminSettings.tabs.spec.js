@@ -75,12 +75,32 @@ describe('AdminSettings tabs', () => {
 		expect(render).toContain('tabsVariant: "underline"')
 	})
 
-	it('remembers the last tab under the key the page used before', () => {
-		expect(render).toContain('tabStorageKey: "launchpad.admin.activeTab"')
+	it('keeps the open tab in the page path, not in ?tab= or browser storage', () => {
+		expect(render).toContain('tabQueryKey: ""')
+		expect(source).not.toContain('tabStorageKey')
 	})
 
-	it('opens the tab named by ?tab=, the shell default query key', () => {
-		expect(source).not.toContain('tabQueryKey')
+	it('opens the tab the route names, and General for an unknown one', () => {
+		const data = (tab) => AdminSettings.data.call({ t, tab }).activeTab
+		expect(data('sharing')).toBe('sharing')
+		expect(data('nonsense')).toBe('general')
+		expect(data('')).toBe('general')
+	})
+
+	it('opens the route\'s tab in the shell without a click', () => {
+		const shell = { chosenTabId: '' }
+		const ctx = { activeTab: 'general', $refs: { shell } }
+		AdminSettings.methods.showTab.call(ctx, 'embeds')
+		expect(ctx.activeTab).toBe('embeds')
+		expect(shell.chosenTabId).toBe('embeds')
+	})
+
+	it('follows a new route tab (Back, Forward)', () => {
+		const ctx = { showTab: vi.fn() }
+		AdminSettings.watch.tab.call(ctx, 'kiosk')
+		expect(ctx.showTab).toHaveBeenCalledWith('kiosk')
+		AdminSettings.watch.tab.call(ctx, 'settings')
+		expect(ctx.showTab).toHaveBeenLastCalledWith('general')
 	})
 
 	it('gives every tab its own slot', () => {
@@ -101,9 +121,11 @@ describe('AdminSettings tabs', () => {
 
 	it('follows the tab the shell reports', () => {
 		expect(source).toContain('@tabChange="onTabChange"')
-		const ctx = { activeTab: 'general' }
+		const ctx = { activeTab: 'general', $emit: vi.fn() }
 		AdminSettings.methods.onTabChange.call(ctx, 'sharing')
 		expect(ctx.activeTab).toBe('sharing')
+		// The page puts the tab in its address.
+		expect(ctx.$emit).toHaveBeenCalledWith('tabChange', 'sharing')
 	})
 
 	it('shows the setup wizard banner in the General panel', () => {

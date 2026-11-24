@@ -1603,6 +1603,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name} bu widget'ı görür: hiçbir kural kimin göreceğini sınırlamıyor.",
     "{name} sees this widget, because {reasons}." : "{name} bu widget'ı görür, çünkü {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} bu widget'ı görmez, çünkü {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Launchpad yönetimi kendi sayfasında bulunur.",
+    "Open Launchpad administration" : "Launchpad yönetimini aç",
     "Embed on your website" : "Web sitenize yerleştirin",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Bu panoyu veya pano bileşenlerinden birini bir yerleştirme belirteciyle başka bir web sitesinde gösterin.",
     "Token {name} has been created. Copy it now: it is not shown again." : "{name} belirteci oluşturuldu. Şimdi kopyalayın: tekrar gösterilmeyecek.",

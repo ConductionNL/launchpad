@@ -1503,6 +1503,8 @@
         "{name} sees this widget: no rule limits who sees it.": "{name} veu aquest giny: cap regla limita qui el veu.",
         "{name} sees this widget, because {reasons}.": "{name} veu aquest giny, perquè {reasons}.",
         "{name} does not see this widget, because {reasons}.": "{name} no veu aquest giny, perquè {reasons}.",
+        "The Launchpad administration is on a page of its own.": "L'administració de Launchpad és en una pàgina pròpia.",
+        "Open Launchpad administration": "Obre l'administració de Launchpad",
         "Embed on your website": "Inserir al vostre lloc web",
         "Show this dashboard, or one of its widgets, on another website with an embed token.": "Mostreu aquest tauler, o un dels seus ginys, en un altre lloc web amb un testimoni d'inserció.",
         "Token {name} has been created. Copy it now: it is not shown again.": "S'ha creat el testimoni {name}. Copieu-lo ara: no es tornarà a mostrar.",

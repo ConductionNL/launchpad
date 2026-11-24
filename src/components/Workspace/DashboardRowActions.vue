@@ -136,7 +136,6 @@
 
 <script>
 import { t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
 import { NcActionButton, NcActions } from '@nextcloud/vue'
 import BookmarkPlusOutline from 'vue-material-design-icons/BookmarkPlusOutline.vue'
 import CodeTags from 'vue-material-design-icons/CodeTags.vue'
@@ -154,6 +153,7 @@ import {
 	REQUIRED_OBJECT_PROP,
 	TEXT_PROP,
 } from '../../constants/propDefinitions.js'
+import { adminPageUrl } from '../../utils/adminPage.js'
 import { embedAdminSearch } from '../../utils/embedToken.js'
 
 /**
@@ -164,12 +164,13 @@ import { embedAdminSearch } from '../../utils/embedToken.js'
  * @param {object|null} placement A widget placement on the dashboard.
  * @return {string}
  * @spec openspec/changes/embedded-analytics/tasks.md#task-40
+ * @spec openspec/changes/admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
  */
 export function embedAdminHref(dashboard, placement = null) {
 	const search = placement
 		? embedAdminSearch('widget', placement.id ?? '', dashboard?.id ?? null)
 		: embedAdminSearch('dashboard', dashboard?.uuid ?? '', dashboard?.id ?? null)
-	return `${generateUrl('/settings/admin/launchpad')}?${search}`
+	return `${adminPageUrl('embeds')}?${search}`
 }
 
 /**

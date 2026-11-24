@@ -1603,6 +1603,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name} jara dan il-widget: l-ebda regola ma tillimita min jarah.",
     "{name} sees this widget, because {reasons}." : "{name} jara dan il-widget, għax {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} ma jarax dan il-widget, għax {reasons}.",
+    "The Launchpad administration is on a page of its own." : "L-amministrazzjoni ta' Launchpad tinsab f'paġna għaliha.",
+    "Open Launchpad administration" : "Iftaħ l-amministrazzjoni ta' Launchpad",
     "Embed on your website" : "Daħħal fis-sit web tiegħek",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Uri dan id-dashboard, jew wieħed mill-widgets tiegħu, fuq sit web ieħor b'token ta' inkorporazzjoni.",
     "Token {name} has been created. Copy it now: it is not shown again." : "It-token {name} inħoloq. Ikkopjah issa: mhux se jerġa' jintwera.",

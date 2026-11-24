@@ -1603,6 +1603,8 @@ OC.L10N.register(
     "{name} sees this widget: no rule limits who sees it." : "{name} näkee tämän pienoisohjelman: mikään sääntö ei rajaa, kuka sen näkee.",
     "{name} sees this widget, because {reasons}." : "{name} näkee tämän pienoisohjelman, koska {reasons}.",
     "{name} does not see this widget, because {reasons}." : "{name} ei näe tätä pienoisohjelmaa, koska {reasons}.",
+    "The Launchpad administration is on a page of its own." : "Launchpadin hallinta on omalla sivullaan.",
+    "Open Launchpad administration" : "Avaa Launchpadin hallinta",
     "Embed on your website" : "Upota verkkosivustollesi",
     "Show this dashboard, or one of its widgets, on another website with an embed token." : "Näytä tämä koontinäyttö tai yksi sen pienoisohjelmista toisella verkkosivustolla upotustunnisteen avulla.",
     "Token {name} has been created. Copy it now: it is not shown again." : "Tunniste {name} on luotu. Kopioi se nyt: sitä ei näytetä uudelleen.",

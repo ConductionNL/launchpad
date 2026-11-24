@@ -1503,6 +1503,8 @@
         "{name} sees this widget: no rule limits who sees it.": "{name} ve este widget: ninguna regla limita quién lo ve.",
         "{name} sees this widget, because {reasons}.": "{name} ve este widget, porque {reasons}.",
         "{name} does not see this widget, because {reasons}.": "{name} no ve este widget, porque {reasons}.",
+        "The Launchpad administration is on a page of its own.": "La administración de Launchpad está en una página propia.",
+        "Open Launchpad administration": "Abrir la administración de Launchpad",
         "Embed on your website": "Insertar en su sitio web",
         "Show this dashboard, or one of its widgets, on another website with an embed token.": "Muestre este panel, o uno de sus widgets, en otro sitio web con un token de inserción.",
         "Token {name} has been created. Copy it now: it is not shown again.": "Se ha creado el token {name}. Cópielo ahora: no se volverá a mostrar.",

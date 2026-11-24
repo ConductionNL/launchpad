@@ -6,7 +6,7 @@
  * (`src/components/admin/tabs/TemplatesPage.vue`, admin-templates spec).
  *
  * This is the ONLY place dashboard templates can be managed. It is the
- * Templates tab of the admin shell, opened here through `?tab=templates`, and
+ * Templates tab of the admin page, opened here through `/admin/templates`, and
  * `AdminSettings.vue` mounts a tab's content only while that tab is open. If
  * the page fails to mount, the tab opens on an empty panel with no error.
  *
@@ -39,7 +39,7 @@ const ADMIN = {
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
 }
 
-const SETTINGS_URL = `${BASE}/index.php/settings/admin/launchpad?tab=templates`
+const SETTINGS_URL = `${BASE}/index.php/apps/launchpad/admin/templates`
 
 // The component under test, named after the file it covers. The selector is
 // unchanged — this only makes the link between spec and component readable in

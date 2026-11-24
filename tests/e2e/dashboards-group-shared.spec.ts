@@ -598,18 +598,8 @@ test.describe('REQ-DASH-014 group-scoped endpoints', () => {
 		}
 	})
 
-	// @e2e dashboards::group-shared-dashboard-serialisation-includes-groupid
-	// FIXME: the product disagrees for the two group-scoped reads. getGroup()
-	// and listGroup() answer Dashboard::toViewerArray(), which unsets
-	// `groupId` (lib/Db/Dashboard.php:816-825; lib/Controller/DashboardApiController.php:1096-1101
-	// and :1206-1208). The scenario says any endpoint. Written to the scenario.
-	test.fixme('the group-scoped GET and list carry groupId too', async () => {
-		const one = await admin.get(`${API}/dashboards/group/${groupG}/${d1.uuid}`)
-		expect(one.status()).toBe(200)
-		expect((await one.json()).dashboard.groupId).toBe(groupG)
-		const rows = withUuid(await listGroup(admin, groupG), d1.uuid)
-		expect(rows[0].groupId).toBe(groupG)
-	})
+	// The group-scoped GET and list run in dashboards-group-serialisation.spec.ts,
+	// outside serial mode, because they are expected red.
 })
 
 test.describe('REQ-DASH-015..017 the per-group default', () => {

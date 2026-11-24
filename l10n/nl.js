@@ -2514,7 +2514,6 @@ OC.L10N.register(
     "This dashboard is yours alone. Share it with people or a group and the conversation appears here too." : "Dit dashboard is alleen van u. Deel het met personen of een groep en het gesprek verschijnt hier ook.",
     "The conversation setting could not be saved." : "De gespreksinstelling kon niet worden opgeslagen.",
     "Target group" : "Doelgroep",
-    "Kind" : "Soort",
     "Allow comments and following" : "Reacties en volgen toestaan",
     "Publish on (optional)" : "Publiceren op (optioneel)",
     "This is how it looks" : "Zo ziet het eruit",

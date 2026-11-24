@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Sohbet ayarı kaydedilemedi.",
     "New announcement" : "Yeni duyuru",
     "Target group" : "Hedef grup",
-    "Kind" : "Tür",
     "Level" : "Düzey",
     "Readers may dismiss this notice" : "Okuyucular bu bildirimi kapatabilir",
     "Allow comments and following" : "Yorumlara ve takip etmeye izin ver",

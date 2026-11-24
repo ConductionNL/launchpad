@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Keskustelun asetusta ei voitu tallentaa.",
     "New announcement" : "Uusi tiedote",
     "Target group" : "Kohderyhmä",
-    "Kind" : "Laji",
     "Level" : "Taso",
     "Readers may dismiss this notice" : "Lukijat voivat sulkea tämän ilmoituksen",
     "Allow comments and following" : "Salli kommentit ja seuraaminen",

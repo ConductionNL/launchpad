@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Postavku razgovora nije moguće spremiti.",
     "New announcement" : "Nova obavijest",
     "Target group" : "Ciljna skupina",
-    "Kind" : "Vrsta",
     "Level" : "Razina",
     "Readers may dismiss this notice" : "Čitatelji mogu odbaciti ovu obavijest",
     "Allow comments and following" : "Dopusti komentare i praćenje",

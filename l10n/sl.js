@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Nastavitve pogovora ni bilo mogoče shraniti.",
     "New announcement" : "Novo obvestilo",
     "Target group" : "Ciljna skupina",
-    "Kind" : "Vrsta",
     "Level" : "Raven",
     "Readers may dismiss this notice" : "Bralci lahko to obvestilo opustijo",
     "Allow comments and following" : "Dovoli komentarje in sledenje",

@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Ekki tókst að vista stillingu samtalsins.",
     "New announcement" : "Ný tilkynning",
     "Target group" : "Markhópur",
-    "Kind" : "Tegund",
     "Level" : "Stig",
     "Readers may dismiss this notice" : "Lesendur mega loka þessari tilkynningu",
     "Allow comments and following" : "Leyfa athugasemdir og eftirfylgni",

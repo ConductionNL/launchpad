@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Samtalsinställningen kunde inte sparas.",
     "New announcement" : "Nytt meddelande",
     "Target group" : "Målgrupp",
-    "Kind" : "Typ",
     "Level" : "Nivå",
     "Readers may dismiss this notice" : "Läsare får avfärda detta meddelande",
     "Allow comments and following" : "Tillåt kommentarer och följning",

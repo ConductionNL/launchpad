@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Vestluse seadet ei õnnestunud salvestada.",
     "New announcement" : "Uus teadaanne",
     "Target group" : "Sihtrühm",
-    "Kind" : "Liik",
     "Level" : "Tase",
     "Readers may dismiss this notice" : "Lugejad võivad selle teate sulgeda",
     "Allow comments and following" : "Luba kommentaarid ja jälgimine",

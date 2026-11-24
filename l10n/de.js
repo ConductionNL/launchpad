@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Die Einstellung der Unterhaltung konnte nicht gespeichert werden.",
     "New announcement" : "Neue Ankündigung",
     "Target group" : "Zielgruppe",
-    "Kind" : "Art",
     "Level" : "Stufe",
     "Readers may dismiss this notice" : "Leser dürfen diesen Hinweis ausblenden",
     "Allow comments and following" : "Kommentare und Folgen erlauben",

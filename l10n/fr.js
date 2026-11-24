@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Le réglage de la conversation n'a pas pu être enregistré.",
     "New announcement" : "Nouvelle annonce",
     "Target group" : "Groupe cible",
-    "Kind" : "Type",
     "Level" : "Niveau",
     "Readers may dismiss this notice" : "Les lecteurs peuvent masquer cet avis",
     "Allow comments and following" : "Autoriser les commentaires et le suivi",

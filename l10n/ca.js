@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "No s'ha pogut desar el paràmetre de la conversa.",
     "New announcement" : "Anunci nou",
     "Target group" : "Grup destinatari",
-    "Kind" : "Tipus",
     "Level" : "Nivell",
     "Readers may dismiss this notice" : "Els lectors poden descartar aquest avís",
     "Allow comments and following" : "Permet comentaris i seguiment",

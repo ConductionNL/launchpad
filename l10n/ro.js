@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Setarea conversației nu a putut fi salvată.",
     "New announcement" : "Anunț nou",
     "Target group" : "Grup țintă",
-    "Kind" : "Tip",
     "Level" : "Nivel",
     "Readers may dismiss this notice" : "Cititorii pot închide această notificare",
     "Allow comments and following" : "Permite comentarii și urmărire",

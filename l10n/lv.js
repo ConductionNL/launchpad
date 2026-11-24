@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Sarunas iestatījumu nevarēja saglabāt.",
     "New announcement" : "Jauns paziņojums",
     "Target group" : "Mērķgrupa",
-    "Kind" : "Veids",
     "Level" : "Līmenis",
     "Readers may dismiss this notice" : "Lasītāji var aizvērt šo paziņojumu",
     "Allow comments and following" : "Atļaut komentārus un sekošanu",

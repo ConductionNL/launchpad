@@ -1621,7 +1621,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Не ўдалося захаваць наладу размовы.",
     "New announcement" : "Новае аб'яўленне",
     "Target group" : "Мэтавая група",
-    "Kind" : "Від",
     "Level" : "Узровень",
     "Readers may dismiss this notice" : "Чытачы могуць схаваць гэтае паведамленне",
     "Allow comments and following" : "Дазволіць каментарыі і падпіску",

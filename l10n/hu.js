@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "A beszélgetés beállítása nem menthető.",
     "New announcement" : "Új közlemény",
     "Target group" : "Célcsoport",
-    "Kind" : "Típus",
     "Level" : "Szint",
     "Readers may dismiss this notice" : "Az olvasók elvethetik ezt az értesítést",
     "Allow comments and following" : "Hozzászólások és követés engedélyezése",

@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Δεν ήταν δυνατή η αποθήκευση της ρύθμισης συνομιλίας.",
     "New announcement" : "Νέα ανακοίνωση",
     "Target group" : "Ομάδα-στόχος",
-    "Kind" : "Είδος",
     "Level" : "Επίπεδο",
     "Readers may dismiss this notice" : "Οι αναγνώστες μπορούν να απορρίψουν αυτή την ειδοποίηση",
     "Allow comments and following" : "Να επιτρέπονται σχόλια και παρακολούθηση",

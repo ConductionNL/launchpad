@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "La configuraziun da la conversaziun na sa laschava betg memorisar.",
     "New announcement" : "Nova annunzia",
     "Target group" : "Gruppa da destinaziun",
-    "Kind" : "Gener",
     "Level" : "Nivel",
     "Readers may dismiss this notice" : "Lecturs dastgan serrar quest avis",
     "Allow comments and following" : "Permetter commentaris e suandar",

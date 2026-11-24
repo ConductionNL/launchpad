@@ -1621,7 +1621,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Подешавање разговора није могло да се сачува.",
     "New announcement" : "Ново обавештење",
     "Target group" : "Циљна група",
-    "Kind" : "Врста",
     "Level" : "Ниво",
     "Readers may dismiss this notice" : "Читаоци могу да одбаце ово обавештење",
     "Allow comments and following" : "Дозволи коментаре и праћење",

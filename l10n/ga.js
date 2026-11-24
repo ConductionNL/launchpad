@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Níorbh fhéidir socrú an chomhrá a shábháil.",
     "New announcement" : "Fógra nua",
     "Target group" : "Spriocghrúpa",
-    "Kind" : "Cineál",
     "Level" : "Leibhéal",
     "Readers may dismiss this notice" : "Is féidir le léitheoirí an fógra seo a dhíbhe",
     "Allow comments and following" : "Ceadaigh tráchtanna agus leanúint",

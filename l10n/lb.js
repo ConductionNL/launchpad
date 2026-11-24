@@ -1621,7 +1621,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "D'Astellung vum Gespréich konnt net gespäichert ginn.",
     "New announcement" : "Nei Matteelung",
     "Target group" : "Zilgrupp",
-    "Kind" : "Aart",
     "Level" : "Niveau",
     "Readers may dismiss this notice" : "Lieser dierfen dësen Hiweis zoumaachen",
     "Allow comments and following" : "Kommentarer a Verfollegen erlaben",

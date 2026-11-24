@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Не вдалося зберегти налаштування розмови.",
     "New announcement" : "Нове оголошення",
     "Target group" : "Цільова група",
-    "Kind" : "Вид",
     "Level" : "Рівень",
     "Readers may dismiss this notice" : "Читачі можуть приховати це повідомлення",
     "Allow comments and following" : "Дозволити коментарі та стеження",

@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Cilësimi i bisedës nuk mund të ruhej.",
     "New announcement" : "Njoftim i ri",
     "Target group" : "Grupi i synuar",
-    "Kind" : "Lloji",
     "Level" : "Niveli",
     "Readers may dismiss this notice" : "Lexuesit mund ta mbyllin këtë njoftim",
     "Allow comments and following" : "Lejo komentet dhe ndjekjen",

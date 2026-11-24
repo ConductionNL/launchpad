@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "L-issettjar tal-konversazzjoni ma setax jiġi ssejvjat.",
     "New announcement" : "Avviż ġdid",
     "Target group" : "Grupp fil-mira",
-    "Kind" : "Tip",
     "Level" : "Livell",
     "Readers may dismiss this notice" : "Il-qarrejja jistgħu jwarrbu dan l-avviż",
     "Allow comments and following" : "Ippermetti kummenti u segwiment",

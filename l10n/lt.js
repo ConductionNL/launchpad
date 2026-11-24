@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Nepavyko įrašyti pokalbio nustatymo.",
     "New announcement" : "Naujas pranešimas",
     "Target group" : "Tikslinė grupė",
-    "Kind" : "Rūšis",
     "Level" : "Lygis",
     "Readers may dismiss this notice" : "Skaitytojai gali uždaryti šį pranešimą",
     "Allow comments and following" : "Leisti komentarus ir sekimą",

@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Nastavenie konverzácie sa nepodarilo uložiť.",
     "New announcement" : "Nové oznámenie",
     "Target group" : "Cieľová skupina",
-    "Kind" : "Druh",
     "Level" : "Úroveň",
     "Readers may dismiss this notice" : "Čitatelia môžu toto upozornenie zavrieť",
     "Allow comments and following" : "Povoliť komentáre a sledovanie",

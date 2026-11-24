@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Não foi possível guardar a definição da conversa.",
     "New announcement" : "Novo anúncio",
     "Target group" : "Grupo-alvo",
-    "Kind" : "Tipo",
     "Level" : "Nível",
     "Readers may dismiss this notice" : "Os leitores podem dispensar este aviso",
     "Allow comments and following" : "Permitir comentários e seguir",

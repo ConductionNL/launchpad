@@ -1630,7 +1630,6 @@ OC.L10N.register(
     "The conversation setting could not be saved." : "Nie udało się zapisać ustawienia rozmowy.",
     "New announcement" : "Nowe ogłoszenie",
     "Target group" : "Grupa docelowa",
-    "Kind" : "Rodzaj",
     "Level" : "Poziom",
     "Readers may dismiss this notice" : "Czytelnicy mogą odrzucić ten komunikat",
     "Allow comments and following" : "Zezwalaj na komentarze i obserwowanie",

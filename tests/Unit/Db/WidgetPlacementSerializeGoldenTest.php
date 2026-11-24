@@ -35,7 +35,7 @@ class WidgetPlacementSerializeGoldenTest extends TestCase {
 		$this->assertSame(
 			'{"id":5,"dashboardId":2,"widgetId":"w\/x","gridX":0,"gridY":0,"gridWidth":4,"gridHeight":4,'
 			. '"isCompulsory":0,"isVisible":1,"styleConfig":{},"customTitle":null,"customIcon":null,"content":{},"calculatedFields":[],'
-			. '"showTitle":1,"sortOrder":0,"requiresAcknowledgement":0,"acknowledgementPrompt":null,'
+			. '"showTitle":1,"sortOrder":0,"ruleMatch":"any","requiresAcknowledgement":0,"acknowledgementPrompt":null,'
 			. '"acknowledgementDeadline":null,"reacknowledgeOnChange":0,"acknowledgementContentVersion":1,'
 			. '"announcementKey":null,"templatePlacementId":null,"version":0,"createdAt":null,"updatedAt":null}',
 			json_encode($placement->jsonSerialize())
@@ -61,12 +61,12 @@ class WidgetPlacementSerializeGoldenTest extends TestCase {
 		$this->assertSame(['widgetId' => 'x'], $data['content']);
 		$this->assertSame(
 			['tileType', 'tileTitle', 'tileIcon', 'tileIconType', 'tileBackgroundColor', 'tileTextColor', 'tileLinkType', 'tileLinkValue'],
-			array_slice(array_keys($data), 26)
+			array_slice(array_keys($data), 27)
 		);
 		$this->assertSame(
 			['custom', 'Mail', 'mail', 'class', '#000', '#fff', 'app', 'mail'],
-			array_slice(array_values($data), 26)
+			array_slice(array_values($data), 27)
 		);
-		$this->assertCount(34, $data);
+		$this->assertCount(35, $data);
 	}
 }

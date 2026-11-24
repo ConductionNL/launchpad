@@ -1486,6 +1486,26 @@
         "Confirmed {date}": "Potrjeno {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Prikazanih {shown} od {total}. Prenos da celoten seznam z datumom in uro vsake potrditve.",
         "Department in read confirmations": "Oddelek v potrditvah branja",
-        "Could not load the read-receipt report.": "Poročila o potrditvah branja ni bilo mogoče naložiti."
+        "Could not load the read-receipt report.": "Poročila o potrditvah branja ni bilo mogoče naložiti.",
+        "Who sees this widget?": "Kdo vidi ta gradnik?",
+        "If all rules match": "Če se ujemajo vsa pravila",
+        "If one rule matches": "Če se ujema eno pravilo",
+        "Show when ALL of these match": "Prikaži, ko se ujemajo VSA od teh",
+        "View as": "Poglej kot",
+        "Moment": "Trenutek",
+        "Times": "Časi",
+        "Profile field": "Polje profila",
+        "{list} or {last}": "{list} ali {last}",
+        "{name} is in {groups}": "{name} je v skupini {groups}",
+        "{name} is not in {groups}": "{name} ni v skupini {groups}",
+        "{moment} is within the times": "{moment} je znotraj časov",
+        "{moment} is outside the times": "{moment} je zunaj časov",
+        "{moment} is within the period": "{moment} je znotraj obdobja",
+        "{moment} is outside the period": "{moment} je zunaj obdobja",
+        "the profile field {field} of {name} matches": "polje profila {field} uporabnika {name} se ujema",
+        "the profile field {field} of {name} does not match": "polje profila {field} uporabnika {name} se ne ujema",
+        "{name} sees this widget: no rule limits who sees it.": "{name} vidi ta gradnik: nobeno pravilo ne omejuje, kdo ga vidi.",
+        "{name} sees this widget, because {reasons}.": "{name} vidi ta gradnik, ker {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} ne vidi tega gradnika, ker {reasons}."
     }
 }

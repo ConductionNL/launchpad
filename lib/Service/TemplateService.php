@@ -268,6 +268,7 @@ class TemplateService {
 	 * @param int $dashboardId The target dashboard ID.
 	 *
 	 * @return WidgetPlacement The cloned placement entity.
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function clonePlacement(
 		WidgetPlacement $source,
@@ -295,6 +296,8 @@ class TemplateService {
 		$placement->setCustomIcon($source->getCustomIcon());
 		$placement->setShowTitle($source->getShowTitle());
 		$placement->setSortOrder($source->getSortOrder());
+		// REQ-VIS-014: how the visibility rules combine travels with the copy.
+		$placement->setRuleMatch($source->getRuleMatch());
 		// REQ-DASH-020: `content` carries the widget configuration — for
 		// `nc-widget` rows the `{"widgetId": ...}` JSON that tells the
 		// renderer what to load. Dropping it distributes widgets into a

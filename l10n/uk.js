@@ -1582,7 +1582,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Підтверджено {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Показано {shown} з {total}. Завантаження дає повний список із датою й часом кожного підтвердження.",
     "Department in read confirmations" : "Відділ у підтвердженнях прочитання",
-    "Could not load the read-receipt report." : "Не вдалося завантажити звіт про підтвердження прочитання."
+    "Could not load the read-receipt report." : "Не вдалося завантажити звіт про підтвердження прочитання.",
+    "Who sees this widget?" : "Хто бачить цей віджет?",
+    "If all rules match" : "Якщо виконуються всі правила",
+    "If one rule matches" : "Якщо виконується одне правило",
+    "Show when ALL of these match" : "Показувати, коли виконуються ВСІ з них",
+    "View as" : "Переглянути як",
+    "Moment" : "Момент",
+    "Times" : "Час",
+    "Profile field" : "Поле профілю",
+    "{list} or {last}" : "{list} або {last}",
+    "{name} is in {groups}" : "{name} входить до {groups}",
+    "{name} is not in {groups}" : "{name} не входить до {groups}",
+    "{moment} is within the times" : "{moment} потрапляє у вказаний час",
+    "{moment} is outside the times" : "{moment} не потрапляє у вказаний час",
+    "{moment} is within the period" : "{moment} потрапляє в період",
+    "{moment} is outside the period" : "{moment} не потрапляє в період",
+    "the profile field {field} of {name} matches" : "поле профілю {field} користувача {name} збігається",
+    "the profile field {field} of {name} does not match" : "поле профілю {field} користувача {name} не збігається",
+    "{name} sees this widget: no rule limits who sees it." : "{name} бачить цей віджет: жодне правило не обмежує, хто його бачить.",
+    "{name} sees this widget, because {reasons}." : "{name} бачить цей віджет, тому що {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} не бачить цей віджет, тому що {reasons}."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

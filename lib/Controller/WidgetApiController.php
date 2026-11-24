@@ -22,6 +22,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Exception\InvalidWidgetContentException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\Exception\StalePlacementException;
@@ -665,13 +666,15 @@ class WidgetApiController extends Controller {
 	 * @return JSONResponse|null The refusal, or NULL to proceed.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function denyPlacementUpdate(int $placementId): ?JSONResponse {
 		if ($this->mayStyle(placementId: $placementId) === false) {
 			return $this->context->responseHelper->forbidden();
 		}
 
-		$ackDenial = $this->denyAcknowledgementChange(placementId: $placementId);
+		$ackDenial = $this->denyAcknowledgementChange(placementId: $placementId)
+			?? $this->denyRuleMatchChange(placementId: $placementId);
 		if ($ackDenial !== null) {
 			return $ackDenial;
 		}
@@ -683,6 +686,41 @@ class WidgetApiController extends Controller {
 			content: $this->request->getParam(key: 'content')
 		);
 	}//end denyPlacementUpdate()
+
+	/**
+	 * Refuse a `ruleMatch` that is not `any` or `all` (400), or one set by
+	 * someone who may not edit the placement's rules (403): the dashboard
+	 * owner or an administrator, as for the rules themselves.
+	 *
+	 * @param int $placementId The placement ID.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	private function denyRuleMatchChange(int $placementId): ?JSONResponse {
+		$ruleMatch = $this->request->getParam(key: 'ruleMatch');
+		if ($ruleMatch === null) {
+			return null;
+		}
+
+		if (in_array($ruleMatch, WidgetPlacement::RULE_MATCHES, true) === false) {
+			return $this->context->responseHelper->invalidArgument(message: 'ruleMatch must be any or all');
+		}
+
+		try {
+			$this->access->permissionService->verifyPlacementOwnership(
+				userId: (string)$this->context->userId,
+				placementId: $placementId
+			);
+		} catch (\Exception $e) {
+			return $this->context->responseHelper->forbidden(
+				message: 'Only the dashboard owner or an admin may change how the rules combine'
+			);
+		}
+
+		return null;
+	}//end denyRuleMatchChange()
 
 	/**
 	 * Whether the user may restyle a placement.

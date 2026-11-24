@@ -1482,6 +1482,26 @@
         "Confirmed {date}": "Bekräftad {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} av {total} visas. Hämta ger hela listan med datum och tid för varje bekräftelse.",
         "Department in read confirmations": "Avdelning i läsbekräftelser",
-        "Could not load the read-receipt report.": "Rapporten över läsbekräftelser kunde inte läsas in."
+        "Could not load the read-receipt report.": "Rapporten över läsbekräftelser kunde inte läsas in.",
+        "Who sees this widget?": "Vem ser den här widgeten?",
+        "If all rules match": "Om alla regler stämmer",
+        "If one rule matches": "Om en regel stämmer",
+        "Show when ALL of these match": "Visa när ALLA dessa stämmer",
+        "View as": "Visa som",
+        "Moment": "Tidpunkt",
+        "Times": "Tider",
+        "Profile field": "Profilfält",
+        "{list} or {last}": "{list} eller {last}",
+        "{name} is in {groups}": "{name} är med i {groups}",
+        "{name} is not in {groups}": "{name} är inte med i {groups}",
+        "{moment} is within the times": "{moment} är inom tiderna",
+        "{moment} is outside the times": "{moment} är utanför tiderna",
+        "{moment} is within the period": "{moment} är inom perioden",
+        "{moment} is outside the period": "{moment} är utanför perioden",
+        "the profile field {field} of {name} matches": "profilfältet {field} för {name} stämmer",
+        "the profile field {field} of {name} does not match": "profilfältet {field} för {name} stämmer inte",
+        "{name} sees this widget: no rule limits who sees it.": "{name} ser den här widgeten: ingen regel begränsar vem som ser den.",
+        "{name} sees this widget, because {reasons}.": "{name} ser den här widgeten, eftersom {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} ser inte den här widgeten, eftersom {reasons}."
     }
 }

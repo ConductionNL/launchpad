@@ -1482,6 +1482,26 @@
         "Confirmed {date}": "Kinnitatud {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Näidatud {shown}/{total}. Allalaadimine annab täieliku nimekirja iga kinnituse kuupäeva ja kellaajaga.",
         "Department in read confirmations": "Osakond lugemiskinnitustes",
-        "Could not load the read-receipt report.": "Lugemiskinnituste aruannet ei õnnestunud laadida."
+        "Could not load the read-receipt report.": "Lugemiskinnituste aruannet ei õnnestunud laadida.",
+        "Who sees this widget?": "Kes seda vidinat näeb?",
+        "If all rules match": "Kui kõik reeglid sobivad",
+        "If one rule matches": "Kui üks reegel sobib",
+        "Show when ALL of these match": "Näita, kui KÕIK need sobivad",
+        "View as": "Vaata kui",
+        "Moment": "Hetk",
+        "Times": "Ajad",
+        "Profile field": "Profiiliväli",
+        "{list} or {last}": "{list} või {last}",
+        "{name} is in {groups}": "{name} on grupis {groups}",
+        "{name} is not in {groups}": "{name} ei ole grupis {groups}",
+        "{moment} is within the times": "{moment} jääb aegade sisse",
+        "{moment} is outside the times": "{moment} jääb aegadest välja",
+        "{moment} is within the period": "{moment} jääb perioodi sisse",
+        "{moment} is outside the period": "{moment} jääb perioodist välja",
+        "the profile field {field} of {name} matches": "kasutaja {name} profiiliväli {field} sobib",
+        "the profile field {field} of {name} does not match": "kasutaja {name} profiiliväli {field} ei sobi",
+        "{name} sees this widget: no rule limits who sees it.": "{name} näeb seda vidinat: ükski reegel ei piira, kes seda näeb.",
+        "{name} sees this widget, because {reasons}.": "{name} näeb seda vidinat, sest {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} ei näe seda vidinat, sest {reasons}."
     }
 }

@@ -75,6 +75,13 @@ function mountEditor(props = {}) {
 	})
 }
 
+/** Open the editor of every saved rule's card (cards start closed). */
+async function openEditors(wrapper) {
+	for (const button of wrapper.findAll('[data-test="rule-card-edit"]')) {
+		await button.trigger('click')
+	}
+}
+
 beforeEach(() => {
 	globalThis.t = (_app, key, params) => {
 		if (!params) {
@@ -155,6 +162,7 @@ describe('ConditionalVisibilityEditor', () => {
 			wrapper.findAll('[data-test="visibility-rule-row-include"]'),
 		).toHaveLength(1)
 
+		await openEditors(wrapper)
 		await wrapper.find('.toggle-btn').trigger('click')
 
 		expect(
@@ -220,6 +228,8 @@ describe('ConditionalVisibilityEditor', () => {
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		await wrapper.vm.$nextTick()
 
+		expect(wrapper.find('.save-btn').exists()).toBe(false)
+		await openEditors(wrapper)
 		await wrapper.find('.save-btn').trigger('click')
 		await wrapper.vm.$nextTick()
 
@@ -245,7 +255,7 @@ describe('ConditionalVisibilityEditor', () => {
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		await wrapper.vm.$nextTick()
 
-		await wrapper.find('.remove-btn').trigger('click')
+		await wrapper.find('[data-test="rule-card-delete"]').trigger('click')
 		await wrapper.vm.$nextTick()
 
 		expect(api.deleteRule).toHaveBeenCalledWith(5)
@@ -292,7 +302,6 @@ describe('ConditionalVisibilityEditor', () => {
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		await wrapper.vm.$nextTick()
 
-		wrapper.vm.previewGroups = ['marketing']
 		await wrapper.find('[data-test="run-preview"]').trigger('click')
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		await wrapper.vm.$nextTick()
@@ -307,7 +316,8 @@ describe('ConditionalVisibilityEditor', () => {
 				isInclude: true,
 			},
 		])
-		expect(body.context.groups).toEqual(['marketing'])
+		expect(body.match).toBe('any')
+		expect(body.placementId).toBe(10)
 
 		expect(wrapper.find('[data-test="preview-verdict-text"]').text()).toBe(
 			'Visible',

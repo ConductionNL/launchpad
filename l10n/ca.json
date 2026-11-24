@@ -1482,6 +1482,26 @@
         "Confirmed {date}": "Confirmat el {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} de {total} mostrats. La baixada dona la llista completa amb la data i l'hora de cada confirmació.",
         "Department in read confirmations": "Departament a les confirmacions de lectura",
-        "Could not load the read-receipt report.": "No s'ha pogut carregar l'informe de confirmacions de lectura."
+        "Could not load the read-receipt report.": "No s'ha pogut carregar l'informe de confirmacions de lectura.",
+        "Who sees this widget?": "Qui veu aquest giny?",
+        "If all rules match": "Si es compleixen totes les regles",
+        "If one rule matches": "Si es compleix una regla",
+        "Show when ALL of these match": "Mostra si es compleixen TOTES aquestes",
+        "View as": "Mostra com a",
+        "Moment": "Moment",
+        "Times": "Horaris",
+        "Profile field": "Camp del perfil",
+        "{list} or {last}": "{list} o {last}",
+        "{name} is in {groups}": "{name} és a {groups}",
+        "{name} is not in {groups}": "{name} no és a {groups}",
+        "{moment} is within the times": "{moment} és dins dels horaris",
+        "{moment} is outside the times": "{moment} és fora dels horaris",
+        "{moment} is within the period": "{moment} és dins del període",
+        "{moment} is outside the period": "{moment} és fora del període",
+        "the profile field {field} of {name} matches": "el camp del perfil {field} de {name} coincideix",
+        "the profile field {field} of {name} does not match": "el camp del perfil {field} de {name} no coincideix",
+        "{name} sees this widget: no rule limits who sees it.": "{name} veu aquest giny: cap regla limita qui el veu.",
+        "{name} sees this widget, because {reasons}.": "{name} veu aquest giny, perquè {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} no veu aquest giny, perquè {reasons}."
     }
 }

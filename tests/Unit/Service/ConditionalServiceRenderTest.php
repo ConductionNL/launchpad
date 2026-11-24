@@ -203,4 +203,32 @@ class ConditionalServiceRenderTest extends TestCase {
 
 		$this->assertSame(expected: [], actual: $this->service->visiblePlacements(placements: [], userId: 'bob', canEdit: false));
 	}//end testNoPlacementsReadNothing()
+
+	/**
+	 * A placement whose two include rules must both match is hidden when
+	 * only one matches, and shown when it needs only one (REQ-VIS-014).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	public function testThePlacementsMatchModeIsUsed(): void {
+		$this->rules->method('findByPlacementIds')->willReturn(
+			[
+				self::groupRule(placementId: 4, group: 'staff', isInclude: true),
+				self::groupRule(placementId: 4, group: 'board', isInclude: true),
+				self::groupRule(placementId: 5, group: 'staff', isInclude: true),
+				self::groupRule(placementId: 5, group: 'board', isInclude: true),
+			]
+		);
+		$placements = [
+			['id' => 4, 'widgetId' => 'news', 'ruleMatch' => 'all'],
+			['id' => 5, 'widgetId' => 'news', 'ruleMatch' => 'any'],
+		];
+
+		$this->assertSame(
+			expected: [5],
+			actual: array_column(array: $this->service->visiblePlacements(placements: $placements, userId: 'alice', canEdit: false), column_key: 'id')
+		);
+	}//end testThePlacementsMatchModeIsUsed()
 }//end class

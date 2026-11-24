@@ -4,8 +4,8 @@
  *
  * Vitest unit tests for `ConditionalVisibilityEditor.vue` driven through its
  * rendered controls: an exclude ("Hide when…") row's live update and save,
- * the Add rule button, the preview audience/date pickers feeding the
- * preview request, and a rules response that is a bare array.
+ * the Add rule button, and a rules response that is a bare array. The View
+ * as pickers are covered in ConditionalVisibilityEditor.viewAs.spec.js.
  */
 
 import { mount } from '@vue/test-utils'
@@ -84,6 +84,13 @@ const excludeRule = {
 	isInclude: false,
 }
 
+/** Open the editor of every saved rule's card (cards start closed). */
+async function openEditors(wrapper) {
+	for (const button of wrapper.findAll('[data-test="rule-card-edit"]')) {
+		await button.trigger('click')
+	}
+}
+
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
 	vi.clearAllMocks()
@@ -94,6 +101,7 @@ describe('ConditionalVisibilityEditor — exclude rows', () => {
 		api.getWidgetRules.mockResolvedValue({ data: { rules: [excludeRule] } })
 		const wrapper = mountEditor()
 		await settle(wrapper)
+		await openEditors(wrapper)
 
 		const section = wrapper.find('[data-test="exclude-section"]')
 		expect(section.findAll('.rule-row-stub')).toHaveLength(1)
@@ -115,6 +123,7 @@ describe('ConditionalVisibilityEditor — exclude rows', () => {
 		})
 		const wrapper = mountEditor()
 		await settle(wrapper)
+		await openEditors(wrapper)
 
 		await wrapper.find('[data-test="exclude-section"] .save-btn').trigger('click')
 		await settle(wrapper)
@@ -159,28 +168,3 @@ describe('ConditionalVisibilityEditor — add rule button', () => {
 	})
 })
 
-describe('ConditionalVisibilityEditor — preview pickers', () => {
-	it('sends the groups and date/time chosen in the pickers', async () => {
-		api.getWidgetRules.mockResolvedValue({ data: { rules: [excludeRule] } })
-		api.previewVisibility.mockResolvedValue({
-			data: { visible: false, matchedIncludeRuleIds: [], matchedExcludeRuleIds: [7] },
-		})
-		const wrapper = mountEditor()
-		await settle(wrapper)
-
-		await wrapper.find('[data-test="visibility-preview"] .pick-all').trigger('click')
-		await wrapper.find('[data-test="visibility-preview"] input').setValue('2026-05-04T08:15')
-		const runBtn = wrapper.findAll('button').find((b) => b.text() === 'Preview')
-		await runBtn.trigger('click')
-		await settle(wrapper)
-
-		expect(api.previewVisibility).toHaveBeenCalledWith({
-			rules: [{ id: 7, ruleType: 'group', ruleConfig: { groups: ['admin'] }, isInclude: false }],
-			context: {
-				groups: ['admin', 'sales'],
-				datetime: new Date('2026-05-04T08:15').toISOString(),
-			},
-		})
-		expect(wrapper.find('[data-test="preview-verdict-text"]').text()).toBe('Hidden')
-	})
-})

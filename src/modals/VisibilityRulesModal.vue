@@ -8,20 +8,28 @@
 		v-if="open"
 		class="launchpad-modal"
 		size="normal"
-		:name="t('launchpad', 'Visibility rules')"
+		:name="t('launchpad', 'Who sees this widget?')"
 		@close="$emit('close')">
 		<div class="visibility-rules" data-test="visibility-rules-modal">
-			<h2 class="visibility-rules__title">
-				{{ t('launchpad', 'Visibility rules') }}
+			<h2 class="visibility-rules__title" data-test="visibility-rules-title">
+				{{ t('launchpad', 'Who sees this widget?') }}
 			</h2>
+			<p
+				v-if="subtitle"
+				class="visibility-rules__subtitle"
+				data-test="visibility-rules-subtitle">
+				{{ subtitle }}
+			</p>
 
 			<ConditionalVisibilityEditor
 				:placementId="placementId"
 				:availableGroups="offeredGroups"
+				:ruleMatch="ruleMatch"
 				data-test="conditional-visibility-editor"
 				@ruleAdded="$emit('ruleAdded')"
 				@ruleUpdated="$emit('ruleUpdated')"
-				@ruleRemoved="$emit('ruleRemoved')" />
+				@ruleRemoved="$emit('ruleRemoved')"
+				@ruleMatchChanged="$emit('ruleMatchChanged', $event)" />
 		</div>
 	</NcModal>
 </template>
@@ -34,10 +42,12 @@ import { FLAG_PROP, LIST_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
 
 /**
- * VisibilityRulesModal — the placement's "Visibility" settings surface
- * (conditional-visibility-editor spec, REQ-CVUI-001). Opens from the widget
- * context menu and hosts `ConditionalVisibilityEditor` as its single
- * section body; all rule builder/list/preview behaviour lives there.
+ * VisibilityRulesModal — "Who sees this widget?" (board LpZichtbaarheid,
+ * conditional-visibility-editor REQ-CVUI-001 and REQ-CVUI-006). Titled with
+ * the widget and the dashboard under it; opens from the widget's menu and
+ * its right-click menu in edit mode, and hosts `ConditionalVisibilityEditor`
+ * as its single section body; all rule builder/list/preview behaviour lives
+ * there.
  */
 export default {
 	name: 'VisibilityRulesModal',
@@ -59,9 +69,27 @@ export default {
 
 		/** Optional group-id list for the group-rule picker. */
 		availableGroups: LIST_PROP,
+
+		/** The widget's title, shown under the dialog title. */
+		widgetTitle: {
+			type: String,
+			default: '',
+		},
+
+		/** The dashboard's name, shown after the widget's title. */
+		dashboardName: {
+			type: String,
+			default: '',
+		},
+
+		/** How the widget's include rules combine: `any` or `all`. */
+		ruleMatch: {
+			type: String,
+			default: 'any',
+		},
 	},
 
-	emits: ['close', 'ruleAdded', 'ruleUpdated', 'ruleRemoved'],
+	emits: ['close', 'ruleAdded', 'ruleUpdated', 'ruleRemoved', 'ruleMatchChanged'],
 
 	data() {
 		return {
@@ -70,6 +98,17 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The line under the title: "<widget> · <dashboard>", or whichever
+		 * of the two is known.
+		 *
+		 * @return {string} the line, empty when neither is known.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		subtitle() {
+			return [this.widgetTitle, this.dashboardName].filter((part) => part).join(' · ')
+		},
+
 		/**
 		 * The groups the pickers offer: the passed list, else the instance's groups.
 		 *
@@ -126,6 +165,11 @@ export default {
 }
 
 .visibility-rules__title {
-	margin: 0 0 8px;
+	margin: 0 0 4px;
+}
+
+.visibility-rules__subtitle {
+	margin: 0 0 16px;
+	color: var(--color-text-maxcontrast);
 }
 </style>

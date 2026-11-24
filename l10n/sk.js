@@ -1582,7 +1582,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Potvrdené {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Zobrazené {shown} z {total}. Stiahnutie dá úplný zoznam s dátumom a časom každého potvrdenia.",
     "Department in read confirmations" : "Oddelenie v potvrdeniach o prečítaní",
-    "Could not load the read-receipt report." : "Prehľad potvrdení o prečítaní sa nepodarilo načítať."
+    "Could not load the read-receipt report." : "Prehľad potvrdení o prečítaní sa nepodarilo načítať.",
+    "Who sees this widget?" : "Kto vidí tento widget?",
+    "If all rules match" : "Ak platia všetky pravidlá",
+    "If one rule matches" : "Ak platí jedno pravidlo",
+    "Show when ALL of these match" : "Zobraziť, keď platia VŠETKY z nich",
+    "View as" : "Zobraziť ako",
+    "Moment" : "Okamih",
+    "Times" : "Časy",
+    "Profile field" : "Pole profilu",
+    "{list} or {last}" : "{list} alebo {last}",
+    "{name} is in {groups}" : "{name} je v skupine {groups}",
+    "{name} is not in {groups}" : "{name} nie je v skupine {groups}",
+    "{moment} is within the times" : "{moment} je v rámci časov",
+    "{moment} is outside the times" : "{moment} je mimo časov",
+    "{moment} is within the period" : "{moment} je v rámci obdobia",
+    "{moment} is outside the period" : "{moment} je mimo obdobia",
+    "the profile field {field} of {name} matches" : "pole profilu {field} používateľa {name} zodpovedá",
+    "the profile field {field} of {name} does not match" : "pole profilu {field} používateľa {name} nezodpovedá",
+    "{name} sees this widget: no rule limits who sees it." : "{name} vidí tento widget: žiadne pravidlo neobmedzuje, kto ho vidí.",
+    "{name} sees this widget, because {reasons}." : "{name} vidí tento widget, pretože {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} nevidí tento widget, pretože {reasons}."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

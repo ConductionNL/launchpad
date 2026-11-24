@@ -20,20 +20,36 @@
 	<div
 		class="conditional-visibility-editor"
 		data-test="conditional-visibility-editor">
-		<p class="conditional-visibility-editor__hint">
-			{{
-				t(
-					'launchpad',
-					'Show or hide this widget based on group membership, time of day, date range, or a user attribute.',
-				)
-			}}
-		</p>
-
 		<div v-if="loading" class="conditional-visibility-editor__loading">
 			<NcLoadingIcon :size="32" />
 		</div>
 
 		<template v-else>
+			<!-- REQ-CVUI-006: all or one rule must match, as two choice cards
+			     with radio-group semantics (arrow keys move the choice). -->
+			<div
+				class="conditional-visibility-editor__modes"
+				role="radiogroup"
+				:aria-label="t('launchpad', 'Who sees this widget?')"
+				data-test="rule-match">
+				<button
+					v-for="mode in matchModes"
+					:key="mode.id"
+					type="button"
+					role="radio"
+					class="conditional-visibility-editor__mode"
+					:class="{ 'conditional-visibility-editor__mode--active': matchMode === mode.id }"
+					:aria-checked="matchMode === mode.id ? 'true' : 'false'"
+					:tabindex="matchMode === mode.id ? 0 : -1"
+					:disabled="savingMatch"
+					:data-test="'rule-match-' + mode.id"
+					@click="setMatchMode(mode.id)"
+					@keydown="onModeKeydown">
+					<span class="conditional-visibility-editor__mode-dot" aria-hidden="true" />
+					{{ mode.label }}
+				</button>
+			</div>
+
 			<p
 				v-if="isEmpty"
 				class="conditional-visibility-editor__empty"
@@ -47,43 +63,67 @@
 			</p>
 
 			<section
-				v-if="includeRules.length > 0"
+				v-for="section in sections"
+				:key="section.id"
 				class="conditional-visibility-editor__section"
-				data-test="include-section">
-				<h3>{{ t('launchpad', 'Show when ANY of these match') }}</h3>
-				<div class="conditional-visibility-editor__rows">
-					<VisibilityRuleRow
-						v-for="row in includeRules"
+				:data-test="section.id + '-section'">
+				<h3>{{ section.heading }}</h3>
+				<ul class="conditional-visibility-editor__rows">
+					<li
+						v-for="row in section.rules"
 						:key="rowKey(row)"
-						:rule="row"
-						:availableGroups="availableGroups"
-						:busy="isRowBusy(row)"
-						:isNew="row.id === null"
-						data-test="visibility-rule-row-include"
-						@update:rule="onRowUpdate(row, $event)"
-						@save="onRowSave(row, $event)"
-						@remove="onRowRemove(row)" />
-				</div>
-			</section>
-
-			<section
-				v-if="excludeRules.length > 0"
-				class="conditional-visibility-editor__section"
-				data-test="exclude-section">
-				<h3>{{ t('launchpad', 'Hide when ANY of these match') }}</h3>
-				<div class="conditional-visibility-editor__rows">
-					<VisibilityRuleRow
-						v-for="row in excludeRules"
-						:key="rowKey(row)"
-						:rule="row"
-						:availableGroups="availableGroups"
-						:busy="isRowBusy(row)"
-						:isNew="row.id === null"
-						data-test="visibility-rule-row-exclude"
-						@update:rule="onRowUpdate(row, $event)"
-						@save="onRowSave(row, $event)"
-						@remove="onRowRemove(row)" />
-				</div>
+						class="conditional-visibility-editor__card"
+						:data-test="'visibility-rule-row-' + section.id">
+						<div class="conditional-visibility-editor__card-head" data-test="visibility-rule-card">
+							<span
+								:id="'rule-kind-' + rowKey(row)"
+								class="conditional-visibility-editor__kind"
+								data-test="rule-card-kind">
+								{{ kindLabel(row) }}
+							</span>
+							<span
+								v-if="row.ruleType === 'group'"
+								class="conditional-visibility-editor__chips"
+								data-test="rule-card-value">
+								<span
+									v-for="name in groupNamesOf(row)"
+									:key="name"
+									class="conditional-visibility-editor__chip">{{ name }}</span>
+							</span>
+							<span
+								v-else
+								class="conditional-visibility-editor__value"
+								data-test="rule-card-value">{{ valueOf(row) }}</span>
+							<span class="conditional-visibility-editor__card-actions">
+								<NcButton
+									variant="tertiary"
+									:aria-describedby="'rule-kind-' + rowKey(row)"
+									:aria-expanded="isEditing(row) ? 'true' : 'false'"
+									data-test="rule-card-edit"
+									@click="toggleEdit(row)">
+									{{ t('launchpad', 'Edit') }}
+								</NcButton>
+								<NcButton
+									variant="tertiary"
+									:aria-describedby="'rule-kind-' + rowKey(row)"
+									:disabled="isRowBusy(row)"
+									data-test="rule-card-delete"
+									@click="onRowRemove(row)">
+									{{ t('launchpad', 'Delete') }}
+								</NcButton>
+							</span>
+						</div>
+						<VisibilityRuleRow
+							v-if="isEditing(row)"
+							:rule="row"
+							:availableGroups="availableGroups"
+							:busy="isRowBusy(row)"
+							:isNew="row.id === null"
+							@update:rule="onRowUpdate(row, $event)"
+							@save="onRowSave(row, $event)"
+							@remove="onRowRemove(row)" />
+					</li>
+				</ul>
 			</section>
 
 			<NcButton variant="secondary" data-test="add-rule" @click="addRule">
@@ -93,31 +133,31 @@
 				{{ t('launchpad', 'Add rule') }}
 			</NcButton>
 
-			<!-- REQ-CVUI-004: preview as audience/date. -->
+			<!-- REQ-CVUI-006: View as a person at a moment, with the sentence. -->
 			<section
 				class="conditional-visibility-editor__preview"
 				data-test="visibility-preview">
-				<h3>{{ t('launchpad', 'Preview as audience / date') }}</h3>
+				<h3>{{ t('launchpad', 'View as') }}</h3>
 				<div class="conditional-visibility-editor__preview-fields">
 					<div class="conditional-visibility-editor__preview-field">
-						<NcSelectTags
-							v-model="previewGroups"
-							:options="previewGroupOptions"
-							:fetchTags="false"
-							:multiple="true"
-							:aria-label-combobox="
-								t('launchpad', 'Preview as groups')
-							"
-							:placeholder="
-								t('launchpad', 'Select groups to preview as')
-							"
-							data-test="preview-groups" />
+						<NcSelect
+							v-model="previewPerson"
+							:options="personOptions"
+							:filterable="false"
+							:loading="personLoading"
+							:inputLabel="t('launchpad', 'Person')"
+							:placeholder="t('launchpad', 'Search people')"
+							label="displayName"
+							trackBy="id"
+							:clearable="false"
+							data-test="preview-person"
+							@search="onPersonSearch" />
 					</div>
 					<div class="conditional-visibility-editor__preview-field">
 						<NcTextField
 							v-model="previewDatetime"
 							type="datetime-local"
-							:label="t('launchpad', 'Preview at date/time')"
+							:label="t('launchpad', 'Moment')"
 							data-test="preview-datetime" />
 					</div>
 					<NcButton
@@ -150,6 +190,7 @@
 				<div
 					v-else-if="preview.state.result"
 					class="conditional-visibility-editor__preview-result"
+					role="status"
 					data-test="preview-result">
 					<p class="conditional-visibility-editor__preview-verdict">
 						<Eye v-if="preview.state.result.visible" :size="20" />
@@ -163,26 +204,23 @@
 						</strong>
 					</p>
 					<p
+						class="conditional-visibility-editor__preview-sentence"
+						data-test="visibility-sentence">
+						{{ sentence }}
+					</p>
+					<p
 						v-for="rule in matchedIncludeRules"
-						:key="'inc-' + rule.id"
+						:key="'inc-' + rowKey(rule)"
 						class="conditional-visibility-editor__preview-reason"
 						data-test="preview-matched-include">
-						{{
-							t('launchpad', 'Matched include rule: {summary}', {
-								summary: describeRule(rule),
-							})
-						}}
+						{{ t('launchpad', 'Matched include rule: {summary}', { summary: valueOf(rule) }) }}
 					</p>
 					<p
 						v-for="rule in matchedExcludeRules"
-						:key="'exc-' + rule.id"
+						:key="'exc-' + rowKey(rule)"
 						class="conditional-visibility-editor__preview-reason"
 						data-test="preview-matched-exclude">
-						{{
-							t('launchpad', 'Matched exclude rule: {summary}', {
-								summary: describeRule(rule),
-							})
-						}}
+						{{ t('launchpad', 'Matched exclude rule: {summary}', { summary: valueOf(rule) }) }}
 					</p>
 				</div>
 			</section>
@@ -194,10 +232,11 @@
 import {
 	NcButton,
 	NcLoadingIcon,
-	NcSelectTags,
+	NcSelect,
 	NcTextField,
 } from '@conduction/nextcloud-vue'
-import { t } from '@nextcloud/l10n'
+import { getCurrentUser } from '@nextcloud/auth'
+import { getLanguage, t } from '@nextcloud/l10n'
 import Eye from 'vue-material-design-icons/Eye.vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
@@ -207,6 +246,37 @@ import { LIST_PROP } from '../../constants/propDefinitions.js'
 import { api } from '../../services/api.js'
 import { toGroupOptions } from '../../utils/groupOptions.js'
 import { logger } from '../../utils/logger.js'
+import {
+	formatMoment,
+	ruleGroupNames,
+	ruleKindLabel,
+	ruleValue,
+	visibilitySentence,
+} from '../../utils/visibilitySentence.js'
+
+/** How the include rules combine: one is enough, or all must match. */
+const MATCH_MODES = ['all', 'any']
+
+/**
+ * The signed-in user as a person option, or null.
+ *
+ * @return {{id: string, displayName: string}|null} the option.
+ */
+function currentPerson() {
+	const user = getCurrentUser()
+	return user ? { id: user.uid, displayName: user.displayName || user.uid } : null
+}
+
+/**
+ * A moment as the value of a `datetime-local` field, in local time.
+ *
+ * @param {Date} date The moment.
+ * @return {string} `YYYY-MM-DDTHH:mm`.
+ */
+function localDatetime(date) {
+	const pad = (n) => String(n).padStart(2, '0')
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
 
 /**
  * A response body's `data` envelope when present, else the body itself.
@@ -262,7 +332,7 @@ export default {
 
 	components: {
 		NcButton,
-		NcSelectTags,
+		NcSelect,
 		NcTextField,
 		NcLoadingIcon,
 		Plus,
@@ -278,11 +348,17 @@ export default {
 			default: null,
 		},
 
-		/** Group-id options for the group-rule / preview-audience pickers. */
+		/** Group-id options for the group-rule picker and the group chips. */
 		availableGroups: LIST_PROP,
+
+		/** How the include rules combine: `any` (one is enough) or `all`. */
+		ruleMatch: {
+			type: String,
+			default: 'any',
+		},
 	},
 
-	emits: ['ruleAdded', 'ruleUpdated', 'ruleRemoved'],
+	emits: ['ruleAdded', 'ruleUpdated', 'ruleRemoved', 'ruleMatchChanged'],
 
 	/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 	setup() {
@@ -295,19 +371,101 @@ export default {
 			loading: false,
 			busyKeys: {},
 			nextLocalId: -1,
-			previewGroups: [],
-			previewDatetime: '',
+			matchMode: this.ruleMatch === 'all' ? 'all' : 'any',
+			savingMatch: false,
+			editingKeys: {},
+			previewPerson: currentPerson(),
+			personOptions: currentPerson() ? [currentPerson()] : [],
+			personLoading: false,
+			personSearchSeq: 0,
+			previewDatetime: localDatetime(new Date()),
+			previewSubject: null,
 		}
 	},
 
 	computed: {
 		/**
-		 * The preview group picker's options: the offered groups plus any already chosen.
+		 * The two choice cards: all rules or one rule must match.
 		 *
+		 * @return {Array<{id: string, label: string}>} the modes.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		matchModes() {
+			return [
+				{ id: 'all', label: t('launchpad', 'If all rules match') },
+				{ id: 'any', label: t('launchpad', 'If one rule matches') },
+			]
+		},
+
+		/**
+		 * The include and exclude sections that have rules, with headings
+		 * that follow the match mode (REQ-CVUI-003).
+		 *
+		 * @return {Array<{id: string, heading: string, rules: Array<object>}>} the sections.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		sections() {
+			return [
+				{
+					id: 'include',
+					heading: this.matchMode === 'all'
+						? t('launchpad', 'Show when ALL of these match')
+						: t('launchpad', 'Show when ANY of these match'),
+					rules: this.includeRules,
+				},
+				{ id: 'exclude', heading: t('launchpad', 'Hide when ANY of these match'), rules: this.excludeRules },
+			].filter((section) => section.rules.length > 0)
+		},
+
+		/**
+		 * Display name per group id, for the chips and the sentence.
+		 *
+		 * @return {{[key: string]: string}} the names.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		groupNames() {
+			return Object.fromEntries(toGroupOptions(this.availableGroups).map((group) => [group.id, group.displayName]))
+		},
+
+		/**
+		 * The include rules the last preview matched (REQ-CVUI-004).
+		 *
+		 * @return {Array<object>} the rules.
 		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date
 		 */
-		previewGroupOptions() {
-			return toGroupOptions(this.availableGroups, this.previewGroups)
+		matchedIncludeRules() {
+			const ids = this.preview.state.result?.matchedIncludeRuleIds || []
+			return this.includeRules.filter((r) => ids.includes(previewRuleId(r)))
+		},
+
+		/**
+		 * The exclude rules the last preview matched (REQ-CVUI-004).
+		 *
+		 * @return {Array<object>} the rules.
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date
+		 */
+		matchedExcludeRules() {
+			const ids = this.preview.state.result?.matchedExcludeRuleIds || []
+			return this.excludeRules.filter((r) => ids.includes(previewRuleId(r)))
+		},
+
+		/**
+		 * The View as sentence for the last preview: whether the person
+		 * sees the widget at the moment, and why.
+		 *
+		 * @return {string} the sentence, empty before a preview.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		sentence() {
+			if (!this.preview.state.result || !this.previewSubject) {
+				return ''
+			}
+			return visibilitySentence({
+				...this.previewSubject,
+				rules: this.rules.map((rule) => ({ ...rule, id: previewRuleId(rule) })),
+				result: this.preview.state.result,
+				groupNames: this.groupNames,
+			})
 		},
 
 		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-003-legible-include-exclude-semantics */
@@ -323,27 +481,19 @@ export default {
 		isEmpty() {
 			return this.rules.length === 0
 		},
-
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
-		matchedIncludeRules() {
-			const ids =
-				(this.preview.state.result
-					&& this.preview.state.result.matchedIncludeRuleIds)
-				|| []
-			return this.rules.filter((r) => ids.includes(previewRuleId(r)))
-		},
-
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
-		matchedExcludeRules() {
-			const ids =
-				(this.preview.state.result
-					&& this.preview.state.result.matchedExcludeRuleIds)
-				|| []
-			return this.rules.filter((r) => ids.includes(previewRuleId(r)))
-		},
 	},
 
 	watch: {
+		/**
+		 * Follow the placement's mode when it changes outside the dialog.
+		 *
+		 * @param {string} mode the stored mode.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		ruleMatch(mode) {
+			this.matchMode = mode === 'all' ? 'all' : 'any'
+		},
+
 		placementId: {
 			immediate: true,
 			/** @spec openspec/specs/conditional-visibility-editor/spec.md */
@@ -479,6 +629,7 @@ export default {
 			if (index !== -1) {
 				this.rules[index] = { ...row, ...updated }
 			}
+			this.editingKeys = { ...this.editingKeys, [this.rowKey(row)]: false }
 			this.$emit('ruleUpdated')
 		},
 
@@ -532,41 +683,158 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date */
-		async runPreview() {
+		/**
+		 * Choose whether all rules or one rule must match, and save it on
+		 * the placement; on a failed save the previous choice comes back.
+		 *
+		 * @param {string} mode `all` or `any`.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		async setMatchMode(mode) {
+			if (mode === this.matchMode || !MATCH_MODES.includes(mode)) {
+				return
+			}
+			const previous = this.matchMode
+			this.matchMode = mode
+			if (this.placementId === null || this.placementId === undefined) {
+				return
+			}
+			this.savingMatch = true
 			try {
-				await this.preview.runPreview(this.rules, {
-					groups: this.previewGroups,
-					datetime: this.previewDatetime
-						? new Date(this.previewDatetime).toISOString()
-						: null,
-				})
-			} catch {
-				// Surfaced via preview.state.error in the template.
+				await api.updateWidgetPlacement(this.placementId, { ruleMatch: mode })
+				this.$emit('ruleMatchChanged', mode)
+			} catch (error) {
+				logger.error('Failed to save how the visibility rules combine:', error)
+				this.matchMode = previous
+			} finally {
+				this.savingMatch = false
 			}
 		},
 
 		/**
-		 * Short human-readable summary of a rule's config, used to indicate
-		 * which rule matched in the preview result.
+		 * Arrow keys on a choice card choose the other card and move the
+		 * focus there, as in a radio group.
 		 *
-		 * @param {object} rule the rule entity
-		 * @spec openspec/specs/conditional-visibility-editor/spec.md
-		 * @return {string}
+		 * @param {KeyboardEvent} event the key press.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
-		describeRule(rule) {
-			const cfg = rule.ruleConfig || {}
-			switch (rule.ruleType) {
-				case 'group':
-					return (cfg.groups || []).join(', ')
-				case 'time':
-					return `${cfg.startTime || ''}–${cfg.endTime || ''}`
-				case 'date':
-					return `${cfg.startDate || '…'} → ${cfg.endDate || '…'}`
-				case 'attribute':
-					return `${cfg.attribute || ''} ${cfg.operator || ''} ${cfg.value || ''}`
-				default:
-					return ''
+		async onModeKeydown(event) {
+			if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+				return
+			}
+			event.preventDefault()
+			const other = this.matchMode === 'all' ? 'any' : 'all'
+			await this.setMatchMode(other)
+			await this.$nextTick()
+			this.$el.querySelector(`[data-test="rule-match-${this.matchMode}"]`)?.focus()
+		},
+
+		/**
+		 * Whether a rule's card shows its editor: a draft always, a saved
+		 * rule after Edit.
+		 *
+		 * @param {object} row The rule row.
+		 * @return {boolean} true when the editor shows.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		isEditing(row) {
+			return row.id === null || row.id === undefined || !!this.editingKeys[this.rowKey(row)]
+		},
+
+		/**
+		 * Open or close a saved rule's editor.
+		 *
+		 * @param {object} row The rule row.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		toggleEdit(row) {
+			const key = this.rowKey(row)
+			this.editingKeys = { ...this.editingKeys, [key]: !this.editingKeys[key] }
+		},
+
+		/**
+		 * The kind of a rule, as its card names it.
+		 *
+		 * @param {object} row The rule row.
+		 * @return {string} Groups, Times, Period or Profile field.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		kindLabel(row) {
+			return ruleKindLabel(row)
+		},
+
+		/**
+		 * The groups a group rule names, as chips.
+		 *
+		 * @param {object} row The rule row.
+		 * @return {string[]} the group names.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		groupNamesOf(row) {
+			return ruleGroupNames(row, this.groupNames)
+		},
+
+		/**
+		 * The value of a time, period or profile field rule.
+		 *
+		 * @param {object} row The rule row.
+		 * @return {string} the value.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		valueOf(row) {
+			return ruleValue(row)
+		},
+
+		/**
+		 * Search people to view as; an empty search offers yourself again.
+		 * The server ignores one-letter searches.
+		 *
+		 * @param {string} query The typed text.
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		async onPersonSearch(query) {
+			const trimmed = (query || '').trim()
+			if (trimmed.length < 2) {
+				return
+			}
+			const seq = ++this.personSearchSeq
+			this.personLoading = true
+			try {
+				const { data } = await api.searchSharees(trimmed)
+				if (seq === this.personSearchSeq) {
+					const self = currentPerson()
+					this.personOptions = [...(self ? [self] : []), ...(data?.users || []).map((u) => ({ id: u.id, displayName: u.displayName || u.id }))]
+				}
+			} catch (error) {
+				logger.error('Person search failed:', error)
+			} finally {
+				this.personLoading = false
+			}
+		},
+
+		/**
+		 * Preview the in-editor rules as the chosen person at the chosen
+		 * moment, in the chosen match mode, and keep who and when for the
+		 * sentence.
+		 *
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		async runPreview() {
+			const person = this.previewPerson
+			const moment = this.previewDatetime ? new Date(this.previewDatetime) : new Date()
+			try {
+				await this.preview.runPreview(
+					this.rules,
+					{ userId: person?.id || null, datetime: moment.toISOString() },
+					{ match: this.matchMode, placementId: this.placementId },
+				)
+				this.previewSubject = {
+					name: person?.displayName || person?.id || '',
+					moment: formatMoment(moment, getLanguage()),
+				}
+			} catch {
+				// Surfaced via preview.state.error in the template.
 			}
 		},
 	},
@@ -580,10 +848,6 @@ export default {
 	gap: 16px;
 }
 
-.conditional-visibility-editor__hint {
-	color: var(--color-text-maxcontrast);
-	margin: 0;
-}
 
 .conditional-visibility-editor__loading {
 	display: flex;
@@ -603,6 +867,102 @@ export default {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.conditional-visibility-editor__modes {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 8px;
+}
+
+.conditional-visibility-editor__mode {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 16px;
+	border: 2px solid var(--color-border);
+	border-radius: var(--border-radius-large, 10px);
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+	font: inherit;
+	text-align: start;
+	cursor: pointer;
+}
+
+.conditional-visibility-editor__mode--active {
+	border-color: var(--color-primary-element);
+	font-weight: bold;
+}
+
+.conditional-visibility-editor__mode:focus-visible {
+	outline: 2px solid var(--color-primary-element);
+	outline-offset: 2px;
+}
+
+.conditional-visibility-editor__mode-dot {
+	flex: none;
+	width: 14px;
+	height: 14px;
+	border: 2px solid var(--color-border-maxcontrast);
+	border-radius: 50%;
+}
+
+.conditional-visibility-editor__mode--active .conditional-visibility-editor__mode-dot {
+	border: 4px solid var(--color-primary-element);
+}
+
+.conditional-visibility-editor__card {
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-large, 10px);
+	padding: 8px 12px;
+}
+
+.conditional-visibility-editor__card-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+.conditional-visibility-editor__kind {
+	font-weight: bold;
+	min-width: 96px;
+}
+
+.conditional-visibility-editor__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+.conditional-visibility-editor__chip {
+	padding: 2px 10px;
+	border-radius: var(--border-radius-pill, 16px);
+	background: var(--color-primary-element-light);
+	color: var(--color-primary-element-light-text);
+}
+
+.conditional-visibility-editor__value {
+	color: var(--color-text-maxcontrast);
+}
+
+.conditional-visibility-editor__card-actions {
+	display: flex;
+	gap: 4px;
+	margin-inline-start: auto;
+}
+
+.conditional-visibility-editor__preview-sentence {
+	margin: 0;
+}
+
+.conditional-visibility-editor__preview-reason {
+	margin: 4px 0 0;
+	color: var(--color-text-maxcontrast);
+	font-size: 13px;
 }
 
 .conditional-visibility-editor__preview {
@@ -644,9 +1004,4 @@ export default {
 	margin: 0 0 4px;
 }
 
-.conditional-visibility-editor__preview-reason {
-	margin: 0;
-	color: var(--color-text-maxcontrast);
-	font-size: 13px;
-}
 </style>

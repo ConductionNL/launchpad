@@ -66,7 +66,7 @@
 		<!-- One shared edit cog for every widget type (data, NC, chrome-less),
 		     shown in edit mode. Sits top-right over the wrapper's header area.
 		     The absolute positioning lives on this wrapper DIV, not on
-		     CnWidgetEditCog itself: the cog's root is an NcActions `.action-item`
+		     the menu itself: the cog's root is an NcActions `.action-item`
 		     which sets `position: relative` at equal specificity, so positioning
 		     the component directly loses the cascade tie and the cog drops into
 		     flow (pushing content). Wrapping matches the shared nc-vue
@@ -111,13 +111,12 @@
 			<DragVertical :size="16" />
 		</span>
 		<div v-if="editMode" class="launchpad-widget__cog">
-			<CnWidgetEditCog
-				icon="kebab"
+			<!-- REQ-CVUI-007: the menu also holds "Who sees this widget?". -->
+			<WidgetEditMenu
 				:menuLabel="t('launchpad', 'Widget menu')"
-				:editLabel="t('launchpad', 'Edit widget')"
-				:deleteLabel="t('launchpad', 'Delete widget')"
-				:canDelete="canRemove"
+				:removeLocked="!canRemove"
 				@edit="$emit('edit', placement)"
+				@whoSees="$emit('whoSees', placement)"
 				@remove="$emit('remove', placement.id)" />
 		</div>
 	</div>
@@ -125,7 +124,6 @@
 
 <script>
 import {
-	CnWidgetEditCog,
 	CnWidgetWrapper,
 	NcActionButton,
 	NcActions,
@@ -136,6 +134,7 @@ import DragVertical from 'vue-material-design-icons/DragVertical.vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
+import WidgetEditMenu from './Widgets/WidgetEditMenu.vue'
 import {
 	FLAG_PROP,
 	LIST_PROP,
@@ -167,7 +166,6 @@ export default {
 
 	components: {
 		CnWidgetWrapper,
-		CnWidgetEditCog,
 		CodeTags,
 		DragVertical,
 		EyeOff,
@@ -175,6 +173,7 @@ export default {
 		NcActionLink,
 		NcActions,
 		WidgetRenderer,
+		WidgetEditMenu,
 		AcknowledgementPrompt,
 	},
 
@@ -214,7 +213,7 @@ export default {
 		embedHref: TEXT_PROP,
 	},
 
-	emits: ['remove', 'style', 'edit', 'acknowledged', 'hideForMe'],
+	emits: ['remove', 'style', 'edit', 'whoSees', 'acknowledged', 'hideForMe'],
 
 	data() {
 		return {

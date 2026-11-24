@@ -100,14 +100,14 @@ describe('WidgetWrapper — chrome and frame', () => {
 	})
 
 	it('tells the edit cog to leave Delete out when removal is locked', () => {
-		const CogStub = { name: 'CnWidgetEditCog', props: ['canDelete'], template: '<div />' }
+		const CogStub = { name: 'WidgetEditMenu', props: ['removeLocked'], template: '<div />' }
 		const cog = (props) => shallowMount(WidgetWrapper, {
 			propsData: { placement: { id: 1, widgetId: 'data', isCompulsory: 1 }, widget: { title: 'Widget' }, editMode: true, ...props },
 			mocks: { t: (_app, key) => key },
-			global: { stubs: { CnWidgetEditCog: CogStub } },
+			global: { stubs: { WidgetEditMenu: CogStub } },
 		}).findComponent(CogStub)
-		expect(cog({}).props('canDelete')).toBe(true)
-		expect(cog({ removeLocked: true }).props('canDelete')).toBe(false)
+		expect(cog({}).props('removeLocked')).toBe(false)
+		expect(cog({ removeLocked: true }).props('removeLocked')).toBe(true)
 	})
 })
 
@@ -129,14 +129,16 @@ describe('WidgetWrapper — acknowledgement gate', () => {
 		expect(wrapper.emitted('acknowledged')).toEqual([[placement]])
 	})
 
-	it('forwards the edit cog\'s edit and remove with the placement and its id', () => {
+	it('forwards the edit menu\'s edit, who-sees and remove with the placement and its id', () => {
 		const placement = { id: 9, widgetId: 'data' }
 		const wrapper = mountWrapper(placement, { editMode: true })
-		const cog = wrapper.findComponent({ name: 'CnWidgetEditCog' })
+		const cog = wrapper.findComponent({ name: 'WidgetEditMenu' })
 		expect(cog.exists()).toBe(true)
 		cog.vm.$emit('edit')
+		cog.vm.$emit('whoSees')
 		cog.vm.$emit('remove')
 		expect(wrapper.emitted('edit')).toEqual([[placement]])
+		expect(wrapper.emitted('whoSees')).toEqual([[placement]])
 		expect(wrapper.emitted('remove')).toEqual([[9]])
 	})
 })

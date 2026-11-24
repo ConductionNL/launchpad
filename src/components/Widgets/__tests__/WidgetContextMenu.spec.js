@@ -34,7 +34,7 @@ function mountMenu(props = {}) {
 }
 
 describe('WidgetContextMenu', () => {
-	it('REQ-WDG-015: renders six items — Edit, Move, Visibility rules…, Read confirmation…, Remove, Cancel', () => {
+	it('REQ-WDG-015: renders six items — Edit, Move, Who sees this widget?, Read confirmation…, Remove, Cancel', () => {
 		const wrapper = mountMenu()
 		const buttons = wrapper.findAll('.widget-context-menu__item')
 		expect(buttons.length).toBe(6)
@@ -42,7 +42,7 @@ describe('WidgetContextMenu', () => {
 		expect(labels).toEqual([
 			'Edit',
 			'Move',
-			'Visibility rules…',
+			'Who sees this widget?',
 			'Read confirmation…',
 			'Remove',
 			'Cancel',
@@ -96,7 +96,7 @@ describe('WidgetContextMenu', () => {
 		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
 
-	it('conditional-visibility: clicking Visibility rules… emits visibility-rules then close', async () => {
+	it('conditional-visibility: clicking Who sees this widget? emits visibility-rules then close', async () => {
 		const wrapper = mountMenu()
 		const btn = wrapper.find('[data-testid="ctx-visibility-rules"]')
 		await btn.trigger('click')

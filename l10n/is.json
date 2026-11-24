@@ -1482,6 +1482,26 @@
         "Confirmed {date}": "Staðfest {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} af {total} sýnd. Niðurhal gefur allan listann með dagsetningu og tíma hverrar staðfestingar.",
         "Department in read confirmations": "Deild í lestrarstaðfestingum",
-        "Could not load the read-receipt report.": "Ekki tókst að hlaða skýrslu um lestrarstaðfestingar."
+        "Could not load the read-receipt report.": "Ekki tókst að hlaða skýrslu um lestrarstaðfestingar.",
+        "Who sees this widget?": "Hver sér þessa græju?",
+        "If all rules match": "Ef allar reglur passa",
+        "If one rule matches": "Ef ein regla passar",
+        "Show when ALL of these match": "Sýna þegar ALLAR þessar passa",
+        "View as": "Skoða sem",
+        "Moment": "Tímapunktur",
+        "Times": "Tímar",
+        "Profile field": "Prófílsvið",
+        "{list} or {last}": "{list} eða {last}",
+        "{name} is in {groups}": "{name} er í {groups}",
+        "{name} is not in {groups}": "{name} er ekki í {groups}",
+        "{moment} is within the times": "{moment} er innan tímanna",
+        "{moment} is outside the times": "{moment} er utan tímanna",
+        "{moment} is within the period": "{moment} er innan tímabilsins",
+        "{moment} is outside the period": "{moment} er utan tímabilsins",
+        "the profile field {field} of {name} matches": "prófílsviðið {field} hjá {name} passar",
+        "the profile field {field} of {name} does not match": "prófílsviðið {field} hjá {name} passar ekki",
+        "{name} sees this widget: no rule limits who sees it.": "{name} sér þessa græju: engin regla takmarkar hver sér hana.",
+        "{name} sees this widget, because {reasons}.": "{name} sér þessa græju, vegna þess að {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} sér ekki þessa græju, vegna þess að {reasons}."
     }
 }

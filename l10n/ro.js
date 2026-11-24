@@ -1582,7 +1582,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Confirmat pe {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Se afișează {shown} din {total}. Descărcarea oferă lista completă cu data și ora fiecărei confirmări.",
     "Department in read confirmations" : "Departament în confirmările de citire",
-    "Could not load the read-receipt report." : "Raportul confirmărilor de citire nu a putut fi încărcat."
+    "Could not load the read-receipt report." : "Raportul confirmărilor de citire nu a putut fi încărcat.",
+    "Who sees this widget?" : "Cine vede acest widget?",
+    "If all rules match" : "Dacă se potrivesc toate regulile",
+    "If one rule matches" : "Dacă se potrivește o regulă",
+    "Show when ALL of these match" : "Afișează când se potrivesc TOATE acestea",
+    "View as" : "Vezi ca",
+    "Moment" : "Moment",
+    "Times" : "Ore",
+    "Profile field" : "Câmp de profil",
+    "{list} or {last}" : "{list} sau {last}",
+    "{name} is in {groups}" : "{name} este în {groups}",
+    "{name} is not in {groups}" : "{name} nu este în {groups}",
+    "{moment} is within the times" : "{moment} este în intervalul orar",
+    "{moment} is outside the times" : "{moment} este în afara intervalului orar",
+    "{moment} is within the period" : "{moment} este în perioadă",
+    "{moment} is outside the period" : "{moment} este în afara perioadei",
+    "the profile field {field} of {name} matches" : "câmpul de profil {field} al lui {name} se potrivește",
+    "the profile field {field} of {name} does not match" : "câmpul de profil {field} al lui {name} nu se potrivește",
+    "{name} sees this widget: no rule limits who sees it." : "{name} vede acest widget: nicio regulă nu limitează cine îl vede.",
+    "{name} sees this widget, because {reasons}." : "{name} vede acest widget, deoarece {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} nu vede acest widget, deoarece {reasons}."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

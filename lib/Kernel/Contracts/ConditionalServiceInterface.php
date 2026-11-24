@@ -94,12 +94,14 @@ interface ConditionalServiceInterface {
 	 *                       which have no override
 	 *                       in the preview
 	 *                       context).
-	 * @param string[] $groupsOverride The audience groups to
-	 *                                 test `group` rules
-	 *                                 against.
+	 * @param string[]|null $groupsOverride The audience groups to
+	 *                                      test `group` rules
+	 *                                      against; null tests the
+	 *                                      user's own groups.
 	 * @param DateTimeInterface|null $nowOverride The moment to test
 	 *                                            `time` / `date` rules
 	 *                                            against.
+	 * @param string $match `any` or `all` (REQ-VIS-014).
 	 *
 	 * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
 	 *
@@ -108,8 +110,9 @@ interface ConditionalServiceInterface {
 	public function previewRules(
 		array $rules,
 		string $userId,
-		array $groupsOverride,
+		?array $groupsOverride,
 		?DateTimeInterface $nowOverride,
+		string $match = 'any',
 	): array;
 
 	/**

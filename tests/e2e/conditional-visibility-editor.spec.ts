@@ -513,7 +513,7 @@ async function openWorkspaceInEditMode(page: Page): Promise<void> {
 	).toBeVisible({ timeout: 30_000 })
 }
 
-/** Open the Visibility rules modal on the seeded placement. */
+/** Open the "Who sees this widget?" dialog on the seeded placement. */
 async function openVisibilityEditor(page: Page): Promise<void> {
 	await openWorkspaceInEditMode(page)
 	await page
@@ -529,6 +529,12 @@ async function openVisibilityEditor(page: Page): Promise<void> {
 	// The editor renders its loading spinner in place of the body, so waiting
 	// for the Add-rule button is what says the rules fetch has settled.
 	await expect(page.locator(ADD_RULE)).toBeVisible({ timeout: 15_000 })
+	// A saved rule shows as a card (visibility-dialog-board-sync); open each
+	// card's editor so the row's fields are on screen as these tests expect.
+	const closed = page.locator('[data-test="rule-card-edit"][aria-expanded="false"]')
+	while ((await closed.count()) > 0) {
+		await closed.first().click()
+	}
 }
 
 /**

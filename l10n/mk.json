@@ -1482,6 +1482,26 @@
         "Confirmed {date}": "Потврдено {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Прикажани {shown} од {total}. Преземањето ја дава целата листа со датум и време на секоја потврда.",
         "Department in read confirmations": "Оддел во потврдите за читање",
-        "Could not load the read-receipt report.": "Извештајот за потврдите за читање не можеше да се вчита."
+        "Could not load the read-receipt report.": "Извештајот за потврдите за читање не можеше да се вчита.",
+        "Who sees this widget?": "Кој го гледа овој виџет?",
+        "If all rules match": "Ако се совпаѓаат сите правила",
+        "If one rule matches": "Ако се совпаѓа едно правило",
+        "Show when ALL of these match": "Прикажи кога се совпаѓаат СИТЕ од овие",
+        "View as": "Прикажи како",
+        "Moment": "Момент",
+        "Times": "Времиња",
+        "Profile field": "Поле на профилот",
+        "{list} or {last}": "{list} или {last}",
+        "{name} is in {groups}": "{name} е во {groups}",
+        "{name} is not in {groups}": "{name} не е во {groups}",
+        "{moment} is within the times": "{moment} е во рамките на времињата",
+        "{moment} is outside the times": "{moment} е надвор од времињата",
+        "{moment} is within the period": "{moment} е во рамките на периодот",
+        "{moment} is outside the period": "{moment} е надвор од периодот",
+        "the profile field {field} of {name} matches": "полето на профилот {field} на {name} се совпаѓа",
+        "the profile field {field} of {name} does not match": "полето на профилот {field} на {name} не се совпаѓа",
+        "{name} sees this widget: no rule limits who sees it.": "{name} го гледа овој виџет: ниедно правило не ограничува кој го гледа.",
+        "{name} sees this widget, because {reasons}.": "{name} го гледа овој виџет, затоа што {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} не го гледа овој виџет, затоа што {reasons}."
     }
 }

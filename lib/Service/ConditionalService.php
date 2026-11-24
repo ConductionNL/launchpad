@@ -90,9 +90,11 @@ class ConditionalService implements ConditionalServiceInterface {
 	 * @return bool `true` when the placement is visible for the user.
 	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function checkRulesForPlacement(int $placementId, string $userId): bool {
-		if ($this->placementMapper->find(id: $placementId)->getIsVisible() === 0) {
+		$placement = $this->placementMapper->find(id: $placementId);
+		if ($placement->getIsVisible() === 0) {
 			return false;
 		}
 
@@ -106,7 +108,8 @@ class ConditionalService implements ConditionalServiceInterface {
 
 		return $this->visibilityChecker->checkRules(
 			rules: $rules,
-			userId: $userId
+			userId: $userId,
+			match: $placement->getRuleMatch()
 		);
 	}//end checkRulesForPlacement()
 
@@ -126,6 +129,7 @@ class ConditionalService implements ConditionalServiceInterface {
 	 * @return array<int, array<string, mixed>> The placements to render, in order.
 	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function visiblePlacements(array $placements, string $userId, bool $canEdit): array {
 		$rulesByPlacement = $this->rulesByPlacement(placements: $placements);
@@ -134,7 +138,7 @@ class ConditionalService implements ConditionalServiceInterface {
 		foreach ($placements as $placement) {
 			$rules  = ($rulesByPlacement[(int)($placement['id'] ?? 0)] ?? []);
 			$hidden = (int)($placement['isVisible'] ?? 1) === 0
-				|| ($rules !== [] && $this->visibilityChecker->checkRules(rules: $rules, userId: $userId) === false);
+				|| $this->rulesHide(rules: $rules, userId: $userId, placement: $placement) === true;
 			if ($hidden === true && $canEdit === false) {
 				continue;
 			}
@@ -145,6 +149,30 @@ class ConditionalService implements ConditionalServiceInterface {
 
 		return $visible;
 	}//end visiblePlacements()
+
+	/**
+	 * Whether a serialised placement's rules hide it for a user, with the
+	 * placement's own match mode (REQ-VIS-014). No rules hide nothing.
+	 *
+	 * @param ConditionalRule[]    $rules     The placement's rules.
+	 * @param string               $userId    The viewing user.
+	 * @param array<string, mixed> $placement The serialised placement.
+	 *
+	 * @return bool True when the rules hide the placement.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	private function rulesHide(array $rules, string $userId, array $placement): bool {
+		if ($rules === []) {
+			return false;
+		}
+
+		return $this->visibilityChecker->checkRules(
+			rules: $rules,
+			userId: $userId,
+			match: (string)($placement['ruleMatch'] ?? WidgetPlacement::RULE_MATCH_ANY)
+		) === false;
+	}//end rulesHide()
 
 	/**
 	 * The rules of the given placements, keyed by placement ID.
@@ -191,28 +219,34 @@ class ConditionalService implements ConditionalServiceInterface {
 	 *                       which have no override
 	 *                       in the preview
 	 *                       context).
-	 * @param string[] $groupsOverride The audience groups to
-	 *                                 test `group` rules
-	 *                                 against.
+	 * @param string[]|null $groupsOverride The audience groups to
+	 *                                      test `group` rules
+	 *                                      against; null tests
+	 *                                      the user's own groups
+	 *                                      (view as a person).
 	 * @param DateTimeInterface|null $nowOverride The moment to test
 	 *                                            `time` / `date` rules
 	 *                                            against.
+	 * @param string $match `any` or `all` (REQ-VIS-014).
 	 *
 	 * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
 	 *
 	 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 	 */
 	public function previewRules(
 		array $rules,
 		string $userId,
-		array $groupsOverride,
+		?array $groupsOverride,
 		?DateTimeInterface $nowOverride,
+		string $match = WidgetPlacement::RULE_MATCH_ANY,
 	): array {
 		return $this->visibilityChecker->evaluateRuleSet(
 			rules: $rules,
 			userId: $userId,
 			groupsOverride: $groupsOverride,
-			nowOverride: $nowOverride
+			nowOverride: $nowOverride,
+			match: $match
 		);
 	}//end previewRules()
 

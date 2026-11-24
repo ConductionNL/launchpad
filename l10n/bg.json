@@ -1482,6 +1482,26 @@
         "Confirmed {date}": "Потвърдено на {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Показани {shown} от {total}. Изтеглянето дава пълния списък с датата и часа на всяко потвърждение.",
         "Department in read confirmations": "Отдел в потвържденията за прочитане",
-        "Could not load the read-receipt report.": "Отчетът за потвържденията за прочитане не можа да бъде зареден."
+        "Could not load the read-receipt report.": "Отчетът за потвържденията за прочитане не можа да бъде зареден.",
+        "Who sees this widget?": "Кой вижда тази джаджа?",
+        "If all rules match": "Ако всички правила съвпадат",
+        "If one rule matches": "Ако едно правило съвпада",
+        "Show when ALL of these match": "Показване, когато ВСИЧКИ от тях съвпадат",
+        "View as": "Преглед като",
+        "Moment": "Момент",
+        "Times": "Часове",
+        "Profile field": "Поле от профила",
+        "{list} or {last}": "{list} или {last}",
+        "{name} is in {groups}": "{name} е в {groups}",
+        "{name} is not in {groups}": "{name} не е в {groups}",
+        "{moment} is within the times": "{moment} е в рамките на часовете",
+        "{moment} is outside the times": "{moment} е извън часовете",
+        "{moment} is within the period": "{moment} е в рамките на периода",
+        "{moment} is outside the period": "{moment} е извън периода",
+        "the profile field {field} of {name} matches": "полето от профила {field} на {name} съвпада",
+        "the profile field {field} of {name} does not match": "полето от профила {field} на {name} не съвпада",
+        "{name} sees this widget: no rule limits who sees it.": "{name} вижда тази джаджа: никое правило не ограничава кой я вижда.",
+        "{name} sees this widget, because {reasons}.": "{name} вижда тази джаджа, защото {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} не вижда тази джаджа, защото {reasons}."
     }
 }

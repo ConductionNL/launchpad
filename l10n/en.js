@@ -2043,7 +2043,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Confirmed {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.",
     "Department in read confirmations" : "Department in read confirmations",
-    "Could not load the read-receipt report." : "Could not load the read-receipt report."
+    "Could not load the read-receipt report." : "Could not load the read-receipt report.",
+    "Who sees this widget?" : "Who sees this widget?",
+    "If all rules match" : "If all rules match",
+    "If one rule matches" : "If one rule matches",
+    "Show when ALL of these match" : "Show when ALL of these match",
+    "View as" : "View as",
+    "Moment" : "Moment",
+    "Times" : "Times",
+    "Profile field" : "Profile field",
+    "{list} or {last}" : "{list} or {last}",
+    "{name} is in {groups}" : "{name} is in {groups}",
+    "{name} is not in {groups}" : "{name} is not in {groups}",
+    "{moment} is within the times" : "{moment} is within the times",
+    "{moment} is outside the times" : "{moment} is outside the times",
+    "{moment} is within the period" : "{moment} is within the period",
+    "{moment} is outside the period" : "{moment} is outside the period",
+    "the profile field {field} of {name} matches" : "the profile field {field} of {name} matches",
+    "the profile field {field} of {name} does not match" : "the profile field {field} of {name} does not match",
+    "{name} sees this widget: no rule limits who sees it." : "{name} sees this widget: no rule limits who sees it.",
+    "{name} sees this widget, because {reasons}." : "{name} sees this widget, because {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} does not see this widget, because {reasons}."
 },
 "nplurals=2; plural=(n != 1);"
 );

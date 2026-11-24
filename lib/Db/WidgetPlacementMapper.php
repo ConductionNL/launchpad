@@ -492,6 +492,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @param WidgetPlacement $clone The clone being built.
 	 *
 	 * @return void
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function copyLayout(WidgetPlacement $row, WidgetPlacement $clone): void {
 		$clone->setWidgetId($row->getWidgetId());
@@ -506,6 +507,8 @@ class WidgetPlacementMapper extends QBMapper {
 		$clone->setCustomIcon($row->getCustomIcon());
 		$clone->setShowTitle($row->getShowTitle());
 		$clone->setSortOrder($row->getSortOrder());
+		// How the visibility rules combine (REQ-VIS-014) travels with the layout.
+		$clone->setRuleMatch($row->getRuleMatch());
 	}//end copyLayout()
 
 	/**

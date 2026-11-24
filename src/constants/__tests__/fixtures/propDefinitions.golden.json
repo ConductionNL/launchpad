@@ -332,6 +332,12 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../components/Widgets/ConditionalVisibilityEditor.vue | ruleMatch": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": "any"
+	},
 	"../../components/Widgets/Renderers/ActivityReportWidget.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -1088,6 +1094,18 @@
 		"validator": false
 	},
 	"../../components/Widgets/WidgetContextMenu.vue | removeLocked": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | menuLabel": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": "Widget menu"
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | removeLocked": {
 		"type": "Boolean",
 		"required": false,
 		"validator": false,
@@ -2110,6 +2128,24 @@
 		"validator": false,
 		"default": [],
 		"fresh": true
+	},
+	"../../modals/VisibilityRulesModal.vue | widgetTitle": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../modals/VisibilityRulesModal.vue | dashboardName": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../modals/VisibilityRulesModal.vue | ruleMatch": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": "any"
 	},
 	"../../modals/WidgetMovePanel.vue | open": {
 		"type": "Boolean",

@@ -103,7 +103,7 @@ class RequestDataExtractorTest extends TestCase {
 				'version', 'gridX', 'gridY', 'gridWidth', 'gridHeight', 'isVisible', 'showTitle', 'customTitle', 'customIcon',
 				'styleConfig', 'content', 'calculatedFields', 'tileTitle', 'tileIcon', 'tileIconType', 'tileBackgroundColor', 'tileTextColor',
 				'tileLinkType', 'tileLinkValue', 'requiresAcknowledgement', 'acknowledgementPrompt',
-				'acknowledgementDeadline', 'reacknowledgeOnChange', 'acknowledgementContentVersion',
+				'acknowledgementDeadline', 'reacknowledgeOnChange', 'acknowledgementContentVersion', 'ruleMatch',
 			],
 			$this->asked
 		);

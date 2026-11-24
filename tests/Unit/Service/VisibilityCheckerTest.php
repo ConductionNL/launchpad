@@ -229,4 +229,51 @@ class VisibilityCheckerTest extends TestCase {
 
 		$this->assertTrue($result['visible']);
 	}
+
+	/**
+	 * In `all` mode every include rule must match; in `any` mode one does.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	public function testAllModeNeedsEveryIncludeRule(): void {
+		$rules = [$this->createRuleWithId(true, 1), $this->createRuleWithId(true, 2)];
+		$this->ruleEvaluator->method('evaluateRule')
+			->willReturnCallback(static fn (ConditionalRule $rule): bool => $rule->getId() === 1);
+
+		$all = $this->checker->evaluateRuleSet(rules: $rules, userId: 'alice', match: 'all');
+		$any = $this->checker->evaluateRuleSet(rules: $rules, userId: 'alice', match: 'any');
+
+		$this->assertFalse($all['visible']);
+		$this->assertSame([1], $all['matchedIncludeRuleIds']);
+		$this->assertTrue($any['visible']);
+		$this->assertFalse($this->checker->checkRules(rules: $rules, userId: 'alice', match: 'all'));
+		$this->assertTrue($this->checker->checkRules(rules: $rules, userId: 'alice'));
+	}
+
+	/**
+	 * In `all` mode a widget shows when every include rule matches, and an
+	 * exclude rule that matches still hides it.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	public function testAllModeKeepsExcludeRulesHiding(): void {
+		$include = [$this->createRuleWithId(true, 1), $this->createRuleWithId(true, 2)];
+		$exclude = $this->createRuleWithId(false, 3);
+		$this->ruleEvaluator->method('evaluateRule')->willReturn(true);
+
+		$this->assertFalse($this->checker->checkRules(rules: [...$include, $exclude], userId: 'alice', match: 'all'));
+		$this->assertTrue($this->checker->checkRules(rules: $include, userId: 'alice', match: 'all'));
+	}
+
+	/**
+	 * In `all` mode no include rules still means no restriction.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	public function testAllModeWithoutIncludeRulesIsVisible(): void {
+		$this->ruleEvaluator->method('evaluateRule')->willReturn(false);
+
+		$this->assertTrue($this->checker->checkRules(rules: [$this->createRuleWithId(false, 3)], userId: 'alice', match: 'all'));
+		$this->assertTrue($this->checker->checkRules(rules: [], userId: 'alice', match: 'all'));
+	}
 }

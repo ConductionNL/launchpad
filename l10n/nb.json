@@ -1482,6 +1482,26 @@
         "Confirmed {date}": "Bekreftet {date}",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{shown} av {total} vist. Last ned gir hele listen med dato og klokkeslett for hver bekreftelse.",
         "Department in read confirmations": "Avdeling i lesebekreftelser",
-        "Could not load the read-receipt report.": "Rapporten over lesebekreftelser kunne ikke lastes inn."
+        "Could not load the read-receipt report.": "Rapporten over lesebekreftelser kunne ikke lastes inn.",
+        "Who sees this widget?": "Hvem ser denne widgeten?",
+        "If all rules match": "Hvis alle regler stemmer",
+        "If one rule matches": "Hvis én regel stemmer",
+        "Show when ALL of these match": "Vis når ALLE disse stemmer",
+        "View as": "Vis som",
+        "Moment": "Tidspunkt",
+        "Times": "Tider",
+        "Profile field": "Profilfelt",
+        "{list} or {last}": "{list} eller {last}",
+        "{name} is in {groups}": "{name} er i {groups}",
+        "{name} is not in {groups}": "{name} er ikke i {groups}",
+        "{moment} is within the times": "{moment} er innenfor tidene",
+        "{moment} is outside the times": "{moment} er utenfor tidene",
+        "{moment} is within the period": "{moment} er innenfor perioden",
+        "{moment} is outside the period": "{moment} er utenfor perioden",
+        "the profile field {field} of {name} matches": "profilfeltet {field} for {name} stemmer",
+        "the profile field {field} of {name} does not match": "profilfeltet {field} for {name} stemmer ikke",
+        "{name} sees this widget: no rule limits who sees it.": "{name} ser denne widgeten: ingen regel begrenser hvem som ser den.",
+        "{name} sees this widget, because {reasons}.": "{name} ser denne widgeten, fordi {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} ser ikke denne widgeten, fordi {reasons}."
     }
 }

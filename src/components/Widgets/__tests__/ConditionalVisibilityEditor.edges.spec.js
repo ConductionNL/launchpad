@@ -249,19 +249,3 @@ describe('ConditionalVisibilityEditor — preview', () => {
 		expect(wrapper.find('[data-test="preview-result"]').exists()).toBe(false)
 	})
 })
-
-describe('ConditionalVisibilityEditor — describeRule()', () => {
-	it('summarises each rule type', () => {
-		api.getWidgetRules.mockResolvedValue({ data: { rules: [] } })
-		const vm = mountEditor({ placementId: null }).vm
-		expect(vm.describeRule({ ruleType: 'group', ruleConfig: { groups: ['a', 'b'] } })).toBe('a, b')
-		expect(vm.describeRule({ ruleType: 'group', ruleConfig: {} })).toBe('')
-		expect(vm.describeRule({ ruleType: 'time', ruleConfig: { startTime: '08:00' } })).toBe('08:00–')
-		expect(vm.describeRule({ ruleType: 'time' })).toBe('–')
-		expect(vm.describeRule({ ruleType: 'date', ruleConfig: { startDate: '2026-01-01', endDate: '2026-02-01' } })).toBe('2026-01-01 → 2026-02-01')
-		expect(vm.describeRule({ ruleType: 'date', ruleConfig: {} })).toBe(['…', '…'].join(' → '))
-		expect(vm.describeRule({ ruleType: 'attribute', ruleConfig: { attribute: 'dept', operator: 'equals', value: 'IT' } })).toBe('dept equals IT')
-		expect(vm.describeRule({ ruleType: 'attribute', ruleConfig: {} })).toBe('  ')
-		expect(vm.describeRule({ ruleType: 'something-else', ruleConfig: { x: 1 } })).toBe('')
-	})
-})

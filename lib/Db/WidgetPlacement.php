@@ -94,12 +94,30 @@ use stdClass;
  * @method int getVersion()
  * @method void setVersion(int $version)
  * @method void setTemplatePlacementId(?int $templatePlacementId)
+ * @method void setRuleMatch(?string $ruleMatch)
  * @method string|null getCreatedAt()
  * @method void setCreatedAt(?string $createdAt)
  * @method string|null getUpdatedAt()
  * @method void setUpdatedAt(?string $updatedAt)
  */
 class WidgetPlacement extends Entity implements JsonSerializable {
+
+	/**
+	 * One include rule must match for the widget to show (the default).
+	 */
+	public const RULE_MATCH_ANY = 'any';
+
+	/**
+	 * Every include rule must match for the widget to show.
+	 */
+	public const RULE_MATCH_ALL = 'all';
+
+	/**
+	 * The values `ruleMatch` accepts.
+	 *
+	 * @var array<int, string>
+	 */
+	public const RULE_MATCHES = [self::RULE_MATCH_ANY, self::RULE_MATCH_ALL];
 
 	/**
 	 * The dashboard ID.
@@ -353,6 +371,15 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	protected ?int $templatePlacementId = null;
 
 	/**
+	 * Whether all include rules must match (`all`) or one is enough (`any`).
+	 * NULL, from a row written before the column existed, reads as `any`.
+	 * REQ-VIS-014.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $ruleMatch = self::RULE_MATCH_ANY;
+
+	/**
 	 * The per-widget version, raised by one on every save
 	 * (building-edit-a-dashboard-together, task 1.2).
 	 *
@@ -566,9 +593,38 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	}//end columnToProperty()
 
 	/**
+	 * Whether all include rules must match (`all`) or one is enough (`any`).
+	 *
+	 * @return string `all` or `any`; anything else stored reads as `any`.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	public function getRuleMatch(): string {
+		return self::normalRuleMatch(value: $this->ruleMatch);
+	}//end getRuleMatch()
+
+	/**
+	 * A match mode as stored: `all` stays `all`, everything else is `any`.
+	 *
+	 * @param mixed $value The mode from a payload or a row.
+	 *
+	 * @return string `all` or `any`.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	public static function normalRuleMatch(mixed $value): string {
+		if ($value === self::RULE_MATCH_ALL) {
+			return self::RULE_MATCH_ALL;
+		}
+
+		return self::RULE_MATCH_ANY;
+	}//end normalRuleMatch()
+
+	/**
 	 * Serialize to JSON.
 	 *
 	 * @return array The serialized widget placement.
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function jsonSerialize(): array {
 		$data = $this->placementFields() + $this->acknowledgementFields() + [
@@ -590,6 +646,7 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	 * The widget, grid, style and content fields of the wire format.
 	 *
 	 * @return array<string, mixed> The fields, in wire order.
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function placementFields(): array {
 		return [
@@ -609,6 +666,7 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 			'calculatedFields' => $this->getCalculatedFieldsArray(),
 			'showTitle' => $this->showTitle,
 			'sortOrder' => $this->sortOrder,
+			'ruleMatch' => $this->getRuleMatch(),
 		];
 	}//end placementFields()
 

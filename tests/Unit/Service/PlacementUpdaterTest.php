@@ -175,4 +175,37 @@ class PlacementUpdaterTest extends TestCase {
 
 		$this->assertNull($placement->getAnnouncementKey());
 	}
+
+	/**
+	 * The match mode is set when given, `all` kept and anything else stored
+	 * as `any`; absent, it is left as it is (REQ-VIS-014).
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	public function testTheRuleMatchIsApplied(): void {
+		$placement = $this->placement();
+		$updater = new PlacementUpdater();
+
+		$this->assertSame('any', $placement->getRuleMatch());
+		$updater->applyRuleMatch(placement: $placement, data: ['ruleMatch' => 'all']);
+		$this->assertSame('all', $placement->getRuleMatch());
+		$updater->applyRuleMatch(placement: $placement, data: ['gridX' => 1]);
+		$this->assertSame('all', $placement->getRuleMatch());
+		$updater->applyRuleMatch(placement: $placement, data: ['ruleMatch' => 'most']);
+		$this->assertSame('any', $placement->getRuleMatch());
+	}
+
+	/**
+	 * Export carries the mode and import reads it back, defaulting to `any`.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	public function testTheRuleMatchTravelsThroughExportAndImport(): void {
+		$placement = $this->placement();
+		$placement->setRuleMatch('all');
+		$hydrator = new \OCA\LaunchPad\Service\PlacementPayloadHydrator();
+
+		$this->assertSame('all', $hydrator->hydrate(dashboardId: 2, payload: $placement->jsonSerialize())->getRuleMatch());
+		$this->assertSame('any', $hydrator->hydrate(dashboardId: 2, payload: ['widgetId' => 'news'])->getRuleMatch());
+	}
 }

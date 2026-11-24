@@ -21,6 +21,7 @@ namespace OCA\LaunchPad\Service;
 use Closure;
 use DateTimeInterface;
 use OCA\LaunchPad\Db\ConditionalRule;
+use OCA\LaunchPad\Db\WidgetPlacement;
 
 /**
  * Service for checking widget visibility based on conditional rules.
@@ -41,7 +42,8 @@ class VisibilityChecker {
 	/**
 	 * Check rules to determine visibility.
 	 *
-	 * Include rules use OR logic (at least one must match).
+	 * Include rules use OR logic (at least one must match), or with
+	 * `$match = 'all'` every include rule must match (REQ-VIS-014).
 	 * Exclude rules use AND logic (any match hides the widget).
 	 *
 	 * Thin boolean-only wrapper around {@see self::evaluateRuleSet()} — the
@@ -51,15 +53,18 @@ class VisibilityChecker {
 	 *
 	 * @param ConditionalRule[] $rules The rules to check.
 	 * @param string $userId The user ID.
+	 * @param string $match `any` (one include rule is enough) or `all`.
 	 *
 	 * @return bool Whether the widget should be visible.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-13
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
-	public function checkRules(array $rules, string $userId): bool {
+	public function checkRules(array $rules, string $userId, string $match = WidgetPlacement::RULE_MATCH_ANY): bool {
 		return $this->evaluateRuleSet(
 			rules: $rules,
-			userId: $userId
+			userId: $userId,
+			match: $match
 		)['visible'];
 	}//end checkRules()
 
@@ -81,16 +86,20 @@ class VisibilityChecker {
 	 *                                      override.
 	 * @param DateTimeInterface|null $nowOverride Preview-only clock
 	 *                                            override.
+	 * @param string $match `any` (one include rule is enough) or
+	 *                      `all` (every include rule must match).
 	 *
 	 * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
 	 *
 	 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function evaluateRuleSet(
 		array $rules,
 		string $userId,
 		?array $groupsOverride = null,
 		?DateTimeInterface $nowOverride = null,
+		string $match = WidgetPlacement::RULE_MATCH_ANY,
 	): array {
 		$matches = fn (ConditionalRule $rule): bool => $this->ruleEvaluator->evaluateRule(
 			rule: $rule,
@@ -99,19 +108,23 @@ class VisibilityChecker {
 			nowOverride: $nowOverride
 		) === true;
 
-		return $this->evaluateWith(rules: $rules, matches: $matches);
+		return $this->evaluateWith(rules: $rules, matches: $matches, match: $match);
 	}//end evaluateRuleSet()
 
 	/**
-	 * Evaluate a rule set with a match predicate: include rules OR-ed (an
-	 * empty include group passes), exclude rules AND-ed.
+	 * Evaluate a rule set with a match predicate: include rules OR-ed, or
+	 * all required with `$match = 'all'` (an empty include group passes),
+	 * exclude rules AND-ed.
 	 *
 	 * @param ConditionalRule[]              $rules   The rules to evaluate.
 	 * @param Closure(ConditionalRule): bool $matches Whether one rule matches.
+	 * @param string                         $match   `any` or `all`.
 	 *
 	 * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
-	private function evaluateWith(array $rules, Closure $matches): array {
+	private function evaluateWith(array $rules, Closure $matches, string $match): array {
 		$includeRules = $this->filterByType(
 			rules: $rules,
 			isInclude: true
@@ -121,9 +134,10 @@ class VisibilityChecker {
 			isInclude: false
 		);
 
-		// Include rules: an empty group passes, otherwise one match must pass (OR).
+		// Include rules: an empty group passes, otherwise one match (OR) or,
+		// in `all` mode, every rule must match.
 		$includeIds = $this->matchingRuleIds(rules: $includeRules, matches: $matches);
-		if ($includeRules !== [] && $includeIds === []) {
+		if (self::includePasses(includeRules: $includeRules, includeIds: $includeIds, match: $match) === false) {
 			return [
 				'visible' => false,
 				'matchedIncludeRuleIds' => $includeIds,
@@ -140,6 +154,31 @@ class VisibilityChecker {
 			'matchedExcludeRuleIds' => $excludeIds,
 		];
 	}//end evaluateWith()
+
+	/**
+	 * Whether the include rules let the widget through: no include rules
+	 * pass; in `all` mode every include rule must have matched, otherwise
+	 * one is enough.
+	 *
+	 * @param ConditionalRule[] $includeRules The include rules.
+	 * @param int[]             $includeIds   The ids of those that matched.
+	 * @param string            $match        `any` or `all`.
+	 *
+	 * @return bool True when the include rules pass.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	private static function includePasses(array $includeRules, array $includeIds, string $match): bool {
+		if ($includeRules === []) {
+			return true;
+		}
+
+		if ($match === WidgetPlacement::RULE_MATCH_ALL) {
+			return count($includeIds) === count($includeRules);
+		}
+
+		return $includeIds !== [];
+	}//end includePasses()
 
 	/**
 	 * Filter rules by include/exclude type.

@@ -1582,7 +1582,27 @@ OC.L10N.register(
     "Confirmed {date}" : "Apstiprināts {date}",
     "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Parādīti {shown} no {total}. Lejupielāde dod pilnu sarakstu ar katra apstiprinājuma datumu un laiku.",
     "Department in read confirmations" : "Nodaļa izlasīšanas apstiprinājumos",
-    "Could not load the read-receipt report." : "Izlasīšanas apstiprinājumu pārskatu neizdevās ielādēt."
+    "Could not load the read-receipt report." : "Izlasīšanas apstiprinājumu pārskatu neizdevās ielādēt.",
+    "Who sees this widget?" : "Kas redz šo logrīku?",
+    "If all rules match" : "Ja atbilst visi noteikumi",
+    "If one rule matches" : "Ja atbilst viens noteikums",
+    "Show when ALL of these match" : "Rādīt, ja atbilst VISI šie",
+    "View as" : "Skatīt kā",
+    "Moment" : "Brīdis",
+    "Times" : "Laiki",
+    "Profile field" : "Profila lauks",
+    "{list} or {last}" : "{list} vai {last}",
+    "{name} is in {groups}" : "{name} ir grupā {groups}",
+    "{name} is not in {groups}" : "{name} nav grupā {groups}",
+    "{moment} is within the times" : "{moment} ir laiku robežās",
+    "{moment} is outside the times" : "{moment} ir ārpus laikiem",
+    "{moment} is within the period" : "{moment} ir perioda robežās",
+    "{moment} is outside the period" : "{moment} ir ārpus perioda",
+    "the profile field {field} of {name} matches" : "lietotāja {name} profila lauks {field} atbilst",
+    "the profile field {field} of {name} does not match" : "lietotāja {name} profila lauks {field} neatbilst",
+    "{name} sees this widget: no rule limits who sees it." : "{name} redz šo logrīku: neviens noteikums neierobežo, kas to redz.",
+    "{name} sees this widget, because {reasons}." : "{name} redz šo logrīku, jo {reasons}.",
+    "{name} does not see this widget, because {reasons}." : "{name} neredz šo logrīku, jo {reasons}."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

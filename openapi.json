@@ -13619,7 +13619,7 @@
                 "operationId": "visibility-preview-preview",
                 "x-launchpad-stability": "internal",
                 "summary": "Preview the effective visibility of a supplied rule set for a supplied audience/date context",
-                "description": "Preview the effective visibility of a supplied rule set for a supplied audience/date context. Never writes to `oc_launchpad_conditional_rules` — the rules array in the request body is only ever materialised as transient, in-memory `ConditionalRule` entities passed straight into the evaluation pipeline and discarded at the end of the request. Needs a signed-in Nextcloud user.",
+                "description": "Preview the effective visibility of a supplied rule set for a supplied audience/date context. Never writes to `oc_launchpad_conditional_rules` — the rules array in the request body is only ever materialised as transient, in-memory `ConditionalRule` entities passed straight into the evaluation pipeline and discarded at the end of the request. With `context.userId` the rules are evaluated as that person: their own groups and profile values, resolved server-side (\"View as\", REQ-CVUI-006). Viewing as someone other than yourself needs a `placementId` you may edit the rules of. Needs a signed-in Nextcloud user.",
                 "tags": [
                     "visibility-preview"
                 ],
@@ -13642,7 +13642,21 @@
                                             "array",
                                             "null"
                                         ],
-                                        "description": "`{groups?: string[], datetime?: string}`."
+                                        "description": "`{groups?: string[], datetime?: string, userId?: string}`."
+                                    },
+                                    "match": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "description": "`any` (default) or `all` (REQ-VIS-014)."
+                                    },
+                                    "placementId": {
+                                        "type": [
+                                            "integer",
+                                            "null"
+                                        ],
+                                        "description": "The placement whose rules are edited."
                                     }
                                 }
                             }
@@ -13668,6 +13682,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
                     }
                 }
             }
@@ -14299,6 +14316,7 @@
                                 "type": "object",
                                 "properties": {
                                     "content": {},
+                                    "ruleMatch": {},
                                     "calculatedFields": {
                                         "type": "array",
                                         "items": {

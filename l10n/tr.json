@@ -1482,6 +1482,26 @@
         "Confirmed {date}": "{date} tarihinde onaylandı",
         "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "{total} kayıttan {shown} gösteriliyor. İndirme, her onayın tarih ve saatini içeren tam listeyi verir.",
         "Department in read confirmations": "Okundu onaylarında departman",
-        "Could not load the read-receipt report.": "Okundu onayları raporu yüklenemedi."
+        "Could not load the read-receipt report.": "Okundu onayları raporu yüklenemedi.",
+        "Who sees this widget?": "Bu widget'ı kimler görür?",
+        "If all rules match": "Tüm kurallar eşleşirse",
+        "If one rule matches": "Bir kural eşleşirse",
+        "Show when ALL of these match": "Bunların TÜMÜ eşleştiğinde göster",
+        "View as": "Şu kişi olarak görüntüle",
+        "Moment": "An",
+        "Times": "Saatler",
+        "Profile field": "Profil alanı",
+        "{list} or {last}": "{list} veya {last}",
+        "{name} is in {groups}": "{name}, {groups} içinde",
+        "{name} is not in {groups}": "{name}, {groups} içinde değil",
+        "{moment} is within the times": "{moment} saatlerin içinde",
+        "{moment} is outside the times": "{moment} saatlerin dışında",
+        "{moment} is within the period": "{moment} dönemin içinde",
+        "{moment} is outside the period": "{moment} dönemin dışında",
+        "the profile field {field} of {name} matches": "{name} kullanıcısının {field} profil alanı eşleşiyor",
+        "the profile field {field} of {name} does not match": "{name} kullanıcısının {field} profil alanı eşleşmiyor",
+        "{name} sees this widget: no rule limits who sees it.": "{name} bu widget'ı görür: hiçbir kural kimin göreceğini sınırlamıyor.",
+        "{name} sees this widget, because {reasons}.": "{name} bu widget'ı görür, çünkü {reasons}.",
+        "{name} does not see this widget, because {reasons}.": "{name} bu widget'ı görmez, çünkü {reasons}."
     }
 }

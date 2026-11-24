@@ -27,12 +27,15 @@ use Exception;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\ConditionalRule;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
+use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IUserManager;
 
 /**
  * `POST /api/visibility/preview` — evaluates a caller-supplied conditional
@@ -62,11 +65,18 @@ class VisibilityPreviewController extends Controller {
 	 *                                               pipeline).
 	 * @param string|null $userId The authenticated user
 	 *                            ID.
+	 * @param PermissionService|null $permissionService Who may edit a
+	 *                                                  placement, to view
+	 *                                                  as another person.
+	 * @param IUserManager|null $userManager Whether the person
+	 *                                       viewed as exists.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly ConditionalServiceInterface $conditionalService,
 		private readonly ?string $userId,
+		private readonly ?PermissionService $permissionService = null,
+		private readonly ?IUserManager $userManager = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -80,27 +90,41 @@ class VisibilityPreviewController extends Controller {
 	 * `ConditionalRule` entities passed straight into the evaluation
 	 * pipeline and discarded at the end of the request.
 	 *
-	 * @param array|null $rules The candidate rule set:
-	 *                          `[{id?, ruleType, ruleConfig, isInclude}, …]`.
-	 * @param array|null $context `{groups?: string[], datetime?: string}`.
+	 * With `context.userId` the rules are evaluated as that person: their
+	 * own groups and profile values, resolved server-side ("View as",
+	 * REQ-CVUI-006). Viewing as someone other than yourself needs a
+	 * `placementId` you may edit the rules of.
+	 *
+	 * @param array|null  $rules       The candidate rule set:
+	 *                                 `[{id?, ruleType, ruleConfig, isInclude}, …]`.
+	 * @param array|null  $context     `{groups?: string[], datetime?: string, userId?: string}`.
+	 * @param string|null $match       `any` (default) or `all` (REQ-VIS-014).
+	 * @param int|null    $placementId The placement whose rules are edited.
 	 *
 	 * @return JSONResponse `{visible, matchedIncludeRuleIds, matchedExcludeRuleIds}`
-	 *                      on success, or HTTP 400 when `rules`/`context`
-	 *                      fail validation.
+	 *                      on success, HTTP 400 when the input fails
+	 *                      validation, HTTP 403 when viewing as another
+	 *                      person is not allowed.
 	 *
 	 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 	 *
 	 * @no-admin-idor-exempt no object is addressed. Both parameters are the
 	 * candidate rule set and an evaluation context taken from the request
 	 * body; the method loads nothing by id, persists nothing, and evaluates
 	 * against `$this->userId` — which it null-checks — so there is no other
 	 * user's object for a caller to reach. An IDOR needs an attacker-supplied
-	 * identifier, and this endpoint accepts none.
+	 * identifier, and this endpoint accepts none. Viewing as another person
+	 * names a user and a placement; both are checked in
+	 * `refuseViewingAs()` (placement rules editable by the caller, user
+	 * exists) before anything is evaluated.
 	 */
 	#[NoAdminRequired]
 	public function preview(
 		array|null $rules = null,
 		array|null $context = null,
+		string|null $match = null,
+		int|null $placementId = null,
 	): JSONResponse {
 		// Nextcloud rejects unauthenticated requests to a #[NoAdminRequired]
 		// route before dispatch, but the DI-injected userId is still
@@ -113,10 +137,17 @@ class VisibilityPreviewController extends Controller {
 			);
 		}
 
+		$subject = self::viewedAs(context: $context ?? []);
+		$refusal = $this->refuseViewingAs(subject: $subject, placementId: $placementId);
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
 		try {
 			$entities = $this->buildRuleEntities(rules: $rules ?? []);
-			$groups = $this->buildGroupsOverride(context: $context ?? []);
+			$groups = $this->groupsFor(context: $context ?? [], subject: $subject);
 			$now = $this->buildDatetimeOverride(context: $context ?? []);
+			$mode = self::matchMode(match: $match);
 		} catch (InvalidArgumentException $e) {
 			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
@@ -124,9 +155,10 @@ class VisibilityPreviewController extends Controller {
 		try {
 			$result = $this->conditionalService->previewRules(
 				rules: $entities,
-				userId: $this->userId,
+				userId: ($subject ?? $this->userId),
 				groupsOverride: $groups,
-				nowOverride: $now
+				nowOverride: $now,
+				match: $mode
 			);
 
 			return new JSONResponse($result, Http::STATUS_OK);
@@ -134,6 +166,120 @@ class VisibilityPreviewController extends Controller {
 			return $this->failure(message: 'Preview failed', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 	}//end preview()
+
+	/**
+	 * The person the preview views as: `context.userId` when given, else
+	 * null (the caller, with the groups the context names).
+	 *
+	 * @param array $context The raw `context` object.
+	 *
+	 * @return string|null The user id to evaluate as, null for none.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	 */
+	private static function viewedAs(array $context): ?string {
+		$userId = $context['userId'] ?? null;
+		if (is_string($userId) === false || trim($userId) === '') {
+			return null;
+		}
+
+		return trim($userId);
+	}//end viewedAs()
+
+	/**
+	 * Refuse viewing as another person unless the caller may edit the
+	 * placement's rules and the person exists. Viewing as yourself, or
+	 * as no one, is always allowed.
+	 *
+	 * @param string|null $subject     The person viewed as.
+	 * @param int|null    $placementId The placement whose rules are edited.
+	 *
+	 * @return JSONResponse|null The refusal, or null to go on.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	 */
+	private function refuseViewingAs(?string $subject, ?int $placementId): ?JSONResponse {
+		if ($subject === null || $subject === $this->userId) {
+			return null;
+		}
+
+		if ($placementId === null || $this->mayEditRules(placementId: $placementId) === false) {
+			return $this->failure(message: 'You may not view this widget as another person', statusCode: Http::STATUS_FORBIDDEN);
+		}
+
+		if ($this->userManager === null || $this->userManager->userExists($subject) === false) {
+			return $this->failure(message: 'Unknown person to view as', statusCode: Http::STATUS_BAD_REQUEST);
+		}
+
+		return null;
+	}//end refuseViewingAs()
+
+	/**
+	 * Whether the caller may edit the rules of a placement: its dashboard's
+	 * owner or an administrator, the same check the rule endpoints make.
+	 *
+	 * @param int $placementId The placement.
+	 *
+	 * @return bool True when allowed.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	 */
+	private function mayEditRules(int $placementId): bool {
+		if ($this->permissionService === null) {
+			return false;
+		}
+
+		try {
+			$this->permissionService->verifyPlacementOwnership(userId: (string)$this->userId, placementId: $placementId);
+			return true;
+		} catch (Exception $e) {
+			return false;
+		}
+	}//end mayEditRules()
+
+	/**
+	 * The groups to test `group` rules against: none to override when
+	 * viewing as a person (their own groups count), else the context's.
+	 *
+	 * @param array       $context The raw `context` object.
+	 * @param string|null $subject The person viewed as.
+	 *
+	 * @return string[]|null The groups, or null for the person's own.
+	 *
+	 * @throws InvalidArgumentException When `groups` is malformed.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	 */
+	private function groupsFor(array $context, ?string $subject): ?array {
+		if ($subject !== null) {
+			return null;
+		}
+
+		return $this->buildGroupsOverride(context: $context);
+	}//end groupsFor()
+
+	/**
+	 * The match mode of the request: `any` when absent.
+	 *
+	 * @param string|null $match The raw `match` parameter.
+	 *
+	 * @return string `any` or `all`.
+	 *
+	 * @throws InvalidArgumentException On any other value.
+	 *
+	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	private static function matchMode(?string $match): string {
+		if ($match === null) {
+			return WidgetPlacement::RULE_MATCH_ANY;
+		}
+
+		if (in_array($match, WidgetPlacement::RULE_MATCHES, true) === false) {
+			throw new InvalidArgumentException('match must be any or all');
+		}
+
+		return $match;
+	}//end matchMode()
 
 	/**
 	 * Validate and build the transient (never persisted) rule entities from

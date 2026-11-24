@@ -32,7 +32,7 @@
 			role="menuitem"
 			data-testid="ctx-visibility-rules"
 			@click="onVisibilityRules">
-			{{ t('launchpad', 'Visibility rules…') }}
+			{{ t('launchpad', 'Who sees this widget?') }}
 		</button>
 		<button
 			type="button"
@@ -156,7 +156,12 @@ export default {
 			this.$emit('close')
 		},
 
-		/** @spec openspec/specs/conditional-visibility/spec.md */
+		/**
+		 * "Who sees this widget?": open the rules dialog for this widget.
+		 *
+		 * @spec openspec/specs/conditional-visibility/spec.md
+		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-dialog-is-in-the-widgets-menu-req-cvui-007
+		 */
 		onVisibilityRules() {
 			this.$emit('visibilityRules')
 			this.$emit('close')

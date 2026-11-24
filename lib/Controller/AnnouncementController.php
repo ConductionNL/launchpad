@@ -26,7 +26,6 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use Closure;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Announcement;
@@ -332,13 +331,13 @@ class AnnouncementController extends Controller {
 	/**
 	 * Run a likes-and-comments call as the session user, or 503 when the comments service is not wired.
 	 *
-	 * @param Closure $run Receives the user id and the comments service.
+	 * @param callable $run Receives the user id and the comments service.
 	 *
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
 	 */
-	private function withReactions(Closure $run): JSONResponse {
+	private function withReactions(callable $run): JSONResponse {
 		$reactions = $this->reactions;
 		if ($reactions === null) {
 			return new JSONResponse(['error' => 'Likes and comments are not available'], Http::STATUS_SERVICE_UNAVAILABLE);
@@ -351,11 +350,11 @@ class AnnouncementController extends Controller {
 	 * Run an endpoint as the session user, mapping refusals to their status. The
 	 * caller has checked its ADR-023 action first.
 	 *
-	 * @param Closure $run `(string $userId): JSONResponse`.
+	 * @param callable $run `(string $userId): JSONResponse`.
 	 *
 	 * @return JSONResponse
 	 */
-	private function asUser(Closure $run): JSONResponse {
+	private function asUser(callable $run): JSONResponse {
 		$user = $this->guard->sessionUser();
 		if ($user instanceof JSONResponse) {
 			return $user;

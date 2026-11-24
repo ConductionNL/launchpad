@@ -640,7 +640,6 @@ import { FLAG_PROP, LIST_PROP, NULLABLE_OBJECT_PROP, TEXT_PROP } from '../consta
 import { api } from '../services/api.js'
 import { DASHBOARD_ICON_CATALOGUE } from '../services/iconCatalogue.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
-import { useDashboardStore } from '../stores/dashboard.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
 import { isCollaborative } from '../utils/dashboardDiscussion.js'
 import { accentCheck, normaliseHex } from '../utils/dashboardLook.js'
@@ -1175,10 +1174,12 @@ export default {
 		 * The conversation switch was stored: let the open page follow it.
 		 *
 		 * @param {number} value 1 shows the conversation, 0 hides it.
-		 * @return {void}
+		 * @return {Promise<void>}
 		 * @spec openspec/changes/sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
 		 */
-		onConversationChanged(value) {
+		async onConversationChanged(value) {
+			// Loaded on use: the store module reads the user's language on import.
+			const { useDashboardStore } = await import('../stores/dashboard.js')
 			useDashboardStore().applyFieldsPatch(this.dashboard?.uuid, { conversationEnabled: value })
 		},
 

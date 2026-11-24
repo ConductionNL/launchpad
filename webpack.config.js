@@ -105,4 +105,18 @@ webpackConfig.plugins.push(new webpack.NormalModuleReplacementPlugin(/^@mdi\/js$
 	}
 }))
 
+// Stylesheets are injected by style-loader as strings in the JavaScript. With
+// the production `source-map` devtool, css-loader also embeds each sheet's own
+// source map in that string: nextcloud-vue's 2 MB stylesheet then weighed
+// 5 MB of launchpad-main.js, which every page parses before it paints. The
+// JavaScript keeps its source maps; the sheets do not need one in the bundle.
+for (const rule of webpackConfig.module.rules) {
+	if (!Array.isArray(rule.use)) {
+		continue
+	}
+	rule.use = rule.use.map((loader) => (loader === 'css-loader'
+		? { loader: 'css-loader', options: { sourceMap: false } }
+		: loader))
+}
+
 module.exports = webpackConfig

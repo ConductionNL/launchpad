@@ -53,7 +53,20 @@ class AnnouncementController extends Controller {
 	/**
 	 * The fields an author may send.
 	 */
-	private const FIELDS = ['kind', 'title', 'body', 'category', 'level', 'dismissible', 'targetGroups', 'publishAt', 'expiresAt', 'allowComments', 'requiresConfirmation', 'confirmBefore'];
+	private const FIELDS = [
+		'kind',
+		'title',
+		'body',
+		'category',
+		'level',
+		'dismissible',
+		'targetGroups',
+		'publishAt',
+		'expiresAt',
+		'allowComments',
+		'requiresConfirmation',
+		'confirmBefore',
+	];
 
 	/**
 	 * Constructor.
@@ -315,62 +328,6 @@ class AnnouncementController extends Controller {
 			)
 		);
 	}//end unlike()
-
-	/**
-	 * POST /api/announcements/{uuid}/read: "I have read this" for the
-	 * signed-in reader, once (REQ-ANN-007).
-	 *
-	 * @param string $uuid The announcement.
-	 *
-	 * @return JSONResponse `{uuid, confirmed, confirmedAt}`, or 400 / 403 / 404.
-	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
-	 */
-	#[NoAdminRequired]
-	public function confirmRead(string $uuid): JSONResponse {
-		return $this->guard->actionRefusal(action: 'announcement.read') ?? $this->withConfirmations(
-			run: fn (string $userId, AnnouncementReadConfirmations $confirmations): JSONResponse => new JSONResponse(
-				$confirmations->confirm(userId: $userId, uuid: $uuid)
-			)
-		);
-	}//end confirmRead()
-
-	/**
-	 * GET /api/announcements/{uuid}/receipts: who confirmed and who has not
-	 * yet, for the author or an administrator (REQ-ANN-007).
-	 *
-	 * @param string $uuid The announcement.
-	 *
-	 * @return JSONResponse The report, or 400 / 403 / 404.
-	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
-	 */
-	#[NoAdminRequired]
-	public function receipts(string $uuid): JSONResponse {
-		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->withConfirmations(
-			run: fn (string $userId, AnnouncementReadConfirmations $confirmations): JSONResponse => new JSONResponse(
-				$confirmations->report(userId: $userId, uuid: $uuid)
-			)
-		);
-	}//end receipts()
-
-	/**
-	 * Run a read confirmation step as the session user, or answer 503 when it is not wired.
-	 *
-	 * @param Closure $run Takes the user id and the confirmations.
-	 *
-	 * @return JSONResponse
-	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
-	 */
-	private function withConfirmations(Closure $run): JSONResponse {
-		$confirmations = $this->confirmations;
-		if ($confirmations === null) {
-			return new JSONResponse(['error' => 'Read confirmations are not available'], Http::STATUS_SERVICE_UNAVAILABLE);
-		}
-
-		return $this->asUser(run: fn (string $userId): JSONResponse => $run($userId, $confirmations));
-	}//end withConfirmations()
 
 	/**
 	 * Run a likes-and-comments call as the session user, or 503 when the comments service is not wired.

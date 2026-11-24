@@ -365,10 +365,8 @@ class AnnouncementService implements AnnouncementServiceInterface {
 	 * @param Announcement $announcement The announcement.
 	 *
 	 * @return bool
-	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
-	public function mayManage(string $userId, Announcement $announcement): bool {
+	private function mayManage(string $userId, Announcement $announcement): bool {
 		if ($this->groupManager->isAdmin($userId) === true) {
 			return true;
 		}

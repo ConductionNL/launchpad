@@ -24,7 +24,6 @@ use OCA\LaunchPad\Db\AcknowledgementMapper;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
-use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\AnnouncementReadConfirmations;
 use OCA\LaunchPad\Service\ReadReceiptPeople;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -63,13 +62,6 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	private AcknowledgementMapper $receipts;
 
 	/**
-	 * The user groups double.
-	 *
-	 * @var AdminTemplateService&MockObject
-	 */
-	private AdminTemplateService $userGroups;
-
-	/**
 	 * The group manager double.
 	 *
 	 * @var IGroupManager&MockObject
@@ -91,7 +83,6 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	protected function setUp(): void {
 		$this->announcements = $this->createMock(AnnouncementServiceInterface::class);
 		$this->receipts      = $this->createMock(AcknowledgementMapper::class);
-		$this->userGroups    = $this->createMock(AdminTemplateService::class);
 		$this->groupManager  = $this->createMock(IGroupManager::class);
 		$this->userManager   = $this->createMock(IUserManager::class);
 	}//end setUp()
@@ -110,7 +101,6 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 		return new AnnouncementReadConfirmations(
 			$this->announcements,
 			$this->receipts,
-			$this->userGroups,
 			$this->groupManager,
 			$this->userManager,
 			$people,
@@ -125,11 +115,13 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 * @param array<string> $groups  The target groups.
 	 * @param string        $status  The status.
 	 * @param string        $uuid    The uuid.
+	 * @param string        $author  The author.
 	 *
 	 * @return Announcement
 	 */
-	private function announcement(bool $asks = true, array $groups = ['Medewerkers'], string $status = 'published', string $uuid = self::UUID): Announcement {
+	private function announcement(bool $asks = true, array $groups = ['Medewerkers'], string $status = 'published', string $uuid = self::UUID, string $author = 'pieter'): Announcement {
 		$announcement = new Announcement();
+		$announcement->setAuthorId($author);
 		$announcement->setUuid($uuid);
 		$announcement->setTitle('New procedure');
 		$announcement->setStatus($status);
@@ -165,7 +157,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 */
 	public function testAReaderInTheAudienceConfirms(): void {
 		$this->announcements->method('findFor')->with('anna', self::UUID)->willReturn($this->announcement());
-		$this->userGroups->method('getUserGroupIdsFor')->with('anna')->willReturn(['Medewerkers']);
+		$this->announcements->method('reachesUser')->with(['Medewerkers'], 'anna')->willReturn(true);
 		$this->receipts->method('findOneFor')->willReturn(null);
 		$this->receipts->expects($this->once())->method('record')
 			->with('announcement-' . self::UUID, 'anna', 1)
@@ -183,6 +175,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 */
 	public function testASecondConfirmationAnswersTheFirst(): void {
 		$this->announcements->method('findFor')->willReturn($this->announcement(groups: []));
+		$this->announcements->method('reachesUser')->with([], 'anna')->willReturn(true);
 		$this->receipts->method('findOneFor')->willReturn($this->receipt(userId: 'anna'));
 		$this->receipts->expects($this->never())->method('record');
 
@@ -196,6 +189,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 */
 	public function testARaceAnswersTheWinningRow(): void {
 		$this->announcements->method('findFor')->willReturn($this->announcement(groups: []));
+		$this->announcements->method('reachesUser')->willReturn(true);
 		$this->receipts->method('findOneFor')->willReturnOnConsecutiveCalls(null, $this->receipt(userId: 'anna'));
 		$exception = $this->createMock(DbException::class);
 		$exception->method('getReason')->willReturn(DbException::REASON_UNIQUE_CONSTRAINT_VIOLATION);
@@ -233,7 +227,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 */
 	public function testSomeoneOutsideTheAudienceCannotConfirm(): void {
 		$this->announcements->method('findFor')->willReturn($this->announcement());
-		$this->userGroups->method('getUserGroupIdsFor')->willReturn(['admin']);
+		$this->announcements->method('reachesUser')->willReturn(false);
 		$this->receipts->expects($this->never())->method('record');
 
 		$this->expectException(ForbiddenException::class);
@@ -250,16 +244,15 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 		$this->receipts->expects($this->once())->method('findKeysConfirmedBy')
 			->with('pieter', ['announcement-' . self::UUID, 'announcement-' . $other])
 			->willReturn(['announcement-' . $other]);
-		$this->announcements->method('mayManage')->willReturnCallback(
-			static fn (string $userId, Announcement $announcement): bool => $announcement->getUuid() === self::UUID
-		);
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->announcements->method('isAuthor')->with('pieter')->willReturn(true);
 
 		$state = $this->service()->stateFor(
 			userId: 'pieter',
 			announcements: [
 				$this->announcement(),
 				$this->announcement(asks: false, uuid: '00000000-2222-4333-8444-555555555555'),
-				$this->announcement(uuid: $other),
+				$this->announcement(uuid: $other, author: 'marieke'),
 			]
 		);
 
@@ -273,7 +266,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 */
 	public function testTheAuthorReadsWhoConfirmed(): void {
 		$this->announcements->method('findFor')->willReturn($this->announcement(groups: ['Medewerkers', 'HR']));
-		$this->announcements->method('mayManage')->willReturn(true);
+		$this->groupManager->method('isAdmin')->with('pieter')->willReturn(true);
 		$this->groupManager->method('get')->willReturnCallback(fn (string $groupId): ?IGroup => match ($groupId) {
 			'Medewerkers' => $this->group(members: ['jan', 'anna']),
 			default => null,
@@ -303,7 +296,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 */
 	public function testAnAnnouncementToEveryoneReportsEveryone(): void {
 		$this->announcements->method('findFor')->willReturn($this->announcement(groups: []));
-		$this->announcements->method('mayManage')->willReturn(true);
+		$this->groupManager->method('isAdmin')->willReturn(true);
 		$this->userManager->method('callForSeenUsers')->willReturnCallback(function (callable $callback): void {
 			foreach (['zoe', 'bram'] as $uid) {
 				$callback($this->user(uid: $uid));
@@ -321,7 +314,8 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 */
 	public function testTheReportIsGuarded(): void {
 		$this->announcements->method('findFor')->willReturnOnConsecutiveCalls($this->announcement(), $this->announcement(asks: false));
-		$this->announcements->method('mayManage')->willReturnOnConsecutiveCalls(false, true);
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->announcements->method('isAuthor')->willReturn(true);
 
 		try {
 			$this->service()->report(userId: 'anna', uuid: self::UUID);

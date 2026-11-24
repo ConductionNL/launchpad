@@ -95,32 +95,8 @@ class AnnouncementInput {
 			$announcement->setConfirmBefore($this->date(value: $input['confirmBefore'], field: 'confirmBefore'));
 		}
 
-		if ($announcement->getRequiresConfirmation() !== 1) {
-			$announcement->setConfirmBefore(null);
-			return;
-		}
-
-		$this->assertConfirmBefore(announcement: $announcement);
+		$announcement->settleConfirmation();
 	}//end applyConfirmationFields()
-
-	/**
-	 * Refuse a "Confirm before" date that is not after the publish time.
-	 *
-	 * @param Announcement $announcement The announcement.
-	 *
-	 * @return void
-	 *
-	 * @throws InvalidArgumentException When the deadline is not after the publish time.
-	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
-	 */
-	public function assertConfirmBefore(Announcement $announcement): void {
-		$deadline  = $announcement->getConfirmBefore();
-		$publishAt = $announcement->getPublishAt();
-		if ($deadline !== null && $publishAt !== null && $deadline <= $publishAt) {
-			throw new InvalidArgumentException('The confirm-before date must be after the publish time');
-		}
-	}//end assertConfirmBefore()
 
 	/**
 	 * The title, text and category.

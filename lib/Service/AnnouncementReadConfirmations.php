@@ -63,7 +63,6 @@ class AnnouncementReadConfirmations {
 	 *
 	 * @param AnnouncementServiceInterface $announcements The announcements a user may read or manage.
 	 * @param AcknowledgementMapper        $receipts      The stored receipts.
-	 * @param AdminTemplateService         $userGroups    The groups of a user.
 	 * @param IGroupManager                $groupManager  The members of a target group.
 	 * @param IUserManager                 $userManager   Everyone, for an announcement to all.
 	 * @param ReadReceiptPeople            $people        Names and departments on the report rows.
@@ -72,7 +71,6 @@ class AnnouncementReadConfirmations {
 	public function __construct(
 		private readonly AnnouncementServiceInterface $announcements,
 		private readonly AcknowledgementMapper $receipts,
-		private readonly AdminTemplateService $userGroups,
 		private readonly IGroupManager $groupManager,
 		private readonly IUserManager $userManager,
 		private readonly ReadReceiptPeople $people,
@@ -160,7 +158,7 @@ class AnnouncementReadConfirmations {
 				$confirmed[] = $uuid;
 			}
 
-			if ($this->announcements->mayManage(userId: $userId, announcement: $announcement) === true) {
+			if ($this->mayManage(userId: $userId, announcement: $announcement) === true) {
 				$receipts[] = $uuid;
 			}
 		}
@@ -186,7 +184,7 @@ class AnnouncementReadConfirmations {
 	 */
 	public function report(string $userId, string $uuid): array {
 		$announcement = $this->announcements->findFor(userId: $userId, uuid: $uuid);
-		if ($this->announcements->mayManage(userId: $userId, announcement: $announcement) === false) {
+		if ($this->mayManage(userId: $userId, announcement: $announcement) === false) {
 			throw new ForbiddenException(message: 'Only the author or an administrator may read the read confirmations');
 		}
 
@@ -202,9 +200,14 @@ class AnnouncementReadConfirmations {
 
 		$rows = [];
 		foreach ($this->audienceOf(announcement: $announcement) as $member) {
+			$status = 'pending';
+			if (array_key_exists($member, $confirmed) === true) {
+				$status = 'acknowledged';
+			}
+
 			$rows[] = [
 				'userId'         => $member,
-				'status'         => array_key_exists($member, $confirmed) === true ? 'acknowledged' : 'pending',
+				'status'         => $status,
 				'acknowledgedAt' => $confirmed[$member] ?? null,
 			];
 		}
@@ -242,10 +245,26 @@ class AnnouncementReadConfirmations {
 	 * @return bool
 	 */
 	private function addresses(Announcement $announcement, string $userId): bool {
-		$targets = $announcement->getTargetGroupList();
-
-		return $targets === [] || array_intersect($targets, $this->userGroups->getUserGroupIdsFor($userId)) !== [];
+		return $this->announcements->reachesUser(groups: $announcement->getTargetGroupList(), userId: $userId);
 	}//end addresses()
+
+	/**
+	 * Whether a user may read an announcement's read confirmations: an
+	 * administrator, or its author while still an announcement editor, the
+	 * same people who may change it.
+	 *
+	 * @param string       $userId       The user.
+	 * @param Announcement $announcement The announcement.
+	 *
+	 * @return bool
+	 */
+	private function mayManage(string $userId, Announcement $announcement): bool {
+		if ($this->groupManager->isAdmin($userId) === true) {
+			return true;
+		}
+
+		return $announcement->getAuthorId() === $userId && $this->announcements->isAuthor(userId: $userId) === true;
+	}//end mayManage()
 
 	/**
 	 * The audience, sorted: the members of the target groups, or, for an

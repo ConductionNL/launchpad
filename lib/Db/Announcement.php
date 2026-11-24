@@ -26,6 +26,7 @@ namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use DateTimeInterface;
+use InvalidArgumentException;
 use JsonSerializable;
 use OCP\AppFramework\Db\Entity;
 
@@ -266,6 +267,28 @@ class Announcement extends Entity implements JsonSerializable {
 	private static function iso(?DateTimeInterface $date): ?string {
 		return $date?->format(DateTimeInterface::ATOM);
 	}//end iso()
+
+	/**
+	 * Settle the read confirmation after a change: without the question
+	 * there is no deadline; with it, a deadline must lie after the publish
+	 * time, so readers get time to confirm (REQ-ANN-007).
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the deadline is not after the publish time.
+	 *
+	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	public function settleConfirmation(): void {
+		if ($this->requiresConfirmation !== 1) {
+			$this->setConfirmBefore(null);
+			return;
+		}
+
+		if ($this->confirmBefore !== null && $this->publishAt !== null && $this->confirmBefore <= $this->publishAt) {
+			throw new InvalidArgumentException('The confirm-before date must be after the publish time');
+		}
+	}//end settleConfirmation()
 
 	/**
 	 * The announcement as the API answers it.

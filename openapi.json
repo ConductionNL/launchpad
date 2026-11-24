@@ -104,6 +104,10 @@
             "description": "The target group picker's list."
         },
         {
+            "name": "announcement-read",
+            "description": "The read confirmation endpoints of announcements."
+        },
+        {
             "name": "attention",
             "description": "The attention sources endpoint."
         },
@@ -5556,12 +5560,12 @@
         },
         "/announcements/{uuid}/read": {
             "post": {
-                "operationId": "announcement-confirm-read",
+                "operationId": "announcement-read-confirm",
                 "x-launchpad-stability": "internal",
-                "summary": "POST /api/announcements/{uuid}/read: \"I have read this\" for the signed-in reader, once (REQ-ANN-007)",
-                "description": "POST /api/announcements/{uuid}/read: \"I have read this\" for the signed-in reader, once (REQ-ANN-007). Needs a signed-in Nextcloud user.",
+                "summary": "POST /api/announcements/{uuid}/read: \"I have read this\" for the signed-in reader, once",
+                "description": "POST /api/announcements/{uuid}/read: \"I have read this\" for the signed-in reader, once. Needs a signed-in Nextcloud user.",
                 "tags": [
-                    "announcement"
+                    "announcement-read"
                 ],
                 "parameters": [
                     {
@@ -5600,21 +5604,18 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
-                    },
-                    "503": {
-                        "$ref": "#/components/responses/Problem503"
                     }
                 }
             }
         },
         "/announcements/{uuid}/receipts": {
             "get": {
-                "operationId": "announcement-receipts",
+                "operationId": "announcement-read-receipts",
                 "x-launchpad-stability": "internal",
-                "summary": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator (REQ-ANN-007)",
-                "description": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator (REQ-ANN-007). Needs a signed-in Nextcloud user.",
+                "summary": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator",
+                "description": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator. Needs a signed-in Nextcloud user.",
                 "tags": [
-                    "announcement"
+                    "announcement-read"
                 ],
                 "parameters": [
                     {
@@ -5653,9 +5654,6 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
-                    },
-                    "503": {
-                        "$ref": "#/components/responses/Problem503"
                     }
                 }
             }

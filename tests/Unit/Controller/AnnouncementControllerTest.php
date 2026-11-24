@@ -331,48 +331,4 @@ class AnnouncementControllerTest extends TestCase {
 		$this->assertSame(['confirmed' => ['u1'], 'receipts' => []], $this->controller(confirmations: $confirmations)->index()->getData()['readConfirmations']);
 		$this->assertSame(['confirmed' => [], 'receipts' => []], $this->controller()->index()->getData()['readConfirmations']);
 	}//end testIndexCarriesTheReadConfirmationState()
-
-	/**
-	 * "I have read this" confirms for the session user; a refusal maps to 400, 403 or 404.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
-	 */
-	public function testConfirmReadAnswersTheReceiptOrTheRefusal(): void {
-		$uuid = '11111111-2222-4333-8444-555555555555';
-		$confirmations = $this->createMock(AnnouncementReadConfirmations::class);
-		$confirmations->method('confirm')->with('pieter', $uuid)->willReturnOnConsecutiveCalls(
-			['uuid' => $uuid, 'confirmed' => true, 'confirmedAt' => '2026-10-27 09:15:00'],
-			$this->throwException(new InvalidArgumentException('This announcement does not ask for a read confirmation')),
-			$this->throwException(new ForbiddenException(message: 'This announcement is not addressed to you')),
-			$this->throwException(new DoesNotExistException('gone'))
-		);
-		$controller = $this->controller(confirmations: $confirmations);
-
-		$this->assertTrue($controller->confirmRead($uuid)->getData()['confirmed']);
-		$this->assertSame(400, $controller->confirmRead($uuid)->getStatus());
-		$this->assertSame(403, $controller->confirmRead($uuid)->getStatus());
-		$this->assertSame(404, $controller->confirmRead($uuid)->getStatus());
-		$this->assertSame(['announcement.read', 'announcement.read', 'announcement.read', 'announcement.read'], $this->checked);
-	}//end testConfirmReadAnswersTheReceiptOrTheRefusal()
-
-	/**
-	 * The receipts report goes through the manage check; unwired it is 503.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
-	 */
-	public function testReceiptsAreTheAuthorsReport(): void {
-		$uuid = '11111111-2222-4333-8444-555555555555';
-		$confirmations = $this->createMock(AnnouncementReadConfirmations::class);
-		$confirmations->method('report')->with('pieter', $uuid)->willReturn(['pendingCount' => 2]);
-
-		$this->assertSame(['pendingCount' => 2], $this->controller(confirmations: $confirmations)->receipts($uuid)->getData());
-		$this->assertSame(['announcement.manage'], $this->checked);
-		$this->assertSame(403, $this->controller(refused: ['announcement.manage'], confirmations: $confirmations)->receipts($uuid)->getStatus());
-		$this->assertSame(503, $this->controller()->receipts($uuid)->getStatus());
-		$this->assertSame(503, $this->controller()->confirmRead($uuid)->getStatus());
-	}//end testReceiptsAreTheAuthorsReport()
 }//end class

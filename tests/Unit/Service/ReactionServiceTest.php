@@ -50,7 +50,11 @@ class ReactionServiceTest extends TestCase {
 	private IAppConfig&MockObject $appConfig;
 	private IUserManager&MockObject $userManager;
 	private ReactionService $service;
-	/** The dashboard the versioned service reads. */
+	/**
+	 * The dashboard the versioned service reads.
+	 *
+	 * @var Dashboard|null
+	 */
 	private ?Dashboard $dashboard = null;
 
 	protected function setUp(): void {
@@ -437,6 +441,8 @@ class ReactionServiceTest extends TestCase {
 	 * (reactions-bar-at-the-foot REQ-RXN-010).
 	 *
 	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 *
+	 * @return void
 	 */
 	public function testTheSummaryNamesWhoLastChangedTheDashboard(): void {
 		$this->dashboard = $this->makeDashboard(perDashFlag: 1);
@@ -455,13 +461,15 @@ class ReactionServiceTest extends TestCase {
 		$summary = $this->serviceWithVersions(versionMapper: $versions)
 			->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice');
 
-		$this->assertSame(['name' => 'Communicatie', 'at' => '2026-11-24T08:30:00+00:00'], $summary['lastChange']);
+		$this->assertSame(expected: ['name' => 'Communicatie', 'at' => '2026-11-24T08:30:00+00:00'], actual: $summary['lastChange']);
 	}
 
 	/**
 	 * An author without an account (a template re-sync) is named as stored.
 	 *
 	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 *
+	 * @return void
 	 */
 	public function testAnAuthorWithoutAnAccountIsNamedAsStored(): void {
 		$this->dashboard = $this->makeDashboard(perDashFlag: 1);
@@ -479,7 +487,7 @@ class ReactionServiceTest extends TestCase {
 		$summary = $this->serviceWithVersions(versionMapper: $versions)
 			->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice');
 
-		$this->assertSame(['name' => 'Template Intranet', 'at' => '2026-11-23 10:00:00'], $summary['lastChange']);
+		$this->assertSame(expected: ['name' => 'Template Intranet', 'at' => '2026-11-23 10:00:00'], actual: $summary['lastChange']);
 	}
 
 	/**
@@ -487,6 +495,8 @@ class ReactionServiceTest extends TestCase {
 	 * without a name, and null when that is unknown too.
 	 *
 	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 *
+	 * @return void
 	 */
 	public function testWithoutVersionsTheSummaryGivesOnlyTheTime(): void {
 		$this->dashboard = $this->makeDashboard(perDashFlag: 1);
@@ -494,14 +504,14 @@ class ReactionServiceTest extends TestCase {
 		$versions->method('findLatestByDashboard')->willReturn([]);
 		$service = $this->serviceWithVersions(versionMapper: $versions);
 
-		$this->assertNull($service->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice')['lastChange']);
+		$this->assertNull(actual: $service->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice')['lastChange']);
 
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$this->dashboard->setUpdatedAt('2026-11-23 10:00:00');
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$this->assertSame(
-			['name' => '', 'at' => '2026-11-23 10:00:00'],
-			$service->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice')['lastChange']
+			expected: ['name' => '', 'at' => '2026-11-23 10:00:00'],
+			actual: $service->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice')['lastChange']
 		);
 	}
 
@@ -510,6 +520,8 @@ class ReactionServiceTest extends TestCase {
 	 * directory without the version mapper reads none.
 	 *
 	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 *
+	 * @return void
 	 */
 	public function testAFailedVersionReadFallsBackToTheDashboardTime(): void {
 		$this->dashboard = $this->makeDashboard(perDashFlag: 1);
@@ -522,10 +534,10 @@ class ReactionServiceTest extends TestCase {
 		$summary = $this->serviceWithVersions(versionMapper: $versions)
 			->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice');
 
-		$this->assertSame(['name' => '', 'at' => '2026-11-23 10:00:00'], $summary['lastChange']);
+		$this->assertSame(expected: ['name' => '', 'at' => '2026-11-23 10:00:00'], actual: $summary['lastChange']);
 
 		$this->dashboardMapper->method('findByUuid')->willReturn($this->dashboard);
 		$plain = $this->service->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice');
-		$this->assertSame(['name' => '', 'at' => '2026-11-23 10:00:00'], $plain['lastChange']);
+		$this->assertSame(expected: ['name' => '', 'at' => '2026-11-23 10:00:00'], actual: $plain['lastChange']);
 	}
 }

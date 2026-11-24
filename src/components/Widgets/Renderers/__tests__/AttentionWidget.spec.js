@@ -318,7 +318,7 @@ describe('AttentionWidget one card per record (LpVandaag)', () => {
 		expect(wrapper.find('.attention-widget__title').text()).toContain('dossiq title')
 	})
 
-	// @spec openspec/changes/start-page-board-sync/specs/attention-feed/spec.md#requirement-vandaag-eerst-can-draw-one-card-per-record-req-att-007
+	// @spec openspec/changes/archive/2026-11-24-start-page-board-sync/specs/attention-feed/spec.md#requirement-vandaag-eerst-can-draw-one-card-per-record-req-att-007
 	it('stops at the limit in total across sources, in ranking order', async () => {
 		expandToRecords.mockImplementationOnce((items) => items.flatMap((i) => [
 			{ ...i, key: i.key + '/1', title: i.appName + ' record 1' },

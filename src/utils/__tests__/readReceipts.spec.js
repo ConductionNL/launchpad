@@ -4,7 +4,7 @@
  *
  * The read confirmations counts, filters and initials (REQ-ACK-010).
  *
- * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+ * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
  */
 
 import { describe, expect, it } from 'vitest'

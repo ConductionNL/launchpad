@@ -36,7 +36,7 @@ function host(look, initialLook = { accent: '', background: '', resource: '' }) 
 }
 
 describe('DashboardConfigModal look', () => {
-	// @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	// @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
 	it('has no separate Look tab: the look is a block on Details', () => {
 		const tabs = computed.tabs.call({ canManageShares: true, dashboard: { uuid: 'u-1' }, localShares: [] })
 		expect(tabs.map((tab) => tab.id)).toEqual(['general', 'languages', 'sharing'])
@@ -80,7 +80,7 @@ describe('DashboardConfigModal look', () => {
 		expect(self.lookUploading).toBe(false)
 	})
 
-	// @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
+	// @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
 	it('emits the changed look with the save', async () => {
 		const emitted = []
 		const self = host({ accent: '#1f5c3a', background: '', resource: '' })

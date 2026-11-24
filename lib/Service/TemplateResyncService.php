@@ -106,7 +106,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * @param ResyncFollowUps      $followUps What happens to a changed copy: its personal layers are pruned
 	 *                                        (REQ-DWMS-001) and it gets a version by the template (REQ-VERSUI-005).
 	 *
-	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function __construct(
 		private readonly ResyncStores $stores,
@@ -408,7 +408,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	private function recordTemplateVersion(Dashboard $copy, string $templateName): void {
 		try {

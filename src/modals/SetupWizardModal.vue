@@ -142,7 +142,7 @@ import { logger } from '../utils/logger.js'
  * and the footer step too: the footer is set on its own admin tab. Step 4
  * renders a stub until an admin-roles panel exists.
  *
- * @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
+ * @spec openspec/changes/archive/2026-11-24-setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
  */
 export default {
 	name: 'SetupWizardModal',
@@ -156,7 +156,7 @@ export default {
 
 	emits: ['close', 'completed'],
 
-	/** @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps */
+	/** @spec openspec/changes/archive/2026-11-24-setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps */
 	data() {
 		return {
 			currentStep: 1,

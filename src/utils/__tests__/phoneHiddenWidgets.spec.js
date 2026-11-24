@@ -5,7 +5,7 @@
  * The phone notice names the hidden widgets: three by title, the rest
  * counted (launchpad-mobile-remote-access REQ-MRA-007, board LpMobiel).
  *
- * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+ * @spec openspec/changes/archive/2026-11-24-phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
  */
 
 import { describe, expect, it, vi } from 'vitest'

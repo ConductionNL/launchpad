@@ -280,7 +280,7 @@ class IframeService {
 	 * @return string[] Lower-case-safe hostnames (original casing preserved), deduplicated.
 	 *
 	 * @spec openspec/specs/iframe-embed-widget/spec.md
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function getAllowedHosts(): array {
 		return (new HostAllowList(

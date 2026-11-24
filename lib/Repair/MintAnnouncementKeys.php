@@ -35,7 +35,7 @@ use Throwable;
  * Give the placements written before keys were given on every save their
  * announcement key. Idempotent: a placement with a key is never touched.
  *
- * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+ * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
  */
 class MintAnnouncementKeys implements IRepairStep {
 	/**
@@ -55,7 +55,7 @@ class MintAnnouncementKeys implements IRepairStep {
 	 *
 	 * @return string The step name.
 	 *
-	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
 	 */
 	public function getName(): string {
 		return 'Give every widget that asks for a read confirmation its announcement key';
@@ -68,7 +68,7 @@ class MintAnnouncementKeys implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
 	 */
 	public function run(IOutput $output): void {
 		try {

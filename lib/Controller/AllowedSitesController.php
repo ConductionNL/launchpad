@@ -35,7 +35,7 @@ use OCP\IRequest;
 /**
  * `GET` and `PUT /api/admin/allowed-sites`, for LaunchPad administrators only.
  *
- * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+ * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
  */
 class AllowedSitesController extends Controller {
 
@@ -57,7 +57,7 @@ class AllowedSitesController extends Controller {
 	 *
 	 * @return DataResponse `{sites: [{host, embed, fetch}]}`.
 	 *
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function show(): DataResponse {
@@ -71,7 +71,7 @@ class AllowedSitesController extends Controller {
 	 *
 	 * @return DataResponse `{sites}` as stored, or `{message}` with 400.
 	 *
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function update(mixed $sites = []): DataResponse {

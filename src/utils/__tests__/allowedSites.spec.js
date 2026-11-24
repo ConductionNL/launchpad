@@ -5,7 +5,7 @@
  * The allowed websites rows: purpose per site, the stored shape, and adding a
  * host (REQ-ASET-021).
  *
- * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+ * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
  */
 
 import { describe, expect, it } from 'vitest'

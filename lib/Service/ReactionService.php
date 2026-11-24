@@ -393,7 +393,7 @@ class ReactionService {
 	 *
 	 * @return array{name: string, at: string|null}|null The last change.
 	 *
-	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
 	 */
 	private function lastChange(Dashboard $dashboard): ?array {
 		$version = $this->newestVersion(dashboardUuid: (string)$dashboard->getUuid());
@@ -426,7 +426,7 @@ class ReactionService {
 	 *
 	 * @return DashboardVersion|null The newest version.
 	 *
-	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
 	 */
 	private function newestVersion(string $dashboardUuid): ?DashboardVersion {
 		$mapper = $this->directory->versionMapper;

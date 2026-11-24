@@ -588,7 +588,7 @@ class TemplateResyncServiceTest extends TestCase {
 	 *
 	 * @return TemplateResyncService The service.
 	 *
-	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	private function serviceWithVersions(DashboardVersionService $versions, ?IL10N $l10n=null): TemplateResyncService {
 		return new TemplateResyncService(
@@ -650,7 +650,7 @@ class TemplateResyncServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function testAReSyncedCopyGetsAVersionByTheTemplate(): void {
 		$copy     = $this->oneChangedCopy();
@@ -671,7 +671,7 @@ class TemplateResyncServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function testTheTemplateVersionIsTranslated(): void {
 		$copy = $this->oneChangedCopy();
@@ -698,7 +698,7 @@ class TemplateResyncServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function testALongTemplateNameIsCutToTheAuthorColumn(): void {
 		$this->oneChangedCopy(templateName: str_repeat('Ä', 80));
@@ -721,7 +721,7 @@ class TemplateResyncServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function testAnUnchangedCopyGetsNoVersion(): void {
 		$this->dashboardMapper->method('find')->willReturn($this->makeTemplate());
@@ -743,7 +743,7 @@ class TemplateResyncServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function testAFailedVersionWriteIsLoggedAndTheReSyncStillCounts(): void {
 		$this->oneChangedCopy();
@@ -766,7 +766,7 @@ class TemplateResyncServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function testWithoutAVersionServiceNoVersionIsWritten(): void {
 		$this->oneChangedCopy();

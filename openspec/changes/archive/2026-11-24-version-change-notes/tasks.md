@@ -6,4 +6,4 @@
 - [x] Remove any remaining "Version history" entry from the dashboard menus
 - [x] Translations in every shipped locale
 - [x] Unit tests: each note kind, the "and N more changes" count, title fallback to type, explicit note kept; the re-sync version author and note
-- [ ] Playwright: move a widget, open the tab Versions and read "Widget {title} moved"
+- [x] Playwright: move a widget, open the tab Versions and read "Widget {title} moved" (written, runs in nightly: tests/e2e/dashboard-versioning-ui.spec.ts)

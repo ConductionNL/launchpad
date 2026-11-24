@@ -60,64 +60,6 @@ The system MUST detect whether a LaunchPad instance is being initialized for the
 - WHEN the admin returns to `/apps/launchpad/admin/dashboards`
 - THEN if `launchpad.setup_wizard_complete = false`, the banner MUST reappear
 
-### Requirement: REQ-WIZ-002 Multi-Step Wizard Flow with 6 Steps
-
-The wizard MUST guide the admin through a linear, skippable sequence of 6 steps, each with Skip / Back / Next buttons. Only the "Finish" button on Step 6 marks the wizard complete.
-
-> NOTE: Steps 2–5 each embed the canonical admin UI component from the corresponding sibling capability (`group-priority-order`, `demo-data-showcases`, `admin-roles`, `footer-customization`). The wizard is a thin orchestrator — it owns step sequencing and the completion flag; each sibling capability owns its own settings persistence. No settings surfaces are duplicated.
-
-#### Scenario: Wizard starts at Step 1
-- GIVEN the banner's "Run setup wizard" button is clicked
-- WHEN the wizard modal opens
-- THEN Step 1 (Welcome / Overview) MUST be displayed
-- AND the step counter MUST show "1 / 7"
-
-#### Scenario: Next button advances to next step
-- GIVEN the wizard is on Step 1
-- WHEN the admin clicks "Next"
-- THEN the wizard advances to Step 2 (Group order)
-- AND the step counter MUST show "2 / 7"
-- AND the Back button MUST become active
-
-#### Scenario: Back button returns to previous step
-- GIVEN the wizard is on Step 3
-- WHEN the admin clicks "Back"
-- THEN the wizard returns to Step 2
-- AND no data loss occurs (Step 3 values are preserved if re-visited)
-
-#### Scenario: Skip button jumps to next step without commitment
-- GIVEN the wizard is on Step 4 (Admin roles, optional)
-- WHEN the admin clicks "Skip"
-- THEN the wizard advances to Step 5
-- AND the wizard completion status for Step 4 is marked "skipped" (not "done")
-- NOTE: Skipping a step does not prevent the wizard from eventually marking complete
-
-#### Scenario: Step 1 has no form; only explanatory text
-- GIVEN Step 1 (Welcome) is displayed
-- WHEN the admin views the step
-- THEN the step MUST show text explaining the wizard's purpose: "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings."
-- AND there are no form fields to fill
-- AND clicking "Next" advances without persisting any choice
-
-#### Scenario: Step 6 shows summary and Finish button
-- GIVEN the wizard reaches Step 6 (Done)
-- WHEN the admin views the step
-- THEN the step MUST display a summary: "Your setup is complete. Click Finish to save changes and dismiss the setup banner."
-- AND a "Finish" button (not "Next") MUST be present
-- AND clicking "Finish" executes the completion action
-
-#### Scenario: Finish button completes wizard
-- GIVEN the admin is on Step 6 with the "Finish" button visible
-- WHEN the admin clicks "Finish"
-- THEN the system MUST set `launchpad.setup_wizard_complete = true`
-- AND the wizard modal MUST close
-- AND the admin section MUST reload, banner gone
-
-#### Scenario: Wizard progress persists across Back navigation
-- GIVEN the wizard is on Step 3 after a group order was chosen on Step 2
-- WHEN the admin clicks Back to Step 2, then clicks Next to Step 3
-- THEN the group order chosen on Step 2 MUST still be present (no data loss)
-
 ### Requirement: REQ-WIZ-004 Step 2 — Group Priority Order (Embedded Component Reuse)
 
 Step 2 MUST embed the existing `group-priority-order` admin UI component, allowing the admin to configure the priority order of Nextcloud groups for dashboard routing.
@@ -214,38 +156,6 @@ Step 4 MUST allow the admin to optionally assign the "Dashboard Admin" role to o
 - WHEN the admin selects "engineering" and clicks "Next"
 - THEN only the "engineering" group receives the admin role (not multiple groups)
 - NOTE: If the admin wishes to assign admin role to multiple groups, they must run the wizard again or use the admin roles management UI directly
-
-### Requirement: REQ-WIZ-007 Step 5 — Footer Configuration (Optional, Depends on footer-customization Capability)
-
-Step 5 MUST allow the admin to optionally open and configure the footer using the "Structured mode" editor. This step is skippable via a Skip button.
-
-#### Scenario: Step 5 shows footer editor
-- GIVEN the `footer-customization` capability is available
-- AND Step 5 is displayed
-- WHEN the admin views the step
-- THEN the "Structured mode" footer editor MUST be visible and functional
-- AND a description MUST explain: "Customize the footer content and appearance for your intranet."
-
-#### Scenario: Footer edits persist immediately
-- GIVEN the admin edits footer content in Step 5
-- WHEN the admin clicks "Next"
-- THEN the footer configuration MUST be saved to `launchpad.footer_config` or equivalent setting
-- AND navigating away does not lose the changes
-
-#### Scenario: Step 5 is skippable
-- GIVEN Step 5 is displayed
-- WHEN the admin clicks "Skip"
-- THEN no footer changes are made
-- AND the wizard advances to Step 6
-- AND the completion status for Step 5 MUST be marked "skipped"
-
-#### Scenario: Step 5 unavailable if footer-customization capability missing
-- GIVEN the `footer-customization` capability is NOT implemented or not available
-- WHEN the wizard would display Step 5
-- THEN Step 5 MUST be skipped automatically
-- AND the step counter jumps from Step 4 to Step 6
-- NOTE: Capability dependency is gracefully handled; missing capability does not break wizard
-@e2e exclude footer-customization ships inside LaunchPad, so the CI instance cannot be made to lack it; the auto-skip was never built (SetupWizardModal.vue always renders six steps with a Step 5 stub and has no capability check) and no unit test pins it
 
 ### Requirement: REQ-WIZ-008 Get Wizard State via API Endpoint
 
@@ -426,3 +336,67 @@ The wizard MUST be re-runnable even after `launchpad.setup_wizard_complete = tru
 - THEN the response MUST indicate `complete: true`
 - AND the admin UI MUST show a "Run setup wizard again" button (not a "Run setup wizard" banner)
 - NOTE: The UI signals that re-running is available and safe
+
+### Requirement: REQ-WIZ-012 Multi-Step Wizard Flow with 5 Steps
+
+The wizard MUST guide the admin through a linear, skippable sequence of 5 steps, as board LpInstellen draws them:
+Welcome ("Welkom"), Groups ("Groepen", the group priority order), Examples ("Voorbeelden", the demo dashboards), Roles
+("Rollen", the admin roles) and Done ("Klaar"). Each step has Skip / Back / Next buttons. Only the "Finish" button on
+Step 5 marks the wizard complete. The wizard MUST NOT ask for storage or for the footer.
+
+> NOTE: Steps 2 to 4 each embed the canonical admin UI component from the corresponding sibling capability (`group-priority-order`, `demo-data-showcases`, `admin-roles`). The wizard is a thin orchestrator: it owns step sequencing and the completion flag; each sibling capability owns its own settings persistence. No settings surfaces are duplicated.
+
+#### Scenario: Wizard starts at Step 1
+- GIVEN the banner's "Run setup wizard" button is clicked
+- WHEN the wizard modal opens
+- THEN Step 1 (Welcome) MUST be displayed
+- AND the step counter MUST show "1 / 5"
+
+#### Scenario: Next button advances to next step
+- GIVEN the wizard is on Step 1
+- WHEN the admin clicks "Next"
+- THEN the wizard advances to Step 2 (Groups)
+- AND the step counter MUST show "2 / 5"
+- AND the Back button MUST become active
+
+#### Scenario: Back button returns to previous step
+- GIVEN the wizard is on Step 3
+- WHEN the admin clicks "Back"
+- THEN the wizard returns to Step 2
+- AND no data loss occurs (Step 3 values are preserved if re-visited)
+
+#### Scenario: Skip button jumps to next step without commitment
+- GIVEN the wizard is on Step 4 (Roles, optional)
+- WHEN the admin clicks "Skip"
+- THEN the wizard advances to Step 5 (Done)
+- AND the wizard completion status for Step 4 is marked "skipped" (not "done")
+
+#### Scenario: Step 1 has no form; only explanatory text
+- GIVEN Step 1 (Welcome) is displayed
+- WHEN the admin views the step
+- THEN the step MUST explain that the setup sets groups, example dashboards and roles in five steps, and that existing dashboards stay as they are
+- AND there are no form fields to fill
+- AND clicking "Next" advances without persisting any choice
+
+#### Scenario: Step 5 shows summary and Finish button
+- GIVEN the wizard reaches Step 5 (Done)
+- WHEN the admin views the step
+- THEN the step MUST display a summary: "Your setup is complete. Click Finish to save changes and dismiss the setup banner."
+- AND a "Finish" button (not "Next") MUST be present
+
+#### Scenario: Finish button completes wizard
+- GIVEN the admin is on Step 5 with the "Finish" button visible
+- WHEN the admin clicks "Finish"
+- THEN the system MUST set `launchpad.setup_wizard_complete = true`
+- AND the wizard modal MUST close
+- AND the admin section MUST reload, banner gone
+
+#### Scenario: No footer step
+- GIVEN the admin walks the wizard from Step 1 to Step 5
+- THEN no step shows the footer editor
+- AND the wizard state endpoint reports five steps
+
+#### Scenario: Wizard progress persists across Back navigation
+- GIVEN the wizard is on Step 3 after a group order was chosen on Step 2
+- WHEN the admin clicks Back to Step 2, then clicks Next to Step 3
+- THEN the group order chosen on Step 2 MUST still be present (no data loss)

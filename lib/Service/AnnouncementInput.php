@@ -226,7 +226,7 @@ class AnnouncementInput {
 	 *
 	 * @throws InvalidArgumentException When the end time is missing or not after the publish time.
 	 *
-	 * @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function assertEndTime(Announcement $announcement): void {
 		$expiresAt = $announcement->getExpiresAt();

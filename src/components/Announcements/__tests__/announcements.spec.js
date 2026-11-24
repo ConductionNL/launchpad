@@ -301,7 +301,7 @@ describe('AnnouncementEditorModal', () => {
 		expect(announcementsApi.create).not.toHaveBeenCalled()
 	})
 
-	// @spec openspec/changes/announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	// @spec openspec/changes/archive/2026-11-24-announcement-show-until/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	it('requires "Show until" for news too, and explains it', async () => {
 		const wrapper = mountWith(AnnouncementEditorModal)
 		const input = wrapper.find('[data-test="editor-expires-at"]')

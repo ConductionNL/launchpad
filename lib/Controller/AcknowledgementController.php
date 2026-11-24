@@ -175,7 +175,7 @@ class AcknowledgementController extends Controller {
 	 *
 	 * @return array|JSONResponse The report, or the error response.
 	 *
-	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 	 */
 	private function fetchReport(string $announcementKey, string $operation): array|JSONResponse {
 		try {

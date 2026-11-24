@@ -19,7 +19,7 @@ export const NAMED_MAX = 3
  *
  * @param {number} width The viewport width in pixels.
  * @return {boolean} True below the phone breakpoint.
- * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+ * @spec openspec/changes/archive/2026-11-24-phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
  */
 export function isPhoneWidth(width) {
 	return typeof width === 'number' && width > 0 && width < PHONE_MAX_WIDTH
@@ -31,7 +31,7 @@ export function isPhoneWidth(width) {
  *
  * @param {object|null|undefined} entry The widget type's registry entry.
  * @return {boolean} False when the type declares it is not ready for a phone.
- * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+ * @spec openspec/changes/archive/2026-11-24-phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
  */
 export function isPhoneReady(entry) {
 	return !(entry && entry.mobileReady === false)
@@ -43,7 +43,7 @@ export function isPhoneReady(entry) {
  * @param {Array<object>} placements The placements that would show.
  * @param {(type: string) => object|null} entryOf Looks up a type's registry entry.
  * @return {Array<object>} The placements whose type is not ready for a phone.
- * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+ * @spec openspec/changes/archive/2026-11-24-phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
  */
 export function phoneHiddenPlacements(placements, entryOf) {
 	return (placements || []).filter((p) => !isPhoneReady(entryOf(p?.widgetId)))
@@ -56,7 +56,7 @@ export function phoneHiddenPlacements(placements, entryOf) {
  * @param {object} placement The placement.
  * @param {object|null} entry The type's registry entry.
  * @return {string} The title.
- * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+ * @spec openspec/changes/archive/2026-11-24-phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
  */
 export function hiddenWidgetTitle(placement, entry) {
 	const candidates = [
@@ -76,7 +76,7 @@ export function hiddenWidgetTitle(placement, entry) {
  *
  * @param {Array<string>} titles The titles of the hidden widgets.
  * @return {string} The names, or an empty string without titles.
- * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+ * @spec openspec/changes/archive/2026-11-24-phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
  */
 export function namedList(titles) {
 	const list = (titles || []).filter((x) => typeof x === 'string' && x !== '')
@@ -103,7 +103,7 @@ export function namedList(titles) {
  *
  * @param {Array<string>} titles The titles of the hidden widgets.
  * @return {string} The sentence, or an empty string when nothing is hidden.
- * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+ * @spec openspec/changes/archive/2026-11-24-phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
  */
 export function phoneHiddenSentence(titles) {
 	const count = (titles || []).length

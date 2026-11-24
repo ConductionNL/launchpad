@@ -34,7 +34,7 @@ use OCP\IAppConfig;
  * feeds. Reading is FAIL-CLOSED: an unset, empty or unparseable list allows
  * nothing, and an entry for one purpose never allows the other.
  *
- * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+ * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
  */
 class AllowedSitesService {
 
@@ -82,7 +82,7 @@ class AllowedSitesService {
 	 *
 	 * @return list<array{host: string, embed: bool, fetch: bool}>
 	 *
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function getSites(): array {
 		$raw     = $this->appConfig->getValueString(app: Application::APP_ID, key: self::CONFIG_KEY, default: '');
@@ -109,7 +109,7 @@ class AllowedSitesService {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function hostsFor(string $purpose): array {
 		if (in_array(needle: $purpose, haystack: [self::PURPOSE_EMBED, self::PURPOSE_FETCH], strict: true) === false) {
@@ -134,7 +134,7 @@ class AllowedSitesService {
 	 *
 	 * @return bool True only when the host is on the list for that purpose.
 	 *
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function permits(string $url, string $purpose): bool {
 		$host = parse_url(url: $url, component: PHP_URL_HOST);
@@ -155,7 +155,7 @@ class AllowedSitesService {
 	 *
 	 * @throws InvalidAllowedSiteException When an entry is not a site with a host and a purpose.
 	 *
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function setSites(mixed $sites): array {
 		if (is_array(value: $sites) === false) {
@@ -185,7 +185,7 @@ class AllowedSitesService {
 	 *
 	 * @return int The number of hosts that gained the purpose.
 	 *
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public function addHosts(array $hosts, string $purpose): int {
 		$sites = [];
@@ -230,7 +230,7 @@ class AllowedSitesService {
 	 *
 	 * @return string|null The host, e.g. `app.powerbi.com`.
 	 *
-	 * @spec openspec/changes/allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
 	 */
 	public static function normaliseHost(string $raw): ?string {
 		$value = strtolower(string: trim(string: $raw));

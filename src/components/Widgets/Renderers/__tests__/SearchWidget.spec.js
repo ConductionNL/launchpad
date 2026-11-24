@@ -206,7 +206,7 @@ describe('SearchWidget — internet search form (LpWerkplek)', () => {
 		open.mockRestore()
 	})
 
-	// @spec openspec/changes/recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-the-search-widget-can-search-the-internet-req-wdg-033
+	// @spec openspec/changes/archive/2026-11-24-recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-the-search-widget-can-search-the-internet-req-wdg-033
 	it('encodes the space between words (Pieter searches the internet)', async () => {
 		const open = vi.spyOn(window, 'open').mockImplementation(() => null)
 		const wrapper = mountWidget({ content: { layout: 'web' } })

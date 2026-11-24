@@ -118,7 +118,7 @@ describe('DashboardReactions', () => {
 
 describe('DashboardReactions at the foot (reactions-bar-at-the-foot)', () => {
 	/**
-	 * @spec openspec/changes/reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
 	 */
 	it('asks the question before the reactions and names the last change after them', async () => {
 		const at = new Date()

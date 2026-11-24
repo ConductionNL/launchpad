@@ -18,7 +18,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+ * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
  */
 
 declare(strict_types=1);
@@ -31,7 +31,7 @@ use OCP\IL10N;
 /**
  * The follow-ups of a resync on one changed copy.
  *
- * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+ * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
  */
 class ResyncFollowUps {
 
@@ -50,7 +50,7 @@ class ResyncFollowUps {
 	 * @param IL10N                        $l10n           The app's translations for the author and the note.
 	 * @param DashboardVersionService|null $versions       Writes the version a changed copy gets; null writes none.
 	 *
-	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function __construct(
 		public readonly PersonalLayerService $personalLayers,
@@ -69,7 +69,7 @@ class ResyncFollowUps {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function recordTemplateVersion(Dashboard $copy, string $templateName): void {
 		if ($this->versions === null) {
@@ -91,7 +91,7 @@ class ResyncFollowUps {
 	 *
 	 * @return string "Template {name}".
 	 *
-	 * @spec openspec/changes/version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
 	 */
 	public function templateAuthor(string $templateName): string {
 		$author = $this->l10n->t('Template %s', [trim($templateName)]);

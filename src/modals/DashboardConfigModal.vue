@@ -800,7 +800,7 @@ export default {
 		 * The instance theme's name, shown read-only on Details.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
+		 * @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
 		 */
 		themeName() {
 			return instanceThemeName()
@@ -895,7 +895,7 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-039-versions-are-a-tab-of-the-dashboard-settings
 		 * @spec openspec/specs/dashboards/spec.md#requirement-a-manager-can-publish-unpublish-and-schedule-a-dashboard-req-schedui-001
 		 * @spec openspec/specs/scheduled-exports/spec.md#requirement-req-sch-011-scheduled-exports-live-in-the-dashboard-settings
-		 * @spec openspec/changes/dashboard-theme-readonly/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 * @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
 		 * @return {Array<{id: string, label: string}>}
 		 */
 		tabs() {

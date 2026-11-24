@@ -162,7 +162,7 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 	 *
 	 * @throws InvalidArgumentException When a definition is invalid.
 	 *
-	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 	 */
 	private function validateDefinitions(array $raw): array {
 		if (count(value: $raw) > self::MAX_FIELDS) {
@@ -195,7 +195,7 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 	 *
 	 * @throws InvalidArgumentException When two fields are marked as the department.
 	 *
-	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 	 */
 	private static function requireOneDepartmentAtMost(array $definitions): void {
 		$departments = array_filter(array: $definitions, callback: static fn (array $definition): bool => $definition['department'] === true);
@@ -272,7 +272,7 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 	 *
 	 * @throws InvalidArgumentException When a field is invalid.
 	 *
-	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 	 */
 	private function definitionFrom(array $entry, string $key): array {
 		return [

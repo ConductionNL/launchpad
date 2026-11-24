@@ -9,7 +9,7 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { PRINTING_CLASS, printDashboard } from '../printDashboard.js'
+import { printDashboard, PRINTING_CLASS } from '../printDashboard.js'
 
 afterEach(() => {
 	document.title = ''

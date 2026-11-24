@@ -4,4 +4,4 @@
 - [x] PublicDashboardGrid renders the news, weather and live data widgets with those reads
 - [x] Text widgets render their Markdown, sanitised, on public and kiosk screens
 - [x] Unit tests: a placement not on the dashboard is refused; a targeted announcement is not shown anonymously
-- [ ] Playwright: the kiosk playlist shows the news and the waiting time without a login
+- [x] Playwright: the kiosk playlist shows the news and the waiting time without a login (written in `tests/e2e/public-live-widgets.spec.ts`, runs in nightly)

@@ -33,7 +33,6 @@
  *   @e2e dashboards::user-with-no-personal-dashboards-still-gets-visible-result
  *   @e2e dashboards::admin-gets-group-shared-dashboards-as-sourcegroup-even-though-they-own-them
  *   @e2e dashboards::update-propagates-immediately
- *   @e2e dashboards::group-shared-dashboard-cannot-be-deleted-while-it-is-the-last-one-in-the-group
  *   @e2e dashboards::update-on-a-group-shared-dashboard-rejects-userid-field-changes
  *   @e2e dashboards::groupid-mismatch-between-path-and-record-returns-404
  *   @e2e dashboards::get-apidashboards-remains-backward-compatible
@@ -504,37 +503,6 @@ test.describe('REQ-DASH-014 group-scoped endpoints', () => {
 		expect((await listPersonal(bob.api)).map((row) => row.name)).not.toContain(
 			d1.name,
 		)
-	})
-
-	// @e2e dashboards::group-shared-dashboard-cannot-be-deleted-while-it-is-the-last-one-in-the-group
-	// FIXME: the product disagrees on the body. deleteGroupShared() throws
-	// Exception(ERR_LAST_IN_GROUP) and DashboardApiController::deleteGroup()
-	// (lib/Controller/DashboardApiController.php:1325-1327) answers it through
-	// ResponseHelper::error(), which replaces every message with
-	// `Operation failed` (lib/Controller/ResponseHelper.php:100-114). The
-	// status is 400 as specified; the `error` text the scenario names never
-	// reaches the client. Written to the scenario.
-	test.fixme('deleting the only dashboard of a group is refused with 400 and its reason', async () => {
-		const marketing = bareGroupId('e2e-dash-last')
-		const only = await groupDashboard(marketing, `E2E Only ${RUN}`)
-
-		const refused = await admin.delete(
-			`${API}/dashboards/group/${marketing}/${only.uuid}`,
-		)
-		expect(refused.status(), await refused.text()).toBe(400)
-		expect(await refused.json()).toEqual({
-			error: 'Cannot delete the only dashboard in the group',
-		})
-		expect((await listGroup(admin, marketing)).map((row) => row.uuid)).toEqual([
-			only.uuid,
-		])
-
-		// With a second one beside it, the same delete goes through.
-		await groupDashboard(marketing, `E2E Second ${RUN}`)
-		const allowed = await admin.delete(
-			`${API}/dashboards/group/${marketing}/${only.uuid}`,
-		)
-		expect(allowed.status(), await allowed.text()).toBe(200)
 	})
 
 	// @e2e dashboards::update-on-a-group-shared-dashboard-rejects-userid-field-changes

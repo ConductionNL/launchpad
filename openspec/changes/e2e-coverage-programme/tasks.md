@@ -146,6 +146,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/video-widget.spec.ts`, `video-widget-files.spec.ts` (with `fixtures/tiny.webm`); 18 scenarios excluded with reasons, 33 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.8 `link-button-widget`: 50 scenarios, 0 cited.
   - Spec written: `tests/e2e/link-button-widget.spec.ts`, `link-button-widget-list.spec.ts`, `link-button-widget-form.spec.ts`; 3 scenarios excluded with reasons, 48 scenarios cited, not yet run (cloud, 2026-11-19)
+  - Spec written: `tests/e2e/link-button-widget-list.spec.ts` (citation for "An action_id entry is never rendered as a link" corrected to `an-actionid-entry-is-never-rendered-as-a-link`, since gate-19 strips `_`), 49 scenarios cited, 3 excluded with reasons, of 52, not yet run (cloud, 2026-11-24)
 - [ ] 4.9 `people-widget`: 49 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/people-widget.spec.ts`, `people-widget-config.spec.ts`, `people-widget-rendering.spec.ts`, `people-widget-search.spec.ts`, `people-widget-profile-fields.spec.ts`; 8 scenarios excluded with reasons, 50 scenarios cited, not yet run (cloud, 2026-11-19)
 - [ ] 4.10 `image-widget`: 45 scenarios, 8 cited.
@@ -226,6 +227,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: no spec file, 0 scenarios cited, 7 excluded with reasons, one per requirement; the blanket is gone. Every scenario reads checked-in files or CI behaviour, not a running instance. REQ-LIC-003 does not hold: 12 files under `src/` still name `LaunchPad Contributors` (cloud, 2026-11-19)
 - [ ] 5.14 `groupfolder-storage-backend`: 0 scenarios, 0 cited. Has no scenarios. Decide whether the spec is still wanted.
   - Decided: keep it. The spec is marked `status: withdrawn` and records why the capability was retired (launchpad#87) and what was removed. With no requirements and no scenarios it owes gate-19 nothing; archiving or deleting it is a separate change (cloud, 2026-11-19)
+  - Spec written: tests/e2e/groupfolder-storage-backend.spec.ts, 1 scenario cited, 1 excluded with reason, not yet run (cloud, 2026-11-24). The spec has since gained REQ-GFSB-011 with 2 scenarios, so it does owe gate-19 now.
 
 ## 6. Close the programme
 

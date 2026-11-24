@@ -2026,7 +2026,24 @@ OC.L10N.register(
     "Fetch" : "Fetch",
     "Embed and fetch" : "Embed and fetch",
     "Allowed websites saved." : "Allowed websites saved.",
-    "The allowed websites could not be saved." : "The allowed websites could not be saved."
+    "The allowed websites could not be saved." : "The allowed websites could not be saved.",
+    "Read confirmations: {title}" : "Read confirmations: {title}",
+    "Read confirmations" : "Read confirmations",
+    "Announcement · {dashboard}" : "Announcement · {dashboard}",
+    "Announcement" : "Announcement",
+    "{confirmed} of {audience} confirmed" : "{confirmed} of {audience} confirmed",
+    "{count} to go" : "{count} to go",
+    "deadline {date}" : "deadline {date}",
+    "Show" : "Show",
+    "Confirmed" : "Confirmed",
+    "Not confirmed yet" : "Not confirmed yet",
+    "Employee" : "Employee",
+    "Department" : "Department",
+    "Not yet" : "Not yet",
+    "Confirmed {date}" : "Confirmed {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.",
+    "Department in read confirmations" : "Department in read confirmations",
+    "Could not load the read-receipt report." : "Could not load the read-receipt report."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1465,6 +1465,23 @@
         "Fetch": "Ανάκτηση",
         "Embed and fetch": "Ενσωμάτωση και ανάκτηση",
         "Allowed websites saved.": "Οι επιτρεπόμενοι ιστότοποι αποθηκεύτηκαν.",
-        "The allowed websites could not be saved.": "Δεν ήταν δυνατή η αποθήκευση των επιτρεπόμενων ιστότοπων."
+        "The allowed websites could not be saved.": "Δεν ήταν δυνατή η αποθήκευση των επιτρεπόμενων ιστότοπων.",
+        "Read confirmations: {title}": "Επιβεβαιώσεις ανάγνωσης: {title}",
+        "Read confirmations": "Επιβεβαιώσεις ανάγνωσης",
+        "Announcement · {dashboard}": "Ανακοίνωση · {dashboard}",
+        "Announcement": "Ανακοίνωση",
+        "{confirmed} of {audience} confirmed": "{confirmed} από {audience} επιβεβαίωσαν",
+        "{count} to go": "απομένουν {count}",
+        "deadline {date}": "προθεσμία {date}",
+        "Show": "Εμφάνιση",
+        "Confirmed": "Επιβεβαιώθηκε",
+        "Not confirmed yet": "Δεν έχει επιβεβαιωθεί ακόμη",
+        "Employee": "Υπάλληλος",
+        "Department": "Τμήμα",
+        "Not yet": "Όχι ακόμη",
+        "Confirmed {date}": "Επιβεβαιώθηκε {date}",
+        "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.": "Εμφανίζονται {shown} από {total}. Η λήψη δίνει την πλήρη λίστα με την ημερομηνία και την ώρα κάθε επιβεβαίωσης.",
+        "Department in read confirmations": "Τμήμα στις επιβεβαιώσεις ανάγνωσης",
+        "Could not load the read-receipt report.": "Δεν ήταν δυνατή η φόρτωση της αναφοράς επιβεβαιώσεων ανάγνωσης."
     }
 }

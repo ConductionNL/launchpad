@@ -389,6 +389,32 @@ class AcknowledgementControllerTest extends TestCase {
 	}
 
 	/**
+	 * REQ-ACK-010: the report rows carry the person's name and department.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+	 */
+	public function testReportRowsCarryTheNameAndDepartment(): void {
+		$this->groupManager->method('isAdmin')->willReturn(true);
+		$this->service->method('report')->willReturn(['rows' => [['userId' => 'sanne', 'status' => 'pending', 'acknowledgedAt' => null]]]);
+		$people = $this->createMock(originalClassName: \OCA\LaunchPad\Service\ReadReceiptPeople::class);
+		$people->expects($this->once())->method('withPeople')
+			->with(['rows' => [['userId' => 'sanne', 'status' => 'pending', 'acknowledgedAt' => null]]], 'alice')
+			->willReturn(['rows' => [['userId' => 'sanne', 'displayName' => 'Sanne de Vries', 'department' => 'KCC']], 'departmentLabel' => 'Afdeling']);
+		$controller = new AcknowledgementController(
+			request: $this->request,
+			tools: new AcknowledgementTools(acknowledgements: $this->service, roleService: $this->roleService, logger: $this->logger, people: $people),
+			groupManager: $this->groupManager,
+			context: new UserResponses(userId: 'alice', responseHelper: new ResponseHelper(logger: new NullLogger()))
+		);
+
+		$data = $controller->report(announcementKey: 'ak-1')->getData();
+
+		$this->assertSame(expected: 'Sanne de Vries', actual: ($data['data'] ?? $data)['rows'][0]['displayName']);
+	}
+
+	/**
 	 * REQ-ACK-002: the pending endpoint returns the current user's
 	 * outstanding items and a 200 status.
 	 *

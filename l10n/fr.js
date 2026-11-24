@@ -1565,7 +1565,24 @@ OC.L10N.register(
     "Fetch" : "Récupérer",
     "Embed and fetch" : "Intégrer et récupérer",
     "Allowed websites saved." : "Sites web autorisés enregistrés.",
-    "The allowed websites could not be saved." : "Les sites web autorisés n'ont pas pu être enregistrés."
+    "The allowed websites could not be saved." : "Les sites web autorisés n'ont pas pu être enregistrés.",
+    "Read confirmations: {title}" : "Confirmations de lecture : {title}",
+    "Read confirmations" : "Confirmations de lecture",
+    "Announcement · {dashboard}" : "Annonce · {dashboard}",
+    "Announcement" : "Annonce",
+    "{confirmed} of {audience} confirmed" : "{confirmed} sur {audience} confirmé(s)",
+    "{count} to go" : "encore {count}",
+    "deadline {date}" : "échéance {date}",
+    "Show" : "Afficher",
+    "Confirmed" : "Confirmé",
+    "Not confirmed yet" : "Pas encore confirmé",
+    "Employee" : "Employé",
+    "Department" : "Service",
+    "Not yet" : "Pas encore",
+    "Confirmed {date}" : "Confirmé le {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "{shown} sur {total} affiché(s). Le téléchargement donne la liste complète avec la date et l'heure de chaque confirmation.",
+    "Department in read confirmations" : "Service dans les confirmations de lecture",
+    "Could not load the read-receipt report." : "Le rapport des confirmations de lecture n'a pas pu être chargé."
 },
 "nplurals=2; plural=(n > 1);"
 );

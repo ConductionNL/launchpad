@@ -1556,7 +1556,24 @@ OC.L10N.register(
     "Fetch" : "Преземање",
     "Embed and fetch" : "Вградување и преземање",
     "Allowed websites saved." : "Дозволените веб-страници се зачувани.",
-    "The allowed websites could not be saved." : "Дозволените веб-страници не можеа да се зачуваат."
+    "The allowed websites could not be saved." : "Дозволените веб-страници не можеа да се зачуваат.",
+    "Read confirmations: {title}" : "Потврди за читање: {title}",
+    "Read confirmations" : "Потврди за читање",
+    "Announcement · {dashboard}" : "Известување · {dashboard}",
+    "Announcement" : "Известување",
+    "{confirmed} of {audience} confirmed" : "Потврдени {confirmed} од {audience}",
+    "{count} to go" : "преостануваат {count}",
+    "deadline {date}" : "рок {date}",
+    "Show" : "Прикажи",
+    "Confirmed" : "Потврдено",
+    "Not confirmed yet" : "Сè уште непотврдено",
+    "Employee" : "Вработен",
+    "Department" : "Оддел",
+    "Not yet" : "Сè уште не",
+    "Confirmed {date}" : "Потврдено {date}",
+    "{shown} of {total} shown. Download gives the full list with the date and time of each confirmation." : "Прикажани {shown} од {total}. Преземањето ја дава целата листа со датум и време на секоја потврда.",
+    "Department in read confirmations" : "Оддел во потврдите за читање",
+    "Could not load the read-receipt report." : "Извештајот за потврдите за читање не можеше да се вчита."
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

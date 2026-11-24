@@ -58,15 +58,21 @@ class SetupWizardServiceTest extends TestCase {
 				2 => 'pending',
 				3 => 'skipped',
 				4 => 'skipped',
-				5 => 'skipped',
-				6 => 'pending',
+				5 => 'pending',
 			],
 			$state['stepStatuses']
 		);
 	}
 
-	public function testWizardHasSixStepsWithoutAStorageStep(): void {
-		$this->assertSame(6, SetupWizardService::STEP_COUNT);
+	/**
+	 * The wizard has five steps and no storage step.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
+	 */
+	public function testWizardHasFiveStepsWithoutAStorageStep(): void {
+		$this->assertSame(expected: 5, actual: SetupWizardService::STEP_COUNT);
 		$this->assertFalse(method_exists(SetupWizardService::class, 'setContentStorage'));
 		$this->assertFalse(method_exists(SetupWizardService::class, 'getContentStorage'));
 		$this->assertFalse(method_exists(SetupWizardService::class, 'hasGroupfolderApp'));
@@ -85,7 +91,7 @@ class SetupWizardServiceTest extends TestCase {
 		$state = $this->service->getWizardState();
 
 		$this->assertSame(2, $state['currentRecommendedStep']);
-		$this->assertCount(6, $state['stepStatuses']);
+		$this->assertCount(expectedCount: 5, haystack: $state['stepStatuses']);
 		$this->assertSame('pending', $state['stepStatuses']['2']);
 	}
 
@@ -117,13 +123,36 @@ class SetupWizardServiceTest extends TestCase {
 		$state = $this->service->getWizardState();
 
 		$this->assertTrue($state['complete']);
-		$this->assertSame('done', $state['stepStatuses']['6']);
 		$this->assertSame('done', $state['stepStatuses']['5']);
+		$this->assertCount(expectedCount: 5, haystack: $state['stepStatuses']);
 		// Steps 3/4 are 'skipped' (sibling capabilities pending), so the
 		// first non-'done' status is Step 3. The wizard "complete" flag
 		// is the source of truth for hiding the banner; the recommended
 		// step is purely a UX hint per REQ-WIZ-008.
 		$this->assertSame(3, $state['currentRecommendedStep']);
+	}
+
+	/**
+	 * A stored footer has no step of its own any more: the state has five steps and the footer changes none of them.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
+	 */
+	public function testAStoredFooterHasNoStepOfItsOwn(): void {
+		$this->settingMapper->method('getValue')
+			->with(AdminSetting::KEY_SETUP_WIZARD_COMPLETE, false)
+			->willReturn(false);
+		$this->settingMapper->method('getAllAsArray')->willReturn([
+			AdminSetting::KEY_FOOTER_CONFIG => ['layout' => 'structured'],
+		]);
+
+		$state = $this->service->getWizardState();
+
+		$this->assertSame(
+			expected: [1 => 'done', 2 => 'pending', 3 => 'skipped', 4 => 'skipped', 5 => 'pending'],
+			actual: $state['stepStatuses']
+		);
 	}
 
 	public function testMarkWizardCompleteSetsFlagAndReturnsState(): void {

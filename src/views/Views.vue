@@ -238,6 +238,9 @@
 			<!-- platform-baseline REQ-PLB-009: on a phone, the offer to put
 			     LaunchPad on the home screen (board LpMobiel). -->
 			<InstallBanner v-if="!kiosk && !isEditMode" :kiosk="kiosk" />
+			<!-- phone-hidden-widgets-named REQ-MRA-007: on a phone, the
+			     widgets that need a larger screen are hidden and named. -->
+			<PhoneHiddenNotice v-if="!kiosk" :titles="phoneHiddenTitles" />
 			<EditLockBanner :status="presence.state.status" />
 			<CoEditorsBanner
 				v-if="isEditMode"
@@ -523,6 +526,7 @@ import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import InstallBanner from '../components/Workspace/InstallBanner.vue'
+import PhoneHiddenNotice from '../components/Workspace/PhoneHiddenNotice.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 // The dialogs and modals load the first time they open, not with the page.
 const DeleteDashboardDialog = defineAsyncComponent(() => import('../dialogs/DeleteDashboardDialog.vue'))
@@ -566,6 +570,7 @@ import { logger } from '../utils/logger.js'
 import { dashboardGridColumnOpts } from '../utils/narrowGridLayout.js'
 import { newWidgetSize } from '../utils/newWidgetSize.js'
 import { officePackContainer } from '../utils/officeTiles.js'
+import { hiddenWidgetTitle, isPhoneReady, isPhoneWidth, phoneHiddenPlacements } from '../utils/phoneHiddenWidgets.js'
 import { dialogReturnFocus, restoreLostFocus } from '../utils/returnFocus.js'
 import { parseServerStamp } from '../utils/serverStamp.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
@@ -664,6 +669,32 @@ function dashboardUpdateData({ name, description, icon, parentUuid, slug, look, 
 	return data
 }
 
+
+/**
+ * The placements this viewer may see, before the phone rule: visible ones,
+ * and outside edit mode not those whose source is missing or whose type is
+ * not offered to this viewer.
+ *
+ * @param {object} vm The Views instance.
+ * @return {Array<object>} The placements.
+ * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+ */
+function viewerPlacementsOf(vm) {
+	const all = (vm.widgetPlacements || []).filter(
+		(p) => p.isVisible !== 0 && p.isVisible !== false,
+	)
+	if (vm.isEditMode) {
+		return all
+	}
+	const unavailable = vm.unavailableSources || {}
+	return all.filter(
+		(p) =>
+			(!hidesWhenUnavailable(p)
+			|| unavailable[sourceKey(p.content)] !== true)
+			&& offeredForViewer(getWidgetTypeEntry(p.widgetId), vm.integrationApps),
+	)
+}
+
 export default {
 	// Multi-word per vue/multi-word-component-names. This is the `name` option
 	// (devtools / findComponent), NOT the registration key — parents still
@@ -704,6 +735,7 @@ export default {
 		EditLockBanner,
 		HiddenWidgetsControl,
 		InstallBanner,
+		PhoneHiddenNotice,
 	},
 
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state
@@ -854,6 +886,8 @@ export default {
 			stopKiosk: null,
 			kioskRefresh: null,
 			isEditMode: false,
+			/** The viewport width, for the phone rule (REQ-MRA-007). */
+			viewportWidth: typeof window === 'undefined' ? 0 : window.innerWidth,
 			/** The dialogs and modals opened at least once, which stay mounted from then on. */
 			mountedModals: {},
 			/**
@@ -1067,18 +1101,26 @@ export default {
 		 * @spec openspec/changes/assigned-cases-widget/specs/assigned-cases-widget/spec.md#requirement-the-widget-is-offered-only-with-dossiq-req-cases-004
 		 */
 		shownPlacements() {
-			const all = (this.widgetPlacements || []).filter(
-				(p) => p.isVisible !== 0 && p.isVisible !== false,
-			)
-			if (this.isEditMode) {
-				return all
+			const viewer = viewerPlacementsOf(this)
+			if (this.isEditMode || !isPhoneWidth(this.viewportWidth)) {
+				return viewer
 			}
-			return all.filter(
-				(p) =>
-					(!hidesWhenUnavailable(p)
-					|| this.unavailableSources[sourceKey(p.content)] !== true)
-					&& offeredForViewer(getWidgetTypeEntry(p.widgetId), this.integrationApps),
-			)
+			return viewer.filter((p) => isPhoneReady(getWidgetTypeEntry(p.widgetId)))
+		},
+
+		/**
+		 * The titles of the widgets a phone hides, for the notice above the
+		 * grid. Empty in edit mode and on a larger screen (board LpMobiel).
+		 *
+		 * @return {Array<string>}
+		 * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+		 */
+		phoneHiddenTitles() {
+			if (this.isEditMode || !isPhoneWidth(this.viewportWidth)) {
+				return []
+			}
+			return phoneHiddenPlacements(viewerPlacementsOf(this), getWidgetTypeEntry)
+				.map((p) => hiddenWidgetTitle(p, getWidgetTypeEntry(p.widgetId)))
 		},
 
 		/**
@@ -1738,6 +1780,7 @@ export default {
 		window.addEventListener('popstate', this.handleHistoryPopState)
 		// A search result opened while LaunchPad is already showing.
 		window.addEventListener('hashchange', this.onDashboardHashChange)
+		window.addEventListener('resize', this.onViewportResize)
 
 		// The greeting row mounts with the grid, after this view; watch the
 		// container so the controls dock once it is there, and move again
@@ -1762,6 +1805,7 @@ export default {
 
 		window.removeEventListener('popstate', this.handleHistoryPopState)
 		window.removeEventListener('hashchange', this.onDashboardHashChange)
+		window.removeEventListener('resize', this.onViewportResize)
 		this.headerActionsObserver?.disconnect()
 		this.headerActionsObserver = null
 		// Leaving the page while editing withdraws the presence.
@@ -1769,6 +1813,16 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Follow the viewport width for the phone rule.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/phone-hidden-widgets-named/specs/launchpad-mobile-remote-access/spec.md#requirement-the-phone-notice-names-the-hidden-widgets-req-mra-007
+		 */
+		onViewportResize() {
+			this.viewportWidth = window.innerWidth
+		},
+
 		dialogReturnFocus,
 
 		/**

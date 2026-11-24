@@ -171,7 +171,10 @@ class ShippedTemplateUpdateServiceTest extends TestCase {
 				activityPublisher: $this->createMock(ActivityPublisher::class),
 				notificationManager: $this->createMock(INotificationManager::class),
 				logger: new NullLogger(),
-				personalLayers: $this->createMock(\OCA\LaunchPad\Service\PersonalLayerService::class)
+				followUps: new \OCA\LaunchPad\Service\ResyncFollowUps(
+					personalLayers: $this->createMock(originalClassName: \OCA\LaunchPad\Service\PersonalLayerService::class),
+					l10n: $this->createMock(originalClassName: \OCP\IL10N::class)
+				)
 			)
 		);
 	}

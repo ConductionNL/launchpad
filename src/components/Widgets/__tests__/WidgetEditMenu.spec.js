@@ -6,7 +6,7 @@
  * so the rules dialog is reachable by keyboard and not only by right-click
  * (conditional-visibility-editor REQ-CVUI-007, scenario "From the menu").
  *
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-dialog-is-in-the-widgets-menu-req-cvui-007
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-dialog-is-in-the-widgets-menu-req-cvui-007
  */
 
 import { mount } from '@vue/test-utils'

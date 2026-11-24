@@ -492,7 +492,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @param WidgetPlacement $clone The clone being built.
 	 *
 	 * @return void
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function copyLayout(WidgetPlacement $row, WidgetPlacement $clone): void {
 		$clone->setWidgetId($row->getWidgetId());

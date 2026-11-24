@@ -50,7 +50,7 @@ function toPreviewRule(rule) {
  * @param {object[]} rules the in-editor rule set
  * @param {object} context `{groups?, datetime?, userId?, match?, placementId?}`
  * @return {object} the request body
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
 export function previewBody(rules, context) {
 	const given = context || {}
@@ -73,7 +73,7 @@ export function previewBody(rules, context) {
  *
  * @param {object} context `{groups?, datetime?, userId?}`
  * @return {object} the context to send
- * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+ * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
  */
 function previewContext(context) {
 	const sent = {
@@ -117,7 +117,7 @@ export function useVisibilityPreview() {
 	 * @return {Promise<{visible: boolean, matchedIncludeRuleIds: number[], matchedExcludeRuleIds: number[]}>}
 	 *   the preview result
 	 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-004-preview-as-audience-and-date
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 	 */
 	async function runPreview(rules, context) {
 		state.loading = true

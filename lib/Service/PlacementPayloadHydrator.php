@@ -130,7 +130,7 @@ class PlacementPayloadHydrator {
 	 * @param array<string, mixed> $payload   The placement payload.
 	 *
 	 * @return void
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function applyLayout(WidgetPlacement $placement, array $payload): void {
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters

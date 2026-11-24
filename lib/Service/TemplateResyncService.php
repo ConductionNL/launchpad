@@ -722,7 +722,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * @param WidgetPlacement $placement The placement to snapshot.
 	 *
 	 * @return array<string, mixed> The comparable field values.
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function templateFieldSnapshot(WidgetPlacement $placement): array {
 		return [
@@ -783,7 +783,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *                                  from.
 	 *
 	 * @return void
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function applyTemplateFields(
 		WidgetPlacement $copy,
@@ -831,7 +831,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 * @param int $dashboardId The target copy's dashboard ID.
 	 *
 	 * @return WidgetPlacement The new (uninserted) placement entity.
-	 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	private function cloneTemplatePlacementInto(
 		WidgetPlacement $template,

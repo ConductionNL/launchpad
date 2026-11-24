@@ -556,7 +556,7 @@ describe('Views — grid items', () => {
 		expect(editor.props('show')).toBe(true)
 	}, 90000)
 
-	// @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-dialog-is-in-the-widgets-menu-req-cvui-007
+	// @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-dialog-is-in-the-widgets-menu-req-cvui-007
 	it('"Who sees this widget?" in the widget\'s menu opens the dialog for that widget', async () => {
 		const news = { ...widget, customTitle: 'News', ruleMatch: 'all' }
 		const { wrapper, dashStore } = await mountViews({ widgetPlacements: [news] })

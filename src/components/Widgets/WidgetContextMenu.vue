@@ -160,7 +160,7 @@ export default {
 		 * "Who sees this widget?": open the rules dialog for this widget.
 		 *
 		 * @spec openspec/specs/conditional-visibility/spec.md
-		 * @spec openspec/changes/visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-dialog-is-in-the-widgets-menu-req-cvui-007
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-dialog-is-in-the-widgets-menu-req-cvui-007
 		 */
 		onVisibilityRules() {
 			this.$emit('visibilityRules')

@@ -32,6 +32,7 @@
  *    src/components/admin/AdminSettings.vue.
  *
  * Gate-19 @e2e traceability:
+ *   @e2e runtime-shell::mount-point-present
  *   @e2e runtime-shell::non-edit-user-has-no-edit-affordances-visible
  *   @e2e runtime-shell::canedit-user-sees-full-edit-menu
  *   @e2e runtime-shell::backdrop-closes-sidebar-on-click
@@ -263,6 +264,50 @@ async function gotoAndSettle(page: Page, url: string, key: string): Promise<void
 	// The overlay mounts on the next render after the read resolves.
 	await page.waitForTimeout(1_500)
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REQ-SHELL-001 Single mount point
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('REQ-SHELL-001: a single mount point', () => {
+	// @e2e runtime-shell::mount-point-present
+	test('the served HTML holds one mount point inside #app-workspace, and no navigation panel renders', async ({
+		page,
+	}) => {
+		// The HTML as served, before Vue touches it: the scenario is about
+		// "the rendered HTML", so read the response body, not the live DOM.
+		const res = await page.request.get(APP_URL)
+		expect(res.status()).toBe(200)
+		const html = await res.text()
+		expect(html.match(/<div id="app-workspace" class="launchpad-workspace">/g) ?? []).toHaveLength(1)
+		// templates/index.php: the mount element is the one child of the wrapper.
+		expect(html).toMatch(/<div id="app-workspace" class="launchpad-workspace">\s*<div id="workspace-vue"><\/div>\s*<\/div>/)
+		expect(html.match(/id="workspace-vue"/g) ?? []).toHaveLength(1)
+
+		// And in the live page: Vue mounted into that one element, which is
+		// still a direct child of the wrapper, and there is no panel.
+		await page.goto(APP_URL)
+		await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
+		await expect(page.locator('#app-workspace')).toHaveCount(1)
+		await expect(page.locator('#app-workspace > #workspace-vue')).toHaveCount(1)
+		await expect(page.locator('#workspace-vue')).toHaveCount(1)
+		await expect(page.locator(`#workspace-vue ${MORE_MENU}`)).toHaveCount(1)
+		await expect(page.locator('[data-testid="cn-nav"]')).toHaveCount(0)
+		await expect(page.locator('#app-navigation-vue')).toHaveCount(0)
+	})
+
+	// @e2e runtime-shell::mount-point-present
+	test('the mount point carries the id the scenario names, launchpad-app', async ({ page }) => {
+		test.fixme(
+			true,
+			'suspected spec drift: REQ-SHELL-001 names the mount element `launchpad-app`, but templates/index.php renders `<div id="workspace-vue">` and src/main.js mounts on `#workspace-vue`; no `#launchpad-app` exists in src/ or templates/. The scenario text or the template needs to change; the test above pins what ships.',
+		)
+		const html = await (await page.request.get(APP_URL)).text()
+		expect(html.match(/<div id="launchpad-app"/g) ?? []).toHaveLength(1)
+		await page.goto(APP_URL)
+		await expect(page.locator('#app-workspace > #launchpad-app')).toHaveCount(1)
+	})
+})
 
 // ─────────────────────────────────────────────────────────────────────────────
 // REQ-SHELL-002 Edit affordances gated by canEdit

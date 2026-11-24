@@ -24,7 +24,6 @@
  *     shell (Views.vue owns the only one).
  *
  * Gate-19 @e2e traceability:
- *   @e2e runtime-shell::mount-point-present
  *   @e2e runtime-shell::no-sidebar-toggle
  *   @e2e dashboard-switcher::footer-renders-both-brand-logos-with-safe-target-attributes
  *   @e2e dashboard-switcher::footer-documentation-link-uses-the-same-url-as-the-gear-menu-link-did

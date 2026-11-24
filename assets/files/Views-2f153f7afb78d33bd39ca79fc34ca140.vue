@@ -314,6 +314,7 @@
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
 							@edit="handleContextMenuEdit(item)"
+							@whoSees="handleContextMenuVisibilityRules(item)"
 							@acknowledged="onWidgetAcknowledged"
 							@hideForMe="onHideForMe" />
 					</div>
@@ -481,17 +482,21 @@
 			@save="handleMoveSave"
 			@close="closeMovePanel" />
 
-		<!-- Per-widget conditional-visibility editor (conditional-visibility
-		     spec). Opened from the context menu's "Visibility rules…" item;
-		     gated on `canEdit` so only dashboard owners reach it. -->
+		<!-- "Who sees this widget?" (conditional-visibility-editor
+		     REQ-CVUI-006/007). Opened from the widget's menu and its
+		     right-click menu in edit mode. -->
 		<VisibilityRulesModal
 			v-if="mountedModals.visibility"
 			:open="isVisibilityModalOpen"
 			:placementId="visibilityPlacementId"
+			:widgetTitle="visibilityWidgetTitle"
+			:dashboardName="activeDashboard?.name || ''"
+			:ruleMatch="visibilityRuleMatch"
 			@close="closeVisibilityRules"
 			@ruleAdded="onVisibilityRulesChanged"
 			@ruleUpdated="onVisibilityRulesChanged"
-			@ruleRemoved="onVisibilityRulesChanged" />
+			@ruleRemoved="onVisibilityRulesChanged"
+			@ruleMatchChanged="onRuleMatchChanged" />
 	</div>
 </template>
 
@@ -1231,6 +1236,36 @@ export default {
 		ackReportTitle() {
 			const placement = (this.widgetPlacements || []).find((p) => p.announcementKey === this.ackReportKey)
 			return placement ? resolveWidgetTitle(placement, this.availableWidgets) : ''
+		},
+
+		/**
+		 * The placement whose "Who sees this widget?" dialog is open.
+		 *
+		 * @return {object|null} The placement, null when none is open.
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		visibilityPlacement() {
+			return (this.widgetPlacements || []).find((p) => p.id === this.visibilityPlacementId) || null
+		},
+
+		/**
+		 * The title of the widget whose visibility dialog is open.
+		 *
+		 * @return {string} The widget title, '' when none is open.
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+		 */
+		visibilityWidgetTitle() {
+			return this.visibilityPlacement ? resolveWidgetTitle(this.visibilityPlacement, this.availableWidgets) : ''
+		},
+
+		/**
+		 * How the open widget's include rules combine.
+		 *
+		 * @return {string} `all` or `any`.
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+		 */
+		visibilityRuleMatch() {
+			return this.visibilityPlacement?.ruleMatch === 'all' ? 'all' : 'any'
 		},
 
 		acknowledgementAnnouncementKeys() {
@@ -2438,14 +2473,14 @@ export default {
 		},
 
 		/**
-		 * "Visibility rules…" click from the popover
-		 * (conditional-visibility spec). Stores the target placement id and
-		 * opens the editor modal. The popover only fires this when the user
-		 * has `canEdit` (the grid manager early-returns otherwise), so no
-		 * extra gate is needed here.
+		 * "Who sees this widget?" from the widget's menu or its right-click
+		 * menu (conditional-visibility spec). Stores the target placement id
+		 * and opens the editor modal. Both menus show only in edit mode,
+		 * which needs `canEdit`, so no extra gate is needed here.
 		 *
 		 * @param {object} placement the placement whose rules to edit
 		 * @spec openspec/specs/conditional-visibility/spec.md
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-dialog-is-in-the-widgets-menu-req-cvui-007
 		 */
 		handleContextMenuVisibilityRules(placement) {
 			if (!placement?.id) {
@@ -2525,6 +2560,21 @@ export default {
 			} catch (error) {
 				logger.error('[Views] Failed to persist keyboard move:', error)
 			}
+		},
+
+		/**
+		 * The dialog saved how the rules combine: keep the placement in step
+		 * and ask again which widgets the rules hide for viewers.
+		 *
+		 * @param {string} mode `all` or `any`.
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+		 */
+		onRuleMatchChanged(mode) {
+			const store = useDashboardStore()
+			store.widgetPlacements = (store.widgetPlacements || []).map((p) =>
+				p.id === this.visibilityPlacementId ? { ...p, ruleMatch: mode } : p,
+			)
+			store.refreshPlacementVisibility()
 		},
 
 		/** @spec openspec/specs/conditional-visibility/spec.md */

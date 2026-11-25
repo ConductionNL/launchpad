@@ -144,6 +144,33 @@ describe('TileEditor as LpTegelBewerken draws it', () => {
 		expect(loose.emitted('save')[0][0]).not.toHaveProperty('groupSortBy')
 	})
 
+	it('in a group, offers only a web address and none of what needs a tile of its own', async () => {
+		const tile = { title: 'Intranet', linkType: 'url', linkValue: 'https://intranet.example.org' }
+		const wrapper = mountEditor(tile, { groupName: 'Work apps', groupSort: 'alphabetical', inGroup: true })
+		expect(wrapper.findAll('[data-testid="tile-link-type"] input').map((input) => input.element.value)).toEqual(['url'])
+		expect(wrapper.find('.text-field[data-label="Internal address (optional)"]').exists()).toBe(false)
+		expect(wrapper.find('[data-test="tile-editor-opens-in"]').exists()).toBe(false)
+		expect(wrapper.find('.tile-editor__health-ping').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="tile-in-group-hint"]').text()).toBe('A tile in a group opens its web address in a new tab.')
+		expect(wrapper.find('.text-field[data-label="Web address"]').exists()).toBe(true)
+		expect(wrapper.find('.select[data-label="Sort order in this group"]').attributes('data-value')).toBe('alphabetical')
+
+		await button(wrapper, 'Save').trigger('click')
+		expect(wrapper.emitted('save')[0][0]).toMatchObject({ title: 'Intranet', linkValue: 'https://intranet.example.org', groupSortBy: 'alphabetical' })
+	})
+
+	it('keeps an older type of a group tile selectable', () => {
+		const wrapper = mountEditor({ title: 'Files', linkType: 'app', linkValue: 'files' }, { groupName: 'Work apps', inGroup: true })
+		expect(wrapper.findAll('[data-testid="tile-link-type"] input').map((input) => input.element.value)).toEqual(['app', 'url'])
+	})
+
+	it('outside a group still offers the four types, the internal address and the check', () => {
+		const wrapper = mountEditor(caseSystem)
+		expect(wrapper.findAll('[data-testid="tile-link-type"] input')).toHaveLength(4)
+		expect(wrapper.find('.tile-editor__health-ping').exists()).toBe(true)
+		expect(wrapper.find('[data-testid="tile-in-group-hint"]').exists()).toBe(false)
+	})
+
 	it('reads the last check under Check availability', async () => {
 		const at = new Date()
 		at.setHours(10, 40, 0, 0)

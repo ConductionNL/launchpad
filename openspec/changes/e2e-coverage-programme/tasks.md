@@ -135,12 +135,14 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [x] 3.11 `tile-quick-search`: 28 scenarios, 8 cited.
   - Spec written: tests/e2e/tile-quick-search-widget.spec.ts (new) and tests/e2e/tile-quick-search.spec.ts, 33 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): tile-quick-search-widget 24 of 24 and tile-quick-search 9 of 9 green.
+  - Spec written: `tests/e2e/tile-quick-search-widget.spec.ts` (no-search-widget-placed, which gate 19 graded no-assertion because its checks sat one call down in assertShortcutsInert(): the test now asserts in its own body that the dashboard has no search placement, that both keypresses reached the page undefaulted and that focus did not move), 1 scenario cited (already counted), 0 excluded, not yet run (cloud, 2026-11-25)
 - [x] 3.12 `dashboard-icons`: 25 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-icons.spec.ts (new), 21 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 15 green, every listed test run (checked against `playwright test --list`).
 - [x] 3.13 `conditional-visibility-editor`: 23 scenarios, 13 cited.
   - Spec written: tests/e2e/conditional-visibility-editor.spec.ts, 23 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 22 of 22 green, every listed test run (checked against `playwright test --list`).
+  - Spec written: `tests/e2e/conditional-visibility-editor.spec.ts` (preview-requires-an-authenticated-user, which gate 19 graded presence-only: the anonymous call now must get exactly Nextcloud's 401 `Current user is not logged in`, which only the framework's session check answers before dispatch, instead of any status of 400 or more), 1 scenario cited (already counted), 0 excluded, not yet run (cloud, 2026-11-25)
 - [ ] 3.14 `dashboard-kiosk-mode`: 23 scenarios, 0 cited.
   - Spec written: tests/e2e/dashboard-kiosk-mode.spec.ts (new), 24 scenarios cited, not yet run (cloud, 2026-11-19)
   - Spec written: `tests/e2e/dashboard-kiosk-mode.spec.ts`, `tests/e2e/kiosk-position-indicator.spec.ts` (synced in by #1766), 30 scenarios in the spec now, 26 cited, 4 excluded with a reason (playlist read-only marker, shared throttle bucket, refresh clamp with no input, watchdog never built), 0 uncited; not yet run (cloud, 2026-11-24)

@@ -27,6 +27,17 @@ use InvalidArgumentException;
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) One validator per widget type, each a small injected or inline class.
  */
 class WidgetService {
+
+	/**
+	 * The content validator of each widget type that has one.
+	 */
+	private const CONTENT_VALIDATORS = [
+		'map'        => MapContentValidator::class,
+		'links'      => LinksContentValidator::class,
+		'quicklinks' => QuicklinksContentValidator::class,
+		'text'       => TextTableValidator::class,
+	];
+
 	/**
 	 * Constructor
 	 *
@@ -89,18 +100,9 @@ class WidgetService {
 			throw new InvalidArgumentException(message: 'Invalid health check: ' . implode(separator: ', ', array: $pingErrors));
 		}
 
-		if ($widgetType === 'map') {
-			(new MapContentValidator())->validate(content: $content);
-			return;
-		}
-
-		if ($widgetType === 'links') {
-			(new LinksContentValidator())->validate(content: $content);
-			return;
-		}
-
-		if ($widgetType === 'text') {
-			(new TextTableValidator())->validate(content: $content);
+		$validator = (self::CONTENT_VALIDATORS[$widgetType] ?? null);
+		if ($validator !== null) {
+			(new $validator())->validate(content: $content);
 			return;
 		}
 

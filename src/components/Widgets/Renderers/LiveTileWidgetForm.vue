@@ -5,39 +5,64 @@
 
 <template>
 	<div class="live-tile-widget-form">
-		<p class="live-tile-widget-form__hint">
-			{{
-				t(
-					'launchpad',
-					'Bind this tile to a live value from a data source: a count, a status, a KPI number.',
-				)
-			}}
-		</p>
+		<!-- REQ-LIVETILE-020 (board LpWidgetInstellen): where the value comes
+		     from as two choice cards. -->
+		<fieldset class="live-tile-widget-form__choices">
+			<legend class="live-tile-widget-form__legend">
+				{{ t('launchpad', 'Where does the value come from?') }}
+			</legend>
+			<label
+				v-for="card in sourceCards"
+				:key="card.value"
+				class="live-tile-widget-form__choice"
+				:class="{
+					'live-tile-widget-form__choice--selected': sourceMode === card.value,
+					'live-tile-widget-form__choice--disabled': card.disabled,
+				}">
+				<input
+					type="radio"
+					name="live-tile-source"
+					class="live-tile-widget-form__choice-input"
+					:value="card.value"
+					:checked="sourceMode === card.value"
+					:disabled="card.disabled"
+					:data-testid="'live-tile-source-' + card.value"
+					@change="onSourceModeChange(card.value)">
+				<span class="live-tile-widget-form__choice-title">{{ card.title }}</span>
+				<span class="live-tile-widget-form__choice-text">{{ card.text }}</span>
+			</label>
+		</fieldset>
 
 		<!-- @nextcloud/vue@9 renamed the two-way prop of every form control
 		     from `value`/`checked` to `modelValue`, and the paired event from
 		     `update:value`/`update:checked` to `update:modelValue`. The old
-		     names fail silently — `:value` falls through as a plain attribute
-		     and the old event is simply never emitted, so the field renders
-		     but never writes back. The listener must stay camelCase:
+		     names fail silently. The listener must stay camelCase:
 		     `useModel()` decides controlled-vs-local by looking for a literal
-		     `onUpdate:modelValue` in the vnode props, and a kebab-case
-		     `@update:model-value` does not match. -->
-		<NcTextField
-			:modelValue="label"
-			:label="t('launchpad', 'Label')"
-			:placeholder="t('launchpad', 'e.g. Open tickets')"
-			@update:modelValue="updateField('label', $event)" />
-
-		<NcSelect
-			:modelValue="sourceMode"
-			:options="sourceModeOptions"
-			:inputLabel="t('launchpad', 'Source')"
-			:reduce="(option) => option.value"
-			label="label"
-			@update:modelValue="onSourceModeChange" />
-
+		     `onUpdate:modelValue` in the vnode props. -->
 		<template v-if="sourceMode === 'connector'">
+			<NcSelect
+				v-if="connections.length > 0"
+				:modelValue="sourceId"
+				:options="connections"
+				:inputLabel="t('launchpad', 'Connection')"
+				:reduce="(option) => option.value"
+				label="label"
+				@update:modelValue="updateField('sourceId', $event || '')" />
+			<NcTextField
+				v-else
+				:modelValue="sourceId"
+				:label="t('launchpad', 'Integriq source id')"
+				:disabled="!connectorAvailable"
+				@update:modelValue="updateField('sourceId', $event)" />
+			<p
+				v-if="selectedConnection"
+				class="live-tile-widget-form__hint-small"
+				data-testid="live-tile-last-success">
+				{{ t('launchpad', 'Last success: {time}', { time: lastSuccessText }) }}
+			</p>
+		</template>
+
+		<template v-else>
 			<p v-if="!connectorAvailable" class="live-tile-widget-form__warning">
 				{{
 					t(
@@ -46,14 +71,6 @@
 					)
 				}}
 			</p>
-			<NcTextField
-				:modelValue="sourceId"
-				:label="t('launchpad', 'Integriq source id')"
-				:disabled="!connectorAvailable"
-				@update:modelValue="updateField('sourceId', $event)" />
-		</template>
-
-		<template v-else>
 			<NcTextField
 				:modelValue="url"
 				:label="t('launchpad', 'URL')"
@@ -67,19 +84,31 @@
 
 		<NcTextField
 			:modelValue="valueExpr"
-			:label="t('launchpad', 'Value expression')"
+			:label="t('launchpad', 'Path in the response')"
 			placeholder="$.data.count"
 			@update:modelValue="updateField('valueExpr', $event)" />
 
 		<!-- REQ-LTC-001: a single value, or several mapped fields as a list,
 		     a table or key-value pairs. -->
-		<NcSelect
-			:modelValue="display"
-			:options="displayOptions"
-			:inputLabel="t('launchpad', 'Display')"
-			:reduce="(option) => option.value"
-			label="label"
-			@update:modelValue="onDisplayChange" />
+		<fieldset class="live-tile-widget-form__views">
+			<legend class="live-tile-widget-form__legend">
+				{{ t('launchpad', 'View') }}
+			</legend>
+			<label
+				v-for="option in displayOptions"
+				:key="option.value"
+				class="live-tile-widget-form__view"
+				:class="{ 'live-tile-widget-form__view--selected': display === option.value }">
+				<input
+					type="radio"
+					name="live-tile-view"
+					:value="option.value"
+					:checked="display === option.value"
+					:data-testid="'live-tile-view-' + option.value"
+					@change="onDisplayChange(option.value)">
+				{{ option.label }}
+			</label>
+		</fieldset>
 
 		<template v-if="display !== 'value'">
 			<NcSelect
@@ -134,49 +163,97 @@
 			</fieldset>
 		</template>
 
-		<NcTextField
-			:modelValue="String(refresh)"
-			type="number"
-			:label="t('launchpad', 'Refresh interval (seconds)')"
-			@update:modelValue="onRefreshChange" />
-		<p class="live-tile-widget-form__hint-small">
-			{{
-				t('launchpad', 'Minimum {min} seconds.', {
-					min: MIN_REFRESH_SECONDS,
-				})
-			}}
-		</p>
-
 		<div class="live-tile-widget-form__row">
 			<NcTextField
-				:modelValue="formatPrefix"
-				:label="t('launchpad', 'Prefix')"
-				@update:modelValue="updateFormat('prefix', $event)" />
-			<NcTextField
-				:modelValue="formatSuffix"
-				:label="t('launchpad', 'Suffix')"
-				@update:modelValue="updateFormat('suffix', $event)" />
+				:modelValue="unit"
+				:label="t('launchpad', 'Unit (optional)')"
+				@update:modelValue="onUnitChange" />
+			<NcSelect
+				:modelValue="Number(refresh)"
+				:options="refreshOptions"
+				:inputLabel="t('launchpad', 'Refresh')"
+				:reduce="(option) => option.value"
+				:clearable="false"
+				label="label"
+				@update:modelValue="onRefreshChange" />
 		</div>
-		<NcCheckboxRadioSwitch
-			:modelValue="formatThousands"
-			type="switch"
-			@update:modelValue="updateFormat('thousands', $event)">
-			{{ t('launchpad', 'Thousands separator') }}
-		</NcCheckboxRadioSwitch>
 
-		<NcTextField
-			:modelValue="linkUrl"
-			:label="t('launchpad', 'Click-through link (optional)')"
-			@update:modelValue="updateField('linkUrl', $event)" />
-		<NcSelect
-			:modelValue="linkTarget"
-			:options="linkTargetOptions"
-			:inputLabel="t('launchpad', 'Link target')"
-			:reduce="(option) => option.value"
-			label="label"
-			@update:modelValue="
-				(val) => updateField('linkTarget', val || 'same-tab')
-			" />
+		<fieldset class="live-tile-widget-form__formatting">
+			<legend class="live-tile-widget-form__legend">
+				{{ t('launchpad', 'Formatting') }}
+			</legend>
+			<NcTextField
+				:modelValue="label"
+				:label="t('launchpad', 'Title')"
+				:placeholder="t('launchpad', 'e.g. Open tickets')"
+				@update:modelValue="updateField('label', $event)" />
+			<NcCheckboxRadioSwitch
+				:modelValue="showTitle"
+				type="switch"
+				data-testid="live-tile-show-title"
+				@update:modelValue="updateField('showTitle', $event)">
+				{{ t('launchpad', 'Show title') }}
+			</NcCheckboxRadioSwitch>
+			<NcSelect
+				:modelValue="colour"
+				:options="colourOptions"
+				:inputLabel="t('launchpad', 'Color')"
+				:reduce="(option) => option.value"
+				:clearable="false"
+				label="label"
+				@update:modelValue="updateField('colour', $event || '')" />
+			<NcCheckboxRadioSwitch
+				:modelValue="border"
+				type="switch"
+				data-testid="live-tile-border"
+				@update:modelValue="updateField('border', $event)">
+				{{ t('launchpad', 'Border') }}
+			</NcCheckboxRadioSwitch>
+			<div class="live-tile-widget-form__row">
+				<NcTextField
+					:modelValue="formatPrefix"
+					:label="t('launchpad', 'Prefix')"
+					@update:modelValue="updateFormat('prefix', $event)" />
+			</div>
+			<NcCheckboxRadioSwitch
+				:modelValue="formatThousands"
+				type="switch"
+				data-testid="live-tile-thousands"
+				@update:modelValue="updateFormat('thousands', $event)">
+				{{ t('launchpad', 'Thousands separator') }}
+			</NcCheckboxRadioSwitch>
+
+			<NcTextField
+				:modelValue="linkUrl"
+				:label="t('launchpad', 'Click-through link (optional)')"
+				@update:modelValue="updateField('linkUrl', $event)" />
+			<NcSelect
+				:modelValue="linkTarget"
+				:options="linkTargetOptions"
+				:inputLabel="t('launchpad', 'Link target')"
+				:reduce="(option) => option.value"
+				label="label"
+				@update:modelValue="
+					(val) => updateField('linkTarget', val || 'same-tab')
+				" />
+		</fieldset>
+
+		<!-- The preview follows the fields (REQ-LIVETILE-020). -->
+		<section
+			class="live-tile-widget-form__preview"
+			:class="previewClasses"
+			:aria-label="t('launchpad', 'Preview')"
+			data-testid="live-tile-preview">
+			<div v-if="showTitle && label" class="live-tile-widget-form__preview-title">
+				{{ label }}
+			</div>
+			<div class="live-tile-widget-form__preview-value">
+				{{ previewValue }}
+			</div>
+			<div class="live-tile-widget-form__hint-small">
+				{{ refreshText }}
+			</div>
+		</section>
 	</div>
 </template>
 
@@ -189,8 +266,18 @@ import {
 } from '../../../constants/propDefinitions.js'
 import {
 	fetchConnectorAvailability,
+	fetchLiveTileValue,
 	validateLiveTileSource,
 } from '../../../services/liveTileClient.js'
+import { fetchLiveTileConnections } from '../../../services/liveTileConnections.js'
+import {
+	knownColour,
+	previewValue,
+	refreshLabel,
+	refreshOptions,
+	suffixToUnit,
+	unitToSuffix,
+} from '../../../utils/liveTilePreview.js'
 import { allowListMessage, urlFieldErrors } from '../../../utils/urlAllowList.js'
 
 const MIN_REFRESH_SECONDS = 30
@@ -318,6 +405,11 @@ export default {
 			...formatFields(initial.format),
 			badge: { ...DEFAULT_CONTENT.badge, ...(initial.badge || {}) },
 			...storedOrDefault(initial, LINK_FIELDS),
+			showTitle: initial.showTitle !== false,
+			colour: knownColour(initial.colour),
+			border: initial.border === true,
+			connections: [],
+			reading: null,
 			display: ['list', 'table', 'keyvalue'].includes(initial.display) ? initial.display : 'value',
 			limit: Number.isInteger(Number(initial.limit)) && Number(initial.limit) > 0 ? Number(initial.limit) : DEFAULT_LIMIT,
 			mapping: mappingRows(initial.mapping),
@@ -329,6 +421,128 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The two choice cards for where the value comes from. Connection is
+		 * disabled without integriq.
+		 *
+		 * @return {Array<{value: string, title: string, text: string, disabled: boolean}>}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		sourceCards() {
+			return [
+				{
+					value: 'connector',
+					title: t('launchpad', 'Connection'),
+					text: t('launchpad', 'A system the administrator has connected'),
+					disabled: !this.connectorAvailable,
+				},
+				{
+					value: 'url',
+					title: t('launchpad', 'Web address'),
+					text: t('launchpad', 'An address that returns JSON'),
+					disabled: false,
+				},
+			]
+		},
+
+		/**
+		 * The chosen connection, when it is one of the listed ones.
+		 *
+		 * @return {{value: string, label: string, lastSuccessAt: (string|null)}|null}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		selectedConnection() {
+			return this.connections.find((option) => option.value === this.sourceId) || null
+		},
+
+		/**
+		 * When the chosen connection last succeeded, in the reader's locale.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		lastSuccessText() {
+			const at = this.selectedConnection?.lastSuccessAt
+			const date = at ? new Date(at) : null
+			if (!date || Number.isNaN(date.getTime())) {
+				return t('launchpad', 'Not yet')
+			}
+			return date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
+		},
+
+		/**
+		 * The unit field: the stored suffix without its leading space.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		unit() {
+			return suffixToUnit(this.formatSuffix)
+		},
+
+		/**
+		 * The refresh choices, keeping a stored interval that is not one of them.
+		 *
+		 * @return {Array<{value: number, label: string}>}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		refreshOptions() {
+			return refreshOptions(this.clampRefresh(this.refresh))
+		},
+
+		/**
+		 * The theme colours a tile can take.
+		 *
+		 * @return {Array<{value: string, label: string}>}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		colourOptions() {
+			return [
+				{ value: '', label: t('launchpad', 'Default') },
+				{ value: 'primary', label: t('launchpad', 'Primary') },
+				{ value: 'success', label: t('launchpad', 'Success') },
+				{ value: 'warning', label: t('launchpad', 'Warning') },
+				{ value: 'error', label: t('launchpad', 'Error') },
+			]
+		},
+
+		/**
+		 * The preview's colour and border classes, as the tile renders them.
+		 *
+		 * @return {object}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		previewClasses() {
+			return {
+				['live-tile-colour--' + this.colour]: this.colour !== '',
+				'live-tile-widget-form__preview--bordered': this.border,
+			}
+		},
+
+		/**
+		 * The value in the preview: the tile's last reading when it has one.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		previewValue() {
+			return previewValue(this.reading, {
+				prefix: this.formatPrefix,
+				suffix: this.formatSuffix,
+				thousands: this.formatThousands,
+			})
+		},
+
+		/**
+		 * "Refreshes every 5 minutes" under the preview.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		refreshText() {
+			return refreshLabel(this.clampRefresh(this.refresh), true)
+		},
+
 		/** @spec openspec/specs/live-data-tile-widget/spec.md */
 		sourceModeOptions() {
 			const options = [{ value: 'url', label: t('launchpad', 'Direct URL') }]
@@ -412,8 +626,30 @@ export default {
 				badge: this.badge,
 				linkUrl: this.linkUrl,
 				linkTarget: this.linkTarget,
+				...this.styleContent,
 				...this.displayContent,
 			}
+		},
+
+		/**
+		 * Title visibility, colour and border; only what differs from the
+		 * default, so a tile saved before these existed is stored as it was.
+		 *
+		 * @return {object}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		styleContent() {
+			const content = {}
+			if (this.showTitle === false) {
+				content.showTitle = false
+			}
+			if (this.colour !== '') {
+				content.colour = this.colour
+			}
+			if (this.border === true) {
+				content.border = true
+			}
+			return content
 		},
 
 		/**
@@ -438,8 +674,15 @@ export default {
 		},
 	},
 
+	/**
+	 * Probe integriq, list the connections and load the preview's value.
+	 *
+	 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+	 */
 	created() {
 		this.refreshConnectorAvailability()
+		this.loadConnections()
+		this.loadReading()
 	},
 
 	methods: {
@@ -481,6 +724,51 @@ export default {
 				this.sourceMode = 'url'
 				this.emitUpdate()
 			}
+		},
+
+		/**
+		 * Load the connections the editor can choose from.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		async loadConnections() {
+			try {
+				const list = await fetchLiveTileConnections()
+				this.connections = Array.isArray(list) ? list : []
+			} catch {
+				this.connections = []
+			}
+		},
+
+		/**
+		 * Load the tile's current value for the preview when an existing tile
+		 * is edited; a new tile previews a dash.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		async loadReading() {
+			const id = this.editingWidget?.id
+			if (id === undefined || id === null || id === '') {
+				return
+			}
+			try {
+				this.reading = await fetchLiveTileValue(id)
+			} catch {
+				this.reading = null
+			}
+		},
+
+		/**
+		 * Set the unit; stored as the number format's suffix.
+		 *
+		 * @param {string} val The unit as typed.
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		onUnitChange(val) {
+			this.formatSuffix = unitToSuffix(val)
+			this.emitUpdate()
 		},
 
 		/**
@@ -791,5 +1079,122 @@ export default {
 
 .live-tile-widget-form__row > * {
 	flex: 1;
+}
+
+.live-tile-widget-form__choices,
+.live-tile-widget-form__views,
+.live-tile-widget-form__formatting {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+.live-tile-widget-form__formatting {
+	flex-direction: column;
+	flex-wrap: nowrap;
+	gap: 12px;
+	border-top: 1px solid var(--color-border);
+	padding-top: 12px;
+}
+
+.live-tile-widget-form__legend {
+	width: 100%;
+	margin-bottom: 4px;
+	font-weight: 600;
+}
+
+.live-tile-widget-form__choice {
+	position: relative;
+	display: flex;
+	flex: 1 1 200px;
+	flex-direction: column;
+	gap: 2px;
+	padding: 10px 12px 10px 36px;
+	border: 2px solid var(--color-border);
+	border-radius: var(--border-radius-large);
+	cursor: pointer;
+}
+
+.live-tile-widget-form__choice--selected {
+	border-color: var(--color-primary-element);
+	background: var(--color-primary-element-light);
+}
+
+.live-tile-widget-form__choice--disabled {
+	cursor: not-allowed;
+	opacity: 0.6;
+}
+
+.live-tile-widget-form__choice-input {
+	position: absolute;
+	top: 12px;
+	left: 12px;
+	margin: 0;
+}
+
+.live-tile-widget-form__choice-title {
+	font-weight: 600;
+}
+
+.live-tile-widget-form__choice-text {
+	font-size: 13px;
+	color: var(--color-text-maxcontrast);
+}
+
+.live-tile-widget-form__view {
+	display: inline-flex;
+	gap: 6px;
+	align-items: center;
+	padding: 4px 12px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-pill);
+	cursor: pointer;
+}
+
+.live-tile-widget-form__view--selected {
+	border-color: var(--color-primary-element);
+	background: var(--color-primary-element-light);
+}
+
+.live-tile-widget-form__preview {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 12px;
+	border-radius: var(--border-radius-large);
+	background: var(--color-background-hover);
+}
+
+.live-tile-widget-form__preview--bordered {
+	border: 1px solid var(--color-border-dark);
+}
+
+.live-tile-widget-form__preview-title {
+	font-weight: 600;
+}
+
+.live-tile-widget-form__preview-value {
+	font-size: 28px;
+	font-weight: 700;
+	color: var(--live-tile-accent, var(--color-main-text));
+}
+
+.live-tile-colour--primary {
+	--live-tile-accent: var(--color-primary-element);
+}
+
+.live-tile-colour--success {
+	--live-tile-accent: var(--color-success-text, var(--color-success));
+}
+
+.live-tile-colour--warning {
+	--live-tile-accent: var(--color-warning-text, var(--color-warning));
+}
+
+.live-tile-colour--error {
+	--live-tile-accent: var(--color-error-text, var(--color-error));
 }
 </style>

@@ -46,10 +46,10 @@ class Version002022Date20261125200000Test extends TestCase {
 	 * @return ISchemaWrapper|null
 	 */
 	private function migrate(bool $hasTable, ?int $length, array &$modified): ?ISchemaWrapper {
-		$column = $this->createMock(IColumn::class);
+		$column = $this->createMock(originalClassName: IColumn::class);
 		$column->method('getLength')->willReturn($length);
 
-		$table = $this->createMock(ITable::class);
+		$table = $this->createMock(originalClassName: ITable::class);
 		$table->method('hasColumn')->with('announcement_key')->willReturn($length !== null);
 		$table->method('getColumn')->with('announcement_key')->willReturn($column);
 		$table->method('modifyColumn')->willReturnCallback(
@@ -59,12 +59,12 @@ class Version002022Date20261125200000Test extends TestCase {
 			}
 		);
 
-		$schema = $this->createMock(ISchemaWrapper::class);
+		$schema = $this->createMock(originalClassName: ISchemaWrapper::class);
 		$schema->method('hasTable')->with('launchpad_acknowledgements')->willReturn($hasTable);
 		$schema->method('getTable')->willReturn($table);
 
 		return (new Version002022Date20261125200000())->changeSchema(
-			$this->createMock(IOutput::class),
+			$this->createMock(originalClassName: IOutput::class),
 			static fn () => $schema,
 			[]
 		);
@@ -77,8 +77,8 @@ class Version002022Date20261125200000Test extends TestCase {
 	 */
 	public function testANarrowKeyIsWidened(): void {
 		$modified = [];
-		$this->assertNotNull($this->migrate(hasTable: true, length: 36, modified: $modified));
-		$this->assertSame([['announcement_key', ['length' => 64]]], $modified);
+		$this->assertNotNull(actual: $this->migrate(hasTable: true, length: 36, modified: $modified));
+		$this->assertSame(expected: [['announcement_key', ['length' => 64]]], actual: $modified);
 	}
 
 	/**
@@ -88,10 +88,10 @@ class Version002022Date20261125200000Test extends TestCase {
 	 */
 	public function testNothingElseIsTouched(): void {
 		$modified = [];
-		$this->assertNull($this->migrate(hasTable: true, length: 64, modified: $modified));
-		$this->assertNull($this->migrate(hasTable: true, length: null, modified: $modified));
-		$this->assertNull($this->migrate(hasTable: false, length: 36, modified: $modified));
-		$this->assertSame([], $modified);
+		$this->assertNull(actual: $this->migrate(hasTable: true, length: 64, modified: $modified));
+		$this->assertNull(actual: $this->migrate(hasTable: true, length: null, modified: $modified));
+		$this->assertNull(actual: $this->migrate(hasTable: false, length: 36, modified: $modified));
+		$this->assertSame(expected: [], actual: $modified);
 	}
 
 	/**
@@ -101,7 +101,7 @@ class Version002022Date20261125200000Test extends TestCase {
 	 */
 	public function testAReadConfirmationKeyFits(): void {
 		$key = AnnouncementReadConfirmations::key(uuid: '3ba37a05-4f3a-43f3-bf2e-0dab0f3509b9');
-		$this->assertGreaterThan(36, strlen($key));
-		$this->assertLessThanOrEqual(Version002022Date20261125200000::KEY_LENGTH, strlen($key));
+		$this->assertGreaterThan(expected: 36, actual: strlen($key));
+		$this->assertLessThanOrEqual(expected: Version002022Date20261125200000::KEY_LENGTH, actual: strlen($key));
 	}
 }

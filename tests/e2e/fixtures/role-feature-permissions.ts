@@ -114,6 +114,29 @@ export async function ensureDefaultWidgetRestriction(): Promise<() => Promise<vo
 	}
 }
 
+/**
+ * Put back the shipped `default` rule when the `default` row is a
+ * restriction a killed run left behind. `ensureDefaultWidgetRestriction`
+ * restores the row in its spec's `afterAll`; a run that dies before that
+ * leaves every later non-admin widget add answering 403 "Access denied".
+ *
+ * @return true when a leftover restriction was put back.
+ */
+export async function healLeftoverWidgetRestriction(): Promise<boolean> {
+	const api = await adminApi()
+	try {
+		const current = (await listRoleFeaturePermissions(api))
+			.find((row) => row.groupId === 'default')
+		if (current === undefined || current.name !== RESTRICTION_NAME) {
+			return false
+		}
+		await saveRoleFeaturePermission(api, shippedDefaultRule())
+		return true
+	} finally {
+		await api.dispose()
+	}
+}
+
 /*
  * ─────────────────────────────────────────────────────────────────────────
  * Helpers for `role-feature-permissions.spec.ts`.

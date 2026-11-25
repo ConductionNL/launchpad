@@ -131,9 +131,7 @@ The `<img>` MUST handle the DOM `error` event by replacing itself with the empty
 
 ### Requirement: REQ-IMG-005 Add/edit form
 
-The image sub-form for `AddWidgetModal` MUST follow the drawn form of REQ-IMG-020 (board LpWidgetInstellen): a choice between Upload file (a file `<input type="file" accept="image/*">` or Pick from Files) and Web address (a text input "Image URL" for `url`), the required text for who does not see the image (`alt`), and an optional `link`. The form has no `fit` control: a new placement stores `fit: 'cover'`, an existing placement keeps its stored `fit` (one of `cover`, `contain`, `fill`, `none`), and the renderer draws the image with that `object-fit`. A chosen file shows a thumbnail with its name and size; a typed web address has no preview in the form, the saved cell is where it loads. The upload pipeline MUST be: file → POST to the resource-uploads endpoint (`/api/resources/upload`) when the modal commits → on success, set `form.url` from the response `{url}`. The form's `validate()` MUST return `t('Choose an image or enter its web address')` when `url.trim() === ''` and no file is chosen, and `t('Alternative text is required')` when `alt` is empty (REQ-IMG-020). Upload errors MUST be surfaced inline in the form, and `form.url` MUST remain unchanged on upload failure.
-
-Decision (25 Nov 2026, per the 22 Nov delegation): REQ-IMG-005 follows the board. The earlier `fit` select and the typed-URL preview are not on the drawn form; `fit` stays stored and honoured by the renderer.
+The image sub-form for `AddWidgetModal` MUST expose the following controls: a file `<input type="file" accept="image/*">` (Upload), a text `<input>` for `url` (also written by the upload pipeline), a text `<input>` for `alt`, a text `<input>` for `link`, and a `<select>` for `fit` with options `cover`, `contain`, `fill`, `none`. Only `url` is required for save. The form MUST display a live preview thumbnail (`<img :src="url">`) below the URL input whenever `url` is non-empty. The upload pipeline MUST be: file → `FileReader.readAsDataURL` → POST to the resource-uploads endpoint (`/api/resources`) → on success, set `form.url` from the response `{url}`. The form's `validate()` MUST return `[t('Image URL is required')]` when `url.trim() === ''`. Upload errors MUST be surfaced inline under the upload input via the translated message `t('Failed to upload image')`, and `form.url` MUST remain unchanged on upload failure.
 
 #### Scenario: Upload populates URL and preview
 
@@ -147,7 +145,7 @@ Decision (25 Nov 2026, per the 22 Nov delegation): REQ-IMG-005 follows the board
 - GIVEN the user types `https://example.com/x.png` directly into the URL input
 - WHEN the input blurs
 - THEN `form.url` MUST equal `'https://example.com/x.png'`
-- AND once saved, the cell MUST load that URL
+- AND the preview thumbnail MUST attempt to load that URL
 
 #### Scenario: Upload error surfaces to user
 
@@ -160,15 +158,15 @@ Decision (25 Nov 2026, per the 22 Nov delegation): REQ-IMG-005 follows the board
 
 - GIVEN the user submits the form with `form.url = ''`
 - WHEN `validate()` runs
-- THEN it MUST return `t('Choose an image or enter its web address')`
+- THEN it MUST return `[t('Image URL is required')]`
 - AND the modal MUST NOT close
 
-#### Scenario: Fit defaults to cover
+#### Scenario: All allowed fit values selectable
 
-- GIVEN the form is open for a new placement
-- WHEN the user looks for a `fit` control
-- THEN there MUST be none
-- AND the saved placement MUST store `fit: 'cover'` and the cell MUST draw the image with `object-fit: cover`
+- GIVEN the form is open
+- WHEN the user inspects the `fit` `<select>`
+- THEN it MUST contain exactly the four options `cover`, `contain`, `fill`, `none`
+- AND the default selected value MUST be `cover` for a new placement
 
 ### Requirement: REQ-IMG-006 External image hosts are allow-listed by an administrator
 

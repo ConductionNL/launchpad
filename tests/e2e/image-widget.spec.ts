@@ -187,45 +187,61 @@ test.describe('image widget', () => {
 	})
 
 	// @e2e image-widget::direct-url-string-is-also-accepted
-	test('REQ-IMG-005: a directly typed URL is accepted and the cell loads it', async ({
+	test('REQ-IMG-005: a directly typed URL is accepted and the preview loads it', async ({
 		page,
 	}) => {
 		const dialog = await openImageForm(page)
 
-		// The drawn form (REQ-IMG-020) has no preview for a web address: the
-		// typed URL is the stored url, and the saved cell is where it loads.
+		// No file chosen: the drawn form asks for Web address first, then the
+		// URL field alone drives the preview.
 		await dialog.getByText('Web address', { exact: true }).click()
 		const urlField = dialog.getByLabel(/image url/i)
 		await urlField.fill(LOGO)
 		await urlField.blur()
-		await expect(urlField).toHaveValue(LOGO)
+
+		const preview = dialog.getByTestId('image-url-preview')
+		await expect(preview).toBeAttached({ timeout: 10_000 })
+		await expect(preview).toHaveAttribute('src', LOGO, { timeout: 10_000 })
+		await expect
+			.poll(() => preview.evaluate((img) => (img as HTMLImageElement).naturalWidth), { timeout: 10_000 })
+			.toBeGreaterThan(0)
+
+		// A typed URL with its required alternative text is enough to save:
+		// the counterpart of the empty-URL validation above.
 		await dialog.getByLabel(/text for who does not see the image/i).fill('Nextcloud logo')
-
-		// A typed URL is sufficient to save — the counterpart of the
-		// empty-URL validation above.
-		const addBtn = dialog.getByRole('button', { name: /^add$/i })
-		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
-		await addBtn.click()
-		await expect(dialog).not.toBeVisible({ timeout: 8_000 })
-		await closeSidebar(page)
-
-		const img = page.locator(`.cn-image-widget img[src="${LOGO}"]`).last()
-		await expect(img).toBeAttached({ timeout: 8_000 })
+		await expect(dialog.getByRole('button', { name: /^add$/i })).toBeEnabled({
+			timeout: 5_000,
+		})
 	})
 
-	// @e2e image-widget::fit-defaults-to-cover
-	test('REQ-IMG-005: the form offers no fit control and a new image is drawn with cover', async ({
+	// @e2e image-widget::all-allowed-fit-values-selectable
+	test('REQ-IMG-005: the fit control offers exactly cover, contain, fill and none', async ({
 		page,
 	}) => {
 		const dialog = await openImageForm(page)
-		await expect(dialog.getByLabel(/^fit$/i)).toHaveCount(0)
-		await expect(dialog.getByText(/^fit$/i)).toHaveCount(0)
-		await page.keyboard.press('Escape')
-		await expect(dialog).not.toBeVisible({ timeout: 8_000 })
 
-		const cell = await addUrlImage(page, '')
-		const fit = await cell.locator('img').first().evaluate((el) => getComputedStyle(el).objectFit)
-		expect(fit, 'a new placement stores fit cover and the renderer honours it').toBe('cover')
+		// `fit` is an NcSelect (vue-select), not a native <select> as the
+		// scenario's prose assumes, so the options live in a popper that only
+		// exists once the control is opened.
+		const control = dialog.getByTestId('image-fit')
+		await expect(control).toBeVisible({ timeout: 10_000 })
+
+		// The default selected value for a new placement is Cover.
+		await expect(control.locator('.vs__selected')).toHaveText(/cover/i, {
+			timeout: 10_000,
+		})
+
+		await control.locator('.vs__dropdown-toggle').click()
+		const options = page.locator('.vs__dropdown-menu .vs__dropdown-option')
+		await expect(options.first()).toBeVisible({ timeout: 5_000 })
+
+		const labels = (await options.allTextContents()).map((s) =>
+			s.trim().toLowerCase(),
+		)
+		expect(
+			labels,
+			'REQ-IMG-005 pins the allowed object-fit set to exactly these four',
+		).toEqual(['cover', 'contain', 'fill', 'none'])
 	})
 
 	// @e2e image-widget::upload-error-surfaces-to-user

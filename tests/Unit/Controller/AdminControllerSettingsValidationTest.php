@@ -143,4 +143,19 @@ class AdminControllerSettingsValidationTest extends TestCase {
 		$this->assertSame(expected: 400, actual: $response->getStatus());
 		$this->assertStringContainsString(needle: 'defaultPermLevel', haystack: (string)$response->getData()['error']);
 	}//end testAServiceRefusalAnswers400()
+
+	/**
+	 * REQ-ASET-011: the store failing answers 500 with a generic message, never the database's own words.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-settings-api-error-handling-req-aset-011
+	 */
+	public function testAStoreFailureAnswers500WithoutDetails(): void {
+		$this->settingsService->method('updateSettings')
+			->willThrowException(new \RuntimeException('SQLSTATE[42S02]: Base table oc_launchpad_admin_settings not found'));
+		$response = $this->controller->updateSettings(allowUserDash: true);
+		$this->assertSame(expected: 500, actual: $response->getStatus());
+		$this->assertStringNotContainsString(needle: 'SQLSTATE', haystack: json_encode(value: $response->getData()));
+	}//end testAStoreFailureAnswers500WithoutDetails()
 }//end class

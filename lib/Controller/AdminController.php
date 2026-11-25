@@ -465,6 +465,7 @@ class AdminController extends Controller {
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-settings-api-error-handling-req-aset-011
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateSettings(
@@ -532,7 +533,8 @@ class AdminController extends Controller {
 		} catch (\InvalidArgumentException $e) {
 			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		} catch (\Exception $e) {
-			return $this->context->responseHelper->error(exception: $e);
+			// REQ-ASET-011: the store failing is a server error; the message stays generic.
+			return $this->context->responseHelper->error(exception: $e, statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}//end try
 	}//end updateSettings()
 

@@ -74,7 +74,7 @@ class DemoSeedPreferences {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function setDefaultDashboard(string $userId, string $uuid): void {
 		$this->config->setUserValue($userId, Application::APP_ID, self::DEFAULT_DASHBOARD_PREF_KEY, $uuid);
@@ -89,7 +89,7 @@ class DemoSeedPreferences {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function markTourSeen(string $userId, string $version): void {
 		$this->config->setUserValue($userId, Application::APP_ID, self::WALKTHROUGH_PREF_KEY, $version);
@@ -105,7 +105,7 @@ class DemoSeedPreferences {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function hideDashboards(string $userId, array $uuids): void {
 		if ($uuids === []) {
@@ -128,7 +128,7 @@ class DemoSeedPreferences {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function clear(string $userId): void {
 		$keys = [

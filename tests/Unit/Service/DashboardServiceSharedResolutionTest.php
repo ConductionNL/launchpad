@@ -651,7 +651,7 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function testASetAsideOrganisationDashboardIsNotVisible(): void {
 		$own = $this->makeDashboard(id: 1, uuid: 'uuid-own', owner: 'nieuw');
@@ -674,7 +674,7 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function testAMalformedSetAsideListHidesNothing(): void {
 		$org = $this->makeDashboard(id: 2, uuid: 'uuid-org', owner: null, type: Dashboard::TYPE_GROUP_SHARED);

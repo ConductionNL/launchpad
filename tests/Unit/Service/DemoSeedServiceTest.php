@@ -190,7 +190,7 @@ class DemoSeedServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function testTheFirstRunUserHasTheOrganisationDashboardSetAside(): void {
 		$default = new Dashboard();
@@ -216,7 +216,7 @@ class DemoSeedServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function testNothingIsSetAsideWithoutAnOrganisationDashboard(): void {
 		$this->prefs['nieuw/' . DashboardService::HIDDEN_DASHBOARDS_PREF_KEY] = '["uuid-gone"]';

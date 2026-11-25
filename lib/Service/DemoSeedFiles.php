@@ -61,7 +61,7 @@ class DemoSeedFiles {
 	 *
 	 * @return array<string, mixed> What this run added, `{skipped: true}`, or `{error}`.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function ensureSafely(mixed $definition): array {
 		if (is_array($definition) === false) {
@@ -86,7 +86,7 @@ class DemoSeedFiles {
 	 *
 	 * @return array{createdFiles: int, shared: bool} What this run added.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function ensure(array $definition): array {
 		$owner      = (string)$definition['owner'];

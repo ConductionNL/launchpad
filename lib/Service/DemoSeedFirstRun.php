@@ -57,7 +57,7 @@ class DemoSeedFirstRun {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function markTourSeen(string $userId, string $version): void {
 		$this->preferences->markTourSeen(userId: $userId, version: $version);
@@ -72,7 +72,7 @@ class DemoSeedFirstRun {
 	 *
 	 * @return integer The number of dashboards removed.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function resetToFirstRun(string $userId): int {
 		$removed = 0;
@@ -106,7 +106,7 @@ class DemoSeedFirstRun {
 	 *
 	 * @return array<int, string> The UUIDs.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	private function organisationWideUuids(): array {
 		$uuids = [];

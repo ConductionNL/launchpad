@@ -1822,7 +1822,7 @@ class DashboardService {
 	 *
 	 * @return array<int, array{dashboard: Dashboard, source: string}> The visible set without the set-aside rows.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	private function withoutSetAside(string $userId, array $entries): array {
 		$stored = json_decode(

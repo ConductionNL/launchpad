@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+ * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -32,7 +32,7 @@ use OCA\LaunchPad\Db\WidgetPlacement;
 /**
  * Diffs a copy against its template.
  *
- * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+ * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
  */
 class ResyncDiffer {
 
@@ -82,7 +82,7 @@ class ResyncDiffer {
 	 *
 	 * @return self The bound differ; this one is left as it was.
 	 *
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
 	public function bound(string $strategy, int $columns): self {
 		$bound           = clone $this;
@@ -141,8 +141,8 @@ class ResyncDiffer {
 	 *     toPreserve: WidgetPlacement[]
 	 * }
 	 *
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
 	public function diff(
 		array $templatePlacements,
@@ -207,7 +207,7 @@ class ResyncDiffer {
 	 *
 	 * @return array<int, array{gridX:int,gridY:int,gridWidth:int,gridHeight:int}> The spots, by `toAdd` index.
 	 *
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
 	private function freeSpotsFor(array $toAdd, array $copyPlacements): array {
 		$occupied = array_map(
@@ -251,8 +251,8 @@ class ResyncDiffer {
 	 * @return array{0: string|null, 1: WidgetPlacement|array{copy: WidgetPlacement, template: WidgetPlacement, keepLayout: bool}}
 	 *     The bucket name (null for a user-added placement) and the entry to put in it.
 	 *
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
 	private function classifyCopyPlacement(WidgetPlacement $copy, array $templateById): array {
 		$originId = $copy->getTemplatePlacementId();
@@ -277,8 +277,8 @@ class ResyncDiffer {
 	 * @return array{0: string, 1: WidgetPlacement|array{copy: WidgetPlacement, template: WidgetPlacement, keepLayout: bool}}
 	 *     The bucket name and the entry to put in it.
 	 *
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
 	private function classifyMatched(WidgetPlacement $copy, WidgetPlacement $template): array {
 		$compulsory = ((int)$template->getIsCompulsory() === 1);
@@ -313,7 +313,7 @@ class ResyncDiffer {
 	 *
 	 * @return array<int, string> The grid fields when the owner's position and size stay, else none.
 	 *
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
 	private function ownerLayoutFields(WidgetPlacement $copy, WidgetPlacement $template): array {
 		if ($this->strategy !== TemplateResyncService::STRATEGY_MERGE || (int)$template->getIsCompulsory() === 1) {

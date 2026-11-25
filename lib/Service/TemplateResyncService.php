@@ -128,7 +128,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *                                        (REQ-DWMS-001) and it gets a version by the template (REQ-VERSUI-005).
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
 	public function __construct(
 		private readonly ResyncStores $stores,
@@ -284,7 +284,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *                              lost, changedByOwnerCount}`.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md#requirement-req-resync-002-dry-run-reports-the-plan-without-mutating
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 	 */
 	public function planResync(int $templateId, string $strategy): array {
 		$template = $this->getValidatedTemplate(templateId: $templateId);
@@ -341,7 +341,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *
 	 * @return int The column count, at least 1.
 	 *
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
 	private function columnsOf(Dashboard $copy): int {
 		$columns = (int)$copy->getGridColumns();
@@ -606,7 +606,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *
 	 * @return void
 	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
 	private function applyTemplateFields(
 		WidgetPlacement $copy,
@@ -655,7 +655,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *
 	 * @return WidgetPlacement The new (uninserted) placement entity.
 	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
 	private function cloneTemplatePlacementInto(
 		WidgetPlacement $template,
@@ -710,7 +710,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *
 	 * @return WidgetPlacement The placement.
 	 *
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
 	private function placedClone(WidgetPlacement $clone, ?array $spot): WidgetPlacement {
 		if ($spot !== null) {
@@ -735,7 +735,7 @@ class TemplateResyncService implements TemplateResyncServiceInterface {
 	 *
 	 * @throws InvalidArgumentException When not `overwrite`, `merge` or `add_only`.
 	 *
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
 	private function assertValidStrategy(string $strategy): void {
 		if (in_array(needle: $strategy, haystack: self::VALID_STRATEGIES, strict: true) === false) {

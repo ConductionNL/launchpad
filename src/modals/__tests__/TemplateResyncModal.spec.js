@@ -8,7 +8,7 @@
  * and changed-copies count, the three choices, a fresh dry run per choice,
  * the push button naming the dashboards, and a stale answer being dropped.
  *
- * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+ * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
  */
 
 import { mount } from '@vue/test-utils'

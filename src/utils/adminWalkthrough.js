@@ -22,6 +22,13 @@ import { loadWalkthroughSeenVersion, persistWalkthroughSeenVersion } from '@cond
 export const ADMIN_TOUR_ID = 'launchpad:admin-getting-started'
 
 /**
+ * The key the admin page's walkthrough runs under. The library keeps one
+ * walkthrough per key, and the shell around the admin page already runs the
+ * Workspace walkthrough under the app id, where the admin tour is manual.
+ */
+export const ADMIN_TOUR_WALKTHROUGH_KEY = 'launchpad:admin-tour'
+
+/**
  * The per-user preference that records the admin tour as seen, next to the
  * Workspace tour's `walkthrough_completed_version`.
  */

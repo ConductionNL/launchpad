@@ -7,7 +7,7 @@
  * active dashboard the page already computed, without asking the API
  * again. Every later load, and a page without the key, fetches both.
  *
- * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-4
  */
 
 import { createPinia, setActivePinia } from 'pinia'

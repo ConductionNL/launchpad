@@ -9,7 +9,7 @@
  * Gate-19 @e2e traceability:
  *   @e2e initial-state-contract::the-workspace-opens-without-asking-for-its-tiles-acknowledgements-and-default-dashboard
  *
- * @spec openspec/changes/workspace-boot-reads-from-initial-state/specs/initial-state-contract/spec.md
+ * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/specs/initial-state-contract/spec.md
  */
 
 import { expect, test } from '@playwright/test'

@@ -294,6 +294,15 @@ export default defineComponent({
 	max-width: none;
 }
 
+/* REQ-KIOSK-001: on a kiosk screen the content fills the viewport like the
+   authenticated kiosk view; the centred 1200px column of the share page
+   does not apply. */
+.public-share-view--kiosk .public-share-view__content {
+	max-width: none;
+	margin: 0;
+	padding: 0;
+}
+
 /* The bar of board LpPubliek: 72px, the emblem, the organisation over the
    page's name, and the way in for staff at the end. */
 .public-share-view__start-bar {

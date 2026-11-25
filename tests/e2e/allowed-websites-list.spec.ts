@@ -256,7 +256,7 @@ test('a host added with Fetch takes a live tile, and an embed on the same host i
 	// A live tile on that host passes the save-time check and is saved.
 	await gotoLaunchPad(page)
 	const tile = await openWidgetForm(page, 'livetile', '.live-tile-widget-form')
-	await tile.form.getByLabel('Value expression', { exact: true }).fill('$.wachttijd')
+	await tile.form.getByLabel('Path in the response', { exact: true }).fill('$.wachttijd')
 	const url = tile.form.getByLabel('URL', { exact: true })
 	await url.fill(KCC_URL)
 	const checked = page.waitForResponse((r) =>
@@ -398,7 +398,7 @@ test('a host added with Embed takes an embedded page, and a live tile on the sam
 
 	// …and in the Add Widget form, which says why; nothing is stored.
 	const tile = await openWidgetForm(page, 'livetile', '.live-tile-widget-form')
-	await tile.form.getByLabel('Value expression', { exact: true }).fill('$.value')
+	await tile.form.getByLabel('Path in the response', { exact: true }).fill('$.value')
 	const url = tile.form.getByLabel('URL', { exact: true })
 	await url.fill(tileUrl)
 	const checked = page.waitForResponse((r) =>

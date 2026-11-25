@@ -132,18 +132,19 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 	 *
 	 * @param DashboardService $service The dashboard service double.
 	 * @param IRequest|null    $request The request, or null for an empty one.
+	 * @param bool             $mayEdit Whether alice may edit the dashboard.
 	 *
 	 * @return DashboardApiController
 	 */
-	private function controller(DashboardService $service, ?IRequest $request = null): DashboardApiController {
+	private function controller(DashboardService $service, ?IRequest $request = null, bool $mayEdit = true): DashboardApiController {
 		$user = $this->createMock(IUser::class);
 		$user->method('getUID')->willReturn('alice');
 		$session = $this->createMock(IUserSession::class);
 		$session->method('getUser')->willReturn($user);
 
 		$permissions = $this->createMock(PermissionService::class);
-		$permissions->method('canEditDashboard')->willReturn(true);
-		$permissions->method('canEditDashboardMetadata')->willReturn(true);
+		$permissions->method('canEditDashboard')->willReturn($mayEdit);
+		$permissions->method('canEditDashboardMetadata')->willReturn($mayEdit);
 
 		return new DashboardApiController(
 			request: ($request ?? $this->createMock(originalClassName: IRequest::class)),
@@ -186,6 +187,40 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 
 		$this->assertSame(array_keys($expected), array_keys($actual));
 	}//end testPatchMatchesTheRecordedFixture()
+
+	/**
+	 * REQ-LOCK-008: a save on a dashboard deleted meanwhile fails with
+	 * "Dashboard not found" (404), not with a refusal.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-locking/spec.md#requirement-req-lock-008-lock-lifecycle-on-dashboard-deletion
+	 */
+	public function testASaveOnADeletedDashboardIsNotFound(): void {
+		$service = $this->createMock(originalClassName: DashboardService::class);
+		$service->method('dashboardExists')->willReturn(false);
+		$service->expects($this->never())->method('updateDashboard');
+
+		$response = $this->controller(service: $service, mayEdit: false)->update(id: 7, name: 'bob saves');
+
+		$this->assertSame(expected: 404, actual: $response->getStatus());
+		$this->assertSame(expected: ['error' => 'Dashboard not found'], actual: $response->getData());
+	}//end testASaveOnADeletedDashboardIsNotFound()
+
+	/**
+	 * A save on a dashboard that exists but is not the caller's to edit stays
+	 * a 403 refusal.
+	 *
+	 * @return void
+	 */
+	public function testASaveWithoutTheRightStaysForbidden(): void {
+		$service = $this->createMock(originalClassName: DashboardService::class);
+		$service->method('dashboardExists')->willReturn(true);
+
+		$response = $this->controller(service: $service, mayEdit: false)->update(id: 7, name: 'bob saves');
+
+		$this->assertSame(expected: 403, actual: $response->getStatus());
+	}//end testASaveWithoutTheRightStaysForbidden()
 
 	/**
 	 * The edit bar's column count travels in the body and reaches the patch.

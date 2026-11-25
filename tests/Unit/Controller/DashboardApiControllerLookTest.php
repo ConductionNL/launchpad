@@ -126,6 +126,8 @@ class DashboardApiControllerLookTest extends TestCase {
 		}
 
 		$service = $this->createMock(DashboardService::class);
+		// The dashboard exists: a refused update stays 403 (a deleted one is 404, REQ-LOCK-008).
+		$service->method('dashboardExists')->willReturn(true);
 		$service->method('isAdmin')->willReturnCallback(static fn (string $userId): bool => in_array($userId, $admins, true));
 		$service->method('updateDashboard')->willReturnCallback(
 			function (int $dashboardId, string $userId, array $data): Dashboard {

@@ -57,7 +57,7 @@ class DemoLoadCommand extends Command {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	protected function configure(): void {
 		$this->setName(name: 'launchpad:demo:load')
@@ -102,7 +102,7 @@ class DemoLoadCommand extends Command {
 	 *
 	 * @return integer The exit code.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$seedId = (string)$input->getOption(name: 'seed');

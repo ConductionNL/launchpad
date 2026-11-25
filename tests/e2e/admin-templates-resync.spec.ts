@@ -591,8 +591,11 @@ test.describe('idempotent, audited, notified (REQ-RESYNC-005)', () => {
 	// @e2e admin-templates::audit-record-is-written-on-a-real-run
 	test('a real run writes one audit record with admin, template, strategy, count and time', async () => {
 		const { template, copies } = await distributed('audit', TWO('audit'), 2)
+		// A removed template widget is drift merge restores; a moved one it
+		// leaves where the member put it (REQ-RESYNC-007), so a move would
+		// change no copy.
 		for (const c of copies) {
-			await memberMoves(c, `${STAMP} audit two`, 6)
+			await memberRemoves(c, `${STAMP} audit two`)
 		}
 		expect(await auditRows(template.id)).toEqual([])
 		const startedAt = Date.now()
@@ -622,7 +625,9 @@ test.describe('idempotent, audited, notified (REQ-RESYNC-005)', () => {
 	test('the member whose copy changed is told an administrator updated it; the other is not', async () => {
 		const { template, copies } = await distributed('notify', TWO('notify'), 2)
 		const [erin, frank] = copies
-		await memberMoves(erin, `${STAMP} notify one`, 6)
+		// Removed, not moved: merge keeps a moved widget where erin put it
+		// (REQ-RESYNC-007) and would change nothing to tell her about.
+		await memberRemoves(erin, `${STAMP} notify one`)
 
 		const res = await resync(template.id, { strategy: 'merge', dryRun: false })
 		expect(res.status()).toBe(200)

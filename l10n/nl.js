@@ -2595,7 +2595,6 @@ OC.L10N.register(
     "Launchpad stays open." : "Launchpad blijft open.",
     "Legacy Windows program" : "Oud Windows-programma",
     "Most used first" : "Meest gebruikt eerst",
-    "No group" : "Geen groep",
     "None chosen: the tile opens as the dashboard decides." : "Niets gekozen: de tegel opent zoals het dashboard bepaalt.",
     "Not checked yet" : "Nog niet gecontroleerd",
     "Not reachable at the last check, {when}" : "Niet bereikbaar bij de laatste controle, {when}",

@@ -123,7 +123,7 @@ class DemoSeedContent {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function mergeAppConfig(array $values): void {
 		foreach ($values as $key => $hosts) {
@@ -151,7 +151,7 @@ class DemoSeedContent {
 	 *
 	 * @return array{created: int, updated: int} What this run changed.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function seedCatalogue(array $tiles): array {
 		$byName = [];
@@ -216,7 +216,7 @@ class DemoSeedContent {
 	 *
 	 * @return integer The number of announcements written.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function seedAnnouncements(array $entries): int {
 		$now = new DateTime();

@@ -181,13 +181,14 @@ test('a member outside the sharing groups is offered nobody and is refused by th
 		sharingRecipientScope: 'everyone',
 	})
 
-	// In the browser: the picker offers Pieter nobody.
-	const { context, page, panel } = await openPieterSharingTab(browser)
+	// In the browser: Pieter cannot add a share. The tab says why and offers
+	// no picker at all (sharing-policy-board-sync), so nobody can be chosen.
+	const { context, panel } = await openPieterSharingTab(browser)
 	try {
-		const options = await searchInPicker(page, panel, ella!.username)
+		await expect(panel.getByText(/does not allow you to share/i)).toBeVisible()
 		await expect(
-			options,
-			'Pieter may not share, so Ella is not offered',
+			panel.getByLabel(/share with users and groups/i),
+			'Pieter may not share, so no share picker is offered',
 		).toHaveCount(0)
 		await expect(panel.locator('.dashboard-config__share')).toHaveCount(0)
 	} finally {

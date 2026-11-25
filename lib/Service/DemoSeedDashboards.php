@@ -70,7 +70,7 @@ class DemoSeedDashboards {
 	 *
 	 * @throws RuntimeException When the dashboard cannot be written.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function write(array $definition, array $payloads): array {
 		$this->stores->db->beginTransaction();

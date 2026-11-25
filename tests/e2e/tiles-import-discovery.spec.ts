@@ -52,6 +52,7 @@ import {
 	seedDashboardWithWidget,
 	shareWith,
 } from './support/principals.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const STAMP = `${Date.now()}`
 
@@ -368,7 +369,7 @@ async function openAddFlow(page: Page): Promise<Locator> {
  */
 function discovered(picker: Locator, name: string): Locator {
 	return picker
-		.locator('[data-testid="widget-picker-discovered"]')
+		.locator('[data-testid="widget-picker-section-tiles"]')
 		.getByRole('button', {
 			name: new RegExp(`^\\s*${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`),
 		})
@@ -431,7 +432,7 @@ test.describe('discovery', () => {
 			await page.goto('/index.php/apps/launchpad/')
 			const picker = await openAddFlow(page)
 			const section = picker.locator(
-				'[data-testid="widget-picker-discovered"]',
+				'[data-testid="widget-picker-section-tiles"]',
 			)
 			await expect(section).toContainText('App tiles')
 			for (const entry of menu) {
@@ -466,7 +467,7 @@ test.describe('discovery', () => {
 					res.request().method() === 'POST'
 					&& /\/api\/dashboard\/\d+\/widgets$/.test(res.url()),
 			)
-			await entry.click()
+			await chooseAndAdd(entry)
 			const response = await placed
 			expect(response.status(), await response.text()).toBeLessThan(300)
 			const id = Number((await response.json()).id)
@@ -545,7 +546,7 @@ test.describe('discovery', () => {
 				await page.goto('/index.php/apps/launchpad/')
 				const picker = await openAddFlow(page)
 				await expect(
-					picker.locator('[data-testid="widget-picker-discovered"]'),
+					picker.locator('[data-testid="widget-picker-section-tiles"]'),
 				).toContainText('App tiles')
 				await expect(discovered(picker, target!.name)).toHaveCount(0)
 			} finally {

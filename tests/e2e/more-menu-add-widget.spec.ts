@@ -79,7 +79,7 @@ test('"Add widget" in the More menu opens the picker with its three sections', a
 
 	const picker = page.locator('.widget-picker')
 	await expect(picker).toBeVisible({ timeout: 15_000 })
-	await expect(picker.locator('[data-testid="widget-picker-catalogue"]')).toContainText(ENTRY)
-	await expect(picker.locator('[data-testid="widget-picker-office"]')).toBeVisible()
-	await expect(picker.locator('[data-testid="widget-picker-discovered"]')).toBeVisible()
+	await expect(picker.locator('[data-testid="widget-picker-section-tiles"]')).toContainText(ENTRY)
+	await expect(picker.locator('[data-testid="widget-picker-office-pack"]')).toBeVisible()
+	await expect(picker.locator('[data-testid="widget-picker-section-tiles"]')).toBeVisible()
 })

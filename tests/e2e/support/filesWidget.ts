@@ -23,6 +23,7 @@ import type { APIRequestContext, Locator, Page, Response } from '@playwright/tes
 
 import { expect, request } from '@playwright/test'
 import { BASE_URL } from './baseUrl.ts'
+import { chooseAndAdd } from './widgetPicker.ts'
 
 export const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -446,7 +447,7 @@ export async function openAddWidgetDialog(page: Page): Promise<Locator> {
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-type-files"]').click()
+	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-files"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog

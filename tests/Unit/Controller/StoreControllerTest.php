@@ -176,8 +176,8 @@ class StoreControllerTest extends TestCase {
 
 		$data = $this->controller->search()->getData();
 
-		$this->assertSame(['name' => 'VNG dashboardregister', 'url' => 'https://register.vng.nl/dashboards'], $data['registry']);
-		$this->assertSame('2026-11-25T06:00:00Z', $data['checkedAt']);
+		$this->assertSame(expected: ['name' => 'VNG dashboardregister', 'url' => 'https://register.vng.nl/dashboards'], actual: $data['registry']);
+		$this->assertSame(expected: '2026-11-25T06:00:00Z', actual: $data['checkedAt']);
 	}//end testSearchCarriesTheRegisterBanner()
 
 	/**
@@ -195,8 +195,8 @@ class StoreControllerTest extends TestCase {
 
 		$data = $this->controller->search()->getData();
 
-		$this->assertNull($data['registry']);
-		$this->assertNull($data['checkedAt']);
+		$this->assertNull(actual: $data['registry']);
+		$this->assertNull(actual: $data['checkedAt']);
 	}//end testSearchWithoutARegisterHasNoBanner()
 
 	/**

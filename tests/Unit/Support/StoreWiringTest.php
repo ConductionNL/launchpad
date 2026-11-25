@@ -159,7 +159,7 @@ class StoreWiringTest extends TestCase {
 		)[0];
 
 		$this->assertArrayNotHasKey(key: 'kindLenses', array: $page['config']);
-		$this->assertTrue($page['config']['categoryLenses'] ?? false);
+		$this->assertTrue(condition: $page['config']['categoryLenses'] ?? false);
 		$this->assertSame(expected: 8, actual: $page['config']['pageSize'] ?? null);
 		$this->assertSame(expected: '/index.php/apps/launchpad/admin/sharing', actual: $page['config']['banner']['settingsUrl'] ?? null);
 		$this->assertNotSame(expected: '', actual: (string)($page['config']['banner']['settingsLabel'] ?? ''));

@@ -250,29 +250,10 @@ class StoreService {
 	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
 	 */
 	public function registryBanner(): ?array {
-		$url = trim($this->config(key: self::CONFIG_URL));
-		if ($url === '') {
-			return null;
-		}
-
-		$parts = parse_url($url);
-		if (is_array($parts) === false || isset($parts['host']) === false) {
-			return null;
-		}
-
-		$address = ($parts['scheme'] ?? 'https').'://'.$parts['host'];
-		if (isset($parts['port']) === true) {
-			$address .= ':'.$parts['port'];
-		}
-
-		$address .= ($parts['path'] ?? '');
-
-		$name = trim($this->config(key: self::CONFIG_NAME));
-		if ($name === '') {
-			$name = $parts['host'];
-		}
-
-		return ['name' => $name, 'url' => $address];
+		return (new StoreRegistryBanner())->from(
+			url: $this->config(key: self::CONFIG_URL),
+			name: $this->config(key: self::CONFIG_NAME)
+		);
 	}//end registryBanner()
 
 	/**

@@ -480,9 +480,9 @@ class StoreServiceTest extends TestCase {
 
 		$banner = $this->service(discovery: null)->registryBanner();
 
-		$this->assertSame(['name' => 'VNG dashboardregister', 'url' => 'https://register.vng.nl/dashboards'], $banner);
-		$this->assertStringNotContainsString('super-secret-token', (string)json_encode($banner));
-		$this->assertStringNotContainsString('pw', $banner['url']);
+		$this->assertSame(expected: ['name' => 'VNG dashboardregister', 'url' => 'https://register.vng.nl/dashboards'], actual: $banner);
+		$this->assertStringNotContainsString(needle: 'super-secret-token', haystack: (string)json_encode(value: $banner));
+		$this->assertStringNotContainsString(needle: 'pw', haystack: $banner['url']);
 	}//end testTheBannerNamesTheRegisterAndItsAddress()
 
 	/**
@@ -495,15 +495,15 @@ class StoreServiceTest extends TestCase {
 	public function testTheBannerFallsBackToTheHostAndIsNullWithoutARegister(): void {
 		$this->configValues = [StoreService::CONFIG_URL => 'http://registry.example.org:8080/'];
 		$this->assertSame(
-			['name' => 'registry.example.org', 'url' => 'http://registry.example.org:8080/'],
-			$this->service(discovery: null)->registryBanner()
+			expected: ['name' => 'registry.example.org', 'url' => 'http://registry.example.org:8080/'],
+			actual: $this->service(discovery: null)->registryBanner()
 		);
 
 		$this->configValues = [StoreService::CONFIG_URL => ''];
-		$this->assertNull($this->service(discovery: null)->registryBanner());
+		$this->assertNull(actual: $this->service(discovery: null)->registryBanner());
 
 		$this->configValues = [StoreService::CONFIG_URL => 'not a url'];
-		$this->assertNull($this->service(discovery: null)->registryBanner());
+		$this->assertNull(actual: $this->service(discovery: null)->registryBanner());
 	}//end testTheBannerFallsBackToTheHostAndIsNullWithoutARegister()
 
 	/**
@@ -514,7 +514,7 @@ class StoreServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testASearchReportsWhenTheRegisterWasChecked(): void {
-		$discovery = $this->createMock(GenericStoreService::class);
+		$discovery = $this->createMock(originalClassName: GenericStoreService::class);
 		$discovery->method('search')->willReturnOnConsecutiveCalls(
 			['outcome' => 'ok', 'cards' => [], 'checkedAt' => '2026-11-25T06:00:00Z'],
 			['outcome' => 'store_unreachable', 'cards' => []],
@@ -522,9 +522,9 @@ class StoreServiceTest extends TestCase {
 		);
 		$service = $this->service(discovery: $discovery);
 
-		$this->assertSame('2026-11-25T06:00:00Z', $service->search()['checkedAt']);
-		$this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $service->search()['checkedAt']);
-		$this->assertArrayNotHasKey('checkedAt', $service->search());
+		$this->assertSame(expected: '2026-11-25T06:00:00Z', actual: $service->search()['checkedAt']);
+		$this->assertMatchesRegularExpression(pattern: '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', string: $service->search()['checkedAt']);
+		$this->assertArrayNotHasKey(key: 'checkedAt', array: $service->search());
 	}//end testASearchReportsWhenTheRegisterWasChecked()
 
 	/**
@@ -538,10 +538,14 @@ class StoreServiceTest extends TestCase {
 		$service = $this->service(discovery: null);
 
 		$service->updateRegistryConfig(registryName: '  VNG dashboardregister ');
-		$this->assertSame('VNG dashboardregister', $service->getRegistryConfig()['registryName']);
+		$this->assertSame(expected: 'VNG dashboardregister', actual: $service->getRegistryConfig()['registryName']);
 
 		$service->updateRegistryConfig(registryUrl: 'https://r.example');
-		$this->assertSame('VNG dashboardregister', $service->getRegistryConfig()['registryName'], 'an omitted name must survive');
+		$this->assertSame(
+			expected: 'VNG dashboardregister',
+			actual: $service->getRegistryConfig()['registryName'],
+			message: 'an omitted name must survive'
+		);
 	}//end testTheRegisterNameIsStoredWithTheConnection()
 
 	/**
@@ -552,9 +556,9 @@ class StoreServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheCardMapCarriesWidgetsAndUsage(): void {
-		$this->assertSame('widgets', StoreService::CARD_FIELDS['widgets']);
-		$this->assertSame('usage', StoreService::CARD_FIELDS['usage']);
-		$this->assertSame('category', StoreService::CARD_FIELDS['category']);
+		$this->assertSame(expected: 'widgets', actual: StoreService::CARD_FIELDS['widgets']);
+		$this->assertSame(expected: 'usage', actual: StoreService::CARD_FIELDS['usage']);
+		$this->assertSame(expected: 'category', actual: StoreService::CARD_FIELDS['category']);
 	}//end testTheCardMapCarriesWidgetsAndUsage()
 
 	/**

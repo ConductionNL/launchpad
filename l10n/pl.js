@@ -1820,7 +1820,23 @@ OC.L10N.register(
     "What colleagues worked on." : "Nad czym pracowali współpracownicy.",
     "What needs you first, across apps." : "Co najpierw wymaga uwagi, we wszystkich aplikacjach.",
     "Your open cases." : "Twoje otwarte sprawy.",
-    "Your open work packages." : "Twoje otwarte pakiety robocze."
+    "Your open work packages." : "Twoje otwarte pakiety robocze.",
+    "Add tiles" : "Dodaj kafelki",
+    "Search apps" : "Szukaj aplikacji",
+    "On your dashboard" : "Na Twoim pulpicie",
+    "Add {name}" : "Dodaj {name}",
+    "No apps found" : "Nie znaleziono aplikacji",
+    "Found on this server" : "Znalezione na tym serwerze",
+    "Add as tile" : "Dodaj jako kafelek",
+    "Ready-made tiles for Office" : "Gotowe kafelki dla Office",
+    "Drop the bookmarks file your browser exported here" : "Upuść tutaj plik zakładek wyeksportowany przez przeglądarkę",
+    "Choose file" : "Wybierz plik",
+    "Add 1 tile" : "Dodaj 1 kafelek",
+    "Add {count} tiles" : "Dodaj kafelki: {count}",
+    "Single sign-on" : "Logowanie jednokrotne",
+    "Signs in with your Nextcloud account" : "Loguje się Twoim kontem Nextcloud",
+    "Asks for its own sign-in" : "Wymaga własnego logowania",
+    "The tiles could not be added." : "Nie udało się dodać kafelków."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

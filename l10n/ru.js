@@ -1820,7 +1820,23 @@ OC.L10N.register(
     "What colleagues worked on." : "Над чем работали коллеги.",
     "What needs you first, across apps." : "Что требует вашего внимания в первую очередь, во всех приложениях.",
     "Your open cases." : "Ваши открытые дела.",
-    "Your open work packages." : "Ваши открытые рабочие пакеты."
+    "Your open work packages." : "Ваши открытые рабочие пакеты.",
+    "Add tiles" : "Добавить плитки",
+    "Search apps" : "Поиск приложений",
+    "On your dashboard" : "На вашей панели",
+    "Add {name}" : "Добавить {name}",
+    "No apps found" : "Приложения не найдены",
+    "Found on this server" : "Найдено на этом сервере",
+    "Add as tile" : "Добавить как плитку",
+    "Ready-made tiles for Office" : "Готовые плитки для Office",
+    "Drop the bookmarks file your browser exported here" : "Перетащите сюда файл закладок, экспортированный браузером",
+    "Choose file" : "Выбрать файл",
+    "Add 1 tile" : "Добавить 1 плитку",
+    "Add {count} tiles" : "Добавить плитки: {count}",
+    "Single sign-on" : "Единый вход",
+    "Signs in with your Nextcloud account" : "Входит с вашей учётной записью Nextcloud",
+    "Asks for its own sign-in" : "Требует собственного входа",
+    "The tiles could not be added." : "Не удалось добавить плитки."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

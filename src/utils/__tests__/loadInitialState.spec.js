@@ -325,3 +325,32 @@ describe('takeDashboardFirstLoad', () => {
 		expect(takeDashboardFirstLoad()).toEqual({ visible: [], active: null })
 	})
 })
+
+/**
+ * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-4
+ */
+describe('takeOrgNavigation', () => {
+	it('hands out the org navigation once, then null', async () => {
+		pushedState = { orgNavigation: { position: 'left', tree: [{ id: 'n1' }], language: 'nl' } }
+
+		const { takeOrgNavigation } = await import('../loadInitialState.js')
+
+		expect(takeOrgNavigation()).toEqual({ position: 'left', tree: [{ id: 'n1' }], language: 'nl' })
+		expect(takeOrgNavigation()).toBeNull()
+	})
+
+	it('is null when the page did not carry it', async () => {
+		const { takeOrgNavigation, loadInitialState } = await import('../loadInitialState.js')
+
+		expect(loadInitialState('workspace').orgNavigation).toBeNull()
+		expect(takeOrgNavigation()).toBeNull()
+	})
+
+	it('is null for a value without a position or a tree', async () => {
+		pushedState = { orgNavigation: { position: 'left', tree: 'not a list' } }
+
+		const { takeOrgNavigation } = await import('../loadInitialState.js')
+
+		expect(takeOrgNavigation()).toBeNull()
+	})
+})

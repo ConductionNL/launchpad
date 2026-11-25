@@ -787,8 +787,6 @@ A real (non-dry-run) re-sync MUST be idempotent — applying the same plan twice
 - THEN the system MUST enqueue `TemplateResyncJob` and return a prompt accepted response
 - AND the job MUST apply the plan per copy and notify each affected user on completion
 
-@e2e exclude Needs more than 50 provisioned copies and a cron run of TemplateResyncJob, which the e2e instance does not run on demand. Pinned by TemplateResyncServiceTest::testLargeGroupsEnqueueTheAsyncJobInsteadOfApplyingInline and TemplateResyncJobTest::testRunDelegatesToApplyResyncWithTheGivenArguments.
-
 ### Requirement: REQ-TMPL-018 Templates that ship with LaunchPad
 
 LaunchPad MUST ship ready-made admin templates as data, one file per template at `data/templates/<id>.json`. A definition holds `templateId`, an integer `templateVersion`, a `language`, and one `dashboard` in the shape an export writes to `dashboards/<uuid>.json` (REQ-EXIM-001). The list of shipped ids is fixed in `ShippedTemplateService::SHIPPED_IDS`.

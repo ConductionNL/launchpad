@@ -144,21 +144,18 @@ Administrators MUST be able to update individual or multiple admin settings in a
 - AND settings not included in the request MUST remain unchanged
 
 #### Scenario: Update with invalid permission level value
-@e2e exclude never built: AdminSettingsService::updateSettings() stores defaultPermLevel unchecked (git log --all -S finds no validation for it in lib/), so "super_admin" is stored and answered 200. No PHPUnit or Newman test pins a 400.
 - GIVEN the admin sends PUT /api/admin/settings with body `{"defaultPermLevel": "super_admin"}`
 - THEN the system SHOULD return HTTP 400 with a validation error
 - AND only `view_only`, `add_only`, and `full` SHOULD be accepted for this setting
 - NOTE: Permission level validation is NOT currently implemented -- any string value is accepted
 
 #### Scenario: Update with invalid grid columns value
-@e2e exclude never built: defaultGridCols is stored unchecked (no range check exists in lib/ history), so 0 is stored and answered 200. No PHPUnit or Newman test pins a 400.
 - GIVEN the admin sends PUT /api/admin/settings with body `{"defaultGridCols": 0}`
 - THEN the system SHOULD return HTTP 400 with a validation error
 - AND `defaultGridCols` SHOULD be a positive integer between 1 and 24
 - NOTE: Grid columns validation is NOT currently implemented -- any integer value is accepted
 
 #### Scenario: Update with invalid boolean value
-@e2e exclude never built: no boolean check exists; Nextcloud casts "maybe" to true for the bool parameter and it is stored with 200. No PHPUnit or Newman test pins a 400.
 - GIVEN the admin sends PUT /api/admin/settings with body `{"allowUserDash": "maybe"}`
 - THEN the system SHOULD return HTTP 400 with a validation error
 - AND boolean settings SHOULD only accept `true` or `false`

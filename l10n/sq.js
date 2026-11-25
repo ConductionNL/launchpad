@@ -1820,7 +1820,23 @@ OC.L10N.register(
     "What colleagues worked on." : "Në çfarë kanë punuar kolegët.",
     "What needs you first, across apps." : "Çfarë ju nevojitet së pari, në të gjitha aplikacionet.",
     "Your open cases." : "Rastet tuaja të hapura.",
-    "Your open work packages." : "Paketat tuaja të hapura të punës."
+    "Your open work packages." : "Paketat tuaja të hapura të punës.",
+    "Add tiles" : "Shto pllaka",
+    "Search apps" : "Kërko aplikacione",
+    "On your dashboard" : "Në panelin tuaj",
+    "Add {name}" : "Shto {name}",
+    "No apps found" : "Nuk u gjetën aplikacione",
+    "Found on this server" : "U gjet në këtë shërbyes",
+    "Add as tile" : "Shto si pllakë",
+    "Ready-made tiles for Office" : "Pllaka të gatshme për Office",
+    "Drop the bookmarks file your browser exported here" : "Lëshoni këtu kartelën e faqerojtësve që eksportoi shfletuesi",
+    "Choose file" : "Zgjidh kartelë",
+    "Add 1 tile" : "Shto 1 pllakë",
+    "Add {count} tiles" : "Shto {count} pllaka",
+    "Single sign-on" : "Hyrje e njëkohshme",
+    "Signs in with your Nextcloud account" : "Hyn me llogarinë tuaj Nextcloud",
+    "Asks for its own sign-in" : "Kërkon hyrjen e vet",
+    "The tiles could not be added." : "Pllakat nuk u shtuan dot."
 },
 "nplurals=2; plural=(n != 1);"
 );

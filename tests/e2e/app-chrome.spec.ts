@@ -236,39 +236,21 @@ test.describe('app chrome (ADR-114)', () => {
 		})
 	})
 
-	test('the admin manifest pages redirect to where the admin surface is', async ({
+	test('the admin manifest pages open the administration page', async ({
 		page,
 	}) => {
-		// 🔴 THESE TWO WERE NOT PAGES. `admin-settings` named a component,
-		// AdminSettingsPage, that has never existed; `admin-templates-index`
-		// named TemplatesPage, which is a TAB inside the Nextcloud admin
-		// section. Routing them would have rendered half an admin surface
-		// beside the real one, so both resolve to AdminSettingsRedirect.
-		for (const path of ['/admin/settings', '/admin/templates']) {
+		// The administration is a LaunchPad page over the full width
+		// (REQ-ADM-030): `/admin/settings` opens it on General and
+		// `/admin/templates` on Templates, where they used to redirect to
+		// Nextcloud's admin settings.
+		for (const [path, tab] of [['/admin/settings', 'general'], ['/admin/templates', 'templates']]) {
 			await page.goto(`${APP_BASE}${path}`, {
 				waitUntil: 'domcontentloaded',
 			})
-
-			// The redirect renders a real anchor as well as navigating, so a
-			// visitor whose navigation is slow or blocked still has something
-			// to act on. Either outcome is correct; both are asserted.
-			const landed = await Promise.race([
-				page
-					.waitForURL(/\/settings\/admin\/launchpad(\?|$)/, {
-						timeout: 20_000,
-					})
-					.then(() => 'navigated')
-					.catch(() => null),
-				page
-					.getByTestId('AdminSettingsRedirect')
-					.waitFor({ state: 'visible', timeout: 20_000 })
-					.then(() => 'rendered')
-					.catch(() => null),
-			])
-			expect(
-				landed,
-				`${path} neither redirected nor rendered the notice`,
-			).toBeTruthy()
+			await expect(
+				page.getByRole('heading', { level: 1, name: `Launchpad administration: ${tab}` }),
+				`${path} opens the administration on ${tab}`,
+			).toBeVisible({ timeout: 60_000 })
 		}
 	})
 

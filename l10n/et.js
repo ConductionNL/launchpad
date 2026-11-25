@@ -1820,7 +1820,23 @@ OC.L10N.register(
     "What colleagues worked on." : "Mille kallal kolleegid töötasid.",
     "What needs you first, across apps." : "Mis vajab teid esimesena, kõigis rakendustes.",
     "Your open cases." : "Teie avatud juhtumid.",
-    "Your open work packages." : "Teie avatud tööpaketid."
+    "Your open work packages." : "Teie avatud tööpaketid.",
+    "Add tiles" : "Lisa paane",
+    "Search apps" : "Otsi rakendusi",
+    "On your dashboard" : "Sinu töölaual",
+    "Add {name}" : "Lisa {name}",
+    "No apps found" : "Rakendusi ei leitud",
+    "Found on this server" : "Leitud sellest serverist",
+    "Add as tile" : "Lisa paanina",
+    "Ready-made tiles for Office" : "Valmis paanid Office’i jaoks",
+    "Drop the bookmarks file your browser exported here" : "Lohista siia brauseri eksporditud järjehoidjate fail",
+    "Choose file" : "Vali fail",
+    "Add 1 tile" : "Lisa 1 paan",
+    "Add {count} tiles" : "Lisa paane: {count}",
+    "Single sign-on" : "Ühekordne sisselogimine",
+    "Signs in with your Nextcloud account" : "Logib sisse sinu Nextcloudi kontoga",
+    "Asks for its own sign-in" : "Küsib oma sisselogimist",
+    "The tiles could not be added." : "Paane ei saanud lisada."
 },
 "nplurals=2; plural=(n != 1);"
 );

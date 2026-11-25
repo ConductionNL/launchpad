@@ -153,3 +153,35 @@ describe('buildRendererExtraProps', () => {
 		expect(buildRendererExtraProps(undefined)).toEqual({})
 	})
 })
+
+// @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+describe('the new colleagues source', () => {
+	it('reads GET /api/people/new with the windows', async () => {
+		const { fetchNewPeople } = await import('../widgetDataAdapters.js')
+		axios.get.mockResolvedValue({ data: { configured: true, users: [{ id: 'yasmina' }] } })
+		const answer = await fetchNewPeople({ since: 30, until: 14 })
+		expect(axios.get).toHaveBeenCalledWith('/index.php/apps/launchpad/api/people/new', { params: { since: 30, until: 14 } })
+		expect(answer).toEqual({ configured: true, users: [{ id: 'yasmina' }] })
+	})
+
+	it('is offered on every placement and to the forms outside one', async () => {
+		const { buildPeopleSource } = await import('../widgetDataAdapters.js')
+		const provided = buildWidgetDataProvide(() => 1)
+		expect(typeof provided.cnPeopleSource.fetchNewPeople).toBe('function')
+		expect(typeof provided.cnPeopleSource.hasStartDateField).toBe('function')
+		const source = buildPeopleSource()
+		expect(typeof source.fetchPeople).toBe('function')
+		expect(typeof source.hasStartDateField).toBe('function')
+	})
+
+	it('answers whether a start date field exists, asking once and again after a failure', async () => {
+		vi.resetModules()
+		const { hasStartDateField } = await import('../widgetDataAdapters.js')
+		axios.get.mockRejectedValueOnce(new Error('down'))
+		expect(await hasStartDateField()).toBe(false)
+		axios.get.mockResolvedValue({ data: { configured: true, users: [] } })
+		expect(await hasStartDateField()).toBe(true)
+		expect(await hasStartDateField()).toBe(true)
+		expect(axios.get).toHaveBeenCalledTimes(2)
+	})
+})

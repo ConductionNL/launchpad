@@ -679,8 +679,12 @@ describe('Views — lifecycle', () => {
 		expect(dashStore.fetchPendingAcknowledgements).toHaveBeenCalledTimes(1)
 		expect(axios.get).toHaveBeenCalledWith(`${BASE}/api/dashboards/default`)
 		expect(axios.get).toHaveBeenCalledWith(`${BASE}/api/dashboards/9/personal-layer`)
-		expect(dashStore.recordViewEvent).toHaveBeenCalledWith('u-9')
+		// The boot view-event waits for the page to settle; leaving sends it.
 		expect(wrapper.vm.defaultDashboardUuid).toBe('u-default')
+		expect(dashStore.recordViewEvent).not.toHaveBeenCalled()
+		wrapper.unmount()
+		wrapper = null
+		expect(dashStore.recordViewEvent).toHaveBeenCalledWith('u-9')
 	}, 90000)
 
 	it('logs a failed default-preference read and keeps no default', async () => {

@@ -18,6 +18,7 @@
 
 import { defineStore } from 'pinia'
 import { api } from '../services/api.js'
+import { takeOrgNavigation } from '../utils/loadInitialState.js'
 
 /**
  * Allowed values for the global rail position (REQ-ONAV-004).
@@ -152,6 +153,27 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 			} finally {
 				this.loading = false
 			}
+		},
+
+		/**
+		 * The shell's first load: the position and tree the page carries,
+		 * or both from the API when it carries none.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-3
+		 */
+		async loadFirst() {
+			const firstLoad = takeOrgNavigation()
+			if (firstLoad === null) {
+				await Promise.all([this.fetchPosition(), this.fetchTree()])
+				return
+			}
+			if (ORG_NAV_POSITIONS.includes(firstLoad.position)) {
+				this.position = firstLoad.position
+			}
+			this.tree = firstLoad.tree
+			this.language = firstLoad.language
+			this.error = null
 		},
 
 		/**

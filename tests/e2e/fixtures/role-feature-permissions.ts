@@ -24,15 +24,10 @@
 
 import type { APIRequestContext } from '@playwright/test'
 
-import { request as pwRequest } from '@playwright/test'
 import * as fs from 'fs'
 import * as path from 'path'
-import { BASE_URL as BASE } from '../support/baseUrl.ts'
+import { adminContext } from '../support/principals.ts'
 
-const ADMIN = {
-	user: process.env.NC_ADMIN_USER ?? 'admin',
-	pass: process.env.NC_ADMIN_PASS ?? 'admin',
-}
 const RESTRICTION_NAME = 'Default (e2e restriction)'
 
 /**
@@ -53,13 +48,14 @@ function shippedDefaultRule(): Partial<RoleFeaturePermissionRow> & { groupId: st
 	}
 }
 
-/** Build an admin API context (HTTP Basic auth + OCS header). */
+/**
+ * Build an admin API context. It sends basic auth on every request: an OCS
+ * request without credentials is answered 401 without a challenge, so a
+ * context that waits for one never authenticates, and the restore in
+ * `afterAll` failed silently.
+ */
 async function adminApi(): Promise<APIRequestContext> {
-	return pwRequest.newContext({
-		baseURL: BASE,
-		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
-		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
-	})
+	return adminContext()
 }
 
 /**

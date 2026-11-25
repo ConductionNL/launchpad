@@ -35,6 +35,13 @@ describe('Views: one-cell tiles', () => {
 		expect(withTypeMinHeight({ id: 2, widgetId: 'calendar' }).minWidth).toBeUndefined()
 	})
 
+	it('gives a tile a one-row minimum, so a one-cell tile stays one cell (LpMobiel)', () => {
+		expect(withTypeMinHeight({ id: 5, widgetId: 'app-tile' }).minHeight).toBe(1)
+		expect(withTypeMinHeight({ id: 6, widgetId: 'tile' }).minHeight).toBe(1)
+		expect(withTypeMinHeight({ id: 7, widgetId: 'calendar' }).minHeight).toBeUndefined()
+		expect(withTypeMinHeight({ id: 8, widgetId: 'tile', minHeight: 2 }).minHeight).toBe(2)
+	})
+
 	it('keeps a divider\'s one-row minimum and a minimum the placement sets itself', () => {
 		expect(withTypeMinHeight({ id: 3, widgetId: 'divider' }).minHeight).toBe(1)
 		expect(withTypeMinHeight({ id: 4, widgetId: 'tile', minWidth: 3 }).minWidth).toBe(3)

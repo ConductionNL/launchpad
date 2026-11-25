@@ -1859,6 +1859,27 @@
         "You searched for {query}": "{query} için arama yaptınız",
         "No results": "Sonuç yok",
         "Show all results": "Tüm sonuçları göster",
-        "Tip: type {prefix} to search {name} directly": "İpucu: doğrudan {name} içinde aramak için {prefix} yazın"
+        "Tip: type {prefix} to search {name} directly": "İpucu: doğrudan {name} içinde aramak için {prefix} yazın",
+        "Hidden widgets": "Gizli widget'lar",
+        "Your hidden widgets could not be loaded.": "Gizli widget'larınız yüklenemedi.",
+        "You have not hidden any widgets on shared dashboards.": "Paylaşılan panolarda hiç widget gizlemediniz.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["Paylaşılan panolarda %n widget gizlediniz", "Paylaşılan panolarda %n widget gizlediniz"],
+        "Show all again": "Tümünü yeniden göster",
+        "Your change could not be saved.": "Değişikliğiniz kaydedilemedi.",
+        "Summary by email": "E-posta ile özet",
+        "A mail with new announcements and what changed on your dashboards": "Yeni duyurular ve panolarınızda nelerin değiştiğini içeren bir e-posta",
+        "How often?": "Ne sıklıkla?",
+        "Daily": "Günlük",
+        "Weekly": "Haftalık",
+        "At 07:30, only when something changed": "07:30'da, yalnızca bir şey değiştiğinde",
+        "On Monday at 07:30": "Pazartesi 07:30'da",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "E-posta adresiniz olmadığı için size özet gönderilemiyor. Nextcloud hesabınıza bir adres ekleyin.",
+        "Your daily LaunchPad summary": "Günlük LaunchPad özetiniz",
+        "Your weekly LaunchPad summary": "Haftalık LaunchPad özetiniz",
+        "Nothing new was published and nothing changed on your dashboards.": "Yeni bir şey yayımlanmadı ve panolarınızda hiçbir şey değişmedi.",
+        "New announcements": "Yeni duyurular",
+        "What changed on your dashboards": "Panolarınızda neler değişti",
+        "Open LaunchPad": "LaunchPad'i aç",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Bu e-postayı LaunchPad ayarlarınızda istediğiniz için alıyorsunuz."
     }
 }

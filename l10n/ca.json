@@ -1859,6 +1859,27 @@
         "You searched for {query}": "Heu cercat {query}",
         "No results": "Cap resultat",
         "Show all results": "Mostra tots els resultats",
-        "Tip: type {prefix} to search {name} directly": "Consell: escriviu {prefix} per cercar directament a {name}"
+        "Tip: type {prefix} to search {name} directly": "Consell: escriviu {prefix} per cercar directament a {name}",
+        "Hidden widgets": "Ginys amagats",
+        "Your hidden widgets could not be loaded.": "No s'han pogut carregar els vostres ginys amagats.",
+        "You have not hidden any widgets on shared dashboards.": "No heu amagat cap giny als taulers compartits.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["Heu amagat %n giny als taulers compartits", "Heu amagat %n ginys als taulers compartits"],
+        "Show all again": "Torna a mostrar-ho tot",
+        "Your change could not be saved.": "No s'ha pogut desar el canvi.",
+        "Summary by email": "Resum per correu electrònic",
+        "A mail with new announcements and what changed on your dashboards": "Un correu amb els avisos nous i el que ha canviat als vostres taulers",
+        "How often?": "Amb quina freqüència?",
+        "Daily": "Diàriament",
+        "Weekly": "Setmanalment",
+        "At 07:30, only when something changed": "A les 07:30, només quan hi ha hagut canvis",
+        "On Monday at 07:30": "Els dilluns a les 07:30",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "No teniu cap adreça electrònica, així que no us podem enviar cap resum. Afegiu-ne una al vostre compte de Nextcloud.",
+        "Your daily LaunchPad summary": "El vostre resum diari de LaunchPad",
+        "Your weekly LaunchPad summary": "El vostre resum setmanal de LaunchPad",
+        "Nothing new was published and nothing changed on your dashboards.": "No s'ha publicat res de nou i no ha canviat res als vostres taulers.",
+        "New announcements": "Avisos nous",
+        "What changed on your dashboards": "Què ha canviat als vostres taulers",
+        "Open LaunchPad": "Obre LaunchPad",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Rebeu aquest correu perquè l'heu demanat a la configuració de LaunchPad."
     }
 }

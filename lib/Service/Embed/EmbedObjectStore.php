@@ -32,6 +32,7 @@ namespace OCA\LaunchPad\Service\Embed;
 use JsonSerializable;
 use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
 use Psr\Container\ContainerInterface;
+use ReflectionMethod;
 use RuntimeException;
 use Throwable;
 
@@ -83,6 +84,11 @@ class EmbedObjectStore {
 	 * @var string
 	 */
 	private const SERVICE = 'OCA\\OpenRegister\\Service\\ObjectService';
+
+	/**
+	 * The slug-search target newer OpenRegister releases take.
+	 */
+	private const TARGET_CLASS = 'OCA\\OpenRegister\\Contract\\RegisterSchemaSlugs';
 
 	/**
 	 * Constructor.
@@ -158,13 +164,7 @@ class EmbedObjectStore {
 	 */
 	public function findBy(string $schema, array $filters=[]): array {
 		$service = $this->service(schema: $schema);
-		$rows    = $service->searchObjectsBySlug(
-			registerSlug: self::REGISTER,
-			schemaSlug: $schema,
-			filters: $filters,
-			_rbac: false,
-			_multitenancy: false
-		);
+		$rows    = self::searchBySlug(service: $service, schema: $schema, filters: $filters);
 		if (is_array($rows) === false) {
 			return [];
 		}
@@ -231,6 +231,42 @@ class EmbedObjectStore {
 
 		return $service->setRegister(register: self::REGISTER)->setSchema(schema: $schema);
 	}//end service()
+
+	/**
+	 * Search the launchpad register by slug, in the shape this OpenRegister
+	 * takes it: newer releases take one `RegisterSchemaSlugs $target`, older
+	 * ones `$registerSlug` and `$schemaSlug`. Named arguments for the wrong
+	 * shape are a fatal error (HTTP 500 on every embed token create).
+	 *
+	 * @param object               $service The object service.
+	 * @param string               $schema  The schema slug.
+	 * @param array<string, mixed> $filters Field => value.
+	 *
+	 * @return mixed What the object service returned.
+	 *
+	 * @spec openspec/changes/embedded-analytics/tasks.md#task-2
+	 */
+	private static function searchBySlug(object $service, string $schema, array $filters): mixed {
+		$first = (new ReflectionMethod($service, 'searchObjectsBySlug'))->getParameters()[0] ?? null;
+		if ($first !== null && $first->getName() === 'target') {
+			$class  = self::TARGET_CLASS;
+			$target = new $class(register: self::REGISTER, schema: $schema);
+			return $service->searchObjectsBySlug(
+				target: $target,
+				filters: $filters,
+				_rbac: false,
+				_multitenancy: false
+			);
+		}
+
+		return $service->searchObjectsBySlug(
+			registerSlug: self::REGISTER,
+			schemaSlug: $schema,
+			filters: $filters,
+			_rbac: false,
+			_multitenancy: false
+		);
+	}//end searchBySlug()
 
 	/**
 	 * An entity or array as a plain object with its `id`; null for anything else.

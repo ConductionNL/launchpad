@@ -145,11 +145,7 @@ class AdminSettingsService {
 			// REQ-SHARE-014: who may share (empty = everyone) and with whom.
 			'sharingAllowedGroups' => $this->storedGroupList(value: $settings[AdminSettingKey::SHARING_ALLOWED_GROUPS->value] ?? null),
 			'sharingRecipientScope' => $this->storedRecipientScope(value: $settings[AdminSettingKey::SHARING_RECIPIENT_SCOPE->value] ?? null),
-			// REQ-SHARE-015: Everyone, Only these groups or Nobody; public links on unless switched off.
-			'sharingAllowed' => $this->storedAllowedMode(
-				value: $settings[AdminSettingKey::SHARING_ALLOWED->value] ?? null,
-				groups: $settings[AdminSettingKey::SHARING_ALLOWED_GROUPS->value] ?? null
-			),
+			'sharingAllowed' => $this->storedAllowedMode(settings: $settings),
 			'publicLinksAllowed' => ($settings[AdminSettingKey::PUBLIC_LINKS_ALLOWED->value] ?? true) !== false,
 			// Legacy-widget-bridge spec: the bridge defaults to OFF because
 			// turning it on makes the workspace read the Nextcloud widget
@@ -750,19 +746,21 @@ class AdminSettingsService {
 	 * A stored "Sharing allowed for" choice; without one, `groups` when groups
 	 * are set and `everyone` otherwise (how it read before the choice existed).
 	 *
-	 * @param mixed $value  The stored choice.
-	 * @param mixed $groups The stored group list.
+	 * REQ-SHARE-015: Everyone, Only these groups or Nobody.
+	 *
+	 * @param array<string, mixed> $settings The stored settings by key.
 	 *
 	 * @return string One of SharingLimits::ALLOWED_MODES.
 	 *
 	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
-	private function storedAllowedMode(mixed $value, mixed $groups): string {
+	private function storedAllowedMode(array $settings): string {
+		$value = $settings[AdminSettingKey::SHARING_ALLOWED->value] ?? null;
 		if (in_array($value, SharingLimits::ALLOWED_MODES, true) === true) {
 			return $value;
 		}
 
-		if ($this->storedGroupList(value: $groups) === []) {
+		if ($this->storedGroupList(value: $settings[AdminSettingKey::SHARING_ALLOWED_GROUPS->value] ?? null) === []) {
 			return SharingLimits::ALLOWED_EVERYONE;
 		}
 

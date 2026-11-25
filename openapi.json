@@ -3871,20 +3871,6 @@
                                             "null"
                                         ],
                                         "description": "LaunchPad is the default app after sign-in (REQ-PSP-003)."
-                                    },
-                                    "sharingAllowed": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ],
-                                        "description": "`everyone`, `groups` or `none`: who may share (REQ-SHARE-015)."
-                                    },
-                                    "publicLinksAllowed": {
-                                        "type": [
-                                            "boolean",
-                                            "null"
-                                        ],
-                                        "description": "Whether public links may be created (REQ-SHARE-015)."
                                     }
                                 }
                             }
@@ -3971,6 +3957,67 @@
                                 "schema": {}
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/admin/sharing-policy": {
+            "put": {
+                "operationId": "admin-update-sharing-policy",
+                "x-launchpad-stability": "internal",
+                "summary": "Set who may share and whether public links may be created (REQ-SHARE-015)",
+                "description": "Set who may share and whether public links may be created (REQ-SHARE-015). A partial patch: a value left out stays as it is. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "admin"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "sharingAllowed": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "description": "`everyone`, `groups` or `none`."
+                                    },
+                                    "publicLinksAllowed": {
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ],
+                                        "description": "Whether public links may be created."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"

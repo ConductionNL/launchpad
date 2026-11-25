@@ -175,8 +175,8 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('sharingAllowedGroups', $settings);
 		$this->assertArrayHasKey('sharingRecipientScope', $settings);
 		// REQ-SHARE-015.
-		$this->assertArrayHasKey('sharingAllowed', $settings);
-		$this->assertArrayHasKey('publicLinksAllowed', $settings);
+		$this->assertArrayHasKey(key: 'sharingAllowed', array: $settings);
+		$this->assertArrayHasKey(key: 'publicLinksAllowed', array: $settings);
 		$this->assertArrayHasKey('legacyWidgetBridgeEnabled', $settings);
 		// dashboard-quota-limits REQ-QUOTA-001 — two numeric quota keys.
 		$this->assertArrayHasKey('maxDashboardsPerUser', $settings);

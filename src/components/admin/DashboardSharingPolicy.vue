@@ -259,7 +259,6 @@ export default {
 		async saveLimits() {
 			try {
 				await api.updateAdminSettings({
-					sharingAllowed: this.sharingAllowed,
 					sharingAllowedGroups: this.allowedGroups,
 					sharingRecipientScope: this.recipientScope?.id,
 				})
@@ -278,7 +277,11 @@ export default {
 		 */
 		async onAllowedChange(value) {
 			this.sharingAllowed = value
-			await this.saveLimits()
+			try {
+				await api.updateSharingPolicy({ sharingAllowed: value })
+			} catch (error) {
+				logger.error('Failed to save who may share:', error)
+			}
 		},
 
 		/**
@@ -291,7 +294,7 @@ export default {
 		async onPublicLinksChange(value) {
 			this.publicLinksAllowed = value === true
 			try {
-				await api.updateAdminSettings({ publicLinksAllowed: this.publicLinksAllowed })
+				await api.updateSharingPolicy({ publicLinksAllowed: this.publicLinksAllowed })
 			} catch (error) {
 				logger.error('Failed to save the public link setting:', error)
 			}

@@ -18,6 +18,7 @@ namespace Unit\Service;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\PublicShareController;
+use OCA\LaunchPad\Controller\PublicShareRules;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\PublicShare;
@@ -49,21 +50,37 @@ class SharingPolicyTest extends TestCase {
 	];
 
 	/**
+	 * A stored setting, or the default when it is not stored.
+	 *
+	 * @param string $key     The setting key.
+	 * @param mixed  $default The default.
+	 *
+	 * @return mixed The value.
+	 */
+	private function storedValue(string $key, mixed $default): mixed {
+		if (array_key_exists(key: $key, array: $this->stored) === true) {
+			return $this->stored[$key];
+		}
+
+		return $default;
+	}//end storedValue()
+
+	/**
 	 * The limits over the stored settings.
 	 *
 	 * @return SharingLimits The limits.
 	 */
 	private function limits(): SharingLimits {
-		$mapper = $this->createMock(AdminSettingMapper::class);
+		$mapper = $this->createMock(originalClassName: AdminSettingMapper::class);
 		$mapper->method('getValue')->willReturnCallback(
-			fn (string $key, mixed $default = null): mixed => array_key_exists($key, $this->stored) ? $this->stored[$key] : $default
+			fn (string $key, mixed $default = null): mixed => $this->storedValue(key: $key, default: $default)
 		);
-		$templates = $this->createMock(AdminTemplateService::class);
+		$templates = $this->createMock(originalClassName: AdminTemplateService::class);
 		$templates->method('getUserGroupIdsFor')->willReturnCallback(
 			fn (string $userId): array => $this->memberships[$userId] ?? []
 		);
 
-		return new SharingLimits($mapper, $templates);
+		return new SharingLimits(settings: $mapper, templates: $templates);
 	}//end limits()
 
 	/**
@@ -72,13 +89,13 @@ class SharingPolicyTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheModeFollowsTheGroupListWithoutAStoredChoice(): void {
-		$this->assertSame('everyone', $this->limits()->allowedMode());
+		$this->assertSame(expected: 'everyone', actual: $this->limits()->allowedMode());
 
 		$this->stored = ['sharing_allowed_groups' => ['communicatie']];
-		$this->assertSame('groups', $this->limits()->allowedMode());
+		$this->assertSame(expected: 'groups', actual: $this->limits()->allowedMode());
 
 		$this->stored = ['sharing_allowed' => 'odd', 'sharing_allowed_groups' => []];
-		$this->assertSame('everyone', $this->limits()->allowedMode());
+		$this->assertSame(expected: 'everyone', actual: $this->limits()->allowedMode());
 	}//end testTheModeFollowsTheGroupListWithoutAStoredChoice()
 
 	/**
@@ -91,12 +108,12 @@ class SharingPolicyTest extends TestCase {
 		$this->stored = ['sharing_allowed' => 'none', 'sharing_allowed_groups' => ['sales']];
 		$limits = $this->limits();
 
-		$this->assertSame('none', $limits->allowedMode());
-		$this->assertFalse($limits->mayShare('pieter'));
-		$this->assertTrue($limits->mayShare('noor'));
+		$this->assertSame(expected: 'none', actual: $limits->allowedMode());
+		$this->assertFalse(condition: $limits->mayShare(userId: 'pieter'));
+		$this->assertTrue(condition: $limits->mayShare(userId: 'noor'));
 
-		$this->expectException(ForbiddenException::class);
-		$limits->assertMayShare('pieter', 'user', 'noor');
+		$this->expectException(exception: ForbiddenException::class);
+		$limits->assertMayShare(sharerId: 'pieter', shareType: 'user', shareWith: 'noor');
 	}//end testNobodyMayShareButAnAdministrator()
 
 	/**
@@ -106,11 +123,11 @@ class SharingPolicyTest extends TestCase {
 	 */
 	public function testEveryoneIgnoresAStoredGroupList(): void {
 		$this->stored = ['sharing_allowed' => 'everyone', 'sharing_allowed_groups' => ['communicatie']];
-		$this->assertTrue($this->limits()->mayShare('pieter'));
+		$this->assertTrue(condition: $this->limits()->mayShare(userId: 'pieter'));
 
 		$this->stored = ['sharing_allowed' => 'groups', 'sharing_allowed_groups' => ['communicatie']];
-		$this->assertFalse($this->limits()->mayShare('pieter'));
-		$this->assertTrue($this->limits()->mayShare('noor'));
+		$this->assertFalse(condition: $this->limits()->mayShare(userId: 'pieter'));
+		$this->assertTrue(condition: $this->limits()->mayShare(userId: 'noor'));
 	}//end testEveryoneIgnoresAStoredGroupList()
 
 	/**
@@ -119,13 +136,13 @@ class SharingPolicyTest extends TestCase {
 	 * @return void
 	 */
 	public function testPublicLinksAreOnUnlessSwitchedOff(): void {
-		$this->assertTrue($this->limits()->publicLinksAllowed());
+		$this->assertTrue(condition: $this->limits()->publicLinksAllowed());
 
 		$this->stored = ['public_links_allowed' => false];
-		$this->assertFalse($this->limits()->publicLinksAllowed());
+		$this->assertFalse(condition: $this->limits()->publicLinksAllowed());
 
 		$this->stored = ['public_links_allowed' => true];
-		$this->assertTrue($this->limits()->publicLinksAllowed());
+		$this->assertTrue(condition: $this->limits()->publicLinksAllowed());
 	}//end testPublicLinksAreOnUnlessSwitchedOff()
 
 	/**
@@ -134,11 +151,11 @@ class SharingPolicyTest extends TestCase {
 	 * @return void
 	 */
 	public function testAPublicLinkWithoutAnExpiryDateIsRefused(): void {
-		$this->limits()->assertMayCreatePublicLink('pieter', '2026-12-31');
+		$this->limits()->assertMayCreatePublicLink(callerId: 'pieter', expiresAt: '2026-12-31');
 
-		$this->expectException(InvalidArgumentException::class);
-		$this->expectExceptionMessage('expiry date');
-		$this->limits()->assertMayCreatePublicLink('pieter', ' ');
+		$this->expectException(exception: InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: 'expiry date');
+		$this->limits()->assertMayCreatePublicLink(callerId: 'pieter', expiresAt: ' ');
 	}//end testAPublicLinkWithoutAnExpiryDateIsRefused()
 
 	/**
@@ -149,9 +166,9 @@ class SharingPolicyTest extends TestCase {
 	public function testNoPublicLinkWhenSwitchedOff(): void {
 		$this->stored = ['public_links_allowed' => false];
 
-		$this->expectException(OCSForbiddenException::class);
-		$this->expectExceptionMessage('switched off');
-		$this->limits()->assertMayCreatePublicLink('noor', '2026-12-31');
+		$this->expectException(exception: OCSForbiddenException::class);
+		$this->expectExceptionMessage(message: 'switched off');
+		$this->limits()->assertMayCreatePublicLink(callerId: 'noor', expiresAt: '2026-12-31');
 	}//end testNoPublicLinkWhenSwitchedOff()
 
 	/**
@@ -162,9 +179,9 @@ class SharingPolicyTest extends TestCase {
 	public function testAPublicLinkNeedsSomeoneWhoMayShare(): void {
 		$this->stored = ['sharing_allowed' => 'none'];
 
-		$this->expectException(OCSForbiddenException::class);
-		$this->expectExceptionMessage('not allowed to share');
-		$this->limits()->assertMayCreatePublicLink('pieter', '2026-12-31');
+		$this->expectException(exception: OCSForbiddenException::class);
+		$this->expectExceptionMessage(message: 'not allowed to share');
+		$this->limits()->assertMayCreatePublicLink(callerId: 'pieter', expiresAt: '2026-12-31');
 	}//end testAPublicLinkNeedsSomeoneWhoMayShare()
 
 	/**
@@ -173,23 +190,23 @@ class SharingPolicyTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheSettingsAreReadWithTheirDefaults(): void {
-		$mapper = $this->createMock(AdminSettingMapper::class);
+		$mapper = $this->createMock(originalClassName: AdminSettingMapper::class);
 		$mapper->method('getAllAsArray')->willReturnOnConsecutiveCalls(
 			[],
 			['sharing_allowed_groups' => ['sales']],
 			['sharing_allowed' => 'none', 'public_links_allowed' => false],
 		);
-		$service = new AdminSettingsService($mapper);
+		$service = new AdminSettingsService(settingMapper: $mapper);
 
 		$unset = $service->getSettings();
-		$this->assertSame('everyone', $unset['sharingAllowed']);
-		$this->assertTrue($unset['publicLinksAllowed']);
+		$this->assertSame(expected: 'everyone', actual: $unset['sharingAllowed']);
+		$this->assertTrue(condition: $unset['publicLinksAllowed']);
 
-		$this->assertSame('groups', $service->getSettings()['sharingAllowed']);
+		$this->assertSame(expected: 'groups', actual: $service->getSettings()['sharingAllowed']);
 
 		$stored = $service->getSettings();
-		$this->assertSame('none', $stored['sharingAllowed']);
-		$this->assertFalse($stored['publicLinksAllowed']);
+		$this->assertSame(expected: 'none', actual: $stored['sharingAllowed']);
+		$this->assertFalse(condition: $stored['publicLinksAllowed']);
 	}//end testTheSettingsAreReadWithTheirDefaults()
 
 	/**
@@ -200,25 +217,25 @@ class SharingPolicyTest extends TestCase {
 	 */
 	public function testTheSettingsAreWrittenWhenGiven(): void {
 		$written = [];
-		$mapper = $this->createMock(AdminSettingMapper::class);
+		$mapper = $this->createMock(originalClassName: AdminSettingMapper::class);
 		$mapper->method('setSetting')->willReturnCallback(function (string $key, mixed $value) use (&$written): AdminSetting {
 			$written[$key] = $value;
 			return new AdminSetting();
 		});
-		$service = new AdminSettingsService($mapper);
+		$service = new AdminSettingsService(settingMapper: $mapper);
 
-		$service->updateSettings(['sharingAllowed' => 'none', 'publicLinksAllowed' => false]);
-		$this->assertSame('none', $written['sharing_allowed']);
-		$this->assertFalse($written['public_links_allowed']);
+		$service->updateSettings(settings: ['sharingAllowed' => 'none', 'publicLinksAllowed' => false]);
+		$this->assertSame(expected: 'none', actual: $written['sharing_allowed']);
+		$this->assertFalse(condition: $written['public_links_allowed']);
 
 		$written = [];
-		$service->updateSettings(['defaultGridCols' => 12]);
-		$this->assertArrayNotHasKey('sharing_allowed', $written);
-		$this->assertArrayNotHasKey('public_links_allowed', $written);
+		$service->updateSettings(settings: ['defaultGridCols' => 12]);
+		$this->assertArrayNotHasKey(key: 'sharing_allowed', array: $written);
+		$this->assertArrayNotHasKey(key: 'public_links_allowed', array: $written);
 
-		$this->expectException(InvalidArgumentException::class);
-		$this->expectExceptionMessage('sharingAllowed');
-		$service->updateSettings(['sharingAllowed' => 'friends']);
+		$this->expectException(exception: InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: 'sharingAllowed');
+		$service->updateSettings(settings: ['sharingAllowed' => 'friends']);
 	}//end testTheSettingsAreWrittenWhenGiven()
 
 	/**
@@ -228,33 +245,33 @@ class SharingPolicyTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheCreateRouteAppliesThePolicy(): void {
-		$service = $this->createMock(PublicShareService::class);
+		$service = $this->createMock(originalClassName: PublicShareService::class);
 		$share = new PublicShare();
 		$service->expects($this->once())->method('createPublicShare')
 			->with('dash-uuid', 'pieter', null, '2026-12-31')
 			->willReturn($share);
 		$controller = new PublicShareController(
-			request: $this->createMock(IRequest::class),
+			request: $this->createMock(originalClassName: IRequest::class),
 			shareService: $service,
 			shareContext: new PublicShareContext(),
-			logger: $this->createMock(LoggerInterface::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
 			userId: 'pieter',
-			limits: $this->limits(),
+			rules: new PublicShareRules(limits: $this->limits()),
 		);
 
-		$this->assertSame(Http::STATUS_BAD_REQUEST, $controller->create(uuid: 'dash-uuid')->getStatus());
-		$this->assertSame(Http::STATUS_CREATED, $controller->create(uuid: 'dash-uuid', expiresAt: '2026-12-31')->getStatus());
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $controller->create(uuid: 'dash-uuid')->getStatus());
+		$this->assertSame(expected: Http::STATUS_CREATED, actual: $controller->create(uuid: 'dash-uuid', expiresAt: '2026-12-31')->getStatus());
 
 		$this->stored = ['public_links_allowed' => false];
 		$off = new PublicShareController(
-			request: $this->createMock(IRequest::class),
+			request: $this->createMock(originalClassName: IRequest::class),
 			shareService: $service,
 			shareContext: new PublicShareContext(),
-			logger: $this->createMock(LoggerInterface::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
 			userId: 'pieter',
-			limits: $this->limits(),
+			rules: new PublicShareRules(limits: $this->limits()),
 		);
-		$this->assertSame(Http::STATUS_FORBIDDEN, $off->create(uuid: 'dash-uuid', expiresAt: '2026-12-31')->getStatus());
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $off->create(uuid: 'dash-uuid', expiresAt: '2026-12-31')->getStatus());
 	}//end testTheCreateRouteAppliesThePolicy()
 
 }//end class

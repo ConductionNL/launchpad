@@ -29,11 +29,9 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
-use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\PublicShareService;
-use OCA\LaunchPad\Service\SharingLimits;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -71,8 +69,7 @@ class PublicShareController extends Controller {
 	 * @param PublicShareContext $shareContext Request-scoped bearer marker (Task 7).
 	 * @param LoggerInterface $logger PSR-3 logger.
 	 * @param string|null $userId Authenticated user ID (null for public endpoints).
-	 * @param ConditionalServiceInterface|null $visibility Applies the widget visibility rules.
-	 * @param SharingLimits|null $limits Whether public links may be created, by whom, and that they expire (REQ-SHARE-015).
+	 * @param PublicShareRules|null $rules The widget visibility rules and the public-link policy (REQ-SHARE-015).
 	 */
 	public function __construct(
 		IRequest $request,
@@ -80,8 +77,7 @@ class PublicShareController extends Controller {
 		private readonly PublicShareContext $shareContext,
 		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
-		private readonly ?ConditionalServiceInterface $visibility = null,
-		private readonly ?SharingLimits $limits = null,
+		private readonly ?PublicShareRules $rules = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -121,7 +117,7 @@ class PublicShareController extends Controller {
 			operation: function () use ($uuid, $callerId, $password, $expiresAt): DataResponse {
 				// REQ-SHARE-015: public links off or a caller who may not share is
 				// refused with 403, a link without an expiry date with 400.
-				$this->limits?->assertMayCreatePublicLink(callerId: $callerId, expiresAt: $expiresAt);
+				$this->rules?->limits?->assertMayCreatePublicLink(callerId: $callerId, expiresAt: $expiresAt);
 
 				return new DataResponse(
 					data: $this->shareService->createPublicShare(
@@ -420,7 +416,7 @@ class PublicShareController extends Controller {
 		return [
 			'share' => $shareData,
 			'dashboard' => $result['dashboard']->jsonSerialize(),
-			'placements' => ($this->visibility?->visiblePlacements(placements: $placements, userId: (string)$this->userId, canEdit: false) ?? $placements),
+			'placements' => ($this->rules?->visibility?->visiblePlacements(placements: $placements, userId: (string)$this->userId, canEdit: false) ?? $placements),
 		];
 	}//end renderPayload()
 

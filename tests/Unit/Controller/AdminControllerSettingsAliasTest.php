@@ -43,6 +43,7 @@ use OCP\IRequest;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\Constraint\Callback;
+use OCP\AppFramework\Http;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
@@ -89,7 +90,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 22 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 20 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 
@@ -281,18 +282,32 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	}//end testDefaultAppSwitchIsPassedThrough()
 
 	/**
-	 * REQ-SHARE-015: "Sharing allowed for" and the public-link switch reach the service.
+	 * REQ-SHARE-015: the sharing-policy endpoint passes both values to the
+	 * service, and an unknown choice answers 400.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function testTheSharingPolicyIsPassedThrough(): void {
-		$this->settingsService->expects($this->once())
+		$calls = 0;
+		$this->settingsService->expects($this->exactly(2))
 			->method('updateSettings')
-			->with($this->settingsMatching(['sharingAllowed' => 'none', 'publicLinksAllowed' => false]));
+			->with(['sharingAllowed' => 'none', 'publicLinksAllowed' => false])
+			->willReturnCallback(
+				static function () use (&$calls): void {
+					$calls++;
+					if ($calls === 2) {
+						throw new \InvalidArgumentException(message: 'Invalid value for sharingAllowed.');
+					}
+				}
+			);
 
-		$this->controller->updateSettings(sharingAllowed: 'none', publicLinksAllowed: false);
+		$ok = $this->controller->updateSharingPolicy(sharingAllowed: 'none', publicLinksAllowed: false);
+		$this->assertSame(expected: Http::STATUS_OK, actual: $ok->getStatus());
+
+		$refused = $this->controller->updateSharingPolicy(sharingAllowed: 'none', publicLinksAllowed: false);
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $refused->getStatus());
 	}//end testTheSharingPolicyIsPassedThrough()
 
 	/**

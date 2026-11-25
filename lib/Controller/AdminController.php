@@ -451,8 +451,6 @@ class AdminController extends Controller {
 	 * @param array|null $linkCreateFileExtensions Alias of `$linkCreateFileExts`.
 	 * @param array|null $sharingAllowedGroups The groups whose members may share; empty means everyone (REQ-SHARE-014).
 	 * @param string|null $sharingRecipientScope `everyone` or `shared-groups` (REQ-SHARE-014).
-	 * @param string|null $sharingAllowed `everyone`, `groups` or `none`: who may share (REQ-SHARE-015).
-	 * @param bool|null   $publicLinksAllowed Whether public links may be created (REQ-SHARE-015).
 	 * @param array|null $tileAllowedSchemes URL schemes a program tile may use (launcher-tile-launch-types).
 	 * @param array|null $ssoLaunchTemplates Identity-provider launch templates `{key, name, urlTemplate}` (launcher-tile-launch-types).
 	 * @param array|null $announcementEditorGroups Groups whose members may write announcements (engagement-announcements D6).
@@ -466,7 +464,6 @@ class AdminController extends Controller {
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateSettings(
@@ -495,8 +492,6 @@ class AdminController extends Controller {
 		array|null $officeNetworks = null,
 		array|null $pinnedCommunities = null,
 		bool|null $defaultAppEnabled = null,
-		string|null $sharingAllowed = null,
-		bool|null $publicLinksAllowed = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -528,8 +523,6 @@ class AdminController extends Controller {
 					'officeNetworks'              => $officeNetworks,
 					'pinnedCommunities'           => $pinnedCommunities,
 					'defaultAppEnabled'           => $defaultAppEnabled,
-					'sharingAllowed'              => $sharingAllowed,
-					'publicLinksAllowed'          => $publicLinksAllowed,
 				]
 			);
 
@@ -540,6 +533,36 @@ class AdminController extends Controller {
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end updateSettings()
+
+	/**
+	 * Set who may share and whether public links may be created (REQ-SHARE-015).
+	 *
+	 * A partial patch: a value left out stays as it is.
+	 *
+	 * @param string|null $sharingAllowed     `everyone`, `groups` or `none`.
+	 * @param bool|null   $publicLinksAllowed Whether public links may be created.
+	 *
+	 * @return JSONResponse The update confirmation, or 400 for an unknown choice.
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function updateSharingPolicy(
+		string|null $sharingAllowed = null,
+		bool|null $publicLinksAllowed = null,
+	): JSONResponse {
+		try {
+			$this->settings->settingsService->updateSettings(
+				settings: ['sharingAllowed' => $sharingAllowed, 'publicLinksAllowed' => $publicLinksAllowed]
+			);
+
+			return $this->context->responseHelper->success(data: ['status' => 'ok']);
+		} catch (\InvalidArgumentException $e) {
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+		} catch (\Exception $e) {
+			return $this->context->responseHelper->error(exception: $e);
+		}
+	}//end updateSharingPolicy()
 
 	/**
 	 * Read the global footer settings (REQ-FTR-001, REQ-FTR-010).

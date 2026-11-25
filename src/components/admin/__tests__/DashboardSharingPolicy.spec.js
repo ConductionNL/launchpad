@@ -14,10 +14,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const getAdminSettings = vi.fn()
 const updateAdminSettings = vi.fn()
+const updateSharingPolicy = vi.fn()
 vi.mock('../../../services/api.js', () => ({
 	api: {
 		getAdminSettings: (...args) => getAdminSettings(...args),
 		updateAdminSettings: (...args) => updateAdminSettings(...args),
+		updateSharingPolicy: (...args) => updateSharingPolicy(...args),
 	},
 }))
 vi.mock('../../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
@@ -40,6 +42,8 @@ beforeEach(async () => {
 	getAdminSettings.mockReset()
 	updateAdminSettings.mockReset()
 	updateAdminSettings.mockResolvedValue({})
+	updateSharingPolicy.mockReset()
+	updateSharingPolicy.mockResolvedValue({})
 	DashboardSharingPolicy = (await import('../DashboardSharingPolicy.vue')).default
 })
 
@@ -75,16 +79,14 @@ describe('DashboardSharingPolicy (REQ-SHARE-015)', () => {
 		expect(without.vm.publicLinksAllowed).toBe(true)
 	})
 
-	it('saves Nobody with the limits and hides the group picker', async () => {
+	it('saves Nobody, keeps the stored groups and hides the group picker', async () => {
 		const wrapper = await mountPolicy({ sharingAllowed: 'groups', sharingAllowedGroups: ['sales'] })
 
 		await wrapper.find('[data-test="sharing-policy-allowed-choice-none"]').trigger('click')
 		await flushPromises()
 
-		expect(updateAdminSettings).toHaveBeenCalledWith(expect.objectContaining({
-			sharingAllowed: 'none',
-			sharingAllowedGroups: ['sales'],
-		}))
+		expect(updateSharingPolicy).toHaveBeenCalledWith({ sharingAllowed: 'none' })
+		expect(updateAdminSettings).not.toHaveBeenCalled()
 		expect(wrapper.find('.nc-select-tags[data-test="sharing-policy-allowed-groups"]').exists()).toBe(false)
 	})
 
@@ -97,7 +99,7 @@ describe('DashboardSharingPolicy (REQ-SHARE-015)', () => {
 		await field.trigger('click')
 		await flushPromises()
 
-		expect(updateAdminSettings).toHaveBeenCalledWith({ publicLinksAllowed: false })
+		expect(updateSharingPolicy).toHaveBeenCalledWith({ publicLinksAllowed: false })
 		expect(wrapper.vm.publicLinksAllowed).toBe(false)
 	})
 })

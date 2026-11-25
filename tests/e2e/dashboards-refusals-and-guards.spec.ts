@@ -325,10 +325,9 @@ test.describe('REQ-DASH-014 / REQ-DASH-015 the last dashboard of a group', () =>
 			.click()
 		expect((await answered).status()).toBe(400)
 
+		// @nextcloud/dialogs draws its toasts without the old `.toastify` class.
 		await expect(
-			page
-				.locator('.toastify')
-				.filter({ hasText: 'Last dashboard cannot be deleted' }),
+			page.getByText('Last dashboard cannot be deleted', { exact: true }),
 		).toBeVisible()
 		expect((await listGroup(admin, gid)).map((dash) => dash.uuid)).toEqual([
 			only.uuid,

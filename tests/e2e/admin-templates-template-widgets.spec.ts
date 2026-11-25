@@ -7,17 +7,11 @@
  * removes one, moves one, and what that does to the copies already handed
  * out and to the ones handed out after.
  *
- * EXPECTED RED until the product lets an administrator write a template's
- * placements. An admin template belongs to nobody (`userId` null), and
- * PermissionService::canAddWidget / canRemoveWidget / the placement update
- * resolve access by ownership or share only (resolveAccessLevel ->
- * ownedOrSharedAccessLevel, lib/Service/PermissionService.php), so
- * `POST /api/dashboard/{templateId}/widgets`, `PUT /api/widgets/{id}` and
- * `DELETE /api/widgets/{id}` answer 403 for the admin on a template. The
- * comment on canEditDashboardMetadata already says admin templates are
- * edited by Nextcloud admins (REQ-PERM-011); only the metadata path honours
- * it. These tests used to be `test.fixme`, which gate-19 does not count as a
- * citation; they now run so the defect shows.
+ * An admin template belongs to nobody (`userId` null), so a Nextcloud
+ * admin's right to change its widgets comes from REQ-PERM-011, not from
+ * ownership or a share (PermissionService::canAddWidget / canRemoveWidget /
+ * canStyleWidget), and only that admin may mark a new template widget
+ * compulsory (PermissionService::mayPlaceCompulsory).
  *
  * The admin's widget is added the way the workspace adds one: the create
  * takes no title, so the title is set with a follow-up `PUT` (the
@@ -159,9 +153,6 @@ async function titlesOn(who: Principal, dashboardId: number): Promise<unknown[]>
 
 test.describe("the admin edits a template's widgets (REQ-TMPL-007)", () => {
 	// @e2e admin-templates::add-widget-to-template
-	// Also red after the 403 is fixed, unless the create learns the flag:
-	// PlacementService::addWidget sets `isCompulsory` to 0 whatever the
-	// request says (lib/Service/PlacementService.php, addWidget).
 	test('the admin adds a compulsory widget to a template', async () => {
 		const tpl = await createTemplate(admin, { name: `${STAMP} Add widget` })
 		templates.push(tpl.id)

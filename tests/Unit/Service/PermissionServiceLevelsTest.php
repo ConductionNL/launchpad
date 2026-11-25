@@ -257,6 +257,45 @@ class PermissionServiceLevelsTest extends TestCase {
 		$this->assertTrue($service->canEditDashboardMetadata(userId: 'admin', dashboardId: 5));
 		$this->assertFalse($service->canEditDashboardMetadata(userId: self::OWNER, dashboardId: 5));
 	}//end testANextcloudAdminRenamesAnAdminTemplateThatBelongsToNobody()
+
+	/**
+	 * REQ-TMPL-007: a Nextcloud admin adds, styles and removes the widgets
+	 * of an admin template and may mark a new one compulsory; an ordinary
+	 * user may do none of it.
+	 *
+	 * @return void
+	 */
+	public function testANextcloudAdminManagesTheWidgetsOfAnAdminTemplate(): void {
+		[$service, $dashboard] = $this->serviceFor(level: Dashboard::PERMISSION_VIEW_ONLY, isCompulsory: 1, admins: ['admin']);
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
+		$dashboard->setUserId(null);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$this->assertTrue(condition: $service->canAddWidget(userId: 'admin', dashboardId: 5));
+		$this->assertTrue(condition: $service->canStyleWidget(userId: 'admin', placementId: 10));
+		$this->assertTrue(condition: $service->canRemoveWidget(userId: 'admin', placementId: 10));
+		$this->assertTrue(condition: $service->canEditDashboard(userId: 'admin', dashboardId: 5));
+		$this->assertTrue(condition: $service->mayPlaceCompulsory(userId: 'admin', dashboardId: 5));
+
+		$this->assertFalse(condition: $service->canAddWidget(userId: self::OWNER, dashboardId: 5));
+		$this->assertFalse(condition: $service->canRemoveWidget(userId: self::OWNER, placementId: 10));
+		$this->assertFalse(condition: $service->canEditDashboard(userId: self::OWNER, dashboardId: 5));
+		$this->assertFalse(condition: $service->mayPlaceCompulsory(userId: self::OWNER, dashboardId: 5));
+	}//end testANextcloudAdminManagesTheWidgetsOfAnAdminTemplate()
+
+	/**
+	 * REQ-TMPL-007: the compulsory flag is for admin templates only; an
+	 * admin adding a widget to an ordinary dashboard does not get it.
+	 *
+	 * @return void
+	 */
+	public function testTheCompulsoryFlagIsForAdminTemplatesOnly(): void {
+		[$service] = $this->serviceFor(level: Dashboard::PERMISSION_FULL, admins: ['admin', self::OWNER]);
+
+		$this->assertFalse(condition: $service->mayPlaceCompulsory(userId: self::OWNER, dashboardId: 5));
+		$this->assertFalse(condition: $service->mayPlaceCompulsory(userId: 'admin', dashboardId: 99));
+	}//end testTheCompulsoryFlagIsForAdminTemplatesOnly()
 	/**
 	 * REQ-PERM-001 / REQ-PERM-004: a refusal says why: a view-only
 	 * dashboard, or a compulsory widget at add_only; else "Access denied".

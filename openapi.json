@@ -6220,7 +6220,8 @@
                                     },
                                     "content": {
                                         "description": "The content."
-                                    }
+                                    },
+                                    "isCompulsory": {}
                                 }
                             }
                         }

@@ -123,9 +123,9 @@ class PermissionService {
 			return true;
 		}
 
-		// Admin templates can only be edited by admins.
+		// REQ-PERM-011: admin templates are edited by Nextcloud admins only.
 		if ($dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
-			return false;
+			return $this->groupManager->isAdmin(userId: $userId);
 		}
 
 		return $this->allowsEditing(
@@ -238,10 +238,40 @@ class PermissionService {
 			return false;
 		}
 
+		$dashboard = $this->findDashboard(dashboardId: $dashboardId);
+		if ($dashboard === null) {
+			return false;
+		}
+
+		// REQ-PERM-011 / REQ-TMPL-007: an admin template belongs to nobody;
+		// a Nextcloud admin manages its widgets through the same API.
+		if ($dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
+			return $this->groupManager->isAdmin(userId: $userId);
+		}
+
 		return $this->allowsEditing(
-			level: $this->resolveAccessLevel(userId: $userId, dashboardId: $dashboardId)
+			level: $this->resolveAccessLevel(userId: $userId, dashboard: $dashboard)
 		);
 	}//end canAddWidget()
+
+	/**
+	 * Whether a widget the user adds may be marked compulsory: only a
+	 * Nextcloud admin adding it to an admin template (REQ-TMPL-007).
+	 *
+	 * @param string $userId      The user ID.
+	 * @param int    $dashboardId The dashboard ID.
+	 *
+	 * @return bool TRUE when the compulsory flag is honoured.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#requirement-template-widget-management-req-tmpl-007
+	 */
+	public function mayPlaceCompulsory(string $userId, int $dashboardId): bool {
+		$dashboard = $this->findDashboard(dashboardId: $dashboardId);
+
+		return $dashboard !== null
+			&& $dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE
+			&& $this->groupManager->isAdmin(userId: $userId) === true;
+	}//end mayPlaceCompulsory()
 
 	/**
 	 * Why a widget change was refused, in the words of REQ-PERM-001 and
@@ -294,6 +324,12 @@ class PermissionService {
 		$placed = $this->findPlacedWidget(placementId: $placementId);
 		if ($placed === null) {
 			return false;
+		}
+
+		// REQ-PERM-011 / REQ-TMPL-007: only a Nextcloud admin removes a
+		// widget from an admin template.
+		if ($placed->dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
+			return $this->groupManager->isAdmin(userId: $userId);
 		}
 
 		$level = $this->resolveAccessLevel(userId: $userId, dashboard: $placed->dashboard);

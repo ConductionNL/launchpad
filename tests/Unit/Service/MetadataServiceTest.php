@@ -181,6 +181,33 @@ class MetadataServiceTest extends TestCase {
 		$this->assertNotNull($field->getCreatedAt());
 	}
 
+	/**
+	 * The DATETIME columns get a value MySQL/MariaDB strict mode accepts:
+	 * `Y-m-d H:i:s`, not ISO-8601 with `T` and an offset.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	public function testCreateAndUpdateWriteDatabaseDatetimeFormat(): void {
+		$this->fieldMapper->method('findByKey')->willThrowException(new DoesNotExistException(''));
+		$this->fieldMapper->method('insert')->willReturnArgument(0);
+		$this->fieldMapper->method('update')->willReturnArgument(0);
+
+		$field = $this->service->createFieldDefinition(
+			key: 'cost_centre',
+			label: 'Cost centre',
+			type: MetadataField::TYPE_TEXT,
+		);
+		$pattern = '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/';
+		$this->assertMatchesRegularExpression(pattern: $pattern, string: (string) $field->getCreatedAt());
+		$this->assertMatchesRegularExpression(pattern: $pattern, string: (string) $field->getUpdatedAt());
+
+		$this->fieldMapper->method('findById')->willReturn($this->makeField(id: 5, key: 'department'));
+		$updated = $this->service->updateFieldDefinition(id: 5, patch: ['label' => 'Dept']);
+		$this->assertMatchesRegularExpression(pattern: $pattern, string: (string) $updated->getUpdatedAt());
+	}
+
 	public function testUpdateFieldDefinitionForbidsKeyRename(): void {
 		$this->expectException(InvalidMetadataFieldException::class);
 		$this->expectExceptionMessage('Field key cannot be renamed');

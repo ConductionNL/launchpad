@@ -34,14 +34,14 @@ export const ROOT_MARGIN = '100% 0px'
 /**
  * The browser features LazyMount uses, behind one seam so tests can swap them.
  *
- * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+ * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
  */
 export const LazyMountSupport = {
 	/**
 	 * The IntersectionObserver constructor, or null without one.
 	 *
 	 * @return {typeof IntersectionObserver|null} The constructor.
-	 * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+	 * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
 	 */
 	observer() {
 		return typeof window !== 'undefined' && typeof window.IntersectionObserver === 'function'
@@ -57,7 +57,7 @@ export const LazyMountSupport = {
 	 * @param {number} delay The wait before looking for an idle moment, in ms.
 	 * @param {number} timeout The longest wait for that idle moment, in ms.
 	 * @return {() => void} Cancels the wait.
-	 * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+	 * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
 	 */
 	whenSettled(callback, delay, timeout) {
 		let idleHandle = null
@@ -80,7 +80,7 @@ export const LazyMountSupport = {
 /**
  * Mounts its slot when it is about to be seen.
  *
- * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+ * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
  */
 export default {
 	name: 'LazyMount',
@@ -101,7 +101,7 @@ export default {
 		 *
 		 * @param {boolean} value The new eager flag.
 		 * @return {void}
-		 * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+		 * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
 		 */
 		eager(value) {
 			if (value === true) {
@@ -114,7 +114,7 @@ export default {
 	 * Watch the element, the idle moment and the print, unless already shown.
 	 *
 	 * @return {void}
-	 * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+	 * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
 	 */
 	mounted() {
 		if (this.shown) {
@@ -132,7 +132,7 @@ export default {
 	 * Stop watching.
 	 *
 	 * @return {void}
-	 * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+	 * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
 	 */
 	beforeUnmount() {
 		this.stopWatching()
@@ -144,7 +144,7 @@ export default {
 		 *
 		 * @param {IntersectionObserverEntry[]} entries The observed entries.
 		 * @return {void}
-		 * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+		 * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
 		 */
 		onIntersect(entries) {
 			if (entries.some((entry) => entry.isIntersecting)) {
@@ -156,7 +156,7 @@ export default {
 		 * Mount the slot for good.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+		 * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
 		 */
 		reveal() {
 			this.shown = true
@@ -167,7 +167,7 @@ export default {
 		 * Drop the observer, the idle callback and the print listener.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+		 * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
 		 */
 		stopWatching() {
 			this.observer?.disconnect()

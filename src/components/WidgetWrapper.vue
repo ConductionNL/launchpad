@@ -171,7 +171,7 @@ export function sameDestination(a, b) {
  *
  * @param {Location} [location] Injected for tests.
  * @return {boolean}
- * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+ * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
  */
 export function isExportRender(location = typeof window !== 'undefined' ? window.location : null) {
 	if (!location || typeof location.search !== 'string') {
@@ -250,7 +250,7 @@ export default {
 		 * which prints the whole dashboard.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+		 * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
 		 */
 		mountsAtOnce() {
 			return this.editMode || isExportRender()

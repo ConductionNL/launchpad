@@ -23,9 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
-use DateTimeImmutable;
 use DateTimeInterface;
-use Exception;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Db\DashboardVersionMapper;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
@@ -151,14 +149,11 @@ class SummaryMailContent {
 	 * @return int|null Unix time, or null when it does not parse.
 	 */
 	private static function timestamp(?string $value): ?int {
-		if ($value === null || $value === '') {
+		$parsed = date_create_immutable((string)$value);
+		if ($value === null || $value === '' || $parsed === false) {
 			return null;
 		}
 
-		try {
-			return (new DateTimeImmutable($value))->getTimestamp();
-		} catch (Exception) {
-			return null;
-		}
+		return $parsed->getTimestamp();
 	}//end timestamp()
 }//end class

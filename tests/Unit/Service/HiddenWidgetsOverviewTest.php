@@ -3,7 +3,7 @@
 /**
  * HiddenWidgetsOverview Test
  *
- * personal-settings REQ-PSET-003: a person sees every widget they hid, on
+ * Personal-settings REQ-PSET-003: a person sees every widget they hid, on
  * every dashboard they may still see, and can show one or all of them again.
  * Only the caller's own layers are read or written.
  *
@@ -57,6 +57,11 @@ class HiddenWidgetsOverviewTest extends TestCase {
 	 */
 	private array $askedFor = [];
 
+	/**
+	 * Two people's layers: Pieter on three dashboards, Sanne on one.
+	 *
+	 * @return void
+	 */
 	protected function setUp(): void {
 		parent::setUp();
 		$this->layers = [
@@ -73,63 +78,101 @@ class HiddenWidgetsOverviewTest extends TestCase {
 		$this->askedFor = [];
 	}//end setUp()
 
+	/**
+	 * Every hidden widget, named, with its dashboard, read for the caller only.
+	 *
+	 * @return void
+	 */
 	public function testItListsEveryHiddenWidgetWithItsDashboard(): void {
 		$list = $this->service()->listFor(userId: 'pieter');
 
-		$this->assertSame([101, 102, 201], array_column($list, 'placementId'));
-		$this->assertSame(['Intranet Zuiddrecht', 'Intranet Zuiddrecht', 'Team Vergunningen'], array_column($list, 'dashboardName'));
-		$this->assertSame('Verjaardagen', $list[0]['placement']['customTitle']);
-		$this->assertSame(['pieter'], array_values(array_unique($this->askedFor)));
+		$this->assertSame(expected: [101, 102, 201], actual: array_column($list, 'placementId'));
+		$this->assertSame(
+			expected: ['Intranet Zuiddrecht', 'Intranet Zuiddrecht', 'Team Vergunningen'],
+			actual: array_column($list, 'dashboardName')
+		);
+		$this->assertSame(expected: 'Verjaardagen', actual: $list[0]['placement']['customTitle']);
+		$this->assertSame(expected: ['pieter'], actual: array_values(array_unique($this->askedFor)));
 	}//end testItListsEveryHiddenWidgetWithItsDashboard()
 
+	/**
+	 * A dashboard the person can no longer see is left out.
+	 *
+	 * @return void
+	 */
 	public function testADashboardThePersonLostIsLeftOut(): void {
 		$list = $this->service(visible: [10])->listFor(userId: 'pieter');
 
-		$this->assertSame([101, 102], array_column($list, 'placementId'));
+		$this->assertSame(expected: [101, 102], actual: array_column($list, 'placementId'));
 	}//end testADashboardThePersonLostIsLeftOut()
 
+	/**
+	 * A hidden id whose placement is gone is left out.
+	 *
+	 * @return void
+	 */
 	public function testAHiddenIdWhosePlacementIsGoneIsLeftOut(): void {
 		$this->layers['pieter'][1] = $this->layer(id: 2, userId: 'pieter', dashboardId: 20, hidden: [201, 999]);
 
 		$list = $this->service()->listFor(userId: 'pieter');
 
-		$this->assertNotContains(999, array_column($list, 'placementId'));
+		$this->assertNotContains(needle: 999, haystack: array_column($list, 'placementId'));
 	}//end testAHiddenIdWhosePlacementIsGoneIsLeftOut()
 
+	/**
+	 * Nothing hidden, or nobody: an empty list.
+	 *
+	 * @return void
+	 */
 	public function testNothingHiddenIsAnEmptyList(): void {
-		$this->assertSame([], $this->service()->listFor(userId: 'nobody'));
-		$this->assertSame([], $this->service()->listFor(userId: ''));
+		$this->assertSame(expected: [], actual: $this->service()->listFor(userId: 'nobody'));
+		$this->assertSame(expected: [], actual: $this->service()->listFor(userId: ''));
 	}//end testNothingHiddenIsAnEmptyList()
 
+	/**
+	 * Show again takes one widget off the caller's layer and keeps the rest.
+	 *
+	 * @return void
+	 */
 	public function testShowAgainTakesOneWidgetOffTheCallersLayerOnly(): void {
-		$this->assertTrue($this->service()->showAgain(userId: 'pieter', placementId: 101));
+		$this->assertTrue(condition: $this->service()->showAgain(userId: 'pieter', placementId: 101));
 
-		$this->assertCount(1, $this->updated);
-		$this->assertSame('pieter', $this->updated[0]->getUserId());
-		$this->assertSame([102], $this->updated[0]->hiddenArray());
+		$this->assertCount(expectedCount: 1, haystack: $this->updated);
+		$this->assertSame(expected: 'pieter', actual: $this->updated[0]->getUserId());
+		$this->assertSame(expected: [102], actual: $this->updated[0]->hiddenArray());
 		// The other adjustments on that layer stay.
-		$this->assertSame([103 => ['gridX' => 2]], $this->updated[0]->overridesArray());
+		$this->assertSame(expected: [103 => ['gridX' => 2]], actual: $this->updated[0]->overridesArray());
 		// Sanne hid the same placement; her layer is untouched.
-		$this->assertSame([101], $this->layers['sanne'][0]->hiddenArray());
+		$this->assertSame(expected: [101], actual: $this->layers['sanne'][0]->hiddenArray());
 	}//end testShowAgainTakesOneWidgetOffTheCallersLayerOnly()
 
+	/**
+	 * A widget the caller did not hide: nothing changes.
+	 *
+	 * @return void
+	 */
 	public function testShowAgainOfAWidgetTheCallerDidNotHideChangesNothing(): void {
-		$this->assertFalse($this->service()->showAgain(userId: 'sanne', placementId: 201));
-		$this->assertFalse($this->service()->showAgain(userId: 'pieter', placementId: 0));
+		$this->assertFalse(condition: $this->service()->showAgain(userId: 'sanne', placementId: 201));
+		$this->assertFalse(condition: $this->service()->showAgain(userId: 'pieter', placementId: 0));
 
-		$this->assertSame([], $this->updated);
+		$this->assertSame(expected: [], actual: $this->updated);
 	}//end testShowAgainOfAWidgetTheCallerDidNotHideChangesNothing()
 
+	/**
+	 * Show all again empties every hidden set of the caller, and only theirs.
+	 *
+	 * @return void
+	 */
 	public function testShowAllEmptiesEveryHiddenSetOfTheCaller(): void {
-		$this->assertSame(3, $this->service()->showAll(userId: 'pieter'));
+		$this->assertSame(expected: 3, actual: $this->service()->showAll(userId: 'pieter'));
 
-		$this->assertSame([1, 2], array_map(static fn (PersonalLayer $l): int => (int)$l->getId(), $this->updated));
+		$this->assertSame(expected: [1, 2], actual: array_map(static fn (PersonalLayer $l): int => (int)$l->getId(), $this->updated));
 		foreach ($this->updated as $layer) {
-			$this->assertSame([], $layer->hiddenArray());
+			$this->assertSame(expected: [], actual: $layer->hiddenArray());
 		}
 
-		$this->assertSame([101], $this->layers['sanne'][0]->hiddenArray());
-		$this->assertSame(0, $this->service()->showAll(userId: ''));
+		$this->assertSame(expected: [101], actual: $this->layers['sanne'][0]->hiddenArray());
+		$this->assertSame(expected: 0, actual: $this->service()->showAll(userId: ''));
 	}//end testShowAllEmptiesEveryHiddenSetOfTheCaller()
 
 	/**
@@ -140,7 +183,7 @@ class HiddenWidgetsOverviewTest extends TestCase {
 	 * @return HiddenWidgetsOverview
 	 */
 	private function service(array $visible = [10, 20, 30]): HiddenWidgetsOverview {
-		$mapper = $this->getMockBuilder(PersonalLayerMapper::class)
+		$mapper = $this->getMockBuilder(className: PersonalLayerMapper::class)
 			->disableOriginalConstructor()
 			->onlyMethods(['findAllForUser', 'update'])
 			->getMock();
@@ -157,19 +200,23 @@ class HiddenWidgetsOverviewTest extends TestCase {
 			}
 		);
 
-		$placements = $this->getMockBuilder(WidgetPlacementMapper::class)
+		$placements = $this->getMockBuilder(className: WidgetPlacementMapper::class)
 			->disableOriginalConstructor()
 			->onlyMethods(['findByDashboardId'])
 			->getMock();
 		$placements->method('findByDashboardId')->willReturnCallback(
 			fn (int $dashboardId): array => match ($dashboardId) {
-				10 => [$this->placement(101, 10, 'Verjaardagen'), $this->placement(102, 10, 'Kantinemenu'), $this->placement(103, 10, 'Nieuws')],
-				20 => [$this->placement(201, 20, 'Teamagenda')],
+				10 => [
+					$this->placement(id: 101, dashboardId: 10, title: 'Verjaardagen'),
+					$this->placement(id: 102, dashboardId: 10, title: 'Kantinemenu'),
+					$this->placement(id: 103, dashboardId: 10, title: 'Nieuws'),
+				],
+				20 => [$this->placement(id: 201, dashboardId: 20, title: 'Teamagenda')],
 				default => [],
 			}
 		);
 
-		$dashboards = $this->getMockBuilder(DashboardService::class)
+		$dashboards = $this->getMockBuilder(className: DashboardService::class)
 			->disableOriginalConstructor()
 			->onlyMethods(['getDashboardForUser'])
 			->getMock();
@@ -181,12 +228,17 @@ class HiddenWidgetsOverviewTest extends TestCase {
 
 				$dashboard = new Dashboard();
 				$dashboard->setId($dashboardId);
-				$dashboard->setName($dashboardId === 10 ? 'Intranet Zuiddrecht' : 'Team Vergunningen');
+				$name = 'Team Vergunningen';
+				if ($dashboardId === 10) {
+					$name = 'Intranet Zuiddrecht';
+				}
+
+				$dashboard->setName($name);
 				return ['dashboard' => $dashboard, 'placements' => []];
 			}
 		);
 
-		return new HiddenWidgetsOverview($mapper, $placements, $dashboards);
+		return new HiddenWidgetsOverview(layers: $mapper, placements: $placements, dashboards: $dashboards);
 	}//end service()
 
 	/**

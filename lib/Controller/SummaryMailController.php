@@ -26,7 +26,6 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\SummaryMailPreference;
 use OCP\AppFramework\Controller;
@@ -34,7 +33,6 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUser;
 use OCP\IUserSession;
 
 /**
@@ -68,12 +66,7 @@ class SummaryMailController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function show(): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(data: ['message' => 'Not logged in'], statusCode: Http::STATUS_UNAUTHORIZED);
-		}
-
-		return $this->answer(user: $user, frequency: $this->preference->frequency(userId: $user->getUID()));
+		return $this->forCaller(frequency: null);
 	}//end show()
 
 	/**
@@ -87,34 +80,36 @@ class SummaryMailController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function update(string $frequency = SummaryMailPreference::OFF): JSONResponse {
+		if (in_array($frequency, SummaryMailPreference::FREQUENCIES, true) === false) {
+			return new JSONResponse(data: ['message' => 'Unknown frequency'], statusCode: Http::STATUS_BAD_REQUEST);
+		}
+
+		return $this->forCaller(frequency: $frequency);
+	}//end update()
+
+	/**
+	 * Answer for the signed-in caller, storing a new frequency first when given.
+	 *
+	 * @param string|null $frequency A valid frequency to store, or null to only read.
+	 *
+	 * @return JSONResponse
+	 */
+	private function forCaller(?string $frequency): JSONResponse {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(data: ['message' => 'Not logged in'], statusCode: Http::STATUS_UNAUTHORIZED);
 		}
 
-		try {
-			$stored = $this->preference->setFrequency(userId: $user->getUID(), frequency: $frequency);
-		} catch (InvalidArgumentException) {
-			return new JSONResponse(data: ['message' => 'Unknown frequency'], statusCode: Http::STATUS_BAD_REQUEST);
+		$uid = $user->getUID();
+		if ($frequency !== null) {
+			$this->preference->setFrequency(userId: $uid, frequency: $frequency);
 		}
 
-		return $this->answer(user: $user, frequency: $stored);
-	}//end update()
-
-	/**
-	 * The answer both routes give.
-	 *
-	 * @param IUser  $user      The caller.
-	 * @param string $frequency The frequency.
-	 *
-	 * @return JSONResponse
-	 */
-	private function answer(IUser $user, string $frequency): JSONResponse {
 		return new JSONResponse(
 			data: [
-				'frequency' => $frequency,
+				'frequency' => $this->preference->frequency(userId: $uid),
 				'hasEmail' => ((string)$user->getEMailAddress() !== ''),
 			]
 		);
-	}//end answer()
+	}//end forCaller()
 }//end class

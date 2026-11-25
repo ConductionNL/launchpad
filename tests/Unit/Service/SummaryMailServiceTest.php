@@ -1,11 +1,12 @@
 <?php
 
 /**
- * SummaryMailService Test
+ * SummaryMailService and SummaryMailSender Test
  *
- * personal-settings REQ-PSET-002: the summary goes out at 07:30 in the
+ * Personal-settings REQ-PSET-002: the summary goes out at 07:30 in the
  * person's own time zone, daily or on Monday, once; an empty daily summary
- * and a person without an email address get none; the last send is recorded.
+ * and a person without an email address get none; the last send is recorded;
+ * the mail names the announcements and what changed.
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Service
@@ -26,6 +27,7 @@ namespace Unit\Service;
 use DateTimeImmutable;
 use DateTimeZone;
 use OCA\LaunchPad\Service\SummaryMailContent;
+use OCA\LaunchPad\Service\SummaryMailSender;
 use OCA\LaunchPad\Service\SummaryMailService;
 use OCP\IConfig;
 use OCP\IL10N;
@@ -38,11 +40,13 @@ use OCP\Mail\IMailer;
 use OCP\Mail\IMessage;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
- * Unit tests for SummaryMailService.
+ * Unit tests for the summary mail schedule and delivery.
  */
 class SummaryMailServiceTest extends TestCase {
+
 	/**
 	 * Stored user values, keyed "user|app|key".
 	 *
@@ -51,7 +55,7 @@ class SummaryMailServiceTest extends TestCase {
 	private array $values = [];
 
 	/**
-	 * Body list items of the mails sent.
+	 * Body list items of each mail sent.
 	 *
 	 * @var list<list<string>>
 	 */
@@ -64,92 +68,179 @@ class SummaryMailServiceTest extends TestCase {
 	 */
 	private array $lines = ['announcements' => [], 'changes' => []];
 
+	/**
+	 * Whether the mailer throws.
+	 *
+	 * @var boolean
+	 */
+	private bool $mailerFails = false;
+
+	/**
+	 * Start every test with nothing stored or sent.
+	 *
+	 * @return void
+	 */
 	protected function setUp(): void {
 		parent::setUp();
 		$this->values = [];
 		$this->mails = [];
 		$this->lines = ['announcements' => [], 'changes' => []];
+		$this->mailerFails = false;
 	}//end setUp()
 
+	/**
+	 * Daily: from 07:30 until noon, once per day.
+	 *
+	 * @return void
+	 */
 	public function testDailyIsDueFrom0730UntilNoonOncePerDay(): void {
-		$tz = new DateTimeZone('Europe/Amsterdam');
-		$at = static fn (string $time): DateTimeImmutable => new DateTimeImmutable('2026-11-25 '.$time, $tz);
+		$tz = new DateTimeZone(timezone: 'Europe/Amsterdam');
+		$at = static fn (string $time): DateTimeImmutable => new DateTimeImmutable(datetime: '2026-11-25 '.$time, timezone: $tz);
 
-		$this->assertFalse(SummaryMailService::isDue('daily', $at('07:29'), null));
-		$this->assertTrue(SummaryMailService::isDue('daily', $at('07:30'), null));
-		$this->assertTrue(SummaryMailService::isDue('daily', $at('08:15'), $at('07:31')->modify('-1 day')));
-		$this->assertFalse(SummaryMailService::isDue('daily', $at('08:15'), $at('07:31')));
-		$this->assertFalse(SummaryMailService::isDue('daily', $at('12:00'), null));
-		$this->assertFalse(SummaryMailService::isDue('off', $at('07:45'), null));
+		$this->assertFalse(condition: SummaryMailService::isDue(frequency: 'daily', local: $at('07:29'), lastSent: null));
+		$this->assertTrue(condition: SummaryMailService::isDue(frequency: 'daily', local: $at('07:30'), lastSent: null));
+		$this->assertTrue(condition: SummaryMailService::isDue(frequency: 'daily', local: $at('08:15'), lastSent: $at('07:31')->modify('-1 day')));
+		$this->assertFalse(condition: SummaryMailService::isDue(frequency: 'daily', local: $at('08:15'), lastSent: $at('07:31')));
+		$this->assertFalse(condition: SummaryMailService::isDue(frequency: 'daily', local: $at('12:00'), lastSent: null));
+		$this->assertFalse(condition: SummaryMailService::isDue(frequency: 'off', local: $at('07:45'), lastSent: null));
 	}//end testDailyIsDueFrom0730UntilNoonOncePerDay()
 
+	/**
+	 * Weekly: on Monday only. 30 November 2026 is a Monday, 25 November a Wednesday.
+	 *
+	 * @return void
+	 */
 	public function testWeeklyIsDueOnMondayOnly(): void {
-		$tz = new DateTimeZone('Europe/Amsterdam');
+		$tz = new DateTimeZone(timezone: 'Europe/Amsterdam');
+		$monday = new DateTimeImmutable(datetime: '2026-11-30 07:40', timezone: $tz);
+		$wednesday = new DateTimeImmutable(datetime: '2026-11-25 07:40', timezone: $tz);
 
-		// 30 November 2026 is a Monday, 25 November a Wednesday.
-		$this->assertTrue(SummaryMailService::isDue('weekly', new DateTimeImmutable('2026-11-30 07:40', $tz), null));
-		$this->assertFalse(SummaryMailService::isDue('weekly', new DateTimeImmutable('2026-11-25 07:40', $tz), null));
+		$this->assertTrue(condition: SummaryMailService::isDue(frequency: 'weekly', local: $monday, lastSent: null));
+		$this->assertFalse(condition: SummaryMailService::isDue(frequency: 'weekly', local: $wednesday, lastSent: null));
 	}//end testWeeklyIsDueOnMondayOnly()
 
+	/**
+	 * Pieter's daily summary names the announcement and the change, once.
+	 *
+	 * @return void
+	 */
 	public function testPietersDailySummaryNamesTheAnnouncementAndTheChange(): void {
 		$this->values['pieter|core|timezone'] = 'Europe/Amsterdam';
 		$this->lines = ['announcements' => ['Kerstborrel'], 'changes' => ['Team Vergunningen: Widget Teamagenda added']];
 
 		// 06:35 UTC is 07:35 in Amsterdam.
-		$now = new DateTimeImmutable('2026-11-25 06:35', new DateTimeZone('UTC'));
-		$this->assertTrue($this->service()->sendFor('pieter', 'daily', $now));
+		$now = $this->utc(time: '06:35');
+		$this->assertTrue(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'daily', now: $now));
 
-		$this->assertCount(1, $this->mails);
-		$this->assertContains('Kerstborrel', $this->mails[0]);
-		$this->assertContains('Team Vergunningen: Widget Teamagenda added', $this->mails[0]);
-		$this->assertSame($now->format(DATE_ATOM), $this->values['pieter|launchpad|summary_mail_last_sent']);
+		$this->assertCount(expectedCount: 1, haystack: $this->mails);
+		$this->assertContains(needle: 'Kerstborrel', haystack: $this->mails[0]);
+		$this->assertContains(needle: 'Team Vergunningen: Widget Teamagenda added', haystack: $this->mails[0]);
+		$this->assertSame(expected: $now->format(DATE_ATOM), actual: $this->values['pieter|launchpad|summary_mail_last_sent']);
 
 		// The next hourly run the same morning sends nothing.
-		$this->assertFalse($this->service()->sendFor('pieter', 'daily', $now->modify('+1 hour')));
-		$this->assertCount(1, $this->mails);
+		$this->assertFalse(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'daily', now: $now->modify('+1 hour')));
+		$this->assertCount(expectedCount: 1, haystack: $this->mails);
 	}//end testPietersDailySummaryNamesTheAnnouncementAndTheChange()
 
+	/**
+	 * The 07:30 is the person's own: 06:35 UTC is 01:35 in New York, 12:35 UTC is 07:35.
+	 *
+	 * @return void
+	 */
 	public function testTheTimeZoneIsThePersons(): void {
 		$this->values['pieter|core|timezone'] = 'America/New_York';
 		$this->lines = ['announcements' => ['Kerstborrel'], 'changes' => []];
 
-		// 06:35 UTC is 01:35 in New York: not yet.
-		$this->assertFalse($this->service()->sendFor('pieter', 'daily', new DateTimeImmutable('2026-11-25 06:35', new DateTimeZone('UTC'))));
-		// 12:35 UTC is 07:35 in New York.
-		$this->assertTrue($this->service()->sendFor('pieter', 'daily', new DateTimeImmutable('2026-11-25 12:35', new DateTimeZone('UTC'))));
+		$this->assertFalse(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'daily', now: $this->utc(time: '06:35')));
+		$this->assertTrue(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'daily', now: $this->utc(time: '12:35')));
 	}//end testTheTimeZoneIsThePersons()
 
+	/**
+	 * An empty daily summary is not sent and the window stays open.
+	 *
+	 * @return void
+	 */
 	public function testAnEmptyDailySummaryIsNotSent(): void {
 		$this->values['pieter|core|timezone'] = 'UTC';
 
-		$this->assertFalse($this->service()->sendFor('pieter', 'daily', new DateTimeImmutable('2026-11-25 07:35', new DateTimeZone('UTC'))));
-		$this->assertSame([], $this->mails);
-		$this->assertArrayNotHasKey('pieter|launchpad|summary_mail_last_sent', $this->values);
+		$this->assertFalse(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'daily', now: $this->utc(time: '07:35')));
+		$this->assertSame(expected: [], actual: $this->mails);
+		$this->assertArrayNotHasKey(key: 'pieter|launchpad|summary_mail_last_sent', array: $this->values);
 	}//end testAnEmptyDailySummaryIsNotSent()
 
+	/**
+	 * An empty weekly summary still goes out, saying nothing changed.
+	 *
+	 * @return void
+	 */
+	public function testAnEmptyWeeklySummaryIsSent(): void {
+		$this->values['pieter|core|timezone'] = 'UTC';
+
+		$monday = new DateTimeImmutable(datetime: '2026-11-30 07:35', timezone: new DateTimeZone(timezone: 'UTC'));
+		$this->assertTrue(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'weekly', now: $monday));
+		$this->assertCount(expectedCount: 1, haystack: $this->mails);
+	}//end testAnEmptyWeeklySummaryIsSent()
+
+	/**
+	 * No email address, or no such user: no summary.
+	 *
+	 * @return void
+	 */
 	public function testAPersonWithoutEmailGetsNoSummary(): void {
-		$this->values['nomail|core|timezone'] = 'UTC';
 		$this->lines = ['announcements' => ['Kerstborrel'], 'changes' => []];
 
-		$this->assertFalse($this->service()->sendFor('nomail', 'daily', new DateTimeImmutable('2026-11-25 07:35', new DateTimeZone('UTC'))));
-		$this->assertFalse($this->service()->sendFor('ghost', 'daily', new DateTimeImmutable('2026-11-25 07:35', new DateTimeZone('UTC'))));
-		$this->assertSame([], $this->mails);
+		$this->assertFalse(condition: $this->service()->sendFor(userId: 'nomail', frequency: 'daily', now: $this->utc(time: '07:35')));
+		$this->assertFalse(condition: $this->service()->sendFor(userId: 'ghost', frequency: 'daily', now: $this->utc(time: '07:35')));
+		$this->assertSame(expected: [], actual: $this->mails);
 	}//end testAPersonWithoutEmailGetsNoSummary()
 
+	/**
+	 * A mailer failure records no send, so the next run tries again.
+	 *
+	 * @return void
+	 */
+	public function testAFailedSendIsNotRecorded(): void {
+		$this->lines = ['announcements' => ['Kerstborrel'], 'changes' => []];
+		$this->mailerFails = true;
+
+		$this->assertFalse(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'daily', now: $this->utc(time: '07:35')));
+		$this->assertArrayNotHasKey(key: 'pieter|launchpad|summary_mail_last_sent', array: $this->values);
+	}//end testAFailedSendIsNotRecorded()
+
+	/**
+	 * The run walks the daily and weekly people only.
+	 *
+	 * @return void
+	 */
 	public function testSendDueWalksTheDailyAndWeeklyPeopleOnly(): void {
 		$this->lines = ['announcements' => ['Kerstborrel'], 'changes' => []];
 		$asked = [];
 
 		$sent = $this->service(
-			function (string $app, string $key, string $value) use (&$asked): array {
+			usersFor: function (string $app, string $key, string $value) use (&$asked): array {
 				$asked[] = $value;
-				return $value === 'daily' ? ['pieter'] : [];
-			}
-		)->sendDue(new DateTimeImmutable('2026-11-25 07:35', new DateTimeZone('UTC')));
+				if ($value === 'daily') {
+					return ['pieter'];
+				}
 
-		$this->assertSame(['daily', 'weekly'], $asked);
-		$this->assertSame(1, $sent);
+				return [];
+			}
+		)->sendDue(now: $this->utc(time: '07:35'));
+
+		$this->assertSame(expected: ['daily', 'weekly'], actual: $asked);
+		$this->assertSame(expected: 1, actual: $sent);
 	}//end testSendDueWalksTheDailyAndWeeklyPeopleOnly()
+
+	/**
+	 * 25 November 2026 at a UTC time.
+	 *
+	 * @param string $time Hours and minutes.
+	 *
+	 * @return DateTimeImmutable
+	 */
+	private function utc(string $time): DateTimeImmutable {
+		return new DateTimeImmutable(datetime: '2026-11-25 '.$time, timezone: new DateTimeZone(timezone: 'UTC'));
+	}//end utc()
 
 	/**
 	 * The service over fakes.
@@ -158,10 +249,10 @@ class SummaryMailServiceTest extends TestCase {
 	 *
 	 * @return SummaryMailService
 	 */
-	private function service(?callable $usersFor = null): SummaryMailService {
-		$config = $this->createMock(IConfig::class);
+	private function service(?callable $usersFor=null): SummaryMailService {
+		$config = $this->createMock(originalClassName: IConfig::class);
 		$config->method('getUserValue')->willReturnCallback(
-			fn (string $user, string $app, string $key, $default = '') => $this->values["$user|$app|$key"] ?? $default
+			fn (string $user, string $app, string $key, $default='') => ($this->values["$user|$app|$key"] ?? $default)
 		);
 		$config->method('setUserValue')->willReturnCallback(
 			function (string $user, string $app, string $key, $value): void {
@@ -170,56 +261,88 @@ class SummaryMailServiceTest extends TestCase {
 		);
 		$config->method('getUsersForUserValue')->willReturnCallback($usersFor ?? static fn (): array => []);
 
-		$users = $this->createMock(IUserManager::class);
-		$users->method('get')->willReturnCallback(
-			function (string $uid): ?IUser {
-				if ($uid === 'ghost') {
-					return null;
-				}
+		$users = $this->createMock(originalClassName: IUserManager::class);
+		$users->method('get')->willReturnCallback(fn (string $uid): ?IUser => $this->user(uid: $uid));
 
-				$user = $this->createMock(IUser::class);
-				$user->method('getUID')->willReturn($uid);
-				$user->method('getDisplayName')->willReturn(ucfirst($uid));
-				$user->method('getEMailAddress')->willReturn($uid === 'nomail' ? null : $uid.'@zuiddrecht.example');
-				return $user;
-			}
-		);
-
-		$content = $this->createMock(SummaryMailContent::class);
+		$content = $this->createMock(originalClassName: SummaryMailContent::class);
 		$content->method('collect')->willReturnCallback(fn (): array => $this->lines);
 
+		return new SummaryMailService(config: $config, users: $users, content: $content, sender: $this->sender());
+	}//end service()
+
+	/**
+	 * A user with an email address, except `nomail`; `ghost` does not exist.
+	 *
+	 * @param string $uid The user id.
+	 *
+	 * @return IUser|null
+	 */
+	private function user(string $uid): ?IUser {
+		if ($uid === 'ghost') {
+			return null;
+		}
+
+		$email = $uid.'@zuiddrecht.example';
+		if ($uid === 'nomail') {
+			$email = null;
+		}
+
+		$user = $this->createMock(originalClassName: IUser::class);
+		$user->method('getUID')->willReturn($uid);
+		$user->method('getDisplayName')->willReturn(ucfirst($uid));
+		$user->method('getEMailAddress')->willReturn($email);
+
+		return $user;
+	}//end user()
+
+	/**
+	 * The real sender over a recording mailer.
+	 *
+	 * @return SummaryMailSender
+	 */
+	private function sender(): SummaryMailSender {
 		$items = [];
-		$template = $this->createMock(IEMailTemplate::class);
+		$template = $this->createMock(originalClassName: IEMailTemplate::class);
 		$template->method('addBodyListItem')->willReturnCallback(
 			function (string $text) use (&$items): void {
 				$items[] = $text;
 			}
 		);
-		$mailer = $this->createMock(IMailer::class);
+
+		$mailer = $this->createMock(originalClassName: IMailer::class);
 		$mailer->method('createEMailTemplate')->willReturnCallback(
 			function () use ($template, &$items): IEMailTemplate {
 				$items = [];
 				return $template;
 			}
 		);
-		$mailer->method('createMessage')->willReturn($this->createMock(IMessage::class));
+		$mailer->method('createMessage')->willReturn($this->createMock(originalClassName: IMessage::class));
 		$mailer->method('send')->willReturnCallback(
 			function () use (&$items): array {
+				if ($this->mailerFails === true) {
+					throw new RuntimeException(message: 'smtp down');
+				}
+
 				$this->mails[] = $items;
 				return [];
 			}
 		);
 
-		$l10n = $this->createMock(IL10N::class);
+		$l10n = $this->createMock(originalClassName: IL10N::class);
 		$l10n->method('t')->willReturnArgument(0);
-		$factory = $this->createMock(IFactory::class);
+		$factory = $this->createMock(originalClassName: IFactory::class);
 		$factory->method('get')->willReturn($l10n);
 		$factory->method('getUserLanguage')->willReturn('en');
 
-		$urls = $this->createMock(IURLGenerator::class);
+		$urls = $this->createMock(originalClassName: IURLGenerator::class);
 		$urls->method('linkToRoute')->willReturn('/apps/launchpad/');
 		$urls->method('getAbsoluteURL')->willReturnArgument(0);
 
-		return new SummaryMailService($config, $users, $content, $mailer, $factory, $urls, $this->createMock(LoggerInterface::class));
-	}//end service()
+		return new SummaryMailSender(
+			mailer: $mailer,
+			l10n: $factory,
+			urls: $urls,
+			logger: $this->createMock(originalClassName: LoggerInterface::class)
+		);
+	}//end sender()
 }//end class

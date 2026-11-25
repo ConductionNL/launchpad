@@ -27,28 +27,23 @@ namespace OCA\LaunchPad\Service;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use Exception;
 use OCA\LaunchPad\AppInfo\Application;
 use OCP\IConfig;
-use OCP\IURLGenerator;
-use OCP\IUser;
 use OCP\IUserManager;
-use OCP\L10N\IFactory;
-use OCP\Mail\IMailer;
-use Psr\Log\LoggerInterface;
-use Throwable;
 
 /**
- * Decides who is due and sends their summary.
+ * Decides who is due and has their summary sent.
  *
  * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
  */
 class SummaryMailService {
 
 	/**
-	 * The local time a summary goes out.
+	 * The local hour and minute a summary goes out.
 	 */
-	public const SEND_AT = '07:30';
+	public const SEND_HOUR = 7;
+
+	public const SEND_MINUTE = 30;
 
 	/**
 	 * The local hour after which a missed morning is not sent any more, so a
@@ -59,22 +54,16 @@ class SummaryMailService {
 	/**
 	 * Constructor.
 	 *
-	 * @param IConfig         $config      The user preferences.
-	 * @param IUserManager    $users       Finds the people.
-	 * @param SummaryMailContent $content  What a summary says.
-	 * @param IMailer         $mailer      Sends the mail.
-	 * @param IFactory        $l10n        The person's language.
-	 * @param IURLGenerator   $urls        The link back to launchpad.
-	 * @param LoggerInterface $logger      A summary that could not be sent.
+	 * @param IConfig            $config  The user preferences.
+	 * @param IUserManager       $users   Finds the people.
+	 * @param SummaryMailContent $content What a summary says.
+	 * @param SummaryMailSender  $sender  Sends it.
 	 */
 	public function __construct(
 		private readonly IConfig $config,
 		private readonly IUserManager $users,
 		private readonly SummaryMailContent $content,
-		private readonly IMailer $mailer,
-		private readonly IFactory $l10n,
-		private readonly IURLGenerator $urls,
-		private readonly LoggerInterface $logger,
+		private readonly SummaryMailSender $sender,
 	) {
 	}//end __construct()
 
@@ -92,9 +81,7 @@ class SummaryMailService {
 		foreach ([SummaryMailPreference::DAILY, SummaryMailPreference::WEEKLY] as $frequency) {
 			$userIds = $this->config->getUsersForUserValue(Application::APP_ID, SummaryMailPreference::KEY_FREQUENCY, $frequency);
 			foreach ($userIds as $userId) {
-				if ($this->sendFor(userId: (string)$userId, frequency: $frequency, now: $now) === true) {
-					$sent++;
-				}
+				$sent += (int)$this->sendFor(userId: (string)$userId, frequency: $frequency, now: $now);
 			}
 		}
 
@@ -124,7 +111,7 @@ class SummaryMailService {
 			return false;
 		}
 
-		$since = $lastSent ?? $local->modify(self::windowOf(frequency: $frequency));
+		$since = ($lastSent ?? $local->modify(self::windowOf(frequency: $frequency)));
 		$lines = $this->content->collect(userId: $userId, since: $since);
 		$empty = ($lines['announcements'] === [] && $lines['changes'] === []);
 		if ($empty === true && $frequency === SummaryMailPreference::DAILY) {
@@ -133,10 +120,7 @@ class SummaryMailService {
 			return false;
 		}
 
-		try {
-			$this->deliver(user: $user, lines: $lines, frequency: $frequency);
-		} catch (Throwable $exception) {
-			$this->logger->warning('LaunchPad summary mail to {user} failed: {message}', ['user' => $userId, 'message' => $exception->getMessage()]);
+		if ($this->sender->send(user: $user, lines: $lines, frequency: $frequency) === false) {
 			return false;
 		}
 
@@ -158,21 +142,12 @@ class SummaryMailService {
 	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public static function isDue(string $frequency, DateTimeImmutable $local, ?DateTimeImmutable $lastSent): bool {
-		if ($frequency !== SummaryMailPreference::DAILY && $frequency !== SummaryMailPreference::WEEKLY) {
-			return false;
-		}
+		$onItsDay = ($frequency === SummaryMailPreference::DAILY)
+			|| ($frequency === SummaryMailPreference::WEEKLY && $local->format('N') === '1');
+		$sendAt = $local->setTime(self::SEND_HOUR, self::SEND_MINUTE);
+		$inMorning = ($local >= $sendAt && (int)$local->format('G') < self::LATEST_HOUR);
 
-		if ($frequency === SummaryMailPreference::WEEKLY && $local->format('N') !== '1') {
-			return false;
-		}
-
-		[$hour, $minute] = array_map('intval', explode(':', self::SEND_AT));
-		$sendAt = $local->setTime($hour, $minute);
-		if ($local < $sendAt || (int)$local->format('G') >= self::LATEST_HOUR) {
-			return false;
-		}
-
-		return ($lastSent === null || $lastSent < $sendAt);
+		return $onItsDay && $inMorning && ($lastSent === null || $lastSent < $sendAt);
 	}//end isDue()
 
 	/**
@@ -199,15 +174,11 @@ class SummaryMailService {
 	 */
 	private function timeZoneOf(string $userId): DateTimeZone {
 		$name = (string)$this->config->getUserValue($userId, 'core', 'timezone', '');
-		if ($name === '') {
+		if (in_array($name, timezone_identifiers_list(), true) === false) {
 			$name = date_default_timezone_get();
 		}
 
-		try {
-			return new DateTimeZone($name);
-		} catch (Exception) {
-			return new DateTimeZone('UTC');
-		}
+		return new DateTimeZone($name);
 	}//end timeZoneOf()
 
 	/**
@@ -219,65 +190,11 @@ class SummaryMailService {
 	 */
 	private function lastSent(string $userId): ?DateTimeImmutable {
 		$value = (string)$this->config->getUserValue($userId, Application::APP_ID, SummaryMailPreference::KEY_LAST_SENT, '');
-		if ($value === '') {
+		$parsed = date_create_immutable_from_format(DATE_ATOM, $value);
+		if ($parsed === false) {
 			return null;
 		}
 
-		try {
-			return new DateTimeImmutable($value);
-		} catch (Exception) {
-			return null;
-		}
+		return $parsed;
 	}//end lastSent()
-
-	/**
-	 * Build and send the mail, in the person's language.
-	 *
-	 * @param IUser                                                        $user      The person.
-	 * @param array{announcements: list<string>, changes: list<string>} $lines     What it says.
-	 * @param string                                                       $frequency Daily or weekly.
-	 *
-	 * @return void
-	 */
-	private function deliver(IUser $user, array $lines, string $frequency): void {
-		$l10n = $this->l10n->get(Application::APP_ID, $this->l10n->getUserLanguage($user));
-		$subject = $l10n->t('Your daily LaunchPad summary');
-		if ($frequency === SummaryMailPreference::WEEKLY) {
-			$subject = $l10n->t('Your weekly LaunchPad summary');
-		}
-
-		$template = $this->mailer->createEMailTemplate('launchpad.SummaryMail', ['frequency' => $frequency]);
-		$template->setSubject($subject);
-		$template->addHeader();
-		$template->addHeading($subject);
-
-		if ($lines['announcements'] === [] && $lines['changes'] === []) {
-			$template->addBodyText($l10n->t('Nothing new was published and nothing changed on your dashboards.'));
-		}
-
-		if ($lines['announcements'] !== []) {
-			$template->addBodyText($l10n->t('New announcements'));
-			foreach ($lines['announcements'] as $title) {
-				$template->addBodyListItem($title);
-			}
-		}
-
-		if ($lines['changes'] !== []) {
-			$template->addBodyText($l10n->t('What changed on your dashboards'));
-			foreach ($lines['changes'] as $change) {
-				$template->addBodyListItem($change);
-			}
-		}
-
-		$template->addBodyButton(
-			$l10n->t('Open LaunchPad'),
-			$this->urls->getAbsoluteURL($this->urls->linkToRoute('launchpad.page.index'))
-		);
-		$template->addFooter($l10n->t('You get this mail because you asked for it in your LaunchPad settings.'));
-
-		$message = $this->mailer->createMessage();
-		$message->setTo([(string)$user->getEMailAddress() => $user->getDisplayName()]);
-		$message->useTemplate($template);
-		$this->mailer->send($message);
-	}//end deliver()
 }//end class

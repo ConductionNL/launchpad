@@ -26,11 +26,11 @@ use DateTimeImmutable;
 use OCA\LaunchPad\Service\SummaryMailService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
-use Psr\Log\LoggerInterface;
-use Throwable;
 
 /**
- * A thin TimedJob shell over {@see SummaryMailService::sendDue()}.
+ * Every hour, hands the clock to {@see SummaryMailService::sendDue()}, which
+ * decides per person whether their 07:30 has come. A send that fails is
+ * logged by the sender and tried again on the next run.
  *
  * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $argument required by TimedJob interface.
  *
@@ -49,20 +49,15 @@ class SummaryMailJob extends TimedJob {
 	 * Constructor.
 	 *
 	 * @param ITimeFactory       $time    The clock.
-	 * @param SummaryMailService $service Sends the due summaries.
-	 * @param LoggerInterface    $logger  A failed run.
+	 * @param SummaryMailService $summary Sends the due summaries.
 	 */
-	public function __construct(
-		ITimeFactory $time,
-		private readonly SummaryMailService $service,
-		private readonly LoggerInterface $logger,
-	) {
+	public function __construct(ITimeFactory $time, private readonly SummaryMailService $summary) {
 		parent::__construct(time: $time);
 		$this->setInterval(seconds: self::INTERVAL_SECONDS);
 	}//end __construct()
 
 	/**
-	 * Send the due summaries.
+	 * Send the summaries that are due at this moment.
 	 *
 	 * @param mixed $argument Unused.
 	 *
@@ -71,10 +66,6 @@ class SummaryMailJob extends TimedJob {
 	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	protected function run($argument): void {
-		try {
-			$this->service->sendDue(now: DateTimeImmutable::createFromInterface($this->time->now()));
-		} catch (Throwable $exception) {
-			$this->logger->error('LaunchPad summary mail run failed: {message}', ['message' => $exception->getMessage()]);
-		}
+		$this->summary->sendDue(now: new DateTimeImmutable('@'.$this->time->getTime()));
 	}//end run()
 }//end class

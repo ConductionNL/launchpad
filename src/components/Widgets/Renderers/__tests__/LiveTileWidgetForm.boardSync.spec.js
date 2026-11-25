@@ -10,8 +10,8 @@
 import { NcCheckboxRadioSwitch, NcSelect, NcTextField } from '@nextcloud/vue'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import LiveTileWidgetForm from '../LiveTileWidgetForm.vue'
 import LiveTileWidget from '../LiveTileWidget.vue'
+import LiveTileWidgetForm from '../LiveTileWidgetForm.vue'
 import {
 	fetchConnectorAvailability,
 	fetchLiveTileValue,

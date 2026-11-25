@@ -262,6 +262,9 @@ test.describe('dashboards — hide widgets for yourself (REQ-PERSUI-001..002)', 
 			await page.getByTestId('hidden-show-again').first().click()
 
 			await expect(toggle).toHaveText('Hidden (1)')
+			// Wait for the widget that came back to render before asking which
+			// one it is: right after the toggle updates, neither may be there yet.
+			await expect(widget(page, first).or(widget(page, second))).toHaveCount(1)
 			const back = (await widget(page, first).count()) > 0 ? first : second
 			const still = back === first ? second : first
 			await expect(widget(page, back)).toBeVisible()

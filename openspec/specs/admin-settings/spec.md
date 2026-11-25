@@ -91,7 +91,8 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
 - THEN the response MUST always return exactly the thirteen keys listed under Defined Settings: `defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`, `defaultSharePermissionLevel`, `forcedShareGroups`, `sharingAllowedGroups`, `sharingRecipientScope`, `legacyWidgetBridgeEnabled`, `maxDashboardsPerUser`, `maxWidgetsPerDashboard`, `quicksearchFallbackTarget`
 - AND no additional keys MUST be present in the response
 - NOTE: This scenario said "exactly four keys" long after the response had grown to twelve. The list above is taken from `AdminSettingsService::getSettings()`; a key added there MUST be added here and to the Defined Settings table.
-- AND the response MUST be a flat JSON object (no nesting)
+- AND the response MUST be a flat JSON object (no nesting), except `leaverHandover`, which is `{manager, fallbackUid}` (REQ-SHARE-016)
+- NOTE: Other capabilities added keys since (`filterTelemetryEnabled`, `tileAllowedSchemes`, `ssoLaunchTemplates`, `announcementEditorGroups`, `officeNetworks`, `currentAddress`, `currentAddressInOfficeNetworks`, `pinnedCommunities`, `defaultAppEnabled`, `sharingAllowed`, `publicLinksAllowed`, `leaverHandover`); `AdminSettingsServiceTest::testGetSettingsReturnsExactlyTheDocumentedKeysAtTheirDefaults` and `tests/e2e/admin-settings-api.spec.ts` pin the full list
 
 #### Scenario: The retired content storage key is not returned
 - GIVEN an instance that still holds a `content_storage` row written by the retired setup-wizard storage step

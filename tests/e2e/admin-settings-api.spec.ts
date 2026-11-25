@@ -167,7 +167,17 @@ const LATER_KEYS = [
 	'currentAddressInOfficeNetworks',
 	'pinnedCommunities',
 	'defaultAppEnabled',
+	// Sharing policy (REQ-SHARE-016), sharing-policy-board-sync, 25 Nov 2026.
+	'sharingAllowed',
+	'publicLinksAllowed',
+	'leaverHandover',
 ]
+
+/**
+ * The one setting answered as an object: where a leaver's dashboards go,
+ * `{manager, fallbackUid}` (REQ-SHARE-016).
+ */
+const OBJECT_KEYS = ['leaverHandover']
 
 // @e2e admin-settings::settings-response-format-consistency
 test('GET answers exactly the documented keys, flat', async () => {
@@ -180,7 +190,7 @@ test('GET answers exactly the documented keys, flat', async () => {
 	for (const [key, value] of Object.entries(settings)) {
 		const nested =
 			value !== null && typeof value === 'object' && !Array.isArray(value)
-		expect(nested, `"${key}" is a nested object`).toBe(false)
+		expect(nested, `"${key}" is a nested object`).toBe(OBJECT_KEYS.includes(key))
 	}
 
 	// The thirteen keys of the Defined Settings table, plus the nine settings

@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Anslutningar på den här instrumentpanelen",
+    "Connection states need the Integrations app" : "Anslutningarnas status kräver appen Integrationer",
+    "No widget on this dashboard uses an outside connection" : "Ingen widget på den här instrumentpanelen använder en extern anslutning",
+    "Loading connection states …" : "Läser in anslutningarnas status …",
+    "The connection states could not be loaded. Try again later." : "Anslutningarnas status kunde inte läsas in. Försök igen senare.",
+    "Last error: {time}" : "Senaste fel: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Visar de externa anslutningar som widgetarna på den här instrumentpanelen använder, med den status appen Integrationer har för var och en. Var och en ser det OpenRegister låter dem se.",
     "What do you think of this dashboard?" : "Vad tycker du om den här instrumentpanelen?",
     "today {time}" : "i dag {time}",
     "Last updated {when}" : "Senast uppdaterad {when}",
@@ -1841,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Sökresultat",
     "No results" : "Inga resultat",
     "Show all results" : "Visa alla resultat",
-    "Tip: type {prefix} to search {name} directly" : "Tips: skriv {prefix} för att söka direkt i {name}"
+    "Tip: type {prefix} to search {name} directly" : "Tips: skriv {prefix} för att söka direkt i {name}",
+    "{app}, outage since {time}" : "{app}, avbrott sedan {time}",
+    "Own colour" : "Egen färg",
+    "Primary, dark" : "Primär, mörk",
+    "Accent" : "Accent",
+    "Accent, dark" : "Accent, mörk",
+    "Ink" : "Bläck",
+    "Text grey" : "Textgrå",
+    "Muted grey" : "Dämpad grå",
+    "Field grey" : "Fältgrå"
 },
 "nplurals=2; plural=(n != 1);"
 );

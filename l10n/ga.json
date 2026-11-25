@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Naisc an deais seo",
+        "Connection states need the Integrations app": "Teastaíonn an aip Comhtháthú le haghaidh staid na nasc",
+        "No widget on this dashboard uses an outside connection": "Ní úsáideann aon ghiuirléid ar an deais seo nasc seachtrach",
+        "Loading connection states …": "Staid na nasc á lódáil …",
+        "The connection states could not be loaded. Try again later.": "Níorbh fhéidir staid na nasc a lódáil. Bain triail eile as ar ball.",
+        "Last error: {time}": "An earráid dheireanach: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Taispeánann sé na naisc sheachtracha a úsáideann giuirléidí an deais seo, leis an staid a choinníonn an aip Comhtháthú do gach ceann. Feiceann gach duine an méid a ligeann OpenRegister dóibh.",
         "Dashboard renamed to %s": "Athainmníodh an deais go %s",
         "Columns from %1$s to %2$s": "Colúin ó %1$s go %2$s",
         "Widget %s added": "Cuireadh giuirléid %s leis",
@@ -1750,6 +1757,15 @@
             "Roinnte ag %1$s · %n ngiuirléid",
             "Roinnte ag %1$s · %n giuirléid"
         ],
+        "{app}, outage since {time}": "{app}, briste ó {time}",
+        "Own colour": "Do dhath féin",
+        "Primary, dark": "Príomhúil, dorcha",
+        "Accent": "Aiceann",
+        "Accent, dark": "Aiceann, dorcha",
+        "Ink": "Dúch",
+        "Text grey": "Liath téacs",
+        "Muted grey": "Liath maolaithe",
+        "Field grey": "Liath réimse",
         "Look": "Cuma",
         "Accent color": "Dath aibhsithe",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Tabhair a dathanna féin don deais seo. Fág réimse folamh chun an téama a leanúint.",

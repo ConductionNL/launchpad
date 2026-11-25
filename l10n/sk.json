@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Pripojenia tohto panela",
+        "Connection states need the Integrations app": "Stav pripojení vyžaduje aplikáciu Integrácie",
+        "No widget on this dashboard uses an outside connection": "Žiadny widget na tomto paneli nepoužíva externé pripojenie",
+        "Loading connection states …": "Načítava sa stav pripojení …",
+        "The connection states could not be loaded. Try again later.": "Stav pripojení sa nepodarilo načítať. Skúste to neskôr.",
+        "Last error: {time}": "Posledná chyba: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Zobrazuje externé pripojenia, ktoré používajú widgety tohto panela, so stavom, ktorý pre každé vedie aplikácia Integrácie. Každý vidí to, čo mu OpenRegister dovolí vidieť.",
         "Dashboard renamed to %s": "Nástenka premenovaná na %s",
         "Columns from %1$s to %2$s": "Stĺpce z %1$s na %2$s",
         "Widget %s added": "Pridaný widget %s",
@@ -1744,6 +1751,15 @@
             "Zdieľa %1$s · %n widgety",
             "Zdieľa %1$s · %n widgetov"
         ],
+        "{app}, outage since {time}": "{app}, výpadok od {time}",
+        "Own colour": "Vlastná farba",
+        "Primary, dark": "Primárna, tmavá",
+        "Accent": "Akcent",
+        "Accent, dark": "Akcent, tmavý",
+        "Ink": "Atrament",
+        "Text grey": "Sivá textu",
+        "Muted grey": "Tlmená sivá",
+        "Field grey": "Sivá poľa",
         "Look": "Vzhľad",
         "Accent color": "Farba zvýraznenia",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Dajte tomuto panelu vlastné farby. Ponechajte pole prázdne, aby sa použila téma.",

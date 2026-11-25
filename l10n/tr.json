@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Bu panonun bağlantıları",
+        "Connection states need the Integrations app": "Bağlantı durumları için Entegrasyonlar uygulaması gerekir",
+        "No widget on this dashboard uses an outside connection": "Bu panodaki hiçbir bileşen dış bağlantı kullanmıyor",
+        "Loading connection states …": "Bağlantı durumları yükleniyor …",
+        "The connection states could not be loaded. Try again later.": "Bağlantı durumları yüklenemedi. Daha sonra yeniden deneyin.",
+        "Last error: {time}": "Son hata: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Bu panodaki bileşenlerin kullandığı dış bağlantıları, Entegrasyonlar uygulamasının her biri için tuttuğu durumla gösterir. Herkes OpenRegister'ın izin verdiğini görür.",
         "Dashboard renamed to %s": "Pano %s olarak yeniden adlandırıldı",
         "Columns from %1$s to %2$s": "Sütunlar %1$s → %2$s",
         "Widget %s added": "%s pencere öğesi eklendi",
@@ -1741,6 +1748,15 @@
             "Paylaşan: %1$s · %n pencere öğesi",
             "Paylaşan: %1$s · %n pencere öğesi"
         ],
+        "{app}, outage since {time}": "{app}, {time} saatinden beri kesinti",
+        "Own colour": "Kendi renginiz",
+        "Primary, dark": "Birincil, koyu",
+        "Accent": "Vurgu",
+        "Accent, dark": "Vurgu, koyu",
+        "Ink": "Mürekkep",
+        "Text grey": "Metin grisi",
+        "Muted grey": "Soluk gri",
+        "Field grey": "Alan grisi",
         "Look": "Görünüm",
         "Accent color": "Vurgu rengi",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Bu panoya kendi renklerini verin. Temayı izlemek için bir alanı boş bırakın.",

@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Tämän kojelaudan yhteydet",
+    "Connection states need the Integrations app" : "Yhteyksien tila vaatii Integraatiot-sovelluksen",
+    "No widget on this dashboard uses an outside connection" : "Mikään tämän kojelaudan pienoisohjelma ei käytä ulkoista yhteyttä",
+    "Loading connection states …" : "Ladataan yhteyksien tilaa …",
+    "The connection states could not be loaded. Try again later." : "Yhteyksien tilaa ei voitu ladata. Yritä myöhemmin uudelleen.",
+    "Last error: {time}" : "Viimeisin virhe: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Näyttää ulkoiset yhteydet, joita tämän kojelaudan pienoisohjelmat käyttävät, ja tilan, jonka Integraatiot-sovellus kustakin pitää. Kukin näkee sen, minkä OpenRegister antaa nähdä.",
     "What do you think of this dashboard?" : "Mitä mieltä olet tästä koontinäytöstä?",
     "today {time}" : "tänään {time}",
     "Last updated {when}" : "Päivitetty viimeksi {when}",
@@ -1841,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Hakutulokset",
     "No results" : "Ei tuloksia",
     "Show all results" : "Näytä kaikki tulokset",
-    "Tip: type {prefix} to search {name} directly" : "Vinkki: kirjoita {prefix} hakeaksesi suoraan palvelusta {name}"
+    "Tip: type {prefix} to search {name} directly" : "Vinkki: kirjoita {prefix} hakeaksesi suoraan palvelusta {name}",
+    "{app}, outage since {time}" : "{app}, häiriö {time} alkaen",
+    "Own colour" : "Oma väri",
+    "Primary, dark" : "Ensisijainen, tumma",
+    "Accent" : "Korostus",
+    "Accent, dark" : "Korostus, tumma",
+    "Ink" : "Muste",
+    "Text grey" : "Tekstin harmaa",
+    "Muted grey" : "Vaimea harmaa",
+    "Field grey" : "Kentän harmaa"
 },
 "nplurals=2; plural=(n != 1);"
 );

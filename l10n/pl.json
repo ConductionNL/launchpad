@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Połączenia tego pulpitu",
+        "Connection states need the Integrations app": "Stan połączeń wymaga aplikacji Integracje",
+        "No widget on this dashboard uses an outside connection": "Żaden widżet na tym pulpicie nie używa połączenia zewnętrznego",
+        "Loading connection states …": "Wczytywanie stanu połączeń …",
+        "The connection states could not be loaded. Try again later.": "Nie udało się wczytać stanu połączeń. Spróbuj ponownie później.",
+        "Last error: {time}": "Ostatni błąd: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Pokazuje połączenia zewnętrzne używane przez widżety tego pulpitu wraz ze stanem, który aplikacja Integracje przechowuje dla każdego z nich. Każdy widzi to, co pozwala mu zobaczyć OpenRegister.",
         "Dashboard renamed to %s": "Zmieniono nazwę pulpitu na %s",
         "Columns from %1$s to %2$s": "Kolumny z %1$s na %2$s",
         "Widget %s added": "Dodano widżet %s",
@@ -1744,6 +1751,15 @@
             "Udostępnione przez %1$s · %n widżety",
             "Udostępnione przez %1$s · %n widżetów"
         ],
+        "{app}, outage since {time}": "{app}, awaria od {time}",
+        "Own colour": "Własny kolor",
+        "Primary, dark": "Podstawowy, ciemny",
+        "Accent": "Akcent",
+        "Accent, dark": "Akcent, ciemny",
+        "Ink": "Atrament",
+        "Text grey": "Szary tekstu",
+        "Muted grey": "Stonowany szary",
+        "Field grey": "Szary pola",
         "Look": "Wygląd",
         "Accent color": "Kolor akcentu",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Nadaj temu pulpitowi własne kolory. Pozostaw pole puste, aby używać motywu.",

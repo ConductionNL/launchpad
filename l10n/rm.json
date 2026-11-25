@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Colliaziuns da quest dashboard",
+        "Connection states need the Integrations app": "Per il stadi da las colliaziuns è necessaria l’app Integraziuns",
+        "No widget on this dashboard uses an outside connection": "Nagin widget sin quest dashboard na dovra ina colliaziun externa",
+        "Loading connection states …": "Chargiar il stadi da las colliaziuns …",
+        "The connection states could not be loaded. Try again later.": "Impussibel da chargiar il stadi da las colliaziuns. Emprova pli tard anc ina giada.",
+        "Last error: {time}": "Ultima errur: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Mussa las colliaziuns externas che vegnan duvradas dals widgets da quest dashboard, cun il stadi che l’app Integraziuns tegna per mintgina. Mintgin vesa quai che OpenRegister al lascha vesair.",
         "Dashboard renamed to %s": "Tavla renumnada en %s",
         "Columns from %1$s to %2$s": "Colonnas da %1$s a %2$s",
         "Widget %s added": "Widget %s agiuntà",
@@ -1741,6 +1748,15 @@
             "Partì da %1$s · %n widget",
             "Partì da %1$s · %n widgets"
         ],
+        "{app}, outage since {time}": "{app}, disturbi dapi {time}",
+        "Own colour": "Atgna colur",
+        "Primary, dark": "Primara, stgira",
+        "Accent": "Accent",
+        "Accent, dark": "Accent, stgir",
+        "Ink": "Tinta",
+        "Text grey": "Grisch da text",
+        "Muted grey": "Grisch mitigà",
+        "Field grey": "Grisch da champ",
         "Look": "Aspect",
         "Accent color": "Colur d'accent",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Dai a quest tavel ses atgnas colurs. Laschai in champ vid per suandar il tema.",

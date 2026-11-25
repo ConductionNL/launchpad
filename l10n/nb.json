@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Tilkoblinger på dette dashbordet",
+        "Connection states need the Integrations app": "Status for tilkoblinger krever appen Integrasjoner",
+        "No widget on this dashboard uses an outside connection": "Ingen widget på dette dashbordet bruker en ekstern tilkobling",
+        "Loading connection states …": "Laster inn status for tilkoblinger …",
+        "The connection states could not be loaded. Try again later.": "Status for tilkoblingene kunne ikke lastes inn. Prøv igjen senere.",
+        "Last error: {time}": "Siste feil: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Viser de eksterne tilkoblingene widgetene på dette dashbordet bruker, med statusen appen Integrasjoner har for hver. Hver person ser det OpenRegister lar dem se.",
         "Dashboard renamed to %s": "Dashbord omdøpt til %s",
         "Columns from %1$s to %2$s": "Kolonner fra %1$s til %2$s",
         "Widget %s added": "Widget %s lagt til",
@@ -1741,6 +1748,15 @@
             "Delt av %1$s · %n widget",
             "Delt av %1$s · %n widgeter"
         ],
+        "{app}, outage since {time}": "{app}, driftsavbrudd siden {time}",
+        "Own colour": "Egen farge",
+        "Primary, dark": "Primær, mørk",
+        "Accent": "Aksent",
+        "Accent, dark": "Aksent, mørk",
+        "Ink": "Blekk",
+        "Text grey": "Tekstgrå",
+        "Muted grey": "Dempet grå",
+        "Field grey": "Feltgrå",
         "Look": "Utseende",
         "Accent color": "Aksentfarge",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Gi dette dashbordet egne farger. La et felt stå tomt for å følge temaet.",

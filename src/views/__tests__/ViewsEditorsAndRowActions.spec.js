@@ -203,7 +203,41 @@ describe('Views tile editor', () => {
 			expectedStatus: 204,
 			pingInterval: 30,
 			linkTarget: '',
+			colourToken: '',
 		})
+	})
+
+	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+	it('saves the colour token and keeps what the form does not edit', async () => {
+		const updateWidgetPlacement = vi.fn().mockResolvedValue(undefined)
+		const placement = {
+			id: 8,
+			content: { iconOnly: true, pinned: true, countSource: { register: 'r', schema: 's' }, healthPingEnabled: true, colourToken: '--sc-accent' },
+		}
+		const host = makeHost({ updateWidgetPlacement, closeTileEditor: vi.fn(), editingTile: { id: 8 }, widgetPlacements: [placement] })
+
+		await host.saveTile({ title: 'Zaaksysteem', linkType: 'url', linkValue: 'https://z.test', colourToken: '--sc-primary', healthPingEnabled: false })
+
+		const { content } = updateWidgetPlacement.mock.calls[0][1]
+		expect(content).toMatchObject({ iconOnly: true, pinned: true, countSource: { register: 'r', schema: 's' }, colourToken: '--sc-primary', healthPingEnabled: false })
+	})
+
+	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+	it('drops a colour token the form cleared, and stores one on a new tile', async () => {
+		const updateWidgetPlacement = vi.fn().mockResolvedValue(undefined)
+		const host = makeHost({
+			updateWidgetPlacement,
+			closeTileEditor: vi.fn(),
+			editingTile: { id: 9 },
+			widgetPlacements: [{ id: 9, content: { colourToken: '--sc-accent' } }],
+		})
+		await host.saveTile({ title: 'Mail', linkType: 'url', linkValue: 'https://m.test', colourToken: '' })
+		expect(updateWidgetPlacement.mock.calls[0][1].content).not.toHaveProperty('colourToken')
+
+		const addTileToDashboard = vi.fn().mockResolvedValue({ id: 30 })
+		const fresh = makeHost({ updateWidgetPlacement: vi.fn(), addTileToDashboard, closeTileEditor: vi.fn(), editingTile: null })
+		await fresh.saveTile({ title: 'Wiki', linkType: 'url', linkValue: 'https://w.test', colourToken: '--sc-work-ink' })
+		expect(fresh.updateWidgetPlacement).toHaveBeenCalledWith(30, { content: expect.objectContaining({ colourToken: '--sc-work-ink' }) })
 	})
 
 	it('defaults the health-ping fields for a tile without content', () => {

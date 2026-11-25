@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Připojení tohoto panelu",
+    "Connection states need the Integrations app" : "Stav připojení vyžaduje aplikaci Integrace",
+    "No widget on this dashboard uses an outside connection" : "Žádný widget na tomto panelu nepoužívá externí připojení",
+    "Loading connection states …" : "Načítání stavu připojení …",
+    "The connection states could not be loaded. Try again later." : "Stav připojení se nepodařilo načíst. Zkuste to později.",
+    "Last error: {time}" : "Poslední chyba: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Zobrazuje externí připojení, která používají widgety tohoto panelu, se stavem, který pro každé vede aplikace Integrace. Každý vidí to, co mu OpenRegister dovolí vidět.",
     "What do you think of this dashboard?" : "Co si myslíte o tomto přehledu?",
     "today {time}" : "dnes {time}",
     "Last updated {when}" : "Naposledy aktualizováno {when}",
@@ -1841,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Výsledky hledání",
     "No results" : "Žádné výsledky",
     "Show all results" : "Zobrazit všechny výsledky",
-    "Tip: type {prefix} to search {name} directly" : "Tip: napište {prefix} a hledejte přímo v {name}"
+    "Tip: type {prefix} to search {name} directly" : "Tip: napište {prefix} a hledejte přímo v {name}",
+    "{app}, outage since {time}" : "{app}, výpadek od {time}",
+    "Own colour" : "Vlastní barva",
+    "Primary, dark" : "Primární, tmavá",
+    "Accent" : "Akcent",
+    "Accent, dark" : "Akcent, tmavý",
+    "Ink" : "Inkoust",
+    "Text grey" : "Šedá textu",
+    "Muted grey" : "Tlumená šedá",
+    "Field grey" : "Šedá pole"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

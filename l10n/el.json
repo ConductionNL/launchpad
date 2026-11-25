@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Συνδέσεις αυτού του πίνακα",
+        "Connection states need the Integrations app": "Η κατάσταση των συνδέσεων απαιτεί την εφαρμογή Ενοποιήσεις",
+        "No widget on this dashboard uses an outside connection": "Κανένα γραφικό στοιχείο σε αυτόν τον πίνακα δεν χρησιμοποιεί εξωτερική σύνδεση",
+        "Loading connection states …": "Φόρτωση κατάστασης συνδέσεων …",
+        "The connection states could not be loaded. Try again later.": "Δεν ήταν δυνατή η φόρτωση της κατάστασης των συνδέσεων. Δοκιμάστε ξανά αργότερα.",
+        "Last error: {time}": "Τελευταίο σφάλμα: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Εμφανίζει τις εξωτερικές συνδέσεις που χρησιμοποιούν τα γραφικά στοιχεία αυτού του πίνακα, με την κατάσταση που κρατά η εφαρμογή Ενοποιήσεις για καθεμία. Ο καθένας βλέπει ό,τι του επιτρέπει το OpenRegister.",
         "Dashboard renamed to %s": "Ο πίνακας μετονομάστηκε σε %s",
         "Columns from %1$s to %2$s": "Στήλες από %1$s σε %2$s",
         "Widget %s added": "Προστέθηκε το γραφικό στοιχείο %s",
@@ -1741,6 +1748,15 @@
             "Κοινοποιήθηκε από %1$s · %n γραφικό στοιχείο",
             "Κοινοποιήθηκε από %1$s · %n γραφικά στοιχεία"
         ],
+        "{app}, outage since {time}": "{app}, διακοπή από τις {time}",
+        "Own colour": "Δικό σας χρώμα",
+        "Primary, dark": "Κύριο, σκούρο",
+        "Accent": "Τόνος",
+        "Accent, dark": "Τόνος, σκούρος",
+        "Ink": "Μελάνι",
+        "Text grey": "Γκρι κειμένου",
+        "Muted grey": "Απαλό γκρι",
+        "Field grey": "Γκρι πεδίου",
         "Look": "Εμφάνιση",
         "Accent color": "Χρώμα έμφασης",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Δώστε σε αυτόν τον πίνακα δικά του χρώματα. Αφήστε ένα πεδίο κενό για να ακολουθεί το θέμα.",

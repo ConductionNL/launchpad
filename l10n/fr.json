@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Connexions de ce tableau de bord",
+        "Connection states need the Integrations app": "L’état des connexions nécessite l’application Intégrations",
+        "No widget on this dashboard uses an outside connection": "Aucun widget de ce tableau de bord n’utilise de connexion externe",
+        "Loading connection states …": "Chargement de l’état des connexions …",
+        "The connection states could not be loaded. Try again later.": "L’état des connexions n’a pas pu être chargé. Réessayez plus tard.",
+        "Last error: {time}": "Dernière erreur : {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Affiche les connexions externes utilisées par les widgets de ce tableau de bord, avec l’état que l’application Intégrations conserve pour chacune. Chaque personne voit ce qu’OpenRegister lui permet de voir.",
         "Dashboard renamed to %s": "Tableau de bord renommé en %s",
         "Columns from %1$s to %2$s": "Colonnes de %1$s à %2$s",
         "Widget %s added": "Widget %s ajouté",
@@ -1741,6 +1748,15 @@
             "Partagé par %1$s · %n widget",
             "Partagé par %1$s · %n widgets"
         ],
+        "{app}, outage since {time}": "{app}, panne depuis {time}",
+        "Own colour": "Couleur personnalisée",
+        "Primary, dark": "Primaire, foncé",
+        "Accent": "Accent",
+        "Accent, dark": "Accent, foncé",
+        "Ink": "Encre",
+        "Text grey": "Gris texte",
+        "Muted grey": "Gris atténué",
+        "Field grey": "Gris de champ",
         "Look": "Apparence",
         "Accent color": "Couleur d'accent",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Donnez à ce tableau de bord ses propres couleurs. Laissez un champ vide pour suivre le thème.",

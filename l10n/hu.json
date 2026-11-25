@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Az irányítópult kapcsolatai",
+        "Connection states need the Integrations app": "A kapcsolatok állapotához az Integrációk alkalmazás szükséges",
+        "No widget on this dashboard uses an outside connection": "Az irányítópult egyik modulja sem használ külső kapcsolatot",
+        "Loading connection states …": "Kapcsolatok állapotának betöltése …",
+        "The connection states could not be loaded. Try again later.": "A kapcsolatok állapotát nem sikerült betölteni. Próbálja újra később.",
+        "Last error: {time}": "Utolsó hiba: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Megmutatja az irányítópult moduljai által használt külső kapcsolatokat, azzal az állapottal, amelyet az Integrációk alkalmazás mindegyikről nyilvántart. Mindenki azt látja, amit az OpenRegister megenged neki.",
         "Dashboard renamed to %s": "Irányítópult átnevezve: %s",
         "Columns from %1$s to %2$s": "Oszlopok: %1$s → %2$s",
         "Widget %s added": "%s modul hozzáadva",
@@ -1741,6 +1748,15 @@
             "Megosztotta: %1$s · %n widget",
             "Megosztotta: %1$s · %n widget"
         ],
+        "{app}, outage since {time}": "{app}, üzemzavar {time} óta",
+        "Own colour": "Saját szín",
+        "Primary, dark": "Elsődleges, sötét",
+        "Accent": "Kiemelés",
+        "Accent, dark": "Kiemelés, sötét",
+        "Ink": "Tinta",
+        "Text grey": "Szövegszürke",
+        "Muted grey": "Tompa szürke",
+        "Field grey": "Mezőszürke",
         "Look": "Megjelenés",
         "Accent color": "Kiemelőszín",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Adjon ennek az irányítópultnak saját színeket. Hagyjon üresen egy mezőt a téma követéséhez.",

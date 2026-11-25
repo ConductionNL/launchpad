@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Verbindungen dieses Dashboards",
+    "Connection states need the Integrations app" : "Für den Verbindungsstatus wird die App Integrationen benötigt",
+    "No widget on this dashboard uses an outside connection" : "Kein Widget auf diesem Dashboard nutzt eine externe Verbindung",
+    "Loading connection states …" : "Verbindungsstatus wird geladen …",
+    "The connection states could not be loaded. Try again later." : "Der Verbindungsstatus konnte nicht geladen werden. Versuchen Sie es später erneut.",
+    "Last error: {time}" : "Letzter Fehler: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Zeigt die externen Verbindungen, die die Widgets auf diesem Dashboard nutzen, mit dem Status, den die App Integrationen für jede führt. Jede Person sieht, was OpenRegister ihr zeigt.",
     "What do you think of this dashboard?" : "Was halten Sie von diesem Dashboard?",
     "today {time}" : "heute {time}",
     "Last updated {when}" : "Zuletzt aktualisiert {when}",
@@ -1841,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Suchergebnisse",
     "No results" : "Keine Ergebnisse",
     "Show all results" : "Alle Ergebnisse anzeigen",
-    "Tip: type {prefix} to search {name} directly" : "Tipp: Geben Sie {prefix} ein, um direkt in {name} zu suchen"
+    "Tip: type {prefix} to search {name} directly" : "Tipp: Geben Sie {prefix} ein, um direkt in {name} zu suchen",
+    "{app}, outage since {time}" : "{app}, Störung seit {time}",
+    "Own colour" : "Eigene Farbe",
+    "Primary, dark" : "Primär, dunkel",
+    "Accent" : "Akzent",
+    "Accent, dark" : "Akzent, dunkel",
+    "Ink" : "Tinte",
+    "Text grey" : "Textgrau",
+    "Muted grey" : "Gedämpftes Grau",
+    "Field grey" : "Feldgrau"
 },
 "nplurals=2; plural=(n != 1);"
 );

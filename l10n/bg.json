@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Връзки на това табло",
+        "Connection states need the Integrations app": "За състоянието на връзките е нужно приложението Интеграции",
+        "No widget on this dashboard uses an outside connection": "Нито една джаджа на това табло не използва външна връзка",
+        "Loading connection states …": "Зареждане на състоянието на връзките …",
+        "The connection states could not be loaded. Try again later.": "Състоянието на връзките не можа да се зареди. Опитайте отново по-късно.",
+        "Last error: {time}": "Последна грешка: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Показва външните връзки, които използват джаджите на това табло, със състоянието, което приложението Интеграции пази за всяка. Всеки вижда това, което OpenRegister му позволява.",
         "Dashboard renamed to %s": "Таблото е преименувано на %s",
         "Columns from %1$s to %2$s": "Колони от %1$s на %2$s",
         "Widget %s added": "Добавена джаджа %s",
@@ -1741,6 +1748,15 @@
             "Споделено от %1$s · %n уиджет",
             "Споделено от %1$s · %n уиджета"
         ],
+        "{app}, outage since {time}": "{app}, прекъсване от {time}",
+        "Own colour": "Собствен цвят",
+        "Primary, dark": "Основен, тъмен",
+        "Accent": "Акцент",
+        "Accent, dark": "Акцент, тъмен",
+        "Ink": "Мастило",
+        "Text grey": "Сив за текст",
+        "Muted grey": "Приглушен сив",
+        "Field grey": "Сив за поле",
         "Look": "Изглед",
         "Accent color": "Цвят на акцента",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Дайте на това табло собствени цветове. Оставете поле празно, за да следва темата.",

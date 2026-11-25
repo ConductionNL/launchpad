@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Conexiunile acestui panou",
+        "Connection states need the Integrations app": "Starea conexiunilor necesită aplicația Integrări",
+        "No widget on this dashboard uses an outside connection": "Niciun widget de pe acest panou nu folosește o conexiune externă",
+        "Loading connection states …": "Se încarcă starea conexiunilor …",
+        "The connection states could not be loaded. Try again later.": "Starea conexiunilor nu a putut fi încărcată. Încercați din nou mai târziu.",
+        "Last error: {time}": "Ultima eroare: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Arată conexiunile externe folosite de widgeturile acestui panou, cu starea pe care aplicația Integrări o păstrează pentru fiecare. Fiecare persoană vede ce îi permite OpenRegister.",
         "Dashboard renamed to %s": "Panou redenumit în %s",
         "Columns from %1$s to %2$s": "Coloane de la %1$s la %2$s",
         "Widget %s added": "Widget %s adăugat",
@@ -1744,6 +1751,15 @@
             "Partajat de %1$s · %n widgeturi",
             "Partajat de %1$s · %n de widgeturi"
         ],
+        "{app}, outage since {time}": "{app}, întrerupere de la {time}",
+        "Own colour": "Culoare proprie",
+        "Primary, dark": "Primar, închis",
+        "Accent": "Accent",
+        "Accent, dark": "Accent, închis",
+        "Ink": "Cerneală",
+        "Text grey": "Gri text",
+        "Muted grey": "Gri estompat",
+        "Field grey": "Gri câmp",
         "Look": "Aspect",
         "Accent color": "Culoare de accent",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Dați acestui panou propriile culori. Lăsați un câmp gol pentru a urma tema.",

@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Veze ove nadzorne ploče",
+        "Connection states need the Integrations app": "Za stanje veza potrebna je aplikacija Integracije",
+        "No widget on this dashboard uses an outside connection": "Nijedan widget na ovoj nadzornoj ploči ne koristi vanjsku vezu",
+        "Loading connection states …": "Učitavanje stanja veza …",
+        "The connection states could not be loaded. Try again later.": "Stanje veza nije moguće učitati. Pokušajte ponovno kasnije.",
+        "Last error: {time}": "Posljednja pogreška: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Prikazuje vanjske veze koje koriste widgeti na ovoj nadzornoj ploči, sa stanjem koje aplikacija Integracije vodi za svaku. Svatko vidi ono što mu OpenRegister dopušta.",
         "Dashboard renamed to %s": "Nadzorna ploča preimenovana u %s",
         "Columns from %1$s to %2$s": "Stupci iz %1$s u %2$s",
         "Widget %s added": "Dodan widget %s",
@@ -1744,6 +1751,15 @@
             "Dijeli %1$s · %n widgeta",
             "Dijeli %1$s · %n widgeta"
         ],
+        "{app}, outage since {time}": "{app}, ispad od {time}",
+        "Own colour": "Vlastita boja",
+        "Primary, dark": "Primarna, tamna",
+        "Accent": "Naglasak",
+        "Accent, dark": "Naglasak, tamni",
+        "Ink": "Tinta",
+        "Text grey": "Siva teksta",
+        "Muted grey": "Prigušena siva",
+        "Field grey": "Siva polja",
         "Look": "Izgled",
         "Accent color": "Boja naglaska",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Dajte ovoj nadzornoj ploči vlastite boje. Ostavite polje prazno da biste slijedili temu.",

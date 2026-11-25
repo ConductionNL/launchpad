@@ -32,6 +32,50 @@ export const IDLE_TIMEOUT_MS = 1000
 export const ROOT_MARGIN = '100% 0px'
 
 /**
+ * The browser features LazyMount uses, behind one seam so tests can swap them.
+ *
+ * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+ */
+export const LazyMountSupport = {
+	/**
+	 * The IntersectionObserver constructor, or null without one.
+	 *
+	 * @return {typeof IntersectionObserver|null} The constructor.
+	 */
+	observer() {
+		return typeof window !== 'undefined' && typeof window.IntersectionObserver === 'function'
+			? window.IntersectionObserver
+			: null
+	},
+
+	/**
+	 * Run `callback` `delay` ms from now, at the browser's next idle moment
+	 * after that (at most `timeout` ms later).
+	 *
+	 * @param {() => void} callback What to run.
+	 * @param {number} delay The wait before looking for an idle moment, in ms.
+	 * @param {number} timeout The longest wait for that idle moment, in ms.
+	 * @return {() => void} Cancels the wait.
+	 */
+	whenSettled(callback, delay, timeout) {
+		let idleHandle = null
+		const timer = window.setTimeout(() => {
+			if (typeof window.requestIdleCallback === 'function') {
+				idleHandle = window.requestIdleCallback(callback, { timeout })
+			} else {
+				callback()
+			}
+		}, delay)
+		return () => {
+			window.clearTimeout(timer)
+			if (idleHandle !== null) {
+				window.cancelIdleCallback?.(idleHandle)
+			}
+		}
+	},
+}
+
+/**
  * Mounts its slot when it is about to be seen.
  *
  * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
@@ -136,49 +180,6 @@ export default {
 	},
 }
 
-/**
- * The browser features LazyMount uses, behind one seam so tests can swap them.
- *
- * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
- */
-export const LazyMountSupport = {
-	/**
-	 * The IntersectionObserver constructor, or null without one.
-	 *
-	 * @return {Function|null} The constructor.
-	 */
-	observer() {
-		return typeof window !== 'undefined' && typeof window.IntersectionObserver === 'function'
-			? window.IntersectionObserver
-			: null
-	},
-
-	/**
-	 * Run `callback` `delay` ms from now, at the browser's next idle moment
-	 * after that (at most `timeout` ms later).
-	 *
-	 * @param {() => void} callback What to run.
-	 * @param {number} delay The wait before looking for an idle moment, in ms.
-	 * @param {number} timeout The longest wait for that idle moment, in ms.
-	 * @return {() => void} Cancels the wait.
-	 */
-	whenSettled(callback, delay, timeout) {
-		let idleHandle = null
-		const timer = window.setTimeout(() => {
-			if (typeof window.requestIdleCallback === 'function') {
-				idleHandle = window.requestIdleCallback(callback, { timeout })
-			} else {
-				callback()
-			}
-		}, delay)
-		return () => {
-			window.clearTimeout(timer)
-			if (idleHandle !== null) {
-				window.cancelIdleCallback?.(idleHandle)
-			}
-		}
-	},
-}
 </script>
 
 <style scoped>

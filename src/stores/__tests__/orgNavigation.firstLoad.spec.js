@@ -5,7 +5,7 @@
  * The org navigation store's first load: from the initial state when the
  * page carries it, from the API when it does not.
  *
- * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-4
  */
 
 import { createPinia, setActivePinia } from 'pinia'

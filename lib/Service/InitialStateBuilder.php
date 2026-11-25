@@ -314,7 +314,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self
 	 *
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-2
 	 */
 	public function setDashboardFirstLoad(?array $firstLoad): self {
 		if ($firstLoad !== null) {
@@ -334,7 +334,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self
 	 *
-	 * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-2
 	 */
 	public function setOrgNavigation(?array $orgNavigation): self {
 		if ($orgNavigation !== null) {
@@ -355,7 +355,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self
 	 *
-	 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-2
 	 */
 	public function setWorkspaceBootReads(?array $bootReads): self {
 		if ($bootReads !== null) {
@@ -374,7 +374,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self
 	 *
-	 * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-2
 	 */
 	public function setRuntimeManifest(?array $manifest): self {
 		if ($manifest !== null) {
@@ -477,6 +477,25 @@ class InitialStateBuilder {
 		$this->values['filterTelemetryEnabled'] = $enabled;
 		return $this;
 	}//end setFilterTelemetryEnabled()
+
+	/**
+	 * Push both telemetry switches: whether the organisation opted in to
+	 * filter telemetry (REQ-CWF-010) and whether the administrator switched
+	 * dashboard view analytics on, so the page sends no view-event while it
+	 * is off (REQ-ANLT-011). Optional keys: the JS reader defaults them to
+	 * `false` and `true`.
+	 *
+	 * @param bool $filters True when filter telemetry is on.
+	 * @param bool $views   True when `analytics_enabled` is on.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	public function setTelemetry(bool $filters, bool $views): self {
+		$this->values['analyticsEnabled'] = $views;
+		return $this->setFilterTelemetryEnabled(enabled: $filters);
+	}//end setTelemetry()
 
 	/**
 	 * Push what the Sharing tab may offer the viewer (REQ-SHARE-015): adding

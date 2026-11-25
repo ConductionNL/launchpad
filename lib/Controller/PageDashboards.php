@@ -17,7 +17,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-2
  */
 
 declare(strict_types=1);
@@ -32,7 +32,7 @@ use OCA\LaunchPad\Service\SharingLimits;
 /**
  * The dashboard service and the first-load builder of the main page.
  *
- * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-2
  */
 class PageDashboards {
 	/**

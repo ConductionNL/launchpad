@@ -7,7 +7,7 @@
  * The runtime manifest kept per user and app version, the page's first
  * load from it, and the endpoint answering from it.
  *
- * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-4
  */
 
 declare(strict_types=1);

@@ -56,7 +56,8 @@ class SnapshotChangeDescriber {
 	 * Describe what changed from one snapshot to the next.
 	 *
 	 * The first change is named and the rest counted, for example
-	 * "Widget Inbox added and 2 more changes".
+	 * "Widget Inbox added and 2 more changes". Widget changes are listed
+	 * before the dashboard's own name and column changes.
 	 *
 	 * @param string|null $previousJson The older snapshot, or null when there is none.
 	 * @param string      $currentJson  The newer snapshot.
@@ -78,14 +79,17 @@ class SnapshotChangeDescriber {
 			return null;
 		}
 
+		// Widget changes come first, then the dashboard's own name and
+		// columns: "Widget Inbox added and 2 more changes" when Inbox was
+		// added, Oud nieuws removed and the columns changed in one save.
 		$changes = array_merge(
-			$this->dashboardChanges(
-				previous: $this->section(snapshot: $previous, key: 'dashboard'),
-				current: $this->section(snapshot: $current, key: 'dashboard')
-			),
 			$this->placementChanges(
 				previous: $this->placementsById(snapshot: $previous),
 				current: $this->placementsById(snapshot: $current)
+			),
+			$this->dashboardChanges(
+				previous: $this->section(snapshot: $previous, key: 'dashboard'),
+				current: $this->section(snapshot: $current, key: 'dashboard')
 			)
 		);
 

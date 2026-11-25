@@ -65,6 +65,8 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 
 	protected function setUp(): void {
 		$this->dashboardService = $this->createMock(DashboardService::class);
+		// The dashboard exists: a refused update stays 403 (a deleted one is 404, REQ-LOCK-008).
+		$this->dashboardService->method('dashboardExists')->willReturn(true);
 		$this->permissionService = $this->createMock(PermissionService::class);
 		$this->treeService = $this->createMock(DashboardTreeService::class);
 		$this->logger = $this->createMock(LoggerInterface::class);

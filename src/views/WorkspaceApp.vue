@@ -411,7 +411,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-3 */
+	/** @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-3 */
 	mounted() {
 		// The rail mounts only once a position and a non-empty tree are in
 		// the store, so the shell loads both rather than the rail itself.

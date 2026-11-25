@@ -289,7 +289,7 @@ describe('loadInitialState', () => {
 })
 
 /**
- * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-4
  */
 describe('takeDashboardFirstLoad', () => {
 	it('hands out the first load once, then null', async () => {
@@ -327,7 +327,7 @@ describe('takeDashboardFirstLoad', () => {
 })
 
 /**
- * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-4
  */
 describe('takeOrgNavigation', () => {
 	it('hands out the org navigation once, then null', async () => {
@@ -356,7 +356,7 @@ describe('takeOrgNavigation', () => {
 })
 
 /**
- * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-4
  */
 describe('takeBootRead', () => {
 	it('hands out each part once, then undefined', async () => {
@@ -384,7 +384,7 @@ describe('takeBootRead', () => {
 })
 
 /**
- * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-4
  */
 describe('takeRuntimeManifest', () => {
 	it('hands out the kept manifest once, then null', async () => {

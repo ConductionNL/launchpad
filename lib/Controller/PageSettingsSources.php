@@ -26,6 +26,7 @@ namespace OCA\LaunchPad\Controller;
 use OCA\LaunchPad\Kernel\Contracts\PublicStartPageInterface;
 use OCA\LaunchPad\Kernel\Contracts\SearchShortcutServiceInterface;
 use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\AnalyticsService;
 use OCA\LaunchPad\Service\CustomCssService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
@@ -60,6 +61,8 @@ class PageSettingsSources {
 	 * @param IConfig|null                 $config The viewer's Nextcloud timezone (REQ-CLOCK-002).
 	 * @param OrgNavigationFirstLoad|null  $orgNavigation The rail position and tree the shell's first load
 	 *                                                    takes from the initial state.
+	 * @param AnalyticsService|null        $analytics Whether view analytics is on, so the page sends no
+	 *                                                view-event while it is off (REQ-ANLT-011).
 	 */
 	public function __construct(
 		public readonly RoleFeaturePermissionService $roleFeaturePerm,
@@ -73,6 +76,7 @@ class PageSettingsSources {
 		public readonly ?IAppManager $appManager = null,
 		public readonly ?IConfig $config = null,
 		public readonly ?OrgNavigationFirstLoad $orgNavigation = null,
+		public readonly ?AnalyticsService $analytics = null,
 	) {
 	}//end __construct()
 }//end class

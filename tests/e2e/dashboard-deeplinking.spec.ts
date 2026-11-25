@@ -184,22 +184,18 @@ test.afterAll(async () => {
 test.describe.serial('dashboard deep-linking (REQ-DDL-002..007)', () => {
 	// @e2e dashboard-deeplinking::stale-slug-falls-back-silently
 	test('a stale slug lands on a dashboard, not on a 404', async ({ browser }) => {
-		// What the seven-step resolver picks for this account, asked without
-		// any deep link: GET /api/dashboard answers resolveActiveDashboard's
-		// choice, and the path endpoint its canonical chain.
-		const api = await apiAs(account!)
-		let resolverPath: string
+		// What the seven-step resolver picks for this account: the page
+		// shell's chain (REQ-DASH-018, DashboardService::resolveActiveDashboard),
+		// which is the one a stale slug falls back to. GET /api/dashboard
+		// answers the other chain (REQ-DASH-009) and may pick another
+		// dashboard, so the page itself is asked, without a deep link.
+		let resolverPath: unknown
+		const plain = await openAt(browser, APP)
 		try {
-			const active = await api.get(`${API}/dashboard`)
-			expect(active.status(), await active.text()).toBe(200)
-			const envelope = await active.json()
-			const resolved = envelope.dashboard ?? envelope.data?.dashboard ?? envelope
-			expect(typeof resolved.uuid, JSON.stringify(envelope).slice(0, 300)).toBe('string')
-			const path = await api.get(`${API}/dashboards/${resolved.uuid}/path`)
-			expect(path.status(), await path.text()).toBe(200)
-			resolverPath = (await path.json()).path
+			resolverPath = await deepLinkPathOnPage(plain.page)
+			expect(typeof resolverPath, JSON.stringify(resolverPath)).toBe('string')
 		} finally {
-			await api.dispose()
+			await plain.context.close()
 		}
 
 		const { context, page, response } = await openAt(browser, `${APP}/no-such-dashboard-${RUN}`)

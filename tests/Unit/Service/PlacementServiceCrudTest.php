@@ -129,6 +129,19 @@ class PlacementServiceCrudTest extends TestCase {
 		$this->assertSame(['text' => 'Hi'], $placement->getContentArray());
 	}
 
+	/**
+	 * REQ-TMPL-007: the compulsory flag the caller passes is stored.
+	 *
+	 * @return void
+	 */
+	public function testAddWidgetStoresTheCompulsoryFlagTheCallerPasses(): void {
+		$this->insertReturnsArgument();
+
+		$placement = $this->service->addWidget(dashboardId: 7, widgetId: 'text', layout: ['isCompulsory' => 1]);
+
+		$this->assertSame(expected: 1, actual: $placement->getIsCompulsory());
+	}
+
 	public function testAddWidgetIsRefusedForAPublicShareBearer(): void {
 		$this->shareContext->markBearer(token: 'tok');
 		$this->quota->expects($this->never())->method('assertCanAddPlacement');

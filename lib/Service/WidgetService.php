@@ -99,6 +99,11 @@ class WidgetService {
 			return;
 		}
 
+		if ($widgetType === 'quicklinks') {
+			(new QuicklinksContentValidator())->validate(content: $content);
+			return;
+		}
+
 		if ($widgetType === 'text') {
 			(new TextTableValidator())->validate(content: $content);
 			return;

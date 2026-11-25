@@ -219,11 +219,15 @@ class WidgetApiController extends Controller {
 		}
 
 		$layout = [
-			'gridX'      => $gridX,
-			'gridY'      => $gridY,
-			'gridWidth'  => $gridWidth,
-			'gridHeight' => $gridHeight,
-			'content'    => self::contentToPersist(content: $contentParam),
+			'gridX'        => $gridX,
+			'gridY'        => $gridY,
+			'gridWidth'    => $gridWidth,
+			'gridHeight'   => $gridHeight,
+			'content'      => self::contentToPersist(content: $contentParam),
+			'isCompulsory' => $this->compulsoryFlag(
+				dashboardId: $dashboardId,
+				requested: $this->request->getParam(key: 'isCompulsory')
+			),
 		];
 
 		return $this->createPlacement(
@@ -234,6 +238,29 @@ class WidgetApiController extends Controller {
 			)
 		);
 	}//end addWidget()
+
+	/**
+	 * The compulsory flag a new widget gets: what the request's
+	 * `isCompulsory` asks for when a Nextcloud admin adds it to an admin
+	 * template (REQ-TMPL-007), else 0.
+	 *
+	 * @param int   $dashboardId The dashboard ID.
+	 * @param mixed $requested   The request's `isCompulsory`.
+	 *
+	 * @return int 1 or 0.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#requirement-template-widget-management-req-tmpl-007
+	 */
+	private function compulsoryFlag(int $dashboardId, mixed $requested): int {
+		if (in_array(needle: $requested, haystack: [1, '1', true], strict: true) === false) {
+			return 0;
+		}
+
+		return (int)$this->access->permissionService->mayPlaceCompulsory(
+			userId: (string)$this->context->userId,
+			dashboardId: $dashboardId
+		);
+	}//end compulsoryFlag()
 
 	/**
 	 * The per-type content payload to persist with a new widget.

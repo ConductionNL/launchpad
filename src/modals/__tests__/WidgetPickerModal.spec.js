@@ -5,7 +5,11 @@
  * Vitest unit tests for the widget list in `WidgetPickerModal.vue`: order
  * (unplaced first, then by `order`), the placed badge, search, the empty
  * state, the add event and resetting the search on close. The discovered
- * apps section has its own spec.
+ * apps section has its own spec. Since widget-picker-board-sync the Nextcloud
+ * widgets stand as cards under "From other Nextcloud apps", and a card is
+ * placed with Add widget after it is chosen.
+ *
+ * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
  */
 
 import { mount } from '@vue/test-utils'
@@ -20,6 +24,7 @@ const stubs = {
 		template: '<input class="nc-text" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
 	},
 	NcEmptyContent: { props: ['description'], template: '<div class="nc-empty">{{ description }}</div>' },
+	NcButton: { props: ['disabled'], emits: ['click'], template: '<button class="nc-button" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>' },
 }
 
 const WIDGETS = [
@@ -43,8 +48,29 @@ function mountPicker(props = {}) {
  * @return {string[]} the titles in display order.
  */
 function titles(wrapper) {
-	return wrapper.findAll('.widget-picker__list > .widget-picker__widget')
-		.map((row) => row.find('.widget-picker__widget-title').text())
+	return rowsOf(wrapper).map((row) => row.find('.widget-picker__widget-title').text())
+}
+
+/**
+ * The Nextcloud widget cards.
+ *
+ * @param {object} wrapper the mounted picker.
+ * @return {Array<object>} the cards.
+ */
+function rowsOf(wrapper) {
+	return wrapper.findAll('[data-testid="widget-picker-section-apps"] .widget-picker__widget')
+}
+
+/**
+ * Choose a card and press Add widget.
+ *
+ * @param {object} wrapper the mounted picker.
+ * @param {object} card the card.
+ * @return {Promise<void>}
+ */
+async function place(wrapper, card) {
+	await card.trigger('click')
+	await wrapper.find('[data-testid="widget-picker-add"]').trigger('click')
 }
 
 describe('WidgetPickerModal widget list', () => {
@@ -57,10 +83,9 @@ describe('WidgetPickerModal widget list', () => {
 	})
 
 	it('badges a placed widget and shows its icon', () => {
-		const rows = mountPicker().findAll('.widget-picker__list > .widget-picker__widget')
+		const rows = rowsOf(mountPicker())
 		const mail = rows[3]
 
-		expect(mail.classes()).toContain('widget-picker__widget--placed')
 		expect(mail.find('.widget-picker__widget-badge').text()).toBe('Already added')
 		expect(mail.find('img').attributes('src')).toBe('/mail.svg')
 		expect(rows[1].find('span.icon-deck').exists()).toBe(true)
@@ -83,12 +108,15 @@ describe('WidgetPickerModal widget list', () => {
 		expect(wrapper.find('.nc-empty').text()).toBe('No widgets found')
 	})
 
-	it('emits add with the widget id on a click, placed or not', async () => {
+	it('emits add with the widget id once chosen and placed, placed or not, and closes', async () => {
 		const wrapper = mountPicker()
-		const rows = wrapper.findAll('.widget-picker__list > .widget-picker__widget')
-		await rows[0].trigger('click')
-		await rows[3].trigger('click')
+		await rowsOf(wrapper)[0].trigger('click')
+		expect(wrapper.emitted('add')).toBeUndefined()
+
+		await place(wrapper, rowsOf(wrapper)[0])
+		await place(wrapper, rowsOf(wrapper)[3])
 		expect(wrapper.emitted('add')).toEqual([['talk'], ['mail']])
+		expect(wrapper.emitted('close')).toHaveLength(2)
 	})
 
 	it('clears the search when closed', async () => {
@@ -100,6 +128,7 @@ describe('WidgetPickerModal widget list', () => {
 
 		await wrapper.setProps({ open: true })
 		expect(titles(wrapper)).toHaveLength(4)
+		expect(wrapper.vm.chosenKind).toBe('all')
 	})
 
 	it('keeps the search while the modal stays open', async () => {

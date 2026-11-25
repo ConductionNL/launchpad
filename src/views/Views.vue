@@ -366,6 +366,8 @@
 			:placedAppIds="placedDiscoveredAppIds"
 			:catalogueApps="catalogueApps"
 			:customTypes="customWidgetTypes"
+			:dashboardName="(activeDashboard && activeDashboard.name) || ''"
+			:allowedWidgets="pickerAllowedWidgets"
 			:requestAppFn="requestCatalogueApp"
 			@close="onWidgetPickerClose"
 			@add="addWidget"
@@ -1474,6 +1476,18 @@ export default {
 		 */
 		contextMenuCanRemove() {
 			return this.isRemovablePlacement(this.grid.state.selectedWidget)
+		},
+
+		/**
+		 * The widget ids the viewer's role may add, for the picker's grey
+		 * cards (REQ-RFP-010); `null` when the role sets no limit.
+		 *
+		 * @return {Array<string>|null}
+		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
+		 */
+		pickerAllowedWidgets() {
+			const allowed = loadInitialState('workspace').allowedWidgets
+			return Array.isArray(allowed) ? allowed : null
 		},
 
 		/**
@@ -2687,10 +2701,12 @@ export default {
 		 *
 		 * @param {object} app The catalogue entry.
 		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
 		 */
 		async addCatalogueApp(app) {
 			try {
-				await this.addTileToDashboard(tileFromCatalogueApp(app))
+				// REQ-WDG-042: an app tile from the picker is one cell.
+				await this.addTileToDashboard(tileFromCatalogueApp(app), { w: 1, h: 1 })
 			} catch (error) {
 				logger.error('[Views] Failed to place a catalogue app:', error)
 			}

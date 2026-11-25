@@ -84,13 +84,13 @@ describe('Views deep-link history', () => {
 
 	it('pushes a history entry for a dashboard change only once the boot is over', () => {
 		const handler = Views.watch['activeDashboard.uuid'].handler
-		const host = makeHost({ openFilterSession: vi.fn(), recordViewEventDebounced: vi.fn(), pushUrlForActiveDashboard: vi.fn() })
+		const host = makeHost({ openFilterSession: vi.fn(), recordViewEventAfterLoad: vi.fn(), recordViewEventDebounced: vi.fn(), pushUrlForActiveDashboard: vi.fn() })
 
 		// The boot: no dashboard yet, the stored active one, then the deep-linked one.
 		handler.call(host, 'u-b', null)
 		handler.call(host, 'u-a', 'u-b')
 		expect(host.pushUrlForActiveDashboard).not.toHaveBeenCalled()
-		expect(host.recordViewEventDebounced.mock.calls).toEqual([['u-b'], ['u-a']])
+		expect(host.recordViewEventAfterLoad.mock.calls).toEqual([['u-b'], ['u-a']])
 
 		host.historyBooted = true
 		handler.call(host, 'u-b', 'u-a')

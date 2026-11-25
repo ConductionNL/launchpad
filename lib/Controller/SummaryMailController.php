@@ -39,7 +39,7 @@ use OCP\IUserSession;
 /**
  * Read and write the caller's summary email frequency.
  *
- * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+ * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
  */
 class SummaryMailController extends Controller {
 
@@ -65,7 +65,7 @@ class SummaryMailController extends Controller {
 	 *
 	 * @return JSONResponse `{frequency, hasEmail}`; 400 for an unknown frequency, 401 signed out.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	#[NoAdminRequired]
 	public function update(string $frequency=SummaryMailPreference::OFF): JSONResponse {
@@ -89,7 +89,7 @@ class SummaryMailController extends Controller {
 	 *
 	 * @return JSONResponse `{frequency, hasEmail}`, or 401 signed out.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	#[NoAdminRequired]
 	public function show(): JSONResponse {

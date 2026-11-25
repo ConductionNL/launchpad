@@ -123,7 +123,7 @@ class PersonalLayerMapper extends QBMapper {
 	 *
 	 * @return PersonalLayer[]
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function findAllForUser(string $userId): array {
 		$qb = $this->db->getQueryBuilder();

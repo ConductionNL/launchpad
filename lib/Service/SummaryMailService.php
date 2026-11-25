@@ -31,7 +31,7 @@ use OCP\IUserManager;
 /**
  * Decides who is due and has their summary sent.
  *
- * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+ * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
  */
 class SummaryMailService {
 
@@ -71,7 +71,7 @@ class SummaryMailService {
 	 *
 	 * @return int How many summaries went out.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function sendDue(DateTimeImmutable $now): int {
 		$sent = 0;
@@ -92,7 +92,7 @@ class SummaryMailService {
 	 *
 	 * @return bool True when a summary went out.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function sendFor(string $userId, DateTimeImmutable $now): bool {
 		$user = $this->users->get($userId);
@@ -126,7 +126,7 @@ class SummaryMailService {
 	 *
 	 * @return DateTimeImmutable|null
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public static function dueMoment(string $frequency, DateTimeImmutable $local): ?DateTimeImmutable {
 		$onItsDay = ($frequency === SummaryMailPreference::DAILY)

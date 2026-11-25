@@ -33,7 +33,7 @@ use OCP\IConfig;
 /**
  * Reads and writes the summary email frequency of one person.
  *
- * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+ * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
  */
 class SummaryMailPreference {
 
@@ -76,7 +76,7 @@ class SummaryMailPreference {
 	 *
 	 * @return string One of FREQUENCIES.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function frequency(string $userId): string {
 		$value = (string)$this->config->getUserValue($userId, Application::APP_ID, self::KEY_FREQUENCY, self::OFF);
@@ -97,7 +97,7 @@ class SummaryMailPreference {
 	 *
 	 * @throws InvalidArgumentException When the frequency is not one of the three.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function setFrequency(string $userId, string $frequency): string {
 		if (in_array($frequency, self::FREQUENCIES, true) === false) {
@@ -116,7 +116,7 @@ class SummaryMailPreference {
 	 *
 	 * @return list<string> Their user ids.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function usersWith(string $frequency): array {
 		return array_values(
@@ -134,7 +134,7 @@ class SummaryMailPreference {
 	 *
 	 * @return DateTimeZone
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function timeZoneOf(string $userId): DateTimeZone {
 		$name = (string)$this->config->getUserValue($userId, 'core', 'timezone', '');
@@ -152,7 +152,7 @@ class SummaryMailPreference {
 	 *
 	 * @return DateTimeImmutable|null Null when never, or unreadable.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function lastSent(string $userId): ?DateTimeImmutable {
 		$value = (string)$this->config->getUserValue($userId, Application::APP_ID, self::KEY_LAST_SENT, '');
@@ -172,7 +172,7 @@ class SummaryMailPreference {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function recordSent(string $userId, DateTimeImmutable $sentAt): void {
 		$this->config->setUserValue($userId, Application::APP_ID, self::KEY_LAST_SENT, $sentAt->format(DATE_ATOM));

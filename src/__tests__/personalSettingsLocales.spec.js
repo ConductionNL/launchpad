@@ -7,7 +7,7 @@
  * catalogue carries every string, with its placeholders, and the plural line
  * has one form per plural of the locale.
  *
- * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+ * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
  */
 
 import fs from 'fs'

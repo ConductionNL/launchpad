@@ -16,7 +16,7 @@ let pending = null
  *
  * @return {Promise<object>} The axios response, or one shaped like it.
  * @spec openspec/changes/launchpad-manifest-tier-3/specs/manifest-routing/spec.md#requirement-req-route-004-the-shared-chrome-renders-with-the-workspace-inside-it
- * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-3
  */
 export function runtimeManifestRequest() {
 	if (pending === null) {

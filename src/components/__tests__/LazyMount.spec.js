@@ -7,7 +7,7 @@
  * comes into view, once the page has settled, or before printing; at once
  * when eager or without IntersectionObserver; and stays mounted.
  *
- * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+ * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
  */
 
 import { mount, shallowMount } from '@vue/test-utils'

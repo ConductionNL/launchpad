@@ -15,7 +15,7 @@
  *   @e2e widgets::everything-has-loaded-before-a-download
  *   @e2e widgets::edit-mode-shows-every-widget-at-once
  *
- * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md
+ * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md
  */
 
 import type { APIRequestContext, Page } from '@playwright/test'
@@ -102,7 +102,8 @@ test('the widget below the fold mounts when the reader scrolls to it', async ({ 
 	await expect(lazyBox(page, belowFold)).toHaveAttribute('data-mounted', 'true', {
 		timeout: 5_000,
 	})
-	await expect(page.getByText(`below the fold ${RUN}`)).toBeVisible()
+	// The text also appears in the card's title and notices; the mounted body is the one that counts.
+	await expect(lazyBox(page, belowFold).getByText(`below the fold ${RUN}`)).toBeVisible()
 })
 
 // @e2e widgets::everything-has-loaded-before-a-download

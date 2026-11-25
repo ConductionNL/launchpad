@@ -433,6 +433,21 @@ describe('Views view events', () => {
 		expect(host.recordViewEvent).toHaveBeenCalledTimes(3)
 	})
 
+	it('sends no view-event while the administrator switched analytics off', () => {
+		const input = document.createElement('input')
+		input.type = 'hidden'
+		input.id = 'initial-state-launchpad-analyticsEnabled'
+		input.value = btoa(JSON.stringify(false))
+		document.body.appendChild(input)
+		try {
+			const host = makeHost({ recordViewEvent: vi.fn() })
+			host.recordViewEventDebounced('a')
+			expect(host.recordViewEvent).not.toHaveBeenCalled()
+		} finally {
+			input.remove()
+		}
+	})
+
 	it('sends one view-event across two tabs of the same dashboard, holding the lock a second', async () => {
 		vi.useFakeTimers()
 		const held = new Set()

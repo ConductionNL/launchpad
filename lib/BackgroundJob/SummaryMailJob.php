@@ -34,7 +34,7 @@ use OCP\BackgroundJob\TimedJob;
  *
  * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $argument required by TimedJob interface.
  *
- * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+ * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
  */
 class SummaryMailJob extends TimedJob {
 
@@ -63,7 +63,7 @@ class SummaryMailJob extends TimedJob {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	#[\Override]
 	protected function run($argument): void {

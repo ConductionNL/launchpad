@@ -640,18 +640,21 @@ export function isTilePlacement(placement) {
 
 /**
  * A placement with the minimum size its widget type registers, so the grid
- * lets a divider be one row and a tile one column while other widgets keep
- * the grid's minimum.
+ * lets a divider be one row and a tile one cell (one column, one row) while
+ * other widgets keep the grid's minimum. Without the one-row minimum the
+ * grid stretched a one-cell app tile to two rows (board LpMobiel).
  *
  * @param {object} placement The placement.
  * @return {object} The placement, or a copy carrying `minHeight` / `minWidth`.
  * @spec openspec/specs/divider-widget/spec.md#requirement-req-div-006-default-widget-sizing
+ * @spec openspec/specs/grid-layout/spec.md#req-grid-007
  */
 export function withTypeMinHeight(placement) {
 	const entry = getWidgetTypeEntry(placement?.widgetId)
 	const extra = {}
-	if (Number.isFinite(entry?.minHeight) && placement.minHeight === undefined) {
-		extra.minHeight = entry.minHeight
+	const minHeight = isTilePlacement(placement) ? 1 : entry?.minHeight
+	if (Number.isFinite(minHeight) && placement.minHeight === undefined) {
+		extra.minHeight = minHeight
 	}
 	const minWidth = isTilePlacement(placement) ? 1 : entry?.minWidth
 	if (Number.isFinite(minWidth) && placement.minWidth === undefined) {
@@ -2168,7 +2171,8 @@ export default {
 		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
 		recordViewEventDebounced(uuid) {
-			if (!uuid) {
+			// With analytics switched off the page sends no view-event at all.
+			if (!uuid || loadInitialState('workspace').analyticsEnabled === false) {
 				return
 			}
 			const now = Date.now()
@@ -2226,7 +2230,7 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/dashboards/spec.md
-		 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-3
 		 */
 		async loadDefaultDashboardPreference() {
 			const carried = takeBootRead('defaultDashboard')

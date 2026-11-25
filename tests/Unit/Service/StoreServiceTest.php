@@ -30,6 +30,8 @@ use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\ImportService;
 use OCA\LaunchPad\Service\StoreService;
 use OCA\OpenRegister\AppHost\Service\GenericStoreService;
+use OCA\OpenRegister\AppHost\Service\StoreDescriptor;
+use OCA\OpenRegister\AppHost\Service\StoreListing;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IAppConfig;
 use OCP\IDBConnection;
@@ -232,6 +234,33 @@ class StoreServiceTest extends TestCase {
 		$this->assertSame('ok', $result['outcome']);
 		$this->assertSame($cards, $result['cards']);
 	}//end testCardsArePassedThroughUnchanged()
+
+	/**
+	 * The descriptor reaches the engine in OpenRegister's listing and sharing
+	 * shape, naming this app, its schema, register and card map.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-store/spec.md
+	 */
+	public function testTheDescriptorIsBuiltFromAListingAndASharingPart(): void {
+		$seen = null;
+		$discovery = $this->createMock(originalClassName: GenericStoreService::class);
+		$discovery->method('search')->willReturnCallback(
+			static function (object $descriptor) use (&$seen): array {
+				$seen = $descriptor;
+				return ['outcome' => 'ok', 'cards' => []];
+			}
+		);
+
+		$this->service(discovery: $discovery)->search(query: 'sales');
+
+		$this->assertInstanceOf(expected: StoreDescriptor::class, actual: $seen);
+		$this->assertInstanceOf(expected: StoreListing::class, actual: $seen->listing);
+		$this->assertSame(expected: 'launchpad', actual: $seen->listing->appId);
+		$this->assertSame(expected: StoreService::CARD_FIELDS, actual: $seen->listing->cardFields);
+		$this->assertSame(expected: [], actual: $seen->sharing->types);
+	}//end testTheDescriptorIsBuiltFromAListingAndASharingPart()
 
 	/**
 	 * REQ-STORE-002: no engine means no import, not a half-run install.

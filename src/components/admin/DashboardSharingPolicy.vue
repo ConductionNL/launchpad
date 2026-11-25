@@ -268,8 +268,9 @@ export default {
 		},
 
 		/**
-		 * "Sharing allowed for" changed (REQ-SHARE-015); the group list stays
-		 * stored so choosing Only these groups again brings it back.
+		 * "Sharing allowed for" changed (REQ-SHARE-015). Only Nobody is stored
+		 * as an override; Everyone clears the group list, which is what lets
+		 * everyone share (REQ-SHARE-014), and Only these groups uses it.
 		 *
 		 * @param {string} value `everyone`, `groups` or `none`.
 		 * @return {Promise<void>}
@@ -279,6 +280,10 @@ export default {
 			this.sharingAllowed = value
 			try {
 				await api.updateSharingPolicy({ sharingAllowed: value })
+				if (value === 'everyone' && this.allowedGroups.length > 0) {
+					this.allowedGroups = []
+					await this.saveLimits()
+				}
 			} catch (error) {
 				logger.error('Failed to save who may share:', error)
 			}

@@ -745,8 +745,8 @@ class AdminSettingsService {
 	}//end storedRecipientScope()
 
 	/**
-	 * A stored "Sharing allowed for" choice; without one, `groups` when groups
-	 * are set and `everyone` otherwise (how it read before the choice existed).
+	 * The "Sharing allowed for" choice: Nobody when stored, otherwise `groups`
+	 * when groups are set and `everyone` when not (REQ-SHARE-014).
 	 *
 	 * REQ-SHARE-015: Everyone, Only these groups or Nobody.
 	 *
@@ -757,9 +757,8 @@ class AdminSettingsService {
 	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	private function storedAllowedMode(array $settings): string {
-		$value = $settings[AdminSettingKey::SHARING_ALLOWED->value] ?? null;
-		if (in_array($value, SharingLimits::ALLOWED_MODES, true) === true) {
-			return $value;
+		if (($settings[AdminSettingKey::SHARING_ALLOWED->value] ?? null) === SharingLimits::ALLOWED_NONE) {
+			return SharingLimits::ALLOWED_NONE;
 		}
 
 		if ($this->storedGroupList(value: $settings[AdminSettingKey::SHARING_ALLOWED_GROUPS->value] ?? null) === []) {

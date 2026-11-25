@@ -465,8 +465,10 @@ test.describe('REQ-ASET-015 and REQ-ASET-003 the switch as the pages carry it', 
 		expect(outcome.threw, 'createDashboard swallowed the refusal').toBe(true)
 		expect(outcome.status).toBe(403)
 		expect(outcome.code).toBe('personal_dashboards_disabled')
+		// @nextcloud/dialogs 8 renders an error toast as role="alert", with
+		// hashed CSS-module classes and no `.toastify` any more.
 		await expect(
-			page.locator('.toastify').filter({ hasText: DISABLED_TEXT }).first(),
+			page.getByRole('alert').filter({ hasText: DISABLED_TEXT }).first(),
 		).toBeVisible({ timeout: 10_000 })
 
 		const idsAfter = listItems(

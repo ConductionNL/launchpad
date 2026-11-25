@@ -182,7 +182,9 @@ test('a failed layout save is reported and retried up to three times', async ({
 			},
 		)
 		await dragBy(page, a, 4, 0)
-		await expect(page.locator('.toastify.toast-error')).toBeVisible({
+		// @nextcloud/dialogs 8 renders an error toast as role="alert", with
+		// hashed CSS-module classes and no `.toastify` any more.
+		await expect(page.getByRole('alert').first()).toBeVisible({
 			timeout: 15_000,
 		})
 		await expect.poll(() => attempts, { timeout: 30_000 }).toBe(4)

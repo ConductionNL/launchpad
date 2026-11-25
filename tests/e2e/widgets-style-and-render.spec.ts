@@ -8,12 +8,8 @@
  * serially, so a red there would skip every test after it.
  *
  * style-editor-supports-background-and-border-options (REQ-WDG-008) is
- * EXPECTED RED until the style editor offers the border, radius, padding and
- * header-colour controls. CnWidgetStyleEditorModal (@conduction/nextcloud-vue
- * 2.203.0, src/dialogs/CnWidgetStyleEditorModal.vue) keeps borderStyle,
- * borderColor, borderWidth, borderRadius and padding in its draft, and
- * CnWidgetWrapper renders them from styleConfig, but the dialog's template
- * shows only the title, the background colour and the icon.
+ * expected green: the border, radius, padding and header-colour controls
+ * came with nextcloud-vue #2376.
  *
  * conditional-widget-evaluated-at-render-time (REQ-WDG-005) is expected
  * green. The fixme said no read path evaluated the rules; since REQ-VIS-013
@@ -112,8 +108,6 @@ test.describe('REQ-WDG-008 the style editor', () => {
 	})
 
 	// @e2e widgets::style-editor-supports-background-and-border-options
-	// EXPECTED RED until CnWidgetStyleEditorModal shows the border, radius,
-	// padding and header-colour controls.
 	test('the style editor offers background, border style/width/colour/radius, padding and header colours', async ({
 		page,
 	}) => {

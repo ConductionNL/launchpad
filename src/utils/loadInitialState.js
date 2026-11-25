@@ -204,7 +204,7 @@ export function readSharingPolicy() {
  * asks the API. Null when the page did not carry it, or once taken.
  *
  * @return {{visible: (object|Array), active: (object|null)}|null} The first load, or null.
- * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-3
  */
 export function takeDashboardFirstLoad() {
 	if (dashboardFirstLoadTaken) {
@@ -224,7 +224,7 @@ export function takeDashboardFirstLoad() {
  * carry it, when it is malformed, or once taken.
  *
  * @return {{position: string, tree: Array, language: string}|null} The first load, or null.
- * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-3
  */
 export function takeOrgNavigation() {
 	if (orgNavigationTaken) {
@@ -248,7 +248,7 @@ export function takeOrgNavigation() {
  *
  * @param {string} part The part.
  * @return {object|Array|undefined} The part's payload, or undefined.
- * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-3
  */
 export function takeBootRead(part) {
 	if (bootReadsTaken.has(part)) {
@@ -267,7 +267,7 @@ export function takeBootRead(part) {
  * did not carry one (none was kept), when it is not a manifest, or once taken.
  *
  * @return {object|null} The manifest, or null.
- * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-3
  */
 export function takeRuntimeManifest() {
 	if (runtimeManifestTaken) {

@@ -102,7 +102,7 @@ class ManifestController extends Controller {
 	 *
 	 * @spec manifest-v2-runtime:REQ-MVR-001
 	 * @spec openspec/specs/runtime-shell/spec.md
-	 * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-1
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]

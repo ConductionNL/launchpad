@@ -115,10 +115,10 @@ class PageController extends Controller {
 	 * @return TemplateResponse The template response.
 	 *
 	 * @spec openspec/specs/runtime-shell/spec.md
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
-	 * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-2
-	 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-2
-	 * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]

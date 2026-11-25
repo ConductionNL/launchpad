@@ -93,7 +93,7 @@ class InitialStateBuilderTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-4
 	 */
 	public function testTheFirstDashboardLoadIsProvidedOnlyWhenGiven(): void {
 		$firstLoad = ['visible' => [], 'active' => null];
@@ -127,7 +127,7 @@ class InitialStateBuilderTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-4
 	 */
 	public function testTheOrgNavigationIsProvidedOnlyWhenGiven(): void {
 		$orgNavigation = ['position' => 'left', 'tree' => [], 'language' => 'nl'];
@@ -161,7 +161,7 @@ class InitialStateBuilderTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-4
 	 */
 	public function testTheWorkspaceBootReadsAreProvidedOnlyWhenGiven(): void {
 		$bootReads = ['tiles' => [], 'defaultDashboard' => ['uuid' => '']];

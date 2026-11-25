@@ -368,7 +368,7 @@ class PageControllerIndexTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-4
 	 */
 	public function testWithoutTheBuilderThereIsNoFirstLoad(): void {
 		$this->signIn(uid: 'pieter');
@@ -385,7 +385,7 @@ class PageControllerIndexTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-4
 	 */
 	public function testTheWorkspaceCarriesTheFirstDashboardLoad(): void {
 		$this->signIn(uid: 'pieter');

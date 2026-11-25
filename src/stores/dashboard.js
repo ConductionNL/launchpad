@@ -90,7 +90,7 @@ function resolutionRules(state) {
  * later load, or a page without them, fetches both together.
  *
  * @return {Promise<Array<{data: (object|Array|null)}>>} The visible and the active response.
- * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-3
  */
 function firstDashboardResponses() {
 	const firstLoad = takeDashboardFirstLoad()
@@ -677,7 +677,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		// (workspace-boot-reads-from-initial-state); every later one asks.
 		/**
 		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-		 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-3
 		 */
 		async fetchPendingAcknowledgements() {
 			const carried = takeBootRead('pendingAcknowledgements')
@@ -718,7 +718,7 @@ export const useDashboardStore = defineStore('dashboard', {
 
 		/**
 		 * @spec openspec/specs/dashboards/spec.md
-		 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-3
 		 */
 		async loadDashboards() {
 			this.loading = true

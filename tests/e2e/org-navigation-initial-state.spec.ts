@@ -9,7 +9,7 @@
  * Gate-19 @e2e traceability:
  *   @e2e initial-state-contract::the-workspace-opens-without-asking-for-its-org-navigation
  *
- * @spec openspec/changes/org-navigation-from-initial-state/specs/initial-state-contract/spec.md
+ * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/specs/initial-state-contract/spec.md
  */
 
 import { expect, test } from '@playwright/test'

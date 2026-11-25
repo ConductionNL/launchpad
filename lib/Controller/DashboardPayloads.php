@@ -19,7 +19,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-1
  */
 
 declare(strict_types=1);
@@ -31,7 +31,7 @@ use OCA\LaunchPad\Db\Dashboard;
 /**
  * Builds the visible-dashboards list and the active-dashboard envelope.
  *
- * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-1
  */
 class DashboardPayloads {
 	/**
@@ -58,7 +58,7 @@ class DashboardPayloads {
 	 *
 	 * @return array{visible: array, active: array|null}|null The first load, or null.
 	 *
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-2
 	 */
 	public function firstLoad(string $userId, array $visible): ?array {
 		if ($userId === '' || $this->actor === null) {
@@ -87,7 +87,7 @@ class DashboardPayloads {
 	 *
 	 * @return array The payload.
 	 *
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-1
 	 */
 	public function visibleList(string $userId, array $items): array {
 		$serialized = [];
@@ -119,7 +119,7 @@ class DashboardPayloads {
 	 *
 	 * @return array|null The envelope, or null.
 	 *
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-1
 	 */
 	public function active(string $userId): ?array {
 		$result = $this->services->dashboardService->getEffectiveDashboard(userId: $userId);
@@ -165,7 +165,7 @@ class DashboardPayloads {
 	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md
 	 * @spec openspec/specs/role-feature-permissions/spec.md
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-1
 	 */
 	public function renderedPlacements(array $placements, string $permissionLevel, string $userId): array {
 		$serialized = [];
@@ -200,7 +200,7 @@ class DashboardPayloads {
 	 * @return bool True with two or more variants.
 	 *
 	 * @spec openspec/specs/dashboard-language-content/spec.md
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-1
 	 */
 	public function hasVariants(string $uuid): bool {
 		if ($this->services->translationService === null || $uuid === '') {

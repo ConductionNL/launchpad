@@ -41,7 +41,7 @@ describe('runtimeManifestRequest', () => {
 })
 
 /**
- * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-4
  */
 describe('runtimeManifestRequest with a kept manifest', () => {
 	it('answers from the manifest the page carries, without asking', async () => {

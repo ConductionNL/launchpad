@@ -279,7 +279,20 @@ test.describe('video widget: file access (REQ-VID-006, REQ-VID-011)', () => {
 			await expect(widget.locator(PLACEHOLDER)).toHaveText('Video not accessible')
 			await expect(widget.locator('video, iframe'), 'nothing is embedded').toHaveCount(0)
 			expect(await widget.evaluate((el) => el.outerHTML), 'no file URL in the widget DOM').not.toMatch(FILE_URL)
-			// Every LaunchPad response that carries this placement to bob.
+			// The page also gets the active dashboard's placements in its initial
+			// state (no API round trip since #1739), so that payload counts too.
+			const initialStates = await session.page.evaluate(() => Array.from(
+				document.querySelectorAll<HTMLInputElement>('input[id^="initial-state-launchpad-"]'),
+				(input) => {
+					try {
+						return new TextDecoder().decode(Uint8Array.from(atob(input.value), (c) => c.charCodeAt(0)))
+					} catch {
+						return ''
+					}
+				},
+			))
+			responses.push(...initialStates)
+			// Every LaunchPad payload that carries this placement to bob.
 			const carrying = responses.filter((body) => new RegExp(`"fileId"\\s*:\\s*${clipId}\\b`).test(body))
 			expect(carrying.length, 'precondition: the placement reached bob through the API').toBeGreaterThan(0)
 			for (const body of carrying) {
@@ -447,6 +460,9 @@ test.describe('video widget: HTML5 playback options (REQ-VID-008, REQ-VID-011)',
 		// `muted` is not a reflected attribute: the framework sets the DOM
 		// property, which is exactly what the browser's autoplay policy reads.
 		expect(await video.evaluate((v: HTMLVideoElement) => v.muted), 'the video is muted').toBe(true)
+		// Chrome starts a muted autoplay video only once it is visible, and the
+		// seeded dashboard's default widgets put this one below the fold.
+		await video.scrollIntoViewIfNeeded()
 		// The two-second clip can play to its end before the first poll, after
 		// which it is paused again: `played` keeps the ranges it played.
 		await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused || v.played.length > 0), {

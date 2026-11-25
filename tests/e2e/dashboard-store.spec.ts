@@ -244,8 +244,10 @@ test.describe('dashboard store', () => {
 		expect(status, 'GET /api/store/items is routed').toBe(200)
 		expect(body.outcome).toBe('not_configured')
 
+		// The board banner (store-page-board-sync REQ-STORE-010) says it in
+		// place of the plain note once nextcloud-vue carries the banner.
 		await expect(
-			page.locator('[data-testid="store-not-configured"]'),
+			page.locator('[data-testid="store-not-configured"], [data-testid="store-banner-not-connected"]').first(),
 		).toBeVisible()
 		await expect(page.locator('[data-testid="store-unreachable"]')).toHaveCount(
 			0,

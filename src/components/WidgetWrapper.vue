@@ -46,12 +46,16 @@
 					{{ t('launchpad', 'Outage') }}
 				</span>
 			</template>
-			<WidgetRenderer
-				:widget="widget"
-				:placement="placement"
-				:editMode="editMode"
-				@status="onRendererStatus"
-				@editRequest="$emit('edit', placement)" />
+			<!-- REQ-WDG-044: the content below the fold mounts when it comes
+			     into view (or once the page has settled); the card shows at once. -->
+			<LazyMount :eager="mountsAtOnce">
+				<WidgetRenderer
+					:widget="widget"
+					:placement="placement"
+					:editMode="editMode"
+					@status="onRendererStatus"
+					@editRequest="$emit('edit', placement)" />
+			</LazyMount>
 		</CnWidgetWrapper>
 
 		<!-- REQ-ACK-002: forced-delivery read-gate. Overlays the widget with a
@@ -133,6 +137,7 @@ import CodeTags from 'vue-material-design-icons/CodeTags.vue'
 import DragVertical from 'vue-material-design-icons/DragVertical.vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
+import LazyMount from './LazyMount.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
 import WidgetEditMenu from './Widgets/WidgetEditMenu.vue'
 import {
@@ -161,6 +166,20 @@ export function sameDestination(a, b) {
 	return a !== undefined && a !== null && path(a) === path(b)
 }
 
+/**
+ * Whether this page is the headless export render (`?export=1`).
+ *
+ * @param {Location} [location] Injected for tests.
+ * @return {boolean}
+ * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+ */
+export function isExportRender(location = typeof window !== 'undefined' ? window.location : null) {
+	if (!location || typeof location.search !== 'string') {
+		return false
+	}
+	return new URLSearchParams(location.search).get('export') === '1'
+}
+
 export default {
 	name: 'WidgetWrapper',
 
@@ -175,6 +194,7 @@ export default {
 		WidgetRenderer,
 		WidgetEditMenu,
 		AcknowledgementPrompt,
+		LazyMount,
 	},
 
 	props: {
@@ -224,6 +244,18 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Whether the content mounts at once instead of when it comes into
+		 * view: in edit mode, and in the headless export render (`?export=1`),
+		 * which prints the whole dashboard.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+		 */
+		mountsAtOnce() {
+			return this.editMode || isExportRender()
+		},
+
 		/**
 		 * Whether "Hide for me" is offered: view mode, allowed by the host,
 		 * and not a compulsory widget.

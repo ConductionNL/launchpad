@@ -96,7 +96,13 @@ describe('WidgetWrapper — edit cog', () => {
 		const wrapper = shallowMount(WidgetWrapper, {
 			propsData: { placement, widget: { title: 'Widget' }, editMode: true },
 			mocks: { t: (_app, key) => key },
-			global: { stubs: { CnWidgetWrapper: { template: '<div><slot /></div>' } } },
+			global: {
+				stubs: {
+					CnWidgetWrapper: { template: '<div><slot /></div>' },
+					// The real LazyMount: edit mode mounts the renderer at once.
+					LazyMount: false,
+				},
+			},
 		})
 		const renderer = wrapper.findComponent({ name: 'WidgetRenderer' })
 		expect(renderer.props('editMode')).toBe(true)

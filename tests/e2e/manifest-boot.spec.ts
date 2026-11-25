@@ -30,7 +30,7 @@
  *   @e2e launchpad-adopt-or-abstractions::manifest-loads-on-app-boot
  */
 
-import type {Page} from '@playwright/test';
+import type { Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'

@@ -20,9 +20,9 @@
  *   @e2e link-button-widget::links-array-stored-on-placement
  *   @e2e link-button-widget::display-mode-toggle-in-edit-form
  *   @e2e link-button-widget::add-link-button-appends-to-array
- *   @e2e link-button-widget::edit-link-reuses-single-link-form
+ *   @e2e link-button-widget::edit-link-in-its-row
  *   @e2e link-button-widget::remove-link-deletes-from-array
- *   @e2e link-button-widget::drag-to-reorder-list-items
+ *   @e2e link-button-widget::reorder-list-items
  *   @e2e link-button-widget::list-mode-requires-non-empty-links-array
  *   @e2e link-button-widget::each-link-requires-label-and-url
  *   @e2e link-button-widget::edit-form-detects-legacy-format
@@ -272,47 +272,42 @@ test.describe('link button form: list editor (REQ-LBLM-006)', () => {
 	})
 
 	// @e2e link-button-widget::add-link-button-appends-to-array
-	test('Add link appends an empty entry and opens a form modal for it', async ({ page }) => {
+	test('Add link appends an empty entry as a row of its own', async ({ page }) => {
 		const id = await place({ displayMode: 'list', links: linksNamed('First', 'Second') })
 		await openWithWidget(page, id)
 		const dialog = await openEditForm(page, id)
 		await expect(rows(dialog)).toHaveCount(2)
-		const dialogs = page.getByRole('dialog')
-		const before = await dialogs.count()
 
 		await dialog.getByRole('button', { name: 'Add link' }).click()
 
 		await expect(rows(dialog)).toHaveCount(3)
 		expect(await rowLabels(dialog)).toEqual(['First', 'Second', ''])
+		// The new entry's details are filled in its own row.
+		await expect(rows(dialog).nth(2).getByLabel('Label', { exact: true })).toHaveValue('')
 		await expect(rows(dialog).nth(2).getByLabel('URL', { exact: true })).toHaveValue('')
-		// The new entry's details are filled in a form modal of its own.
-		await expect(dialogs).toHaveCount(before + 1)
-		const linkModal = dialogs.last()
-		await expect(linkModal.getByLabel('Label', { exact: true })).toHaveValue('')
-		await expect(linkModal.getByLabel('URL', { exact: true })).toHaveValue('')
+		await expectSelected(rows(dialog).nth(2), 'Action type', 'External link')
 	})
 
-	// @e2e link-button-widget::edit-link-reuses-single-link-form
-	test('Edit on the second link opens the single-link form pre-filled with it', async ({ page }) => {
+	// @e2e link-button-widget::edit-link-in-its-row
+	test('the second row holds the second link, and a change there saves to it', async ({ page }) => {
 		const links = linksNamed('Alpha', 'Bravo', 'Charlie')
-		links[1].icon = 'folder'
 		const id = await place({ displayMode: 'list', links })
 		await openWithWidget(page, id)
 		const dialog = await openEditForm(page, id)
 		await expect(rows(dialog)).toHaveCount(3)
-		const dialogs = page.getByRole('dialog')
-		const before = await dialogs.count()
 
-		await rows(dialog).nth(1).getByRole('button', { name: /^edit$/i }).click()
+		const second = rows(dialog).nth(1)
+		await expect(second.getByLabel('Label', { exact: true })).toHaveValue('Bravo')
+		await expect(second.getByLabel('URL', { exact: true })).toHaveValue(links[1].url)
+		await expectSelected(second, 'Action type', 'External link')
+		// The widget's colour pickers apply to every item.
+		await expect(dialog.getByText('Background color')).toBeVisible()
+		await expect(dialog.getByText('Text color')).toBeVisible()
 
-		await expect(dialogs).toHaveCount(before + 1)
-		const linkModal = dialogs.last()
-		await expect(linkModal.getByLabel('Label', { exact: true })).toHaveValue('Bravo')
-		await expect(linkModal.getByLabel('URL', { exact: true })).toHaveValue(links[1].url)
-		await expectSelected(linkModal, 'Action type', 'External link')
-		// The single-link form's colour pickers come with it.
-		await expect(linkModal.getByText('Background color')).toBeVisible()
-		await expect(linkModal.getByText('Text color')).toBeVisible()
+		await second.getByLabel('Label', { exact: true }).fill('Bravo two')
+		await submit(page, dialog, 'PUT')
+		const read = await readPlacement(api, dashboard!.id, id)
+		expect((read.content.links as Array<{ label: string }>).map((l) => l.label)).toEqual(['Alpha', 'Bravo two', 'Charlie'])
 	})
 
 	// @e2e link-button-widget::remove-link-deletes-from-array
@@ -331,15 +326,17 @@ test.describe('link button form: list editor (REQ-LBLM-006)', () => {
 		expect((read.content.links as Array<{ label: string }>).map((l) => l.label)).toEqual(['Two', 'Three'])
 	})
 
-	// @e2e link-button-widget::drag-to-reorder-list-items
-	test('dragging B above A reorders the links to B, A, C', async ({ page }) => {
+	// @e2e link-button-widget::reorder-list-items
+	test('Move link up on B reorders the links to B, A, C', async ({ page }) => {
 		const id = await place({ displayMode: 'list', links: linksNamed('A', 'B', 'C') })
 		await openWithWidget(page, id)
 		const dialog = await openEditForm(page, id)
 		await expect(rows(dialog)).toHaveCount(3)
+		// The first row cannot move up and the last cannot move down.
+		await expect(rows(dialog).nth(0).getByRole('button', { name: 'Move link up' })).toBeDisabled()
+		await expect(rows(dialog).nth(2).getByRole('button', { name: 'Move link down' })).toBeDisabled()
 
-		// Drag B by its row, dropping on the top edge of A.
-		await rows(dialog).nth(1).dragTo(rows(dialog).nth(0), { targetPosition: { x: 10, y: 2 } })
+		await rows(dialog).nth(1).getByRole('button', { name: 'Move link up' }).click()
 
 		await expect.poll(() => rowLabels(dialog)).toEqual(['B', 'A', 'C'])
 		await submit(page, dialog, 'PUT')

@@ -1859,6 +1859,27 @@
         "You searched for {query}": "Otsisite: {query}",
         "No results": "Tulemusi pole",
         "Show all results": "Näita kõiki tulemusi",
-        "Tip: type {prefix} to search {name} directly": "Vihje: sisestage {prefix}, et otsida otse teenusest {name}"
+        "Tip: type {prefix} to search {name} directly": "Vihje: sisestage {prefix}, et otsida otse teenusest {name}",
+        "Hidden widgets": "Peidetud vidinad",
+        "Your hidden widgets could not be loaded.": "Sinu peidetud vidinaid ei õnnestunud laadida.",
+        "You have not hidden any widgets on shared dashboards.": "Sa ei ole jagatud töölaudadel ühtegi vidinat peitnud.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["Sa oled jagatud töölaudadel peitnud %n vidina", "Sa oled jagatud töölaudadel peitnud %n vidinat"],
+        "Show all again": "Näita kõiki uuesti",
+        "Your change could not be saved.": "Sinu muudatust ei õnnestunud salvestada.",
+        "Summary by email": "Kokkuvõte e-postiga",
+        "A mail with new announcements and what changed on your dashboards": "Kiri uute teadaannete ja sinu töölaudade muudatustega",
+        "How often?": "Kui sageli?",
+        "Daily": "Iga päev",
+        "Weekly": "Iga nädal",
+        "At 07:30, only when something changed": "Kell 07:30, ainult kui midagi muutus",
+        "On Monday at 07:30": "Esmaspäeval kell 07:30",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "Sul pole e-posti aadressi, seega ei saa sulle kokkuvõtet saata. Lisa see oma Nextcloudi kontol.",
+        "Your daily LaunchPad summary": "Sinu LaunchPadi päevane kokkuvõte",
+        "Your weekly LaunchPad summary": "Sinu LaunchPadi nädala kokkuvõte",
+        "Nothing new was published and nothing changed on your dashboards.": "Midagi uut ei avaldatud ja sinu töölaudadel ei muutunud midagi.",
+        "New announcements": "Uued teadaanded",
+        "What changed on your dashboards": "Mis sinu töölaudadel muutus",
+        "Open LaunchPad": "Ava LaunchPad",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Saad selle kirja, sest tellisid selle oma LaunchPadi seadetes."
     }
 }

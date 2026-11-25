@@ -299,7 +299,13 @@ test.describe('widget clicks on the filter bus (REQ-CWF-001, REQ-CWF-002, REQ-CW
 
 			await gridItem(page, board.a2.id).locator(ROW).filter({ hasText: second }).click()
 			await expect(page.getByText(`Municipality filter changed: ${first} → ${second}`, { exact: true })).toBeVisible({ timeout: 10_000 })
-			await expect(page.locator('[data-testid="active-filters"] [data-dimension]')).toHaveCount(1)
+			// One municipality clause: the second pick replaced the first. The
+			// hierarchy adds the province it lies in as a parentScope clause
+			// (REQ-CWF-004), so the panel holds exactly those two dimensions.
+			const dimensions = page.locator('[data-testid="active-filters"] [data-dimension]')
+			await expect(dimensions.and(page.locator('[data-dimension="gemeenteCode"]'))).toHaveCount(1)
+			await expect.poll(async () => (await dimensions.evaluateAll((els) => els.map((e) => e.getAttribute('data-dimension')))).sort())
+				.toEqual(['gemeenteCode', 'provincieCode'])
 			await expect(chip(page, 'gemeenteCode')).toContainText(second)
 			await expect(chip(page, 'gemeenteCode').locator('[data-testid="active-filter-source"]')).toContainText('Gemeenten twee')
 			await expectWijkenOf(page, board, second)

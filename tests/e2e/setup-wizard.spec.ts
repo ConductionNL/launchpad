@@ -49,16 +49,14 @@
  * scenarios of the change setup-five-steps-and-admin-tour and runs in the
  * nightly against a live instance.
  *
- * Three tests are EXPECTED RED until the product is fixed: they were
- * `test.fixme`, so although gate-19 counted them through the list below, no
- * test of theirs ever executed. They now run. The comment on each
- * names the code that disagrees with its scenario. This file is not serial, so
- * a red test does not skip the ones after it; the fresh-instance ones sit
- * before Finish, because only a fresh instance can show them.
- *   - Step 1 on open, and the fresh state: SetupWizardModal.vue loadState()
- *     jumps to `currentRecommendedStep`, and SetupWizardService
- *     computeStepStatuses() reports steps 3 and 4 `skipped` from the start,
- *     so the recommendation is 2 and "Run setup wizard" opens at Step 2.
+ * One test is EXPECTED RED until the product is fixed; its comment names the
+ * code that disagrees with its scenario. This file is not serial, so a red
+ * test does not skip the ones after it; the fresh-instance ones sit before
+ * Finish, because only a fresh instance can show them.
+ *   - The fresh state: SetupWizardService computeStepStatuses() reports steps
+ *     3 and 4 `skipped` from the start instead of `pending`; telling a skipped
+ *     step from an unvisited one needs the wizard's Skip to be stored, which
+ *     it is not (Skip is client-side only). A first run now opens at Step 1.
  * The demo tests take real showcases from GET /api/admin/demo-showcases: the
  * scenarios' "Engineering Demo" and "Sales Demo" are examples, and no shipped
  * showcase carries those names.
@@ -521,11 +519,6 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		)
 	})
 
-	// EXPECTED RED: src/modals/SetupWizardModal.vue loadState() jumps to
-	// `currentRecommendedStep` whenever `complete` is false, and on a fresh
-	// instance that is never 1 (SetupWizardService::resolveRecommendedStep()
-	// returns the first non-done step, and step 2 is pending). So "Run setup
-	// wizard" opens at Step 2, not at Step 1 (Welcome).
 	test('the banner call-to-action opens the wizard at Step 1', async ({
 		page,
 	}) => {
@@ -535,7 +528,6 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		await expectStep(root, 1)
 	})
 
-	// EXPECTED RED: same cause as above, SetupWizardModal.vue loadState().
 	test('the wizard starts at Step 1 with counter 1 / 5', async ({
 		page,
 	}) => {
@@ -566,10 +558,11 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 	})
 
 	// EXPECTED RED: SetupWizardService::computeStepStatuses() reports steps
-	// 3 and 4 as "skipped" from the start (not "pending"), and
-	// resolveRecommendedStep() therefore answers 2, not 1. The scenario's
-	// example still lists a sixth step; the wizard has five (REQ-WIZ-012), so
-	// this asserts five, all but Step 1 pending.
+	// 3 and 4 as "skipped" from the start (not "pending"): the Skip button is
+	// client-side only, so the server cannot tell skipped from unvisited. The
+	// recommended step is 1 on a first run. The scenario's example still lists
+	// a sixth step; the wizard has five (REQ-WIZ-012), so this asserts five,
+	// all but Step 1 pending.
 	test('the state endpoint on a fresh instance', async () => {
 		// @e2e setup-wizard::endpoint-returns-complete-state-on-fresh-instance
 
@@ -909,6 +902,8 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		const root = await openWizard(page, 'rerun')
 		await goToStep(root, 2)
 		const active = root.locator('[data-test="group-priority-active"]')
+		// The step loads the stored order after it opens: wait for both rows.
+		await expect(active.locator('li[data-test-id]')).toHaveCount(2)
 		expect(await columnIds(root, 'active')).toEqual([GROUP_A, GROUP_B])
 
 		// Move B above A by dragging it onto A.
@@ -1167,7 +1162,8 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 				const install = await admin.post(
 					`${SHOWCASES_API}/${encodeURIComponent(installed.id)}/install`,
 				)
-				expect(install.status(), await install.text()).toBe(200)
+				// A new install answers 201 Created (REQ-DEMO-003).
+				expect(install.status(), await install.text()).toBe(201)
 			}
 
 			const root = await openWizard(page, 'rerun')

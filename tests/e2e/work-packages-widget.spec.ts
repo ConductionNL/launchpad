@@ -48,6 +48,12 @@ type Account = { username: string; password: string }
 
 let account: Account | null = null
 let dashboardId = 0
+// What the real endpoint answers for the account. The widget renders only
+// where integration_openproject is enabled for the viewer (its registry entry
+// `requiresApp`), so the tests that stub a list run where it is, and the
+// no-integration test covers an instance without it.
+let integrationState = ''
+const WITHOUT_INTEGRATION = 'integration_openproject is not on this instance; the no-integration test covers it'
 
 /**
  * An API context as the administrator, or as the given account.
@@ -109,6 +115,8 @@ test.beforeAll(async () => {
 		dashboardId = Number(dash.id)
 		await api.post(`${API}/dashboard/${dash.id}/activate`)
 		await api.post(`${API}/dashboards/active`, { data: { uuid: dash.uuid } })
+		const probe = await api.get(`${API}/work-packages`)
+		integrationState = probe.ok() ? String((await probe.json()).state ?? '') : ''
 	} finally {
 		await api.dispose()
 	}
@@ -122,6 +130,7 @@ test.afterAll(async () => {
 
 // @e2e work-packages-widget::pieters-work-packages
 test('the widget lists the work packages as links with status and due date', async ({ browser }) => {
+	test.skip(integrationState === 'not-installed', WITHOUT_INTEGRATION)
 	await placeWidget({ scope: 'mine', project: '', limit: 4 })
 	const { context, page } = await loginAs(browser, account!.username, account!.password)
 	try {
@@ -140,6 +149,7 @@ test('the widget lists the work packages as links with status and due date', asy
 
 // @e2e work-packages-widget::not-connected
 test('a person without a connected account gets a link to connect OpenProject', async ({ browser }) => {
+	test.skip(integrationState === 'not-installed', WITHOUT_INTEGRATION)
 	await placeWidget({ scope: 'mine', project: '', limit: 4 })
 	const { context, page } = await loginAs(browser, account!.username, account!.password)
 	try {
@@ -155,6 +165,7 @@ test('a person without a connected account gets a link to connect OpenProject', 
 
 // @e2e work-packages-widget::work-packages-of-the-team
 test('a project list asks for the project and names each assignee', async ({ browser }) => {
+	test.skip(integrationState === 'not-installed', WITHOUT_INTEGRATION)
 	await placeWidget({ scope: 'project', project: 'havenpark', limit: 6 })
 	const { context, page } = await loginAs(browser, account!.username, account!.password)
 	try {

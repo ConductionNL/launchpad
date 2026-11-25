@@ -163,7 +163,7 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 	 * @throws InvalidArgumentException When a definition is invalid.
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
 	 */
 	private function validateDefinitions(array $raw): array {
 		if (count(value: $raw) > self::MAX_FIELDS) {
@@ -279,7 +279,7 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 	 * @throws InvalidArgumentException When a field is invalid.
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
 	 */
 	private function definitionFrom(array $entry, string $key): array {
 		return [
@@ -518,7 +518,7 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 	 *
 	 * @throws InvalidArgumentException When the item is not text.
 	 *
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
 	 */
 	private static function itemText(array $definition, mixed $item): string {
 		if (is_string(value: $item) === false) {
@@ -828,7 +828,7 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
 	 */
 	private function cleanLdapValues(array $definition, array $raw): array {
 		$values = [];

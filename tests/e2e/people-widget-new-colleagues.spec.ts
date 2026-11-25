@@ -43,7 +43,7 @@
  * `people-widget::start-date-from-ldap` is excluded in the delta spec: the CI
  * fixture has no directory server.
  *
- * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md
  */
 
 import type { APIRequestContext, Locator, Page } from '@playwright/test'

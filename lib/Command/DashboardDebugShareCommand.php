@@ -25,7 +25,7 @@ namespace OCA\LaunchPad\Command;
 
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
-use OCA\LaunchPad\Db\DashboardShareMapper;
+use OCA\LaunchPad\Db\DashboardView;
 use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IUserSession;
@@ -43,13 +43,13 @@ class DashboardDebugShareCommand extends CommandBase {
 	 * @param CommandServiceInterface $commandService Shared CLI helper.
 	 * @param IUserSession $userSession Caller resolution.
 	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
-	 * @param DashboardShareMapper $shareMapper Share mapper.
+	 * @param DebugShareStores $stores The share, lock, version and view mappers.
 	 */
 	public function __construct(
 		CommandServiceInterface $commandService,
 		IUserSession $userSession,
 		private readonly DashboardMapper $dashboardMapper,
-		private readonly DashboardShareMapper $shareMapper,
+		private readonly DebugShareStores $stores,
 	) {
 		parent::__construct(commandService: $commandService, userSession: $userSession);
 	}//end __construct()
@@ -106,36 +106,48 @@ class DashboardDebugShareCommand extends CommandBase {
 			callback: static function (DashboardShare $share): array {
 				return $share->jsonSerialize();
 			},
-			array: $this->shareMapper->findByDashboardId(dashboardId: (int)$dashboard->getId())
+			array: $this->stores->shareMapper->findByDashboardId(dashboardId: (int)$dashboard->getId())
 		);
 
 		return $this->emitPrettyPayload(
 			streams: new CommandStreams(input: $input, output: $output),
-			payload: self::diagnostics(uuid: $uuid, shares: $shares)
+			payload: $this->diagnostics(uuid: $uuid, shares: $shares)
 		);
 	}//end handle()
 
 	/**
-	 * The diagnostics payload of a dashboard.
-	 *
-	 * Lock / version / view capabilities live in sibling specs that may
-	 * or may not have shipped yet; absence is reported as the documented
-	 * sentinel values rather than a hard failure.
+	 * The diagnostics payload of a dashboard: its shares, the active edit
+	 * lock (an expired lock counts as unlocked), the number of saved
+	 * versions and the views recorded over all days.
 	 *
 	 * @param string                     $uuid   The dashboard UUID.
 	 * @param list<array<string, mixed>> $shares The serialised shares.
 	 *
 	 * @return array<string, mixed> The payload.
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	private static function diagnostics(string $uuid, array $shares): array {
+	private function diagnostics(string $uuid, array $shares): array {
+		$lock  = $this->stores->lockMapper->findActive(dashboardUuid: $uuid);
+		$views = array_sum(
+			array: array_map(
+				callback: static fn (DashboardView $view): int => (int)$view->getViewCount(),
+				array: $this->stores->viewMapper->findByDashboardInRange(
+					dashboardUuid: $uuid,
+					startDate: '1970-01-01',
+					endDate: '9999-12-31'
+				)
+			)
+		);
+
 		return [
 			'uuid' => $uuid,
 			'shares' => $shares,
-			'locked' => false,
-			'lockedBy' => null,
-			'lockedAt' => null,
-			'versionCount' => 0,
-			'viewCount' => 0,
+			'locked' => $lock !== null,
+			'lockedBy' => $lock?->getUserId(),
+			'lockedAt' => $lock?->getCreatedAt(),
+			'versionCount' => $this->stores->versionMapper->countByDashboard(dashboardUuid: $uuid),
+			'viewCount' => $views,
 		];
 	}//end diagnostics()
 }//end class

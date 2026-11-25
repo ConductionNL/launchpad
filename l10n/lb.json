@@ -1859,6 +1859,27 @@
         "You searched for {query}": "Dir hutt no {query} gesicht",
         "No results": "Keng Resultater",
         "Show all results": "All Resultater weisen",
-        "Tip: type {prefix} to search {name} directly": "Tipp: Gitt {prefix} an, fir direkt an {name} ze sichen"
+        "Tip: type {prefix} to search {name} directly": "Tipp: Gitt {prefix} an, fir direkt an {name} ze sichen",
+        "Hidden widgets": "Verstoppte Widgeten",
+        "Your hidden widgets could not be loaded.": "Är verstoppte Widgete konnten net geluede ginn.",
+        "You have not hidden any widgets on shared dashboards.": "Dir hutt keng Widgeten op gedeelten Dashboarde verstoppt.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["Dir hutt %n Widget op gedeelten Dashboarde verstoppt", "Dir hutt %n Widgeten op gedeelten Dashboarde verstoppt"],
+        "Show all again": "Alles nees weisen",
+        "Your change could not be saved.": "Är Ännerung konnt net gespäichert ginn.",
+        "Summary by email": "Resumé per E-Mail",
+        "A mail with new announcements and what changed on your dashboards": "Eng Mail mat neien Annoncen an deem, wat sech op Ären Dashboarde geännert huet",
+        "How often?": "Wéi dacks?",
+        "Daily": "All Dag",
+        "Weekly": "All Woch",
+        "At 07:30, only when something changed": "Um 07:30, nëmme wann eppes geännert huet",
+        "On Monday at 07:30": "Méindes um 07:30",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "Dir hutt keng E-Mail-Adress, dofir kann Iech kee Resumé geschéckt ginn. Setzt eng an Ärem Nextcloud-Kont derbäi.",
+        "Your daily LaunchPad summary": "Äert deeglecht LaunchPad-Resumé",
+        "Your weekly LaunchPad summary": "Äert wëchentlecht LaunchPad-Resumé",
+        "Nothing new was published and nothing changed on your dashboards.": "Näischt Neies gouf publizéiert an näischt huet sech op Ären Dashboarde geännert.",
+        "New announcements": "Nei Annoncen",
+        "What changed on your dashboards": "Wat sech op Ären Dashboarde geännert huet",
+        "Open LaunchPad": "LaunchPad opmaachen",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Dir kritt dës Mail, well Dir se an Ären LaunchPad-Astellungen ugefrot hutt."
     }
 }

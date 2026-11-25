@@ -220,3 +220,24 @@ namespace OCA\OpenRegister\Kernel\Contracts\Value {
 		}//end class
 	}
 }
+
+namespace OCA\OpenRegister\Contract {
+	if (class_exists(__NAMESPACE__ . '\\RegisterSchemaSlugs', false) === false) {
+		/**
+		 * Stub mirroring the register and schema slugs of a slug search.
+		 */
+		final class RegisterSchemaSlugs {
+			/**
+			 * Constructor.
+			 *
+			 * @param string $register The register slug.
+			 * @param string $schema   The schema slug.
+			 */
+			public function __construct(
+				public readonly string $register,
+				public readonly string $schema,
+			) {
+			}//end __construct()
+		}//end class
+	}
+}

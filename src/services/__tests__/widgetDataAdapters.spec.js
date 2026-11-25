@@ -154,7 +154,7 @@ describe('buildRendererExtraProps', () => {
 	})
 })
 
-// @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+// @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 describe('the new colleagues source', () => {
 	it('reads GET /api/people/new with the windows', async () => {
 		const { fetchNewPeople } = await import('../widgetDataAdapters.js')

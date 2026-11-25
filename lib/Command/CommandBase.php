@@ -149,7 +149,7 @@ abstract class CommandBase extends Command {
 				context: ['exceptionClass' => $e::class]
 			);
 			if ($this->isJson(input: $input) === true) {
-				$output->writeln(messages: $this->commandService->encodeEnvelope(envelope: $envelope));
+				$output->writeln(messages: $this->commandService->encodeEnvelope(envelope: $envelope), options: OutputInterface::VERBOSITY_QUIET);
 			}
 
 			if ($this->isJson(input: $input) === false) {
@@ -224,10 +224,12 @@ abstract class CommandBase extends Command {
 		string $human = '',
 	): void {
 		if ($this->isJson(input: $input) === true) {
+			// The envelope is the answer, so it prints under `--quiet` too.
 			$output->writeln(
 				messages: $this->commandService->encodeEnvelope(
 					envelope: $this->commandService->envelopeSuccess(data: $data)
-				)
+				),
+				options: OutputInterface::VERBOSITY_QUIET
 			);
 			return;
 		}
@@ -295,7 +297,8 @@ abstract class CommandBase extends Command {
 						message: $message,
 						context: $context
 					)
-				)
+				),
+				options: OutputInterface::VERBOSITY_QUIET
 			);
 
 			return $exitCode;
@@ -333,18 +336,25 @@ abstract class CommandBase extends Command {
 	 * `ConsoleOutput` does); fall back to the regular stream otherwise
 	 * (in-memory test buffers don't split stderr out).
 	 *
+	 * The line is written at VERBOSITY_QUIET, so it prints at every
+	 * verbosity: under occ, `-q|--quiet` puts both streams of the
+	 * ConsoleOutput on quiet, and a plain writeln would drop the error
+	 * (REQ-CLI-002: errors still reach stderr).
+	 *
 	 * @param OutputInterface $output Live output handle.
 	 * @param string $message The fully decorated message.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
 	 */
 	private function writeError(OutputInterface $output, string $message): void {
 		if ($output instanceof ConsoleOutputInterface) {
-			$output->getErrorOutput()->writeln(messages: $message);
+			$output->getErrorOutput()->writeln(messages: $message, options: OutputInterface::VERBOSITY_QUIET);
 			return;
 		}
 
-		$output->writeln(messages: $message);
+		$output->writeln(messages: $message, options: OutputInterface::VERBOSITY_QUIET);
 	}//end writeError()
 
 	/**
@@ -383,12 +393,19 @@ abstract class CommandBase extends Command {
 	private function collectArgsForAudit(InputInterface $input): string {
 		unset($input);
 
-		$argv = (array)($_SERVER['argv'] ?? []);
-		// Drop the binary path and the command name (first two slots
-		// when invoked via `php occ launchpad:foo ...`).
-		$tail = array_slice(array: $argv, offset: 2);
+		$argv = array_map(callback: 'strval', array: array_values((array)($_SERVER['argv'] ?? [])));
+		// Drop the binary path, any global option typed before the command
+		// (`php occ --no-ansi launchpad:foo ...`) and the command name: the
+		// first token after the binary that is not an option names it.
+		$tail = [];
+		foreach (array_slice(array: $argv, offset: 1) as $index => $token) {
+			if (str_starts_with(haystack: $token, needle: '-') === false) {
+				$tail = array_slice(array: $argv, offset: ($index + 2));
+				break;
+			}
+		}
 
-		return implode(separator: ' ', array: array_map(callback: 'strval', array: $tail));
+		return implode(separator: ' ', array: $tail);
 	}//end collectArgsForAudit()
 
 	/**

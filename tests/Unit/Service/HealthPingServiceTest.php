@@ -431,7 +431,7 @@ class HealthPingServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+	 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
 	 */
 	public function testAnOfflineServiceSaysSinceWhenItsChecksFail(): void {
 		$this->allowHost(host: 'example.com', offlineAfter: 2);

@@ -5,7 +5,7 @@
  * The badge tells its tile the reading, so an icon-only tile can show the
  * outage as a dot (icon-only-app-tiles REQ-ICT-003).
  *
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
  */
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'

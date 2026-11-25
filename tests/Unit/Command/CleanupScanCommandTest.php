@@ -23,11 +23,20 @@ namespace Unit\Command;
 
 use OCA\LaunchPad\Command\CleanupScanCommand;
 use OCA\LaunchPad\Db\CleanupResult;
+use OCA\LaunchPad\Service\CommandService;
 use OCA\LaunchPad\Service\OrphanedDataCleanupService;
+use Psr\Log\LoggerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class CleanupScanCommandTest extends TestCase {
+
+	/**
+	 * The audit messages logged.
+	 *
+	 * @var list<string>
+	 */
+	private array $audit = [];
 
 	/**
 	 * @param array<string, int> $counts  Rows per category.
@@ -44,7 +53,11 @@ class CleanupScanCommandTest extends TestCase {
 		$service = $this->createMock(OrphanedDataCleanupService::class);
 		$service->method('scan')->willReturn($result);
 
-		$tester = new CommandTester(new CleanupScanCommand($service));
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
+		$logger->method('info')->willReturnCallback(function ($message): void {
+			$this->audit[] = (string)$message;
+		});
+		$tester = new CommandTester(command: new CleanupScanCommand(cleanupService: $service, commandService: new CommandService(logger: $logger)));
 		$code = $tester->execute([]);
 		return [$code, $tester->getDisplay()];
 	}
@@ -61,5 +74,19 @@ class CleanupScanCommandTest extends TestCase {
 		[$code, $out] = $this->scan(['locks' => 0], []);
 		$this->assertSame(0, $code);
 		$this->assertStringEndsWith("| TOTAL    | 0     |\n+----------+-------+\nScan completed in 12ms.\n", $out);
+	}
+
+	/**
+	 * Every scan writes one audit line as byUser=cli (REQ-CLI-010).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	public function testScanWritesOneAuditLineAsCli(): void {
+		$this->scan(counts: ['locks' => 2], skipped: []);
+
+		$this->assertCount(expectedCount: 1, haystack: $this->audit);
+		$this->assertMatchesRegularExpression(pattern: '/^\[launchpad\] cli cleanup:scan +exitCode=1 durationMs=\d+ byUser=cli$/', string: $this->audit[0]);
 	}
 }

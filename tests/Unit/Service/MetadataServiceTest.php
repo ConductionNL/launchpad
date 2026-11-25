@@ -185,6 +185,8 @@ class MetadataServiceTest extends TestCase {
 	 * The DATETIME columns get a value MySQL/MariaDB strict mode accepts:
 	 * `Y-m-d H:i:s`, not ISO-8601 with `T` and an offset.
 	 *
+	 * @return void
+	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 	 */
 	public function testCreateAndUpdateWriteDatabaseDatetimeFormat(): void {
@@ -198,12 +200,12 @@ class MetadataServiceTest extends TestCase {
 			type: MetadataField::TYPE_TEXT,
 		);
 		$pattern = '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/';
-		$this->assertMatchesRegularExpression($pattern, (string) $field->getCreatedAt());
-		$this->assertMatchesRegularExpression($pattern, (string) $field->getUpdatedAt());
+		$this->assertMatchesRegularExpression(pattern: $pattern, string: (string) $field->getCreatedAt());
+		$this->assertMatchesRegularExpression(pattern: $pattern, string: (string) $field->getUpdatedAt());
 
-		$this->fieldMapper->method('findById')->willReturn($this->makeField(5, 'department'));
+		$this->fieldMapper->method('findById')->willReturn($this->makeField(id: 5, key: 'department'));
 		$updated = $this->service->updateFieldDefinition(id: 5, patch: ['label' => 'Dept']);
-		$this->assertMatchesRegularExpression($pattern, (string) $updated->getUpdatedAt());
+		$this->assertMatchesRegularExpression(pattern: $pattern, string: (string) $updated->getUpdatedAt());
 	}
 
 	public function testUpdateFieldDefinitionForbidsKeyRename(): void {

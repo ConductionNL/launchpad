@@ -100,6 +100,11 @@ const PAGE_KEYS = {
 		// payloads of GET /api/dashboards/visible and GET /api/dashboard the
 		// page already computed. Optional key; `null` makes the store fetch.
 		dashboardFirstLoad: null,
+		// org-navigation-from-initial-state: `{position, tree, language}`, the
+		// answers of GET /api/admin/org-navigation/position and
+		// GET /api/admin/org-navigation the page already read. Optional key;
+		// `null` makes the shell fetch.
+		orgNavigation: null,
 		// sharing-policy-board-sync REQ-SHARE-015: `{mayShare, publicLinksAllowed}`
 		// for the viewer. Optional key; `null` offers both (the server refuses).
 		sharingPolicy: null,
@@ -162,6 +167,7 @@ export function loadInitialState(page) {
  * Whether the page's first dashboard load has been handed out.
  */
 let dashboardFirstLoadTaken = false
+let orgNavigationTaken = false
 
 /**
  * What the Sharing tab may offer the viewer (REQ-SHARE-015): adding people or
@@ -198,6 +204,27 @@ export function takeDashboardFirstLoad() {
 		return null
 	}
 	return { visible: firstLoad.visible, active: firstLoad.active ?? null }
+}
+
+/**
+ * The org navigation the page carries, `{position, tree, language}`. Handed
+ * out once, like {@link takeDashboardFirstLoad}. Null when the page did not
+ * carry it, when it is malformed, or once taken.
+ *
+ * @return {{position: string, tree: Array, language: string}|null} The first load, or null.
+ * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-3
+ */
+export function takeOrgNavigation() {
+	if (orgNavigationTaken) {
+		return null
+	}
+	orgNavigationTaken = true
+	const firstLoad = readKey('orgNavigation', null)
+	if (firstLoad === null || typeof firstLoad !== 'object'
+		|| typeof firstLoad.position !== 'string' || !Array.isArray(firstLoad.tree)) {
+		return null
+	}
+	return { position: firstLoad.position, tree: firstLoad.tree, language: String(firstLoad.language || 'nl') }
 }
 
 /**

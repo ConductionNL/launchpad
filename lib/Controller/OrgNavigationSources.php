@@ -43,4 +43,27 @@ class OrgNavigationSources {
 		public readonly AdminSettingMapper $settings,
 	) {
 	}//end __construct()
+
+	/**
+	 * The persisted rail position, or the default when it is unset or not
+	 * one of the allowed positions (REQ-ONAV-004).
+	 *
+	 * @return string Always one of {@see AdminOrgNavigationController::ALLOWED_POSITIONS}.
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md
+	 */
+	public function position(): string {
+		$raw = $this->settings->getValue(
+			key: AdminOrgNavigationController::SETTING_KEY_POSITION,
+			default: AdminOrgNavigationController::DEFAULT_POSITION
+		);
+
+		if (is_string($raw) === false
+			|| in_array(needle: $raw, haystack: AdminOrgNavigationController::ALLOWED_POSITIONS, strict: true) === false
+		) {
+			return AdminOrgNavigationController::DEFAULT_POSITION;
+		}
+
+		return $raw;
+	}//end position()
 }//end class

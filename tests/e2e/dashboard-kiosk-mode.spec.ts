@@ -454,6 +454,31 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
 }
 
 /**
+ * On a flag-based kiosk view (real clock): the cursor shows while the pointer
+ * moves, is hidden after 10 seconds without movement, and returns on the
+ * next movement.
+ *
+ * @param page the kiosk page.
+ * @param target an element of the rendered dashboard to point at.
+ * @return nothing.
+ */
+async function expectCursorHidesWhenIdle(page: Page, target: Locator): Promise<void> {
+	await expect(target).toBeVisible({ timeout: 30_000 })
+	const box = await target.boundingBox()
+	const x = box!.x + 2
+	const y = box!.y + box!.height / 2
+	await page.mouse.move(x, y)
+	await page.mouse.move(x + 1, y)
+	expect(await cursorAt(page, x + 1, y), 'CONTROL: the cursor shows while moving').not.toBe('none')
+	// Not yet hidden well before the 10 seconds are up.
+	await page.waitForTimeout(5_000)
+	expect(await cursorAt(page, x + 1, y), 'still shown 5 s after the last movement').not.toBe('none')
+	await expect.poll(() => cursorAt(page, x + 1, y), { timeout: 10_000 }).toBe('none')
+	await page.mouse.move(x + 3, y)
+	await expect.poll(() => cursorAt(page, x + 3, y)).not.toBe('none')
+}
+
+/**
  * Clear the brute-force attempts the instance holds for the address this
  * runner reaches it from (the container's network gateway). Nextcloud delays
  * EVERY request to a #[BruteForceProtection] route by the address's delay, the
@@ -720,6 +745,10 @@ test.describe('REQ-KIOSK-001 chrome-less kiosk render flag', () => {
 		const byPathFlagged = await bob!.api.get(
 			`${API}/dashboards/by-path/${secret.slug}?kiosk=1`,
 		)
+		// The refusal itself, not only its sameness: two identical 200s that
+		// both leaked the dashboard would otherwise pass.
+		expect(byPath.status(), await byPath.text()).toBe(404)
+		expect(await byPath.text()).not.toContain(secret.uuid)
 		expect(byPathFlagged.status()).toBe(byPath.status())
 		expect(await byPathFlagged.text()).toBe(await byPath.text())
 
@@ -759,6 +788,9 @@ test.describe('REQ-KIOSK-001 chrome-less kiosk render flag', () => {
 	test('the cursor hides after 10 seconds without pointer movement and returns on movement', async ({
 		browser,
 	}) => {
+		// The player on a fake clock, then two flag views on real time (two
+		// idle periods of ten seconds plus two page loads).
+		test.setTimeout(150_000)
 		const a = await createDashboard(alice!.api, 'Cursor')
 		const playlist = await createPlaylist(
 			alice!.api,
@@ -785,6 +817,31 @@ test.describe('REQ-KIOSK-001 chrome-less kiosk render flag', () => {
 			await expect.poll(() => cursorAt(page, x + 20, y)).not.toBe('none')
 		} finally {
 			await context.close()
+		}
+
+		// "Any kiosk-mode render": the flag views wire the idle timer on their
+		// own (Views.vue startKioskView, public.js), apart from the player.
+		// Real time here: a fake clock would also freeze the workspace's own
+		// start-up timers.
+		const flagged = await createDashboard(alice!.api, 'CursorFlag')
+		const session = await loginAs(browser, alice!.username, alice!.password)
+		try {
+			await session.page.goto(`${APP}/${flagged.slug}?kiosk=1`)
+			await expectCursorHidesWhenIdle(session.page, session.page.getByText(flagged.text).first())
+		} finally {
+			await session.context.close()
+		}
+
+		const shared = await createDashboard(admin, 'CursorShare')
+		const share = await admin.post(`${API}/dashboards/${shared.uuid}/public-share`, { data: {} })
+		expect(share.status(), await share.text()).toBe(201)
+		const visitor = await screenContext(browser)
+		try {
+			const page = await visitor.newPage()
+			await page.goto(`${APP}/s/${(await share.json()).token}?kiosk=1`)
+			await expectCursorHidesWhenIdle(page, page.locator(PUBLIC_WIDGET_TEXT).first())
+		} finally {
+			await visitor.close()
 		}
 	})
 })
@@ -1236,16 +1293,23 @@ test.describe('REQ-KIOSK-004 in-place refresh', () => {
 			await expect(onScreen(page)).toHaveText(a.name)
 			await setWidgetText(alice!.api, b, `fresh for B ${stamp()}`)
 
+			// Only B's own entry read counts: the playlist poll shares the
+			// `/kiosk/{token}` prefix and would satisfy a plain read count.
+			const readsOfB = () =>
+				reads.filter((req) => req.url().includes(`/dashboards/${b.uuid}`)).length
+
 			await page.clock.runFor(20_000)
-			const earlyReads = reads.length
+			expect(readsOfB(), 'B is not read 10 s before its turn: just-in-time, not up front').toBe(0)
 
 			// The window around "5 seconds left on A".
 			await page.clock.runFor(8_000)
 			await expect
-				.poll(() => reads.length, {
+				.poll(readsOfB, {
 					message: 'B is fetched in the background before the switch',
 				})
-				.toBeGreaterThan(earlyReads)
+				.toBeGreaterThan(0)
+			// In the background: A is still on screen while B is read.
+			await expect(onScreen(page)).toHaveText(a.name)
 
 			await page.clock.runFor(5_000)
 			await expect(onScreen(page)).toHaveText(b.name)

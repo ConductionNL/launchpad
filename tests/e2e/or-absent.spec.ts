@@ -350,10 +350,14 @@ test('without OpenRegister or OpenConnector LaunchPad enables, appears in the me
 
 	const errors = collectErrors(page)
 	await page.goto('/index.php')
+	// Nextcloud 34's header lists the apps in the apps menu, a popover the
+	// header's "Open apps menu" button opens; the entry is a link in it.
+	await page.locator('#header').getByRole('button', { name: 'Open apps menu', exact: true }).click()
 	await expect(
-		page.locator('#header a[href*="/apps/launchpad"]').first(),
-		'the menu entry is in the header',
-	).toBeAttached({ timeout: 30_000 })
+		page.locator('a[href*="/apps/launchpad"]').filter({ hasText: 'Launchpad' }).first(),
+		'the menu entry is in the header\'s apps menu',
+	).toBeVisible({ timeout: 30_000 })
+	await page.keyboard.press('Escape')
 	await page.goto(APP)
 	await expect(page.locator('#launchpad-main-content'), 'the dashboards index renders').toBeAttached({
 		timeout: 30_000,

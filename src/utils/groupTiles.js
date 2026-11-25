@@ -58,7 +58,7 @@ export function isGroupTileChild(child) {
 /**
  * Whether a value is a plain object.
  *
- * @param {*} value The value.
+ * @param {unknown} value The value.
  * @return {boolean}
  */
 function isObject(value) {
@@ -78,7 +78,7 @@ function contentOf(child) {
 /**
  * Whether a value is set: neither absent, null nor an empty string.
  *
- * @param {*} value The value.
+ * @param {unknown} value The value.
  * @return {boolean}
  */
 function isSet(value) {

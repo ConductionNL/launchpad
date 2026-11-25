@@ -259,6 +259,7 @@ export default {
 		},
 	},
 
+	/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
 	mounted() {
 		// A click anywhere in a child counts a use of that child; the child's
 		// own link or button stays the control (no click handler on the cell).
@@ -266,6 +267,7 @@ export default {
 		this.initInnerGrid()
 	},
 
+	/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
 	beforeUnmount() {
 		this.$refs.innerGrid?.removeEventListener('click', this.onChildClick, true)
 		this.destroyInnerGrid()

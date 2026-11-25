@@ -146,8 +146,8 @@ class SetupWizardServiceTest extends TestCase {
 		$this->assertTrue($state['complete']);
 		$this->assertSame('done', $state['stepStatuses']['5']);
 		// Finished without an admin role: Step 4 was skipped.
-		$this->assertSame('skipped', $state['stepStatuses']['4']);
-		$this->assertSame('pending', $state['stepStatuses']['3']);
+		$this->assertSame(expected: 'skipped', actual: $state['stepStatuses']['4']);
+		$this->assertSame(expected: 'pending', actual: $state['stepStatuses']['3']);
 		$this->assertCount(expectedCount: 5, haystack: $state['stepStatuses']);
 		// No demo installed, so the first non-'done' status is Step 3.
 		// The wizard "complete" flag
@@ -222,12 +222,12 @@ class SetupWizardServiceTest extends TestCase {
 		$this->settingMapper->method('getAllAsArray')->willReturn([
 			AdminSetting::KEY_GROUP_ORDER => ['engineering'],
 		]);
-		$appConfig = $this->createMock(IAppConfig::class);
+		$appConfig = $this->createMock(originalClassName: IAppConfig::class);
 		$appConfig->method('getKeys')->willReturn(['allow_user_dash', 'showcase_installed_intranet']);
 		$appConfig->method('getValueString')->willReturn('a77d8c2a-f12e-44fd-9cc2-c5ee32a6c40c');
 		$admin = new RoleAssignment();
 		$admin->setRole(RoleAssignment::ROLE_ADMIN);
-		$roles = $this->createMock(RoleAssignmentMapper::class);
+		$roles = $this->createMock(originalClassName: RoleAssignmentMapper::class);
 		$roles->method('findAll')->willReturn([$admin]);
 		$service = new SetupWizardService(
 			settingMapper: $this->settingMapper,
@@ -254,12 +254,12 @@ class SetupWizardServiceTest extends TestCase {
 	public function testAnEmptyMarkerAndAnEditorRoleLeaveStepsThreeAndFourPending(): void {
 		$this->settingMapper->method('getValue')->willReturn(false);
 		$this->settingMapper->method('getAllAsArray')->willReturn([]);
-		$appConfig = $this->createMock(IAppConfig::class);
+		$appConfig = $this->createMock(originalClassName: IAppConfig::class);
 		$appConfig->method('getKeys')->willReturn(['showcase_installed_intranet']);
 		$appConfig->method('getValueString')->willReturn('');
 		$editor = new RoleAssignment();
 		$editor->setRole(RoleAssignment::ROLE_EDITOR);
-		$roles = $this->createMock(RoleAssignmentMapper::class);
+		$roles = $this->createMock(originalClassName: RoleAssignmentMapper::class);
 		$roles->method('findAll')->willReturn([$editor]);
 		$service = new SetupWizardService(
 			settingMapper: $this->settingMapper,

@@ -35,7 +35,7 @@ use Throwable;
  * Turn the address links of every stored group into tile nodes. Idempotent:
  * a group with no address links left is not written again.
  *
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 class ConvertGroupLinksToTiles implements IRepairStep {
 	/**
@@ -57,7 +57,7 @@ class ConvertGroupLinksToTiles implements IRepairStep {
 	 *
 	 * @return string The step name.
 	 *
-	 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+	 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 	 */
 	public function getName(): string {
 		return 'Turn the links inside tile groups into tiles';
@@ -70,7 +70,7 @@ class ConvertGroupLinksToTiles implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+	 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 	 */
 	public function run(IOutput $output): void {
 		$groups = 0;

@@ -276,11 +276,17 @@ export default {
 		 * prop rather than an injection.
 		 *
 		 * @return {object} extra props for `<component :is>` (empty for most types).
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		rendererProps() {
 			const props = buildRendererExtraProps(this.placement?.widgetId)
 			if (EDIT_FLAG_WIDGETS.includes(this.placement?.widgetId)) {
 				return { ...props, isAdmin: this.editMode, canEdit: this.editMode }
+			}
+			// REQ-TILE-041: a group shows its tiles' menu, and its stored
+			// layout, only in edit mode, so it is told when that is.
+			if (this.placement?.widgetId === 'container') {
+				return { ...props, editMode: this.editMode }
 			}
 			return props
 		},

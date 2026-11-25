@@ -51,8 +51,15 @@
  *   @e2e tiles::edit-the-case-system-tile
  *   @e2e tiles::sort-a-group-by-use
  *   @e2e tiles::a-reachable-tile
+ *   @e2e tiles::move-a-tile-from-the-dashboard-into-a-group
  *
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md
+ * move-a-tile-from-the-dashboard-into-a-group uses a group and a tile of its
+ * own (Archive, Reports), so the other scenarios keep theirs. Its compulsory
+ * line (a tile the administrator's start page makes compulsory does not move)
+ * and the availability keys are held by the unit tests of Views
+ * (src/views/__tests__/Views.groupTiles.methods.spec.js).
+ *
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md
  */
 
 import type { APIRequestContext, Browser, BrowserContext, Locator, Page } from '@playwright/test'
@@ -83,7 +90,10 @@ const FIELD_ORDER = [
 	/^Name$/,
 	/^Group$/,
 	/^Tile type$/,
-	/^Web address$/,
+	// Case system is an app with single sign-on: its own address fields are
+	// the sign-on template and the app id (REQ-TILE-040, decided 25 Nov).
+	/^Sign-on template$/,
+	/^App id$/,
 	/^Internal address/,
 	/^Open in$/,
 	/^Icon$/,
@@ -132,6 +142,18 @@ async function openTileForm(page: Page, tile: Locator, name: string): Promise<Lo
 	}
 	await expect(form).toBeVisible({ timeout: 10_000 })
 	return form
+}
+
+/**
+ * Click an option of the open select. NcSelect draws its list at the end of
+ * the page, outside the dialog, so it is not reached by role from the form.
+ *
+ * @param page The page.
+ * @param label The option's text.
+ * @return Nothing.
+ */
+async function chooseOption(page: Page, label: string): Promise<void> {
+	await page.locator('li[role="option"]').filter({ hasText: label }).first().click()
 }
 
 /**
@@ -227,9 +249,8 @@ test('Edit tile on Case system shows the fields in board order, with App with si
 			const sameRow = Math.abs(a.y - b.y) < 4
 			expect(sameRow ? b.x > a.x : b.y > a.y, `${b.label} comes before ${a.label}`).toBe(true)
 		}
-		// Name and Group side by side; Web address and Internal address too.
+		// Name and Group side by side.
 		expect(Math.abs(boxes[0].y - boxes[1].y)).toBeLessThan(4)
-		expect(Math.abs(boxes[3].y - boxes[4].y)).toBeLessThan(4)
 
 		// Tile type: four choice cards, App with single sign-on chosen.
 		const type = form.getByRole('radiogroup', { name: 'Tile type' })
@@ -254,6 +275,14 @@ test('Edit tile on Case system shows the fields in board order, with App with si
 		expect(del.x).toBeLessThan(cancel.x)
 		expect(cancel.x).toBeLessThan(save.x)
 		expect(Math.abs(del.y - save.y)).toBeLessThan(8)
+
+		// A web-address tile shows Web address and Internal address side by
+		// side (not saved: the form is closed with the page).
+		await type.getByRole('radio', { name: /^Web address/ }).check({ force: true })
+		const web = (await form.getByRole('textbox', { name: 'Web address', exact: true }).boundingBox())!
+		const internal = (await form.getByRole('textbox', { name: 'Internal address (optional)' }).boundingBox())!
+		expect(Math.abs(web.y - internal.y)).toBeLessThan(4)
+		expect(web.x).toBeLessThan(internal.x)
 	} finally {
 		await context.close()
 	}
@@ -280,10 +309,10 @@ test('setting Sort order in this group to Last used first orders Work apps by ea
 	try {
 		const caseTile = group(page).locator('.container-widget__child').filter({ hasText: CASE_SYSTEM })
 		const form = await openTileForm(page, caseTile, CASE_SYSTEM)
-		await expect(form.getByLabel('Group')).toHaveValue(GROUP)
+		await expect(form.getByLabel('Group', { exact: true })).toHaveValue(GROUP)
 		const sort = form.getByLabel('Sort order in this group')
 		await sort.click()
-		await page.getByRole('option', { name: 'Last used first' }).click()
+		await chooseOption(page, 'Last used first')
 		const saved = page.waitForResponse((res) => res.request().method() === 'PUT' && res.url().includes('/api/widgets/'))
 		await form.getByRole('button', { name: 'Save' }).click()
 		expect((await saved).status()).toBeLessThan(300)
@@ -381,4 +410,67 @@ test.describe('availability', () => {
 			await context.close()
 		}
 	})
+})
+
+// @e2e tiles::move-a-tile-from-the-dashboard-into-a-group
+test('choosing a group in Edit tile moves a dashboard tile into that group, keeping its settings', async ({
+	browser,
+}) => {
+	// A group and a tile of this test's own, so the other scenarios keep theirs.
+	const archive = `Archive ${STAMP}`
+	const imported = await own.owner.api.post(`${API}/dashboard/${own.id}/tiles/import`, {
+		data: { folders: [{ name: archive, bookmarks: [{ title: 'Old intranet', url: 'https://example.invalid/old' }] }], bookmarks: [] },
+	})
+	expect(imported.status(), await imported.text()).toBe(201)
+	const archiveId = Number((await imported.json()).placements[0].id)
+
+	const created = await own.owner.api.post(`${API}/dashboard/${own.id}/tile`, {
+		data: {
+			title: 'Reports',
+			icon: 'ChartBar',
+			iconType: 'mdi',
+			bgColor: '#1f6feb',
+			textColor: '#ffffff',
+			linkType: 'url',
+			linkValue: 'https://reports.example.invalid',
+			gridX: 0,
+			gridY: 6,
+		},
+	})
+	expect(created.status(), await created.text()).toBe(201)
+	const reportsId = Number((await created.json()).id)
+	const settings = await own.owner.api.put(`${API}/widgets/${reportsId}`, {
+		data: { content: { internalUrl: 'http://reports.local', linkTarget: 'new-tab' } },
+	})
+	expect(settings.status(), await settings.text()).toBeLessThan(300)
+
+	const { context, page } = await open(browser)
+	try {
+		const form = await openTileForm(page, tileOf(page, reportsId), 'Reports')
+		await form.getByRole('combobox', { name: 'Group', exact: true }).click()
+		await chooseOption(page, archive)
+		const moved = page.waitForResponse((res) => res.request().method() === 'PUT' && res.url().includes(`/api/widgets/${archiveId}`))
+		await form.getByRole('button', { name: 'Save' }).click()
+		expect((await moved).status()).toBeLessThan(300)
+
+		// The group holds Reports as a tile at its bottom, with its settings.
+		await expect.poll(async () => (await readPlacements(own.owner.api, own.id)).some((p) => Number(p.id) === reportsId), {
+			timeout: 10_000,
+		}).toBe(false)
+		const group = await storedContent(own.owner.api, own.id, archiveId)
+		expect(group.placements).toHaveLength(2)
+		const tile = group.placements[1]
+		expect(tile.type).toBe('tile')
+		expect(tile.gridY).toBeGreaterThanOrEqual(group.placements[0].gridY + group.placements[0].gridHeight)
+		expect(tile.content).toMatchObject({
+			title: 'Reports',
+			linkType: 'url',
+			linkValue: 'https://reports.example.invalid',
+			internalUrl: 'http://reports.local',
+			linkTarget: 'new-tab',
+		})
+		await expect(page.locator(`.grid-stack-item[gs-id="${archiveId}"] .container-widget__child`).filter({ hasText: 'Reports' })).toBeVisible()
+	} finally {
+		await context.close()
+	}
 })

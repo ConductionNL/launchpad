@@ -236,7 +236,8 @@ class StoreService {
 	 * @param string $slug   The remote item slug.
 	 * @param string $userId The installing administrator's UID.
 	 *
-	 * @return array{success: bool, message: string, components: array<int, array<string, string>>, version?: string, dashboardIds?: list<int>, created?: list<array<string, mixed>>}
+	 * @return array{success: bool, message: string, components: array<int, array<string, string>>,
+	 *     version?: string, dashboardIds?: list<int>, created?: list<array<string, mixed>>}
 	 *
 	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
 	 *

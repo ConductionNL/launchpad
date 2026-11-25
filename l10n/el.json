@@ -1555,6 +1555,21 @@
         "You confirmed you have read this": "Επιβεβαιώσατε ότι το διαβάσατε",
         "The confirm-before date must be after the publish time": "Η προθεσμία επιβεβαίωσης πρέπει να είναι μετά τον χρόνο δημοσίευσης",
         "Your read confirmation could not be saved": "Δεν ήταν δυνατή η αποθήκευση της επιβεβαίωσης ανάγνωσης",
-        "{title}: embedded pages are not included in the download": "{title}: οι ενσωματωμένες σελίδες δεν περιλαμβάνονται στη λήψη"
+        "{title}: embedded pages are not included in the download": "{title}: οι ενσωματωμένες σελίδες δεν περιλαμβάνονται στη λήψη",
+        "Push changes": "Εφαρμογή αλλαγών",
+        "Push changes to {count} dashboards": "Εφαρμογή αλλαγών σε {count} πίνακες ελέγχου",
+        "Push to {count} dashboards": "Εφαρμογή σε {count} πίνακες ελέγχου",
+        "Template \"{name}\" has {count} copies.": "Το πρότυπο «{name}» έχει {count} αντίγραφα.",
+        "Added since the last sync: {widgets}": "Προστέθηκαν από τον τελευταίο συγχρονισμό: {widgets}",
+        "Removed since the last sync: {widgets}": "Αφαιρέθηκαν από τον τελευταίο συγχρονισμό: {widgets}",
+        "No widgets were added or removed since the last sync.": "Δεν προστέθηκαν ούτε αφαιρέθηκαν μικροεφαρμογές από τον τελευταίο συγχρονισμό.",
+        "How to update?": "Πώς να γίνει η ενημέρωση;",
+        "Only add new widgets": "Προσθήκη μόνο νέων μικροεφαρμογών",
+        "Nothing disappears; personal layout stays.": "Τίποτα δεν εξαφανίζεται· η προσωπική διάταξη παραμένει.",
+        "Keep personal changes": "Διατήρηση προσωπικών αλλαγών",
+        "The template wins, except what someone moved or added themselves.": "Υπερισχύει το πρότυπο, εκτός από ό,τι μετακίνησε ή πρόσθεσε κάποιος μόνος του.",
+        "Replace everything with the template": "Αντικατάσταση όλων με το πρότυπο",
+        "Personal changes are lost.": "Οι προσωπικές αλλαγές χάνονται.",
+        "{count} people changed their dashboard.": "{count} άτομα άλλαξαν τον πίνακα ελέγχου τους."
     }
 }

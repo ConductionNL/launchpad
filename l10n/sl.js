@@ -1655,7 +1655,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Potrdili ste, da ste to prebrali",
     "The confirm-before date must be after the publish time" : "Rok za potrditev mora biti po času objave",
     "Your read confirmation could not be saved" : "Vaše potrditve branja ni bilo mogoče shraniti",
-    "{title}: embedded pages are not included in the download" : "{title}: vdelane strani niso vključene v prenos"
+    "{title}: embedded pages are not included in the download" : "{title}: vdelane strani niso vključene v prenos",
+    "Push changes" : "Uveljavi spremembe",
+    "Push changes to {count} dashboards" : "Uveljavi spremembe na {count} nadzornih ploščah",
+    "Push to {count} dashboards" : "Uveljavi na {count} nadzornih ploščah",
+    "Template \"{name}\" has {count} copies." : "Predloga »{name}« ima {count} kopij.",
+    "Added since the last sync: {widgets}" : "Dodano od zadnje sinhronizacije: {widgets}",
+    "Removed since the last sync: {widgets}" : "Odstranjeno od zadnje sinhronizacije: {widgets}",
+    "No widgets were added or removed since the last sync." : "Od zadnje sinhronizacije ni bil dodan ali odstranjen noben gradnik.",
+    "How to update?" : "Kako posodobiti?",
+    "Only add new widgets" : "Dodaj samo nove gradnike",
+    "Nothing disappears; personal layout stays." : "Nič ne izgine; osebna postavitev ostane.",
+    "Keep personal changes" : "Ohrani osebne prilagoditve",
+    "The template wins, except what someone moved or added themselves." : "Predloga zmaga, razen tistega, kar je kdo sam premaknil ali dodal.",
+    "Replace everything with the template" : "Zamenjaj vse s predlogo",
+    "Personal changes are lost." : "Osebne prilagoditve se izgubijo.",
+    "{count} people changed their dashboard." : "{count} oseb je spremenilo svojo nadzorno ploščo."
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

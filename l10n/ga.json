@@ -1561,6 +1561,21 @@
         "You confirmed you have read this": "Dheimhnigh tú gur léigh tú é seo",
         "The confirm-before date must be after the publish time": "Ní mór an dáta deimhnithe a bheith tar éis an ama foilsithe",
         "Your read confirmation could not be saved": "Níorbh fhéidir do dheimhniú léite a shábháil",
-        "{title}: embedded pages are not included in the download": "{title}: níl leathanaigh leabaithe san íoslódáil"
+        "{title}: embedded pages are not included in the download": "{title}: níl leathanaigh leabaithe san íoslódáil",
+        "Push changes": "Cuir na hathruithe i bhfeidhm",
+        "Push changes to {count} dashboards": "Cuir na hathruithe i bhfeidhm ar {count} deais",
+        "Push to {count} dashboards": "Cuir i bhfeidhm ar {count} deais",
+        "Template \"{name}\" has {count} copies.": "Tá {count} cóip den teimpléad \"{name}\" ann.",
+        "Added since the last sync: {widgets}": "Curtha leis ón sioncrónú deireanach: {widgets}",
+        "Removed since the last sync: {widgets}": "Bainte ón sioncrónú deireanach: {widgets}",
+        "No widgets were added or removed since the last sync.": "Níor cuireadh ná níor baineadh aon ghiuirléid ón sioncrónú deireanach.",
+        "How to update?": "Conas é a nuashonrú?",
+        "Only add new widgets": "Ná cuir leis ach giuirléidí nua",
+        "Nothing disappears; personal layout stays.": "Ní imíonn aon rud; fanann an leagan amach pearsanta.",
+        "Keep personal changes": "Coinnigh athruithe pearsanta",
+        "The template wins, except what someone moved or added themselves.": "Buann an teimpléad, ach amháin an méid a bhog nó a chuir duine leis é féin.",
+        "Replace everything with the template": "Cuir an teimpléad in ionad gach rud",
+        "Personal changes are lost.": "Cailltear athruithe pearsanta.",
+        "{count} people changed their dashboard.": "D'athraigh {count} duine a ndeais."
     }
 }

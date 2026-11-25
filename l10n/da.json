@@ -1555,6 +1555,21 @@
         "You confirmed you have read this": "Du har bekræftet, at du har læst dette",
         "The confirm-before date must be after the publish time": "Fristen for bekræftelse skal ligge efter udgivelsestidspunktet",
         "Your read confirmation could not be saved": "Din læsebekræftelse kunne ikke gemmes",
-        "{title}: embedded pages are not included in the download": "{title}: indlejrede sider er ikke med i downloaden"
+        "{title}: embedded pages are not included in the download": "{title}: indlejrede sider er ikke med i downloaden",
+        "Push changes": "Udrul ændringer",
+        "Push changes to {count} dashboards": "Udrul ændringer til {count} dashboards",
+        "Push to {count} dashboards": "Udrul til {count} dashboards",
+        "Template \"{name}\" has {count} copies.": "Skabelonen \"{name}\" har {count} kopier.",
+        "Added since the last sync: {widgets}": "Tilføjet siden sidste synkronisering: {widgets}",
+        "Removed since the last sync: {widgets}": "Fjernet siden sidste synkronisering: {widgets}",
+        "No widgets were added or removed since the last sync.": "Ingen widgets er tilføjet eller fjernet siden sidste synkronisering.",
+        "How to update?": "Hvordan opdateres?",
+        "Only add new widgets": "Tilføj kun nye widgets",
+        "Nothing disappears; personal layout stays.": "Intet forsvinder; det personlige layout bliver.",
+        "Keep personal changes": "Behold personlige ændringer",
+        "The template wins, except what someone moved or added themselves.": "Skabelonen vinder, undtagen det nogen selv har flyttet eller tilføjet.",
+        "Replace everything with the template": "Erstat alt med skabelonen",
+        "Personal changes are lost.": "Personlige ændringer går tabt.",
+        "{count} people changed their dashboard.": "{count} personer har ændret deres dashboard."
     }
 }

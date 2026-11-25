@@ -1646,7 +1646,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Потврдивте дека го прочитавте ова",
     "The confirm-before date must be after the publish time" : "Рокот за потврда мора да биде по времето на објавување",
     "Your read confirmation could not be saved" : "Вашата потврда за читање не можеше да се зачува",
-    "{title}: embedded pages are not included in the download" : "{title}: вградените страници не се вклучени во преземањето"
+    "{title}: embedded pages are not included in the download" : "{title}: вградените страници не се вклучени во преземањето",
+    "Push changes" : "Примени промени",
+    "Push changes to {count} dashboards" : "Примени промени на {count} контролни табли",
+    "Push to {count} dashboards" : "Примени на {count} контролни табли",
+    "Template \"{name}\" has {count} copies." : "Шаблонот „{name}“ има {count} копии.",
+    "Added since the last sync: {widgets}" : "Додадено од последната синхронизација: {widgets}",
+    "Removed since the last sync: {widgets}" : "Отстрането од последната синхронизација: {widgets}",
+    "No widgets were added or removed since the last sync." : "Од последната синхронизација не се додадени ниту отстранети виџети.",
+    "How to update?" : "Како да се ажурира?",
+    "Only add new widgets" : "Додај само нови виџети",
+    "Nothing disappears; personal layout stays." : "Ништо не исчезнува; личниот распоред останува.",
+    "Keep personal changes" : "Задржи ги личните промени",
+    "The template wins, except what someone moved or added themselves." : "Шаблонот победува, освен она што некој сам го преместил или додал.",
+    "Replace everything with the template" : "Замени сè со шаблонот",
+    "Personal changes are lost." : "Личните промени се губат.",
+    "{count} people changed their dashboard." : "{count} луѓе ја променија својата контролна табла."
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

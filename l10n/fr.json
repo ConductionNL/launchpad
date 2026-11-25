@@ -1555,6 +1555,21 @@
         "You confirmed you have read this": "Vous avez confirmé avoir lu ceci",
         "The confirm-before date must be after the publish time": "La date limite de confirmation doit être postérieure à la date de publication",
         "Your read confirmation could not be saved": "Votre confirmation de lecture n’a pas pu être enregistrée",
-        "{title}: embedded pages are not included in the download": "{title} : les pages intégrées ne sont pas incluses dans le téléchargement"
+        "{title}: embedded pages are not included in the download": "{title} : les pages intégrées ne sont pas incluses dans le téléchargement",
+        "Push changes": "Publier les modifications",
+        "Push changes to {count} dashboards": "Publier les modifications sur {count} tableaux de bord",
+        "Push to {count} dashboards": "Publier sur {count} tableaux de bord",
+        "Template \"{name}\" has {count} copies.": "Le modèle « {name} » a {count} copies.",
+        "Added since the last sync: {widgets}": "Ajoutés depuis la dernière synchronisation : {widgets}",
+        "Removed since the last sync: {widgets}": "Supprimés depuis la dernière synchronisation : {widgets}",
+        "No widgets were added or removed since the last sync.": "Aucun widget n'a été ajouté ou supprimé depuis la dernière synchronisation.",
+        "How to update?": "Comment mettre à jour ?",
+        "Only add new widgets": "Ajouter uniquement les nouveaux widgets",
+        "Nothing disappears; personal layout stays.": "Rien ne disparaît ; la disposition personnelle reste.",
+        "Keep personal changes": "Conserver les modifications personnelles",
+        "The template wins, except what someone moved or added themselves.": "Le modèle l'emporte, sauf ce que chacun a déplacé ou ajouté lui-même.",
+        "Replace everything with the template": "Tout remplacer par le modèle",
+        "Personal changes are lost.": "Les modifications personnelles sont perdues.",
+        "{count} people changed their dashboard.": "{count} personnes ont modifié leur tableau de bord."
     }
 }

@@ -1655,7 +1655,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Du har bekräftat att du har läst detta",
     "The confirm-before date must be after the publish time" : "Sista dag för bekräftelse måste vara efter publiceringstiden",
     "Your read confirmation could not be saved" : "Din läsbekräftelse kunde inte sparas",
-    "{title}: embedded pages are not included in the download" : "{title}: inbäddade sidor ingår inte i nedladdningen"
+    "{title}: embedded pages are not included in the download" : "{title}: inbäddade sidor ingår inte i nedladdningen",
+    "Push changes" : "Rulla ut ändringar",
+    "Push changes to {count} dashboards" : "Rulla ut ändringar till {count} instrumentpaneler",
+    "Push to {count} dashboards" : "Rulla ut till {count} instrumentpaneler",
+    "Template \"{name}\" has {count} copies." : "Mallen \"{name}\" har {count} kopior.",
+    "Added since the last sync: {widgets}" : "Tillagda sedan senaste synkroniseringen: {widgets}",
+    "Removed since the last sync: {widgets}" : "Borttagna sedan senaste synkroniseringen: {widgets}",
+    "No widgets were added or removed since the last sync." : "Inga widgetar har lagts till eller tagits bort sedan senaste synkroniseringen.",
+    "How to update?" : "Hur ska det uppdateras?",
+    "Only add new widgets" : "Lägg bara till nya widgetar",
+    "Nothing disappears; personal layout stays." : "Inget försvinner; den personliga layouten finns kvar.",
+    "Keep personal changes" : "Behåll personliga ändringar",
+    "The template wins, except what someone moved or added themselves." : "Mallen vinner, utom det som någon själv har flyttat eller lagt till.",
+    "Replace everything with the template" : "Ersätt allt med mallen",
+    "Personal changes are lost." : "Personliga ändringar går förlorade.",
+    "{count} people changed their dashboard." : "{count} personer har ändrat sin instrumentpanel."
 },
 "nplurals=2; plural=(n != 1);"
 );

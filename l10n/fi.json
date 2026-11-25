@@ -1555,6 +1555,21 @@
         "You confirmed you have read this": "Olet vahvistanut lukeneesi tämän",
         "The confirm-before date must be after the publish time": "Vahvistuksen määräajan on oltava julkaisuajan jälkeen",
         "Your read confirmation could not be saved": "Lukukuittaustasi ei voitu tallentaa",
-        "{title}: embedded pages are not included in the download": "{title}: upotetut sivut eivät sisälly lataukseen"
+        "{title}: embedded pages are not included in the download": "{title}: upotetut sivut eivät sisälly lataukseen",
+        "Push changes": "Julkaise muutokset",
+        "Push changes to {count} dashboards": "Julkaise muutokset {count} koontinäyttöön",
+        "Push to {count} dashboards": "Julkaise {count} koontinäyttöön",
+        "Template \"{name}\" has {count} copies.": "Mallilla \"{name}\" on {count} kopiota.",
+        "Added since the last sync: {widgets}": "Lisätty edellisen synkronoinnin jälkeen: {widgets}",
+        "Removed since the last sync: {widgets}": "Poistettu edellisen synkronoinnin jälkeen: {widgets}",
+        "No widgets were added or removed since the last sync.": "Edellisen synkronoinnin jälkeen ei ole lisätty tai poistettu pienoisohjelmia.",
+        "How to update?": "Miten päivitetään?",
+        "Only add new widgets": "Lisää vain uudet pienoisohjelmat",
+        "Nothing disappears; personal layout stays.": "Mitään ei katoa; oma asettelu säilyy.",
+        "Keep personal changes": "Säilytä omat muutokset",
+        "The template wins, except what someone moved or added themselves.": "Malli voittaa, paitsi se mitä joku on itse siirtänyt tai lisännyt.",
+        "Replace everything with the template": "Korvaa kaikki mallilla",
+        "Personal changes are lost.": "Omat muutokset menetetään.",
+        "{count} people changed their dashboard.": "{count} henkilöä on muuttanut koontinäyttöään."
     }
 }

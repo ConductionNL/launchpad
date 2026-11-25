@@ -1655,7 +1655,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Bunu okuduğunuzu onayladınız",
     "The confirm-before date must be after the publish time" : "Onay son tarihi yayın zamanından sonra olmalıdır",
     "Your read confirmation could not be saved" : "Okundu onayınız kaydedilemedi",
-    "{title}: embedded pages are not included in the download" : "{title}: gömülü sayfalar indirmeye dahil değildir"
+    "{title}: embedded pages are not included in the download" : "{title}: gömülü sayfalar indirmeye dahil değildir",
+    "Push changes" : "Değişiklikleri uygula",
+    "Push changes to {count} dashboards" : "Değişiklikleri {count} panoya uygula",
+    "Push to {count} dashboards" : "{count} panoya uygula",
+    "Template \"{name}\" has {count} copies." : "\"{name}\" şablonunun {count} kopyası var.",
+    "Added since the last sync: {widgets}" : "Son eşitlemeden bu yana eklenenler: {widgets}",
+    "Removed since the last sync: {widgets}" : "Son eşitlemeden bu yana kaldırılanlar: {widgets}",
+    "No widgets were added or removed since the last sync." : "Son eşitlemeden bu yana hiçbir gereç eklenmedi veya kaldırılmadı.",
+    "How to update?" : "Nasıl güncellensin?",
+    "Only add new widgets" : "Yalnızca yeni gereçleri ekle",
+    "Nothing disappears; personal layout stays." : "Hiçbir şey kaybolmaz; kişisel düzen kalır.",
+    "Keep personal changes" : "Kişisel değişiklikleri koru",
+    "The template wins, except what someone moved or added themselves." : "Şablon kazanır; birinin kendisinin taşıdığı veya eklediği hariç.",
+    "Replace everything with the template" : "Her şeyi şablonla değiştir",
+    "Personal changes are lost." : "Kişisel değişiklikler kaybolur.",
+    "{count} people changed their dashboard." : "{count} kişi panosunu değiştirdi."
 },
 "nplurals=2; plural=(n != 1);"
 );

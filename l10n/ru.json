@@ -1557,6 +1557,21 @@
         "You confirmed you have read this": "Вы подтвердили, что прочитали это",
         "The confirm-before date must be after the publish time": "Срок подтверждения должен быть позже времени публикации",
         "Your read confirmation could not be saved": "Не удалось сохранить ваше подтверждение прочтения",
-        "{title}: embedded pages are not included in the download": "{title}: встроенные страницы не включаются в загрузку"
+        "{title}: embedded pages are not included in the download": "{title}: встроенные страницы не включаются в загрузку",
+        "Push changes": "Применить изменения",
+        "Push changes to {count} dashboards": "Применить изменения к {count} панелям",
+        "Push to {count} dashboards": "Применить к {count} панелям",
+        "Template \"{name}\" has {count} copies.": "У шаблона «{name}» {count} копий.",
+        "Added since the last sync: {widgets}": "Добавлено с последней синхронизации: {widgets}",
+        "Removed since the last sync: {widgets}": "Удалено с последней синхронизации: {widgets}",
+        "No widgets were added or removed since the last sync.": "С последней синхронизации виджеты не добавлялись и не удалялись.",
+        "How to update?": "Как обновить?",
+        "Only add new widgets": "Только добавить новые виджеты",
+        "Nothing disappears; personal layout stays.": "Ничего не исчезает; личная раскладка сохраняется.",
+        "Keep personal changes": "Сохранить личные изменения",
+        "The template wins, except what someone moved or added themselves.": "Побеждает шаблон, кроме того, что кто-то сам переместил или добавил.",
+        "Replace everything with the template": "Заменить всё шаблоном",
+        "Personal changes are lost.": "Личные изменения будут потеряны.",
+        "{count} people changed their dashboard.": "{count} человек изменили свою панель."
     }
 }

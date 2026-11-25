@@ -1655,7 +1655,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Ви підтвердили, що прочитали це",
     "The confirm-before date must be after the publish time" : "Термін підтвердження має бути пізніше за час публікації",
     "Your read confirmation could not be saved" : "Не вдалося зберегти ваше підтвердження прочитання",
-    "{title}: embedded pages are not included in the download" : "{title}: вбудовані сторінки не входять до завантаження"
+    "{title}: embedded pages are not included in the download" : "{title}: вбудовані сторінки не входять до завантаження",
+    "Push changes" : "Застосувати зміни",
+    "Push changes to {count} dashboards" : "Застосувати зміни до {count} панелей",
+    "Push to {count} dashboards" : "Застосувати до {count} панелей",
+    "Template \"{name}\" has {count} copies." : "Шаблон «{name}» має {count} копій.",
+    "Added since the last sync: {widgets}" : "Додано з останньої синхронізації: {widgets}",
+    "Removed since the last sync: {widgets}" : "Вилучено з останньої синхронізації: {widgets}",
+    "No widgets were added or removed since the last sync." : "З останньої синхронізації віджети не додавалися й не вилучалися.",
+    "How to update?" : "Як оновити?",
+    "Only add new widgets" : "Лише додати нові віджети",
+    "Nothing disappears; personal layout stays." : "Нічого не зникає; особисте розташування залишається.",
+    "Keep personal changes" : "Зберегти особисті зміни",
+    "The template wins, except what someone moved or added themselves." : "Перемагає шаблон, окрім того, що хтось сам перемістив або додав.",
+    "Replace everything with the template" : "Замінити все шаблоном",
+    "Personal changes are lost." : "Особисті зміни буде втрачено.",
+    "{count} people changed their dashboard." : "{count} людей змінили свою панель."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

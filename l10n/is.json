@@ -1555,6 +1555,21 @@
         "You confirmed you have read this": "Þú hefur staðfest að þú hafir lesið þetta",
         "The confirm-before date must be after the publish time": "Staðfestingarfresturinn verður að vera eftir birtingartímanum",
         "Your read confirmation could not be saved": "Ekki tókst að vista lesstaðfestinguna þína",
-        "{title}: embedded pages are not included in the download": "{title}: ívafðar síður eru ekki með í niðurhalinu"
+        "{title}: embedded pages are not included in the download": "{title}: ívafðar síður eru ekki með í niðurhalinu",
+        "Push changes": "Birta breytingar",
+        "Push changes to {count} dashboards": "Birta breytingar á {count} stjórnborðum",
+        "Push to {count} dashboards": "Birta á {count} stjórnborðum",
+        "Template \"{name}\" has {count} copies.": "Sniðmátið \"{name}\" hefur {count} afrit.",
+        "Added since the last sync: {widgets}": "Bætt við frá síðustu samstillingu: {widgets}",
+        "Removed since the last sync: {widgets}": "Fjarlægt frá síðustu samstillingu: {widgets}",
+        "No widgets were added or removed since the last sync.": "Engum græjum var bætt við eða þær fjarlægðar frá síðustu samstillingu.",
+        "How to update?": "Hvernig á að uppfæra?",
+        "Only add new widgets": "Bæta aðeins við nýjum græjum",
+        "Nothing disappears; personal layout stays.": "Ekkert hverfur; persónulega uppsetningin helst.",
+        "Keep personal changes": "Halda persónulegum breytingum",
+        "The template wins, except what someone moved or added themselves.": "Sniðmátið ræður, nema það sem einhver færði eða bætti við sjálfur.",
+        "Replace everything with the template": "Skipta öllu út fyrir sniðmátið",
+        "Personal changes are lost.": "Persónulegar breytingar tapast.",
+        "{count} people changed their dashboard.": "{count} manns breyttu stjórnborðinu sínu."
     }
 }

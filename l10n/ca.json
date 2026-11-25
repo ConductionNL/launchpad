@@ -1555,6 +1555,21 @@
         "You confirmed you have read this": "Heu confirmat que ho heu llegit",
         "The confirm-before date must be after the publish time": "La data límit de confirmació ha de ser posterior a la de publicació",
         "Your read confirmation could not be saved": "No s’ha pogut desar la vostra confirmació de lectura",
-        "{title}: embedded pages are not included in the download": "{title}: les pàgines incrustades no s'inclouen a la baixada"
+        "{title}: embedded pages are not included in the download": "{title}: les pàgines incrustades no s'inclouen a la baixada",
+        "Push changes": "Publica els canvis",
+        "Push changes to {count} dashboards": "Publica els canvis a {count} taulers",
+        "Push to {count} dashboards": "Publica a {count} taulers",
+        "Template \"{name}\" has {count} copies.": "La plantilla \"{name}\" té {count} còpies.",
+        "Added since the last sync: {widgets}": "Afegits des de l'última sincronització: {widgets}",
+        "Removed since the last sync: {widgets}": "Eliminats des de l'última sincronització: {widgets}",
+        "No widgets were added or removed since the last sync.": "No s'ha afegit ni eliminat cap giny des de l'última sincronització.",
+        "How to update?": "Com actualitzar?",
+        "Only add new widgets": "Afegeix només els ginys nous",
+        "Nothing disappears; personal layout stays.": "No desapareix res; la disposició personal es manté.",
+        "Keep personal changes": "Conserva els canvis personals",
+        "The template wins, except what someone moved or added themselves.": "La plantilla preval, excepte el que algú ha mogut o afegit.",
+        "Replace everything with the template": "Substitueix-ho tot per la plantilla",
+        "Personal changes are lost.": "Els canvis personals es perden.",
+        "{count} people changed their dashboard.": "{count} persones han canviat el seu tauler."
     }
 }

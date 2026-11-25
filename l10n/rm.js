@@ -1655,7 +1655,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Vus avais confermà che Vus avais legì quai",
     "The confirm-before date must be after the publish time" : "La data da confermaziun sto esser suenter il temp da publicaziun",
     "Your read confirmation could not be saved" : "Vossa confermaziun da lectura n'ha betg pudì vegnir memorisada",
-    "{title}: embedded pages are not included in the download" : "{title}: paginas integradas n'èn betg cuntegnidas en la telechargiada"
+    "{title}: embedded pages are not included in the download" : "{title}: paginas integradas n'èn betg cuntegnidas en la telechargiada",
+    "Push changes" : "Applitgar las midadas",
+    "Push changes to {count} dashboards" : "Applitgar las midadas sin {count} dashboards",
+    "Push to {count} dashboards" : "Applitgar sin {count} dashboards",
+    "Template \"{name}\" has {count} copies." : "Il model \"{name}\" ha {count} copias.",
+    "Added since the last sync: {widgets}" : "Agiuntà dapi l'ultima sincronisaziun: {widgets}",
+    "Removed since the last sync: {widgets}" : "Allontanà dapi l'ultima sincronisaziun: {widgets}",
+    "No widgets were added or removed since the last sync." : "Dapi l'ultima sincronisaziun n'èn vegnids agiuntads u allontanads nagins widgets.",
+    "How to update?" : "Co actualisar?",
+    "Only add new widgets" : "Agiuntar mo novs widgets",
+    "Nothing disappears; personal layout stays." : "Nagut na svanescha; la disposiziun persunala resta.",
+    "Keep personal changes" : "Mantegnair las midadas persunalas",
+    "The template wins, except what someone moved or added themselves." : "Il model gudogna, danor quai che insatgi ha spustà u agiuntà sez.",
+    "Replace everything with the template" : "Remplazzar tut cun il model",
+    "Personal changes are lost." : "Las midadas persunalas van a perder.",
+    "{count} people changed their dashboard." : "{count} persunas han midà lur dashboard."
 },
 "nplurals=2; plural=(n != 1);"
 );

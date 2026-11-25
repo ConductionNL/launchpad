@@ -1555,6 +1555,21 @@
         "You confirmed you have read this": "Dir hutt confirméiert, datt Dir dat gelies hutt",
         "The confirm-before date must be after the publish time": "D'Confirmatiounsdatum muss no der Verëffentlechungszäit sinn",
         "Your read confirmation could not be saved": "Är Lieskonfirmatioun konnt net gespäichert ginn",
-        "{title}: embedded pages are not included in the download": "{title}: agebett Säite sinn net am Download dobäi"
+        "{title}: embedded pages are not included in the download": "{title}: agebett Säite sinn net am Download dobäi",
+        "Push changes": "Ännerungen ausrollen",
+        "Push changes to {count} dashboards": "Ännerungen op {count} Dashboards ausrollen",
+        "Push to {count} dashboards": "Op {count} Dashboards ausrollen",
+        "Template \"{name}\" has {count} copies.": "D'Schabloun \"{name}\" huet {count} Kopien.",
+        "Added since the last sync: {widgets}": "Zënter der leschter Synchronisatioun dobäikomm: {widgets}",
+        "Removed since the last sync: {widgets}": "Zënter der leschter Synchronisatioun ewechgeholl: {widgets}",
+        "No widgets were added or removed since the last sync.": "Zënter der leschter Synchronisatioun goufe keng Widgets dobäigesat oder ewechgeholl.",
+        "How to update?": "Wéi aktualiséieren?",
+        "Only add new widgets": "Nëmmen nei Widgets dobäisetzen",
+        "Nothing disappears; personal layout stays.": "Näischt verschwënnt; de perséinleche Layout bleift.",
+        "Keep personal changes": "Perséinlech Ännerunge behalen",
+        "The template wins, except what someone moved or added themselves.": "D'Schabloun gewënnt, ausser dat wat een selwer verréckelt oder dobäigesat huet.",
+        "Replace everything with the template": "Alles duerch d'Schabloun ersetzen",
+        "Personal changes are lost.": "Perséinlech Ännerunge ginn verluer.",
+        "{count} people changed their dashboard.": "{count} Leit hunn hiren Dashboard geännert."
     }
 }

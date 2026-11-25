@@ -2102,7 +2102,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "You confirmed you have read this",
     "The confirm-before date must be after the publish time" : "The confirm-before date must be after the publish time",
     "Your read confirmation could not be saved" : "Your read confirmation could not be saved",
-    "{title}: embedded pages are not included in the download" : "{title}: embedded pages are not included in the download"
+    "{title}: embedded pages are not included in the download" : "{title}: embedded pages are not included in the download",
+    "Push changes" : "Push changes",
+    "Push changes to {count} dashboards" : "Push changes to {count} dashboards",
+    "Push to {count} dashboards" : "Push to {count} dashboards",
+    "Template \"{name}\" has {count} copies." : "Template \"{name}\" has {count} copies.",
+    "Added since the last sync: {widgets}" : "Added since the last sync: {widgets}",
+    "Removed since the last sync: {widgets}" : "Removed since the last sync: {widgets}",
+    "No widgets were added or removed since the last sync." : "No widgets were added or removed since the last sync.",
+    "How to update?" : "How to update?",
+    "Only add new widgets" : "Only add new widgets",
+    "Nothing disappears; personal layout stays." : "Nothing disappears; personal layout stays.",
+    "Keep personal changes" : "Keep personal changes",
+    "The template wins, except what someone moved or added themselves." : "The template wins, except what someone moved or added themselves.",
+    "Replace everything with the template" : "Replace everything with the template",
+    "Personal changes are lost." : "Personal changes are lost.",
+    "{count} people changed their dashboard." : "{count} people changed their dashboard."
 },
 "nplurals=2; plural=(n != 1);"
 );

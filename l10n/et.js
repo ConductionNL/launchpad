@@ -1655,7 +1655,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Olete kinnitanud, et lugesite selle läbi",
     "The confirm-before date must be after the publish time" : "Kinnitamise tähtaeg peab olema pärast avaldamisaega",
     "Your read confirmation could not be saved" : "Teie lugemise kinnitust ei õnnestunud salvestada",
-    "{title}: embedded pages are not included in the download" : "{title}: manustatud lehed allalaadimisse ei kuulu"
+    "{title}: embedded pages are not included in the download" : "{title}: manustatud lehed allalaadimisse ei kuulu",
+    "Push changes" : "Rakenda muudatused",
+    "Push changes to {count} dashboards" : "Rakenda muudatused {count} töölauale",
+    "Push to {count} dashboards" : "Rakenda {count} töölauale",
+    "Template \"{name}\" has {count} copies." : "Mallil \"{name}\" on {count} koopiat.",
+    "Added since the last sync: {widgets}" : "Lisatud pärast viimast sünkroonimist: {widgets}",
+    "Removed since the last sync: {widgets}" : "Eemaldatud pärast viimast sünkroonimist: {widgets}",
+    "No widgets were added or removed since the last sync." : "Pärast viimast sünkroonimist pole vidinaid lisatud ega eemaldatud.",
+    "How to update?" : "Kuidas uuendada?",
+    "Only add new widgets" : "Lisa ainult uued vidinad",
+    "Nothing disappears; personal layout stays." : "Midagi ei kao; isiklik paigutus jääb alles.",
+    "Keep personal changes" : "Säilita isiklikud muudatused",
+    "The template wins, except what someone moved or added themselves." : "Mall võidab, välja arvatud see, mida keegi ise teisaldas või lisas.",
+    "Replace everything with the template" : "Asenda kõik malliga",
+    "Personal changes are lost." : "Isiklikud muudatused lähevad kaotsi.",
+    "{count} people changed their dashboard." : "{count} inimest muutsid oma töölauda."
 },
 "nplurals=2; plural=(n != 1);"
 );

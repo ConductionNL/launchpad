@@ -1655,7 +1655,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Potvrdili ste da ste ovo pročitali",
     "The confirm-before date must be after the publish time" : "Rok za potvrdu mora biti nakon vremena objave",
     "Your read confirmation could not be saved" : "Vašu potvrdu čitanja nije bilo moguće sačuvati",
-    "{title}: embedded pages are not included in the download" : "{title}: ugrađene stranice nisu uključene u preuzimanje"
+    "{title}: embedded pages are not included in the download" : "{title}: ugrađene stranice nisu uključene u preuzimanje",
+    "Push changes" : "Primijeni promjene",
+    "Push changes to {count} dashboards" : "Primijeni promjene na {count} kontrolnih tabli",
+    "Push to {count} dashboards" : "Primijeni na {count} kontrolnih tabli",
+    "Template \"{name}\" has {count} copies." : "Šablon \"{name}\" ima {count} kopija.",
+    "Added since the last sync: {widgets}" : "Dodano od posljednje sinhronizacije: {widgets}",
+    "Removed since the last sync: {widgets}" : "Uklonjeno od posljednje sinhronizacije: {widgets}",
+    "No widgets were added or removed since the last sync." : "Od posljednje sinhronizacije nije dodan niti uklonjen nijedan widget.",
+    "How to update?" : "Kako ažurirati?",
+    "Only add new widgets" : "Dodaj samo nove widgete",
+    "Nothing disappears; personal layout stays." : "Ništa ne nestaje; lični raspored ostaje.",
+    "Keep personal changes" : "Zadrži lične promjene",
+    "The template wins, except what someone moved or added themselves." : "Šablon pobjeđuje, osim onoga što je neko sam premjestio ili dodao.",
+    "Replace everything with the template" : "Zamijeni sve šablonom",
+    "Personal changes are lost." : "Lične promjene se gube.",
+    "{count} people changed their dashboard." : "{count} osoba promijenilo je svoju kontrolnu tablu."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

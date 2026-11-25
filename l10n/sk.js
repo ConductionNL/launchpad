@@ -1655,7 +1655,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Potvrdili ste, že ste si to prečítali",
     "The confirm-before date must be after the publish time" : "Termín potvrdenia musí byť po čase zverejnenia",
     "Your read confirmation could not be saved" : "Vaše potvrdenie prečítania sa nepodarilo uložiť",
-    "{title}: embedded pages are not included in the download" : "{title}: vložené stránky nie sú v stiahnutom súbore zahrnuté"
+    "{title}: embedded pages are not included in the download" : "{title}: vložené stránky nie sú v stiahnutom súbore zahrnuté",
+    "Push changes" : "Zaviesť zmeny",
+    "Push changes to {count} dashboards" : "Zaviesť zmeny do {count} nástenok",
+    "Push to {count} dashboards" : "Zaviesť do {count} nástenok",
+    "Template \"{name}\" has {count} copies." : "Šablóna „{name}“ má {count} kópií.",
+    "Added since the last sync: {widgets}" : "Pridané od poslednej synchronizácie: {widgets}",
+    "Removed since the last sync: {widgets}" : "Odstránené od poslednej synchronizácie: {widgets}",
+    "No widgets were added or removed since the last sync." : "Od poslednej synchronizácie neboli pridané ani odstránené žiadne widgety.",
+    "How to update?" : "Ako aktualizovať?",
+    "Only add new widgets" : "Iba pridať nové widgety",
+    "Nothing disappears; personal layout stays." : "Nič nezmizne; osobné rozloženie zostane.",
+    "Keep personal changes" : "Zachovať osobné úpravy",
+    "The template wins, except what someone moved or added themselves." : "Šablóna vyhráva, okrem toho, čo niekto sám presunul alebo pridal.",
+    "Replace everything with the template" : "Nahradiť všetko šablónou",
+    "Personal changes are lost." : "Osobné úpravy sa stratia.",
+    "{count} people changed their dashboard." : "{count} ľudí upravilo svoju nástenku."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

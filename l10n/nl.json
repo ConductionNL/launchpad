@@ -2312,6 +2312,21 @@
         "You confirmed you have read this": "U hebt bevestigd dat u dit hebt gelezen",
         "The confirm-before date must be after the publish time": "De datum voor bevestiging moet na het publicatiemoment liggen",
         "Your read confirmation could not be saved": "Uw leesbevestiging kon niet worden opgeslagen",
-        "{title}: embedded pages are not included in the download": "{title}: ingesloten pagina's zitten niet in de download"
+        "{title}: embedded pages are not included in the download": "{title}: ingesloten pagina's zitten niet in de download",
+        "Push changes": "Wijzigingen doorvoeren",
+        "Push changes to {count} dashboards": "Wijzigingen doorvoeren naar {count} dashboards",
+        "Push to {count} dashboards": "Doorvoeren naar {count} dashboards",
+        "Template \"{name}\" has {count} copies.": "Sjabloon \"{name}\" heeft {count} kopieën.",
+        "Added since the last sync: {widgets}": "Erbij gekomen sinds de laatste synchronisatie: {widgets}",
+        "Removed since the last sync: {widgets}": "Verdwenen sinds de laatste synchronisatie: {widgets}",
+        "No widgets were added or removed since the last sync.": "Sinds de laatste synchronisatie zijn er geen widgets bijgekomen of verdwenen.",
+        "How to update?": "Hoe bijwerken?",
+        "Only add new widgets": "Alleen nieuwe widgets toevoegen",
+        "Nothing disappears; personal layout stays.": "Niets verdwijnt; persoonlijke indeling blijft.",
+        "Keep personal changes": "Persoonlijke aanpassingen behouden",
+        "The template wins, except what someone moved or added themselves.": "Sjabloon wint, behalve wat iemand zelf heeft verplaatst of toegevoegd.",
+        "Replace everything with the template": "Alles vervangen door het sjabloon",
+        "Personal changes are lost.": "Persoonlijke aanpassingen gaan verloren.",
+        "{count} people changed their dashboard.": "{count} mensen hebben hun dashboard aangepast."
     }
 }

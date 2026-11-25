@@ -139,7 +139,7 @@ class StoreController extends Controller {
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-004-installing-must-require-an-administrator
 	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
-	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function install(string $slug): JSONResponse {
@@ -149,6 +149,12 @@ class StoreController extends Controller {
 				data: ['success' => false, 'message' => 'Sign in to install a template.', 'components' => []],
 				statusCode: Http::STATUS_UNAUTHORIZED
 			);
+		}
+
+		// REQ-STORE-012: the store page's Update action posts here. An item
+		// installed before is updated in place, never installed a second time.
+		if ($this->updates !== null && isset($this->installs?->all()[$slug]) === true) {
+			return $this->update(slug: $slug);
 		}
 
 		$result = $this->storeService->install(slug: $slug, userId: $user->getUID());

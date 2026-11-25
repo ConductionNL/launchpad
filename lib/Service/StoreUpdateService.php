@@ -107,7 +107,7 @@ class StoreUpdateService {
 		}
 
 		if (version_compare($resolved['version'], $install['version'], '>') === false) {
-			return ['success' => true, 'upToDate' => true, 'version' => $install['version'], 'message' => 'This dashboard is already up to date.'];
+			return ['success' => true, 'components' => [], 'upToDate' => true, 'version' => $install['version'], 'message' => 'This dashboard is already up to date.'];
 		}
 
 		try {
@@ -180,12 +180,14 @@ class StoreUpdateService {
 		);
 
 		return [
-			'success'  => true,
-			'upToDate' => false,
-			'message'  => 'Updated to version ' . $resolved['version'] . '.',
-			'version'  => $resolved['version'],
-			'kept'     => count($split['own']),
-			'copies'   => $this->resyncCopies(dashboard: $dashboard, isTemplate: $isTemplate, userId: $userId),
+			'success'    => true,
+			// The store page names every component that is not `installed`; an update has none to name.
+			'components' => [],
+			'upToDate'   => false,
+			'message'    => 'Updated to version ' . $resolved['version'] . '.',
+			'version'    => $resolved['version'],
+			'kept'       => count($split['own']),
+			'copies'     => $this->resyncCopies(dashboard: $dashboard, isTemplate: $isTemplate, userId: $userId),
 		] + $report;
 	}//end apply()
 

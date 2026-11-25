@@ -72,7 +72,7 @@ class StoreInstallsTest extends TestCase {
 		$installs->record(slug: 'empty', version: '1.0.0', dashboard: ['id' => 0, 'uuid' => 'uuid-0']);
 
 		$this->assertSame(
-			expected: ['intranet-gemeente' => ['version' => '2.3.0', 'dashboardId' => 41, 'dashboardUuid' => 'uuid-41']],
+			expected: ['intranet-gemeente' => ['version' => '2.3.0', 'dashboardId' => 41, 'dashboardUuid' => 'uuid-41', 'placementIds' => []]],
 			actual: $installs->all()
 		);
 
@@ -168,7 +168,7 @@ class StoreInstallsTest extends TestCase {
 		$controller->install(slug: 'intranet-gemeente');
 		$controller->install(slug: 'missing');
 		$this->assertSame(
-			expected: ['intranet-gemeente' => ['version' => '2.3.0', 'dashboardId' => 41, 'dashboardUuid' => 'uuid-41']],
+			expected: ['intranet-gemeente' => ['version' => '2.3.0', 'dashboardId' => 41, 'dashboardUuid' => 'uuid-41', 'placementIds' => []]],
 			actual: $installs->all()
 		);
 

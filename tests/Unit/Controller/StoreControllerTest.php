@@ -22,7 +22,9 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use OCA\LaunchPad\Controller\StoreController;
+use OCA\LaunchPad\Service\StoreInstalls;
 use OCA\LaunchPad\Service\StoreService;
+use OCA\LaunchPad\Service\StoreUpdateService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -95,7 +97,7 @@ class StoreControllerTest extends TestCase {
 		$search = new ReflectionMethod(StoreController::class, 'search');
 		$this->assertCount(1, $search->getAttributes(NoAdminRequired::class));
 
-		foreach (['install', 'getConfig', 'updateConfig'] as $name) {
+		foreach (['install', 'update', 'getConfig', 'updateConfig'] as $name) {
 			$method = new ReflectionMethod(StoreController::class, $name);
 			$attributes = $method->getAttributes(AuthorizedAdminSetting::class);
 			$this->assertCount(1, $attributes, $name . ' must be admin-gated');
@@ -121,6 +123,122 @@ class StoreControllerTest extends TestCase {
 
 		$this->assertCount(0, $method->getAttributes(NoAdminRequired::class));
 	}//end testInstallIsNotMerelyLoginRequired()
+
+	/**
+	 * REQ-STORE-012 scenario "A member cannot update": the update is admin-gated
+	 * (the attribute answers a member with 403) and never merely login-required.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 */
+	public function testUpdateIsAdminOnly(): void {
+		$method = new ReflectionMethod(StoreController::class, 'update');
+
+		$this->assertCount(0, $method->getAttributes(NoAdminRequired::class));
+		$this->assertCount(1, $method->getAttributes(AuthorizedAdminSetting::class));
+	}//end testUpdateIsAdminOnly()
+
+	/**
+	 * The update's report maps to 200, 404 when nothing is installed, 400 on a refusal.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 */
+	public function testUpdateStatusFollowsTheReport(): void {
+		$this->signIn(uid: 'admin');
+		$updates = $this->createMock(StoreUpdateService::class);
+		$updates->method('update')->willReturnOnConsecutiveCalls(
+			['success' => true, 'version' => '1.1.0'],
+			['success' => false, 'notInstalled' => true, 'message' => 'not installed'],
+			['success' => false, 'message' => 'refused']
+		);
+		$updates->expects($this->exactly(3))->method('update')->with('sociaal-domein', 'admin');
+		$controller = new StoreController(
+			request: $this->request,
+			storeService: $this->storeService,
+			userSession: $this->userSession,
+			updates: $updates
+		);
+
+		$this->assertSame(Http::STATUS_OK, $controller->update(slug: 'sociaal-domein')->getStatus());
+		$this->assertSame(Http::STATUS_NOT_FOUND, $controller->update(slug: 'sociaal-domein')->getStatus());
+		$this->assertSame(Http::STATUS_BAD_REQUEST, $controller->update(slug: 'sociaal-domein')->getStatus());
+	}//end testUpdateStatusFollowsTheReport()
+
+	/**
+	 * The store page's Update posts to install: an installed item is updated
+	 * in place, never installed a second time (REQ-STORE-012, REQ-STORE-006).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 */
+	public function testInstallOfAnInstalledItemUpdatesInPlace(): void {
+		$this->signIn(uid: 'admin');
+		$installs = $this->createMock(StoreInstalls::class);
+		$installs->method('all')->willReturn(['sociaal-domein' => ['version' => '1.0.0', 'dashboardId' => 41, 'dashboardUuid' => 'u', 'placementIds' => [1]]]);
+		$installs->expects($this->never())->method('record');
+		$updates = $this->createMock(StoreUpdateService::class);
+		$updates->expects($this->once())->method('update')->with('sociaal-domein', 'admin')
+			->willReturn(['success' => true, 'components' => [], 'version' => '1.1.0']);
+		$this->storeService->expects($this->never())->method('install');
+		$controller = new StoreController(
+			request: $this->request,
+			storeService: $this->storeService,
+			userSession: $this->userSession,
+			installs: $installs,
+			updates: $updates
+		);
+
+		$response = $controller->install(slug: 'sociaal-domein');
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame('1.1.0', $response->getData()['version']);
+	}//end testInstallOfAnInstalledItemUpdatesInPlace()
+
+	/**
+	 * A first install still creates (REQ-STORE-006 unchanged).
+	 *
+	 * @return void
+	 */
+	public function testAFirstInstallStillCreates(): void {
+		$this->signIn(uid: 'admin');
+		$installs = $this->createMock(StoreInstalls::class);
+		$installs->method('all')->willReturn([]);
+		$updates = $this->createMock(StoreUpdateService::class);
+		$updates->expects($this->never())->method('update');
+		$this->storeService->expects($this->once())->method('install')
+			->willReturn(['success' => true, 'message' => 'Installed 1 of 1.', 'components' => []]);
+		$controller = new StoreController(
+			request: $this->request,
+			storeService: $this->storeService,
+			userSession: $this->userSession,
+			installs: $installs,
+			updates: $updates
+		);
+
+		$this->assertSame(Http::STATUS_OK, $controller->install(slug: 'sociaal-domein')->getStatus());
+	}//end testAFirstInstallStillCreates()
+
+	/**
+	 * An anonymous update is refused before anything runs.
+	 *
+	 * @return void
+	 */
+	public function testUpdateWithoutAUserIsUnauthorized(): void {
+		$updates = $this->createMock(StoreUpdateService::class);
+		$updates->expects($this->never())->method('update');
+		$controller = new StoreController(
+			request: $this->request,
+			storeService: $this->storeService,
+			userSession: $this->userSession,
+			updates: $updates
+		);
+
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $controller->update(slug: 'sociaal-domein')->getStatus());
+	}//end testUpdateWithoutAUserIsUnauthorized()
 
 	/**
 	 * An anonymous search gets an explicit 401, not a login redirect.

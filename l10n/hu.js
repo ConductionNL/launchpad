@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Csak a rendszergazdák oszthatnak meg. A meglévő megosztások maradnak.",
     "Allow public links" : "Nyilvános hivatkozások engedélyezése",
     "Only for people who may share dashboards. A link always has an expiry date." : "Csak azoknak, akik megoszthatnak irányítópultokat. A hivatkozásnak mindig van lejárati dátuma.",
-    "Expiry date (required)" : "Lejárati dátum (kötelező)"
+    "Expiry date (required)" : "Lejárati dátum (kötelező)",
+    "Your administrator does not allow you to share dashboards." : "A rendszergazda nem engedélyezi, hogy irányítópultokat ossz meg.",
+    "Public links are switched off." : "A nyilvános hivatkozások ki vannak kapcsolva."
 },
 "nplurals=2; plural=(n != 1);"
 );

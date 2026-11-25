@@ -329,30 +329,39 @@
 						{{ t('launchpad', 'Share with users and groups') }}
 					</label>
 
-					<NcSelect
-						:modelValue="null"
-						:options="shareeOptions"
-						:filterable="false"
-						:loading="shareeLoading"
-						:aria-label-combobox="
-							t('launchpad', 'Share with users and groups')
-						"
-						:placeholder="t('launchpad', 'Search users and groups…')"
-						label="displayName"
-						trackBy="key"
-						:clearable="false"
-						@search="onShareeSearch"
-						@update:modelValue="onShareeSelected">
-						<template #option="option">
-							<span class="sharee-option">
-								<AccountGroup
-									v-if="option.shareType === 'group'"
-									:size="18" />
-								<Account v-else :size="18" />
-								{{ option.displayName }}
-							</span>
-						</template>
-					</NcSelect>
+					<!-- REQ-SHARE-015: under Nobody only an administrator adds shares. -->
+					<template v-if="sharingPolicy.mayShare">
+						<NcSelect
+							:modelValue="null"
+							:options="shareeOptions"
+							:filterable="false"
+							:loading="shareeLoading"
+							:aria-label-combobox="
+								t('launchpad', 'Share with users and groups')
+							"
+							:placeholder="t('launchpad', 'Search users and groups…')"
+							label="displayName"
+							trackBy="key"
+							:clearable="false"
+							@search="onShareeSearch"
+							@update:modelValue="onShareeSelected">
+							<template #option="option">
+								<span class="sharee-option">
+									<AccountGroup
+										v-if="option.shareType === 'group'"
+										:size="18" />
+									<Account v-else :size="18" />
+									{{ option.displayName }}
+								</span>
+							</template>
+						</NcSelect>
+					</template>
+					<p
+						v-else
+						class="dashboard-config__hint"
+						data-test="share-not-allowed-hint">
+						{{ t('launchpad', 'Your administrator does not allow you to share dashboards.') }}
+					</p>
 
 					<ul
 						v-if="localShares.length > 0"
@@ -495,7 +504,13 @@
 						{{ t('launchpad', 'No public links yet.') }}
 					</p>
 
-					<div class="dashboard-config__public-create">
+					<p
+						v-if="!canCreatePublicLink"
+						class="dashboard-config__hint"
+						data-test="public-share-off-hint">
+						{{ t('launchpad', 'Public links are switched off.') }}
+					</p>
+					<div v-else class="dashboard-config__public-create">
 						<NcTextField
 							v-model="newSharePassword"
 							type="password"
@@ -650,6 +665,7 @@ import { isCollaborative } from '../utils/dashboardDiscussion.js'
 import { accentCheck, normaliseHex } from '../utils/dashboardLook.js'
 import { hierarchyPresets } from '../utils/hierarchyPresets.js'
 import { instanceThemeName } from '../utils/instanceTheme.js'
+import { readSharingPolicy } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
@@ -970,6 +986,27 @@ export default {
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * What the Sharing tab may offer the viewer (REQ-SHARE-015).
+		 *
+		 * @return {{mayShare: boolean, publicLinksAllowed: boolean}}
+		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+		 */
+		sharingPolicy() {
+			return readSharingPolicy()
+		},
+
+		/**
+		 * Whether the viewer may create a public link: they may share and
+		 * public links are on (REQ-SHARE-015). Existing links stay listed.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+		 */
+		canCreatePublicLink() {
+			return this.sharingPolicy.mayShare && this.sharingPolicy.publicLinksAllowed
+		},
+
 		canManageShares() {
 			// Only the owner can see / manage shares.
 			return (

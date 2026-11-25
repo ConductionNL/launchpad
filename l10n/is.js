@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Aðeins stjórnendur geta deilt. Núverandi deilingar haldast.",
     "Allow public links" : "Leyfa opinbera tengla",
     "Only for people who may share dashboards. A link always has an expiry date." : "Aðeins fyrir þá sem mega deila stjórnborðum. Tengill hefur alltaf gildistíma.",
-    "Expiry date (required)" : "Gildistími (áskilinn)"
+    "Expiry date (required)" : "Gildistími (áskilinn)",
+    "Your administrator does not allow you to share dashboards." : "Stjórnandinn þinn leyfir þér ekki að deila stjórnborðum.",
+    "Public links are switched off." : "Slökkt er á opinberum tenglum."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

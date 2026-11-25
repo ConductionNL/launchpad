@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\SharingLimits;
 
 /**
  * The dashboard service and the first-load builder of the main page.
@@ -39,10 +40,34 @@ class PageDashboards {
 	 *                                                 `allow_user_dashboards` flag — REQ-ASET-003).
 	 * @param DashboardPayloads|null $payloads         The first dashboard load the page carries; without
 	 *                                                 it the store fetches.
+	 * @param SharingLimits|null     $sharing          Whether the viewer may share and may create public
+	 *                                                 links (REQ-SHARE-015); without it the tab offers both.
 	 */
 	public function __construct(
 		public readonly DashboardService $dashboardService,
 		public readonly ?DashboardPayloads $payloads=null,
+		public readonly ?SharingLimits $sharing=null,
 	) {
 	}//end __construct()
+
+	/**
+	 * What the Sharing tab may offer the viewer (REQ-SHARE-015); both when the
+	 * page has no policy, since the server refuses what it does not allow.
+	 *
+	 * @param string $userId The viewer.
+	 *
+	 * @return array{mayShare: bool, publicLinksAllowed: bool}
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	public function sharingPolicy(string $userId): array {
+		if ($this->sharing === null) {
+			return ['mayShare' => true, 'publicLinksAllowed' => true];
+		}
+
+		return [
+			'mayShare'           => $this->sharing->mayShare(userId: $userId),
+			'publicLinksAllowed' => $this->sharing->publicLinksAllowed(),
+		];
+	}//end sharingPolicy()
 }//end class

@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Ní féidir ach le riarthóirí comhroinnt. Fanann comhroinntí atá ann cheana.",
     "Allow public links" : "Ceadaigh naisc phoiblí",
     "Only for people who may share dashboards. A link always has an expiry date." : "Dóibh siúd a bhfuil cead acu deais a chomhroinnt amháin. Bíonn dáta éaga ag nasc i gcónaí.",
-    "Expiry date (required)" : "Dáta éaga (riachtanach)"
+    "Expiry date (required)" : "Dáta éaga (riachtanach)",
+    "Your administrator does not allow you to share dashboards." : "Ní cheadaíonn do riarthóir duit deais a chomhroinnt.",
+    "Public links are switched off." : "Tá naisc phoiblí múchta."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

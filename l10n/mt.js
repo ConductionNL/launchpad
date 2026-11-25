@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "L-amministraturi biss jistgħu jaqsmu. Il-qsim eżistenti jibqa'.",
     "Allow public links" : "Ippermetti links pubbliċi",
     "Only for people who may share dashboards. A link always has an expiry date." : "Biss għal min jista' jaqsam id-dashboards. Link dejjem ikollu data ta' skadenza.",
-    "Expiry date (required)" : "Data ta' skadenza (meħtieġa)"
+    "Expiry date (required)" : "Data ta' skadenza (meħtieġa)",
+    "Your administrator does not allow you to share dashboards." : "L-amministratur tiegħek ma jħallikx taqsam dashboards.",
+    "Public links are switched off." : "Il-links pubbliċi huma mitfija."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

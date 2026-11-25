@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Yalnızca yöneticiler paylaşabilir. Mevcut paylaşımlar kalır.",
     "Allow public links" : "Herkese açık bağlantılara izin ver",
     "Only for people who may share dashboards. A link always has an expiry date." : "Yalnızca pano paylaşabilenler için. Bir bağlantının her zaman son kullanma tarihi vardır.",
-    "Expiry date (required)" : "Son kullanma tarihi (zorunlu)"
+    "Expiry date (required)" : "Son kullanma tarihi (zorunlu)",
+    "Your administrator does not allow you to share dashboards." : "Yöneticiniz pano paylaşmanıza izin vermiyor.",
+    "Public links are switched off." : "Herkese açık bağlantılar kapalı."
 },
 "nplurals=2; plural=(n != 1);"
 );

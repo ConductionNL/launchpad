@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Udostępniać mogą tylko administratorzy. Istniejące udostępnienia pozostają.",
     "Allow public links" : "Zezwalaj na linki publiczne",
     "Only for people who may share dashboards. A link always has an expiry date." : "Tylko dla osób, które mogą udostępniać pulpity. Link zawsze ma datę wygaśnięcia.",
-    "Expiry date (required)" : "Data wygaśnięcia (wymagana)"
+    "Expiry date (required)" : "Data wygaśnięcia (wymagana)",
+    "Your administrator does not allow you to share dashboards." : "Administrator nie pozwala ci udostępniać pulpitów.",
+    "Public links are switched off." : "Linki publiczne są wyłączone."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

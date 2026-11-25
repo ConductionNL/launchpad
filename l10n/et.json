@@ -1577,6 +1577,8 @@
         "Only administrators can share. Existing shares stay.": "Jagada saavad ainult administraatorid. Olemasolevad jagamised jäävad.",
         "Allow public links": "Luba avalikud lingid",
         "Only for people who may share dashboards. A link always has an expiry date.": "Ainult neile, kes tohivad töölaudu jagada. Lingil on alati aegumiskuupäev.",
-        "Expiry date (required)": "Aegumiskuupäev (kohustuslik)"
+        "Expiry date (required)": "Aegumiskuupäev (kohustuslik)",
+        "Your administrator does not allow you to share dashboards.": "Teie administraator ei luba teil töölaudu jagada.",
+        "Public links are switched off.": "Avalikud lingid on välja lülitatud."
     }
 }

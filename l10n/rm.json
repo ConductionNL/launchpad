@@ -1577,6 +1577,8 @@
         "Only administrators can share. Existing shares stay.": "Mo administraturs pon divider. Las divisiuns existentas restan.",
         "Allow public links": "Permetter colliaziuns publicas",
         "Only for people who may share dashboards. A link always has an expiry date.": "Mo per quels che dastgan divider dashboards. Ina colliaziun ha adina ina data da scadenza.",
-        "Expiry date (required)": "Data da scadenza (obligatoric)"
+        "Expiry date (required)": "Data da scadenza (obligatoric)",
+        "Your administrator does not allow you to share dashboards.": "Voss administratur na As permetta betg da divider dashboards.",
+        "Public links are switched off.": "Las colliaziuns publicas èn deactivadas."
     }
 }

@@ -1579,6 +1579,8 @@
         "Only administrators can share. Existing shares stay.": "Dijeliti mogu samo administratori. Postojeća dijeljenja ostaju.",
         "Allow public links": "Dozvoli javne linkove",
         "Only for people who may share dashboards. A link always has an expiry date.": "Samo za one koji smiju dijeliti kontrolne table. Link uvijek ima datum isteka.",
-        "Expiry date (required)": "Datum isteka (obavezno)"
+        "Expiry date (required)": "Datum isteka (obavezno)",
+        "Your administrator does not allow you to share dashboards.": "Vaš administrator vam ne dozvoljava dijeljenje kontrolnih tabli.",
+        "Public links are switched off.": "Javni linkovi su isključeni."
     }
 }

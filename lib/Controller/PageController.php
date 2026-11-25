@@ -172,20 +172,17 @@ class PageController extends Controller {
 			->setUserDashboards($descriptors['user'])
 			->setAllowUserDashboards($this->sources->dashboards->dashboardService->getAllowUserDashboards());
 
-		// Tile-quick-search REQ-QSEARCH-004: read the admin-configured
-		// no-match fallback target. `getSettings()` already resolves the
-		// safe 'none' default when unset/invalid, so this never throws.
-		$quicksearchFallback = (string)(
-			$settings['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET
-		);
-
+		// Tile-quick-search REQ-QSEARCH-004: the admin-configured no-match
+		// fallback target; `getSettings()` already resolves the safe 'none'
+		// default when unset/invalid, so this never throws.
 		$builder
 			->setAllowedWidgets($allowedWidgets)
 			->setDeepLinkPath($activeState['deepLinkPath'])
-			->setQuicksearchFallbackTarget($quicksearchFallback)
+			->setQuicksearchFallbackTarget((string)($settings['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET))
 			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
 			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
 			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
+			->setSharingPolicy(...$this->sources->dashboards->sharingPolicy(userId: $userId))
 			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
 			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
 			->setTalkEnabled($this->isAppEnabledForViewer(appId: 'spreed'))

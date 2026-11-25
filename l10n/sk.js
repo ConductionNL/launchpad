@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Zdieľať môžu iba správcovia. Existujúce zdieľania zostávajú.",
     "Allow public links" : "Povoliť verejné odkazy",
     "Only for people who may share dashboards. A link always has an expiry date." : "Iba pre tých, ktorí smú zdieľať nástenky. Odkaz má vždy dátum vypršania.",
-    "Expiry date (required)" : "Dátum vypršania (povinný)"
+    "Expiry date (required)" : "Dátum vypršania (povinný)",
+    "Your administrator does not allow you to share dashboards." : "Správca vám nepovoľuje zdieľať nástenky.",
+    "Public links are switched off." : "Verejné odkazy sú vypnuté."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

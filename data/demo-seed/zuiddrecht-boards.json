@@ -684,6 +684,9 @@
 					"customTitle": "Nieuwe collega's",
 					"content": {
 						"layout": "list",
+						"selectionMode": "new",
+						"newSinceDays": 30,
+						"newUntilDays": 14,
 						"filters": [],
 						"excludeDisabled": true,
 						"sortBy": "createdAt",
@@ -1684,6 +1687,9 @@
 					"customTitle": "Nieuwe collega's",
 					"content": {
 						"layout": "list",
+						"selectionMode": "new",
+						"newSinceDays": 30,
+						"newUntilDays": 14,
 						"filters": [],
 						"excludeDisabled": true,
 						"sortBy": "createdAt",

@@ -347,4 +347,27 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 
 		$this->assertContains(needle: 'communicatie', haystack: $seed['adminSettings']['announcement_editor_groups']);
 	}//end testPublishingNamesSeededDashboards()
+
+	/**
+	 * Every "Nieuwe collega's" placement lists new colleagues by start date
+	 * (`selectionMode: 'new'`, the spec's default windows), not by account age.
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 *
+	 * @return void
+	 */
+	public function testNewColleaguePlacementsListByStartDate(): void {
+		$placements = array_values(
+			array: array_filter(
+				array: self::placementsOf(type: 'people'),
+				callback: static fn (array $widget): bool => ($widget['customTitle'] ?? '') === "Nieuwe collega's"
+			)
+		);
+		$this->assertNotEmpty(actual: $placements);
+		foreach ($placements as $placement) {
+			$this->assertSame(expected: 'new', actual: $placement['content']['selectionMode']);
+			$this->assertSame(expected: 30, actual: $placement['content']['newSinceDays']);
+			$this->assertSame(expected: 14, actual: $placement['content']['newUntilDays']);
+		}
+	}//end testNewColleaguePlacementsListByStartDate()
 }//end class

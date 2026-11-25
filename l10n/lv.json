@@ -1589,6 +1589,13 @@
         "A person": "Persona",
         "Search for a person": "Meklēt personu",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Bez izvēles panelis tiek nodots kādam ar pilnām tiesībām uz to vai tiek dzēsts. Kopīgojumi paliek.",
-        "Start date of new colleagues": "Jauno kolēģu sākuma datums"
+        "Start date of new colleagues": "Jauno kolēģu sākuma datums",
+        "Starts": "Sāk",
+        "The administrator has not set a start date field, so new colleagues cannot be listed.": "Administrators nav iestatījis sākuma datuma lauku, tāpēc jaunos kolēģus nevar parādīt.",
+        "People from the directory": "Cilvēki no direktorija",
+        "New colleagues": "Jaunie kolēģi",
+        "Started in the last (days, 1–90)": "Sākuši pēdējo (dienu, 1–90) laikā",
+        "Starts in the next (days, 0–30)": "Sāks nākamo (dienu, 0–30) laikā",
+        "Must be between {min} and {max}": "Jābūt no {min} līdz {max}"
     }
 }

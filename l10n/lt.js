@@ -1687,7 +1687,14 @@ OC.L10N.register(
     "A person" : "Asmuo",
     "Search for a person" : "Ieškoti asmens",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Nepasirinkus skydelis atitenka asmeniui, turinčiam visas teises į jį, arba ištrinamas. Bendrinimai lieka.",
-    "Start date of new colleagues" : "Naujų kolegų pradžios data"
+    "Start date of new colleagues" : "Naujų kolegų pradžios data",
+    "Starts" : "Pradeda",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "Administratorius nenustatė pradžios datos lauko, todėl naujų kolegų parodyti negalima.",
+    "People from the directory" : "Žmonės iš katalogo",
+    "New colleagues" : "Nauji kolegos",
+    "Started in the last (days, 1–90)" : "Pradėjo per paskutines (dienos, 1–90)",
+    "Starts in the next (days, 0–30)" : "Pradės per artimiausias (dienos, 0–30)",
+    "Must be between {min} and {max}" : "Turi būti tarp {min} ir {max}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

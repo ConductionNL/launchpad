@@ -1593,6 +1593,13 @@
         "A person": "Duine",
         "Search for a person": "Cuardaigh duine",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Gan rogha, téann deais chuig duine a bhfuil cearta iomlána aige air, nó scriostar é. Fanann comhroinntí.",
-        "Start date of new colleagues": "Dáta tosaithe comhghleacaithe nua"
+        "Start date of new colleagues": "Dáta tosaithe comhghleacaithe nua",
+        "Starts": "Tosaíonn",
+        "The administrator has not set a start date field, so new colleagues cannot be listed.": "Níor shocraigh an riarthóir réimse dáta tosaithe, mar sin ní féidir comhghleacaithe nua a liostú.",
+        "People from the directory": "Daoine ón eolaire",
+        "New colleagues": "Comhghleacaithe nua",
+        "Started in the last (days, 1–90)": "Thosaigh le (laethanta, 1–90) anuas",
+        "Starts in the next (days, 0–30)": "Tosóidh sna (laethanta, 0–30) atá romhainn",
+        "Must be between {min} and {max}": "Caithfidh sé a bheith idir {min} agus {max}"
     }
 }

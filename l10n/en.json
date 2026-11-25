@@ -1914,6 +1914,13 @@
         "A person": "A person",
         "Search for a person": "Search for a person",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.",
-        "Start date of new colleagues": "Start date of new colleagues"
+        "Start date of new colleagues": "Start date of new colleagues",
+        "Starts": "Starts",
+        "The administrator has not set a start date field, so new colleagues cannot be listed.": "The administrator has not set a start date field, so new colleagues cannot be listed.",
+        "People from the directory": "People from the directory",
+        "New colleagues": "New colleagues",
+        "Started in the last (days, 1–90)": "Started in the last (days, 1–90)",
+        "Starts in the next (days, 0–30)": "Starts in the next (days, 0–30)",
+        "Must be between {min} and {max}": "Must be between {min} and {max}"
     }
 }

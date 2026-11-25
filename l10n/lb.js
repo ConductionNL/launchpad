@@ -1678,7 +1678,14 @@ OC.L10N.register(
     "A person" : "Eng Persoun",
     "Search for a person" : "Persoun sichen",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Ouni Wiel geet en Dashboard un een mat vollen Rechter drop, oder e gëtt geläscht. Deelunge bleiwen.",
-    "Start date of new colleagues" : "Ufanksdatum vun neie Kolleegen"
+    "Start date of new colleagues" : "Ufanksdatum vun neie Kolleegen",
+    "Starts" : "Fänkt un",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "D'Administratioun huet kee Feld fir den Ufanksdatum festgeluecht, dofir kënnen nei Kolleegen net ugewise ginn.",
+    "People from the directory" : "Leit aus dem Verzeechnes",
+    "New colleagues" : "Nei Kolleegen",
+    "Started in the last (days, 1–90)" : "Ugefaang an de leschten (Deeg, 1–90)",
+    "Starts in the next (days, 0–30)" : "Fänken an den nächsten (Deeg, 0–30) un",
+    "Must be between {min} and {max}" : "Muss tëscht {min} an {max} leien"
 },
 "nplurals=2; plural=(n != 1);"
 );

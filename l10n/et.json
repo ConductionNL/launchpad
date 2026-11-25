@@ -1587,6 +1587,13 @@
         "A person": "Isik",
         "Search for a person": "Otsi isikut",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Valikuta läheb töölaud kellelegi, kellel on sellele täielikud õigused, või see kustutatakse. Jagamised jäävad.",
-        "Start date of new colleagues": "Uute kolleegide alguskuupäev"
+        "Start date of new colleagues": "Uute kolleegide alguskuupäev",
+        "Starts": "Alustab",
+        "The administrator has not set a start date field, so new colleagues cannot be listed.": "Administraator ei ole määranud alguskuupäeva välja, seega uusi kolleege ei saa kuvada.",
+        "People from the directory": "Inimesed kataloogist",
+        "New colleagues": "Uued kolleegid",
+        "Started in the last (days, 1–90)": "Alustanud viimase (päeva, 1–90) jooksul",
+        "Starts in the next (days, 0–30)": "Alustab järgmise (päeva, 0–30) jooksul",
+        "Must be between {min} and {max}": "Peab olema vahemikus {min} kuni {max}"
     }
 }

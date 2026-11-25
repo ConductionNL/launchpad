@@ -1687,7 +1687,14 @@ OC.L10N.register(
     "A person" : "Oseba",
     "Search for a person" : "Poišči osebo",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Brez izbire gre nadzorna plošča nekomu s polnimi pravicami do nje ali pa se izbriše. Deljenja ostanejo.",
-    "Start date of new colleagues" : "Datum začetka novih sodelavcev"
+    "Start date of new colleagues" : "Datum začetka novih sodelavcev",
+    "Starts" : "Začne",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "Skrbnik ni nastavil polja za datum začetka dela, zato novih sodelavcev ni mogoče prikazati.",
+    "People from the directory" : "Ljudje iz imenika",
+    "New colleagues" : "Novi sodelavci",
+    "Started in the last (days, 1–90)" : "Začeli v zadnjih (dneh, 1–90)",
+    "Starts in the next (days, 0–30)" : "Začnejo v naslednjih (dneh, 0–30)",
+    "Must be between {min} and {max}" : "Mora biti med {min} in {max}"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

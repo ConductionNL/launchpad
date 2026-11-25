@@ -1587,6 +1587,13 @@
         "A person": "Лице",
         "Search for a person": "Барај лице",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Без избор, контролната табла оди кај некој со целосни права на неа или се брише. Споделувањата остануваат.",
-        "Start date of new colleagues": "Датум на почеток на новите колеги"
+        "Start date of new colleagues": "Датум на почеток на новите колеги",
+        "Starts": "Започнува",
+        "The administrator has not set a start date field, so new colleagues cannot be listed.": "Администраторот не постави поле за датум на почеток, па новите колеги не можат да се прикажат.",
+        "People from the directory": "Луѓе од именикот",
+        "New colleagues": "Нови колеги",
+        "Started in the last (days, 1–90)": "Започнале во последните (дена, 1–90)",
+        "Starts in the next (days, 0–30)": "Започнуваат во следните (дена, 0–30)",
+        "Must be between {min} and {max}": "Мора да биде помеѓу {min} и {max}"
     }
 }

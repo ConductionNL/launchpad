@@ -1687,7 +1687,14 @@ OC.L10N.register(
     "A person" : "Una persona",
     "Search for a person" : "Buscar una persona",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Sin elección, un panel pasa a alguien con todos los derechos sobre él o se elimina. Los recursos compartidos se mantienen.",
-    "Start date of new colleagues" : "Fecha de incorporación de los nuevos compañeros"
+    "Start date of new colleagues" : "Fecha de incorporación de los nuevos compañeros",
+    "Starts" : "Empieza",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "El administrador no ha definido un campo de fecha de incorporación, así que no se pueden mostrar los nuevos compañeros.",
+    "People from the directory" : "Personas del directorio",
+    "New colleagues" : "Nuevos compañeros",
+    "Started in the last (days, 1–90)" : "Incorporados en los últimos (días, 1–90)",
+    "Starts in the next (days, 0–30)" : "Se incorporan en los próximos (días, 0–30)",
+    "Must be between {min} and {max}" : "Debe estar entre {min} y {max}"
 },
 "nplurals=2; plural=(n != 1);"
 );

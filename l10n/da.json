@@ -1587,6 +1587,13 @@
         "A person": "En person",
         "Search for a person": "Søg efter en person",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Uden valg går et dashboard til en med fulde rettigheder til det, eller det slettes. Delinger bliver.",
-        "Start date of new colleagues": "Startdato for nye kolleger"
+        "Start date of new colleagues": "Startdato for nye kolleger",
+        "Starts": "Starter",
+        "The administrator has not set a start date field, so new colleagues cannot be listed.": "Administratoren har ikke angivet et felt til startdato, så nye kolleger kan ikke vises.",
+        "People from the directory": "Personer fra kataloget",
+        "New colleagues": "Nye kolleger",
+        "Started in the last (days, 1–90)": "Startet inden for de sidste (dage, 1–90)",
+        "Starts in the next (days, 0–30)": "Starter inden for de næste (dage, 0–30)",
+        "Must be between {min} and {max}": "Skal være mellem {min} og {max}"
     }
 }

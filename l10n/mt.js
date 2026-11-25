@@ -1687,7 +1687,14 @@ OC.L10N.register(
     "A person" : "Persuna",
     "Search for a person" : "Fittex persuna",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Mingħajr għażla, dashboard imur għand xi ħadd b'drittijiet sħaħ fuqu, jew jitħassar. Il-qsim jibqa'.",
-    "Start date of new colleagues" : "Data tal-bidu tal-kollegi l-ġodda"
+    "Start date of new colleagues" : "Data tal-bidu tal-kollegi l-ġodda",
+    "Starts" : "Jibda",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "L-amministratur ma ssettjax qasam għad-data tal-bidu, għalhekk il-kollegi ġodda ma jistgħux jintwerew.",
+    "People from the directory" : "Nies mid-direttorju",
+    "New colleagues" : "Kollegi ġodda",
+    "Started in the last (days, 1–90)" : "Bdew fl-aħħar (jiem, 1–90)",
+    "Starts in the next (days, 0–30)" : "Jibdew fil-(jiem, 0–30) li ġejjin",
+    "Must be between {min} and {max}" : "Għandu jkun bejn {min} u {max}"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

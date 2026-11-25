@@ -1678,6 +1678,13 @@ OC.L10N.register(
     "A person" : "Особа",
     "Search for a person" : "Тражи особу",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Без избора контролна табла иде некоме са пуним правима на њу или се брише. Дељења остају.",
-    "Start date of new colleagues" : "Датум почетка нових колега"
+    "Start date of new colleagues" : "Датум почетка нових колега",
+    "Starts" : "Почиње",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "Администратор није поставио поље за датум почетка рада, па се нове колеге не могу приказати.",
+    "People from the directory" : "Особе из именика",
+    "New colleagues" : "Нове колеге",
+    "Started in the last (days, 1–90)" : "Почели у последњих (дана, 1–90)",
+    "Starts in the next (days, 0–30)" : "Почињу у наредних (дана, 0–30)",
+    "Must be between {min} and {max}" : "Мора бити између {min} и {max}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

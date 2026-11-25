@@ -1687,7 +1687,14 @@ OC.L10N.register(
     "A person" : "En person",
     "Search for a person" : "Sök efter en person",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Utan val går en instrumentpanel till någon med fullständiga rättigheter till den, eller tas bort. Delningar finns kvar.",
-    "Start date of new colleagues" : "Startdatum för nya kollegor"
+    "Start date of new colleagues" : "Startdatum för nya kollegor",
+    "Starts" : "Börjar",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "Administratören har inte angett något fält för startdatum, så nya kollegor kan inte visas.",
+    "People from the directory" : "Personer från katalogen",
+    "New colleagues" : "Nya kollegor",
+    "Started in the last (days, 1–90)" : "Började under de senaste (dagar, 1–90)",
+    "Starts in the next (days, 0–30)" : "Börjar under de kommande (dagar, 0–30)",
+    "Must be between {min} and {max}" : "Måste vara mellan {min} och {max}"
 },
 "nplurals=2; plural=(n != 1);"
 );

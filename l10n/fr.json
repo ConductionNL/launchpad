@@ -1587,6 +1587,13 @@
         "A person": "Une personne",
         "Search for a person": "Rechercher une personne",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Sans choix, un tableau de bord va à quelqu'un qui a tous les droits dessus, ou il est supprimé. Les partages restent.",
-        "Start date of new colleagues": "Date d'arrivée des nouveaux collègues"
+        "Start date of new colleagues": "Date d'arrivée des nouveaux collègues",
+        "Starts": "Commence",
+        "The administrator has not set a start date field, so new colleagues cannot be listed.": "L'administrateur n'a pas défini de champ de date d'entrée, les nouveaux collègues ne peuvent donc pas être affichés.",
+        "People from the directory": "Personnes de l'annuaire",
+        "New colleagues": "Nouveaux collègues",
+        "Started in the last (days, 1–90)": "Arrivés au cours des derniers (jours, 1–90)",
+        "Starts in the next (days, 0–30)": "Arrivent dans les prochains (jours, 0–30)",
+        "Must be between {min} and {max}": "Doit être compris entre {min} et {max}"
     }
 }

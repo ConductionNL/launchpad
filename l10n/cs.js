@@ -1687,7 +1687,14 @@ OC.L10N.register(
     "A person" : "Osoba",
     "Search for a person" : "Hledat osobu",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Bez volby připadne nástěnka někomu s plnými právy k ní, nebo se smaže. Sdílení zůstávají.",
-    "Start date of new colleagues" : "Datum nástupu nových kolegů"
+    "Start date of new colleagues" : "Datum nástupu nových kolegů",
+    "Starts" : "Začíná",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "Správce nenastavil pole s datem nástupu, proto nelze zobrazit nové kolegy.",
+    "People from the directory" : "Lidé z adresáře",
+    "New colleagues" : "Noví kolegové",
+    "Started in the last (days, 1–90)" : "Nastoupili za posledních (dní, 1–90)",
+    "Starts in the next (days, 0–30)" : "Nastoupí během příštích (dní, 0–30)",
+    "Must be between {min} and {max}" : "Musí být mezi {min} a {max}"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

@@ -1687,7 +1687,14 @@ OC.L10N.register(
     "A person" : "Una persona",
     "Search for a person" : "Cerca una persona",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Sense elecció, un tauler va a algú amb tots els drets sobre ell, o s'elimina. Les comparticions es mantenen.",
-    "Start date of new colleagues" : "Data d'incorporació dels nous companys"
+    "Start date of new colleagues" : "Data d'incorporació dels nous companys",
+    "Starts" : "Comença",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "L'administrador no ha definit cap camp de data d'incorporació, així que no es poden mostrar els companys nous.",
+    "People from the directory" : "Persones del directori",
+    "New colleagues" : "Companys nous",
+    "Started in the last (days, 1–90)" : "Incorporats en els darrers (dies, 1–90)",
+    "Starts in the next (days, 0–30)" : "S'incorporen en els propers (dies, 0–30)",
+    "Must be between {min} and {max}" : "Ha d'estar entre {min} i {max}"
 },
 "nplurals=2; plural=(n != 1);"
 );

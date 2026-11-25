@@ -1687,7 +1687,14 @@ OC.L10N.register(
     "A person" : "O persoană",
     "Search for a person" : "Caută o persoană",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Fără alegere, un tablou de bord merge la cineva cu drepturi depline asupra lui sau este șters. Partajările rămân.",
-    "Start date of new colleagues" : "Data de început a noilor colegi"
+    "Start date of new colleagues" : "Data de început a noilor colegi",
+    "Starts" : "Începe",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "Administratorul nu a setat un câmp pentru data angajării, așa că noii colegi nu pot fi afișați.",
+    "People from the directory" : "Persoane din director",
+    "New colleagues" : "Colegi noi",
+    "Started in the last (days, 1–90)" : "Au început în ultimele (zile, 1–90)",
+    "Starts in the next (days, 0–30)" : "Încep în următoarele (zile, 0–30)",
+    "Must be between {min} and {max}" : "Trebuie să fie între {min} și {max}"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

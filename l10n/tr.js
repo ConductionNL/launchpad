@@ -1687,7 +1687,14 @@ OC.L10N.register(
     "A person" : "Bir kişi",
     "Search for a person" : "Kişi ara",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Seçim yapılmazsa pano, üzerinde tam yetkisi olan birine gider ya da silinir. Paylaşımlar kalır.",
-    "Start date of new colleagues" : "Yeni iş arkadaşlarının başlangıç tarihi"
+    "Start date of new colleagues" : "Yeni iş arkadaşlarının başlangıç tarihi",
+    "Starts" : "Başlıyor",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "Yönetici bir başlangıç tarihi alanı belirlemediği için yeni çalışma arkadaşları listelenemiyor.",
+    "People from the directory" : "Dizindeki kişiler",
+    "New colleagues" : "Yeni çalışma arkadaşları",
+    "Started in the last (days, 1–90)" : "Son (gün, 1–90) içinde başlayanlar",
+    "Starts in the next (days, 0–30)" : "Önümüzdeki (gün, 0–30) içinde başlayacaklar",
+    "Must be between {min} and {max}" : "{min} ile {max} arasında olmalıdır"
 },
 "nplurals=2; plural=(n != 1);"
 );

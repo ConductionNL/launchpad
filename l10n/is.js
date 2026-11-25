@@ -1687,7 +1687,14 @@ OC.L10N.register(
     "A person" : "Manneskja",
     "Search for a person" : "Leita að manneskju",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Án vals fer stjórnborð til einhvers með full réttindi á því, eða því er eytt. Deilingar haldast.",
-    "Start date of new colleagues" : "Upphafsdagur nýrra samstarfsmanna"
+    "Start date of new colleagues" : "Upphafsdagur nýrra samstarfsmanna",
+    "Starts" : "Byrjar",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "Stjórnandi hefur ekki skilgreint reit fyrir upphafsdag, svo ekki er hægt að sýna nýja samstarfsmenn.",
+    "People from the directory" : "Fólk úr skránni",
+    "New colleagues" : "Nýir samstarfsmenn",
+    "Started in the last (days, 1–90)" : "Byrjuðu á síðustu (dögum, 1–90)",
+    "Starts in the next (days, 0–30)" : "Byrja á næstu (dögum, 0–30)",
+    "Must be between {min} and {max}" : "Verður að vera á milli {min} og {max}"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

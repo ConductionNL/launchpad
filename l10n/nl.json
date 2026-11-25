@@ -2344,6 +2344,13 @@
         "A person": "Een persoon",
         "Search for a person": "Zoek een persoon",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Zonder keuze gaat een dashboard naar iemand met volledige rechten erop, of wordt het verwijderd. Shares blijven.",
-        "Start date of new colleagues": "Begindatum van nieuwe collega's"
+        "Start date of new colleagues": "Begindatum van nieuwe collega's",
+        "Starts": "Begint",
+        "The administrator has not set a start date field, so new colleagues cannot be listed.": "De beheerder heeft geen veld voor de begindatum ingesteld, dus nieuwe collega's kunnen niet worden getoond.",
+        "People from the directory": "Mensen uit de gids",
+        "New colleagues": "Nieuwe collega's",
+        "Started in the last (days, 1–90)": "Begonnen in de afgelopen (dagen, 1–90)",
+        "Starts in the next (days, 0–30)": "Begint in de komende (dagen, 0–30)",
+        "Must be between {min} and {max}": "Moet tussen {min} en {max} liggen"
     }
 }

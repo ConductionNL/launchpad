@@ -1587,6 +1587,13 @@
         "A person": "Ina persuna",
         "Search for a person": "Tschertgar ina persuna",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Senza tscherna va in dashboard tar insatgi cun dretgs cumplets, u el vegn stizzà. Las divisiuns restan.",
-        "Start date of new colleagues": "Data d'entschatta da collegas novs"
+        "Start date of new colleagues": "Data d'entschatta da collegas novs",
+        "Starts": "Cumenza",
+        "The administrator has not set a start date field, so new colleagues cannot be listed.": "L'administratur n'ha betg definì in champ per la data d'entrada, perquai na pon ils novs collegas betg vegnir mussads.",
+        "People from the directory": "Persunas da l'register",
+        "New colleagues": "Novs collegas",
+        "Started in the last (days, 1–90)": "Cumenzà en ils ultims (dis, 1–90)",
+        "Starts in the next (days, 0–30)": "Cumenzan en ils proxims (dis, 0–30)",
+        "Must be between {min} and {max}": "Sto esser tranter {min} e {max}"
     }
 }

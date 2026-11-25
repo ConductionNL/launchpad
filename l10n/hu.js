@@ -1687,7 +1687,14 @@ OC.L10N.register(
     "A person" : "Egy személy",
     "Search for a person" : "Személy keresése",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Választás nélkül az irányítópult valakihez kerül, akinek teljes jogai vannak rá, vagy törlődik. A megosztások maradnak.",
-    "Start date of new colleagues" : "Az új kollégák kezdési dátuma"
+    "Start date of new colleagues" : "Az új kollégák kezdési dátuma",
+    "Starts" : "Kezd",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "A rendszergazda nem állított be kezdési dátum mezőt, ezért az új kollégák nem jeleníthetők meg.",
+    "People from the directory" : "Személyek a címtárból",
+    "New colleagues" : "Új kollégák",
+    "Started in the last (days, 1–90)" : "Az elmúlt (nap, 1–90) során kezdtek",
+    "Starts in the next (days, 0–30)" : "A következő (nap, 0–30) során kezdenek",
+    "Must be between {min} and {max}" : "{min} és {max} között kell lennie"
 },
 "nplurals=2; plural=(n != 1);"
 );

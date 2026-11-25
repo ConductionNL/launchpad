@@ -1589,6 +1589,13 @@
         "A person": "Асоба",
         "Search for a person": "Шукаць асобу",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Без выбару панэль пераходзіць да таго, хто мае на яе поўныя правы, або выдаляецца. Агульныя доступы захоўваюцца.",
-        "Start date of new colleagues": "Дата пачатку працы новых калег"
+        "Start date of new colleagues": "Дата пачатку працы новых калег",
+        "Starts": "Пачынае",
+        "The administrator has not set a start date field, so new colleagues cannot be listed.": "Адміністратар не задаў поле даты пачатку працы, таму новых калег нельга паказаць.",
+        "People from the directory": "Людзі з даведніка",
+        "New colleagues": "Новыя калегі",
+        "Started in the last (days, 1–90)": "Пачалі за апошнія (дзён, 1–90)",
+        "Starts in the next (days, 0–30)": "Пачнуць у бліжэйшыя (дзён, 0–30)",
+        "Must be between {min} and {max}": "Павінна быць ад {min} да {max}"
     }
 }

@@ -1587,6 +1587,13 @@
         "A person": "Ένα άτομο",
         "Search for a person": "Αναζήτηση ατόμου",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Χωρίς επιλογή, ένας πίνακας ελέγχου πηγαίνει σε κάποιον με πλήρη δικαιώματα σε αυτόν ή διαγράφεται. Οι κοινές χρήσεις παραμένουν.",
-        "Start date of new colleagues": "Ημερομηνία έναρξης νέων συναδέλφων"
+        "Start date of new colleagues": "Ημερομηνία έναρξης νέων συναδέλφων",
+        "Starts": "Ξεκινά",
+        "The administrator has not set a start date field, so new colleagues cannot be listed.": "Ο διαχειριστής δεν έχει ορίσει πεδίο ημερομηνίας έναρξης, οπότε οι νέοι συνάδελφοι δεν μπορούν να εμφανιστούν.",
+        "People from the directory": "Άτομα από τον κατάλογο",
+        "New colleagues": "Νέοι συνάδελφοι",
+        "Started in the last (days, 1–90)": "Ξεκίνησαν τις τελευταίες (ημέρες, 1–90)",
+        "Starts in the next (days, 0–30)": "Ξεκινούν τις επόμενες (ημέρες, 0–30)",
+        "Must be between {min} and {max}": "Πρέπει να είναι μεταξύ {min} και {max}"
     }
 }

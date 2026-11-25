@@ -1687,7 +1687,14 @@ OC.L10N.register(
     "A person" : "Henkilö",
     "Search for a person" : "Etsi henkilöä",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Ilman valintaa koontinäyttö siirtyy jollekulle, jolla on siihen täydet oikeudet, tai se poistetaan. Jaot säilyvät.",
-    "Start date of new colleagues" : "Uusien kollegoiden aloituspäivä"
+    "Start date of new colleagues" : "Uusien kollegoiden aloituspäivä",
+    "Starts" : "Aloittaa",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "Ylläpitäjä ei ole määrittänyt aloituspäivän kenttää, joten uusia kollegoita ei voi näyttää.",
+    "People from the directory" : "Hakemiston henkilöt",
+    "New colleagues" : "Uudet kollegat",
+    "Started in the last (days, 1–90)" : "Aloittaneet viimeisten (päivää, 1–90) aikana",
+    "Starts in the next (days, 0–30)" : "Aloittavat seuraavien (päivää, 0–30) aikana",
+    "Must be between {min} and {max}" : "On oltava välillä {min}–{max}"
 },
 "nplurals=2; plural=(n != 1);"
 );

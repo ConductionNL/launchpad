@@ -1687,7 +1687,14 @@ OC.L10N.register(
     "A person" : "Человек",
     "Search for a person" : "Найти человека",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Без выбора панель переходит к тому, у кого есть полные права на неё, или удаляется. Общие доступы сохраняются.",
-    "Start date of new colleagues" : "Дата выхода новых коллег"
+    "Start date of new colleagues" : "Дата выхода новых коллег",
+    "Starts" : "Начинает",
+    "The administrator has not set a start date field, so new colleagues cannot be listed." : "Администратор не задал поле даты начала работы, поэтому новых коллег нельзя показать.",
+    "People from the directory" : "Люди из справочника",
+    "New colleagues" : "Новые коллеги",
+    "Started in the last (days, 1–90)" : "Начали за последние (дней, 1–90)",
+    "Starts in the next (days, 0–30)" : "Начнут в ближайшие (дней, 0–30)",
+    "Must be between {min} and {max}" : "Должно быть от {min} до {max}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

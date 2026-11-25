@@ -29,6 +29,7 @@ import type { Locator, Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
 import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 import { catalogueFromApi } from './support/widgetCatalogue.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 import {
 	adminApi,
 	gridItem,
@@ -257,11 +258,12 @@ test.describe('workspace canvas and the widget picker (REQ-WDG-027, REQ-WDG-028)
 					`/apps/launchpad/api/dashboard/${dash.id}/widgets`,
 				),
 		)
-		await picker
-			.locator('[data-testid="widget-picker-section-apps"] button.widget-picker__widget', {
+		// A click chooses the card; "Add widget" places it (widget-picker-board-sync).
+		await chooseAndAdd(
+			picker.locator('[data-testid="widget-picker-section-apps"] button.widget-picker__widget', {
 				hasText: String(extra.title),
-			})
-			.click()
+			}),
+		)
 		const response = await created
 		expect(response.status()).toBe(201)
 		const placement = await response.json()
@@ -323,9 +325,9 @@ test.describe('workspace canvas and the widget picker (REQ-WDG-027, REQ-WDG-028)
 			'Notes',
 			'Upcoming cards',
 		])
-		// Board LpWidgetKiezen ends the app tiles with "Custom tile", which a
-		// search for "cal" left out.
-		await expect(appNames(picker)).toHaveText(['Calendar', 'Files', 'Custom tile'])
+		// Board LpWidgetKiezen ends the app tiles with "Eigen tegel" ("Own
+		// tile", widget-picker-board-sync), which a search for "cal" left out.
+		await expect(appNames(picker)).toHaveText(['Calendar', 'Files', 'Own tile'])
 		await expect(
 			picker.locator('[data-testid="widget-picker-office-pack"]'),
 		).toBeVisible()

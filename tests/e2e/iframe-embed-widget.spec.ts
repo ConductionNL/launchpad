@@ -73,7 +73,8 @@ const STATUS_URL = `https://${STATUS_HOST}/board`
 const OTHER_HOST = 'other.e2e.invalid'
 const EVIL_HOST = 'evil.e2e.invalid'
 
-const BLOCKED_TEXT = 'This site does not allow itself to be embedded.'
+const OUTAGE_TEXT = 'The page could not be loaded'
+const REFUSED_CAUSE = 'the site refuses to be embedded'
 
 test.describe.configure({ mode: 'serial' })
 test.setTimeout(120_000)
@@ -805,9 +806,14 @@ test('a target that refuses framing gets the fallback card, not a blank frame', 
 			await expect(
 				fallback.locator('.iframe-widget__fallback-title'),
 			).toHaveText(target.title)
+			// REQ-IFRAME-005: a page that cannot load shows the outage card,
+			// its plain-language cause being the refusal to be framed.
 			await expect(
 				fallback.locator('.iframe-widget__fallback-text'),
-			).toContainText(BLOCKED_TEXT)
+			).toHaveText(OUTAGE_TEXT)
+			await expect(
+				fallback.locator('[data-testid="iframe-widget-outage-cause"]'),
+			).toContainText(REFUSED_CAUSE)
 			const link = fallback.getByRole('link')
 			await expect(link).toHaveText('Open in a new tab')
 			await expect(link).toHaveAttribute('href', target.url)

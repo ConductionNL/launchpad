@@ -38,10 +38,12 @@ class ManifestTools {
 	 * @param ContainerInterface $container The Nextcloud DI container; used to lazy-load ObjectService so that
 	 *                                      launchpad degrades gracefully when OpenRegister is not yet active.
 	 * @param LoggerInterface    $logger PSR logger.
+	 * @param ManifestCache|null $cache The manifests kept per user and app version.
 	 */
 	public function __construct(
 		public readonly ContainerInterface $container,
 		public readonly LoggerInterface $logger,
+		public readonly ?ManifestCache $cache=null,
 	) {
 	}//end __construct()
 }//end class

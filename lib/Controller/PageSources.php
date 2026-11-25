@@ -46,6 +46,7 @@ class PageSources {
 	 *                                                   REQ-TMPL-013).
 	 * @param WorkspaceBootReads|null $bootReads The tiles, pending acknowledgements and default-dashboard pin
 	 *                                           the workspace view takes from the initial state.
+	 * @param ManifestFirstLoad|null  $manifest  The kept runtime manifest the page carries.
 	 */
 	public function __construct(
 		public readonly IInitialState $initialState,
@@ -53,6 +54,7 @@ class PageSources {
 		public readonly PageDashboards $dashboards,
 		public readonly AdminTemplateService $adminTemplateService,
 		public readonly ?WorkspaceBootReads $bootReads=null,
+		public readonly ?ManifestFirstLoad $manifest=null,
 	) {
 	}//end __construct()
 }//end class

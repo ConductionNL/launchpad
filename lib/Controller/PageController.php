@@ -118,6 +118,7 @@ class PageController extends Controller {
 	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
 	 * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-2
 	 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -195,6 +196,7 @@ class PageController extends Controller {
 			->setDashboardFirstLoad($this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible))
 			->setOrgNavigation($this->settings->orgNavigation?->firstLoad(userId: $userId))
 			->setWorkspaceBootReads($this->sources->bootReads?->firstLoad(userId: $userId))
+			->setRuntimeManifest($this->sources->manifest?->firstLoad(userId: $userId))
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass

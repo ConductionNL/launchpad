@@ -127,4 +127,65 @@ class EmbedObjectStoreTest extends TestCase {
 		$this->expectExceptionMessage('Embeds need OpenRegister, which is not available.');
 		(new EmbedObjectStore($container))->findBy(schema: 'embed_token');
 	}//end testFailuresAreNamed()
+	/**
+	 * Against an OpenRegister whose slug search takes one RegisterSchemaSlugs
+	 * target, findBy passes that target and still unwraps the page.
+	 *
+	 * @return void
+	 */
+	public function testFindBySpeaksTheTargetShapedSlugSearch(): void {
+		$service = new class {
+			/** @var list<array{string, string, array<string, mixed>}> */
+			public array $calls = [];
+
+			/**
+			 * Pick the register.
+			 *
+			 * @param string $register The register.
+			 *
+			 * @return static
+			 */
+			public function setRegister(string $register): static {
+				return $this;
+			}
+
+			/**
+			 * Pick the schema.
+			 *
+			 * @param string $schema The schema.
+			 *
+			 * @return static
+			 */
+			public function setSchema(string $schema): static {
+				return $this;
+			}
+
+			/**
+			 * The target-shaped slug search.
+			 *
+			 * @param \OCA\OpenRegister\Contract\RegisterSchemaSlugs $target        The register and schema.
+			 * @param array<string, mixed>                       $filters       Field => value.
+			 * @param bool                                       $_rbac         Apply RBAC.
+			 * @param bool                                       $_multitenancy Apply multitenancy.
+			 *
+			 * @return array<string, mixed>
+			 */
+			public function searchObjectsBySlug(
+				\OCA\OpenRegister\Contract\RegisterSchemaSlugs $target,
+				array $filters=[],
+				bool $_rbac=true,
+				bool $_multitenancy=true
+			): array {
+				$this->calls[] = [$target->register, $target->schema, $filters];
+				return ['results' => [['@self' => ['id' => 'tok-1'], 'name' => 'Website']]];
+			}
+		};
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
+		$container->method('get')->willReturn($service);
+
+		$rows = (new EmbedObjectStore($container))->findBy(schema: 'embed_token', filters: ['name' => 'Website']);
+
+		$this->assertSame(expected: [['launchpad', 'embed_token', ['name' => 'Website']]], actual: $service->calls);
+		$this->assertCount(expectedCount: 1, haystack: $rows);
+	}//end testFindBySpeaksTheTargetShapedSlugSearch()
 }//end class

@@ -242,12 +242,30 @@ test.describe('REQ-VIS-001 create a conditional rule', () => {
 		expect(rule.ruleConfig).toEqual({ startTime: '18:00', endTime: '08:00' })
 		expect(rule.isInclude, 'isInclude:false is an exclusion rule').toBe(false)
 
-		// 18:00-08:00 never matches under the string comparison the NOTE
-		// describes, so the exclusion does not hide anything yet...
-		expect((await readRules(alice!.api, pid)).isVisible).toBe(true)
+		// 18:00-08:00 starts after it ends, so it wraps around midnight (the
+		// scenario's NOTE): the exclusion hides the widget in the evening and
+		// the early morning and shows it in the daytime. The preview clock
+		// pins the moment, so the verdict does not depend on when this runs.
+		const asStored: RuleInput = {
+			ruleType: rule.ruleType,
+			ruleConfig: rule.ruleConfig,
+			isInclude: rule.isInclude,
+		}
+		expect(
+			await previewVisible(alice!.api, [asStored], { datetime: '2026-12-15T12:00:00' }),
+			'at noon the 18:00-08:00 exclusion does not match',
+		).toBe(true)
+		expect(
+			await previewVisible(alice!.api, [asStored], { datetime: '2026-12-15T22:00:00' }),
+			'at 22:00 the exclusion matches and hides the widget',
+		).toBe(false)
+		expect(
+			await previewVisible(alice!.api, [asStored], { datetime: '2026-12-16T07:30:00' }),
+			'after midnight the window still runs until 08:00',
+		).toBe(false)
 
-		// ...and once its window covers every minute of the day it matches, and
-		// because it is an exclusion the widget is hidden.
+		// With the server clock: once the window covers every minute of the
+		// day it matches whenever this runs, and as an exclusion it hides.
 		const widen = await alice!.api.put(`${API}/rules/${rule.id}`, {
 			data: { ruleConfig: { startTime: '00:00', endTime: '23:59' } },
 		})

@@ -341,8 +341,9 @@ async function openTileEditor(page: Page, title: string): Promise<Locator> {
 	await expect(tile).toBeVisible({ timeout: 30_000 })
 	await tile.getByRole('button', { name: 'Tile menu' }).click()
 	await page.getByRole('menuitem', { name: 'Edit tile' }).click()
-	const editor = page.getByRole('dialog').filter({ hasText: 'Show a live status badge (health ping)' })
-	await expect(editor.getByText('Show a live status badge (health ping)')).toBeVisible({ timeout: 10_000 })
+	// The drawn tile form (tile-form-board-sync, REQ-TILE-042) names the switch "Check availability".
+	const editor = page.getByRole('dialog').filter({ hasText: 'Check availability' })
+	await expect(editor.getByText('Check availability', { exact: true })).toBeVisible({ timeout: 10_000 })
 	return editor
 }
 
@@ -353,7 +354,7 @@ async function openTileEditor(page: Page, title: string): Promise<Locator> {
  * @return nothing.
  */
 async function enablePing(editor: Locator): Promise<void> {
-	await editor.getByText('Show a live status badge (health ping)').click()
+	await editor.getByText('Check availability', { exact: true }).click()
 	await expect(editor.getByLabel('Health check URL')).toBeVisible()
 }
 

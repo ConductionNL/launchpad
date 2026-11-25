@@ -184,7 +184,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [x] 3.15 `dashboard-switcher`: 20 scenarios, 11 cited.
   - Spec written: tests/e2e/dashboard-switcher.spec.ts (new), 19 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 15 green, every listed test run (checked against `playwright test --list`).
-- [ ] 3.16 `runtime-shell`: 16 scenarios, 5 cited.
+- [x] 3.16 `runtime-shell`: 16 scenarios, 5 cited.
   - Spec written: tests/e2e/runtime-shell.spec.ts (new), with tests/e2e/support/firstVisit.ts, 20 scenarios cited (11 by the new file), not yet run (cloud, 2026-11-19)
   - Spec written: `tests/e2e/runtime-shell.spec.ts`, `tests/e2e/runtime-shell-canEdit.spec.ts`, `tests/e2e/admin-menu-permissions.spec.ts` (six annotations that matched no scenario heading removed or retargeted: the tour header now names the two current tour scenarios its tests already cite; the two empty-state fixme tests sit under scenarios that carry a reasoned exclusion; the three admin-menu permission slugs never had a scenario in any spec), 28 scenarios cited, 7 excluded with a reason, not yet run (cloud, 2026-11-24)
   - Spec written: `tests/e2e/runtime-shell.spec.ts` (REQ-SHELL-001 block), 1 scenario cited (mount-point-present, which before had only a header citation in wave3-runtime-shell.spec.ts and no test behind it; one test pins the served and mounted structure, one `test.fixme` for the `launchpad-app` id the scenario names but nothing renders), 0 excluded; the spec now has 36 scenarios, 29 cited, 7 excluded, 0 uncited; not yet run (cloud, 2026-11-24)
@@ -192,6 +192,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/runtime-shell.spec.ts` (REQ-SHELL-001 block), 1 scenario now runs for the clause that had only a `test.fixme` behind it (mount-point-present: exactly one `<div id="launchpad-app">` as the child of `#app-workspace`), expected red until the spec or the template changes (templates/index.php and src/main.js use `workspace-vue`), runtime-shell 0 uncited, 0 `test.fixme` behind a scenario (the two empty-state fixmes in runtime-shell-canEdit.spec.ts cite none), not yet run (cloud, 2026-11-24)
   - Spec written: `tests/e2e/no-navigation-panel.spec.ts`, `tests/e2e/page-ground.spec.ts`, `tests/e2e/runtime-shell-canEdit.spec.ts`, `tests/e2e/runtime-shell.spec.ts`, 5 scenarios strengthened (already counted). no-route-renders-the-panel: Reports, Flows and `/admin/templates` must also render the page More menu and no panel, and the content must take nearly the full viewport width, not only start at the left edge. no-destination-is-lost: an administrator test requires every destination plus `admin-settings-link` and no second `admin-settings` entry; the member must not see the admin link. the-grid-on-the-page-ground: a seeded dashboard puts a widget on the grid, so the widget-surface check no longer sits behind `if (widget !== null)`, and the ground must differ from `--color-main-background`. no-active-dashboard-select-control: a second dashboard is seeded and opened, and the one checked row must be its id. canedit-user-sees-full-edit-menu: More itself must offer Edit, Add widget and Documentation. 0 excluded added, not yet run (cloud, 2026-11-25)
   - Spec written: `tests/e2e/more-menu.spec.ts`, 4 scenarios cited in the test bodies (the-header-carries-only-more, settings-unfolds-in-place, this-dashboard-ends-in-delete, escape-returns-focus-to-more: REQ-SHELL-013 was synced in by #1772 and cited only in the file header, with tests run as the suite's admin; the three "a member" scenarios now run as a throwaway member on their own dashboard, the header test also requires no Menu, Edit or Add widget button anywhere on the page, Settings must unfold below its toggle and indented with no Admin settings, Escape is pressed after focus has moved into the menu; This dashboard now requires the scenario's own list, Share and Set as default, and no Settings item), expected red on one label (moreMenuItems.js names the share item "Sharing"), runtime-shell 0 uncited, 0 excluded added, not yet run (cloud, 2026-11-25)
+  - Done 25 Nov 2026 (sandbox Nextcloud 34.0.6 + MariaDB + Redis, OpenRegister main 58479c0d0): `runtime-shell`, `runtime-shell-canEdit`, `admin-menu-permissions`, `no-buildiq-edit-control`, `no-navigation-panel`, `page-ground`, `more-menu` and `wave3-runtime-shell` all green (runtime-shell + canEdit 23 passed, 2 `test.fixme` that cite no scenario; the other six files 31 passed). `wave3-runtime-shell` wave3.6 assumed the admin already owned and had open a personal dashboard, which a fresh instance does not: the test now creates one, switches to it from the sidebar and removes it after.
 - [x] 3.17 `dashboard-deeplinking`: 7 scenarios, 0 cited.
   - Written: `tests/e2e/dashboard-deeplinking.spec.ts` cites 6 scenarios (stale slug lands on a dashboard with 200, a slug address opens that dashboard, the path endpoint, one pushState per switch and none on mount, back returns to the previous dashboard, the health route); their exclusions are removed. The route-table order keeps a reasoned exclusion. The NULL-slug half of the path endpoint stays with DashboardApiControllerComputePathTest (a created dashboard always gets a derived slug). Open: the CI run that shows they ran, and the seen-to-fail mutation pass.
   - Spec written: `tests/e2e/dashboard-deeplinking.spec.ts` (canonical-path-passed-through-initial-state, which only checked the address the frontend leaves: the test now reads the `deepLinkPath` initial state from the served page and requires `/<slug>`; stale-slug-falls-back-silently now also requires the handed path to be the fallback's, never the stale slug), 2 scenarios cited (already counted), 0 excluded, dashboard-deeplinking 0 uncited, not yet run (cloud, 2026-11-25)
@@ -249,9 +250,10 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/menu-widget.spec.ts`, `menu-widget-styles.spec.ts`, `menu-widget-links.spec.ts`; 2 scenarios excluded with reasons, 35 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 37 scenarios, 35 cited, 2 excluded, 0 uncited (gate-19 report mode). All three files listed by `playwright test --list` (35 tests), not yet run.
   - Run 25 Nov 2026 (sandbox Nextcloud 34.0.6 + MariaDB + Redis, OpenRegister main, launchpad development 8856e823): `menu-widget.spec.ts`, `menu-widget-styles.spec.ts`, `menu-widget-links.spec.ts` 35/35 green. Seen-to-fail spot pass on the rendered widget (CnMenuWidget chunk mutated, then restored): `rel="opener"` on external links turns the no-opener test red, and an `onEscape()` that does nothing turns the three Esc tests (dropdown, megamenu, keyboard) red.
-- [ ] 4.12 `quicklinks-widget`: 36 scenarios, 0 cited.
+- [x] 4.12 `quicklinks-widget`: 36 scenarios, 0 cited.
   - Spec written: `tests/e2e/quicklinks-widget.spec.ts`, `quicklinks-widget-interaction.spec.ts`, `quicklinks-widget-form.spec.ts`; 0 scenarios excluded, 36 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 36 scenarios, 36 cited, 0 excluded, 0 uncited (gate-19 report mode). All three files listed by `playwright test --list` (35 tests), not yet run.
+  - Done 25 Nov 2026 (same sandbox): `quicklinks-widget`, `quicklinks-widget-interaction` and `quicklinks-widget-form` green as written; with 4.24 and 5.14 in the same run, 41 passed, 0 failed, 0 skipped.
 - [x] 4.13 `divider-widget`: 29 scenarios, 3 cited.
   - Spec written: tests/e2e/divider-widget.spec.ts, 24 scenarios cited, not yet run (cloud, 2026-11-19), 2 excluded with a reason
   - Recount (cloud, 2026-11-24): 29 scenarios, 27 cited, 2 excluded, 0 uncited (gate-19 report mode). The spec was kept current by the widget-picker changes (a58030e7, 907dd48e, 22 Nov). Listed by `playwright test --list`, not yet run.
@@ -289,29 +291,32 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [x] 4.23 `container-widget`: 8 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/container-widget.spec.ts, tests/e2e/container-tile-sorting.spec.ts, 11 scenarios cited, not yet run (cloud, 2026-11-19), 1 excluded with a reason
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): container-widget 7 of 7 and container-tile-sorting 6 of 6 green.
-- [ ] 4.24 `nc-dashboard-widget-proxy`: 4 scenarios, 0 cited, blanket.
+- [x] 4.24 `nc-dashboard-widget-proxy`: 4 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/nc-dashboard-widget-proxy.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 4 scenarios, 4 cited, 0 excluded, 0 uncited. Spec updated with the picker changes of 907dd48e; listed by `playwright test --list`, not yet run.
   - Spec written: `tests/e2e/nc-dashboard-widget-proxy.spec.ts` (the "expected RED" note on `keyboard-navigation-works` was stale: nextcloud-vue 2.218.0, the version the lock pins, reads `focusedIndex` in `cardTabIndex()`, so the roving-tabindex assertion should now pass and a red is a regression), 4 scenarios cited, 0 excluded, 0 uncited, listed by `playwright test --list`, not yet run (cloud, 2026-11-25)
+  - Done 25 Nov 2026 (sandbox Nextcloud 34.0.6 + MariaDB + Redis, OpenRegister main 58479c0d0): `nc-dashboard-widget-proxy.spec.ts` green as written, keyboard-navigation-works included.
 
 ## 5. Tier 4, admin, operations and integrations
 
 14 specs, 419 scenarios.
 
-- [ ] 5.1 `dashboard-view-analytics`: 65 scenarios, 0 cited, blanket.
+- [x] 5.1 `dashboard-view-analytics`: 65 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-view-analytics.spec.ts, 53 scenarios cited, not yet run (cloud, 2026-11-19), 18 excluded with reasons
   - Spec written: tests/e2e/dashboard-view-analytics-jobs.spec.ts, 5 more scenarios cited (the salt rotation and four retention/purge scenarios, by running the jobs through occ), 13 excluded with reasons, not yet run (cloud, 2026-11-24)
   - Spec written: tests/e2e/dashboard-view-analytics-history.spec.ts (+ tests/e2e/support/instanceDb.ts), 8 more scenarios cited (both table schemas, two days, the salt across days, both period filters, both purge deletions) by seeding and reading rows through PHP on the instance, 5 excluded with reasons, not yet run (cloud, 2026-11-24)
   - Spec written: tests/e2e/dashboard-view-analytics-history.spec.ts, 1 more scenario cited (the tile-click salt is the one analytics_dailysalt), 67 cited, 4 excluded with reasons, not yet run (cloud, 2026-11-24)
   - Spec written: tests/e2e/dashboard-view-analytics-cache.spec.ts, 2 more scenarios cited (the dedup cache key and its TTL, the hash kept in the cache and out of the views table) by reading the distributed cache on the instance; they skip, saying why, where that cache is per-process. 69 cited, 2 excluded with reasons, not yet run (cloud, 2026-11-24)
+  - Done 25 Nov 2026 (sandbox Nextcloud 34.0.6 + MariaDB + Redis distributed cache, OpenRegister main 58479c0d0): `dashboard-view-analytics`, `-jobs`, `-history` and `-cache` all green, the cache tests running rather than skipping on Redis. One red in `-history`, two-different-days-create-separate-rows: day two counted the view but not the viewer. Nextcloud 34 keeps app config in each web process's local cache for 3 s (`AppConfig::LOCAL_CACHE_TTL`), so the salt date occ had just moved back was not yet read, the salt did not rotate and the dedup cache still knew the viewer. The two tests that move the salt date through occ now wait that window out; history 9/9.
 - [x] 5.2 `background-job-feed-refresh`: 56 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/background-job-feed-refresh.spec.ts, 6 scenarios cited, not yet run (cloud, 2026-11-19), 50 excluded with reasons
   - Run 20 Nov on development with #1444: 6 of 6 green.
-- [ ] 5.3 `cli-commands`: 53 scenarios, 0 cited, blanket.
+- [x] 5.3 `cli-commands`: 53 scenarios, 0 cited, blanket.
   - Spec written: none (tests/e2e/cli-commands.spec.ts not created), 0 scenarios cited, 60 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Spec written: tests/e2e/cli-commands.spec.ts (+ tests/e2e/support/occ.ts), 39 scenarios cited, 21 excluded with reasons, not yet run (cloud, 2026-11-24). The old "Playwright cannot run occ" reason was wrong: the suite already runs occ on the instance.
   - Spec written: tests/e2e/cli-commands.spec.ts, 1 more scenario cited (an operator updates the installed template: an older install staged through occ and tests/e2e/support/instanceDb.ts), 40 cited, 20 excluded with reasons, not yet run (cloud, 2026-11-24)
   - Spec written: tests/e2e/cli-commands.spec.ts, 1 more scenario cited (pre-existing commands are not broken: launchpad:export and launchpad:import keep their names and options and round-trip a dashboard with its widget), 41 cited, 19 excluded with reasons, not yet run (cloud, 2026-11-25)
+  - Done 25 Nov 2026 (same sandbox): `cli-commands.spec.ts` green as written.
 - [x] 5.4 `activity-feed-integration`: 52 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/activity-feed-integration.spec.ts, 21 scenarios cited, not yet run (cloud, 2026-11-19), 39 excluded with reasons
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 22 of 22 green, every listed test run (checked against `playwright test --list`).
@@ -332,22 +337,26 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [x] 5.9 `infrastructure-helpers`: 17 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/infrastructure-helpers.spec.ts, 14 scenarios cited, 3 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 14 of 14 green.
-- [ ] 5.10 `service-health-ping`: 15 scenarios, 0 cited.
+- [x] 5.10 `service-health-ping`: 15 scenarios, 0 cited.
   - Spec written: tests/e2e/service-health-ping.spec.ts, 14 scenarios cited, not yet run (cloud, 2026-11-19), 1 excluded with reasons
   - Spec written: tests/e2e/service-health-ping.spec.ts, the last scenario (background refresh) now cited by running HealthPingRefreshJob through occ, 0 excluded, not yet run (cloud, 2026-11-24)
+  - Done 25 Nov 2026 (sandbox Nextcloud 34.0.6 + MariaDB + Redis, OpenRegister main 58479c0d0, `allow_local_remote_servers` on so the instance reaches the spec's own upstream): `service-health-ping.spec.ts` 15/15 green. The tile editor helpers followed the drawn tile form: the switch is "Check availability" (tile-form-board-sync, REQ-TILE-042), no longer "Show a live status badge (health ping)". Without `allow_local_remote_servers` the 12 upstream tests skip and say so, as the spec intends.
 - [x] 5.11 `initial-state-contract`: 11 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/initial-state-contract.spec.ts, 2 scenarios cited, 9 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 4 of 4 green.
-- [ ] 5.12 `runtime-or-consumption`: 11 scenarios, 0 cited, blanket.
+- [x] 5.12 `runtime-or-consumption`: 11 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/runtime-or-consumption.spec.ts (+ tests/e2e/support/orWidget.ts), 7 scenarios cited, 4 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Spec written: tests/e2e/or-absent.spec.ts, 2 more scenarios cited (boot without OR, the OR-data widget's empty state without OR), 8 cited, 2 excluded with reasons (both never built), not yet run (cloud, 2026-11-24)
-- [ ] 5.13 `license-header-consistency`: 7 scenarios, 0 cited, blanket.
+  - Done 25 Nov 2026 (same sandbox): `runtime-or-consumption.spec.ts` green and `or-absent.spec.ts` 4/4 green (OpenRegister switched off and back on by the file). or-absent's menu-entry check followed Nextcloud 34's header: the app links sit in the apps menu popover the header's "Open apps menu" button opens, not as header links.
+- [x] 5.13 `license-header-consistency`: 7 scenarios, 0 cited, blanket.
   - Spec written: no spec file, 0 scenarios cited, 7 excluded with reasons, one per requirement; the blanket is gone. Every scenario reads checked-in files or CI behaviour, not a running instance. REQ-LIC-003 does not hold: 12 files under `src/` still name `LaunchPad Contributors` (cloud, 2026-11-19)
   - Spec written: tests/e2e/license-header-consistency.spec.ts, 6 scenarios cited (the lib/ and src/ SPDX identifiers, PermissionService.php's PHPDoc and SPDX agreeing, the SPDX copyright of PHP files, the README badge and prose, the licence check failing on an AGPL header in a scratch tree), 1 excluded with reason (reuse lint: no `reuse` tool on the runner or instance), read from the deployed app folder through tests/e2e/support/occ.ts as 5.8 does; not yet run (cloud, 2026-11-25)
-- [ ] 5.14 `groupfolder-storage-backend`: 0 scenarios, 0 cited. Has no scenarios. Decide whether the spec is still wanted.
+  - Done 25 Nov 2026 (sandbox Nextcloud 34.0.6 + MariaDB + Redis): `license-header-consistency.spec.ts` red on spdx-copyright-matches-reuse-and-phpdoc (`lib/Service/AdminSettingsValidator.php` named `LaunchPad Contributors` in its SPDX-FileCopyrightText), then 6/6 green with the header naming Conduction B.V.
+- [x] 5.14 `groupfolder-storage-backend`: 0 scenarios, 0 cited. Has no scenarios. Decide whether the spec is still wanted.
   - Decided: keep it. The spec is marked `status: withdrawn` and records why the capability was retired (launchpad#87) and what was removed. With no requirements and no scenarios it owes gate-19 nothing; archiving or deleting it is a separate change (cloud, 2026-11-19)
   - Spec written: tests/e2e/groupfolder-storage-backend.spec.ts, 1 scenario cited, 1 excluded with reason, not yet run (cloud, 2026-11-24). The spec has since gained REQ-GFSB-011 with 2 scenarios, so it does owe gate-19 now.
   - Spec written: tests/e2e/groupfolder-storage-backend.spec.ts, 2 scenarios cited, 0 excluded, not yet run (cloud, 2026-11-24). "No storage commands" now lists the occ commands through tests/e2e/support/occ.ts.
+  - Done 25 Nov 2026 (same sandbox): `groupfolder-storage-backend.spec.ts` green as written (2 scenarios).
 
 ## 6. Close the programme
 

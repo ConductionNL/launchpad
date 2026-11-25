@@ -6,14 +6,15 @@
  * seeds lets every user add LaunchPad's own widgets
  * (openspec/specs/role-feature-permissions/spec.md).
  *
- * HOW A FRESH INSTALL IS STAGED. The rules are seeded by the post-migration
- * repair step `SeedRolePermissions` (appinfo/info.xml). It seeds only when the
- * role-feature-permission table is empty, which is exactly the state of a
- * fresh install; on any other instance it is a no-op. So the test snapshots
- * every rule and layout default, deletes every rule through the admin API,
- * and runs `occ maintenance:repair`, which runs the step the way an install
- * does. `role-feature-permissions-upgrade.spec.ts` stages the upgrade steps
- * the same way.
+ * HOW A FRESH INSTALL IS STAGED. The rules are seeded by the install repair
+ * step `SeedRolePermissions` (appinfo/info.xml, `<install>`). It seeds only
+ * when the role-feature-permission table is empty, which is exactly the state
+ * of a fresh install; on any other instance it is a no-op. So the test
+ * snapshots every rule and layout default, deletes every rule through the
+ * admin API, and runs that step on the instance. `occ maintenance:repair`
+ * cannot do this: it runs the post-migration steps only, never the install
+ * steps, so the table stayed empty. The step is run the way Nextcloud's
+ * installer runs it: resolved from the server container, with a null output.
  *
  * CLEANUP. The seed also inserts five layout defaults whether or not they
  * exist, so every layout default that was not in the snapshot is deleted
@@ -38,7 +39,7 @@ import {
 	listRoleLayoutDefaults,
 	restoreRoleFeaturePermissions,
 } from './fixtures/role-feature-permissions.ts'
-import { describeRun, runOcc } from './support/occ.ts'
+import { describeRun, onInstance } from './support/occ.ts'
 import {
 	adminContext,
 	API,
@@ -60,6 +61,17 @@ const DEFAULT_DASHBOARD_WIDGETS = ['activity', 'recommendations']
 
 /** The group rules the seed writes besides `default` (`SeedRolePermissions::SHIPPED_GROUP_RULES`). */
 const SHIPPED_GROUPS = ['medewerkers', 'managers', 'ict-beheer', 'hrm']
+
+/**
+ * PHP run in the server root: boot Nextcloud, load LaunchPad and run its
+ * install step `SeedRolePermissions`, as the installer does on a fresh install.
+ */
+const INSTALL_SEED = [
+	"require 'lib/base.php';",
+	"\\OC_App::loadApp('launchpad');",
+	'\\OCP\\Server::get(\\OCA\\LaunchPad\\Repair\\SeedRolePermissions::class)',
+	'->run(new \\OC\\Migration\\NullOutput());',
+].join(' ')
 
 /** A Nextcloud widget no seeded `default` rule allows, the control. */
 const OUTSIDE_DEFAULT = 'notes'
@@ -110,8 +122,8 @@ test('the default rule a fresh install seeds lets a user in no group add a text 
 			'every rule must be gone before the seed, or the seed is a no-op',
 		).toEqual([])
 
-		const repair = await runOcc('maintenance:repair')
-		expect(repair.code, describeRun(repair)).toBe(0)
+		const seed = await onInstance('php', '-r', INSTALL_SEED)
+		expect(seed.code, describeRun(seed)).toBe(0)
 
 		// The seeded `default` rule is untouched: what the seed wrote.
 		const seeded = await listRoleFeaturePermissions(admin)

@@ -25,6 +25,7 @@ use OCA\LaunchPad\Db\RoleFeaturePermissionMapper;
 use OCA\LaunchPad\Db\RoleLayoutDefault;
 use OCA\LaunchPad\Db\RoleLayoutDefaultMapper;
 use OCA\LaunchPad\Repair\SeedRolePermissions;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\Entity;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
@@ -62,13 +63,42 @@ class SeedRolePermissionsGoldenTest extends TestCase {
 	}
 
 	/**
+	 * Rules gone but layout defaults kept: the rules are seeded again and an
+	 * existing layout default is not inserted a second time (its group and
+	 * widget are unique), the others are.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-011-the-shipped-default-rule-lets-every-user-add-launchpads-own-widgets
+	 */
+	public function testAnExistingLayoutDefaultIsNotInsertedAgain(): void {
+		$fresh = $this->seed(existing: []);
+		$kept = $this->seed(existing: [], existingDefaults: ['medewerkers/activity']);
+
+		$defaultInserts = static fn (array $log): array => array_values(array_filter(
+			$log,
+			static fn (string $line): bool => str_starts_with($line, 'insert ' . RoleLayoutDefault::class)
+		));
+		$this->assertCount(expectedCount: count($defaultInserts($fresh)) - 1, haystack: $defaultInserts($kept));
+		foreach ($defaultInserts($kept) as $line) {
+			$this->assertFalse(condition: str_contains($line, '"groupId":"medewerkers","widgetId":"activity"'));
+		}
+		$this->assertContains(needle: 'output RoleLayoutDefault already present: medewerkers/activity', haystack: $kept);
+		$this->assertSame(
+			expected: array_values(array_filter($fresh, static fn (string $l): bool => str_starts_with($l, 'insert ' . RoleFeaturePermission::class))),
+			actual: array_values(array_filter($kept, static fn (string $l): bool => str_starts_with($l, 'insert ' . RoleFeaturePermission::class)))
+		);
+	}
+
+	/**
 	 * Run the step and record the inserted rows and written lines.
 	 *
-	 * @param array<int, RoleFeaturePermission> $existing Rows already present.
+	 * @param array<int, RoleFeaturePermission> $existing         Rows already present.
+	 * @param array<int, string>                $existingDefaults Layout defaults already present, as "group/widget".
 	 *
 	 * @return array<int, mixed>
 	 */
-	private function seed(array $existing): array {
+	private function seed(array $existing, array $existingDefaults = []): array {
 		$log = [];
 		$insert = static function (Entity $entity) use (&$log): Entity {
 			$row = $entity->jsonSerialize();
@@ -81,6 +111,15 @@ class SeedRolePermissionsGoldenTest extends TestCase {
 		$perms->method('insert')->willReturnCallback($insert);
 		$defaults = $this->getMockBuilder(className: RoleLayoutDefaultMapper::class)->disableOriginalConstructor()->getMock();
 		$defaults->method('insert')->willReturnCallback($insert);
+		$defaults->method('findByGroupAndWidget')->willReturnCallback(
+			static function (string $groupId, string $widgetId) use ($existingDefaults): RoleLayoutDefault {
+				if (in_array($groupId . '/' . $widgetId, $existingDefaults, true) === false) {
+					throw new DoesNotExistException('none');
+				}
+
+				return new RoleLayoutDefault();
+			}
+		);
 		$output = $this->getMockBuilder(className: IOutput::class)->getMock();
 		$output->method('info')->willReturnCallback(static function (string $message) use (&$log): void {
 			$log[] = 'output ' . $message;

@@ -68,6 +68,8 @@ const AnnouncementsWidget = lazyComponent(() => import('../components/Widgets/Re
 const AnnouncementsWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/AnnouncementsWidgetForm.vue'), 'AnnouncementsWidgetForm')
 const AssignedCasesWidget = lazyComponent(() => import('../components/Widgets/Renderers/AssignedCasesWidget.vue'), 'AssignedCasesWidget')
 const AssignedCasesWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/AssignedCasesWidgetForm.vue'), 'AssignedCasesWidgetForm')
+const ConnectionsWidget = lazyComponent(() => import('../components/Widgets/Renderers/ConnectionsWidget.vue'), 'ConnectionsWidget')
+const ConnectionsWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ConnectionsWidgetForm.vue'), 'ConnectionsWidgetForm')
 const AttentionWidget = lazyComponent(() => import('../components/Widgets/Renderers/AttentionWidget.vue'), 'AttentionWidget')
 const AttentionWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/AttentionWidgetForm.vue'), 'AttentionWidgetForm')
 const ChartHost = lazyComponent(() => import('../components/Widgets/Renderers/ChartHost.vue'), 'ChartHost')
@@ -460,6 +462,17 @@ registerDashboardWidget('assigned-cases', {
 	displayName: 'My cases',
 	icon: 'BriefcaseOutline',
 	requiresApp: 'dossiq',
+})
+
+// dashboard-connections-widget REQ-LP-CONN-005: the connections the widgets
+// on this dashboard use, with the state integriq holds; offered only with integriq.
+registerDashboardWidget('connections', {
+	renderer: ConnectionsWidget,
+	form: ConnectionsWidgetForm,
+	defaultContent: {},
+	displayName: 'Connections of this dashboard',
+	icon: 'PowerPlugOutline',
+	requiresApp: 'integriq',
 })
 
 // chart-presets REQ-CHARTP-001..003: "Cirkeldiagram" and "Grafiek" of board

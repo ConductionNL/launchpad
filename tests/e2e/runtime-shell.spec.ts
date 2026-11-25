@@ -821,6 +821,10 @@ test.describe('REQ-SHELL-011: the admin page tour', () => {
 	let admin: APIRequestContext
 	const people: Principal[] = []
 
+	// A fresh administrator's first sign-in sets up their account first,
+	// which takes most of the default minute on a busy instance.
+	test.setTimeout(180_000)
+
 	test.beforeAll(async () => {
 		admin = await adminContext()
 	})

@@ -223,4 +223,11 @@ describe('TemplateEditorModal', () => {
 		expect(api.getAdminGroups).toHaveBeenCalled()
 		expect(wrapper.vm.availableGroups).toEqual(['sales', 'hr', 'it'])
 	})
+
+	it('draws the target groups field over the full width, so a chosen group leaves room to click', async () => {
+		const wrapper = mountModal()
+		await flushPromises()
+		const [groups] = wrapper.findAllComponents({ name: 'NcSelect' })
+		expect(groups.classes()).toContain('launchpad-admin__target-groups')
+	})
 })

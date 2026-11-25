@@ -134,7 +134,8 @@
 			<div
 				v-for="template in templates"
 				:key="template.id"
-				class="launchpad-admin__template">
+				class="launchpad-admin__template"
+				:data-testid="`admin-template-row-${template.id}`">
 				<div class="launchpad-admin__template-info">
 					<CnDashboardIcon :name="template.icon" :size="20" />
 					<strong>{{ template.name }}</strong>

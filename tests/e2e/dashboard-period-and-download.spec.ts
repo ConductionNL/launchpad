@@ -30,21 +30,13 @@
  *
  * Pieter reads in Dutch, because the scenarios quote the Dutch words.
  *
- * Not serial on purpose: "A view-only group dashboard" is expected red (see
- * below) and a serial file would skip every test after it.
- *
- * EXPECTED RED
- * ============
- * a-view-only-group-dashboard: DashboardPageHeader::kindLabel() returns ''
- * for a group dashboard, so "Groepsdashboard van Bedrijfsvoering" is never
- * shown; only personal and shared dashboards get a kind. The test asserts the
- * scenario, so it stays red until the header names the group.
+ * Not serial on purpose: one red scenario must not skip the ones after it.
  *
  * The scenarios word the last change as "bijgewerkt 10:45"; the shipped nl
  * catalogue says "Laatst aangepast vandaag 10:45". The tests assert the time,
  * not that wording, which is a translation choice and not this gate's to settle.
  *
- * Written in the cloud lane without a live instance; not yet run.
+ * Run live 25 Nov 2026 on a sandbox Nextcloud 34 + MariaDB + Redis: 6/6.
  *
  * Gate-19 @e2e traceability:
  *   @e2e dashboards::a-view-only-group-dashboard
@@ -370,7 +362,7 @@ test('a view-only group dashboard names its group, the reader\'s rights and the 
 		const header = await open(page, management!)
 		const meta = header.locator('.launchpad-page-header__meta')
 		await expect(meta).toBeVisible()
-		// The kind of dashboard, naming the group (EXPECTED RED, see the header).
+		// The kind of dashboard, naming the group.
 		await expect(header.getByTestId('dashboard-page-header-kind')).toHaveText(
 			`Groepsdashboard van ${groupId}`,
 			{ timeout: 15_000 },

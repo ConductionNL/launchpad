@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Painéal pearsanta",
     "Personal dashboard · opens first" : "Painéal pearsanta · osclaítear ar dtús é",
     "Shared with you" : "Roinnte leat",
+    "Group dashboard of {group}" : "Painéal grúpa {group}",
     "Last changed {when}" : "Athraithe go deireanach {when}",
     "Last changed today {time}" : "Athraithe go deireanach inniu {time}",
     "Embedded report" : "Tuarascáil leabaithe",

@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Lična kontrolna tabla",
     "Personal dashboard · opens first" : "Lična kontrolna tabla · otvara se prva",
     "Shared with you" : "Podijeljeno s vama",
+    "Group dashboard of {group}" : "Grupna kontrolna tabla grupe {group}",
     "Last changed {when}" : "Zadnja izmjena {when}",
     "Last changed today {time}" : "Zadnja izmjena danas {time}",
     "Embedded report" : "Ugrađeni izvještaj",

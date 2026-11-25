@@ -51,6 +51,7 @@
 import { CnSegmentedControl } from '@conduction/nextcloud-vue'
 import { getCanonicalLocale, t } from '@nextcloud/l10n'
 import { NcButton } from '@nextcloud/vue'
+import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import Download from 'vue-material-design-icons/Download.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
@@ -185,7 +186,8 @@ export default {
 		},
 
 		/**
-		 * @return {string} The kind of dashboard for the chip, '' for a group dashboard.
+		 * @return {string} The kind of dashboard for the chip: personal, the
+		 *   group it belongs to, or shared; '' for the organisation-wide one.
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
 		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
 		 */
@@ -198,7 +200,27 @@ export default {
 			if (this.source === 'shared') {
 				return t('launchpad', 'Shared with you')
 			}
+			if (this.source === 'group' && this.groupName !== '') {
+				return t('launchpad', 'Group dashboard of {group}', { group: this.groupName })
+			}
 			return ''
+		},
+
+		/**
+		 * The group a group dashboard belongs to: its display name when the
+		 * row carries one, else its group id; '' for the organisation-wide
+		 * `default` sentinel.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
+		 */
+		groupName() {
+			const id = String(this.dashboard.groupId ?? '').trim()
+			if (id === '' || id === 'default') {
+				return ''
+			}
+			const display = String(this.dashboard.groupDisplayName ?? '').trim()
+			return display !== '' ? display : id
 		},
 
 		/**
@@ -207,7 +229,10 @@ export default {
 		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
 		 */
 		kindIcon() {
-			return this.source === 'shared' ? ShareVariant : AccountOutline
+			if (this.source === 'shared') {
+				return ShareVariant
+			}
+			return this.source === 'group' ? AccountGroupOutline : AccountOutline
 		},
 
 		/**

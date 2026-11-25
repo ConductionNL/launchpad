@@ -50,6 +50,16 @@ describe('DashboardPageHeader', () => {
 		expect(mountHeader({ source: 'group' }).find('[data-testid="dashboard-page-header-kind"]').exists()).toBe(false)
 	})
 
+	// @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
+	it('names the group of a group dashboard, its display name first, and nothing for the organisation-wide one', () => {
+		const kind = (props) => mountHeader(props).find('[data-testid="dashboard-page-header-kind"]')
+		const dashboard = { name: 'Managementinformatie', description: '', updatedAt: null }
+		expect(kind({ source: 'group', dashboard: { ...dashboard, groupId: 'Bedrijfsvoering' } }).text()).toBe('Group dashboard of Bedrijfsvoering')
+		expect(kind({ source: 'group', dashboard: { ...dashboard, groupId: 'bv', groupDisplayName: 'Bedrijfsvoering' } }).text()).toBe('Group dashboard of Bedrijfsvoering')
+		expect(kind({ source: 'group', dashboard: { ...dashboard, groupId: 'default' } }).exists()).toBe(false)
+		expect(kind({ source: 'default', dashboard: { ...dashboard, groupId: 'default' } }).exists()).toBe(false)
+	})
+
 	it('joins the description and the last change into the meta line', () => {
 		const wrapper = mountHeader({
 			source: 'group',

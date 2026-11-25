@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Tablou de bord personal",
     "Personal dashboard · opens first" : "Tablou de bord personal · se deschide primul",
     "Shared with you" : "Partajat cu dvs.",
+    "Group dashboard of {group}" : "Tablou de bord al grupului {group}",
     "Last changed {when}" : "Ultima modificare {when}",
     "Last changed today {time}" : "Ultima modificare astăzi {time}",
     "Embedded report" : "Raport încorporat",

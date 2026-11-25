@@ -24,7 +24,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\PageFooter;
 use OCA\LaunchPad\Service\SharingLimits;
 
 /**
@@ -42,11 +44,14 @@ class PageDashboards {
 	 *                                                 it the store fetches.
 	 * @param SharingLimits|null     $sharing          Whether the viewer may share and may create public
 	 *                                                 links (REQ-SHARE-015); without it the tab offers both.
+	 * @param PageFooter|null        $footer           The footer below the grid and the viewer's language
+	 *                                                 (REQ-FTR-004, REQ-FTR-007); without it no footer renders.
 	 */
 	public function __construct(
 		public readonly DashboardService $dashboardService,
 		public readonly ?DashboardPayloads $payloads=null,
 		public readonly ?SharingLimits $sharing=null,
+		public readonly ?PageFooter $footer=null,
 	) {
 	}//end __construct()
 
@@ -70,4 +75,26 @@ class PageDashboards {
 			'publicLinksAllowed' => $this->sharing->publicLinksAllowed(),
 		];
 	}//end sharingPolicy()
+
+	/**
+	 * The footer below the grid for the active dashboard and the viewer's
+	 * language (REQ-FTR-004, REQ-FTR-007); no footer without the resolver.
+	 *
+	 * @param Dashboard|null $dashboard The active dashboard, or null.
+	 * @param string         $userId    The viewer, or ''.
+	 *
+	 * @return array{footer: array<string, mixed>|null, viewerLocale: string}
+	 *
+	 * @spec openspec/specs/footer-customization/spec.md
+	 */
+	public function footerState(?Dashboard $dashboard, string $userId): array {
+		if ($this->footer === null) {
+			return ['footer' => null, 'viewerLocale' => 'en'];
+		}
+
+		return [
+			'footer'       => $this->footer->footerFor(dashboard: $dashboard),
+			'viewerLocale' => $this->footer->viewerLocale(userId: $userId),
+		];
+	}//end footerState()
 }//end class

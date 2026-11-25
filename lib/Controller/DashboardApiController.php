@@ -788,13 +788,15 @@ class DashboardApiController extends Controller {
 		// REQ-THM-001: the look is not metadata; it needs the same permission as the layout,
 		// and so does the number of grid columns (REQ-DASH-038).
 		$look = $this->lookParams() + ['gridColumns' => $this->requestedGridColumns()];
+		// REQ-FTR-006: the footer override is the owner's, like the name.
+		$footer = $this->footerParams();
 		$defaultLinkTarget = $this->requestedLinkTarget();
 		// Read raw, so a value that is no list is refused with 400 by the service.
 		$hierarchies = $this->request->getParam(key: 'hierarchies');
 		$metadataOnly = self::isMetadataOnly(placements: $placements, defaultLinkTarget: $defaultLinkTarget, hierarchies: $hierarchies)
 			&& array_filter($look, static fn ($value): bool => $value !== null) === [];
 		$touchesMetadata = array_filter(
-			[$name, $description, $icon, $parentUuid, $slug, $sortOrder],
+			[$name, $description, $icon, $parentUuid, $slug, $sortOrder, ...array_values($footer)],
 			static fn ($value): bool => $value !== null
 		) !== [];
 		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: $metadataOnly, touchesMetadata: $touchesMetadata)
@@ -815,9 +817,30 @@ class DashboardApiController extends Controller {
 				'sortOrder'   => $sortOrder,
 				'defaultLinkTarget' => $defaultLinkTarget,
 				'hierarchies' => $hierarchies,
-			] + $look
+			] + $footer + $look
 		);
 	}//end update()
+
+	/**
+	 * The footer override fields of an update body (REQ-FTR-006): a field
+	 * that is absent or not a string is null and leaves the dashboard alone.
+	 *
+	 * @return array{dashboardFooterMode: ?string, dashboardFooterHtml: ?string}
+	 *
+	 * @spec openspec/specs/footer-customization/spec.md
+	 */
+	private function footerParams(): array {
+		$footer = [];
+		foreach (['dashboardFooterMode', 'dashboardFooterHtml'] as $field) {
+			$value = $this->request->getParam(key: $field);
+			$footer[$field] = null;
+			if (is_string($value) === true) {
+				$footer[$field] = $value;
+			}
+		}
+
+		return $footer;
+	}//end footerParams()
 
 	/**
 	 * The look fields of an update body, by name, in patch order.

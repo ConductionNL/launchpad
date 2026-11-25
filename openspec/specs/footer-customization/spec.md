@@ -337,8 +337,8 @@ The footer MUST use Nextcloud theme colors by default, with optional admin overr
 #### Scenario: Footer inherits theme colors
 - GIVEN `footer_background_color = NULL` and `footer_text_color = NULL` (not overridden)
 - WHEN the page renders with NC theme (e.g., dark theme)
-- THEN the footer background MUST use the NC theme's primary background colour (CSS var `--primary-background-color`)
-- AND the footer text MUST use the NC theme's primary text colour (CSS var `--primary-text-color`)
+- THEN the footer background MUST use the NC theme's main background colour (CSS var `--color-main-background`)
+- AND the footer text MUST use the NC theme's main text colour (CSS var `--color-main-text`)
 
 #### Scenario: Admin overrides footer colors
 - GIVEN the admin sets `footer_background_color = "#1a1a1a"` and `footer_text_color = "#ffffff"`

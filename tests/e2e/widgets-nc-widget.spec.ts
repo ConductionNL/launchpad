@@ -37,6 +37,7 @@ import type { Placement } from './support/widgetPlacements.ts'
 
 import { expect, test } from '@playwright/test'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 import {
 	adminApi,
 	gridItem,
@@ -45,7 +46,6 @@ import {
 	openWorkspace,
 	Seeds,
 } from './support/widgetPlacements.ts'
-import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const RUN = Date.now()
 const ITEMS_PATH = '/apps/dashboard/api/v2/widget-items'

@@ -153,7 +153,7 @@ test('without dossiq the widget is not shown and not offered', async ({ browser 
 		await expect(page.locator('[data-testid="assigned-cases-widget"]')).toHaveCount(0)
 		await page.locator('[data-testid="launchpad-more-menu"] [data-testid="launchpad-more-menu-trigger"]').click()
 		await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-		await expect(page.locator('[data-testid="widget-picker-custom"]')).toBeVisible()
+		await expect(page.locator('[data-testid="widget-picker-section-launchpad"]')).toBeVisible()
 		await expect(page.locator('[data-testid="widget-picker-type-assigned-cases"]')).toHaveCount(0)
 	} finally {
 		await context.close()

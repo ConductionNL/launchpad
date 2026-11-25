@@ -54,6 +54,7 @@ import {
 } from './support/dashboardFixture.ts'
 import { enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
 import { adminContext, API } from './support/principals.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 import {
 	overlaps,
 	placementsOf,
@@ -61,7 +62,6 @@ import {
 	restoreAllowUserDashboards,
 	seedPlacement,
 } from './support/widgets.ts'
-import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const STAMP = `E2E WidgetPicker ${Date.now()}`
 const TYPE_SELECT = '[data-testid="widget-type-select"]'
@@ -378,7 +378,7 @@ test.describe('REQ-WDG-010 the widget picker', () => {
 		await moreMenu(page, 'add-widget')
 		const picker = page.locator('.widget-picker')
 		await expect(picker).toBeVisible({ timeout: 15_000 })
-		return picker.locator('.widget-picker__list > button.widget-picker__widget')
+		return picker.locator('[data-testid="widget-picker-section-apps"] button.widget-picker__widget')
 	}
 
 	// @e2e widgets::one-entry-point-adds-every-kind-of-widget
@@ -394,7 +394,7 @@ test.describe('REQ-WDG-010 the widget picker', () => {
 		await page.keyboard.press('Escape')
 
 		await openPicker(page)
-		const section = page.locator('[data-testid="widget-picker-custom"]')
+		const section = page.locator('[data-testid="widget-picker-section-launchpad"]')
 		await expect(section.locator('[data-testid="widget-picker-type-text"]')).toBeVisible()
 		await page.locator('.widget-picker input').first().fill('image')
 		const image = section.locator('[data-testid="widget-picker-type-image"]')
@@ -510,7 +510,7 @@ test.describe('REQ-WDG-010 the widget picker', () => {
 					`/api/dashboard/${dashboard!.id}/widgets`,
 				),
 		)
-		await row.click()
+		await chooseAndAdd(row)
 		const response = await created
 		expect(response.status()).toBe(201)
 		expect(response.request().postDataJSON().widgetId).toBe(pick.id)

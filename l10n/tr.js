@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Kişisel pano",
     "Personal dashboard · opens first" : "Kişisel pano · ilk açılır",
     "Shared with you" : "Sizinle paylaşıldı",
+    "Group dashboard of {group}" : "{group} grubu panosu",
     "Last changed {when}" : "Son değişiklik {when}",
     "Last changed today {time}" : "Son değişiklik bugün {time}",
     "Embedded report" : "Gömülü rapor",

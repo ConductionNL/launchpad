@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Henkilökohtainen kojelauta",
     "Personal dashboard · opens first" : "Henkilökohtainen kojelauta · avautuu ensimmäisenä",
     "Shared with you" : "Jaettu kanssasi",
+    "Group dashboard of {group}" : "Ryhmän {group} kojelauta",
     "Last changed {when}" : "Muutettu viimeksi {when}",
     "Last changed today {time}" : "Muutettu viimeksi tänään {time}",
     "Embedded report" : "Upotettu raportti",

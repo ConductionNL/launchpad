@@ -1859,6 +1859,7 @@
         "Personal dashboard": "Personlig instrumentpanel",
         "Personal dashboard · opens first": "Personlig instrumentpanel · öppnas först",
         "Shared with you": "Delad med dig",
+        "Group dashboard of {group}": "Gruppinstrumentpanel för {group}",
         "Last changed {when}": "Senast ändrad {when}",
         "Last changed today {time}": "Senast ändrad i dag {time}",
         "You searched for {query}": "Du sökte efter {query}",

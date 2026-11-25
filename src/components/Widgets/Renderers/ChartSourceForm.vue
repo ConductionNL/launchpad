@@ -245,7 +245,7 @@ export default {
 		 * The register and schema the register query reads, for the period's date field.
 		 *
 		 * @return {{register: string, schema: string}}
-		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
 		 */
 		registerSource() {
 			const dataSource = this.registerContent?.dataSource || {}
@@ -325,7 +325,7 @@ export default {
 		 *
 		 * @param {object|null} dataSource The data source.
 		 * @return {object|null}
-		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
 		 */
 		datedSource(dataSource) {
 			if (!dataSource || typeof dataSource !== 'object') {
@@ -338,7 +338,7 @@ export default {
 		/**
 		 * @param {string} field The date field for the period, '' for none.
 		 *
-		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
 		 */
 		setPeriodField(field) {
 			this.periodField = typeof field === 'string' ? field : ''

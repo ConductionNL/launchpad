@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Dashboard personali",
     "Personal dashboard · opens first" : "Dashboard personali · jinfetaħ l-ewwel",
     "Shared with you" : "Maqsum miegħek",
+    "Group dashboard of {group}" : "Dashboard tal-grupp {group}",
     "Last changed {when}" : "L-aħħar bidla {when}",
     "Last changed today {time}" : "L-aħħar bidla llum {time}",
     "Embedded report" : "Rapport inkorporat",

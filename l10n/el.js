@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Προσωπικός πίνακας ελέγχου",
     "Personal dashboard · opens first" : "Προσωπικός πίνακας ελέγχου · ανοίγει πρώτος",
     "Shared with you" : "Κοινοποιήθηκε σε εσάς",
+    "Group dashboard of {group}" : "Ομαδικός πίνακας ελέγχου της ομάδας {group}",
     "Last changed {when}" : "Τελευταία αλλαγή {when}",
     "Last changed today {time}" : "Τελευταία αλλαγή σήμερα {time}",
     "Embedded report" : "Ενσωματωμένη αναφορά",

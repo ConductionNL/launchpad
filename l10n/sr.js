@@ -1533,6 +1533,7 @@ OC.L10N.register(
     "Personal dashboard" : "Лична контролна табла",
     "Personal dashboard · opens first" : "Лична контролна табла · отвара се прва",
     "Shared with you" : "Подељено са вама",
+    "Group dashboard of {group}" : "Групна контролна табла групе {group}",
     "Last changed {when}" : "Последња измена {when}",
     "Last changed today {time}" : "Последња измена данас {time}",
     "Embedded report" : "Уграђени извештај",

@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Osobní nástěnka",
     "Personal dashboard · opens first" : "Osobní nástěnka · otevře se jako první",
     "Shared with you" : "Sdíleno s vámi",
+    "Group dashboard of {group}" : "Skupinová nástěnka skupiny {group}",
     "Last changed {when}" : "Naposledy změněno {when}",
     "Last changed today {time}" : "Naposledy změněno dnes {time}",
     "Embedded report" : "Vložený přehled",

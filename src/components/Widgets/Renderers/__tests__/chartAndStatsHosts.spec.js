@@ -50,7 +50,7 @@ function mountStats(content) {
 	}).findComponent(StatsStub)
 }
 
-// @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+// @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
 describe('ChartHost and the dashboard period (REQ-DPD-002)', () => {
 	function mountWithPeriod(content, period) {
 		return mount(ChartHost, {

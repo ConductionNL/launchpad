@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Dashboard persunal",
     "Personal dashboard · opens first" : "Dashboard persunal · vegn avert sco emprim",
     "Shared with you" : "Partì cun Vus",
+    "Group dashboard of {group}" : "Dashboard da la gruppa {group}",
     "Last changed {when}" : "Midà la davosa giada {when}",
     "Last changed today {time}" : "Midà la davosa giada oz {time}",
     "Embedded report" : "Rapport integrà",

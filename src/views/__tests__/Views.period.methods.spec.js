@@ -7,7 +7,7 @@
  * without touching the stored dashboard. Run against the real Views methods
  * and computed properties on a stand-in host.
  *
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'

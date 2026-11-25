@@ -1533,6 +1533,7 @@ OC.L10N.register(
     "Personal dashboard" : "Асабістая панэль",
     "Personal dashboard · opens first" : "Асабістая панэль · адкрываецца першай",
     "Shared with you" : "Абагулена з вамі",
+    "Group dashboard of {group}" : "Групавая панэль {group}",
     "Last changed {when}" : "Апошняя змена {when}",
     "Last changed today {time}" : "Апошняя змена сёння {time}",
     "Embedded report" : "Убудаваная справаздача",

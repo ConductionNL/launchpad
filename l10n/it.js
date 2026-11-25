@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Dashboard personale",
     "Personal dashboard · opens first" : "Dashboard personale · si apre per prima",
     "Shared with you" : "Condiviso con te",
+    "Group dashboard of {group}" : "Dashboard del gruppo {group}",
     "Last changed {when}" : "Ultima modifica {when}",
     "Last changed today {time}" : "Ultima modifica oggi {time}",
     "Embedded report" : "Report incorporato",

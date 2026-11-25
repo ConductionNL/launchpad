@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Személyes irányítópult",
     "Personal dashboard · opens first" : "Személyes irányítópult · elsőként nyílik meg",
     "Shared with you" : "Megosztva Önnel",
+    "Group dashboard of {group}" : "{group} csoport irányítópultja",
     "Last changed {when}" : "Utoljára módosítva: {when}",
     "Last changed today {time}" : "Utoljára módosítva: ma {time}",
     "Embedded report" : "Beágyazott jelentés",

@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Особиста панель",
     "Personal dashboard · opens first" : "Особиста панель · відкривається першою",
     "Shared with you" : "Надано вам",
+    "Group dashboard of {group}" : "Групова панель {group}",
     "Last changed {when}" : "Остання зміна {when}",
     "Last changed today {time}" : "Остання зміна сьогодні {time}",
     "Embedded report" : "Вбудований звіт",

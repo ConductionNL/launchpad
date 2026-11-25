@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Panel personal",
     "Personal dashboard · opens first" : "Panel personal · hapet i pari",
     "Shared with you" : "Ndarë me ju",
+    "Group dashboard of {group}" : "Paneli i grupit {group}",
     "Last changed {when}" : "Ndryshuar së fundi {when}",
     "Last changed today {time}" : "Ndryshuar së fundi sot {time}",
     "Embedded report" : "Raport i ngulitur",

@@ -11,9 +11,9 @@
 
 import { afterEach, describe, expect, it } from 'vitest'
 import {
+	fieldWords,
 	INLINE_FIELD_CLASS,
 	INLINE_HOST_CLASS,
-	fieldWords,
 	removeInlineField,
 	resolveSearchField,
 } from '../headerSearchField.js'

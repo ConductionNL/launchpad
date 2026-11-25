@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "New colleagues" : "Neue Kolleginnen und Kollegen",
     "Required: this widget cannot be removed" : "Pflicht: dieses Widget kann nicht entfernt werden",
     "Connections of this dashboard" : "Verbindungen dieses Dashboards",
     "Connection states need the Integrations app" : "Für den Verbindungsstatus wird die App Integrationen benötigt",

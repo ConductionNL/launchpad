@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "New colleagues" : "Нови колеги",
     "Required: this widget cannot be removed" : "Задолжително: овој виџет не може да се отстрани",
     "Connections of this dashboard" : "Врски на оваа контролна табла",
     "Connection states need the Integrations app" : "За состојбата на врските е потребна апликацијата Интеграции",

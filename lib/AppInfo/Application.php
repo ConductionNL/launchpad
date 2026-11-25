@@ -46,6 +46,7 @@ use OCA\LaunchPad\Listener\WidgetPlacementsListener;
 use OCA\LaunchPad\Listener\PublicStartRedirectListener;
 use OCA\LaunchPad\Middleware\ApiContractMiddleware;
 use OCA\LaunchPad\Middleware\EmbedTokenMiddleware;
+use OCA\LaunchPad\Middleware\RetryAfterMiddleware;
 use OCA\LaunchPad\Notification\Notifier;
 use OCA\LaunchPad\Search\LaunchPadSearchProvider;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
@@ -104,6 +105,9 @@ class Application extends App implements IBootstrap {
 		// Embed tokens (embedded-analytics task 6): validated, and their scope
 		// enforced, before any controller runs on a request that carries one.
 		$context->registerMiddleware(class: EmbedTokenMiddleware::class);
+		// REQ-PSHR-009: a throttled request (Nextcloud answers it before any
+		// controller runs) still tells the client when to retry.
+		$context->registerMiddleware(class: RetryAfterMiddleware::class);
 
 		(new ContractBindings())->register(context: $context);
 		$this->registerUserLifecycle(context: $context);

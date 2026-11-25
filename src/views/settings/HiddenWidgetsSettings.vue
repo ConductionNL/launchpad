@@ -17,7 +17,8 @@
 			<p v-if="loadError" class="hidden-widgets-settings__hint">
 				{{ t('launchpad', 'Your hidden widgets could not be loaded.') }}
 			</p>
-			<p v-else-if="loaded && hidden.length === 0"
+			<p
+				v-else-if="loaded && hidden.length === 0"
 				class="hidden-widgets-settings__hint"
 				data-testid="launchpad-hidden-widgets-none">
 				{{ t('launchpad', 'You have not hidden any widgets on shared dashboards.') }}
@@ -34,7 +35,8 @@
 					}}
 				</p>
 				<ul class="hidden-widgets-settings__list">
-					<li v-for="entry in hidden"
+					<li
+						v-for="entry in hidden"
 						:key="entry.placementId"
 						class="hidden-widgets-settings__item"
 						data-testid="launchpad-hidden-widget">
@@ -166,7 +168,7 @@ export default {
 		/**
 		 * Run one change, saved at once, and say so when it fails.
 		 *
-		 * @param {Function} action The change.
+		 * @param {() => Promise<void>} action The change.
 		 */
 		async change(action) {
 			this.saving = true

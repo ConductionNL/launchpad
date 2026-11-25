@@ -2870,8 +2870,11 @@
                                 "type": "object",
                                 "properties": {
                                     "manager": {
-                                        "type": "boolean",
-                                        "description": "Whether a leaver's manager comes first."
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ],
+                                        "description": "Whether a leaver's manager comes first; null reads as no."
                                     },
                                     "fallbackUid": {
                                         "type": "string",

@@ -90,18 +90,18 @@ class SharingPolicyController extends Controller {
 	 * Set where a leaver's dashboards go (REQ-SHARE-016): their manager or
 	 * not, and the person otherwise ('' for nobody).
 	 *
-	 * @param bool   $manager     Whether a leaver's manager comes first.
-	 * @param string $fallbackUid The person otherwise; '' for nobody.
+	 * @param bool|null $manager     Whether a leaver's manager comes first; null reads as no.
+	 * @param string    $fallbackUid The person otherwise; '' for nobody.
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
 	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-	public function updateLeaverHandover(bool $manager = false, string $fallbackUid = ''): JSONResponse {
+	public function updateLeaverHandover(?bool $manager = null, string $fallbackUid = ''): JSONResponse {
 		try {
 			$this->settings->updateSettings(
-				settings: ['leaverHandover' => ['manager' => $manager, 'fallbackUid' => $fallbackUid]]
+				settings: ['leaverHandover' => ['manager' => $manager === true, 'fallbackUid' => $fallbackUid]]
 			);
 
 			return $this->responseHelper->success(data: ['status' => 'ok']);

@@ -29,7 +29,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Listener;
 
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Service\DashboardShareService;
 use OCA\LaunchPad\Service\LeaverHandover;
 use OCP\EventDispatcher\Event;
@@ -49,16 +48,14 @@ class LeaverHandoverListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param LeaverHandover        $handover   Who the dashboards go to.
-	 * @param DashboardMapper       $dashboards Finds the leaver's dashboards.
-	 * @param DashboardShareService $shares     Transfers ownership and notifies the new owner.
-	 * @param LoggerInterface       $logger     Logs a dashboard that could not be handed over.
+	 * @param LeaverHandover        $handover Who the dashboards go to.
+	 * @param DashboardShareService $shares   Finds the leaver's dashboards, transfers them and notifies the new owner.
+	 * @param LoggerInterface       $logger   Logs a dashboard that could not be handed over.
 	 *
 	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
 	public function __construct(
 		private readonly LeaverHandover $handover,
-		private readonly DashboardMapper $dashboards,
 		private readonly DashboardShareService $shares,
 		private readonly LoggerInterface $logger,
 	) {
@@ -87,7 +84,7 @@ class LeaverHandoverListener implements IEventListener {
 			return;
 		}
 
-		foreach ($this->dashboards->findByUserId(userId: $leaver->getUID()) as $dashboard) {
+		foreach ($this->shares->ownedDashboards(userId: $leaver->getUID()) as $dashboard) {
 			if ($dashboard->getBasedOnTemplate() !== null) {
 				continue;
 			}

@@ -18,7 +18,6 @@ namespace Unit\Service;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Listener\LeaverHandoverListener;
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\DashboardShareService;
@@ -156,12 +155,11 @@ class LeaverHandoverTest extends TestCase {
 	 */
 	public function testTheListenerHandsTheDashboardsOver(): void {
 		$this->stored = ['manager' => true, 'fallbackUid' => 'femke'];
-		$dashboards = $this->createMock(originalClassName: DashboardMapper::class);
-		$dashboards->method('findByUserId')->with('pieter')->willReturn(
-			[self::dashboard(id: 1), self::dashboard(id: 2, template: 9), self::dashboard(id: 3), self::dashboard(id: 4)]
-		);
 		$transferred = [];
 		$shares = $this->createMock(originalClassName: DashboardShareService::class);
+		$shares->method('ownedDashboards')->with('pieter')->willReturn(
+			[self::dashboard(id: 1), self::dashboard(id: 2, template: 9), self::dashboard(id: 3), self::dashboard(id: 4)]
+		);
 		$shares->method('transferOwnership')->willReturnCallback(
 			function (int $dashboardId, string $newUserId) use (&$transferred): void {
 				if ($dashboardId === 3) {
@@ -175,7 +173,7 @@ class LeaverHandoverTest extends TestCase {
 		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$logger->expects($this->once())->method('error');
 
-		$listener = new LeaverHandoverListener(handover: $this->handover(), dashboards: $dashboards, shares: $shares, logger: $logger);
+		$listener = new LeaverHandoverListener(handover: $this->handover(), shares: $shares, logger: $logger);
 		$listener->handle(event: new BeforeUserDeletedEvent(user: $this->person(uid: 'pieter', managers: ['marieke'])));
 
 		$this->assertSame(expected: [[1, 'marieke'], [4, 'marieke']], actual: $transferred);
@@ -187,13 +185,11 @@ class LeaverHandoverTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheListenerLeavesTheRestToTheDeletion(): void {
-		$dashboards = $this->createMock(originalClassName: DashboardMapper::class);
-		$dashboards->expects($this->never())->method('findByUserId');
 		$shares = $this->createMock(originalClassName: DashboardShareService::class);
+		$shares->expects($this->never())->method('ownedDashboards');
 		$shares->expects($this->never())->method('transferOwnership');
 		$listener = new LeaverHandoverListener(
 			handover: $this->handover(),
-			dashboards: $dashboards,
 			shares: $shares,
 			logger: $this->createMock(originalClassName: LoggerInterface::class)
 		);

@@ -417,6 +417,20 @@ class DashboardShareService {
 	}//end transferOwnership()
 
 	/**
+	 * The user dashboards a person owns, oldest first (REQ-SHARE-016: the
+	 * dashboards a leaver's handover moves).
+	 *
+	 * @param string $userId The owner.
+	 *
+	 * @return Dashboard[] The dashboards.
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 */
+	public function ownedDashboards(string $userId): array {
+		return $this->dashboardMapper->findByUserId(userId: $userId);
+	}//end ownedDashboards()
+
+	/**
 	 * Publish a `dashboard_ownership_transferred` notification.
 	 *
 	 * @param string $newOwnerId The new owner's user ID.

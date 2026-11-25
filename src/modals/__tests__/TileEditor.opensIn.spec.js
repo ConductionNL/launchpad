@@ -5,7 +5,7 @@
  * The tile editor's "Open in" choice (launcher-tile-open-behaviour D1, D4),
  * as three choice cards (tile-form-board-sync REQ-TILE-040).
  *
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
  * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
  */
 

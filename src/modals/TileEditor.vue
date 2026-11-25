@@ -616,7 +616,7 @@ export default {
 		 *
 		 * @return {Array<{value: string, label: string, hint: string, disabled: boolean}>}
 		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 */
 		linkTargetOptions() {
 			return [
@@ -635,7 +635,7 @@ export default {
 		 * The form's heading: "Edit tile: <name>", or "New tile".
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 */
 		heading() {
 			if (!this.tile) {
@@ -648,7 +648,7 @@ export default {
 		 * The line under the heading: "<group> · <dashboard>".
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 */
 		whereLine() {
 			if (!this.dashboardName) {
@@ -662,7 +662,7 @@ export default {
 		 * group: a saved tile on the dashboard, on a dashboard with groups.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		canMoveIntoGroup() {
 			return !this.inGroup && this.tile?.id !== undefined && this.tile?.id !== null && this.groups.length > 0
@@ -673,7 +673,7 @@ export default {
 		 * group on the dashboard by its name.
 		 *
 		 * @return {Array<{value: number|null, label: string}>}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		groupChoices() {
 			return [
@@ -686,7 +686,7 @@ export default {
 		 * The tile's group as the Group field shows it.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		groupLabel() {
 			return this.groupName || t('launchpad', 'No group')
@@ -697,7 +697,7 @@ export default {
 		 * values are the container's stored modes (src/utils/tileSort.js).
 		 *
 		 * @return {Array<{value: string, label: string}>}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		groupSortOptions() {
 			const options = [
@@ -717,7 +717,7 @@ export default {
 		 * remote desktop or sign-on tile has its own fields instead.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 */
 		hasWebAddress() {
 			return ![LINK_PROGRAM, LINK_REMOTE, LINK_SSO].includes(this.form.linkType)
@@ -727,7 +727,7 @@ export default {
 		 * The result of the last availability check with its time.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
 		 */
 		lastCheck() {
 			return lastCheckLine(this.lastReading, new Date(), t)
@@ -794,8 +794,8 @@ export default {
 		 *
 		 * @return {Array<{value: string, label: string, hint: string}>}
 		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		linkTypeOptions() {
 			const options = [
@@ -885,7 +885,7 @@ export default {
 		 *
 		 * @param {string} value The stored sort mode.
 		 * @return {void}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		groupSort(value) {
 			this.groupSortBy = normaliseSortMode(value)
@@ -899,7 +899,7 @@ export default {
 			 * @param {object|null} newTile Tile to edit; null opens a blank
 			 *   form for a new tile.
 			 * @spec openspec/specs/tiles/spec.md
-			 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
+			 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
 			 */
 			handler(newTile) {
 				if (newTile) {
@@ -932,7 +932,7 @@ export default {
 		 *
 		 * @param {number|null} groupId The chosen group, or null.
 		 * @return {void}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		chooseGroup(groupId) {
 			const group = this.groups.find((candidate) => candidate.id === groupId) || null
@@ -1003,7 +1003,7 @@ export default {
 		 * @param {boolean} value the new toggle state.
 		 * @return {void}
 		 * @spec openspec/specs/service-health-ping/spec.md
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
 		 */
 		onHealthPingToggle(value) {
 			this.form.healthPingEnabled = value
@@ -1020,7 +1020,7 @@ export default {
 		 * "Not checked yet".
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
 		 */
 		async loadLastCheck() {
 			const id = this.tile?.id
@@ -1041,7 +1041,7 @@ export default {
 		 * Open the file chooser for "Upload another icon".
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 */
 		pickIconFile() {
 			this.$refs.iconFile?.click()
@@ -1053,7 +1053,7 @@ export default {
 		 *
 		 * @param {Event} event The file input's change event.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 * @spec openspec/specs/resource-uploads/spec.md
 		 */
 		async onIconFile(event) {
@@ -1170,7 +1170,7 @@ export default {
 		 *
 		 * @return {void}
 		 * @spec openspec/specs/tiles/spec.md
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		saveTile() {
 			const tile = {

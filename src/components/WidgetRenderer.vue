@@ -276,7 +276,7 @@ export default {
 		 * prop rather than an injection.
 		 *
 		 * @return {object} extra props for `<component :is>` (empty for most types).
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		rendererProps() {
 			const props = buildRendererExtraProps(this.placement?.widgetId)

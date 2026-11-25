@@ -59,7 +59,7 @@
  * and the availability keys are held by the unit tests of Views
  * (src/views/__tests__/Views.groupTiles.methods.spec.js).
  *
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md
  */
 
 import type { APIRequestContext, Browser, BrowserContext, Locator, Page } from '@playwright/test'

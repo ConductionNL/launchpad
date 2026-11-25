@@ -8,7 +8,7 @@
  * one placement update, and deletes a group tile the same way. Run against the
  * real Views methods and computed values on a stand-in host.
  *
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 
 import { showError } from '@nextcloud/dialogs'

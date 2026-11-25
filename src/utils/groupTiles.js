@@ -46,7 +46,7 @@ const LINK_ONLY_KEYS = Object.freeze(['label', 'url', 'actionType', 'icon', 'ico
  *
  * @param {object} child The container child.
  * @return {boolean}
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 export function isGroupTileChild(child) {
 	if (!isObject(child)) {
@@ -93,7 +93,7 @@ function isSet(value) {
  *
  * @param {object} content The link child's content.
  * @return {boolean}
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 function isAddressLink(content) {
 	const url = typeof content.url === 'string' ? content.url.trim() : ''
@@ -130,7 +130,7 @@ function linkToTile(content) {
  *
  * @param {object} child The container child.
  * @return {object} The tile in the form's shape.
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 export function groupChildToTile(child) {
 	const content = contentOf(child)
@@ -144,7 +144,7 @@ export function groupChildToTile(child) {
  * @param {object} child The container child.
  * @param {object} tileData The tile form's result.
  * @return {object} The new child.
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 export function groupChildFromTile(child, tileData) {
 	const dropped = child?.type === 'link' ? [...FORM_KEYS, ...LINK_ONLY_KEYS] : FORM_KEYS
@@ -166,7 +166,7 @@ export function groupChildFromTile(child, tileData) {
  * @param {number} index The child's position in `content.placements`.
  * @param {object} tileData The tile form's result.
  * @return {object|null} The new content; null when the child is not there.
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 export function withGroupTileSaved(containerContent, index, tileData) {
 	const placements = Array.isArray(containerContent?.placements) ? containerContent.placements : null
@@ -188,7 +188,7 @@ export function withGroupTileSaved(containerContent, index, tileData) {
  * @param {object} containerContent The container's content.
  * @param {number} index The child's position in `content.placements`.
  * @return {object|null} The new content; null when the child is not there.
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 export function withGroupTileRemoved(containerContent, index) {
 	const placements = Array.isArray(containerContent?.placements) ? containerContent.placements : null
@@ -229,7 +229,7 @@ function bottomRow(placements) {
  * @param {object} tileContent The tile placement's content blob, as the save writes it.
  * @param {object} tileData The tile form's result.
  * @return {object|null} The new content; null when the target is not a group's content.
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 export function withTileMovedIn(containerContent, tileContent, tileData) {
 	if (!isObject(containerContent)) {
@@ -254,7 +254,7 @@ export function withTileMovedIn(containerContent, tileContent, tileData) {
  *
  * @param {Array<object>} placements The dashboard's placements.
  * @return {Array<{id: number, title: string, sortBy: string}>}
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 export function dashboardGroups(placements) {
 	if (!Array.isArray(placements)) {

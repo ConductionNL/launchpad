@@ -232,7 +232,7 @@ final class BookmarkImportPlan {
 	 *
 	 * @return list<array<string, mixed>>
 	 *
-	 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+	 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 	 */
 	private static function children(array $bookmarks): array {
 		$children = [];

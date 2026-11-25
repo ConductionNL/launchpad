@@ -830,7 +830,7 @@ export default {
 	 * inside it through this opener (REQ-TILE-041).
 	 *
 	 * @return {object} the provided opener.
-	 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+	 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 	 */
 	provide() {
 		return {
@@ -1062,7 +1062,7 @@ export default {
 		 * The group (container placement) whose tile the tile form edits.
 		 *
 		 * @return {object|null}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		editingGroup() {
 			const target = this.editingGroupTile
@@ -1076,19 +1076,19 @@ export default {
 		 * The groups on the dashboard the tile being edited can move into.
 		 *
 		 * @return {Array<{id: number, title: string, sortBy: string}>}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		tileEditorGroups() {
 			return dashboardGroups(this.widgetPlacements)
 		},
 
-		/** @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
+		/** @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
 		editingGroupTitle() {
 			const title = this.editingGroup?.content?.title
 			return typeof title === 'string' ? title : ''
 		},
 
-		/** @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
+		/** @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
 		editingGroupSort() {
 			const sortBy = this.editingGroup?.content?.sortBy
 			return typeof sortBy === 'string' ? sortBy : ''
@@ -3388,7 +3388,7 @@ export default {
 		 * @param {{containerId: number, index: number, remove?: boolean}} target
 		 *   The group placement and the tile's position in its children.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		async openGroupTileEditor(target) {
 			const container = (this.widgetPlacements || []).find((placement) => placement.id === target?.containerId)
@@ -3414,7 +3414,7 @@ export default {
 		 *
 		 * @param {object} tileData The tile form's result.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		async saveGroupTile(tileData) {
 			const container = this.editingGroup
@@ -3430,7 +3430,7 @@ export default {
 		 * @param {object|null} container The group placement.
 		 * @param {object|null} content Its new content; null when the tile is gone.
 		 * @return {Promise<boolean>} whether the content was written.
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		async writeGroupContent(container, content) {
 			if (!container || content === null) {
@@ -3517,7 +3517,7 @@ export default {
 		 * @param {object} tileData The tile form's result, with `groupId`.
 		 * @param {object} content The tile's content blob, as the save writes it.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		async moveTileIntoGroup(tileData, content) {
 			const placementId = this.editingTile.id

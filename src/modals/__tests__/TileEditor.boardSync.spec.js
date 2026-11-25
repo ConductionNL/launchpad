@@ -6,7 +6,7 @@
  * the heading and where line, the fields in order, the group and its sort
  * order, the last availability check and the icon upload.
  *
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

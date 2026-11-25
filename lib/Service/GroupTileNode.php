@@ -31,7 +31,7 @@ namespace OCA\LaunchPad\Service;
  * and in the groups nested in it. A link that runs an action or lists
  * several links stays a link; every other key of a child is kept.
  *
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 final class GroupTileNode {
 
@@ -53,7 +53,7 @@ final class GroupTileNode {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+	 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 	 */
 	public function fromLink(array $child): ?array {
 		$content = $child['content'] ?? null;
@@ -80,7 +80,7 @@ final class GroupTileNode {
 	 *
 	 * @return array{content: array<string, mixed>, changed: int} The content and how many children changed.
 	 *
-	 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+	 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 	 */
 	public function convertGroup(array $content): array {
 		$children = $content['placements'] ?? null;

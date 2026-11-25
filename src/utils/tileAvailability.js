@@ -18,7 +18,7 @@ import { clockTime } from './embedOutage.js'
  * @param {Date} now The current time.
  * @param {function(string, string, object=): string} t The translate function.
  * @return {string} E.g. "Reachable at the last check, today 10:40".
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
  */
 export function lastCheckLine(reading, now, t) {
 	const state = reading?.state

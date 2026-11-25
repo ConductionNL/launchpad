@@ -1,7 +1,6 @@
 OC.L10N.register(
     "launchpad",
     {
-    "Group dashboard of {group}" : "Group dashboard of {group}",
     "_%s and %n more change_::_%s and %n more changes_" : ["%s and %n more change", "%s and %n more changes"],
     "share_not_found" : "Share not found",
     "share_expired" : "This share has expired",

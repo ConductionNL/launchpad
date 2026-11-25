@@ -46,7 +46,9 @@ import type { Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 
-const APP_BASE = '/apps/launchpad'
+// index.php keeps the routes working on a server without pretty URLs
+// (php -S, a rig without the rewrite rules), as every other spec does.
+const APP_BASE = '/index.php/apps/launchpad'
 
 /**
  * Dismiss the first-run setup wizard if it is open.
@@ -262,7 +264,7 @@ test.describe('app chrome (ADR-114)', () => {
 		// about it. What survives is the half that is about LaunchPad rather
 		// than about the nav component: the administration, a page of the app
 		// itself (admin-settings REQ-ADM-030).
-		await page.goto('/apps/launchpad/admin', {
+		await page.goto('/index.php/apps/launchpad/admin', {
 			waitUntil: 'domcontentloaded',
 		})
 		await expect(

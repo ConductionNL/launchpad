@@ -180,6 +180,10 @@
             "description": "Controller for the service-health-ping capability."
         },
         {
+            "name": "hidden-widgets-api",
+            "description": "List and show again the caller's hidden widgets."
+        },
+        {
             "name": "iframe",
             "description": "Controller for the `iframe` widget's allow-list validation."
         },
@@ -282,6 +286,10 @@
         {
             "name": "store",
             "description": "Browse a dashboard registry and install one of its templates."
+        },
+        {
+            "name": "summary-mail",
+            "description": "Read and write the caller's summary email frequency."
         },
         {
             "name": "template",
@@ -11880,6 +11888,105 @@
                 }
             }
         },
+        "/personal-layer/hidden": {
+            "get": {
+                "operationId": "hidden-widgets-api-index",
+                "x-launchpad-stability": "internal",
+                "summary": "GET the widgets the caller hid, on every dashboard they may see",
+                "description": "GET the widgets the caller hid, on every dashboard they may see. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "hidden-widgets-api"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "hidden-widgets-api-show-all",
+                "x-launchpad-stability": "internal",
+                "summary": "DELETE every hidden widget from the caller's layers: show all again",
+                "description": "DELETE every hidden widget from the caller's layers: show all again. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "hidden-widgets-api"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/personal-layer/hidden/{placementId}": {
+            "delete": {
+                "operationId": "hidden-widgets-api-show-again",
+                "x-launchpad-stability": "internal",
+                "summary": "DELETE one hidden widget from the caller's layer: show it again",
+                "description": "DELETE one hidden widget from the caller's layer: show it again. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "hidden-widgets-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "placementId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The hidden placement.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
         "/preferences/{key}": {
             "get": {
                 "operationId": "preferences-get-preference",
@@ -13270,6 +13377,81 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/summary-mail/me": {
+            "get": {
+                "operationId": "summary-mail-show",
+                "x-launchpad-stability": "internal",
+                "summary": "The caller's frequency, and whether they have an email address",
+                "description": "The caller's frequency, and whether they have an email address. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "summary-mail"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "summary-mail-update",
+                "x-launchpad-stability": "internal",
+                "summary": "Store the caller's frequency",
+                "description": "Store the caller's frequency. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "summary-mail"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "frequency": {
+                                        "type": "string",
+                                        "description": "Off, daily or weekly."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
                     }
                 }
             }

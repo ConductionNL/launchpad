@@ -581,7 +581,6 @@ The command `php occ list launchpad` MUST enumerate all registered `launchpad:*`
 - THEN only commands starting with `launchpad:dashboard:` MUST be shown
 
 #### Scenario: Pre-existing commands are not broken
-@e2e exclude A regression property over the commands that predate this spec, with no single outcome to assert; their behaviour is pinned by their own golden tests, e.g. tests/Unit/Command/ExportCommandGoldenTest.php::testSiteArchive and tests/Unit/Command/ImportCommandGoldenTest.php::testImportCommandOutput. tests/e2e/cli-commands.spec.ts does run their --help.
 
 - GIVEN a pre-existing LaunchPad command (registered before this spec) uses a different naming convention
 - WHEN this spec is implemented

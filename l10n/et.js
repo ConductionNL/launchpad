@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Selle töölaua ühendused",
+    "Connection states need the Integrations app" : "Ühenduste oleku jaoks on vaja rakendust Integratsioonid",
+    "No widget on this dashboard uses an outside connection" : "Ükski selle töölaua vidin ei kasuta välist ühendust",
+    "Loading connection states …" : "Ühenduste oleku laadimine …",
+    "The connection states could not be loaded. Try again later." : "Ühenduste olekut ei õnnestunud laadida. Proovige hiljem uuesti.",
+    "Last error: {time}" : "Viimane viga: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Näitab väliseid ühendusi, mida selle töölaua vidinad kasutavad, koos olekuga, mida rakendus Integratsioonid igaühe kohta hoiab. Igaüks näeb seda, mida OpenRegister lubab.",
     "What do you think of this dashboard?" : "Mida te sellest töölauast arvate?",
     "today {time}" : "täna {time}",
     "Last updated {when}" : "Viimati uuendatud {when}",
@@ -1841,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Otsingutulemused",
     "No results" : "Tulemusi pole",
     "Show all results" : "Näita kõiki tulemusi",
-    "Tip: type {prefix} to search {name} directly" : "Vihje: sisestage {prefix}, et otsida otse teenusest {name}"
+    "Tip: type {prefix} to search {name} directly" : "Vihje: sisestage {prefix}, et otsida otse teenusest {name}",
+    "{app}, outage since {time}" : "{app}, rike alates {time}",
+    "Own colour" : "Oma värv",
+    "Primary, dark" : "Põhivärv, tume",
+    "Accent" : "Rõhuvärv",
+    "Accent, dark" : "Rõhuvärv, tume",
+    "Ink" : "Tint",
+    "Text grey" : "Teksti hall",
+    "Muted grey" : "Summutatud hall",
+    "Field grey" : "Välja hall"
 },
 "nplurals=2; plural=(n != 1);"
 );

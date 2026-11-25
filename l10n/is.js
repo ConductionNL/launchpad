@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Tengingar þessa mælaborðs",
+    "Connection states need the Integrations app" : "Staða tenginga krefst forritsins Samþættingar",
+    "No widget on this dashboard uses an outside connection" : "Engin græja á þessu mælaborði notar ytri tengingu",
+    "Loading connection states …" : "Hleð stöðu tenginga …",
+    "The connection states could not be loaded. Try again later." : "Ekki tókst að hlaða stöðu tenginga. Reyndu aftur síðar.",
+    "Last error: {time}" : "Síðasta villa: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Sýnir ytri tengingar sem græjur á þessu mælaborði nota, með stöðunni sem forritið Samþættingar heldur um hverja. Hver og einn sér það sem OpenRegister leyfir.",
     "What do you think of this dashboard?" : "Hvað finnst þér um þetta mælaborð?",
     "today {time}" : "í dag {time}",
     "Last updated {when}" : "Síðast uppfært {when}",
@@ -1841,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Leitarniðurstöður",
     "No results" : "Engar niðurstöður",
     "Show all results" : "Sýna allar niðurstöður",
-    "Tip: type {prefix} to search {name} directly" : "Ábending: sláðu inn {prefix} til að leita beint í {name}"
+    "Tip: type {prefix} to search {name} directly" : "Ábending: sláðu inn {prefix} til að leita beint í {name}",
+    "{app}, outage since {time}" : "{app}, bilun síðan {time}",
+    "Own colour" : "Eigin litur",
+    "Primary, dark" : "Aðallitur, dökkur",
+    "Accent" : "Áherslulitur",
+    "Accent, dark" : "Áherslulitur, dökkur",
+    "Ink" : "Blek",
+    "Text grey" : "Textagrár",
+    "Muted grey" : "Daufur grár",
+    "Field grey" : "Reitagrár"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

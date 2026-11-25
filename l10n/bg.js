@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Връзки на това табло",
+    "Connection states need the Integrations app" : "За състоянието на връзките е нужно приложението Интеграции",
+    "No widget on this dashboard uses an outside connection" : "Нито една джаджа на това табло не използва външна връзка",
+    "Loading connection states …" : "Зареждане на състоянието на връзките …",
+    "The connection states could not be loaded. Try again later." : "Състоянието на връзките не можа да се зареди. Опитайте отново по-късно.",
+    "Last error: {time}" : "Последна грешка: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Показва външните връзки, които използват джаджите на това табло, със състоянието, което приложението Интеграции пази за всяка. Всеки вижда това, което OpenRegister му позволява.",
     "What do you think of this dashboard?" : "Какво мислите за това табло?",
     "today {time}" : "днес {time}",
     "Last updated {when}" : "Последна актуализация {when}",
@@ -1841,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Резултати от търсенето",
     "No results" : "Няма резултати",
     "Show all results" : "Покажи всички резултати",
-    "Tip: type {prefix} to search {name} directly" : "Съвет: въведете {prefix}, за да търсите директно в {name}"
+    "Tip: type {prefix} to search {name} directly" : "Съвет: въведете {prefix}, за да търсите директно в {name}",
+    "{app}, outage since {time}" : "{app}, прекъсване от {time}",
+    "Own colour" : "Собствен цвят",
+    "Primary, dark" : "Основен, тъмен",
+    "Accent" : "Акцент",
+    "Accent, dark" : "Акцент, тъмен",
+    "Ink" : "Мастило",
+    "Text grey" : "Сив за текст",
+    "Muted grey" : "Приглушен сив",
+    "Field grey" : "Сив за поле"
 },
 "nplurals=2; plural=(n != 1);"
 );

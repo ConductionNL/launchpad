@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Połączenia tego pulpitu",
+    "Connection states need the Integrations app" : "Stan połączeń wymaga aplikacji Integracje",
+    "No widget on this dashboard uses an outside connection" : "Żaden widżet na tym pulpicie nie używa połączenia zewnętrznego",
+    "Loading connection states …" : "Wczytywanie stanu połączeń …",
+    "The connection states could not be loaded. Try again later." : "Nie udało się wczytać stanu połączeń. Spróbuj ponownie później.",
+    "Last error: {time}" : "Ostatni błąd: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Pokazuje połączenia zewnętrzne używane przez widżety tego pulpitu wraz ze stanem, który aplikacja Integracje przechowuje dla każdego z nich. Każdy widzi to, co pozwala mu zobaczyć OpenRegister.",
     "What do you think of this dashboard?" : "Co sądzisz o tym pulpicie?",
     "today {time}" : "dzisiaj {time}",
     "Last updated {when}" : "Ostatnia aktualizacja {when}",
@@ -1841,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Wyniki wyszukiwania",
     "No results" : "Brak wyników",
     "Show all results" : "Pokaż wszystkie wyniki",
-    "Tip: type {prefix} to search {name} directly" : "Wskazówka: wpisz {prefix}, aby szukać bezpośrednio w {name}"
+    "Tip: type {prefix} to search {name} directly" : "Wskazówka: wpisz {prefix}, aby szukać bezpośrednio w {name}",
+    "{app}, outage since {time}" : "{app}, awaria od {time}",
+    "Own colour" : "Własny kolor",
+    "Primary, dark" : "Podstawowy, ciemny",
+    "Accent" : "Akcent",
+    "Accent, dark" : "Akcent, ciemny",
+    "Ink" : "Atrament",
+    "Text grey" : "Szary tekstu",
+    "Muted grey" : "Stonowany szary",
+    "Field grey" : "Szary pola"
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

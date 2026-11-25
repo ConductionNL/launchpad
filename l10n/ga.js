@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Naisc an deais seo",
+    "Connection states need the Integrations app" : "Teastaíonn an aip Comhtháthú le haghaidh staid na nasc",
+    "No widget on this dashboard uses an outside connection" : "Ní úsáideann aon ghiuirléid ar an deais seo nasc seachtrach",
+    "Loading connection states …" : "Staid na nasc á lódáil …",
+    "The connection states could not be loaded. Try again later." : "Níorbh fhéidir staid na nasc a lódáil. Bain triail eile as ar ball.",
+    "Last error: {time}" : "An earráid dheireanach: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Taispeánann sé na naisc sheachtracha a úsáideann giuirléidí an deais seo, leis an staid a choinníonn an aip Comhtháthú do gach ceann. Feiceann gach duine an méid a ligeann OpenRegister dóibh.",
     "What do you think of this dashboard?" : "Cad é do mheas ar an deais seo?",
     "today {time}" : "inniu {time}",
     "Last updated {when}" : "Nuashonraithe go deireanach {when}",
@@ -1841,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Torthaí cuardaigh",
     "No results" : "Níl aon torthaí",
     "Show all results" : "Taispeáin gach toradh",
-    "Tip: type {prefix} to search {name} directly" : "Leid: clóscríobh {prefix} chun {name} a chuardach go díreach"
+    "Tip: type {prefix} to search {name} directly" : "Leid: clóscríobh {prefix} chun {name} a chuardach go díreach",
+    "{app}, outage since {time}" : "{app}, briste ó {time}",
+    "Own colour" : "Do dhath féin",
+    "Primary, dark" : "Príomhúil, dorcha",
+    "Accent" : "Aiceann",
+    "Accent, dark" : "Aiceann, dorcha",
+    "Ink" : "Dúch",
+    "Text grey" : "Liath téacs",
+    "Muted grey" : "Liath maolaithe",
+    "Field grey" : "Liath réimse"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

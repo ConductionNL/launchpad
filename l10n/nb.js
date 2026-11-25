@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Tilkoblinger på dette dashbordet",
+    "Connection states need the Integrations app" : "Status for tilkoblinger krever appen Integrasjoner",
+    "No widget on this dashboard uses an outside connection" : "Ingen widget på dette dashbordet bruker en ekstern tilkobling",
+    "Loading connection states …" : "Laster inn status for tilkoblinger …",
+    "The connection states could not be loaded. Try again later." : "Status for tilkoblingene kunne ikke lastes inn. Prøv igjen senere.",
+    "Last error: {time}" : "Siste feil: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Viser de eksterne tilkoblingene widgetene på dette dashbordet bruker, med statusen appen Integrasjoner har for hver. Hver person ser det OpenRegister lar dem se.",
     "What do you think of this dashboard?" : "Hva synes du om dette dashbordet?",
     "today {time}" : "i dag {time}",
     "Last updated {when}" : "Sist oppdatert {when}",
@@ -1841,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Søkeresultater",
     "No results" : "Ingen resultater",
     "Show all results" : "Vis alle resultater",
-    "Tip: type {prefix} to search {name} directly" : "Tips: skriv {prefix} for å søke direkte i {name}"
+    "Tip: type {prefix} to search {name} directly" : "Tips: skriv {prefix} for å søke direkte i {name}",
+    "{app}, outage since {time}" : "{app}, driftsavbrudd siden {time}",
+    "Own colour" : "Egen farge",
+    "Primary, dark" : "Primær, mørk",
+    "Accent" : "Aksent",
+    "Accent, dark" : "Aksent, mørk",
+    "Ink" : "Blekk",
+    "Text grey" : "Tekstgrå",
+    "Muted grey" : "Dempet grå",
+    "Field grey" : "Feltgrå"
 },
 "nplurals=2; plural=(n != 1);"
 );

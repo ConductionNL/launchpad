@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Veze ove kontrolne table",
+    "Connection states need the Integrations app" : "Za stanje veza potrebna je aplikacija Integracije",
+    "No widget on this dashboard uses an outside connection" : "Nijedan widget na ovoj kontrolnoj tabli ne koristi vanjsku vezu",
+    "Loading connection states …" : "Učitavanje stanja veza …",
+    "The connection states could not be loaded. Try again later." : "Stanje veza nije moguće učitati. Pokušajte ponovo kasnije.",
+    "Last error: {time}" : "Posljednja greška: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Prikazuje vanjske veze koje koriste widgeti na ovoj kontrolnoj tabli, sa stanjem koje aplikacija Integracije vodi za svaku. Svako vidi ono što mu OpenRegister dozvoljava.",
     "What do you think of this dashboard?" : "Šta mislite o ovoj kontrolnoj tabli?",
     "today {time}" : "danas {time}",
     "Last updated {when}" : "Zadnje ažurirano {when}",
@@ -1841,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Rezultati pretrage",
     "No results" : "Nema rezultata",
     "Show all results" : "Prikaži sve rezultate",
-    "Tip: type {prefix} to search {name} directly" : "Savjet: upišite {prefix} za direktnu pretragu u {name}"
+    "Tip: type {prefix} to search {name} directly" : "Savjet: upišite {prefix} za direktnu pretragu u {name}",
+    "{app}, outage since {time}" : "{app}, ispad od {time}",
+    "Own colour" : "Vlastita boja",
+    "Primary, dark" : "Primarna, tamna",
+    "Accent" : "Naglasak",
+    "Accent, dark" : "Naglasak, tamni",
+    "Ink" : "Tinta",
+    "Text grey" : "Siva teksta",
+    "Muted grey" : "Prigušena siva",
+    "Field grey" : "Siva polja"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

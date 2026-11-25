@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Šī informācijas paneļa savienojumi",
+    "Connection states need the Integrations app" : "Savienojumu stāvoklim nepieciešama lietotne Integrācijas",
+    "No widget on this dashboard uses an outside connection" : "Neviens šī paneļa logrīks neizmanto ārēju savienojumu",
+    "Loading connection states …" : "Ielādē savienojumu stāvokli …",
+    "The connection states could not be loaded. Try again later." : "Savienojumu stāvokli neizdevās ielādēt. Mēģiniet vēlāk vēlreiz.",
+    "Last error: {time}" : "Pēdējā kļūda: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Parāda ārējos savienojumus, ko izmanto šī paneļa logrīki, ar stāvokli, ko lietotne Integrācijas glabā par katru. Katrs redz to, ko OpenRegister ļauj redzēt.",
     "What do you think of this dashboard?" : "Ko jūs domājat par šo informācijas paneli?",
     "today {time}" : "šodien {time}",
     "Last updated {when}" : "Pēdējoreiz atjaunināts {when}",
@@ -1841,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Meklēšanas rezultāti",
     "No results" : "Nav rezultātu",
     "Show all results" : "Rādīt visus rezultātus",
-    "Tip: type {prefix} to search {name} directly" : "Padoms: ierakstiet {prefix}, lai meklētu tieši {name}"
+    "Tip: type {prefix} to search {name} directly" : "Padoms: ierakstiet {prefix}, lai meklētu tieši {name}",
+    "{app}, outage since {time}" : "{app}, traucējums kopš {time}",
+    "Own colour" : "Sava krāsa",
+    "Primary, dark" : "Primārā, tumša",
+    "Accent" : "Akcents",
+    "Accent, dark" : "Akcents, tumšs",
+    "Ink" : "Tinte",
+    "Text grey" : "Teksta pelēkā",
+    "Muted grey" : "Klusināti pelēkā",
+    "Field grey" : "Lauka pelēkā"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

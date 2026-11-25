@@ -62,7 +62,7 @@ The widget registry (`src/constants/widgetRegistry.js`) is the single source of 
 - Update `src/constants/widgetRegistry.js` with the new entry (`renderer`, `form`, `defaultContent`, `displayName`, `icon`).
 - Update `EXPECTED_TYPES` in `src/constants/__tests__/widgetRegistry.completeness.spec.js` (REQ-WDG-023) so the completeness guard stays in sync. The test will fail with a precise diff if you forget.
 - Implement the renderer + form Vue components following the pattern of an existing widget (e.g. `LabelWidget.vue` + `LabelForm.vue`).
-- Add i18n keys for the type's `displayName` and any user-facing form labels to all four `l10n/` files (`en.js`, `en.json`, `nl.js`, `nl.json`).
+- Add i18n keys for the type's `displayName` and any user-facing form labels to `l10n/en.json` (identity), `l10n/nl.json` and `l10n/nl.js`. Do not add them to `l10n/en.js`: it carries only entries whose English differs from the key (renamed ids, plurals), because an identity entry costs bytes on every page and changes nothing (`tests/vitest/l10n-browser-catalogue.spec.ts` fails on one).
 - Add the canonical capability spec under `openspec/specs/<widget-name>/spec.md` so the type's REQ-* identifiers, defaults, and acceptance scenarios are documented.
 
 ## Security review checklist

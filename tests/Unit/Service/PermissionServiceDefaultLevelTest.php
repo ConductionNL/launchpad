@@ -52,9 +52,13 @@ class PermissionServiceDefaultLevelTest extends TestCase {
 	private function serviceWith(?string $stored): PermissionService {
 		$settings = $this->createMock(originalClassName: AdminSettingMapper::class);
 		$settings->method('getValue')->willReturnCallback(
-			static fn (string $key, mixed $default = null): mixed => (
-				$key === AdminSetting::KEY_DEFAULT_PERMISSION_LEVEL && $stored !== null ? $stored : $default
-			)
+			static function (string $key, mixed $default = null) use ($stored): mixed {
+				if ($key === AdminSetting::KEY_DEFAULT_PERMISSION_LEVEL && $stored !== null) {
+					return $stored;
+				}
+
+				return $default;
+			}
 		);
 
 		return new PermissionService(

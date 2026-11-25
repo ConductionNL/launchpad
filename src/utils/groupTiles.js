@@ -31,8 +31,11 @@ const FORM_KEYS = Object.freeze([
 /** The link actions that only open an address, so a tile can take them over. */
 const ADDRESS_ACTIONS = Object.freeze(['', 'external', 'internal'])
 
-/** The keys of a link child that the tile node replaces. */
-const LINK_ONLY_KEYS = Object.freeze(['label', 'url', 'actionType'])
+/**
+ * The keys of a link child that the tile node replaces. A link's icon is an
+ * icon name, which a tile does not draw, so it goes too.
+ */
+const LINK_ONLY_KEYS = Object.freeze(['label', 'url', 'actionType', 'icon', 'iconType'])
 
 /**
  * Whether a container child is a tile the tile form can edit: a `tile` child
@@ -116,8 +119,7 @@ function setFormFields(source) {
 function linkToTile(content) {
 	return setFormFields({
 		title: content.label,
-		icon: content.icon,
-		iconType: isSet(content.iconType) ? content.iconType : 'svg',
+		iconType: 'svg',
 		linkType: 'url',
 		linkValue: content.url,
 	})

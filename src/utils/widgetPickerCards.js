@@ -189,125 +189,155 @@ export function isLegacyWidget(widget) {
 }
 
 /**
- * Every card the picker offers, in section order.
+ * A card with the fields every card shares.
  *
- * @param {object} input What the picker was given.
- * @param {Array<object>} input.customTypes `{type, title}` per Launchpad type.
- * @param {boolean} input.officePack Whether the office pack is offered.
- * @param {Array<object>} input.catalogueApps The reader's tile catalogue.
- * @param {Array<object>} input.discoveredApps The apps this server runs for the reader.
- * @param {Array<object>} input.widgets The Nextcloud widgets.
- * @param {Array<string>|null} input.allowedWidgets The role's allow-list.
- * @param {Array<string>} input.placedWidgetIds The widgets on the dashboard.
- * @param {Array<string>} input.placedAppIds The discovered apps on the dashboard.
- * @param {function(string, string, object=): string} t The translate function.
- * @return {Array<object>} The cards.
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md
+ * @param {object} fields The card's own fields.
+ * @return {object} The card.
  */
-export function pickerCards(input, t) {
-	const { customTypes = [], officePack = false, catalogueApps = [], discoveredApps = [], widgets = [], allowedWidgets = null, placedWidgetIds = [], placedAppIds = [] } = input
-	const cards = []
+function card(fields) {
+	return { disabled: false, legacy: false, badge: '', ...fields }
+}
 
-	for (const entry of customTypes) {
-		cards.push({
-			key: `type:${entry.type}`,
-			kind: kindOfType(entry.type),
-			section: 'launchpad',
-			title: entry.title,
-			line: typeLine(entry.type, t),
-			icon: { kind: 'type', name: entry.icon || '' },
-			disabled: !roleAllows(entry.type, allowedWidgets),
-			legacy: false,
-			badge: '',
-			action: { event: 'addCustom', arg: entry.type },
-			testid: `widget-picker-type-${entry.type}`,
-		})
-	}
+/**
+ * The cards under "Widgets from Launchpad": each Launchpad type, then the
+ * office pack.
+ *
+ * @param {object} input See {@link pickerCards}.
+ * @param {function(string, string, object=): string} t The translate function.
+ * @return {Array<object>}
+ * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+ */
+function launchpadCards(input, t) {
+	const { customTypes = [], officePack = false, allowedWidgets = null } = input
+	const cards = customTypes.map((entry) => card({
+		key: `type:${entry.type}`,
+		kind: kindOfType(entry.type),
+		section: 'launchpad',
+		title: entry.title,
+		line: typeLine(entry.type, t),
+		icon: { kind: 'type' },
+		disabled: !roleAllows(entry.type, allowedWidgets),
+		action: { event: 'addCustom', arg: entry.type },
+		testid: `widget-picker-type-${entry.type}`,
+	}))
 	if (officePack) {
-		cards.push({
+		cards.push(card({
 			key: 'office-pack',
 			kind: 'office',
 			section: 'launchpad',
 			title: t('launchpad', 'Office tiles'),
 			line: t('launchpad', 'A tile for each new document and office app.'),
-			icon: { kind: 'type', name: 'office' },
+			icon: { kind: 'type' },
 			disabled: !roleAllows('container', allowedWidgets),
-			legacy: false,
-			badge: '',
 			action: { event: 'addOfficePack', arg: undefined },
 			testid: 'widget-picker-office-pack',
-		})
+		}))
 	}
+	return cards
+}
 
-	const tilesAllowed = roleAllows('tile', allowedWidgets)
-	for (const app of catalogueApps) {
-		cards.push({
-			key: `catalogue:${app.uuid}`,
-			kind: 'tiles',
-			section: 'tiles',
-			title: app.name,
-			line: app.description || t('launchpad', 'An app your organisation approved.'),
-			icon: { kind: 'tile', appId: app.uuid, url: app.icon && app.iconType === 'url' ? app.icon : '', className: app.icon && app.iconType !== 'url' ? app.icon : '' },
-			disabled: !tilesAllowed,
-			legacy: false,
-			badge: '',
-			action: { event: 'addCatalogueApp', arg: app },
-			testid: `widget-picker-catalogue-${app.uuid}`,
-		})
-	}
-	for (const app of discoveredApps) {
-		cards.push({
-			key: `app:${app.appId}`,
-			kind: 'tiles',
-			section: 'tiles',
-			title: app.name,
-			line: t('launchpad', 'An app on this server.'),
-			icon: { kind: 'tile', appId: app.appId, mask: app.icon || '' },
-			disabled: !tilesAllowed,
-			legacy: false,
-			badge: placedAppIds.includes(app.appId) ? t('launchpad', 'On this dashboard') : '',
-			action: { event: 'addApp', arg: app },
-			testid: `widget-picker-app-tile-${app.appId}`,
-		})
-	}
-	cards.push({
+/**
+ * The cards under "App tiles": the reader's tile catalogue, the apps this
+ * server runs for them, then Own tile (REQ-WDG-042). They all follow the
+ * role's `tile` permission.
+ *
+ * @param {object} input See {@link pickerCards}.
+ * @param {function(string, string, object=): string} t The translate function.
+ * @return {Array<object>}
+ * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
+ */
+function tileCards(input, t) {
+	const { catalogueApps = [], discoveredApps = [], allowedWidgets = null, placedAppIds = [] } = input
+	const disabled = !roleAllows('tile', allowedWidgets)
+	const catalogue = catalogueApps.map((app) => card({
+		key: `catalogue:${app.uuid}`,
+		kind: 'tiles',
+		section: 'tiles',
+		title: app.name,
+		line: app.description || t('launchpad', 'An app your organisation approved.'),
+		icon: {
+			kind: 'tile',
+			appId: app.uuid,
+			url: app.iconType === 'url' ? app.icon || '' : '',
+			className: app.iconType === 'url' ? '' : app.icon || '',
+		},
+		disabled,
+		action: { event: 'addCatalogueApp', arg: app },
+		testid: `widget-picker-catalogue-${app.uuid}`,
+	}))
+	const discovered = discoveredApps.map((app) => card({
+		key: `app:${app.appId}`,
+		kind: 'tiles',
+		section: 'tiles',
+		title: app.name,
+		line: t('launchpad', 'An app on this server.'),
+		icon: { kind: 'tile', appId: app.appId, mask: app.icon || '' },
+		disabled,
+		badge: placedAppIds.includes(app.appId) ? t('launchpad', 'On this dashboard') : '',
+		action: { event: 'addApp', arg: app },
+		testid: `widget-picker-app-tile-${app.appId}`,
+	}))
+	const own = card({
 		key: 'own-tile',
 		kind: 'tiles',
 		section: 'tiles',
 		title: t('launchpad', 'Own tile'),
 		line: t('launchpad', 'A tile for any address.'),
 		icon: { kind: 'own' },
-		disabled: !tilesAllowed,
-		legacy: false,
-		badge: '',
+		disabled,
 		action: { event: 'addCustom', arg: 'tile' },
 		testid: 'widget-picker-custom-tile',
 	})
+	return [...catalogue, ...discovered, own]
+}
 
-	const sorted = [...widgets].sort((a, b) => {
-		const aPlaced = placedWidgetIds.includes(a.id)
-		const bPlaced = placedWidgetIds.includes(b.id)
-		if (aPlaced !== bPlaced) {
-			return aPlaced ? 1 : -1
-		}
-		return (a.order || 0) - (b.order || 0)
-	})
-	for (const widget of sorted) {
-		cards.push({
+/**
+ * The cards under "From other Nextcloud apps": the Nextcloud widgets, those
+ * not on the dashboard first, then by their order.
+ *
+ * @param {object} input See {@link pickerCards}.
+ * @param {function(string, string, object=): string} t The translate function.
+ * @return {Array<object>}
+ * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
+ */
+function appWidgetCards(input, t) {
+	const { widgets = [], allowedWidgets = null, placedWidgetIds = [] } = input
+	const placed = (widget) => placedWidgetIds.includes(widget.id)
+	return [...widgets]
+		.sort((a, b) => (placed(a) === placed(b) ? (a.order || 0) - (b.order || 0) : (placed(a) ? 1 : -1)))
+		.map((widget) => card({
 			key: `widget:${widget.id}`,
 			kind: 'apps',
 			section: 'apps',
 			title: widget.title,
 			line: t('launchpad', 'A widget from another Nextcloud app.'),
-			icon: { kind: 'widget', url: widget.iconUrl || '', className: widget.iconClass || '' },
+			icon: { kind: 'image', url: widget.iconUrl || '', className: widget.iconClass || '' },
 			disabled: !roleAllows(widget.id, allowedWidgets),
 			legacy: isLegacyWidget(widget),
-			badge: placedWidgetIds.includes(widget.id) ? t('launchpad', 'Already added') : '',
+			badge: placed(widget) ? t('launchpad', 'Already added') : '',
 			action: { event: 'add', arg: widget.id },
 			testid: `widget-picker-widget-${widget.id}`,
-		})
-	}
-	return cards
+		}))
+}
+
+/**
+ * Every card the picker offers, in section order.
+ *
+ * @param {object} input What the picker was given.
+ * @param {Array<object>} [input.customTypes] `{type, title}` per Launchpad type.
+ * @param {boolean} [input.officePack] Whether the office pack is offered.
+ * @param {Array<object>} [input.catalogueApps] The reader's tile catalogue.
+ * @param {Array<object>} [input.discoveredApps] The apps this server runs for the reader.
+ * @param {Array<object>} [input.widgets] The Nextcloud widgets.
+ * @param {Array<string>|null} [input.allowedWidgets] The role's allow-list.
+ * @param {Array<string>} [input.placedWidgetIds] The widgets on the dashboard.
+ * @param {Array<string>} [input.placedAppIds] The discovered apps on the dashboard.
+ * @param {function(string, string, object=): string} t The translate function.
+ * @return {Array<object>} The cards.
+ * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md
+ */
+export function pickerCards(input, t) {
+	return [...launchpadCards(input, t), ...tileCards(input, t), ...appWidgetCards(input, t)]
 }
 
 /**

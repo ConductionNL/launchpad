@@ -35,6 +35,7 @@ import type { Placement } from './support/widgetPlacements.ts'
 
 import { expect, test } from '@playwright/test'
 import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { catalogueFromApi } from './support/widgetCatalogue.ts'
 import {
 	adminApi,
 	gridItem,
@@ -62,6 +63,7 @@ async function stageWidget(
 	reloadInterval: number,
 ): Promise<() => number> {
 	let calls = 0
+	await catalogueFromApi(page)
 	await page.route(
 		(url) => isWidgetCatalogue(url),
 		async (route) => {

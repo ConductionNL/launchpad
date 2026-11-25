@@ -48,6 +48,7 @@ import type {
 
 import { expect, request, test } from '@playwright/test'
 import { BASE_URL } from './support/baseUrl.ts'
+import { catalogueFromApi } from './support/widgetCatalogue.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -115,6 +116,7 @@ async function prependToEntryBundle(page: Page, prelude: string): Promise<void> 
  * @return nothing.
  */
 async function offerLegacyDescriptors(page: Page): Promise<void> {
+	await catalogueFromApi(page)
 	await page.route(
 		(url) => url.pathname.endsWith('/apps/launchpad/api/widgets'),
 		async (route) => {

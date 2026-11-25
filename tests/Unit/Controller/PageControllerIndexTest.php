@@ -192,7 +192,12 @@ class PageControllerIndexTest extends TestCase {
 	 *
 	 * @return PageController
 	 */
-	private function controller(?DashboardPayloads $payloads=null, ?SharingLimits $sharing=null, ?PageFooter $footer=null, ?AnalyticsService $analytics=null): PageController {
+	private function controller(
+		?DashboardPayloads $payloads=null,
+		?SharingLimits $sharing=null,
+		?PageFooter $footer=null,
+		?AnalyticsService $analytics=null
+	): PageController {
 		$initialState = $this->createMock(originalClassName: IInitialState::class);
 		$initialState->method('provideInitialState')->willReturnCallback(
 			callback: function (string $key, mixed $value): void {

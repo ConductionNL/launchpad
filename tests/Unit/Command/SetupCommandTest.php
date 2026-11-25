@@ -58,16 +58,21 @@ class SetupCommandTest extends TestCase {
 		parent::setUp();
 		$this->wizard = $this->createMock(SetupWizardService::class);
 		$this->settings = $this->createMock(AdminSettingsService::class);
-		$this->showcases = $this->createMock(DemoShowcasesService::class);
-		$this->roles = $this->createMock(RoleService::class);
-		$this->footer = $this->createMock(FooterService::class);
+		$this->showcases = $this->createMock(originalClassName: DemoShowcasesService::class);
+		$this->roles = $this->createMock(originalClassName: RoleService::class);
+		$this->footer = $this->createMock(originalClassName: FooterService::class);
 	}
 
+	/**
+	 * The command under test, on the mocked services.
+	 *
+	 * @return SetupCommand The command.
+	 */
 	private function command(): SetupCommand {
 		return new SetupCommand(
-			$this->wizard,
-			$this->settings,
-			new SetupSteps($this->showcases, $this->roles, $this->footer)
+			wizardService: $this->wizard,
+			settings: $this->settings,
+			steps: new SetupSteps(showcases: $this->showcases, roles: $this->roles, footer: $this->footer)
 		);
 	}
 
@@ -136,11 +141,13 @@ class SetupCommandTest extends TestCase {
 	/**
 	 * A full config applies Steps 2 to 5 through the wizard's own services.
 	 *
+	 * @return void
+	 *
 	 * @spec openspec/specs/setup-wizard/spec.md#requirement-req-wiz-010-cli-command-for-non-interactive-setup-iac-friendly
 	 */
 	public function testAFullConfigAppliesEveryStep(): void {
 		$this->settings->method('getGroupOrder')->willReturn([]);
-		$this->showcases->expects($this->exactly(2))->method('installShowcase')
+		$this->showcases->expects($this->exactly(count: 2))->method('installShowcase')
 			->willReturnCallback(fn (string $showcaseId): array => [
 				'installedDashboardUuid' => 'uuid-' . $showcaseId,
 				'skippedWidgets' => [],
@@ -155,27 +162,29 @@ class SetupCommandTest extends TestCase {
 		$this->wizard->expects($this->once())->method('markWizardComplete');
 
 		$tester = $this->runSetup(
-			"group_priority_order: [\"a\"]\n"
+			body: "group_priority_order: [\"a\"]\n"
 			. "demo_packages: [case-handler, de-bron]\n"
 			. "admin_role_group: engineering\n"
 			. "footer_config:\n  organisation: Gemeente\n  layoutMode: columns\n"
 		);
 
-		$this->assertSame(0, $tester->getStatusCode());
+		$this->assertSame(expected: 0, actual: $tester->getStatusCode());
 		$this->assertSame(
-			"Step 1: Welcome... done\n"
+			expected: "Step 1: Welcome... done\n"
 			. "Step 2: Group order... done\n"
 			. "Step 3: Demo data... done\n"
 			. "Step 4: Admin roles... done\n"
 			. "Step 5: Footer config... done\n"
 			. "Step 6: Done... done\n"
 			. "Setup wizard completed successfully.\n",
-			$tester->getDisplay()
+			actual: $tester->getDisplay()
 		);
 	}
 
 	/**
 	 * A second run with the same config installs, assigns and stores nothing.
+	 *
+	 * @return void
 	 *
 	 * @spec openspec/specs/setup-wizard/spec.md#requirement-req-wiz-010-cli-command-for-non-interactive-setup-iac-friendly
 	 */
@@ -193,20 +202,22 @@ class SetupCommandTest extends TestCase {
 		$this->wizard->expects($this->once())->method('markWizardComplete');
 
 		$tester = $this->runSetup(
-			"group_priority_order: [a]\ndemo_packages: [case-handler]\nadmin_role_group: engineering\n"
+			body: "group_priority_order: [a]\ndemo_packages: [case-handler]\nadmin_role_group: engineering\n"
 			. "footer_config:\n  organisation: Gemeente\n"
 		);
 
-		$this->assertSame(0, $tester->getStatusCode());
+		$this->assertSame(expected: 0, actual: $tester->getStatusCode());
 		$display = $tester->getDisplay();
-		$this->assertStringContainsString('Step 3: Demo data... already configured, skipping', $display);
-		$this->assertStringContainsString('Step 4: Admin roles... already configured, skipping', $display);
-		$this->assertStringContainsString('Step 5: Footer config... already configured, skipping', $display);
+		$this->assertStringContainsString(needle: 'Step 3: Demo data... already configured, skipping', haystack: $display);
+		$this->assertStringContainsString(needle: 'Step 4: Admin roles... already configured, skipping', haystack: $display);
+		$this->assertStringContainsString(needle: 'Step 5: Footer config... already configured, skipping', haystack: $display);
 	}
 
 	/**
 	 * Steps 3 to 5 refuse values of the wrong shape, and a footer the
 	 * footer service refuses, with "Invalid setup.yaml:" and exit 1.
+	 *
+	 * @return void
 	 *
 	 * @spec openspec/specs/setup-wizard/spec.md#requirement-req-wiz-010-cli-command-for-non-interactive-setup-iac-friendly
 	 */
@@ -225,9 +236,9 @@ class SetupCommandTest extends TestCase {
 			"footer_config:\n  colour: red\n" => "Invalid setup.yaml: 'footer_config': Unknown footer config key: colour",
 		];
 		foreach ($cases as $yaml => $error) {
-			$tester = $this->runSetup($yaml);
-			$this->assertSame(1, $tester->getStatusCode(), $yaml);
-			$this->assertStringContainsString($error, $tester->getDisplay(), $yaml);
+			$tester = $this->runSetup(body: $yaml);
+			$this->assertSame(expected: 1, actual: $tester->getStatusCode(), message: $yaml);
+			$this->assertStringContainsString(needle: $error, haystack: $tester->getDisplay(), message: $yaml);
 		}
 	}
 

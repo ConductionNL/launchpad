@@ -344,6 +344,8 @@ class RoleServiceTest extends TestCase {
 	/**
 	 * hasGroupRole answers from the mapper's (group, role) lookup.
 	 *
+	 * @return void
+	 *
 	 * @spec openspec/specs/setup-wizard/spec.md#requirement-req-wiz-010-cli-command-for-non-interactive-setup-iac-friendly
 	 */
 	public function testHasGroupRoleReadsTheGroupRow(): void {
@@ -352,7 +354,7 @@ class RoleServiceTest extends TestCase {
 			['sales', 'admin', null],
 		]);
 
-		$this->assertTrue($this->service->hasGroupRole(groupId: 'engineering', role: 'admin'));
-		$this->assertFalse($this->service->hasGroupRole(groupId: 'sales', role: 'admin'));
+		$this->assertTrue(condition: $this->service->hasGroupRole(groupId: 'engineering', role: 'admin'));
+		$this->assertFalse(condition: $this->service->hasGroupRole(groupId: 'sales', role: 'admin'));
 	}
 }//end class

@@ -18,6 +18,7 @@ import type { APIRequestContext } from '@playwright/test'
 
 import { expect, request, test } from '@playwright/test'
 import { BASE_URL } from './support/baseUrl.ts'
+import { clearSeededWidgets } from './support/dashboardFixture.ts'
 import { adminContext, API } from './support/principals.ts'
 
 const APP = '/index.php/apps/launchpad'
@@ -37,7 +38,9 @@ let livePlacement = 0
 let otherPlacement = 0
 
 /**
- * Create a dashboard and answer its id.
+ * Create an empty dashboard and answer its id. A new dashboard ships the
+ * default widget bundle (REQ-DWB-001); those placements are removed so the
+ * kiosk shows only what this spec places.
  *
  * @param name The dashboard name.
  * @return The id.
@@ -50,6 +53,7 @@ async function createDashboard(name: string): Promise<{ id: number; uuid: string
 	const body = await created.json()
 	const dash = body.dashboard ?? body.data?.dashboard ?? body
 	dashboards.push(Number(dash.id))
+	await clearSeededWidgets(admin, Number(dash.id))
 	return { id: Number(dash.id), uuid: String(dash.uuid) }
 }
 
@@ -68,12 +72,14 @@ async function place(dashboardId: number, data: Record<string, unknown>): Promis
 }
 
 /**
- * Publish a news item.
+ * Publish a news item, shown until tomorrow: the server refuses an
+ * announcement without a "Show until" end time with 400 (REQ-ANN-001).
  *
  * @param data The announcement.
  */
 async function publish(data: Record<string, unknown>): Promise<void> {
-	const created = await admin.post(`${API}/announcements`, { data })
+	const expiresAt = new Date(Date.now() + 24 * 3600 * 1000).toISOString()
+	const created = await admin.post(`${API}/announcements`, { data: { expiresAt, ...data } })
 	expect(created.status(), await created.text()).toBe(201)
 	const uuid = (await created.json()).uuid as string
 	announcements.push(uuid)

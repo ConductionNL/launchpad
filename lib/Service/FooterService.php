@@ -826,6 +826,18 @@ class FooterService implements FooterServiceInterface {
 	}//end resolveFooterForDashboard()
 
 	/**
+	 * The footer a page without an active dashboard shows: the global one,
+	 * as an inherit dashboard would (REQ-FTR-004); NULL when it is off.
+	 *
+	 * @return array<string, mixed>|null The effective footer payload.
+	 *
+	 * @spec openspec/specs/footer-customization/spec.md
+	 */
+	public function resolveGlobalFooter(): ?array {
+		return $this->inheritedFooter(globals: $this->getGlobalSettings());
+	}//end resolveGlobalFooter()
+
+	/**
 	 * The dashboard's footer mode; an empty mode means inherit.
 	 *
 	 * @param Dashboard $dashboard The dashboard.

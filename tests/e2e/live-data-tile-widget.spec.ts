@@ -450,7 +450,7 @@ test('REQ-LIVETILE-002: an off-list host is refused at save, an allowed one pers
 	const before = await shownIds()
 	const { dialog, form } = await openTileForm(page)
 
-	await form.getByLabel('Value expression', { exact: true }).fill('$.data.count')
+	await form.getByLabel('Path in the response', { exact: true }).fill('$.data.count')
 	const url = form.getByLabel('URL', { exact: true })
 
 	// A host that is NOT on the allow-list: the server refuses it and the
@@ -514,7 +514,7 @@ test('REQ-LIVETILE-002: a refresh below 30 s is raised to 30, an unset one becom
 				.getByLabel('URL', { exact: true })
 				.fill(`https://${ALLOWED_HOST}/stats.json`)
 			await form
-				.getByLabel('Value expression', { exact: true })
+				.getByLabel('Path in the response', { exact: true })
 				.fill('$.data.count')
 			await form.getByLabel('Refresh interval (seconds)').fill(typed)
 			const placement = await addAndRead(page, dialog, before)
@@ -574,7 +574,7 @@ test('REQ-LIVETILE-002: with the connector capability, the author picks a source
 	await expect(source).toBeEnabled()
 	await expect(form.getByLabel('URL', { exact: true })).toHaveCount(0)
 	await source.fill(`topdesk-${STAMP}`)
-	await form.getByLabel('Value expression', { exact: true }).fill('$.open')
+	await form.getByLabel('Path in the response', { exact: true }).fill('$.open')
 
 	const placement = await addAndRead(page, dialog, before)
 	try {
@@ -891,7 +891,7 @@ test('REQ-LTC-004: the SharePoint "Latest documents" preset lists ten documents 
 
 	await choose(page, form, 1, 1) // Display: List
 	await choose(page, form, 2, 0) // Preset: Latest documents (SharePoint)
-	await expect(form.getByLabel('Value expression', { exact: true })).toHaveValue(
+	await expect(form.getByLabel('Path in the response', { exact: true })).toHaveValue(
 		'$.value',
 	)
 	await expect(form.getByLabel('Number of rows (1 to 50)')).toHaveValue('10')

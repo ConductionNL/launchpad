@@ -23,7 +23,10 @@ namespace Unit\Service;
 
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\RoleAssignment;
+use OCA\LaunchPad\Db\RoleAssignmentMapper;
 use OCA\LaunchPad\Service\SetupWizardService;
+use OCP\IAppConfig;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -55,8 +58,8 @@ class SetupWizardServiceTest extends TestCase {
 			[
 				1 => 'done',
 				2 => 'pending',
-				3 => 'skipped',
-				4 => 'skipped',
+				3 => 'pending',
+				4 => 'pending',
 				5 => 'pending',
 			],
 			$state['stepStatuses']
@@ -105,8 +108,7 @@ class SetupWizardServiceTest extends TestCase {
 		$state = $this->service->getWizardState();
 
 		$this->assertSame('done', $state['stepStatuses']['2']);
-		// Steps 3 and 4 are 'skipped' (sibling capabilities pending), so
-		// the first non-'done' step is 3.
+		// No demo installed yet, so the first step left to do is 3.
 		$this->assertSame(3, $state['currentRecommendedStep']);
 	}
 
@@ -143,9 +145,12 @@ class SetupWizardServiceTest extends TestCase {
 
 		$this->assertTrue($state['complete']);
 		$this->assertSame('done', $state['stepStatuses']['5']);
+		// Finished without an admin role: Step 4 was skipped.
+		$this->assertSame('skipped', $state['stepStatuses']['4']);
+		$this->assertSame('pending', $state['stepStatuses']['3']);
 		$this->assertCount(expectedCount: 5, haystack: $state['stepStatuses']);
-		// Steps 3/4 are 'skipped' (sibling capabilities pending), so the
-		// first non-'done' status is Step 3. The wizard "complete" flag
+		// No demo installed, so the first non-'done' status is Step 3.
+		// The wizard "complete" flag
 		// is the source of truth for hiding the banner; the recommended
 		// step is purely a UX hint per REQ-WIZ-008.
 		$this->assertSame(3, $state['currentRecommendedStep']);
@@ -169,7 +174,7 @@ class SetupWizardServiceTest extends TestCase {
 		$state = $this->service->getWizardState();
 
 		$this->assertSame(
-			expected: [1 => 'done', 2 => 'pending', 3 => 'skipped', 4 => 'skipped', 5 => 'pending'],
+			expected: [1 => 'done', 2 => 'pending', 3 => 'pending', 4 => 'pending', 5 => 'pending'],
 			actual: $state['stepStatuses']
 		);
 	}
@@ -203,4 +208,69 @@ class SetupWizardServiceTest extends TestCase {
 
 		$this->assertSame($first, $second);
 	}
+
+	/**
+	 * An installed demo showcase marks Step 3 done, and a LaunchPad admin
+	 * role assignment marks Step 4 done.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/setup-wizard/spec.md
+	 */
+	public function testAnInstalledDemoAndAnAdminRoleMarkStepsThreeAndFourDone(): void {
+		$this->settingMapper->method('getValue')->willReturn(false);
+		$this->settingMapper->method('getAllAsArray')->willReturn([
+			AdminSetting::KEY_GROUP_ORDER => ['engineering'],
+		]);
+		$appConfig = $this->createMock(IAppConfig::class);
+		$appConfig->method('getKeys')->willReturn(['allow_user_dash', 'showcase_installed_intranet']);
+		$appConfig->method('getValueString')->willReturn('a77d8c2a-f12e-44fd-9cc2-c5ee32a6c40c');
+		$admin = new RoleAssignment();
+		$admin->setRole(RoleAssignment::ROLE_ADMIN);
+		$roles = $this->createMock(RoleAssignmentMapper::class);
+		$roles->method('findAll')->willReturn([$admin]);
+		$service = new SetupWizardService(
+			settingMapper: $this->settingMapper,
+			appConfig: $appConfig,
+			roleAssignments: $roles
+		);
+
+		$state = $service->getWizardState();
+
+		$this->assertSame(
+			expected: [1 => 'done', 2 => 'done', 3 => 'done', 4 => 'done', 5 => 'pending'],
+			actual: $state['stepStatuses']
+		);
+		$this->assertSame(expected: 5, actual: $state['currentRecommendedStep']);
+	}//end testAnInstalledDemoAndAnAdminRoleMarkStepsThreeAndFourDone()
+
+	/**
+	 * An emptied install marker and an editor-only role leave Steps 3 and 4 pending.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/setup-wizard/spec.md
+	 */
+	public function testAnEmptyMarkerAndAnEditorRoleLeaveStepsThreeAndFourPending(): void {
+		$this->settingMapper->method('getValue')->willReturn(false);
+		$this->settingMapper->method('getAllAsArray')->willReturn([]);
+		$appConfig = $this->createMock(IAppConfig::class);
+		$appConfig->method('getKeys')->willReturn(['showcase_installed_intranet']);
+		$appConfig->method('getValueString')->willReturn('');
+		$editor = new RoleAssignment();
+		$editor->setRole(RoleAssignment::ROLE_EDITOR);
+		$roles = $this->createMock(RoleAssignmentMapper::class);
+		$roles->method('findAll')->willReturn([$editor]);
+		$service = new SetupWizardService(
+			settingMapper: $this->settingMapper,
+			appConfig: $appConfig,
+			roleAssignments: $roles
+		);
+
+		$state = $service->getWizardState();
+
+		$this->assertSame(expected: 'pending', actual: $state['stepStatuses']['3']);
+		$this->assertSame(expected: 'pending', actual: $state['stepStatuses']['4']);
+		$this->assertSame(expected: 1, actual: $state['currentRecommendedStep']);
+	}//end testAnEmptyMarkerAndAnEditorRoleLeaveStepsThreeAndFourPending()
 }

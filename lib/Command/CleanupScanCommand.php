@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Command;
 
 use OCA\LaunchPad\Db\CleanupResult;
+use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use OCA\LaunchPad\Kernel\Contracts\OrphanedDataCleanupServiceInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -42,9 +43,11 @@ class CleanupScanCommand extends Command {
 	 * Constructor.
 	 *
 	 * @param OrphanedDataCleanupServiceInterface $cleanupService The orchestrator.
+	 * @param CommandServiceInterface             $commandService Writes the audit line.
 	 */
 	public function __construct(
 		private readonly OrphanedDataCleanupServiceInterface $cleanupService,
+		private readonly CommandServiceInterface $commandService,
 	) {
 		parent::__construct();
 	}//end __construct()
@@ -70,19 +73,38 @@ class CleanupScanCommand extends Command {
 	 *
 	 * @return int 0 when no orphans, 1 otherwise.
 	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 *
 	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$result = $this->cleanupService->scan();
+		$started  = (int)round(num: (microtime(as_float: true) * 1000));
+		$exitCode = 1;
+		try {
+			$result = $this->cleanupService->scan();
 
-		self::renderCounts(result: $result, output: $output);
-		self::writeNotes(result: $result, output: $output);
+			self::renderCounts(result: $result, output: $output);
+			self::writeNotes(result: $result, output: $output);
 
-		if ($result->getTotalRows() === 0) {
-			return 0;
+			$exitCode = 0;
+			if ($result->getTotalRows() > 0) {
+				$exitCode = 1;
+			}
+		} finally {
+			// The scan takes no arguments and runs without a session, so it
+			// is audited as byUser=cli (REQ-CLI-010).
+			$this->commandService->audit(
+				run: [
+					'command'    => 'cleanup:scan',
+					'args'       => '',
+					'exitCode'   => $exitCode,
+					'durationMs' => ((int)round(num: (microtime(as_float: true) * 1000)) - $started),
+					'byUser'     => null,
+				]
+			);
 		}
 
-		return 1;
+		return $exitCode;
 	}//end execute()
 
 	/**

@@ -383,4 +383,27 @@ class FooterServiceTest extends TestCase {
 
 		$this->assertNull($this->service->resolveFooterForDashboard(dashboard: $dash));
 	}
+
+	/**
+	 * REQ-FTR-004: a page without an active dashboard shows the global
+	 * footer, and none while it is off.
+	 *
+	 * @return void
+	 */
+	public function testTheGlobalFooterIsWhatAnInheritDashboardShows(): void {
+		$enabled = true;
+		$this->settingMapper->method('getValue')->willReturnCallback(
+			static function (string $key, mixed $default) use (&$enabled): mixed {
+				return match ($key) {
+					AdminSetting::KEY_FOOTER_ENABLED => $enabled,
+					AdminSetting::KEY_FOOTER_HTML => '<p>Global</p>',
+					default => $default,
+				};
+			}
+		);
+
+		$this->assertSame(expected: '<p>Global</p>', actual: $this->service->resolveGlobalFooter()['html']);
+		$enabled = false;
+		$this->assertNull(actual: $this->service->resolveGlobalFooter());
+	}//end testTheGlobalFooterIsWhatAnInheritDashboardShows()
 }

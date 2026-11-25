@@ -37,6 +37,7 @@ use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\CustomCssService;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
+use OCA\LaunchPad\Service\PageFooter;
 use OCA\LaunchPad\Service\PublicStartPage;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCA\LaunchPad\Service\SearchShortcutService;
@@ -188,7 +189,7 @@ class PageControllerIndexTest extends TestCase {
 	 *
 	 * @return PageController
 	 */
-	private function controller(?DashboardPayloads $payloads=null, ?SharingLimits $sharing=null): PageController {
+	private function controller(?DashboardPayloads $payloads=null, ?SharingLimits $sharing=null, ?PageFooter $footer=null): PageController {
 		$initialState = $this->createMock(originalClassName: IInitialState::class);
 		$initialState->method('provideInitialState')->willReturnCallback(
 			callback: function (string $key, mixed $value): void {
@@ -203,7 +204,7 @@ class PageControllerIndexTest extends TestCase {
 			sources: new PageSources(
 				initialState: $initialState,
 				widgetService: $this->widgets,
-				dashboards: new PageDashboards(dashboardService: $this->dashboards, payloads: $payloads, sharing: $sharing),
+				dashboards: new PageDashboards(dashboardService: $this->dashboards, payloads: $payloads, sharing: $sharing, footer: $footer),
 				adminTemplateService: $this->templates
 			),
 			userSession: $this->session,
@@ -438,6 +439,30 @@ class PageControllerIndexTest extends TestCase {
 		$this->controller(sharing: $sharing)->index();
 		$this->assertSame(expected: ['mayShare' => false, 'publicLinksAllowed' => false], actual: $this->state['sharingPolicy']);
 	}//end testTheWorkspaceCarriesTheSharingPolicy()
+
+	/**
+	 * REQ-FTR-004 / REQ-FTR-007: the page carries the footer of the active
+	 * dashboard and the viewer's language; without the resolver, no footer.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/footer-customization/spec.md
+	 */
+	public function testTheWorkspaceCarriesTheFooterAndTheViewersLanguage(): void {
+		$this->signIn(uid: 'pieter');
+		$this->adminSettings->method('getSettings')->willReturn([]);
+
+		$this->controller()->index();
+		$this->assertNull(actual: $this->state['effectiveFooter']);
+		$this->assertSame(expected: 'en', actual: $this->state['viewerLocale']);
+
+		$footer = $this->createMock(originalClassName: PageFooter::class);
+		$footer->method('footerFor')->willReturn(['mode' => 'global', 'html' => '<p>F</p>']);
+		$footer->method('viewerLocale')->with('pieter')->willReturn('nl');
+		$this->controller(footer: $footer)->index();
+		$this->assertSame(expected: ['mode' => 'global', 'html' => '<p>F</p>'], actual: $this->state['effectiveFooter']);
+		$this->assertSame(expected: 'nl', actual: $this->state['viewerLocale']);
+	}//end testTheWorkspaceCarriesTheFooterAndTheViewersLanguage()
 
 	/**
 	 * The legacy widget bridge switches the catalogue to every available widget.

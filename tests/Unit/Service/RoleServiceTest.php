@@ -340,4 +340,19 @@ class RoleServiceTest extends TestCase {
 		$this->groupManager->method('isAdmin')->with('alice')->willReturn(true);
 		$this->assertTrue($this->service->isEditorOrHigher(userId: 'alice'));
 	}
+
+	/**
+	 * hasGroupRole answers from the mapper's (group, role) lookup.
+	 *
+	 * @spec openspec/changes/e2e-coverage-programme/tasks.md#task-3.5
+	 */
+	public function testHasGroupRoleReadsTheGroupRow(): void {
+		$this->mapper->method('findGroupRole')->willReturnMap([
+			['engineering', 'admin', new RoleAssignment()],
+			['sales', 'admin', null],
+		]);
+
+		$this->assertTrue($this->service->hasGroupRole(groupId: 'engineering', role: 'admin'));
+		$this->assertFalse($this->service->hasGroupRole(groupId: 'sales', role: 'admin'));
+	}
 }//end class

@@ -12,7 +12,8 @@
  * asserting against the real signatures there.
  *
  * The signatures mirror
- * `openregister/lib/AppHost/Service/StoreDescriptor.php` and
+ * `openregister/lib/AppHost/Service/StoreDescriptor.php` (with StoreListing and
+ * StoreSharing, as of 2026-11-25) and
  * `openregister/lib/AppHost/Service/GenericStoreService.php` as of 2026-09-10.
  *
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
@@ -22,11 +23,11 @@
 declare(strict_types=1);
 
 namespace OCA\OpenRegister\AppHost\Service {
-	if (class_exists(__NAMESPACE__ . '\\StoreDescriptor', false) === false) {
+	if (class_exists(__NAMESPACE__ . '\\StoreListing', false) === false) {
 		/**
-		 * Stub mirroring the engine's immutable descriptor value object.
+		 * Stub mirroring the engine's read half of a store descriptor.
 		 */
-		final class StoreDescriptor {
+		final class StoreListing {
 			/**
 			 * Constructor.
 			 *
@@ -34,15 +35,94 @@ namespace OCA\OpenRegister\AppHost\Service {
 			 * @param string                $schema          Remote schema slug.
 			 * @param string                $defaultRegister Register used when config is empty.
 			 * @param array<string, string> $cardFields      Card field to remote property.
-			 * @param array<int, string>    $types           Shareable configuration type ids.
 			 */
 			public function __construct(
 				public readonly string $appId,
 				public readonly string $schema,
 				public readonly string $defaultRegister,
 				public readonly array $cardFields = [],
-				public readonly array $types = [],
 			) {
+			}//end __construct()
+		}//end class
+	}
+
+	if (class_exists(__NAMESPACE__ . '\\StoreSharing', false) === false) {
+		/**
+		 * Stub mirroring the engine's share half of a store descriptor.
+		 */
+		final class StoreSharing {
+			/**
+			 * Constructor.
+			 *
+			 * @param array<int, string> $types         Shareable configuration type ids.
+			 * @param array<int, string> $publishFields Fields that may leave this server.
+			 * @param array<int, string> $publishGroups Groups that may publish.
+			 */
+			public function __construct(
+				public readonly array $types = [],
+				public readonly array $publishFields = [],
+				public readonly array $publishGroups = [],
+			) {
+			}//end __construct()
+		}//end class
+	}
+
+	if (class_exists(__NAMESPACE__ . '\\StoreDescriptor', false) === false) {
+		/**
+		 * Stub mirroring the engine's immutable descriptor value object, built
+		 * from a listing and a sharing part.
+		 */
+		final class StoreDescriptor {
+			/**
+			 * App holding the registry config.
+			 *
+			 * @var string
+			 */
+			public readonly string $appId;
+
+			/**
+			 * Remote schema slug.
+			 *
+			 * @var string
+			 */
+			public readonly string $schema;
+
+			/**
+			 * Register used when config is empty.
+			 *
+			 * @var string
+			 */
+			public readonly string $defaultRegister;
+
+			/**
+			 * Card field to remote property.
+			 *
+			 * @var array<string, string>
+			 */
+			public readonly array $cardFields;
+
+			/**
+			 * Shareable configuration type ids.
+			 *
+			 * @var array<int, string>
+			 */
+			public readonly array $types;
+
+			/**
+			 * Constructor.
+			 *
+			 * @param StoreListing $listing The read half.
+			 * @param StoreSharing $sharing The share half.
+			 */
+			public function __construct(
+				public readonly StoreListing $listing,
+				public readonly StoreSharing $sharing = new StoreSharing(),
+			) {
+				$this->appId = $listing->appId;
+				$this->schema = $listing->schema;
+				$this->defaultRegister = $listing->defaultRegister;
+				$this->cardFields = $listing->cardFields;
+				$this->types = $sharing->types;
 			}//end __construct()
 		}//end class
 	}

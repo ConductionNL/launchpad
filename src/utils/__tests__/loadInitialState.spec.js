@@ -354,3 +354,31 @@ describe('takeOrgNavigation', () => {
 		expect(takeOrgNavigation()).toBeNull()
 	})
 })
+
+/**
+ * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-4
+ */
+describe('takeBootRead', () => {
+	it('hands out each part once, then undefined', async () => {
+		pushedState = { workspaceBootReads: { tiles: [{ id: 1 }], defaultDashboard: { uuid: 'u' } } }
+
+		const { takeBootRead } = await import('../loadInitialState.js')
+
+		expect(takeBootRead('tiles')).toEqual([{ id: 1 }])
+		expect(takeBootRead('tiles')).toBeUndefined()
+		expect(takeBootRead('defaultDashboard')).toEqual({ uuid: 'u' })
+	})
+
+	it('is undefined for a part the page did not carry, and without the key', async () => {
+		pushedState = { workspaceBootReads: { tiles: [] } }
+		const { takeBootRead, loadInitialState } = await import('../loadInitialState.js')
+		expect(takeBootRead('pendingAcknowledgements')).toBeUndefined()
+
+		vi.resetModules()
+		pushedState = {}
+		const fresh = await import('../loadInitialState.js')
+		expect(fresh.loadInitialState('workspace').workspaceBootReads).toBeNull()
+		expect(fresh.takeBootRead('tiles')).toBeUndefined()
+		expect(loadInitialState).toBeTypeOf('function')
+	})
+})

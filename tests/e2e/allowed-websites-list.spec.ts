@@ -41,6 +41,7 @@ import {
 } from './support/dashboardFixture.ts'
 import { describeRun, runOcc } from './support/occ.ts'
 import { adminContext, API } from './support/principals.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const SETTINGS_PAGE = `${BASE_URL}/index.php/apps/launchpad/admin`
 const SITES = `${API}/admin/allowed-sites`
@@ -184,7 +185,7 @@ async function openWidgetForm(
 	await expect(row).toBeVisible({ timeout: 10_000 })
 	await row.locator('.dashboard-row-actions button').first().click()
 	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
-	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
+	await chooseAndAdd(page.locator(`[data-testid="widget-picker-type-${type}"]`))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	const form = dialog.locator(formClass)

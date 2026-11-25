@@ -378,6 +378,44 @@ The LaunchPad search provider MUST be positioned at order `50` so that it appear
 - WHEN the search is invoked
 - THEN `getOrder()` MAY return a lower numeric value (e.g., `5`) to surface LaunchPad results first
 
+### Requirement: REQ-SRCH-013 The top bar search shows its results under the field
+
+On a LaunchPad page, typing two or more characters in the top bar's search field MUST open a results list under the field, as wide as the field. The list MUST start with "You searched for <query>", MUST group the results per search provider under the provider's name in capitals, with LaunchPad's dashboards first, and MUST show each result with its icon, its name and one line of detail (for a dashboard: who shared it and how many widgets it has, or the group it belongs to). When search shortcuts are configured, the list MUST end with "Tip: type <prefix> to search <name> directly" for the first one.
+
+The list MUST behave as a combobox (WAI-ARIA 1.2): the field has `role="combobox"` and `aria-expanded`, the list has `role="listbox"`, and each result has `role="option"`. The first result is selected when the list opens. Arrow keys move the selection, Enter opens the selected result, and Escape closes the list and keeps the query. A "Show all results" row MUST hand the query to Nextcloud's own search dialog.
+
+#### Scenario: Results under the field
+
+- **GIVEN** Pieter is on My workspace and can see the dashboards "Permits team" and "Zuiddrecht intranet"
+- **WHEN** he types "team" in the top bar's search field
+- **THEN** a list opens under the field that starts with "You searched for team"
+- **AND** under "DASHBOARDS" it shows "Permits team" with "Shared by Marieke Jansen · 14 widgets", selected, and "Zuiddrecht intranet" with "Group dashboard of Communications"
+
+#### Scenario: The keyboard drives the list
+
+- **GIVEN** the list is open for "team" with "Permits team" selected
+- **WHEN** Pieter presses Arrow down and then Enter
+- **THEN** "Zuiddrecht intranet" opens
+
+#### Scenario: The shortcut tip
+
+- **GIVEN** the shortcut "!top" for TOPdesk is configured
+- **WHEN** the list opens
+- **THEN** its last row reads "Tip: type !top to search TOPdesk directly"
+
+#### Scenario: Escape closes the list
+
+- **GIVEN** the list is open
+- **WHEN** Pieter presses Escape
+- **THEN** the list closes, the field keeps "team" and keeps the focus
+
+#### Scenario: A top bar without a field
+
+- **GIVEN** the Nextcloud version's desktop top bar has only a button that opens the search dialog (Nextcloud 31 and later)
+- **WHEN** Pieter opens a LaunchPad page
+- **THEN** a search field stands in the button's place, with the button's words
+- **AND** typing in it opens the list as above, and "Show all results" still opens Nextcloud's search dialog
+
 ---
 
 ## Dependencies
@@ -410,4 +448,5 @@ The LaunchPad search provider MUST be positioned at order `50` so that it appear
 - REQ-SRCH-010 (Performance): One `getVisibleToUser()` call yields the candidate set; placement and metadata fetches are O(matching dashboards) and bounded by the per-bucket cap.
 - REQ-SRCH-011 (UI integration): Result `resourceUrl` is built via `IURLGenerator::linkToRouteAbsolute('launchpad.page.index')` plus a `#dashboard/<uuid>` fragment, and (for widget matches) a `;widget=<placementId>` hint inside the same fragment so the SPA can deep-link without a separate redirect route.
 - REQ-SRCH-012 (Order): `getOrder()` returns `50` by default; when the current route starts with `launchpad.`, it returns `5` to boost in-app discoverability.
+- REQ-SRCH-013 (Results under the field): `src/components/HeaderSearchDropdown.vue`, mounted by `src/utils/headerSearchMount.js`, binds to the top bar's field through `src/utils/headerSearchField.js`; on Nextcloud 31+ (button only) that places LaunchPad's own field in the button's place. Archived change: `openspec/changes/archive/2026-11-25-header-search-dropdown`.
 - Tests: `tests/Unit/Search/LaunchPadSearchProviderTest.php` covers id/name/order, empty term, name/description matches, case-insensitive matching, widget-content matches with deep-link, HTML stripping, non-text widget skipping, metadata value matches, key-vs-value distinction, permission denial, visibility-boundary failure, the 10-result cap, and malformed `styleConfig` resilience.

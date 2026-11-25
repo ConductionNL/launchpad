@@ -6,7 +6,7 @@
  * which element the top bar's results list serves, across core's top bar
  * shapes, and that LaunchPad's own field comes out again cleanly.
  *
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 
 import { afterEach, describe, expect, it } from 'vitest'

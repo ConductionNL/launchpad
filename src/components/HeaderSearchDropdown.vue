@@ -92,7 +92,7 @@ import {
  * Nextcloud's top bar search field, across the core versions LaunchPad runs on.
  *
  * @type {string}
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export const CORE_SEARCH_FIELD_SELECTOR = '.unified-search-input, #unified-search input, .unified-search__input, input.unified-search-menu__input'
 
@@ -117,7 +117,7 @@ let instanceCounter = 0
  * `aria-activedescendant`), listens to its input and keys, and draws a
  * listbox under it. It never writes the field's `placeholder` or value.
  *
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export default {
 	name: 'HeaderSearchDropdown',
@@ -127,14 +127,14 @@ export default {
 		 * The admin's search shortcuts `{prefix, name, urlTemplate}`
 		 * (REQ-SPX-002); the first one gives the tip.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		shortcuts: LIST_PROP,
 
 		/**
 		 * The CSS selector of the field to attach to.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		fieldSelector: {
 			type: String,
@@ -165,7 +165,7 @@ export default {
 		 * The "Show all results" row, as an option.
 		 *
 		 * @return {{key: string}} The row.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		showAllOption() {
 			return { key: SHOW_ALL_KEY }
@@ -175,7 +175,7 @@ export default {
 		 * Every selectable row in list order: the results, then "Show all".
 		 *
 		 * @return {Array<object>} The options.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		options() {
 			const results = this.groups.flatMap((group) => group.results)
@@ -186,7 +186,7 @@ export default {
 		 * The shortcut the tip names, or null.
 		 *
 		 * @return {{prefix: string, name: string}|null} The shortcut.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		shortcut() {
 			return firstShortcut(this.shortcuts)
@@ -197,7 +197,7 @@ export default {
 		/**
 		 * Keep the field's combobox state in step with the list.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		open() {
 			this.syncFieldAria()
@@ -206,7 +206,7 @@ export default {
 		/**
 		 * Keep `aria-activedescendant` on the selected row.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		activeIndex() {
 			this.syncFieldAria()
@@ -216,7 +216,7 @@ export default {
 	/**
 	 * Attach to the field, now or once the top bar renders it.
 	 *
-	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+	 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
 	mounted() {
 		if (!this.attach()) {
@@ -234,7 +234,7 @@ export default {
 	/**
 	 * Let go of the field and cancel pending work.
 	 *
-	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+	 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
 	beforeUnmount() {
 		this.observer?.disconnect()
@@ -252,7 +252,7 @@ export default {
 		 * (`resolveSearchField()`), following the button's words.
 		 *
 		 * @return {boolean} Whether the field was found.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		attach() {
 			const resolved = resolveSearchField(
@@ -287,7 +287,7 @@ export default {
 		/**
 		 * Unbind from the field.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		detach() {
 			const field = this.field
@@ -308,7 +308,7 @@ export default {
 		/**
 		 * Mirror the list's state on the field.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		syncFieldAria() {
 			const field = this.field
@@ -329,7 +329,7 @@ export default {
 		 *
 		 * @param {{key: string}} option The row.
 		 * @return {string} The id.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		optionId(option) {
 			return `${this.listboxId}-${option.key}`
@@ -340,7 +340,7 @@ export default {
 		 *
 		 * @param {{key: string}} option The row.
 		 * @return {boolean} True when selected.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		isActive(option) {
 			return this.options[this.activeIndex]?.key === option.key
@@ -350,7 +350,7 @@ export default {
 		 * The field changed: search after a short pause, or close under two
 		 * characters.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		onInput() {
 			this.query = this.field?.value ?? ''
@@ -366,7 +366,7 @@ export default {
 		 * Ask the providers and open the list with the first result selected.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		async search() {
 			this.controller?.abort()
@@ -389,7 +389,7 @@ export default {
 		/**
 		 * Place the panel under the field, as wide as the field.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		position() {
 			const rect = this.field?.getBoundingClientRect?.()
@@ -408,7 +408,7 @@ export default {
 		 * list and keeps the query and the focus.
 		 *
 		 * @param {KeyboardEvent} event The key press on the field.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		onKeydown(event) {
 			if (!this.open) {
@@ -447,7 +447,7 @@ export default {
 		 * Close when the focus leaves the field (a row click is a mousedown
 		 * with its default prevented, so it keeps the focus).
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		onBlur() {
 			this.close()
@@ -457,7 +457,7 @@ export default {
 		 * Open a result, or hand the query to Nextcloud's own search dialog.
 		 *
 		 * @param {{key: string, url?: string}} option The chosen row.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		choose(option) {
 			if (option.key === SHOW_ALL_KEY) {
@@ -475,7 +475,7 @@ export default {
 		/**
 		 * Close the list. The field keeps its value and its focus.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		close() {
 			clearTimeout(this.timer)

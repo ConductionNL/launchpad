@@ -112,6 +112,71 @@ export async function fetchCalendarEvents(placementId, args = {}) {
 }
 
 /**
+ * The new colleagues for CnPeopleWidget's `selectionMode: 'new'`:
+ * `GET /apps/launchpad/api/people/new?since=&until=`, answered as
+ * `{ configured, users }` (each with id, displayName, avatarUrl, role,
+ * organisation, startDate, starts). A failed read throws, so the widget shows
+ * its error state.
+ *
+ * @param {object} [args] `{ since, until }` in days.
+ * @return {Promise<{configured: boolean, users: Array<object>}>}
+ * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ */
+export async function fetchNewPeople(args = {}) {
+	const [{ default: axios }, { generateUrl: genUrl }] = await Promise.all([
+		import('@nextcloud/axios'),
+		import('@nextcloud/router'),
+	])
+	const response = await axios.get(genUrl('/apps/launchpad/api/people/new'), {
+		params: { since: args.since, until: args.until },
+	})
+	const data = response?.data || {}
+	return {
+		configured: data.configured === true,
+		users: Array.isArray(data.users) ? data.users : [],
+	}
+}
+
+/** The one start-date answer of this page load (a promise), or null. */
+let startDateFieldAnswer = null
+
+/**
+ * Whether an administrator marked a profile field as the start date, which
+ * is when the people widget form offers New colleagues. Asked once per page
+ * load; a failed read offers nothing.
+ *
+ * @return {Promise<boolean>}
+ * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ */
+export function hasStartDateField() {
+	if (startDateFieldAnswer === null) {
+		startDateFieldAnswer = fetchNewPeople({ since: 1, until: 0 })
+			.then((answer) => answer.configured === true)
+			.catch(() => {
+				startDateFieldAnswer = null
+				return false
+			})
+	}
+	return startDateFieldAnswer
+}
+
+/**
+ * The people source for places outside a placement (the widget forms):
+ * the directory, the new colleagues and the start-date question.
+ *
+ * @return {object} the `cnPeopleSource` adapter.
+ * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ */
+export function buildPeopleSource() {
+	return {
+		fetchPeople: fetchPeoplePage,
+		searchPeople: fetchPeoplePage,
+		fetchNewPeople,
+		hasStartDateField,
+	}
+}
+
+/**
  * Build the `provide()` map of data-source adapters for the nc-vue data
  * widgets. Calendar is placement-scoped, so the caller passes a getter for the
  * current placement id.
@@ -130,6 +195,8 @@ export function buildWidgetDataProvide(getPlacementId, getContent = () => ({})) 
 		cnPeopleSource: {
 			fetchPeople: people,
 			searchPeople: people,
+			fetchNewPeople,
+			hasStartDateField,
 		},
 		cnCalendarSource: {
 			fetchEvents: (args) => fetchCalendarEvents(getPlacementId(), args),

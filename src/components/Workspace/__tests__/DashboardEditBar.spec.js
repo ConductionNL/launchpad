@@ -37,9 +37,15 @@ describe('DashboardEditBar', () => {
 		expect(bar.text()).toContain('You are editing Mijn werkplek')
 	})
 
-	it('holds Columns, Add widget, Dashboard settings and Done, in that order', () => {
+	it('holds Columns, Add widget, Add tiles, Dashboard settings and Done, in that order', () => {
 		const labels = mountBar().findAll('button').map((b) => b.text())
-		expect(labels).toEqual(['6', '8', '12', 'Add widget', 'Dashboard settings', 'Done'])
+		expect(labels).toEqual(['6', '8', '12', 'Add widget', 'Add tiles', 'Dashboard settings', 'Done'])
+	})
+
+	it('emits addTiles from Add tiles (add-tiles-dialog REQ-TILE-043)', async () => {
+		const wrapper = mountBar()
+		await wrapper.find('[data-testid="launchpad-edit-bar-add-tiles"]').trigger('click')
+		expect(wrapper.emitted('addTiles')).toHaveLength(1)
 	})
 
 	it('marks the current column count pressed and emits a chosen one', async () => {

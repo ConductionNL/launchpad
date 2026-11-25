@@ -127,6 +127,14 @@
 			"email": "nieuw@zuiddrecht.example",
 			"groups": [],
 			"firstRun": true
+		},
+		{
+			"id": "lotte",
+			"displayName": "Lotte Verhoeven",
+			"email": "lotte@zuiddrecht.example",
+			"groups": [
+				"medewerkers"
+			]
 		}
 	],
 	"tiles": {
@@ -2590,5 +2598,17 @@
 				]
 			}
 		]
+	},
+	"startDates": {
+		"_note": "people-new-colleagues REQ-PPL-014: the new colleagues of board LpIntranet. Days from the day the seed loads, so New colleagues stays current: Yasmina starts in 5 days, Lotte started 4 days ago, Thomas 7 days ago.",
+		"field": {
+			"key": "start_date",
+			"label": "In dienst sinds"
+		},
+		"offsets": {
+			"yasmina": 5,
+			"lotte": -4,
+			"thomas": -7
+		}
 	}
 }

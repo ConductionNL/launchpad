@@ -494,7 +494,7 @@ test.describe('deleting a compulsory widget from a copy (REQ-TMPL-023)', () => {
 		await session?.context.close()
 	})
 
-	async function chooseDelete(title: string): Promise<void> {
+	async function openWidgetMenu(title: string): Promise<void> {
 		const { page, who, copyId } = session!
 		const placement = (await placementsOf(who.api, copyId)).find(
 			(p) => p.customTitle === title,
@@ -503,11 +503,15 @@ test.describe('deleting a compulsory widget from a copy (REQ-TMPL-023)', () => {
 			`[data-testid="widget-placement-${placement.id}"]`,
 		)
 		await widget.getByRole('button', { name: 'Widget menu' }).click()
-		await page.getByRole('menuitem', { name: 'Delete widget' }).click()
+	}
+
+	async function chooseDelete(title: string): Promise<void> {
+		await openWidgetMenu(title)
+		await session!.page.getByRole('menuitem', { name: 'Delete widget' }).click()
 	}
 
 	// @e2e admin-templates::delete-widget-on-a-compulsory-widget
-	test('a message names the widget and nothing is sent or removed', async () => {
+	test('the widget menu offers no delete on a compulsory widget, and nothing is sent or removed', async () => {
 		const { page, who, copyId } = session!
 		const deletes: string[] = []
 		page.on('request', (r) => {
@@ -516,12 +520,11 @@ test.describe('deleting a compulsory widget from a copy (REQ-TMPL-023)', () => {
 			}
 		})
 
-		await chooseDelete(COMPULSORY)
-		await expect(
-			page.getByText(
-				`"${COMPULSORY}" is part of the start page your administrator set for your group and cannot be removed.`,
-			),
-		).toBeVisible({ timeout: 10_000 })
+		await openWidgetMenu(COMPULSORY)
+		// CONTROL: the menu is open.
+		await expect(page.getByRole('menuitem', { name: 'Edit widget' })).toBeVisible()
+		await expect(page.getByRole('menuitem', { name: 'Delete widget' })).toHaveCount(0)
+		await page.keyboard.press('Escape')
 		await page.waitForTimeout(1_000)
 		expect(deletes).toEqual([])
 		await expect(

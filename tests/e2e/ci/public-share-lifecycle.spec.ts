@@ -56,7 +56,7 @@
  *   @e2e dashboard-public-share::password-protected-share-returns-401-without-unlock
  *   @e2e dashboard-public-share::unlock-with-correct-password
  *   @e2e dashboard-public-share::unlock-with-incorrect-password
- *   @e2e dashboard-public-share::query-param-password-alternative-to-header
+ *   @e2e dashboard-public-share::the-password-travels-in-a-header-never-in-the-query
  *
  * @spec openspec/specs/dashboard-public-share/spec.md
  */
@@ -512,7 +512,7 @@ test.describe('owner-only management endpoints', () => {
 })
 
 test.describe('the password gate', () => {
-	test('the wrong password is refused, the right one unlocks, and either transport carries it', async ({
+	test('the wrong password is refused, the right one unlocks, and only the header carries it', async ({
 		baseURL,
 	}) => {
 		const admin = await apiAs(baseURL!, ADMIN)
@@ -563,17 +563,17 @@ test.describe('the password gate', () => {
 			'the correct password must grant access',
 		).toBe(true)
 
-		// REQ-PSHR-005: the query param and the X-Share-Password header are
-		// both accepted by the render endpoint. Assert on the RENDER, since
-		// that is what the transports are for.
+		// REQ-PSHR-005: the render endpoint takes the password from the
+		// X-Share-Password header only; one in the query string does not
+		// unlock it, so it never lands in an access log.
 		const viaQuery = await anon.get(
 			`${dataUrl(share.token)}?password=${encodeURIComponent(password)}`,
 		)
-		expect(viaQuery.status(), await viaQuery.text()).toBe(200)
+		expect(viaQuery.status(), await viaQuery.text()).toBe(401)
 		expect(
 			await viaQuery.json(),
-			'an unlocked render must carry the dashboard',
-		).toHaveProperty('dashboard')
+			'a password in the query must not unlock the render',
+		).not.toHaveProperty('dashboard')
 
 		const viaHeader = await anon.get(dataUrl(share.token), {
 			headers: { 'X-Share-Password': password },

@@ -1811,7 +1811,23 @@ OC.L10N.register(
     "What colleagues worked on." : "Wouru Kolleegen geschafft hunn.",
     "What needs you first, across apps." : "Wat Iech als éischt brauch, iwwer all Apps.",
     "Your open cases." : "Är oppe Fäll.",
-    "Your open work packages." : "Är oppe Aarbechtspaketen."
+    "Your open work packages." : "Är oppe Aarbechtspaketen.",
+    "Add tiles" : "Kacheln derbäisetzen",
+    "Search apps" : "Apps sichen",
+    "On your dashboard" : "Op Ärem Dashboard",
+    "Add {name}" : "{name} derbäisetzen",
+    "No apps found" : "Keng Apps fonnt",
+    "Found on this server" : "Op dësem Server fonnt",
+    "Add as tile" : "Als Kachel derbäisetzen",
+    "Ready-made tiles for Office" : "Fäerdeg Kachelen fir Office",
+    "Drop the bookmarks file your browser exported here" : "Leet hei de Lieszeechefichier of, deen Äre Browser exportéiert huet",
+    "Choose file" : "Fichier wielen",
+    "Add 1 tile" : "1 Kachel derbäisetzen",
+    "Add {count} tiles" : "{count} Kachelen derbäisetzen",
+    "Single sign-on" : "Single Sign-on",
+    "Signs in with your Nextcloud account" : "Mellt sech mat Ärem Nextcloud-Kont un",
+    "Asks for its own sign-in" : "Freet no enger eegener Umeldung",
+    "The tiles could not be added." : "D'Kachele konnten net derbäigesat ginn."
 },
 "nplurals=2; plural=(n != 1);"
 );

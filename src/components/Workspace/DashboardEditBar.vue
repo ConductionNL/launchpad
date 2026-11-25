@@ -50,6 +50,16 @@
 			<Plus :size="16" />
 			{{ t('launchpad', 'Add widget') }}
 		</button>
+		<!-- add-tiles-dialog REQ-TILE-043 -->
+		<button
+			type="button"
+			class="launchpad-edit-bar__button"
+			aria-haspopup="dialog"
+			data-testid="launchpad-edit-bar-add-tiles"
+			@click="$emit('addTiles')">
+			<ViewGridPlusOutline :size="16" />
+			{{ t('launchpad', 'Add tiles') }}
+		</button>
 		<button
 			v-if="canConfigure"
 			type="button"
@@ -78,6 +88,7 @@ import Check from 'vue-material-design-icons/Check.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
+import ViewGridPlusOutline from 'vue-material-design-icons/ViewGridPlusOutline.vue'
 
 /** The column counts the grid offers. */
 export const GRID_COLUMN_OPTIONS = [6, 8, 12]
@@ -92,6 +103,7 @@ export default {
 		Cog,
 		Pencil,
 		Plus,
+		ViewGridPlusOutline,
 	},
 
 	props: {
@@ -117,7 +129,7 @@ export default {
 		},
 	},
 
-	emits: ['setColumns', 'addWidget', 'openSettings', 'done', 'dock'],
+	emits: ['setColumns', 'addWidget', 'addTiles', 'openSettings', 'done', 'dock'],
 
 	data() {
 		return {

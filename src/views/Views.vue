@@ -184,6 +184,7 @@
 				:canConfigure="canConfigureActiveDashboard"
 				@setColumns="setGridColumns"
 				@addWidget="openWidgetModal"
+				@addTiles="openAddTilesModal"
 				@openSettings="openConfigModal"
 				@done="toggleEditMode"
 				@dock="editBarDock = $event" />
@@ -431,7 +432,21 @@
 			v-if="mountedModals.bookmarkImport"
 			:open="isBookmarkImportOpen"
 			:importBookmarks="importChosenBookmarks"
-			@close="isBookmarkImportOpen = false" />
+			:initialFile="bookmarkInitialFile"
+			@close="isBookmarkImportOpen = false; bookmarkInitialFile = null" />
+
+		<!-- add-tiles-dialog REQ-TILE-043: Add tiles (board LpTegelToevoegen). -->
+		<AddTilesModal
+			v-if="mountedModals.addTiles"
+			:open="isAddTilesOpen"
+			:catalogueApps="catalogueApps"
+			:discoveredApps="discoveredApps"
+			:officeTiles="officeTiles"
+			:placements="widgetPlacements"
+			:requestAppFn="requestCatalogueApp"
+			:addTiles="addChosenTiles"
+			@importBookmarks="onAddTilesImportBookmarks"
+			@close="isAddTilesOpen = false" />
 
 		<TileEditor
 			v-if="mountedModals.tileEditor"
@@ -546,6 +561,7 @@ const DeleteDashboardDialog = defineAsyncComponent(() => import('../dialogs/Dele
 const ReadConfirmationDialog = defineAsyncComponent(() => import('../dialogs/ReadConfirmationDialog.vue'))
 const AcknowledgementReportModal = defineAsyncComponent(() => import('../modals/AcknowledgementReportModal.vue'))
 const BookmarkImportModal = defineAsyncComponent(() => import('../modals/BookmarkImportModal.vue'))
+const AddTilesModal = defineAsyncComponent(() => import('../modals/AddTilesModal.vue'))
 const DashboardConfigModal = defineAsyncComponent(() => import('../modals/DashboardConfigModal.vue'))
 const TileEditor = defineAsyncComponent(() => import('../modals/TileEditor.vue'))
 const VisibilityRulesModal = defineAsyncComponent(() => import('../modals/VisibilityRulesModal.vue'))
@@ -726,6 +742,7 @@ export default {
 		WidgetPickerModal,
 		CnWidgetStyleEditorModal,
 		BookmarkImportModal,
+		AddTilesModal,
 		TileEditor,
 		DashboardConfigModal,
 		CnAddWidgetModal,
@@ -936,6 +953,9 @@ export default {
 			styleEditorWidget: null,
 			isTileEditorOpen: false,
 			isBookmarkImportOpen: false,
+			bookmarkInitialFile: null,
+			isAddTilesOpen: false,
+			officeTiles: [],
 			editingTile: null,
 			// Custom widget add/edit modal state. `customWidgetEditing`
 			// non-null = edit mode; `customWidgetPreselectedType` non-null =
@@ -1019,6 +1039,7 @@ export default {
 				widgetPicker: this.isWidgetModalOpen,
 				config: this.isConfigModalOpen,
 				bookmarkImport: this.isBookmarkImportOpen,
+				addTiles: this.isAddTilesOpen,
 				tileEditor: this.isTileEditorOpen,
 				movePanel: this.movePanelOpen,
 				visibility: this.isVisibilityModalOpen,
@@ -2801,6 +2822,69 @@ export default {
 			} catch (error) {
 				logger.error('[Views] Failed to place a catalogue app:', error)
 			}
+		},
+
+		/**
+		 * Open Add tiles with the catalogue, the found apps and the office
+		 * pack loaded; a list that fails to load leaves its section empty.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 */
+		async openAddTilesModal() {
+			this.isAddTilesOpen = true
+			await Promise.all([
+				this.loadDiscoveredApps(),
+				this.loadCatalogueApps(),
+				this.loadOfficeTiles(),
+			])
+		},
+
+		/**
+		 * Read the office tile pack for the Add tiles Office section.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 */
+		async loadOfficeTiles() {
+			try {
+				const response = await api.officeTilePack()
+				this.officeTiles = Array.isArray(response?.data?.tiles) ? response.data.tiles : []
+			} catch (error) {
+				this.officeTiles = []
+				logger.warn('[Views] Could not load the office tiles:', error)
+			}
+		},
+
+		/**
+		 * Place the tiles chosen in Add tiles, one after the other so each
+		 * lands below the last: a found app as its own app tile, the rest as
+		 * ordinary tiles.
+		 *
+		 * @param {Array<{kind: string, tile: object}>} choices The chosen tiles.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 */
+		async addChosenTiles(choices) {
+			for (const choice of choices) {
+				if (choice.kind === 'app-tile') {
+					await this.addWidgetToDashboard(appTileFromDiscoveredApp(choice.tile))
+				} else {
+					await this.addTileToDashboard(choice.tile)
+				}
+			}
+		},
+
+		/**
+		 * A bookmarks file chosen in Add tiles: open the bookmark import on it.
+		 *
+		 * @param {File} file The bookmarks file.
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 */
+		onAddTilesImportBookmarks(file) {
+			this.isAddTilesOpen = false
+			this.bookmarkInitialFile = file
+			this.isBookmarkImportOpen = true
 		},
 
 		/**

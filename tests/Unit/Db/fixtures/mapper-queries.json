@@ -4486,6 +4486,50 @@
             ],
             "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\ProfileValue {\\\"id\\\":5,\\\"userId\\\":\\\"\\\",\\\"fieldKey\\\":\\\"\\\",\\\"value\\\":\\\"\\\",\\\"source\\\":\\\"\\\",\\\"scope\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\ProfileValue {\\\"id\\\":6,\\\"userId\\\":\\\"\\\",\\\"fieldKey\\\":\\\"\\\",\\\"value\\\":\\\"\\\",\\\"source\\\":\\\"\\\",\\\"scope\\\":null}\"]"
         },
+        "findDatesBetween all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_profile_values\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-fieldKey\", 2, null)",
+                "qb1.expr.eq(\"field_key\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"field_key\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"\", 2, null)",
+                "qb1.expr.gte(\"value\", \":p2\", null)",
+                "qb1.andWhere(\"gte(\\\"value\\\", \\\":p2\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"\", 2, null)",
+                "qb1.expr.lte(\"value\", \":p3\", null)",
+                "qb1.andWhere(\"lte(\\\"value\\\", \\\":p3\\\", null)\")",
+                "qb1.orderBy(\"value\", \"DESC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findDatesBetween rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_profile_values\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-fieldKey\", 2, null)",
+                "qb1.expr.eq(\"field_key\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"field_key\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"\", 2, null)",
+                "qb1.expr.gte(\"value\", \":p2\", null)",
+                "qb1.andWhere(\"gte(\\\"value\\\", \\\":p2\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"\", 2, null)",
+                "qb1.expr.lte(\"value\", \":p3\", null)",
+                "qb1.andWhere(\"lte(\\\"value\\\", \\\":p3\\\", null)\")",
+                "qb1.orderBy(\"value\", \"DESC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\ProfileValue {\\\"id\\\":5,\\\"userId\\\":\\\"\\\",\\\"fieldKey\\\":\\\"\\\",\\\"value\\\":\\\"\\\",\\\"source\\\":\\\"\\\",\\\"scope\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\ProfileValue {\\\"id\\\":6,\\\"userId\\\":\\\"\\\",\\\"fieldKey\\\":\\\"\\\",\\\"value\\\":\\\"\\\",\\\"source\\\":\\\"\\\",\\\"scope\\\":null}\"]"
+        },
         "search all": {
             "calls": [
                 "qb1 new",

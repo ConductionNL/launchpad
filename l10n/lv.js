@@ -1820,7 +1820,23 @@ OC.L10N.register(
     "What colleagues worked on." : "Pie kā strādāja kolēģi.",
     "What needs you first, across apps." : "Kam vispirms vajadzīga jūsu uzmanība, visās lietotnēs.",
     "Your open cases." : "Jūsu atvērtās lietas.",
-    "Your open work packages." : "Jūsu atvērtās darba pakotnes."
+    "Your open work packages." : "Jūsu atvērtās darba pakotnes.",
+    "Add tiles" : "Pievienot flīzes",
+    "Search apps" : "Meklēt lietotnes",
+    "On your dashboard" : "Jūsu informācijas panelī",
+    "Add {name}" : "Pievienot {name}",
+    "No apps found" : "Lietotnes netika atrastas",
+    "Found on this server" : "Atrasts šajā serverī",
+    "Add as tile" : "Pievienot kā flīzi",
+    "Ready-made tiles for Office" : "Gatavas flīzes Office",
+    "Drop the bookmarks file your browser exported here" : "Nometiet šeit pārlūka eksportēto grāmatzīmju failu",
+    "Choose file" : "Izvēlēties failu",
+    "Add 1 tile" : "Pievienot 1 flīzi",
+    "Add {count} tiles" : "Pievienot flīzes: {count}",
+    "Single sign-on" : "Vienotā pierakstīšanās",
+    "Signs in with your Nextcloud account" : "Pierakstās ar jūsu Nextcloud kontu",
+    "Asks for its own sign-in" : "Prasa savu pierakstīšanos",
+    "The tiles could not be added." : "Flīzes nevarēja pievienot."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

@@ -1820,7 +1820,23 @@ OC.L10N.register(
     "What colleagues worked on." : "Fuq xiex ħadmu l-kollegi.",
     "What needs you first, across apps." : "X'jeħtieġek l-ewwel, fl-apps kollha.",
     "Your open cases." : "Il-każijiet miftuħa tiegħek.",
-    "Your open work packages." : "Il-pakketti ta' xogħol miftuħa tiegħek."
+    "Your open work packages." : "Il-pakketti ta' xogħol miftuħa tiegħek.",
+    "Add tiles" : "Żid madum",
+    "Search apps" : "Fittex applikazzjonijiet",
+    "On your dashboard" : "Fuq id-dashboard tiegħek",
+    "Add {name}" : "Żid {name}",
+    "No apps found" : "Ma nstabet l-ebda applikazzjoni",
+    "Found on this server" : "Instab fuq dan is-server",
+    "Add as tile" : "Żid bħala madum",
+    "Ready-made tiles for Office" : "Madum lest għal Office",
+    "Drop the bookmarks file your browser exported here" : "Itlaq hawn il-fajl tal-bookmarks li esporta l-browser tiegħek",
+    "Choose file" : "Agħżel fajl",
+    "Add 1 tile" : "Żid 1 madum",
+    "Add {count} tiles" : "Żid madum: {count}",
+    "Single sign-on" : "Login wieħed",
+    "Signs in with your Nextcloud account" : "Jidħol bil-kont Nextcloud tiegħek",
+    "Asks for its own sign-in" : "Jitlob il-login tiegħu stess",
+    "The tiles could not be added." : "Il-madum ma setax jiżdied."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

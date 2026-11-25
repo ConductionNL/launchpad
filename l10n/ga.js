@@ -1820,7 +1820,23 @@ OC.L10N.register(
     "What colleagues worked on." : "Ar a raibh comhghleacaithe ag obair.",
     "What needs you first, across apps." : "Cad atá uait ar dtús, thar aipeanna.",
     "Your open cases." : "Do chásanna oscailte.",
-    "Your open work packages." : "Do phacáistí oibre oscailte."
+    "Your open work packages." : "Do phacáistí oibre oscailte.",
+    "Add tiles" : "Cuir tíleanna leis",
+    "Search apps" : "Cuardaigh aipeanna",
+    "On your dashboard" : "Ar do dheais",
+    "Add {name}" : "Cuir {name} leis",
+    "No apps found" : "Níor aimsíodh aipeanna",
+    "Found on this server" : "Aimsithe ar an bhfreastalaí seo",
+    "Add as tile" : "Cuir leis mar thíl",
+    "Ready-made tiles for Office" : "Tíleanna réamhdhéanta do Office",
+    "Drop the bookmarks file your browser exported here" : "Scaoil anseo an comhad leabharmharcanna a d’easpórtáil do bhrabhsálaí",
+    "Choose file" : "Roghnaigh comhad",
+    "Add 1 tile" : "Cuir 1 tíl leis",
+    "Add {count} tiles" : "Cuir tíleanna leis: {count}",
+    "Single sign-on" : "Sínigh isteach aonair",
+    "Signs in with your Nextcloud account" : "Síníonn isteach le do chuntas Nextcloud",
+    "Asks for its own sign-in" : "Iarrann sé a shíniú isteach féin",
+    "The tiles could not be added." : "Níorbh fhéidir na tíleanna a chur leis."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

@@ -1717,6 +1717,12 @@
 		"validator": false,
 		"default": ""
 	},
+	"../../components/admin/AdminDemoData.vue | choice": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/admin/AdminSettings.vue | tab": {
 		"type": "String",
 		"required": false,
@@ -2057,6 +2063,51 @@
 		"validator": false,
 		"default": ""
 	},
+	"../../modals/AddTilesModal.vue | open": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/AddTilesModal.vue | catalogueApps": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/AddTilesModal.vue | discoveredApps": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/AddTilesModal.vue | officeTiles": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/AddTilesModal.vue | placements": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/AddTilesModal.vue | requestAppFn": {
+		"type": "Function",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../modals/AddTilesModal.vue | addTiles": {
+		"type": "Function",
+		"required": true,
+		"validator": false
+	},
 	"../../modals/BookmarkImportModal.vue | open": {
 		"type": "Boolean",
 		"required": false,
@@ -2067,6 +2118,12 @@
 		"type": "Function",
 		"required": true,
 		"validator": false
+	},
+	"../../modals/BookmarkImportModal.vue | initialFile": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../modals/DashboardConfigModal.vue | open": {
 		"type": "Boolean",

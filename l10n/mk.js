@@ -1717,7 +1717,10 @@ OC.L10N.register(
     "Upload another icon" : "Прикачи друга икона",
     "e.g. http://intranet.local" : "на пр. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Име на регистарот",
+    "Shown on the marketplace. Leave empty to show the address." : "Се прикажува на пазарот. Оставете празно за да се прикаже адресата.",
+    "Open the Sharing tab" : "Отвори го јазичето Споделување"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

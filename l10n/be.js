@@ -1717,6 +1717,9 @@ OC.L10N.register(
     "Upload another icon" : "Запампаваць іншы значок",
     "e.g. http://intranet.local" : "напр. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Назва рэестра",
+    "Shown on the marketplace. Leave empty to show the address." : "Паказваецца на маркетплэйсе. Пакіньце пустым, каб паказаць адрас.",
+    "Open the Sharing tab" : "Адкрыць укладку «Абмен»"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

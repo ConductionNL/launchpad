@@ -1628,6 +1628,9 @@
         "Upload another icon": "Загрузить другой значок",
         "e.g. http://intranet.local": "напр. http://intranet.local",
         "{date} {time}": "{date} {time}",
-        "{group} · {dashboard}": "{group} · {dashboard}"
+        "{group} · {dashboard}": "{group} · {dashboard}",
+        "Register name": "Название реестра",
+        "Shown on the marketplace. Leave empty to show the address.": "Показывается на маркетплейсе. Оставьте пустым, чтобы показать адрес.",
+        "Open the Sharing tab": "Открыть вкладку «Общий доступ»"
     }
 }

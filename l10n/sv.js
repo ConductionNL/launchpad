@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Ladda upp en annan ikon",
     "e.g. http://intranet.local" : "t.ex. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Registrets namn",
+    "Shown on the marketplace. Leave empty to show the address." : "Visas på marknadsplatsen. Lämna tomt för att visa adressen.",
+    "Open the Sharing tab" : "Öppna fliken Delning"
 },
 "nplurals=2; plural=(n != 1);"
 );

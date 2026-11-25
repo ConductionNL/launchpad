@@ -1628,6 +1628,9 @@
         "Upload another icon": "Įkelti kitą piktogramą",
         "e.g. http://intranet.local": "pvz., http://intranet.local",
         "{date} {time}": "{date} {time}",
-        "{group} · {dashboard}": "{group} · {dashboard}"
+        "{group} · {dashboard}": "{group} · {dashboard}",
+        "Register name": "Registro pavadinimas",
+        "Shown on the marketplace. Leave empty to show the address.": "Rodomas prekyvietėje. Palikite tuščią, kad būtų rodomas adresas.",
+        "Open the Sharing tab": "Atverti skirtuką Bendrinimas"
     }
 }

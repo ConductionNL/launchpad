@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Tella' ikona oħra",
     "e.g. http://intranet.local" : "eż. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Isem tar-reġistru",
+    "Shown on the marketplace. Leave empty to show the address." : "Jidher fis-suq. Ħallih vojt biex tidher l-indirizz.",
+    "Open the Sharing tab" : "Iftaħ it-tab Qsim"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

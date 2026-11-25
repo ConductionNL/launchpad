@@ -1717,6 +1717,9 @@ OC.L10N.register(
     "Upload another icon" : "Отпреми другу икону",
     "e.g. http://intranet.local" : "нпр. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Назив регистра",
+    "Shown on the marketplace. Leave empty to show the address." : "Приказује се на пијаци. Оставите празно да би се приказала адреса.",
+    "Open the Sharing tab" : "Отвори картицу Дељење"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

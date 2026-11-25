@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Naloži drugo ikono",
     "e.g. http://intranet.local" : "npr. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Ime registra",
+    "Shown on the marketplace. Leave empty to show the address." : "Prikazano na tržnici. Pustite prazno, da se prikaže naslov.",
+    "Open the Sharing tab" : "Odpri zavihek Deljenje"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

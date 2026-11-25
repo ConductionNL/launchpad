@@ -1628,6 +1628,9 @@
         "Upload another icon": "Запампаваць іншы значок",
         "e.g. http://intranet.local": "напр. http://intranet.local",
         "{date} {time}": "{date} {time}",
-        "{group} · {dashboard}": "{group} · {dashboard}"
+        "{group} · {dashboard}": "{group} · {dashboard}",
+        "Register name": "Назва рэестра",
+        "Shown on the marketplace. Leave empty to show the address.": "Паказваецца на маркетплэйсе. Пакіньце пустым, каб паказаць адрас.",
+        "Open the Sharing tab": "Адкрыць укладку «Абмен»"
     }
 }

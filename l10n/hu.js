@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Másik ikon feltöltése",
     "e.g. http://intranet.local" : "pl. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "A regiszter neve",
+    "Shown on the marketplace. Leave empty to show the address." : "A piactéren jelenik meg. Hagyja üresen a cím megjelenítéséhez.",
+    "Open the Sharing tab" : "A Megosztás lap megnyitása"
 },
 "nplurals=2; plural=(n != 1);"
 );

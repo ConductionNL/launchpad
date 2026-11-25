@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Вивантажити інший значок",
     "e.g. http://intranet.local" : "напр. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Назва реєстру",
+    "Shown on the marketplace. Leave empty to show the address." : "Показується на маркетплейсі. Залиште порожнім, щоб показати адресу.",
+    "Open the Sharing tab" : "Відкрити вкладку «Спільний доступ»"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

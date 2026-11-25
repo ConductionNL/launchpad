@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Įkelti kitą piktogramą",
     "e.g. http://intranet.local" : "pvz., http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Registro pavadinimas",
+    "Shown on the marketplace. Leave empty to show the address." : "Rodomas prekyvietėje. Palikite tuščią, kad būtų rodomas adresas.",
+    "Open the Sharing tab" : "Atverti skirtuką Bendrinimas"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -1626,6 +1626,9 @@
         "Upload another icon": "Lähetä toinen kuvake",
         "e.g. http://intranet.local": "esim. http://intranet.local",
         "{date} {time}": "{date} {time}",
-        "{group} · {dashboard}": "{group} · {dashboard}"
+        "{group} · {dashboard}": "{group} · {dashboard}",
+        "Register name": "Rekisterin nimi",
+        "Shown on the marketplace. Leave empty to show the address.": "Näytetään kauppapaikalla. Jätä tyhjäksi, niin osoite näytetään.",
+        "Open the Sharing tab": "Avaa Jakaminen-välilehti"
     }
 }

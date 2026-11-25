@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Upload et andet ikon",
     "e.g. http://intranet.local" : "f.eks. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Registerets navn",
+    "Shown on the marketplace. Leave empty to show the address." : "Vises på markedspladsen. Lad feltet være tomt for at vise adressen.",
+    "Open the Sharing tab" : "Åbn fanen Deling"
 },
 "nplurals=2; plural=(n != 1);"
 );

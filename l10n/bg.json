@@ -1626,6 +1626,9 @@
         "Upload another icon": "Качване на друга икона",
         "e.g. http://intranet.local": "напр. http://intranet.local",
         "{date} {time}": "{date} {time}",
-        "{group} · {dashboard}": "{group} · {dashboard}"
+        "{group} · {dashboard}": "{group} · {dashboard}",
+        "Register name": "Име на регистъра",
+        "Shown on the marketplace. Leave empty to show the address.": "Показва се в магазина. Оставете празно, за да се покаже адресът.",
+        "Open the Sharing tab": "Отворете раздела „Споделяне“"
     }
 }

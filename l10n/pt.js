@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Carregar outro ícone",
     "e.g. http://intranet.local" : "p. ex. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Nome do registo",
+    "Shown on the marketplace. Leave empty to show the address." : "Mostrado no mercado. Deixe vazio para mostrar o endereço.",
+    "Open the Sharing tab" : "Abrir o separador Partilha"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Chargiar si in auter icon",
     "e.g. http://intranet.local" : "p.ex. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Num dal register",
+    "Shown on the marketplace. Leave empty to show the address." : "Vegn mussà sin la plazza da martgà. Laschar vid per mussar l'adressa.",
+    "Open the Sharing tab" : "Avrir il tab Cundivider"
 },
 "nplurals=2; plural=(n != 1);"
 );

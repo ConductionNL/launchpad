@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Ngarko një ikonë tjetër",
     "e.g. http://intranet.local" : "p.sh. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Emri i regjistrit",
+    "Shown on the marketplace. Leave empty to show the address." : "Shfaqet në treg. Lëreni bosh për të shfaqur adresën.",
+    "Open the Sharing tab" : "Hap skedën Ndarja"
 },
 "nplurals=2; plural=(n != 1);"
 );

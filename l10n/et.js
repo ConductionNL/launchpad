@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Laadi üles teine ikoon",
     "e.g. http://intranet.local" : "nt http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Registri nimi",
+    "Shown on the marketplace. Leave empty to show the address." : "Kuvatakse turuplatsil. Jäta tühjaks, et kuvada aadress.",
+    "Open the Sharing tab" : "Ava vahekaart Jagamine"
 },
 "nplurals=2; plural=(n != 1);"
 );

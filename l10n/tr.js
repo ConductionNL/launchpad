@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Başka bir simge yükle",
     "e.g. http://intranet.local" : "örn. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Kayıt adı",
+    "Shown on the marketplace. Leave empty to show the address." : "Pazar yerinde gösterilir. Adresi göstermek için boş bırakın.",
+    "Open the Sharing tab" : "Paylaşım sekmesini aç"
 },
 "nplurals=2; plural=(n != 1);"
 );

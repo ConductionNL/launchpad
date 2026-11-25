@@ -1717,7 +1717,10 @@ OC.L10N.register(
     "Upload another icon" : "Aner Ikon eroplueden",
     "e.g. http://intranet.local" : "z. B. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Numm vum Register",
+    "Shown on the marketplace. Leave empty to show the address." : "Gëtt um Marché ugewisen. Eidel loossen, fir d'Adress ze weisen.",
+    "Open the Sharing tab" : "Den Tab Deelen opmaachen"
 },
 "nplurals=2; plural=(n != 1);"
 );

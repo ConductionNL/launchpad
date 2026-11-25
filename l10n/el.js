@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Μεταφόρτωση άλλου εικονιδίου",
     "e.g. http://intranet.local" : "π.χ. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Όνομα μητρώου",
+    "Shown on the marketplace. Leave empty to show the address." : "Εμφανίζεται στην αγορά. Αφήστε κενό για να εμφανιστεί η διεύθυνση.",
+    "Open the Sharing tab" : "Άνοιγμα της καρτέλας Κοινή χρήση"
 },
 "nplurals=2; plural=(n != 1);"
 );

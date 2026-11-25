@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Uaslódáil deilbhín eile",
     "e.g. http://intranet.local" : "m.sh. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Ainm na clárlainne",
+    "Shown on the marketplace. Leave empty to show the address." : "Taispeántar é ar an margadh. Fág folamh chun an seoladh a thaispeáint.",
+    "Open the Sharing tab" : "Oscail an cluaisín Comhroinnt"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

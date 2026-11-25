@@ -2601,7 +2601,10 @@ OC.L10N.register(
     "Upload another icon" : "Ander pictogram uploaden",
     "e.g. http://intranet.local" : "bijv. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Naam van het register",
+    "Shown on the marketplace. Leave empty to show the address." : "Staat op de marktplaats. Laat leeg om het adres te tonen.",
+    "Open the Sharing tab" : "Open het tabblad Delen"
 },
 "nplurals=2; plural=(n != 1);"
 );

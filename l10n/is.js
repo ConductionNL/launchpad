@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Hlaða upp öðru tákni",
     "e.g. http://intranet.local" : "t.d. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Heiti skrár",
+    "Shown on the marketplace. Leave empty to show the address." : "Birtist á markaðstorginu. Skildu eftir autt til að sýna vistfangið.",
+    "Open the Sharing tab" : "Opna flipann Deiling"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

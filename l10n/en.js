@@ -2173,7 +2173,10 @@ OC.L10N.register(
     "Upload another icon" : "Upload another icon",
     "e.g. http://intranet.local" : "e.g. http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Register name",
+    "Shown on the marketplace. Leave empty to show the address." : "Shown on the marketplace. Leave empty to show the address.",
+    "Open the Sharing tab" : "Open the Sharing tab"
 },
 "nplurals=2; plural=(n != 1);"
 );

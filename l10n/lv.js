@@ -1726,7 +1726,10 @@ OC.L10N.register(
     "Upload another icon" : "Augšupielādēt citu ikonu",
     "e.g. http://intranet.local" : "piem., http://intranet.local",
     "{date} {time}" : "{date} {time}",
-    "{group} · {dashboard}" : "{group} · {dashboard}"
+    "{group} · {dashboard}" : "{group} · {dashboard}",
+    "Register name" : "Reģistra nosaukums",
+    "Shown on the marketplace. Leave empty to show the address." : "Tiek rādīts tirgū. Atstājiet tukšu, lai rādītu adresi.",
+    "Open the Sharing tab" : "Atvērt cilni Kopīgošana"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

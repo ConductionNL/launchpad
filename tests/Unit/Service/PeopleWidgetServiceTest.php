@@ -451,6 +451,52 @@ class PeopleWidgetServiceTest extends TestCase {
 	// ---------------------------------------------------------------
 
 	/**
+	 * A profile built for a named viewer shows what the owner's scopes let
+	 * that viewer see, without a listing having set a viewer first: the
+	 * "New colleagues" list builds profiles this way (REQ-PPL-014).
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 *
+	 * @return void
+	 */
+	public function testBuildUserProfileForANamedViewerShowsScopedFields(): void {
+		$yasmina = $this->makeUser(uid: 'yasmina', display: 'Yasmina');
+		$this->accountManager->method('getAccount')->willReturn(
+			$this->makeAccount(
+				properties: [
+					IAccountManager::PROPERTY_ROLE => 'Beleidsadviseur',
+					IAccountManager::PROPERTY_ORGANISATION => 'Team Wonen',
+					IAccountManager::PROPERTY_PHONE => '0612345678',
+				],
+				scopes: [IAccountManager::PROPERTY_PHONE => IAccountManager::SCOPE_PRIVATE]
+			)
+		);
+
+		$profile = $this->service->buildUserProfile(user: $yasmina, showBirthdays: false, viewerId: 'pieter');
+
+		$this->assertSame(expected: 'Beleidsadviseur', actual: $profile['role']);
+		$this->assertSame(expected: 'Team Wonen', actual: $profile['organisation']);
+		$this->assertArrayNotHasKey(key: 'phone', array: $profile, message: 'a private field shows to its owner only');
+	}//end testBuildUserProfileForANamedViewerShowsScopedFields()
+
+	/**
+	 * Without a viewer, from neither the call nor a listing, no account
+	 * property shows.
+	 *
+	 * @return void
+	 */
+	public function testBuildUserProfileWithoutAViewerShowsNoAccountFields(): void {
+		$yasmina = $this->makeUser(uid: 'yasmina', display: 'Yasmina');
+		$this->accountManager->method('getAccount')->willReturn(
+			$this->makeAccount(properties: [IAccountManager::PROPERTY_ROLE => 'Beleidsadviseur'])
+		);
+
+		$profile = $this->service->buildUserProfile(user: $yasmina, showBirthdays: false);
+
+		$this->assertArrayNotHasKey(key: 'role', array: $profile);
+	}//end testBuildUserProfileWithoutAViewerShowsNoAccountFields()
+
+	/**
 	 * @return void
 	 */
 	public function testBirthdateIsNormalisedToIso(): void {

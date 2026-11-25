@@ -48,6 +48,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// The signed-in person's own analytics opt-out (REQ-ANLT-UI-001).
 		['name' => 'analyticsOptOut#show', 'url' => '/api/analytics/me', 'verb' => 'GET'],
 		['name' => 'analyticsOptOut#update', 'url' => '/api/analytics/me', 'verb' => 'PUT'],
+		// personal-settings REQ-PSET-002: the caller's own summary email choice.
+		['name' => 'summaryMail#show', 'url' => '/api/summary-mail/me', 'verb' => 'GET'],
+		['name' => 'summaryMail#update', 'url' => '/api/summary-mail/me', 'verb' => 'PUT'],
 
 		// Main page
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],

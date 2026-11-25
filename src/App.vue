@@ -44,11 +44,12 @@
 			LaunchPad adds nothing to Nextcloud's personal settings (Ruben,
 			11 Oct 2026). The app's own sections go in #user-settings-sections,
 			in board LpPersoonlijk's order (personal-settings REQ-PSET-001):
-			Gebruikscijfers, Verborgen widgets, Mijn profiel; the library keeps
+			Samenvatting per e-mail, Gebruikscijfers, Verborgen widgets, Mijn profiel; the library keeps
 			drawing credentials, notifications, the walkthrough replay and
 			integrations after them, in the order of the userSettingsSections prop.
 		-->
 		<template #user-settings-sections>
+			<DigestSettings />
 			<AnalyticsOptOutSettings />
 			<HiddenWidgetsSettings />
 			<ProfileFieldsSettings />
@@ -62,6 +63,7 @@ import { translate as ncTranslate } from '@nextcloud/l10n'
 import { computed } from 'vue'
 import StartPageMenu from './components/Workspace/StartPageMenu.vue'
 import AnalyticsOptOutSettings from './views/settings/AnalyticsOptOutSettings.vue'
+import DigestSettings from './views/settings/DigestSettings.vue'
 import HiddenWidgetsSettings from './views/settings/HiddenWidgetsSettings.vue'
 import ProfileFieldsSettings from './views/settings/ProfileFieldsSettings.vue'
 import { REQUIRED_OBJECT_PROP } from './constants/propDefinitions.js'
@@ -138,6 +140,7 @@ export default {
 	components: {
 		CnAppRoot,
 		AnalyticsOptOutSettings,
+		DigestSettings,
 		HiddenWidgetsSettings,
 		ProfileFieldsSettings,
 		StartPageMenu,

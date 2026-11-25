@@ -1670,7 +1670,14 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Szablon wygrywa, poza tym, co ktoś sam przeniósł lub dodał.",
     "Replace everything with the template" : "Zastąp wszystko szablonem",
     "Personal changes are lost." : "Zmiany osobiste zostaną utracone.",
-    "{count} people changed their dashboard." : "{count} osób zmieniło swój pulpit."
+    "{count} people changed their dashboard." : "{count} osób zmieniło swój pulpit.",
+    "Sharing allowed for" : "Udostępnianie dozwolone dla",
+    "Only these groups" : "Tylko te grupy",
+    "Nobody" : "Nikt",
+    "Only administrators can share. Existing shares stay." : "Udostępniać mogą tylko administratorzy. Istniejące udostępnienia pozostają.",
+    "Allow public links" : "Zezwalaj na linki publiczne",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Tylko dla osób, które mogą udostępniać pulpity. Link zawsze ma datę wygaśnięcia.",
+    "Expiry date (required)" : "Data wygaśnięcia (wymagana)"
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

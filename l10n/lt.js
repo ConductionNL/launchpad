@@ -1670,7 +1670,14 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Laimi šablonas, išskyrus tai, ką kas nors pats perkėlė ar pridėjo.",
     "Replace everything with the template" : "Viską pakeisti šablonu",
     "Personal changes are lost." : "Asmeniniai pakeitimai prarandami.",
-    "{count} people changed their dashboard." : "{count} žmonės pakeitė savo skydelį."
+    "{count} people changed their dashboard." : "{count} žmonės pakeitė savo skydelį.",
+    "Sharing allowed for" : "Bendrinti leidžiama",
+    "Only these groups" : "Tik šioms grupėms",
+    "Nobody" : "Niekam",
+    "Only administrators can share. Existing shares stay." : "Bendrinti gali tik administratoriai. Esami bendrinimai lieka.",
+    "Allow public links" : "Leisti viešas nuorodas",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Tik tiems, kam leidžiama bendrinti skydelius. Nuoroda visada turi galiojimo pabaigos datą.",
+    "Expiry date (required)" : "Galiojimo pabaigos data (privaloma)"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -1670,7 +1670,14 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Le modèle l'emporte, sauf ce que chacun a déplacé ou ajouté lui-même.",
     "Replace everything with the template" : "Tout remplacer par le modèle",
     "Personal changes are lost." : "Les modifications personnelles sont perdues.",
-    "{count} people changed their dashboard." : "{count} personnes ont modifié leur tableau de bord."
+    "{count} people changed their dashboard." : "{count} personnes ont modifié leur tableau de bord.",
+    "Sharing allowed for" : "Partage autorisé pour",
+    "Only these groups" : "Uniquement ces groupes",
+    "Nobody" : "Personne",
+    "Only administrators can share. Existing shares stay." : "Seuls les administrateurs peuvent partager. Les partages existants restent.",
+    "Allow public links" : "Autoriser les liens publics",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Uniquement pour les personnes autorisées à partager des tableaux de bord. Un lien a toujours une date d'expiration.",
+    "Expiry date (required)" : "Date d'expiration (obligatoire)"
 },
 "nplurals=2; plural=(n > 1);"
 );

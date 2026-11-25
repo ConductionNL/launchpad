@@ -1670,7 +1670,14 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "A sablon nyer, kivéve amit valaki maga helyezett át vagy adott hozzá.",
     "Replace everything with the template" : "Minden cseréje a sablonra",
     "Personal changes are lost." : "A személyes módosítások elvesznek.",
-    "{count} people changed their dashboard." : "{count} ember módosította az irányítópultját."
+    "{count} people changed their dashboard." : "{count} ember módosította az irányítópultját.",
+    "Sharing allowed for" : "Megosztás engedélyezve",
+    "Only these groups" : "Csak ezeknek a csoportoknak",
+    "Nobody" : "Senkinek",
+    "Only administrators can share. Existing shares stay." : "Csak a rendszergazdák oszthatnak meg. A meglévő megosztások maradnak.",
+    "Allow public links" : "Nyilvános hivatkozások engedélyezése",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Csak azoknak, akik megoszthatnak irányítópultokat. A hivatkozásnak mindig van lejárati dátuma.",
+    "Expiry date (required)" : "Lejárati dátum (kötelező)"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -2327,6 +2327,13 @@
         "The template wins, except what someone moved or added themselves.": "Sjabloon wint, behalve wat iemand zelf heeft verplaatst of toegevoegd.",
         "Replace everything with the template": "Alles vervangen door het sjabloon",
         "Personal changes are lost.": "Persoonlijke aanpassingen gaan verloren.",
-        "{count} people changed their dashboard.": "{count} mensen hebben hun dashboard aangepast."
+        "{count} people changed their dashboard.": "{count} mensen hebben hun dashboard aangepast.",
+        "Sharing allowed for": "Delen toegestaan voor",
+        "Only these groups": "Alleen deze groepen",
+        "Nobody": "Niemand",
+        "Only administrators can share. Existing shares stay.": "Alleen beheerders kunnen delen. Bestaande shares blijven.",
+        "Allow public links": "Openbare links toestaan",
+        "Only for people who may share dashboards. A link always has an expiry date.": "Alleen voor wie dashboards mag delen. Een link heeft altijd een vervaldatum.",
+        "Expiry date (required)": "Vervaldatum (verplicht)"
     }
 }

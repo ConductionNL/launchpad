@@ -1670,7 +1670,14 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Il model gudogna, danor quai che insatgi ha spustà u agiuntà sez.",
     "Replace everything with the template" : "Remplazzar tut cun il model",
     "Personal changes are lost." : "Las midadas persunalas van a perder.",
-    "{count} people changed their dashboard." : "{count} persunas han midà lur dashboard."
+    "{count} people changed their dashboard." : "{count} persunas han midà lur dashboard.",
+    "Sharing allowed for" : "Divider permess per",
+    "Only these groups" : "Mo questas gruppas",
+    "Nobody" : "Nagin",
+    "Only administrators can share. Existing shares stay." : "Mo administraturs pon divider. Las divisiuns existentas restan.",
+    "Allow public links" : "Permetter colliaziuns publicas",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Mo per quels che dastgan divider dashboards. Ina colliaziun ha adina ina data da scadenza.",
+    "Expiry date (required)" : "Data da scadenza (obligatoric)"
 },
 "nplurals=2; plural=(n != 1);"
 );

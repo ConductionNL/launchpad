@@ -1670,7 +1670,14 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Šablona vyhrává, kromě toho, co někdo sám přesunul nebo přidal.",
     "Replace everything with the template" : "Nahradit vše šablonou",
     "Personal changes are lost." : "Osobní úpravy budou ztraceny.",
-    "{count} people changed their dashboard." : "{count} lidí upravilo svou nástěnku."
+    "{count} people changed their dashboard." : "{count} lidí upravilo svou nástěnku.",
+    "Sharing allowed for" : "Sdílení povoleno pro",
+    "Only these groups" : "Pouze tyto skupiny",
+    "Nobody" : "Nikdo",
+    "Only administrators can share. Existing shares stay." : "Sdílet mohou pouze správci. Stávající sdílení zůstávají.",
+    "Allow public links" : "Povolit veřejné odkazy",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Pouze pro ty, kdo smějí sdílet nástěnky. Odkaz má vždy datum vypršení.",
+    "Expiry date (required)" : "Datum vypršení (povinné)"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

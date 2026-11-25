@@ -1572,6 +1572,13 @@
         "The template wins, except what someone moved or added themselves.": "Šablóna vyhráva, okrem toho, čo niekto sám presunul alebo pridal.",
         "Replace everything with the template": "Nahradiť všetko šablónou",
         "Personal changes are lost.": "Osobné úpravy sa stratia.",
-        "{count} people changed their dashboard.": "{count} ľudí upravilo svoju nástenku."
+        "{count} people changed their dashboard.": "{count} ľudí upravilo svoju nástenku.",
+        "Sharing allowed for": "Zdieľanie povolené pre",
+        "Only these groups": "Iba tieto skupiny",
+        "Nobody": "Nikto",
+        "Only administrators can share. Existing shares stay.": "Zdieľať môžu iba správcovia. Existujúce zdieľania zostávajú.",
+        "Allow public links": "Povoliť verejné odkazy",
+        "Only for people who may share dashboards. A link always has an expiry date.": "Iba pre tých, ktorí smú zdieľať nástenky. Odkaz má vždy dátum vypršania.",
+        "Expiry date (required)": "Dátum vypršania (povinný)"
     }
 }

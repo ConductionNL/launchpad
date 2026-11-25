@@ -1670,7 +1670,14 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Predloga zmaga, razen tistega, kar je kdo sam premaknil ali dodal.",
     "Replace everything with the template" : "Zamenjaj vse s predlogo",
     "Personal changes are lost." : "Osebne prilagoditve se izgubijo.",
-    "{count} people changed their dashboard." : "{count} oseb je spremenilo svojo nadzorno ploščo."
+    "{count} people changed their dashboard." : "{count} oseb je spremenilo svojo nadzorno ploščo.",
+    "Sharing allowed for" : "Deljenje dovoljeno za",
+    "Only these groups" : "Samo te skupine",
+    "Nobody" : "Nihče",
+    "Only administrators can share. Existing shares stay." : "Deliti lahko samo skrbniki. Obstoječa deljenja ostanejo.",
+    "Allow public links" : "Dovoli javne povezave",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Samo za tiste, ki smejo deliti nadzorne plošče. Povezava ima vedno datum poteka.",
+    "Expiry date (required)" : "Datum poteka (obvezno)"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

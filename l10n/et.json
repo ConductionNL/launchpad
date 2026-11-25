@@ -1570,6 +1570,13 @@
         "The template wins, except what someone moved or added themselves.": "Mall võidab, välja arvatud see, mida keegi ise teisaldas või lisas.",
         "Replace everything with the template": "Asenda kõik malliga",
         "Personal changes are lost.": "Isiklikud muudatused lähevad kaotsi.",
-        "{count} people changed their dashboard.": "{count} inimest muutsid oma töölauda."
+        "{count} people changed their dashboard.": "{count} inimest muutsid oma töölauda.",
+        "Sharing allowed for": "Jagamine lubatud",
+        "Only these groups": "Ainult need grupid",
+        "Nobody": "Mitte keegi",
+        "Only administrators can share. Existing shares stay.": "Jagada saavad ainult administraatorid. Olemasolevad jagamised jäävad.",
+        "Allow public links": "Luba avalikud lingid",
+        "Only for people who may share dashboards. A link always has an expiry date.": "Ainult neile, kes tohivad töölaudu jagada. Lingil on alati aegumiskuupäev.",
+        "Expiry date (required)": "Aegumiskuupäev (kohustuslik)"
     }
 }

@@ -1,0 +1,130 @@
+<?php
+
+/**
+ * SummaryMailController
+ *
+ * The caller's own summary email choice, for the section Samenvatting per
+ * e-mail of the personal settings dialog (personal-settings REQ-PSET-002):
+ *   - GET /api/summary-mail/me   `{frequency, hasEmail}`
+ *   - PUT /api/summary-mail/me   store `frequency` (off, daily, weekly)
+ *
+ * Both read the caller from the session; no route takes a user id.
+ *
+ * @category  Controller
+ * @package   OCA\LaunchPad\Controller
+ * @author    Conduction b.v. <info@conduction.nl>
+ * @copyright 2026 Conduction b.v.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ * @version   GIT:auto
+ * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+declare(strict_types=1);
+
+namespace OCA\LaunchPad\Controller;
+
+use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\SummaryMailPreference;
+use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\JSONResponse;
+use OCP\IRequest;
+use OCP\IUser;
+use OCP\IUserSession;
+
+/**
+ * Read and write the caller's summary email frequency.
+ *
+ * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+ */
+class SummaryMailController extends Controller {
+
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest              $request     The request.
+	 * @param SummaryMailPreference $preference  Reads and writes the frequency.
+	 * @param IUserSession          $userSession Names the caller.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly SummaryMailPreference $preference,
+		private readonly IUserSession $userSession,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
+	}//end __construct()
+
+	/**
+	 * Store the caller's frequency.
+	 *
+	 * @param string $frequency Off, daily or weekly.
+	 *
+	 * @return JSONResponse `{frequency, hasEmail}`; 400 for an unknown frequency, 401 signed out.
+	 *
+	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 */
+	#[NoAdminRequired]
+	public function update(string $frequency=SummaryMailPreference::OFF): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return self::signedOut();
+		}
+
+		if (in_array($frequency, SummaryMailPreference::FREQUENCIES, true) === false) {
+			return new JSONResponse(data: ['message' => 'Unknown frequency'], statusCode: Http::STATUS_BAD_REQUEST);
+		}
+
+		// Written under the session's own user id only.
+		$stored = $this->preference->setFrequency(userId: $user->getUID(), frequency: $frequency);
+
+		return self::answer(user: $user, frequency: $stored);
+	}//end update()
+
+	/**
+	 * The caller's frequency, and whether they have an email address.
+	 *
+	 * @return JSONResponse `{frequency, hasEmail}`, or 401 signed out.
+	 *
+	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 */
+	#[NoAdminRequired]
+	public function show(): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user instanceof IUser) {
+			// The session's own user id: no route reads another person's choice.
+			return self::answer(user: $user, frequency: $this->preference->frequency(userId: $user->getUID()));
+		}
+
+		return self::signedOut();
+	}//end show()
+
+	/**
+	 * The answer for a request without a signed-in user.
+	 *
+	 * @return JSONResponse
+	 */
+	private static function signedOut(): JSONResponse {
+		return new JSONResponse(data: ['message' => 'Not logged in'], statusCode: Http::STATUS_UNAUTHORIZED);
+	}//end signedOut()
+
+	/**
+	 * The caller's frequency, and whether they have an email address.
+	 *
+	 * @param IUser  $user      The caller.
+	 * @param string $frequency Their frequency.
+	 *
+	 * @return JSONResponse
+	 */
+	private static function answer(IUser $user, string $frequency): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'frequency' => $frequency,
+				'hasEmail' => ((string)$user->getEMailAddress() !== ''),
+			]
+		);
+	}//end answer()
+}//end class

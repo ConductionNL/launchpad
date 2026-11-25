@@ -13,7 +13,8 @@ OC.L10N.register(
     "_%n member_::_%n members_" : ["%n member", "%n members"],
     "_{count} comment_::_{count} comments_" : ["{count} comment", "{count} comments"],
     "_Reaches {count} person_::_Reaches {count} people_" : ["Reaches {count} person", "Reaches {count} people"],
-    "_All %n open case_::_All %n open cases_" : ["All %n open case", "All %n open cases"]
+    "_All %n open case_::_All %n open cases_" : ["All %n open case", "All %n open cases"],
+    "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_" : ["You have hidden %n widget on shared dashboards","You have hidden %n widgets on shared dashboards"]
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -93,6 +93,7 @@ class RetryAfterMiddleware extends Middleware {
 	 * @spec openspec/specs/dashboard-public-share/spec.md#requirement-req-pshr-009-brute-force-protection
 	 */
 	public static function secondsFrom(string $throttled): int {
+		$match = [];
 		if (preg_match(pattern: '/^\s*(\d+)\s*ms\s*$/i', subject: $throttled, matches: $match) !== 1) {
 			return self::DEFAULT_SECONDS;
 		}

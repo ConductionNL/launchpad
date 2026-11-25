@@ -48,9 +48,9 @@ When the server has a text-to-text assistant for the reader (Nextcloud task proc
 
 - **GIVEN** the server has a text-to-text assistant
 - **AND** Pieter opens Add widget on My workspace
-- **WHEN** he describes "a chart of open cases per team" and asks
-- **THEN** the line proposes Bar chart with one sentence why
-- **AND** Place it like this places a Bar chart on My workspace
+- **WHEN** he describes "where I handle my cases" and asks
+- **THEN** the line proposes the app tile Case system with one sentence why
+- **AND** Place it like this places a one-cell tile for Case system on My workspace
 
 #### Scenario: No assistant
 

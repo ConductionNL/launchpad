@@ -25,6 +25,51 @@
 				</h2>
 			</div>
 
+			<!-- REQ-WDG-044: the assistant line, only when the server has a
+			     text-to-text assistant; its proposal is one of the cards. -->
+			<form
+				v-if="assistantReady"
+				class="widget-picker__assistant"
+				data-testid="widget-picker-assistant"
+				:aria-label="t('launchpad', 'Describe what you need')"
+				@submit.prevent="askAssistant">
+				<div class="widget-picker__assistant-ask">
+					<NcTextField
+						v-model="assistantNeed"
+						:label="t('launchpad', 'Describe what you need')"
+						data-testid="widget-picker-assistant-need" />
+					<NcButton
+						type="submit"
+						data-testid="widget-picker-assistant-ask"
+						:disabled="assistantBusy || assistantNeed.trim() === ''">
+						{{ t('launchpad', 'Ask') }}
+					</NcButton>
+				</div>
+				<div
+					v-if="assistantProposal"
+					class="widget-picker__assistant-proposal"
+					data-testid="widget-picker-assistant-proposal"
+					role="status">
+					<p class="widget-picker__assistant-text">
+						<strong>{{ assistantProposal.card.title }}</strong>
+						<span v-if="assistantProposal.reason">&#32;{{ assistantProposal.reason }}</span>
+					</p>
+					<NcButton
+						variant="primary"
+						data-testid="widget-picker-assistant-place"
+						@click="placeProposal">
+						{{ t('launchpad', 'Place it like this') }}
+					</NcButton>
+				</div>
+				<p
+					v-else-if="assistantMessage"
+					class="widget-picker__assistant-text"
+					data-testid="widget-picker-assistant-message"
+					role="status">
+					{{ assistantMessage }}
+				</p>
+			</form>
+
 			<div class="widget-picker__search">
 				<NcTextField
 					v-model="searchQuery"
@@ -216,6 +261,7 @@ import Magnify from 'vue-material-design-icons/Magnify.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 import { FLAG_PROP, LIST_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
+import { assistantAvailable, proposeWidget } from '../services/widgetAssistant.js'
 import { countByKind, filterCards, kindLabel, KINDS, pickerCards, sectionLabel, SECTIONS } from '../utils/widgetPickerCards.js'
 
 /**
@@ -310,6 +356,11 @@ export default {
 			requestBusy: false,
 			requestMessage: '',
 			requestFailed: false,
+			assistantReady: false,
+			assistantNeed: '',
+			assistantBusy: false,
+			assistantProposal: null,
+			assistantMessage: '',
 		}
 	},
 
@@ -395,13 +446,19 @@ export default {
 		 * @spec openspec/specs/widgets/spec.md
 		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
 		 */
-		open(isOpen) {
-			if (!isOpen) {
+		open: {
+			immediate: true,
+			handler(isOpen) {
+				if (isOpen) {
+					this.checkAssistant()
+					return
+				}
 				this.searchQuery = ''
 				this.chosenKind = 'all'
 				this.chosenKey = ''
 				this.closeRequestForm()
-			}
+				this.clearAssistant()
+			},
 		},
 	},
 
@@ -468,6 +525,66 @@ export default {
 			if (event === 'add' || event === 'addApp' || event === 'addCatalogueApp') {
 				this.$emit('close')
 			}
+		},
+
+		/**
+		 * Show the assistant line when the server can answer.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+		 */
+		async checkAssistant() {
+			this.assistantReady = await assistantAvailable()
+		},
+
+		/**
+		 * Forget the need, the proposal and the message.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+		 */
+		clearAssistant() {
+			this.assistantNeed = ''
+			this.assistantBusy = false
+			this.assistantProposal = null
+			this.assistantMessage = ''
+		},
+
+		/**
+		 * Ask the assistant which of the offered cards fits the need.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+		 */
+		async askAssistant() {
+			const need = this.assistantNeed.trim()
+			if (need === '' || this.assistantBusy) {
+				return
+			}
+			this.assistantBusy = true
+			this.assistantProposal = null
+			this.assistantMessage = ''
+			const outcome = await proposeWidget(need, this.cards)
+			this.assistantBusy = false
+			if (outcome.status === 'proposed') {
+				this.assistantProposal = { card: outcome.card, reason: outcome.reason }
+				return
+			}
+			this.assistantMessage = outcome.status === 'none'
+				? t('launchpad', 'No widget fits; choose one below')
+				: t('launchpad', 'The assistant could not answer; choose a widget below')
+		},
+
+		/**
+		 * Place the proposed card as Add widget does.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+		 */
+		placeProposal() {
+			const card = this.assistantProposal?.card ?? null
+			this.assistantProposal = null
+			this.place(card)
 		},
 
 		/**
@@ -560,6 +677,32 @@ export default {
 	margin: 0;
 	font-size: 20px;
 	font-weight: 600;
+}
+
+.widget-picker__assistant {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 12px;
+	border-radius: var(--border-radius-large);
+	background: var(--color-primary-element-light);
+}
+
+.widget-picker__assistant-ask,
+.widget-picker__assistant-proposal {
+	display: flex;
+	align-items: flex-end;
+	gap: 8px;
+}
+
+.widget-picker__assistant-proposal {
+	align-items: center;
+	justify-content: space-between;
+}
+
+.widget-picker__assistant-text {
+	margin: 0;
 }
 
 .widget-picker__search {

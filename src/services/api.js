@@ -737,7 +737,7 @@ export const api = {
 	 * Whether the server has a text-to-text assistant for the widget picker.
 	 *
 	 * @return {Promise} Axios response resolving to `{ available }`.
-	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 	 */
 	widgetAssistant() {
 		return axios.get(`${baseUrl}/api/widget-picker/assistant`)
@@ -748,7 +748,7 @@ export const api = {
 	 *
 	 * @param {{need: string, cards: Array<{key: string, name: string, description: string}>}} request The need and the cards on offer.
 	 * @return {Promise} Axios response resolving to `{ proposal: {key, name, reason}|null }`.
-	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 	 */
 	proposeWidget(request) {
 		return axios.post(`${baseUrl}/api/widget-picker/proposal`, request)

@@ -4,7 +4,7 @@
  * WidgetProposalService
  *
  * Proposes one widget for a need the user describes in their own words, the
- * assistant line at the top of Add widget (REQ-WDG-044). The proposal comes
+ * assistant line at the top of Add widget (REQ-WDG-045). The proposal comes
  * from the server's text-to-text task processing (the Nextcloud Assistant
  * providers) and is always one of the cards the picker offered: an answer
  * that names no offered card is no proposal. Nothing is stored.
@@ -20,7 +20,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 
 declare(strict_types=1);
@@ -37,7 +37,7 @@ use Throwable;
 /**
  * Asks the text-to-text assistant which offered widget fits a described need.
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 class WidgetProposalService {
 
@@ -80,7 +80,7 @@ class WidgetProposalService {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 	 */
 	public function isAvailable(string $userId): bool {
 		try {
@@ -105,7 +105,7 @@ class WidgetProposalService {
 	 *
 	 * @return array{key: string, name: string, reason: string}|null The proposal, or null for none.
 	 *
-	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 	 */
 	public function propose(string $userId, string $need, array $cards): ?array {
 		$need   = $this->clip(text: $need, length: self::MAX_NEED_LENGTH);
@@ -151,7 +151,7 @@ class WidgetProposalService {
 	 *
 	 * @return array<string, array{key: string, name: string, description: string}> Keyed by card key.
 	 *
-	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 	 */
 	public function cleanCards(array $cards): array {
 		$offers = [];
@@ -186,7 +186,7 @@ class WidgetProposalService {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 	 */
 	public function prompt(string $need, array $offers): string {
 		$lines = [];
@@ -211,7 +211,7 @@ class WidgetProposalService {
 	 *
 	 * @return array{key: string, name: string, reason: string}|null
 	 *
-	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 	 */
 	public function parse(string $answer, array $offers): ?array {
 		$matches = [];
@@ -246,7 +246,7 @@ class WidgetProposalService {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 	 */
 	private function text(array $values, string $field): string {
 		$value = $values[$field] ?? '';
@@ -265,7 +265,7 @@ class WidgetProposalService {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 	 */
 	private function clip(string $text, int $length): string {
 		return trim(string: mb_substr(string: trim(string: $text), start: 0, length: $length));

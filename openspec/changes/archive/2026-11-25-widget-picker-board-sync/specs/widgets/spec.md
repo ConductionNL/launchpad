@@ -40,7 +40,7 @@ A widget type the reader's role may not add (role feature permissions) SHALL be 
 - **GIVEN** the role Employee may not add Embedded page
 - **THEN** its card is grey, says "Not allowed for your role" and cannot be chosen
 
-### Requirement: The assistant line (REQ-WDG-044)
+### Requirement: The assistant line (REQ-WDG-045)
 
 When the server has a text-to-text assistant for the reader (Nextcloud task processing, `core:text2text`), the picker SHALL show, above the search, a line "Describe what you need" with a field and an Ask button. Asking SHALL send the need and the cards the reader may add (key, name, what it does) and SHALL show the proposal as the proposed widget's name with one sentence why, and the button "Place it like this", which places that widget as Add widget does. The proposal SHALL always be one of the offered cards; any other answer SHALL be shown as "No widget fits; choose one below". Without an assistant the line SHALL NOT be shown. Nothing about the need SHALL be stored by Launchpad, and a proposal SHALL be rate limited per user.
 

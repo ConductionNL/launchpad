@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The assistant line of Add widget (REQ-WDG-044, widget-picker-board-sync):
+ * The assistant line of Add widget (REQ-WDG-045, widget-picker-board-sync):
  * shown only when the server has a text-to-text assistant, its proposal is
  * one of the offered cards, and Place it like this places it as Add widget
  * does.
@@ -23,7 +23,7 @@
  *   @e2e widgets::ask-the-assistant
  *   @e2e widgets::no-assistant
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 
 import type { APIRequestContext, Browser, BrowserContext, Locator, Page } from '@playwright/test'

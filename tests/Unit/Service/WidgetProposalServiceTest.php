@@ -15,7 +15,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 
 declare(strict_types=1);
@@ -33,7 +33,7 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 /**
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 #[Small]
 class WidgetProposalServiceTest extends TestCase {

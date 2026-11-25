@@ -25,7 +25,7 @@
 				</h2>
 			</div>
 
-			<!-- REQ-WDG-044: the assistant line, only when the server has a
+			<!-- REQ-WDG-045: the assistant line, only when the server has a
 			     text-to-text assistant; its proposal is one of the cards. -->
 			<form
 				v-if="assistantReady"
@@ -273,7 +273,7 @@ import { countByKind, filterCards, kindLabel, KINDS, pickerCards, sectionLabel, 
  * event it always did (`add`, `addCustom`, `addApp`, `addCatalogueApp`,
  * `addOfficePack`), now when Add widget is pressed.
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md
+ * @spec openspec/specs/widgets/spec.md
  * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
  */
 export default {
@@ -369,7 +369,7 @@ export default {
 		 * The kinds in the column.
 		 *
 		 * @return {Array<string>}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+		 * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
 		 */
 		kinds() {
 			return KINDS
@@ -379,7 +379,7 @@ export default {
 		 * Every card the picker offers.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md
+		 * @spec openspec/specs/widgets/spec.md
 		 */
 		cards() {
 			return pickerCards({
@@ -398,7 +398,7 @@ export default {
 		 * The number of cards per kind.
 		 *
 		 * @return {Record<string, number>}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+		 * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
 		 */
 		counts() {
 			return countByKind(this.cards)
@@ -408,7 +408,7 @@ export default {
 		 * The cards of the chosen kind that match the search.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+		 * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
 		 */
 		filteredCards() {
 			return filterCards(this.cards, this.chosenKind, this.searchQuery)
@@ -418,7 +418,7 @@ export default {
 		 * The sections that have a card to show, in board order.
 		 *
 		 * @return {Array<{id: string, label: string, cards: Array<object>}>}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
 		 */
 		visibleSections() {
 			return SECTIONS
@@ -430,7 +430,7 @@ export default {
 		 * The chosen card, while it is still shown and allowed.
 		 *
 		 * @return {object|null}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
 		 */
 		chosenCard() {
 			return this.filteredCards.find((card) => card.key === this.chosenKey && !card.disabled) ?? null
@@ -447,8 +447,8 @@ export default {
 			 *
 			 * @param {boolean} isOpen Whether the picker is now open.
 			 * @spec openspec/specs/widgets/spec.md
-			 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
-			 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+			 * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+			 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 			 */
 			handler(isOpen) {
 				if (isOpen) {
@@ -472,7 +472,7 @@ export default {
 		 *
 		 * @param {string} kind The kind.
 		 * @return {string}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+		 * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
 		 */
 		kindLabel(kind) {
 			return kindLabel(kind, t)
@@ -494,7 +494,7 @@ export default {
 		 *
 		 * @param {object} card The card.
 		 * @return {void}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
+		 * @spec openspec/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
 		 */
 		choose(card) {
 			if (card.disabled) {
@@ -510,8 +510,8 @@ export default {
 		 *
 		 * @param {object|null} card The card.
 		 * @return {void}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 * @spec openspec/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
 		 */
 		place(card) {
 			if (!card || card.disabled) {
@@ -533,7 +533,7 @@ export default {
 		 * Show the assistant line when the server can answer.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 		 */
 		async checkAssistant() {
 			this.assistantReady = await assistantAvailable()
@@ -543,7 +543,7 @@ export default {
 		 * Forget the need, the proposal and the message.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 		 */
 		clearAssistant() {
 			this.assistantNeed = ''
@@ -556,7 +556,7 @@ export default {
 		 * Ask the assistant which of the offered cards fits the need.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 		 */
 		async askAssistant() {
 			const need = this.assistantNeed.trim()
@@ -581,7 +581,7 @@ export default {
 		 * Place the proposed card as Add widget does.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 		 */
 		placeProposal() {
 			const card = this.assistantProposal?.card ?? null

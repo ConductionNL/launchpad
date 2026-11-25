@@ -2,11 +2,11 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The picker's assistant line (REQ-WDG-044): shown only when the server has an
+ * The picker's assistant line (REQ-WDG-045): shown only when the server has an
  * assistant, the proposal is one of the offered cards, Place it like this
  * places it as Add widget does, and an answer naming no card says so.
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

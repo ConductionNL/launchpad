@@ -3,7 +3,7 @@
 /**
  * WidgetProposalController
  *
- * The assistant line of Add widget (REQ-WDG-044):
+ * The assistant line of Add widget (REQ-WDG-045):
  *
  * - `GET /api/widget-picker/assistant` — `{available}`: whether the server
  *   has a text-to-text assistant for the signed-in user, so the picker shows
@@ -25,7 +25,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 
 declare(strict_types=1);
@@ -44,7 +44,7 @@ use OCP\IRequest;
 /**
  * Serves the widget picker's assistant line.
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 class WidgetProposalController extends Controller {
 
@@ -68,7 +68,7 @@ class WidgetProposalController extends Controller {
 	 *
 	 * @return JSONResponse `{available: bool}`; 401 when not signed in.
 	 *
-	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 	 */
 	#[NoAdminRequired]
 	public function assistant(): JSONResponse {
@@ -86,7 +86,7 @@ class WidgetProposalController extends Controller {
 	 * @return JSONResponse `{proposal: {key, name, reason}|null}`; 401 when not
 	 *                      signed in, 400 without a need, 503 without an assistant.
 	 *
-	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 	 */
 	#[NoAdminRequired]
 	#[UserRateLimit(limit: 20, period: 300)]

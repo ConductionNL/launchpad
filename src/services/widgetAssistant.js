@@ -2,11 +2,11 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The widget picker's assistant line (REQ-WDG-044): whether the server can
+ * The widget picker's assistant line (REQ-WDG-045): whether the server can
  * answer, read once per page, and one proposal for a described need, always
  * one of the cards the picker offered.
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 
 import { api } from './api.js'
@@ -18,7 +18,7 @@ let availability = null
  * A failed read counts as unavailable and is asked again next time.
  *
  * @return {Promise<boolean>}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 export function assistantAvailable() {
 	if (availability === null) {
@@ -36,7 +36,7 @@ export function assistantAvailable() {
  * Forget the cached availability (tests, and after a sign-in change).
  *
  * @return {void}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 export function resetAssistantAvailability() {
 	availability = null
@@ -48,7 +48,7 @@ export function resetAssistantAvailability() {
  *
  * @param {Array<object>} cards The picker's cards (`{key, title, line, disabled}`).
  * @return {Array<{key: string, name: string, description: string}>}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 export function offeredCards(cards) {
 	return (cards || [])
@@ -64,7 +64,7 @@ export function offeredCards(cards) {
  * @param {string} need What the reader needs, in their words.
  * @param {Array<object>} cards The picker's cards.
  * @return {Promise<{status: string, card?: object, reason?: string}>}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 export async function proposeWidget(need, cards) {
 	const offered = offeredCards(cards)

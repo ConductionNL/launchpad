@@ -281,7 +281,7 @@ async function ownDashboard(p: Principal, name: string): Promise<number> {
 }
 
 const PICKER_WIDGETS =
-	'.widget-picker__list > button.widget-picker__widget .widget-picker__widget-title'
+	'[data-testid="widget-picker-section-apps"] button.widget-picker__widget .widget-picker__widget-title'
 
 /**
  * Open the card library (More → Add widget) on the start page and return

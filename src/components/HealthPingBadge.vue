@@ -5,7 +5,7 @@
 
 <template>
 	<button
-		v-if="state"
+		v-if="state && !hidden"
 		type="button"
 		class="health-ping-badge"
 		:class="badgeClass"
@@ -74,15 +74,27 @@ export default {
 		 *
 		 * @type {number}
 		 */
+		/**
+		 * Poll and report the reading without drawing the badge: an
+		 * icon-only tile shows its outage as a dot (REQ-ICT-003).
+		 */
+		hidden: {
+			type: Boolean,
+			default: false,
+		},
+
 		interval: {
 			type: Number,
 			default: DEFAULT_INTERVAL_SECONDS,
 		},
 	},
 
+	emits: ['reading'],
+
 	data() {
 		return {
 			state: null,
+			downSince: null,
 			checkedAt: null,
 			latencyMs: null,
 			stale: false,
@@ -200,21 +212,42 @@ export default {
 			}
 
 			try {
-				const data = await fetchHealthPingBadge(this.placementId)
-				if (!data || data.error || !data.state) {
-					this.state = null
-					return
-				}
-				this.state = data.state
-				this.checkedAt = data.checkedAt ?? null
-				this.latencyMs =
-					data.latencyMs === null || data.latencyMs === undefined
-						? null
-						: Number(data.latencyMs)
-				this.stale = Boolean(data.stale)
+				this.apply(await fetchHealthPingBadge(this.placementId))
 			} catch {
 				this.state = null
 			}
+			this.report()
+		},
+
+		/**
+		 * Take a badge answer; one without a state hides the badge.
+		 *
+		 * @param {object|null} data The answer.
+		 * @spec openspec/specs/service-health-ping/spec.md
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+		 */
+		apply(data) {
+			if (!data || data.error || !data.state) {
+				this.state = null
+				return
+			}
+			this.state = data.state
+			this.downSince = data.downSince ?? null
+			this.checkedAt = data.checkedAt ?? null
+			this.latencyMs =
+				data.latencyMs === null || data.latencyMs === undefined
+					? null
+					: Number(data.latencyMs)
+			this.stale = Boolean(data.stale)
+		},
+
+		/**
+		 * Tell the tile the reading: its state and since when it is offline.
+		 *
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+		 */
+		report() {
+			this.$emit('reading', { state: this.state, downSince: this.state === 'offline' ? this.downSince : null })
 		},
 	},
 }

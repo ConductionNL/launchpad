@@ -60,15 +60,28 @@ export function toConnectionOption(row) {
  * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
  */
 export async function fetchLiveTileConnections() {
+	const { rows } = await fetchAppConnectionRows()
+	return rows.map(toConnectionOption).filter((option) => option !== null)
+}
+
+/**
+ * Integriq's `app_connection` rows of this app, read through OpenRegister
+ * with the viewer's own session. Fails soft: no integriq, no register or a
+ * refused read gives state `error` and no rows.
+ *
+ * @return {Promise<{state: string, rows: Array<object>}>} `ok` with the rows, or `error`.
+ * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+ * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+ */
+export async function fetchAppConnectionRows() {
 	const url = generateUrl('/apps/openregister/api/objects/{register}/{schema}', {
 		register: 'integriq',
 		schema: 'app_connection',
 	})
 	try {
 		const response = await axios.get(url, { params: { app: 'launchpad', _limit: 100 } })
-		const rows = Array.isArray(response?.data?.results) ? response.data.results : []
-		return rows.map(toConnectionOption).filter((option) => option !== null)
+		return { state: 'ok', rows: Array.isArray(response?.data?.results) ? response.data.results : [] }
 	} catch {
-		return []
+		return { state: 'error', rows: [] }
 	}
 }

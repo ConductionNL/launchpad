@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Povezave te nadzorne plošče",
+    "Connection states need the Integrations app" : "Stanje povezav zahteva aplikacijo Integracije",
+    "No widget on this dashboard uses an outside connection" : "Noben gradnik na tej nadzorni plošči ne uporablja zunanje povezave",
+    "Loading connection states …" : "Nalaganje stanja povezav …",
+    "The connection states could not be loaded. Try again later." : "Stanja povezav ni bilo mogoče naložiti. Poskusite znova pozneje.",
+    "Last error: {time}" : "Zadnja napaka: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Prikaže zunanje povezave, ki jih uporabljajo gradniki na tej nadzorni plošči, s stanjem, ki ga za vsako hrani aplikacija Integracije. Vsak vidi, kar mu dovoli OpenRegister.",
     "What do you think of this dashboard?" : "Kaj menite o tej nadzorni plošči?",
     "today {time}" : "danes {time}",
     "Last updated {when}" : "Nazadnje posodobljeno {when}",
@@ -1836,7 +1843,21 @@ OC.L10N.register(
     "Single sign-on" : "Enotna prijava",
     "Signs in with your Nextcloud account" : "Prijavi se z vašim računom Nextcloud",
     "Asks for its own sign-in" : "Zahteva lastno prijavo",
-    "The tiles could not be added." : "Ploščic ni bilo mogoče dodati."
+    "The tiles could not be added." : "Ploščic ni bilo mogoče dodati.",
+    "You searched for {query}" : "Iskali ste {query}",
+    "Search results" : "Rezultati iskanja",
+    "No results" : "Ni rezultatov",
+    "Show all results" : "Pokaži vse rezultate",
+    "Tip: type {prefix} to search {name} directly" : "Namig: vnesite {prefix} za neposredno iskanje v {name}",
+    "{app}, outage since {time}" : "{app}, izpad od {time}",
+    "Own colour" : "Lastna barva",
+    "Primary, dark" : "Primarna, temna",
+    "Accent" : "Poudarek",
+    "Accent, dark" : "Poudarek, temen",
+    "Ink" : "Črnilo",
+    "Text grey" : "Siva besedila",
+    "Muted grey" : "Umirjena siva",
+    "Field grey" : "Siva polja"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

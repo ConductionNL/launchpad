@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Az irányítópult kapcsolatai",
+    "Connection states need the Integrations app" : "A kapcsolatok állapotához az Integrációk alkalmazás szükséges",
+    "No widget on this dashboard uses an outside connection" : "Az irányítópult egyik modulja sem használ külső kapcsolatot",
+    "Loading connection states …" : "Kapcsolatok állapotának betöltése …",
+    "The connection states could not be loaded. Try again later." : "A kapcsolatok állapotát nem sikerült betölteni. Próbálja újra később.",
+    "Last error: {time}" : "Utolsó hiba: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Megmutatja az irányítópult moduljai által használt külső kapcsolatokat, azzal az állapottal, amelyet az Integrációk alkalmazás mindegyikről nyilvántart. Mindenki azt látja, amit az OpenRegister megenged neki.",
     "What do you think of this dashboard?" : "Mit gondol erről az irányítópultról?",
     "today {time}" : "ma {time}",
     "Last updated {when}" : "Utoljára frissítve: {when}",
@@ -1836,7 +1843,21 @@ OC.L10N.register(
     "Single sign-on" : "Egyszeri bejelentkezés",
     "Signs in with your Nextcloud account" : "A Nextcloud-fiókjával jelentkezik be",
     "Asks for its own sign-in" : "Saját bejelentkezést kér",
-    "The tiles could not be added." : "A csempék nem adhatók hozzá."
+    "The tiles could not be added." : "A csempék nem adhatók hozzá.",
+    "You searched for {query}" : "Erre keresett: {query}",
+    "Search results" : "Keresési találatok",
+    "No results" : "Nincs találat",
+    "Show all results" : "Összes találat megjelenítése",
+    "Tip: type {prefix} to search {name} directly" : "Tipp: írja be: {prefix}, hogy közvetlenül itt keressen: {name}",
+    "{app}, outage since {time}" : "{app}, üzemzavar {time} óta",
+    "Own colour" : "Saját szín",
+    "Primary, dark" : "Elsődleges, sötét",
+    "Accent" : "Kiemelés",
+    "Accent, dark" : "Kiemelés, sötét",
+    "Ink" : "Tinta",
+    "Text grey" : "Szövegszürke",
+    "Muted grey" : "Tompa szürke",
+    "Field grey" : "Mezőszürke"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -10,7 +10,7 @@
 		:class="{ 'tile-widget--icon-only': iconOnly }"
 		:data-tile-id="tile.id"
 		:style="{
-			'--tile-bg-color': tile.backgroundColor || '#0082c9',
+			'--tile-bg-color': backgroundCss,
 			'--tile-text-color': tile.textColor || '#ffffff',
 		}">
 		<!-- Shared edit cog in edit mode (Edit / Delete), matching the
@@ -43,7 +43,9 @@
 		<HealthPingBadge
 			v-if="healthPingEnabled"
 			:placementId="placementId"
-			:interval="pingInterval" />
+			:interval="pingInterval"
+			:hidden="iconOnly"
+			@reading="onPingReading" />
 
 		<a
 			:href="tileUrl"
@@ -94,7 +96,7 @@
 					aria-hidden="true"
 					data-testid="tile-pin" />
 				<span
-					v-if="content?.status === 'down'"
+					v-if="pingDown"
 					class="tile-widget__outage"
 					aria-hidden="true"
 					data-testid="tile-outage" />
@@ -139,6 +141,7 @@
 
 <script>
 import { CnDashboardIcon, CnWidgetEditCog } from '@conduction/nextcloud-vue'
+import { getCurrentUser } from '@nextcloud/auth'
 import { showError } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
@@ -149,9 +152,11 @@ import HealthPingBadge from './HealthPingBadge.vue'
 import { useTileClickTracking } from '../composables/useTileClickTracking.js'
 import { FLAG_PROP, REQUIRED_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
+import { COUNT_TTL_MS, countLabel, resolveTileCount, sourceType } from '../services/tileCount.js'
 import { useTilePanelStore } from '../stores/tilePanel.js'
 import { isOnOfficeNetwork } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
+import { tileBackground } from '../utils/tileColour.js'
 import { launchHref, launchTarget, LINK_PROGRAM } from '../utils/tileLaunch.js'
 import { isSameOrigin, NEW_TAB, resolveLinkTarget, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
@@ -247,6 +252,12 @@ export default {
 			showProgramHint: false,
 			createDialogOpen: false,
 			creating: false,
+			// REQ-ICT-002: the live count; null until the source answers.
+			count: null,
+			countTimer: null,
+			// REQ-ICT-003: the health ping's last reading.
+			pingDown: false,
+			pingDownSince: null,
 		}
 	},
 
@@ -271,11 +282,31 @@ export default {
 		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
 		 */
 		badgeText() {
-			const count = Number(this.content?.badge)
-			if (!Number.isFinite(count) || count <= 0) {
+			return countLabel(this.count)
+		},
+
+		/**
+		 * The tile's background: its theme colour token, else its hex colour.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 */
+		backgroundCss() {
+			return tileBackground(this.tile, this.content)
+		},
+
+		/**
+		 * The time the outage began, in the viewer's clock, or ''.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+		 */
+		downSinceText() {
+			const date = this.pingDownSince ? new Date(this.pingDownSince) : null
+			if (!date || Number.isNaN(date.getTime())) {
 				return ''
 			}
-			return count > 99 ? '99+' : String(Math.floor(count))
+			return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 		},
 
 		/**
@@ -288,8 +319,10 @@ export default {
 		 */
 		accessibleName() {
 			let name = this.tile.title
-			if (this.content?.status === 'down') {
-				name = t('launchpad', '{app}, outage', { app: name })
+			if (this.pingDown) {
+				name = this.downSinceText === ''
+					? t('launchpad', '{app}, outage', { app: name })
+					: t('launchpad', '{app}, outage since {time}', { app: name, time: this.downSinceText })
 			} else if (this.badgeText !== '') {
 				name = t('launchpad', '{app}, {count} open', { app: name, count: this.badgeText })
 			}
@@ -398,6 +431,8 @@ export default {
 			this.tile ? Object.keys(this.tile) : 'tile is null',
 		)
 
+		this.startCount()
+
 		// Add dynamic style to override nldesign's aggressive CSS.
 		const styleId = `tile-${this.tile.id}-style`
 		if (!document.getElementById(styleId)) {
@@ -412,7 +447,60 @@ export default {
 		}
 	},
 
+	beforeUnmount() {
+		this.stopCount()
+	},
+
 	methods: {
+		/**
+		 * Read the live count of an icon-only tile with a count source, and
+		 * again each minute while the tile is shown (REQ-ICT-002).
+		 *
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+		 */
+		startCount() {
+			if (!this.iconOnly || sourceType(this.content?.countSource) === null) {
+				return
+			}
+			this.loadCount()
+			this.countTimer = setInterval(() => this.loadCount(), COUNT_TTL_MS)
+		},
+
+		/**
+		 * Stop reading the count.
+		 *
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+		 */
+		stopCount() {
+			if (this.countTimer !== null) {
+				clearInterval(this.countTimer)
+				this.countTimer = null
+			}
+		},
+
+		/**
+		 * Ask the count source for the count; no answer is no count.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+		 */
+		async loadCount() {
+			this.count = await resolveTileCount(this.content?.countSource, getCurrentUser()?.uid || '')
+		},
+
+		/**
+		 * The health ping's reading: an offline service shows the outage dot
+		 * in place of the count (REQ-ICT-003); a reading that clears it brings
+		 * the count back.
+		 *
+		 * @param {{state: (string|null), downSince: (string|null)}} reading The reading.
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+		 */
+		onPingReading(reading) {
+			this.pingDown = reading?.state === 'offline'
+			this.pingDownSince = this.pingDown ? (reading?.downSince ?? null) : null
+		},
+
 		/**
 		 * REQ-TANLT-002 — fire a fire-and-forget tile-click record call
 		 * on activation. Never blocks or interferes with the anchor's own

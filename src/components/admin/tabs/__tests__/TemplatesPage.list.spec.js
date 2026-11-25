@@ -116,6 +116,10 @@ describe('TemplatesPage list', () => {
 		expect(rows[0].find('.launchpad-admin__template-groups').text()).toBe('staff, hr')
 		expect(rows[0].find('.launchpad-admin__badge').exists()).toBe(true)
 		expect(rows[1].find('.launchpad-admin__template-groups').text()).toBe('All users')
+		// Each row carries its template's id, so a test finds one template among same-named ones.
+		expect(rows.map((row) => row.attributes('data-testid'))).toEqual(
+			wrapper.vm.templates.map((template) => `admin-template-row-${template.id}`),
+		)
 		expect(rows[1].find('.launchpad-admin__badge').exists()).toBe(false)
 	})
 })

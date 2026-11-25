@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Verbindunge vun dësem Dashboard",
+    "Connection states need the Integrations app" : "Fir de Status vun de Verbindunge brauch een d’App Integratiounen",
+    "No widget on this dashboard uses an outside connection" : "Keen Widget op dësem Dashboard benotzt eng extern Verbindung",
+    "Loading connection states …" : "Status vun de Verbindunge gëtt gelueden …",
+    "The connection states could not be loaded. Try again later." : "De Status vun de Verbindunge konnt net geluede ginn. Probéiert méi spéit nach eng Kéier.",
+    "Last error: {time}" : "Leschte Feeler: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Weist déi extern Verbindungen, déi d’Widgets op dësem Dashboard benotzen, mam Status, deen d’App Integratiounen fir all eenzel féiert. Jiddereen gesäit dat, wat OpenRegister him weist.",
     "What do you think of this dashboard?" : "Wat haalt Dir vun dësem Dashboard?",
     "today {time}" : "haut {time}",
     "Last updated {when}" : "Lescht aktualiséiert {when}",
@@ -1827,7 +1834,21 @@ OC.L10N.register(
     "Single sign-on" : "Single Sign-on",
     "Signs in with your Nextcloud account" : "Mellt sech mat Ärem Nextcloud-Kont un",
     "Asks for its own sign-in" : "Freet no enger eegener Umeldung",
-    "The tiles could not be added." : "D'Kachele konnten net derbäigesat ginn."
+    "The tiles could not be added." : "D'Kachele konnten net derbäigesat ginn.",
+    "You searched for {query}" : "Dir hutt no {query} gesicht",
+    "Search results" : "Sichresultater",
+    "No results" : "Keng Resultater",
+    "Show all results" : "All Resultater weisen",
+    "Tip: type {prefix} to search {name} directly" : "Tipp: Gitt {prefix} an, fir direkt an {name} ze sichen",
+    "{app}, outage since {time}" : "{app}, Stéierung zënter {time}",
+    "Own colour" : "Eege Faarf",
+    "Primary, dark" : "Primär, donkel",
+    "Accent" : "Akzent",
+    "Accent, dark" : "Akzent, donkel",
+    "Ink" : "Tënt",
+    "Text grey" : "Textgro",
+    "Muted grey" : "Gedämpft Gro",
+    "Field grey" : "Feldgro"
 },
 "nplurals=2; plural=(n != 1);"
 );

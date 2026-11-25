@@ -11,8 +11,14 @@
  * Russian and Turkish (ISO 639-1). Override with L10N_REQUIRED_LOCALES.
  *
  * For BOTH translation sets that exist in the app:
- *   • frontend  l10n/en.js   (OC.L10N.register)  -> l10n/<locale>.js
+ *   • frontend  l10n/en.json + l10n/en.js         -> l10n/<locale>.js
  *   • backend   l10n/en.json ({ translations })  -> l10n/<locale>.json
+ *
+ * l10n/en.js carries only the entries whose English differs from its key
+ * (renamed message ids and plurals): an identity entry costs bytes on every
+ * page and changes nothing, because a missing key already reads as the key.
+ * So the English source of the frontend set is l10n/en.json, which holds every
+ * English string, completed by those few en.js entries.
  * it asserts, for every required locale:
  *   1. the locale file exists,
  *   2. it contains every key present in the English source (no MISSING keys),
@@ -107,6 +113,7 @@ const sets = [
 		enFile: path.join(L10N_DIR, 'en.js'),
 		file: (loc) => path.join(L10N_DIR, `${loc}.js`),
 		load: loadJs,
+		source: () => ({ ...loadJsonSet(path.join(L10N_DIR, 'en.json')), ...loadJs(path.join(L10N_DIR, 'en.js')) }),
 	},
 	{
 		kind: 'backend (.json)',
@@ -124,7 +131,7 @@ for (const set of sets) {
 		continue // this app does not ship this translation set
 	}
 	checkedSets++
-	const enKeys = Object.keys(set.load(set.enFile))
+	const enKeys = Object.keys(set.source ? set.source() : set.load(set.enFile))
 	for (const loc of REQUIRED) {
 		const locFile = set.file(loc)
 		if (!fs.existsSync(locFile)) {

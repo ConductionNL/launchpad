@@ -53,6 +53,7 @@ import { closeSidebar } from './fixtures/widget-flow.ts'
 import { adminTab } from './support/adminTab.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import { enterEditMode, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -966,7 +967,7 @@ test.describe('tile quick-search — widget configuration (REQ-QSEARCH-005)', ()
 			await expect(row).toBeVisible({ timeout: 10_000 })
 			await row.locator('.dashboard-row-actions button').first().click()
 			await page.getByRole('menuitem', { name: /^add widget$/i }).click()
-			await page.locator('[data-testid="widget-picker-type-search"]').click()
+			await chooseAndAdd(page.locator('[data-testid="widget-picker-type-search"]'))
 			const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 			await expect(dialog).toBeVisible({ timeout: 10_000 })
 

@@ -13,7 +13,7 @@
  *   config (host allow-list) before the author saves the placement
  *   (REQ-HPING-001 "rejected at save time").
  *
- * The badge response is exactly `{state, checkedAt, latencyMs, stale}` —
+ * The badge response is exactly `{state, checkedAt, latencyMs, stale, downSince}` —
  * never the health URL, request headers, or upstream response body
  * (REQ-HPING-003).
  *

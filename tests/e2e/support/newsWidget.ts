@@ -32,6 +32,7 @@ import type { APIRequestContext, Locator, Page, Route } from '@playwright/test'
 import { expect, request } from '@playwright/test'
 import { BASE_URL } from './baseUrl.ts'
 import { MORE_MENU } from './dashboardSwitcher.ts'
+import { chooseAndAdd } from './widgetPicker.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -289,7 +290,7 @@ export async function openAddNewsForm(page: Page): Promise<Locator> {
 	const more = page.locator(MORE_MENU)
 	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-type-news"]').click()
+	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-news"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	await expect(dialog.locator('.news-widget-form')).toBeVisible()

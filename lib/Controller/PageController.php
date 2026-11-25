@@ -345,12 +345,14 @@ class PageController extends Controller {
 	 * @return array<string, bool|string> Whether each app is enabled, or the id it is installed under.
 	 *
 	 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
+	 * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
 	 */
 	private function integrationApps(): array {
 		return [
 			'openregister'            => $this->isAppEnabledForViewer(appId: 'openregister'),
 			'integration_openproject' => $this->isAppEnabledForViewer(appId: 'integration_openproject'),
 			'dossiq'                  => $this->enabledFleetAppId(canonical: 'dossiq'),
+			'integriq'                => $this->isAppEnabledForViewer(appId: 'integriq'),
 		];
 	}//end integrationApps()
 

@@ -28,7 +28,9 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\IAppConfig;
+use Throwable;
 
 /**
  * The install record of the marketplace.
@@ -47,21 +49,26 @@ class StoreInstalls {
 	 *
 	 * @param IAppConfig          $appConfig Holds the map.
 	 * @param StoreOpenLinks|null $links     Where an installed item opens; without it there is no Open.
+	 * @param WidgetPlacementMapper|null $placements Reads which widgets an install created (REQ-STORE-012).
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		private readonly IAppConfig $appConfig,
 		private readonly ?StoreOpenLinks $links = null,
+		private readonly ?WidgetPlacementMapper $placements = null,
 	) {
 	}//end __construct()
 
 	/**
-	 * Every install by item slug: the version and the dashboard it created.
+	 * Every install by item slug: the version, the dashboard it created and
+	 * the widgets on it that came from the install. `placementIds` is empty for
+	 * a record written before the widgets were kept (REQ-STORE-012).
 	 *
-	 * @return array<string, array{version: string, dashboardId: int, dashboardUuid: string}>
+	 * @return array<string, array{version: string, dashboardId: int, dashboardUuid: string, placementIds: list<int>}>
 	 *
 	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function all(): array {
 		$decoded = json_decode(json: $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_KEY, '{}'), associative: true);
@@ -76,6 +83,7 @@ class StoreInstalls {
 					'version'       => (string)($entry['version'] ?? ''),
 					'dashboardId'   => (int)$entry['dashboardId'],
 					'dashboardUuid' => (string)($entry['dashboardUuid'] ?? ''),
+					'placementIds'  => self::ids(value: ($entry['placementIds'] ?? [])),
 				];
 			}
 		}
@@ -86,13 +94,20 @@ class StoreInstalls {
 	/**
 	 * Record that an install of this item and version created this dashboard.
 	 *
+	 * The widgets that came from the install are kept with it, so an update
+	 * later replaces those and leaves the ones a person added (REQ-STORE-012).
+	 * Without a list they are read from the dashboard, which right after an
+	 * install holds only the install's widgets.
+	 *
 	 * @param string $slug      The register item slug.
 	 * @param string $version   The installed version.
-	 * @param array  $dashboard The dashboard the install created: `{id, uuid}`.
+	 * @param array  $dashboard The dashboard the install created: `{id, uuid}`, and optionally
+	 *                          `placementIds`, the widgets that came from the install.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function record(string $slug, string $version, array $dashboard): void {
 		$dashboardId = (int)($dashboard['id'] ?? 0);
@@ -101,9 +116,55 @@ class StoreInstalls {
 		}
 
 		$installs = $this->all();
-		$installs[$slug] = ['version' => $version, 'dashboardId' => $dashboardId, 'dashboardUuid' => (string)($dashboard['uuid'] ?? '')];
+		$installs[$slug] = [
+			'version'       => $version,
+			'dashboardId'   => $dashboardId,
+			'dashboardUuid' => (string)($dashboard['uuid'] ?? ''),
+			'placementIds'  => self::ids(value: ($dashboard['placementIds'] ?? $this->placementIdsOf(dashboardId: $dashboardId))),
+		];
 		$this->store(installs: $installs);
 	}//end record()
+
+	/**
+	 * The ids of the widgets a dashboard holds now, or none when they cannot be read.
+	 *
+	 * @param int $dashboardId The dashboard.
+	 *
+	 * @return list<int> The placement ids.
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 */
+	private function placementIdsOf(int $dashboardId): array {
+		if ($this->placements === null) {
+			return [];
+		}
+
+		try {
+			$ids = [];
+			foreach ($this->placements->findByDashboardId(dashboardId: $dashboardId) as $placement) {
+				$ids[] = (int)$placement->getId();
+			}
+
+			return $ids;
+		} catch (Throwable) {
+			return [];
+		}
+	}//end placementIdsOf()
+
+	/**
+	 * A stored id list as positive integers.
+	 *
+	 * @param mixed $value The stored value.
+	 *
+	 * @return list<int> The ids.
+	 */
+	private static function ids(mixed $value): array {
+		if (is_array($value) === false) {
+			return [];
+		}
+
+		return array_values(array_filter(array_map('intval', $value), static fn (int $id): bool => $id > 0));
+	}//end ids()
 
 	/**
 	 * Drop the entries of a dashboard that no longer exists.
@@ -175,7 +236,7 @@ class StoreInstalls {
 	/**
 	 * Write the map.
 	 *
-	 * @param array<string, array{version: string, dashboardId: int, dashboardUuid: string}> $installs The installs.
+	 * @param array<string, array{version: string, dashboardId: int, dashboardUuid: string, placementIds: list<int>}> $installs The installs.
 	 *
 	 * @return void
 	 */

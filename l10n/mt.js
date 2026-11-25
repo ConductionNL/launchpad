@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Konnessjonijiet ta’ dan id-dashboard",
+    "Connection states need the Integrations app" : "L-istat tal-konnessjonijiet jeħtieġ l-app Integrazzjonijiet",
+    "No widget on this dashboard uses an outside connection" : "L-ebda widget fuq dan id-dashboard ma juża konnessjoni esterna",
+    "Loading connection states …" : "Qed jitgħabba l-istat tal-konnessjonijiet …",
+    "The connection states could not be loaded. Try again later." : "L-istat tal-konnessjonijiet ma setax jitgħabba. Erġa’ pprova aktar tard.",
+    "Last error: {time}" : "L-aħħar żball: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Juri l-konnessjonijiet esterni li jużaw il-widgets ta’ dan id-dashboard, bl-istat li l-app Integrazzjonijiet iżżomm għal kull waħda. Kull persuna tara dak li OpenRegister iħalliha tara.",
     "What do you think of this dashboard?" : "X'taħseb dwar dan id-dashboard?",
     "today {time}" : "illum {time}",
     "Last updated {when}" : "Aġġornat l-aħħar {when}",
@@ -1836,7 +1843,21 @@ OC.L10N.register(
     "Single sign-on" : "Login wieħed",
     "Signs in with your Nextcloud account" : "Jidħol bil-kont Nextcloud tiegħek",
     "Asks for its own sign-in" : "Jitlob il-login tiegħu stess",
-    "The tiles could not be added." : "Il-madum ma setax jiżdied."
+    "The tiles could not be added." : "Il-madum ma setax jiżdied.",
+    "You searched for {query}" : "Fittixt {query}",
+    "Search results" : "Riżultati tat-tfittxija",
+    "No results" : "L-ebda riżultat",
+    "Show all results" : "Uri r-riżultati kollha",
+    "Tip: type {prefix} to search {name} directly" : "Ħjiel: ittajpja {prefix} biex tfittex direttament f'{name}",
+    "{app}, outage since {time}" : "{app}, waqfa minn {time}",
+    "Own colour" : "Kulur tiegħek",
+    "Primary, dark" : "Primarju, skur",
+    "Accent" : "Aċċent",
+    "Accent, dark" : "Aċċent, skur",
+    "Ink" : "Linka",
+    "Text grey" : "Griż tat-test",
+    "Muted grey" : "Griż artab",
+    "Field grey" : "Griż tal-qasam"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

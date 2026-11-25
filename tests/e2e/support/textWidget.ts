@@ -27,6 +27,7 @@ import type { APIRequestContext, Locator, Page } from '@playwright/test'
 import { expect, request } from '@playwright/test'
 import { BASE_URL } from './baseUrl.ts'
 import { enterEditMode, MORE_MENU } from './dashboardSwitcher.ts'
+import { chooseAndAdd } from './widgetPicker.ts'
 
 export const API = '/index.php/apps/launchpad/api'
 
@@ -201,7 +202,7 @@ export async function openAddTextForm(
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-type-text"]').click()
+	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-text"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	const form = dialog.locator('.cn-text-widget-form')

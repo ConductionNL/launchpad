@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Conexiunile acestui panou",
+    "Connection states need the Integrations app" : "Starea conexiunilor necesită aplicația Integrări",
+    "No widget on this dashboard uses an outside connection" : "Niciun widget de pe acest panou nu folosește o conexiune externă",
+    "Loading connection states …" : "Se încarcă starea conexiunilor …",
+    "The connection states could not be loaded. Try again later." : "Starea conexiunilor nu a putut fi încărcată. Încercați din nou mai târziu.",
+    "Last error: {time}" : "Ultima eroare: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Arată conexiunile externe folosite de widgeturile acestui panou, cu starea pe care aplicația Integrări o păstrează pentru fiecare. Fiecare persoană vede ce îi permite OpenRegister.",
     "What do you think of this dashboard?" : "Ce părere aveți despre acest tablou de bord?",
     "today {time}" : "azi {time}",
     "Last updated {when}" : "Ultima actualizare {when}",
@@ -1836,7 +1843,21 @@ OC.L10N.register(
     "Single sign-on" : "Autentificare unică",
     "Signs in with your Nextcloud account" : "Se conectează cu contul tău Nextcloud",
     "Asks for its own sign-in" : "Cere propria autentificare",
-    "The tiles could not be added." : "Dalele nu au putut fi adăugate."
+    "The tiles could not be added." : "Dalele nu au putut fi adăugate.",
+    "You searched for {query}" : "Ați căutat {query}",
+    "Search results" : "Rezultatele căutării",
+    "No results" : "Niciun rezultat",
+    "Show all results" : "Afișează toate rezultatele",
+    "Tip: type {prefix} to search {name} directly" : "Sfat: tastați {prefix} pentru a căuta direct în {name}",
+    "{app}, outage since {time}" : "{app}, întrerupere de la {time}",
+    "Own colour" : "Culoare proprie",
+    "Primary, dark" : "Primar, închis",
+    "Accent" : "Accent",
+    "Accent, dark" : "Accent, închis",
+    "Ink" : "Cerneală",
+    "Text grey" : "Gri text",
+    "Muted grey" : "Gri estompat",
+    "Field grey" : "Gri câmp"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

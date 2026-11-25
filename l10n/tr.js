@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Bu panonun bağlantıları",
+    "Connection states need the Integrations app" : "Bağlantı durumları için Entegrasyonlar uygulaması gerekir",
+    "No widget on this dashboard uses an outside connection" : "Bu panodaki hiçbir bileşen dış bağlantı kullanmıyor",
+    "Loading connection states …" : "Bağlantı durumları yükleniyor …",
+    "The connection states could not be loaded. Try again later." : "Bağlantı durumları yüklenemedi. Daha sonra yeniden deneyin.",
+    "Last error: {time}" : "Son hata: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Bu panodaki bileşenlerin kullandığı dış bağlantıları, Entegrasyonlar uygulamasının her biri için tuttuğu durumla gösterir. Herkes OpenRegister'ın izin verdiğini görür.",
     "What do you think of this dashboard?" : "Bu pano hakkında ne düşünüyorsunuz?",
     "today {time}" : "bugün {time}",
     "Last updated {when}" : "Son güncelleme {when}",
@@ -1836,7 +1843,21 @@ OC.L10N.register(
     "Single sign-on" : "Çoklu oturum açma",
     "Signs in with your Nextcloud account" : "Nextcloud hesabınızla oturum açar",
     "Asks for its own sign-in" : "Kendi oturum açmasını ister",
-    "The tiles could not be added." : "Kutucuklar eklenemedi."
+    "The tiles could not be added." : "Kutucuklar eklenemedi.",
+    "You searched for {query}" : "{query} için arama yaptınız",
+    "Search results" : "Arama sonuçları",
+    "No results" : "Sonuç yok",
+    "Show all results" : "Tüm sonuçları göster",
+    "Tip: type {prefix} to search {name} directly" : "İpucu: doğrudan {name} içinde aramak için {prefix} yazın",
+    "{app}, outage since {time}" : "{app}, {time} saatinden beri kesinti",
+    "Own colour" : "Kendi renginiz",
+    "Primary, dark" : "Birincil, koyu",
+    "Accent" : "Vurgu",
+    "Accent, dark" : "Vurgu, koyu",
+    "Ink" : "Mürekkep",
+    "Text grey" : "Metin grisi",
+    "Muted grey" : "Soluk gri",
+    "Field grey" : "Alan grisi"
 },
 "nplurals=2; plural=(n != 1);"
 );

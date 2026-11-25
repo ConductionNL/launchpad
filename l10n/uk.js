@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Підключення цієї панелі",
+    "Connection states need the Integrations app" : "Для стану підключень потрібен застосунок «Інтеграції»",
+    "No widget on this dashboard uses an outside connection" : "Жоден віджет на цій панелі не використовує зовнішнє підключення",
+    "Loading connection states …" : "Завантаження стану підключень …",
+    "The connection states could not be loaded. Try again later." : "Не вдалося завантажити стан підключень. Спробуйте пізніше.",
+    "Last error: {time}" : "Остання помилка: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Показує зовнішні підключення, які використовують віджети цієї панелі, зі станом, який застосунок «Інтеграції» зберігає для кожного. Кожен бачить те, що йому дозволяє OpenRegister.",
     "What do you think of this dashboard?" : "Що ви думаєте про цю панель?",
     "today {time}" : "сьогодні {time}",
     "Last updated {when}" : "Останнє оновлення {when}",
@@ -1836,7 +1843,21 @@ OC.L10N.register(
     "Single sign-on" : "Єдиний вхід",
     "Signs in with your Nextcloud account" : "Входить з вашим обліковим записом Nextcloud",
     "Asks for its own sign-in" : "Вимагає власного входу",
-    "The tiles could not be added." : "Не вдалося додати плитки."
+    "The tiles could not be added." : "Не вдалося додати плитки.",
+    "You searched for {query}" : "Ви шукали {query}",
+    "Search results" : "Результати пошуку",
+    "No results" : "Немає результатів",
+    "Show all results" : "Показати всі результати",
+    "Tip: type {prefix} to search {name} directly" : "Порада: введіть {prefix}, щоб шукати безпосередньо в {name}",
+    "{app}, outage since {time}" : "{app}, збій з {time}",
+    "Own colour" : "Власний колір",
+    "Primary, dark" : "Основний, темний",
+    "Accent" : "Акцент",
+    "Accent, dark" : "Акцент, темний",
+    "Ink" : "Чорнило",
+    "Text grey" : "Сірий тексту",
+    "Muted grey" : "Приглушений сірий",
+    "Field grey" : "Сірий поля"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

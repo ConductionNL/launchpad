@@ -54,6 +54,15 @@ class MetadataService {
 	private const MAX_KEY_LENGTH = 64;
 
 	/**
+	 * How `created_at` / `updated_at` are written. Both columns are
+	 * DATETIME; MySQL and MariaDB strict mode refuse ISO-8601 with a `T`
+	 * and an offset ('c'), so a field could not be defined there at all.
+	 *
+	 * @var string
+	 */
+	private const DB_DATETIME = 'Y-m-d H:i:s';
+
+	/**
 	 * Maximum label length (matches schema column).
 	 *
 	 * @var int
@@ -135,7 +144,7 @@ class MetadataService {
 			// Expected — key is free.
 		}
 
-		$now   = self::timestamp();
+		$now   = (new DateTime())->format(format: self::DB_DATETIME);
 		$field = new MetadataField();
 		$requiredFlag = 0;
 		if ($settings['required'] === 1) {
@@ -191,27 +200,11 @@ class MetadataService {
 		self::patchOptions(field: $field, patch: $patch);
 
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$field->setUpdatedAt(self::timestamp());
+		$field->setUpdatedAt((new DateTime())->format(format: self::DB_DATETIME));
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
 		return $this->fieldMapper->update(entity: $field);
 	}//end updateFieldDefinition()
-
-	/**
-	 * The current time as the `created_at` / `updated_at` columns store it.
-	 *
-	 * Both columns are DATETIME. MySQL and MariaDB refuse an ISO-8601 string
-	 * with a `T` and an offset ('c' format) in strict mode, so a field could
-	 * not be defined there at all; `Y-m-d H:i:s` is accepted by every
-	 * supported database.
-	 *
-	 * @return string The timestamp.
-	 *
-	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-	 */
-	private static function timestamp(): string {
-		return (new DateTime())->format(format: 'Y-m-d H:i:s');
-	}//end timestamp()
 
 	/**
 	 * Apply a patched `label`, validating its length first.

@@ -428,7 +428,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self Fluent.
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function setSharingPolicy(bool $mayShare, bool $publicLinksAllowed): self {
 		$this->values['sharingPolicy'] = ['mayShare' => $mayShare, 'publicLinksAllowed' => $publicLinksAllowed];

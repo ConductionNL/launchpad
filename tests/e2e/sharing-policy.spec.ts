@@ -20,7 +20,7 @@
  *   @e2e dashboard-sharing::pieter-leaves
  *   @e2e dashboard-sharing::no-manager
  *
- * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md
+ * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md
  */
 
 import type { APIRequestContext, Browser } from '@playwright/test'

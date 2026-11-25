@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md
+ * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md
  */
 
 declare(strict_types=1);
@@ -34,7 +34,7 @@ use OCP\IUserManager;
 /**
  * The leaver handover setting and the person a leaver's dashboards go to.
  *
- * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+ * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
  */
 class LeaverHandover {
 
@@ -57,7 +57,7 @@ class LeaverHandover {
 	 *
 	 * @return array{manager: bool, fallbackUid: string}
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
 	public function setting(): array {
 		return $this->normalise(value: $this->settings->getValue(key: AdminSettingKey::LEAVER_HANDOVER->value, default: null));
@@ -70,7 +70,7 @@ class LeaverHandover {
 	 *
 	 * @return array{manager: bool, fallbackUid: string}
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
 	public function normalise(mixed $value): array {
 		if (is_array($value) === false) {
@@ -97,7 +97,7 @@ class LeaverHandover {
 	 *
 	 * @return string|null The new owner's uid, or null.
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
 	public function targetFor(IUser $leaver): ?string {
 		$setting = $this->setting();

@@ -754,7 +754,7 @@ class AdminSettingsService {
 	 *
 	 * @return string One of SharingLimits::ALLOWED_MODES.
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	private function storedAllowedMode(array $settings): string {
 		if (($settings[AdminSettingKey::SHARING_ALLOWED->value] ?? null) === SharingLimits::ALLOWED_NONE) {
@@ -779,7 +779,7 @@ class AdminSettingsService {
 	 *
 	 * @throws \InvalidArgumentException When the choice is unknown.
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	private function persistSharingPolicy(?string $allowed, ?bool $publicLinks): void {
 		if ($allowed !== null) {
@@ -803,7 +803,7 @@ class AdminSettingsService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
 	private function persistLeaverHandover(?array $handover): void {
 		if ($handover !== null) {
@@ -821,7 +821,7 @@ class AdminSettingsService {
 	 *
 	 * @return array{manager: bool, fallbackUid: string}
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
 	private function storedLeaverHandover(mixed $value): array {
 		if (is_array($value) === false) {

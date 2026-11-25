@@ -23,7 +23,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/record-parity-requirements/specs/dashboard-sharing/spec.md
- * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md
+ * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md
  */
 
 declare(strict_types=1);
@@ -125,7 +125,7 @@ class SharingLimits {
 	 *
 	 * @return string One of ALLOWED_MODES.
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function allowedMode(): string {
 		$stored = $this->settings->getValue(key: AdminSettingKey::SHARING_ALLOWED->value, default: null);
@@ -145,7 +145,7 @@ class SharingLimits {
 	 *
 	 * @return bool False only for a stored `false`.
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function publicLinksAllowed(): bool {
 		return $this->settings->getValue(key: AdminSettingKey::PUBLIC_LINKS_ALLOWED->value, default: true) !== false;
@@ -180,7 +180,7 @@ class SharingLimits {
 	 * @return bool True when the user may share.
 	 *
 	 * @spec openspec/changes/record-parity-requirements/specs/dashboard-sharing/spec.md#requirement-administrators-decide-who-may-share-and-with-whom-req-share-014
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function mayShare(string $userId): bool {
 		$mode = $this->allowedMode();
@@ -257,7 +257,7 @@ class SharingLimits {
 	 * @throws OCSForbiddenException    When public links are off or the caller may not share (403).
 	 * @throws InvalidArgumentException When the link has no expiry date (400).
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function assertMayCreatePublicLink(string $callerId, ?string $expiresAt): void {
 		if ($this->publicLinksAllowed() === false) {

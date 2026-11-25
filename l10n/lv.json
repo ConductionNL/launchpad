@@ -1557,6 +1557,21 @@
         "You confirmed you have read this": "Jūs apstiprinājāt, ka to esat izlasījis",
         "The confirm-before date must be after the publish time": "Apstiprināšanas termiņam jābūt pēc publicēšanas laika",
         "Your read confirmation could not be saved": "Jūsu izlasīšanas apstiprinājumu neizdevās saglabāt",
-        "{title}: embedded pages are not included in the download": "{title}: iegultās lapas lejupielādē nav iekļautas"
+        "{title}: embedded pages are not included in the download": "{title}: iegultās lapas lejupielādē nav iekļautas",
+        "Push changes": "Ieviest izmaiņas",
+        "Push changes to {count} dashboards": "Ieviest izmaiņas {count} informācijas paneļos",
+        "Push to {count} dashboards": "Ieviest {count} informācijas paneļos",
+        "Template \"{name}\" has {count} copies.": "Veidnei \"{name}\" ir {count} kopijas.",
+        "Added since the last sync: {widgets}": "Pievienoti kopš pēdējās sinhronizācijas: {widgets}",
+        "Removed since the last sync: {widgets}": "Noņemti kopš pēdējās sinhronizācijas: {widgets}",
+        "No widgets were added or removed since the last sync.": "Kopš pēdējās sinhronizācijas logrīki nav pievienoti vai noņemti.",
+        "How to update?": "Kā atjaunināt?",
+        "Only add new widgets": "Pievienot tikai jaunus logrīkus",
+        "Nothing disappears; personal layout stays.": "Nekas nepazūd; personīgais izkārtojums paliek.",
+        "Keep personal changes": "Saglabāt personīgās izmaiņas",
+        "The template wins, except what someone moved or added themselves.": "Veidne uzvar, izņemot to, ko kāds pats pārvietoja vai pievienoja.",
+        "Replace everything with the template": "Aizstāt visu ar veidni",
+        "Personal changes are lost.": "Personīgās izmaiņas tiek zaudētas.",
+        "{count} people changed their dashboard.": "{count} cilvēki mainīja savu informācijas paneli."
     }
 }

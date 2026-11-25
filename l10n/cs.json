@@ -1557,6 +1557,21 @@
         "You confirmed you have read this": "Potvrdili jste, že jste si to přečetli",
         "The confirm-before date must be after the publish time": "Termín potvrzení musí být po čase zveřejnění",
         "Your read confirmation could not be saved": "Vaše potvrzení přečtení se nepodařilo uložit",
-        "{title}: embedded pages are not included in the download": "{title}: vložené stránky nejsou ve staženém souboru zahrnuty"
+        "{title}: embedded pages are not included in the download": "{title}: vložené stránky nejsou ve staženém souboru zahrnuty",
+        "Push changes": "Zavést změny",
+        "Push changes to {count} dashboards": "Zavést změny do {count} nástěnek",
+        "Push to {count} dashboards": "Zavést do {count} nástěnek",
+        "Template \"{name}\" has {count} copies.": "Šablona „{name}“ má {count} kopií.",
+        "Added since the last sync: {widgets}": "Přidáno od poslední synchronizace: {widgets}",
+        "Removed since the last sync: {widgets}": "Odebráno od poslední synchronizace: {widgets}",
+        "No widgets were added or removed since the last sync.": "Od poslední synchronizace nebyly přidány ani odebrány žádné widgety.",
+        "How to update?": "Jak aktualizovat?",
+        "Only add new widgets": "Pouze přidat nové widgety",
+        "Nothing disappears; personal layout stays.": "Nic nezmizí; osobní rozvržení zůstane.",
+        "Keep personal changes": "Zachovat osobní úpravy",
+        "The template wins, except what someone moved or added themselves.": "Šablona vyhrává, kromě toho, co někdo sám přesunul nebo přidal.",
+        "Replace everything with the template": "Nahradit vše šablonou",
+        "Personal changes are lost.": "Osobní úpravy budou ztraceny.",
+        "{count} people changed their dashboard.": "{count} lidí upravilo svou nástěnku."
     }
 }

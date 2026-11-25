@@ -1655,7 +1655,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Ikkonfermajt li qrajt dan",
     "The confirm-before date must be after the publish time" : "Id-data tal-konferma trid tkun wara l-ħin tal-pubblikazzjoni",
     "Your read confirmation could not be saved" : "Il-konferma tal-qari tiegħek ma setgħetx tiġi ssejvjata",
-    "{title}: embedded pages are not included in the download" : "{title}: il-paġni inkorporati mhumiex inklużi fit-tniżżil"
+    "{title}: embedded pages are not included in the download" : "{title}: il-paġni inkorporati mhumiex inklużi fit-tniżżil",
+    "Push changes" : "Applika l-bidliet",
+    "Push changes to {count} dashboards" : "Applika l-bidliet għal {count} dashboards",
+    "Push to {count} dashboards" : "Applika għal {count} dashboards",
+    "Template \"{name}\" has {count} copies." : "Il-mudell \"{name}\" għandu {count} kopji.",
+    "Added since the last sync: {widgets}" : "Miżjuda mill-aħħar sinkronizzazzjoni: {widgets}",
+    "Removed since the last sync: {widgets}" : "Imneħħija mill-aħħar sinkronizzazzjoni: {widgets}",
+    "No widgets were added or removed since the last sync." : "Ma ġie miżjud jew imneħħi l-ebda widget mill-aħħar sinkronizzazzjoni.",
+    "How to update?" : "Kif għandu jiġi aġġornat?",
+    "Only add new widgets" : "Żid biss widgets ġodda",
+    "Nothing disappears; personal layout stays." : "Xejn ma jisparixxi; it-tqassim personali jibqa'.",
+    "Keep personal changes" : "Żomm il-bidliet personali",
+    "The template wins, except what someone moved or added themselves." : "Il-mudell jirbaħ, ħlief dak li xi ħadd ċaqlaq jew żied hu stess.",
+    "Replace everything with the template" : "Ibdel kollox bil-mudell",
+    "Personal changes are lost." : "Il-bidliet personali jintilfu.",
+    "{count} people changed their dashboard." : "{count} persuni biddlu d-dashboard tagħhom."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

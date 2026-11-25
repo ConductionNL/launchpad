@@ -1646,6 +1646,21 @@ OC.L10N.register(
     "You confirmed you have read this" : "Вы пацвердзілі, што прачыталі гэта",
     "The confirm-before date must be after the publish time" : "Тэрмін пацвярджэння павінен быць пазней за час публікацыі",
     "Your read confirmation could not be saved" : "Не ўдалося захаваць ваша пацвярджэнне прачытання",
-    "{title}: embedded pages are not included in the download" : "{title}: убудаваныя старонкі не ўключаюцца ў спампоўку"
+    "{title}: embedded pages are not included in the download" : "{title}: убудаваныя старонкі не ўключаюцца ў спампоўку",
+    "Push changes" : "Прымяніць змены",
+    "Push changes to {count} dashboards" : "Прымяніць змены да {count} панэляў",
+    "Push to {count} dashboards" : "Прымяніць да {count} панэляў",
+    "Template \"{name}\" has {count} copies." : "У шаблона «{name}» {count} копій.",
+    "Added since the last sync: {widgets}" : "Дададзена з апошняй сінхранізацыі: {widgets}",
+    "Removed since the last sync: {widgets}" : "Выдалена з апошняй сінхранізацыі: {widgets}",
+    "No widgets were added or removed since the last sync." : "З апошняй сінхранізацыі віджэты не дадаваліся і не выдаляліся.",
+    "How to update?" : "Як абнавіць?",
+    "Only add new widgets" : "Толькі дадаць новыя віджэты",
+    "Nothing disappears; personal layout stays." : "Нічога не знікае; асабістае размяшчэнне застаецца.",
+    "Keep personal changes" : "Захаваць асабістыя змены",
+    "The template wins, except what someone moved or added themselves." : "Перамагае шаблон, акрамя таго, што нехта сам перамясціў або дадаў.",
+    "Replace everything with the template" : "Замяніць усё шаблонам",
+    "Personal changes are lost." : "Асабістыя змены будуць страчаны.",
+    "{count} people changed their dashboard." : "{count} чалавек змянілі сваю панэль."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

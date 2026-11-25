@@ -1655,7 +1655,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Hai confermato di aver letto questo",
     "The confirm-before date must be after the publish time" : "La data di conferma deve essere successiva alla data di pubblicazione",
     "Your read confirmation could not be saved" : "Non è stato possibile salvare la tua conferma di lettura",
-    "{title}: embedded pages are not included in the download" : "{title}: le pagine incorporate non sono incluse nel download"
+    "{title}: embedded pages are not included in the download" : "{title}: le pagine incorporate non sono incluse nel download",
+    "Push changes" : "Applica modifiche",
+    "Push changes to {count} dashboards" : "Applica le modifiche a {count} dashboard",
+    "Push to {count} dashboards" : "Applica a {count} dashboard",
+    "Template \"{name}\" has {count} copies." : "Il modello \"{name}\" ha {count} copie.",
+    "Added since the last sync: {widgets}" : "Aggiunti dall'ultima sincronizzazione: {widgets}",
+    "Removed since the last sync: {widgets}" : "Rimossi dall'ultima sincronizzazione: {widgets}",
+    "No widgets were added or removed since the last sync." : "Nessun widget aggiunto o rimosso dall'ultima sincronizzazione.",
+    "How to update?" : "Come aggiornare?",
+    "Only add new widgets" : "Aggiungi solo i nuovi widget",
+    "Nothing disappears; personal layout stays." : "Non scompare nulla; il layout personale resta.",
+    "Keep personal changes" : "Mantieni le modifiche personali",
+    "The template wins, except what someone moved or added themselves." : "Vince il modello, tranne ciò che qualcuno ha spostato o aggiunto da sé.",
+    "Replace everything with the template" : "Sostituisci tutto con il modello",
+    "Personal changes are lost." : "Le modifiche personali vanno perse.",
+    "{count} people changed their dashboard." : "{count} persone hanno modificato la propria dashboard."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1555,6 +1555,21 @@
         "You confirmed you have read this": "Sie haben bestätigt, dass Sie dies gelesen haben",
         "The confirm-before date must be after the publish time": "Das Bestätigungsdatum muss nach dem Veröffentlichungszeitpunkt liegen",
         "Your read confirmation could not be saved": "Ihre Lesebestätigung konnte nicht gespeichert werden",
-        "{title}: embedded pages are not included in the download": "{title}: eingebettete Seiten sind im Download nicht enthalten"
+        "{title}: embedded pages are not included in the download": "{title}: eingebettete Seiten sind im Download nicht enthalten",
+        "Push changes": "Änderungen übernehmen",
+        "Push changes to {count} dashboards": "Änderungen auf {count} Dashboards übertragen",
+        "Push to {count} dashboards": "Auf {count} Dashboards übertragen",
+        "Template \"{name}\" has {count} copies.": "Vorlage \"{name}\" hat {count} Kopien.",
+        "Added since the last sync: {widgets}": "Seit der letzten Synchronisierung hinzugekommen: {widgets}",
+        "Removed since the last sync: {widgets}": "Seit der letzten Synchronisierung entfernt: {widgets}",
+        "No widgets were added or removed since the last sync.": "Seit der letzten Synchronisierung wurden keine Widgets hinzugefügt oder entfernt.",
+        "How to update?": "Wie aktualisieren?",
+        "Only add new widgets": "Nur neue Widgets hinzufügen",
+        "Nothing disappears; personal layout stays.": "Nichts verschwindet; das persönliche Layout bleibt.",
+        "Keep personal changes": "Persönliche Anpassungen behalten",
+        "The template wins, except what someone moved or added themselves.": "Die Vorlage gewinnt, außer bei dem, was jemand selbst verschoben oder hinzugefügt hat.",
+        "Replace everything with the template": "Alles durch die Vorlage ersetzen",
+        "Personal changes are lost.": "Persönliche Anpassungen gehen verloren.",
+        "{count} people changed their dashboard.": "{count} Personen haben ihr Dashboard angepasst."
     }
 }

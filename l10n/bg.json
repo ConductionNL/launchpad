@@ -1555,6 +1555,21 @@
         "You confirmed you have read this": "Потвърдихте, че сте прочели това",
         "The confirm-before date must be after the publish time": "Срокът за потвърждение трябва да е след часа на публикуване",
         "Your read confirmation could not be saved": "Потвърждението ви за прочитане не можа да бъде запазено",
-        "{title}: embedded pages are not included in the download": "{title}: вградените страници не са включени в изтеглянето"
+        "{title}: embedded pages are not included in the download": "{title}: вградените страници не са включени в изтеглянето",
+        "Push changes": "Прилагане на промените",
+        "Push changes to {count} dashboards": "Прилагане на промените към {count} табла",
+        "Push to {count} dashboards": "Прилагане към {count} табла",
+        "Template \"{name}\" has {count} copies.": "Шаблонът „{name}“ има {count} копия.",
+        "Added since the last sync: {widgets}": "Добавени от последната синхронизация: {widgets}",
+        "Removed since the last sync: {widgets}": "Премахнати от последната синхронизация: {widgets}",
+        "No widgets were added or removed since the last sync.": "От последната синхронизация не са добавяни или премахвани джаджи.",
+        "How to update?": "Как да се обнови?",
+        "Only add new widgets": "Добавяне само на нови джаджи",
+        "Nothing disappears; personal layout stays.": "Нищо не изчезва; личното оформление остава.",
+        "Keep personal changes": "Запазване на личните промени",
+        "The template wins, except what someone moved or added themselves.": "Шаблонът печели, освен това, което някой сам е преместил или добавил.",
+        "Replace everything with the template": "Замяна на всичко с шаблона",
+        "Personal changes are lost.": "Личните промени се губят.",
+        "{count} people changed their dashboard.": "{count} души са променили таблото си."
     }
 }

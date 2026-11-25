@@ -150,7 +150,7 @@
 						variant="secondary"
 						data-testid="admin-resync-template"
 						@click="openResyncModal(template)">
-						{{ t('launchpad', 'Re-sync to existing copies') }}
+						{{ t('launchpad', 'Push changes') }}
 					</NcButton>
 					<NcButton
 						variant="secondary"

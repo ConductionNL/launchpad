@@ -1555,6 +1555,21 @@
         "You confirmed you have read this": "Ha confirmado que lo ha leído",
         "The confirm-before date must be after the publish time": "La fecha límite de confirmación debe ser posterior a la de publicación",
         "Your read confirmation could not be saved": "No se ha podido guardar su confirmación de lectura",
-        "{title}: embedded pages are not included in the download": "{title}: las páginas incrustadas no se incluyen en la descarga"
+        "{title}: embedded pages are not included in the download": "{title}: las páginas incrustadas no se incluyen en la descarga",
+        "Push changes": "Publicar cambios",
+        "Push changes to {count} dashboards": "Publicar cambios en {count} paneles",
+        "Push to {count} dashboards": "Publicar en {count} paneles",
+        "Template \"{name}\" has {count} copies.": "La plantilla \"{name}\" tiene {count} copias.",
+        "Added since the last sync: {widgets}": "Añadidos desde la última sincronización: {widgets}",
+        "Removed since the last sync: {widgets}": "Eliminados desde la última sincronización: {widgets}",
+        "No widgets were added or removed since the last sync.": "No se añadió ni eliminó ningún widget desde la última sincronización.",
+        "How to update?": "¿Cómo actualizar?",
+        "Only add new widgets": "Solo añadir widgets nuevos",
+        "Nothing disappears; personal layout stays.": "No desaparece nada; el diseño personal se mantiene.",
+        "Keep personal changes": "Conservar los cambios personales",
+        "The template wins, except what someone moved or added themselves.": "La plantilla prevalece, excepto lo que alguien movió o añadió por su cuenta.",
+        "Replace everything with the template": "Reemplazar todo por la plantilla",
+        "Personal changes are lost.": "Los cambios personales se pierden.",
+        "{count} people changed their dashboard.": "{count} personas cambiaron su panel."
     }
 }

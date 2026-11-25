@@ -1557,6 +1557,21 @@
         "You confirmed you have read this": "Потврдили сте да сте ово прочитали",
         "The confirm-before date must be after the publish time": "Рок за потврду мора бити после времена објаве",
         "Your read confirmation could not be saved": "Вашу потврду читања није било могуће сачувати",
-        "{title}: embedded pages are not included in the download": "{title}: уграђене странице нису укључене у преузимање"
+        "{title}: embedded pages are not included in the download": "{title}: уграђене странице нису укључене у преузимање",
+        "Push changes": "Примени измене",
+        "Push changes to {count} dashboards": "Примени измене на {count} контролних табли",
+        "Push to {count} dashboards": "Примени на {count} контролних табли",
+        "Template \"{name}\" has {count} copies.": "Шаблон „{name}” има {count} копија.",
+        "Added since the last sync: {widgets}": "Додато од последње синхронизације: {widgets}",
+        "Removed since the last sync: {widgets}": "Уклоњено од последње синхронизације: {widgets}",
+        "No widgets were added or removed since the last sync.": "Од последње синхронизације није додат нити уклоњен ниједан виџет.",
+        "How to update?": "Како ажурирати?",
+        "Only add new widgets": "Додај само нове виџете",
+        "Nothing disappears; personal layout stays.": "Ништа не нестаје; лични распоред остаје.",
+        "Keep personal changes": "Задржи личне измене",
+        "The template wins, except what someone moved or added themselves.": "Шаблон побеђује, осим онога што је неко сам померио или додао.",
+        "Replace everything with the template": "Замени све шаблоном",
+        "Personal changes are lost.": "Личне измене се губе.",
+        "{count} people changed their dashboard.": "{count} особа је изменило своју контролну таблу."
     }
 }

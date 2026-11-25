@@ -1655,7 +1655,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Visszaigazolta, hogy elolvasta",
     "The confirm-before date must be after the publish time" : "A visszaigazolás határidejének a közzététel után kell lennie",
     "Your read confirmation could not be saved" : "Az olvasási visszaigazolást nem sikerült menteni",
-    "{title}: embedded pages are not included in the download" : "{title}: a beágyazott oldalak nem szerepelnek a letöltésben"
+    "{title}: embedded pages are not included in the download" : "{title}: a beágyazott oldalak nem szerepelnek a letöltésben",
+    "Push changes" : "Változások kiadása",
+    "Push changes to {count} dashboards" : "Változások kiadása {count} irányítópultra",
+    "Push to {count} dashboards" : "Kiadás {count} irányítópultra",
+    "Template \"{name}\" has {count} copies." : "A(z) „{name}” sablonnak {count} másolata van.",
+    "Added since the last sync: {widgets}" : "Hozzáadva a legutóbbi szinkronizálás óta: {widgets}",
+    "Removed since the last sync: {widgets}" : "Eltávolítva a legutóbbi szinkronizálás óta: {widgets}",
+    "No widgets were added or removed since the last sync." : "A legutóbbi szinkronizálás óta nem került hozzáadásra vagy eltávolításra modul.",
+    "How to update?" : "Hogyan frissüljön?",
+    "Only add new widgets" : "Csak új modulok hozzáadása",
+    "Nothing disappears; personal layout stays." : "Semmi sem tűnik el; a személyes elrendezés megmarad.",
+    "Keep personal changes" : "Személyes módosítások megtartása",
+    "The template wins, except what someone moved or added themselves." : "A sablon nyer, kivéve amit valaki maga helyezett át vagy adott hozzá.",
+    "Replace everything with the template" : "Minden cseréje a sablonra",
+    "Personal changes are lost." : "A személyes módosítások elvesznek.",
+    "{count} people changed their dashboard." : "{count} ember módosította az irányítópultját."
 },
 "nplurals=2; plural=(n != 1);"
 );

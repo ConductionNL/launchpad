@@ -1655,7 +1655,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Potwierdzono, że to przeczytałeś",
     "The confirm-before date must be after the publish time" : "Termin potwierdzenia musi przypadać po czasie publikacji",
     "Your read confirmation could not be saved" : "Nie udało się zapisać potwierdzenia przeczytania",
-    "{title}: embedded pages are not included in the download" : "{title}: osadzone strony nie są uwzględnione w pobranym pliku"
+    "{title}: embedded pages are not included in the download" : "{title}: osadzone strony nie są uwzględnione w pobranym pliku",
+    "Push changes" : "Wdróż zmiany",
+    "Push changes to {count} dashboards" : "Wdróż zmiany na {count} pulpitach",
+    "Push to {count} dashboards" : "Wdróż na {count} pulpitach",
+    "Template \"{name}\" has {count} copies." : "Szablon „{name}” ma {count} kopii.",
+    "Added since the last sync: {widgets}" : "Dodane od ostatniej synchronizacji: {widgets}",
+    "Removed since the last sync: {widgets}" : "Usunięte od ostatniej synchronizacji: {widgets}",
+    "No widgets were added or removed since the last sync." : "Od ostatniej synchronizacji nie dodano ani nie usunięto żadnych widżetów.",
+    "How to update?" : "Jak zaktualizować?",
+    "Only add new widgets" : "Dodaj tylko nowe widżety",
+    "Nothing disappears; personal layout stays." : "Nic nie znika; osobisty układ zostaje.",
+    "Keep personal changes" : "Zachowaj zmiany osobiste",
+    "The template wins, except what someone moved or added themselves." : "Szablon wygrywa, poza tym, co ktoś sam przeniósł lub dodał.",
+    "Replace everything with the template" : "Zastąp wszystko szablonem",
+    "Personal changes are lost." : "Zmiany osobiste zostaną utracone.",
+    "{count} people changed their dashboard." : "{count} osób zmieniło swój pulpit."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

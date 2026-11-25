@@ -1655,7 +1655,22 @@ OC.L10N.register(
     "You confirmed you have read this" : "Keni konfirmuar se e keni lexuar këtë",
     "The confirm-before date must be after the publish time" : "Afati i konfirmimit duhet të jetë pas kohës së publikimit",
     "Your read confirmation could not be saved" : "Konfirmimi juaj i leximit nuk mund të ruhej",
-    "{title}: embedded pages are not included in the download" : "{title}: faqet e ngulitura nuk përfshihen në shkarkim"
+    "{title}: embedded pages are not included in the download" : "{title}: faqet e ngulitura nuk përfshihen në shkarkim",
+    "Push changes" : "Zbato ndryshimet",
+    "Push changes to {count} dashboards" : "Zbato ndryshimet në {count} panele",
+    "Push to {count} dashboards" : "Zbato në {count} panele",
+    "Template \"{name}\" has {count} copies." : "Shablloni \"{name}\" ka {count} kopje.",
+    "Added since the last sync: {widgets}" : "Shtuar që nga sinkronizimi i fundit: {widgets}",
+    "Removed since the last sync: {widgets}" : "Hequr që nga sinkronizimi i fundit: {widgets}",
+    "No widgets were added or removed since the last sync." : "Që nga sinkronizimi i fundit nuk u shtua ose hoq asnjë widget.",
+    "How to update?" : "Si të përditësohet?",
+    "Only add new widgets" : "Shto vetëm widget-et e reja",
+    "Nothing disappears; personal layout stays." : "Asgjë nuk zhduket; paraqitja personale mbetet.",
+    "Keep personal changes" : "Ruaj ndryshimet personale",
+    "The template wins, except what someone moved or added themselves." : "Fiton shablloni, përveç asaj që dikush e zhvendosi ose e shtoi vetë.",
+    "Replace everything with the template" : "Zëvendëso gjithçka me shabllonin",
+    "Personal changes are lost." : "Ndryshimet personale humbasin.",
+    "{count} people changed their dashboard." : "{count} persona ndryshuan panelin e tyre."
 },
 "nplurals=2; plural=(n != 1);"
 );

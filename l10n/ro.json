@@ -1557,6 +1557,21 @@
         "You confirmed you have read this": "Ați confirmat că ați citit acest lucru",
         "The confirm-before date must be after the publish time": "Termenul de confirmare trebuie să fie după momentul publicării",
         "Your read confirmation could not be saved": "Confirmarea citirii nu a putut fi salvată",
-        "{title}: embedded pages are not included in the download": "{title}: paginile încorporate nu sunt incluse în descărcare"
+        "{title}: embedded pages are not included in the download": "{title}: paginile încorporate nu sunt incluse în descărcare",
+        "Push changes": "Aplică modificările",
+        "Push changes to {count} dashboards": "Aplică modificările pe {count} tablouri de bord",
+        "Push to {count} dashboards": "Aplică pe {count} tablouri de bord",
+        "Template \"{name}\" has {count} copies.": "Șablonul „{name}” are {count} copii.",
+        "Added since the last sync: {widgets}": "Adăugate de la ultima sincronizare: {widgets}",
+        "Removed since the last sync: {widgets}": "Eliminate de la ultima sincronizare: {widgets}",
+        "No widgets were added or removed since the last sync.": "De la ultima sincronizare nu a fost adăugat sau eliminat niciun widget.",
+        "How to update?": "Cum se actualizează?",
+        "Only add new widgets": "Adaugă doar widgeturi noi",
+        "Nothing disappears; personal layout stays.": "Nimic nu dispare; aspectul personal rămâne.",
+        "Keep personal changes": "Păstrează modificările personale",
+        "The template wins, except what someone moved or added themselves.": "Șablonul are prioritate, cu excepția a ceea ce cineva a mutat sau adăugat singur.",
+        "Replace everything with the template": "Înlocuiește totul cu șablonul",
+        "Personal changes are lost.": "Modificările personale se pierd.",
+        "{count} people changed their dashboard.": "{count} persoane și-au modificat tabloul de bord."
     }
 }

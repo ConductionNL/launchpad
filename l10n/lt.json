@@ -1557,6 +1557,21 @@
         "You confirmed you have read this": "Patvirtinote, kad tai perskaitėte",
         "The confirm-before date must be after the publish time": "Patvirtinimo terminas turi būti po paskelbimo laiko",
         "Your read confirmation could not be saved": "Nepavyko išsaugoti jūsų perskaitymo patvirtinimo",
-        "{title}: embedded pages are not included in the download": "{title}: įterpti puslapiai į atsisiuntimą neįtraukiami"
+        "{title}: embedded pages are not included in the download": "{title}: įterpti puslapiai į atsisiuntimą neįtraukiami",
+        "Push changes": "Taikyti pakeitimus",
+        "Push changes to {count} dashboards": "Taikyti pakeitimus {count} skydeliams",
+        "Push to {count} dashboards": "Taikyti {count} skydeliams",
+        "Template \"{name}\" has {count} copies.": "Šablonas „{name}“ turi {count} kopijas.",
+        "Added since the last sync: {widgets}": "Pridėta nuo paskutinio sinchronizavimo: {widgets}",
+        "Removed since the last sync: {widgets}": "Pašalinta nuo paskutinio sinchronizavimo: {widgets}",
+        "No widgets were added or removed since the last sync.": "Nuo paskutinio sinchronizavimo valdiklių nepridėta ir nepašalinta.",
+        "How to update?": "Kaip atnaujinti?",
+        "Only add new widgets": "Pridėti tik naujus valdiklius",
+        "Nothing disappears; personal layout stays.": "Niekas neišnyksta; asmeninis išdėstymas lieka.",
+        "Keep personal changes": "Išsaugoti asmeninius pakeitimus",
+        "The template wins, except what someone moved or added themselves.": "Laimi šablonas, išskyrus tai, ką kas nors pats perkėlė ar pridėjo.",
+        "Replace everything with the template": "Viską pakeisti šablonu",
+        "Personal changes are lost.": "Asmeniniai pakeitimai prarandami.",
+        "{count} people changed their dashboard.": "{count} žmonės pakeitė savo skydelį."
     }
 }

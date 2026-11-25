@@ -4,54 +4,113 @@
 -->
 
 <!--
-	TemplateResyncModal — admin "Re-sync to existing copies" dialog
-	(admin-template-resync REQ-RESYNC-001..005).
+	TemplateResyncModal — the rollout window behind "Push changes" on a
+	template (board LpBeheerSjablonen; admin-templates REQ-RESYNC-001..008).
 
-	Lets an admin push an updated template onto its already-provisioned user
-	copies. A strategy choice (overwrite / merge) selects between replacing
-	the whole layout or reconciling template-origin placements while keeping
-	each user's personally-added widgets. Apply is gated behind a completed
-	Dry-run for the currently-selected strategy — switching strategy or
-	re-opening the dialog resets the plan so a stale preview can never be
-	applied.
+	On open it runs a dry run for the preselected choice (Keep personal
+	changes, `merge`) and says, in the board's words, what the template gained
+	and lost since the copies were last synced and how many people changed
+	their copy. "How to update?" offers the three strategies with their
+	consequence; choosing another one runs a fresh dry run, so the push button
+	only ever applies the plan of the choice on screen. The button names the
+	number of dashboards it pushes to.
 -->
 
 <template>
 	<NcModal
 		v-if="open"
 		class="launchpad-modal"
-		size="large"
-		:name="t('launchpad', 'Re-sync to existing copies')"
+		size="normal"
+		:name="title"
 		@close="handleClose">
 		<div class="launchpad-resync" data-testid="template-resync-dialog">
-			<h2>{{ t('launchpad', 'Re-sync to existing copies') }}</h2>
-			<p class="launchpad-resync__hint">
+			<h2 data-testid="template-resync-title">
+				{{ title }}
+			</h2>
+
+			<p
+				v-if="plan"
+				class="launchpad-resync__hint"
+				data-testid="template-resync-template">
 				{{
-					t(
-						'launchpad',
-						'Push this template’s current layout to everyone who already has a copy.',
-					)
+					t('launchpad', 'Template "{name}" has {count} copies.', {
+						name: template ? template.name : '',
+						count: plan.totalCopies,
+					})
 				}}
 			</p>
 
-			<div class="launchpad-resync__field">
-				<NcSelect
-					v-model="strategy"
-					:inputLabel="t('launchpad', 'Strategy')"
-					:options="strategyOptions"
-					label="label"
-					trackBy="id"
-					:clearable="false"
-					data-testid="template-resync-strategy"
-					@update:modelValue="handleStrategyChange" />
-				<p class="launchpad-resync__strategy-hint">
-					{{ strategyHint }}
-				</p>
-			</div>
+			<ul
+				v-if="plan"
+				class="launchpad-resync__changes"
+				data-testid="template-resync-changes">
+				<li v-if="gained.length > 0" data-testid="template-resync-gained">
+					{{
+						t('launchpad', 'Added since the last sync: {widgets}', {
+							widgets: gained.join(', '),
+						})
+					}}
+				</li>
+				<li v-if="lost.length > 0" data-testid="template-resync-lost">
+					{{
+						t('launchpad', 'Removed since the last sync: {widgets}', {
+							widgets: lost.join(', '),
+						})
+					}}
+				</li>
+				<li
+					v-if="gained.length === 0 && lost.length === 0"
+					data-testid="template-resync-no-changes">
+					{{
+						t(
+							'launchpad',
+							'No widgets were added or removed since the last sync.',
+						)
+					}}
+				</li>
+			</ul>
+
+			<fieldset
+				class="launchpad-resync__choices"
+				data-testid="template-resync-strategy">
+				<legend class="launchpad-resync__legend">
+					{{ t('launchpad', 'How to update?') }}
+				</legend>
+				<label
+					v-for="choice in choices"
+					:key="choice.id"
+					class="launchpad-resync__choice"
+					:class="{ 'launchpad-resync__choice--active': strategy === choice.id }">
+					<input
+						type="radio"
+						name="launchpad-resync-strategy"
+						:value="choice.id"
+						:checked="strategy === choice.id"
+						:disabled="applying"
+						:data-testid="`template-resync-choice-${choice.id}`"
+						@change="chooseStrategy(choice.id)">
+					<span class="launchpad-resync__choice-text">
+						<span class="launchpad-resync__choice-label">{{ choice.label }}</span>
+						<span class="launchpad-resync__choice-consequence">{{ choice.consequence }}</span>
+					</span>
+				</label>
+			</fieldset>
+
+			<p
+				v-if="plan && plan.changedByOwnerCount > 0"
+				class="launchpad-resync__changed"
+				data-testid="template-resync-changed-count">
+				{{
+					t('launchpad', '{count} people changed their dashboard.', {
+						count: plan.changedByOwnerCount,
+					})
+				}}
+			</p>
 
 			<div
 				v-if="error"
 				class="launchpad-resync__error"
+				role="alert"
 				data-testid="template-resync-error">
 				{{ error }}
 			</div>
@@ -60,46 +119,10 @@
 				<NcLoadingIcon :size="32" />
 			</div>
 
-			<template v-else-if="plan">
-				<div
-					class="launchpad-resync__summary"
-					data-testid="template-resync-summary">
-					{{
-						t('launchpad', '{count} of {total} copies affected', {
-							count: plan.affectedCount,
-							total: plan.totalCopies,
-						})
-					}}
-				</div>
-
-				<table v-if="plan.copies.length > 0" class="launchpad-resync__table">
-					<thead>
-						<tr>
-							<th scope="col">{{ t('launchpad', 'User') }}</th>
-							<th scope="col">{{ t('launchpad', 'Add') }}</th>
-							<th scope="col">{{ t('launchpad', 'Update') }}</th>
-							<th scope="col">{{ t('launchpad', 'Remove') }}</th>
-							<th scope="col">{{ t('launchpad', 'Unchanged') }}</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr
-							v-for="copy in plan.copies"
-							:key="copy.dashboardId"
-							:data-testid="`template-resync-copy-${copy.dashboardId}`">
-							<td>{{ copy.userId }}</td>
-							<td>{{ copy.toAdd }}</td>
-							<td>{{ copy.toUpdate }}</td>
-							<td>{{ copy.toRemove }}</td>
-							<td>{{ copy.toPreserve }}</td>
-						</tr>
-					</tbody>
-				</table>
-			</template>
-
 			<div
 				v-if="applied"
 				class="launchpad-resync__success"
+				role="status"
 				data-testid="template-resync-success">
 				<span v-if="applied.async">
 					{{
@@ -127,18 +150,11 @@
 					{{ t('launchpad', 'Close') }}
 				</NcButton>
 				<NcButton
-					variant="secondary"
-					data-testid="template-resync-dryrun"
-					:disabled="loading"
-					@click="runDryRun">
-					{{ t('launchpad', 'Dry-run') }}
-				</NcButton>
-				<NcButton
 					variant="primary"
 					data-testid="template-resync-apply"
 					:disabled="!canApply"
 					@click="apply">
-					{{ t('launchpad', 'Apply') }}
+					{{ pushLabel }}
 				</NcButton>
 			</div>
 		</div>
@@ -150,15 +166,17 @@ import {
 	NcButton,
 	NcLoadingIcon,
 	NcModal,
-	NcSelect,
 } from '@conduction/nextcloud-vue'
 import { FLAG_PROP, NULLABLE_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
 
+/** The choice the window opens with (REQ-RESYNC-008). */
+const DEFAULT_STRATEGY = 'merge'
+
 /**
- * Admin dialog for pushing a template update to its provisioned copies.
+ * The rollout window: what a push changes, how to update, and the push.
  *
- * @spec openspec/specs/admin-templates/spec.md
+ * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
  */
 export default {
 	name: 'TemplateResyncModal',
@@ -166,7 +184,6 @@ export default {
 	components: {
 		NcModal,
 		NcButton,
-		NcSelect,
 		NcLoadingIcon,
 	},
 
@@ -180,19 +197,29 @@ export default {
 
 	data() {
 		return {
-			strategy: {
-				id: 'overwrite',
-				label: t('launchpad', 'Overwrite — replace the whole layout'),
-			},
+			strategy: DEFAULT_STRATEGY,
 
-			strategyOptions: [
+			choices: [
 				{
-					id: 'overwrite',
-					label: t('launchpad', 'Overwrite — replace the whole layout'),
+					id: 'add_only',
+					label: t('launchpad', 'Only add new widgets'),
+					consequence: t(
+						'launchpad',
+						'Nothing disappears; personal layout stays.',
+					),
 				},
 				{
 					id: 'merge',
-					label: t('launchpad', 'Merge — keep personally added widgets'),
+					label: t('launchpad', 'Keep personal changes'),
+					consequence: t(
+						'launchpad',
+						'The template wins, except what someone moved or added themselves.',
+					),
+				},
+				{
+					id: 'overwrite',
+					label: t('launchpad', 'Replace everything with the template'),
+					consequence: t('launchpad', 'Personal changes are lost.'),
 				},
 			],
 
@@ -201,67 +228,93 @@ export default {
 			error: '',
 			plan: null,
 			applied: null,
+			requestSeq: 0,
 		}
 	},
 
 	computed: {
 		/**
-		 * Apply is disabled until a dry-run for the currently-selected
-		 * strategy has been reviewed (REQ-RESYNC-002 / tasks.md).
+		 * The push button applies only a plan computed for the choice on
+		 * screen (REQ-RESYNC-002).
 		 *
-		 * @return {boolean} whether the Apply button is enabled.
-		 * @spec openspec/specs/admin-templates/spec.md
+		 * @return {boolean} whether the push button is enabled.
+		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
 		canApply() {
 			return (
 				this.plan !== null
+				&& this.plan.strategy === this.strategy
 				&& this.loading === false
 				&& this.applying === false
 			)
 		},
 
 		/**
-		 * Human-readable explanation of the selected strategy's semantics.
+		 * The window's title, naming the number of dashboards once known.
 		 *
-		 * @return {string} the strategy hint text.
-		 * @spec openspec/specs/admin-templates/spec.md
+		 * @return {string} the title.
+		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
-		strategyHint() {
-			if (this.strategy?.id === 'merge') {
-				return t(
-					'launchpad',
-					'Adds and updates template widgets and restores compulsory widgets, but keeps widgets users added themselves.',
-				)
+		title() {
+			if (!this.plan) {
+				return t('launchpad', 'Push changes')
 			}
-			return t(
-				'launchpad',
-				'Replaces each copy’s entire layout with the template’s current layout — personally-added widgets will be removed.',
-			)
+			return t('launchpad', 'Push changes to {count} dashboards', {
+				count: this.plan.totalCopies,
+			})
+		},
+
+		/**
+		 * The confirm button's label, naming the number of dashboards.
+		 *
+		 * @return {string} the label.
+		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+		 */
+		pushLabel() {
+			if (!this.plan) {
+				return t('launchpad', 'Push changes')
+			}
+			return t('launchpad', 'Push to {count} dashboards', {
+				count: this.plan.totalCopies,
+			})
+		},
+
+		/**
+		 * Widgets the template gained since the copies were last synced.
+		 *
+		 * @return {string[]} the widget names.
+		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+		 */
+		gained() {
+			return Array.isArray(this.plan?.gained) ? this.plan.gained : []
+		},
+
+		/**
+		 * Widgets the template lost since the copies were last synced.
+		 *
+		 * @return {string[]} the widget names.
+		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+		 */
+		lost() {
+			return Array.isArray(this.plan?.lost) ? this.plan.lost : []
 		},
 	},
 
 	watch: {
-		/**
-		 * Reset all report/result state whenever the dialog opens or
-		 * closes, so a stale plan from a previous template can never be
-		 * applied to a different one.
-		 *
-		 * @param {boolean} isOpen whether the modal is now open.
-		 * @return {void}
-		 * @spec openspec/specs/admin-templates/spec.md
-		 */
 		open: {
 			immediate: true,
 			/**
-			 * Clear any previous dry-run plan when the modal opens, so Apply
-			 * stays disabled until a fresh plan is produced.
+			 * On open: back to Keep personal changes and a fresh dry run, so a
+			 * plan from an earlier template can never be applied.
 			 *
 			 * @param {boolean} isOpen Whether the modal is now open.
-			 * @spec openspec/specs/admin-templates/spec.md
+			 * @return {void}
+			 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 			 */
 			handler(isOpen) {
 				if (isOpen) {
 					this.resetState()
+					this.runDryRun()
 				}
 			},
 		},
@@ -271,13 +324,13 @@ export default {
 		t,
 
 		/**
-		 * Clear the plan/result/error state (REQ-RESYNC-002 — a fresh
-		 * dry-run must always be reviewed before Apply unlocks).
+		 * Clear the plan, result and error, and preselect Keep personal changes.
 		 *
 		 * @return {void}
-		 * @spec openspec/specs/admin-templates/spec.md
+		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
 		resetState() {
+			this.strategy = DEFAULT_STRATEGY
 			this.loading = false
 			this.applying = false
 			this.error = ''
@@ -286,52 +339,65 @@ export default {
 		},
 
 		/**
-		 * Strategy changed — any previously-reviewed plan applied to the
-		 * old strategy is no longer valid.
+		 * Another choice: its own dry run replaces the shown plan.
 		 *
+		 * @param {string} id The strategy id (`add_only`, `merge`, `overwrite`).
 		 * @return {void}
-		 * @spec openspec/specs/admin-templates/spec.md
+		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
-		handleStrategyChange() {
-			this.plan = null
+		chooseStrategy(id) {
+			if (id === this.strategy) {
+				return
+			}
+			this.strategy = id
 			this.applied = null
-			this.error = ''
+			this.runDryRun()
 		},
 
 		/**
-		 * Compute the re-sync plan without mutating anything
-		 * (REQ-RESYNC-002).
+		 * Compute the plan for the current choice without changing anything
+		 * (REQ-RESYNC-002). A slower answer for an earlier choice is dropped.
 		 *
 		 * @return {Promise<void>} resolves once the plan is loaded.
-		 * @spec openspec/specs/admin-templates/spec.md
+		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
 		async runDryRun() {
 			if (!this.template) {
 				return
 			}
 
+			const seq = ++this.requestSeq
+			const strategy = this.strategy
 			this.loading = true
 			this.error = ''
-			this.applied = null
 
 			try {
 				const { data } = await api.resyncAdminTemplate(this.template.id, {
-					strategy: this.strategy.id,
+					strategy,
 					dryRun: true,
 				})
-				this.plan = data
+				if (seq !== this.requestSeq) {
+					return
+				}
+				this.plan = { ...data, strategy }
 			} catch {
+				if (seq !== this.requestSeq) {
+					return
+				}
+				this.plan = null
 				this.error = t('launchpad', 'Could not compute the re-sync plan.')
 			} finally {
-				this.loading = false
+				if (seq === this.requestSeq) {
+					this.loading = false
+				}
 			}
 		},
 
 		/**
-		 * Apply the reviewed plan (REQ-RESYNC-001, REQ-RESYNC-005).
+		 * Push the plan on screen (REQ-RESYNC-001, REQ-RESYNC-005).
 		 *
 		 * @return {Promise<void>} resolves once the re-sync request completes.
-		 * @spec openspec/specs/admin-templates/spec.md
+		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
 		async apply() {
 			if (!this.template || !this.canApply) {
@@ -343,7 +409,7 @@ export default {
 
 			try {
 				const { data } = await api.resyncAdminTemplate(this.template.id, {
-					strategy: this.strategy.id,
+					strategy: this.strategy,
 					dryRun: false,
 				})
 				this.applied = data
@@ -357,7 +423,7 @@ export default {
 		},
 
 		/**
-		 * Close the dialog.
+		 * Close the window.
 		 *
 		 * @return {void}
 		 * @spec openspec/specs/admin-templates/spec.md
@@ -376,17 +442,64 @@ export default {
 
 .launchpad-resync__hint {
 	color: var(--color-text-maxcontrast);
-	margin-bottom: 16px;
+	margin-bottom: 8px;
 }
 
-.launchpad-resync__field {
-	margin-bottom: 16px;
+.launchpad-resync__changes {
+	margin: 0 0 16px;
+	padding-inline-start: 20px;
+	list-style: disc;
 }
 
-.launchpad-resync__strategy-hint {
+.launchpad-resync__choices {
+	border: none;
+	margin: 0 0 12px;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.launchpad-resync__legend {
+	font-weight: 600;
+	margin-bottom: 8px;
+}
+
+.launchpad-resync__choice {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 10px 12px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-large);
+	cursor: pointer;
+}
+
+.launchpad-resync__choice--active {
+	border-color: var(--color-primary-element);
+	background-color: var(--color-primary-element-light);
+}
+
+.launchpad-resync__choice input {
+	margin-top: 3px;
+}
+
+.launchpad-resync__choice-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.launchpad-resync__choice-label {
+	font-weight: 600;
+}
+
+.launchpad-resync__choice-consequence {
 	color: var(--color-text-maxcontrast);
 	font-size: 13px;
-	margin-top: 4px;
+}
+
+.launchpad-resync__changed {
+	margin: 8px 0;
 }
 
 .launchpad-resync__error {
@@ -397,25 +510,7 @@ export default {
 .launchpad-resync__loading {
 	display: flex;
 	justify-content: center;
-	padding: 24px;
-}
-
-.launchpad-resync__summary {
-	font-weight: 600;
-	margin: 12px 0;
-}
-
-.launchpad-resync__table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-bottom: 12px;
-}
-
-.launchpad-resync__table th,
-.launchpad-resync__table td {
-	text-align: left;
-	padding: 6px 8px;
-	border-bottom: 1px solid var(--color-border);
+	padding: 12px;
 }
 
 .launchpad-resync__success {

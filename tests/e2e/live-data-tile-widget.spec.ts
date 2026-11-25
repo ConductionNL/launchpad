@@ -237,25 +237,20 @@ async function openTileForm(
 }
 
 /**
- * Pick an option of one of the form's NcSelects, by position.
- * Selects in order: 0 Source, 1 Display, 2 Preset (list/table/keyvalue only).
+ * Fill the mapping from one of the presets (lists, tables and key-value
+ * views only), by position in the Preset select.
  *
  * @param page The page.
  * @param form The tile form.
- * @param select The select's position in the form.
- * @param option The option's position in the select.
+ * @param option The preset's position in the select.
  */
-async function choose(
+async function choosePreset(
 	page: Page,
 	form: Locator,
-	select: number,
 	option: number,
 ): Promise<void> {
-	await form
-		.locator('.v-select')
-		.nth(select)
-		.locator('.vs__dropdown-toggle')
-		.click()
+	await form.getByRole('combobox', { name: 'Preset' }).click()
+	// NcSelect renders its list outside the modal.
 	const options = page.locator('.vs__dropdown-menu .vs__dropdown-option')
 	await expect(options.first()).toBeVisible({ timeout: 5_000 })
 	await options.nth(option).click()
@@ -494,36 +489,47 @@ test('REQ-LIVETILE-002: an off-list host is refused at save, an allowed one pers
 })
 
 // @e2e live-data-tile-widget::refresh-interval-bounds
-test('REQ-LIVETILE-002: a refresh below 30 s is raised to 30, an unset one becomes 300, when saved', async ({
+// The form draws the refresh as a choice (board LpWidgetInstellen,
+// REQ-LIVETILE-020): every 5, 15, 30 or 60 minutes, so a value below 30 s
+// cannot be entered at all, and an untouched one is saved as 300. The
+// clamp of a stored value below 30 s is the server test that follows.
+test('REQ-LIVETILE-002: the refresh offers nothing below 30 s, and an unset one becomes 300 when saved', async ({
 	page,
 }) => {
 	await gotoLaunchPad(page)
-	const placed: number[] = []
+	let placedId: number | null = null
 	try {
-		for (const [typed, expected] of [
-			['10', 30],
-			['', 300],
-		] as const) {
-			const before = await shownIds()
-			const { dialog, form } = await openTileForm(page)
-			await expect(form.getByText('Minimum 30 seconds.')).toBeVisible()
-			await expect(form.getByLabel('Refresh interval (seconds)')).toHaveValue(
-				'300',
-			)
-			await form
-				.getByLabel('URL', { exact: true })
-				.fill(`https://${ALLOWED_HOST}/stats.json`)
-			await form
-				.getByLabel('Path in the response', { exact: true })
-				.fill('$.data.count')
-			await form.getByLabel('Refresh interval (seconds)').fill(typed)
-			const placement = await addAndRead(page, dialog, before)
-			placed.push(Number(placement.id))
-			expect(placement.content.refresh, `typed "${typed}"`).toBe(expected)
-		}
+		const before = await shownIds()
+		const { dialog, form } = await openTileForm(page)
+		const refresh = form.getByRole('combobox', { name: 'Refresh' })
+		await expect(refresh).toBeVisible()
+		await expect(form.locator('.live-tile-widget-form__row .v-select')).toContainText(
+			'Every 5 minutes',
+		)
+
+		await refresh.click()
+		// NcSelect renders its list outside the modal.
+		const options = page.locator('.vs__dropdown-menu .vs__dropdown-option')
+		await expect(options).toHaveText([
+			'Every 5 minutes',
+			'Every 15 minutes',
+			'Every 30 minutes',
+			'Every 60 minutes',
+		])
+		await page.keyboard.press('Escape')
+
+		await form
+			.getByLabel('URL', { exact: true })
+			.fill(`https://${ALLOWED_HOST}/stats.json`)
+		await form
+			.getByLabel('Path in the response', { exact: true })
+			.fill('$.data.count')
+		const placement = await addAndRead(page, dialog, before)
+		placedId = Number(placement.id)
+		expect(placement.content.refresh, 'untouched refresh').toBe(300)
 	} finally {
-		for (const id of placed) {
-			await admin.delete(`${API}/widgets/${id}`)
+		if (placedId !== null) {
+			await admin.delete(`${API}/widgets/${placedId}`)
 		}
 	}
 })
@@ -563,11 +569,10 @@ test('REQ-LIVETILE-002: with the connector capability, the author picks a source
 	const before = await shownIds()
 	const { dialog, form } = await openTileForm(page)
 
-	await form.locator('.v-select').nth(0).locator('.vs__dropdown-toggle').click()
-	const options = page.locator('.vs__dropdown-menu .vs__dropdown-option')
-	await expect(options).toHaveCount(2)
-	await expect(options.nth(1)).toContainText('Integriq source')
-	await options.nth(1).click()
+	// "Where does the value come from?": two choice cards (board LpWidgetInstellen).
+	const connector = form.getByTestId('live-tile-source-connector')
+	await expect(connector).toBeEnabled()
+	await connector.check()
 
 	await expect(form.getByText('Integriq is not installed')).toHaveCount(0)
 	const source = form.getByLabel('Integriq source id')
@@ -837,11 +842,10 @@ test('REQ-LIVETILE-005: without the connector only URL mode is offered and a con
 	await expect(tile.locator('.live-tile-widget__state--error')).toHaveCount(0)
 
 	const { form } = await openTileForm(page)
-	await form.locator('.v-select').nth(0).locator('.vs__dropdown-toggle').click()
-	const options = page.locator('.vs__dropdown-menu .vs__dropdown-option')
-	await expect(options).toHaveCount(1)
-	await expect(options.first()).toContainText('Direct URL')
-	await options.first().click()
+	// Without the capability the Connection card cannot be chosen, and the
+	// form stays on Web address.
+	await expect(form.getByTestId('live-tile-source-connector')).toBeDisabled()
+	await expect(form.getByTestId('live-tile-source-url')).toBeChecked()
 	await expect(form.getByLabel('Integriq source id')).toHaveCount(0)
 	await expect(form.getByLabel('URL', { exact: true })).toBeVisible()
 })
@@ -889,8 +893,8 @@ test('REQ-LTC-004: the SharePoint "Latest documents" preset lists ten documents 
 	await url.press('Tab')
 	expect((await (await checked).json()).valid).toBe(true)
 
-	await choose(page, form, 1, 1) // Display: List
-	await choose(page, form, 2, 0) // Preset: Latest documents (SharePoint)
+	await form.getByTestId('live-tile-view-list').check()
+	await choosePreset(page, form, 0) // Latest documents (SharePoint)
 	await expect(form.getByLabel('Path in the response', { exact: true })).toHaveValue(
 		'$.value',
 	)

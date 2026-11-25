@@ -429,6 +429,8 @@ class HealthPingServiceTest extends TestCase {
 	 * the first failed check; the time is kept while it stays offline and
 	 * cleared once a check succeeds.
 	 *
+	 * @return void
+	 *
 	 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
 	 */
 	public function testAnOfflineServiceSaysSinceWhenItsChecksFail(): void {
@@ -437,27 +439,27 @@ class HealthPingServiceTest extends TestCase {
 		$this->clientAnswering(statuses: [200, 0, 0, 0, 200]);
 
 		$online = $this->service->resolveForPlacement(placementId: 35);
-		$this->assertNull($online['downSince']);
+		$this->assertNull(actual: $online['downSince']);
 
 		$this->expireCacheEntryFor(placementId: 35);
 		$firstFailure = $this->service->resolveForPlacement(placementId: 35);
-		$this->assertNull($firstFailure['downSince'], 'below the threshold the service is not offline yet');
-		$firstFailedTs = (int)json_decode($this->cache->get('badge_35'), true)['firstFailedTs'];
+		$this->assertNull(actual: $firstFailure['downSince'], message: 'below the threshold the service is not offline yet');
+		$firstFailedTs = (int)json_decode(json: $this->cache->get('badge_35'), associative: true)['firstFailedTs'];
 
 		$this->expireCacheEntryFor(placementId: 35);
 		$offline = $this->service->resolveForPlacement(placementId: 35);
-		$this->assertSame('offline', $offline['state']);
-		$this->assertSame((new \DateTime('@' . $firstFailedTs))->format(DATE_ATOM), $offline['downSince']);
+		$this->assertSame(expected: 'offline', actual: $offline['state']);
+		$this->assertSame(expected: (new \DateTime('@' . $firstFailedTs))->format(format: DATE_ATOM), actual: $offline['downSince']);
 
 		$this->expireCacheEntryFor(placementId: 35);
 		$still = $this->service->resolveForPlacement(placementId: 35);
-		$this->assertSame($offline['downSince'], $still['downSince'], 'kept while it stays offline');
+		$this->assertSame(expected: $offline['downSince'], actual: $still['downSince'], message: 'kept while it stays offline');
 
 		$this->expireCacheEntryFor(placementId: 35);
 		$back = $this->service->resolveForPlacement(placementId: 35);
-		$this->assertSame('online', $back['state']);
-		$this->assertNull($back['downSince']);
-		$this->assertNull(json_decode($this->cache->get('badge_35'), true)['firstFailedTs']);
+		$this->assertSame(expected: 'online', actual: $back['state']);
+		$this->assertNull(actual: $back['downSince']);
+		$this->assertNull(actual: json_decode(json: $this->cache->get('badge_35'), associative: true)['firstFailedTs']);
 	}//end testAnOfflineServiceSaysSinceWhenItsChecksFail()
 
 	public function testASuccessfulPingResetsTheFailureCount(): void {

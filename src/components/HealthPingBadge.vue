@@ -212,24 +212,33 @@ export default {
 			}
 
 			try {
-				const data = await fetchHealthPingBadge(this.placementId)
-				if (!data || data.error || !data.state) {
-					this.state = null
-					this.report()
-					return
-				}
-				this.state = data.state
-				this.downSince = data.downSince ?? null
-				this.checkedAt = data.checkedAt ?? null
-				this.latencyMs =
-					data.latencyMs === null || data.latencyMs === undefined
-						? null
-						: Number(data.latencyMs)
-				this.stale = Boolean(data.stale)
+				this.apply(await fetchHealthPingBadge(this.placementId))
 			} catch {
 				this.state = null
 			}
 			this.report()
+		},
+
+		/**
+		 * Take a badge answer; one without a state hides the badge.
+		 *
+		 * @param {object|null} data The answer.
+		 * @spec openspec/specs/service-health-ping/spec.md
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+		 */
+		apply(data) {
+			if (!data || data.error || !data.state) {
+				this.state = null
+				return
+			}
+			this.state = data.state
+			this.downSince = data.downSince ?? null
+			this.checkedAt = data.checkedAt ?? null
+			this.latencyMs =
+				data.latencyMs === null || data.latencyMs === undefined
+					? null
+					: Number(data.latencyMs)
+			this.stale = Boolean(data.stale)
 		},
 
 		/**

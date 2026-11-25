@@ -154,7 +154,7 @@ test('a published notice is a banner above the reader\'s dashboard, and a dismis
 test('a reader likes and comments on a news item, and the card counts both', async ({ browser }) => {
 	const title = `Nieuwe werkplekken ${STAMP}`
 	const comment = `Komen er ook sta-bureaus? ${STAMP}`
-	await publishAnnouncement({ kind: 'news', title, body: 'Op de 3e verdieping.', allowComments: true })
+	await publishAnnouncement({ kind: 'news', title, body: 'Op de 3e verdieping.', allowComments: true, expiresAt: tomorrow() })
 
 	const { context, page } = await loginAs(browser, member!.username, member!.password)
 	try {

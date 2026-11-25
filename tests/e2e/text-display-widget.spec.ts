@@ -349,7 +349,10 @@ test.describe('text widget — cell layout (REQ-TXT-005)', () => {
 	// @e2e text-display-widget::overflow-scrolls-within-the-cell
 	test('long text scrolls inside the cell and both ends are reachable', async ({ page }) => {
 		const lines = Array.from({ length: 60 }, (_, i) => `<p>line ${i + 1}</p>`).join('')
-		const { widget } = await render(page, { text: lines, contentMode: 'html' }, { w: 4, h: 2 })
+		// Four rows: in two, the card's title row leaves the text a frame
+		// about one padded line tall, so no line fits inside it whole and
+		// "reachable" cannot be told apart from "clipped".
+		const { widget } = await render(page, { text: lines, contentMode: 'html' }, { w: 4, h: 4 })
 		await widget.scrollIntoViewIfNeeded()
 		expect(await widget.evaluate((el) => getComputedStyle(el).overflowY)).toBe('auto')
 		const sizes = await widget.evaluate((el) => ({ scroll: el.scrollHeight, client: el.clientHeight }))

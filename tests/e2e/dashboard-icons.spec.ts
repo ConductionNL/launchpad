@@ -73,6 +73,7 @@ import {
 	loginAs,
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
+import { dashboardsFromApi } from './support/dashboardFirstLoad.ts'
 import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 import { adminContext, contextFor } from './support/principals.ts'
 
@@ -411,6 +412,9 @@ async function stripIconFromLists(page: Page, uuid: string): Promise<() => numbe
 			Object.values(obj).forEach(walk)
 		}
 	}
+	// The switcher's first list comes from the page's initial state; drop it
+	// so the list is fetched, and the fetch is what this rewrites.
+	await dashboardsFromApi(page)
 	await page.route(
 		(url) =>
 			/\/apps\/launchpad\/api\/dashboards(\/visible)?$/.test(url.pathname),
@@ -520,6 +524,9 @@ test.describe('dashboard-icons: the icon convention as rendered', () => {
 				url.pathname.endsWith('/apps/launchpad/api/dashboards/visible')
 			const active = (url: URL): boolean =>
 				url.pathname.endsWith('/apps/launchpad/api/dashboard')
+			// The first load comes from the page's initial state; drop it so
+			// the two stubbed answers below are what the page reads.
+			await dashboardsFromApi(page)
 			await page.route(visible, (route) =>
 				route.fulfill({ json: { items: [], quota: { maxDashboards: 0, dashboardsUsed: 0 } } }),
 			)

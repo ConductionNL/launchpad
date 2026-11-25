@@ -363,6 +363,7 @@ class ConditionalService implements ConditionalServiceInterface {
 	 * @return ConditionalRule The created rule.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-8
+	 * @spec openspec/specs/conditional-visibility/spec.md
 	 */
 	public function addRule(
 		int $placementId,
@@ -377,7 +378,9 @@ class ConditionalService implements ConditionalServiceInterface {
 		$rule->setRuleType($ruleType);
 		$rule->setRuleConfigArray($ruleConfig);
 		$rule->setIsInclude($isInclude);
-		$rule->setCreatedAt((new DateTime())->format(format: 'c'));
+		// The column is a DATETIME: MySQL and MariaDB refuse an ISO 8601 value
+		// with a 'T' and an offset (SQLSTATE 22007), so write the SQL form.
+		$rule->setCreatedAt((new DateTime())->format(format: 'Y-m-d H:i:s'));
 
 		return $this->ruleMapper->insert(entity: $rule);
 	}//end addRule()

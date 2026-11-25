@@ -234,6 +234,8 @@ class RoleServiceTest extends TestCase {
 		$this->assertSame('editor', $assignment->getRole());
 		$this->assertSame('admin-user', $assignment->getAssignedBy());
 		$this->assertNotNull($assignment->getAssignedAt());
+		// assigned_at is a DATETIME column: the SQL form, not ISO 8601 with an offset.
+		$this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', (string)$assignment->getAssignedAt());
 	}
 
 	public function testAssignRoleRejectsDuplicateUserRole(): void {

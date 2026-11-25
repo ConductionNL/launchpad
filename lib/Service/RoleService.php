@@ -301,7 +301,8 @@ class RoleService {
 		$assignment->setGroupId($groupId);
 		$assignment->setRole($role);
 		$assignment->setAssignedBy($assignedBy);
-		$assignment->setAssignedAt((new DateTime())->format('c'));
+		// assigned_at is a DATETIME: MySQL and MariaDB refuse ISO 8601 with an offset.
+		$assignment->setAssignedAt((new DateTime())->format('Y-m-d H:i:s'));
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
 		return $this->mapper->insert(entity: $assignment);

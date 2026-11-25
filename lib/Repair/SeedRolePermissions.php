@@ -322,6 +322,7 @@ class SeedRolePermissions implements IRepairStep {
 			$this->defMapper->findByGroupAndWidget(groupId: $groupId, widgetId: $widgetId);
 		} catch (DoesNotExistException) {
 			return false;
+		}
 
 		return true;
 	}//end hasLayoutDefault()

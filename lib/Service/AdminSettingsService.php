@@ -147,6 +147,7 @@ class AdminSettingsService {
 			'sharingRecipientScope' => $this->storedRecipientScope(value: $settings[AdminSettingKey::SHARING_RECIPIENT_SCOPE->value] ?? null),
 			'sharingAllowed' => $this->storedAllowedMode(settings: $settings),
 			'publicLinksAllowed' => ($settings[AdminSettingKey::PUBLIC_LINKS_ALLOWED->value] ?? true) !== false,
+			'leaverHandover' => LeaverHandover::normalise(value: $settings[AdminSettingKey::LEAVER_HANDOVER->value] ?? null),
 			// Legacy-widget-bridge spec: the bridge defaults to OFF because
 			// turning it on makes the workspace read the Nextcloud widget
 			// registry, and IManager::getWidgets() injects the scripts of EVERY
@@ -487,7 +488,8 @@ class AdminSettingsService {
 		);
 		$this->persistSharingPolicy(
 			allowed: $settings['sharingAllowed'] ?? null,
-			publicLinks: $settings['publicLinksAllowed'] ?? null
+			publicLinks: $settings['publicLinksAllowed'] ?? null,
+			leaverHandover: $settings['leaverHandover'] ?? null
 		);
 
 		$this->persistSharingAndBridgeSettings(
@@ -771,16 +773,18 @@ class AdminSettingsService {
 	 * Persist who may share and whether public links may be created
 	 * (REQ-SHARE-015). A null value is left as it is.
 	 *
-	 * @param string|null $allowed     `everyone`, `groups` or `none`.
-	 * @param bool|null   $publicLinks Whether public links may be created.
+	 * @param string|null $allowed        `everyone`, `groups` or `none`.
+	 * @param bool|null   $publicLinks    Whether public links may be created.
+	 * @param array|null  $leaverHandover Where a leaver's dashboards go (REQ-SHARE-016), `{manager, fallbackUid}`.
 	 *
 	 * @return void
 	 *
 	 * @throws \InvalidArgumentException When the choice is unknown.
 	 *
 	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
-	private function persistSharingPolicy(?string $allowed, ?bool $publicLinks): void {
+	private function persistSharingPolicy(?string $allowed, ?bool $publicLinks, ?array $leaverHandover=null): void {
 		if ($allowed !== null) {
 			if (in_array(needle: $allowed, haystack: SharingLimits::ALLOWED_MODES, strict: true) === false) {
 				throw new InvalidArgumentException(
@@ -792,6 +796,12 @@ class AdminSettingsService {
 		}
 
 		$this->persistIfGiven(key: AdminSettingKey::PUBLIC_LINKS_ALLOWED->value, value: $publicLinks);
+		if ($leaverHandover !== null) {
+			$this->settingMapper->setSetting(
+				key: AdminSettingKey::LEAVER_HANDOVER->value,
+				value: LeaverHandover::normalise(value: $leaverHandover)
+			);
+		}
 	}//end persistSharingPolicy()
 
 	/**

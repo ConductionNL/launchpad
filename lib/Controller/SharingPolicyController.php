@@ -63,19 +63,27 @@ class SharingPolicyController extends Controller {
 	 *
 	 * @param string|null $sharingAllowed     `everyone`, `groups` or `none`.
 	 * @param bool|null   $publicLinksAllowed Whether public links may be created.
+	 * @param array|null  $leaverHandover     Where a leaver's dashboards go (REQ-SHARE-016):
+	 *                                        `{manager: bool, fallbackUid: string}`.
 	 *
 	 * @return JSONResponse The update confirmation, or 400 for an unknown choice.
 	 *
 	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function update(
 		string|null $sharingAllowed = null,
 		bool|null $publicLinksAllowed = null,
+		array|null $leaverHandover = null,
 	): JSONResponse {
 		try {
 			$this->settings->updateSettings(
-				settings: ['sharingAllowed' => $sharingAllowed, 'publicLinksAllowed' => $publicLinksAllowed]
+				settings: [
+					'sharingAllowed'     => $sharingAllowed,
+					'publicLinksAllowed' => $publicLinksAllowed,
+					'leaverHandover'     => $leaverHandover,
+				]
 			);
 
 			return $this->responseHelper->success(data: ['status' => 'ok']);

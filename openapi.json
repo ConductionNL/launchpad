@@ -4000,6 +4000,13 @@
                                             "null"
                                         ],
                                         "description": "Whether public links may be created."
+                                    },
+                                    "leaverHandover": {
+                                        "type": [
+                                            "array",
+                                            "null"
+                                        ],
+                                        "description": "Where a leaver's dashboards go (REQ-SHARE-016): `{manager: bool, fallbackUid: string}`."
                                     }
                                 }
                             }

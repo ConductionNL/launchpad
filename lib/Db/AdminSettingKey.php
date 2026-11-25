@@ -65,6 +65,8 @@ enum AdminSettingKey: string {
 	// REQ-SHARE-015: who may share, `everyone`, `groups` or `none`, and whether public links may be created.
 	case SHARING_ALLOWED = 'sharing_allowed';
 	case PUBLIC_LINKS_ALLOWED = 'public_links_allowed';
+	// REQ-SHARE-016: where a leaver's dashboards go, `{manager: bool, fallbackUid: string}`.
+	case LEAVER_HANDOVER = 'leaver_handover';
 	case LEGACY_WIDGET_BRIDGE_ENABLED = 'legacy_widget_bridge_enabled';
 	case MAX_DASHBOARDS_PER_USER = 'max_dashboards_per_user';
 	case MAX_WIDGETS_PER_DASHBOARD = 'max_widgets_per_dashboard';

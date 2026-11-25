@@ -48,8 +48,72 @@ class DemoSeedContent {
 		private readonly CatalogueService $catalogue,
 		private readonly AnnouncementMapper $announcements,
 		private readonly IAppConfig $appConfig,
+		private readonly ?ProfileFieldService $profileFields = null,
 	) {
 	}//end __construct()
+
+	/**
+	 * Give the seed's new colleagues a start date (REQ-PPL-014): the field the
+	 * administrator marked as the start date, or a new self-filled date field
+	 * marked so when there is none. Dates are days from today, so the demo's
+	 * "New colleagues" stays current whenever it is loaded.
+	 *
+	 * @param array<string, mixed> $entry `{field: {key, label}, offsets: {uid: days}}`.
+	 * @param string               $today Today, `YYYY-MM-DD`.
+	 *
+	 * @return array<string, string> The start date written per person.
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 */
+	public function seedStartDates(array $entry, string $today): array {
+		$offsets = (array)($entry['offsets'] ?? []);
+		if ($this->profileFields === null || $offsets === []) {
+			return [];
+		}
+
+		$key = $this->startDateKey(field: (array)($entry['field'] ?? []));
+		$base = strtotime(datetime: $today.' 12:00:00 UTC');
+		$written = [];
+		foreach ($offsets as $userId => $days) {
+			$date = gmdate(format: 'Y-m-d', timestamp: $base + ((int)$days * 86400));
+			$this->profileFields->saveOwnValues(userId: (string)$userId, values: [$key => $date]);
+			$written[(string)$userId] = $date;
+		}
+
+		return $written;
+	}//end seedStartDates()
+
+	/**
+	 * The key of the start-date field, adding the seed's field when none is marked.
+	 *
+	 * @param array<string, mixed> $field `{key, label}` of the seed's field.
+	 *
+	 * @return string The key.
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 */
+	private function startDateKey(array $field): string {
+		$definitions = $this->profileFields->getDefinitions();
+		foreach ($definitions as $definition) {
+			if (($definition['startDate'] ?? false) === true) {
+				return (string)$definition['key'];
+			}
+		}
+
+		$key = (string)($field['key'] ?? 'start_date');
+		$definitions[] = [
+			'key' => $key,
+			'label' => (string)($field['label'] ?? 'Start date'),
+			'type' => 'date',
+			'source' => 'self',
+			'searchable' => false,
+			'shownInWidget' => false,
+			'startDate' => true,
+		];
+		$this->profileFields->saveDefinitions(raw: $definitions);
+
+		return $key;
+	}//end startDateKey()
 
 	/**
 	 * Add the seeded hosts to each JSON host list in app config, keeping

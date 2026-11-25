@@ -73,6 +73,10 @@ const PAGE_KEYS = {
 		// drill-down-cross-widget-filter REQ-CWF-010: whether the dashboard's
 		// filter bus records filter_event rows. Optional key; off by default.
 		filterTelemetryEnabled: false,
+		// dashboard-view-analytics REQ-ANLT-011: whether the administrator
+		// switched view analytics on. Optional key; `true` keeps an older
+		// server's pages sending view-events as before.
+		analyticsEnabled: true,
 		// launcher-tile-launch-types: what the tile editor offers for program
 		// and single sign-on tiles. Optional keys; empty lists offer nothing.
 		tileAllowedSchemes: [],

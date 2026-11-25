@@ -361,15 +361,11 @@ test.describe('REQ-DASH-038 translation schema', () => {
 })
 
 test.describe('REQ-DASH-039 locale resolution and primary fallback', () => {
-	// EXPECTED RED: the resolver never reads the viewer's language.
-	// lib/Controller/DashboardTranslationApiController.php:527-531
-	// (resolveLocaleVariant) calls resolveForLocale(preferredLanguage: ''), so
-	// the exact match in DashboardTranslationService::exactVariant always
-	// misses and every request without `?lang=` gets the primary with
-	// `isFallback: true`, whatever the reader's Nextcloud language. Also,
-	// every stored code is collapsed to its base (`de-DE` -> `de`,
-	// DashboardTranslationMapper::normaliseLanguageCode), so
-	// `currentLanguage: 'de-DE'` can never be answered either.
+	// Without `?lang=` the reader's Nextcloud language picks the variant
+	// (DashboardTranslationApiController::readerLanguage).
+	// EXPECTED RED on `currentLanguage`: every stored code is collapsed to its
+	// base (`de-DE` -> `de`, DashboardTranslationMapper::normaliseLanguageCode),
+	// so `currentLanguage: 'de-DE'` can never be answered.
 	test('a reader in de-DE gets the de-DE variant', async () => {
 		// @e2e dashboard-language-content::exact-language-match
 		const dash = await newDashboard('Exact')
@@ -387,8 +383,8 @@ test.describe('REQ-DASH-039 locale resolution and primary fallback', () => {
 		}
 	})
 
-	// EXPECTED RED: see above. Nextcloud 32 ships no `nl_BE` LANGUAGE, so
-	// the Belgian reader is a Dutch-language account with the `nl_BE` locale.
+	// Nextcloud 32 ships no `nl_BE` LANGUAGE, so the Belgian reader is a
+	// Dutch-language account with the `nl_BE` locale.
 	test('a reader in nl-BE gets the nl variant by its language part', async () => {
 		// @e2e dashboard-language-content::language-part-match-prefix-fallback
 		const dash = await newDashboard('Prefix')
@@ -642,8 +638,9 @@ test.describe('REQ-DASH-041 update translation variant', () => {
 			name: 'Oud',
 			description: 'Oude tekst',
 		})
-		// `updatedAt` has one-second resolution; let a second pass.
-		await new Promise((resolve) => setTimeout(resolve, 1_100))
+		// `updatedAt` has one-second resolution; let two pass, since under load
+		// the create's stamp can fall in the second after its response.
+		await new Promise((resolve) => setTimeout(resolve, 2_100))
 
 		const res = await owner!.api.put(
 			`${API}/dashboards/${dash.uuid}/translations/nl`,
@@ -789,14 +786,8 @@ test.describe('REQ-DASH-042 delete translation variant', () => {
 		expect(Number((body.translation as Variant).isPrimary)).toBe(1)
 	})
 
-	// EXPECTED RED: the last-variant guard is unreachable.
-	// DashboardTranslationService::deleteVariant
-	// (lib/Service/DashboardTranslationService.php:426, before the count at
-	// :430) refuses the primary FIRST, and the only
-	// remaining variant is always the primary, so this request answers
-	// `primary_variant` / "Cannot delete the primary variant; promote another
-	// variant first". The message the scenario names (ERR_LAST_VARIANT, which
-	// also lacks its second sentence) is never sent.
+	// The only variant is always the primary too; DashboardTranslationService
+	// ::deleteVariant refuses it as the only one first.
 	test('the only variant cannot be deleted', async () => {
 		// @e2e dashboard-language-content::cannot-delete-the-only-remaining-variant
 		const dash = await newDashboard('Delete last')

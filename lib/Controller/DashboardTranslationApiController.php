@@ -512,7 +512,7 @@ class DashboardTranslationApiController extends Controller {
 	}//end resolveExactVariant()
 
 	/**
-	 * Resolve the variant for the viewer's own locale.
+	 * Resolve the variant for the viewer's own Nextcloud language.
 	 *
 	 * Legacy fallback — dashboards predating REQ-DASH-038 may have no
 	 * translation rows yet. Materialise an in-memory variant from the
@@ -527,7 +527,7 @@ class DashboardTranslationApiController extends Controller {
 	private function resolveLocaleVariant(string $uuid, Dashboard $dashboard): array {
 		$variant = $this->translations->translationService->resolveForLocale(
 			dashboardUuid: $uuid,
-			preferredLanguage: ''
+			preferredLanguage: $this->readerLanguage()
 		);
 
 		if ($variant !== null) {
@@ -540,6 +540,22 @@ class DashboardTranslationApiController extends Controller {
 			'isFallback' => true,
 		];
 	}//end resolveLocaleVariant()
+
+	/**
+	 * The reader's Nextcloud language (REQ-DASH-039); '' when unknown.
+	 *
+	 * @return string The language code, e.g. `nl` or `de_DE`.
+	 *
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	private function readerLanguage(): string {
+		$user = $this->caller->userSession->getUser();
+		if ($user === null || $this->translations->l10nFactory === null) {
+			return '';
+		}
+
+		return $this->translations->l10nFactory->getUserLanguage($user);
+	}//end readerLanguage()
 
 	/**
 	 * List the language codes offered for this dashboard.

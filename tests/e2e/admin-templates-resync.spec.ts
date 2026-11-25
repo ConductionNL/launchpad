@@ -325,7 +325,10 @@ test.describe('dry run (REQ-RESYNC-002)', () => {
 	// @e2e admin-templates::dry-run-reports-affected-copies-without-mutating
 	test('a dry run lists every copy with its counts and writes, audits and notifies nothing', async () => {
 		const { template, copies } = await distributed('dry', TWO('dry'), 2)
-		await memberMoves(copies[0], `${STAMP} dry one`, 6)
+		// Merge keeps a widget the member moved where they put it
+		// (REQ-RESYNC-007), so the change merge reports is a removed template
+		// widget it would restore.
+		await memberRemoves(copies[0], `${STAMP} dry two`)
 		await memberAdds(copies[0], `${STAMP} dry own`, 8)
 		const before = await Promise.all(
 			copies.map((c) => placementsOf(c.who.api, c.dashboardId)),
@@ -345,8 +348,8 @@ test.describe('dry run (REQ-RESYNC-002)', () => {
 			(c: any) => c.dashboardId === copies[1].dashboardId,
 		)
 		expect(changed).toMatchObject({
-			toAdd: 0,
-			toUpdate: 1,
+			toAdd: 1,
+			toUpdate: 0,
 			toRemove: 0,
 			toPreserve: 2,
 			hasChanges: true,

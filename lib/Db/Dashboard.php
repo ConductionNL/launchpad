@@ -730,7 +730,7 @@ class Dashboard extends Entity implements JsonSerializable {
 	 *
 	 * @return list<array<string, mixed>> The descriptors, or the empty list.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	public function getHierarchiesArray(): array {
 		if ($this->hierarchies === null || $this->hierarchies === '') {
@@ -752,7 +752,7 @@ class Dashboard extends Entity implements JsonSerializable {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	public function setHierarchiesArray(array $hierarchies): void {
 		$encoded = null;

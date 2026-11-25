@@ -57,7 +57,7 @@ function hierarchyDimensions(hierarchies) {
  * @param {Array<object>} options.hierarchies The dashboard's hierarchy descriptors.
  * @param {object|null} [options.sampleRow] One row of the widget's data; without it `fromField` is not checked.
  * @return {{participates: boolean, findings: Array<{level: string, code: string, dimension: string, field?: string}>}}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-008-widget-manifest-declares-publishesconsumes-dashboard-validates-compatibility
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-008-widget-manifest-declares-publishesconsumes-dashboard-validates-compatibility
  */
 export function validateBusDeclarations({ widget, hierarchies, sampleRow = null }) {
 	const known = hierarchyDimensions(hierarchies)

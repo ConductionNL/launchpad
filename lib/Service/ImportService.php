@@ -807,7 +807,7 @@ class ImportService {
 	 * @param array<string, mixed> $payload The dashboard payload.
 	 *
 	 * @return void
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	private function applyEntityLayout(
 		Dashboard $dashboard,
@@ -854,7 +854,7 @@ class ImportService {
 	 *
 	 * @SuppressWarnings(PHPMD.StaticAccess) DashboardHierarchies is a stateless validator.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	private function applyEntityHierarchies(Dashboard $dashboard, array $payload): void {
 		if (array_key_exists(key: 'hierarchies', array: $payload) === false) {

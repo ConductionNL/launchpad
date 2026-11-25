@@ -27,9 +27,9 @@
  * Gate-19 @e2e traceability:
  *   @e2e cross-widget-filter::stored-hierarchies-put-consuming-widgets-on-the-bus
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-35
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-41
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-10
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-35
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-41
  */
 
 import type { CDPSession, Page, TestInfo } from '@playwright/test'

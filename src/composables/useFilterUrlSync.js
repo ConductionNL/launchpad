@@ -28,7 +28,7 @@ export const URL_SYNC_DEBOUNCE_MS = 500
  * @param {string} href The current URL.
  * @param {Array<object>} clauses The bus's clauses.
  * @return {string}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
  */
 export function urlWithFilter(href, clauses) {
 	const url = new URL(href)
@@ -51,7 +51,7 @@ export function urlWithFilter(href, clauses) {
  * @param {number} [options.debounceMs] The debounce delay.
  * @param {boolean} [options.hydrate] Whether the URL's `f` seeds the bus; false only writes.
  * @return {{stop: () => void, flush: () => void, restored: Array<object>}} `stop` ends the sync, `flush` writes now; `restored` the clauses read from the URL.
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
  */
 export function useFilterUrlSync({ bus, location = window.location, history = window.history, debounceMs = URL_SYNC_DEBOUNCE_MS, hydrate = true }) {
 	const param = hydrate ? new URL(location.href).searchParams.get(FILTER_PARAM) : null

@@ -5,7 +5,7 @@
  * The dashboard settings pick the hierarchies the filter bus joins widgets on
  * (drill-down-cross-widget-filter, REQ-CWF-011).
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

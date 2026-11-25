@@ -6,7 +6,7 @@
  * dimensions and operators, never values, and are written only when the
  * organisation opted in.
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-15
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-15
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

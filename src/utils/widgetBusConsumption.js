@@ -39,7 +39,7 @@ function entriesOf(list) {
  *
  * @param {object|null} content The placement's content.
  * @return {{publishes: Array<object>, consumes: Array<object>}}
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-8
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-8
  */
 export function busDeclarationsOf(content) {
 	const source = content && typeof content === 'object' ? content : {}
@@ -59,7 +59,7 @@ export function busDeclarationsOf(content) {
  * @param {Array<object>} clauses The bus's clauses.
  * @param {Array<object>} consumes The widget's consumed dimensions.
  * @return {{[field: string]: unknown}}
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-10
  */
 export function consumedFilter(clauses, consumes) {
 	const filter = {}
@@ -79,7 +79,7 @@ export function consumedFilter(clauses, consumes) {
  *
  * @param {object|undefined} clause The clause, if any.
  * @return {boolean}
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-10
  */
 function isConsumable(clause) {
 	if (!clause) {
@@ -94,7 +94,7 @@ function isConsumable(clause) {
  *
  * @param {object} entry The consumed dimension.
  * @return {string}
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-10
  */
 function fieldOf(entry) {
 	return typeof entry.field === 'string' && entry.field !== '' ? entry.field : entry.dimension
@@ -107,7 +107,7 @@ function fieldOf(entry) {
  * @param {object|null} dataSource The widget's data source.
  * @param {{[field: string]: unknown}} busFilter The filter from {@link consumedFilter}.
  * @return {object|null}
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-10
  */
 export function withBusFilter(dataSource, busFilter) {
 	if (!dataSource || typeof dataSource !== 'object' || Object.keys(busFilter).length === 0) {
@@ -127,7 +127,7 @@ export function withBusFilter(dataSource, busFilter) {
  * @param {{field?: string, value: unknown}|null} selection The pick: the grouped field and the raw key.
  * @param {string} widgetId The publishing widget.
  * @return {Array<object>}
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-7
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-7
  */
 export function publishedClauses(publishes, selection, widgetId) {
 	if (!selection || selection.value === undefined || selection.value === null || selection.value === '') {
@@ -153,7 +153,7 @@ export const SLOW_REFETCH_MS = 200
  *
  * @param {object|null} injected The injected `dashboardFilterBus`.
  * @return {object|null}
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-10
  */
 export function filterBusOf(injected) {
 	const bus = injected && typeof injected.publish !== 'function' && 'value' in injected ? injected.value : injected
@@ -172,7 +172,7 @@ export function filterBusOf(injected) {
  * @param {(message: string) => void} options.warn Where a slow refetch is reported.
  * @param {() => number} [options.now] The clock, in ms.
  * @return {{start: (filter: object) => void, settle: () => number|null}}
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-35
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-35
  */
 export function refetchClock({ widgetId, warn, now = () => performance.now() }) {
 	let pending = null

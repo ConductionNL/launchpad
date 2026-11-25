@@ -9,7 +9,7 @@ declare(strict_types=1);
  * The filter-event schema of drill-down-cross-widget-filter, as the register
  * import hands it to OpenRegister.
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-010-telemetry-of-filter-usage-is-opt-in-and-aggregated
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-010-telemetry-of-filter-usage-is-opt-in-and-aggregated
  */
 
 namespace Unit\Repair;

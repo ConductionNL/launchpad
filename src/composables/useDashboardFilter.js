@@ -179,7 +179,7 @@ function expand(short) {
  *
  * @param {Array<object>} clauses The active clauses.
  * @return {string}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
  */
 export function serializeFilterState(clauses) {
 	const list = (Array.isArray(clauses) ? clauses : []).filter((clause) => clause && typeof clause.dimension === 'string')
@@ -215,7 +215,7 @@ function parseClauses(param) {
  *
  * @param {string|null|undefined} param The `f` parameter value.
  * @return {{clauses: Array<object>, error: string|null}}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
  */
 export function deserializeFilterState(param) {
 	if (param === null || param === undefined || param === '') {
@@ -233,7 +233,7 @@ export function deserializeFilterState(param) {
  * The composable.
  *
  * @return {{serializeFilterState: typeof serializeFilterState, deserializeFilterState: typeof deserializeFilterState, FILTER_PARAM: string}}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
  */
 export function useDashboardFilter() {
 	return { serializeFilterState, deserializeFilterState, FILTER_PARAM }

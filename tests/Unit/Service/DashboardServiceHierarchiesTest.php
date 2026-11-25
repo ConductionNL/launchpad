@@ -16,7 +16,7 @@
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 
 declare(strict_types=1);
@@ -135,7 +135,7 @@ class DashboardServiceHierarchiesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	public function testHierarchiesAreStoredReadAndCleared(): void {
 		$dashboard = $this->makeDashboard();
@@ -158,7 +158,7 @@ class DashboardServiceHierarchiesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	public function testAnUpdateWithoutHierarchiesKeepsThem(): void {
 		$dashboard = $this->makeDashboard();
@@ -176,7 +176,7 @@ class DashboardServiceHierarchiesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	public function testAMalformedDescriptorIsRefused(): void {
 		$dashboard = $this->makeDashboard();
@@ -193,7 +193,7 @@ class DashboardServiceHierarchiesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	public function testAStoredValueThatIsNoListReadsAsNone(): void {
 		$dashboard = $this->makeDashboard();

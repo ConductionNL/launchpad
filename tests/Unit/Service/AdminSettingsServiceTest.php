@@ -34,6 +34,56 @@ class AdminSettingsServiceTest extends TestCase {
 		);
 	}//end setUp()
 
+	/**
+	 * REQ-ASET-002: a default permission level outside the three is refused and nothing is stored.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-update-admin-settings-req-aset-002
+	 */
+	public function testUpdateRefusesAnUnknownPermissionLevelBeforeWriting(): void {
+		$this->settingMapper->expects($this->never())->method('setSetting');
+		$this->expectException(exception: \InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: 'defaultPermLevel');
+		$this->service->updateSettings(settings: ['defaultPermLevel' => 'super_admin', 'allowUserDash' => true]);
+	}//end testUpdateRefusesAnUnknownPermissionLevelBeforeWriting()
+
+	/**
+	 * REQ-ASET-002: a default grid column count outside 1 to 24 is refused and nothing is stored.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-update-admin-settings-req-aset-002
+	 */
+	public function testUpdateRefusesGridColumnsOutsideOneToTwentyFour(): void {
+		$this->settingMapper->expects($this->never())->method('setSetting');
+		foreach ([0, -1, 25] as $columns) {
+			try {
+				$this->service->updateSettings(settings: ['defaultGridCols' => $columns]);
+				$this->fail(message: "$columns was accepted");
+			} catch (\InvalidArgumentException $e) {
+				$this->assertStringContainsString(needle: 'defaultGridCols', haystack: $e->getMessage());
+			}
+		}
+	}//end testUpdateRefusesGridColumnsOutsideOneToTwentyFour()
+
+	/**
+	 * REQ-ASET-002: both ends of the column range and every permission level are stored.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-update-admin-settings-req-aset-002
+	 */
+	public function testUpdateAcceptsTheValidRange(): void {
+		$this->settingMapper->expects($this->exactly(count: 5))->method('setSetting');
+		foreach ([1, 24] as $columns) {
+			$this->service->updateSettings(settings: ['defaultGridCols' => $columns]);
+		}
+		foreach ([Dashboard::PERMISSION_VIEW_ONLY, Dashboard::PERMISSION_ADD_ONLY, Dashboard::PERMISSION_FULL] as $level) {
+			$this->service->updateSettings(settings: ['defaultPermLevel' => $level]);
+		}
+	}//end testUpdateAcceptsTheValidRange()
+
 	public function testGetSettingsReturnsDefaults(): void {
 		$this->settingMapper->method('getAllAsArray')->willReturn([]);
 

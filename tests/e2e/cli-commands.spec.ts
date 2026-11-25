@@ -31,6 +31,10 @@
  * whose body is empty, an instance without the language-content table, an
  * exception no input can provoke, and the two code-review conventions.
  *
+ * The commands that predate this spec (launchpad:export, launchpad:import)
+ * are not left to their golden tests alone: one test exports a dashboard
+ * through the one and imports it back through the other.
+ *
  * An installed template older than the shipped one is staged, not needed: the
  * installed version is an app value (rewound through occ) and the installed
  * widgets are rows (changed through support/instanceDb.ts), which is exactly
@@ -70,6 +74,7 @@
  *   @e2e cli-commands::audit-log-truncates-long-args
  *   @e2e cli-commands::byuser-is-cli-for-cron-invoked-commands
  *   @e2e cli-commands::full-command-listing-is-alphabetical
+ *   @e2e cli-commands::pre-existing-commands-are-not-broken
  *   @e2e cli-commands::filtering-the-listing-by-sub-namespace
  *   @e2e cli-commands::occ-list-links-to-help-for-each-command
  *   @e2e cli-commands::a-deploy-script-installs-the-template-for-a-group
@@ -1261,6 +1266,110 @@ test.describe('REQ-CLI-011 discoverability', () => {
 		expect(helpSection(result.stdout)).toContain(
 			'php occ launchpad:i18n:export-strings',
 		)
+	})
+
+	// @e2e cli-commands::pre-existing-commands-are-not-broken
+	test('launchpad:export and launchpad:import keep their names and options, and round-trip a dashboard', async () => {
+		// The pre-existing pair extends Symfony Command, not CommandBase, and
+		// keeps its own option names instead of the global flags.
+		const listed = await listedCommands()
+		const optionsOf = (name: string): string[] => {
+			const command = listed.find((c) => c.name === name)
+			expect(
+				command,
+				`${name} is still registered under its own name`,
+			).toBeDefined()
+			return Object.keys(command!.definition.options)
+		}
+		expect(optionsOf('launchpad:export')).toEqual(
+			expect.arrayContaining(['scope', 'dashboard-uuid', 'output']),
+		)
+		expect(optionsOf('launchpad:import')).toEqual(
+			expect.arrayContaining(['file', 'preserve-uuids', 'user']),
+		)
+
+		const row = await dashboard(admin, 'pre-existing round trip')
+		const added = await admin.post(`${API}/dashboard/${row.id}/widgets`, {
+			data: {
+				widgetId: 'text',
+				gridX: 1,
+				gridY: 2,
+				gridWidth: 3,
+				gridHeight: 2,
+				content: { text: `cli round trip ${RUN}`, contentMode: 'markdown' },
+			},
+		})
+		expect(added.status(), await added.text()).toBeLessThan(300)
+
+		const archive = `/tmp/launchpad-e2e-cli-roundtrip-${RUN}.zip`
+		try {
+			const exported = await runOcc(
+				'launchpad:export',
+				'--scope=dashboard',
+				`--dashboard-uuid=${row.uuid}`,
+				`--output=${archive}`,
+			)
+			expect(exported.code, describeRun(exported)).toBe(0)
+			expect(exported.stdout.trim(), describeRun(exported)).toBe(
+				`Exported 1 dashboard to ${archive}`,
+			)
+			expect(await existsOnInstance(archive), 'the archive was written').toBe(
+				true,
+			)
+
+			const imported = await runOcc(
+				'launchpad:import',
+				`--file=${archive}`,
+				`--user=${ADMIN_USER}`,
+			)
+			expect(imported.code, describeRun(imported)).toBe(0)
+			expect(imported.stdout.trim(), describeRun(imported)).toBe(
+				'Imported 1 dashboards, skipped 0, errors: 0',
+			)
+
+			const named = await selectRows('launchpad_dashboards', {
+				name: row.name,
+			})
+			const copies = named.filter((r) => Number(r.id) !== Number(row.id))
+			dashboards.push(...copies.map((r) => Number(r.id)))
+			expect(
+				copies,
+				'exactly one imported copy beside the original',
+			).toHaveLength(1)
+			const copy = copies[0]
+			expect(
+				copy.uuid,
+				'without --preserve-uuids the copy gets a new UUID',
+			).not.toBe(row.uuid)
+			expect(copy.user_id, 'owned by the --user the import ran as').toBe(
+				ADMIN_USER,
+			)
+
+			const shown = await runOcc(
+				'launchpad:dashboard:show',
+				String(copy.uuid),
+				'--json',
+			)
+			expect(shown.code, describeRun(shown)).toBe(0)
+			const widgets = envelope(shown).data.widgets as Array<
+				Record<string, unknown>
+			>
+			expect(widgets, 'the widget travelled with the dashboard').toHaveLength(
+				1,
+			)
+			expect(widgets[0]).toMatchObject({
+				widgetId: 'text',
+				gridX: 1,
+				gridY: 2,
+				gridWidth: 3,
+				gridHeight: 2,
+			})
+			expect(JSON.stringify(widgets[0]), 'with its content').toContain(
+				`cli round trip ${RUN}`,
+			)
+		} finally {
+			await removeOnInstance(archive)
+		}
 	})
 })
 

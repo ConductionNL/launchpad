@@ -45,7 +45,6 @@ NOTE: The DB stores settings with snake_case keys, but the API response returns 
 Administrators MUST be able to retrieve all current admin settings via the API. The endpoint returns a flat JSON object with the thirteen settings listed under Defined Settings, each under its API response key. `group_order` is not among them; it has its own endpoints (REQ-ASET-012).
 
 #### Scenario: Get all settings with defaults
-@e2e exclude needs a fresh installation with no settings row; the suite shares one instance and no endpoint deletes a stored setting (PUT treats null as not supplied). Pinned by tests/Unit/Service/AdminSettingsServiceTest.php::testGetSettingsReturnsExactlyTheDocumentedKeysAtTheirDefaults (which lists 22 keys, not thirteen; see the format-consistency test).
 - GIVEN no admin settings have been explicitly configured (fresh installation)
 - WHEN the admin sends GET /api/admin/settings
 - THEN the system MUST return HTTP 200 with all thirteen settings at their default values:
@@ -95,7 +94,6 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
 - AND the response MUST be a flat JSON object (no nesting)
 
 #### Scenario: The retired content storage key is not returned
-@e2e exclude needs a content_storage row written straight into oc_launchpad_admin_settings; no endpoint writes that key (PUT ignores unknown keys) and "stays unread" is a database-only fact. Pinned by tests/Unit/Service/AdminSettingsServiceTest.php::testGetSettingsReturnsCamelCaseKeys and tests/Unit/Db/AdminSettingKeyTest.php::testContentStorageKeyIsRetired.
 - GIVEN an instance that still holds a `content_storage` row written by the retired setup-wizard storage step
 - WHEN the admin sends GET /api/admin/settings
 - THEN the response MUST NOT contain `launchpad.content_storage`
@@ -228,7 +226,6 @@ Admins MAY always create dashboards regardless of the flag (the `PermissionServi
 - AND no rows in `oc_launchpad_dashboards` or `oc_launchpad_widget_placements` MUST have been touched
 
 #### Scenario: Default value when setting is missing
-@e2e exclude needs the allow_user_dashboards row to be absent; no endpoint deletes a stored setting and the shared instance has one. Pinned by tests/Unit/Service/DashboardServiceAllowFlagTest.php::testDefaultValueBlocksCreation and tests/Unit/Service/AdminSettingsServiceTest.php::testGetSettingsReturnsDefaults.
 - GIVEN a fresh LaunchPad install with no row for `allow_user_dashboards` in `oc_launchpad_admin_settings`
 - WHEN any code reads the setting (via `DashboardService::getAllowUserDashboards()`, `PermissionService::canCreateDashboard()`, or `AdminSettingsService::getSettings()`)
 - THEN it MUST evaluate to `false` (creation blocked) — the secure default
@@ -300,7 +297,6 @@ The `defaultPermissionLevel` setting MUST be applied as a fallback when resolvin
 - AND the `defaultPermissionLevel` admin setting acts as a fallback in `PermissionService::getEffectivePermissionLevel()` only when the dashboard's own `permissionLevel` is empty
 
 #### Scenario: Factory default permission (add_only)
-@e2e exclude needs a dashboard with no permissionLevel and no template, which no endpoint creates (DashboardFactory sets full, template copies take the template level). Pinned by tests/Unit/Service/PermissionServiceAccessGoldenTest.php (dashboard 8: empty level, stored default add_only). Note: with the row absent PermissionService::getEffectivePermissionLevel() falls back to full, not add_only.
 - GIVEN `defaultPermissionLevel` is at its factory default of `add_only`
 - WHEN `PermissionService::getEffectivePermissionLevel()` is called for a dashboard with no `permissionLevel` set and no `basedOnTemplate`
 - THEN the effective level MUST resolve to `add_only` (the admin default)
@@ -498,7 +494,6 @@ The system MUST persist an ordered list of Nextcloud group IDs as the global set
 - AND `"a"` MUST be removed (no implicit merge)
 
 #### Scenario: Corrupt DB JSON falls back to empty array
-@e2e exclude needs a hand-written corrupt group_order row; no endpoint stores invalid JSON. Pinned by tests/Unit/Service/AdminSettingsServiceTest.php::testGetGroupOrderReturnsEmptyOnCorruptValue.
 
 - GIVEN the row `group_order` exists in `oc_launchpad_admin_settings` with `setting_value = '{not-json'`
 - WHEN any caller invokes `AdminSettingsService::getGroupOrder()`
@@ -507,7 +502,6 @@ The system MUST persist an ordered list of Nextcloud group IDs as the global set
 - AND `GET /api/admin/groups` MUST return `active: []` in this state
 
 #### Scenario: Default when setting absent
-@e2e exclude needs the group_order row to be absent; no endpoint deletes it. Pinned by tests/Unit/Service/AdminSettingsServiceTest.php::testGetGroupOrderReturnsEmptyWhenRowAbsent.
 
 - GIVEN no `group_order` row has ever been written to `oc_launchpad_admin_settings`
 - WHEN `AdminSettingsService::getGroupOrder()` is called

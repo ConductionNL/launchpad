@@ -10,7 +10,10 @@
  * slugs. The tests open them the way a person does: by address, by the
  * sidebar, and with the browser's back button. `history.pushState` is counted
  * by an init script, so "no push on the initial mount" is observed rather
- * than assumed.
+ * than assumed. The `deepLinkPath` the server hands the page is read from
+ * Nextcloud's initial-state input, so the canonical-path and stale-slug
+ * scenarios are checked at the server's answer, not only at the address
+ * the frontend ends up showing.
  *
  * Gate-19 @e2e traceability:
  *   @e2e dashboard-deeplinking::stale-slug-falls-back-silently
@@ -107,6 +110,23 @@ function row(page: Page, name: string): Locator {
 }
 
 /**
+ * The `deepLinkPath` initial state the server rendered into the page
+ * (`<input type="hidden" id="initial-state-launchpad-deepLinkPath"
+ * value="<base64 json>">`, see initial-state-contract.spec.ts).
+ *
+ * @param page the page, after its document has loaded.
+ * @return the decoded value.
+ */
+async function deepLinkPathOnPage(page: Page): Promise<unknown> {
+	const input = page.locator('#initial-state-launchpad-deepLinkPath')
+	await expect(input, 'the page carries a deepLinkPath initial state').toHaveCount(1, {
+		timeout: 45_000,
+	})
+	const raw = (await input.getAttribute('value')) ?? ''
+	return JSON.parse(Buffer.from(raw, 'base64').toString('utf8'))
+}
+
+/**
  * Log in with `history.pushState` counted, and open an address.
  *
  * @param browser the browser.
@@ -168,6 +188,12 @@ test.describe.serial('dashboard deep-linking (REQ-DDL-002..007)', () => {
 		try {
 			expect(response?.status()).toBe(200)
 			await expect(page.locator('.workspace-shell')).toBeVisible()
+			// The fallback is the seven-step resolver's dashboard: the server
+			// hands the page that dashboard's canonical path, never the stale
+			// slug it could not resolve.
+			const handed = await deepLinkPathOnPage(page)
+			expect(typeof handed, JSON.stringify(handed)).toBe('string')
+			expect(handed as string).not.toContain(`no-such-dashboard-${RUN}`)
 		} finally {
 			await context.close()
 		}
@@ -178,6 +204,10 @@ test.describe.serial('dashboard deep-linking (REQ-DDL-002..007)', () => {
 		const { context, page, response } = await openAt(browser, `${APP}/${SLUG_B}`)
 		try {
 			expect(response?.status()).toBe(200)
+			// PageController::index() computes the slug-chain of the resolved
+			// dashboard (DashboardTreeService::computePath, leading slash) and
+			// passes it through initial state as `deepLinkPath`.
+			expect(await deepLinkPathOnPage(page)).toBe(`/${SLUG_B}`)
 			await openDashboardSwitcher(page)
 			await expect(row(page, NAME_B)).toHaveClass(/\bactive\b/)
 			expect(pathOf(page)).toBe(`/apps/launchpad/${SLUG_B}`)

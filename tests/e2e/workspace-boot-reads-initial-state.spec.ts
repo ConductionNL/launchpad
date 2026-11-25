@@ -24,7 +24,8 @@ test('the workspace opens without asking for its tiles, acknowledgements and def
 
 	await page.goto('/index.php/apps/launchpad/')
 	await expect(page.locator('main, [role="main"]').first()).toBeVisible({ timeout: 30_000 })
-	await page.waitForLoadState('networkidle')
+	// The view asks for these while it boots, before its grid renders.
+	await expect(page.locator('[data-placement-id]').first()).toBeVisible({ timeout: 30_000 })
 
 	const carried = await page.locator('#initial-state-launchpad-workspaceBootReads').getAttribute('value')
 	expect(carried, 'the page carries the boot reads').not.toBeNull()

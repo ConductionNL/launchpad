@@ -48,7 +48,7 @@ The system MUST register a video widget with Nextcloud's Dashboard API so it app
 - AND the description MUST be localized (English: "Embed video from YouTube, Vimeo, PeerTube, or Nextcloud Files")
 
 #### Scenario: Widget icon is visually distinct
-@e2e exclude never built: there is no IWidget icon and no img/widgets/ directory (img/widgets/video.svg does not exist); the type picker is a plain <select> with no icons; no unit test exists
+@e2e exclude never built: there is no IWidget icon and no img/widgets/ directory (img/widgets/video.svg does not exist, and the AND names that file); the type is registered client-side by nc-vue with the MDI icon name `Video` (CnVideoWidget/index.js), which CnAddWidgetModal draws in front of its type select, while the Add widget picker (src/modals/WidgetPickerModal.vue) shows a LaunchPad type as its title and a Plus action only; no unit test exists
 - GIVEN the video widget is displayed in the widget picker
 - WHEN rendered alongside other widgets
 - THEN the icon MUST be a clear video-player symbol (play button or film reel)

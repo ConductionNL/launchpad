@@ -12,7 +12,9 @@
  * @category  Service
  * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
+ * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ * @version   GIT:auto
  * @link      https://conduction.nl
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
@@ -24,9 +26,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTimeImmutable;
-use DateTimeZone;
-use OCA\LaunchPad\AppInfo\Application;
-use OCP\IConfig;
 use OCP\IUserManager;
 
 /**
@@ -52,14 +51,12 @@ class SummaryMailService {
 	/**
 	 * Constructor.
 	 *
-	 * @param IConfig               $config     The user preferences.
 	 * @param IUserManager          $users      Finds the people.
-	 * @param SummaryMailPreference $preference Each person's choice.
+	 * @param SummaryMailPreference $preference Each person's choice, time zone and last send.
 	 * @param SummaryMailContent    $content    What a summary says.
 	 * @param SummaryMailSender     $sender     Sends it.
 	 */
 	public function __construct(
-		private readonly IConfig $config,
 		private readonly IUserManager $users,
 		private readonly SummaryMailPreference $preference,
 		private readonly SummaryMailContent $content,
@@ -79,9 +76,8 @@ class SummaryMailService {
 	public function sendDue(DateTimeImmutable $now): int {
 		$sent = 0;
 		foreach ([SummaryMailPreference::DAILY, SummaryMailPreference::WEEKLY] as $frequency) {
-			$userIds = $this->config->getUsersForUserValue(Application::APP_ID, SummaryMailPreference::KEY_FREQUENCY, $frequency);
-			foreach ($userIds as $userId) {
-				$sent += (int)$this->sendFor(userId: (string)$userId, now: $now);
+			foreach ($this->preference->usersWith(frequency: $frequency) as $userId) {
+				$sent += (int)$this->sendFor(userId: $userId, now: $now);
 			}
 		}
 
@@ -100,32 +96,22 @@ class SummaryMailService {
 	 */
 	public function sendFor(string $userId, DateTimeImmutable $now): bool {
 		$user = $this->users->get($userId);
-		if ($user === null || (string)$user->getEMailAddress() === '') {
+		$since = $this->windowStart(userId: $userId, now: $now);
+		if ($user === null || (string)$user->getEMailAddress() === '' || $since === null) {
 			return false;
 		}
 
-		$frequency = $this->preference->frequency(userId: $userId);
-		$local = $now->setTimezone($this->timeZoneOf(userId: $userId));
-		$sendAt = self::dueMoment(frequency: $frequency, local: $local);
-		$lastSent = $this->lastSent(userId: $userId);
-		if ($sendAt === null || ($lastSent !== null && $lastSent >= $sendAt)) {
+		$summary = ['frequency' => $this->preference->frequency(userId: $userId)]
+			+ $this->content->collect(userId: $userId, since: $since);
+		if (self::worthSending(summary: $summary) === false
+			|| $this->sender->send(user: $user, summary: $summary) === false
+		) {
+			// An empty daily summary is not sent, and a failed send is not
+			// recorded: either way the window stays open for the next run.
 			return false;
 		}
 
-		$since = ($lastSent ?? $local->modify(self::windowOf(frequency: $frequency)));
-		$summary = ['frequency' => $frequency] + $this->content->collect(userId: $userId, since: $since);
-		$empty = ($summary['announcements'] === [] && $summary['changes'] === []);
-		if ($empty === true && $frequency === SummaryMailPreference::DAILY) {
-			// Nothing to tell: no mail, and the window stays open so a change
-			// later today is in tomorrow's summary.
-			return false;
-		}
-
-		if ($this->sender->send(user: $user, summary: $summary) === false) {
-			return false;
-		}
-
-		$this->config->setUserValue($userId, Application::APP_ID, SummaryMailPreference::KEY_LAST_SENT, $now->format(DATE_ATOM));
+		$this->preference->recordSent(userId: $userId, sentAt: $now);
 
 		return true;
 	}//end sendFor()
@@ -154,50 +140,45 @@ class SummaryMailService {
 	}//end dueMoment()
 
 	/**
-	 * How far back a first summary looks.
+	 * Where this person's summary starts when one is due now: the last
+	 * summary, or a day (a week) back for a first one. Null when none is due.
 	 *
-	 * @param string $frequency Daily or weekly.
+	 * @param string            $userId The person.
+	 * @param DateTimeImmutable $now    The moment of the run.
 	 *
-	 * @return string A `modify()` expression.
+	 * @return DateTimeImmutable|null
 	 */
-	private static function windowOf(string $frequency): string {
-		if ($frequency === SummaryMailPreference::WEEKLY) {
-			return '-7 days';
-		}
-
-		return '-1 day';
-	}//end windowOf()
-
-	/**
-	 * The person's time zone, else the server's.
-	 *
-	 * @param string $userId The person.
-	 *
-	 * @return DateTimeZone
-	 */
-	private function timeZoneOf(string $userId): DateTimeZone {
-		$name = (string)$this->config->getUserValue($userId, 'core', 'timezone', '');
-		if (in_array($name, timezone_identifiers_list(), true) === false) {
-			$name = date_default_timezone_get();
-		}
-
-		return new DateTimeZone($name);
-	}//end timeZoneOf()
-
-	/**
-	 * When the person's last summary went out.
-	 *
-	 * @param string $userId The person.
-	 *
-	 * @return DateTimeImmutable|null Null when never, or unreadable.
-	 */
-	private function lastSent(string $userId): ?DateTimeImmutable {
-		$value = (string)$this->config->getUserValue($userId, Application::APP_ID, SummaryMailPreference::KEY_LAST_SENT, '');
-		$parsed = date_create_immutable_from_format(DATE_ATOM, $value);
-		if ($parsed === false) {
+	private function windowStart(string $userId, DateTimeImmutable $now): ?DateTimeImmutable {
+		$frequency = $this->preference->frequency(userId: $userId);
+		$local = $now->setTimezone($this->preference->timeZoneOf(userId: $userId));
+		$sendAt = self::dueMoment(frequency: $frequency, local: $local);
+		$lastSent = $this->preference->lastSent(userId: $userId);
+		if ($sendAt === null || ($lastSent !== null && $lastSent >= $sendAt)) {
 			return null;
 		}
 
-		return $parsed;
-	}//end lastSent()
+		if ($lastSent !== null) {
+			return $lastSent;
+		}
+
+		if ($frequency === SummaryMailPreference::WEEKLY) {
+			return $local->modify('-7 days');
+		}
+
+		return $local->modify('-1 day');
+	}//end windowStart()
+
+	/**
+	 * Whether a summary is worth a mail: a weekly one always, a daily one
+	 * only when something was published or changed.
+	 *
+	 * @param array{frequency: string, announcements: list<string>, changes: list<string>} $summary The summary.
+	 *
+	 * @return bool
+	 */
+	private static function worthSending(array $summary): bool {
+		return $summary['frequency'] !== SummaryMailPreference::DAILY
+			|| $summary['announcements'] !== []
+			|| $summary['changes'] !== [];
+	}//end worthSending()
 }//end class

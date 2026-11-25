@@ -107,7 +107,7 @@ export default {
 		 * @param {number} [placementId] One hidden placement.
 		 * @return {string} The URL.
 		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
-		 		 */
+		 */
 		url(placementId) {
 			const base = '/apps/launchpad/api/personal-layer/hidden'
 			return generateUrl(placementId === undefined ? base : `${base}/${encodeURIComponent(placementId)}`)
@@ -137,7 +137,7 @@ export default {
 		 * @param {{placement?: object}} entry A hidden widget.
 		 * @return {string} Its title.
 		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
-		 		 */
+		 */
 		titleOf(entry) {
 			return resolveWidgetTitle(entry?.placement, []) || entry?.placement?.widgetId || ''
 		},
@@ -172,7 +172,7 @@ export default {
 		 *
 		 * @param {() => Promise<void>} action The change.
 		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
-		 		 */
+		 */
 		async change(action) {
 			this.saving = true
 			this.saveError = false

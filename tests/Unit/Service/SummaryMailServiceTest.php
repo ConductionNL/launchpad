@@ -286,7 +286,6 @@ class SummaryMailServiceTest extends TestCase {
 		$content->method('collect')->willReturnCallback(fn (): array => $this->lines);
 
 		return new SummaryMailService(
-			config: $config,
 			users: $users,
 			preference: new SummaryMailPreference(config: $config),
 			content: $content,

@@ -47,13 +47,13 @@ class SummaryMailController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest              $request     The request.
-	 * @param IUserSession          $userSession Names the caller.
 	 * @param SummaryMailPreference $preference  Reads and writes the frequency.
+	 * @param IUserSession          $userSession Names the caller.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly IUserSession $userSession,
 		private readonly SummaryMailPreference $preference,
+		private readonly IUserSession $userSession,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -68,12 +68,12 @@ class SummaryMailController extends Controller {
 	#[NoAdminRequired]
 	public function show(): JSONResponse {
 		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return self::signedOut();
+		if ($user instanceof IUser) {
+			// The session's own user id: no route reads another person's choice.
+			return self::answer(user: $user, frequency: $this->preference->frequency(userId: $user->getUID()));
 		}
 
-		// The session's own user id: no route reads another person's choice.
-		return self::answer(user: $user, frequency: $this->preference->frequency(userId: $user->getUID()));
+		return self::signedOut();
 	}//end show()
 
 	/**

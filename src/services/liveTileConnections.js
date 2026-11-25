@@ -71,7 +71,7 @@ export async function fetchLiveTileConnections() {
  *
  * @return {Promise<{state: string, rows: Array<object>}>} `ok` with the rows, or `error`.
  * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
- * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+ * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
  */
 export async function fetchAppConnectionRows() {
 	const url = generateUrl('/apps/openregister/api/objects/{register}/{schema}', {

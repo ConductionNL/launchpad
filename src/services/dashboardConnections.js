@@ -25,7 +25,7 @@ const ERROR_STATUSES = Object.freeze(['error', 'failed'])
  *
  * @param {object} placement A placement row.
  * @return {boolean} true for a tile that pings its service.
- * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+ * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
  */
 function isPingingTile(placement) {
 	const id = String(placement?.widgetId ?? '')
@@ -41,7 +41,7 @@ function isPingingTile(placement) {
  * @param {{connections: Array<object>}} [declared] The connections.json declaration.
  * @param {{connections: Record<string, {uses?: string[], healthPingTiles?: boolean}>}} [uses] The uses map.
  * @return {Array<{key: string, title: string, order: number}>} The connections in use.
- * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+ * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
  */
 export function connectionsUsedBy(placements, declared = declarations, uses = connectionUses) {
 	const list = Array.isArray(placements) ? placements : []
@@ -64,7 +64,7 @@ export function connectionsUsedBy(placements, declared = declarations, uses = co
  *
  * @param {object|null} row An `app_connection` object.
  * @return {string|null} The ISO time, or null when unknown.
- * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+ * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
  */
 export function lastErrorOf(row) {
 	const own = row?.lastErrorAt ?? row?.lastError ?? null
@@ -85,7 +85,7 @@ export function lastErrorOf(row) {
  *
  * @param {object|null} row An `app_connection` object.
  * @return {string} The status label.
- * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+ * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
  */
 export function statusLabelOf(row) {
 	const status = typeof row?.status === 'string' && row.status !== '' ? row.status : 'unconfigured'
@@ -98,7 +98,7 @@ export function statusLabelOf(row) {
  * @param {Array<{key: string, title: string}>} used The connections in use.
  * @param {Array<object>} rows The `app_connection` rows of this app.
  * @return {Array<object>} One line per connection: key, title, status, label, last success, last error, message.
- * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+ * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
  */
 export function joinConnectionStates(used, rows) {
 	const byKey = new Map((Array.isArray(rows) ? rows : []).filter((row) => row?.key).map((row) => [row.key, row]))
@@ -122,7 +122,7 @@ export function joinConnectionStates(used, rows) {
  * Integriq's connection rows of this app, read with the viewer's session.
  *
  * @return {Promise<{state: string, rows: Array<object>}>} `ok` with the rows, or `error` when the read fails.
- * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+ * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
  */
 export function fetchConnectionRows() {
 	return fetchAppConnectionRows()

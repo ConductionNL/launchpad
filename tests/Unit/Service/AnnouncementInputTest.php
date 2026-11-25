@@ -282,7 +282,7 @@ class AnnouncementInputTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function testAReadConfirmationKeepsItsDeadlineAfterThePublishTime(): void {
 		$announcement = new Announcement();
@@ -307,7 +307,7 @@ class AnnouncementInputTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function testWithoutTheQuestionTheDeadlineIsCleared(): void {
 		$announcement = new Announcement();
@@ -326,7 +326,7 @@ class AnnouncementInputTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function testADeadlineIsOptional(): void {
 		$announcement = new Announcement();

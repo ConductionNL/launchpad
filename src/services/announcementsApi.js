@@ -78,14 +78,14 @@ export const announcementsApi = {
 	 * The groups the announcement form offers as the target group.
 	 *
 	 * @return {Promise<Array<object>>} `{id, displayName}`, sorted by name.
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 	 */
 	/**
 	 * Which announcements the reader confirmed, and which read
 	 * confirmations the reader may open (REQ-ANN-007).
 	 *
 	 * @return {Promise<{confirmed: Array<string>, receipts: Array<string>}>}
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	async readState() {
 		return (await axios.get(`${base()}/read-state`)).data
@@ -96,7 +96,7 @@ export const announcementsApi = {
 	 *
 	 * @param {string} uuid The announcement.
 	 * @return {Promise<object>} `{uuid, confirmed, confirmedAt}`.
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	async confirmRead(uuid) {
 		return (await axios.post(`${base()}/${uuid}/read`)).data
@@ -107,7 +107,7 @@ export const announcementsApi = {
 	 *
 	 * @param {string} uuid The announcement.
 	 * @return {Promise<object>} The report the Read confirmations dialog shows.
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	async receipts(uuid) {
 		return (await axios.get(`${base()}/${uuid}/receipts`)).data

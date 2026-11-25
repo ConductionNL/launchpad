@@ -191,7 +191,7 @@ class AcknowledgementMapper extends QBMapper {
 	 *
 	 * @return string[] The keys the user confirmed.
 	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function findKeysConfirmedBy(string $userId, array $announcementKeys): array {
 		if ($announcementKeys === []) {

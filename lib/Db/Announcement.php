@@ -213,7 +213,7 @@ class Announcement extends Entity implements JsonSerializable {
 	/**
 	 * Constructor.
 	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function __construct() {
 		$this->addType(fieldName: 'id', type: 'integer');
@@ -277,7 +277,7 @@ class Announcement extends Entity implements JsonSerializable {
 	 *
 	 * @throws InvalidArgumentException When the deadline is not after the publish time.
 	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function settleConfirmation(): void {
 		if ($this->requiresConfirmation !== 1) {
@@ -296,7 +296,7 @@ class Announcement extends Entity implements JsonSerializable {
 	 * @return array<string, mixed>
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function jsonSerialize(): array {
 		return [

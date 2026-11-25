@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -44,7 +44,7 @@ use OCP\IUserManager;
 /**
  * Confirms, answers and reports the read confirmations of announcements.
  *
- * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  */
 class AnnouncementReadConfirmations {
 
@@ -81,7 +81,7 @@ class AnnouncementReadConfirmations {
 	 *
 	 * @return string The key.
 	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public static function key(string $uuid): string {
 		return self::KEY_PREFIX . $uuid;
@@ -100,7 +100,7 @@ class AnnouncementReadConfirmations {
 	 * @throws InvalidArgumentException When the announcement does not ask for a confirmation.
 	 * @throws ForbiddenException       When the reader is not in its audience.
 	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function confirm(string $userId, string $uuid): array {
 		$announcement = $this->announcements->findFor(userId: $userId, uuid: $uuid);
@@ -131,7 +131,7 @@ class AnnouncementReadConfirmations {
 	 *
 	 * @return array{confirmed: string[], receipts: string[]} Uuids.
 	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function stateFor(string $userId, array $announcements): array {
 		$asking = array_values(
@@ -169,7 +169,7 @@ class AnnouncementReadConfirmations {
 	 *
 	 * @return array{confirmed: string[], receipts: string[]} Uuids.
 	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function stateOfVisible(string $userId): array {
 		return $this->stateFor(userId: $userId, announcements: $this->announcements->visibleTo(userId: $userId));
@@ -189,7 +189,7 @@ class AnnouncementReadConfirmations {
 	 * @throws ForbiddenException       When the user may not manage the announcement.
 	 * @throws InvalidArgumentException When it does not ask for a confirmation.
 	 *
-	 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function report(string $userId, string $uuid): array {
 		$announcement = $this->announcements->findFor(userId: $userId, uuid: $uuid);

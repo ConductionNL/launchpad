@@ -138,7 +138,7 @@ describe('AcknowledgementReportModal', () => {
 		expect(api.getAcknowledgementReport).toHaveBeenLastCalledWith('other')
 	})
 
-	// @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	// @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	it('reads an announcement\'s confirmations from the announcements API, without Download', async () => {
 		announcementsApi.receipts.mockResolvedValue(REPORT)
 		const wrapper = mountModal({ announcementKey: '', announcementUuid: 'u-1', dashboardName: '' })

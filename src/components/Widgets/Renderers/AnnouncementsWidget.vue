@@ -100,7 +100,7 @@ import { logger } from '../../../utils/logger.js'
  *
  * @param {object|undefined} state `{confirmed, receipts}` from the server.
  * @return {{confirmed: Array<string>, receipts: Array<string>}}
- * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  */
 export function readConfirmationState(state) {
 	const list = (value) => (Array.isArray(value) ? value.filter((uuid) => typeof uuid === 'string') : [])
@@ -116,7 +116,7 @@ export function readConfirmationState(state) {
  * reader confirms "I have read this"; the author opens who confirmed
  * (REQ-ANN-007).
  *
- * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  *
  * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
  */
@@ -187,7 +187,7 @@ export default {
 
 		/**
 		 * @spec openspec/changes/engagement-announcements/tasks.md#task-7
-		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 		 */
 		async load() {
 			this.loading = true
@@ -302,7 +302,7 @@ export default {
 		 *
 		 * @param {string} uuid The announcement.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 		 */
 		async confirmRead(uuid) {
 			try {
@@ -320,7 +320,7 @@ export default {
 		 * Open the read confirmations of one announcement.
 		 *
 		 * @param {string} uuid The announcement.
-		 * @spec openspec/changes/announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 		 */
 		openReceipts(uuid) {
 			this.receiptsItem = this.announcements.find((item) => item.uuid === uuid) ?? null

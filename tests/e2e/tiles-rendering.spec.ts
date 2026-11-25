@@ -460,7 +460,7 @@ test('choosing Edit on a tile in edit mode opens the tile editor and does not fo
 		await page.getByRole('menuitem', { name: 'Edit tile' }).click()
 		const editor = page.getByRole('dialog', { name: 'Edit Tile' })
 		await expect(editor).toBeVisible()
-		await expect(editor.getByLabel('Title')).toHaveValue(EMOJI)
+		await expect(editor.getByLabel('Name')).toHaveValue(EMOJI)
 		expect(page.url()).toBe(before)
 		expect(context.pages()).toHaveLength(1)
 	} finally {

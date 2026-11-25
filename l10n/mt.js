@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Konnessjonijiet ta’ dan id-dashboard",
+    "Connection states need the Integrations app" : "L-istat tal-konnessjonijiet jeħtieġ l-app Integrazzjonijiet",
+    "No widget on this dashboard uses an outside connection" : "L-ebda widget fuq dan id-dashboard ma juża konnessjoni esterna",
+    "Loading connection states …" : "Qed jitgħabba l-istat tal-konnessjonijiet …",
+    "The connection states could not be loaded. Try again later." : "L-istat tal-konnessjonijiet ma setax jitgħabba. Erġa’ pprova aktar tard.",
+    "Last error: {time}" : "L-aħħar żball: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Juri l-konnessjonijiet esterni li jużaw il-widgets ta’ dan id-dashboard, bl-istat li l-app Integrazzjonijiet iżżomm għal kull waħda. Kull persuna tara dak li OpenRegister iħalliha tara.",
     "What do you think of this dashboard?" : "X'taħseb dwar dan id-dashboard?",
     "today {time}" : "illum {time}",
     "Last updated {when}" : "Aġġornat l-aħħar {when}",

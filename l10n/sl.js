@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Povezave te nadzorne plošče",
+    "Connection states need the Integrations app" : "Stanje povezav zahteva aplikacijo Integracije",
+    "No widget on this dashboard uses an outside connection" : "Noben gradnik na tej nadzorni plošči ne uporablja zunanje povezave",
+    "Loading connection states …" : "Nalaganje stanja povezav …",
+    "The connection states could not be loaded. Try again later." : "Stanja povezav ni bilo mogoče naložiti. Poskusite znova pozneje.",
+    "Last error: {time}" : "Zadnja napaka: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Prikaže zunanje povezave, ki jih uporabljajo gradniki na tej nadzorni plošči, s stanjem, ki ga za vsako hrani aplikacija Integracije. Vsak vidi, kar mu dovoli OpenRegister.",
     "What do you think of this dashboard?" : "Kaj menite o tej nadzorni plošči?",
     "today {time}" : "danes {time}",
     "Last updated {when}" : "Nazadnje posodobljeno {when}",

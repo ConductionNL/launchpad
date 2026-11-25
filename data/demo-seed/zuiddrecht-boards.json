@@ -2398,7 +2398,9 @@
 					"gridHeight": 4,
 					"showTitle": 1,
 					"customTitle": "Koppelingen van dit dashboard",
-					"content": {},
+					"content": {
+						"showActions": false
+					},
 					"fallback": {
 						"widgetId": "text",
 						"gridX": 0,

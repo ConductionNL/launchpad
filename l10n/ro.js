@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Conexiunile acestui panou",
+    "Connection states need the Integrations app" : "Starea conexiunilor necesită aplicația Integrări",
+    "No widget on this dashboard uses an outside connection" : "Niciun widget de pe acest panou nu folosește o conexiune externă",
+    "Loading connection states …" : "Se încarcă starea conexiunilor …",
+    "The connection states could not be loaded. Try again later." : "Starea conexiunilor nu a putut fi încărcată. Încercați din nou mai târziu.",
+    "Last error: {time}" : "Ultima eroare: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Arată conexiunile externe folosite de widgeturile acestui panou, cu starea pe care aplicația Integrări o păstrează pentru fiecare. Fiecare persoană vede ce îi permite OpenRegister.",
     "What do you think of this dashboard?" : "Ce părere aveți despre acest tablou de bord?",
     "today {time}" : "azi {time}",
     "Last updated {when}" : "Ultima actualizare {when}",

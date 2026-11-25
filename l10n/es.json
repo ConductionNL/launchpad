@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Conexiones de este panel",
+        "Connection states need the Integrations app": "El estado de las conexiones requiere la aplicación Integraciones",
+        "No widget on this dashboard uses an outside connection": "Ningún widget de este panel usa una conexión externa",
+        "Loading connection states …": "Cargando el estado de las conexiones …",
+        "The connection states could not be loaded. Try again later.": "No se pudo cargar el estado de las conexiones. Inténtelo más tarde.",
+        "Last error: {time}": "Último error: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Muestra las conexiones externas que usan los widgets de este panel, con el estado que la aplicación Integraciones guarda de cada una. Cada persona ve lo que OpenRegister le permite ver.",
         "Dashboard renamed to %s": "Panel renombrado a %s",
         "Columns from %1$s to %2$s": "Columnas de %1$s a %2$s",
         "Widget %s added": "Widget %s añadido",

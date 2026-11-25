@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Povezave te nadzorne plošče",
+        "Connection states need the Integrations app": "Stanje povezav zahteva aplikacijo Integracije",
+        "No widget on this dashboard uses an outside connection": "Noben gradnik na tej nadzorni plošči ne uporablja zunanje povezave",
+        "Loading connection states …": "Nalaganje stanja povezav …",
+        "The connection states could not be loaded. Try again later.": "Stanja povezav ni bilo mogoče naložiti. Poskusite znova pozneje.",
+        "Last error: {time}": "Zadnja napaka: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Prikaže zunanje povezave, ki jih uporabljajo gradniki na tej nadzorni plošči, s stanjem, ki ga za vsako hrani aplikacija Integracije. Vsak vidi, kar mu dovoli OpenRegister.",
         "Dashboard renamed to %s": "Nadzorna plošča preimenovana v %s",
         "Columns from %1$s to %2$s": "Stolpci iz %1$s v %2$s",
         "Widget %s added": "Pripomoček %s dodan",

@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Lidhjet e këtij paneli",
+    "Connection states need the Integrations app" : "Gjendja e lidhjeve kërkon aplikacionin Integrime",
+    "No widget on this dashboard uses an outside connection" : "Asnjë widget në këtë panel nuk përdor lidhje të jashtme",
+    "Loading connection states …" : "Po ngarkohet gjendja e lidhjeve …",
+    "The connection states could not be loaded. Try again later." : "Gjendja e lidhjeve nuk u ngarkua. Provoni përsëri më vonë.",
+    "Last error: {time}" : "Gabimi i fundit: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Shfaq lidhjet e jashtme që përdorin widget-et e këtij paneli, me gjendjen që aplikacioni Integrime mban për secilën. Secili sheh atë që OpenRegister i lejon.",
     "What do you think of this dashboard?" : "Çfarë mendoni për këtë panel?",
     "today {time}" : "sot {time}",
     "Last updated {when}" : "Përditësuar së fundi {when}",

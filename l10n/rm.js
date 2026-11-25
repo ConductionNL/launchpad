@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Colliaziuns da quest dashboard",
+    "Connection states need the Integrations app" : "Per il stadi da las colliaziuns è necessaria l’app Integraziuns",
+    "No widget on this dashboard uses an outside connection" : "Nagin widget sin quest dashboard na dovra ina colliaziun externa",
+    "Loading connection states …" : "Chargiar il stadi da las colliaziuns …",
+    "The connection states could not be loaded. Try again later." : "Impussibel da chargiar il stadi da las colliaziuns. Emprova pli tard anc ina giada.",
+    "Last error: {time}" : "Ultima errur: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Mussa las colliaziuns externas che vegnan duvradas dals widgets da quest dashboard, cun il stadi che l’app Integraziuns tegna per mintgina. Mintgin vesa quai che OpenRegister al lascha vesair.",
     "What do you think of this dashboard?" : "Tge pensais Vus da quest dashboard?",
     "today {time}" : "oz {time}",
     "Last updated {when}" : "Actualisà l'ultima giada {when}",

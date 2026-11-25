@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Šios skydelio jungtys",
+    "Connection states need the Integrations app" : "Jungčių būsenai reikia programos Integracijos",
+    "No widget on this dashboard uses an outside connection" : "Nė vienas šio skydelio valdiklis nenaudoja išorinės jungties",
+    "Loading connection states …" : "Įkeliama jungčių būsena …",
+    "The connection states could not be loaded. Try again later." : "Nepavyko įkelti jungčių būsenos. Bandykite vėliau.",
+    "Last error: {time}" : "Paskutinė klaida: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Rodo išorines jungtis, kurias naudoja šio skydelio valdikliai, su būsena, kurią programa Integracijos saugo apie kiekvieną. Kiekvienas mato tai, ką leidžia OpenRegister.",
     "What do you think of this dashboard?" : "Ką manote apie šį skydelį?",
     "today {time}" : "šiandien {time}",
     "Last updated {when}" : "Paskutinį kartą atnaujinta {when}",

@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Šios skydelio jungtys",
+        "Connection states need the Integrations app": "Jungčių būsenai reikia programos Integracijos",
+        "No widget on this dashboard uses an outside connection": "Nė vienas šio skydelio valdiklis nenaudoja išorinės jungties",
+        "Loading connection states …": "Įkeliama jungčių būsena …",
+        "The connection states could not be loaded. Try again later.": "Nepavyko įkelti jungčių būsenos. Bandykite vėliau.",
+        "Last error: {time}": "Paskutinė klaida: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Rodo išorines jungtis, kurias naudoja šio skydelio valdikliai, su būsena, kurią programa Integracijos saugo apie kiekvieną. Kiekvienas mato tai, ką leidžia OpenRegister.",
         "Dashboard renamed to %s": "Skydelis pervadintas į %s",
         "Columns from %1$s to %2$s": "Stulpeliai iš %1$s į %2$s",
         "Widget %s added": "Pridėtas valdiklis %s",

@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Падключэнні гэтай панэлі",
+        "Connection states need the Integrations app": "Для стану падключэнняў патрэбна праграма «Інтэграцыі»",
+        "No widget on this dashboard uses an outside connection": "Ніводзін віджэт на гэтай панэлі не выкарыстоўвае знешняе падключэнне",
+        "Loading connection states …": "Загрузка стану падключэнняў …",
+        "The connection states could not be loaded. Try again later.": "Не ўдалося загрузіць стан падключэнняў. Паспрабуйце пазней.",
+        "Last error: {time}": "Апошняя памылка: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Паказвае знешнія падключэнні, якія выкарыстоўваюць віджэты гэтай панэлі, са станам, які праграма «Інтэграцыі» захоўвае для кожнага. Кожны бачыць тое, што яму дазваляе OpenRegister.",
         "Dashboard renamed to %s": "Панэль перайменавана ў %s",
         "Columns from %1$s to %2$s": "Слупкі: з %1$s на %2$s",
         "Widget %s added": "Дададзены віджэт %s",

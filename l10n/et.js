@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Selle töölaua ühendused",
+    "Connection states need the Integrations app" : "Ühenduste oleku jaoks on vaja rakendust Integratsioonid",
+    "No widget on this dashboard uses an outside connection" : "Ükski selle töölaua vidin ei kasuta välist ühendust",
+    "Loading connection states …" : "Ühenduste oleku laadimine …",
+    "The connection states could not be loaded. Try again later." : "Ühenduste olekut ei õnnestunud laadida. Proovige hiljem uuesti.",
+    "Last error: {time}" : "Viimane viga: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Näitab väliseid ühendusi, mida selle töölaua vidinad kasutavad, koos olekuga, mida rakendus Integratsioonid igaühe kohta hoiab. Igaüks näeb seda, mida OpenRegister lubab.",
     "What do you think of this dashboard?" : "Mida te sellest töölauast arvate?",
     "today {time}" : "täna {time}",
     "Last updated {when}" : "Viimati uuendatud {when}",

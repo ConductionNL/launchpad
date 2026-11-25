@@ -12,11 +12,11 @@
  * calls a connection itself.
  */
 
+import { formatConnectionStatus } from '@conduction/nextcloud-vue/dist/esm/utils/builtInFormatters.js'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
-import { formatConnectionStatus } from '@conduction/nextcloud-vue/dist/esm/utils/builtInFormatters.js'
-import declarations from '../../lib/Settings/connections.json'
 import connectionUses from '../../lib/Settings/connection-uses.json'
+import declarations from '../../lib/Settings/connections.json'
 import { lastSuccessOf } from './liveTileConnections.js'
 
 /** Statuses integriq stores for a connection whose last check failed. */

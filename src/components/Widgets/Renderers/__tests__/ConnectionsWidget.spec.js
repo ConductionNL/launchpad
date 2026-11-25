@@ -21,9 +21,9 @@ vi.mock('../../../../services/dashboardConnections.js', async (importOriginal) =
 	fetchConnectionRows: (...args) => fetchConnectionRows(...args),
 }))
 
-import { getWidgetTypeEntry, offeredForViewer } from '../../../../constants/widgetRegistry.js'
 import ConnectionsWidget from '../ConnectionsWidget.vue'
 import ConnectionsWidgetForm from '../ConnectionsWidgetForm.vue'
+import { getWidgetTypeEntry, offeredForViewer } from '../../../../constants/widgetRegistry.js'
 
 const MANAGEMENT = [
 	{ id: 1, widgetId: 'livetile', content: {} },

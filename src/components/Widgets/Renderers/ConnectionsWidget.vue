@@ -12,7 +12,7 @@
 			{{ t('launchpad', 'No widget on this dashboard uses an outside connection') }}
 		</p>
 		<p v-else-if="state === 'loading'" class="connections-widget__state" data-testid="connections-loading">
-			{{ t('launchpad', 'Loading connection states …') }}
+			{{ t('launchpad', 'Loading connection states …') }}
 		</p>
 		<p v-else-if="state === 'error'" class="connections-widget__state" data-testid="connections-error">
 			{{ t('launchpad', 'The connection states could not be loaded. Try again later.') }}

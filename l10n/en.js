@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Connections of this dashboard",
+    "Connection states need the Integrations app" : "Connection states need the Integrations app",
+    "No widget on this dashboard uses an outside connection" : "No widget on this dashboard uses an outside connection",
+    "Loading connection states …" : "Loading connection states …",
+    "The connection states could not be loaded. Try again later." : "The connection states could not be loaded. Try again later.",
+    "Last error: {time}" : "Last error: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.",
     "What do you think of this dashboard?" : "What do you think of this dashboard?",
     "today {time}" : "today {time}",
     "Last updated {when}" : "Last updated {when}",

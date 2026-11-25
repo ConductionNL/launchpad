@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Šī informācijas paneļa savienojumi",
+    "Connection states need the Integrations app" : "Savienojumu stāvoklim nepieciešama lietotne Integrācijas",
+    "No widget on this dashboard uses an outside connection" : "Neviens šī paneļa logrīks neizmanto ārēju savienojumu",
+    "Loading connection states …" : "Ielādē savienojumu stāvokli …",
+    "The connection states could not be loaded. Try again later." : "Savienojumu stāvokli neizdevās ielādēt. Mēģiniet vēlāk vēlreiz.",
+    "Last error: {time}" : "Pēdējā kļūda: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Parāda ārējos savienojumus, ko izmanto šī paneļa logrīki, ar stāvokli, ko lietotne Integrācijas glabā par katru. Katrs redz to, ko OpenRegister ļauj redzēt.",
     "What do you think of this dashboard?" : "Ko jūs domājat par šo informācijas paneli?",
     "today {time}" : "šodien {time}",
     "Last updated {when}" : "Pēdējoreiz atjaunināts {when}",

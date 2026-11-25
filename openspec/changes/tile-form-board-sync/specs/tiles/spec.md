@@ -20,6 +20,14 @@ The form SHALL show the tile's group and let the editor change it, and SHALL sho
 - **WHEN** the editor sets Sort order in this group to Last used first and saves
 - **THEN** the tiles of Work apps are ordered by last use for every reader
 
+#### Scenario: Move a tile from the dashboard into a group
+
+- **GIVEN** the tile Case system stands on the dashboard with Check availability on and an office-network address, and the dashboard has the group Work apps
+- **WHEN** the editor chooses Work apps as the tile's Group and saves
+- **THEN** Work apps holds Case system as a tile at its bottom, with its availability check and office-network address kept
+- **AND** Case system no longer stands on the dashboard on its own
+- **AND** a tile the administrator's start page makes compulsory does not move
+
 ### Requirement: The last availability check in the form (REQ-TILE-042)
 
 When Check availability is on, the form SHALL show under the switch the result of the last check with its time, such as "Reachable at the last check, today 10:40".

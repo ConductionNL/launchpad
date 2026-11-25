@@ -51,6 +51,13 @@
  *   @e2e tiles::edit-the-case-system-tile
  *   @e2e tiles::sort-a-group-by-use
  *   @e2e tiles::a-reachable-tile
+ *   @e2e tiles::move-a-tile-from-the-dashboard-into-a-group
+ *
+ * move-a-tile-from-the-dashboard-into-a-group uses a group and a tile of its
+ * own (Archive, Reports), so the other scenarios keep theirs. Its compulsory
+ * line (a tile the administrator's start page makes compulsory does not move)
+ * and the availability keys are held by the unit tests of Views
+ * (src/views/__tests__/Views.groupTiles.methods.spec.js).
  *
  * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md
  */
@@ -381,4 +388,67 @@ test.describe('availability', () => {
 			await context.close()
 		}
 	})
+})
+
+// @e2e tiles::move-a-tile-from-the-dashboard-into-a-group
+test('choosing a group in Edit tile moves a dashboard tile into that group, keeping its settings', async ({
+	browser,
+}) => {
+	// A group and a tile of this test's own, so the other scenarios keep theirs.
+	const archive = `Archive ${STAMP}`
+	const imported = await own.owner.api.post(`${API}/dashboard/${own.id}/tiles/import`, {
+		data: { folders: [{ name: archive, bookmarks: [{ title: 'Old intranet', url: 'https://example.invalid/old' }] }], bookmarks: [] },
+	})
+	expect(imported.status(), await imported.text()).toBe(201)
+	const archiveId = Number((await imported.json()).placements[0].id)
+
+	const created = await own.owner.api.post(`${API}/dashboard/${own.id}/tile`, {
+		data: {
+			title: 'Reports',
+			icon: 'ChartBar',
+			iconType: 'mdi',
+			bgColor: '#1f6feb',
+			textColor: '#ffffff',
+			linkType: 'url',
+			linkValue: 'https://reports.example.invalid',
+			gridX: 0,
+			gridY: 6,
+		},
+	})
+	expect(created.status(), await created.text()).toBe(201)
+	const reportsId = Number((await created.json()).id)
+	const settings = await own.owner.api.put(`${API}/widgets/${reportsId}`, {
+		data: { content: { internalUrl: 'http://reports.local', linkTarget: 'new-tab' } },
+	})
+	expect(settings.status(), await settings.text()).toBeLessThan(300)
+
+	const { context, page } = await open(browser)
+	try {
+		const form = await openTileForm(page, tileOf(page, reportsId), 'Reports')
+		await form.getByLabel('Group').click()
+		await page.getByRole('option', { name: archive }).click()
+		const moved = page.waitForResponse((res) => res.request().method() === 'PUT' && res.url().includes(`/api/widgets/${archiveId}`))
+		await form.getByRole('button', { name: 'Save' }).click()
+		expect((await moved).status()).toBeLessThan(300)
+
+		// The group holds Reports as a tile at its bottom, with its settings.
+		await expect.poll(async () => (await readPlacements(own.owner.api, own.id)).some((p) => Number(p.id) === reportsId), {
+			timeout: 10_000,
+		}).toBe(false)
+		const group = await storedContent(own.owner.api, own.id, archiveId)
+		expect(group.placements).toHaveLength(2)
+		const tile = group.placements[1]
+		expect(tile.type).toBe('tile')
+		expect(tile.gridY).toBeGreaterThanOrEqual(group.placements[0].gridY + group.placements[0].gridHeight)
+		expect(tile.content).toMatchObject({
+			title: 'Reports',
+			linkType: 'url',
+			linkValue: 'https://reports.example.invalid',
+			internalUrl: 'http://reports.local',
+			linkTarget: 'new-tab',
+		})
+		await expect(page.locator(`.grid-stack-item[gs-id="${archiveId}"] .container-widget__child`).filter({ hasText: 'Reports' })).toBeVisible()
+	} finally {
+		await context.close()
+	}
 })

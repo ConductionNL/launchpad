@@ -43,13 +43,14 @@ function makeHost(state = {}) {
 		],
 		updateWidgetPlacement: vi.fn().mockResolvedValue({}),
 		removeWidget: vi.fn(),
+		removeWidgetFromDashboard: vi.fn().mockResolvedValue(undefined),
 	}
 	for (const [name, fn] of Object.entries(Views.methods)) {
 		if (!(name in host)) {
 			host[name] = fn.bind(host)
 		}
 	}
-	for (const name of ['editingGroup', 'editingGroupTitle', 'editingGroupSort']) {
+	for (const name of ['editingGroup', 'editingGroupTitle', 'editingGroupSort', 'tileEditorGroups']) {
 		Object.defineProperty(host, name, { get: () => Views.computed[name].call(host) })
 	}
 	return Object.assign(host, state)
@@ -149,5 +150,76 @@ describe('Views — a tile in a group', () => {
 		await host.openTileEditor({ id: 9, title: 'Mail' })
 		await host.saveTile({ title: 'Mail', linkType: 'url', linkValue: '/apps/mail' })
 		expect(host.updateWidgetPlacement).toHaveBeenCalledWith(9, expect.objectContaining({ tileTitle: 'Mail' }))
+	})
+
+	it('offers the groups on the dashboard to the form', () => {
+		expect(makeHost().tileEditorGroups).toEqual([{ id: 41, title: 'Work apps', sortBy: 'manual' }])
+	})
+
+	it('moves a dashboard tile into a group: the group gains it with its settings, then the tile leaves the dashboard', async () => {
+		const host = makeHost()
+		host.widgetPlacements[0].content = { pinned: true }
+		await host.openTileEditor({ id: 9, title: 'Mail' })
+		await host.saveTile({
+			title: 'Mail',
+			linkType: 'url',
+			linkValue: '/apps/mail',
+			healthPingEnabled: true,
+			healthUrl: 'https://mail.example.org/health',
+			internalUrl: 'http://mail.local',
+			groupId: 41,
+			groupSortBy: 'alphabetical',
+		})
+		expect(host.updateWidgetPlacement).toHaveBeenCalledTimes(1)
+		const [id, patch] = host.updateWidgetPlacement.mock.calls[0]
+		expect(id).toBe(41)
+		expect(patch.content.sortBy).toBe('alphabetical')
+		expect(patch.content.placements).toHaveLength(3)
+		expect(patch.content.placements[2]).toMatchObject({
+			type: 'tile',
+			content: {
+				title: 'Mail',
+				linkValue: '/apps/mail',
+				healthPingEnabled: true,
+				healthUrl: 'https://mail.example.org/health',
+				internalUrl: 'http://mail.local',
+				pinned: true,
+			},
+		})
+		expect(host.removeWidgetFromDashboard).toHaveBeenCalledWith(9)
+		expect(host.isTileEditorOpen).toBe(false)
+	})
+
+	it('keeps the tile on the dashboard when the group cannot be saved', async () => {
+		const host = makeHost({ updateWidgetPlacement: vi.fn().mockRejectedValue(new Error('500')) })
+		await host.openTileEditor({ id: 9, title: 'Mail' })
+		await host.saveTile({ title: 'Mail', linkType: 'url', linkValue: '/apps/mail', groupId: 41 })
+		expect(host.removeWidgetFromDashboard).not.toHaveBeenCalled()
+		expect(showError).toHaveBeenCalledWith('The group could not be saved.')
+		expect(host.isTileEditorOpen).toBe(true)
+	})
+
+	it('moves nothing into a group that is gone, or for a compulsory tile', async () => {
+		const host = makeHost()
+		await host.openTileEditor({ id: 9, title: 'Mail' })
+		await host.saveTile({ title: 'Mail', linkType: 'url', linkValue: '/apps/mail', groupId: 99 })
+		expect(showError).toHaveBeenCalledWith('This group is no longer on the dashboard. Reload the dashboard and try again.')
+
+		const locked = makeHost({ permissionLevel: 'add_only' })
+		locked.widgetPlacements[0].isCompulsory = 1
+		await locked.openTileEditor({ id: 9, title: 'Mail' })
+		await locked.saveTile({ title: 'Mail', linkType: 'url', linkValue: '/apps/mail', groupId: 41 })
+		expect(showError).toHaveBeenCalledWith('This tile is part of the start page your administrator set for your group and cannot move into a group.')
+		expect(host.updateWidgetPlacement).not.toHaveBeenCalled()
+		expect(locked.updateWidgetPlacement).not.toHaveBeenCalled()
+		expect(locked.removeWidgetFromDashboard).not.toHaveBeenCalled()
+	})
+
+	it('says so when the tile joined the group but stayed on the dashboard', async () => {
+		const host = makeHost({ removeWidgetFromDashboard: vi.fn().mockRejectedValue(new Error('500')) })
+		await host.openTileEditor({ id: 9, title: 'Mail' })
+		await host.saveTile({ title: 'Mail', linkType: 'url', linkValue: '/apps/mail', groupId: 41 })
+		expect(host.updateWidgetPlacement).toHaveBeenCalledTimes(1)
+		expect(showError).toHaveBeenCalledWith('The tile was added to the group but could not be taken off the dashboard. Remove it from the dashboard yourself.')
 	})
 })

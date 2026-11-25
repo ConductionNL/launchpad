@@ -144,6 +144,35 @@ describe('TileEditor as LpTegelBewerken draws it', () => {
 		expect(loose.emitted('save')[0][0]).not.toHaveProperty('groupSortBy')
 	})
 
+	it('lets a dashboard tile move into a group on the dashboard, with that group\'s order', async () => {
+		const groups = [{ id: 11, title: 'Work apps', sortBy: 'alphabetical' }, { id: 12, title: '', sortBy: '' }]
+		const wrapper = mountEditor(caseSystem, { groups })
+		const group = wrapper.find('.select[data-label="Group"]')
+		expect(group.findAll('.option').map((o) => o.text())).toEqual(['No group', 'Work apps', 'Untitled group'])
+		expect(wrapper.find('.select[data-label="Sort order in this group"]').attributes('data-disabled')).toBe('yes')
+
+		await group.find('.option[data-value="11"]').trigger('click')
+		const sort = wrapper.find('.select[data-label="Sort order in this group"]')
+		expect(sort.attributes('data-disabled')).toBe('no')
+		expect(sort.attributes('data-value')).toBe('alphabetical')
+		await sort.find('.option[data-value="random"]').trigger('click')
+		await button(wrapper, 'Save').trigger('click')
+		expect(wrapper.emitted('save')[0][0]).toMatchObject({ id: 7, groupId: 11, groupSortBy: 'random' })
+	})
+
+	it('keeps a tile on the dashboard when No group is chosen again, and offers no move for a new tile or a tile in a group', async () => {
+		const groups = [{ id: 11, title: 'Work apps', sortBy: 'alphabetical' }]
+		const wrapper = mountEditor(caseSystem, { groups })
+		await wrapper.find('.select[data-label="Group"] .option[data-value="11"]').trigger('click')
+		await wrapper.findAll('.select[data-label="Group"] .option')[0].trigger('click')
+		await button(wrapper, 'Save').trigger('click')
+		expect(wrapper.emitted('save')[0][0]).not.toHaveProperty('groupId')
+		expect(wrapper.emitted('save')[0][0]).not.toHaveProperty('groupSortBy')
+
+		expect(mountEditor(null, { groups }).find('.text-field[data-label="Group"]').exists()).toBe(true)
+		expect(mountEditor(caseSystem, { groups, groupName: 'Work apps', inGroup: true }).find('.select[data-label="Group"]').exists()).toBe(false)
+	})
+
 	it('in a group, offers only a web address and none of what needs a tile of its own', async () => {
 		const tile = { title: 'Intranet', linkType: 'url', linkValue: 'https://intranet.example.org' }
 		const wrapper = mountEditor(tile, { groupName: 'Work apps', groupSort: 'alphabetical', inGroup: true })

@@ -38,6 +38,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { catalogueFromApi } from './support/widgetCatalogue.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -92,6 +93,7 @@ function catalog(count: number): CatalogEntry[] {
  * @param widgets the catalog to serve.
  */
 async function serveCatalog(page: Page, widgets: CatalogEntry[]): Promise<void> {
+	await catalogueFromApi(page)
 	await page.route(
 		(url) => url.pathname.endsWith('/apps/launchpad/api/widgets'),
 		async (route) => {

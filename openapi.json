@@ -204,6 +204,10 @@
             "description": "Admin field-definition CRUD controller."
         },
         {
+            "name": "new-colleagues",
+            "description": "The new colleagues the caller may see."
+        },
+        {
             "name": "office-tiles",
             "description": "The office tile pack and file creation from it."
         },
@@ -11814,6 +11818,58 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/people/new": {
+            "get": {
+                "operationId": "new-colleagues-get-new",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/people/new",
+                "description": "GET /api/people/new `{configured, since, until, users: [{id, displayName, startDate, starts}]}`, newest start first; the windows are clamped to 1..90 days back and 0..30 days ahead. Guarded by the same action as the people list. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "new-colleagues"
+                ],
+                "parameters": [
+                    {
+                        "name": "since",
+                        "in": "query",
+                        "required": false,
+                        "description": "Days back (default 30).",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "until",
+                        "in": "query",
+                        "required": false,
+                        "description": "Days ahead (default 14).",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"

@@ -90,6 +90,29 @@ class ProfileValueMapper extends QBMapper {
 	}//end findByUsers()
 
 	/**
+	 * The values of one field between two dates, inclusive (REQ-PPL-014). A
+	 * date field stores `YYYY-MM-DD`, so the text order is the date order.
+	 *
+	 * @param string $fieldKey The date field.
+	 * @param array{from: string, to: string} $range The first and the last date.
+	 *
+	 * @return ProfileValue[]
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 */
+	public function findDatesBetween(string $fieldKey, array $range): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from(from: $this->getTableName())
+			->where($qb->expr()->eq(x: 'field_key', y: $qb->createNamedParameter(value: $fieldKey)))
+			->andWhere($qb->expr()->gte(x: 'value', y: $qb->createNamedParameter(value: (string)($range['from'] ?? ''))))
+			->andWhere($qb->expr()->lte(x: 'value', y: $qb->createNamedParameter(value: (string)($range['to'] ?? ''))))
+			->orderBy(sort: 'value', order: 'DESC');
+
+		return $this->findEntities(query: $qb);
+	}//end findDatesBetween()
+
+	/**
 	 * Values whose lower-cased text contains the needle.
 	 *
 	 * @param string $needle Lower-cased search text.

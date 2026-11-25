@@ -21,7 +21,7 @@ export const COLOUR_TOKENS = Object.freeze(['', 'primary', 'success', 'warning',
  *
  * @param {string} unit The unit as typed.
  * @return {string} the suffix to store.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
  */
 export function unitToSuffix(unit) {
 	const trimmed = String(unit ?? '').trim()
@@ -36,7 +36,7 @@ export function unitToSuffix(unit) {
  *
  * @param {string} suffix The stored suffix.
  * @return {string} the unit.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
  */
 export function suffixToUnit(suffix) {
 	return String(suffix ?? '').trim()
@@ -48,7 +48,7 @@ export function suffixToUnit(suffix) {
  * @param {number} seconds The interval.
  * @param {boolean} sentence true for the preview's "Refreshes every …" line.
  * @return {string} the text.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
  */
 export function refreshLabel(seconds, sentence = false) {
 	const value = Number(seconds)
@@ -69,7 +69,7 @@ export function refreshLabel(seconds, sentence = false) {
  *
  * @param {number} current The stored interval in seconds.
  * @return {Array<{value: number, label: string}>} the choices.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
  */
 export function refreshOptions(current) {
 	const values = [...REFRESH_CHOICES]
@@ -86,7 +86,7 @@ export function refreshOptions(current) {
  *
  * @param {string} token The stored token.
  * @return {string} a known token.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
  */
 export function knownColour(token) {
 	return COLOUR_TOKENS.includes(token) ? token : ''
@@ -99,7 +99,7 @@ export function knownColour(token) {
  * @param {object|null} reading The last reading of the tile, if any.
  * @param {{prefix: string, suffix: string, thousands: boolean}} format The format fields.
  * @return {string} the preview value.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
  */
 export function previewValue(reading, format) {
 	const raw = reading?.value

@@ -1862,6 +1862,27 @@
         "You searched for {query}": "Tražili ste {query}",
         "No results": "Nema rezultata",
         "Show all results": "Prikaži sve rezultate",
-        "Tip: type {prefix} to search {name} directly": "Savjet: upišite {prefix} za direktnu pretragu u {name}"
+        "Tip: type {prefix} to search {name} directly": "Savjet: upišite {prefix} za direktnu pretragu u {name}",
+        "Hidden widgets": "Skriveni widgeti",
+        "Your hidden widgets could not be loaded.": "Vaši skriveni widgeti se nisu mogli učitati.",
+        "You have not hidden any widgets on shared dashboards.": "Niste sakrili nijedan widget na dijeljenim nadzornim pločama.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["Sakrili ste %n widget na dijeljenim nadzornim pločama", "Sakrili ste %n widgeta na dijeljenim nadzornim pločama", "Sakrili ste %n widgeta na dijeljenim nadzornim pločama"],
+        "Show all again": "Ponovo prikaži sve",
+        "Your change could not be saved.": "Vaša promjena nije mogla biti sačuvana.",
+        "Summary by email": "Sažetak putem e-pošte",
+        "A mail with new announcements and what changed on your dashboards": "E-mail s novim obavještenjima i promjenama na vašim nadzornim pločama",
+        "How often?": "Koliko često?",
+        "Daily": "Dnevno",
+        "Weekly": "Sedmično",
+        "At 07:30, only when something changed": "U 07:30, samo kada se nešto promijenilo",
+        "On Monday at 07:30": "Ponedjeljkom u 07:30",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "Nemate adresu e-pošte, pa vam se sažetak ne može poslati. Dodajte je u svom Nextcloud računu.",
+        "Your daily LaunchPad summary": "Vaš dnevni LaunchPad sažetak",
+        "Your weekly LaunchPad summary": "Vaš sedmični LaunchPad sažetak",
+        "Nothing new was published and nothing changed on your dashboards.": "Ništa novo nije objavljeno i ništa se nije promijenilo na vašim nadzornim pločama.",
+        "New announcements": "Nova obavještenja",
+        "What changed on your dashboards": "Šta se promijenilo na vašim nadzornim pločama",
+        "Open LaunchPad": "Otvori LaunchPad",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Ovaj e-mail dobijate jer ste ga zatražili u postavkama LaunchPada."
     }
 }

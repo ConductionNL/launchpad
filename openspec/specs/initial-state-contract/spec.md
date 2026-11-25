@@ -40,7 +40,7 @@ The system MUST expose `lib/Service/InitialStateBuilder.php` with a constructor 
 
 The exact set of initial-state keys per page is part of the contract and MUST match the Data Model documented in this spec. Adding, removing, or renaming a key is a deliberate spec change and MUST be accompanied by (1) an update to this spec's Data Model, (2) a bump of the `INITIAL_STATE_SCHEMA_VERSION` constant (currently `1`), and (3) coordinated updates to both the PHP builder and the JS reader in the same commit. The schema version MUST itself be pushed as initial state under the key `_schemaVersion`. The JS reader MUST log a console warning when the received version differs from the compiled-in version (catches caching and deploy-skew bugs).
 
-The Workspace page (mounted into `#launchpad-app`) MUST expose exactly these keys:
+The Workspace page (mounted into `#workspace-vue`) MUST expose exactly these keys:
 
 | Key | Type | Default (if missing) |
 |---|---|---|

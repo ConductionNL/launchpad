@@ -1862,6 +1862,27 @@
         "You searched for {query}": "Вы искали {query}",
         "No results": "Нет результатов",
         "Show all results": "Показать все результаты",
-        "Tip: type {prefix} to search {name} directly": "Совет: введите {prefix}, чтобы искать прямо в {name}"
+        "Tip: type {prefix} to search {name} directly": "Совет: введите {prefix}, чтобы искать прямо в {name}",
+        "Hidden widgets": "Скрытые виджеты",
+        "Your hidden widgets could not be loaded.": "Не удалось загрузить ваши скрытые виджеты.",
+        "You have not hidden any widgets on shared dashboards.": "Вы не скрыли ни одного виджета на общих панелях.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["Вы скрыли %n виджет на общих панелях", "Вы скрыли %n виджета на общих панелях", "Вы скрыли %n виджетов на общих панелях"],
+        "Show all again": "Показать все снова",
+        "Your change could not be saved.": "Не удалось сохранить изменение.",
+        "Summary by email": "Сводка по электронной почте",
+        "A mail with new announcements and what changed on your dashboards": "Письмо с новыми объявлениями и изменениями на ваших панелях",
+        "How often?": "Как часто?",
+        "Daily": "Ежедневно",
+        "Weekly": "Еженедельно",
+        "At 07:30, only when something changed": "В 07:30, только если что-то изменилось",
+        "On Monday at 07:30": "По понедельникам в 07:30",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "У вас нет адреса электронной почты, поэтому сводку нельзя отправить. Добавьте его в своей учётной записи Nextcloud.",
+        "Your daily LaunchPad summary": "Ваша ежедневная сводка LaunchPad",
+        "Your weekly LaunchPad summary": "Ваша еженедельная сводка LaunchPad",
+        "Nothing new was published and nothing changed on your dashboards.": "Ничего нового не опубликовано, и на ваших панелях ничего не изменилось.",
+        "New announcements": "Новые объявления",
+        "What changed on your dashboards": "Что изменилось на ваших панелях",
+        "Open LaunchPad": "Открыть LaunchPad",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Вы получаете это письмо, потому что запросили его в настройках LaunchPad."
     }
 }

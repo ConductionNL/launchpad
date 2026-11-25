@@ -27,11 +27,38 @@
  *   @e2e widget-context-menu::remove-persists-across-reload
  */
 
-import type { Page } from '@playwright/test'
+import type { APIRequestContext, Page } from '@playwright/test'
 import type { Locator } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
 
-import { expect, test } from '@playwright/test'
+import { expect, request, test } from '@playwright/test'
+import { BASE_URL } from './support/baseUrl.ts'
+import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
 import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+
+// Each run brings its own active personal dashboard (with the default widget
+// bundle) instead of leaning on one an earlier spec left behind: on a fresh
+// instance the admin has none and the row menu below never appears.
+const ADMIN = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
+let api: APIRequestContext
+let seeded: SeededDashboard | null = null
+
+test.beforeAll(async () => {
+	api = await request.newContext({
+		baseURL: BASE_URL,
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	seeded = await seedActiveDashboard(api, `E2E context menu ${Date.now()}`)
+})
+
+test.afterAll(async () => {
+	await removeSeededDashboard(api, seeded)
+	await api?.dispose()
+})
 
 /**
  * Wait for a locator's `boundingBox()` to stop changing before reading it.

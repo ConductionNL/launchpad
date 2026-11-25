@@ -26,7 +26,7 @@ import type { Placement } from './support/widgetPlacements.ts'
 
 import { expect, test } from '@playwright/test'
 import { clearSeededWidgets } from './support/dashboardFixture.ts'
-import { adminApi, gridItem, Seeds } from './support/widgetPlacements.ts'
+import { adminApi, gridItem, LP_API, Seeds } from './support/widgetPlacements.ts'
 
 const STAMP = Date.now().toString(36)
 const QUICK_START = `Snel beginnen (Word) ${STAMP}`
@@ -40,23 +40,38 @@ let shown: Placement
 test.describe.configure({ mode: 'serial' })
 test.setTimeout(120_000)
 
+/**
+ * Add a widget and give it its own title. The create call stores no title;
+ * like the add-widget flow, the title follows in an update of the placement.
+ *
+ * @param title the placement's custom title.
+ * @param data the widget fields.
+ * @return the created placement.
+ */
+async function titled(title: string, data: Record<string, unknown>): Promise<Placement> {
+	const placement = await seeds.widget(dashboard, data)
+	const res = await seeds.api.put(`${LP_API}/widgets/${placement.id}`, {
+		data: { customTitle: title },
+	})
+	expect(res.status(), await res.text()).toBeLessThan(300)
+	return { ...placement, customTitle: title }
+}
+
 test.beforeAll(async () => {
 	seeds = new Seeds(await adminApi())
 	dashboard = await seeds.dashboard(`E2E Mijn werkplek ${STAMP}`)
 	await clearSeededWidgets(seeds.api, dashboard.id)
 	hidden = [
-		await seeds.widget(dashboard, {
+		await titled(QUICK_START, {
 			widgetId: 'ai-assistant',
 			gridX: 0,
 			gridY: 0,
-			customTitle: QUICK_START,
 			content: { agentUuid: '' },
 		}),
-		await seeds.widget(dashboard, {
+		await titled(ASSISTANT, {
 			widgetId: 'ai-assistant',
 			gridX: 4,
 			gridY: 0,
-			customTitle: ASSISTANT,
 			content: { agentUuid: '' },
 		}),
 	]

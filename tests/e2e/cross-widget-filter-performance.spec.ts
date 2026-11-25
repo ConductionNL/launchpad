@@ -109,7 +109,9 @@ async function instrument(page: Page): Promise<void> {
 			.map((node) => (node.querySelector('title')?.textContent ?? node.textContent ?? '').trim())
 		w.__cwfWaitLabels = (key: string, selector: string, label: string, prefix: string) => {
 			const observer = new MutationObserver(() => {
-				const labels = w.__cwfLabels(selector, label)
+				// ApexCharts blanks an x-axis label it drops for overlap (an empty
+				// <title>); that bar is still this gemeente's, so judge the named ones.
+				const labels = w.__cwfLabels(selector, label).filter((text: string) => text !== '')
 				if (labels.length > 0 && labels.every((text: string) => text.startsWith(prefix))) {
 					observer.disconnect()
 					w.__cwf[key] = performance.now()

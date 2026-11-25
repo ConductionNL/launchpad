@@ -4,8 +4,8 @@
  *
  * A list of an app that is not on the instance is hidden for the employee,
  * not shown as an error (admin-templates REQ-TMPL-022). The e2e instance has
- * no pipelinq, so the shipped template's "Mijn tickets" list must not appear,
- * and neither must the list widget's error line.
+ * no pipelinq, so the shipped template's pipelinq card must not appear, and
+ * neither must a widget's error line.
  *
  * The spec stops, rather than passes by accident, when pipelinq IS installed:
  * then the list is rightly there and this proves nothing.
@@ -34,6 +34,8 @@ let group = ''
 let member: { username: string; password: string } | null = null
 let templateId: number | null = null
 let allowBefore: boolean | null = null
+// Whether dossiq is enabled, under any id it has had (lib/Support/FleetAppId.php).
+let dossiqEnabled = false
 
 test.setTimeout(180_000)
 
@@ -51,6 +53,10 @@ test.beforeAll(async () => {
 		probe.status() !== 404,
 		`pipelinq's register answered ${probe.status()}, so the hide rule has nothing to hide here`,
 	)
+
+	const apps = await api.get('/ocs/v1.php/cloud/apps?filter=enabled&format=json')
+	const enabled = ((await apps.json()).ocs?.data?.apps ?? []) as string[]
+	dossiqEnabled = enabled.includes('dossiq') || enabled.includes('procest')
 
 	const settings = await api.get(`${API}/admin/settings`)
 	allowBefore = (await settings.json()).allowUserDashboards === true
@@ -111,27 +117,26 @@ test('the ticket list is not shown and no error line appears', async ({
 		await expect(
 			page.getByText('Mijn werkdag', { exact: true }).first(),
 		).toBeVisible({ timeout: 30_000 })
-		// The dossiq lists are on the page (dossiq's register may or may not
-		// be here; the heading is, either way, because they do not hide on
-		// anything but a 404 and dossiq's is the e2e instance's own case).
-		await expect(page.getByText('Mijn zaken', { exact: true })).toBeVisible()
+		// Mijn werkdag v6 (data/templates/mijn-werkdag.json) gives each app a
+		// stat card. dossiq's shows when dossiq is enabled; without it the card
+		// is left out like any widget whose app is missing (REQ-CASES-004), so
+		// it is a control only where dossiq is.
+		if (dossiqEnabled) {
+			await expect(page.getByText('dossiq · Zaken', { exact: true })).toBeVisible()
+		}
 		// Give the probe and the hide time to settle, then hold the page to it.
 		await page.waitForTimeout(3_000)
-		await expect(page.getByText('Mijn tickets', { exact: true })).toHaveCount(0)
-		await expect(
-			page.getByText('Wacht op uw stem', { exact: true }),
-		).toHaveCount(0)
+		await expect(page.getByText('pipelinq · Klantcontact', { exact: true })).toHaveCount(0)
 		await expect(page.getByText('Could not load these records')).toHaveCount(0)
 
-		// The copy still holds the list: hidden on the page, not dropped.
+		// The copy still holds pipelinq's card: hidden on the page, not dropped.
 		const mine = await context.request.get(`${API}/dashboard`, {
 			headers: { 'OCS-APIRequest': 'true' },
 		})
 		const body = await mine.json()
 		expect(
-			body.placements.filter(
-				(p: { customTitle: string | null }) =>
-					p.customTitle === 'Mijn tickets',
+			body.placements.filter((p: unknown) =>
+				JSON.stringify(p).includes('pipelinq · Klantcontact'),
 			),
 		).toHaveLength(1)
 	} finally {

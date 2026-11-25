@@ -83,7 +83,7 @@ describe('TileWidget', () => {
 		expect(wrapper.find('a').attributes('aria-label')).toBe('TOPdesk')
 	})
 
-	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+	// @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
 	it('marks an icon-only tile with its pin, live count and outage, and names them', async () => {
 		const marked = await mountCounted({ title: 'Outlook web' }, { pinned: true }, 3)
 		expect(marked.find('[data-testid="tile-pin"]').exists()).toBe(true)
@@ -113,7 +113,7 @@ describe('TileWidget', () => {
 		expect(many.find('[data-testid="tile-badge"]').text()).toBe('99+')
 	})
 
-	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+	// @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
 	it('ignores the static badge and status of older placements', async () => {
 		const wrapper = await mountCounted({ title: 'Mail' }, { countSource: undefined, badge: 5, status: 'down' }, 9)
 		expect(resolveTileCount).not.toHaveBeenCalled()
@@ -121,7 +121,7 @@ describe('TileWidget', () => {
 		expect(wrapper.find('[data-testid="tile-outage"]').exists()).toBe(false)
 	})
 
-	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+	// @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
 	it('renders through its colour token, else its hex colour', () => {
 		const token = mount(TileWidget, { props: { tile: tile({ backgroundColor: '#123456' }), content: { colourToken: '--sc-accent' } } })
 		expect(token.find('.tile-widget').attributes('style')).toContain('--tile-bg-color: var(--sc-accent, #cc0000)')
@@ -129,7 +129,7 @@ describe('TileWidget', () => {
 		expect(hex.find('.tile-widget').attributes('style')).toContain('--tile-bg-color: #123456')
 	})
 
-	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
+	// @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
 	it('reads "Zaaksysteem, 14 open" and keeps every mark decorative', async () => {
 		const wrapper = await mountCounted({ title: 'Zaaksysteem' }, { pinned: true }, 14)
 		const link = wrapper.find('a')

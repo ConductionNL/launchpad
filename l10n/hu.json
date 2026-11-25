@@ -1859,6 +1859,27 @@
         "You searched for {query}": "Erre keresett: {query}",
         "No results": "Nincs találat",
         "Show all results": "Összes találat megjelenítése",
-        "Tip: type {prefix} to search {name} directly": "Tipp: írja be: {prefix}, hogy közvetlenül itt keressen: {name}"
+        "Tip: type {prefix} to search {name} directly": "Tipp: írja be: {prefix}, hogy közvetlenül itt keressen: {name}",
+        "Hidden widgets": "Elrejtett widgetek",
+        "Your hidden widgets could not be loaded.": "Az elrejtett widgeteket nem sikerült betölteni.",
+        "You have not hidden any widgets on shared dashboards.": "Nem rejtett el widgetet a megosztott irányítópultokon.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["%n widgetet rejtett el a megosztott irányítópultokon", "%n widgetet rejtett el a megosztott irányítópultokon"],
+        "Show all again": "Összes megjelenítése újra",
+        "Your change could not be saved.": "A módosítást nem sikerült menteni.",
+        "Summary by email": "Összefoglaló e-mailben",
+        "A mail with new announcements and what changed on your dashboards": "Levél az új közleményekkel és az irányítópultjain történt változásokkal",
+        "How often?": "Milyen gyakran?",
+        "Daily": "Naponta",
+        "Weekly": "Hetente",
+        "At 07:30, only when something changed": "07:30-kor, csak ha valami változott",
+        "On Monday at 07:30": "Hétfőnként 07:30-kor",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "Nincs e-mail-címe, ezért nem küldhető Önnek összefoglaló. Adjon meg egyet a Nextcloud-fiókjában.",
+        "Your daily LaunchPad summary": "Napi LaunchPad-összefoglalója",
+        "Your weekly LaunchPad summary": "Heti LaunchPad-összefoglalója",
+        "Nothing new was published and nothing changed on your dashboards.": "Semmi új nem jelent meg, és semmi sem változott az irányítópultjain.",
+        "New announcements": "Új közlemények",
+        "What changed on your dashboards": "Mi változott az irányítópultjain",
+        "Open LaunchPad": "LaunchPad megnyitása",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Ezt a levelet azért kapja, mert a LaunchPad beállításaiban kérte."
     }
 }

@@ -59,7 +59,7 @@ import { connectionsUsedBy, fetchConnectionRows, joinConnectionStates } from '..
  * The dashboard's placements come from the `dashboardPlacements` the
  * dashboard view provides. Without integriq the widget says so.
  *
- * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+ * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
  */
 export default {
 	name: 'ConnectionsWidget',
@@ -86,7 +86,7 @@ export default {
 	computed: {
 		/**
 		 * @return {boolean} Whether integriq is enabled for the viewer.
-		 * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
 		 */
 		hasIntegriq() {
 			const app = this.integrationApps?.integriq
@@ -95,7 +95,7 @@ export default {
 
 		/**
 		 * @return {Array<object>} The declared connections this dashboard's placements use.
-		 * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
 		 */
 		used() {
 			const placements = this.dashboardPlacements?.value ?? this.dashboardPlacements
@@ -104,14 +104,14 @@ export default {
 
 		/**
 		 * @return {Array<object>} The connections in use with their states.
-		 * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
 		 */
 		lines() {
 			return joinConnectionStates(this.used, this.rows)
 		},
 	},
 
-	/** @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections */
+	/** @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections */
 	async created() {
 		if (!this.hasIntegriq) {
 			return
@@ -129,7 +129,7 @@ export default {
 		 *
 		 * @param {string|null} at The ISO time.
 		 * @return {string} The time text.
-		 * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
 		 */
 		timeText(at) {
 			const date = at ? new Date(at) : null

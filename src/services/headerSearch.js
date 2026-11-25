@@ -7,7 +7,7 @@
  * groups their answers per provider with LaunchPad's dashboards first, and
  * builds the shortcut tip. The list itself is `HeaderSearchDropdown.vue`.
  *
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 
 import axios from '@nextcloud/axios'
@@ -30,7 +30,7 @@ export const PER_GROUP_LIMIT = 5
  *
  * @param {string} query The field's value.
  * @return {boolean} True from two characters on (spaces at the ends ignored).
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export function isSearchable(query) {
 	return typeof query === 'string' && query.trim().length >= MIN_QUERY_LENGTH
@@ -42,7 +42,7 @@ export function isSearchable(query) {
  *
  * @param {Array<{id: string, name?: string, order?: number}>} providers The providers.
  * @return {Array<object>} A sorted copy.
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export function orderProviders(providers) {
 	const list = Array.isArray(providers) ? providers.filter((p) => p && typeof p.id === 'string') : []
@@ -68,7 +68,7 @@ export function orderProviders(providers) {
  * @param {string} providerId The provider that answered it.
  * @param {number} index Its place in the provider's answer.
  * @return {{key: string, title: string, detail: string, icon: string, url: string}} The row.
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export function toResult(entry, providerId, index) {
 	return {
@@ -87,7 +87,7 @@ export function toResult(entry, providerId, index) {
  * @param {Array<{id: string, name?: string}>} providers The providers, already ordered.
  * @param {Object<string, Array<object>>} entriesByProvider The entries each provider returned, by id.
  * @return {Array<{id: string, name: string, results: Array<object>}>} The groups.
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export function groupResults(providers, entriesByProvider) {
 	const groups = []
@@ -113,7 +113,7 @@ export function groupResults(providers, entriesByProvider) {
  *
  * @param {Array<{prefix?: string, name?: string}>} shortcuts The admin's shortcuts (REQ-SPX-002).
  * @return {{prefix: string, name: string}|null} The shortcut, or null when none is usable.
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export function firstShortcut(shortcuts) {
 	if (!Array.isArray(shortcuts)) {
@@ -137,7 +137,7 @@ export function firstShortcut(shortcuts) {
  * @param {number} delta +1 for Arrow down, -1 for Arrow up.
  * @param {number} count The number of options.
  * @return {number} The new index.
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export function moveSelection(current, delta, count) {
 	if (count <= 0) {
@@ -155,7 +155,7 @@ export function moveSelection(current, delta, count) {
  * @param {string} route The current route, so providers can rank themselves.
  * @param {AbortSignal} [signal] Cancels the request.
  * @return {Promise<Array<object>>} The providers, or an empty list on failure.
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export async function fetchProviders(route, signal) {
 	try {
@@ -179,7 +179,7 @@ export async function fetchProviders(route, signal) {
  * @param {string} route The current route.
  * @param {AbortSignal} [signal] Cancels the request.
  * @return {Promise<Array<object>>} The entries, or an empty list on failure.
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export async function fetchProviderEntries(providerId, query, route, signal) {
 	try {
@@ -206,7 +206,7 @@ export async function fetchProviderEntries(providerId, query, route, signal) {
  * @param {string} [options.route] The current route (defaults to the location's path).
  * @param {AbortSignal} [options.signal] Cancels the requests.
  * @return {Promise<Array<{id: string, name: string, results: Array<object>}>>} The groups.
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export async function searchAll(query, { route = window.location.pathname, signal } = {}) {
 	const providers = orderProviders(await fetchProviders(route, signal))

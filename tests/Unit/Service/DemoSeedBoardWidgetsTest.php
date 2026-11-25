@@ -271,7 +271,7 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
 	 */
 	public function testTheManagementBoardShowsItsConnections(): void {
 		[$card] = self::placementsOf(type: 'connections');
@@ -352,7 +352,7 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	 * Every "Nieuwe collega's" placement lists new colleagues by start date
 	 * (`selectionMode: 'new'`, the spec's default windows), not by account age.
 	 *
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 *
 	 * @return void
 	 */

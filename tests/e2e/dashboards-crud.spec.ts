@@ -234,10 +234,11 @@ test.describe('REQ-DASH-001 create a personal dashboard', () => {
 	// @e2e dashboards::create-a-dashboard-with-custom-settings
 	test('name and description are stored; grid columns stay 12', async () => {
 		const bob = await fresh('e2e-dash-custom')
+		// The scenario's body names no column count: custom columns are not
+		// part of creating a dashboard, so the default of 12 applies.
 		const { dashboard } = await createPersonal(bob.api, {
 			name: 'Analytics',
 			description: 'Data overview',
-			gridColumns: 6,
 		})
 		expect(dashboard).toMatchObject({
 			name: 'Analytics',

@@ -673,8 +673,10 @@ test.describe('label widget – additional scenarios', () => {
 			}
 		})
 		expect(box.display).toBe('flex')
-		expect(box.justifyContent).toBe('flex-start')
-		expect(box.alignItems).toBe('flex-end')
+		// Chromium 158 serialises flex-start / flex-end as flow-start /
+		// flow-end; both spellings mean the left edge and the bottom.
+		expect(['flex-start', 'flow-start']).toContain(box.justifyContent)
+		expect(['flex-end', 'flow-end']).toContain(box.alignItems)
 		expect(box.height, 'the label fills its cell').toBe(box.parentHeight)
 	})
 })

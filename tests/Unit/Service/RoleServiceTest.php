@@ -344,7 +344,7 @@ class RoleServiceTest extends TestCase {
 	/**
 	 * hasGroupRole answers from the mapper's (group, role) lookup.
 	 *
-	 * @spec openspec/changes/e2e-coverage-programme/tasks.md#task-3.5
+	 * @spec openspec/specs/setup-wizard/spec.md#requirement-req-wiz-010-cli-command-for-non-interactive-setup-iac-friendly
 	 */
 	public function testHasGroupRoleReadsTheGroupRow(): void {
 		$this->mapper->method('findGroupRole')->willReturnMap([

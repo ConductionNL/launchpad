@@ -24,7 +24,7 @@ namespace OCA\LaunchPad\Tests\Unit\Command;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\Command\SetupCommand;
-use OCA\LaunchPad\Command\SetupStepServices;
+use OCA\LaunchPad\Command\SetupSteps;
 use OCA\LaunchPad\Db\RoleAssignment;
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\DemoShowcasesService;
@@ -67,7 +67,7 @@ class SetupCommandTest extends TestCase {
 		return new SetupCommand(
 			$this->wizard,
 			$this->settings,
-			new SetupStepServices($this->showcases, $this->roles, $this->footer)
+			new SetupSteps($this->showcases, $this->roles, $this->footer)
 		);
 	}
 
@@ -136,7 +136,7 @@ class SetupCommandTest extends TestCase {
 	/**
 	 * A full config applies Steps 2 to 5 through the wizard's own services.
 	 *
-	 * @spec openspec/changes/e2e-coverage-programme/tasks.md#task-3.5
+	 * @spec openspec/specs/setup-wizard/spec.md#requirement-req-wiz-010-cli-command-for-non-interactive-setup-iac-friendly
 	 */
 	public function testAFullConfigAppliesEveryStep(): void {
 		$this->settings->method('getGroupOrder')->willReturn([]);
@@ -148,7 +148,7 @@ class SetupCommandTest extends TestCase {
 			]);
 		$this->roles->method('hasGroupRole')->with('engineering', RoleAssignment::ROLE_ADMIN)->willReturn(false);
 		$this->roles->expects($this->once())->method('assignRole')
-			->with(null, 'engineering', RoleAssignment::ROLE_ADMIN, SetupCommand::ASSIGNED_BY);
+			->with(null, 'engineering', RoleAssignment::ROLE_ADMIN, SetupSteps::ASSIGNED_BY);
 		$this->footer->method('getGlobalSettings')->willReturn(['footerConfig' => []]);
 		$this->footer->expects($this->once())->method('updateGlobalSettings')
 			->with(['footerConfig' => ['organisation' => 'Gemeente', 'layoutMode' => 'columns']]);
@@ -177,7 +177,7 @@ class SetupCommandTest extends TestCase {
 	/**
 	 * A second run with the same config installs, assigns and stores nothing.
 	 *
-	 * @spec openspec/changes/e2e-coverage-programme/tasks.md#task-3.5
+	 * @spec openspec/specs/setup-wizard/spec.md#requirement-req-wiz-010-cli-command-for-non-interactive-setup-iac-friendly
 	 */
 	public function testARerunSkipsWhatIsAlreadyConfigured(): void {
 		$this->settings->method('getGroupOrder')->willReturn(['a']);
@@ -208,7 +208,7 @@ class SetupCommandTest extends TestCase {
 	 * Steps 3 to 5 refuse values of the wrong shape, and a footer the
 	 * footer service refuses, with "Invalid setup.yaml:" and exit 1.
 	 *
-	 * @spec openspec/changes/e2e-coverage-programme/tasks.md#task-3.5
+	 * @spec openspec/specs/setup-wizard/spec.md#requirement-req-wiz-010-cli-command-for-non-interactive-setup-iac-friendly
 	 */
 	public function testStepsThreeToFiveRefuseInvalidValues(): void {
 		$this->wizard->expects($this->never())->method('markWizardComplete');

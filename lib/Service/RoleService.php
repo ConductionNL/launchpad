@@ -316,7 +316,7 @@ class RoleService {
 	 *
 	 * @return bool True when the (group, role) row exists.
 	 *
-	 * @spec openspec/changes/e2e-coverage-programme/tasks.md#task-3.5
+	 * @spec openspec/specs/setup-wizard/spec.md#requirement-req-wiz-010-cli-command-for-non-interactive-setup-iac-friendly
 	 */
 	public function hasGroupRole(string $groupId, string $role): bool {
 		return $this->mapper->findGroupRole(groupId: $groupId, role: $role) !== null;

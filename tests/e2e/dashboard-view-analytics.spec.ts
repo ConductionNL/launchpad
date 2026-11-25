@@ -1324,7 +1324,11 @@ test.describe.serial('the frontend view-event (REQ-ANLT-011)', () => {
 			const sent = collectViewEvents(context, dashA.uuid)
 			await Promise.all([page.goto(`${APP}/${dashA.slug}`), second.goto(`${APP}/${dashA.slug}`)])
 			await Promise.all([waitForDashboard(page, dashA.uuid), waitForDashboard(second, dashA.uuid)])
-			await page.waitForTimeout(2_000)
+			// The view-event goes out once the page has settled (2.5 s plus
+			// idle, Views.recordViewEventAfterLoad), so wait for the first one,
+			// then give the other tab well past its own settle time.
+			await expect.poll(() => sent.length, { timeout: 10_000 }).toBeGreaterThanOrEqual(1)
+			await page.waitForTimeout(5_000)
 			expect(sent, 'view-event POSTs across both tabs').toHaveLength(1)
 		} finally {
 			await context.close()

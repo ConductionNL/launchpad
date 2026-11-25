@@ -72,6 +72,7 @@ test.afterAll(async () => {
 async function openImageForm(page: Page): Promise<Locator> {
 	const dialog = await openAddWidgetDialog(page)
 	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
+	await dialog.getByText('Web address', { exact: true }).click()
 	await expect(dialog.getByLabel(/image url/i)).toBeVisible({ timeout: 10_000 })
 	return dialog
 }
@@ -103,8 +104,9 @@ test.describe('REQ-IMG-020: the Image content form', () => {
 
 		const dialog = await openImageForm(page)
 		await dialog.getByLabel(/image url/i).fill(LOGO)
-		// The source is complete; only the alternative text is missing.
-		await expect(dialog.locator('img[src*="/core/img/logo/"]').first()).toBeVisible({ timeout: 10_000 })
+		// The source is complete; only the alternative text is missing. (The
+		// drawn form shows a preview for a chosen file, not for a web address.)
+		await expect(dialog.getByLabel(/image url/i)).toHaveValue(LOGO)
 
 		const save = dialog.getByTestId('add-widget-save')
 		await expect(save, 'the form must refuse an image without alternative text').toBeDisabled({ timeout: 5_000 })

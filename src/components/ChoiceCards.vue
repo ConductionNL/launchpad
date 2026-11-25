@@ -45,7 +45,7 @@ let choiceCardsCounter = 0
  * the keyboard and the accessible names: each card is a radio named by its
  * title and line, the group a radiogroup named by its label.
  *
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
  */
 export default {
 	name: 'ChoiceCards',

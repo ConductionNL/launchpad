@@ -136,23 +136,23 @@ export default {
 		 * tile the tile form can edit, when the dashboard offers the form.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		showsTileEdit() {
 			return this.editMode && this.canEditTile && isGroupTileChild(this.placement)
 		},
 
-		/** @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
+		/** @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
 		tileMenuLabel() {
 			return t('launchpad', 'Tile menu')
 		},
 
-		/** @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
+		/** @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
 		editTileLabel() {
 			return t('launchpad', 'Edit tile')
 		},
 
-		/** @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
+		/** @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
 		deleteTileLabel() {
 			return t('launchpad', 'Delete tile')
 		},

@@ -4,7 +4,7 @@
  *
  * The line under the tile form's Check availability switch (REQ-TILE-042).
  *
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
  */
 
 import { describe, expect, it } from 'vitest'

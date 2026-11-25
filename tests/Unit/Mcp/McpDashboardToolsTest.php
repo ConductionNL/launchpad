@@ -326,9 +326,12 @@ class McpDashboardToolsTest extends TestCase {
 	}//end testListGroupDashboardsRefusedActionChecksNoMembership()
 
 	/**
-	 * A member sees the group's dashboards as a viewer: owner and group fields stripped.
+	 * A member sees the group's dashboards as a viewer: the owner is stripped,
+	 * the groupId stays (REQ-DASH-014: every group-shared payload carries it).
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-014-group-shared-dashboard-mutation-endpoints
 	 */
 	public function testListGroupDashboardsAsAViewer(): void {
 		$this->gate->expects($this->once())->method('requireAction')->with('dashboard.list-group')->willReturn(null);
@@ -344,7 +347,7 @@ class McpDashboardToolsTest extends TestCase {
 		$this->assertSame([8, 9], array_column($items, 'id'));
 		foreach ($items as $item) {
 			$this->assertArrayNotHasKey('userId', $item);
-			$this->assertArrayNotHasKey('groupId', $item);
+			$this->assertSame(expected: 'sales', actual: $item['groupId']);
 		}
 	}//end testListGroupDashboardsAsAViewer()
 }//end class

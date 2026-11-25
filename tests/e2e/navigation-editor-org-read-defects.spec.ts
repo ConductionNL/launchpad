@@ -112,7 +112,8 @@ async function openEditor(page: Page): Promise<void> {
 	const loaded = page.waitForResponse(
 		(r) =>
 			r.request().method() === 'GET'
-			&& /\/api\/admin\/org-navigation\?/.test(r.url()),
+			// The editor reads its whole-tree copy (REQ-ONAV-007).
+			&& /\/api\/admin\/org-navigation\/editor\?/.test(r.url()),
 		{ timeout: 30_000 },
 	)
 	await page.goto(SETTINGS)

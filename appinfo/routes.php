@@ -753,6 +753,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'url' => '/api/admin/org-navigation/position', 'verb' => 'GET'],
 		['name' => 'adminOrgNavigation#updatePosition',
 		 'url' => '/api/admin/org-navigation/position', 'verb' => 'PUT'],
+		['name' => 'adminOrgNavigation#getEditableOrgNavigation',
+		 'url' => '/api/admin/org-navigation/editor', 'verb' => 'GET'],
 		['name' => 'adminOrgNavigation#getOrgNavigation',
 		 'url' => '/api/admin/org-navigation', 'verb' => 'GET'],
 		['name' => 'adminOrgNavigation#updateOrgNavigation',

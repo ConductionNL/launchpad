@@ -106,6 +106,11 @@ describe('WidgetRenderer dispatch computeds', () => {
 		}
 	})
 
+	it('tells a group when the dashboard is in edit mode, so its tiles offer their menu', () => {
+		expect(computed.rendererProps.call({ placement: { widgetId: 'container' }, editMode: true })).toEqual({ editMode: true })
+		expect(computed.rendererProps.call({ placement: { widgetId: 'container' }, editMode: false })).toEqual({ editMode: false })
+	})
+
 	it('treats a tile- widget id or a tileType as a tile', () => {
 		expect(computed.isTileWidget.call({ placement: { widgetId: 'tile-3' } })).toBe(true)
 		expect(computed.isTileWidget.call({ placement: { widgetId: 'mydash-tile', tileType: 'link' } })).toBe(true)

@@ -101,7 +101,10 @@ test.describe('REQ-HDR-008 text rendering and styling', () => {
 		const content = b.locator('.cn-header-widget__content')
 
 		const display = await cssOf(content, 'display')
-		const justify = await cssOf(content, 'justify-content')
+		// CnHeaderWidget writes justify-content: flex-start inline; the sandbox's
+		// Chromium reports that as "flow-start". Any start value means "top";
+		// the boxes below check where the text really is.
+		const justify = (await cssOf(content, 'justify-content')).replace(/^(flow-start|start)$/, 'flex-start')
 		const position = await cssOf(b.locator('h2'), 'position')
 		expect(
 			(display === 'flex' && justify === 'flex-start') || position === 'absolute',

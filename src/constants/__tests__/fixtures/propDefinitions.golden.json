@@ -2386,6 +2386,13 @@
 		"validator": false,
 		"default": false
 	},
+	"../../modals/TileEditor.vue | groups": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../modals/VisibilityRulesModal.vue | placementId": {
 		"type": [
 			"Number",

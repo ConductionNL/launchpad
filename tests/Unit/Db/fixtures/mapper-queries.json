@@ -2105,6 +2105,10 @@
                 "qb1.createNamedParameter(\"admin_template\", 2, null)",
                 "qb1.expr.eq(\"type\", \":p3\", null)",
                 "qb1.where(\"eq(\\\"type\\\", \\\":p3\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(1, 1, null)",
+                "qb1.expr.eq(\"is_default\", \":p4\", null)",
+                "qb1.andWhere(\"eq(\\\"is_default\\\", \\\":p4\\\", null)\")",
                 "qb1.executeStatement(null)"
             ],
             "outcome": "returned null"
@@ -2121,6 +2125,10 @@
                 "qb1.createNamedParameter(\"admin_template\", 2, null)",
                 "qb1.expr.eq(\"type\", \":p3\", null)",
                 "qb1.where(\"eq(\\\"type\\\", \\\":p3\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(1, 1, null)",
+                "qb1.expr.eq(\"is_default\", \":p4\", null)",
+                "qb1.andWhere(\"eq(\\\"is_default\\\", \\\":p4\\\", null)\")",
                 "qb1.executeStatement(null)"
             ],
             "outcome": "returned null"

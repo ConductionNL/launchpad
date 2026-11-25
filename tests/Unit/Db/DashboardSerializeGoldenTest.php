@@ -65,7 +65,7 @@ class DashboardSerializeGoldenTest extends TestCase {
 		$data = self::dashboard()->toViewerArray();
 		$this->assertArrayNotHasKey('userId', $data);
 		$this->assertArrayNotHasKey('templateCategory', $data);
-		$this->assertCount(expectedCount: 33, haystack: $data);
+		$this->assertCount(expectedCount: 34, haystack: $data);
 		$this->assertArrayHasKey('defaultLinkTarget', $data);
 		$this->assertSame(expected: [], actual: $data['hierarchies']);
 	}
@@ -81,5 +81,27 @@ class DashboardSerializeGoldenTest extends TestCase {
 		$this->assertSame('#12301f', $data['themeBackgroundColor']);
 		$this->assertSame('resource_abc.png', $data['themeBackgroundResource']);
 		$this->assertSame('#ffffff', $data['themeTextColor'], 'a dark green background gets white text (REQ-THM-002)');
+	}
+
+	/**
+	 * A group-shared dashboard keeps its groupId in the viewer view, a
+	 * personal one carries groupId null (REQ-DASH-014, "Group-shared
+	 * dashboard serialisation includes groupId").
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-014-group-shared-dashboard-mutation-endpoints
+	 */
+	public function testTheViewerViewKeepsTheGroupId(): void {
+		$shared = self::dashboard();
+		// Entity setters take positional arguments (Entity::__call reads $args[0]).
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$shared->setType('group_shared');
+		$shared->setGroupId('marketing');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$this->assertSame(expected: 'marketing', actual: $shared->toViewerArray()['groupId']);
+		$this->assertArrayHasKey(key: 'groupId', array: self::dashboard()->toViewerArray());
+		$this->assertNull(actual: self::dashboard()->toViewerArray()['groupId']);
 	}
 }

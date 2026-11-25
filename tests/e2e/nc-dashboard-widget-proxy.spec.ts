@@ -272,12 +272,12 @@ test.describe('nc-dashboard-widget-proxy — the Nextcloud widget picker', () =>
 	})
 
 	/*
-	 * Expected RED against nextcloud-vue 2.182.0: `CnNcWidgetGridPicker`
-	 * computes each card's tabindex from the SELECTED index only
-	 * (`cardTabIndex()`); the `focusedIndex` that ArrowRight updates is never
-	 * read. With nothing selected the first card keeps tabindex 0 after the
-	 * arrow, so the roving-tabindex assertion below fails. That is a product
-	 * defect against REQ-NCDP-PICKER, not a test to weaken.
+	 * Expected GREEN against the nextcloud-vue the lock pins (2.218.0).
+	 * Against 2.182.0 this went red: `CnNcWidgetGridPicker` computed each
+	 * card's tabindex from the SELECTED index only, so with nothing selected
+	 * the first card kept tabindex 0 after ArrowRight. `cardTabIndex()` now
+	 * reads `focusedIndex` first. A red here is a regression of that fix, not
+	 * a known defect: do not weaken the roving-tabindex assertion.
 	 */
 	// @e2e nc-dashboard-widget-proxy::keyboard-navigation-works
 	test('REQ-NCDP-PICKER: Tab enters the grid, ArrowRight moves focus and the roving tabindex, Enter selects', async ({

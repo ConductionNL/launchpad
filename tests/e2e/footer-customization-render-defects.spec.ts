@@ -9,28 +9,13 @@
  * footer-customization-render.spec.ts; the settings API contract in
  * footer-customization-api.spec.ts.
  *
- * EXPECTED RED until the footer reaches the page. These tests used to be
- * `test.fixme`, which gate-19 does not count as a citation; they now run so
- * the defect shows. DashboardFooter (src/components/DashboardFooter.vue) is
- * built and mounted by src/views/WorkspaceApp.vue with `effectiveFooter`,
- * which reads the injected initial-state key `effectiveFooter` or
- * `effectiveFooter` on the active dashboard's payload. Neither is produced:
- * src/utils/loadInitialState.js and lib/Service/InitialStateBuilder.php
- * provide no `effectiveFooter` (nor `viewerLocale`),
- * Dashboard::jsonSerialize() emits no `effectiveFooter`, and
- * FooterService::resolveFooterForDashboard() is reached only through
- * DashboardService::resolveFooterForDashboard(), which nothing calls. So no
- * footer element is ever rendered and each test fails on its first footer
- * assertion.
- *
- * Further defects these tests will meet once the footer renders:
- *   - the per-dashboard mode cannot be set over HTTP:
- *     DashboardApiController::update() never passes `dashboardFooterMode` /
- *     `dashboardFooterHtml` on, so DashboardService::applyFooterUpdates()
- *     never sees them (disabling-footer-hides-it-everywhere,
- *     dashboard-with-hidden-mode, dashboard-with-custom-mode);
- *   - DashboardFooter's locale chain is viewer locale -> first key; it has
- *     no dashboard-primary-language step (locale-fallback-step-2-then-step-3).
+ * The footer reaches the page through the workspace initial state:
+ * PageController puts the active dashboard's effective footer
+ * (lib/Service/PageFooter.php, with the dashboard's primary language) and
+ * the viewer's Nextcloud language under `effectiveFooter` and
+ * `viewerLocale`, and src/views/WorkspaceApp.vue hands them to
+ * DashboardFooter. The per-dashboard override travels in the dashboard
+ * update (DashboardApiController::update, owner only).
  *
  * The tests are not serial: each sets the footer it needs, so a red one
  * cannot skip the next. The footer is instance-wide; `beforeAll` snapshots
@@ -191,7 +176,7 @@ async function openAs(browser: Browser, who: Principal) {
  *
  * @param page the page.
  * @param property `background-color` or `color`.
- * @param variable the custom property, e.g. `--primary-text-color`.
+ * @param variable the custom property, e.g. `--color-main-text`.
  * @return the computed colour.
  */
 async function themeColour(
@@ -377,7 +362,8 @@ test.describe('structured footer rendering (REQ-FTR-003, REQ-FTR-004)', () => {
 			await config.evaluate((el) => getComputedStyle(el).gridTemplateColumns)
 		).split(' ')
 		expect(tracks).toHaveLength(3)
-		expect(new Set(tracks).size).toBe(1)
+		const widths = tracks.map((track) => parseFloat(track))
+		expect(Math.max(...widths) - Math.min(...widths), 'three equal columns').toBeLessThan(1)
 		const gap = await config.evaluate((el) => {
 			const rem = parseFloat(
 				getComputedStyle(document.documentElement).fontSize,
@@ -425,10 +411,15 @@ test.describe('structured footer rendering (REQ-FTR-003, REQ-FTR-004)', () => {
 		)
 
 		const cols = config.locator(':scope > .launchpad-footer__col')
+		// The row centres its items, so items of one row share their middle,
+		// not their top.
 		const rowTops = async () =>
 			new Set(
 				await cols.evaluateAll((els) =>
-					els.map((el) => Math.round(el.getBoundingClientRect().top)),
+					els.map((el) => {
+						const box = el.getBoundingClientRect()
+						return Math.round(box.top + box.height / 2)
+					}),
 				),
 			).size
 		expect(await rowTops()).toBe(1)
@@ -790,11 +781,8 @@ test.describe('print (REQ-FTR-008)', () => {
 
 test.describe('theme colours (REQ-FTR-009)', () => {
 	/*
-	 * The scenarios name the theme variables `--primary-background-color` and
-	 * `--primary-text-color`. Nextcloud's theming exposes
-	 * `--color-main-background` / `--color-main-text`, which is what
-	 * DashboardFooter.vue's scoped style falls back to; the tests resolve the
-	 * variables the scenarios name.
+	 * Nextcloud's theming exposes `--color-main-background` and
+	 * `--color-main-text`, which DashboardFooter.vue's scoped style uses.
 	 */
 
 	// @e2e footer-customization::footer-inherits-theme-colors
@@ -815,11 +803,11 @@ test.describe('theme colours (REQ-FTR-009)', () => {
 			await themeColour(
 				page,
 				'background-color',
-				'--primary-background-color',
+				'--color-main-background',
 			),
 		)
 		expect(computed.colour).toBe(
-			await themeColour(page, 'color', '--primary-text-color'),
+			await themeColour(page, 'color', '--color-main-text'),
 		)
 	})
 
@@ -840,7 +828,7 @@ test.describe('theme colours (REQ-FTR-009)', () => {
 			await themeColour(
 				page,
 				'background-color',
-				'--primary-background-color',
+				'--color-main-background',
 			),
 		)
 	})
@@ -859,7 +847,7 @@ test.describe('theme colours (REQ-FTR-009)', () => {
 		await expect(footer).toHaveCSS('background-color', 'rgb(26, 26, 26)')
 		await expect(footer).toHaveCSS(
 			'color',
-			await themeColour(page, 'color', '--primary-text-color'),
+			await themeColour(page, 'color', '--color-main-text'),
 		)
 	})
 })

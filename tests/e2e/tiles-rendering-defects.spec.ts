@@ -14,7 +14,9 @@
  * EXPECTED RED until the product or the scenario changes:
  *   - edit-button-visible-in-edit-mode: the top-right control is the shared
  *     CnWidgetEditCog, whose button is labelled "Tile menu"; "Edit tile" is
- *     the item in the menu it opens (src/components/TileWidget.vue).
+ *     the item in the menu it opens (src/components/TileWidget.vue). The test
+ *     also requires the `aria-label` attribute itself, which the scenario's
+ *     AND clause names, not only an accessible name that reads "Edit tile".
  *   - tile-editor: TileEditor has no icon-type field; it derives `iconType`
  *     from the chosen icon (src/modals/TileEditor.vue). The save itself goes
  *     to `PUT /api/widgets/{placementId}`, which this test asserts.
@@ -128,6 +130,10 @@ test('in edit mode a settings button labelled "Edit tile" sits at the top-right 
 		const t = tile(page, EMOJI)
 		const button = t.getByRole('button', { name: 'Edit tile', exact: true })
 		await expect(button).toBeVisible()
+		// The AND clause names the attribute, not the accessible name: a
+		// button whose visible text or title reads "Edit tile" would satisfy
+		// getByRole above without carrying aria-label="Edit tile".
+		await expect(button).toHaveAttribute('aria-label', 'Edit tile')
 		const tileBox = await t.boundingBox()
 		const box = await button.boundingBox()
 		expect(

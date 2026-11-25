@@ -25,6 +25,7 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Service\DashboardTranslationService;
+use OCP\L10N\IFactory;
 
 /**
  * The dashboard lookup and the translation service of the translation API.
@@ -38,10 +39,13 @@ class TranslationSources {
 	 * @param DashboardMapper             $dashboardMapper Dashboard mapper (used for the ownership check before
 	 *                                                     any translation mutation).
 	 * @param DashboardTranslationService $translationService Translation service.
+	 * @param IFactory|null               $l10nFactory        The reader's Nextcloud language, which picks the
+	 *                                                        variant without `?lang=` (REQ-DASH-039).
 	 */
 	public function __construct(
 		public readonly DashboardMapper $dashboardMapper,
 		public readonly DashboardTranslationService $translationService,
+		public readonly ?IFactory $l10nFactory=null,
 	) {
 	}//end __construct()
 }//end class

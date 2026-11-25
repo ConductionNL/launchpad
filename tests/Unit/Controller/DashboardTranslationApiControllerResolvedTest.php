@@ -24,6 +24,7 @@ use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
+use OCP\L10N\IFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
@@ -95,7 +96,7 @@ class DashboardTranslationApiControllerResolvedTest extends TestCase {
 	 *
 	 * @return DashboardTranslationApiController
 	 */
-	private function controller(): DashboardTranslationApiController {
+	private function controller(?IFactory $l10n=null): DashboardTranslationApiController {
 		$user = $this->createMock(IUser::class);
 		$user->method('getUID')->willReturn('alice');
 		$session = $this->createMock(IUserSession::class);
@@ -103,7 +104,7 @@ class DashboardTranslationApiControllerResolvedTest extends TestCase {
 
 		return new DashboardTranslationApiController(
 			request: $this->request,
-			translations: new TranslationSources(dashboardMapper: $this->dashboards, translationService: $this->translations),
+			translations: new TranslationSources(dashboardMapper: $this->dashboards, translationService: $this->translations, l10nFactory: $l10n),
 			caller: new ActionCaller(actionAuth: $this->createMock(ActionAuthService::class), userSession: $session),
 			context: new UserResponses(userId: 'alice', responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
@@ -152,6 +153,22 @@ class DashboardTranslationApiControllerResolvedTest extends TestCase {
 		self::assertFalse($data['isFallback']);
 		self::assertSame('Intranet', $data['dashboard']['name']);
 	}//end testWithoutALanguageTheLocaleVariantIsShown()
+
+	/**
+	 * REQ-DASH-039: without `?lang=` the reader's Nextcloud language picks the variant.
+	 *
+	 * @return void
+	 */
+	public function testWithoutALanguageTheReadersNextcloudLanguagePicks(): void {
+		$this->request->method('getParam')->with('lang')->willReturn(null);
+		$l10n = $this->createMock(originalClassName: IFactory::class);
+		$l10n->method('getUserLanguage')->willReturn('nl');
+		$this->translations->expects(self::once())->method('resolveForLocale')->with('uuid-a', 'nl')
+			->willReturn(['translation' => self::variant(code: 'nl'), 'isFallback' => false]);
+		$this->translations->method('listAvailableLanguages')->willReturn(['nl', 'en']);
+
+		self::assertSame(expected: 'nl', actual: $this->controller(l10n: $l10n)->resolved(uuid: 'uuid-a')->getData()['currentLanguage']);
+	}//end testWithoutALanguageTheReadersNextcloudLanguagePicks()
 
 	/**
 	 * A dashboard without variants is shown through its materialised legacy variant,

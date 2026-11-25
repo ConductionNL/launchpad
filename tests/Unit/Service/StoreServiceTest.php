@@ -329,6 +329,28 @@ class StoreServiceTest extends TestCase {
 	}//end testInstallIsAdditiveRatherThanReplacing()
 
 	/**
+	 * REQ-STORE-011: an install reports the version it installed and the
+	 * dashboards it created, for the install record.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
+	 */
+	public function testAnInstallReportsWhatItCreated(): void {
+		$this->importService->method('import')->willReturn(
+			[
+				'status' => 'ok', 'importedDashboardCount' => 1, 'skippedDashboardCount' => 0, 'errors' => [], 'manifest' => [],
+				'dashboards' => [['sourceUuid' => 'a', 'uuid' => 'b', 'id' => '41']],
+			]
+		);
+
+		$result = $this->serviceResolving(item: self::ITEM + ['version' => '2.3.0'])->install(slug: 'sales-overview', userId: 'alice');
+
+		$this->assertSame(expected: '2.3.0', actual: $result['version']);
+		$this->assertSame(expected: [41], actual: $result['dashboardIds']);
+	}//end testAnInstallReportsWhatItCreated()
+
+	/**
 	 * REQ-STORE-005: a failing import leaves no archive behind.
 	 *
 	 * @return void

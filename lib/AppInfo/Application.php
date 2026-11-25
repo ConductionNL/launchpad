@@ -38,6 +38,7 @@ use OCA\LaunchPad\Listener\ReactionsListener;
 use OCA\LaunchPad\Listener\TranslationsListener;
 use OCA\LaunchPad\Listener\TreeListener;
 use OCA\LaunchPad\Listener\LeaverHandoverListener;
+use OCA\LaunchPad\Listener\StoreInstallsListener;
 use OCA\LaunchPad\Listener\UserDeletedListener;
 use OCA\LaunchPad\Listener\VersionsListener;
 use OCA\LaunchPad\Listener\ViewAnalyticsListener;
@@ -268,6 +269,11 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(
 			event: DashboardDeletedEvent::class,
 			listener: LocksListener::class
+		);
+		// REQ-STORE-011: a deleted dashboard's marketplace install is forgotten.
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: StoreInstallsListener::class
 		);
 		$context->registerEventListener(
 			event: DashboardDeletedEvent::class,

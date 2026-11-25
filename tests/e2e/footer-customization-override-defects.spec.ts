@@ -7,17 +7,11 @@
  * REQ-FTR-006). The read side and the rest of the API contract live in
  * footer-customization-api.spec.ts.
  *
- * EXPECTED RED until the update endpoint passes the footer fields on. These
- * tests used to be `test.fixme`, which gate-19 does not count as a citation;
- * they now run so the defect shows. DashboardApiController::update()
- * (lib/Controller/DashboardApiController.php) builds its patch from name,
- * description, placements, icon, parentUuid, slug, sortOrder,
- * defaultLinkTarget, hierarchies and the look fields only. It never reads
- * `dashboardFooterMode` or `dashboardFooterHtml`, so
- * DashboardService::applyFooterUpdates(), which holds the 400 and the
- * clear-on-inherit rule, never sees them: a PUT that sets a footer mode
- * answers 200 and changes nothing. The scenarios say `{uuid}`; the real route
- * is `PUT /api/dashboard/{id}` with the numeric id.
+ * DashboardApiController::update() passes `dashboardFooterMode` and
+ * `dashboardFooterHtml` on to DashboardService::applyFooterUpdates(), which
+ * holds the 400 and the clear-on-inherit rule; the fields count as the
+ * owner's metadata, so a view-only recipient is refused. The scenarios say
+ * `{uuid}`; the real route is `PUT /api/dashboard/{id}` with the numeric id.
  *
  * The tests are not serial, so a red one cannot skip the next. `beforeAll`
  * snapshots the five footer keys and the personal-dashboard flags;

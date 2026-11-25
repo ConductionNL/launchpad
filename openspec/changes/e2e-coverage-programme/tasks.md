@@ -246,9 +246,10 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.11 `menu-widget`: 37 scenarios, 0 cited.
   - Spec written: `tests/e2e/menu-widget.spec.ts`, `menu-widget-styles.spec.ts`, `menu-widget-links.spec.ts`; 2 scenarios excluded with reasons, 35 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 37 scenarios, 35 cited, 2 excluded, 0 uncited (gate-19 report mode). All three files listed by `playwright test --list` (35 tests), not yet run.
-- [ ] 4.12 `quicklinks-widget`: 36 scenarios, 0 cited.
+- [x] 4.12 `quicklinks-widget`: 36 scenarios, 0 cited.
   - Spec written: `tests/e2e/quicklinks-widget.spec.ts`, `quicklinks-widget-interaction.spec.ts`, `quicklinks-widget-form.spec.ts`; 0 scenarios excluded, 36 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 36 scenarios, 36 cited, 0 excluded, 0 uncited (gate-19 report mode). All three files listed by `playwright test --list` (35 tests), not yet run.
+  - Done 25 Nov 2026: `quicklinks-widget.spec.ts`, `quicklinks-widget-interaction.spec.ts`, `quicklinks-widget-form.spec.ts` 35/35 green live on a sandbox Nextcloud 34.0.6 + MariaDB + Redis (development 8856e82), as written.
 - [ ] 4.13 `divider-widget`: 29 scenarios, 3 cited.
   - Spec written: tests/e2e/divider-widget.spec.ts, 24 scenarios cited, not yet run (cloud, 2026-11-19), 2 excluded with a reason
   - Recount (cloud, 2026-11-24): 29 scenarios, 27 cited, 2 excluded, 0 uncited (gate-19 report mode). The spec was kept current by the widget-picker changes (a58030e7, 907dd48e, 22 Nov). Listed by `playwright test --list`, not yet run.
@@ -285,10 +286,11 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [x] 4.23 `container-widget`: 8 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/container-widget.spec.ts, tests/e2e/container-tile-sorting.spec.ts, 11 scenarios cited, not yet run (cloud, 2026-11-19), 1 excluded with a reason
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): container-widget 7 of 7 and container-tile-sorting 6 of 6 green.
-- [ ] 4.24 `nc-dashboard-widget-proxy`: 4 scenarios, 0 cited, blanket.
+- [x] 4.24 `nc-dashboard-widget-proxy`: 4 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/nc-dashboard-widget-proxy.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 4 scenarios, 4 cited, 0 excluded, 0 uncited. Spec updated with the picker changes of 907dd48e; listed by `playwright test --list`, not yet run.
   - Spec written: `tests/e2e/nc-dashboard-widget-proxy.spec.ts` (the "expected RED" note on `keyboard-navigation-works` was stale: nextcloud-vue 2.218.0, the version the lock pins, reads `focusedIndex` in `cardTabIndex()`, so the roving-tabindex assertion should now pass and a red is a regression), 4 scenarios cited, 0 excluded, 0 uncited, listed by `playwright test --list`, not yet run (cloud, 2026-11-25)
+  - Done 25 Nov 2026: `nc-dashboard-widget-proxy.spec.ts` 4/4 green live on a sandbox Nextcloud 34.0.6 + MariaDB + Redis (development 8856e82), as written; keyboard-navigation-works passes on nextcloud-vue 2.230.0.
 
 ## 5. Tier 4, admin, operations and integrations
 
@@ -328,9 +330,10 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [x] 5.9 `infrastructure-helpers`: 17 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/infrastructure-helpers.spec.ts, 14 scenarios cited, 3 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 14 of 14 green.
-- [ ] 5.10 `service-health-ping`: 15 scenarios, 0 cited.
+- [x] 5.10 `service-health-ping`: 15 scenarios, 0 cited.
   - Spec written: tests/e2e/service-health-ping.spec.ts, 14 scenarios cited, not yet run (cloud, 2026-11-19), 1 excluded with reasons
   - Spec written: tests/e2e/service-health-ping.spec.ts, the last scenario (background refresh) now cited by running HealthPingRefreshJob through occ, 0 excluded, not yet run (cloud, 2026-11-24)
+  - Done 25 Nov 2026: `service-health-ping.spec.ts` 15/15 green live on a sandbox Nextcloud 34.0.6 + MariaDB + Redis. The spec looked for "Show a live status badge (health ping)"; the tile form (REQ-TILE-040) names it the "Check availability" switch, so the editor helper now finds that switch (spec to the board, no app change).
 - [x] 5.11 `initial-state-contract`: 11 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/initial-state-contract.spec.ts, 2 scenarios cited, 9 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 4 of 4 green.

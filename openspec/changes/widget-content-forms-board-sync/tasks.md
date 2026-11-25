@@ -5,4 +5,4 @@
 - [x] Calendar form: calendars, external ICS address, 7 days or month
 - [x] Translations in every shipped locale
 - [x] Unit tests per form: required fields, preview follows the fields
-- [ ] Playwright: configure the KCC waiting time live tile
+- [ ] Playwright: configure the KCC waiting time live tile (written in tests/e2e/widget-content-forms.spec.ts, runs in nightly)

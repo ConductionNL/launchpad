@@ -1679,7 +1679,14 @@ OC.L10N.register(
     "Only for people who may share dashboards. A link always has an expiry date." : "Csak azoknak, akik megoszthatnak irányítópultokat. A hivatkozásnak mindig van lejárati dátuma.",
     "Expiry date (required)" : "Lejárati dátum (kötelező)",
     "Your administrator does not allow you to share dashboards." : "A rendszergazda nem engedélyezi, hogy irányítópultokat ossz meg.",
-    "Public links are switched off." : "A nyilvános hivatkozások ki vannak kapcsolva."
+    "Public links are switched off." : "A nyilvános hivatkozások ki vannak kapcsolva.",
+    "Clean up" : "Takarítás",
+    "Dashboards of people who left go to" : "A távozók irányítópultjai ide kerülnek:",
+    "Their manager" : "A vezetőjükhöz",
+    "Otherwise" : "Különben",
+    "A person" : "Egy személy",
+    "Search for a person" : "Személy keresése",
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Választás nélkül az irányítópult valakihez kerül, akinek teljes jogai vannak rá, vagy törlődik. A megosztások maradnak."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -17,6 +17,8 @@
  *   @e2e dashboard-sharing::nobody-may-share
  *   @e2e dashboard-sharing::a-public-link-needs-an-expiry-date
  *   @e2e dashboard-sharing::public-links-off
+ *   @e2e dashboard-sharing::pieter-leaves
+ *   @e2e dashboard-sharing::no-manager
  *
  * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md
  */
@@ -25,6 +27,7 @@ import type { APIRequestContext } from '@playwright/test'
 import type { Principal } from './support/principals.ts'
 
 import { expect, request, test } from '@playwright/test'
+import { visibleDashboards } from './support/adminTemplates.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import {
 	adminContext,
@@ -148,4 +151,58 @@ test('with public links off no link is created, and a link made before keeps wor
 	const data = await anon.get(`/index.php/apps/launchpad/s/${token}/data`)
 	expect(data.status(), 'the earlier link still opens').toBe(200)
 	await anon.dispose()
+})
+
+/** Make `boss` the manager of `who` through the provisioning API. */
+async function setManager(who: Principal, boss: Principal): Promise<void> {
+	const res = await admin.put(`/ocs/v1.php/cloud/users/${encodeURIComponent(who.username)}`, {
+		form: { key: 'manager', value: boss.username },
+		headers: { 'OCS-APIRequest': 'true' },
+	})
+	expect(res.ok(), `setting the manager answered ${res.status()}`).toBe(true)
+}
+
+/** A dashboard of `who` named `name`; answers its uuid. */
+async function ownDashboard(who: Principal, name: string): Promise<string> {
+	const res = await who.api.post(`${API}/dashboard`, { data: { name } })
+	expect(res.status(), await res.text()).toBeLessThan(300)
+	return String((await res.json()).dashboard.uuid)
+}
+
+/**
+ * The uuids of the dashboards `who` can see; the leaver's dashboards were not
+ * shared, so seeing one means owning it.
+ */
+async function visibleUuids(who: Principal): Promise<string[]> {
+	return (await visibleDashboards(who.api)).map((row) => String(row.uuid))
+}
+
+// @e2e dashboard-sharing::pieter-leaves
+// @e2e dashboard-sharing::no-manager
+test('a leaver\'s dashboard goes to their manager, otherwise to the named person', async () => {
+	const marieke = await createPrincipal(admin, 'e2e-policy-marieke')
+	const femke = await createPrincipal(admin, 'e2e-policy-femke')
+	const leaver = await createPrincipal(admin, 'e2e-policy-leaver')
+	const sanne = await createPrincipal(admin, 'e2e-policy-sanne')
+	try {
+		await setManager(leaver, marieke)
+		const leaverBoard = await ownDashboard(leaver, `E2E Leaver ${RUN}`)
+		const sanneBoard = await ownDashboard(sanne, `E2E No manager ${RUN}`)
+		const set = await admin.put(`${API}/admin/sharing-policy`, {
+			data: { leaverHandover: { manager: true, fallbackUid: femke.username } },
+		})
+		expect(set.status(), await set.text()).toBe(200)
+
+		await removePrincipal(admin, leaver)
+		await removePrincipal(admin, sanne)
+
+		expect(await visibleUuids(marieke)).toContain(leaverBoard)
+		expect(await visibleUuids(femke)).toContain(sanneBoard)
+	} finally {
+		await admin.put(`${API}/admin/sharing-policy`, {
+			data: { leaverHandover: { manager: false, fallbackUid: '' } },
+		})
+		await removePrincipal(admin, marieke)
+		await removePrincipal(admin, femke)
+	}
 })

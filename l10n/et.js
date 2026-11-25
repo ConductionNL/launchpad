@@ -1679,7 +1679,14 @@ OC.L10N.register(
     "Only for people who may share dashboards. A link always has an expiry date." : "Ainult neile, kes tohivad töölaudu jagada. Lingil on alati aegumiskuupäev.",
     "Expiry date (required)" : "Aegumiskuupäev (kohustuslik)",
     "Your administrator does not allow you to share dashboards." : "Teie administraator ei luba teil töölaudu jagada.",
-    "Public links are switched off." : "Avalikud lingid on välja lülitatud."
+    "Public links are switched off." : "Avalikud lingid on välja lülitatud.",
+    "Clean up" : "Korrastamine",
+    "Dashboards of people who left go to" : "Lahkunute töölauad lähevad",
+    "Their manager" : "Nende juhile",
+    "Otherwise" : "Muidu",
+    "A person" : "Isik",
+    "Search for a person" : "Otsi isikut",
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Valikuta läheb töölaud kellelegi, kellel on sellele täielikud õigused, või see kustutatakse. Jagamised jäävad."
 },
 "nplurals=2; plural=(n != 1);"
 );

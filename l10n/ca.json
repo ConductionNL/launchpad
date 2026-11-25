@@ -1579,6 +1579,13 @@
         "Only for people who may share dashboards. A link always has an expiry date.": "Només per a qui pot compartir taulers. Un enllaç sempre té data de caducitat.",
         "Expiry date (required)": "Data de caducitat (obligatòria)",
         "Your administrator does not allow you to share dashboards.": "El vostre administrador no us permet compartir taulers.",
-        "Public links are switched off.": "Els enllaços públics estan desactivats."
+        "Public links are switched off.": "Els enllaços públics estan desactivats.",
+        "Clean up": "Neteja",
+        "Dashboards of people who left go to": "Els taulers de qui ha marxat van a",
+        "Their manager": "El seu responsable",
+        "Otherwise": "Si no",
+        "A person": "Una persona",
+        "Search for a person": "Cerca una persona",
+        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Sense elecció, un tauler va a algú amb tots els drets sobre ell, o s'elimina. Les comparticions es mantenen."
     }
 }

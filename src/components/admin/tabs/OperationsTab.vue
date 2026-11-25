@@ -29,6 +29,10 @@
 		<div class="operations-tab__section">
 			<ConfluenceImport />
 		</div>
+		<!-- REQ-SHARE-016 (board LpBeheerOnderhoud): the Clean up block. -->
+		<div class="operations-tab__section">
+			<LeaverHandoverSettings />
+		</div>
 	</div>
 </template>
 
@@ -39,6 +43,7 @@ import DashboardExportImport from '../DashboardExportImport.vue'
 import EmbedTelemetryToggle from '../EmbedTelemetryToggle.vue'
 import HealthPanel from '../HealthPanel.vue'
 import ImageHostSettings from '../ImageHostSettings.vue'
+import LeaverHandoverSettings from '../LeaverHandoverSettings.vue'
 import LegacyWidgetBridgeToggle from '../LegacyWidgetBridgeToggle.vue'
 import PrometheusMetricsPanel from '../PrometheusMetricsPanel.vue'
 
@@ -62,6 +67,7 @@ export default {
 		DashboardExportImport,
 		DashboardBulkOperations,
 		ConfluenceImport,
+		LeaverHandoverSettings,
 	},
 }
 </script>

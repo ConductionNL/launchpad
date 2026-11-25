@@ -1581,6 +1581,13 @@
         "Only for people who may share dashboards. A link always has an expiry date.": "Tikai tiem, kam atļauts kopīgot informācijas paneļus. Saitei vienmēr ir derīguma termiņš.",
         "Expiry date (required)": "Derīguma termiņš (obligāts)",
         "Your administrator does not allow you to share dashboards.": "Jūsu administrators neļauj jums kopīgot informācijas paneļus.",
-        "Public links are switched off.": "Publiskās saites ir izslēgtas."
+        "Public links are switched off.": "Publiskās saites ir izslēgtas.",
+        "Clean up": "Tīrīšana",
+        "Dashboards of people who left go to": "Aizgājušo informācijas paneļi tiek nodoti",
+        "Their manager": "Viņu vadītājam",
+        "Otherwise": "Citādi",
+        "A person": "Persona",
+        "Search for a person": "Meklēt personu",
+        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Bez izvēles panelis tiek nodots kādam ar pilnām tiesībām uz to vai tiek dzēsts. Kopīgojumi paliek."
     }
 }

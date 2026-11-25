@@ -87,7 +87,7 @@ final class AdminSettingsValidator {
 	 *
 	 * @spec openspec/specs/admin-settings/spec.md#requirement-update-admin-settings-req-aset-002
 	 */
-	public static function assertValidCoreSettings(array $settings): void {
+	public function assertValidCoreSettings(array $settings): void {
 		$level = $settings['defaultPermLevel'] ?? null;
 		if ($level !== null && in_array(needle: $level, haystack: self::PERMISSION_LEVELS, strict: true) === false) {
 			throw new InvalidArgumentException(
@@ -116,7 +116,7 @@ final class AdminSettingsValidator {
 	 *
 	 * @spec openspec/specs/admin-settings/spec.md#requirement-update-admin-settings-req-aset-002
 	 */
-	public static function firstNonBooleanParam(IRequest $request): ?string {
+	public function firstNonBooleanParam(IRequest $request): ?string {
 		foreach (self::BOOLEAN_SETTING_PARAMS as $name) {
 			$raw = $request->getParam(key: $name);
 			if ($raw !== null && in_array(needle: $raw, haystack: self::BOOLEAN_SPELLINGS, strict: true) === false) {

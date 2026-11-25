@@ -496,7 +496,7 @@ class AdminController extends Controller {
 	): JSONResponse {
 		// REQ-ASET-002: Nextcloud casts a bool parameter before it gets here
 		// ("maybe" arrives as true), so the raw value is checked first.
-		$notBoolean = AdminSettingsValidator::firstNonBooleanParam(request: $this->request);
+		$notBoolean = (new AdminSettingsValidator())->firstNonBooleanParam(request: $this->request);
 		if ($notBoolean !== null) {
 			return $this->failure(message: $notBoolean.' must be true or false', statusCode: Http::STATUS_BAD_REQUEST);
 		}

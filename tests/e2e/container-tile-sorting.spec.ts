@@ -220,8 +220,11 @@ test('alphabetically: the tiles are drawn A to Z, left to right', async ({
 	const placement = ((await stored.json()).placements ?? []).find(
 		(entry: { id: number }) => Number(entry.id) === containerId,
 	)
+	// The bookmark import stores each child as a tile node (#2073), whose
+	// name is `content.title`; a legacy link child carries `content.label`.
 	const labels = (placement?.content?.placements ?? []).map(
-		(child: { content?: { label?: string } }) => child.content?.label,
+		(child: { content?: { title?: string; label?: string } }) =>
+			child.content?.title ?? child.content?.label,
 	)
 	expect(labels).toEqual(STORED_ORDER)
 })

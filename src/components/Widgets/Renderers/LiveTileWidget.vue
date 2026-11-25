@@ -7,6 +7,7 @@
 	<component
 		:is="clickThroughTag"
 		class="live-tile-widget"
+		:class="styleClasses"
 		v-bind="clickThroughAttrs"
 		@click="onActivate">
 		<div v-if="loading" class="live-tile-widget__state">
@@ -39,7 +40,7 @@
 				{{ t('launchpad', 'Showing last known value') }}
 			</span>
 
-			<div v-if="label" class="live-tile-widget__label">
+			<div v-if="label && showTitle" class="live-tile-widget__label">
 				{{ label }}
 			</div>
 
@@ -126,6 +127,7 @@ import {
 	OBJECT_PROP,
 } from '../../../constants/propDefinitions.js'
 import { fetchLiveTileValue } from '../../../services/liveTileClient.js'
+import { knownColour } from '../../../utils/liveTilePreview.js'
 import { loadPlacementReading } from '../../../utils/placementReading.js'
 
 /**
@@ -207,6 +209,30 @@ export default {
 		/** @spec openspec/specs/live-data-tile-widget/spec.md */
 		label() {
 			return typeof this.content?.label === 'string' ? this.content.label : ''
+		},
+
+		/**
+		 * Whether the title shows; only an explicit `false` hides it.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		showTitle() {
+			return this.content?.showTitle !== false
+		},
+
+		/**
+		 * The colour and border the form chose.
+		 *
+		 * @return {object}
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		styleClasses() {
+			const colour = knownColour(this.content?.colour)
+			return {
+				['live-tile-colour--' + colour]: colour !== '',
+				'live-tile-widget--bordered': this.content?.border === true,
+			}
 		},
 
 		/**
@@ -503,7 +529,30 @@ export default {
 .live-tile-widget__value {
 	font-size: 1.8rem;
 	font-weight: 600;
-	color: var(--color-main-text);
+	color: var(--live-tile-accent, var(--color-main-text));
+}
+
+.live-tile-widget--bordered {
+	display: block;
+	padding: 8px;
+	border: 1px solid var(--color-border-dark);
+	border-radius: var(--border-radius-large);
+}
+
+.live-tile-colour--primary {
+	--live-tile-accent: var(--color-primary-element);
+}
+
+.live-tile-colour--success {
+	--live-tile-accent: var(--color-success-text, var(--color-success));
+}
+
+.live-tile-colour--warning {
+	--live-tile-accent: var(--color-warning-text, var(--color-warning));
+}
+
+.live-tile-colour--error {
+	--live-tile-accent: var(--color-error-text, var(--color-error));
 }
 
 .live-tile-widget__badge {

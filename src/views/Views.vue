@@ -254,6 +254,7 @@
 				:columnOpts="dashboardColumnOpts"
 				cellHeightCssVar="--launchpad-cell-height"
 				:itemKey="placementItemKey"
+				:itemLabel="placementItemLabel"
 				@layoutChange="updatePlacements">
 				<template #widget="{ item }">
 					<!-- tile-quick-search. Dimming is REACTIVE: the `search`
@@ -574,6 +575,7 @@ import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
 import { addressWithPeriod, namesPeriod, readPeriod } from '../utils/dashboardPeriod.js'
 import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
+import { gridItemLabel } from '../utils/gridItemLabel.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
@@ -1987,6 +1989,22 @@ export default {
 		 */
 		placementItemKey(placement) {
 			return String(placement.id)
+		},
+
+		/**
+		 * Accessible name of a grid item: "Widget: {title}", plus the position
+		 * and size in edit mode.
+		 *
+		 * @spec openspec/specs/grid-layout/spec.md#req-grid-008
+		 * @param {object} placement the placement (CnDashboardGrid layout item).
+		 * @return {string} the accessible name.
+		 */
+		placementItemLabel(placement) {
+			return gridItemLabel(placement, {
+				editing: this.isEditMode,
+				columns: this.activeDashboard?.gridColumns || 12,
+				availableWidgets: this.availableWidgets,
+			})
 		},
 
 		/**

@@ -1687,7 +1687,6 @@ OC.L10N.register(
     "A person" : "Ina persuna",
     "Search for a person" : "Tschertgar ina persuna",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Senza tscherna va in dashboard tar insatgi cun dretgs cumplets, u el vegn stizzà. Las divisiuns restan.",
-    "Date" : "Data",
     "Start date of new colleagues" : "Data d'entschatta da collegas novs"
 },
 "nplurals=2; plural=(n != 1);"

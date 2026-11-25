@@ -1687,7 +1687,6 @@ OC.L10N.register(
     "A person" : "Henkilö",
     "Search for a person" : "Etsi henkilöä",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Ilman valintaa koontinäyttö siirtyy jollekulle, jolla on siihen täydet oikeudet, tai se poistetaan. Jaot säilyvät.",
-    "Date" : "Päivämäärä",
     "Start date of new colleagues" : "Uusien kollegoiden aloituspäivä"
 },
 "nplurals=2; plural=(n != 1);"

@@ -1687,7 +1687,6 @@ OC.L10N.register(
     "A person" : "Osoba",
     "Search for a person" : "Hľadať osobu",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Bez voľby pripadne nástenka niekomu s plnými právami k nej, alebo sa odstráni. Zdieľania zostávajú.",
-    "Date" : "Dátum",
     "Start date of new colleagues" : "Dátum nástupu nových kolegov"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"

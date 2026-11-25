@@ -1687,7 +1687,6 @@ OC.L10N.register(
     "A person" : "Una persona",
     "Search for a person" : "Cerca una persona",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Senza scelta, una dashboard va a chi ha tutti i diritti su di essa, oppure viene eliminata. Le condivisioni restano.",
-    "Date" : "Data",
     "Start date of new colleagues" : "Data di inizio dei nuovi colleghi"
 },
 "nplurals=2; plural=(n != 1);"

@@ -1687,7 +1687,6 @@ OC.L10N.register(
     "A person" : "Bir kişi",
     "Search for a person" : "Kişi ara",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Seçim yapılmazsa pano, üzerinde tam yetkisi olan birine gider ya da silinir. Paylaşımlar kalır.",
-    "Date" : "Tarih",
     "Start date of new colleagues" : "Yeni iş arkadaşlarının başlangıç tarihi"
 },
 "nplurals=2; plural=(n != 1);"

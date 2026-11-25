@@ -1678,7 +1678,6 @@ OC.L10N.register(
     "A person" : "Eng Persoun",
     "Search for a person" : "Persoun sichen",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Ouni Wiel geet en Dashboard un een mat vollen Rechter drop, oder e gëtt geläscht. Deelunge bleiwen.",
-    "Date" : "Datum",
     "Start date of new colleagues" : "Ufanksdatum vun neie Kolleegen"
 },
 "nplurals=2; plural=(n != 1);"

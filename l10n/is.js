@@ -1687,7 +1687,6 @@ OC.L10N.register(
     "A person" : "Manneskja",
     "Search for a person" : "Leita að manneskju",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Án vals fer stjórnborð til einhvers með full réttindi á því, eða því er eytt. Deilingar haldast.",
-    "Date" : "Dagsetning",
     "Start date of new colleagues" : "Upphafsdagur nýrra samstarfsmanna"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"

@@ -1687,7 +1687,6 @@ OC.L10N.register(
     "A person" : "Ένα άτομο",
     "Search for a person" : "Αναζήτηση ατόμου",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Χωρίς επιλογή, ένας πίνακας ελέγχου πηγαίνει σε κάποιον με πλήρη δικαιώματα σε αυτόν ή διαγράφεται. Οι κοινές χρήσεις παραμένουν.",
-    "Date" : "Ημερομηνία",
     "Start date of new colleagues" : "Ημερομηνία έναρξης νέων συναδέλφων"
 },
 "nplurals=2; plural=(n != 1);"

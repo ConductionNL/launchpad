@@ -17,6 +17,7 @@ import { api } from '../../services/api.js'
 import { useDashboardStore } from '../../stores/dashboard.js'
 import { useTileStore } from '../../stores/tiles.js'
 import { useWidgetStore } from '../../stores/widgets.js'
+import { takeBootRead } from '../../utils/loadInitialState.js'
 
 vi.mock('../../services/api.js', () => ({
 	api: {
@@ -24,6 +25,10 @@ vi.mock('../../services/api.js', () => ({
 		getDefaultDashboardPreference: vi.fn(),
 		recordDashboardViewEvent: vi.fn(),
 	},
+}))
+vi.mock('../../utils/loadInitialState.js', async (importOriginal) => ({
+	...(await importOriginal()),
+	takeBootRead: vi.fn(),
 }))
 vi.mock('../../utils/logger.js', () => ({
 	logger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -173,5 +178,28 @@ describe('Views boot view-event, two dashboards during the boot', () => {
 
 		expect(cancelFirst).toHaveBeenCalled()
 		expect(host.recordViewEvent.mock.calls).toEqual([['deep-linked']])
+	})
+})
+
+describe('Views default dashboard', () => {
+	it('takes the pin the page carries, without asking the API', async () => {
+		takeBootRead.mockReturnValue({ uuid: 'd7' })
+		const host = makeHost()
+
+		await host.loadDefaultDashboardPreference()
+
+		expect(takeBootRead).toHaveBeenCalledWith('defaultDashboard')
+		expect(host.defaultDashboardUuid).toBe('d7')
+		expect(api.getDefaultDashboardPreference).not.toHaveBeenCalled()
+	})
+
+	it('asks the API when the page carries no pin', async () => {
+		takeBootRead.mockReturnValue(undefined)
+		api.getDefaultDashboardPreference.mockResolvedValue({ data: { uuid: 'd8' } })
+		const host = makeHost()
+
+		await host.loadDefaultDashboardPreference()
+
+		expect(host.defaultDashboardUuid).toBe('d8')
 	})
 })

@@ -44,12 +44,15 @@ class PageSources {
 	 *                                         first-load builder.
 	 * @param AdminTemplateService $adminTemplateService Primary-group routing resolver (REQ-TMPL-012,
 	 *                                                   REQ-TMPL-013).
+	 * @param WorkspaceBootReads|null $bootReads The tiles, pending acknowledgements and default-dashboard pin
+	 *                                           the workspace view takes from the initial state.
 	 */
 	public function __construct(
 		public readonly IInitialState $initialState,
 		public readonly WidgetService $widgetService,
 		public readonly PageDashboards $dashboards,
 		public readonly AdminTemplateService $adminTemplateService,
+		public readonly ?WorkspaceBootReads $bootReads=null,
 	) {
 	}//end __construct()
 }//end class

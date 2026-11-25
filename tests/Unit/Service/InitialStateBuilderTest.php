@@ -156,6 +156,40 @@ class InitialStateBuilderTest extends TestCase {
 	}//end testTheOrgNavigationIsProvidedOnlyWhenGiven()
 
 	/**
+	 * The workspace boot reads reach the page when given, and are left out
+	 * when null, so the view fetches.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-4
+	 */
+	public function testTheWorkspaceBootReadsAreProvidedOnlyWhenGiven(): void {
+		$bootReads = ['tiles' => [], 'defaultDashboard' => ['uuid' => '']];
+		foreach ([[$bootReads, true], [null, false]] as [$value, $provided]) {
+			$sink = [];
+			(new InitialStateBuilder(initialState: $this->makeRecordingState(sink: $sink), page: Page::WORKSPACE))
+				->setWidgets([])
+				->setLayout([])
+				->setPrimaryGroup('g')
+				->setPrimaryGroupName('G')
+				->setIsAdmin(false)
+				->setActiveDashboardId('')
+				->setDashboardSource('group')
+				->setGroupDashboards([])
+				->setUserDashboards([])
+				->setAllowUserDashboards(false)
+				->setAllowedWidgets(null)
+				->setWorkspaceBootReads($value)
+				->apply();
+
+			$this->assertSame(expected: $provided, actual: array_key_exists('workspaceBootReads', $sink));
+			if ($provided === true) {
+				$this->assertSame(expected: $bootReads, actual: $sink['workspaceBootReads']);
+			}
+		}
+	}//end testTheWorkspaceBootReadsAreProvidedOnlyWhenGiven()
+
+	/**
 	 * In-memory IInitialState stub that records every push.
 	 *
 	 * @return IInitialState&\PHPUnit\Framework\MockObject\MockObject

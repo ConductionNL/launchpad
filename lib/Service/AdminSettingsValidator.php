@@ -29,6 +29,8 @@ use OCP\IRequest;
 
 /**
  * Validates admin settings before they are written (REQ-ASET-002).
+ *
+ * @spec openspec/specs/admin-settings/spec.md#requirement-update-admin-settings-req-aset-002
  */
 final class AdminSettingsValidator {
 

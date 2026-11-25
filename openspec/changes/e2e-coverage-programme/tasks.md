@@ -250,9 +250,10 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/menu-widget.spec.ts`, `menu-widget-styles.spec.ts`, `menu-widget-links.spec.ts`; 2 scenarios excluded with reasons, 35 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 37 scenarios, 35 cited, 2 excluded, 0 uncited (gate-19 report mode). All three files listed by `playwright test --list` (35 tests), not yet run.
   - Run 25 Nov 2026 (sandbox Nextcloud 34.0.6 + MariaDB + Redis, OpenRegister main, launchpad development 8856e823): `menu-widget.spec.ts`, `menu-widget-styles.spec.ts`, `menu-widget-links.spec.ts` 35/35 green. Seen-to-fail spot pass on the rendered widget (CnMenuWidget chunk mutated, then restored): `rel="opener"` on external links turns the no-opener test red, and an `onEscape()` that does nothing turns the three Esc tests (dropdown, megamenu, keyboard) red.
-- [ ] 4.12 `quicklinks-widget`: 36 scenarios, 0 cited.
+- [x] 4.12 `quicklinks-widget`: 36 scenarios, 0 cited.
   - Spec written: `tests/e2e/quicklinks-widget.spec.ts`, `quicklinks-widget-interaction.spec.ts`, `quicklinks-widget-form.spec.ts`; 0 scenarios excluded, 36 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 36 scenarios, 36 cited, 0 excluded, 0 uncited (gate-19 report mode). All three files listed by `playwright test --list` (35 tests), not yet run.
+  - Done 25 Nov 2026 (same sandbox): `quicklinks-widget`, `quicklinks-widget-interaction` and `quicklinks-widget-form` green as written; with 4.24 and 5.14 in the same run, 41 passed, 0 failed, 0 skipped.
 - [x] 4.13 `divider-widget`: 29 scenarios, 3 cited.
   - Spec written: tests/e2e/divider-widget.spec.ts, 24 scenarios cited, not yet run (cloud, 2026-11-19), 2 excluded with a reason
   - Recount (cloud, 2026-11-24): 29 scenarios, 27 cited, 2 excluded, 0 uncited (gate-19 report mode). The spec was kept current by the widget-picker changes (a58030e7, 907dd48e, 22 Nov). Listed by `playwright test --list`, not yet run.
@@ -290,10 +291,11 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [x] 4.23 `container-widget`: 8 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/container-widget.spec.ts, tests/e2e/container-tile-sorting.spec.ts, 11 scenarios cited, not yet run (cloud, 2026-11-19), 1 excluded with a reason
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): container-widget 7 of 7 and container-tile-sorting 6 of 6 green.
-- [ ] 4.24 `nc-dashboard-widget-proxy`: 4 scenarios, 0 cited, blanket.
+- [x] 4.24 `nc-dashboard-widget-proxy`: 4 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/nc-dashboard-widget-proxy.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 4 scenarios, 4 cited, 0 excluded, 0 uncited. Spec updated with the picker changes of 907dd48e; listed by `playwright test --list`, not yet run.
   - Spec written: `tests/e2e/nc-dashboard-widget-proxy.spec.ts` (the "expected RED" note on `keyboard-navigation-works` was stale: nextcloud-vue 2.218.0, the version the lock pins, reads `focusedIndex` in `cardTabIndex()`, so the roving-tabindex assertion should now pass and a red is a regression), 4 scenarios cited, 0 excluded, 0 uncited, listed by `playwright test --list`, not yet run (cloud, 2026-11-25)
+  - Done 25 Nov 2026 (sandbox Nextcloud 34.0.6 + MariaDB + Redis, OpenRegister main 58479c0d0): `nc-dashboard-widget-proxy.spec.ts` green as written, keyboard-navigation-works included.
 
 ## 5. Tier 4, admin, operations and integrations
 
@@ -348,10 +350,11 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: no spec file, 0 scenarios cited, 7 excluded with reasons, one per requirement; the blanket is gone. Every scenario reads checked-in files or CI behaviour, not a running instance. REQ-LIC-003 does not hold: 12 files under `src/` still name `LaunchPad Contributors` (cloud, 2026-11-19)
   - Spec written: tests/e2e/license-header-consistency.spec.ts, 6 scenarios cited (the lib/ and src/ SPDX identifiers, PermissionService.php's PHPDoc and SPDX agreeing, the SPDX copyright of PHP files, the README badge and prose, the licence check failing on an AGPL header in a scratch tree), 1 excluded with reason (reuse lint: no `reuse` tool on the runner or instance), read from the deployed app folder through tests/e2e/support/occ.ts as 5.8 does; not yet run (cloud, 2026-11-25)
   - Done 25 Nov 2026 (sandbox Nextcloud 34.0.6 + MariaDB + Redis): `license-header-consistency.spec.ts` red on spdx-copyright-matches-reuse-and-phpdoc (`lib/Service/AdminSettingsValidator.php` named `LaunchPad Contributors` in its SPDX-FileCopyrightText), then 6/6 green with the header naming Conduction B.V.
-- [ ] 5.14 `groupfolder-storage-backend`: 0 scenarios, 0 cited. Has no scenarios. Decide whether the spec is still wanted.
+- [x] 5.14 `groupfolder-storage-backend`: 0 scenarios, 0 cited. Has no scenarios. Decide whether the spec is still wanted.
   - Decided: keep it. The spec is marked `status: withdrawn` and records why the capability was retired (launchpad#87) and what was removed. With no requirements and no scenarios it owes gate-19 nothing; archiving or deleting it is a separate change (cloud, 2026-11-19)
   - Spec written: tests/e2e/groupfolder-storage-backend.spec.ts, 1 scenario cited, 1 excluded with reason, not yet run (cloud, 2026-11-24). The spec has since gained REQ-GFSB-011 with 2 scenarios, so it does owe gate-19 now.
   - Spec written: tests/e2e/groupfolder-storage-backend.spec.ts, 2 scenarios cited, 0 excluded, not yet run (cloud, 2026-11-24). "No storage commands" now lists the occ commands through tests/e2e/support/occ.ts.
+  - Done 25 Nov 2026 (same sandbox): `groupfolder-storage-backend.spec.ts` green as written (2 scenarios).
 
 ## 6. Close the programme
 

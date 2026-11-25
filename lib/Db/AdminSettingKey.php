@@ -18,6 +18,20 @@
  *  - Setup wizard:         SETUP_WIZARD_COMPLETE
  *  - Quick search:         QUICKSEARCH_FALLBACK_TARGET (tile-quick-search),
  *                          SEARCH_SHORTCUTS (search-ai-prefix-shortcuts)
+ *  - Sharing:              DEFAULT_SHARE_PERMISSION_LEVEL, FORCED_SHARE_GROUPS,
+ *                          SHARING_ALLOWED_GROUPS, SHARING_RECIPIENT_SCOPE,
+ *                          SHARING_ALLOWED, PUBLIC_LINKS_ALLOWED,
+ *                          LEAVER_HANDOVER
+ *  - Announcements:        ANNOUNCEMENT_EDITOR_GROUPS
+ *  - Limits:               MAX_DASHBOARDS_PER_USER, MAX_WIDGETS_PER_DASHBOARD
+ *  - Widgets:              LEGACY_WIDGET_BRIDGE_ENABLED,
+ *                          FILTER_TELEMETRY_ENABLED
+ *  - Public start page:    PUBLIC_START_ENABLED, PUBLIC_START_SHARE_TOKEN
+ *  - Tiles:                TILE_ALLOWED_SCHEMES, SSO_LAUNCH_TEMPLATES,
+ *                          OFFICE_NETWORKS
+ *  - Look:                 CUSTOM_CSS
+ *  - Communities:          PINNED_COMMUNITIES
+ *  - Default app:          DEFAULT_APP_ENABLED
  *
  * @category Db
  * @package  OCA\LaunchPad\Db

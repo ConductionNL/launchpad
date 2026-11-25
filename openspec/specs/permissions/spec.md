@@ -157,7 +157,6 @@ Admin templates MUST be able to mark specific widget placements as compulsory, a
 - NOTE: `PlacementUpdater` does not explicitly block `isCompulsory` changes.
 
 #### Scenario: Compulsory widget visual indicator
-@e2e exclude never built: WidgetWrapper.vue renders no lock icon or Required badge for a compulsory placement (git log --all -S 'Required' and -S 'Lock' on src/components/WidgetWrapper.vue find nothing: it was never added); no unit or Vitest test pins it
 - GIVEN a dashboard with both compulsory and non-compulsory widgets
 - WHEN the dashboard is rendered in edit mode
 - THEN compulsory widgets MUST display a visual indicator (e.g., lock icon, "Required" badge)

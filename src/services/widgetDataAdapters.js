@@ -120,7 +120,7 @@ export async function fetchCalendarEvents(placementId, args = {}) {
  *
  * @param {object} [args] `{ since, until }` in days.
  * @return {Promise<{configured: boolean, users: Array<object>}>}
- * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
  */
 export async function fetchNewPeople(args = {}) {
 	const [{ default: axios }, { generateUrl: genUrl }] = await Promise.all([
@@ -146,7 +146,7 @@ let startDateFieldAnswer = null
  * load; a failed read offers nothing.
  *
  * @return {Promise<boolean>}
- * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
  */
 export function hasStartDateField() {
 	if (startDateFieldAnswer === null) {
@@ -165,7 +165,7 @@ export function hasStartDateField() {
  * the directory, the new colleagues and the start-date question.
  *
  * @return {object} the `cnPeopleSource` adapter.
- * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
  */
 export function buildPeopleSource() {
 	return {

@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md
  */
 
 declare(strict_types=1);
@@ -32,7 +32,7 @@ use OCP\IUserManager;
 /**
  * Who started recently or starts soon.
  *
- * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
  */
 class NewColleagues {
 
@@ -77,7 +77,7 @@ class NewColleagues {
 	 *
 	 * @return array{configured: bool, since: int, until: int, users: list<array{id: string, displayName: string, startDate: string, starts: bool}>}
 	 *
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
 	public function listNew(?string $viewerId, array $window): array {
 		$since = min(self::SINCE_MAX, max(self::SINCE_MIN, (int)($window['since'] ?? self::SINCE_DEFAULT)));
@@ -115,7 +115,7 @@ class NewColleagues {
 	 *
 	 * @return array<string, mixed>|null The definition.
 	 *
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
 	private function startDateField(): ?array {
 		foreach ($this->fields->getDefinitions() as $definition) {
@@ -136,7 +136,7 @@ class NewColleagues {
 	 *
 	 * @return array{id: string, displayName: string, avatarUrl?: string, role?: string, organisation?: string}|null
 	 *
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
 	private function entryFor(?string $viewerId, string $ownerId, array $definition): ?array {
 		if ($this->fields->canSee(viewerId: $viewerId, ownerId: $ownerId, definition: $definition) === false) {

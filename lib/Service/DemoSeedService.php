@@ -174,7 +174,7 @@ class DemoSeedService {
 	 * @throws RuntimeException         When a user or dashboard cannot be written.
 	 *
 	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
 	public function load(string $seedId, string $password = self::DEFAULT_PASSWORD, string $language = ''): array {
 		$seed   = $this->definition(seedId: $seedId, language: $language);

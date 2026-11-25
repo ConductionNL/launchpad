@@ -5,7 +5,7 @@
  * ProfileFieldsTab: a field can be a date, and one date field is the start
  * date of new colleagues; marking another unmarks the first (REQ-PEX-005).
  *
- * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
  */
 
 import axios from '@nextcloud/axios'

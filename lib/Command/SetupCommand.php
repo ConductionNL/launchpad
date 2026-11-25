@@ -76,9 +76,8 @@ class SetupCommand extends Command {
 	 */
 	protected function configure(): void {
 		$this->setName(name: 'launchpad:setup')
-			->setDescription(
-				description: 'Run the LaunchPad setup wizard non-interactively from a YAML config (REQ-WIZ-010).'
-			)
+			->setDescription(description: 'Run the LaunchPad setup wizard from a YAML config.')
+			->setHelp(help: 'Run the LaunchPad setup wizard non-interactively from a YAML config (REQ-WIZ-010).')
 			->addOption(
 				name: 'config',
 				shortcut: 'c',

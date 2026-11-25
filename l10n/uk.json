@@ -1862,6 +1862,27 @@
         "You searched for {query}": "Ви шукали {query}",
         "No results": "Немає результатів",
         "Show all results": "Показати всі результати",
-        "Tip: type {prefix} to search {name} directly": "Порада: введіть {prefix}, щоб шукати безпосередньо в {name}"
+        "Tip: type {prefix} to search {name} directly": "Порада: введіть {prefix}, щоб шукати безпосередньо в {name}",
+        "Hidden widgets": "Приховані віджети",
+        "Your hidden widgets could not be loaded.": "Не вдалося завантажити ваші приховані віджети.",
+        "You have not hidden any widgets on shared dashboards.": "Ви не приховали жодного віджета на спільних панелях.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["Ви приховали %n віджет на спільних панелях", "Ви приховали %n віджети на спільних панелях", "Ви приховали %n віджетів на спільних панелях"],
+        "Show all again": "Показати все знову",
+        "Your change could not be saved.": "Не вдалося зберегти зміну.",
+        "Summary by email": "Підсумок електронною поштою",
+        "A mail with new announcements and what changed on your dashboards": "Лист із новими оголошеннями та змінами на ваших панелях",
+        "How often?": "Як часто?",
+        "Daily": "Щодня",
+        "Weekly": "Щотижня",
+        "At 07:30, only when something changed": "О 07:30, лише коли щось змінилося",
+        "On Monday at 07:30": "Щопонеділка о 07:30",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "У вас немає адреси електронної пошти, тому підсумок не можна надіслати. Додайте її у своєму обліковому записі Nextcloud.",
+        "Your daily LaunchPad summary": "Ваш щоденний підсумок LaunchPad",
+        "Your weekly LaunchPad summary": "Ваш щотижневий підсумок LaunchPad",
+        "Nothing new was published and nothing changed on your dashboards.": "Нічого нового не опубліковано, і на ваших панелях нічого не змінилося.",
+        "New announcements": "Нові оголошення",
+        "What changed on your dashboards": "Що змінилося на ваших панелях",
+        "Open LaunchPad": "Відкрити LaunchPad",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Ви отримуєте цей лист, бо замовили його в налаштуваннях LaunchPad."
     }
 }

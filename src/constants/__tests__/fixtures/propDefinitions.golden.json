@@ -116,6 +116,19 @@
 		"validator": false,
 		"default": "en"
 	},
+	"../../components/HeaderSearchDropdown.vue | shortcuts": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/HeaderSearchDropdown.vue | fieldSelector": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ".unified-search-input, #unified-search input, .unified-search__input, input.unified-search-menu__input"
+	},
 	"../../components/HealthPingBadge.vue | placementId": {
 		"type": [
 			"Number",

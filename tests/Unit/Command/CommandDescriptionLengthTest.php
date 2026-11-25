@@ -38,22 +38,22 @@ class CommandDescriptionLengthTest extends TestCase {
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
 	public function testEveryRegisteredCommandHasAShortOneLineDescription(): void {
-		$root = dirname(__DIR__, 3);
-		$info = (string) file_get_contents($root.'/appinfo/info.xml');
-		preg_match_all('#<command>OCA\\\\LaunchPad\\\\Command\\\\(\w+)</command>#', $info, $matches);
-		$this->assertNotEmpty($matches[1], 'info.xml registers commands');
+		$root = dirname(path: __DIR__, levels: 3);
+		$info = (string) file_get_contents(filename: $root.'/appinfo/info.xml');
+		preg_match_all(pattern: '#<command>OCA\\\\LaunchPad\\\\Command\\\\(\w+)</command>#', subject: $info, matches: $matches);
+		$this->assertNotEmpty(actual: $matches[1], message: 'info.xml registers commands');
 
 		$tooLong = [];
 		foreach ($matches[1] as $class) {
-			$source = (string) file_get_contents($root.'/lib/Command/'.$class.'.php');
-			$found  = preg_match("#setDescription\(\s*(?:description:\s*)?'((?:[^'\\\\]|\\\\.)*)'\s*\)#", $source, $description);
-			$this->assertSame(1, $found, $class.' sets a description');
-			$text = stripcslashes($description[1]);
-			if (mb_strlen($text) > 60 || str_contains($text, "\n") === true) {
-				$tooLong[] = $class.' ('.mb_strlen($text).'): '.$text;
+			$source = (string) file_get_contents(filename: $root.'/lib/Command/'.$class.'.php');
+			$found  = preg_match(pattern: "#setDescription\(\s*(?:description:\s*)?'((?:[^'\\\\]|\\\\.)*)'\s*\)#", subject: $source, matches: $description);
+			$this->assertSame(expected: 1, actual: $found, message: $class.' sets a description');
+			$text = stripcslashes(string: $description[1]);
+			if (mb_strlen(string: $text) > 60 || str_contains(haystack: $text, needle: "\n") === true) {
+				$tooLong[] = $class.' ('.mb_strlen(string: $text).'): '.$text;
 			}
 		}
 
-		$this->assertSame([], $tooLong);
+		$this->assertSame(expected: [], actual: $tooLong);
 	}//end testEveryRegisteredCommandHasAShortOneLineDescription()
 }//end class

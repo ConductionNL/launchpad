@@ -53,11 +53,11 @@ class CleanupScanCommandTest extends TestCase {
 		$service = $this->createMock(OrphanedDataCleanupService::class);
 		$service->method('scan')->willReturn($result);
 
-		$logger = $this->createMock(LoggerInterface::class);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
 		$logger->method('info')->willReturnCallback(function ($message): void {
 			$this->audit[] = (string)$message;
 		});
-		$tester = new CommandTester(new CleanupScanCommand($service, new CommandService($logger)));
+		$tester = new CommandTester(command: new CleanupScanCommand(cleanupService: $service, commandService: new CommandService(logger: $logger)));
 		$code = $tester->execute([]);
 		return [$code, $tester->getDisplay()];
 	}
@@ -84,9 +84,9 @@ class CleanupScanCommandTest extends TestCase {
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
 	public function testScanWritesOneAuditLineAsCli(): void {
-		$this->scan(['locks' => 2], []);
+		$this->scan(counts: ['locks' => 2], skipped: []);
 
-		$this->assertCount(1, $this->audit);
-		$this->assertMatchesRegularExpression('/^\[launchpad\] cli cleanup:scan +exitCode=1 durationMs=\d+ byUser=cli$/', $this->audit[0]);
+		$this->assertCount(expectedCount: 1, haystack: $this->audit);
+		$this->assertMatchesRegularExpression(pattern: '/^\[launchpad\] cli cleanup:scan +exitCode=1 durationMs=\d+ byUser=cli$/', string: $this->audit[0]);
 	}
 }

@@ -23,13 +23,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Command;
 
-use OCA\LaunchPad\Db\DashboardLockMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
-use OCA\LaunchPad\Db\DashboardShareMapper;
-use OCA\LaunchPad\Db\DashboardVersionMapper;
 use OCA\LaunchPad\Db\DashboardView;
-use OCA\LaunchPad\Db\DashboardViewMapper;
 use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IUserSession;
@@ -47,19 +43,13 @@ class DashboardDebugShareCommand extends CommandBase {
 	 * @param CommandServiceInterface $commandService Shared CLI helper.
 	 * @param IUserSession $userSession Caller resolution.
 	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
-	 * @param DashboardShareMapper $shareMapper Share mapper.
-	 * @param DashboardLockMapper $lockMapper Lock mapper.
-	 * @param DashboardVersionMapper $versionMapper Version mapper.
-	 * @param DashboardViewMapper $viewMapper View-count mapper.
+	 * @param DebugShareStores $stores The share, lock, version and view mappers.
 	 */
 	public function __construct(
 		CommandServiceInterface $commandService,
 		IUserSession $userSession,
 		private readonly DashboardMapper $dashboardMapper,
-		private readonly DashboardShareMapper $shareMapper,
-		private readonly DashboardLockMapper $lockMapper,
-		private readonly DashboardVersionMapper $versionMapper,
-		private readonly DashboardViewMapper $viewMapper,
+		private readonly DebugShareStores $stores,
 	) {
 		parent::__construct(commandService: $commandService, userSession: $userSession);
 	}//end __construct()
@@ -116,7 +106,7 @@ class DashboardDebugShareCommand extends CommandBase {
 			callback: static function (DashboardShare $share): array {
 				return $share->jsonSerialize();
 			},
-			array: $this->shareMapper->findByDashboardId(dashboardId: (int)$dashboard->getId())
+			array: $this->stores->shareMapper->findByDashboardId(dashboardId: (int)$dashboard->getId())
 		);
 
 		return $this->emitPrettyPayload(
@@ -138,11 +128,11 @@ class DashboardDebugShareCommand extends CommandBase {
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
 	private function diagnostics(string $uuid, array $shares): array {
-		$lock  = $this->lockMapper->findActive(dashboardUuid: $uuid);
+		$lock  = $this->stores->lockMapper->findActive(dashboardUuid: $uuid);
 		$views = array_sum(
 			array: array_map(
 				callback: static fn (DashboardView $view): int => (int)$view->getViewCount(),
-				array: $this->viewMapper->findByDashboardInRange(
+				array: $this->stores->viewMapper->findByDashboardInRange(
 					dashboardUuid: $uuid,
 					startDate: '1970-01-01',
 					endDate: '9999-12-31'
@@ -156,7 +146,7 @@ class DashboardDebugShareCommand extends CommandBase {
 			'locked' => $lock !== null,
 			'lockedBy' => $lock?->getUserId(),
 			'lockedAt' => $lock?->getCreatedAt(),
-			'versionCount' => $this->versionMapper->countByDashboard(dashboardUuid: $uuid),
+			'versionCount' => $this->stores->versionMapper->countByDashboard(dashboardUuid: $uuid),
 			'viewCount' => $views,
 		];
 	}//end diagnostics()

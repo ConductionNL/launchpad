@@ -23,6 +23,7 @@ namespace Unit\Command;
 
 use OCA\LaunchPad\Command\DashboardDebugShareCommand;
 use OCA\LaunchPad\Command\DashboardShowCommand;
+use OCA\LaunchPad\Command\DebugShareStores;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
@@ -129,13 +130,15 @@ class DashboardDumpCommandsGoldenTest extends TestCase {
 		$shares->method('findByDashboardId')->with(7)->willReturn([$share]);
 
 		$command = new DashboardDebugShareCommand(
-			new CommandService(new NullLogger()),
-			$this->createMock(IUserSession::class),
-			$this->dashboards(),
-			$shares,
-			$this->createMock(DashboardLockMapper::class),
-			$this->createMock(DashboardVersionMapper::class),
-			$this->createMock(DashboardViewMapper::class)
+			commandService: new CommandService(logger: new NullLogger()),
+			userSession: $this->createMock(originalClassName: IUserSession::class),
+			dashboardMapper: $this->dashboards(),
+			stores: new DebugShareStores(
+				shareMapper: $shares,
+				lockMapper: $this->createMock(originalClassName: DashboardLockMapper::class),
+				versionMapper: $this->createMock(originalClassName: DashboardVersionMapper::class),
+				viewMapper: $this->createMock(originalClassName: DashboardViewMapper::class)
+			)
 		);
 
 		$pretty = "{\n    \"uuid\": \"".self::UUID."\",\n    \"shares\": [\n        {\n            \"shareType\": \"user\",\n"
@@ -165,9 +168,9 @@ class DashboardDumpCommandsGoldenTest extends TestCase {
 		$lock = new DashboardLock();
 		$lock->setUserId('admin');
 		$lock->setCreatedAt('2026-11-25 12:00:00');
-		$locks = $this->createMock(DashboardLockMapper::class);
+		$locks = $this->createMock(originalClassName: DashboardLockMapper::class);
 		$locks->method('findActive')->with(self::UUID)->willReturn($lock);
-		$versions = $this->createMock(DashboardVersionMapper::class);
+		$versions = $this->createMock(originalClassName: DashboardVersionMapper::class);
 		$versions->method('countByDashboard')->with(self::UUID)->willReturn(2);
 		$views = [];
 		foreach ([3, 4] as $count) {
@@ -175,28 +178,26 @@ class DashboardDumpCommandsGoldenTest extends TestCase {
 			$view->setViewCount($count);
 			$views[] = $view;
 		}
-		$viewMapper = $this->createMock(DashboardViewMapper::class);
+
+		$viewMapper = $this->createMock(originalClassName: DashboardViewMapper::class);
 		$viewMapper->method('findByDashboardInRange')->willReturn($views);
-		$shares = $this->createMock(DashboardShareMapper::class);
+		$shares = $this->createMock(originalClassName: DashboardShareMapper::class);
 		$shares->method('findByDashboardId')->willReturn([]);
 
 		$command = new DashboardDebugShareCommand(
-			new CommandService(new NullLogger()),
-			$this->createMock(IUserSession::class),
-			$this->dashboards(),
-			$shares,
-			$locks,
-			$versions,
-			$viewMapper
+			commandService: new CommandService(logger: new NullLogger()),
+			userSession: $this->createMock(originalClassName: IUserSession::class),
+			dashboardMapper: $this->dashboards(),
+			stores: new DebugShareStores(shareMapper: $shares, lockMapper: $locks, versionMapper: $versions, viewMapper: $viewMapper)
 		);
 
-		[$code, $json] = self::runCommand($command, ['uuid' => self::UUID, '--json' => true]);
-		$this->assertSame(0, $code);
-		$data = json_decode($json, true)['data'];
-		$this->assertTrue($data['locked']);
-		$this->assertSame('admin', $data['lockedBy']);
-		$this->assertSame('2026-11-25 12:00:00', $data['lockedAt']);
-		$this->assertSame(2, $data['versionCount']);
-		$this->assertSame(7, $data['viewCount']);
+		[$code, $json] = self::runCommand(command: $command, input: ['uuid' => self::UUID, '--json' => true]);
+		$data = json_decode(json: $json, associative: true)['data'];
+		$this->assertSame(expected: 0, actual: $code);
+		$this->assertTrue(condition: $data['locked']);
+		$this->assertSame(expected: 'admin', actual: $data['lockedBy']);
+		$this->assertSame(expected: '2026-11-25 12:00:00', actual: $data['lockedAt']);
+		$this->assertSame(expected: 2, actual: $data['versionCount']);
+		$this->assertSame(expected: 7, actual: $data['viewCount']);
 	}//end testDebugShareReportsLockVersionsAndViews()
 }

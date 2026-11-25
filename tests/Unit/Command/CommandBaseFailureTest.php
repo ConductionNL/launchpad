@@ -196,11 +196,11 @@ class CommandBaseFailureTest extends TestCase {
 		$_SERVER['argv'] = ['occ', '--no-ansi', '-q', 'launchpad:test:boom', 'abc', '--json'];
 		$tester = $this->failingCommand(name: 'launchpad:test:boom', session: $this->sessionOf(uid: 'admin'));
 
-		$tester->execute(['--json' => true]);
+		$tester->execute(input: ['--json' => true]);
 
 		$this->assertMatchesRegularExpression(
-			'/^\[launchpad\] cli test:boom abc --json exitCode=1 durationMs=\d+ byUser=admin$/',
-			$this->audit[0][0]
+			pattern: '/^\[launchpad\] cli test:boom abc --json exitCode=1 durationMs=\d+ byUser=admin$/',
+			string: $this->audit[0][0]
 		);
 	}//end testGlobalOptionBeforeTheCommandIsNotAuditedAsAnArgument()
 

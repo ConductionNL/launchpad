@@ -100,8 +100,8 @@ class CommandErrorGoldenTest extends TestCase {
 	 *
 	 * @return array<string, mixed>
 	 */
-	private static function runCommand(CommandBase $command, array $input, int $verbosity=OutputInterface::VERBOSITY_NORMAL): array {
-		$stdout = new StreamOutput(fopen('php://memory', 'w+'), $verbosity);
+	private static function runCommand(CommandBase $command, array $input, int $verbosity = OutputInterface::VERBOSITY_NORMAL): array {
+		$stdout = new StreamOutput(stream: fopen(filename: 'php://memory', mode: 'w+'), verbosity: $verbosity);
 		$output = new class ($stdout) extends ConsoleOutput {
 			private BufferedOutput $err;
 
@@ -109,8 +109,8 @@ class CommandErrorGoldenTest extends TestCase {
 			 * @param StreamOutput $stdout The stdout stream.
 			 */
 			public function __construct(private StreamOutput $stdout) {
-				parent::__construct($stdout->getVerbosity());
-				$this->err = new BufferedOutput($stdout->getVerbosity());
+				parent::__construct(verbosity: $stdout->getVerbosity());
+				$this->err = new BufferedOutput(verbosity: $stdout->getVerbosity());
 			}
 
 			/**
@@ -147,11 +147,15 @@ class CommandErrorGoldenTest extends TestCase {
 	 */
 	public function testErrorReachesStderrWhenOccMadeBothStreamsQuiet(): void {
 		$error  = ['exitCode' => CommandService::EXIT_NOT_FOUND, 'code' => 'NOT_FOUND', 'message' => 'User not found: nobody'];
-		$result = self::runCommand($this->probe($error), ['--quiet' => true], OutputInterface::VERBOSITY_QUIET);
+		$result = self::runCommand(
+			command: $this->probe(error: $error),
+			input: ['--quiet' => true],
+			verbosity: OutputInterface::VERBOSITY_QUIET
+		);
 
-		$this->assertSame(CommandService::EXIT_NOT_FOUND, $result['exit']);
-		$this->assertSame('', $result['stdout']);
-		$this->assertSame("User not found: nobody\n", $result['stderr']);
+		$this->assertSame(expected: CommandService::EXIT_NOT_FOUND, actual: $result['exit']);
+		$this->assertSame(expected: '', actual: $result['stdout']);
+		$this->assertSame(expected: "User not found: nobody\n", actual: $result['stderr']);
 	}//end testErrorReachesStderrWhenOccMadeBothStreamsQuiet()
 
 	/**
@@ -164,13 +168,17 @@ class CommandErrorGoldenTest extends TestCase {
 	 */
 	public function testJsonEnvelopeReachesStdoutWhenOccMadeBothStreamsQuiet(): void {
 		$error  = ['exitCode' => CommandService::EXIT_NOT_FOUND, 'code' => 'NOT_FOUND', 'message' => 'Dashboard not found'];
-		$result = self::runCommand($this->probe($error), ['--json' => true, '--quiet' => true], OutputInterface::VERBOSITY_QUIET);
+		$result = self::runCommand(
+			command: $this->probe(error: $error),
+			input: ['--json' => true, '--quiet' => true],
+			verbosity: OutputInterface::VERBOSITY_QUIET
+		);
 
-		$this->assertSame(CommandService::EXIT_NOT_FOUND, $result['exit']);
-		$this->assertSame('', $result['stderr']);
-		$envelope = json_decode(trim((string) $result['stdout']), true);
-		$this->assertIsArray($envelope);
-		$this->assertSame(CommandService::EXIT_NOT_FOUND, $envelope['exitCode']);
+		$this->assertSame(expected: CommandService::EXIT_NOT_FOUND, actual: $result['exit']);
+		$this->assertSame(expected: '', actual: $result['stderr']);
+		$envelope = json_decode(json: trim(string: (string) $result['stdout']), associative: true);
+		$this->assertIsArray(actual: $envelope);
+		$this->assertSame(expected: CommandService::EXIT_NOT_FOUND, actual: $envelope['exitCode']);
 	}//end testJsonEnvelopeReachesStdoutWhenOccMadeBothStreamsQuiet()
 
 	/**
@@ -183,7 +191,9 @@ class CommandErrorGoldenTest extends TestCase {
 	 */
 	public function testSuccessAndThrownEnvelopesPrintUnderQuietStreams(): void {
 		foreach (['ok' => CommandService::EXIT_SUCCESS, 'boom' => CommandService::EXIT_ERROR] as $mode => $expected) {
-			$command = new class (new CommandService(new NullLogger()), $this->createMock(IUserSession::class), $mode) extends CommandBase {
+			$service = new CommandService(logger: new NullLogger());
+			$session = $this->createMock(originalClassName: IUserSession::class);
+			$command = new class (commandService: $service, userSession: $session, mode: $mode) extends CommandBase {
 				/**
 				 * @param CommandService $commandService The service.
 				 * @param IUserSession   $userSession    The session.
@@ -208,19 +218,23 @@ class CommandErrorGoldenTest extends TestCase {
 				 */
 				protected function handle(InputInterface $input, OutputInterface $output): int {
 					if ($this->mode === 'boom') {
-						throw new \RuntimeException('boom');
+						throw new \RuntimeException(message: 'boom');
 					}
 
 					$this->emitSuccess(input: $input, output: $output, data: ['n' => 1]);
 					return CommandService::EXIT_SUCCESS;
 				}
 			};
-			$result   = self::runCommand($command, ['--json' => true, '--quiet' => true], OutputInterface::VERBOSITY_QUIET);
-			$envelope = json_decode(trim((string) $result['stdout']), true);
+			$result   = self::runCommand(
+				command: $command,
+				input: ['--json' => true, '--quiet' => true],
+				verbosity: OutputInterface::VERBOSITY_QUIET
+			);
+			$envelope = json_decode(json: trim(string: (string) $result['stdout']), associative: true);
 
-			$this->assertSame($expected, $result['exit'], $mode);
-			$this->assertIsArray($envelope, $mode);
-			$this->assertSame($expected, $envelope['exitCode'], $mode);
+			$this->assertSame(expected: $expected, actual: $result['exit'], message: $mode);
+			$this->assertIsArray(actual: $envelope, message: $mode);
+			$this->assertSame(expected: $expected, actual: $envelope['exitCode'], message: $mode);
 		}
 	}//end testSuccessAndThrownEnvelopesPrintUnderQuietStreams()
 

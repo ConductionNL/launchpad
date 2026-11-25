@@ -152,10 +152,20 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * Re-fit when the parent moves the popover.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 */
 		top() {
 			this.fitToViewport()
 		},
 
+		/**
+		 * Re-fit when the parent moves the popover.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 */
 		left() {
 			this.fitToViewport()
 		},

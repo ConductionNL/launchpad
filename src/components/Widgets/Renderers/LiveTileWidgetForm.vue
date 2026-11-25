@@ -674,6 +674,11 @@ export default {
 		},
 	},
 
+	/**
+	 * Probe integriq, list the connections and load the preview's value.
+	 *
+	 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+	 */
 	created() {
 		this.refreshConnectorAvailability()
 		this.loadConnections()

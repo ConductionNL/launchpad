@@ -211,7 +211,11 @@ export default {
 	methods: {
 		t,
 
-		/** Emit the content. */
+		/**
+		 * Emit the content.
+		 *
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+		 */
 		emitUpdate() {
 			this.$emit('update:content', this.assembledContent)
 		},
@@ -254,6 +258,7 @@ export default {
 		 * Typing in the ICS field clears its error.
 		 *
 		 * @param {string} val The typed address.
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
 		 */
 		onIcsInput(val) {
 			this.newIcs = typeof val === 'string' ? val : ''

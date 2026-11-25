@@ -12,15 +12,18 @@
  * minutes) and checks the last success and the preview. It does not save:
  * saving would make Nextcloud fetch a source that does not exist here.
  *
- * Also the Image scenario: saving an image without alternative text is
- * refused and names the field.
+ * Also the Image scenario (saving an image without alternative text is
+ * refused and names the field) and the Calendar scenario (add an external
+ * calendar by ICS address with 7 days; the ICS address is stubbed).
  *
  * Gate-19 @e2e traceability:
  *   @e2e live-data-tile-widget::kcc-waiting-time
  *   @e2e image-widget::alternative-text-is-required
+ *   @e2e calendar-widget::add-an-external-calendar
  *
  * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md
  * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md
+ * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md
  */
 import type { APIRequestContext } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'
@@ -114,4 +117,19 @@ test('an image without alternative text is refused and the field is named', asyn
 
 	await dialog.getByLabel('Text for who does not see the image').fill('The team at the town hall')
 	await expect(add).toBeEnabled()
+})
+
+test('add an external calendar with 7 days', async ({ page }) => {
+	await gotoLaunchPad(page)
+	await openAddWidgetModal(page, 'calendar')
+	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
+
+	await dialog.getByLabel('External calendar (ICS address)').fill('https://calendar.example.org/holidays.ics')
+	await dialog.getByRole('button', { name: /^add$/i }).first().click()
+	await expect(dialog.getByText('https://calendar.example.org/holidays.ics')).toBeVisible()
+	await dialog.getByTestId('calendar-period-week').check()
+	await expect(dialog.getByTestId('calendar-period-week')).toBeChecked()
+
+	// The form is valid: the dialog's own Add button is enabled.
+	await expect(dialog.getByRole('button', { name: /^add$/i }).last()).toBeEnabled()
 })

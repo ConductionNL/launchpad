@@ -375,7 +375,11 @@ export default {
 			}
 		},
 
-		/** Free the object URL of the held file. */
+		/**
+		 * Free the object URL of the held file.
+		 *
+		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 */
 		revokePreview() {
 			if (this.pendingPreviewUrl && typeof URL.revokeObjectURL === 'function') {
 				URL.revokeObjectURL(this.pendingPreviewUrl)

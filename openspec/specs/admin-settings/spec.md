@@ -347,14 +347,12 @@ The `defaultGridColumns` setting MUST be applied to new dashboards when no expli
 Admin settings MUST be persisted across server restarts and app updates.
 
 #### Scenario: Settings survive server restart
-@e2e exclude needs restarting the Nextcloud server mid-test, which the shared e2e instance cannot do. No PHPUnit or Newman test pins it.
 - GIVEN the admin has configured `allowUserDashboards: false`
 - WHEN the Nextcloud server is restarted
 - THEN GET /api/admin/settings MUST still return `allowUserDashboards: false`
 - AND the setting MUST NOT revert to its default value
 
 #### Scenario: Settings survive app update
-@e2e exclude needs upgrading the installed app mid-test. No PHPUnit or Newman test pins it.
 - GIVEN the admin has configured custom settings
 - WHEN the LaunchPad app is updated to a new version
 - THEN all previously configured settings MUST be preserved

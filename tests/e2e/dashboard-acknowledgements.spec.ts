@@ -764,7 +764,8 @@ test('a version above the published one is refused and leaves no receipt; lower 
 	expect(published.status(), await published.text()).toBe(200)
 	const report = await reportOf(tom!.api, KEY)
 	expect(report.contentVersion).toBe(3)
-	expect(report.rows.find((r) => r.userId === erin!.username)).toEqual({
+	// A row also names the reader (displayName, department); only the receipt matters here.
+	expect(report.rows.find((r) => r.userId === erin!.username)).toMatchObject({
 		userId: erin!.username,
 		status: 'pending',
 		acknowledgedAt: null,

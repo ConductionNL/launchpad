@@ -516,6 +516,9 @@ test.describe('REQ-LOCK-006 administrator override', () => {
 	test('after a force-release the administrator acquires the lock through the normal path', async () => {
 		// @e2e dashboard-locking::admin-acquires-lock-after-force-release-normal-flow
 		const dash = await aliceDashboard('force then acquire')
+		// To edit through the normal path the administrator needs access to
+		// the dashboard like anyone else (REQ-SHARE-003).
+		await shareWith(alice!.api, dash.id, ADMIN_USER, 'full')
 		await acquire(alice!.api, dash)
 
 		const forced = await admin.post(`${lockUrl(dash)}/force-release`)

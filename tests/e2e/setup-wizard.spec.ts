@@ -797,15 +797,17 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		expect((await saved).status()).toBe(200)
 		expect(await readGroupOrder()).toEqual([GROUP_A, GROUP_B])
 
-		// Step 3 shows the stored demo-data state.
+		// Step 3 shows the stored demo-data state: an installed demo is checked.
 		await goToStep(root, 3)
 		for (const showcase of await readJson<Showcase[]>(SHOWCASES_API)) {
 			const card = root.locator(`[data-test="showcase-card-${showcase.id}"]`)
 			await expect(card).toBeVisible()
-			const action = showcase.isInstalled ? 'uninstall' : 'install'
-			await expect(
-				card.locator(`[data-test="showcase-${action}-${showcase.id}"]`),
-			).toBeVisible()
+			const box = card.getByRole('checkbox')
+			if (showcase.isInstalled) {
+				await expect(box).toBeChecked()
+			} else {
+				await expect(box).not.toBeChecked()
+			}
 		}
 	})
 
@@ -1073,6 +1075,20 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 	}
 
 	/**
+	 * A group in the Step 4 picker, by its exact text. The select splits a
+	 * long name over two spans, so the option's accessible name is not the
+	 * group id and a by-role name match misses it.
+	 *
+	 * @param page the page (the dropdown is appended to the body).
+	 * @param id the group id.
+	 * @return the option.
+	 */
+	function groupOption(page: Page, id: string): Locator {
+		const exact = new RegExp(`^${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`)
+		return page.getByRole('option').filter({ hasText: exact })
+	}
+
+	/**
 	 * The checkbox on a showcase's card in Step 3.
 	 *
 	 * @param root the wizard root.
@@ -1093,7 +1109,7 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 			const root = await openWizard(page, 'rerun')
 			await goToStep(root, 3)
 			for (const showcase of picked) {
-				await demoCheckbox(root, showcase).check()
+				await demoCheckbox(root, showcase).check({ force: true })
 			}
 			// Checking alone installs nothing; Next does.
 			expect(
@@ -1127,7 +1143,7 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		try {
 			const root = await openWizard(page, 'rerun')
 			await goToStep(root, 3)
-			await demoCheckbox(root, first).check()
+			await demoCheckbox(root, first).check({ force: true })
 			await root.locator('[data-test="setup-wizard-next"]').click()
 			await expectStep(root, 4)
 			const writes = await writesDuring(page, async () => {
@@ -1156,7 +1172,7 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 
 			const root = await openWizard(page, 'rerun')
 			await goToStep(root, 3)
-			await demoCheckbox(root, installed).uncheck()
+			await demoCheckbox(root, installed).uncheck({ force: true })
 			const writes = await writesDuring(page, async () => {
 				await root.locator('[data-test="setup-wizard-next"]').click()
 				await expectStep(root, 4)
@@ -1185,7 +1201,7 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		const groups = await admin.get('/ocs/v1.php/cloud/groups?format=json')
 		const ids: string[] = (await groups.json()).ocs.data.groups
 		for (const id of ids) {
-			await expect(page.getByRole('option', { name: id })).toBeVisible()
+			await expect(groupOption(page, id)).toBeVisible()
 		}
 	})
 
@@ -1198,7 +1214,7 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 			const root = await openWizard(page, 'rerun')
 			await goToStep(root, 4)
 			await root.locator('.setup-wizard__step').getByRole('combobox').click()
-			await page.getByRole('option', { name: GROUP_A }).click()
+			await groupOption(page, GROUP_A).click()
 			await root.locator('[data-test="setup-wizard-next"]').click()
 			await expectStep(root, 5)
 			const added = (await readJson<RoleRow[]>(ROLES_API)).filter(
@@ -1224,7 +1240,7 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 			const root = await openWizard(page, 'rerun')
 			await goToStep(root, 4)
 			await root.locator('.setup-wizard__step').getByRole('combobox').click()
-			await page.getByRole('option', { name: GROUP_A }).click()
+			await groupOption(page, GROUP_A).click()
 			await root.locator('[data-test="setup-wizard-next"]').click()
 			await expectStep(root, 5)
 			const added = (await readJson<RoleRow[]>(ROLES_API)).filter(

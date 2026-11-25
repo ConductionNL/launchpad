@@ -43,8 +43,8 @@ class AdminSettingsServiceTest extends TestCase {
 	 */
 	public function testUpdateRefusesAnUnknownPermissionLevelBeforeWriting(): void {
 		$this->settingMapper->expects($this->never())->method('setSetting');
-		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessage('defaultPermLevel');
+		$this->expectException(exception: \InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: 'defaultPermLevel');
 		$this->service->updateSettings(settings: ['defaultPermLevel' => 'super_admin', 'allowUserDash' => true]);
 	}//end testUpdateRefusesAnUnknownPermissionLevelBeforeWriting()
 
@@ -75,7 +75,7 @@ class AdminSettingsServiceTest extends TestCase {
 	 * @spec openspec/specs/admin-settings/spec.md#requirement-update-admin-settings-req-aset-002
 	 */
 	public function testUpdateAcceptsTheValidRange(): void {
-		$this->settingMapper->expects($this->exactly(5))->method('setSetting');
+		$this->settingMapper->expects($this->exactly(count: 5))->method('setSetting');
 		foreach ([1, 24] as $columns) {
 			$this->service->updateSettings(settings: ['defaultGridCols' => $columns]);
 		}

@@ -39,6 +39,7 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\StreamResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
+use OCA\LaunchPad\Service\AdminSettingsValidator;
 use OCP\IRequest;
 
 /**
@@ -91,21 +92,6 @@ use OCP\IRequest;
  */
 class AdminController extends Controller {
 	use RespondsWithErrors;
-
-	/**
-	 * The boolean settings updateSettings() takes, under each spelling (REQ-ASET-002).
-	 *
-	 * @var list<string>
-	 */
-	private const BOOLEAN_SETTING_PARAMS = [
-		'allowUserDash',
-		'allowMultiDash',
-		'allowUserDashboards',
-		'allowMultipleDashboards',
-		'legacyWidgetBridgeEnabled',
-		'filterTelemetryEnabled',
-		'defaultAppEnabled',
-	];
 
 	/**
 	 * Constructor
@@ -510,26 +496,20 @@ class AdminController extends Controller {
 	): JSONResponse {
 		// REQ-ASET-002: Nextcloud casts a bool parameter before it gets here
 		// ("maybe" arrives as true), so the raw value is checked first.
-		$notBoolean = $this->firstNonBooleanParam();
+		$notBoolean = AdminSettingsValidator::firstNonBooleanParam(request: $this->request);
 		if ($notBoolean !== null) {
 			return $this->failure(message: $notBoolean.' must be true or false', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		// Read-side aliases, see the docblock. Short form wins.
-		$defaultPermLevel ??= $defaultPermissionLevel;
-		$allowUserDash ??= $allowUserDashboards;
-		$allowMultiDash ??= $allowMultipleDashboards;
-		$defaultGridCols ??= $defaultGridColumns;
-		$linkCreateFileExts ??= $linkCreateFileExtensions;
-
 		try {
 			$this->settings->settingsService->updateSettings(
 				settings: [
-					'defaultPermLevel'            => $defaultPermLevel,
-					'allowUserDash'               => $allowUserDash,
-					'allowMultiDash'              => $allowMultiDash,
-					'defaultGridCols'             => $defaultGridCols,
-					'linkCreateFileExts'          => $linkCreateFileExts,
+					// Read-side aliases, see the docblock. Short form wins.
+					'defaultPermLevel'            => $defaultPermLevel ?? $defaultPermissionLevel,
+					'allowUserDash'               => $allowUserDash ?? $allowUserDashboards,
+					'allowMultiDash'              => $allowMultiDash ?? $allowMultipleDashboards,
+					'defaultGridCols'             => $defaultGridCols ?? $defaultGridColumns,
+					'linkCreateFileExts'          => $linkCreateFileExts ?? $linkCreateFileExtensions,
 					'defaultSharePermissionLevel' => $defaultSharePermissionLevel,
 					'forcedShareGroups'           => $forcedShareGroups,
 					'legacyWidgetBridgeEnabled'   => $legacyWidgetBridgeEnabled,
@@ -555,29 +535,6 @@ class AdminController extends Controller {
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end updateSettings()
-
-	/**
-	 * The first boolean setting in the request whose raw value is not a boolean
-	 * (`true`, `false`, `0`, `1`, or those as text), or null when all are.
-	 *
-	 * @return string|null The parameter name, or null.
-	 *
-	 * @spec openspec/specs/admin-settings/spec.md#requirement-update-admin-settings-req-aset-002
-	 */
-	private function firstNonBooleanParam(): ?string {
-		foreach (self::BOOLEAN_SETTING_PARAMS as $name) {
-			$raw = $this->request->getParam(key: $name);
-			if ($raw === null || is_bool($raw) === true) {
-				continue;
-			}
-
-			if (in_array(needle: $raw, haystack: [0, 1, '0', '1', 'true', 'false'], strict: true) === false) {
-				return $name;
-			}
-		}
-
-		return null;
-	}//end firstNonBooleanParam()
 
 	/**
 	 * Read the global footer settings (REQ-FTR-001, REQ-FTR-010).

@@ -44,17 +44,31 @@ use Psr\Log\NullLogger;
 use OCA\LaunchPad\Controller\AdminContext;
 
 class AdminControllerSettingsValidationTest extends TestCase {
+	/**
+	 * The controller under test.
+	 *
+	 * @var AdminController
+	 */
 	private AdminController $controller;
 
 	/** @var AdminSettingsService&MockObject */
 	private $settingsService;
 
-	/** @var array<string, mixed> */
+	/**
+	 * The raw request parameters the mocked request answers.
+	 *
+	 * @var array<string, mixed>
+	 */
 	private array $params = [];
 
+	/**
+	 * Build the controller over a request that answers $this->params.
+	 *
+	 * @return void
+	 */
 	protected function setUp(): void {
-		$this->settingsService = $this->createMock(AdminSettingsService::class);
-		$request = $this->createMock(IRequest::class);
+		$this->settingsService = $this->createMock(originalClassName: AdminSettingsService::class);
+		$request = $this->createMock(originalClassName: IRequest::class);
 		$request->method('getParam')->willReturnCallback(
 			fn (string $key, mixed $default = null): mixed => $this->params[$key] ?? $default
 		);
@@ -62,22 +76,22 @@ class AdminControllerSettingsValidationTest extends TestCase {
 		$this->controller = new AdminController(
 			request: $request,
 			templates: new AdminTemplateTools(
-				templateService: $this->createMock(AdminTemplateService::class),
-				exportService: $this->createMock(ExportService::class),
-				importService: $this->createMock(ImportService::class),
-				resyncService: $this->createMock(\OCA\LaunchPad\Service\TemplateResyncService::class)
+				templateService: $this->createMock(originalClassName: AdminTemplateService::class),
+				exportService: $this->createMock(originalClassName: ExportService::class),
+				importService: $this->createMock(originalClassName: ImportService::class),
+				resyncService: $this->createMock(originalClassName: \OCA\LaunchPad\Service\TemplateResyncService::class)
 			),
 			settings: new AdminSettingsTools(
 				settingsService: $this->settingsService,
-				groupManager: $this->createMock(IGroupManager::class),
-				footerService: $this->createMock(FooterService::class),
-				setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class)
+				groupManager: $this->createMock(originalClassName: IGroupManager::class),
+				footerService: $this->createMock(originalClassName: FooterService::class),
+				setupWizardService: $this->createMock(originalClassName: \OCA\LaunchPad\Service\SetupWizardService::class)
 			),
 			context: new AdminContext(caller: new AdminCallerAndRoles(
-				roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
-				feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class),
-				userSession: $this->createMock(IUserSession::class),
-				actionAuth: $this->createMock(ActionAuthService::class)
+				roleService: $this->createMock(originalClassName: \OCA\LaunchPad\Service\RoleService::class),
+				feedRefresh: $this->createMock(originalClassName: \OCA\LaunchPad\Service\FeedRefreshService::class),
+				userSession: $this->createMock(originalClassName: IUserSession::class),
+				actionAuth: $this->createMock(originalClassName: ActionAuthService::class)
 			), responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}//end setUp()
@@ -107,7 +121,7 @@ class AdminControllerSettingsValidationTest extends TestCase {
 	 * @spec openspec/specs/admin-settings/spec.md#requirement-update-admin-settings-req-aset-002
 	 */
 	public function testBooleanSpellingsAreAccepted(): void {
-		$this->settingsService->expects($this->exactly(6))->method('updateSettings');
+		$this->settingsService->expects($this->exactly(count: 6))->method('updateSettings');
 		foreach ([true, false, 0, 1, '1', 'false'] as $value) {
 			$this->params = ['allowUserDash' => $value];
 			$response = $this->controller->updateSettings(allowUserDash: (bool)$value);

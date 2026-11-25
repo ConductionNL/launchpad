@@ -427,27 +427,6 @@ class AdminSettingsService {
 	}//end isValidQuicksearchFallbackUrlTemplate()
 
 	/**
-	 * The default permission levels an admin may choose (REQ-ASET-002).
-	 *
-	 * @var list<string>
-	 */
-	private const PERMISSION_LEVELS = [
-		Dashboard::PERMISSION_VIEW_ONLY,
-		Dashboard::PERMISSION_ADD_ONLY,
-		Dashboard::PERMISSION_FULL,
-	];
-
-	/**
-	 * The fewest default grid columns (REQ-ASET-002).
-	 */
-	private const MIN_GRID_COLUMNS = 1;
-
-	/**
-	 * The most default grid columns (REQ-ASET-002).
-	 */
-	private const MAX_GRID_COLUMNS = 24;
-
-	/**
 	 * The settings updateSettings() writes as given, by input name.
 	 *
 	 * @var array<string, string>
@@ -490,7 +469,7 @@ class AdminSettingsService {
 	 */
 	public function updateSettings(array $settings): void {
 		// REQ-ASET-002: refuse an invalid value before anything is written.
-		$this->assertValidCoreSettings(settings: $settings);
+		AdminSettingsValidator::assertValidCoreSettings(settings: $settings);
 
 		foreach (self::PLAIN_SETTINGS as $name => $key) {
 			$this->persistIfGiven(key: $key, value: $settings[$name] ?? null);
@@ -538,37 +517,6 @@ class AdminSettingsService {
 			);
 		}
 	}//end updateSettings()
-
-	/**
-	 * Refuse a default permission level outside view_only, add_only and full, and a
-	 * default grid column count outside 1 to 24 (REQ-ASET-002). Runs before any write,
-	 * so a refused request stores nothing.
-	 *
-	 * @param array<string, mixed> $settings The settings by input name.
-	 *
-	 * @return void
-	 *
-	 * @throws InvalidArgumentException When one of the two values is invalid.
-	 *
-	 * @spec openspec/specs/admin-settings/spec.md#requirement-update-admin-settings-req-aset-002
-	 */
-	private function assertValidCoreSettings(array $settings): void {
-		$level = $settings['defaultPermLevel'] ?? null;
-		if ($level !== null && in_array(needle: $level, haystack: self::PERMISSION_LEVELS, strict: true) === false) {
-			throw new InvalidArgumentException(
-				message: 'defaultPermLevel must be one of '.implode(separator: ', ', array: self::PERMISSION_LEVELS)
-			);
-		}
-
-		$columns = $settings['defaultGridCols'] ?? null;
-		if ($columns !== null
-			&& (is_int($columns) === false || $columns < self::MIN_GRID_COLUMNS || $columns > self::MAX_GRID_COLUMNS)
-		) {
-			throw new InvalidArgumentException(
-				message: 'defaultGridCols must be a whole number from '.self::MIN_GRID_COLUMNS.' to '.self::MAX_GRID_COLUMNS
-			);
-		}
-	}//end assertValidCoreSettings()
 
 	/**
 	 * Switch LaunchPad being the default app (REQ-PSP-003) when a value is given.

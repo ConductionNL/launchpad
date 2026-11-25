@@ -179,13 +179,13 @@ test.describe.serial('default widget bundle (REQ-DWB-001, 002, 005, 006)', () =>
 				const want = BUNDLE[index]
 				await expect(cell(page, placement)).toBeVisible({ timeout: 30_000 })
 				if (want.widgetId === 'tile') {
-					// A `tile` placement, preset ones included, renders as the
-					// launcher tile itself (Views.vue isTilePlacement → TileWidget).
+					// A `preset` tile renders through the registry's `tile` type
+					// (TileHost → CnDashTileWidget), not the custom-tile TileWidget.
 					await expect(
-						cell(page, placement).locator('.tile-widget__title'),
+						cell(page, placement).locator('.cn-dash-tile-widget__title'),
 					).toHaveText(want.tileTitle!)
 					await expect(
-						cell(page, placement).locator('a.tile-widget__link'),
+						cell(page, placement).locator('a.cn-dash-tile-widget__link'),
 					).toHaveAttribute(
 						'href',
 						new RegExp(`^${want.link!.replace(/[.]/g, '\\.')}/?$`),

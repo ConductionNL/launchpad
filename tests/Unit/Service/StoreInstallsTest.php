@@ -20,6 +20,7 @@ use DateTimeImmutable;
 use OCA\LaunchPad\Controller\StoreController;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Listener\StoreInstallsListener;
+use OCA\LaunchPad\Service\StoreInstallFlow;
 use OCA\LaunchPad\Service\StoreInstalls;
 use OCA\LaunchPad\Service\StoreOpenLinks;
 use OCA\LaunchPad\Service\DashboardTreeService;
@@ -72,7 +73,7 @@ class StoreInstallsTest extends TestCase {
 		$installs->record(slug: 'empty', version: '1.0.0', dashboard: ['id' => 0, 'uuid' => 'uuid-0']);
 
 		$this->assertSame(
-			expected: ['intranet-gemeente' => ['version' => '2.3.0', 'dashboardId' => 41, 'dashboardUuid' => 'uuid-41']],
+			expected: ['intranet-gemeente' => ['version' => '2.3.0', 'dashboardId' => 41, 'dashboardUuid' => 'uuid-41', 'placementIds' => []]],
 			actual: $installs->all()
 		);
 
@@ -162,13 +163,13 @@ class StoreInstallsTest extends TestCase {
 			request: $this->createMock(originalClassName: IRequest::class),
 			storeService: $service,
 			userSession: $session,
-			installs: $installs
+			flow: new StoreInstallFlow(installs: $installs)
 		);
 
 		$controller->install(slug: 'intranet-gemeente');
 		$controller->install(slug: 'missing');
 		$this->assertSame(
-			expected: ['intranet-gemeente' => ['version' => '2.3.0', 'dashboardId' => 41, 'dashboardUuid' => 'uuid-41']],
+			expected: ['intranet-gemeente' => ['version' => '2.3.0', 'dashboardId' => 41, 'dashboardUuid' => 'uuid-41', 'placementIds' => []]],
 			actual: $installs->all()
 		);
 

@@ -19,6 +19,7 @@ use OCA\LaunchPad\Controller\SetupStatusFirstLoad;
 use OCA\LaunchPad\Controller\ShellBootReads;
 use OCA\LaunchPad\Controller\WalkthroughPreferencesFirstLoad;
 use OCA\LaunchPad\Kernel\Contracts\DemoDataServiceInterface;
+use OCA\LaunchPad\Service\DemoSeedPreferences;
 use OCA\LaunchPad\Service\PreferenceKey;
 use OCA\LaunchPad\Service\SetupStatusDocument;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
@@ -172,6 +173,11 @@ class ShellBootReadsTest extends TestCase {
 			actual: $keys->stored(key: 'walkthrough_completed_version-progress')
 		);
 		$this->assertSame(expected: '', actual: $keys->stored(key: '__'));
+		// The demo seed marks the tour seen under the same stored name.
+		$this->assertSame(
+			expected: $keys->stored(key: WalkthroughPreferencesFirstLoad::CONFIG_KEY),
+			actual: DemoSeedPreferences::WALKTHROUGH_PREF_KEY
+		);
 	}//end testTheStoredKeyMatchesThePreferenceEndpoint()
 	/**
 	 * The holder hands each read out under its initial-state key; a read that

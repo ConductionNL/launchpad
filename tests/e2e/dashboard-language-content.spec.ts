@@ -57,20 +57,9 @@
  *   @e2e dashboard-language-content::promote-non-existent-variant-returns-404
  *   @e2e action-authorization::the-owner-may-manage-their-own-dashboards-language-versions
  *
- * Four tests are EXPECTED RED until the product is fixed. They were
- * `test.fixme`, so although gate-19 counted them through the list above, no
- * test of theirs ever executed. They now run; this file is not serial, so a
- * red one does not skip the tests after it.
- *   - exact-language-match and language-part-match-prefix-fallback:
- *     DashboardTranslationApiController::resolveLocaleVariant() passes
- *     `preferredLanguage: ''`, so the reader's language is never read and
- *     every request without `?lang=` gets the primary as a fallback.
- *   - available-languages-list: DashboardTranslationMapper::
- *     normaliseLanguageCode() collapses `de-DE` to `de` on write.
- *   - cannot-delete-the-only-remaining-variant: DashboardTranslationService::
- *     deleteVariant() refuses the primary before it counts, and the only
- *     variant is always the primary, so the last-variant message is never
- *     sent.
+ * A variant is stored under its base language code: `de-DE` is kept as `de`
+ * (DashboardTranslationMapper::normaliseLanguageCode), and the scenarios say
+ * so.
  *
  * @spec openspec/specs/dashboard-language-content/spec.md
  */
@@ -363,10 +352,8 @@ test.describe('REQ-DASH-038 translation schema', () => {
 test.describe('REQ-DASH-039 locale resolution and primary fallback', () => {
 	// Without `?lang=` the reader's Nextcloud language picks the variant
 	// (DashboardTranslationApiController::readerLanguage).
-	// EXPECTED RED on `currentLanguage`: every stored code is collapsed to its
-	// base (`de-DE` -> `de`, DashboardTranslationMapper::normaliseLanguageCode),
-	// so `currentLanguage: 'de-DE'` can never be answered.
-	test('a reader in de-DE gets the de-DE variant', async () => {
+	// A variant created as `de-DE` is stored as its base code `de`.
+	test('a reader in de-DE gets the German variant', async () => {
 		// @e2e dashboard-language-content::exact-language-match
 		const dash = await newDashboard('Exact')
 		await addVariant(dash.uuid, { languageCode: 'nl', name: 'Exact NL' })
@@ -376,7 +363,7 @@ test.describe('REQ-DASH-039 locale resolution and primary fallback', () => {
 			const { status, body } = await resolve(dash.uuid)
 			expect(status).toBe(200)
 			expect((body.translation as Variant).name).toBe('Exact DE')
-			expect(body.currentLanguage).toBe('de-DE')
+			expect(body.currentLanguage).toBe('de')
 			expect(body.isFallback).toBe(false)
 		} finally {
 			await setLanguage(owner!.username, 'en', 'en_US')
@@ -451,12 +438,7 @@ test.describe('REQ-DASH-039 locale resolution and primary fallback', () => {
 		expect((await resolve(dash.uuid)).status).toBe(200)
 	})
 
-	// EXPECTED RED (or a scenario at odds with its own spec): every stored
-	// code is collapsed to its two-letter base on write
-	// (lib/Service/DashboardTranslationService.php:303 unusedLanguageCode via
-	// DashboardTranslationMapper::normaliseLanguageCode,
-	// lib/Db/DashboardTranslationMapper.php:66-78), so `de-DE` is listed as
-	// `de` and the list reads ['de', 'en', 'fr', 'nl'].
+	// `de-DE` is stored and listed as its base code `de`.
 	test('availableLanguages lists every variant, sorted', async () => {
 		// @e2e dashboard-language-content::available-languages-list
 		const dash = await newDashboard('Available')
@@ -466,7 +448,7 @@ test.describe('REQ-DASH-039 locale resolution and primary fallback', () => {
 
 		const { status, body } = await resolve(dash.uuid)
 		expect(status).toBe(200)
-		expect(body.availableLanguages).toEqual(['de-DE', 'en', 'fr', 'nl'])
+		expect(body.availableLanguages).toEqual(['de', 'en', 'fr', 'nl'])
 	})
 })
 

@@ -199,7 +199,7 @@ Grid position changes MUST be communicated to the parent component for API persi
 - WHEN the failure is detected
 - THEN the system MUST display an error notification
 - AND the system MUST retry the save automatically (up to 3 retries)
-- NOTE: Save failure/retry is NOT currently implemented in the frontend.
+- AND a newer layout save MUST replace the pending retries of an older one
 
 #### Scenario: Concurrent edits from multiple tabs
 - GIVEN user "alice" has the same dashboard open in two browser tabs
@@ -455,7 +455,8 @@ The grid MUST be initialised with `cellHeight: 60` (px) and `margin: 8` (px). Th
 
 - GIVEN a widget with `gridHeight: 4` is placed
 - WHEN it renders at the 12-column breakpoint
-- THEN its DOM height MUST be `(4 * 60) + (3 * 8) = 264 px` (4 rows + 3 inter-row margins)
+- THEN its grid item MUST be `4 * 60 = 240 px` tall (GridStack sizes an item `gridHeight * cellHeight`)
+- AND its content MUST be inset by the 8 px margin on each side, so the gap between two stacked widgets is 16 px
 
 ### Requirement: GridStack version pin (REQ-GRID-013)
 

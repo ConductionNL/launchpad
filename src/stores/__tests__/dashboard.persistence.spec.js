@@ -45,7 +45,7 @@ vi.mock('../../services/api.js', () => ({
 const { showError } = await import('@nextcloud/dialogs')
 const { logger } = await import('../../utils/logger.js')
 const { api } = await import('../../services/api.js')
-const { useDashboardStore } = await import('../dashboard.js')
+const { LAYOUT_SAVE_RETRY_DELAYS_MS, useDashboardStore } = await import('../dashboard.js')
 
 describe('dashboard store persistence', () => {
 	let store
@@ -167,16 +167,66 @@ describe('dashboard store persistence', () => {
 			expect(api.updateDashboard).not.toHaveBeenCalled()
 		})
 
-		it('keeps the local layout and clears saving when the save fails', async () => {
-			store.activeDashboard = { id: 7, source: 'user' }
-			const failure = new Error('500')
-			api.updateDashboard.mockRejectedValue(failure)
+		it('keeps the local layout, reports the failure and retries three times', async () => {
+			vi.useFakeTimers()
+			try {
+				store.activeDashboard = { id: 7, source: 'user' }
+				const failure = new Error('500')
+				api.updateDashboard.mockRejectedValue(failure)
 
-			await store.updatePlacements(placements)
+				const done = store.updatePlacements(placements)
+				await vi.runAllTimersAsync()
+				await done
 
-			expect(store.widgetPlacements).toStrictEqual(placements)
-			expect(store.saving).toBe(false)
-			expect(logger.error).toHaveBeenCalledWith('Failed to save placements:', failure)
+				expect(store.widgetPlacements).toStrictEqual(placements)
+				expect(store.saving).toBe(false)
+				expect(api.updateDashboard).toHaveBeenCalledTimes(1 + LAYOUT_SAVE_RETRY_DELAYS_MS.length)
+				expect(logger.error).toHaveBeenCalledWith('Failed to save placements:', failure)
+				expect(showError).toHaveBeenNthCalledWith(1, 'The layout could not be saved. Trying again.')
+				expect(showError).toHaveBeenLastCalledWith('The layout could not be saved.')
+				expect(showError).toHaveBeenCalledTimes(2)
+			} finally {
+				vi.useRealTimers()
+			}
+		})
+
+		it('stops retrying once a retry saves, without a second notice', async () => {
+			vi.useFakeTimers()
+			try {
+				store.activeDashboard = { id: 7, source: 'user' }
+				api.updateDashboard.mockRejectedValueOnce(new Error('500')).mockResolvedValue({ data: {} })
+
+				const done = store.updatePlacements(placements)
+				await vi.runAllTimersAsync()
+				await done
+
+				expect(api.updateDashboard).toHaveBeenCalledTimes(2)
+				expect(showError).toHaveBeenCalledTimes(1)
+				expect(store.saving).toBe(false)
+			} finally {
+				vi.useRealTimers()
+			}
+		})
+
+		it('drops the retries of an older layout once a newer one is saved', async () => {
+			vi.useFakeTimers()
+			try {
+				store.activeDashboard = { id: 7, source: 'user' }
+				api.updateDashboard.mockRejectedValueOnce(new Error('500')).mockResolvedValue({ data: {} })
+
+				const older = store.updatePlacements(placements)
+				await vi.advanceTimersByTimeAsync(0)
+				const newer = store.updatePlacements(placements.slice(0, 1))
+				await vi.runAllTimersAsync()
+				await Promise.all([older, newer])
+
+				// The failed first save and the newer save; no retry of the older.
+				expect(api.updateDashboard).toHaveBeenCalledTimes(2)
+				expect(api.updateDashboard).toHaveBeenLastCalledWith(7, { placements: geometry.slice(0, 1) })
+				expect(store.saving).toBe(false)
+			} finally {
+				vi.useRealTimers()
+			}
 		})
 	})
 

@@ -366,6 +366,46 @@ class InitialStateBuilder {
 	}//end setWorkspaceBootReads()
 
 	/**
+	 * Set the setup status the shell reads (`setup_status`): the document
+	 * `GET /api/setup/status` answers an admin, or `{forbidden: true}` for a
+	 * caller it refuses, so nextcloud-vue does not ask. Optional key; left out
+	 * when null (the shell asks the endpoint).
+	 *
+	 * @param array|null $setupStatus The status, or null.
+	 *
+	 * @return self
+	 *
+	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
+	 */
+	public function setSetupStatus(?array $setupStatus): self {
+		if ($setupStatus !== null) {
+			$this->values['setup_status'] = $setupStatus;
+		}
+
+		return $this;
+	}//end setSetupStatus()
+
+	/**
+	 * Set the walkthrough preferences the shell reads
+	 * (`walkthrough_preferences`: `{seen, progress}` as stored), so
+	 * nextcloud-vue does not ask the two preference endpoints. Optional key;
+	 * left out when null.
+	 *
+	 * @param array|null $preferences The preferences, or null.
+	 *
+	 * @return self
+	 *
+	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
+	 */
+	public function setWalkthroughPreferences(?array $preferences): self {
+		if ($preferences !== null) {
+			$this->values['walkthrough_preferences'] = $preferences;
+		}
+
+		return $this;
+	}//end setWalkthroughPreferences()
+
+	/**
 	 * Set the runtime manifest kept for the caller, so the page starts from
 	 * it instead of asking `GET /api/manifest`. Optional key; left out when
 	 * null (no manifest kept).

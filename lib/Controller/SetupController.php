@@ -107,35 +107,51 @@ class SetupController extends Controller {
 	 * @return JSONResponse The status document.
 	 *
 	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-1
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function status(): JSONResponse {
-		$demoDecided = $this->appConfig->getValueString(Application::APP_ID, self::DEMO_DECIDED_KEY, '') !== '';
-		$picked      = $this->appConfig->getValueString(Application::APP_ID, self::DATASET_KEY, '');
-
-		return new JSONResponse(
-			data: [
-				'version'   => self::SETUP_VERSION,
-				'completed' => true,
-				// The choice step reads its options from here: it declares
-				// `optionsSource: datasets` and no options of its own, so a
-				// dataset missing from this list is a dataset nobody can pick.
-				'datasets'  => $this->demoDataService->listChoices(),
-				// Every id of `manifest.setup.steps`, asserted by the status
-				// contract test: a step the server never reports stays open,
-				// and an open step reopens the wizard on every page.
-				'steps'     => [
-					'welcome' => ['done' => true],
-					// Answered once a card was picked ("None" included) or a load
-					// ran. A pick without a load still counts: a wizard that
-					// predates `loadAction` can only record the pick.
-					'demo-data' => ['done' => ($demoDecided === true || $picked !== '')],
-					'done' => ['done' => true],
-				],
-			]
-		);
+		return new JSONResponse(data: self::statusDocument(appConfig: $this->appConfig, demoDataService: $this->demoDataService));
 
 	}//end status()
+
+	/**
+	 * The setup status document `GET /api/setup/status` answers. The workspace
+	 * page carries the same document for an admin (REQ-INIT-010), so both
+	 * build it here.
+	 *
+	 * @param IAppConfig               $appConfig       Holds the demo-data decision and pick.
+	 * @param DemoDataServiceInterface $demoDataService Lists the datasets the choice step offers.
+	 *
+	 * @return array<string, mixed> The status document.
+	 *
+	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-1
+	 */
+	public static function statusDocument(IAppConfig $appConfig, DemoDataServiceInterface $demoDataService): array {
+		$demoDecided = $appConfig->getValueString(Application::APP_ID, self::DEMO_DECIDED_KEY, '') !== '';
+		$picked      = $appConfig->getValueString(Application::APP_ID, self::DATASET_KEY, '');
+
+		return [
+			'version'   => self::SETUP_VERSION,
+			'completed' => true,
+			// The choice step reads its options from here: it declares
+			// `optionsSource: datasets` and no options of its own, so a
+			// dataset missing from this list is a dataset nobody can pick.
+			'datasets'  => $demoDataService->listChoices(),
+			// Every id of `manifest.setup.steps`, asserted by the status
+			// contract test: a step the server never reports stays open,
+			// and an open step reopens the wizard on every page.
+			'steps'     => [
+				'welcome' => ['done' => true],
+				// Answered once a card was picked ("None" included) or a load
+				// ran. A pick without a load still counts: a wizard that
+				// predates `loadAction` can only record the pick.
+				'demo-data' => ['done' => ($demoDecided === true || $picked !== '')],
+				'done' => ['done' => true],
+			],
+		];
+
+	}//end statusDocument()
 
 	/**
 	 * Persist the wizard's `choice` answer.

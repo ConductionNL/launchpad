@@ -165,7 +165,40 @@ class PreferencesController extends Controller {
 	 * @return string The sanitised key, or '' when nothing safe remains.
 	 */
 	private function sanitizeKey(string $key): string {
+		return self::safeKey(key: $key);
+	}//end sanitizeKey()
+
+	/**
+	 * The user value a preference key is stored under (`pref_` plus the
+	 * sanitised key), so a reader outside this controller reads exactly what
+	 * `GET /api/preferences/{key}` reads. Empty when nothing safe remains.
+	 *
+	 * @param string $key The preference key as the browser names it.
+	 *
+	 * @return string The stored key, or ''.
+	 *
+	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-1
+	 */
+	public static function storedKey(string $key): string {
+		$safe = self::safeKey(key: $key);
+		if ($safe === '') {
+			return '';
+		}
+
+		return 'pref_'.$safe;
+	}//end storedKey()
+
+	/**
+	 * Lower-case the key and keep only `[a-z0-9-]`, at most 64 characters.
+	 *
+	 * @param string $key The raw key.
+	 *
+	 * @return string The sanitised key, or ''.
+	 *
+	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-1
+	 */
+	private static function safeKey(string $key): string {
 		$safe = preg_replace(pattern: '/[^a-z0-9-]/', replacement: '', subject: strtolower($key));
 		return substr((string)$safe, offset: 0, length: 64);
-	}//end sanitizeKey()
+	}//end safeKey()
 }//end class

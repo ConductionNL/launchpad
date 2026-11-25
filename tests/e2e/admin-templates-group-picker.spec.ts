@@ -189,13 +189,11 @@ test('the admin adds mijn-werkdag on the Templates page and gives it to a group'
 	expect(installed, 'the installed template is in the listing').toBeDefined()
 	templates.push(installed!.id)
 
-	const row = page.locator(
-		'.launchpad-admin__templates .launchpad-admin__template',
-		{
-			hasText: 'Mijn werkdag',
-		},
-	)
-	await row.getByRole('button', { name: 'Edit' }).first().click()
+	// The row of the copy this test added: an earlier run can leave another
+	// "Mijn werkdag" in the list.
+	const row = page.locator(`[data-testid="admin-template-row-${installed!.id}"]`)
+	await expect(row).toContainText('Mijn werkdag')
+	await row.getByRole('button', { name: 'Edit' }).click()
 	const editor = page.locator('[data-testid="admin-template-editor"]')
 	await expect(editor).toBeVisible()
 	await editor.getByRole('combobox', { name: 'Target groups' }).click()
@@ -204,7 +202,7 @@ test('the admin adds mijn-werkdag on the Templates page and gives it to a group'
 	await expect(editor).toBeHidden()
 
 	// THEN the list shows "Mijn werkdag" with the group.
-	await expect(row.filter({ hasText: medewerkers })).toHaveCount(1)
+	await expect(row).toContainText(medewerkers)
 	expect(
 		(await listTemplates(admin)).find((t) => t.id === installed!.id)
 			?.targetGroups,

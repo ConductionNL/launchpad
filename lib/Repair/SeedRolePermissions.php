@@ -32,6 +32,8 @@ use OCA\LaunchPad\Db\RoleFeaturePermissionMapper;
 use OCA\LaunchPad\Db\RoleLayoutDefault;
 use OCA\LaunchPad\Db\RoleLayoutDefaultMapper;
 use OCA\LaunchPad\Support\WidgetTypeList;
+use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -265,17 +267,27 @@ class SeedRolePermissions implements IRepairStep {
 	}//end seedPermissions()
 
 	/**
-	 * Seed the five default RoleLayoutDefault rows.
+	 * Seed the five default RoleLayoutDefault rows. A row whose group and
+	 * widget already have a layout default is left as it is: the pair is
+	 * unique (`launchpad_rld_group_widget`), so inserting it again would
+	 * abort the step on an instance whose rules were removed but whose
+	 * layout defaults were kept.
 	 *
 	 * @param IOutput $output Migration output stream.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/role-based-content/tasks.md#task-2
+	 * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-011-the-shipped-default-rule-lets-every-user-add-launchpads-own-widgets
 	 */
 	private function seedLayoutDefaults(IOutput $output): void {
 		$now = (new DateTime())->format(format: 'c');
 		foreach (self::LAYOUT_DEFAULT_SEEDS as $seed) {
+			if ($this->hasLayoutDefault(groupId: $seed['groupId'], widgetId: $seed['widgetId']) === true) {
+				$output->info(message: 'RoleLayoutDefault already present: ' . $seed['groupId'] . '/' . $seed['widgetId']);
+				continue;
+			}
+
 			$entity = new RoleLayoutDefault();
 			// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 			$entity->setGroupId($seed['groupId']);
@@ -295,4 +307,26 @@ class SeedRolePermissions implements IRepairStep {
 			$output->info(message: 'Seeded RoleLayoutDefault: ' . $seed['groupId'] . '/' . $seed['widgetId']);
 		}//end foreach
 	}//end seedLayoutDefaults()
+
+	/**
+	 * Whether a layout default exists for the group and widget.
+	 *
+	 * @param string $groupId  The group.
+	 * @param string $widgetId The widget.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-011-the-shipped-default-rule-lets-every-user-add-launchpads-own-widgets
+	 */
+	private function hasLayoutDefault(string $groupId, string $widgetId): bool {
+		try {
+			$this->defMapper->findByGroupAndWidget(groupId: $groupId, widgetId: $widgetId);
+		} catch (DoesNotExistException) {
+			return false;
+		} catch (MultipleObjectsReturnedException) {
+			return true;
+		}
+
+		return true;
+	}//end hasLayoutDefault()
 }//end class

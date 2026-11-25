@@ -6,7 +6,6 @@ TBD - created by archiving change align-source-license-headers-to-eupl. Update P
 ## Requirements
 ### Requirement: REQ-LIC-001 Source-file SPDX identifier is EUPL-1.2
 
-@e2e exclude both scenarios read SPDX lines in checked-in source files, which no running instance serves or renders, so a browser has nothing to observe. The AGPL half is pinned by `scripts/check-license-headers.sh` (composer `lint:licenses`, part of `composer check:strict`), which greps `lib/`, `src/` and `appinfo/` for `SPDX-License-Identifier: AGPL-3.0` and exits 1. The positive half (every identifier reads `EUPL-1.2`) has no dedicated check; it holds today (every SPDX identifier under `lib/`, `src/` and `appinfo/` reads `EUPL-1.2`, measured 2026-11-19), and the shared workflow's REUSE lint job would report another licence, but it runs non-blocking for this app.
 
 LaunchPad-authored source files MUST declare `EUPL-1.2` as their
 `SPDX-License-Identifier`, matching `REUSE.toml`, `composer.json`,
@@ -28,7 +27,6 @@ carry an `AGPL-3.0-or-later` (or any non-`EUPL-1.2`) `SPDX-License-Identifier`.
 
 ### Requirement: REQ-LIC-002 No in-file licence contradiction
 
-@e2e exclude a property of one checked-in PHP file's header comment, invisible at runtime. Pinned statically: `scripts/check-license-headers.sh` refuses an AGPL SPDX line beside the PHPDoc `@license EUPL-1.2`, and the PHPCS `@license` sniff in the shared quality workflow reads the PHPDoc tag. No check asserts "no other licence identifier" in the file.
 
 A source file MUST NOT declare two different licences. When a file carries both
 a PHPDoc `@license` tag and an `SPDX-License-Identifier`, the two MUST name the
@@ -43,7 +41,6 @@ same licence (`EUPL-1.2`).
 
 ### Requirement: REQ-LIC-003 Consistent copyright holder
 
-@e2e exclude a property of checked-in header comments, invisible at runtime. No automated check pins it: `scripts/check-license-headers.sh` looks only for AGPL identifiers. It does not hold for the whole tree: on 2026-11-19, 12 files under `src/` still carry `SPDX-FileCopyrightText: 2026 LaunchPad Contributors`, for example `src/composables/useTileSearch.js` and `src/components/Widgets/Renderers/NewsWidget.vue`. The scenario as written names a PHP file, and no file under `lib/` carries that holder.
 
 Every LaunchPad-authored source file's `SPDX-FileCopyrightText` MUST name the
 same copyright holder as `REUSE.toml`, `publiccode.yml`, and the PHPDoc
@@ -58,7 +55,6 @@ same copyright holder as `REUSE.toml`, `publiccode.yml`, and the PHPDoc
 
 ### Requirement: REQ-LIC-004 README licence badge matches the declared licence
 
-@e2e exclude the subject is `README.md` in the repository, which the app does not serve. No automated check pins it. It holds today: the badge reads `license-EUPL--1.2` and the §License prose reads "licensed under the [EUPL-1.2]".
 
 The README licence badge MUST state the same licence as the README §License
 prose and the rest of the repository (`EUPL-1.2`).
@@ -72,7 +68,6 @@ prose and the rest of the repository (`EUPL-1.2`).
 
 ### Requirement: REQ-LIC-005 Regression guard for licence drift
 
-@e2e exclude both scenarios are about CI behaviour on a commit (a build that fails, a linter verdict), not about a running instance. The first is `scripts/check-license-headers.sh`, which exits 1 and names each offending file and the `EUPL-1.2` replacement; it runs as composer `lint:licenses` inside `composer check:strict`. The second is the shared quality workflow's `REUSE compliance` job (`fsfe/reuse-action`), which runs for this app with `reuse-blocking` false, so a REUSE finding does not fail the build yet.
 
 The repository MUST carry an automated check that fails if a LaunchPad-authored
 source file reintroduces an `AGPL-3.0` `SPDX-License-Identifier`, and `reuse
@@ -86,6 +81,7 @@ lint` MUST pass against the reconciled tree.
 - **AND** the failure message MUST name the offending file and the expected `EUPL-1.2` identifier
 
 #### Scenario: reuse lint passes on the reconciled tree
+@e2e exclude the subject is the `reuse lint` tool's verdict on the repository (REUSE.toml, LICENSES/, dep5 coverage of non-source files), and neither the e2e runner nor the instance has the `reuse` tool installed, so an e2e run cannot produce that verdict. It is the shared quality workflow's `REUSE compliance` job (`fsfe/reuse-action`), which runs for this app with `reuse-blocking` false. The headers it would read are asserted in tests/e2e/license-header-consistency.spec.ts.
 
 - **GIVEN** all source headers reconciled to EUPL-1.2 and Conduction B.V.
 - **WHEN** `reuse lint` runs

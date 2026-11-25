@@ -52,7 +52,14 @@ class BookmarkImportPlanTest extends TestCase {
 		self::assertSame('Werk', $layout[0]['content']['title']);
 		self::assertCount(5, $layout[0]['content']['placements']);
 		self::assertSame(
-			['type' => 'link', 'content' => ['label' => 'Site 1', 'url' => 'https://example.org/1', 'actionType' => 'external'], 'gridX' => 0, 'gridY' => 0, 'gridWidth' => 2, 'gridHeight' => 2],
+			[
+				'type' => 'tile',
+				'content' => ['title' => 'Site 1', 'iconType' => 'svg', 'linkType' => 'url', 'linkValue' => 'https://example.org/1'],
+				'gridX' => 0,
+				'gridY' => 0,
+				'gridWidth' => 2,
+				'gridHeight' => 2,
+			],
 			$layout[0]['content']['placements'][0]
 		);
 		self::assertSame([2, 0], [$layout[0]['content']['placements'][1]['gridX'], $layout[0]['content']['placements'][1]['gridY']]);
@@ -118,7 +125,7 @@ class BookmarkImportPlanTest extends TestCase {
 
 		$container = $plan->layout(bottom: 0)[0]['content'];
 		self::assertSame('Bookmarks', $container['title']);
-		self::assertSame(255, mb_strlen($container['placements'][0]['content']['label']));
+		self::assertSame(expected: 255, actual: mb_strlen($container['placements'][0]['content']['title']));
 	}//end testTitlesAreBoundedAndNeverEmpty()
 
 	/**

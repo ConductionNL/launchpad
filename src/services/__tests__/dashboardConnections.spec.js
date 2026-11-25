@@ -7,8 +7,8 @@
 
 import axios from '@nextcloud/axios'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import declarations from '../../../lib/Settings/connections.json'
 import connectionUses from '../../../lib/Settings/connection-uses.json'
+import declarations from '../../../lib/Settings/connections.json'
 import { connectionsUsedBy, fetchConnectionRows, joinConnectionStates, lastErrorOf, statusLabelOf } from '../dashboardConnections.js'
 
 vi.mock('@nextcloud/axios', () => ({ default: { get: vi.fn() } }))

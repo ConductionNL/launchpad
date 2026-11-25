@@ -188,6 +188,7 @@ class PageController extends Controller {
 			->setTalkEnabled($this->isAppEnabledForViewer(appId: 'spreed'))
 			->setIntegrationApps($this->integrationApps())
 			->setUserTimezone($this->userTimezone(userId: $userId))
+			->setFooter(...$this->sources->dashboards->footerState(dashboard: $active['dashboard'] ?? null, userId: $userId))
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
 			->setDashboardFirstLoad($this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible))
 			->apply();

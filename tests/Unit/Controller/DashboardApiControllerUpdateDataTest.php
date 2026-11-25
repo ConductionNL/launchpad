@@ -209,6 +209,32 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 	}//end testUpdateSendsTheRequestedColumnCount()
 
 	/**
+	 * REQ-FTR-006: the footer override travels in the body and reaches the
+	 * patch; a field that is not a string stays out of it.
+	 *
+	 * @return void
+	 */
+	public function testUpdateSendsTheFooterOverride(): void {
+		$patch   = null;
+		$service = $this->createMock(originalClassName: DashboardService::class);
+		$service->method('updateDashboard')->willReturnCallback(
+			function (int $dashboardId, string $userId, array $data) use (&$patch): Dashboard {
+				$patch = $data;
+				return new Dashboard();
+			}
+		);
+
+		$request  = $this->requestWith(params: ['dashboardFooterMode' => 'custom', 'dashboardFooterHtml' => '<p>Mine</p>']);
+		$response = $this->controller(service: $service, request: $request)->update(id: 7);
+		$this->assertSame(expected: 200, actual: $response->getStatus());
+		$this->assertSame(expected: ['dashboardFooterMode' => 'custom', 'dashboardFooterHtml' => '<p>Mine</p>'], actual: $patch);
+
+		$request = $this->requestWith(params: ['dashboardFooterMode' => 'hidden', 'dashboardFooterHtml' => ['no']]);
+		$this->controller(service: $service, request: $request)->update(id: 7);
+		$this->assertSame(expected: ['dashboardFooterMode' => 'hidden'], actual: $patch);
+	}//end testUpdateSendsTheFooterOverride()
+
+	/**
 	 * A column count the grid does not offer is refused before the service runs.
 	 *
 	 * @return void

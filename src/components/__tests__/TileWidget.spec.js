@@ -25,10 +25,33 @@ vi.mock('../../composables/useTileClickTracking.js', () => ({
 	useTileClickTracking: () => ({ recordTileClick }),
 }))
 vi.mock('../HealthPingBadge.vue', () => ({
-	default: { name: 'HealthPingBadge', props: ['placementId', 'interval'], template: '<span class="badge" />' },
+	default: { name: 'HealthPingBadge', props: ['placementId', 'interval', 'hidden'], emits: ['reading'], template: '<span class="badge" />' },
+}))
+vi.mock('../../services/tileCount.js', async (importOriginal) => ({
+	...(await importOriginal()),
+	resolveTileCount: vi.fn(),
 }))
 
 const { default: TileWidget } = await import('../TileWidget.vue')
+const { resolveTileCount } = await import('../../services/tileCount.js')
+
+const SOURCE = { type: 'register', register: 'cases', schema: 'case', filter: { assignee: '@me' } }
+
+/**
+ * Mount an icon-only tile whose count source answers `count`.
+ *
+ * @param {object} fields Tile fields
+ * @param {object} content Placement content
+ * @param {number|null} count The count the source answers
+ * @return {Promise<object>} The wrapper
+ */
+async function mountCounted(fields, content, count) {
+	resolveTileCount.mockResolvedValue(count)
+	const wrapper = mount(TileWidget, { props: { tile: tile(fields), content: { iconOnly: true, countSource: SOURCE, ...content }, healthPingEnabled: true, placementId: 7 } })
+	await new Promise((resolve) => setTimeout(resolve, 0))
+	await wrapper.vm.$nextTick()
+	return wrapper
+}
 
 let nextId = 1
 
@@ -60,24 +83,55 @@ describe('TileWidget', () => {
 		expect(wrapper.find('a').attributes('aria-label')).toBe('TOPdesk')
 	})
 
-	it('marks an icon-only tile with its pin, count and outage, and names them', () => {
-		const marked = mount(TileWidget, { props: { tile: tile({ title: 'Outlook web' }), content: { iconOnly: true, pinned: true, badge: 3 } } })
+	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+	it('marks an icon-only tile with its pin, live count and outage, and names them', async () => {
+		const marked = await mountCounted({ title: 'Outlook web' }, { pinned: true }, 3)
 		expect(marked.find('[data-testid="tile-pin"]').exists()).toBe(true)
 		expect(marked.find('[data-testid="tile-badge"]').text()).toBe('3')
 		expect(marked.find('a').attributes('aria-label')).toBe('Outlook web, 3 open, pinned')
+		expect(marked.findComponent({ name: 'HealthPingBadge' }).props('hidden')).toBe(true)
 
-		const down = mount(TileWidget, { props: { tile: tile({ title: 'Council' }), content: { iconOnly: true, status: 'down', badge: 4 } } })
+		const down = await mountCounted({ title: 'Council' }, {}, 4)
+		down.findComponent({ name: 'HealthPingBadge' }).vm.$emit('reading', { state: 'offline', downSince: null })
+		await down.vm.$nextTick()
 		expect(down.find('[data-testid="tile-outage"]').exists()).toBe(true)
 		expect(down.find('[data-testid="tile-badge"]').exists()).toBe(false)
 		expect(down.find('a').attributes('aria-label')).toBe('Council, outage')
 
-		const many = mount(TileWidget, { props: { tile: tile(), content: { iconOnly: true, badge: 140 } } })
+		const since = new Date(2026, 10, 25, 9, 12).toISOString()
+		down.findComponent({ name: 'HealthPingBadge' }).vm.$emit('reading', { state: 'offline', downSince: since })
+		await down.vm.$nextTick()
+		const time = new Date(since).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+		expect(down.find('a').attributes('aria-label')).toBe(`Council, outage since ${time}`)
+
+		down.findComponent({ name: 'HealthPingBadge' }).vm.$emit('reading', { state: 'online', downSince: null })
+		await down.vm.$nextTick()
+		expect(down.find('[data-testid="tile-outage"]').exists()).toBe(false)
+		expect(down.find('[data-testid="tile-badge"]').text()).toBe('4')
+
+		const many = await mountCounted({}, {}, 140)
 		expect(many.find('[data-testid="tile-badge"]').text()).toBe('99+')
 	})
 
+	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+	it('ignores the static badge and status of older placements', async () => {
+		const wrapper = await mountCounted({ title: 'Mail' }, { countSource: undefined, badge: 5, status: 'down' }, 9)
+		expect(resolveTileCount).not.toHaveBeenCalled()
+		expect(wrapper.find('[data-testid="tile-badge"]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="tile-outage"]').exists()).toBe(false)
+	})
+
+	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+	it('renders through its colour token, else its hex colour', () => {
+		const token = mount(TileWidget, { props: { tile: tile({ backgroundColor: '#123456' }), content: { colourToken: '--sc-accent' } } })
+		expect(token.find('.tile-widget').attributes('style')).toContain('--tile-bg-color: var(--sc-accent, #cc0000)')
+		const hex = mount(TileWidget, { props: { tile: tile({ backgroundColor: '#123456' }), content: {} } })
+		expect(hex.find('.tile-widget').attributes('style')).toContain('--tile-bg-color: #123456')
+	})
+
 	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
-	it('reads "Zaaksysteem, 14 open" and keeps every mark decorative', () => {
-		const wrapper = mount(TileWidget, { props: { tile: tile({ title: 'Zaaksysteem' }), content: { iconOnly: true, pinned: true, badge: 14 } } })
+	it('reads "Zaaksysteem, 14 open" and keeps every mark decorative', async () => {
+		const wrapper = await mountCounted({ title: 'Zaaksysteem' }, { pinned: true }, 14)
 		const link = wrapper.find('a')
 		expect(link.attributes('aria-label')).toBe('Zaaksysteem, 14 open, pinned')
 		expect(link.attributes('title')).toBe('Zaaksysteem')
@@ -86,9 +140,9 @@ describe('TileWidget', () => {
 		expect(wrapper.text()).not.toContain('Zaaksysteem')
 	})
 
-	it('names no count for 0, a negative or an unreadable badge', () => {
-		for (const badge of [0, -2, 'many', undefined]) {
-			const wrapper = mount(TileWidget, { props: { tile: tile({ title: 'Mail' }), content: { iconOnly: true, badge } } })
+	it('names no count for 0, a negative, an unreadable or no answer', async () => {
+		for (const count of [0, -2, 'many', null]) {
+			const wrapper = await mountCounted({ title: 'Mail' }, {}, count)
 			expect(wrapper.find('[data-testid="tile-badge"]').exists()).toBe(false)
 			expect(wrapper.find('a').attributes('aria-label')).toBe('Mail')
 		}
@@ -163,7 +217,7 @@ describe('TileWidget', () => {
 		const badge = mount(TileWidget, { props: { tile: tile(), healthPingEnabled: true, placementId: 12, pingInterval: 30 } })
 			.findComponent({ name: 'HealthPingBadge' })
 
-		expect(badge.props()).toEqual({ placementId: 12, interval: 30 })
+		expect(badge.props()).toEqual({ placementId: 12, interval: 30, hidden: false })
 	})
 
 	it('records a click on the tile', async () => {

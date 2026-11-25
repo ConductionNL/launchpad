@@ -430,7 +430,10 @@ test.describe('a list on a register that is not here (REQ-TMPL-022)', () => {
 				has: page.getByText(title, { exact: true }),
 			})
 			await expect(list).toBeVisible({ timeout: 20_000 })
-			await expect(list.getByText('Could not load these records')).toBeVisible(
+			// The list's own error line: for a 5xx the object list says
+			// "Temporarily unavailable" (nextcloud-vue loadErrorLabel, ADR-062);
+			// "Could not load these records" is its line for other failures.
+			await expect(list.getByText('Temporarily unavailable', { exact: true })).toBeVisible(
 				{ timeout: 20_000 },
 			)
 		} finally {

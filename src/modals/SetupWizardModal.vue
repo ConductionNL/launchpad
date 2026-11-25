@@ -180,6 +180,12 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * Load the groups when Step 4 opens.
+		 *
+		 * @param {number} step The step now shown.
+		 * @spec openspec/specs/setup-wizard/spec.md#req-wiz-006
+		 */
 		currentStep(step) {
 			if (step === 4) {
 				this.loadRoleGroups()

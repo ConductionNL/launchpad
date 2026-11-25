@@ -71,11 +71,11 @@ The system MUST resolve the appropriate translation variant for a requesting use
 
 #### Scenario: Exact language match
 
-- GIVEN a dashboard has variants for 'en', 'nl', 'de-DE'
+- GIVEN a dashboard has variants for 'en', 'nl' and 'de' (created as 'de-DE', stored under its base code 'de')
 - AND the user's Nextcloud locale is set to 'de-DE'
 - WHEN `GET /api/dashboards/{uuid}` is called (no ?lang param)
-- THEN the system MUST return the 'de-DE' variant
-- AND the response MUST include `currentLanguage: 'de-DE'`, `isFallback: false`
+- THEN the system MUST return the 'de' variant
+- AND the response MUST include `currentLanguage: 'de'`, `isFallback: false`
 
 #### Scenario: Language-part match (prefix fallback)
 
@@ -112,7 +112,7 @@ The system MUST resolve the appropriate translation variant for a requesting use
 
 - GIVEN a dashboard has variants for 'en', 'nl', 'de-DE', 'fr'
 - WHEN `GET /api/dashboards/{uuid}` is called
-- THEN the response MUST include `availableLanguages: ['de-DE', 'en', 'fr', 'nl']` (sorted alphabetically)
+- THEN the response MUST include `availableLanguages: ['de', 'en', 'fr', 'nl']` (sorted alphabetically; a variant is stored under its base language code, so 'de-DE' is listed as 'de')
 
 ### Requirement: REQ-DASH-040 Create Translation Variant
 

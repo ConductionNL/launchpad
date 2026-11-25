@@ -367,6 +367,8 @@
 			:placedAppIds="placedDiscoveredAppIds"
 			:catalogueApps="catalogueApps"
 			:customTypes="customWidgetTypes"
+			:dashboardName="(activeDashboard && activeDashboard.name) || ''"
+			:allowedWidgets="pickerAllowedWidgets"
 			:requestAppFn="requestCatalogueApp"
 			@close="onWidgetPickerClose"
 			@add="addWidget"
@@ -517,9 +519,10 @@ import { mapActions, mapState } from 'pinia'
 import { computed, defineAsyncComponent, nextTick, provide, reactive, ref, shallowRef } from 'vue'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
+// Components
+import { IDLE_TIMEOUT_MS, LazyMountSupport, SETTLE_DELAY_MS } from '../components/LazyMount.vue'
 import TileWidget from '../components/TileWidget.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
-// Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
 import ActiveFiltersPanel from '../components/Workspace/ActiveFiltersPanel.vue'
 import CoEditorsBanner from '../components/Workspace/CoEditorsBanner.vue'
@@ -986,6 +989,7 @@ export default {
 			// for "Filter by detail", and the uuids the filter keeps (null
 			// when no filter is set).
 			detailFields: [],
+			detailFieldsRequested: false,
 			detailFilterUuids: null,
 			// dashboard-tree-navigation: the delete confirmation and, once
 			// the server has answered 409, how many dashboards go with it.
@@ -1479,6 +1483,18 @@ export default {
 		},
 
 		/**
+		 * The widget ids the viewer's role may add, for the picker's grey
+		 * cards (REQ-RFP-010); `null` when the role sets no limit.
+		 *
+		 * @return {Array<string>|null}
+		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
+		 */
+		pickerAllowedWidgets() {
+			const allowed = loadInitialState('workspace').allowedWidgets
+			return Array.isArray(allowed) ? allowed : null
+		},
+
+		/**
 		 * The widget types Launchpad builds itself, as the picker lists them.
 		 *
 		 * @return {Array<{type: string, title: string}>}
@@ -1591,6 +1607,20 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * The first time the switcher opens, read the fields its "Filter by
+		 * detail" offers.
+		 *
+		 * @param {boolean} open Whether the switcher is open.
+		 * @return {void}
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+		 */
+		sidebarOpen(open) {
+			if (open) {
+				this.loadDetailFieldsOnce()
+			}
+		},
+
 		openModals: {
 			immediate: true,
 			/**
@@ -1741,7 +1771,11 @@ export default {
 				// `?f=`: the boot can pass through more than one uuid (the
 				// stored active dashboard, then the one the address names).
 				this.openFilterSession(!this.historyBooted)
-				this.recordViewEventDebounced(uuid)
+				if (this.historyBooted) {
+					this.recordViewEventDebounced(uuid)
+				} else {
+					this.recordViewEventAfterLoad(uuid)
+				}
 				// Outbound URL sync — every uuid change after the boot pushes
 				// a new history entry so back/forward navigates between
 				// dashboards. The boot's changes (the stored active
@@ -1772,6 +1806,15 @@ export default {
 		const widgetStore = useWidgetStore()
 		const tileStore = useTileStore()
 
+		// dashboard-acknowledgements REQ-ACK-002: the user's outstanding
+		// mandatory-read items, so the forced-delivery gate and the outstanding
+		// count reflect reality on first render. Wave3.7: the pinned
+		// default-dashboard UUID, for the "Set as default" / "Default
+		// dashboard" state. Neither depends on the loads below, so all go out
+		// together. Both are non-fatal on failure.
+		dashboardStore.fetchPendingAcknowledgements()
+		const defaultPreference = this.loadDefaultDashboardPreference()
+
 		await Promise.all([
 			dashboardStore.loadDashboards(),
 			widgetStore.loadAvailableWidgets(),
@@ -1783,26 +1826,7 @@ export default {
 		// After the watcher has seen the deep-linked switch.
 		await nextTick()
 		this.historyBooted = true
-
-		// dashboard-acknowledgements REQ-ACK-002: load the user's outstanding
-		// mandatory-read items so the forced-delivery gate and the outstanding
-		// count reflect reality on first render. Non-fatal on failure.
-		dashboardStore.fetchPendingAcknowledgements()
-
-		// Wave3.7 — fetch the user's pinned default-dashboard UUID
-		// once on mount so the per-row cog can render the right "Set
-		// as default" / "Default dashboard" state. Failure here is
-		// non-fatal: the cog falls back to "Set as default" for every
-		// row when the pref can't be read.
-		try {
-			const res = await api.getDefaultDashboardPreference()
-			this.defaultDashboardUuid = res?.data?.uuid ?? ''
-		} catch (error) {
-			logger.error(
-				'[Views] Failed to load default-dashboard preference:',
-				error,
-			)
-		}
+		await defaultPreference
 
 		if (editFromAddress && this.canEdit) {
 			await this.enterEditMode()
@@ -1819,8 +1843,6 @@ export default {
 				KIOSK_REFRESH_MS,
 			)
 		}
-		// dashboard-language-and-details-tabs: fields for "Filter by detail".
-		this.loadDetailFields()
 		// Attach the document-level click listener (REQ-WDG-016 outside-
 		// click closes popover). Detached in beforeDestroy so we never
 		// leak a listener across mounts.
@@ -1867,6 +1889,9 @@ export default {
 		this.headerActionsObserver = null
 		// Leaving the page while editing withdraws the presence.
 		this.presence.stop()
+		const flushViewEvent = this.flushBootViewEvent
+		this.cancelBootViewEvent?.()
+		flushViewEvent?.()
 	},
 
 	methods: {
@@ -2076,6 +2101,27 @@ export default {
 		]),
 
 		/**
+		 * Record the view of the dashboard the page opened with once the page
+		 * has settled, so the analytics write is not one of the requests the
+		 * first paint waits behind. Leaving the page before then sends it at
+		 * once.
+		 *
+		 * @param {string} uuid The dashboard UUID to record.
+		 * @return {void}
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
+		 */
+		recordViewEventAfterLoad(uuid) {
+			this.cancelBootViewEvent?.()
+			const send = () => {
+				this.cancelBootViewEvent = null
+				this.flushBootViewEvent = null
+				this.recordViewEventDebounced(uuid)
+			}
+			this.flushBootViewEvent = send
+			this.cancelBootViewEvent = LazyMountSupport.whenSettled(send, SETTLE_DELAY_MS, IDLE_TIMEOUT_MS)
+		},
+
+		/**
 		 * REQ-ANLT-011 — per-uuid 1-second debounce wrapping the
 		 * fire-and-forget store action. The ledger lives on
 		 * `data.viewEventLastSent` (Object.create(null)) so different
@@ -2144,7 +2190,41 @@ export default {
 		},
 
 		/**
-		 * Read the detail fields once, for the switcher's filter.
+		 * Read the user's pinned default-dashboard UUID.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async loadDefaultDashboardPreference() {
+			try {
+				const res = await api.getDefaultDashboardPreference()
+				this.defaultDashboardUuid = res?.data?.uuid ?? ''
+			} catch (error) {
+				logger.error(
+					'[Views] Failed to load default-dashboard preference:',
+					error,
+				)
+			}
+		},
+
+		/**
+		 * Read the detail fields once, the first time the switcher opens: the
+		 * filter that uses them lives there, so the page does not ask for them
+		 * while it loads.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+		 */
+		loadDetailFieldsOnce() {
+			if (this.detailFieldsRequested) {
+				return Promise.resolve()
+			}
+			this.detailFieldsRequested = true
+			return this.loadDetailFields()
+		},
+
+		/**
+		 * Read the detail fields, for the switcher's filter.
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
@@ -2705,10 +2785,12 @@ export default {
 		 *
 		 * @param {object} app The catalogue entry.
 		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
 		 */
 		async addCatalogueApp(app) {
 			try {
-				await this.addTileToDashboard(tileFromCatalogueApp(app))
+				// REQ-WDG-042: an app tile from the picker is one cell.
+				await this.addTileToDashboard(tileFromCatalogueApp(app), { w: 1, h: 1 })
 			} catch (error) {
 				logger.error('[Views] Failed to place a catalogue app:', error)
 			}

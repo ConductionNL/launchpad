@@ -325,6 +325,26 @@ class InitialStateBuilder {
 	}//end setDashboardFirstLoad()
 
 	/**
+	 * Set the org navigation the shell's first load would fetch
+	 * (`{position, tree, language}`), so the shell starts from it instead of
+	 * asking `GET /api/admin/org-navigation/position` and
+	 * `GET /api/admin/org-navigation`. Optional key; left out when null.
+	 *
+	 * @param array|null $orgNavigation The position, tree and language, or null.
+	 *
+	 * @return self
+	 *
+	 * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-2
+	 */
+	public function setOrgNavigation(?array $orgNavigation): self {
+		if ($orgNavigation !== null) {
+			$this->values['orgNavigation'] = $orgNavigation;
+		}
+
+		return $this;
+	}//end setOrgNavigation()
+
+	/**
 	 * Set the canonical slug-chain path for the active dashboard
 	 * (workspace).
 	 *

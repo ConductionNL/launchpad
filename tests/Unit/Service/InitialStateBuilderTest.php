@@ -122,6 +122,40 @@ class InitialStateBuilderTest extends TestCase {
 	}//end testTheFirstDashboardLoadIsProvidedOnlyWhenGiven()
 
 	/**
+	 * The org navigation reaches the workspace when given, and is left out
+	 * when null, so the shell fetches.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-4
+	 */
+	public function testTheOrgNavigationIsProvidedOnlyWhenGiven(): void {
+		$orgNavigation = ['position' => 'left', 'tree' => [], 'language' => 'nl'];
+		foreach ([[$orgNavigation, true], [null, false]] as [$value, $provided]) {
+			$sink = [];
+			(new InitialStateBuilder(initialState: $this->makeRecordingState(sink: $sink), page: Page::WORKSPACE))
+				->setWidgets([])
+				->setLayout([])
+				->setPrimaryGroup('g')
+				->setPrimaryGroupName('G')
+				->setIsAdmin(false)
+				->setActiveDashboardId('')
+				->setDashboardSource('group')
+				->setGroupDashboards([])
+				->setUserDashboards([])
+				->setAllowUserDashboards(false)
+				->setAllowedWidgets(null)
+				->setOrgNavigation($value)
+				->apply();
+
+			$this->assertSame(expected: $provided, actual: array_key_exists('orgNavigation', $sink));
+			if ($provided === true) {
+				$this->assertSame(expected: $orgNavigation, actual: $sink['orgNavigation']);
+			}
+		}
+	}//end testTheOrgNavigationIsProvidedOnlyWhenGiven()
+
+	/**
 	 * In-memory IInitialState stub that records every push.
 	 *
 	 * @return IInitialState&\PHPUnit\Framework\MockObject\MockObject

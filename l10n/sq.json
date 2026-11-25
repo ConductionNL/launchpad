@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Lidhjet e këtij paneli",
+        "Connection states need the Integrations app": "Gjendja e lidhjeve kërkon aplikacionin Integrime",
+        "No widget on this dashboard uses an outside connection": "Asnjë widget në këtë panel nuk përdor lidhje të jashtme",
+        "Loading connection states …": "Po ngarkohet gjendja e lidhjeve …",
+        "The connection states could not be loaded. Try again later.": "Gjendja e lidhjeve nuk u ngarkua. Provoni përsëri më vonë.",
+        "Last error: {time}": "Gabimi i fundit: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Shfaq lidhjet e jashtme që përdorin widget-et e këtij paneli, me gjendjen që aplikacioni Integrime mban për secilën. Secili sheh atë që OpenRegister i lejon.",
         "Dashboard renamed to %s": "Paneli u riemërtua në %s",
         "Columns from %1$s to %2$s": "Kolonat nga %1$s në %2$s",
         "Widget %s added": "Widgeti %s u shtua",

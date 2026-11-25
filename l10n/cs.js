@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Připojení tohoto panelu",
+    "Connection states need the Integrations app" : "Stav připojení vyžaduje aplikaci Integrace",
+    "No widget on this dashboard uses an outside connection" : "Žádný widget na tomto panelu nepoužívá externí připojení",
+    "Loading connection states …" : "Načítání stavu připojení …",
+    "The connection states could not be loaded. Try again later." : "Stav připojení se nepodařilo načíst. Zkuste to později.",
+    "Last error: {time}" : "Poslední chyba: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Zobrazuje externí připojení, která používají widgety tohoto panelu, se stavem, který pro každé vede aplikace Integrace. Každý vidí to, co mu OpenRegister dovolí vidět.",
     "What do you think of this dashboard?" : "Co si myslíte o tomto přehledu?",
     "today {time}" : "dnes {time}",
     "Last updated {when}" : "Naposledy aktualizováno {when}",

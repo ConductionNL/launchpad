@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Tengingar þessa mælaborðs",
+    "Connection states need the Integrations app" : "Staða tenginga krefst forritsins Samþættingar",
+    "No widget on this dashboard uses an outside connection" : "Engin græja á þessu mælaborði notar ytri tengingu",
+    "Loading connection states …" : "Hleð stöðu tenginga …",
+    "The connection states could not be loaded. Try again later." : "Ekki tókst að hlaða stöðu tenginga. Reyndu aftur síðar.",
+    "Last error: {time}" : "Síðasta villa: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Sýnir ytri tengingar sem græjur á þessu mælaborði nota, með stöðunni sem forritið Samþættingar heldur um hverja. Hver og einn sér það sem OpenRegister leyfir.",
     "What do you think of this dashboard?" : "Hvað finnst þér um þetta mælaborð?",
     "today {time}" : "í dag {time}",
     "Last updated {when}" : "Síðast uppfært {when}",

@@ -1,5 +1,12 @@
 {
     "translations": {
+        "Connections of this dashboard": "Koppelingen van dit dashboard",
+        "Connection states need the Integrations app": "Voor de staat van koppelingen is de app Integraties nodig",
+        "No widget on this dashboard uses an outside connection": "Geen widget op dit dashboard gebruikt een externe koppeling",
+        "Loading connection states …": "Staat van de koppelingen laden …",
+        "The connection states could not be loaded. Try again later.": "De staat van de koppelingen kon niet worden geladen. Probeer het later opnieuw.",
+        "Last error: {time}": "Laatste fout: {time}",
+        "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see.": "Toont de externe koppelingen die de widgets op dit dashboard gebruiken, met de staat die de app Integraties van elke koppeling bijhoudt. Iedereen ziet wat OpenRegister hem of haar laat zien.",
         "Dashboard renamed to %s": "Dashboard hernoemd tot %s",
         "Columns from %1$s to %2$s": "Kolommen van %1$s naar %2$s",
         "Widget %s added": "Widget %s toegevoegd",

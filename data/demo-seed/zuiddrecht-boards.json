@@ -2391,7 +2391,7 @@
 					}
 				},
 				{
-					"widgetId": "text",
+					"widgetId": "connections",
 					"gridX": 0,
 					"gridY": 31,
 					"gridWidth": 12,
@@ -2399,11 +2399,23 @@
 					"showTitle": 1,
 					"customTitle": "Koppelingen van dit dashboard",
 					"content": {
-						"text": "Dit dashboard leest uit **dossiq** (register Zaken), **pipelinq** (Klantcontact), Power BI en de KCC-wachtrij.",
-						"fontSize": "14px",
-						"textAlign": "left",
-						"contentMode": "markdown",
 						"showActions": false
+					},
+					"fallback": {
+						"widgetId": "text",
+						"gridX": 0,
+						"gridY": 31,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": 1,
+						"customTitle": "Koppelingen van dit dashboard",
+						"content": {
+							"text": "Dit dashboard leest uit **dossiq** (register Zaken), **pipelinq** (Klantcontact), Power BI en de KCC-wachtrij.",
+							"fontSize": "14px",
+							"textAlign": "left",
+							"contentMode": "markdown",
+							"showActions": false
+						}
 					}
 				}
 			]

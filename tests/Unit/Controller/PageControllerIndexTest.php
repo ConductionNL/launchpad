@@ -299,7 +299,7 @@ class PageControllerIndexTest extends TestCase {
 		$this->assertNull(actual: $this->state['allowedWidgets']);
 		$this->assertSame(expected: '', actual: $this->state['userTimezone']);
 		$this->assertSame(
-			expected: ['openregister' => false, 'integration_openproject' => false, 'dossiq' => false],
+			expected: ['openregister' => false, 'integration_openproject' => false, 'dossiq' => false, 'integriq' => false],
 			actual: $this->state['integrationApps']
 		);
 		$this->assertSame(expected: AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET, actual: $this->state['quicksearchFallbackTarget']);
@@ -563,7 +563,7 @@ class PageControllerIndexTest extends TestCase {
 					throw new RuntimeException(message: 'app store down');
 				}
 
-				return in_array($appId, ['spreed', 'procest'], true);
+				return in_array($appId, ['spreed', 'procest', 'integriq'], true);
 			}
 		);
 
@@ -571,7 +571,7 @@ class PageControllerIndexTest extends TestCase {
 
 		$this->assertTrue(condition: $this->state['talkEnabled']);
 		$this->assertSame(
-			expected: ['openregister' => false, 'integration_openproject' => false, 'dossiq' => 'procest'],
+			expected: ['openregister' => false, 'integration_openproject' => false, 'dossiq' => 'procest', 'integriq' => true],
 			actual: $this->state['integrationApps']
 		);
 	}//end testEnabledAppsAreReportedForTheViewer()

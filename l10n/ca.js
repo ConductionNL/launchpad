@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Connexions d’aquest tauler",
+    "Connection states need the Integrations app" : "L’estat de les connexions requereix l’aplicació Integracions",
+    "No widget on this dashboard uses an outside connection" : "Cap giny d’aquest tauler fa servir una connexió externa",
+    "Loading connection states …" : "S’està carregant l’estat de les connexions …",
+    "The connection states could not be loaded. Try again later." : "No s’ha pogut carregar l’estat de les connexions. Torneu-ho a provar més tard.",
+    "Last error: {time}" : "Últim error: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Mostra les connexions externes que fan servir els ginys d’aquest tauler, amb l’estat que l’aplicació Integracions en guarda. Cada persona veu el que OpenRegister li deixa veure.",
     "What do you think of this dashboard?" : "Què en penseu d'aquest tauler?",
     "today {time}" : "avui {time}",
     "Last updated {when}" : "Última actualització {when}",

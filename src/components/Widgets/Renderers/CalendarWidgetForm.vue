@@ -108,7 +108,7 @@ const DEFAULT_CONTENT = Object.freeze({
  * Stores the content the Calendar renderer already reads (`internalCalendars`,
  * `externalIcsUrls`, `viewMode`, `daysAhead`, `colorByCalendar`).
  *
- * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
  */
 export default {
 	name: 'CalendarWidgetForm',
@@ -153,7 +153,7 @@ export default {
 		 * The two periods.
 		 *
 		 * @return {Array<{value: string, label: string}>}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
 		 */
 		periodOptions() {
 			return [
@@ -166,7 +166,7 @@ export default {
 		 * Stored calendars the fetcher no longer offers.
 		 *
 		 * @return {string[]}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
 		 */
 		unlistedCalendars() {
 			const offered = new Set(this.availableCalendars.map((calendar) => calendar.key))
@@ -178,7 +178,7 @@ export default {
 		 * address typed but not added is not lost on save.
 		 *
 		 * @return {string[]}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
 		 */
 		icsWithPending() {
 			const pending = this.newIcs.trim()
@@ -192,7 +192,7 @@ export default {
 		 * The stored content.
 		 *
 		 * @return {object}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
 		 */
 		assembledContent() {
 			return {
@@ -214,7 +214,7 @@ export default {
 		/**
 		 * Emit the content.
 		 *
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
 		 */
 		emitUpdate() {
 			this.$emit('update:content', this.assembledContent)
@@ -224,7 +224,7 @@ export default {
 		 * Load the reader's calendars.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
 		 */
 		async fetchCalendars() {
 			if (typeof this.calendarsFetcher !== 'function') {
@@ -246,7 +246,7 @@ export default {
 		 *
 		 * @param {string} key The calendar key.
 		 * @param {boolean} on Whether it is chosen.
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
 		 */
 		toggleCalendar(key, on) {
 			const without = this.internalCalendars.filter((item) => item !== key)
@@ -258,7 +258,7 @@ export default {
 		 * Typing in the ICS field clears its error.
 		 *
 		 * @param {string} val The typed address.
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
 		 */
 		onIcsInput(val) {
 			this.newIcs = typeof val === 'string' ? val : ''
@@ -269,7 +269,7 @@ export default {
 		/**
 		 * Add the typed ICS address; it must be https.
 		 *
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
 		 */
 		addIcs() {
 			const address = this.newIcs.trim()
@@ -291,7 +291,7 @@ export default {
 		 * Remove an added ICS address.
 		 *
 		 * @param {number} index Its position.
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
 		 */
 		removeIcs(index) {
 			this.externalIcsUrls = this.externalIcsUrls.filter((_, at) => at !== index)
@@ -302,7 +302,7 @@ export default {
 		 * Choose 7 days or Month.
 		 *
 		 * @param {string} val `week` or `month`.
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
 		 */
 		onPeriodChange(val) {
 			this.period = val === 'month' ? 'month' : 'week'
@@ -315,7 +315,7 @@ export default {
 		 * computed on every input.
 		 *
 		 * @return {string[]}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
 		 */
 		validate() {
 			const errors = []

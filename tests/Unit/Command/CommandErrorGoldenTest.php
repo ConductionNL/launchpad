@@ -100,8 +100,8 @@ class CommandErrorGoldenTest extends TestCase {
 	 *
 	 * @return array<string, mixed>
 	 */
-	private static function runCommand(CommandBase $command, array $input): array {
-		$stdout = new StreamOutput(fopen('php://memory', 'w+'));
+	private static function runCommand(CommandBase $command, array $input, int $verbosity=OutputInterface::VERBOSITY_NORMAL): array {
+		$stdout = new StreamOutput(fopen('php://memory', 'w+'), $verbosity);
 		$output = new class ($stdout) extends ConsoleOutput {
 			private BufferedOutput $err;
 
@@ -109,8 +109,8 @@ class CommandErrorGoldenTest extends TestCase {
 			 * @param StreamOutput $stdout The stdout stream.
 			 */
 			public function __construct(private StreamOutput $stdout) {
-				parent::__construct();
-				$this->err = new BufferedOutput();
+				parent::__construct($stdout->getVerbosity());
+				$this->err = new BufferedOutput($stdout->getVerbosity());
 			}
 
 			/**
@@ -136,6 +136,23 @@ class CommandErrorGoldenTest extends TestCase {
 
 		return ['exit' => $exit, 'stdout' => stream_get_contents($stdout->getStream()), 'stderr' => $output->getErrorOutput()->fetch()];
 	}//end runCommand()
+
+	/**
+	 * Under occ, `-q` puts stdout and stderr on quiet before the command
+	 * runs; the error line still reaches stderr and stdout stays empty.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	public function testErrorReachesStderrWhenOccMadeBothStreamsQuiet(): void {
+		$error  = ['exitCode' => CommandService::EXIT_NOT_FOUND, 'code' => 'NOT_FOUND', 'message' => 'User not found: nobody'];
+		$result = self::runCommand($this->probe($error), ['--quiet' => true], OutputInterface::VERBOSITY_QUIET);
+
+		$this->assertSame(CommandService::EXIT_NOT_FOUND, $result['exit']);
+		$this->assertSame('', $result['stdout']);
+		$this->assertSame("User not found: nobody\n", $result['stderr']);
+	}//end testErrorReachesStderrWhenOccMadeBothStreamsQuiet()
 
 	/**
 	 * Every case prints the recorded output.

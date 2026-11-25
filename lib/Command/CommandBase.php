@@ -333,18 +333,25 @@ abstract class CommandBase extends Command {
 	 * `ConsoleOutput` does); fall back to the regular stream otherwise
 	 * (in-memory test buffers don't split stderr out).
 	 *
+	 * The line is written at VERBOSITY_QUIET, so it prints at every
+	 * verbosity: under occ, `-q|--quiet` puts both streams of the
+	 * ConsoleOutput on quiet, and a plain writeln would drop the error
+	 * (REQ-CLI-002: errors still reach stderr).
+	 *
 	 * @param OutputInterface $output Live output handle.
 	 * @param string $message The fully decorated message.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
 	 */
 	private function writeError(OutputInterface $output, string $message): void {
 		if ($output instanceof ConsoleOutputInterface) {
-			$output->getErrorOutput()->writeln(messages: $message);
+			$output->getErrorOutput()->writeln(messages: $message, options: OutputInterface::VERBOSITY_QUIET);
 			return;
 		}
 
-		$output->writeln(messages: $message);
+		$output->writeln(messages: $message, options: OutputInterface::VERBOSITY_QUIET);
 	}//end writeError()
 
 	/**

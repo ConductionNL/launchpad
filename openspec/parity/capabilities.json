@@ -3150,10 +3150,10 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/drill-down-cross-widget-filter",
+				"change": "openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter",
 				"requirement": [
-					"openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter :: REQ-CWF-001 Widget click publishes to the filter bus",
-					"openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter :: REQ-CWF-002 All consuming widgets re-render on filter change"
+					"openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter :: REQ-CWF-001 Widget click publishes to the filter bus",
+					"openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter :: REQ-CWF-002 All consuming widgets re-render on filter change"
 				]
 			},
 			"reachedOn": "nothing yet",

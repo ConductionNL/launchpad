@@ -55,7 +55,7 @@ import { LIST_PROP, OBJECT_PROP } from '../../constants/propDefinitions.js'
  * dimension); the deepest level is the current one. A hierarchy with no
  * active level shows no path, and without any the component renders nothing.
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
  */
 export default {
 	name: 'FilterBreadcrumb',
@@ -76,7 +76,7 @@ export default {
 		 * The path of each hierarchy that has an active level.
 		 *
 		 * @return {Array<{id: string, steps: Array<object>}>}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
 		 */
 		trails() {
 			return this.hierarchies
@@ -94,7 +94,7 @@ export default {
 		 *
 		 * @param {{dimension: string, label: string, value: unknown}} step The step.
 		 * @return {string}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
 		 */
 		crumbText(step) {
 			const label = this.labels[step.dimension] || step.label || step.dimension

@@ -686,7 +686,7 @@ const PERMISSION_OPTIONS = [
  *
  * @param {Array<{id: string}>} choices The choices.
  * @return {string}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 function hierarchyIds(choices) {
 	return (choices || []).map((choice) => choice.id).join('\n')
@@ -859,7 +859,7 @@ export default {
 		 * hierarchy the dashboard stores, so saving does not drop it.
 		 *
 		 * @return {Array<{id: string, name: string, descriptor: object}>}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 		 */
 		hierarchyChoices() {
 			const presets = hierarchyPresets()
@@ -1231,7 +1231,7 @@ export default {
 		 * The choices of the hierarchies the dashboard stores, in stored order.
 		 *
 		 * @return {Array<{id: string, name: string, descriptor: object}>}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 		 */
 		storedHierarchyChoices() {
 			const stored = Array.isArray(this.dashboard?.hierarchies) ? this.dashboard.hierarchies : []

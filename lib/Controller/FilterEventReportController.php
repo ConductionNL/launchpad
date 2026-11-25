@@ -19,7 +19,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-010-telemetry-of-filter-usage-is-opt-in-and-aggregated
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-010-telemetry-of-filter-usage-is-opt-in-and-aggregated
  */
 
 declare(strict_types=1);
@@ -39,7 +39,7 @@ use OCP\IUserSession;
 /**
  * The drill-down path report endpoint.
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-16
  */
 class FilterEventReportController extends Controller {
 
@@ -69,7 +69,7 @@ class FilterEventReportController extends Controller {
 	 *
 	 * @return JSONResponse `{dashboardId, scope, events, paths: [{path, count}]}`; 401 signed out, 404 not found or not visible.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-16
 	 */
 	#[NoAdminRequired]
 	public function report(string $uuid, int $limit=20): JSONResponse {

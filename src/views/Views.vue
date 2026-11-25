@@ -682,7 +682,7 @@ export function withTypeMinHeight(placement) {
  * @param {Array<object>} [config.hierarchies] The hierarchy descriptors, only when changed.
  * @return {object} The body for `api.updateDashboard`.
  * @spec openspec/specs/dashboards/spec.md
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 function dashboardUpdateData({ name, description, icon, parentUuid, slug, look, defaultLinkTarget, hierarchies }) {
 	const data = { name, description, icon }
@@ -1118,14 +1118,14 @@ export default {
 		 * The open dashboard's filter clauses, for the active-filters panel.
 		 *
 		 * @return {object[]}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
 		 */
 		/**
 		 * What the widget dialog says about the edited widget's filter
 		 * declarations on this dashboard (REQ-CWF-008).
 		 *
 		 * @return {Array<{id: string, type: string, text: string}>}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-9
 		 */
 		customWidgetNotices() {
 			const content = this.customWidgetEditing?.content ?? null
@@ -1172,7 +1172,7 @@ export default {
 		 * a clause was clicked in.
 		 *
 		 * @return {{[key: string]: string}}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
 		 */
 		filterWidgetNames() {
 			const names = {}
@@ -3587,7 +3587,7 @@ export default {
 		 * @param {string} [config.defaultLinkTarget] How tiles open, '' for the link-type rule (edit only).
 		 * @param {Array<object>} [config.hierarchies] The hierarchy descriptors, only when changed (edit only).
 		 * @spec openspec/specs/dashboards/spec.md
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 		 */
 		async saveDashboardConfig(config) {
 			const { id, name, description, icon, hierarchies } = config
@@ -3854,7 +3854,7 @@ export default {
 		 *
 		 * @param {boolean} readUrl Whether the URL's `f` seeds the bus.
 		 * @return {void}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
 		 */
 		openFilterSession(readUrl) {
 			this.filterSession?.stop()
@@ -3875,7 +3875,7 @@ export default {
 		 *
 		 * @param {string} dimension The clause's dimension.
 		 * @return {void}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
 		 */
 		onFilterRemove(dimension) {
 			this.filterSession?.remove(dimension)
@@ -3885,7 +3885,7 @@ export default {
 		 * "Reset filters": clear every clause that is not pinned.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-006-reset-filters-clears-all-non-pinned-clauses
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-006-reset-filters-clears-all-non-pinned-clauses
 		 */
 		onFilterReset() {
 			this.filterSession?.reset()
@@ -3896,7 +3896,7 @@ export default {
 		 *
 		 * @param {string} dimension The level's dimension.
 		 * @return {void}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
 		 */
 		onFilterPop(dimension) {
 			this.filterSession?.popTo(dimension)

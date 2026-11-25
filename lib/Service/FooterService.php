@@ -708,7 +708,8 @@ class FooterService implements FooterServiceInterface {
 	}//end validateStructuredConfig()
 
 	/**
-	 * Refuse a structured config that carries a key outside the schema.
+	 * Refuse a structured config that carries a key outside the schema; the
+	 * refusal names the unknown key and every allowed one (REQ-FTR-003).
 	 *
 	 * @param array<string, mixed> $config The structured config.
 	 *
@@ -721,6 +722,7 @@ class FooterService implements FooterServiceInterface {
 			if (in_array(needle: $key, haystack: self::STRUCTURED_CONFIG_KEYS, strict: true) === false) {
 				throw new InvalidArgumentException(
 					message: 'footerConfig contains unknown key: ' . (string)$key
+						. '; allowed keys: ' . implode(separator: ', ', array: self::STRUCTURED_CONFIG_KEYS)
 				);
 			}
 		}

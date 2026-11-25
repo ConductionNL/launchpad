@@ -101,7 +101,7 @@
     },
     "config unknown key": {
         "stored": [],
-        "outcome": "InvalidArgumentException: footerConfig contains unknown key: nope (0)"
+        "outcome": "InvalidArgumentException: footerConfig contains unknown key: nope; allowed keys: logoUrl, organisation, address, links, legal, copyrightYear, layoutMode (0)"
     },
     "colours": {
         "stored": [

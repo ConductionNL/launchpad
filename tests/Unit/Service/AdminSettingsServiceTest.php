@@ -432,7 +432,7 @@ class AdminSettingsServiceTest extends TestCase {
 	 * Drill-down-cross-widget-filter REQ-CWF-010: filter telemetry reads as on
 	 * only for a stored `true`.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-17
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-17
 	 */
 	public function testFilterTelemetryIsOnOnlyForAStoredTrue(): void {
 		$this->settingMapper->method('getAllAsArray')->willReturnOnConsecutiveCalls(
@@ -449,7 +449,7 @@ class AdminSettingsServiceTest extends TestCase {
 	/**
 	 * The telemetry switch is stored when given and left alone when omitted.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-17
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-17
 	 */
 	public function testUpdateSettingsStoresTheFilterTelemetrySwitchOnlyWhenGiven(): void {
 		$stored = [];

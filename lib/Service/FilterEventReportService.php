@@ -23,7 +23,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-010-telemetry-of-filter-usage-is-opt-in-and-aggregated
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-010-telemetry-of-filter-usage-is-opt-in-and-aggregated
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ use Throwable;
 /**
  * Builds the drill-down path report of one dashboard.
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-16
  */
 class FilterEventReportService {
 
@@ -105,7 +105,7 @@ class FilterEventReportService {
 	 *
 	 * @throws DoesNotExistException When the dashboard does not exist or the caller may not view it.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-16
 	 */
 	public function report(string $dashboardUuid, string $userId, int $limit=20): array {
 		$dashboard = $this->dashboardMapper->findByUuid(uuid: $dashboardUuid);
@@ -149,7 +149,7 @@ class FilterEventReportService {
 	 *
 	 * @return list<array{path: string, count: int}>
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-16
 	 */
 	public static function aggregatePaths(array $events): array {
 		$counts = [];
@@ -177,7 +177,7 @@ class FilterEventReportService {
 	 *
 	 * @return array<string, list<array<string, mixed>>>
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-16
 	 */
 	private static function groupByUser(array $events): array {
 		$byUser = [];
@@ -251,7 +251,7 @@ class FilterEventReportService {
 	 *
 	 * @return string|null The dimension, or null when the item names none.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-16
 	 */
 	private static function dimensionOf(mixed $item): ?string {
 		$dimension = null;
@@ -338,7 +338,7 @@ class FilterEventReportService {
 	 *
 	 * @return array<int|string, mixed>
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-16
 	 */
 	private function findEvents(array $filters): array {
 		try {
@@ -371,7 +371,7 @@ class FilterEventReportService {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-16
 	 */
 	private static function belongs(array $data, string $dashboardUuid, ?string $onlyUser): bool {
 		if (($data['dashboardId'] ?? null) !== $dashboardUuid) {
@@ -408,7 +408,7 @@ class FilterEventReportService {
 	 *
 	 * @return mixed The data, or null for another object.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-16
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-16
 	 */
 	private static function objectData(object $item): mixed {
 		if (method_exists($item, 'getObject') === true) {

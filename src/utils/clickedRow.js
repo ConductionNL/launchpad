@@ -35,7 +35,7 @@ function isBlank(value) {
  * @param {Array<{dimension: string}>} clauses The clauses the click publishes.
  * @param {object} row The row so far.
  * @return {string[]}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
  */
 export function missingAncestors(hierarchies, clauses, row) {
 	const missing = new Set()
@@ -82,7 +82,7 @@ async function firstRecord(source, field, value) {
  * @param {Array<object>} options.hierarchies The dashboard's hierarchy descriptors.
  * @param {object|null} options.dataSource The chart's data source (`register`, `schema`).
  * @return {Promise<object>} The row.
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
  */
 export async function clickedRow({ selection, clauses, hierarchies, dataSource }) {
 	const row = { [selection.field]: selection.value }

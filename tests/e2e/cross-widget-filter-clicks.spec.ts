@@ -22,7 +22,7 @@
  *   @e2e cross-widget-filter::removing-a-clicked-clause-unfilters-the-consumers
  *   @e2e cross-widget-filter::telemetry-records-an-apply-without-a-value
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md
  */
 
 import type { APIRequestContext, Page } from '@playwright/test'

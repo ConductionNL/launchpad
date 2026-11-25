@@ -597,6 +597,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// for the `people` LaunchPad widget. Authenticated users only;
 		// returns `{users, total, hasMore}` with offset-based pagination.
 		['name' => 'peopleWidget#getUsers', 'url' => '/api/people', 'verb' => 'GET'],
+		// REQ-PPL-014: the people widget's New colleagues selection.
+		['name' => 'newColleagues#getNew', 'url' => '/api/people/new', 'verb' => 'GET'],
 
 		// Search shortcuts (search-ai-prefix-shortcuts REQ-QSP-001): admin list.
 		['name' => 'adminSettings#listSearchShortcuts', 'url' => '/api/admin/search-shortcuts', 'verb' => 'GET'],

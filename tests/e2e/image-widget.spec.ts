@@ -73,6 +73,15 @@ test.afterAll(async () => {
 	await api.dispose()
 })
 
+/** The image placements on the seeded dashboard whose url is an uploaded file, not a web address. */
+async function uploadedImagePlacements(): Promise<Array<Record<string, unknown>>> {
+	const stored = await api.get(`/index.php/apps/launchpad/api/dashboard/${dashboard!.id}`)
+	expect(stored.status(), await stored.text()).toBe(200)
+	const body = await stored.json()
+	return ((body.placements ?? body.data?.placements ?? []) as Array<Record<string, unknown>>)
+		.filter((placement) => placement.widgetId === 'image' && !String((placement.content as Record<string, unknown> | undefined)?.url ?? '').startsWith('http'))
+}
+
 /** Open the Add Widget modal on the active dashboard with the "Image" type already chosen. */
 async function openImageForm(page: Page) {
 	const dialog = await openAddWidgetDialog(page)
@@ -178,59 +187,45 @@ test.describe('image widget', () => {
 	})
 
 	// @e2e image-widget::direct-url-string-is-also-accepted
-	test('REQ-IMG-005: a directly typed URL is accepted and the preview loads it', async ({
+	test('REQ-IMG-005: a directly typed URL is accepted and the cell loads it', async ({
 		page,
 	}) => {
 		const dialog = await openImageForm(page)
 
-		// No file chosen — the URL field alone must drive the preview.
-		await dialog.getByLabel(/image url/i).fill(LOGO)
-
-		const preview = dialog.locator('.cn-image-widget-form__preview')
-		await expect(preview).toBeAttached({ timeout: 10_000 })
-		await expect(preview).toHaveAttribute('src', LOGO, { timeout: 10_000 })
+		// The drawn form (REQ-IMG-020) has no preview for a web address: the
+		// typed URL is the stored url, and the saved cell is where it loads.
+		await dialog.getByText('Web address', { exact: true }).click()
+		const urlField = dialog.getByLabel(/image url/i)
+		await urlField.fill(LOGO)
+		await urlField.blur()
+		await expect(urlField).toHaveValue(LOGO)
+		await dialog.getByLabel(/text for who does not see the image/i).fill('Nextcloud logo')
 
 		// A typed URL is sufficient to save — the counterpart of the
 		// empty-URL validation above.
-		await expect(dialog.getByRole('button', { name: /^add$/i })).toBeEnabled({
-			timeout: 5_000,
-		})
+		const addBtn = dialog.getByRole('button', { name: /^add$/i })
+		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
+		await addBtn.click()
+		await expect(dialog).not.toBeVisible({ timeout: 8_000 })
+		await closeSidebar(page)
+
+		const img = page.locator(`.cn-image-widget img[src="${LOGO}"]`).last()
+		await expect(img).toBeAttached({ timeout: 8_000 })
 	})
 
-	// @e2e image-widget::all-allowed-fit-values-selectable
-	test('REQ-IMG-005: the fit control offers exactly cover, contain, fill and none', async ({
+	// @e2e image-widget::fit-defaults-to-cover
+	test('REQ-IMG-005: the form offers no fit control and a new image is drawn with cover', async ({
 		page,
 	}) => {
 		const dialog = await openImageForm(page)
+		await expect(dialog.getByLabel(/^fit$/i)).toHaveCount(0)
+		await expect(dialog.getByText(/^fit$/i)).toHaveCount(0)
+		await page.keyboard.press('Escape')
+		await expect(dialog).not.toBeVisible({ timeout: 8_000 })
 
-		// `fit` is an NcSelect (vue-select), not a native <select> as the
-		// scenario's prose assumes, so the options live in a popper that only
-		// exists once the control is opened.
-		const fit = dialog
-			.locator('.v-select')
-			.filter({ has: page.getByText(/^Fit$/) })
-			.first()
-		const control =
-			(await fit.count()) > 0 ? fit : dialog.locator('.v-select').last()
-
-		// The default selected value for a new placement is Cover.
-		await expect(control.locator('.vs__selected')).toHaveText(/cover/i, {
-			timeout: 10_000,
-		})
-
-		await control.locator('.vs__dropdown-toggle').click()
-		const options = control
-			.locator('.vs__dropdown-option')
-			.or(page.locator('.vs__dropdown-menu .vs__dropdown-option'))
-		await expect(options.first()).toBeVisible({ timeout: 5_000 })
-
-		const labels = (await options.allTextContents()).map((s) =>
-			s.trim().toLowerCase(),
-		)
-		expect(
-			labels,
-			'REQ-IMG-005 pins the allowed object-fit set to exactly these four',
-		).toEqual(['cover', 'contain', 'fill', 'none'])
+		const cell = await addUrlImage(page, '')
+		const fit = await cell.locator('img').first().evaluate((el) => getComputedStyle(el).objectFit)
+		expect(fit, 'a new placement stores fit cover and the renderer honours it').toBe('cover')
 	})
 
 	// @e2e image-widget::upload-error-surfaces-to-user
@@ -246,6 +241,10 @@ test.describe('image widget', () => {
 				body: '{"error":"file too large (forced by image-widget.spec.ts)"}',
 			}),
 		)
+
+		// The upload test above stores an uploaded image on the same seeded
+		// dashboard, so only placements that appear after this Add count.
+		const before = new Set((await uploadedImagePlacements()).map((placement) => placement.id))
 
 		const dialog = await openImageForm(page)
 		await dialog
@@ -275,12 +274,8 @@ test.describe('image widget', () => {
 		//    reaches updateField('url', …). The modal therefore stays open
 		//    with an empty URL rather than persisting a broken placement.
 		await expect(dialog).toBeVisible()
-		const stored = await api.get(`/index.php/apps/launchpad/api/dashboard/${dashboard!.id}`)
-		expect(stored.status(), await stored.text()).toBe(200)
-		const body = await stored.json()
 		expect(
-			((body.placements ?? body.data?.placements ?? []) as Array<Record<string, unknown>>)
-				.filter((placement) => placement.widgetId === 'image' && !String((placement.content as Record<string, unknown> | undefined)?.url ?? '').startsWith('http')),
+			(await uploadedImagePlacements()).filter((placement) => !before.has(placement.id)),
 			'no image placement with an uploaded file was stored',
 		).toHaveLength(0)
 	})

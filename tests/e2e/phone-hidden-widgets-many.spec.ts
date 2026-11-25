@@ -33,7 +33,7 @@ import type { Placement } from './support/widgetPlacements.ts'
 
 import { expect, test } from '@playwright/test'
 import { clearSeededWidgets } from './support/dashboardFixture.ts'
-import { adminApi, gridItem, Seeds } from './support/widgetPlacements.ts'
+import { adminApi, gridItem, LP_API, Seeds } from './support/widgetPlacements.ts'
 
 const STAMP = Date.now().toString(36)
 
@@ -81,15 +81,19 @@ async function seedBoard(
 		)
 	}
 	for (const [i, title] of hiddenTitles.entries()) {
-		hidden.push(
-			await seeds.widget(dash, {
-				widgetId: 'ai-assistant',
-				gridX: (i % 3) * 4,
-				gridY: 6 + Math.floor(i / 3) * 3,
-				customTitle: title,
-				content: { agentUuid: '' },
-			}),
-		)
+		const placement = await seeds.widget(dash, {
+			widgetId: 'ai-assistant',
+			gridX: (i % 3) * 4,
+			gridY: 6 + Math.floor(i / 3) * 3,
+			content: { agentUuid: '' },
+		})
+		// The create call stores no title; like the add-widget flow, the
+		// title follows in an update of the placement.
+		const res = await seeds.api.put(`${LP_API}/widgets/${placement.id}`, {
+			data: { customTitle: title },
+		})
+		expect(res.status(), await res.text()).toBeLessThan(300)
+		hidden.push({ ...placement, customTitle: title })
 	}
 	return { dash, ready, hidden }
 }

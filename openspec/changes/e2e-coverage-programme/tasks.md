@@ -51,20 +51,22 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: `tests/e2e/sharing-policy.spec.ts` (REQ-SHARE-016 "No setting": with the handover cleared and the leaver given a manager, deleting the leaver hands the dashboard with a `full` share to that recipient, not the manager, and deletes the one with only a `view_only` share, per REQ-SHARE-012), 1 scenario cited (new), dashboard-sharing now 44 of 45 cited, 1 excluded with a reason, 0 uncited, not yet run (cloud, 2026-11-25)
   - Spec written: `tests/e2e/dashboard-sharing-notifier.spec.ts` ("Unknown subject throws": a notification built through the instance's own `IManager` and handed to the installed `Notifier`, resolved from the server container, with a `dashboard_shared` control that must render; the exclusion replaced), 1 scenario cited (new), dashboard-sharing now 45 of 45 cited, 0 excluded, not yet run (cloud, 2026-11-25)
   - Done 25 Nov 2026 on a sandbox Nextcloud 34.0.6 + MariaDB: `dashboard-sharing`, `dashboard-sharing-limits`, `dashboard-sharing-notifier`, `sharing-policy` 14/14. `dashboard-sharing-limits` "a member outside the sharing groups" expected a picker that offers nobody; since sharing-policy-board-sync the tab shows "Your administrator does not allow you to share dashboards" and no picker, which meets "he cannot add a share"; the test asserts that now.
-- [ ] 1.7 `role-feature-permissions`: 27 scenarios, 0 cited. Queued 2026-09-11, after the permissions PR.
+- [x] 1.7 `role-feature-permissions`: 27 scenarios, 0 cited. Queued 2026-09-11, after the permissions PR.
   - Spec written: `tests/e2e/role-feature-permissions.spec.ts` (helpers in `tests/e2e/fixtures/role-feature-permissions.ts`), 27 scenarios cited, not yet run (cloud, 2026-11-19)
   - Spec written: `tests/e2e/role-feature-permissions-upgrade.spec.ts` (REQ-RFP-011: the two upgrade scenarios, staged with `occ maintenance:repair` against the old shipped `default` and `hrm` rules; both exclusions replaced), 2 scenarios cited (new), role-feature-permissions now 30 of 31 cited, 1 excluded with a reason, not yet run (cloud, 2026-11-24)
   - Spec written: `tests/e2e/role-feature-permissions-fresh-install.spec.ts` (REQ-RFP-011 "A fresh install lets every user add a LaunchPad widget": every rule deleted through the admin API, then `occ maintenance:repair` runs `SeedRolePermissions` as an install does; a user in no group adds a `text` widget (201) and is refused `notes` (403) under the seeded `default` rule; the exclusion replaced), 1 scenario cited (new), role-feature-permissions now 31 of 31 cited, 0 excluded, not yet run (cloud, 2026-11-24)
+  - Done 25 Nov 2026 on a sandbox Nextcloud 34.0.6 + MariaDB: `role-feature-permissions`, `role-feature-permissions-fresh-install`, `role-feature-permissions-upgrade` 31/31.
 - [x] 1.8 `launchpad-enterprise-security-access`: 15 scenarios, 0 cited, blanket. Done 2026-09-11: the blanket is replaced by 15 per-scenario verdicts, all `never built`. `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`).
 
 ## 2. Tier 1, data integrity
 
 11 specs, 341 scenarios.
 
-- [ ] 2.1 `dashboard-bulk-operations`: 50 scenarios, 0 cited, blanket.
+- [x] 2.1 `dashboard-bulk-operations`: 50 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-bulk-operations.spec.ts, tests/e2e/dashboard-bulk-operations-ui.spec.ts, 44 scenarios cited, not yet run (cloud, 2026-11-19). 6 excluded with a reason.
   - Run 19 Nov (live pass, NC 34.0.6 + OpenRegister 2.2.0-dev): `dashboard-bulk-operations.spec.ts` green after the non-admin refusal was aligned with the framework (Nextcloud's admin-setting check answers 403 before LaunchPad's message; spec scenario amended). `dashboard-bulk-operations-ui.spec.ts`: the header-checkbox test does not find its seeded rows in the bulk table; open.
   - Spec written: tests/e2e/dashboard-bulk-operations.spec.ts, tests/e2e/dashboard-bulk-operations-ui.spec.ts, 44 scenarios cited, 6 excluded, 0 uncited (re-measured against the spec on development), not yet run (cloud, 2026-11-24). No spec change: the header-checkbox red was the panel, not the test. `DashboardBulkOperations.vue` read `/api/dashboards/visible` as a bare list while it answers `{items, quota}`, so the table stayed empty; 23d58d30 (21 Nov) reads the envelope. The UI file needs a rerun on development after that commit.
+  - Done 25 Nov 2026 on a sandbox Nextcloud 34.0.6 + MariaDB: `dashboard-bulk-operations`, `dashboard-bulk-operations-ui` 39/39.
 - [x] 2.2 `resource-uploads`: 46 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/resource-uploads.spec.ts, 37 scenarios cited, not yet run (cloud, 2026-11-19). 7 excluded with a reason.
   - Run 19 Nov: 33 of 37 green. Open, decision: the spec wants `{status:'error', error:'forbidden'}` for a non-admin and 403 for an anonymous caller, but `#[AuthorizedAdminSetting]` lets Nextcloud answer first (403 with its own body, 401 for anonymous).
@@ -82,10 +84,11 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [x] 2.5 `dashboard-cascade-events`: 35 scenarios, 1 cited, blanket.
   - Spec written: tests/e2e/dashboard-cascade-events.spec.ts, 9 scenarios cited (8 new) (cloud, 2026-11-19). 26 excluded with a reason.
   - Run 19 Nov (live pass, NC 34.0.6 + OpenRegister 2.2.0-dev): `dashboard-cascade-events.spec.ts` green, after the spec cleared the seeded default widgets before counting placements and the non-cascade refusal was aligned with REQ-DASH-030 (409; scenario amended).
-- [ ] 2.6 `dashboard-locking`: 29 scenarios, 0 cited, blanket.
+- [x] 2.6 `dashboard-locking`: 29 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-locking.spec.ts, 17 scenarios cited, not yet run (cloud, 2026-11-19). 17 excluded with a reason.
   - Run 19 Nov: 3 red. Open, decisions: an administrator may not acquire the lock of another user's dashboard after a force-release (403 lock_forbidden); a colleague's save after the owner deleted the dashboard answers 403, the spec says 404; the lock-cleanup test relies on an import restoring the dashboard under its uuid, which it does not.
   - Spec written: tests/e2e/dashboard-locking.spec.ts (the uuid lookup after the preserve-uuid import now reads the `{items, quota}` envelope of `GET /api/dashboards`; it read only `dashboards`/`data`, so both REQ-LOCK-008 cascade tests failed on "the import must restore alice's dashboard" although the import restores it with its owner), 17 scenarios cited, 17 excluded with a reason, not yet run (cloud, 2026-11-24). The other two reds stay open as product decisions: the administrator's acquire after a force-release (403 lock_forbidden) and the colleague's save after deletion (403 from the permission check before the existence check, the spec says "Dashboard not found").
+  - Done 25 Nov 2026 on a sandbox Nextcloud 34.0.6 + MariaDB: `dashboard-locking` green in full, including the two former decision points (the administrator acquires after a force-release; a colleague's save after deletion answers 404 "Dashboard not found").
 - [x] 2.7 `dashboard-metadata-fields`: 28 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-metadata-fields.spec.ts, 30 scenarios cited, not yet run (cloud, 2026-11-19). 2 excluded with a reason.
   - Run 19 Nov: app defect fixed (#1430: a text field was refused by the database). Open, decision: `dashboard-metadata.set-metadata` is admin-only in `lib/actions.seed.json`, the spec lets the owner write values.
@@ -99,10 +102,11 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 3 of 3 green.
 - [ ] 2.10 `launchpad-compliance-audit-panel`: 18 scenarios, 0 cited, blanket.
   - Spec written: openspec/specs/launchpad-compliance-audit-panel/spec.md (no e2e file; never built), 0 scenarios cited, not yet run (cloud, 2026-11-19). 18 excluded as never built.
-- [ ] 2.11 `dashboard-acknowledgements`: 16 scenarios, 3 cited.
+- [x] 2.11 `dashboard-acknowledgements`: 16 scenarios, 3 cited.
   - Spec written: tests/e2e/dashboard-acknowledgements.spec.ts, tests/e2e/dashboard-acknowledgements-template.spec.ts, tests/e2e/dashboard-acknowledgements-ask.spec.ts, 22 scenarios cited, not yet run (cloud, 2026-11-19). 2 excluded with a reason.
   - Spec written: tests/e2e/dashboard-acknowledgements.spec.ts (the report test follows the Read confirmations dialog of #1749, whose `ack-count`/`pending-count` it asserted are gone: it now reads the summary, the bar, the status badges, the Not confirmed yet filter and the department column; it also cites the two delta scenarios of the open change `read-receipts-dialog`), 16 scenarios cited in this file (2 new), not yet run (cloud, 2026-11-24)
   - Recount (cloud, 2026-11-24, gate-19 checker on development): the spec now has 27 scenarios after #1772 synced the archived changes in; 25 cited across the three files above, 2 excluded with a reason, 0 uncited. No new spec needed; the three files wait for a run.
+  - Done 25 Nov 2026 on a sandbox Nextcloud 34.0.6 + MariaDB: `dashboard-acknowledgements`, `dashboard-acknowledgements-template`, `dashboard-acknowledgements-ask` green (with `dashboard-locking`: 42/42).
 
 ## 3. Tier 2, core surfaces
 

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Obligatoriu: acest widget nu poate fi eliminat",
     "Connections of this dashboard" : "Conexiunile acestui panou",
     "Connection states need the Integrations app" : "Starea conexiunilor necesită aplicația Integrări",
     "No widget on this dashboard uses an outside connection" : "Niciun widget de pe acest panou nu folosește o conexiune externă",

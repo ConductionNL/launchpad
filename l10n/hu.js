@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Kötelező: ez a widget nem távolítható el",
     "Connections of this dashboard" : "Az irányítópult kapcsolatai",
     "Connection states need the Integrations app" : "A kapcsolatok állapotához az Integrációk alkalmazás szükséges",
     "No widget on this dashboard uses an outside connection" : "Az irányítópult egyik modulja sem használ külső kapcsolatot",

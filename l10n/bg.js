@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Задължителен: тази джаджа не може да бъде премахната",
     "Connections of this dashboard" : "Връзки на това табло",
     "Connection states need the Integrations app" : "За състоянието на връзките е нужно приложението Интеграции",
     "No widget on this dashboard uses an outside connection" : "Нито една джаджа на това табло не използва външна връзка",

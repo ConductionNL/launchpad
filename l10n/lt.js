@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Privaloma: šio valdiklio pašalinti negalima",
     "Connections of this dashboard" : "Šios skydelio jungtys",
     "Connection states need the Integrations app" : "Jungčių būsenai reikia programos Integracijos",
     "No widget on this dashboard uses an outside connection" : "Nė vienas šio skydelio valdiklis nenaudoja išorinės jungties",

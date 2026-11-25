@@ -114,6 +114,17 @@
 			data-testid="widget-drag-grip">
 			<DragVertical :size="16" />
 		</span>
+		<!-- REQ-PERM-004: in edit mode a compulsory widget carries a lock, beside
+		     its menu, so the author sees why it has no Delete. Never in view mode. -->
+		<span
+			v-if="showCompulsoryIndicator"
+			class="launchpad-widget__compulsory"
+			role="img"
+			:aria-label="t('launchpad', 'Required: this widget cannot be removed')"
+			:title="t('launchpad', 'Required: this widget cannot be removed')"
+			data-testid="widget-compulsory-indicator">
+			<LockOutline :size="16" />
+		</span>
 		<div v-if="editMode" class="launchpad-widget__cog">
 			<!-- REQ-CVUI-007: the menu also holds "Who sees this widget?". -->
 			<WidgetEditMenu
@@ -136,6 +147,7 @@ import { NcActionLink } from '@nextcloud/vue'
 import CodeTags from 'vue-material-design-icons/CodeTags.vue'
 import DragVertical from 'vue-material-design-icons/DragVertical.vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
+import LockOutline from 'vue-material-design-icons/LockOutline.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import LazyMount from './LazyMount.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
@@ -188,6 +200,7 @@ export default {
 		CodeTags,
 		DragVertical,
 		EyeOff,
+		LockOutline,
 		NcActionButton,
 		NcActionLink,
 		NcActions,
@@ -483,6 +496,17 @@ export default {
 		},
 
 		/**
+		 * Whether the compulsory lock shows: in edit mode only, on a placement
+		 * flagged compulsory (REQ-PERM-004).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/permissions/spec.md
+		 */
+		showCompulsoryIndicator() {
+			return Boolean(this.editMode) && Number(this.placement?.isCompulsory) === 1
+		},
+
+		/**
 		 * Placement style overrides forwarded to CnWidgetWrapper. Includes
 		 * `headerStyle.{backgroundColor,textColor}`, which CnWidgetWrapper now
 		 * applies to its header natively (no per-app CSS-var workaround needed).
@@ -567,6 +591,22 @@ export default {
 	inset-inline-start: 6px;
 	background: var(--color-main-background);
 	color: var(--color-main-text);
+}
+
+/* REQ-PERM-004: the compulsory lock sits left of the menu in edit mode. */
+.launchpad-widget__compulsory {
+	position: absolute;
+	top: 14px;
+	right: 52px;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: var(--color-main-background);
+	color: var(--color-text-maxcontrast);
 }
 
 /* The shared cog overlays the wrapper's top-right (the header's action area

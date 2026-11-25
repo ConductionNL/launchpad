@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Required: this widget cannot be removed" : "Required: this widget cannot be removed",
         "Connections of this dashboard": "Connections of this dashboard",
         "Connection states need the Integrations app": "Connection states need the Integrations app",
         "No widget on this dashboard uses an outside connection": "No widget on this dashboard uses an outside connection",

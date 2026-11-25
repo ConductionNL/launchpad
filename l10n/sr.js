@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Обавезно: овај виџет не може да се уклони",
     "Connections of this dashboard" : "Везе ове контролне табле",
     "Connection states need the Integrations app" : "За стање веза потребна је апликација Интеграције",
     "No widget on this dashboard uses an outside connection" : "Ниједан виџет на овој контролној табли не користи спољну везу",

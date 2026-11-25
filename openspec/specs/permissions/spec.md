@@ -161,7 +161,7 @@ Admin templates MUST be able to mark specific widget placements as compulsory, a
 - WHEN the dashboard is rendered in edit mode
 - THEN compulsory widgets MUST display a visual indicator (e.g., lock icon, "Required" badge)
 - AND the indicator MUST be visible only in edit mode (not in view mode)
-- NOTE: Not currently implemented. `WidgetWrapper.vue` has `canRemove` computed property but no visual badge.
+- NOTE: `WidgetWrapper.vue` draws a lock (`data-testid="widget-compulsory-indicator"`, named "Required: this widget cannot be removed") beside the widget menu while `editMode` is on and `isCompulsory` is 1.
 
 #### Scenario: Non-compulsory widgets on template-derived dashboards
 - GIVEN an admin template has 5 widgets: 3 compulsory and 2 non-compulsory

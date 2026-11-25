@@ -29,6 +29,7 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Kernel\Contracts\DemoDataServiceInterface;
+use OCA\LaunchPad\Service\SetupStatusDocument;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
@@ -45,13 +46,6 @@ use Psr\Log\LoggerInterface;
  */
 class SetupController extends Controller {
 	/**
-	 * Setup contract version; matches manifest.setup.version.
-	 *
-	 * @var integer
-	 */
-	private const SETUP_VERSION = 1;
-
-	/**
 	 * App-config key recording that the demo-data step was DEALT WITH.
 	 *
 	 * Not "objects exist": an operator who declines has finished the step, and
@@ -63,7 +57,7 @@ class SetupController extends Controller {
 	 *
 	 * @var string
 	 */
-	private const DEMO_DECIDED_KEY = 'demo_data_decided';
+	private const DEMO_DECIDED_KEY = SetupStatusDocument::DEMO_DECIDED_KEY;
 
 	/**
 	 * App-config key holding the dataset the operator picked.
@@ -75,7 +69,7 @@ class SetupController extends Controller {
 	 *
 	 * @var string
 	 */
-	private const DATASET_KEY = 'demo_dataset';
+	private const DATASET_KEY = SetupStatusDocument::DATASET_KEY;
 
 	/**
 	 * Constructor.
@@ -111,47 +105,10 @@ class SetupController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function status(): JSONResponse {
-		return new JSONResponse(data: self::statusDocument(appConfig: $this->appConfig, demoDataService: $this->demoDataService));
+		$document = new SetupStatusDocument(appConfig: $this->appConfig, demoDataService: $this->demoDataService);
+		return new JSONResponse(data: $document->build());
 
 	}//end status()
-
-	/**
-	 * The setup status document `GET /api/setup/status` answers. The workspace
-	 * page carries the same document for an admin (REQ-INIT-010), so both
-	 * build it here.
-	 *
-	 * @param IAppConfig               $appConfig       Holds the demo-data decision and pick.
-	 * @param DemoDataServiceInterface $demoDataService Lists the datasets the choice step offers.
-	 *
-	 * @return array<string, mixed> The status document.
-	 *
-	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-1
-	 */
-	public static function statusDocument(IAppConfig $appConfig, DemoDataServiceInterface $demoDataService): array {
-		$demoDecided = $appConfig->getValueString(Application::APP_ID, self::DEMO_DECIDED_KEY, '') !== '';
-		$picked      = $appConfig->getValueString(Application::APP_ID, self::DATASET_KEY, '');
-
-		return [
-			'version'   => self::SETUP_VERSION,
-			'completed' => true,
-			// The choice step reads its options from here: it declares
-			// `optionsSource: datasets` and no options of its own, so a
-			// dataset missing from this list is a dataset nobody can pick.
-			'datasets'  => $demoDataService->listChoices(),
-			// Every id of `manifest.setup.steps`, asserted by the status
-			// contract test: a step the server never reports stays open,
-			// and an open step reopens the wizard on every page.
-			'steps'     => [
-				'welcome' => ['done' => true],
-				// Answered once a card was picked ("None" included) or a load
-				// ran. A pick without a load still counts: a wizard that
-				// predates `loadAction` can only record the pick.
-				'demo-data' => ['done' => ($demoDecided === true || $picked !== '')],
-				'done' => ['done' => true],
-			],
-		];
-
-	}//end statusDocument()
 
 	/**
 	 * Persist the wizard's `choice` answer.

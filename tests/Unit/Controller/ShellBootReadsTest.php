@@ -14,81 +14,76 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\LaunchPad\Controller\PreferencesController;
-use OCA\LaunchPad\Controller\SetupController;
+use OCA\LaunchPad\Controller\LaunchPadAdminDelegation;
+use OCA\LaunchPad\Controller\SetupStatusFirstLoad;
 use OCA\LaunchPad\Controller\ShellBootReads;
+use OCA\LaunchPad\Controller\WalkthroughPreferencesFirstLoad;
 use OCA\LaunchPad\Kernel\Contracts\DemoDataServiceInterface;
+use OCA\LaunchPad\Service\PreferenceKey;
+use OCA\LaunchPad\Service\SetupStatusDocument;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\IAppConfig;
 use OCP\IConfig;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserManager;
-use OCP\Settings\ISettings;
 use OCP\Settings\IManager as ISettingsManager;
+use OCP\Settings\ISettings;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use RuntimeException;
 
 /**
+ * @covers \OCA\LaunchPad\Controller\SetupStatusFirstLoad
  * @covers \OCA\LaunchPad\Controller\ShellBootReads
- * @covers \OCA\LaunchPad\Controller\PreferencesController::storedKey
- * @covers \OCA\LaunchPad\Controller\SetupController::statusDocument
+ * @covers \OCA\LaunchPad\Controller\LaunchPadAdminDelegation
+ * @covers \OCA\LaunchPad\Controller\WalkthroughPreferencesFirstLoad
+ * @covers \OCA\LaunchPad\Service\PreferenceKey
+ * @covers \OCA\LaunchPad\Service\SetupStatusDocument
  */
 class ShellBootReadsTest extends TestCase {
-	/** @var IAppConfig&MockObject */
-	private IAppConfig $appConfig;
-
-	/** @var DemoDataServiceInterface&MockObject */
-	private DemoDataServiceInterface $demoData;
-
-	/** @var IConfig&MockObject */
-	private IConfig $config;
-
 	/** @var IGroupManager&MockObject */
 	private IGroupManager $groups;
-
-	/** @var IUserManager&MockObject */
-	private IUserManager $users;
 
 	/** @var ISettingsManager&MockObject */
 	private ISettingsManager $settings;
 
+	/** @var SetupStatusDocument */
+	private SetupStatusDocument $document;
+
 	/**
-	 * The services the builder reads, as doubles.
+	 * The services the builders read, as doubles.
 	 *
 	 * @return void
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$this->appConfig = $this->createMock(originalClassName: IAppConfig::class);
-		$this->appConfig->method('getValueString')->willReturn('');
-		$this->demoData = $this->createMock(originalClassName: DemoDataServiceInterface::class);
-		$this->demoData->method('listChoices')->willReturn([['id' => 'none']]);
-		$this->config = $this->createMock(originalClassName: IConfig::class);
+		$appConfig = $this->createMock(originalClassName: IAppConfig::class);
+		$appConfig->method('getValueString')->willReturn('');
+		$demoData = $this->createMock(originalClassName: DemoDataServiceInterface::class);
+		$demoData->method('listChoices')->willReturn([['id' => 'none']]);
+		$this->document = new SetupStatusDocument(appConfig: $appConfig, demoDataService: $demoData);
 		$this->groups = $this->createMock(originalClassName: IGroupManager::class);
-		$this->users = $this->createMock(originalClassName: IUserManager::class);
-		$this->users->method('get')->willReturn($this->createMock(originalClassName: IUser::class));
 		$this->settings = $this->createMock(originalClassName: ISettingsManager::class);
 	}//end setUp()
 
 	/**
-	 * The builder under test.
+	 * The setup status builder under test.
 	 *
-	 * @return ShellBootReads
+	 * @return SetupStatusFirstLoad
 	 */
-	private function reads(): ShellBootReads {
-		return new ShellBootReads(
-			appConfig: $this->appConfig,
-			demoDataService: $this->demoData,
-			config: $this->config,
-			groupManager: $this->groups,
-			userManager: $this->users,
-			settingsManager: $this->settings,
+	private function setupStatus(): SetupStatusFirstLoad {
+		$users = $this->createMock(originalClassName: IUserManager::class);
+		$users->method('get')->willReturn($this->createMock(originalClassName: IUser::class));
+
+		return new SetupStatusFirstLoad(
+			document: $this->document,
+			groups: $this->groups,
+			delegation: new LaunchPadAdminDelegation(userManager: $users, settingsManager: $this->settings),
 			logger: new NullLogger()
 		);
-	}//end reads()
+	}//end setupStatus()
 
 	/**
 	 * An admin gets exactly the document the endpoint answers.
@@ -99,13 +94,10 @@ class ShellBootReadsTest extends TestCase {
 		$this->groups->method('isAdmin')->willReturn(true);
 		$this->settings->expects($this->never())->method('getAllowedAdminSettings');
 
-		$status = $this->reads()->setupStatus(userId: 'admin');
+		$status = $this->setupStatus()->firstLoad(userId: 'admin');
 
-		$this->assertSame(
-			expected: SetupController::statusDocument(appConfig: $this->appConfig, demoDataService: $this->demoData),
-			actual: $status
-		);
-		$this->assertTrue($status['completed']);
+		$this->assertSame(expected: $this->document->build(), actual: $status);
+		$this->assertTrue(condition: $status['completed']);
 		$this->assertSame(expected: ['done' => false], actual: $status['steps']['demo-data']);
 	}//end testAnAdminGetsTheStatusDocument()
 
@@ -119,7 +111,7 @@ class ShellBootReadsTest extends TestCase {
 		$other = $this->createMock(originalClassName: ISettings::class);
 		$this->settings->method('getAllowedAdminSettings')->willReturn([10 => [$other]]);
 
-		$this->assertSame(expected: ['forbidden' => true], actual: $this->reads()->setupStatus(userId: 'marieke'));
+		$this->assertSame(expected: ['forbidden' => true], actual: $this->setupStatus()->firstLoad(userId: 'marieke'));
 	}//end testARefusedCallerGetsForbidden()
 
 	/**
@@ -134,7 +126,7 @@ class ShellBootReadsTest extends TestCase {
 			->with('launchpad', $this->anything())
 			->willReturn([10 => [$this->createMock(originalClassName: LaunchPadAdmin::class)]]);
 
-		$this->assertNull($this->reads()->setupStatus(userId: 'delegate'));
+		$this->assertNull(actual: $this->setupStatus()->firstLoad(userId: 'delegate'));
 	}//end testADelegatedAdminGetsNothing()
 
 	/**
@@ -145,26 +137,25 @@ class ShellBootReadsTest extends TestCase {
 	public function testAFailingReadOrNoUserGetsNothing(): void {
 		$this->groups->method('isAdmin')->willThrowException(new RuntimeException('db down'));
 
-		$this->assertNull($this->reads()->setupStatus(userId: 'admin'));
-		$this->assertNull($this->reads()->setupStatus(userId: ''));
-		$this->assertNull($this->reads()->walkthroughPreferences(userId: ''));
+		$this->assertNull(actual: $this->setupStatus()->firstLoad(userId: 'admin'));
+		$this->assertNull(actual: $this->setupStatus()->firstLoad(userId: ''));
 	}//end testAFailingReadOrNoUserGetsNothing()
 
 	/**
 	 * Both preferences come as stored, under the keys the preference endpoint
-	 * stores them by; unset reads null.
+	 * stores them by; unset reads null; no user reads nothing.
 	 *
 	 * @return void
 	 */
 	public function testTheWalkthroughPreferencesAreReadAsTheEndpointReadsThem(): void {
 		$stored = ['pref_walkthroughcompletedversion' => '1.4.0'];
-		$this->config->method('getUserValue')
+		$config = $this->createMock(originalClassName: IConfig::class);
+		$config->method('getUserValue')
 			->willReturnCallback(static fn (string $userId, string $app, string $key, string $default): string => $stored[$key] ?? $default);
+		$reads = new WalkthroughPreferencesFirstLoad(config: $config, keys: new PreferenceKey());
 
-		$this->assertSame(
-			expected: ['seen' => '1.4.0', 'progress' => null],
-			actual: $this->reads()->walkthroughPreferences(userId: 'marieke')
-		);
+		$this->assertSame(expected: ['seen' => '1.4.0', 'progress' => null], actual: $reads->firstLoad(userId: 'marieke'));
+		$this->assertNull(actual: $reads->firstLoad(userId: ''));
 	}//end testTheWalkthroughPreferencesAreReadAsTheEndpointReadsThem()
 
 	/**
@@ -173,8 +164,32 @@ class ShellBootReadsTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheStoredKeyMatchesThePreferenceEndpoint(): void {
-		$this->assertSame(expected: 'pref_walkthroughcompletedversion', actual: PreferencesController::storedKey(key: 'walkthrough_completed_version'));
-		$this->assertSame(expected: 'pref_walkthroughcompletedversion-progress', actual: PreferencesController::storedKey(key: 'walkthrough_completed_version-progress'));
-		$this->assertSame(expected: '', actual: PreferencesController::storedKey(key: '__'));
+		$keys = new PreferenceKey();
+
+		$this->assertSame(expected: 'pref_walkthroughcompletedversion', actual: $keys->stored(key: 'walkthrough_completed_version'));
+		$this->assertSame(
+			expected: 'pref_walkthroughcompletedversion-progress',
+			actual: $keys->stored(key: 'walkthrough_completed_version-progress')
+		);
+		$this->assertSame(expected: '', actual: $keys->stored(key: '__'));
 	}//end testTheStoredKeyMatchesThePreferenceEndpoint()
+	/**
+	 * The holder hands each read out under its initial-state key; a read that
+	 * is not wired is null, so the builder leaves its key out.
+	 *
+	 * @return void
+	 */
+	public function testTheShellReadsComeByInitialStateKey(): void {
+		$this->groups->method('isAdmin')->willReturn(false);
+		$this->settings->method('getAllowedAdminSettings')->willReturn([]);
+
+		$this->assertSame(
+			expected: ['runtimeManifest' => null, 'setup_status' => ['forbidden' => true], 'walkthrough_preferences' => null],
+			actual: (new ShellBootReads(setupStatus: $this->setupStatus()))->firstLoad(userId: 'marieke')
+		);
+		$this->assertSame(
+			expected: ['runtimeManifest' => null, 'setup_status' => null, 'walkthrough_preferences' => null],
+			actual: (new ShellBootReads())->firstLoad(userId: 'marieke')
+		);
+	}//end testTheShellReadsComeByInitialStateKey()
 }//end class

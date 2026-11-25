@@ -215,8 +215,7 @@ class InitialStateBuilderTest extends TestCase {
 				->setUserDashboards([])
 				->setAllowUserDashboards(false)
 				->setAllowedWidgets(null)
-				->setSetupStatus($statusValue)
-				->setWalkthroughPreferences($preferenceValue)
+				->setShellReads(reads: ['runtimeManifest' => null, 'setup_status' => $statusValue, 'walkthrough_preferences' => $preferenceValue])
 				->apply();
 
 			$this->assertSame(expected: $provided, actual: array_key_exists('setup_status', $sink));

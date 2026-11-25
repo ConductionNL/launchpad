@@ -197,9 +197,7 @@ class PageController extends Controller {
 			->setDashboardFirstLoad($this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible))
 			->setOrgNavigation($this->settings->orgNavigation?->firstLoad(userId: $userId))
 			->setWorkspaceBootReads($this->sources->bootReads?->firstLoad(userId: $userId))
-			->setRuntimeManifest($this->sources->manifest?->firstLoad(userId: $userId))
-			->setSetupStatus($this->sources->shell?->setupStatus(userId: $userId))
-			->setWalkthroughPreferences($this->sources->shell?->walkthroughPreferences(userId: $userId))
+			->setShellReads(reads: $this->sources->shell->firstLoad(userId: $userId))
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass

@@ -366,44 +366,25 @@ class InitialStateBuilder {
 	}//end setWorkspaceBootReads()
 
 	/**
-	 * Set the setup status the shell reads (`setup_status`): the document
-	 * `GET /api/setup/status` answers an admin, or `{forbidden: true}` for a
-	 * caller it refuses, so nextcloud-vue does not ask. Optional key; left out
-	 * when null (the shell asks the endpoint).
+	 * Set what the app shell reads before it asks, by initial-state key:
+	 * `runtimeManifest` (see setRuntimeManifest()), `setup_status` (the
+	 * document `GET /api/setup/status` answers an admin, or `{forbidden: true}`
+	 * for a caller it refuses) and `walkthrough_preferences` (`{seen, progress}`
+	 * as stored). Optional keys; one that is null is left out, so the shell
+	 * asks its endpoint.
 	 *
-	 * @param array|null $setupStatus The status, or null.
-	 *
-	 * @return self
-	 *
-	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
-	 */
-	public function setSetupStatus(?array $setupStatus): self {
-		if ($setupStatus !== null) {
-			$this->values['setup_status'] = $setupStatus;
-		}
-
-		return $this;
-	}//end setSetupStatus()
-
-	/**
-	 * Set the walkthrough preferences the shell reads
-	 * (`walkthrough_preferences`: `{seen, progress}` as stored), so
-	 * nextcloud-vue does not ask the two preference endpoints. Optional key;
-	 * left out when null.
-	 *
-	 * @param array|null $preferences The preferences, or null.
+	 * @param array<string, array|null> $reads The reads by key.
 	 *
 	 * @return self
 	 *
 	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
 	 */
-	public function setWalkthroughPreferences(?array $preferences): self {
-		if ($preferences !== null) {
-			$this->values['walkthrough_preferences'] = $preferences;
-		}
+	public function setShellReads(array $reads): self {
+		$given = array_filter(array: $reads, callback: static fn (?array $read): bool => $read !== null);
+		$this->values = [...$this->values, ...$given];
 
 		return $this;
-	}//end setWalkthroughPreferences()
+	}//end setShellReads()
 
 	/**
 	 * Set the runtime manifest kept for the caller, so the page starts from

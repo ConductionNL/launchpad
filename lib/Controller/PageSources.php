@@ -46,8 +46,8 @@ class PageSources {
 	 *                                                   REQ-TMPL-013).
 	 * @param WorkspaceBootReads|null $bootReads The tiles, pending acknowledgements and default-dashboard pin
 	 *                                           the workspace view takes from the initial state.
-	 * @param ManifestFirstLoad|null  $manifest  The kept runtime manifest the page carries.
-	 * @param ShellBootReads|null     $shell     The setup status and walkthrough preferences the shell reads.
+	 * @param ShellBootReads          $shell     The kept runtime manifest, setup status and walkthrough
+	 *                                           preferences the app shell takes from the initial state.
 	 *
 	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
 	 */
@@ -57,8 +57,7 @@ class PageSources {
 		public readonly PageDashboards $dashboards,
 		public readonly AdminTemplateService $adminTemplateService,
 		public readonly ?WorkspaceBootReads $bootReads=null,
-		public readonly ?ManifestFirstLoad $manifest=null,
-		public readonly ?ShellBootReads $shell=null,
+		public readonly ShellBootReads $shell=new ShellBootReads(),
 	) {
 	}//end __construct()
 }//end class

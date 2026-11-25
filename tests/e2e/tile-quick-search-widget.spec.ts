@@ -599,6 +599,52 @@ test.describe('tile quick-search — no search widget placed', () => {
 			page.locator('[data-widget-id="search"]'),
 			'and no search placement in the grid',
 		).toHaveCount(0)
+		// A bar that lost its data-test hook would slip past the counts above;
+		// the built-in placeholder and the combobox role find it either way.
+		await expect(
+			page.getByPlaceholder(DEFAULT_PLACEHOLDER),
+			'no field carrying the quick-search placeholder anywhere',
+		).toHaveCount(0)
+		await expect(
+			page.getByRole('combobox', { name: /search tiles/i }),
+		).toHaveCount(0)
+		// The page that showed no bar is BARE, rendered: its own tile carries
+		// its own text, so the zeros above are not those of an empty page.
+		await expect(
+			page.locator(GRID_ITEM).filter({ hasText: BARE_TILE }).first(),
+			'CONTROL: BARE has rendered its tile',
+		).toContainText(BARE_TILE)
+
+		// CONTROL on the same build: the same locators DO find a bar on a
+		// dashboard that carries a search placement, so their zero on BARE
+		// is a statement about BARE and not about a selector that matches
+		// nothing. BARE is re-activated in `finally` for the test after this.
+		try {
+			await withApi((api) => activate(api, main))
+			await page.reload()
+			await expect(
+				page.locator(GRID_ITEM).filter({ hasText: TILES[0] }).first(),
+				'CONTROL: MAIN is the active dashboard after the switch',
+			).toContainText(TILES[0], { timeout: 30_000 })
+			await expect(
+				page.locator(INPUT),
+				'CONTROL: MAIN renders its one bar through the same locator',
+			).toHaveCount(1, { timeout: 15_000 })
+			await expect(
+				page.locator('.runtime-shell-search'),
+				'CONTROL: and the bar component',
+			).toHaveCount(1)
+			await expect(
+				page.getByPlaceholder(DEFAULT_PLACEHOLDER),
+				'CONTROL: and the placeholder lookup finds it',
+			).toHaveAttribute('placeholder', DEFAULT_PLACEHOLDER)
+			await expect(
+				page.locator('[data-widget-id="search"]'),
+				'CONTROL: and the placement lookup finds the search cell',
+			).toHaveCount(1)
+		} finally {
+			await withApi((api) => activate(api, bare))
+		}
 	})
 
 	// @e2e tile-quick-search::no-search-widget-placed

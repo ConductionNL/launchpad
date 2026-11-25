@@ -2206,7 +2206,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Refreshes every {n} minutes",
     "Every {n} minutes" : "Every {n} minutes",
     "Refreshes every {n} seconds" : "Refreshes every {n} seconds",
-    "Every {n} seconds" : "Every {n} seconds"
+    "Every {n} seconds" : "Every {n} seconds",
+    "Add tiles" : "Add tiles",
+    "Search apps" : "Search apps",
+    "On your dashboard" : "On your dashboard",
+    "Add {name}" : "Add {name}",
+    "No apps found" : "No apps found",
+    "Found on this server" : "Found on this server",
+    "Add as tile" : "Add as tile",
+    "Ready-made tiles for Office" : "Ready-made tiles for Office",
+    "Drop the bookmarks file your browser exported here" : "Drop the bookmarks file your browser exported here",
+    "Choose file" : "Choose file",
+    "Add 1 tile" : "Add 1 tile",
+    "Add {count} tiles" : "Add {count} tiles",
+    "Single sign-on" : "Single sign-on",
+    "Signs in with your Nextcloud account" : "Signs in with your Nextcloud account",
+    "Asks for its own sign-in" : "Asks for its own sign-in",
+    "The tiles could not be added." : "The tiles could not be added."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1659,6 +1659,22 @@
         "Refreshes every {n} minutes": "Opdateres hvert {n}. minut",
         "Every {n} minutes": "Hvert {n}. minut",
         "Refreshes every {n} seconds": "Opdateres hvert {n}. sekund",
-        "Every {n} seconds": "Hvert {n}. sekund"
+        "Every {n} seconds": "Hvert {n}. sekund",
+        "Add tiles": "Tilføj fliser",
+        "Search apps": "Søg efter apps",
+        "On your dashboard": "På dit dashboard",
+        "Add {name}": "Tilføj {name}",
+        "No apps found": "Ingen apps fundet",
+        "Found on this server": "Fundet på denne server",
+        "Add as tile": "Tilføj som flise",
+        "Ready-made tiles for Office": "Færdige fliser til Office",
+        "Drop the bookmarks file your browser exported here": "Slip bogmærkefilen, som din browser eksporterede, her",
+        "Choose file": "Vælg fil",
+        "Add 1 tile": "Tilføj 1 flise",
+        "Add {count} tiles": "Tilføj {count} fliser",
+        "Single sign-on": "Single sign-on",
+        "Signs in with your Nextcloud account": "Logger ind med din Nextcloud-konto",
+        "Asks for its own sign-in": "Beder om sit eget login",
+        "The tiles could not be added.": "Fliserne kunne ikke tilføjes."
     }
 }

@@ -1759,7 +1759,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Опреснява се на всеки {n} мин",
     "Every {n} minutes" : "На всеки {n} мин",
     "Refreshes every {n} seconds" : "Опреснява се на всеки {n} с",
-    "Every {n} seconds" : "На всеки {n} с"
+    "Every {n} seconds" : "На всеки {n} с",
+    "Add tiles" : "Добавяне на плочки",
+    "Search apps" : "Търсене на приложения",
+    "On your dashboard" : "На вашето табло",
+    "Add {name}" : "Добавяне на {name}",
+    "No apps found" : "Няма намерени приложения",
+    "Found on this server" : "Намерено на този сървър",
+    "Add as tile" : "Добавяне като плочка",
+    "Ready-made tiles for Office" : "Готови плочки за Office",
+    "Drop the bookmarks file your browser exported here" : "Пуснете тук файла с отметки, който браузърът ви е експортирал",
+    "Choose file" : "Избор на файл",
+    "Add 1 tile" : "Добавяне на 1 плочка",
+    "Add {count} tiles" : "Добавяне на плочки: {count}",
+    "Single sign-on" : "Единно влизане",
+    "Signs in with your Nextcloud account" : "Влиза с вашия акаунт в Nextcloud",
+    "Asks for its own sign-in" : "Изисква собствено влизане",
+    "The tiles could not be added." : "Плочките не можаха да бъдат добавени."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1759,7 +1759,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "{n} percenként frissül",
     "Every {n} minutes" : "{n} percenként",
     "Refreshes every {n} seconds" : "{n} másodpercenként frissül",
-    "Every {n} seconds" : "{n} másodpercenként"
+    "Every {n} seconds" : "{n} másodpercenként",
+    "Add tiles" : "Csempék hozzáadása",
+    "Search apps" : "Alkalmazások keresése",
+    "On your dashboard" : "Az irányítópultján",
+    "Add {name}" : "{name} hozzáadása",
+    "No apps found" : "Nem található alkalmazás",
+    "Found on this server" : "Ezen a kiszolgálón található",
+    "Add as tile" : "Hozzáadás csempeként",
+    "Ready-made tiles for Office" : "Kész csempék az Office-hoz",
+    "Drop the bookmarks file your browser exported here" : "Ide húzza a böngésző által exportált könyvjelzőfájlt",
+    "Choose file" : "Fájl kiválasztása",
+    "Add 1 tile" : "1 csempe hozzáadása",
+    "Add {count} tiles" : "{count} csempe hozzáadása",
+    "Single sign-on" : "Egyszeri bejelentkezés",
+    "Signs in with your Nextcloud account" : "A Nextcloud-fiókjával jelentkezik be",
+    "Asks for its own sign-in" : "Saját bejelentkezést kér",
+    "The tiles could not be added." : "A csempék nem adhatók hozzá."
 },
 "nplurals=2; plural=(n != 1);"
 );

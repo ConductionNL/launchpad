@@ -1759,7 +1759,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Päivittyy {n} minuutin välein",
     "Every {n} minutes" : "{n} minuutin välein",
     "Refreshes every {n} seconds" : "Päivittyy {n} sekunnin välein",
-    "Every {n} seconds" : "{n} sekunnin välein"
+    "Every {n} seconds" : "{n} sekunnin välein",
+    "Add tiles" : "Lisää ruutuja",
+    "Search apps" : "Hae sovelluksia",
+    "On your dashboard" : "Kojelaudallasi",
+    "Add {name}" : "Lisää {name}",
+    "No apps found" : "Sovelluksia ei löytynyt",
+    "Found on this server" : "Löytyi tältä palvelimelta",
+    "Add as tile" : "Lisää ruutuna",
+    "Ready-made tiles for Office" : "Valmiit ruudut Officelle",
+    "Drop the bookmarks file your browser exported here" : "Pudota tähän selaimesi viemä kirjanmerkkitiedosto",
+    "Choose file" : "Valitse tiedosto",
+    "Add 1 tile" : "Lisää 1 ruutu",
+    "Add {count} tiles" : "Lisää ruutuja: {count}",
+    "Single sign-on" : "Kertakirjautuminen",
+    "Signs in with your Nextcloud account" : "Kirjautuu Nextcloud-tililläsi",
+    "Asks for its own sign-in" : "Pyytää oman kirjautumisen",
+    "The tiles could not be added." : "Ruutuja ei voitu lisätä."
 },
 "nplurals=2; plural=(n != 1);"
 );

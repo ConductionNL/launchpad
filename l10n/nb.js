@@ -1759,7 +1759,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Oppdateres hvert {n}. minutt",
     "Every {n} minutes" : "Hvert {n}. minutt",
     "Refreshes every {n} seconds" : "Oppdateres hvert {n}. sekund",
-    "Every {n} seconds" : "Hvert {n}. sekund"
+    "Every {n} seconds" : "Hvert {n}. sekund",
+    "Add tiles" : "Legg til fliser",
+    "Search apps" : "Søk etter apper",
+    "On your dashboard" : "På dashbordet ditt",
+    "Add {name}" : "Legg til {name}",
+    "No apps found" : "Ingen apper funnet",
+    "Found on this server" : "Funnet på denne serveren",
+    "Add as tile" : "Legg til som flis",
+    "Ready-made tiles for Office" : "Ferdige fliser for Office",
+    "Drop the bookmarks file your browser exported here" : "Slipp bokmerkefilen nettleseren eksporterte her",
+    "Choose file" : "Velg fil",
+    "Add 1 tile" : "Legg til 1 flis",
+    "Add {count} tiles" : "Legg til {count} fliser",
+    "Single sign-on" : "Enkel pålogging",
+    "Signs in with your Nextcloud account" : "Logger på med Nextcloud-kontoen din",
+    "Asks for its own sign-in" : "Ber om egen pålogging",
+    "The tiles could not be added." : "Flisene kunne ikke legges til."
 },
 "nplurals=2; plural=(n != 1);"
 );

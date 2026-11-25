@@ -1759,7 +1759,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Si aggiorna ogni {n} minuti",
     "Every {n} minutes" : "Ogni {n} minuti",
     "Refreshes every {n} seconds" : "Si aggiorna ogni {n} secondi",
-    "Every {n} seconds" : "Ogni {n} secondi"
+    "Every {n} seconds" : "Ogni {n} secondi",
+    "Add tiles" : "Aggiungi riquadri",
+    "Search apps" : "Cerca app",
+    "On your dashboard" : "Sulla tua dashboard",
+    "Add {name}" : "Aggiungi {name}",
+    "No apps found" : "Nessuna app trovata",
+    "Found on this server" : "Trovato su questo server",
+    "Add as tile" : "Aggiungi come riquadro",
+    "Ready-made tiles for Office" : "Riquadri pronti per Office",
+    "Drop the bookmarks file your browser exported here" : "Rilascia qui il file dei segnalibri esportato dal tuo browser",
+    "Choose file" : "Scegli file",
+    "Add 1 tile" : "Aggiungi 1 riquadro",
+    "Add {count} tiles" : "Aggiungi {count} riquadri",
+    "Single sign-on" : "Accesso singolo",
+    "Signs in with your Nextcloud account" : "Accede con il tuo account Nextcloud",
+    "Asks for its own sign-in" : "Chiede un proprio accesso",
+    "The tiles could not be added." : "Impossibile aggiungere i riquadri."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1759,7 +1759,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Obnovuje se každých {n} minut",
     "Every {n} minutes" : "Každých {n} minut",
     "Refreshes every {n} seconds" : "Obnovuje se každých {n} s",
-    "Every {n} seconds" : "Každých {n} s"
+    "Every {n} seconds" : "Každých {n} s",
+    "Add tiles" : "Přidat dlaždice",
+    "Search apps" : "Hledat aplikace",
+    "On your dashboard" : "Na vaší nástěnce",
+    "Add {name}" : "Přidat {name}",
+    "No apps found" : "Nenalezeny žádné aplikace",
+    "Found on this server" : "Nalezeno na tomto serveru",
+    "Add as tile" : "Přidat jako dlaždici",
+    "Ready-made tiles for Office" : "Hotové dlaždice pro Office",
+    "Drop the bookmarks file your browser exported here" : "Sem přetáhněte soubor záložek exportovaný prohlížečem",
+    "Choose file" : "Vybrat soubor",
+    "Add 1 tile" : "Přidat 1 dlaždici",
+    "Add {count} tiles" : "Přidat dlaždice: {count}",
+    "Single sign-on" : "Jednotné přihlášení",
+    "Signs in with your Nextcloud account" : "Přihlašuje se vaším účtem Nextcloud",
+    "Asks for its own sign-in" : "Vyžaduje vlastní přihlášení",
+    "The tiles could not be added." : "Dlaždice nelze přidat."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

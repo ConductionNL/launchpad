@@ -1759,7 +1759,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Оновлюється кожні {n} хв",
     "Every {n} minutes" : "Кожні {n} хв",
     "Refreshes every {n} seconds" : "Оновлюється кожні {n} с",
-    "Every {n} seconds" : "Кожні {n} с"
+    "Every {n} seconds" : "Кожні {n} с",
+    "Add tiles" : "Додати плитки",
+    "Search apps" : "Шукати застосунки",
+    "On your dashboard" : "На вашій панелі",
+    "Add {name}" : "Додати {name}",
+    "No apps found" : "Застосунків не знайдено",
+    "Found on this server" : "Знайдено на цьому сервері",
+    "Add as tile" : "Додати як плитку",
+    "Ready-made tiles for Office" : "Готові плитки для Office",
+    "Drop the bookmarks file your browser exported here" : "Перетягніть сюди файл закладок, експортований браузером",
+    "Choose file" : "Вибрати файл",
+    "Add 1 tile" : "Додати 1 плитку",
+    "Add {count} tiles" : "Додати плитки: {count}",
+    "Single sign-on" : "Єдиний вхід",
+    "Signs in with your Nextcloud account" : "Входить з вашим обліковим записом Nextcloud",
+    "Asks for its own sign-in" : "Вимагає власного входу",
+    "The tiles could not be added." : "Не вдалося додати плитки."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

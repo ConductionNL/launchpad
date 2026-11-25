@@ -1750,7 +1750,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Се освежува секои {n} мин",
     "Every {n} minutes" : "Секои {n} мин",
     "Refreshes every {n} seconds" : "Се освежува секои {n} с",
-    "Every {n} seconds" : "Секои {n} с"
+    "Every {n} seconds" : "Секои {n} с",
+    "Add tiles" : "Додај плочки",
+    "Search apps" : "Барај апликации",
+    "On your dashboard" : "На вашата контролна табла",
+    "Add {name}" : "Додај {name}",
+    "No apps found" : "Не се пронајдени апликации",
+    "Found on this server" : "Пронајдено на овој сервер",
+    "Add as tile" : "Додај како плочка",
+    "Ready-made tiles for Office" : "Готови плочки за Office",
+    "Drop the bookmarks file your browser exported here" : "Пуштете ја тука датотеката со обележувачи што ја извезе прелистувачот",
+    "Choose file" : "Избери датотека",
+    "Add 1 tile" : "Додај 1 плочка",
+    "Add {count} tiles" : "Додај плочки: {count}",
+    "Single sign-on" : "Единствена најава",
+    "Signs in with your Nextcloud account" : "Се најавува со вашата Nextcloud сметка",
+    "Asks for its own sign-in" : "Бара сопствена најава",
+    "The tiles could not be added." : "Плочките не може да се додадат."
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

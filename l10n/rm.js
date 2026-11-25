@@ -1759,7 +1759,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Vegn actualisà mintga {n} minutas",
     "Every {n} minutes" : "Mintga {n} minutas",
     "Refreshes every {n} seconds" : "Vegn actualisà mintga {n} secundas",
-    "Every {n} seconds" : "Mintga {n} secundas"
+    "Every {n} seconds" : "Mintga {n} secundas",
+    "Add tiles" : "Agiuntar plattas",
+    "Search apps" : "Tschertgar applicaziuns",
+    "On your dashboard" : "Sin Voss tavla",
+    "Add {name}" : "Agiuntar {name}",
+    "No apps found" : "Naginas applicaziuns chattadas",
+    "Found on this server" : "Chattà sin quest server",
+    "Add as tile" : "Agiuntar sco platta",
+    "Ready-made tiles for Office" : "Plattas preparadas per Office",
+    "Drop the bookmarks file your browser exported here" : "Laschai crudar qua la datoteca da segnapagina che Voss navigatur ha exportà",
+    "Choose file" : "Tscherner ina datoteca",
+    "Add 1 tile" : "Agiuntar 1 platta",
+    "Add {count} tiles" : "Agiuntar plattas: {count}",
+    "Single sign-on" : "Annunzia unica",
+    "Signs in with your Nextcloud account" : "S'annunzia cun Voss conto da Nextcloud",
+    "Asks for its own sign-in" : "Dumonda in'atgna annunzia",
+    "The tiles could not be added." : "Impussibel d'agiuntar las plattas."
 },
 "nplurals=2; plural=(n != 1);"
 );

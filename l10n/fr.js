@@ -1759,7 +1759,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Actualisé toutes les {n} minutes",
     "Every {n} minutes" : "Toutes les {n} minutes",
     "Refreshes every {n} seconds" : "Actualisé toutes les {n} secondes",
-    "Every {n} seconds" : "Toutes les {n} secondes"
+    "Every {n} seconds" : "Toutes les {n} secondes",
+    "Add tiles" : "Ajouter des tuiles",
+    "Search apps" : "Rechercher des applications",
+    "On your dashboard" : "Sur votre tableau de bord",
+    "Add {name}" : "Ajouter {name}",
+    "No apps found" : "Aucune application trouvée",
+    "Found on this server" : "Trouvé sur ce serveur",
+    "Add as tile" : "Ajouter comme tuile",
+    "Ready-made tiles for Office" : "Tuiles prêtes à l’emploi pour Office",
+    "Drop the bookmarks file your browser exported here" : "Déposez ici le fichier de favoris exporté par votre navigateur",
+    "Choose file" : "Choisir un fichier",
+    "Add 1 tile" : "Ajouter 1 tuile",
+    "Add {count} tiles" : "Ajouter {count} tuiles",
+    "Single sign-on" : "Authentification unique",
+    "Signs in with your Nextcloud account" : "Se connecte avec votre compte Nextcloud",
+    "Asks for its own sign-in" : "Demande sa propre connexion",
+    "The tiles could not be added." : "Les tuiles n’ont pas pu être ajoutées."
 },
 "nplurals=2; plural=(n > 1);"
 );

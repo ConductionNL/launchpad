@@ -2634,7 +2634,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Ververst elke {n} minuten",
     "Every {n} minutes" : "Elke {n} minuten",
     "Refreshes every {n} seconds" : "Ververst elke {n} seconden",
-    "Every {n} seconds" : "Elke {n} seconden"
+    "Every {n} seconds" : "Elke {n} seconden",
+    "Add tiles" : "Tegels toevoegen",
+    "Search apps" : "Apps zoeken",
+    "On your dashboard" : "Op je dashboard",
+    "Add {name}" : "{name} toevoegen",
+    "No apps found" : "Geen apps gevonden",
+    "Found on this server" : "Gevonden op deze server",
+    "Add as tile" : "Toevoegen als tegel",
+    "Ready-made tiles for Office" : "Kant-en-klare tegels voor Office",
+    "Drop the bookmarks file your browser exported here" : "Zet hier het bladwijzerbestand neer dat je browser exporteerde",
+    "Choose file" : "Bestand kiezen",
+    "Add 1 tile" : "1 tegel toevoegen",
+    "Add {count} tiles" : "{count} tegels toevoegen",
+    "Single sign-on" : "Eenmalige aanmelding",
+    "Signs in with your Nextcloud account" : "Meldt aan met je Nextcloud-account",
+    "Asks for its own sign-in" : "Vraagt om een eigen aanmelding",
+    "The tiles could not be added." : "De tegels konden niet worden toegevoegd."
 },
 "nplurals=2; plural=(n != 1);"
 );

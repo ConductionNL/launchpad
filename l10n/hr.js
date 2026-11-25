@@ -1759,7 +1759,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Osvježava se svakih {n} min",
     "Every {n} minutes" : "Svakih {n} min",
     "Refreshes every {n} seconds" : "Osvježava se svakih {n} s",
-    "Every {n} seconds" : "Svakih {n} s"
+    "Every {n} seconds" : "Svakih {n} s",
+    "Add tiles" : "Dodaj pločice",
+    "Search apps" : "Pretraži aplikacije",
+    "On your dashboard" : "Na vašoj nadzornoj ploči",
+    "Add {name}" : "Dodaj {name}",
+    "No apps found" : "Nema pronađenih aplikacija",
+    "Found on this server" : "Pronađeno na ovom poslužitelju",
+    "Add as tile" : "Dodaj kao pločicu",
+    "Ready-made tiles for Office" : "Gotove pločice za Office",
+    "Drop the bookmarks file your browser exported here" : "Ovdje ispustite datoteku oznaka koju je izvezao preglednik",
+    "Choose file" : "Odaberi datoteku",
+    "Add 1 tile" : "Dodaj 1 pločicu",
+    "Add {count} tiles" : "Dodaj pločice: {count}",
+    "Single sign-on" : "Jedinstvena prijava",
+    "Signs in with your Nextcloud account" : "Prijavljuje se vašim Nextcloud računom",
+    "Asks for its own sign-in" : "Traži vlastitu prijavu",
+    "The tiles could not be added." : "Pločice nije moguće dodati."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

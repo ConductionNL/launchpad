@@ -1661,6 +1661,22 @@
         "Refreshes every {n} minutes": "Абнаўляецца кожныя {n} хв",
         "Every {n} minutes": "Кожныя {n} хв",
         "Refreshes every {n} seconds": "Абнаўляецца кожныя {n} с",
-        "Every {n} seconds": "Кожныя {n} с"
+        "Every {n} seconds": "Кожныя {n} с",
+        "Add tiles": "Дадаць пліткі",
+        "Search apps": "Шукаць праграмы",
+        "On your dashboard": "На вашай панэлі",
+        "Add {name}": "Дадаць {name}",
+        "No apps found": "Праграмы не знойдзены",
+        "Found on this server": "Знойдзена на гэтым серверы",
+        "Add as tile": "Дадаць як плітку",
+        "Ready-made tiles for Office": "Гатовыя пліткі для Office",
+        "Drop the bookmarks file your browser exported here": "Перацягніце сюды файл закладак, экспартаваны браўзерам",
+        "Choose file": "Выбраць файл",
+        "Add 1 tile": "Дадаць 1 плітку",
+        "Add {count} tiles": "Дадаць пліткі: {count}",
+        "Single sign-on": "Адзіны ўваход",
+        "Signs in with your Nextcloud account": "Уваходзіць з вашым уліковым запісам Nextcloud",
+        "Asks for its own sign-in": "Патрабуе ўласнага ўваходу",
+        "The tiles could not be added.": "Не ўдалося дадаць пліткі."
     }
 }

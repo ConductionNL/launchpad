@@ -1759,7 +1759,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Atsvaidzina ik pēc {n} min",
     "Every {n} minutes" : "Ik pēc {n} min",
     "Refreshes every {n} seconds" : "Atsvaidzina ik pēc {n} s",
-    "Every {n} seconds" : "Ik pēc {n} s"
+    "Every {n} seconds" : "Ik pēc {n} s",
+    "Add tiles" : "Pievienot flīzes",
+    "Search apps" : "Meklēt lietotnes",
+    "On your dashboard" : "Jūsu informācijas panelī",
+    "Add {name}" : "Pievienot {name}",
+    "No apps found" : "Lietotnes netika atrastas",
+    "Found on this server" : "Atrasts šajā serverī",
+    "Add as tile" : "Pievienot kā flīzi",
+    "Ready-made tiles for Office" : "Gatavas flīzes Office",
+    "Drop the bookmarks file your browser exported here" : "Nometiet šeit pārlūka eksportēto grāmatzīmju failu",
+    "Choose file" : "Izvēlēties failu",
+    "Add 1 tile" : "Pievienot 1 flīzi",
+    "Add {count} tiles" : "Pievienot flīzes: {count}",
+    "Single sign-on" : "Vienotā pierakstīšanās",
+    "Signs in with your Nextcloud account" : "Pierakstās ar jūsu Nextcloud kontu",
+    "Asks for its own sign-in" : "Prasa savu pierakstīšanos",
+    "The tiles could not be added." : "Flīzes nevarēja pievienot."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

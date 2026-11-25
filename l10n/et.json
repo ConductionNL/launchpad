@@ -1659,6 +1659,22 @@
         "Refreshes every {n} minutes": "Värskendub iga {n} minuti järel",
         "Every {n} minutes": "Iga {n} minuti järel",
         "Refreshes every {n} seconds": "Värskendub iga {n} sekundi järel",
-        "Every {n} seconds": "Iga {n} sekundi järel"
+        "Every {n} seconds": "Iga {n} sekundi järel",
+        "Add tiles": "Lisa paane",
+        "Search apps": "Otsi rakendusi",
+        "On your dashboard": "Sinu töölaual",
+        "Add {name}": "Lisa {name}",
+        "No apps found": "Rakendusi ei leitud",
+        "Found on this server": "Leitud sellest serverist",
+        "Add as tile": "Lisa paanina",
+        "Ready-made tiles for Office": "Valmis paanid Office’i jaoks",
+        "Drop the bookmarks file your browser exported here": "Lohista siia brauseri eksporditud järjehoidjate fail",
+        "Choose file": "Vali fail",
+        "Add 1 tile": "Lisa 1 paan",
+        "Add {count} tiles": "Lisa paane: {count}",
+        "Single sign-on": "Ühekordne sisselogimine",
+        "Signs in with your Nextcloud account": "Logib sisse sinu Nextcloudi kontoga",
+        "Asks for its own sign-in": "Küsib oma sisselogimist",
+        "The tiles could not be added.": "Paane ei saanud lisada."
     }
 }

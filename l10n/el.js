@@ -1759,7 +1759,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "Ανανεώνεται κάθε {n} λεπτά",
     "Every {n} minutes" : "Κάθε {n} λεπτά",
     "Refreshes every {n} seconds" : "Ανανεώνεται κάθε {n} δευτερόλεπτα",
-    "Every {n} seconds" : "Κάθε {n} δευτερόλεπτα"
+    "Every {n} seconds" : "Κάθε {n} δευτερόλεπτα",
+    "Add tiles" : "Προσθήκη πλακιδίων",
+    "Search apps" : "Αναζήτηση εφαρμογών",
+    "On your dashboard" : "Στον πίνακά σας",
+    "Add {name}" : "Προσθήκη {name}",
+    "No apps found" : "Δεν βρέθηκαν εφαρμογές",
+    "Found on this server" : "Βρέθηκε σε αυτόν τον διακομιστή",
+    "Add as tile" : "Προσθήκη ως πλακίδιο",
+    "Ready-made tiles for Office" : "Έτοιμα πλακίδια για Office",
+    "Drop the bookmarks file your browser exported here" : "Αφήστε εδώ το αρχείο σελιδοδεικτών που εξήγαγε το πρόγραμμα περιήγησης",
+    "Choose file" : "Επιλογή αρχείου",
+    "Add 1 tile" : "Προσθήκη 1 πλακιδίου",
+    "Add {count} tiles" : "Προσθήκη {count} πλακιδίων",
+    "Single sign-on" : "Ενιαία σύνδεση",
+    "Signs in with your Nextcloud account" : "Συνδέεται με τον λογαριασμό σας Nextcloud",
+    "Asks for its own sign-in" : "Ζητά δική του σύνδεση",
+    "The tiles could not be added." : "Δεν ήταν δυνατή η προσθήκη των πλακιδίων."
 },
 "nplurals=2; plural=(n != 1);"
 );

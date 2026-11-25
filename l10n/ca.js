@@ -1759,7 +1759,23 @@ OC.L10N.register(
     "Refreshes every {n} minutes" : "S’actualitza cada {n} minuts",
     "Every {n} minutes" : "Cada {n} minuts",
     "Refreshes every {n} seconds" : "S’actualitza cada {n} segons",
-    "Every {n} seconds" : "Cada {n} segons"
+    "Every {n} seconds" : "Cada {n} segons",
+    "Add tiles" : "Afegeix mosaics",
+    "Search apps" : "Cerca aplicacions",
+    "On your dashboard" : "Al vostre tauler",
+    "Add {name}" : "Afegeix {name}",
+    "No apps found" : "No s’han trobat aplicacions",
+    "Found on this server" : "Trobat en aquest servidor",
+    "Add as tile" : "Afegeix com a mosaic",
+    "Ready-made tiles for Office" : "Mosaics preparats per a Office",
+    "Drop the bookmarks file your browser exported here" : "Deixeu aquí el fitxer d’adreces d’interès que ha exportat el navegador",
+    "Choose file" : "Tria un fitxer",
+    "Add 1 tile" : "Afegeix 1 mosaic",
+    "Add {count} tiles" : "Afegeix {count} mosaics",
+    "Single sign-on" : "Inici de sessió únic",
+    "Signs in with your Nextcloud account" : "Inicia la sessió amb el vostre compte de Nextcloud",
+    "Asks for its own sign-in" : "Demana el seu propi inici de sessió",
+    "The tiles could not be added." : "No s’han pogut afegir els mosaics."
 },
 "nplurals=2; plural=(n != 1);"
 );

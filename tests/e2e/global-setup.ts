@@ -23,6 +23,7 @@ import { chromium, request } from '@playwright/test'
 import { execSync } from 'child_process'
 import * as fs from 'fs'
 import * as path from 'path'
+import { healLeftoverWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 
 const AUTH_DIR = path.resolve(__dirname, '.auth')
@@ -121,6 +122,9 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 	await dismissFirstRunWizard(page)
 	await markSupportNoteSeen(page)
 	await settleSetupWizard(page)
+	if (await healLeftoverWidgetRestriction()) {
+		console.warn('[global-setup] put back the shipped default widget rule over a leftover e2e restriction')
+	}
 
 	// Persist the storage state so individual specs reuse the session.
 	/*

@@ -386,14 +386,22 @@ test.describe('quicklinks widget: URL validation (REQ-QLNK-008)', () => {
 		await expect(dialog).toBeHidden({ timeout: 10_000 })
 		expect(await quicklinksOn(api, dashboard!.id), 'nothing was saved').toEqual([])
 
-		// url: null on an existing placement: the form validates it the same
-		// way and will not save it back, even once something else changed.
-		const id = await seedQuicklinks(api, dashboard!.id, { links: [{ label: 'Null', url: null, icon: '' }] })
-		await openWidget(page, id)
-		const edit = await openEditForm(page, id)
-		await edit.getByText('Show title', { exact: true }).click()
-		await expect(edit.locator(SAVE), 'a null URL cannot be saved').toBeDisabled()
-		await expect(edit.locator(SAVE)).toHaveAttribute('title', 'Invalid URL in one or more links')
+		// url: '' or null sent to the server is refused as well.
+		for (const url of ['', null]) {
+			const res = await api.post(`${API}/dashboard/${dashboard!.id}/widgets`, {
+				data: {
+					widgetId: 'quicklinks',
+					gridX: 0,
+					gridY: 0,
+					gridWidth: 4,
+					gridHeight: 2,
+					content: { ...QUICKLINKS_DEFAULTS, links: [{ label: 'No address', url, icon: '' }] },
+				},
+			})
+			expect(res.status(), `the server refuses url ${JSON.stringify(url)}: ${await res.text()}`).toBe(400)
+			expect((await res.json()).error).toBe('Invalid URL')
+		}
+		expect(await quicklinksOn(api, dashboard!.id), 'nothing was saved').toEqual([])
 	})
 })
 

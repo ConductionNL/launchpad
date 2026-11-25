@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Einskráning",
     "Signs in with your Nextcloud account" : "Skráir inn með Nextcloud-aðganginum þínum",
     "Asks for its own sign-in" : "Biður um eigin innskráningu",
-    "The tiles could not be added." : "Ekki tókst að bæta reitunum við."
+    "The tiles could not be added." : "Ekki tókst að bæta reitunum við.",
+    "You searched for {query}" : "Þú leitaðir að {query}",
+    "Search results" : "Leitarniðurstöður",
+    "No results" : "Engar niðurstöður",
+    "Show all results" : "Sýna allar niðurstöður",
+    "Tip: type {prefix} to search {name} directly" : "Ábending: sláðu inn {prefix} til að leita beint í {name}"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

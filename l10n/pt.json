@@ -1736,6 +1736,11 @@
         "Single sign-on": "Início de sessão único",
         "Signs in with your Nextcloud account": "Inicia sessão com a sua conta Nextcloud",
         "Asks for its own sign-in": "Pede o seu próprio início de sessão",
-        "The tiles could not be added.": "Não foi possível adicionar os mosaicos."
+        "The tiles could not be added.": "Não foi possível adicionar os mosaicos.",
+        "Group dashboard of %s": "Painel do grupo %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Partilhado por %1$s · %n widget",
+            "Partilhado por %1$s · %n widgets"
+        ]
     }
 }

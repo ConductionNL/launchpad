@@ -1827,6 +1827,11 @@ OC.L10N.register(
     "Single sign-on" : "Адзіны ўваход",
     "Signs in with your Nextcloud account" : "Уваходзіць з вашым уліковым запісам Nextcloud",
     "Asks for its own sign-in" : "Патрабуе ўласнага ўваходу",
-    "The tiles could not be added." : "Не ўдалося дадаць пліткі."
+    "The tiles could not be added." : "Не ўдалося дадаць пліткі.",
+    "You searched for {query}" : "Вы шукалі {query}",
+    "Search results" : "Вынікі пошуку",
+    "No results" : "Няма вынікаў",
+    "Show all results" : "Паказаць усе вынікі",
+    "Tip: type {prefix} to search {name} directly" : "Парада: увядзіце {prefix}, каб шукаць непасрэдна ў {name}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

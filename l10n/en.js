@@ -2287,7 +2287,11 @@ OC.L10N.register(
     "Single sign-on" : "Single sign-on",
     "Signs in with your Nextcloud account" : "Signs in with your Nextcloud account",
     "Asks for its own sign-in" : "Asks for its own sign-in",
-    "The tiles could not be added." : "The tiles could not be added."
+    "The tiles could not be added." : "The tiles could not be added.",
+    "You searched for {query}" : "You searched for {query}",
+    "No results" : "No results",
+    "Show all results" : "Show all results",
+    "Tip: type {prefix} to search {name} directly" : "Tip: type {prefix} to search {name} directly"
 },
 "nplurals=2; plural=(n != 1);"
 );

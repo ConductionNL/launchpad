@@ -50,6 +50,7 @@ import registry from './registry.js'
 // Captures the boot address before the router's catch-all redirects it.
 import { appBase } from './utils/bootPath.js'
 import { applyCustomCss, GLOBAL_STYLE_ID } from './utils/customCss.js'
+import { mountHeaderSearch } from './utils/headerSearchMount.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { logger } from './utils/logger.js'
 import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
@@ -259,5 +260,11 @@ app.provide('runtimeManifest', runtimeManifest)
 app.provide('manifestLoading', manifestLoading)
 
 app.mount('#workspace-vue')
+
+// header-search-dropdown REQ-SRCH-013: the top bar's search field shows its
+// results under the field on LaunchPad pages, with the first search shortcut
+// as the tip.
+// @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+mountHeaderSearch(initialState.searchShortcuts)
 
 export default app

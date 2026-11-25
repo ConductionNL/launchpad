@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Annunzia unica",
     "Signs in with your Nextcloud account" : "S'annunzia cun Voss conto da Nextcloud",
     "Asks for its own sign-in" : "Dumonda in'atgna annunzia",
-    "The tiles could not be added." : "Impussibel d'agiuntar las plattas."
+    "The tiles could not be added." : "Impussibel d'agiuntar las plattas.",
+    "You searched for {query}" : "Ti has tschertgà {query}",
+    "Search results" : "Resultats da la tschertga",
+    "No results" : "Nagins resultats",
+    "Show all results" : "Mussar tut ils resultats",
+    "Tip: type {prefix} to search {name} directly" : "Tip: tippa {prefix} per tschertgar directamain en {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

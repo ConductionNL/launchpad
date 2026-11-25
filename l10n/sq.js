@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Hyrje e njëkohshme",
     "Signs in with your Nextcloud account" : "Hyn me llogarinë tuaj Nextcloud",
     "Asks for its own sign-in" : "Kërkon hyrjen e vet",
-    "The tiles could not be added." : "Pllakat nuk u shtuan dot."
+    "The tiles could not be added." : "Pllakat nuk u shtuan dot.",
+    "You searched for {query}" : "Kërkuat për {query}",
+    "Search results" : "Rezultatet e kërkimit",
+    "No results" : "Nuk ka rezultate",
+    "Show all results" : "Shfaq të gjitha rezultatet",
+    "Tip: type {prefix} to search {name} directly" : "Këshillë: shkruani {prefix} për të kërkuar drejtpërdrejt në {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

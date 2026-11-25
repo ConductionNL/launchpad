@@ -1736,6 +1736,11 @@
         "Single sign-on": "Egyszeri bejelentkezés",
         "Signs in with your Nextcloud account": "A Nextcloud-fiókjával jelentkezik be",
         "Asks for its own sign-in": "Saját bejelentkezést kér",
-        "The tiles could not be added.": "A csempék nem adhatók hozzá."
+        "The tiles could not be added.": "A csempék nem adhatók hozzá.",
+        "Group dashboard of %s": "A(z) %s csoport irányítópultja",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Megosztotta: %1$s · %n widget",
+            "Megosztotta: %1$s · %n widget"
+        ]
     }
 }

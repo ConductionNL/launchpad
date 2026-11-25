@@ -1738,6 +1738,12 @@
         "Single sign-on": "Jednotné přihlášení",
         "Signs in with your Nextcloud account": "Přihlašuje se vaším účtem Nextcloud",
         "Asks for its own sign-in": "Vyžaduje vlastní přihlášení",
-        "The tiles could not be added.": "Dlaždice nelze přidat."
+        "The tiles could not be added.": "Dlaždice nelze přidat.",
+        "Group dashboard of %s": "Nástěnka skupiny %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Sdílí %1$s · %n widget",
+            "Sdílí %1$s · %n widgety",
+            "Sdílí %1$s · %n widgetů"
+        ]
     }
 }

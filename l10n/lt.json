@@ -1738,6 +1738,12 @@
         "Single sign-on": "Vienkartinis prisijungimas",
         "Signs in with your Nextcloud account": "Prisijungia jūsų Nextcloud paskyra",
         "Asks for its own sign-in": "Prašo savo prisijungimo",
-        "The tiles could not be added.": "Nepavyko pridėti plytelių."
+        "The tiles could not be added.": "Nepavyko pridėti plytelių.",
+        "Group dashboard of %s": "Grupės %s skydelis",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Bendrina %1$s · %n valdiklis",
+            "Bendrina %1$s · %n valdikliai",
+            "Bendrina %1$s · %n valdiklių"
+        ]
     }
 }

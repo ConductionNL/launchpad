@@ -1736,6 +1736,11 @@
         "Single sign-on": "Inici de sessió únic",
         "Signs in with your Nextcloud account": "Inicia la sessió amb el vostre compte de Nextcloud",
         "Asks for its own sign-in": "Demana el seu propi inici de sessió",
-        "The tiles could not be added.": "No s’han pogut afegir els mosaics."
+        "The tiles could not be added.": "No s’han pogut afegir els mosaics.",
+        "Group dashboard of %s": "Tauler del grup %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Compartit per %1$s · %n giny",
+            "Compartit per %1$s · %n ginys"
+        ]
     }
 }

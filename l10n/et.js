@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Ühekordne sisselogimine",
     "Signs in with your Nextcloud account" : "Logib sisse sinu Nextcloudi kontoga",
     "Asks for its own sign-in" : "Küsib oma sisselogimist",
-    "The tiles could not be added." : "Paane ei saanud lisada."
+    "The tiles could not be added." : "Paane ei saanud lisada.",
+    "You searched for {query}" : "Otsisite: {query}",
+    "Search results" : "Otsingutulemused",
+    "No results" : "Tulemusi pole",
+    "Show all results" : "Näita kõiki tulemusi",
+    "Tip: type {prefix} to search {name} directly" : "Vihje: sisestage {prefix}, et otsida otse teenusest {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

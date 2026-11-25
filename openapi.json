@@ -264,6 +264,10 @@
             "description": "First-time setup wizard endpoints."
         },
         {
+            "name": "sharing-policy",
+            "description": "Sets the sharing policy."
+        },
+        {
             "name": "status-report",
             "description": "Status reports for the signed-in user."
         },
@@ -3969,12 +3973,12 @@
         },
         "/admin/sharing-policy": {
             "put": {
-                "operationId": "admin-update-sharing-policy",
+                "operationId": "sharing-policy-update",
                 "x-launchpad-stability": "internal",
-                "summary": "Set who may share and whether public links may be created (REQ-SHARE-015)",
-                "description": "Set who may share and whether public links may be created (REQ-SHARE-015). A partial patch: a value left out stays as it is. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "summary": "Set who may share and whether public links may be created",
+                "description": "Set who may share and whether public links may be created. A partial patch: a value left out stays as it is. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
-                    "admin"
+                    "sharing-policy"
                 ],
                 "requestBody": {
                     "required": false,
@@ -4015,9 +4019,6 @@
                                 "schema": {}
                             }
                         }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/Problem400"
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"

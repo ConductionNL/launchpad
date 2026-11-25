@@ -416,7 +416,11 @@ class PublicShareController extends Controller {
 		return [
 			'share' => $shareData,
 			'dashboard' => $result['dashboard']->jsonSerialize(),
-			'placements' => ($this->rules?->visibility?->visiblePlacements(placements: $placements, userId: (string)$this->userId, canEdit: false) ?? $placements),
+			'placements' => ($this->rules?->visibility?->visiblePlacements(
+				placements: $placements,
+				userId: (string)$this->userId,
+				canEdit: false
+			) ?? $placements),
 		];
 	}//end renderPayload()
 

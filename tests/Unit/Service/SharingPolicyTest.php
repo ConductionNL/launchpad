@@ -19,6 +19,8 @@ namespace Unit\Service;
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\PublicShareController;
 use OCA\LaunchPad\Controller\PublicShareRules;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use OCA\LaunchPad\Controller\SharingPolicyController;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\PublicShare;
@@ -33,6 +35,7 @@ use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Nobody may share but an administrator; public links can be switched off
@@ -273,5 +276,32 @@ class SharingPolicyTest extends TestCase {
 		);
 		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $off->create(uuid: 'dash-uuid', expiresAt: '2026-12-31')->getStatus());
 	}//end testTheCreateRouteAppliesThePolicy()
+
+	/**
+	 * The admin endpoint passes both values to the settings and answers 400
+	 * for an unknown choice.
+	 *
+	 * @return void
+	 */
+	public function testTheAdminEndpointStoresThePolicy(): void {
+		$written = [];
+		$mapper = $this->createMock(originalClassName: AdminSettingMapper::class);
+		$mapper->method('setSetting')->willReturnCallback(function (string $key, mixed $value) use (&$written): AdminSetting {
+			$written[$key] = $value;
+			return new AdminSetting();
+		});
+		$controller = new SharingPolicyController(
+			request: $this->createMock(originalClassName: IRequest::class),
+			settings: new AdminSettingsService(settingMapper: $mapper),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
+		);
+
+		$ok = $controller->update(sharingAllowed: 'none', publicLinksAllowed: false);
+		$this->assertSame(expected: Http::STATUS_OK, actual: $ok->getStatus());
+		$this->assertSame(expected: ['sharing_allowed' => 'none', 'public_links_allowed' => false], actual: $written);
+
+		$refused = $controller->update(sharingAllowed: 'friends');
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $refused->getStatus());
+	}//end testTheAdminEndpointStoresThePolicy()
 
 }//end class

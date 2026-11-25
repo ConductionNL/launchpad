@@ -43,7 +43,6 @@ use OCP\IRequest;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\Constraint\Callback;
-use OCP\AppFramework\Http;
 use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
@@ -280,35 +279,6 @@ class AdminControllerSettingsAliasTest extends TestCase {
 
 		$this->controller->updateSettings(defaultAppEnabled: false);
 	}//end testDefaultAppSwitchIsPassedThrough()
-
-	/**
-	 * REQ-SHARE-015: the sharing-policy endpoint passes both values to the
-	 * service, and an unknown choice answers 400.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
-	 */
-	public function testTheSharingPolicyIsPassedThrough(): void {
-		$calls = 0;
-		$this->settingsService->expects($this->exactly(2))
-			->method('updateSettings')
-			->with(['sharingAllowed' => 'none', 'publicLinksAllowed' => false])
-			->willReturnCallback(
-				static function () use (&$calls): void {
-					$calls++;
-					if ($calls === 2) {
-						throw new \InvalidArgumentException(message: 'Invalid value for sharingAllowed.');
-					}
-				}
-			);
-
-		$ok = $this->controller->updateSharingPolicy(sharingAllowed: 'none', publicLinksAllowed: false);
-		$this->assertSame(expected: Http::STATUS_OK, actual: $ok->getStatus());
-
-		$refused = $this->controller->updateSharingPolicy(sharingAllowed: 'none', publicLinksAllowed: false);
-		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $refused->getStatus());
-	}//end testTheSharingPolicyIsPassedThrough()
 
 	/**
 	 * Engagement-communities REQ-COMM-003: the pinned tokens reach the

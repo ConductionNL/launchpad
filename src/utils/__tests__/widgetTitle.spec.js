@@ -13,6 +13,7 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 	dashboardWidgetRegistry: {
 		search: { displayName: 'Search' },
 		chart: { displayName: 'Chart' },
+		people: { displayName: 'People' },
 	},
 }))
 
@@ -125,5 +126,13 @@ describe('resolveWidgetTitle', () => {
 				CATALOG,
 			),
 		).toBe('Legacy direct widget')
+	})
+
+	it('names a people placement listing new colleagues "New colleagues" (REQ-PPL-014)', () => {
+		expect(resolveWidgetTitle({ widgetId: 'people', content: { selectionMode: 'new' } }, CATALOG)).toBe('New colleagues')
+		expect(resolveWidgetTitle({ widgetId: 'people', content: { selectionMode: 'all' } }, CATALOG)).toBe('People')
+		expect(
+			resolveWidgetTitle({ widgetId: 'people', customTitle: 'Welkom', content: { selectionMode: 'new' } }, CATALOG),
+		).toBe('Welkom')
 	})
 })

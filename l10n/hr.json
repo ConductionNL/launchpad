@@ -1,5 +1,6 @@
 {
     "translations": {
+        "New colleagues": "Novi kolege",
         "Required: this widget cannot be removed" : "Obavezno: ovaj widget se ne može ukloniti",
         "Connections of this dashboard": "Veze ove nadzorne ploče",
         "Connection states need the Integrations app": "Za stanje veza potrebna je aplikacija Integracije",

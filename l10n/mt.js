@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "New colleagues" : "Kollegi ġodda",
     "Required: this widget cannot be removed" : "Obbligatorju: dan il-widget ma jistax jitneħħa",
     "Connections of this dashboard" : "Konnessjonijiet ta’ dan id-dashboard",
     "Connection states need the Integrations app" : "L-istat tal-konnessjonijiet jeħtieġ l-app Integrazzjonijiet",

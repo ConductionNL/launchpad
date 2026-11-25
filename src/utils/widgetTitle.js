@@ -53,8 +53,10 @@ import { translate as t } from '@nextcloud/l10n'
  *  2. the author's explicit per-placement override
  *  3. the Nextcloud Dashboard widget the placement IS
  *  4. the Nextcloud Dashboard widget an `nc-widget` placement PROXIES
- *  5. the widget type's display name (`Search`, `Chart`, `Clock`, …)
- *  6. the generic fallback
+ *  5. the name of the placement's mode, where a type has one: a people
+ *     placement with `selectionMode: 'new'` is "New colleagues" (REQ-PPL-014)
+ *  6. the widget type's display name (`Search`, `Chart`, `Clock`, …)
+ *  7. the generic fallback
  *
  * @param {object} placement a `widgetPlacements` row.
  * @param {Array<object>} availableWidgets the Nextcloud Dashboard widget
@@ -69,6 +71,7 @@ export function resolveWidgetTitle(placement, availableWidgets) {
 	return (
 		ownTitle(placement)
 		|| catalogTitle(placement, availableWidgets || [])
+		|| modeTitle(placement)
 		|| typeTitle(placement)
 	)
 }
@@ -111,6 +114,23 @@ function catalogTitle(placement, catalog) {
 		return null
 	}
 	return catalog.find((w) => w.id === proxiedId)?.title || null
+}
+
+/**
+ * The name of the mode a placement runs in, for a type whose mode changes
+ * what the list is: the people widget with `selectionMode: 'new'` lists the
+ * new colleagues, so its header reads "New colleagues" ("Nieuwe collega's"),
+ * not the type's "People" (REQ-PPL-014).
+ *
+ * @param {object} placement The widget placement.
+ * @return {string|null} The title, or null when the mode has no name.
+ * @spec openspec/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ */
+function modeTitle(placement) {
+	if (placement.widgetId === 'people' && placement.content?.selectionMode === 'new') {
+		return t('launchpad', 'New colleagues')
+	}
+	return null
 }
 
 /**

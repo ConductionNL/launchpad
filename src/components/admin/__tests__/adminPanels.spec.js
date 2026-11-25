@@ -325,6 +325,9 @@ describe('DashboardSharingPolicy sharing limits (REQ-SHARE-014)', () => {
 		const wrapper = mountWith(DashboardSharingPolicy, { groups: ['a', 'b'] })
 		await flushPromises()
 		api.updateAdminSettings.mockClear()
+		// REQ-SHARE-015: the group picker shows under Only these groups.
+		wrapper.vm.sharingAllowed = 'groups'
+		await flushPromises()
 
 		wrapper.vm.allowedGroups = ['a']
 		allowed(wrapper).vm.$emit('update:modelValue', ['a'])

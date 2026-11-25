@@ -254,6 +254,7 @@
 				:columnOpts="dashboardColumnOpts"
 				cellHeightCssVar="--launchpad-cell-height"
 				:itemKey="placementItemKey"
+				:itemLabel="placementItemLabel"
 				@layoutChange="updatePlacements">
 				<template #widget="{ item }">
 					<!-- tile-quick-search. Dimming is REACTIVE: the `search`
@@ -583,6 +584,7 @@ import { dialogReturnFocus, restoreLostFocus } from '../utils/returnFocus.js'
 import { parseServerStamp } from '../utils/serverStamp.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
 import { busNotices } from '../utils/widgetBusNotices.js'
+import { gridItemLabel } from '../utils/gridItemLabel.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 /** The workspace grid's row height in pixels; matches `:cellHeight` above. */
@@ -1972,6 +1974,22 @@ export default {
 		 */
 		placementItemKey(placement) {
 			return String(placement.id)
+		},
+
+		/**
+		 * Accessible name of a grid item: "Widget: {title}", plus the position
+		 * and size in edit mode.
+		 *
+		 * @spec openspec/specs/grid-layout/spec.md#req-grid-008
+		 * @param {object} placement the placement (CnDashboardGrid layout item).
+		 * @return {string} the accessible name.
+		 */
+		placementItemLabel(placement) {
+			return gridItemLabel(placement, {
+				editing: this.isEditMode,
+				columns: this.activeDashboard?.gridColumns || 12,
+				availableWidgets: this.availableWidgets,
+			})
 		},
 
 		/**

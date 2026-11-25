@@ -322,6 +322,8 @@ OC.L10N.register(
     "Video" : "Video",
     "Wallet" : "Portemonnee",
     "Widget" : "Widget",
+    "Widget: {title}" : "Widget: {title}",
+    "Widget: {title}, column {column} of {columns}, row {row}, {width} columns wide, {height} rows tall" : "Widget: {title}, kolom {column} van {columns}, rij {row}, {width} kolommen breed, {height} rijen hoog",
     "Widget type" : "Widgettype",
     "Widgets" : "Widgets",
     "Resource exceeds the 5 MB serving cap" : "Bestand overschrijdt de limiet van 5 MB",

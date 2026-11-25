@@ -504,6 +504,7 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 		);
 
 		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+		$this->assertSame(expected: ['error' => DashboardService::ERR_LAST_IN_GROUP], actual: $response->getData());
 	}//end testDeleteGroupPropagatesLastInGroupError()
 
 	/**

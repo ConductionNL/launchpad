@@ -17,20 +17,11 @@
  *   - grid columns on update: DashboardApiController::update() now reads
  *     `gridColumns` (REQ-DASH-038) and stores 6, 8 or 12 without reflowing.
  *
- * EXPECTED RED until the product is fixed:
- *   - another user's activate: DashboardService::activateDashboard() throws
- *     a plain Exception('Access denied'), which activate() answers through
- *     ResponseHelper::error() with its default 400, not 403;
- *   - duplicate names: freeRootSlug() hands a new root dashboard the slug
- *     its owner's own "Work" already holds, and validateSlugUnique() then
- *     refuses the second "Work" with 400;
- *   - the last dashboard of a group: deleteGroupShared() throws a plain
- *     Exception(ERR_LAST_IN_GROUP) and deleteGroup() answers it through
- *     ResponseHelper::error(), which replaces the text with
- *     "Operation failed". The status is 400 as specified, but the reason
- *     never reaches the client, so src/stores/groupDashboards.js (which
- *     explains the guard only for the code `last_group_dashboard`) shows the
- *     generic failure instead of "Last dashboard cannot be deleted".
+ * The refusals carry their reason: another user's activate is a 403
+ * (ForbiddenException), a second "Work" takes the slug `work-2`
+ * (freeRootSlug), and the last dashboard of a group is refused with the
+ * guard's own message, which src/stores/groupDashboards.js turns into
+ * "Last dashboard cannot be deleted".
  *
  * Gate-19 @e2e traceability:
  *   @e2e dashboards::delete-another-users-dashboard
@@ -172,8 +163,6 @@ test.describe('REQ-DASH-004 / REQ-DASH-005 / REQ-DASH-006 ownership and columns'
 	})
 
 	// @e2e dashboards::activate-another-users-dashboard
-	// EXPECTED RED until activateDashboard() refuses a non-owner with a
-	// ForbiddenException (or the controller maps the refusal to 403).
 	test("another user's activate is refused with 403", async () => {
 		const alice = await fresh('e2e-dash-act-own')
 		const bob = await fresh('e2e-dash-act-other')
@@ -230,8 +219,6 @@ test.describe('REQ-DASH-004 / REQ-DASH-005 / REQ-DASH-006 ownership and columns'
 
 test.describe('REQ-DASH-007 dashboard names', () => {
 	// @e2e dashboards::duplicate-dashboard-names-allowed
-	// EXPECTED RED until a root dashboard named like one its owner already
-	// has is given a free slug instead of the held one.
 	test('a second dashboard with the same name is created alongside the first', async () => {
 		const alice = await fresh('e2e-dash-dupe')
 		const first = await createPersonal(alice.api, { name: 'Work' })
@@ -285,8 +272,6 @@ test.describe('REQ-DASH-030 cascade delete', () => {
 
 test.describe('REQ-DASH-014 / REQ-DASH-015 the last dashboard of a group', () => {
 	// @e2e dashboards::group-shared-dashboard-cannot-be-deleted-while-it-is-the-last-one-in-the-group
-	// EXPECTED RED on the body until deleteGroup() passes the guard's reason
-	// on instead of ResponseHelper::error()'s "Operation failed".
 	test('deleting the only dashboard of a group is refused with 400 and its reason', async () => {
 		const marketing = await freshGroup('last-api')
 		const only = await createGroupDashboard(admin, marketing, `E2E Only ${RUN}`)
@@ -311,8 +296,6 @@ test.describe('REQ-DASH-014 / REQ-DASH-015 the last dashboard of a group', () =>
 	})
 
 	// @e2e dashboards::admin-deletes-the-last-dashboard-in-a-group
-	// EXPECTED RED until the refusal reaches the browser with a reason the
-	// store recognises, so the toast explains the guard.
 	test('deleting the last dashboard of a group is refused with a toast that explains the guard', async ({
 		page,
 	}) => {

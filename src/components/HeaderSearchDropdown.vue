@@ -82,6 +82,11 @@ import {
 	moveSelection,
 	searchAll,
 } from '../services/headerSearch.js'
+import {
+	fieldWords,
+	removeInlineField,
+	resolveSearchField,
+} from '../utils/headerSearchField.js'
 
 /**
  * Nextcloud's top bar search field, across the core versions LaunchPad runs on.
@@ -104,8 +109,10 @@ let instanceCounter = 0
  * on LaunchPad pages (header-search-dropdown, REQ-SRCH-013).
  *
  * The field belongs to Nextcloud core and its words to thematiq
- * (`search-placeholder.js`), so this component does not render or replace
- * it. It finds the field, gives it the combobox attributes (WAI-ARIA 1.2:
+ * (`search-placeholder.js`). Where core's top bar has a field this component
+ * does not render or replace it; where it has only a button (Nextcloud 31+
+ * on a desktop), it places a field in the button's place that shows the
+ * button's words (`utils/headerSearchField.js`). It finds the field, gives it the combobox attributes (WAI-ARIA 1.2:
  * `role="combobox"`, `aria-expanded`, `aria-controls`,
  * `aria-activedescendant`), listens to its input and keys, and draws a
  * listbox under it. It never writes the field's `placeholder` or value.
@@ -147,6 +154,7 @@ export default {
 			panelStyle: {},
 			listboxId: `lp-header-search-${instanceCounter}`,
 			observer: null,
+			labelObserver: null,
 			timer: null,
 			controller: null,
 		}
@@ -239,17 +247,32 @@ export default {
 		t,
 
 		/**
-		 * Find the field and bind to it.
+		 * Find the field and bind to it. On Nextcloud 31+ the desktop top bar
+		 * has only a button, so LaunchPad places its own field there
+		 * (`resolveSearchField()`), following the button's words.
 		 *
 		 * @return {boolean} Whether the field was found.
 		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		attach() {
-			const field = document.querySelector(this.fieldSelector)
-			if (!field) {
+			const resolved = resolveSearchField(
+				document.querySelector(this.fieldSelector),
+				t('launchpad', 'Search'),
+			)
+			if (!resolved) {
 				return false
 			}
+			const { field, created, label } = resolved
 			this.field = field
+			if (created && label) {
+				// thematiq can write its field words after LaunchPad mounts.
+				this.labelObserver = new MutationObserver(() => {
+					const words = fieldWords(label.parentElement, field.placeholder)
+					field.placeholder = words
+					field.setAttribute('aria-label', words)
+				})
+				this.labelObserver.observe(label, { childList: true, characterData: true, subtree: true })
+			}
 			field.setAttribute('role', 'combobox')
 			field.setAttribute('aria-autocomplete', 'list')
 			field.setAttribute('aria-controls', this.listboxId)
@@ -276,6 +299,9 @@ export default {
 			field.removeEventListener('blur', this.onBlur)
 			field.removeAttribute('aria-activedescendant')
 			field.setAttribute('aria-expanded', 'false')
+			this.labelObserver?.disconnect()
+			this.labelObserver = null
+			removeInlineField(field)
 			this.field = null
 		},
 
@@ -550,5 +576,45 @@ export default {
 .lp-header-search__tip {
 	border-top: 1px solid var(--color-border);
 	font-size: 0.9em;
+}
+</style>
+
+<style>
+/* LaunchPad's field in Nextcloud 31+'s top bar (utils/headerSearchField.js); unscoped: the top bar is core's DOM.
+   It takes the look of the core button it stands in for; the host has pointer-events: none in core. */
+.lp-header-search-host .unified-search-input__button {
+	display: none !important;
+}
+
+.lp-header-search-host input.lp-header-search-field {
+	pointer-events: auto;
+	width: 100%;
+	height: calc(var(--default-clickable-area, 34px) - 8px);
+	min-height: 0;
+	margin: 0;
+	padding: 0 12px;
+	border: none;
+	border-radius: var(--border-radius-element, 8px);
+	background-color: rgba(0, 0, 0, 0.15);
+	backdrop-filter: var(--filter-background-blur);
+	box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.12);
+	color: var(--color-background-plain-text, #fff);
+	font: inherit;
+	text-align: start;
+}
+
+.lp-header-search-host input.lp-header-search-field::placeholder {
+	color: color-mix(in srgb, var(--color-background-plain-text, #fff) 70%, var(--color-background-plain, #00679e));
+	opacity: 1;
+}
+
+.lp-header-search-host input.lp-header-search-field:hover,
+.lp-header-search-host input.lp-header-search-field:focus {
+	background-color: rgba(0, 0, 0, 0.22);
+}
+
+.lp-header-search-host input.lp-header-search-field:focus-visible {
+	outline: 2px solid var(--color-background-plain-text, #fff);
+	outline-offset: 2px;
 }
 </style>

@@ -1720,6 +1720,22 @@
         "What colleagues worked on.": "Σε τι δούλεψαν οι συνάδελφοι.",
         "What needs you first, across apps.": "Τι χρειάζεται πρώτα την προσοχή σας, σε όλες τις εφαρμογές.",
         "Your open cases.": "Οι ανοιχτές υποθέσεις σας.",
-        "Your open work packages.": "Τα ανοιχτά πακέτα εργασίας σας."
+        "Your open work packages.": "Τα ανοιχτά πακέτα εργασίας σας.",
+        "Add tiles": "Προσθήκη πλακιδίων",
+        "Search apps": "Αναζήτηση εφαρμογών",
+        "On your dashboard": "Στον πίνακά σας",
+        "Add {name}": "Προσθήκη {name}",
+        "No apps found": "Δεν βρέθηκαν εφαρμογές",
+        "Found on this server": "Βρέθηκε σε αυτόν τον διακομιστή",
+        "Add as tile": "Προσθήκη ως πλακίδιο",
+        "Ready-made tiles for Office": "Έτοιμα πλακίδια για Office",
+        "Drop the bookmarks file your browser exported here": "Αφήστε εδώ το αρχείο σελιδοδεικτών που εξήγαγε το πρόγραμμα περιήγησης",
+        "Choose file": "Επιλογή αρχείου",
+        "Add 1 tile": "Προσθήκη 1 πλακιδίου",
+        "Add {count} tiles": "Προσθήκη {count} πλακιδίων",
+        "Single sign-on": "Ενιαία σύνδεση",
+        "Signs in with your Nextcloud account": "Συνδέεται με τον λογαριασμό σας Nextcloud",
+        "Asks for its own sign-in": "Ζητά δική του σύνδεση",
+        "The tiles could not be added.": "Δεν ήταν δυνατή η προσθήκη των πλακιδίων."
     }
 }

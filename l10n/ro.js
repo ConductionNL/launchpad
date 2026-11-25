@@ -1820,7 +1820,23 @@ OC.L10N.register(
     "What colleagues worked on." : "La ce au lucrat colegii.",
     "What needs you first, across apps." : "Ce are nevoie mai întâi de dumneavoastră, în toate aplicațiile.",
     "Your open cases." : "Cazurile dumneavoastră deschise.",
-    "Your open work packages." : "Pachetele dumneavoastră de lucru deschise."
+    "Your open work packages." : "Pachetele dumneavoastră de lucru deschise.",
+    "Add tiles" : "Adaugă dale",
+    "Search apps" : "Caută aplicații",
+    "On your dashboard" : "Pe tabloul tău de bord",
+    "Add {name}" : "Adaugă {name}",
+    "No apps found" : "Nu s-au găsit aplicații",
+    "Found on this server" : "Găsit pe acest server",
+    "Add as tile" : "Adaugă ca dală",
+    "Ready-made tiles for Office" : "Dale gata făcute pentru Office",
+    "Drop the bookmarks file your browser exported here" : "Plasați aici fișierul de marcaje exportat de browser",
+    "Choose file" : "Alege fișierul",
+    "Add 1 tile" : "Adaugă 1 dală",
+    "Add {count} tiles" : "Adaugă dale: {count}",
+    "Single sign-on" : "Autentificare unică",
+    "Signs in with your Nextcloud account" : "Se conectează cu contul tău Nextcloud",
+    "Asks for its own sign-in" : "Cere propria autentificare",
+    "The tiles could not be added." : "Dalele nu au putut fi adăugate."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

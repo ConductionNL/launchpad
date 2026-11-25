@@ -1820,7 +1820,23 @@ OC.L10N.register(
     "What colleagues worked on." : "Ką dirbo kolegos.",
     "What needs you first, across apps." : "Kas pirmiausia reikalauja jūsų dėmesio, visose programose.",
     "Your open cases." : "Jūsų atviri atvejai.",
-    "Your open work packages." : "Jūsų atviri darbo paketai."
+    "Your open work packages." : "Jūsų atviri darbo paketai.",
+    "Add tiles" : "Pridėti plyteles",
+    "Search apps" : "Ieškoti programų",
+    "On your dashboard" : "Jūsų skydelyje",
+    "Add {name}" : "Pridėti {name}",
+    "No apps found" : "Programų nerasta",
+    "Found on this server" : "Rasta šiame serveryje",
+    "Add as tile" : "Pridėti kaip plytelę",
+    "Ready-made tiles for Office" : "Paruoštos plytelės Office",
+    "Drop the bookmarks file your browser exported here" : "Numeskite čia naršyklės eksportuotą žymių failą",
+    "Choose file" : "Pasirinkti failą",
+    "Add 1 tile" : "Pridėti 1 plytelę",
+    "Add {count} tiles" : "Pridėti plyteles: {count}",
+    "Single sign-on" : "Vienkartinis prisijungimas",
+    "Signs in with your Nextcloud account" : "Prisijungia jūsų Nextcloud paskyra",
+    "Asks for its own sign-in" : "Prašo savo prisijungimo",
+    "The tiles could not be added." : "Nepavyko pridėti plytelių."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -58,9 +58,8 @@ class CleanupScanCommand extends Command {
 	 */
 	protected function configure(): void {
 		$this->setName(name: 'launchpad:cleanup:scan')
-			->setDescription(
-				description: 'Scan LaunchPad storage for orphans by category. Exits non-zero when any are found.'
-			);
+			->setDescription(description: 'Scan LaunchPad storage for orphans by category.')
+			->setHelp(help: 'Scan LaunchPad storage for orphans by category. Exits non-zero when any are found.');
 	}//end configure()
 
 	/**

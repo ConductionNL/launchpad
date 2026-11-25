@@ -74,7 +74,8 @@ class TemplateInstallCommand extends Command {
 	 */
 	protected function configure(): void {
 		$this->setName(name: 'launchpad:template:install')
-			->setDescription(description: 'Add a template that ships with LaunchPad as an admin template.')
+			->setDescription(description: 'Add a shipped template as an admin template.')
+			->setHelp(help: 'Add a template that ships with LaunchPad as an admin template.')
 			->addArgument(
 				name: 'id',
 				mode: InputArgument::REQUIRED,

@@ -165,7 +165,7 @@ describe('TileEditor actions', () => {
 })
 
 describe('TileEditor theme colours (REQ-ICT-004)', () => {
-	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+	// @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
 	it('offers eight named swatches and stores the chosen token', async () => {
 		const wrapper = mountEditor()
 		const swatches = wrapper.findAll('[data-test^="tile-editor-swatch--sc-"]')

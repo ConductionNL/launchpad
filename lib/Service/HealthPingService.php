@@ -269,7 +269,9 @@ class HealthPingService {
 	 * @param array<string,mixed>      $attempt  `{state, latencyMs, failed}` from {@see self::attemptPing()}.
 	 *
 	 * @return array{state: string|null, latencyMs: int|null, checkedAtTs: int|null,
-	 *               attemptedAtTs: int, failures: int, stale: bool}
+	 *               attemptedAtTs: int, failures: int, firstFailedTs: int|null, stale: bool}
+	 *
+ * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
 	 */
 	private function nextReading(?array $previous, array $attempt): array {
 		$now = time();
@@ -278,6 +280,7 @@ class HealthPingService {
 			$failures = ((int)($previous['failures'] ?? 0) + 1);
 		}
 
+		$firstFailedTs = $this->firstFailedTs(previous: $previous, failed: $attempt['failed'] === true, now: $now);
 		if ($attempt['failed'] === false || $failures >= $this->offlineAfterFailures()) {
 			return [
 				'state' => $attempt['state'],
@@ -285,6 +288,7 @@ class HealthPingService {
 				'checkedAtTs' => $now,
 				'attemptedAtTs' => $now,
 				'failures' => $failures,
+				'firstFailedTs' => $firstFailedTs,
 				'stale' => false,
 			];
 		}
@@ -305,9 +309,34 @@ class HealthPingService {
 			'checkedAtTs' => $checkedAtTs,
 			'attemptedAtTs' => $now,
 			'failures' => $failures,
+			'firstFailedTs' => $firstFailedTs,
 			'stale' => true,
 		];
 	}//end nextReading()
+
+	/**
+	 * When the current run of failed checks began: kept while checks keep
+	 * failing, now for the first failure, null once a check succeeds.
+	 *
+	 * @param array<string,mixed>|null $previous The cached reading, or null.
+	 * @param boolean                  $failed   Whether this check failed.
+	 * @param integer                  $now      The time of this check.
+	 *
+	 * @return integer|null The unix time of the first failed check, or null.
+	 *
+ * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+	 */
+	private function firstFailedTs(?array $previous, bool $failed, int $now): ?int {
+		if ($failed === false) {
+			return null;
+		}
+
+		if ((int)($previous['failures'] ?? 0) > 0 && isset($previous['firstFailedTs']) === true) {
+			return (int)$previous['firstFailedTs'];
+		}
+
+		return $now;
+	}//end firstFailedTs()
 
 	/**
 	 * Whether a cached reading was attempted less than one interval ago.
@@ -642,11 +671,18 @@ class HealthPingService {
 			$latencyMs = (int)$reading['latencyMs'];
 		}
 
+		// REQ-ICT-003: an offline service says since when its checks fail.
+		$downSince = null;
+		if (($reading['state'] ?? null) === 'offline' && isset($reading['firstFailedTs']) === true) {
+			$downSince = (new DateTime('@' . (int)$reading['firstFailedTs']))->format(format: DATE_ATOM);
+		}
+
 		return [
 			'state' => $reading['state'] ?? null,
 			'checkedAt' => $checkedAt,
 			'latencyMs' => $latencyMs,
 			'stale' => $stale,
+			'downSince' => $downSince,
 		];
 	}//end publicShape()
 

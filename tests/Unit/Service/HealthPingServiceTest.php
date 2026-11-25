@@ -424,6 +424,42 @@ class HealthPingServiceTest extends TestCase {
 		$this->assertFalse($offline['stale']);
 	}//end testOfflineAfterTheConfiguredNumberOfConsecutiveFailedPings()
 
+	/**
+	 * REQ-ICT-003: an offline service says since when its checks fail, from
+	 * the first failed check; the time is kept while it stays offline and
+	 * cleared once a check succeeds.
+	 *
+	 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+	 */
+	public function testAnOfflineServiceSaysSinceWhenItsChecksFail(): void {
+		$this->allowHost(host: 'example.com', offlineAfter: 2);
+		$this->placementMapper->method('find')->willReturn($this->placementWithConfig(id: 35, config: $this->baseConfig()));
+		$this->clientAnswering(statuses: [200, 0, 0, 0, 200]);
+
+		$online = $this->service->resolveForPlacement(placementId: 35);
+		$this->assertNull($online['downSince']);
+
+		$this->expireCacheEntryFor(placementId: 35);
+		$firstFailure = $this->service->resolveForPlacement(placementId: 35);
+		$this->assertNull($firstFailure['downSince'], 'below the threshold the service is not offline yet');
+		$firstFailedTs = (int)json_decode($this->cache->get('badge_35'), true)['firstFailedTs'];
+
+		$this->expireCacheEntryFor(placementId: 35);
+		$offline = $this->service->resolveForPlacement(placementId: 35);
+		$this->assertSame('offline', $offline['state']);
+		$this->assertSame((new \DateTime('@' . $firstFailedTs))->format(DATE_ATOM), $offline['downSince']);
+
+		$this->expireCacheEntryFor(placementId: 35);
+		$still = $this->service->resolveForPlacement(placementId: 35);
+		$this->assertSame($offline['downSince'], $still['downSince'], 'kept while it stays offline');
+
+		$this->expireCacheEntryFor(placementId: 35);
+		$back = $this->service->resolveForPlacement(placementId: 35);
+		$this->assertSame('online', $back['state']);
+		$this->assertNull($back['downSince']);
+		$this->assertNull(json_decode($this->cache->get('badge_35'), true)['firstFailedTs']);
+	}//end testAnOfflineServiceSaysSinceWhenItsChecksFail()
+
 	public function testASuccessfulPingResetsTheFailureCount(): void {
 		$this->allowHost(host: 'example.com', offlineAfter: 2);
 		$this->placementMapper->method('find')->willReturn($this->placementWithConfig(id: 32, config: $this->baseConfig()));
@@ -448,7 +484,7 @@ class HealthPingServiceTest extends TestCase {
 		$this->clientAnswering(statuses: [0]);
 
 		$this->assertSame(
-			['state' => null, 'checkedAt' => null, 'latencyMs' => null, 'stale' => true],
+			['state' => null, 'checkedAt' => null, 'latencyMs' => null, 'stale' => true, 'downSince' => null],
 			$this->service->resolveForPlacement(placementId: 33)
 		);
 	}//end testAFailedFirstPingBelowTheThresholdHasNoStateYet()

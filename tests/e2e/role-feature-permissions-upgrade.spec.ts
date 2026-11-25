@@ -139,14 +139,19 @@ async function dashboardWithText(name: string): Promise<{ id: number; placementI
 	return { id: seeded.id, placementId: seeded.placementId }
 }
 
-/** Whether the viewer is served the placement as visible on that dashboard. */
+/** Whether the viewer is served the placement as visible on that dashboard (REQ-RFP-001). */
 async function servedVisible(viewer: APIRequestContext, dashboardId: number, placementId: number): Promise<boolean> {
 	const res = await viewer.get(`${API}/dashboard/${dashboardId}`)
 	expect(res.status(), await res.text()).toBe(200)
 	const placement = ((await res.json()).placements ?? []).find(
 		(pl: any) => Number(pl.id) === placementId,
 	)
-	expect(placement, 'the text placement must be in the payload, visible or not').toBeDefined()
+	// A placement the viewer's role does not permit comes back with
+	// `isVisible` 0, or not at all for a view-only viewer (REQ-RFP-001), and
+	// these viewers are view-only: absent counts as not visible.
+	if (placement === undefined) {
+		return false
+	}
 	return placement.isVisible !== 0 && placement.isVisible !== false
 }
 

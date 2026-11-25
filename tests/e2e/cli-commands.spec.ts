@@ -1295,7 +1295,10 @@ test.describe('REQ-CLI-011 discoverability', () => {
 			expect.arrayContaining(['file', 'preserve-uuids', 'user']),
 		)
 
-		const row = await dashboard(admin, 'pre-existing round trip')
+		// Empty first (REQ-DWB-001 seeds the default bundle otherwise).
+		const row = await dashboard(admin, 'pre-existing round trip', {
+			widgets: 'none',
+		})
 		const added = await admin.post(`${API}/dashboard/${row.id}/widgets`, {
 			data: {
 				widgetId: 'text',

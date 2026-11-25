@@ -8,7 +8,7 @@
  * `GET /api/people/new` returns, with "Starts {weekday}" for a future start,
  * and says so when no profile field is marked as the start date.
  *
- * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * The demo seed gives its new colleagues a start date (people-new-colleagues).
  *
- * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
  */
 class DemoSeedStartDatesTest extends TestCase {
 

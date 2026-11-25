@@ -805,7 +805,7 @@ class PeopleWidgetService {
 	 *                            unconditionally (REQ-PPL-005).
 	 *
 	 * @return array<string, mixed>
-	 * @spec   openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 * @spec   openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
 	public function buildUserProfile(IUser $user, bool $showBirthdays): array {
 		$uid = $user->getUID();

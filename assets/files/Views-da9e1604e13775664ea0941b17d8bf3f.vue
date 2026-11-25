@@ -184,6 +184,7 @@
 				:canConfigure="canConfigureActiveDashboard"
 				@setColumns="setGridColumns"
 				@addWidget="openWidgetModal"
+				@addTiles="openAddTilesModal"
 				@openSettings="openConfigModal"
 				@done="toggleEditMode"
 				@dock="editBarDock = $event" />
@@ -431,7 +432,21 @@
 			v-if="mountedModals.bookmarkImport"
 			:open="isBookmarkImportOpen"
 			:importBookmarks="importChosenBookmarks"
-			@close="isBookmarkImportOpen = false" />
+			:initialFile="bookmarkInitialFile"
+			@close="isBookmarkImportOpen = false; bookmarkInitialFile = null" />
+
+		<!-- add-tiles-dialog REQ-TILE-043: Add tiles (board LpTegelToevoegen). -->
+		<AddTilesModal
+			v-if="mountedModals.addTiles"
+			:open="isAddTilesOpen"
+			:catalogueApps="catalogueApps"
+			:discoveredApps="discoveredApps"
+			:officeTiles="officeTiles"
+			:placements="widgetPlacements"
+			:requestAppFn="requestCatalogueApp"
+			:addTiles="addChosenTiles"
+			@importBookmarks="onAddTilesImportBookmarks"
+			@close="isAddTilesOpen = false" />
 
 		<TileEditor
 			v-if="mountedModals.tileEditor"
@@ -519,9 +534,10 @@ import { mapActions, mapState } from 'pinia'
 import { computed, defineAsyncComponent, nextTick, provide, reactive, ref, shallowRef } from 'vue'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
+// Components
+import { IDLE_TIMEOUT_MS, LazyMountSupport, SETTLE_DELAY_MS } from '../components/LazyMount.vue'
 import TileWidget from '../components/TileWidget.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
-// Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
 import ActiveFiltersPanel from '../components/Workspace/ActiveFiltersPanel.vue'
 import CoEditorsBanner from '../components/Workspace/CoEditorsBanner.vue'
@@ -545,6 +561,7 @@ const DeleteDashboardDialog = defineAsyncComponent(() => import('../dialogs/Dele
 const ReadConfirmationDialog = defineAsyncComponent(() => import('../dialogs/ReadConfirmationDialog.vue'))
 const AcknowledgementReportModal = defineAsyncComponent(() => import('../modals/AcknowledgementReportModal.vue'))
 const BookmarkImportModal = defineAsyncComponent(() => import('../modals/BookmarkImportModal.vue'))
+const AddTilesModal = defineAsyncComponent(() => import('../modals/AddTilesModal.vue'))
 const DashboardConfigModal = defineAsyncComponent(() => import('../modals/DashboardConfigModal.vue'))
 const TileEditor = defineAsyncComponent(() => import('../modals/TileEditor.vue'))
 const VisibilityRulesModal = defineAsyncComponent(() => import('../modals/VisibilityRulesModal.vue'))
@@ -725,6 +742,7 @@ export default {
 		WidgetPickerModal,
 		CnWidgetStyleEditorModal,
 		BookmarkImportModal,
+		AddTilesModal,
 		TileEditor,
 		DashboardConfigModal,
 		CnAddWidgetModal,
@@ -935,6 +953,9 @@ export default {
 			styleEditorWidget: null,
 			isTileEditorOpen: false,
 			isBookmarkImportOpen: false,
+			bookmarkInitialFile: null,
+			isAddTilesOpen: false,
+			officeTiles: [],
 			editingTile: null,
 			// Custom widget add/edit modal state. `customWidgetEditing`
 			// non-null = edit mode; `customWidgetPreselectedType` non-null =
@@ -988,6 +1009,7 @@ export default {
 			// for "Filter by detail", and the uuids the filter keeps (null
 			// when no filter is set).
 			detailFields: [],
+			detailFieldsRequested: false,
 			detailFilterUuids: null,
 			// dashboard-tree-navigation: the delete confirmation and, once
 			// the server has answered 409, how many dashboards go with it.
@@ -1017,6 +1039,7 @@ export default {
 				widgetPicker: this.isWidgetModalOpen,
 				config: this.isConfigModalOpen,
 				bookmarkImport: this.isBookmarkImportOpen,
+				addTiles: this.isAddTilesOpen,
 				tileEditor: this.isTileEditorOpen,
 				movePanel: this.movePanelOpen,
 				visibility: this.isVisibilityModalOpen,
@@ -1605,6 +1628,20 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * The first time the switcher opens, read the fields its "Filter by
+		 * detail" offers.
+		 *
+		 * @param {boolean} open Whether the switcher is open.
+		 * @return {void}
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+		 */
+		sidebarOpen(open) {
+			if (open) {
+				this.loadDetailFieldsOnce()
+			}
+		},
+
 		openModals: {
 			immediate: true,
 			/**
@@ -1755,7 +1792,11 @@ export default {
 				// `?f=`: the boot can pass through more than one uuid (the
 				// stored active dashboard, then the one the address names).
 				this.openFilterSession(!this.historyBooted)
-				this.recordViewEventDebounced(uuid)
+				if (this.historyBooted) {
+					this.recordViewEventDebounced(uuid)
+				} else {
+					this.recordViewEventAfterLoad(uuid)
+				}
 				// Outbound URL sync — every uuid change after the boot pushes
 				// a new history entry so back/forward navigates between
 				// dashboards. The boot's changes (the stored active
@@ -1786,6 +1827,15 @@ export default {
 		const widgetStore = useWidgetStore()
 		const tileStore = useTileStore()
 
+		// dashboard-acknowledgements REQ-ACK-002: the user's outstanding
+		// mandatory-read items, so the forced-delivery gate and the outstanding
+		// count reflect reality on first render. Wave3.7: the pinned
+		// default-dashboard UUID, for the "Set as default" / "Default
+		// dashboard" state. Neither depends on the loads below, so all go out
+		// together. Both are non-fatal on failure.
+		dashboardStore.fetchPendingAcknowledgements()
+		const defaultPreference = this.loadDefaultDashboardPreference()
+
 		await Promise.all([
 			dashboardStore.loadDashboards(),
 			widgetStore.loadAvailableWidgets(),
@@ -1797,26 +1847,7 @@ export default {
 		// After the watcher has seen the deep-linked switch.
 		await nextTick()
 		this.historyBooted = true
-
-		// dashboard-acknowledgements REQ-ACK-002: load the user's outstanding
-		// mandatory-read items so the forced-delivery gate and the outstanding
-		// count reflect reality on first render. Non-fatal on failure.
-		dashboardStore.fetchPendingAcknowledgements()
-
-		// Wave3.7 — fetch the user's pinned default-dashboard UUID
-		// once on mount so the per-row cog can render the right "Set
-		// as default" / "Default dashboard" state. Failure here is
-		// non-fatal: the cog falls back to "Set as default" for every
-		// row when the pref can't be read.
-		try {
-			const res = await api.getDefaultDashboardPreference()
-			this.defaultDashboardUuid = res?.data?.uuid ?? ''
-		} catch (error) {
-			logger.error(
-				'[Views] Failed to load default-dashboard preference:',
-				error,
-			)
-		}
+		await defaultPreference
 
 		if (editFromAddress && this.canEdit) {
 			await this.enterEditMode()
@@ -1833,8 +1864,6 @@ export default {
 				KIOSK_REFRESH_MS,
 			)
 		}
-		// dashboard-language-and-details-tabs: fields for "Filter by detail".
-		this.loadDetailFields()
 		// Attach the document-level click listener (REQ-WDG-016 outside-
 		// click closes popover). Detached in beforeDestroy so we never
 		// leak a listener across mounts.
@@ -1881,6 +1910,9 @@ export default {
 		this.headerActionsObserver = null
 		// Leaving the page while editing withdraws the presence.
 		this.presence.stop()
+		const flushViewEvent = this.flushBootViewEvent
+		this.cancelBootViewEvent?.()
+		flushViewEvent?.()
 	},
 
 	methods: {
@@ -2090,6 +2122,27 @@ export default {
 		]),
 
 		/**
+		 * Record the view of the dashboard the page opened with once the page
+		 * has settled, so the analytics write is not one of the requests the
+		 * first paint waits behind. Leaving the page before then sends it at
+		 * once.
+		 *
+		 * @param {string} uuid The dashboard UUID to record.
+		 * @return {void}
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
+		 */
+		recordViewEventAfterLoad(uuid) {
+			this.cancelBootViewEvent?.()
+			const send = () => {
+				this.cancelBootViewEvent = null
+				this.flushBootViewEvent = null
+				this.recordViewEventDebounced(uuid)
+			}
+			this.flushBootViewEvent = send
+			this.cancelBootViewEvent = LazyMountSupport.whenSettled(send, SETTLE_DELAY_MS, IDLE_TIMEOUT_MS)
+		},
+
+		/**
 		 * REQ-ANLT-011 — per-uuid 1-second debounce wrapping the
 		 * fire-and-forget store action. The ledger lives on
 		 * `data.viewEventLastSent` (Object.create(null)) so different
@@ -2158,7 +2211,41 @@ export default {
 		},
 
 		/**
-		 * Read the detail fields once, for the switcher's filter.
+		 * Read the user's pinned default-dashboard UUID.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async loadDefaultDashboardPreference() {
+			try {
+				const res = await api.getDefaultDashboardPreference()
+				this.defaultDashboardUuid = res?.data?.uuid ?? ''
+			} catch (error) {
+				logger.error(
+					'[Views] Failed to load default-dashboard preference:',
+					error,
+				)
+			}
+		},
+
+		/**
+		 * Read the detail fields once, the first time the switcher opens: the
+		 * filter that uses them lives there, so the page does not ask for them
+		 * while it loads.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+		 */
+		loadDetailFieldsOnce() {
+			if (this.detailFieldsRequested) {
+				return Promise.resolve()
+			}
+			this.detailFieldsRequested = true
+			return this.loadDetailFields()
+		},
+
+		/**
+		 * Read the detail fields, for the switcher's filter.
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
@@ -2728,6 +2815,69 @@ export default {
 			} catch (error) {
 				logger.error('[Views] Failed to place a catalogue app:', error)
 			}
+		},
+
+		/**
+		 * Open Add tiles with the catalogue, the found apps and the office
+		 * pack loaded; a list that fails to load leaves its section empty.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 */
+		async openAddTilesModal() {
+			this.isAddTilesOpen = true
+			await Promise.all([
+				this.loadDiscoveredApps(),
+				this.loadCatalogueApps(),
+				this.loadOfficeTiles(),
+			])
+		},
+
+		/**
+		 * Read the office tile pack for the Add tiles Office section.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 */
+		async loadOfficeTiles() {
+			try {
+				const response = await api.officeTilePack()
+				this.officeTiles = Array.isArray(response?.data?.tiles) ? response.data.tiles : []
+			} catch (error) {
+				this.officeTiles = []
+				logger.warn('[Views] Could not load the office tiles:', error)
+			}
+		},
+
+		/**
+		 * Place the tiles chosen in Add tiles, one after the other so each
+		 * lands below the last: a found app as its own app tile, the rest as
+		 * ordinary tiles.
+		 *
+		 * @param {Array<{kind: string, tile: object}>} choices The chosen tiles.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 */
+		async addChosenTiles(choices) {
+			for (const choice of choices) {
+				if (choice.kind === 'app-tile') {
+					await this.addWidgetToDashboard(appTileFromDiscoveredApp(choice.tile))
+				} else {
+					await this.addTileToDashboard(choice.tile)
+				}
+			}
+		},
+
+		/**
+		 * A bookmarks file chosen in Add tiles: open the bookmark import on it.
+		 *
+		 * @param {File} file The bookmarks file.
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 */
+		onAddTilesImportBookmarks(file) {
+			this.isAddTilesOpen = false
+			this.bookmarkInitialFile = file
+			this.isBookmarkImportOpen = true
 		},
 
 		/**

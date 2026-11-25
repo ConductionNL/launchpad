@@ -176,7 +176,7 @@ const DEFAULT_STRATEGY = 'merge'
 /**
  * The rollout window: what a push changes, how to update, and the push.
  *
- * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+ * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
  */
 export default {
 	name: 'TemplateResyncModal',
@@ -238,7 +238,7 @@ export default {
 		 * screen (REQ-RESYNC-002).
 		 *
 		 * @return {boolean} whether the push button is enabled.
-		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+		 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
 		canApply() {
 			return (
@@ -253,7 +253,7 @@ export default {
 		 * The window's title, naming the number of dashboards once known.
 		 *
 		 * @return {string} the title.
-		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+		 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
 		title() {
 			if (!this.plan) {
@@ -268,7 +268,7 @@ export default {
 		 * The confirm button's label, naming the number of dashboards.
 		 *
 		 * @return {string} the label.
-		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+		 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
 		pushLabel() {
 			if (!this.plan) {
@@ -283,7 +283,7 @@ export default {
 		 * Widgets the template gained since the copies were last synced.
 		 *
 		 * @return {string[]} the widget names.
-		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+		 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
 		gained() {
 			return Array.isArray(this.plan?.gained) ? this.plan.gained : []
@@ -293,7 +293,7 @@ export default {
 		 * Widgets the template lost since the copies were last synced.
 		 *
 		 * @return {string[]} the widget names.
-		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+		 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
 		lost() {
 			return Array.isArray(this.plan?.lost) ? this.plan.lost : []
@@ -309,7 +309,7 @@ export default {
 			 *
 			 * @param {boolean} isOpen Whether the modal is now open.
 			 * @return {void}
-			 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+			 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 			 */
 			handler(isOpen) {
 				if (isOpen) {
@@ -327,7 +327,7 @@ export default {
 		 * Clear the plan, result and error, and preselect Keep personal changes.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+		 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
 		resetState() {
 			this.strategy = DEFAULT_STRATEGY
@@ -343,7 +343,7 @@ export default {
 		 *
 		 * @param {string} id The strategy id (`add_only`, `merge`, `overwrite`).
 		 * @return {void}
-		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+		 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
 		chooseStrategy(id) {
 			if (id === this.strategy) {
@@ -359,7 +359,7 @@ export default {
 		 * (REQ-RESYNC-002). A slower answer for an earlier choice is dropped.
 		 *
 		 * @return {Promise<void>} resolves once the plan is loaded.
-		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+		 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
 		async runDryRun() {
 			if (!this.template) {
@@ -397,7 +397,7 @@ export default {
 		 * Push the plan on screen (REQ-RESYNC-001, REQ-RESYNC-005).
 		 *
 		 * @return {Promise<void>} resolves once the re-sync request completes.
-		 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+		 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 		 */
 		async apply() {
 			if (!this.template || !this.canApply) {

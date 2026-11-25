@@ -137,7 +137,9 @@ export default defineConfig({
 	// 60s, not 30s: the value the 80-test measurement run used, under which
 	// every promoted file was green. The old 30s was never exercised against
 	// this fixture by anything but the four-test subset.
-	timeout: 60_000,
+	// E2E_TEST_TIMEOUT (ms) raises it for a run against a shared, busy
+	// instance, where a fresh account's first sign-in alone can take a minute.
+	timeout: Number(process.env.E2E_TEST_TIMEOUT) || 60_000,
 	expect: {
 		timeout: 10_000,
 	},

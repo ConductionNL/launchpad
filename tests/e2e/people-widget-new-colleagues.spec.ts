@@ -7,22 +7,15 @@
  * `people-new-colleagues` (REQ-PEX-005, REQ-PPL-014), which gate 19 counts as
  * `people-widget::<slug>`. Written for e2e-coverage-programme (task 4.9).
  *
- * WHAT IS BUILT AND WHAT IS NOT (development, 2026-11-25)
- * =======================================================
- * Built: the `date` profile-field type, the single start-date marker
- * (`ProfileFieldService`, the admin Profile fields tab) and
- * `GET /api/people/new` (`NewColleaguesController`, `NewColleagues`).
- * Not built: the widget form's "New colleagues" choice and the renderer's
- * list (tasks 5 and 6 of the change are open). nc-vue 2.218.0's
- * `CnPeopleWidgetForm` has no selection control, and `CnPeopleWidget` does not
- * read `selectionMode: 'new'`.
- *
- * So the API test of "Three new colleagues" is expected green, its browser
- * test is expected RED until the renderer lands (a placement in an unknown
- * mode lists everyone, so the out-of-window colleague shows and the test
- * fails on it), and "No start date field" is expected green: the form offers
- * no New colleagues today, and the test fails the day it does so without a
- * start date field.
+ * WHAT IS BUILT (development, 2026-11-25)
+ * =======================================
+ * The `date` profile-field type, the single start-date marker
+ * (`ProfileFieldService`, the admin Profile fields tab),
+ * `GET /api/people/new` (`NewColleaguesController`, `NewColleagues`), and in
+ * LaunchPad the form's "New colleagues" choice (`PeopleWidgetForm`, offered
+ * only when a start date field exists) and the list (`PeopleHost`, which
+ * reads `selectionMode: 'new'` and adds a "Starts: <weekday>" line to a
+ * colleague who has not started yet). All three scenarios are expected green.
  *
  * DATES
  * =====
@@ -273,7 +266,7 @@ test.describe('REQ-PPL-014: the people widget lists new colleagues', () => {
 			expect(order).toEqual([0, 1, 2])
 
 			// Yasmina is marked with the day she starts; the others have started.
-			await expect(yasmina).toContainText(new RegExp(`(begint|starts)\\s+(on\\s+)?(${weekdayOf(STARTS.yasmina)})`, 'i'))
+			await expect(yasmina).toContainText(new RegExp(`(begint|starts):?\\s+(on\\s+)?(${weekdayOf(STARTS.yasmina)})`, 'i'))
 			await expect(lotte).not.toContainText(/begint|starts/i)
 			await expect(thomas).not.toContainText(/begint|starts/i)
 

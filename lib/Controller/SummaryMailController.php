@@ -59,24 +59,6 @@ class SummaryMailController extends Controller {
 	}//end __construct()
 
 	/**
-	 * The caller's frequency, and whether they have an email address.
-	 *
-	 * @return JSONResponse `{frequency, hasEmail}`, or 401 signed out.
-	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
-	 */
-	#[NoAdminRequired]
-	public function show(): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user instanceof IUser) {
-			// The session's own user id: no route reads another person's choice.
-			return self::answer(user: $user, frequency: $this->preference->frequency(userId: $user->getUID()));
-		}
-
-		return self::signedOut();
-	}//end show()
-
-	/**
 	 * Store the caller's frequency.
 	 *
 	 * @param string $frequency Off, daily or weekly.
@@ -101,6 +83,24 @@ class SummaryMailController extends Controller {
 
 		return self::answer(user: $user, frequency: $stored);
 	}//end update()
+
+	/**
+	 * The caller's frequency, and whether they have an email address.
+	 *
+	 * @return JSONResponse `{frequency, hasEmail}`, or 401 signed out.
+	 *
+	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 */
+	#[NoAdminRequired]
+	public function show(): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user instanceof IUser) {
+			// The session's own user id: no route reads another person's choice.
+			return self::answer(user: $user, frequency: $this->preference->frequency(userId: $user->getUID()));
+		}
+
+		return self::signedOut();
+	}//end show()
 
 	/**
 	 * The answer for a request without a signed-in user.

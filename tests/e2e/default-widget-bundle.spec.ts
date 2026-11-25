@@ -29,6 +29,7 @@ import {
 	loginAs,
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
+import { dashboardsFromApi } from './support/dashboardFirstLoad.ts'
 import { adminContext, contextFor } from './support/principals.ts'
 
 const API = '/index.php/apps/launchpad/api'
@@ -263,6 +264,10 @@ test.describe.serial('default widget bundle (REQ-DWB-001, 002, 005, 006)', () =>
 				release = resolve
 			})
 			let seen = false
+			// The first load normally comes with the page (initial state), so
+			// no fetch happens; drop that key so the store asks the API and the
+			// shim has a fetch to cover.
+			await dashboardsFromApi(page)
 			await page.route(
 				/\/apps\/launchpad\/api\/dashboard(\?.*)?$/,
 				async (route) => {

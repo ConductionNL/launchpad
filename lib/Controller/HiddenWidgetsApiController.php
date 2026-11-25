@@ -43,7 +43,7 @@ use OCP\IRequest;
  *
  * Every method is `#[NoAdminRequired]`: it acts on the caller's own layer only.
  *
- * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+ * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
  */
 class HiddenWidgetsApiController extends Controller {
 	use RespondsWithErrors;
@@ -68,7 +68,7 @@ class HiddenWidgetsApiController extends Controller {
 	 *
 	 * @return JSONResponse `{hidden: [...]}`.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	#[NoAdminRequired]
 	public function index(): JSONResponse {
@@ -86,7 +86,7 @@ class HiddenWidgetsApiController extends Controller {
 	 *
 	 * @return JSONResponse `{shown: true}`, or 404 when the caller did not hide it.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	#[NoAdminRequired]
 	public function showAgain(int $placementId): JSONResponse {
@@ -106,7 +106,7 @@ class HiddenWidgetsApiController extends Controller {
 	 *
 	 * @return JSONResponse `{shown: n}`.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	#[NoAdminRequired]
 	public function showAll(): JSONResponse {

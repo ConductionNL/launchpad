@@ -31,7 +31,7 @@ use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
 /**
  * Collects the lines of one person's summary.
  *
- * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+ * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
  */
 class SummaryMailContent {
 
@@ -62,7 +62,7 @@ class SummaryMailContent {
 	 *
 	 * @return array{announcements: list<string>, changes: list<string>}
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function collect(string $userId, DateTimeInterface $since): array {
 		return [

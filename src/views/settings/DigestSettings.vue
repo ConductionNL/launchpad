@@ -56,7 +56,7 @@ import {
  * DigestSettings: the person's summary email frequency (Off, Daily,
  * Weekly), a section of the user settings dialog.
  *
- * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+ * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
  */
 export default {
 	name: 'DigestSettings',
@@ -78,7 +78,7 @@ export default {
 		 * The three choices, with the board's explanation under Daily and Weekly.
 		 *
 		 * @return {Array<{value: string, label: string, hint: string}>} The options.
-		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+		 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 		 */
 		options() {
 			return [
@@ -89,7 +89,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md */
+	/** @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md */
 	async mounted() {
 		try {
 			const response = await axios.get(this.url())
@@ -106,7 +106,7 @@ export default {
 		 * The caller's own summary email endpoint.
 		 *
 		 * @return {string} The URL.
-		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+		 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 		 */
 		url() {
 			return generateUrl('/apps/launchpad/api/summary-mail/me')
@@ -116,7 +116,7 @@ export default {
 		 * Take the server's answer.
 		 *
 		 * @param {{frequency?: string, hasEmail?: boolean}|undefined} data The answer.
-		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+		 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 		 */
 		apply(data) {
 			this.frequency = ['off', 'daily', 'weekly'].includes(data?.frequency) ? data.frequency : 'off'
@@ -127,7 +127,7 @@ export default {
 		 * Store the choice at once.
 		 *
 		 * @param {string} frequency Off, daily or weekly.
-		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+		 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 		 */
 		async onChoose(frequency) {
 			const previous = this.frequency

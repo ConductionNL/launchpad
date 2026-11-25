@@ -78,7 +78,7 @@ import { resolveWidgetTitle } from '../../utils/widgetTitle.js'
  * HiddenWidgetsSettings: the widgets this person hid on shared dashboards,
  * across every dashboard, a section of the user settings dialog.
  *
- * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+ * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
  */
 export default {
 	name: 'HiddenWidgetsSettings',
@@ -95,7 +95,7 @@ export default {
 		}
 	},
 
-	/** @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md */
+	/** @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md */
 	async mounted() {
 		await this.load()
 	},
@@ -106,7 +106,7 @@ export default {
 		 *
 		 * @param {number} [placementId] One hidden placement.
 		 * @return {string} The URL.
-		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+		 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 		 */
 		url(placementId) {
 			const base = '/apps/launchpad/api/personal-layer/hidden'
@@ -116,7 +116,7 @@ export default {
 		/**
 		 * Read the list.
 		 *
-		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+		 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 		 */
 		async load() {
 			try {
@@ -136,7 +136,7 @@ export default {
 		 *
 		 * @param {{placement?: object}} entry A hidden widget.
 		 * @return {string} Its title.
-		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+		 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 		 */
 		titleOf(entry) {
 			return resolveWidgetTitle(entry?.placement, []) || entry?.placement?.widgetId || ''
@@ -146,7 +146,7 @@ export default {
 		 * Show one widget again on the person's own view.
 		 *
 		 * @param {{placementId: number}} entry The hidden widget.
-		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+		 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 		 */
 		async showAgain(entry) {
 			await this.change(async () => {
@@ -158,7 +158,7 @@ export default {
 		/**
 		 * Show every hidden widget again.
 		 *
-		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+		 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 		 */
 		async showAll() {
 			await this.change(async () => {
@@ -171,7 +171,7 @@ export default {
 		 * Run one change, saved at once, and say so when it fails.
 		 *
 		 * @param {() => Promise<void>} action The change.
-		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+		 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 		 */
 		async change(action) {
 			this.saving = true

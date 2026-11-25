@@ -43,7 +43,6 @@ import {
 	// Forms for types the communal registry leaves `form: null` (renderer-only
 	// in OpenBuild) but which LaunchPad configures — they rely on LaunchPad-
 	// injected context (NC widget catalog, people API, calendar/graphql sources).
-	CnCalendarWidgetForm as CalendarForm,
 	getDefaultContent as cnGetDefaultContent,
 	getWidgetTypeEntry as cnGetWidgetTypeEntry,
 	listWidgetTypes as cnListWidgetTypes,
@@ -87,6 +86,8 @@ const IframeWidget = lazyComponent(() => import('../components/Widgets/Renderers
 const IframeWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/IframeWidgetForm.vue'), 'IframeWidgetForm')
 const LinkButtonWidget = lazyComponent(() => import('../components/Widgets/Renderers/LinkButtonHost.vue'), 'LinkButtonWidget')
 const LiveTileWidget = lazyComponent(() => import('../components/Widgets/Renderers/LiveTileWidget.vue'), 'LiveTileWidget')
+const CalendarWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/CalendarWidgetForm.vue'), 'CalendarWidgetForm')
+const ImageWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ImageWidgetForm.vue'), 'ImageWidgetForm')
 const LiveTileWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/LiveTileWidgetForm.vue'), 'LiveTileWidgetForm')
 const NewsWidget = lazyComponent(() => import('../components/Widgets/Renderers/NewsWidget.vue'), 'NewsWidget')
 const NewsWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/NewsWidgetForm.vue'), 'NewsWidgetForm')
@@ -189,7 +190,10 @@ const EXTRA_TYPES = ['map']
  * @type {Record<string, object>}
  */
 const FORM_OVERRIDES = {
-	calendar: CalendarForm,
+	// widget-content-forms-board-sync (REQ-CAL-020, REQ-IMG-020): the content
+	// forms as board LpWidgetInstellen draws them.
+	calendar: CalendarWidgetForm,
+	image: ImageWidgetForm,
 	people: PeopleForm,
 	'spend-analytics': SpendAnalyticsForm,
 	'nc-widget': NcDashboardForm,

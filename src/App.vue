@@ -65,6 +65,7 @@ import ProfileFieldsSettings from './views/settings/ProfileFieldsSettings.vue'
 import { REQUIRED_OBJECT_PROP } from './constants/propDefinitions.js'
 import customComponents from './customComponents.js'
 import { LAZY_ICON_CATALOGUE } from './services/iconCatalogue.js'
+import { buildPeopleSource } from './services/widgetDataAdapters.js'
 import { isAdminPagePath } from './utils/adminPage.js'
 import { bootPath } from './utils/bootPath.js'
 import { isKioskMode } from './utils/kioskMode.js'
@@ -163,7 +164,10 @@ export default {
 		},
 	},
 
-	/** @spec openspec/specs/runtime-shell/spec.md */
+	/**
+	 * @spec openspec/specs/runtime-shell/spec.md
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 */
 	provide() {
 		// Re-provide the reactive manifest refs so deeply nested
 		// descendants don't need to prop-drill through WorkspaceApp/Views.
@@ -176,6 +180,9 @@ export default {
 			// runtime-shell REQ-SHELL-009: what `StartPageMenu` reads. A
 			// computed ref, because provide() runs once and the route changes.
 			launchpadChrome: computed(() => this.chromeState),
+			// people-new-colleagues REQ-PPL-014: the people widget form asks
+			// whether a start date field exists; placements re-provide their own.
+			cnPeopleSource: buildPeopleSource(),
 		}
 	},
 

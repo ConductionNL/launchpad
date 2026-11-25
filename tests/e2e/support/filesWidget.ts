@@ -172,7 +172,15 @@ export async function readFile(api: APIRequestContext, user: string, path: strin
  * @return nothing.
  */
 export async function davRemove(api: APIRequestContext, user: string, path: string): Promise<void> {
-	await api.fetch(davUrl(user, path), { method: 'DELETE' })
+	// A viewer's page that just listed the folder may still hold a shared
+	// lock on it (its thumbnails load after the list), and Nextcloud then
+	// answers 423 Locked. That lock lasts one request, so wait it out rather
+	// than leave the folder in place and test against a folder still there.
+	await expect.poll(async () => (await api.fetch(davUrl(user, path), { method: 'DELETE' })).status(), {
+		message: `DELETE ${path} stays locked`,
+		timeout: 15_000,
+		intervals: [250, 500, 1_000],
+	}).not.toBe(423)
 }
 
 /**

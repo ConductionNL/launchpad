@@ -224,6 +224,12 @@ The shared library's first-open support note (`CnSupportDialog`: donate, get sup
 - WHEN he opens LaunchPad
 - THEN the note MUST open once, as before
 
+#### Scenario: On the administration page the admin tour comes first
+- GIVEN Noor is an administrator who has never opened LaunchPad
+- WHEN she opens the administration page (`/apps/launchpad/admin`)
+- THEN the admin tour (REQ-SHELL-011) MUST start and no "Support LaunchPad" dialog MUST open on that page load
+- AND the note MUST open on her next page load of another LaunchPad page
+
 ### Requirement: REQ-SHELL-009 No navigation panel; the destinations are in the More menu
 
 LaunchPad MUST NOT render a left navigation panel on any page. `App.vue` passes `hideMenu` to `CnAppRoot`, so neither `CnAppNav` nor the `#menu` slot renders and `NcAppContent` takes the full width. LaunchPad is a dashboard app whose canvas is the page; hydra ADR-114 Decision 10 exempts it from rendering the app chrome in a left panel.

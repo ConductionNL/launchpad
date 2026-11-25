@@ -13,6 +13,8 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 	CnAppRoot: { name: 'CnAppRoot', template: '<div />' },
 }))
 vi.mock('../customComponents.js', () => ({ default: {} }))
+const boot = vi.hoisted(() => ({ path: '/index.php/apps/launchpad/' }))
+vi.mock('../utils/bootPath.js', () => ({ bootPath: () => boot.path, bootHash: () => '' }))
 vi.mock('../services/iconCatalogue.js', () => ({ ICON_CATALOGUE: [], LAZY_ICON_CATALOGUE: [], loadIconCatalogue: () => Promise.resolve([]) }))
 
 import App from '../App.vue'
@@ -36,6 +38,19 @@ describe('App support note', () => {
 				permissions: ['user', 'admin'],
 			}),
 		).toBe(true)
+	})
+
+	it('waits on a page load that opens the administration page, where the admin tour comes first', () => {
+		boot.path = '/index.php/apps/launchpad/admin/general'
+		try {
+			expect(
+				App.computed.supportNoteForThisAccount.call({
+					permissions: ['user', 'admin'],
+				}),
+			).toBe(false)
+		} finally {
+			boot.path = '/index.php/apps/launchpad/'
+		}
 	})
 
 	it('is what the root receives', () => {

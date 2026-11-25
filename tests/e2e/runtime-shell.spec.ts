@@ -845,6 +845,7 @@ test.describe('REQ-SHELL-011: the admin page tour', () => {
 	}
 
 	// @e2e runtime-shell::an-administrators-first-visit-to-the-admin-page
+	// @e2e runtime-shell::on-the-administration-page-the-admin-tour-comes-first
 	test("an administrator's first visit starts the admin tour on the general settings", async ({
 		browser,
 	}) => {
@@ -877,8 +878,19 @@ test.describe('REQ-SHELL-011: the admin page tour', () => {
 			expect(ring.x + ring.width).toBeGreaterThan(target.x)
 			expect(ring.y).toBeLessThan(target.y + target.height)
 			expect(ring.y + ring.height).toBeGreaterThan(target.y)
+			// The tour comes first: no support note over it on this page load.
+			await expect(supportNote(page)).toHaveCount(0)
+			expect(await readPreference(noor.api, SUPPORT_NOTE_KEY)).toBeNull()
 		} finally {
 			await context.close()
+		}
+		// The note waits for the next page load elsewhere.
+		const next = await sessionOf(browser, noor)
+		try {
+			await next.page.goto(APP_URL)
+			await expect(supportNote(next.page).first()).toBeVisible({ timeout: 30_000 })
+		} finally {
+			await next.context.close()
 		}
 	})
 

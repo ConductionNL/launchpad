@@ -278,6 +278,8 @@ OC.L10N.register(
     "Video" : "Video",
     "Wallet" : "Wallet",
     "Widget" : "Widget",
+    "Widget: {title}" : "Widget: {title}",
+    "Widget: {title}, column {column} of {columns}, row {row}, {width} columns wide, {height} rows tall" : "Widget: {title}, column {column} of {columns}, row {row}, {width} columns wide, {height} rows tall",
     "Widget type" : "Widget type",
     "Widgets" : "Widgets",
     "Resource exceeds the 5 MB serving cap" : "Resource exceeds the 5 MB serving cap",

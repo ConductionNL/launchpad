@@ -6,7 +6,7 @@
  * (header-search-dropdown, REQ-SRCH-013): provider order, grouping, the
  * detail line, the shortcut tip and the keyboard selection arithmetic.
  *
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'

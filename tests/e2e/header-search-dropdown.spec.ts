@@ -18,7 +18,7 @@
  *   @e2e nc-unified-search-integration::the-shortcut-tip
  *   @e2e nc-unified-search-integration::escape-closes-the-list
  *
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 import type { APIRequestContext, Page } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'

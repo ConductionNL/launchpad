@@ -15,7 +15,7 @@
  * takes its words from the button's label, which is where thematiq writes them.
  * The small-screen top bar keeps Nextcloud's button.
  *
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 
 /** The class of the field LaunchPad places in the top bar. */
@@ -33,7 +33,7 @@ const CORE_MOBILE_CLASS = 'unified-search-input--mobile'
  *
  * @param {Element} element The element.
  * @return {boolean} True for an input or a textarea.
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 function isTextField(element) {
 	return element.tagName === 'INPUT' || element.tagName === 'TEXTAREA'
@@ -46,7 +46,7 @@ function isTextField(element) {
  * @param {Element} button The core search button.
  * @param {string} fallback The words when the button has none.
  * @return {string} The placeholder.
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export function fieldWords(button, fallback) {
 	const label = button?.querySelector(CORE_LABEL_SELECTOR)?.textContent?.trim()
@@ -65,7 +65,7 @@ export function fieldWords(button, fallback) {
  * @param {Element|null} match The element the field selector found.
  * @param {string} fallbackWords The placeholder when the button has no words.
  * @return {{field: HTMLElement, created: boolean, label: Element|null}|null} The field, whether LaunchPad made it, and the core label to follow.
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export function resolveSearchField(match, fallbackWords) {
 	if (!match) {
@@ -100,7 +100,7 @@ export function resolveSearchField(match, fallbackWords) {
  *
  * @param {HTMLElement|null} field The field resolveSearchField() made.
  * @return {void}
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export function removeInlineField(field) {
 	if (!field?.classList?.contains(INLINE_FIELD_CLASS)) {

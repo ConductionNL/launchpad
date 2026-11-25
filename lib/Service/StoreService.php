@@ -236,11 +236,12 @@ class StoreService {
 	 * @param string $slug   The remote item slug.
 	 * @param string $userId The installing administrator's UID.
 	 *
-	 * @return array{success: bool, message: string, components: array<int, array<string, string>>}
+	 * @return array{success: bool, message: string, components: array<int, array<string, string>>, version?: string, dashboardIds?: list<int>}
 	 *
 	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-005-an-install-must-reuse-importservice-not-reimplement-it
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
 	 */
 	public function install(string $slug, string $userId): array {
 		if ($this->discovery === null) {
@@ -287,7 +288,11 @@ class StoreService {
 			$this->discard(path: $archivePath);
 		}//end try
 
-		return $this->report(report: $report, dashboards: $dashboards);
+		// REQ-STORE-011: what the install created, for the install record.
+		return $this->report(report: $report, dashboards: $dashboards) + [
+			'version'      => (string)($item['version'] ?? ''),
+			'dashboardIds' => array_values(array_map('intval', array_column((array)($report['dashboards'] ?? []), 'id'))),
+		];
 	}//end install()
 
 	/**

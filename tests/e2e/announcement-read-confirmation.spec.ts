@@ -106,7 +106,8 @@ test('the author writes and schedules an announcement with a read confirmation',
 	expect(sent).toEqual([])
 	await editor.locator('[data-test="editor-publish-at"]').fill(dayAhead(2).local)
 	await editor.locator('[data-test="editor-expires-at"]').fill(dayAhead(14, 17).local)
-	await editor.locator('[data-test="editor-requires-confirmation"]').click()
+	// The switch's label overlays its input, so a plain click is intercepted.
+	await editor.locator('[data-test="editor-requires-confirmation"]').check({ force: true })
 	await editor.locator('[data-test="editor-confirm-before"]').fill(dayAhead(5).date)
 
 	const preview = editor.locator('[data-test="editor-preview-pane"]')

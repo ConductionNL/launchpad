@@ -277,7 +277,6 @@ in `lib/Db/AdminSetting.php` MUST be collected into a single
 `AdminSettingKey` const-list (or PHP 8.1 `enum`). Existing constants MAY
 be kept as aliases for BC.
 
-@e2e exclude the scenario is a source-organisation rule — where a string literal is declared, and that no second file declares a duplicate for the same logical key. It is satisfied today by the `AdminSettingKey` enum in `lib/Db/AdminSettingKey.php`, which carries 33 cases (re-counted 2026-11-19). Two files agreeing on where a constant lives produces no observable difference in a rendered page; the settings behave identically whether the key is defined once or twice.
 
 #### Scenario: Key list is single-source-of-truth
 

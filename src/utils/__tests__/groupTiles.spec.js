@@ -76,7 +76,6 @@ describe('groupChildToTile', () => {
 	it('reads a link child as a web address tile', () => {
 		expect(groupChildToTile(bookmark)).toEqual({
 			title: 'Intranet',
-			icon: '',
 			iconType: 'svg',
 			linkType: 'url',
 			linkValue: 'https://intranet.example.org',

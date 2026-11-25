@@ -35,7 +35,7 @@
 				:gs-y="child.gridY || 0"
 				:gs-w="child.gridWidth || 2"
 				:gs-h="child.gridHeight || 2"
-				@click.capture="countUse(child)">
+				:data-launchpad-child="index">
 				<div class="grid-stack-item-content">
 					<ContainerChild
 						:placement="child"
@@ -260,10 +260,14 @@ export default {
 	},
 
 	mounted() {
+		// A click anywhere in a child counts a use of that child; the child's
+		// own link or button stays the control (no click handler on the cell).
+		this.$refs.innerGrid?.addEventListener('click', this.onChildClick, true)
 		this.initInnerGrid()
 	},
 
 	beforeUnmount() {
+		this.$refs.innerGrid?.removeEventListener('click', this.onChildClick, true)
 		this.destroyInnerGrid()
 	},
 
@@ -284,6 +288,26 @@ export default {
 				return
 			}
 			this.openGroupTileEditor({ containerId: this.placement.id, index, remove })
+		},
+
+		/**
+		 * Count a use of the child a click landed in.
+		 *
+		 * @param {MouseEvent} event The click, in its capture phase.
+		 * @return {void}
+		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
+		 */
+		onChildClick(event) {
+			const grid = this.$refs.innerGrid
+			let cell = event.target?.closest?.('[data-launchpad-child]') ?? null
+			// A group inside this group has cells of its own: take this grid's.
+			while (cell && cell.parentElement !== grid) {
+				cell = cell.parentElement?.closest('[data-launchpad-child]') ?? null
+			}
+			const child = cell ? this.displayedChildren[Number(cell.dataset.launchpadChild)] : undefined
+			if (child) {
+				this.countUse(child)
+			}
 		},
 
 		/**

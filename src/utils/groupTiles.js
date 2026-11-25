@@ -46,17 +46,81 @@ const LINK_ONLY_KEYS = Object.freeze(['label', 'url', 'actionType'])
  * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 export function isGroupTileChild(child) {
-	if (!child || typeof child !== 'object') {
+	if (!isObject(child)) {
 		return false
 	}
 	if (child.type === 'link') {
-		const content = child.content || {}
-		return typeof content.url === 'string'
-			&& content.url.trim() !== ''
-			&& !Array.isArray(content.links)
-			&& ADDRESS_ACTIONS.includes(content.actionType ?? '')
+		return isAddressLink(contentOf(child))
 	}
-	return child.type === 'tile' && (child.content?.linkType ?? '') !== 'create'
+	return child.type === 'tile' && contentOf(child).linkType !== 'create'
+}
+
+/**
+ * Whether a value is a plain object.
+ *
+ * @param {*} value The value.
+ * @return {boolean}
+ */
+function isObject(value) {
+	return value !== null && typeof value === 'object'
+}
+
+/**
+ * A child's content, or an empty object.
+ *
+ * @param {object|null|undefined} child The container child.
+ * @return {object}
+ */
+function contentOf(child) {
+	return isObject(child) && isObject(child.content) ? child.content : {}
+}
+
+/**
+ * Whether a value is set: neither absent, null nor an empty string.
+ *
+ * @param {*} value The value.
+ * @return {boolean}
+ */
+function isSet(value) {
+	return value !== undefined && value !== null && value !== ''
+}
+
+/**
+ * Whether a link's content only opens one address.
+ *
+ * @param {object} content The link child's content.
+ * @return {boolean}
+ * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ */
+function isAddressLink(content) {
+	const url = typeof content.url === 'string' ? content.url.trim() : ''
+	return url !== '' && !Array.isArray(content.links) && ADDRESS_ACTIONS.includes(String(content.actionType ?? ''))
+}
+
+/**
+ * The form fields of a content blob that are set.
+ *
+ * @param {object} source The content or form result.
+ * @return {object}
+ */
+function setFormFields(source) {
+	return Object.fromEntries(FORM_KEYS.filter((key) => isSet(source[key])).map((key) => [key, source[key]]))
+}
+
+/**
+ * The tile the form edits, read from a link child.
+ *
+ * @param {object} content The link child's content.
+ * @return {object}
+ */
+function linkToTile(content) {
+	return setFormFields({
+		title: content.label,
+		icon: content.icon,
+		iconType: isSet(content.iconType) ? content.iconType : 'svg',
+		linkType: 'url',
+		linkValue: content.url,
+	})
 }
 
 /**
@@ -67,23 +131,8 @@ export function isGroupTileChild(child) {
  * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 export function groupChildToTile(child) {
-	const content = child?.content || {}
-	if (child?.type === 'link') {
-		return {
-			title: content.label || '',
-			icon: content.icon || '',
-			iconType: content.iconType || 'svg',
-			linkType: 'url',
-			linkValue: content.url || '',
-		}
-	}
-	const tile = {}
-	for (const key of FORM_KEYS) {
-		if (content[key] !== undefined && content[key] !== null) {
-			tile[key] = content[key]
-		}
-	}
-	return tile
+	const content = contentOf(child)
+	return child?.type === 'link' ? linkToTile(content) : setFormFields(content)
 }
 
 /**
@@ -96,21 +145,9 @@ export function groupChildToTile(child) {
  * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 export function groupChildFromTile(child, tileData) {
-	const kept = { ...(child?.content || {}) }
-	if (child?.type === 'link') {
-		for (const key of LINK_ONLY_KEYS) {
-			delete kept[key]
-		}
-	}
-	const content = { ...kept }
-	for (const key of FORM_KEYS) {
-		const value = tileData?.[key]
-		if (value === undefined || value === null || value === '') {
-			delete content[key]
-		} else {
-			content[key] = value
-		}
-	}
+	const dropped = child?.type === 'link' ? [...FORM_KEYS, ...LINK_ONLY_KEYS] : FORM_KEYS
+	const kept = Object.fromEntries(Object.entries(contentOf(child)).filter(([key]) => !dropped.includes(key)))
+	const content = { ...kept, ...setFormFields(isObject(tileData) ? tileData : {}) }
 	// The group's tile renderer paints `backgroundColor`, so a theme colour
 	// is written there as its CSS variable as well.
 	if (content.colourToken) {

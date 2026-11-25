@@ -13,6 +13,7 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import ContainerChild from '../ContainerChild.vue'
 import ContainerWidget from '../ContainerWidget.vue'
+import { readTileUse } from '../../../../utils/tileSort.js'
 
 const CnWidgetEditCog = {
 	name: 'CnWidgetEditCog',
@@ -113,5 +114,26 @@ describe('ContainerWidget — hands a group tile to the dashboard', () => {
 		const wrapper = mountGroup({ content, placement: { id: 41 }, editMode: false }, opener)
 		wrapper.vm.editTile(2)
 		expect(opener).not.toHaveBeenCalled()
+	})
+})
+
+describe('ContainerWidget — a click counts a use of the cell it landed in', () => {
+	it('counts the child of this grid, also when the click lands in a group inside it', async () => {
+		localStorage.clear()
+		const inner = { id: 'inner', type: 'container', content: { placements: [{ ...tile, id: 'deep' }] } }
+		const wrapper = mountGroup({
+			content: { placements: [{ ...label, id: 'first' }, inner] },
+			placement: { id: 41 },
+			editMode: false,
+		}, vi.fn())
+		const cells = wrapper.findAll('.launchpad-container-grid > [data-launchpad-child]')
+		expect(cells).toHaveLength(2)
+		await cells[0].trigger('click')
+		expect(readTileUse().first.count).toBe(1)
+		const deep = cells[1].findAll('[data-launchpad-child]')
+		const target = deep.length > 0 ? deep[0] : cells[1]
+		await target.trigger('click')
+		expect(readTileUse().inner.count).toBe(1)
+		wrapper.unmount()
 	})
 })

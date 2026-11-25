@@ -13,11 +13,9 @@
  */
 
 import { formatConnectionStatus } from '@conduction/nextcloud-vue/dist/esm/utils/builtInFormatters.js'
-import axios from '@nextcloud/axios'
-import { generateUrl } from '@nextcloud/router'
 import connectionUses from '../../lib/Settings/connection-uses.json'
 import declarations from '../../lib/Settings/connections.json'
-import { lastSuccessOf } from './liveTileConnections.js'
+import { fetchAppConnectionRows, lastSuccessOf } from './liveTileConnections.js'
 
 /** Statuses integriq stores for a connection whose last check failed. */
 const ERROR_STATUSES = Object.freeze(['error', 'failed'])
@@ -126,15 +124,6 @@ export function joinConnectionStates(used, rows) {
  * @return {Promise<{state: string, rows: Array<object>}>} `ok` with the rows, or `error` when the read fails.
  * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
  */
-export async function fetchConnectionRows() {
-	const url = generateUrl('/apps/openregister/api/objects/{register}/{schema}', {
-		register: 'integriq',
-		schema: 'app_connection',
-	})
-	try {
-		const response = await axios.get(url, { params: { app: 'launchpad', _limit: 100 } })
-		return { state: 'ok', rows: Array.isArray(response?.data?.results) ? response.data.results : [] }
-	} catch {
-		return { state: 'error', rows: [] }
-	}
+export function fetchConnectionRows() {
+	return fetchAppConnectionRows()
 }

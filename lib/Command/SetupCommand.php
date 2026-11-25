@@ -6,8 +6,10 @@
  * `php occ launchpad:setup --config=/path/setup.yaml` — non-interactive
  * IaC-friendly entry point for the setup wizard (REQ-WIZ-010). Walks
  * the same step sequence as the Vue modal but reads every choice from
- * a YAML config file. Idempotent: re-running with the same config
- * detects existing values and skips them.
+ * a YAML config file: Step 2 stores the group order, Step 3 installs the
+ * listed demo showcases, Step 4 gives one group the Dashboard Admin role
+ * and Step 5 stores the structured footer config. Idempotent: re-running
+ * with the same config detects existing values and skips them.
  *
  * @category  Command
  * @package   OCA\LaunchPad\Command
@@ -38,31 +40,24 @@ use Throwable;
 
 /**
  * `launchpad:setup` console command.
+ *
+ * @spec openspec/specs/setup-wizard/spec.md#requirement-req-wiz-010-cli-command-for-non-interactive-setup-iac-friendly
  */
 class SetupCommand extends Command {
-	/**
-	 * The steps whose sibling capabilities ship later, by step number:
-	 * their name and the YAML key that would configure them.
-	 *
-	 * @var array<int, array{name: string, key: string}>
-	 */
-	private const PENDING_STEPS = [
-		3 => ['name' => 'Demo data', 'key' => 'demo_packages'],
-		4 => ['name' => 'Admin roles', 'key' => 'admin_role_group'],
-		5 => ['name' => 'Footer config', 'key' => 'footer_config'],
-	];
-
 	/**
 	 * Constructor.
 	 *
 	 * @param SetupWizardServiceInterface $wizardService Wizard orchestrator.
-	 * @param AdminSettingsService $settings Group-order persistence
-	 *                                       (Step 2 in the YAML
-	 *                                       schema).
+	 * @param AdminSettingsService        $settings      Group-order persistence
+	 *                                                   (Step 2 in the YAML
+	 *                                                   schema).
+	 * @param SetupSteps                  $steps         Applies Steps 3 to 5: demo
+	 *                                                   data, admin role, footer.
 	 */
 	public function __construct(
 		private readonly SetupWizardServiceInterface $wizardService,
 		private readonly AdminSettingsService $settings,
+		private readonly SetupSteps $steps,
 	) {
 		parent::__construct();
 	}//end __construct()
@@ -191,9 +186,9 @@ class SetupCommand extends Command {
 		$output->writeln(messages: 'Step 1: Welcome... done');
 
 		$this->applyGroupOrderStep(config: $config, output: $output);
-		foreach (array_keys(self::PENDING_STEPS) as $stepNumber) {
-			$output->writeln(messages: self::pendingStepLine(stepNumber: $stepNumber, config: $config));
-		}
+		$output->writeln(messages: 'Step 3: Demo data... ' . $this->steps->applyDemoData(config: $config));
+		$output->writeln(messages: 'Step 4: Admin roles... ' . $this->steps->applyAdminRole(config: $config));
+		$output->writeln(messages: 'Step 5: Footer config... ' . $this->steps->applyFooter(config: $config));
 
 		$output->writeln(messages: 'Step 6: Done... done');
 	}//end applySteps()
@@ -233,22 +228,4 @@ class SetupCommand extends Command {
 		$this->settings->setGroupOrder(groupIds: $groups);
 		$output->writeln(messages: 'Step 2: Group order... done');
 	}//end applyGroupOrderStep()
-
-	/**
-	 * The placeholder line of a step whose sibling capability ships later.
-	 *
-	 * @param int                 $stepNumber Step index, a key of PENDING_STEPS.
-	 * @param array<string,mixed> $config     Parsed YAML config.
-	 *
-	 * @return string The log line.
-	 */
-	private static function pendingStepLine(int $stepNumber, array $config): string {
-		$step = self::PENDING_STEPS[$stepNumber];
-		$state = 'skipped (not in config)';
-		if (array_key_exists(key: $step['key'], array: $config) === true) {
-			$state = 'skipped (capability pending)';
-		}
-
-		return 'Step ' . $stepNumber . ': ' . $step['name'] . '... ' . $state;
-	}//end pendingStepLine()
 }//end class

@@ -19,21 +19,15 @@
  * instance, the real occ binary runs the command, and the outcome is read back
  * through the API a person's browser uses.
  *
- * WHAT IS EXPECTED RED
- * ====================
- * lib/Command/SetupCommand.php applies Step 2 only. Steps 3, 4 and 5 print
- * "skipped (capability pending)" when the file configures them and do
- * nothing, although the wizard modal installs demos (Step 3) and gives a group
- * the admin role (Step 4) since #1920. So in "CLI command accepts YAML config
- * file" the Step 3, Step 4 and Step 5 clauses are expected red; they are soft
- * assertions, so the Step 2 and Step 6 clauses are still reported.
- *
- * Two inputs of "CLI command validates YAML schema" are expected red as well:
- * SetupCommand::readConfig() only refuses a top level that is not an array,
- * and a YAML list IS an array in PHP, so a list at the top level runs and
- * completes the wizard; and applyGroupOrderStep() only refuses a
- * `group_priority_order` that is not an array, so a map of strings is stored
- * as the group order.
+ * WHAT IS EXPECTED GREEN
+ * ======================
+ * lib/Command/SetupCommand.php applies every step: Step 2 stores the group
+ * order, Step 3 installs the listed showcases, Step 4 gives the group the
+ * Dashboard Admin role and Step 5 stores the footer config, through the same
+ * services the wizard modal and the admin page use. The Step 3 to 5 clauses
+ * stay soft assertions, so a red one still lets the Step 2 and Step 6 clauses
+ * report. A list at the top level and a map as `group_priority_order` are
+ * refused (`array_is_list`).
  *
  * WHAT THIS FILE CHANGES, AND PUTS BACK
  * ====================================
@@ -330,8 +324,8 @@ test('a full setup.yaml configures every step and completes the wizard', async (
 	// Step 6: the wizard is complete.
 	expect((await readState()).complete).toBe(true)
 
-	// Steps 3 to 5 are expected red: SetupCommand prints "skipped (capability
-	// pending)" for each and applies nothing.
+	// Steps 3 to 5: the showcases are installed, the group holds the admin
+	// role, and the footer config is the file's.
 	const installed = await installedShowcases()
 	for (const id of demos) {
 		expect.soft(installed, `Step 3 installs ${id}`).toContain(id)

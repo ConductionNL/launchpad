@@ -91,11 +91,14 @@ class LaunchPadSearchProviderEdgeCaseTest extends TestCase {
 			dashboardService: $this->dashboardService,
 			placementMapper: $this->placementMapper,
 			metadataService: $this->metadataService,
-			links: new SearchLinks(l10nFactory: $factory, urlGenerator: $urls),
-			subline: new DashboardSubline(
-				userManager: $this->createMock(IUserManager::class),
-				groupManager: $this->createMock(IGroupManager::class),
-				placementMapper: $this->placementMapper
+			links: new SearchLinks(
+				l10nFactory: $factory,
+				urlGenerator: $urls,
+				subline: new DashboardSubline(
+					userManager: $this->createMock(originalClassName: IUserManager::class),
+					groupManager: $this->createMock(originalClassName: IGroupManager::class),
+					placementMapper: $this->placementMapper
+				)
 			)
 		);
 	}//end setUp()

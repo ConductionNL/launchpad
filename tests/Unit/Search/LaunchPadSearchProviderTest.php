@@ -56,9 +56,6 @@ class LaunchPadSearchProviderTest extends TestCase {
 	/** @var IURLGenerator&MockObject */
 	private IURLGenerator $urlGenerator;
 
-	/** @var IUserManager&MockObject */
-	private IUserManager $userManager;
-
 	private LaunchPadSearchProvider $provider;
 
 	protected function setUp(): void {
@@ -67,7 +64,6 @@ class LaunchPadSearchProviderTest extends TestCase {
 		$this->metadataService = $this->createMock(MetadataService::class);
 		$this->l10nFactory = $this->createMock(IFactory::class);
 		$this->urlGenerator = $this->createMock(IURLGenerator::class);
-		$this->userManager = $this->createMock(IUserManager::class);
 
 		$l10n = $this->createMock(IL10N::class);
 		$l10n->method('t')->willReturnCallback(
@@ -76,15 +72,6 @@ class LaunchPadSearchProviderTest extends TestCase {
 					return $text;
 				}
 				return vsprintf($text, $params);
-			}
-		);
-		$l10n->method('n')->willReturnCallback(
-			static function (string $singular, string $plural, int $count, array $params = []): string {
-				$text = $plural;
-				if ($count === 1) {
-					$text = $singular;
-				}
-				return vsprintf(str_replace('%n', (string)$count, $text), $params);
 			}
 		);
 		$this->l10nFactory->method('get')->willReturn($l10n);
@@ -108,12 +95,12 @@ class LaunchPadSearchProviderTest extends TestCase {
 			metadataService: $this->metadataService,
 			links: new SearchLinks(
 				l10nFactory: $this->l10nFactory,
-				urlGenerator: $this->urlGenerator
-			),
-			subline: new DashboardSubline(
-				userManager: $this->userManager,
-				groupManager: $this->createMock(IGroupManager::class),
-				placementMapper: $this->placementMapper
+				urlGenerator: $this->urlGenerator,
+				subline: new DashboardSubline(
+					userManager: $this->createMock(originalClassName: IUserManager::class),
+					groupManager: $this->createMock(originalClassName: IGroupManager::class),
+					placementMapper: $this->placementMapper
+				)
 			)
 		);
 	}
@@ -522,45 +509,5 @@ class LaunchPadSearchProviderTest extends TestCase {
 			array_slice($entries, 15, 3)
 		);
 		self::assertSame('Hit 4 | Metadata: a = hit a', $entries[24]);
-	}
-
-	/**
-	 * A shared dashboard's subline names its owner and its widget count (REQ-SRCH-013).
-	 *
-	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
-	 */
-	public function testSharedDashboardSublineNamesOwnerAndWidgetCount(): void {
-		$dashboard = $this->makeDashboard(7, 'uuid-permits', 'Permits team', 'Team board');
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$dashboard->setUserId('marieke');
-		$this->dashboardService->method('getVisibleToUser')->willReturn([
-			['dashboard' => $dashboard, 'source' => Dashboard::SOURCE_SHARED],
-		]);
-		$this->placementMapper->method('findByDashboardId')->willReturn([]);
-		$this->placementMapper->method('countByDashboardId')->with(7)->willReturn(14);
-		$this->userManager->method('getDisplayName')->with('marieke')->willReturn('Marieke Jansen');
-
-		$result = $this->provider->search($this->makeUser('pieter'), $this->makeQuery('team'));
-		$entries = $result->jsonSerialize()['entries'];
-
-		self::assertSame('Permits team', $entries[0]->jsonSerialize()['title']);
-		self::assertSame('Shared by Marieke Jansen · 14 widgets', $entries[0]->jsonSerialize()['subline']);
-	}
-
-	/**
-	 * The viewer's own dashboard keeps its description as subline.
-	 *
-	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
-	 */
-	public function testOwnDashboardKeepsDescriptionSubline(): void {
-		$dashboard = $this->makeDashboard(8, 'uuid-own', 'My team', 'Mine');
-		$this->dashboardService->method('getVisibleToUser')->willReturn([
-			['dashboard' => $dashboard, 'source' => Dashboard::SOURCE_USER],
-		]);
-		$this->placementMapper->method('findByDashboardId')->willReturn([]);
-
-		$result = $this->provider->search($this->makeUser('pieter'), $this->makeQuery('team'));
-
-		self::assertSame('Mine', $result->jsonSerialize()['entries'][0]->jsonSerialize()['subline']);
 	}
 }

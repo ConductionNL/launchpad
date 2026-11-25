@@ -95,15 +95,13 @@ class LaunchPadSearchProvider implements IProvider {
 	 * @param DashboardService      $dashboardService The dashboard service.
 	 * @param WidgetPlacementMapper $placementMapper The placement mapper.
 	 * @param MetadataService       $metadataService The metadata service.
-	 * @param SearchLinks           $links The l10n factory and URL generator.
-	 * @param DashboardSubline      $subline The detail line of a dashboard result (REQ-SRCH-013).
+	 * @param SearchLinks           $links The l10n factory, URL generator and detail-line helper.
 	 */
 	public function __construct(
 		private readonly DashboardService $dashboardService,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly MetadataService $metadataService,
 		private readonly SearchLinks $links,
-		private readonly DashboardSubline $subline,
 	) {
 	}//end __construct()
 
@@ -564,7 +562,7 @@ class LaunchPadSearchProvider implements IProvider {
 	private function buildDashboardEntry(Dashboard $dashboard, string $source): SearchResultEntry {
 		$l10n = $this->links->l10nFactory->get(app: Application::APP_ID);
 		$name = (string)$dashboard->getName();
-		$subline = $this->subline->forDashboard(dashboard: $dashboard, source: $source, l10n: $l10n);
+		$subline = $this->links->subline->forDashboard(dashboard: $dashboard, source: $source, l10n: $l10n);
 		if ($subline === null) {
 			$subline = trim(string: (string)$dashboard->getDescription());
 		}

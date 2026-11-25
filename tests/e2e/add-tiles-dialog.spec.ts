@@ -25,7 +25,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { enterEditMode } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.NEXTCLOUD_USER || 'admin',
@@ -66,8 +66,7 @@ test('add Word and Excel from the Office section', async ({ page }) => {
 	)
 
 	await gotoLaunchPad(page)
-	await page.locator(MORE_MENU).click()
-	await page.getByRole('menuitem', { name: /edit dashboard|edit/i }).first().click()
+	await enterEditMode(page)
 	await page.getByTestId('launchpad-edit-bar-add-tiles').click()
 
 	const dialog = page.getByTestId('add-tiles')

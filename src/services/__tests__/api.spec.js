@@ -283,6 +283,14 @@ describe('api: optional parameters', () => {
 		})
 	})
 
+	it('org navigation asks for the editor copy with edit=1 (REQ-ONAV-007)', () => {
+		api.getOrgNavigation('en', true)
+		expect(axios.get).toHaveBeenCalledWith(
+			`${B}/api/admin/org-navigation`,
+			{ params: { lang: 'en', edit: 1 } },
+		)
+	})
+
 	it('org navigation defaults to Dutch', () => {
 		api.getOrgNavigation()
 		api.getOrgNavigation('en')

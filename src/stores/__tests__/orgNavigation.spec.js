@@ -90,6 +90,37 @@ describe('useOrgNavigationStore', () => {
 		expect(store.shouldRender).toBe(false)
 	})
 
+	it('REQ-ONAV-007: fetchEditableTree returns the whole tree and leaves the rail tree alone', async () => {
+		const { useOrgNavigationStore } = await import('../orgNavigation.js')
+		mockApi.getOrgNavigation.mockResolvedValue({
+			data: { tree: [{ id: 'hidden' }, { id: 'open' }], language: 'nl' },
+		})
+
+		const store = useOrgNavigationStore()
+		store.tree = [{ id: 'open' }]
+		const tree = await store.fetchEditableTree('nl')
+
+		expect(mockApi.getOrgNavigation).toHaveBeenCalledWith('nl', true)
+		expect(tree).toEqual([{ id: 'hidden' }, { id: 'open' }])
+		expect(store.tree).toEqual([{ id: 'open' }])
+		expect(store.error).toBeNull()
+		expect(store.loading).toBe(false)
+	})
+
+	it('REQ-ONAV-007: fetchEditableTree gives an empty tree and the error on failure', async () => {
+		const { useOrgNavigationStore } = await import('../orgNavigation.js')
+		mockApi.getOrgNavigation.mockRejectedValue(new Error('Forbidden'))
+
+		const store = useOrgNavigationStore()
+		store.tree = [{ id: 'open' }]
+		const tree = await store.fetchEditableTree()
+
+		expect(mockApi.getOrgNavigation).toHaveBeenCalledWith('nl', true)
+		expect(tree).toEqual([])
+		expect(store.tree).toEqual([{ id: 'open' }])
+		expect(store.error).toBe('Forbidden')
+	})
+
 	it('REQ-ONAV-003: updateTree returns true on success and updates state', async () => {
 		const { useOrgNavigationStore } = await import('../orgNavigation.js')
 		mockApi.updateOrgNavigation.mockResolvedValue({

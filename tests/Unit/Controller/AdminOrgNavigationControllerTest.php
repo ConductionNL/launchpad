@@ -115,6 +115,52 @@ class AdminOrgNavigationControllerTest extends TestCase {
 
 	}//end testGetReturnsFilteredTreeForLoggedInUser()
 
+	/**
+	 * The editor's copy: an administrator gets every node, also those in
+	 * groups they are not in, so a Save never drops them.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+	 */
+	public function testGetForTheEditorGivesAnAdministratorTheWholeTree(): void {
+		$this->loginAs(uid: 'admin', admin: true);
+
+		$tree = [['id' => 'hidden', 'label' => 'Elsewhere', 'groupVisibility' => ['mkt']]];
+		$this->service->method('getTree')
+			->with('nl')
+			->willReturn(value: $tree);
+		$this->service->expects(matcher: $this->never())->method('filterTreeByUserGroups');
+
+		$response = $this->controller->getOrgNavigation(lang: 'nl', edit: true);
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(expected: ['tree' => $tree, 'language' => 'nl'], actual: $response->getData());
+
+	}//end testGetForTheEditorGivesAnAdministratorTheWholeTree()
+
+	/**
+	 * Anyone but an administrator asking for the editor's copy is refused
+	 * and sees nothing of the tree.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+	 */
+	public function testGetForTheEditorRefusesANonAdministrator(): void {
+		$this->loginAs(uid: 'bob', admin: false);
+
+		$this->service->method('getTree')
+			->willReturn(value: [['id' => 'hidden', 'label' => 'Elsewhere', 'groupVisibility' => ['mkt']]]);
+		$this->service->expects(matcher: $this->never())->method('filterTreeByUserGroups');
+
+		$response = $this->controller->getOrgNavigation(lang: 'nl', edit: true);
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+		$this->assertArrayNotHasKey(key: 'tree', array: (array) $response->getData());
+
+	}//end testGetForTheEditorRefusesANonAdministrator()
+
 	public function testGetRejectsUnsupportedLanguage(): void {
 		$this->loginAs('alice', false);
 

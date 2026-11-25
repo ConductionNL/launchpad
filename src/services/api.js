@@ -1421,8 +1421,13 @@ export const api = {
 	// server. The position endpoints follow the same pattern. The lang
 	// query parameter selects which per-language JSON file is read or
 	// written; defaults to 'nl' on the backend.
-	getOrgNavigation(lang = 'nl') {
-		return axios.get(`${baseUrl}/api/admin/org-navigation`, { params: { lang } })
+	//
+	// With `edit` the editor asks for the whole tree, nodes in groups the
+	// admin is not in included, so its Save never drops them (REQ-ONAV-007).
+	// The server answers that only for an administrator.
+	getOrgNavigation(lang = 'nl', edit = false) {
+		const params = edit ? { lang, edit: 1 } : { lang }
+		return axios.get(`${baseUrl}/api/admin/org-navigation`, { params })
 	},
 
 	/**

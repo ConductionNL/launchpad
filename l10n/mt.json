@@ -1865,6 +1865,27 @@
         "You searched for {query}": "Fittixt {query}",
         "No results": "L-ebda riżultat",
         "Show all results": "Uri r-riżultati kollha",
-        "Tip: type {prefix} to search {name} directly": "Ħjiel: ittajpja {prefix} biex tfittex direttament f'{name}"
+        "Tip: type {prefix} to search {name} directly": "Ħjiel: ittajpja {prefix} biex tfittex direttament f'{name}",
+        "Hidden widgets": "Widgets moħbija",
+        "Your hidden widgets could not be loaded.": "Il-widgets moħbija tiegħek ma setgħux jitgħabbew.",
+        "You have not hidden any widgets on shared dashboards.": "Ma ħbejt l-ebda widget fuq dashboards kondiviżi.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["Ħbejt %n widget fuq dashboards kondiviżi", "Ħbejt %n widgets fuq dashboards kondiviżi", "Ħbejt %n widgets fuq dashboards kondiviżi", "Ħbejt %n widgets fuq dashboards kondiviżi"],
+        "Show all again": "Erġa' uri kollox",
+        "Your change could not be saved.": "Il-bidla tiegħek ma setgħetx tiġi ssejvjata.",
+        "Summary by email": "Sommarju bl-email",
+        "A mail with new announcements and what changed on your dashboards": "Email b'avviżi ġodda u x'inbidel fuq id-dashboards tiegħek",
+        "How often?": "Kemm-il darba?",
+        "Daily": "Kuljum",
+        "Weekly": "Kull ġimgħa",
+        "At 07:30, only when something changed": "Fis-07:30, biss meta xi ħaġa nbidlet",
+        "On Monday at 07:30": "It-Tnejn fis-07:30",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "M'għandekx indirizz tal-email, għalhekk ma jistax jintbagħatlek sommarju. Żid wieħed fil-kont Nextcloud tiegħek.",
+        "Your daily LaunchPad summary": "Is-sommarju ta' kuljum tiegħek minn LaunchPad",
+        "Your weekly LaunchPad summary": "Is-sommarju ta' kull ġimgħa tiegħek minn LaunchPad",
+        "Nothing new was published and nothing changed on your dashboards.": "Ma ġie ppubblikat xejn ġdid u xejn ma nbidel fuq id-dashboards tiegħek.",
+        "New announcements": "Avviżi ġodda",
+        "What changed on your dashboards": "X'inbidel fuq id-dashboards tiegħek",
+        "Open LaunchPad": "Iftaħ LaunchPad",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Qed tirċievi din l-email għax tlabtha fis-settings ta' LaunchPad."
     }
 }

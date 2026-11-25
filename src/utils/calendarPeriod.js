@@ -11,7 +11,7 @@
  *
  * @param {{viewMode?: string}|null} content The stored content.
  * @return {'week'|'month'} the period.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
  */
 export function periodOf(content) {
 	return content?.viewMode === 'month' ? 'month' : 'week'
@@ -22,7 +22,7 @@ export function periodOf(content) {
  *
  * @param {'week'|'month'} period The period.
  * @return {{viewMode: string, daysAhead: number}} the fields.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
  */
 export function contentForPeriod(period) {
 	return period === 'month'
@@ -35,7 +35,7 @@ export function contentForPeriod(period) {
  *
  * @param {string} address The address.
  * @return {boolean}
- * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md#requirement-the-calendar-content-form-req-cal-020
  */
 export function isIcsAddress(address) {
 	return typeof address === 'string' && /^https:\/\/[^\s/]+/i.test(address.trim())

@@ -214,7 +214,7 @@ export default {
 		 * @param {number} index Position in the list.
 		 * @param {boolean} checked Whether it is now the start date.
 		 * @return {void}
-		 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+		 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
 		 */
 		setStartDate(index, checked) {
 			this.fields = this.fields.map((field, position) => ({

@@ -612,7 +612,10 @@ test.describe('image widget — broken-image fallback', () => {
 		await menu.locator('[data-testid="ctx-edit"]').click()
 		const editor = page.getByRole('dialog', { name: /edit widget/i }).first()
 		await expect(editor).toBeVisible({ timeout: 10_000 })
-		await expect(editor.getByLabel(/image url/i)).toHaveValue(LOGO)
+		// The image form (Upload file / Web address) shows an image on this
+		// instance as a chosen file, by its name, with the cell's own alt text.
+		await expect(editor).toContainText(LOGO.split('/').pop()!)
+		await expect(editor.getByLabel('Text for who does not see the image')).toHaveValue('logo')
 		await page.keyboard.press('Escape')
 		await expect(editor).not.toBeVisible({ timeout: 8_000 })
 
@@ -668,7 +671,10 @@ test.describe('image widget — broken-image fallback', () => {
 		await menu.locator('[data-testid="ctx-edit"]').click()
 		const editor = page.getByRole('dialog', { name: /edit widget/i }).first()
 		await expect(editor).toBeVisible({ timeout: 10_000 })
-		await expect(editor.getByLabel(/image url/i)).toHaveValue(LOGO)
+		// The image form (Upload file / Web address) shows an image on this
+		// instance as a chosen file, by its name, with the cell's own alt text.
+		await expect(editor).toContainText(LOGO.split('/').pop()!)
+		await expect(editor.getByLabel('Text for who does not see the image')).toHaveValue('logo')
 		await page.keyboard.press('Escape')
 		await expect(editor).not.toBeVisible({ timeout: 8_000 })
 

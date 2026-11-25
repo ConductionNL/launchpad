@@ -76,7 +76,7 @@ class I18nCopyNavigationCommand extends CommandBase {
 						'',
 						'Examples:',
 						'  php occ launchpad:i18n:copy-navigation --from=nl --to=en',
-						'  php occ launchpad:i18n:copy-navigation --from=nl --to=en --overwrite --json',
+						'  php occ launchpad:i18n:copy-navigation --from=nl --to=en --overwrite --json | jq .data',
 					]
 				)
 			)

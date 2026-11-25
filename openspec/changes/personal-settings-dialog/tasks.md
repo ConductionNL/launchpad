@@ -7,8 +7,8 @@
 - [x] `lib/BackgroundJob/SummaryMailJob.php` (hourly `TimedJob`): sends at 07:30 in each opted-in person's time zone, daily or on Monday; collects announcements published for the person and the version notes of dashboards they can open since the last summary; skips an empty daily summary; records the last send
 - [x] Mail template through `IMailer` and `IEMailTemplate`, translated
 - [x] `src/views/settings/HiddenWidgetsSettings.vue` and `GET /api/personal-layer/hidden`, `DELETE /api/personal-layer/hidden/{placementId}` and `DELETE /api/personal-layer/hidden` over the personal layer of REQ-DWMS-001, for the caller only
-- [ ] Translations in every shipped locale
-  (en, nl, de, fr, es, it done; the other shipped locales still need the new strings.)
+- [x] Translations in every shipped locale
+  (All 36 non-English locales carry the 21 dialog and summary-mail strings in .json and .js, the plural with one form per plural of the locale; `src/__tests__/personalSettingsLocales.spec.js`.)
 - [x] Unit tests: section order and omission; preference stored; job timing per time zone, Monday for weekly, empty daily skipped, no email address; hidden list, show one, show all, never another person's layer
 - [ ] Playwright: open Persoonlijke instellingen from Meer, set Daily, hide a widget on a shared dashboard and show it again from the dialog
   (Written in `tests/e2e/personal-settings-dialog.spec.ts`, runs in nightly; not yet verified against a live instance.)

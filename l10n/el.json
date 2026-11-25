@@ -1859,6 +1859,27 @@
         "You searched for {query}": "Αναζητήσατε {query}",
         "No results": "Κανένα αποτέλεσμα",
         "Show all results": "Εμφάνιση όλων των αποτελεσμάτων",
-        "Tip: type {prefix} to search {name} directly": "Συμβουλή: πληκτρολογήστε {prefix} για αναζήτηση απευθείας στο {name}"
+        "Tip: type {prefix} to search {name} directly": "Συμβουλή: πληκτρολογήστε {prefix} για αναζήτηση απευθείας στο {name}",
+        "Hidden widgets": "Κρυφά γραφικά στοιχεία",
+        "Your hidden widgets could not be loaded.": "Δεν ήταν δυνατή η φόρτωση των κρυφών γραφικών στοιχείων σας.",
+        "You have not hidden any widgets on shared dashboards.": "Δεν έχετε κρύψει κανένα γραφικό στοιχείο σε κοινόχρηστους πίνακες.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["Έχετε κρύψει %n γραφικό στοιχείο σε κοινόχρηστους πίνακες", "Έχετε κρύψει %n γραφικά στοιχεία σε κοινόχρηστους πίνακες"],
+        "Show all again": "Εμφάνιση όλων ξανά",
+        "Your change could not be saved.": "Δεν ήταν δυνατή η αποθήκευση της αλλαγής σας.",
+        "Summary by email": "Σύνοψη μέσω email",
+        "A mail with new announcements and what changed on your dashboards": "Ένα email με νέες ανακοινώσεις και ό,τι άλλαξε στους πίνακές σας",
+        "How often?": "Πόσο συχνά;",
+        "Daily": "Καθημερινά",
+        "Weekly": "Εβδομαδιαία",
+        "At 07:30, only when something changed": "Στις 07:30, μόνο όταν κάτι άλλαξε",
+        "On Monday at 07:30": "Τη Δευτέρα στις 07:30",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "Δεν έχετε διεύθυνση email, οπότε δεν μπορεί να σας σταλεί σύνοψη. Προσθέστε μία στον λογαριασμό σας στο Nextcloud.",
+        "Your daily LaunchPad summary": "Η ημερήσια σύνοψή σας από το LaunchPad",
+        "Your weekly LaunchPad summary": "Η εβδομαδιαία σύνοψή σας από το LaunchPad",
+        "Nothing new was published and nothing changed on your dashboards.": "Δεν δημοσιεύτηκε τίποτα νέο και τίποτα δεν άλλαξε στους πίνακές σας.",
+        "New announcements": "Νέες ανακοινώσεις",
+        "What changed on your dashboards": "Τι άλλαξε στους πίνακές σας",
+        "Open LaunchPad": "Άνοιγμα LaunchPad",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Λαμβάνετε αυτό το email επειδή το ζητήσατε στις ρυθμίσεις του LaunchPad."
     }
 }

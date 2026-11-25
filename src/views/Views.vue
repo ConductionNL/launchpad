@@ -1723,7 +1723,7 @@ export default {
 			 * @param {object[]} placements The open dashboard's placements.
 			 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
 			 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
-			 * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+			 * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
 			 */
 			handler(placements) {
 				this.probeHideableSources()
@@ -3411,7 +3411,7 @@ export default {
 		 *
 		 * @param {number|undefined} placementId The tile being edited.
 		 * @return {object} the kept keys.
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
 		 */
 		unformedTileContent(placementId) {
 			if (placementId === undefined || placementId === null) {

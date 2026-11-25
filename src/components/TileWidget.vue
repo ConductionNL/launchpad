@@ -268,7 +268,7 @@ export default {
 		 *
 		 * @return {boolean}
 		 * @spec openspec/specs/widgets/spec.md
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
 		 */
 		iconOnly() {
 			return this.content?.iconOnly === true
@@ -279,7 +279,7 @@ export default {
 		 *
 		 * @return {string}
 		 * @spec openspec/specs/widgets/spec.md
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
 		 */
 		badgeText() {
 			return countLabel(this.count)
@@ -289,7 +289,7 @@ export default {
 		 * The tile's background: its theme colour token, else its hex colour.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
 		 */
 		backgroundCss() {
 			return tileBackground(this.tile, this.content)
@@ -299,7 +299,7 @@ export default {
 		 * The time the outage began, in the viewer's clock, or ''.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
 		 */
 		downSinceText() {
 			const date = this.pingDownSince ? new Date(this.pingDownSince) : null
@@ -315,7 +315,7 @@ export default {
 		 *
 		 * @return {string}
 		 * @spec openspec/specs/widgets/spec.md
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
 		 */
 		accessibleName() {
 			let name = this.tile.title
@@ -456,7 +456,7 @@ export default {
 		 * Read the live count of an icon-only tile with a count source, and
 		 * again each minute while the tile is shown (REQ-ICT-002).
 		 *
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
 		 */
 		startCount() {
 			if (!this.iconOnly || sourceType(this.content?.countSource) === null) {
@@ -469,7 +469,7 @@ export default {
 		/**
 		 * Stop reading the count.
 		 *
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
 		 */
 		stopCount() {
 			if (this.countTimer !== null) {
@@ -482,7 +482,7 @@ export default {
 		 * Ask the count source for the count; no answer is no count.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
 		 */
 		async loadCount() {
 			this.count = await resolveTileCount(this.content?.countSource, getCurrentUser()?.uid || '')
@@ -494,7 +494,7 @@ export default {
 		 * the count back.
 		 *
 		 * @param {{state: (string|null), downSince: (string|null)}} reading The reading.
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
 		 */
 		onPingReading(reading) {
 			this.pingDown = reading?.state === 'offline'

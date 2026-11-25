@@ -116,7 +116,7 @@ class DemoSeedWidgetsTest extends TestCase {
 	 *
 	 * @return void
 	 *
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
 	 */
 	public function testALauncherTileNamesItsRegisterCountSource(): void {
 		$result = $this->expander(types: ['tile'], apps: [])->expand(entries: [['tile' => 'zaak']]);

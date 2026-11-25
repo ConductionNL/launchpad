@@ -1862,6 +1862,27 @@
         "You searched for {query}": "Ieškojote {query}",
         "No results": "Rezultatų nėra",
         "Show all results": "Rodyti visus rezultatus",
-        "Tip: type {prefix} to search {name} directly": "Patarimas: įveskite {prefix}, kad ieškotumėte tiesiai {name}"
+        "Tip: type {prefix} to search {name} directly": "Patarimas: įveskite {prefix}, kad ieškotumėte tiesiai {name}",
+        "Hidden widgets": "Paslėpti valdikliai",
+        "Your hidden widgets could not be loaded.": "Nepavyko įkelti jūsų paslėptų valdiklių.",
+        "You have not hidden any widgets on shared dashboards.": "Bendrinamuose skydeliuose nepaslėpėte nė vieno valdiklio.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["Bendrinamuose skydeliuose paslėpėte %n valdiklį", "Bendrinamuose skydeliuose paslėpėte %n valdiklius", "Bendrinamuose skydeliuose paslėpėte %n valdiklių"],
+        "Show all again": "Vėl rodyti visus",
+        "Your change could not be saved.": "Nepavyko išsaugoti jūsų pakeitimo.",
+        "Summary by email": "Santrauka el. paštu",
+        "A mail with new announcements and what changed on your dashboards": "Laiškas su naujais pranešimais ir tuo, kas pasikeitė jūsų skydeliuose",
+        "How often?": "Kaip dažnai?",
+        "Daily": "Kasdien",
+        "Weekly": "Kas savaitę",
+        "At 07:30, only when something changed": "07:30, tik kai kas nors pasikeitė",
+        "On Monday at 07:30": "Pirmadieniais 07:30",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "Neturite el. pašto adreso, todėl santraukos išsiųsti negalima. Pridėkite jį savo Nextcloud paskyroje.",
+        "Your daily LaunchPad summary": "Jūsų dienos LaunchPad santrauka",
+        "Your weekly LaunchPad summary": "Jūsų savaitės LaunchPad santrauka",
+        "Nothing new was published and nothing changed on your dashboards.": "Nieko naujo nepaskelbta ir jūsų skydeliuose niekas nepasikeitė.",
+        "New announcements": "Nauji pranešimai",
+        "What changed on your dashboards": "Kas pasikeitė jūsų skydeliuose",
+        "Open LaunchPad": "Atidaryti LaunchPad",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Gaunate šį laišką, nes jo paprašėte LaunchPad nustatymuose."
     }
 }

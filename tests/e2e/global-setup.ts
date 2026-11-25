@@ -120,6 +120,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 	}
 
 	await dismissFirstRunWizard(page)
+	await disableFirstRunWizardForRun(baseURL, username, password)
 	await markSupportNoteSeen(page)
 	await settleSetupWizard(page)
 	if (await healLeftoverWidgetRestriction()) {
@@ -337,6 +338,51 @@ async function markSupportNoteSeen(page: Page): Promise<void> {
 			'[playwright globalSetup] could not record the support note as seen:',
 			error,
 		)
+	}
+}
+
+/**
+ * Switch the first-run wizard off for every account the run creates.
+ *
+ * {@link dismissFirstRunWizard} only clears it for the admin. Most specs log
+ * in as throwaway accounts made mid-run (createPrincipal, loginAs,
+ * seeded users), and each of those meets the wizard on its first page load:
+ * its modal sits over the More menu, so `launchpad-more-menu-trigger` never
+ * becomes clickable and the spec times out without naming the modal. Measured
+ * 25 Nov 2026 on a fresh Nextcloud 34: app-catalogue, divider-widget-discovery
+ * and add-widget-modal failed this way, and passed with the wizard off.
+ *
+ * The suite only runs against an instance it may write to (support/baseUrl),
+ * so it turns the app off through the provisioning API rather than
+ * dismissing it once per account in every helper that makes one.
+ * Best-effort: an instance without the app answers non-2xx, which is fine.
+ *
+ * @param {string} baseURL the instance under test.
+ * @param {string} username an admin account.
+ * @param {string} password its password.
+ * @return {Promise<void>}
+ */
+async function disableFirstRunWizardForRun(
+	baseURL: string,
+	username: string,
+	password: string,
+): Promise<void> {
+	try {
+		const res = await fetch(new URL('/ocs/v1.php/cloud/apps/firstrunwizard', baseURL), {
+			method: 'DELETE',
+			headers: {
+				Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+				'OCS-APIRequest': 'true',
+			},
+		})
+		if (!res.ok && res.status !== 404) {
+			console.warn(
+				`[playwright globalSetup] turning the first-run wizard off returned ${res.status}; `
+					+ 'specs that log in as a new account may hit its modal.',
+			)
+		}
+	} catch (error) {
+		console.warn('[playwright globalSetup] could not turn the first-run wizard off:', error)
 	}
 }
 

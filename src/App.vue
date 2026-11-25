@@ -172,7 +172,7 @@ export default {
 
 	/**
 	 * @spec openspec/specs/runtime-shell/spec.md
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
 	provide() {
 		// Re-provide the reactive manifest refs so deeply nested

@@ -1868,6 +1868,27 @@
         "You searched for {query}": "Chuardaigh tú {query}",
         "No results": "Níl aon torthaí",
         "Show all results": "Taispeáin gach toradh",
-        "Tip: type {prefix} to search {name} directly": "Leid: clóscríobh {prefix} chun {name} a chuardach go díreach"
+        "Tip: type {prefix} to search {name} directly": "Leid: clóscríobh {prefix} chun {name} a chuardach go díreach",
+        "Hidden widgets": "Giuirléidí folaithe",
+        "Your hidden widgets could not be loaded.": "Níorbh fhéidir do ghiuirléidí folaithe a lódáil.",
+        "You have not hidden any widgets on shared dashboards.": "Níor fholaigh tú aon ghiuirléid ar dheais roinnte.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["D'fholaigh tú %n ghiuirléid ar dheais roinnte", "D'fholaigh tú %n ghiuirléid ar dheais roinnte", "D'fholaigh tú %n ghiuirléid ar dheais roinnte", "D'fholaigh tú %n ngiuirléid ar dheais roinnte", "D'fholaigh tú %n giuirléid ar dheais roinnte"],
+        "Show all again": "Taispeáin gach ceann arís",
+        "Your change could not be saved.": "Níorbh fhéidir d'athrú a shábháil.",
+        "Summary by email": "Achoimre trí ríomhphost",
+        "A mail with new announcements and what changed on your dashboards": "Ríomhphost le fógraí nua agus a bhfuil athraithe ar do dheais",
+        "How often?": "Cé chomh minic?",
+        "Daily": "Go laethúil",
+        "Weekly": "Go seachtainiúil",
+        "At 07:30, only when something changed": "Ag 07:30, ach amháin nuair a d'athraigh rud éigin",
+        "On Monday at 07:30": "Dé Luain ag 07:30",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "Níl seoladh ríomhphoist agat, mar sin ní féidir achoimre a sheoladh chugat. Cuir ceann leis i do chuntas Nextcloud.",
+        "Your daily LaunchPad summary": "Do achoimre laethúil LaunchPad",
+        "Your weekly LaunchPad summary": "Do achoimre sheachtainiúil LaunchPad",
+        "Nothing new was published and nothing changed on your dashboards.": "Níor foilsíodh aon rud nua agus níor athraigh aon rud ar do dheais.",
+        "New announcements": "Fógraí nua",
+        "What changed on your dashboards": "A bhfuil athraithe ar do dheais",
+        "Open LaunchPad": "Oscail LaunchPad",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Faigheann tú an ríomhphost seo mar gur iarr tú é i socruithe LaunchPad."
     }
 }

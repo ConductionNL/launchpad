@@ -21,7 +21,7 @@ const SUCCESS_STATUSES = Object.freeze(['ok', 'connected', 'healthy', 'success']
  *
  * @param {object} row An `app_connection` object.
  * @return {string|null} the ISO time, or null when unknown.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
  */
 export function lastSuccessOf(row) {
 	const own = row?.lastSuccessAt ?? row?.lastSuccess ?? null
@@ -41,7 +41,7 @@ export function lastSuccessOf(row) {
  *
  * @param {object} row An `app_connection` object.
  * @return {{value: string, label: string, lastSuccessAt: (string|null)}|null} the choice.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
  */
 export function toConnectionOption(row) {
 	const value = row?.sourceId ?? row?.source ?? row?.id ?? null
@@ -57,7 +57,7 @@ export function toConnectionOption(row) {
  * refused read gives an empty list, and the form then asks for a source id.
  *
  * @return {Promise<Array<{value: string, label: string, lastSuccessAt: (string|null)}>>} the choices.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
  */
 export async function fetchLiveTileConnections() {
 	const { rows } = await fetchAppConnectionRows()
@@ -70,7 +70,7 @@ export async function fetchLiveTileConnections() {
  * refused read gives state `error` and no rows.
  *
  * @return {Promise<{state: string, rows: Array<object>}>} `ok` with the rows, or `error`.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
  * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
  */
 export async function fetchAppConnectionRows() {

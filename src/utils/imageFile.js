@@ -13,7 +13,7 @@ export const MAX_IMAGE_BYTES = 5 * 1024 * 1024
  *
  * @param {{type?: string, size?: number}|null} file The picked file.
  * @return {'type'|'size'|null} the problem.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
  */
 export function isUploadableImage(file) {
 	if (!file || typeof file.type !== 'string' || !file.type.startsWith('image/')) {
@@ -30,7 +30,7 @@ export function isUploadableImage(file) {
  *
  * @param {number} bytes The size.
  * @return {string} the size.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
  */
 export function formatBytes(bytes) {
 	if (bytes < 1024) {
@@ -48,7 +48,7 @@ export function formatBytes(bytes) {
  *
  * @param {{size: (number|null), width: (number|null), height: (number|null)}|null} chosen The chosen file.
  * @return {string} the line.
- * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
  */
 export function describeImageFile(chosen) {
 	const parts = []

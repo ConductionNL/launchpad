@@ -9,7 +9,7 @@
  * Widget form on that type; a Nextcloud widget, an app tile or the office
  * pack is placed and the picker closes.
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+ * @spec openspec/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
  */
 
 import type { Locator } from '@playwright/test'

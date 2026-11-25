@@ -7,7 +7,7 @@
  * placing a card, the grey card for what the role may not add and the label
  * for an older widget type.
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md
+ * @spec openspec/specs/widgets/spec.md
  */
 
 import { mount } from '@vue/test-utils'

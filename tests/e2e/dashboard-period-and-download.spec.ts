@@ -104,7 +104,7 @@ let reader: Principal | null = null
 let groupId: string | null = null
 let settingsBefore: DashboardSettings | null = null
 let hostsBefore: string | null = null
-let management: { id: number; uuid: string; name: string } | null = null
+let management: { id: number; uuid: string; name: string; slug?: string } | null = null
 let workplace: { id: number; uuid: string; name: string } | null = null
 
 /**
@@ -263,9 +263,13 @@ async function headerOf(page: Page, name: string): Promise<Locator> {
  * @param search an optional query string, e.g. `?period=quarter`.
  * @return its header.
  */
-async function open(page: Page, dashboard: { uuid: string; name: string }, search = ''): Promise<Locator> {
+async function open(page: Page, dashboard: { uuid: string; name: string; slug?: string }, search = ''): Promise<Locator> {
 	await setActivePreference(reader!.api, dashboard.uuid)
-	await page.goto(`${APP}/${search}`)
+	// Pieter's pinned default wins over the active preference on the bare
+	// start page, so any other dashboard is opened by its address.
+	const slug = dashboard.uuid === workplace?.uuid ? '' : (dashboard.slug ?? '')
+	expect(dashboard.uuid === workplace?.uuid || slug !== '', 'the group dashboard has a slug').toBe(true)
+	await page.goto(`${APP}/${slug}${search}`)
 	return headerOf(page, dashboard.name)
 }
 
@@ -295,7 +299,7 @@ test.beforeAll(async () => {
 
 	const name = `Managementinformatie ${stamp}`
 	const row = await createGroupDashboard(admin, groupId, name)
-	management = { id: Number(row.id), uuid: String(row.uuid), name }
+	management = { id: Number(row.id), uuid: String(row.uuid), name, slug: String(row.slug ?? '') }
 	await place(management.id, {
 		widgetId: 'object-list',
 		gridX: 0,
@@ -339,7 +343,10 @@ test.beforeAll(async () => {
 	expect(text.status(), await text.text()).toBeLessThan(300)
 	const pinned = await reader.api.post(`${API}/dashboards/default`, { data: { uuid: workplace.uuid } })
 	expect(pinned.status(), await pinned.text()).toBe(200)
-	expect((await pinned.json()).uuid).toBe(workplace.uuid)
+	// POST answers {status: 'success'}; the stored default is read back by GET.
+	const stored = await reader.api.get(`${API}/dashboards/default`)
+	expect(stored.status(), await stored.text()).toBe(200)
+	expect((await stored.json()).uuid).toBe(workplace.uuid)
 })
 
 test.afterAll(async () => {

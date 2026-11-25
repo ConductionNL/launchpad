@@ -60,29 +60,8 @@
         "error": null
     },
     "all false and zero": {
-        "writes": [
-            [
-                "allow_user_dashboards",
-                false
-            ],
-            [
-                "allow_multiple_dashboards",
-                true
-            ],
-            [
-                "default_grid_columns",
-                0
-            ],
-            [
-                "max_dashboards_per_user",
-                0
-            ],
-            [
-                "legacy_widget_bridge_enabled",
-                false
-            ]
-        ],
-        "error": null
+        "writes": [],
+        "error": "defaultGridCols must be a whole number from 1 to 24"
     },
     "nulls": {
         "writes": [],

@@ -196,7 +196,9 @@ test('Settings unfolds in place', async ({ browser }) => {
 })
 
 test('the arrow keys follow the visual order, Settings last', async ({ page }) => {
-	await openMore(page)
+	const panel = await openMore(page)
+	// The menu puts focus on its first item once it has opened.
+	await expect(panel.locator('[role^="menuitem"]:focus')).toHaveCount(1)
 	await page.keyboard.press('End')
 	await expect(page.locator('[data-testid="launchpad-more-menu-settings"]')).toBeFocused()
 	await page.keyboard.press('ArrowUp')
@@ -210,13 +212,11 @@ test('This dashboard ends in Delete', async ({ page }) => {
 	const panel = await openMore(page)
 	const group = panel.locator('[data-testid="launchpad-more-menu-group-this-dashboard"]')
 	const labels = await group.getByRole('menuitem').allTextContents()
-	// The scenario's own wording. NOTE: moreMenuItems.js labels the share
-	// item "Sharing", not "Share"; until the scenario or the label changes
-	// this assertion is expected red, see the PR.
+	// Board LpMeer labels the share item "Sharing".
 	expect(labels.map((label) => label.trim())).toEqual([
 		'Edit',
 		'Add widget',
-		'Share',
+		'Sharing',
 		'Copy link to this dashboard',
 		'Duplicate as new dashboard',
 		'Set as default',
@@ -248,18 +248,25 @@ test('Escape returns focus to More', async ({ browser }) => {
 	}
 })
 
-test('a dashboard picked under Dashboards opens, and stays open after a reload', async ({ page }) => {
-	const other = await seedActiveDashboard(api, `E2E More menu other ${Date.now()}`)
+// As the member: Dashboards lists at most DASHBOARD_LIMIT (8) dashboards, and
+// the suite's admin on a shared instance owns more than that.
+test('a dashboard picked under Dashboards opens, and stays open after a reload', async ({ browser }) => {
+	const owner = (member as Principal).api
+	const other = await ownActiveDashboard(owner, `E2E More menu other ${Date.now()}`)
+	const { context, page } = await memberSession(browser)
 	try {
-		// The second seed is now the active one; go back to the first through the API.
-		const back = await api.post('/index.php/apps/launchpad/api/dashboards/active', { data: { uuid: seeded?.uuid } })
+		// The second dashboard is now the active one; go back to the first through the API.
+		const back = await owner.post(`${API}/dashboards/active`, { data: { uuid: memberDashboard?.uuid } })
 		expect(back.status(), await back.text()).toBeLessThan(300)
 
 		const panel = await openMore(page)
 		const item = panel.locator(`[data-testid="launchpad-more-menu-item-dashboard-${other.id}"]`)
 		await expect(item).toHaveText(new RegExp(other.name))
+		// The pick is stored in the background; reopening reloads the page.
+		const stored = page.waitForResponse((res) => res.url().includes('/api/dashboards/active') && res.request().method() === 'POST')
 		await item.click()
 		await expect(panel).toBeHidden()
+		await stored
 
 		const reopened = await openMore(page)
 		await expect(reopened.locator(`[data-testid="launchpad-more-menu-item-dashboard-${other.id}"]`)).toHaveAttribute('aria-checked', 'true')
@@ -269,6 +276,7 @@ test('a dashboard picked under Dashboards opens, and stays open after a reload',
 		const afterReload = await openMore(page)
 		await expect(afterReload.locator(`[data-testid="launchpad-more-menu-item-dashboard-${other.id}"]`)).toHaveAttribute('aria-checked', 'true')
 	} finally {
-		await removeSeededDashboard(api, other)
+		await context.close()
+		await removeSeededDashboard(owner, other)
 	}
 })

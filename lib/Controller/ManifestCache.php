@@ -61,7 +61,12 @@ class ManifestCache {
 		ICacheFactory $cacheFactory,
 		private readonly IAppManager $appManager,
 	) {
-		$this->cache = $cacheFactory->isAvailable() === true ? $cacheFactory->createDistributed('launchpad_manifest') : null;
+		$cache = null;
+		if ($cacheFactory->isAvailable() === true) {
+			$cache = $cacheFactory->createDistributed('launchpad_manifest');
+		}
+
+		$this->cache = $cache;
 	}//end __construct()
 
 	/**

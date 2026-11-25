@@ -501,12 +501,14 @@
 }
 
 /* The organisation menu as LpWerkplek draws it: each group a small uppercase
-   label and its links in a flat list on the card's inset, no carets. */
+   label and its links in a flat list on the card's inset, no carets. The
+   board's menu opens fully (expandedByDefault); a tree that starts closed
+   keeps its carets, or its children could never be opened (REQ-MENU-005). */
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-1 > .cn-menu-tree-node__row {
 	padding: 6px 0 2px !important;
 }
 
-.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-1 > .cn-menu-tree-node__row :is(.cn-menu-tree-node__caret, .cn-menu-tree-node__caret-spacer) {
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-widget--expanded .cn-menu-tree-node--depth-1 > .cn-menu-tree-node__row :is(.cn-menu-tree-node__caret, .cn-menu-tree-node__caret-spacer) {
 	display: none;
 }
 
@@ -533,6 +535,6 @@
 	padding-top: 6px !important;
 }
 
-.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-tree-node--depth-2 > .cn-menu-tree-node__row :is(.cn-menu-tree-node__caret, .cn-menu-tree-node__caret-spacer) {
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-menu-widget--expanded .cn-menu-tree-node--depth-2 > .cn-menu-tree-node__row :is(.cn-menu-tree-node__caret, .cn-menu-tree-node__caret-spacer) {
 	display: none;
 }

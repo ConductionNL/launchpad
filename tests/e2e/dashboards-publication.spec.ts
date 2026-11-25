@@ -60,6 +60,7 @@ import {
 	visibleRows,
 } from './support/dashboardHierarchy.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { ADMIN_USER } from './support/roles.ts'
 import {
 	adminContext,
 	API,
@@ -545,10 +546,11 @@ test.describe('dashboards — publication state (REQ-DASH-031..037, REQ-SCHEDUI-
 
 	// @e2e dashboards::admin-can-see-draft-dashboards-of-other-users
 	test("the administrator sees another user's draft", async () => {
-		const dash = await createDashboard(alice!.api, {
-			name: `Draft for admin ${T}`,
-		})
-		created.push(dash.id)
+		// The override is about publication state, not privacy: the draft is
+		// shared with the administrator and with Bob, so both would see it
+		// once published. A private dashboard stays private (REQ-SHARE-003).
+		const dash = await aliceDashboard('Draft for admin')
+		await shareWith(alice!.api, dash.id, ADMIN_USER, 'view_only')
 		expect(dash.publicationStatus).toBe('draft')
 
 		const row = await visibleRow(admin, dash.uuid)

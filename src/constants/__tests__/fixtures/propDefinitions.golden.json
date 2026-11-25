@@ -125,6 +125,12 @@
 		"validator": false,
 		"default": null
 	},
+	"../../components/HealthPingBadge.vue | hidden": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/HealthPingBadge.vue | interval": {
 		"type": "Number",
 		"required": false,

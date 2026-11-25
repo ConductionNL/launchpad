@@ -59,26 +59,28 @@ beforeEach(() => {
 })
 
 describe('LiveTileWidgetForm rendered controls', () => {
-	it('writes the label typed into the Label field', async () => {
+	it('writes the label typed into the Title field', async () => {
 		const wrapper = await mountForm()
-		textField(wrapper, 'Label').vm.$emit('update:modelValue', 'Open tickets')
+		textField(wrapper, 'Title').vm.$emit('update:modelValue', 'Open tickets')
 		await wrapper.vm.$nextTick()
 		expect(lastEmitted(wrapper).label).toBe('Open tickets')
-		expect(textField(wrapper, 'Label').props('modelValue')).toBe('Open tickets')
+		expect(textField(wrapper, 'Title').props('modelValue')).toBe('Open tickets')
 	})
 
 	it('writes the value expression field', async () => {
 		const wrapper = await mountForm()
-		textField(wrapper, 'Value expression').vm.$emit('update:modelValue', '$.data.total')
+		textField(wrapper, 'Path in the response').vm.$emit('update:modelValue', '$.data.total')
 		await wrapper.vm.$nextTick()
 		expect(lastEmitted(wrapper).valueExpr).toBe('$.data.total')
 	})
 
-	it('writes prefix, suffix and the thousands switch into format', async () => {
+	it('writes prefix, unit and the thousands switch into format', async () => {
 		const wrapper = await mountForm()
 		textField(wrapper, 'Prefix').vm.$emit('update:modelValue', '€ ')
-		textField(wrapper, 'Suffix').vm.$emit('update:modelValue', ' items')
-		wrapper.findComponent(NcCheckboxRadioSwitch).vm.$emit('update:modelValue', true)
+		textField(wrapper, 'Unit (optional)').vm.$emit('update:modelValue', 'items')
+		wrapper.findAllComponents(NcCheckboxRadioSwitch)
+			.find((s) => s.text().includes('Thousands separator'))
+			.vm.$emit('update:modelValue', true)
 		await wrapper.vm.$nextTick()
 		expect(lastEmitted(wrapper).format).toEqual({
 			prefix: '€ ',

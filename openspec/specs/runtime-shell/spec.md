@@ -277,7 +277,7 @@ More MUST be the same menu on every page (board `launchpad/LpMeer`): on the star
 
 - **Dashboards** (left): the person's own dashboards, then the shared and group ones, at most eight, as radio items (`role="menuitemradio"`) with the open one checked and highlighted, and the markers default, shared and group. Then "All dashboards". Off the dashboard view no dashboard is checked, and choosing one opens it on the dashboard view.
 - **Settings** (right, at the bottom, below This dashboard's Delete and behind the same top rule): ONE menu item with a cog and a chevron, `aria-haspopup="true"` and `aria-expanded`. It starts folded each time the menu opens and unfolds in place as an indented group with a 2 px rule at its start: Personal settings, Admin settings (administrators only), Marketplace, Templates, Reports, Flows, Integrations, Documentation, Features and roadmap (nl Persoonlijke instellingen, Beheerinstellingen, Marktplaats, Sjablonen, Rapporten, Flows, Koppelingen, Documentatie, Functies en roadmap), unfolding below it in the right column. An entry the board does not name follows at the end.
-- **This dashboard** (right, only where a dashboard is open): Edit, Add widget, Share, Copy link to this dashboard, Duplicate as new dashboard, Set as default, and Delete last, in the error colour behind a rule. Each item keeps its rule: Edit and Add widget need edit rights, Share and Delete need ownership, Duplicate needs personal dashboards to be allowed and the quota not reached. Read receipts, for an editor of a dashboard that asks readers to confirm, sits before Delete.
+- **This dashboard** (right, only where a dashboard is open): Edit, Add widget, Sharing, Copy link to this dashboard, Duplicate as new dashboard, Set as default, and Delete last, in the error colour behind a rule. Each item keeps its rule: Edit and Add widget need edit rights, Sharing and Delete need ownership, Duplicate needs personal dashboards to be allowed and the quota not reached. Read receipts, for an editor of a dashboard that asks readers to confirm, sits before Delete.
 
 More MUST NOT offer Versions (a tab of the dashboard settings, REQ-DASH-039), Schedule or Unpublish (the Publication tab), or a second Settings item under This dashboard; the dashboard settings open from the edit bar.
 
@@ -302,7 +302,7 @@ The menu is a WAI-ARIA menu: the arrow keys move through every visible item over
 #### Scenario: This dashboard ends in Delete
 - GIVEN the owner of the open dashboard with More open
 - WHEN they read This dashboard
-- THEN it MUST list Edit, Add widget, Share, Copy link to this dashboard, Duplicate as new dashboard, Set as default and Delete, in that order, and no Versions or Settings item
+- THEN it MUST list Edit, Add widget, Sharing, Copy link to this dashboard, Duplicate as new dashboard, Set as default and Delete, in that order, and no Versions or Settings item
 
 @e2e openspec/specs/runtime-shell/spec.md#req-shell-013
 

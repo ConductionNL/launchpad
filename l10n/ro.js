@@ -1686,7 +1686,9 @@ OC.L10N.register(
     "Otherwise" : "Altfel",
     "A person" : "O persoană",
     "Search for a person" : "Caută o persoană",
-    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Fără alegere, un tablou de bord merge la cineva cu drepturi depline asupra lui sau este șters. Partajările rămân."
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Fără alegere, un tablou de bord merge la cineva cu drepturi depline asupra lui sau este șters. Partajările rămân.",
+    "Date" : "Dată",
+    "Start date of new colleagues" : "Data de început a noilor colegi"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

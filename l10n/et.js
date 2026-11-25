@@ -1686,7 +1686,9 @@ OC.L10N.register(
     "Otherwise" : "Muidu",
     "A person" : "Isik",
     "Search for a person" : "Otsi isikut",
-    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Valikuta läheb töölaud kellelegi, kellel on sellele täielikud õigused, või see kustutatakse. Jagamised jäävad."
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Valikuta läheb töölaud kellelegi, kellel on sellele täielikud õigused, või see kustutatakse. Jagamised jäävad.",
+    "Date" : "Kuupäev",
+    "Start date of new colleagues" : "Uute kolleegide alguskuupäev"
 },
 "nplurals=2; plural=(n != 1);"
 );

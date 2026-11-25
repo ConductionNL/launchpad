@@ -1588,6 +1588,7 @@
         "Otherwise": "Kitu atveju",
         "A person": "Asmuo",
         "Search for a person": "Ieškoti asmens",
-        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Nepasirinkus skydelis atitenka asmeniui, turinčiam visas teises į jį, arba ištrinamas. Bendrinimai lieka."
+        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Nepasirinkus skydelis atitenka asmeniui, turinčiam visas teises į jį, arba ištrinamas. Bendrinimai lieka.",
+        "Start date of new colleagues": "Naujų kolegų pradžios data"
     }
 }

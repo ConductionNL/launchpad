@@ -1686,7 +1686,9 @@ OC.L10N.register(
     "Otherwise" : "Përndryshe",
     "A person" : "Një person",
     "Search for a person" : "Kërko një person",
-    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Pa zgjedhje, paneli shkon te dikush me të drejta të plota mbi të, ose fshihet. Ndarjet mbeten."
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Pa zgjedhje, paneli shkon te dikush me të drejta të plota mbi të, ose fshihet. Ndarjet mbeten.",
+    "Date" : "Data",
+    "Start date of new colleagues" : "Data e fillimit të kolegëve të rinj"
 },
 "nplurals=2; plural=(n != 1);"
 );

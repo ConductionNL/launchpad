@@ -1686,7 +1686,9 @@ OC.L10N.register(
     "Otherwise" : "Andernfalls",
     "A person" : "Eine Person",
     "Search for a person" : "Person suchen",
-    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Ohne Auswahl geht ein Dashboard an jemanden mit vollen Rechten darauf oder wird gelöscht. Freigaben bleiben."
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Ohne Auswahl geht ein Dashboard an jemanden mit vollen Rechten darauf oder wird gelöscht. Freigaben bleiben.",
+    "Date" : "Datum",
+    "Start date of new colleagues" : "Eintrittsdatum neuer Kolleginnen und Kollegen"
 },
 "nplurals=2; plural=(n != 1);"
 );

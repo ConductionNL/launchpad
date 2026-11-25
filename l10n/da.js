@@ -1686,7 +1686,9 @@ OC.L10N.register(
     "Otherwise" : "Ellers",
     "A person" : "En person",
     "Search for a person" : "Søg efter en person",
-    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Uden valg går et dashboard til en med fulde rettigheder til det, eller det slettes. Delinger bliver."
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Uden valg går et dashboard til en med fulde rettigheder til det, eller det slettes. Delinger bliver.",
+    "Date" : "Dato",
+    "Start date of new colleagues" : "Startdato for nye kolleger"
 },
 "nplurals=2; plural=(n != 1);"
 );

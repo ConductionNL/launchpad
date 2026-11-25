@@ -1686,7 +1686,9 @@ OC.L10N.register(
     "Otherwise" : "Inače",
     "A person" : "Osoba",
     "Search for a person" : "Traži osobu",
-    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Bez izbora kontrolna tabla ide nekome s punim pravima na nju ili se briše. Dijeljenja ostaju."
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Bez izbora kontrolna tabla ide nekome s punim pravima na nju ili se briše. Dijeljenja ostaju.",
+    "Date" : "Datum",
+    "Start date of new colleagues" : "Datum početka novih kolega"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -1586,6 +1586,7 @@
         "Otherwise": "Annars",
         "A person": "En person",
         "Search for a person": "Sök efter en person",
-        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Utan val går en instrumentpanel till någon med fullständiga rättigheter till den, eller tas bort. Delningar finns kvar."
+        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Utan val går en instrumentpanel till någon med fullständiga rättigheter till den, eller tas bort. Delningar finns kvar.",
+        "Start date of new colleagues": "Startdatum för nya kollegor"
     }
 }

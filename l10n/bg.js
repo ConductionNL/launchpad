@@ -1686,7 +1686,9 @@ OC.L10N.register(
     "Otherwise" : "Иначе",
     "A person" : "Лице",
     "Search for a person" : "Търсене на лице",
-    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Без избор таблото отива при някой с пълни права върху него или се изтрива. Споделянията остават."
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Без избор таблото отива при някой с пълни права върху него или се изтрива. Споделянията остават.",
+    "Date" : "Дата",
+    "Start date of new colleagues" : "Начална дата на новите колеги"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -57,20 +57,19 @@ class SummaryMailSender {
 	/**
 	 * Send the summary to the person's email address.
 	 *
-	 * @param IUser                                                     $user      The person, with an email address.
-	 * @param array{announcements: list<string>, changes: list<string>} $lines     What it says.
-	 * @param string                                                    $frequency Daily or weekly.
+	 * @param IUser                                                                        $user    The person, with an email address.
+	 * @param array{frequency: string, announcements: list<string>, changes: list<string>} $summary What it says, and how often.
 	 *
 	 * @return bool True when the mailer took it.
 	 *
 	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
 	 */
-	public function send(IUser $user, array $lines, string $frequency): bool {
+	public function send(IUser $user, array $summary): bool {
 		try {
 			$l10n = $this->l10n->get(Application::APP_ID, $this->l10n->getUserLanguage($user));
 			$message = $this->mailer->createMessage();
 			$message->setTo([(string)$user->getEMailAddress() => $user->getDisplayName()]);
-			$message->useTemplate($this->template(l10n: $l10n, lines: $lines, frequency: $frequency));
+			$message->useTemplate($this->template(l10n: $l10n, summary: $summary));
 			$this->mailer->send($message);
 		} catch (Throwable $exception) {
 			$this->logger->warning(
@@ -86,13 +85,13 @@ class SummaryMailSender {
 	/**
 	 * The mail: heading, the announcements, what changed, a link back.
 	 *
-	 * @param IL10N                                                     $l10n      The person's language.
-	 * @param array{announcements: list<string>, changes: list<string>} $lines     What it says.
-	 * @param string                                                    $frequency Daily or weekly.
+	 * @param IL10N                                                                        $l10n    The person's language.
+	 * @param array{frequency: string, announcements: list<string>, changes: list<string>} $summary What it says, and how often.
 	 *
 	 * @return IEMailTemplate
 	 */
-	private function template(IL10N $l10n, array $lines, string $frequency): IEMailTemplate {
+	private function template(IL10N $l10n, array $summary): IEMailTemplate {
+		$frequency = $summary['frequency'];
 		$subject = $l10n->t('Your daily LaunchPad summary');
 		if ($frequency === SummaryMailPreference::WEEKLY) {
 			$subject = $l10n->t('Your weekly LaunchPad summary');
@@ -103,12 +102,12 @@ class SummaryMailSender {
 		$template->addHeader();
 		$template->addHeading($subject);
 
-		if ($lines['announcements'] === [] && $lines['changes'] === []) {
+		if ($summary['announcements'] === [] && $summary['changes'] === []) {
 			$template->addBodyText($l10n->t('Nothing new was published and nothing changed on your dashboards.'));
 		}
 
-		self::addList(template: $template, heading: $l10n->t('New announcements'), items: $lines['announcements']);
-		self::addList(template: $template, heading: $l10n->t('What changed on your dashboards'), items: $lines['changes']);
+		self::addList(template: $template, section: [$l10n->t('New announcements'), $summary['announcements']]);
+		self::addList(template: $template, section: [$l10n->t('What changed on your dashboards'), $summary['changes']]);
 
 		$template->addBodyButton(
 			$l10n->t('Open LaunchPad'),
@@ -122,13 +121,13 @@ class SummaryMailSender {
 	/**
 	 * A heading and its items, when there are any.
 	 *
-	 * @param IEMailTemplate $template The mail.
-	 * @param string         $heading  The heading.
-	 * @param list<string>   $items    The items.
+	 * @param IEMailTemplate                $template The mail.
+	 * @param array{0: string, 1: list<string>} $section The heading and its items.
 	 *
 	 * @return void
 	 */
-	private static function addList(IEMailTemplate $template, string $heading, array $items): void {
+	private static function addList(IEMailTemplate $template, array $section): void {
+		[$heading, $items] = $section;
 		if ($items === []) {
 			return;
 		}

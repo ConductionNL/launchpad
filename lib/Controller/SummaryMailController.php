@@ -33,6 +33,7 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IUser;
 use OCP\IUserSession;
 
 /**
@@ -66,7 +67,13 @@ class SummaryMailController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function show(): JSONResponse {
-		return $this->forCaller(frequency: null);
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return self::signedOut();
+		}
+
+		// The session's own user id: no route reads another person's choice.
+		return self::answer(user: $user, frequency: $this->preference->frequency(userId: $user->getUID()));
 	}//end show()
 
 	/**
@@ -79,37 +86,45 @@ class SummaryMailController extends Controller {
 	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	#[NoAdminRequired]
-	public function update(string $frequency = SummaryMailPreference::OFF): JSONResponse {
+	public function update(string $frequency=SummaryMailPreference::OFF): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return self::signedOut();
+		}
+
 		if (in_array($frequency, SummaryMailPreference::FREQUENCIES, true) === false) {
 			return new JSONResponse(data: ['message' => 'Unknown frequency'], statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		return $this->forCaller(frequency: $frequency);
+		// Written under the session's own user id only.
+		$stored = $this->preference->setFrequency(userId: $user->getUID(), frequency: $frequency);
+
+		return self::answer(user: $user, frequency: $stored);
 	}//end update()
 
 	/**
-	 * Answer for the signed-in caller, storing a new frequency first when given.
-	 *
-	 * @param string|null $frequency A valid frequency to store, or null to only read.
+	 * The answer for a request without a signed-in user.
 	 *
 	 * @return JSONResponse
 	 */
-	private function forCaller(?string $frequency): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(data: ['message' => 'Not logged in'], statusCode: Http::STATUS_UNAUTHORIZED);
-		}
+	private static function signedOut(): JSONResponse {
+		return new JSONResponse(data: ['message' => 'Not logged in'], statusCode: Http::STATUS_UNAUTHORIZED);
+	}//end signedOut()
 
-		$uid = $user->getUID();
-		if ($frequency !== null) {
-			$this->preference->setFrequency(userId: $uid, frequency: $frequency);
-		}
-
+	/**
+	 * The caller's frequency, and whether they have an email address.
+	 *
+	 * @param IUser  $user      The caller.
+	 * @param string $frequency Their frequency.
+	 *
+	 * @return JSONResponse
+	 */
+	private static function answer(IUser $user, string $frequency): JSONResponse {
 		return new JSONResponse(
 			data: [
-				'frequency' => $this->preference->frequency(userId: $uid),
+				'frequency' => $frequency,
 				'hasEmail' => ((string)$user->getEMailAddress() !== ''),
 			]
 		);
-	}//end forCaller()
+	}//end answer()
 }//end class

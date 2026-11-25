@@ -27,6 +27,7 @@ namespace Unit\Service;
 use DateTimeImmutable;
 use DateTimeZone;
 use OCA\LaunchPad\Service\SummaryMailContent;
+use OCA\LaunchPad\Service\SummaryMailPreference;
 use OCA\LaunchPad\Service\SummaryMailSender;
 use OCA\LaunchPad\Service\SummaryMailService;
 use OCP\IConfig;
@@ -82,28 +83,31 @@ class SummaryMailServiceTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$this->values = [];
+		$this->values = [
+			'pieter|launchpad|summary_mail_frequency' => 'daily',
+			'nomail|launchpad|summary_mail_frequency' => 'daily',
+			'ghost|launchpad|summary_mail_frequency' => 'daily',
+		];
 		$this->mails = [];
 		$this->lines = ['announcements' => [], 'changes' => []];
 		$this->mailerFails = false;
 	}//end setUp()
 
 	/**
-	 * Daily: from 07:30 until noon, once per day.
+	 * Daily: from 07:30 until noon; off is never due.
 	 *
 	 * @return void
 	 */
-	public function testDailyIsDueFrom0730UntilNoonOncePerDay(): void {
+	public function testDailyIsDueFrom0730UntilNoon(): void {
 		$tz = new DateTimeZone(timezone: 'Europe/Amsterdam');
 		$at = static fn (string $time): DateTimeImmutable => new DateTimeImmutable(datetime: '2026-11-25 '.$time, timezone: $tz);
 
-		$this->assertFalse(condition: SummaryMailService::isDue(frequency: 'daily', local: $at('07:29'), lastSent: null));
-		$this->assertTrue(condition: SummaryMailService::isDue(frequency: 'daily', local: $at('07:30'), lastSent: null));
-		$this->assertTrue(condition: SummaryMailService::isDue(frequency: 'daily', local: $at('08:15'), lastSent: $at('07:31')->modify('-1 day')));
-		$this->assertFalse(condition: SummaryMailService::isDue(frequency: 'daily', local: $at('08:15'), lastSent: $at('07:31')));
-		$this->assertFalse(condition: SummaryMailService::isDue(frequency: 'daily', local: $at('12:00'), lastSent: null));
-		$this->assertFalse(condition: SummaryMailService::isDue(frequency: 'off', local: $at('07:45'), lastSent: null));
-	}//end testDailyIsDueFrom0730UntilNoonOncePerDay()
+		$this->assertNull(actual: SummaryMailService::dueMoment(frequency: 'daily', local: $at('07:29')));
+		$this->assertEquals(expected: $at('07:30'), actual: SummaryMailService::dueMoment(frequency: 'daily', local: $at('07:30')));
+		$this->assertEquals(expected: $at('07:30'), actual: SummaryMailService::dueMoment(frequency: 'daily', local: $at('11:59')));
+		$this->assertNull(actual: SummaryMailService::dueMoment(frequency: 'daily', local: $at('12:00')));
+		$this->assertNull(actual: SummaryMailService::dueMoment(frequency: 'off', local: $at('07:45')));
+	}//end testDailyIsDueFrom0730UntilNoon()
 
 	/**
 	 * Weekly: on Monday only. 30 November 2026 is a Monday, 25 November a Wednesday.
@@ -115,8 +119,8 @@ class SummaryMailServiceTest extends TestCase {
 		$monday = new DateTimeImmutable(datetime: '2026-11-30 07:40', timezone: $tz);
 		$wednesday = new DateTimeImmutable(datetime: '2026-11-25 07:40', timezone: $tz);
 
-		$this->assertTrue(condition: SummaryMailService::isDue(frequency: 'weekly', local: $monday, lastSent: null));
-		$this->assertFalse(condition: SummaryMailService::isDue(frequency: 'weekly', local: $wednesday, lastSent: null));
+		$this->assertNotNull(actual: SummaryMailService::dueMoment(frequency: 'weekly', local: $monday));
+		$this->assertNull(actual: SummaryMailService::dueMoment(frequency: 'weekly', local: $wednesday));
 	}//end testWeeklyIsDueOnMondayOnly()
 
 	/**
@@ -130,7 +134,7 @@ class SummaryMailServiceTest extends TestCase {
 
 		// 06:35 UTC is 07:35 in Amsterdam.
 		$now = $this->utc(time: '06:35');
-		$this->assertTrue(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'daily', now: $now));
+		$this->assertTrue(condition: $this->service()->sendFor(userId: 'pieter', now: $now));
 
 		$this->assertCount(expectedCount: 1, haystack: $this->mails);
 		$this->assertContains(needle: 'Kerstborrel', haystack: $this->mails[0]);
@@ -138,7 +142,7 @@ class SummaryMailServiceTest extends TestCase {
 		$this->assertSame(expected: $now->format(DATE_ATOM), actual: $this->values['pieter|launchpad|summary_mail_last_sent']);
 
 		// The next hourly run the same morning sends nothing.
-		$this->assertFalse(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'daily', now: $now->modify('+1 hour')));
+		$this->assertFalse(condition: $this->service()->sendFor(userId: 'pieter', now: $now->modify('+1 hour')));
 		$this->assertCount(expectedCount: 1, haystack: $this->mails);
 	}//end testPietersDailySummaryNamesTheAnnouncementAndTheChange()
 
@@ -151,8 +155,8 @@ class SummaryMailServiceTest extends TestCase {
 		$this->values['pieter|core|timezone'] = 'America/New_York';
 		$this->lines = ['announcements' => ['Kerstborrel'], 'changes' => []];
 
-		$this->assertFalse(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'daily', now: $this->utc(time: '06:35')));
-		$this->assertTrue(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'daily', now: $this->utc(time: '12:35')));
+		$this->assertFalse(condition: $this->service()->sendFor(userId: 'pieter', now: $this->utc(time: '06:35')));
+		$this->assertTrue(condition: $this->service()->sendFor(userId: 'pieter', now: $this->utc(time: '12:35')));
 	}//end testTheTimeZoneIsThePersons()
 
 	/**
@@ -163,10 +167,23 @@ class SummaryMailServiceTest extends TestCase {
 	public function testAnEmptyDailySummaryIsNotSent(): void {
 		$this->values['pieter|core|timezone'] = 'UTC';
 
-		$this->assertFalse(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'daily', now: $this->utc(time: '07:35')));
+		$this->assertFalse(condition: $this->service()->sendFor(userId: 'pieter', now: $this->utc(time: '07:35')));
 		$this->assertSame(expected: [], actual: $this->mails);
 		$this->assertArrayNotHasKey(key: 'pieter|launchpad|summary_mail_last_sent', array: $this->values);
 	}//end testAnEmptyDailySummaryIsNotSent()
+
+	/**
+	 * A person who turned it off again gets nothing, even when listed.
+	 *
+	 * @return void
+	 */
+	public function testAPersonWhoTurnedItOffGetsNothing(): void {
+		$this->lines = ['announcements' => ['Kerstborrel'], 'changes' => []];
+		$this->values['pieter|launchpad|summary_mail_frequency'] = 'off';
+
+		$this->assertFalse(condition: $this->service()->sendFor(userId: 'pieter', now: $this->utc(time: '07:35')));
+		$this->assertSame(expected: [], actual: $this->mails);
+	}//end testAPersonWhoTurnedItOffGetsNothing()
 
 	/**
 	 * An empty weekly summary still goes out, saying nothing changed.
@@ -175,9 +192,10 @@ class SummaryMailServiceTest extends TestCase {
 	 */
 	public function testAnEmptyWeeklySummaryIsSent(): void {
 		$this->values['pieter|core|timezone'] = 'UTC';
+		$this->values['pieter|launchpad|summary_mail_frequency'] = 'weekly';
 
 		$monday = new DateTimeImmutable(datetime: '2026-11-30 07:35', timezone: new DateTimeZone(timezone: 'UTC'));
-		$this->assertTrue(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'weekly', now: $monday));
+		$this->assertTrue(condition: $this->service()->sendFor(userId: 'pieter', now: $monday));
 		$this->assertCount(expectedCount: 1, haystack: $this->mails);
 	}//end testAnEmptyWeeklySummaryIsSent()
 
@@ -189,8 +207,8 @@ class SummaryMailServiceTest extends TestCase {
 	public function testAPersonWithoutEmailGetsNoSummary(): void {
 		$this->lines = ['announcements' => ['Kerstborrel'], 'changes' => []];
 
-		$this->assertFalse(condition: $this->service()->sendFor(userId: 'nomail', frequency: 'daily', now: $this->utc(time: '07:35')));
-		$this->assertFalse(condition: $this->service()->sendFor(userId: 'ghost', frequency: 'daily', now: $this->utc(time: '07:35')));
+		$this->assertFalse(condition: $this->service()->sendFor(userId: 'nomail', now: $this->utc(time: '07:35')));
+		$this->assertFalse(condition: $this->service()->sendFor(userId: 'ghost', now: $this->utc(time: '07:35')));
 		$this->assertSame(expected: [], actual: $this->mails);
 	}//end testAPersonWithoutEmailGetsNoSummary()
 
@@ -203,7 +221,7 @@ class SummaryMailServiceTest extends TestCase {
 		$this->lines = ['announcements' => ['Kerstborrel'], 'changes' => []];
 		$this->mailerFails = true;
 
-		$this->assertFalse(condition: $this->service()->sendFor(userId: 'pieter', frequency: 'daily', now: $this->utc(time: '07:35')));
+		$this->assertFalse(condition: $this->service()->sendFor(userId: 'pieter', now: $this->utc(time: '07:35')));
 		$this->assertArrayNotHasKey(key: 'pieter|launchpad|summary_mail_last_sent', array: $this->values);
 	}//end testAFailedSendIsNotRecorded()
 
@@ -267,7 +285,13 @@ class SummaryMailServiceTest extends TestCase {
 		$content = $this->createMock(originalClassName: SummaryMailContent::class);
 		$content->method('collect')->willReturnCallback(fn (): array => $this->lines);
 
-		return new SummaryMailService(config: $config, users: $users, content: $content, sender: $this->sender());
+		return new SummaryMailService(
+			config: $config,
+			users: $users,
+			preference: new SummaryMailPreference(config: $config),
+			content: $content,
+			sender: $this->sender()
+		);
 	}//end service()
 
 	/**

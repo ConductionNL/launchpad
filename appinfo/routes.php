@@ -48,7 +48,7 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// The signed-in person's own analytics opt-out (REQ-ANLT-UI-001).
 		['name' => 'analyticsOptOut#show', 'url' => '/api/analytics/me', 'verb' => 'GET'],
 		['name' => 'analyticsOptOut#update', 'url' => '/api/analytics/me', 'verb' => 'PUT'],
-		// personal-settings REQ-PSET-002: the caller's own summary email choice.
+		// Personal-settings REQ-PSET-002: the caller's own summary email choice.
 		['name' => 'summaryMail#show', 'url' => '/api/summary-mail/me', 'verb' => 'GET'],
 		['name' => 'summaryMail#update', 'url' => '/api/summary-mail/me', 'verb' => 'PUT'],
 
@@ -293,7 +293,7 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'url' => '/api/dashboards/{dashboardId}/personal-layer', 'verb' => 'DELETE',
 		 'requirements' => ['dashboardId' => '\d+']],
 
-		// personal-settings REQ-PSET-003: every widget the caller hid, across
+		// Personal-settings REQ-PSET-003: every widget the caller hid, across
 		// dashboards, for the settings dialog. Caller's own layers only.
 		['name' => 'hiddenWidgetsApi#index',
 		 'url' => '/api/personal-layer/hidden', 'verb' => 'GET'],

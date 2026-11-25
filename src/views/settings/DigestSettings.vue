@@ -78,7 +78,8 @@ export default {
 		 * The three choices, with the board's explanation under Daily and Weekly.
 		 *
 		 * @return {Array<{value: string, label: string, hint: string}>} The options.
-		 */
+		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+		 		 */
 		options() {
 			return [
 				{ value: 'off', label: t('launchpad', 'Off'), hint: '' },
@@ -105,7 +106,8 @@ export default {
 		 * The caller's own summary email endpoint.
 		 *
 		 * @return {string} The URL.
-		 */
+		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+		 		 */
 		url() {
 			return generateUrl('/apps/launchpad/api/summary-mail/me')
 		},
@@ -114,7 +116,8 @@ export default {
 		 * Take the server's answer.
 		 *
 		 * @param {{frequency?: string, hasEmail?: boolean}|undefined} data The answer.
-		 */
+		 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+		 		 */
 		apply(data) {
 			this.frequency = ['off', 'daily', 'weekly'].includes(data?.frequency) ? data.frequency : 'off'
 			this.hasEmail = data?.hasEmail !== false

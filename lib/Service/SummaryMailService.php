@@ -12,9 +12,7 @@
  * @category  Service
  * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
- * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- * @version   GIT:auto
  * @link      https://conduction.nl
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
@@ -54,14 +52,16 @@ class SummaryMailService {
 	/**
 	 * Constructor.
 	 *
-	 * @param IConfig            $config  The user preferences.
-	 * @param IUserManager       $users   Finds the people.
-	 * @param SummaryMailContent $content What a summary says.
-	 * @param SummaryMailSender  $sender  Sends it.
+	 * @param IConfig               $config     The user preferences.
+	 * @param IUserManager          $users      Finds the people.
+	 * @param SummaryMailPreference $preference Each person's choice.
+	 * @param SummaryMailContent    $content    What a summary says.
+	 * @param SummaryMailSender     $sender     Sends it.
 	 */
 	public function __construct(
 		private readonly IConfig $config,
 		private readonly IUserManager $users,
+		private readonly SummaryMailPreference $preference,
 		private readonly SummaryMailContent $content,
 		private readonly SummaryMailSender $sender,
 	) {
@@ -81,7 +81,7 @@ class SummaryMailService {
 		foreach ([SummaryMailPreference::DAILY, SummaryMailPreference::WEEKLY] as $frequency) {
 			$userIds = $this->config->getUsersForUserValue(Application::APP_ID, SummaryMailPreference::KEY_FREQUENCY, $frequency);
 			foreach ($userIds as $userId) {
-				$sent += (int)$this->sendFor(userId: (string)$userId, frequency: $frequency, now: $now);
+				$sent += (int)$this->sendFor(userId: (string)$userId, now: $now);
 			}
 		}
 
@@ -89,38 +89,39 @@ class SummaryMailService {
 	}//end sendDue()
 
 	/**
-	 * Send one person's summary when it is due.
+	 * Send one person's summary when it is due by their own choice.
 	 *
-	 * @param string            $userId    The person.
-	 * @param string            $frequency Daily or weekly.
-	 * @param DateTimeImmutable $now       The moment of the run.
+	 * @param string            $userId The person.
+	 * @param DateTimeImmutable $now    The moment of the run.
 	 *
 	 * @return bool True when a summary went out.
 	 *
 	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
 	 */
-	public function sendFor(string $userId, string $frequency, DateTimeImmutable $now): bool {
+	public function sendFor(string $userId, DateTimeImmutable $now): bool {
 		$user = $this->users->get($userId);
 		if ($user === null || (string)$user->getEMailAddress() === '') {
 			return false;
 		}
 
+		$frequency = $this->preference->frequency(userId: $userId);
 		$local = $now->setTimezone($this->timeZoneOf(userId: $userId));
+		$sendAt = self::dueMoment(frequency: $frequency, local: $local);
 		$lastSent = $this->lastSent(userId: $userId);
-		if (self::isDue(frequency: $frequency, local: $local, lastSent: $lastSent) === false) {
+		if ($sendAt === null || ($lastSent !== null && $lastSent >= $sendAt)) {
 			return false;
 		}
 
 		$since = ($lastSent ?? $local->modify(self::windowOf(frequency: $frequency)));
-		$lines = $this->content->collect(userId: $userId, since: $since);
-		$empty = ($lines['announcements'] === [] && $lines['changes'] === []);
+		$summary = ['frequency' => $frequency] + $this->content->collect(userId: $userId, since: $since);
+		$empty = ($summary['announcements'] === [] && $summary['changes'] === []);
 		if ($empty === true && $frequency === SummaryMailPreference::DAILY) {
 			// Nothing to tell: no mail, and the window stays open so a change
 			// later today is in tomorrow's summary.
 			return false;
 		}
 
-		if ($this->sender->send(user: $user, lines: $lines, frequency: $frequency) === false) {
+		if ($this->sender->send(user: $user, summary: $summary) === false) {
 			return false;
 		}
 
@@ -130,25 +131,27 @@ class SummaryMailService {
 	}//end sendFor()
 
 	/**
-	 * Whether a summary is due at this local moment: on or after 07:30 and
-	 * before noon, on Monday for a weekly one, and not sent since today's 07:30.
+	 * Today's send moment (07:30 local) when a summary of this frequency is
+	 * due at this local moment: on or after 07:30 and before noon, and on
+	 * Monday for a weekly one. Null when it is not.
 	 *
-	 * @param string                 $frequency Daily or weekly.
-	 * @param DateTimeImmutable      $local     Now, in the person's time zone.
-	 * @param DateTimeImmutable|null $lastSent  The last summary, if any.
+	 * @param string            $frequency Off, daily or weekly.
+	 * @param DateTimeImmutable $local     Now, in the person's time zone.
 	 *
-	 * @return bool
+	 * @return DateTimeImmutable|null
 	 *
 	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
 	 */
-	public static function isDue(string $frequency, DateTimeImmutable $local, ?DateTimeImmutable $lastSent): bool {
+	public static function dueMoment(string $frequency, DateTimeImmutable $local): ?DateTimeImmutable {
 		$onItsDay = ($frequency === SummaryMailPreference::DAILY)
 			|| ($frequency === SummaryMailPreference::WEEKLY && $local->format('N') === '1');
 		$sendAt = $local->setTime(self::SEND_HOUR, self::SEND_MINUTE);
-		$inMorning = ($local >= $sendAt && (int)$local->format('G') < self::LATEST_HOUR);
+		if ($onItsDay === false || $local < $sendAt || (int)$local->format('G') >= self::LATEST_HOUR) {
+			return null;
+		}
 
-		return $onItsDay && $inMorning && ($lastSent === null || $lastSent < $sendAt);
-	}//end isDue()
+		return $sendAt;
+	}//end dueMoment()
 
 	/**
 	 * How far back a first summary looks.

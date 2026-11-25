@@ -95,7 +95,7 @@ class DemoSeedWidgets {
 	 *
 	 * @return array{placed: array<int, array<string, mixed>>, skipped: array<int, string>, fallbacks: array<int, string>}
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function expand(array $entries): array {
 		$placed    = [];

@@ -8,4 +8,4 @@
 - [x] "Downloaden" in the header, absent in kiosk and public views (the header is not drawn in kiosk, edit mode or the public share view)
 - [x] Translations in every shipped locale
 - [x] Unit tests: meta line per kind and right; period range per choice and on the query; no period choice without a period field; Download for a view-only reader, printed under the dashboard name, nothing sent to the server, the embed named (no endpoint, so no server permission check or run-row: decision (b))
-- [ ] Playwright: choose Kwartaal and see the address and a figure change; download the dashboard as a view-only reader (download half written in tests/e2e/dashboard-download.spec.ts, runs in nightly; the Kwartaal half needs a seeded register source with a date field)
+- [x] Playwright: choose Kwartaal and see the address and a figure change; download the dashboard as a view-only reader (tests/e2e/dashboard-period-and-download.spec.ts 6/6 and tests/e2e/dashboard-download.spec.ts 3/3 live, 25 Nov 2026, sandbox Nextcloud 34 + MariaDB + Redis; the stand-in register answer carries the `startDate[gte]` the query sent; the header now names the group of a group dashboard, REQ-DPD-001)

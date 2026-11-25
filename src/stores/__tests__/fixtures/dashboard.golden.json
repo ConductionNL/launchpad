@@ -1013,6 +1013,9 @@
 			],
 			"getVisibleDashboards": [
 				[]
+			],
+			"getActiveDashboard": [
+				[]
 			]
 		},
 		"toasts": [],
@@ -1058,7 +1061,7 @@
 		"warnings": [],
 		"errors": [
 			[
-				"Failed to load dashboards:",
+				"Failed to load the active dashboard:",
 				"Error: active down"
 			]
 		]

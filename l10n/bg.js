@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Лично табло",
     "Personal dashboard · opens first" : "Лично табло · отваря се първо",
     "Shared with you" : "Споделено с вас",
+    "Group dashboard of {group}" : "Групово табло на {group}",
     "Last changed {when}" : "Последна промяна {when}",
     "Last changed today {time}" : "Последна промяна днес {time}",
     "Embedded report" : "Вграден отчет",

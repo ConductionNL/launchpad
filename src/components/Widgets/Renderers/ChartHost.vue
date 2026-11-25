@@ -155,7 +155,7 @@ export default {
 		 * and the dashboard's period when its source names a period field.
 		 *
 		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
-		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
 		 */
 		dataSource() {
 			if (this.content.source === 'manual') {

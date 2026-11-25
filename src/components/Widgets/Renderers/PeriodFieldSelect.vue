@@ -28,7 +28,7 @@ import { fetchDateFields } from '../../../utils/periodDateFields.js'
  * follow the dashboard's period (dashboard-period-and-download REQ-DPD-002).
  * Empty means the widget ignores the period.
  *
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 export default {
 	name: 'PeriodFieldSelect',
@@ -57,7 +57,7 @@ export default {
 		 * The date fields, with the chosen one kept when the sample no longer shows it.
 		 *
 		 * @return {string[]}
-		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
 		 */
 		options() {
 			if (this.modelValue && !this.fields.includes(this.modelValue)) {
@@ -82,7 +82,7 @@ export default {
 		/**
 		 * Read the source's date fields.
 		 *
-		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
 		 */
 		async loadFields() {
 			this.loading = true

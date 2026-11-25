@@ -118,7 +118,24 @@ function firstDashboardResponses() {
 	if (firstLoad !== null) {
 		return Promise.resolve([{ data: firstLoad.visible }, { data: firstLoad.active }])
 	}
-	return Promise.all([fetchVisibleDashboards(), api.getActiveDashboard()])
+	return Promise.all([fetchVisibleDashboards(), fetchActiveDashboard()])
+}
+
+/**
+ * Fetch the active dashboard. It is asked for together with the list, so a
+ * failure here must not take the list down with it: the load then has no
+ * active dashboard, as it had when the two were asked for one after the other.
+ *
+ * @return {Promise<{data: (object|null)}>} The axios response, or an empty one.
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-3
+ */
+async function fetchActiveDashboard() {
+	try {
+		return await api.getActiveDashboard()
+	} catch (error) {
+		logger.error('Failed to load the active dashboard:', error)
+		return { data: null }
+	}
 }
 
 /**

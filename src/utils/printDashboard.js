@@ -22,7 +22,7 @@ export const PRINTING_CLASS = 'launchpad-printing'
  * @param {Window} [env.win] The window to print.
  * @param {Document} [env.doc] Its document.
  * @return {boolean} Whether the print dialog was opened.
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
  */
 export function printDashboard(name, { win = window, doc = document } = {}) {
 	if (typeof win?.print !== 'function') {

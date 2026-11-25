@@ -1855,6 +1855,7 @@
         "Personal dashboard": "Kişisel pano",
         "Personal dashboard · opens first": "Kişisel pano · ilk açılır",
         "Shared with you": "Sizinle paylaşıldı",
+        "Group dashboard of {group}": "{group} grubu panosu",
         "Last changed {when}": "Son değişiklik {when}",
         "Last changed today {time}": "Son değişiklik bugün {time}",
         "You searched for {query}": "{query} için arama yaptınız",

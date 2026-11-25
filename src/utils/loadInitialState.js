@@ -103,6 +103,13 @@ const PAGE_KEYS = {
 		// sharing-policy-board-sync REQ-SHARE-015: `{mayShare, publicLinksAllowed}`
 		// for the viewer. Optional key; `null` offers both (the server refuses).
 		sharingPolicy: null,
+		// footer-customization REQ-FTR-004 / REQ-FTR-006: the footer below the
+		// grid, resolved for the active dashboard. Optional key; `null` renders
+		// no footer.
+		effectiveFooter: null,
+		// footer-customization REQ-FTR-007: the viewer's Nextcloud language,
+		// which picks the footer variant. Optional key.
+		viewerLocale: 'en',
 	},
 	admin: {
 		allGroups: [],

@@ -233,6 +233,24 @@ class InitialStateBuilderTest extends TestCase {
 	}//end testTheUserTimezoneIsPushedOnlyWhenSet()
 
 	/**
+	 * The footer and the viewer's language are optional workspace keys,
+	 * pushed only when set (REQ-FTR-004, REQ-FTR-007).
+	 *
+	 * @return void
+	 */
+	public function testTheFooterAndViewerLocaleArePushedOnlyWhenSet(): void {
+		$sink = [];
+		$this->workspaceBuilder(sink: $sink)->setFooter(footer: ['mode' => 'global', 'html' => '<p>F</p>'], viewerLocale: 'nl')->apply();
+		$this->assertSame(expected: ['mode' => 'global', 'html' => '<p>F</p>'], actual: $sink['effectiveFooter']);
+		$this->assertSame(expected: 'nl', actual: $sink['viewerLocale']);
+
+		$bare = [];
+		$this->workspaceBuilder(sink: $bare)->apply();
+		$this->assertArrayNotHasKey(key: 'effectiveFooter', array: $bare);
+		$this->assertArrayNotHasKey(key: 'viewerLocale', array: $bare);
+	}//end testTheFooterAndViewerLocaleArePushedOnlyWhenSet()
+
+	/**
 	 * Engagement-communities: whether Talk is enabled and the pinned tokens are
 	 * optional workspace keys, pushed only when set (REQ-COMM-003, REQ-COMM-004).
 	 *

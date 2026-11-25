@@ -87,6 +87,7 @@ import {
  * Nextcloud's top bar search field, across the core versions LaunchPad runs on.
  *
  * @type {string}
+ * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export const CORE_SEARCH_FIELD_SELECTOR = '.unified-search-input, #unified-search input, .unified-search__input, input.unified-search-menu__input'
 
@@ -118,11 +119,15 @@ export default {
 		/**
 		 * The admin's search shortcuts `{prefix, name, urlTemplate}`
 		 * (REQ-SPX-002); the first one gives the tip.
+		 *
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		shortcuts: LIST_PROP,
 
 		/**
 		 * The CSS selector of the field to attach to.
+		 *
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		fieldSelector: {
 			type: String,
@@ -152,6 +157,7 @@ export default {
 		 * The "Show all results" row, as an option.
 		 *
 		 * @return {{key: string}} The row.
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		showAllOption() {
 			return { key: SHOW_ALL_KEY }
@@ -161,6 +167,7 @@ export default {
 		 * Every selectable row in list order: the results, then "Show all".
 		 *
 		 * @return {Array<object>} The options.
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		options() {
 			const results = this.groups.flatMap((group) => group.results)
@@ -171,6 +178,7 @@ export default {
 		 * The shortcut the tip names, or null.
 		 *
 		 * @return {{prefix: string, name: string}|null} The shortcut.
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		shortcut() {
 			return firstShortcut(this.shortcuts)
@@ -180,6 +188,8 @@ export default {
 	watch: {
 		/**
 		 * Keep the field's combobox state in step with the list.
+		 *
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		open() {
 			this.syncFieldAria()
@@ -187,12 +197,19 @@ export default {
 
 		/**
 		 * Keep `aria-activedescendant` on the selected row.
+		 *
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		activeIndex() {
 			this.syncFieldAria()
 		},
 	},
 
+	/**
+	 * Attach to the field, now or once the top bar renders it.
+	 *
+	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+	 */
 	mounted() {
 		if (!this.attach()) {
 			// The top bar can render after LaunchPad's bundle runs.
@@ -206,6 +223,11 @@ export default {
 		}
 	},
 
+	/**
+	 * Let go of the field and cancel pending work.
+	 *
+	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+	 */
 	beforeUnmount() {
 		this.observer?.disconnect()
 		clearTimeout(this.timer)
@@ -241,6 +263,8 @@ export default {
 
 		/**
 		 * Unbind from the field.
+		 *
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		detach() {
 			const field = this.field
@@ -257,6 +281,8 @@ export default {
 
 		/**
 		 * Mirror the list's state on the field.
+		 *
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		syncFieldAria() {
 			const field = this.field
@@ -277,6 +303,7 @@ export default {
 		 *
 		 * @param {{key: string}} option The row.
 		 * @return {string} The id.
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		optionId(option) {
 			return `${this.listboxId}-${option.key}`
@@ -287,6 +314,7 @@ export default {
 		 *
 		 * @param {{key: string}} option The row.
 		 * @return {boolean} True when selected.
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		isActive(option) {
 			return this.options[this.activeIndex]?.key === option.key
@@ -334,6 +362,8 @@ export default {
 
 		/**
 		 * Place the panel under the field, as wide as the field.
+		 *
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		position() {
 			const rect = this.field?.getBoundingClientRect?.()
@@ -390,6 +420,8 @@ export default {
 		/**
 		 * Close when the focus leaves the field (a row click is a mousedown
 		 * with its default prevented, so it keeps the focus).
+		 *
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		onBlur() {
 			this.close()
@@ -416,6 +448,8 @@ export default {
 
 		/**
 		 * Close the list. The field keeps its value and its focus.
+		 *
+		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		close() {
 			clearTimeout(this.timer)

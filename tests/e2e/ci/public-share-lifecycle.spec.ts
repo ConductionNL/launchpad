@@ -135,6 +135,9 @@ async function anonymousApi(baseURL: string): Promise<APIRequestContext> {
 
 const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'
 const DASHBOARDS = '/index.php/apps/launchpad/api/dashboard'
+/** An expiry far enough away not to matter (REQ-SHARE-015 requires one). */
+const FAR_EXPIRY = '2099-12-31T23:59:59Z'
+
 function shareUrl(uuid: string) {
 	return `/index.php/apps/launchpad/api/dashboards/${uuid}/public-share`
 }
@@ -174,7 +177,9 @@ async function createShare(
 	passwordRequired: boolean
 	expiresAt: string | null
 }> {
-	const res = await api.post(shareUrl(uuid), { data: payload })
+	// REQ-SHARE-015: every new public link has an expiry date; a far one
+	// stands in where the test is not about expiry.
+	const res = await api.post(shareUrl(uuid), { data: { expiresAt: FAR_EXPIRY, ...payload } })
 	expect(res.status(), await res.text()).toBe(201)
 	return await res.json()
 }
@@ -237,8 +242,8 @@ test.describe('public share creation options', () => {
 		).toBe(false)
 		expect(
 			share.expiresAt,
-			'a share created with `{}` must never expire',
-		).toBeNull()
+			'a share carries the expiry date it was created with',
+		).not.toBeNull()
 		expect(share.token, 'the share must carry a token').toBeTruthy()
 
 		// …and the token it handed out must actually work with no password,
@@ -302,7 +307,9 @@ test.describe('public share creation options', () => {
 
 		const expired = await createShare(admin, uuid, { expiresAt: past })
 		const valid = await createShare(admin, uuid, { expiresAt: future })
-		const never = await createShare(admin, uuid, {})
+		// REQ-SHARE-015: a link without an expiry date is refused.
+		const never = await admin.post(shareUrl(uuid), { data: {} })
+		expect(never.status(), await never.text()).toBe(400)
 
 		// The value must survive the round trip — an `expiresAt` the server
 		// failed to parse and stored as NULL would leave the share permanently
@@ -315,12 +322,8 @@ test.describe('public share creation options', () => {
 			valid.expiresAt,
 			'a supplied expiry must be stored, not dropped',
 		).not.toBeNull()
-		expect(
-			never.expiresAt,
-			'a share created without an expiry must have none',
-		).toBeNull()
 
-		// The three arms differ ONLY in expiry, so this triple cannot be
+		// The two arms differ ONLY in expiry, so this triple cannot be
 		// satisfied by an endpoint that answers the same way for everything.
 		const past404 = await anon.get(dataUrl(expired.token))
 		expect(past404.status(), 'a share whose expiry has elapsed must 404').toBe(
@@ -330,11 +333,6 @@ test.describe('public share creation options', () => {
 		const futureOk = await anon.get(dataUrl(valid.token))
 		expect(futureOk.status(), await futureOk.text()).toBe(200)
 
-		const neverOk = await anon.get(dataUrl(never.token))
-		expect(
-			neverOk.status(),
-			'a share with expiresAt NULL must not have expiry logic applied to it',
-		).toBe(200)
 
 		await admin.dispose()
 		await anon.dispose()
@@ -489,7 +487,7 @@ test.describe('owner-only management endpoints', () => {
 		const ownerList = await admin.get(sharesUrl(uuid))
 		expect(ownerList.status(), 'control: the owner CAN list').toBe(200)
 
-		const create = await grantee.post(shareUrl(uuid), { data: {} })
+		const create = await grantee.post(shareUrl(uuid), { data: { expiresAt: FAR_EXPIRY } })
 		expect(create.status(), await create.text()).toBe(403)
 
 		const list = await grantee.get(sharesUrl(uuid))

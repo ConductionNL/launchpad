@@ -126,7 +126,7 @@ test.describe('conditional visibility at render time (REQ-VIS-013)', () => {
 	// @e2e conditional-visibility::a-public-share-leaves-a-hidden-widget-out
 	test('a public share leaves the hidden widget out for a visitor', async () => {
 		const created = await alice.api.post(`${API}/dashboards/${dashboard.uuid}/public-share`, {
-			data: {},
+			data: { expiresAt: '2099-12-31T23:59:59Z' },
 		})
 		expect(created.status(), await created.text()).toBe(201)
 		const token = (await created.json()).token

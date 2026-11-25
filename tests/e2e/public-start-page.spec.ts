@@ -83,7 +83,7 @@ test.beforeAll(async () => {
 		},
 	})
 	expect(text.status(), await text.text()).toBeLessThan(300)
-	const share = await admin.post(`${API}/dashboards/${dash.uuid}/public-share`, { data: {} })
+	const share = await admin.post(`${API}/dashboards/${dash.uuid}/public-share`, { data: { expiresAt: '2099-12-31T23:59:59Z' } })
 	expect(share.status(), await share.text()).toBe(201)
 	const token = (await share.json()).token as string
 

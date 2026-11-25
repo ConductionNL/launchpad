@@ -59,6 +59,7 @@ export default {
 		 * Whether the placement lists new colleagues.
 		 *
 		 * @return {boolean}
+		 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 		 */
 		newSelection() {
 			return isNewSelection(this.content)
@@ -68,6 +69,7 @@ export default {
 		 * The content CnPeopleWidget gets: the window rides along as a filter.
 		 *
 		 * @return {object}
+		 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 		 */
 		widgetContent() {
 			return widgetContentFor(this.content)

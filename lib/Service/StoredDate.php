@@ -41,8 +41,10 @@ final class StoredDate {
 	 *
 	 * @return string|null ISO date string or null when the input cannot
 	 *                     be parsed.
+	 *
+	 * @spec openspec/specs/people-widget/spec.md
 	 */
-	public static function toIso(?string $raw): ?string {
+	public function toIso(?string $raw): ?string {
 		$trimmed = trim(string: (string)$raw);
 		if ($trimmed === '') {
 			return null;
@@ -53,7 +55,7 @@ final class StoredDate {
 			return $trimmed;
 		}
 
-		return self::isoFromSeparatedDate(date: $trimmed);
+		return $this->isoFromSeparatedDate(date: $trimmed);
 	}//end toIso()
 
 	/**
@@ -64,14 +66,14 @@ final class StoredDate {
 	 *
 	 * @return string|null `YYYY-MM-DD`, or null when no separator fits.
 	 */
-	private static function isoFromSeparatedDate(string $date): ?string {
+	private function isoFromSeparatedDate(string $date): ?string {
 		foreach (['-', '/', '.'] as $sep) {
 			$parts = explode(separator: $sep, string: $date);
 			if (count(value: $parts) !== 3) {
 				continue;
 			}
 
-			$iso = self::isoFromDateParts(parts: $parts);
+			$iso = $this->isoFromDateParts(parts: $parts);
 			if ($iso !== null) {
 				return $iso;
 			}
@@ -94,9 +96,9 @@ final class StoredDate {
 	 * @return string|null `YYYY-MM-DD`, or null when the triple is not a
 	 *                     valid date.
 	 */
-	private static function isoFromDateParts(array $parts): ?string {
-		$yearMonthDay = self::yearMonthDayOrder(parts: $parts);
-		if ($yearMonthDay === null || self::allDigits(segments: $yearMonthDay) === false) {
+	private function isoFromDateParts(array $parts): ?string {
+		$yearMonthDay = $this->yearMonthDayOrder(parts: $parts);
+		if ($yearMonthDay === null || $this->allDigits(segments: $yearMonthDay) === false) {
 			return null;
 		}
 
@@ -117,7 +119,7 @@ final class StoredDate {
 	 *
 	 * @return array<int,string>|null The year, month and day segments, or null.
 	 */
-	private static function yearMonthDayOrder(array $parts): ?array {
+	private function yearMonthDayOrder(array $parts): ?array {
 		if (strlen(string: $parts[0]) === 4) {
 			return [$parts[0], $parts[1], $parts[2]];
 		}
@@ -136,7 +138,7 @@ final class StoredDate {
 	 *
 	 * @return bool True when all are digit strings.
 	 */
-	private static function allDigits(array $segments): bool {
+	private function allDigits(array $segments): bool {
 		foreach ($segments as $segment) {
 			if (ctype_digit(text: $segment) === false) {
 				return false;

@@ -600,7 +600,7 @@ class PeopleWidgetService {
 	 * @return DateTimeImmutable|null The date, or null.
 	 */
 	private static function parseBirthdate(?string $birthdate): ?DateTimeImmutable {
-		$iso = StoredDate::toIso(raw: $birthdate);
+		$iso = (new StoredDate())->toIso(raw: $birthdate);
 		if ($iso === null) {
 			return null;
 		}
@@ -925,7 +925,7 @@ class PeopleWidgetService {
 	 * @return array<string, string> The field, or `[]`.
 	 */
 	private static function birthdateField(string $value): array {
-		$iso = StoredDate::toIso(raw: $value);
+		$iso = (new StoredDate())->toIso(raw: $value);
 		if ($iso === null) {
 			return [];
 		}

@@ -27,13 +27,13 @@ class StoredDateTest extends TestCase {
 	 * @return void
 	 */
 	public function testStoredDatesReadAsIso(): void {
-		$this->assertSame(expected: '1990-06-10', actual: StoredDate::toIso(raw: '1990-06-10'));
-		$this->assertSame(expected: '1990-06-10', actual: StoredDate::toIso(raw: ' 10-06-1990 '));
-		$this->assertSame(expected: '1990-06-10', actual: StoredDate::toIso(raw: '10/06/1990'));
-		$this->assertSame(expected: '1990-06-10', actual: StoredDate::toIso(raw: '10.6.1990'));
-		$this->assertNull(actual: StoredDate::toIso(raw: null));
-		$this->assertNull(actual: StoredDate::toIso(raw: '31-02-1990'));
-		$this->assertNull(actual: StoredDate::toIso(raw: '10-06-90'));
-		$this->assertNull(actual: StoredDate::toIso(raw: 'tomorrow'));
+		$this->assertSame(expected: '1990-06-10', actual: (new StoredDate())->toIso(raw: '1990-06-10'));
+		$this->assertSame(expected: '1990-06-10', actual: (new StoredDate())->toIso(raw: ' 10-06-1990 '));
+		$this->assertSame(expected: '1990-06-10', actual: (new StoredDate())->toIso(raw: '10/06/1990'));
+		$this->assertSame(expected: '1990-06-10', actual: (new StoredDate())->toIso(raw: '10.6.1990'));
+		$this->assertNull(actual: (new StoredDate())->toIso(raw: null));
+		$this->assertNull(actual: (new StoredDate())->toIso(raw: '31-02-1990'));
+		$this->assertNull(actual: (new StoredDate())->toIso(raw: '10-06-90'));
+		$this->assertNull(actual: (new StoredDate())->toIso(raw: 'tomorrow'));
 	}//end testStoredDatesReadAsIso()
 }//end class

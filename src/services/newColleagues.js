@@ -51,6 +51,7 @@ export function windowDays(content, bound) {
  *
  * @param {object} content The placement content.
  * @return {boolean}
+ * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
  */
 export function isNewSelection(content) {
 	return (content || {}).selectionMode === NEW_SELECTION_MODE
@@ -157,6 +158,7 @@ export function newColleaguesPage(data, context) {
  *
  * @param {Date} [now] The moment.
  * @return {string} `YYYY-MM-DD`.
+ * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
  */
 export function utcToday(now = new Date()) {
 	return now.toISOString().slice(0, 10)

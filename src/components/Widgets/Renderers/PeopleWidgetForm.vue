@@ -110,6 +110,7 @@ export default {
 		 * placement already lists new colleagues (so it can be switched back).
 		 *
 		 * @return {boolean}
+		 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 		 */
 		offerNew() {
 			return this.startFieldSet === true || this.newChosen
@@ -135,6 +136,12 @@ export default {
 		},
 	},
 
+	/**
+	 * Read the shared form's first content and ask whether a start date field exists.
+	 *
+	 * @return {void}
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 */
 	mounted() {
 		this.innerContent = this.$refs.form?.assembledContent || null
 		this.probeStartField()
@@ -166,6 +173,7 @@ export default {
 		 *
 		 * @param {object} content Its assembled content.
 		 * @return {void}
+		 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 		 */
 		onContent(content) {
 			this.innerContent = content
@@ -209,6 +217,7 @@ export default {
 		 * Pass the assembled content up.
 		 *
 		 * @return {void}
+		 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 		 */
 		emitContent() {
 			const content = this.assembledContent

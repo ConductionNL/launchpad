@@ -113,4 +113,25 @@ class PersonalLayerMapper extends QBMapper {
 
 		return $this->findEntities(query: $qb);
 	}//end findByDashboard()
+
+	/**
+	 * Every layer one person keeps, on any dashboard, for the overview of
+	 * what they hid (personal-settings REQ-PSET-003). Only the caller's own
+	 * user id is ever passed in.
+	 *
+	 * @param string $userId The person.
+	 *
+	 * @return PersonalLayer[]
+	 *
+	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 */
+	public function findAllForUser(string $userId): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+			->orderBy('dashboard_id', 'ASC');
+
+		return $this->findEntities(query: $qb);
+	}//end findAllForUser()
 }//end class

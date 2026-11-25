@@ -290,6 +290,16 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'url' => '/api/dashboards/{dashboardId}/personal-layer', 'verb' => 'DELETE',
 		 'requirements' => ['dashboardId' => '\d+']],
 
+		// personal-settings REQ-PSET-003: every widget the caller hid, across
+		// dashboards, for the settings dialog. Caller's own layers only.
+		['name' => 'hiddenWidgetsApi#index',
+		 'url' => '/api/personal-layer/hidden', 'verb' => 'GET'],
+		['name' => 'hiddenWidgetsApi#showAgain',
+		 'url' => '/api/personal-layer/hidden/{placementId}', 'verb' => 'DELETE',
+		 'requirements' => ['placementId' => '\d+']],
+		['name' => 'hiddenWidgetsApi#showAll',
+		 'url' => '/api/personal-layer/hidden', 'verb' => 'DELETE'],
+
 		// engagement-announcements: news items and notices. The literal
 		// `/reach` and `/follows` routes come before `/{uuid}`.
 		['name' => 'announcement#index', 'url' => '/api/announcements', 'verb' => 'GET'],

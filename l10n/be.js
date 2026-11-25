@@ -1645,6 +1645,7 @@ OC.L10N.register(
     "Confirm before {date}" : "Пацвердзіць да {date}",
     "You confirmed you have read this" : "Вы пацвердзілі, што прачыталі гэта",
     "The confirm-before date must be after the publish time" : "Тэрмін пацвярджэння павінен быць пазней за час публікацыі",
-    "Your read confirmation could not be saved" : "Не ўдалося захаваць ваша пацвярджэнне прачытання"
+    "Your read confirmation could not be saved" : "Не ўдалося захаваць ваша пацвярджэнне прачытання",
+    "{title}: embedded pages are not included in the download" : "{title}: убудаваныя старонкі не ўключаюцца ў спампоўку"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

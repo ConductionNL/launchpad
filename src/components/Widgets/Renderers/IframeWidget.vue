@@ -56,6 +56,12 @@
 			</div>
 		</div>
 
+		<!-- REQ-DPD-003: a downloaded dashboard cannot carry another site's
+		     page; the PDF names it instead (shown only in print). -->
+		<p class="iframe-widget__print-note" data-testid="iframe-widget-print-note">
+			{{ printNote }}
+		</p>
+
 		<iframe
 			v-if="hasUrl && state !== 'failed' && framableConfirmed"
 			ref="frame"
@@ -215,6 +221,18 @@ export default {
 		/** @spec openspec/specs/iframe-embed-widget/spec.md */
 		hasUrl() {
 			return this.url !== ''
+		},
+
+		/**
+		 * The line a downloaded dashboard prints instead of the embedded page.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
+		 */
+		printNote() {
+			return t('launchpad', '{title}: embedded pages are not included in the download', {
+				title: this.displayTitle,
+			})
 		},
 
 		/** @spec openspec/specs/iframe-embed-widget/spec.md */
@@ -508,6 +526,25 @@ export default {
 </script>
 
 <style scoped>
+.iframe-widget__print-note {
+	display: none;
+	margin: 0;
+	padding: 12px;
+	color: var(--color-main-text);
+}
+
+@media print {
+	.iframe-widget__print-note {
+		display: block;
+	}
+
+	.iframe-widget__frame,
+	.iframe-widget__state,
+	.iframe-widget__fallback {
+		display: none !important;
+	}
+}
+
 .iframe-widget {
 	width: 100%;
 	position: relative;

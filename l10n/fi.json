@@ -1554,6 +1554,7 @@
         "Confirm before {date}": "Vahvista viimeistään {date}",
         "You confirmed you have read this": "Olet vahvistanut lukeneesi tämän",
         "The confirm-before date must be after the publish time": "Vahvistuksen määräajan on oltava julkaisuajan jälkeen",
-        "Your read confirmation could not be saved": "Lukukuittaustasi ei voitu tallentaa"
+        "Your read confirmation could not be saved": "Lukukuittaustasi ei voitu tallentaa",
+        "{title}: embedded pages are not included in the download": "{title}: upotetut sivut eivät sisälly lataukseen"
     }
 }

@@ -1654,7 +1654,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Bekræft senest {date}",
     "You confirmed you have read this" : "Du har bekræftet, at du har læst dette",
     "The confirm-before date must be after the publish time" : "Fristen for bekræftelse skal ligge efter udgivelsestidspunktet",
-    "Your read confirmation could not be saved" : "Din læsebekræftelse kunne ikke gemmes"
+    "Your read confirmation could not be saved" : "Din læsebekræftelse kunne ikke gemmes",
+    "{title}: embedded pages are not included in the download" : "{title}: indlejrede sider er ikke med i downloaden"
 },
 "nplurals=2; plural=(n != 1);"
 );

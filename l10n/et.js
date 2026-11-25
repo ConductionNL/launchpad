@@ -1654,7 +1654,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Kinnita enne {date}",
     "You confirmed you have read this" : "Olete kinnitanud, et lugesite selle läbi",
     "The confirm-before date must be after the publish time" : "Kinnitamise tähtaeg peab olema pärast avaldamisaega",
-    "Your read confirmation could not be saved" : "Teie lugemise kinnitust ei õnnestunud salvestada"
+    "Your read confirmation could not be saved" : "Teie lugemise kinnitust ei õnnestunud salvestada",
+    "{title}: embedded pages are not included in the download" : "{title}: manustatud lehed allalaadimisse ei kuulu"
 },
 "nplurals=2; plural=(n != 1);"
 );

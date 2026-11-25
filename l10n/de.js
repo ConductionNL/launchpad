@@ -1654,7 +1654,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Bestätigen bis {date}",
     "You confirmed you have read this" : "Sie haben bestätigt, dass Sie dies gelesen haben",
     "The confirm-before date must be after the publish time" : "Das Bestätigungsdatum muss nach dem Veröffentlichungszeitpunkt liegen",
-    "Your read confirmation could not be saved" : "Ihre Lesebestätigung konnte nicht gespeichert werden"
+    "Your read confirmation could not be saved" : "Ihre Lesebestätigung konnte nicht gespeichert werden",
+    "{title}: embedded pages are not included in the download" : "{title}: eingebettete Seiten sind im Download nicht enthalten"
 },
 "nplurals=2; plural=(n != 1);"
 );

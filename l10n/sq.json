@@ -1554,6 +1554,7 @@
         "Confirm before {date}": "Konfirmo përpara {date}",
         "You confirmed you have read this": "Keni konfirmuar se e keni lexuar këtë",
         "The confirm-before date must be after the publish time": "Afati i konfirmimit duhet të jetë pas kohës së publikimit",
-        "Your read confirmation could not be saved": "Konfirmimi juaj i leximit nuk mund të ruhej"
+        "Your read confirmation could not be saved": "Konfirmimi juaj i leximit nuk mund të ruhej",
+        "{title}: embedded pages are not included in the download": "{title}: faqet e ngulitura nuk përfshihen në shkarkim"
     }
 }

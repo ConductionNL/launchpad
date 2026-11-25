@@ -2529,7 +2529,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Bevestigen vóór {date}",
     "You confirmed you have read this" : "U hebt bevestigd dat u dit hebt gelezen",
     "The confirm-before date must be after the publish time" : "De datum voor bevestiging moet na het publicatiemoment liggen",
-    "Your read confirmation could not be saved" : "Uw leesbevestiging kon niet worden opgeslagen"
+    "Your read confirmation could not be saved" : "Uw leesbevestiging kon niet worden opgeslagen",
+    "{title}: embedded pages are not included in the download" : "{title}: ingesloten pagina's zitten niet in de download"
 },
 "nplurals=2; plural=(n != 1);"
 );

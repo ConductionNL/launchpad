@@ -2101,7 +2101,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Confirm before {date}",
     "You confirmed you have read this" : "You confirmed you have read this",
     "The confirm-before date must be after the publish time" : "The confirm-before date must be after the publish time",
-    "Your read confirmation could not be saved" : "Your read confirmation could not be saved"
+    "Your read confirmation could not be saved" : "Your read confirmation could not be saved",
+    "{title}: embedded pages are not included in the download" : "{title}: embedded pages are not included in the download"
 },
 "nplurals=2; plural=(n != 1);"
 );

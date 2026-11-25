@@ -1554,6 +1554,7 @@
         "Confirm before {date}": "Visszaigazolás eddig: {date}",
         "You confirmed you have read this": "Visszaigazolta, hogy elolvasta",
         "The confirm-before date must be after the publish time": "A visszaigazolás határidejének a közzététel után kell lennie",
-        "Your read confirmation could not be saved": "Az olvasási visszaigazolást nem sikerült menteni"
+        "Your read confirmation could not be saved": "Az olvasási visszaigazolást nem sikerült menteni",
+        "{title}: embedded pages are not included in the download": "{title}: a beágyazott oldalak nem szerepelnek a letöltésben"
     }
 }

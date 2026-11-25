@@ -1654,7 +1654,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Son onay tarihi {date}",
     "You confirmed you have read this" : "Bunu okuduğunuzu onayladınız",
     "The confirm-before date must be after the publish time" : "Onay son tarihi yayın zamanından sonra olmalıdır",
-    "Your read confirmation could not be saved" : "Okundu onayınız kaydedilemedi"
+    "Your read confirmation could not be saved" : "Okundu onayınız kaydedilemedi",
+    "{title}: embedded pages are not included in the download" : "{title}: gömülü sayfalar indirmeye dahil değildir"
 },
 "nplurals=2; plural=(n != 1);"
 );

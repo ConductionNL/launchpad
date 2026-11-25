@@ -1654,7 +1654,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Επιβεβαίωση έως {date}",
     "You confirmed you have read this" : "Επιβεβαιώσατε ότι το διαβάσατε",
     "The confirm-before date must be after the publish time" : "Η προθεσμία επιβεβαίωσης πρέπει να είναι μετά τον χρόνο δημοσίευσης",
-    "Your read confirmation could not be saved" : "Δεν ήταν δυνατή η αποθήκευση της επιβεβαίωσης ανάγνωσης"
+    "Your read confirmation could not be saved" : "Δεν ήταν δυνατή η αποθήκευση της επιβεβαίωσης ανάγνωσης",
+    "{title}: embedded pages are not included in the download" : "{title}: οι ενσωματωμένες σελίδες δεν περιλαμβάνονται στη λήψη"
 },
 "nplurals=2; plural=(n != 1);"
 );

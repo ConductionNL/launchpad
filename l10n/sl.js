@@ -1654,7 +1654,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Potrdi do {date}",
     "You confirmed you have read this" : "Potrdili ste, da ste to prebrali",
     "The confirm-before date must be after the publish time" : "Rok za potrditev mora biti po času objave",
-    "Your read confirmation could not be saved" : "Vaše potrditve branja ni bilo mogoče shraniti"
+    "Your read confirmation could not be saved" : "Vaše potrditve branja ni bilo mogoče shraniti",
+    "{title}: embedded pages are not included in the download" : "{title}: vdelane strani niso vključene v prenos"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

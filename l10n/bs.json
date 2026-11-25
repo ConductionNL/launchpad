@@ -1556,6 +1556,7 @@
         "Confirm before {date}": "Potvrdi do {date}",
         "You confirmed you have read this": "Potvrdili ste da ste ovo pročitali",
         "The confirm-before date must be after the publish time": "Rok za potvrdu mora biti nakon vremena objave",
-        "Your read confirmation could not be saved": "Vašu potvrdu čitanja nije bilo moguće sačuvati"
+        "Your read confirmation could not be saved": "Vašu potvrdu čitanja nije bilo moguće sačuvati",
+        "{title}: embedded pages are not included in the download": "{title}: ugrađene stranice nisu uključene u preuzimanje"
     }
 }

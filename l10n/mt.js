@@ -1654,7 +1654,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Ikkonferma qabel {date}",
     "You confirmed you have read this" : "Ikkonfermajt li qrajt dan",
     "The confirm-before date must be after the publish time" : "Id-data tal-konferma trid tkun wara l-ħin tal-pubblikazzjoni",
-    "Your read confirmation could not be saved" : "Il-konferma tal-qari tiegħek ma setgħetx tiġi ssejvjata"
+    "Your read confirmation could not be saved" : "Il-konferma tal-qari tiegħek ma setgħetx tiġi ssejvjata",
+    "{title}: embedded pages are not included in the download" : "{title}: il-paġni inkorporati mhumiex inklużi fit-tniżżil"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

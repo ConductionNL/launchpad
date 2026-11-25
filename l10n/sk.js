@@ -1654,7 +1654,8 @@ OC.L10N.register(
     "Confirm before {date}" : "Potvrdiť do {date}",
     "You confirmed you have read this" : "Potvrdili ste, že ste si to prečítali",
     "The confirm-before date must be after the publish time" : "Termín potvrdenia musí byť po čase zverejnenia",
-    "Your read confirmation could not be saved" : "Vaše potvrdenie prečítania sa nepodarilo uložiť"
+    "Your read confirmation could not be saved" : "Vaše potvrdenie prečítania sa nepodarilo uložiť",
+    "{title}: embedded pages are not included in the download" : "{title}: vložené stránky nie sú v stiahnutom súbore zahrnuté"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

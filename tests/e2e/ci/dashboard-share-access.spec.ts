@@ -130,15 +130,21 @@ test.describe('REQ-SHARE-003 loading a shared dashboard', () => {
 		await addWidgets(alice!.api, dash.id, 4)
 		await share(alice!.api, dash.id, 'user', bob!.username, 'view_only')
 		// A new dashboard starts with the default widget bundle, so the four
-		// added here come on top of what the owner herself reads.
+		// added here come on top of what the owner herself reads. The role
+		// restriction this file installs permits only activity and
+		// recommendations, so the bundle's other widgets come back hidden
+		// (`isVisible` 0, REQ-RFP-003). The owner may edit and still receives
+		// them to switch back on; a view-only reader is never sent a hidden
+		// placement. What every reader shares is the placements that render.
 		const asOwner = await readDashboard(alice!, dash.id)
 		expect(asOwner.status(), await asOwner.text()).toBe(200)
-		const ownerIds = ((await asOwner.json()).placements as Array<{ id: number }>)
+		const ownerIds = ((await asOwner.json()).placements as Array<{ id: number, isVisible?: number | boolean }>)
+			.filter((p) => Number(p.isVisible ?? 1) !== 0)
 			.map((p) => Number(p.id))
 			.sort((a, b) => a - b)
 		expect(
 			ownerIds.length,
-			'CONTROL: the four added widgets are on the dashboard',
+			'CONTROL: the four added widgets render on the dashboard',
 		).toBeGreaterThanOrEqual(4)
 
 		const res = await readDashboard(bob!, dash.id)
@@ -306,12 +312,26 @@ test.describe('REQ-SHARE-007 cascade on dashboard delete', () => {
 
 test.describe('REQ-SHARE-010 revoke every share granted to one recipient', () => {
 	// @e2e dashboard-sharing::owner-revokes-a-recipient-across-all-their-dashboards
+	// The scenario's owner holds exactly dashboards 5 and 7. The file's alice
+	// also owns the dashboards the tests above shared with bob, and the
+	// endpoint rightly revokes those too, so this test has an owner of its own.
+	let owner: Principal | null = null
+
+	test.afterAll(async () => {
+		await removePrincipal(admin, owner)
+	})
+
 	test('the owner revokes bob on her two dashboards and nothing on a dashboard she only receives', async () => {
-		const five = await dashboardOf(alice!, 'revoke-5')
-		const seven = await dashboardOf(alice!, 'revoke-7')
-		await share(alice!.api, five.id, 'user', bob!.username, 'view_only')
-		await share(alice!.api, five.id, 'user', carol!.username, 'view_only')
-		await share(alice!.api, seven.id, 'user', bob!.username, 'full')
+		owner = await createPrincipal(admin, 'e2e-sacc-owner')
+		await assertActingAs(owner.api, owner.username)
+		await addToGroup(admin, owner.username, marketing!)
+		const alice = owner
+
+		const five = await dashboardOf(alice, 'revoke-5')
+		const seven = await dashboardOf(alice, 'revoke-7')
+		await share(alice.api, five.id, 'user', bob!.username, 'view_only')
+		await share(alice.api, five.id, 'user', carol!.username, 'view_only')
+		await share(alice.api, seven.id, 'user', bob!.username, 'full')
 
 		// Dashboard 9 is carol's, shared with alice's group at `full` and,
 		// so the rule has something to get wrong, with bob as well.
@@ -322,10 +342,10 @@ test.describe('REQ-SHARE-010 revoke every share granted to one recipient', () =>
 
 		// CONTROL: alice reaches 9 at full through her group, which is the
 		// strongest claim she could have to touching its shares.
-		const aliceOnNine = await readDashboard(alice!, nine.id)
+		const aliceOnNine = await readDashboard(alice, nine.id)
 		expect((await aliceOnNine.json()).permissionLevel).toBe('full')
 
-		const res = await alice!.api.delete(
+		const res = await alice.api.delete(
 			`${API}/sharees/user/${encodeURIComponent(bob!.username)}`,
 		)
 		expect(res.status(), await res.text()).toBe(200)
@@ -334,10 +354,10 @@ test.describe('REQ-SHARE-010 revoke every share granted to one recipient', () =>
 			'the count of rows actually removed',
 		).toBe(2)
 
-		expect(shareTuples(await listShares(alice!.api, five.id))).toEqual([
+		expect(shareTuples(await listShares(alice.api, five.id))).toEqual([
 			`user:${carol!.username}:view_only`,
 		])
-		expect(await listShares(alice!.api, seven.id)).toHaveLength(0)
+		expect(await listShares(alice.api, seven.id)).toHaveLength(0)
 		expect(
 			shareTuples(await listShares(carol!.api, nine.id)),
 			"a dashboard alice does not own keeps every share, bob's included",

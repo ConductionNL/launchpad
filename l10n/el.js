@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Υποχρεωτικό: αυτό το γραφικό στοιχείο δεν μπορεί να αφαιρεθεί",
     "Connections of this dashboard" : "Συνδέσεις αυτού του πίνακα",
     "Connection states need the Integrations app" : "Η κατάσταση των συνδέσεων απαιτεί την εφαρμογή Ενοποιήσεις",
     "No widget on this dashboard uses an outside connection" : "Κανένα γραφικό στοιχείο σε αυτόν τον πίνακα δεν χρησιμοποιεί εξωτερική σύνδεση",

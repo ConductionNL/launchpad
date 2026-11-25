@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Obligāts: šo logrīku nevar noņemt",
     "Connections of this dashboard" : "Šī informācijas paneļa savienojumi",
     "Connection states need the Integrations app" : "Savienojumu stāvoklim nepieciešama lietotne Integrācijas",
     "No widget on this dashboard uses an outside connection" : "Neviens šī paneļa logrīks neizmanto ārēju savienojumu",

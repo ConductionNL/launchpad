@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Pakollinen: tätä pienoisohjelmaa ei voi poistaa",
     "Connections of this dashboard" : "Tämän kojelaudan yhteydet",
     "Connection states need the Integrations app" : "Yhteyksien tila vaatii Integraatiot-sovelluksen",
     "No widget on this dashboard uses an outside connection" : "Mikään tämän kojelaudan pienoisohjelma ei käytä ulkoista yhteyttä",

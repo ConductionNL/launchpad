@@ -299,7 +299,7 @@ class StoreServiceTest extends TestCase {
 	public function testAPublishWithoutTheEngineSendsNothing(): void {
 		$result = $this->service(discovery: null)->publish(item: ['slug' => 'a-b']);
 
-		$this->assertSame(expected: ['outcome' => 'not_publishable', 'slug' => ''], actual: $result);
+		$this->assertSame(expected: [], actual: $result);
 	}//end testAPublishWithoutTheEngineSendsNothing()
 
 	/**

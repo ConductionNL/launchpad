@@ -111,25 +111,6 @@ class StoreService {
 	public const OUTCOME_NOT_PUBLISHABLE = 'not_publishable';
 
 	/**
-	 * Fully-qualified name of the engine's descriptor value object.
-	 *
-	 * Held as a string so no `OCA\OpenRegister\…` symbol is touched at load
-	 * time. Instantiated only after the injected client proved non-null.
-	 */
-	private const DESCRIPTOR_CLASS = 'OCA\\OpenRegister\\AppHost\\Service\\StoreDescriptor';
-
-	/**
-	 * The read half of the descriptor, in OpenRegister releases that split it
-	 * into a listing and a sharing part. Absent in older releases.
-	 */
-	private const LISTING_CLASS = 'OCA\\OpenRegister\\AppHost\\Service\\StoreListing';
-
-	/**
-	 * The share half of the descriptor, next to {@see self::LISTING_CLASS}.
-	 */
-	private const SHARING_CLASS = 'OCA\\OpenRegister\\AppHost\\Service\\StoreSharing';
-
-	/**
 	 * Outcome reported when there is nothing to talk to.
 	 */
 	public const OUTCOME_NOT_CONFIGURED = 'not_configured';
@@ -404,23 +385,18 @@ class StoreService {
 	 * @param array<string, mixed> $item The item, carrying its slug.
 	 *
 	 * The caller checks {@see self::isAvailable()} first: without OpenRegister
-	 * the outcome it reports is not_configured.
+	 * the outcome it reports is not_configured, and this answers an empty array.
 	 *
-	 * @return array{outcome: string, slug: string}
+	 * @return array<string, mixed> `{outcome, slug}` as the engine answered.
 	 *
 	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
 	 * @psalm-suppress MixedReturnStatement The engine's outcome passes through verbatim.
-	 * @psalm-suppress PossiblyNullReference Proven callable above.
 	 *
 	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
 	public function publish(array $item): array {
-		// No OpenRegister, or one from before the store plane could publish.
-		if (is_callable([$this->discovery, 'publish']) === false) {
-			return ['outcome' => self::OUTCOME_NOT_PUBLISHABLE, 'slug' => ''];
-		}
-
-		return $this->discovery->publish(descriptor: $this->descriptor(), payload: $item);
+		// Without OpenRegister nothing is sent and the answer is empty.
+		return (array)$this->discovery?->publish(descriptor: $this->descriptor(), payload: $item);
 	}//end publish()
 
 	/**
@@ -509,44 +485,10 @@ class StoreService {
 	 *
 	 * @throws RuntimeException When OpenRegister supplied a client but not a descriptor class.
 	 *
-	 * @psalm-suppress MixedMethodCall Instantiated from a class string by design.
-	 *
 	 * @spec openspec/specs/dashboard-store/spec.md
 	 */
 	private function descriptor(): object {
-		$class = self::DESCRIPTOR_CLASS;
-		if (class_exists($class) === false) {
-			throw new RuntimeException(message: 'OpenRegister store descriptor is unavailable.');
-		}
-
-		// OpenRegister now builds the descriptor from a listing and a sharing
-		// part (the two classes ship together); named arguments for the old
-		// flat form are an Error there.
-		if (class_exists(self::LISTING_CLASS) === true) {
-			$listingClass = self::LISTING_CLASS;
-			$sharingClass = self::SHARING_CLASS;
-			return new $class(
-				listing: new $listingClass(
-					appId: Application::APP_ID,
-					schema: self::REMOTE_SCHEMA,
-					defaultRegister: self::DEFAULT_REGISTER,
-					cardFields: self::CARD_FIELDS
-				),
-				sharing: new $sharingClass(
-					types: [],
-					publishFields: self::PUBLISH_FIELDS,
-					publishGroups: self::PUBLISH_GROUPS
-				)
-			);
-		}
-
-		return new $class(
-			appId: Application::APP_ID,
-			schema: self::REMOTE_SCHEMA,
-			defaultRegister: self::DEFAULT_REGISTER,
-			cardFields: self::CARD_FIELDS,
-			types: []
-		);
+		return (new StoreDescriptorBuilder())->build();
 	}//end descriptor()
 
 	/**

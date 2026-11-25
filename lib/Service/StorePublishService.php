@@ -166,11 +166,12 @@ class StorePublishService {
 			]
 		);
 
-		if ($result['outcome'] === 'ok') {
+		$outcome = (string)($result['outcome'] ?? StoreService::OUTCOME_NOT_PUBLISHABLE);
+		if ($outcome === 'ok') {
 			$this->own->remember(slug: $slug);
 		}
 
-		return $result;
+		return ['outcome' => $outcome, 'slug' => (string)($result['slug'] ?? '')];
 	}//end publish()
 
 	/**

@@ -224,7 +224,7 @@ test('on the office network the editor says the tile opens the internal address'
 		await enterEditMode(page)
 		await tile.getByRole('button', { name: 'Tile menu' }).click()
 		await page.getByRole('menuitem', { name: 'Edit tile' }).click()
-		await expect(page.getByLabel('Address on the office network')).toHaveValue(INTERNAL_URL)
+		await expect(page.getByLabel('Internal address (optional)')).toHaveValue(INTERNAL_URL)
 		await expect(page.locator('.tile-editor__address-in-effect'))
 			.toHaveText('You are on the office network: this tile opens the internal address')
 	} finally {

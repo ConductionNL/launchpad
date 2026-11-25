@@ -413,7 +413,7 @@ A tile MUST accept an optional second address for use on the office network. The
 #### Scenario: Author adds the internal address
 
 - **GIVEN** Ella may edit the dashboard "Team Vergunningen" with a tile "Zaaksysteem" at `https://zaken.gemeente.nl`
-- **WHEN** she sets "Address on the office network" to `http://zaken.intern` and saves
+- **WHEN** she sets "Internal address (optional)" to `http://zaken.intern` and saves
 - **THEN** the tile keeps both addresses
 
 ### Requirement: The tile opens the address that fits the network (REQ-TIA-003)
@@ -435,7 +435,7 @@ When a request comes from an address inside the office networks, a tile with an 
 #### Scenario: Editor shows the address in effect
 
 - **GIVEN** Ella is on the office network and edits "Zaaksysteem"
-- **WHEN** she looks below "Address on the office network"
+- **WHEN** she looks below "Internal address (optional)"
 - **THEN** she reads "You are on the office network: this tile opens the internal address"
 
 ### Requirement: The add flow lists the apps this server runs for the user (REQ-DISC-001)

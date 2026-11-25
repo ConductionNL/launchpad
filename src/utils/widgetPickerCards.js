@@ -58,7 +58,7 @@ const TYPE_KINDS = Object.freeze({
  *
  * @param {string} type The registry key.
  * @return {string} One of {@link KINDS} other than `all`.
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+ * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
  */
 export function kindOfType(type) {
 	return TYPE_KINDS[type] ?? 'content'
@@ -70,7 +70,7 @@ export function kindOfType(type) {
  * @param {string} kind The kind.
  * @param {function(string, string): string} t The translate function.
  * @return {string}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+ * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
  */
 export function kindLabel(kind, t) {
 	return {
@@ -90,7 +90,7 @@ export function kindLabel(kind, t) {
  * @param {string} section The section.
  * @param {function(string, string): string} t The translate function.
  * @return {string}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+ * @spec openspec/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
  */
 export function sectionLabel(section, t) {
 	return {
@@ -106,7 +106,7 @@ export function sectionLabel(section, t) {
  * @param {string} type The registry key.
  * @param {function(string, string): string} t The translate function.
  * @return {string}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+ * @spec openspec/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
  */
 export function typeLine(type, t) {
 	const lines = {
@@ -170,7 +170,7 @@ export function typeLine(type, t) {
  * @param {string} id The widget id or type key.
  * @param {Array<string>|null|undefined} allowedWidgets The allow-list.
  * @return {boolean}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
+ * @spec openspec/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
  */
 export function roleAllows(id, allowedWidgets) {
 	return !Array.isArray(allowedWidgets) || allowedWidgets.includes(id)
@@ -182,7 +182,7 @@ export function roleAllows(id, allowedWidgets) {
  *
  * @param {object} widget The Nextcloud widget.
  * @return {boolean}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
+ * @spec openspec/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
  */
 export function isLegacyWidget(widget) {
 	return Array.isArray(widget?.itemApiVersions) && widget.itemApiVersions.length === 0
@@ -205,7 +205,7 @@ function card(fields) {
  * @param {object} input See {@link pickerCards}.
  * @param {function(string, string, object=): string} t The translate function.
  * @return {Array<object>}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+ * @spec openspec/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
  */
 function launchpadCards(input, t) {
 	const { customTypes = [], officePack = false, allowedWidgets = null } = input
@@ -244,7 +244,7 @@ function launchpadCards(input, t) {
  * @param {object} input See {@link pickerCards}.
  * @param {function(string, string, object=): string} t The translate function.
  * @return {Array<object>}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
+ * @spec openspec/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
  */
 function tileCards(input, t) {
 	const { catalogueApps = [], discoveredApps = [], allowedWidgets = null, placedAppIds = [] } = input
@@ -298,7 +298,7 @@ function tileCards(input, t) {
  * @param {object} input See {@link pickerCards}.
  * @param {function(string, string, object=): string} t The translate function.
  * @return {Array<object>}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
+ * @spec openspec/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
  */
 function appWidgetCards(input, t) {
 	const { widgets = [], allowedWidgets = null, placedWidgetIds = [] } = input
@@ -334,7 +334,7 @@ function appWidgetCards(input, t) {
  * @param {Array<string>} [input.placedAppIds] The discovered apps on the dashboard.
  * @param {function(string, string, object=): string} t The translate function.
  * @return {Array<object>} The cards.
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md
+ * @spec openspec/specs/widgets/spec.md
  */
 export function pickerCards(input, t) {
 	return [...launchpadCards(input, t), ...tileCards(input, t), ...appWidgetCards(input, t)]
@@ -347,7 +347,7 @@ export function pickerCards(input, t) {
  * @param {string} kind The chosen kind.
  * @param {string} query The search.
  * @return {Array<object>}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+ * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
  */
 export function filterCards(cards, kind, query) {
 	const needle = String(query || '').trim().toLowerCase()
@@ -360,7 +360,7 @@ export function filterCards(cards, kind, query) {
  *
  * @param {Array<object>} cards The cards.
  * @return {Record<string, number>}
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+ * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
  */
 export function countByKind(cards) {
 	const counts = Object.fromEntries(KINDS.map((kind) => [kind, 0]))

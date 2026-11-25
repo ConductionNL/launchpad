@@ -244,8 +244,11 @@
 			<CoEditorsBanner
 				v-if="isEditMode"
 				:editors="presence.state.editors" />
+			<!-- The grid is built with its column count and does not follow a
+			     later change of it, so a new count builds a new grid. -->
 			<CnDashboardGrid
 				v-if="activeDashboard"
+				:key="`grid-columns-${activeDashboard.gridColumns || 12}`"
 				:layout="gridLayout"
 				:editable="isEditMode"
 				:fillHeight="fillsHeight"
@@ -1387,7 +1390,7 @@ export default {
 		 * @spec openspec/specs/grid-layout/spec.md#req-grid-007
 		 */
 		dashboardColumnOpts() {
-			return dashboardGridColumnOpts()
+			return dashboardGridColumnOpts(this.activeDashboard?.gridColumns || 12)
 		},
 
 		...mapState(useDashboardStore, [
@@ -1576,7 +1579,7 @@ export default {
 		 * cards (REQ-RFP-010); `null` when the role sets no limit.
 		 *
 		 * @return {Array<string>|null}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
+		 * @spec openspec/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
 		 */
 		pickerAllowedWidgets() {
 			const allowed = loadInitialState('workspace').allowedWidgets
@@ -2884,7 +2887,7 @@ export default {
 		 *
 		 * @param {object} app The catalogue entry.
 		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
+		 * @spec openspec/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
 		 */
 		async addCatalogueApp(app) {
 			try {

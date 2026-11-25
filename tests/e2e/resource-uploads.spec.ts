@@ -79,7 +79,6 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import type { Principal } from './support/principals.ts'
 
 import { expect, request as pwRequest, test } from '@playwright/test'
-import { randomBytes } from 'crypto'
 import { deflateSync } from 'zlib'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import { closeSidebar, gotoLaunchPad, openSidebar } from './fixtures/widget-flow.ts'
@@ -201,8 +200,15 @@ const JPEG = Buffer.from([
 
 /** Bytes that are no image of any kind (no magic number survives). */
 function garbage(size: number): Buffer {
-	const bytes = randomBytes(size)
-	bytes[0] = 0x00
+	// Fixed text, not random bytes: random bytes after a leading 0x00 now and
+	// then parse as a WBMP header, and the server then answers mime_mismatch
+	// instead of corrupt_image (seen live 25 Nov 2026). Plain text carries no
+	// image magic number and is no XML, so every caller gets the same answer.
+	const pattern = Buffer.from('This is no image of any kind. ', 'ascii')
+	const bytes = Buffer.alloc(size)
+	for (let i = 0; i < size; i += pattern.length) {
+		pattern.copy(bytes, i)
+	}
 	return bytes
 }
 
@@ -1021,11 +1027,14 @@ test.describe('resource-uploads: multipart upload (REQ-RES-014)', () => {
 			await chooseAndAdd(page.locator('[data-testid="widget-picker-type-image"]'))
 			const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 			await expect(dialog).toBeVisible({ timeout: 10_000 })
-			await dialog.locator('.cn-image-widget-form__file-input').setInputFiles({
+			// The drawn Image form (REQ-IMG-020) opens on Upload file and
+			// requires a text for who does not see the image.
+			await dialog.getByTestId('image-file-input').setInputFiles({
 				name: 'square.png',
 				mimeType: 'image/png',
 				buffer: png,
 			})
+			await dialog.getByLabel(/text for who does not see the image/i).fill('A square')
 
 			const uploadRequest = page.waitForRequest(
 				(req) =>

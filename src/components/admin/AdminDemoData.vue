@@ -74,7 +74,19 @@
 							}}
 						</div>
 
-						<div class="launchpad-demo-showcases__actions">
+						<div v-if="choice !== null" class="launchpad-demo-showcases__actions">
+							<NcCheckboxRadioSwitch
+								:modelValue="isChosen(showcase)"
+								:data-test="'showcase-choose-' + showcase.id"
+								@update:modelValue="(chosen) => $emit('choose', showcase.id, chosen)">
+								{{
+									showcase.isInstalled
+										? t('launchpad', 'Installed')
+										: t('launchpad', 'Install on Next')
+								}}
+							</NcCheckboxRadioSwitch>
+						</div>
+						<div v-else class="launchpad-demo-showcases__actions">
 							<NcButton
 								v-if="!showcase.isInstalled"
 								variant="primary"
@@ -123,7 +135,7 @@
 </template>
 
 <script>
-import { CnConfirmDialog, NcButton } from '@conduction/nextcloud-vue'
+import { CnConfirmDialog, NcButton, NcCheckboxRadioSwitch } from '@conduction/nextcloud-vue'
 import { NcNoteCard } from '@nextcloud/vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import { api } from '../../services/api.js'
@@ -133,10 +145,27 @@ export default {
 
 	components: {
 		NcButton,
+		NcCheckboxRadioSwitch,
 		CnConfirmDialog,
 		NcNoteCard,
 		ViewDashboard,
 	},
+
+	props: {
+		/**
+		 * The setup wizard's demo choice, `{ [showcaseId]: boolean }`. When
+		 * given, each card shows a checkbox instead of Install and Uninstall,
+		 * and nothing is installed here: the wizard installs the checked
+		 * showcases on Next. A showcase without an entry is checked when it
+		 * is installed.
+		 */
+		choice: {
+			type: Object,
+			default: null,
+		},
+	},
+
+	emits: ['choose'],
 
 	data() {
 		return {
@@ -258,6 +287,18 @@ export default {
 			} finally {
 				this.busy[showcase.id] = false
 			}
+		},
+
+		/**
+		 * Whether a showcase is checked in the wizard's demo choice.
+		 *
+		 * @param {object} showcase The showcase.
+		 * @return {boolean}
+		 * @spec openspec/specs/setup-wizard/spec.md#req-wiz-005
+		 */
+		isChosen(showcase) {
+			const chosen = this.choice?.[showcase.id]
+			return chosen === undefined ? showcase.isInstalled === true : chosen === true
 		},
 
 		/**

@@ -22,6 +22,7 @@ const stubs = {
 		template: '<input class="nc-text" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
 	},
 	NcEmptyContent: { template: '<div class="nc-empty"><slot name="icon" /></div>' },
+	NcButton: { props: ['disabled'], emits: ['click'], template: '<button class="nc-button" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>' },
 }
 
 const DECK = { appId: 'deck', name: 'Deck', href: '/apps/deck/', icon: '/apps/deck/img/deck.svg' }
@@ -34,21 +35,36 @@ function mountPicker(props = {}) {
 	})
 }
 
+const SECTION = '[data-testid="widget-picker-section-tiles"]'
+
+/**
+ * Choose a card and press Add widget.
+ *
+ * @param {object} wrapper the mounted picker.
+ * @param {object} card the card.
+ * @return {Promise<void>}
+ */
+async function place(wrapper, card) {
+	await card.trigger('click')
+	await wrapper.find('[data-testid="widget-picker-add"]').trigger('click')
+}
+
 describe('App tiles', () => {
 	it('lists the discovered apps with their names', () => {
 		const wrapper = mountPicker()
-		const section = wrapper.find('[data-testid="widget-picker-discovered"]')
+		const section = wrapper.find(SECTION)
 		expect(section.exists()).toBe(true)
-		expect(section.text()).toContain('App tiles')
+		expect(section.find('h3').text()).toBe('App tiles')
 		expect(section.findAll('[data-testid^="widget-picker-app-tile-"]').map((row) => row.text())).toEqual([
 			expect.stringContaining('Deck'),
 			expect.stringContaining('Context Chat'),
 		])
-		expect(section.find('[data-testid="widget-picker-custom-tile"]').text()).toContain('Custom tile')
+		expect(section.find('[data-testid="widget-picker-custom-tile"]').text()).toContain('Own tile')
+		expect(section.findAll('.widget-picker__widget').at(-1).attributes('data-testid')).toBe('widget-picker-custom-tile')
 	})
 
 	it('marks an app already on the dashboard', () => {
-		const rows = mountPicker().findAll('[data-testid="widget-picker-discovered"] .widget-picker__widget')
+		const rows = mountPicker().findAll(`${SECTION} [data-testid^="widget-picker-app-tile-"]`)
 		expect(rows[0].text()).toContain('On this dashboard')
 		expect(rows[1].text()).not.toContain('On this dashboard')
 	})
@@ -56,15 +72,16 @@ describe('App tiles', () => {
 	it('narrows with the search box', async () => {
 		const wrapper = mountPicker()
 		await wrapper.find('.nc-text').setValue('chat')
-		const rows = wrapper.findAll('[data-testid="widget-picker-discovered"] .widget-picker__widget')
+		const rows = wrapper.findAll(`${SECTION} .widget-picker__widget`)
 		expect(rows).toHaveLength(1)
 		expect(rows[0].text()).toContain('Context Chat')
 	})
 
-	it('asks the host to place the app on a click, also when it is there already', async () => {
+	it('asks the host to place the chosen app with Add widget, also when it is there already', async () => {
 		const wrapper = mountPicker()
-		await wrapper.findAll('[data-testid="widget-picker-discovered"] .widget-picker__widget')[0].trigger('click')
+		await place(wrapper, wrapper.get('[data-testid="widget-picker-app-tile-deck"]'))
 		expect(wrapper.emitted('addApp')[0]).toEqual([DECK])
+		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
 
 	it('draws each app entry in the colour its tile gets', () => {
@@ -74,14 +91,14 @@ describe('App tiles', () => {
 
 	it('offers a custom tile that opens the tile form', async () => {
 		const wrapper = mountPicker({ discoveredApps: [] })
-		await wrapper.get('[data-testid="widget-picker-custom-tile"]').trigger('click')
+		await place(wrapper, wrapper.get('[data-testid="widget-picker-custom-tile"]'))
 		expect(wrapper.emitted('addCustom')[0]).toEqual(['tile'])
 	})
 
 	it('leaves the custom tile out when the search does not match it', async () => {
 		const wrapper = mountPicker({ discoveredApps: [] })
 		await wrapper.find('.nc-text').setValue('weather')
-		expect(wrapper.find('[data-testid="widget-picker-discovered"]').exists()).toBe(false)
+		expect(wrapper.find(SECTION).exists()).toBe(false)
 	})
 })
 

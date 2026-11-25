@@ -10,6 +10,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import manifest from '../../manifest.json'
 import {
 	ADMIN_TOUR_COMPLETION_KEY,
+	ADMIN_TOUR_WALKTHROUGH_KEY,
 	ADMIN_TOUR_ID,
 	ADMIN_TOUR_STORAGE_SUFFIX,
 	adminTourManifest,
@@ -98,6 +99,15 @@ describe('adminTourManifest', () => {
 
 		const done = useWalkthrough('launchpad-admin-done', adminTourManifest(manifest), { seenVersion: manifest.version })
 		expect(done.autoStartTour.value).toBeNull()
+	})
+
+	it('starts on the admin page while the shell runs the Workspace walkthrough under the app id', () => {
+		const shell = useWalkthrough('launchpad', manifest, { seenVersion: '' })
+		expect(shell.autoStartTour.value.id).toBe('launchpad:getting-started')
+
+		const admin = useWalkthrough(ADMIN_TOUR_WALKTHROUGH_KEY, adminTourManifest(manifest), { seenVersion: '' })
+		expect(ADMIN_TOUR_WALKTHROUGH_KEY).not.toBe('launchpad')
+		expect(admin.autoStartTour.value.id).toBe(ADMIN_TOUR_ID)
 	})
 })
 

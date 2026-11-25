@@ -2382,6 +2382,18 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../modals/WidgetPickerModal.vue | dashboardName": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../modals/WidgetPickerModal.vue | allowedWidgets": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../modals/WidgetPickerModal.vue | requestAppFn": {
 		"type": "Function",
 		"required": false,

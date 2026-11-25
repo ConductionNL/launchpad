@@ -81,15 +81,15 @@ class LeaverHandoverTest extends TestCase {
 	 */
 	public function testTheSettingIsNormalised(): void {
 		$none = ['manager' => false, 'fallbackUid' => ''];
-		$this->assertSame(expected: $none, actual: LeaverHandover::normalise(value: null));
-		$this->assertSame(expected: $none, actual: LeaverHandover::normalise(value: 'manager'));
+		$this->assertSame(expected: $none, actual: $this->handover()->normalise(value: null));
+		$this->assertSame(expected: $none, actual: $this->handover()->normalise(value: 'manager'));
 		$this->assertSame(
 			expected: ['manager' => true, 'fallbackUid' => 'femke'],
-			actual: LeaverHandover::normalise(value: ['manager' => true, 'fallbackUid' => ' femke '])
+			actual: $this->handover()->normalise(value: ['manager' => true, 'fallbackUid' => ' femke '])
 		);
 		$this->assertSame(
 			expected: ['manager' => false, 'fallbackUid' => ''],
-			actual: LeaverHandover::normalise(value: ['manager' => 'yes', 'fallbackUid' => 7])
+			actual: $this->handover()->normalise(value: ['manager' => 'yes', 'fallbackUid' => 7])
 		);
 	}//end testTheSettingIsNormalised()
 
@@ -221,6 +221,14 @@ class LeaverHandoverTest extends TestCase {
 
 		$service->updateSettings(settings: ['leaverHandover' => ['manager' => true, 'fallbackUid' => ' femke ', 'other' => 1]]);
 		$this->assertSame(expected: ['manager' => true, 'fallbackUid' => 'femke'], actual: $written['leaver_handover']);
+
+		$controller = new \OCA\LaunchPad\Controller\SharingPolicyController(
+			request: $this->createMock(originalClassName: \OCP\IRequest::class),
+			settings: $service,
+			responseHelper: new \OCA\LaunchPad\Controller\ResponseHelper(logger: new \Psr\Log\NullLogger())
+		);
+		$this->assertSame(expected: 200, actual: $controller->updateLeaverHandover(manager: false, fallbackUid: 'femke')->getStatus());
+		$this->assertSame(expected: ['manager' => false, 'fallbackUid' => 'femke'], actual: $written['leaver_handover']);
 	}//end testTheSettingIsStoredNormalised()
 
 }//end class

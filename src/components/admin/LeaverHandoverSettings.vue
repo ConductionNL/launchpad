@@ -164,9 +164,7 @@ export default {
 		 */
 		async save() {
 			try {
-				await api.updateSharingPolicy({
-					leaverHandover: { manager: this.manager, fallbackUid: this.fallback?.id ?? '' },
-				})
+				await api.updateLeaverHandover({ manager: this.manager, fallbackUid: this.fallback?.id ?? '' })
 			} catch (error) {
 				logger.error('Failed to save the leaver handover:', error)
 			}

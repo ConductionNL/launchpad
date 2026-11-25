@@ -147,7 +147,7 @@ class AdminSettingsService {
 			'sharingRecipientScope' => $this->storedRecipientScope(value: $settings[AdminSettingKey::SHARING_RECIPIENT_SCOPE->value] ?? null),
 			'sharingAllowed' => $this->storedAllowedMode(settings: $settings),
 			'publicLinksAllowed' => ($settings[AdminSettingKey::PUBLIC_LINKS_ALLOWED->value] ?? true) !== false,
-			'leaverHandover' => LeaverHandover::normalise(value: $settings[AdminSettingKey::LEAVER_HANDOVER->value] ?? null),
+			'leaverHandover' => $this->storedLeaverHandover(value: $settings[AdminSettingKey::LEAVER_HANDOVER->value] ?? null),
 			// Legacy-widget-bridge spec: the bridge defaults to OFF because
 			// turning it on makes the workspace read the Nextcloud widget
 			// registry, and IManager::getWidgets() injects the scripts of EVERY
@@ -488,9 +488,9 @@ class AdminSettingsService {
 		);
 		$this->persistSharingPolicy(
 			allowed: $settings['sharingAllowed'] ?? null,
-			publicLinks: $settings['publicLinksAllowed'] ?? null,
-			leaverHandover: $settings['leaverHandover'] ?? null
+			publicLinks: $settings['publicLinksAllowed'] ?? null
 		);
+		$this->persistLeaverHandover(handover: $settings['leaverHandover'] ?? null);
 
 		$this->persistSharingAndBridgeSettings(
 			defaultSharePermissionLevel: $settings['defaultSharePermissionLevel'] ?? null,
@@ -773,18 +773,16 @@ class AdminSettingsService {
 	 * Persist who may share and whether public links may be created
 	 * (REQ-SHARE-015). A null value is left as it is.
 	 *
-	 * @param string|null $allowed        `everyone`, `groups` or `none`.
-	 * @param bool|null   $publicLinks    Whether public links may be created.
-	 * @param array|null  $leaverHandover Where a leaver's dashboards go (REQ-SHARE-016), `{manager, fallbackUid}`.
+	 * @param string|null $allowed     `everyone`, `groups` or `none`.
+	 * @param bool|null   $publicLinks Whether public links may be created.
 	 *
 	 * @return void
 	 *
 	 * @throws \InvalidArgumentException When the choice is unknown.
 	 *
 	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
-	private function persistSharingPolicy(?string $allowed, ?bool $publicLinks, ?array $leaverHandover=null): void {
+	private function persistSharingPolicy(?string $allowed, ?bool $publicLinks): void {
 		if ($allowed !== null) {
 			if (in_array(needle: $allowed, haystack: SharingLimits::ALLOWED_MODES, strict: true) === false) {
 				throw new InvalidArgumentException(
@@ -796,13 +794,51 @@ class AdminSettingsService {
 		}
 
 		$this->persistIfGiven(key: AdminSettingKey::PUBLIC_LINKS_ALLOWED->value, value: $publicLinks);
-		if ($leaverHandover !== null) {
+	}//end persistSharingPolicy()
+
+	/**
+	 * Persist where a leaver's dashboards go (REQ-SHARE-016), in its stored
+	 * shape. A null value is left as it is.
+	 *
+	 * @param array|null $handover `{manager: bool, fallbackUid: string}`.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 */
+	private function persistLeaverHandover(?array $handover): void {
+		if ($handover !== null) {
 			$this->settingMapper->setSetting(
 				key: AdminSettingKey::LEAVER_HANDOVER->value,
-				value: LeaverHandover::normalise(value: $leaverHandover)
+				value: $this->storedLeaverHandover(value: $handover)
 			);
 		}
-	}//end persistSharingPolicy()
+	}//end persistLeaverHandover()
+
+	/**
+	 * A leaver handover in its stored shape; anything else reads as not set.
+	 *
+	 * @param mixed $value The raw value.
+	 *
+	 * @return array{manager: bool, fallbackUid: string}
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 */
+	private function storedLeaverHandover(mixed $value): array {
+		if (is_array($value) === false) {
+			$value = [];
+		}
+
+		$fallback = $value['fallbackUid'] ?? '';
+		if (is_string($fallback) === false) {
+			$fallback = '';
+		}
+
+		return [
+			'manager'     => ($value['manager'] ?? false) === true,
+			'fallbackUid' => trim(string: $fallback),
+		];
+	}//end storedLeaverHandover()
 
 	/**
 	 * Persist who may share and with whom (REQ-SHARE-014). A null value is left as it is.

@@ -63,27 +63,19 @@ class SharingPolicyController extends Controller {
 	 *
 	 * @param string|null $sharingAllowed     `everyone`, `groups` or `none`.
 	 * @param bool|null   $publicLinksAllowed Whether public links may be created.
-	 * @param array|null  $leaverHandover     Where a leaver's dashboards go (REQ-SHARE-016):
-	 *                                        `{manager: bool, fallbackUid: string}`.
 	 *
 	 * @return JSONResponse The update confirmation, or 400 for an unknown choice.
 	 *
 	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function update(
 		string|null $sharingAllowed = null,
 		bool|null $publicLinksAllowed = null,
-		array|null $leaverHandover = null,
 	): JSONResponse {
 		try {
 			$this->settings->updateSettings(
-				settings: [
-					'sharingAllowed'     => $sharingAllowed,
-					'publicLinksAllowed' => $publicLinksAllowed,
-					'leaverHandover'     => $leaverHandover,
-				]
+				settings: ['sharingAllowed' => $sharingAllowed, 'publicLinksAllowed' => $publicLinksAllowed]
 			);
 
 			return $this->responseHelper->success(data: ['status' => 'ok']);
@@ -93,4 +85,28 @@ class SharingPolicyController extends Controller {
 			return $this->responseHelper->error(exception: $e);
 		}
 	}//end update()
+
+	/**
+	 * Set where a leaver's dashboards go (REQ-SHARE-016): their manager or
+	 * not, and the person otherwise ('' for nobody).
+	 *
+	 * @param bool   $manager     Whether a leaver's manager comes first.
+	 * @param string $fallbackUid The person otherwise; '' for nobody.
+	 *
+	 * @return JSONResponse The update confirmation.
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function updateLeaverHandover(bool $manager = false, string $fallbackUid = ''): JSONResponse {
+		try {
+			$this->settings->updateSettings(
+				settings: ['leaverHandover' => ['manager' => $manager, 'fallbackUid' => $fallbackUid]]
+			);
+
+			return $this->responseHelper->success(data: ['status' => 'ok']);
+		} catch (\Exception $e) {
+			return $this->responseHelper->error(exception: $e);
+		}
+	}//end updateLeaverHandover()
 }//end class

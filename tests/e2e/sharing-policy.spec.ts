@@ -188,8 +188,8 @@ test('a leaver\'s dashboard goes to their manager, otherwise to the named person
 		await setManager(leaver, marieke)
 		const leaverBoard = await ownDashboard(leaver, `E2E Leaver ${RUN}`)
 		const sanneBoard = await ownDashboard(sanne, `E2E No manager ${RUN}`)
-		const set = await admin.put(`${API}/admin/sharing-policy`, {
-			data: { leaverHandover: { manager: true, fallbackUid: femke.username } },
+		const set = await admin.put(`${API}/admin/leaver-handover`, {
+			data: { manager: true, fallbackUid: femke.username },
 		})
 		expect(set.status(), await set.text()).toBe(200)
 
@@ -199,8 +199,8 @@ test('a leaver\'s dashboard goes to their manager, otherwise to the named person
 		expect(await visibleUuids(marieke)).toContain(leaverBoard)
 		expect(await visibleUuids(femke)).toContain(sanneBoard)
 	} finally {
-		await admin.put(`${API}/admin/sharing-policy`, {
-			data: { leaverHandover: { manager: false, fallbackUid: '' } },
+		await admin.put(`${API}/admin/leaver-handover`, {
+			data: { manager: false, fallbackUid: '' },
 		})
 		await removePrincipal(admin, marieke)
 		await removePrincipal(admin, femke)

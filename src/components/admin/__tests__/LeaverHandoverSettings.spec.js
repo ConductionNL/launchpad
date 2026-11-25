@@ -12,12 +12,12 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const getAdminSettings = vi.fn()
-const updateSharingPolicy = vi.fn()
+const updateLeaverHandover = vi.fn()
 const searchSharees = vi.fn()
 vi.mock('../../../services/api.js', () => ({
 	api: {
 		getAdminSettings: (...args) => getAdminSettings(...args),
-		updateSharingPolicy: (...args) => updateSharingPolicy(...args),
+		updateLeaverHandover: (...args) => updateLeaverHandover(...args),
 		searchSharees: (...args) => searchSharees(...args),
 	},
 }))
@@ -41,8 +41,8 @@ let LeaverHandoverSettings
 
 beforeEach(async () => {
 	getAdminSettings.mockReset()
-	updateSharingPolicy.mockReset()
-	updateSharingPolicy.mockResolvedValue({})
+	updateLeaverHandover.mockReset()
+	updateLeaverHandover.mockResolvedValue({})
 	searchSharees.mockReset()
 	LeaverHandoverSettings = (await import('../LeaverHandoverSettings.vue')).default
 })
@@ -77,15 +77,15 @@ describe('LeaverHandoverSettings (REQ-SHARE-016)', () => {
 
 		await wrapper.find('[data-test="leaver-handover-manager"]').trigger('click')
 		await flushPromises()
-		expect(updateSharingPolicy).toHaveBeenLastCalledWith({ leaverHandover: { manager: true, fallbackUid: '' } })
+		expect(updateLeaverHandover).toHaveBeenLastCalledWith({ manager: true, fallbackUid: '' })
 
 		wrapper.findComponent(stubs.NcSelect).vm.$emit('update:modelValue', { id: 'femke', displayName: 'Femke de Wit' })
 		await flushPromises()
-		expect(updateSharingPolicy).toHaveBeenLastCalledWith({ leaverHandover: { manager: true, fallbackUid: 'femke' } })
+		expect(updateLeaverHandover).toHaveBeenLastCalledWith({ manager: true, fallbackUid: 'femke' })
 
 		wrapper.findComponent(stubs.NcSelect).vm.$emit('update:modelValue', null)
 		await flushPromises()
-		expect(updateSharingPolicy).toHaveBeenLastCalledWith({ leaverHandover: { manager: true, fallbackUid: '' } })
+		expect(updateLeaverHandover).toHaveBeenLastCalledWith({ manager: true, fallbackUid: '' })
 	})
 
 	it('searches people from two characters and drops a stale answer', async () => {

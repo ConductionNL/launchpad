@@ -60,7 +60,7 @@ class LeaverHandover {
 	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
 	public function setting(): array {
-		return self::normalise(value: $this->settings->getValue(key: AdminSettingKey::LEAVER_HANDOVER->value, default: null));
+		return $this->normalise(value: $this->settings->getValue(key: AdminSettingKey::LEAVER_HANDOVER->value, default: null));
 	}//end setting()
 
 	/**
@@ -72,7 +72,7 @@ class LeaverHandover {
 	 *
 	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
-	public static function normalise(mixed $value): array {
+	public function normalise(mixed $value): array {
 		if (is_array($value) === false) {
 			return ['manager' => false, 'fallbackUid' => ''];
 		}

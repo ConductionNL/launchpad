@@ -1080,6 +1080,18 @@ export const api = {
 	},
 
 	/**
+	 * Set where a leaver's dashboards go: their manager or not, and the person
+	 * otherwise ('' for nobody). Admin-only on the server.
+	 *
+	 * @param {{manager: boolean, fallbackUid: string}} data The handover.
+	 * @return {Promise} The axios response.
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 */
+	updateLeaverHandover(data) {
+		return axios.put(`${baseUrl}/api/admin/leaver-handover`, data)
+	},
+
+	/**
 	 * Read the administrator CSS for all of LaunchPad. Admin-only on the server.
 	 *
 	 * @return {Promise} Axios response resolving to `{ customCss }`.

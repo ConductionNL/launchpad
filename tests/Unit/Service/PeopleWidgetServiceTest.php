@@ -496,6 +496,36 @@ class PeopleWidgetServiceTest extends TestCase {
 		);
 	}//end testShowBirthdaysFalseStripsBirthdate()
 
+	/**
+	 * The New colleagues profile (REQ-PPL-014): photo, role and team the
+	 * viewer may see, never the birthdate.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 */
+	public function testProfileForShowsRoleAndTeamWithoutBirthdate(): void {
+		$account = $this->makeAccount(
+			properties: [
+				IAccountManager::PROPERTY_BIRTHDATE => '1990-06-10',
+				IAccountManager::PROPERTY_ROLE => 'Adviseur',
+				IAccountManager::PROPERTY_ORGANISATION => 'Team Wonen',
+				IAccountManager::PROPERTY_PHONE => '0612345678',
+			],
+			scopes: [IAccountManager::PROPERTY_PHONE => IAccountManager::SCOPE_PRIVATE]
+		);
+		$this->accountManager->method('getAccount')->willReturn($account);
+
+		$profile = $this->service->profileFor(user: $this->makeUser(uid: 'yasmina', display: 'Yasmina'), viewerId: 'pieter');
+
+		$this->assertSame(expected: 'yasmina', actual: $profile['uid']);
+		$this->assertSame(expected: 'Adviseur', actual: $profile['role']);
+		$this->assertSame(expected: 'Team Wonen', actual: $profile['organisation']);
+		$this->assertStringContainsString(needle: 'core.avatar.getAvatar', haystack: $profile['avatarUrl']);
+		$this->assertArrayNotHasKey(key: 'birthdate', array: $profile);
+		$this->assertArrayNotHasKey(key: 'phone', array: $profile);
+	}//end testProfileForShowsRoleAndTeamWithoutBirthdate()
+
 	// ---------------------------------------------------------------
 	// listUsers — bounded directory scan (fix-people-widget-unbounded-user-scan)
 	// ---------------------------------------------------------------

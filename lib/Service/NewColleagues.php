@@ -56,6 +56,7 @@ class NewColleagues {
 	 * @param ProfileFieldService $fields The field definitions and who may see a value.
 	 * @param ProfileValueMapper  $values The stored values.
 	 * @param IUserManager        $users  The accounts.
+	 * @param PeopleWidgetService $people The people widget's profile of a person (photo, role, team).
 	 *
 	 * @return void
 	 */
@@ -63,6 +64,7 @@ class NewColleagues {
 		private readonly ProfileFieldService $fields,
 		private readonly ProfileValueMapper $values,
 		private readonly IUserManager $users,
+		private readonly PeopleWidgetService $people,
 	) {
 	}//end __construct()
 
@@ -126,13 +128,14 @@ class NewColleagues {
 	}//end startDateField()
 
 	/**
-	 * One person, when their account is enabled and the viewer may see the field.
+	 * One person, when their account is enabled and the viewer may see the field,
+	 * with the profile the people widget shows (photo, role, team, groups).
 	 *
 	 * @param string|null          $viewerId   The viewer.
 	 * @param string               $ownerId    The person.
 	 * @param array<string, mixed> $definition The start-date field.
 	 *
-	 * @return array{id: string, displayName: string}|null
+	 * @return array<string, mixed>|null `{id, displayName}` plus the people widget profile.
 	 *
 	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
@@ -146,7 +149,7 @@ class NewColleagues {
 			return null;
 		}
 
-		return ['id' => $ownerId, 'displayName' => $user->getDisplayName()];
+		return ['id' => $ownerId, 'displayName' => $user->getDisplayName()] + $this->people->profileFor(user: $user, viewerId: $viewerId);
 	}//end entryFor()
 
 }//end class

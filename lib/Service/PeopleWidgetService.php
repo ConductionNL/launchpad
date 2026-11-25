@@ -188,6 +188,24 @@ class PeopleWidgetService {
 	}//end listUsers()
 
 	/**
+	 * The profile of one person as the people widget shows it to a viewer:
+	 * photo, groups and the account fields the viewer may see, without the
+	 * birthdate. Used by the New colleagues selection (REQ-PPL-014).
+	 *
+	 * @param IUser       $user     The person.
+	 * @param string|null $viewerId The viewer; decides which fields show (REQ-PEX-004).
+	 *
+	 * @return array<string, mixed> `{uid, displayName, avatarUrl, groups, ...}`.
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 */
+	public function profileFor(IUser $user, ?string $viewerId): array {
+		$this->viewerId = $viewerId;
+
+		return $this->buildUserProfile(user: $user, showBirthdays: false);
+	}//end profileFor()
+
+	/**
 	 * Refuse a page window outside 1..MAX_LIMIT or below offset 0, and the
 	 * not-yet-implemented `recent-activity` sort, in that order.
 	 *

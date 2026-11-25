@@ -25,6 +25,7 @@ use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Db\ProfileValue;
 use OCA\LaunchPad\Db\ProfileValueMapper;
 use OCA\LaunchPad\Service\NewColleagues;
+use OCA\LaunchPad\Service\PeopleWidgetService;
 use OCA\LaunchPad\Service\ProfileFieldService;
 use OCP\IRequest;
 use OCP\IUser;
@@ -99,12 +100,24 @@ class NewColleaguesTest extends TestCase {
 			}
 
 			$user = $this->createMock(originalClassName: IUser::class);
+			$user->method('getUID')->willReturn($uid);
 			$user->method('getDisplayName')->willReturn($names[$uid]);
 			$user->method('isEnabled')->willReturn($uid !== 'gone');
 			return $user;
 		});
 
-		return new NewColleagues(fields: $fields, values: $values, users: $users);
+		$people = $this->createMock(originalClassName: PeopleWidgetService::class);
+		$people->method('profileFor')->willReturnCallback(
+			fn (IUser $user, ?string $viewerId): array => [
+				'uid' => $user->getUID(),
+				'displayName' => 'not this one',
+				'role' => 'Adviseur',
+				'organisation' => 'Team Wonen',
+				'groups' => ['staff'],
+			]
+		);
+
+		return new NewColleagues(fields: $fields, values: $values, users: $users, people: $people);
 	}//end colleagues()
 
 	/**
@@ -124,8 +137,17 @@ class NewColleaguesTest extends TestCase {
 				['id' => 'lotte', 'displayName' => 'Lotte Verhoeven', 'startDate' => '2026-10-01', 'starts' => false],
 				['id' => 'thomas', 'displayName' => 'Thomas Brouwer', 'startDate' => '2026-09-28', 'starts' => false],
 			],
-			actual: $answer['users']
+			actual: array_map(
+				callback: static fn (array $entry): array => array_intersect_key($entry, array_flip(['id', 'displayName', 'startDate', 'starts'])),
+				array: $answer['users']
+			)
 		);
+		// Each with the people widget's profile: role and team, and the account's own name.
+		$this->assertSame(
+			expected: ['uid' => 'yasmina', 'role' => 'Adviseur', 'organisation' => 'Team Wonen', 'groups' => ['staff']],
+			actual: array_intersect_key($answer['users'][0], array_flip(['uid', 'role', 'organisation', 'groups']))
+		);
+		$this->assertSame(expected: 'Yasmina El Amrani', actual: $answer['users'][0]['displayName']);
 	}//end testThreeNewColleaguesNewestFirst()
 
 	/**

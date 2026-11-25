@@ -5,15 +5,13 @@
  * A bare icon name on an org-nav node (openspec/specs/navigation-editor-org,
  * REQ-ONAV-006, scenario icon-name-renders-inline).
  *
- * EXPECTED RED until the product renders a bare icon name as inline text, or
- * the scenario is changed. The rail maps a bare name to its MDI path
- * (`normaliseIconValue`, src/services/iconCatalogue.js) and draws it as an
- * `<svg>` through CnDashboardIcon (src/components/OrgNavigationItem.vue, the
- * `CnDashboardIcon :name="iconName"` in the row), so the name never appears as
- * text. That follows dashboard-icons REQ-ICON-009, which maps legacy names to
- * glyphs; REQ-ONAV-006 still says "A bare name MUST render as an inline
- * label". The two specs disagree; this test holds the product to the
- * navigation-editor-org scenario as written.
+ * A bare name renders as the glyph it resolves to (decision 25 Nov 2026,
+ * launchpad PR "navigation-editor-org: a bare icon name is its glyph"): the
+ * rail maps it to its MDI path (`normaliseIconValue`,
+ * src/services/iconCatalogue.js) and draws it through CnDashboardIcon, as
+ * dashboard-icons REQ-ICON-009 and REQ-ONAV-005's own "with the folder icon"
+ * scenario expect. REQ-ONAV-006 used to say the name shows as text; it now
+ * says the glyph.
  *
  * This test used to be `test.fixme` in navigation-editor-org-panel.spec.ts,
  * which gate-19 does not count. It sits in its own file, without serial mode,
@@ -60,7 +58,7 @@ test.afterAll(async () => {
 })
 
 // @e2e navigation-editor-org::icon-name-renders-inline
-test('a bare icon name appears as inline text left of the label', async ({
+test('a bare icon name appears as its glyph, inline left of the label', async ({
 	page,
 }) => {
 	const label = `E2E Business ${RUN}`
@@ -76,9 +74,9 @@ test('a bare icon name appears as inline text left of the label', async ({
 	const row = navRow(page, label)
 	await expect(row).toBeVisible({ timeout: 30_000 })
 	const icon = row.locator('.org-nav-item__icon')
-	await expect(icon).toHaveText('briefcase')
-	// Not merely the glyph the name resolves to.
-	await expect(row.locator(`path[d="${mdiBriefcase}"]`)).toHaveCount(0)
+	await expect(icon.locator(`path[d="${mdiBriefcase}"]`)).toHaveCount(1)
+	// The glyph, not the name spelled out.
+	await expect(row).not.toContainText('briefcase')
 	const iconBox = await icon.boundingBox()
 	const labelBox = await row.locator('.org-nav-item__label').boundingBox()
 	expect(iconBox).not.toBeNull()

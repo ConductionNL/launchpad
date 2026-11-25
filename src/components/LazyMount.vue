@@ -41,6 +41,7 @@ export const LazyMountSupport = {
 	 * The IntersectionObserver constructor, or null without one.
 	 *
 	 * @return {typeof IntersectionObserver|null} The constructor.
+	 * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
 	 */
 	observer() {
 		return typeof window !== 'undefined' && typeof window.IntersectionObserver === 'function'
@@ -56,6 +57,7 @@ export const LazyMountSupport = {
 	 * @param {number} delay The wait before looking for an idle moment, in ms.
 	 * @param {number} timeout The longest wait for that idle moment, in ms.
 	 * @return {() => void} Cancels the wait.
+	 * @spec openspec/changes/widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
 	 */
 	whenSettled(callback, delay, timeout) {
 		let idleHandle = null

@@ -78,7 +78,7 @@ class CleanupScanCommand extends Command {
 	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$started  = (int)round(num: (microtime(as_float: true) * 1000));
+		$started  = (int)round(num: (microtime(as_float: true) * 1000.0));
 		$exitCode = 1;
 		try {
 			$result = $this->cleanupService->scan();
@@ -98,7 +98,7 @@ class CleanupScanCommand extends Command {
 					'command'    => 'cleanup:scan',
 					'args'       => '',
 					'exitCode'   => $exitCode,
-					'durationMs' => ((int)round(num: (microtime(as_float: true) * 1000)) - $started),
+					'durationMs' => ((int)round(num: (microtime(as_float: true) * 1000.0)) - $started),
 					'byUser'     => null,
 				]
 			);

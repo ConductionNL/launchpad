@@ -143,7 +143,7 @@
 import { CnDashboardIcon, CnWidgetEditCog } from '@conduction/nextcloud-vue'
 import { getCurrentUser } from '@nextcloud/auth'
 import { showError } from '@nextcloud/dialogs'
-import { t } from '@nextcloud/l10n'
+import { getCanonicalLocale, t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { defineAsyncComponent } from 'vue'
 import DragVertical from 'vue-material-design-icons/DragVertical.vue'
@@ -296,7 +296,9 @@ export default {
 		},
 
 		/**
-		 * The time the outage began, in the viewer's clock, or ''.
+		 * The time the outage began, in the viewer's clock and in the
+		 * viewer's Nextcloud locale (not the browser's, which wrote
+		 * "storing sinds 10:28 PM" for a Dutch user), or ''.
 		 *
 		 * @return {string}
 		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
@@ -306,7 +308,7 @@ export default {
 			if (!date || Number.isNaN(date.getTime())) {
 				return ''
 			}
-			return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+			return date.toLocaleTimeString(getCanonicalLocale(), { hour: '2-digit', minute: '2-digit' })
 		},
 
 		/**

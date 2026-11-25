@@ -6,4 +6,4 @@
 - [x] Office section reusing office-tiles, bookmark import reusing BookmarkImportModal
 - [x] Translations in every shipped locale
 - [x] Unit tests: counting, adding from each section, no duplicate tile
-- [ ] Playwright: add Word and Excel from the Office section (written in tests/e2e/add-tiles-dialog.spec.ts, runs in nightly)
+- [x] Playwright: add Word and Excel from the Office section (`tests/e2e/add-tiles-dialog.spec.ts` 1/1 green on a sandbox Nextcloud 34.0.6 + MariaDB, 25 Nov 2026)

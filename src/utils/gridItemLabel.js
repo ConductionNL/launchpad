@@ -47,7 +47,7 @@ export function gridItemLabel(placement, { editing, columns, availableWidgets })
 /**
  * A finite number, or the fallback.
  *
- * @param {*} value The value.
+ * @param {number|undefined} value The value.
  * @param {number} fallback The fallback.
  * @return {number}
  */

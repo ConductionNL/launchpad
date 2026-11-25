@@ -199,7 +199,7 @@ class AdminOrgNavigationController extends Controller {
 		}
 
 		return $this->responseHelper->success(
-			data: ['position' => $this->readPosition()]
+			data: ['position' => $this->sources->position()]
 		);
 	}//end getPosition()
 
@@ -262,24 +262,4 @@ class AdminOrgNavigationController extends Controller {
 
 		return $lower;
 	}//end validateLanguage()
-
-	/**
-	 * Read the persisted position with a default fallback.
-	 *
-	 * @return string Always one of {@see self::ALLOWED_POSITIONS}.
-	 */
-	private function readPosition(): string {
-		$raw = $this->sources->settings->getValue(
-			key: self::SETTING_KEY_POSITION,
-			default: self::DEFAULT_POSITION
-		);
-
-		if (is_string($raw) === false
-			|| in_array(needle: $raw, haystack: self::ALLOWED_POSITIONS, strict: true) === false
-		) {
-			return self::DEFAULT_POSITION;
-		}
-
-		return $raw;
-	}//end readPosition()
 }//end class

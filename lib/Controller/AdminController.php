@@ -39,6 +39,7 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\StreamResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
+use OCA\LaunchPad\Service\AdminSettingsValidator;
 use OCP\IRequest;
 
 /**
@@ -493,21 +494,22 @@ class AdminController extends Controller {
 		array|null $pinnedCommunities = null,
 		bool|null $defaultAppEnabled = null,
 	): JSONResponse {
-		// Read-side aliases, see the docblock. Short form wins.
-		$defaultPermLevel ??= $defaultPermissionLevel;
-		$allowUserDash ??= $allowUserDashboards;
-		$allowMultiDash ??= $allowMultipleDashboards;
-		$defaultGridCols ??= $defaultGridColumns;
-		$linkCreateFileExts ??= $linkCreateFileExtensions;
+		// REQ-ASET-002: Nextcloud casts a bool parameter before it gets here
+		// ("maybe" arrives as true), so the raw value is checked first.
+		$notBoolean = (new AdminSettingsValidator())->firstNonBooleanParam(request: $this->request);
+		if ($notBoolean !== null) {
+			return $this->failure(message: $notBoolean.' must be true or false', statusCode: Http::STATUS_BAD_REQUEST);
+		}
 
 		try {
 			$this->settings->settingsService->updateSettings(
 				settings: [
-					'defaultPermLevel'            => $defaultPermLevel,
-					'allowUserDash'               => $allowUserDash,
-					'allowMultiDash'              => $allowMultiDash,
-					'defaultGridCols'             => $defaultGridCols,
-					'linkCreateFileExts'          => $linkCreateFileExts,
+					// Read-side aliases, see the docblock. Short form wins.
+					'defaultPermLevel'            => $defaultPermLevel ?? $defaultPermissionLevel,
+					'allowUserDash'               => $allowUserDash ?? $allowUserDashboards,
+					'allowMultiDash'              => $allowMultiDash ?? $allowMultipleDashboards,
+					'defaultGridCols'             => $defaultGridCols ?? $defaultGridColumns,
+					'linkCreateFileExts'          => $linkCreateFileExts ?? $linkCreateFileExtensions,
 					'defaultSharePermissionLevel' => $defaultSharePermissionLevel,
 					'forcedShareGroups'           => $forcedShareGroups,
 					'legacyWidgetBridgeEnabled'   => $legacyWidgetBridgeEnabled,

@@ -145,21 +145,22 @@ Administrators MUST be able to update individual or multiple admin settings in a
 
 #### Scenario: Update with invalid permission level value
 - GIVEN the admin sends PUT /api/admin/settings with body `{"defaultPermLevel": "super_admin"}`
-- THEN the system SHOULD return HTTP 400 with a validation error
-- AND only `view_only`, `add_only`, and `full` SHOULD be accepted for this setting
-- NOTE: Permission level validation is NOT currently implemented -- any string value is accepted
+- THEN the system MUST return HTTP 400 with a validation error (`{"error": "<message>"}`)
+- AND only `view_only`, `add_only`, and `full` MUST be accepted for this setting, under either spelling
+- AND nothing in the request MUST be stored
 
 #### Scenario: Update with invalid grid columns value
 - GIVEN the admin sends PUT /api/admin/settings with body `{"defaultGridCols": 0}`
-- THEN the system SHOULD return HTTP 400 with a validation error
-- AND `defaultGridCols` SHOULD be a positive integer between 1 and 24
-- NOTE: Grid columns validation is NOT currently implemented -- any integer value is accepted
+- THEN the system MUST return HTTP 400 with a validation error (`{"error": "<message>"}`)
+- AND `defaultGridCols` MUST be a whole number from 1 to 24
+- AND nothing in the request MUST be stored
 
 #### Scenario: Update with invalid boolean value
 - GIVEN the admin sends PUT /api/admin/settings with body `{"allowUserDash": "maybe"}`
-- THEN the system SHOULD return HTTP 400 with a validation error
-- AND boolean settings SHOULD only accept `true` or `false`
-- NOTE: Boolean validation is NOT currently implemented -- PHP type coercion handles the value
+- THEN the system MUST return HTTP 400 with a validation error (`{"error": "<message>"}`)
+- AND boolean settings MUST only accept `true` or `false` (also as `0`, `1`, `"0"`, `"1"`, `"true"`, `"false"`)
+- AND nothing in the request MUST be stored
+- NOTE: Nextcloud casts a bool parameter before the controller sees it, so `AdminController` checks the raw request value
 
 #### Scenario: Non-admin cannot update settings
 - GIVEN a regular user "alice"

@@ -53,7 +53,7 @@ class DashboardTranslationService {
 	 *
 	 * @var string
 	 */
-	public const ERR_LAST_VARIANT = 'Cannot delete the only language variant';
+	public const ERR_LAST_VARIANT = 'Cannot delete the only language variant. Promote another variant to primary first.';
 
 	/**
 	 * Sentinel error message: cannot delete the primary variant directly
@@ -423,15 +423,17 @@ class DashboardTranslationService {
 			languageCode: $languageCode
 		);
 
-		if ((int)$translation->getIsPrimary() === 1) {
-			throw new Exception(message: self::ERR_DELETE_PRIMARY);
-		}
-
+		// REQ-DASH-042: the only variant is also the primary; it is refused
+		// as the only one.
 		$count = $this->translationMapper->countByDashboardUuid(
 			dashboardUuid: $dashboardUuid
 		);
 		if ($count <= 1) {
 			throw new Exception(message: self::ERR_LAST_VARIANT);
+		}
+
+		if ((int)$translation->getIsPrimary() === 1) {
+			throw new Exception(message: self::ERR_DELETE_PRIMARY);
 		}
 
 		$this->translationMapper->delete(entity: $translation);

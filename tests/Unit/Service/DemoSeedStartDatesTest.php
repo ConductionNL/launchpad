@@ -71,7 +71,8 @@ class DemoSeedStartDatesTest extends TestCase {
 
 		$this->assertSame(expected: ['field' => 'in_dienst', 'people' => ['yasmina' => '2026-10-12', 'thomas' => '2026-09-28']], actual: $report);
 		$this->assertSame(expected: ['office', 'in_dienst'], actual: array_column(array: (array)$this->saved, column_key: 'key'));
-		$this->assertSame(expected: ['type' => 'date', 'source' => 'self', 'startDate' => true], actual: array_intersect_key($this->saved[1], ['type' => 1, 'startDate' => 1, 'source' => 1]));
+		$added = array_intersect_key($this->saved[1], ['type' => 1, 'startDate' => 1, 'source' => 1]);
+		$this->assertSame(expected: ['type' => 'date', 'source' => 'self', 'startDate' => true], actual: $added);
 		$this->assertSame(expected: ['in_dienst' => '2026-10-12'], actual: $this->values['yasmina']);
 	}//end testTheFieldIsAddedAndTheDatesCountFromToday()
 

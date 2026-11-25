@@ -64,6 +64,7 @@ import { CnPeopleWidgetForm } from '@conduction/nextcloud-vue'
 import axios from '@nextcloud/axios'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
+import { NULLABLE_OBJECT_PROP, OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { NEW_SELECTION_MODE, NEW_WINDOWS, windowDays } from '../../../services/newColleagues.js'
 
 /**
@@ -80,17 +81,11 @@ export default {
 	components: { CnPeopleWidgetForm },
 
 	props: {
-		/** The placement being edited, or `null` in create mode. */
-		editingWidget: {
-			type: Object,
-			default: null,
-		},
+		/** The people placement being edited; null when a new one is added. */
+		editingWidget: NULLABLE_OBJECT_PROP,
 
-		/** Initial content values. */
-		value: {
-			type: Object,
-			default: () => ({}),
-		},
+		/** The content a new placement starts from. */
+		value: OBJECT_PROP,
 	},
 
 	emits: ['update:content'],

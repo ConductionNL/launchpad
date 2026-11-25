@@ -39,14 +39,30 @@ class DemoSeedAccounts {
 	/**
 	 * Constructor.
 	 *
-	 * @param IUserManager  $userManager  Creates and finds users.
-	 * @param IGroupManager $groupManager Creates groups and memberships.
+	 * @param IUserManager       $userManager  Creates and finds users.
+	 * @param IGroupManager      $groupManager Creates groups and memberships.
+	 * @param DemoSeedStartDates $startDates   The start date field and the new colleagues' start dates.
 	 */
 	public function __construct(
 		private readonly IUserManager $userManager,
 		private readonly IGroupManager $groupManager,
+		private readonly DemoSeedStartDates $startDates,
 	) {
 	}//end __construct()
+
+	/**
+	 * The seed's start dates (REQ-PPL-014), counted from the load day.
+	 *
+	 * @param array<string, mixed> $seed  The seed; reads its `startDates`.
+	 * @param string               $today The load day, `YYYY-MM-DD`.
+	 *
+	 * @return array{field: string, people: array<string, string>} The field key and each person's date.
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+	 */
+	public function ensureStartDates(array $seed, string $today): array {
+		return $this->startDates->seed(definition: (array)($seed['startDates'] ?? []), today: $today);
+	}//end ensureStartDates()
 
 	/**
 	 * Ensure every seeded group exists with its display name.

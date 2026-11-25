@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use OCA\LaunchPad\Service\DemoSeedAccounts;
+use OCA\LaunchPad\Service\DemoSeedStartDates;
 use OCP\IGroup;
 use OCP\IGroupManager;
 use OCP\IUser;
@@ -42,6 +43,9 @@ class DemoSeedAccountsTest extends TestCase {
 	/** @var DemoSeedAccounts The helper under test. */
 	private DemoSeedAccounts $accounts;
 
+	/** @var DemoSeedStartDates&\PHPUnit\Framework\MockObject\MockObject The start dates part. */
+	private DemoSeedStartDates $startDates;
+
 	/**
 	 * Set up.
 	 *
@@ -61,7 +65,8 @@ class DemoSeedAccountsTest extends TestCase {
 		$groupManager->method('get')->willReturnCallback(fn (string $gid): ?IGroup => $this->groups[$gid] ?? null);
 		$groupManager->method('createGroup')->willReturnCallback(fn (string $gid): IGroup => $this->group(gid: $gid));
 
-		$this->accounts = new DemoSeedAccounts(userManager: $userManager, groupManager: $groupManager);
+		$this->startDates = $this->createMock(originalClassName: DemoSeedStartDates::class);
+		$this->accounts = new DemoSeedAccounts(userManager: $userManager, groupManager: $groupManager, startDates: $this->startDates);
 	}//end setUp()
 
 	/**
@@ -109,4 +114,22 @@ class DemoSeedAccountsTest extends TestCase {
 		$this->groups[$gid] = $group;
 		return $group;
 	}//end group()
+
+	/**
+	 * The seed's start dates go to the start dates part with the load day.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+	 */
+	public function testStartDatesAreSeededForTheLoadDay(): void {
+		$definition = ['field' => ['key' => 'in_dienst'], 'days' => ['yasmina' => 7]];
+		$this->startDates->expects($this->once())->method('seed')
+			->with($definition, '2026-10-05')
+			->willReturn(['field' => 'in_dienst', 'people' => ['yasmina' => '2026-10-12']]);
+
+		$report = $this->accounts->ensureStartDates(seed: ['startDates' => $definition], today: '2026-10-05');
+
+		$this->assertSame(expected: ['yasmina' => '2026-10-12'], actual: $report['people']);
+	}//end testStartDatesAreSeededForTheLoadDay()
 }//end class

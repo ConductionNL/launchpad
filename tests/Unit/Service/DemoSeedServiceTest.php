@@ -43,7 +43,6 @@ use OCA\LaunchPad\Service\DemoSeedParts;
 use OCA\LaunchPad\Service\DemoSeedPreferences;
 use OCA\LaunchPad\Service\DemoSeedPublishing;
 use OCA\LaunchPad\Service\DemoSeedService;
-use OCA\LaunchPad\Service\DemoSeedStartDates;
 use OCA\LaunchPad\Service\DemoShowcasesService;
 use OCA\LaunchPad\Service\ShowcasePlatform;
 use OCA\LaunchPad\Service\ShowcaseStores;
@@ -122,8 +121,7 @@ class DemoSeedServiceTest extends TestCase {
 						urlGenerator: $this->createMock(originalClassName: IURLGenerator::class)
 					)
 				),
-				files: $this->createMock(originalClassName: DemoSeedFiles::class),
-				startDates: $this->createMock(originalClassName: DemoSeedStartDates::class)
+				files: $this->createMock(originalClassName: DemoSeedFiles::class)
 			),
 			content: new DemoSeedContent(
 				catalogue: $this->catalogue(),

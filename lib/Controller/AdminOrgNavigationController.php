@@ -151,15 +151,16 @@ class AdminOrgNavigationController extends Controller {
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
 	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getEditableOrgNavigation(string $lang = OrgNavigationService::DEFAULT_LANGUAGE): JSONResponse {
-		$refusal = $this->guard->refusal();
-		if ($refusal !== null) {
-			return $refusal;
+		$refusal  = $this->guard->refusal();
+		$language = $this->validateLanguage(language: $lang);
+		if ($refusal === null && $language === null) {
+			$refusal = $this->failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		$language = $this->validateLanguage(language: $lang);
-		if ($language === null) {
-			return $this->failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		return $this->responseHelper->success(

@@ -159,6 +159,25 @@ class AdminOrgNavigationControllerTest extends TestCase {
 
 	}//end testGetForTheEditorRefusesANonAdministrator()
 
+	/**
+	 * An administrator asking the editor's copy in an unknown language gets
+	 * 400 and no tree.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+	 */
+	public function testGetForTheEditorRejectsAnUnsupportedLanguage(): void {
+		$this->loginAs(uid: 'admin', admin: true);
+
+		$this->service->expects(matcher: $this->never())->method('getTree');
+
+		$response = $this->controller->getEditableOrgNavigation(lang: 'de');
+
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+
+	}//end testGetForTheEditorRejectsAnUnsupportedLanguage()
+
 	public function testGetRejectsUnsupportedLanguage(): void {
 		$this->loginAs('alice', false);
 

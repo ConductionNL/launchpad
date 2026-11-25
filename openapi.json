@@ -3332,7 +3332,7 @@
                 "operationId": "admin-org-navigation-get-editable-org-navigation",
                 "x-launchpad-stability": "internal",
                 "summary": "Read the whole org-navigation tree for the editor (REQ-ONAV-007)",
-                "description": "Read the whole org-navigation tree for the editor (REQ-ONAV-007). The editor's working copy holds every node, also those in groups the administrator is not in, so a Save never drops them. Only an administrator, who may replace the whole tree anyway, gets it. Needs an administrator.",
+                "description": "Read the whole org-navigation tree for the editor (REQ-ONAV-007). The editor's working copy holds every node, also those in groups the administrator is not in, so a Save never drops them. Only an administrator, who may replace the whole tree anyway, gets it. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "admin-org-navigation"
                 ],

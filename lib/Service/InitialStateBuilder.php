@@ -535,6 +535,26 @@ class InitialStateBuilder {
 	}//end setUserTimezone()
 
 	/**
+	 * Set the footer the workspace shows below the grid and the viewer's
+	 * Nextcloud language, which picks its variant (workspace).
+	 *
+	 * Optional keys; the JS reader defaults to null, which renders no
+	 * footer, and to 'en' (REQ-FTR-001, REQ-FTR-006, REQ-FTR-007).
+	 *
+	 * @param array<string, mixed>|null $footer       The resolved footer payload, or null.
+	 * @param string                    $viewerLocale The viewer's language code, e.g. `nl`.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/specs/footer-customization/spec.md
+	 */
+	public function setFooter(?array $footer, string $viewerLocale): self {
+		$this->values['effectiveFooter'] = $footer;
+		$this->values['viewerLocale']    = $viewerLocale;
+		return $this;
+	}//end setFooter()
+
+	/**
 	 * Set the Talk conversation tokens the organisation pinned (workspace).
 	 *
 	 * Optional key; the JS reader defaults to an empty list

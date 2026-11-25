@@ -165,7 +165,8 @@ class ConditionalServiceRulesTest extends TestCase {
 	}//end testAPreviewPassesTheOverridesThrough()
 
 	/**
-	 * A new rule is stored with its placement, type, config, include flag and a creation time.
+	 * A new rule is stored with its placement, type, config, include flag and a creation time
+	 * in the SQL DATETIME form MySQL and MariaDB accept.
 	 *
 	 * @return void
 	 */
@@ -178,7 +179,7 @@ class ConditionalServiceRulesTest extends TestCase {
 		self::assertSame(expected: 'group', actual: $rule->getRuleType());
 		self::assertSame(expected: ['group' => 'staff'], actual: $rule->getRuleConfigArray());
 		self::assertFalse(condition: $rule->getIsInclude());
-		self::assertNotFalse(condition: DateTimeImmutable::createFromFormat(DATE_ATOM, (string)$rule->getCreatedAt()));
+		self::assertNotFalse(condition: DateTimeImmutable::createFromFormat('Y-m-d H:i:s', (string)$rule->getCreatedAt()));
 	}//end testANewRuleIsStoredWithItsFields()
 
 	/**

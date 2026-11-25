@@ -58,7 +58,7 @@ class PageDashboards {
 	 *
 	 * @return array{mayShare: bool, publicLinksAllowed: bool}
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function sharingPolicy(string $userId): array {
 		if ($this->sharing === null) {

@@ -59,7 +59,7 @@ import { logger } from '../../utils/logger.js'
 /**
  * Where a leaver's dashboards go (REQ-SHARE-016).
  *
- * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+ * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
  */
 export default {
 	name: 'LeaverHandoverSettings',
@@ -83,7 +83,7 @@ export default {
 	 * Read the stored setting.
 	 *
 	 * @return {Promise<void>}
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
 	async created() {
 		try {
@@ -106,7 +106,7 @@ export default {
 		 *
 		 * @param {string} query The search text.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 		 */
 		async onSearch(query) {
 			const seq = ++this.searchSeq
@@ -137,7 +137,7 @@ export default {
 		 *
 		 * @param {boolean} value Whether a leaver's manager comes first.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 		 */
 		async onManagerChange(value) {
 			this.manager = value === true
@@ -149,7 +149,7 @@ export default {
 		 *
 		 * @param {{id: string, displayName: string}|null} option The person, or null.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 		 */
 		async onFallbackChange(option) {
 			this.fallback = option ?? null
@@ -160,7 +160,7 @@ export default {
 		 * Store the setting.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 		 */
 		async save() {
 			try {

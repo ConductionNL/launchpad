@@ -424,7 +424,7 @@ class DashboardShareService {
 	 *
 	 * @return Dashboard[] The dashboards.
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
 	public function ownedDashboards(string $userId): array {
 		return $this->dashboardMapper->findByUserId(userId: $userId);

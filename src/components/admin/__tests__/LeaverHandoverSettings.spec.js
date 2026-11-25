@@ -5,7 +5,7 @@
  * Vitest tests for `LeaverHandoverSettings.vue`, the Clean up block of
  * Beheer ▸ Operations (dashboard-sharing REQ-SHARE-016, board LpBeheerOnderhoud).
  *
- * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+ * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

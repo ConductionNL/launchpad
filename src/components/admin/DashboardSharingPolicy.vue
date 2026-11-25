@@ -274,7 +274,7 @@ export default {
 		 *
 		 * @param {string} value `everyone`, `groups` or `none`.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 		 */
 		async onAllowedChange(value) {
 			this.sharingAllowed = value
@@ -294,7 +294,7 @@ export default {
 		 *
 		 * @param {boolean} value Whether public links may be created.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 		 */
 		async onPublicLinksChange(value) {
 			this.publicLinksAllowed = value === true

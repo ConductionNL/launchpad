@@ -1073,7 +1073,7 @@ export const api = {
 	 *
 	 * @param {{sharingAllowed?: string, publicLinksAllowed?: boolean}} data The policy fields to change.
 	 * @return {Promise} The axios response.
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	updateSharingPolicy(data) {
 		return axios.put(`${baseUrl}/api/admin/sharing-policy`, data)
@@ -1085,7 +1085,7 @@ export const api = {
 	 *
 	 * @param {{manager: boolean, fallbackUid: string}} data The handover.
 	 * @return {Promise} The axios response.
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
 	 */
 	updateLeaverHandover(data) {
 		return axios.put(`${baseUrl}/api/admin/leaver-handover`, data)

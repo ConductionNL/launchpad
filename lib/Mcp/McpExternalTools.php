@@ -152,7 +152,7 @@ class McpExternalTools {
 	 * @return array<string, mixed>
 	 *
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-11
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function createPublicShareLink(array $args): array {
 		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid')

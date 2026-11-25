@@ -301,7 +301,7 @@ class RoleService {
 		$assignment->setGroupId($groupId);
 		$assignment->setRole($role);
 		$assignment->setAssignedBy($assignedBy);
-		// assigned_at is a DATETIME: MySQL and MariaDB refuse ISO 8601 with an offset.
+		// The assigned_at column is a DATETIME: MySQL and MariaDB refuse ISO 8601 with an offset.
 		$assignment->setAssignedAt((new DateTime())->format('Y-m-d H:i:s'));
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 

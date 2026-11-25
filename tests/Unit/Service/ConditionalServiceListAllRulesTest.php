@@ -167,16 +167,16 @@ class ConditionalServiceListAllRulesTest extends TestCase {
 	public function testATilePlacementIsListedWithTheTileType(): void {
 		$this->ruleMapper->method('findAll')->willReturn(
 			[
-				$this->makeRule(10, true),
+				$this->makeRule(placementId: 10, isInclude: true),
 			]
 		);
 		$this->placementMapper->method('find')
-			->willReturn($this->makePlacement(10, 1, 'tile-6b06c83f2903b'));
+			->willReturn($this->makePlacement(id: 10, dashboardId: 1, widgetId: 'tile-6b06c83f2903b'));
 		$this->dashboardMapper->method('find')
-			->willReturn($this->makeDashboard(1, 'Marketing'));
+			->willReturn($this->makeDashboard(id: 1, name: 'Marketing'));
 
 		$rows = $this->service->listAllRules();
 
-		$this->assertSame('tile', $rows[0]['widgetType']);
+		$this->assertSame(expected: 'tile', actual: $rows[0]['widgetType']);
 	}//end testATilePlacementIsListedWithTheTileType()
 }//end class

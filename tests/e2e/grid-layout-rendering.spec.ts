@@ -209,9 +209,11 @@ test('in edit mode a tile shows its edit control, and choosing Edit opens the ti
 		const before = page.url()
 		await cog.click()
 		await page.getByRole('menuitem', { name: 'Edit tile' }).click()
-		const editor = page.getByRole('dialog', { name: 'Edit Tile' })
+		// The drawn tile form (tile-form-board-sync, #2080) is titled
+		// "Edit tile: <name>" and calls the field Name.
+		const editor = page.getByRole('dialog', { name: /^Edit tile/i })
 		await expect(editor).toBeVisible()
-		await expect(editor.getByLabel('Title')).toHaveValue(TILE_TITLE)
+		await expect(editor.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(TILE_TITLE)
 		expect(page.url()).toBe(before)
 	} finally {
 		await context.close()

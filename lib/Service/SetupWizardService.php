@@ -24,18 +24,24 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\RoleAssignment;
+use OCA\LaunchPad\Db\RoleAssignmentMapper;
 use OCA\LaunchPad\Kernel\Contracts\SetupWizardServiceInterface;
+use OCP\IAppConfig;
 
 /**
  * Service backing the setup wizard state + completion endpoints.
  *
  * Status values follow the spec (REQ-WIZ-008): `'done'`, `'skipped'`,
  * `'pending'`. The wizard "pending" state means a step has not been
- * traversed yet (no sibling setting written). `'skipped'` marks the
- * optional steps 3/4 whose sibling capability writes no setting the
- * heuristic can read. Five steps: Welcome, Groups, Examples, Roles, Done
+ * traversed yet (no sibling setting written). Step 3 is `'done'` once a
+ * demo showcase is installed and Step 4 once someone holds the LaunchPad
+ * admin role; both are `'pending'` before that, and a finished wizard
+ * without an admin role reports Step 4 `'skipped'` (the data model in the
+ * spec). Five steps: Welcome, Groups, Examples, Roles, Done
  * (REQ-WIZ-012); the footer is set on its own admin tab, not here.
  *
  * @spec openspec/changes/archive/2026-11-24-setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
@@ -51,10 +57,14 @@ class SetupWizardService implements SetupWizardServiceInterface {
 	/**
 	 * Constructor.
 	 *
-	 * @param AdminSettingMapper $settingMapper Admin-setting persistence.
+	 * @param AdminSettingMapper        $settingMapper   Admin-setting persistence.
+	 * @param IAppConfig|null           $appConfig       Where demo showcase installs are marked.
+	 * @param RoleAssignmentMapper|null $roleAssignments LaunchPad role assignments.
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settingMapper,
+		private readonly ?IAppConfig $appConfig=null,
+		private readonly ?RoleAssignmentMapper $roleAssignments=null,
 	) {
 	}//end __construct()
 
@@ -135,14 +145,24 @@ class SetupWizardService implements SetupWizardServiceInterface {
 		$groupOrder = ($settings[AdminSetting::KEY_GROUP_ORDER] ?? null);
 		$hasGroup = (is_array($groupOrder) === true && count($groupOrder) > 0);
 
-		// Steps 3 (demos) and 4 (admin-roles) live in sibling capabilities
-		// not yet implemented in this branch; surface them as `'skipped'`
-		// so the wizard advances cleanly when the embed component is a
-		// local stub. They flip to `'done'` once the sibling capability
-		// ships and writes its own settings.
 		$statusGroup = 'pending';
 		if ($hasGroup === true) {
 			$statusGroup = 'done';
+		}
+
+		$statusDemo = 'pending';
+		if ($this->hasInstalledShowcase() === true) {
+			$statusDemo = 'done';
+		}
+
+		// Skip on Step 4 writes nothing, so the server reads a finished
+		// wizard without an admin role as a skipped Step 4 ("Endpoint
+		// includes skipped step status"); before the finish it is pending.
+		$statusRoles = 'pending';
+		if ($this->hasAdminRoleAssignment() === true) {
+			$statusRoles = 'done';
+		} else if ($complete === true) {
+			$statusRoles = 'skipped';
 		}
 
 		$statusDone = 'pending';
@@ -153,11 +173,56 @@ class SetupWizardService implements SetupWizardServiceInterface {
 		return [
 			'1' => 'done',
 			'2' => $statusGroup,
-			'3' => 'skipped',
-			'4' => 'skipped',
+			'3' => $statusDemo,
+			'4' => $statusRoles,
 			'5' => $statusDone,
 		];
 	}//end computeStepStatuses()
+
+	/**
+	 * Whether any demo showcase is installed: DemoShowcasesService marks
+	 * each install as `showcase_installed_<id>` holding the dashboard UUID.
+	 *
+	 * @return bool True when at least one marker holds a UUID.
+	 *
+	 * @spec openspec/specs/setup-wizard/spec.md
+	 */
+	private function hasInstalledShowcase(): bool {
+		if ($this->appConfig === null) {
+			return false;
+		}
+
+		foreach ($this->appConfig->getKeys(app: Application::APP_ID) as $key) {
+			if (str_starts_with(haystack: $key, needle: DemoShowcasesService::CONFIG_PREFIX) === true
+				&& $this->appConfig->getValueString(app: Application::APP_ID, key: $key, default: '') !== ''
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}//end hasInstalledShowcase()
+
+	/**
+	 * Whether a user or group holds the LaunchPad admin role.
+	 *
+	 * @return bool True when an `admin` role assignment exists.
+	 *
+	 * @spec openspec/specs/setup-wizard/spec.md
+	 */
+	private function hasAdminRoleAssignment(): bool {
+		if ($this->roleAssignments === null) {
+			return false;
+		}
+
+		foreach ($this->roleAssignments->findAll() as $assignment) {
+			if ($assignment->getRole() === RoleAssignment::ROLE_ADMIN) {
+				return true;
+			}
+		}
+
+		return false;
+	}//end hasAdminRoleAssignment()
 
 	/**
 	 * The step the wizard opens at. A first run (nothing after Step 1

@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Required: this widget cannot be removed" : "Obvezno: tega gradnika ni mogoče odstraniti",
         "Connections of this dashboard": "Povezave te nadzorne plošče",
         "Connection states need the Integrations app": "Stanje povezav zahteva aplikacijo Integracije",
         "No widget on this dashboard uses an outside connection": "Noben gradnik na tej nadzorni plošči ne uporablja zunanje povezave",

@@ -28,23 +28,14 @@
  * Embedded page as outside it, and requires the kind's count to equal the
  * number of cards it leaves.
  *
- * Not serial on purpose: all four are expected red, and a serial file would
- * skip every test after the first.
+ * Not serial on purpose: each scenario stands on its own.
  *
- * EXPECTED RED (the change's tasks.md has every item open)
- * ============
- * open-the-picker: the picker is titled "Add widget" alone and lists
- *   "From the app catalogue", "Widgets from Launchpad", "Ready-made tiles"
- *   and "App tiles" one under the other, with no kind column, no
- *   "From other Nextcloud apps" heading and no Cancel / Add widget footer
- *   (src/modals/WidgetPickerModal.vue).
- * filter-by-kind: there is no kind column.
- * place-an-app-tile: an app is placed on click, there is no Add widget step,
- *   and catalogue apps sit under "From the app catalogue", not "App tiles".
- * embedded-page-not-allowed: the picker leaves out what the role may not
- *   add instead of showing it grey.
+ * The role rule copies the shipped Employee rule's allow-list without
+ * Embedded page (an empty allow-list allows nothing) and puts the group
+ * first in group_order, since a rule is only read for a group listed there;
+ * both are put back afterwards.
  *
- * Written in the cloud lane without a live instance; not yet run.
+ * Verified live 25 Nov 2026 on Nextcloud 34.0.6 + MariaDB: 4/4.
  *
  * Gate-19 @e2e traceability:
  *   @e2e widgets::open-the-picker
@@ -60,7 +51,13 @@ import type { RoleFeaturePermissionRow } from './fixtures/role-feature-permissio
 import type { OwnDashboard } from './support/ownDashboard.ts'
 
 import { expect, test } from '@playwright/test'
-import { deleteRoleFeaturePermission, saveRoleFeaturePermission } from './fixtures/role-feature-permissions.ts'
+import {
+	deleteRoleFeaturePermission,
+	listRoleFeaturePermissions,
+	readGroupOrder,
+	saveRoleFeaturePermission,
+	writeGroupOrder,
+} from './fixtures/role-feature-permissions.ts'
 import { enterEditMode } from './support/dashboardSwitcher.ts'
 import { setLanguage } from './support/orWidget.ts'
 import { openOwnDashboard, readPlacements, setUpOwnDashboard, tearDownOwnDashboard } from './support/ownDashboard.ts'
@@ -77,6 +74,7 @@ let own: OwnDashboard
 let admin: APIRequestContext
 let catalogueUuid: string | null = null
 let rule: RoleFeaturePermissionRow | null = null
+let groupOrderBefore: string[] | null = null
 
 test.setTimeout(120_000)
 
@@ -160,12 +158,23 @@ test.beforeAll(async () => {
 	expect(entry.status(), await entry.text()).toBe(201)
 	catalogueUuid = (await entry.json()).app.uuid
 
+	// The role allows what the shipped Employee rule allows (else the shipped
+	// default rule) except Embedded page. An empty allow-list would allow
+	// nothing at all, and a rule is only read for a group in group_order.
+	const shipped = await listRoleFeaturePermissions(admin)
+	const base = shipped.find((row) => row.groupId === 'medewerkers')
+		?? own.defaultRuleBefore
+		?? shipped.find((row) => row.groupId === 'default')
+	const allowedWidgets = (base?.allowedWidgets ?? ['clock', 'graph', 'pie-chart', 'section-heading', 'tile', 'app-tile', 'text'])
+		.filter((id) => id !== 'iframe')
 	rule = await saveRoleFeaturePermission(admin, {
 		groupId: EMPLOYEE,
 		name: `Employee ${STAMP}`,
-		allowedWidgets: [],
+		allowedWidgets,
 		deniedWidgets: ['iframe'],
 	})
+	groupOrderBefore = await readGroupOrder(admin)
+	await writeGroupOrder(admin, [EMPLOYEE, ...groupOrderBefore.filter((g) => g !== EMPLOYEE)])
 })
 
 test.afterAll(async () => {
@@ -173,6 +182,9 @@ test.afterAll(async () => {
 	if (admin) {
 		if (catalogueUuid) {
 			await admin.delete(`${API}/admin/catalogue/${catalogueUuid}`)
+		}
+		if (groupOrderBefore !== null) {
+			await writeGroupOrder(admin, groupOrderBefore)
 		}
 		if (rule) {
 			await deleteRoleFeaturePermission(admin, rule.id)
@@ -194,7 +206,8 @@ test('Add widget on My workspace opens one dialog with the search, the kinds and
 		await expect(dashboardName).toBeVisible()
 		await expect(title).toBeVisible()
 		expect((await dashboardName.boundingBox())!.y).toBeLessThan((await title.boundingBox())!.y)
-		const width = (await picker.boundingBox())!.width
+		// The dialog role sits on the full-screen mask; the dialog box is its .modal-container.
+		const width = (await picker.locator('.modal-container').first().boundingBox())!.width
 		expect(Math.abs(width - 720), `the dialog is ${width} px wide`).toBeLessThanOrEqual(24)
 
 		// The search, then the kinds, with the cards to their right.
@@ -230,7 +243,9 @@ test('Add widget on My workspace opens one dialog with the search, the kinds and
 		const add = picker.getByRole('button', { name: 'Add widget', exact: true })
 		await expect(cancel).toBeVisible()
 		await expect(add).toBeVisible()
-		expect((await add.boundingBox())!.y).toBeGreaterThan(tops[tops.length - 1])
+		// The card list scrolls; the footer stays under it, at the dialog's bottom.
+		const body = (await picker.locator('.widget-picker__body').first().boundingBox())!
+		expect((await add.boundingBox())!.y).toBeGreaterThanOrEqual(body.y + body.height - 1)
 	} finally {
 		await context.close()
 	}

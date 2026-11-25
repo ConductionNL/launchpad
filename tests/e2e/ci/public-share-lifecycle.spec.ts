@@ -212,6 +212,17 @@ test.beforeAll(async () => {
 	priorAllowUserDash = (await before.json()).allowUserDashboards === true
 	const enable = await admin.put(SETTINGS, { data: { allowUserDash: true } })
 	expect(enable.status(), await enable.text()).toBeLessThan(300)
+	// The non-owner test signs in as GRANTEE; create the account when this
+	// instance does not have it, so a fresh instance answers 403, not 401.
+	const known = await admin.get(
+		`/ocs/v2.php/cloud/users/${encodeURIComponent(GRANTEE.user)}?format=json`,
+	)
+	if (!known.ok()) {
+		const created = await admin.post('/ocs/v2.php/cloud/users?format=json', {
+			form: { userid: GRANTEE.user, password: GRANTEE.pass },
+		})
+		expect(created.status(), await created.text()).toBe(200)
+	}
 	await admin.dispose()
 })
 
@@ -263,7 +274,10 @@ test.describe('public share creation options', () => {
 		const uuid = await createDashboard(admin, 'pw-share')
 
 		const password = 'SecurePass123!'
-		const res = await admin.post(shareUrl(uuid), { data: { password } })
+		// REQ-SHARE-015: every new public link carries an expiry date.
+		const res = await admin.post(shareUrl(uuid), {
+			data: { expiresAt: FAR_EXPIRY, password },
+		})
 		expect(res.status(), await res.text()).toBe(201)
 		const raw = await res.text()
 		const share = JSON.parse(raw)

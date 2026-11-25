@@ -18,9 +18,8 @@ Wizard progress (per-step completion status) is derived heuristically from the s
 - Step 1 (Welcome): always "done" (no choice to persist)
 - Step 2 (Group order): "done" if `launchpad.group_priority_order` is set; "pending" otherwise
 - Step 3 (Demo data): "done" if at least one demo package has been installed; "pending" otherwise
-- Step 4 (Admin roles): "skipped" if not visited; "done" if a "Dashboard Admin" role assignment exists
-- Step 5 (Footer): "skipped" if not visited; "done" if `launchpad.footer_config` is set
-- Step 6 (Done): "pending" until wizard completes
+- Step 4 (Admin roles): "done" if a LaunchPad admin role assignment exists; "skipped" once the wizard is finished without one; "pending" otherwise
+- Step 5 (Done): "pending" until wizard completes (REQ-WIZ-012: five steps; the footer is set on its own admin tab)
 
 The storage step that sat at Step 2 was retired on 9 Oct 2026 (decision 131, change `retire-setup-wizard-storage-step`). A `content_storage` row it wrote stays in the table and is never read.
 
@@ -176,12 +175,11 @@ The system MUST expose a `GET /api/admin/setup-wizard/state` endpoint that retur
       "2": "pending",
       "3": "pending",
       "4": "pending",
-      "5": "pending",
-      "6": "pending"
+      "5": "pending"
     }
   }
   ```
-- NOTE: Step 1 is always "done" (no choice required). Steps 2–6 start "pending".
+- NOTE: Step 1 is always "done" (no choice required). Steps 2–5 start "pending".
 
 #### Scenario: Endpoint returns recommended step for re-runs
 - GIVEN a LaunchPad instance where the group order is not yet set

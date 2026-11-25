@@ -39,6 +39,7 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\StreamResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
+use OCA\LaunchPad\Service\AdminSettingsValidator;
 use OCP\IRequest;
 
 /**
@@ -464,6 +465,7 @@ class AdminController extends Controller {
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-settings-api-error-handling-req-aset-011
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateSettings(
@@ -493,21 +495,22 @@ class AdminController extends Controller {
 		array|null $pinnedCommunities = null,
 		bool|null $defaultAppEnabled = null,
 	): JSONResponse {
-		// Read-side aliases, see the docblock. Short form wins.
-		$defaultPermLevel ??= $defaultPermissionLevel;
-		$allowUserDash ??= $allowUserDashboards;
-		$allowMultiDash ??= $allowMultipleDashboards;
-		$defaultGridCols ??= $defaultGridColumns;
-		$linkCreateFileExts ??= $linkCreateFileExtensions;
+		// REQ-ASET-002: Nextcloud casts a bool parameter before it gets here
+		// ("maybe" arrives as true), so the raw value is checked first.
+		$notBoolean = (new AdminSettingsValidator())->firstNonBooleanParam(request: $this->request);
+		if ($notBoolean !== null) {
+			return $this->failure(message: $notBoolean.' must be true or false', statusCode: Http::STATUS_BAD_REQUEST);
+		}
 
 		try {
 			$this->settings->settingsService->updateSettings(
 				settings: [
-					'defaultPermLevel'            => $defaultPermLevel,
-					'allowUserDash'               => $allowUserDash,
-					'allowMultiDash'              => $allowMultiDash,
-					'defaultGridCols'             => $defaultGridCols,
-					'linkCreateFileExts'          => $linkCreateFileExts,
+					// Read-side aliases, see the docblock. Short form wins.
+					'defaultPermLevel'            => $defaultPermLevel ?? $defaultPermissionLevel,
+					'allowUserDash'               => $allowUserDash ?? $allowUserDashboards,
+					'allowMultiDash'              => $allowMultiDash ?? $allowMultipleDashboards,
+					'defaultGridCols'             => $defaultGridCols ?? $defaultGridColumns,
+					'linkCreateFileExts'          => $linkCreateFileExts ?? $linkCreateFileExtensions,
 					'defaultSharePermissionLevel' => $defaultSharePermissionLevel,
 					'forcedShareGroups'           => $forcedShareGroups,
 					'legacyWidgetBridgeEnabled'   => $legacyWidgetBridgeEnabled,
@@ -530,7 +533,8 @@ class AdminController extends Controller {
 		} catch (\InvalidArgumentException $e) {
 			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		} catch (\Exception $e) {
-			return $this->context->responseHelper->error(exception: $e);
+			// REQ-ASET-011: the store failing is a server error; the message stays generic.
+			return $this->context->responseHelper->error(exception: $e, statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}//end try
 	}//end updateSettings()
 

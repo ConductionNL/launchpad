@@ -53,6 +53,15 @@ class RequestDataExtractor {
 	private const TILE_GRID_PARAMS = ['gridX', 'gridY'];
 
 	/**
+	 * The tile size read from the request when the caller gives one (a positive
+	 * whole number of cells); left out otherwise, so the placement keeps its
+	 * default size.
+	 *
+	 * @var list<string>
+	 */
+	private const TILE_SIZE_PARAMS = ['gridWidth', 'gridHeight'];
+
+	/**
 	 * The placement fields a placement update may carry.
 	 *
 	 * @var list<string>
@@ -96,6 +105,7 @@ class RequestDataExtractor {
 	 * @return array The tile configuration data.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-infrastructure-helpers/tasks.md#task-3
+	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
 	 */
 	public static function extractTileData(IRequest $request): array {
 		$data = [];
@@ -111,6 +121,15 @@ class RequestDataExtractor {
 				key: $field,
 				default: 0
 			);
+		}
+
+		// REQ-WDG-042: an app tile from the picker asks for one cell; without
+		// this the size was dropped and every tile landed as 2x2.
+		foreach (self::TILE_SIZE_PARAMS as $field) {
+			$size = $request->getParam(key: $field, default: null);
+			if (is_numeric($size) === true && (int)$size > 0) {
+				$data[$field] = (int)$size;
+			}
 		}
 
 		return $data;

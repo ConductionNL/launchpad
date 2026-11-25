@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Obligatoresch: dëse Widget kann net ewechgeholl ginn",
     "Connections of this dashboard" : "Verbindunge vun dësem Dashboard",
     "Connection states need the Integrations app" : "Fir de Status vun de Verbindunge brauch een d’App Integratiounen",
     "No widget on this dashboard uses an outside connection" : "Keen Widget op dësem Dashboard benotzt eng extern Verbindung",

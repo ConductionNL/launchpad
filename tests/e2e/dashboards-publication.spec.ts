@@ -59,7 +59,7 @@ import {
 	STAMP,
 	visibleRows,
 } from './support/dashboardHierarchy.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, openDashboardSettings } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	API,
@@ -171,11 +171,16 @@ async function moreItem(page: Page, id: string) {
 /**
  * Open the dashboard settings on the Publication tab (REQ-SCHEDUI-001).
  *
+ * The owner opens the settings the way a person does, edit mode and then
+ * Dashboard settings in the edit bar (board LpBewerken); the Meer menu offers
+ * Settings only to an administrator on a dashboard they do not own
+ * (REQ-SCHEDUI-001, board LpMeer), so it is not the way in for Alice.
+ *
  * @param page the start page.
  * @return the Publication panel.
  */
 async function openPublicationTab(page: Page) {
-	await (await moreItem(page, 'config')).click()
+	await openDashboardSettings(page)
 	await page.locator('[data-test="config-tab-publication"]').click()
 	const panel = page.locator('[data-test="config-panel-publication"]')
 	await expect(panel).toBeVisible({ timeout: 15_000 })
@@ -613,8 +618,10 @@ test.describe('dashboards — publication state (REQ-DASH-031..037, REQ-SCHEDUI-
 				'Goes live on',
 			)
 
-			// The Meer menu offers none of it any more.
-			await expect(await moreItem(page, 'config')).toBeVisible()
+			// The Meer menu offers none of it any more (and no Settings to the
+			// owner either: that is an administrator's way in, REQ-SCHEDUI-001).
+			await expect(await moreItem(page, 'copy-link')).toBeVisible()
+			await expect(page.locator('[data-testid="launchpad-more-menu-item-config"]')).toHaveCount(0)
 			for (const id of ['publish', 'unpublish', 'schedule']) {
 				await expect(page.locator(`[data-testid="launchpad-more-menu-item-${id}"]`)).toHaveCount(0)
 			}

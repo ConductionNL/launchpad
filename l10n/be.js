@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Абавязковы: гэты віджэт нельга выдаліць",
     "Connections of this dashboard" : "Падключэнні гэтай панэлі",
     "Connection states need the Integrations app" : "Для стану падключэнняў патрэбна праграма «Інтэграцыі»",
     "No widget on this dashboard uses an outside connection" : "Ніводзін віджэт на гэтай панэлі не выкарыстоўвае знешняе падключэнне",

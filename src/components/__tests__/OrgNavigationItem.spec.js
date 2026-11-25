@@ -135,6 +135,16 @@ describe('OrgNavigationItem active detection', () => {
 		expect(wrapper.classes()).not.toContain('org-nav-item--active')
 	})
 
+	it('opens when a descendant becomes active after mounting (REQ-ONAV-009)', async () => {
+		const wrapper = mountItem(section, { currentUrl: '/elsewhere' })
+		expect(wrapper.vm.expanded).toBe(false)
+
+		await wrapper.setProps({ currentUrl: '/two' })
+
+		expect(wrapper.vm.expanded).toBe(true)
+		expect(wrapper.attributes('aria-expanded')).toBe('true')
+	})
+
 	it('stays collapsed when no descendant is active', () => {
 		const wrapper = mountItem(section, { currentUrl: '/elsewhere' })
 

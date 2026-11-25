@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Wymagany: tego widżetu nie można usunąć",
     "Connections of this dashboard" : "Połączenia tego pulpitu",
     "Connection states need the Integrations app" : "Stan połączeń wymaga aplikacji Integracje",
     "No widget on this dashboard uses an outside connection" : "Żaden widżet na tym pulpicie nie używa połączenia zewnętrznego",

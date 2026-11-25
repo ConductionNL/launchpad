@@ -468,6 +468,7 @@ class AdminSettingsService {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
 	 */
 	public function updateSettings(array $settings): void {
+		(new AdminSettingsValidator())->assertValidCoreSettings(settings: $settings);
 		foreach (self::PLAIN_SETTINGS as $name => $key) {
 			$this->persistIfGiven(key: $key, value: $settings[$name] ?? null);
 		}

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Kohustuslik: seda vidinat ei saa eemaldada",
     "Connections of this dashboard" : "Selle töölaua ühendused",
     "Connection states need the Integrations app" : "Ühenduste oleku jaoks on vaja rakendust Integratsioonid",
     "No widget on this dashboard uses an outside connection" : "Ükski selle töölaua vidin ei kasuta välist ühendust",

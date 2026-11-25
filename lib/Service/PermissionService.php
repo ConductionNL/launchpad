@@ -490,6 +490,7 @@ class PermissionService {
 	 * @return string The effective permission level.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-24
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-retrieve-admin-settings-req-aset-001
 	 */
 	public function getEffectivePermissionLevel(
 		Dashboard $dashboard,
@@ -515,9 +516,11 @@ class PermissionService {
 			return $level;
 		}
 
+		// The factory default is add_only, the value GET /api/admin/settings
+		// reports while no level is stored (REQ-ASET-001); both read it here.
 		return $this->settingMapper->getValue(
 			key: AdminSetting::KEY_DEFAULT_PERMISSION_LEVEL,
-			default: Dashboard::PERMISSION_FULL
+			default: Dashboard::PERMISSION_ADD_ONLY
 		);
 	}//end getEffectivePermissionLevel()
 

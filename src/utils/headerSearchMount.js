@@ -6,7 +6,7 @@
  * as its own small app, beside the page's app: the field it serves lives in
  * Nextcloud's header, outside `#workspace-vue`.
  *
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 
 import { createApp } from 'vue'
@@ -20,7 +20,7 @@ export const HEADER_SEARCH_HOST_ID = 'launchpad-header-search'
  *
  * @param {Array<object>} shortcuts The admin's search shortcuts (REQ-SPX-002).
  * @return {object|null} The app, or null when it was already mounted.
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export function mountHeaderSearch(shortcuts) {
 	if (document.getElementById(HEADER_SEARCH_HOST_ID)) {

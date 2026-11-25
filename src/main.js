@@ -264,7 +264,7 @@ app.mount('#workspace-vue')
 // header-search-dropdown REQ-SRCH-013: the top bar's search field shows its
 // results under the field on LaunchPad pages, with the first search shortcut
 // as the tip.
-// @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+// @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 mountHeaderSearch(initialState.searchShortcuts)
 
 export default app

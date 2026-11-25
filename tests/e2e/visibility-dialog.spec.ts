@@ -156,8 +156,11 @@ test('View as a person in the group on a Tuesday at 10:00 says they see the widg
 
 	const person = page.locator('[data-test="preview-person"]').locator('input').first()
 	await person.fill(sanne!.username)
-	await page.getByRole('option', { name: sanne!.username }).first().click()
-	await page.locator('[data-test="preview-datetime"]').locator('input').first().fill('2026-10-13T10:00')
+	// NcSelect splits a long name into two flex parts, so the option's
+	// accessible name carries a space mid-name; match its text instead.
+	await page.getByRole('option').filter({ hasText: sanne!.username }).first().click()
+	// NcTextField hands data-test to the <input> itself, not to a wrapper.
+	await page.locator('input[data-test="preview-datetime"], [data-test="preview-datetime"] input').first().fill('2026-10-13T10:00')
 
 	const previewed = page.waitForResponse((res) => res.url().includes('/api/visibility/preview'))
 	await page.locator('[data-test="run-preview"]').click()

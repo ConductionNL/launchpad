@@ -238,7 +238,7 @@ class LaunchPadSearchProvider implements IProvider {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+	 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
 	private function collectDashboardMatch(Dashboard $dashboard, string $source, SearchBuckets $buckets): void {
 		if (count($buckets->dashboardEntries) >= self::PER_BUCKET_LIMIT) {
@@ -557,7 +557,7 @@ class LaunchPadSearchProvider implements IProvider {
 	 *
 	 * @return SearchResultEntry The result entry.
 	 *
-	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+	 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
 	private function buildDashboardEntry(Dashboard $dashboard, string $source): SearchResultEntry {
 		$l10n = $this->links->l10nFactory->get(app: Application::APP_ID);

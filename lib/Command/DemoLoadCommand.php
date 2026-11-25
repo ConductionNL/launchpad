@@ -61,7 +61,8 @@ class DemoLoadCommand extends Command {
 	 */
 	protected function configure(): void {
 		$this->setName(name: 'launchpad:demo:load')
-			->setDescription(description: 'Load the LaunchPad demo environment: demo users, groups and the dashboards of every board.')
+			->setDescription(description: 'Load the LaunchPad demo users, groups and boards.')
+			->setHelp(help: 'Load the LaunchPad demo environment: demo users, groups and the dashboards of every board.')
 			->addOption(
 				name: 'seed',
 				shortcut: null,

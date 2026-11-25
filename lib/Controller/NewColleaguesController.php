@@ -17,7 +17,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md
  */
 
 declare(strict_types=1);
@@ -37,7 +37,7 @@ use OCP\IRequest;
 /**
  * The new colleagues the caller may see.
  *
- * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
  */
 class NewColleaguesController extends Controller {
 	/**
@@ -47,7 +47,7 @@ class NewColleaguesController extends Controller {
 	 * @param NewColleagues  $colleagues Who started recently or starts soon.
 	 * @param ActorResponses $context    The caller and the action check.
 	 *
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
 	public function __construct(
 		IRequest $request,
@@ -72,7 +72,7 @@ class NewColleaguesController extends Controller {
 	 * @no-admin-idor-exempt Addresses no object: it lists people through the
 	 *   same visibility checks as the people widget, for the caller.
 	 *
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]

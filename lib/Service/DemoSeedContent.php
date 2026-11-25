@@ -63,7 +63,7 @@ class DemoSeedContent {
 	 *
 	 * @return array<string, string> The start date written per person.
 	 *
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
 	public function seedStartDates(array $entry, string $today): array {
 		$offsets = (array)($entry['offsets'] ?? []);
@@ -90,7 +90,7 @@ class DemoSeedContent {
 	 *
 	 * @return string The key.
 	 *
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
 	private function startDateKey(array $field): string {
 		$definitions = $this->profileFields->getDefinitions();

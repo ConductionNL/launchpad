@@ -6,7 +6,7 @@
  * token name (`content.colourToken`) and renders through it, so the colour
  * follows the theme; a tile with a hex colour keeps it.
  *
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
  */
 
 /** The swatches in palette order, each with its fallback for an unthemed page. */
@@ -28,7 +28,7 @@ const PRIMARY = `var(--sc-primary, ${TILE_COLOUR_TOKENS[0].fallback})`
  *
  * @param {unknown} token The stored value.
  * @return {boolean}
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
  */
 export function isColourToken(token) {
 	return typeof token === 'string' && /^--sc-[a-z0-9-]+$/.test(token)
@@ -42,7 +42,7 @@ export function isColourToken(token) {
  * @param {{backgroundColor?: string}|null} tile The tile.
  * @param {{colourToken?: string}|null} content The placement content.
  * @return {string} the CSS value.
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
  */
 export function tileBackground(tile, content) {
 	const token = content?.colourToken

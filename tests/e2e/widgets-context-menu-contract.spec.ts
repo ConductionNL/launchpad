@@ -95,7 +95,9 @@ function recordApiCalls(page: Page): Request[] {
 	const seen: Request[] = []
 	page.on('request', (req) => {
 		const url = req.url()
-		if (url.includes('/apps/launchpad/api/') && !url.includes('/presence')) {
+		// Presence pings and the dashboard view beacon (view analytics) run on
+		// their own clock; they are not a reaction to the menu.
+		if (url.includes('/apps/launchpad/api/') && !url.includes('/presence') && !url.endsWith('/view-event')) {
 			seen.push(req)
 		}
 	})

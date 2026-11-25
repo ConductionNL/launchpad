@@ -58,7 +58,8 @@ class ImportConfluenceCommand extends Command {
 	 */
 	protected function configure(): void {
 		$this->setName(name: 'launchpad:import:confluence')
-			->setDescription(description: 'Import a Confluence HTML export ZIP into LaunchPad dashboards.')
+			->setDescription(description: 'Import a Confluence HTML export ZIP as dashboards.')
+			->setHelp(help: 'Import a Confluence HTML export ZIP into LaunchPad dashboards.')
 			->addOption(
 				name: 'file',
 				shortcut: 'f',

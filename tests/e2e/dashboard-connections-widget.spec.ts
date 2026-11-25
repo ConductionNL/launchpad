@@ -14,7 +14,7 @@
  * Gate-19 @e2e traceability:
  *   @e2e app-connections::the-management-dashboards-connections
  *
- * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md
+ * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md
  */
 import type { APIRequestContext } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'

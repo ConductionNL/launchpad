@@ -82,12 +82,17 @@ import {
 	moveSelection,
 	searchAll,
 } from '../services/headerSearch.js'
+import {
+	fieldWords,
+	removeInlineField,
+	resolveSearchField,
+} from '../utils/headerSearchField.js'
 
 /**
  * Nextcloud's top bar search field, across the core versions LaunchPad runs on.
  *
  * @type {string}
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export const CORE_SEARCH_FIELD_SELECTOR = '.unified-search-input, #unified-search input, .unified-search__input, input.unified-search-menu__input'
 
@@ -104,13 +109,15 @@ let instanceCounter = 0
  * on LaunchPad pages (header-search-dropdown, REQ-SRCH-013).
  *
  * The field belongs to Nextcloud core and its words to thematiq
- * (`search-placeholder.js`), so this component does not render or replace
- * it. It finds the field, gives it the combobox attributes (WAI-ARIA 1.2:
+ * (`search-placeholder.js`). Where core's top bar has a field this component
+ * does not render or replace it; where it has only a button (Nextcloud 31+
+ * on a desktop), it places a field in the button's place that shows the
+ * button's words (`utils/headerSearchField.js`). It finds the field, gives it the combobox attributes (WAI-ARIA 1.2:
  * `role="combobox"`, `aria-expanded`, `aria-controls`,
  * `aria-activedescendant`), listens to its input and keys, and draws a
  * listbox under it. It never writes the field's `placeholder` or value.
  *
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 export default {
 	name: 'HeaderSearchDropdown',
@@ -120,14 +127,14 @@ export default {
 		 * The admin's search shortcuts `{prefix, name, urlTemplate}`
 		 * (REQ-SPX-002); the first one gives the tip.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		shortcuts: LIST_PROP,
 
 		/**
 		 * The CSS selector of the field to attach to.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		fieldSelector: {
 			type: String,
@@ -147,6 +154,7 @@ export default {
 			panelStyle: {},
 			listboxId: `lp-header-search-${instanceCounter}`,
 			observer: null,
+			labelObserver: null,
 			timer: null,
 			controller: null,
 		}
@@ -157,7 +165,7 @@ export default {
 		 * The "Show all results" row, as an option.
 		 *
 		 * @return {{key: string}} The row.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		showAllOption() {
 			return { key: SHOW_ALL_KEY }
@@ -167,7 +175,7 @@ export default {
 		 * Every selectable row in list order: the results, then "Show all".
 		 *
 		 * @return {Array<object>} The options.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		options() {
 			const results = this.groups.flatMap((group) => group.results)
@@ -178,7 +186,7 @@ export default {
 		 * The shortcut the tip names, or null.
 		 *
 		 * @return {{prefix: string, name: string}|null} The shortcut.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		shortcut() {
 			return firstShortcut(this.shortcuts)
@@ -189,7 +197,7 @@ export default {
 		/**
 		 * Keep the field's combobox state in step with the list.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		open() {
 			this.syncFieldAria()
@@ -198,7 +206,7 @@ export default {
 		/**
 		 * Keep `aria-activedescendant` on the selected row.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		activeIndex() {
 			this.syncFieldAria()
@@ -208,7 +216,7 @@ export default {
 	/**
 	 * Attach to the field, now or once the top bar renders it.
 	 *
-	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+	 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
 	mounted() {
 		if (!this.attach()) {
@@ -226,7 +234,7 @@ export default {
 	/**
 	 * Let go of the field and cancel pending work.
 	 *
-	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+	 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
 	beforeUnmount() {
 		this.observer?.disconnect()
@@ -239,17 +247,32 @@ export default {
 		t,
 
 		/**
-		 * Find the field and bind to it.
+		 * Find the field and bind to it. On Nextcloud 31+ the desktop top bar
+		 * has only a button, so LaunchPad places its own field there
+		 * (`resolveSearchField()`), following the button's words.
 		 *
 		 * @return {boolean} Whether the field was found.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		attach() {
-			const field = document.querySelector(this.fieldSelector)
-			if (!field) {
+			const resolved = resolveSearchField(
+				document.querySelector(this.fieldSelector),
+				t('launchpad', 'Search'),
+			)
+			if (!resolved) {
 				return false
 			}
+			const { field, created, label } = resolved
 			this.field = field
+			if (created && label) {
+				// thematiq can write its field words after LaunchPad mounts.
+				this.labelObserver = new MutationObserver(() => {
+					const words = fieldWords(label.parentElement, field.placeholder)
+					field.placeholder = words
+					field.setAttribute('aria-label', words)
+				})
+				this.labelObserver.observe(label, { childList: true, characterData: true, subtree: true })
+			}
 			field.setAttribute('role', 'combobox')
 			field.setAttribute('aria-autocomplete', 'list')
 			field.setAttribute('aria-controls', this.listboxId)
@@ -264,7 +287,7 @@ export default {
 		/**
 		 * Unbind from the field.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		detach() {
 			const field = this.field
@@ -276,13 +299,16 @@ export default {
 			field.removeEventListener('blur', this.onBlur)
 			field.removeAttribute('aria-activedescendant')
 			field.setAttribute('aria-expanded', 'false')
+			this.labelObserver?.disconnect()
+			this.labelObserver = null
+			removeInlineField(field)
 			this.field = null
 		},
 
 		/**
 		 * Mirror the list's state on the field.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		syncFieldAria() {
 			const field = this.field
@@ -303,7 +329,7 @@ export default {
 		 *
 		 * @param {{key: string}} option The row.
 		 * @return {string} The id.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		optionId(option) {
 			return `${this.listboxId}-${option.key}`
@@ -314,7 +340,7 @@ export default {
 		 *
 		 * @param {{key: string}} option The row.
 		 * @return {boolean} True when selected.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		isActive(option) {
 			return this.options[this.activeIndex]?.key === option.key
@@ -324,7 +350,7 @@ export default {
 		 * The field changed: search after a short pause, or close under two
 		 * characters.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		onInput() {
 			this.query = this.field?.value ?? ''
@@ -340,7 +366,7 @@ export default {
 		 * Ask the providers and open the list with the first result selected.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		async search() {
 			this.controller?.abort()
@@ -363,7 +389,7 @@ export default {
 		/**
 		 * Place the panel under the field, as wide as the field.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		position() {
 			const rect = this.field?.getBoundingClientRect?.()
@@ -382,7 +408,7 @@ export default {
 		 * list and keeps the query and the focus.
 		 *
 		 * @param {KeyboardEvent} event The key press on the field.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		onKeydown(event) {
 			if (!this.open) {
@@ -421,7 +447,7 @@ export default {
 		 * Close when the focus leaves the field (a row click is a mousedown
 		 * with its default prevented, so it keeps the focus).
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		onBlur() {
 			this.close()
@@ -431,7 +457,7 @@ export default {
 		 * Open a result, or hand the query to Nextcloud's own search dialog.
 		 *
 		 * @param {{key: string, url?: string}} option The chosen row.
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		choose(option) {
 			if (option.key === SHOW_ALL_KEY) {
@@ -449,7 +475,7 @@ export default {
 		/**
 		 * Close the list. The field keeps its value and its focus.
 		 *
-		 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+		 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 		 */
 		close() {
 			clearTimeout(this.timer)
@@ -550,5 +576,45 @@ export default {
 .lp-header-search__tip {
 	border-top: 1px solid var(--color-border);
 	font-size: 0.9em;
+}
+</style>
+
+<style>
+/* LaunchPad's field in Nextcloud 31+'s top bar (utils/headerSearchField.js); unscoped: the top bar is core's DOM.
+   It takes the look of the core button it stands in for; the host has pointer-events: none in core. */
+.lp-header-search-host .unified-search-input__button {
+	display: none !important;
+}
+
+.lp-header-search-host input.lp-header-search-field {
+	pointer-events: auto;
+	width: 100%;
+	height: calc(var(--default-clickable-area, 34px) - 8px);
+	min-height: 0;
+	margin: 0;
+	padding: 0 12px;
+	border: none;
+	border-radius: var(--border-radius-element, 8px);
+	background-color: rgba(0, 0, 0, 0.15);
+	backdrop-filter: var(--filter-background-blur);
+	box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.12);
+	color: var(--color-background-plain-text, #fff);
+	font: inherit;
+	text-align: start;
+}
+
+.lp-header-search-host input.lp-header-search-field::placeholder {
+	color: color-mix(in srgb, var(--color-background-plain-text, #fff) 70%, var(--color-background-plain, #00679e));
+	opacity: 1;
+}
+
+.lp-header-search-host input.lp-header-search-field:hover,
+.lp-header-search-host input.lp-header-search-field:focus {
+	background-color: rgba(0, 0, 0, 0.22);
+}
+
+.lp-header-search-host input.lp-header-search-field:focus-visible {
+	outline: 2px solid var(--color-background-plain-text, #fff);
+	outline-offset: 2px;
 }
 </style>

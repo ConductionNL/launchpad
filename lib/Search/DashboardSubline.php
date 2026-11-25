@@ -17,7 +17,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 
 declare(strict_types=1);
@@ -34,7 +34,7 @@ use Throwable;
 /**
  * Builds the detail line of a dashboard result (REQ-SRCH-013).
  *
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 class DashboardSubline {
 	/**
@@ -65,7 +65,7 @@ class DashboardSubline {
 	 *
 	 * @return string|null The detail line, or null when there is none.
 	 *
-	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+	 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
 	public function forDashboard(Dashboard $dashboard, string $source, IL10N $l10n): ?string {
 		if ($source === Dashboard::SOURCE_SHARED) {
@@ -87,7 +87,7 @@ class DashboardSubline {
 	 *
 	 * @return string|null The detail line.
 	 *
-	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+	 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
 	private function sharedLine(Dashboard $dashboard, IL10N $l10n): ?string {
 		$ownerId = (string)$dashboard->getUserId();
@@ -116,7 +116,7 @@ class DashboardSubline {
 	 *
 	 * @return string|null The detail line.
 	 *
-	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+	 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
 	private function groupLine(Dashboard $dashboard, IL10N $l10n): ?string {
 		$groupId = (string)$dashboard->getGroupId();
@@ -140,7 +140,7 @@ class DashboardSubline {
 	 *
 	 * @return int The widget count.
 	 *
-	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+	 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
 	private function widgetCount(Dashboard $dashboard): int {
 		try {

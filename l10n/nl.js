@@ -2431,6 +2431,8 @@ OC.L10N.register(
     "You are editing {name}" : "Je bewerkt {name}",
     "Changes are saved immediately" : "Wijzigingen worden direct bewaard",
     "Dashboard settings" : "Dashboardinstellingen",
+    "The layout could not be saved. Trying again." : "De indeling kon niet worden opgeslagen. We proberen het opnieuw.",
+    "The layout could not be saved." : "De indeling kon niet worden opgeslagen.",
     "The number of columns could not be saved." : "Het aantal kolommen kon niet worden bewaard.",
     "Copy link to this dashboard" : "Link naar dit dashboard kopiëren",
     "Duplicate as new dashboard" : "Kopie maken als nieuw dashboard",

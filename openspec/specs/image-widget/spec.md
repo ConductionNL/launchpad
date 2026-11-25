@@ -443,6 +443,15 @@ When a file-mode image widget references an SVG file (`image/svg+xml`), the widg
 - THEN the URL MUST be routed through the `svg-sanitisation` capability
 - NOTE: This requirement applies equally to both `url` and `files` sources; it documents the hand-off point for SVG handling
 
+### Requirement: The Image content form (REQ-IMG-020)
+
+The content part of an Image widget SHALL ask "Where does the image come from?" with Upload file (from Files or the computer, up to 5 MB) or Web address, SHALL show a chosen file with its name, size and dimensions and a way to choose another, SHALL require a text for who does not see the image, and SHALL offer an optional link on click.
+
+#### Scenario: Alternative text is required
+
+- **WHEN** the editor saves an image without alternative text
+- **THEN** the form refuses and names the field
+
 ## Non-Functional Requirements
 
 - **Backward Compatibility**: Existing image widgets with `sourceType: 'url'` (default) MUST continue to render unchanged. No breaking changes to REQ-IMG-001..005.

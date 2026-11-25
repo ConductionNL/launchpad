@@ -103,8 +103,9 @@ test.describe('Sharing tab: embed tokens and the conversation (REQ-EMB-011, REQ-
 		await part.locator('[data-test="sharing-embed-new"]').click()
 		const form = part.locator('[data-test="embed-token-form"]')
 		await expect(form).toBeVisible({ timeout: 8_000 })
-		await form.locator('[data-test="embed-token-name"] input').fill('Website Zuiddrecht')
-		await form.locator('[data-test="embed-token-new-origin"] input').fill(SITE)
+		// NcTextField hands data-test to the <input> itself.
+		await form.locator('input[data-test="embed-token-name"], [data-test="embed-token-name"] input').first().fill('Website Zuiddrecht')
+		await form.locator('input[data-test="embed-token-new-origin"], [data-test="embed-token-new-origin"] input').first().fill(SITE)
 		await form.locator('[data-test="embed-token-add-origin"]').click()
 		const created = page.waitForResponse((response) => response.url().endsWith('/api/embed-tokens') && response.request().method() === 'POST')
 		await form.locator('[data-test="embed-token-submit"]').click()

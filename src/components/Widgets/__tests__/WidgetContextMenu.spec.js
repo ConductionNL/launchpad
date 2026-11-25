@@ -34,6 +34,24 @@ function mountMenu(props = {}) {
 }
 
 describe('WidgetContextMenu', () => {
+	it('REQ-WDG-017: moves itself up and left when its rendered box would pass the viewport edge', async () => {
+		const height = window.innerHeight
+		const width = window.innerWidth
+		const wrapper = mountMenu({ top: height - 20, left: width - 10 })
+		wrapper.element.getBoundingClientRect = () => ({ width: 170, height: 277 })
+		await wrapper.vm.fitToViewport()
+		expect(wrapper.element.style.top).toBe(`${height - 277}px`)
+		expect(wrapper.element.style.left).toBe(`${width - 170}px`)
+	})
+
+	it('REQ-WDG-017: stays at the given position when it fits', async () => {
+		const wrapper = mountMenu({ top: 100, left: 200 })
+		wrapper.element.getBoundingClientRect = () => ({ width: 170, height: 277 })
+		await wrapper.vm.fitToViewport()
+		expect(wrapper.element.style.top).toBe('100px')
+		expect(wrapper.element.style.left).toBe('200px')
+	})
+
 	it('REQ-WDG-015: renders six items — Edit, Move, Who sees this widget?, Read confirmation…, Remove, Cancel', () => {
 		const wrapper = mountMenu()
 		const buttons = wrapper.findAll('.widget-context-menu__item')

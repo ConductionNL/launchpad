@@ -7,7 +7,7 @@
  * detail lines, the combobox keyboard, Escape, the shortcut tip, the
  * "Show all results" hand-off, and that thematiq's field words stay.
  *
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 
 import { flushPromises, mount } from '@vue/test-utils'
@@ -182,5 +182,64 @@ describe('HeaderSearchDropdown', () => {
 		field.dispatchEvent(new Event('input'))
 		await vi.advanceTimersByTimeAsync(300)
 		expect(searchAll).toHaveBeenCalledTimes(1)
+	})
+
+	describe('on Nextcloud 31+, where the top bar has only a button', () => {
+		let host
+		let label
+
+		beforeEach(() => {
+			field.remove()
+			host = document.createElement('search')
+			host.className = 'unified-search-input'
+			const button = document.createElement('button')
+			button.className = 'unified-search-input__button'
+			label = document.createElement('span')
+			label.className = 'unified-search-input__label'
+			label.textContent = 'Search apps, files, tags, messages'
+			button.appendChild(label)
+			host.appendChild(button)
+			document.body.appendChild(host)
+		})
+
+		afterEach(() => {
+			host.remove()
+		})
+
+		const ownField = () => host.querySelector('[data-testid="header-search-field"]')
+
+		it('places its own field there, a combobox with the button\'s words, and never decorates the landmark', () => {
+			wrapper = mount(HeaderSearchDropdown, { attachTo: document.body })
+			expect(ownField()).not.toBeNull()
+			expect(ownField().getAttribute('role')).toBe('combobox')
+			expect(ownField().placeholder).toBe('Search apps, files, tags, messages')
+			expect(host.getAttribute('role')).toBeNull()
+		})
+
+		it('searches what is typed in that field', async () => {
+			wrapper = mount(HeaderSearchDropdown, { attachTo: document.body })
+			ownField().value = 'team'
+			ownField().dispatchEvent(new Event('input'))
+			await vi.advanceTimersByTimeAsync(300)
+			await flushPromises()
+			expect(searchAll).toHaveBeenCalledWith('team', expect.any(Object))
+			expect(panel()).not.toBeNull()
+		})
+
+		it('follows words thematiq writes into the button later', async () => {
+			wrapper = mount(HeaderSearchDropdown, { attachTo: document.body })
+			label.textContent = 'Zoek in Zuiddrecht'
+			await flushPromises()
+			expect(ownField().placeholder).toBe('Zoek in Zuiddrecht')
+			expect(ownField().getAttribute('aria-label')).toBe('Zoek in Zuiddrecht')
+		})
+
+		it('takes its field out again on unmount', () => {
+			wrapper = mount(HeaderSearchDropdown, { attachTo: document.body })
+			wrapper.unmount()
+			wrapper = null
+			expect(ownField()).toBeNull()
+			expect(host.classList.contains('lp-header-search-host')).toBe(false)
+		})
 	})
 })

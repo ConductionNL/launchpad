@@ -187,6 +187,10 @@ test.describe('quicklinks widget: hover effects (REQ-QLNK-007)', () => {
 			await expect.poll(async () => (await linkPaint(links.nth(i))).rings.length, {
 				message: `hovering link ${i + 1} draws a ring`,
 			}).toBeGreaterThan(0)
+			// The ring's colour transitions in; read it once it has settled.
+			await expect.poll(async () => (await linkPaint(links.nth(i))).rings[0]?.color, {
+				message: `link ${i + 1}'s ring settles on ${what}`,
+			}).toBe(expected)
 			const ring = (await linkPaint(links.nth(i))).rings[0]
 			expect(ring.width, 'the ring is 2-3px').toBeGreaterThanOrEqual(2)
 			expect(ring.width).toBeLessThanOrEqual(3)

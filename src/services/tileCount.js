@@ -16,7 +16,7 @@
  * offline) counts as no count: the tile shows no pill and no error. Each
  * source is asked at most once a minute, however many tiles name it.
  *
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
  */
 
 import axios from '@nextcloud/axios'
@@ -33,7 +33,7 @@ const cache = new Map()
  *
  * @param {object|null} source The count source.
  * @return {'register'|'nc-widget'|null}
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
  */
 export function sourceType(source) {
 	if (!source || typeof source !== 'object') {
@@ -54,7 +54,7 @@ export function sourceType(source) {
  * @param {object} filter The source's filter.
  * @param {string} uid The viewer.
  * @return {object} the query parameters.
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
  */
 export function registerQuery(filter, uid) {
 	const params = { _limit: 1 }
@@ -69,7 +69,7 @@ export function registerQuery(filter, uid) {
  *
  * @param {object} data The answer.
  * @return {number|null}
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
  */
 export function registerTotal(data) {
 	const total = Number(data?.total)
@@ -85,7 +85,7 @@ export function registerTotal(data) {
  * @param {object} data The OCS answer.
  * @param {string} widgetId The widget.
  * @return {number|null}
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
  */
 export function widgetItemsCount(data, widgetId) {
 	const entry = data?.ocs?.data?.[widgetId]
@@ -125,7 +125,7 @@ async function fetchCount(source, uid) {
  * @param {string} uid The viewer.
  * @param {number} [now] The current time in milliseconds.
  * @return {Promise<number|null>} the count, null for none.
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
  */
 export function resolveTileCount(source, uid, now = Date.now()) {
 	if (sourceType(source) === null) {
@@ -146,7 +146,7 @@ export function resolveTileCount(source, uid, now = Date.now()) {
  *
  * @param {number|null} count The count.
  * @return {string}
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
  */
 export function countLabel(count) {
 	const value = Number(count)
@@ -159,7 +159,7 @@ export function countLabel(count) {
 /**
  * Forget every cached count (tests, and a viewer who switches account).
  *
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
  */
 export function clearTileCounts() {
 	cache.clear()

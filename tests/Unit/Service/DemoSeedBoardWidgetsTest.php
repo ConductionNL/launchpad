@@ -271,7 +271,7 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
 	 */
 	public function testTheManagementBoardShowsItsConnections(): void {
 		[$card] = self::placementsOf(type: 'connections');

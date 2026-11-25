@@ -63,7 +63,7 @@
  *   @e2e tiles::pieter-colours-zaaksysteem
  *   @e2e tiles::the-theme-changes
  *
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md
  */
 
 import type { APIRequestContext, Browser, BrowserContext, Page, Route } from '@playwright/test'

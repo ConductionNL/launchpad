@@ -41,7 +41,7 @@ class SearchLinks {
 	 * @param IURLGenerator    $urlGenerator The URL generator.
 	 * @param DashboardSubline $subline      The detail line of a dashboard result (REQ-SRCH-013).
 	 *
-	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+	 * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
 	public function __construct(
 		public readonly IFactory $l10nFactory,

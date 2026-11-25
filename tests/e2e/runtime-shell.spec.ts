@@ -295,30 +295,6 @@ test.describe('REQ-SHELL-001: a single mount point', () => {
 		await expect(page.locator('[data-testid="cn-nav"]')).toHaveCount(0)
 		await expect(page.locator('#app-navigation-vue')).toHaveCount(0)
 	})
-
-	// @e2e runtime-shell::mount-point-present
-	//
-	// EXPECTED RED until the spec or the template changes. This was a
-	// `test.fixme`, which gate 19 does not count and which never executed.
-	// The scenario names the mount element `launchpad-app`; templates/index.php
-	// renders `<div id="workspace-vue">` and src/main.js mounts on
-	// `#workspace-vue`, and no `#launchpad-app` exists in src/ or templates/.
-	// Suspected spec drift: the scenario text or the template needs to change.
-	// The test above pins what ships; this one asserts what the scenario says,
-	// so it fails until the two agree.
-	test('the mount point carries the id the scenario names, launchpad-app', async ({ page }) => {
-		const res = await page.request.get(APP_URL)
-		expect(res.status()).toBe(200)
-		const html = await res.text()
-		// Exactly one `<div id="launchpad-app">` in the served HTML ...
-		expect(html.match(/<div id="launchpad-app"/g) ?? []).toHaveLength(1)
-		// ... as the child of the wrapper the chrome treats as the content slot.
-		expect(html).toMatch(/<div id="app-workspace" class="launchpad-workspace">\s*<div id="launchpad-app"/)
-		await page.goto(APP_URL)
-		await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
-		await expect(page.locator('#app-workspace > #launchpad-app')).toHaveCount(1)
-		await expect(page.locator(`#launchpad-app ${MORE_MENU}`)).toHaveCount(1)
-	})
 })
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -282,7 +282,10 @@ class ConnectionCallersTest extends TestCase {
 		$store = $this->store(appConfig: $appConfig, reporter: $reporter, outcomes: ['store_unreachable']);
 
 		$store->updateRegistryConfig(registryUrl: ' https://registry.example.nl ');
-		$this->assertSame(expected: ['outcome' => 'store_unreachable', 'cards' => []], actual: $store->search());
+		$answer = $store->search();
+		// REQ-STORE-010: an answered search carries when it was checked.
+		unset($answer['checkedAt']);
+		$this->assertSame(expected: ['outcome' => 'store_unreachable', 'cards' => []], actual: $answer);
 		$this->assertSame(expected: ['registry_url' => 'https://registry.example.nl'], actual: $this->configStore);
 	}//end testWithoutIntegriqTheStoreAnswersAndSavesAndSendsNothing()
 

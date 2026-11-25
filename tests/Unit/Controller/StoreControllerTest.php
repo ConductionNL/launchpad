@@ -158,6 +158,48 @@ class StoreControllerTest extends TestCase {
 	}//end testSearchReturnsTheServiceOutcome()
 
 	/**
+	 * REQ-STORE-010: the search answer carries the register banner and the check time.
+	 *
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
+	 *
+	 * @return void
+	 */
+	public function testSearchCarriesTheRegisterBanner(): void {
+		$this->signIn(uid: 'pieter');
+		$this->request->method('getParam')->willReturn(null);
+		$this->storeService->method('search')->willReturn(
+			['outcome' => 'ok', 'cards' => [], 'checkedAt' => '2026-11-25T06:00:00Z']
+		);
+		$this->storeService->method('registryBanner')->willReturn(
+			['name' => 'VNG dashboardregister', 'url' => 'https://register.vng.nl/dashboards']
+		);
+
+		$data = $this->controller->search()->getData();
+
+		$this->assertSame(expected: ['name' => 'VNG dashboardregister', 'url' => 'https://register.vng.nl/dashboards'], actual: $data['registry']);
+		$this->assertSame(expected: '2026-11-25T06:00:00Z', actual: $data['checkedAt']);
+	}//end testSearchCarriesTheRegisterBanner()
+
+	/**
+	 * REQ-STORE-010: no register means no banner data and no check time.
+	 *
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
+	 *
+	 * @return void
+	 */
+	public function testSearchWithoutARegisterHasNoBanner(): void {
+		$this->signIn(uid: 'admin');
+		$this->request->method('getParam')->willReturn(null);
+		$this->storeService->method('search')->willReturn(['outcome' => 'not_configured', 'cards' => []]);
+		$this->storeService->method('registryBanner')->willReturn(null);
+
+		$data = $this->controller->search()->getData();
+
+		$this->assertNull(actual: $data['registry']);
+		$this->assertNull(actual: $data['checkedAt']);
+	}//end testSearchWithoutARegisterHasNoBanner()
+
+	/**
 	 * A refused install is a 400 so the page shows the message.
 	 *
 	 * `CnStorePage` reads `body.message` only when the response is not ok. A

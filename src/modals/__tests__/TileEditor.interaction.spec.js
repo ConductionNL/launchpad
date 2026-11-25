@@ -66,15 +66,15 @@ function button(wrapper, text) {
 
 describe('TileEditor form bindings', () => {
 	it('titles the editor by whether a tile is being edited', () => {
-		expect(mountEditor().find('h2').text()).toBe('Create Tile')
-		expect(mountEditor({ id: 1, title: 'Files' }).find('h2').text()).toBe('Edit Tile')
+		expect(mountEditor().find('h2').text()).toBe('New tile')
+		expect(mountEditor({ id: 1, title: 'Files' }).find('h2').text()).toBe('Edit tile: Files')
 	})
 
 	it('writes the title and URL fields back and shows the title in the preview', async () => {
 		const wrapper = mountEditor()
 
-		await field(wrapper, 'Title').setValue('Bestanden')
-		await field(wrapper, 'URL').setValue('/apps/files')
+		await field(wrapper, 'Name').setValue('Bestanden')
+		await field(wrapper, 'Web address').setValue('/apps/files')
 
 		expect(wrapper.vm.form.title).toBe('Bestanden')
 		expect(wrapper.vm.form.linkValue).toBe('/apps/files')
@@ -131,17 +131,17 @@ describe('TileEditor health-ping fields', () => {
 
 describe('TileEditor actions', () => {
 	it('offers Delete only for an existing tile and emits delete', async () => {
-		expect(button(mountEditor(), 'Delete')).toBeUndefined()
+		expect(button(mountEditor(), 'Delete tile')).toBeUndefined()
 
 		const wrapper = mountEditor({ id: 1, title: 'T' })
-		await button(wrapper, 'Delete').trigger('click')
+		await button(wrapper, 'Delete tile').trigger('click')
 
 		expect(wrapper.emitted('delete')).toHaveLength(1)
 	})
 
 	it('emits close from Cancel and save with the normalised form from Save', async () => {
 		const wrapper = mountEditor()
-		await field(wrapper, 'Title').setValue('Mail')
+		await field(wrapper, 'Name').setValue('Mail')
 
 		await button(wrapper, 'Cancel').trigger('click')
 		await button(wrapper, 'Save').trigger('click')
@@ -160,6 +160,6 @@ describe('TileEditor actions', () => {
 		modal.vm.$emit('update:show', false)
 		modal.vm.$emit('close')
 		expect(wrapper.emitted('close')).toHaveLength(2)
-		expect(modal.props('name')).toBe('Create Tile')
+		expect(modal.props('name')).toBe('New tile')
 	})
 })

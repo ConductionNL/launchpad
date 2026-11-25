@@ -10,22 +10,18 @@
  * where grid items are tab stops, the item is focused and its computed
  * accessible name is read.
  *
- * EXPECTED RED until the product is fixed. CnDashboardGrid builds the name
- * from `title || name || label || widgetTitle || widgetId` (its
- * `resolveItemLabel`, @conduction/nextcloud-vue 2.203.0) and src/views/Views.vue
- * passes no `itemLabel`, so the placement's `customTitle` is never used: the
- * text widget is announced as "text, column 1 of 12, …". No "Widget: " prefix
- * exists in the library or in LaunchPad. These tests used to be `test.fixme`,
- * which gate-19 does not count as a citation; they now run so the defect shows.
+ * Views.vue passes CnDashboardGrid an `itemLabel` (src/utils/gridItemLabel.js)
+ * that names the item "Widget: {title}" and, in edit mode, adds the position
+ * and size, because the library uses a custom label verbatim.
  *
  * They sit in their own file, without serial mode, so a red here cannot skip
  * the keyboard tests in grid-layout-keyboard.spec.ts.
  *
  * The two scenarios fix the same name from two ends: KBD-001 the start
  * ("Widget: Team Announcements"), REQ-GRID-008 the title plus position and
- * size. In edit mode the library appends the coordinates after the base name,
- * so a name such as "Widget: Team Announcements, column 1 of 12, row 1,
- * 4 columns wide, 2 rows tall" satisfies both; each test asserts its own end.
+ * size. In edit mode the coordinates follow the title, so a name such as
+ * "Widget: Team Announcements, column 1 of 12, row 1, 4 columns wide, 2 rows
+ * tall" satisfies both; each test asserts its own end.
  *
  * Gate-19 @e2e traceability:
  *   @e2e grid-layout::screen-reader-announces-widget-positions

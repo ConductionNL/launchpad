@@ -15,7 +15,11 @@ import { logger } from '../../utils/logger.js'
 
 vi.mock('@nextcloud/l10n', () => ({ t: (_app, key) => key }))
 vi.mock('../../services/api.js', () => ({
-	api: { createAdminTemplate: vi.fn(), updateAdminTemplate: vi.fn() },
+	api: {
+		createAdminTemplate: vi.fn(),
+		updateAdminTemplate: vi.fn(),
+		getAdminGroups: vi.fn(() => Promise.resolve({ data: { active: ['sales'], inactive: ['hr', 'it'] } })),
+	},
 }))
 vi.mock('../../utils/logger.js', () => ({
 	logger: { error: vi.fn() },
@@ -36,7 +40,6 @@ const stubs = {
 	NcButton: ButtonStub,
 	NcTextField: true,
 	NcSelect: true,
-	NcSelectTags: true,
 	NcCheckboxRadioSwitch: true,
 }
 
@@ -183,7 +186,6 @@ describe('TemplateEditorModal', () => {
 				...stubs,
 				NcTextField: field('NcTextField'),
 				NcSelect: field('NcSelect'),
-				NcSelectTags: field('NcSelectTags'),
 				NcCheckboxRadioSwitch: field('NcCheckboxRadioSwitch'),
 			},
 		})
@@ -191,8 +193,9 @@ describe('TemplateEditorModal', () => {
 		const [name, description] = wrapper.findAllComponents({ name: 'NcTextField' })
 		name.vm.$emit('update:modelValue', 'Onboarding')
 		description.vm.$emit('update:modelValue', 'For new staff')
-		wrapper.findComponent({ name: 'NcSelectTags' }).vm.$emit('update:modelValue', ['hr', 'it'])
-		wrapper.findComponent({ name: 'NcSelect' }).vm.$emit('update:modelValue', { id: 'view_only', label: 'View only' })
+		const [groups, permission] = wrapper.findAllComponents({ name: 'NcSelect' })
+		groups.vm.$emit('update:modelValue', ['hr', 'it'])
+		permission.vm.$emit('update:modelValue', { id: 'view_only', label: 'View only' })
 		wrapper.findComponent({ name: 'NcCheckboxRadioSwitch' }).vm.$emit('update:modelValue', true)
 		await click(wrapper, 'Save')
 
@@ -212,5 +215,12 @@ describe('TemplateEditorModal', () => {
 		const wrapper = mountModal()
 		await click(wrapper, 'Cancel')
 		expect(wrapper.emitted('close')).toHaveLength(1)
+	})
+
+	it('offers every Nextcloud group id as a target group', async () => {
+		const wrapper = mountModal()
+		await flushPromises()
+		expect(api.getAdminGroups).toHaveBeenCalled()
+		expect(wrapper.vm.availableGroups).toEqual(['sales', 'hr', 'it'])
 	})
 })

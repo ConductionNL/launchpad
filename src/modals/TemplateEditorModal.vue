@@ -63,12 +63,11 @@
 			</div>
 
 			<div class="launchpad-admin__field">
-				<label>{{ t('launchpad', 'Target groups') }}</label>
-				<NcSelectTags
+				<NcSelect
 					v-model="form.targetGroups"
 					:options="availableGroups"
 					:multiple="true"
-					:aria-label-combobox="t('launchpad', 'Target groups')"
+					:inputLabel="t('launchpad', 'Target groups')"
 					:placeholder="
 						t('launchpad', 'Select groups (leave empty for all users)')
 					" />
@@ -106,7 +105,6 @@ import {
 	NcCheckboxRadioSwitch,
 	NcModal,
 	NcSelect,
-	NcSelectTags,
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
@@ -137,7 +135,6 @@ export default {
 	components: {
 		NcButton,
 		NcSelect,
-		NcSelectTags,
 		NcTextField,
 		NcCheckboxRadioSwitch,
 		NcModal,
@@ -193,6 +190,7 @@ export default {
 			handler(isOpen) {
 				if (isOpen) {
 					this.seedForm()
+					this.loadGroups()
 				}
 			},
 		},
@@ -207,6 +205,24 @@ export default {
 
 	methods: {
 		t,
+
+		/**
+		 * Load the Nextcloud group ids the target groups field offers, once.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/admin-templates/spec.md
+		 */
+		async loadGroups() {
+			if (this.availableGroups.length > 0) {
+				return
+			}
+			try {
+				const { data } = await api.getAdminGroups()
+				this.availableGroups = [...(data?.active || []), ...(data?.inactive || [])]
+			} catch (error) {
+				logger.error('Failed to load groups:', error)
+			}
+		},
 
 		/**
 		 * Build the working copy from the `template` prop.

@@ -16,7 +16,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-1
  */
 
 declare(strict_types=1);
@@ -33,7 +33,7 @@ use OCP\ICacheFactory;
  * version for {@see self::TTL} seconds, so a reload within that minute does
  * not read OpenRegister again and the page can carry it.
  *
- * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-1
  */
 class ManifestCache {
 	/**
@@ -76,7 +76,7 @@ class ManifestCache {
 	 *
 	 * @return array<string, mixed>|null The manifest, or null.
 	 *
-	 * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-1
 	 */
 	public function get(string $userId): ?array {
 		if ($this->cache === null || $userId === '') {
@@ -99,7 +99,7 @@ class ManifestCache {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-1
 	 */
 	public function set(string $userId, array $manifest): void {
 		if ($this->cache === null || $userId === '') {

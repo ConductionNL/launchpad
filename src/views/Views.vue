@@ -2227,7 +2227,7 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/dashboards/spec.md
-		 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-3
 		 */
 		async loadDefaultDashboardPreference() {
 			const carried = takeBootRead('defaultDashboard')

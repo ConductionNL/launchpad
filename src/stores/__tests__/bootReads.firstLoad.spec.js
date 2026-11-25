@@ -5,7 +5,7 @@
  * The tiles and the pending acknowledgements: the first read takes what the
  * page carries, every later read (and a page without them) asks the API.
  *
- * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-4
  */
 
 import { createPinia, setActivePinia } from 'pinia'

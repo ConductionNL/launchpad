@@ -314,7 +314,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self
 	 *
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-2
 	 */
 	public function setDashboardFirstLoad(?array $firstLoad): self {
 		if ($firstLoad !== null) {
@@ -334,7 +334,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self
 	 *
-	 * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-2
 	 */
 	public function setOrgNavigation(?array $orgNavigation): self {
 		if ($orgNavigation !== null) {
@@ -355,7 +355,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self
 	 *
-	 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-2
 	 */
 	public function setWorkspaceBootReads(?array $bootReads): self {
 		if ($bootReads !== null) {
@@ -374,7 +374,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self
 	 *
-	 * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-2
 	 */
 	public function setRuntimeManifest(?array $manifest): self {
 		if ($manifest !== null) {

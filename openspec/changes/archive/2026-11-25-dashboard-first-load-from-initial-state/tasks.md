@@ -4,4 +4,4 @@
 - [x] 2. The workspace page carries `dashboardFirstLoad` (`{visible, active}`) when the caller may read both, built by that builder
 - [x] 3. The dashboard store's first load takes it from the initial state instead of fetching; later loads fetch
 - [x] 4. Unit tests: the builder (list, quota envelope, active envelope, refusal), the page key, the builder key, the reader (once, missing, malformed) and the store (no fetch first, fetch after)
-- [ ] 5. Measure on a live instance: the workspace opens without the two dashboard requests (perf spec, before/after)
+- [x] 5. Measure on a live instance: the workspace opens without the two dashboard requests (perf spec, before/after): measured live 25 Nov 2026 (sandbox Nextcloud 34, launchpad development): opening the workspace as admin, first and warm load, sent no `GET /api/dashboards/visible` and no `GET /api/dashboard`; the page carries `dashboardFirstLoad`

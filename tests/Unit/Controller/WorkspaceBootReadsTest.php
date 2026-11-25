@@ -6,7 +6,7 @@
  *
  * What the workspace page carries for its view's boot reads.
  *
- * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-4
  */
 
 declare(strict_types=1);

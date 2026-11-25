@@ -8,7 +8,7 @@
  * Gate-19 @e2e traceability:
  *   @e2e initial-state-contract::a-warm-reload-does-not-ask-for-the-manifest
  *
- * @spec openspec/changes/manifest-cached-per-user/specs/initial-state-contract/spec.md
+ * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/specs/initial-state-contract/spec.md
  */
 
 import { expect, test } from '@playwright/test'

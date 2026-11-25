@@ -31,7 +31,7 @@ use OCP\AppFramework\Services\IInitialState;
  * What the main page reads: initial state, widgets, dashboards and admin templates.
  *
  * @spec openspec/specs/dashboards/spec.md
- * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-2
  */
 class PageSources {
 	/**

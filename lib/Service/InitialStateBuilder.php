@@ -471,7 +471,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self Fluent.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-17
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-17
 	 */
 	public function setFilterTelemetryEnabled(bool $enabled): self {
 		$this->values['filterTelemetryEnabled'] = $enabled;

@@ -4,7 +4,7 @@
  *
  * The hierarchy presets a dashboard owner picks from (REQ-CWF-011).
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 
 import { describe, expect, it, vi } from 'vitest'

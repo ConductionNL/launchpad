@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-36
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-36
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -37,7 +37,7 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Adds the hierarchies column to the dashboards.
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-36
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-36
  */
 class Version002017Date20261121000000 extends SimpleMigrationStep {
 
@@ -52,7 +52,7 @@ class Version002017Date20261121000000 extends SimpleMigrationStep {
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $output and $options are required by SimpleMigrationStep.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-36
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-36
 	 */
 	public function changeSchema(
 		IOutput $output,

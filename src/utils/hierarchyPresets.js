@@ -8,7 +8,7 @@
  * labels it stores are the English source strings, and a reader sees the preset's
  * labels in their own language.
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 
 import { t } from '@nextcloud/l10n'
@@ -41,7 +41,7 @@ function presetTable() {
  * The presets an owner can pick, as `{id, name, description, descriptor}`.
  *
  * @return {Array<{id: string, name: string, description: string, descriptor: object}>}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 export function hierarchyPresets() {
 	return presetTable().map((preset) => ({
@@ -64,7 +64,7 @@ export function hierarchyPresets() {
  *
  * @param {string} id A hierarchy id.
  * @return {{[dimension: string]: string}|null}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 export function presetLevelLabels(id) {
 	const preset = presetTable().find((entry) => entry.id === id)

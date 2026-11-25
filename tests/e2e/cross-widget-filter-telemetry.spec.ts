@@ -14,7 +14,7 @@
  *   @e2e cross-widget-filter::telemetry-records-bookmark-and-reset
  *   @e2e cross-widget-filter::telemetry-off-writes-nothing
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md
  */
 
 import type { Page } from '@playwright/test'

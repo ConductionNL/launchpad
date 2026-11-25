@@ -69,7 +69,7 @@ import { LIST_PROP, OBJECT_PROP } from '../../constants/propDefinitions.js'
  * bus is empty, and "Reset filters" only shows when there is something it
  * would clear, so pressing it is never a no-op.
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
  */
 export default {
 	name: 'ActiveFiltersPanel',

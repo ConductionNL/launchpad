@@ -13,7 +13,7 @@
  * logged and dropped: telemetry never gets in the way of filtering.
  *
  * @module composables/filterTelemetry
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-010-telemetry-of-filter-usage-is-opt-in-and-aggregated
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-010-telemetry-of-filter-usage-is-opt-in-and-aggregated
  */
 
 import axios from '@nextcloud/axios'
@@ -33,7 +33,7 @@ const EVENT_TYPES = ['apply', 'reset', 'bookmark', 'share']
  *
  * @param {Array<object>} clauses The bus clauses.
  * @return {Array<object>} The delta items.
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-15
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-15
  */
 export function filterDelta(clauses) {
 	return (Array.isArray(clauses) ? clauses : [])
@@ -46,7 +46,7 @@ export function filterDelta(clauses) {
  *
  * @param {unknown} value The value.
  * @return {boolean}
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-15
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-15
  */
 function isFilled(value) {
 	return typeof value === 'string' && value !== ''
@@ -57,7 +57,7 @@ function isFilled(value) {
  *
  * @param {object} clause A clause with a dimension.
  * @return {object}
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-15
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-15
  */
 function deltaItem(clause) {
 	const item = {
@@ -99,7 +99,7 @@ function postToRegister(row) {
  * @param {(row: object) => Promise<unknown>} [options.post] Writes a row (the register by default).
  * @param {() => Date} [options.now] The clock.
  * @return {{record: (eventType: string, clauses: Array<object>, widgetId?: string|null) => Promise<object|null>}}
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-15
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-15
  */
 export function createFilterTelemetry({ enabled, dashboardId, userId, post = postToRegister, now = () => new Date() }) {
 	/**
@@ -108,7 +108,7 @@ export function createFilterTelemetry({ enabled, dashboardId, userId, post = pos
 	 * @param {string} eventType The event type.
 	 * @param {Array<object>} delta The event's delta.
 	 * @return {boolean}
-	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-15
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-15
 	 */
 	function mayRecord(eventType, delta) {
 		return enabled() === true && Boolean(dashboardId) && Boolean(userId) && EVENT_TYPES.includes(eventType) && delta.length > 0

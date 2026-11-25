@@ -65,7 +65,7 @@ export default {
 		/**
 		 * The OpenRegister dataSource block CnStatsBlockWidget self-resolves, with the bus's filter when the block consumes it.
 		 *
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-10
 		 */
 		dataSource() {
 			return withBusFilter(this.content.dataSource || null, this.busFilter)
@@ -74,7 +74,7 @@ export default {
 		/**
 		 * The filter bus itself, unwrapped from the injected ref.
 		 *
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-10
 		 */
 		bus() {
 			return filterBusOf(this.filterBus)
@@ -83,7 +83,7 @@ export default {
 		/**
 		 * The dimensions the block consumes.
 		 *
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-10
 		 */
 		consumes() {
 			return busDeclarationsOf(this.content).consumes
@@ -93,7 +93,7 @@ export default {
 		 * Whether the block's `consumes` fits the dashboard, and why not.
 		 *
 		 * @return {{participates: boolean, findings: Array<object>}}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-10
 		 */
 		busCheck() {
 			if (this.bus === null || this.consumes.length === 0) {
@@ -106,7 +106,7 @@ export default {
 		 * The filter the bus's clauses add to the block's data source; empty off the bus.
 		 *
 		 * @return {{[field: string]: unknown}}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-10
 		 */
 		busFilter() {
 			if (!this.busCheck.participates) {
@@ -119,7 +119,7 @@ export default {
 		 * The bus filter as text, so a change of another dimension's clause is no change.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-35
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-35
 		 */
 		busFilterKey() {
 			return JSON.stringify(this.busFilter)
@@ -141,7 +141,7 @@ export default {
 		 * Start timing the refetch a changed bus filter causes.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-35
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-35
 		 */
 		busFilterKey() {
 			this.refetchClock.start(this.busFilter)
@@ -154,7 +154,7 @@ export default {
 			 *
 			 * @param {{findings: Array<object>}} check The check.
 			 * @return {void}
-			 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+			 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-10
 			 */
 			handler(check) {
 				for (const finding of check.findings) {
@@ -174,7 +174,7 @@ export default {
 		 *
 		 * @param {object} data What the block shows.
 		 * @return {void}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-35
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-35
 		 */
 		onData(data) {
 			this.refetchClock.settle()

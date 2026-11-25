@@ -15,7 +15,7 @@
  *   @e2e cross-widget-filter::clearing-the-hierarchies
  *   @e2e cross-widget-filter::copies-keep-the-hierarchies
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 
 import type { Page } from '@playwright/test'

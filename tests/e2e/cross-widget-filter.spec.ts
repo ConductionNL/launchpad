@@ -16,7 +16,7 @@
  *   @e2e cross-widget-filter::reset-on-empty-bus-changes-nothing
  *   @e2e cross-widget-filter::panel-shows-sources-and-removes-one
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md
  */
 
 import type { Clause, SeededUser } from './support/filterBus.ts'

@@ -154,7 +154,7 @@ export default {
 		 * The OpenRegister dataSource block CnChartWidget self-resolves, with the bus's filter when the chart consumes it,
 		 * and the dashboard's period when its source names a period field.
 		 *
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-9
 		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
 		 */
 		dataSource() {
@@ -170,7 +170,7 @@ export default {
 		 * The filter the bus's clauses add to the chart's data source; empty off the bus.
 		 *
 		 * @return {{[field: string]: unknown}}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-10
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-10
 		 */
 		busFilter() {
 			if (this.bus === null || !this.busCheck.participates) {
@@ -183,7 +183,7 @@ export default {
 		 * The bus filter as text, so a change of another dimension's clause is no change.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-35
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-35
 		 */
 		busFilterKey() {
 			return JSON.stringify(this.busFilter)
@@ -192,7 +192,7 @@ export default {
 		/**
 		 * The filter bus itself, unwrapped from the injected ref.
 		 *
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-9
 		 */
 		bus() {
 			return filterBusOf(this.filterBus)
@@ -201,7 +201,7 @@ export default {
 		/**
 		 * What the chart declares it publishes and consumes.
 		 *
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-9
 		 */
 		busDeclarations() {
 			return busDeclarationsOf(this.content)
@@ -211,7 +211,7 @@ export default {
 		 * Whether the declarations fit the dashboard, and why not.
 		 *
 		 * @return {{participates: boolean, findings: Array<object>}}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-9
 		 */
 		busCheck() {
 			const { publishes, consumes } = this.busDeclarations
@@ -225,7 +225,7 @@ export default {
 		 * Whether a click on the chart publishes to the bus.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-7
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-7
 		 */
 		publishing() {
 			return this.busCheck.participates && this.busDeclarations.publishes.length > 0
@@ -235,7 +235,7 @@ export default {
 		 * A display label per hierarchy level of the dashboard.
 		 *
 		 * @return {{[dimension: string]: string}}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-7
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-7
 		 */
 		levelLabels() {
 			return this.bus ? hierarchyLevelLabels(this.bus.hierarchies || []) : {}
@@ -272,7 +272,7 @@ export default {
 		 * Start timing the refetch a changed bus filter causes.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-35
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-35
 		 */
 		busFilterKey() {
 			this.refetchClock.start(this.busFilter)
@@ -285,7 +285,7 @@ export default {
 			 *
 			 * @param {{findings: Array<object>}} check The check.
 			 * @return {void}
-			 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+			 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-9
 			 */
 			handler(check) {
 				for (const finding of check.findings) {
@@ -305,7 +305,7 @@ export default {
 		 *
 		 * @param {object} data What the chart shows.
 		 * @return {void}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-35
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-35
 		 */
 		onData(data) {
 			this.refetchClock.settle()
@@ -318,7 +318,7 @@ export default {
 		 *
 		 * @param {{field: string, value: unknown, label: string}} selection CnChartWidget's `select` payload.
 		 * @return {void}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-7
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-7
 		 */
 		onSelect(selection) {
 			if (!this.publishing) {
@@ -341,7 +341,7 @@ export default {
 		 * @param {Array<object>} clauses The clauses the pick publishes.
 		 * @param {object} row The clicked row, ancestor levels included where known.
 		 * @return {void}
-		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
 		 */
 		publishPick(clauses, row) {
 			const labels = this.levelLabels

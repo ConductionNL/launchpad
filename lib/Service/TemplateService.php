@@ -189,7 +189,7 @@ class TemplateService {
 	 * @param Dashboard $template The admin template.
 	 *
 	 * @return Dashboard The built dashboard entity.
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	private function buildDashboardFromTemplate(
 		string $userId,

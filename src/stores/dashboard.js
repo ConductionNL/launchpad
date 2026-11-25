@@ -11,7 +11,7 @@ import {
 	placeNewWidget,
 } from '../composables/useGridManager.js'
 import { api } from '../services/api.js'
-import { takeDashboardFirstLoad } from '../utils/loadInitialState.js'
+import { takeBootRead, takeDashboardFirstLoad } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { parseServerStamp } from '../utils/serverStamp.js'
 
@@ -673,8 +673,18 @@ export const useDashboardStore = defineStore('dashboard', {
 		// outstanding mandatory-read items. Failures are non-fatal — a broken
 		// acknowledgement fetch must never blank the dashboard, so the list is
 		// simply left empty (no forced-delivery gate).
-		/** @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md */
+		// The first read takes the items the page carries
+		// (workspace-boot-reads-from-initial-state); every later one asks.
+		/**
+		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+		 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-3
+		 */
 		async fetchPendingAcknowledgements() {
+			const carried = takeBootRead('pendingAcknowledgements')
+			if (carried && Array.isArray(carried.items)) {
+				this.pendingAcknowledgements = carried.items
+				return
+			}
 			try {
 				const response = await api.getPendingAcknowledgements()
 				this.pendingAcknowledgements = response?.data?.items ?? []

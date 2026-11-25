@@ -1275,7 +1275,10 @@ test.describe('REQ-CLI-011 discoverability', () => {
 		const listed = await listedCommands()
 		const optionsOf = (name: string): string[] => {
 			const command = listed.find((c) => c.name === name)
-			expect(command, `${name} is still registered under its own name`).toBeDefined()
+			expect(
+				command,
+				`${name} is still registered under its own name`,
+			).toBeDefined()
 			return Object.keys(command!.definition.options)
 		}
 		expect(optionsOf('launchpad:export')).toEqual(
@@ -1310,7 +1313,9 @@ test.describe('REQ-CLI-011 discoverability', () => {
 			expect(exported.stdout.trim(), describeRun(exported)).toBe(
 				`Exported 1 dashboard to ${archive}`,
 			)
-			expect(await existsOnInstance(archive), 'the archive was written').toBe(true)
+			expect(await existsOnInstance(archive), 'the archive was written').toBe(
+				true,
+			)
 
 			const imported = await runOcc(
 				'launchpad:import',
@@ -1322,7 +1327,9 @@ test.describe('REQ-CLI-011 discoverability', () => {
 				'Imported 1 dashboards, skipped 0, errors: 0',
 			)
 
-			const named = await selectRows('launchpad_dashboards', { name: row.name })
+			const named = await selectRows('launchpad_dashboards', {
+				name: row.name,
+			})
 			const copies = named.filter((r) => Number(r.id) !== Number(row.id))
 			dashboards.push(...copies.map((r) => Number(r.id)))
 			expect(
@@ -1344,8 +1351,12 @@ test.describe('REQ-CLI-011 discoverability', () => {
 				'--json',
 			)
 			expect(shown.code, describeRun(shown)).toBe(0)
-			const widgets = envelope(shown).data.widgets as Array<Record<string, unknown>>
-			expect(widgets, 'the widget travelled with the dashboard').toHaveLength(1)
+			const widgets = envelope(shown).data.widgets as Array<
+				Record<string, unknown>
+			>
+			expect(widgets, 'the widget travelled with the dashboard').toHaveLength(
+				1,
+			)
 			expect(widgets[0]).toMatchObject({
 				widgetId: 'text',
 				gridX: 1,

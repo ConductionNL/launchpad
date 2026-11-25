@@ -1668,7 +1668,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Nëmmen Administrateure kënnen deelen. Bestoend Deelunge bleiwen.",
     "Allow public links" : "Ëffentlech Linken erlaben",
     "Only for people who may share dashboards. A link always has an expiry date." : "Nëmme fir Leit, déi Dashboarde deele dierfen. E Link huet ëmmer en Oflafdatum.",
-    "Expiry date (required)" : "Oflafdatum (obligatoresch)"
+    "Expiry date (required)" : "Oflafdatum (obligatoresch)",
+    "Your administrator does not allow you to share dashboards." : "Ären Administrateur erlaabt Iech net, Dashboarden ze deelen.",
+    "Public links are switched off." : "Ëffentlech Linke sinn ausgeschalt."
 },
 "nplurals=2; plural=(n != 1);"
 );

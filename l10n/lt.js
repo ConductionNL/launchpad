@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Bendrinti gali tik administratoriai. Esami bendrinimai lieka.",
     "Allow public links" : "Leisti viešas nuorodas",
     "Only for people who may share dashboards. A link always has an expiry date." : "Tik tiems, kam leidžiama bendrinti skydelius. Nuoroda visada turi galiojimo pabaigos datą.",
-    "Expiry date (required)" : "Galiojimo pabaigos data (privaloma)"
+    "Expiry date (required)" : "Galiojimo pabaigos data (privaloma)",
+    "Your administrator does not allow you to share dashboards." : "Jūsų administratorius neleidžia jums bendrinti skydelių.",
+    "Public links are switched off." : "Viešos nuorodos išjungtos."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

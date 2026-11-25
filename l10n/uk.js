@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Ділитися можуть лише адміністратори. Наявні спільні доступи залишаються.",
     "Allow public links" : "Дозволити публічні посилання",
     "Only for people who may share dashboards. A link always has an expiry date." : "Лише для тих, кому дозволено ділитися панелями. Посилання завжди має термін дії.",
-    "Expiry date (required)" : "Термін дії (обов'язково)"
+    "Expiry date (required)" : "Термін дії (обов'язково)",
+    "Your administrator does not allow you to share dashboards." : "Ваш адміністратор не дозволяє вам ділитися панелями.",
+    "Public links are switched off." : "Публічні посилання вимкнено."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Kopīgot var tikai administratori. Esošie kopīgojumi paliek.",
     "Allow public links" : "Atļaut publiskas saites",
     "Only for people who may share dashboards. A link always has an expiry date." : "Tikai tiem, kam atļauts kopīgot informācijas paneļus. Saitei vienmēr ir derīguma termiņš.",
-    "Expiry date (required)" : "Derīguma termiņš (obligāts)"
+    "Expiry date (required)" : "Derīguma termiņš (obligāts)",
+    "Your administrator does not allow you to share dashboards." : "Jūsu administrators neļauj jums kopīgot informācijas paneļus.",
+    "Public links are switched off." : "Publiskās saites ir izslēgtas."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

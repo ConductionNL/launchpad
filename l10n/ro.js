@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Doar administratorii pot partaja. Partajările existente rămân.",
     "Allow public links" : "Permite linkuri publice",
     "Only for people who may share dashboards. A link always has an expiry date." : "Doar pentru cei care pot partaja tablouri de bord. Un link are întotdeauna o dată de expirare.",
-    "Expiry date (required)" : "Dată de expirare (obligatorie)"
+    "Expiry date (required)" : "Dată de expirare (obligatorie)",
+    "Your administrator does not allow you to share dashboards." : "Administratorul nu vă permite să partajați tablouri de bord.",
+    "Public links are switched off." : "Linkurile publice sunt dezactivate."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

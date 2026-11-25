@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Només els administradors poden compartir. Les comparticions existents es mantenen.",
     "Allow public links" : "Permet enllaços públics",
     "Only for people who may share dashboards. A link always has an expiry date." : "Només per a qui pot compartir taulers. Un enllaç sempre té data de caducitat.",
-    "Expiry date (required)" : "Data de caducitat (obligatòria)"
+    "Expiry date (required)" : "Data de caducitat (obligatòria)",
+    "Your administrator does not allow you to share dashboards." : "El vostre administrador no us permet compartir taulers.",
+    "Public links are switched off." : "Els enllaços públics estan desactivats."
 },
 "nplurals=2; plural=(n != 1);"
 );

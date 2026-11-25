@@ -1904,6 +1904,8 @@
         "Only administrators can share. Existing shares stay.": "Only administrators can share. Existing shares stay.",
         "Allow public links": "Allow public links",
         "Only for people who may share dashboards. A link always has an expiry date.": "Only for people who may share dashboards. A link always has an expiry date.",
-        "Expiry date (required)": "Expiry date (required)"
+        "Expiry date (required)": "Expiry date (required)",
+        "Your administrator does not allow you to share dashboards.": "Your administrator does not allow you to share dashboards.",
+        "Public links are switched off.": "Public links are switched off."
     }
 }

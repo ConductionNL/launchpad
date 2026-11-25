@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Deliti lahko samo skrbniki. Obstoječa deljenja ostanejo.",
     "Allow public links" : "Dovoli javne povezave",
     "Only for people who may share dashboards. A link always has an expiry date." : "Samo za tiste, ki smejo deliti nadzorne plošče. Povezava ima vedno datum poteka.",
-    "Expiry date (required)" : "Datum poteka (obvezno)"
+    "Expiry date (required)" : "Datum poteka (obvezno)",
+    "Your administrator does not allow you to share dashboards." : "Skrbnik vam ne dovoli deliti nadzornih plošč.",
+    "Public links are switched off." : "Javne povezave so izklopljene."
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Vain ylläpitäjät voivat jakaa. Olemassa olevat jaot säilyvät.",
     "Allow public links" : "Salli julkiset linkit",
     "Only for people who may share dashboards. A link always has an expiry date." : "Vain niille, jotka saavat jakaa koontinäyttöjä. Linkillä on aina vanhenemispäivä.",
-    "Expiry date (required)" : "Vanhenemispäivä (pakollinen)"
+    "Expiry date (required)" : "Vanhenemispäivä (pakollinen)",
+    "Your administrator does not allow you to share dashboards." : "Ylläpitäjäsi ei salli sinun jakaa koontinäyttöjä.",
+    "Public links are switched off." : "Julkiset linkit on poistettu käytöstä."
 },
 "nplurals=2; plural=(n != 1);"
 );

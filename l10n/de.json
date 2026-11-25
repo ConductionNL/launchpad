@@ -1577,6 +1577,8 @@
         "Only administrators can share. Existing shares stay.": "Nur Administratoren können teilen. Bestehende Freigaben bleiben.",
         "Allow public links": "Öffentliche Links erlauben",
         "Only for people who may share dashboards. A link always has an expiry date.": "Nur für Personen, die Dashboards teilen dürfen. Ein Link hat immer ein Ablaufdatum.",
-        "Expiry date (required)": "Ablaufdatum (erforderlich)"
+        "Expiry date (required)": "Ablaufdatum (erforderlich)",
+        "Your administrator does not allow you to share dashboards.": "Ihr Administrator erlaubt Ihnen nicht, Dashboards zu teilen.",
+        "Public links are switched off.": "Öffentliche Links sind ausgeschaltet."
     }
 }

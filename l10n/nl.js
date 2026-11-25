@@ -2552,7 +2552,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Alleen beheerders kunnen delen. Bestaande shares blijven.",
     "Allow public links" : "Openbare links toestaan",
     "Only for people who may share dashboards. A link always has an expiry date." : "Alleen voor wie dashboards mag delen. Een link heeft altijd een vervaldatum.",
-    "Expiry date (required)" : "Vervaldatum (verplicht)"
+    "Expiry date (required)" : "Vervaldatum (verplicht)",
+    "Your administrator does not allow you to share dashboards." : "Je beheerder staat niet toe dat je dashboards deelt.",
+    "Public links are switched off." : "Openbare links staan uit."
 },
 "nplurals=2; plural=(n != 1);"
 );

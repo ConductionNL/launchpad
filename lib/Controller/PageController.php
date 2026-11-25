@@ -186,6 +186,10 @@ class PageController extends Controller {
 			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
 			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
 			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
+			->setSharingPolicy(
+				mayShare: $this->sources->dashboards->sharing?->mayShare(userId: $userId) ?? true,
+				publicLinksAllowed: $this->sources->dashboards->sharing?->publicLinksAllowed() ?? true
+			)
 			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
 			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
 			->setTalkEnabled($this->isAppEnabledForViewer(appId: 'spreed'))

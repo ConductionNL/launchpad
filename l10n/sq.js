@@ -1677,7 +1677,9 @@ OC.L10N.register(
     "Only administrators can share. Existing shares stay." : "Vetëm administratorët mund të ndajnë. Ndarjet ekzistuese mbeten.",
     "Allow public links" : "Lejo lidhje publike",
     "Only for people who may share dashboards. A link always has an expiry date." : "Vetëm për ata që mund të ndajnë panele. Një lidhje ka gjithmonë datë skadimi.",
-    "Expiry date (required)" : "Data e skadimit (e detyrueshme)"
+    "Expiry date (required)" : "Data e skadimit (e detyrueshme)",
+    "Your administrator does not allow you to share dashboards." : "Administratori juaj nuk ju lejon të ndani panele.",
+    "Public links are switched off." : "Lidhjet publike janë të çaktivizuara."
 },
 "nplurals=2; plural=(n != 1);"
 );

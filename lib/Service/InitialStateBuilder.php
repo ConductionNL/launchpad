@@ -419,6 +419,23 @@ class InitialStateBuilder {
 	}//end setFilterTelemetryEnabled()
 
 	/**
+	 * Push what the Sharing tab may offer the viewer (REQ-SHARE-015): adding
+	 * people or groups when they may share, a public link when they may share
+	 * and public links are on. Optional key: the JS reader offers both.
+	 *
+	 * @param bool $mayShare           Whether the viewer may share dashboards.
+	 * @param bool $publicLinksAllowed Whether public links may be created.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	public function setSharingPolicy(bool $mayShare, bool $publicLinksAllowed): self {
+		$this->values['sharingPolicy'] = ['mayShare' => $mayShare, 'publicLinksAllowed' => $publicLinksAllowed];
+		return $this;
+	}//end setSharingPolicy()
+
+	/**
 	 * Set what the tile editor offers for program and single sign-on tiles
 	 * (workspace): the schemes the administrator allowed, and the key and
 	 * name of each launch template. The template addresses stay on the

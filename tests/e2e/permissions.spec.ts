@@ -542,11 +542,15 @@ test.describe('permission levels on a template copy the user owns', () => {
 		const items = menu.getByRole('menuitem')
 		await expect(items.first()).toBeVisible({ timeout: 5_000 })
 		const names = (await items.allInnerTexts()).map((s) => s.trim())
-		await page.keyboard.press('Escape')
-		if (await menu.isVisible()) {
-			await trigger.click()
-		}
-		await expect(menu).toBeHidden({ timeout: 5_000 })
+		// Close it with Escape sent to the menu itself: a page-level Escape
+		// can miss it when focus sits elsewhere, and clicking the trigger
+		// after an Escape that did land reopens the menu.
+		await expect(async () => {
+			if (await menu.isVisible()) {
+				await menu.press('Escape')
+			}
+			await expect(menu).toBeHidden({ timeout: 1_000 })
+		}).toPass({ timeout: 5_000 })
 		return names
 	}
 

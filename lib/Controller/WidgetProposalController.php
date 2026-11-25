@@ -40,7 +40,6 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\UserRateLimit;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Serves the widget picker's assistant line.
@@ -52,14 +51,14 @@ class WidgetProposalController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest              $request     HTTP request.
-	 * @param WidgetProposalService $proposals   Asks the assistant.
-	 * @param IUserSession          $userSession The signed-in user.
+	 * @param IRequest              $request   HTTP request.
+	 * @param WidgetProposalService $proposals Asks the assistant.
+	 * @param SessionLog            $session   The signed-in user and the 401 answer.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly WidgetProposalService $proposals,
-		private readonly IUserSession $userSession,
+		private readonly SessionLog $session,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -73,9 +72,9 @@ class WidgetProposalController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function assistant(): JSONResponse {
-		$userId = $this->userId();
+		$userId = $this->session->userId();
 		if ($userId === null) {
-			return $this->unauthorized();
+			return $this->session->unauthorized();
 		}
 
 		return new JSONResponse(data: ['available' => $this->proposals->isAvailable(userId: $userId)]);
@@ -92,9 +91,9 @@ class WidgetProposalController extends Controller {
 	#[NoAdminRequired]
 	#[UserRateLimit(limit: 20, period: 300)]
 	public function propose(): JSONResponse {
-		$userId = $this->userId();
+		$userId = $this->session->userId();
 		if ($userId === null) {
-			return $this->unauthorized();
+			return $this->session->unauthorized();
 		}
 
 		$need  = $this->request->getParam(key: 'need');
@@ -116,27 +115,4 @@ class WidgetProposalController extends Controller {
 			data: ['proposal' => $this->proposals->propose(userId: $userId, need: $need, cards: $offers)]
 		);
 	}//end propose()
-
-	/**
-	 * The signed-in user's id, or null.
-	 *
-	 * @return string|null
-	 */
-	private function userId(): ?string {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return null;
-		}
-
-		return $user->getUID();
-	}//end userId()
-
-	/**
-	 * The 401 answer.
-	 *
-	 * @return JSONResponse
-	 */
-	private function unauthorized(): JSONResponse {
-		return new JSONResponse(data: ['message' => 'Not signed in'], statusCode: Http::STATUS_UNAUTHORIZED);
-	}//end unauthorized()
 }//end class

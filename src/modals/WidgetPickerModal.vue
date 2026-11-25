@@ -438,16 +438,18 @@ export default {
 	},
 
 	watch: {
-		/**
-		 * Clear the search, the kind and the choice when the picker closes,
-		 * so the next open starts from every widget.
-		 *
-		 * @param {boolean} isOpen Whether the picker is now open.
-		 * @spec openspec/specs/widgets/spec.md
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
-		 */
 		open: {
 			immediate: true,
+			/**
+			 * On open, show the assistant line when the server can answer.
+			 * On close, clear the search, the kind, the choice and the
+			 * assistant line, so the next open starts from every widget.
+			 *
+			 * @param {boolean} isOpen Whether the picker is now open.
+			 * @spec openspec/specs/widgets/spec.md
+			 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+			 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+			 */
 			handler(isOpen) {
 				if (isOpen) {
 					this.checkAssistant()

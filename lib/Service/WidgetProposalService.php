@@ -165,13 +165,10 @@ class WidgetProposalService {
 				continue;
 			}
 
-			$name        = is_string(value: $card['name'] ?? null) === true ? $card['name'] : '';
-			$description = is_string(value: $card['description'] ?? null) === true ? $card['description'] : '';
-
 			$offers[$key] = [
 				'key'         => $key,
-				'name'        => $this->clip(text: $name, length: self::MAX_FIELD_LENGTH),
-				'description' => $this->clip(text: $description, length: self::MAX_FIELD_LENGTH),
+				'name'        => $this->clip(text: $this->text(values: $card, field: 'name'), length: self::MAX_FIELD_LENGTH),
+				'description' => $this->clip(text: $this->text(values: $card, field: 'description'), length: self::MAX_FIELD_LENGTH),
 			];
 			if (count(value: $offers) >= self::MAX_CARDS) {
 				break;
@@ -217,21 +214,22 @@ class WidgetProposalService {
 	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
 	 */
 	public function parse(string $answer, array $offers): ?array {
-		$key    = null;
-		$reason = '';
-
 		$matches = [];
-		if (preg_match(pattern: '/\{.*\}/s', subject: $answer, matches: $matches) === 1) {
-			$decoded = json_decode(json: $matches[0], associative: true);
-			if (is_array(value: $decoded) === true) {
-				$key    = is_string(value: $decoded['key'] ?? null) === true ? trim(string: $decoded['key']) : null;
-				$reason = is_string(value: $decoded['reason'] ?? null) === true ? $decoded['reason'] : '';
-			}
-		}
-
-		if ($key === null || isset($offers[$key]) === false) {
+		if (preg_match(pattern: '/\{.*\}/s', subject: $answer, matches: $matches) !== 1) {
 			return null;
 		}
+
+		$decoded = json_decode(json: $matches[0], associative: true);
+		if (is_array(value: $decoded) === false) {
+			return null;
+		}
+
+		$key = trim(string: $this->text(values: $decoded, field: 'key'));
+		if (isset($offers[$key]) === false) {
+			return null;
+		}
+
+		$reason = $this->text(values: $decoded, field: 'reason');
 
 		return [
 			'key'    => $key,
@@ -241,12 +239,33 @@ class WidgetProposalService {
 	}//end parse()
 
 	/**
+	 * A field of a decoded value when it is a string, else ''.
+	 *
+	 * @param array<mixed> $values The decoded value.
+	 * @param string       $field  The field.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
+	 */
+	private function text(array $values, string $field): string {
+		$value = $values[$field] ?? '';
+		if (is_string(value: $value) === false) {
+			return '';
+		}
+
+		return $value;
+	}//end text()
+
+	/**
 	 * Trim a text and cut it to a length.
 	 *
 	 * @param string  $text   The text.
 	 * @param integer $length The longest result.
 	 *
 	 * @return string
+	 *
+	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
 	 */
 	private function clip(string $text, int $length): string {
 		return trim(string: mb_substr(string: trim(string: $text), start: 0, length: $length));

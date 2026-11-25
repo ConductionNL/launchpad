@@ -36,6 +36,7 @@ export function assistantAvailable() {
  * Forget the cached availability (tests, and after a sign-in change).
  *
  * @return {void}
+ * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-044
  */
 export function resetAssistantAvailability() {
 	availability = null

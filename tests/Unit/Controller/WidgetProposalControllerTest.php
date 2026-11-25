@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Tests\Unit\Controller;
 
+use OCA\LaunchPad\Controller\SessionLog;
 use OCA\LaunchPad\Controller\WidgetProposalController;
 use OCA\LaunchPad\Service\WidgetProposalService;
 use OCP\AppFramework\Http;
@@ -32,6 +33,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use ReflectionMethod;
 
 /**
@@ -88,7 +90,9 @@ class WidgetProposalControllerTest extends TestCase {
 
 		$this->userSession->method('getUser')->willReturn($user);
 
-		return new WidgetProposalController(request: $this->request, proposals: $this->proposals, userSession: $this->userSession);
+		$session = new SessionLog(userSession: $this->userSession, logger: $this->createMock(originalClassName: LoggerInterface::class));
+
+		return new WidgetProposalController(request: $this->request, proposals: $this->proposals, session: $session);
 	}//end controller()
 
 	/**

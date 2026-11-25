@@ -626,7 +626,7 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// for a missing one (REQ-ACAT-002/003), and the admin side (REQ-ACAT-001/004).
 		['name' => 'catalogue#index', 'url' => '/api/catalogue', 'verb' => 'GET'],
 		['name' => 'catalogue#request', 'url' => '/api/catalogue/requests', 'verb' => 'POST'],
-		// widget-picker-board-sync REQ-WDG-044: the assistant line of Add widget.
+		// The assistant line of Add widget (widget-picker-board-sync, REQ-WDG-044).
 		['name' => 'widgetProposal#assistant', 'url' => '/api/widget-picker/assistant', 'verb' => 'GET'],
 		['name' => 'widgetProposal#propose', 'url' => '/api/widget-picker/proposal', 'verb' => 'POST'],
 		['name' => 'adminCatalogue#index', 'url' => '/api/admin/catalogue', 'verb' => 'GET'],

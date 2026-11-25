@@ -32,6 +32,7 @@
  *   @e2e video-widget::file-mime-type-is-not-video
  *   @e2e video-widget::file-is-deleted
  *   @e2e video-widget::file-not-found-error
+ *   @e2e video-widget::nextcloud-file-is-resolved-with-acl
  *   @e2e video-widget::html5-video-autoplay
  *   @e2e video-widget::loop-is-applied-per-platform
  *   @e2e video-widget::controls-toggle
@@ -60,6 +61,7 @@ import {
 	shareWith,
 } from './support/principals.ts'
 import {
+	ADMIN,
 	API,
 	cellOf,
 	deleteFile,
@@ -349,6 +351,86 @@ test.describe('video widget: file access (REQ-VID-006, REQ-VID-011)', () => {
 				.first(),
 			'edit mode offers to remove the broken widget',
 		).toBeVisible({ timeout: 5_000 })
+	})
+})
+
+test.describe('video widget: the file service decides per viewer (REQ-VID-003)', () => {
+	test.describe.configure({ timeout: 120_000 })
+
+	/**
+	 * Ask the file endpoint for a placement as one principal.
+	 *
+	 * @param who the request context of the viewer.
+	 * @param placementId the placement.
+	 * @return the status and the parsed body.
+	 */
+	async function resolveAs(who: APIRequestContext, placementId: number): Promise<{ status: number, body: Record<string, unknown> }> {
+		const res = await who.get(`${API}/widgets/video/${placementId}/file`)
+		const text = await res.text()
+		try {
+			return { status: res.status(), body: JSON.parse(text) as Record<string, unknown> }
+		} catch {
+			throw new Error(`the file endpoint answered ${res.status()} with no JSON: ${text.slice(0, 200)}`)
+		}
+	}
+
+	/**
+	 * Fetch a streaming URL the endpoint handed out, as the same viewer.
+	 *
+	 * @param who the request context of the viewer.
+	 * @param streamingUrl the URL, absolute-path or absolute.
+	 * @return the status and the byte count served.
+	 */
+	async function stream(who: APIRequestContext, streamingUrl: string): Promise<{ status: number, bytes: number }> {
+		const res = await who.get(new URL(streamingUrl, `${BASE_URL}/`).toString())
+		return { status: res.status(), bytes: (await res.body()).length }
+	}
+
+	// @e2e video-widget::nextcloud-file-is-resolved-with-acl
+	test('read permission is checked for the viewer: the owner and a viewer with a file share get a streaming URL that serves the file, the same viewer without the share is refused with none', async () => {
+		const id = await seed(ncFileContent(clipId))
+		const bob = await createPrincipal(api, 'e2e-video-acl')
+		let share = 0
+		try {
+			// bob may see the placement, so a refusal below is the file check,
+			// not the placement check.
+			await publishForRecipients(api, dashboard!.id)
+			await shareWith(api, dashboard!.id, bob.username, 'view_only')
+
+			// The owner: the file is loaded by id and readable.
+			const owner = await resolveAs(api, id)
+			expect(owner.status, JSON.stringify(owner.body)).toBe(200)
+			const ownerUrl = String(owner.body.streamingUrl ?? '')
+			expect(ownerUrl, 'the owner gets an address in their own files').toContain(`/remote.php/dav/files/${encodeURIComponent(ADMIN.user)}/`)
+			expect(ownerUrl).toContain(encodeURIComponent(CLIP_NAME))
+			const ownerBytes = await stream(api, ownerUrl)
+			expect(ownerBytes.status, 'the streaming URL serves the file to the owner').toBe(200)
+			expect(ownerBytes.bytes).toBe(CLIP.length)
+
+			// A viewer with read permission through a file share.
+			share = await shareFileWith(api, CLIP_NAME, bob.username)
+			const granted = await resolveAs(bob.api, id)
+			expect(granted.status, JSON.stringify(granted.body)).toBe(200)
+			const bobUrl = String(granted.body.streamingUrl ?? '')
+			expect(bobUrl, 'the address is in the viewer\'s own space, not the owner\'s').toContain(`/remote.php/dav/files/${encodeURIComponent(bob.username)}/`)
+			const bobBytes = await stream(bob.api, bobUrl)
+			expect(bobBytes.status, 'the viewer\'s streaming URL serves the file to the viewer').toBe(200)
+			expect(bobBytes.bytes).toBe(CLIP.length)
+
+			// The same viewer once the read permission is gone.
+			await unshareFile(api, share)
+			share = 0
+			const refused = await resolveAs(bob.api, id)
+			expect(refused.status, JSON.stringify(refused.body)).toBe(403)
+			expect(refused.body.error, 'refused by the file check, not the placement check').toBe('not_accessible')
+			expect(refused.body, 'a refusal carries no address').not.toHaveProperty('streamingUrl')
+			expect(JSON.stringify(refused.body)).not.toMatch(FILE_URL)
+		} finally {
+			if (share > 0) {
+				await unshareFile(api, share).catch(() => {})
+			}
+			await removePrincipal(api, bob)
+		}
 	})
 })
 

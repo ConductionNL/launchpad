@@ -169,15 +169,14 @@
         "app": "launchpad",
         "title": "Marketplace",
         "description": "Install a dashboard another organisation published. Point LaunchPad at a registry and browse what it offers.",
-        "kindLenses": [
-          { "kind": "app-template", "label": "App template" },
-          { "kind": "adapter", "label": "Adapter" },
-          { "kind": "source-template", "label": "Source template" },
-          { "kind": "configuration-template", "label": "Configuration template" },
-          { "kind": "agent-template", "label": "Agent template" }
-        ]
+        "categoryLenses": true,
+        "pageSize": 8,
+        "banner": {
+          "settingsUrl": "/index.php/apps/launchpad/admin/sharing",
+          "settingsLabel": "Open the Sharing tab"
+        }
       },
-      "_note": "ADR-080. Discovery is engine-owned: openregister's GenericStoreService owns the SSRF guard, the redirect refusal and the Bearer-only token. Install is LaunchPad's, in Controller\\StoreController, and runs through the existing ImportService. With no registry configured the page makes NO network call and reports not_configured. There is deliberately NO top-level `store` block: it configures the engine's GenericStoreController, which cannot write a LaunchPad dashboard, so the engine alias yields to the leaf controller. The block this replaced declared `openregister.configset` types, which would have offered configuration sets to somebody looking for a dashboard."
+      "_note": "ADR-080. Discovery is engine-owned: openregister's GenericStoreService owns the SSRF guard, the redirect refusal and the Bearer-only token. Install is LaunchPad's, in Controller\\StoreController, and runs through the existing ImportService. With no registry configured the page makes NO network call and reports not_configured. There is deliberately NO top-level `store` block: it configures the engine's GenericStoreController, which cannot write a LaunchPad dashboard, so the engine alias yields to the leaf controller. The block this replaced declared `openregister.configset` types, which would have offered configuration sets to somebody looking for a dashboard. Board LpStore (store-page-board-sync REQ-STORE-010): the lenses are All, Installed, Update available and the categories the register's items carry (categoryLenses), not the engine's kind lenses, which are not dashboard kinds; 8 cards a page; the banner names the register the items answer carries (registry, checkedAt) and, without one, links to the Sharing tab."
     },
     {
       "id": "dashboard-detail",

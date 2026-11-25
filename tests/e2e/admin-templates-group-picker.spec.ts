@@ -27,7 +27,7 @@
  * @spec openspec/specs/admin-templates/spec.md
  */
 
-import type { APIRequestContext, Page } from '@playwright/test'
+import type { APIRequestContext, Locator, Page } from '@playwright/test'
 import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
@@ -111,6 +111,16 @@ async function group(tag: string): Promise<string> {
 	return id
 }
 
+/**
+ * A group in the target groups select, by its exact text. The select splits
+ * a long name over two spans, so the option's accessible name is not the
+ * group id and a by-role name match misses it.
+ */
+function groupOption(page: Page, id: string): Locator {
+	const exact = new RegExp(`^${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`)
+	return page.getByRole('option').filter({ hasText: exact })
+}
+
 /** Open the Templates page as the admin. */
 async function openTemplatesPage(page: Page): Promise<void> {
 	await page
@@ -137,12 +147,12 @@ test('the target groups field offers the Nextcloud groups', async ({ page }) => 
 	const editor = page.locator('[data-testid="admin-template-editor"]')
 	await expect(editor).toBeVisible()
 	await editor.getByRole('combobox', { name: 'Target groups' }).click()
-	await expect(page.getByRole('option', { name: g, exact: true })).toBeVisible({
+	await expect(groupOption(page, g)).toBeVisible({
 		timeout: 15_000,
 	})
 	// The built-in admin group is a Nextcloud group too.
 	await expect(
-		page.getByRole('option', { name: 'admin', exact: true }),
+		groupOption(page, 'admin'),
 	).toBeVisible()
 })
 
@@ -189,7 +199,7 @@ test('the admin adds mijn-werkdag on the Templates page and gives it to a group'
 	const editor = page.locator('[data-testid="admin-template-editor"]')
 	await expect(editor).toBeVisible()
 	await editor.getByRole('combobox', { name: 'Target groups' }).click()
-	await page.getByRole('option', { name: medewerkers, exact: true }).click()
+	await groupOption(page, medewerkers).click()
 	await editor.getByRole('button', { name: 'Save' }).click()
 	await expect(editor).toBeHidden()
 

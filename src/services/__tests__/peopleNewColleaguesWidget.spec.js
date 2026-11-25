@@ -12,6 +12,8 @@
  */
 
 import { flushPromises, mount } from '@vue/test-utils'
+import fs from 'fs'
+import path from 'path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nextcloud/l10n', () => ({
@@ -93,5 +95,28 @@ describe('People widget: New colleagues through the LaunchPad source', () => {
 		const wrapper = await mountNewColleagues()
 
 		expect(wrapper.find('.cn-people-widget__retry').exists()).toBe(true)
+	})
+})
+
+describe('People widget: New colleagues in every LaunchPad locale', () => {
+	const KEYS = [
+		'The administrator has not set a start date field.',
+		'Starts {weekday}',
+		'Selection',
+		'People by filter',
+		'New colleagues',
+		'Started in the last (days, 1–90)',
+		'Starts within (days, 0–30)',
+		'Must be between {min} and {max}',
+	]
+	const root = path.resolve(__dirname, '../../..')
+	const ncVue = path.join(root, 'node_modules/@conduction/nextcloud-vue/l10n')
+	const locales = fs.readdirSync(path.join(root, 'l10n'))
+		.filter((file) => /^[a-z]{2}(_[A-Z]{2})?\.json$/.test(file) && file !== 'en.json')
+		.map((file) => file.slice(0, -5))
+
+	it.each(locales)('nextcloud-vue translates every New colleagues string in %s', (locale) => {
+		const catalogue = JSON.parse(fs.readFileSync(path.join(ncVue, `${locale}.json`), 'utf8')).translations
+		expect(KEYS.filter((key) => typeof catalogue[key] !== 'string' || catalogue[key] === '')).toEqual([])
 	})
 })

@@ -798,6 +798,20 @@ class PeopleWidgetService {
 	}//end primaryGroup()
 
 	/**
+	 * One person as the people widget shows them, without the birthdate:
+	 * avatar, role and organisation through the same visibility rules.
+	 *
+	 * @param IUser $user The person.
+	 *
+	 * @return array<string, mixed> The profile.
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 */
+	public function profileOf(IUser $user): array {
+		return $this->buildUserProfile(user: $user, showBirthdays: false);
+	}//end profileOf()
+
+	/**
 	 * Project a single user to the response shape.
 	 *
 	 * @param IUser $user The user to project.

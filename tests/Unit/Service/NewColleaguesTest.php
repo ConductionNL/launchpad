@@ -25,6 +25,7 @@ use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Db\ProfileValue;
 use OCA\LaunchPad\Db\ProfileValueMapper;
 use OCA\LaunchPad\Service\NewColleagues;
+use OCA\LaunchPad\Service\PeopleWidgetService;
 use OCA\LaunchPad\Service\ProfileFieldService;
 use OCP\IRequest;
 use OCP\IUser;
@@ -65,10 +66,11 @@ class NewColleaguesTest extends TestCase {
 	 * The service over a start-date field and four people.
 	 *
 	 * @param array<int, array<string, mixed>> $definitions The field definitions.
+	 * @param PeopleWidgetService|null         $people      The people widget's profile, or none.
 	 *
 	 * @return NewColleagues The service.
 	 */
-	private function colleagues(array $definitions): NewColleagues {
+	private function colleagues(array $definitions, ?PeopleWidgetService $people=null): NewColleagues {
 		$fields = $this->createMock(originalClassName: ProfileFieldService::class);
 		$fields->method('getDefinitions')->willReturn($definitions);
 		$fields->method('canSee')->willReturnCallback(
@@ -104,7 +106,7 @@ class NewColleaguesTest extends TestCase {
 			return $user;
 		});
 
-		return new NewColleagues(fields: $fields, values: $values, users: $users);
+		return new NewColleagues(fields: $fields, values: $values, users: $users, people: $people);
 	}//end colleagues()
 
 	/**
@@ -127,6 +129,36 @@ class NewColleaguesTest extends TestCase {
 			actual: $answer['users']
 		);
 	}//end testThreeNewColleaguesNewestFirst()
+
+	/**
+	 * Each new colleague carries photo, role and team from the people widget's profile.
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 *
+	 * @return void
+	 */
+	public function testEachNewColleagueCarriesPhotoRoleAndTeam(): void {
+		$people = $this->createMock(originalClassName: PeopleWidgetService::class);
+		$people->method('profileOf')->willReturn(
+			['uid' => 'x', 'avatarUrl' => '/avatar/x/128', 'role' => 'Beleidsadviseur', 'organisation' => 'Team Wonen', 'email' => 'x@example.org']
+		);
+		$withPeople = $this->colleagues(definitions: [['key' => 'joined', 'startDate' => true]], people: $people);
+
+		$first = $withPeople->listNew(viewerId: 'pieter', window: ['today' => '2026-10-05'])['users'][0];
+
+		$this->assertSame(
+			expected: [
+				'id' => 'yasmina',
+				'displayName' => 'Yasmina El Amrani',
+				'avatarUrl' => '/avatar/x/128',
+				'role' => 'Beleidsadviseur',
+				'organisation' => 'Team Wonen',
+				'startDate' => '2026-10-12',
+				'starts' => true,
+			],
+			actual: $first
+		);
+	}//end testEachNewColleagueCarriesPhotoRoleAndTeam()
 
 	/**
 	 * The windows are clamped to 1..90 days back and 0..30 ahead.

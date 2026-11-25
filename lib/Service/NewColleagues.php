@@ -56,6 +56,7 @@ class NewColleagues {
 	 * @param ProfileFieldService $fields The field definitions and who may see a value.
 	 * @param ProfileValueMapper  $values The stored values.
 	 * @param IUserManager        $users  The accounts.
+	 * @param PeopleWidgetService|null $people The people widget's profile (avatar, role, organisation), or none.
 	 *
 	 * @return void
 	 */
@@ -63,6 +64,7 @@ class NewColleagues {
 		private readonly ProfileFieldService $fields,
 		private readonly ProfileValueMapper $values,
 		private readonly IUserManager $users,
+		private readonly ?PeopleWidgetService $people = null,
 	) {
 	}//end __construct()
 
@@ -132,7 +134,7 @@ class NewColleagues {
 	 * @param string               $ownerId    The person.
 	 * @param array<string, mixed> $definition The start-date field.
 	 *
-	 * @return array{id: string, displayName: string}|null
+	 * @return array{id: string, displayName: string, avatarUrl?: string, role?: string, organisation?: string}|null
 	 *
 	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
@@ -146,7 +148,20 @@ class NewColleagues {
 			return null;
 		}
 
-		return ['id' => $ownerId, 'displayName' => $user->getDisplayName()];
+		$entry = ['id' => $ownerId, 'displayName' => $user->getDisplayName()];
+		if ($this->people === null) {
+			return $entry;
+		}
+
+		// The list shows photo, role and team (REQ-PPL-014), read as the people widget reads them.
+		$profile = $this->people->profileOf(user: $user);
+		foreach (['avatarUrl', 'role', 'organisation'] as $key) {
+			if (is_string(value: ($profile[$key] ?? null)) === true && $profile[$key] !== '') {
+				$entry[$key] = $profile[$key];
+			}
+		}
+
+		return $entry;
 	}//end entryFor()
 
 }//end class

@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\PreferenceKey;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -163,9 +164,10 @@ class PreferencesController extends Controller {
 	 * @param string $key The raw key.
 	 *
 	 * @return string The sanitised key, or '' when nothing safe remains.
+	 *
+	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-1
 	 */
 	private function sanitizeKey(string $key): string {
-		$safe = preg_replace(pattern: '/[^a-z0-9-]/', replacement: '', subject: strtolower($key));
-		return substr((string)$safe, offset: 0, length: 64);
+		return (new PreferenceKey())->safe(key: $key);
 	}//end sanitizeKey()
 }//end class

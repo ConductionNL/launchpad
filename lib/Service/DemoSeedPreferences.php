@@ -35,11 +35,17 @@ class DemoSeedPreferences {
 	/**
 	 * The user preference that records which version of the getting-started
 	 * tour a user completed (manifest `walkthrough.completionConfigKey`, stored
-	 * by PreferencesController with its `pref_` prefix).
+	 * by PreferencesController with its `pref_` prefix). The controller keeps
+	 * only `[a-z0-9-]` of the key (PreferenceKey::stored()), so the
+	 * underscores of `walkthrough_completed_version` are not in the stored
+	 * name; with them the seeded mark was never read and every demo user met
+	 * the tour.
 	 *
 	 * @var string
+	 *
+	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-1
 	 */
-	public const WALKTHROUGH_PREF_KEY = 'pref_walkthrough_completed_version';
+	public const WALKTHROUGH_PREF_KEY = 'pref_walkthroughcompletedversion';
 
 	/**
 	 * The user preference holding the dashboard that opens first; the key the

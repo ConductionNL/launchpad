@@ -31,6 +31,9 @@ vi.mock('../../../services/api.js', () => ({
 		getOrgNavigation: vi
 			.fn()
 			.mockResolvedValue({ data: { tree: [], language: 'nl' } }),
+		getEditableOrgNavigation: vi
+			.fn()
+			.mockResolvedValue({ data: { tree: [], language: 'nl' } }),
 		updateOrgNavigation: vi
 			.fn()
 			.mockResolvedValue({ data: { tree: [], language: 'nl' } }),
@@ -103,6 +106,33 @@ describe('OrgNavigationEditor', () => {
 		await wrapper.find('[data-test="org-nav-save"]').trigger('click')
 		await flush()
 
+		expect(wrapper.vm.successFlag).toBe(true)
+	})
+
+	it('REQ-ONAV-007: the editor works on the whole tree and the rail reads its filtered view after Save', async () => {
+		const pinia = createPinia()
+		setActivePinia(pinia)
+		const apiMod = await import('../../../services/api.js')
+		const hidden = { id: '22222222-2222-4222-8222-222222222222', label: 'Elsewhere', url: '/', groupVisibility: ['mkt'] }
+		apiMod.api.getEditableOrgNavigation.mockResolvedValueOnce({ data: { tree: [hidden], language: 'nl' } })
+		apiMod.api.getOrgNavigation.mockClear()
+		apiMod.api.updateOrgNavigation.mockImplementationOnce((tree, lang) => Promise.resolve({
+			data: { tree, language: lang },
+		}))
+
+		const wrapper = mount(OrgNavigationEditor, { pinia })
+		await flush()
+		expect(apiMod.api.getEditableOrgNavigation).toHaveBeenCalledWith('nl')
+		expect(wrapper.vm.workingTree.map((node) => node.id)).toEqual([hidden.id])
+
+		await wrapper.find('[data-test="org-nav-add-link"]').trigger('click')
+		await wrapper.find('[data-test="org-nav-save"]').trigger('click')
+		await flush()
+
+		const saved = apiMod.api.updateOrgNavigation.mock.calls.at(-1)[0]
+		expect(saved.map((node) => node.id)).toContain(hidden.id)
+		expect(apiMod.api.getOrgNavigation).toHaveBeenCalledWith('nl')
+		expect(wrapper.vm.store.tree).toEqual([])
 		expect(wrapper.vm.successFlag).toBe(true)
 	})
 

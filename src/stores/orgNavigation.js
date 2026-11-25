@@ -124,6 +124,33 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 		},
 
 		/**
+		 * Fetch the editor's copy of the tree: every node, also those in
+		 * groups the administrator is not in (REQ-ONAV-007). The rail's
+		 * filtered `state.tree` is left alone.
+		 *
+		 * @param {string} lang ISO language code (defaults to current
+		 *                      `state.language`).
+		 * @return {Promise<Array<object>>} The whole tree; `[]` on failure.
+		 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+		 */
+		async fetchEditableTree(lang) {
+			const language = lang || this.language || 'nl'
+			this.loading = true
+			try {
+				const response = await api.getEditableOrgNavigation(language)
+				const data = response && response.data ? response.data : {}
+				this.error = null
+				return Array.isArray(data.tree) ? data.tree : []
+			} catch (err) {
+				this.error =
+					err && err.message ? err.message : 'Failed to load navigation'
+				return []
+			} finally {
+				this.loading = false
+			}
+		},
+
+		/**
 		 * Persist a new tree (admin-only on the backend).
 		 *
 		 * On success the local `tree` is replaced with the returned

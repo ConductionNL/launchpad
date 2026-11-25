@@ -192,8 +192,9 @@ export default {
 		async bootstrap() {
 			await this.store.fetchPosition()
 			this.selectedPosition = this.store.position
-			await this.store.fetchTree(this.selectedLanguage)
-			this.workingTree = this.cloneTree(this.store.visibleTree)
+			this.workingTree = this.cloneTree(
+				await this.store.fetchEditableTree(this.selectedLanguage),
+			)
 		},
 
 		/**
@@ -335,8 +336,9 @@ export default {
 
 		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		async onLanguageChange() {
-			await this.store.fetchTree(this.selectedLanguage)
-			this.workingTree = this.cloneTree(this.store.visibleTree)
+			this.workingTree = this.cloneTree(
+				await this.store.fetchEditableTree(this.selectedLanguage),
+			)
 		},
 
 		/** @spec openspec/specs/navigation-editor-org/spec.md */
@@ -357,6 +359,9 @@ export default {
 			)
 			this.saving = false
 			if (ok) {
+				// The editor saved the whole tree (REQ-ONAV-007); the rail
+				// shows the admin's filtered view of it, so read that back.
+				await this.store.fetchTree(this.selectedLanguage)
 				this.successFlag = true
 				// Hide the toast after a short delay.
 				setTimeout(() => {

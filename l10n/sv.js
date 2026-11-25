@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Egen publicering",
     "New colleagues" : "Nya kollegor",
     "Required: this widget cannot be removed" : "Obligatorisk: den här widgeten kan inte tas bort",
     "Connections of this dashboard" : "Anslutningar på den här instrumentpanelen",

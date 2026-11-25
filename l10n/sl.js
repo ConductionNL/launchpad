@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Lastna objava",
     "New colleagues" : "Novi sodelavci",
     "Required: this widget cannot be removed" : "Obvezno: tega gradnika ni mogoče odstraniti",
     "Connections of this dashboard" : "Povezave te nadzorne plošče",

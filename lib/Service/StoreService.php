@@ -88,6 +88,29 @@ class StoreService {
 	];
 
 	/**
+	 * The fields of a publication that may leave this server (REQ-STORE-013).
+	 *
+	 * The engine sends the slug plus exactly these fields, never anything else
+	 * the payload carries, so an owner or a share field a caller forgot to
+	 * strip still never reaches the register.
+	 *
+	 * @var list<string>
+	 */
+	public const PUBLISH_FIELDS = ['title', 'description', 'category', 'version', 'publisher', 'widgets', 'dashboards'];
+
+	/**
+	 * Who may publish: Nextcloud administrators (REQ-STORE-013).
+	 *
+	 * @var list<string>
+	 */
+	public const PUBLISH_GROUPS = ['admin'];
+
+	/**
+	 * Outcome reported when the engine cannot take a publication.
+	 */
+	public const OUTCOME_NOT_PUBLISHABLE = 'not_publishable';
+
+	/**
 	 * Fully-qualified name of the engine's descriptor value object.
 	 *
 	 * Held as a string so no `OCA\OpenRegister\…` symbol is touched at load
@@ -371,6 +394,43 @@ class StoreService {
 	}//end resolveItem()
 
 	/**
+	 * Publish one item to the connected register through OpenRegister's store plane.
+	 *
+	 * LaunchPad never talks to the register itself: the engine owns the
+	 * transport guard, sends only {@see self::PUBLISH_FIELDS} and checks that
+	 * the register stored the slug it was sent. Its outcome is passed through
+	 * verbatim, like a search's (REQ-STORE-003).
+	 *
+	 * @param array<string, mixed> $item The item, carrying its slug.
+	 *
+	 * @return array{outcome: string, slug: string}
+	 *
+	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 */
+	public function publish(array $item): array {
+		if ($this->discovery === null) {
+			return ['outcome' => self::OUTCOME_NOT_CONFIGURED, 'slug' => ''];
+		}
+
+		// An OpenRegister from before the store plane could publish.
+		if (method_exists($this->discovery, 'publish') === false || class_exists(self::SHARING_CLASS) === false) {
+			return ['outcome' => self::OUTCOME_NOT_PUBLISHABLE, 'slug' => ''];
+		}
+
+		$result = $this->discovery->publish(descriptor: $this->descriptor(), payload: $item);
+		if (is_array($result) === false) {
+			return ['outcome' => self::OUTCOME_NOT_PUBLISHABLE, 'slug' => ''];
+		}
+
+		return [
+			'outcome' => (string)($result['outcome'] ?? self::OUTCOME_NOT_PUBLISHABLE),
+			'slug' => (string)($result['slug'] ?? ''),
+		];
+	}//end publish()
+
+	/**
 	 * The registry connection, with the token redacted.
 	 *
 	 * 🔴 THE TOKEN NEVER LEAVES THE SERVER. The read reports only WHETHER one
@@ -479,7 +539,11 @@ class StoreService {
 					defaultRegister: self::DEFAULT_REGISTER,
 					cardFields: self::CARD_FIELDS
 				),
-				sharing: new $sharingClass(types: [])
+				sharing: new $sharingClass(
+					types: [],
+					publishFields: self::PUBLISH_FIELDS,
+					publishGroups: self::PUBLISH_GROUPS
+				)
 			);
 		}
 

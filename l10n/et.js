@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Oma avaldamine",
     "New colleagues" : "Uued kolleegid",
     "Required: this widget cannot be removed" : "Kohustuslik: seda vidinat ei saa eemaldada",
     "Connections of this dashboard" : "Selle töölaua ühendused",

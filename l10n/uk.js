@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Власна публікація",
     "New colleagues" : "Нові колеги",
     "Required: this widget cannot be removed" : "Обов'язковий: цей віджет не можна видалити",
     "Connections of this dashboard" : "Підключення цієї панелі",

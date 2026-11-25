@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Eigin útgáfa",
     "New colleagues" : "Nýir samstarfsmenn",
     "Required: this widget cannot be removed" : "Áskilið: ekki er hægt að fjarlægja þessa græju",
     "Connections of this dashboard" : "Tengingar þessa mælaborðs",

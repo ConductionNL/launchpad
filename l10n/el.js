@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Δική μας δημοσίευση",
     "New colleagues" : "Νέοι συνάδελφοι",
     "Required: this widget cannot be removed" : "Υποχρεωτικό: αυτό το γραφικό στοιχείο δεν μπορεί να αφαιρεθεί",
     "Connections of this dashboard" : "Συνδέσεις αυτού του πίνακα",

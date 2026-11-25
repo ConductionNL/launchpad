@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Vlastná publikácia",
     "New colleagues" : "Noví kolegovia",
     "Required: this widget cannot be removed" : "Povinné: tento widget nie je možné odstrániť",
     "Connections of this dashboard" : "Pripojenia tohto panela",

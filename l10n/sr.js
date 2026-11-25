@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Сопствена објава",
     "New colleagues" : "Нове колеге",
     "Required: this widget cannot be removed" : "Обавезно: овај виџет не може да се уклони",
     "Connections of this dashboard" : "Везе ове контролне табле",

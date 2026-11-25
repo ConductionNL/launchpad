@@ -38,6 +38,7 @@ namespace OCA\LaunchPad\Controller;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\StoreInstallFlow;
 use OCA\LaunchPad\Service\StoreInstalls;
+use OCA\LaunchPad\Service\StorePublishService;
 use OCA\LaunchPad\Service\StoreService;
 use OCA\LaunchPad\Service\StoreUpdateService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
@@ -76,6 +77,7 @@ class StoreController extends Controller {
 	 * @param StoreService $storeService Discovery delegation and install.
 	 * @param IUserSession $userSession  The current session.
 	 * @param StoreInstallFlow|null $flow The install record (REQ-STORE-011) and the in-place update (REQ-STORE-012).
+	 * @param StorePublishService|null $publications Publishes a dashboard to the register (REQ-STORE-013).
 	 *
 	 * @return void
 	 */
@@ -84,6 +86,7 @@ class StoreController extends Controller {
 		private readonly StoreService $storeService,
 		private readonly IUserSession $userSession,
 		?StoreInstallFlow $flow = null,
+		private readonly ?StorePublishService $publications = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 		$this->installs = $flow?->installs;
@@ -126,11 +129,15 @@ class StoreController extends Controller {
 			kind: $this->stringParam(name: 'kind')
 		);
 
+		// REQ-STORE-011: Installed (with the dashboard to open), Update or Available.
+		$cards = ($this->installs?->annotate(cards: $result['cards']) ?? $result['cards']);
+		// REQ-STORE-013: what this instance published reads "Own publication".
+		$cards = ($this->publications?->annotate(cards: $cards) ?? $cards);
+
 		return new JSONResponse(
 			data: [
 				'outcome' => $result['outcome'],
-				// REQ-STORE-011: Installed (with the dashboard to open), Update or Available.
-				'cards' => ($this->installs?->annotate(cards: $result['cards']) ?? $result['cards']),
+				'cards' => $cards,
 				'kinds' => [],
 				'builtIn' => [],
 				// REQ-STORE-010: the register banner (name and address, never the token).
@@ -224,6 +231,71 @@ class StoreController extends Controller {
 
 		return new JSONResponse(data: $result, statusCode: $status);
 	}//end update()
+
+	/**
+	 * The dashboards an administrator may publish, for the publish dialog.
+	 *
+	 * Administrative (REQ-STORE-013): anyone else is refused with 403 by the
+	 * attribute. Only the administrator's own dashboards and the admin
+	 * templates are offered, never another person's.
+	 *
+	 * @return JSONResponse 200 with `{objects: [{schema, id, title}]}`.
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function publishable(): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null || $this->publications === null) {
+			return new JSONResponse(data: ['objects' => []], statusCode: Http::STATUS_OK);
+		}
+
+		return new JSONResponse(
+			data: ['objects' => $this->publications->publishable(userId: $user->getUID())],
+			statusCode: Http::STATUS_OK
+		);
+	}//end publishable()
+
+	/**
+	 * Publish one dashboard to the connected register.
+	 *
+	 * Administrative (REQ-STORE-013): anyone else is refused with 403 by the
+	 * attribute before this body runs. The body is `{item, objects}` as the
+	 * publish dialog sends it. A request this server refuses is a 400, a
+	 * version that is not higher a 409; the register's own answer is passed
+	 * through unchanged as the outcome (REQ-STORE-003).
+	 *
+	 * @return JSONResponse `{outcome, slug, message?}`.
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function publish(): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null || $this->publications === null) {
+			return new JSONResponse(
+				data: ['outcome' => 'unauthenticated', 'slug' => '', 'message' => 'Sign in as an administrator to publish.'],
+				statusCode: Http::STATUS_UNAUTHORIZED
+			);
+		}
+
+		$item = $this->request->getParam('item');
+		$objects = $this->request->getParam('objects');
+		$result = $this->publications->publish(
+			item: (is_array($item) === true ? $item : []),
+			objects: (is_array($objects) === true ? array_values($objects) : []),
+			userId: $user->getUID()
+		);
+
+		$status = Http::STATUS_OK;
+		if ($result['outcome'] === StorePublishService::OUTCOME_INVALID_REQUEST) {
+			$status = Http::STATUS_BAD_REQUEST;
+		} else if ($result['outcome'] === StorePublishService::OUTCOME_VERSION_NOT_HIGHER) {
+			$status = Http::STATUS_CONFLICT;
+		}
+
+		return new JSONResponse(data: $result, statusCode: $status);
+	}//end publish()
 
 	/**
 	 * Read the registry connection.

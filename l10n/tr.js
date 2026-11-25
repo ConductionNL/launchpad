@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Kendi yayınımız",
     "New colleagues" : "Yeni çalışma arkadaşları",
     "Required: this widget cannot be removed" : "Zorunlu: bu widget kaldırılamaz",
     "Connections of this dashboard" : "Bu panonun bağlantıları",

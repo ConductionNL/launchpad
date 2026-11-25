@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Pašu publikācija",
     "New colleagues" : "Jaunie kolēģi",
     "Required: this widget cannot be removed" : "Obligāts: šo logrīku nevar noņemt",
     "Connections of this dashboard" : "Šī informācijas paneļa savienojumi",

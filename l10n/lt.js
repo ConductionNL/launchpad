@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Nuosavas leidinys",
     "New colleagues" : "Nauji kolegos",
     "Required: this widget cannot be removed" : "Privaloma: šio valdiklio pašalinti negalima",
     "Connections of this dashboard" : "Šios skydelio jungtys",

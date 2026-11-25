@@ -170,6 +170,8 @@
         "title": "Marketplace",
         "description": "Install a dashboard another organisation published. Point LaunchPad at a registry and browse what it offers.",
         "categoryLenses": true,
+        "publishable": true,
+        "kinds": ["Intranet", "Management", "Team"],
         "pageSize": 8,
         "banner": {
           "settingsUrl": "/index.php/apps/launchpad/admin/sharing",

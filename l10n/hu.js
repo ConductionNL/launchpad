@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Saját közzététel",
     "New colleagues" : "Új kollégák",
     "Required: this widget cannot be removed" : "Kötelező: ez a widget nem távolítható el",
     "Connections of this dashboard" : "Az irányítópult kapcsolatai",

@@ -263,6 +263,46 @@ class StoreServiceTest extends TestCase {
 	}//end testTheDescriptorIsBuiltFromAListingAndASharingPart()
 
 	/**
+	 * REQ-STORE-013: a publish goes through the engine with the publish fields and admin group, and its outcome passes through.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 */
+	public function testAPublishGoesThroughTheStorePlane(): void {
+		$seen = null;
+		$sent = null;
+		$discovery = $this->createMock(originalClassName: GenericStoreService::class);
+		$discovery->method('publish')->willReturnCallback(
+			static function (object $descriptor, array $payload) use (&$seen, &$sent): array {
+				$seen = $descriptor;
+				$sent = $payload;
+				return ['outcome' => 'store_rejected', 'slug' => ''];
+			}
+		);
+
+		$result = $this->service(discovery: $discovery)->publish(item: ['slug' => 'raads-en-collegewerk', 'version' => '0.9.0']);
+
+		$this->assertSame(['outcome' => 'store_rejected', 'slug' => ''], $result);
+		$this->assertSame(StoreService::PUBLISH_FIELDS, $seen->sharing->publishFields);
+		$this->assertSame(['admin'], $seen->sharing->publishGroups);
+		$this->assertSame('raads-en-collegewerk', $sent['slug']);
+	}//end testAPublishGoesThroughTheStorePlane()
+
+	/**
+	 * REQ-STORE-013: without OpenRegister nothing is published.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 */
+	public function testAPublishWithoutTheEngineIsNotConfigured(): void {
+		$result = $this->service(discovery: null)->publish(item: ['slug' => 'a-b']);
+
+		$this->assertSame(['outcome' => 'not_configured', 'slug' => ''], $result);
+	}//end testAPublishWithoutTheEngineIsNotConfigured()
+
+	/**
 	 * REQ-STORE-002: no engine means no import, not a half-run install.
 	 *
 	 * @return void

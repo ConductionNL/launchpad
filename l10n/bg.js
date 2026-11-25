@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Собствена публикация",
     "New colleagues" : "Нови колеги",
     "Required: this widget cannot be removed" : "Задължителен: тази джаджа не може да бъде премахната",
     "Connections of this dashboard" : "Връзки на това табло",

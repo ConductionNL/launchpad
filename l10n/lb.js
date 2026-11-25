@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Eegen Publikatioun",
     "New colleagues" : "Nei Kolleegen",
     "Required: this widget cannot be removed" : "Obligatoresch: dëse Widget kann net ewechgeholl ginn",
     "Connections of this dashboard" : "Verbindunge vun dësem Dashboard",

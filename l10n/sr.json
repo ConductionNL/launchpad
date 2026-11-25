@@ -1739,6 +1739,12 @@
         "Signs in with your Nextcloud account": "Пријављује се вашим Nextcloud налогом",
         "Asks for its own sign-in": "Тражи сопствену пријаву",
         "The tiles could not be added.": "Плочице није могуће додати.",
+        "Group dashboard of %s": "Контролна табла групе %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Дели %1$s · %n виџет",
+            "Дели %1$s · %n виџета",
+            "Дели %1$s · %n виџета"
+        ],
         "{app}, outage since {time}": "{app}, прекид од {time}",
         "Own colour": "Сопствена боја",
         "Primary, dark": "Примарна, тамна",

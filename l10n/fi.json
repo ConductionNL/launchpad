@@ -1737,6 +1737,11 @@
         "Signs in with your Nextcloud account": "Kirjautuu Nextcloud-tililläsi",
         "Asks for its own sign-in": "Pyytää oman kirjautumisen",
         "The tiles could not be added.": "Ruutuja ei voitu lisätä.",
+        "Group dashboard of %s": "Ryhmän %s kojelauta",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Jakanut %1$s · %n pienoissovellus",
+            "Jakanut %1$s · %n pienoissovellusta"
+        ],
         "{app}, outage since {time}": "{app}, häiriö {time} alkaen",
         "Own colour": "Oma väri",
         "Primary, dark": "Ensisijainen, tumma",

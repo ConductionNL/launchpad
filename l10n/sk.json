@@ -1739,6 +1739,12 @@
         "Signs in with your Nextcloud account": "Prihlasuje sa vaším účtom Nextcloud",
         "Asks for its own sign-in": "Vyžaduje vlastné prihlásenie",
         "The tiles could not be added.": "Dlaždice sa nepodarilo pridať.",
+        "Group dashboard of %s": "Nástenka skupiny %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Zdieľa %1$s · %n widget",
+            "Zdieľa %1$s · %n widgety",
+            "Zdieľa %1$s · %n widgetov"
+        ],
         "{app}, outage since {time}": "{app}, výpadok od {time}",
         "Own colour": "Vlastná farba",
         "Primary, dark": "Primárna, tmavá",

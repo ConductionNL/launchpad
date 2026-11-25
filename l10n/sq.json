@@ -1737,6 +1737,11 @@
         "Signs in with your Nextcloud account": "Hyn me llogarinë tuaj Nextcloud",
         "Asks for its own sign-in": "Kërkon hyrjen e vet",
         "The tiles could not be added.": "Pllakat nuk u shtuan dot.",
+        "Group dashboard of %s": "Paneli i grupit %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Ndarë nga %1$s · %n widget",
+            "Ndarë nga %1$s · %n widget-e"
+        ],
         "{app}, outage since {time}": "{app}, ndërprerje që nga {time}",
         "Own colour": "Ngjyrë e vetë",
         "Primary, dark": "Kryesore, e errët",

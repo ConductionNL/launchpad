@@ -1737,6 +1737,11 @@
         "Signs in with your Nextcloud account": "Nextcloud hesabınızla oturum açar",
         "Asks for its own sign-in": "Kendi oturum açmasını ister",
         "The tiles could not be added.": "Kutucuklar eklenemedi.",
+        "Group dashboard of %s": "%s grubunun panosu",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Paylaşan: %1$s · %n pencere öğesi",
+            "Paylaşan: %1$s · %n pencere öğesi"
+        ],
         "{app}, outage since {time}": "{app}, {time} saatinden beri kesinti",
         "Own colour": "Kendi renginiz",
         "Primary, dark": "Birincil, koyu",

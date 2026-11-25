@@ -1737,6 +1737,11 @@
         "Signs in with your Nextcloud account": "Logger ind med din Nextcloud-konto",
         "Asks for its own sign-in": "Beder om sit eget login",
         "The tiles could not be added.": "Fliserne kunne ikke tilføjes.",
+        "Group dashboard of %s": "Gruppedashboard for %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Delt af %1$s · %n widget",
+            "Delt af %1$s · %n widgets"
+        ],
         "{app}, outage since {time}": "{app}, nedbrud siden {time}",
         "Own colour": "Egen farve",
         "Primary, dark": "Primær, mørk",

@@ -1741,6 +1741,13 @@
         "Signs in with your Nextcloud account": "Jidħol bil-kont Nextcloud tiegħek",
         "Asks for its own sign-in": "Jitlob il-login tiegħu stess",
         "The tiles could not be added.": "Il-madum ma setax jiżdied.",
+        "Group dashboard of %s": "Dashboard tal-grupp %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Maqsum minn %1$s · %n widget",
+            "Maqsum minn %1$s · %n widgets",
+            "Maqsum minn %1$s · %n widgets",
+            "Maqsum minn %1$s · %n widgets"
+        ],
         "{app}, outage since {time}": "{app}, waqfa minn {time}",
         "Own colour": "Kulur tiegħek",
         "Primary, dark": "Primarju, skur",

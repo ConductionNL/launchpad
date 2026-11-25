@@ -2498,6 +2498,11 @@
         "Signs in with your Nextcloud account": "Meldt aan met je Nextcloud-account",
         "Asks for its own sign-in": "Vraagt om een eigen aanmelding",
         "The tiles could not be added.": "De tegels konden niet worden toegevoegd.",
+        "Group dashboard of %s": "Groepsdashboard van %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Gedeeld door %1$s · %n widget",
+            "Gedeeld door %1$s · %n widgets"
+        ],
         "{app}, outage since {time}": "{app}, storing sinds {time}",
         "Own colour": "Eigen kleur",
         "Primary, dark": "Primair, donker",

@@ -1737,6 +1737,11 @@
         "Signs in with your Nextcloud account": "Logib sisse sinu Nextcloudi kontoga",
         "Asks for its own sign-in": "Küsib oma sisselogimist",
         "The tiles could not be added.": "Paane ei saanud lisada.",
+        "Group dashboard of %s": "Grupi %s töölaud",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Jagas %1$s · %n vidin",
+            "Jagas %1$s · %n vidinat"
+        ],
         "{app}, outage since {time}": "{app}, rike alates {time}",
         "Own colour": "Oma värv",
         "Primary, dark": "Põhivärv, tume",

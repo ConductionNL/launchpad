@@ -95,7 +95,7 @@ class LaunchPadSearchProvider implements IProvider {
 	 * @param DashboardService      $dashboardService The dashboard service.
 	 * @param WidgetPlacementMapper $placementMapper The placement mapper.
 	 * @param MetadataService       $metadataService The metadata service.
-	 * @param SearchLinks           $links The l10n factory and URL generator.
+	 * @param SearchLinks           $links The l10n factory, URL generator and detail-line helper.
 	 */
 	public function __construct(
 		private readonly DashboardService $dashboardService,
@@ -186,7 +186,11 @@ class LaunchPadSearchProvider implements IProvider {
 		);
 
 		foreach ($visible as $entry) {
-			$this->collectMatches(dashboard: $entry['dashboard'], buckets: $buckets);
+			$this->collectMatches(
+				dashboard: $entry['dashboard'],
+				source: (string)($entry['source'] ?? ''),
+				buckets: $buckets
+			);
 		}
 
 		return SearchResult::complete(name: $providerName, entries: $buckets->rankedEntries());
@@ -214,12 +218,13 @@ class LaunchPadSearchProvider implements IProvider {
 	 * Add one dashboard's matches to every bucket that still has room.
 	 *
 	 * @param Dashboard     $dashboard The visible dashboard.
+	 * @param string        $source    How the viewer reached it (Dashboard::SOURCE_*).
 	 * @param SearchBuckets $buckets   The search pass.
 	 *
 	 * @return void
 	 */
-	private function collectMatches(Dashboard $dashboard, SearchBuckets $buckets): void {
-		$this->collectDashboardMatch(dashboard: $dashboard, buckets: $buckets);
+	private function collectMatches(Dashboard $dashboard, string $source, SearchBuckets $buckets): void {
+		$this->collectDashboardMatch(dashboard: $dashboard, source: $source, buckets: $buckets);
 		$this->collectWidgetMatches(dashboard: $dashboard, buckets: $buckets);
 		$this->collectMetadataMatches(dashboard: $dashboard, buckets: $buckets);
 	}//end collectMatches()
@@ -228,18 +233,22 @@ class LaunchPadSearchProvider implements IProvider {
 	 * Dashboard name + description (REQ-SRCH-002).
 	 *
 	 * @param Dashboard     $dashboard The visible dashboard.
+	 * @param string        $source    How the viewer reached it (Dashboard::SOURCE_*).
 	 * @param SearchBuckets $buckets   The search pass.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
-	private function collectDashboardMatch(Dashboard $dashboard, SearchBuckets $buckets): void {
+	private function collectDashboardMatch(Dashboard $dashboard, string $source, SearchBuckets $buckets): void {
 		if (count($buckets->dashboardEntries) >= self::PER_BUCKET_LIMIT) {
 			return;
 		}
 
 		if ($this->matchesDashboard(dashboard: $dashboard, needle: $buckets->needle) === true) {
 			$buckets->dashboardEntries[] = $this->buildDashboardEntry(
-				dashboard: $dashboard
+				dashboard: $dashboard,
+				source: $source
 			);
 		}
 	}//end collectDashboardMatch()
@@ -539,15 +548,25 @@ class LaunchPadSearchProvider implements IProvider {
 	/**
 	 * Build a search-result entry for a dashboard match.
 	 *
+	 * The subline names who shared the dashboard and how many widgets it
+	 * has, or the group it belongs to (REQ-SRCH-013); the viewer's own
+	 * dashboards keep their description.
+	 *
 	 * @param Dashboard $dashboard The matching dashboard.
+	 * @param string    $source    How the viewer reached it (Dashboard::SOURCE_*).
 	 *
 	 * @return SearchResultEntry The result entry.
+	 *
+	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
-	private function buildDashboardEntry(Dashboard $dashboard): SearchResultEntry {
+	private function buildDashboardEntry(Dashboard $dashboard, string $source): SearchResultEntry {
 		$l10n = $this->links->l10nFactory->get(app: Application::APP_ID);
 		$name = (string)$dashboard->getName();
-		$description = trim(string: (string)$dashboard->getDescription());
-		$subline = $description;
+		$subline = $this->links->subline->forDashboard(dashboard: $dashboard, source: $source, l10n: $l10n);
+		if ($subline === null) {
+			$subline = trim(string: (string)$dashboard->getDescription());
+		}
+
 		if ($subline === '') {
 			$subline = $l10n->t('LaunchPad dashboard');
 		}

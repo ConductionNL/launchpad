@@ -74,7 +74,7 @@ async function createDashboard(api: APIRequestContext, name: string): Promise<Da
 /**
  * Pin a dashboard as the account's default (seeding only).
  *
- * @param uuid the dashboard.
+ * @param uuid the dashboard; the empty string clears the pin.
  * @return nothing.
  */
 async function pin(uuid: string): Promise<void> {
@@ -158,6 +158,23 @@ test.describe.serial('effective-default marker (REQ-EDM-001..005)', () => {
 
 	// @e2e effective-default-marker::pin-wins-over-group-fallback
 	test('the pin wins over a group fallback', async ({ browser }) => {
+		// First prove the fallback is live: with no pin, the resolver steps
+		// 2-5 must star a group (or default-group) row. Without this half the
+		// test cannot tell "the pin wins" from "the fallback never fires",
+		// and the second half would pass on a build that dropped steps 2-5.
+		await pin('')
+		const unpinned = await openSwitcher(browser)
+		try {
+			const fallbackRows = unpinned.page.locator(`${ROW}[data-source="group"], ${ROW}[data-source="default"]`)
+			await expect(fallbackRows.first()).toBeVisible()
+			await expect(fallbackRows.locator(MARKER), 'with no pin, the group fallback carries the marker').toHaveCount(1)
+			await expect(row(unpinned.page, NAME_A).locator(MARKER)).toHaveCount(0)
+			await expect(unpinned.page.locator(`${ROW} ${MARKER}`)).toHaveCount(1)
+		} finally {
+			await unpinned.context.close()
+		}
+
+		await pin(dashA.uuid)
 		const { context, page } = await openSwitcher(browser)
 		try {
 			// The instance-wide default dashboard (SeedDefaultDashboard) is a

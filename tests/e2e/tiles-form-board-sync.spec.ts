@@ -142,6 +142,18 @@ async function openTileForm(page: Page, tile: Locator, name: string): Promise<Lo
 }
 
 /**
+ * Click an option of the open select. NcSelect draws its list at the end of
+ * the page, outside the dialog, so it is not reached by role from the form.
+ *
+ * @param page The page.
+ * @param label The option's text.
+ * @return Nothing.
+ */
+async function chooseOption(page: Page, label: string): Promise<void> {
+	await page.locator('li[role="option"]').filter({ hasText: label }).first().click()
+}
+
+/**
  * The top of each named field's label in the form, in document order.
  *
  * @param form The form dialog.
@@ -287,10 +299,10 @@ test('setting Sort order in this group to Last used first orders Work apps by ea
 	try {
 		const caseTile = group(page).locator('.container-widget__child').filter({ hasText: CASE_SYSTEM })
 		const form = await openTileForm(page, caseTile, CASE_SYSTEM)
-		await expect(form.getByLabel('Group')).toHaveValue(GROUP)
+		await expect(form.getByLabel('Group', { exact: true })).toHaveValue(GROUP)
 		const sort = form.getByLabel('Sort order in this group')
 		await sort.click()
-		await page.getByRole('option', { name: 'Last used first' }).click()
+		await chooseOption(page, 'Last used first')
 		const saved = page.waitForResponse((res) => res.request().method() === 'PUT' && res.url().includes('/api/widgets/'))
 		await form.getByRole('button', { name: 'Save' }).click()
 		expect((await saved).status()).toBeLessThan(300)
@@ -425,8 +437,8 @@ test('choosing a group in Edit tile moves a dashboard tile into that group, keep
 	const { context, page } = await open(browser)
 	try {
 		const form = await openTileForm(page, tileOf(page, reportsId), 'Reports')
-		await form.getByLabel('Group').click()
-		await page.getByRole('option', { name: archive }).click()
+		await form.getByRole('combobox', { name: 'Group', exact: true }).click()
+		await chooseOption(page, archive)
 		const moved = page.waitForResponse((res) => res.request().method() === 'PUT' && res.url().includes(`/api/widgets/${archiveId}`))
 		await form.getByRole('button', { name: 'Save' }).click()
 		expect((await moved).status()).toBeLessThan(300)

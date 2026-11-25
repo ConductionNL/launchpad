@@ -26,7 +26,12 @@ use OCA\LaunchPad\Command\DashboardShowCommand;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
+use OCA\LaunchPad\Db\DashboardLock;
+use OCA\LaunchPad\Db\DashboardLockMapper;
 use OCA\LaunchPad\Db\DashboardShareMapper;
+use OCA\LaunchPad\Db\DashboardVersionMapper;
+use OCA\LaunchPad\Db\DashboardView;
+use OCA\LaunchPad\Db\DashboardViewMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\CommandService;
@@ -127,7 +132,10 @@ class DashboardDumpCommandsGoldenTest extends TestCase {
 			new CommandService(new NullLogger()),
 			$this->createMock(IUserSession::class),
 			$this->dashboards(),
-			$shares
+			$shares,
+			$this->createMock(DashboardLockMapper::class),
+			$this->createMock(DashboardVersionMapper::class),
+			$this->createMock(DashboardViewMapper::class)
 		);
 
 		$pretty = "{\n    \"uuid\": \"".self::UUID."\",\n    \"shares\": [\n        {\n            \"shareType\": \"user\",\n"
@@ -144,4 +152,51 @@ class DashboardDumpCommandsGoldenTest extends TestCase {
 		$this->assertNotSame(0, $code);
 		$this->assertStringContainsString('other', $missing);
 	}
+
+	/**
+	 * debug-share reads the active lock, the saved versions and the views
+	 * of every day (REQ-CLI-003).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	public function testDebugShareReportsLockVersionsAndViews(): void {
+		$lock = new DashboardLock();
+		$lock->setUserId('admin');
+		$lock->setCreatedAt('2026-11-25 12:00:00');
+		$locks = $this->createMock(DashboardLockMapper::class);
+		$locks->method('findActive')->with(self::UUID)->willReturn($lock);
+		$versions = $this->createMock(DashboardVersionMapper::class);
+		$versions->method('countByDashboard')->with(self::UUID)->willReturn(2);
+		$views = [];
+		foreach ([3, 4] as $count) {
+			$view = new DashboardView();
+			$view->setViewCount($count);
+			$views[] = $view;
+		}
+		$viewMapper = $this->createMock(DashboardViewMapper::class);
+		$viewMapper->method('findByDashboardInRange')->willReturn($views);
+		$shares = $this->createMock(DashboardShareMapper::class);
+		$shares->method('findByDashboardId')->willReturn([]);
+
+		$command = new DashboardDebugShareCommand(
+			new CommandService(new NullLogger()),
+			$this->createMock(IUserSession::class),
+			$this->dashboards(),
+			$shares,
+			$locks,
+			$versions,
+			$viewMapper
+		);
+
+		[$code, $json] = self::runCommand($command, ['uuid' => self::UUID, '--json' => true]);
+		$this->assertSame(0, $code);
+		$data = json_decode($json, true)['data'];
+		$this->assertTrue($data['locked']);
+		$this->assertSame('admin', $data['lockedBy']);
+		$this->assertSame('2026-11-25 12:00:00', $data['lockedAt']);
+		$this->assertSame(2, $data['versionCount']);
+		$this->assertSame(7, $data['viewCount']);
+	}//end testDebugShareReportsLockVersionsAndViews()
 }

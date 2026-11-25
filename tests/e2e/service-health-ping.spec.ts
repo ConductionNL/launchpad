@@ -601,7 +601,7 @@ test('a host removed from the allow-list after configuration is never pinged nor
 		expect(hitsFor(url), 'the refused host was contacted').toBe(0)
 		expect(reading.body.state).not.toBe('online')
 		// No ping performed: no state, no check time, marked stale.
-		expect(reading.body).toEqual({ state: null, checkedAt: null, latencyMs: null, stale: true })
+		expect(reading.body).toEqual({ state: null, checkedAt: null, latencyMs: null, stale: true, downSince: null })
 	} finally {
 		await allowFixtureHost()
 	}
@@ -623,7 +623,7 @@ test('the badge answer holds state, check time, latency and staleness, and nothi
 	const reading = await badge(author!.api, id)
 	expect(reading.status, reading.text).toBe(200)
 	expect(hitsFor(url)).toBe(1)
-	expect(Object.keys(reading.body).sort()).toEqual(['checkedAt', 'latencyMs', 'stale', 'state'])
+	expect(Object.keys(reading.body).sort()).toEqual(['checkedAt', 'downSince', 'latencyMs', 'stale', 'state'])
 	expect(reading.body.state).toBe('online')
 	expect(Number.isNaN(Date.parse(reading.body.checkedAt))).toBe(false)
 	expect(typeof reading.body.latencyMs).toBe('number')

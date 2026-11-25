@@ -244,8 +244,11 @@
 			<CoEditorsBanner
 				v-if="isEditMode"
 				:editors="presence.state.editors" />
+			<!-- The grid is built with its column count and does not follow a
+			     later change of it, so a new count builds a new grid. -->
 			<CnDashboardGrid
 				v-if="activeDashboard"
+				:key="`grid-columns-${activeDashboard.gridColumns || 12}`"
 				:layout="gridLayout"
 				:editable="isEditMode"
 				:fillHeight="fillsHeight"
@@ -1387,7 +1390,7 @@ export default {
 		 * @spec openspec/specs/grid-layout/spec.md#req-grid-007
 		 */
 		dashboardColumnOpts() {
-			return dashboardGridColumnOpts()
+			return dashboardGridColumnOpts(this.activeDashboard?.gridColumns || 12)
 		},
 
 		...mapState(useDashboardStore, [

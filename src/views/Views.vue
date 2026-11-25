@@ -580,6 +580,7 @@ import { dashboardGridColumnOpts } from '../utils/narrowGridLayout.js'
 import { newWidgetSize } from '../utils/newWidgetSize.js'
 import { officePackContainer } from '../utils/officeTiles.js'
 import { hiddenWidgetTitle, isPhoneReady, isPhoneWidth, phoneHiddenPlacements } from '../utils/phoneHiddenWidgets.js'
+import { preloadWidgetRenderers } from '../utils/preloadWidgetRenderers.js'
 import { dialogReturnFocus, restoreLostFocus } from '../utils/returnFocus.js'
 import { parseServerStamp } from '../utils/serverStamp.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
@@ -1771,7 +1772,9 @@ export default {
 		const tileStore = useTileStore()
 
 		await Promise.all([
-			dashboardStore.loadDashboards(),
+			// The opening dashboard's widget renderers start loading as soon as
+			// its placements are known, while the grid is still mounting.
+			dashboardStore.loadDashboards().then(() => preloadWidgetRenderers(dashboardStore.widgetPlacements)),
 			widgetStore.loadAvailableWidgets(),
 			tileStore.loadTiles(),
 		])

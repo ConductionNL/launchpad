@@ -149,7 +149,7 @@ abstract class CommandBase extends Command {
 				context: ['exceptionClass' => $e::class]
 			);
 			if ($this->isJson(input: $input) === true) {
-				$output->writeln(messages: $this->commandService->encodeEnvelope(envelope: $envelope));
+				$output->writeln(messages: $this->commandService->encodeEnvelope(envelope: $envelope), options: OutputInterface::VERBOSITY_QUIET);
 			}
 
 			if ($this->isJson(input: $input) === false) {
@@ -224,10 +224,12 @@ abstract class CommandBase extends Command {
 		string $human = '',
 	): void {
 		if ($this->isJson(input: $input) === true) {
+			// The envelope is the answer, so it prints under `--quiet` too.
 			$output->writeln(
 				messages: $this->commandService->encodeEnvelope(
 					envelope: $this->commandService->envelopeSuccess(data: $data)
-				)
+				),
+				options: OutputInterface::VERBOSITY_QUIET
 			);
 			return;
 		}
@@ -295,7 +297,8 @@ abstract class CommandBase extends Command {
 						message: $message,
 						context: $context
 					)
-				)
+				),
+				options: OutputInterface::VERBOSITY_QUIET
 			);
 
 			return $exitCode;

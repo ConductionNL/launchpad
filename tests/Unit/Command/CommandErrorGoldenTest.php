@@ -155,6 +155,76 @@ class CommandErrorGoldenTest extends TestCase {
 	}//end testErrorReachesStderrWhenOccMadeBothStreamsQuiet()
 
 	/**
+	 * With `--json --quiet` under occ's quiet streams, the error envelope
+	 * is still the one thing on stdout.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	public function testJsonEnvelopeReachesStdoutWhenOccMadeBothStreamsQuiet(): void {
+		$error  = ['exitCode' => CommandService::EXIT_NOT_FOUND, 'code' => 'NOT_FOUND', 'message' => 'Dashboard not found'];
+		$result = self::runCommand($this->probe($error), ['--json' => true, '--quiet' => true], OutputInterface::VERBOSITY_QUIET);
+
+		$this->assertSame(CommandService::EXIT_NOT_FOUND, $result['exit']);
+		$this->assertSame('', $result['stderr']);
+		$envelope = json_decode(trim((string) $result['stdout']), true);
+		$this->assertIsArray($envelope);
+		$this->assertSame(CommandService::EXIT_NOT_FOUND, $envelope['exitCode']);
+	}//end testJsonEnvelopeReachesStdoutWhenOccMadeBothStreamsQuiet()
+
+	/**
+	 * Under occ's quiet streams, a success envelope and the envelope of a
+	 * thrown exception still print with `--json`.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	public function testSuccessAndThrownEnvelopesPrintUnderQuietStreams(): void {
+		foreach (['ok' => CommandService::EXIT_SUCCESS, 'boom' => CommandService::EXIT_ERROR] as $mode => $expected) {
+			$command = new class (new CommandService(new NullLogger()), $this->createMock(IUserSession::class), $mode) extends CommandBase {
+				/**
+				 * @param CommandService $commandService The service.
+				 * @param IUserSession   $userSession    The session.
+				 * @param string         $mode           ok or boom.
+				 */
+				public function __construct(CommandService $commandService, IUserSession $userSession, private string $mode) {
+					parent::__construct(commandService: $commandService, userSession: $userSession);
+				}
+
+				/**
+				 * @return void
+				 */
+				protected function configureCommand(): void {
+					$this->setName(name: 'launchpad:probe');
+				}
+
+				/**
+				 * @param InputInterface  $input  The input.
+				 * @param OutputInterface $output The output.
+				 *
+				 * @return int
+				 */
+				protected function handle(InputInterface $input, OutputInterface $output): int {
+					if ($this->mode === 'boom') {
+						throw new \RuntimeException('boom');
+					}
+
+					$this->emitSuccess(input: $input, output: $output, data: ['n' => 1]);
+					return CommandService::EXIT_SUCCESS;
+				}
+			};
+			$result   = self::runCommand($command, ['--json' => true, '--quiet' => true], OutputInterface::VERBOSITY_QUIET);
+			$envelope = json_decode(trim((string) $result['stdout']), true);
+
+			$this->assertSame($expected, $result['exit'], $mode);
+			$this->assertIsArray($envelope, $mode);
+			$this->assertSame($expected, $envelope['exitCode'], $mode);
+		}
+	}//end testSuccessAndThrownEnvelopesPrintUnderQuietStreams()
+
+	/**
 	 * Every case prints the recorded output.
 	 *
 	 * @return void

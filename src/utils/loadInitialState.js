@@ -111,6 +111,10 @@ const PAGE_KEYS = {
 		// GET /api/dashboards/default the page already read. Optional key,
 		// each part optional; a missing part makes its reader fetch.
 		workspaceBootReads: null,
+		// manifest-cached-per-user: the runtime manifest GET /api/manifest
+		// built for the viewer within the last minute. Optional key; `null`
+		// makes the page fetch it.
+		runtimeManifest: null,
 		// sharing-policy-board-sync REQ-SHARE-015: `{mayShare, publicLinksAllowed}`
 		// for the viewer. Optional key; `null` offers both (the server refuses).
 		sharingPolicy: null,
@@ -175,6 +179,7 @@ export function loadInitialState(page) {
 let dashboardFirstLoadTaken = false
 let orgNavigationTaken = false
 const bootReadsTaken = new Set()
+let runtimeManifestTaken = false
 
 /**
  * What the Sharing tab may offer the viewer (REQ-SHARE-015): adding people or
@@ -255,6 +260,25 @@ export function takeBootRead(part) {
 		return undefined
 	}
 	return reads[part]
+}
+
+/**
+ * The runtime manifest the page carries, handed out once. Null when the page
+ * did not carry one (none was kept), when it is not a manifest, or once taken.
+ *
+ * @return {object|null} The manifest, or null.
+ * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-3
+ */
+export function takeRuntimeManifest() {
+	if (runtimeManifestTaken) {
+		return null
+	}
+	runtimeManifestTaken = true
+	const manifest = readKey('runtimeManifest', null)
+	if (manifest === null || typeof manifest !== 'object' || !manifest.$schema) {
+		return null
+	}
+	return manifest
 }
 
 /**

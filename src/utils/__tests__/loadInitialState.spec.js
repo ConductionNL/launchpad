@@ -382,3 +382,24 @@ describe('takeBootRead', () => {
 		expect(loadInitialState).toBeTypeOf('function')
 	})
 })
+
+/**
+ * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-4
+ */
+describe('takeRuntimeManifest', () => {
+	it('hands out the kept manifest once, then null', async () => {
+		pushedState = { runtimeManifest: { $schema: 'x', pages: [] } }
+
+		const { takeRuntimeManifest } = await import('../loadInitialState.js')
+
+		expect(takeRuntimeManifest()).toEqual({ $schema: 'x', pages: [] })
+		expect(takeRuntimeManifest()).toBeNull()
+	})
+
+	it('is null without the key, and for a value that is not a manifest', async () => {
+		pushedState = { runtimeManifest: { pages: [] } }
+		const { takeRuntimeManifest, loadInitialState } = await import('../loadInitialState.js')
+		expect(takeRuntimeManifest()).toBeNull()
+		expect(loadInitialState('workspace').runtimeManifest).toEqual({ pages: [] })
+	})
+})

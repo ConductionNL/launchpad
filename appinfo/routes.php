@@ -41,6 +41,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'store#updateConfig', 'url' => '/api/store/config', 'verb' => 'PUT'],
 		['name' => 'store#install', 'url' => '/api/store/items/{slug}/install', 'verb' => 'POST',
 		 'requirements' => ['slug' => '[a-z0-9][a-z0-9\-]*[a-z0-9]']],
+		// REQ-STORE-012: bring an installed item to the register's newer version in place.
+		['name' => 'store#update', 'url' => '/api/store/items/{slug}/update', 'verb' => 'POST',
+		 'requirements' => ['slug' => '[a-z0-9][a-z0-9\-]*[a-z0-9]']],
 
 		// Generic per-user preferences (used by shared nextcloud-vue widgets, e.g. CnSupportDialog).
 		['name' => 'preferences#getPreference', 'url' => '/api/preferences/{key}', 'verb' => 'GET'],

@@ -102,6 +102,7 @@ class ManifestController extends Controller {
 	 *
 	 * @spec manifest-v2-runtime:REQ-MVR-001
 	 * @spec openspec/specs/runtime-shell/spec.md
+	 * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-1
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -109,6 +110,11 @@ class ManifestController extends Controller {
 		$refusal = $this->actionRefusal(action: 'manifest.index');
 		if ($refusal !== null) {
 			return $refusal;
+		}
+
+		$kept = $this->tools->cache?->get(userId: (string) $this->userId);
+		if ($kept !== null) {
+			return new JSONResponse($kept);
 		}
 
 		// Retrieve ObjectService lazily — OpenRegister may not be enabled on
@@ -131,8 +137,10 @@ class ManifestController extends Controller {
 
 		// Fetch all dashboard objects owned by or shared with the current user.
 		$dashboards = $this->fetchUserDashboards(objectService: $objectService, userId: $this->userId);
+		$manifest   = $this->buildManifest(dashboards: $dashboards, userId: $this->userId);
+		$this->tools->cache?->set(userId: (string) $this->userId, manifest: $manifest);
 
-		return new JSONResponse($this->buildManifest(dashboards: $dashboards, userId: $this->userId));
+		return new JSONResponse($manifest);
 	}//end index()
 
 	/**

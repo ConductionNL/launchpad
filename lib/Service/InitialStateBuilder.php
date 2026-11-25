@@ -366,6 +366,25 @@ class InitialStateBuilder {
 	}//end setWorkspaceBootReads()
 
 	/**
+	 * Set the runtime manifest kept for the caller, so the page starts from
+	 * it instead of asking `GET /api/manifest`. Optional key; left out when
+	 * null (no manifest kept).
+	 *
+	 * @param array|null $manifest The manifest, or null.
+	 *
+	 * @return self
+	 *
+	 * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-2
+	 */
+	public function setRuntimeManifest(?array $manifest): self {
+		if ($manifest !== null) {
+			$this->values['runtimeManifest'] = $manifest;
+		}
+
+		return $this;
+	}//end setRuntimeManifest()
+
+	/**
 	 * Set the canonical slug-chain path for the active dashboard
 	 * (workspace).
 	 *

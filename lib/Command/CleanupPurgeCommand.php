@@ -70,9 +70,8 @@ class CleanupPurgeCommand extends Command {
 	 */
 	protected function configure(): void {
 		$this->setName(name: 'launchpad:cleanup:purge')
-			->setDescription(
-				description: 'Delete orphaned LaunchPad data. See options for dry-run and per-category limits.'
-			)
+			->setDescription(description: 'Delete orphaned LaunchPad data.')
+			->setHelp(help: 'Delete orphaned LaunchPad data. See options for dry-run and per-category limits.')
 			->addOption(
 				name: 'category',
 				shortcut: null,

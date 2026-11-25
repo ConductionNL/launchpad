@@ -556,7 +556,12 @@ test.describe('REQ-CLI-002 global flags', () => {
 test.describe('REQ-CLI-003 dashboard management', () => {
 	// @e2e cli-commands::list-dashboards-with-optional-filters
 	test("--user and --status narrow the listing to that owner's published dashboards", async () => {
+		// A new dashboard is a draft (REQ-DASH-031): publish the first one.
 		const published = await dashboard(alice!.api, 'alice published')
+		const madePublic = await publication(alice!.api, published.uuid, 'publish')
+		expect(madePublic.status, JSON.stringify(madePublic.body)).toBeLessThan(
+			300,
+		)
 		const draft = await dashboard(alice!.api, 'alice draft')
 		const unpublished = await publication(alice!.api, draft.uuid, 'unpublish')
 		expect(unpublished.status, JSON.stringify(unpublished.body)).toBeLessThan(
@@ -598,7 +603,9 @@ test.describe('REQ-CLI-003 dashboard management', () => {
 
 	// @e2e cli-commands::show-one-dashboards-full-widget-tree
 	test('show prints the dashboard metadata and its widget placements', async () => {
-		const row = await dashboard(admin, 'show')
+		// An empty dashboard: without `widgets: 'none'` a create seeds the
+		// default bundle (REQ-DWB-001) and show lists those as well.
+		const row = await dashboard(admin, 'show', { widgets: 'none' })
 		const added = await admin.post(`${API}/dashboard/${row.id}/widgets`, {
 			data: {
 				widgetId: 'text',
@@ -703,7 +710,7 @@ test.describe('REQ-CLI-003 dashboard management', () => {
 	// @e2e cli-commands::debug-share-prints-all-sharing-state-for-support
 	test('debug-share reports the shares, the lock, the version count and the view count', async () => {
 		const row = await dashboard(admin, 'debug share')
-		await shareWith(admin, Number(row.id), alice!.username, 'view')
+		await shareWith(admin, Number(row.id), alice!.username, 'view_only')
 		const version = await admin.post(`${API}/dashboards/${row.uuid}/versions`, {
 			data: { note: 'cli debug-share' },
 		})
@@ -733,7 +740,7 @@ test.describe('REQ-CLI-003 dashboard management', () => {
 				(s) => s.shareWith === alice!.username,
 			)
 			expect(share, JSON.stringify(data.shares)).toBeDefined()
-			expect(share!.permissionLevel).toBe('view')
+			expect(share!.permissionLevel).toBe('view_only')
 			expect(
 				share!.createdAt,
 				'the share row says when it was made',
@@ -1288,7 +1295,10 @@ test.describe('REQ-CLI-011 discoverability', () => {
 			expect.arrayContaining(['file', 'preserve-uuids', 'user']),
 		)
 
-		const row = await dashboard(admin, 'pre-existing round trip')
+		// Empty first (REQ-DWB-001 seeds the default bundle otherwise).
+		const row = await dashboard(admin, 'pre-existing round trip', {
+			widgets: 'none',
+		})
 		const added = await admin.post(`${API}/dashboard/${row.id}/widgets`, {
 			data: {
 				widgetId: 'text',

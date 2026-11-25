@@ -75,6 +75,7 @@ class DashboardListCommand extends CommandBase {
 					separator: "\n",
 					array: [
 						'List LaunchPad dashboards visible on this instance.',
+						'Each row shows the UUID, name, type, publication status and owner; --json adds the group.',
 						'',
 						'Options:',
 						'  --user=<uid>     Restrict to dashboards owned by user.',

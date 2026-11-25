@@ -149,7 +149,6 @@ Password-protected shares MUST require a POST unlock before rendering via the pu
 - AND NOT block subsequent attempts (throttle is separate)
 
 #### Scenario: Unlock is throttled to prevent brute-force
-@e2e exclude the throttle bucket is IP-global by design, so spending it would leave every later test in the same job facing 429 from a shared runner IP — playwright.config.ts runs `workers: 1`, `fullyParallel: false`, so there is no isolated IP to burn; asserted instead by PublicShareControllerTest::testUnlockReturns429WhenThrottled
 - GIVEN a public share with a password
 - WHEN an attacker sends 11 failed unlock attempts from IP `203.0.113.100` within 60 seconds
 - THEN the system MUST invoke Nextcloud's `IThrottler` service with action `launchpad_share_password` (limit: 10 per 60 s, IP-global)
@@ -199,13 +198,11 @@ View counts MUST be incremented at most once per minute per (token, client IP) p
 - AND `lastViewedAt` MUST be set to the latest render time (t=45s)
 
 #### Scenario: Renders from different IPs are counted separately
-@e2e exclude needs two distinct client IPs reaching the server, and the Playwright job has one runner; Nextcloud only honours X-Forwarded-For from a configured `trusted_proxies`, which the fixture does not set, so a header cannot stand in for a second IP. The per-(token, IP) cache key is pinned by PublicShareMapperTest::testDebounceIncrementsSetsCache and PublicShareMapperCoverageTest::testIncrementViewCountCountsOnceAndArmsTheDebounceKey; no test renders from two IPs
 - GIVEN the same share
 - WHEN IP `203.0.113.42` renders at t=0s and IP `203.0.113.43` renders at t=10s
 - THEN `viewCount` MUST be incremented once per IP (each IP counts independently)
 
 #### Scenario: Renders beyond the 60-second window reset the debounce
-@e2e exclude needs a 65-second wall-clock wait between two renders, longer than the 60s per-test timeout in playwright.config.ts, with no clock a test can move; the window expiring is the 60s TTL of the cache key, pinned by PublicShareMapperTest::testDebounceIncrementsSetsCache (it asserts the key is armed with ttl 60). The same-IP scenario above is covered by tests/e2e/ci/public-share-view-count.spec.ts
 - GIVEN the same share
 - WHEN IP `203.0.113.42` renders at t=0s and again at t=65s (beyond the 60-second window)
 - THEN `viewCount` MUST be incremented twice (one per window)
@@ -237,7 +234,6 @@ Shares with `expiresAt < now()` OR `revokedAt IS NOT NULL` MUST return HTTP 404 
 Failed unlock attempts MUST be throttled via Nextcloud's `IThrottler` to prevent password guessing.
 
 #### Scenario: 10 failed unlocks per 60 seconds allowed
-@e2e exclude spends the IThrottler `launchpad_share_password` bucket, which is IP-global on purpose; playwright.config.ts runs workers:1 / fullyParallel:false from one runner IP, so a test that exhausts it hands 429 to every later unlock test in the job, and there is no endpoint to reset it. The 429 path is asserted by PublicShareControllerTest::testUnlockReturns429WhenThrottled
 - GIVEN a public share with a password
 - WHEN an attacker sends unlock requests with wrong passwords from IP `203.0.113.50`
 - THEN the first 10 attempts MUST return HTTP 401
@@ -245,7 +241,6 @@ Failed unlock attempts MUST be throttled via Nextcloud's `IThrottler` to prevent
 - NOTE: The throttle action is `launchpad_share_password` with limit 10 per 60 s, tracked IP-globally (not per-share). The IThrottler action string contains no token component.
 
 #### Scenario: Throttle is IP-global across all shares
-@e2e exclude same as the scenario above: proving the bucket is shared across shares means exhausting it from the one runner IP, which leaves every later unlock test in the job facing 429. Asserted by PublicShareControllerTest::testUnlockReturns429WhenThrottled; no test drives two shares
 - GIVEN two different public shares A and B
 - WHEN IP `203.0.113.50` sends 10 failed unlocks against share A
 - THEN the throttle counter for `launchpad_share_password` is IP-global: those 10 attempts count toward share B as well
@@ -253,7 +248,6 @@ Failed unlock attempts MUST be throttled via Nextcloud's `IThrottler` to prevent
 - NOTE: There is no per-share scoping of the throttle. An attacker trying many tokens from the same IP hits the ceiling across all shares simultaneously.
 
 #### Scenario: Throttle resets after time window
-@e2e exclude needs the bucket exhausted (see above) and then a 60s+ wall-clock wait, against a 60s per-test timeout; the reset is Nextcloud's own IThrottler window, not LaunchPad code, and no LaunchPad test pins it
 - GIVEN IP `203.0.113.50` exhausted 10 failed attempts
 - AND 60+ seconds pass with no new attempts
 - WHEN they send another unlock attempt

@@ -18,7 +18,7 @@
  *   @e2e admin-templates::two-new-widgets-reach-every-copy
  *   @e2e admin-templates::alice-moved-the-news-widget
  *
- * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md
+ * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md
  */
 
 import type { APIRequestContext, Page } from '@playwright/test'

@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+ * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -31,7 +31,7 @@ use OCA\LaunchPad\Db\WidgetPlacement;
 /**
  * Summarises a template against its copies.
  *
- * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+ * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
  */
 class TemplateRolloutSummary {
 
@@ -60,7 +60,7 @@ class TemplateRolloutSummary {
 	 * @return array{gained: array<int, string>, lost: array<int, string>, changedByOwnerCount: int}
 	 *     The widget names gained and lost, and the number of copies their owner changed.
 	 *
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 	 */
 	public function summarize(array $templatePlacements, array $copies): array {
 		if ($copies === []) {
@@ -144,7 +144,7 @@ class TemplateRolloutSummary {
 	 *
 	 * @return bool True when the owner added, moved or removed a widget.
 	 *
-	 * @spec openspec/changes/template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 	 */
 	private function ownerChanged(array $placements, array $held): bool {
 		foreach ($placements as $placement) {

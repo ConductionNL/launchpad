@@ -217,6 +217,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
   - Spec written: tests/e2e/divider-widget.spec.ts, 24 scenarios cited, not yet run (cloud, 2026-11-19), 2 excluded with a reason
   - Recount (cloud, 2026-11-24): 29 scenarios, 27 cited, 2 excluded, 0 uncited (gate-19 report mode). The spec was kept current by the widget-picker changes (a58030e7, 907dd48e, 22 Nov). Listed by `playwright test --list`, not yet run.
   - Spec written: `tests/e2e/divider-widget-discovery.spec.ts` (new; REQ-DIV-001 was cited only by a `spec-coverage.spec.ts` test that read the retired `<select>` picker, so it could not fail on the scenario; those citations are removed), 2 scenarios cited (widget-appears-in-discovery, expected red on the icon the picker never renders for a LaunchPad type; widget-appears-alongside-standard-widgets, which also adds a divider as a plain user), 1 excluded as never built (widget-registration-via-imanager: no `DividerWidgetProvider`, the same verdict REQ-DIV-009 already gives), divider-widget now 26 cited, 3 excluded, 0 uncited of 29, not yet run (cloud, 2026-11-24)
+  - Recount (cloud, 2026-11-25): 29 scenarios, 26 cited, 3 excluded, 0 uncited; both files listed by `playwright test --list` (26 tests), not yet run. The icon defect `widget-appears-in-discovery` expects red on is still in the code: `Views.vue` `customWidgetTypes` maps each type to `{ type, title }` only, so the registry's `icon: 'Minus'` never reaches `WidgetPickerModal.vue`.
 - [x] 4.14 `clock-weather-widgets`: 21 scenarios, 0 cited.
   - Spec written: tests/e2e/clock-weather-widgets.spec.ts, 15 scenarios cited, not yet run (cloud, 2026-11-19), 6 excluded with a reason
   - Run 21 Nov on development after #1476 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 15 of 16 green; the remaining test is the existing fixme for a requirement that was never built.
@@ -251,6 +252,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.24 `nc-dashboard-widget-proxy`: 4 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/nc-dashboard-widget-proxy.spec.ts, 4 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 4 scenarios, 4 cited, 0 excluded, 0 uncited. Spec updated with the picker changes of 907dd48e; listed by `playwright test --list`, not yet run.
+  - Spec written: `tests/e2e/nc-dashboard-widget-proxy.spec.ts` (the "expected RED" note on `keyboard-navigation-works` was stale: nextcloud-vue 2.218.0, the version the lock pins, reads `focusedIndex` in `cardTabIndex()`, so the roving-tabindex assertion should now pass and a red is a regression), 4 scenarios cited, 0 excluded, 0 uncited, listed by `playwright test --list`, not yet run (cloud, 2026-11-25)
 
 ## 5. Tier 4, admin, operations and integrations
 

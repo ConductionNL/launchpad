@@ -36,6 +36,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\StoreInstalls;
 use OCA\LaunchPad\Service\StoreService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
@@ -58,6 +59,7 @@ class StoreController extends Controller {
 	 * @param IRequest     $request      The HTTP request.
 	 * @param StoreService $storeService Discovery delegation and install.
 	 * @param IUserSession $userSession  The current session.
+	 * @param StoreInstalls|null $installs Which item and version an install created which dashboard (REQ-STORE-011).
 	 *
 	 * @return void
 	 */
@@ -65,6 +67,7 @@ class StoreController extends Controller {
 		IRequest $request,
 		private readonly StoreService $storeService,
 		private readonly IUserSession $userSession,
+		private readonly ?StoreInstalls $installs = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -88,6 +91,8 @@ class StoreController extends Controller {
 	 *   normalised cards, so there is no local identifier to guess.
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-004-installing-must-require-an-administrator
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
 	 */
 	#[NoAdminRequired]
 	public function search(): JSONResponse {
@@ -106,7 +111,8 @@ class StoreController extends Controller {
 		return new JSONResponse(
 			data: [
 				'outcome' => $result['outcome'],
-				'cards' => $result['cards'],
+				// REQ-STORE-011: Installed (with the dashboard to open), Update or Available.
+				'cards' => ($this->installs?->annotate(cards: $result['cards']) ?? $result['cards']),
 				'kinds' => [],
 				'builtIn' => [],
 			],
@@ -126,6 +132,8 @@ class StoreController extends Controller {
 	 * @return JSONResponse 200 with a per-component report, or 400 when the install was refused.
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-004-installing-must-require-an-administrator
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function install(string $slug): JSONResponse {
@@ -138,6 +146,10 @@ class StoreController extends Controller {
 		}
 
 		$result = $this->storeService->install(slug: $slug, userId: $user->getUID());
+		$created = ($result['dashboardIds'] ?? []);
+		if ($result['success'] === true && $created !== []) {
+			$this->installs?->record(slug: $slug, version: (string)($result['version'] ?? ''), dashboardId: (int)$created[0]);
+		}
 
 		// A refusal that installed nothing is a 400 so the page shows the
 		// message rather than an empty success. A PARTIAL install is a 200: the

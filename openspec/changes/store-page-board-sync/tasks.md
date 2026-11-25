@@ -2,7 +2,7 @@
 
 - [ ] `src/manifest.json` store page: dashboard lenses (All, Installed, Update available, categories) instead of the engine kind lenses; card fields title, publisher, status, description, version, widgets, usage; 8 per page
 - [ ] Register banner: name, address, last checked and state from the store items response; the admin-only install note for non-admins; the not-connected state pointing to the Sharing tab
-- [ ] Record the register item slug and version on the dashboards an install creates; `GET /api/store/items` marks items Installed or Update and returns the installed dashboard id
+- [x] Record the register item slug and version on the dashboards an install creates; `GET /api/store/items` marks items Installed or Update and returns the installed dashboard id
 - [ ] Card action Open for installed items
 - [ ] Translations in every shipped locale
 - [ ] Unit tests: item to card mapping, lens counts, installed and update detection, not connected

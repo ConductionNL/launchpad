@@ -1372,7 +1372,18 @@ test.describe('REQ-KIOSK-005 unattended resilience', () => {
 		try {
 			await expect(onScreen(page)).toHaveText(a.name)
 			// A ends at 30 s; B gets 10 s to load; by 42 s the screen is on C.
-			await after(page, 42_000, c)
+			// C was not prefetched (B was next), so its read only starts once
+			// B is given up, and it travels in real time: one jump to 42 s
+			// would also spend C's own 10-second entry timeout before C could
+			// answer. Step the clock instead and give each step real time.
+			await page.clock.runFor(30_000)
+			let elapsed = 30_000
+			while (elapsed < 42_000 && (await onScreen(page).textContent())?.trim() !== c.name) {
+				await page.clock.runFor(500)
+				elapsed += 500
+				await page.waitForTimeout(250)
+			}
+			await expect(onScreen(page)).toHaveText(c.name)
 			expect(bAttempts, 'B was attempted').toBeGreaterThanOrEqual(1)
 			await expect(page.locator('body')).not.toContainText(TECHNICAL)
 

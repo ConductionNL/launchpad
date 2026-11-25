@@ -139,7 +139,7 @@ class NewColleaguesTest extends TestCase {
 	 */
 	public function testEachNewColleagueCarriesPhotoRoleAndTeam(): void {
 		$people = $this->createMock(originalClassName: PeopleWidgetService::class);
-		$people->method('profileOf')->willReturn(
+		$people->method('buildUserProfile')->willReturn(
 			['uid' => 'x', 'avatarUrl' => '/avatar/x/128', 'role' => 'Beleidsadviseur', 'organisation' => 'Team Wonen', 'email' => 'x@example.org']
 		);
 		$withPeople = $this->colleagues(definitions: [['key' => 'joined', 'startDate' => true]], people: $people);

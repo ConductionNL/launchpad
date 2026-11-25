@@ -716,6 +716,12 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Widgets/Renderers/ContainerChild.vue | canEditTile": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Widgets/Renderers/ContainerWidget.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -2373,6 +2379,12 @@
 		"required": false,
 		"validator": false,
 		"default": ""
+	},
+	"../../modals/TileEditor.vue | inGroup": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../modals/VisibilityRulesModal.vue | placementId": {
 		"type": [

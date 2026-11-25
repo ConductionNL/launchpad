@@ -599,6 +599,7 @@ import { lookStyle } from '../utils/dashboardLook.js'
 import { addressWithPeriod, namesPeriod, readPeriod } from '../utils/dashboardPeriod.js'
 import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
 import { gridItemLabel } from '../utils/gridItemLabel.js'
+import { groupChildToTile, isGroupTileChild, withGroupTileRemoved, withGroupTileSaved } from '../utils/groupTiles.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
 import { loadInitialState, takeBootRead } from '../utils/loadInitialState.js'
@@ -610,7 +611,6 @@ import { hiddenWidgetTitle, isPhoneReady, isPhoneWidth, phoneHiddenPlacements } 
 import { dialogReturnFocus, restoreLostFocus } from '../utils/returnFocus.js'
 import { parseServerStamp } from '../utils/serverStamp.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
-import { groupChildToTile, isGroupTileChild, withGroupTileRemoved, withGroupTileSaved } from '../utils/groupTiles.js'
 import { busNotices } from '../utils/widgetBusNotices.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
@@ -824,6 +824,19 @@ export default {
 		},
 	},
 
+	/**
+	 * A group (container) on this dashboard opens the tile form for a tile
+	 * inside it through this opener (REQ-TILE-041).
+	 *
+	 * @return {object} the provided opener.
+	 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+	 */
+	provide() {
+		return {
+			openGroupTileEditor: (target) => this.openGroupTileEditor(target),
+		}
+	},
+
 	// Inject the typed initial-state snapshot pushed from `src/main.js`
 	// (REQ-INIT-003..005). Defaults match the reader contract so the
 	// sidebar still mounts when running under tests that don't set a
@@ -927,19 +940,6 @@ export default {
 		provide('dashboardPlacements', dashboardPlacements)
 
 		return { canEditRef, grid, personalLayer, filterSession, dashboardPeriod, dashboardPlacements }
-	},
-
-	/**
-	 * A group (container) on this dashboard opens the tile form for a tile
-	 * inside it through this opener (REQ-TILE-041).
-	 *
-	 * @return {object} the provided opener.
-	 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
-	 */
-	provide() {
-		return {
-			openGroupTileEditor: (target) => this.openGroupTileEditor(target),
-		}
 	},
 
 	data() {
@@ -3445,7 +3445,7 @@ export default {
 		 * @spec openspec/specs/service-health-ping/spec.md
 		 */
 		async saveTile(tileData) {
-			if (this.editingGroupTile !== null) {
+			if (this.editingGroupTile) {
 				await this.saveGroupTile(tileData)
 				return
 			}
@@ -3554,7 +3554,7 @@ export default {
 
 		/** @spec openspec/specs/dashboards/spec.md */
 		async deleteTile() {
-			if (this.editingGroupTile !== null) {
+			if (this.editingGroupTile) {
 				const container = this.editingGroup
 				const content = container ? withGroupTileRemoved(container.content, this.editingGroupTile.index) : null
 				if (await this.writeGroupContent(container, content)) {

@@ -113,6 +113,7 @@ export default {
 	inject: {
 		openGroupTileEditor: { default: null },
 	},
+
 	props: {
 		content: OBJECT_PROP,
 
@@ -193,6 +194,7 @@ export default {
 				&& id !== undefined
 				&& id !== null
 		},
+
 		/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
 		canForgetUsage() {
 			return !this.editMode && USAGE_MODES.includes(this.sortMode)
@@ -283,6 +285,7 @@ export default {
 			}
 			this.openGroupTileEditor({ containerId: this.placement.id, index, remove })
 		},
+
 		/**
 		 * Count a use of a child in this browser; only in view mode.
 		 *

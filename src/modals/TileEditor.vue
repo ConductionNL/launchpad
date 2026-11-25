@@ -12,111 +12,46 @@
 	<NcModal
 		v-model:show="isOpen"
 		class="launchpad-modal"
-		:name="tile ? t('launchpad', 'Edit Tile') : t('launchpad', 'Create Tile')"
+		:name="heading"
 		size="normal"
 		@close="$emit('close')">
+		<!-- tile-form-board-sync REQ-TILE-040: one 640 px form, in the board's order. -->
 		<div class="tile-editor">
-			<h2>
-				{{
-					tile
-						? t('launchpad', 'Edit Tile')
-						: t('launchpad', 'Create Tile')
-				}}
+			<h2 class="tile-editor__heading">
+				{{ heading }}
 			</h2>
-
-			<div class="tile-editor__preview">
-				<div
-					class="tile-preview"
-					:style="{
-						backgroundColor: form.backgroundColor,
-						color: form.textColor,
-					}">
-					<img
-						v-if="isUrlIcon"
-						class="tile-preview__icon"
-						:src="displayIcon"
-						alt="" />
-					<svg
-						v-else
-						class="tile-preview__icon"
-						:style="{ fill: form.textColor }"
-						viewBox="0 0 24 24">
-						<path :d="displayIcon" />
-					</svg>
-					<span class="tile-preview__title">{{ form.title }}</span>
-				</div>
-			</div>
+			<p class="tile-editor__where" data-testid="tile-editor-where">
+				{{ whereLine }}
+			</p>
 
 			<div class="tile-editor__form">
-				<NcTextField
-					v-model="form.title"
-					:label="t('launchpad', 'Title')"
-					:placeholder="t('launchpad', 'Enter tile title')"
-					required />
-
-				<div class="tile-editor__field">
-					<!-- No `url-icon-groups`: CnIconBrowser ships the NL Design sets
-					     (Gemeente / Den Haag / RVO) by default and fetches RVO's
-					     1.9 MB only when its tab is opened. Passing them explicitly,
-					     as this used to, forced the whole pack into the eager bundle. -->
-					<CnIconBrowser
-						inline
-						:label="t('launchpad', 'Icon')"
-						:value="displayIcon"
-						:icons="iconCatalogue"
-						@input="onIcon" />
-				</div>
-
 				<div class="form-row">
 					<div class="form-row__item">
-						<label>{{ t('launchpad', 'Background Color') }}</label>
-						<NcColorPicker v-model="form.backgroundColor">
-							<NcButton
-								variant="tertiary"
-								:aria-label="
-									t('launchpad', 'Pick background color')
-								">
-								<template #icon>
-									<div
-										class="color-preview"
-										:style="{
-											backgroundColor: form.backgroundColor,
-										}" />
-								</template>
-								{{ form.backgroundColor }}
-							</NcButton>
-						</NcColorPicker>
+						<NcTextField
+							v-model="form.title"
+							:label="t('launchpad', 'Name')"
+							:placeholder="t('launchpad', 'Enter tile name')"
+							required />
 					</div>
-
 					<div class="form-row__item">
-						<label>{{ t('launchpad', 'Text Color') }}</label>
-						<NcColorPicker v-model="form.textColor">
-							<NcButton
-								variant="tertiary"
-								:aria-label="t('launchpad', 'Pick text color')">
-								<template #icon>
-									<div
-										class="color-preview"
-										:style="{
-											backgroundColor: form.textColor,
-										}" />
-								</template>
-								{{ form.textColor }}
-							</NcButton>
-						</NcColorPicker>
+						<NcTextField
+							:modelValue="groupLabel"
+							:label="t('launchpad', 'Group')"
+							:helperText="groupName ? '' : t('launchpad', 'Tiles in a group share its sort order.')"
+							disabled
+							data-testid="tile-group" />
 					</div>
 				</div>
 
 				<!-- launcher-tile-launch-types: what the tile opens. The server
 				     checks every type (TileLinkValidator); an sso tile's address
 				     is resolved there from the template, so it has no address field. -->
-				<NcSelect
+				<ChoiceCards
 					:modelValue="form.linkType"
 					:options="linkTypeOptions"
-					:inputLabel="t('launchpad', 'Opens')"
-					:reduce="(option) => option.value"
-					:clearable="false"
-					label="label"
+					:label="t('launchpad', 'Tile type')"
+					:columns="2"
+					name="tile-link-type"
 					data-testid="tile-link-type"
 					@update:modelValue="onLinkType" />
 
@@ -210,56 +145,186 @@
 						data-testid="tile-sso-app-id" />
 				</template>
 
-				<NcTextField
-					v-else
-					v-model="form.linkValue"
-					:label="t('launchpad', 'URL')"
-					:placeholder="
-						t('launchpad', 'https://example.com or /apps/files')
-					"
-					type="text" />
-
-				<NcTextField
-					v-model="form.internalUrl"
-					:label="t('launchpad', 'Address on the office network')"
-					:placeholder="t('launchpad', 'Optional, e.g. http://intranet.local')"
-					type="text" />
+				<!-- Web address and internal address side by side (REQ-TILE-040). -->
+				<div class="form-row">
+					<div v-if="hasWebAddress" class="form-row__item">
+						<NcTextField
+							v-model="form.linkValue"
+							:label="t('launchpad', 'Web address')"
+							:placeholder="t('launchpad', 'https://example.com or /apps/files')"
+							type="text" />
+					</div>
+					<div class="form-row__item">
+						<NcTextField
+							v-model="form.internalUrl"
+							:label="t('launchpad', 'Internal address (optional)')"
+							:placeholder="t('launchpad', 'e.g. http://intranet.local')"
+							type="text" />
+					</div>
+				</div>
 				<p class="tile-editor__hint-small tile-editor__address-in-effect">
 					{{ addressInEffect }}
 				</p>
-				<!-- Launcher-tile-open-behaviour: how the tile opens. -->
-				<fieldset class="tile-editor__opens-in" data-test="tile-editor-opens-in">
-					<legend>{{ t('launchpad', 'Opens in') }}</legend>
-					<NcCheckboxRadioSwitch
-						v-for="option in linkTargetOptions"
-						:key="option.value"
+
+				<!-- Launcher-tile-open-behaviour: how the tile opens, as three cards. -->
+				<div class="tile-editor__opens-in" data-test="tile-editor-opens-in">
+					<ChoiceCards
 						:modelValue="form.linkTarget"
-						:value="option.value"
-						:disabled="option.disabled"
+						:options="linkTargetOptions"
+						:label="t('launchpad', 'Open in')"
+						:columns="3"
 						name="tile-link-target"
-						type="radio"
-						@update:modelValue="form.linkTarget = $event">
-						{{ option.label }}
-					</NcCheckboxRadioSwitch>
+						@update:modelValue="form.linkTarget = $event" />
+					<p class="tile-editor__hint" data-test="tile-editor-opens-in-default">
+						<template v-if="form.linkTarget === ''">
+							{{ t('launchpad', 'None chosen: the tile opens as the dashboard decides.') }}
+						</template>
+						<NcButton
+							v-else
+							variant="tertiary"
+							data-test="tile-editor-follow-dashboard"
+							@click="form.linkTarget = ''">
+							{{ t('launchpad', 'Open as the dashboard decides') }}
+						</NcButton>
+					</p>
 					<p
 						v-if="panelRefusal"
 						class="tile-editor__hint"
 						data-test="tile-editor-panel-refusal">
 						{{ panelRefusal }}
 					</p>
-				</fieldset>
+				</div>
+
+				<!-- The icon with its preview, a picker on demand and an upload. -->
+				<div class="tile-editor__field tile-editor__icon">
+					<span class="tile-editor__label">{{ t('launchpad', 'Icon') }}</span>
+					<div class="tile-editor__icon-row">
+						<div
+							class="tile-preview"
+							:style="{
+								backgroundColor: form.backgroundColor,
+								color: form.textColor,
+							}">
+							<img
+								v-if="isUrlIcon"
+								class="tile-preview__icon"
+								:src="displayIcon"
+								alt="" />
+							<svg
+								v-else
+								class="tile-preview__icon"
+								:style="{ fill: form.textColor }"
+								viewBox="0 0 24 24">
+								<path :d="displayIcon" />
+							</svg>
+							<span class="tile-preview__title">{{ form.title }}</span>
+						</div>
+						<div class="tile-editor__icon-actions">
+							<NcButton
+								data-testid="tile-icon-choose"
+								:aria-expanded="iconBrowserOpen ? 'true' : 'false'"
+								@click="iconBrowserOpen = !iconBrowserOpen">
+								{{ iconBrowserOpen ? t('launchpad', 'Close the icon list') : t('launchpad', 'Choose an icon') }}
+							</NcButton>
+							<NcButton
+								data-testid="tile-icon-upload"
+								:disabled="iconUploading"
+								@click="pickIconFile">
+								{{ t('launchpad', 'Upload another icon') }}
+							</NcButton>
+							<input
+								ref="iconFile"
+								class="tile-editor__file"
+								type="file"
+								accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+								tabindex="-1"
+								aria-hidden="true"
+								@change="onIconFile">
+							<p v-if="iconUploadError" class="tile-editor__warning" role="alert">
+								{{ iconUploadError }}
+							</p>
+						</div>
+					</div>
+					<!-- No `url-icon-groups`: CnIconBrowser ships the NL Design sets
+					     (Gemeente / Den Haag / RVO) by default and fetches RVO's
+					     1.9 MB only when its tab is opened. Passing them explicitly,
+					     as this used to, forced the whole pack into the eager bundle. -->
+					<CnIconBrowser
+						v-if="iconBrowserOpen"
+						inline
+						:label="t('launchpad', 'Icon')"
+						:value="displayIcon"
+						:icons="iconCatalogue"
+						@input="onIcon" />
+				</div>
+
+				<div class="tile-editor__field">
+					<span class="tile-editor__label">{{ t('launchpad', 'Colour') }}</span>
+					<div class="form-row">
+						<div class="form-row__item">
+							<NcColorPicker v-model="form.backgroundColor">
+								<NcButton
+									variant="tertiary"
+									:aria-label="t('launchpad', 'Pick background color')">
+									<template #icon>
+										<div
+											class="color-preview"
+											:style="{
+												backgroundColor: form.backgroundColor,
+											}" />
+									</template>
+									{{ t('launchpad', 'Background') }} {{ form.backgroundColor }}
+								</NcButton>
+							</NcColorPicker>
+						</div>
+
+						<div class="form-row__item">
+							<NcColorPicker v-model="form.textColor">
+								<NcButton
+									variant="tertiary"
+									:aria-label="t('launchpad', 'Pick text color')">
+									<template #icon>
+										<div
+											class="color-preview"
+											:style="{
+												backgroundColor: form.textColor,
+											}" />
+									</template>
+									{{ t('launchpad', 'Icon and text') }} {{ form.textColor }}
+								</NcButton>
+							</NcColorPicker>
+						</div>
+					</div>
+				</div>
+
+				<!-- REQ-TILE-041: the sort order of the tile's group. -->
+				<NcSelect
+					:modelValue="groupSortBy"
+					:options="groupSortOptions"
+					:inputLabel="t('launchpad', 'Sort order in this group')"
+					:reduce="(option) => option.value"
+					:clearable="false"
+					:disabled="!groupName"
+					label="label"
+					data-testid="tile-group-sort"
+					@update:modelValue="groupSortBy = $event" />
 
 				<div class="tile-editor__health-ping">
 					<NcCheckboxRadioSwitch
 						:modelValue="form.healthPingEnabled"
 						type="switch"
 						@update:modelValue="onHealthPingToggle">
-						{{
-							t('launchpad', 'Show a live status badge (health ping)')
-						}}
+						{{ t('launchpad', 'Check availability') }}
 					</NcCheckboxRadioSwitch>
 
 					<template v-if="form.healthPingEnabled">
+						<!-- REQ-TILE-042: the last check's result with its time. -->
+						<p
+							v-if="tile && tile.id"
+							class="tile-editor__hint-small tile-editor__last-check"
+							data-testid="tile-last-check">
+							{{ lastCheck }}
+						</p>
 						<NcTextField
 							v-model="form.healthUrl"
 							:label="t('launchpad', 'Health check URL')"
@@ -301,8 +366,9 @@
 
 				<div class="tile-editor__actions">
 					<NcButton v-if="tile" variant="error" @click="$emit('delete')">
-						{{ t('launchpad', 'Delete') }}
+						{{ t('launchpad', 'Delete tile') }}
 					</NcButton>
+					<span v-else />
 					<div class="tile-editor__actions-right">
 						<NcButton @click="$emit('close')">
 							{{ t('launchpad', 'Cancel') }}
@@ -330,13 +396,17 @@ import {
 } from '@conduction/nextcloud-vue'
 import { mdiLink } from '@mdi/js'
 import { translate as t } from '@nextcloud/l10n'
-import { FLAG_PROP, NULLABLE_OBJECT_PROP } from '../constants/propDefinitions.js'
-import { validateHealthPingConfig } from '../services/healthPingClient.js'
+import ChoiceCards from '../components/ChoiceCards.vue'
+import { FLAG_PROP, NULLABLE_OBJECT_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
+import { fetchHealthPingBadge, validateHealthPingConfig } from '../services/healthPingClient.js'
 import { ICON_CATALOGUE, loadIconCatalogue, normaliseIconValue } from '../services/iconCatalogue.js'
 import { validateIframeUrl } from '../services/iframeClient.js'
+import { uploadFile } from '../services/resourceService.js'
 import { isOnOfficeNetwork, loadInitialState } from '../utils/loadInitialState.js'
+import { lastCheckLine } from '../utils/tileAvailability.js'
 import { DEFAULT_RDP_PORT, launchFields, LINK_PROGRAM, LINK_REMOTE, LINK_SSO } from '../utils/tileLaunch.js'
 import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
+import { normaliseSortMode } from '../utils/tileSort.js'
 
 const MIN_PING_INTERVAL = 15
 const DEFAULT_PING_INTERVAL = 60
@@ -367,12 +437,22 @@ export default {
 		NcCheckboxRadioSwitch,
 		NcSelect,
 		CnIconBrowser,
+		ChoiceCards,
 	},
 
 	props: {
 		open: FLAG_PROP,
 
 		tile: NULLABLE_OBJECT_PROP,
+
+		/** The dashboard the tile is on, for the line under the heading. */
+		dashboardName: TEXT_PROP,
+
+		/** The title of the group (container) the tile is in; '' for none. */
+		groupName: TEXT_PROP,
+
+		/** The group's stored sort mode (`content.sortBy`). */
+		groupSort: TEXT_PROP,
 	},
 
 	emits: ['close', 'save', 'delete'],
@@ -397,6 +477,12 @@ export default {
 			},
 
 			healthUrlError: '',
+			iconBrowserOpen: false,
+			iconUploading: false,
+			iconUploadError: '',
+			// REQ-TILE-042: the last health ping reading of the tile.
+			lastReading: null,
+			groupSortBy: normaliseSortMode(this.groupSort),
 			onOfficeNetwork: isOnOfficeNetwork(),
 			panelRefusal: '',
 			MIN_PING_INTERVAL,
@@ -412,16 +498,100 @@ export default {
 		 * The "Opens in" choices. The panel is unavailable for an outside
 		 * address whose host is not on the embed allow-list.
 		 *
-		 * @return {Array<{value: string, label: string, disabled: boolean}>}
+		 * Three cards (REQ-TILE-040); none chosen ('') follows the dashboard.
+		 *
+		 * @return {Array<{value: string, label: string, hint: string, disabled: boolean}>}
 		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 */
 		linkTargetOptions() {
 			return [
-				{ value: '', label: t('launchpad', 'As the dashboard decides'), disabled: false },
-				{ value: SAME_TAB, label: t('launchpad', 'Same tab'), disabled: false },
-				{ value: NEW_TAB, label: t('launchpad', 'New tab'), disabled: false },
-				{ value: SIDE_PANEL, label: t('launchpad', 'Panel beside the tiles'), disabled: this.panelRefusal !== '' },
+				{ value: SAME_TAB, label: t('launchpad', 'Same tab'), hint: t('launchpad', 'Replaces Launchpad in this tab.'), disabled: false },
+				{ value: NEW_TAB, label: t('launchpad', 'New tab'), hint: t('launchpad', 'Launchpad stays open.'), disabled: false },
+				{
+					value: SIDE_PANEL,
+					label: t('launchpad', 'In Launchpad, next to the tiles'),
+					hint: t('launchpad', 'Opens in a panel beside the tiles.'),
+					disabled: this.panelRefusal !== '',
+				},
 			]
+		},
+
+		/**
+		 * The form's heading: "Edit tile: <name>", or "New tile".
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 */
+		heading() {
+			if (!this.tile) {
+				return t('launchpad', 'New tile')
+			}
+			return t('launchpad', 'Edit tile: {name}', { name: this.tile.title || '' })
+		},
+
+		/**
+		 * The line under the heading: "<group> · <dashboard>".
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 */
+		whereLine() {
+			if (!this.dashboardName) {
+				return this.groupLabel
+			}
+			return t('launchpad', '{group} · {dashboard}', { group: this.groupLabel, dashboard: this.dashboardName })
+		},
+
+		/**
+		 * The tile's group as the Group field shows it.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		groupLabel() {
+			return this.groupName || t('launchpad', 'No group')
+		},
+
+		/**
+		 * The group's sort orders, by the names the form gives them; the
+		 * values are the container's stored modes (src/utils/tileSort.js).
+		 *
+		 * @return {Array<{value: string, label: string}>}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		groupSortOptions() {
+			const options = [
+				{ value: 'last-used', label: t('launchpad', 'Last used first') },
+				{ value: 'alphabetical', label: t('launchpad', 'Alphabetical') },
+				{ value: 'random', label: t('launchpad', 'Random') },
+				{ value: 'manual', label: t('launchpad', 'As placed') },
+			]
+			if (!options.some((option) => option.value === this.groupSortBy)) {
+				options.push({ value: this.groupSortBy, label: t('launchpad', 'Most used first') })
+			}
+			return options
+		},
+
+		/**
+		 * Whether the tile type has a web address field of its own: a program,
+		 * remote desktop or sign-on tile has its own fields instead.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 */
+		hasWebAddress() {
+			return ![LINK_PROGRAM, LINK_REMOTE, LINK_SSO].includes(this.form.linkType)
+		},
+
+		/**
+		 * The result of the last availability check with its time.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
+		 */
+		lastCheck() {
+			return lastCheckLine(this.lastReading, new Date(), t)
 		},
 
 		isOpen: {
@@ -481,21 +651,25 @@ export default {
 		 * What a tile can open. A type this editor does not offer (an older
 		 * `app` or `internal` tile) stays selectable so editing keeps it.
 		 *
-		 * @return {Array<{value: string, label: string}>}
+		 * Four choice cards with one line of explanation each (REQ-TILE-040).
+		 *
+		 * @return {Array<{value: string, label: string, hint: string}>}
 		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 */
 		linkTypeOptions() {
 			const options = [
-				{ value: 'url', label: t('launchpad', 'Web address') },
-				{ value: LINK_PROGRAM, label: t('launchpad', 'Program on this computer') },
-				{ value: LINK_REMOTE, label: t('launchpad', 'Remote desktop') },
-				{ value: LINK_SSO, label: t('launchpad', 'Single sign-on app') },
+				{ value: 'url', label: t('launchpad', 'Web address'), hint: t('launchpad', 'A website or a page on this Nextcloud.') },
+				{ value: LINK_SSO, label: t('launchpad', 'App with single sign-on'), hint: t('launchpad', 'Signs in through your identity provider.') },
+				{ value: LINK_REMOTE, label: t('launchpad', 'Legacy Windows program'), hint: t('launchpad', 'Through remote desktop or a web gateway.') },
+				{ value: LINK_PROGRAM, label: t('launchpad', 'Program on this computer'), hint: t('launchpad', 'Starts a program installed on the device.') },
 			]
 			const current = this.form.linkType
 			if (current && !options.some((option) => option.value === current)) {
 				options.unshift({
 					value: current,
 					label: current === 'app' ? t('launchpad', 'Nextcloud app') : t('launchpad', 'Link'),
+					hint: t('launchpad', 'An older tile type, kept while you edit.'),
 				})
 			}
 			return options
@@ -550,6 +724,17 @@ export default {
 			this.checkPanelAllowed()
 		},
 
+		/**
+		 * Follow the group's stored order when the parent changes it.
+		 *
+		 * @param {string} value The stored sort mode.
+		 * @return {void}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		groupSort(value) {
+			this.groupSortBy = normaliseSortMode(value)
+		},
+
 		tile: {
 			immediate: true,
 			/**
@@ -558,6 +743,7 @@ export default {
 			 * @param {object|null} newTile Tile to edit; null opens a blank
 			 *   form for a new tile.
 			 * @spec openspec/specs/tiles/spec.md
+			 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
 			 */
 			handler(newTile) {
 				if (newTile) {
@@ -571,6 +757,8 @@ export default {
 				} else {
 					this.resetForm()
 				}
+				this.lastReading = null
+				this.loadLastCheck()
 			},
 		},
 	},
@@ -642,11 +830,77 @@ export default {
 		 * @param {boolean} value the new toggle state.
 		 * @return {void}
 		 * @spec openspec/specs/service-health-ping/spec.md
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
 		 */
 		onHealthPingToggle(value) {
 			this.form.healthPingEnabled = value
 			if (!value) {
 				this.healthUrlError = ''
+			} else {
+				this.loadLastCheck()
+			}
+		},
+
+		/**
+		 * Read the tile's last health ping, for the line under the switch.
+		 * Only a saved tile with the check on has one; a failed read shows
+		 * "Not checked yet".
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
+		 */
+		async loadLastCheck() {
+			const id = this.tile?.id
+			if (!id || !this.form.healthPingEnabled || this.lastReading) {
+				return
+			}
+			try {
+				const reading = await fetchHealthPingBadge(id)
+				if (this.tile?.id === id) {
+					this.lastReading = reading
+				}
+			} catch {
+				this.lastReading = null
+			}
+		},
+
+		/**
+		 * Open the file chooser for "Upload another icon".
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 */
+		pickIconFile() {
+			this.$refs.iconFile?.click()
+		},
+
+		/**
+		 * Upload the chosen file as the tile's icon; the stored icon becomes
+		 * the resource's URL, as an upload in the icon browser makes it.
+		 *
+		 * @param {Event} event The file input's change event.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/specs/resource-uploads/spec.md
+		 */
+		async onIconFile(event) {
+			const file = event?.target?.files?.[0]
+			if (!file) {
+				return
+			}
+			this.iconUploading = true
+			this.iconUploadError = ''
+			try {
+				const resource = await uploadFile(file)
+				this.form.icon = resource.url
+				this.form.iconType = 'url'
+			} catch {
+				this.iconUploadError = t('launchpad', 'The icon could not be uploaded.')
+			} finally {
+				this.iconUploading = false
+				if (event.target) {
+					event.target.value = ''
+				}
 			}
 		},
 
@@ -738,14 +992,26 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/tiles/spec.md */
+		/**
+		 * Emit the tile, with the group's sort order when the tile is in a group.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/tiles/spec.md
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
 		saveTile() {
-			this.$emit('save', {
+			const tile = {
 				...this.form,
 				expectedStatus:
 					Number(this.form.expectedStatus) || DEFAULT_EXPECTED_STATUS,
+
 				pingInterval: this.clampPingInterval(this.form.pingInterval),
-			})
+			}
+			// REQ-TILE-041: the group's order travels with the save, for the group.
+			if (this.groupName) {
+				tile.groupSortBy = this.groupSortBy
+			}
+			this.$emit('save', tile)
 		},
 	},
 }
@@ -754,17 +1020,49 @@ export default {
 <style scoped>
 .tile-editor {
 	padding: 20px;
+	max-width: 640px;
+	box-sizing: border-box;
+}
+
+.tile-editor__heading {
+	margin-bottom: 2px !important;
+}
+
+.tile-editor__where {
+	margin: 0 0 16px;
+	color: var(--color-text-maxcontrast);
+}
+
+.tile-editor__label {
+	font-weight: 600;
+	font-size: 14px;
+}
+
+.tile-editor__icon-row {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.tile-editor__icon-actions {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.tile-editor__file {
+	display: none;
+}
+
+.tile-editor__last-check {
+	margin: 0;
 }
 
 .tile-editor__opens-in {
-	margin: 16px 0;
-	border: 0;
-	padding: 0;
-}
-
-.tile-editor__opens-in legend {
-	font-weight: bold;
-	margin-bottom: 4px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 }
 
 .tile-editor__fieldset {
@@ -782,19 +1080,14 @@ export default {
 	margin-bottom: 20px;
 }
 
-.tile-editor__preview {
-	display: flex;
-	justify-content: center;
-	margin-bottom: 30px;
-}
-
 .tile-preview {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	width: 120px;
-	height: 120px;
+	flex: 0 0 auto;
+	width: 96px;
+	height: 96px;
 	border-radius: var(--border-radius-large);
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	padding: 12px;

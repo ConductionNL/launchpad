@@ -73,6 +73,37 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/ChoiceCards.vue | label": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/ChoiceCards.vue | name": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/ChoiceCards.vue | modelValue": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/ChoiceCards.vue | options": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/ChoiceCards.vue | columns": {
+		"type": "Number",
+		"required": false,
+		"validator": false,
+		"default": 2
+	},
 	"../../components/DashboardFooter.vue | footer": {
 		"type": "Object",
 		"required": false,
@@ -2172,6 +2203,24 @@
 		"required": false,
 		"validator": false,
 		"default": null
+	},
+	"../../modals/TileEditor.vue | dashboardName": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../modals/TileEditor.vue | groupName": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../modals/TileEditor.vue | groupSort": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
 	},
 	"../../modals/VisibilityRulesModal.vue | placementId": {
 		"type": [

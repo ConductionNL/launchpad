@@ -21,7 +21,7 @@
  * or-absent.spec.ts; this file pins the declarations behind it.
  *
  * Gate-19 @e2e traceability:
- *   @e2e launchpad-adopt-or-abstractions::appinfo-xml-dependency-check
+ *   @e2e launchpad-adopt-or-abstractions::appinfoxml-dependency-check
  *   @e2e launchpad-adopt-or-abstractions::composer-dependency-check
  *
  * @spec openspec/specs/launchpad-adopt-or-abstractions/spec.md
@@ -69,7 +69,7 @@ function strings(value: unknown): string[] {
 	return []
 }
 
-// @e2e launchpad-adopt-or-abstractions::appinfo-xml-dependency-check
+// @e2e launchpad-adopt-or-abstractions::appinfoxml-dependency-check
 test('the installed info.xml declares no OpenRegister or OpenConnector dependency, and no wording calls either required', async () => {
 	const admin = await apiAs()
 	let info: Record<string, unknown>

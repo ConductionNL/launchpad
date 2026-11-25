@@ -1686,7 +1686,8 @@ OC.L10N.register(
     "Otherwise" : "Kitu atveju",
     "A person" : "Asmuo",
     "Search for a person" : "Ieškoti asmens",
-    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Nepasirinkus skydelis atitenka asmeniui, turinčiam visas teises į jį, arba ištrinamas. Bendrinimai lieka."
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Nepasirinkus skydelis atitenka asmeniui, turinčiam visas teises į jį, arba ištrinamas. Bendrinimai lieka.",
+    "Start date of new colleagues" : "Naujų kolegų pradžios data"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

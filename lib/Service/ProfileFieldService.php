@@ -86,7 +86,7 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 		'nc:biography' => IAccountManager::PROPERTY_BIOGRAPHY,
 	];
 
-	private const TYPES = ['text', 'tags'];
+	private const TYPES = ['text', 'tags', 'date'];
 	private const SOURCES = ['self', 'ldap'];
 	private const VISIBILITIES = ['everyone', 'groups'];
 
@@ -163,6 +163,7 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 	 * @throws InvalidArgumentException When a definition is invalid.
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
 	 */
 	private function validateDefinitions(array $raw): array {
 		if (count(value: $raw) > self::MAX_FIELDS) {
@@ -178,6 +179,11 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 			}
 
 			$seen[$definition['key']] = true;
+			if ($definition['startDate'] === true) {
+				// REQ-PEX-005: marking another field as the start date unmarks the previous one.
+				$result = array_map(callback: static fn (array $earlier): array => array_merge($earlier, ['startDate' => false]), array: $result);
+			}
+
 			$result[] = $definition;
 		}
 
@@ -273,6 +279,7 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 	 * @throws InvalidArgumentException When a field is invalid.
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
 	 */
 	private function definitionFrom(array $entry, string $key): array {
 		return [
@@ -286,6 +293,8 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 			'visibility' => $this->oneOf(value: $entry['visibility'] ?? 'everyone', allowed: self::VISIBILITIES, name: 'visibility'),
 			// REQ-ACK-010: the field read confirmations show as Department.
 			'department' => ($entry['department'] ?? false) === true,
+			// REQ-PEX-005: the date field that holds the start date ("in dienst sinds").
+			'startDate' => ($entry['startDate'] ?? false) === true && ($entry['type'] ?? 'text') === 'date',
 		];
 	}//end definitionFrom()
 
@@ -508,13 +517,24 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 	 * @return string The trimmed text.
 	 *
 	 * @throws InvalidArgumentException When the item is not text.
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
 	 */
 	private static function itemText(array $definition, mixed $item): string {
 		if (is_string(value: $item) === false) {
 			throw new InvalidArgumentException(message: 'A value must be text: ' . $definition['key']);
 		}
 
-		return trim(string: $item);
+		$text = trim(string: $item);
+		// REQ-PEX-005: a date field holds one calendar date, `YYYY-MM-DD`.
+		$parts = [];
+		$isDate = preg_match(pattern: '/^(\d{4})-(\d{2})-(\d{2})$/', subject: $text, matches: $parts) === 1
+			&& checkdate(month: (int)$parts[2], day: (int)$parts[3], year: (int)$parts[1]);
+		if ($definition['type'] === 'date' && $text !== '' && $isDate === false) {
+			throw new InvalidArgumentException(message: 'A date must be written YYYY-MM-DD: ' . $definition['key']);
+		}
+
+		return $text;
 	}//end itemText()
 
 	/**
@@ -807,6 +827,8 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 	 * @param array $raw Values from LDAP.
 	 *
 	 * @return string[]
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
 	 */
 	private function cleanLdapValues(array $definition, array $raw): array {
 		$values = [];
@@ -818,6 +840,21 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 		}
 
 		$values = array_values(array: $values);
+		if ($definition['type'] === 'date') {
+			// REQ-PEX-005: LDAP writes a date as generalized time (`20261012000000Z`) or as `2026-10-12`.
+			$digits = substr(string: str_replace(search: '-', replace: '', subject: ($values[0] ?? '')), offset: 0, length: 8);
+			$year = substr(string: $digits, offset: 0, length: 4);
+			$month = substr(string: $digits, offset: 4, length: 2);
+			$day = substr(string: $digits, offset: 6, length: 2);
+			if (preg_match(pattern: '/^\d{8}$/', subject: $digits) !== 1
+				|| checkdate(month: (int)$month, day: (int)$day, year: (int)$year) === false
+			) {
+				return [];
+			}
+
+			return [$year.'-'.$month.'-'.$day];
+		}
+
 		if ($definition['type'] === 'text') {
 			return array_slice(array: $values, offset: 0, length: 1);
 		}

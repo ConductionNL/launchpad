@@ -1588,6 +1588,7 @@
         "Otherwise": "Inače",
         "A person": "Osoba",
         "Search for a person": "Traži osobu",
-        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Bez odabira nadzorna ploča ide nekome s punim pravima na nju ili se briše. Dijeljenja ostaju."
+        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Bez odabira nadzorna ploča ide nekome s punim pravima na nju ili se briše. Dijeljenja ostaju.",
+        "Start date of new colleagues": "Datum početka novih kolega"
     }
 }

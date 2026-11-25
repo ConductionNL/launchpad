@@ -98,6 +98,7 @@ class ProfileFieldServiceAccessGoldenTest extends TestCase {
 			'shownInWidget' => false,
 			'visibility' => 'everyone',
 			'department' => false,
+			'startDate' => false,
 		]], $saved);
 	}
 
@@ -306,4 +307,68 @@ class ProfileFieldServiceAccessGoldenTest extends TestCase {
 		$byKey = array_column($this->service->getOwnFields(userId: 'ann'), 'values', 'key');
 		$this->assertSame([['A1'], ['nl', 'en']], [$byKey['office'], $byKey['langs']]);
 	}
+
+	/**
+	 * REQ-PEX-005: a date field; the start-date marker only on a date field,
+	 * and marking a second one unmarks the first.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+	 */
+	public function testOneDateFieldIsTheStartDate(): void {
+		$saved = $this->service->saveDefinitions(raw: [
+			['key' => 'joined', 'label' => 'In dienst sinds', 'type' => 'date', 'startDate' => true],
+			['key' => 'office', 'label' => 'Office', 'startDate' => true],
+			['key' => 'started', 'label' => 'Started', 'type' => 'date', 'startDate' => true],
+		]);
+
+		$this->assertSame(expected: ['date', 'text', 'date'], actual: array_column(array: $saved, column_key: 'type'));
+		$this->assertSame(expected: [false, false, true], actual: array_column(array: $saved, column_key: 'startDate'));
+	}//end testOneDateFieldIsTheStartDate()
+
+	/**
+	 * REQ-PEX-005: a person's date is a calendar date written YYYY-MM-DD.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+	 */
+	public function testADateValueMustBeACalendarDate(): void {
+		$this->service->saveDefinitions(raw: [['key' => 'joined', 'label' => 'In dienst sinds', 'type' => 'date']]);
+		$this->service->saveOwnValues(userId: 'ann', values: ['joined' => ' 2026-10-12 ']);
+		$byKey = array_column(array: $this->service->getOwnFields(userId: 'ann'), column_key: 'values', index_key: 'key');
+		$this->assertSame(expected: ['2026-10-12'], actual: $byKey['joined']);
+
+		$this->expectException(exception: \InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: 'A date must be written YYYY-MM-DD: joined');
+		$this->service->saveOwnValues(userId: 'ann', values: ['joined' => '2026-13-01']);
+	}//end testADateValueMustBeACalendarDate()
+
+	/**
+	 * Scenario "Start date from LDAP": generalized time and dashed dates read
+	 * as the calendar date; anything else as no date.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+	 */
+	public function testAnLdapStartDateIsReadAsACalendarDate(): void {
+		$this->service->saveDefinitions(raw: [
+			[
+				'key' => 'joined', 'label' => 'In dienst sinds', 'type' => 'date',
+				'source' => 'ldap', 'ldapAttribute' => 'employeeStartDate', 'startDate' => true,
+			],
+		]);
+		$this->ldapFactory->method('isAvailable')->willReturn(true);
+		$provider = $this->createMock(originalClassName: ILDAPProvider::class);
+		$provider->method('getMultiValueUserAttribute')->willReturnOnConsecutiveCalls(['20261012000000Z'], ['2026-10-12'], ['soon']);
+		$this->ldapFactory->method('getLDAPProvider')->willReturn($provider);
+
+		foreach ([['2026-10-12'], ['2026-10-12'], []] as $expected) {
+			$this->service->syncLdapFields(user: $this->ldapUser());
+			$byKey = array_column(array: $this->service->getOwnFields(userId: 'ann'), column_key: 'values', index_key: 'key');
+			$this->assertSame(expected: $expected, actual: $byKey['joined'] ?? []);
+		}
+	}//end testAnLdapStartDateIsReadAsACalendarDate()
 }//end class

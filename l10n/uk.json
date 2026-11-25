@@ -1588,6 +1588,7 @@
         "Otherwise": "Інакше",
         "A person": "Особа",
         "Search for a person": "Знайти особу",
-        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Без вибору панель переходить до того, хто має на неї повні права, або видаляється. Спільні доступи залишаються."
+        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Без вибору панель переходить до того, хто має на неї повні права, або видаляється. Спільні доступи залишаються.",
+        "Start date of new colleagues": "Дата початку роботи нових колег"
     }
 }

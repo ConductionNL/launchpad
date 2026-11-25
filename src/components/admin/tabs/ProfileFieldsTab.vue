@@ -46,6 +46,7 @@
 					<select v-model="field.type">
 						<option value="text">{{ t('launchpad', 'Text') }}</option>
 						<option value="tags">{{ t('launchpad', 'Tags') }}</option>
+						<option value="date">{{ t('launchpad', 'Date') }}</option>
 					</select>
 				</label>
 				<label>
@@ -94,6 +95,15 @@
 						data-testid="profile-field-department"
 						@change="setDepartment(index, $event.target.checked)" />
 					{{ t('launchpad', 'Department in read confirmations') }}
+				</label>
+				<!-- REQ-PEX-005: one date field is the start date of new colleagues. -->
+				<label v-if="field.type === 'date'" class="profile-fields-tab__check">
+					<input
+						:checked="field.startDate === true"
+						type="checkbox"
+						data-testid="profile-field-start-date"
+						@change="setStartDate(index, $event.target.checked)" />
+					{{ t('launchpad', 'Start date of new colleagues') }}
 				</label>
 				<NcButton variant="tertiary" @click="remove(index)">
 					{{ t('launchpad', 'Remove field') }}
@@ -177,6 +187,7 @@ export default {
 				shownInWidget: true,
 				visibility: 'everyone',
 				department: false,
+				startDate: false,
 			})
 		},
 
@@ -193,6 +204,22 @@ export default {
 			this.fields = this.fields.map((field, position) => ({
 				...field,
 				department: position === index ? checked : (checked ? false : field.department === true),
+			}))
+		},
+
+		/**
+		 * Mark one date field as the start date of new colleagues; marking it
+		 * unmarks every other field, so at most one is (REQ-PEX-005).
+		 *
+		 * @param {number} index Position in the list.
+		 * @param {boolean} checked Whether it is now the start date.
+		 * @return {void}
+		 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+		 */
+		setStartDate(index, checked) {
+			this.fields = this.fields.map((field, position) => ({
+				...field,
+				startDate: position === index ? checked : (checked ? false : field.startDate === true),
 			}))
 		},
 

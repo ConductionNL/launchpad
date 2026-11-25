@@ -1586,6 +1586,7 @@
         "Otherwise": "Muuten",
         "A person": "Henkilö",
         "Search for a person": "Etsi henkilöä",
-        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Ilman valintaa koontinäyttö siirtyy jollekulle, jolla on siihen täydet oikeudet, tai se poistetaan. Jaot säilyvät."
+        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Ilman valintaa koontinäyttö siirtyy jollekulle, jolla on siihen täydet oikeudet, tai se poistetaan. Jaot säilyvät.",
+        "Start date of new colleagues": "Uusien kollegoiden aloituspäivä"
     }
 }

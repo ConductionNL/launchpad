@@ -1686,7 +1686,8 @@ OC.L10N.register(
     "Otherwise" : "Si no",
     "A person" : "Una persona",
     "Search for a person" : "Cerca una persona",
-    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Sense elecció, un tauler va a algú amb tots els drets sobre ell, o s'elimina. Les comparticions es mantenen."
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Sense elecció, un tauler va a algú amb tots els drets sobre ell, o s'elimina. Les comparticions es mantenen.",
+    "Start date of new colleagues" : "Data d'incorporació dels nous companys"
 },
 "nplurals=2; plural=(n != 1);"
 );

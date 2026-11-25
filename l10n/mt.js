@@ -1686,7 +1686,8 @@ OC.L10N.register(
     "Otherwise" : "Inkella",
     "A person" : "Persuna",
     "Search for a person" : "Fittex persuna",
-    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Mingħajr għażla, dashboard imur għand xi ħadd b'drittijiet sħaħ fuqu, jew jitħassar. Il-qsim jibqa'."
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Mingħajr għażla, dashboard imur għand xi ħadd b'drittijiet sħaħ fuqu, jew jitħassar. Il-qsim jibqa'.",
+    "Start date of new colleagues" : "Data tal-bidu tal-kollegi l-ġodda"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

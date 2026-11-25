@@ -1686,7 +1686,8 @@ OC.L10N.register(
     "Otherwise" : "Иначе",
     "A person" : "Человек",
     "Search for a person" : "Найти человека",
-    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Без выбора панель переходит к тому, у кого есть полные права на неё, или удаляется. Общие доступы сохраняются."
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Без выбора панель переходит к тому, у кого есть полные права на неё, или удаляется. Общие доступы сохраняются.",
+    "Start date of new colleagues" : "Дата выхода новых коллег"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

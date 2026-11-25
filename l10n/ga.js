@@ -1686,7 +1686,8 @@ OC.L10N.register(
     "Otherwise" : "Murach sin",
     "A person" : "Duine",
     "Search for a person" : "Cuardaigh duine",
-    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Gan rogha, téann deais chuig duine a bhfuil cearta iomlána aige air, nó scriostar é. Fanann comhroinntí."
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Gan rogha, téann deais chuig duine a bhfuil cearta iomlána aige air, nó scriostar é. Fanann comhroinntí.",
+    "Start date of new colleagues" : "Dáta tosaithe comhghleacaithe nua"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

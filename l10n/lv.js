@@ -1686,7 +1686,8 @@ OC.L10N.register(
     "Otherwise" : "Citādi",
     "A person" : "Persona",
     "Search for a person" : "Meklēt personu",
-    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Bez izvēles panelis tiek nodots kādam ar pilnām tiesībām uz to vai tiek dzēsts. Kopīgojumi paliek."
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Bez izvēles panelis tiek nodots kādam ar pilnām tiesībām uz to vai tiek dzēsts. Kopīgojumi paliek.",
+    "Start date of new colleagues" : "Jauno kolēģu sākuma datums"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

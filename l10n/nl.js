@@ -1850,6 +1850,7 @@ OC.L10N.register(
     "Save dashboard" : "Dashboard opslaan",
     "Default dashboard — opens automatically when you visit LaunchPad" : "Standaarddashboard: opent vanzelf als je LaunchPad opent",
     "Shared with you" : "Gedeeld met u",
+    "Group dashboard of {group}" : "Groepsdashboard van {group}",
     "Action" : "Actie",
     "Action authorization" : "Rechten per actie",
     "Action matrix saved." : "De actiematrix is opgeslagen.",

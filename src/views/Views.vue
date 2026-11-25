@@ -1179,7 +1179,7 @@ export default {
 		 * the period choice (REQ-DPD-002).
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
 		 */
 		showsPeriod() {
 			return namesPeriod(this.shownPlacements)
@@ -3650,7 +3650,7 @@ export default {
 		 *
 		 * @param {string} period `month`, `quarter` or `year`.
 		 * @return {void}
-		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
 		 */
 		onPeriodChange(period) {
 			this.dashboardPeriod = readPeriod('?period=' + encodeURIComponent(period))

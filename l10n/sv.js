@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Personlig instrumentpanel",
     "Personal dashboard · opens first" : "Personlig instrumentpanel · öppnas först",
     "Shared with you" : "Delad med dig",
+    "Group dashboard of {group}" : "Gruppinstrumentpanel för {group}",
     "Last changed {when}" : "Senast ändrad {when}",
     "Last changed today {time}" : "Senast ändrad i dag {time}",
     "Embedded report" : "Inbäddad rapport",

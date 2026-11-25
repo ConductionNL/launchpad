@@ -50,6 +50,16 @@ describe('DashboardPageHeader', () => {
 		expect(mountHeader({ source: 'group' }).find('[data-testid="dashboard-page-header-kind"]').exists()).toBe(false)
 	})
 
+	// @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
+	it('names the group of a group dashboard, its display name first, and nothing for the organisation-wide one', () => {
+		const kind = (props) => mountHeader(props).find('[data-testid="dashboard-page-header-kind"]')
+		const dashboard = { name: 'Managementinformatie', description: '', updatedAt: null }
+		expect(kind({ source: 'group', dashboard: { ...dashboard, groupId: 'Bedrijfsvoering' } }).text()).toBe('Group dashboard of Bedrijfsvoering')
+		expect(kind({ source: 'group', dashboard: { ...dashboard, groupId: 'bv', groupDisplayName: 'Bedrijfsvoering' } }).text()).toBe('Group dashboard of Bedrijfsvoering')
+		expect(kind({ source: 'group', dashboard: { ...dashboard, groupId: 'default' } }).exists()).toBe(false)
+		expect(kind({ source: 'default', dashboard: { ...dashboard, groupId: 'default' } }).exists()).toBe(false)
+	})
+
 	it('joins the description and the last change into the meta line', () => {
 		const wrapper = mountHeader({
 			source: 'group',
@@ -59,7 +69,7 @@ describe('DashboardPageHeader', () => {
 	})
 })
 
-// @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
+// @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
 describe('the reader\'s rights in the meta line', () => {
 	it('says view only, you may add widgets, and nothing with full rights', () => {
 		expect(rightsText('view_only')).toBe('view only')
@@ -90,7 +100,7 @@ describe('the reader\'s rights in the meta line', () => {
 	})
 })
 
-// @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+// @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
 describe('the period choice (REQ-DPD-002)', () => {
 	it('is absent on a dashboard without dated sources', () => {
 		expect(mountHeader({}).find('[data-testid="dashboard-period"]').exists()).toBe(false)
@@ -124,7 +134,7 @@ describe('lastChangedText', () => {
 	})
 })
 
-// @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
+// @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
 describe('Download (REQ-DPD-003)', () => {
 	it('prints the dashboard in the reader\'s browser, also with view-only rights', async () => {
 		const print = vi.spyOn(window, 'print').mockImplementation(() => {})

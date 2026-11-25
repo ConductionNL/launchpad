@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Isiklik töölaud",
     "Personal dashboard · opens first" : "Isiklik töölaud · avaneb esimesena",
     "Shared with you" : "Teiega jagatud",
+    "Group dashboard of {group}" : "Grupi {group} töölaud",
     "Last changed {when}" : "Viimati muudetud {when}",
     "Last changed today {time}" : "Viimati muudetud täna {time}",
     "Embedded report" : "Manustatud aruanne",

@@ -6,7 +6,7 @@
  * choice, and added to the query of a widget that names a period field
  * (dashboard-period-and-download REQ-DPD-002).
  *
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 
 import { describe, expect, it } from 'vitest'

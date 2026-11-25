@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Persónulegt mælaborð",
     "Personal dashboard · opens first" : "Persónulegt mælaborð · opnast fyrst",
     "Shared with you" : "Deilt með þér",
+    "Group dashboard of {group}" : "Hópmælaborð {group}",
     "Last changed {when}" : "Síðast breytt {when}",
     "Last changed today {time}" : "Síðast breytt í dag {time}",
     "Embedded report" : "Ívafin skýrsla",

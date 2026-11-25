@@ -1533,6 +1533,7 @@ OC.L10N.register(
     "Personal dashboard" : "Perséinlecht Dashboard",
     "Personal dashboard · opens first" : "Perséinlecht Dashboard · gëtt als éischt opgemaach",
     "Shared with you" : "Mat Iech gedeelt",
+    "Group dashboard of {group}" : "Gruppen-Dashboard vun {group}",
     "Last changed {when}" : "Lescht geännert {when}",
     "Last changed today {time}" : "Lescht geännert haut {time}",
     "Embedded report" : "Agebetten Rapport",

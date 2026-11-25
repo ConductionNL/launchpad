@@ -13,7 +13,7 @@
  *
  * Written in the cloud lane without a live instance; it runs in the nightly.
  *
- * @e2e openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md
+ * @e2e openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md
  */
 
 import type { APIRequestContext, Page } from '@playwright/test'

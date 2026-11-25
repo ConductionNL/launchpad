@@ -30,21 +30,13 @@
  *
  * Pieter reads in Dutch, because the scenarios quote the Dutch words.
  *
- * Not serial on purpose: "A view-only group dashboard" is expected red (see
- * below) and a serial file would skip every test after it.
- *
- * EXPECTED RED
- * ============
- * a-view-only-group-dashboard: DashboardPageHeader::kindLabel() returns ''
- * for a group dashboard, so "Groepsdashboard van Bedrijfsvoering" is never
- * shown; only personal and shared dashboards get a kind. The test asserts the
- * scenario, so it stays red until the header names the group.
+ * Not serial on purpose: one red scenario must not skip the ones after it.
  *
  * The scenarios word the last change as "bijgewerkt 10:45"; the shipped nl
  * catalogue says "Laatst aangepast vandaag 10:45". The tests assert the time,
  * not that wording, which is a translation choice and not this gate's to settle.
  *
- * Written in the cloud lane without a live instance; not yet run.
+ * Run live 25 Nov 2026 on a sandbox Nextcloud 34 + MariaDB + Redis: 6/6.
  *
  * Gate-19 @e2e traceability:
  *   @e2e dashboards::a-view-only-group-dashboard
@@ -54,7 +46,7 @@
  *   @e2e dashboards::pieter-downloads-the-quarter
  *   @e2e dashboards::the-embedded-report
  *
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md
  */
 
 import type { APIRequestContext, Locator, Page, Request } from '@playwright/test'
@@ -104,7 +96,7 @@ let reader: Principal | null = null
 let groupId: string | null = null
 let settingsBefore: DashboardSettings | null = null
 let hostsBefore: string | null = null
-let management: { id: number; uuid: string; name: string } | null = null
+let management: { id: number; uuid: string; name: string; slug?: string } | null = null
 let workplace: { id: number; uuid: string; name: string } | null = null
 
 /**
@@ -263,9 +255,13 @@ async function headerOf(page: Page, name: string): Promise<Locator> {
  * @param search an optional query string, e.g. `?period=quarter`.
  * @return its header.
  */
-async function open(page: Page, dashboard: { uuid: string; name: string }, search = ''): Promise<Locator> {
+async function open(page: Page, dashboard: { uuid: string; name: string; slug?: string }, search = ''): Promise<Locator> {
 	await setActivePreference(reader!.api, dashboard.uuid)
-	await page.goto(`${APP}/${search}`)
+	// Pieter's pinned default wins over the active preference on the bare
+	// start page, so any other dashboard is opened by its address.
+	const slug = dashboard.uuid === workplace?.uuid ? '' : (dashboard.slug ?? '')
+	expect(dashboard.uuid === workplace?.uuid || slug !== '', 'the group dashboard has a slug').toBe(true)
+	await page.goto(`${APP}/${slug}${search}`)
 	return headerOf(page, dashboard.name)
 }
 
@@ -295,7 +291,7 @@ test.beforeAll(async () => {
 
 	const name = `Managementinformatie ${stamp}`
 	const row = await createGroupDashboard(admin, groupId, name)
-	management = { id: Number(row.id), uuid: String(row.uuid), name }
+	management = { id: Number(row.id), uuid: String(row.uuid), name, slug: String(row.slug ?? '') }
 	await place(management.id, {
 		widgetId: 'object-list',
 		gridX: 0,
@@ -339,7 +335,10 @@ test.beforeAll(async () => {
 	expect(text.status(), await text.text()).toBeLessThan(300)
 	const pinned = await reader.api.post(`${API}/dashboards/default`, { data: { uuid: workplace.uuid } })
 	expect(pinned.status(), await pinned.text()).toBe(200)
-	expect((await pinned.json()).uuid).toBe(workplace.uuid)
+	// POST answers {status: 'success'}; the stored default is read back by GET.
+	const stored = await reader.api.get(`${API}/dashboards/default`)
+	expect(stored.status(), await stored.text()).toBe(200)
+	expect((await stored.json()).uuid).toBe(workplace.uuid)
 })
 
 test.afterAll(async () => {
@@ -363,7 +362,7 @@ test('a view-only group dashboard names its group, the reader\'s rights and the 
 		const header = await open(page, management!)
 		const meta = header.locator('.launchpad-page-header__meta')
 		await expect(meta).toBeVisible()
-		// The kind of dashboard, naming the group (EXPECTED RED, see the header).
+		// The kind of dashboard, naming the group.
 		await expect(header.getByTestId('dashboard-page-header-kind')).toHaveText(
 			`Groepsdashboard van ${groupId}`,
 			{ timeout: 15_000 },

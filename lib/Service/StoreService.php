@@ -280,19 +280,12 @@ class StoreService {
 	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
 	 */
 	public function install(string $slug, string $userId): array {
-		if ($this->discovery === null) {
-			return $this->failure(message: 'No dashboard registry is available on this instance.');
+		$resolved = $this->resolveItem(slug: $slug);
+		if (isset($resolved['dashboards']) === false) {
+			return $this->failure(message: $resolved['message']);
 		}
 
-		$item = $this->discovery->resolve(descriptor: $this->descriptor(), slug: $slug);
-		if (is_array($item) === false) {
-			return $this->failure(message: 'That template could not be found in the registry.');
-		}
-
-		$dashboards = $this->dashboardsFrom(item: $item);
-		if ($dashboards === []) {
-			return $this->failure(message: 'That template carries no dashboard.');
-		}
+		$dashboards = $resolved['dashboards'];
 
 		try {
 			$archivePath = $this->materialise(dashboards: $dashboards, slug: $slug, userId: $userId);
@@ -326,11 +319,45 @@ class StoreService {
 
 		// REQ-STORE-011: what the install created, for the install record.
 		return $this->report(report: $report, dashboards: $dashboards) + [
-			'version'      => (string)($item['version'] ?? ''),
+			'version'      => $resolved['version'],
 			'dashboardIds' => array_values(array_map('intval', array_column((array)($report['dashboards'] ?? []), 'id'))),
 			'created'      => array_values((array)($report['dashboards'] ?? [])),
 		];
 	}//end install()
+
+	/**
+	 * Resolve one register item to its version and dashboard payloads.
+	 *
+	 * Install and update read the register the same way, so a payload an
+	 * install accepts is the payload an update accepts.
+	 *
+	 * @param string $slug The remote item slug.
+	 *
+	 * @return array{version: string, dashboards: array<int, array<string, mixed>>}|array{message: string}
+	 *     The item, or the sentence the administrator reads when there is none.
+	 *
+	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
+	 *
+	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-005-an-install-must-reuse-importservice-not-reimplement-it
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 */
+	public function resolveItem(string $slug): array {
+		if ($this->discovery === null) {
+			return ['message' => 'No dashboard registry is available on this instance.'];
+		}
+
+		$item = $this->discovery->resolve(descriptor: $this->descriptor(), slug: $slug);
+		if (is_array($item) === false) {
+			return ['message' => 'That template could not be found in the registry.'];
+		}
+
+		$dashboards = $this->dashboardsFrom(item: $item);
+		if ($dashboards === []) {
+			return ['message' => 'That template carries no dashboard.'];
+		}
+
+		return ['version' => (string)($item['version'] ?? ''), 'dashboards' => $dashboards];
+	}//end resolveItem()
 
 	/**
 	 * The registry connection, with the token redacted.

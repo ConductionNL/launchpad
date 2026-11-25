@@ -38,6 +38,7 @@ namespace OCA\LaunchPad\Controller;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\StoreInstalls;
 use OCA\LaunchPad\Service\StoreService;
+use OCA\LaunchPad\Service\StoreUpdateService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -60,6 +61,7 @@ class StoreController extends Controller {
 	 * @param StoreService $storeService Discovery delegation and install.
 	 * @param IUserSession $userSession  The current session.
 	 * @param StoreInstalls|null $installs Which item and version an install created which dashboard (REQ-STORE-011).
+	 * @param StoreUpdateService|null $updates Brings an installed item to a newer version in place (REQ-STORE-012).
 	 *
 	 * @return void
 	 */
@@ -68,6 +70,7 @@ class StoreController extends Controller {
 		private readonly StoreService $storeService,
 		private readonly IUserSession $userSession,
 		private readonly ?StoreInstalls $installs = null,
+		private readonly ?StoreUpdateService $updates = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -164,6 +167,42 @@ class StoreController extends Controller {
 
 		return new JSONResponse(data: $result, statusCode: $status);
 	}//end install()
+
+	/**
+	 * Bring an installed register item to the register's newer version, in place.
+	 *
+	 * Administrative, like install (ADR-005): anyone else is refused with 403
+	 * by the attribute before this body runs. The dashboard keeps its id,
+	 * shares and the widgets people added themselves.
+	 *
+	 * @param string $slug The remote item slug.
+	 *
+	 * @return JSONResponse 200 with the update report, 404 when the item is not installed here,
+	 *     or 400 when the update was refused.
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function update(string $slug): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null || $this->updates === null) {
+			return new JSONResponse(
+				data: ['success' => false, 'message' => 'Sign in as an administrator to update a template.'],
+				statusCode: Http::STATUS_UNAUTHORIZED
+			);
+		}
+
+		$result = $this->updates->update(slug: $slug, userId: $user->getUID());
+
+		$status = Http::STATUS_OK;
+		if (($result['notInstalled'] ?? false) === true) {
+			$status = Http::STATUS_NOT_FOUND;
+		} else if ($result['success'] === false) {
+			$status = Http::STATUS_BAD_REQUEST;
+		}
+
+		return new JSONResponse(data: $result, statusCode: $status);
+	}//end update()
 
 	/**
 	 * Read the registry connection.

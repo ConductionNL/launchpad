@@ -1862,6 +1862,27 @@
         "You searched for {query}": "Jūs meklējāt {query}",
         "No results": "Nav rezultātu",
         "Show all results": "Rādīt visus rezultātus",
-        "Tip: type {prefix} to search {name} directly": "Padoms: ierakstiet {prefix}, lai meklētu tieši {name}"
+        "Tip: type {prefix} to search {name} directly": "Padoms: ierakstiet {prefix}, lai meklētu tieši {name}",
+        "Hidden widgets": "Paslēptie logrīki",
+        "Your hidden widgets could not be loaded.": "Jūsu paslēptos logrīkus neizdevās ielādēt.",
+        "You have not hidden any widgets on shared dashboards.": "Kopīgotajos informācijas paneļos neesat paslēpis nevienu logrīku.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["Kopīgotajos informācijas paneļos esat paslēpis %n logrīku", "Kopīgotajos informācijas paneļos esat paslēpis %n logrīku", "Kopīgotajos informācijas paneļos esat paslēpis %n logrīkus"],
+        "Show all again": "Rādīt visus atkal",
+        "Your change could not be saved.": "Jūsu izmaiņas neizdevās saglabāt.",
+        "Summary by email": "Kopsavilkums e-pastā",
+        "A mail with new announcements and what changed on your dashboards": "E-pasts ar jauniem paziņojumiem un izmaiņām jūsu informācijas paneļos",
+        "How often?": "Cik bieži?",
+        "Daily": "Katru dienu",
+        "Weekly": "Katru nedēļu",
+        "At 07:30, only when something changed": "Plkst. 07:30, tikai ja kaut kas mainījies",
+        "On Monday at 07:30": "Pirmdienās plkst. 07:30",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "Jums nav e-pasta adreses, tāpēc kopsavilkumu nevar nosūtīt. Pievienojiet to savā Nextcloud kontā.",
+        "Your daily LaunchPad summary": "Jūsu LaunchPad dienas kopsavilkums",
+        "Your weekly LaunchPad summary": "Jūsu LaunchPad nedēļas kopsavilkums",
+        "Nothing new was published and nothing changed on your dashboards.": "Nekas jauns nav publicēts, un jūsu informācijas paneļos nekas nav mainījies.",
+        "New announcements": "Jauni paziņojumi",
+        "What changed on your dashboards": "Kas mainījies jūsu informācijas paneļos",
+        "Open LaunchPad": "Atvērt LaunchPad",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Jūs saņemat šo e-pastu, jo to pieprasījāt LaunchPad iestatījumos."
     }
 }

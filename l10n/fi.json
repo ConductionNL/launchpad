@@ -1859,6 +1859,27 @@
         "You searched for {query}": "Hait hakusanalla {query}",
         "No results": "Ei tuloksia",
         "Show all results": "Näytä kaikki tulokset",
-        "Tip: type {prefix} to search {name} directly": "Vinkki: kirjoita {prefix} hakeaksesi suoraan palvelusta {name}"
+        "Tip: type {prefix} to search {name} directly": "Vinkki: kirjoita {prefix} hakeaksesi suoraan palvelusta {name}",
+        "Hidden widgets": "Piilotetut pienoisohjelmat",
+        "Your hidden widgets could not be loaded.": "Piilotettuja pienoisohjelmiasi ei voitu ladata.",
+        "You have not hidden any widgets on shared dashboards.": "Et ole piilottanut yhtään pienoisohjelmaa jaetuilla koontinäytöillä.",
+        "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_": ["Olet piilottanut %n pienoisohjelman jaetuilla koontinäytöillä", "Olet piilottanut %n pienoisohjelmaa jaetuilla koontinäytöillä"],
+        "Show all again": "Näytä kaikki uudelleen",
+        "Your change could not be saved.": "Muutostasi ei voitu tallentaa.",
+        "Summary by email": "Yhteenveto sähköpostilla",
+        "A mail with new announcements and what changed on your dashboards": "Sähköposti uusista tiedotteista ja koontinäyttöjesi muutoksista",
+        "How often?": "Kuinka usein?",
+        "Daily": "Päivittäin",
+        "Weekly": "Viikoittain",
+        "At 07:30, only when something changed": "Klo 07:30, vain kun jokin on muuttunut",
+        "On Monday at 07:30": "Maanantaisin klo 07:30",
+        "You have no email address, so no summary can be sent to you. Add one in your Nextcloud account.": "Sinulla ei ole sähköpostiosoitetta, joten yhteenvetoa ei voi lähettää. Lisää osoite Nextcloud-tiliisi.",
+        "Your daily LaunchPad summary": "LaunchPadin päivittäinen yhteenvetosi",
+        "Your weekly LaunchPad summary": "LaunchPadin viikoittainen yhteenvetosi",
+        "Nothing new was published and nothing changed on your dashboards.": "Mitään uutta ei julkaistu eikä koontinäytöilläsi muuttunut mitään.",
+        "New announcements": "Uudet tiedotteet",
+        "What changed on your dashboards": "Mikä koontinäytöilläsi muuttui",
+        "Open LaunchPad": "Avaa LaunchPad",
+        "You get this mail because you asked for it in your LaunchPad settings.": "Saat tämän viestin, koska pyysit sitä LaunchPadin asetuksissa."
     }
 }

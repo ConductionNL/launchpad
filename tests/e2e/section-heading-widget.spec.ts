@@ -6,8 +6,9 @@
  * full-width heading with one line of explanation, on the page ground.
  *
  * The scenario's WHEN is an editor adding the heading in edit mode, so the
- * test does that: Edit, Add widget in the edit bar, Section heading in the
- * picker, the form's Heading and Explanation, Add. The API only seeds the
+ * test does that: Edit, Add widget in the edit bar, Section heading chosen in
+ * the picker and placed with its Add widget button (REQ-WDG-040), the form's
+ * Heading and Explanation, Add. The API only seeds the
  * empty dashboard and reads the stored placement back. "Without a card" is
  * read from the widget wrapper's computed style: no border and a transparent
  * background, which is what a card placement does not have.
@@ -28,6 +29,7 @@ import {
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
 import { enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -62,7 +64,9 @@ test('a section heading heads a group', async ({ page }) => {
 	// WHEN they add a Section heading "Samenwerken" with the line
 	// "De tegels van het team".
 	await page.locator('[data-testid="launchpad-edit-bar-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-type-section-heading"]').click()
+	await chooseAndAdd(
+		page.locator('[data-testid="widget-picker-type-section-heading"]'),
+	)
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	await dialog.getByLabel('Heading', { exact: true }).fill('Samenwerken')

@@ -105,6 +105,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<job>OCA\LaunchPad\BackgroundJob\AnnouncementNotifyJob</job>
 		<!-- dashboards-and-who-may-see-them REQ-DWMS-010: the storage report's daily snapshot. -->
 		<job>OCA\LaunchPad\BackgroundJob\StorageSnapshotJob</job>
+		<!-- personal-settings REQ-PSET-002: the summary emails at 07:30 local, hourly. -->
+		<job>OCA\LaunchPad\BackgroundJob\SummaryMailJob</job>
 	</background-jobs>
 
 	<repair-steps>

@@ -40,7 +40,7 @@ The system MUST expose `lib/Service/InitialStateBuilder.php` with a constructor 
 
 The exact set of initial-state keys per page is part of the contract and MUST match the Data Model documented in this spec. Adding, removing, or renaming a key is a deliberate spec change and MUST be accompanied by (1) an update to this spec's Data Model, (2) a bump of the `INITIAL_STATE_SCHEMA_VERSION` constant (currently `1`), and (3) coordinated updates to both the PHP builder and the JS reader in the same commit. The schema version MUST itself be pushed as initial state under the key `_schemaVersion`. The JS reader MUST log a console warning when the received version differs from the compiled-in version (catches caching and deploy-skew bugs).
 
-The Workspace page (mounted into `#launchpad-app`) MUST expose exactly these keys:
+The Workspace page (mounted into `#workspace-vue`) MUST expose exactly these keys:
 
 | Key | Type | Default (if missing) |
 |---|---|---|
@@ -131,3 +131,81 @@ After the entry point loads the initial state, it MUST expose every key via the 
 - **WHEN** a code reviewer inspects `src/main.js` or `src/admin.js`
 - **THEN** every provided value MUST be a plain (non-reactive) value
 - **AND** no `provide(key, ref(value))` or `provide(key, reactive(value))` MUST appear at the entry-point boundary
+
+### Requirement: The workspace carries the first dashboard load (REQ-INIT-006)
+
+The Workspace page SHOULD carry the optional key `dashboardFirstLoad`: `{visible, active}`, where `visible` is exactly the payload `GET /api/dashboards/visible` answers for the caller and `active` is exactly the payload of `GET /api/dashboard`, or `null` when the caller has no dashboard. Both MUST be built by the same code as those endpoints. The key MUST be left out when the caller may not perform `dashboard.visible` or `dashboard.get-active`. The dashboard store MUST take the key once, on its first load, instead of requesting the two endpoints, and MUST request them on every later load and whenever the key is missing (default `null`).
+
+#### Scenario: The workspace opens without asking for its dashboards again
+
+- **GIVEN** Pieter may read his dashboards
+- **WHEN** he opens the workspace
+- **THEN** the page carries his visible dashboards and his active dashboard in `dashboardFirstLoad`
+- **AND** the store shows them without requesting `/api/dashboards/visible` or `/api/dashboard`
+
+#### Scenario: A later load asks the API
+
+- **GIVEN** the workspace has opened from `dashboardFirstLoad`
+- **WHEN** the store loads the dashboards again, for example after a dashboard limit refusal
+- **THEN** it requests both endpoints
+
+#### Scenario: A refused caller gets no first load
+
+- **GIVEN** the action matrix refuses Pieter `dashboard.visible`
+- **WHEN** he opens the workspace
+- **THEN** the page carries no `dashboardFirstLoad`
+- **AND** the store requests the endpoints and meets the same refusal
+
+### Requirement: The workspace carries the org navigation (REQ-INIT-007)
+
+The Workspace page SHOULD carry the optional key `orgNavigation`: `{position, tree, language}`, where `position` is exactly what `GET /api/admin/org-navigation/position` answers, and `tree` and `language` are exactly what `GET /api/admin/org-navigation` answers for the caller in the default language. The position MUST be read by the same code as that endpoint. The key MUST be left out when the caller may not perform `admin-org-navigation.get-org-navigation` or `admin-org-navigation.get-position`. The org navigation store MUST take the key once, on the shell's first load, instead of requesting the two endpoints, and MUST request them whenever the key is missing (default `null`).
+
+#### Scenario: The workspace opens without asking for its org navigation
+
+- **GIVEN** Pieter may read the org navigation
+- **WHEN** he opens the workspace
+- **THEN** the page carries the rail position and his filtered tree in `orgNavigation`
+- **AND** the shell places the rail without requesting `/api/admin/org-navigation/position` or `/api/admin/org-navigation`
+
+#### Scenario: A refused caller gets no org navigation
+
+- **GIVEN** the action matrix refuses Pieter `admin-org-navigation.get-position`
+- **WHEN** he opens the workspace
+- **THEN** the page carries no `orgNavigation`
+- **AND** the shell requests the endpoints and meets the same refusal
+
+### Requirement: The workspace carries its view's boot reads (REQ-INIT-008)
+
+The Workspace page SHOULD carry the optional key `workspaceBootReads`: `{tiles, pendingAcknowledgements, defaultDashboard}`, where `tiles` is exactly what `GET /api/tiles` answers for the caller, `pendingAcknowledgements` exactly what `GET /api/acknowledgements/pending` answers, and `defaultDashboard` exactly what `GET /api/dashboards/default` answers. A part MUST be left out when the caller may not perform its action (`tile.index`, `dashboard.get-default-dashboard`) or when reading it fails. The tile store, the pending-acknowledgements read and the default-dashboard read MUST each take their part once, on the first read, instead of requesting the endpoint, and MUST request it on every later read and whenever the part is missing.
+
+#### Scenario: The workspace opens without asking for its tiles, acknowledgements and default dashboard
+
+- **GIVEN** Pieter may read his tiles and his default dashboard
+- **WHEN** he opens the workspace
+- **THEN** the page carries his tiles, his pending acknowledgements and his default dashboard in `workspaceBootReads`
+- **AND** the view shows them without requesting `/api/tiles`, `/api/acknowledgements/pending` or `/api/dashboards/default`
+
+#### Scenario: A refused part is asked for
+
+- **GIVEN** the action matrix refuses Pieter `tile.index`
+- **WHEN** he opens the workspace
+- **THEN** the page carries no `tiles` part
+- **AND** the tile store requests `/api/tiles` and meets the same refusal
+
+### Requirement: A warm workspace load carries the kept manifest (REQ-INIT-009)
+
+`GET /api/manifest` SHOULD keep the manifest it builds for a user, keyed by user and installed app version, for 60 seconds, and MUST answer from the kept manifest within that time. The Workspace page SHOULD carry a kept manifest as the optional key `runtimeManifest` and MUST NOT build one itself. The key MUST be left out when the caller may not perform `manifest.index`. The page MUST take the key instead of requesting `GET /api/manifest`, and MUST request it whenever the key is missing (default `null`).
+
+#### Scenario: A warm reload does not ask for the manifest
+
+- **GIVEN** Pieter opened the workspace less than a minute ago
+- **WHEN** he opens it again
+- **THEN** the page carries his manifest in `runtimeManifest`
+- **AND** the page does not request `/api/manifest`
+
+#### Scenario: A refused caller gets no kept manifest
+
+- **GIVEN** the action matrix refuses Pieter `manifest.index`
+- **WHEN** he opens the workspace
+- **THEN** the page carries no `runtimeManifest`
+- **AND** the page requests `/api/manifest` and meets the same refusal

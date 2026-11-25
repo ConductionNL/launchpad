@@ -117,7 +117,7 @@ function sourceOf(url) {
  * optional link. Stores `{url, alt, link, fit}` as before, so the renderer is
  * unchanged. A picked file is uploaded only when the modal calls `commit()`.
  *
- * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
  */
 export default {
 	name: 'ImageWidgetForm',
@@ -168,7 +168,7 @@ export default {
 		 * The two choice cards.
 		 *
 		 * @return {Array<{value: string, title: string, text: string}>}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		sourceCards() {
 			return [
@@ -189,7 +189,7 @@ export default {
 		 * The thumbnail: the picked file, else the stored upload.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		previewSrc() {
 			return this.pendingPreviewUrl || this.url
@@ -199,7 +199,7 @@ export default {
 		 * Size and dimensions of the chosen file.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		chosenMeta() {
 			return describeImageFile(this.chosen)
@@ -209,7 +209,7 @@ export default {
 		 * Whether the required alternative text was emptied by the editor.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		altMissing() {
 			return this.altTouched && this.alt.trim() === ''
@@ -219,7 +219,7 @@ export default {
 		 * The stored content.
 		 *
 		 * @return {{url: string, alt: string, link: string, fit: string}}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		assembledContent() {
 			return { url: this.url, alt: this.alt, link: this.link, fit: this.fit }
@@ -238,7 +238,7 @@ export default {
 		 *
 		 * @param {string} field url, alt or link.
 		 * @param {string} val The value.
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		updateField(field, val) {
 			if (field === 'alt') {
@@ -253,7 +253,7 @@ export default {
 		 * other source held, so a stale upload never saves under a web address.
 		 *
 		 * @param {string} val `upload` or `url`.
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		onSourceChange(val) {
 			if (val === this.source) {
@@ -269,7 +269,7 @@ export default {
 		 *
 		 * @param {Event} event The input's change event.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		async onFileInput(event) {
 			const file = event?.target?.files?.[0]
@@ -286,7 +286,7 @@ export default {
 		 * file from the computer, so readers never need access to it.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		async pickFromFiles() {
 			const picker = getFilePickerBuilder(t('launchpad', 'Pick from Files'))
@@ -321,7 +321,7 @@ export default {
 		 *
 		 * @param {File} file The file.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		async holdFile(file) {
 			const problem = isUploadableImage(file)
@@ -345,7 +345,7 @@ export default {
 		 * Read the dimensions of the held image.
 		 *
 		 * @param {string} src The object URL.
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		measure(src) {
 			if (!src || typeof Image === 'undefined') {
@@ -363,7 +363,7 @@ export default {
 		/**
 		 * Drop the chosen file so another can be picked.
 		 *
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		chooseAnother() {
 			this.revokePreview()
@@ -378,7 +378,7 @@ export default {
 		/**
 		 * Free the object URL of the held file.
 		 *
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		revokePreview() {
 			if (this.pendingPreviewUrl && typeof URL.revokeObjectURL === 'function') {
@@ -392,7 +392,7 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 * @throws {Error} when the upload fails, so the modal keeps the dialog open.
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		async commit() {
 			if (this.pendingFile === null) {
@@ -425,7 +425,7 @@ export default {
 		 * the modal calls it from a computed on every input.
 		 *
 		 * @return {string[]}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md#requirement-the-image-content-form-req-img-020
 		 */
 		validate() {
 			const errors = []

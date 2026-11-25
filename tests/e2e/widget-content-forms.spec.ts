@@ -21,9 +21,9 @@
  *   @e2e image-widget::alternative-text-is-required
  *   @e2e calendar-widget::add-an-external-calendar
  *
- * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md
- * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md
- * @spec openspec/changes/widget-content-forms-board-sync/specs/calendar-widget/spec.md
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/calendar-widget/spec.md
  */
 import type { APIRequestContext } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'
@@ -88,14 +88,15 @@ test('configure the KCC waiting time live tile', async ({ page }) => {
 	await dialog.getByTestId('live-tile-source-connector').check()
 
 	await dialog.getByRole('combobox', { name: 'Connection' }).click()
-	await page.getByRole('option', { name: 'Contact centre queue' }).click()
+	// NcSelect renders its list outside the modal, where it has no option role in the accessibility tree.
+	await page.locator('.vs__dropdown-option').filter({ hasText: 'Contact centre queue' }).click()
 	await expect(dialog.getByTestId('live-tile-last-success')).toContainText('Last success:')
 	await expect(dialog.getByTestId('live-tile-last-success')).not.toContainText('Not yet')
 
 	await dialog.getByLabel('Path in the response').fill('wait.minutes')
 	await dialog.getByTestId('live-tile-view-value').check()
 	await dialog.getByLabel('Unit (optional)').fill('minutes')
-	await dialog.getByLabel('Title').fill('KCC waiting time')
+	await dialog.getByRole('textbox', { name: 'Title', exact: true }).fill('KCC waiting time')
 
 	const preview = dialog.getByTestId('live-tile-preview')
 	await expect(preview).toContainText('KCC waiting time')

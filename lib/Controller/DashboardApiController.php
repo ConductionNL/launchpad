@@ -172,7 +172,7 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/specs/dashboards/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-1
 	 */
 	#[NoAdminRequired]
 	public function visible(): JSONResponse {
@@ -205,7 +205,7 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-18
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-1
 	 */
 	#[NoAdminRequired]
 	public function getActive(): JSONResponse {
@@ -317,7 +317,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md
 	 * @spec openspec/specs/role-feature-permissions/spec.md
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-1
 	 */
 	private function renderedPlacements(array $placements, string $permissionLevel): array {
 		return $this->payloads()->renderedPlacements(
@@ -336,7 +336,7 @@ class DashboardApiController extends Controller {
 	 * @return bool True with two or more variants.
 	 *
 	 * @spec openspec/specs/dashboard-language-content/spec.md
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-1
 	 */
 	private function hasVariants(string $uuid): bool {
 		return $this->payloads()->hasVariants(uuid: $uuid);
@@ -348,7 +348,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return DashboardPayloads The builder.
 	 *
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-1
 	 */
 	private function payloads(): DashboardPayloads {
 		return new DashboardPayloads(services: $this->services);
@@ -957,6 +957,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse|null The refusal, or null to proceed.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/specs/dashboard-locking/spec.md#requirement-req-lock-008-lock-lifecycle-on-dashboard-deletion
 	 */
 	private function denyUpdate(int $dashboardId, bool $metadataOnly, bool $touchesMetadata): ?JSONResponse {
 		$refusal = $this->actionRefusal(action: 'dashboard.update');
@@ -965,6 +966,12 @@ class DashboardApiController extends Controller {
 		}
 
 		if ($this->mayUpdate(dashboardId: $dashboardId, metadataOnly: $metadataOnly, touchesMetadata: $touchesMetadata) === false) {
+			// REQ-LOCK-008: a save on a dashboard that was deleted meanwhile
+			// fails with "Dashboard not found", not with a refusal.
+			if ($this->services->dashboardService->dashboardExists(dashboardId: $dashboardId) === false) {
+				return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+			}
+
 			return $this->context->responseHelper->forbidden();
 		}
 

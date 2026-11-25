@@ -17,7 +17,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-1
  */
 
 declare(strict_types=1);
@@ -35,7 +35,7 @@ use Throwable;
  * answers of `GET /api/tiles`, `GET /api/acknowledgements/pending` and
  * `GET /api/dashboards/default` for the caller.
  *
- * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-1
  */
 class WorkspaceBootReads {
 	/**
@@ -67,7 +67,7 @@ class WorkspaceBootReads {
 	 *
 	 * @return array<string, mixed>|null The reads, or null.
 	 *
-	 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-1
 	 */
 	public function firstLoad(string $userId): ?array {
 		if ($userId === '' || $this->actor === null) {

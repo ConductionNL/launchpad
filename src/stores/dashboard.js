@@ -16,6 +16,27 @@ import { logger } from '../utils/logger.js'
 import { parseServerStamp } from '../utils/serverStamp.js'
 
 /**
+ * Waits before each automatic retry of a failed layout save: three retries,
+ * so a save is tried four times in all (grid-layout "Save failure with retry").
+ *
+ * @spec openspec/specs/grid-layout/spec.md
+ */
+export const LAYOUT_SAVE_RETRY_DELAYS_MS = [1000, 2000, 4000]
+
+/** Counts layout saves, so a retry stops once a newer layout is being saved. */
+let layoutSaveSequence = 0
+
+/**
+ * Resolve after `ms` milliseconds.
+ *
+ * @param {number} ms The wait.
+ * @return {Promise<void>}
+ */
+function wait(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/**
  * Stable backend error code returned by `POST /api/dashboard` when the admin
  * setting `allow_user_dashboards` is `false` (REQ-ASET-003). Surfaced as a
  * localised toast so the UI stays coherent even when the user reaches the
@@ -90,7 +111,7 @@ function resolutionRules(state) {
  * later load, or a page without them, fetches both together.
  *
  * @return {Promise<Array<{data: (object|Array|null)}>>} The visible and the active response.
- * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-3
  */
 function firstDashboardResponses() {
 	const firstLoad = takeDashboardFirstLoad()
@@ -677,7 +698,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		// (workspace-boot-reads-from-initial-state); every later one asks.
 		/**
 		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-		 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-3
 		 */
 		async fetchPendingAcknowledgements() {
 			const carried = takeBootRead('pendingAcknowledgements')
@@ -718,7 +739,7 @@ export const useDashboardStore = defineStore('dashboard', {
 
 		/**
 		 * @spec openspec/specs/dashboards/spec.md
-		 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-3
 		 */
 		async loadDashboards() {
 			this.loading = true
@@ -1117,6 +1138,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @param {Array<object>} placements Every placement on the dashboard,
 		 *   carrying the geometry to store.
 		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/specs/grid-layout/spec.md
 		 */
 		async updatePlacements(placements) {
 			logger.debug(
@@ -1129,40 +1151,62 @@ export const useDashboardStore = defineStore('dashboard', {
 
 			// Debounced save to backend
 			this.saving = true
-			try {
-				const placementsData = placements.map((p) => ({
-					id: p.id,
-					gridX: p.gridX,
-					gridY: p.gridY,
-					gridWidth: p.gridWidth,
-					gridHeight: p.gridHeight,
-				}))
-				logger.debug(
-					'[DashboardStore] Sending placements to API:',
-					JSON.stringify(placementsData, null, 2),
-				)
+			const sequence = ++layoutSaveSequence
+			const placementsData = placements.map((p) => ({
+				id: p.id,
+				gridX: p.gridX,
+				gridY: p.gridY,
+				gridWidth: p.gridWidth,
+				gridHeight: p.gridHeight,
+			}))
+			logger.debug(
+				'[DashboardStore] Sending placements to API:',
+				JSON.stringify(placementsData, null, 2),
+			)
 
-				// REQ-DASH-013 — route the PUT to the correct endpoint
-				// based on the active dashboard's source.
-				const active = this.activeDashboard
-				if (
-					active
-					&& (active.source === SOURCE_GROUP
-						|| active.source === SOURCE_DEFAULT)
-				) {
-					await api.updateGroupDashboard(active.groupId, active.uuid, {
+			// REQ-DASH-013 — route the PUT to the correct endpoint
+			// based on the active dashboard's source.
+			const active = this.activeDashboard
+			const save = () => (
+				active
+				&& (active.source === SOURCE_GROUP
+					|| active.source === SOURCE_DEFAULT)
+					? api.updateGroupDashboard(active.groupId, active.uuid, {
 						placements: placementsData,
 					})
-				} else {
-					await api.updateDashboard(active.id, {
+					: api.updateDashboard(active.id, {
 						placements: placementsData,
 					})
+			)
+
+			// A failed save is reported once and retried automatically, up
+			// to three times; a newer layout replaces the retries of an older
+			// one (grid-layout "Save failure with retry").
+			try {
+				for (let attempt = 0; ; attempt++) {
+					try {
+						await save()
+						logger.debug('[DashboardStore] Successfully saved placements')
+						return
+					} catch (error) {
+						logger.error('Failed to save placements:', error)
+						if (attempt === 0) {
+							showError(t('launchpad', 'The layout could not be saved. Trying again.'))
+						}
+						if (attempt >= LAYOUT_SAVE_RETRY_DELAYS_MS.length) {
+							showError(t('launchpad', 'The layout could not be saved.'))
+							return
+						}
+					}
+					await wait(LAYOUT_SAVE_RETRY_DELAYS_MS[attempt])
+					if (sequence !== layoutSaveSequence) {
+						return
+					}
 				}
-				logger.debug('[DashboardStore] Successfully saved placements')
-			} catch (error) {
-				logger.error('Failed to save placements:', error)
 			} finally {
-				this.saving = false
+				if (sequence === layoutSaveSequence) {
+					this.saving = false
+				}
 			}
 		},
 

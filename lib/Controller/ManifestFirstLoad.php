@@ -16,7 +16,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-2
  */
 
 declare(strict_types=1);
@@ -28,7 +28,7 @@ namespace OCA\LaunchPad\Controller;
  * The page never builds one itself: building reads OpenRegister, which is
  * what the cache spares the page.
  *
- * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-2
  */
 class ManifestFirstLoad {
 	/**
@@ -51,7 +51,7 @@ class ManifestFirstLoad {
 	 *
 	 * @return array<string, mixed>|null The manifest, or null.
 	 *
-	 * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-2
 	 */
 	public function firstLoad(string $userId): ?array {
 		if ($userId === '' || $this->actor === null) {

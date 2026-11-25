@@ -49,9 +49,8 @@ class SetupWizardServiceTest extends TestCase {
 		$state = $this->service->getWizardState();
 
 		$this->assertFalse($state['complete']);
-		// Decision 131: the storage step is retired, so Step 2 is the
-		// group order and it is the first step left to do.
-		$this->assertSame(2, $state['currentRecommendedStep']);
+		// A first run opens at Step 1, Welcome (REQ-WIZ-008).
+		$this->assertSame(expected: 1, actual: $state['currentRecommendedStep']);
 		$this->assertSame(
 			[
 				1 => 'done',
@@ -90,7 +89,7 @@ class SetupWizardServiceTest extends TestCase {
 
 		$state = $this->service->getWizardState();
 
-		$this->assertSame(2, $state['currentRecommendedStep']);
+		$this->assertSame(expected: 1, actual: $state['currentRecommendedStep']);
 		$this->assertCount(expectedCount: 5, haystack: $state['stepStatuses']);
 		$this->assertSame('pending', $state['stepStatuses']['2']);
 	}
@@ -110,6 +109,26 @@ class SetupWizardServiceTest extends TestCase {
 		// the first non-'done' step is 3.
 		$this->assertSame(3, $state['currentRecommendedStep']);
 	}
+
+	/**
+	 * A re-run where a later step is done but the group order is not set
+	 * opens at Step 2, the first step left to do (REQ-WIZ-008).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/setup-wizard/spec.md
+	 */
+	public function testAReRunWithoutAGroupOrderOpensAtStepTwo(): void {
+		$this->settingMapper->method('getValue')
+			->with(AdminSetting::KEY_SETUP_WIZARD_COMPLETE, false)
+			->willReturn(true);
+		$this->settingMapper->method('getAllAsArray')->willReturn([]);
+
+		$state = $this->service->getWizardState();
+
+		$this->assertSame(expected: 'pending', actual: $state['stepStatuses']['2']);
+		$this->assertSame(expected: 2, actual: $state['currentRecommendedStep']);
+	}//end testAReRunWithoutAGroupOrderOpensAtStepTwo()
 
 	public function testGetWizardStateAfterCompletion(): void {
 		$this->settingMapper->method('getValue')

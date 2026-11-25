@@ -1723,7 +1723,7 @@ export default {
 			 * @param {object[]} placements The open dashboard's placements.
 			 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
 			 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
-			 * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+			 * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
 			 */
 			handler(placements) {
 				this.probeHideableSources()
@@ -2168,7 +2168,8 @@ export default {
 		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
 		recordViewEventDebounced(uuid) {
-			if (!uuid) {
+			// With analytics switched off the page sends no view-event at all.
+			if (!uuid || loadInitialState('workspace').analyticsEnabled === false) {
 				return
 			}
 			const now = Date.now()
@@ -2226,7 +2227,7 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/dashboards/spec.md
-		 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-3
 		 */
 		async loadDefaultDashboardPreference() {
 			const carried = takeBootRead('defaultDashboard')
@@ -3411,7 +3412,7 @@ export default {
 		 *
 		 * @param {number|undefined} placementId The tile being edited.
 		 * @return {object} the kept keys.
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
 		 */
 		unformedTileContent(placementId) {
 			if (placementId === undefined || placementId === null) {

@@ -37,6 +37,7 @@ import type { Placement } from './support/widgetPlacements.ts'
 
 import { expect, test } from '@playwright/test'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { catalogueFromApi } from './support/widgetCatalogue.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 import {
 	adminApi,
@@ -200,6 +201,8 @@ test.describe('nc-widget placement type (REQ-WDG-018..021)', () => {
 	}) => {
 		const dash = await seeds.dashboard(`E2E nc-widget form ${RUN}`)
 		expect(dash.id).toBeGreaterThan(0)
+		// The catalogue comes with the page (REQ-RFP-010); drop it so the stub below is read.
+		await catalogueFromApi(page)
 		await page.route(
 			(url) => isWidgetCatalogue(url),
 			(route) =>

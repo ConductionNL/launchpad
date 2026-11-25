@@ -115,10 +115,10 @@ class PageController extends Controller {
 	 * @return TemplateResponse The template response.
 	 *
 	 * @spec openspec/specs/runtime-shell/spec.md
-	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
-	 * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-2
-	 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-2
-	 * @spec openspec/changes/manifest-cached-per-user/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -184,7 +184,7 @@ class PageController extends Controller {
 			->setQuicksearchFallbackTarget((string)($settings['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET))
 			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
 			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
-			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
+			->setTelemetry(filters: ($settings['filterTelemetryEnabled'] ?? false) === true, views: $this->settings->analytics?->isGloballyEnabled() ?? true)
 			->setSharingPolicy(...$this->sources->dashboards->sharingPolicy(userId: $userId))
 			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
 			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
@@ -345,7 +345,7 @@ class PageController extends Controller {
 	 * @return array<string, bool|string> Whether each app is enabled, or the id it is installed under.
 	 *
 	 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
-	 * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
 	 */
 	private function integrationApps(): array {
 		return [

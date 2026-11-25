@@ -160,7 +160,7 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 		 * or both from the API when it carries none.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-3
 		 */
 		async loadFirst() {
 			const firstLoad = takeOrgNavigation()

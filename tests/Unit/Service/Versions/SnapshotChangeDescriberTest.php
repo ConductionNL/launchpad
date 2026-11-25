@@ -200,10 +200,34 @@ class SnapshotChangeDescriberTest extends TestCase {
 		);
 
 		$this->assertSame(
-			'Columns from 12 to 8 and 3 more changes',
+			'Widget widget-3 added and 3 more changes',
 			$this->describer->describe(previousJson: $previous, currentJson: $current)
 		);
 	}//end testSeveralChangesNameTheFirstAndCountTheRest()
+
+	/**
+	 * The spec's scenario: Inbox added, Oud nieuws removed and the columns
+	 * from 8 to 12 in one save name the added widget, not the columns.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-versioning/spec.md#requirement-each-automatic-version-says-what-changed-req-versui-004
+	 */
+	public function testAWidgetChangeIsNamedBeforeTheColumns(): void {
+		$previous = $this->snapshot(
+			placements: [$this->placement(id: 1, fields: ['customTitle' => 'Oud nieuws'])],
+			dashboard: ['gridColumns' => 8]
+		);
+		$current  = $this->snapshot(
+			placements: [$this->placement(id: 2, fields: ['customTitle' => 'Inbox'])],
+			dashboard: ['gridColumns' => 12]
+		);
+
+		$this->assertSame(
+			expected: 'Widget Inbox added and 2 more changes',
+			actual: $this->describer->describe(previousJson: $previous, currentJson: $current)
+		);
+	}//end testAWidgetChangeIsNamedBeforeTheColumns()
 
 	/**
 	 * One extra change uses the singular.

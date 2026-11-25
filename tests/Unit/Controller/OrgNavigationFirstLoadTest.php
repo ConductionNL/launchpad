@@ -6,7 +6,7 @@
  *
  * The org navigation the workspace page carries in its initial state.
  *
- * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-4
  */
 
 declare(strict_types=1);

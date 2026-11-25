@@ -96,6 +96,17 @@ class StoreService {
 	private const DESCRIPTOR_CLASS = 'OCA\\OpenRegister\\AppHost\\Service\\StoreDescriptor';
 
 	/**
+	 * The read half of the descriptor, in OpenRegister releases that split it
+	 * into a listing and a sharing part. Absent in older releases.
+	 */
+	private const LISTING_CLASS = 'OCA\\OpenRegister\\AppHost\\Service\\StoreListing';
+
+	/**
+	 * The share half of the descriptor, next to {@see self::LISTING_CLASS}.
+	 */
+	private const SHARING_CLASS = 'OCA\\OpenRegister\\AppHost\\Service\\StoreSharing';
+
+	/**
 	 * Outcome reported when there is nothing to talk to.
 	 */
 	public const OUTCOME_NOT_CONFIGURED = 'not_configured';
@@ -446,11 +457,30 @@ class StoreService {
 	 * @throws RuntimeException When OpenRegister supplied a client but not a descriptor class.
 	 *
 	 * @psalm-suppress MixedMethodCall Instantiated from a class string by design.
+	 *
+	 * @spec openspec/specs/dashboard-store/spec.md
 	 */
 	private function descriptor(): object {
 		$class = self::DESCRIPTOR_CLASS;
 		if (class_exists($class) === false) {
 			throw new RuntimeException(message: 'OpenRegister store descriptor is unavailable.');
+		}
+
+		// OpenRegister now builds the descriptor from a listing and a sharing
+		// part (the two classes ship together); named arguments for the old
+		// flat form are an Error there.
+		if (class_exists(self::LISTING_CLASS) === true) {
+			$listingClass = self::LISTING_CLASS;
+			$sharingClass = self::SHARING_CLASS;
+			return new $class(
+				listing: new $listingClass(
+					appId: Application::APP_ID,
+					schema: self::REMOTE_SCHEMA,
+					defaultRegister: self::DEFAULT_REGISTER,
+					cardFields: self::CARD_FIELDS
+				),
+				sharing: new $sharingClass(types: [])
+			);
 		}
 
 		return new $class(

@@ -78,7 +78,8 @@ class SetupWizardService implements SetupWizardServiceInterface {
 		return [
 			'complete' => $complete,
 			'currentRecommendedStep' => $this->resolveRecommendedStep(
-				stepStatuses: $stepStatuses
+				stepStatuses: $stepStatuses,
+				complete: $complete
 			),
 			'stepStatuses' => $stepStatuses,
 		];
@@ -159,20 +160,36 @@ class SetupWizardService implements SetupWizardServiceInterface {
 	}//end computeStepStatuses()
 
 	/**
-	 * The first step whose status is not `'done'`, defaulting to Step 1.
+	 * The step the wizard opens at. A first run (nothing after Step 1
+	 * done and the wizard not finished) starts at Step 1, Welcome; a
+	 * re-run opens at the first step whose status is not `'done'`
+	 * (REQ-WIZ-008: Step 1 on a fresh instance, the first open step on
+	 * a re-run; "Wizard starts at Step 1").
 	 *
 	 * @param array<int,string> $stepStatuses Heuristic per-step statuses.
+	 * @param bool              $complete     Whether the wizard was finished.
 	 *
 	 * @return integer The recommended next step index (1..STEP_COUNT).
+	 *
+	 * @spec openspec/specs/setup-wizard/spec.md
 	 */
-	private function resolveRecommendedStep(array $stepStatuses): int {
-		for ($step = 1; $step <= self::STEP_COUNT; $step++) {
+	private function resolveRecommendedStep(array $stepStatuses, bool $complete): int {
+		$firstOpen = 1;
+		$anyDone   = false;
+		for ($step = self::STEP_COUNT; $step >= 2; $step--) {
 			$status = ($stepStatuses[$step] ?? 'pending');
-			if ($status !== 'done') {
-				return $step;
+			if ($status === 'done') {
+				$anyDone = true;
+				continue;
 			}
+
+			$firstOpen = $step;
 		}
 
-		return 1;
+		if ($complete === false && $anyDone === false) {
+			return 1;
+		}
+
+		return $firstOpen;
 	}//end resolveRecommendedStep()
 }//end class

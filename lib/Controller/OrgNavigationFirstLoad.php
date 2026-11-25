@@ -16,7 +16,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-1
  */
 
 declare(strict_types=1);
@@ -30,7 +30,7 @@ use OCA\LaunchPad\Service\OrgNavigationService;
  * of `GET /api/admin/org-navigation/position` and the tree of
  * `GET /api/admin/org-navigation`, for the default language.
  *
- * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-1
  */
 class OrgNavigationFirstLoad {
 	/**
@@ -54,7 +54,7 @@ class OrgNavigationFirstLoad {
 	 *
 	 * @return array{position: string, tree: array, language: string}|null The first load, or null.
 	 *
-	 * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-1
 	 */
 	public function firstLoad(string $userId): ?array {
 		if ($userId === '' || $this->actor === null) {

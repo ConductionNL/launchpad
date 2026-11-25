@@ -65,7 +65,7 @@ The system MUST cache the badge state in `ICache` with a short TTL and MUST refr
 #### Scenario: Endpoint serves the cached badge
 - GIVEN a ping-enabled placement the current user may view
 - WHEN the tile calls `GET /api/health-ping/{placementId}`
-- THEN the response MUST be `{ state, checkedAt, latencyMs, stale }`
+- THEN the response MUST be `{ state, checkedAt, latencyMs, stale, downSince }`, where `downSince` is the time of the first failed check of the current run of failures while `state` is `offline`, and null otherwise (icon-only-app-tiles REQ-ICT-003)
 - AND the response MUST NOT contain the health URL, request headers, or upstream response body
 
 #### Scenario: Caller authorization

@@ -15,7 +15,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-4
  */
 
 declare(strict_types=1);
@@ -39,7 +39,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Unit tests for DashboardPayloads.
  *
- * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-4
  */
 class DashboardPayloadsTest extends TestCase {
 	/** @var DashboardService&MockObject */

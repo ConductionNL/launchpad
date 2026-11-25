@@ -63,7 +63,10 @@ class RequestDataExtractorTest extends TestCase {
 			actual: RequestDataExtractor::extractTileData($this->request(params: []))
 		);
 		$this->assertSame(
-			expected: ['title', 'icon', 'iconType', 'bgColor', 'textColor', 'linkType', 'linkValue', 'linkTarget', 'gridX', 'gridY'],
+			expected: [
+				'title', 'icon', 'iconType', 'bgColor', 'textColor', 'linkType', 'linkValue', 'linkTarget',
+				'gridX', 'gridY', 'gridWidth', 'gridHeight',
+			],
 			actual: $this->asked
 		);
 	}
@@ -88,6 +91,34 @@ class RequestDataExtractorTest extends TestCase {
 				'linkTarget' => 'side-panel', 'gridX' => '3', 'gridY' => 4.7,
 			]))
 		);
+	}
+
+	/**
+	 * A tile keeps the size its caller asks for (REQ-WDG-042: one cell from the picker).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
+	 */
+	public function testTileDataKeepsAGivenSize(): void {
+		$data = RequestDataExtractor::extractTileData($this->request(params: ['gridWidth' => 1, 'gridHeight' => '1']));
+		$this->assertSame(expected: 1, actual: $data['gridWidth']);
+		$this->assertSame(expected: 1, actual: $data['gridHeight']);
+	}
+
+	/**
+	 * A missing, zero, negative or non-numeric size is left out, so the placement keeps its default.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
+	 */
+	public function testTileDataLeavesOutAnUnusableSize(): void {
+		$data = RequestDataExtractor::extractTileData($this->request(params: ['gridWidth' => 0, 'gridHeight' => 'big']));
+		$this->assertArrayNotHasKey(key: 'gridWidth', array: $data);
+		$this->assertArrayNotHasKey(key: 'gridHeight', array: $data);
+		$data = RequestDataExtractor::extractTileData($this->request(params: ['gridWidth' => -2]));
+		$this->assertArrayNotHasKey(key: 'gridWidth', array: $data);
 	}
 
 	public function testPlacementDataKeepsOnlyGivenFields(): void {

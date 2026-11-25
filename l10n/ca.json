@@ -1736,6 +1736,15 @@
         "Single sign-on": "Inici de sessió únic",
         "Signs in with your Nextcloud account": "Inicia la sessió amb el vostre compte de Nextcloud",
         "Asks for its own sign-in": "Demana el seu propi inici de sessió",
-        "The tiles could not be added.": "No s’han pogut afegir els mosaics."
+        "The tiles could not be added.": "No s’han pogut afegir els mosaics.",
+        "{app}, outage since {time}": "{app}, avaria des de les {time}",
+        "Own colour": "Color propi",
+        "Primary, dark": "Primari, fosc",
+        "Accent": "Accent",
+        "Accent, dark": "Accent, fosc",
+        "Ink": "Tinta",
+        "Text grey": "Gris de text",
+        "Muted grey": "Gris apagat",
+        "Field grey": "Gris de camp"
     }
 }

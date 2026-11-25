@@ -1836,7 +1836,16 @@ OC.L10N.register(
     "Single sign-on" : "Login wieħed",
     "Signs in with your Nextcloud account" : "Jidħol bil-kont Nextcloud tiegħek",
     "Asks for its own sign-in" : "Jitlob il-login tiegħu stess",
-    "The tiles could not be added." : "Il-madum ma setax jiżdied."
+    "The tiles could not be added." : "Il-madum ma setax jiżdied.",
+    "{app}, outage since {time}" : "{app}, waqfa minn {time}",
+    "Own colour" : "Kulur tiegħek",
+    "Primary, dark" : "Primarju, skur",
+    "Accent" : "Aċċent",
+    "Accent, dark" : "Aċċent, skur",
+    "Ink" : "Linka",
+    "Text grey" : "Griż tat-test",
+    "Muted grey" : "Griż artab",
+    "Field grey" : "Griż tal-qasam"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

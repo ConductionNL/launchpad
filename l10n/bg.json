@@ -1736,6 +1736,15 @@
         "Single sign-on": "Единно влизане",
         "Signs in with your Nextcloud account": "Влиза с вашия акаунт в Nextcloud",
         "Asks for its own sign-in": "Изисква собствено влизане",
-        "The tiles could not be added.": "Плочките не можаха да бъдат добавени."
+        "The tiles could not be added.": "Плочките не можаха да бъдат добавени.",
+        "{app}, outage since {time}": "{app}, прекъсване от {time}",
+        "Own colour": "Собствен цвят",
+        "Primary, dark": "Основен, тъмен",
+        "Accent": "Акцент",
+        "Accent, dark": "Акцент, тъмен",
+        "Ink": "Мастило",
+        "Text grey": "Сив за текст",
+        "Muted grey": "Приглушен сив",
+        "Field grey": "Сив за поле"
     }
 }

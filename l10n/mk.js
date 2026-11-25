@@ -1827,7 +1827,16 @@ OC.L10N.register(
     "Single sign-on" : "Единствена најава",
     "Signs in with your Nextcloud account" : "Се најавува со вашата Nextcloud сметка",
     "Asks for its own sign-in" : "Бара сопствена најава",
-    "The tiles could not be added." : "Плочките не може да се додадат."
+    "The tiles could not be added." : "Плочките не може да се додадат.",
+    "{app}, outage since {time}" : "{app}, прекин од {time}",
+    "Own colour" : "Сопствена боја",
+    "Primary, dark" : "Примарна, темна",
+    "Accent" : "Акцент",
+    "Accent, dark" : "Акцент, темен",
+    "Ink" : "Мастило",
+    "Text grey" : "Сива за текст",
+    "Muted grey" : "Пригушена сива",
+    "Field grey" : "Сива за поле"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

@@ -1827,7 +1827,16 @@ OC.L10N.register(
     "Single sign-on" : "Single Sign-on",
     "Signs in with your Nextcloud account" : "Mellt sech mat Ärem Nextcloud-Kont un",
     "Asks for its own sign-in" : "Freet no enger eegener Umeldung",
-    "The tiles could not be added." : "D'Kachele konnten net derbäigesat ginn."
+    "The tiles could not be added." : "D'Kachele konnten net derbäigesat ginn.",
+    "{app}, outage since {time}" : "{app}, Stéierung zënter {time}",
+    "Own colour" : "Eege Faarf",
+    "Primary, dark" : "Primär, donkel",
+    "Accent" : "Akzent",
+    "Accent, dark" : "Akzent, donkel",
+    "Ink" : "Tënt",
+    "Text grey" : "Textgro",
+    "Muted grey" : "Gedämpft Gro",
+    "Field grey" : "Feldgro"
 },
 "nplurals=2; plural=(n != 1);"
 );

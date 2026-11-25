@@ -1836,7 +1836,16 @@ OC.L10N.register(
     "Single sign-on" : "Єдиний вхід",
     "Signs in with your Nextcloud account" : "Входить з вашим обліковим записом Nextcloud",
     "Asks for its own sign-in" : "Вимагає власного входу",
-    "The tiles could not be added." : "Не вдалося додати плитки."
+    "The tiles could not be added." : "Не вдалося додати плитки.",
+    "{app}, outage since {time}" : "{app}, збій з {time}",
+    "Own colour" : "Власний колір",
+    "Primary, dark" : "Основний, темний",
+    "Accent" : "Акцент",
+    "Accent, dark" : "Акцент, темний",
+    "Ink" : "Чорнило",
+    "Text grey" : "Сірий тексту",
+    "Muted grey" : "Приглушений сірий",
+    "Field grey" : "Сірий поля"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

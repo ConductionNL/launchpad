@@ -1738,6 +1738,15 @@
         "Single sign-on": "Jednotné přihlášení",
         "Signs in with your Nextcloud account": "Přihlašuje se vaším účtem Nextcloud",
         "Asks for its own sign-in": "Vyžaduje vlastní přihlášení",
-        "The tiles could not be added.": "Dlaždice nelze přidat."
+        "The tiles could not be added.": "Dlaždice nelze přidat.",
+        "{app}, outage since {time}": "{app}, výpadek od {time}",
+        "Own colour": "Vlastní barva",
+        "Primary, dark": "Primární, tmavá",
+        "Accent": "Akcent",
+        "Accent, dark": "Akcent, tmavý",
+        "Ink": "Inkoust",
+        "Text grey": "Šedá textu",
+        "Muted grey": "Tlumená šedá",
+        "Field grey": "Šedá pole"
     }
 }

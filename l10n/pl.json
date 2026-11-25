@@ -1738,6 +1738,15 @@
         "Single sign-on": "Logowanie jednokrotne",
         "Signs in with your Nextcloud account": "Loguje się Twoim kontem Nextcloud",
         "Asks for its own sign-in": "Wymaga własnego logowania",
-        "The tiles could not be added.": "Nie udało się dodać kafelków."
+        "The tiles could not be added.": "Nie udało się dodać kafelków.",
+        "{app}, outage since {time}": "{app}, awaria od {time}",
+        "Own colour": "Własny kolor",
+        "Primary, dark": "Podstawowy, ciemny",
+        "Accent": "Akcent",
+        "Accent, dark": "Akcent, ciemny",
+        "Ink": "Atrament",
+        "Text grey": "Szary tekstu",
+        "Muted grey": "Stonowany szary",
+        "Field grey": "Szary pola"
     }
 }

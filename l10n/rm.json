@@ -1736,6 +1736,15 @@
         "Single sign-on": "Annunzia unica",
         "Signs in with your Nextcloud account": "S'annunzia cun Voss conto da Nextcloud",
         "Asks for its own sign-in": "Dumonda in'atgna annunzia",
-        "The tiles could not be added.": "Impussibel d'agiuntar las plattas."
+        "The tiles could not be added.": "Impussibel d'agiuntar las plattas.",
+        "{app}, outage since {time}": "{app}, disturbi dapi {time}",
+        "Own colour": "Atgna colur",
+        "Primary, dark": "Primara, stgira",
+        "Accent": "Accent",
+        "Accent, dark": "Accent, stgir",
+        "Ink": "Tinta",
+        "Text grey": "Grisch da text",
+        "Muted grey": "Grisch mitigà",
+        "Field grey": "Grisch da champ"
     }
 }

@@ -1736,6 +1736,15 @@
         "Single sign-on": "Ενιαία σύνδεση",
         "Signs in with your Nextcloud account": "Συνδέεται με τον λογαριασμό σας Nextcloud",
         "Asks for its own sign-in": "Ζητά δική του σύνδεση",
-        "The tiles could not be added.": "Δεν ήταν δυνατή η προσθήκη των πλακιδίων."
+        "The tiles could not be added.": "Δεν ήταν δυνατή η προσθήκη των πλακιδίων.",
+        "{app}, outage since {time}": "{app}, διακοπή από τις {time}",
+        "Own colour": "Δικό σας χρώμα",
+        "Primary, dark": "Κύριο, σκούρο",
+        "Accent": "Τόνος",
+        "Accent, dark": "Τόνος, σκούρος",
+        "Ink": "Μελάνι",
+        "Text grey": "Γκρι κειμένου",
+        "Muted grey": "Απαλό γκρι",
+        "Field grey": "Γκρι πεδίου"
     }
 }

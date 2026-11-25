@@ -1836,7 +1836,16 @@ OC.L10N.register(
     "Single sign-on" : "Einskráning",
     "Signs in with your Nextcloud account" : "Skráir inn með Nextcloud-aðganginum þínum",
     "Asks for its own sign-in" : "Biður um eigin innskráningu",
-    "The tiles could not be added." : "Ekki tókst að bæta reitunum við."
+    "The tiles could not be added." : "Ekki tókst að bæta reitunum við.",
+    "{app}, outage since {time}" : "{app}, bilun síðan {time}",
+    "Own colour" : "Eigin litur",
+    "Primary, dark" : "Aðallitur, dökkur",
+    "Accent" : "Áherslulitur",
+    "Accent, dark" : "Áherslulitur, dökkur",
+    "Ink" : "Blek",
+    "Text grey" : "Textagrár",
+    "Muted grey" : "Daufur grár",
+    "Field grey" : "Reitagrár"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

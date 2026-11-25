@@ -1836,7 +1836,16 @@ OC.L10N.register(
     "Single sign-on" : "Início de sessão único",
     "Signs in with your Nextcloud account" : "Inicia sessão com a sua conta Nextcloud",
     "Asks for its own sign-in" : "Pede o seu próprio início de sessão",
-    "The tiles could not be added." : "Não foi possível adicionar os mosaicos."
+    "The tiles could not be added." : "Não foi possível adicionar os mosaicos.",
+    "{app}, outage since {time}" : "{app}, falha desde as {time}",
+    "Own colour" : "Cor própria",
+    "Primary, dark" : "Primária, escura",
+    "Accent" : "Destaque",
+    "Accent, dark" : "Destaque, escuro",
+    "Ink" : "Tinta",
+    "Text grey" : "Cinzento de texto",
+    "Muted grey" : "Cinzento suave",
+    "Field grey" : "Cinzento de campo"
 },
 "nplurals=2; plural=(n != 1);"
 );

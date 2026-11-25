@@ -1736,6 +1736,15 @@
         "Single sign-on": "Enkel pålogging",
         "Signs in with your Nextcloud account": "Logger på med Nextcloud-kontoen din",
         "Asks for its own sign-in": "Ber om egen pålogging",
-        "The tiles could not be added.": "Flisene kunne ikke legges til."
+        "The tiles could not be added.": "Flisene kunne ikke legges til.",
+        "{app}, outage since {time}": "{app}, driftsavbrudd siden {time}",
+        "Own colour": "Egen farge",
+        "Primary, dark": "Primær, mørk",
+        "Accent": "Aksent",
+        "Accent, dark": "Aksent, mørk",
+        "Ink": "Blekk",
+        "Text grey": "Tekstgrå",
+        "Muted grey": "Dempet grå",
+        "Field grey": "Feltgrå"
     }
 }

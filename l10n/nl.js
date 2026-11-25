@@ -2715,7 +2715,16 @@ OC.L10N.register(
     "Single sign-on" : "Eenmalige aanmelding",
     "Signs in with your Nextcloud account" : "Meldt aan met je Nextcloud-account",
     "Asks for its own sign-in" : "Vraagt om een eigen aanmelding",
-    "The tiles could not be added." : "De tegels konden niet worden toegevoegd."
+    "The tiles could not be added." : "De tegels konden niet worden toegevoegd.",
+    "{app}, outage since {time}" : "{app}, storing sinds {time}",
+    "Own colour" : "Eigen kleur",
+    "Primary, dark" : "Primair, donker",
+    "Accent" : "Accent",
+    "Accent, dark" : "Accent, donker",
+    "Ink" : "Inkt",
+    "Text grey" : "Tekstgrijs",
+    "Muted grey" : "Gedempt grijs",
+    "Field grey" : "Veldgrijs"
 },
 "nplurals=2; plural=(n != 1);"
 );

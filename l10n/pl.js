@@ -1836,7 +1836,16 @@ OC.L10N.register(
     "Single sign-on" : "Logowanie jednokrotne",
     "Signs in with your Nextcloud account" : "Loguje się Twoim kontem Nextcloud",
     "Asks for its own sign-in" : "Wymaga własnego logowania",
-    "The tiles could not be added." : "Nie udało się dodać kafelków."
+    "The tiles could not be added." : "Nie udało się dodać kafelków.",
+    "{app}, outage since {time}" : "{app}, awaria od {time}",
+    "Own colour" : "Własny kolor",
+    "Primary, dark" : "Podstawowy, ciemny",
+    "Accent" : "Akcent",
+    "Accent, dark" : "Akcent, ciemny",
+    "Ink" : "Atrament",
+    "Text grey" : "Szary tekstu",
+    "Muted grey" : "Stonowany szary",
+    "Field grey" : "Szary pola"
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

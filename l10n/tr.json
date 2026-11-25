@@ -1736,6 +1736,15 @@
         "Single sign-on": "Çoklu oturum açma",
         "Signs in with your Nextcloud account": "Nextcloud hesabınızla oturum açar",
         "Asks for its own sign-in": "Kendi oturum açmasını ister",
-        "The tiles could not be added.": "Kutucuklar eklenemedi."
+        "The tiles could not be added.": "Kutucuklar eklenemedi.",
+        "{app}, outage since {time}": "{app}, {time} saatinden beri kesinti",
+        "Own colour": "Kendi renginiz",
+        "Primary, dark": "Birincil, koyu",
+        "Accent": "Vurgu",
+        "Accent, dark": "Vurgu, koyu",
+        "Ink": "Mürekkep",
+        "Text grey": "Metin grisi",
+        "Muted grey": "Soluk gri",
+        "Field grey": "Alan grisi"
     }
 }

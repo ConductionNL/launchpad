@@ -1836,7 +1836,16 @@ OC.L10N.register(
     "Single sign-on" : "Autentificare unică",
     "Signs in with your Nextcloud account" : "Se conectează cu contul tău Nextcloud",
     "Asks for its own sign-in" : "Cere propria autentificare",
-    "The tiles could not be added." : "Dalele nu au putut fi adăugate."
+    "The tiles could not be added." : "Dalele nu au putut fi adăugate.",
+    "{app}, outage since {time}" : "{app}, întrerupere de la {time}",
+    "Own colour" : "Culoare proprie",
+    "Primary, dark" : "Primar, închis",
+    "Accent" : "Accent",
+    "Accent, dark" : "Accent, închis",
+    "Ink" : "Cerneală",
+    "Text grey" : "Gri text",
+    "Muted grey" : "Gri estompat",
+    "Field grey" : "Gri câmp"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

@@ -1736,6 +1736,15 @@
         "Single sign-on": "Enkel inloggning",
         "Signs in with your Nextcloud account": "Loggar in med ditt Nextcloud-konto",
         "Asks for its own sign-in": "Kräver en egen inloggning",
-        "The tiles could not be added.": "Panelerna kunde inte läggas till."
+        "The tiles could not be added.": "Panelerna kunde inte läggas till.",
+        "{app}, outage since {time}": "{app}, avbrott sedan {time}",
+        "Own colour": "Egen färg",
+        "Primary, dark": "Primär, mörk",
+        "Accent": "Accent",
+        "Accent, dark": "Accent, mörk",
+        "Ink": "Bläck",
+        "Text grey": "Textgrå",
+        "Muted grey": "Dämpad grå",
+        "Field grey": "Fältgrå"
     }
 }

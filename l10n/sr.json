@@ -1738,6 +1738,15 @@
         "Single sign-on": "Јединствена пријава",
         "Signs in with your Nextcloud account": "Пријављује се вашим Nextcloud налогом",
         "Asks for its own sign-in": "Тражи сопствену пријаву",
-        "The tiles could not be added.": "Плочице није могуће додати."
+        "The tiles could not be added.": "Плочице није могуће додати.",
+        "{app}, outage since {time}": "{app}, прекид од {time}",
+        "Own colour": "Сопствена боја",
+        "Primary, dark": "Примарна, тамна",
+        "Accent": "Нагласак",
+        "Accent, dark": "Нагласак, тамни",
+        "Ink": "Мастило",
+        "Text grey": "Сива текста",
+        "Muted grey": "Пригушена сива",
+        "Field grey": "Сива поља"
     }
 }

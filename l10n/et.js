@@ -1836,7 +1836,16 @@ OC.L10N.register(
     "Single sign-on" : "Ühekordne sisselogimine",
     "Signs in with your Nextcloud account" : "Logib sisse sinu Nextcloudi kontoga",
     "Asks for its own sign-in" : "Küsib oma sisselogimist",
-    "The tiles could not be added." : "Paane ei saanud lisada."
+    "The tiles could not be added." : "Paane ei saanud lisada.",
+    "{app}, outage since {time}" : "{app}, rike alates {time}",
+    "Own colour" : "Oma värv",
+    "Primary, dark" : "Põhivärv, tume",
+    "Accent" : "Rõhuvärv",
+    "Accent, dark" : "Rõhuvärv, tume",
+    "Ink" : "Tint",
+    "Text grey" : "Teksti hall",
+    "Muted grey" : "Summutatud hall",
+    "Field grey" : "Välja hall"
 },
 "nplurals=2; plural=(n != 1);"
 );

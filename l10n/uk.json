@@ -1738,6 +1738,15 @@
         "Single sign-on": "Єдиний вхід",
         "Signs in with your Nextcloud account": "Входить з вашим обліковим записом Nextcloud",
         "Asks for its own sign-in": "Вимагає власного входу",
-        "The tiles could not be added.": "Не вдалося додати плитки."
+        "The tiles could not be added.": "Не вдалося додати плитки.",
+        "{app}, outage since {time}": "{app}, збій з {time}",
+        "Own colour": "Власний колір",
+        "Primary, dark": "Основний, темний",
+        "Accent": "Акцент",
+        "Accent, dark": "Акцент, темний",
+        "Ink": "Чорнило",
+        "Text grey": "Сірий тексту",
+        "Muted grey": "Приглушений сірий",
+        "Field grey": "Сірий поля"
     }
 }

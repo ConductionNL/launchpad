@@ -1736,6 +1736,15 @@
         "Single sign-on": "Kertakirjautuminen",
         "Signs in with your Nextcloud account": "Kirjautuu Nextcloud-tililläsi",
         "Asks for its own sign-in": "Pyytää oman kirjautumisen",
-        "The tiles could not be added.": "Ruutuja ei voitu lisätä."
+        "The tiles could not be added.": "Ruutuja ei voitu lisätä.",
+        "{app}, outage since {time}": "{app}, häiriö {time} alkaen",
+        "Own colour": "Oma väri",
+        "Primary, dark": "Ensisijainen, tumma",
+        "Accent": "Korostus",
+        "Accent, dark": "Korostus, tumma",
+        "Ink": "Muste",
+        "Text grey": "Tekstin harmaa",
+        "Muted grey": "Vaimea harmaa",
+        "Field grey": "Kentän harmaa"
     }
 }

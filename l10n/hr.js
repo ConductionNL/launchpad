@@ -1836,7 +1836,16 @@ OC.L10N.register(
     "Single sign-on" : "Jedinstvena prijava",
     "Signs in with your Nextcloud account" : "Prijavljuje se vašim Nextcloud računom",
     "Asks for its own sign-in" : "Traži vlastitu prijavu",
-    "The tiles could not be added." : "Pločice nije moguće dodati."
+    "The tiles could not be added." : "Pločice nije moguće dodati.",
+    "{app}, outage since {time}" : "{app}, ispad od {time}",
+    "Own colour" : "Vlastita boja",
+    "Primary, dark" : "Primarna, tamna",
+    "Accent" : "Naglasak",
+    "Accent, dark" : "Naglasak, tamni",
+    "Ink" : "Tinta",
+    "Text grey" : "Siva teksta",
+    "Muted grey" : "Prigušena siva",
+    "Field grey" : "Siva polja"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

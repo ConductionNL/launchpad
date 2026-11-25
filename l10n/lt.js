@@ -1836,7 +1836,16 @@ OC.L10N.register(
     "Single sign-on" : "Vienkartinis prisijungimas",
     "Signs in with your Nextcloud account" : "Prisijungia jūsų Nextcloud paskyra",
     "Asks for its own sign-in" : "Prašo savo prisijungimo",
-    "The tiles could not be added." : "Nepavyko pridėti plytelių."
+    "The tiles could not be added." : "Nepavyko pridėti plytelių.",
+    "{app}, outage since {time}" : "{app}, sutrikimas nuo {time}",
+    "Own colour" : "Sava spalva",
+    "Primary, dark" : "Pagrindinė, tamsi",
+    "Accent" : "Akcentas",
+    "Accent, dark" : "Akcentas, tamsus",
+    "Ink" : "Rašalas",
+    "Text grey" : "Teksto pilka",
+    "Muted grey" : "Prislopinta pilka",
+    "Field grey" : "Lauko pilka"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

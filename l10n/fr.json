@@ -1736,6 +1736,15 @@
         "Single sign-on": "Authentification unique",
         "Signs in with your Nextcloud account": "Se connecte avec votre compte Nextcloud",
         "Asks for its own sign-in": "Demande sa propre connexion",
-        "The tiles could not be added.": "Les tuiles n’ont pas pu être ajoutées."
+        "The tiles could not be added.": "Les tuiles n’ont pas pu être ajoutées.",
+        "{app}, outage since {time}": "{app}, panne depuis {time}",
+        "Own colour": "Couleur personnalisée",
+        "Primary, dark": "Primaire, foncé",
+        "Accent": "Accent",
+        "Accent, dark": "Accent, foncé",
+        "Ink": "Encre",
+        "Text grey": "Gris texte",
+        "Muted grey": "Gris atténué",
+        "Field grey": "Gris de champ"
     }
 }

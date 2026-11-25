@@ -1836,7 +1836,16 @@ OC.L10N.register(
     "Single sign-on" : "Jednotné prihlásenie",
     "Signs in with your Nextcloud account" : "Prihlasuje sa vaším účtom Nextcloud",
     "Asks for its own sign-in" : "Vyžaduje vlastné prihlásenie",
-    "The tiles could not be added." : "Dlaždice sa nepodarilo pridať."
+    "The tiles could not be added." : "Dlaždice sa nepodarilo pridať.",
+    "{app}, outage since {time}" : "{app}, výpadok od {time}",
+    "Own colour" : "Vlastná farba",
+    "Primary, dark" : "Primárna, tmavá",
+    "Accent" : "Akcent",
+    "Accent, dark" : "Akcent, tmavý",
+    "Ink" : "Atrament",
+    "Text grey" : "Sivá textu",
+    "Muted grey" : "Tlmená sivá",
+    "Field grey" : "Sivá poľa"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

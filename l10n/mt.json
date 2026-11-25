@@ -1740,6 +1740,15 @@
         "Single sign-on": "Login wieħed",
         "Signs in with your Nextcloud account": "Jidħol bil-kont Nextcloud tiegħek",
         "Asks for its own sign-in": "Jitlob il-login tiegħu stess",
-        "The tiles could not be added.": "Il-madum ma setax jiżdied."
+        "The tiles could not be added.": "Il-madum ma setax jiżdied.",
+        "{app}, outage since {time}": "{app}, waqfa minn {time}",
+        "Own colour": "Kulur tiegħek",
+        "Primary, dark": "Primarju, skur",
+        "Accent": "Aċċent",
+        "Accent, dark": "Aċċent, skur",
+        "Ink": "Linka",
+        "Text grey": "Griż tat-test",
+        "Muted grey": "Griż artab",
+        "Field grey": "Griż tal-qasam"
     }
 }

@@ -1836,7 +1836,16 @@ OC.L10N.register(
     "Single sign-on" : "Accesso singolo",
     "Signs in with your Nextcloud account" : "Accede con il tuo account Nextcloud",
     "Asks for its own sign-in" : "Chiede un proprio accesso",
-    "The tiles could not be added." : "Impossibile aggiungere i riquadri."
+    "The tiles could not be added." : "Impossibile aggiungere i riquadri.",
+    "{app}, outage since {time}" : "{app}, guasto dalle {time}",
+    "Own colour" : "Colore personalizzato",
+    "Primary, dark" : "Primario, scuro",
+    "Accent" : "Accento",
+    "Accent, dark" : "Accento, scuro",
+    "Ink" : "Inchiostro",
+    "Text grey" : "Grigio testo",
+    "Muted grey" : "Grigio tenue",
+    "Field grey" : "Grigio campo"
 },
 "nplurals=2; plural=(n != 1);"
 );

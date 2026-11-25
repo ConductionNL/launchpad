@@ -21,7 +21,21 @@ const stubs = {
 		template: '<input class="nc-text" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
 	},
 	NcEmptyContent: { template: '<div class="nc-empty"><slot name="icon" /></div>' },
+	NcButton: { props: ['disabled'], emits: ['click'], template: '<button class="nc-button" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>' },
 }
+
+/**
+ * Choose a card and press Add widget.
+ *
+ * @param {object} wrapper the mounted picker.
+ * @param {object} card the card.
+ * @return {Promise<void>}
+ */
+async function place(wrapper, card) {
+	await card.trigger('click')
+	await wrapper.find('[data-testid="widget-picker-add"]').trigger('click')
+}
+
 
 function mountPicker(props = {}) {
 	return mount(WidgetPickerModal, {
@@ -36,7 +50,7 @@ describe('Office tiles in the picker', () => {
 		const pack = wrapper.find('[data-testid="widget-picker-office-pack"]')
 
 		expect(pack.text()).toContain('Office tiles')
-		await pack.trigger('click')
+		await place(wrapper, pack)
 
 		expect(wrapper.emitted('addOfficePack')).toHaveLength(1)
 		expect(wrapper.emitted('add')).toBeUndefined()
@@ -45,10 +59,10 @@ describe('Office tiles in the picker', () => {
 	it('keeps the pack for a matching search and drops it for another', async () => {
 		const wrapper = mountPicker()
 		await wrapper.find('input.nc-text').setValue('office')
-		expect(wrapper.find('[data-testid="widget-picker-office"]').exists()).toBe(true)
+		expect(wrapper.find('[data-testid="widget-picker-office-pack"]').exists()).toBe(true)
 
 		await wrapper.find('input.nc-text').setValue('notes')
-		expect(wrapper.find('[data-testid="widget-picker-office"]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="widget-picker-office-pack"]').exists()).toBe(false)
 	})
 
 	it('shows the empty state only when the pack is filtered out too', async () => {

@@ -21,6 +21,10 @@ vi.mock('../../services/api.js', () => ({
 	api: {
 		getSetupWizardState: vi.fn(),
 		completeSetupWizard: vi.fn(),
+		listDemoShowcases: vi.fn(),
+		installDemoShowcase: vi.fn(),
+		getAdminGroups: vi.fn(),
+		assignAdminRoleToGroup: vi.fn(),
 	},
 }))
 
@@ -56,6 +60,17 @@ beforeEach(() => {
 	api.completeSetupWizard
 		.mockReset()
 		.mockResolvedValue({ data: { complete: true } })
+	api.listDemoShowcases.mockReset().mockResolvedValue({
+		data: [
+			{ id: 'engineering', name: 'Engineering', language: 'en', description: '', isInstalled: false },
+			{ id: 'sales', name: 'Sales', language: 'en', description: '', isInstalled: true },
+		],
+	})
+	api.installDemoShowcase.mockReset().mockResolvedValue({ data: {} })
+	api.getAdminGroups.mockReset().mockResolvedValue({
+		data: { active: ['engineering'], inactive: ['sales', 'marketing'] },
+	})
+	api.assignAdminRoleToGroup.mockReset().mockResolvedValue({ data: {} })
 })
 
 function mountWizard() {
@@ -180,6 +195,85 @@ describe('SetupWizardModal', () => {
 		const wrapper = mountWizard()
 		await flush()
 
+		expect(wrapper.vm.currentStep).toBe(5)
+	})
+	it('REQ-WIZ-005: Next on Step 3 installs only the checked demos that are not installed', async () => {
+		const wrapper = mountWizard()
+		await flush()
+		wrapper.vm.currentStep = 3
+		await flush()
+		wrapper.vm.onDemoChoose('engineering', true)
+		wrapper.vm.onDemoChoose('sales', false)
+		expect(api.installDemoShowcase).not.toHaveBeenCalled()
+
+		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
+		await flush()
+		expect(api.installDemoShowcase).toHaveBeenCalledTimes(1)
+		expect(api.installDemoShowcase).toHaveBeenCalledWith('engineering')
+		expect(wrapper.vm.currentStep).toBe(4)
+	})
+
+	it('REQ-WIZ-005: the demo choice survives Back from Step 4', async () => {
+		const wrapper = mountWizard()
+		await flush()
+		wrapper.vm.currentStep = 3
+		await flush()
+		wrapper.vm.onDemoChoose('engineering', true)
+		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
+		await flush()
+		await wrapper.find('[data-test="setup-wizard-back"]').trigger('click')
+		await flush()
+		expect(wrapper.vm.currentStep).toBe(3)
+		expect(wrapper.vm.demoChoice).toEqual({ engineering: true })
+		expect(api.installDemoShowcase).toHaveBeenCalledTimes(1)
+	})
+
+	it('REQ-WIZ-005: Next with nothing checked installs nothing', async () => {
+		const wrapper = mountWizard()
+		await flush()
+		wrapper.vm.currentStep = 3
+		await flush()
+		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
+		await flush()
+		expect(api.installDemoShowcase).not.toHaveBeenCalled()
+		expect(wrapper.vm.currentStep).toBe(4)
+	})
+
+	it('REQ-WIZ-006: Step 4 offers every group and gives the chosen one the admin role on Next', async () => {
+		const wrapper = mountWizard()
+		await flush()
+		wrapper.vm.currentStep = 4
+		await flush()
+		expect(wrapper.vm.roleGroups).toEqual(['engineering', 'sales', 'marketing'])
+
+		wrapper.vm.roleGroup = 'sales'
+		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
+		await flush()
+		expect(api.assignAdminRoleToGroup).toHaveBeenCalledOnce()
+		expect(api.assignAdminRoleToGroup).toHaveBeenCalledWith('sales')
+		expect(wrapper.vm.currentStep).toBe(5)
+	})
+
+	it('REQ-WIZ-006: Next on Step 4 without a group assigns nothing', async () => {
+		const wrapper = mountWizard()
+		await flush()
+		wrapper.vm.currentStep = 4
+		await flush()
+		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
+		await flush()
+		expect(api.assignAdminRoleToGroup).not.toHaveBeenCalled()
+		expect(wrapper.vm.currentStep).toBe(5)
+	})
+
+	it('REQ-WIZ-006: a group that already has the role still moves on', async () => {
+		api.assignAdminRoleToGroup.mockRejectedValueOnce({ response: { status: 409 } })
+		const wrapper = mountWizard()
+		await flush()
+		wrapper.vm.currentStep = 4
+		await flush()
+		wrapper.vm.roleGroup = 'sales'
+		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
+		await flush()
 		expect(wrapper.vm.currentStep).toBe(5)
 	})
 })

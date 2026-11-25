@@ -46,13 +46,14 @@ function mountPicker(props = {}) {
 	})
 }
 
-const rows = (wrapper) => wrapper.findAll('[data-testid="widget-picker-catalogue"] .widget-picker__widget')
+const rows = (wrapper) => wrapper.findAll('[data-testid^="widget-picker-catalogue-"]')
 
 describe('From the app catalogue', () => {
 	it('lists the entries the server returned, with their descriptions', () => {
 		const wrapper = mountPicker()
-		const section = wrapper.find('[data-testid="widget-picker-catalogue"]')
-		expect(section.find('h3').text()).toBe('From the app catalogue')
+		// widget-picker-board-sync REQ-WDG-042: the catalogue's apps are the App tiles.
+		const section = wrapper.find('[data-testid="widget-picker-section-tiles"]')
+		expect(section.find('h3').text()).toBe('App tiles')
 		expect(rows(wrapper).map((row) => row.text())).toEqual([
 			expect.stringContaining('Zaaksysteem'),
 			expect.stringContaining('Agenda'),
@@ -71,9 +72,10 @@ describe('From the app catalogue', () => {
 		expect(rows(wrapper)[0].text()).toContain('Agenda')
 	})
 
-	it('asks the host to place the picked entry', async () => {
+	it('asks the host to place the picked entry with Add widget', async () => {
 		const wrapper = mountPicker()
 		await rows(wrapper)[0].trigger('click')
+		await wrapper.find('[data-testid="widget-picker-add"]').trigger('click')
 		expect(wrapper.emitted('addCatalogueApp')[0]).toEqual([ZAAK])
 	})
 

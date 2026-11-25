@@ -562,6 +562,9 @@ const ReadConfirmationDialog = defineAsyncComponent(() => import('../dialogs/Rea
 const AcknowledgementReportModal = defineAsyncComponent(() => import('../modals/AcknowledgementReportModal.vue'))
 const BookmarkImportModal = defineAsyncComponent(() => import('../modals/BookmarkImportModal.vue'))
 const AddTilesModal = defineAsyncComponent(() => import('../modals/AddTilesModal.vue'))
+
+/** The content keys the tile form writes; every other key survives a save. */
+const TILE_FORM_CONTENT_KEYS = Object.freeze(['healthPingEnabled', 'healthUrl', 'expectedStatus', 'pingInterval', 'internalUrl', 'linkTarget', 'colourToken', 'remote', 'sso'])
 const DashboardConfigModal = defineAsyncComponent(() => import('../modals/DashboardConfigModal.vue'))
 const TileEditor = defineAsyncComponent(() => import('../modals/TileEditor.vue'))
 const VisibilityRulesModal = defineAsyncComponent(() => import('../modals/VisibilityRulesModal.vue'))
@@ -3289,6 +3292,8 @@ export default {
 				pingInterval: content.pingInterval || 60,
 				// Launcher-tile-open-behaviour D1: '' follows the dashboard.
 				linkTarget: content.linkTarget || '',
+				// icon-only-app-tiles REQ-ICT-004: the theme colour token.
+				colourToken: content.colourToken || '',
 				// launcher-tile-launch-types: remote-desktop and sso settings.
 				...(isLaunchType(placement.tileLinkType) ? launchFields(content) : {}),
 			}
@@ -3325,9 +3330,14 @@ export default {
 			if (tileData.linkTarget) {
 				healthPingContent.linkTarget = tileData.linkTarget
 			}
+			// icon-only-app-tiles REQ-ICT-004: the theme colour rides along.
+			if (tileData.colourToken) {
+				healthPingContent.colourToken = tileData.colourToken
+			}
 			// launcher-tile-launch-types: a remote-desktop or sso tile keeps its
 			// settings in the same blob, checked by the server with the link.
-			const content = { ...healthPingContent, ...launchContent(tileData) }
+			// What the form does not edit (icon-only, pin, count source) stays.
+			const content = { ...this.unformedTileContent(this.editingTile?.id), ...healthPingContent, ...launchContent(tileData) }
 			try {
 				if (this.editingTile) {
 					await this.updateWidgetPlacement(this.editingTile.id, {
@@ -3367,7 +3377,7 @@ export default {
 			// the health-ping block (and the office-network address,
 			// launcher-tile-internal-address REQ-TIA-002, and the link target)
 			// with a follow-up patch only when the author actually set one.
-			if (newPlacement?.id && (content.healthPingEnabled || content.internalUrl || content.linkTarget)) {
+			if (newPlacement?.id && (content.healthPingEnabled || content.internalUrl || content.linkTarget || content.colourToken)) {
 				await this.updateWidgetPlacement(newPlacement.id, {
 					content,
 				})
@@ -3381,6 +3391,26 @@ export default {
 		 * @param {Error} error The failure.
 		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 		 */
+		/**
+		 * The content keys of a tile placement the tile form does not edit
+		 * (icon-only, pin, count source), so a save keeps them.
+		 *
+		 * @param {number|undefined} placementId The tile being edited.
+		 * @return {object} the kept keys.
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 */
+		unformedTileContent(placementId) {
+			if (placementId === undefined || placementId === null) {
+				return {}
+			}
+			const content = (this.widgetPlacements || []).find((placement) => placement.id === placementId)?.content || {}
+			const kept = { ...content }
+			for (const key of TILE_FORM_CONTENT_KEYS) {
+				delete kept[key]
+			}
+			return kept
+		},
+
 		reportTileSaveError(tileData, error) {
 			logger.error('[Views] Failed to save tile:', error)
 			if (isLaunchType(tileData.linkType) && error?.response?.status === 400) {

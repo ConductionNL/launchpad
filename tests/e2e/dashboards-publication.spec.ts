@@ -60,7 +60,6 @@ import {
 	visibleRows,
 } from './support/dashboardHierarchy.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
-import { ADMIN_USER } from './support/roles.ts'
 import {
 	adminContext,
 	API,
@@ -69,6 +68,7 @@ import {
 	removePrincipal,
 	shareWith,
 } from './support/principals.ts'
+import { ADMIN_USER } from './support/roles.ts'
 
 const T = Date.now()
 const PAST_MESSAGE = 'publishAt must be a future timestamp'

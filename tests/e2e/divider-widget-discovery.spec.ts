@@ -220,7 +220,7 @@ test.describe('REQ-DIV-001 the divider in the widget picker', () => {
 					'the entry is not marked as restricted or placed',
 				).toHaveCount(0)
 
-				await entry.click()
+				await entry.dblclick()
 				const dialog = session.page
 					.getByRole('dialog', { name: /add widget/i })
 					.first()

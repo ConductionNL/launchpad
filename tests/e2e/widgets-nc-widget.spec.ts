@@ -240,7 +240,7 @@ test.describe('nc-widget placement type (REQ-WDG-018..021)', () => {
 		await page
 			.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 			.click()
-		await page.locator('[data-testid="widget-picker-type-nc-widget"]').click()
+		await page.locator('[data-testid="widget-picker-type-nc-widget"]').dblclick()
 
 		const dialog = page.getByRole('dialog', { name: 'Add Widget' })
 		await expect(dialog).toBeVisible({ timeout: 10_000 })

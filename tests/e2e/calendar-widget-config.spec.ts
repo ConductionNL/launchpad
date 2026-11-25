@@ -104,7 +104,7 @@ async function prepare(
 async function openAddWidget(page: Page): Promise<Locator> {
 	await page.locator(MORE_MENU).locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-type-calendar"]').click()
+	await page.locator('[data-testid="widget-picker-type-calendar"]').dblclick()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog

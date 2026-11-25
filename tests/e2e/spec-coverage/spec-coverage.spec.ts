@@ -129,7 +129,7 @@ async function openAddWidgetModal(page: any, type = 'label') {
 	const addWidgetItem = page.getByRole('menuitem', { name: /^add widget$/i })
 	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
 	await addWidgetItem.click()
-	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).dblclick()
 
 	// Wait for the Add Widget dialog to be visible.
 	// Two elements carry role="dialog" for this modal (outer mask + inner pane);
@@ -473,7 +473,7 @@ test.describe('grid layout initialisation and edit mode', () => {
 			return
 		}
 		await addWidgetItem.click()
-		await page.locator('[data-testid="widget-picker-type-label"]').click()
+		await page.locator('[data-testid="widget-picker-type-label"]').dblclick()
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(dialog).toBeVisible({ timeout: 8_000 })
 	})

@@ -196,7 +196,7 @@ export async function openWorkspace(page: Page): Promise<void> {
 export async function openVideoForm(page: Page): Promise<Locator> {
 	await page.locator(MORE_MENU).locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-type-video"]').click()
+	await page.locator('[data-testid="widget-picker-type-video"]').dblclick()
 	// Found by its type select rather than by its title, so the helper works
 	// for a Dutch account too ("Widget toevoegen").
 	const dialog = page.getByRole('dialog')

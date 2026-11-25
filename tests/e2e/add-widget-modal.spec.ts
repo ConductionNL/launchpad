@@ -88,7 +88,7 @@ async function gotoLaunchPad(page: any) {
 async function openAddWidgetModal(page: any, type = 'label') {
 	await page.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`).click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).dblclick()
 
 	await expect(
 		page.getByRole('dialog', { name: /add widget/i }).first(),

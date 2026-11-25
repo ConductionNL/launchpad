@@ -289,7 +289,7 @@ export async function openAddNewsForm(page: Page): Promise<Locator> {
 	const more = page.locator(MORE_MENU)
 	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-type-news"]').click()
+	await page.locator('[data-testid="widget-picker-type-news"]').dblclick()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	await expect(dialog.locator('.news-widget-form')).toBeVisible()

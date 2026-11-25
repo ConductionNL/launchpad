@@ -446,7 +446,7 @@ export async function openAddWidgetDialog(page: Page): Promise<Locator> {
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-type-files"]').click()
+	await page.locator('[data-testid="widget-picker-type-files"]').dblclick()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog

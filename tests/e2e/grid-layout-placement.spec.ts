@@ -110,7 +110,7 @@ async function addLabel(
 	await page
 		.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 		.click()
-	await page.locator('[data-testid="widget-picker-type-label"]').click()
+	await page.locator('[data-testid="widget-picker-type-label"]').dblclick()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	await dialog

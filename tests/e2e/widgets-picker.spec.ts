@@ -123,7 +123,7 @@ async function moreMenu(page: Page, id: string): Promise<void> {
  */
 async function openCustomModal(page: Page, type = 'text'): Promise<Locator> {
 	await moreMenu(page, 'add-widget')
-	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).dblclick()
 	const dialog = page.getByRole('dialog', { name: 'Add Widget', exact: true })
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog

@@ -481,7 +481,7 @@ test('a tile added through "Add widget" → "Custom widget" stores its data in c
 		await page
 			.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 			.click()
-		await page.locator('[data-testid="widget-picker-type-tile"]').click()
+		await page.locator('[data-testid="widget-picker-type-tile"]').dblclick()
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(dialog).toBeVisible({ timeout: 10_000 })
 		await dialog.getByLabel('Title', { exact: true }).fill(title)

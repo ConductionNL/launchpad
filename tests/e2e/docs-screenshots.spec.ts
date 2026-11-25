@@ -186,7 +186,7 @@ test.describe('docs: user track', () => {
 		// Open the AddWidgetModal via the cog → Add widget → Custom widget
 		await openCogFor(page, activeName.trim())
 		await page.locator('[data-testid="cog-add-widget"]').click()
-		await page.locator('[data-testid="widget-picker-type-text"]').click()
+		await page.locator('[data-testid="widget-picker-type-text"]').dblclick()
 		await page
 			.locator('[data-testid="widget-type-select"]')
 			.waitFor({ state: 'visible', timeout: 5000 })

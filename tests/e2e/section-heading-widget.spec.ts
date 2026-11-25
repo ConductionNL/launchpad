@@ -62,7 +62,7 @@ test('a section heading heads a group', async ({ page }) => {
 	// WHEN they add a Section heading "Samenwerken" with the line
 	// "De tegels van het team".
 	await page.locator('[data-testid="launchpad-edit-bar-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-type-section-heading"]').click()
+	await page.locator('[data-testid="widget-picker-type-section-heading"]').dblclick()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	await dialog.getByLabel('Heading', { exact: true }).fill('Samenwerken')

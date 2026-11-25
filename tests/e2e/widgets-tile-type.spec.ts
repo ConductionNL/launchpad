@@ -51,7 +51,7 @@ test.describe('tile widget type (REQ-WDG-022)', () => {
 		await page
 			.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 			.click()
-		await page.locator('[data-testid="widget-picker-type-tile"]').click()
+		await page.locator('[data-testid="widget-picker-type-tile"]').dblclick()
 
 		const dialog = page.getByRole('dialog', { name: 'Add Widget' })
 		await expect(dialog).toBeVisible({ timeout: 10_000 })

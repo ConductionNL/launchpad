@@ -83,7 +83,7 @@ export async function openAddWidgetModal(page: Page, type = 'label'): Promise<vo
 	const addWidgetItem = page.getByRole('menuitem', { name: /^add widget$/i })
 	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
 	await addWidgetItem.click()
-	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
+	await page.locator(`[data-testid="widget-picker-type-${type}"]`).dblclick()
 	await expect(
 		page.getByRole('dialog', { name: /add widget/i }).first(),
 	).toBeVisible({ timeout: 10_000 })

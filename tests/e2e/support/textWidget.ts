@@ -201,7 +201,7 @@ export async function openAddTextForm(
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-type-text"]').click()
+	await page.locator('[data-testid="widget-picker-type-text"]').dblclick()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	const form = dialog.locator('.cn-text-widget-form')

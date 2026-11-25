@@ -227,7 +227,7 @@ async function openTileForm(
 	const item = page.getByRole('menuitem', { name: /^add widget$/i })
 	await expect(item).toBeVisible({ timeout: 5_000 })
 	await item.click()
-	await page.locator('[data-testid="widget-picker-type-livetile"]').click()
+	await page.locator('[data-testid="widget-picker-type-livetile"]').dblclick()
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	const form = dialog.locator('.live-tile-widget-form')

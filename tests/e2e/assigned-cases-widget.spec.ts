@@ -134,7 +134,7 @@ test('the form names dossiq\'s register and schema', async ({ browser }) => {
 		await page.goto('/index.php/apps/launchpad')
 		await page.locator('[data-testid="launchpad-more-menu"] [data-testid="launchpad-more-menu-trigger"]').click()
 		await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-		await page.locator('[data-testid="widget-picker-type-assigned-cases"]').click()
+		await page.locator('[data-testid="widget-picker-type-assigned-cases"]').dblclick()
 		await expect(page.locator('[data-testid="assigned-cases-form-register"] input')).toHaveValue('dossiq')
 		await expect(page.locator('[data-testid="assigned-cases-form-schema"] input')).toHaveValue('case')
 	} finally {

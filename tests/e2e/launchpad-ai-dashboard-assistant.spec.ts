@@ -218,7 +218,7 @@ test('REQ-ADA-001: ai-assistant is a listed widget type the Add Widget modal off
 		await expect(row).toBeVisible({ timeout: 10_000 })
 		await row.locator('.dashboard-row-actions button').first().click()
 		await page.getByRole('menuitem', { name: /^add widget$/i }).click()
-		await page.locator('[data-testid="widget-picker-type-ai-assistant"]').click()
+		await page.locator('[data-testid="widget-picker-type-ai-assistant"]').dblclick()
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(dialog).toBeVisible({ timeout: 10_000 })
 

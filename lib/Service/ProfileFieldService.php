@@ -527,8 +527,10 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 
 		$text = trim(string: $item);
 		// REQ-PEX-005: a date field holds one calendar date, `YYYY-MM-DD`.
-		$date = \DateTimeImmutable::createFromFormat(format: '!Y-m-d', datetime: $text);
-		if ($definition['type'] === 'date' && $text !== '' && ($date === false || $date->format(format: 'Y-m-d') !== $text)) {
+		$parts = [];
+		$isDate = preg_match(pattern: '/^(\d{4})-(\d{2})-(\d{2})$/', subject: $text, matches: $parts) === 1
+			&& checkdate(month: (int)$parts[2], day: (int)$parts[3], year: (int)$parts[1]);
+		if ($definition['type'] === 'date' && $text !== '' && $isDate === false) {
 			throw new InvalidArgumentException(message: 'A date must be written YYYY-MM-DD: ' . $definition['key']);
 		}
 
@@ -841,12 +843,16 @@ class ProfileFieldService implements ProfileFieldServiceInterface {
 		if ($definition['type'] === 'date') {
 			// REQ-PEX-005: LDAP writes a date as generalized time (`20261012000000Z`) or as `2026-10-12`.
 			$digits = substr(string: str_replace(search: '-', replace: '', subject: ($values[0] ?? '')), offset: 0, length: 8);
-			$date = \DateTimeImmutable::createFromFormat(format: '!Ymd', datetime: $digits);
-			if ($date === false || $date->format(format: 'Ymd') !== $digits) {
+			$year = substr(string: $digits, offset: 0, length: 4);
+			$month = substr(string: $digits, offset: 4, length: 2);
+			$day = substr(string: $digits, offset: 6, length: 2);
+			if (preg_match(pattern: '/^\d{8}$/', subject: $digits) !== 1
+				|| checkdate(month: (int)$month, day: (int)$day, year: (int)$year) === false
+			) {
 				return [];
 			}
 
-			return [$date->format(format: 'Y-m-d')];
+			return [$year.'-'.$month.'-'.$day];
 		}
 
 		if ($definition['type'] === 'text') {

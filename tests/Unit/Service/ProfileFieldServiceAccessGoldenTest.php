@@ -355,7 +355,10 @@ class ProfileFieldServiceAccessGoldenTest extends TestCase {
 	 */
 	public function testAnLdapStartDateIsReadAsACalendarDate(): void {
 		$this->service->saveDefinitions(raw: [
-			['key' => 'joined', 'label' => 'In dienst sinds', 'type' => 'date', 'source' => 'ldap', 'ldapAttribute' => 'employeeStartDate', 'startDate' => true],
+			[
+				'key' => 'joined', 'label' => 'In dienst sinds', 'type' => 'date',
+				'source' => 'ldap', 'ldapAttribute' => 'employeeStartDate', 'startDate' => true,
+			],
 		]);
 		$this->ldapFactory->method('isAvailable')->willReturn(true);
 		$provider = $this->createMock(originalClassName: ILDAPProvider::class);

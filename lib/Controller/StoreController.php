@@ -146,9 +146,9 @@ class StoreController extends Controller {
 		}
 
 		$result = $this->storeService->install(slug: $slug, userId: $user->getUID());
-		$created = ($result['dashboardIds'] ?? []);
+		$created = ($result['created'] ?? []);
 		if ($result['success'] === true && $created !== []) {
-			$this->installs?->record(slug: $slug, version: (string)($result['version'] ?? ''), dashboardId: (int)$created[0]);
+			$this->installs?->record(slug: $slug, version: (string)($result['version'] ?? ''), dashboard: (array)$created[0]);
 		}
 
 		// A refusal that installed nothing is a 400 so the page shows the

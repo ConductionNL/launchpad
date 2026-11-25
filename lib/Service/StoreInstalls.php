@@ -45,19 +45,21 @@ class StoreInstalls {
 	/**
 	 * Constructor.
 	 *
-	 * @param IAppConfig $appConfig Holds the map.
+	 * @param IAppConfig          $appConfig Holds the map.
+	 * @param StoreOpenLinks|null $links     Where an installed item opens; without it there is no Open.
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		private readonly IAppConfig $appConfig,
+		private readonly ?StoreOpenLinks $links = null,
 	) {
 	}//end __construct()
 
 	/**
 	 * Every install by item slug: the version and the dashboard it created.
 	 *
-	 * @return array<string, array{version: string, dashboardId: int}>
+	 * @return array<string, array{version: string, dashboardId: int, dashboardUuid: string}>
 	 *
 	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
 	 */
@@ -71,8 +73,9 @@ class StoreInstalls {
 		foreach ($decoded as $slug => $entry) {
 			if (is_array($entry) === true && (int)($entry['dashboardId'] ?? 0) > 0) {
 				$installs[(string)$slug] = [
-					'version'     => (string)($entry['version'] ?? ''),
-					'dashboardId' => (int)$entry['dashboardId'],
+					'version'       => (string)($entry['version'] ?? ''),
+					'dashboardId'   => (int)$entry['dashboardId'],
+					'dashboardUuid' => (string)($entry['dashboardUuid'] ?? ''),
 				];
 			}
 		}
@@ -83,21 +86,22 @@ class StoreInstalls {
 	/**
 	 * Record that an install of this item and version created this dashboard.
 	 *
-	 * @param string $slug        The register item slug.
-	 * @param string $version     The installed version.
-	 * @param int    $dashboardId The dashboard the install created.
+	 * @param string $slug      The register item slug.
+	 * @param string $version   The installed version.
+	 * @param array  $dashboard The dashboard the install created: `{id, uuid}`.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
 	 */
-	public function record(string $slug, string $version, int $dashboardId): void {
+	public function record(string $slug, string $version, array $dashboard): void {
+		$dashboardId = (int)($dashboard['id'] ?? 0);
 		if ($slug === '' || $dashboardId <= 0) {
 			return;
 		}
 
 		$installs = $this->all();
-		$installs[$slug] = ['version' => $version, 'dashboardId' => $dashboardId];
+		$installs[$slug] = ['version' => $version, 'dashboardId' => $dashboardId, 'dashboardUuid' => (string)($dashboard['uuid'] ?? '')];
 		$this->store(installs: $installs);
 	}//end record()
 
@@ -125,8 +129,8 @@ class StoreInstalls {
 	 * The cards with their install state: Installed (with the dashboard to
 	 * open), Update when the register's version is newer, or Available. The
 	 * fields are the ones the store page reads: `installed`,
-	 * `installedVersion`, `updateAvailable`, plus `status` and
-	 * `installedDashboardId`.
+	 * `installedVersion`, `updateAvailable` and `openUrl` (its Open action),
+	 * plus `status` and `installedDashboardId`.
 	 *
 	 * @param array<int, array<string, mixed>> $cards The register's cards.
 	 *
@@ -136,9 +140,10 @@ class StoreInstalls {
 	 */
 	public function annotate(array $cards): array {
 		$installs = $this->all();
+		$links = $this->links;
 
 		return array_map(
-			static function (mixed $card) use ($installs): mixed {
+			static function (mixed $card) use ($installs, $links): mixed {
 				if (is_array($card) === false) {
 					return $card;
 				}
@@ -158,6 +163,7 @@ class StoreInstalls {
 					'installed'            => true,
 					'installedVersion'     => $install['version'],
 					'installedDashboardId' => $install['dashboardId'],
+					'openUrl'              => ($links?->openUrl(uuid: $install['dashboardUuid']) ?? ''),
 					'updateAvailable'      => $newer,
 					'status'               => $status,
 				];
@@ -169,7 +175,7 @@ class StoreInstalls {
 	/**
 	 * Write the map.
 	 *
-	 * @param array<string, array{version: string, dashboardId: int}> $installs The installs.
+	 * @param array<string, array{version: string, dashboardId: int, dashboardUuid: string}> $installs The installs.
 	 *
 	 * @return void
 	 */

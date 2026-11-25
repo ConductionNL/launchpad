@@ -34,7 +34,7 @@ use OCA\LaunchPad\Db\WidgetPlacementMapper;
 /**
  * Lists, and shows again, the widgets a person hid.
  *
- * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+ * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
  */
 class HiddenWidgetsOverview {
 	/**
@@ -63,7 +63,7 @@ class HiddenWidgetsOverview {
 	 * @return array<int, array<string, mixed>> Per hidden widget: `placementId`,
 	 *     `dashboardId`, `dashboardName` and the serialised `placement`.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function listFor(string $userId): array {
 		if ($userId === '') {
@@ -109,7 +109,7 @@ class HiddenWidgetsOverview {
 	 *
 	 * @return bool True when it was hidden by this person and now is not.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function showAgain(string $userId, int $placementId): bool {
 		if ($userId === '' || $placementId <= 0) {
@@ -141,7 +141,7 @@ class HiddenWidgetsOverview {
 	 *
 	 * @return int How many widgets came back.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function showAll(string $userId): int {
 		if ($userId === '') {

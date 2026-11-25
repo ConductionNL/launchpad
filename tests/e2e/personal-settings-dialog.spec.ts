@@ -95,11 +95,14 @@ test.describe('personal settings dialog (REQ-PSET-001..003)', () => {
 			const hiddenBox = await hiddenSection.boundingBox()
 			expect(summaryBox!.y).toBeLessThan(hiddenBox!.y)
 
-			// Daily is stored at once.
+			// Daily is stored at once. The choices stay disabled until the stored choice has loaded.
+			await expect(page.getByRole('radio', { name: /^Daily/ })).toBeEnabled({ timeout: 15_000 })
 			const saved = page.waitForResponse(
 				(res) => res.request().method() === 'PUT' && res.url().endsWith('/api/summary-mail/me'),
 			)
-			await page.getByTestId('launchpad-summary-mail-daily').click()
+			// The test id sits on NcCheckboxRadioSwitch's visually hidden input; click its visible label.
+			const daily = page.getByTestId('launchpad-summary-mail-daily')
+			await page.locator(`#${await daily.getAttribute('aria-labelledby')}`).click()
 			expect((await saved).status()).toBe(200)
 			const stored = await pieter!.api.get(`${API}/summary-mail/me`)
 			expect((await stored.json()).frequency).toBe('daily')

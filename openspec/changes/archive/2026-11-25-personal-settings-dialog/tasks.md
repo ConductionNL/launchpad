@@ -10,5 +10,4 @@
 - [x] Translations in every shipped locale
   (All 36 non-English locales carry the 21 dialog and summary-mail strings in .json and .js, the plural with one form per plural of the locale; `src/__tests__/personalSettingsLocales.spec.js`.)
 - [x] Unit tests: section order and omission; preference stored; job timing per time zone, Monday for weekly, empty daily skipped, no email address; hidden list, show one, show all, never another person's layer
-- [ ] Playwright: open Persoonlijke instellingen from Meer, set Daily, hide a widget on a shared dashboard and show it again from the dialog
-  (Written in `tests/e2e/personal-settings-dialog.spec.ts`, runs in nightly; not yet verified against a live instance.)
+- [x] Playwright: open Persoonlijke instellingen from Meer, set Daily, hide a widget on a shared dashboard and show it again from the dialog (`tests/e2e/personal-settings-dialog.spec.ts` 1/1 green on a sandbox Nextcloud 34.0.6 + MariaDB, 25 Nov 2026; the spec now waits for the choices to load and clicks the visible label of Daily, since the test id sits on the switch's visually hidden input)

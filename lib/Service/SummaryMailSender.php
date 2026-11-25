@@ -35,7 +35,7 @@ use Throwable;
 /**
  * Sends one person's summary.
  *
- * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+ * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
  */
 class SummaryMailSender {
 	/**
@@ -62,7 +62,7 @@ class SummaryMailSender {
 	 *
 	 * @return bool True when the mailer took it.
 	 *
-	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-personal-settings-dialog/specs/personal-settings/spec.md
 	 */
 	public function send(IUser $user, array $summary): bool {
 		try {

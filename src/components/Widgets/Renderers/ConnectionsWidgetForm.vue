@@ -19,7 +19,7 @@ import { NULLABLE_OBJECT_PROP, objectProp } from '../../../constants/propDefinit
  * ConnectionsWidgetForm: the `connections` widget has no settings; the
  * form says what it shows.
  *
- * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+ * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
  */
 export default {
 	name: 'ConnectionsWidgetForm',
@@ -35,7 +35,7 @@ export default {
 
 	emits: ['update:content'],
 
-	/** @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections */
+	/** @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections */
 	mounted() {
 		this.$emit('update:content', {})
 	},
@@ -47,7 +47,7 @@ export default {
 		 * Nothing to validate.
 		 *
 		 * @return {string[]} No errors.
-		 * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
 		 */
 		validate() {
 			return []

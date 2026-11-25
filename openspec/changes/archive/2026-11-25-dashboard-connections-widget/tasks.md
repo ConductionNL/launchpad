@@ -6,4 +6,4 @@
 - [x] Demo seed: the management dashboard's card becomes a `connections` widget
 - [x] Translations in every shipped locale
 - [x] Unit tests: the uses-map to connection list (dedupe, unused left out); status labels; without integriq
-- [ ] Playwright: a dashboard with a live tile and the connections widget lists Live tiles with its state (spec written: tests/e2e/dashboard-connections-widget.spec.ts, runs in nightly)
+- [x] Playwright: a dashboard with a live tile and the connections widget lists Live tiles with its state (`tests/e2e/dashboard-connections-widget.spec.ts` 1/1 green on a sandbox Nextcloud 34.0.6 + MariaDB with integriq development, 25 Nov 2026; without integriq the test skips by design)

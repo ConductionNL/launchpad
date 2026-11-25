@@ -298,7 +298,7 @@ class DemoSeedWidgets {
 	 *
 	 * @return array<string, mixed>|null The tile's count source, null for none.
 	 *
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
 	 */
 	private function countSourceOf(mixed $source): ?array {
 		if (is_array($source) === false) {

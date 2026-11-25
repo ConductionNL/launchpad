@@ -397,7 +397,7 @@ test.describe('dry run (REQ-RESYNC-002)', () => {
 
 test.describe('strategies (REQ-RESYNC-003, -004)', () => {
 	// @e2e admin-templates::merge-keeps-user-additions-while-applying-template-changes
-	test('merge brings back the template widget and position and keeps the Notes widget', async () => {
+	test('merge brings back the template widget, keeps the moved widget where she put it and keeps the Notes widget', async () => {
 		const announcements = `${STAMP} Announcements`
 		const { template, copies } = await distributed(
 			'merge',
@@ -408,9 +408,10 @@ test.describe('strategies (REQ-RESYNC-003, -004)', () => {
 			1,
 		)
 		const aliceCopy = copies[0]
-		// The copy lacks the template's Announcements widget and has the
-		// other template widget elsewhere: the diff of "the admin added one
-		// and moved one". Then she adds her own Notes.
+		// The copy lacks the template's Announcements widget and alice moved
+		// the other template widget: under merge the missing one comes back
+		// and the moved one stays where she put it (REQ-RESYNC-007). Then she
+		// adds her own Notes.
 		await memberRemoves(aliceCopy, announcements)
 		await memberMoves(aliceCopy, `${STAMP} merge one`, 7)
 		await memberAdds(aliceCopy, `${STAMP} Notes`, 9)
@@ -428,7 +429,7 @@ test.describe('strategies (REQ-RESYNC-003, -004)', () => {
 		const ann = byTitle(after, announcements)
 		expect([ann.gridX, ann.gridY]).toEqual([4, 0])
 		expect(ann.templatePlacementId).toBe(byTitle(tpl, announcements).id)
-		expect(byTitle(after, `${STAMP} merge one`).gridY).toBe(0)
+		expect(byTitle(after, `${STAMP} merge one`).gridY).toBe(7)
 		const notes = byTitle(after, `${STAMP} Notes`)
 		expect(notes.id).toBe(notesBefore.id)
 		expect([

@@ -37,7 +37,8 @@ const ADMIN = {
 }
 
 const SHORTCUTS = '/index.php/apps/launchpad/api/admin/search-shortcuts'
-const FIELD = '.unified-search-input, #unified-search input, .unified-search__input, input.unified-search-menu__input'
+// The text field: LaunchPad's own on Nextcloud 31+ (core's top bar has only a button there), else core's.
+const FIELD = '[data-testid="header-search-field"], input.unified-search-input, .unified-search-input input, #unified-search input, input.unified-search__input, input.unified-search-menu__input'
 const PANEL = '[data-testid="header-search-dropdown"]'
 
 let api: APIRequestContext

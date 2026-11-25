@@ -65,6 +65,7 @@ class SummaryMailJob extends TimedJob {
 	 *
 	 * @spec openspec/changes/personal-settings-dialog/specs/personal-settings/spec.md
 	 */
+	#[\Override]
 	protected function run($argument): void {
 		$this->summary->sendDue(now: new DateTimeImmutable('@'.$this->time->getTime()));
 	}//end run()

@@ -14,8 +14,8 @@
 
 import * as fs from 'fs'
 import * as path from 'path'
-import * as vm from 'vm'
 import { describe, expect, it } from 'vitest'
+import * as vm from 'vm'
 
 const L10N = path.resolve(__dirname, '../../l10n')
 

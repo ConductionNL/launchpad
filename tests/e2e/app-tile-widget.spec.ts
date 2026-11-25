@@ -62,7 +62,7 @@ test.beforeAll(async () => {
 		const dash = body.dashboard ?? body.data?.dashboard ?? body
 		for (const [index, appId] of ['files', 'e2e_not_an_app'].entries()) {
 			const widget = await api.post(`${API}/dashboard/${dash.id}/widgets`, {
-				data: { widgetId: 'app-tile', gridX: index * 2, gridY: 0, gridWidth: 2, gridHeight: 4, content: { appId, colour: 'red', showCount: true } },
+				data: { widgetId: 'app-tile', gridX: index * 2, gridY: 0, gridWidth: 2, gridHeight: 4, content: { appId, colour: 'accent', showCount: true } },
 			})
 			expect(widget.status(), await widget.text()).toBeLessThan(300)
 		}

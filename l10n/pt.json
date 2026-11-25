@@ -1727,6 +1727,22 @@
         "What colleagues worked on.": "Aquilo em que os colegas trabalharam.",
         "What needs you first, across apps.": "O que precisa primeiro de si, em todas as aplicações.",
         "Your open cases.": "Os seus casos em aberto.",
-        "Your open work packages.": "Os seus pacotes de trabalho em aberto."
+        "Your open work packages.": "Os seus pacotes de trabalho em aberto.",
+        "Add tiles": "Adicionar mosaicos",
+        "Search apps": "Pesquisar aplicações",
+        "On your dashboard": "No seu painel",
+        "Add {name}": "Adicionar {name}",
+        "No apps found": "Nenhuma aplicação encontrada",
+        "Found on this server": "Encontrado neste servidor",
+        "Add as tile": "Adicionar como mosaico",
+        "Ready-made tiles for Office": "Mosaicos prontos para Office",
+        "Drop the bookmarks file your browser exported here": "Largue aqui o ficheiro de marcadores que o seu navegador exportou",
+        "Choose file": "Escolher ficheiro",
+        "Add 1 tile": "Adicionar 1 mosaico",
+        "Add {count} tiles": "Adicionar {count} mosaicos",
+        "Single sign-on": "Início de sessão único",
+        "Signs in with your Nextcloud account": "Inicia sessão com a sua conta Nextcloud",
+        "Asks for its own sign-in": "Pede o seu próprio início de sessão",
+        "The tiles could not be added.": "Não foi possível adicionar os mosaicos."
     }
 }

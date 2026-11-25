@@ -1727,6 +1727,22 @@
         "What colleagues worked on.": "İş arkadaşlarının üzerinde çalıştıkları.",
         "What needs you first, across apps.": "Uygulamalar genelinde önce sizi bekleyenler.",
         "Your open cases.": "Açık vakalarınız.",
-        "Your open work packages.": "Açık iş paketleriniz."
+        "Your open work packages.": "Açık iş paketleriniz.",
+        "Add tiles": "Kutucuk ekle",
+        "Search apps": "Uygulama ara",
+        "On your dashboard": "Panonuzda",
+        "Add {name}": "{name} ekle",
+        "No apps found": "Uygulama bulunamadı",
+        "Found on this server": "Bu sunucuda bulundu",
+        "Add as tile": "Kutucuk olarak ekle",
+        "Ready-made tiles for Office": "Office için hazır kutucuklar",
+        "Drop the bookmarks file your browser exported here": "Tarayıcınızın dışa aktardığı yer imi dosyasını buraya bırakın",
+        "Choose file": "Dosya seç",
+        "Add 1 tile": "1 kutucuk ekle",
+        "Add {count} tiles": "{count} kutucuk ekle",
+        "Single sign-on": "Çoklu oturum açma",
+        "Signs in with your Nextcloud account": "Nextcloud hesabınızla oturum açar",
+        "Asks for its own sign-in": "Kendi oturum açmasını ister",
+        "The tiles could not be added.": "Kutucuklar eklenemedi."
     }
 }

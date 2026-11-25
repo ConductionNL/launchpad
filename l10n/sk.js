@@ -1827,7 +1827,23 @@ OC.L10N.register(
     "What colleagues worked on." : "Na čom pracovali kolegovia.",
     "What needs you first, across apps." : "Čo od vás potrebuje najskôr, naprieč aplikáciami.",
     "Your open cases." : "Vaše otvorené prípady.",
-    "Your open work packages." : "Vaše otvorené pracovné balíky."
+    "Your open work packages." : "Vaše otvorené pracovné balíky.",
+    "Add tiles" : "Pridať dlaždice",
+    "Search apps" : "Hľadať aplikácie",
+    "On your dashboard" : "Na vašej nástenke",
+    "Add {name}" : "Pridať {name}",
+    "No apps found" : "Nenašli sa žiadne aplikácie",
+    "Found on this server" : "Nájdené na tomto serveri",
+    "Add as tile" : "Pridať ako dlaždicu",
+    "Ready-made tiles for Office" : "Hotové dlaždice pre Office",
+    "Drop the bookmarks file your browser exported here" : "Sem pretiahnite súbor záložiek exportovaný prehliadačom",
+    "Choose file" : "Vybrať súbor",
+    "Add 1 tile" : "Pridať 1 dlaždicu",
+    "Add {count} tiles" : "Pridať dlaždice: {count}",
+    "Single sign-on" : "Jednotné prihlásenie",
+    "Signs in with your Nextcloud account" : "Prihlasuje sa vaším účtom Nextcloud",
+    "Asks for its own sign-in" : "Vyžaduje vlastné prihlásenie",
+    "The tiles could not be added." : "Dlaždice sa nepodarilo pridať."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

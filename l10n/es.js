@@ -1827,7 +1827,23 @@ OC.L10N.register(
     "What colleagues worked on." : "En qué han trabajado sus compañeros.",
     "What needs you first, across apps." : "Lo que necesita su atención primero, en todas las aplicaciones.",
     "Your open cases." : "Sus casos abiertos.",
-    "Your open work packages." : "Sus paquetes de trabajo abiertos."
+    "Your open work packages." : "Sus paquetes de trabajo abiertos.",
+    "Add tiles" : "Añadir mosaicos",
+    "Search apps" : "Buscar aplicaciones",
+    "On your dashboard" : "En tu panel",
+    "Add {name}" : "Añadir {name}",
+    "No apps found" : "No se encontraron aplicaciones",
+    "Found on this server" : "Encontrado en este servidor",
+    "Add as tile" : "Añadir como mosaico",
+    "Ready-made tiles for Office" : "Mosaicos listos para Office",
+    "Drop the bookmarks file your browser exported here" : "Suelta aquí el archivo de marcadores que exportó tu navegador",
+    "Choose file" : "Elegir archivo",
+    "Add 1 tile" : "Añadir 1 mosaico",
+    "Add {count} tiles" : "Añadir {count} mosaicos",
+    "Single sign-on" : "Inicio de sesión único",
+    "Signs in with your Nextcloud account" : "Inicia sesión con tu cuenta de Nextcloud",
+    "Asks for its own sign-in" : "Pide su propio inicio de sesión",
+    "The tiles could not be added." : "No se pudieron añadir los mosaicos."
 },
 "nplurals=2; plural=(n != 1);"
 );

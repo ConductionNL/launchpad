@@ -1827,7 +1827,23 @@ OC.L10N.register(
     "What colleagues worked on." : "Vad kollegorna har arbetat med.",
     "What needs you first, across apps." : "Vad som behöver dig först, i alla appar.",
     "Your open cases." : "Dina öppna ärenden.",
-    "Your open work packages." : "Dina öppna arbetspaket."
+    "Your open work packages." : "Dina öppna arbetspaket.",
+    "Add tiles" : "Lägg till paneler",
+    "Search apps" : "Sök appar",
+    "On your dashboard" : "På din instrumentpanel",
+    "Add {name}" : "Lägg till {name}",
+    "No apps found" : "Inga appar hittades",
+    "Found on this server" : "Hittad på den här servern",
+    "Add as tile" : "Lägg till som panel",
+    "Ready-made tiles for Office" : "Färdiga paneler för Office",
+    "Drop the bookmarks file your browser exported here" : "Släpp bokmärkesfilen som din webbläsare exporterade här",
+    "Choose file" : "Välj fil",
+    "Add 1 tile" : "Lägg till 1 panel",
+    "Add {count} tiles" : "Lägg till {count} paneler",
+    "Single sign-on" : "Enkel inloggning",
+    "Signs in with your Nextcloud account" : "Loggar in med ditt Nextcloud-konto",
+    "Asks for its own sign-in" : "Kräver en egen inloggning",
+    "The tiles could not be added." : "Panelerna kunde inte läggas till."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -24,7 +24,8 @@ test('the workspace opens without asking for its org navigation', async ({ page 
 
 	await page.goto('/index.php/apps/launchpad/')
 	await expect(page.locator('main, [role="main"]').first()).toBeVisible({ timeout: 30_000 })
-	await page.waitForLoadState('networkidle')
+	// The view asks for these while it boots, before its grid renders.
+	await expect(page.locator('[data-placement-id]').first()).toBeVisible({ timeout: 30_000 })
 
 	const carried = await page.locator('#initial-state-launchpad-orgNavigation').getAttribute('value')
 	expect(carried, 'the page carries the org navigation').not.toBeNull()

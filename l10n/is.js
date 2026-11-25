@@ -1827,7 +1827,23 @@ OC.L10N.register(
     "What colleagues worked on." : "Hvað samstarfsfólk vann að.",
     "What needs you first, across apps." : "Það sem þarfnast þín fyrst, þvert á forrit.",
     "Your open cases." : "Opin mál þín.",
-    "Your open work packages." : "Opnir verkpakkar þínir."
+    "Your open work packages." : "Opnir verkpakkar þínir.",
+    "Add tiles" : "Bæta við reitum",
+    "Search apps" : "Leita að forritum",
+    "On your dashboard" : "Á stjórnborðinu þínu",
+    "Add {name}" : "Bæta við {name}",
+    "No apps found" : "Engin forrit fundust",
+    "Found on this server" : "Fannst á þessum þjóni",
+    "Add as tile" : "Bæta við sem reit",
+    "Ready-made tiles for Office" : "Tilbúnir reitir fyrir Office",
+    "Drop the bookmarks file your browser exported here" : "Slepptu hér bókamerkjaskránni sem vafrinn þinn flutti út",
+    "Choose file" : "Velja skrá",
+    "Add 1 tile" : "Bæta við 1 reit",
+    "Add {count} tiles" : "Bæta við reitum: {count}",
+    "Single sign-on" : "Einskráning",
+    "Signs in with your Nextcloud account" : "Skráir inn með Nextcloud-aðganginum þínum",
+    "Asks for its own sign-in" : "Biður um eigin innskráningu",
+    "The tiles could not be added." : "Ekki tókst að bæta reitunum við."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

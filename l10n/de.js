@@ -1827,7 +1827,23 @@ OC.L10N.register(
     "What colleagues worked on." : "Woran Kolleginnen und Kollegen gearbeitet haben.",
     "What needs you first, across apps." : "Was Sie zuerst braucht, appübergreifend.",
     "Your open cases." : "Ihre offenen Fälle.",
-    "Your open work packages." : "Ihre offenen Arbeitspakete."
+    "Your open work packages." : "Ihre offenen Arbeitspakete.",
+    "Add tiles" : "Kacheln hinzufügen",
+    "Search apps" : "Apps suchen",
+    "On your dashboard" : "Auf Ihrem Dashboard",
+    "Add {name}" : "{name} hinzufügen",
+    "No apps found" : "Keine Apps gefunden",
+    "Found on this server" : "Auf diesem Server gefunden",
+    "Add as tile" : "Als Kachel hinzufügen",
+    "Ready-made tiles for Office" : "Fertige Kacheln für Office",
+    "Drop the bookmarks file your browser exported here" : "Legen Sie hier die Lesezeichendatei ab, die Ihr Browser exportiert hat",
+    "Choose file" : "Datei auswählen",
+    "Add 1 tile" : "1 Kachel hinzufügen",
+    "Add {count} tiles" : "{count} Kacheln hinzufügen",
+    "Single sign-on" : "Single Sign-on",
+    "Signs in with your Nextcloud account" : "Meldet sich mit Ihrem Nextcloud-Konto an",
+    "Asks for its own sign-in" : "Verlangt eine eigene Anmeldung",
+    "The tiles could not be added." : "Die Kacheln konnten nicht hinzugefügt werden."
 },
 "nplurals=2; plural=(n != 1);"
 );

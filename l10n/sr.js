@@ -1818,6 +1818,22 @@ OC.L10N.register(
     "What colleagues worked on." : "На чему су колеге радиле.",
     "What needs you first, across apps." : "Шта вам је прво потребно, у свим апликацијама.",
     "Your open cases." : "Ваши отворени предмети.",
-    "Your open work packages." : "Ваши отворени радни пакети."
+    "Your open work packages." : "Ваши отворени радни пакети.",
+    "Add tiles" : "Додај плочице",
+    "Search apps" : "Претражи апликације",
+    "On your dashboard" : "На вашој контролној табли",
+    "Add {name}" : "Додај {name}",
+    "No apps found" : "Нема пронађених апликација",
+    "Found on this server" : "Пронађено на овом серверу",
+    "Add as tile" : "Додај као плочицу",
+    "Ready-made tiles for Office" : "Готове плочице за Office",
+    "Drop the bookmarks file your browser exported here" : "Овде превуците датотеку обележивача коју је извезао прегледач",
+    "Choose file" : "Изабери датотеку",
+    "Add 1 tile" : "Додај 1 плочицу",
+    "Add {count} tiles" : "Додај плочице: {count}",
+    "Single sign-on" : "Јединствена пријава",
+    "Signs in with your Nextcloud account" : "Пријављује се вашим Nextcloud налогом",
+    "Asks for its own sign-in" : "Тражи сопствену пријаву",
+    "The tiles could not be added." : "Плочице није могуће додати."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

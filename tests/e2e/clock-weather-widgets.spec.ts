@@ -64,6 +64,7 @@ import {
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const API = '/index.php/apps/launchpad/api'
 const APP_CONFIG = '/ocs/v2.php/apps/provisioning_api/api/v1/config/apps/launchpad'
@@ -263,7 +264,7 @@ async function openAddCustomWidget(page: Page, type = 'clock') {
 	await page
 		.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 		.click()
-	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
+	await chooseAndAdd(page.locator(`[data-testid="widget-picker-type-${type}"]`))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog

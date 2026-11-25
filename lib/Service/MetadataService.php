@@ -54,6 +54,15 @@ class MetadataService {
 	private const MAX_KEY_LENGTH = 64;
 
 	/**
+	 * How `created_at` / `updated_at` are written. Both columns are
+	 * DATETIME; MySQL and MariaDB strict mode refuse ISO-8601 with a `T`
+	 * and an offset ('c'), so a field could not be defined there at all.
+	 *
+	 * @var string
+	 */
+	private const DB_DATETIME = 'Y-m-d H:i:s';
+
+	/**
 	 * Maximum label length (matches schema column).
 	 *
 	 * @var int
@@ -135,7 +144,7 @@ class MetadataService {
 			// Expected — key is free.
 		}
 
-		$now = (new DateTime())->format(format: 'c');
+		$now   = (new DateTime())->format(format: self::DB_DATETIME);
 		$field = new MetadataField();
 		$requiredFlag = 0;
 		if ($settings['required'] === 1) {
@@ -191,7 +200,7 @@ class MetadataService {
 		self::patchOptions(field: $field, patch: $patch);
 
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$field->setUpdatedAt((new DateTime())->format(format: 'c'));
+		$field->setUpdatedAt((new DateTime())->format(format: self::DB_DATETIME));
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
 		return $this->fieldMapper->update(entity: $field);

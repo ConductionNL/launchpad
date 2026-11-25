@@ -190,6 +190,11 @@ class FooterServiceGoldenTest extends TestCase {
 		return [
 			'unknown key' => [['logoUrl' => 'x', 'bogus' => 1], 'footerConfig contains unknown key: bogus'],
 			'numeric key' => [[0 => 'x'], 'footerConfig contains unknown key: 0'],
+			// REQ-FTR-003: the refusal names every allowed key.
+			'unknown key names the allowed keys' => [
+				['unknownField' => 'value'],
+				'footerConfig contains unknown key: unknownField; allowed keys: logoUrl, organisation, address, links, legal, copyrightYear, layoutMode',
+			],
 			'layout not string' => [['layoutMode' => 3], 'footerConfig.layoutMode must be one of: columns, inline'],
 			'layout unknown' => [['layoutMode' => 'grid'], 'footerConfig.layoutMode must be one of: columns, inline'],
 			'links not array' => [['links' => 'x'], 'footerConfig.links must be an array'],

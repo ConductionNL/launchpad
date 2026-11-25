@@ -393,7 +393,7 @@ describe('IframeWidget outage state (REQ-IFRAME-005)', () => {
 	})
 })
 
-// @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
+// @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
 describe('IframeWidget — REQ-DPD-003 in a downloaded dashboard', () => {
 	it('names the embedded page with a line that it is not included', async () => {
 		const wrapper = mount(IframeWidget, {

@@ -32,7 +32,7 @@ function sentence(finding) {
  * @param {object|null} content The widget's placement content.
  * @param {Array<object>} hierarchies The dashboard's hierarchy descriptors.
  * @return {Array<{id: string, type: string, text: string}>}
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-9
  */
 export function busNotices(content, hierarchies) {
 	const { publishes, consumes } = busDeclarationsOf(content)

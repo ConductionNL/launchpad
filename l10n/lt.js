@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Asmeninis skydelis",
     "Personal dashboard · opens first" : "Asmeninis skydelis · atidaromas pirmas",
     "Shared with you" : "Bendrinama su jumis",
+    "Group dashboard of {group}" : "Grupės {group} skydelis",
     "Last changed {when}" : "Paskutinį kartą keista {when}",
     "Last changed today {time}" : "Paskutinį kartą keista šiandien {time}",
     "Embedded report" : "Įterpta ataskaita",

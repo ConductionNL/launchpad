@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Tauler personal",
     "Personal dashboard · opens first" : "Tauler personal · s'obre primer",
     "Shared with you" : "Compartit amb vós",
+    "Group dashboard of {group}" : "Tauler del grup {group}",
     "Last changed {when}" : "Darrer canvi {when}",
     "Last changed today {time}" : "Darrer canvi avui {time}",
     "Embedded report" : "Informe incrustat",

@@ -5,7 +5,7 @@
  * The widget dialog warns about filter declarations that do not fit the
  * dashboard (drill-down-cross-widget-filter task 9, REQ-CWF-008).
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-9
  */
 
 import { describe, expect, it, vi } from 'vitest'

@@ -5,7 +5,7 @@
  * The widget dialog gets the edited widget's filter notices
  * (drill-down-cross-widget-filter task 9).
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-9
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/tasks.md#task-9
  */
 
 import { describe, expect, it } from 'vitest'

@@ -39,7 +39,7 @@ export function hierarchiesOf(dashboard) {
  *
  * @param {Array<object>} hierarchies The hierarchy descriptors.
  * @return {{[key: string]: string}}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 export function levelLabels(hierarchies) {
 	const labels = {}
@@ -68,7 +68,7 @@ export function levelLabels(hierarchies) {
  * @param {{replaceState: (state: unknown, title: string, url: string) => void, state: unknown}} [options.history] The history (window.history).
  * @param {{record: (eventType: string, clauses: Array<object>, widgetId?: string|null) => unknown}|null} [options.telemetry] Records filter changes when the organisation opted in (REQ-CWF-010).
  * @return {{bus: object, clauses: import('vue').ShallowRef<Array<object>>, labels: {[key: string]: string}, remove: (dimension: string) => boolean, reset: () => boolean, popTo: (dimension: string) => boolean, stop: () => void}}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
  */
 export function useDashboardFilterSession({ dashboard, readUrl, location = window.location, history = window.history, telemetry = null }) {
 	const hierarchies = hierarchiesOf(dashboard)

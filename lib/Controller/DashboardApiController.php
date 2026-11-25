@@ -772,7 +772,7 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-19
 	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	#[NoAdminRequired]
 	public function update(
@@ -938,7 +938,7 @@ class DashboardApiController extends Controller {
 	 * @return bool True for a metadata-only update.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md#requirement-a-dashboard-sets-the-default-target-for-its-tiles-req-tob-002
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	private static function isMetadataOnly(?array $placements, ?string $defaultLinkTarget, mixed $hierarchies): bool {
 		return $placements === null && $defaultLinkTarget === null && $hierarchies === null;

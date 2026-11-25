@@ -1542,6 +1542,7 @@ OC.L10N.register(
     "Personal dashboard" : "Personīgais informācijas panelis",
     "Personal dashboard · opens first" : "Personīgais informācijas panelis · atveras pirmais",
     "Shared with you" : "Kopīgots ar jums",
+    "Group dashboard of {group}" : "Grupas {group} informācijas panelis",
     "Last changed {when}" : "Pēdējās izmaiņas {when}",
     "Last changed today {time}" : "Pēdējās izmaiņas šodien {time}",
     "Embedded report" : "Iegults pārskats",

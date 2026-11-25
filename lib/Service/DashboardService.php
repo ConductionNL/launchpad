@@ -2981,7 +2981,7 @@ class DashboardService {
 	 * @throws Throwable Whatever the transaction body threw, after rollback.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	private function persistFork(
 		string $userId,
@@ -4003,7 +4003,7 @@ class DashboardService {
 	 *
 	 * @throws InvalidArgumentException When a descriptor is malformed.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	private function applyHierarchiesUpdate(Dashboard $dashboard, array $data): void {
 		if (array_key_exists(key: 'hierarchies', array: $data) === false) {

@@ -102,7 +102,7 @@ function levelOf(hierarchies, dimension) {
  * @param {Array<object>} hierarchies The dashboard's hierarchy descriptors.
  * @param {string} dimension The dimension.
  * @return {string[]}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
  */
 export function ancestorDimensions(hierarchies, dimension) {
 	const position = levelOf(hierarchies, dimension)
@@ -117,7 +117,7 @@ export function ancestorDimensions(hierarchies, dimension) {
  * @param {Array<object>} hierarchies The dashboard's hierarchy descriptors.
  * @param {object} row The clicked row's fields, where ancestor values are read.
  * @return {{descendants: string[], ancestors: Array<object>}}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
  */
 export function resolveHierarchy(clause, hierarchies, row = {}) {
 	const position = levelOf(hierarchies, clause.dimension)
@@ -177,7 +177,7 @@ function ancestorOf(level, row) {
  * @param {Array<object>} clauses The bus's clauses.
  * @param {string} hierarchyId The hierarchy id.
  * @return {Array<{dimension: string, label: string, value: unknown, pinned: boolean}>}
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
  */
 export function breadcrumbPath(hierarchies, clauses, hierarchyId) {
 	const hierarchy = (Array.isArray(hierarchies) ? hierarchies : []).find((entry) => entry && entry.id === hierarchyId)
@@ -244,7 +244,7 @@ function replaceAudit(incoming, existing) {
  * @param {(clause: object) => boolean} [options.canAccess] False refuses the clause.
  * @param {{record: (eventType: string, clauses: Array<object>, widgetId?: string|null) => unknown}|null} [options.telemetry] Records filter changes (REQ-CWF-010); none by default.
  * @return {object} The bus: `clauses` (a read-only ref), `hierarchies` (as given, for widget validation), `publish`, `remove`, `reset`, `hydrate`, `subscribe`, `clausesFor`, `breadcrumb`, `popTo`.
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-001-widget-click-publishes-to-the-filter-bus
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-001-widget-click-publishes-to-the-filter-bus
  */
 export function useFilterBus({ hierarchies = [], canAccess = () => true, telemetry = null } = {}) {
 	const clauses = shallowRef([])
@@ -287,7 +287,7 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true, telemet
 	 * @param {object} incoming The new clause.
 	 * @param {object|undefined} existing The clause it meets.
 	 * @return {{action: string, audit: object|null}} `add`, `replace`, `drop` or `toggle`.
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-005-filter-conflict-resolution-is-last-write-wins-per-dimension
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-005-filter-conflict-resolution-is-last-write-wins-per-dimension
 	 */
 	function applyConflictResolution(incoming, existing) {
 		if (!existing) {
@@ -308,7 +308,7 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true, telemet
 	 * @param {object} clause The clause: `{dimension, operator, value, source, sourceWidgetId, pinned}`.
 	 * @param {object} [context] `{row}`: the clicked row, for inferring ancestor levels.
 	 * @return {{accepted: boolean, reason?: string, toggled?: boolean, audit?: object|null}}
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-001-widget-click-publishes-to-the-filter-bus
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-001-widget-click-publishes-to-the-filter-bus
 	 */
 	function publish(clause, context = {}) {
 		if (!hasDimension(clause)) {
@@ -383,7 +383,7 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true, telemet
 	 *
 	 * @param {string} dimension The dimension.
 	 * @return {boolean} Whether anything was removed.
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
 	 */
 	function remove(dimension) {
 		const existing = clauses.value.find((entry) => entry.dimension === dimension)
@@ -399,7 +399,7 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true, telemet
 	 * untouched and tells nobody, so a double click makes no noise.
 	 *
 	 * @return {boolean} Whether anything was cleared.
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-006-reset-filters-clears-all-non-pinned-clauses
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-006-reset-filters-clears-all-non-pinned-clauses
 	 */
 	function reset() {
 		const kept = clauses.value.filter((entry) => entry.pinned)
@@ -441,7 +441,7 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true, telemet
 	 * @param {Array<object>} restored The clauses.
 	 * @param {string} [source] Their origin, `urlBootstrap` by default.
 	 * @return {void}
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
 	 */
 	function hydrate(restored, source = 'urlBootstrap') {
 		const pinned = clauses.value.filter((entry) => entry.pinned)
@@ -464,7 +464,7 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true, telemet
 	 *
 	 * @param {(clauses: Array<object>) => void} listener Gets the new clause list.
 	 * @return {() => boolean} Stops listening.
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-002-all-consuming-widgets-re-render-on-filter-change
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-002-all-consuming-widgets-re-render-on-filter-change
 	 */
 	function subscribe(listener) {
 		subscribers.add(listener)
@@ -477,7 +477,7 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true, telemet
 	 *
 	 * @param {string[]} consumes The dimensions the widget consumes.
 	 * @return {Array<object>}
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-002-all-consuming-widgets-re-render-on-filter-change
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-002-all-consuming-widgets-re-render-on-filter-change
 	 */
 	function clausesFor(consumes) {
 		const dimensions = Array.isArray(consumes) ? consumes : []
@@ -489,7 +489,7 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true, telemet
 	 *
 	 * @param {string} hierarchyId The hierarchy id.
 	 * @return {Array<{dimension: string, label: string, value: unknown}>}
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
 	 */
 	function breadcrumb(hierarchyId) {
 		return breadcrumbPath(hierarchies, clauses.value, hierarchyId)
@@ -503,7 +503,7 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true, telemet
 	 *
 	 * @param {string} dimension The level to go back to.
 	 * @return {boolean} Whether anything changed.
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-004-drill-down-hierarchies-update-breadcrumb-and-descendant-filters
 	 */
 	function popTo(dimension) {
 		const position = levelOf(hierarchies, dimension)

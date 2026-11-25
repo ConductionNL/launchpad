@@ -13,7 +13,7 @@
  * Gate-19 @e2e traceability:
  *   @e2e cross-widget-filter::the-widget-dialog-warns-about-an-unpublished-dimension
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md
  */
 
 import { expect, test } from '@playwright/test'

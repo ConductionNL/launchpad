@@ -17,7 +17,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 
 declare(strict_types=1);
@@ -34,7 +34,7 @@ use InvalidArgumentException;
  * A dimension belongs to one level of one hierarchy only, because the bus
  * resolves a clause on the first level that carries its dimension.
  *
- * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
  */
 class DashboardHierarchies {
 
@@ -74,7 +74,7 @@ class DashboardHierarchies {
 	 *
 	 * @throws InvalidArgumentException When the value is not a valid list of descriptors.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	public static function validated(mixed $value): array {
 		if ($value === null) {
@@ -125,7 +125,7 @@ class DashboardHierarchies {
 	 *
 	 * @throws InvalidArgumentException When the descriptor is malformed.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	private static function hierarchy(mixed $entry, int $index): array {
 		$path = 'hierarchies['.$index.']';
@@ -168,7 +168,7 @@ class DashboardHierarchies {
 	 *
 	 * @throws InvalidArgumentException When the level is malformed.
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	private static function level(mixed $level, string $path, ?string $parent): array {
 		if (is_array($level) === false) {

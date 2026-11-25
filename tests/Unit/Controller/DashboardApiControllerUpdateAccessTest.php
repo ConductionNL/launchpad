@@ -278,7 +278,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	public function testHierarchiesUpdateAsksTheFullEditPermission(): void {
 		$response = $this->controller(sessionUid: 'alice', userId: 'alice', body: ['hierarchies' => []])->update(id: 7);
@@ -293,7 +293,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	public function testHierarchiesUpdateWithoutEditPermissionIsForbidden(): void {
 		$body     = ['hierarchies' => [['id' => 'x', 'levels' => [['dimension' => 'a']]]]];
@@ -308,7 +308,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
 	 */
 	public function testAMalformedHierarchiesValueIsABadRequest(): void {
 		$response = $this->controller(

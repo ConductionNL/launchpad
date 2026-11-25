@@ -144,7 +144,8 @@ class SetupCommand extends Command {
 			return null;
 		}
 
-		if (is_array($config) === false) {
+		// A YAML list parses to a PHP list: that is not a map either (REQ-SETUP CLI schema).
+		if (is_array($config) === false || ($config !== [] && array_is_list(array: $config) === true)) {
 			$output->writeln(
 				messages: '<error>Invalid setup.yaml: top-level structure must be a map.</error>'
 			);
@@ -215,7 +216,7 @@ class SetupCommand extends Command {
 		}
 
 		$groups = $config['group_priority_order'];
-		if (is_array($groups) === false) {
+		if (is_array($groups) === false || array_is_list(array: $groups) === false) {
 			throw new InvalidArgumentException(
 				message: "Invalid setup.yaml: 'group_priority_order' must be a list of strings"
 			);

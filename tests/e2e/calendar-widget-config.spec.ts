@@ -48,6 +48,9 @@ import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import { adminContext } from './support/principals.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 
+/** The calendar content form as the board draws it (REQ-CAL-020). */
+const FORM = '.calendar-widget-form'
+
 const ADMIN_USER = process.env.NC_ADMIN_USER ?? 'admin'
 const STAMP = Date.now().toString(36)
 const NOW = new Date('2026-05-06T10:00:00Z')
@@ -119,42 +122,48 @@ async function openAddWidget(page: Page): Promise<Locator> {
  */
 async function openCalendarForm(page: Page): Promise<Locator> {
 	const dialog = await openAddWidget(page)
-	await expect(dialog.locator('.cn-calendar-widget-form')).toBeVisible()
+	await expect(dialog.locator(FORM)).toBeVisible()
 	return dialog
 }
 
 /**
- * Choose a calendar in the form's calendar picker.
+ * Tick a calendar in the form's list of the reader's calendars
+ * (REQ-CAL-020: the content form lists them as checkboxes).
  *
- * @param page the page (the dropdown renders in the body).
  * @param dialog the dialog.
  * @param name the calendar's display name.
  * @return nothing.
  */
-async function pickCalendar(page: Page, dialog: Locator, name: string): Promise<void> {
-	const field = dialog.locator('.cn-calendar-widget-form__field').filter({ hasText: 'Calendars' }).first()
-	// The picker replaces the free-text box once the user's calendars load.
-	const toggle = field.locator('.vs__dropdown-toggle')
-	await expect(toggle).toBeVisible({ timeout: 15_000 })
-	await toggle.click()
-	await page.locator('.vs__dropdown-option').filter({ hasText: name }).first().click()
-	await field.locator('.cn-calendar-widget-form__label').first().click()
-	await expect(field.locator('.vs__selected').filter({ hasText: name })).toBeVisible()
+async function pickCalendar(dialog: Locator, name: string): Promise<void> {
+	const row = dialog.locator(`${FORM} .checkbox-radio-switch`).filter({ hasText: name }).first()
+	await expect(row).toBeVisible({ timeout: 15_000 })
+	await row.getByText(name).click()
+	await expect(row.locator('input')).toBeChecked()
 }
 
 /**
- * Choose a view mode in the form.
+ * Choose the period: "7 days" (stored as agenda over 7 days) or "Month".
  *
- * @param page the page.
  * @param dialog the dialog.
- * @param mode `month`, `week` or `agenda`.
+ * @param period `week` or `month`.
  * @return nothing.
  */
-async function pickViewMode(page: Page, dialog: Locator, mode: string): Promise<void> {
-	const select = dialog.locator('.cn-calendar-widget-form .v-select').first()
-	await select.locator('.vs__dropdown-toggle').click()
-	await page.locator('.vs__dropdown-option').filter({ hasText: new RegExp(`^\\s*${mode}\\s*$`) }).first().click()
-	await expect(select.locator('.vs__selected')).toHaveText(mode)
+async function pickPeriod(dialog: Locator, period: 'week' | 'month'): Promise<void> {
+	const radio = dialog.locator(`[data-testid="calendar-period-${period}"]`)
+	await radio.check()
+	await expect(radio).toBeChecked()
+}
+
+/**
+ * Type an ICS address into the external calendar field and add it.
+ *
+ * @param dialog the dialog.
+ * @param address the address as typed.
+ * @return nothing.
+ */
+async function addIcs(dialog: Locator, address: string): Promise<void> {
+	await dialog.getByLabel('External calendar (ICS address)').fill(address)
+	await dialog.locator(FORM).getByRole('button', { name: 'Add', exact: true }).click()
 }
 
 /**
@@ -201,12 +210,12 @@ test.describe('REQ-CAL-001 widget registration', () => {
 
 		// Selectable for placement.
 		await dialog.locator('[data-testid="widget-type-select"]').selectOption('calendar')
-		await expect(dialog.locator('.cn-calendar-widget-form')).toBeVisible()
+		await expect(dialog.locator(FORM)).toBeVisible()
 		// The picker shows the type with an icon.
 		await expect(dialog.locator('.cn-add-widget-modal__type').locator('svg, img, .material-design-icon'))
 			.not.toHaveCount(0)
 
-		await pickCalendar(page, dialog, calendar.name)
+		await pickCalendar(dialog, calendar.name)
 		await save(dialog)
 		await onlyPlacement(dashboard)
 		await expect(page.locator('.cn-calendar-widget')).toHaveCount(1, { timeout: 15_000 })
@@ -224,8 +233,8 @@ test.describe('REQ-CAL-001 widget registration', () => {
 		await expect(page.locator('.cn-calendar-widget')).toHaveCount(1, { timeout: 30_000 })
 
 		const dialog = await openCalendarForm(page)
-		await pickCalendar(page, dialog, second.name)
-		await pickViewMode(page, dialog, 'week')
+		await pickCalendar(dialog, second.name)
+		await pickPeriod(dialog, 'month')
 		await save(dialog)
 
 		let placements: Array<Record<string, any>> = []
@@ -238,12 +247,12 @@ test.describe('REQ-CAL-001 widget registration', () => {
 		expect(first.content.internalCalendars).toEqual([firstKey])
 		expect(first.content.viewMode).toBe('agenda')
 		expect(added.content.internalCalendars).toEqual([secondKey])
-		expect(added.content.viewMode).toBe('week')
+		expect(added.content.viewMode).toBe('month')
 
 		// Both render, each in its own mode.
 		const widgets = page.locator('.cn-calendar-widget')
 		await expect(widgets).toHaveCount(2, { timeout: 15_000 })
-		await expect(page.locator('.cn-calendar-widget:has(.cn-calendar-widget__week)')).toHaveCount(1)
+		await expect(page.locator('.cn-calendar-widget:has(.cn-calendar-widget__month)')).toHaveCount(1)
 		await expect(widgets.filter({
 			has: page.locator('.cn-calendar-widget__mode-btn.is-active', { hasText: /^\s*Agenda\s*$/ }),
 		})).toHaveCount(1)
@@ -281,7 +290,7 @@ test.describe('REQ-CAL-002 placement configuration', () => {
 		const key = await calendarKey(admin, calendar.name)
 
 		const dialog = await openCalendarForm(page)
-		await pickCalendar(page, dialog, calendar.name)
+		await pickCalendar(dialog, calendar.name)
 		await save(dialog)
 
 		const placement = await onlyPlacement(dashboard)
@@ -296,13 +305,15 @@ test.describe('REQ-CAL-002 placement configuration', () => {
 	test('feed URLs are stored as an array of URLs; a non-URL is refused', async ({ page }) => {
 		const { dashboard } = await prepare(page, 'Feeds')
 		const dialog = await openCalendarForm(page)
-		const feeds = dialog.getByLabel(/external ics urls/i)
 		const button = dialog.locator('[data-testid="add-widget-save"]')
 
-		await feeds.fill('not a url')
+		// The board form takes one https address at a time (REQ-CAL-020).
+		await addIcs(dialog, 'not a url')
+		await expect(dialog.getByText('An ICS address starts with https://').first()).toBeVisible()
 		await expect(button).toBeDisabled()
 
-		await feeds.fill('https://calendar.example.org/team.ics\nhttps://feeds.example.org/agenda/feed')
+		await addIcs(dialog, 'https://calendar.example.org/team.ics')
+		await addIcs(dialog, 'https://feeds.example.org/agenda/feed')
 		await save(dialog)
 
 		const placement = await onlyPlacement(dashboard)
@@ -320,12 +331,13 @@ test.describe('REQ-CAL-002 placement configuration', () => {
 	test('the chosen view mode is stored; unset, the widget opens in agenda', async ({ page }) => {
 		const { calendar, dashboard } = await prepare(page, 'ViewMode')
 		const dialog = await openCalendarForm(page)
-		await expect(dialog.locator('.cn-calendar-widget-form .v-select').first().locator('.vs__selected'))
-			.toHaveText('agenda')
-		await pickCalendar(page, dialog, calendar.name)
-		await pickViewMode(page, dialog, 'week')
+		// The form offers the period "7 days" or "Month" (REQ-CAL-020);
+		// "7 days" is chosen first and is stored as the agenda mode.
+		await expect(dialog.locator('[data-testid="calendar-period-week"]')).toBeChecked()
+		await pickCalendar(dialog, calendar.name)
+		await pickPeriod(dialog, 'month')
 		await save(dialog)
-		expect((await onlyPlacement(dashboard)).content.viewMode).toBe('week')
+		expect((await onlyPlacement(dashboard)).content.viewMode).toBe('month')
 
 		// A placement whose content names no view mode opens in agenda.
 		const other = await seedActiveDashboard(admin, `E2E Calendar ViewMode default ${STAMP}`)
@@ -338,7 +350,7 @@ test.describe('REQ-CAL-002 placement configuration', () => {
 	})
 
 	// @e2e calendar-widget::config-for-days-ahead-threshold
-	test('days ahead defaults to 14, is stored as a number, and only bounds agenda', async ({ page }) => {
+	test('days ahead is stored as a number, and only bounds agenda', async ({ page }) => {
 		const { calendar, dashboard } = await prepare(page, 'DaysAhead')
 		// Friday 8 May: two days after the fixed "today".
 		await putEvent(admin, calendar, {
@@ -348,13 +360,25 @@ test.describe('REQ-CAL-002 placement configuration', () => {
 			end: '20260508T130000Z',
 		})
 
+		// The form's "7 days" stores daysAhead as the number 7.
 		const dialog = await openCalendarForm(page)
-		const days = dialog.getByLabel('Days ahead')
-		await expect(days).toHaveValue('14')
-		await pickCalendar(page, dialog, calendar.name)
-		await days.fill('1')
+		await pickCalendar(dialog, calendar.name)
 		await save(dialog)
-		expect((await onlyPlacement(dashboard)).content.daysAhead).toBe(1)
+		const fromForm = (await onlyPlacement(dashboard)).content
+		expect(fromForm.viewMode).toBe('agenda')
+		expect(fromForm.daysAhead).toBe(7)
+
+		// The board form offers no free number, so a one-day threshold is
+		// stored through the API, the way an import or the store writes it.
+		const short = await seedActiveDashboard(admin, `E2E Calendar DaysAhead one ${STAMP}`)
+		dashboards.push(short)
+		await placeCalendar(admin, short.id, {
+			internalCalendars: [await calendarKey(admin, calendar.name)],
+			viewMode: 'agenda',
+			daysAhead: 1,
+		})
+		expect((await onlyPlacement(short)).content.daysAhead).toBe(1)
+		await gotoLaunchPad(page)
 
 		const widget = page.locator('.cn-calendar-widget')
 		await expect(widget).toHaveCount(1, { timeout: 15_000 })
@@ -373,23 +397,23 @@ test.describe('REQ-CAL-002 placement configuration', () => {
 	// @e2e calendar-widget::config-for-color-by-calendar-preference
 	test('color-by-calendar defaults to on and is stored as a boolean', async ({ page }) => {
 		const { calendar, dashboard } = await prepare(page, 'Color')
+		// The board form has no switch for it (REQ-CAL-020); the form stores
+		// the default, and editing keeps a stored false.
 		const dialog = await openCalendarForm(page)
-		const toggle = dialog.locator('.checkbox-radio-switch').filter({ hasText: 'Color by calendar' })
-		await expect(toggle.locator('input')).toBeChecked()
-		await pickCalendar(page, dialog, calendar.name)
-		await toggle.getByText('Color by calendar').click()
-		await expect(toggle.locator('input')).not.toBeChecked()
+		await pickCalendar(dialog, calendar.name)
 		await save(dialog)
-		expect((await onlyPlacement(dashboard)).content.colorByCalendar).toBe(false)
+		const placement = await onlyPlacement(dashboard)
+		expect(placement.content.colorByCalendar).toBe(true)
 
-		// Left alone, it is stored as true.
-		const other = await seedActiveDashboard(admin, `E2E Calendar Color default ${STAMP}`)
+		const other = await seedActiveDashboard(admin, `E2E Calendar Color off ${STAMP}`)
 		dashboards.push(other)
-		await gotoLaunchPad(page)
-		const again = await openCalendarForm(page)
-		await pickCalendar(page, again, calendar.name)
-		await save(again)
-		expect((await onlyPlacement(other)).content.colorByCalendar).toBe(true)
+		await placeCalendar(admin, other.id, {
+			internalCalendars: [await calendarKey(admin, calendar.name)],
+			colorByCalendar: false,
+		})
+		const stored = (await onlyPlacement(other)).content.colorByCalendar
+		expect(typeof stored).toBe('boolean')
+		expect(stored).toBe(false)
 	})
 
 	// @e2e calendar-widget::config-is-json-serializable
@@ -397,9 +421,9 @@ test.describe('REQ-CAL-002 placement configuration', () => {
 		const { calendar, dashboard } = await prepare(page, 'Json')
 		const key = await calendarKey(admin, calendar.name)
 		const dialog = await openCalendarForm(page)
-		await pickCalendar(page, dialog, calendar.name)
-		await dialog.getByLabel(/external ics urls/i)
-			.fill('   https://a.example.org/kalender-été.ics   \n\n\thttps://b.example.org/y.ics \n')
+		await pickCalendar(dialog, calendar.name)
+		await addIcs(dialog, '   https://a.example.org/kalender-été.ics   ')
+		await addIcs(dialog, '\thttps://b.example.org/y.ics ')
 		await save(dialog)
 
 		const res = await admin.get(`/index.php/apps/launchpad/api/dashboard/${dashboard.id}`)
@@ -432,8 +456,8 @@ test.describe('REQ-CAL-002 placement configuration', () => {
 test('a widget configured for month view is still in month view after a reload', async ({ page }) => {
 	const { calendar, dashboard } = await prepare(page, 'Persist')
 	const dialog = await openCalendarForm(page)
-	await pickCalendar(page, dialog, calendar.name)
-	await pickViewMode(page, dialog, 'month')
+	await pickCalendar(dialog, calendar.name)
+	await pickPeriod(dialog, 'month')
 	await save(dialog)
 
 	const widget = page.locator('.cn-calendar-widget')

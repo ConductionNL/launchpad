@@ -13270,6 +13270,58 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/store/items/{slug}/update": {
+            "post": {
+                "operationId": "store-update",
+                "x-launchpad-stability": "internal",
+                "summary": "Bring an installed register item to the register's newer version, in place",
+                "description": "Bring an installed register item to the register's newer version, in place. Administrative, like install (ADR-005): anyone else is refused with 403 by the attribute before this body runs. The dashboard keeps its id, shares and the widgets people added themselves. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "store"
+                ],
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "description": "The remote item slug.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }

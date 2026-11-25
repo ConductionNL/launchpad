@@ -23,8 +23,9 @@
  * WHAT A USER IS SERVED. The rule decides which placements are rendered
  * (`isVisible`) on a dashboard someone else owns, so each test also follows a
  * non-admin through the upgrade: a `text` placement is hidden under the old
- * rule and shown under the widened one. Admins are never restricted, so the
- * viewer is always a throwaway ordinary account.
+ * rule (left out of their payload, REQ-VIS-010) and shown under the widened
+ * one. Admins are never restricted, so the viewer is always a throwaway
+ * ordinary account.
  */
 
 import type { APIRequestContext } from '@playwright/test'
@@ -139,15 +140,30 @@ async function dashboardWithText(name: string): Promise<{ id: number; placementI
 	return { id: seeded.id, placementId: seeded.placementId }
 }
 
-/** Whether the viewer is served the placement as visible on that dashboard. */
+/**
+ * Whether the viewer is served the placement as visible on that dashboard.
+ *
+ * A viewer who may not edit the dashboard is not sent a hidden placement at
+ * all (ConditionalService::visiblePlacements, REQ-VIS-010), so "absent" means
+ * hidden. The owner's read proves the placement is still there.
+ */
 async function servedVisible(viewer: APIRequestContext, dashboardId: number, placementId: number): Promise<boolean> {
+	const owners = await admin.get(`${API}/dashboard/${dashboardId}`)
+	expect(owners.status(), await owners.text()).toBe(200)
+	expect(
+		((await owners.json()).placements ?? []).some((pl: any) => Number(pl.id) === placementId),
+		'the text placement must still be on the dashboard (owner\'s read)',
+	).toBe(true)
+
 	const res = await viewer.get(`${API}/dashboard/${dashboardId}`)
 	expect(res.status(), await res.text()).toBe(200)
 	const placement = ((await res.json()).placements ?? []).find(
 		(pl: any) => Number(pl.id) === placementId,
 	)
-	expect(placement, 'the text placement must be in the payload, visible or not').toBeDefined()
-	return placement.isVisible !== 0 && placement.isVisible !== false
+	if (placement === undefined) {
+		return false
+	}
+	return placement.isVisible !== 0 && placement.isVisible !== false && placement.hiddenForViewers !== true
 }
 
 /** A throwaway ordinary account, proven to be who it says. */

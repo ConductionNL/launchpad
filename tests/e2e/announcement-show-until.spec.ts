@@ -119,11 +119,14 @@ test('the form does not go on without "Show until", and the server refuses it wi
 		'After this time the announcement disappears from every dashboard.',
 	)
 
-	await editor.locator('[data-test="editor-preview"]').click()
-	// The browser holds the form back: still the write step, nothing sent.
+	// The form is one dialog with a live preview (REQ-ANN-006): Publish
+	// without an end time names what is missing and sends nothing.
 	expect(await showUntil.evaluate((el) => (el as HTMLInputElement).validity.valueMissing)).toBe(true)
-	await expect(editor.locator('[data-test="editor-preview-step"]')).toHaveCount(0)
-	await expect(editor.locator('[data-test="editor-publish"]')).toHaveCount(0)
+	await editor.locator('[data-test="editor-publish"]').click()
+	await expect(editor.locator('[data-test="editor-error"]')).toContainText(
+		'Choose until when the announcement shows',
+	)
+	await expect(editor).toBeVisible()
 	expect(sent).toEqual([])
 
 	// The server refuses a new announcement without an end time as well.
@@ -144,36 +147,11 @@ test('a publish time ahead makes the confirm button "Schedule"; without one it r
 	await editor.locator('[data-test="editor-publish-at"]').fill(localAt(7, 8))
 	await editor.locator('[data-test="editor-expires-at"]').fill(localAt(9, 17))
 
-	const created = page.waitForResponse(
-		(res) =>
-			res.url().endsWith('/api/announcements')
-			&& res.request().method() === 'POST',
-	)
-	await editor.locator('[data-test="editor-preview"]').click()
-	const response = await created
-	expect(response.status(), await response.text()).toBe(201)
-	const draft = await response.json()
-	drafts.push(String(draft.uuid))
-	expect(draft.expiresAt).toBeTruthy()
-
-	await expect(editor.locator('[data-test="editor-preview-step"]')).toBeVisible()
+	// The live preview shows the end time, and the button names what it does.
 	await expect(editor.locator('[data-test="editor-visible-until"]')).toContainText('Visible until')
 	await expect(editor.locator('[data-test="editor-publish"]')).toHaveText('Schedule')
 
-	// Back, clear the publish time: the same draft now publishes at once.
-	await editor.getByRole('button', { name: 'Back', exact: true }).click()
+	// Without a publish time it publishes at once.
 	await editor.locator('[data-test="editor-publish-at"]').fill('')
-	const updated = page.waitForResponse(
-		(res) =>
-			res.url().includes(`/api/announcements/${draft.uuid}`)
-			&& res.request().method() === 'PUT',
-	)
-	await editor.locator('[data-test="editor-preview"]').click()
-	expect((await updated).status()).toBe(200)
 	await expect(editor.locator('[data-test="editor-publish"]')).toHaveText('Publish')
-
-	// Nothing was published: the draft stays a draft.
-	const stored = await admin.get(`${API}/announcements/${draft.uuid}`)
-	expect(stored.status(), await stored.text()).toBe(200)
-	expect((await stored.json()).status).toBe('draft')
 })

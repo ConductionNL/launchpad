@@ -10,6 +10,7 @@ be read through the same visibility checks (REQ-PEX-004). Marking another field 
 previous one.
 
 #### Scenario: Start date from LDAP
+@e2e exclude needs an LDAP directory server and the user_ldap app, which the CI fixture does not provide; pinned by tests/Unit/Service/ProfileFieldServiceAccessGoldenTest.php::testAnLdapStartDateIsReadAsACalendarDate (generalized time and ISO dates read as 2026-10-12, an unreadable value read as none) and ::testOneDateFieldIsTheStartDate
 
 - **GIVEN** the administrator adds a date field "In dienst sinds", source LDAP attribute `employeeStartDate`, marked as the start date
 - **WHEN** Yasmina's LDAP entry holds 12 October 2026

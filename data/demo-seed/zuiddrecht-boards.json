@@ -200,7 +200,10 @@
 			"colour": "work-ink",
 			"appId": "spreed",
 			"url": "/index.php/apps/spreed/",
-			"description": "Chatten en videobellen."
+			"description": "Chatten en videobellen.",
+			"countSource": {
+				"dashboardWidget": "spreed"
+			}
 		},
 		"agenda": {
 			"name": "Agenda",
@@ -947,8 +950,7 @@
 					"gridY": 35,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true,
-					"status": "down"
+					"iconOnly": true
 				},
 				{
 					"tile": "kadaster",
@@ -972,8 +974,7 @@
 					"gridY": 35,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true,
-					"badge": 2
+					"iconOnly": true
 				},
 				{
 					"tile": "agenda",
@@ -1800,8 +1801,7 @@
 					"gridY": 1,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true,
-					"status": "down"
+					"iconOnly": true
 				},
 				{
 					"tile": "word",
@@ -1825,8 +1825,7 @@
 					"gridY": 1,
 					"gridWidth": 1,
 					"gridHeight": 2,
-					"iconOnly": true,
-					"badge": 2
+					"iconOnly": true
 				},
 				{
 					"widgetId": "menu",

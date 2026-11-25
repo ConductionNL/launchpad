@@ -1589,6 +1589,9 @@
         "A person": "Человек",
         "Search for a person": "Найти человека",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Без выбора панель переходит к тому, у кого есть полные права на неё, или удаляется. Общие доступы сохраняются.",
-        "Start date of new colleagues": "Дата выхода новых коллег"
+        "Start date of new colleagues": "Дата выхода новых коллег",
+        "Register name": "Название реестра",
+        "Shown on the marketplace. Leave empty to show the address.": "Показывается на маркетплейсе. Оставьте пустым, чтобы показать адрес.",
+        "Open the Sharing tab": "Открыть вкладку «Общий доступ»"
     }
 }

@@ -1687,7 +1687,10 @@ OC.L10N.register(
     "A person" : "Человек",
     "Search for a person" : "Найти человека",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Без выбора панель переходит к тому, у кого есть полные права на неё, или удаляется. Общие доступы сохраняются.",
-    "Start date of new colleagues" : "Дата выхода новых коллег"
+    "Start date of new colleagues" : "Дата выхода новых коллег",
+    "Register name" : "Название реестра",
+    "Shown on the marketplace. Leave empty to show the address." : "Показывается на маркетплейсе. Оставьте пустым, чтобы показать адрес.",
+    "Open the Sharing tab" : "Открыть вкладку «Общий доступ»"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -1687,7 +1687,10 @@ OC.L10N.register(
     "A person" : "Bir kişi",
     "Search for a person" : "Kişi ara",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Seçim yapılmazsa pano, üzerinde tam yetkisi olan birine gider ya da silinir. Paylaşımlar kalır.",
-    "Start date of new colleagues" : "Yeni iş arkadaşlarının başlangıç tarihi"
+    "Start date of new colleagues" : "Yeni iş arkadaşlarının başlangıç tarihi",
+    "Register name" : "Kayıt adı",
+    "Shown on the marketplace. Leave empty to show the address." : "Pazar yerinde gösterilir. Adresi göstermek için boş bırakın.",
+    "Open the Sharing tab" : "Paylaşım sekmesini aç"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1593,6 +1593,9 @@
         "A person": "Duine",
         "Search for a person": "Cuardaigh duine",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Gan rogha, téann deais chuig duine a bhfuil cearta iomlána aige air, nó scriostar é. Fanann comhroinntí.",
-        "Start date of new colleagues": "Dáta tosaithe comhghleacaithe nua"
+        "Start date of new colleagues": "Dáta tosaithe comhghleacaithe nua",
+        "Register name": "Ainm na clárlainne",
+        "Shown on the marketplace. Leave empty to show the address.": "Taispeántar é ar an margadh. Fág folamh chun an seoladh a thaispeáint.",
+        "Open the Sharing tab": "Oscail an cluaisín Comhroinnt"
     }
 }

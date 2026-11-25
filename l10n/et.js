@@ -1687,7 +1687,10 @@ OC.L10N.register(
     "A person" : "Isik",
     "Search for a person" : "Otsi isikut",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Valikuta läheb töölaud kellelegi, kellel on sellele täielikud õigused, või see kustutatakse. Jagamised jäävad.",
-    "Start date of new colleagues" : "Uute kolleegide alguskuupäev"
+    "Start date of new colleagues" : "Uute kolleegide alguskuupäev",
+    "Register name" : "Registri nimi",
+    "Shown on the marketplace. Leave empty to show the address." : "Kuvatakse turuplatsil. Jäta tühjaks, et kuvada aadress.",
+    "Open the Sharing tab" : "Ava vahekaart Jagamine"
 },
 "nplurals=2; plural=(n != 1);"
 );

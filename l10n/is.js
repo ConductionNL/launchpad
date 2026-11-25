@@ -1687,7 +1687,10 @@ OC.L10N.register(
     "A person" : "Manneskja",
     "Search for a person" : "Leita að manneskju",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Án vals fer stjórnborð til einhvers með full réttindi á því, eða því er eytt. Deilingar haldast.",
-    "Start date of new colleagues" : "Upphafsdagur nýrra samstarfsmanna"
+    "Start date of new colleagues" : "Upphafsdagur nýrra samstarfsmanna",
+    "Register name" : "Heiti skrár",
+    "Shown on the marketplace. Leave empty to show the address." : "Birtist á markaðstorginu. Skildu eftir autt til að sýna vistfangið.",
+    "Open the Sharing tab" : "Opna flipann Deiling"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

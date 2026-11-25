@@ -1687,7 +1687,10 @@ OC.L10N.register(
     "A person" : "Egy személy",
     "Search for a person" : "Személy keresése",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Választás nélkül az irányítópult valakihez kerül, akinek teljes jogai vannak rá, vagy törlődik. A megosztások maradnak.",
-    "Start date of new colleagues" : "Az új kollégák kezdési dátuma"
+    "Start date of new colleagues" : "Az új kollégák kezdési dátuma",
+    "Register name" : "A regiszter neve",
+    "Shown on the marketplace. Leave empty to show the address." : "A piactéren jelenik meg. Hagyja üresen a cím megjelenítéséhez.",
+    "Open the Sharing tab" : "A Megosztás lap megnyitása"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1687,7 +1687,10 @@ OC.L10N.register(
     "A person" : "Una persona",
     "Search for a person" : "Cerca una persona",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Sense elecció, un tauler va a algú amb tots els drets sobre ell, o s'elimina. Les comparticions es mantenen.",
-    "Start date of new colleagues" : "Data d'incorporació dels nous companys"
+    "Start date of new colleagues" : "Data d'incorporació dels nous companys",
+    "Register name" : "Nom del registre",
+    "Shown on the marketplace. Leave empty to show the address." : "Es mostra al mercat. Deixeu-ho buit per mostrar l'adreça.",
+    "Open the Sharing tab" : "Obre la pestanya Compartició"
 },
 "nplurals=2; plural=(n != 1);"
 );

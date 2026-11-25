@@ -1589,6 +1589,9 @@
         "A person": "O persoană",
         "Search for a person": "Caută o persoană",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Fără alegere, un tablou de bord merge la cineva cu drepturi depline asupra lui sau este șters. Partajările rămân.",
-        "Start date of new colleagues": "Data de început a noilor colegi"
+        "Start date of new colleagues": "Data de început a noilor colegi",
+        "Register name": "Numele registrului",
+        "Shown on the marketplace. Leave empty to show the address.": "Afișat în piață. Lăsați gol pentru a afișa adresa.",
+        "Open the Sharing tab": "Deschide fila Partajare"
     }
 }

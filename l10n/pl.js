@@ -1687,7 +1687,10 @@ OC.L10N.register(
     "A person" : "Osoba",
     "Search for a person" : "Szukaj osoby",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Bez wyboru pulpit trafia do kogoś z pełnymi uprawnieniami do niego albo zostaje usunięty. Udostępnienia pozostają.",
-    "Start date of new colleagues" : "Data rozpoczęcia pracy nowych współpracowników"
+    "Start date of new colleagues" : "Data rozpoczęcia pracy nowych współpracowników",
+    "Register name" : "Nazwa rejestru",
+    "Shown on the marketplace. Leave empty to show the address." : "Wyświetlana na rynku. Pozostaw puste, aby wyświetlić adres.",
+    "Open the Sharing tab" : "Otwórz kartę Udostępnianie"
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -1678,6 +1678,9 @@ OC.L10N.register(
     "A person" : "Асоба",
     "Search for a person" : "Шукаць асобу",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Без выбару панэль пераходзіць да таго, хто мае на яе поўныя правы, або выдаляецца. Агульныя доступы захоўваюцца.",
-    "Start date of new colleagues" : "Дата пачатку працы новых калег"
+    "Start date of new colleagues" : "Дата пачатку працы новых калег",
+    "Register name" : "Назва рэестра",
+    "Shown on the marketplace. Leave empty to show the address." : "Паказваецца на маркетплэйсе. Пакіньце пустым, каб паказаць адрас.",
+    "Open the Sharing tab" : "Адкрыць укладку «Абмен»"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

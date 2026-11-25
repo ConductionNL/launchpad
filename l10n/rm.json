@@ -1587,6 +1587,9 @@
         "A person": "Ina persuna",
         "Search for a person": "Tschertgar ina persuna",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Senza tscherna va in dashboard tar insatgi cun dretgs cumplets, u el vegn stizzà. Las divisiuns restan.",
-        "Start date of new colleagues": "Data d'entschatta da collegas novs"
+        "Start date of new colleagues": "Data d'entschatta da collegas novs",
+        "Register name": "Num dal register",
+        "Shown on the marketplace. Leave empty to show the address.": "Vegn mussà sin la plazza da martgà. Laschar vid per mussar l'adressa.",
+        "Open the Sharing tab": "Avrir il tab Cundivider"
     }
 }

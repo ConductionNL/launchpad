@@ -1687,7 +1687,10 @@ OC.L10N.register(
     "A person" : "Oseba",
     "Search for a person" : "Poišči osebo",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Brez izbire gre nadzorna plošča nekomu s polnimi pravicami do nje ali pa se izbriše. Deljenja ostanejo.",
-    "Start date of new colleagues" : "Datum začetka novih sodelavcev"
+    "Start date of new colleagues" : "Datum začetka novih sodelavcev",
+    "Register name" : "Ime registra",
+    "Shown on the marketplace. Leave empty to show the address." : "Prikazano na tržnici. Pustite prazno, da se prikaže naslov.",
+    "Open the Sharing tab" : "Odpri zavihek Deljenje"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

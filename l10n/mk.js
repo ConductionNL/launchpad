@@ -1678,7 +1678,10 @@ OC.L10N.register(
     "A person" : "Лице",
     "Search for a person" : "Барај лице",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Без избор, контролната табла оди кај некој со целосни права на неа или се брише. Споделувањата остануваат.",
-    "Start date of new colleagues" : "Датум на почеток на новите колеги"
+    "Start date of new colleagues" : "Датум на почеток на новите колеги",
+    "Register name" : "Име на регистарот",
+    "Shown on the marketplace. Leave empty to show the address." : "Се прикажува на пазарот. Оставете празно за да се прикаже адресата.",
+    "Open the Sharing tab" : "Отвори го јазичето Споделување"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

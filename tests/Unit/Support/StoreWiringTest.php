@@ -137,14 +137,17 @@ class StoreWiringTest extends TestCase {
 	}//end testTheStorePageCopyHasNoEmDash()
 
 	/**
-	 * The board-look store page draws kind filters only from `kindLenses`.
+	 * REQ-STORE-010: the board-look store page shows dashboard lenses, not the engine's kind lenses.
 	 *
-	 * The app manifest sets `look: board`, where the store page shows lens
-	 * chips instead of the kind chips, so every store kind is declared as a lens.
+	 * The engine's kinds (App template, Adapter, ...) are not dashboard kinds,
+	 * so the page offers All, Installed, Update available and the register's
+	 * categories, 8 cards a page, under the register banner.
+	 *
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
 	 *
 	 * @return void
 	 */
-	public function testTheStorePageOffersAKindLensPerStoreKind(): void {
+	public function testTheStorePageShowsDashboardLensesAndTheBanner(): void {
 		$manifest = $this->manifest();
 		$this->assertSame(expected: 'board', actual: $manifest['look'] ?? null);
 
@@ -155,13 +158,10 @@ class StoreWiringTest extends TestCase {
 			)
 		)[0];
 
-		$kinds = array_column(array: ($page['config']['kindLenses'] ?? []), column_key: 'kind');
-		$this->assertSame(
-			expected: ['app-template', 'adapter', 'source-template', 'configuration-template', 'agent-template'],
-			actual: $kinds
-		);
-		foreach ($page['config']['kindLenses'] as $lens) {
-			$this->assertNotSame(expected: '', actual: (string)($lens['label'] ?? ''));
-		}
-	}//end testTheStorePageOffersAKindLensPerStoreKind()
+		$this->assertArrayNotHasKey(key: 'kindLenses', array: $page['config']);
+		$this->assertTrue($page['config']['categoryLenses'] ?? false);
+		$this->assertSame(expected: 8, actual: $page['config']['pageSize'] ?? null);
+		$this->assertSame(expected: '/index.php/apps/launchpad/admin/sharing', actual: $page['config']['banner']['settingsUrl'] ?? null);
+		$this->assertNotSame(expected: '', actual: (string)($page['config']['banner']['settingsLabel'] ?? ''));
+	}//end testTheStorePageShowsDashboardLensesAndTheBanner()
 }//end class

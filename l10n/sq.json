@@ -1587,6 +1587,9 @@
         "A person": "Një person",
         "Search for a person": "Kërko një person",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Pa zgjedhje, paneli shkon te dikush me të drejta të plota mbi të, ose fshihet. Ndarjet mbeten.",
-        "Start date of new colleagues": "Data e fillimit të kolegëve të rinj"
+        "Start date of new colleagues": "Data e fillimit të kolegëve të rinj",
+        "Register name": "Emri i regjistrit",
+        "Shown on the marketplace. Leave empty to show the address.": "Shfaqet në treg. Lëreni bosh për të shfaqur adresën.",
+        "Open the Sharing tab": "Hap skedën Ndarja"
     }
 }

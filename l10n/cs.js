@@ -1687,7 +1687,10 @@ OC.L10N.register(
     "A person" : "Osoba",
     "Search for a person" : "Hledat osobu",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Bez volby připadne nástěnka někomu s plnými právy k ní, nebo se smaže. Sdílení zůstávají.",
-    "Start date of new colleagues" : "Datum nástupu nových kolegů"
+    "Start date of new colleagues" : "Datum nástupu nových kolegů",
+    "Register name" : "Název registru",
+    "Shown on the marketplace. Leave empty to show the address." : "Zobrazuje se na tržišti. Ponechte prázdné, aby se zobrazila adresa.",
+    "Open the Sharing tab" : "Otevřít kartu Sdílení"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

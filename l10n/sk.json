@@ -1589,6 +1589,9 @@
         "A person": "Osoba",
         "Search for a person": "Hľadať osobu",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Bez voľby pripadne nástenka niekomu s plnými právami k nej, alebo sa odstráni. Zdieľania zostávajú.",
-        "Start date of new colleagues": "Dátum nástupu nových kolegov"
+        "Start date of new colleagues": "Dátum nástupu nových kolegov",
+        "Register name": "Názov registra",
+        "Shown on the marketplace. Leave empty to show the address.": "Zobrazuje sa na trhovisku. Nechajte prázdne, aby sa zobrazila adresa.",
+        "Open the Sharing tab": "Otvoriť kartu Zdieľanie"
     }
 }

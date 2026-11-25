@@ -1687,7 +1687,10 @@ OC.L10N.register(
     "A person" : "En person",
     "Search for a person" : "Sök efter en person",
     "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Utan val går en instrumentpanel till någon med fullständiga rättigheter till den, eller tas bort. Delningar finns kvar.",
-    "Start date of new colleagues" : "Startdatum för nya kollegor"
+    "Start date of new colleagues" : "Startdatum för nya kollegor",
+    "Register name" : "Registrets namn",
+    "Shown on the marketplace. Leave empty to show the address." : "Visas på marknadsplatsen. Lämna tomt för att visa adressen.",
+    "Open the Sharing tab" : "Öppna fliken Delning"
 },
 "nplurals=2; plural=(n != 1);"
 );

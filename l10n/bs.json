@@ -1589,6 +1589,9 @@
         "A person": "Osoba",
         "Search for a person": "Traži osobu",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Bez izbora kontrolna tabla ide nekome s punim pravima na nju ili se briše. Dijeljenja ostaju.",
-        "Start date of new colleagues": "Datum početka novih kolega"
+        "Start date of new colleagues": "Datum početka novih kolega",
+        "Register name": "Naziv registra",
+        "Shown on the marketplace. Leave empty to show the address.": "Prikazuje se na tržnici. Ostavite prazno da se prikaže adresa.",
+        "Open the Sharing tab": "Otvorite karticu Dijeljenje"
     }
 }

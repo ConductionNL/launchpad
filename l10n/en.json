@@ -1914,6 +1914,9 @@
         "A person": "A person",
         "Search for a person": "Search for a person",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.",
-        "Start date of new colleagues": "Start date of new colleagues"
+        "Start date of new colleagues": "Start date of new colleagues",
+        "Register name": "Register name",
+        "Shown on the marketplace. Leave empty to show the address.": "Shown on the marketplace. Leave empty to show the address.",
+        "Open the Sharing tab": "Open the Sharing tab"
     }
 }

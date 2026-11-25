@@ -1587,6 +1587,9 @@
         "A person": "Una persona",
         "Search for a person": "Buscar una persona",
         "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Sin elección, un panel pasa a alguien con todos los derechos sobre él o se elimina. Los recursos compartidos se mantienen.",
-        "Start date of new colleagues": "Fecha de incorporación de los nuevos compañeros"
+        "Start date of new colleagues": "Fecha de incorporación de los nuevos compañeros",
+        "Register name": "Nombre del registro",
+        "Shown on the marketplace. Leave empty to show the address.": "Se muestra en el mercado. Déjelo vacío para mostrar la dirección.",
+        "Open the Sharing tab": "Abrir la pestaña Compartir"
     }
 }

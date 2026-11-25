@@ -1590,6 +1590,17 @@ export const api = {
 		)
 	},
 
+	/**
+	 * Give a Nextcloud group the LaunchPad admin role (REQ-WIZ-006). Admin-only.
+	 *
+	 * @param {string} groupId The group id.
+	 * @return {Promise} Axios response resolving to the created assignment.
+	 * @spec openspec/specs/setup-wizard/spec.md#req-wiz-006
+	 */
+	assignAdminRoleToGroup(groupId) {
+		return axios.post(`${baseUrl}/api/admin/roles`, { groupId, role: 'admin' })
+	},
+
 	// Tile endpoints
 	getTiles() {
 		return axios.get(`${baseUrl}/api/tiles`)

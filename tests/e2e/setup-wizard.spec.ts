@@ -49,7 +49,7 @@
  * scenarios of the change setup-five-steps-and-admin-tour and runs in the
  * nightly against a live instance.
  *
- * Ten tests are EXPECTED RED until the product is fixed: they were
+ * Three tests are EXPECTED RED until the product is fixed: they were
  * `test.fixme`, so although gate-19 counted them through the list below, no
  * test of theirs ever executed. They now run. The comment on each
  * names the code that disagrees with its scenario. This file is not serial, so
@@ -59,12 +59,6 @@
  *     jumps to `currentRecommendedStep`, and SetupWizardService
  *     computeStepStatuses() reports steps 3 and 4 `skipped` from the start,
  *     so the recommendation is 2 and "Run setup wizard" opens at Step 2.
- *   - Step 3 demo checkboxes (four scenarios): AdminDemoData.vue renders each
- *     showcase as a card with its own Install/Uninstall button; nothing is
- *     checked and nothing installs on the wizard's Next.
- *   - Step 4 group selector (three scenarios): SetupWizardModal.vue renders a
- *     "not yet available" note (data-test="admin-roles-stub") and no selector,
- *     although POST /api/admin/roles exists.
  * The demo tests take real showcases from GET /api/admin/demo-showcases: the
  * scenarios' "Engineering Demo" and "Sales Demo" are examples, and no shipped
  * showcase carries those names.
@@ -803,15 +797,17 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		expect((await saved).status()).toBe(200)
 		expect(await readGroupOrder()).toEqual([GROUP_A, GROUP_B])
 
-		// Step 3 shows the stored demo-data state.
+		// Step 3 shows the stored demo-data state: an installed demo is checked.
 		await goToStep(root, 3)
 		for (const showcase of await readJson<Showcase[]>(SHOWCASES_API)) {
 			const card = root.locator(`[data-test="showcase-card-${showcase.id}"]`)
 			await expect(card).toBeVisible()
-			const action = showcase.isInstalled ? 'uninstall' : 'install'
-			await expect(
-				card.locator(`[data-test="showcase-${action}-${showcase.id}"]`),
-			).toBeVisible()
+			const box = card.getByRole('checkbox')
+			if (showcase.isInstalled) {
+				await expect(box).toBeChecked()
+			} else {
+				await expect(box).not.toBeChecked()
+			}
 		}
 	})
 
@@ -1031,9 +1027,6 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		expect(await readJson<Showcase[]>(SHOWCASES_API)).toEqual(showcasesBefore)
 	})
 
-	// EXPECTED RED (spec vs product): src/components/admin/AdminDemoData.vue
-	// renders each showcase as a card with an Install/Uninstall button; there is
-	// no checkbox per package.
 	test('Step 3 embeds the demo showcases with a checkbox each', async ({
 		page,
 	}) => {
@@ -1082,6 +1075,20 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 	}
 
 	/**
+	 * A group in the Step 4 picker, by its exact text. The select splits a
+	 * long name over two spans, so the option's accessible name is not the
+	 * group id and a by-role name match misses it.
+	 *
+	 * @param page the page (the dropdown is appended to the body).
+	 * @param id the group id.
+	 * @return the option.
+	 */
+	function groupOption(page: Page, id: string): Locator {
+		const exact = new RegExp(`^${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`)
+		return page.getByRole('option').filter({ hasText: exact })
+	}
+
+	/**
 	 * The checkbox on a showcase's card in Step 3.
 	 *
 	 * @param root the wizard root.
@@ -1094,9 +1101,6 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 			.getByRole('checkbox')
 	}
 
-	// EXPECTED RED (spec vs product): AdminDemoData.vue has no checkbox per
-	// showcase; it installs one showcase immediately from its own button, not
-	// on the wizard's Next.
 	test('checked demos are installed on Next', async ({ page }) => {
 		// @e2e setup-wizard::checked-demos-are-installed-on-next
 		const before = await readJson<Showcase[]>(SHOWCASES_API)
@@ -1105,7 +1109,7 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 			const root = await openWizard(page, 'rerun')
 			await goToStep(root, 3)
 			for (const showcase of picked) {
-				await demoCheckbox(root, showcase).check()
+				await demoCheckbox(root, showcase).check({ force: true })
 			}
 			// Checking alone installs nothing; Next does.
 			expect(
@@ -1130,7 +1134,6 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		}
 	})
 
-	// EXPECTED RED (spec vs product): as above, no demo checkboxes to keep.
 	test('the demo selection survives Back without a second install', async ({
 		page,
 	}) => {
@@ -1140,7 +1143,7 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		try {
 			const root = await openWizard(page, 'rerun')
 			await goToStep(root, 3)
-			await demoCheckbox(root, first).check()
+			await demoCheckbox(root, first).check({ force: true })
 			await root.locator('[data-test="setup-wizard-next"]').click()
 			await expectStep(root, 4)
 			const writes = await writesDuring(page, async () => {
@@ -1154,8 +1157,6 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		}
 	})
 
-	// EXPECTED RED (spec vs product): no checkboxes in Step 3
-	// (AdminDemoData.vue), so there is nothing to uncheck.
 	test('a re-run does not re-install an installed demo', async ({ page }) => {
 		// @e2e setup-wizard::re-running-does-not-re-install-demo-packages
 		const before = await readJson<Showcase[]>(SHOWCASES_API)
@@ -1171,7 +1172,7 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 
 			const root = await openWizard(page, 'rerun')
 			await goToStep(root, 3)
-			await demoCheckbox(root, installed).uncheck()
+			await demoCheckbox(root, installed).uncheck({ force: true })
 			const writes = await writesDuring(page, async () => {
 				await root.locator('[data-test="setup-wizard-next"]').click()
 				await expectStep(root, 4)
@@ -1184,9 +1185,6 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		}
 	})
 
-	// EXPECTED RED (spec vs product): Step 4 is a stub. SetupWizardModal.vue
-	// renders a "not yet available" note (data-test="admin-roles-stub") and no
-	// group selector, although the admin-roles endpoints exist (/api/admin/roles).
 	test('Step 4 lists every group for the Dashboard Admin role', async ({
 		page,
 	}) => {
@@ -1203,11 +1201,10 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		const groups = await admin.get('/ocs/v1.php/cloud/groups?format=json')
 		const ids: string[] = (await groups.json()).ocs.data.groups
 		for (const id of ids) {
-			await expect(page.getByRole('option', { name: id })).toBeVisible()
+			await expect(groupOption(page, id)).toBeVisible()
 		}
 	})
 
-	// EXPECTED RED (spec vs product): Step 4 stub, SetupWizardModal.vue.
 	test('selecting one group on Step 4 gives it the admin role', async ({
 		page,
 	}) => {
@@ -1217,7 +1214,7 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 			const root = await openWizard(page, 'rerun')
 			await goToStep(root, 4)
 			await root.locator('.setup-wizard__step').getByRole('combobox').click()
-			await page.getByRole('option', { name: GROUP_A }).click()
+			await groupOption(page, GROUP_A).click()
 			await root.locator('[data-test="setup-wizard-next"]').click()
 			await expectStep(root, 5)
 			const added = (await readJson<RoleRow[]>(ROLES_API)).filter(
@@ -1234,7 +1231,6 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		}
 	})
 
-	// EXPECTED RED (spec vs product): Step 4 stub, SetupWizardModal.vue.
 	test('one wizard run gives the admin role to one group only', async ({
 		page,
 	}) => {
@@ -1244,7 +1240,7 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 			const root = await openWizard(page, 'rerun')
 			await goToStep(root, 4)
 			await root.locator('.setup-wizard__step').getByRole('combobox').click()
-			await page.getByRole('option', { name: GROUP_A }).click()
+			await groupOption(page, GROUP_A).click()
 			await root.locator('[data-test="setup-wizard-next"]').click()
 			await expectStep(root, 5)
 			const added = (await readJson<RoleRow[]>(ROLES_API)).filter(

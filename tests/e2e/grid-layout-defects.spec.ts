@@ -12,16 +12,9 @@
  * test makes its own throwaway account and dashboard (the helpers are the
  * drag-resize file's).
  *
- * EXPECTED RED until the product or the scenario changes:
- *   - 12-col-60px-8px-margin-renders-predictable-height: GridStack draws a
- *     cell `h * cellHeight` tall (240 px for four rows) and insets its content
- *     by the 8 px margin, so neither the item nor its content is the
- *     scenario's 4 x 60 + 3 x 8 = 264 px. Views.vue passes cellHeight 60 and
- *     margin 8. This may be the scenario's arithmetic rather than a defect.
- *   - save-failure-with-retry: src/stores/dashboard.js updatePlacements()
- *     only logs a failed save; there is no error notification and no retry.
- *     The scenario itself notes that this is not implemented yet. It stays a
- *     running test, not an exclusion, because it is a MUST that e2e can see.
+ * The height scenario states what GridStack draws: an item `h * cellHeight`
+ * tall (Views.vue passes cellHeight 60 and margin 8). A failed layout save is
+ * reported and retried by src/stores/dashboard.js updatePlacements().
  *
  * Gate-19 @e2e traceability:
  *   @e2e grid-layout::12-col-60px-8px-margin-renders-predictable-height
@@ -139,17 +132,16 @@ async function openEditing(browser: Browser, count: number) {
 }
 
 // @e2e grid-layout::12-col-60px-8px-margin-renders-predictable-height
-test('a four-row widget on the 12-column grid is 4 x 60 + 3 x 8 = 264 px tall', async ({
+test('a four-row widget on the 12-column grid is 4 x 60 = 240 px tall, its content inset by the margin', async ({
 	browser,
 }) => {
-	// Product disagrees: GridStack draws a cell `h * cellHeight` tall (240 px)
-	// and insets its content by the 8 px margin on each side (224 px); neither
-	// is 264 px. Views.vue:262-271 passes cellHeight 60 and margin 8.
 	const [tall] = await seed([{ x: 8, y: 0, w: 4, h: 4 }])
 	const { context, page } = await openOwnDashboard(browser, own!, 1)
 	try {
 		const box = await item(page, tall).boundingBox()
-		expect(box!.height).toBeCloseTo(264, 0)
+		expect(box!.height).toBeCloseTo(4 * CELL_HEIGHT, 0)
+		const content = await item(page, tall).locator('.grid-stack-item-content').boundingBox()
+		expect(content!.height).toBeCloseTo(4 * CELL_HEIGHT - 2 * 8, 0)
 	} finally {
 		await context.close()
 	}
@@ -159,9 +151,6 @@ test('a four-row widget on the 12-column grid is 4 x 60 + 3 x 8 = 264 px tall', 
 test('a failed layout save is reported and retried up to three times', async ({
 	browser,
 }) => {
-	// Product disagrees: src/stores/dashboard.js:1039-1041 (`updatePlacements`)
-	// only logs a failed save — no notification and no retry. The scenario
-	// itself carries "NOTE: Save failure/retry is NOT currently implemented".
 	const [a] = await seed([{ x: 0, y: 0, w: 4, h: 2 }])
 	const { context, page } = await openEditing(browser, 1)
 	try {

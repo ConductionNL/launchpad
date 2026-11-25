@@ -227,7 +227,7 @@ export default {
 		 * The line a downloaded dashboard prints instead of the embedded page.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
 		 */
 		printNote() {
 			return t('launchpad', '{title}: embedded pages are not included in the download', {

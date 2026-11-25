@@ -19,7 +19,7 @@ export const DEFAULT_PERIOD = 'month'
  *
  * @param {string} search A `location.search` string.
  * @return {string} `month`, `quarter` or `year`.
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 export function readPeriod(search) {
 	const asked = new URLSearchParams(search || '').get('period')
@@ -32,7 +32,7 @@ export function readPeriod(search) {
  * @param {string} href The current address.
  * @param {string} period The chosen period.
  * @return {string} The new address.
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 export function addressWithPeriod(href, period) {
 	const url = new URL(href)
@@ -46,7 +46,7 @@ export function addressWithPeriod(href, period) {
  * @param {string} period `month`, `quarter` or `year`.
  * @param {Date} now The current moment.
  * @return {Date} The period's start.
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 export function periodStart(period, now) {
 	if (period === 'year') {
@@ -77,7 +77,7 @@ function isoDay(date) {
  *
  * @param {object|null} content The placement content.
  * @return {string} The field name, or ''.
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 export function periodFieldOf(content) {
 	for (const source of registerSourcesOf(content)) {
@@ -132,7 +132,7 @@ function registerSourcesOf(content) {
  * @param {string} period The chosen period.
  * @param {Date} now The current moment.
  * @return {object} The content, a copy when a source changed.
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 export function contentWithPeriod(content, period, now) {
 	if (!content || typeof content !== 'object' || !PERIODS.includes(period)) {
@@ -160,7 +160,7 @@ export function contentWithPeriod(content, period, now) {
  *
  * @param {Array<object>} placements The dashboard's shown placements.
  * @return {boolean}
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 export function namesPeriod(placements) {
 	return (Array.isArray(placements) ? placements : []).some((placement) => periodFieldOf(placement?.content) !== '')
@@ -176,7 +176,7 @@ export function namesPeriod(placements) {
  * @param {string} period The chosen period.
  * @param {Date} now The current moment.
  * @return {object|null} The data source.
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 export function withPeriod(dataSource, field, period, now) {
 	if (!dataSource || typeof dataSource !== 'object' || field === '') {

@@ -46,7 +46,7 @@
  *   @e2e dashboards::pieter-downloads-the-quarter
  *   @e2e dashboards::the-embedded-report
  *
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md
  */
 
 import type { APIRequestContext, Locator, Page, Request } from '@playwright/test'

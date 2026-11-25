@@ -5,7 +5,7 @@
  * Download the dashboard: the reader's browser prints the page as it is now;
  * nothing goes to the server.
  *
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'

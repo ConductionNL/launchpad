@@ -25,7 +25,7 @@ const cache = new Map()
  *
  * @param {Array<object>} records The sampled records.
  * @return {string[]} The field names, sorted.
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 export function dateFieldsOf(records) {
 	const verdict = new Map()
@@ -66,7 +66,7 @@ function isDate(value) {
  * @param {string} register The register.
  * @param {string} schema The schema.
  * @return {Promise<string[]>} The date field names.
- * @spec openspec/changes/dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+ * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
  */
 export function fetchDateFields(register, schema) {
 	if (!register || !schema) {

@@ -957,6 +957,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse|null The refusal, or null to proceed.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/specs/dashboard-locking/spec.md#requirement-req-lock-008-lock-lifecycle-on-dashboard-deletion
 	 */
 	private function denyUpdate(int $dashboardId, bool $metadataOnly, bool $touchesMetadata): ?JSONResponse {
 		$refusal = $this->actionRefusal(action: 'dashboard.update');
@@ -965,6 +966,12 @@ class DashboardApiController extends Controller {
 		}
 
 		if ($this->mayUpdate(dashboardId: $dashboardId, metadataOnly: $metadataOnly, touchesMetadata: $touchesMetadata) === false) {
+			// REQ-LOCK-008: a save on a dashboard that was deleted meanwhile
+			// fails with "Dashboard not found", not with a refusal.
+			if ($this->services->dashboardService->dashboardExists(dashboardId: $dashboardId) === false) {
+				return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+			}
+
 			return $this->context->responseHelper->forbidden();
 		}
 

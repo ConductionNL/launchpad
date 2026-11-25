@@ -54,7 +54,6 @@ import {
 	dashboardWidgetRegistry,
 	lazyComponent,
 	CnNcDashboardWidgetForm as NcDashboardForm,
-	CnPeopleWidgetForm as PeopleForm,
 	registerDashboardWidget,
 	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
 } from '@conduction/nextcloud-vue'
@@ -100,6 +99,8 @@ const StatsBlockHost = lazyComponent(() => import('../components/Widgets/Rendere
 const StatusReportWidget = lazyComponent(() => import('../components/Widgets/Renderers/StatusReportWidget.vue'), 'StatusReportWidget')
 const StatusReportWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/StatusReportWidgetForm.vue'), 'StatusReportWidgetForm')
 const TileHost = lazyComponent(() => import('../components/Widgets/Renderers/TileHost.vue'), 'TileHost')
+const PeopleHost = lazyComponent(() => import('../components/Widgets/Renderers/PeopleHost.vue'), 'PeopleHost')
+const PeopleForm = lazyComponent(() => import('../components/Widgets/Renderers/PeopleWidgetForm.vue'), 'PeopleWidgetForm')
 const VideoHost = lazyComponent(() => import('../components/Widgets/Renderers/VideoHost.vue'), 'VideoHost')
 const VideoWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/VideoWidgetForm.vue'), 'VideoWidgetForm')
 const WeatherWidget = lazyComponent(() => import('../components/Widgets/Renderers/WeatherWidget.vue'), 'WeatherWidget')
@@ -171,6 +172,8 @@ const RENDERER_OVERRIDES = {
 	tile: TileHost,
 	// REQ-VID-006: a Nextcloud-file video is resolved for its viewer first.
 	video: VideoHost,
+	// REQ-PPL-014: a New colleagues placement reads /api/people/new.
+	people: PeopleHost,
 }
 
 /**

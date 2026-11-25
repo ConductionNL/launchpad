@@ -872,19 +872,21 @@ class Dashboard extends Entity implements JsonSerializable {
 	 * Serialize for a non-owner viewer (M5 — strips internal identity
 	 * fields from the public envelope).
 	 *
-	 * Removes `userId`, `groupId`, `targetGroups`, `templateCategory`,
-	 * and `templateDescription` which are internal administration fields
-	 * that non-owner consumers have no legitimate use for.
+	 * Removes `userId`, `targetGroups`, `templateCategory`, and
+	 * `templateDescription` which are internal administration fields
+	 * that non-owner consumers have no legitimate use for. `groupId`
+	 * stays: every caller is a group-scoped read whose caller named the
+	 * group and passed its membership check, and REQ-DASH-014 requires
+	 * it on every group-shared payload.
 	 *
 	 * @return array The serialized dashboard without internal fields.
 	 *
-	 * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
+	 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-014-group-shared-dashboard-mutation-endpoints
 	 */
 	public function toViewerArray(): array {
 		$full = $this->jsonSerialize();
 		unset(
 			$full['userId'],
-			$full['groupId'],
 			$full['targetGroups'],
 			$full['templateCategory'],
 			$full['templateDescription']

@@ -237,6 +237,8 @@ event table.
 - **THEN** the dashboard MUST revert to the admin's own role on
   next sign-in (no preview persists across sessions)
 
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. No view-as-another-role preview exists.
+
 ## Non-Functional Requirements
 
 - **Performance:** Each card MUST query independently; one slow
@@ -270,6 +272,3 @@ event table.
 - Nextcloud Authentication apps: `user_saml`, `twofactor_totp`,
   `twofactor_webauthn`.
 - WCAG 2.1 AA.
-
-@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. No view-as-another-role preview exists.
-

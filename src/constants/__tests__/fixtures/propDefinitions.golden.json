@@ -498,6 +498,31 @@
 		"validator": false,
 		"default": null
 	},
+	"../../components/Widgets/Renderers/CalendarWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/CalendarWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"internalCalendars": [],
+			"externalIcsUrls": [],
+			"viewMode": "agenda",
+			"daysAhead": 7,
+			"colorByCalendar": true
+		},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/CalendarWidgetForm.vue | calendarsFetcher": {
+		"type": "Function",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/Widgets/Renderers/ChartHost.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -708,6 +733,30 @@
 			"allowListChecked": false
 		},
 		"fresh": true
+	},
+	"../../components/Widgets/Renderers/ImageWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/ImageWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"url": "",
+			"alt": "",
+			"link": "",
+			"fit": "cover"
+		},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/ImageWidgetForm.vue | fileUploadFn": {
+		"type": "Function",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../components/Widgets/Renderers/LinkButtonHost.vue | content": {
 		"type": "Object",

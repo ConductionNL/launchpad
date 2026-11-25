@@ -214,22 +214,25 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 4.1 `text-display-widget`: 90 scenarios, 9 cited.
   - Spec written: `tests/e2e/text-display-widget.spec.ts`, `text-display-widget-markdown.spec.ts`, `text-display-widget-table.spec.ts`, `text-display-widget-table-editor.spec.ts`; 1 scenario excluded with a reason, 89 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 90 scenarios, 89 cited, 1 excluded, 0 uncited (gate-19 report mode, no presence-only or assertion-free citations). All four files listed by `playwright test --list` (87 tests), not yet run.
-- [ ] 4.2 `news-widget`: 58 scenarios, 0 cited, blanket.
+- [x] 4.2 `news-widget`: 58 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/news-widget.spec.ts`, `news-widget-server.spec.ts`, `news-widget-rendering.spec.ts`; 19 scenarios excluded with reasons, 39 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 59 scenarios, 40 cited, 19 excluded, 0 uncited (gate-19 report mode). New since 19 Nov: `nextcloud-dashboard-items-come-from-own-news-widgets`, cited in `news-widget.spec.ts`. All files listed by `playwright test --list`, not yet run.
+  - Done 25 Nov 2026 (sandbox Nextcloud 34.0.6 + MariaDB + Redis, OpenRegister main 58479c0d0): the three news files green, 10 + rendering + server. widget-picker-includes-news-widget followed the drawn picker (widget-picker-board-sync): the discovered `launchpad_news` widget is its own card (`widget-picker-widget-launchpad_news`), chosen and then placed with the footer's Add widget; the native News card is a different widget type.
 - [x] 4.3 `files-widget`: 57 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/files-widget.spec.ts`, `files-widget-listing.spec.ts`, `files-widget-navigation.spec.ts`, `files-widget-actions.spec.ts`, `files-widget-access.spec.ts`; 6 scenarios excluded with reasons, 51 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 51 of 51 green, every listed test run (checked against `playwright test --list`).
   - Recount (cloud, 2026-11-24): 58 scenarios, 52 cited, 6 excluded, 0 uncited. One scenario postdates the green run: `upload-is-off-by-default`, cited in `files-widget-access.spec.ts`, not yet run.
-- [ ] 4.4 `header-widget`: 56 scenarios, 0 cited.
+- [x] 4.4 `header-widget`: 56 scenarios, 0 cited.
   - Spec written: `tests/e2e/header-widget.spec.ts`, `header-widget-content.spec.ts`, `header-widget-a11y.spec.ts`, `header-widget-form.spec.ts`; 7 scenarios excluded with reasons, 49 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 54 scenarios, 47 cited, 7 excluded, 0 uncited. The four `height-*` scenarios became `a-preset-sets-the-starting-height` (`header-widget-form.spec.ts`), and `the-banner-fills-its-cell` (`header-widget-content.spec.ts`) is new. All files listed, not yet run.
+  - Done 25 Nov 2026 (same sandbox): the four header files green. verticalAlign top: CnHeaderWidget writes `justify-content: flex-start` inline and the sandbox's Chromium reports it as `flow-start`; any start value now counts, and the box checks after it prove the text sits at the top.
 - [x] 4.5 `calendar-widget`: 52 scenarios, 0 cited, blanket.
   - Spec written: `tests/e2e/calendar-widget.spec.ts`, `calendar-widget-sources.spec.ts`, `calendar-widget-rendering.spec.ts`, `calendar-widget-config.spec.ts`; 13 scenarios excluded with reasons, 39 scenarios cited, not yet run (cloud, 2026-11-19)
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 39 of 39 green, every listed test run (checked against `playwright test --list`).
-- [ ] 4.6 `links-widget`: 52 scenarios, 0 cited.
+- [x] 4.6 `links-widget`: 52 scenarios, 0 cited.
   - Spec written: `tests/e2e/links-widget.spec.ts`, `links-widget-grid-navigation.spec.ts`, `links-widget-config.spec.ts`, `links-widget-editor.spec.ts`; 0 scenarios excluded, 52 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 53 scenarios, 53 cited, 0 excluded, 0 uncited. New since 19 Nov: `nextcloud-dashboard-items-come-from-own-links-widgets`, cited in `links-widget.spec.ts`. All files listed, not yet run.
+  - Done 25 Nov 2026 (same sandbox): the four links files green as written.
 - [ ] 4.7 `video-widget`: 51 scenarios, 0 cited.
   - Spec written: `tests/e2e/video-widget.spec.ts`, `video-widget-files.spec.ts` (with `fixtures/tiny.webm`); 18 scenarios excluded with reasons, 33 scenarios cited, not yet run (cloud, 2026-11-19)
   - Recount (cloud, 2026-11-24): 51 scenarios, 35 cited, 16 excluded, 0 uncited. `url-parsing-endpoint-is-available` and `invalid-url-format-is-rejected-early` lost their exclusions when the parse endpoint was built (16300d2e) and are cited in `video-widget.spec.ts`. All files listed, not yet run.

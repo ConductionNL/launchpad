@@ -174,17 +174,18 @@ test('the widget picker lists the news widget among the discovered widgets, and 
 	await gotoDashboard(page)
 	await page.locator(MORE_MENU).locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	const picker = page.locator('.widget-picker')
+	// The drawn picker (widget-picker-board-sync): a dialog of cards; a card
+	// is chosen first and placed with the footer's Add widget.
+	const picker = page.getByRole('dialog').filter({ hasText: 'Add widget' }).last()
 	await expect(picker).toBeVisible({ timeout: 10_000 })
 
-	// The discovered Nextcloud widgets are the picker's top-level entries, not
-	// the catalogue, office or server-apps sections.
-	const news = picker
-		.locator('button.widget-picker__widget:not([data-testid^="widget-picker-"] *)')
-		.filter({ has: page.locator('.widget-picker__widget-title', { hasText: /news/i }) })
-		.first()
-	await expect(news).toBeVisible({ timeout: 10_000 })
+	// The discovered Nextcloud widgets each have their own card; the News card
+	// of the native widget type is a different one.
+	const news = picker.getByTestId(`widget-picker-widget-${NC_WIDGET_ID}`)
+	await expect(news, 'the picker offers the discovered launchpad_news widget').toBeVisible({ timeout: 10_000 })
 	await news.click()
+	await picker.getByRole('button', { name: 'Add widget', exact: true }).click()
+	await expect(picker).toBeHidden({ timeout: 15_000 })
 
 	await expect.poll(async () => (await readPlacements(api, dashboard!.id))
 		.filter((p) => p.widgetId === NC_WIDGET_ID).length, { timeout: 15_000 }).toBe(1)

@@ -115,6 +115,8 @@ export default {
 		 * rejects with the axios error (409 carries `limit` and `current`).
 		 */
 		importBookmarks: { type: Function, required: true },
+		/** A file to read on open, handed over by Add tiles (REQ-TILE-043). */
+		initialFile: { type: Object, default: null },
 	},
 
 	emits: ['close', 'imported'],
@@ -169,6 +171,22 @@ export default {
 		 */
 		canImport() {
 			return !this.busy && this.parsed !== null && (this.folderIndexes.size + this.bookmarkIndexes.size) > 0
+		},
+	},
+
+	watch: {
+		/**
+		 * Read the handed-over file when the dialog opens with one.
+		 *
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 */
+		open: {
+			immediate: true,
+			handler(value) {
+				if (value && this.initialFile) {
+					this.onFile(this.initialFile)
+				}
+			},
 		},
 	},
 

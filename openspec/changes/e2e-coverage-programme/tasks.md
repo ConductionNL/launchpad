@@ -301,20 +301,22 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 
 14 specs, 419 scenarios.
 
-- [ ] 5.1 `dashboard-view-analytics`: 65 scenarios, 0 cited, blanket.
+- [x] 5.1 `dashboard-view-analytics`: 65 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/dashboard-view-analytics.spec.ts, 53 scenarios cited, not yet run (cloud, 2026-11-19), 18 excluded with reasons
   - Spec written: tests/e2e/dashboard-view-analytics-jobs.spec.ts, 5 more scenarios cited (the salt rotation and four retention/purge scenarios, by running the jobs through occ), 13 excluded with reasons, not yet run (cloud, 2026-11-24)
   - Spec written: tests/e2e/dashboard-view-analytics-history.spec.ts (+ tests/e2e/support/instanceDb.ts), 8 more scenarios cited (both table schemas, two days, the salt across days, both period filters, both purge deletions) by seeding and reading rows through PHP on the instance, 5 excluded with reasons, not yet run (cloud, 2026-11-24)
   - Spec written: tests/e2e/dashboard-view-analytics-history.spec.ts, 1 more scenario cited (the tile-click salt is the one analytics_dailysalt), 67 cited, 4 excluded with reasons, not yet run (cloud, 2026-11-24)
   - Spec written: tests/e2e/dashboard-view-analytics-cache.spec.ts, 2 more scenarios cited (the dedup cache key and its TTL, the hash kept in the cache and out of the views table) by reading the distributed cache on the instance; they skip, saying why, where that cache is per-process. 69 cited, 2 excluded with reasons, not yet run (cloud, 2026-11-24)
+  - Done 25 Nov 2026 (sandbox Nextcloud 34.0.6 + MariaDB + Redis distributed cache, OpenRegister main 58479c0d0): `dashboard-view-analytics`, `-jobs`, `-history` and `-cache` all green, the cache tests running rather than skipping on Redis. One red in `-history`, two-different-days-create-separate-rows: day two counted the view but not the viewer. Nextcloud 34 keeps app config in each web process's local cache for 3 s (`AppConfig::LOCAL_CACHE_TTL`), so the salt date occ had just moved back was not yet read, the salt did not rotate and the dedup cache still knew the viewer. The two tests that move the salt date through occ now wait that window out; history 9/9.
 - [x] 5.2 `background-job-feed-refresh`: 56 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/background-job-feed-refresh.spec.ts, 6 scenarios cited, not yet run (cloud, 2026-11-19), 50 excluded with reasons
   - Run 20 Nov on development with #1444: 6 of 6 green.
-- [ ] 5.3 `cli-commands`: 53 scenarios, 0 cited, blanket.
+- [x] 5.3 `cli-commands`: 53 scenarios, 0 cited, blanket.
   - Spec written: none (tests/e2e/cli-commands.spec.ts not created), 0 scenarios cited, 60 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Spec written: tests/e2e/cli-commands.spec.ts (+ tests/e2e/support/occ.ts), 39 scenarios cited, 21 excluded with reasons, not yet run (cloud, 2026-11-24). The old "Playwright cannot run occ" reason was wrong: the suite already runs occ on the instance.
   - Spec written: tests/e2e/cli-commands.spec.ts, 1 more scenario cited (an operator updates the installed template: an older install staged through occ and tests/e2e/support/instanceDb.ts), 40 cited, 20 excluded with reasons, not yet run (cloud, 2026-11-24)
   - Spec written: tests/e2e/cli-commands.spec.ts, 1 more scenario cited (pre-existing commands are not broken: launchpad:export and launchpad:import keep their names and options and round-trip a dashboard with its widget), 41 cited, 19 excluded with reasons, not yet run (cloud, 2026-11-25)
+  - Done 25 Nov 2026 (same sandbox): `cli-commands.spec.ts` green as written.
 - [x] 5.4 `activity-feed-integration`: 52 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/activity-feed-integration.spec.ts, 21 scenarios cited, not yet run (cloud, 2026-11-19), 39 excluded with reasons
   - Run 21-22 Nov on development after #1502 (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 22 of 22 green, every listed test run (checked against `playwright test --list`).

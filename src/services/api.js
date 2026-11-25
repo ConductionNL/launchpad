@@ -1068,6 +1068,18 @@ export const api = {
 	},
 
 	/**
+	 * Set who may share (`everyone`, `groups`, `none`) and whether public
+	 * links may be created. Admin-only on the server; a partial patch.
+	 *
+	 * @param {{sharingAllowed?: string, publicLinksAllowed?: boolean}} data The policy fields to change.
+	 * @return {Promise} The axios response.
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	updateSharingPolicy(data) {
+		return axios.put(`${baseUrl}/api/admin/sharing-policy`, data)
+	},
+
+	/**
 	 * Read the administrator CSS for all of LaunchPad. Admin-only on the server.
 	 *
 	 * @return {Promise} Axios response resolving to `{ customCss }`.

@@ -543,6 +543,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'statusReport#keep', 'url' => '/api/status-reports', 'verb' => 'POST'],
 		['name' => 'admin#getSettings', 'url' => '/api/admin/settings', 'verb' => 'GET'],
 		['name' => 'admin#updateSettings', 'url' => '/api/admin/settings', 'verb' => 'PUT'],
+		// REQ-SHARE-015: who may share (Everyone, Only these groups, Nobody) and the public-link switch.
+		['name' => 'sharingPolicy#update', 'url' => '/api/admin/sharing-policy', 'verb' => 'PUT'],
 
 		// Admin conditional-visibility overview (Beheer ▸ Versioning &
 		// Audit). Admin-only via #[AuthorizedAdminSetting]. Literal URL —

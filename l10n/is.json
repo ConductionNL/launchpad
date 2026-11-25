@@ -1570,6 +1570,15 @@
         "The template wins, except what someone moved or added themselves.": "Sniðmátið ræður, nema það sem einhver færði eða bætti við sjálfur.",
         "Replace everything with the template": "Skipta öllu út fyrir sniðmátið",
         "Personal changes are lost.": "Persónulegar breytingar tapast.",
-        "{count} people changed their dashboard.": "{count} manns breyttu stjórnborðinu sínu."
+        "{count} people changed their dashboard.": "{count} manns breyttu stjórnborðinu sínu.",
+        "Sharing allowed for": "Deiling leyfð fyrir",
+        "Only these groups": "Aðeins þessa hópa",
+        "Nobody": "Engan",
+        "Only administrators can share. Existing shares stay.": "Aðeins stjórnendur geta deilt. Núverandi deilingar haldast.",
+        "Allow public links": "Leyfa opinbera tengla",
+        "Only for people who may share dashboards. A link always has an expiry date.": "Aðeins fyrir þá sem mega deila stjórnborðum. Tengill hefur alltaf gildistíma.",
+        "Expiry date (required)": "Gildistími (áskilinn)",
+        "Your administrator does not allow you to share dashboards.": "Stjórnandinn þinn leyfir þér ekki að deila stjórnborðum.",
+        "Public links are switched off.": "Slökkt er á opinberum tenglum."
     }
 }

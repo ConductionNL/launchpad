@@ -62,6 +62,9 @@ enum AdminSettingKey: string {
 	case ANNOUNCEMENT_EDITOR_GROUPS = 'announcement_editor_groups';
 	case SHARING_ALLOWED_GROUPS = 'sharing_allowed_groups';
 	case SHARING_RECIPIENT_SCOPE = 'sharing_recipient_scope';
+	// REQ-SHARE-015: who may share, `everyone`, `groups` or `none`, and whether public links may be created.
+	case SHARING_ALLOWED = 'sharing_allowed';
+	case PUBLIC_LINKS_ALLOWED = 'public_links_allowed';
 	case LEGACY_WIDGET_BRIDGE_ENABLED = 'legacy_widget_bridge_enabled';
 	case MAX_DASHBOARDS_PER_USER = 'max_dashboards_per_user';
 	case MAX_WIDGETS_PER_DASHBOARD = 'max_widgets_per_dashboard';

@@ -1570,6 +1570,15 @@
         "The template wins, except what someone moved or added themselves.": "O modelo prevalece, exceto o que alguém moveu ou adicionou.",
         "Replace everything with the template": "Substituir tudo pelo modelo",
         "Personal changes are lost.": "As alterações pessoais perdem-se.",
-        "{count} people changed their dashboard.": "{count} pessoas alteraram o seu painel."
+        "{count} people changed their dashboard.": "{count} pessoas alteraram o seu painel.",
+        "Sharing allowed for": "Partilha permitida para",
+        "Only these groups": "Apenas estes grupos",
+        "Nobody": "Ninguém",
+        "Only administrators can share. Existing shares stay.": "Apenas os administradores podem partilhar. As partilhas existentes mantêm-se.",
+        "Allow public links": "Permitir ligações públicas",
+        "Only for people who may share dashboards. A link always has an expiry date.": "Apenas para quem pode partilhar painéis. Uma ligação tem sempre data de expiração.",
+        "Expiry date (required)": "Data de expiração (obrigatória)",
+        "Your administrator does not allow you to share dashboards.": "O seu administrador não lhe permite partilhar painéis.",
+        "Public links are switched off.": "As ligações públicas estão desativadas."
     }
 }

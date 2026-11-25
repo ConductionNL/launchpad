@@ -1570,6 +1570,15 @@
         "The template wins, except what someone moved or added themselves.": "Il model gudogna, danor quai che insatgi ha spustà u agiuntà sez.",
         "Replace everything with the template": "Remplazzar tut cun il model",
         "Personal changes are lost.": "Las midadas persunalas van a perder.",
-        "{count} people changed their dashboard.": "{count} persunas han midà lur dashboard."
+        "{count} people changed their dashboard.": "{count} persunas han midà lur dashboard.",
+        "Sharing allowed for": "Divider permess per",
+        "Only these groups": "Mo questas gruppas",
+        "Nobody": "Nagin",
+        "Only administrators can share. Existing shares stay.": "Mo administraturs pon divider. Las divisiuns existentas restan.",
+        "Allow public links": "Permetter colliaziuns publicas",
+        "Only for people who may share dashboards. A link always has an expiry date.": "Mo per quels che dastgan divider dashboards. Ina colliaziun ha adina ina data da scadenza.",
+        "Expiry date (required)": "Data da scadenza (obligatoric)",
+        "Your administrator does not allow you to share dashboards.": "Voss administratur na As permetta betg da divider dashboards.",
+        "Public links are switched off.": "Las colliaziuns publicas èn deactivadas."
     }
 }

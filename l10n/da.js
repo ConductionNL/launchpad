@@ -1670,7 +1670,16 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Skabelonen vinder, undtagen det nogen selv har flyttet eller tilføjet.",
     "Replace everything with the template" : "Erstat alt med skabelonen",
     "Personal changes are lost." : "Personlige ændringer går tabt.",
-    "{count} people changed their dashboard." : "{count} personer har ændret deres dashboard."
+    "{count} people changed their dashboard." : "{count} personer har ændret deres dashboard.",
+    "Sharing allowed for" : "Deling tilladt for",
+    "Only these groups" : "Kun disse grupper",
+    "Nobody" : "Ingen",
+    "Only administrators can share. Existing shares stay." : "Kun administratorer kan dele. Eksisterende delinger bliver.",
+    "Allow public links" : "Tillad offentlige links",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Kun for dem, der må dele dashboards. Et link har altid en udløbsdato.",
+    "Expiry date (required)" : "Udløbsdato (påkrævet)",
+    "Your administrator does not allow you to share dashboards." : "Din administrator tillader ikke, at du deler dashboards.",
+    "Public links are switched off." : "Offentlige links er slået fra."
 },
 "nplurals=2; plural=(n != 1);"
 );

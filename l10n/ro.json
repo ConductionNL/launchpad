@@ -1572,6 +1572,15 @@
         "The template wins, except what someone moved or added themselves.": "Șablonul are prioritate, cu excepția a ceea ce cineva a mutat sau adăugat singur.",
         "Replace everything with the template": "Înlocuiește totul cu șablonul",
         "Personal changes are lost.": "Modificările personale se pierd.",
-        "{count} people changed their dashboard.": "{count} persoane și-au modificat tabloul de bord."
+        "{count} people changed their dashboard.": "{count} persoane și-au modificat tabloul de bord.",
+        "Sharing allowed for": "Partajare permisă pentru",
+        "Only these groups": "Doar aceste grupuri",
+        "Nobody": "Nimeni",
+        "Only administrators can share. Existing shares stay.": "Doar administratorii pot partaja. Partajările existente rămân.",
+        "Allow public links": "Permite linkuri publice",
+        "Only for people who may share dashboards. A link always has an expiry date.": "Doar pentru cei care pot partaja tablouri de bord. Un link are întotdeauna o dată de expirare.",
+        "Expiry date (required)": "Dată de expirare (obligatorie)",
+        "Your administrator does not allow you to share dashboards.": "Administratorul nu vă permite să partajați tablouri de bord.",
+        "Public links are switched off.": "Linkurile publice sunt dezactivate."
     }
 }

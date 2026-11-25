@@ -100,6 +100,9 @@ const PAGE_KEYS = {
 		// payloads of GET /api/dashboards/visible and GET /api/dashboard the
 		// page already computed. Optional key; `null` makes the store fetch.
 		dashboardFirstLoad: null,
+		// sharing-policy-board-sync REQ-SHARE-015: `{mayShare, publicLinksAllowed}`
+		// for the viewer. Optional key; `null` offers both (the server refuses).
+		sharingPolicy: null,
 	},
 	admin: {
 		allGroups: [],
@@ -152,6 +155,22 @@ export function loadInitialState(page) {
  * Whether the page's first dashboard load has been handed out.
  */
 let dashboardFirstLoadTaken = false
+
+/**
+ * What the Sharing tab may offer the viewer (REQ-SHARE-015): adding people or
+ * groups, and creating a public link. A page without the key offers both; the
+ * server refuses what the policy does not allow.
+ *
+ * @return {{mayShare: boolean, publicLinksAllowed: boolean}} The policy.
+ * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+ */
+export function readSharingPolicy() {
+	const policy = readKey('sharingPolicy', null)
+	return {
+		mayShare: policy?.mayShare !== false,
+		publicLinksAllowed: policy?.publicLinksAllowed !== false,
+	}
+}
 
 /**
  * The first dashboard load the page carries, `{visible, active}` with the

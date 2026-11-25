@@ -1670,7 +1670,16 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Şablon kazanır; birinin kendisinin taşıdığı veya eklediği hariç.",
     "Replace everything with the template" : "Her şeyi şablonla değiştir",
     "Personal changes are lost." : "Kişisel değişiklikler kaybolur.",
-    "{count} people changed their dashboard." : "{count} kişi panosunu değiştirdi."
+    "{count} people changed their dashboard." : "{count} kişi panosunu değiştirdi.",
+    "Sharing allowed for" : "Paylaşıma izin verilenler",
+    "Only these groups" : "Yalnızca bu gruplar",
+    "Nobody" : "Hiç kimse",
+    "Only administrators can share. Existing shares stay." : "Yalnızca yöneticiler paylaşabilir. Mevcut paylaşımlar kalır.",
+    "Allow public links" : "Herkese açık bağlantılara izin ver",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Yalnızca pano paylaşabilenler için. Bir bağlantının her zaman son kullanma tarihi vardır.",
+    "Expiry date (required)" : "Son kullanma tarihi (zorunlu)",
+    "Your administrator does not allow you to share dashboards." : "Yöneticiniz pano paylaşmanıza izin vermiyor.",
+    "Public links are switched off." : "Herkese açık bağlantılar kapalı."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1670,7 +1670,16 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Buann an teimpléad, ach amháin an méid a bhog nó a chuir duine leis é féin.",
     "Replace everything with the template" : "Cuir an teimpléad in ionad gach rud",
     "Personal changes are lost." : "Cailltear athruithe pearsanta.",
-    "{count} people changed their dashboard." : "D'athraigh {count} duine a ndeais."
+    "{count} people changed their dashboard." : "D'athraigh {count} duine a ndeais.",
+    "Sharing allowed for" : "Comhroinnt ceadaithe do",
+    "Only these groups" : "Na grúpaí seo amháin",
+    "Nobody" : "Duine ar bith",
+    "Only administrators can share. Existing shares stay." : "Ní féidir ach le riarthóirí comhroinnt. Fanann comhroinntí atá ann cheana.",
+    "Allow public links" : "Ceadaigh naisc phoiblí",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Dóibh siúd a bhfuil cead acu deais a chomhroinnt amháin. Bíonn dáta éaga ag nasc i gcónaí.",
+    "Expiry date (required)" : "Dáta éaga (riachtanach)",
+    "Your administrator does not allow you to share dashboards." : "Ní cheadaíonn do riarthóir duit deais a chomhroinnt.",
+    "Public links are switched off." : "Tá naisc phoiblí múchta."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

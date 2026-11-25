@@ -1574,6 +1574,15 @@
         "The template wins, except what someone moved or added themselves.": "Il-mudell jirbaħ, ħlief dak li xi ħadd ċaqlaq jew żied hu stess.",
         "Replace everything with the template": "Ibdel kollox bil-mudell",
         "Personal changes are lost.": "Il-bidliet personali jintilfu.",
-        "{count} people changed their dashboard.": "{count} persuni biddlu d-dashboard tagħhom."
+        "{count} people changed their dashboard.": "{count} persuni biddlu d-dashboard tagħhom.",
+        "Sharing allowed for": "Il-qsim permess għal",
+        "Only these groups": "Dawn il-gruppi biss",
+        "Nobody": "Ħadd",
+        "Only administrators can share. Existing shares stay.": "L-amministraturi biss jistgħu jaqsmu. Il-qsim eżistenti jibqa'.",
+        "Allow public links": "Ippermetti links pubbliċi",
+        "Only for people who may share dashboards. A link always has an expiry date.": "Biss għal min jista' jaqsam id-dashboards. Link dejjem ikollu data ta' skadenza.",
+        "Expiry date (required)": "Data ta' skadenza (meħtieġa)",
+        "Your administrator does not allow you to share dashboards.": "L-amministratur tiegħek ma jħallikx taqsam dashboards.",
+        "Public links are switched off.": "Il-links pubbliċi huma mitfija."
     }
 }

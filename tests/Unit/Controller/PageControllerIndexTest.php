@@ -40,6 +40,7 @@ use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\PublicStartPage;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCA\LaunchPad\Service\SearchShortcutService;
+use OCA\LaunchPad\Service\SharingLimits;
 use OCA\LaunchPad\Service\WidgetService;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
@@ -183,10 +184,11 @@ class PageControllerIndexTest extends TestCase {
 	 * The controller over the doubles, with the asset loading left out.
 	 *
 	 * @param DashboardPayloads|null $payloads The first-load builder, if the page has one.
+	 * @param SharingLimits|null     $sharing  The sharing policy, if the page has one.
 	 *
 	 * @return PageController
 	 */
-	private function controller(?DashboardPayloads $payloads=null): PageController {
+	private function controller(?DashboardPayloads $payloads=null, ?SharingLimits $sharing=null): PageController {
 		$initialState = $this->createMock(originalClassName: IInitialState::class);
 		$initialState->method('provideInitialState')->willReturnCallback(
 			callback: function (string $key, mixed $value): void {
@@ -201,7 +203,7 @@ class PageControllerIndexTest extends TestCase {
 			sources: new PageSources(
 				initialState: $initialState,
 				widgetService: $this->widgets,
-				dashboards: new PageDashboards(dashboardService: $this->dashboards, payloads: $payloads),
+				dashboards: new PageDashboards(dashboardService: $this->dashboards, payloads: $payloads, sharing: $sharing),
 				adminTemplateService: $this->templates
 			),
 			userSession: $this->session,
@@ -414,6 +416,28 @@ class PageControllerIndexTest extends TestCase {
 		$this->assertSame(expected: 'uuid-7', actual: $firstLoad['active']['dashboard']['uuid']);
 		$this->assertSame(expected: Dashboard::PERMISSION_FULL, actual: $firstLoad['active']['permissionLevel']);
 	}//end testTheWorkspaceCarriesTheFirstDashboardLoad()
+
+	/**
+	 * REQ-SHARE-015: the page says whether the viewer may share and whether
+	 * public links are on; without the policy it offers both.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	public function testTheWorkspaceCarriesTheSharingPolicy(): void {
+		$this->signIn(uid: 'pieter');
+		$this->adminSettings->method('getSettings')->willReturn([]);
+
+		$this->controller()->index();
+		$this->assertSame(expected: ['mayShare' => true, 'publicLinksAllowed' => true], actual: $this->state['sharingPolicy']);
+
+		$sharing = $this->createMock(originalClassName: SharingLimits::class);
+		$sharing->method('mayShare')->with('pieter')->willReturn(false);
+		$sharing->method('publicLinksAllowed')->willReturn(false);
+		$this->controller(sharing: $sharing)->index();
+		$this->assertSame(expected: ['mayShare' => false, 'publicLinksAllowed' => false], actual: $this->state['sharingPolicy']);
+	}//end testTheWorkspaceCarriesTheSharingPolicy()
 
 	/**
 	 * The legacy widget bridge switches the catalogue to every available widget.

@@ -49,7 +49,25 @@
 			</p>
 		</div>
 
-		<div class="sharing-policy__field">
+		<!-- REQ-SHARE-015 (board LpBeheerDelen): Everyone, Only these groups or Nobody. -->
+		<fieldset class="sharing-policy__field sharing-policy__choices" data-test="sharing-policy-allowed">
+			<legend class="sharing-policy__label">
+				{{ t('launchpad', 'Sharing allowed for') }}
+			</legend>
+			<NcCheckboxRadioSwitch
+				v-for="choice in allowedChoices"
+				:key="choice.id"
+				:modelValue="sharingAllowed"
+				:value="choice.id"
+				type="radio"
+				name="launchpad-sharing-allowed"
+				:data-test="`sharing-policy-allowed-choice-${choice.id}`"
+				@update:modelValue="onAllowedChange">
+				{{ choice.label }}
+			</NcCheckboxRadioSwitch>
+		</fieldset>
+
+		<div v-if="sharingAllowed === 'groups'" class="sharing-policy__field">
 			<label class="sharing-policy__label">
 				{{ t('launchpad', 'Groups that may share') }}
 			</label>
@@ -58,7 +76,7 @@
 				:options="groups"
 				:multiple="true"
 				:aria-label-combobox="t('launchpad', 'Groups that may share')"
-				:placeholder="t('launchpad', 'Everyone')"
+				:placeholder="t('launchpad', 'Select groups')"
 				data-test="sharing-policy-allowed-groups"
 				@update:modelValue="saveLimits" />
 			<p class="sharing-policy__hint">
@@ -71,6 +89,13 @@
 			</p>
 		</div>
 
+		<p
+			v-if="sharingAllowed === 'none'"
+			class="sharing-policy__hint"
+			data-test="sharing-policy-nobody-hint">
+			{{ t('launchpad', 'Only administrators can share. Existing shares stay.') }}
+		</p>
+
 		<div class="sharing-policy__field">
 			<NcSelect
 				v-model="recipientScope"
@@ -82,11 +107,29 @@
 				data-test="sharing-policy-recipient-scope"
 				@update:modelValue="saveLimits" />
 		</div>
+
+		<div class="sharing-policy__field">
+			<NcCheckboxRadioSwitch
+				:modelValue="publicLinksAllowed"
+				type="switch"
+				data-test="sharing-policy-public-links"
+				@update:modelValue="onPublicLinksChange">
+				{{ t('launchpad', 'Allow public links') }}
+			</NcCheckboxRadioSwitch>
+			<p class="sharing-policy__hint">
+				{{
+					t(
+						'launchpad',
+						'Only for people who may share dashboards. A link always has an expiry date.',
+					)
+				}}
+			</p>
+		</div>
 	</div>
 </template>
 
 <script>
-import { NcSelect, NcSelectTags } from '@conduction/nextcloud-vue'
+import { NcCheckboxRadioSwitch, NcSelect, NcSelectTags } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { api } from '../../services/api.js'
 import { logger } from '../../utils/logger.js'
@@ -94,6 +137,12 @@ import { logger } from '../../utils/logger.js'
 const SCOPE_OPTIONS = [
 	{ id: 'everyone', label: 'Everyone' },
 	{ id: 'shared-groups', label: 'Only people who share a group with the sharer' },
+]
+
+const ALLOWED_CHOICES = [
+	{ id: 'everyone', label: 'Everyone' },
+	{ id: 'groups', label: 'Only these groups' },
+	{ id: 'none', label: 'Nobody' },
 ]
 
 const PERMISSION_OPTIONS = [
@@ -113,6 +162,7 @@ export default {
 	name: 'DashboardSharingPolicy',
 
 	components: {
+		NcCheckboxRadioSwitch,
 		NcSelect,
 		NcSelectTags,
 	},
@@ -137,10 +187,17 @@ export default {
 				label: t('launchpad', o.label),
 			})),
 
+			allowedChoices: ALLOWED_CHOICES.map((o) => ({
+				id: o.id,
+				label: t('launchpad', o.label),
+			})),
+
 			defaultPermission: null,
 			forcedGroups: [],
 			allowedGroups: [],
 			recipientScope: null,
+			sharingAllowed: 'everyone',
+			publicLinksAllowed: true,
 		}
 	},
 
@@ -172,6 +229,10 @@ export default {
 				this.recipientScope =
 					this.scopeOptions.find((o) => o.id === settings.sharingRecipientScope)
 					|| this.scopeOptions[0]
+				this.sharingAllowed = ALLOWED_CHOICES.some((o) => o.id === settings.sharingAllowed)
+					? settings.sharingAllowed
+					: (this.allowedGroups.length > 0 ? 'groups' : 'everyone')
+				this.publicLinksAllowed = settings.publicLinksAllowed !== false
 			} catch (error) {
 				logger.error('Failed to load sharing policy:', error)
 			}
@@ -205,6 +266,39 @@ export default {
 				logger.error('Failed to save sharing limits:', error)
 			}
 		},
+
+		/**
+		 * "Sharing allowed for" changed (REQ-SHARE-015); the group list stays
+		 * stored so choosing Only these groups again brings it back.
+		 *
+		 * @param {string} value `everyone`, `groups` or `none`.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+		 */
+		async onAllowedChange(value) {
+			this.sharingAllowed = value
+			try {
+				await api.updateSharingPolicy({ sharingAllowed: value })
+			} catch (error) {
+				logger.error('Failed to save who may share:', error)
+			}
+		},
+
+		/**
+		 * The public-link switch (REQ-SHARE-015).
+		 *
+		 * @param {boolean} value Whether public links may be created.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+		 */
+		async onPublicLinksChange(value) {
+			this.publicLinksAllowed = value === true
+			try {
+				await api.updateSharingPolicy({ publicLinksAllowed: this.publicLinksAllowed })
+			} catch (error) {
+				logger.error('Failed to save the public link setting:', error)
+			}
+		},
 	},
 }
 </script>
@@ -217,6 +311,11 @@ export default {
 
 .sharing-policy__field {
 	margin-bottom: 16px;
+}
+
+.sharing-policy__choices {
+	border: none;
+	padding: 0;
 }
 
 .sharing-policy__label {

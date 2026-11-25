@@ -152,6 +152,7 @@ class McpExternalTools {
 	 * @return array<string, mixed>
 	 *
 	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-11
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function createPublicShareLink(array $args): array {
 		$refusal = ($this->validator->uuid(args: $args, name: 'dashboardUuid')
@@ -163,6 +164,12 @@ class McpExternalTools {
 		}
 
 		try {
+			// REQ-SHARE-015: the same policy as the publicShare create route.
+			$this->external->limits?->assertMayCreatePublicLink(
+				callerId: $this->gate->currentUserId(),
+				expiresAt: ($args['expiresAt'] ?? null)
+			);
+
 			return $this->external->links->createPublicShare(
 				dashboardUuid: (string)$args['dashboardUuid'],
 				callerId: $this->gate->currentUserId(),

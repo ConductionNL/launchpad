@@ -1670,7 +1670,16 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "La plantilla prevalece, excepto lo que alguien movió o añadió por su cuenta.",
     "Replace everything with the template" : "Reemplazar todo por la plantilla",
     "Personal changes are lost." : "Los cambios personales se pierden.",
-    "{count} people changed their dashboard." : "{count} personas cambiaron su panel."
+    "{count} people changed their dashboard." : "{count} personas cambiaron su panel.",
+    "Sharing allowed for" : "Compartir permitido para",
+    "Only these groups" : "Solo estos grupos",
+    "Nobody" : "Nadie",
+    "Only administrators can share. Existing shares stay." : "Solo los administradores pueden compartir. Los recursos compartidos existentes se mantienen.",
+    "Allow public links" : "Permitir enlaces públicos",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Solo para quienes pueden compartir paneles. Un enlace siempre tiene fecha de caducidad.",
+    "Expiry date (required)" : "Fecha de caducidad (obligatoria)",
+    "Your administrator does not allow you to share dashboards." : "Tu administrador no te permite compartir paneles.",
+    "Public links are switched off." : "Los enlaces públicos están desactivados."
 },
 "nplurals=2; plural=(n != 1);"
 );

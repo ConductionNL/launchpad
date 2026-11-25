@@ -1670,7 +1670,16 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Malli voittaa, paitsi se mitä joku on itse siirtänyt tai lisännyt.",
     "Replace everything with the template" : "Korvaa kaikki mallilla",
     "Personal changes are lost." : "Omat muutokset menetetään.",
-    "{count} people changed their dashboard." : "{count} henkilöä on muuttanut koontinäyttöään."
+    "{count} people changed their dashboard." : "{count} henkilöä on muuttanut koontinäyttöään.",
+    "Sharing allowed for" : "Jakaminen sallittu",
+    "Only these groups" : "Vain nämä ryhmät",
+    "Nobody" : "Ei kukaan",
+    "Only administrators can share. Existing shares stay." : "Vain ylläpitäjät voivat jakaa. Olemassa olevat jaot säilyvät.",
+    "Allow public links" : "Salli julkiset linkit",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Vain niille, jotka saavat jakaa koontinäyttöjä. Linkillä on aina vanhenemispäivä.",
+    "Expiry date (required)" : "Vanhenemispäivä (pakollinen)",
+    "Your administrator does not allow you to share dashboards." : "Ylläpitäjäsi ei salli sinun jakaa koontinäyttöjä.",
+    "Public links are switched off." : "Julkiset linkit on poistettu käytöstä."
 },
 "nplurals=2; plural=(n != 1);"
 );

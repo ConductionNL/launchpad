@@ -30,6 +30,14 @@ vi.mock('../../services/api.js', () => ({
 }))
 vi.mock('../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
 
+// REQ-SHARE-015: the viewer's sharing policy from the workspace initial state.
+const initialState = vi.hoisted(() => ({ sharingPolicy: null }))
+vi.mock('@nextcloud/initial-state', () => ({
+	loadState: (_app, key, fallback) => (key === 'sharingPolicy' && initialState.sharingPolicy !== null
+		? initialState.sharingPolicy
+		: fallback),
+}))
+
 const store = vi.hoisted(() => ({
 	fetchShares: vi.fn(),
 	createShare: vi.fn(),
@@ -101,6 +109,7 @@ function mountModal(props = {}) {
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
 	vi.clearAllMocks()
+	initialState.sharingPolicy = null
 	api.listShares.mockResolvedValue({ data: SHARES.map((s) => ({ ...s })) })
 	api.searchSharees.mockResolvedValue(SHAREES)
 	api.replaceShares.mockResolvedValue({ data: {} })
@@ -348,11 +357,25 @@ describe('DashboardConfigModal: public links', () => {
 		expect(wrapper.vm.creatingPublicShare).toBe(false)
 	})
 
-	it('creates an open-ended link without password', async () => {
+	it('creates a link without password once an expiry date is set', async () => {
+		const wrapper = mountModal()
+		await flushPromises()
+		wrapper.vm.newShareExpiry = '2027-01-15'
+		await wrapper.vm.onCreatePublicShare()
+		expect(store.createShare).toHaveBeenCalledWith('uuid-3', { password: null, expiresAt: '2027-01-15T23:59:59Z' })
+	})
+
+	// REQ-SHARE-015: every new public link has an expiry date.
+	it('creates no link without an expiry date and keeps the create button disabled', async () => {
 		const wrapper = mountModal()
 		await flushPromises()
 		await wrapper.vm.onCreatePublicShare()
-		expect(store.createShare).toHaveBeenCalledWith('uuid-3', { password: null, expiresAt: null })
+		expect(store.createShare).not.toHaveBeenCalled()
+
+		const expiry = wrapper.find('[data-test="public-share-expiry"]')
+		if (expiry.exists()) {
+			expect(expiry.attributes('required')).toBeDefined()
+		}
 	})
 
 	it('keeps the inputs when creating a link fails', async () => {
@@ -360,6 +383,7 @@ describe('DashboardConfigModal: public links', () => {
 		const wrapper = mountModal()
 		await flushPromises()
 		wrapper.vm.newSharePassword = 'pw'
+		wrapper.vm.newShareExpiry = '2026-12-31'
 
 		await wrapper.vm.onCreatePublicShare()
 
@@ -500,5 +524,33 @@ describe('DashboardConfigModal: save and delete', () => {
 		const allowed = mountModal({ canDelete: true })
 		allowed.vm.onDelete()
 		expect(allowed.emitted('delete')).toEqual([[allowed.props('dashboard')]])
+	})
+})
+
+describe('DashboardConfigModal: the sharing policy (REQ-SHARE-015)', () => {
+	it('offers adding people and creating a link when the page carries no policy', async () => {
+		const wrapper = mountModal()
+		await flushPromises()
+		expect(wrapper.find('[data-test="share-not-allowed-hint"]').exists()).toBe(false)
+		expect(wrapper.find('[data-test="public-share-off-hint"]').exists()).toBe(false)
+		expect(wrapper.find('[data-test="public-share-create"]').exists()).toBe(true)
+	})
+
+	it('under Nobody offers no add and no public link, and keeps the existing shares listed', async () => {
+		initialState.sharingPolicy = { mayShare: false, publicLinksAllowed: true }
+		const wrapper = mountModal()
+		await flushPromises()
+		expect(wrapper.find('[data-test="share-not-allowed-hint"]').exists()).toBe(true)
+		expect(wrapper.find('[data-test="public-share-create"]').exists()).toBe(false)
+		expect(wrapper.text()).toContain('Alice')
+	})
+
+	it('with public links off offers no new link', async () => {
+		initialState.sharingPolicy = { mayShare: true, publicLinksAllowed: false }
+		const wrapper = mountModal()
+		await flushPromises()
+		expect(wrapper.find('[data-test="share-not-allowed-hint"]').exists()).toBe(false)
+		expect(wrapper.find('[data-test="public-share-off-hint"]').text()).toBe('Public links are switched off.')
+		expect(wrapper.find('[data-test="public-share-create"]').exists()).toBe(false)
 	})
 })

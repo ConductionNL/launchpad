@@ -2117,7 +2117,16 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "The template wins, except what someone moved or added themselves.",
     "Replace everything with the template" : "Replace everything with the template",
     "Personal changes are lost." : "Personal changes are lost.",
-    "{count} people changed their dashboard." : "{count} people changed their dashboard."
+    "{count} people changed their dashboard." : "{count} people changed their dashboard.",
+    "Sharing allowed for" : "Sharing allowed for",
+    "Only these groups" : "Only these groups",
+    "Nobody" : "Nobody",
+    "Only administrators can share. Existing shares stay." : "Only administrators can share. Existing shares stay.",
+    "Allow public links" : "Allow public links",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Only for people who may share dashboards. A link always has an expiry date.",
+    "Expiry date (required)" : "Expiry date (required)",
+    "Your administrator does not allow you to share dashboards." : "Your administrator does not allow you to share dashboards.",
+    "Public links are switched off." : "Public links are switched off."
 },
 "nplurals=2; plural=(n != 1);"
 );

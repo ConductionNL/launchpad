@@ -1670,7 +1670,16 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Mallen vinner, utom det som någon själv har flyttat eller lagt till.",
     "Replace everything with the template" : "Ersätt allt med mallen",
     "Personal changes are lost." : "Personliga ändringar går förlorade.",
-    "{count} people changed their dashboard." : "{count} personer har ändrat sin instrumentpanel."
+    "{count} people changed their dashboard." : "{count} personer har ändrat sin instrumentpanel.",
+    "Sharing allowed for" : "Delning tillåten för",
+    "Only these groups" : "Endast dessa grupper",
+    "Nobody" : "Ingen",
+    "Only administrators can share. Existing shares stay." : "Endast administratörer kan dela. Befintliga delningar finns kvar.",
+    "Allow public links" : "Tillåt offentliga länkar",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Endast för dem som får dela instrumentpaneler. En länk har alltid ett utgångsdatum.",
+    "Expiry date (required)" : "Utgångsdatum (obligatoriskt)",
+    "Your administrator does not allow you to share dashboards." : "Din administratör tillåter inte att du delar instrumentpaneler.",
+    "Public links are switched off." : "Offentliga länkar är avstängda."
 },
 "nplurals=2; plural=(n != 1);"
 );

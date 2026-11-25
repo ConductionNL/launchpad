@@ -166,7 +166,7 @@ test.describe('anonymous public share', () => {
 		// --- publish -----------------------------------------------------
 		const share = await admin.post(
 			`/index.php/apps/launchpad/api/dashboards/${uuid}/public-share`,
-			{ data: {} },
+			{ data: { expiresAt: '2099-12-31T23:59:59Z' } },
 		)
 		expect(share.status(), await share.text()).toBeLessThan(300)
 		const shareBody = await share.json()
@@ -318,7 +318,7 @@ test.describe('anonymous public share', () => {
 
 		const share = await admin.post(
 			`/index.php/apps/launchpad/api/dashboards/${uuid}/public-share`,
-			{ data: {} },
+			{ data: { expiresAt: '2099-12-31T23:59:59Z' } },
 		)
 		expect(share.status(), await share.text()).toBe(201)
 		const shareBody = await share.json()

@@ -174,6 +174,7 @@ class DemoSeedService {
 	 * @throws RuntimeException         When a user or dashboard cannot be written.
 	 *
 	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
 	public function load(string $seedId, string $password = self::DEFAULT_PASSWORD, string $language = ''): array {
 		$seed   = $this->definition(seedId: $seedId, language: $language);
@@ -183,6 +184,7 @@ class DemoSeedService {
 
 		$this->content->mergeAppConfig(values: (array)($seed['appConfig'] ?? []));
 		$report['catalogue']     = $this->content->seedCatalogue(tiles: (array)($seed['tiles'] ?? []));
+		$report['startDates']    = $this->content->seedStartDates(entry: (array)($seed['startDates'] ?? []), today: gmdate(format: 'Y-m-d'));
 		$report['announcements'] = $this->content->seedAnnouncements(entries: (array)($seed['announcements'] ?? []));
 		$report['files']         = $this->parts->files->ensureSafely(definition: $seed['files'] ?? null);
 		$report['dashboards']    = $this->seedDashboards(seed: $seed);

@@ -185,7 +185,7 @@ class PersonalLayerApiController extends Controller {
 			dashboardId: $dashboardId,
 			overrides: $overrides,
 			hide: $hidden,
-			placements: (array)($visible['placements'] ?? [])
+			placements: $this->sharedPlacements(dashboardId: $dashboardId, visible: $visible)
 		);
 		if (isset($saved['error']) === true) {
 			// The refusal names the placement, so the message can say which
@@ -215,6 +215,27 @@ class PersonalLayerApiController extends Controller {
 		// owner's arrangement and that is what they have.
 		return new JSONResponse(['reset' => $this->layers->reset(userId: (string)$this->userId, dashboardId: $dashboardId)]);
 	}//end reset()
+
+	/**
+	 * The dashboard's own placements, before the caller's layer. The envelope
+	 * the caller reads has their layer applied, so a placement they hid is
+	 * not in it; checking a save against that list dropped every placement
+	 * still hidden, and "Show again" on one of two brought both back.
+	 *
+	 * @param int                  $dashboardId The dashboard.
+	 * @param array<string, mixed> $visible     The caller's envelope, the fallback.
+	 *
+	 * @return array<int, mixed> The placements.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	private function sharedPlacements(int $dashboardId, array $visible): array {
+		if ($this->placements === null) {
+			return (array)($visible['placements'] ?? []);
+		}
+
+		return $this->placements->findByDashboardId(dashboardId: $dashboardId);
+	}//end sharedPlacements()
 
 	/**
 	 * The dashboard envelope when the caller may read it, else null.

@@ -53,6 +53,8 @@ async function recordPrints(page: Page): Promise<void> {
 		w.__prints = []
 		window.print = () => {
 			w.__prints.push(document.title)
+			// A real print dialog fires afterprint when it closes; the stub does too.
+			window.dispatchEvent(new Event('afterprint'))
 		}
 	})
 }

@@ -185,6 +185,26 @@ class CommandBaseFailureTest extends TestCase {
 	}//end testJsonFailureEmitsAnErrorEnvelope()
 
 	/**
+	 * A global option typed before the command (`occ --no-ansi launchpad:...`)
+	 * leaves the command name out of the audited arguments (REQ-CLI-010).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	public function testGlobalOptionBeforeTheCommandIsNotAuditedAsAnArgument(): void {
+		$_SERVER['argv'] = ['occ', '--no-ansi', '-q', 'launchpad:test:boom', 'abc', '--json'];
+		$tester = $this->failingCommand(name: 'launchpad:test:boom', session: $this->sessionOf(uid: 'admin'));
+
+		$tester->execute(['--json' => true]);
+
+		$this->assertMatchesRegularExpression(
+			'/^\[launchpad\] cli test:boom abc --json exitCode=1 durationMs=\d+ byUser=admin$/',
+			$this->audit[0][0]
+		);
+	}//end testGlobalOptionBeforeTheCommandIsNotAuditedAsAnArgument()
+
+	/**
 	 * Without --json the message goes to stderr only; a command outside the
 	 * launchpad namespace keeps its full name and no user audits as cli.
 	 *

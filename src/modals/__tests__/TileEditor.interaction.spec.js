@@ -92,7 +92,7 @@ describe('TileEditor form bindings', () => {
 		expect(wrapper.vm.form.backgroundColor).toBe('#123456')
 		expect(wrapper.vm.form.textColor).toBe('#abcdef')
 		const style = wrapper.find('.tile-preview').attributes('style')
-		expect(style).toContain('background-color: rgb(18, 52, 86)')
+		expect(style).toContain('background: rgb(18, 52, 86)')
 		expect(style).toContain('color: rgb(171, 205, 239)')
 	})
 })
@@ -161,5 +161,37 @@ describe('TileEditor actions', () => {
 		modal.vm.$emit('close')
 		expect(wrapper.emitted('close')).toHaveLength(2)
 		expect(modal.props('name')).toBe('New tile')
+	})
+})
+
+describe('TileEditor theme colours (REQ-ICT-004)', () => {
+	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+	it('offers eight named swatches and stores the chosen token', async () => {
+		const wrapper = mountEditor()
+		const swatches = wrapper.findAll('[data-test^="tile-editor-swatch--sc-"]')
+		expect(swatches).toHaveLength(8)
+		expect(swatches.map((s) => s.attributes('aria-label'))).toEqual([
+			'Primary', 'Primary, dark', 'Accent', 'Accent, dark', 'Ink', 'Text grey', 'Muted grey', 'Field grey',
+		])
+		expect(wrapper.find('[data-test="tile-editor-swatches"]').attributes('role')).toBe('radiogroup')
+
+		await wrapper.find('[data-test="tile-editor-swatch--sc-primary"]').trigger('change')
+		expect(wrapper.vm.form.colourToken).toBe('--sc-primary')
+		expect(wrapper.find('.tile-preview').attributes('style')).toContain('var(--sc-primary')
+		// The hex pickers make way for the token.
+		expect(wrapper.findAllComponents({ name: 'NcColorPicker' })).toHaveLength(0)
+
+		await wrapper.find('[data-test="tile-editor-swatch-own"]').trigger('change')
+		expect(wrapper.vm.form.colourToken).toBe('')
+		expect(wrapper.findAllComponents({ name: 'NcColorPicker' })).toHaveLength(2)
+	})
+
+	it('seeds a stored token and ignores one that is not a token', async () => {
+		const wrapper = mountEditor()
+		await wrapper.setProps({ tile: { id: 4, title: 'Z', colourToken: '--sc-accent' } })
+		expect(wrapper.vm.form.colourToken).toBe('--sc-accent')
+		expect(wrapper.find('[data-test="tile-editor-swatch--sc-accent"]').element.checked).toBe(true)
+		await wrapper.setProps({ tile: { id: 5, title: 'Y', colourToken: 'red' } })
+		expect(wrapper.vm.form.colourToken).toBe('')
 	})
 })

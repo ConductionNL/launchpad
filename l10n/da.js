@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Forbindelser på dette dashboard",
+    "Connection states need the Integrations app" : "Forbindelsernes status kræver appen Integrationer",
+    "No widget on this dashboard uses an outside connection" : "Ingen widget på dette dashboard bruger en ekstern forbindelse",
+    "Loading connection states …" : "Indlæser forbindelsernes status …",
+    "The connection states could not be loaded. Try again later." : "Forbindelsernes status kunne ikke indlæses. Prøv igen senere.",
+    "Last error: {time}" : "Seneste fejl: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Viser de eksterne forbindelser, som widgets på dette dashboard bruger, med den status appen Integrationer har for hver. Hver person ser det, OpenRegister lader dem se.",
     "What do you think of this dashboard?" : "Hvad synes du om dette dashboard?",
     "today {time}" : "i dag {time}",
     "Last updated {when}" : "Sidst opdateret {when}",
@@ -1836,7 +1843,21 @@ OC.L10N.register(
     "Single sign-on" : "Single sign-on",
     "Signs in with your Nextcloud account" : "Logger ind med din Nextcloud-konto",
     "Asks for its own sign-in" : "Beder om sit eget login",
-    "The tiles could not be added." : "Fliserne kunne ikke tilføjes."
+    "The tiles could not be added." : "Fliserne kunne ikke tilføjes.",
+    "You searched for {query}" : "Du søgte efter {query}",
+    "Search results" : "Søgeresultater",
+    "No results" : "Ingen resultater",
+    "Show all results" : "Vis alle resultater",
+    "Tip: type {prefix} to search {name} directly" : "Tip: skriv {prefix} for at søge direkte i {name}",
+    "{app}, outage since {time}" : "{app}, nedbrud siden {time}",
+    "Own colour" : "Egen farve",
+    "Primary, dark" : "Primær, mørk",
+    "Accent" : "Accent",
+    "Accent, dark" : "Accent, mørk",
+    "Ink" : "Blæk",
+    "Text grey" : "Tekstgrå",
+    "Muted grey" : "Dæmpet grå",
+    "Field grey" : "Feltgrå"
 },
 "nplurals=2; plural=(n != 1);"
 );

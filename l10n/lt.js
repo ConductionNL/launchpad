@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Šios skydelio jungtys",
+    "Connection states need the Integrations app" : "Jungčių būsenai reikia programos Integracijos",
+    "No widget on this dashboard uses an outside connection" : "Nė vienas šio skydelio valdiklis nenaudoja išorinės jungties",
+    "Loading connection states …" : "Įkeliama jungčių būsena …",
+    "The connection states could not be loaded. Try again later." : "Nepavyko įkelti jungčių būsenos. Bandykite vėliau.",
+    "Last error: {time}" : "Paskutinė klaida: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Rodo išorines jungtis, kurias naudoja šio skydelio valdikliai, su būsena, kurią programa Integracijos saugo apie kiekvieną. Kiekvienas mato tai, ką leidžia OpenRegister.",
     "What do you think of this dashboard?" : "Ką manote apie šį skydelį?",
     "today {time}" : "šiandien {time}",
     "Last updated {when}" : "Paskutinį kartą atnaujinta {when}",
@@ -1836,7 +1843,21 @@ OC.L10N.register(
     "Single sign-on" : "Vienkartinis prisijungimas",
     "Signs in with your Nextcloud account" : "Prisijungia jūsų Nextcloud paskyra",
     "Asks for its own sign-in" : "Prašo savo prisijungimo",
-    "The tiles could not be added." : "Nepavyko pridėti plytelių."
+    "The tiles could not be added." : "Nepavyko pridėti plytelių.",
+    "You searched for {query}" : "Ieškojote {query}",
+    "Search results" : "Paieškos rezultatai",
+    "No results" : "Rezultatų nėra",
+    "Show all results" : "Rodyti visus rezultatus",
+    "Tip: type {prefix} to search {name} directly" : "Patarimas: įveskite {prefix}, kad ieškotumėte tiesiai {name}",
+    "{app}, outage since {time}" : "{app}, sutrikimas nuo {time}",
+    "Own colour" : "Sava spalva",
+    "Primary, dark" : "Pagrindinė, tamsi",
+    "Accent" : "Akcentas",
+    "Accent, dark" : "Akcentas, tamsus",
+    "Ink" : "Rašalas",
+    "Text grey" : "Teksto pilka",
+    "Muted grey" : "Prislopinta pilka",
+    "Field grey" : "Lauko pilka"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

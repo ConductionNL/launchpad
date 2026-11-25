@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Koppelingen van dit dashboard",
+    "Connection states need the Integrations app" : "Voor de staat van koppelingen is de app Integraties nodig",
+    "No widget on this dashboard uses an outside connection" : "Geen widget op dit dashboard gebruikt een externe koppeling",
+    "Loading connection states …" : "Staat van de koppelingen laden …",
+    "The connection states could not be loaded. Try again later." : "De staat van de koppelingen kon niet worden geladen. Probeer het later opnieuw.",
+    "Last error: {time}" : "Laatste fout: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Toont de externe koppelingen die de widgets op dit dashboard gebruiken, met de staat die de app Integraties van elke koppeling bijhoudt. Iedereen ziet wat OpenRegister hem of haar laat zien.",
     "What do you think of this dashboard?" : "Wat vindt u van dit dashboard?",
     "today {time}" : "vandaag {time}",
     "Last updated {when}" : "Laatst bijgewerkt {when}",
@@ -2715,7 +2722,20 @@ OC.L10N.register(
     "Single sign-on" : "Eenmalige aanmelding",
     "Signs in with your Nextcloud account" : "Meldt aan met je Nextcloud-account",
     "Asks for its own sign-in" : "Vraagt om een eigen aanmelding",
-    "The tiles could not be added." : "De tegels konden niet worden toegevoegd."
+    "The tiles could not be added." : "De tegels konden niet worden toegevoegd.",
+    "You searched for {query}" : "Je zocht naar {query}",
+    "No results" : "Geen resultaten",
+    "Show all results" : "Alle resultaten tonen",
+    "Tip: type {prefix} to search {name} directly" : "Tip: typ {prefix} om direct in {name} te zoeken",
+    "{app}, outage since {time}" : "{app}, storing sinds {time}",
+    "Own colour" : "Eigen kleur",
+    "Primary, dark" : "Primair, donker",
+    "Accent" : "Accent",
+    "Accent, dark" : "Accent, donker",
+    "Ink" : "Inkt",
+    "Text grey" : "Tekstgrijs",
+    "Muted grey" : "Gedempt grijs",
+    "Field grey" : "Veldgrijs"
 },
 "nplurals=2; plural=(n != 1);"
 );

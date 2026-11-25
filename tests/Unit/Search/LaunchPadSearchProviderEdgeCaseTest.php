@@ -26,13 +26,16 @@ namespace Unit\Search;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Search\DashboardSubline;
 use OCA\LaunchPad\Search\LaunchPadSearchProvider;
 use OCA\LaunchPad\Search\SearchLinks;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\MetadataService;
+use OCP\IGroupManager;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\IUser;
+use OCP\IUserManager;
 use OCP\L10N\IFactory;
 use OCP\Search\ISearchQuery;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -88,7 +91,15 @@ class LaunchPadSearchProviderEdgeCaseTest extends TestCase {
 			dashboardService: $this->dashboardService,
 			placementMapper: $this->placementMapper,
 			metadataService: $this->metadataService,
-			links: new SearchLinks(l10nFactory: $factory, urlGenerator: $urls)
+			links: new SearchLinks(
+				l10nFactory: $factory,
+				urlGenerator: $urls,
+				subline: new DashboardSubline(
+					userManager: $this->createMock(originalClassName: IUserManager::class),
+					groupManager: $this->createMock(originalClassName: IGroupManager::class),
+					placementMapper: $this->placementMapper
+				)
+			)
 		);
 	}//end setUp()
 

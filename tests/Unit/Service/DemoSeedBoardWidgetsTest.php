@@ -266,6 +266,20 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 	}//end testChartsCarryTheirEnteredValues()
 
 	/**
+	 * The management board's "Koppelingen van dit dashboard" card is the
+	 * connections widget, with the old text card as its fallback.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+	 */
+	public function testTheManagementBoardShowsItsConnections(): void {
+		[$card] = self::placementsOf(type: 'connections');
+		$this->assertSame(expected: 'Koppelingen van dit dashboard', actual: $card['customTitle']);
+		$this->assertSame(expected: 'text', actual: $card['fallback']['widgetId']);
+	}//end testTheManagementBoardShowsItsConnections()
+
+	/**
 	 * The shared boards draw their widget cards without an Actions menu, as
 	 * the personal ones do.
 	 *

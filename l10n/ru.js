@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Подключения этой панели",
+    "Connection states need the Integrations app" : "Для состояния подключений нужно приложение «Интеграции»",
+    "No widget on this dashboard uses an outside connection" : "Ни один виджет на этой панели не использует внешнее подключение",
+    "Loading connection states …" : "Загрузка состояния подключений …",
+    "The connection states could not be loaded. Try again later." : "Не удалось загрузить состояние подключений. Повторите попытку позже.",
+    "Last error: {time}" : "Последняя ошибка: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Показывает внешние подключения, которые используют виджеты этой панели, с состоянием, которое приложение «Интеграции» хранит для каждого. Каждый видит то, что ему позволяет OpenRegister.",
     "What do you think of this dashboard?" : "Что вы думаете об этой панели?",
     "today {time}" : "сегодня {time}",
     "Last updated {when}" : "Последнее обновление {when}",
@@ -1836,7 +1843,21 @@ OC.L10N.register(
     "Single sign-on" : "Единый вход",
     "Signs in with your Nextcloud account" : "Входит с вашей учётной записью Nextcloud",
     "Asks for its own sign-in" : "Требует собственного входа",
-    "The tiles could not be added." : "Не удалось добавить плитки."
+    "The tiles could not be added." : "Не удалось добавить плитки.",
+    "You searched for {query}" : "Вы искали {query}",
+    "Search results" : "Результаты поиска",
+    "No results" : "Нет результатов",
+    "Show all results" : "Показать все результаты",
+    "Tip: type {prefix} to search {name} directly" : "Совет: введите {prefix}, чтобы искать прямо в {name}",
+    "{app}, outage since {time}" : "{app}, сбой с {time}",
+    "Own colour" : "Свой цвет",
+    "Primary, dark" : "Основной, тёмный",
+    "Accent" : "Акцент",
+    "Accent, dark" : "Акцент, тёмный",
+    "Ink" : "Чернила",
+    "Text grey" : "Серый текста",
+    "Muted grey" : "Приглушённый серый",
+    "Field grey" : "Серый поля"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

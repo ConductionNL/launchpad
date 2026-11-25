@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Падключэнні гэтай панэлі",
+    "Connection states need the Integrations app" : "Для стану падключэнняў патрэбна праграма «Інтэграцыі»",
+    "No widget on this dashboard uses an outside connection" : "Ніводзін віджэт на гэтай панэлі не выкарыстоўвае знешняе падключэнне",
+    "Loading connection states …" : "Загрузка стану падключэнняў …",
+    "The connection states could not be loaded. Try again later." : "Не ўдалося загрузіць стан падключэнняў. Паспрабуйце пазней.",
+    "Last error: {time}" : "Апошняя памылка: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Паказвае знешнія падключэнні, якія выкарыстоўваюць віджэты гэтай панэлі, са станам, які праграма «Інтэграцыі» захоўвае для кожнага. Кожны бачыць тое, што яму дазваляе OpenRegister.",
     "What do you think of this dashboard?" : "Што вы думаеце пра гэтую панэль?",
     "today {time}" : "сёння {time}",
     "Last updated {when}" : "Апошняе абнаўленне {when}",
@@ -1827,6 +1834,20 @@ OC.L10N.register(
     "Single sign-on" : "Адзіны ўваход",
     "Signs in with your Nextcloud account" : "Уваходзіць з вашым уліковым запісам Nextcloud",
     "Asks for its own sign-in" : "Патрабуе ўласнага ўваходу",
-    "The tiles could not be added." : "Не ўдалося дадаць пліткі."
+    "The tiles could not be added." : "Не ўдалося дадаць пліткі.",
+    "You searched for {query}" : "Вы шукалі {query}",
+    "Search results" : "Вынікі пошуку",
+    "No results" : "Няма вынікаў",
+    "Show all results" : "Паказаць усе вынікі",
+    "Tip: type {prefix} to search {name} directly" : "Парада: увядзіце {prefix}, каб шукаць непасрэдна ў {name}",
+    "{app}, outage since {time}" : "{app}, збой з {time}",
+    "Own colour" : "Свой колер",
+    "Primary, dark" : "Асноўны, цёмны",
+    "Accent" : "Акцэнт",
+    "Accent, dark" : "Акцэнт, цёмны",
+    "Ink" : "Чарніла",
+    "Text grey" : "Шэры тэксту",
+    "Muted grey" : "Прыглушаны шэры",
+    "Field grey" : "Шэры поля"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

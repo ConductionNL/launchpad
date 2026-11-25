@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Συνδέσεις αυτού του πίνακα",
+    "Connection states need the Integrations app" : "Η κατάσταση των συνδέσεων απαιτεί την εφαρμογή Ενοποιήσεις",
+    "No widget on this dashboard uses an outside connection" : "Κανένα γραφικό στοιχείο σε αυτόν τον πίνακα δεν χρησιμοποιεί εξωτερική σύνδεση",
+    "Loading connection states …" : "Φόρτωση κατάστασης συνδέσεων …",
+    "The connection states could not be loaded. Try again later." : "Δεν ήταν δυνατή η φόρτωση της κατάστασης των συνδέσεων. Δοκιμάστε ξανά αργότερα.",
+    "Last error: {time}" : "Τελευταίο σφάλμα: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Εμφανίζει τις εξωτερικές συνδέσεις που χρησιμοποιούν τα γραφικά στοιχεία αυτού του πίνακα, με την κατάσταση που κρατά η εφαρμογή Ενοποιήσεις για καθεμία. Ο καθένας βλέπει ό,τι του επιτρέπει το OpenRegister.",
     "What do you think of this dashboard?" : "Τι πιστεύετε για αυτόν τον πίνακα ελέγχου;",
     "today {time}" : "σήμερα {time}",
     "Last updated {when}" : "Τελευταία ενημέρωση {when}",
@@ -1836,7 +1843,21 @@ OC.L10N.register(
     "Single sign-on" : "Ενιαία σύνδεση",
     "Signs in with your Nextcloud account" : "Συνδέεται με τον λογαριασμό σας Nextcloud",
     "Asks for its own sign-in" : "Ζητά δική του σύνδεση",
-    "The tiles could not be added." : "Δεν ήταν δυνατή η προσθήκη των πλακιδίων."
+    "The tiles could not be added." : "Δεν ήταν δυνατή η προσθήκη των πλακιδίων.",
+    "You searched for {query}" : "Αναζητήσατε {query}",
+    "Search results" : "Αποτελέσματα αναζήτησης",
+    "No results" : "Κανένα αποτέλεσμα",
+    "Show all results" : "Εμφάνιση όλων των αποτελεσμάτων",
+    "Tip: type {prefix} to search {name} directly" : "Συμβουλή: πληκτρολογήστε {prefix} για αναζήτηση απευθείας στο {name}",
+    "{app}, outage since {time}" : "{app}, διακοπή από τις {time}",
+    "Own colour" : "Δικό σας χρώμα",
+    "Primary, dark" : "Κύριο, σκούρο",
+    "Accent" : "Τόνος",
+    "Accent, dark" : "Τόνος, σκούρος",
+    "Ink" : "Μελάνι",
+    "Text grey" : "Γκρι κειμένου",
+    "Muted grey" : "Απαλό γκρι",
+    "Field grey" : "Γκρι πεδίου"
 },
 "nplurals=2; plural=(n != 1);"
 );

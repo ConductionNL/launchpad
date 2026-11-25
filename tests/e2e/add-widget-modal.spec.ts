@@ -24,6 +24,7 @@ import {
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -88,7 +89,7 @@ async function gotoLaunchPad(page: any) {
 async function openAddWidgetModal(page: any, type = 'label') {
 	await page.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`).click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
+	await chooseAndAdd(page.locator(`[data-testid="widget-picker-type-${type}"]`))
 
 	await expect(
 		page.getByRole('dialog', { name: /add widget/i }).first(),

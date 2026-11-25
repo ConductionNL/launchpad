@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Везе ове контролне табле",
+    "Connection states need the Integrations app" : "За стање веза потребна је апликација Интеграције",
+    "No widget on this dashboard uses an outside connection" : "Ниједан виџет на овој контролној табли не користи спољну везу",
+    "Loading connection states …" : "Учитавање стања веза …",
+    "The connection states could not be loaded. Try again later." : "Стање веза није могуће учитати. Покушајте поново касније.",
+    "Last error: {time}" : "Последња грешка: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Приказује спољне везе које користе виџети на овој контролној табли, са стањем које апликација Интеграције води за сваку. Свако види оно што му OpenRegister дозвољава.",
     "What do you think of this dashboard?" : "Шта мислите о овој контролној табли?",
     "today {time}" : "данас {time}",
     "Last updated {when}" : "Последње ажурирано {when}",
@@ -1827,6 +1834,20 @@ OC.L10N.register(
     "Single sign-on" : "Јединствена пријава",
     "Signs in with your Nextcloud account" : "Пријављује се вашим Nextcloud налогом",
     "Asks for its own sign-in" : "Тражи сопствену пријаву",
-    "The tiles could not be added." : "Плочице није могуће додати."
+    "The tiles could not be added." : "Плочице није могуће додати.",
+    "You searched for {query}" : "Тражили сте {query}",
+    "Search results" : "Резултати претраге",
+    "No results" : "Нема резултата",
+    "Show all results" : "Прикажи све резултате",
+    "Tip: type {prefix} to search {name} directly" : "Савет: укуцајте {prefix} за директну претрагу у {name}",
+    "{app}, outage since {time}" : "{app}, прекид од {time}",
+    "Own colour" : "Сопствена боја",
+    "Primary, dark" : "Примарна, тамна",
+    "Accent" : "Нагласак",
+    "Accent, dark" : "Нагласак, тамни",
+    "Ink" : "Мастило",
+    "Text grey" : "Сива текста",
+    "Muted grey" : "Пригушена сива",
+    "Field grey" : "Сива поља"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

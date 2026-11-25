@@ -1,6 +1,13 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Connections of this dashboard" : "Врски на оваа контролна табла",
+    "Connection states need the Integrations app" : "За состојбата на врските е потребна апликацијата Интеграции",
+    "No widget on this dashboard uses an outside connection" : "Ниеден виџет на оваа контролна табла не користи надворешна врска",
+    "Loading connection states …" : "Се вчитува состојбата на врските …",
+    "The connection states could not be loaded. Try again later." : "Состојбата на врските не може да се вчита. Обидете се подоцна.",
+    "Last error: {time}" : "Последна грешка: {time}",
+    "Lists the outside connections the widgets on this dashboard use, with the state the Integrations app holds for each. Each person sees what OpenRegister lets them see." : "Ги прикажува надворешните врски што ги користат виџетите на оваа контролна табла, со состојбата што апликацијата Интеграции ја води за секоја. Секој го гледа она што OpenRegister му дозволува.",
     "What do you think of this dashboard?" : "Што мислите за оваа контролна табла?",
     "today {time}" : "денес {time}",
     "Last updated {when}" : "Последно ажурирано {when}",
@@ -1827,7 +1834,21 @@ OC.L10N.register(
     "Single sign-on" : "Единствена најава",
     "Signs in with your Nextcloud account" : "Се најавува со вашата Nextcloud сметка",
     "Asks for its own sign-in" : "Бара сопствена најава",
-    "The tiles could not be added." : "Плочките не може да се додадат."
+    "The tiles could not be added." : "Плочките не може да се додадат.",
+    "You searched for {query}" : "Баравте {query}",
+    "Search results" : "Резултати од пребарувањето",
+    "No results" : "Нема резултати",
+    "Show all results" : "Прикажи ги сите резултати",
+    "Tip: type {prefix} to search {name} directly" : "Совет: внесете {prefix} за директно пребарување во {name}",
+    "{app}, outage since {time}" : "{app}, прекин од {time}",
+    "Own colour" : "Сопствена боја",
+    "Primary, dark" : "Примарна, темна",
+    "Accent" : "Акцент",
+    "Accent, dark" : "Акцент, темен",
+    "Ink" : "Мастило",
+    "Text grey" : "Сива за текст",
+    "Muted grey" : "Пригушена сива",
+    "Field grey" : "Сива за поле"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

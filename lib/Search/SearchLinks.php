@@ -3,7 +3,8 @@
 /**
  * SearchLinks
  *
- * The localisation factory and the URL generator of the search provider.
+ * The localisation factory, the URL generator and the detail-line helper of
+ * the search provider.
  *
  * @category  Search
  * @package   OCA\LaunchPad\Search
@@ -27,7 +28,8 @@ use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
 
 /**
- * The localisation factory and the URL generator of the search provider.
+ * The localisation factory, the URL generator and the detail-line helper of
+ * the search provider.
  *
  * @spec openspec/specs/nc-unified-search-integration/spec.md
  */
@@ -35,12 +37,16 @@ class SearchLinks {
 	/**
 	 * Constructor.
 	 *
-	 * @param IFactory      $l10nFactory The L10N factory.
-	 * @param IURLGenerator $urlGenerator The URL generator.
+	 * @param IFactory         $l10nFactory  The L10N factory.
+	 * @param IURLGenerator    $urlGenerator The URL generator.
+	 * @param DashboardSubline $subline      The detail line of a dashboard result (REQ-SRCH-013).
+	 *
+	 * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
 	 */
 	public function __construct(
 		public readonly IFactory $l10nFactory,
 		public readonly IURLGenerator $urlGenerator,
+		public readonly DashboardSubline $subline,
 	) {
 	}//end __construct()
 }//end class

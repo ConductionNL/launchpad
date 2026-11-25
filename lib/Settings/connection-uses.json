@@ -1,0 +1,16 @@
+{
+	"_comment": [
+		"Which widget types use which connection declared in connections.json (REQ-LP-CONN-005).",
+		"Kept apart from connections.json because integriq's schema refuses keys it does not know.",
+		"`uses` lists widget types; `healthPingTiles` marks the connection tiles with a health ping use.",
+		"The connections widget lists, once each, the connections the placements on its own dashboard use."
+	],
+	"connections": {
+		"dashboard-registry": { "uses": [] },
+		"weather": { "uses": ["weather"] },
+		"news-feeds": { "uses": ["news"] },
+		"ics-calendars": { "uses": ["calendar"] },
+		"live-tiles": { "uses": ["livetile"] },
+		"health-ping": { "uses": [], "healthPingTiles": true }
+	}
+}

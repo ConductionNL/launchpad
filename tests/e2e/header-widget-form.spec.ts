@@ -57,6 +57,7 @@ import {
 	openWorkspace,
 	readDashboard,
 } from './support/headerWidget.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 test.setTimeout(120_000)
 
@@ -79,7 +80,7 @@ const UNSET = [null, '']
 async function openModal(page: Page): Promise<Locator> {
 	await page.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`).click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-type-header"]').click()
+	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-header"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog

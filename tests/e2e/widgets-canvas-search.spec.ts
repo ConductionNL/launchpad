@@ -144,7 +144,7 @@ async function openPicker(page: Page): Promise<Locator> {
  */
 function widgetTitles(picker: Locator): Locator {
 	return picker.locator(
-		'.widget-picker__list > button.widget-picker__widget .widget-picker__widget-title',
+		'[data-testid="widget-picker-section-apps"] button.widget-picker__widget .widget-picker__widget-title',
 	)
 }
 
@@ -156,7 +156,7 @@ function widgetTitles(picker: Locator): Locator {
  */
 function appNames(picker: Locator): Locator {
 	return picker.locator(
-		'[data-testid="widget-picker-discovered"] .widget-picker__widget-title',
+		'[data-testid="widget-picker-section-tiles"] .widget-picker__widget-title',
 	)
 }
 
@@ -258,7 +258,7 @@ test.describe('workspace canvas and the widget picker (REQ-WDG-027, REQ-WDG-028)
 				),
 		)
 		await picker
-			.locator('.widget-picker__list > button.widget-picker__widget', {
+			.locator('[data-testid="widget-picker-section-apps"] button.widget-picker__widget', {
 				hasText: String(extra.title),
 			})
 			.click()
@@ -295,10 +295,11 @@ test.describe('workspace canvas and the widget picker (REQ-WDG-027, REQ-WDG-028)
 		await expect(widgetTitles(picker)).toHaveText(['Calendar'])
 		await expect(appNames(picker)).toHaveText(['Calendar'])
 		await expect(
-			picker.locator('[data-testid="widget-picker-office"]'),
+			picker.locator('[data-testid="widget-picker-office-pack"]'),
 		).toHaveCount(0)
+		// The approved-catalogue cards share the App tiles section; none matches.
 		await expect(
-			picker.locator('[data-testid="widget-picker-catalogue"]'),
+			picker.locator('[data-testid^="widget-picker-catalogue-"]'),
 		).toHaveCount(0)
 	})
 
@@ -326,7 +327,7 @@ test.describe('workspace canvas and the widget picker (REQ-WDG-027, REQ-WDG-028)
 		// search for "cal" left out.
 		await expect(appNames(picker)).toHaveText(['Calendar', 'Files', 'Custom tile'])
 		await expect(
-			picker.locator('[data-testid="widget-picker-office"]'),
+			picker.locator('[data-testid="widget-picker-office-pack"]'),
 		).toBeVisible()
 	})
 
@@ -345,13 +346,10 @@ test.describe('workspace canvas and the widget picker (REQ-WDG-027, REQ-WDG-028)
 		).toBeVisible()
 		await expect(picker.locator('button.widget-picker__widget')).toHaveCount(0)
 		await expect(
-			picker.locator('[data-testid="widget-picker-discovered"]'),
+			picker.locator('[data-testid="widget-picker-section-tiles"]'),
 		).toHaveCount(0)
 		await expect(
-			picker.locator('[data-testid="widget-picker-catalogue"]'),
-		).toHaveCount(0)
-		await expect(
-			picker.locator('[data-testid="widget-picker-office"]'),
+			picker.locator('[data-testid="widget-picker-office-pack"]'),
 		).toHaveCount(0)
 	})
 })

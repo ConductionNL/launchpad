@@ -271,7 +271,7 @@ class HealthPingService {
 	 * @return array{state: string|null, latencyMs: int|null, checkedAtTs: int|null,
 	 *               attemptedAtTs: int, failures: int, firstFailedTs: int|null, stale: bool}
 	 *
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
 	 */
 	private function nextReading(?array $previous, array $attempt): array {
 		$now = time();
@@ -324,7 +324,7 @@ class HealthPingService {
 	 *
 	 * @return integer|null The unix time of the first failed check, or null.
 	 *
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
 	 */
 	private function firstFailedTs(?array $previous, bool $failed, int $now): ?int {
 		if ($failed === false) {

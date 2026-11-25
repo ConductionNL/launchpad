@@ -7,4 +7,4 @@
 - [x] Demo seed: the app tiles name their count source and colour token instead of static values
 - [x] Translations for the accessible names and swatch names in every shipped locale
 - [x] Unit tests: icon-only render and accessible name; count resolver for both source types, 0, 99+, missing app; outage replaces the count; colour token stored and rendered, unknown token falls back
-- [ ] Playwright: a dashboard with app tiles shows a live count and the outage dot; choosing a swatch in the tile form changes the tile colour (written in tests/e2e/icon-only-app-tiles.spec.ts, runs in nightly)
+- [x] Playwright: a dashboard with app tiles shows a live count and the outage dot; choosing a swatch in the tile form changes the tile colour (`tests/e2e/icon-only-app-tiles.spec.ts` 2/2 green on a sandbox Nextcloud 34.0.6 + MariaDB, 25 Nov 2026; the spec now adds raad.example.org to the allowed websites with purpose Fetch, since health pings are fail-closed, and puts the earlier list back)

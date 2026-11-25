@@ -224,7 +224,7 @@ export default {
 		 *
 		 * @param {object|null} data The answer.
 		 * @spec openspec/specs/service-health-ping/spec.md
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
 		 */
 		apply(data) {
 			if (!data || data.error || !data.state) {
@@ -244,7 +244,7 @@ export default {
 		/**
 		 * Tell the tile the reading: its state and since when it is offline.
 		 *
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
 		 */
 		report() {
 			this.$emit('reading', { state: this.state, downSince: this.state === 'offline' ? this.downSince : null })

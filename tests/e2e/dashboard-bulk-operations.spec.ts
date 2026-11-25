@@ -335,8 +335,10 @@ test.beforeAll(async () => {
 		name: `${PREFIX} private`,
 	}
 	// The premise of every insufficient-permission scenario: the admin has
-	// no access level on this dashboard.
-	expect(await readDash(admin, privateDash.id)).toBeNull()
+	// no access level on this dashboard. It exists, so the read is refused
+	// with 403 rather than reported missing (REQ-SHARE-003).
+	const premise = await admin.get(`${API}/dashboard/${privateDash.id}`)
+	expect(premise.status(), await premise.text()).toBe(403)
 })
 
 test.afterAll(async () => {

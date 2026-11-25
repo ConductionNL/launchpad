@@ -621,7 +621,7 @@ test('a Power BI report renders live in a sandboxed frame and falls back when re
 		await expect(fallback).toBeVisible({ timeout: 30_000 })
 		await expect(fallback).toContainText(title)
 		const link = fallback.getByRole('link')
-		await expect(link).toHaveText('Open in new tab')
+		await expect(link).toHaveText('Open in a new tab')
 		await expect(link).toHaveAttribute('href', reportUrl)
 		await expect(page.locator(`[data-placement-id="${id}"] iframe`)).toHaveCount(
 			0,
@@ -809,7 +809,7 @@ test('a target that refuses framing gets the fallback card, not a blank frame', 
 				fallback.locator('.iframe-widget__fallback-text'),
 			).toContainText(BLOCKED_TEXT)
 			const link = fallback.getByRole('link')
-			await expect(link).toHaveText('Open in new tab')
+			await expect(link).toHaveText('Open in a new tab')
 			await expect(link).toHaveAttribute('href', target.url)
 			await expect(link).toHaveAttribute('target', '_blank')
 			// No silent blank frame left behind.
@@ -943,7 +943,7 @@ test('a loading indicator shows first, and network or URL errors end in the fall
 			const fallback = cell.locator('.iframe-widget__fallback')
 			await expect(fallback).toBeVisible({ timeout: 30_000 })
 			await expect(fallback).toContainText(title)
-			await expect(fallback.getByRole('link')).toHaveText('Open in new tab')
+			await expect(fallback.getByRole('link')).toHaveText('Open in a new tab')
 			await expect(cell.locator('.iframe-widget__state')).toHaveCount(0)
 			await expect(cell.locator('iframe')).toHaveCount(0)
 		}

@@ -10,14 +10,16 @@
  * register count source and Raadsinformatie with a health ping. The browser
  * stubs the register answer (14 open cases) and the health-ping answer
  * (offline since 09:12), so the spec needs neither the register app nor a
- * failing service.
+ * failing service. Health pings only save for an allowed website with the
+ * purpose Fetch (REQ-HPING-001, fail-closed), so the spec adds
+ * raad.example.org to the allowed websites and puts the earlier list back.
  *
  * Gate-19 @e2e traceability:
  *   @e2e tiles::open-cases-on-the-zaaksysteem-tile
  *   @e2e tiles::raadsinformatie-is-down
  *   @e2e tiles::pieter-colours-zaaksysteem
  *
- * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md
  */
 import type { APIRequestContext } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'
@@ -41,6 +43,10 @@ let api: APIRequestContext
 let seeded: SeededDashboard | null = null
 let zaakId = 0
 let raadId = 0
+let priorSites: unknown[] | null = null
+
+const SITES = `${API}/admin/allowed-sites`
+const RAAD_HOST = 'raad.example.org'
 
 /**
  * Create an icon-only tile and store its content.
@@ -69,6 +75,12 @@ test.beforeAll(async () => {
 		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
 		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
 	})
+	const sites = await api.get(SITES)
+	expect(sites.ok(), await sites.text()).toBeTruthy()
+	priorSites = (await sites.json()).sites ?? []
+	const others = (priorSites as Array<{ host?: string }>).filter((site) => site.host !== RAAD_HOST)
+	const allowed = await api.put(SITES, { data: { sites: [...others, { host: RAAD_HOST, embed: false, fetch: true }] } })
+	expect(allowed.ok(), await allowed.text()).toBeTruthy()
 	seeded = await seedActiveDashboard(api, `E2E App tiles ${Date.now()}`)
 	zaakId = await iconTile('Zaaksysteem', 0, {
 		countSource: { type: 'register', register: 'cases', schema: 'case', filter: { assignee: '@me', isFinalStatus: false } },
@@ -83,6 +95,9 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
 	await removeSeededDashboard(api, seeded)
+	if (priorSites !== null) {
+		await api?.put(SITES, { data: { sites: priorSites } })
+	}
 	await api?.dispose()
 })
 

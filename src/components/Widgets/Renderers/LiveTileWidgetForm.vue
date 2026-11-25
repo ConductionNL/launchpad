@@ -426,7 +426,7 @@ export default {
 		 * disabled without integriq.
 		 *
 		 * @return {Array<{value: string, title: string, text: string, disabled: boolean}>}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		sourceCards() {
 			return [
@@ -449,7 +449,7 @@ export default {
 		 * The chosen connection, when it is one of the listed ones.
 		 *
 		 * @return {{value: string, label: string, lastSuccessAt: (string|null)}|null}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		selectedConnection() {
 			return this.connections.find((option) => option.value === this.sourceId) || null
@@ -459,7 +459,7 @@ export default {
 		 * When the chosen connection last succeeded, in the reader's locale.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		lastSuccessText() {
 			const at = this.selectedConnection?.lastSuccessAt
@@ -474,7 +474,7 @@ export default {
 		 * The unit field: the stored suffix without its leading space.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		unit() {
 			return suffixToUnit(this.formatSuffix)
@@ -484,7 +484,7 @@ export default {
 		 * The refresh choices, keeping a stored interval that is not one of them.
 		 *
 		 * @return {Array<{value: number, label: string}>}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		refreshOptions() {
 			return refreshOptions(this.clampRefresh(this.refresh))
@@ -494,7 +494,7 @@ export default {
 		 * The theme colours a tile can take.
 		 *
 		 * @return {Array<{value: string, label: string}>}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		colourOptions() {
 			return [
@@ -510,7 +510,7 @@ export default {
 		 * The preview's colour and border classes, as the tile renders them.
 		 *
 		 * @return {object}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		previewClasses() {
 			return {
@@ -523,7 +523,7 @@ export default {
 		 * The value in the preview: the tile's last reading when it has one.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		previewValue() {
 			return previewValue(this.reading, {
@@ -537,7 +537,7 @@ export default {
 		 * "Refreshes every 5 minutes" under the preview.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		refreshText() {
 			return refreshLabel(this.clampRefresh(this.refresh), true)
@@ -636,7 +636,7 @@ export default {
 		 * default, so a tile saved before these existed is stored as it was.
 		 *
 		 * @return {object}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		styleContent() {
 			const content = {}
@@ -677,7 +677,7 @@ export default {
 	/**
 	 * Probe integriq, list the connections and load the preview's value.
 	 *
-	 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+	 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 	 */
 	created() {
 		this.refreshConnectorAvailability()
@@ -730,7 +730,7 @@ export default {
 		 * Load the connections the editor can choose from.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		async loadConnections() {
 			try {
@@ -746,7 +746,7 @@ export default {
 		 * is edited; a new tile previews a dash.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		async loadReading() {
 			const id = this.editingWidget?.id
@@ -764,7 +764,7 @@ export default {
 		 * Set the unit; stored as the number format's suffix.
 		 *
 		 * @param {string} val The unit as typed.
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		onUnitChange(val) {
 			this.formatSuffix = unitToSuffix(val)

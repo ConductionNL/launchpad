@@ -215,7 +215,7 @@ export default {
 		 * Whether the title shows; only an explicit `false` hides it.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		showTitle() {
 			return this.content?.showTitle !== false
@@ -225,7 +225,7 @@ export default {
 		 * The colour and border the form chose.
 		 *
 		 * @return {object}
-		 * @spec openspec/changes/widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
 		 */
 		styleClasses() {
 			const colour = knownColour(this.content?.colour)

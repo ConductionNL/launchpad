@@ -18,7 +18,7 @@
  *   @e2e nc-unified-search-integration::the-shortcut-tip
  *   @e2e nc-unified-search-integration::escape-closes-the-list
  *
- * @spec openspec/changes/header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
 import type { APIRequestContext, Page } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'
@@ -37,7 +37,8 @@ const ADMIN = {
 }
 
 const SHORTCUTS = '/index.php/apps/launchpad/api/admin/search-shortcuts'
-const FIELD = '.unified-search-input, #unified-search input, .unified-search__input, input.unified-search-menu__input'
+// The text field: LaunchPad's own on Nextcloud 31+ (core's top bar has only a button there), else core's.
+const FIELD = '[data-testid="header-search-field"], input.unified-search-input, .unified-search-input input, #unified-search input, input.unified-search__input, input.unified-search-menu__input'
 const PANEL = '[data-testid="header-search-dropdown"]'
 
 let api: APIRequestContext

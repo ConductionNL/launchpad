@@ -23,7 +23,7 @@
  * Gate-19 @e2e traceability:
  *   image-widget::alternative-text-is-required
  *
- * @spec openspec/changes/widget-content-forms-board-sync/specs/image-widget/spec.md
+ * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/image-widget/spec.md
  */
 
 import type { APIRequestContext, Locator, Page } from '@playwright/test'

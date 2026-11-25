@@ -819,6 +819,26 @@
 		},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/PeopleHost.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/PeopleWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/PeopleWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/PeriodFieldSelect.vue | register": {
 		"type": "String",
 		"required": false,

@@ -82,6 +82,9 @@ class StoreService {
 		'category' => 'category',
 		'version' => 'version',
 		'publisher' => 'publisher',
+		// REQ-STORE-010: the card's widget count and how many organisations use it.
+		'widgets' => 'widgets',
+		'usage' => 'usage',
 	];
 
 	/**
@@ -118,6 +121,11 @@ class StoreService {
 	 * Config key holding the remote register segment.
 	 */
 	public const CONFIG_REGISTER = 'registry_register';
+
+	/**
+	 * Config key holding the register's display name for the marketplace banner.
+	 */
+	public const CONFIG_NAME = 'registry_name';
 
 	/**
 	 * Constructor.
@@ -170,7 +178,7 @@ class StoreService {
 	 * @param string|null $query Optional free-text search term.
 	 * @param string|null $kind  Optional kind filter.
 	 *
-	 * @return array{outcome: string, cards: array<int, array<string, mixed>>}
+	 * @return array{outcome: string, cards: array<int, array<string, mixed>>, checkedAt?: string}
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-003-the-engines-outcome-must-reach-the-caller-unchanged
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
@@ -189,7 +197,7 @@ class StoreService {
 	 * @param string|null $query Optional free-text search term.
 	 * @param string|null $kind  Optional kind filter.
 	 *
-	 * @return array{outcome: string, cards: array<int, array<string, mixed>>}
+	 * @return array{outcome: string, cards: array<int, array<string, mixed>>, checkedAt?: string}
 	 *
 	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
 	 *
@@ -215,11 +223,57 @@ class StoreService {
 			$cards = [];
 		}
 
-		return [
-			'outcome' => (string)($result['outcome'] ?? self::OUTCOME_NOT_CONFIGURED),
-			'cards' => $cards,
-		];
+		$outcome = (string)($result['outcome'] ?? self::OUTCOME_NOT_CONFIGURED);
+		$answer = ['outcome' => $outcome, 'cards' => $cards];
+
+		// REQ-STORE-010: when the register was last checked. The engine's own
+		// time wins (it may answer from a cache); otherwise this search was it.
+		$checkedAt = ($result['checkedAt'] ?? null);
+		if (is_string($checkedAt) === true && $checkedAt !== '') {
+			$answer['checkedAt'] = $checkedAt;
+		} else if ($outcome !== self::OUTCOME_NOT_CONFIGURED) {
+			$answer['checkedAt'] = gmdate(format: 'Y-m-d\TH:i:s\Z');
+		}
+
+		return $answer;
 	}//end searchRegistry()
+
+	/**
+	 * The connected register as the marketplace banner names it.
+	 *
+	 * The address is the configured base URL without credentials, query or
+	 * fragment; the name is the one the administrator gave, else the host.
+	 * Null when no register URL is configured. The token never rides along.
+	 *
+	 * @return array{name: string, url: string}|null
+	 *
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
+	 */
+	public function registryBanner(): ?array {
+		$url = trim($this->config(key: self::CONFIG_URL));
+		if ($url === '') {
+			return null;
+		}
+
+		$parts = parse_url($url);
+		if (is_array($parts) === false || isset($parts['host']) === false) {
+			return null;
+		}
+
+		$address = ($parts['scheme'] ?? 'https').'://'.$parts['host'];
+		if (isset($parts['port']) === true) {
+			$address .= ':'.$parts['port'];
+		}
+
+		$address .= ($parts['path'] ?? '');
+
+		$name = trim($this->config(key: self::CONFIG_NAME));
+		if ($name === '') {
+			$name = $parts['host'];
+		}
+
+		return ['name' => $name, 'url' => $address];
+	}//end registryBanner()
 
 	/**
 	 * Install one remote dashboard template into this instance.
@@ -305,14 +359,16 @@ class StoreService {
 	 * credential in a browser response, and the form does not need it: an empty
 	 * submission clears the token and a non-empty one replaces it.
 	 *
-	 * @return array{registryUrl: string, registryRegister: string, tokenConfigured: bool}
+	 * @return array{registryUrl: string, registryRegister: string, registryName: string, tokenConfigured: bool}
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-007-the-registry-token-must-not-be-readable-back
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
 	 */
 	public function getRegistryConfig(): array {
 		return [
 			'registryUrl' => $this->config(key: self::CONFIG_URL),
 			'registryRegister' => $this->config(key: self::CONFIG_REGISTER),
+			'registryName' => $this->config(key: self::CONFIG_NAME),
 			'tokenConfigured' => ($this->config(key: self::CONFIG_REGISTRY_AUTH) !== ''),
 		];
 	}//end getRegistryConfig()
@@ -327,6 +383,7 @@ class StoreService {
 	 * @param string|null $registryUrl      Registry base URL, or null to leave it.
 	 * @param string|null $registryToken    Bearer token, or null to leave it.
 	 * @param string|null $registryRegister Remote register segment, or null to leave it.
+	 * @param string|null $registryName     Display name for the marketplace banner, or null to leave it.
 	 *
 	 * After the write it asks integriq to resolve the dashboard registry again
 	 * when a registry key was written (adopt-connection-registry). That never
@@ -337,11 +394,13 @@ class StoreService {
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-007-the-registry-token-must-not-be-readable-back
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-002-a-registry-settings-save-asks-integriq-to-look-again
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
 	 */
 	public function updateRegistryConfig(
 		?string $registryUrl = null,
 		?string $registryToken = null,
 		?string $registryRegister = null,
+		?string $registryName = null,
 	): void {
 		$written = [];
 
@@ -358,6 +417,11 @@ class StoreService {
 		if ($registryRegister !== null) {
 			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_REGISTER, trim($registryRegister));
 			$written[] = self::CONFIG_REGISTER;
+		}
+
+		// A name is a label only; it does not ask integriq to look again.
+		if ($registryName !== null) {
+			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_NAME, trim($registryName));
 		}
 
 		$this->connectionReporter?->refreshFromSave(savedKeys: $written);

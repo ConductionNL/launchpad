@@ -35,6 +35,7 @@ namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use InvalidArgumentException;
+use OCA\LaunchPad\Db\AdminSettingKey;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Db\AnnouncementMapper;
@@ -56,7 +57,7 @@ class AnnouncementService implements AnnouncementServiceInterface {
 	 * The admin setting naming the editor groups; the value of
 	 * {@see \OCA\LaunchPad\Db\AdminSettingKey::ANNOUNCEMENT_EDITOR_GROUPS}.
 	 */
-	public const EDITOR_GROUPS_SETTING = 'announcement_editor_groups';
+	public const EDITOR_GROUPS_SETTING = AdminSettingKey::ANNOUNCEMENT_EDITOR_GROUPS->value;
 
 	/**
 	 * Constructor.

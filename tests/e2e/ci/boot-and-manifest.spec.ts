@@ -102,6 +102,8 @@ test.describe('launchpad boots and serves a populated manifest', () => {
 	test('a dashboard the caller owns appears in their manifest', async ({
 		baseURL,
 	}) => {
+		// Room for the manifest cache's minute, below.
+		test.setTimeout(120_000)
 		const api = await adminApi(baseURL!)
 
 		const slug = `e2e-owned-${Date.now()}`
@@ -115,13 +117,18 @@ test.describe('launchpad boots and serves a populated manifest', () => {
 		)
 		expect(created.status(), await created.text()).toBeLessThan(300)
 
-		const manifest = await api.get('/index.php/apps/launchpad/api/manifest')
-		expect(manifest.status()).toBe(200)
-
-		const body = await manifest.json()
-		expect(body).toHaveProperty('pages')
-
-		const routes = (body.pages as Array<{ route?: string }>).map((p) => p.route)
+		// The manifest is kept per user for ManifestCache::TTL (60 s), so a
+		// dashboard written straight into OpenRegister reaches it within that
+		// minute (manifest-cached-per-user). Ask until it is there.
+		let routes: Array<string | undefined> = []
+		await expect.poll(async () => {
+			const manifest = await api.get('/index.php/apps/launchpad/api/manifest')
+			expect(manifest.status()).toBe(200)
+			const body = await manifest.json()
+			expect(body).toHaveProperty('pages')
+			routes = (body.pages as Array<{ route?: string }>).map((p) => p.route)
+			return routes.includes(`/${slug}`)
+		}, { timeout: 75_000, intervals: [1_000, 5_000] }).toBe(true)
 		expect(
 			routes,
 			'the owner must see their own dashboard — an empty manifest here is the `owner` vs `@self` filter bug',

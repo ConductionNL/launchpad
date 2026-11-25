@@ -34,7 +34,20 @@
 							required />
 					</div>
 					<div class="form-row__item">
+						<!-- REQ-TILE-041: a tile on the dashboard moves into one of
+						     its groups from here; a tile in a group shows its group. -->
+						<NcSelect
+							v-if="canMoveIntoGroup"
+							:modelValue="targetGroupId"
+							:options="groupChoices"
+							:inputLabel="t('launchpad', 'Group')"
+							:reduce="(option) => option.value"
+							:clearable="false"
+							label="label"
+							data-testid="tile-group"
+							@update:modelValue="chooseGroup($event)" />
 						<NcTextField
+							v-else
 							:modelValue="groupLabel"
 							:label="t('launchpad', 'Group')"
 							:helperText="groupName ? '' : t('launchpad', 'Tiles in a group share its sort order.')"
@@ -348,7 +361,7 @@
 					:inputLabel="t('launchpad', 'Sort order in this group')"
 					:reduce="(option) => option.value"
 					:clearable="false"
-					:disabled="!groupName"
+					:disabled="!groupName && targetGroupId === null"
 					label="label"
 					data-testid="tile-group-sort"
 					@update:modelValue="groupSortBy = $event" />
@@ -441,7 +454,7 @@ import {
 import { mdiLink } from '@mdi/js'
 import { translate as t } from '@nextcloud/l10n'
 import ChoiceCards from '../components/ChoiceCards.vue'
-import { FLAG_PROP, NULLABLE_OBJECT_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
+import { FLAG_PROP, LIST_PROP, NULLABLE_OBJECT_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { fetchHealthPingBadge, validateHealthPingConfig } from '../services/healthPingClient.js'
 import { ICON_CATALOGUE, loadIconCatalogue, normaliseIconValue } from '../services/iconCatalogue.js'
 import { validateIframeUrl } from '../services/iframeClient.js'
@@ -501,6 +514,12 @@ export default {
 
 		/** Whether the tile is a child of a group rather than a placement of its own. */
 		inGroup: FLAG_PROP,
+
+		/**
+		 * The groups on the dashboard a tile can move into:
+		 * `{id, title, sortBy}` for each group (REQ-TILE-041).
+		 */
+		groups: LIST_PROP,
 	},
 
 	emits: ['close', 'save', 'delete'],
@@ -532,6 +551,8 @@ export default {
 			// REQ-TILE-042: the last health ping reading of the tile.
 			lastReading: null,
 			groupSortBy: normaliseSortMode(this.groupSort),
+			// REQ-TILE-041: the group a dashboard tile moves into; null stays put.
+			targetGroupId: null,
 			onOfficeNetwork: isOnOfficeNetwork(),
 			panelRefusal: '',
 			MIN_PING_INTERVAL,
@@ -595,7 +616,7 @@ export default {
 		 *
 		 * @return {Array<{value: string, label: string, hint: string, disabled: boolean}>}
 		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 */
 		linkTargetOptions() {
 			return [
@@ -614,7 +635,7 @@ export default {
 		 * The form's heading: "Edit tile: <name>", or "New tile".
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 */
 		heading() {
 			if (!this.tile) {
@@ -627,7 +648,7 @@ export default {
 		 * The line under the heading: "<group> · <dashboard>".
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 */
 		whereLine() {
 			if (!this.dashboardName) {
@@ -637,10 +658,35 @@ export default {
 		},
 
 		/**
+		 * Whether the Group field lets the editor move this tile into a
+		 * group: a saved tile on the dashboard, on a dashboard with groups.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		canMoveIntoGroup() {
+			return !this.inGroup && this.tile?.id !== undefined && this.tile?.id !== null && this.groups.length > 0
+		},
+
+		/**
+		 * The Group field's choices for a dashboard tile: no group, then each
+		 * group on the dashboard by its name.
+		 *
+		 * @return {Array<{value: number|null, label: string}>}
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		groupChoices() {
+			return [
+				{ value: null, label: t('launchpad', 'No group') },
+				...this.groups.map((group) => ({ value: group.id, label: group.title || t('launchpad', 'Untitled group') })),
+			]
+		},
+
+		/**
 		 * The tile's group as the Group field shows it.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		groupLabel() {
 			return this.groupName || t('launchpad', 'No group')
@@ -651,7 +697,7 @@ export default {
 		 * values are the container's stored modes (src/utils/tileSort.js).
 		 *
 		 * @return {Array<{value: string, label: string}>}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		groupSortOptions() {
 			const options = [
@@ -671,7 +717,7 @@ export default {
 		 * remote desktop or sign-on tile has its own fields instead.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 */
 		hasWebAddress() {
 			return ![LINK_PROGRAM, LINK_REMOTE, LINK_SSO].includes(this.form.linkType)
@@ -681,7 +727,7 @@ export default {
 		 * The result of the last availability check with its time.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
 		 */
 		lastCheck() {
 			return lastCheckLine(this.lastReading, new Date(), t)
@@ -748,8 +794,8 @@ export default {
 		 *
 		 * @return {Array<{value: string, label: string, hint: string}>}
 		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		linkTypeOptions() {
 			const options = [
@@ -839,7 +885,7 @@ export default {
 		 *
 		 * @param {string} value The stored sort mode.
 		 * @return {void}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		groupSort(value) {
 			this.groupSortBy = normaliseSortMode(value)
@@ -853,7 +899,7 @@ export default {
 			 * @param {object|null} newTile Tile to edit; null opens a blank
 			 *   form for a new tile.
 			 * @spec openspec/specs/tiles/spec.md
-			 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
+			 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
 			 */
 			handler(newTile) {
 				if (newTile) {
@@ -869,6 +915,7 @@ export default {
 					this.resetForm()
 				}
 				this.lastReading = null
+				this.targetGroupId = null
 				this.loadLastCheck()
 			},
 		},
@@ -879,6 +926,20 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Choose the group a dashboard tile moves into, and show that
+		 * group's sort order; no group puts the order field back.
+		 *
+		 * @param {number|null} groupId The chosen group, or null.
+		 * @return {void}
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		chooseGroup(groupId) {
+			const group = this.groups.find((candidate) => candidate.id === groupId) || null
+			this.targetGroupId = group ? group.id : null
+			this.groupSortBy = normaliseSortMode(group ? group.sortBy : this.groupSort)
+		},
+
 		/**
 		 * Store the picked icon. CnIconBrowser emits an SVG path (MDI) or a URL
 		 * (Thematiq/upload); derive iconType from the value so TileWidget renders
@@ -942,7 +1003,7 @@ export default {
 		 * @param {boolean} value the new toggle state.
 		 * @return {void}
 		 * @spec openspec/specs/service-health-ping/spec.md
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
 		 */
 		onHealthPingToggle(value) {
 			this.form.healthPingEnabled = value
@@ -959,7 +1020,7 @@ export default {
 		 * "Not checked yet".
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-last-availability-check-in-the-form-req-tile-042
 		 */
 		async loadLastCheck() {
 			const id = this.tile?.id
@@ -980,7 +1041,7 @@ export default {
 		 * Open the file chooser for "Upload another icon".
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 */
 		pickIconFile() {
 			this.$refs.iconFile?.click()
@@ -992,7 +1053,7 @@ export default {
 		 *
 		 * @param {Event} event The file input's change event.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 * @spec openspec/specs/resource-uploads/spec.md
 		 */
 		async onIconFile(event) {
@@ -1109,7 +1170,7 @@ export default {
 		 *
 		 * @return {void}
 		 * @spec openspec/specs/tiles/spec.md
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		saveTile() {
 			const tile = {
@@ -1121,6 +1182,11 @@ export default {
 			}
 			// REQ-TILE-041: the group's order travels with the save, for the group.
 			if (this.groupName) {
+				tile.groupSortBy = this.groupSortBy
+			}
+			// REQ-TILE-041: a dashboard tile moving into a group names it.
+			if (this.canMoveIntoGroup && this.targetGroupId !== null) {
+				tile.groupId = this.targetGroupId
 				tile.groupSortBy = this.groupSortBy
 			}
 			this.$emit('save', tile)

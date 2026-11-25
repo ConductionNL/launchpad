@@ -4,7 +4,7 @@
  *
  * ChoiceCards: one choice as cards, a radiogroup of native radios.
  *
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
  */
 
 import { mount } from '@vue/test-utils'

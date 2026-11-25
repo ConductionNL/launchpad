@@ -6,7 +6,7 @@
  * mode (tile-form-board-sync REQ-TILE-041): ContainerChild shows the menu,
  * ContainerWidget hands the edit or delete to the dashboard's opener.
  *
- * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
  */
 
 import { mount } from '@vue/test-utils'

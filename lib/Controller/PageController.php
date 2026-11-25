@@ -116,6 +116,7 @@ class PageController extends Controller {
 	 *
 	 * @spec openspec/specs/runtime-shell/spec.md
 	 * @spec openspec/changes/dashboard-first-load-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/org-navigation-from-initial-state/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -191,6 +192,7 @@ class PageController extends Controller {
 			->setFooter(...$this->sources->dashboards->footerState(dashboard: $active['dashboard'] ?? null, userId: $userId))
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
 			->setDashboardFirstLoad($this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible))
+			->setOrgNavigation($this->settings->orgNavigation?->firstLoad(userId: $userId))
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass

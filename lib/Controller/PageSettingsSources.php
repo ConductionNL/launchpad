@@ -58,6 +58,8 @@ class PageSettingsSources {
 	 * @param IAppManager|null             $appManager Whether Talk is enabled for the viewer
 	 *                                                 (engagement-communities REQ-COMM-004).
 	 * @param IConfig|null                 $config The viewer's Nextcloud timezone (REQ-CLOCK-002).
+	 * @param OrgNavigationFirstLoad|null  $orgNavigation The rail position and tree the shell's first load
+	 *                                                    takes from the initial state.
 	 */
 	public function __construct(
 		public readonly RoleFeaturePermissionService $roleFeaturePerm,
@@ -70,6 +72,7 @@ class PageSettingsSources {
 		public readonly ?CustomCssService $customCss=null,
 		public readonly ?IAppManager $appManager = null,
 		public readonly ?IConfig $config = null,
+		public readonly ?OrgNavigationFirstLoad $orgNavigation = null,
 	) {
 	}//end __construct()
 }//end class

@@ -308,15 +308,7 @@ test.describe('nc-widget placement type (REQ-WDG-018..021)', () => {
 
 	// @e2e widgets::callback-registers-late-within-the-polling-window
 	//
-	// EXPECTED RED until the product is fixed (it was test.fixme, so it
-	// never ran although gate-19 counted it) — suspected product bug. The renderer (nextcloud-vue
-	// src/components/CnNcWidgetWidget/CnNcWidgetWidget.vue, `tryMount()` and
-	// `loadApiItems()`) resolves the native callback once at mount and once
-	// more only when the API list comes back EMPTY; there is no 200 ms /
-	// 15-retry poll. A bundle that registers one second after mount is never
-	// picked up while the API list has items. (The legacy stock-widget path,
-	// src/components/WidgetRenderer.vue `tryMountLegacyWidget`, does retry,
-	// but it is not the nc-widget renderer.)
+	// The renderer polls every 200 ms, 15 times (nextcloud-vue #2374).
 	test('a callback that registers within the polling window takes over from the API list', async ({
 		page,
 	}) => {
@@ -450,11 +442,7 @@ test.describe('nc-widget placement type (REQ-WDG-018..021)', () => {
 
 	// @e2e widgets::horizontal-mode-card-rendering
 	//
-	// EXPECTED RED until the product is fixed (it was test.fixme, so it
-	// never ran although gate-19 counted it) — suspected product bug. nextcloud-vue CnNcWidgetWidget.vue sizes
-	// the item icon at 32px in BOTH modes (`.cn-nc-widget-widget__item-icon-wrap`
-	// and `__item-icon`: width/height 32px); there is no 44px horizontal-mode
-	// icon. The flex-row wrap, ~120px cards and centred text are there.
+	// Horizontal cards carry a 44px icon (nextcloud-vue #2374).
 	test('horizontal mode renders wrapping ~120px cards with a 44px icon on top', async ({
 		page,
 	}) => {

@@ -182,7 +182,7 @@ class PageController extends Controller {
 			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
 			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
 			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
-			->setSharingPolicy(...$this->sharingPolicy(userId: $userId))
+			->setSharingPolicy(...$this->sources->dashboards->sharingPolicy(userId: $userId))
 			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
 			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
 			->setTalkEnabled($this->isAppEnabledForViewer(appId: 'spreed'))
@@ -208,25 +208,6 @@ class PageController extends Controller {
 		// view, not in the chrome slot.
 		return $this->workspaceResponse();
 	}//end index()
-
-	/**
-	 * What the Sharing tab may offer the viewer (REQ-SHARE-015); both when the
-	 * page has no policy, since the server refuses what it does not allow.
-	 *
-	 * @param string $userId The viewer.
-	 *
-	 * @return array{mayShare: bool, publicLinksAllowed: bool}
-	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
-	 */
-	private function sharingPolicy(string $userId): array {
-		$sharing = $this->sources->dashboards->sharing;
-
-		return [
-			'mayShare'           => $sharing?->mayShare(userId: $userId) ?? true,
-			'publicLinksAllowed' => $sharing?->publicLinksAllowed() ?? true,
-		];
-	}//end sharingPolicy()
 
 	/**
 	 * The workspace page, without the Nextcloud layout for `kiosk=1`

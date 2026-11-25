@@ -49,4 +49,25 @@ class PageDashboards {
 		public readonly ?SharingLimits $sharing=null,
 	) {
 	}//end __construct()
+
+	/**
+	 * What the Sharing tab may offer the viewer (REQ-SHARE-015); both when the
+	 * page has no policy, since the server refuses what it does not allow.
+	 *
+	 * @param string $userId The viewer.
+	 *
+	 * @return array{mayShare: bool, publicLinksAllowed: bool}
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	public function sharingPolicy(string $userId): array {
+		if ($this->sharing === null) {
+			return ['mayShare' => true, 'publicLinksAllowed' => true];
+		}
+
+		return [
+			'mayShare'           => $this->sharing->mayShare(userId: $userId),
+			'publicLinksAllowed' => $this->sharing->publicLinksAllowed(),
+		];
+	}//end sharingPolicy()
 }//end class

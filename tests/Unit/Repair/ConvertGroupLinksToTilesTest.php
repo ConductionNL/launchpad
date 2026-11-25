@@ -25,6 +25,7 @@ namespace Unit\Repair;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Repair\ConvertGroupLinksToTiles;
+use OCA\LaunchPad\Service\GroupTileNode;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -65,7 +66,8 @@ class ConvertGroupLinksToTilesTest extends TestCase {
 		$output = $this->createMock(originalClassName: IOutput::class);
 		$output->expects($this->once())->method('info')->with('2 link(s) in 1 group(s) became tiles.');
 
-		$step = new ConvertGroupLinksToTiles(placements: $mapper, logger: $this->createMock(originalClassName: LoggerInterface::class));
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
+		$step   = new ConvertGroupLinksToTiles(placements: $mapper, tileNode: new GroupTileNode(), logger: $logger);
 		$this->assertSame(expected: 'Turn the links inside tile groups into tiles', actual: $step->getName());
 		$step->run(output: $output);
 
@@ -87,6 +89,7 @@ class ConvertGroupLinksToTilesTest extends TestCase {
 		$output->expects($this->once())->method('warning')->with('The links inside tile groups were not turned into tiles: database gone');
 		$output->expects($this->never())->method('info');
 
-		(new ConvertGroupLinksToTiles(placements: $mapper, logger: $this->createMock(originalClassName: LoggerInterface::class)))->run(output: $output);
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
+		(new ConvertGroupLinksToTiles(placements: $mapper, tileNode: new GroupTileNode(), logger: $logger))->run(output: $output);
 	}//end testAFailureIsAWarning()
 }//end class

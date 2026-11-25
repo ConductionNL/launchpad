@@ -42,10 +42,12 @@ class ConvertGroupLinksToTiles implements IRepairStep {
 	 * Constructor.
 	 *
 	 * @param WidgetPlacementMapper $placements The placement store.
+	 * @param GroupTileNode         $tileNode   Turns a group's address links into tiles.
 	 * @param LoggerInterface       $logger     PSR-3 logger.
 	 */
 	public function __construct(
 		private readonly WidgetPlacementMapper $placements,
+		private readonly GroupTileNode $tileNode,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -75,7 +77,7 @@ class ConvertGroupLinksToTiles implements IRepairStep {
 		$tiles  = 0;
 		try {
 			foreach ($this->placements->findByWidgetId(widgetId: 'container') as $placement) {
-				$result = GroupTileNode::convertGroup(content: $placement->getContentArray());
+				$result = $this->tileNode->convertGroup(content: $placement->getContentArray());
 				if ($result['changed'] === 0) {
 					continue;
 				}

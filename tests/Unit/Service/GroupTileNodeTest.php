@@ -39,7 +39,13 @@ class GroupTileNodeTest extends TestCase {
 			'uuid' => 'c-1',
 			'gridX' => 2,
 			'gridY' => 0,
-			'content' => ['label' => ' Intranet ', 'url' => 'https://intranet.example.org', 'actionType' => 'external', 'icon' => 'web', 'backgroundColor' => '#123456'],
+			'content' => [
+				'label' => ' Intranet ',
+				'url' => 'https://intranet.example.org',
+				'actionType' => 'external',
+				'icon' => 'web',
+				'backgroundColor' => '#123456',
+			],
 		];
 		$this->assertSame(
 			expected: [
@@ -47,9 +53,15 @@ class GroupTileNodeTest extends TestCase {
 				'uuid' => 'c-1',
 				'gridX' => 2,
 				'gridY' => 0,
-				'content' => ['backgroundColor' => '#123456', 'title' => 'Intranet', 'iconType' => 'svg', 'linkType' => 'url', 'linkValue' => 'https://intranet.example.org'],
+				'content' => [
+					'backgroundColor' => '#123456',
+					'title' => 'Intranet',
+					'iconType' => 'svg',
+					'linkType' => 'url',
+					'linkValue' => 'https://intranet.example.org',
+				],
 			],
-			actual: GroupTileNode::fromLink(child: $link)
+			actual: (new GroupTileNode())->fromLink(child: $link)
 		);
 	}//end testAnAddressLinkBecomesATileNode()
 
@@ -59,12 +71,12 @@ class GroupTileNodeTest extends TestCase {
 	 * @return void
 	 */
 	public function testOtherChildrenStay(): void {
-		$this->assertNull(GroupTileNode::fromLink(child: ['type' => 'link', 'content' => ['url' => 'x', 'actionType' => 'createFile']]));
-		$this->assertNull(GroupTileNode::fromLink(child: ['type' => 'link', 'content' => ['url' => 'x', 'links' => [['url' => 'y']]]]));
-		$this->assertNull(GroupTileNode::fromLink(child: ['type' => 'link', 'content' => ['url' => '  ']]));
-		$this->assertNull(GroupTileNode::fromLink(child: ['type' => 'link', 'content' => 'broken']));
-		$this->assertNull(GroupTileNode::fromLink(child: ['type' => 'tile', 'content' => ['linkValue' => 'x']]));
-		$this->assertNull(GroupTileNode::fromLink(child: ['type' => 'label', 'content' => ['url' => 'x']]));
+		$this->assertNull(actual: (new GroupTileNode())->fromLink(child: ['type' => 'link', 'content' => ['url' => 'x', 'actionType' => 'createFile']]));
+		$this->assertNull(actual: (new GroupTileNode())->fromLink(child: ['type' => 'link', 'content' => ['url' => 'x', 'links' => [['url' => 'y']]]]));
+		$this->assertNull(actual: (new GroupTileNode())->fromLink(child: ['type' => 'link', 'content' => ['url' => '  ']]));
+		$this->assertNull(actual: (new GroupTileNode())->fromLink(child: ['type' => 'link', 'content' => 'broken']));
+		$this->assertNull(actual: (new GroupTileNode())->fromLink(child: ['type' => 'tile', 'content' => ['linkValue' => 'x']]));
+		$this->assertNull(actual: (new GroupTileNode())->fromLink(child: ['type' => 'label', 'content' => ['url' => 'x']]));
 	}//end testOtherChildrenStay()
 
 	/**
@@ -85,7 +97,7 @@ class GroupTileNodeTest extends TestCase {
 				]]],
 			],
 		];
-		$result  = GroupTileNode::convertGroup(content: $content);
+		$result  = (new GroupTileNode())->convertGroup(content: $content);
 		$this->assertSame(expected: 2, actual: $result['changed']);
 		$this->assertSame(expected: 'alphabetical', actual: $result['content']['sortBy']);
 		$this->assertSame(expected: 'tile', actual: $result['content']['placements'][0]['type']);
@@ -100,8 +112,10 @@ class GroupTileNodeTest extends TestCase {
 	 * @return void
 	 */
 	public function testNothingToConvertIsUnchanged(): void {
-		$this->assertSame(expected: ['content' => ['text' => 'Hi'], 'changed' => 0], actual: GroupTileNode::convertGroup(content: ['text' => 'Hi']));
-		$once = GroupTileNode::convertGroup(content: ['placements' => [['type' => 'link', 'content' => ['label' => 'A', 'url' => 'https://a.example.org']]]]);
-		$this->assertSame(expected: 0, actual: GroupTileNode::convertGroup(content: $once['content'])['changed']);
+		$node = new GroupTileNode();
+		$this->assertSame(expected: ['content' => ['text' => 'Hi'], 'changed' => 0], actual: $node->convertGroup(content: ['text' => 'Hi']));
+		$link = ['type' => 'link', 'content' => ['label' => 'A', 'url' => 'https://a.example.org']];
+		$once = $node->convertGroup(content: ['placements' => [$link]]);
+		$this->assertSame(expected: 0, actual: $node->convertGroup(content: $once['content'])['changed']);
 	}//end testNothingToConvertIsUnchanged()
 }//end class

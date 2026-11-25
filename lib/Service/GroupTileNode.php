@@ -55,9 +55,9 @@ final class GroupTileNode {
 	 *
 	 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 	 */
-	public static function fromLink(array $child): ?array {
+	public function fromLink(array $child): ?array {
 		$content = $child['content'] ?? null;
-		if (($child['type'] ?? null) !== 'link' || is_array($content) === false || self::isAddressLink(content: $content) === false) {
+		if (($child['type'] ?? null) !== 'link' || is_array($content) === false || $this->isAddressLink(content: $content) === false) {
 			return null;
 		}
 
@@ -82,7 +82,7 @@ final class GroupTileNode {
 	 *
 	 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 	 */
-	public static function convertGroup(array $content): array {
+	public function convertGroup(array $content): array {
 		$children = $content['placements'] ?? null;
 		if (is_array($children) === false) {
 			return ['content' => $content, 'changed' => 0];
@@ -94,7 +94,7 @@ final class GroupTileNode {
 				continue;
 			}
 
-			[$children[$index], $count] = self::convertChild(child: $child);
+			[$children[$index], $count] = $this->convertChild(child: $child);
 			$changed += $count;
 		}
 
@@ -109,8 +109,8 @@ final class GroupTileNode {
 	 *
 	 * @return array{0: array<string, mixed>, 1: int} The child and how many children changed.
 	 */
-	private static function convertChild(array $child): array {
-		$tile = self::fromLink(child: $child);
+	private function convertChild(array $child): array {
+		$tile = $this->fromLink(child: $child);
 		if ($tile !== null) {
 			return [$tile, 1];
 		}
@@ -119,7 +119,7 @@ final class GroupTileNode {
 			return [$child, 0];
 		}
 
-		$nested           = self::convertGroup(content: $child['content']);
+		$nested           = $this->convertGroup(content: $child['content']);
 		$child['content'] = $nested['content'];
 		return [$child, $nested['changed']];
 	}//end convertChild()
@@ -131,7 +131,7 @@ final class GroupTileNode {
 	 *
 	 * @return bool
 	 */
-	private static function isAddressLink(array $content): bool {
+	private function isAddressLink(array $content): bool {
 		$url    = $content['url'] ?? null;
 		$action = (string) ($content['actionType'] ?? '');
 		return is_string($url) === true

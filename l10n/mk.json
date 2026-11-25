@@ -1748,6 +1748,15 @@
         "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
             "Споделено од %1$s · %n виџет",
             "Споделено од %1$s · %n виџети"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, прекин од {time}",
+        "Own colour": "Сопствена боја",
+        "Primary, dark": "Примарна, темна",
+        "Accent": "Акцент",
+        "Accent, dark": "Акцент, темен",
+        "Ink": "Мастило",
+        "Text grey": "Сива за текст",
+        "Muted grey": "Пригушена сива",
+        "Field grey": "Сива за поле"
     }
 }

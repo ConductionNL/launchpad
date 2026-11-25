@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Paieškos rezultatai",
     "No results" : "Rezultatų nėra",
     "Show all results" : "Rodyti visus rezultatus",
-    "Tip: type {prefix} to search {name} directly" : "Patarimas: įveskite {prefix}, kad ieškotumėte tiesiai {name}"
+    "Tip: type {prefix} to search {name} directly" : "Patarimas: įveskite {prefix}, kad ieškotumėte tiesiai {name}",
+    "{app}, outage since {time}" : "{app}, sutrikimas nuo {time}",
+    "Own colour" : "Sava spalva",
+    "Primary, dark" : "Pagrindinė, tamsi",
+    "Accent" : "Akcentas",
+    "Accent, dark" : "Akcentas, tamsus",
+    "Ink" : "Rašalas",
+    "Text grey" : "Teksto pilka",
+    "Muted grey" : "Prislopinta pilka",
+    "Field grey" : "Lauko pilka"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

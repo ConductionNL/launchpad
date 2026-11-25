@@ -1751,6 +1751,15 @@
             "Kopīgoja %1$s · %n logrīku",
             "Kopīgoja %1$s · %n logrīks",
             "Kopīgoja %1$s · %n logrīki"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, traucējums kopš {time}",
+        "Own colour": "Sava krāsa",
+        "Primary, dark": "Primārā, tumša",
+        "Accent": "Akcents",
+        "Accent, dark": "Akcents, tumšs",
+        "Ink": "Tinte",
+        "Text grey": "Teksta pelēkā",
+        "Muted grey": "Klusināti pelēkā",
+        "Field grey": "Lauka pelēkā"
     }
 }

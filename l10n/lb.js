@@ -1839,7 +1839,16 @@ OC.L10N.register(
     "Search results" : "Sichresultater",
     "No results" : "Keng Resultater",
     "Show all results" : "All Resultater weisen",
-    "Tip: type {prefix} to search {name} directly" : "Tipp: Gitt {prefix} an, fir direkt an {name} ze sichen"
+    "Tip: type {prefix} to search {name} directly" : "Tipp: Gitt {prefix} an, fir direkt an {name} ze sichen",
+    "{app}, outage since {time}" : "{app}, Stéierung zënter {time}",
+    "Own colour" : "Eege Faarf",
+    "Primary, dark" : "Primär, donkel",
+    "Accent" : "Akzent",
+    "Accent, dark" : "Akzent, donkel",
+    "Ink" : "Tënt",
+    "Text grey" : "Textgro",
+    "Muted grey" : "Gedämpft Gro",
+    "Field grey" : "Feldgro"
 },
 "nplurals=2; plural=(n != 1);"
 );

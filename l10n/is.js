@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Leitarniðurstöður",
     "No results" : "Engar niðurstöður",
     "Show all results" : "Sýna allar niðurstöður",
-    "Tip: type {prefix} to search {name} directly" : "Ábending: sláðu inn {prefix} til að leita beint í {name}"
+    "Tip: type {prefix} to search {name} directly" : "Ábending: sláðu inn {prefix} til að leita beint í {name}",
+    "{app}, outage since {time}" : "{app}, bilun síðan {time}",
+    "Own colour" : "Eigin litur",
+    "Primary, dark" : "Aðallitur, dökkur",
+    "Accent" : "Áherslulitur",
+    "Accent, dark" : "Áherslulitur, dökkur",
+    "Ink" : "Blek",
+    "Text grey" : "Textagrár",
+    "Muted grey" : "Daufur grár",
+    "Field grey" : "Reitagrár"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

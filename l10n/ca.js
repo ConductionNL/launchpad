@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Resultats de la cerca",
     "No results" : "Cap resultat",
     "Show all results" : "Mostra tots els resultats",
-    "Tip: type {prefix} to search {name} directly" : "Consell: escriviu {prefix} per cercar directament a {name}"
+    "Tip: type {prefix} to search {name} directly" : "Consell: escriviu {prefix} per cercar directament a {name}",
+    "{app}, outage since {time}" : "{app}, avaria des de les {time}",
+    "Own colour" : "Color propi",
+    "Primary, dark" : "Primari, fosc",
+    "Accent" : "Accent",
+    "Accent, dark" : "Accent, fosc",
+    "Ink" : "Tinta",
+    "Text grey" : "Gris de text",
+    "Muted grey" : "Gris apagat",
+    "Field grey" : "Gris de camp"
 },
 "nplurals=2; plural=(n != 1);"
 );

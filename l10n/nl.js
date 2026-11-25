@@ -2726,7 +2726,16 @@ OC.L10N.register(
     "You searched for {query}" : "Je zocht naar {query}",
     "No results" : "Geen resultaten",
     "Show all results" : "Alle resultaten tonen",
-    "Tip: type {prefix} to search {name} directly" : "Tip: typ {prefix} om direct in {name} te zoeken"
+    "Tip: type {prefix} to search {name} directly" : "Tip: typ {prefix} om direct in {name} te zoeken",
+    "{app}, outage since {time}" : "{app}, storing sinds {time}",
+    "Own colour" : "Eigen kleur",
+    "Primary, dark" : "Primair, donker",
+    "Accent" : "Accent",
+    "Accent, dark" : "Accent, donker",
+    "Ink" : "Inkt",
+    "Text grey" : "Tekstgrijs",
+    "Muted grey" : "Gedempt grijs",
+    "Field grey" : "Veldgrijs"
 },
 "nplurals=2; plural=(n != 1);"
 );

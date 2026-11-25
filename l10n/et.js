@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Otsingutulemused",
     "No results" : "Tulemusi pole",
     "Show all results" : "Näita kõiki tulemusi",
-    "Tip: type {prefix} to search {name} directly" : "Vihje: sisestage {prefix}, et otsida otse teenusest {name}"
+    "Tip: type {prefix} to search {name} directly" : "Vihje: sisestage {prefix}, et otsida otse teenusest {name}",
+    "{app}, outage since {time}" : "{app}, rike alates {time}",
+    "Own colour" : "Oma värv",
+    "Primary, dark" : "Põhivärv, tume",
+    "Accent" : "Rõhuvärv",
+    "Accent, dark" : "Rõhuvärv, tume",
+    "Ink" : "Tint",
+    "Text grey" : "Teksti hall",
+    "Muted grey" : "Summutatud hall",
+    "Field grey" : "Välja hall"
 },
 "nplurals=2; plural=(n != 1);"
 );

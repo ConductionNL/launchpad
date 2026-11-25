@@ -2298,7 +2298,16 @@ OC.L10N.register(
     "You searched for {query}" : "You searched for {query}",
     "No results" : "No results",
     "Show all results" : "Show all results",
-    "Tip: type {prefix} to search {name} directly" : "Tip: type {prefix} to search {name} directly"
+    "Tip: type {prefix} to search {name} directly" : "Tip: type {prefix} to search {name} directly",
+    "{app}, outage since {time}" : "{app}, outage since {time}",
+    "Own colour" : "Own colour",
+    "Primary, dark" : "Primary, dark",
+    "Accent" : "Accent",
+    "Accent, dark" : "Accent, dark",
+    "Ink" : "Ink",
+    "Text grey" : "Text grey",
+    "Muted grey" : "Muted grey",
+    "Field grey" : "Field grey"
 },
 "nplurals=2; plural=(n != 1);"
 );

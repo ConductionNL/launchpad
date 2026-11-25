@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Rezultatet e kërkimit",
     "No results" : "Nuk ka rezultate",
     "Show all results" : "Shfaq të gjitha rezultatet",
-    "Tip: type {prefix} to search {name} directly" : "Këshillë: shkruani {prefix} për të kërkuar drejtpërdrejt në {name}"
+    "Tip: type {prefix} to search {name} directly" : "Këshillë: shkruani {prefix} për të kërkuar drejtpërdrejt në {name}",
+    "{app}, outage since {time}" : "{app}, ndërprerje që nga {time}",
+    "Own colour" : "Ngjyrë e vetë",
+    "Primary, dark" : "Kryesore, e errët",
+    "Accent" : "Theks",
+    "Accent, dark" : "Theks, i errët",
+    "Ink" : "Bojë",
+    "Text grey" : "Gri teksti",
+    "Muted grey" : "Gri e zbehtë",
+    "Field grey" : "Gri fushe"
 },
 "nplurals=2; plural=(n != 1);"
 );

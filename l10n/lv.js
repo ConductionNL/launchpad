@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Meklēšanas rezultāti",
     "No results" : "Nav rezultātu",
     "Show all results" : "Rādīt visus rezultātus",
-    "Tip: type {prefix} to search {name} directly" : "Padoms: ierakstiet {prefix}, lai meklētu tieši {name}"
+    "Tip: type {prefix} to search {name} directly" : "Padoms: ierakstiet {prefix}, lai meklētu tieši {name}",
+    "{app}, outage since {time}" : "{app}, traucējums kopš {time}",
+    "Own colour" : "Sava krāsa",
+    "Primary, dark" : "Primārā, tumša",
+    "Accent" : "Akcents",
+    "Accent, dark" : "Akcents, tumšs",
+    "Ink" : "Tinte",
+    "Text grey" : "Teksta pelēkā",
+    "Muted grey" : "Klusināti pelēkā",
+    "Field grey" : "Lauka pelēkā"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Keresési találatok",
     "No results" : "Nincs találat",
     "Show all results" : "Összes találat megjelenítése",
-    "Tip: type {prefix} to search {name} directly" : "Tipp: írja be: {prefix}, hogy közvetlenül itt keressen: {name}"
+    "Tip: type {prefix} to search {name} directly" : "Tipp: írja be: {prefix}, hogy közvetlenül itt keressen: {name}",
+    "{app}, outage since {time}" : "{app}, üzemzavar {time} óta",
+    "Own colour" : "Saját szín",
+    "Primary, dark" : "Elsődleges, sötét",
+    "Accent" : "Kiemelés",
+    "Accent, dark" : "Kiemelés, sötét",
+    "Ink" : "Tinta",
+    "Text grey" : "Szövegszürke",
+    "Muted grey" : "Tompa szürke",
+    "Field grey" : "Mezőszürke"
 },
 "nplurals=2; plural=(n != 1);"
 );

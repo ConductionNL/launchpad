@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Резултати от търсенето",
     "No results" : "Няма резултати",
     "Show all results" : "Покажи всички резултати",
-    "Tip: type {prefix} to search {name} directly" : "Съвет: въведете {prefix}, за да търсите директно в {name}"
+    "Tip: type {prefix} to search {name} directly" : "Съвет: въведете {prefix}, за да търсите директно в {name}",
+    "{app}, outage since {time}" : "{app}, прекъсване от {time}",
+    "Own colour" : "Собствен цвят",
+    "Primary, dark" : "Основен, тъмен",
+    "Accent" : "Акцент",
+    "Accent, dark" : "Акцент, тъмен",
+    "Ink" : "Мастило",
+    "Text grey" : "Сив за текст",
+    "Muted grey" : "Приглушен сив",
+    "Field grey" : "Сив за поле"
 },
 "nplurals=2; plural=(n != 1);"
 );

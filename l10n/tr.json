@@ -1748,6 +1748,15 @@
         "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
             "Paylaşan: %1$s · %n pencere öğesi",
             "Paylaşan: %1$s · %n pencere öğesi"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, {time} saatinden beri kesinti",
+        "Own colour": "Kendi renginiz",
+        "Primary, dark": "Birincil, koyu",
+        "Accent": "Vurgu",
+        "Accent, dark": "Vurgu, koyu",
+        "Ink": "Mürekkep",
+        "Text grey": "Metin grisi",
+        "Muted grey": "Soluk gri",
+        "Field grey": "Alan grisi"
     }
 }

@@ -1751,6 +1751,15 @@
             "Dijeli %1$s · %n widget",
             "Dijeli %1$s · %n widgeta",
             "Dijeli %1$s · %n widgeta"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, ispad od {time}",
+        "Own colour": "Vlastita boja",
+        "Primary, dark": "Primarna, tamna",
+        "Accent": "Naglasak",
+        "Accent, dark": "Naglasak, tamni",
+        "Ink": "Tinta",
+        "Text grey": "Siva teksta",
+        "Muted grey": "Prigušena siva",
+        "Field grey": "Siva polja"
     }
 }

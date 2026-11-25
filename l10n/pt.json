@@ -1748,6 +1748,15 @@
         "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
             "Partilhado por %1$s · %n widget",
             "Partilhado por %1$s · %n widgets"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, falha desde as {time}",
+        "Own colour": "Cor própria",
+        "Primary, dark": "Primária, escura",
+        "Accent": "Destaque",
+        "Accent, dark": "Destaque, escuro",
+        "Ink": "Tinta",
+        "Text grey": "Cinzento de texto",
+        "Muted grey": "Cinzento suave",
+        "Field grey": "Cinzento de campo"
     }
 }

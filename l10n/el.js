@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Αποτελέσματα αναζήτησης",
     "No results" : "Κανένα αποτέλεσμα",
     "Show all results" : "Εμφάνιση όλων των αποτελεσμάτων",
-    "Tip: type {prefix} to search {name} directly" : "Συμβουλή: πληκτρολογήστε {prefix} για αναζήτηση απευθείας στο {name}"
+    "Tip: type {prefix} to search {name} directly" : "Συμβουλή: πληκτρολογήστε {prefix} για αναζήτηση απευθείας στο {name}",
+    "{app}, outage since {time}" : "{app}, διακοπή από τις {time}",
+    "Own colour" : "Δικό σας χρώμα",
+    "Primary, dark" : "Κύριο, σκούρο",
+    "Accent" : "Τόνος",
+    "Accent, dark" : "Τόνος, σκούρος",
+    "Ink" : "Μελάνι",
+    "Text grey" : "Γκρι κειμένου",
+    "Muted grey" : "Απαλό γκρι",
+    "Field grey" : "Γκρι πεδίου"
 },
 "nplurals=2; plural=(n != 1);"
 );

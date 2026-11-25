@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Výsledky vyhľadávania",
     "No results" : "Žiadne výsledky",
     "Show all results" : "Zobraziť všetky výsledky",
-    "Tip: type {prefix} to search {name} directly" : "Tip: napíšte {prefix} a vyhľadávajte priamo v {name}"
+    "Tip: type {prefix} to search {name} directly" : "Tip: napíšte {prefix} a vyhľadávajte priamo v {name}",
+    "{app}, outage since {time}" : "{app}, výpadok od {time}",
+    "Own colour" : "Vlastná farba",
+    "Primary, dark" : "Primárna, tmavá",
+    "Accent" : "Akcent",
+    "Accent, dark" : "Akcent, tmavý",
+    "Ink" : "Atrament",
+    "Text grey" : "Sivá textu",
+    "Muted grey" : "Tlmená sivá",
+    "Field grey" : "Sivá poľa"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Suchergebnisse",
     "No results" : "Keine Ergebnisse",
     "Show all results" : "Alle Ergebnisse anzeigen",
-    "Tip: type {prefix} to search {name} directly" : "Tipp: Geben Sie {prefix} ein, um direkt in {name} zu suchen"
+    "Tip: type {prefix} to search {name} directly" : "Tipp: Geben Sie {prefix} ein, um direkt in {name} zu suchen",
+    "{app}, outage since {time}" : "{app}, Störung seit {time}",
+    "Own colour" : "Eigene Farbe",
+    "Primary, dark" : "Primär, dunkel",
+    "Accent" : "Akzent",
+    "Accent, dark" : "Akzent, dunkel",
+    "Ink" : "Tinte",
+    "Text grey" : "Textgrau",
+    "Muted grey" : "Gedämpftes Grau",
+    "Field grey" : "Feldgrau"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1751,6 +1751,15 @@
             "Bendrina %1$s · %n valdiklis",
             "Bendrina %1$s · %n valdikliai",
             "Bendrina %1$s · %n valdiklių"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, sutrikimas nuo {time}",
+        "Own colour": "Sava spalva",
+        "Primary, dark": "Pagrindinė, tamsi",
+        "Accent": "Akcentas",
+        "Accent, dark": "Akcentas, tamsus",
+        "Ink": "Rašalas",
+        "Text grey": "Teksto pilka",
+        "Muted grey": "Prislopinta pilka",
+        "Field grey": "Lauko pilka"
     }
 }

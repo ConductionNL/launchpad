@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Rezultatele căutării",
     "No results" : "Niciun rezultat",
     "Show all results" : "Afișează toate rezultatele",
-    "Tip: type {prefix} to search {name} directly" : "Sfat: tastați {prefix} pentru a căuta direct în {name}"
+    "Tip: type {prefix} to search {name} directly" : "Sfat: tastați {prefix} pentru a căuta direct în {name}",
+    "{app}, outage since {time}" : "{app}, întrerupere de la {time}",
+    "Own colour" : "Culoare proprie",
+    "Primary, dark" : "Primar, închis",
+    "Accent" : "Accent",
+    "Accent, dark" : "Accent, închis",
+    "Ink" : "Cerneală",
+    "Text grey" : "Gri text",
+    "Muted grey" : "Gri estompat",
+    "Field grey" : "Gri câmp"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

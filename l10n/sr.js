@@ -1839,6 +1839,15 @@ OC.L10N.register(
     "Search results" : "Резултати претраге",
     "No results" : "Нема резултата",
     "Show all results" : "Прикажи све резултате",
-    "Tip: type {prefix} to search {name} directly" : "Савет: укуцајте {prefix} за директну претрагу у {name}"
+    "Tip: type {prefix} to search {name} directly" : "Савет: укуцајте {prefix} за директну претрагу у {name}",
+    "{app}, outage since {time}" : "{app}, прекид од {time}",
+    "Own colour" : "Сопствена боја",
+    "Primary, dark" : "Примарна, тамна",
+    "Accent" : "Нагласак",
+    "Accent, dark" : "Нагласак, тамни",
+    "Ink" : "Мастило",
+    "Text grey" : "Сива текста",
+    "Muted grey" : "Пригушена сива",
+    "Field grey" : "Сива поља"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

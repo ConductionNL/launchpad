@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Rezultati pretraživanja",
     "No results" : "Nema rezultata",
     "Show all results" : "Prikaži sve rezultate",
-    "Tip: type {prefix} to search {name} directly" : "Savjet: upišite {prefix} za izravno pretraživanje u {name}"
+    "Tip: type {prefix} to search {name} directly" : "Savjet: upišite {prefix} za izravno pretraživanje u {name}",
+    "{app}, outage since {time}" : "{app}, ispad od {time}",
+    "Own colour" : "Vlastita boja",
+    "Primary, dark" : "Primarna, tamna",
+    "Accent" : "Naglasak",
+    "Accent, dark" : "Naglasak, tamni",
+    "Ink" : "Tinta",
+    "Text grey" : "Siva teksta",
+    "Muted grey" : "Prigušena siva",
+    "Field grey" : "Siva polja"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

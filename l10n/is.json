@@ -1748,6 +1748,15 @@
         "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
             "Deilt af %1$s · %n viðmótshluti",
             "Deilt af %1$s · %n viðmótshlutar"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, bilun síðan {time}",
+        "Own colour": "Eigin litur",
+        "Primary, dark": "Aðallitur, dökkur",
+        "Accent": "Áherslulitur",
+        "Accent, dark": "Áherslulitur, dökkur",
+        "Ink": "Blek",
+        "Text grey": "Textagrár",
+        "Muted grey": "Daufur grár",
+        "Field grey": "Reitagrár"
     }
 }

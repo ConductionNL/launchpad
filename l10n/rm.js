@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Resultats da la tschertga",
     "No results" : "Nagins resultats",
     "Show all results" : "Mussar tut ils resultats",
-    "Tip: type {prefix} to search {name} directly" : "Tip: tippa {prefix} per tschertgar directamain en {name}"
+    "Tip: type {prefix} to search {name} directly" : "Tip: tippa {prefix} per tschertgar directamain en {name}",
+    "{app}, outage since {time}" : "{app}, disturbi dapi {time}",
+    "Own colour" : "Atgna colur",
+    "Primary, dark" : "Primara, stgira",
+    "Accent" : "Accent",
+    "Accent, dark" : "Accent, stgir",
+    "Ink" : "Tinta",
+    "Text grey" : "Grisch da text",
+    "Muted grey" : "Grisch mitigà",
+    "Field grey" : "Grisch da champ"
 },
 "nplurals=2; plural=(n != 1);"
 );

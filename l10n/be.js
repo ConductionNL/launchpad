@@ -1839,6 +1839,15 @@ OC.L10N.register(
     "Search results" : "Вынікі пошуку",
     "No results" : "Няма вынікаў",
     "Show all results" : "Паказаць усе вынікі",
-    "Tip: type {prefix} to search {name} directly" : "Парада: увядзіце {prefix}, каб шукаць непасрэдна ў {name}"
+    "Tip: type {prefix} to search {name} directly" : "Парада: увядзіце {prefix}, каб шукаць непасрэдна ў {name}",
+    "{app}, outage since {time}" : "{app}, збой з {time}",
+    "Own colour" : "Свой колер",
+    "Primary, dark" : "Асноўны, цёмны",
+    "Accent" : "Акцэнт",
+    "Accent, dark" : "Акцэнт, цёмны",
+    "Ink" : "Чарніла",
+    "Text grey" : "Шэры тэксту",
+    "Muted grey" : "Прыглушаны шэры",
+    "Field grey" : "Шэры поля"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

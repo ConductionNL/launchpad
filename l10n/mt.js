@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Riżultati tat-tfittxija",
     "No results" : "L-ebda riżultat",
     "Show all results" : "Uri r-riżultati kollha",
-    "Tip: type {prefix} to search {name} directly" : "Ħjiel: ittajpja {prefix} biex tfittex direttament f'{name}"
+    "Tip: type {prefix} to search {name} directly" : "Ħjiel: ittajpja {prefix} biex tfittex direttament f'{name}",
+    "{app}, outage since {time}" : "{app}, waqfa minn {time}",
+    "Own colour" : "Kulur tiegħek",
+    "Primary, dark" : "Primarju, skur",
+    "Accent" : "Aċċent",
+    "Accent, dark" : "Aċċent, skur",
+    "Ink" : "Linka",
+    "Text grey" : "Griż tat-test",
+    "Muted grey" : "Griż artab",
+    "Field grey" : "Griż tal-qasam"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

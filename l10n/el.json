@@ -1748,6 +1748,15 @@
         "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
             "Κοινοποιήθηκε από %1$s · %n γραφικό στοιχείο",
             "Κοινοποιήθηκε από %1$s · %n γραφικά στοιχεία"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, διακοπή από τις {time}",
+        "Own colour": "Δικό σας χρώμα",
+        "Primary, dark": "Κύριο, σκούρο",
+        "Accent": "Τόνος",
+        "Accent, dark": "Τόνος, σκούρος",
+        "Ink": "Μελάνι",
+        "Text grey": "Γκρι κειμένου",
+        "Muted grey": "Απαλό γκρι",
+        "Field grey": "Γκρι πεδίου"
     }
 }

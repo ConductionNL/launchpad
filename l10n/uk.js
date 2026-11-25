@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Результати пошуку",
     "No results" : "Немає результатів",
     "Show all results" : "Показати всі результати",
-    "Tip: type {prefix} to search {name} directly" : "Порада: введіть {prefix}, щоб шукати безпосередньо в {name}"
+    "Tip: type {prefix} to search {name} directly" : "Порада: введіть {prefix}, щоб шукати безпосередньо в {name}",
+    "{app}, outage since {time}" : "{app}, збій з {time}",
+    "Own colour" : "Власний колір",
+    "Primary, dark" : "Основний, темний",
+    "Accent" : "Акцент",
+    "Accent, dark" : "Акцент, темний",
+    "Ink" : "Чорнило",
+    "Text grey" : "Сірий тексту",
+    "Muted grey" : "Приглушений сірий",
+    "Field grey" : "Сірий поля"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

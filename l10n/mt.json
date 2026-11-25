@@ -1754,6 +1754,15 @@
             "Maqsum minn %1$s · %n widgets",
             "Maqsum minn %1$s · %n widgets",
             "Maqsum minn %1$s · %n widgets"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, waqfa minn {time}",
+        "Own colour": "Kulur tiegħek",
+        "Primary, dark": "Primarju, skur",
+        "Accent": "Aċċent",
+        "Accent, dark": "Aċċent, skur",
+        "Ink": "Linka",
+        "Text grey": "Griż tat-test",
+        "Muted grey": "Griż artab",
+        "Field grey": "Griż tal-qasam"
     }
 }

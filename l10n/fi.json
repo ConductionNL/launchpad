@@ -1748,6 +1748,15 @@
         "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
             "Jakanut %1$s · %n pienoissovellus",
             "Jakanut %1$s · %n pienoissovellusta"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, häiriö {time} alkaen",
+        "Own colour": "Oma väri",
+        "Primary, dark": "Ensisijainen, tumma",
+        "Accent": "Korostus",
+        "Accent, dark": "Korostus, tumma",
+        "Ink": "Muste",
+        "Text grey": "Tekstin harmaa",
+        "Muted grey": "Vaimea harmaa",
+        "Field grey": "Kentän harmaa"
     }
 }

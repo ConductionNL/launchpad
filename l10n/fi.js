@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Hakutulokset",
     "No results" : "Ei tuloksia",
     "Show all results" : "Näytä kaikki tulokset",
-    "Tip: type {prefix} to search {name} directly" : "Vinkki: kirjoita {prefix} hakeaksesi suoraan palvelusta {name}"
+    "Tip: type {prefix} to search {name} directly" : "Vinkki: kirjoita {prefix} hakeaksesi suoraan palvelusta {name}",
+    "{app}, outage since {time}" : "{app}, häiriö {time} alkaen",
+    "Own colour" : "Oma väri",
+    "Primary, dark" : "Ensisijainen, tumma",
+    "Accent" : "Korostus",
+    "Accent, dark" : "Korostus, tumma",
+    "Ink" : "Muste",
+    "Text grey" : "Tekstin harmaa",
+    "Muted grey" : "Vaimea harmaa",
+    "Field grey" : "Kentän harmaa"
 },
 "nplurals=2; plural=(n != 1);"
 );

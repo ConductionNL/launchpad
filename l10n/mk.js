@@ -1839,7 +1839,16 @@ OC.L10N.register(
     "Search results" : "Резултати од пребарувањето",
     "No results" : "Нема резултати",
     "Show all results" : "Прикажи ги сите резултати",
-    "Tip: type {prefix} to search {name} directly" : "Совет: внесете {prefix} за директно пребарување во {name}"
+    "Tip: type {prefix} to search {name} directly" : "Совет: внесете {prefix} за директно пребарување во {name}",
+    "{app}, outage since {time}" : "{app}, прекин од {time}",
+    "Own colour" : "Сопствена боја",
+    "Primary, dark" : "Примарна, темна",
+    "Accent" : "Акцент",
+    "Accent, dark" : "Акцент, темен",
+    "Ink" : "Мастило",
+    "Text grey" : "Сива за текст",
+    "Muted grey" : "Пригушена сива",
+    "Field grey" : "Сива за поле"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

@@ -2509,6 +2509,15 @@
         "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
             "Gedeeld door %1$s · %n widget",
             "Gedeeld door %1$s · %n widgets"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, storing sinds {time}",
+        "Own colour": "Eigen kleur",
+        "Primary, dark": "Primair, donker",
+        "Accent": "Accent",
+        "Accent, dark": "Accent, donker",
+        "Ink": "Inkt",
+        "Text grey": "Tekstgrijs",
+        "Muted grey": "Gedempt grijs",
+        "Field grey": "Veldgrijs"
     }
 }

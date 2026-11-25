@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Torthaí cuardaigh",
     "No results" : "Níl aon torthaí",
     "Show all results" : "Taispeáin gach toradh",
-    "Tip: type {prefix} to search {name} directly" : "Leid: clóscríobh {prefix} chun {name} a chuardach go díreach"
+    "Tip: type {prefix} to search {name} directly" : "Leid: clóscríobh {prefix} chun {name} a chuardach go díreach",
+    "{app}, outage since {time}" : "{app}, briste ó {time}",
+    "Own colour" : "Do dhath féin",
+    "Primary, dark" : "Príomhúil, dorcha",
+    "Accent" : "Aiceann",
+    "Accent, dark" : "Aiceann, dorcha",
+    "Ink" : "Dúch",
+    "Text grey" : "Liath téacs",
+    "Muted grey" : "Liath maolaithe",
+    "Field grey" : "Liath réimse"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

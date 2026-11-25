@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Arama sonuçları",
     "No results" : "Sonuç yok",
     "Show all results" : "Tüm sonuçları göster",
-    "Tip: type {prefix} to search {name} directly" : "İpucu: doğrudan {name} içinde aramak için {prefix} yazın"
+    "Tip: type {prefix} to search {name} directly" : "İpucu: doğrudan {name} içinde aramak için {prefix} yazın",
+    "{app}, outage since {time}" : "{app}, {time} saatinden beri kesinti",
+    "Own colour" : "Kendi renginiz",
+    "Primary, dark" : "Birincil, koyu",
+    "Accent" : "Vurgu",
+    "Accent, dark" : "Vurgu, koyu",
+    "Ink" : "Mürekkep",
+    "Text grey" : "Metin grisi",
+    "Muted grey" : "Soluk gri",
+    "Field grey" : "Alan grisi"
 },
 "nplurals=2; plural=(n != 1);"
 );

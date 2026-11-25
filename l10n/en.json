@@ -2079,6 +2079,15 @@
         "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
             "Shared by %1$s · %n widget",
             "Shared by %1$s · %n widgets"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, outage since {time}",
+        "Own colour": "Own colour",
+        "Primary, dark": "Primary, dark",
+        "Accent": "Accent",
+        "Accent, dark": "Accent, dark",
+        "Ink": "Ink",
+        "Text grey": "Text grey",
+        "Muted grey": "Muted grey",
+        "Field grey": "Field grey"
     }
 }

@@ -36,6 +36,13 @@ class DemoSeedWidgetsTest extends TestCase {
 			'countSource' => ['dashboardWidget' => 'spreed'],
 		],
 		'topdesk' => ['name' => 'TOPdesk', 'icon' => 'Phone', 'colour' => 'accent', 'url' => 'https://topdesk.example/'],
+		'zaak'    => [
+			'name'        => 'Zaaksysteem',
+			'icon'        => 'Briefcase',
+			'colour'      => 'primary',
+			'url'         => 'https://zaken.example/',
+			'countSource' => ['register' => 'dossiq', 'schema' => 'case', 'filter' => ['assignee' => '@me']],
+		],
 		'word'    => [
 			'name'   => 'Word',
 			'icon'   => 'FileWord',
@@ -96,8 +103,29 @@ class DemoSeedWidgetsTest extends TestCase {
 		$this->assertSame(expected: 'custom', actual: $result['placed'][1]['tileType']);
 		$this->assertSame(expected: '#cc0000', actual: $result['placed'][1]['tileBackgroundColor']);
 		$this->assertSame(expected: 'https://topdesk.example/', actual: $result['placed'][1]['tileLinkValue']);
-		$this->assertSame(expected: ['colour' => 'accent'], actual: $result['placed'][1]['content']);
+		$this->assertSame(expected: ['colour' => 'accent', 'colourToken' => '--sc-accent'], actual: $result['placed'][1]['content']);
+		$this->assertSame(
+			expected: ['type' => 'nc-widget', 'widgetId' => 'spreed'],
+			actual: $result['placed'][0]['content']['countSource']
+		);
+		$this->assertSame(expected: '--sc-work-ink', actual: $result['placed'][0]['content']['colourToken']);
 	}//end testTileIsALauncherTileInItsTokenColourWithoutAppTileType()
+
+	/**
+	 * A launcher tile with a register count source names it with its type.
+	 *
+	 * @return void
+	 *
+ * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+	 */
+	public function testALauncherTileNamesItsRegisterCountSource(): void {
+		$result = $this->expander(types: ['tile'], apps: [])->expand(entries: [['tile' => 'zaak']]);
+
+		$this->assertSame(
+			expected: ['type' => 'register', 'register' => 'dossiq', 'schema' => 'case', 'filter' => ['assignee' => '@me']],
+			actual: $result['placed'][0]['content']['countSource']
+		);
+	}//end testALauncherTileNamesItsRegisterCountSource()
 
 	/**
 	 * Tile of a disabled app is left out of the seeded dashboard.
@@ -184,8 +212,9 @@ class DemoSeedWidgetsTest extends TestCase {
 	}//end testIconOnlyTileCarriesTheFlagInItsContent()
 
 	/**
-	 * A tile entry hands its pin, count and outage to its placement, and
-	 * drops a setting of the wrong type.
+	 * A tile entry hands its pin to its placement and drops a setting of the
+	 * wrong type; a static count or outage is no longer carried (REQ-ICT-002,
+	 * REQ-ICT-003: both are read live).
 	 *
 	 * @return void
 	 */
@@ -195,8 +224,8 @@ class DemoSeedWidgetsTest extends TestCase {
 		);
 
 		$this->assertTrue(condition: $result['placed'][0]['content']['pinned']);
-		$this->assertSame(expected: 3, actual: $result['placed'][0]['content']['badge']);
-		$this->assertSame(expected: 'down', actual: $result['placed'][0]['content']['status']);
+		$this->assertArrayNotHasKey(key: 'badge', array: $result['placed'][0]['content']);
+		$this->assertArrayNotHasKey(key: 'status', array: $result['placed'][0]['content']);
 		$this->assertArrayNotHasKey(key: 'badge', array: $result['placed'][1]['content']);
 	}//end testTileCarriesItsMarks()
 

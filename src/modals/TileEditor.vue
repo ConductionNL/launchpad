@@ -202,8 +202,8 @@
 						<div
 							class="tile-preview"
 							:style="{
-								backgroundColor: form.backgroundColor,
-								color: form.textColor,
+								background: previewBackground,
+								color: form.colourToken ? '#ffffff' : form.textColor,
 							}">
 							<img
 								v-if="isUrlIcon"
@@ -259,8 +259,45 @@
 				</div>
 
 				<div class="tile-editor__field">
-					<span class="tile-editor__label">{{ t('launchpad', 'Colour') }}</span>
-					<div class="form-row">
+					<span :id="colourLabelId" class="tile-editor__label">{{ t('launchpad', 'Colour') }}</span>
+					<!-- REQ-ICT-004 (board LpTegelBewerken): eight theme colours,
+					     each previewing the white icon; "Own colour" keeps the
+					     colour pickers for a hex colour. -->
+					<div
+						class="tile-editor__swatches"
+						role="radiogroup"
+						:aria-labelledby="colourLabelId"
+						data-test="tile-editor-swatches">
+						<label
+							v-for="swatch in colourSwatches"
+							:key="swatch.token"
+							class="tile-editor__swatch"
+							:class="{ 'tile-editor__swatch--on': form.colourToken === swatch.token }"
+							:style="{ background: swatch.css }"
+							:title="swatch.label">
+							<input
+								type="radio"
+								class="tile-editor__swatch-input"
+								name="tile-colour"
+								:value="swatch.token"
+								:checked="form.colourToken === swatch.token"
+								:aria-label="swatch.label"
+								:data-test="'tile-editor-swatch' + swatch.token"
+								@change="form.colourToken = swatch.token">
+							<span class="tile-editor__swatch-icon" aria-hidden="true">A</span>
+						</label>
+						<label class="tile-editor__swatch-own">
+							<input
+								type="radio"
+								name="tile-colour"
+								value=""
+								:checked="form.colourToken === ''"
+								data-test="tile-editor-swatch-own"
+								@change="form.colourToken = ''">
+							{{ t('launchpad', 'Own colour') }}
+						</label>
+					</div>
+					<div v-if="form.colourToken === ''" class="form-row">
 						<div class="form-row__item">
 							<NcColorPicker v-model="form.backgroundColor">
 								<NcButton
@@ -404,6 +441,7 @@ import { validateIframeUrl } from '../services/iframeClient.js'
 import { uploadFile } from '../services/resourceService.js'
 import { isOnOfficeNetwork, loadInitialState } from '../utils/loadInitialState.js'
 import { lastCheckLine } from '../utils/tileAvailability.js'
+import { isColourToken, TILE_COLOUR_TOKENS, tileBackground } from '../utils/tileColour.js'
 import { DEFAULT_RDP_PORT, launchFields, LINK_PROGRAM, LINK_REMOTE, LINK_SSO } from '../utils/tileLaunch.js'
 import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 import { normaliseSortMode } from '../utils/tileSort.js'
@@ -465,6 +503,7 @@ export default {
 				iconType: 'svg',
 				backgroundColor: '#0082c9',
 				textColor: '#ffffff',
+				colourToken: '',
 				linkType: 'url',
 				linkValue: '',
 				internalUrl: '',
@@ -494,6 +533,50 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The eight theme colours, each with its name for screen readers.
+		 *
+		 * @return {Array<{token: string, label: string, css: string}>}
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 */
+		colourSwatches() {
+			const names = {
+				'--sc-primary': t('launchpad', 'Primary'),
+				'--sc-primary-deep': t('launchpad', 'Primary, dark'),
+				'--sc-accent': t('launchpad', 'Accent'),
+				'--sc-accent-deep': t('launchpad', 'Accent, dark'),
+				'--sc-work-ink': t('launchpad', 'Ink'),
+				'--sc-work-text': t('launchpad', 'Text grey'),
+				'--sc-work-muted': t('launchpad', 'Muted grey'),
+				'--sc-work-field': t('launchpad', 'Field grey'),
+			}
+			return TILE_COLOUR_TOKENS.map(({ token }) => ({
+				token,
+				label: names[token],
+				css: tileBackground(null, { colourToken: token }),
+			}))
+		},
+
+		/**
+		 * The preview's background: the chosen token, else the hex colour.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 */
+		previewBackground() {
+			return tileBackground({ backgroundColor: this.form.backgroundColor }, { colourToken: this.form.colourToken })
+		},
+
+		/**
+		 * The id the swatch group is labelled by.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 */
+		colourLabelId() {
+			return 'tile-editor-colour-' + (this.tile?.id ?? 'new')
+		},
+
 		/**
 		 * The "Opens in" choices. The panel is unavailable for an outside
 		 * address whose host is not on the embed allow-list.
@@ -752,6 +835,7 @@ export default {
 						...newTile,
 						internalUrl: newTile.internalUrl || '',
 						iconType: newTile.iconType || 'class',
+						colourToken: isColourToken(newTile.colourToken) ? newTile.colourToken : '',
 						linkTarget: newTile.linkTarget || '',
 					}
 				} else {
@@ -810,6 +894,7 @@ export default {
 				iconType: 'svg',
 				backgroundColor: '#0082c9',
 				textColor: '#ffffff',
+				colourToken: '',
 				linkType: 'url',
 				linkValue: '',
 				internalUrl: '',
@@ -1078,6 +1163,53 @@ export default {
 .tile-editor h2 {
 	margin-top: 0;
 	margin-bottom: 20px;
+}
+
+.tile-editor__swatches {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.tile-editor__swatch {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border: 2px solid transparent;
+	border-radius: var(--border-radius-large);
+	color: #ffffff;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.tile-editor__swatch--on {
+	outline: 2px solid var(--color-main-text);
+	outline-offset: 2px;
+}
+
+.tile-editor__swatch:focus-within {
+	outline: 2px solid var(--color-primary-element);
+	outline-offset: 2px;
+}
+
+.tile-editor__swatch-input {
+	position: absolute;
+	inset: 0;
+	margin: 0;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.tile-editor__swatch-own {
+	display: inline-flex;
+	gap: 6px;
+	align-items: center;
+	margin-inline-start: 8px;
 }
 
 .tile-preview {

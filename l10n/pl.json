@@ -1751,6 +1751,15 @@
             "Udostępnione przez %1$s · %n widżet",
             "Udostępnione przez %1$s · %n widżety",
             "Udostępnione przez %1$s · %n widżetów"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, awaria od {time}",
+        "Own colour": "Własny kolor",
+        "Primary, dark": "Podstawowy, ciemny",
+        "Accent": "Akcent",
+        "Accent, dark": "Akcent, ciemny",
+        "Ink": "Atrament",
+        "Text grey": "Szary tekstu",
+        "Muted grey": "Stonowany szary",
+        "Field grey": "Szary pola"
     }
 }

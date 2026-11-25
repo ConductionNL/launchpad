@@ -1751,6 +1751,15 @@
             "Sdílí %1$s · %n widget",
             "Sdílí %1$s · %n widgety",
             "Sdílí %1$s · %n widgetů"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, výpadek od {time}",
+        "Own colour": "Vlastní barva",
+        "Primary, dark": "Primární, tmavá",
+        "Accent": "Akcent",
+        "Accent, dark": "Akcent, tmavý",
+        "Ink": "Inkoust",
+        "Text grey": "Šedá textu",
+        "Muted grey": "Tlumená šedá",
+        "Field grey": "Šedá pole"
     }
 }

@@ -1757,6 +1757,15 @@
             "Roinnte ag %1$s · %n ghiuirléid",
             "Roinnte ag %1$s · %n ngiuirléid",
             "Roinnte ag %1$s · %n giuirléid"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, briste ó {time}",
+        "Own colour": "Do dhath féin",
+        "Primary, dark": "Príomhúil, dorcha",
+        "Accent": "Aiceann",
+        "Accent, dark": "Aiceann, dorcha",
+        "Ink": "Dúch",
+        "Text grey": "Liath téacs",
+        "Muted grey": "Liath maolaithe",
+        "Field grey": "Liath réimse"
     }
 }

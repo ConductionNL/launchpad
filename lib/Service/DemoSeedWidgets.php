@@ -44,8 +44,6 @@ class DemoSeedWidgets {
 		'iconOnly' => 'boolean',
 		'fitRows'  => 'boolean',
 		'pinned'   => 'boolean',
-		'badge'    => 'integer',
-		'status'   => 'string',
 	];
 
 	/**
@@ -269,6 +267,14 @@ class DemoSeedWidgets {
 	 * @return array<string, mixed> The placement fields.
 	 */
 	private function launcherTileFields(array $tile, string $colour): array {
+		// REQ-ICT-004: the tile renders through its theme token; REQ-ICT-002:
+		// it reads its count live from its source, never a static value.
+		$content = ['colour' => $colour, 'colourToken' => '--sc-' . $colour];
+		$source  = $this->countSourceOf(source: $tile['countSource'] ?? null);
+		if ($source !== null) {
+			$content['countSource'] = $source;
+		}
+
 		return [
 			'widgetId'            => 'tile',
 			'tileType'            => 'custom',
@@ -279,9 +285,41 @@ class DemoSeedWidgets {
 			'tileTextColor'       => '#ffffff',
 			'tileLinkType'        => 'url',
 			'tileLinkValue'       => (string)($tile['url'] ?? ''),
-			'content'             => ['colour' => $colour],
+			'content'             => $content,
 		];
 	}//end launcherTileFields()
+
+	/**
+	 * A catalogue count source in the shape a launcher tile reads: a
+	 * register source with its register, schema and filter, or the items of
+	 * a Nextcloud dashboard widget.
+	 *
+	 * @param mixed $source The catalogue's count source.
+	 *
+	 * @return array<string, mixed>|null The tile's count source, null for none.
+	 *
+ * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+	 */
+	private function countSourceOf(mixed $source): ?array {
+		if (is_array($source) === false) {
+			return null;
+		}
+
+		if (is_string($source['dashboardWidget'] ?? null) === true && $source['dashboardWidget'] !== '') {
+			return ['type' => 'nc-widget', 'widgetId' => $source['dashboardWidget']];
+		}
+
+		if (is_string($source['register'] ?? null) === true && is_string($source['schema'] ?? null) === true) {
+			$filter = [];
+			if (is_array($source['filter'] ?? null) === true) {
+				$filter = $source['filter'];
+			}
+
+			return ['type' => 'register', 'register' => $source['register'], 'schema' => $source['schema'], 'filter' => $filter];
+		}
+
+		return null;
+	}//end countSourceOf()
 
 	/**
 	 * A readable name for a skipped entry.

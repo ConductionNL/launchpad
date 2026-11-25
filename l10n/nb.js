@@ -1848,7 +1848,16 @@ OC.L10N.register(
     "Search results" : "Søkeresultater",
     "No results" : "Ingen resultater",
     "Show all results" : "Vis alle resultater",
-    "Tip: type {prefix} to search {name} directly" : "Tips: skriv {prefix} for å søke direkte i {name}"
+    "Tip: type {prefix} to search {name} directly" : "Tips: skriv {prefix} for å søke direkte i {name}",
+    "{app}, outage since {time}" : "{app}, driftsavbrudd siden {time}",
+    "Own colour" : "Egen farge",
+    "Primary, dark" : "Primær, mørk",
+    "Accent" : "Aksent",
+    "Accent, dark" : "Aksent, mørk",
+    "Ink" : "Blekk",
+    "Text grey" : "Tekstgrå",
+    "Muted grey" : "Dempet grå",
+    "Field grey" : "Feltgrå"
 },
 "nplurals=2; plural=(n != 1);"
 );

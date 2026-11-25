@@ -1748,6 +1748,15 @@
         "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
             "Megosztotta: %1$s · %n widget",
             "Megosztotta: %1$s · %n widget"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, üzemzavar {time} óta",
+        "Own colour": "Saját szín",
+        "Primary, dark": "Elsődleges, sötét",
+        "Accent": "Kiemelés",
+        "Accent, dark": "Kiemelés, sötét",
+        "Ink": "Tinta",
+        "Text grey": "Szövegszürke",
+        "Muted grey": "Tompa szürke",
+        "Field grey": "Mezőszürke"
     }
 }

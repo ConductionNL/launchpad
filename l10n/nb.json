@@ -1748,6 +1748,15 @@
         "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
             "Delt av %1$s · %n widget",
             "Delt av %1$s · %n widgeter"
-        ]
+        ],
+        "{app}, outage since {time}": "{app}, driftsavbrudd siden {time}",
+        "Own colour": "Egen farge",
+        "Primary, dark": "Primær, mørk",
+        "Accent": "Aksent",
+        "Accent, dark": "Aksent, mørk",
+        "Ink": "Blekk",
+        "Text grey": "Tekstgrå",
+        "Muted grey": "Dempet grå",
+        "Field grey": "Feltgrå"
     }
 }

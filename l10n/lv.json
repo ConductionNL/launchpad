@@ -1738,6 +1738,12 @@
         "Single sign-on": "Vienotā pierakstīšanās",
         "Signs in with your Nextcloud account": "Pierakstās ar jūsu Nextcloud kontu",
         "Asks for its own sign-in": "Prasa savu pierakstīšanos",
-        "The tiles could not be added.": "Flīzes nevarēja pievienot."
+        "The tiles could not be added.": "Flīzes nevarēja pievienot.",
+        "Group dashboard of %s": "Grupas %s informācijas panelis",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Kopīgoja %1$s · %n logrīku",
+            "Kopīgoja %1$s · %n logrīks",
+            "Kopīgoja %1$s · %n logrīki"
+        ]
     }
 }

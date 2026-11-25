@@ -1736,6 +1736,11 @@
         "Single sign-on": "Accesso singolo",
         "Signs in with your Nextcloud account": "Accede con il tuo account Nextcloud",
         "Asks for its own sign-in": "Chiede un proprio accesso",
-        "The tiles could not be added.": "Impossibile aggiungere i riquadri."
+        "The tiles could not be added.": "Impossibile aggiungere i riquadri.",
+        "Group dashboard of %s": "Dashboard del gruppo %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Condiviso da %1$s · %n widget",
+            "Condiviso da %1$s · %n widget"
+        ]
     }
 }

@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Egyszeri bejelentkezés",
     "Signs in with your Nextcloud account" : "A Nextcloud-fiókjával jelentkezik be",
     "Asks for its own sign-in" : "Saját bejelentkezést kér",
-    "The tiles could not be added." : "A csempék nem adhatók hozzá."
+    "The tiles could not be added." : "A csempék nem adhatók hozzá.",
+    "You searched for {query}" : "Erre keresett: {query}",
+    "Search results" : "Keresési találatok",
+    "No results" : "Nincs találat",
+    "Show all results" : "Összes találat megjelenítése",
+    "Tip: type {prefix} to search {name} directly" : "Tipp: írja be: {prefix}, hogy közvetlenül itt keressen: {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

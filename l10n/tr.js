@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Çoklu oturum açma",
     "Signs in with your Nextcloud account" : "Nextcloud hesabınızla oturum açar",
     "Asks for its own sign-in" : "Kendi oturum açmasını ister",
-    "The tiles could not be added." : "Kutucuklar eklenemedi."
+    "The tiles could not be added." : "Kutucuklar eklenemedi.",
+    "You searched for {query}" : "{query} için arama yaptınız",
+    "Search results" : "Arama sonuçları",
+    "No results" : "Sonuç yok",
+    "Show all results" : "Tüm sonuçları göster",
+    "Tip: type {prefix} to search {name} directly" : "İpucu: doğrudan {name} içinde aramak için {prefix} yazın"
 },
 "nplurals=2; plural=(n != 1);"
 );

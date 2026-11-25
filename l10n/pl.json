@@ -1738,6 +1738,12 @@
         "Single sign-on": "Logowanie jednokrotne",
         "Signs in with your Nextcloud account": "Loguje się Twoim kontem Nextcloud",
         "Asks for its own sign-in": "Wymaga własnego logowania",
-        "The tiles could not be added.": "Nie udało się dodać kafelków."
+        "The tiles could not be added.": "Nie udało się dodać kafelków.",
+        "Group dashboard of %s": "Pulpit grupy %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Udostępnione przez %1$s · %n widżet",
+            "Udostępnione przez %1$s · %n widżety",
+            "Udostępnione przez %1$s · %n widżetów"
+        ]
     }
 }

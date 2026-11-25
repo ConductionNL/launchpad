@@ -1736,6 +1736,11 @@
         "Single sign-on": "Enkel inloggning",
         "Signs in with your Nextcloud account": "Loggar in med ditt Nextcloud-konto",
         "Asks for its own sign-in": "Kräver en egen inloggning",
-        "The tiles could not be added.": "Panelerna kunde inte läggas till."
+        "The tiles could not be added.": "Panelerna kunde inte läggas till.",
+        "Group dashboard of %s": "Gruppens instrumentpanel för %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Delad av %1$s · %n widget",
+            "Delad av %1$s · %n widgetar"
+        ]
     }
 }

@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Єдиний вхід",
     "Signs in with your Nextcloud account" : "Входить з вашим обліковим записом Nextcloud",
     "Asks for its own sign-in" : "Вимагає власного входу",
-    "The tiles could not be added." : "Не вдалося додати плитки."
+    "The tiles could not be added." : "Не вдалося додати плитки.",
+    "You searched for {query}" : "Ви шукали {query}",
+    "Search results" : "Результати пошуку",
+    "No results" : "Немає результатів",
+    "Show all results" : "Показати всі результати",
+    "Tip: type {prefix} to search {name} directly" : "Порада: введіть {prefix}, щоб шукати безпосередньо в {name}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

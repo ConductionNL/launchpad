@@ -28,6 +28,7 @@ import type { Locator, Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { catalogueFromApi } from './support/widgetCatalogue.ts'
 import {
 	adminApi,
 	gridItem,
@@ -89,6 +90,7 @@ const APPS = [
  * @return nothing.
  */
 async function stagePickerLists(page: Page): Promise<void> {
+	await catalogueFromApi(page)
 	await page.route(
 		(url) => isWidgetCatalogue(url),
 		(route) =>
@@ -223,6 +225,7 @@ test.describe('workspace canvas and the widget picker (REQ-WDG-027, REQ-WDG-028)
 			999,
 		)
 		let available: Array<Record<string, unknown>> = []
+		await catalogueFromApi(page)
 		await page.route(
 			(url) => isWidgetCatalogue(url),
 			async (route) => {
@@ -319,7 +322,9 @@ test.describe('workspace canvas and the widget picker (REQ-WDG-027, REQ-WDG-028)
 			'Notes',
 			'Upcoming cards',
 		])
-		await expect(appNames(picker)).toHaveText(['Calendar', 'Files'])
+		// Board LpWidgetKiezen ends the app tiles with "Custom tile", which a
+		// search for "cal" left out.
+		await expect(appNames(picker)).toHaveText(['Calendar', 'Files', 'Custom tile'])
 		await expect(
 			picker.locator('[data-testid="widget-picker-office"]'),
 		).toBeVisible()

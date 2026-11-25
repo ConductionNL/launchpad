@@ -497,8 +497,11 @@ test.describe.serial('navigation-editor-org — mobile layout (REQ-ONAV-010)', (
 		await page.locator('.org-nav__hamburger').click()
 		await expect(page.locator('.org-nav__panel--drawer-open')).toBeVisible()
 		await navRow(page, label).click()
+		// Reaching the address is the navigation. The slug names no dashboard,
+		// so the page then falls back to the resolver's dashboard and puts
+		// that one's path in the address (REQ-DDL stale slug); the pathname is
+		// not asserted after that.
 		await page.waitForURL(`**${target}`)
-		expect(new URL(page.url()).pathname).toBe(target)
 		await expect(page.locator('.org-nav__panel--drawer-open')).toHaveCount(0)
 		await expect(page.locator('.org-nav__hamburger')).toBeVisible({
 			timeout: 30_000,

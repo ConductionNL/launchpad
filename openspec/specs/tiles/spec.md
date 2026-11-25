@@ -294,8 +294,9 @@ Tiles MUST support an edit mode that allows configuration changes.
 #### Scenario: Edit button visible in edit mode
 - GIVEN a tile on a dashboard in edit mode
 - WHEN the tile is rendered
-- THEN an edit button (settings icon) MUST appear at the top-right corner of the tile
-- AND the button MUST have `aria-label="Edit tile"` for accessibility
+- THEN the tile menu button (the shared widget edit cog) MUST appear at the top-right corner of the tile
+- AND the button MUST have `aria-label="Tile menu"` for accessibility
+- AND the menu it opens MUST offer "Edit tile"
 
 #### Scenario: Edit button hidden in view mode
 - GIVEN a tile on a dashboard in view mode
@@ -304,7 +305,7 @@ Tiles MUST support an edit mode that allows configuration changes.
 
 #### Scenario: Edit button click emits event
 - GIVEN a tile in edit mode
-- WHEN the user clicks the edit button
+- WHEN the user chooses "Edit tile" in the tile menu
 - THEN the `TileWidget` component MUST emit an `edit` event
 - AND `click.prevent` MUST prevent link navigation when clicking the edit button
 
@@ -321,8 +322,9 @@ Users MUST be able to manage their tile definitions through a dedicated UI.
 #### Scenario: Tile editor
 - GIVEN the user wants to create or edit a tile
 - WHEN the tile editor opens
-- THEN `TileEditor.vue` MUST provide fields for title, icon, iconType, colors, linkType, and linkValue
-- AND changes MUST be saved via the tile API
+- THEN `TileEditor.vue` MUST provide fields for the name, the icon, the background and text colours, the tile type (linkType) and its address (linkValue)
+- AND the icon type (iconType) MUST follow from the chosen icon, not from a field of its own
+- AND changes MUST be saved via `PUT /api/widgets/{placementId}` (the `/api/tiles` endpoints are gone, REQ-TILE-001)
 
 ### Requirement: REQ-TILE-PLACEMENT Inline-content placement model — promoted to canonical
 

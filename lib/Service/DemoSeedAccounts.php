@@ -55,7 +55,7 @@ class DemoSeedAccounts {
 	 *
 	 * @return array<int, string> The ids of the groups created by this run.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function ensureGroups(array $groups): array {
 		$created = [];
@@ -92,7 +92,7 @@ class DemoSeedAccounts {
 	 *
 	 * @throws RuntimeException When a user cannot be created.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function ensureUsers(array $seed, string $password): array {
 		$managed = [...array_column(array: (array)($seed['groups'] ?? []), column_key: 'id'), 'admin'];

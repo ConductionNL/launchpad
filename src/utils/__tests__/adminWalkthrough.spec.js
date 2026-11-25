@@ -10,9 +10,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import manifest from '../../manifest.json'
 import {
 	ADMIN_TOUR_COMPLETION_KEY,
-	ADMIN_TOUR_WALKTHROUGH_KEY,
 	ADMIN_TOUR_ID,
 	ADMIN_TOUR_STORAGE_SUFFIX,
+	ADMIN_TOUR_WALKTHROUGH_KEY,
 	adminTourManifest,
 	adminTourStorage,
 	loadAdminTourSeen,

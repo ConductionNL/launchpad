@@ -148,6 +148,18 @@ class DashboardService {
 	public const DEFAULT_DASHBOARD_UUID_PREF_KEY = 'default_dashboard_uuid';
 
 	/**
+	 * User preference holding a JSON list of organisation-wide dashboards
+	 * (the `default` group) this user does not see. Only `default`-group
+	 * rows can be set aside this way: what a user owns, reaches through
+	 * their own group or was shared stays visible. The demo seed writes it
+	 * for its first-run user so a first visit shows the empty state without
+	 * touching the organisation's dashboard (Ruben, 25 Nov 2026).
+	 *
+	 * @var string
+	 */
+	public const HIDDEN_DASHBOARDS_PREF_KEY = 'hidden_dashboard_uuids';
+
+	/**
 	 * HTTP-like error message for non-owner / non-admin attempting a
 	 * publication state mutation. REQ-DASH-032..034.
 	 *
@@ -1797,8 +1809,49 @@ class DashboardService {
 			$filtered[] = $sharedEntry;
 		}
 
-		return $filtered;
+		return $this->withoutSetAside(userId: $userId, entries: $filtered);
 	}//end getVisibleToUser()
+
+	/**
+	 * Drop the organisation-wide dashboards a user has set aside
+	 * ({@see self::HIDDEN_DASHBOARDS_PREF_KEY}). Only `default`-source
+	 * entries are dropped; a malformed preference hides nothing.
+	 *
+	 * @param string                                                  $userId  The user.
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $entries The visible set.
+	 *
+	 * @return array<int, array{dashboard: Dashboard, source: string}> The visible set without the set-aside rows.
+	 *
+	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 */
+	private function withoutSetAside(string $userId, array $entries): array {
+		$stored = json_decode(
+			(string)$this->platform->config->getUserValue(
+				userId: $userId,
+				appName: Application::APP_ID,
+				key: self::HIDDEN_DASHBOARDS_PREF_KEY,
+				default: ''
+			),
+			true
+		);
+		if (is_array($stored) === false || $stored === []) {
+			return $entries;
+		}
+
+		$hidden = array_fill_keys(keys: array_filter(array: $stored, callback: 'is_string'), value: true);
+		$kept   = [];
+		foreach ($entries as $entry) {
+			if ($entry['source'] === Dashboard::SOURCE_DEFAULT
+				&& isset($hidden[(string)$entry['dashboard']->getUuid()]) === true
+			) {
+				continue;
+			}
+
+			$kept[] = $entry;
+		}
+
+		return $kept;
+	}//end withoutSetAside()
 
 	/**
 	 * Whether a dashboard's `publishAt` has passed. A missing or

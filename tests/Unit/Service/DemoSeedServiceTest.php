@@ -38,6 +38,7 @@ use OCA\LaunchPad\Service\DemoSeedAccounts;
 use OCA\LaunchPad\Service\DemoSeedDashboards;
 use OCA\LaunchPad\Service\DemoSeedContent;
 use OCA\LaunchPad\Service\DemoSeedFiles;
+use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DemoSeedFirstRun;
 use OCA\LaunchPad\Service\DemoSeedParts;
 use OCA\LaunchPad\Service\DemoSeedPreferences;
@@ -180,6 +181,50 @@ class DemoSeedServiceTest extends TestCase {
 		$this->assertCount(expectedCount: 13, haystack: $this->catalogue);
 		$this->assertContains(needle: 'www.zuiddrecht.nl', haystack: json_decode(json: $this->appValues['iframe_allowed_hosts'], associative: true));
 	}//end testFirstRunCreatesTheBoardDashboards()
+
+	/**
+	 * The first-run user has the organisation-wide dashboard set aside, not
+	 * deleted, so a first visit shows the empty state and the install
+	 * default stays for everyone else (scenario "A first visit"; Ruben,
+	 * 25 Nov 2026: hide the default board for `nieuw` only).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 */
+	public function testTheFirstRunUserHasTheOrganisationDashboardSetAside(): void {
+		$default = new Dashboard();
+		$default->setId($this->nextId++);
+		$default->setUuid('uuid-install-default');
+		$default->setName('Dashboard');
+		$default->setType(Dashboard::TYPE_GROUP_SHARED);
+		$default->setGroupId(Dashboard::DEFAULT_GROUP_ID);
+		$this->dashboards[$default->getId()] = $default;
+
+		$this->service->load(seedId: 'zuiddrecht-boards');
+
+		$this->assertSame(
+			expected: ['uuid-install-default'],
+			actual: json_decode(json: $this->prefs['nieuw/' . DashboardService::HIDDEN_DASHBOARDS_PREF_KEY], associative: true)
+		);
+		$this->assertArrayNotHasKey(key: 'pieter/' . DashboardService::HIDDEN_DASHBOARDS_PREF_KEY, array: $this->prefs);
+		$this->assertSame(expected: $default, actual: $this->dashboards[$default->getId()]);
+	}//end testTheFirstRunUserHasTheOrganisationDashboardSetAside()
+
+	/**
+	 * With no organisation-wide dashboard nothing is set aside.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 */
+	public function testNothingIsSetAsideWithoutAnOrganisationDashboard(): void {
+		$this->prefs['nieuw/' . DashboardService::HIDDEN_DASHBOARDS_PREF_KEY] = '["uuid-gone"]';
+
+		$this->service->load(seedId: 'zuiddrecht-boards');
+
+		$this->assertArrayNotHasKey(key: 'nieuw/' . DashboardService::HIDDEN_DASHBOARDS_PREF_KEY, array: $this->prefs);
+	}//end testNothingIsSetAsideWithoutAnOrganisationDashboard()
 
 	/**
 	 * Second run leaves the same state.
@@ -366,6 +411,11 @@ class DemoSeedServiceTest extends TestCase {
 		$mapper->method('findByUserId')->willReturnCallback(fn (string $userId): array => array_values(array: array_filter(
 			array: $this->dashboards,
 			callback: fn (Dashboard $d): bool => $d->getUserId() === $userId
+		)));
+		$mapper->method('findByGroup')->willReturnCallback(fn (?string $groupId): array => array_values(array: array_filter(
+			array: $this->dashboards,
+			callback: fn (Dashboard $d): bool => $d->getType() === Dashboard::TYPE_GROUP_SHARED
+				&& ($groupId === null || $d->getGroupId() === $groupId)
 		)));
 		return $mapper;
 	}//end dashboardMapper()

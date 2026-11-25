@@ -96,6 +96,32 @@ class DemoSeedPreferences {
 	}//end markTourSeen()
 
 	/**
+	 * Set organisation-wide dashboards aside for a user, so they do not
+	 * open for that user and do not cover the first-visit empty state.
+	 * Nothing is deleted: the dashboards stay for everyone else.
+	 *
+	 * @param string             $userId The user.
+	 * @param array<int, string> $uuids  The dashboard UUIDs; none clears the list.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 */
+	public function hideDashboards(string $userId, array $uuids): void {
+		if ($uuids === []) {
+			$this->config->deleteUserValue($userId, Application::APP_ID, DashboardService::HIDDEN_DASHBOARDS_PREF_KEY);
+			return;
+		}
+
+		$this->config->setUserValue(
+			$userId,
+			Application::APP_ID,
+			DashboardService::HIDDEN_DASHBOARDS_PREF_KEY,
+			(string)json_encode(value: array_values(array: $uuids))
+		);
+	}//end hideDashboards()
+
+	/**
 	 * Clear a user's dashboard choices and tour progress.
 	 *
 	 * @param string $userId The user.
@@ -105,7 +131,13 @@ class DemoSeedPreferences {
 	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function clear(string $userId): void {
-		foreach ([self::DEFAULT_DASHBOARD_PREF_KEY, self::ACTIVE_DASHBOARD_PREF_KEY, self::WALKTHROUGH_PREF_KEY] as $key) {
+		$keys = [
+			self::DEFAULT_DASHBOARD_PREF_KEY,
+			self::ACTIVE_DASHBOARD_PREF_KEY,
+			self::WALKTHROUGH_PREF_KEY,
+			DashboardService::HIDDEN_DASHBOARDS_PREF_KEY,
+		];
+		foreach ($keys as $key) {
 			$this->config->deleteUserValue($userId, Application::APP_ID, $key);
 		}
 	}//end clear()

@@ -645,4 +645,44 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 		$this->assertSame('uuid-shared', $result['dashboard']->getUuid());
 		$this->assertSame(Dashboard::PERMISSION_VIEW_ONLY, $result['permissionLevel']);
 	}//end testAnActiveSharedDashboardReportsTheSharePermissionLevel()
+	/**
+	 * An organisation-wide dashboard the user set aside is not visible to
+	 * them; what they own stays, even when listed too.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 */
+	public function testASetAsideOrganisationDashboardIsNotVisible(): void {
+		$own = $this->makeDashboard(id: 1, uuid: 'uuid-own', owner: 'nieuw');
+		$org = $this->makeDashboard(id: 2, uuid: 'uuid-org', owner: null, type: Dashboard::TYPE_GROUP_SHARED);
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn(
+			[
+				['dashboard' => $own, 'source' => Dashboard::SOURCE_USER],
+				['dashboard' => $org, 'source' => Dashboard::SOURCE_DEFAULT],
+			]
+		);
+		$this->prefs[DashboardService::HIDDEN_DASHBOARDS_PREF_KEY] = '["uuid-org","uuid-own"]';
+
+		$visible = $this->service->getVisibleToUser(userId: 'nieuw');
+
+		$this->assertSame(expected: ['uuid-own'], actual: array_map(fn (array $e): string => (string)$e['dashboard']->getUuid(), $visible));
+	}//end testASetAsideOrganisationDashboardIsNotVisible()
+
+	/**
+	 * A malformed set-aside list hides nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 */
+	public function testAMalformedSetAsideListHidesNothing(): void {
+		$org = $this->makeDashboard(id: 2, uuid: 'uuid-org', owner: null, type: Dashboard::TYPE_GROUP_SHARED);
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn(
+			[['dashboard' => $org, 'source' => Dashboard::SOURCE_DEFAULT]]
+		);
+		$this->prefs[DashboardService::HIDDEN_DASHBOARDS_PREF_KEY] = 'not json';
+
+		$this->assertCount(expectedCount: 1, haystack: $this->service->getVisibleToUser(userId: 'nieuw'));
+	}//end testAMalformedSetAsideListHidesNothing()
 }//end class

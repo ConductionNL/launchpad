@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTimeImmutable;
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 
 /**
@@ -64,7 +65,8 @@ class DemoSeedFirstRun {
 
 	/**
 	 * Remove a user's own dashboards, dashboard choices and tour progress,
-	 * so the next visit is a first visit.
+	 * and set the organisation-wide dashboards aside for them, so the next
+	 * visit is a first visit.
 	 *
 	 * @param string $userId The user.
 	 *
@@ -91,7 +93,30 @@ class DemoSeedFirstRun {
 		}
 
 		$this->preferences->clear(userId: $userId);
+		$this->preferences->hideDashboards(userId: $userId, uuids: $this->organisationWideUuids());
 
 		return $removed;
 	}//end resetToFirstRun()
+
+	/**
+	 * The UUIDs of the organisation-wide (`default` group) dashboards, such
+	 * as the install default from the SeedDefaultDashboard repair step.
+	 * The first-run user has them set aside instead of deleted, so an
+	 * administrator's edits to them survive the seed (Ruben, 25 Nov 2026).
+	 *
+	 * @return array<int, string> The UUIDs.
+	 *
+	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 */
+	private function organisationWideUuids(): array {
+		$uuids = [];
+		foreach ($this->stores->dashboardMapper->findByGroup(groupId: Dashboard::DEFAULT_GROUP_ID) as $dashboard) {
+			$uuid = (string)$dashboard->getUuid();
+			if ($uuid !== '') {
+				$uuids[] = $uuid;
+			}
+		}
+
+		return $uuids;
+	}//end organisationWideUuids()
 }//end class

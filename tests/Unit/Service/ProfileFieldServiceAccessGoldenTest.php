@@ -314,7 +314,7 @@ class ProfileFieldServiceAccessGoldenTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
 	 */
 	public function testOneDateFieldIsTheStartDate(): void {
 		$saved = $this->service->saveDefinitions(raw: [
@@ -332,7 +332,7 @@ class ProfileFieldServiceAccessGoldenTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
 	 */
 	public function testADateValueMustBeACalendarDate(): void {
 		$this->service->saveDefinitions(raw: [['key' => 'joined', 'label' => 'In dienst sinds', 'type' => 'date']]);
@@ -351,7 +351,7 @@ class ProfileFieldServiceAccessGoldenTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-a-profile-field-can-hold-a-start-date-req-pex-005
 	 */
 	public function testAnLdapStartDateIsReadAsACalendarDate(): void {
 		$this->service->saveDefinitions(raw: [

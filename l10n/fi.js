@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "New colleagues" : "Uudet kollegat",
     "Required: this widget cannot be removed" : "Pakollinen: tätä pienoisohjelmaa ei voi poistaa",
     "Connections of this dashboard" : "Tämän kojelaudan yhteydet",
     "Connection states need the Integrations app" : "Yhteyksien tila vaatii Integraatiot-sovelluksen",

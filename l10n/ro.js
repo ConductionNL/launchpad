@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "New colleagues" : "Colegi noi",
     "Required: this widget cannot be removed" : "Obligatoriu: acest widget nu poate fi eliminat",
     "Connections of this dashboard" : "Conexiunile acestui panou",
     "Connection states need the Integrations app" : "Starea conexiunilor necesită aplicația Integrări",

@@ -1,5 +1,6 @@
 {
     "translations": {
+        "New colleagues": "Нови колеги",
         "Required: this widget cannot be removed" : "Задължителен: тази джаджа не може да бъде премахната",
         "Connections of this dashboard": "Връзки на това табло",
         "Connection states need the Integrations app": "За състоянието на връзките е нужно приложението Интеграции",

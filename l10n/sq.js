@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "New colleagues" : "Kolegë të rinj",
     "Required: this widget cannot be removed" : "I detyrueshëm: ky widget nuk mund të hiqet",
     "Connections of this dashboard" : "Lidhjet e këtij paneli",
     "Connection states need the Integrations app" : "Gjendja e lidhjeve kërkon aplikacionin Integrime",

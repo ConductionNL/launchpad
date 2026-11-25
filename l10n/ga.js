@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "New colleagues" : "Comhghleacaithe nua",
     "Required: this widget cannot be removed" : "Riachtanach: ní féidir an ghiuirléid seo a bhaint",
     "Connections of this dashboard" : "Naisc an deais seo",
     "Connection states need the Integrations app" : "Teastaíonn an aip Comhtháthú le haghaidh staid na nasc",

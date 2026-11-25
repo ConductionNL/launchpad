@@ -1,5 +1,6 @@
 {
     "translations": {
+        "New colleagues": "New colleagues",
         "Required: this widget cannot be removed" : "Required: this widget cannot be removed",
         "Connections of this dashboard": "Connections of this dashboard",
         "Connection states need the Integrations app": "Connection states need the Integrations app",

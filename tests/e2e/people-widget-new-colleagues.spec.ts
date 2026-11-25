@@ -12,17 +12,15 @@
  * Built: the `date` profile-field type, the single start-date marker
  * (`ProfileFieldService`, the admin Profile fields tab) and
  * `GET /api/people/new` (`NewColleaguesController`, `NewColleagues`).
- * Not built: the widget form's "New colleagues" choice and the renderer's
- * list (tasks 5 and 6 of the change are open). nc-vue 2.218.0's
- * `CnPeopleWidgetForm` has no selection control, and `CnPeopleWidget` does not
- * read `selectionMode: 'new'`.
+ * Since then (people-new-colleagues archived 25 Nov): the form offers the
+ * choice when a start date field is marked, CnPeopleWidget lists
+ * `selectionMode: 'new'` through LaunchPad's source, and the placement's header
+ * reads "New colleagues" ("Nieuwe collega's") instead of the type's "People"
+ * (`src/utils/widgetTitle.js`, modeTitle).
  *
- * So the API test of "Three new colleagues" is expected green, its browser
- * test is expected RED until the renderer lands (a placement in an unknown
- * mode lists everyone, so the out-of-window colleague shows and the test
- * fails on it), and "No start date field" is expected green: the form offers
- * no New colleagues today, and the test fails the day it does so without a
- * start date field.
+ * So all three tests are expected green: the API and browser tests of "Three
+ * new colleagues", and "No start date field" (the form offers no New colleagues
+ * without a start date field).
  *
  * DATES
  * =====

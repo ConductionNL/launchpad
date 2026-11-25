@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "New colleagues" : "Companys nous",
     "Required: this widget cannot be removed" : "Obligatori: aquest giny no es pot eliminar",
     "Connections of this dashboard" : "Connexions d’aquest tauler",
     "Connection states need the Integrations app" : "L’estat de les connexions requereix l’aplicació Integracions",

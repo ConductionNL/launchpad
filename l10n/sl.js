@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "New colleagues" : "Novi sodelavci",
     "Required: this widget cannot be removed" : "Obvezno: tega gradnika ni mogoče odstraniti",
     "Connections of this dashboard" : "Povezave te nadzorne plošče",
     "Connection states need the Integrations app" : "Stanje povezav zahteva aplikacijo Integracije",

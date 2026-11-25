@@ -14,9 +14,9 @@
  * in its own file without serial mode, because dashboards-group-shared runs
  * serially and a red there would skip every test after it.
  *
- * EXPECTED RED until the product is fixed: DashboardApiController::getGroup()
- * and ::listGroup() answer Dashboard::toViewerArray(), which unsets `groupId`
- * (with userId and targetGroups) for every caller, the admin included.
+ * EXPECTED GREEN: DashboardApiController::getGroup() and ::listGroup() answer
+ * Dashboard::toViewerArray(), which strips userId and targetGroups but keeps
+ * `groupId`: the caller named the group and passed its membership check.
  *
  * WHAT STAYS BEHIND. The last group-shared dashboard of a group cannot be
  * deleted (REQ-DASH-014), so one row stays in a group that afterAll empties
@@ -96,7 +96,6 @@ test.afterAll(async () => {
 
 test.describe('REQ-DASH-014 groupId on the group-scoped reads', () => {
 	// @e2e dashboards::group-shared-dashboard-serialisation-includes-groupid
-	// EXPECTED RED: getGroup() answers toViewerArray(), which unsets groupId.
 	test('the group-scoped GET carries the groupId, for the admin and for a member', async () => {
 		const url = `${API}/dashboards/group/${encodeURIComponent(groupId)}/${dashboard.uuid}`
 		for (const api of [admin, member!.api]) {
@@ -109,7 +108,6 @@ test.describe('REQ-DASH-014 groupId on the group-scoped reads', () => {
 	})
 
 	// @e2e dashboards::group-shared-dashboard-serialisation-includes-groupid
-	// EXPECTED RED: listGroup() maps every row through toViewerArray().
 	test('the group-scoped list carries the groupId on every row', async () => {
 		const rows = await listGroup(admin, groupId)
 		const mine = rows.filter((row) => row.uuid === dashboard.uuid)

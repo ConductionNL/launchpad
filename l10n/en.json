@@ -1906,6 +1906,13 @@
         "Only for people who may share dashboards. A link always has an expiry date.": "Only for people who may share dashboards. A link always has an expiry date.",
         "Expiry date (required)": "Expiry date (required)",
         "Your administrator does not allow you to share dashboards.": "Your administrator does not allow you to share dashboards.",
-        "Public links are switched off.": "Public links are switched off."
+        "Public links are switched off.": "Public links are switched off.",
+        "Clean up": "Clean up",
+        "Dashboards of people who left go to": "Dashboards of people who left go to",
+        "Their manager": "Their manager",
+        "Otherwise": "Otherwise",
+        "A person": "A person",
+        "Search for a person": "Search for a person",
+        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay."
     }
 }

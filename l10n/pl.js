@@ -1679,7 +1679,14 @@ OC.L10N.register(
     "Only for people who may share dashboards. A link always has an expiry date." : "Tylko dla osób, które mogą udostępniać pulpity. Link zawsze ma datę wygaśnięcia.",
     "Expiry date (required)" : "Data wygaśnięcia (wymagana)",
     "Your administrator does not allow you to share dashboards." : "Administrator nie pozwala ci udostępniać pulpitów.",
-    "Public links are switched off." : "Linki publiczne są wyłączone."
+    "Public links are switched off." : "Linki publiczne są wyłączone.",
+    "Clean up" : "Porządki",
+    "Dashboards of people who left go to" : "Pulpity osób, które odeszły, trafiają do",
+    "Their manager" : "Ich przełożonego",
+    "Otherwise" : "W przeciwnym razie",
+    "A person" : "Osoba",
+    "Search for a person" : "Szukaj osoby",
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Bez wyboru pulpit trafia do kogoś z pełnymi uprawnieniami do niego albo zostaje usunięty. Udostępnienia pozostają."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

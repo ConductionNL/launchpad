@@ -268,17 +268,22 @@ export default {
 		},
 
 		/**
-		 * "Sharing allowed for" changed (REQ-SHARE-015); the group list stays
-		 * stored so choosing Only these groups again brings it back.
+		 * "Sharing allowed for" changed (REQ-SHARE-015). Only Nobody is stored
+		 * as an override; Everyone clears the group list, which is what lets
+		 * everyone share (REQ-SHARE-014), and Only these groups uses it.
 		 *
 		 * @param {string} value `everyone`, `groups` or `none`.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 		 */
 		async onAllowedChange(value) {
 			this.sharingAllowed = value
 			try {
 				await api.updateSharingPolicy({ sharingAllowed: value })
+				if (value === 'everyone' && this.allowedGroups.length > 0) {
+					this.allowedGroups = []
+					await this.saveLimits()
+				}
 			} catch (error) {
 				logger.error('Failed to save who may share:', error)
 			}
@@ -289,7 +294,7 @@ export default {
 		 *
 		 * @param {boolean} value Whether public links may be created.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 		 */
 		async onPublicLinksChange(value) {
 			this.publicLinksAllowed = value === true

@@ -990,7 +990,7 @@ export default {
 		 * What the Sharing tab may offer the viewer (REQ-SHARE-015).
 		 *
 		 * @return {{mayShare: boolean, publicLinksAllowed: boolean}}
-		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 		 */
 		sharingPolicy() {
 			return readSharingPolicy()
@@ -1001,7 +1001,7 @@ export default {
 		 * public links are on (REQ-SHARE-015). Existing links stay listed.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 		 */
 		canCreatePublicLink() {
 			return this.sharingPolicy.mayShare && this.sharingPolicy.publicLinksAllowed
@@ -1322,7 +1322,7 @@ export default {
 		 * Mint a new public link, optionally password-protected and/or expiring.
 		 *
 		 * @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
-		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 		 */
 		async onCreatePublicShare() {
 			// REQ-SHARE-015: the server refuses a link without an expiry date.

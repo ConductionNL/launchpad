@@ -1679,7 +1679,14 @@ OC.L10N.register(
     "Only for people who may share dashboards. A link always has an expiry date." : "Tik tiems, kam leidžiama bendrinti skydelius. Nuoroda visada turi galiojimo pabaigos datą.",
     "Expiry date (required)" : "Galiojimo pabaigos data (privaloma)",
     "Your administrator does not allow you to share dashboards." : "Jūsų administratorius neleidžia jums bendrinti skydelių.",
-    "Public links are switched off." : "Viešos nuorodos išjungtos."
+    "Public links are switched off." : "Viešos nuorodos išjungtos.",
+    "Clean up" : "Tvarkymas",
+    "Dashboards of people who left go to" : "Išėjusiųjų skydeliai atitenka",
+    "Their manager" : "Jų vadovui",
+    "Otherwise" : "Kitu atveju",
+    "A person" : "Asmuo",
+    "Search for a person" : "Ieškoti asmens",
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Nepasirinkus skydelis atitenka asmeniui, turinčiam visas teises į jį, arba ištrinamas. Bendrinimai lieka."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

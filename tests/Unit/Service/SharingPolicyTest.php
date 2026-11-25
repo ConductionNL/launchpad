@@ -9,7 +9,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md
+ * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md
  */
 
 declare(strict_types=1);
@@ -120,18 +120,21 @@ class SharingPolicyTest extends TestCase {
 	}//end testNobodyMayShareButAnAdministrator()
 
 	/**
-	 * Everyone, chosen while groups are still stored, lets everyone share.
+	 * Only Nobody overrides the group list; a stored Everyone or Only these
+	 * groups follows it, so the REQ-SHARE-014 setting keeps working alone.
 	 *
 	 * @return void
 	 */
-	public function testEveryoneIgnoresAStoredGroupList(): void {
+	public function testOnlyNobodyOverridesTheGroupList(): void {
 		$this->stored = ['sharing_allowed' => 'everyone', 'sharing_allowed_groups' => ['communicatie']];
-		$this->assertTrue(condition: $this->limits()->mayShare(userId: 'pieter'));
-
-		$this->stored = ['sharing_allowed' => 'groups', 'sharing_allowed_groups' => ['communicatie']];
+		$this->assertSame(expected: 'groups', actual: $this->limits()->allowedMode());
 		$this->assertFalse(condition: $this->limits()->mayShare(userId: 'pieter'));
 		$this->assertTrue(condition: $this->limits()->mayShare(userId: 'noor'));
-	}//end testEveryoneIgnoresAStoredGroupList()
+
+		$this->stored = ['sharing_allowed' => 'groups', 'sharing_allowed_groups' => []];
+		$this->assertSame(expected: 'everyone', actual: $this->limits()->allowedMode());
+		$this->assertTrue(condition: $this->limits()->mayShare(userId: 'pieter'));
+	}//end testOnlyNobodyOverridesTheGroupList()
 
 	/**
 	 * Public links are on unless switched off.

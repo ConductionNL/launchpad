@@ -1679,7 +1679,14 @@ OC.L10N.register(
     "Only for people who may share dashboards. A link always has an expiry date." : "Vain niille, jotka saavat jakaa koontinäyttöjä. Linkillä on aina vanhenemispäivä.",
     "Expiry date (required)" : "Vanhenemispäivä (pakollinen)",
     "Your administrator does not allow you to share dashboards." : "Ylläpitäjäsi ei salli sinun jakaa koontinäyttöjä.",
-    "Public links are switched off." : "Julkiset linkit on poistettu käytöstä."
+    "Public links are switched off." : "Julkiset linkit on poistettu käytöstä.",
+    "Clean up" : "Siivous",
+    "Dashboards of people who left go to" : "Lähteneiden koontinäytöt siirtyvät",
+    "Their manager" : "Heidän esihenkilölleen",
+    "Otherwise" : "Muuten",
+    "A person" : "Henkilö",
+    "Search for a person" : "Etsi henkilöä",
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Ilman valintaa koontinäyttö siirtyy jollekulle, jolla on siihen täydet oikeudet, tai se poistetaan. Jaot säilyvät."
 },
 "nplurals=2; plural=(n != 1);"
 );

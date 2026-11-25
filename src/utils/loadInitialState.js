@@ -169,7 +169,7 @@ let dashboardFirstLoadTaken = false
  * server refuses what the policy does not allow.
  *
  * @return {{mayShare: boolean, publicLinksAllowed: boolean}} The policy.
- * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+ * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
  */
 export function readSharingPolicy() {
 	const policy = readKey('sharingPolicy', null)

@@ -5,8 +5,8 @@
  * Administrators can stop sharing and limit public links (dashboard-sharing
  * REQ-SHARE-015, board LpBeheerDelen), through the HTTP contract:
  * `PUT /api/admin/sharing-policy` sets the policy, the share and public-link
- * create routes enforce it. The Sharing-tab half (no add under Nobody, no
- * public link block when off) follows with the workspace initial state.
+ * create routes enforce it, and Pieter's Sharing tab offers what the policy
+ * allows (the workspace initial state carries it).
  *
  * The policy is read first and restored in afterAll.
  *
@@ -17,15 +17,20 @@
  *   @e2e dashboard-sharing::nobody-may-share
  *   @e2e dashboard-sharing::a-public-link-needs-an-expiry-date
  *   @e2e dashboard-sharing::public-links-off
+ *   @e2e dashboard-sharing::pieter-leaves
+ *   @e2e dashboard-sharing::no-manager
  *
- * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md
+ * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md
  */
 
-import type { APIRequestContext } from '@playwright/test'
+import type { APIRequestContext, Browser } from '@playwright/test'
 import type { Principal } from './support/principals.ts'
 
 import { expect, request, test } from '@playwright/test'
+import { loginAs } from './fixtures/secondary-user.ts'
+import { visibleDashboards } from './support/adminTemplates.ts'
 import { BASE_URL } from './support/baseUrl.ts'
+import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	allowPersonalDashboards,
@@ -148,4 +153,106 @@ test('with public links off no link is created, and a link made before keeps wor
 	const data = await anon.get(`/index.php/apps/launchpad/s/${token}/data`)
 	expect(data.status(), 'the earlier link still opens').toBe(200)
 	await anon.dispose()
+})
+
+/** Make `boss` the manager of `who` through the provisioning API. */
+async function setManager(who: Principal, boss: Principal): Promise<void> {
+	const res = await admin.put(`/ocs/v1.php/cloud/users/${encodeURIComponent(who.username)}`, {
+		form: { key: 'manager', value: boss.username },
+		headers: { 'OCS-APIRequest': 'true' },
+	})
+	expect(res.ok(), `setting the manager answered ${res.status()}`).toBe(true)
+}
+
+/** A dashboard of `who` named `name`; answers its uuid. */
+async function ownDashboard(who: Principal, name: string): Promise<string> {
+	const res = await who.api.post(`${API}/dashboard`, { data: { name } })
+	expect(res.status(), await res.text()).toBeLessThan(300)
+	return String((await res.json()).dashboard.uuid)
+}
+
+/**
+ * The uuids of the dashboards `who` can see; the leaver's dashboards were not
+ * shared, so seeing one means owning it.
+ */
+async function visibleUuids(who: Principal): Promise<string[]> {
+	return (await visibleDashboards(who.api)).map((row) => String(row.uuid))
+}
+
+// @e2e dashboard-sharing::pieter-leaves
+// @e2e dashboard-sharing::no-manager
+test('a leaver\'s dashboard goes to their manager, otherwise to the named person', async () => {
+	const marieke = await createPrincipal(admin, 'e2e-policy-marieke')
+	const femke = await createPrincipal(admin, 'e2e-policy-femke')
+	const leaver = await createPrincipal(admin, 'e2e-policy-leaver')
+	const sanne = await createPrincipal(admin, 'e2e-policy-sanne')
+	try {
+		await setManager(leaver, marieke)
+		const leaverBoard = await ownDashboard(leaver, `E2E Leaver ${RUN}`)
+		const sanneBoard = await ownDashboard(sanne, `E2E No manager ${RUN}`)
+		const set = await admin.put(`${API}/admin/leaver-handover`, {
+			data: { manager: true, fallbackUid: femke.username },
+		})
+		expect(set.status(), await set.text()).toBe(200)
+
+		await removePrincipal(admin, leaver)
+		await removePrincipal(admin, sanne)
+
+		expect(await visibleUuids(marieke)).toContain(leaverBoard)
+		expect(await visibleUuids(femke)).toContain(sanneBoard)
+	} finally {
+		await admin.put(`${API}/admin/leaver-handover`, {
+			data: { manager: false, fallbackUid: '' },
+		})
+		await removePrincipal(admin, marieke)
+		await removePrincipal(admin, femke)
+	}
+})
+
+/**
+ * Log in as Pieter and open the Sharing tab of his dashboard through the
+ * switcher row's cog, the way dashboard-sharing-limits.spec.ts does it.
+ */
+async function openPieterSharingTab(browser: Browser, name: string) {
+	const { context, page } = await loginAs(browser, pieter!.username, pieter!.password)
+	await page.goto('/index.php/apps/launchpad')
+	await openDashboardSwitcher(page)
+	const row = page
+		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
+		.and(page.locator(`[aria-label="${name}"]`))
+		.first()
+	await row.locator('.dashboard-row-actions button').first().click()
+	await page.locator('[data-testid="cog-dashboard-config"]').click()
+	await page.locator('[data-testid="dashboard-name-input"]').waitFor({ state: 'visible', timeout: 8_000 })
+	await page.locator('[data-test="config-tab-sharing"]').click()
+	const panel = page.locator('[data-test="config-panel-sharing"]')
+	await expect(panel).toBeVisible({ timeout: 5_000 })
+	return { context, panel }
+}
+
+// @e2e dashboard-sharing::nobody-may-share
+test('with Nobody the Sharing tab offers no add and no public link; with links off no new link', async ({ browser }) => {
+	test.setTimeout(120_000)
+	const name = `E2E Sharing policy ${RUN}`
+
+	await setPolicy({ sharingAllowed: 'none', publicLinksAllowed: true })
+	const nobody = await openPieterSharingTab(browser, name)
+	try {
+		await expect(nobody.panel.locator('[data-test="share-not-allowed-hint"]')).toBeVisible()
+		await expect(nobody.panel.getByLabel(/share with users and groups/i)).toHaveCount(0)
+		await expect(nobody.panel.locator('[data-test="public-share-create"]')).toHaveCount(0)
+	} finally {
+		await nobody.context.close()
+	}
+
+	await setPolicy({ sharingAllowed: 'everyone', publicLinksAllowed: false })
+	const off = await openPieterSharingTab(browser, name)
+	try {
+		await expect(off.panel.locator('[data-test="share-not-allowed-hint"]')).toHaveCount(0)
+		await expect(off.panel.locator('[data-test="public-share-off-hint"]')).toBeVisible()
+		await expect(off.panel.locator('[data-test="public-share-create"]')).toHaveCount(0)
+	} finally {
+		await off.context.close()
+		await setPolicy({ publicLinksAllowed: true })
+	}
 })

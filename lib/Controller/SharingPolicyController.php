@@ -17,7 +17,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md
+ * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md
  */
 
 declare(strict_types=1);
@@ -36,7 +36,7 @@ use OCP\IRequest;
 /**
  * Sets the sharing policy. Read back through GET /api/admin/settings.
  *
- * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+ * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
  */
 class SharingPolicyController extends Controller {
 	/**
@@ -46,7 +46,7 @@ class SharingPolicyController extends Controller {
 	 * @param AdminSettingsService $settings       Stores the two settings.
 	 * @param ResponseHelper       $responseHelper Builds the JSON response envelopes.
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function __construct(
 		IRequest $request,
@@ -66,7 +66,7 @@ class SharingPolicyController extends Controller {
 	 *
 	 * @return JSONResponse The update confirmation, or 400 for an unknown choice.
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function update(
@@ -85,4 +85,28 @@ class SharingPolicyController extends Controller {
 			return $this->responseHelper->error(exception: $e);
 		}
 	}//end update()
+
+	/**
+	 * Set where a leaver's dashboards go (REQ-SHARE-016): their manager or
+	 * not, and the person otherwise ('' for nobody).
+	 *
+	 * @param bool|null $manager     Whether a leaver's manager comes first; null reads as no.
+	 * @param string    $fallbackUid The person otherwise; '' for nobody.
+	 *
+	 * @return JSONResponse The update confirmation.
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function updateLeaverHandover(?bool $manager = null, string $fallbackUid = ''): JSONResponse {
+		try {
+			$this->settings->updateSettings(
+				settings: ['leaverHandover' => ['manager' => $manager === true, 'fallbackUid' => $fallbackUid]]
+			);
+
+			return $this->responseHelper->success(data: ['status' => 'ok']);
+		} catch (\Exception $e) {
+			return $this->responseHelper->error(exception: $e);
+		}
+	}//end updateLeaverHandover()
 }//end class

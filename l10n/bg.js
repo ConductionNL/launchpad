@@ -1679,7 +1679,14 @@ OC.L10N.register(
     "Only for people who may share dashboards. A link always has an expiry date." : "Само за хората, които могат да споделят табла. Връзката винаги има дата на изтичане.",
     "Expiry date (required)" : "Дата на изтичане (задължителна)",
     "Your administrator does not allow you to share dashboards." : "Администраторът ви не ви позволява да споделяте табла.",
-    "Public links are switched off." : "Публичните връзки са изключени."
+    "Public links are switched off." : "Публичните връзки са изключени.",
+    "Clean up" : "Почистване",
+    "Dashboards of people who left go to" : "Таблата на напусналите отиват при",
+    "Their manager" : "Техния ръководител",
+    "Otherwise" : "Иначе",
+    "A person" : "Лице",
+    "Search for a person" : "Търсене на лице",
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Без избор таблото отива при някой с пълни права върху него или се изтрива. Споделянията остават."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1579,6 +1579,13 @@
         "Only for people who may share dashboards. A link always has an expiry date.": "Aðeins fyrir þá sem mega deila stjórnborðum. Tengill hefur alltaf gildistíma.",
         "Expiry date (required)": "Gildistími (áskilinn)",
         "Your administrator does not allow you to share dashboards.": "Stjórnandinn þinn leyfir þér ekki að deila stjórnborðum.",
-        "Public links are switched off.": "Slökkt er á opinberum tenglum."
+        "Public links are switched off.": "Slökkt er á opinberum tenglum.",
+        "Clean up": "Tiltekt",
+        "Dashboards of people who left go to": "Stjórnborð þeirra sem hætt hafa fara til",
+        "Their manager": "Yfirmanns þeirra",
+        "Otherwise": "Annars",
+        "A person": "Manneskja",
+        "Search for a person": "Leita að manneskju",
+        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Án vals fer stjórnborð til einhvers með full réttindi á því, eða því er eytt. Deilingar haldast."
     }
 }

@@ -6,7 +6,7 @@
  * Everyone, Only these groups or Nobody, and the public-link switch
  * (dashboard-sharing REQ-SHARE-015, board LpBeheerDelen).
  *
- * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+ * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
  */
 
 import { flushPromises, mount } from '@vue/test-utils'
@@ -101,5 +101,16 @@ describe('DashboardSharingPolicy (REQ-SHARE-015)', () => {
 
 		expect(updateSharingPolicy).toHaveBeenCalledWith({ publicLinksAllowed: false })
 		expect(wrapper.vm.publicLinksAllowed).toBe(false)
+	})
+
+	it('choosing Everyone clears the group list, the setting that lets everyone share', async () => {
+		const wrapper = await mountPolicy({ sharingAllowed: 'groups', sharingAllowedGroups: ['sales'] })
+
+		await wrapper.find('[data-test="sharing-policy-allowed-choice-everyone"]').trigger('click')
+		await flushPromises()
+
+		expect(updateSharingPolicy).toHaveBeenCalledWith({ sharingAllowed: 'everyone' })
+		expect(updateAdminSettings).toHaveBeenCalledWith(expect.objectContaining({ sharingAllowedGroups: [] }))
+		expect(wrapper.vm.allowedGroups).toEqual([])
 	})
 })

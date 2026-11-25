@@ -98,7 +98,7 @@ class PublicShareController extends Controller {
 	 * @openapi-stability public
 	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	#[NoAdminRequired]
 	public function create(

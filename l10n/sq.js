@@ -1679,7 +1679,14 @@ OC.L10N.register(
     "Only for people who may share dashboards. A link always has an expiry date." : "Vetëm për ata që mund të ndajnë panele. Një lidhje ka gjithmonë datë skadimi.",
     "Expiry date (required)" : "Data e skadimit (e detyrueshme)",
     "Your administrator does not allow you to share dashboards." : "Administratori juaj nuk ju lejon të ndani panele.",
-    "Public links are switched off." : "Lidhjet publike janë të çaktivizuara."
+    "Public links are switched off." : "Lidhjet publike janë të çaktivizuara.",
+    "Clean up" : "Pastrim",
+    "Dashboards of people who left go to" : "Panelet e atyre që u larguan shkojnë te",
+    "Their manager" : "Menaxheri i tyre",
+    "Otherwise" : "Përndryshe",
+    "A person" : "Një person",
+    "Search for a person" : "Kërko një person",
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Pa zgjedhje, paneli shkon te dikush me të drejta të plota mbi të, ose fshihet. Ndarjet mbeten."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -37,6 +37,7 @@ use OCA\LaunchPad\Listener\PublicSharesListener;
 use OCA\LaunchPad\Listener\ReactionsListener;
 use OCA\LaunchPad\Listener\TranslationsListener;
 use OCA\LaunchPad\Listener\TreeListener;
+use OCA\LaunchPad\Listener\LeaverHandoverListener;
 use OCA\LaunchPad\Listener\UserDeletedListener;
 use OCA\LaunchPad\Listener\VersionsListener;
 use OCA\LaunchPad\Listener\ViewAnalyticsListener;
@@ -59,6 +60,7 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\AppFramework\Http\Events\BeforeLoginTemplateRenderedEvent;
 use OCP\Group\Events\GroupDeletedEvent;
 use OCP\Security\CSP\AddContentSecurityPolicyEvent;
+use OCP\User\Events\BeforeUserDeletedEvent;
 use OCP\User\Events\UserDeletedEvent;
 use OCP\User\Events\UserLoggedInEvent;
 
@@ -173,6 +175,13 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(
 			event: UserDeletedEvent::class,
 			listener: UserDeletedListener::class
+		);
+
+		// REQ-SHARE-016: before the account goes, hand the leaver's dashboards
+		// to their manager or the person the administrator named.
+		$context->registerEventListener(
+			event: BeforeUserDeletedEvent::class,
+			listener: LeaverHandoverListener::class
 		);
 
 		// Custom profile fields (REQ-PEX-001, REQ-PEX-004): LDAP sync and the

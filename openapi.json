@@ -2853,6 +2853,61 @@
                 }
             }
         },
+        "/admin/leaver-handover": {
+            "put": {
+                "operationId": "sharing-policy-update-leaver-handover",
+                "x-launchpad-stability": "internal",
+                "summary": "Set where a leaver's dashboards go (REQ-SHARE-016): their manager or not, and the person otherwise ('' for nobody)",
+                "description": "Set where a leaver's dashboards go (REQ-SHARE-016): their manager or not, and the person otherwise ('' for nobody). Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "sharing-policy"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "manager": {
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ],
+                                        "description": "Whether a leaver's manager comes first; null reads as no."
+                                    },
+                                    "fallbackUid": {
+                                        "type": "string",
+                                        "description": "The person otherwise; '' for nobody."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/admin/metadata-fields": {
             "get": {
                 "operationId": "metadata-admin-list-fields",

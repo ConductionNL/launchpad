@@ -1679,7 +1679,14 @@ OC.L10N.register(
     "Only for people who may share dashboards. A link always has an expiry date." : "Лише для тих, кому дозволено ділитися панелями. Посилання завжди має термін дії.",
     "Expiry date (required)" : "Термін дії (обов'язково)",
     "Your administrator does not allow you to share dashboards." : "Ваш адміністратор не дозволяє вам ділитися панелями.",
-    "Public links are switched off." : "Публічні посилання вимкнено."
+    "Public links are switched off." : "Публічні посилання вимкнено.",
+    "Clean up" : "Очищення",
+    "Dashboards of people who left go to" : "Панелі тих, хто пішов, переходять до",
+    "Their manager" : "Їхнього керівника",
+    "Otherwise" : "Інакше",
+    "A person" : "Особа",
+    "Search for a person" : "Знайти особу",
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Без вибору панель переходить до того, хто має на неї повні права, або видаляється. Спільні доступи залишаються."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

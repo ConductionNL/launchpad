@@ -1679,7 +1679,14 @@ OC.L10N.register(
     "Only for people who may share dashboards. A link always has an expiry date." : "Pouze pro ty, kdo smějí sdílet nástěnky. Odkaz má vždy datum vypršení.",
     "Expiry date (required)" : "Datum vypršení (povinné)",
     "Your administrator does not allow you to share dashboards." : "Správce vám nepovoluje sdílet nástěnky.",
-    "Public links are switched off." : "Veřejné odkazy jsou vypnuté."
+    "Public links are switched off." : "Veřejné odkazy jsou vypnuté.",
+    "Clean up" : "Úklid",
+    "Dashboards of people who left go to" : "Nástěnky lidí, kteří odešli, připadnou",
+    "Their manager" : "Jejich nadřízenému",
+    "Otherwise" : "Jinak",
+    "A person" : "Osoba",
+    "Search for a person" : "Hledat osobu",
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Bez volby připadne nástěnka někomu s plnými právy k ní, nebo se smaže. Sdílení zůstávají."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

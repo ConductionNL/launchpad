@@ -23,7 +23,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/record-parity-requirements/specs/dashboard-sharing/spec.md
- * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md
+ * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md
  */
 
 declare(strict_types=1);
@@ -119,17 +119,18 @@ class SharingLimits {
 	/**
 	 * Who may share: everyone, the allowed groups, or nobody but an administrator.
 	 *
-	 * Without a stored choice it follows the group list, as before the choice
-	 * existed: groups set means `groups`, none set means `everyone`.
+	 * Only Nobody is stored as an override; otherwise the mode follows the
+	 * group list (REQ-SHARE-014): groups set means `groups`, none set means
+	 * `everyone`. So the group setting keeps working on its own.
 	 *
 	 * @return string One of ALLOWED_MODES.
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function allowedMode(): string {
 		$stored = $this->settings->getValue(key: AdminSettingKey::SHARING_ALLOWED->value, default: null);
-		if (in_array($stored, self::ALLOWED_MODES, true) === true) {
-			return $stored;
+		if ($stored === self::ALLOWED_NONE) {
+			return self::ALLOWED_NONE;
 		}
 
 		if ($this->allowedGroups() === []) {
@@ -144,7 +145,7 @@ class SharingLimits {
 	 *
 	 * @return bool False only for a stored `false`.
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function publicLinksAllowed(): bool {
 		return $this->settings->getValue(key: AdminSettingKey::PUBLIC_LINKS_ALLOWED->value, default: true) !== false;
@@ -179,7 +180,7 @@ class SharingLimits {
 	 * @return bool True when the user may share.
 	 *
 	 * @spec openspec/changes/record-parity-requirements/specs/dashboard-sharing/spec.md#requirement-administrators-decide-who-may-share-and-with-whom-req-share-014
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function mayShare(string $userId): bool {
 		$mode = $this->allowedMode();
@@ -187,12 +188,11 @@ class SharingLimits {
 			return in_array(self::ADMIN_GROUP, $this->groupsOf(userId: $userId), true);
 		}
 
-		$allowed = $this->allowedGroups();
-		if ($mode === self::ALLOWED_EVERYONE || $allowed === []) {
+		if ($mode === self::ALLOWED_EVERYONE) {
 			return true;
 		}
 
-		return array_intersect($allowed, $this->groupsOf(userId: $userId)) !== [];
+		return array_intersect($this->allowedGroups(), $this->groupsOf(userId: $userId)) !== [];
 	}//end mayShare()
 
 	/**
@@ -257,7 +257,7 @@ class SharingLimits {
 	 * @throws OCSForbiddenException    When public links are off or the caller may not share (403).
 	 * @throws InvalidArgumentException When the link has no expiry date (400).
 	 *
-	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function assertMayCreatePublicLink(string $callerId, ?string $expiresAt): void {
 		if ($this->publicLinksAllowed() === false) {

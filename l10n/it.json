@@ -1579,6 +1579,13 @@
         "Only for people who may share dashboards. A link always has an expiry date.": "Solo per chi può condividere le dashboard. Un link ha sempre una data di scadenza.",
         "Expiry date (required)": "Data di scadenza (obbligatoria)",
         "Your administrator does not allow you to share dashboards.": "L'amministratore non ti consente di condividere le dashboard.",
-        "Public links are switched off.": "I link pubblici sono disattivati."
+        "Public links are switched off.": "I link pubblici sono disattivati.",
+        "Clean up": "Pulizia",
+        "Dashboards of people who left go to": "Le dashboard di chi è uscito vanno a",
+        "Their manager": "Il loro responsabile",
+        "Otherwise": "Altrimenti",
+        "A person": "Una persona",
+        "Search for a person": "Cerca una persona",
+        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Senza scelta, una dashboard va a chi ha tutti i diritti su di essa, oppure viene eliminata. Le condivisioni restano."
     }
 }

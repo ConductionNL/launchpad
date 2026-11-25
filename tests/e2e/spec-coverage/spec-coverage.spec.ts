@@ -106,8 +106,9 @@ async function openSidebar(page: any) {
 }
 
 // Open the Add-Widget modal via the per-row cog ("Dashboard menu") on the
-// first personal dashboard row, then wait for the dialog to be visible.
-async function openAddWidgetModal(page: any) {
+// first personal dashboard row, pick the widget type in the picker, then
+// wait for the dialog to be visible.
+async function openAddWidgetModal(page: any, type = 'label') {
 	// Ensure the sidebar is open.
 	const sidebarOpen = await page
 		.locator('.dashboard-switcher-sidebar.open')
@@ -632,7 +633,12 @@ test.describe('label widget – additional scenarios', () => {
 	})
 
 	// @e2e label-widget::centred-in-cell-with-padding
-	test('label widget content is centred inside the grid cell', async ({
+	// The board LpStart draws a label on the workspace as a section heading
+	// at the left edge, on the bottom of its cell (src/styles/workspace.css,
+	// "A section label reads as a heading at the left edge"), so the
+	// workspace overrides the library's centred wrapper and the label fills
+	// its cell without the library's padding.
+	test('label widget content sits at the left edge and bottom of its grid cell, as the board draws it', async ({
 		page,
 	}) => {
 		await openAddWidgetModal(page)
@@ -655,14 +661,19 @@ test.describe('label widget – additional scenarios', () => {
 			.locator('.cn-label-widget')
 			.filter({ hasText: `${TS}-centred` })
 		await expect(placement).toBeVisible({ timeout: 8_000 })
-		const hasCenter = await placement.evaluate((el) => {
+		const box = await placement.evaluate((el) => {
 			const cs = window.getComputedStyle(el)
-			return (
-				cs.textAlign === 'center'
-				|| cs.justifyContent === 'center'
-				|| cs.alignItems === 'center'
-			)
+			return {
+				display: cs.display,
+				justifyContent: cs.justifyContent,
+				alignItems: cs.alignItems,
+				height: cs.height,
+				parentHeight: window.getComputedStyle(el.parentElement as Element).height,
+			}
 		})
-		expect(hasCenter).toBe(true)
+		expect(box.display).toBe('flex')
+		expect(box.justifyContent).toBe('flex-start')
+		expect(box.alignItems).toBe('flex-end')
+		expect(box.height, 'the label fills its cell').toBe(box.parentHeight)
 	})
 })

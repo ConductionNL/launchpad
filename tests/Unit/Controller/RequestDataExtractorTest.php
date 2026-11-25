@@ -63,7 +63,10 @@ class RequestDataExtractorTest extends TestCase {
 			actual: RequestDataExtractor::extractTileData($this->request(params: []))
 		);
 		$this->assertSame(
-			expected: ['title', 'icon', 'iconType', 'bgColor', 'textColor', 'linkType', 'linkValue', 'linkTarget', 'gridX', 'gridY', 'gridWidth', 'gridHeight'],
+			expected: [
+				'title', 'icon', 'iconType', 'bgColor', 'textColor', 'linkType', 'linkValue', 'linkTarget',
+				'gridX', 'gridY', 'gridWidth', 'gridHeight',
+			],
 			actual: $this->asked
 		);
 	}
@@ -93,6 +96,8 @@ class RequestDataExtractorTest extends TestCase {
 	/**
 	 * A tile keeps the size its caller asks for (REQ-WDG-042: one cell from the picker).
 	 *
+	 * @return void
+	 *
 	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
 	 */
 	public function testTileDataKeepsAGivenSize(): void {
@@ -103,6 +108,8 @@ class RequestDataExtractorTest extends TestCase {
 
 	/**
 	 * A missing, zero, negative or non-numeric size is left out, so the placement keeps its default.
+	 *
+	 * @return void
 	 *
 	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
 	 */

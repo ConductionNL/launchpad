@@ -449,14 +449,12 @@ Concurrent admin settings updates MUST be handled safely.
 The settings API MUST return consistent error responses for various failure scenarios.
 
 #### Scenario: Database connection failure during settings retrieval
-@e2e exclude needs the database taken down under a running instance shared by the suite. No PHPUnit or Newman test pins it (AdminController::getSettings() has no try/catch).
 - GIVEN the database is temporarily unavailable
 - WHEN the admin sends GET /api/admin/settings
 - THEN the system MUST return HTTP 500 with an error message
 - AND the error MUST NOT expose internal database details
 
 #### Scenario: Database connection failure during settings update
-@e2e exclude needs the database taken down under a running instance shared by the suite. No PHPUnit or Newman test pins it.
 - GIVEN the database is temporarily unavailable
 - WHEN the admin sends PUT /api/admin/settings with valid data
 - THEN the system MUST return HTTP 500 with an error message

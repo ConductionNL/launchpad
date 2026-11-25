@@ -92,7 +92,7 @@ class StoreController extends Controller {
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-004-installing-must-require-an-administrator
 	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
-	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
 	 */
 	#[NoAdminRequired]
 	public function search(): JSONResponse {
@@ -115,6 +115,9 @@ class StoreController extends Controller {
 				'cards' => ($this->installs?->annotate(cards: $result['cards']) ?? $result['cards']),
 				'kinds' => [],
 				'builtIn' => [],
+				// REQ-STORE-010: the register banner (name and address, never the token).
+				'registry' => $this->storeService->registryBanner(),
+				'checkedAt' => ($result['checkedAt'] ?? null),
 			],
 			statusCode: Http::STATUS_OK
 		);
@@ -188,13 +191,15 @@ class StoreController extends Controller {
 	 * @return JSONResponse 200 with the redacted connection.
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-007-the-registry-token-must-not-be-readable-back
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateConfig(): JSONResponse {
 		$this->storeService->updateRegistryConfig(
 			registryUrl: $this->stringParam(name: 'registryUrl'),
 			registryToken: $this->stringParam(name: 'registryToken'),
-			registryRegister: $this->stringParam(name: 'registryRegister')
+			registryRegister: $this->stringParam(name: 'registryRegister'),
+			registryName: $this->stringParam(name: 'registryName')
 		);
 
 		return new JSONResponse(

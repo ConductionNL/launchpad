@@ -435,6 +435,7 @@
 			v-if="mountedModals.tileEditor"
 			:open="isTileEditorOpen"
 			:tile="editingTile"
+			:dashboardName="(activeDashboard && activeDashboard.name) || ''"
 			@close="closeTileEditor"
 			@save="saveTile"
 			@delete="deleteTile" />

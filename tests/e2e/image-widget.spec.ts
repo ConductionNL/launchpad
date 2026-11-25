@@ -89,7 +89,11 @@ async function openImageForm(page: Page) {
  */
 async function addUrlImage(page: Page, link: string) {
 	const dialog = await openImageForm(page)
+	// The drawn form (REQ-IMG-020) asks where the image comes from first, and
+	// requires a text for who does not see it.
+	await dialog.getByText('Web address', { exact: true }).click()
 	await dialog.getByLabel(/image url/i).fill(LOGO)
+	await dialog.getByLabel(/text for who does not see the image/i).fill('Nextcloud logo')
 	if (link !== '') {
 		await dialog.getByLabel(/link \(optional\)/i).fill(link)
 	}
@@ -120,19 +124,18 @@ test.describe('image widget', () => {
 	}) => {
 		const dialog = await openImageForm(page)
 
-		// The form moved to nc-vue's CnImageWidgetForm, which replaced the old
-		// URL/Upload radio pair with a single always-present file <label> that
-		// wraps a hidden input, and DEFERS the upload to commit() so a
-		// cancelled dialog never writes an orphaned file. Set the file on the
-		// input directly rather than driving a source toggle that no longer
-		// exists.
+		// The drawn form (REQ-IMG-020) opens on Upload file and DEFERS the
+		// upload to commit(), so a cancelled dialog never writes an orphaned
+		// file. Set the file on its input and give the required text for who
+		// does not see the image.
 		await dialog
-			.locator('.cn-image-widget-form__file-input')
+			.getByTestId('image-file-input')
 			.setInputFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
+		await dialog.getByLabel(/text for who does not see the image/i).fill('A tiny image')
 
 		// Before save the preview is a local object-URL (nothing uploaded yet);
 		// assert the preview renders so "upload → preview" is still covered.
-		await expect(dialog.locator('.cn-image-widget-form__preview')).toBeAttached({
+		await expect(dialog.getByTestId('image-chosen').locator('img')).toBeAttached({
 			timeout: 15_000,
 		})
 
@@ -246,9 +249,10 @@ test.describe('image widget', () => {
 
 		const dialog = await openImageForm(page)
 		await dialog
-			.locator('.cn-image-widget-form__file-input')
+			.getByTestId('image-file-input')
 			.setInputFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
-		await expect(dialog.locator('.cn-image-widget-form__preview')).toBeAttached({
+		await dialog.getByLabel(/text for who does not see the image/i).fill('A tiny image')
+		await expect(dialog.getByTestId('image-chosen').locator('img')).toBeAttached({
 			timeout: 15_000,
 		})
 
@@ -263,7 +267,7 @@ test.describe('image widget', () => {
 		//    so the translated fallback the spec names is unreachable on this
 		//    path. The divergence is reported, not asserted away: what is
 		//    asserted here is that an error is shown at all.
-		await expect(dialog.locator('.cn-image-widget-form__error')).toBeVisible({
+		await expect(dialog.locator('.image-widget-form__error')).toBeVisible({
 			timeout: 15_000,
 		})
 
@@ -271,7 +275,14 @@ test.describe('image widget', () => {
 		//    reaches updateField('url', …). The modal therefore stays open
 		//    with an empty URL rather than persisting a broken placement.
 		await expect(dialog).toBeVisible()
-		await expect(dialog.getByLabel(/image url/i)).toHaveValue('')
+		const stored = await api.get(`/index.php/apps/launchpad/api/dashboard/${dashboard!.id}`)
+		expect(stored.status(), await stored.text()).toBe(200)
+		const body = await stored.json()
+		expect(
+			((body.placements ?? body.data?.placements ?? []) as Array<Record<string, unknown>>)
+				.filter((placement) => placement.widgetId === 'image' && !String((placement.content as Record<string, unknown> | undefined)?.url ?? '').startsWith('http')),
+			'no image placement with an uploaded file was stored',
+		).toHaveLength(0)
 	})
 
 	// @e2e image-widget::click-opens-link-in-new-tab

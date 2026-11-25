@@ -90,7 +90,10 @@ const FIELD_ORDER = [
 	/^Name$/,
 	/^Group$/,
 	/^Tile type$/,
-	/^Web address$/,
+	// Case system is an app with single sign-on: its own address fields are
+	// the sign-on template and the app id (REQ-TILE-040, decided 25 Nov).
+	/^Sign-on template$/,
+	/^App id$/,
 	/^Internal address/,
 	/^Open in$/,
 	/^Icon$/,
@@ -246,9 +249,8 @@ test('Edit tile on Case system shows the fields in board order, with App with si
 			const sameRow = Math.abs(a.y - b.y) < 4
 			expect(sameRow ? b.x > a.x : b.y > a.y, `${b.label} comes before ${a.label}`).toBe(true)
 		}
-		// Name and Group side by side; Web address and Internal address too.
+		// Name and Group side by side.
 		expect(Math.abs(boxes[0].y - boxes[1].y)).toBeLessThan(4)
-		expect(Math.abs(boxes[3].y - boxes[4].y)).toBeLessThan(4)
 
 		// Tile type: four choice cards, App with single sign-on chosen.
 		const type = form.getByRole('radiogroup', { name: 'Tile type' })
@@ -273,6 +275,14 @@ test('Edit tile on Case system shows the fields in board order, with App with si
 		expect(del.x).toBeLessThan(cancel.x)
 		expect(cancel.x).toBeLessThan(save.x)
 		expect(Math.abs(del.y - save.y)).toBeLessThan(8)
+
+		// A web-address tile shows Web address and Internal address side by
+		// side (not saved: the form is closed with the page).
+		await type.getByRole('radio', { name: /^Web address/ }).check({ force: true })
+		const web = (await form.getByRole('textbox', { name: 'Web address', exact: true }).boundingBox())!
+		const internal = (await form.getByRole('textbox', { name: 'Internal address (optional)' }).boundingBox())!
+		expect(Math.abs(web.y - internal.y)).toBeLessThan(4)
+		expect(web.x).toBeLessThan(internal.x)
 	} finally {
 		await context.close()
 	}

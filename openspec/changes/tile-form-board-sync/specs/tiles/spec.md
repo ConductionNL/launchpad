@@ -4,7 +4,7 @@
 
 ### Requirement: The tile form as LpTegelBewerken draws it (REQ-TILE-040)
 
-Editing a tile SHALL open one form, 640 px wide, titled "Edit tile: <name>" under "<group> · <dashboard>". It SHALL hold, in this order: Name and Group side by side; Tile type as four choice cards (Web address, App with single sign-on, Legacy Windows program, Program on this computer), each with one line of explanation; Web address and Internal address (optional) side by side; Open in as three choice cards (Same tab, New tab, In Launchpad, next to the tiles); Icon with "Upload another icon"; Colour; Sort order in this group; Check availability. Delete tile SHALL sit at the bottom left, Cancel and Save at the bottom right.
+Editing a tile SHALL open one form, 640 px wide, titled "Edit tile: <name>" under "<group> · <dashboard>". It SHALL hold, in this order: Name and Group side by side; Tile type as four choice cards (Web address, App with single sign-on, Legacy Windows program, Program on this computer), each with one line of explanation; the address fields of the chosen type (Web address for a web address, with Internal address (optional) beside it; Sign-on template and App id for an app with single sign-on, which has no web address of its own; the program fields for the other two types), then Internal address (optional) where the type has none beside it; Open in as three choice cards (Same tab, New tab, In Launchpad, next to the tiles); Icon with "Upload another icon"; Colour; Sort order in this group; Check availability. Delete tile SHALL sit at the bottom left, Cancel and Save at the bottom right.
 
 #### Scenario: Edit the case system tile
 

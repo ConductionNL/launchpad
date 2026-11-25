@@ -25,6 +25,13 @@ class InMemoryObjectService {
 	public array $objects = [];
 
 	/**
+	 * How each search named its register and schema: 'target' or 'named slugs'.
+	 *
+	 * @var list<string>
+	 */
+	public array $searchShapes = [];
+
+	/**
 	 * Every call, as "method register/schema".
 	 *
 	 * @var list<string>
@@ -106,8 +113,36 @@ class InMemoryObjectService {
 	 *
 	 * @return array<mixed>
 	 */
-	public function searchObjectsBySlug(string $registerSlug, string $schemaSlug, array $filters=[], bool $_rbac=true, bool $_multitenancy=true): array {
+	/**
+	 * Takes the slugs either way OpenRegister has taken them: one `target`
+	 * value (register, schema) or, in older releases, two named strings.
+	 *
+	 * @param object|null          $target        The register and schema, in the newer shape.
+	 * @param array<string, mixed> $filters       Field => value.
+	 * @param bool                 $_rbac         Unused.
+	 * @param bool                 $_multitenancy Unused.
+	 * @param string|null          $registerSlug  The register slug, in the older shape.
+	 * @param string|null          $schemaSlug    The schema slug, in the older shape.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function searchObjectsBySlug(
+		?object $target=null,
+		array $filters=[],
+		bool $_rbac=true,
+		bool $_multitenancy=true,
+		?string $registerSlug=null,
+		?string $schemaSlug=null
+	): array {
+		$shape = 'named slugs';
+		if ($target !== null) {
+			$shape = 'target';
+			$registerSlug = (string)$target->register;
+			$schemaSlug = (string)$target->schema;
+		}
+
 		$this->calls[] = 'search ' . $registerSlug . '/' . $schemaSlug;
+		$this->searchShapes[] = $shape;
 		$rows = [];
 		foreach ($this->objects[$registerSlug . '/' . $schemaSlug] ?? [] as $id => $object) {
 			foreach ($filters as $field => $value) {

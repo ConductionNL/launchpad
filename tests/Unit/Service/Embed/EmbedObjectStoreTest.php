@@ -84,6 +84,7 @@ class EmbedObjectStoreTest extends TestCase {
 
 		$this->assertSame([['status' => 'retiring', 'id' => 'obj-2']], $store->findBy(schema: 'signing_key', filters: ['status' => 'retiring']));
 		$this->assertCount(2, $store->findBy(schema: 'signing_key'));
+		$this->assertSame(expected: ['target', 'target'], actual: $this->objects->searchShapes);
 	}//end testFindByFiltersAndUnwrapsResults()
 
 	/**

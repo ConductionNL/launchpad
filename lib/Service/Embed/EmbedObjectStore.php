@@ -57,6 +57,12 @@ class EmbedObjectStore {
 	public const TOKENS = 'embed_token';
 
 	/**
+	 * The register and schema of a slug search, in OpenRegister releases whose
+	 * searchObjectsBySlug() takes them as one value. Absent in older releases.
+	 */
+	private const SLUGS_CLASS = 'OCA\\OpenRegister\\Contract\\RegisterSchemaSlugs';
+
+	/**
 	 * Tenant themes.
 	 *
 	 * @var string
@@ -158,13 +164,7 @@ class EmbedObjectStore {
 	 */
 	public function findBy(string $schema, array $filters=[]): array {
 		$service = $this->service(schema: $schema);
-		$rows    = $service->searchObjectsBySlug(
-			registerSlug: self::REGISTER,
-			schemaSlug: $schema,
-			filters: $filters,
-			_rbac: false,
-			_multitenancy: false
-		);
+		$rows    = $this->searchBySlug(service: $service, schema: $schema, filters: $filters);
 		if (is_array($rows) === false) {
 			return [];
 		}
@@ -183,6 +183,41 @@ class EmbedObjectStore {
 
 		return $objects;
 	}//end findBy()
+
+	/**
+	 * Search the launchpad register's schema as the system, in the shape the
+	 * installed OpenRegister takes: one RegisterSchemaSlugs value where it
+	 * exists, else the two slugs as named arguments.
+	 *
+	 * @param object               $service The OpenRegister object service.
+	 * @param string               $schema  The schema slug.
+	 * @param array<string, mixed> $filters Field => value.
+	 *
+	 * @return mixed The search answer.
+	 *
+	 * @psalm-suppress MixedMethodCall The object service is resolved from the container by name.
+	 *
+	 * @spec openspec/changes/embedded-analytics/tasks.md#task-2
+	 */
+	private function searchBySlug(object $service, string $schema, array $filters): mixed {
+		if (class_exists(self::SLUGS_CLASS) === true) {
+			$slugsClass = self::SLUGS_CLASS;
+			return $service->searchObjectsBySlug(
+				target: new $slugsClass(register: self::REGISTER, schema: $schema),
+				filters: $filters,
+				_rbac: false,
+				_multitenancy: false
+			);
+		}
+
+		return $service->searchObjectsBySlug(
+			registerSlug: self::REGISTER,
+			schemaSlug: $schema,
+			filters: $filters,
+			_rbac: false,
+			_multitenancy: false
+		);
+	}//end searchBySlug()
 
 	/**
 	 * Delete an object, as the system; false when there was nothing to delete.

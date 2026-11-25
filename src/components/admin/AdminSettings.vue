@@ -394,7 +394,7 @@
 		     the general settings and keeps running when the tab changes. -->
 		<CnWalkthrough
 			v-if="adminTourMounted"
-			appId="launchpad"
+			:appId="adminTourWalkthroughKey"
 			:manifest="adminTour"
 			:seenVersion="adminTourSeen"
 			:translate="translateTour"
@@ -437,7 +437,7 @@ import TileLaunchSettings from './TileLaunchSettings.vue'
 import manifest from '../../manifest.json'
 import { api } from '../../services/api.js'
 import { adminTab } from '../../utils/adminPage.js'
-import { adminTourManifest, loadAdminTourSeen, persistAdminTourSeen } from '../../utils/adminWalkthrough.js'
+import { ADMIN_TOUR_WALKTHROUGH_KEY, adminTourManifest, loadAdminTourSeen, persistAdminTourSeen } from '../../utils/adminWalkthrough.js'
 import { logger } from '../../utils/logger.js'
 
 export default {
@@ -547,6 +547,7 @@ export default {
 			// runtime-shell REQ-SHELL-011: the admin tour, its seen version
 			// (null until loaded) and whether it has been mounted.
 			adminTour: adminTourManifest(manifest),
+			adminTourWalkthroughKey: ADMIN_TOUR_WALKTHROUGH_KEY,
 			adminTourSeen: null,
 			adminTourMounted: false,
 		}

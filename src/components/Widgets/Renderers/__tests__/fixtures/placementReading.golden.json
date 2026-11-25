@@ -834,6 +834,15 @@
 				"color": "inherit"
 			}
 		},
+		".live-tile-widget--bordered": {
+			"scoped": true,
+			"props": {
+				"display": "block",
+				"padding": "8px",
+				"border": "1px solid var(--color-border-dark)",
+				"border-radius": "var(--border-radius-large)"
+			}
+		},
 		".live-tile-widget__badge": {
 			"scoped": true,
 			"props": {
@@ -1002,7 +1011,7 @@
 			"props": {
 				"font-size": "1.8rem",
 				"font-weight": "600",
-				"color": "var(--color-main-text)"
+				"color": "var(--live-tile-accent, var(--color-main-text))"
 			}
 		}
 	}

@@ -76,8 +76,6 @@ on a Nextcloud instance that has neither OR nor OC enabled.
 
 #### Scenario: appinfo.xml dependency check
 
-@e2e exclude reads a checked-in file (`appinfo/info.xml`) and has no runtime surface at all; nothing on a running instance can show what the file declares. The runtime consequence, LaunchPad enabling and running without OpenRegister or OpenConnector, is cited as `install-on-or-less-nextcloud` in `tests/e2e/or-absent.spec.ts`.
-
 - GIVEN `appinfo/info.xml`
 - WHEN reading `<dependencies>` and `<types>` blocks
 - THEN no `<dependencies><app>openregister</app>...</app>` or
@@ -86,8 +84,6 @@ on a Nextcloud instance that has neither OR nor OC enabled.
   required
 
 #### Scenario: Composer dependency check
-
-@e2e exclude reads a checked-in file (`composer.json`) and the PHP import graph, neither of which has a runtime surface. The runtime consequence, no LaunchPad class failing for want of an `OCA\OpenRegister` class, is asserted on an OR-less instance by `install-on-or-less-nextcloud` and by `runtime-or-consumption::fresh-install-without-or-boots-normally` (its log check) in `tests/e2e/or-absent.spec.ts`.
 
 - GIVEN `composer.json`
 - WHEN reading `require` and `require-dev`

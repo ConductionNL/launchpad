@@ -131,7 +131,8 @@ test('entered values draw a donut with its total and a graph with bars and a lin
 		await expect(charts).toHaveCount(2, { timeout: 30_000 })
 		const donut = page.locator('.apexcharts-canvas').filter({ has: page.locator('.apexcharts-pie') })
 		await expect(donut.locator('.apexcharts-pie-series path')).toHaveCount(4)
-		await expect(donut.locator('.apexcharts-datalabels-group')).toContainText('312')
+		// ApexCharts draws a second, empty data-labels group; the total sits in the one that has text.
+		await expect(donut.locator('.apexcharts-datalabels-group', { hasText: '312' })).toHaveCount(1)
 		await expect(donut.locator('.apexcharts-legend')).toContainText('In behandeling')
 
 		const graph = page.locator('.apexcharts-canvas').filter({ hasNot: page.locator('.apexcharts-pie') })

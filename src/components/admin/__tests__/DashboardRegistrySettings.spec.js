@@ -111,6 +111,18 @@ describe('DashboardRegistrySettings', () => {
 		)
 	})
 
+	// @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
+	it('fills and saves the register name the marketplace banner shows', async () => {
+		const wrapper = await mountWith({ ...STORED, registryName: 'VNG dashboardregister' })
+
+		expect(wrapper.find('[data-test="registry-name"]').element.value).toBe('VNG dashboardregister')
+		await wrapper.find('[data-test="registry-name"]').setValue('  Other register ')
+		await wrapper.find('form').trigger('submit')
+		await flushPromises()
+
+		expect(api.updateStoreConfig.mock.calls[0][0].registryName).toBe('Other register')
+	})
+
 	it('leaves the stored token alone when the field is empty on save', async () => {
 		const wrapper = await mountWith(STORED)
 

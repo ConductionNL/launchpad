@@ -345,7 +345,6 @@ Localisation MUST be performed via `IFactory::get('launchpad')` so the existing 
 - AND the link MUST resolve via `IURLGenerator::linkToRouteAbsolute('launchpad.page.index') . '?dashboard=' . <uuid of dashboard 5>`
 
 #### Scenario: Unknown subject throws
-@e2e exclude no HTTP route lets a caller publish a LaunchPad notification with an arbitrary subject — every notification subject in lib/ is chosen by the code, never by the caller — so `Notifier::prepare()` can never be handed `something_else` from a browser or the API, and an exception the notifications app swallows has no reader anyway. Pinned by NotifierTest::testUnknownAppAndSubjectAreRefused
 
 - GIVEN an `INotification` with `app='launchpad'`, `subject='something_else'`
 - WHEN the notifier prepares it

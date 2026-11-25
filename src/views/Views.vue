@@ -254,6 +254,7 @@
 				:columnOpts="dashboardColumnOpts"
 				cellHeightCssVar="--launchpad-cell-height"
 				:itemKey="placementItemKey"
+				:itemLabel="placementItemLabel"
 				@layoutChange="updatePlacements">
 				<template #widget="{ item }">
 					<!-- tile-quick-search. Dimming is REACTIVE: the `search`
@@ -366,6 +367,8 @@
 			:placedAppIds="placedDiscoveredAppIds"
 			:catalogueApps="catalogueApps"
 			:customTypes="customWidgetTypes"
+			:dashboardName="(activeDashboard && activeDashboard.name) || ''"
+			:allowedWidgets="pickerAllowedWidgets"
 			:requestAppFn="requestCatalogueApp"
 			@close="onWidgetPickerClose"
 			@add="addWidget"
@@ -434,6 +437,7 @@
 			v-if="mountedModals.tileEditor"
 			:open="isTileEditorOpen"
 			:tile="editingTile"
+			:dashboardName="(activeDashboard && activeDashboard.name) || ''"
 			@close="closeTileEditor"
 			@save="saveTile"
 			@delete="deleteTile" />
@@ -572,6 +576,7 @@ import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
 import { addressWithPeriod, namesPeriod, readPeriod } from '../utils/dashboardPeriod.js'
 import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
+import { gridItemLabel } from '../utils/gridItemLabel.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
@@ -1478,6 +1483,18 @@ export default {
 		},
 
 		/**
+		 * The widget ids the viewer's role may add, for the picker's grey
+		 * cards (REQ-RFP-010); `null` when the role sets no limit.
+		 *
+		 * @return {Array<string>|null}
+		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
+		 */
+		pickerAllowedWidgets() {
+			const allowed = loadInitialState('workspace').allowedWidgets
+			return Array.isArray(allowed) ? allowed : null
+		},
+
+		/**
 		 * The widget types Launchpad builds itself, as the picker lists them.
 		 *
 		 * @return {Array<{type: string, title: string}>}
@@ -1983,6 +2000,22 @@ export default {
 		 */
 		placementItemKey(placement) {
 			return String(placement.id)
+		},
+
+		/**
+		 * Accessible name of a grid item: "Widget: {title}", plus the position
+		 * and size in edit mode.
+		 *
+		 * @spec openspec/specs/grid-layout/spec.md#req-grid-008
+		 * @param {object} placement the placement (CnDashboardGrid layout item).
+		 * @return {string} the accessible name.
+		 */
+		placementItemLabel(placement) {
+			return gridItemLabel(placement, {
+				editing: this.isEditMode,
+				columns: this.activeDashboard?.gridColumns || 12,
+				availableWidgets: this.availableWidgets,
+			})
 		},
 
 		/**
@@ -2752,10 +2785,12 @@ export default {
 		 *
 		 * @param {object} app The catalogue entry.
 		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
 		 */
 		async addCatalogueApp(app) {
 			try {
-				await this.addTileToDashboard(tileFromCatalogueApp(app))
+				// REQ-WDG-042: an app tile from the picker is one cell.
+				await this.addTileToDashboard(tileFromCatalogueApp(app), { w: 1, h: 1 })
 			} catch (error) {
 				logger.error('[Views] Failed to place a catalogue app:', error)
 			}

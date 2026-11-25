@@ -1570,6 +1570,13 @@
         "The template wins, except what someone moved or added themselves.": "Шаблонът печели, освен това, което някой сам е преместил или добавил.",
         "Replace everything with the template": "Замяна на всичко с шаблона",
         "Personal changes are lost.": "Личните промени се губят.",
-        "{count} people changed their dashboard.": "{count} души са променили таблото си."
+        "{count} people changed their dashboard.": "{count} души са променили таблото си.",
+        "Sharing allowed for": "Споделянето е разрешено за",
+        "Only these groups": "Само тези групи",
+        "Nobody": "Никой",
+        "Only administrators can share. Existing shares stay.": "Само администраторите могат да споделят. Съществуващите споделяния остават.",
+        "Allow public links": "Разрешаване на публични връзки",
+        "Only for people who may share dashboards. A link always has an expiry date.": "Само за хората, които могат да споделят табла. Връзката винаги има дата на изтичане.",
+        "Expiry date (required)": "Дата на изтичане (задължителна)"
     }
 }

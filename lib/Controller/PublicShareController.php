@@ -29,7 +29,6 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
-use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\PublicShareService;
@@ -70,7 +69,7 @@ class PublicShareController extends Controller {
 	 * @param PublicShareContext $shareContext Request-scoped bearer marker (Task 7).
 	 * @param LoggerInterface $logger PSR-3 logger.
 	 * @param string|null $userId Authenticated user ID (null for public endpoints).
-	 * @param ConditionalServiceInterface|null $visibility Applies the widget visibility rules.
+	 * @param PublicShareRules|null $rules The widget visibility rules and the public-link policy (REQ-SHARE-015).
 	 */
 	public function __construct(
 		IRequest $request,
@@ -78,7 +77,7 @@ class PublicShareController extends Controller {
 		private readonly PublicShareContext $shareContext,
 		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
-		private readonly ?ConditionalServiceInterface $visibility = null,
+		private readonly ?PublicShareRules $rules = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -99,6 +98,7 @@ class PublicShareController extends Controller {
 	 * @openapi-stability public
 	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	#[NoAdminRequired]
 	public function create(
@@ -111,16 +111,24 @@ class PublicShareController extends Controller {
 			return $this->notLoggedIn();
 		}
 
+		$callerId = $this->userId;
+
 		return $this->respond(
-			operation: fn (): DataResponse => new DataResponse(
-				data: $this->shareService->createPublicShare(
-					dashboardUuid: $uuid,
-					callerId: $this->userId,
-					password: $password,
-					expiresAt: $expiresAt
-				)->jsonSerialize(),
-				statusCode: Http::STATUS_CREATED
-			),
+			operation: function () use ($uuid, $callerId, $password, $expiresAt): DataResponse {
+				// REQ-SHARE-015: public links off or a caller who may not share is
+				// refused with 403, a link without an expiry date with 400.
+				$this->rules?->limits?->assertMayCreatePublicLink(callerId: $callerId, expiresAt: $expiresAt);
+
+				return new DataResponse(
+					data: $this->shareService->createPublicShare(
+						dashboardUuid: $uuid,
+						callerId: $callerId,
+						password: $password,
+						expiresAt: $expiresAt
+					)->jsonSerialize(),
+					statusCode: Http::STATUS_CREATED
+				);
+			},
 			notFound: 'Dashboard not found'
 		);
 	}//end create()
@@ -408,7 +416,11 @@ class PublicShareController extends Controller {
 		return [
 			'share' => $shareData,
 			'dashboard' => $result['dashboard']->jsonSerialize(),
-			'placements' => ($this->visibility?->visiblePlacements(placements: $placements, userId: (string)$this->userId, canEdit: false) ?? $placements),
+			'placements' => ($this->rules?->visibility?->visiblePlacements(
+				placements: $placements,
+				userId: (string)$this->userId,
+				canEdit: false
+			) ?? $placements),
 		];
 	}//end renderPayload()
 

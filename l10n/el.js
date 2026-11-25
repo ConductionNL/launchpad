@@ -1670,7 +1670,14 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Υπερισχύει το πρότυπο, εκτός από ό,τι μετακίνησε ή πρόσθεσε κάποιος μόνος του.",
     "Replace everything with the template" : "Αντικατάσταση όλων με το πρότυπο",
     "Personal changes are lost." : "Οι προσωπικές αλλαγές χάνονται.",
-    "{count} people changed their dashboard." : "{count} άτομα άλλαξαν τον πίνακα ελέγχου τους."
+    "{count} people changed their dashboard." : "{count} άτομα άλλαξαν τον πίνακα ελέγχου τους.",
+    "Sharing allowed for" : "Η κοινή χρήση επιτρέπεται για",
+    "Only these groups" : "Μόνο αυτές τις ομάδες",
+    "Nobody" : "Κανέναν",
+    "Only administrators can share. Existing shares stay." : "Μόνο οι διαχειριστές μπορούν να μοιράζονται. Οι υπάρχουσες κοινές χρήσεις παραμένουν.",
+    "Allow public links" : "Να επιτρέπονται δημόσιοι σύνδεσμοι",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Μόνο για όσους μπορούν να μοιράζονται πίνακες ελέγχου. Ένας σύνδεσμος έχει πάντα ημερομηνία λήξης.",
+    "Expiry date (required)" : "Ημερομηνία λήξης (υποχρεωτική)"
 },
 "nplurals=2; plural=(n != 1);"
 );

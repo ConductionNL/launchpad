@@ -338,7 +338,7 @@ class PublicShareControllerTest extends TestCase {
 			shareContext: $this->shareContext,
 			logger: $this->logger,
 			userId: null,
-			visibility: $visibility,
+			rules: new \OCA\LaunchPad\Controller\PublicShareRules(visibility: $visibility),
 		);
 
 		$this->assertSame(expected: [], actual: $controller->show(token: 'tok')->getData()['placements']);

@@ -1670,7 +1670,14 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Il-mudell jirbaħ, ħlief dak li xi ħadd ċaqlaq jew żied hu stess.",
     "Replace everything with the template" : "Ibdel kollox bil-mudell",
     "Personal changes are lost." : "Il-bidliet personali jintilfu.",
-    "{count} people changed their dashboard." : "{count} persuni biddlu d-dashboard tagħhom."
+    "{count} people changed their dashboard." : "{count} persuni biddlu d-dashboard tagħhom.",
+    "Sharing allowed for" : "Il-qsim permess għal",
+    "Only these groups" : "Dawn il-gruppi biss",
+    "Nobody" : "Ħadd",
+    "Only administrators can share. Existing shares stay." : "L-amministraturi biss jistgħu jaqsmu. Il-qsim eżistenti jibqa'.",
+    "Allow public links" : "Ippermetti links pubbliċi",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Biss għal min jista' jaqsam id-dashboards. Link dejjem ikollu data ta' skadenza.",
+    "Expiry date (required)" : "Data ta' skadenza (meħtieġa)"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

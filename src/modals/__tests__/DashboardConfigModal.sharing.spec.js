@@ -348,11 +348,25 @@ describe('DashboardConfigModal: public links', () => {
 		expect(wrapper.vm.creatingPublicShare).toBe(false)
 	})
 
-	it('creates an open-ended link without password', async () => {
+	it('creates a link without password once an expiry date is set', async () => {
+		const wrapper = mountModal()
+		await flushPromises()
+		wrapper.vm.newShareExpiry = '2027-01-15'
+		await wrapper.vm.onCreatePublicShare()
+		expect(store.createShare).toHaveBeenCalledWith('uuid-3', { password: null, expiresAt: '2027-01-15T23:59:59Z' })
+	})
+
+	// REQ-SHARE-015: every new public link has an expiry date.
+	it('creates no link without an expiry date and keeps the create button disabled', async () => {
 		const wrapper = mountModal()
 		await flushPromises()
 		await wrapper.vm.onCreatePublicShare()
-		expect(store.createShare).toHaveBeenCalledWith('uuid-3', { password: null, expiresAt: null })
+		expect(store.createShare).not.toHaveBeenCalled()
+
+		const expiry = wrapper.find('[data-test="public-share-expiry"]')
+		if (expiry.exists()) {
+			expect(expiry.attributes('required')).toBeDefined()
+		}
 	})
 
 	it('keeps the inputs when creating a link fails', async () => {
@@ -360,6 +374,7 @@ describe('DashboardConfigModal: public links', () => {
 		const wrapper = mountModal()
 		await flushPromises()
 		wrapper.vm.newSharePassword = 'pw'
+		wrapper.vm.newShareExpiry = '2026-12-31'
 
 		await wrapper.vm.onCreatePublicShare()
 

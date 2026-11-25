@@ -1572,6 +1572,13 @@
         "The template wins, except what someone moved or added themselves.": "Побеждает шаблон, кроме того, что кто-то сам переместил или добавил.",
         "Replace everything with the template": "Заменить всё шаблоном",
         "Personal changes are lost.": "Личные изменения будут потеряны.",
-        "{count} people changed their dashboard.": "{count} человек изменили свою панель."
+        "{count} people changed their dashboard.": "{count} человек изменили свою панель.",
+        "Sharing allowed for": "Делиться разрешено",
+        "Only these groups": "Только этим группам",
+        "Nobody": "Никому",
+        "Only administrators can share. Existing shares stay.": "Делиться могут только администраторы. Существующие общие доступы сохраняются.",
+        "Allow public links": "Разрешить публичные ссылки",
+        "Only for people who may share dashboards. A link always has an expiry date.": "Только для тех, кому разрешено делиться панелями. У ссылки всегда есть срок действия.",
+        "Expiry date (required)": "Срок действия (обязательно)"
     }
 }

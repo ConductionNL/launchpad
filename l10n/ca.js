@@ -1670,7 +1670,14 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "La plantilla preval, excepte el que algú ha mogut o afegit.",
     "Replace everything with the template" : "Substitueix-ho tot per la plantilla",
     "Personal changes are lost." : "Els canvis personals es perden.",
-    "{count} people changed their dashboard." : "{count} persones han canviat el seu tauler."
+    "{count} people changed their dashboard." : "{count} persones han canviat el seu tauler.",
+    "Sharing allowed for" : "Compartició permesa per a",
+    "Only these groups" : "Només aquests grups",
+    "Nobody" : "Ningú",
+    "Only administrators can share. Existing shares stay." : "Només els administradors poden compartir. Les comparticions existents es mantenen.",
+    "Allow public links" : "Permet enllaços públics",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Només per a qui pot compartir taulers. Un enllaç sempre té data de caducitat.",
+    "Expiry date (required)" : "Data de caducitat (obligatòria)"
 },
 "nplurals=2; plural=(n != 1);"
 );

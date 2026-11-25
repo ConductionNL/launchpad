@@ -201,7 +201,7 @@ async function orphanCount(category: string): Promise<number> {
  */
 async function publicShare(api: APIRequestContext, uuid: string): Promise<string> {
 	const res = await api.post(`${API}/dashboards/${uuid}/public-share`, {
-		data: {},
+		data: { expiresAt: '2099-12-31T23:59:59Z' },
 	})
 	expect(res.status(), await res.text()).toBe(201)
 	return String((await res.json()).token)

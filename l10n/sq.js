@@ -1670,7 +1670,14 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Fiton shablloni, përveç asaj që dikush e zhvendosi ose e shtoi vetë.",
     "Replace everything with the template" : "Zëvendëso gjithçka me shabllonin",
     "Personal changes are lost." : "Ndryshimet personale humbasin.",
-    "{count} people changed their dashboard." : "{count} persona ndryshuan panelin e tyre."
+    "{count} people changed their dashboard." : "{count} persona ndryshuan panelin e tyre.",
+    "Sharing allowed for" : "Ndarja lejohet për",
+    "Only these groups" : "Vetëm këto grupe",
+    "Nobody" : "Askush",
+    "Only administrators can share. Existing shares stay." : "Vetëm administratorët mund të ndajnë. Ndarjet ekzistuese mbeten.",
+    "Allow public links" : "Lejo lidhje publike",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Vetëm për ata që mund të ndajnë panele. Një lidhje ka gjithmonë datë skadimi.",
+    "Expiry date (required)" : "Data e skadimit (e detyrueshme)"
 },
 "nplurals=2; plural=(n != 1);"
 );

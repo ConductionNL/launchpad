@@ -607,7 +607,7 @@ test.describe('REQ-KIOSK-001 chrome-less kiosk render flag', () => {
 		const share = await admin.post(
 			`${API}/dashboards/${shared.uuid}/public-share`,
 			{
-				data: {},
+				data: { expiresAt: '2099-12-31T23:59:59Z' },
 			},
 		)
 		expect(share.status(), await share.text()).toBe(201)
@@ -617,7 +617,7 @@ test.describe('REQ-KIOSK-001 chrome-less kiosk render flag', () => {
 		const locked = await admin.post(
 			`${API}/dashboards/${shared.uuid}/public-share`,
 			{
-				data: { password },
+				data: { password, expiresAt: '2099-12-31T23:59:59Z' },
 			},
 		)
 		expect(locked.status(), await locked.text()).toBe(201)
@@ -833,7 +833,7 @@ test.describe('REQ-KIOSK-001 chrome-less kiosk render flag', () => {
 		}
 
 		const shared = await createDashboard(admin, 'CursorShare')
-		const share = await admin.post(`${API}/dashboards/${shared.uuid}/public-share`, { data: {} })
+		const share = await admin.post(`${API}/dashboards/${shared.uuid}/public-share`, { data: { expiresAt: '2099-12-31T23:59:59Z' } })
 		expect(share.status(), await share.text()).toBe(201)
 		const visitor = await screenContext(browser)
 		try {

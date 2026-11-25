@@ -1661,6 +1661,13 @@ OC.L10N.register(
     "The template wins, except what someone moved or added themselves." : "Перамагае шаблон, акрамя таго, што нехта сам перамясціў або дадаў.",
     "Replace everything with the template" : "Замяніць усё шаблонам",
     "Personal changes are lost." : "Асабістыя змены будуць страчаны.",
-    "{count} people changed their dashboard." : "{count} чалавек змянілі сваю панэль."
+    "{count} people changed their dashboard." : "{count} чалавек змянілі сваю панэль.",
+    "Sharing allowed for" : "Дзяліцца дазволена",
+    "Only these groups" : "Толькі гэтым групам",
+    "Nobody" : "Нікому",
+    "Only administrators can share. Existing shares stay." : "Дзяліцца могуць толькі адміністратары. Існуючыя агульныя доступы захоўваюцца.",
+    "Allow public links" : "Дазволіць публічныя спасылкі",
+    "Only for people who may share dashboards. A link always has an expiry date." : "Толькі для тых, каму дазволена дзяліцца панэлямі. Спасылка заўсёды мае тэрмін дзеяння.",
+    "Expiry date (required)" : "Тэрмін дзеяння (абавязкова)"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

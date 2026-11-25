@@ -501,14 +501,19 @@
 							type="password"
 							:label="t('launchpad', 'Password (optional)')"
 							autocomplete="new-password" />
+						<!-- REQ-SHARE-015: every new public link has an expiry date. -->
 						<input
 							v-model="newShareExpiry"
 							class="dashboard-config__public-date"
 							type="date"
-							:aria-label="t('launchpad', 'Expiry date (optional)')" />
+							required
+							aria-required="true"
+							data-test="public-share-expiry"
+							:aria-label="t('launchpad', 'Expiry date (required)')" />
 						<NcButton
 							variant="secondary"
-							:disabled="creatingPublicShare"
+							data-test="public-share-create"
+							:disabled="creatingPublicShare || !newShareExpiry"
 							@click="onCreatePublicShare">
 							<template #icon>
 								<Plus :size="20" />
@@ -1280,18 +1285,18 @@ export default {
 		 * Mint a new public link, optionally password-protected and/or expiring.
 		 *
 		 * @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
+		 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 		 */
 		async onCreatePublicShare() {
-			if (!this.dashboard?.uuid) {
+			// REQ-SHARE-015: the server refuses a link without an expiry date.
+			if (!this.dashboard?.uuid || !this.newShareExpiry) {
 				return
 			}
 			this.creatingPublicShare = true
 			try {
 				// The date input yields `YYYY-MM-DD`; the backend expects an
 				// ISO 8601 instant, so pin expiry to end-of-day UTC.
-				const expiresAt = this.newShareExpiry
-					? `${this.newShareExpiry}T23:59:59Z`
-					: null
+				const expiresAt = `${this.newShareExpiry}T23:59:59Z`
 				await usePublicShareStore().createShare(this.dashboard.uuid, {
 					password: this.newSharePassword || null,
 					expiresAt,

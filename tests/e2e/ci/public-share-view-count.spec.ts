@@ -98,7 +98,7 @@ test('three renders from one IP inside a minute count once, and lastViewedAt fol
 	const dash = (await created.json()).dashboard
 	dashboardId = Number(dash.id)
 	const link = await admin.post(`${API}/dashboards/${dash.uuid}/public-share`, {
-		data: {},
+		data: { expiresAt: '2099-12-31T23:59:59Z' },
 	})
 	expect(link.status(), await link.text()).toBe(201)
 	const { id, token } = await link.json()

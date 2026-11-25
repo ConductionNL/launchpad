@@ -51,8 +51,7 @@
 						:aria-pressed="chosenKind === kind ? 'true' : 'false'"
 						:data-testid="`widget-picker-kind-${kind}`"
 						@click="chosenKind = kind">
-						<span class="widget-picker__kind-label">{{ kindLabel(kind) }}</span>
-						<span class="widget-picker__kind-count">{{ counts[kind] }}</span>
+						<span class="widget-picker__kind-label">{{ kindLabel(kind) }}</span>&#32;<span class="widget-picker__kind-count">{{ counts[kind] }}</span>
 					</button>
 				</nav>
 

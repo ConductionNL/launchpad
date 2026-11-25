@@ -208,7 +208,7 @@ The system MUST provide a Vue 2.7 SFC `OrgNavigationPanel.vue` that renders the 
 Each node's `icon` field MUST follow a dual-mode convention compatible with the link-button-widget:
 
 - A URL (starts with `/` or `http`) MUST render as an `<img>` element with `src=icon`
-- A bare name MUST render as an inline label (the runtime panel renders the name; the admin editor uses a text input for the icon field)
+- A bare name MUST render as the glyph that name resolves to in the dashboard icon registry (dashboard-icons REQ-ICON-009; legacy MDI names such as `briefcase` included), not as the name in text; the admin editor uses a text input for the icon field
 - An empty or null value MUST render no icon
 
 Icon size MUST be consistently 24 px square across all nav items.
@@ -221,7 +221,8 @@ Icon size MUST be consistently 24 px square across all nav items.
 #### Scenario: Icon name renders inline
 - GIVEN a node with `icon: 'briefcase'` and `label: 'Business'`
 - WHEN the panel renders
-- THEN the icon name MUST appear as inline text/label left of the label
+- THEN the briefcase glyph MUST appear inline, left of the label
+- AND the name "briefcase" MUST NOT appear as text
 
 #### Scenario: Missing icon renders no icon
 - GIVEN a node with `icon: null` and `label: 'Help'`

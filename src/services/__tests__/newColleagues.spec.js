@@ -27,25 +27,69 @@ vi.mock('@nextcloud/l10n', () => ({ t: (_app, text) => text }))
 const ANSWER = {
 	configured: true,
 	users: [
-		{ id: 'yasmina', displayName: 'Yasmina El Amrani', startDate: '2026-10-12', starts: true, role: 'Adviseur', organisation: 'Team Wonen', groups: ['staff'] },
-		{ id: 'lotte', displayName: 'Lotte Verhoeven', startDate: '2026-10-01', starts: false, role: 'Jurist', organisation: 'Team Recht', groups: ['staff'], customFields: [{ key: 'office', label: 'Office', type: 'text', values: ['B2'] }] },
-		{ id: 'thomas', displayName: 'Thomas Brouwer', startDate: '2026-09-28', starts: false, role: 'Handhaver', organisation: 'Team Toezicht', groups: ['field'] },
+		{
+			id: 'yasmina',
+			displayName: 'Yasmina El Amrani',
+			startDate: '2026-10-12',
+			starts: true,
+			role: 'Adviseur',
+			organisation: 'Team Wonen',
+			groups: ['staff'],
+		},
+		{
+			id: 'lotte',
+			displayName: 'Lotte Verhoeven',
+			startDate: '2026-10-01',
+			starts: false,
+			role: 'Jurist',
+			organisation: 'Team Recht',
+			groups: ['staff'],
+			customFields: [
+				{ key: 'office', label: 'Office', type: 'text', values: ['B2'] },
+			],
+		},
+		{
+			id: 'thomas',
+			displayName: 'Thomas Brouwer',
+			startDate: '2026-09-28',
+			starts: false,
+			role: 'Handhaver',
+			organisation: 'Team Toezicht',
+			groups: ['field'],
+		},
 	],
 }
 
 describe('newColleaguesPage', () => {
 	it('keeps the newest-first order and marks the colleague who has not started with the weekday', () => {
-		const page = newColleaguesPage(ANSWER, { filters: [], today: '2026-10-05', locale: 'nl' })
+		const page = newColleaguesPage(ANSWER, {
+			filters: [],
+			today: '2026-10-05',
+			locale: 'nl',
+		})
 
-		expect(page.users.map((user) => user.uid)).toEqual(['yasmina', 'lotte', 'thomas'])
-		expect(page.users[0].customFields).toEqual([{ key: STARTS_FIELD_KEY, label: 'Starts', type: 'text', values: ['maandag'] }])
+		expect(page.users.map((user) => user.uid)).toEqual([
+			'yasmina',
+			'lotte',
+			'thomas',
+		])
+		expect(page.users[0].customFields).toEqual([
+			{
+				key: STARTS_FIELD_KEY,
+				label: 'Starts',
+				type: 'text',
+				values: ['maandag'],
+			},
+		])
 		expect(page.users[0].role).toBe('Adviseur')
 		expect(page.users[0].organisation).toBe('Team Wonen')
-		expect(page.users[1].customFields).toEqual([{ key: 'office', label: 'Office', type: 'text', values: ['B2'] }])
+		expect(page.users[1].customFields).toEqual([
+			{ key: 'office', label: 'Office', type: 'text', values: ['B2'] },
+		])
 		expect(page).toMatchObject({ total: 3, hasMore: false })
 	})
 
-	it('stays inside the placement\'s groups', () => {
+	it("stays inside the placement's groups", () => {
 		const page = newColleaguesPage(ANSWER, {
 			filters: [{ fieldName: 'group', operator: 'in', values: ['field'] }],
 			today: '2026-10-05',
@@ -56,7 +100,12 @@ describe('newColleaguesPage', () => {
 	})
 
 	it('reads an empty answer as nobody', () => {
-		expect(newColleaguesPage({ configured: false }, { today: '2026-10-05', locale: 'en' }).users).toEqual([])
+		expect(
+			newColleaguesPage(
+				{ configured: false },
+				{ today: '2026-10-05', locale: 'en' },
+			).users,
+		).toEqual([])
 	})
 })
 
@@ -79,7 +128,7 @@ describe('windows', () => {
 		expect(windowDays({ newSinceDays: 0, newUntilDays: 2.5 }, 'until')).toBe(14)
 	})
 
-	it('carries the window as a filter, once, next to the placement\'s own filters', () => {
+	it("carries the window as a filter, once, next to the placement's own filters", () => {
 		const group = { fieldName: 'group', operator: 'in', values: ['staff'] }
 		const content = widgetContentFor({
 			selectionMode: 'new',
@@ -87,7 +136,14 @@ describe('windows', () => {
 			filters: [group, { fieldName: WINDOW_FILTER_FIELD, values: [1, 1] }],
 		})
 
-		expect(content.filters).toEqual([group, { fieldName: WINDOW_FILTER_FIELD, operator: 'between', values: [10, 14] }])
+		expect(content.filters).toEqual([
+			group,
+			{
+				fieldName: WINDOW_FILTER_FIELD,
+				operator: 'between',
+				values: [10, 14],
+			},
+		])
 		expect(isNewSelection(content)).toBe(true)
 		expect(isNewSelection({ selectionMode: 'filter' })).toBe(false)
 	})

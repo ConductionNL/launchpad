@@ -4,8 +4,16 @@
 -->
 
 <template>
-	<p v-if="newSelection && configured === false" class="people-host__unconfigured" role="status">
-		{{ t('launchpad', 'The administrator has not set a start date field, so new colleagues cannot be listed.') }}
+	<p
+		v-if="newSelection && configured === false"
+		class="people-host__unconfigured"
+		role="status">
+		{{
+			t(
+				'launchpad',
+				'The administrator has not set a start date field, so new colleagues cannot be listed.',
+			)
+		}}
 	</p>
 	<CnPeopleWidget
 		v-else-if="newSelection"

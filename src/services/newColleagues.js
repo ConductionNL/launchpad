@@ -39,7 +39,9 @@ const DAY_MS = 86400000
  */
 export function windowDays(content, bound) {
 	const range = NEW_WINDOWS[bound]
-	const stored = (content || {})[bound === 'since' ? 'newSinceDays' : 'newUntilDays']
+	const stored = (content || {})[
+		bound === 'since' ? 'newSinceDays' : 'newUntilDays'
+	]
 	if (Number.isInteger(stored) && stored >= range.min && stored <= range.max) {
 		return stored
 	}
@@ -68,15 +70,19 @@ export function isNewSelection(content) {
  * @spec openspec/changes/people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
  */
 export function widgetContentFor(content) {
-	const filters = (Array.isArray(content?.filters) ? content.filters : [])
-		.filter((filter) => filter?.fieldName !== WINDOW_FILTER_FIELD)
+	const filters = (Array.isArray(content?.filters) ? content.filters : []).filter(
+		(filter) => filter?.fieldName !== WINDOW_FILTER_FIELD,
+	)
 	return {
 		...content,
-		filters: [...filters, {
-			fieldName: WINDOW_FILTER_FIELD,
-			operator: 'between',
-			values: [windowDays(content, 'since'), windowDays(content, 'until')],
-		}],
+		filters: [
+			...filters,
+			{
+				fieldName: WINDOW_FILTER_FIELD,
+				operator: 'between',
+				values: [windowDays(content, 'since'), windowDays(content, 'until')],
+			},
+		],
 	}
 }
 
@@ -88,7 +94,9 @@ export function widgetContentFor(content) {
  */
 function utcDay(iso) {
 	const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''))
-	return match ? Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : NaN
+	return match
+		? Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+		: NaN
 }
 
 /**
@@ -107,9 +115,10 @@ export function startsOn(startDate, today, locale) {
 		return ''
 	}
 	const days = Math.round((start - utcDay(today)) / DAY_MS)
-	const options = days >= 1 && days <= 7
-		? { weekday: 'long', timeZone: 'UTC' }
-		: { day: 'numeric', month: 'short', timeZone: 'UTC' }
+	const options =
+		days >= 1 && days <= 7
+			? { weekday: 'long', timeZone: 'UTC' }
+			: { day: 'numeric', month: 'short', timeZone: 'UTC' }
 	return new Intl.DateTimeFormat(locale || 'en', options).format(new Date(start))
 }
 
@@ -120,8 +129,12 @@ export function startsOn(startDate, today, locale) {
  * @return {string[]|null}
  */
 function groupFilterOf(filters) {
-	const group = (Array.isArray(filters) ? filters : []).find((filter) => filter?.fieldName === 'group')
-	return group && Array.isArray(group.values) && group.values.length > 0 ? group.values.map(String) : null
+	const group = (Array.isArray(filters) ? filters : []).find(
+		(filter) => filter?.fieldName === 'group',
+	)
+	return group && Array.isArray(group.values) && group.values.length > 0
+		? group.values.map(String)
+		: null
 }
 
 /**
@@ -138,16 +151,33 @@ function groupFilterOf(filters) {
 export function newColleaguesPage(data, context) {
 	const groups = groupFilterOf(context.filters)
 	const users = (Array.isArray(data?.users) ? data.users : [])
-		.filter((user) => groups === null || (Array.isArray(user.groups) && user.groups.some((id) => groups.includes(String(id)))))
+		.filter(
+			(user) =>
+				groups === null
+				|| (Array.isArray(user.groups)
+					&& user.groups.some((id) => groups.includes(String(id)))),
+		)
 		.map((user) => {
 			const fields = Array.isArray(user.customFields) ? user.customFields : []
-			const starts = user.starts === true ? startsOn(user.startDate, context.today, context.locale) : ''
+			const starts =
+				user.starts === true
+					? startsOn(user.startDate, context.today, context.locale)
+					: ''
 			return {
 				...user,
 				uid: user.uid || user.id,
-				customFields: starts === ''
-					? fields
-					: [{ key: STARTS_FIELD_KEY, label: t('launchpad', 'Starts'), type: 'text', values: [starts] }, ...fields],
+				customFields:
+					starts === ''
+						? fields
+						: [
+								{
+									key: STARTS_FIELD_KEY,
+									label: t('launchpad', 'Starts'),
+									type: 'text',
+									values: [starts],
+								},
+								...fields,
+							],
 			}
 		})
 	return { users, total: users.length, hasMore: false }

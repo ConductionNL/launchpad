@@ -31,8 +31,13 @@
 					:min="windows.since.min"
 					:max="windows.since.max"
 					:value="sinceDays"
-					@input="setWindow('since', $event.target.value)">
-				<span v-if="errors.since" class="people-widget-form__error" role="alert">{{ errors.since }}</span>
+					@input="setWindow('since', $event.target.value)" />
+				<span
+					v-if="errors.since"
+					class="people-widget-form__error"
+					role="alert"
+					>{{ errors.since }}</span
+				>
 			</label>
 			<label class="people-widget-form__field">
 				{{ t('launchpad', 'Starts in the next (days, 0–30)') }}
@@ -43,11 +48,24 @@
 					:min="windows.until.min"
 					:max="windows.until.max"
 					:value="untilDays"
-					@input="setWindow('until', $event.target.value)">
-				<span v-if="errors.until" class="people-widget-form__error" role="alert">{{ errors.until }}</span>
+					@input="setWindow('until', $event.target.value)" />
+				<span
+					v-if="errors.until"
+					class="people-widget-form__error"
+					role="alert"
+					>{{ errors.until }}</span
+				>
 			</label>
-			<p v-if="startFieldSet === false" class="people-widget-form__error" role="alert">
-				{{ t('launchpad', 'The administrator has not set a start date field, so new colleagues cannot be listed.') }}
+			<p
+				v-if="startFieldSet === false"
+				class="people-widget-form__error"
+				role="alert">
+				{{
+					t(
+						'launchpad',
+						'The administrator has not set a start date field, so new colleagues cannot be listed.',
+					)
+				}}
 			</p>
 		</template>
 
@@ -64,8 +82,15 @@ import { CnPeopleWidgetForm } from '@conduction/nextcloud-vue'
 import axios from '@nextcloud/axios'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
-import { NULLABLE_OBJECT_PROP, OBJECT_PROP } from '../../../constants/propDefinitions.js'
-import { NEW_SELECTION_MODE, NEW_WINDOWS, windowDays } from '../../../services/newColleagues.js'
+import {
+	NULLABLE_OBJECT_PROP,
+	OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
+import {
+	NEW_SELECTION_MODE,
+	NEW_WINDOWS,
+	windowDays,
+} from '../../../services/newColleagues.js'
 
 /**
  * The people widget form with the "New colleagues" selection (REQ-PPL-014):
@@ -130,9 +155,20 @@ export default {
 			}
 			const { newSinceDays, newUntilDays, ...rest } = inner
 			if (!this.newChosen) {
-				return { ...rest, selectionMode: rest.selectionMode === NEW_SELECTION_MODE ? 'filter' : rest.selectionMode }
+				return {
+					...rest,
+					selectionMode:
+						rest.selectionMode === NEW_SELECTION_MODE
+							? 'filter'
+							: rest.selectionMode,
+				}
 			}
-			return { ...rest, selectionMode: NEW_SELECTION_MODE, newSinceDays: this.sinceDays, newUntilDays: this.untilDays }
+			return {
+				...rest,
+				selectionMode: NEW_SELECTION_MODE,
+				newSinceDays: this.sinceDays,
+				newUntilDays: this.untilDays,
+			}
 		},
 	},
 
@@ -159,9 +195,15 @@ export default {
 		 */
 		async probeStartField() {
 			try {
-				const response = await axios.get(generateUrl('/apps/launchpad/api/people/new'), {
-					params: { since: NEW_WINDOWS.since.min, until: NEW_WINDOWS.until.min },
-				})
+				const response = await axios.get(
+					generateUrl('/apps/launchpad/api/people/new'),
+					{
+						params: {
+							since: NEW_WINDOWS.since.min,
+							until: NEW_WINDOWS.until.min,
+						},
+					},
+				)
 				this.startFieldSet = response?.data?.configured === true
 			} catch {
 				this.startFieldSet = false
@@ -204,8 +246,17 @@ export default {
 		setWindow(bound, raw) {
 			const range = NEW_WINDOWS[bound]
 			const days = Number(raw)
-			if (raw === '' || !Number.isInteger(days) || days < range.min || days > range.max) {
-				this.errors[bound] = t('launchpad', 'Must be between {min} and {max}', { min: range.min, max: range.max })
+			if (
+				raw === ''
+				|| !Number.isInteger(days)
+				|| days < range.min
+				|| days > range.max
+			) {
+				this.errors[bound] = t(
+					'launchpad',
+					'Must be between {min} and {max}',
+					{ min: range.min, max: range.max },
+				)
 			} else {
 				this.errors[bound] = ''
 				this[bound === 'since' ? 'sinceDays' : 'untilDays'] = days
@@ -235,7 +286,11 @@ export default {
 		validate() {
 			const errors = this.$refs.form ? [...this.$refs.form.validate()] : []
 			if (this.newChosen) {
-				errors.push(...[this.errors.since, this.errors.until].filter((error) => error !== ''))
+				errors.push(
+					...[this.errors.since, this.errors.until].filter(
+						(error) => error !== '',
+					),
+				)
 			}
 			return errors
 		},

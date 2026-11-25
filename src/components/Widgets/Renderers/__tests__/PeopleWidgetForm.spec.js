@@ -17,7 +17,8 @@ import PeopleWidgetForm from '../PeopleWidgetForm.vue'
 vi.mock('@nextcloud/axios', () => ({ default: { get: vi.fn() } }))
 vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => `/index.php${path}` }))
 vi.mock('@nextcloud/l10n', () => ({
-	t: (_app, text, vars = {}) => text.replace(/\{(\w+)\}/g, (_m, key) => String(vars[key])),
+	t: (_app, text, vars = {}) =>
+		text.replace(/\{(\w+)\}/g, (_m, key) => String(vars[key])),
 }))
 vi.mock('@conduction/nextcloud-vue', () => ({
 	CnPeopleWidgetForm: {
@@ -27,7 +28,13 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 		template: '<div class="cn-people-form" />',
 		computed: {
 			assembledContent() {
-				return { layout: 'list', selectionMode: (this.editingWidget?.content || {}).selectionMode || 'filter', filters: [] }
+				return {
+					layout: 'list',
+					selectionMode:
+						(this.editingWidget?.content || {}).selectionMode
+						|| 'filter',
+					filters: [],
+				}
 			},
 		},
 		methods: {
@@ -45,7 +52,9 @@ vi.mock('@conduction/nextcloud-vue', () => ({
  */
 async function mounted(configured, content) {
 	axios.get.mockResolvedValue({ data: { configured, users: [] } })
-	const wrapper = mount(PeopleWidgetForm, { props: { editingWidget: content ? { content } : null } })
+	const wrapper = mount(PeopleWidgetForm, {
+		props: { editingWidget: content ? { content } : null },
+	})
 	await flushPromises()
 	return wrapper
 }
@@ -58,7 +67,10 @@ describe('PeopleWidgetForm', () => {
 	it('offers no New colleagues without a start date field', async () => {
 		const wrapper = await mounted(false)
 
-		expect(axios.get).toHaveBeenCalledWith('/index.php/apps/launchpad/api/people/new', { params: { since: 1, until: 0 } })
+		expect(axios.get).toHaveBeenCalledWith(
+			'/index.php/apps/launchpad/api/people/new',
+			{ params: { since: 1, until: 0 } },
+		)
 		expect(wrapper.find('[data-testid="people-selection"]').exists()).toBe(false)
 		expect(wrapper.text()).not.toContain('New colleagues')
 	})
@@ -68,15 +80,27 @@ describe('PeopleWidgetForm', () => {
 		await wrapper.find('[data-testid="people-selection"]').setValue('new')
 
 		expect(wrapper.emitted('update:content').at(-1)[0]).toEqual({
-			layout: 'list', selectionMode: 'new', filters: [], newSinceDays: 30, newUntilDays: 14,
+			layout: 'list',
+			selectionMode: 'new',
+			filters: [],
+			newSinceDays: 30,
+			newUntilDays: 14,
 		})
 
 		await wrapper.find('[data-testid="people-selection"]').setValue('people')
-		expect(wrapper.emitted('update:content').at(-1)[0]).toEqual({ layout: 'list', selectionMode: 'filter', filters: [] })
+		expect(wrapper.emitted('update:content').at(-1)[0]).toEqual({
+			layout: 'list',
+			selectionMode: 'filter',
+			filters: [],
+		})
 	})
 
 	it('keeps a window out of range invalid until it is corrected', async () => {
-		const wrapper = await mounted(true, { selectionMode: 'new', newSinceDays: 10, newUntilDays: 7 })
+		const wrapper = await mounted(true, {
+			selectionMode: 'new',
+			newSinceDays: 10,
+			newUntilDays: 7,
+		})
 		const since = wrapper.find('[data-testid="people-new-since"]')
 		expect(since.element.value).toBe('10')
 
@@ -86,13 +110,19 @@ describe('PeopleWidgetForm', () => {
 
 		await since.setValue('45')
 		expect(wrapper.vm.validate()).toEqual([])
-		expect(wrapper.emitted('update:content').at(-1)[0]).toMatchObject({ selectionMode: 'new', newSinceDays: 45, newUntilDays: 7 })
+		expect(wrapper.emitted('update:content').at(-1)[0]).toMatchObject({
+			selectionMode: 'new',
+			newSinceDays: 45,
+			newUntilDays: 7,
+		})
 	})
 
 	it('keeps the choice on a New colleagues placement after the start date field is gone, and warns', async () => {
 		const wrapper = await mounted(false, { selectionMode: 'new' })
 
 		expect(wrapper.find('[data-testid="people-selection"]').exists()).toBe(true)
-		expect(wrapper.text()).toContain('The administrator has not set a start date field')
+		expect(wrapper.text()).toContain(
+			'The administrator has not set a start date field',
+		)
 	})
 })

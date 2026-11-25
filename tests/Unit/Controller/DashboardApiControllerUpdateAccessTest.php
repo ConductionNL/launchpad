@@ -139,6 +139,8 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 		$permissions->method('canDeleteDashboards')->willReturn($mayDelete);
 
 		$service = $this->createMock(DashboardService::class);
+		// The dashboard exists: a refused update stays 403 (a deleted one is 404, REQ-LOCK-008).
+		$service->method('dashboardExists')->willReturn(true);
 		$service->method('updateDashboard')->willReturnCallback(
 			function (int $dashboardId, string $userId, array $data) use ($serviceRefusal): Dashboard {
 				if ($serviceRefusal !== null) {

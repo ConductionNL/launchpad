@@ -154,11 +154,11 @@ Password-protected shares MUST require a POST unlock before rendering via the pu
 - THEN the system MUST invoke Nextcloud's `IThrottler` service with action `launchpad_share_password` (limit: 10 per 60 s, IP-global)
 - AND return HTTP 429 (Too Many Requests) on the 11th attempt with `Retry-After` header
 
-#### Scenario: Query param password alternative to header
+#### Scenario: The password travels in a header, never in the query
 - GIVEN a password-protected share
-- WHEN an anonymous user sends `GET /s/abc123?password=SecurePass123!` OR includes header `X-Share-Password: SecurePass123!`
-- THEN the system MUST accept either method
-- AND return HTTP 200 with the rendered dashboard (server-side verification)
+- WHEN an anonymous user sends `GET /s/abc123` with header `X-Share-Password: SecurePass123!`
+- THEN the system MUST return HTTP 200 with the rendered dashboard (server-side verification)
+- AND a password in the query string (`?password=SecurePass123!`) MUST NOT unlock it: the answer is HTTP 401 `{passwordRequired: true}`, so a password never lands in an access log
 
 ### Requirement: REQ-PSHR-006 Read-Only Enforcement
 

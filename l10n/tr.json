@@ -1579,6 +1579,13 @@
         "Only for people who may share dashboards. A link always has an expiry date.": "Yalnızca pano paylaşabilenler için. Bir bağlantının her zaman son kullanma tarihi vardır.",
         "Expiry date (required)": "Son kullanma tarihi (zorunlu)",
         "Your administrator does not allow you to share dashboards.": "Yöneticiniz pano paylaşmanıza izin vermiyor.",
-        "Public links are switched off.": "Herkese açık bağlantılar kapalı."
+        "Public links are switched off.": "Herkese açık bağlantılar kapalı.",
+        "Clean up": "Temizlik",
+        "Dashboards of people who left go to": "Ayrılanların panoları şuraya gider",
+        "Their manager": "Yöneticilerine",
+        "Otherwise": "Aksi halde",
+        "A person": "Bir kişi",
+        "Search for a person": "Kişi ara",
+        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Seçim yapılmazsa pano, üzerinde tam yetkisi olan birine gider ya da silinir. Paylaşımlar kalır."
     }
 }

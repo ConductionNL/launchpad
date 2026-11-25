@@ -1679,7 +1679,14 @@ OC.L10N.register(
     "Only for people who may share dashboards. A link always has an expiry date." : "Μόνο για όσους μπορούν να μοιράζονται πίνακες ελέγχου. Ένας σύνδεσμος έχει πάντα ημερομηνία λήξης.",
     "Expiry date (required)" : "Ημερομηνία λήξης (υποχρεωτική)",
     "Your administrator does not allow you to share dashboards." : "Ο διαχειριστής σας δεν σας επιτρέπει να μοιράζεστε πίνακες ελέγχου.",
-    "Public links are switched off." : "Οι δημόσιοι σύνδεσμοι είναι απενεργοποιημένοι."
+    "Public links are switched off." : "Οι δημόσιοι σύνδεσμοι είναι απενεργοποιημένοι.",
+    "Clean up" : "Εκκαθάριση",
+    "Dashboards of people who left go to" : "Οι πίνακες ελέγχου όσων αποχώρησαν πηγαίνουν σε",
+    "Their manager" : "Τον προϊστάμενό τους",
+    "Otherwise" : "Αλλιώς",
+    "A person" : "Ένα άτομο",
+    "Search for a person" : "Αναζήτηση ατόμου",
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Χωρίς επιλογή, ένας πίνακας ελέγχου πηγαίνει σε κάποιον με πλήρη δικαιώματα σε αυτόν ή διαγράφεται. Οι κοινές χρήσεις παραμένουν."
 },
 "nplurals=2; plural=(n != 1);"
 );

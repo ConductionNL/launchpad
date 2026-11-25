@@ -79,6 +79,8 @@ class AdminSettingsServiceTest extends TestCase {
 				// REQ-SHARE-015: everyone may share and public links are on until changed.
 				'sharingAllowed' => 'everyone',
 				'publicLinksAllowed' => true,
+				// REQ-SHARE-016: no handover until an administrator sets one.
+				'leaverHandover' => ['manager' => false, 'fallbackUid' => ''],
 				'legacyWidgetBridgeEnabled' => false,
 				'maxDashboardsPerUser' => 0,
 				'maxWidgetsPerDashboard' => 0,
@@ -177,6 +179,7 @@ class AdminSettingsServiceTest extends TestCase {
 		// REQ-SHARE-015.
 		$this->assertArrayHasKey(key: 'sharingAllowed', array: $settings);
 		$this->assertArrayHasKey(key: 'publicLinksAllowed', array: $settings);
+		$this->assertArrayHasKey(key: 'leaverHandover', array: $settings);
 		$this->assertArrayHasKey('legacyWidgetBridgeEnabled', $settings);
 		// dashboard-quota-limits REQ-QUOTA-001 — two numeric quota keys.
 		$this->assertArrayHasKey('maxDashboardsPerUser', $settings);
@@ -200,7 +203,7 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('pinnedCommunities', $settings);
 		// REQ-PSP-003.
 		$this->assertArrayHasKey('defaultAppEnabled', $settings);
-		$this->assertCount(expectedCount: 24, haystack: $settings);
+		$this->assertCount(expectedCount: 25, haystack: $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	/**

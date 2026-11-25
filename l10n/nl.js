@@ -2554,7 +2554,14 @@ OC.L10N.register(
     "Only for people who may share dashboards. A link always has an expiry date." : "Alleen voor wie dashboards mag delen. Een link heeft altijd een vervaldatum.",
     "Expiry date (required)" : "Vervaldatum (verplicht)",
     "Your administrator does not allow you to share dashboards." : "Je beheerder staat niet toe dat je dashboards deelt.",
-    "Public links are switched off." : "Openbare links staan uit."
+    "Public links are switched off." : "Openbare links staan uit.",
+    "Clean up" : "Opruimen",
+    "Dashboards of people who left go to" : "Dashboards van vertrokken medewerkers gaan naar",
+    "Their manager" : "Hun leidinggevende",
+    "Otherwise" : "Anders",
+    "A person" : "Een persoon",
+    "Search for a person" : "Zoek een persoon",
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Zonder keuze gaat een dashboard naar iemand met volledige rechten erop, of wordt het verwijderd. Shares blijven."
 },
 "nplurals=2; plural=(n != 1);"
 );

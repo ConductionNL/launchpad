@@ -1679,7 +1679,14 @@ OC.L10N.register(
     "Only for people who may share dashboards. A link always has an expiry date." : "Endast för dem som får dela instrumentpaneler. En länk har alltid ett utgångsdatum.",
     "Expiry date (required)" : "Utgångsdatum (obligatoriskt)",
     "Your administrator does not allow you to share dashboards." : "Din administratör tillåter inte att du delar instrumentpaneler.",
-    "Public links are switched off." : "Offentliga länkar är avstängda."
+    "Public links are switched off." : "Offentliga länkar är avstängda.",
+    "Clean up" : "Städning",
+    "Dashboards of people who left go to" : "Instrumentpaneler från personer som slutat går till",
+    "Their manager" : "Deras chef",
+    "Otherwise" : "Annars",
+    "A person" : "En person",
+    "Search for a person" : "Sök efter en person",
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Utan val går en instrumentpanel till någon med fullständiga rättigheter till den, eller tas bort. Delningar finns kvar."
 },
 "nplurals=2; plural=(n != 1);"
 );

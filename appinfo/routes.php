@@ -545,6 +545,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'admin#updateSettings', 'url' => '/api/admin/settings', 'verb' => 'PUT'],
 		// REQ-SHARE-015: who may share (Everyone, Only these groups, Nobody) and the public-link switch.
 		['name' => 'sharingPolicy#update', 'url' => '/api/admin/sharing-policy', 'verb' => 'PUT'],
+		// REQ-SHARE-016: where a leaver's dashboards go.
+		['name' => 'sharingPolicy#updateLeaverHandover', 'url' => '/api/admin/leaver-handover', 'verb' => 'PUT'],
 
 		// Admin conditional-visibility overview (Beheer ▸ Versioning &
 		// Audit). Admin-only via #[AuthorizedAdminSetting]. Literal URL —

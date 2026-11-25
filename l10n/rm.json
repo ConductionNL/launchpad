@@ -1579,6 +1579,13 @@
         "Only for people who may share dashboards. A link always has an expiry date.": "Mo per quels che dastgan divider dashboards. Ina colliaziun ha adina ina data da scadenza.",
         "Expiry date (required)": "Data da scadenza (obligatoric)",
         "Your administrator does not allow you to share dashboards.": "Voss administratur na As permetta betg da divider dashboards.",
-        "Public links are switched off.": "Las colliaziuns publicas èn deactivadas."
+        "Public links are switched off.": "Las colliaziuns publicas èn deactivadas.",
+        "Clean up": "Rumir",
+        "Dashboards of people who left go to": "Ils dashboards da persunas che èn idas van tar",
+        "Their manager": "Lur manader",
+        "Otherwise": "Uschiglio",
+        "A person": "Ina persuna",
+        "Search for a person": "Tschertgar ina persuna",
+        "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay.": "Senza tscherna va in dashboard tar insatgi cun dretgs cumplets, u el vegn stizzà. Las divisiuns restan."
     }
 }

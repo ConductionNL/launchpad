@@ -1679,7 +1679,14 @@ OC.L10N.register(
     "Only for people who may share dashboards. A link always has an expiry date." : "Samo za tiste, ki smejo deliti nadzorne plošče. Povezava ima vedno datum poteka.",
     "Expiry date (required)" : "Datum poteka (obvezno)",
     "Your administrator does not allow you to share dashboards." : "Skrbnik vam ne dovoli deliti nadzornih plošč.",
-    "Public links are switched off." : "Javne povezave so izklopljene."
+    "Public links are switched off." : "Javne povezave so izklopljene.",
+    "Clean up" : "Čiščenje",
+    "Dashboards of people who left go to" : "Nadzorne plošče oseb, ki so odšle, gredo",
+    "Their manager" : "Njihovemu vodji",
+    "Otherwise" : "Sicer",
+    "A person" : "Oseba",
+    "Search for a person" : "Poišči osebo",
+    "Without a choice, a dashboard goes to someone with full rights on it, or is deleted. Shares stay." : "Brez izbire gre nadzorna plošča nekomu s polnimi pravicami do nje ali pa se izbriše. Deljenja ostanejo."
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

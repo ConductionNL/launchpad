@@ -38,7 +38,6 @@ namespace OCA\LaunchPad\Service;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\WidgetPlacement;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -58,16 +57,26 @@ class StoreUpdateService {
 	public const VERSION_NOTE = 'Updated from the marketplace';
 
 	/**
+	 * Builds the new version's widgets, as the importer does.
+	 *
+	 * @var PlacementPayloadHydrator
+	 */
+	private readonly PlacementPayloadHydrator $hydrator;
+
+	/**
+	 * Pairs and writes the widgets.
+	 *
+	 * @var PlacementPairing
+	 */
+	private readonly PlacementPairing $pairing;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param StoreService             $store    Resolves the register item.
-	 * @param StoreInstalls            $installs The install record.
-	 * @param ShippedTemplateStores    $stores   The dashboard and placement mappers.
-	 * @param PlacementPayloadHydrator $hydrator Builds a widget from a payload, as the importer does.
-	 * @param PlacementPairing         $pairing  Pairs and writes the widgets.
-	 * @param TemplateResyncService    $resync   Brings copies along.
-	 * @param DashboardVersionService  $versions Writes the version note.
-	 * @param LoggerInterface          $logger   Server-side diagnostics only.
+	 * @param StoreService          $store     Resolves the register item.
+	 * @param StoreInstalls         $installs  The install record.
+	 * @param ShippedTemplateStores $stores    The dashboard and placement mappers and the database.
+	 * @param StoreUpdateFollowUps  $followUps The re-sync, the version note and the logger.
 	 *
 	 * @return void
 	 */
@@ -75,12 +84,10 @@ class StoreUpdateService {
 		private readonly StoreService $store,
 		private readonly StoreInstalls $installs,
 		private readonly ShippedTemplateStores $stores,
-		private readonly PlacementPayloadHydrator $hydrator,
-		private readonly PlacementPairing $pairing,
-		private readonly TemplateResyncService $resync,
-		private readonly DashboardVersionService $versions,
-		private readonly LoggerInterface $logger,
+		private readonly StoreUpdateFollowUps $followUps,
 	) {
+		$this->hydrator = new PlacementPayloadHydrator();
+		$this->pairing = new PlacementPairing(stores: $stores);
 	}//end __construct()
 
 	/**
@@ -107,7 +114,13 @@ class StoreUpdateService {
 		}
 
 		if (version_compare($resolved['version'], $install['version'], '>') === false) {
-			return ['success' => true, 'components' => [], 'upToDate' => true, 'version' => $install['version'], 'message' => 'This dashboard is already up to date.'];
+			return [
+				'success'    => true,
+				'components' => [],
+				'upToDate'   => true,
+				'version'    => $install['version'],
+				'message'    => 'This dashboard is already up to date.',
+			];
 		}
 
 		try {
@@ -119,14 +132,11 @@ class StoreUpdateService {
 
 		try {
 			return $this->apply(
-				slug: $slug,
 				dashboard: $dashboard,
-				install: $install,
-				resolved: $resolved,
-				userId: $userId
+				job: ['slug' => $slug, 'install' => $install, 'resolved' => $resolved, 'userId' => $userId]
 			);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->followUps->logger->error(
 				message: 'Store update failed for ' . $slug . ': ' . $e->getMessage(),
 				context: ['app' => Application::APP_ID]
 			);
@@ -137,18 +147,18 @@ class StoreUpdateService {
 	/**
 	 * Pair, write, record, re-sync and note the version.
 	 *
-	 * @param string                                                          $slug      The item slug.
-	 * @param Dashboard                                                       $dashboard The installed dashboard.
-	 * @param array{version: string, dashboardId: int, dashboardUuid: string, placementIds: list<int>} $install The install record.
-	 * @param array{version: string, dashboards: array<int, array<string, mixed>>} $resolved The register item.
-	 * @param string                                                          $userId    The acting administrator.
+	 * @param Dashboard            $dashboard The installed dashboard.
+	 * @param array<string, mixed> $job       `slug`, the `install` record, the `resolved` register item
+	 *                                        and the acting administrator's `userId`.
 	 *
 	 * @return array<string, mixed> The report.
 	 *
 	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
-	private function apply(string $slug, Dashboard $dashboard, array $install, array $resolved, string $userId): array {
-		$isTemplate = ($dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE);
+	private function apply(Dashboard $dashboard, array $job): array {
+		$install = $job['install'];
+		$resolved = $job['resolved'];
+		$userId = (string)$job['userId'];
 		$split = $this->split(
 			placements: $this->stores->placementMapper->findByDashboardId(dashboardId: (int)$dashboard->getId()),
 			tracked: $install['placementIds']
@@ -156,7 +166,7 @@ class StoreUpdateService {
 
 		$plan = $this->pairing->pair(
 			installed: $split['fromInstall'],
-			wanted: $this->wanted(dashboard: $dashboard, payload: $resolved['dashboards'][0], asTemplate: $isTemplate)
+			wanted: $this->wanted(dashboard: $dashboard, payload: $resolved['dashboards'][0])
 		);
 		if ($install['placementIds'] === []) {
 			// A record without ids cannot tell an installed widget from a person's own: remove nothing.
@@ -167,13 +177,12 @@ class StoreUpdateService {
 		$this->pairing->apply(template: $dashboard, plan: $plan);
 
 		$this->installs->record(
-			slug: $slug,
+			slug: $job['slug'],
 			version: $resolved['version'],
-			dashboard: ['id' => (int)$dashboard->getId(), 'uuid' => (string)$dashboard->getUuid()],
-			placementIds: $this->idsAfter(plan: $plan)
+			dashboard: ['id' => (int)$dashboard->getId(), 'uuid' => (string)$dashboard->getUuid(), 'placementIds' => $this->idsAfter(plan: $plan)]
 		);
 
-		$this->versions->captureSnapshot(
+		$this->followUps->versions->captureSnapshot(
 			dashboard: $dashboard,
 			createdBy: $userId,
 			options: ['note' => self::VERSION_NOTE, 'explicit' => true]
@@ -187,7 +196,7 @@ class StoreUpdateService {
 			'message'    => 'Updated to version ' . $resolved['version'] . '.',
 			'version'    => $resolved['version'],
 			'kept'       => count($split['own']),
-			'copies'     => $this->resyncCopies(dashboard: $dashboard, isTemplate: $isTemplate, userId: $userId),
+			'copies'     => $this->resyncCopies(dashboard: $dashboard, userId: $userId),
 		] + $report;
 	}//end apply()
 
@@ -223,18 +232,15 @@ class StoreUpdateService {
 	/**
 	 * The new version's widgets on this dashboard, unsaved.
 	 *
-	 * @param Dashboard            $dashboard  The installed dashboard.
-	 * @param array<string, mixed> $payload    The new version's dashboard payload.
-	 * @param bool                 $asTemplate Whether the dashboard is an admin template.
+	 * @param Dashboard            $dashboard The installed dashboard; on an admin template the compulsory flag is kept.
+	 * @param array<string, mixed> $payload   The new version's dashboard payload.
 	 *
 	 * @return array<int, WidgetPlacement> The widgets.
 	 *
-	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-	 *      Private; the hydrator takes the same one flag.
-	 *
 	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
-	private function wanted(Dashboard $dashboard, array $payload, bool $asTemplate): array {
+	private function wanted(Dashboard $dashboard, array $payload): array {
+		$asTemplate = ($dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE);
 		$wanted = [];
 		foreach ((array)($payload['widgets'] ?? []) as $widget) {
 			if (is_array($widget) === false) {
@@ -264,29 +270,25 @@ class StoreUpdateService {
 
 		$placements = array_merge($placements, $plan['added']);
 
-		return array_values(array_map(static fn (WidgetPlacement $p): int => (int)$p->getId(), $placements));
+		return array_values(array_map(static fn (WidgetPlacement $placement): int => (int)$placement->getId(), $placements));
 	}//end idsAfter()
 
 	/**
 	 * Merge the updated dashboard into its copies when it is a template (REQ-RESYNC-003).
 	 *
-	 * @param Dashboard $dashboard  The updated dashboard.
-	 * @param bool      $isTemplate Whether copies can exist.
-	 * @param string    $userId     The acting administrator.
+	 * @param Dashboard $dashboard The updated dashboard; only an admin template has copies.
+	 * @param string    $userId    The acting administrator.
 	 *
 	 * @return int How many copies were brought along.
 	 *
-	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-	 *      Private; only an admin template has copies.
-	 *
 	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
-	private function resyncCopies(Dashboard $dashboard, bool $isTemplate, string $userId): int {
-		if ($isTemplate === false) {
+	private function resyncCopies(Dashboard $dashboard, string $userId): int {
+		if ($dashboard->getType() !== Dashboard::TYPE_ADMIN_TEMPLATE) {
 			return 0;
 		}
 
-		$result = $this->resync->resync(
+		$result = $this->followUps->resync->resync(
 			templateId: (int)$dashboard->getId(),
 			strategy: TemplateResyncService::STRATEGY_MERGE,
 			dryRun: false,

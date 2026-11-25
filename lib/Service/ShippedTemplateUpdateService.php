@@ -74,16 +74,14 @@ class ShippedTemplateUpdateService implements ShippedTemplateUpdateServiceInterf
 	 * @param ShippedTemplateStores    $stores The dashboard and placement mappers, the database and app config.
 	 * @param PlacementPayloadHydrator $hydrator Builds a widget from a definition, as the importer does.
 	 * @param TemplateResyncService    $resyncService Brings the members' copies along.
-	 * @param PlacementPairing|null    $pairing Pairs and writes the widgets; built over the stores when absent.
 	 */
 	public function __construct(
 		private readonly ShippedTemplateService $shipped,
 		private readonly ShippedTemplateStores $stores,
 		private readonly PlacementPayloadHydrator $hydrator,
 		private readonly TemplateResyncService $resyncService,
-		?PlacementPairing $pairing = null,
 	) {
-		$this->pairing = ($pairing ?? new PlacementPairing(stores: $stores));
+		$this->pairing = new PlacementPairing(stores: $stores);
 	}//end __construct()
 
 	/**

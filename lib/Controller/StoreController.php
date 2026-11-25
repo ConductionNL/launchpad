@@ -36,6 +36,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\StoreInstallFlow;
 use OCA\LaunchPad\Service\StoreInstalls;
 use OCA\LaunchPad\Service\StoreService;
 use OCA\LaunchPad\Service\StoreUpdateService;
@@ -55,13 +56,26 @@ use OCP\IUserSession;
  */
 class StoreController extends Controller {
 	/**
+	 * Which item and version an install created which dashboard (REQ-STORE-011).
+	 *
+	 * @var StoreInstalls|null
+	 */
+	private readonly ?StoreInstalls $installs;
+
+	/**
+	 * Brings an installed item to a newer version in place (REQ-STORE-012).
+	 *
+	 * @var StoreUpdateService|null
+	 */
+	private readonly ?StoreUpdateService $updates;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param IRequest     $request      The HTTP request.
 	 * @param StoreService $storeService Discovery delegation and install.
 	 * @param IUserSession $userSession  The current session.
-	 * @param StoreInstalls|null $installs Which item and version an install created which dashboard (REQ-STORE-011).
-	 * @param StoreUpdateService|null $updates Brings an installed item to a newer version in place (REQ-STORE-012).
+	 * @param StoreInstallFlow|null $flow The install record (REQ-STORE-011) and the in-place update (REQ-STORE-012).
 	 *
 	 * @return void
 	 */
@@ -69,10 +83,11 @@ class StoreController extends Controller {
 		IRequest $request,
 		private readonly StoreService $storeService,
 		private readonly IUserSession $userSession,
-		private readonly ?StoreInstalls $installs = null,
-		private readonly ?StoreUpdateService $updates = null,
+		?StoreInstallFlow $flow = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
+		$this->installs = $flow?->installs;
+		$this->updates = $flow?->updates;
 	}//end __construct()
 
 	/**

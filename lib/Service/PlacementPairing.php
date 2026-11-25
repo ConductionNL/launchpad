@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
  * PlacementPairing
  *
  * Pairs the widgets a dashboard has now with the widgets a new version of its
@@ -23,6 +26,9 @@
  * Shared by the shipped-template update (admin-templates REQ-TMPL-020) and the
  * marketplace update (dashboard-store REQ-STORE-012).
  *
+ * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+ * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+ *
  * @category  Service
  * @package   OCA\LaunchPad\Service
  * @author    Conduction b.v. <info@conduction.nl>
@@ -30,19 +36,13 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
- *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
- *
- * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
- * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
  */
 
 declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
-use DateTime;
+use DateTimeImmutable;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use RuntimeException;
@@ -106,6 +106,9 @@ class PlacementPairing {
 	 * @return array{unchanged:array<int,WidgetPlacement>, added:array<int,WidgetPlacement>,
 	 *               changed:array<int,array{installed:WidgetPlacement, wanted:WidgetPlacement}>,
 	 *               removed:array<int,WidgetPlacement>}
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function pair(array $installed, array $wanted): array {
 		$exact = $this->pairBy(
@@ -240,6 +243,9 @@ class PlacementPairing {
 	 *
 	 * @return array{added:array<int,string>, removed:array<int,string>,
 	 *               changed:array<int,array{widget:string, fields:array<int,string>}>, unchanged:int}
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function describe(array $plan): array {
 		$changed = [];
@@ -294,9 +300,12 @@ class PlacementPairing {
 	 * @return void
 	 *
 	 * @throws RuntimeException When a write fails. Nothing is kept then.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function apply(Dashboard $template, array $plan): void {
-		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		$now = (new DateTimeImmutable())->format(format: 'Y-m-d H:i:s');
 		$this->stores->db->beginTransaction();
 
 		try {

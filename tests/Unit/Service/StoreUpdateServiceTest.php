@@ -29,11 +29,11 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\DashboardVersionService;
-use OCA\LaunchPad\Service\PlacementPairing;
 use OCA\LaunchPad\Service\PlacementPayloadHydrator;
 use OCA\LaunchPad\Service\ShippedTemplateStores;
 use OCA\LaunchPad\Service\StoreInstalls;
 use OCA\LaunchPad\Service\StoreService;
+use OCA\LaunchPad\Service\StoreUpdateFollowUps;
 use OCA\LaunchPad\Service\StoreUpdateService;
 use OCA\LaunchPad\Service\TemplateResyncService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -56,6 +56,7 @@ class StoreUpdateServiceTest extends TestCase {
 	/** @var array<int, WidgetPlacement> Stored widgets by id. */
 	private array $placements = [];
 
+	/** @var int The next stored id. */
 	private int $nextId = 200;
 
 	/** @var StoreService&MockObject */
@@ -67,8 +68,10 @@ class StoreUpdateServiceTest extends TestCase {
 	/** @var DashboardVersionService&MockObject */
 	private $versions;
 
+	/** @var StoreInstalls The install record under test. */
 	private StoreInstalls $installs;
 
+	/** @var StoreUpdateService The service under test. */
 	private StoreUpdateService $updates;
 
 	/**
@@ -79,7 +82,7 @@ class StoreUpdateServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$config = $this->createMock(IAppConfig::class);
+		$config = $this->createMock(originalClassName: IAppConfig::class);
 		$config->method('getValueString')->willReturnCallback(fn (): string => $this->stored);
 		$config->method('setValueString')->willReturnCallback(
 			function (string $app, string $key, string $value): bool {
@@ -92,24 +95,20 @@ class StoreUpdateServiceTest extends TestCase {
 		$stores = new ShippedTemplateStores(
 			dashboardMapper: $this->dashboardMapper(),
 			placementMapper: $placementMapper,
-			db: $this->createMock(IDBConnection::class),
+			db: $this->createMock(originalClassName: IDBConnection::class),
 			appConfig: $config
 		);
 
-		$this->store = $this->createMock(StoreService::class);
-		$this->resync = $this->createMock(TemplateResyncService::class);
-		$this->versions = $this->createMock(DashboardVersionService::class);
+		$this->store = $this->createMock(originalClassName: StoreService::class);
+		$this->resync = $this->createMock(originalClassName: TemplateResyncService::class);
+		$this->versions = $this->createMock(originalClassName: DashboardVersionService::class);
 		$this->installs = new StoreInstalls(appConfig: $config, placements: $placementMapper);
 
 		$this->updates = new StoreUpdateService(
 			store: $this->store,
 			installs: $this->installs,
 			stores: $stores,
-			hydrator: new PlacementPayloadHydrator(),
-			pairing: new PlacementPairing(stores: $stores),
-			resync: $this->resync,
-			versions: $this->versions,
-			logger: new NullLogger()
+			followUps: new StoreUpdateFollowUps(resync: $this->resync, versions: $this->versions, logger: new NullLogger())
 		);
 	}//end setUp()
 
@@ -127,7 +126,7 @@ class StoreUpdateServiceTest extends TestCase {
 		$this->offer(version: '1.1.0', widgets: [self::widget(title: 'Wmo cijfers', y: 2), self::widget(title: 'Wachtlijst Wmo', y: 4)]);
 
 		$this->versions->expects($this->once())->method('captureSnapshot')->with(
-			$this->identicalTo($dashboard),
+			$this->identicalTo(value: $dashboard),
 			'admin',
 			['note' => StoreUpdateService::VERSION_NOTE, 'explicit' => true]
 		);
@@ -135,25 +134,25 @@ class StoreUpdateServiceTest extends TestCase {
 
 		$result = $this->updates->update(slug: 'sociaal-domein', userId: 'admin');
 
-		$this->assertTrue($result['success']);
-		$this->assertSame('1.1.0', $result['version']);
-		$this->assertSame(['Wachtlijst Wmo (text)'], $result['added']);
-		$this->assertSame([], $result['removed']);
-		$this->assertSame(1, $result['kept']);
+		$this->assertTrue(condition: $result['success']);
+		$this->assertSame(expected: '1.1.0', actual: $result['version']);
+		$this->assertSame(expected: ['Wachtlijst Wmo (text)'], actual: $result['added']);
+		$this->assertSame(expected: [], actual: $result['removed']);
+		$this->assertSame(expected: 1, actual: $result['kept']);
 
 		$titles = array_map(static fn (WidgetPlacement $p): string => (string)$p->getCustomTitle(), $this->widgetsOn(dashboard: $dashboard));
 		sort($titles);
-		$this->assertSame(['Notities', 'Wachtlijst Wmo', 'Wmo cijfers'], $titles);
-		$this->assertArrayHasKey($wmo->getId(), $this->placements, 'the paired widget keeps its row');
-		$this->assertSame(2, $this->placements[$wmo->getId()]->getGridY());
-		$this->assertArrayHasKey($notes->getId(), $this->placements);
-		$this->assertSame('owner-1', $dashboard->getUserId(), 'owner unchanged');
+		$this->assertSame(expected: ['Notities', 'Wachtlijst Wmo', 'Wmo cijfers'], actual: $titles);
+		$this->assertArrayHasKey(key: $wmo->getId(), array: $this->placements, message: 'the paired widget keeps its row');
+		$this->assertSame(expected: 2, actual: $this->placements[$wmo->getId()]->getGridY());
+		$this->assertArrayHasKey(key: $notes->getId(), array: $this->placements);
+		$this->assertSame(expected: 'owner-1', actual: $dashboard->getUserId(), message: 'owner unchanged');
 
 		$record = $this->installs->all()['sociaal-domein'];
-		$this->assertSame('1.1.0', $record['version']);
-		$this->assertSame($dashboard->getId(), $record['dashboardId']);
-		$this->assertNotContains($notes->getId(), $record['placementIds'], 'a person\'s own widget never becomes an installed one');
-		$this->assertCount(2, $record['placementIds']);
+		$this->assertSame(expected: '1.1.0', actual: $record['version']);
+		$this->assertSame(expected: $dashboard->getId(), actual: $record['dashboardId']);
+		$this->assertNotContains(needle: $notes->getId(), haystack: $record['placementIds'], message: 'an own widget never becomes an installed one');
+		$this->assertCount(expectedCount: 2, haystack: $record['placementIds']);
 	}//end testAnUpdateKeepsTheDashboardAndThePeoplesOwnWidgets()
 
 	/**
@@ -168,11 +167,11 @@ class StoreUpdateServiceTest extends TestCase {
 
 		$result = $this->updates->update(slug: 'sociaal-domein', userId: 'admin');
 
-		$this->assertTrue($result['success']);
+		$this->assertTrue(condition: $result['success']);
 		$titles = array_map(static fn (WidgetPlacement $p): string => (string)$p->getCustomTitle(), $this->widgetsOn(dashboard: $dashboard));
 		sort($titles);
-		$this->assertSame(['Kaart', 'Notities', 'Wachtlijst Wmo'], $titles);
-		$this->assertArrayHasKey($notes->getId(), $this->placements);
+		$this->assertSame(expected: ['Kaart', 'Notities', 'Wachtlijst Wmo'], actual: $titles);
+		$this->assertArrayHasKey(key: $notes->getId(), array: $this->placements);
 	}//end testADroppedInstalledWidgetIsRemovedAndAnOwnOneStays()
 
 	/**
@@ -183,14 +182,15 @@ class StoreUpdateServiceTest extends TestCase {
 	public function testARecordWithoutWidgetIdsRemovesNothing(): void {
 		$dashboard = $this->install(type: Dashboard::TYPE_USER);
 		$this->addWidget(dashboard: $dashboard, title: 'Notities', y: 8);
-		$this->stored = (string)json_encode(['sociaal-domein' => ['version' => '1.0.0', 'dashboardId' => $dashboard->getId(), 'dashboardUuid' => 'uuid-sd']]);
+		$legacy = ['version' => '1.0.0', 'dashboardId' => $dashboard->getId(), 'dashboardUuid' => 'uuid-sd'];
+		$this->stored = (string)json_encode(value: ['sociaal-domein' => $legacy]);
 		$this->offer(version: '1.1.0', widgets: [self::widget(title: 'Wachtlijst Wmo', y: 4)]);
 
 		$result = $this->updates->update(slug: 'sociaal-domein', userId: 'admin');
 
-		$this->assertTrue($result['success']);
-		$this->assertSame([], $result['removed']);
-		$this->assertCount(3, $this->widgetsOn(dashboard: $dashboard));
+		$this->assertTrue(condition: $result['success']);
+		$this->assertSame(expected: [], actual: $result['removed']);
+		$this->assertCount(expectedCount: 3, haystack: $this->widgetsOn(dashboard: $dashboard));
 	}//end testARecordWithoutWidgetIdsRemovesNothing()
 
 	/**
@@ -207,7 +207,7 @@ class StoreUpdateServiceTest extends TestCase {
 
 		$result = $this->updates->update(slug: 'sociaal-domein', userId: 'admin');
 
-		$this->assertSame(3, $result['copies']);
+		$this->assertSame(expected: 3, actual: $result['copies']);
 	}//end testAnInstalledTemplateResyncsItsCopies()
 
 	/**
@@ -222,9 +222,9 @@ class StoreUpdateServiceTest extends TestCase {
 
 		$result = $this->updates->update(slug: 'sociaal-domein', userId: 'admin');
 
-		$this->assertTrue($result['success']);
-		$this->assertTrue($result['upToDate']);
-		$this->assertSame('Wmo cijfers', $this->widgetsOn(dashboard: $dashboard)[0]->getCustomTitle());
+		$this->assertTrue(condition: $result['success']);
+		$this->assertTrue(condition: $result['upToDate']);
+		$this->assertSame(expected: 'Wmo cijfers', actual: $this->widgetsOn(dashboard: $dashboard)[0]->getCustomTitle());
 	}//end testAnUpToDateInstallChangesNothing()
 
 	/**
@@ -234,7 +234,7 @@ class StoreUpdateServiceTest extends TestCase {
 	 */
 	public function testNothingInstalledIsNotInstalled(): void {
 		$this->store->expects($this->never())->method('resolveItem');
-		$this->assertTrue($this->updates->update(slug: 'onbekend', userId: 'admin')['notInstalled']);
+		$this->assertTrue(condition: $this->updates->update(slug: 'onbekend', userId: 'admin')['notInstalled']);
 	}//end testNothingInstalledIsNotInstalled()
 
 	/**
@@ -249,8 +249,8 @@ class StoreUpdateServiceTest extends TestCase {
 
 		$result = $this->updates->update(slug: 'sociaal-domein', userId: 'admin');
 
-		$this->assertTrue($result['notInstalled']);
-		$this->assertSame([], $this->installs->all());
+		$this->assertTrue(condition: $result['notInstalled']);
+		$this->assertSame(expected: [], actual: $this->installs->all());
 	}//end testADeletedDashboardIsForgotten()
 
 	/**
@@ -264,8 +264,8 @@ class StoreUpdateServiceTest extends TestCase {
 
 		$result = $this->updates->update(slug: 'sociaal-domein', userId: 'admin');
 
-		$this->assertFalse($result['success']);
-		$this->assertSame('That template could not be found in the registry.', $result['message']);
+		$this->assertFalse(condition: $result['success']);
+		$this->assertSame(expected: 'That template could not be found in the registry.', actual: $result['message']);
 	}//end testARegisterRefusalIsPassedThrough()
 
 	/**
@@ -341,7 +341,15 @@ class StoreUpdateServiceTest extends TestCase {
 	 * @return array<string, mixed> The payload.
 	 */
 	private static function widget(string $title, int $y): array {
-		return ['widgetId' => 'text', 'gridX' => 0, 'gridY' => $y, 'gridWidth' => 6, 'gridHeight' => 2, 'customTitle' => $title, 'content' => ['text' => $title]];
+		return [
+			'widgetId'    => 'text',
+			'gridX'       => 0,
+			'gridY'       => $y,
+			'gridWidth'   => 6,
+			'gridHeight'  => 2,
+			'customTitle' => $title,
+			'content'     => ['text' => $title],
+		];
 	}//end widget()
 
 	/**
@@ -350,7 +358,7 @@ class StoreUpdateServiceTest extends TestCase {
 	 * @return DashboardMapper&MockObject
 	 */
 	private function dashboardMapper() {
-		$mapper = $this->createMock(DashboardMapper::class);
+		$mapper = $this->createMock(originalClassName: DashboardMapper::class);
 		$mapper->method('update')->willReturnArgument(0);
 		$mapper->method('find')->willReturnCallback(
 			fn (int $id): Dashboard => $this->dashboards[$id] ?? throw new DoesNotExistException('no dashboard ' . $id)
@@ -365,7 +373,7 @@ class StoreUpdateServiceTest extends TestCase {
 	 * @return WidgetPlacementMapper&MockObject
 	 */
 	private function placementMapper() {
-		$mapper = $this->createMock(WidgetPlacementMapper::class);
+		$mapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
 		$mapper->method('insert')->willReturnCallback(
 			function (WidgetPlacement $placement): WidgetPlacement {
 				$placement->setId($this->nextId++);

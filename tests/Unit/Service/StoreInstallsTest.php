@@ -20,6 +20,7 @@ use DateTimeImmutable;
 use OCA\LaunchPad\Controller\StoreController;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Listener\StoreInstallsListener;
+use OCA\LaunchPad\Service\StoreInstallFlow;
 use OCA\LaunchPad\Service\StoreInstalls;
 use OCA\LaunchPad\Service\StoreOpenLinks;
 use OCA\LaunchPad\Service\DashboardTreeService;
@@ -162,7 +163,7 @@ class StoreInstallsTest extends TestCase {
 			request: $this->createMock(originalClassName: IRequest::class),
 			storeService: $service,
 			userSession: $session,
-			installs: $installs
+			flow: new StoreInstallFlow(installs: $installs)
 		);
 
 		$controller->install(slug: 'intranet-gemeente');

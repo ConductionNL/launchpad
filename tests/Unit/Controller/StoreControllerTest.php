@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use OCA\LaunchPad\Controller\StoreController;
+use OCA\LaunchPad\Service\StoreInstallFlow;
 use OCA\LaunchPad\Service\StoreInstalls;
 use OCA\LaunchPad\Service\StoreService;
 use OCA\LaunchPad\Service\StoreUpdateService;
@@ -133,10 +134,10 @@ class StoreControllerTest extends TestCase {
 	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function testUpdateIsAdminOnly(): void {
-		$method = new ReflectionMethod(StoreController::class, 'update');
+		$method = new ReflectionMethod(objectOrMethod: StoreController::class, method: 'update');
 
-		$this->assertCount(0, $method->getAttributes(NoAdminRequired::class));
-		$this->assertCount(1, $method->getAttributes(AuthorizedAdminSetting::class));
+		$this->assertCount(expectedCount: 0, haystack: $method->getAttributes(name: NoAdminRequired::class));
+		$this->assertCount(expectedCount: 1, haystack: $method->getAttributes(name: AuthorizedAdminSetting::class));
 	}//end testUpdateIsAdminOnly()
 
 	/**
@@ -148,23 +149,23 @@ class StoreControllerTest extends TestCase {
 	 */
 	public function testUpdateStatusFollowsTheReport(): void {
 		$this->signIn(uid: 'admin');
-		$updates = $this->createMock(StoreUpdateService::class);
+		$updates = $this->createMock(originalClassName: StoreUpdateService::class);
 		$updates->method('update')->willReturnOnConsecutiveCalls(
 			['success' => true, 'version' => '1.1.0'],
 			['success' => false, 'notInstalled' => true, 'message' => 'not installed'],
 			['success' => false, 'message' => 'refused']
 		);
-		$updates->expects($this->exactly(3))->method('update')->with('sociaal-domein', 'admin');
+		$updates->expects($this->exactly(count: 3))->method('update')->with('sociaal-domein', 'admin');
 		$controller = new StoreController(
 			request: $this->request,
 			storeService: $this->storeService,
 			userSession: $this->userSession,
-			updates: $updates
+			flow: new StoreInstallFlow(updates: $updates)
 		);
 
-		$this->assertSame(Http::STATUS_OK, $controller->update(slug: 'sociaal-domein')->getStatus());
-		$this->assertSame(Http::STATUS_NOT_FOUND, $controller->update(slug: 'sociaal-domein')->getStatus());
-		$this->assertSame(Http::STATUS_BAD_REQUEST, $controller->update(slug: 'sociaal-domein')->getStatus());
+		$this->assertSame(expected: Http::STATUS_OK, actual: $controller->update(slug: 'sociaal-domein')->getStatus());
+		$this->assertSame(expected: Http::STATUS_NOT_FOUND, actual: $controller->update(slug: 'sociaal-domein')->getStatus());
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $controller->update(slug: 'sociaal-domein')->getStatus());
 	}//end testUpdateStatusFollowsTheReport()
 
 	/**
@@ -177,10 +178,11 @@ class StoreControllerTest extends TestCase {
 	 */
 	public function testInstallOfAnInstalledItemUpdatesInPlace(): void {
 		$this->signIn(uid: 'admin');
-		$installs = $this->createMock(StoreInstalls::class);
-		$installs->method('all')->willReturn(['sociaal-domein' => ['version' => '1.0.0', 'dashboardId' => 41, 'dashboardUuid' => 'u', 'placementIds' => [1]]]);
+		$installs = $this->createMock(originalClassName: StoreInstalls::class);
+		$record = ['version' => '1.0.0', 'dashboardId' => 41, 'dashboardUuid' => 'u', 'placementIds' => [1]];
+		$installs->method('all')->willReturn(['sociaal-domein' => $record]);
 		$installs->expects($this->never())->method('record');
-		$updates = $this->createMock(StoreUpdateService::class);
+		$updates = $this->createMock(originalClassName: StoreUpdateService::class);
 		$updates->expects($this->once())->method('update')->with('sociaal-domein', 'admin')
 			->willReturn(['success' => true, 'components' => [], 'version' => '1.1.0']);
 		$this->storeService->expects($this->never())->method('install');
@@ -188,14 +190,13 @@ class StoreControllerTest extends TestCase {
 			request: $this->request,
 			storeService: $this->storeService,
 			userSession: $this->userSession,
-			installs: $installs,
-			updates: $updates
+			flow: new StoreInstallFlow(installs: $installs, updates: $updates)
 		);
 
 		$response = $controller->install(slug: 'sociaal-domein');
 
-		$this->assertSame(Http::STATUS_OK, $response->getStatus());
-		$this->assertSame('1.1.0', $response->getData()['version']);
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(expected: '1.1.0', actual: $response->getData()['version']);
 	}//end testInstallOfAnInstalledItemUpdatesInPlace()
 
 	/**
@@ -205,9 +206,9 @@ class StoreControllerTest extends TestCase {
 	 */
 	public function testAFirstInstallStillCreates(): void {
 		$this->signIn(uid: 'admin');
-		$installs = $this->createMock(StoreInstalls::class);
+		$installs = $this->createMock(originalClassName: StoreInstalls::class);
 		$installs->method('all')->willReturn([]);
-		$updates = $this->createMock(StoreUpdateService::class);
+		$updates = $this->createMock(originalClassName: StoreUpdateService::class);
 		$updates->expects($this->never())->method('update');
 		$this->storeService->expects($this->once())->method('install')
 			->willReturn(['success' => true, 'message' => 'Installed 1 of 1.', 'components' => []]);
@@ -215,11 +216,10 @@ class StoreControllerTest extends TestCase {
 			request: $this->request,
 			storeService: $this->storeService,
 			userSession: $this->userSession,
-			installs: $installs,
-			updates: $updates
+			flow: new StoreInstallFlow(installs: $installs, updates: $updates)
 		);
 
-		$this->assertSame(Http::STATUS_OK, $controller->install(slug: 'sociaal-domein')->getStatus());
+		$this->assertSame(expected: Http::STATUS_OK, actual: $controller->install(slug: 'sociaal-domein')->getStatus());
 	}//end testAFirstInstallStillCreates()
 
 	/**
@@ -228,16 +228,16 @@ class StoreControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testUpdateWithoutAUserIsUnauthorized(): void {
-		$updates = $this->createMock(StoreUpdateService::class);
+		$updates = $this->createMock(originalClassName: StoreUpdateService::class);
 		$updates->expects($this->never())->method('update');
 		$controller = new StoreController(
 			request: $this->request,
 			storeService: $this->storeService,
 			userSession: $this->userSession,
-			updates: $updates
+			flow: new StoreInstallFlow(updates: $updates)
 		);
 
-		$this->assertSame(Http::STATUS_UNAUTHORIZED, $controller->update(slug: 'sociaal-domein')->getStatus());
+		$this->assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $controller->update(slug: 'sociaal-domein')->getStatus());
 	}//end testUpdateWithoutAUserIsUnauthorized()
 
 	/**

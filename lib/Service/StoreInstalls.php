@@ -99,17 +99,17 @@ class StoreInstalls {
 	 * Without a list they are read from the dashboard, which right after an
 	 * install holds only the install's widgets.
 	 *
-	 * @param string         $slug         The register item slug.
-	 * @param string         $version      The installed version.
-	 * @param array          $dashboard    The dashboard the install created: `{id, uuid}`.
-	 * @param list<int>|null $placementIds The widgets that came from the install, or null to read them.
+	 * @param string $slug      The register item slug.
+	 * @param string $version   The installed version.
+	 * @param array  $dashboard The dashboard the install created: `{id, uuid}`, and optionally
+	 *                          `placementIds`, the widgets that came from the install.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
 	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
-	public function record(string $slug, string $version, array $dashboard, ?array $placementIds = null): void {
+	public function record(string $slug, string $version, array $dashboard): void {
 		$dashboardId = (int)($dashboard['id'] ?? 0);
 		if ($slug === '' || $dashboardId <= 0) {
 			return;
@@ -120,7 +120,7 @@ class StoreInstalls {
 			'version'       => $version,
 			'dashboardId'   => $dashboardId,
 			'dashboardUuid' => (string)($dashboard['uuid'] ?? ''),
-			'placementIds'  => self::ids(value: ($placementIds ?? $this->placementIdsOf(dashboardId: $dashboardId))),
+			'placementIds'  => self::ids(value: ($dashboard['placementIds'] ?? $this->placementIdsOf(dashboardId: $dashboardId))),
 		];
 		$this->store(installs: $installs);
 	}//end record()

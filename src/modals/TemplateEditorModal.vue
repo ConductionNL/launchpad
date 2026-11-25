@@ -65,6 +65,7 @@
 			<div class="launchpad-admin__field">
 				<NcSelect
 					v-model="form.targetGroups"
+					class="launchpad-admin__target-groups"
 					:options="availableGroups"
 					:multiple="true"
 					:inputLabel="t('launchpad', 'Target groups')"
@@ -286,6 +287,10 @@ export default {
 	display: block;
 	margin-bottom: 4px;
 	font-weight: 500;
+}
+
+.launchpad-admin__target-groups {
+	width: 100%;
 }
 
 .launchpad-admin__modal {

@@ -145,6 +145,12 @@ class AdminSettingsService {
 			// REQ-SHARE-014: who may share (empty = everyone) and with whom.
 			'sharingAllowedGroups' => $this->storedGroupList(value: $settings[AdminSettingKey::SHARING_ALLOWED_GROUPS->value] ?? null),
 			'sharingRecipientScope' => $this->storedRecipientScope(value: $settings[AdminSettingKey::SHARING_RECIPIENT_SCOPE->value] ?? null),
+			// REQ-SHARE-015: Everyone, Only these groups or Nobody; public links on unless switched off.
+			'sharingAllowed' => $this->storedAllowedMode(
+				value: $settings[AdminSettingKey::SHARING_ALLOWED->value] ?? null,
+				groups: $settings[AdminSettingKey::SHARING_ALLOWED_GROUPS->value] ?? null
+			),
+			'publicLinksAllowed' => ($settings[AdminSettingKey::PUBLIC_LINKS_ALLOWED->value] ?? true) !== false,
 			// Legacy-widget-bridge spec: the bridge defaults to OFF because
 			// turning it on makes the workspace read the Nextcloud widget
 			// registry, and IManager::getWidgets() injects the scripts of EVERY
@@ -483,6 +489,10 @@ class AdminSettingsService {
 			allowedGroups: $settings['sharingAllowedGroups'] ?? null,
 			recipientScope: $settings['sharingRecipientScope'] ?? null
 		);
+		$this->persistSharingPolicy(
+			allowed: $settings['sharingAllowed'] ?? null,
+			publicLinks: $settings['publicLinksAllowed'] ?? null
+		);
 
 		$this->persistSharingAndBridgeSettings(
 			defaultSharePermissionLevel: $settings['defaultSharePermissionLevel'] ?? null,
@@ -735,6 +745,56 @@ class AdminSettingsService {
 
 		return $value;
 	}//end storedRecipientScope()
+
+	/**
+	 * A stored "Sharing allowed for" choice; without one, `groups` when groups
+	 * are set and `everyone` otherwise (how it read before the choice existed).
+	 *
+	 * @param mixed $value  The stored choice.
+	 * @param mixed $groups The stored group list.
+	 *
+	 * @return string One of SharingLimits::ALLOWED_MODES.
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	private function storedAllowedMode(mixed $value, mixed $groups): string {
+		if (in_array($value, SharingLimits::ALLOWED_MODES, true) === true) {
+			return $value;
+		}
+
+		if ($this->storedGroupList(value: $groups) === []) {
+			return SharingLimits::ALLOWED_EVERYONE;
+		}
+
+		return SharingLimits::ALLOWED_GROUPS;
+	}//end storedAllowedMode()
+
+	/**
+	 * Persist who may share and whether public links may be created
+	 * (REQ-SHARE-015). A null value is left as it is.
+	 *
+	 * @param string|null $allowed     `everyone`, `groups` or `none`.
+	 * @param bool|null   $publicLinks Whether public links may be created.
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException When the choice is unknown.
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	private function persistSharingPolicy(?string $allowed, ?bool $publicLinks): void {
+		if ($allowed !== null) {
+			if (in_array(needle: $allowed, haystack: SharingLimits::ALLOWED_MODES, strict: true) === false) {
+				throw new InvalidArgumentException(
+					message: "Invalid value for sharingAllowed. Must be 'everyone', 'groups' or 'none'."
+				);
+			}
+
+			$this->settingMapper->setSetting(key: AdminSettingKey::SHARING_ALLOWED->value, value: $allowed);
+		}
+
+		$this->persistIfGiven(key: AdminSettingKey::PUBLIC_LINKS_ALLOWED->value, value: $publicLinks);
+	}//end persistSharingPolicy()
 
 	/**
 	 * Persist who may share and with whom (REQ-SHARE-014). A null value is left as it is.

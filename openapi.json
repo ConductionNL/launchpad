@@ -3871,6 +3871,20 @@
                                             "null"
                                         ],
                                         "description": "LaunchPad is the default app after sign-in (REQ-PSP-003)."
+                                    },
+                                    "sharingAllowed": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "description": "`everyone`, `groups` or `none`: who may share (REQ-SHARE-015)."
+                                    },
+                                    "publicLinksAllowed": {
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ],
+                                        "description": "Whether public links may be created (REQ-SHARE-015)."
                                     }
                                 }
                             }

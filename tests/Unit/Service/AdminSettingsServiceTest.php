@@ -76,6 +76,9 @@ class AdminSettingsServiceTest extends TestCase {
 				'forcedShareGroups' => [],
 				'sharingAllowedGroups' => [],
 				'sharingRecipientScope' => 'everyone',
+				// REQ-SHARE-015: everyone may share and public links are on until changed.
+				'sharingAllowed' => 'everyone',
+				'publicLinksAllowed' => true,
 				'legacyWidgetBridgeEnabled' => false,
 				'maxDashboardsPerUser' => 0,
 				'maxWidgetsPerDashboard' => 0,
@@ -171,6 +174,9 @@ class AdminSettingsServiceTest extends TestCase {
 		// dashboard-sharing REQ-SHARE-014: who may share, and with whom.
 		$this->assertArrayHasKey('sharingAllowedGroups', $settings);
 		$this->assertArrayHasKey('sharingRecipientScope', $settings);
+		// REQ-SHARE-015.
+		$this->assertArrayHasKey('sharingAllowed', $settings);
+		$this->assertArrayHasKey('publicLinksAllowed', $settings);
 		$this->assertArrayHasKey('legacyWidgetBridgeEnabled', $settings);
 		// dashboard-quota-limits REQ-QUOTA-001 — two numeric quota keys.
 		$this->assertArrayHasKey('maxDashboardsPerUser', $settings);
@@ -194,7 +200,7 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('pinnedCommunities', $settings);
 		// REQ-PSP-003.
 		$this->assertArrayHasKey('defaultAppEnabled', $settings);
-		$this->assertCount(expectedCount: 22, haystack: $settings);
+		$this->assertCount(expectedCount: 24, haystack: $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	/**

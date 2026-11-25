@@ -23,6 +23,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/record-parity-requirements/specs/dashboard-sharing/spec.md
+ * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md
  */
 
 declare(strict_types=1);
@@ -32,7 +33,9 @@ namespace OCA\LaunchPad\Service;
 use OCA\LaunchPad\Db\AdminSettingKey;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\DashboardShare;
+use InvalidArgumentException;
 use OCA\LaunchPad\Exception\ForbiddenException;
+use OCP\AppFramework\OCS\OCSForbiddenException;
 
 /**
  * The admin limits on dashboard sharing.
@@ -55,6 +58,33 @@ class SharingLimits {
 	 * @var list<string>
 	 */
 	public const SCOPES = [self::SCOPE_EVERYONE, self::SCOPE_SHARED_GROUPS];
+
+	/**
+	 * Everyone may share.
+	 */
+	public const ALLOWED_EVERYONE = 'everyone';
+
+	/**
+	 * Only members of the allowed groups may share.
+	 */
+	public const ALLOWED_GROUPS = 'groups';
+
+	/**
+	 * Nobody but an administrator may share (REQ-SHARE-015).
+	 */
+	public const ALLOWED_NONE = 'none';
+
+	/**
+	 * The "Sharing allowed for" choices an administrator can pick.
+	 *
+	 * @var list<string>
+	 */
+	public const ALLOWED_MODES = [self::ALLOWED_EVERYONE, self::ALLOWED_GROUPS, self::ALLOWED_NONE];
+
+	/**
+	 * The Nextcloud administrators group.
+	 */
+	private const ADMIN_GROUP = 'admin';
 
 	/**
 	 * Constructor.
@@ -87,6 +117,40 @@ class SharingLimits {
 	}//end allowedGroups()
 
 	/**
+	 * Who may share: everyone, the allowed groups, or nobody but an administrator.
+	 *
+	 * Without a stored choice it follows the group list, as before the choice
+	 * existed: groups set means `groups`, none set means `everyone`.
+	 *
+	 * @return string One of ALLOWED_MODES.
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	public function allowedMode(): string {
+		$stored = $this->settings->getValue(key: AdminSettingKey::SHARING_ALLOWED->value, default: null);
+		if (in_array($stored, self::ALLOWED_MODES, true) === true) {
+			return $stored;
+		}
+
+		if ($this->allowedGroups() === []) {
+			return self::ALLOWED_EVERYONE;
+		}
+
+		return self::ALLOWED_GROUPS;
+	}//end allowedMode()
+
+	/**
+	 * Whether public links may be created; on unless an administrator switched them off.
+	 *
+	 * @return bool False only for a stored `false`.
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	public function publicLinksAllowed(): bool {
+		return $this->settings->getValue(key: AdminSettingKey::PUBLIC_LINKS_ALLOWED->value, default: true) !== false;
+	}//end publicLinksAllowed()
+
+	/**
 	 * Who may receive a share: everyone, or people who share a group with the sharer.
 	 *
 	 * An unknown stored value reads as `everyone`, today's behaviour.
@@ -107,15 +171,24 @@ class SharingLimits {
 	/**
 	 * Whether this user may share dashboards at all.
 	 *
+	 * Under `none` only an administrator may (REQ-SHARE-015); under `groups`
+	 * a member of an allowed group; an empty group list lets everyone share.
+	 *
 	 * @param string $userId The sharer.
 	 *
-	 * @return bool True when no groups are set, or the user is in one of them.
+	 * @return bool True when the user may share.
 	 *
 	 * @spec openspec/changes/record-parity-requirements/specs/dashboard-sharing/spec.md#requirement-administrators-decide-who-may-share-and-with-whom-req-share-014
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	public function mayShare(string $userId): bool {
+		$mode = $this->allowedMode();
+		if ($mode === self::ALLOWED_NONE) {
+			return in_array(self::ADMIN_GROUP, $this->groupsOf(userId: $userId), true);
+		}
+
 		$allowed = $this->allowedGroups();
-		if ($allowed === []) {
+		if ($mode === self::ALLOWED_EVERYONE || $allowed === []) {
 			return true;
 		}
 
@@ -171,6 +244,34 @@ class SharingLimits {
 			throw new ForbiddenException(message: 'You can only share with people who share a group with you.');
 		}
 	}//end assertMayShare()
+
+	/**
+	 * Refuse a public link the policy does not allow (REQ-SHARE-015): public
+	 * links switched off, a caller who may not share, or no expiry date.
+	 *
+	 * @param string      $callerId  The person creating the link.
+	 * @param string|null $expiresAt The requested expiry date.
+	 *
+	 * @return void
+	 *
+	 * @throws OCSForbiddenException    When public links are off or the caller may not share (403).
+	 * @throws InvalidArgumentException When the link has no expiry date (400).
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	public function assertMayCreatePublicLink(string $callerId, ?string $expiresAt): void {
+		if ($this->publicLinksAllowed() === false) {
+			throw new OCSForbiddenException(message: 'Public links are switched off.');
+		}
+
+		if ($this->mayShare(userId: $callerId) === false) {
+			throw new OCSForbiddenException(message: 'You are not allowed to share dashboards.');
+		}
+
+		if ($expiresAt === null || trim(string: $expiresAt) === '') {
+			throw new InvalidArgumentException(message: 'A public link needs an expiry date (expiresAt).');
+		}
+	}//end assertMayCreatePublicLink()
 
 	/**
 	 * The group ids a user is in; none for an unknown user.

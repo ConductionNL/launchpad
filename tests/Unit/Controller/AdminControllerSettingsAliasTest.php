@@ -89,7 +89,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 20 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 22 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 
@@ -279,6 +279,21 @@ class AdminControllerSettingsAliasTest extends TestCase {
 
 		$this->controller->updateSettings(defaultAppEnabled: false);
 	}//end testDefaultAppSwitchIsPassedThrough()
+
+	/**
+	 * REQ-SHARE-015: "Sharing allowed for" and the public-link switch reach the service.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	public function testTheSharingPolicyIsPassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['sharingAllowed' => 'none', 'publicLinksAllowed' => false]));
+
+		$this->controller->updateSettings(sharingAllowed: 'none', publicLinksAllowed: false);
+	}//end testTheSharingPolicyIsPassedThrough()
 
 	/**
 	 * Engagement-communities REQ-COMM-003: the pinned tokens reach the

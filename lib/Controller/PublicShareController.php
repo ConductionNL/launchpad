@@ -33,6 +33,7 @@ use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\ResponseDefinitions;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\PublicShareService;
+use OCA\LaunchPad\Service\SharingLimits;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -71,6 +72,7 @@ class PublicShareController extends Controller {
 	 * @param LoggerInterface $logger PSR-3 logger.
 	 * @param string|null $userId Authenticated user ID (null for public endpoints).
 	 * @param ConditionalServiceInterface|null $visibility Applies the widget visibility rules.
+	 * @param SharingLimits|null $limits Whether public links may be created, by whom, and that they expire (REQ-SHARE-015).
 	 */
 	public function __construct(
 		IRequest $request,
@@ -79,6 +81,7 @@ class PublicShareController extends Controller {
 		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
 		private readonly ?ConditionalServiceInterface $visibility = null,
+		private readonly ?SharingLimits $limits = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -99,6 +102,7 @@ class PublicShareController extends Controller {
 	 * @openapi-stability public
 	 * @spec openspec/specs/rest-api-reference/spec.md
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
+	 * @spec openspec/changes/sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 	 */
 	#[NoAdminRequired]
 	public function create(
@@ -111,16 +115,24 @@ class PublicShareController extends Controller {
 			return $this->notLoggedIn();
 		}
 
+		$callerId = $this->userId;
+
 		return $this->respond(
-			operation: fn (): DataResponse => new DataResponse(
-				data: $this->shareService->createPublicShare(
-					dashboardUuid: $uuid,
-					callerId: $this->userId,
-					password: $password,
-					expiresAt: $expiresAt
-				)->jsonSerialize(),
-				statusCode: Http::STATUS_CREATED
-			),
+			operation: function () use ($uuid, $callerId, $password, $expiresAt): DataResponse {
+				// REQ-SHARE-015: public links off or a caller who may not share is
+				// refused with 403, a link without an expiry date with 400.
+				$this->limits?->assertMayCreatePublicLink(callerId: $callerId, expiresAt: $expiresAt);
+
+				return new DataResponse(
+					data: $this->shareService->createPublicShare(
+						dashboardUuid: $uuid,
+						callerId: $callerId,
+						password: $password,
+						expiresAt: $expiresAt
+					)->jsonSerialize(),
+					statusCode: Http::STATUS_CREATED
+				);
+			},
 			notFound: 'Dashboard not found'
 		);
 	}//end create()

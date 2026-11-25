@@ -345,6 +345,27 @@ class InitialStateBuilder {
 	}//end setOrgNavigation()
 
 	/**
+	 * Set what the workspace view reads while it boots, besides its
+	 * dashboards (`{tiles, pendingAcknowledgements, defaultDashboard}`, each
+	 * part optional), so it starts from them instead of asking
+	 * `GET /api/tiles`, `GET /api/acknowledgements/pending` and
+	 * `GET /api/dashboards/default`. Optional key; left out when null.
+	 *
+	 * @param array|null $bootReads The reads, or null.
+	 *
+	 * @return self
+	 *
+	 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-2
+	 */
+	public function setWorkspaceBootReads(?array $bootReads): self {
+		if ($bootReads !== null) {
+			$this->values['workspaceBootReads'] = $bootReads;
+		}
+
+		return $this;
+	}//end setWorkspaceBootReads()
+
+	/**
 	 * Set the canonical slug-chain path for the active dashboard
 	 * (workspace).
 	 *

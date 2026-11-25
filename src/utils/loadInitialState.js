@@ -105,6 +105,12 @@ const PAGE_KEYS = {
 		// GET /api/admin/org-navigation the page already read. Optional key;
 		// `null` makes the shell fetch.
 		orgNavigation: null,
+		// workspace-boot-reads-from-initial-state: `{tiles,
+		// pendingAcknowledgements, defaultDashboard}`, the answers of
+		// GET /api/tiles, GET /api/acknowledgements/pending and
+		// GET /api/dashboards/default the page already read. Optional key,
+		// each part optional; a missing part makes its reader fetch.
+		workspaceBootReads: null,
 		// sharing-policy-board-sync REQ-SHARE-015: `{mayShare, publicLinksAllowed}`
 		// for the viewer. Optional key; `null` offers both (the server refuses).
 		sharingPolicy: null,
@@ -168,6 +174,7 @@ export function loadInitialState(page) {
  */
 let dashboardFirstLoadTaken = false
 let orgNavigationTaken = false
+const bootReadsTaken = new Set()
 
 /**
  * What the Sharing tab may offer the viewer (REQ-SHARE-015): adding people or
@@ -225,6 +232,29 @@ export function takeOrgNavigation() {
 		return null
 	}
 	return { position: firstLoad.position, tree: firstLoad.tree, language: String(firstLoad.language || 'nl') }
+}
+
+/**
+ * One part of what the workspace view reads while it boots, as the page
+ * carries it: `tiles`, `pendingAcknowledgements` or `defaultDashboard`.
+ * Handed out once per part, like {@link takeDashboardFirstLoad}; every later
+ * read asks the API. Undefined when the page did not carry the part, or once
+ * taken.
+ *
+ * @param {string} part The part.
+ * @return {object|Array|undefined} The part's payload, or undefined.
+ * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-3
+ */
+export function takeBootRead(part) {
+	if (bootReadsTaken.has(part)) {
+		return undefined
+	}
+	bootReadsTaken.add(part)
+	const reads = readKey('workspaceBootReads', null)
+	if (reads === null || typeof reads !== 'object' || !Object.hasOwn(reads, part)) {
+		return undefined
+	}
+	return reads[part]
 }
 
 /**

@@ -595,7 +595,7 @@ import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogu
 import { gridItemLabel } from '../utils/gridItemLabel.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
-import { loadInitialState } from '../utils/loadInitialState.js'
+import { loadInitialState, takeBootRead } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { dashboardGridColumnOpts } from '../utils/narrowGridLayout.js'
 import { newWidgetSize } from '../utils/newWidgetSize.js'
@@ -2211,12 +2211,19 @@ export default {
 		},
 
 		/**
-		 * Read the user's pinned default-dashboard UUID.
+		 * Read the user's pinned default-dashboard UUID: the first time from
+		 * the pin the page carries, otherwise from the API.
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/dashboards/spec.md
+		 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-3
 		 */
 		async loadDefaultDashboardPreference() {
+			const carried = takeBootRead('defaultDashboard')
+			if (carried && typeof carried.uuid === 'string') {
+				this.defaultDashboardUuid = carried.uuid
+				return
+			}
 			try {
 				const res = await api.getDefaultDashboardPreference()
 				this.defaultDashboardUuid = res?.data?.uuid ?? ''

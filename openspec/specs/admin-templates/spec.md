@@ -1032,14 +1032,14 @@ LaunchPad does not know on the server which registers an instance has. So the li
 
 ### Requirement: REQ-TMPL-023 A refused delete of a compulsory widget says why
 
-When a member asks to delete a compulsory widget from a copy made from an admin template whose permission level is not `full`, the page MUST say that the widget is part of the start page the administrator set for their group and cannot be removed, naming the widget by its title. It MUST NOT send the delete (the server would answer 403, REQ-TMPL-006) and MUST NOT change the page. This holds for the widget's own menu ("Delete widget") and for the right-click menu ("Remove"), which both end in the page's `removeWidget`.
+On a copy made from an admin template whose permission level is not `full`, the widget's own menu MUST NOT offer "Delete widget" for a compulsory widget, and the right-click menu MUST NOT offer "Remove" for it. Nothing is sent and the page does not change; the server would answer 403 (REQ-TMPL-006). When a delete of a compulsory widget is still asked for (the page's `removeWidget`), the page MUST say that the widget is part of the start page the administrator set for their group and cannot be removed, naming the widget by its title, and MUST NOT send the delete.
 
-**Why.** The entry was offered and did nothing: no request, no message, the widget stayed after a reload (#780). The shared edit cog has no way to withhold its delete entry, so the entry stays and explains itself.
+**Why.** The entry was offered and did nothing: no request, no message, the widget stayed after a reload (#780). The widget menu is LaunchPad's own now (WidgetEditMenu, #1794) and withholds the entry, as the right-click menu does.
 
 #### Scenario: Delete widget on a compulsory widget
 - GIVEN Pieter's copy of "Mijn werkdag" holds the compulsory list "Vandaag eerst"
-- WHEN he opens edit mode and chooses "Delete widget" on it
-- THEN a message MUST say "Vandaag eerst" is part of the start page his administrator set for his group and cannot be removed
+- WHEN he opens edit mode and opens the widget menu on it
+- THEN the menu MUST NOT offer "Delete widget"
 - AND no request MUST be sent and the widget MUST stay
 
 #### Scenario: A widget that is not compulsory is deleted as before

@@ -15,18 +15,16 @@
  *
  * WHY THE JOBS RUN THROUGH `occ`. The test stack runs no cron, and a job that
  * waits for one would never run. `background-job:execute --force-execute` runs
- * the job once, now, in the instance's own container, named by
- * LAUNCHPAD_E2E_CONTAINER (default `nextcloud`).
+ * the job once, now, on the instance, by the route `support/occ.ts` resolves
+ * (its container, named by LAUNCHPAD_E2E_CONTAINER, default `nextcloud`, or a
+ * server root on this machine).
  */
 
 import type { APIRequestContext } from '@playwright/test'
 
 import { expect } from '@playwright/test'
-import { execFile } from 'node:child_process'
-import { promisify } from 'node:util'
+import { describeRun, onInstance, onInstanceWithInput } from './occ.ts'
 import { adminContext, API } from './principals.ts'
-
-const run = promisify(execFile)
 
 /** The container of the instance under test. */
 export const CONTAINER = process.env.LAUNCHPAD_E2E_CONTAINER || 'nextcloud'
@@ -53,28 +51,24 @@ export type ExportRun = Record<string, any> & {
 }
 
 /**
- * Run a command inside the instance's container as the web server user.
+ * Run a command on the instance as the web server user: in its container, or
+ * in the server root of an instance served on this machine. The route is the
+ * one `support/occ.ts` resolves (LAUNCHPAD_E2E_OCC, LAUNCHPAD_E2E_CONTAINER,
+ * a local server root, else the container `nextcloud`).
  *
  * @param args The command and its arguments.
  * @param input Text written to the command's standard input.
  * @return Its standard output.
+ * @throws Error when the command exits non-zero.
  */
 export async function inContainer(args: string[], input?: string): Promise<string> {
-	const docker = ['exec', ...(input === undefined ? [] : ['-i']), '-u', 'www-data', CONTAINER, ...args]
-	if (input === undefined) {
-		const { stdout } = await run('docker', docker, { timeout: 180_000 })
-		return stdout
+	const result = input === undefined
+		? await onInstance(...args)
+		: await onInstanceWithInput(input, ...args)
+	if (result.code !== 0) {
+		throw new Error(`${args.join(' ')} failed: ${describeRun(result)}`)
 	}
-	return new Promise((resolve, reject) => {
-		const child = execFile('docker', docker, { timeout: 60_000 }, (error, stdout) => {
-			if (error) {
-				reject(error)
-				return
-			}
-			resolve(stdout)
-		})
-		child.stdin?.end(input)
-	})
+	return result.stdout
 }
 
 /**

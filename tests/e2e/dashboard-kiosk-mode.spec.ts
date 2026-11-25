@@ -65,6 +65,7 @@ import { adminTab } from './support/adminTab.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import { installBundleOverride } from './support/bundleOverride.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { describeRun, runOcc } from './support/occ.ts'
 import {
 	adminContext,
 	API,
@@ -72,7 +73,7 @@ import {
 	createPrincipal,
 	removePrincipal,
 } from './support/principals.ts'
-import { CONTAINER, occ } from './support/scheduledExports.ts'
+import { CONTAINER } from './support/scheduledExports.ts'
 
 const APP = '/index.php/apps/launchpad'
 const PLAYLISTS = `${API}/kiosk/playlists`
@@ -479,24 +480,33 @@ async function expectCursorHidesWhenIdle(page: Page, target: Locator): Promise<v
 }
 
 /**
- * Clear the brute-force attempts the instance holds for the address this
- * runner reaches it from (the container's network gateway). Nextcloud delays
- * EVERY request to a #[BruteForceProtection] route by the address's delay, the
- * per-entry kiosk read included, and attempts last 12 hours: a few dozen 404s
- * spent by earlier runs or other files made each entry read take 25 seconds,
- * longer than an entry may take, so the rotation never moved.
+ * Clear the brute-force attempts the instance holds for the addresses this
+ * runner reaches it from: the container's network gateway when the instance is
+ * a docker container, and the loopback addresses for an instance served on
+ * this machine (no docker at all). Nextcloud delays EVERY request to a
+ * #[BruteForceProtection] route by the address's delay, the per-entry kiosk
+ * read included, and attempts last 12 hours: a few dozen 404s spent by earlier
+ * runs or other files made each entry read take 25 seconds, longer than an
+ * entry may take, so the rotation never moved.
  *
  * @return nothing.
  */
 async function resetShareThrottle(): Promise<void> {
-	const { stdout } = await promisify(execFile)('docker', [
-		'inspect',
-		'-f',
-		'{{range .NetworkSettings.Networks}}{{.Gateway}} {{end}}',
-		CONTAINER,
-	])
-	for (const ip of stdout.trim().split(/\s+/).filter(Boolean)) {
-		await occ('security:bruteforce:reset', ip)
+	const addresses = ['127.0.0.1', '::1']
+	try {
+		const { stdout } = await promisify(execFile)('docker', [
+			'inspect',
+			'-f',
+			'{{range .NetworkSettings.Networks}}{{.Gateway}} {{end}}',
+			CONTAINER,
+		])
+		addresses.push(...stdout.trim().split(/\s+/).filter(Boolean))
+	} catch {
+		// No docker here: the instance is served on this machine, loopback only.
+	}
+	for (const ip of addresses) {
+		const result = await runOcc('security:bruteforce:reset', ip)
+		expect(result.code, describeRun(result)).toBe(0)
 	}
 }
 

@@ -49,7 +49,7 @@
  * scenarios of the change setup-five-steps-and-admin-tour and runs in the
  * nightly against a live instance.
  *
- * Ten tests are EXPECTED RED until the product is fixed: they were
+ * Three tests are EXPECTED RED until the product is fixed: they were
  * `test.fixme`, so although gate-19 counted them through the list below, no
  * test of theirs ever executed. They now run. The comment on each
  * names the code that disagrees with its scenario. This file is not serial, so
@@ -59,12 +59,6 @@
  *     jumps to `currentRecommendedStep`, and SetupWizardService
  *     computeStepStatuses() reports steps 3 and 4 `skipped` from the start,
  *     so the recommendation is 2 and "Run setup wizard" opens at Step 2.
- *   - Step 3 demo checkboxes (four scenarios): AdminDemoData.vue renders each
- *     showcase as a card with its own Install/Uninstall button; nothing is
- *     checked and nothing installs on the wizard's Next.
- *   - Step 4 group selector (three scenarios): SetupWizardModal.vue renders a
- *     "not yet available" note (data-test="admin-roles-stub") and no selector,
- *     although POST /api/admin/roles exists.
  * The demo tests take real showcases from GET /api/admin/demo-showcases: the
  * scenarios' "Engineering Demo" and "Sales Demo" are examples, and no shipped
  * showcase carries those names.
@@ -1031,9 +1025,6 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		expect(await readJson<Showcase[]>(SHOWCASES_API)).toEqual(showcasesBefore)
 	})
 
-	// EXPECTED RED (spec vs product): src/components/admin/AdminDemoData.vue
-	// renders each showcase as a card with an Install/Uninstall button; there is
-	// no checkbox per package.
 	test('Step 3 embeds the demo showcases with a checkbox each', async ({
 		page,
 	}) => {
@@ -1094,9 +1085,6 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 			.getByRole('checkbox')
 	}
 
-	// EXPECTED RED (spec vs product): AdminDemoData.vue has no checkbox per
-	// showcase; it installs one showcase immediately from its own button, not
-	// on the wizard's Next.
 	test('checked demos are installed on Next', async ({ page }) => {
 		// @e2e setup-wizard::checked-demos-are-installed-on-next
 		const before = await readJson<Showcase[]>(SHOWCASES_API)
@@ -1130,7 +1118,6 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		}
 	})
 
-	// EXPECTED RED (spec vs product): as above, no demo checkboxes to keep.
 	test('the demo selection survives Back without a second install', async ({
 		page,
 	}) => {
@@ -1154,8 +1141,6 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		}
 	})
 
-	// EXPECTED RED (spec vs product): no checkboxes in Step 3
-	// (AdminDemoData.vue), so there is nothing to uncheck.
 	test('a re-run does not re-install an installed demo', async ({ page }) => {
 		// @e2e setup-wizard::re-running-does-not-re-install-demo-packages
 		const before = await readJson<Showcase[]>(SHOWCASES_API)
@@ -1184,9 +1169,6 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		}
 	})
 
-	// EXPECTED RED (spec vs product): Step 4 is a stub. SetupWizardModal.vue
-	// renders a "not yet available" note (data-test="admin-roles-stub") and no
-	// group selector, although the admin-roles endpoints exist (/api/admin/roles).
 	test('Step 4 lists every group for the Dashboard Admin role', async ({
 		page,
 	}) => {
@@ -1207,7 +1189,6 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		}
 	})
 
-	// EXPECTED RED (spec vs product): Step 4 stub, SetupWizardModal.vue.
 	test('selecting one group on Step 4 gives it the admin role', async ({
 		page,
 	}) => {
@@ -1234,7 +1215,6 @@ test.describe('setup-wizard — completed instance and re-runs', () => {
 		}
 	})
 
-	// EXPECTED RED (spec vs product): Step 4 stub, SetupWizardModal.vue.
 	test('one wizard run gives the admin role to one group only', async ({
 		page,
 	}) => {

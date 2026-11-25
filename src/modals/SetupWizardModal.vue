@@ -53,31 +53,30 @@
 				<!-- Step 3 — Demo data (REQ-WIZ-005; delivered by demo-data-showcases sibling). -->
 				<div v-else-if="currentStep === 3" class="setup-wizard__step">
 					<h3>{{ t('launchpad', 'Demo data') }}</h3>
-					<AdminDemoData data-test="demo-data-panel" />
+					<AdminDemoData
+						data-test="demo-data-panel"
+						:choice="demoChoice"
+						@choose="onDemoChoose" />
 				</div>
 
-				<!-- Step 4 — Admin roles (REQ-WIZ-006; sibling capability pending) -->
-				<!-- TODO: admin-roles integration — admin-roles capability is delivered through
-				     AdminController role endpoints (POST/DELETE /api/admin/roles), not a Vue
-				     panel; build a dedicated AdminRolesPanel.vue and swap the stub below. -->
+				<!-- Step 4 — Admin roles (REQ-WIZ-006): one group gets the admin role on Next. -->
 				<div v-else-if="currentStep === 4" class="setup-wizard__step">
 					<h3>{{ t('launchpad', 'Admin roles') }}</h3>
 					<p>
 						{{
 							t(
 								'launchpad',
-								'Assign the "Dashboard Admin" role to a Nextcloud group to delegate LaunchPad administration.',
+								"Assign 'Dashboard Admin' role to a group to delegate LaunchPad administration to group members.",
 							)
 						}}
 					</p>
-					<p class="setup-wizard__note" data-test="admin-roles-stub">
-						{{
-							t(
-								'launchpad',
-								'The admin-roles capability is not yet available; this step will activate once it ships.',
-							)
-						}}
-					</p>
+					<NcSelect
+						v-model="roleGroup"
+						:options="roleGroups"
+						:inputLabel="t('launchpad', 'Group')"
+						:placeholder="t('launchpad', 'No group')"
+						:loading="roleGroupsLoading"
+						data-test="setup-wizard-role-group" />
 				</div>
 
 				<!-- Step 5 — Done (REQ-WIZ-012 final step) -->
@@ -126,7 +125,7 @@
 </template>
 
 <script>
-import { NcButton, NcModal } from '@conduction/nextcloud-vue'
+import { NcButton, NcModal, NcSelect } from '@conduction/nextcloud-vue'
 import AdminDemoData from '../components/admin/AdminDemoData.vue'
 import GroupPriorityOrder from '../components/admin/GroupPriorityOrder.vue'
 import { api } from '../services/api.js'
@@ -139,8 +138,9 @@ import { logger } from '../utils/logger.js'
  * The shell owns navigation state; per-step bodies inline simple UI for
  * Welcome / Done and embed canonical sibling components for the group
  * order and the demo data. The storage step was retired (decision 131)
- * and the footer step too: the footer is set on its own admin tab. Step 4
- * renders a stub until an admin-roles panel exists.
+ * and the footer step too: the footer is set on its own admin tab. Step 3
+ * keeps the checked demos and installs them on Next; Step 4 gives the one
+ * selected group the admin role on Next.
  *
  * @spec openspec/changes/archive/2026-11-24-setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
  */
@@ -152,6 +152,7 @@ export default {
 		GroupPriorityOrder,
 		NcButton,
 		NcModal,
+		NcSelect,
 	},
 
 	emits: ['close', 'completed'],
@@ -163,12 +164,26 @@ export default {
 			totalSteps: 5,
 			loading: false,
 			completed: false,
+			// Step 3: `{ [showcaseId]: boolean }`, kept here so Back keeps it.
+			demoChoice: {},
+			// Step 4: the group ids, and the one chosen for the admin role.
+			roleGroups: [],
+			roleGroupsLoading: false,
+			roleGroup: null,
 		}
 	},
 
 	computed: {
 		isFinalStep() {
 			return this.currentStep === this.totalSteps
+		},
+	},
+
+	watch: {
+		currentStep(step) {
+			if (step === 4) {
+				this.loadRoleGroups()
+			}
 		},
 	},
 
@@ -210,11 +225,88 @@ export default {
 					this.$emit('close')
 					return
 				}
+				if (this.currentStep === 3) {
+					await this.installChosenDemos()
+				} else if (this.currentStep === 4 && this.roleGroup) {
+					await this.assignRoleGroup()
+				}
 				this.currentStep += 1
 			} catch (error) {
 				logger.error('Wizard step failed', error)
 			} finally {
 				this.loading = false
+			}
+		},
+
+		/**
+		 * Record a demo checkbox.
+		 *
+		 * @param {string} id The showcase id.
+		 * @param {boolean} chosen Whether it is checked.
+		 * @spec openspec/specs/setup-wizard/spec.md#req-wiz-005
+		 */
+		onDemoChoose(id, chosen) {
+			this.demoChoice = { ...this.demoChoice, [id]: chosen }
+		},
+
+		/**
+		 * Install the checked showcases that are not installed yet. An
+		 * unchecked installed showcase stays installed.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/setup-wizard/spec.md#req-wiz-005
+		 */
+		async installChosenDemos() {
+			const wanted = Object.keys(this.demoChoice).filter((id) => this.demoChoice[id] === true)
+			if (wanted.length === 0) {
+				return
+			}
+			const { data } = await api.listDemoShowcases()
+			const installed = new Set((data || []).filter((showcase) => showcase.isInstalled).map((showcase) => showcase.id))
+			for (const id of wanted.filter((candidate) => !installed.has(candidate))) {
+				try {
+					await api.installDemoShowcase(id)
+				} catch (error) {
+					logger.error('Demo install failed', error)
+				}
+			}
+		},
+
+		/**
+		 * Load the Nextcloud groups Step 4 offers, once.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/setup-wizard/spec.md#req-wiz-006
+		 */
+		async loadRoleGroups() {
+			if (this.roleGroups.length > 0 || this.roleGroupsLoading) {
+				return
+			}
+			this.roleGroupsLoading = true
+			try {
+				const { data } = await api.getAdminGroups()
+				this.roleGroups = [...(data?.active || []), ...(data?.inactive || [])]
+			} catch (error) {
+				logger.warn('Failed to load groups', error)
+			} finally {
+				this.roleGroupsLoading = false
+			}
+		},
+
+		/**
+		 * Give the selected group the admin role. A group that already has
+		 * it is left as it is.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/setup-wizard/spec.md#req-wiz-006
+		 */
+		async assignRoleGroup() {
+			try {
+				await api.assignAdminRoleToGroup(this.roleGroup)
+			} catch (error) {
+				if (error?.response?.status !== 409) {
+					throw error
+				}
 			}
 		},
 

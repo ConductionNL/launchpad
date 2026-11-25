@@ -185,6 +185,7 @@ class PageController extends Controller {
 			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
 			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
 			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
+			->setAnalyticsEnabled($this->settings->analytics?->isGloballyEnabled() ?? true)
 			->setSharingPolicy(...$this->sources->dashboards->sharingPolicy(userId: $userId))
 			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
 			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)

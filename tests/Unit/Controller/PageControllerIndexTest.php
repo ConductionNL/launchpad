@@ -40,6 +40,7 @@ use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\PageFooter;
 use OCA\LaunchPad\Service\PublicStartPage;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
+use OCA\LaunchPad\Service\AnalyticsService;
 use OCA\LaunchPad\Service\SearchShortcutService;
 use OCA\LaunchPad\Service\SharingLimits;
 use OCA\LaunchPad\Service\WidgetService;
@@ -186,10 +187,12 @@ class PageControllerIndexTest extends TestCase {
 	 *
 	 * @param DashboardPayloads|null $payloads The first-load builder, if the page has one.
 	 * @param SharingLimits|null     $sharing  The sharing policy, if the page has one.
+	 * @param PageFooter|null        $footer    The footer source, if the page has one.
+	 * @param AnalyticsService|null  $analytics The view analytics setting, if the page has one.
 	 *
 	 * @return PageController
 	 */
-	private function controller(?DashboardPayloads $payloads=null, ?SharingLimits $sharing=null, ?PageFooter $footer=null): PageController {
+	private function controller(?DashboardPayloads $payloads=null, ?SharingLimits $sharing=null, ?PageFooter $footer=null, ?AnalyticsService $analytics=null): PageController {
 		$initialState = $this->createMock(originalClassName: IInitialState::class);
 		$initialState->method('provideInitialState')->willReturnCallback(
 			callback: function (string $key, mixed $value): void {
@@ -218,7 +221,8 @@ class PageControllerIndexTest extends TestCase {
 				searchShortcuts: $this->createMock(originalClassName: SearchShortcutService::class),
 				customCss: $css,
 				appManager: $this->appManager,
-				config: $this->config
+				config: $this->config,
+				analytics: $analytics
 			)
 		) extends PageController {
 			/**
@@ -304,6 +308,26 @@ class PageControllerIndexTest extends TestCase {
 		);
 		$this->assertSame(expected: AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET, actual: $this->state['quicksearchFallbackTarget']);
 	}//end testAGuestGetsTheDefaultPage()
+
+	/**
+	 * The page carries whether view analytics is on, so it sends no view-event
+	 * while the administrator switched it off; without the service it stays on.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	public function testThePageCarriesWhetherViewAnalyticsIsOn(): void {
+		$this->signIn(uid: 'pieter');
+		$analytics = $this->createMock(originalClassName: AnalyticsService::class);
+		$analytics->method('isGloballyEnabled')->willReturn(false);
+
+		$this->controller(analytics: $analytics)->index();
+		$this->assertFalse(condition: $this->state['analyticsEnabled']);
+
+		$this->controller()->index();
+		$this->assertTrue(condition: $this->state['analyticsEnabled']);
+	}//end testThePageCarriesWhetherViewAnalyticsIsOn()
 
 	/**
 	 * A signed-in user gets their group, their allowed widgets, the active dashboard's permitted layout and both dashboard lists.

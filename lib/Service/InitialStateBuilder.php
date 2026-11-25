@@ -479,6 +479,22 @@ class InitialStateBuilder {
 	}//end setFilterTelemetryEnabled()
 
 	/**
+	 * Push whether the administrator switched dashboard view analytics on,
+	 * so the page sends no view-event while it is off (REQ-ANLT-011).
+	 * Optional key: the JS reader defaults to `true`.
+	 *
+	 * @param bool $enabled True when `analytics_enabled` is on.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	public function setAnalyticsEnabled(bool $enabled): self {
+		$this->values['analyticsEnabled'] = $enabled;
+		return $this;
+	}//end setAnalyticsEnabled()
+
+	/**
 	 * Push what the Sharing tab may offer the viewer (REQ-SHARE-015): adding
 	 * people or groups when they may share, a public link when they may share
 	 * and public links are on. Optional key: the JS reader offers both.

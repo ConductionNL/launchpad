@@ -2168,7 +2168,8 @@ export default {
 		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
 		recordViewEventDebounced(uuid) {
-			if (!uuid) {
+			// With analytics switched off the page sends no view-event at all.
+			if (!uuid || loadInitialState('workspace').analyticsEnabled === false) {
 				return
 			}
 			const now = Date.now()

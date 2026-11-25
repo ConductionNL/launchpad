@@ -1898,7 +1898,12 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 			// supplied" and falls back to the project's admin session, which
 			// would make this an assertion about an administrator.
 			storageState: { cookies: [], origins: [] },
-			extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+			// Accept without `html`: Nextcloud then answers a missing session
+			// with its JSON 401 instead of a redirect to the login page.
+			extraHTTPHeaders: {
+				'OCS-APIRequest': 'true',
+				Accept: 'application/json',
+			},
 		})
 
 		const res = await anonymous.post(
@@ -1916,10 +1921,20 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 				},
 			},
 		)
+		const refusedBody = await res.text()
+		// Exactly Nextcloud's own refusal, not just any 4xx: the 401 with
+		// `Current user is not logged in` is what SecurityMiddleware answers
+		// when it stops the request BEFORE dispatch. A 400 or 403 here would
+		// be the controller's own validation or view-as guard, which means
+		// the controller ran; a 200 means the route is a public page.
 		expect(
 			res.status(),
-			`an anonymous preview must be refused, not served — got ${res.status()}: ${(await res.text()).slice(0, 300)}`,
-		).toBeGreaterThanOrEqual(400)
+			`an anonymous preview must be refused by Nextcloud with 401 — got ${res.status()}: ${refusedBody.slice(0, 300)}`,
+		).toBe(401)
+		expect(
+			JSON.parse(refusedBody),
+			'the refusal must be the session check of the framework, not a body the controller wrote',
+		).toEqual({ message: 'Current user is not logged in' })
 		await anonymous.dispose()
 
 		/*

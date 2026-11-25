@@ -260,7 +260,6 @@ The system MUST resolve effective permission levels through a defined chain: sou
 - AND the system MUST fall back to the dashboard's own `permissionLevel: "add_only"`
 
 #### Scenario: No template, no dashboard level, fallback to admin default
-@e2e exclude no API writes a dashboard with an empty permissionLevel (DashboardFactory hardcodes full, template copies take the template level), so the state needs a DB edit; pinned by PermissionServiceAccessGoldenTest::testEveryOutcomeMatchesTheGolden (dashboard 8: empty level, missing template, admin default add_only)
 - GIVEN a dashboard with `basedOnTemplate: null` and `permissionLevel: null`
 - AND the admin default is "add_only"
 - WHEN `getEffectivePermissionLevel()` is called

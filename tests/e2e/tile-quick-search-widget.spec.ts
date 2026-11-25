@@ -606,7 +606,41 @@ test.describe('tile quick-search — no search widget placed', () => {
 		page,
 	}) => {
 		await openWorkspace(page, BARE_TILE, 0)
-		await assertShortcutsInert(page)
+		// GIVEN: the active dashboard really has no search placement, or the
+		// inertness below would be measured against the wrong dashboard.
+		await expect(
+			page.locator('[data-widget-id="search"]'),
+			'CONTROL: the active dashboard must carry no search placement',
+		).toHaveCount(0)
+
+		// Written out here rather than through assertShortcutsInert(): this
+		// test is the scenario's proof, so its assertions belong in its body.
+		await blurToGrid(page)
+		const activeBefore = await page.evaluate(
+			() => document.activeElement?.id ?? '',
+		)
+		expect(activeBefore, 'CONTROL: focus must start on the grid container').toBe(
+			'launchpad-main-content',
+		)
+		await recordKeys(page)
+
+		await page.keyboard.press('/')
+		await page.keyboard.press('Control+k')
+
+		const { keys, focusins } = await recordedKeys(page)
+		expect(
+			keys.map((k) => k.key.toLowerCase()),
+			'CONTROL: both keypresses must have reached the page, or "not prevented" below is vacuous',
+		).toEqual(['/', 'k'])
+		expect(
+			keys.filter((k) => k.prevented),
+			'THEN the shortcuts are not intercepted: neither keydown is default-prevented',
+		).toHaveLength(0)
+		expect(focusins, 'THEN no element receives focus as a result of / or Ctrl+K').toBe(0)
+		expect(
+			await page.evaluate(() => document.activeElement?.id ?? ''),
+			'and focus is still where it was',
+		).toBe(activeBefore)
 	})
 })
 

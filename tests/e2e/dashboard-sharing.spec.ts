@@ -143,6 +143,33 @@ async function addSharee(page: Page, panel: Locator, sharee: string) {
 }
 
 /**
+ * Make sure the recipient account exists, so the file does not depend on an
+ * account some fixture outside it was supposed to seed (on a fresh instance
+ * there was none, and the sharee search found nothing to pick).
+ *
+ * @param admin an admin-authenticated request context.
+ * @param username the recipient's user id.
+ * @param password the password to create it with.
+ * @return nothing.
+ */
+async function ensureRecipient(
+	admin: APIRequestContext,
+	username: string,
+	password: string,
+): Promise<void> {
+	const known = await admin.get(
+		`/ocs/v2.php/cloud/users/${encodeURIComponent(username)}?format=json`,
+	)
+	if (known.ok()) {
+		return
+	}
+	const created = await admin.post('/ocs/v2.php/cloud/users?format=json', {
+		form: { userid: username, password, displayName: username },
+	})
+	expect(created.status(), await created.text()).toBe(200)
+}
+
+/**
  * Persist the config modal via its Save button and wait for it to close.
  *
  * @param {Page} page Playwright page fixture.
@@ -166,7 +193,15 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 			httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
 			extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
 		})
+		await ensureRecipient(api, SHAREE, RECIPIENT_PASSWORD)
 		seeded = await seedActiveDashboard(api, `E2E Sharing ${Date.now()}`)
+		// A new dashboard starts as a draft, and REQ-DASH-036 hides a draft
+		// from everyone but its owner, share or no share. The recipient
+		// scenario needs one they may see, so publish it.
+		const published = await api.post(
+			`/index.php/apps/launchpad/api/dashboards/${seeded.uuid}/publish`,
+		)
+		expect(published.status(), await published.text()).toBe(200)
 	})
 
 	// In afterAll, so the dashboard (and the share on it) goes even when a

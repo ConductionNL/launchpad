@@ -102,7 +102,8 @@ import { normaliseIconValue } from '../services/iconCatalogue.js'
  * Active-item detection (REQ-ONAV-009) compares the node's `url` to
  * the panel-supplied `currentUrl` using prefix-or-equal semantics.
  * Sections that contain an active descendant auto-expand
- * (`expanded = true` on mount when `hasActiveDescendant`).
+ * (`expanded = true` on mount, and again whenever `hasActiveDescendant`
+ * turns true, e.g. when the current URL settles after mounting).
  *
  * Icons (REQ-ONAV-006) render via the shared `CnDashboardIcon`, which
  * resolves any value the icon picker emits — a URL (→ `<img>`), an SVG
@@ -182,6 +183,23 @@ export default {
 		indentPx() {
 			// Visual indent — 12px per level beyond root.
 			return (this.level - 1) * 12 + 'px'
+		},
+	},
+
+	watch: {
+		/**
+		 * Open the section once a descendant becomes active (REQ-ONAV-009).
+		 * The current URL can settle after the rail mounted (the workspace
+		 * moves from the app root to the active dashboard's address), so the
+		 * check in `mounted` alone left the section closed.
+		 *
+		 * @param {boolean} now Whether a descendant is active now.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
+		hasActiveDescendant(now) {
+			if (now) {
+				this.expanded = true
+			}
 		},
 	},
 

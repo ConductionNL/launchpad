@@ -348,5 +348,6 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 ## 6. Close the programme
 
 - [ ] 6.1 Re-measure every spec with the same count, and publish the before and after totals in this change.
-- [ ] 6.2 Confirm no spec-level `@e2e exclude` remains in `openspec/specs/`.
+- [x] 6.2 Confirm no spec-level `@e2e exclude` remains in `openspec/specs/`.
+  - Confirmed: none of the 109 specs under `openspec/specs/` carries a standalone `@e2e exclude` before its first requirement heading, checked with gate-19's own `_parse_whole_spec_exclusion` (hydra-gates `check_e2e_coverage.py`). The remaining exclusions are per scenario or per requirement, each with a reason. The last scenario of `launchpad-enterprise-security-access` had its exclusion at the end of the file, below Standards & References, where it read as a spec-level note; it now sits under its scenario (15 scenarios, 15 excluded, before and after) (cloud, 2026-11-25)
 - [ ] 6.3 Archive `add-dashboard-sharing-e2e-coverage` once tier 0 covers it, repointing any citation into it first.

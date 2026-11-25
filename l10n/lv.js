@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Vienotā pierakstīšanās",
     "Signs in with your Nextcloud account" : "Pierakstās ar jūsu Nextcloud kontu",
     "Asks for its own sign-in" : "Prasa savu pierakstīšanos",
-    "The tiles could not be added." : "Flīzes nevarēja pievienot."
+    "The tiles could not be added." : "Flīzes nevarēja pievienot.",
+    "You searched for {query}" : "Jūs meklējāt {query}",
+    "Search results" : "Meklēšanas rezultāti",
+    "No results" : "Nav rezultātu",
+    "Show all results" : "Rādīt visus rezultātus",
+    "Tip: type {prefix} to search {name} directly" : "Padoms: ierakstiet {prefix}, lai meklētu tieši {name}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

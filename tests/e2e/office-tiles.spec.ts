@@ -32,6 +32,7 @@ import {
 } from './fixtures/secondary-user.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import { contextFor } from './support/principals.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -191,7 +192,7 @@ test('the pack is placed from the add flow and a document created twice gives tw
 		const placed = page.waitForResponse((res) =>
 			/\/api\/dashboard\/\d+\//.test(res.url()) && res.request().method() === 'POST',
 		)
-		await picker.locator('[data-testid="widget-picker-office-pack"]').click()
+		await chooseAndAdd(picker.locator('[data-testid="widget-picker-office-pack"]'))
 		expect((await placed).status()).toBeLessThan(300)
 		await page.keyboard.press('Escape')
 

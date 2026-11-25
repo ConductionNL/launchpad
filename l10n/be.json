@@ -1738,6 +1738,12 @@
         "Single sign-on": "Адзіны ўваход",
         "Signs in with your Nextcloud account": "Уваходзіць з вашым уліковым запісам Nextcloud",
         "Asks for its own sign-in": "Патрабуе ўласнага ўваходу",
-        "The tiles could not be added.": "Не ўдалося дадаць пліткі."
+        "The tiles could not be added.": "Не ўдалося дадаць пліткі.",
+        "Group dashboard of %s": "Панэль групы %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Падзяліўся %1$s · %n віджэт",
+            "Падзяліўся %1$s · %n віджэты",
+            "Падзяліўся %1$s · %n віджэтаў"
+        ]
     }
 }

@@ -1737,6 +1737,11 @@
         "Signs in with your Nextcloud account": "Se connecte avec votre compte Nextcloud",
         "Asks for its own sign-in": "Demande sa propre connexion",
         "The tiles could not be added.": "Les tuiles n’ont pas pu être ajoutées.",
+        "Group dashboard of %s": "Tableau de bord du groupe %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Partagé par %1$s · %n widget",
+            "Partagé par %1$s · %n widgets"
+        ],
         "Hidden widgets": "Widgets masqués",
         "Your hidden widgets could not be loaded.": "Vos widgets masqués n'ont pas pu être chargés.",
         "You have not hidden any widgets on shared dashboards.": "Vous n'avez masqué aucun widget sur les tableaux de bord partagés.",

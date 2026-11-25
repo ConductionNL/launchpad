@@ -43,6 +43,7 @@ import {
 	tearDownOwnDashboard,
 } from './support/ownDashboard.ts'
 import { API } from './support/principals.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const STAMP = `${Date.now()}`
 const EMOJI = `Bestanden ${STAMP}`
@@ -481,7 +482,7 @@ test('a tile added through "Add widget" → "Custom widget" stores its data in c
 		await page
 			.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 			.click()
-		await page.locator('[data-testid="widget-picker-type-tile"]').click()
+		await chooseAndAdd(page.locator('[data-testid="widget-picker-type-tile"]'))
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(dialog).toBeVisible({ timeout: 10_000 })
 		await dialog.getByLabel('Title', { exact: true }).fill(title)

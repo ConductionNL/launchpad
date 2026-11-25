@@ -1827,6 +1827,11 @@ OC.L10N.register(
     "Single sign-on" : "Јединствена пријава",
     "Signs in with your Nextcloud account" : "Пријављује се вашим Nextcloud налогом",
     "Asks for its own sign-in" : "Тражи сопствену пријаву",
-    "The tiles could not be added." : "Плочице није могуће додати."
+    "The tiles could not be added." : "Плочице није могуће додати.",
+    "You searched for {query}" : "Тражили сте {query}",
+    "Search results" : "Резултати претраге",
+    "No results" : "Нема резултата",
+    "Show all results" : "Прикажи све резултате",
+    "Tip: type {prefix} to search {name} directly" : "Савет: укуцајте {prefix} за директну претрагу у {name}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

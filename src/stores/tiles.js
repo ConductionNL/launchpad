@@ -5,6 +5,7 @@
 
 import { defineStore } from 'pinia'
 import { api } from '../services/api.js'
+import { takeBootRead } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 
 export const useTileStore = defineStore('tiles', {
@@ -14,8 +15,19 @@ export const useTileStore = defineStore('tiles', {
 	}),
 
 	actions: {
-		/** @spec openspec/specs/tiles/spec.md */
+		/**
+		 * Load the user's tiles: the first load from the tiles the page
+		 * carries, every later load (and a page without them) from the API.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/workspace-boot-reads-from-initial-state/tasks.md#task-3
+		 */
 		async loadTiles() {
+			const carried = takeBootRead('tiles')
+			if (Array.isArray(carried)) {
+				this.tiles = carried
+				return
+			}
 			this.loading = true
 			try {
 				const response = await api.getTiles()

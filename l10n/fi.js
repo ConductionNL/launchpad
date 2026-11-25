@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Kertakirjautuminen",
     "Signs in with your Nextcloud account" : "Kirjautuu Nextcloud-tililläsi",
     "Asks for its own sign-in" : "Pyytää oman kirjautumisen",
-    "The tiles could not be added." : "Ruutuja ei voitu lisätä."
+    "The tiles could not be added." : "Ruutuja ei voitu lisätä.",
+    "You searched for {query}" : "Hait hakusanalla {query}",
+    "Search results" : "Hakutulokset",
+    "No results" : "Ei tuloksia",
+    "Show all results" : "Näytä kaikki tulokset",
+    "Tip: type {prefix} to search {name} directly" : "Vinkki: kirjoita {prefix} hakeaksesi suoraan palvelusta {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

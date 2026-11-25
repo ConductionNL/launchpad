@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Vienkartinis prisijungimas",
     "Signs in with your Nextcloud account" : "Prisijungia jūsų Nextcloud paskyra",
     "Asks for its own sign-in" : "Prašo savo prisijungimo",
-    "The tiles could not be added." : "Nepavyko pridėti plytelių."
+    "The tiles could not be added." : "Nepavyko pridėti plytelių.",
+    "You searched for {query}" : "Ieškojote {query}",
+    "Search results" : "Paieškos rezultatai",
+    "No results" : "Rezultatų nėra",
+    "Show all results" : "Rodyti visus rezultatus",
+    "Tip: type {prefix} to search {name} directly" : "Patarimas: įveskite {prefix}, kad ieškotumėte tiesiai {name}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

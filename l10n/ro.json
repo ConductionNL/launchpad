@@ -1738,6 +1738,12 @@
         "Single sign-on": "Autentificare unică",
         "Signs in with your Nextcloud account": "Se conectează cu contul tău Nextcloud",
         "Asks for its own sign-in": "Cere propria autentificare",
-        "The tiles could not be added.": "Dalele nu au putut fi adăugate."
+        "The tiles could not be added.": "Dalele nu au putut fi adăugate.",
+        "Group dashboard of %s": "Tabloul de bord al grupului %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Partajat de %1$s · %n widget",
+            "Partajat de %1$s · %n widgeturi",
+            "Partajat de %1$s · %n de widgeturi"
+        ]
     }
 }

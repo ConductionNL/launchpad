@@ -1827,7 +1827,12 @@ OC.L10N.register(
     "Single sign-on" : "Single Sign-on",
     "Signs in with your Nextcloud account" : "Mellt sech mat Ärem Nextcloud-Kont un",
     "Asks for its own sign-in" : "Freet no enger eegener Umeldung",
-    "The tiles could not be added." : "D'Kachele konnten net derbäigesat ginn."
+    "The tiles could not be added." : "D'Kachele konnten net derbäigesat ginn.",
+    "You searched for {query}" : "Dir hutt no {query} gesicht",
+    "Search results" : "Sichresultater",
+    "No results" : "Keng Resultater",
+    "Show all results" : "All Resultater weisen",
+    "Tip: type {prefix} to search {name} directly" : "Tipp: Gitt {prefix} an, fir direkt an {name} ze sichen"
 },
 "nplurals=2; plural=(n != 1);"
 );

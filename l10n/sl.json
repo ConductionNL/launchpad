@@ -1740,6 +1740,13 @@
         "Single sign-on": "Enotna prijava",
         "Signs in with your Nextcloud account": "Prijavi se z vašim računom Nextcloud",
         "Asks for its own sign-in": "Zahteva lastno prijavo",
-        "The tiles could not be added.": "Ploščic ni bilo mogoče dodati."
+        "The tiles could not be added.": "Ploščic ni bilo mogoče dodati.",
+        "Group dashboard of %s": "Nadzorna plošča skupine %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Deli %1$s · %n gradnik",
+            "Deli %1$s · %n gradnika",
+            "Deli %1$s · %n gradniki",
+            "Deli %1$s · %n gradnikov"
+        ]
     }
 }

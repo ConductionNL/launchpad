@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Jednotné prihlásenie",
     "Signs in with your Nextcloud account" : "Prihlasuje sa vaším účtom Nextcloud",
     "Asks for its own sign-in" : "Vyžaduje vlastné prihlásenie",
-    "The tiles could not be added." : "Dlaždice sa nepodarilo pridať."
+    "The tiles could not be added." : "Dlaždice sa nepodarilo pridať.",
+    "You searched for {query}" : "Hľadali ste {query}",
+    "Search results" : "Výsledky vyhľadávania",
+    "No results" : "Žiadne výsledky",
+    "Show all results" : "Zobraziť všetky výsledky",
+    "Tip: type {prefix} to search {name} directly" : "Tip: napíšte {prefix} a vyhľadávajte priamo v {name}"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

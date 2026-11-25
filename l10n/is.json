@@ -1736,6 +1736,11 @@
         "Single sign-on": "Einskráning",
         "Signs in with your Nextcloud account": "Skráir inn með Nextcloud-aðganginum þínum",
         "Asks for its own sign-in": "Biður um eigin innskráningu",
-        "The tiles could not be added.": "Ekki tókst að bæta reitunum við."
+        "The tiles could not be added.": "Ekki tókst að bæta reitunum við.",
+        "Group dashboard of %s": "Hópstjórnborð %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Deilt af %1$s · %n viðmótshluti",
+            "Deilt af %1$s · %n viðmótshlutar"
+        ]
     }
 }

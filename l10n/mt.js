@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Login wieħed",
     "Signs in with your Nextcloud account" : "Jidħol bil-kont Nextcloud tiegħek",
     "Asks for its own sign-in" : "Jitlob il-login tiegħu stess",
-    "The tiles could not be added." : "Il-madum ma setax jiżdied."
+    "The tiles could not be added." : "Il-madum ma setax jiżdied.",
+    "You searched for {query}" : "Fittixt {query}",
+    "Search results" : "Riżultati tat-tfittxija",
+    "No results" : "L-ebda riżultat",
+    "Show all results" : "Uri r-riżultati kollha",
+    "Tip: type {prefix} to search {name} directly" : "Ħjiel: ittajpja {prefix} biex tfittex direttament f'{name}"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

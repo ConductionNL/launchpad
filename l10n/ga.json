@@ -1742,6 +1742,14 @@
         "Single sign-on": "Sínigh isteach aonair",
         "Signs in with your Nextcloud account": "Síníonn isteach le do chuntas Nextcloud",
         "Asks for its own sign-in": "Iarrann sé a shíniú isteach féin",
-        "The tiles could not be added.": "Níorbh fhéidir na tíleanna a chur leis."
+        "The tiles could not be added.": "Níorbh fhéidir na tíleanna a chur leis.",
+        "Group dashboard of %s": "Deais grúpa %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Roinnte ag %1$s · %n ghiuirléid",
+            "Roinnte ag %1$s · %n ghiuirléid",
+            "Roinnte ag %1$s · %n ghiuirléid",
+            "Roinnte ag %1$s · %n ngiuirléid",
+            "Roinnte ag %1$s · %n giuirléid"
+        ]
     }
 }

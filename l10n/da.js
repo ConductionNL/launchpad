@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Single sign-on",
     "Signs in with your Nextcloud account" : "Logger ind med din Nextcloud-konto",
     "Asks for its own sign-in" : "Beder om sit eget login",
-    "The tiles could not be added." : "Fliserne kunne ikke tilføjes."
+    "The tiles could not be added." : "Fliserne kunne ikke tilføjes.",
+    "You searched for {query}" : "Du søgte efter {query}",
+    "Search results" : "Søgeresultater",
+    "No results" : "Ingen resultater",
+    "Show all results" : "Vis alle resultater",
+    "Tip: type {prefix} to search {name} directly" : "Tip: skriv {prefix} for at søge direkte i {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

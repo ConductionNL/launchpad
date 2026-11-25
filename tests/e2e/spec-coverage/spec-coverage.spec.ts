@@ -38,6 +38,7 @@ import { expect, request as pwRequest, test } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions.ts'
 import { BASE_URL as BASE } from '../support/baseUrl.ts'
 import { MORE_MENU, openDashboardSwitcher } from '../support/dashboardSwitcher.ts'
+import { chooseAndAdd } from '../support/widgetPicker.ts'
 
 const ADMIN_CREDS = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -129,7 +130,7 @@ async function openAddWidgetModal(page: any, type = 'label') {
 	const addWidgetItem = page.getByRole('menuitem', { name: /^add widget$/i })
 	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
 	await addWidgetItem.click()
-	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
+	await chooseAndAdd(page.locator(`[data-testid="widget-picker-type-${type}"]`))
 
 	// Wait for the Add Widget dialog to be visible.
 	// Two elements carry role="dialog" for this modal (outer mask + inner pane);
@@ -473,7 +474,7 @@ test.describe('grid layout initialisation and edit mode', () => {
 			return
 		}
 		await addWidgetItem.click()
-		await page.locator('[data-testid="widget-picker-type-label"]').click()
+		await chooseAndAdd(page.locator('[data-testid="widget-picker-type-label"]'))
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(dialog).toBeVisible({ timeout: 8_000 })
 	})

@@ -1299,6 +1299,9 @@ class DashboardApiController extends Controller {
 			return $this->context->responseHelper->success(
 				data: ['dashboard' => $dashboard->jsonSerialize()]
 			);
+		} catch (ForbiddenException $e) {
+			// REQ-DASH-004: another user's dashboard is refused with 403.
+			return $this->context->responseHelper->forbidden();
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}
@@ -1578,6 +1581,11 @@ class DashboardApiController extends Controller {
 			// ADR-005: do not leak raw exception messages to clients.
 			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
+			// REQ-DASH-014: the last-in-group guard answers with its reason.
+			if ($e->getMessage() === DashboardService::ERR_LAST_IN_GROUP) {
+				return $this->failure(message: DashboardService::ERR_LAST_IN_GROUP, statusCode: Http::STATUS_BAD_REQUEST);
+			}
+
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 	}//end deleteGroup()

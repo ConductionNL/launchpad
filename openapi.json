@@ -7473,6 +7473,9 @@
                             }
                         }
                     },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },

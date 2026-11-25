@@ -175,17 +175,18 @@ class DashboardServiceRootSlugTest extends TestCase {
 	}//end testADerivedRootSlugAnotherUserHoldsMovesToTheFirstFreeNumber()
 
 	/**
-	 * A derived root slug the owner already holds is kept, so the sibling check refuses it.
+	 * REQ-DASH-007: a second dashboard named like one the owner already has
+	 * moves to the first free number, so names need not be unique.
 	 *
 	 * @return void
 	 */
-	public function testADerivedRootSlugTheOwnerHoldsGoesToTheSiblingCheckUnchanged(): void {
+	public function testADerivedRootSlugTheOwnerHoldsMovesToTheFirstFreeNumber(): void {
 		$this->treeService->expects($this->once())
 			->method('validateSlugUnique')
-			->with(null, 'mijn-werkplek')
-			->willThrowException(new \InvalidArgumentException(DashboardTreeService::ERR_SLUG_TAKEN));
-		$this->expectException(exception: \InvalidArgumentException::class);
+			->with(null, 'mijn-werkplek-2');
 
-		$this->createWhileHeld(held: ['mijn-werkplek' => 'bob']);
-	}//end testADerivedRootSlugTheOwnerHoldsGoesToTheSiblingCheckUnchanged()
+		$created = $this->createWhileHeld(held: ['mijn-werkplek' => 'bob']);
+
+		$this->assertSame(expected: 'mijn-werkplek-2', actual: $created->getSlug());
+	}//end testADerivedRootSlugTheOwnerHoldsMovesToTheFirstFreeNumber()
 }//end class

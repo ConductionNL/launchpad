@@ -797,7 +797,7 @@ class DashboardService {
 			options: self::factoryOptions(options: $options)
 		);
 		$this->applyNewIcon(dashboard: $dashboard, icon: $options['icon']);
-		$this->assertNewSlugUnique(dashboard: $dashboard, userId: $userId, options: $options);
+		$this->assertNewSlugUnique(dashboard: $dashboard, options: $options);
 
 		$this->stores->dashboardMapper->deactivateAllForUser(userId: $userId);
 
@@ -897,23 +897,22 @@ class DashboardService {
 	 * unaddressable by path).
 	 *
 	 * Root slugs share one namespace across users, so a slug derived from
-	 * the name of a new root dashboard is first moved off one that another
-	 * user's dashboard holds.
+	 * the name of a new root dashboard is first moved off one that any
+	 * root dashboard holds.
 	 *
 	 * @param Dashboard            $dashboard The new dashboard.
-	 * @param string               $userId    The owner.
 	 * @param array<string, mixed> $options   The create options: parentUuid, slug.
 	 *
 	 * @return void
 	 */
-	private function assertNewSlugUnique(Dashboard $dashboard, string $userId, array $options): void {
+	private function assertNewSlugUnique(Dashboard $dashboard, array $options): void {
 		$resolvedSlug = $dashboard->getSlug();
 		if ($resolvedSlug === null || $resolvedSlug === '') {
 			return;
 		}
 
 		if ($options['slug'] === null && $options['parentUuid'] === null) {
-			$resolvedSlug = $this->freeRootSlug(userId: $userId, slug: $resolvedSlug);
+			$resolvedSlug = $this->freeRootSlug(slug: $resolvedSlug);
 			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 			$dashboard->setSlug($resolvedSlug);
 		}
@@ -925,16 +924,15 @@ class DashboardService {
 	}//end assertNewSlugUnique()
 
 	/**
-	 * The first of `slug`, `slug-2`, `slug-3`… that no other user's root
-	 * dashboard holds. A slug the owner's own root dashboard holds is
-	 * returned as it is, so the sibling check refuses it.
+	 * The first of `slug`, `slug-2`, `slug-3`… that no root dashboard
+	 * holds, the owner's own included: names need not be unique, so a
+	 * second "Work" gets `work-2` (REQ-DASH-007).
 	 *
-	 * @param string $userId The owner.
-	 * @param string $slug   The slug derived from the name.
+	 * @param string $slug The slug derived from the name.
 	 *
 	 * @return string The slug to store.
 	 */
-	private function freeRootSlug(string $userId, string $slug): string {
+	private function freeRootSlug(string $slug): string {
 		$base = substr(string: $slug, offset: 0, length: 120);
 		for ($number = 1; $number <= 100; $number++) {
 			$candidate = $slug;
@@ -943,7 +941,7 @@ class DashboardService {
 			}
 
 			$holder = $this->stores->dashboardMapper->findChildBySlug(parentUuid: null, slug: $candidate);
-			if ($holder === null || ($number === 1 && $holder->getUserId() === $userId)) {
+			if ($holder === null) {
 				return $candidate;
 			}
 		}
@@ -1318,7 +1316,7 @@ class DashboardService {
 				return $dashboard;
 			}
 
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		$this->stores->dashboardMapper->setActive(

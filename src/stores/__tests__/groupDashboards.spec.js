@@ -137,9 +137,9 @@ describe('useGroupDashboardsStore — CRUD', () => {
 		expect(store.dashboardsFor('admins')[0].uuid).toBe('u2')
 	})
 
-	it('delete surfaces last_group_dashboard as the localized toast', async () => {
+	it('delete surfaces the last-in-group refusal as the localized toast', async () => {
 		const err = new Error('last')
-		err.response = { data: { error: 'last_group_dashboard' } }
+		err.response = { data: { error: 'Cannot delete the only dashboard in the group' } }
 		mockApi.deleteGroupDashboard.mockRejectedValueOnce(err)
 		const { useGroupDashboardsStore } = await import('../groupDashboards.js')
 		const store = useGroupDashboardsStore()

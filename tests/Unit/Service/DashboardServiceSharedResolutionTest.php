@@ -336,7 +336,7 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 		$this->dashResolver->method('findSharedDashboards')->willReturn([]);
 		$this->dashboardMapper->expects($this->never())->method('setActive');
 
-		$this->expectException(exception: \Exception::class);
+		$this->expectException(exception: \OCA\LaunchPad\Exception\ForbiddenException::class);
 		$this->service->activateDashboard(dashboardId: 7, userId: 'stranger');
 	}//end testStrangerActivatingAForeignDashboardIsRefused()
 

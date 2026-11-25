@@ -24,13 +24,13 @@ import { api } from '../services/api.js'
 export const DEFAULT_GROUP_ID = 'default'
 
 /**
- * Stable backend error code returned by `DELETE /api/dashboards/group/...`
- * when the deletion would leave the group with no dashboard at all
- * (REQ-DASH-016 last-in-group guard).
+ * The error `DELETE /api/dashboards/group/...` answers when the deletion
+ * would leave the group with no dashboard at all (REQ-DASH-014
+ * last-in-group guard).
  *
  * @type {string}
  */
-const ERR_LAST_GROUP_DASHBOARD = 'last_group_dashboard'
+const ERR_LAST_GROUP_DASHBOARD = 'Cannot delete the only dashboard in the group'
 
 export const useGroupDashboardsStore = defineStore('groupDashboards', {
 	state: () => ({

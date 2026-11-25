@@ -557,12 +557,9 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		expect((await readState()).complete).toBe(false)
 	})
 
-	// EXPECTED RED: SetupWizardService::computeStepStatuses() reports steps
-	// 3 and 4 as "skipped" from the start (not "pending"): the Skip button is
-	// client-side only, so the server cannot tell skipped from unvisited. The
-	// recommended step is 1 on a first run. The scenario's example still lists
-	// a sixth step; the wizard has five (REQ-WIZ-012), so this asserts five,
-	// all but Step 1 pending.
+	// The wizard has five steps (REQ-WIZ-012); on a fresh instance all but
+	// Step 1 are pending. Steps 3 and 4 turn done only once a demo is
+	// installed or someone holds the LaunchPad admin role.
 	test('the state endpoint on a fresh instance', async () => {
 		// @e2e setup-wizard::endpoint-returns-complete-state-on-fresh-instance
 

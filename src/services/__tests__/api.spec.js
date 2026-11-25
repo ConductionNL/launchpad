@@ -283,12 +283,13 @@ describe('api: optional parameters', () => {
 		})
 	})
 
-	it('org navigation asks for the editor copy with edit=1 (REQ-ONAV-007)', () => {
-		api.getOrgNavigation('en', true)
-		expect(axios.get).toHaveBeenCalledWith(
-			`${B}/api/admin/org-navigation`,
-			{ params: { lang: 'en', edit: 1 } },
-		)
+	it('the org navigation editor reads its own endpoint (REQ-ONAV-007)', () => {
+		api.getEditableOrgNavigation('en')
+		api.getEditableOrgNavigation()
+		expect(axios.get.mock.calls).toEqual([
+			[`${B}/api/admin/org-navigation/editor`, { params: { lang: 'en' } }],
+			[`${B}/api/admin/org-navigation/editor`, { params: { lang: 'nl' } }],
+		])
 	})
 
 	it('org navigation defaults to Dutch', () => {

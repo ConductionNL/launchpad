@@ -96,27 +96,18 @@ class AdminOrgNavigationController extends Controller {
 	/**
 	 * Read the org-navigation tree filtered for the current user.
 	 *
-	 * Accessible to any logged-in user (REQ-ONAV-002). With `edit` set the
-	 * caller asks for the editor's copy (REQ-ONAV-007): the whole tree,
-	 * nodes in groups the caller is not in included, so a Save in the editor
-	 * never drops them. Only an administrator, who may replace the whole tree
-	 * anyway, gets it; anyone else gets the refusal.
+	 * Accessible to any logged-in user (REQ-ONAV-002).
 	 *
 	 * @param string $lang Language code (defaults to `nl`).
-	 * @param bool   $edit Whether to read the unfiltered tree for the editor.
 	 *
 	 * @return JSONResponse The filtered tree under `tree` plus the
 	 *                      effective `language`.
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md
-	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
-	public function getOrgNavigation(
-		string $lang = OrgNavigationService::DEFAULT_LANGUAGE,
-		bool $edit = false,
-	): JSONResponse {
+	public function getOrgNavigation(string $lang = OrgNavigationService::DEFAULT_LANGUAGE): JSONResponse {
 		$refusal = $this->guard->actionRefusal(action: 'admin-org-navigation.get-org-navigation');
 		if ($refusal !== null) {
 			return $refusal;
@@ -133,20 +124,6 @@ class AdminOrgNavigationController extends Controller {
 		}
 
 		$tree = $this->sources->service->getTree(language: $language);
-		if ($edit === true) {
-			$adminRefusal = $this->guard->refusal();
-			if ($adminRefusal !== null) {
-				return $adminRefusal;
-			}
-
-			return $this->responseHelper->success(
-				data: [
-					'tree' => $tree,
-					'language' => $language,
-				]
-			);
-		}
-
 		$filtered = $this->sources->service->filterTreeByUserGroups(
 			tree: $tree,
 			userId: $user->getUID()
@@ -159,6 +136,39 @@ class AdminOrgNavigationController extends Controller {
 			]
 		);
 	}//end getOrgNavigation()
+
+	/**
+	 * Read the whole org-navigation tree for the editor (REQ-ONAV-007).
+	 *
+	 * The editor's working copy holds every node, also those in groups the
+	 * administrator is not in, so a Save never drops them. Only an
+	 * administrator, who may replace the whole tree anyway, gets it.
+	 *
+	 * @param string $lang Language code (defaults to `nl`).
+	 *
+	 * @return JSONResponse The whole tree under `tree` plus the effective
+	 *                      `language`, or the refusal.
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+	 */
+	public function getEditableOrgNavigation(string $lang = OrgNavigationService::DEFAULT_LANGUAGE): JSONResponse {
+		$refusal = $this->guard->refusal();
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		$language = $this->validateLanguage(language: $lang);
+		if ($language === null) {
+			return $this->failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
+		}
+
+		return $this->responseHelper->success(
+			data: [
+				'tree' => $this->sources->service->getTree(language: $language),
+				'language' => $language,
+			]
+		);
+	}//end getEditableOrgNavigation()
 
 	/**
 	 * Replace the org-navigation tree for the given language.

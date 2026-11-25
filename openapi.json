@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "LaunchPad",
-        "version": "1.1.17-unstable.20261125083210",
+        "version": "1.1.17-unstable.20261125171500",
         "description": "The JSON API of LaunchPad, the dashboard app for Nextcloud: dashboards and their widgets and tiles, kiosk screens, public shares, role-based layouts and permissions, templates and the admin settings behind them.\n\nEvery path is served under `/api/v1/`, the version this document describes. The unversioned `/api/` paths keep working, are deprecated, and name their `/api/v1/` successor in a `Link` header next to a `Deprecation` header. Errors are RFC 9457 problem details (`application/problem+json`), and every response carries an `API-Version` header. Paths that implement an external standard keep the formats of that standard and are not described here.",
         "contact": {
             "name": "Conduction B.V.",
@@ -3327,6 +3327,52 @@
                 }
             }
         },
+        "/admin/org-navigation/editor": {
+            "get": {
+                "operationId": "admin-org-navigation-get-editable-org-navigation",
+                "x-launchpad-stability": "internal",
+                "summary": "Read the whole org-navigation tree for the editor (REQ-ONAV-007)",
+                "description": "Read the whole org-navigation tree for the editor (REQ-ONAV-007). The editor's working copy holds every node, also those in groups the administrator is not in, so a Save never drops them. Only an administrator, who may replace the whole tree anyway, gets it. Needs an administrator.",
+                "tags": [
+                    "admin-org-navigation"
+                ],
+                "parameters": [
+                    {
+                        "name": "lang",
+                        "in": "query",
+                        "required": false,
+                        "description": "Language code (defaults to `nl`).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/admin/org-navigation/position": {
             "get": {
                 "operationId": "admin-org-navigation-get-position",
@@ -3970,6 +4016,9 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
                     }
                 }
             }

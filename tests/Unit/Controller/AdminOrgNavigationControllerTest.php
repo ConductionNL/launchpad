@@ -132,7 +132,7 @@ class AdminOrgNavigationControllerTest extends TestCase {
 			->willReturn(value: $tree);
 		$this->service->expects(matcher: $this->never())->method('filterTreeByUserGroups');
 
-		$response = $this->controller->getOrgNavigation(lang: 'nl', edit: true);
+		$response = $this->controller->getEditableOrgNavigation(lang: 'nl');
 
 		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
 		$this->assertSame(expected: ['tree' => $tree, 'language' => 'nl'], actual: $response->getData());
@@ -150,11 +150,9 @@ class AdminOrgNavigationControllerTest extends TestCase {
 	public function testGetForTheEditorRefusesANonAdministrator(): void {
 		$this->loginAs(uid: 'bob', admin: false);
 
-		$this->service->method('getTree')
-			->willReturn(value: [['id' => 'hidden', 'label' => 'Elsewhere', 'groupVisibility' => ['mkt']]]);
-		$this->service->expects(matcher: $this->never())->method('filterTreeByUserGroups');
+		$this->service->expects(matcher: $this->never())->method('getTree');
 
-		$response = $this->controller->getOrgNavigation(lang: 'nl', edit: true);
+		$response = $this->controller->getEditableOrgNavigation(lang: 'nl');
 
 		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
 		$this->assertArrayNotHasKey(key: 'tree', array: (array) $response->getData());

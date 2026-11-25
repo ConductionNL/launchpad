@@ -137,7 +137,7 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 			const language = lang || this.language || 'nl'
 			this.loading = true
 			try {
-				const response = await api.getOrgNavigation(language, true)
+				const response = await api.getEditableOrgNavigation(language)
 				const data = response && response.data ? response.data : {}
 				this.error = null
 				return Array.isArray(data.tree) ? data.tree : []

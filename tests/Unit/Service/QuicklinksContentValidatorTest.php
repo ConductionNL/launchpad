@@ -85,7 +85,7 @@ class QuicklinksContentValidatorTest extends TestCase {
 	#[DataProvider('allowedUrls')]
 	public function testAnAllowedUrlPasses(string $url): void {
 		(new QuicklinksContentValidator())->validate(content: self::withUrl(url: $url));
-		$this->addToAssertionCount(1);
+		$this->addToAssertionCount(count: 1);
 	}//end testAnAllowedUrlPasses()
 
 	/**
@@ -97,8 +97,8 @@ class QuicklinksContentValidatorTest extends TestCase {
 	 */
 	#[DataProvider('refusedUrls')]
 	public function testARefusedUrlIsInvalid(mixed $url): void {
-		$this->expectException(InvalidArgumentException::class);
-		$this->expectExceptionMessage('Invalid URL');
+		$this->expectException(exception: InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: 'Invalid URL');
 		(new QuicklinksContentValidator())->validate(content: self::withUrl(url: $url));
 	}//end testARefusedUrlIsInvalid()
 
@@ -109,7 +109,7 @@ class QuicklinksContentValidatorTest extends TestCase {
 	 */
 	public function testTheLinksShape(): void {
 		(new QuicklinksContentValidator())->validate(content: []);
-		$this->expectException(InvalidArgumentException::class);
+		$this->expectException(exception: InvalidArgumentException::class);
 		(new QuicklinksContentValidator())->validate(content: ['links' => 'nope']);
 	}//end testTheLinksShape()
 }//end class

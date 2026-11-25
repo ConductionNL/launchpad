@@ -50,46 +50,34 @@
 					{{ t('launchpad', 'No apps found') }}
 				</p>
 
-				<template v-if="requestAppFn">
-					<NcButton
-						v-if="!requestFormOpen"
-						variant="tertiary"
-						data-testid="add-tiles-request"
-						@click="openRequestForm">
-						{{ t('launchpad', 'Ask IT for an app') }}
-					</NcButton>
-					<form
-						v-else
-						class="add-tiles__request"
-						:aria-label="t('launchpad', 'Ask IT for an app')"
-						@submit.prevent="submitRequest">
-						<NcTextField
-							v-model="requestAppName"
-							:label="t('launchpad', 'App name')"
-							:required="true" />
-						<NcTextField
-							v-model="requestPurpose"
-							:label="t('launchpad', 'What do you need it for?')" />
-						<p
-							v-if="requestMessage"
+				<form
+					v-if="requestAppFn && request.open"
+					class="add-tiles__request"
+					:aria-label="t('launchpad', 'Ask IT for an app')"
+					@submit.prevent="submitRequest">
+					<NcTextField v-model="request.name" :label="t('launchpad', 'App name')" :required="true" />
+					<NcTextField v-model="request.purpose" :label="t('launchpad', 'What do you need it for?')" />
+					<div class="add-tiles__request-actions">
+						<span
+							v-if="request.message"
 							class="add-tiles__message"
-							:class="{ 'add-tiles__message--error': requestFailed }"
-							role="status">
-							{{ requestMessage }}
-						</p>
-						<div class="add-tiles__request-actions">
-							<NcButton
-								variant="primary"
-								type="submit"
-								:disabled="requestBusy || requestAppName.trim() === ''">
-								{{ t('launchpad', 'Send request') }}
-							</NcButton>
-							<NcButton variant="tertiary" @click="closeRequestForm">
-								{{ t('launchpad', 'Cancel') }}
-							</NcButton>
-						</div>
-					</form>
-				</template>
+							:class="{ 'add-tiles__message--error': request.failed }"
+							role="status">{{ request.message }}</span>
+						<NcButton variant="tertiary" @click="closeRequestForm">
+							{{ t('launchpad', 'Cancel') }}
+						</NcButton>
+						<NcButton variant="primary" type="submit" :disabled="!canSendRequest">
+							{{ t('launchpad', 'Send request') }}
+						</NcButton>
+					</div>
+				</form>
+				<NcButton
+					v-else-if="requestAppFn"
+					variant="tertiary"
+					data-testid="add-tiles-request"
+					@click="openRequestForm">
+					{{ t('launchpad', 'Ask IT for an app') }}
+				</NcButton>
 			</section>
 
 			<!-- 2. Found on this server (REQ-TILE-044): the apps of the
@@ -201,6 +189,16 @@ import {
 	signOnKind,
 	tilesToAdd,
 } from '../utils/addTiles.js'
+import { sendAppRequest } from '../utils/appRequest.js'
+
+/**
+ * The Ask IT form when nothing is typed.
+ *
+ * @return {{open: boolean, name: string, purpose: string, busy: boolean, failed: boolean, message: string}}
+ */
+function emptyRequest() {
+	return { open: false, name: '', purpose: '', busy: false, failed: false, message: '' }
+}
 
 /**
  * AddTilesModal — "Add tiles" as board LpTegelToevoegen draws it
@@ -247,27 +245,44 @@ export default {
 			busy: false,
 			error: '',
 			dragOver: false,
-			requestFormOpen: false,
-			requestAppName: '',
-			requestPurpose: '',
-			requestMessage: '',
-			requestFailed: false,
-			requestBusy: false,
+			request: emptyRequest(),
 		}
 	},
 
 	computed: {
-		/** Two-way `show` for NcModal. */
+		/**
+		 * Two-way `show` for NcModal: closing it closes the dialog.
+		 *
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 */
 		isOpen: {
+			/**
+			 * @return {boolean} whether the dialog is open.
+			 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+			 */
 			get() {
 				return this.open
 			},
 
+			/**
+			 * @param {boolean} value the new `show`.
+			 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+			 */
 			set(value) {
 				if (!value) {
 					this.close()
 				}
 			},
+		},
+
+		/**
+		 * Whether the request can be sent: a name, and nothing in flight.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 */
+		canSendRequest() {
+			return !this.request.busy && this.request.name.trim() !== ''
 		},
 
 		/**
@@ -355,6 +370,12 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * Start afresh each time the dialog opens.
+		 *
+		 * @param {boolean} value whether it is open.
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 */
 		open(value) {
 			if (value) {
 				this.reset()
@@ -468,11 +489,7 @@ export default {
 		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		openRequestForm() {
-			this.requestFormOpen = true
-			this.requestAppName = this.search.trim()
-			this.requestPurpose = ''
-			this.requestMessage = ''
-			this.requestFailed = false
+			this.request = { ...emptyRequest(), open: true, name: this.search.trim() }
 		},
 
 		/**
@@ -481,11 +498,7 @@ export default {
 		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		closeRequestForm() {
-			this.requestFormOpen = false
-			this.requestAppName = ''
-			this.requestPurpose = ''
-			this.requestMessage = ''
-			this.requestFailed = false
+			this.request = emptyRequest()
 		},
 
 		/**
@@ -495,25 +508,18 @@ export default {
 		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		async submitRequest() {
-			const appName = this.requestAppName.trim()
-			if (appName === '' || this.requestBusy || !this.requestAppFn) {
+			if (!this.canSendRequest || !this.requestAppFn) {
 				return
 			}
-			this.requestBusy = true
-			this.requestMessage = ''
-			try {
-				await this.requestAppFn({ appName, purpose: this.requestPurpose.trim() })
-				this.requestFailed = false
-				this.requestMessage = t('launchpad', 'Your request was sent to IT')
-				this.requestAppName = ''
-				this.requestPurpose = ''
-			} catch (error) {
-				this.requestFailed = true
-				this.requestMessage = error?.response?.data?.code === 'request_limit'
-					? t('launchpad', 'You have 10 open requests. Wait for an answer first.')
-					: t('launchpad', 'Your request could not be sent. Try again later.')
-			} finally {
-				this.requestBusy = false
+			this.request.busy = true
+			const outcome = await sendAppRequest(this.requestAppFn, this.request.name, this.request.purpose)
+			this.request = {
+				...this.request,
+				busy: false,
+				failed: outcome.failed,
+				message: outcome.message,
+				name: outcome.failed ? this.request.name : '',
+				purpose: outcome.failed ? this.request.purpose : '',
 			}
 		},
 

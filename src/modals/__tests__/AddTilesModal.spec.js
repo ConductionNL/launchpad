@@ -213,3 +213,16 @@ describe('BookmarkImportModal reads a handed-over file', () => {
 		expect(wrapper.findAll('[data-testid="bookmark-import-bookmark"]')).toHaveLength(1)
 	})
 })
+
+describe('AddTilesModal ask IT failure', () => {
+	it('keeps what was typed and marks the message when the request fails', async () => {
+		const requestAppFn = vi.fn().mockRejectedValue(new Error('offline'))
+		const wrapper = mountModal({ requestAppFn })
+		await wrapper.find('[data-testid="add-tiles-request"]').trigger('click')
+		await wrapper.find('form input.field').setValue('Kaartviewer')
+		await wrapper.find('form').trigger('submit')
+		await flushPromises()
+		expect(wrapper.find('[role="status"]').classes()).toContain('add-tiles__message--error')
+		expect(wrapper.find('form input.field').element.value).toBe('Kaartviewer')
+	})
+})

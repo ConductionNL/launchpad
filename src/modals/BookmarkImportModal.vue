@@ -182,6 +182,10 @@ export default {
 		 */
 		open: {
 			immediate: true,
+			/**
+			 * @param {boolean} value whether the dialog is open.
+			 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+			 */
 			handler(value) {
 				if (value && this.initialFile) {
 					this.onFile(this.initialFile)

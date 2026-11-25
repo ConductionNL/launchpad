@@ -86,7 +86,7 @@ class DemoSeedService {
 	 *
 	 * @throws InvalidArgumentException When the seed is unknown or unreadable.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function definition(string $seedId, string $language = ''): array {
 		if (in_array(needle: $seedId, haystack: self::SEED_IDS, strict: true) === false) {
@@ -113,7 +113,7 @@ class DemoSeedService {
 	 *
 	 * @return array{language: string, strings: array<string, string>} The language applied ('' for none) and its texts.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function translation(string $seedId, string $language): array {
 		foreach ((new DemoSeedTranslation())->candidates(language: $language) as $candidate) {
@@ -173,7 +173,7 @@ class DemoSeedService {
 	 * @throws InvalidArgumentException When the seed is unknown.
 	 * @throws RuntimeException         When a user or dashboard cannot be written.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
 	public function load(string $seedId, string $password = self::DEFAULT_PASSWORD, string $language = ''): array {
@@ -253,7 +253,7 @@ class DemoSeedService {
 	 *
 	 * @return array<int, string> The ids of the showcases uninstalled.
 	 *
-	 * @spec openspec/changes/launchpad-demo-seed/specs/demo-data-showcases/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-launchpad-demo-seed/specs/demo-data-showcases/spec.md
 	 */
 	public function retireShowcases(): array {
 		$retired = [];

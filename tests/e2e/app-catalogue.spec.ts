@@ -30,6 +30,7 @@ import {
 import { adminTab } from './support/adminTab.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import { contextFor } from './support/principals.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -178,15 +179,15 @@ test.describe('app catalogue (REQ-ACAT-002, REQ-ACAT-003, REQ-ACAT-004)', () => 
 			const dialog = await openAddFlow(page)
 			await dialog.getByRole('textbox', { name: /search widgets/i }).fill('zaak')
 
-			const section = dialog.locator('[data-testid="widget-picker-catalogue"]')
+			const section = dialog.locator('[data-testid="widget-picker-section-tiles"]')
 			await expect(section).toBeVisible()
-			await expect(section).toContainText('From the app catalogue')
+			await expect(section).toContainText('App tiles')
 
 			const placed = page.waitForResponse((res) =>
 				/\/api\/dashboard\/\d+\/tile$/.test(res.url())
 				&& res.request().method() === 'POST',
 			)
-			await section.getByRole('button', { name: new RegExp(APP_NAME) }).click()
+			await chooseAndAdd(section.getByRole('button', { name: new RegExp(APP_NAME) }))
 			const response = await placed
 			expect(response.status(), await response.text()).toBeLessThan(300)
 			const sent = response.request().postDataJSON()

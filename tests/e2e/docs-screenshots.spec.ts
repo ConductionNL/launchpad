@@ -39,6 +39,7 @@ import { expect, test } from '@playwright/test'
 import * as fs from 'fs'
 import * as path from 'path'
 import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const SHOT_ROOT = path.resolve(
 	__dirname,
@@ -186,7 +187,7 @@ test.describe('docs: user track', () => {
 		// Open the AddWidgetModal via the cog → Add widget → Custom widget
 		await openCogFor(page, activeName.trim())
 		await page.locator('[data-testid="cog-add-widget"]').click()
-		await page.locator('[data-testid="widget-picker-type-text"]').click()
+		await chooseAndAdd(page.locator('[data-testid="widget-picker-type-text"]'))
 		await page
 			.locator('[data-testid="widget-type-select"]')
 			.waitFor({ state: 'visible', timeout: 5000 })

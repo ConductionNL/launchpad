@@ -51,6 +51,7 @@ import {
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const API = '/index.php/apps/launchpad/api'
 const HOSTS_CONFIG =
@@ -257,7 +258,7 @@ async function openIframeForm(page: Page, dashboard: SeededDashboard) {
 	await expect(row).toBeVisible({ timeout: 10_000 })
 	await row.locator('.dashboard-row-actions button').first().click()
 	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
-	await page.locator('[data-testid="widget-picker-type-iframe"]').click()
+	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-iframe"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	await expect(dialog.locator('.iframe-widget-form')).toBeVisible()

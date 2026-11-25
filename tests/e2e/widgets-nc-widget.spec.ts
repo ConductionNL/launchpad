@@ -37,6 +37,7 @@ import type { Placement } from './support/widgetPlacements.ts'
 
 import { expect, test } from '@playwright/test'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 import {
 	adminApi,
 	gridItem,
@@ -240,7 +241,7 @@ test.describe('nc-widget placement type (REQ-WDG-018..021)', () => {
 		await page
 			.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 			.click()
-		await page.locator('[data-testid="widget-picker-type-nc-widget"]').click()
+		await chooseAndAdd(page.locator('[data-testid="widget-picker-type-nc-widget"]'))
 
 		const dialog = page.getByRole('dialog', { name: 'Add Widget' })
 		await expect(dialog).toBeVisible({ timeout: 10_000 })

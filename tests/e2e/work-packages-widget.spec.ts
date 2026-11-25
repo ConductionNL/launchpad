@@ -195,7 +195,7 @@ test('the real endpoint answers a known state, and without the integration the p
 		await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
 		await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 		const picker = page.getByRole('dialog', { name: /add widget/i }).first()
-		await expect(picker.locator('[data-testid="widget-picker-custom"]')).toBeVisible()
+		await expect(picker.locator('[data-testid="widget-picker-section-launchpad"]')).toBeVisible()
 		const entry = picker.locator('[data-testid="widget-picker-type-work-packages"]')
 		await expect(entry).toHaveCount(state === 'not-installed' ? 0 : 1)
 	} finally {

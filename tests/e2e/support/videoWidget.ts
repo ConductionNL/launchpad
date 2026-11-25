@@ -32,6 +32,7 @@ import type { APIRequestContext, Locator, Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
 import { MORE_MENU } from './dashboardSwitcher.ts'
+import { chooseAndAdd } from './widgetPicker.ts'
 
 /** The LaunchPad API root. */
 export const API = '/index.php/apps/launchpad/api'
@@ -196,7 +197,7 @@ export async function openWorkspace(page: Page): Promise<void> {
 export async function openVideoForm(page: Page): Promise<Locator> {
 	await page.locator(MORE_MENU).locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-type-video"]').click()
+	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-video"]'))
 	// Found by its type select rather than by its title, so the helper works
 	// for a Dutch account too ("Widget toevoegen").
 	const dialog = page.getByRole('dialog')

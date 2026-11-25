@@ -332,18 +332,20 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [x] 5.9 `infrastructure-helpers`: 17 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/infrastructure-helpers.spec.ts, 14 scenarios cited, 3 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 14 of 14 green.
-- [ ] 5.10 `service-health-ping`: 15 scenarios, 0 cited.
+- [x] 5.10 `service-health-ping`: 15 scenarios, 0 cited.
   - Spec written: tests/e2e/service-health-ping.spec.ts, 14 scenarios cited, not yet run (cloud, 2026-11-19), 1 excluded with reasons
   - Spec written: tests/e2e/service-health-ping.spec.ts, the last scenario (background refresh) now cited by running HealthPingRefreshJob through occ, 0 excluded, not yet run (cloud, 2026-11-24)
+  - Done 25 Nov 2026 (sandbox Nextcloud 34.0.6 + MariaDB + Redis, OpenRegister main 58479c0d0, `allow_local_remote_servers` on so the instance reaches the spec's own upstream): `service-health-ping.spec.ts` 15/15 green. The tile editor helpers followed the drawn tile form: the switch is "Check availability" (tile-form-board-sync, REQ-TILE-042), no longer "Show a live status badge (health ping)". Without `allow_local_remote_servers` the 12 upstream tests skip and say so, as the spec intends.
 - [x] 5.11 `initial-state-contract`: 11 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/initial-state-contract.spec.ts, 2 scenarios cited, 9 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Run 20-21 Nov on development (Nextcloud 34.0.6, OpenRegister 2.2.0-dev, live pass stack): 4 of 4 green.
 - [ ] 5.12 `runtime-or-consumption`: 11 scenarios, 0 cited, blanket.
   - Spec written: tests/e2e/runtime-or-consumption.spec.ts (+ tests/e2e/support/orWidget.ts), 7 scenarios cited, 4 excluded with reasons, not yet run (cloud, 2026-11-19)
   - Spec written: tests/e2e/or-absent.spec.ts, 2 more scenarios cited (boot without OR, the OR-data widget's empty state without OR), 8 cited, 2 excluded with reasons (both never built), not yet run (cloud, 2026-11-24)
-- [ ] 5.13 `license-header-consistency`: 7 scenarios, 0 cited, blanket.
+- [x] 5.13 `license-header-consistency`: 7 scenarios, 0 cited, blanket.
   - Spec written: no spec file, 0 scenarios cited, 7 excluded with reasons, one per requirement; the blanket is gone. Every scenario reads checked-in files or CI behaviour, not a running instance. REQ-LIC-003 does not hold: 12 files under `src/` still name `LaunchPad Contributors` (cloud, 2026-11-19)
   - Spec written: tests/e2e/license-header-consistency.spec.ts, 6 scenarios cited (the lib/ and src/ SPDX identifiers, PermissionService.php's PHPDoc and SPDX agreeing, the SPDX copyright of PHP files, the README badge and prose, the licence check failing on an AGPL header in a scratch tree), 1 excluded with reason (reuse lint: no `reuse` tool on the runner or instance), read from the deployed app folder through tests/e2e/support/occ.ts as 5.8 does; not yet run (cloud, 2026-11-25)
+  - Done 25 Nov 2026 (sandbox Nextcloud 34.0.6 + MariaDB + Redis): `license-header-consistency.spec.ts` red on spdx-copyright-matches-reuse-and-phpdoc (`lib/Service/AdminSettingsValidator.php` named `LaunchPad Contributors` in its SPDX-FileCopyrightText), then 6/6 green with the header naming Conduction B.V.
 - [ ] 5.14 `groupfolder-storage-backend`: 0 scenarios, 0 cited. Has no scenarios. Decide whether the spec is still wanted.
   - Decided: keep it. The spec is marked `status: withdrawn` and records why the capability was retired (launchpad#87) and what was removed. With no requirements and no scenarios it owes gate-19 nothing; archiving or deleting it is a separate change (cloud, 2026-11-19)
   - Spec written: tests/e2e/groupfolder-storage-backend.spec.ts, 1 scenario cited, 1 excluded with reason, not yet run (cloud, 2026-11-24). The spec has since gained REQ-GFSB-011 with 2 scenarios, so it does owe gate-19 now.

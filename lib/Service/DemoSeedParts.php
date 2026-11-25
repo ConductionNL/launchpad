@@ -32,16 +32,18 @@ class DemoSeedParts {
 	/**
 	 * Constructor.
 	 *
-	 * @param DemoSeedAccounts    $accounts    Demo users and groups.
-	 * @param DemoSeedDashboards  $dashboards  Seeded dashboards, placements and shares.
-	 * @param DemoSeedFirstRun    $firstRun    The first visit of the first-run user; tour progress of the others.
-	 * @param DemoSeedFiles       $files       The shared team folder.
+	 * @param DemoSeedAccounts   $accounts   Demo users and groups.
+	 * @param DemoSeedDashboards $dashboards Seeded dashboards, placements and shares.
+	 * @param DemoSeedFirstRun   $firstRun   The first visit of the first-run user; tour progress of the others.
+	 * @param DemoSeedFiles      $files      The shared team folder.
+	 * @param DemoSeedStartDates $startDates The start date field and the new colleagues' start dates.
 	 */
 	public function __construct(
 		public readonly DemoSeedAccounts $accounts,
 		public readonly DemoSeedDashboards $dashboards,
 		public readonly DemoSeedFirstRun $firstRun,
 		public readonly DemoSeedFiles $files,
+		public readonly DemoSeedStartDates $startDates,
 	) {
 	}//end __construct()
 }//end class

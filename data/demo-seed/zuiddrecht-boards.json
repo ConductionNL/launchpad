@@ -129,6 +129,17 @@
 			"firstRun": true
 		}
 	],
+	"startDates": {
+		"field": {
+			"key": "in_dienst",
+			"label": "In dienst sinds"
+		},
+		"days": {
+			"yasmina": 7,
+			"nieuw": -2,
+			"thomas": -7
+		}
+	},
 	"tiles": {
 		"zaaksysteem": {
 			"name": "Zaaksysteem",
@@ -673,9 +684,12 @@
 					"customTitle": "Nieuwe collega's",
 					"content": {
 						"layout": "list",
+						"selectionMode": "new",
+						"newSinceDays": 30,
+						"newUntilDays": 14,
 						"filters": [],
 						"excludeDisabled": true,
-						"sortBy": "createdAt",
+						"sortBy": "displayName",
 						"columns": 2,
 						"showActions": false
 					}
@@ -1675,9 +1689,12 @@
 					"customTitle": "Nieuwe collega's",
 					"content": {
 						"layout": "list",
+						"selectionMode": "new",
+						"newSinceDays": 30,
+						"newUntilDays": 14,
 						"filters": [],
 						"excludeDisabled": true,
-						"sortBy": "createdAt",
+						"sortBy": "displayName",
 						"columns": 2,
 						"showActions": false
 					}

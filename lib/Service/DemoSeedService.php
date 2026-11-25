@@ -180,6 +180,8 @@ class DemoSeedService {
 		$report = $this->seedAccounts(seed: $seed, password: $password);
 
 		$report['language'] = $this->translation(seedId: $seedId, language: $language)['language'];
+		// REQ-PPL-014: the new colleagues' start dates, counted from today.
+		$report['startDates'] = $this->parts->startDates->seed(definition: (array)($seed['startDates'] ?? []), today: gmdate(format: 'Y-m-d'));
 
 		$this->content->mergeAppConfig(values: (array)($seed['appConfig'] ?? []));
 		$report['catalogue']     = $this->content->seedCatalogue(tiles: (array)($seed['tiles'] ?? []));

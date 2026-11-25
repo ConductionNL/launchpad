@@ -453,6 +453,9 @@
 			:open="isTileEditorOpen"
 			:tile="editingTile"
 			:dashboardName="(activeDashboard && activeDashboard.name) || ''"
+			:groupName="editingGroupTitle"
+			:groupSort="editingGroupSort"
+			:inGroup="editingGroupTile !== null"
 			@close="closeTileEditor"
 			@save="saveTile"
 			@delete="deleteTile" />
@@ -596,6 +599,7 @@ import { lookStyle } from '../utils/dashboardLook.js'
 import { addressWithPeriod, namesPeriod, readPeriod } from '../utils/dashboardPeriod.js'
 import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
 import { gridItemLabel } from '../utils/gridItemLabel.js'
+import { groupChildToTile, isGroupTileChild, withGroupTileRemoved, withGroupTileSaved } from '../utils/groupTiles.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
 import { loadInitialState, takeBootRead } from '../utils/loadInitialState.js'
@@ -820,6 +824,19 @@ export default {
 		},
 	},
 
+	/**
+	 * A group (container) on this dashboard opens the tile form for a tile
+	 * inside it through this opener (REQ-TILE-041).
+	 *
+	 * @return {object} the provided opener.
+	 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+	 */
+	provide() {
+		return {
+			openGroupTileEditor: (target) => this.openGroupTileEditor(target),
+		}
+	},
+
 	// Inject the typed initial-state snapshot pushed from `src/main.js`
 	// (REQ-INIT-003..005). Defaults match the reader contract so the
 	// sidebar still mounts when running under tests that don't set a
@@ -968,6 +985,9 @@ export default {
 			isAddTilesOpen: false,
 			officeTiles: [],
 			editingTile: null,
+			// REQ-TILE-041: `{containerId, index}` of the tile in a group the
+			// tile form edits; null for a tile on the dashboard itself.
+			editingGroupTile: null,
 			// Custom widget add/edit modal state. `customWidgetEditing`
 			// non-null = edit mode; `customWidgetPreselectedType` non-null =
 			// type-specific deep-link from the toolbar.
@@ -1037,6 +1057,32 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The group (container placement) whose tile the tile form edits.
+		 *
+		 * @return {object|null}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		editingGroup() {
+			const target = this.editingGroupTile
+			if (target === null) {
+				return null
+			}
+			return (this.widgetPlacements || []).find((placement) => placement.id === target.containerId) || null
+		},
+
+		/** @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
+		editingGroupTitle() {
+			const title = this.editingGroup?.content?.title
+			return typeof title === 'string' ? title : ''
+		},
+
+		/** @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
+		editingGroupSort() {
+			const sortBy = this.editingGroup?.content?.sortBy
+			return typeof sortBy === 'string' ? sortBy : ''
+		},
+
 		/**
 		 * Whether each lazily mounted dialog or modal is open now.
 		 *
@@ -3322,6 +3368,72 @@ export default {
 		closeTileEditor() {
 			this.isTileEditorOpen = false
 			this.editingTile = null
+			this.editingGroupTile = null
+		},
+
+		/**
+		 * Open the tile form for a tile inside a group, or remove that tile.
+		 *
+		 * @param {{containerId: number, index: number, remove?: boolean}} target
+		 *   The group placement and the tile's position in its children.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		async openGroupTileEditor(target) {
+			const container = (this.widgetPlacements || []).find((placement) => placement.id === target?.containerId)
+			const child = container?.content?.placements?.[target.index]
+			if (!isGroupTileChild(child)) {
+				return
+			}
+			if (target.remove === true) {
+				await this.writeGroupContent(container, withGroupTileRemoved(container.content, target.index))
+				return
+			}
+			if (!(await this.enterEditMode())) {
+				return
+			}
+			this.editingGroupTile = { containerId: container.id, index: target.index }
+			this.editingTile = groupChildToTile(child)
+			this.isTileEditorOpen = true
+		},
+
+		/**
+		 * Save the tile form's result into the group it came from, with the
+		 * group's sort order.
+		 *
+		 * @param {object} tileData The tile form's result.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		async saveGroupTile(tileData) {
+			const container = this.editingGroup
+			const content = container ? withGroupTileSaved(container.content, this.editingGroupTile.index, tileData) : null
+			if (await this.writeGroupContent(container, content)) {
+				this.closeTileEditor()
+			}
+		},
+
+		/**
+		 * Write a group's new content, telling the author when it failed.
+		 *
+		 * @param {object|null} container The group placement.
+		 * @param {object|null} content Its new content; null when the tile is gone.
+		 * @return {Promise<boolean>} whether the content was written.
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		async writeGroupContent(container, content) {
+			if (!container || content === null) {
+				showError(t('launchpad', 'This tile is no longer in its group. Reload the dashboard and try again.'))
+				return false
+			}
+			try {
+				await this.updateWidgetPlacement(container.id, { content })
+				return true
+			} catch (error) {
+				logger.error('[Views] Failed to save the group:', error)
+				showError(t('launchpad', 'The group could not be saved.'))
+				return false
+			}
 		},
 
 		/**
@@ -3333,6 +3445,10 @@ export default {
 		 * @spec openspec/specs/service-health-ping/spec.md
 		 */
 		async saveTile(tileData) {
+			if (this.editingGroupTile) {
+				await this.saveGroupTile(tileData)
+				return
+			}
 			// service-health-ping: config lives in the placement's `content`
 			// JSON blob, no schema change (REQ-HPING-001).
 			const healthPingContent = {
@@ -3438,6 +3554,14 @@ export default {
 
 		/** @spec openspec/specs/dashboards/spec.md */
 		async deleteTile() {
+			if (this.editingGroupTile) {
+				const container = this.editingGroup
+				const content = container ? withGroupTileRemoved(container.content, this.editingGroupTile.index) : null
+				if (await this.writeGroupContent(container, content)) {
+					this.closeTileEditor()
+				}
+				return
+			}
 			if (this.editingTile?.id) {
 				await this.removeWidget(this.editingTile.id)
 				this.closeTileEditor()

@@ -1,7 +1,8 @@
 # Tasks: tile-form-board-sync
 
 - [x] Tile form layout: name and group, type and open-in as choice cards, addresses side by side, icon with upload, swatches (from icon-only-app-tiles), sort order, availability switch (the colour keeps its two pickers until icon-only-app-tiles lands its swatches)
-- [ ] Group field and the group's sort order (last used first, alphabetical, random, as placed) (the form fields and `groupSortBy` in the save are in place; open: writing the order onto the container, and a tile inside a group has no form of its own, and moving a tile into a group would turn it into a link child and drop its launch, health and network settings: a data decision)
+- [x] Group field and the group's sort order (last used first, alphabetical, random, as placed): a tile inside a group opens the tile form from its own tile menu, with the group's name and order; the save writes the tile into the group's `content.placements` and the order onto the container's `content.sortBy` in one update (src/utils/groupTiles.js, ContainerChild, ContainerWidget, Views, TileEditor `inGroup`). Decision: a tile in a group has no placement of its own on the server and renders through the shared tile renderer, so its form offers only a web address (no launch types, internal address, Open in or availability check); settings of that kind it carries are kept, not dropped; a bookmark link child becomes a tile node when saved
+- [ ] Moving a tile into a group keeps its launch, health and network settings (the child is a full tile node, 25 Nov decision), and a repair step turns stored link children `{type: link, content: {label, url, actionType}}` into tile nodes
 - [x] Last availability result under the switch (reachable or not, with the time)
 - [x] Delete tile at the bottom left, Cancel and Save at the right
 - [x] Translations in every shipped locale

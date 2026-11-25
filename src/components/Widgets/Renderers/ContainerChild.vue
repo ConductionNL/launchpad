@@ -4,9 +4,28 @@
 -->
 
 <template>
+	<!-- REQ-TILE-041: in edit mode a tile in a group opens the tile form. -->
+	<div v-if="childRenderer && showsTileEdit" class="container-child container-child--tile">
+		<component
+			:is="childRenderer"
+			:content="childContent"
+			:placement="placement"
+			:editMode="editMode"
+			v-bind="extraProps" />
+		<!-- The same tile menu as a tile on the dashboard (REQ-TILE-010). -->
+		<div class="container-child__edit" data-testid="container-child-tile-menu">
+			<CnWidgetEditCog
+				icon="kebab"
+				:menuLabel="tileMenuLabel"
+				:editLabel="editTileLabel"
+				:deleteLabel="deleteTileLabel"
+				@edit="$emit('editTile')"
+				@remove="$emit('removeTile')" />
+		</div>
+	</div>
 	<component
 		:is="childRenderer"
-		v-if="childRenderer"
+		v-else-if="childRenderer"
 		:content="childContent"
 		:placement="placement"
 		:editMode="editMode"
@@ -17,6 +36,7 @@
 </template>
 
 <script>
+import { CnWidgetEditCog } from '@conduction/nextcloud-vue'
 import {
 	FLAG_PROP,
 	REQUIRED_OBJECT_PROP,
@@ -26,6 +46,7 @@ import {
 	buildRendererExtraProps,
 	buildWidgetDataProvide,
 } from '../../../services/widgetDataAdapters.js'
+import { isGroupTileChild } from '../../../utils/groupTiles.js'
 
 /**
  * ContainerChild — registry-driven dispatcher for a single child placement
@@ -50,6 +71,10 @@ import {
 export default {
 	name: 'ContainerChild',
 
+	components: {
+		CnWidgetEditCog,
+	},
+
 	/**
 	 * Bridge the nc-vue data widgets' injected sources to launchpad's
 	 * endpoints, scoped to this child's placement. Without this a nested
@@ -68,7 +93,12 @@ export default {
 		placement: REQUIRED_OBJECT_PROP,
 
 		editMode: FLAG_PROP,
+
+		/** Whether the dashboard can open the tile form for this child. */
+		canEditTile: FLAG_PROP,
 	},
+
+	emits: ['editTile', 'removeTile'],
 
 	computed: {
 		/**
@@ -101,6 +131,32 @@ export default {
 			return this.placement?.content || {}
 		},
 
+		/**
+		 * Whether this child shows the edit cog of a tile: in edit mode, for a
+		 * tile the tile form can edit, when the dashboard offers the form.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		showsTileEdit() {
+			return this.editMode && this.canEditTile && isGroupTileChild(this.placement)
+		},
+
+		/** @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
+		tileMenuLabel() {
+			return t('launchpad', 'Tile menu')
+		},
+
+		/** @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
+		editTileLabel() {
+			return t('launchpad', 'Edit tile')
+		},
+
+		/** @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
+		deleteTileLabel() {
+			return t('launchpad', 'Delete tile')
+		},
+
 		/** @spec openspec/specs/container-widget/spec.md */
 		unknownLabel() {
 			const type = this.placement?.type || ''
@@ -114,6 +170,18 @@ export default {
 .container-child {
 	width: 100%;
 	height: 100%;
+}
+
+.container-child--tile {
+	position: relative;
+}
+
+.container-child__edit {
+	position: absolute;
+	top: 2px;
+	inset-inline-end: 2px;
+	z-index: 1;
+	pointer-events: auto;
 }
 
 .container-child--unknown {

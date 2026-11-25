@@ -35,9 +35,14 @@
 				:gs-y="child.gridY || 0"
 				:gs-w="child.gridWidth || 2"
 				:gs-h="child.gridHeight || 2"
-				@click.capture="countUse(child)">
+				:data-launchpad-child="index">
 				<div class="grid-stack-item-content">
-					<ContainerChild :placement="child" :editMode="editMode" />
+					<ContainerChild
+						:placement="child"
+						:editMode="editMode"
+						:canEditTile="canEditTiles"
+						@editTile="editTile(index)"
+						@removeTile="editTile(index, true)" />
 				</div>
 			</div>
 		</div>
@@ -99,6 +104,14 @@ export default {
 	components: {
 		ContainerChild,
 		NcButton,
+	},
+
+	/**
+	 * The dashboard's opener of the tile form for a tile in a group
+	 * (REQ-TILE-041); absent where no dashboard hosts the container.
+	 */
+	inject: {
+		openGroupTileEditor: { default: null },
 	},
 
 	props: {
@@ -167,6 +180,21 @@ export default {
 			return reflowChildren(ordered, NESTED_COLUMNS)
 		},
 
+		/**
+		 * Whether the tiles in this group open the tile form: in edit mode, on a
+		 * dashboard that offers it, for a container that is a placement of its own.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		canEditTiles() {
+			const id = this.placement?.id
+			return this.editMode
+				&& typeof this.openGroupTileEditor === 'function'
+				&& id !== undefined
+				&& id !== null
+		},
+
 		/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
 		canForgetUsage() {
 			return !this.editMode && USAGE_MODES.includes(this.sortMode)
@@ -231,16 +259,58 @@ export default {
 		},
 	},
 
+	/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
 	mounted() {
+		// A click anywhere in a child counts a use of that child; the child's
+		// own link or button stays the control (no click handler on the cell).
+		this.$refs.innerGrid?.addEventListener('click', this.onChildClick, true)
 		this.initInnerGrid()
 	},
 
+	/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
 	beforeUnmount() {
+		this.$refs.innerGrid?.removeEventListener('click', this.onChildClick, true)
 		this.destroyInnerGrid()
 	},
 
 	methods: {
 		t,
+
+		/**
+		 * Open the tile form for the child at `index`. In edit mode the children
+		 * are shown in their stored order, so the index is the stored position.
+		 *
+		 * @param {number} index The child's position in `content.placements`.
+		 * @param {boolean} [remove] Remove the tile instead of opening the form.
+		 * @return {void}
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		editTile(index, remove = false) {
+			if (!this.canEditTiles || this.displayedChildren !== this.children) {
+				return
+			}
+			this.openGroupTileEditor({ containerId: this.placement.id, index, remove })
+		},
+
+		/**
+		 * Count a use of the child a click landed in.
+		 *
+		 * @param {MouseEvent} event The click, in its capture phase.
+		 * @return {void}
+		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
+		 */
+		onChildClick(event) {
+			const grid = this.$refs.innerGrid
+			let cell = event.target?.closest?.('[data-launchpad-child]') ?? null
+			// A group inside this group has cells of its own: take this grid's.
+			while (cell && cell.parentElement !== grid) {
+				cell = cell.parentElement?.closest('[data-launchpad-child]') ?? null
+			}
+			const child = cell ? this.displayedChildren[Number(cell.dataset.launchpadChild)] : undefined
+			if (child) {
+				this.countUse(child)
+			}
+		},
 
 		/**
 		 * Count a use of a child in this browser; only in view mode.

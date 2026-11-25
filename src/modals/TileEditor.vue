@@ -154,7 +154,7 @@
 							:placeholder="t('launchpad', 'https://example.com or /apps/files')"
 							type="text" />
 					</div>
-					<div class="form-row__item">
+					<div v-if="!inGroup" class="form-row__item">
 						<NcTextField
 							v-model="form.internalUrl"
 							:label="t('launchpad', 'Internal address (optional)')"
@@ -162,12 +162,19 @@
 							type="text" />
 					</div>
 				</div>
-				<p class="tile-editor__hint-small tile-editor__address-in-effect">
+				<p v-if="!inGroup" class="tile-editor__hint-small tile-editor__address-in-effect">
 					{{ addressInEffect }}
+				</p>
+				<!-- REQ-TILE-041: a tile in a group is a child of the group, not a
+				     placement of its own, so what needs its own placement on the
+				     server (launching, the availability check, the office-network
+				     address, where it opens) is not offered here. -->
+				<p v-else class="tile-editor__hint-small" data-testid="tile-in-group-hint">
+					{{ t('launchpad', 'A tile in a group opens its web address in a new tab.') }}
 				</p>
 
 				<!-- Launcher-tile-open-behaviour: how the tile opens, as three cards. -->
-				<div class="tile-editor__opens-in" data-test="tile-editor-opens-in">
+				<div v-if="!inGroup" class="tile-editor__opens-in" data-test="tile-editor-opens-in">
 					<ChoiceCards
 						:modelValue="form.linkTarget"
 						:options="linkTargetOptions"
@@ -346,7 +353,7 @@
 					data-testid="tile-group-sort"
 					@update:modelValue="groupSortBy = $event" />
 
-				<div class="tile-editor__health-ping">
+				<div v-if="!inGroup" class="tile-editor__health-ping">
 					<NcCheckboxRadioSwitch
 						:modelValue="form.healthPingEnabled"
 						type="switch"
@@ -491,6 +498,9 @@ export default {
 
 		/** The group's stored sort mode (`content.sortBy`). */
 		groupSort: TEXT_PROP,
+
+		/** Whether the tile is a child of a group rather than a placement of its own. */
+		inGroup: FLAG_PROP,
 	},
 
 	emits: ['close', 'save', 'delete'],
@@ -739,14 +749,17 @@ export default {
 		 * @return {Array<{value: string, label: string, hint: string}>}
 		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		linkTypeOptions() {
 			const options = [
 				{ value: 'url', label: t('launchpad', 'Web address'), hint: t('launchpad', 'A website or a page on this Nextcloud.') },
-				{ value: LINK_SSO, label: t('launchpad', 'App with single sign-on'), hint: t('launchpad', 'Signs in through your identity provider.') },
-				{ value: LINK_REMOTE, label: t('launchpad', 'Legacy Windows program'), hint: t('launchpad', 'Through remote desktop or a web gateway.') },
-				{ value: LINK_PROGRAM, label: t('launchpad', 'Program on this computer'), hint: t('launchpad', 'Starts a program installed on the device.') },
 			]
+			// REQ-TILE-041: a tile in a group has no placement the server can
+			// launch, so it only opens an address.
+			if (!this.inGroup) {
+				options.push(...this.launchTypeOptions)
+			}
 			const current = this.form.linkType
 			if (current && !options.some((option) => option.value === current)) {
 				options.unshift({
@@ -756,6 +769,20 @@ export default {
 				})
 			}
 			return options
+		},
+
+		/**
+		 * The tile types the server launches for a tile of its own.
+		 *
+		 * @return {Array<{value: string, label: string, hint: string}>}
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
+		 */
+		launchTypeOptions() {
+			return [
+				{ value: LINK_SSO, label: t('launchpad', 'App with single sign-on'), hint: t('launchpad', 'Signs in through your identity provider.') },
+				{ value: LINK_REMOTE, label: t('launchpad', 'Legacy Windows program'), hint: t('launchpad', 'Through remote desktop or a web gateway.') },
+				{ value: LINK_PROGRAM, label: t('launchpad', 'Program on this computer'), hint: t('launchpad', 'Starts a program installed on the device.') },
+			]
 		},
 
 		/**

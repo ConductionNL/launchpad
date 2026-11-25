@@ -102,4 +102,15 @@ describe('DashboardSharingPolicy (REQ-SHARE-015)', () => {
 		expect(updateSharingPolicy).toHaveBeenCalledWith({ publicLinksAllowed: false })
 		expect(wrapper.vm.publicLinksAllowed).toBe(false)
 	})
+
+	it('choosing Everyone clears the group list, the setting that lets everyone share', async () => {
+		const wrapper = await mountPolicy({ sharingAllowed: 'groups', sharingAllowedGroups: ['sales'] })
+
+		await wrapper.find('[data-test="sharing-policy-allowed-choice-everyone"]').trigger('click')
+		await flushPromises()
+
+		expect(updateSharingPolicy).toHaveBeenCalledWith({ sharingAllowed: 'everyone' })
+		expect(updateAdminSettings).toHaveBeenCalledWith(expect.objectContaining({ sharingAllowedGroups: [] }))
+		expect(wrapper.vm.allowedGroups).toEqual([])
+	})
 })

@@ -119,8 +119,9 @@ class SharingLimits {
 	/**
 	 * Who may share: everyone, the allowed groups, or nobody but an administrator.
 	 *
-	 * Without a stored choice it follows the group list, as before the choice
-	 * existed: groups set means `groups`, none set means `everyone`.
+	 * Only Nobody is stored as an override; otherwise the mode follows the
+	 * group list (REQ-SHARE-014): groups set means `groups`, none set means
+	 * `everyone`. So the group setting keeps working on its own.
 	 *
 	 * @return string One of ALLOWED_MODES.
 	 *
@@ -128,8 +129,8 @@ class SharingLimits {
 	 */
 	public function allowedMode(): string {
 		$stored = $this->settings->getValue(key: AdminSettingKey::SHARING_ALLOWED->value, default: null);
-		if (in_array($stored, self::ALLOWED_MODES, true) === true) {
-			return $stored;
+		if ($stored === self::ALLOWED_NONE) {
+			return self::ALLOWED_NONE;
 		}
 
 		if ($this->allowedGroups() === []) {
@@ -187,12 +188,11 @@ class SharingLimits {
 			return in_array(self::ADMIN_GROUP, $this->groupsOf(userId: $userId), true);
 		}
 
-		$allowed = $this->allowedGroups();
-		if ($mode === self::ALLOWED_EVERYONE || $allowed === []) {
+		if ($mode === self::ALLOWED_EVERYONE) {
 			return true;
 		}
 
-		return array_intersect($allowed, $this->groupsOf(userId: $userId)) !== [];
+		return array_intersect($this->allowedGroups(), $this->groupsOf(userId: $userId)) !== [];
 	}//end mayShare()
 
 	/**

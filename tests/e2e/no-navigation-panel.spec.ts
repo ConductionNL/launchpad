@@ -47,6 +47,11 @@ async function expectNoPanel(page: Page): Promise<void> {
 	await expect(page.locator('#app-navigation-vue')).toHaveCount(0)
 	const contentBox = await page.locator('#app-content-vue').boundingBox()
 	expect(contentBox?.x ?? 999).toBeLessThan(40)
+	// "The content MUST take the full width": starting at the left edge is
+	// not enough, a panel on the right or a fixed max-width would pass it.
+	const viewport = page.viewportSize()
+	expect(viewport, 'the page has a viewport').not.toBeNull()
+	expect(contentBox?.width ?? 0).toBeGreaterThan(viewport!.width - 80)
 }
 
 // @e2e runtime-shell::no-route-renders-the-panel
@@ -69,6 +74,8 @@ test('the dashboard view has no panel and every destination in More', async ({ b
 		}
 		expect(ids).toContain('launchpad-more-menu-item-all-dashboards')
 		expect(ids).toContain('launchpad-more-menu-item-personal-settings')
+		// The admin settings link is an administrator's destination only.
+		expect(ids).not.toContain('launchpad-more-menu-item-admin-settings-link')
 	} finally {
 		await context.close()
 	}
@@ -101,4 +108,50 @@ test('the Marketplace has no panel, More at its top, and Dashboards leads back',
 	} finally {
 		await context.close()
 	}
+})
+
+// @e2e runtime-shell::no-route-renders-the-panel
+test('Reports and Flows render no panel either', async ({ browser }) => {
+	const { context, page } = await loginAs(browser, member!.username, member!.password)
+	try {
+		for (const route of ['reports', 'flows']) {
+			await page.goto(`/index.php/apps/launchpad/${route}`)
+			// The page has rendered its own chrome before the panel's absence
+			// is read: an empty, still-mounting page would have no panel either.
+			await expect(
+				page.locator('[data-testid="launchpad-page-menu"]'),
+				`/${route} renders the page More menu`,
+			).toBeVisible({ timeout: 30_000 })
+			await expectNoPanel(page)
+		}
+	} finally {
+		await context.close()
+	}
+})
+
+// @e2e runtime-shell::no-route-renders-the-panel
+test('an admin page renders no panel', async ({ page }) => {
+	// The default storage state is the administrator, the one principal who
+	// may open the admin pages.
+	await page.goto('/index.php/apps/launchpad/admin/templates')
+	await expect(page.locator('[data-testid="launchpad-page-menu"]')).toBeVisible({ timeout: 30_000 })
+	await expectNoPanel(page)
+})
+
+// @e2e runtime-shell::no-destination-is-lost
+test('an administrator keeps every destination, and the admin settings link, in More', async ({ page }) => {
+	await page.goto('/index.php/apps/launchpad/')
+	const more = page.locator('[data-testid="launchpad-more-menu"]')
+	await expect(more).toBeVisible({ timeout: 30_000 })
+	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	await openSettingsGroup(page)
+	for (const id of [...DESTINATIONS, 'personal-settings', 'admin-settings-link']) {
+		await expect(
+			page.locator(`[data-testid="launchpad-more-menu-item-${id}"]`),
+			`${id} is not in the administrator's More`,
+		).toBeVisible()
+	}
+	// The in-app admin-settings route only redirects, so it is offered once,
+	// as the link, never as a second entry.
+	await expect(page.locator('[data-testid="launchpad-more-menu-item-admin-settings"]')).toHaveCount(0)
 })

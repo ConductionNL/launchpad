@@ -458,6 +458,26 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 		const placement = page.locator(`[data-placement-id="${adminPlacement}"]`)
 		await expect(placement).toBeVisible({ timeout: 15_000 })
 
+		// The action menu the scenario names is More (REQ-SHELL-013): Edit and
+		// Add widget under This dashboard, Documentation under Settings.
+		await page
+			.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`)
+			.click()
+		const panel = page.locator('[data-testid="launchpad-more-menu-panel"]')
+		await expect(panel).toBeVisible()
+		for (const id of ['edit', 'add-widget']) {
+			await expect
+				.soft(panel.locator(`[data-testid="launchpad-more-menu-item-${id}"]`), `More entry ${id}`)
+				.toBeVisible()
+		}
+		await openSettingsGroup(page)
+		await expect
+			.soft(panel.locator('[data-testid="launchpad-more-menu-item-Documentation"]'), 'Documentation under Settings')
+			.toBeVisible()
+		await page.keyboard.press('Escape')
+		await expect(panel).toBeHidden()
+
+		// And the same entries in the dashboard's row cog in the switcher.
 		await openDashboardSwitcher(page)
 		await row(page, ADMIN_DASH)
 			.locator('.dashboard-row-actions button')

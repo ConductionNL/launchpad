@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Áskilið: ekki er hægt að fjarlægja þessa græju",
     "Connections of this dashboard" : "Tengingar þessa mælaborðs",
     "Connection states need the Integrations app" : "Staða tenginga krefst forritsins Samþættingar",
     "No widget on this dashboard uses an outside connection" : "Engin græja á þessu mælaborði notar ytri tengingu",

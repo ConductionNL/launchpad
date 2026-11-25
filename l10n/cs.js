@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Povinné: tento widget nelze odebrat",
     "Connections of this dashboard" : "Připojení tohoto panelu",
     "Connection states need the Integrations app" : "Stav připojení vyžaduje aplikaci Integrace",
     "No widget on this dashboard uses an outside connection" : "Žádný widget na tomto panelu nepoužívá externí připojení",

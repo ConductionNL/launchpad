@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Required: this widget cannot be removed" : "Obligatorisk: den här widgeten kan inte tas bort",
         "Connections of this dashboard": "Anslutningar på den här instrumentpanelen",
         "Connection states need the Integrations app": "Anslutningarnas status kräver appen Integrationer",
         "No widget on this dashboard uses an outside connection": "Ingen widget på den här instrumentpanelen använder en extern anslutning",

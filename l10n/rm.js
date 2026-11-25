@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "Obligatoric: quest widget na po betg vegnir allontanà",
     "Connections of this dashboard" : "Colliaziuns da quest dashboard",
     "Connection states need the Integrations app" : "Per il stadi da las colliaziuns è necessaria l’app Integraziuns",
     "No widget on this dashboard uses an outside connection" : "Nagin widget sin quest dashboard na dovra ina colliaziun externa",

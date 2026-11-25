@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Required: this widget cannot be removed" : "I detyrueshëm: ky widget nuk mund të hiqet",
     "Connections of this dashboard" : "Lidhjet e këtij paneli",
     "Connection states need the Integrations app" : "Gjendja e lidhjeve kërkon aplikacionin Integrime",
     "No widget on this dashboard uses an outside connection" : "Asnjë widget në këtë panel nuk përdor lidhje të jashtme",

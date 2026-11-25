@@ -30,6 +30,7 @@ import {
 } from './fixtures/secondary-user.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
 import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { contextFor } from './support/principals.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -106,6 +107,27 @@ test.describe('REQ-SHELL-004: the dashboards are reached through More', () => {
 		// A fresh member, so the open dashboard is among the few More lists
 		// (it lists eight before "All dashboards").
 		const { username, password } = await provisionThrowawayUser('e2e-more-mark')
+		// Seed a second dashboard beside the shipped default one and make it
+		// the open one, so "the open dashboard is the marked one" is checked
+		// by id with more than one entry listed, not as "some row is checked".
+		await setAllowUserDashboards(true)
+		const api = await contextFor(username, password)
+		let openId: number
+		try {
+			const created = await api.post('/index.php/apps/launchpad/api/dashboard', {
+				data: { name: `E2E More mark ${Date.now()}` },
+			})
+			expect(created.status(), await created.text()).toBeLessThan(300)
+			const body = await created.json()
+			const dash = body.dashboard ?? body.data?.dashboard ?? body
+			openId = Number(dash.id)
+			const active = await api.post('/index.php/apps/launchpad/api/dashboards/active', {
+				data: { uuid: dash.uuid },
+			})
+			expect(active.status(), await active.text()).toBeLessThan(300)
+		} finally {
+			await api.dispose()
+		}
 		const { context, page } = await loginAs(browser, username, password)
 		try {
 			await waitForShell(page)
@@ -113,7 +135,10 @@ test.describe('REQ-SHELL-004: the dashboards are reached through More', () => {
 			await page.locator(MORE_MENU).locator('[data-testid="launchpad-more-menu-trigger"]').click()
 			const rows = page.locator('[data-testid^="launchpad-more-menu-item-dashboard-"]')
 			await expect(rows.first()).toBeVisible()
-			await expect(rows.and(page.locator('[aria-checked="true"]'))).toHaveCount(1)
+			expect(await rows.count(), 'more than one dashboard is listed').toBeGreaterThan(1)
+			const marked = rows.and(page.locator('[aria-checked="true"]'))
+			await expect(marked).toHaveCount(1)
+			await expect(marked).toHaveAttribute('data-testid', `launchpad-more-menu-item-dashboard-${openId}`)
 		} finally {
 			await context.close()
 			await deprovisionUser(username)

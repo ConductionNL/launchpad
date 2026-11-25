@@ -13,7 +13,7 @@
  * @e2e openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md
  */
 
-import type { APIRequestContext } from '@playwright/test'
+import type { APIRequestContext, Locator } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 import { adminContext, API } from './support/principals.ts'
@@ -94,6 +94,20 @@ test.afterAll(async () => {
 	await admin.dispose()
 })
 
+/**
+ * The seconds the position line says are left on the current dashboard
+ * ("1 van 2 · volgende over 7 s").
+ *
+ * @param position the position line.
+ * @return the number of seconds.
+ */
+async function secondsLeft(position: Locator): Promise<number> {
+	const text = (await position.textContent()) ?? ''
+	const match = text.match(/(?:volgende over|next in) (\d+) s/)
+	expect(match, `a countdown in "${text}"`).not.toBeNull()
+	return Number(match![1])
+}
+
 // @e2e dashboard-kiosk-mode::the-canteen-screen
 test('a two-dashboard playlist shows 1 van 2 and then 2 van 2', async ({ browser }) => {
 	const context = await browser.newContext({ storageState: LOGGED_OUT })
@@ -103,6 +117,25 @@ test('a two-dashboard playlist shows 1 van 2 and then 2 van 2', async ({ browser
 		const position = page.getByTestId('kiosk-position')
 		await expect(position).toHaveText(/^\s*1 (van|of) 2 · /, { timeout: 30_000 })
 		await expect(position).toHaveAttribute('aria-hidden', 'true')
+
+		// The seconds until the next dashboard: within the dwell, and counting
+		// down every second (a frozen or missing number would read the same
+		// prefix).
+		const first = await secondsLeft(position)
+		expect(first).toBeGreaterThanOrEqual(1)
+		expect(first).toBeLessThanOrEqual(DWELL)
+		await expect
+			.poll(() => secondsLeft(position), { timeout: 5_000, message: 'the countdown is updated every second' })
+			.toBeLessThan(first)
+
+		// In the bottom right corner of the screen.
+		const box = (await position.boundingBox())!
+		const viewport = page.viewportSize()!
+		expect(box.x + box.width / 2, 'right half').toBeGreaterThan(viewport.width / 2)
+		expect(box.y + box.height / 2, 'bottom half').toBeGreaterThan(viewport.height / 2)
+		// Not a control: it never takes focus.
+		expect(await position.evaluate((el) => (el as HTMLElement).tabIndex)).toBe(-1)
+
 		await expect(position).toHaveText(/^\s*2 (van|of) 2 · /, { timeout: (DWELL + 10) * 1000 })
 		await expect(page.getByTestId('kiosk-announcement')).toContainText('Tweede')
 	} finally {

@@ -1736,6 +1736,11 @@
         "Signs in with your Nextcloud account": "Loggar in med ditt Nextcloud-konto",
         "Asks for its own sign-in": "Kräver en egen inloggning",
         "The tiles could not be added.": "Panelerna kunde inte läggas till.",
+        "Group dashboard of %s": "Gruppens instrumentpanel för %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Delad av %1$s · %n widget",
+            "Delad av %1$s · %n widgetar"
+        ],
         "Look": "Utseende",
         "Accent color": "Accentfärg",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Ge den här instrumentpanelen egna färger. Lämna ett fält tomt för att följa temat.",
@@ -1834,6 +1839,10 @@
         "Personal dashboard · opens first": "Personlig instrumentpanel · öppnas först",
         "Shared with you": "Delad med dig",
         "Last changed {when}": "Senast ändrad {when}",
-        "Last changed today {time}": "Senast ändrad i dag {time}"
+        "Last changed today {time}": "Senast ändrad i dag {time}",
+        "You searched for {query}": "Du sökte efter {query}",
+        "No results": "Inga resultat",
+        "Show all results": "Visa alla resultat",
+        "Tip: type {prefix} to search {name} directly": "Tips: skriv {prefix} för att söka direkt i {name}"
     }
 }

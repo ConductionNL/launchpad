@@ -1738,6 +1738,12 @@
         "Signs in with your Nextcloud account": "Se conectează cu contul tău Nextcloud",
         "Asks for its own sign-in": "Cere propria autentificare",
         "The tiles could not be added.": "Dalele nu au putut fi adăugate.",
+        "Group dashboard of %s": "Tabloul de bord al grupului %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Partajat de %1$s · %n widget",
+            "Partajat de %1$s · %n widgeturi",
+            "Partajat de %1$s · %n de widgeturi"
+        ],
         "Look": "Aspect",
         "Accent color": "Culoare de accent",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Dați acestui panou propriile culori. Lăsați un câmp gol pentru a urma tema.",
@@ -1836,6 +1842,10 @@
         "Personal dashboard · opens first": "Tablou de bord personal · se deschide primul",
         "Shared with you": "Partajat cu dvs.",
         "Last changed {when}": "Ultima modificare {when}",
-        "Last changed today {time}": "Ultima modificare astăzi {time}"
+        "Last changed today {time}": "Ultima modificare astăzi {time}",
+        "You searched for {query}": "Ați căutat {query}",
+        "No results": "Niciun rezultat",
+        "Show all results": "Afișează toate rezultatele",
+        "Tip: type {prefix} to search {name} directly": "Sfat: tastați {prefix} pentru a căuta direct în {name}"
     }
 }

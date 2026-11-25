@@ -1738,6 +1738,12 @@
         "Signs in with your Nextcloud account": "Prisijungia jūsų Nextcloud paskyra",
         "Asks for its own sign-in": "Prašo savo prisijungimo",
         "The tiles could not be added.": "Nepavyko pridėti plytelių.",
+        "Group dashboard of %s": "Grupės %s skydelis",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Bendrina %1$s · %n valdiklis",
+            "Bendrina %1$s · %n valdikliai",
+            "Bendrina %1$s · %n valdiklių"
+        ],
         "Look": "Išvaizda",
         "Accent color": "Akcento spalva",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Suteikite šiam skydeliui savas spalvas. Palikite lauką tuščią, kad būtų naudojama tema.",
@@ -1836,6 +1842,10 @@
         "Personal dashboard · opens first": "Asmeninis skydelis · atidaromas pirmas",
         "Shared with you": "Bendrinama su jumis",
         "Last changed {when}": "Paskutinį kartą keista {when}",
-        "Last changed today {time}": "Paskutinį kartą keista šiandien {time}"
+        "Last changed today {time}": "Paskutinį kartą keista šiandien {time}",
+        "You searched for {query}": "Ieškojote {query}",
+        "No results": "Rezultatų nėra",
+        "Show all results": "Rodyti visus rezultatus",
+        "Tip: type {prefix} to search {name} directly": "Patarimas: įveskite {prefix}, kad ieškotumėte tiesiai {name}"
     }
 }

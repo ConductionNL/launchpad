@@ -1736,6 +1736,11 @@
         "Signs in with your Nextcloud account": "Kirjautuu Nextcloud-tililläsi",
         "Asks for its own sign-in": "Pyytää oman kirjautumisen",
         "The tiles could not be added.": "Ruutuja ei voitu lisätä.",
+        "Group dashboard of %s": "Ryhmän %s kojelauta",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Jakanut %1$s · %n pienoissovellus",
+            "Jakanut %1$s · %n pienoissovellusta"
+        ],
         "Look": "Ulkoasu",
         "Accent color": "Korostusväri",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Anna tälle kojelaudalle omat värit. Jätä kenttä tyhjäksi, niin teema on käytössä.",
@@ -1834,6 +1839,10 @@
         "Personal dashboard · opens first": "Henkilökohtainen kojelauta · avautuu ensimmäisenä",
         "Shared with you": "Jaettu kanssasi",
         "Last changed {when}": "Muutettu viimeksi {when}",
-        "Last changed today {time}": "Muutettu viimeksi tänään {time}"
+        "Last changed today {time}": "Muutettu viimeksi tänään {time}",
+        "You searched for {query}": "Hait hakusanalla {query}",
+        "No results": "Ei tuloksia",
+        "Show all results": "Näytä kaikki tulokset",
+        "Tip: type {prefix} to search {name} directly": "Vinkki: kirjoita {prefix} hakeaksesi suoraan palvelusta {name}"
     }
 }

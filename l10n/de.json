@@ -1736,6 +1736,11 @@
         "Signs in with your Nextcloud account": "Meldet sich mit Ihrem Nextcloud-Konto an",
         "Asks for its own sign-in": "Verlangt eine eigene Anmeldung",
         "The tiles could not be added.": "Die Kacheln konnten nicht hinzugefügt werden.",
+        "Group dashboard of %s": "Gruppen-Dashboard von %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Geteilt von %1$s · %n Widget",
+            "Geteilt von %1$s · %n Widgets"
+        ],
         "Look": "Aussehen",
         "Accent color": "Akzentfarbe",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Geben Sie diesem Dashboard eigene Farben. Lassen Sie ein Feld leer, um dem Design zu folgen.",
@@ -1834,6 +1839,10 @@
         "Personal dashboard · opens first": "Persönliches Dashboard · öffnet zuerst",
         "Shared with you": "Mit Ihnen geteilt",
         "Last changed {when}": "Zuletzt geändert {when}",
-        "Last changed today {time}": "Zuletzt geändert heute {time}"
+        "Last changed today {time}": "Zuletzt geändert heute {time}",
+        "You searched for {query}": "Sie haben nach {query} gesucht",
+        "No results": "Keine Ergebnisse",
+        "Show all results": "Alle Ergebnisse anzeigen",
+        "Tip: type {prefix} to search {name} directly": "Tipp: Geben Sie {prefix} ein, um direkt in {name} zu suchen"
     }
 }

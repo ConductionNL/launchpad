@@ -1736,6 +1736,11 @@
         "Signs in with your Nextcloud account": "Mellt sech mat Ärem Nextcloud-Kont un",
         "Asks for its own sign-in": "Freet no enger eegener Umeldung",
         "The tiles could not be added.": "D'Kachele konnten net derbäigesat ginn.",
+        "Group dashboard of %s": "Gruppen-Dashboard vu(n) %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Gedeelt vu(n) %1$s · %n Widget",
+            "Gedeelt vu(n) %1$s · %n Widgeten"
+        ],
         "Look": "Ausgesinn",
         "Accent color": "Akzentfaarf",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Gitt dësem Dashboard seng eege Faarwen. Loosst e Feld eidel, fir dem Thema ze verfollegen.",
@@ -1834,6 +1839,10 @@
         "Personal dashboard · opens first": "Perséinlecht Dashboard · gëtt als éischt opgemaach",
         "Shared with you": "Mat Iech gedeelt",
         "Last changed {when}": "Lescht geännert {when}",
-        "Last changed today {time}": "Lescht geännert haut {time}"
+        "Last changed today {time}": "Lescht geännert haut {time}",
+        "You searched for {query}": "Dir hutt no {query} gesicht",
+        "No results": "Keng Resultater",
+        "Show all results": "All Resultater weisen",
+        "Tip: type {prefix} to search {name} directly": "Tipp: Gitt {prefix} an, fir direkt an {name} ze sichen"
     }
 }

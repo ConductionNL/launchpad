@@ -2497,6 +2497,11 @@
         "Signs in with your Nextcloud account": "Meldt aan met je Nextcloud-account",
         "Asks for its own sign-in": "Vraagt om een eigen aanmelding",
         "The tiles could not be added.": "De tegels konden niet worden toegevoegd.",
+        "Group dashboard of %s": "Groepsdashboard van %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Gedeeld door %1$s · %n widget",
+            "Gedeeld door %1$s · %n widgets"
+        ],
         "Look": "Uiterlijk",
         "Accent color": "Accentkleur",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Geef dit dashboard eigen kleuren. Laat een veld leeg om het thema te volgen.",
@@ -2712,6 +2717,10 @@
         "Personal dashboard": "Persoonlijk dashboard",
         "Personal dashboard · opens first": "Persoonlijk dashboard · opent als eerste",
         "Last changed {when}": "Laatst aangepast {when}",
-        "Last changed today {time}": "Laatst aangepast vandaag {time}"
+        "Last changed today {time}": "Laatst aangepast vandaag {time}",
+        "You searched for {query}": "Je zocht naar {query}",
+        "No results": "Geen resultaten",
+        "Show all results": "Alle resultaten tonen",
+        "Tip: type {prefix} to search {name} directly": "Tip: typ {prefix} om direct in {name} te zoeken"
     }
 }

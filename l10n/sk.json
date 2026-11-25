@@ -1738,6 +1738,12 @@
         "Signs in with your Nextcloud account": "Prihlasuje sa vaším účtom Nextcloud",
         "Asks for its own sign-in": "Vyžaduje vlastné prihlásenie",
         "The tiles could not be added.": "Dlaždice sa nepodarilo pridať.",
+        "Group dashboard of %s": "Nástenka skupiny %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Zdieľa %1$s · %n widget",
+            "Zdieľa %1$s · %n widgety",
+            "Zdieľa %1$s · %n widgetov"
+        ],
         "Look": "Vzhľad",
         "Accent color": "Farba zvýraznenia",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Dajte tomuto panelu vlastné farby. Ponechajte pole prázdne, aby sa použila téma.",
@@ -1836,6 +1842,10 @@
         "Personal dashboard · opens first": "Osobný panel · otvorí sa ako prvý",
         "Shared with you": "Zdieľané s vami",
         "Last changed {when}": "Naposledy zmenené {when}",
-        "Last changed today {time}": "Naposledy zmenené dnes {time}"
+        "Last changed today {time}": "Naposledy zmenené dnes {time}",
+        "You searched for {query}": "Hľadali ste {query}",
+        "No results": "Žiadne výsledky",
+        "Show all results": "Zobraziť všetky výsledky",
+        "Tip: type {prefix} to search {name} directly": "Tip: napíšte {prefix} a vyhľadávajte priamo v {name}"
     }
 }

@@ -34,6 +34,7 @@ import {
 } from './fixtures/secondary-user.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import { contextFor } from './support/principals.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -130,7 +131,7 @@ test('Deck is discovered, placed in one click and then marked as on this dashboa
 	const { context, page } = await loginAs(browser, account!.username, account!.password)
 	try {
 		const picker = await openAddFlow(page)
-		const section = picker.locator('[data-testid="widget-picker-discovered"]')
+		const section = picker.locator('[data-testid="widget-picker-section-tiles"]')
 		await expect(section).toContainText('App tiles')
 		const entry = section.getByRole('button', { name: new RegExp(`^\\s*${deck!.name}`) })
 		await expect(entry).toBeVisible()
@@ -140,7 +141,7 @@ test('Deck is discovered, placed in one click and then marked as on this dashboa
 		const placed = page.waitForResponse((res) =>
 			/\/api\/dashboard\/\d+\/widgets$/.test(res.url()) && res.request().method() === 'POST',
 		)
-		await entry.click()
+		await chooseAndAdd(entry)
 		const response = await placed
 		expect(response.status(), await response.text()).toBeLessThan(300)
 		expect(response.request().postDataJSON()).toMatchObject({
@@ -162,7 +163,7 @@ test('Deck is discovered, placed in one click and then marked as on this dashboa
 		const again = await openAddFlow(page)
 		await expect(
 			again
-				.locator('[data-testid="widget-picker-discovered"]')
+				.locator('[data-testid="widget-picker-section-tiles"]')
 				.getByRole('button', { name: new RegExp(`^\\s*${deck!.name}`) }),
 		).toContainText('On this dashboard')
 	} finally {

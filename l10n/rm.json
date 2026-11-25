@@ -1736,6 +1736,11 @@
         "Signs in with your Nextcloud account": "S'annunzia cun Voss conto da Nextcloud",
         "Asks for its own sign-in": "Dumonda in'atgna annunzia",
         "The tiles could not be added.": "Impussibel d'agiuntar las plattas.",
+        "Group dashboard of %s": "Dashboard da la gruppa %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Partì da %1$s · %n widget",
+            "Partì da %1$s · %n widgets"
+        ],
         "Look": "Aspect",
         "Accent color": "Colur d'accent",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Dai a quest tavel ses atgnas colurs. Laschai in champ vid per suandar il tema.",
@@ -1834,6 +1839,10 @@
         "Personal dashboard · opens first": "Dashboard persunal · vegn avert sco emprim",
         "Shared with you": "Partì cun Vus",
         "Last changed {when}": "Midà la davosa giada {when}",
-        "Last changed today {time}": "Midà la davosa giada oz {time}"
+        "Last changed today {time}": "Midà la davosa giada oz {time}",
+        "You searched for {query}": "Ti has tschertgà {query}",
+        "No results": "Nagins resultats",
+        "Show all results": "Mussar tut ils resultats",
+        "Tip: type {prefix} to search {name} directly": "Tip: tippa {prefix} per tschertgar directamain en {name}"
     }
 }

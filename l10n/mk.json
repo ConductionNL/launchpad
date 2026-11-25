@@ -1736,6 +1736,11 @@
         "Signs in with your Nextcloud account": "Се најавува со вашата Nextcloud сметка",
         "Asks for its own sign-in": "Бара сопствена најава",
         "The tiles could not be added.": "Плочките не може да се додадат.",
+        "Group dashboard of %s": "Контролна табла на групата %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Споделено од %1$s · %n виџет",
+            "Споделено од %1$s · %n виџети"
+        ],
         "Look": "Изглед",
         "Accent color": "Боја на акцент",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Дајте ѝ на оваа контролна табла сопствени бои. Оставете поле празно за да ја следите темата.",
@@ -1834,6 +1839,10 @@
         "Personal dashboard · opens first": "Лична контролна табла · се отвора прва",
         "Shared with you": "Споделено со вас",
         "Last changed {when}": "Последна промена {when}",
-        "Last changed today {time}": "Последна промена денес {time}"
+        "Last changed today {time}": "Последна промена денес {time}",
+        "You searched for {query}": "Баравте {query}",
+        "No results": "Нема резултати",
+        "Show all results": "Прикажи ги сите резултати",
+        "Tip: type {prefix} to search {name} directly": "Совет: внесете {prefix} за директно пребарување во {name}"
     }
 }

@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Enkel inloggning",
     "Signs in with your Nextcloud account" : "Loggar in med ditt Nextcloud-konto",
     "Asks for its own sign-in" : "Kräver en egen inloggning",
-    "The tiles could not be added." : "Panelerna kunde inte läggas till."
+    "The tiles could not be added." : "Panelerna kunde inte läggas till.",
+    "You searched for {query}" : "Du sökte efter {query}",
+    "Search results" : "Sökresultat",
+    "No results" : "Inga resultat",
+    "Show all results" : "Visa alla resultat",
+    "Tip: type {prefix} to search {name} directly" : "Tips: skriv {prefix} för att söka direkt i {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1736,6 +1736,11 @@
         "Signs in with your Nextcloud account": "Nextcloud hesabınızla oturum açar",
         "Asks for its own sign-in": "Kendi oturum açmasını ister",
         "The tiles could not be added.": "Kutucuklar eklenemedi.",
+        "Group dashboard of %s": "%s grubunun panosu",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Paylaşan: %1$s · %n pencere öğesi",
+            "Paylaşan: %1$s · %n pencere öğesi"
+        ],
         "Look": "Görünüm",
         "Accent color": "Vurgu rengi",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Bu panoya kendi renklerini verin. Temayı izlemek için bir alanı boş bırakın.",
@@ -1834,6 +1839,10 @@
         "Personal dashboard · opens first": "Kişisel pano · ilk açılır",
         "Shared with you": "Sizinle paylaşıldı",
         "Last changed {when}": "Son değişiklik {when}",
-        "Last changed today {time}": "Son değişiklik bugün {time}"
+        "Last changed today {time}": "Son değişiklik bugün {time}",
+        "You searched for {query}": "{query} için arama yaptınız",
+        "No results": "Sonuç yok",
+        "Show all results": "Tüm sonuçları göster",
+        "Tip: type {prefix} to search {name} directly": "İpucu: doğrudan {name} içinde aramak için {prefix} yazın"
     }
 }

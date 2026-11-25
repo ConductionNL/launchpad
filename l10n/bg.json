@@ -1736,6 +1736,11 @@
         "Signs in with your Nextcloud account": "Влиза с вашия акаунт в Nextcloud",
         "Asks for its own sign-in": "Изисква собствено влизане",
         "The tiles could not be added.": "Плочките не можаха да бъдат добавени.",
+        "Group dashboard of %s": "Табло на групата %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Споделено от %1$s · %n уиджет",
+            "Споделено от %1$s · %n уиджета"
+        ],
         "Look": "Изглед",
         "Accent color": "Цвят на акцента",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Дайте на това табло собствени цветове. Оставете поле празно, за да следва темата.",
@@ -1834,6 +1839,10 @@
         "Personal dashboard · opens first": "Лично табло · отваря се първо",
         "Shared with you": "Споделено с вас",
         "Last changed {when}": "Последна промяна {when}",
-        "Last changed today {time}": "Последна промяна днес {time}"
+        "Last changed today {time}": "Последна промяна днес {time}",
+        "You searched for {query}": "Търсихте {query}",
+        "No results": "Няма резултати",
+        "Show all results": "Покажи всички резултати",
+        "Tip: type {prefix} to search {name} directly": "Съвет: въведете {prefix}, за да търсите директно в {name}"
     }
 }

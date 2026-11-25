@@ -12,7 +12,7 @@
  * whose test read the picker as a `<select>` with a "Widget type" label and
  * `<option>`s. The picker has been `WidgetPickerModal.vue` for a while: a list
  * of buttons in sections, the LaunchPad types under
- * `[data-testid="widget-picker-custom"]`, each `widget-picker-type-<type>`.
+ * `[data-testid="widget-picker-section-launchpad"]`, each `widget-picker-type-<type>`.
  * That test could only fail on the stale locator, never on the scenario, so
  * the citations move here.
  *
@@ -47,6 +47,7 @@ import {
 	provisionUserWithDashboard,
 	removeUser,
 } from './support/filterBus.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 import {
 	readAllowUserDashboards,
 	restoreAllowUserDashboards,
@@ -130,7 +131,7 @@ test.describe('REQ-DIV-001 the divider in the widget picker', () => {
 	}) => {
 		const { picker, requests } = await openPicker(page, DASHBOARD_NAME)
 
-		const section = picker.locator('[data-testid="widget-picker-custom"]')
+		const section = picker.locator('[data-testid="widget-picker-section-launchpad"]')
 		await expect(section, 'the "Widgets from Launchpad" section').toBeVisible()
 		const entry = section.locator('[data-testid="widget-picker-type-divider"]')
 		await expect(entry, 'the divider is offered').toBeVisible()
@@ -220,7 +221,7 @@ test.describe('REQ-DIV-001 the divider in the widget picker', () => {
 					'the entry is not marked as restricted or placed',
 				).toHaveCount(0)
 
-				await entry.click()
+				await chooseAndAdd(entry)
 				const dialog = session.page
 					.getByRole('dialog', { name: /add widget/i })
 					.first()

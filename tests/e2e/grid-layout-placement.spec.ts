@@ -41,6 +41,7 @@ import {
 	setUpOwnDashboard,
 	tearDownOwnDashboard,
 } from './support/ownDashboard.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 let own: OwnDashboard | undefined
 
@@ -110,7 +111,7 @@ async function addLabel(
 	await page
 		.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 		.click()
-	await page.locator('[data-testid="widget-picker-type-label"]').click()
+	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-label"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	await dialog

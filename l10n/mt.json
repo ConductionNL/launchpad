@@ -1740,6 +1740,13 @@
         "Signs in with your Nextcloud account": "Jidħol bil-kont Nextcloud tiegħek",
         "Asks for its own sign-in": "Jitlob il-login tiegħu stess",
         "The tiles could not be added.": "Il-madum ma setax jiżdied.",
+        "Group dashboard of %s": "Dashboard tal-grupp %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Maqsum minn %1$s · %n widget",
+            "Maqsum minn %1$s · %n widgets",
+            "Maqsum minn %1$s · %n widgets",
+            "Maqsum minn %1$s · %n widgets"
+        ],
         "Look": "Dehra",
         "Accent color": "Kulur tal-enfasi",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Agħti lil dan id-dashboard il-kuluri tiegħu. Ħalli qasam vojt biex issegwi t-tema.",
@@ -1838,6 +1845,10 @@
         "Personal dashboard · opens first": "Dashboard personali · jinfetaħ l-ewwel",
         "Shared with you": "Maqsum miegħek",
         "Last changed {when}": "L-aħħar bidla {when}",
-        "Last changed today {time}": "L-aħħar bidla llum {time}"
+        "Last changed today {time}": "L-aħħar bidla llum {time}",
+        "You searched for {query}": "Fittixt {query}",
+        "No results": "L-ebda riżultat",
+        "Show all results": "Uri r-riżultati kollha",
+        "Tip: type {prefix} to search {name} directly": "Ħjiel: ittajpja {prefix} biex tfittex direttament f'{name}"
     }
 }

@@ -1736,6 +1736,11 @@
         "Signs in with your Nextcloud account": "Inicia la sessió amb el vostre compte de Nextcloud",
         "Asks for its own sign-in": "Demana el seu propi inici de sessió",
         "The tiles could not be added.": "No s’han pogut afegir els mosaics.",
+        "Group dashboard of %s": "Tauler del grup %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Compartit per %1$s · %n giny",
+            "Compartit per %1$s · %n ginys"
+        ],
         "Look": "Aspecte",
         "Accent color": "Color d'accent",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Doneu a aquest tauler els seus propis colors. Deixeu un camp buit per seguir el tema.",
@@ -1834,6 +1839,10 @@
         "Personal dashboard · opens first": "Tauler personal · s'obre primer",
         "Shared with you": "Compartit amb vós",
         "Last changed {when}": "Darrer canvi {when}",
-        "Last changed today {time}": "Darrer canvi avui {time}"
+        "Last changed today {time}": "Darrer canvi avui {time}",
+        "You searched for {query}": "Heu cercat {query}",
+        "No results": "Cap resultat",
+        "Show all results": "Mostra tots els resultats",
+        "Tip: type {prefix} to search {name} directly": "Consell: escriviu {prefix} per cercar directament a {name}"
     }
 }

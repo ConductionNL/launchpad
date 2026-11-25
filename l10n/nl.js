@@ -2715,7 +2715,11 @@ OC.L10N.register(
     "Single sign-on" : "Eenmalige aanmelding",
     "Signs in with your Nextcloud account" : "Meldt aan met je Nextcloud-account",
     "Asks for its own sign-in" : "Vraagt om een eigen aanmelding",
-    "The tiles could not be added." : "De tegels konden niet worden toegevoegd."
+    "The tiles could not be added." : "De tegels konden niet worden toegevoegd.",
+    "You searched for {query}" : "Je zocht naar {query}",
+    "No results" : "Geen resultaten",
+    "Show all results" : "Alle resultaten tonen",
+    "Tip: type {prefix} to search {name} directly" : "Tip: typ {prefix} om direct in {name} te zoeken"
 },
 "nplurals=2; plural=(n != 1);"
 );

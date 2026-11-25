@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Inicio de sesión único",
     "Signs in with your Nextcloud account" : "Inicia sesión con tu cuenta de Nextcloud",
     "Asks for its own sign-in" : "Pide su propio inicio de sesión",
-    "The tiles could not be added." : "No se pudieron añadir los mosaicos."
+    "The tiles could not be added." : "No se pudieron añadir los mosaicos.",
+    "You searched for {query}" : "Ha buscado {query}",
+    "Search results" : "Resultados de búsqueda",
+    "No results" : "Sin resultados",
+    "Show all results" : "Mostrar todos los resultados",
+    "Tip: type {prefix} to search {name} directly" : "Consejo: escriba {prefix} para buscar directamente en {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

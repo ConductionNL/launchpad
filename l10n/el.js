@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Ενιαία σύνδεση",
     "Signs in with your Nextcloud account" : "Συνδέεται με τον λογαριασμό σας Nextcloud",
     "Asks for its own sign-in" : "Ζητά δική του σύνδεση",
-    "The tiles could not be added." : "Δεν ήταν δυνατή η προσθήκη των πλακιδίων."
+    "The tiles could not be added." : "Δεν ήταν δυνατή η προσθήκη των πλακιδίων.",
+    "You searched for {query}" : "Αναζητήσατε {query}",
+    "Search results" : "Αποτελέσματα αναζήτησης",
+    "No results" : "Κανένα αποτέλεσμα",
+    "Show all results" : "Εμφάνιση όλων των αποτελεσμάτων",
+    "Tip: type {prefix} to search {name} directly" : "Συμβουλή: πληκτρολογήστε {prefix} για αναζήτηση απευθείας στο {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

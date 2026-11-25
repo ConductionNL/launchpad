@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Единно влизане",
     "Signs in with your Nextcloud account" : "Влиза с вашия акаунт в Nextcloud",
     "Asks for its own sign-in" : "Изисква собствено влизане",
-    "The tiles could not be added." : "Плочките не можаха да бъдат добавени."
+    "The tiles could not be added." : "Плочките не можаха да бъдат добавени.",
+    "You searched for {query}" : "Търсихте {query}",
+    "Search results" : "Резултати от търсенето",
+    "No results" : "Няма резултати",
+    "Show all results" : "Покажи всички резултати",
+    "Tip: type {prefix} to search {name} directly" : "Съвет: въведете {prefix}, за да търсите директно в {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

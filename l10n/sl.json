@@ -1740,6 +1740,13 @@
         "Signs in with your Nextcloud account": "Prijavi se z vašim računom Nextcloud",
         "Asks for its own sign-in": "Zahteva lastno prijavo",
         "The tiles could not be added.": "Ploščic ni bilo mogoče dodati.",
+        "Group dashboard of %s": "Nadzorna plošča skupine %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Deli %1$s · %n gradnik",
+            "Deli %1$s · %n gradnika",
+            "Deli %1$s · %n gradniki",
+            "Deli %1$s · %n gradnikov"
+        ],
         "Look": "Videz",
         "Accent color": "Barva poudarka",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Dajte tej nadzorni plošči lastne barve. Pustite polje prazno, da sledi temi.",
@@ -1838,6 +1845,10 @@
         "Personal dashboard · opens first": "Osebna nadzorna plošča · odpre se prva",
         "Shared with you": "Deljeno z vami",
         "Last changed {when}": "Nazadnje spremenjeno {when}",
-        "Last changed today {time}": "Nazadnje spremenjeno danes {time}"
+        "Last changed today {time}": "Nazadnje spremenjeno danes {time}",
+        "You searched for {query}": "Iskali ste {query}",
+        "No results": "Ni rezultatov",
+        "Show all results": "Pokaži vse rezultate",
+        "Tip: type {prefix} to search {name} directly": "Namig: vnesite {prefix} za neposredno iskanje v {name}"
     }
 }

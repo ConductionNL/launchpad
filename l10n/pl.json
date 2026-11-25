@@ -1738,6 +1738,12 @@
         "Signs in with your Nextcloud account": "Loguje się Twoim kontem Nextcloud",
         "Asks for its own sign-in": "Wymaga własnego logowania",
         "The tiles could not be added.": "Nie udało się dodać kafelków.",
+        "Group dashboard of %s": "Pulpit grupy %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Udostępnione przez %1$s · %n widżet",
+            "Udostępnione przez %1$s · %n widżety",
+            "Udostępnione przez %1$s · %n widżetów"
+        ],
         "Look": "Wygląd",
         "Accent color": "Kolor akcentu",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Nadaj temu pulpitowi własne kolory. Pozostaw pole puste, aby używać motywu.",
@@ -1836,6 +1842,10 @@
         "Personal dashboard · opens first": "Pulpit osobisty · otwiera się jako pierwszy",
         "Shared with you": "Udostępnione Tobie",
         "Last changed {when}": "Ostatnia zmiana {when}",
-        "Last changed today {time}": "Ostatnia zmiana dzisiaj {time}"
+        "Last changed today {time}": "Ostatnia zmiana dzisiaj {time}",
+        "You searched for {query}": "Wyszukano {query}",
+        "No results": "Brak wyników",
+        "Show all results": "Pokaż wszystkie wyniki",
+        "Tip: type {prefix} to search {name} directly": "Wskazówka: wpisz {prefix}, aby szukać bezpośrednio w {name}"
     }
 }

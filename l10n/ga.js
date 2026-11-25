@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Sínigh isteach aonair",
     "Signs in with your Nextcloud account" : "Síníonn isteach le do chuntas Nextcloud",
     "Asks for its own sign-in" : "Iarrann sé a shíniú isteach féin",
-    "The tiles could not be added." : "Níorbh fhéidir na tíleanna a chur leis."
+    "The tiles could not be added." : "Níorbh fhéidir na tíleanna a chur leis.",
+    "You searched for {query}" : "Chuardaigh tú {query}",
+    "Search results" : "Torthaí cuardaigh",
+    "No results" : "Níl aon torthaí",
+    "Show all results" : "Taispeáin gach toradh",
+    "Tip: type {prefix} to search {name} directly" : "Leid: clóscríobh {prefix} chun {name} a chuardach go díreach"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

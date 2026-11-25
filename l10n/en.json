@@ -2067,6 +2067,11 @@
         "Signs in with your Nextcloud account": "Signs in with your Nextcloud account",
         "Asks for its own sign-in": "Asks for its own sign-in",
         "The tiles could not be added.": "The tiles could not be added.",
+        "Group dashboard of %s": "Group dashboard of %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Shared by %1$s · %n widget",
+            "Shared by %1$s · %n widgets"
+        ],
         "Look": "Look",
         "Accent color": "Accent color",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Give this dashboard its own colors. Leave a field empty to follow the theme.",
@@ -2311,6 +2316,10 @@
         "Personal dashboard · opens first": "Personal dashboard · opens first",
         "Shared with you": "Shared with you",
         "Last changed {when}": "Last changed {when}",
-        "Last changed today {time}": "Last changed today {time}"
+        "Last changed today {time}": "Last changed today {time}",
+        "You searched for {query}": "You searched for {query}",
+        "No results": "No results",
+        "Show all results": "Show all results",
+        "Tip: type {prefix} to search {name} directly": "Tip: type {prefix} to search {name} directly"
     }
 }

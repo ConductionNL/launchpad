@@ -1736,6 +1736,11 @@
         "Signs in with your Nextcloud account": "Logib sisse sinu Nextcloudi kontoga",
         "Asks for its own sign-in": "Küsib oma sisselogimist",
         "The tiles could not be added.": "Paane ei saanud lisada.",
+        "Group dashboard of %s": "Grupi %s töölaud",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Jagas %1$s · %n vidin",
+            "Jagas %1$s · %n vidinat"
+        ],
         "Look": "Välimus",
         "Accent color": "Rõhuvärv",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Anna sellele töölauale oma värvid. Jäta väli tühjaks, et järgida teemat.",
@@ -1834,6 +1839,10 @@
         "Personal dashboard · opens first": "Isiklik töölaud · avaneb esimesena",
         "Shared with you": "Teiega jagatud",
         "Last changed {when}": "Viimati muudetud {when}",
-        "Last changed today {time}": "Viimati muudetud täna {time}"
+        "Last changed today {time}": "Viimati muudetud täna {time}",
+        "You searched for {query}": "Otsisite: {query}",
+        "No results": "Tulemusi pole",
+        "Show all results": "Näita kõiki tulemusi",
+        "Tip: type {prefix} to search {name} directly": "Vihje: sisestage {prefix}, et otsida otse teenusest {name}"
     }
 }

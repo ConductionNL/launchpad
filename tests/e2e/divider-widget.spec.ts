@@ -39,6 +39,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const API = '/index.php/apps/launchpad/api'
 const ADMIN = {
@@ -812,7 +813,7 @@ async function addDividerThroughModal(
 	)
 	await row.locator('.dashboard-row-actions button').first().click()
 	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
-	await page.locator('[data-testid="widget-picker-type-divider"]').click()
+	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-divider"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	await expect(dialog.locator('.cn-divider-widget-form')).toBeVisible()

@@ -1736,6 +1736,11 @@
         "Signs in with your Nextcloud account": "Inicia sesión con tu cuenta de Nextcloud",
         "Asks for its own sign-in": "Pide su propio inicio de sesión",
         "The tiles could not be added.": "No se pudieron añadir los mosaicos.",
+        "Group dashboard of %s": "Panel del grupo %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Compartido por %1$s · %n widget",
+            "Compartido por %1$s · %n widgets"
+        ],
         "Look": "Aspecto",
         "Accent color": "Color de acento",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Dale a este panel sus propios colores. Deja un campo vacío para seguir el tema.",
@@ -1834,6 +1839,10 @@
         "Personal dashboard · opens first": "Panel personal · se abre primero",
         "Shared with you": "Compartido con usted",
         "Last changed {when}": "Última modificación {when}",
-        "Last changed today {time}": "Última modificación hoy {time}"
+        "Last changed today {time}": "Última modificación hoy {time}",
+        "You searched for {query}": "Ha buscado {query}",
+        "No results": "Sin resultados",
+        "Show all results": "Mostrar todos los resultados",
+        "Tip: type {prefix} to search {name} directly": "Consejo: escriba {prefix} para buscar directamente en {name}"
     }
 }

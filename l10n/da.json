@@ -1736,6 +1736,11 @@
         "Signs in with your Nextcloud account": "Logger ind med din Nextcloud-konto",
         "Asks for its own sign-in": "Beder om sit eget login",
         "The tiles could not be added.": "Fliserne kunne ikke tilføjes.",
+        "Group dashboard of %s": "Gruppedashboard for %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Delt af %1$s · %n widget",
+            "Delt af %1$s · %n widgets"
+        ],
         "Look": "Udseende",
         "Accent color": "Accentfarve",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Giv dette dashboard sine egne farver. Lad et felt være tomt for at følge temaet.",
@@ -1834,6 +1839,10 @@
         "Personal dashboard · opens first": "Personligt dashboard · åbner først",
         "Shared with you": "Delt med dig",
         "Last changed {when}": "Sidst ændret {when}",
-        "Last changed today {time}": "Sidst ændret i dag {time}"
+        "Last changed today {time}": "Sidst ændret i dag {time}",
+        "You searched for {query}": "Du søgte efter {query}",
+        "No results": "Ingen resultater",
+        "Show all results": "Vis alle resultater",
+        "Tip: type {prefix} to search {name} directly": "Tip: skriv {prefix} for at søge direkte i {name}"
     }
 }

@@ -1738,6 +1738,12 @@
         "Signs in with your Nextcloud account": "Pierakstās ar jūsu Nextcloud kontu",
         "Asks for its own sign-in": "Prasa savu pierakstīšanos",
         "The tiles could not be added.": "Flīzes nevarēja pievienot.",
+        "Group dashboard of %s": "Grupas %s informācijas panelis",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Kopīgoja %1$s · %n logrīku",
+            "Kopīgoja %1$s · %n logrīks",
+            "Kopīgoja %1$s · %n logrīki"
+        ],
         "Look": "Izskats",
         "Accent color": "Akcenta krāsa",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Piešķiriet šim informācijas panelim savas krāsas. Atstājiet lauku tukšu, lai sekotu motīvam.",
@@ -1836,6 +1842,10 @@
         "Personal dashboard · opens first": "Personīgais informācijas panelis · atveras pirmais",
         "Shared with you": "Kopīgots ar jums",
         "Last changed {when}": "Pēdējās izmaiņas {when}",
-        "Last changed today {time}": "Pēdējās izmaiņas šodien {time}"
+        "Last changed today {time}": "Pēdējās izmaiņas šodien {time}",
+        "You searched for {query}": "Jūs meklējāt {query}",
+        "No results": "Nav rezultātu",
+        "Show all results": "Rādīt visus rezultātus",
+        "Tip: type {prefix} to search {name} directly": "Padoms: ierakstiet {prefix}, lai meklētu tieši {name}"
     }
 }

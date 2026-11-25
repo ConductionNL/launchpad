@@ -46,6 +46,7 @@ import {
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import { adminContext } from './support/principals.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN_USER = process.env.NC_ADMIN_USER ?? 'admin'
 const STAMP = Date.now().toString(36)
@@ -104,7 +105,7 @@ async function prepare(
 async function openAddWidget(page: Page): Promise<Locator> {
 	await page.locator(MORE_MENU).locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-	await page.locator('[data-testid="widget-picker-type-calendar"]').click()
+	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-calendar"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog

@@ -1742,6 +1742,14 @@
         "Signs in with your Nextcloud account": "Síníonn isteach le do chuntas Nextcloud",
         "Asks for its own sign-in": "Iarrann sé a shíniú isteach féin",
         "The tiles could not be added.": "Níorbh fhéidir na tíleanna a chur leis.",
+        "Group dashboard of %s": "Deais grúpa %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Roinnte ag %1$s · %n ghiuirléid",
+            "Roinnte ag %1$s · %n ghiuirléid",
+            "Roinnte ag %1$s · %n ghiuirléid",
+            "Roinnte ag %1$s · %n ngiuirléid",
+            "Roinnte ag %1$s · %n giuirléid"
+        ],
         "Look": "Cuma",
         "Accent color": "Dath aibhsithe",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Tabhair a dathanna féin don deais seo. Fág réimse folamh chun an téama a leanúint.",
@@ -1840,6 +1848,10 @@
         "Personal dashboard · opens first": "Painéal pearsanta · osclaítear ar dtús é",
         "Shared with you": "Roinnte leat",
         "Last changed {when}": "Athraithe go deireanach {when}",
-        "Last changed today {time}": "Athraithe go deireanach inniu {time}"
+        "Last changed today {time}": "Athraithe go deireanach inniu {time}",
+        "You searched for {query}": "Chuardaigh tú {query}",
+        "No results": "Níl aon torthaí",
+        "Show all results": "Taispeáin gach toradh",
+        "Tip: type {prefix} to search {name} directly": "Leid: clóscríobh {prefix} chun {name} a chuardach go díreach"
     }
 }

@@ -1736,6 +1736,11 @@
         "Signs in with your Nextcloud account": "Συνδέεται με τον λογαριασμό σας Nextcloud",
         "Asks for its own sign-in": "Ζητά δική του σύνδεση",
         "The tiles could not be added.": "Δεν ήταν δυνατή η προσθήκη των πλακιδίων.",
+        "Group dashboard of %s": "Πίνακας ελέγχου της ομάδας %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Κοινοποιήθηκε από %1$s · %n γραφικό στοιχείο",
+            "Κοινοποιήθηκε από %1$s · %n γραφικά στοιχεία"
+        ],
         "Look": "Εμφάνιση",
         "Accent color": "Χρώμα έμφασης",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Δώστε σε αυτόν τον πίνακα δικά του χρώματα. Αφήστε ένα πεδίο κενό για να ακολουθεί το θέμα.",
@@ -1834,6 +1839,10 @@
         "Personal dashboard · opens first": "Προσωπικός πίνακας ελέγχου · ανοίγει πρώτος",
         "Shared with you": "Κοινοποιήθηκε σε εσάς",
         "Last changed {when}": "Τελευταία αλλαγή {when}",
-        "Last changed today {time}": "Τελευταία αλλαγή σήμερα {time}"
+        "Last changed today {time}": "Τελευταία αλλαγή σήμερα {time}",
+        "You searched for {query}": "Αναζητήσατε {query}",
+        "No results": "Κανένα αποτέλεσμα",
+        "Show all results": "Εμφάνιση όλων των αποτελεσμάτων",
+        "Tip: type {prefix} to search {name} directly": "Συμβουλή: πληκτρολογήστε {prefix} για αναζήτηση απευθείας στο {name}"
     }
 }

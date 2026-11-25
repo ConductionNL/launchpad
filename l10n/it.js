@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Accesso singolo",
     "Signs in with your Nextcloud account" : "Accede con il tuo account Nextcloud",
     "Asks for its own sign-in" : "Chiede un proprio accesso",
-    "The tiles could not be added." : "Impossibile aggiungere i riquadri."
+    "The tiles could not be added." : "Impossibile aggiungere i riquadri.",
+    "You searched for {query}" : "Hai cercato {query}",
+    "Search results" : "Risultati della ricerca",
+    "No results" : "Nessun risultato",
+    "Show all results" : "Mostra tutti i risultati",
+    "Tip: type {prefix} to search {name} directly" : "Suggerimento: digita {prefix} per cercare direttamente in {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

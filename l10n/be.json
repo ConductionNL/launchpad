@@ -1738,6 +1738,12 @@
         "Signs in with your Nextcloud account": "Уваходзіць з вашым уліковым запісам Nextcloud",
         "Asks for its own sign-in": "Патрабуе ўласнага ўваходу",
         "The tiles could not be added.": "Не ўдалося дадаць пліткі.",
+        "Group dashboard of %s": "Панэль групы %s",
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
+            "Падзяліўся %1$s · %n віджэт",
+            "Падзяліўся %1$s · %n віджэты",
+            "Падзяліўся %1$s · %n віджэтаў"
+        ],
         "Look": "Выгляд",
         "Accent color": "Колер акцэнту",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Задайце гэтай панэлі ўласныя колеры. Пакіньце поле пустым, каб прытрымлівацца тэмы.",
@@ -1836,6 +1842,10 @@
         "Personal dashboard · opens first": "Асабістая панэль · адкрываецца першай",
         "Shared with you": "Абагулена з вамі",
         "Last changed {when}": "Апошняя змена {when}",
-        "Last changed today {time}": "Апошняя змена сёння {time}"
+        "Last changed today {time}": "Апошняя змена сёння {time}",
+        "You searched for {query}": "Вы шукалі {query}",
+        "No results": "Няма вынікаў",
+        "Show all results": "Паказаць усе вынікі",
+        "Tip: type {prefix} to search {name} directly": "Парада: увядзіце {prefix}, каб шукаць непасрэдна ў {name}"
     }
 }

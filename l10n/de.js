@@ -1836,7 +1836,12 @@ OC.L10N.register(
     "Single sign-on" : "Single Sign-on",
     "Signs in with your Nextcloud account" : "Meldet sich mit Ihrem Nextcloud-Konto an",
     "Asks for its own sign-in" : "Verlangt eine eigene Anmeldung",
-    "The tiles could not be added." : "Die Kacheln konnten nicht hinzugefügt werden."
+    "The tiles could not be added." : "Die Kacheln konnten nicht hinzugefügt werden.",
+    "You searched for {query}" : "Sie haben nach {query} gesucht",
+    "Search results" : "Suchergebnisse",
+    "No results" : "Keine Ergebnisse",
+    "Show all results" : "Alle Ergebnisse anzeigen",
+    "Tip: type {prefix} to search {name} directly" : "Tipp: Geben Sie {prefix} ein, um direkt in {name} zu suchen"
 },
 "nplurals=2; plural=(n != 1);"
 );

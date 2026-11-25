@@ -158,4 +158,25 @@ class ConditionalServiceListAllRulesTest extends TestCase {
 		$this->assertNull($rows[0]['dashboardName']);
 		$this->assertSame('weather', $rows[0]['widgetType']);
 	}//end testToleratesMissingDashboardButStillListsPlacement()
+
+	/**
+	 * A tile placement stores `tile-<uniqid>`; the overview names its type `tile`.
+	 *
+	 * @return void
+	 */
+	public function testATilePlacementIsListedWithTheTileType(): void {
+		$this->ruleMapper->method('findAll')->willReturn(
+			[
+				$this->makeRule(10, true),
+			]
+		);
+		$this->placementMapper->method('find')
+			->willReturn($this->makePlacement(10, 1, 'tile-6b06c83f2903b'));
+		$this->dashboardMapper->method('find')
+			->willReturn($this->makeDashboard(1, 'Marketing'));
+
+		$rows = $this->service->listAllRules();
+
+		$this->assertSame('tile', $rows[0]['widgetType']);
+	}//end testATilePlacementIsListedWithTheTileType()
 }//end class

@@ -297,6 +297,8 @@ class ConditionalService implements ConditionalServiceInterface {
 	 * @param array<string, int> $counts      The placement's rule counts.
 	 *
 	 * @return array<string, mixed>|null The row, or null.
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md#requirement-admin-overview-of-widgets-with-visibility-rules-req-vis-012
 	 */
 	private function overviewRow(int $placementId, array $counts): array|null {
 		try {
@@ -306,12 +308,30 @@ class ConditionalService implements ConditionalServiceInterface {
 		}
 
 		return ['placementId' => $placementId] + $this->owningDashboard(placement: $placement) + [
-			'widgetType' => $placement->getWidgetId(),
+			'widgetType' => self::widgetType(widgetId: (string)$placement->getWidgetId()),
 			'ruleCount' => $counts['ruleCount'],
 			'includeCount' => $counts['includeCount'],
 			'excludeCount' => $counts['excludeCount'],
 		];
 	}//end overviewRow()
+
+	/**
+	 * The widget type of a placement. A tile placement stores a per-placement
+	 * id (`tile-<uniqid>`); its type is `tile` (REQ-VIS-012 lists the type).
+	 *
+	 * @param string $widgetId The stored widget id.
+	 *
+	 * @return string The widget type.
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md#requirement-admin-overview-of-widgets-with-visibility-rules-req-vis-012
+	 */
+	private static function widgetType(string $widgetId): string {
+		if (str_starts_with(haystack: $widgetId, needle: 'tile-') === true) {
+			return 'tile';
+		}
+
+		return $widgetId;
+	}//end widgetType()
 
 	/**
 	 * The id and name of a placement's dashboard. When the dashboard is

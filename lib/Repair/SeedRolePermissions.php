@@ -33,7 +33,6 @@ use OCA\LaunchPad\Db\RoleLayoutDefault;
 use OCA\LaunchPad\Db\RoleLayoutDefaultMapper;
 use OCA\LaunchPad\Support\WidgetTypeList;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -323,9 +322,6 @@ class SeedRolePermissions implements IRepairStep {
 			$this->defMapper->findByGroupAndWidget(groupId: $groupId, widgetId: $widgetId);
 		} catch (DoesNotExistException) {
 			return false;
-		} catch (MultipleObjectsReturnedException) {
-			return true;
-		}
 
 		return true;
 	}//end hasLayoutDefault()

@@ -744,10 +744,13 @@ test.describe('REQ-KIOSK-001 chrome-less kiosk render flag', () => {
 		expect(owner.status(), await owner.text()).toBe(200)
 		expect((await owner.json()).dashboard?.uuid).toBe(secret.uuid)
 
-		// bob, an ordinary user without access: identical refusals.
+		// bob, an ordinary user without access: identical refusals. A
+		// dashboard that exists but is neither owned by nor shared with the
+		// caller answers 403 (dashboard-sharing REQ-SHARE-003).
 		const plain = await bob!.api.get(`${API}/dashboard/${secret.id}`)
 		const flagged = await bob!.api.get(`${API}/dashboard/${secret.id}?kiosk=1`)
-		expect(plain.status()).toBe(404)
+		expect(plain.status(), await plain.text()).toBe(403)
+		expect(await plain.text()).not.toContain(secret.uuid)
 		expect(flagged.status()).toBe(plain.status())
 		expect(await flagged.text()).toBe(await plain.text())
 

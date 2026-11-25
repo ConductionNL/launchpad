@@ -17,7 +17,8 @@
  * scenario that needs one; the server's own endpoints are checked directly
  * (401 anonymous, the availability shape, 503 without a provider).
  *
- * Written 25 Nov 2026, runs in the nightly (no instance in the cloud lane).
+ * Verified live 25 Nov 2026 on a sandbox Nextcloud 34.0.6 (sqlite, php -S) with
+ * OpenRegister main: 4/4, and widgets-picker-board-sync.spec.ts 4/4 beside it.
  *
  * Gate-19 @e2e traceability:
  *   @e2e widgets::ask-the-assistant
@@ -119,7 +120,7 @@ test.afterAll(async () => {
 })
 
 test('the assistant endpoints answer signed-in users only, and a proposal needs an assistant', async ({ baseURL }) => {
-	const anonymous = await playwrightRequest.newContext({ baseURL, extraHTTPHeaders: { 'OCS-APIREQUEST': 'true' } })
+	const anonymous = await playwrightRequest.newContext({ baseURL, storageState: { cookies: [], origins: [] }, extraHTTPHeaders: { 'OCS-APIREQUEST': 'true' } })
 	try {
 		expect((await anonymous.get(`${API}/widget-picker/assistant`)).status()).toBe(401)
 	} finally {

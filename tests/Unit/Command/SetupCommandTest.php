@@ -144,14 +144,14 @@ class SetupCommandTest extends TestCase {
 		$this->assertSame("Invalid setup.yaml: top-level structure must be a map.\n", $tester->getDisplay());
 
 		// A YAML list at the top level is not a map either.
-		$this->assertSame(1, $tester->execute(['--config' => $this->yaml("- a\n- b\n")]));
-		$this->assertSame("Invalid setup.yaml: top-level structure must be a map.\n", $tester->getDisplay());
+		$this->assertSame(expected: 1, actual: $tester->execute(input: ['--config' => $this->yaml(body: "- a\n- b\n")]));
+		$this->assertSame(expected: "Invalid setup.yaml: top-level structure must be a map.\n", actual: $tester->getDisplay());
 
 		// A map where the group order must be a list.
-		$this->assertSame(1, $tester->execute(['--config' => $this->yaml("group_priority_order:\n  first: a\n")]));
+		$this->assertSame(expected: 1, actual: $tester->execute(input: ['--config' => $this->yaml(body: "group_priority_order:\n  first: a\n")]));
 		$this->assertSame(
-			"Step 1: Welcome... done\nInvalid setup.yaml: 'group_priority_order' must be a list of strings\n",
-			$tester->getDisplay()
+			expected: "Step 1: Welcome... done\nInvalid setup.yaml: 'group_priority_order' must be a list of strings\n",
+			actual: $tester->getDisplay()
 		);
 
 		$this->assertSame(1, $tester->execute(['--config' => $this->yaml("group_priority_order: nope\n")]));

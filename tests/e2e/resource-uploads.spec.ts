@@ -79,7 +79,6 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import type { Principal } from './support/principals.ts'
 
 import { expect, request as pwRequest, test } from '@playwright/test'
-import { randomBytes } from 'crypto'
 import { deflateSync } from 'zlib'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import { closeSidebar, gotoLaunchPad, openSidebar } from './fixtures/widget-flow.ts'
@@ -199,11 +198,13 @@ const JPEG = Buffer.from([
 	0x01, 0x00, 0x01, 0x01, 0x01, 0x11, 0x00, 0xff, 0xd9,
 ])
 
-/** Bytes that are no image of any kind (no magic number survives). */
+/**
+ * Bytes that are no image of any kind. Plain text, not random bytes: PHP's
+ * `getimagesizefromstring` reads random bytes that start with 0x00 as WBMP
+ * now and then, which turned `corrupt_image` into `mime_mismatch` at random.
+ */
 function garbage(size: number): Buffer {
-	const bytes = randomBytes(size)
-	bytes[0] = 0x00
-	return bytes
+	return Buffer.alloc(size, 'not an image ')
 }
 
 function dataUrl(type: string, bytes: Buffer | string): string {

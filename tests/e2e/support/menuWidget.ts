@@ -27,6 +27,7 @@ import type { APIRequestContext, Locator, Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
 import { gotoLaunchPad, openSidebar } from '../fixtures/widget-flow.ts'
+import { chooseAndAdd } from './widgetPicker.ts'
 
 /** The app root, as the router base reads it. */
 export const APP = '/index.php/apps/launchpad'
@@ -268,7 +269,7 @@ export async function openMenuForm(page: Page): Promise<Locator> {
 	await expect(row).toBeVisible({ timeout: 8_000 })
 	await row.locator('.dashboard-row-actions button').first().click()
 	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
-	await page.locator('[data-testid="widget-picker-type-menu"]').click()
+	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-menu"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	const typeSelect = dialog.getByLabel(/widget type/i)

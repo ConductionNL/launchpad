@@ -45,6 +45,7 @@ import {
 	openWorkspace,
 	Seeds,
 } from './support/widgetPlacements.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const RUN = Date.now()
 const ITEMS_PATH = '/apps/dashboard/api/v2/widget-items'
@@ -240,7 +241,7 @@ test.describe('nc-widget placement type (REQ-WDG-018..021)', () => {
 		await page
 			.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 			.click()
-		await page.locator('[data-testid="widget-picker-type-nc-widget"]').click()
+		await chooseAndAdd(page.locator('[data-testid="widget-picker-type-nc-widget"]'))
 
 		const dialog = page.getByRole('dialog', { name: 'Add Widget' })
 		await expect(dialog).toBeVisible({ timeout: 10_000 })

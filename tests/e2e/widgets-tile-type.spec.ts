@@ -23,6 +23,7 @@ import {
 	openWorkspace,
 	Seeds,
 } from './support/widgetPlacements.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const RUN = Date.now()
 
@@ -51,7 +52,7 @@ test.describe('tile widget type (REQ-WDG-022)', () => {
 		await page
 			.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 			.click()
-		await page.locator('[data-testid="widget-picker-type-tile"]').click()
+		await chooseAndAdd(page.locator('[data-testid="widget-picker-type-tile"]'))
 
 		const dialog = page.getByRole('dialog', { name: 'Add Widget' })
 		await expect(dialog).toBeVisible({ timeout: 10_000 })

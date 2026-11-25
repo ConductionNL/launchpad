@@ -61,6 +61,7 @@ import {
 	restoreAllowUserDashboards,
 	seedPlacement,
 } from './support/widgets.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const STAMP = `E2E WidgetPicker ${Date.now()}`
 const TYPE_SELECT = '[data-testid="widget-type-select"]'
@@ -123,7 +124,7 @@ async function moreMenu(page: Page, id: string): Promise<void> {
  */
 async function openCustomModal(page: Page, type = 'text'): Promise<Locator> {
 	await moreMenu(page, 'add-widget')
-	await page.locator(`[data-testid="widget-picker-type-${type}"]`).click()
+	await chooseAndAdd(page.locator(`[data-testid="widget-picker-type-${type}"]`))
 	const dialog = page.getByRole('dialog', { name: 'Add Widget', exact: true })
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog

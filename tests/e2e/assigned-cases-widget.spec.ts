@@ -25,6 +25,7 @@ import {
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
 import { contextFor } from './support/principals.ts'
+import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -134,7 +135,7 @@ test('the form names dossiq\'s register and schema', async ({ browser }) => {
 		await page.goto('/index.php/apps/launchpad')
 		await page.locator('[data-testid="launchpad-more-menu"] [data-testid="launchpad-more-menu-trigger"]').click()
 		await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
-		await page.locator('[data-testid="widget-picker-type-assigned-cases"]').click()
+		await chooseAndAdd(page.locator('[data-testid="widget-picker-type-assigned-cases"]'))
 		await expect(page.locator('[data-testid="assigned-cases-form-register"] input')).toHaveValue('dossiq')
 		await expect(page.locator('[data-testid="assigned-cases-form-schema"] input')).toHaveValue('case')
 	} finally {

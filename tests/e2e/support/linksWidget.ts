@@ -27,6 +27,7 @@ import { expect, request } from '@playwright/test'
 import { BASE_URL } from './baseUrl.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './dashboardFixture.ts'
 import { MORE_MENU, openDashboardSwitcher } from './dashboardSwitcher.ts'
+import { chooseAndAdd } from './widgetPicker.ts'
 
 export const API = '/index.php/apps/launchpad/api'
 
@@ -315,7 +316,7 @@ export async function openAddWidget(
 	await expect(row).toBeVisible({ timeout: 10_000 })
 	await row.locator('.dashboard-row-actions button').first().click()
 	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
-	await page.locator('[data-testid="widget-picker-type-links"]').click()
+	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-links"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	return dialog

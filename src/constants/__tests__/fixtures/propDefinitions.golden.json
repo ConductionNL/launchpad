@@ -100,6 +100,12 @@
 		"validator": false,
 		"default": 60
 	},
+	"../../components/LazyMount.vue | eager": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/OrgNavigationItem.vue | node": {
 		"type": "Object",
 		"required": true,

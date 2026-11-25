@@ -138,7 +138,7 @@ The widget MUST handle YouTube, Vimeo, PeerTube, and Nextcloud Files as distinct
 - THEN the video ID `12345` MUST be extracted and returned as `https://player.vimeo.com/video/12345`
 
 #### Scenario: PeerTube URL is preserved and validated
-@e2e exclude the allow-list check this scenario requires was never built (no `video_widget_allowed_domains` setting or VideoParsingService in lib/, `git log --all -S video_widget_allowed_domains -- lib src` is empty), so a PeerTube save cannot be asserted against it; the client-side /w/ to /videos/embed/ rewrite in nc-vue videoUrlParser.js has no unit test in this repository
+@e2e exclude the allow-list check its second AND requires was never built (no `video_widget_allowed_domains` setting in lib/ or src/, `git log --all -S video_widget_allowed_domains -- lib src` is empty), so no PeerTube domain can be shown refused; the extraction itself is built (VideoParsingService::parsePeerTube behind POST /api/widgets/video/parse) and pinned by tests/Unit/Service/VideoParsingServiceTest.php::testAVideoUrlIsParsedToItsCanonicalEmbed (the `peertube watch` and `peertube videos/watch` cases)
 - GIVEN a PeerTube instance URL like `https://peertube.example.com/w/abc123`
 - WHEN `VideoParsingService::parsePeerTubeUrl()` processes it
 - THEN the domain and UUID/path MUST be extracted and validated as a PeerTube-compatible embed form
@@ -146,7 +146,6 @@ The widget MUST handle YouTube, Vimeo, PeerTube, and Nextcloud Files as distinct
 - AND the returned URL MUST be suitable for iframe embedding
 
 #### Scenario: Nextcloud file is resolved with ACL
-@e2e exclude an internal PHP call (VideoFileService::getAccessibleUrl) that was never built (`git log --all -S VideoFileService -- lib` is empty); its observable outcomes are the e2e of file-is-readable-by-viewer and file-is-not-readable-by-viewer in tests/e2e/video-widget-files.spec.ts; no unit test exists
 - GIVEN a file ID `12345` in the user's Nextcloud instance
 - WHEN the widget render logic calls `VideoFileService::getAccessibleUrl(12345, userId)`
 - THEN the system MUST:
@@ -212,7 +211,7 @@ The backend MUST extract video IDs from user-provided URLs and validate format b
 - THEN it MUST return HTTP 400 with `{"isValid": false, "error": "Invalid URL format"}`
 
 #### Scenario: Domain validation happens at parse time
-@e2e exclude never built: neither the parse endpoint nor the allow-list exists; no unit test exists
+@e2e exclude never built: the parse endpoint exists (POST /api/widgets/video/parse, cited by url-parsing-endpoint-is-available) but the domain allow-list it would check does not (no `video_widget_allowed_domains` setting in lib/ or src/), so no domain is blocked and "Domain not allowed by administrator" exists nowhere in lib/; no unit test exists
 - GIVEN a user submits a URL from a blocked domain
 - WHEN POST /api/widgets/video/parse is called
 - THEN it MUST return `{"isValid": false, "error": "Domain not allowed by administrator"}`

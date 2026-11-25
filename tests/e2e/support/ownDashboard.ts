@@ -38,6 +38,12 @@ import {
 	removePrincipal,
 } from './principals.ts'
 
+/**
+ * The dashboard's own grid items. A container widget holds a grid of its own
+ * (`.launchpad-container-grid`), whose children are not dashboard items.
+ */
+export const TOP_LEVEL_ITEMS = '.grid-stack:not(.launchpad-container-grid) > .grid-stack-item'
+
 export interface OwnDashboard {
 	owner: Principal
 	id: number
@@ -229,8 +235,8 @@ export async function placementRects(
  * @return The rectangles.
  */
 export async function renderedRects(page: Page): Promise<Map<number, Rect>> {
-	const items = await page.evaluate(() =>
-		Array.from(document.querySelectorAll('.grid-stack > .grid-stack-item')).map(
+	const items = await page.evaluate((selector) =>
+		Array.from(document.querySelectorAll(selector)).map(
 			(el) => [
 				Number(el.getAttribute('gs-id')),
 				{
@@ -241,7 +247,7 @@ export async function renderedRects(page: Page): Promise<Map<number, Rect>> {
 				},
 			],
 		),
-	)
+	TOP_LEVEL_ITEMS)
 	return new Map(items as Array<[number, Rect]>)
 }
 
@@ -286,7 +292,7 @@ export async function openOwnDashboard(
 	const session = await loginAs(browser, own.owner.username, own.owner.password)
 	await session.page.setViewportSize({ width: 1600, height: 1000 })
 	await session.page.goto('/index.php/apps/launchpad/')
-	await expect(session.page.locator('.grid-stack > .grid-stack-item')).toHaveCount(
+	await expect(session.page.locator(TOP_LEVEL_ITEMS)).toHaveCount(
 		items,
 		{
 			timeout: 30_000,

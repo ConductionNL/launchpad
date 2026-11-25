@@ -123,11 +123,13 @@ async function open(browser: Browser): Promise<{ context: BrowserContext; page: 
 async function openTileForm(page: Page, tile: Locator, name: string): Promise<Locator> {
 	await enterEditMode(page)
 	await tile.getByRole('button', { name: /tile menu|edit tile/i }).first().click()
+	// The tile menu opens a moment after the click; wait for it (or for a form opened directly).
 	const item = page.getByRole('menuitem', { name: /edit tile/i })
-	if (await item.count() > 0) {
+	const form = page.getByRole('dialog', { name: `Edit tile: ${name}` })
+	await expect(item.or(form).first()).toBeVisible({ timeout: 10_000 })
+	if (await item.isVisible()) {
 		await item.click()
 	}
-	const form = page.getByRole('dialog', { name: `Edit tile: ${name}` })
 	await expect(form).toBeVisible({ timeout: 10_000 })
 	return form
 }

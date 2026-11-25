@@ -251,6 +251,34 @@
         "actions": [],
         "reachedServices": false
     },
+    "AdminOrgNavigationController::getEditableOrgNavigation / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminOrgNavigationController::getEditableOrgNavigation / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminOrgNavigationController::getEditableOrgNavigation / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
     "AdminOrgNavigationController::getOrgNavigation / alice (admin)": {
         "threw": "RuntimeException",
         "isAdmin": [],

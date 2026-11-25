@@ -77,12 +77,15 @@ test.describe('image widget — real popup click-through', () => {
 		const dialog = await openAddWidgetDialog(page)
 		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
 
-		// Default source is "URL/Link". Use a SAME-ORIGIN image asset so the
-		// cell renders without depending on outbound internet in the sandbox,
-		// plus a click-through link.
+		// The drawn form (REQ-IMG-020) asks where the image comes from first.
+		// Use a SAME-ORIGIN image asset so the cell renders without depending
+		// on outbound internet in the sandbox, plus a click-through link and
+		// the required text for who does not see the image.
+		await dialog.getByText('Web address', { exact: true }).click()
 		await dialog
 			.getByLabel(/image url/i)
 			.fill(`${NEXTCLOUD_URL}/core/img/logo/logo.svg`)
+		await dialog.getByLabel(/text for who does not see the image/i).fill('Nextcloud logo')
 		await dialog.getByLabel(/link \(optional\)/i).fill('https://example.com')
 
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })

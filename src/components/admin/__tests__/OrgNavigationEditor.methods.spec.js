@@ -21,6 +21,7 @@ vi.mock('@nextcloud/router', () => ({
 vi.mock('../../../services/api.js', () => ({
 	api: {
 		getOrgNavigation: vi.fn(),
+		getEditableOrgNavigation: vi.fn(),
 		updateOrgNavigation: vi.fn(),
 		getOrgNavigationPosition: vi.fn(),
 		updateOrgNavigationPosition: vi.fn(),
@@ -57,6 +58,12 @@ beforeEach(() => {
 			data: { tree: [{ id: `root-${lang}`, label: lang, children: [] }], language: lang },
 		}),
 	)
+	// The editor reads the whole tree from the admin editor endpoint (REQ-ONAV-007).
+	api.getEditableOrgNavigation.mockImplementation((lang) =>
+		Promise.resolve({
+			data: { tree: [{ id: `root-${lang}`, label: lang, children: [] }], language: lang },
+		}),
+	)
 	api.updateOrgNavigation.mockImplementation((tree, lang) =>
 		Promise.resolve({ data: { tree, language: lang } }),
 	)
@@ -74,7 +81,7 @@ describe('OrgNavigationEditor methods', () => {
 	it('bootstraps the position and the Dutch tree from the store', async () => {
 		const wrapper = await mountEditor()
 
-		expect(api.getOrgNavigation).toHaveBeenCalledWith('nl')
+		expect(api.getEditableOrgNavigation).toHaveBeenCalledWith('nl')
 		expect(wrapper.vm.selectedPosition).toBe('top')
 		expect(wrapper.vm.workingTree).toEqual([
 			{ id: 'root-nl', label: 'nl', children: [] },
@@ -144,7 +151,7 @@ describe('OrgNavigationEditor methods', () => {
 		await wrapper.find('select').setValue('en')
 		await flush()
 
-		expect(api.getOrgNavigation).toHaveBeenLastCalledWith('en')
+		expect(api.getEditableOrgNavigation).toHaveBeenLastCalledWith('en')
 		expect(wrapper.vm.workingTree).toEqual([
 			{ id: 'root-en', label: 'en', children: [] },
 		])

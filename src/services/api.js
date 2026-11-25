@@ -1426,6 +1426,19 @@ export const api = {
 	},
 
 	/**
+	 * Read the whole org-navigation tree for the editor, nodes in groups the
+	 * administrator is not in included, so its Save never drops them.
+	 * Administrators only on the server.
+	 *
+	 * @param {string} [lang] Which per-language tree to read.
+	 * @return {Promise} Axios response resolving to `{tree, language}`.
+	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+	 */
+	getEditableOrgNavigation(lang = 'nl') {
+		return axios.get(`${baseUrl}/api/admin/org-navigation/editor`, { params: { lang } })
+	},
+
+	/**
 	 * Replace the org-wide navigation tree for one language
 	 * (REQ-ONAV-001..012). Admin-only server-side.
 	 *

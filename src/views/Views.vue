@@ -3411,7 +3411,7 @@ export default {
 		 *
 		 * @param {number|undefined} placementId The tile being edited.
 		 * @return {object} the kept keys.
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
 		 */
 		unformedTileContent(placementId) {
 			if (placementId === undefined || placementId === null) {

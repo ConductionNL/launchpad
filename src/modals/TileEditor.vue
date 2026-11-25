@@ -537,7 +537,7 @@ export default {
 		 * The eight theme colours, each with its name for screen readers.
 		 *
 		 * @return {Array<{token: string, label: string, css: string}>}
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
 		 */
 		colourSwatches() {
 			const names = {
@@ -561,7 +561,7 @@ export default {
 		 * The preview's background: the chosen token, else the hex colour.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
 		 */
 		previewBackground() {
 			return tileBackground({ backgroundColor: this.form.backgroundColor }, { colourToken: this.form.colourToken })
@@ -571,7 +571,7 @@ export default {
 		 * The id the swatch group is labelled by.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
 		 */
 		colourLabelId() {
 			return 'tile-editor-colour-' + (this.tile?.id ?? 'new')

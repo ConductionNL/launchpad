@@ -207,7 +207,7 @@ describe('Views tile editor', () => {
 		})
 	})
 
-	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+	// @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
 	it('saves the colour token and keeps what the form does not edit', async () => {
 		const updateWidgetPlacement = vi.fn().mockResolvedValue(undefined)
 		const placement = {
@@ -222,7 +222,7 @@ describe('Views tile editor', () => {
 		expect(content).toMatchObject({ iconOnly: true, pinned: true, countSource: { register: 'r', schema: 's' }, colourToken: '--sc-primary', healthPingEnabled: false })
 	})
 
-	// @spec openspec/changes/icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+	// @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
 	it('drops a colour token the form cleared, and stores one on a new tile', async () => {
 		const updateWidgetPlacement = vi.fn().mockResolvedValue(undefined)
 		const host = makeHost({

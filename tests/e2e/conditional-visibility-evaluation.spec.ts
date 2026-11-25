@@ -977,8 +977,14 @@ test.describe('REQ-VIS-010 evaluation pipeline', () => {
 		).toBe(false)
 		await expectRendered(v('bob'), [
 			{ ...on, shown: true, why: 'isVisible 1 and every rule matches' },
-			{ ...off, shown: false, why: 'isVisible 0' },
 		])
+		// REQ-WDG-009: a placement with isVisible 0 never renders, not even for
+		// its owner (it is also how a widget the role does not permit is hidden,
+		// REQ-RFP-001). The rule badge is for rule-hidden tiles (REQ-VIS-013).
+		await expect(
+			v('bob').page!.locator('.launchpad-grid-item').filter({ hasText: off.title }),
+			'isVisible 0: the tile is not in the DOM, whatever its rules say',
+		).toHaveCount(0)
 	})
 
 	// @e2e conditional-visibility::widget-with-isvisible1-and-rules-triggers-evaluation

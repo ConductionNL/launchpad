@@ -537,6 +537,10 @@ test.describe('clock widget', () => {
 		const time12 = page.locator(
 			`[data-placement-id="${h12}"] .clock-widget__time`,
 		)
+		// Rows 10 and 11 sit below the fold: LazyMount (REQ-WDG-044) mounts them
+		// when they come near the viewport, or after a settle timer that the
+		// paused clock never fires. Scroll them into view, as a reader would.
+		await page.locator(`[data-placement-id="${h12}"]`).scrollIntoViewIfNeeded()
 		// The browser is in Los Angeles (05:05); the tile must read Amsterdam.
 		await expect(time24).toHaveText(/^14:05:\d{2}$/)
 		await expect(time12).toHaveText(/^02:05:\d{2}\s?PM$/i)

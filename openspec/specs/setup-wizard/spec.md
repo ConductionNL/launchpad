@@ -243,7 +243,6 @@ The system MUST expose a `POST /api/admin/setup-wizard/complete` endpoint that i
 - NOTE: Return format is identical to GET endpoint for consistency
 
 ### Requirement: REQ-WIZ-010 CLI Command for Non-Interactive Setup (IaC-Friendly)
-@e2e exclude an `occ` command reading a YAML file on the server cannot be driven from Playwright against the CI instance; pinned by tests/Unit/Command/SetupCommandTest.php (testTheFullOutputWithPendingStepsInTheConfig, testRefusedConfigs, testAnOldConfigWithStorageBackendStillRunsAndSaysTheFieldIsIgnored, testAConfigWithoutStorageBackendSucceeds, testAnEmptyMapStillCompletesTheWizard)
 
 The system MUST expose a CLI command `php occ launchpad:setup` that accepts a `--config=/path/setup.yaml` argument to perform wizard setup non-interactively, ideal for Infrastructure-as-Code deployments.
 

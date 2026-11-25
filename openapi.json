@@ -13505,8 +13505,12 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "item": {},
-                                    "objects": {}
+                                    "item": {
+                                        "type": "array"
+                                    },
+                                    "objects": {
+                                        "type": "array"
+                                    }
                                 }
                             }
                         }

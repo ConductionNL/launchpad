@@ -71,13 +71,20 @@ class StoreController extends Controller {
 	private readonly ?StoreUpdateService $updates;
 
 	/**
+	 * Publishes a dashboard to the connected register (REQ-STORE-013).
+	 *
+	 * @var StorePublishService|null
+	 */
+	private readonly ?StorePublishService $publications;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param IRequest     $request      The HTTP request.
 	 * @param StoreService $storeService Discovery delegation and install.
 	 * @param IUserSession $userSession  The current session.
-	 * @param StoreInstallFlow|null $flow The install record (REQ-STORE-011) and the in-place update (REQ-STORE-012).
-	 * @param StorePublishService|null $publications Publishes a dashboard to the register (REQ-STORE-013).
+	 * @param StoreInstallFlow|null $flow The install record (REQ-STORE-011), the in-place update (REQ-STORE-012)
+	 *     and the publish (REQ-STORE-013).
 	 *
 	 * @return void
 	 */
@@ -86,11 +93,11 @@ class StoreController extends Controller {
 		private readonly StoreService $storeService,
 		private readonly IUserSession $userSession,
 		?StoreInstallFlow $flow = null,
-		private readonly ?StorePublishService $publications = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 		$this->installs = $flow?->installs;
 		$this->updates = $flow?->updates;
+		$this->publications = $flow?->publications;
 	}//end __construct()
 
 	/**
@@ -279,11 +286,9 @@ class StoreController extends Controller {
 			);
 		}
 
-		$item = $this->request->getParam('item');
-		$objects = $this->request->getParam('objects');
 		$result = $this->publications->publish(
-			item: (is_array($item) === true ? $item : []),
-			objects: (is_array($objects) === true ? array_values($objects) : []),
+			item: (array)$this->request->getParam('item', []),
+			objects: array_values((array)$this->request->getParam('objects', [])),
 			userId: $user->getUID()
 		);
 

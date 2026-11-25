@@ -440,8 +440,7 @@ class StoreControllerTest extends TestCase {
 			request: $this->request,
 			storeService: $this->storeService,
 			userSession: $this->userSession,
-			flow: null,
-			publications: $publications
+			flow: new StoreInstallFlow(publications: $publications)
 		);
 	}//end publishingController()
 
@@ -454,9 +453,9 @@ class StoreControllerTest extends TestCase {
 	 */
 	public function testPublishIsAdminOnly(): void {
 		foreach (['publish', 'publishable'] as $name) {
-			$method = new ReflectionMethod(StoreController::class, $name);
-			$this->assertCount(0, $method->getAttributes(NoAdminRequired::class), $name);
-			$this->assertCount(1, $method->getAttributes(AuthorizedAdminSetting::class), $name);
+			$method = new ReflectionMethod(objectOrMethod: StoreController::class, method: $name);
+			$this->assertCount(expectedCount: 0, haystack: $method->getAttributes(name: NoAdminRequired::class), message: $name);
+			$this->assertCount(expectedCount: 1, haystack: $method->getAttributes(name: AuthorizedAdminSetting::class), message: $name);
 		}
 	}//end testPublishIsAdminOnly()
 
@@ -475,15 +474,20 @@ class StoreControllerTest extends TestCase {
 			static fn (string $key): ?array => ['item' => $item, 'objects' => $objects][$key] ?? null
 		);
 
-		$publications = $this->createMock(StorePublishService::class);
-		$publications->expects($this->once())->method('publish')
-			->with($item, $objects, 'admin')
-			->willReturn(['outcome' => 'ok', 'slug' => 'raads-en-collegewerk']);
+		$seen = [];
+		$publications = $this->createMock(originalClassName: StorePublishService::class);
+		$publications->method('publish')->willReturnCallback(
+			static function (array $item, array $objects, string $userId) use (&$seen): array {
+				$seen = [$item, $objects, $userId];
+				return ['outcome' => 'ok', 'slug' => 'raads-en-collegewerk'];
+			}
+		);
 
 		$response = $this->publishingController(publications: $publications)->publish();
 
-		$this->assertSame(Http::STATUS_OK, $response->getStatus());
-		$this->assertSame(['outcome' => 'ok', 'slug' => 'raads-en-collegewerk'], $response->getData());
+		$this->assertSame(expected: [$item, $objects, 'admin'], actual: $seen);
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(expected: ['outcome' => 'ok', 'slug' => 'raads-en-collegewerk'], actual: $response->getData());
 	}//end testPublishPassesTheDialogBodyAndTheOutcome()
 
 	/**
@@ -502,13 +506,13 @@ class StoreControllerTest extends TestCase {
 			'store_rejected' => Http::STATUS_OK,
 		];
 		foreach ($cases as $outcome => $status) {
-			$publications = $this->createMock(StorePublishService::class);
+			$publications = $this->createMock(originalClassName: StorePublishService::class);
 			$publications->method('publish')->willReturn(['outcome' => $outcome, 'slug' => '', 'message' => 'x']);
 
 			$response = $this->publishingController(publications: $publications)->publish();
 
-			$this->assertSame($status, $response->getStatus(), $outcome);
-			$this->assertSame($outcome, $response->getData()['outcome']);
+			$this->assertSame(expected: $status, actual: $response->getStatus(), message: $outcome);
+			$this->assertSame(expected: $outcome, actual: $response->getData()['outcome']);
 		}
 	}//end testPublishStatusFollowsTheOutcome()
 
@@ -522,12 +526,14 @@ class StoreControllerTest extends TestCase {
 	public function testPublishableListsTheAdministratorsDashboards(): void {
 		$this->signIn(uid: 'admin');
 		$objects = [['schema' => 'dashboard', 'id' => 'uuid-1', 'title' => 'Raads- en collegewerk']];
-		$publications = $this->createMock(StorePublishService::class);
-		$publications->method('publishable')->with('admin')->willReturn($objects);
+		$publications = $this->createMock(originalClassName: StorePublishService::class);
+		$publications->method('publishable')->willReturnCallback(
+			static fn (string $userId): array => array_filter($objects, static fn (): bool => $userId === 'admin')
+		);
 
 		$data = $this->publishingController(publications: $publications)->publishable()->getData();
 
-		$this->assertSame(['objects' => $objects], $data);
+		$this->assertSame(expected: ['objects' => $objects], actual: $data);
 	}//end testPublishableListsTheAdministratorsDashboards()
 
 	/**
@@ -541,11 +547,11 @@ class StoreControllerTest extends TestCase {
 		$this->signIn(uid: 'admin');
 		$this->request->method('getParam')->willReturn(null);
 		$this->storeService->method('search')->willReturn(['outcome' => 'ok', 'cards' => [['slug' => 'a']]]);
-		$publications = $this->createMock(StorePublishService::class);
+		$publications = $this->createMock(originalClassName: StorePublishService::class);
 		$publications->method('annotate')->willReturn([['slug' => 'a', 'typeName' => 'Own publication']]);
 
 		$data = $this->publishingController(publications: $publications)->search()->getData();
 
-		$this->assertSame('Own publication', $data['cards'][0]['typeName']);
+		$this->assertSame(expected: 'Own publication', actual: $data['cards'][0]['typeName']);
 	}//end testSearchMarksOwnPublications()
 }//end class

@@ -283,24 +283,24 @@ class StoreServiceTest extends TestCase {
 
 		$result = $this->service(discovery: $discovery)->publish(item: ['slug' => 'raads-en-collegewerk', 'version' => '0.9.0']);
 
-		$this->assertSame(['outcome' => 'store_rejected', 'slug' => ''], $result);
-		$this->assertSame(StoreService::PUBLISH_FIELDS, $seen->sharing->publishFields);
-		$this->assertSame(['admin'], $seen->sharing->publishGroups);
-		$this->assertSame('raads-en-collegewerk', $sent['slug']);
+		$this->assertSame(expected: ['outcome' => 'store_rejected', 'slug' => ''], actual: $result);
+		$this->assertSame(expected: StoreService::PUBLISH_FIELDS, actual: $seen->sharing->publishFields);
+		$this->assertSame(expected: ['admin'], actual: $seen->sharing->publishGroups);
+		$this->assertSame(expected: 'raads-en-collegewerk', actual: $sent['slug']);
 	}//end testAPublishGoesThroughTheStorePlane()
 
 	/**
-	 * REQ-STORE-013: without OpenRegister nothing is published.
+	 * REQ-STORE-013: without OpenRegister nothing is published (the caller reports not_configured).
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
-	public function testAPublishWithoutTheEngineIsNotConfigured(): void {
+	public function testAPublishWithoutTheEngineSendsNothing(): void {
 		$result = $this->service(discovery: null)->publish(item: ['slug' => 'a-b']);
 
-		$this->assertSame(['outcome' => 'not_configured', 'slug' => ''], $result);
-	}//end testAPublishWithoutTheEngineIsNotConfigured()
+		$this->assertSame(expected: ['outcome' => 'not_publishable', 'slug' => ''], actual: $result);
+	}//end testAPublishWithoutTheEngineSendsNothing()
 
 	/**
 	 * REQ-STORE-002: no engine means no import, not a half-run install.

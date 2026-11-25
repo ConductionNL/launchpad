@@ -403,31 +403,24 @@ class StoreService {
 	 *
 	 * @param array<string, mixed> $item The item, carrying its slug.
 	 *
+	 * The caller checks {@see self::isAvailable()} first: without OpenRegister
+	 * the outcome it reports is not_configured.
+	 *
 	 * @return array{outcome: string, slug: string}
 	 *
 	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
+	 * @psalm-suppress MixedReturnStatement The engine's outcome passes through verbatim.
+	 * @psalm-suppress PossiblyNullReference Proven callable above.
 	 *
 	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
 	public function publish(array $item): array {
-		if ($this->discovery === null) {
-			return ['outcome' => self::OUTCOME_NOT_CONFIGURED, 'slug' => ''];
-		}
-
-		// An OpenRegister from before the store plane could publish.
-		if (method_exists($this->discovery, 'publish') === false || class_exists(self::SHARING_CLASS) === false) {
+		// No OpenRegister, or one from before the store plane could publish.
+		if (is_callable([$this->discovery, 'publish']) === false) {
 			return ['outcome' => self::OUTCOME_NOT_PUBLISHABLE, 'slug' => ''];
 		}
 
-		$result = $this->discovery->publish(descriptor: $this->descriptor(), payload: $item);
-		if (is_array($result) === false) {
-			return ['outcome' => self::OUTCOME_NOT_PUBLISHABLE, 'slug' => ''];
-		}
-
-		return [
-			'outcome' => (string)($result['outcome'] ?? self::OUTCOME_NOT_PUBLISHABLE),
-			'slug' => (string)($result['slug'] ?? ''),
-		];
+		return $this->discovery->publish(descriptor: $this->descriptor(), payload: $item);
 	}//end publish()
 
 	/**

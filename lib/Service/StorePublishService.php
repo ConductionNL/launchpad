@@ -29,11 +29,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
-use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
-use OCP\IAppConfig;
-use OCP\IL10N;
 
 /**
  * Publish a dashboard to the connected register.
@@ -41,11 +38,6 @@ use OCP\IL10N;
  * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
  */
 class StorePublishService {
-	/**
-	 * App config key holding the slugs this instance published (JSON list).
-	 */
-	public const CONFIG_KEY = 'store_published';
-
 	/**
 	 * The schema name the publish dialog sends for a dashboard.
 	 */
@@ -87,11 +79,10 @@ class StorePublishService {
 	/**
 	 * Constructor.
 	 *
-	 * @param StoreService    $store      The store plane delegation.
-	 * @param DashboardMapper $dashboards Reads the dashboard to publish.
-	 * @param ExportService   $export     Serialises it the way an export does.
-	 * @param IAppConfig      $appConfig  Holds the slugs this instance published.
-	 * @param IL10N           $l10n       The administrator's language.
+	 * @param StoreService         $store      The store plane delegation.
+	 * @param DashboardMapper      $dashboards Reads the dashboard to publish.
+	 * @param ExportService        $export     Serialises it the way an export does.
+	 * @param StoreOwnPublications $own        The slugs this instance published.
 	 *
 	 * @return void
 	 */
@@ -99,8 +90,7 @@ class StorePublishService {
 		private readonly StoreService $store,
 		private readonly DashboardMapper $dashboards,
 		private readonly ExportService $export,
-		private readonly IAppConfig $appConfig,
-		private readonly IL10N $l10n,
+		private readonly StoreOwnPublications $own,
 	) {
 	}//end __construct()
 
@@ -158,6 +148,10 @@ class StorePublishService {
 			);
 		}
 
+		if ($this->store->isAvailable() === false) {
+			return ['outcome' => StoreService::OUTCOME_NOT_CONFIGURED, 'slug' => ''];
+		}
+
 		$payload = $this->exportWithoutPersonalData(dashboard: $dashboard);
 		$result = $this->store->publish(
 			item: [
@@ -173,7 +167,7 @@ class StorePublishService {
 		);
 
 		if ($result['outcome'] === 'ok') {
-			$this->remember(slug: $slug);
+			$this->own->remember(slug: $slug);
 		}
 
 		return $result;
@@ -189,19 +183,7 @@ class StorePublishService {
 	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
 	public function annotate(array $cards): array {
-		$own = array_flip($this->published());
-		if ($own === []) {
-			return $cards;
-		}
-
-		foreach ($cards as $index => $card) {
-			if (is_array($card) === true && isset($own[(string)($card['slug'] ?? '')]) === true) {
-				$cards[$index]['ownPublication'] = true;
-				$cards[$index]['typeName'] = $this->l10n->t('Own publication');
-			}
-		}
-
-		return $cards;
+		return $this->own->annotate(cards: $cards);
 	}//end annotate()
 
 	/**
@@ -303,40 +285,6 @@ class StorePublishService {
 
 		return $candidates;
 	}//end candidates()
-
-	/**
-	 * The slugs this instance published.
-	 *
-	 * @return list<string>
-	 */
-	private function published(): array {
-		$decoded = json_decode(
-			json: $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_KEY, '[]'),
-			associative: true
-		);
-		if (is_array($decoded) === false) {
-			return [];
-		}
-
-		return array_values(array_filter(array_map('strval', $decoded), static fn (string $slug): bool => $slug !== ''));
-	}//end published()
-
-	/**
-	 * Remember a slug this instance published.
-	 *
-	 * @param string $slug The published slug.
-	 *
-	 * @return void
-	 */
-	private function remember(string $slug): void {
-		$published = $this->published();
-		if (in_array($slug, $published, true) === true) {
-			return;
-		}
-
-		$published[] = $slug;
-		$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_KEY, (string)json_encode($published));
-	}//end remember()
 
 	/**
 	 * A refusal the administrator reads.

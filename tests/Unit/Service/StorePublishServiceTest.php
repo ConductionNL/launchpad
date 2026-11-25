@@ -26,6 +26,7 @@ namespace Unit\Service;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Service\ExportService;
+use OCA\LaunchPad\Service\StoreOwnPublications;
 use OCA\LaunchPad\Service\StorePublishService;
 use OCA\LaunchPad\Service\StoreService;
 use OCP\IAppConfig;
@@ -70,7 +71,8 @@ class StorePublishServiceTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->store = $this->createMock(StoreService::class);
+		$this->store = $this->createMock(originalClassName: StoreService::class);
+		$this->store->method('isAvailable')->willReturn(true);
 		$this->store->method('publish')->willReturnCallback(
 			function (array $item): array {
 				$this->sent[] = $item;
@@ -80,13 +82,13 @@ class StorePublishServiceTest extends TestCase {
 
 		$own = $this->dashboard(uuid: 'uuid-own', name: 'Raads- en collegewerk');
 		$template = $this->dashboard(uuid: 'uuid-template', name: 'Intranet');
-		$this->dashboards = $this->createMock(DashboardMapper::class);
+		$this->dashboards = $this->createMock(originalClassName: DashboardMapper::class);
 		$this->dashboards->method('findByUserId')->willReturnCallback(
-			static fn (string $userId): array => ($userId === 'admin' ? [$own] : [])
+			static fn (string $userId): array => array_filter([$own], static fn (): bool => $userId === 'admin')
 		);
 		$this->dashboards->method('findAdminTemplates')->willReturn([$template, $own]);
 
-		$this->export = $this->createMock(ExportService::class);
+		$this->export = $this->createMock(originalClassName: ExportService::class);
 		$this->export->method('serializeDashboard')->willReturn(
 			[
 				'uuid' => 'uuid-own',
@@ -105,7 +107,7 @@ class StorePublishServiceTest extends TestCase {
 			]
 		);
 
-		$this->appConfig = $this->createMock(IAppConfig::class);
+		$this->appConfig = $this->createMock(originalClassName: IAppConfig::class);
 		$this->appConfig->method('getValueString')->willReturnCallback(
 			fn (string $app, string $key, string $default = ''): string => ($this->configValues[$key] ?? $default)
 		);
@@ -138,15 +140,14 @@ class StorePublishServiceTest extends TestCase {
 	 * @return StorePublishService
 	 */
 	private function service(): StorePublishService {
-		$l10n = $this->createMock(IL10N::class);
+		$l10n = $this->createMock(originalClassName: IL10N::class);
 		$l10n->method('t')->willReturnCallback(static fn (string $text): string => $text);
 
 		return new StorePublishService(
 			store: $this->store,
 			dashboards: $this->dashboards,
 			export: $this->export,
-			appConfig: $this->appConfig,
-			l10n: $l10n
+			own: new StoreOwnPublications(appConfig: $this->appConfig, l10n: $l10n)
 		);
 	}//end service()
 
@@ -180,13 +181,13 @@ class StorePublishServiceTest extends TestCase {
 			userId: 'admin'
 		);
 
-		$this->assertSame(['outcome' => 'ok', 'slug' => 'raads-en-collegewerk'], $result);
-		$this->assertCount(1, $this->sent);
+		$this->assertSame(expected: ['outcome' => 'ok', 'slug' => 'raads-en-collegewerk'], actual: $result);
+		$this->assertCount(expectedCount: 1, haystack: $this->sent);
 		$sent = $this->sent[0];
-		$this->assertSame('0.9.0', $sent['version']);
-		$this->assertSame('Management', $sent['category']);
-		$this->assertSame(1, $sent['widgets']);
-		$this->assertSame('uuid-own', $sent['dashboards'][0]['uuid']);
+		$this->assertSame(expected: '0.9.0', actual: $sent['version']);
+		$this->assertSame(expected: 'Management', actual: $sent['category']);
+		$this->assertSame(expected: 1, actual: $sent['widgets']);
+		$this->assertSame(expected: 'uuid-own', actual: $sent['dashboards'][0]['uuid']);
 	}//end testTheAdministratorPublishesADashboard()
 
 	/**
@@ -199,11 +200,11 @@ class StorePublishServiceTest extends TestCase {
 
 		$dashboard = $this->sent[0]['dashboards'][0];
 		foreach (StorePublishService::PRIVATE_DASHBOARD_FIELDS as $field) {
-			$this->assertArrayNotHasKey($field, $dashboard);
+			$this->assertArrayNotHasKey(key: $field, array: $dashboard);
 		}
 
-		$this->assertSame([['widgetId' => 'text', 'content' => ['text' => 'Agenda']]], $dashboard['widgets']);
-		$this->assertStringNotContainsString('admin', (string)json_encode($this->sent[0]));
+		$this->assertSame(expected: [['widgetId' => 'text', 'content' => ['text' => 'Agenda']]], actual: $dashboard['widgets']);
+		$this->assertStringNotContainsString(needle: 'admin', haystack: (string)json_encode(value: $this->sent[0]));
 	}//end testThePublishedExportNamesNoPerson()
 
 	/**
@@ -216,9 +217,9 @@ class StorePublishServiceTest extends TestCase {
 
 		$result = $this->service()->publish(item: $this->item(), objects: [['schema' => 'dashboard', 'id' => 'uuid-own']], userId: 'admin');
 
-		$this->assertSame(StorePublishService::OUTCOME_VERSION_NOT_HIGHER, $result['outcome']);
-		$this->assertStringContainsString('higher version', $result['message']);
-		$this->assertSame([], $this->sent);
+		$this->assertSame(expected: StorePublishService::OUTCOME_VERSION_NOT_HIGHER, actual: $result['outcome']);
+		$this->assertStringContainsString(needle: 'higher version', haystack: $result['message']);
+		$this->assertSame(expected: [], actual: $this->sent);
 	}//end testTheSameVersionTwiceIsRefused()
 
 	/**
@@ -229,9 +230,13 @@ class StorePublishServiceTest extends TestCase {
 	public function testAHigherVersionIsPublished(): void {
 		$this->store->method('resolveItem')->willReturn(['version' => '0.9.0', 'dashboards' => []]);
 
-		$result = $this->service()->publish(item: $this->item(version: '0.10.0'), objects: [['schema' => 'dashboard', 'id' => 'uuid-own']], userId: 'admin');
+		$result = $this->service()->publish(
+			item: $this->item(version: '0.10.0'),
+			objects: [['schema' => 'dashboard', 'id' => 'uuid-own']],
+			userId: 'admin'
+		);
 
-		$this->assertSame('ok', $result['outcome']);
+		$this->assertSame(expected: 'ok', actual: $result['outcome']);
 	}//end testAHigherVersionIsPublished()
 
 	/**
@@ -251,10 +256,10 @@ class StorePublishServiceTest extends TestCase {
 		);
 
 		foreach ([$foreign, $none, $two] as $result) {
-			$this->assertSame(StorePublishService::OUTCOME_INVALID_REQUEST, $result['outcome']);
+			$this->assertSame(expected: StorePublishService::OUTCOME_INVALID_REQUEST, actual: $result['outcome']);
 		}
 
-		$this->assertSame([], $this->sent);
+		$this->assertSame(expected: [], actual: $this->sent);
 	}//end testOnlyOneOwnDashboardIsPublishable()
 
 	/**
@@ -269,9 +274,9 @@ class StorePublishServiceTest extends TestCase {
 		$version = $service->publish(item: $this->item(version: 'latest'), objects: $objects, userId: 'admin');
 		$title = $service->publish(item: ['slug' => '', 'title' => ' ', 'version' => '1.0.0'], objects: $objects, userId: 'admin');
 
-		$this->assertSame(StorePublishService::OUTCOME_INVALID_REQUEST, $version['outcome']);
-		$this->assertSame(StorePublishService::OUTCOME_INVALID_REQUEST, $title['outcome']);
-		$this->assertSame([], $this->sent);
+		$this->assertSame(expected: StorePublishService::OUTCOME_INVALID_REQUEST, actual: $version['outcome']);
+		$this->assertSame(expected: StorePublishService::OUTCOME_INVALID_REQUEST, actual: $title['outcome']);
+		$this->assertSame(expected: [], actual: $this->sent);
 	}//end testAMalformedItemIsRefused()
 
 	/**
@@ -283,11 +288,11 @@ class StorePublishServiceTest extends TestCase {
 		$objects = $this->service()->publishable(userId: 'admin');
 
 		$this->assertSame(
-			[
+			expected: [
 				['schema' => 'dashboard', 'id' => 'uuid-own', 'title' => 'Raads- en collegewerk'],
 				['schema' => 'dashboard', 'id' => 'uuid-template', 'title' => 'Intranet'],
 			],
-			$objects
+			actual: $objects
 		);
 	}//end testThePublishableListIsOwnAndTemplatesOnce()
 
@@ -302,9 +307,9 @@ class StorePublishServiceTest extends TestCase {
 
 		$cards = $service->annotate(cards: [['slug' => 'raads-en-collegewerk'], ['slug' => 'intranet']]);
 
-		$this->assertSame('Own publication', $cards[0]['typeName']);
-		$this->assertTrue($cards[0]['ownPublication']);
-		$this->assertSame(['slug' => 'intranet'], $cards[1]);
+		$this->assertSame(expected: 'Own publication', actual: $cards[0]['typeName']);
+		$this->assertTrue(condition: $cards[0]['ownPublication']);
+		$this->assertSame(expected: ['slug' => 'intranet'], actual: $cards[1]);
 	}//end testAnOwnPublicationIsMarkedOnItsCard()
 
 	/**
@@ -313,13 +318,33 @@ class StorePublishServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testARefusedPublishIsNotRemembered(): void {
-		$store = $this->createMock(StoreService::class);
+		$store = $this->createMock(originalClassName: StoreService::class);
+		$store->method('isAvailable')->willReturn(true);
 		$store->method('publish')->willReturn(['outcome' => 'store_rejected', 'slug' => '']);
 		$this->store = $store;
 		$service = $this->service();
 
 		$service->publish(item: $this->item(), objects: [['schema' => 'dashboard', 'id' => 'uuid-own']], userId: 'admin');
 
-		$this->assertSame([['slug' => 'raads-en-collegewerk']], $service->annotate(cards: [['slug' => 'raads-en-collegewerk']]));
+		$this->assertSame(
+			expected: [['slug' => 'raads-en-collegewerk']],
+			actual: $service->annotate(cards: [['slug' => 'raads-en-collegewerk']])
+		);
 	}//end testARefusedPublishIsNotRemembered()
+
+	/**
+	 * Without OpenRegister nothing is sent and the outcome is not_configured.
+	 *
+	 * @return void
+	 */
+	public function testWithoutTheEngineThePublishIsNotConfigured(): void {
+		$store = $this->createMock(originalClassName: StoreService::class);
+		$store->method('isAvailable')->willReturn(false);
+		$store->expects($this->never())->method('publish');
+		$this->store = $store;
+
+		$result = $this->service()->publish(item: $this->item(), objects: [['schema' => 'dashboard', 'id' => 'uuid-own']], userId: 'admin');
+
+		$this->assertSame(expected: ['outcome' => 'not_configured', 'slug' => ''], actual: $result);
+	}//end testWithoutTheEngineThePublishIsNotConfigured()
 }//end class

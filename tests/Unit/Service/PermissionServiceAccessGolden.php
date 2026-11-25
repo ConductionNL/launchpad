@@ -71,7 +71,7 @@ return array (
     'alice' => 'Y Y n n n n Y n',
     'viewer' => 'n n n n n n n n',
     'admin' => 'Y Y Y Y n Y Y n',
-    'ncadmin' => 'n n Y Y n n n n',
+    'ncadmin' => 'n n Y Y Y n n n',
     'editor' => 'n n Y Y n n n n',
     'member' => 'n n n n n n n n',
     'sharee' => 'n Y n n n Y n n',

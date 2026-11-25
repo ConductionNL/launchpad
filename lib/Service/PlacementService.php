@@ -38,11 +38,12 @@ class PlacementService {
 	 * caller leaves them out.
 	 */
 	private const DEFAULT_LAYOUT = [
-		'gridX'      => 0,
-		'gridY'      => 0,
-		'gridWidth'  => 4,
-		'gridHeight' => 4,
-		'content'    => null,
+		'gridX'        => 0,
+		'gridY'        => 0,
+		'gridWidth'    => 4,
+		'gridHeight'   => 4,
+		'content'      => null,
+		'isCompulsory' => 0,
 	];
 
 	/**
@@ -109,7 +110,7 @@ class PlacementService {
 		$placement->setGridY($spot['gridY']);
 		$placement->setGridWidth($spot['gridWidth']);
 		$placement->setGridHeight($spot['gridHeight']);
-		$placement->setIsCompulsory(0);
+		$placement->setIsCompulsory((int)$layout['isCompulsory']);
 		$placement->setIsVisible(1);
 		$placement->setShowTitle(1);
 

@@ -200,11 +200,38 @@ class WidgetApiControllerActionsGoldenTest extends TestCase {
 		$this->assertSame(201, $created->getStatus());
 		$this->assertSame(9, $created->getData()['id']);
 		$this->assertSame([
-			[3, 'w', ['gridX' => 1, 'gridY' => 2, 'gridWidth' => 3, 'gridHeight' => 4, 'content' => ['label' => 'L']]],
-			[3, 'w', ['gridX' => 0, 'gridY' => 0, 'gridWidth' => 4, 'gridHeight' => 4, 'content' => null]],
+			[3, 'w', ['gridX' => 1, 'gridY' => 2, 'gridWidth' => 3, 'gridHeight' => 4, 'content' => ['label' => 'L'], 'isCompulsory' => 0]],
+			[3, 'w', ['gridX' => 0, 'gridY' => 0, 'gridWidth' => 4, 'gridHeight' => 4, 'content' => null, 'isCompulsory' => 0]],
 		], array_slice($calls, 0, 2));
 		$this->assertSame(409, $full->getStatus());
 		$this->assertSame([400, ['error' => 'Operation failed']], $this->outcome($boom));
+	}
+
+	/**
+	 * REQ-TMPL-007: a requested compulsory flag reaches the create only when
+	 * the permission service allows it (an admin on an admin template).
+	 *
+	 * @return void
+	 */
+	public function testTheCompulsoryFlagReachesTheCreateOnlyWhereItIsAllowed(): void {
+		$this->permissionService->method('canAddWidget')->willReturn(true);
+		$this->permissionService->method('mayPlaceCompulsory')->willReturnOnConsecutiveCalls(true, false);
+		$this->roleFeaturePerm->method('isWidgetAllowed')->willReturn(true);
+		$flags = [];
+		$this->widgetService->method('addWidget')->willReturnCallback(
+			function (int $dashboardId, string $widgetId, array $layout) use (&$flags): WidgetPlacement {
+				$flags[] = $layout['isCompulsory'];
+				return $this->placement();
+			}
+		);
+
+		$this->params = ['isCompulsory' => 1];
+		$this->controller()->addWidget(dashboardId: 3, widgetId: 'w');
+		$this->controller()->addWidget(dashboardId: 3, widgetId: 'w');
+		$this->params = [];
+		$this->controller()->addWidget(dashboardId: 3, widgetId: 'w');
+
+		$this->assertSame(expected: [1, 0, 0], actual: $flags);
 	}
 
 	/**

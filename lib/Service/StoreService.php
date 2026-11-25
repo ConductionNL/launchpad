@@ -236,7 +236,8 @@ class StoreService {
 	 * @param string $slug   The remote item slug.
 	 * @param string $userId The installing administrator's UID.
 	 *
-	 * @return array{success: bool, message: string, components: array<int, array<string, string>>, version?: string, dashboardIds?: list<int>}
+	 * @return array{success: bool, message: string, components: array<int, array<string, string>>,
+	 *     version?: string, dashboardIds?: list<int>, created?: list<array<string, mixed>>}
 	 *
 	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
 	 *
@@ -292,6 +293,7 @@ class StoreService {
 		return $this->report(report: $report, dashboards: $dashboards) + [
 			'version'      => (string)($item['version'] ?? ''),
 			'dashboardIds' => array_values(array_map('intval', array_column((array)($report['dashboards'] ?? []), 'id'))),
+			'created'      => array_values((array)($report['dashboards'] ?? [])),
 		];
 	}//end install()
 

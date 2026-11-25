@@ -19,6 +19,7 @@
  *   @e2e dashboard-sharing::public-links-off
  *   @e2e dashboard-sharing::pieter-leaves
  *   @e2e dashboard-sharing::no-manager
+ *   @e2e dashboard-sharing::no-setting
  *
  * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md
  */
@@ -36,8 +37,18 @@ import {
 	allowPersonalDashboards,
 	API,
 	createPrincipal,
+	publishForRecipients,
 	removePrincipal,
 } from './support/principals.ts'
+import {
+	createOwnDashboard,
+	deleteAccount,
+	listShares,
+	readSharingSettings,
+	share,
+	shareTuples,
+	writeSharingSettings,
+} from './support/shareApi.ts'
 
 const RUN = Date.now()
 const FAR_EXPIRY = '2099-12-31T23:59:59Z'
@@ -206,6 +217,96 @@ test('a leaver\'s dashboard goes to their manager, otherwise to the named person
 		})
 		await removePrincipal(admin, marieke)
 		await removePrincipal(admin, femke)
+	}
+})
+
+/** The stored leaver handover, read from the admin settings. */
+async function readHandover(): Promise<{ manager: boolean; fallbackUid: string }> {
+	const res = await admin.get(`${API}/admin/settings`)
+	expect(res.status(), await res.text()).toBe(200)
+	const body = await res.json()
+	const handover = (body.data ?? body).leaverHandover ?? {}
+	return {
+		manager: handover.manager === true,
+		fallbackUid: typeof handover.fallbackUid === 'string' ? handover.fallbackUid : '',
+	}
+}
+
+/** GET /api/dashboard/{id} as `who`: its status and, on 200, its owner. */
+async function readAs(who: Principal, id: number): Promise<{ status: number; ownerId?: string }> {
+	const res = await who.api.get(`${API}/dashboard/${id}`)
+	if (res.status() !== 200) {
+		return { status: res.status() }
+	}
+	const body = await res.json()
+	return { status: 200, ownerId: body.dashboard?.userId }
+}
+
+// @e2e dashboard-sharing::no-setting
+test('with no handover set, a leaver\'s dashboards follow REQ-SHARE-012, not their manager', async () => {
+	const priorHandover = await readHandover()
+	const priorSharing = await readSharingSettings(admin)
+	const marieke = await createPrincipal(admin, 'e2e-policy-nset-marieke')
+	const bob = await createPrincipal(admin, 'e2e-policy-nset-bob')
+	const carol = await createPrincipal(admin, 'e2e-policy-nset-carol')
+	const leaver = await createPrincipal(admin, 'e2e-policy-nset-leaver')
+	let leaverGone = false
+	try {
+		await setPolicy({ sharingAllowed: 'everyone' })
+		await writeSharingSettings(admin, {
+			allowUserDashboards: true,
+			sharingAllowedGroups: [],
+			sharingRecipientScope: 'everyone',
+		})
+		// The leaver HAS a manager, so a handover that ignored "not set" would
+		// hand both dashboards to Marieke; REQ-SHARE-012 must decide instead.
+		await setManager(leaver, marieke)
+		const cleared = await admin.put(`${API}/admin/leaver-handover`, {
+			data: { manager: false, fallbackUid: '' },
+		})
+		expect(cleared.status(), await cleared.text()).toBe(200)
+		expect(await readHandover(), 'no handover is set').toEqual({ manager: false, fallbackUid: '' })
+
+		// Kept: Bob holds full, so he is the admin pool and becomes the owner.
+		const kept = await createOwnDashboard(leaver.api, `E2E No setting kept ${RUN}`)
+		await publishForRecipients(leaver.api, kept.id)
+		await share(leaver.api, kept.id, 'user', bob.username, 'full')
+		await share(leaver.api, kept.id, 'user', carol.username, 'view_only')
+		// Dropped: only a view_only share, so no admin pool and it is deleted.
+		const dropped = await createOwnDashboard(leaver.api, `E2E No setting dropped ${RUN}`)
+		await publishForRecipients(leaver.api, dropped.id)
+		await share(leaver.api, dropped.id, 'user', carol.username, 'view_only')
+		// CONTROL: Carol reads both before, so a 404 afterwards means deleted.
+		expect((await readAs(carol, kept.id)).status).toBe(200)
+		expect((await readAs(carol, dropped.id)).status).toBe(200)
+
+		await leaver.api.dispose()
+		await deleteAccount(admin, leaver.username)
+		leaverGone = true
+
+		const asBob = await readAs(bob, kept.id)
+		expect(asBob.status, 'the dashboard with a full share is retained').toBe(200)
+		expect(asBob.ownerId, 'it goes to the full-level recipient, not the manager').toBe(bob.username)
+		expect(
+			shareTuples(await listShares(bob.api, kept.id)),
+			'Bob\'s own share is consumed and Carol\'s stays',
+		).toEqual([`user:${carol.username}:view_only`])
+		expect((await readAs(marieke, kept.id)).status, 'the manager is given nothing').not.toBe(200)
+		expect(await visibleUuids(marieke)).not.toContain(dropped.uuid)
+
+		expect(
+			(await readAs(carol, dropped.id)).status,
+			'the dashboard with no admin pool is deleted',
+		).toBe(404)
+	} finally {
+		await admin.put(`${API}/admin/leaver-handover`, { data: priorHandover })
+		await writeSharingSettings(admin, priorSharing)
+		if (!leaverGone) {
+			await removePrincipal(admin, leaver)
+		}
+		await removePrincipal(admin, marieke)
+		await removePrincipal(admin, bob)
+		await removePrincipal(admin, carol)
 	}
 })
 

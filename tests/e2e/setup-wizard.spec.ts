@@ -13,16 +13,22 @@
  * ever writes `true` — reached from `POST /api/admin/setup-wizard/complete` and
  * `occ launchpad:setup`. `PUT /api/admin/settings` does not bind the key, the
  * footer and import endpoints do not either, and nothing deletes the row. So
- * no API can put the flag back to `false` and nothing here can restore it.
+ * no API can put the flag back to `false`.
  *
- * The wizard is still reproducible, because the CI fixture is a fresh
- * instance on which the flag starts `false`. The file is therefore split in
- * two, in this order:
+ * The database can, and the suite already writes it (`support/instanceDb.ts`,
+ * `support/adminSettingRows.ts`). What "fresh" means to the product is two
+ * absent rows: `setup_wizard_complete` (the flag reads `false`) and
+ * `group_order` (SetupWizardService::computeStepStatuses() reports Step 2
+ * `pending`). The file is split in two, in this order:
  *
  *   1. "fresh instance": every test whose GIVEN needs `complete = false`.
- *      Each one skips itself, saying why, when the flag is already `true`
- *      (a warm developer rig). The last of them drives Finish through the
- *      wizard and is the one write that flips the flag.
+ *      Before each one both rows are removed and the state endpoint must then
+ *      read `complete: false`, so the GIVEN holds on any instance, not only on
+ *      the CI fixture's first run. These tests used to skip themselves when
+ *      the flag was already `true`, which is every run after the first on a
+ *      rig and so could never go red there. The last of them drives Finish
+ *      through the wizard and flips the flag. After the block the stored
+ *      `group_order` rows are put back exactly as they were.
  *   2. "completed instance": everything that holds once the flag is `true`,
  *      which is also every re-run of the wizard. Its beforeAll makes sure the
  *      flag is `true` (idempotent POST), so it runs on any instance.
@@ -108,12 +114,18 @@
  */
 
 import type { APIRequestContext, Locator, Page, Request } from '@playwright/test'
+import type { SettingRow } from './support/adminSettingRows.ts'
 
 import { expect, test } from '@playwright/test'
 import {
 	deprovisionUser,
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
+import {
+	dropSettingRows,
+	putBackSettingRows,
+	settingRows,
+} from './support/adminSettingRows.ts'
 import { adminTab } from './support/adminTab.ts'
 import {
 	adminContext,
@@ -134,12 +146,9 @@ const RUN = Date.now()
 const GROUP_A = `e2e-wizard-a-${RUN}`
 const GROUP_B = `e2e-wizard-b-${RUN}`
 const TOTAL = 5
+const COMPLETE_KEY = 'setup_wizard_complete'
+const GROUP_ORDER_KEY = 'group_order'
 const STEP_STATUSES = ['done', 'pending', 'skipped']
-
-const NOT_FRESH =
-	'setup_wizard_complete is already true here and no API resets it '
-	+ '(SetupWizardService::markWizardComplete only writes true); this test '
-	+ 'runs on a fresh instance such as the CI fixture'
 
 const STEP_HEADINGS: Record<number, string> = {
 	1: 'Welcome',
@@ -164,7 +173,6 @@ type RoleRow = {
 }
 
 let admin: APIRequestContext
-let fresh = false
 
 /**
  * Read the wizard state as the administrator, asserting the 200.
@@ -458,7 +466,6 @@ async function removeNewRoles(before: RoleRow[]): Promise<void> {
 
 test.beforeAll(async () => {
 	admin = await adminContext()
-	fresh = (await readState()).complete === false
 })
 
 test.afterAll(async () => {
@@ -466,9 +473,29 @@ test.afterAll(async () => {
 })
 
 test.describe('setup-wizard — fresh instance (complete = false)', () => {
+	let storedGroupOrder: SettingRow[] = []
+
+	test.beforeAll(async () => {
+		storedGroupOrder = await settingRows(GROUP_ORDER_KEY)
+	})
+
+	test.beforeEach(async () => {
+		// The GIVEN of every test in this block: a fresh instance. Neither
+		// row has an endpoint that removes it, so the test removes them on
+		// the instance and then requires the product to read them as absent.
+		await dropSettingRows(COMPLETE_KEY)
+		await dropSettingRows(GROUP_ORDER_KEY)
+		const state = await readState()
+		expect(state.complete).toBe(false)
+		expect(state.stepStatuses['2']).toBe('pending')
+	})
+
+	test.afterAll(async () => {
+		await putBackSettingRows(storedGroupOrder, GROUP_ORDER_KEY)
+	})
+
 	test('fresh instance shows the banner until Finish', async ({ page }) => {
 		// @e2e setup-wizard::fresh-instance-shows-banner
-		test.skip(!fresh, NOT_FRESH)
 
 		await openAdminPage(page)
 		const banner = page.locator('[data-test="setup-wizard-banner"]')
@@ -493,7 +520,6 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 
 	test('the banner explains what the wizard does', async ({ page }) => {
 		// @e2e setup-wizard::banner-includes-descriptive-text
-		test.skip(!fresh, NOT_FRESH)
 
 		await openAdminPage(page)
 		await expect(page.locator('[data-test="setup-wizard-banner"] p')).toHaveText(
@@ -510,7 +536,6 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		page,
 	}) => {
 		// @e2e setup-wizard::banner-has-explicit-run-setup-wizard-call-to-action
-		test.skip(!fresh, NOT_FRESH)
 
 		const root = await openWizard(page, 'banner')
 		await expectStep(root, 1)
@@ -521,7 +546,6 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		page,
 	}) => {
 		// @e2e setup-wizard::wizard-starts-at-step-1
-		test.skip(!fresh, NOT_FRESH)
 
 		const root = await openWizard(page, 'banner')
 		await expect(root.locator('[data-test="setup-wizard-counter"]')).toHaveText(
@@ -534,7 +558,6 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		page,
 	}) => {
 		// @e2e setup-wizard::admin-can-dismiss-and-re-access-banner
-		test.skip(!fresh, NOT_FRESH)
 
 		await openWizard(page, 'banner')
 		await page.keyboard.press('Escape')
@@ -555,7 +578,6 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 	// this asserts five, all but Step 1 pending.
 	test('the state endpoint on a fresh instance', async () => {
 		// @e2e setup-wizard::endpoint-returns-complete-state-on-fresh-instance
-		test.skip(!fresh, NOT_FRESH)
 
 		const res = await admin.get(`${WIZARD_API}/state`)
 		expect(res.status()).toBe(200)
@@ -576,7 +598,6 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		// @e2e setup-wizard::finish-button-completes-wizard
 		// @e2e setup-wizard::endpoint-sets-complete-flag
 		// @e2e setup-wizard::non-admin-requests-receive-403
-		test.skip(!fresh, NOT_FRESH)
 
 		const probe = await provisionThrowawayUser('e2e-wizard-probe')
 		const probeApi = await contextFor(probe.username, probe.password)

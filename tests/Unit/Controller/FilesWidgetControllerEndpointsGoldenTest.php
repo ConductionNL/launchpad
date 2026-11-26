@@ -74,6 +74,8 @@ class FilesWidgetControllerEndpointsGoldenTest extends TestCase {
 		];
 
 		$actual = [];
+		$saved  = $_FILES;
+		$_FILES = ['files' => ['name' => 'a.txt', 'tmp_name' => '/t/a', 'size' => 1, 'error' => 0]];
 		foreach (['contents', 'upload', 'destroy'] as $endpoint) {
 			foreach ($cases as $name => [$uid, $placementId, $failure]) {
 				$this->logged = [];
@@ -87,6 +89,7 @@ class FilesWidgetControllerEndpointsGoldenTest extends TestCase {
 				$actual[$endpoint.' / '.$name] = [$response->getStatus(), $response->getData(), $this->served, $this->logged];
 			}
 		}
+		$_FILES = $saved;
 
 		$actual = json_decode((string) json_encode($actual), true);
 		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {
@@ -96,6 +99,43 @@ class FilesWidgetControllerEndpointsGoldenTest extends TestCase {
 
 		$this->assertSame(json_decode((string) file_get_contents(__DIR__.'/fixtures/files-widget-endpoints.json'), true), $actual);
 	}//end testEveryEndpointAnswersAsRecorded()
+
+	/**
+	 * An upload in which no file arrived is refused before the service runs:
+	 * 413 when the request carried a body PHP dropped, 400 when it had none.
+	 * The placement guards still answer first.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/files-widget/spec.md
+	 */
+	public function testUploadWithoutAFileSaysWhy(): void {
+		$cases = [
+			'body dropped' => ['alice', 1, '52428801', 413, 'upload_too_large'],
+			'no body' => ['alice', 1, '', 400, 'no_files'],
+			'zero length' => ['alice', 1, '0', 400, 'no_files'],
+			'no session first' => [null, 1, '52428801', 401, null],
+			'no permission first' => ['alice', 2, '52428801', 403, 'forbidden'],
+		];
+
+		$saved  = $_FILES;
+		$_FILES = [];
+		foreach ($cases as $name => [$uid, $placementId, $length, $status, $error]) {
+			$this->served = [];
+			$request      = $this->createMock(IRequest::class);
+			$request->method('getHeader')->willReturnCallback(
+				static fn (string $header): string => ($header === 'Content-Length') ? $length : ''
+			);
+			$response = $this->controller(uid: $uid, failure: null, request: $request)->upload($placementId, '/');
+
+			$this->assertSame($status, $response->getStatus(), $name);
+			if ($error !== null) {
+				$this->assertSame($error, $response->getData()['error'], $name);
+			}
+			$this->assertSame([], $this->served, $name.': the service must not run');
+		}
+		$_FILES = $saved;
+	}//end testUploadWithoutAFileSaysWhy()
 
 	/**
 	 * The uploaded `files[]` entries are normalised from both PHP upload shapes.
@@ -146,10 +186,11 @@ class FilesWidgetControllerEndpointsGoldenTest extends TestCase {
 	 *
 	 * @param string|null     $uid     The session user, or null for none.
 	 * @param \Throwable|null $failure What the service throws, or null to succeed.
+	 * @param IRequest|null   $request The request, or null for a bare mock.
 	 *
 	 * @return FilesWidgetController
 	 */
-	private function controller(?string $uid, ?\Throwable $failure): FilesWidgetController {
+	private function controller(?string $uid, ?\Throwable $failure, ?IRequest $request = null): FilesWidgetController {
 		$service = $this->createMock(FilesWidgetService::class);
 		foreach (['getContentsForPlacement', 'uploadFiles', 'deleteFile'] as $method) {
 			$service->method($method)->willReturnCallback(
@@ -204,7 +245,7 @@ class FilesWidgetControllerEndpointsGoldenTest extends TestCase {
 		);
 
 		return new FilesWidgetController(
-			request: $this->createMock(IRequest::class),
+			request: ($request ?? $this->createMock(IRequest::class)),
 			sources: new FilesWidgetSources(service: $service, placementMapper: $placements, logger: $logger),
 			permissionService: $permissions,
 			userSession: $session

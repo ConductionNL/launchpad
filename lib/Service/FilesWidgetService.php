@@ -342,7 +342,8 @@ class FilesWidgetService {
 	/**
 	 * Screen one uploaded entry before it is written to storage.
 	 *
-	 * Applies, in order: the transport-level `$_FILES` error, the M3
+	 * Applies, in order: a size refusal by PHP (`file_too_large`), the
+	 * transport-level `$_FILES` error, the M3
 	 * genuine-upload assertion (a crafted `tmp_name` would otherwise give
 	 * local-file inclusion), the hard size cap, and the placement's MIME
 	 * type filter so an upload cannot bypass a restrict-to-images config.
@@ -357,6 +358,11 @@ class FilesWidgetService {
 	 * @spec openspec/specs/files-widget/spec.md
 	 */
 	private function rejectUpload(array $entry, array $mimeFilter): ?string {
+		// PHP refused the file for its size (upload_max_filesize or the form's MAX_FILE_SIZE).
+		if (in_array((int)$entry['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) === true) {
+			return 'file_too_large';
+		}
+
 		if ($this->isGenuineUpload(entry: $entry) === false) {
 			return 'upload_failed';
 		}

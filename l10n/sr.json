@@ -1,5 +1,6 @@
 {
     "translations": {
+        "New colleagues": "Нове колеге",
         "Required: this widget cannot be removed" : "Обавезно: овај виџет не може да се уклони",
         "Connections of this dashboard": "Везе ове контролне табле",
         "Connection states need the Integrations app": "За стање веза потребна је апликација Интеграције",
@@ -1631,6 +1632,10 @@
         "A tile in a group opens its web address in a new tab.": "Плочица у групи отвара своју веб адресу у новој картици.",
         "This tile is no longer in its group. Reload the dashboard and try again.": "Ова плочица више није у својој групи. Поново учитајте контролну таблу и покушајте поново.",
         "The group could not be saved.": "Групу није било могуће сачувати.",
+        "Untitled group": "Неименована група",
+        "This tile is part of the start page your administrator set for your group and cannot move into a group.": "Ова плочица је део почетне странице коју је администратор поставио за вашу групу и не може се преместити у групу.",
+        "This group is no longer on the dashboard. Reload the dashboard and try again.": "Ова група више није на контролној табли. Поново учитајте контролну таблу и покушајте поново.",
+        "The tile was added to the group but could not be taken off the dashboard. Remove it from the dashboard yourself.": "Плочица је додата у групу, али није могла да се уклони са контролне табле. Уклоните је сами са контролне табле.",
         "Starts a program installed on the device.": "Покреће програм инсталиран на уређају.",
         "The icon could not be uploaded.": "Икону није могуће отпремити.",
         "Through remote desktop or a web gateway.": "Преко удаљене радне површине или веб-пролаза.",
@@ -1710,6 +1715,10 @@
         "Kinds of widget": "Врсте виџета",
         "News and notices for your group.": "Вести и обавештења за вашу групу.",
         "Not allowed for your role": "Није дозвољено за вашу улогу",
+        "Describe what you need": "Опишите шта вам треба",
+        "Place it like this": "Постави овако",
+        "No widget fits; choose one below": "Ниједан виџет не одговара; изаберите један испод",
+        "The assistant could not answer; choose a widget below": "Асистент није могао да одговори; изаберите виџет испод",
         "Older widget type": "Старији тип виџета",
         "One app as a tile.": "Једна апликација као плочица.",
         "One app or page as a tile.": "Једна апликација или страница као плочица.",

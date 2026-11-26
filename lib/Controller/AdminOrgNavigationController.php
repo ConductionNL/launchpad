@@ -138,6 +138,40 @@ class AdminOrgNavigationController extends Controller {
 	}//end getOrgNavigation()
 
 	/**
+	 * Read the whole org-navigation tree for the editor (REQ-ONAV-007).
+	 *
+	 * The editor's working copy holds every node, also those in groups the
+	 * administrator is not in, so a Save never drops them. Only an
+	 * administrator, who may replace the whole tree anyway, gets it.
+	 *
+	 * @param string $lang Language code (defaults to `nl`).
+	 *
+	 * @return JSONResponse The whole tree under `tree` plus the effective
+	 *                      `language`, or the refusal.
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function getEditableOrgNavigation(string $lang = OrgNavigationService::DEFAULT_LANGUAGE): JSONResponse {
+		$refusal  = $this->guard->refusal();
+		$language = $this->validateLanguage(language: $lang);
+		if ($refusal === null && $language === null) {
+			$refusal = $this->failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
+		}
+
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		return $this->responseHelper->success(
+			data: [
+				'tree' => $this->sources->service->getTree(language: $language),
+				'language' => $language,
+			]
+		);
+	}//end getEditableOrgNavigation()
+
+	/**
 	 * Replace the org-navigation tree for the given language.
 	 *
 	 * Admin-only (REQ-ONAV-003); validates and persists in one go.

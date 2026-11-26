@@ -8,11 +8,13 @@
 
 import { describe, expect, it } from 'vitest'
 import {
+	dashboardGroups,
 	groupChildFromTile,
 	groupChildToTile,
 	isGroupTileChild,
 	withGroupTileRemoved,
 	withGroupTileSaved,
+	withTileMovedIn,
 } from '../groupTiles.js'
 
 const caseSystem = {
@@ -151,5 +153,72 @@ describe('withGroupTileRemoved', () => {
 	it('answers null for a child that is not a tile', () => {
 		expect(withGroupTileRemoved({ placements: [{ type: 'label' }] }, 0)).toBeNull()
 		expect(withGroupTileRemoved(null, 0)).toBeNull()
+	})
+})
+
+describe('withTileMovedIn', () => {
+	const tileContent = {
+		healthPingEnabled: true,
+		healthUrl: 'https://cases.example.org/health',
+		internalUrl: 'http://cases.local',
+		linkTarget: 'newTab',
+		pinned: true,
+	}
+	const tileData = {
+		title: 'Case system',
+		icon: 'M1 1',
+		iconType: 'svg',
+		backgroundColor: '#123456',
+		textColor: '#ffffff',
+		linkType: 'url',
+		linkValue: 'https://cases.example.org',
+		healthPingEnabled: true,
+	}
+
+	it('adds the tile as a tile node at the bottom of the group, keeping its launch, availability and network settings', () => {
+		const content = withTileMovedIn({ title: 'Work apps', sortBy: 'manual', placements: [caseSystem, bookmark] }, tileContent, tileData)
+		expect(content.title).toBe('Work apps')
+		expect(content.sortBy).toBe('manual')
+		expect(content.placements).toHaveLength(3)
+		expect(content.placements[0]).toBe(caseSystem)
+		const node = content.placements[2]
+		expect(node.type).toBe('tile')
+		expect([node.gridX, node.gridY, node.gridWidth, node.gridHeight]).toEqual([0, 2, 2, 2])
+		expect(node.content).toEqual({ ...tileContent, ...{
+			title: 'Case system',
+			icon: 'M1 1',
+			iconType: 'svg',
+			backgroundColor: '#123456',
+			textColor: '#ffffff',
+			linkType: 'url',
+			linkValue: 'https://cases.example.org',
+		} })
+	})
+
+	it('starts an empty group at the top and writes the form\'s sort order onto the group', () => {
+		const content = withTileMovedIn({ title: 'New' }, {}, { ...tileData, groupSortBy: 'alphabetical' })
+		expect(content.placements).toHaveLength(1)
+		expect(content.placements[0].gridY).toBe(0)
+		expect(content.sortBy).toBe('alphabetical')
+	})
+
+	it('answers null when the target has no content', () => {
+		expect(withTileMovedIn(null, tileContent, tileData)).toBeNull()
+	})
+})
+
+describe('dashboardGroups', () => {
+	it('lists the groups on a dashboard with their title and order', () => {
+		const groups = dashboardGroups([
+			{ id: 1, widgetId: 'container', content: { title: 'Work apps', sortBy: 'alphabetical' } },
+			{ id: 2, widgetId: 'tile-9', content: {} },
+			{ id: 3, widgetId: 'container', content: null },
+			null,
+		])
+		expect(groups).toEqual([
+			{ id: 1, title: 'Work apps', sortBy: 'alphabetical' },
+			{ id: 3, title: '', sortBy: '' },
+		])
+		expect(dashboardGroups(undefined)).toEqual([])
 	})
 })

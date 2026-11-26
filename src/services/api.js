@@ -734,6 +734,27 @@ export const api = {
 	},
 
 	/**
+	 * Whether the server has a text-to-text assistant for the widget picker.
+	 *
+	 * @return {Promise} Axios response resolving to `{ available }`.
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+	 */
+	widgetAssistant() {
+		return axios.get(`${baseUrl}/api/widget-picker/assistant`)
+	},
+
+	/**
+	 * Ask the assistant which offered widget fits a described need.
+	 *
+	 * @param {{need: string, cards: Array<{key: string, name: string, description: string}>}} request The need and the cards on offer.
+	 * @return {Promise} Axios response resolving to `{ proposal: {key, name, reason}|null }`.
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+	 */
+	proposeWidget(request) {
+		return axios.post(`${baseUrl}/api/widget-picker/proposal`, request)
+	},
+
+	/**
 	 * The office tile pack for the current user: a "New ..." tile per file
 	 * creator the server's office apps register, and the enabled office apps.
 	 *
@@ -1423,6 +1444,19 @@ export const api = {
 	// written; defaults to 'nl' on the backend.
 	getOrgNavigation(lang = 'nl') {
 		return axios.get(`${baseUrl}/api/admin/org-navigation`, { params: { lang } })
+	},
+
+	/**
+	 * Read the whole org-navigation tree for the editor, nodes in groups the
+	 * administrator is not in included, so its Save never drops them.
+	 * Administrators only on the server.
+	 *
+	 * @param {string} [lang] Which per-language tree to read.
+	 * @return {Promise} Axios response resolving to `{tree, language}`.
+	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+	 */
+	getEditableOrgNavigation(lang = 'nl') {
+		return axios.get(`${baseUrl}/api/admin/org-navigation/editor`, { params: { lang } })
 	},
 
 	/**

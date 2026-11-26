@@ -45,6 +45,24 @@ describe('narrowGridLayout', () => {
 		const opts = dashboardGridColumnOpts()
 		expect(opts.breakpoints.at(-1)).toEqual({ w: 768, c: 4 })
 		expect(opts.layout).toBe(dashboardColumnLayout)
+		expect(opts.columnMax).toBe(12)
+	})
+
+	it('keeps a 6 or 8 column dashboard at its own count on a wide screen (REQ-DASH-038)', () => {
+		const eight = dashboardGridColumnOpts(8)
+		expect(eight.columnMax).toBe(8)
+		expect(eight.breakpoints).toEqual([{ w: 1400, c: 8 }, { w: 768, c: 4 }])
+		const six = dashboardGridColumnOpts(6)
+		expect(six.columnMax).toBe(6)
+		expect(six.breakpoints).toEqual([{ w: 1400, c: 6 }, { w: 768, c: 4 }])
+	})
+
+	it('falls back to 12 columns for a missing or invalid count', () => {
+		for (const columns of [undefined, 0, -3, Number.NaN]) {
+			const opts = dashboardGridColumnOpts(columns)
+			expect(opts.columnMax).toBe(12)
+			expect(opts.breakpoints.map((point) => point.c)).toEqual([12, 8, 4])
+		}
 	})
 
 	it('reads each tile group under its own heading', () => {

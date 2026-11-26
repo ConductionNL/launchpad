@@ -1,5 +1,6 @@
 {
     "translations": {
+        "New colleagues": "Comhghleacaithe nua",
         "Required: this widget cannot be removed" : "Riachtanach: ní féidir an ghiuirléid seo a bhaint",
         "Connections of this dashboard": "Naisc an deais seo",
         "Connection states need the Integrations app": "Teastaíonn an aip Comhtháthú le haghaidh staid na nasc",
@@ -1635,6 +1636,10 @@
         "A tile in a group opens its web address in a new tab.": "Osclaíonn tíl i ngrúpa a seoladh gréasáin i gcluaisín nua.",
         "This tile is no longer in its group. Reload the dashboard and try again.": "Níl an tíl seo ina grúpa a thuilleadh. Athlódáil an painéal agus bain triail eile as.",
         "The group could not be saved.": "Níorbh fhéidir an grúpa a shábháil.",
+        "Untitled group": "Grúpa gan teideal",
+        "This tile is part of the start page your administrator set for your group and cannot move into a group.": "Is cuid den leathanach tosaigh a shocraigh do riarthóir do do ghrúpa an tíl seo agus ní féidir í a bhogadh isteach i ngrúpa.",
+        "This group is no longer on the dashboard. Reload the dashboard and try again.": "Níl an grúpa seo ar an deais a thuilleadh. Athlódáil an deais agus bain triail eile as.",
+        "The tile was added to the group but could not be taken off the dashboard. Remove it from the dashboard yourself.": "Cuireadh an tíl leis an ngrúpa ach níorbh fhéidir í a bhaint den deais. Bain den deais í tú féin.",
         "Starts a program installed on the device.": "Tosaíonn sé clár atá suiteáilte ar an ngléas.",
         "The icon could not be uploaded.": "Níorbh fhéidir an deilbhín a uaslódáil.",
         "Through remote desktop or a web gateway.": "Trí dheasc chianda nó trí gheata gréasáin.",
@@ -1714,6 +1719,10 @@
         "Kinds of widget": "Cineálacha giuirléidí",
         "News and notices for your group.": "Nuacht agus fógraí do do ghrúpa.",
         "Not allowed for your role": "Ní cheadaítear do do ról",
+        "Describe what you need": "Déan cur síos ar a bhfuil uait",
+        "Place it like this": "Cuir mar seo é",
+        "No widget fits; choose one below": "Níl giuirléid ar bith oiriúnach; roghnaigh ceann thíos",
+        "The assistant could not answer; choose a widget below": "Níorbh fhéidir leis an gcúntóir freagra a thabhairt; roghnaigh giuirléid thíos",
         "Older widget type": "Cineál giuirléide níos sine",
         "One app as a tile.": "Aip amháin mar thíl.",
         "One app or page as a tile.": "Aip nó leathanach amháin mar thíl.",

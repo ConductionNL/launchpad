@@ -1,5 +1,6 @@
 {
     "translations": {
+        "New colleagues": "Noví kolegovia",
         "Required: this widget cannot be removed" : "Povinné: tento widget nie je možné odstrániť",
         "Connections of this dashboard": "Pripojenia tohto panela",
         "Connection states need the Integrations app": "Stav pripojení vyžaduje aplikáciu Integrácie",
@@ -1631,6 +1632,10 @@
         "A tile in a group opens its web address in a new tab.": "Dlaždica v skupine otvára svoju webovú adresu na novej karte.",
         "This tile is no longer in its group. Reload the dashboard and try again.": "Táto dlaždica už nie je vo svojej skupine. Znova načítajte nástenku a skúste to znova.",
         "The group could not be saved.": "Skupinu sa nepodarilo uložiť.",
+        "Untitled group": "Nepomenovaná skupina",
+        "This tile is part of the start page your administrator set for your group and cannot move into a group.": "Táto dlaždica je súčasťou úvodnej stránky, ktorú správca nastavil pre vašu skupinu, a nemožno ju presunúť do skupiny.",
+        "This group is no longer on the dashboard. Reload the dashboard and try again.": "Táto skupina už nie je na nástenke. Znova načítajte nástenku a skúste to znova.",
+        "The tile was added to the group but could not be taken off the dashboard. Remove it from the dashboard yourself.": "Dlaždica bola pridaná do skupiny, ale nepodarilo sa ju odstrániť z nástenky. Odstráňte ju z nástenky sami.",
         "Starts a program installed on the device.": "Spustí program nainštalovaný v zariadení.",
         "The icon could not be uploaded.": "Ikonu sa nepodarilo nahrať.",
         "Through remote desktop or a web gateway.": "Cez vzdialenú plochu alebo webovú bránu.",
@@ -1710,6 +1715,10 @@
         "Kinds of widget": "Druhy widgetov",
         "News and notices for your group.": "Novinky a oznámenia pre vašu skupinu.",
         "Not allowed for your role": "Pre vašu rolu nie je povolené",
+        "Describe what you need": "Opíšte, čo potrebujete",
+        "Place it like this": "Umiestniť takto",
+        "No widget fits; choose one below": "Žiadny widget nevyhovuje; vyberte jeden nižšie",
+        "The assistant could not answer; choose a widget below": "Asistent nemohol odpovedať; vyberte widget nižšie",
         "Older widget type": "Starší typ widgetu",
         "One app as a tile.": "Jedna aplikácia ako dlaždica.",
         "One app or page as a tile.": "Jedna aplikácia alebo stránka ako dlaždica.",

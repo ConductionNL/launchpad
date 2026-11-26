@@ -795,15 +795,19 @@ class DashboardMapper extends QBMapper {
 	}//end findOwnedByUserAndUuid()
 
 	/**
-	 * Clear default flag on all admin templates.
+	 * Clear the default flag on the admin template that carries it.
+	 *
+	 * Only rows with `is_default = 1` are written, so a template that was
+	 * never the default keeps its `updated_at` ("no other templates MUST be
+	 * affected").
 	 *
 	 * @return void
-	 * @spec   openspec/specs/dashboards/spec.md
+	 * @spec   openspec/specs/admin-templates/spec.md#scenario-set-a-template-as-default-when-no-default-exists
 	 */
 	public function clearDefaultTemplates(): void {
 		$this->updateWhere(
 			set: ['is_default' => 0, 'updated_at' => $this->now()],
-			match: ['type' => Dashboard::TYPE_ADMIN_TEMPLATE]
+			match: ['type' => Dashboard::TYPE_ADMIN_TEMPLATE, 'is_default' => 1]
 		)->executeStatement();
 	}//end clearDefaultTemplates()
 }//end class

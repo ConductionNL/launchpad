@@ -1,5 +1,6 @@
 {
     "translations": {
+        "New colleagues": "New colleagues",
         "Required: this widget cannot be removed" : "Required: this widget cannot be removed",
         "Connections of this dashboard": "Connections of this dashboard",
         "Connection states need the Integrations app": "Connection states need the Integrations app",
@@ -1962,6 +1963,10 @@
         "A tile in a group opens its web address in a new tab.": "A tile in a group opens its web address in a new tab.",
         "This tile is no longer in its group. Reload the dashboard and try again.": "This tile is no longer in its group. Reload the dashboard and try again.",
         "The group could not be saved.": "The group could not be saved.",
+        "Untitled group": "Untitled group",
+        "This tile is part of the start page your administrator set for your group and cannot move into a group.": "This tile is part of the start page your administrator set for your group and cannot move into a group.",
+        "This group is no longer on the dashboard. Reload the dashboard and try again.": "This group is no longer on the dashboard. Reload the dashboard and try again.",
+        "The tile was added to the group but could not be taken off the dashboard. Remove it from the dashboard yourself.": "The tile was added to the group but could not be taken off the dashboard. Remove it from the dashboard yourself.",
         "Starts a program installed on the device.": "Starts a program installed on the device.",
         "The icon could not be uploaded.": "The icon could not be uploaded.",
         "Through remote desktop or a web gateway.": "Through remote desktop or a web gateway.",
@@ -2041,6 +2046,10 @@
         "Kinds of widget": "Kinds of widget",
         "News and notices for your group.": "News and notices for your group.",
         "Not allowed for your role": "Not allowed for your role",
+        "Describe what you need": "Describe what you need",
+        "Place it like this": "Place it like this",
+        "No widget fits; choose one below": "No widget fits; choose one below",
+        "The assistant could not answer; choose a widget below": "The assistant could not answer; choose a widget below",
         "Older widget type": "Older widget type",
         "One app as a tile.": "One app as a tile.",
         "One app or page as a tile.": "One app or page as a tile.",

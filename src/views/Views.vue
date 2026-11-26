@@ -244,8 +244,11 @@
 			<CoEditorsBanner
 				v-if="isEditMode"
 				:editors="presence.state.editors" />
+			<!-- The grid is built with its column count and does not follow a
+			     later change of it, so a new count builds a new grid. -->
 			<CnDashboardGrid
 				v-if="activeDashboard"
+				:key="`grid-columns-${activeDashboard.gridColumns || 12}`"
 				:layout="gridLayout"
 				:editable="isEditMode"
 				:fillHeight="fillsHeight"
@@ -456,6 +459,7 @@
 			:groupName="editingGroupTitle"
 			:groupSort="editingGroupSort"
 			:inGroup="editingGroupTile !== null"
+			:groups="tileEditorGroups"
 			@close="closeTileEditor"
 			@save="saveTile"
 			@delete="deleteTile" />
@@ -599,7 +603,7 @@ import { lookStyle } from '../utils/dashboardLook.js'
 import { addressWithPeriod, namesPeriod, readPeriod } from '../utils/dashboardPeriod.js'
 import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
 import { gridItemLabel } from '../utils/gridItemLabel.js'
-import { groupChildToTile, isGroupTileChild, withGroupTileRemoved, withGroupTileSaved } from '../utils/groupTiles.js'
+import { dashboardGroups, groupChildToTile, isGroupTileChild, withGroupTileRemoved, withGroupTileSaved, withTileMovedIn } from '../utils/groupTiles.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
 import { loadInitialState, takeBootRead } from '../utils/loadInitialState.js'
@@ -829,7 +833,7 @@ export default {
 	 * inside it through this opener (REQ-TILE-041).
 	 *
 	 * @return {object} the provided opener.
-	 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+	 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 	 */
 	provide() {
 		return {
@@ -1061,7 +1065,7 @@ export default {
 		 * The group (container placement) whose tile the tile form edits.
 		 *
 		 * @return {object|null}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		editingGroup() {
 			const target = this.editingGroupTile
@@ -1071,13 +1075,23 @@ export default {
 			return (this.widgetPlacements || []).find((placement) => placement.id === target.containerId) || null
 		},
 
-		/** @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
+		/**
+		 * The groups on the dashboard the tile being edited can move into.
+		 *
+		 * @return {Array<{id: number, title: string, sortBy: string}>}
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		tileEditorGroups() {
+			return dashboardGroups(this.widgetPlacements)
+		},
+
+		/** @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
 		editingGroupTitle() {
 			const title = this.editingGroup?.content?.title
 			return typeof title === 'string' ? title : ''
 		},
 
-		/** @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
+		/** @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041 */
 		editingGroupSort() {
 			const sortBy = this.editingGroup?.content?.sortBy
 			return typeof sortBy === 'string' ? sortBy : ''
@@ -1376,7 +1390,7 @@ export default {
 		 * @spec openspec/specs/grid-layout/spec.md#req-grid-007
 		 */
 		dashboardColumnOpts() {
-			return dashboardGridColumnOpts()
+			return dashboardGridColumnOpts(this.activeDashboard?.gridColumns || 12)
 		},
 
 		...mapState(useDashboardStore, [
@@ -1565,7 +1579,7 @@ export default {
 		 * cards (REQ-RFP-010); `null` when the role sets no limit.
 		 *
 		 * @return {Array<string>|null}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
+		 * @spec openspec/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
 		 */
 		pickerAllowedWidgets() {
 			const allowed = loadInitialState('workspace').allowedWidgets
@@ -2873,7 +2887,7 @@ export default {
 		 *
 		 * @param {object} app The catalogue entry.
 		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
+		 * @spec openspec/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
 		 */
 		async addCatalogueApp(app) {
 			try {
@@ -3377,7 +3391,7 @@ export default {
 		 * @param {{containerId: number, index: number, remove?: boolean}} target
 		 *   The group placement and the tile's position in its children.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		async openGroupTileEditor(target) {
 			const container = (this.widgetPlacements || []).find((placement) => placement.id === target?.containerId)
@@ -3403,7 +3417,7 @@ export default {
 		 *
 		 * @param {object} tileData The tile form's result.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		async saveGroupTile(tileData) {
 			const container = this.editingGroup
@@ -3419,7 +3433,7 @@ export default {
 		 * @param {object|null} container The group placement.
 		 * @param {object|null} content Its new content; null when the tile is gone.
 		 * @return {Promise<boolean>} whether the content was written.
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		async writeGroupContent(container, content) {
 			if (!container || content === null) {
@@ -3472,6 +3486,10 @@ export default {
 			// settings in the same blob, checked by the server with the link.
 			// What the form does not edit (icon-only, pin, count source) stays.
 			const content = { ...this.unformedTileContent(this.editingTile?.id), ...healthPingContent, ...launchContent(tileData) }
+			if (this.editingTile?.id && tileData.groupId !== undefined && tileData.groupId !== null) {
+				await this.moveTileIntoGroup(tileData, content)
+				return
+			}
 			try {
 				if (this.editingTile) {
 					await this.updateWidgetPlacement(this.editingTile.id, {
@@ -3491,6 +3509,43 @@ export default {
 			} catch (error) {
 				this.reportTileSaveError(tileData, error)
 			}
+		},
+
+		/**
+		 * Move the tile being edited into a group on the dashboard: the group
+		 * gains it as a tile node that keeps its launch, availability and
+		 * office-network settings, then the tile's own placement goes. A tile
+		 * the dashboard must keep (a compulsory one) does not move.
+		 *
+		 * @param {object} tileData The tile form's result, with `groupId`.
+		 * @param {object} content The tile's content blob, as the save writes it.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 */
+		async moveTileIntoGroup(tileData, content) {
+			const placementId = this.editingTile.id
+			const placement = (this.widgetPlacements || []).find((candidate) => candidate.id === placementId)
+			if (!this.isRemovablePlacement(placement)) {
+				showError(t('launchpad', 'This tile is part of the start page your administrator set for your group and cannot move into a group.'))
+				return
+			}
+			const container = (this.widgetPlacements || []).find(
+				(candidate) => candidate.id === tileData.groupId && candidate.widgetId === 'container',
+			)
+			if (!container) {
+				showError(t('launchpad', 'This group is no longer on the dashboard. Reload the dashboard and try again.'))
+				return
+			}
+			if (!(await this.writeGroupContent(container, withTileMovedIn(container.content || {}, content, tileData)))) {
+				return
+			}
+			try {
+				await this.removeWidgetFromDashboard(placementId)
+			} catch (error) {
+				logger.error('[Views] The tile moved into its group but stayed on the dashboard:', error)
+				showError(t('launchpad', 'The tile was added to the group but could not be taken off the dashboard. Remove it from the dashboard yourself.'))
+			}
+			this.closeTileEditor()
 		},
 
 		/**

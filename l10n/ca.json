@@ -1,5 +1,6 @@
 {
     "translations": {
+        "New colleagues": "Companys nous",
         "Required: this widget cannot be removed" : "Obligatori: aquest giny no es pot eliminar",
         "Connections of this dashboard": "Connexions d’aquest tauler",
         "Connection states need the Integrations app": "L’estat de les connexions requereix l’aplicació Integracions",
@@ -1629,6 +1630,10 @@
         "A tile in a group opens its web address in a new tab.": "Una rajola d'un grup obre la seva adreça web en una pestanya nova.",
         "This tile is no longer in its group. Reload the dashboard and try again.": "Aquesta rajola ja no és al seu grup. Torneu a carregar el tauler i torneu-ho a provar.",
         "The group could not be saved.": "No s'ha pogut desar el grup.",
+        "Untitled group": "Grup sense títol",
+        "This tile is part of the start page your administrator set for your group and cannot move into a group.": "Aquest mosaic forma part de la pàgina d'inici que el vostre administrador ha definit per al vostre grup i no es pot moure a un grup.",
+        "This group is no longer on the dashboard. Reload the dashboard and try again.": "Aquest grup ja no és al tauler. Torneu a carregar el tauler i torneu-ho a provar.",
+        "The tile was added to the group but could not be taken off the dashboard. Remove it from the dashboard yourself.": "El mosaic s'ha afegit al grup, però no s'ha pogut treure del tauler. Traieu-lo vosaltres mateixos del tauler.",
         "Starts a program installed on the device.": "Inicia un programa instal·lat al dispositiu.",
         "The icon could not be uploaded.": "No s'ha pogut pujar la icona.",
         "Through remote desktop or a web gateway.": "Mitjançant escriptori remot o una passarel·la web.",
@@ -1708,6 +1713,10 @@
         "Kinds of widget": "Tipus de giny",
         "News and notices for your group.": "Notícies i avisos per al vostre grup.",
         "Not allowed for your role": "No permès per al vostre rol",
+        "Describe what you need": "Descriviu el que necessiteu",
+        "Place it like this": "Col·loca-ho així",
+        "No widget fits; choose one below": "Cap giny encaixa; trieu-ne un a sota",
+        "The assistant could not answer; choose a widget below": "L'assistent no ha pogut respondre; trieu un giny a sota",
         "Older widget type": "Tipus de giny antic",
         "One app as a tile.": "Una aplicació com a mosaic.",
         "One app or page as a tile.": "Una aplicació o pàgina com a mosaic.",

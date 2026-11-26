@@ -1,5 +1,6 @@
 {
     "translations": {
+        "New colleagues": "Új kollégák",
         "Required: this widget cannot be removed" : "Kötelező: ez a widget nem távolítható el",
         "Connections of this dashboard": "Az irányítópult kapcsolatai",
         "Connection states need the Integrations app": "A kapcsolatok állapotához az Integrációk alkalmazás szükséges",
@@ -1629,6 +1630,10 @@
         "A tile in a group opens its web address in a new tab.": "A csoportban lévő csempe új lapon nyitja meg a webcímét.",
         "This tile is no longer in its group. Reload the dashboard and try again.": "Ez a csempe már nincs a csoportjában. Töltse újra az irányítópultot, és próbálja újra.",
         "The group could not be saved.": "A csoportot nem sikerült menteni.",
+        "Untitled group": "Névtelen csoport",
+        "This tile is part of the start page your administrator set for your group and cannot move into a group.": "Ez a csempe a rendszergazda által a csoportjának beállított kezdőlap része, ezért nem helyezhető át csoportba.",
+        "This group is no longer on the dashboard. Reload the dashboard and try again.": "Ez a csoport már nincs az irányítópulton. Töltse be újra az irányítópultot, és próbálja újra.",
+        "The tile was added to the group but could not be taken off the dashboard. Remove it from the dashboard yourself.": "A csempe bekerült a csoportba, de nem sikerült levenni az irányítópultról. Távolítsa el saját maga az irányítópultról.",
         "Starts a program installed on the device.": "Az eszközre telepített programot indít el.",
         "The icon could not be uploaded.": "Az ikont nem sikerült feltölteni.",
         "Through remote desktop or a web gateway.": "Távoli asztalon vagy webes átjárón keresztül.",
@@ -1708,6 +1713,10 @@
         "Kinds of widget": "Widgettípusok",
         "News and notices for your group.": "Hírek és közlemények a csoportja számára.",
         "Not allowed for your role": "Az Ön szerepköre számára nem engedélyezett",
+        "Describe what you need": "Írja le, mire van szüksége",
+        "Place it like this": "Elhelyezés így",
+        "No widget fits; choose one below": "Egyik widget sem megfelelő; válasszon egyet lent",
+        "The assistant could not answer; choose a widget below": "Az asszisztens nem tudott válaszolni; válasszon egy widgetet lent",
         "Older widget type": "Régebbi widgettípus",
         "One app as a tile.": "Egy alkalmazás csempeként.",
         "One app or page as a tile.": "Egy alkalmazás vagy oldal csempeként.",

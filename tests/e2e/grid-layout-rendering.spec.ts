@@ -211,7 +211,7 @@ test('in edit mode a tile shows its edit control, and choosing Edit opens the ti
 		await page.getByRole('menuitem', { name: 'Edit tile' }).click()
 		const editor = page.getByRole('dialog', { name: 'Edit Tile' })
 		await expect(editor).toBeVisible()
-		await expect(editor.getByLabel('Title')).toHaveValue(TILE_TITLE)
+		await expect(editor.getByLabel('Name', { exact: true })).toHaveValue(TILE_TITLE)
 		expect(page.url()).toBe(before)
 	} finally {
 		await context.close()

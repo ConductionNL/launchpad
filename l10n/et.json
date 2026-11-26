@@ -1,5 +1,6 @@
 {
     "translations": {
+        "New colleagues": "Uued kolleegid",
         "Required: this widget cannot be removed" : "Kohustuslik: seda vidinat ei saa eemaldada",
         "Connections of this dashboard": "Selle töölaua ühendused",
         "Connection states need the Integrations app": "Ühenduste oleku jaoks on vaja rakendust Integratsioonid",
@@ -1629,6 +1630,10 @@
         "A tile in a group opens its web address in a new tab.": "Rühmas olev paan avab oma veebiaadressi uuel vahekaardil.",
         "This tile is no longer in its group. Reload the dashboard and try again.": "Seda paani pole enam tema rühmas. Laadi armatuurlaud uuesti ja proovi uuesti.",
         "The group could not be saved.": "Rühma ei õnnestunud salvestada.",
+        "Untitled group": "Nimetu grupp",
+        "This tile is part of the start page your administrator set for your group and cannot move into a group.": "See paan on osa avalehest, mille administraator sinu grupile määras, ja seda ei saa gruppi teisaldada.",
+        "This group is no longer on the dashboard. Reload the dashboard and try again.": "Seda gruppi pole enam töölaual. Laadi töölaud uuesti ja proovi uuesti.",
+        "The tile was added to the group but could not be taken off the dashboard. Remove it from the dashboard yourself.": "Paan lisati gruppi, kuid seda ei õnnestunud töölaualt eemaldada. Eemalda see töölaualt ise.",
         "Starts a program installed on the device.": "Käivitab seadmesse paigaldatud programmi.",
         "The icon could not be uploaded.": "Ikooni ei õnnestunud üles laadida.",
         "Through remote desktop or a web gateway.": "Kaugtöölaua või veebilüüsi kaudu.",
@@ -1708,6 +1713,10 @@
         "Kinds of widget": "Vidinate liigid",
         "News and notices for your group.": "Uudised ja teated teie rühmale.",
         "Not allowed for your role": "Teie rolli jaoks pole lubatud",
+        "Describe what you need": "Kirjelda, mida vajad",
+        "Place it like this": "Paiguta nii",
+        "No widget fits; choose one below": "Ükski vidin ei sobi; vali üks allpool",
+        "The assistant could not answer; choose a widget below": "Assistent ei saanud vastata; vali vidin allpool",
         "Older widget type": "Vanem vidinatüüp",
         "One app as a tile.": "Üks rakendus paanina.",
         "One app or page as a tile.": "Üks rakendus või leht paanina.",

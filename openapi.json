@@ -332,6 +332,10 @@
             "description": "Controller for managing dashboard widgets."
         },
         {
+            "name": "widget-proposal",
+            "description": "Serves the widget picker's assistant line."
+        },
+        {
             "name": "work-packages",
             "description": "Open work packages for the signed-in person."
         }
@@ -3327,6 +3331,52 @@
                 }
             }
         },
+        "/admin/org-navigation/editor": {
+            "get": {
+                "operationId": "admin-org-navigation-get-editable-org-navigation",
+                "x-launchpad-stability": "internal",
+                "summary": "Read the whole org-navigation tree for the editor (REQ-ONAV-007)",
+                "description": "Read the whole org-navigation tree for the editor (REQ-ONAV-007). The editor's working copy holds every node, also those in groups the administrator is not in, so a Save never drops them. Only an administrator, who may replace the whole tree anyway, gets it. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "admin-org-navigation"
+                ],
+                "parameters": [
+                    {
+                        "name": "lang",
+                        "in": "query",
+                        "required": false,
+                        "description": "Language code (defaults to `nl`).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/admin/org-navigation/position": {
             "get": {
                 "operationId": "admin-org-navigation-get-position",
@@ -3970,6 +4020,9 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/Problem403"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
                     }
                 }
             }
@@ -14212,6 +14265,84 @@
                     },
                     "502": {
                         "$ref": "#/components/responses/Problem502"
+                    }
+                }
+            }
+        },
+        "/widget-picker/assistant": {
+            "get": {
+                "operationId": "widget-proposal-assistant",
+                "x-launchpad-stability": "internal",
+                "summary": "`GET /api/widget-picker/assistant`: whether the assistant line can answer",
+                "description": "`GET /api/widget-picker/assistant`: whether the assistant line can answer. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "widget-proposal"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/widget-picker/proposal": {
+            "post": {
+                "operationId": "widget-proposal-propose",
+                "x-launchpad-stability": "internal",
+                "summary": "`POST /api/widget-picker/proposal`: propose one offered card for a need",
+                "description": "`POST /api/widget-picker/proposal`: propose one offered card for a need. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "widget-proposal"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "need": {},
+                                    "cards": {}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/Problem503"
                     }
                 }
             }

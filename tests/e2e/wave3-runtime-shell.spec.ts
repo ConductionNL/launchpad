@@ -32,8 +32,13 @@
  *   @e2e dashboard-switcher::click-a-default-group-dashboard
  */
 
+import type { Page } from '@playwright/test'
+
 import { expect, test } from '@playwright/test'
+import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
+import { allowManyPersonalDashboards } from './support/dashboardHierarchy.ts'
 import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { adminContext } from './support/principals.ts'
 
 test.describe('wave3 runtime-shell + sidebar UX', () => {
 	test.beforeEach(async ({ page }) => {
@@ -88,6 +93,40 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 	test('wave3.6: each dashboard row has its own cog menu with Edit/Configure/Add-widget/Delete', async ({
 		page,
 	}) => {
+		// The admin owns a personal dashboard, active, for the length of this
+		// test. A fresh instance has only the shared default dashboard (view
+		// only), so the personal section would be empty and Edit / Add widget,
+		// which follow the active dashboard's canEdit, would not be offered.
+		const admin = await adminContext()
+		const restore = await allowManyPersonalDashboards(admin)
+		const own = await seedActiveDashboard(admin, `E2E wave3.6 ${Date.now()}`)
+		try {
+			await page.reload()
+			await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
+			// Switch to it from the sidebar, as a user would, so the open
+			// dashboard is one the admin may edit.
+			await openDashboardSwitcher(page)
+			await page
+				.locator('[data-section="user"] li.dashboard-switcher-sidebar__item')
+				.filter({ hasText: own.name })
+				.click()
+			await expect(page.getByText(own.name).first()).toBeVisible()
+			await page.keyboard.press('Escape')
+			await assertRowCogMenu(page)
+		} finally {
+			await removeSeededDashboard(admin, own)
+			await restore()
+			await admin.dispose()
+		}
+	})
+
+	/**
+	 * Open the switcher and check the per-row cog menu of a personal row.
+	 *
+	 * @param page the workspace page.
+	 * @return nothing.
+	 */
+	async function assertRowCogMenu(page: Page): Promise<void> {
 		await openDashboardSwitcher(page)
 
 		// Header has NO cog after wave3.6 — only the X close button.
@@ -121,7 +160,7 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 		await expect(
 			page.getByRole('menuitem', { name: /Delete dashboard/ }),
 		).toBeVisible()
-	})
+	}
 
 	test('PR #113: per-row X delete buttons have been removed from the dashboard list', async ({
 		page,

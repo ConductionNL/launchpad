@@ -80,6 +80,9 @@ const STAMP = `E2E ANLT history ${RUN}`
 const VIEWS = 'launchpad_dashboard_views'
 const CLICKS = 'launchpad_tile_clicks'
 const ANALYTICS = `${API}/admin/analytics`
+
+/** How long a web process may serve app config from its local cache (Nextcloud 34: 3 s), plus a margin. */
+const APP_CONFIG_LOCAL_CACHE_MS = 4_000
 const ENABLED_KEY =
 	'/ocs/v2.php/apps/provisioning_api/api/v1/config/apps/launchpad/analytics_enabled'
 const PURGE_JOB = 'OCA\\LaunchPad\\BackgroundJob\\PurgeViewsJob'
@@ -365,6 +368,10 @@ async function letADayPass(uuid: string): Promise<void> {
 		`--value=${utcDate(-1)}`,
 	)
 	expect(dated.code, describeRun(dated)).toBe(0)
+	// Nextcloud 34 keeps app config in each web process's local cache for
+	// 3 s (AppConfig::LOCAL_CACHE_TTL), which occ cannot clear. Wait it out,
+	// so the next view reads the moved salt date as midnight would leave it.
+	await new Promise((resolve) => setTimeout(resolve, APP_CONFIG_LOCAL_CACHE_MS))
 }
 
 /**
@@ -683,6 +690,7 @@ test.describe('the tile-click salt', () => {
 		// rotate it. The first hash of today is a tile click's.
 		const dated = await runOcc('config:app:set', 'launchpad', SALT_DATE_KEY, `--value=${utcDate(-1)}`)
 		expect(dated.code, describeRun(dated)).toBe(0)
+		await new Promise((resolve) => setTimeout(resolve, APP_CONFIG_LOCAL_CACHE_MS))
 		await clickOk(tile)
 
 		const afterClick = await appValue(SALT_KEY)

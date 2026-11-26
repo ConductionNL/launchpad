@@ -13,7 +13,7 @@
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
  * @spec openspec/specs/admin-settings/spec.md#requirement-update-admin-settings-req-aset-002
@@ -29,6 +29,8 @@ use OCP\IRequest;
 
 /**
  * Validates admin settings before they are written (REQ-ASET-002).
+ *
+ * @spec openspec/specs/admin-settings/spec.md#requirement-update-admin-settings-req-aset-002
  */
 final class AdminSettingsValidator {
 

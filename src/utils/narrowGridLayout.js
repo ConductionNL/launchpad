@@ -151,11 +151,32 @@ export function dashboardColumnLayout(column, oldColumn, newNodes, nodes) {
 }
 
 /**
- * The `columnOpts` of the dashboard grid.
+ * The `columnOpts` of the dashboard grid, for a dashboard of `columns`
+ * columns.
  *
+ * Above the widest breakpoint GridStack widens to `columnMax`, and each
+ * breakpoint sets its own count, so both are capped at the dashboard's own
+ * column count: a dashboard set to 6 or 8 columns stays at 6 or 8 on a wide
+ * screen instead of being widened to the table's 12, and a narrower screen
+ * only ever takes columns away. A step that would not narrow the grid any
+ * further is left out.
+ *
+ * @param {number} [columns] The dashboard's column count (default 12).
  * @return {object}
  * @spec openspec/specs/grid-layout/spec.md#req-grid-007
+ * @spec openspec/specs/dashboards/spec.md#req-dash-038
  */
-export function dashboardGridColumnOpts() {
-	return getDashboardColumnOpts(DASHBOARD_BREAKPOINTS, dashboardColumnLayout)
+export function dashboardGridColumnOpts(columns = 12) {
+	const max = Number.isFinite(columns) && columns > 0 ? columns : 12
+	const breakpoints = []
+	for (const point of DASHBOARD_BREAKPOINTS) {
+		const c = Math.min(point.c, max)
+		if (breakpoints.length === 0 || c < breakpoints.at(-1).c) {
+			breakpoints.push({ ...point, c })
+		}
+	}
+	return {
+		...getDashboardColumnOpts(breakpoints, dashboardColumnLayout),
+		columnMax: max,
+	}
 }

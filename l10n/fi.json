@@ -1,5 +1,6 @@
 {
     "translations": {
+        "New colleagues": "Uudet kollegat",
         "Required: this widget cannot be removed" : "Pakollinen: tätä pienoisohjelmaa ei voi poistaa",
         "Connections of this dashboard": "Tämän kojelaudan yhteydet",
         "Connection states need the Integrations app": "Yhteyksien tila vaatii Integraatiot-sovelluksen",
@@ -1629,6 +1630,10 @@
         "A tile in a group opens its web address in a new tab.": "Ryhmässä oleva ruutu avaa verkko-osoitteensa uudessa välilehdessä.",
         "This tile is no longer in its group. Reload the dashboard and try again.": "Tämä ruutu ei ole enää ryhmässään. Lataa kojelauta uudelleen ja yritä uudelleen.",
         "The group could not be saved.": "Ryhmää ei voitu tallentaa.",
+        "Untitled group": "Nimetön ryhmä",
+        "This tile is part of the start page your administrator set for your group and cannot move into a group.": "Tämä ruutu kuuluu aloitussivuun, jonka ylläpitäjä on asettanut ryhmällesi, eikä sitä voi siirtää ryhmään.",
+        "This group is no longer on the dashboard. Reload the dashboard and try again.": "Tämä ryhmä ei ole enää koontinäytöllä. Lataa koontinäyttö uudelleen ja yritä uudestaan.",
+        "The tile was added to the group but could not be taken off the dashboard. Remove it from the dashboard yourself.": "Ruutu lisättiin ryhmään, mutta sitä ei voitu poistaa koontinäytöltä. Poista se koontinäytöltä itse.",
         "Starts a program installed on the device.": "Käynnistää laitteelle asennetun ohjelman.",
         "The icon could not be uploaded.": "Kuvaketta ei voitu lähettää.",
         "Through remote desktop or a web gateway.": "Etätyöpöydän tai verkkoyhdyskäytävän kautta.",
@@ -1708,6 +1713,10 @@
         "Kinds of widget": "Pienoissovellusten tyypit",
         "News and notices for your group.": "Uutiset ja tiedotteet ryhmällesi.",
         "Not allowed for your role": "Ei sallittu roolillesi",
+        "Describe what you need": "Kuvaile, mitä tarvitset",
+        "Place it like this": "Sijoita näin",
+        "No widget fits; choose one below": "Mikään pienoisohjelma ei sovi; valitse yksi alta",
+        "The assistant could not answer; choose a widget below": "Avustaja ei voinut vastata; valitse pienoisohjelma alta",
         "Older widget type": "Vanhempi pienoissovellustyyppi",
         "One app as a tile.": "Yksi sovellus ruutuna.",
         "One app or page as a tile.": "Yksi sovellus tai sivu ruutuna.",

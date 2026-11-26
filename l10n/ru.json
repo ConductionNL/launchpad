@@ -1,5 +1,6 @@
 {
     "translations": {
+        "New colleagues": "Новые коллеги",
         "Required: this widget cannot be removed" : "Обязательный: этот виджет нельзя удалить",
         "Connections of this dashboard": "Подключения этой панели",
         "Connection states need the Integrations app": "Для состояния подключений нужно приложение «Интеграции»",
@@ -1631,6 +1632,10 @@
         "A tile in a group opens its web address in a new tab.": "Плитка в группе открывает свой веб-адрес в новой вкладке.",
         "This tile is no longer in its group. Reload the dashboard and try again.": "Этой плитки больше нет в её группе. Перезагрузите панель и попробуйте снова.",
         "The group could not be saved.": "Не удалось сохранить группу.",
+        "Untitled group": "Группа без названия",
+        "This tile is part of the start page your administrator set for your group and cannot move into a group.": "Эта плитка входит в стартовую страницу, заданную администратором для вашей группы, и не может быть перемещена в группу.",
+        "This group is no longer on the dashboard. Reload the dashboard and try again.": "Этой группы больше нет на панели. Перезагрузите панель и попробуйте снова.",
+        "The tile was added to the group but could not be taken off the dashboard. Remove it from the dashboard yourself.": "Плитка добавлена в группу, но её не удалось убрать с панели. Уберите её с панели самостоятельно.",
         "Starts a program installed on the device.": "Запускает программу, установленную на устройстве.",
         "The icon could not be uploaded.": "Не удалось загрузить значок.",
         "Through remote desktop or a web gateway.": "Через удалённый рабочий стол или веб-шлюз.",
@@ -1710,6 +1715,10 @@
         "Kinds of widget": "Типы виджетов",
         "News and notices for your group.": "Новости и объявления для вашей группы.",
         "Not allowed for your role": "Недоступно для вашей роли",
+        "Describe what you need": "Опишите, что вам нужно",
+        "Place it like this": "Разместить так",
+        "No widget fits; choose one below": "Ни один виджет не подходит; выберите один ниже",
+        "The assistant could not answer; choose a widget below": "Ассистент не смог ответить; выберите виджет ниже",
         "Older widget type": "Устаревший тип виджета",
         "One app as a tile.": "Одно приложение в виде плитки.",
         "One app or page as a tile.": "Одно приложение или страница в виде плитки.",

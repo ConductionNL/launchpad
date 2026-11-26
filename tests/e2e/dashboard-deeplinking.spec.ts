@@ -194,6 +194,10 @@ test.describe.serial('dashboard deep-linking (REQ-DDL-002..007)', () => {
 		try {
 			resolverPath = await deepLinkPathOnPage(plain.page)
 			expect(typeof resolverPath, JSON.stringify(resolverPath)).toBe('string')
+			// The account has dashboards (seeded above), so the resolver hands a
+			// real canonical path. An empty path on both sides would make the
+			// comparison below pass while no path is handed at all.
+			expect(resolverPath as string, 'the resolver hands a canonical path').toMatch(/^\/.+/)
 		} finally {
 			await plain.context.close()
 		}

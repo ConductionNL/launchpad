@@ -1,5 +1,6 @@
 {
     "translations": {
+        "New colleagues": "Nowi współpracownicy",
         "Required: this widget cannot be removed" : "Wymagany: tego widżetu nie można usunąć",
         "Connections of this dashboard": "Połączenia tego pulpitu",
         "Connection states need the Integrations app": "Stan połączeń wymaga aplikacji Integracje",
@@ -1631,6 +1632,10 @@
         "A tile in a group opens its web address in a new tab.": "Kafelek w grupie otwiera swój adres internetowy w nowej karcie.",
         "This tile is no longer in its group. Reload the dashboard and try again.": "Tego kafelka nie ma już w jego grupie. Załaduj ponownie pulpit i spróbuj jeszcze raz.",
         "The group could not be saved.": "Nie udało się zapisać grupy.",
+        "Untitled group": "Grupa bez nazwy",
+        "This tile is part of the start page your administrator set for your group and cannot move into a group.": "Ten kafelek należy do strony startowej ustawionej przez administratora dla Twojej grupy i nie można go przenieść do grupy.",
+        "This group is no longer on the dashboard. Reload the dashboard and try again.": "Tej grupy nie ma już na pulpicie. Odśwież pulpit i spróbuj ponownie.",
+        "The tile was added to the group but could not be taken off the dashboard. Remove it from the dashboard yourself.": "Kafelek dodano do grupy, ale nie udało się usunąć go z pulpitu. Usuń go z pulpitu samodzielnie.",
         "Starts a program installed on the device.": "Uruchamia program zainstalowany na urządzeniu.",
         "The icon could not be uploaded.": "Nie udało się przesłać ikony.",
         "Through remote desktop or a web gateway.": "Przez pulpit zdalny lub bramę internetową.",
@@ -1710,6 +1715,10 @@
         "Kinds of widget": "Rodzaje widżetów",
         "News and notices for your group.": "Aktualności i ogłoszenia dla grupy.",
         "Not allowed for your role": "Niedozwolone dla Twojej roli",
+        "Describe what you need": "Opisz, czego potrzebujesz",
+        "Place it like this": "Umieść go tak",
+        "No widget fits; choose one below": "Żaden widżet nie pasuje; wybierz jeden poniżej",
+        "The assistant could not answer; choose a widget below": "Asystent nie mógł odpowiedzieć; wybierz widżet poniżej",
         "Older widget type": "Starszy typ widżetu",
         "One app as a tile.": "Jedna aplikacja jako kafelek.",
         "One app or page as a tile.": "Jedna aplikacja lub strona jako kafelek.",

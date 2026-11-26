@@ -225,18 +225,21 @@ final class BookmarkImportPlan {
 	}//end layout()
 
 	/**
-	 * The link children of a container, two to a row of its four-column grid.
+	 * The tiles of a container, two to a row of its four-column grid. Each
+	 * bookmark is a full tile node (REQ-TILE-041), so the tile form edits it.
 	 *
 	 * @param list<array{title: string, url: string}> $bookmarks The folder's bookmarks.
 	 *
 	 * @return list<array<string, mixed>>
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 	 */
 	private static function children(array $bookmarks): array {
 		$children = [];
 		foreach (array_values($bookmarks) as $index => $bookmark) {
 			$children[] = [
-				'type' => 'link',
-				'content' => ['label' => $bookmark['title'], 'url' => $bookmark['url'], 'actionType' => 'external'],
+				'type' => 'tile',
+				'content' => ['title' => $bookmark['title'], 'iconType' => 'svg', 'linkType' => 'url', 'linkValue' => $bookmark['url']],
 				'gridX' => (($index % 2) * self::TILE_SIZE),
 				'gridY' => (intdiv($index, 2) * self::TILE_SIZE),
 				'gridWidth' => self::TILE_SIZE,

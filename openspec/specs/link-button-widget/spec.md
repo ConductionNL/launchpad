@@ -381,13 +381,13 @@ The `listItemGap` values control inter-item spacing:
 The edit form for a link-button-widget placement MUST gain:
 
 1. A "Display mode" toggle/select switching between `'button'` and `'list'`
-2. A list editor UI (only visible when `displayMode = 'list'`) with:
-   - A drag-to-reorder handle for each link
-   - An "Add link" button to append a new entry
-   - An "Edit" button per link opening a modal with the existing single-link form (label, url, actionType, icon, backgroundColor, textColor)
-   - A "Remove" button per link to delete that entry
+2. A list editor UI (only visible when `displayMode = 'list'`) with one row per link. Each row MUST carry:
+   - The single-link fields, edited in place: label, action type, url, icon, and the file extension for a `createFile` link
+   - A "Move link up" and a "Move link down" button that reorder the link (the first row cannot move up, the last cannot move down)
+   - A "Remove" button that deletes that entry
+3. An "Add link" button that appends a new empty row
 
-The single-link form MUST be reused unchanged inside the list editor modal for consistency. When editing in button mode, only the first link's fields are exposed; the full links array remains hidden to the user.
+Reordering with buttons is the single-pointer alternative to dragging (WCAG 2.2 SC 2.5.7) and works from the keyboard. The background and text colours are set once for the widget and apply to every list item. When editing in button mode, only the first link's fields are exposed; the full links array remains hidden to the user.
 
 #### Scenario: Display mode toggle in edit form
 - GIVEN the edit form for a link-button-widget placement
@@ -399,12 +399,13 @@ The single-link form MUST be reused unchanged inside the list editor modal for c
 - GIVEN the list editor with 2 existing links
 - WHEN the user clicks "Add link"
 - THEN a new empty entry MUST be appended to the `links` array
-- AND a form modal MUST open for the user to fill in the new link's details
+- AND a third row MUST appear with empty fields for the new link's details
 
-#### Scenario: Edit link reuses single-link form
+#### Scenario: Edit link in its row
 - GIVEN the list editor with 3 links
-- WHEN the user clicks "Edit" on the second link
-- THEN the existing single-link form modal MUST open pre-populated with that link's values
+- WHEN the user looks at the second row
+- THEN its single-link fields MUST be pre-populated with that link's values
+- AND a change in those fields MUST be saved to the second entry of the `links` array
 
 #### Scenario: Remove link deletes from array
 - GIVEN the list editor with 3 links
@@ -412,9 +413,9 @@ The single-link form MUST be reused unchanged inside the list editor modal for c
 - THEN the first link MUST be deleted from the `links` array
 - AND the remaining 2 links MUST shift down in order
 
-#### Scenario: Drag to reorder list items
+#### Scenario: Reorder list items
 - GIVEN the list editor with 3 links A, B, C
-- WHEN the user drags B above A
+- WHEN the user clicks "Move link up" on B
 - THEN the `links` array order MUST become [B, A, C]
 
 ### Requirement: REQ-LBLM-007 Validation and constraints

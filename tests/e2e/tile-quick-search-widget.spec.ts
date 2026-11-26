@@ -622,7 +622,9 @@ test.describe('tile quick-search — no search widget placed', () => {
 		// nothing. BARE is re-activated in `finally` for the test after this.
 		try {
 			await withApi((api) => activate(api, main))
-			await page.reload()
+			// A fresh navigation, not page.reload(): a reload keeps the
+			// dashboard it showed, so a reload re-opens BARE.
+			await page.goto(APP_URL)
 			await expect(
 				page.locator(GRID_ITEM).filter({ hasText: TILES[0] }).first(),
 				'CONTROL: MAIN is the active dashboard after the switch',

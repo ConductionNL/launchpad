@@ -7,7 +7,7 @@
  * placed as one cell. Run against the real Views methods and computed
  * properties on a stand-in host.
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md
+ * @spec openspec/specs/widgets/spec.md
  */
 
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'

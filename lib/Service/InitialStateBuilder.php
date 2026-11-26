@@ -366,6 +366,27 @@ class InitialStateBuilder {
 	}//end setWorkspaceBootReads()
 
 	/**
+	 * Set what the app shell reads before it asks, by initial-state key:
+	 * `runtimeManifest` (see setRuntimeManifest()), `setup_status` (the
+	 * document `GET /api/setup/status` answers an admin, or `{forbidden: true}`
+	 * for a caller it refuses) and `walkthrough_preferences` (`{seen, progress}`
+	 * as stored). Optional keys; one that is null is left out, so the shell
+	 * asks its endpoint.
+	 *
+	 * @param array<string, array|null> $reads The reads by key.
+	 *
+	 * @return self
+	 *
+	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
+	 */
+	public function setShellReads(array $reads): self {
+		$given = array_filter(array: $reads, callback: static fn (?array $read): bool => $read !== null);
+		$this->values = [...$this->values, ...$given];
+
+		return $this;
+	}//end setShellReads()
+
+	/**
 	 * Set the runtime manifest kept for the caller, so the page starts from
 	 * it instead of asking `GET /api/manifest`. Optional key; left out when
 	 * null (no manifest kept).

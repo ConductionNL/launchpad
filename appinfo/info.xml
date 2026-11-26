@@ -151,6 +151,9 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			<!-- REQ-ACK-009: a widget that asks for a read confirmation gets its
 			     announcement key, so Read receipts shows for it. -->
 			<step>OCA\LaunchPad\Repair\MintAnnouncementKeys</step>
+			<!-- REQ-TILE-041: the address links stored inside tile groups become
+			     tile nodes the tile form edits. Idempotent. -->
+			<step>OCA\LaunchPad\Repair\ConvertGroupLinksToTiles</step>
 		</post-migration>
 		<install>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>

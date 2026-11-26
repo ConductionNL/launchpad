@@ -626,6 +626,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// for a missing one (REQ-ACAT-002/003), and the admin side (REQ-ACAT-001/004).
 		['name' => 'catalogue#index', 'url' => '/api/catalogue', 'verb' => 'GET'],
 		['name' => 'catalogue#request', 'url' => '/api/catalogue/requests', 'verb' => 'POST'],
+		// The assistant line of Add widget (widget-picker-board-sync, REQ-WDG-045).
+		['name' => 'widgetProposal#assistant', 'url' => '/api/widget-picker/assistant', 'verb' => 'GET'],
+		['name' => 'widgetProposal#propose', 'url' => '/api/widget-picker/proposal', 'verb' => 'POST'],
 		['name' => 'adminCatalogue#index', 'url' => '/api/admin/catalogue', 'verb' => 'GET'],
 		['name' => 'adminCatalogue#create', 'url' => '/api/admin/catalogue', 'verb' => 'POST'],
 		['name' => 'adminCatalogue#setManagerGroup', 'url' => '/api/admin/catalogue/settings', 'verb' => 'PUT'],
@@ -753,6 +756,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'url' => '/api/admin/org-navigation/position', 'verb' => 'GET'],
 		['name' => 'adminOrgNavigation#updatePosition',
 		 'url' => '/api/admin/org-navigation/position', 'verb' => 'PUT'],
+		['name' => 'adminOrgNavigation#getEditableOrgNavigation',
+		 'url' => '/api/admin/org-navigation/editor', 'verb' => 'GET'],
 		['name' => 'adminOrgNavigation#getOrgNavigation',
 		 'url' => '/api/admin/org-navigation', 'verb' => 'GET'],
 		['name' => 'adminOrgNavigation#updateOrgNavigation',

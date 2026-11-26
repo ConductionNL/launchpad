@@ -102,6 +102,26 @@ export function resolveSearchField(match, fallbackWords) {
  * @return {void}
  * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
+/**
+ * Open Nextcloud's own search dialog by pressing core's top-bar search
+ * button (Nextcloud 31+): core opens its dialog only from that button, and
+ * listens to no event for it. The button next to `field` is preferred, then
+ * the first one on the page.
+ *
+ * @param {HTMLElement|null} field The search field LaunchPad is bound to.
+ * @return {boolean} Whether a button was found and pressed.
+ * @spec openspec/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ */
+export function openCoreSearchDialog(field) {
+	const button = field?.parentElement?.querySelector(CORE_BUTTON_SELECTOR)
+		?? document.querySelector(CORE_BUTTON_SELECTOR)
+	if (!button) {
+		return false
+	}
+	button.click()
+	return true
+}
+
 export function removeInlineField(field) {
 	if (!field?.classList?.contains(INLINE_FIELD_CLASS)) {
 		return

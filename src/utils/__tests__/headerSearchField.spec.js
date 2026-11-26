@@ -12,6 +12,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import {
 	fieldWords,
+	openCoreSearchDialog,
 	INLINE_FIELD_CLASS,
 	INLINE_HOST_CLASS,
 	removeInlineField,
@@ -122,5 +123,39 @@ describe('removeInlineField', () => {
 		removeInlineField(input)
 		removeInlineField(null)
 		expect(document.body.contains(input)).toBe(true)
+	})
+})
+
+// @spec openspec/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+describe('openCoreSearchDialog', () => {
+	afterEach(() => {
+		document.body.innerHTML = ''
+	})
+
+	it('presses the core search button next to the field', () => {
+		const host = document.createElement('div')
+		const field = document.createElement('input')
+		const button = document.createElement('button')
+		button.className = 'unified-search-input__button'
+		let pressed = 0
+		button.addEventListener('click', () => { pressed++ })
+		host.append(field, button)
+		document.body.appendChild(host)
+		expect(openCoreSearchDialog(field)).toBe(true)
+		expect(pressed).toBe(1)
+	})
+
+	it('falls back to the first core search button on the page', () => {
+		const button = document.createElement('button')
+		button.className = 'unified-search-input__button'
+		let pressed = 0
+		button.addEventListener('click', () => { pressed++ })
+		document.body.appendChild(button)
+		expect(openCoreSearchDialog(null)).toBe(true)
+		expect(pressed).toBe(1)
+	})
+
+	it('answers false when core draws no search button', () => {
+		expect(openCoreSearchDialog(document.createElement('input'))).toBe(false)
 	})
 })

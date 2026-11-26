@@ -53,7 +53,7 @@
 		"vue": "^3.5.44",
 		"vue-loader": "^17.4.2",
 		"vue-material-design-icons": "^5.4.0",
-		"vue-router": "^4.5.0",
+		"vue-router": "^4.6.5",
 		"vuedraggable": "^4.1.0"
 	},
 	"devDependencies": {

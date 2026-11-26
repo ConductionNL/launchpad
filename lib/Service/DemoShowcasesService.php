@@ -891,9 +891,12 @@ class DemoShowcasesService {
 		$dashboard->setGridColumns((int)($payload['gridColumns'] ?? 12));
 		// REQ-DEMO-001: view_only, except a shared intranet colleagues add
 		// to, whose archive says add_only. No other level is taken from it.
-		$dashboard->setPermissionLevel(
-			($payload['permissionLevel'] ?? null) === Dashboard::PERMISSION_ADD_ONLY ? Dashboard::PERMISSION_ADD_ONLY : Dashboard::PERMISSION_VIEW_ONLY
-		);
+		$level = Dashboard::PERMISSION_VIEW_ONLY;
+		if (($payload['permissionLevel'] ?? null) === Dashboard::PERMISSION_ADD_ONLY) {
+			$level = Dashboard::PERMISSION_ADD_ONLY;
+		}
+
+		$dashboard->setPermissionLevel($level);
 		$dashboard->setIsDefault(0);
 		$dashboard->setIsActive(0);
 		$dashboard->setSlug('showcase-' . $showcaseId);

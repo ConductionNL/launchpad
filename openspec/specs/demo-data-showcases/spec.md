@@ -595,6 +595,7 @@ that type is registered, and SHALL otherwise be skipped and reported. A seed til
 enabled and the `app-tile` type is registered, and a launcher tile in the tile's colour otherwise.
 
 #### Scenario: The wiki widget is not built yet
+@e2e exclude its GIVEN (no `wiki` widget type registered) no longer holds on a running instance, since the wiki widget ships; the skip and the later placement are pinned by tests/Unit/Service/DemoSeedServiceTest.php::testUnregisteredWidgetsAreSkippedOrFallBack, and the e2e demo-seed-boards.spec.ts run shows other unregistered types listed as 'Not registered yet, skipped'
 
 - **GIVEN** no `wiki` widget type is registered
 - **WHEN** the seed runs

@@ -25,6 +25,51 @@
 				</h2>
 			</div>
 
+			<!-- REQ-WDG-045: the assistant line, only when the server has a
+			     text-to-text assistant; its proposal is one of the cards. -->
+			<form
+				v-if="assistantReady"
+				class="widget-picker__assistant"
+				data-testid="widget-picker-assistant"
+				:aria-label="t('launchpad', 'Describe what you need')"
+				@submit.prevent="askAssistant">
+				<div class="widget-picker__assistant-ask">
+					<NcTextField
+						v-model="assistantNeed"
+						:label="t('launchpad', 'Describe what you need')"
+						data-testid="widget-picker-assistant-need" />
+					<NcButton
+						type="submit"
+						data-testid="widget-picker-assistant-ask"
+						:disabled="assistantBusy || assistantNeed.trim() === ''">
+						{{ t('launchpad', 'Ask') }}
+					</NcButton>
+				</div>
+				<div
+					v-if="assistantProposal"
+					class="widget-picker__assistant-proposal"
+					data-testid="widget-picker-assistant-proposal"
+					role="status">
+					<p class="widget-picker__assistant-text">
+						<strong>{{ assistantProposal.card.title }}</strong>
+						<span v-if="assistantProposal.reason">&#32;{{ assistantProposal.reason }}</span>
+					</p>
+					<NcButton
+						variant="primary"
+						data-testid="widget-picker-assistant-place"
+						@click="placeProposal">
+						{{ t('launchpad', 'Place it like this') }}
+					</NcButton>
+				</div>
+				<p
+					v-else-if="assistantMessage"
+					class="widget-picker__assistant-text"
+					data-testid="widget-picker-assistant-message"
+					role="status">
+					{{ assistantMessage }}
+				</p>
+			</form>
+
 			<div class="widget-picker__search">
 				<NcTextField
 					v-model="searchQuery"
@@ -216,6 +261,7 @@ import Magnify from 'vue-material-design-icons/Magnify.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 import { FLAG_PROP, LIST_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
+import { assistantAvailable, proposeWidget } from '../services/widgetAssistant.js'
 import { countByKind, filterCards, kindLabel, KINDS, pickerCards, sectionLabel, SECTIONS } from '../utils/widgetPickerCards.js'
 
 /**
@@ -227,7 +273,7 @@ import { countByKind, filterCards, kindLabel, KINDS, pickerCards, sectionLabel, 
  * event it always did (`add`, `addCustom`, `addApp`, `addCatalogueApp`,
  * `addOfficePack`), now when Add widget is pressed.
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md
+ * @spec openspec/specs/widgets/spec.md
  * @spec openspec/specs/widgets/spec.md#requirement-widget-picker-req-wdg-010
  */
 export default {
@@ -310,6 +356,11 @@ export default {
 			requestBusy: false,
 			requestMessage: '',
 			requestFailed: false,
+			assistantReady: false,
+			assistantNeed: '',
+			assistantBusy: false,
+			assistantProposal: null,
+			assistantMessage: '',
 		}
 	},
 
@@ -318,7 +369,7 @@ export default {
 		 * The kinds in the column.
 		 *
 		 * @return {Array<string>}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+		 * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
 		 */
 		kinds() {
 			return KINDS
@@ -328,7 +379,7 @@ export default {
 		 * Every card the picker offers.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md
+		 * @spec openspec/specs/widgets/spec.md
 		 */
 		cards() {
 			return pickerCards({
@@ -347,7 +398,7 @@ export default {
 		 * The number of cards per kind.
 		 *
 		 * @return {Record<string, number>}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+		 * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
 		 */
 		counts() {
 			return countByKind(this.cards)
@@ -357,7 +408,7 @@ export default {
 		 * The cards of the chosen kind that match the search.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+		 * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
 		 */
 		filteredCards() {
 			return filterCards(this.cards, this.chosenKind, this.searchQuery)
@@ -367,7 +418,7 @@ export default {
 		 * The sections that have a card to show, in board order.
 		 *
 		 * @return {Array<{id: string, label: string, cards: Array<object>}>}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
 		 */
 		visibleSections() {
 			return SECTIONS
@@ -379,7 +430,7 @@ export default {
 		 * The chosen card, while it is still shown and allowed.
 		 *
 		 * @return {object|null}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
 		 */
 		chosenCard() {
 			return this.filteredCards.find((card) => card.key === this.chosenKey && !card.disabled) ?? null
@@ -387,21 +438,29 @@ export default {
 	},
 
 	watch: {
-		/**
-		 * Clear the search, the kind and the choice when the picker closes,
-		 * so the next open starts from every widget.
-		 *
-		 * @param {boolean} isOpen Whether the picker is now open.
-		 * @spec openspec/specs/widgets/spec.md
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
-		 */
-		open(isOpen) {
-			if (!isOpen) {
+		open: {
+			immediate: true,
+			/**
+			 * On open, show the assistant line when the server can answer.
+			 * On close, clear the search, the kind, the choice and the
+			 * assistant line, so the next open starts from every widget.
+			 *
+			 * @param {boolean} isOpen Whether the picker is now open.
+			 * @spec openspec/specs/widgets/spec.md
+			 * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+			 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+			 */
+			handler(isOpen) {
+				if (isOpen) {
+					this.checkAssistant()
+					return
+				}
 				this.searchQuery = ''
 				this.chosenKind = 'all'
 				this.chosenKey = ''
 				this.closeRequestForm()
-			}
+				this.clearAssistant()
+			},
 		},
 	},
 
@@ -413,7 +472,7 @@ export default {
 		 *
 		 * @param {string} kind The kind.
 		 * @return {string}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+		 * @spec openspec/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
 		 */
 		kindLabel(kind) {
 			return kindLabel(kind, t)
@@ -435,7 +494,7 @@ export default {
 		 *
 		 * @param {object} card The card.
 		 * @return {void}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
+		 * @spec openspec/specs/widgets/spec.md#requirement-widgets-the-role-may-not-add-req-wdg-043
 		 */
 		choose(card) {
 			if (card.disabled) {
@@ -451,8 +510,8 @@ export default {
 		 *
 		 * @param {object|null} card The card.
 		 * @return {void}
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
-		 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 * @spec openspec/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
 		 */
 		place(card) {
 			if (!card || card.disabled) {
@@ -468,6 +527,66 @@ export default {
 			if (event === 'add' || event === 'addApp' || event === 'addCatalogueApp') {
 				this.$emit('close')
 			}
+		},
+
+		/**
+		 * Show the assistant line when the server can answer.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+		 */
+		async checkAssistant() {
+			this.assistantReady = await assistantAvailable()
+		},
+
+		/**
+		 * Forget the need, the proposal and the message.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+		 */
+		clearAssistant() {
+			this.assistantNeed = ''
+			this.assistantBusy = false
+			this.assistantProposal = null
+			this.assistantMessage = ''
+		},
+
+		/**
+		 * Ask the assistant which of the offered cards fits the need.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+		 */
+		async askAssistant() {
+			const need = this.assistantNeed.trim()
+			if (need === '' || this.assistantBusy) {
+				return
+			}
+			this.assistantBusy = true
+			this.assistantProposal = null
+			this.assistantMessage = ''
+			const outcome = await proposeWidget(need, this.cards)
+			this.assistantBusy = false
+			if (outcome.status === 'proposed') {
+				this.assistantProposal = { card: outcome.card, reason: outcome.reason }
+				return
+			}
+			this.assistantMessage = outcome.status === 'none'
+				? t('launchpad', 'No widget fits; choose one below')
+				: t('launchpad', 'The assistant could not answer; choose a widget below')
+		},
+
+		/**
+		 * Place the proposed card as Add widget does.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+		 */
+		placeProposal() {
+			const card = this.assistantProposal?.card ?? null
+			this.assistantProposal = null
+			this.place(card)
 		},
 
 		/**
@@ -560,6 +679,32 @@ export default {
 	margin: 0;
 	font-size: 20px;
 	font-weight: 600;
+}
+
+.widget-picker__assistant {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 12px;
+	border-radius: var(--border-radius-large);
+	background: var(--color-primary-element-light);
+}
+
+.widget-picker__assistant-ask,
+.widget-picker__assistant-proposal {
+	display: flex;
+	align-items: flex-end;
+	gap: 8px;
+}
+
+.widget-picker__assistant-proposal {
+	align-items: center;
+	justify-content: space-between;
+}
+
+.widget-picker__assistant-text {
+	margin: 0;
 }
 
 .widget-picker__search {

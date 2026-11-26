@@ -105,7 +105,7 @@ class RequestDataExtractor {
 	 * @return array The tile configuration data.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-infrastructure-helpers/tasks.md#task-3
-	 * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
+	 * @spec openspec/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
 	 */
 	public static function extractTileData(IRequest $request): array {
 		$data = [];

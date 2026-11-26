@@ -17,23 +17,43 @@
  * @spec openspec/changes/resource-serving/tasks.md#task-8
  */
 
+import type { APIRequestContext } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
+
 import { expect, test } from '@playwright/test'
 import * as path from 'path'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
-import {
-	closeSidebar,
-	gotoLaunchPad,
-	openAddWidgetModal,
-} from './fixtures/widget-flow.ts'
+import { closeSidebar, gotoLaunchPad } from './fixtures/widget-flow.ts'
 // Resolve the target instance through the one module the whole suite (and the
 // Playwright config) shares, so this spec can never target a different
 // Nextcloud than the rest of the run — and can never fall back to the shared
 // :8080 dev container, which no longer has a default at all.
 import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl.ts'
+import {
+	clearSeededWidgets,
+	removeSeededDashboard,
+	seedActiveDashboard,
+} from './support/dashboardFixture.ts'
+import { apiAs, openAddWidgetDialog } from './support/filesWidget.ts'
 
 const APP_ID = process.env.APP_ID || 'launchpad'
 
 let restoreWidgetRestriction: (() => Promise<void>) | null = null
+// The image goes on a dashboard this file seeds and makes active, so the test
+// never depends on the administrator already having a personal dashboard.
+let api: APIRequestContext
+let dashboard: SeededDashboard | null = null
+
+test.beforeAll(async () => {
+	api = await apiAs()
+	dashboard = await seedActiveDashboard(api, `E2E Resource serve ${Date.now()}`)
+	await clearSeededWidgets(api, dashboard.id)
+})
+
+test.afterAll(async () => {
+	await removeSeededDashboard(api, dashboard)
+	await api.dispose()
+})
 
 test.beforeAll(async () => {
 	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
@@ -49,20 +69,19 @@ test.describe('resource-serving', () => {
 	}) => {
 		await gotoLaunchPad(page)
 
-		// Upload a tiny PNG via the Image widget upload UI (cog-menu flow).
-		await openAddWidgetModal(page, 'image')
-		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-
-		// nc-vue's CnImageWidgetForm replaced the URL/Upload radio pair with a
-		// single file <label> wrapping a hidden input, and defers the upload to
-		// commit() so a cancelled dialog writes no orphaned file. Set the file
-		// directly; the serve-route URL only exists after Add is pressed.
+		// Upload a tiny PNG through the drawn Image form (REQ-IMG-020): it opens
+		// on Upload file, requires a text for who does not see the image, and
+		// defers the upload to commit() so a cancelled dialog writes no
+		// orphaned file. The serve-route URL only exists after Add is pressed.
+		const dialog = await openAddWidgetDialog(page)
+		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
 		await dialog
-			.locator('.cn-image-widget-form__file-input')
+			.getByTestId('image-file-input')
 			.setInputFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
+		await dialog.getByLabel(/text for who does not see the image/i).fill('A tiny image')
 
-		// Pre-save the preview is a local object-URL.
-		await expect(dialog.locator('.cn-image-widget-form__preview')).toBeAttached({
+		// Pre-save the thumbnail is a local object-URL.
+		await expect(dialog.getByTestId('image-chosen').locator('img')).toBeAttached({
 			timeout: 15_000,
 		})
 

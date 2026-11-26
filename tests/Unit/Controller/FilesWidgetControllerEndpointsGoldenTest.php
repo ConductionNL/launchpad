@@ -122,17 +122,24 @@ class FilesWidgetControllerEndpointsGoldenTest extends TestCase {
 		$_FILES = [];
 		foreach ($cases as $name => [$uid, $placementId, $length, $status, $error]) {
 			$this->served = [];
-			$request      = $this->createMock(IRequest::class);
+			$request      = $this->createMock(originalClassName: IRequest::class);
 			$request->method('getHeader')->willReturnCallback(
-				static fn (string $header): string => ($header === 'Content-Length') ? $length : ''
-			);
-			$response = $this->controller(uid: $uid, failure: null, request: $request)->upload($placementId, '/');
+				static function (string $header) use ($length): string {
+					if ($header === 'Content-Length') {
+						return $length;
+					}
 
-			$this->assertSame($status, $response->getStatus(), $name);
+					return '';
+				}
+			);
+			$response = $this->controller(uid: $uid, failure: null, request: $request)->upload(placementId: $placementId, currentPath: '/');
+
+			$this->assertSame(expected: $status, actual: $response->getStatus(), message: $name);
 			if ($error !== null) {
-				$this->assertSame($error, $response->getData()['error'], $name);
+				$this->assertSame(expected: $error, actual: $response->getData()['error'], message: $name);
 			}
-			$this->assertSame([], $this->served, $name.': the service must not run');
+
+			$this->assertSame(expected: [], actual: $this->served, message: $name.': the service must not run');
 		}
 		$_FILES = $saved;
 	}//end testUploadWithoutAFileSaysWhy()
@@ -245,7 +252,7 @@ class FilesWidgetControllerEndpointsGoldenTest extends TestCase {
 		);
 
 		return new FilesWidgetController(
-			request: ($request ?? $this->createMock(IRequest::class)),
+			request: ($request ?? $this->createMock(originalClassName: IRequest::class)),
 			sources: new FilesWidgetSources(service: $service, placementMapper: $placements, logger: $logger),
 			permissionService: $permissions,
 			userSession: $session

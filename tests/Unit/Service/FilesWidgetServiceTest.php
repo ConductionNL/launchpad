@@ -540,6 +540,8 @@ class FilesWidgetServiceTest extends TestCase {
 	 * A file PHP refused for its size answers file_too_large, not upload_failed,
 	 * so the widget can say why; other transport errors stay upload_failed.
 	 *
+	 * @return void
+	 *
 	 * @spec openspec/specs/files-widget/spec.md
 	 */
 	public function testUploadNamesAFileRefusedForItsSize(): void {
@@ -560,14 +562,14 @@ class FilesWidgetServiceTest extends TestCase {
 			]
 		);
 
-		$this->assertSame([], $result['uploaded']);
+		$this->assertSame(expected: [], actual: $result['uploaded']);
 		$this->assertSame(
-			[
+			expected: [
 				['name' => 'ini.bin', 'error' => 'file_too_large'],
 				['name' => 'form.bin', 'error' => 'file_too_large'],
 				['name' => 'partial.bin', 'error' => 'upload_failed'],
 			],
-			$result['errors']
+			actual: $result['errors']
 		);
 	}//end testUploadNamesAFileRefusedForItsSize()
 

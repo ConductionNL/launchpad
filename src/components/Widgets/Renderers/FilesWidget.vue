@@ -697,6 +697,7 @@ export default {
 		 *
 		 * @param {FormData} formData The files to upload.
 		 * @return {Promise<object>} The upload response.
+		 * @spec openspec/specs/files-widget/spec.md
 		 */
 		async postUpload(formData) {
 			const { axios, url } = await filesEndpoint(

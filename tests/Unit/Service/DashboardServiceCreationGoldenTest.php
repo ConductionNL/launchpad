@@ -247,25 +247,48 @@ class DashboardServiceCreationGoldenTest extends TestCase {
 	/**
 	 * Role seeding results and whether the default bundle is placed.
 	 *
-	 * @return array<string,array{0:?int,1:string}>
+	 * @return array<string,array{0:int,1:string}>
 	 */
 	public static function roleSeeds(): array {
-		return ['role defaults' => [2, 'found'], 'nothing seeded' => [0, 'defaults'], 'no role service' => [null, 'defaults']];
+		return ['role defaults' => [2, 'found'], 'nothing seeded' => [0, 'defaults']];
+	}
+
+	/**
+	 * Without a template or a role layout a read provisions nothing, so the
+	 * shell shows the first-visit choice (REQ-SHELL-005).
+	 *
+	 * @return array<string,array{0:bool}>
+	 */
+	public static function noRoleLayout(): array {
+		return ['no role layout for the user' => [true], 'no role service' => [false]];
+	}
+
+	/**
+	 * @dataProvider noRoleLayout
+	 */
+	public function testWithoutARoleLayoutAReadProvisionsNothing(bool $withRoles): void {
+		$this->settingMapper->method('getValue')->willReturn(true);
+		if ($withRoles === false) {
+			$this->roles = null;
+		} else {
+			$this->roles->method('hasRoleLayoutDefaultsFor')->with('alice')->willReturn(false);
+			$this->roles->expects($this->never())->method('seedLayoutFromRoleDefaults');
+		}
+		$this->dashboardMapper->expects($this->never())->method('insert');
+
+		$this->assertNull($this->call($this->service(), 'tryCreateFromTemplate', 'alice'));
 	}
 
 	/**
 	 * @dataProvider roleSeeds
 	 */
-	public function testProvisionedDashboardPlacements(?int $seeded, string $placements): void {
+	public function testProvisionedDashboardPlacements(int $seeded, string $placements): void {
 		$this->settingMapper->method('getValue')->willReturn(true);
-		if ($seeded === null) {
-			$this->roles = null;
-		} else {
-			$this->roles->method('seedLayoutFromRoleDefaults')->willReturnCallback(function (string $userId, Dashboard $dashboard) use ($seeded): int {
-				$this->log[] = 'roles:' . $userId . ':' . $dashboard->getId();
-				return $seeded;
-			});
-		}
+		$this->roles->method('hasRoleLayoutDefaultsFor')->willReturn(true);
+		$this->roles->method('seedLayoutFromRoleDefaults')->willReturnCallback(function (string $userId, Dashboard $dashboard) use ($seeded): int {
+			$this->log[] = 'roles:' . $userId . ':' . $dashboard->getId();
+			return $seeded;
+		});
 
 		$found = [new WidgetPlacement()];
 		$this->placementMapper->method('findByDashboardId')->willReturnCallback(function (int $dashboardId) use ($found): array {

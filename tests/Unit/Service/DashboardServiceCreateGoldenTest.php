@@ -48,6 +48,7 @@ use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\GroupDashboardCreation;
 use OCA\LaunchPad\Service\PersonalLayerService;
+use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCA\LaunchPad\Service\TemplateService;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -139,7 +140,7 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 	 *
 	 * @return DashboardService
 	 */
-	private function service(): DashboardService {
+	private function service(?DashboardLimits $limits=null): DashboardService {
 		$mapper = $this->createMock(DashboardMapper::class);
 		$mapper->method('insert')->willReturnCallback(
 			function (Dashboard $dashboard): Dashboard {
@@ -212,7 +213,8 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 			),
 			outlets: new DashboardOutlets(
 				logger: $this->createMock(LoggerInterface::class)
-			)
+			),
+			limits: $limits ?? new DashboardLimits()
 		);
 	}//end service()
 
@@ -295,7 +297,12 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 
 		$this->log = [];
 		$bootstrap = new ReflectionMethod(DashboardService::class, 'tryCreateFromTemplate');
-		$bootstrap->invoke($this->service(), 'dave');
+		// A read provisions only for a user whose groups carry a role layout
+		// (REQ-SHELL-005); this one carries an empty one, so the bundle is placed.
+		$roles = $this->createMock(RoleFeaturePermissionService::class);
+		$roles->method('hasRoleLayoutDefaultsFor')->willReturn(true);
+		$roles->method('seedLayoutFromRoleDefaults')->willReturn(0);
+		$bootstrap->invoke($this->service(limits: new DashboardLimits(roleFeaturePerm: $roles)), 'dave');
 		$actual['tryCreateFromTemplate'] = $this->log;
 
 		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {

@@ -6,7 +6,7 @@
  * file with size and dimensions, the required alternative text and the link.
  */
 
-import { NcTextField } from '@nextcloud/vue'
+import { NcSelect, NcTextField } from '@nextcloud/vue'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import ImageWidgetForm from '../ImageWidgetForm.vue'
@@ -128,5 +128,35 @@ describe('ImageWidgetForm alternative text is required (scenario)', () => {
 		textField(wrapper, 'Link (optional)').vm.$emit('update:modelValue', 'https://intranet.test/team')
 		await wrapper.vm.$nextTick()
 		expect(lastEmitted(wrapper).link).toBe('https://intranet.test/team')
+	})
+})
+
+// @spec openspec/specs/image-widget/spec.md#requirement-req-img-005-addedit-form
+describe('ImageWidgetForm fit and web-address preview (REQ-IMG-005)', () => {
+	it('offers exactly cover, contain, fill and none, with cover for a new image', async () => {
+		const wrapper = mount(ImageWidgetForm)
+		const fit = wrapper.findComponent(NcSelect)
+		expect(fit.props('inputLabel')).toBe('Fit')
+		expect(fit.props('options').map((option) => option.id)).toEqual(['cover', 'contain', 'fill', 'none'])
+		expect(fit.props('modelValue').id).toBe('cover')
+		fit.vm.$emit('update:modelValue', { id: 'contain', label: 'Contain' })
+		await wrapper.vm.$nextTick()
+		expect(lastEmitted(wrapper).fit).toBe('contain')
+		fit.vm.$emit('update:modelValue', { id: 'stretch', label: 'Stretch' })
+		expect(lastEmitted(wrapper).fit).toBe('cover')
+	})
+
+	it('keeps a stored fit when editing', () => {
+		const wrapper = mount(ImageWidgetForm, { props: { editingWidget: { content: { url: 'https://cdn.test/a.png', alt: 'A', fit: 'none' } } } })
+		expect(wrapper.findComponent(NcSelect).props('modelValue').id).toBe('none')
+	})
+
+	it('previews a typed web address, and shows no preview while it is empty', async () => {
+		const wrapper = mount(ImageWidgetForm)
+		await wrapper.find('[data-testid="image-source-url"]').trigger('change')
+		expect(wrapper.find('[data-testid="image-url-preview"]').exists()).toBe(false)
+		textField(wrapper, 'Image URL').vm.$emit('update:modelValue', 'https://example.com/x.png')
+		await wrapper.vm.$nextTick()
+		expect(wrapper.find('[data-testid="image-url-preview"]').attributes('src')).toBe('https://example.com/x.png')
 	})
 })

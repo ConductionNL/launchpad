@@ -240,7 +240,7 @@ async function openEditor(page: Page, title: string): Promise<Locator> {
 	await page.getByRole('menuitem', { name: 'Edit tile' }).click()
 	const editor = page.getByRole('dialog', { name: 'Edit Tile' })
 	await expect(editor).toBeVisible()
-	await expect(editor.getByLabel('Title')).toHaveValue(title)
+	await expect(editor.getByLabel('Name', { exact: true })).toHaveValue(title)
 	return editor
 }
 

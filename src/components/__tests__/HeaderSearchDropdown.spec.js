@@ -234,6 +234,22 @@ describe('HeaderSearchDropdown', () => {
 			expect(ownField().getAttribute('aria-label')).toBe('Zoek in Zuiddrecht')
 		})
 
+		it('"Show all results" presses core\'s search button, so Nextcloud\'s dialog opens', async () => {
+			const button = host.querySelector('.unified-search-input__button')
+			const pressed = vi.fn()
+			button.addEventListener('click', pressed)
+			wrapper = mount(HeaderSearchDropdown, { attachTo: document.body })
+			ownField().value = 'team'
+			ownField().dispatchEvent(new Event('input'))
+			await vi.advanceTimersByTimeAsync(300)
+			await flushPromises()
+			ownField().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
+			ownField().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+			await flushPromises()
+			expect(performFallback).toHaveBeenCalledWith({ type: 'unified-search', query: 'team' })
+			expect(pressed).toHaveBeenCalledTimes(1)
+		})
+
 		it('takes its field out again on unmount', () => {
 			wrapper = mount(HeaderSearchDropdown, { attachTo: document.body })
 			wrapper.unmount()

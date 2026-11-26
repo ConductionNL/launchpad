@@ -59,12 +59,20 @@
 			</div>
 		</template>
 
-		<NcTextField
-			v-else
-			:modelValue="url"
-			:label="t('launchpad', 'Image URL')"
-			placeholder="https://"
-			@update:modelValue="updateField('url', $event)" />
+		<template v-else>
+			<NcTextField
+				:modelValue="url"
+				:label="t('launchpad', 'Image URL')"
+				placeholder="https://"
+				@update:modelValue="updateField('url', $event)" />
+			<!-- REQ-IMG-005: a live preview of a typed web address. -->
+			<img
+				v-if="url.trim() !== ''"
+				class="image-widget-form__preview"
+				data-testid="image-url-preview"
+				:src="url"
+				:alt="t('launchpad', 'Preview')">
+		</template>
 
 		<p v-if="fileError" class="image-widget-form__error" role="alert">
 			{{ fileError }}
@@ -83,6 +91,16 @@
 			:label="t('launchpad', 'Link (optional)')"
 			placeholder="https://"
 			@update:modelValue="updateField('link', $event)" />
+
+		<!-- REQ-IMG-005: how the image fills its cell; cover for a new image. -->
+		<NcSelect
+			:modelValue="fitOption"
+			:options="fitOptions"
+			:inputLabel="t('launchpad', 'Fit')"
+			:clearable="false"
+			label="label"
+			data-testid="image-fit"
+			@update:modelValue="updateFit" />
 	</div>
 </template>
 
@@ -90,7 +108,7 @@
 import axios from '@nextcloud/axios'
 import { FilePickerClosed, getFilePickerBuilder } from '@nextcloud/dialogs'
 import { translate as t } from '@nextcloud/l10n'
-import { NcButton, NcTextField } from '@nextcloud/vue'
+import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
 import { NULLABLE_OBJECT_PROP, objectProp } from '../../../constants/propDefinitions.js'
 import { describeImageFile, isUploadableImage, MAX_IMAGE_BYTES } from '../../../utils/imageFile.js'
 
@@ -122,7 +140,7 @@ function sourceOf(url) {
 export default {
 	name: 'ImageWidgetForm',
 
-	components: { NcButton, NcTextField },
+	components: { NcButton, NcSelect, NcTextField },
 
 	props: {
 		/** The placement being edited, or `null` in create mode. */
@@ -216,6 +234,32 @@ export default {
 		},
 
 		/**
+		 * The fit choices, in the order REQ-IMG-005 lists them.
+		 *
+		 * @return {Array<{id: string, label: string}>}
+		 * @spec openspec/specs/image-widget/spec.md#requirement-req-img-005-addedit-form
+		 */
+		fitOptions() {
+			const labels = {
+				cover: t('launchpad', 'Cover'),
+				contain: t('launchpad', 'Contain'),
+				fill: t('launchpad', 'Fill'),
+				none: t('launchpad', 'None'),
+			}
+			return ALLOWED_FITS.map((id) => ({ id, label: labels[id] }))
+		},
+
+		/**
+		 * The selected fit as an option.
+		 *
+		 * @return {{id: string, label: string}}
+		 * @spec openspec/specs/image-widget/spec.md#requirement-req-img-005-addedit-form
+		 */
+		fitOption() {
+			return this.fitOptions.find((option) => option.id === this.fit) ?? this.fitOptions[0]
+		},
+
+		/**
 		 * The stored content.
 		 *
 		 * @return {{url: string, alt: string, link: string, fit: string}}
@@ -245,6 +289,19 @@ export default {
 				this.altTouched = true
 			}
 			this[field] = typeof val === 'string' ? val : ''
+			this.$emit('update:content', this.assembledContent)
+		},
+
+		/**
+		 * Set the fit from the select and emit the content; anything outside
+		 * the four allowed values falls back to cover.
+		 *
+		 * @param {{id: string}|string|null} option The chosen option.
+		 * @spec openspec/specs/image-widget/spec.md#requirement-req-img-005-addedit-form
+		 */
+		updateFit(option) {
+			const id = typeof option === 'string' ? option : option?.id
+			this.fit = ALLOWED_FITS.includes(id) ? id : DEFAULT_CONTENT.fit
 			this.$emit('update:content', this.assembledContent)
 		},
 
@@ -545,6 +602,14 @@ function readAsDataUrl(file) {
 	width: 48px;
 	height: 48px;
 	object-fit: cover;
+	border-radius: var(--border-radius);
+}
+
+.image-widget-form__preview {
+	display: block;
+	max-width: 100%;
+	max-height: 120px;
+	object-fit: contain;
 	border-radius: var(--border-radius);
 }
 

@@ -275,12 +275,15 @@ test.afterAll(async () => {
 	if (admin === undefined) {
 		return
 	}
-	const wasInstalled = new Set(
-		showcasesBefore.filter((s) => s.isInstalled).map((s) => s.id),
-	)
-	for (const showcase of await readJson<Showcase[]>(SHOWCASES_API)) {
-		if (showcase.isInstalled && !wasInstalled.has(showcase.id)) {
-			await admin.delete(`${SHOWCASES_API}/${encodeURIComponent(showcase.id)}`)
+	// Remove every showcase that was not installed before this file, without
+	// asking the listing first: right after an install it can still answer
+	// from the web server's 3 s app-config cache and say "not installed",
+	// which left the showcases behind and marked Step 3 done for the next
+	// spec (setup-wizard.spec.ts reads a fresh instance).
+	for (const showcase of showcasesBefore) {
+		if (!showcase.isInstalled) {
+			const res = await admin.delete(`${SHOWCASES_API}/${encodeURIComponent(showcase.id)}`)
+			expect([200, 204, 404], `uninstall ${showcase.id}`).toContain(res.status())
 		}
 	}
 	for (const row of await newRoles()) {
@@ -326,9 +329,14 @@ test('a full setup.yaml configures every step and completes the wizard', async (
 
 	// Steps 3 to 5: the showcases are installed, the group holds the admin
 	// role, and the footer config is the file's.
-	const installed = await installedShowcases()
+	// The install marker is app config, which Nextcloud keeps in each
+	// process's local cache for 3 s (AppConfig::LOCAL_CACHE_TTL): the web
+	// server may answer from its copy from before occ wrote, so poll.
 	for (const id of demos) {
-		expect.soft(installed, `Step 3 installs ${id}`).toContain(id)
+		await expect
+			.soft
+			.poll(installedShowcases, { message: `Step 3 installs ${id}`, timeout: 15_000 })
+			.toContain(id)
 	}
 	expect
 		.soft(await newRoles(), 'Step 4 gives the group the Dashboard Admin role')
@@ -494,6 +502,11 @@ test('running the same setup.yaml twice succeeds and duplicates nothing', async 
 	expect(first.code, describeRun(first)).toBe(0)
 	const orderAfterFirst = await readGroupOrder()
 	const rolesAfterFirst = await readJson<RoleRow[]>(ROLES_API)
+	// Wait out the web server's 3 s app-config cache (see the full-file
+	// test) so the snapshot already holds the first run's installs.
+	await expect
+		.poll(installedShowcases, { timeout: 15_000 })
+		.toEqual(expect.arrayContaining(demos))
 	const installedAfterFirst = await installedShowcases()
 	const dashboardsAfterFirst = await dashboardCount()
 

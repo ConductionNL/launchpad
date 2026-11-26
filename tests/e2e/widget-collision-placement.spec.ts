@@ -25,24 +25,45 @@
  * dashboard that already carries placements.
  */
 
-import type { Page } from '@playwright/test'
+import type { BrowserContext, Page } from '@playwright/test'
+import type { OwnDashboard } from './support/ownDashboard.ts'
 
 import { expect, test } from '@playwright/test'
-import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import {
 	closeSidebar,
-	gotoLaunchPad,
 	openAddWidgetModal,
 } from './fixtures/widget-flow.ts'
+import {
+	openOwnDashboard,
+	seedTextWidget,
+	setUpOwnDashboard,
+	tearDownOwnDashboard,
+} from './support/ownDashboard.ts'
 
-let restoreWidgetRestriction: (() => Promise<void>) | null = null
+// Each test runs as its own throwaway account with one active personal
+// dashboard that holds one widget at the top of the grid. The flow adds
+// widgets through that dashboard's row in the sidebar, so it never depends
+// on a personal dashboard left behind on the rig by an earlier run (a fresh
+// instance has none, and the old shared-state version then failed at the
+// sidebar). setUpOwnDashboard also lifts the `default` widget rule for the
+// test and puts it back afterwards.
+let own: OwnDashboard | undefined
+let context: BrowserContext | undefined
+let page: Page
 
-test.beforeAll(async () => {
-	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+test.beforeEach(async ({ browser }) => {
+	own = await setUpOwnDashboard('e2e-collide', `E2E collision ${Date.now()}`)
+	await seedTextWidget(own.owner.api, own.id, { x: 0, y: 0, w: 4, h: 2 }, 'already here')
+	const session = await openOwnDashboard(browser, own, 1)
+	context = session.context
+	page = session.page
 })
 
-test.afterAll(async () => {
-	await restoreWidgetRestriction?.()
+test.afterEach(async () => {
+	await context?.close()
+	context = undefined
+	await tearDownOwnDashboard(own)
+	own = undefined
 })
 
 /**
@@ -102,13 +123,7 @@ async function addLabelWidget(page: Page, text: string) {
 }
 
 test.describe('widget collision placement', () => {
-	test.beforeEach(async ({ page }) => {
-		await gotoLaunchPad(page)
-	})
-
-	test('REQ-GRID-006: adding several widgets leaves no overlap', async ({
-		page,
-	}) => {
+	test('REQ-GRID-006: adding several widgets leaves no overlap', async () => {
 		const stamp = Date.now()
 		for (let i = 0; i < 3; i++) {
 			await addLabelWidget(page, `collide-${stamp}-${i}`)
@@ -118,11 +133,9 @@ test.describe('widget collision placement', () => {
 		expect(hasOverlap(items)).toBe(false)
 	})
 
-	test('REQ-GRID-006: adding widgets to an occupied grid moves no existing widget', async ({
-		page,
-	}) => {
-		// The active dashboard already carries placements (the top of the grid
-		// is occupied). Bottom-append places each new widget below the lowest
+	test('REQ-GRID-006: adding widgets to an occupied grid moves no existing widget', async () => {
+		// The active dashboard already carries a placement (the top of the grid
+		// is occupied, seeded in beforeEach). Bottom-append places each new widget below the lowest
 		// bottom edge, so no two placements overlap and every pre-existing
 		// widget keeps its exact geometry.
 		const before = await getGridItems(page)
@@ -155,11 +168,8 @@ test.describe('widget collision placement', () => {
 		}
 	})
 
-	test('REQ-GRID-005: widget positions survive a page reload', async ({
-		page,
-	}) => {
-		// The shared dashboard accumulates widgets across runs, so a full
-		// re-render can be slow — give this reload-heavy test extra budget.
+	test('REQ-GRID-005: widget positions survive a page reload', async () => {
+		// A reload re-renders the whole runtime shell: give it extra budget.
 		test.setTimeout(60_000)
 
 		await addLabelWidget(page, `reload-${Date.now()}`)

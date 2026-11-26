@@ -73,6 +73,15 @@ test.afterAll(async () => {
 	await api.dispose()
 })
 
+/** The image placements on the seeded dashboard whose url is an uploaded file, not a web address. */
+async function uploadedImagePlacements(): Promise<Array<Record<string, unknown>>> {
+	const stored = await api.get(`/index.php/apps/launchpad/api/dashboard/${dashboard!.id}`)
+	expect(stored.status(), await stored.text()).toBe(200)
+	const body = await stored.json()
+	return ((body.placements ?? body.data?.placements ?? []) as Array<Record<string, unknown>>)
+		.filter((placement) => placement.widgetId === 'image' && !String((placement.content as Record<string, unknown> | undefined)?.url ?? '').startsWith('http'))
+}
+
 /** Open the Add Widget modal on the active dashboard with the "Image" type already chosen. */
 async function openImageForm(page: Page) {
 	const dialog = await openAddWidgetDialog(page)
@@ -183,15 +192,23 @@ test.describe('image widget', () => {
 	}) => {
 		const dialog = await openImageForm(page)
 
-		// No file chosen — the URL field alone must drive the preview.
-		await dialog.getByLabel(/image url/i).fill(LOGO)
+		// No file chosen: the drawn form asks for Web address first, then the
+		// URL field alone drives the preview.
+		await dialog.getByText('Web address', { exact: true }).click()
+		const urlField = dialog.getByLabel(/image url/i)
+		await urlField.fill(LOGO)
+		await urlField.blur()
 
-		const preview = dialog.locator('.cn-image-widget-form__preview')
+		const preview = dialog.getByTestId('image-url-preview')
 		await expect(preview).toBeAttached({ timeout: 10_000 })
 		await expect(preview).toHaveAttribute('src', LOGO, { timeout: 10_000 })
+		await expect
+			.poll(() => preview.evaluate((img) => (img as HTMLImageElement).naturalWidth), { timeout: 10_000 })
+			.toBeGreaterThan(0)
 
-		// A typed URL is sufficient to save — the counterpart of the
-		// empty-URL validation above.
+		// A typed URL with its required alternative text is enough to save:
+		// the counterpart of the empty-URL validation above.
+		await dialog.getByLabel(/text for who does not see the image/i).fill('Nextcloud logo')
 		await expect(dialog.getByRole('button', { name: /^add$/i })).toBeEnabled({
 			timeout: 5_000,
 		})
@@ -206,12 +223,8 @@ test.describe('image widget', () => {
 		// `fit` is an NcSelect (vue-select), not a native <select> as the
 		// scenario's prose assumes, so the options live in a popper that only
 		// exists once the control is opened.
-		const fit = dialog
-			.locator('.v-select')
-			.filter({ has: page.getByText(/^Fit$/) })
-			.first()
-		const control =
-			(await fit.count()) > 0 ? fit : dialog.locator('.v-select').last()
+		const control = dialog.getByTestId('image-fit')
+		await expect(control).toBeVisible({ timeout: 10_000 })
 
 		// The default selected value for a new placement is Cover.
 		await expect(control.locator('.vs__selected')).toHaveText(/cover/i, {
@@ -219,9 +232,7 @@ test.describe('image widget', () => {
 		})
 
 		await control.locator('.vs__dropdown-toggle').click()
-		const options = control
-			.locator('.vs__dropdown-option')
-			.or(page.locator('.vs__dropdown-menu .vs__dropdown-option'))
+		const options = page.locator('.vs__dropdown-menu .vs__dropdown-option')
 		await expect(options.first()).toBeVisible({ timeout: 5_000 })
 
 		const labels = (await options.allTextContents()).map((s) =>
@@ -246,6 +257,10 @@ test.describe('image widget', () => {
 				body: '{"error":"file too large (forced by image-widget.spec.ts)"}',
 			}),
 		)
+
+		// The upload test above stores an uploaded image on the same seeded
+		// dashboard, so only placements that appear after this Add count.
+		const before = new Set((await uploadedImagePlacements()).map((placement) => placement.id))
 
 		const dialog = await openImageForm(page)
 		await dialog
@@ -275,12 +290,8 @@ test.describe('image widget', () => {
 		//    reaches updateField('url', …). The modal therefore stays open
 		//    with an empty URL rather than persisting a broken placement.
 		await expect(dialog).toBeVisible()
-		const stored = await api.get(`/index.php/apps/launchpad/api/dashboard/${dashboard!.id}`)
-		expect(stored.status(), await stored.text()).toBe(200)
-		const body = await stored.json()
 		expect(
-			((body.placements ?? body.data?.placements ?? []) as Array<Record<string, unknown>>)
-				.filter((placement) => placement.widgetId === 'image' && !String((placement.content as Record<string, unknown> | undefined)?.url ?? '').startsWith('http')),
+			(await uploadedImagePlacements()).filter((placement) => !before.has(placement.id)),
 			'no image placement with an uploaded file was stored',
 		).toHaveLength(0)
 	})

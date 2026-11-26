@@ -8,6 +8,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 
 - [x] `dashboard-export-import`: 48 scenarios, each with its own verdict. Three import defects fixed (#616, with #612 before it).
 - [x] `demo-data-showcases`: per-scenario verdicts replaced the stale "no UI surface" exclusion (#606).
+  - Spec written (cloud, 2026-11-26): `tests/e2e/demo-seed-boards.spec.ts` (new, serial), 2 of the 6 scenarios REQ-DEMO-010/011 added after this line was ticked: pieter-opens-launchpad, running-the-seed-twice; the-wiki-widget-is-not-built-yet excluded (its GIVEN no longer holds; DemoSeedServiceTest). Live 4/4 with --repeat-each 2 (sandbox Nextcloud 34.0.6 + MariaDB, OpenRegister main). Still uncited: a-first-visit (live red, triage first: after --retire-showcases `nieuw` opened on an auto-provisioned "My Dashboard", DashboardService::provisionPersonalDashboard with allowUserDashboards on, not the first-visit page), the-zuiddrecht-intranet-lets-colleagues-add-widgets, the-management-information-is-read-only.
 
 ## 1. Tier 0, safety
 

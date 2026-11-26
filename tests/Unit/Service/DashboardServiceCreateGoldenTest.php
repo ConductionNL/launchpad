@@ -299,7 +299,7 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 		$bootstrap = new ReflectionMethod(DashboardService::class, 'tryCreateFromTemplate');
 		// A read provisions only for a user whose groups carry a role layout
 		// (REQ-SHELL-005); this one carries an empty one, so the bundle is placed.
-		$roles = $this->createMock(RoleFeaturePermissionService::class);
+		$roles = $this->createMock(originalClassName: RoleFeaturePermissionService::class);
 		$roles->method('hasRoleLayoutDefaultsFor')->willReturn(true);
 		$roles->method('seedLayoutFromRoleDefaults')->willReturn(0);
 		$bootstrap->invoke($this->service(limits: new DashboardLimits(roleFeaturePerm: $roles)), 'dave');

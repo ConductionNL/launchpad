@@ -264,6 +264,10 @@ class DashboardServiceCreationGoldenTest extends TestCase {
 	}
 
 	/**
+	 * @param bool $withRoles Whether the role service is there (without a layout for the user).
+	 *
+	 * @return void
+	 *
 	 * @dataProvider noRoleLayout
 	 */
 	public function testWithoutARoleLayoutAReadProvisionsNothing(bool $withRoles): void {
@@ -276,10 +280,15 @@ class DashboardServiceCreationGoldenTest extends TestCase {
 		}
 		$this->dashboardMapper->expects($this->never())->method('insert');
 
-		$this->assertNull($this->call($this->service(), 'tryCreateFromTemplate', 'alice'));
+		$this->assertNull(actual: $this->call(service: $this->service(), method: 'tryCreateFromTemplate', userId: 'alice'));
 	}
 
 	/**
+	 * @param int    $seeded     The placements the role layout seeds.
+	 * @param string $placements Which placements the result carries: 'found' or 'defaults'.
+	 *
+	 * @return void
+	 *
 	 * @dataProvider roleSeeds
 	 */
 	public function testProvisionedDashboardPlacements(int $seeded, string $placements): void {

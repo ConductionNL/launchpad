@@ -12,9 +12,9 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import {
 	fieldWords,
-	openCoreSearchDialog,
 	INLINE_FIELD_CLASS,
 	INLINE_HOST_CLASS,
+	openCoreSearchDialog,
 	removeInlineField,
 	resolveSearchField,
 } from '../headerSearchField.js'

@@ -144,6 +144,7 @@ The Workspace page SHOULD carry the optional key `dashboardFirstLoad`: `{visible
 - **AND** the store shows them without requesting `/api/dashboards/visible` or `/api/dashboard`
 
 #### Scenario: A later load asks the API
+@e2e exclude a second store load in the browser needs a dashboard limit refusal or another reload trigger the workspace does not offer on demand; pinned by src/stores/__tests__/dashboard.firstLoad.spec.js 'asks the API on every load after the first' (both endpoints requested on the second load) and src/utils/__tests__/loadInitialState.spec.js (takeDashboardFirstLoad hands the first load out once)
 
 - **GIVEN** the workspace has opened from `dashboardFirstLoad`
 - **WHEN** the store loads the dashboards again, for example after a dashboard limit refusal

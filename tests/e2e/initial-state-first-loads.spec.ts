@@ -150,9 +150,10 @@ test('the workspace opens from dashboardFirstLoad without asking for its dashboa
 		expect(JSON.stringify(firstLoad.visible), 'the visible list names his dashboard').toContain(dash.uuid)
 		expect(firstLoad.active?.dashboard?.uuid, 'the active dashboard is his').toBe(dash.uuid)
 
-		// The store shows them: the workspace is up on his dashboard...
+		// The store shows them: the workspace is up on his dashboard, named in
+		// its heading (the store's active dashboard)...
+		await expect(page.getByRole('heading', { level: 1, name: NAME })).toBeVisible({ timeout: 30_000 })
 		await expect(page.locator('.grid-stack').first()).toBeAttached({ timeout: 30_000 })
-		await page.waitForLoadState('networkidle')
 		// ...and it never asked either endpoint.
 		expect(asked).toEqual([])
 	} finally {

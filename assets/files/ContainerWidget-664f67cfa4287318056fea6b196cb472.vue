@@ -185,7 +185,7 @@ export default {
 		 * dashboard that offers it, for a container that is a placement of its own.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		canEditTiles() {
 			const id = this.placement?.id
@@ -283,7 +283,7 @@ export default {
 		 * @param {number} index The child's position in `content.placements`.
 		 * @param {boolean} [remove] Remove the tile instead of opening the form.
 		 * @return {void}
-		 * @spec openspec/changes/tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		editTile(index, remove = false) {
 			if (!this.canEditTiles || this.displayedChildren !== this.children) {

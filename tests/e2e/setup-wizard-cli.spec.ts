@@ -275,12 +275,15 @@ test.afterAll(async () => {
 	if (admin === undefined) {
 		return
 	}
-	const wasInstalled = new Set(
-		showcasesBefore.filter((s) => s.isInstalled).map((s) => s.id),
-	)
-	for (const showcase of await readJson<Showcase[]>(SHOWCASES_API)) {
-		if (showcase.isInstalled && !wasInstalled.has(showcase.id)) {
-			await admin.delete(`${SHOWCASES_API}/${encodeURIComponent(showcase.id)}`)
+	// Remove every showcase that was not installed before this file, without
+	// asking the listing first: right after an install it can still answer
+	// from the web server's 3 s app-config cache and say "not installed",
+	// which left the showcases behind and marked Step 3 done for the next
+	// spec (setup-wizard.spec.ts reads a fresh instance).
+	for (const showcase of showcasesBefore) {
+		if (!showcase.isInstalled) {
+			const res = await admin.delete(`${SHOWCASES_API}/${encodeURIComponent(showcase.id)}`)
+			expect([200, 204, 404], `uninstall ${showcase.id}`).toContain(res.status())
 		}
 	}
 	for (const row of await newRoles()) {

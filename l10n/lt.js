@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The upload is larger than this server accepts." : "Įkeliami duomenys didesni, nei priima šis serveris.",
+    "The file is too large." : "Failas per didelis.",
+    "This type of file is not allowed here." : "Šio tipo failai čia neleidžiami.",
+    "The upload failed." : "Įkelti nepavyko.",
+    "{name} was not uploaded: {reason}" : "{name} neįkeltas: {reason}",
     "New colleagues" : "Nauji kolegos",
     "Required: this widget cannot be removed" : "Privaloma: šio valdiklio pašalinti negalima",
     "Connections of this dashboard" : "Šios skydelio jungtys",

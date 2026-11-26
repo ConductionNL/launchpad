@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The upload is larger than this server accepts." : "La pujada és més gran del que accepta aquest servidor.",
+    "The file is too large." : "El fitxer és massa gran.",
+    "This type of file is not allowed here." : "Aquest tipus de fitxer no es permet aquí.",
+    "The upload failed." : "La pujada ha fallat.",
+    "{name} was not uploaded: {reason}" : "{name} no s'ha pujat: {reason}",
     "New colleagues" : "Companys nous",
     "Required: this widget cannot be removed" : "Obligatori: aquest giny no es pot eliminar",
     "Connections of this dashboard" : "Connexions d’aquest tauler",

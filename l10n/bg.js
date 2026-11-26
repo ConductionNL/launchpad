@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The upload is larger than this server accepts." : "Каченото е по-голямо, отколкото този сървър приема.",
+    "The file is too large." : "Файлът е твърде голям.",
+    "This type of file is not allowed here." : "Този тип файл не е разрешен тук.",
+    "The upload failed." : "Качването не бе успешно.",
+    "{name} was not uploaded: {reason}" : "{name} не беше качен: {reason}",
     "New colleagues" : "Нови колеги",
     "Required: this widget cannot be removed" : "Задължителен: тази джаджа не може да бъде премахната",
     "Connections of this dashboard" : "Връзки на това табло",

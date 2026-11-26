@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The upload is larger than this server accepts." : "Yükleme, bu sunucunun kabul ettiğinden büyük.",
+    "The file is too large." : "Dosya çok büyük.",
+    "This type of file is not allowed here." : "Bu dosya türüne burada izin verilmiyor.",
+    "The upload failed." : "Yükleme başarısız oldu.",
+    "{name} was not uploaded: {reason}" : "{name} yüklenmedi: {reason}",
     "New colleagues" : "Yeni çalışma arkadaşları",
     "Required: this widget cannot be removed" : "Zorunlu: bu widget kaldırılamaz",
     "Connections of this dashboard" : "Bu panonun bağlantıları",

@@ -1,5 +1,10 @@
 {
     "translations": {
+        "The upload is larger than this server accepts.": "L'envoi dépasse ce que ce serveur accepte.",
+        "The file is too large.": "Le fichier est trop volumineux.",
+        "This type of file is not allowed here.": "Ce type de fichier n'est pas autorisé ici.",
+        "The upload failed.": "L'envoi a échoué.",
+        "{name} was not uploaded: {reason}": "{name} n'a pas été envoyé : {reason}",
         "New colleagues": "Nouveaux collègues",
         "Required: this widget cannot be removed" : "Obligatoire : ce widget ne peut pas être supprimé",
         "Connections of this dashboard": "Connexions de ce tableau de bord",

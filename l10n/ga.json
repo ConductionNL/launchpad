@@ -1,5 +1,10 @@
 {
     "translations": {
+        "The upload is larger than this server accepts.": "Tá an t-uaslódáil níos mó ná mar a ghlacann an freastalaí seo leis.",
+        "The file is too large.": "Tá an comhad rómhór.",
+        "This type of file is not allowed here.": "Ní cheadaítear an cineál comhaid seo anseo.",
+        "The upload failed.": "Theip ar an uaslódáil.",
+        "{name} was not uploaded: {reason}": "Níor uaslódáladh {name}: {reason}",
         "New colleagues": "Comhghleacaithe nua",
         "Required: this widget cannot be removed" : "Riachtanach: ní féidir an ghiuirléid seo a bhaint",
         "Connections of this dashboard": "Naisc an deais seo",

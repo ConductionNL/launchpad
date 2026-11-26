@@ -456,6 +456,61 @@ describe('FilesWidget — upload', () => {
 		expect(axios.get).toHaveBeenCalledTimes(1)
 	})
 
+	it('a refused upload says why (REQ-FLS-007 upload fails gracefully)', async () => {
+		axios.get.mockResolvedValue({ data: { items: [FILE] } })
+		axios.post.mockRejectedValue({ response: { status: 413, data: { error: 'upload_too_large' } } })
+		const wrapper = mountWidget({ allowUpload: true })
+		await flushPromises()
+
+		await wrapper.vm.onFileInputChange({ target: { files: fakeFiles('big.bin') } })
+		await flushPromises()
+
+		const alert = wrapper.find('.files-widget__upload-errors')
+		expect(alert.attributes('role')).toBe('alert')
+		expect(alert.findAll('li').map((li) => li.text())).toEqual(['The upload is larger than this server accepts.'])
+	})
+
+	it('each file the server refused in a 200 answer is named with its reason, and a clean upload clears them', async () => {
+		axios.get.mockResolvedValue({ data: { items: [FILE] } })
+		axios.post.mockResolvedValueOnce({
+			data: {
+				uploaded: [{ name: 'ok.txt' }],
+				errors: [
+					{ name: 'big.bin', error: 'file_too_large' },
+					{ name: 'run.exe', error: 'file_type_not_allowed' },
+					{ name: 'cut.txt', error: 'upload_failed' },
+				],
+			},
+		})
+		const wrapper = mountWidget({ allowUpload: true })
+		await flushPromises()
+
+		await wrapper.vm.onFileInputChange({ target: { files: fakeFiles('ok.txt', 'big.bin', 'run.exe', 'cut.txt') } })
+		await flushPromises()
+
+		expect(wrapper.findAll('.files-widget__upload-errors li').map((li) => li.text())).toEqual([
+			'big.bin was not uploaded: The file is too large.',
+			'run.exe was not uploaded: This type of file is not allowed here.',
+			'cut.txt was not uploaded: The upload failed.',
+		])
+
+		axios.post.mockResolvedValueOnce({ data: { uploaded: [{ name: 'next.txt' }], errors: [] } })
+		await wrapper.vm.onFileInputChange({ target: { files: fakeFiles('next.txt') } })
+		await flushPromises()
+		expect(wrapper.find('.files-widget__upload-errors').exists()).toBe(false)
+	})
+
+	it('a refusal without a known code still says the upload failed', async () => {
+		axios.get.mockResolvedValue({ data: { items: [FILE] } })
+		axios.post.mockRejectedValue(new Error('network'))
+		const wrapper = mountWidget({ allowUpload: true })
+		await flushPromises()
+
+		await wrapper.vm.onFileInputChange({ target: { files: fakeFiles('a.txt') } })
+		await flushPromises()
+		expect(wrapper.find('.files-widget__upload-errors').text()).toBe('The upload failed.')
+	})
+
 	it('an empty selection uploads nothing', async () => {
 		axios.get.mockResolvedValue({ data: { items: [FILE] } })
 		const wrapper = mountWidget({ allowUpload: true })

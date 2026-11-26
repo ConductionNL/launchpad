@@ -1,5 +1,10 @@
 {
     "translations": {
+        "The upload is larger than this server accepts.": "The upload is larger than this server accepts.",
+        "The file is too large.": "The file is too large.",
+        "This type of file is not allowed here.": "This type of file is not allowed here.",
+        "The upload failed.": "The upload failed.",
+        "{name} was not uploaded: {reason}": "{name} was not uploaded: {reason}",
         "New colleagues": "New colleagues",
         "Required: this widget cannot be removed" : "Required: this widget cannot be removed",
         "Connections of this dashboard": "Connections of this dashboard",

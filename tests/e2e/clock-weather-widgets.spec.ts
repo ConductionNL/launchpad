@@ -63,7 +63,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { addAndSaveDraft, MORE_MENU } from './support/dashboardSwitcher.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const API = '/index.php/apps/launchpad/api'
@@ -308,14 +308,9 @@ async function submitClock(
 	dashboardId: number,
 ): Promise<Record<string, unknown>> {
 	const before = (await placementsOf(admin, dashboardId)).map((p) => p.id)
-	const created = page.waitForResponse(
-		(r) =>
-			r.request().method() === 'POST'
-			&& r.url().includes(`/api/dashboard/${dashboardId}/widgets`),
-	)
-	await dialog.getByRole('button', { name: /^add$/i }).click()
-	expect((await created).status()).toBeLessThan(300)
-	await expect(dialog).not.toBeVisible({ timeout: 8_000 })
+	// Add keeps the clock in the edit-mode draft; Save stores it (REQ-EDIT-002).
+	const saved = await addAndSaveDraft(page, dialog)
+	expect(saved.dashboardId).toBe(dashboardId)
 
 	let added: Record<string, any> | undefined
 	await expect

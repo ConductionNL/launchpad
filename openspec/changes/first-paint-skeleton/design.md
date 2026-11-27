@@ -98,6 +98,10 @@ is announced once.
 
 ### D5. Placeholder kinds
 
+> Amended by `widget-declared-placeholders` (27 November 2026): the kind comes from the widget's own declaration
+> (manifest, nextcloud-vue registry, or `getPlaceholder()` on a Nextcloud widget class). The table below becomes the
+> fallback for widgets that declare nothing, which draw `rows`, and task 5 uses nextcloud-vue's `CnWidgetPlaceholder`.
+
 A widget's placeholder has the shape of its content. `lib/Service/first-paint-kinds.json` maps a widget type to a kind;
 the PHP view model and `LazyMount` both read it (webpack imports the JSON), so the shell and the mounted waiting box
 draw the same shape.

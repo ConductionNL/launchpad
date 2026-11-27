@@ -6,7 +6,7 @@
  * opens with its lists loaded, places the chosen tiles and hands a bookmarks
  * file to the bookmark import.
  *
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md
  */
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'

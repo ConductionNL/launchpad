@@ -1,6 +1,16 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Not responding" : "Nie odpowiada",
+    "port {port}" : "port {port}",
+    "found {time}" : "znaleziono {time}",
+    "Services to discover" : "Usługi do wykrycia",
+    "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list." : "„Dodaj kafelki” pokazuje te usługi, gdy odpowiadają. LaunchPad odpytuje tylko adresy z tej listy.",
+    "No services on this list yet." : "Na tej liście nie ma jeszcze usług.",
+    "For example http://localhost:3000" : "Na przykład http://localhost:3000",
+    "Add service" : "Dodaj usługę",
+    "Services to discover saved." : "Zapisano usługi do wykrycia.",
+    "The services to discover could not be saved." : "Nie udało się zapisać usług do wykrycia.",
     "Own publication" : "Własna publikacja",
     "The upload is larger than this server accepts." : "Przesyłane dane są większe, niż akceptuje ten serwer.",
     "The file is too large." : "Plik jest za duży.",

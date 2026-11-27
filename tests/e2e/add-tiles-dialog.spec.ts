@@ -13,7 +13,7 @@
  * Gate-19 @e2e traceability:
  *   @e2e tiles::add-office-tiles
  *
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md
  */
 import type { APIRequestContext } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'

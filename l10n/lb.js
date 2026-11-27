@@ -1,6 +1,16 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Not responding" : "Äntwert net",
+    "port {port}" : "Port {port}",
+    "found {time}" : "fonnt {time}",
+    "Services to discover" : "Servicer fir ze fannen",
+    "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list." : "„Kacheln derbäisetzen“ weist dës Servicer, wa se äntweren. LaunchPad freet just d’Adressen op dëser Lëscht.",
+    "No services on this list yet." : "Nach keng Servicer op dëser Lëscht.",
+    "For example http://localhost:3000" : "Zum Beispill http://localhost:3000",
+    "Add service" : "Service derbäisetzen",
+    "Services to discover saved." : "Servicer fir ze fannen gespäichert.",
+    "The services to discover could not be saved." : "D’Servicer fir ze fannen konnten net gespäichert ginn.",
     "Own publication" : "Eegen Publikatioun",
     "The upload is larger than this server accepts." : "Den Upload ass méi grouss, wéi dëse Server unhëlt.",
     "The file is too large." : "De Fichier ass ze grouss.",

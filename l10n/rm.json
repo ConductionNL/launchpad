@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Na respunda betg",
+        "port {port}": "port {port}",
+        "found {time}": "chattà {time}",
+        "Services to discover": "Servetschs da scuvrir",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "«Agiuntar plattinas» mussa quests servetschs, sch’els respundan. LaunchPad dumonda mo las adressas da questa glista.",
+        "No services on this list yet.": "Anc nagins servetschs sin questa glista.",
+        "For example http://localhost:3000": "Per exempel http://localhost:3000",
+        "Add service": "Agiuntar in servetsch",
+        "Services to discover saved.": "Servetschs da scuvrir memorisads.",
+        "The services to discover could not be saved.": "Ils servetschs da scuvrir n’han betg pudì vegnir memorisads.",
         "Own publication" : "Atgna publicaziun",
         "The upload is larger than this server accepts.": "La chargiada è pli gronda che quai che quest server accepta.",
         "The file is too large.": "La datoteca è memia gronda.",

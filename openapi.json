@@ -160,6 +160,10 @@
             "description": "Controller for dashboard version endpoints (REQ-VERS-001..009)."
         },
         {
+            "name": "discoverable-services",
+            "description": "`GET` and `PUT /api/admin/discoverable-services`, for LaunchPad administrators only."
+        },
+        {
             "name": "embed-token-api",
             "description": "Admin endpoints for embed tokens."
         },
@@ -2323,6 +2327,86 @@
                     },
                     "500": {
                         "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            }
+        },
+        "/admin/discoverable-services": {
+            "get": {
+                "operationId": "discoverable-services-show",
+                "x-launchpad-stability": "internal",
+                "summary": "The services an administrator allowed for discovery",
+                "description": "The services an administrator allowed for discovery. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "discoverable-services"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "discoverable-services-update",
+                "x-launchpad-stability": "internal",
+                "summary": "Replace the list; an entry without a name or a web address is refused with 400",
+                "description": "Replace the list; an entry without a name or a web address is refused with 400. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "discoverable-services"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "services": {
+                                        "description": "The services, each `{name, url}`."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
                     }
                 }
             }
@@ -14087,6 +14171,38 @@
                 "x-launchpad-stability": "internal",
                 "summary": "The apps this server runs for the caller, to place as tiles",
                 "description": "The apps this server runs for the caller, to place as tiles. Answers only the caller's own app menu: there is no id parameter, so nothing to point at someone else (REQ-DISC-001). Placing a tile still goes through the dashboard's own add-tile check. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "tile-api"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/tiles/found-services": {
+            "get": {
+                "operationId": "tile-api-found-services",
+                "x-launchpad-stability": "internal",
+                "summary": "The services an administrator allowed for discovery that answered (REQ-TILE-044)",
+                "description": "The services an administrator allowed for discovery that answered (REQ-TILE-044). Asks only the addresses on the administrator's list (no port or host scan); each answer is cached for five minutes. Needs a signed-in Nextcloud user.",
                 "tags": [
                     "tile-api"
                 ],

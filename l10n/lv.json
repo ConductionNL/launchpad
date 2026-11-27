@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Neatbild",
+        "port {port}": "ports {port}",
+        "found {time}": "atrasts {time}",
+        "Services to discover": "Meklējamie pakalpojumi",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "“Pievienot flīzes” rāda šos pakalpojumus, kad tie atbild. LaunchPad vaicā tikai šī saraksta adreses.",
+        "No services on this list yet.": "Šajā sarakstā vēl nav pakalpojumu.",
+        "For example http://localhost:3000": "Piemēram, http://localhost:3000",
+        "Add service": "Pievienot pakalpojumu",
+        "Services to discover saved.": "Meklējamie pakalpojumi saglabāti.",
+        "The services to discover could not be saved.": "Meklējamos pakalpojumus neizdevās saglabāt.",
         "Own publication" : "Pašu publikācija",
         "The upload is larger than this server accepts.": "Augšupielāde ir lielāka, nekā šis serveris pieņem.",
         "The file is too large.": "Fails ir pārāk liels.",

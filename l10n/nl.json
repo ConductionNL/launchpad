@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Reageert niet",
+        "port {port}": "poort {port}",
+        "found {time}": "gevonden {time}",
+        "Services to discover": "Te zoeken diensten",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "Tegels toevoegen toont deze diensten als ze antwoorden. LaunchPad vraagt alleen de adressen op deze lijst.",
+        "No services on this list yet.": "Nog geen diensten op deze lijst.",
+        "For example http://localhost:3000": "Bijvoorbeeld http://localhost:3000",
+        "Add service": "Dienst toevoegen",
+        "Services to discover saved.": "Te zoeken diensten opgeslagen.",
+        "The services to discover could not be saved.": "De te zoeken diensten konden niet worden opgeslagen.",
         "Own publication" : "Eigen publicatie",
         "The upload is larger than this server accepts.": "De upload is groter dan deze server accepteert.",
         "The file is too large.": "Het bestand is te groot.",

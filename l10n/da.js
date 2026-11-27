@@ -1,6 +1,16 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Not responding" : "Svarer ikke",
+    "port {port}" : "port {port}",
+    "found {time}" : "fundet {time}",
+    "Services to discover" : "Tjenester der skal findes",
+    "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list." : "\"Tilføj fliser\" viser disse tjenester, når de svarer. LaunchPad spørger kun adresserne på denne liste.",
+    "No services on this list yet." : "Endnu ingen tjenester på denne liste.",
+    "For example http://localhost:3000" : "For eksempel http://localhost:3000",
+    "Add service" : "Tilføj tjeneste",
+    "Services to discover saved." : "Tjenester der skal findes er gemt.",
+    "The services to discover could not be saved." : "Tjenesterne der skal findes kunne ikke gemmes.",
     "Own publication" : "Egen publikation",
     "The upload is larger than this server accepts." : "Uploaden er større, end denne server accepterer.",
     "The file is too large." : "Filen er for stor.",

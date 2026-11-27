@@ -1,6 +1,16 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Not responding" : "Neatsako",
+    "port {port}" : "prievadas {port}",
+    "found {time}" : "rasta {time}",
+    "Services to discover" : "Ieškomos paslaugos",
+    "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list." : "„Pridėti plyteles“ rodo šias paslaugas, kai jos atsako. LaunchPad klausia tik šio sąrašo adresų.",
+    "No services on this list yet." : "Šiame sąraše dar nėra paslaugų.",
+    "For example http://localhost:3000" : "Pavyzdžiui, http://localhost:3000",
+    "Add service" : "Pridėti paslaugą",
+    "Services to discover saved." : "Ieškomos paslaugos įrašytos.",
+    "The services to discover could not be saved." : "Nepavyko įrašyti ieškomų paslaugų.",
     "Own publication" : "Nuosavas leidinys",
     "The upload is larger than this server accepts." : "Įkeliami duomenys didesni, nei priima šis serveris.",
     "The file is too large." : "Failas per didelis.",

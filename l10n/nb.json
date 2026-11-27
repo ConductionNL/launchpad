@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Svarer ikke",
+        "port {port}": "port {port}",
+        "found {time}": "funnet {time}",
+        "Services to discover": "Tjenester som skal oppdages",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "«Legg til fliser» viser disse tjenestene når de svarer. LaunchPad spør bare adressene på denne listen.",
+        "No services on this list yet.": "Ingen tjenester på denne listen ennå.",
+        "For example http://localhost:3000": "For eksempel http://localhost:3000",
+        "Add service": "Legg til tjeneste",
+        "Services to discover saved.": "Tjenester som skal oppdages er lagret.",
+        "The services to discover could not be saved.": "Tjenestene som skal oppdages kunne ikke lagres.",
         "Own publication" : "Egen publisering",
         "The upload is larger than this server accepts.": "Opplastingen er større enn denne serveren godtar.",
         "The file is too large.": "Filen er for stor.",

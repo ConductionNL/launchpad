@@ -89,6 +89,11 @@ describe('carriedApiReads early reads', () => {
 		expect(takeEarlyRead(URL)).toBeNull()
 	})
 
+	it('starts nothing when the client cannot send, so the GET goes out later', () => {
+		startEarlyRead(URL, {}, { get: () => { throw new Error('offline') } })
+		expect(takeEarlyRead(URL)).toBeNull()
+	})
+
 	it('leaves other methods and URLs outside the app alone', () => {
 		const client = clientAnswering(Promise.resolve({ data: {} }))
 		startEarlyRead('/ocs/v2.php/apps/notifications/api/v2/notifications', {}, client)

@@ -173,7 +173,13 @@ export function startEarlyRead(url, params = {}, client = axios) {
 	if (key === null) {
 		return
 	}
-	const response = client.get(url, { params, [EARLY_FLAG]: true })
+	let response
+	try {
+		response = Promise.resolve(client.get(url, { params, [EARLY_FLAG]: true }))
+	} catch (error) {
+		// An early read is only a head start: if it cannot start, the GET goes out later.
+		return
+	}
 	// Nobody may ask for it: a failure must not surface as unhandled.
 	response.catch(() => {})
 	early.set(key, { response, expires: Date.now() + EARLY_TTL_MS })

@@ -136,6 +136,8 @@ class AdminFormStateTest extends TestCase {
 		unset($schema[InitialStateBuilder::KEY_SCHEMA_VERSION]);
 		$this->assertSame(
 			expected: [
+				'adminTabs' => ['announcements'],
+				'version' => '1.2.3',
 				'allGroups' => [
 					['id' => 'admin', 'displayName' => 'Admins'],
 					['id' => 'staff', 'displayName' => 'Staff'],
@@ -144,8 +146,6 @@ class AdminFormStateTest extends TestCase {
 				'widgets' => [['id' => 'weather']],
 				'allowUserDashboards' => false,
 				'linkCreateFileExtensions' => ['docx', 'md'],
-				'adminTabs' => ['announcements'],
-				'version' => '1.2.3',
 			],
 			actual: $schema
 		);

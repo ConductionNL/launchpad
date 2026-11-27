@@ -31,7 +31,7 @@ namespace OCA\LaunchPad\Settings;
 
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\InitialState\Page;
-use OCA\LaunchPad\Service\InitialStateBuilder;
+use OCA\LaunchPad\Service\AdminPageStateBuilder;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\IGroupManager;
 
@@ -102,10 +102,12 @@ class AdminFormState {
 
 		$allowUserDashboards = $this->sources->dashboardService->getAllowUserDashboards();
 
-		(new InitialStateBuilder(
+		(new AdminPageStateBuilder(
 			initialState: $this->initialState,
 			page: Page::ADMIN
 		))
+			// REQ-ADM-034: the page shows only the tabs the viewer holds.
+			->setAdminPage(array_values($tabs), $version)
 			->setAllGroups($allGroups)
 			->setConfiguredGroups($configuredGroups)
 			->setWidgets($this->sources->widgetService->getAvailableWidgets())
@@ -113,8 +115,6 @@ class AdminFormState {
 			->setLinkCreateFileExtensions(
 				$this->sources->fileService->getAllowedExtensions()
 			)
-			// REQ-ADM-034: the page shows only the tabs the viewer holds.
-			->setAdminPage(array_values($tabs), $version)
 			->apply();
 	}//end provide()
 }//end class

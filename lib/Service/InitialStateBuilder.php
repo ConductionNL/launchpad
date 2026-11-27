@@ -131,7 +131,7 @@ class InitialStateBuilder {
 	 *
 	 * @var array<string, mixed>
 	 */
-	private array $values = [];
+	protected array $values = [];
 
 	/**
 	 * Constructor.
@@ -752,24 +752,6 @@ class InitialStateBuilder {
 		$this->values['publicStartToken'] = $token;
 		return $this;
 	}//end setPublicStartToken()
-
-	/**
-	 * The admin settings page's own keys: the tabs the viewer may open
-	 * (REQ-ADM-034) and the running app version its version card reads
-	 * (REQ-ADM-032). Optional keys of the admin page.
-	 *
-	 * @param list<string> $tabs    Tab ids, in the page's order.
-	 * @param string       $version The app version.
-	 *
-	 * @return self For chaining.
-	 *
-	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-delegated-admin-settings-per-area-req-adm-034
-	 */
-	public function setAdminPage(array $tabs, string $version): self {
-		$this->values['adminTabs'] = $tabs;
-		$this->values['version']   = $version;
-		return $this;
-	}//end setAdminPage()
 
 	/**
 	 * Validate required keys then push every buffered pair plus the

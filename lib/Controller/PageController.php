@@ -796,7 +796,7 @@ class PageController extends Controller {
 	/**
 	 * The app stylesheets a page with this script links, in order.
 	 *
-	 * The workspace links nextcloud-vue's stylesheet (`css/nextcloud-vue.css`,
+	 * The workspace and the public page link nextcloud-vue's stylesheet (`css/nextcloud-vue.css`,
 	 * copied there by the build) instead of launchpad-main inserting its ~1 MB
 	 * as text from JavaScript: the browser keeps a linked sheet parsed between
 	 * page loads, which took ~30-100 ms off every warm Workspace load.
@@ -808,7 +808,7 @@ class PageController extends Controller {
 	 * @spec openspec/specs/runtime-shell/spec.md
 	 */
 	public static function stylesFor(string $script): array {
-		if ($script === 'launchpad-main') {
+		if ($script === 'launchpad-main' || $script === 'launchpad-public') {
 			return ['nextcloud-vue', 'launchpad'];
 		}
 

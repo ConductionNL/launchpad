@@ -4,7 +4,7 @@
 -->
 
 <template>
-	<div class="container-widget" :style="wrapperStyle">
+	<div class="container-widget" :class="{ 'container-widget--editing': editMode }" :style="wrapperStyle">
 		<div v-if="hasTitle || canForgetUsage" class="container-widget__header">
 			<h4 v-if="hasTitle" class="container-widget__title">
 				{{ titleText }}
@@ -724,6 +724,12 @@ export default {
 .launchpad-container-grid {
 	flex: 1;
 	min-height: 0;
+}
+
+/* REQ-WDG-050: in edit mode a child's cell does not clip, so the edit menu of
+   a child one row tall stays whole and clickable above the resize handle. */
+.container-widget--editing .launchpad-container-grid > .grid-stack-item > .grid-stack-item-content {
+	overflow: visible;
 }
 
 .container-widget__child {

@@ -308,11 +308,13 @@ export default {
 	position: relative;
 }
 
+/* Above the inner grid's resize handle (GridStack and the dashboard's grid
+   styles draw it at z-index 100-101): on a small child it sits on the menu. */
 .container-child__edit {
 	position: absolute;
 	top: 2px;
 	inset-inline-end: 2px;
-	z-index: 1;
+	z-index: 110;
 	pointer-events: auto;
 }
 

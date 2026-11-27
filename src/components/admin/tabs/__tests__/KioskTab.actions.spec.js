@@ -40,6 +40,7 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 	NcDialog: { name: 'NcDialog', template: '<div />' },
 	NcSelect: { name: 'NcSelect', template: '<div />' },
 	NcTextField: { name: 'NcTextField', template: '<div />' },
+	NcCheckboxRadioSwitch: { name: 'NcCheckboxRadioSwitch', props: ['modelValue'], template: '<div />' },
 }))
 
 const lobby = {

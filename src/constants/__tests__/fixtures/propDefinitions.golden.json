@@ -1763,6 +1763,12 @@
 		"validator": false,
 		"default": null
 	},
+	"../../components/Workspace/config/SharingScreenLink.vue | dashboard": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/Workspace/config/VersionsTab.vue | dashboardUuid": {
 		"type": "String",
 		"required": false,
@@ -2059,6 +2065,17 @@
 		"validator": false
 	},
 	"../../dialogs/RevokeEmbedTokenDialog.vue | name": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../dialogs/RevokeScreenLinkDialog.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../dialogs/RevokeScreenLinkDialog.vue | name": {
 		"type": "String",
 		"required": false,
 		"validator": false,

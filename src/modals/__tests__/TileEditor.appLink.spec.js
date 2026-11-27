@@ -151,4 +151,21 @@ describe('TileEditor as the App or link tile form', () => {
 		wrapper.findComponent({ name: 'TileAppChooser' }).vm.$emit('importBookmarks', file)
 		expect(wrapper.emitted('importBookmarks')).toEqual([[file]])
 	})
+
+	// add-widget-dialog-with-miniatures REQ-WDG-040: inside Add widget.
+	it('draws the form without a dialog of its own when embedded', async () => {
+		const wrapper = mountEditor(null, { embedded: true })
+		expect(wrapper.find('[data-testid="tile-editor-embedded"]').exists()).toBe(true)
+		expect(wrapper.findComponent({ name: 'NcModal' }).exists()).toBe(false)
+		expect(wrapper.find('[data-testid="tile-mode"]').exists()).toBe(true)
+		await wrapper.findAll('button.button').find((b) => b.text() === 'Cancel').trigger('click')
+		expect(wrapper.emitted('close')).toHaveLength(1)
+	})
+
+	it('is a dialog of its own otherwise', () => {
+		const modal = mountEditor().findComponent({ name: 'NcModal' })
+		expect(modal.exists()).toBe(true)
+		modal.vm.$emit('update:show', false)
+		expect(mountEditor().find('[data-testid="tile-editor-embedded"]').exists()).toBe(false)
+	})
 })

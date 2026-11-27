@@ -13,6 +13,9 @@
  *
  * The enumeration keys are core app values; the file reads them first and
  * puts them back afterwards. It runs serially: the keys are instance-wide.
+ * Nextcloud keeps app config in the web server's local memory cache for a
+ * few seconds (AppConfig LOCAL_CACHE_TTL), and an occ write cannot clear
+ * that cache, so every listing is polled until the new setting shows.
  *
  * Gate-19 @e2e traceability:
  *   @e2e people-widget::every-user-may-list-people
@@ -33,6 +36,8 @@ import { adminContext } from './support/principals.ts'
 const STAMP = `Enum${Date.now()}`
 const ALLOW = 'shareapi_allow_share_dialog_user_enumeration'
 const TO_GROUP = 'shareapi_restrict_user_enumeration_to_group'
+/** How long a setting written with occ may take to reach the web server. */
+const SETTLE = { timeout: 15_000, intervals: [500, 1_000] }
 
 test.describe.configure({ mode: 'serial' })
 
@@ -108,20 +113,20 @@ test('an ordinary user may list people and sees everyone while enumeration is op
 
 	const { status, body } = await getPeople(pieter.api, { limit: 1 })
 	expect(status, JSON.stringify(body)).toBe(200)
-	expect(await namesPieterFinds()).toEqual([`${STAMP} Anna`, `${STAMP} Bram`, `${STAMP} Pieter`])
+	await expect.poll(namesPieterFinds, SETTLE).toEqual([`${STAMP} Anna`, `${STAMP} Bram`, `${STAMP} Pieter`])
 })
 
 test('restricted to own groups, only members of the viewer\'s groups are listed @e2e people-widget::listing-restricted-to-own-groups', async () => {
 	await setCoreValue(ALLOW, 'yes')
 	await setCoreValue(TO_GROUP, 'yes')
 
-	expect(await namesPieterFinds()).toEqual([`${STAMP} Anna`, `${STAMP} Pieter`])
+	await expect.poll(namesPieterFinds, SETTLE).toEqual([`${STAMP} Anna`, `${STAMP} Pieter`])
 })
 
 test('with enumeration off nobody is listed @e2e people-widget::enumeration-off-lists-nobody', async () => {
 	await setCoreValue(ALLOW, 'no')
 
-	expect(await namesPieterFinds()).toEqual([])
+	await expect.poll(namesPieterFinds, SETTLE).toEqual([])
 	const page = await mustGetPeople(pieter.api, { limit: 10 })
 	expect(page.users).toEqual([])
 })

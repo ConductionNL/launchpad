@@ -227,6 +227,32 @@
 	padding: 0 !important;
 }
 
+/* A table in a text card is the boards' table (LpVandaag, LpIntranet
+   "Werken op het stadskantoor"): 13px, cells 6px 8px with only a rule under
+   each row, the head row semibold and muted, no box around it. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-text-widget table {
+	width: 100%;
+	border: 0;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-text-widget :is(th, td) {
+	padding: 6px 8px;
+	border: 0;
+	border-bottom: 1px solid var(--cn-board-hairline, var(--color-border));
+	line-height: 1.5;
+	text-align: start;
+	vertical-align: top;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-text-widget th {
+	background: none;
+	color: var(--color-text-maxcontrast);
+	font-weight: 600;
+	white-space: nowrap;
+}
+
 /* "Vandaag eerst" draws its own heading inside the card, 14px from the top
    (LpVandaag); the card's title row is not shown for it. */
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .widget-renderer:has(> .attention-widget) {

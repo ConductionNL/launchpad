@@ -9,7 +9,7 @@
  * and a row menu per dashboard.
  */
 
-import type { Page } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
 
@@ -92,4 +92,43 @@ export async function saveEditDraft(page: Page): Promise<number> {
 	)
 	await save.click()
 	return (await saved).status()
+}
+
+/**
+ * Add a widget through an open Add widget (or tile) dialog the way edit mode
+ * does now (REQ-EDIT-001/002): press its Add button, then Save the draft,
+ * and return what the server stored for the new widget.
+ *
+ * @param page The page, in edit mode with the dialog open.
+ * @param dialog The dialog.
+ * @param button The name of its add button.
+ * @return The dashboard id, the stored new placement, and what the Save sent for it.
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ */
+export async function addAndSaveDraft(
+	page: Page,
+	dialog: Locator,
+	button: RegExp = /^add$/i,
+): Promise<{ dashboardId: number, placement: Record<string, any>, sent: Record<string, any> }> {
+	const add = dialog.getByRole('button', { name: button })
+	await expect(add).toBeEnabled({ timeout: 5_000 })
+	await add.click()
+	await expect(dialog).not.toBeVisible({ timeout: 8_000 })
+	const saved = page.waitForResponse(
+		(res) => res.request().method() === 'PUT'
+			&& /\/apps\/launchpad\/api\/dashboard\/\d+$/.test(new URL(res.url()).pathname)
+			&& res.request().postDataJSON()?.draft === true,
+	)
+	await page.locator('[data-testid="launchpad-edit-bar-save"]').click()
+	const response = await saved
+	expect(response.status(), await response.text()).toBeLessThan(300)
+	const body = response.request().postDataJSON() as { placements: Array<Record<string, any>> }
+	const kept = new Set(body.placements.filter((p) => p.id !== undefined).map((p) => Number(p.id)))
+	const json = await response.json()
+	const stored = ((json.data ?? json).placements ?? []) as Array<Record<string, any>>
+	return {
+		dashboardId: Number(new URL(response.url()).pathname.match(/dashboard\/(\d+)$/)![1]),
+		placement: stored.find((p) => !kept.has(Number(p.id)))!,
+		sent: body.placements.find((p) => p.id === undefined)!,
+	}
 }

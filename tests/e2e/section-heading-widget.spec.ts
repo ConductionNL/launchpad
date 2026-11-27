@@ -28,7 +28,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
+import { addAndSaveDraft, enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN = {
@@ -73,14 +73,8 @@ test('a section heading heads a group', async ({ page }) => {
 	await dialog
 		.getByLabel('Explanation', { exact: true })
 		.fill('De tegels van het team')
-	const created = page.waitForResponse(
-		(r) =>
-			r.request().method() === 'POST'
-			&& r.url().includes(`/api/dashboard/${seeded!.id}/widgets`),
-	)
-	await dialog.locator('[data-testid="add-widget-save"]').click()
-	expect((await created).status()).toBe(201)
-	await expect(dialog).not.toBeVisible({ timeout: 10_000 })
+	// REQ-EDIT-001/002: Add puts it in the draft; the edit-mode Save stores it.
+	await addAndSaveDraft(page, dialog)
 
 	// The placement was stored with that content.
 	const read = await api.get(

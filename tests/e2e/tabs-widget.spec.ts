@@ -19,7 +19,7 @@ import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
-import { enterEditMode } from './support/dashboardSwitcher.ts'
+import { enterEditMode, saveEditDraft } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	allowPersonalDashboards,
@@ -76,6 +76,8 @@ test('Tabs is added through Add widget, Layout, with a second tab from its form'
 
 		const widget = page.locator('[data-testid="tabs-widget"]').last()
 		await expect(widget.getByRole('tab')).toHaveText(['Tab 1', 'Tab 2'])
+		// REQ-EDIT-002: the edit-mode Save stores the new widget.
+		expect(await saveEditDraft(page)).toBe(200)
 		const stored = await (await owner!.api.get(`${API}/dashboard/${dashboard!.id}`)).json()
 		const tabs = (stored.placements ?? []).find((row: { widgetId: string }) => row.widgetId === 'tabs')
 		expect(tabs?.content?.tabs).toHaveLength(2)

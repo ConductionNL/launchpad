@@ -3971,7 +3971,7 @@ export default {
 		 * @param {object} content The tile's content blob, as the save writes it.
 		 * @return {Promise<void>}
 		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
 		 */
 		async moveTileIntoGroup(tileData, content) {
 			const placementId = this.editingTile.id

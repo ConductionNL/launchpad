@@ -28,7 +28,8 @@ import './publicPath.js'
 import 'gridstack/dist/gridstack.min.css'
 // The library's own stylesheet (board look, widgets, dialogs). Without it
 // the page only had the library CSS another app's bundle happened to load.
-import '@conduction/nextcloud-vue/css/index.css'
+// The library stylesheet is linked by the page (PageController::stylesFor),
+// not inserted from this bundle as text.
 import './styles/kiosk.css'
 registerBuiltinDashboardWidgets()
 // The library's own strings (the greeting header among them) in the

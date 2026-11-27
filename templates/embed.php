@@ -20,6 +20,7 @@
  */
 
 \OCP\Util::addScript('launchpad', 'launchpad-embed');
+\OCP\Util::addStyle('launchpad', 'nextcloud-vue');
 \OCP\Util::addStyle('launchpad', 'launchpad');
 ?>
 <?php if ($_['themeCss'] !== '') : ?>

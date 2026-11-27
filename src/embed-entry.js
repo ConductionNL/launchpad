@@ -20,7 +20,8 @@ import EmbedView from './views/EmbedView.vue'
 
 import './publicPath.js'
 import 'gridstack/dist/gridstack.min.css'
-import '@conduction/nextcloud-vue/css/index.css'
+// The library stylesheet is linked by templates/embed.php, not inserted from
+// this bundle as text: an embed reloads in every host page that frames it.
 
 // Widget types self-register on import; see public.js.
 registerBuiltinDashboardWidgets()

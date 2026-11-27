@@ -44,11 +44,11 @@
 	"resolveActive | active still visible by id": {
 		"result": {
 			"value": {
-				"id": 2,
-				"uuid": "g1",
+				"id": 3,
+				"uuid": "g2",
 				"source": "group",
 				"groupId": "sales",
-				"isDefault": 0
+				"isDefault": "1"
 			}
 		},
 		"state": {
@@ -94,10 +94,9 @@
 	"resolveActive | active still visible by uuid": {
 		"result": {
 			"value": {
-				"id": 2,
-				"uuid": "g1",
-				"source": "group",
-				"groupId": "sales",
+				"id": 1,
+				"uuid": "u1",
+				"source": "user",
 				"isDefault": 0
 			}
 		},
@@ -137,8 +136,10 @@
 	"resolveActive | active id zero": {
 		"result": {
 			"value": {
-				"id": 0,
-				"source": "user"
+				"id": 5,
+				"uuid": "d2",
+				"source": "default",
+				"isDefault": 1
 			}
 		},
 		"state": {
@@ -239,6 +240,101 @@
 			"activeDashboard": {
 				"id": null
 			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | start dashboard visible": {
+		"result": {
+			"value": {
+				"id": 2,
+				"uuid": "g1",
+				"source": "group",
+				"groupId": "sales",
+				"isDefault": 0
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 2,
+					"uuid": "g1",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": 0
+				},
+				{
+					"id": 3,
+					"uuid": "g2",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": "1"
+				},
+				{
+					"id": 4,
+					"uuid": "d1",
+					"source": "default",
+					"isDefault": 0
+				}
+			],
+			"activeDashboard": {
+				"id": 2
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | start dashboard gone": {
+		"result": {
+			"value": {
+				"id": 4,
+				"uuid": "d1",
+				"source": "default",
+				"isDefault": 0
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 4,
+					"uuid": "d1",
+					"source": "default",
+					"isDefault": 0
+				}
+			],
+			"activeDashboard": null,
 			"widgetPlacements": [],
 			"quota": {
 				"maxDashboards": 0,

@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Žiadne zmeny",
+        "Keep editing": "Pokračovať v úpravách",
+        "Save changes?": "Uložiť zmeny?",
+        "Discard changes?": "Zahodiť zmeny?",
+        "Don't save": "Neukladať",
+        "The changes could not be saved.": "Zmeny sa nepodarilo uložiť.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Kolega ako prvý zmenil {count} z týchto miniaplikácií. Nič sa neuložilo.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Koncept · {count} zmena", "Koncept · {count} zmeny", "Koncept · {count} zmien"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Tento panel má {count} neuloženú zmenu.", "Tento panel má {count} neuložené zmeny.", "Tento panel má {count} neuložených zmien."],
+        "Duplicate": "Duplikovať",
+        "The widget could not be duplicated.": "Miniaplikáciu sa nepodarilo duplikovať.",
         "Add to favourites: {name}": "Pridať do obľúbených: {name}",
         "All dashboards": "Všetky nástenky",
         "Announcements": "Oznámenia",

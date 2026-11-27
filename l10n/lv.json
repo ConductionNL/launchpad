@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Nav izmaiņu",
+        "Keep editing": "Turpināt rediģēt",
+        "Save changes?": "Saglabāt izmaiņas?",
+        "Discard changes?": "Atmest izmaiņas?",
+        "Don't save": "Nesaglabāt",
+        "The changes could not be saved.": "Izmaiņas nevarēja saglabāt.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Kolēģis pirmais mainīja {count} no šiem logrīkiem. Nekas netika saglabāts.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Melnraksts · {count} izmaiņa", "Melnraksts · {count} izmaiņas", "Melnraksts · {count} izmaiņu"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Šim informācijas panelim ir {count} nesaglabāta izmaiņa.", "Šim informācijas panelim ir {count} nesaglabātas izmaiņas.", "Šim informācijas panelim ir {count} nesaglabātu izmaiņu."],
+        "Duplicate": "Dublēt",
+        "The widget could not be duplicated.": "Logrīku nevarēja dublēt.",
         "Add to favourites: {name}": "Pievienot izlasei: {name}",
         "All dashboards": "Visi vadības paneļi",
         "Announcements": "Paziņojumi",

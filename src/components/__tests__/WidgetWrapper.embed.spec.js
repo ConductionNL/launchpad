@@ -78,4 +78,30 @@ describe('WidgetWrapper embed entry (REQ-WDG-050)', () => {
 		expect(entry(wrapper).attributes('href')).toBeUndefined()
 		expect(entry(wrapper).attributes('disabled')).toBeDefined()
 	})
+
+	it('is disabled for a widget the draft added', () => {
+		const wrapper = mountWidget({ embedHref: href, editMode: true }, { id: 'draft-3', widgetId: 'text', isCompulsory: 0 })
+		expect(entry(wrapper).attributes('href')).toBeUndefined()
+		expect(entry(wrapper).attributes('disabled')).toBeDefined()
+	})
+
+	it('asks the host first while the draft has changes: it emits the link instead of following it', async () => {
+		const wrapper = mountWidget({ embedHref: href, editMode: true, embedAsksFirst: true })
+		expect(entry(wrapper).attributes('href')).toBeUndefined()
+		await entry(wrapper).trigger('click')
+		expect(wrapper.emitted('embed')).toEqual([[href]])
+	})
+
+	it('offers Duplicate in edit mode, emitting the placement id', async () => {
+		const wrapper = mountWidget({ editMode: true })
+		const duplicate = wrapper.find('[data-testid="widget-duplicate"]')
+		expect(duplicate.text()).toBe('Duplicate')
+		await duplicate.trigger('click')
+		expect(wrapper.emitted('duplicate')).toEqual([[5]])
+	})
+
+	it('offers no Duplicate in view mode', () => {
+		const wrapper = mountWidget({ canHideForMe: true })
+		expect(wrapper.find('[data-testid="widget-duplicate"]').exists()).toBe(false)
+	})
 })

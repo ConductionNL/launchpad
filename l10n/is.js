@@ -1,6 +1,17 @@
 OC.L10N.register(
     "launchpad",
     {
+    "No changes" : "Engar breytingar",
+    "Keep editing" : "Halda áfram að breyta",
+    "Save changes?" : "Vista breytingar?",
+    "Discard changes?" : "Henda breytingum?",
+    "Don't save" : "Ekki vista",
+    "The changes could not be saved." : "Ekki tókst að vista breytingarnar.",
+    "A colleague changed {count} of these widgets first. Nothing was saved." : "Samstarfsmaður breytti {count} af þessum viðmótshlutum á undan. Ekkert var vistað.",
+    "_Draft · {count} change_::_Draft · {count} changes_" : ["Drög · {count} breyting", "Drög · {count} breytingar"],
+    "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._" : ["Þetta stjórnborð hefur {count} óvistaða breytingu.", "Þetta stjórnborð hefur {count} óvistaðar breytingar."],
+    "Duplicate" : "Tvítaka",
+    "The widget could not be duplicated." : "Ekki tókst að tvítaka viðmótshlutann.",
     "Add to favourites: {name}" : "Bæta við eftirlæti: {name}",
     "All dashboards" : "Öll mælaborð",
     "Announcements" : "Tilkynningar",

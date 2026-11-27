@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Cap canvi",
+        "Keep editing": "Continua editant",
+        "Save changes?": "Voleu desar els canvis?",
+        "Discard changes?": "Voleu descartar els canvis?",
+        "Don't save": "No desis",
+        "The changes could not be saved.": "No s'han pogut desar els canvis.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Un company ha canviat abans {count} d'aquests ginys. No s'ha desat res.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Esborrany · {count} canvi", "Esborrany · {count} canvis"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Aquest tauler té {count} canvi sense desar.", "Aquest tauler té {count} canvis sense desar."],
+        "Duplicate": "Duplica",
+        "The widget could not be duplicated.": "No s'ha pogut duplicar el giny.",
         "Add to favourites: {name}": "Afegeix als preferits: {name}",
         "All dashboards": "Tots els taulers",
         "Announcements": "Anuncis",

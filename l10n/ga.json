@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Gan athruithe",
+        "Keep editing": "Lean ar aghaidh ag eagarthóireacht",
+        "Save changes?": "Sábháil athruithe?",
+        "Discard changes?": "Cuileáil athruithe?",
+        "Don't save": "Ná sábháil",
+        "The changes could not be saved.": "Níorbh fhéidir na hathruithe a shábháil.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "D'athraigh comhghleacaí {count} de na giuirléidí seo ar dtús. Níor sábháladh aon rud.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Dréacht · {count} athrú", "Dréacht · {count} athrú", "Dréacht · {count} athrú", "Dréacht · {count} n-athrú", "Dréacht · {count} athrú"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Tá {count} athrú gan sábháil ar an deais seo.", "Tá {count} athrú gan sábháil ar an deais seo.", "Tá {count} athrú gan sábháil ar an deais seo.", "Tá {count} n-athrú gan sábháil ar an deais seo.", "Tá {count} athrú gan sábháil ar an deais seo."],
+        "Duplicate": "Dúblaigh",
+        "The widget could not be duplicated.": "Níorbh fhéidir an ghiuirléid a dhúbláil.",
         "Add to favourites: {name}": "Cuir le ceanáin: {name}",
         "All dashboards": "Gach deais",
         "Announcements": "Fógraí",

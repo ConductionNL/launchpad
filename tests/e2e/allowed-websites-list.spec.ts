@@ -39,7 +39,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { addWidgetFromMore, switchToDashboard } from './support/dashboardSwitcher.ts'
+import { addAndSaveDraft, addWidgetFromMore, switchToDashboard } from './support/dashboardSwitcher.ts'
 import { describeRun, runOcc } from './support/occ.ts'
 import { adminContext, API } from './support/principals.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
@@ -261,10 +261,8 @@ test('a host added with Fetch takes a live tile, and an embed on the same host i
 	const verdict = await (await checked).json()
 	expect(verdict.valid, JSON.stringify(verdict)).toBe(true)
 	await expect(tile.form.getByText('This host is not on the allow-list.')).toHaveCount(0)
-	const add = tile.dialog.getByRole('button', { name: /^add$/i })
-	await expect(add).toBeEnabled({ timeout: 10_000 })
-	await add.click()
-	await expect(tile.dialog).not.toBeVisible({ timeout: 10_000 })
+	// Add keeps it in the edit-mode draft; Save stores it (REQ-EDIT-002).
+	await addAndSaveDraft(page, tile.dialog)
 	await closeSidebar(page)
 
 	const read = await admin.get(`${API}/dashboard/${dashboard!.id}`)
@@ -342,10 +340,7 @@ test('a host added with Embed takes an embedded page, and a live tile on the sam
 		timeout: 10_000,
 	})
 	await expect(frame.form.locator('.iframe-widget-form__warning')).toHaveCount(0)
-	const add = frame.dialog.getByRole('button', { name: /^add$/i })
-	await expect(add).toBeEnabled({ timeout: 10_000 })
-	await add.click()
-	await expect(frame.dialog).not.toBeVisible({ timeout: 10_000 })
+	await addAndSaveDraft(page, frame.dialog)
 	await closeSidebar(page)
 
 	const embeds = (await placements()).filter(

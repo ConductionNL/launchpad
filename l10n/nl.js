@@ -1092,6 +1092,8 @@ OC.L10N.register(
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "De demo-showcases verschijnen hier zodra de demo-data-showcases-capability beschikbaar is. Deze stap is voorlopig alleen ter informatie.",
     "Skip this step for now — demo packages can be installed later from the admin section." : "Sla deze stap voor nu over — demo-pakketten kunnen later vanuit het beheerdergedeelte worden geïnstalleerd.",
     "Admin roles" : "Beheerdersrollen",
+    "Duplicate" : "Dupliceren",
+    "The widget could not be duplicated." : "De widget kon niet worden gedupliceerd.",
     "Create embed token" : "Insluittoken maken",
     "Embeds" : "Insluitingen",
     "Embed usage" : "Gebruik van insluitingen",

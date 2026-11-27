@@ -343,7 +343,7 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 	 * @return DashboardVersionService The mock.
 	 */
 	private function versionServiceRunningSaves(): DashboardVersionService {
-		$versions = $this->createMock(DashboardVersionService::class);
+		$versions = $this->createMock(originalClassName: DashboardVersionService::class);
 		$versions->method('saveWithVersion')->willReturnCallback(
 			static fn (int $dashboardId, string $createdBy, \Closure $save): \OCA\LaunchPad\Db\Dashboard => $save()
 		);

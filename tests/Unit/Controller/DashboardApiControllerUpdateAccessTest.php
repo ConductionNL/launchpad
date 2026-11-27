@@ -417,7 +417,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 	public function testAnUpdateSavesWithItsVersion(): void {
 		$versions = $this->createMock(originalClassName: DashboardVersionService::class);
 		$versions->expects($this->once())->method('saveWithVersion')
-			->with(7, 'alice', $this->isInstanceOf(\Closure::class))
+			->with(7, 'alice', $this->isInstanceOf(className: \Closure::class))
 			->willReturnCallback(static fn (int $dashboardId, string $createdBy, \Closure $save): Dashboard => $save());
 
 		$response = $this->controller(sessionUid: 'alice', userId: 'alice', versions: $versions)->update(7, name: 'After');

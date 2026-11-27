@@ -79,7 +79,8 @@ class DraftSaveService {
 	 *
 	 * @param DashboardDraft $draft The draft.
 	 *
-	 * @return array{dashboard: Dashboard, placements: list<WidgetPlacement>} The stored dashboard and placements.
+	 * @return array{dashboard: Dashboard, placements: list<WidgetPlacement>, removed: list<WidgetPlacement>}
+	 *         The stored dashboard and placements, and the removed widgets as they were stored.
 	 *
 	 * @throws InvalidArgumentException When the draft names a widget of another dashboard or is malformed (400).
 	 * @throws ForbiddenException       When one change is not allowed (403); nothing is stored.
@@ -90,6 +91,7 @@ class DraftSaveService {
 	public function save(DashboardDraft $draft): array {
 		$plan = $this->plan(draft: $draft);
 		$this->guard->authorize(draft: $draft, plan: $plan);
+		$removed = $this->storedPlacements(dashboardId: $draft->dashboardId, placementIds: $plan['remove']);
 
 		$dashboard = $this->versions->saveWithVersion(
 			dashboardId: $draft->dashboardId,
@@ -100,8 +102,33 @@ class DraftSaveService {
 		return [
 			'dashboard'  => $dashboard,
 			'placements' => $this->widgets->getDashboardPlacements(dashboardId: $draft->dashboardId),
+			'removed'    => $removed,
 		];
 	}//end save()
+
+	/**
+	 * The stored placements of a dashboard with the given ids, read before
+	 * the save removes them so their content can still be cleaned up after.
+	 *
+	 * @param int       $dashboardId  The dashboard.
+	 * @param list<int> $placementIds The placement ids.
+	 *
+	 * @return list<WidgetPlacement>
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 */
+	private function storedPlacements(int $dashboardId, array $placementIds): array {
+		if ($placementIds === []) {
+			return [];
+		}
+
+		return array_values(
+			array_filter(
+				$this->widgets->getDashboardPlacements(dashboardId: $dashboardId),
+				static fn (WidgetPlacement $placement): bool => in_array((int) $placement->getId(), $placementIds, true)
+			)
+		);
+	}//end storedPlacements()
 
 	/**
 	 * Sort the draft into added, changed and removed placements.

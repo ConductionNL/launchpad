@@ -33,6 +33,7 @@ use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\ResponseDefinitions;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldSources;
 use OCA\LaunchPad\Service\DashboardDraft;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
@@ -868,13 +869,55 @@ class DashboardApiController extends Controller {
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 
-		return $this->context->responseHelper->success(
-			data: [
-				'dashboard'  => $saved['dashboard']->jsonSerialize(),
-				'placements' => array_map(static fn ($placement): array => $placement->jsonSerialize(), $saved['placements']),
-			]
-		);
+		$body = [
+			'dashboard'  => $saved['dashboard']->jsonSerialize(),
+			'placements' => array_map(static fn ($placement): array => $placement->jsonSerialize(), $saved['placements']),
+		];
+		$warnings = $this->cleanupRemovedFields(removed: $saved['removed'] ?? []);
+		if ($warnings !== []) {
+			$body['warnings'] = $warnings;
+		}
+
+		return $this->context->responseHelper->success(data: $body);
 	}//end saveDraft()
+
+	/**
+	 * Take the calculated fields of the widgets a draft Save removed off
+	 * their source schema, as the single-widget DELETE does
+	 * (widget-calculated-fields, task 28). Runs after the save, so a
+	 * failing source leaves a warning instead of undoing the Save.
+	 *
+	 * @param list<\OCA\LaunchPad\Db\WidgetPlacement> $removed The removed widgets as they were stored.
+	 *
+	 * @return list<mixed> The cleanup warnings.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 */
+	private function cleanupRemovedFields(array $removed): array {
+		$fields = $this->services->widgets->fields;
+		if ($fields === null) {
+			return [];
+		}
+
+		$warnings = [];
+		foreach ($removed as $placement) {
+			if ($fields->hasServerFields(fields: $placement->getCalculatedFieldsArray()) === false) {
+				continue;
+			}
+
+			$warnings = [
+				...$warnings,
+				...$fields->cleanupServerFields(
+					widget: [
+						'id'     => (string) $placement->getId(),
+						'source' => (new CalculatedFieldSources())->sourceKey(content: $placement->getContentArray()),
+					]
+				),
+			];
+		}
+
+		return $warnings;
+	}//end cleanupRemovedFields()
 
 	/**
 	 * The footer override fields of an update body (REQ-FTR-006): a field

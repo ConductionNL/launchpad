@@ -458,17 +458,26 @@ test.describe('discovery', () => {
 			const picker = await openAddFlow(page)
 			const entry = discovered(picker, app.name)
 			await expect(entry).not.toContainText('On this dashboard')
-			const placed = page.waitForResponse(
-				(res) =>
-					res.request().method() === 'POST'
-					&& /\/api\/dashboard\/\d+\/widgets$/.test(res.url()),
-			)
 			await entry.getByRole('checkbox').check()
 			await page.getByTestId('tile-editor-save').click()
-			const response = await placed
-			expect(response.status(), await response.text()).toBeLessThan(300)
-			const id = Number((await response.json()).id)
 			await expect(page.getByTestId('tile-app-chooser')).toBeHidden({ timeout: 10_000 })
+			// Edit mode keeps a draft (REQ-EDIT-001/002): the tile is stored by
+			// the edit bar's Save; the new id is the one the Save did not send.
+			const saved = page.waitForResponse(
+				(res) => res.request().method() === 'PUT'
+					&& /\/apps\/launchpad\/api\/dashboard\/\d+$/.test(new URL(res.url()).pathname)
+					&& res.request().postDataJSON()?.draft === true,
+			)
+			await page.getByTestId('launchpad-edit-bar-save').click()
+			const response = await saved
+			expect(response.status(), await response.text()).toBeLessThan(300)
+			const sent = (response.request().postDataJSON().placements as Array<{ id?: number }>)
+				.filter((p) => p.id !== undefined)
+				.map((p) => Number(p.id))
+			const body = await response.json()
+			const created = ((body.data ?? body).placements as Array<{ id: number }>).find((p) => !sent.includes(Number(p.id)))
+			expect(created, 'the Save stored the new tile').toBeTruthy()
+			const id = Number(created!.id)
 
 			const tileLink = page.locator(
 				`.grid-stack-item[gs-id="${id}"] a[data-testid="cn-app-tile"]`,

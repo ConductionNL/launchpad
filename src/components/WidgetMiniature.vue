@@ -71,7 +71,7 @@ const LOAD_TIMEOUT = 10000
  * another app shows the frame of such a widget: its app's icon and three
  * neutral rows.
  *
- * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+ * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
  */
 export default {
 	name: 'WidgetMiniature',
@@ -102,7 +102,7 @@ export default {
 	computed: {
 		/**
 		 * @return {object|null} The content the miniature draws.
-		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+		 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
 		 */
 		sample() {
 			return this.content || (this.type ? sampleContentOf(this.type, this.entry) : null)
@@ -110,7 +110,7 @@ export default {
 
 		/**
 		 * @return {object} Props besides the content the type's renderer needs to draw its sample without a request.
-		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+		 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
 		 */
 		sampleProps() {
 			return (!this.content && SAMPLE_PROPS[this.type]) || {}
@@ -118,7 +118,7 @@ export default {
 
 		/**
 		 * @return {object} A placement that exists nowhere: id 0, never saved.
-		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+		 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
 		 */
 		samplePlacement() {
 			return { id: 0, widgetId: this.type, content: this.sample, showTitle: 0 }
@@ -126,7 +126,7 @@ export default {
 
 		/**
 		 * @return {boolean} Whether the frame shows the type's icon.
-		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+		 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
 		 */
 		showFallback() {
 			return !this.ncWidget && (this.failed || !this.sample || !this.entry?.renderer)
@@ -134,7 +134,7 @@ export default {
 
 		/**
 		 * @return {string} loading, ready, nc or fallback; for tests and styling.
-		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+		 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
 		 */
 		state() {
 			if (this.ncWidget) {
@@ -147,7 +147,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048 */
+	/** @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048 */
 	mounted() {
 		if (this.ncWidget || this.showFallback) {
 			return
@@ -164,7 +164,7 @@ export default {
 		this.observer.observe(this.$refs.frame)
 	},
 
-	/** @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048 */
+	/** @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048 */
 	beforeUnmount() {
 		this.observer?.disconnect()
 	},
@@ -173,7 +173,7 @@ export default {
 	 * A renderer that throws while drawing its sample shows the icon instead.
 	 *
 	 * @return {boolean} False: the error goes no further than the card.
-	 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+	 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
 	 */
 	errorCaptured() {
 		this.failed = true
@@ -186,7 +186,7 @@ export default {
 		 * chunk that does not load in time shows the icon.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+		 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
 		 */
 		async show() {
 			if (this.visible) {

@@ -112,6 +112,34 @@ export function removeChildIn(content, key) {
 }
 
 /**
+ * The child of this key at any depth, or null.
+ *
+ * @param {object|null} content The content of the widget on the dashboard.
+ * @param {string} key The child's key.
+ * @return {object|null}
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ */
+export function findChildIn(content, key) {
+	return allChildren(content).find(({ child }) => key !== '' && childUseKey(child) === key)?.child ?? null
+}
+
+/**
+ * The content with the child of this key changed by a patch (Configure in
+ * a child's edit menu); null when there is no such child.
+ *
+ * @param {object} content The content of the widget on the dashboard.
+ * @param {{key: string, patch: object}} edit The child's key and its changed fields.
+ * @return {object|null}
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ */
+export function patchChildIn(content, edit) {
+	return changeChildIn(content, {
+		key: edit.key,
+		change: (list, at) => list.map((child, i) => (i === at ? { ...child, ...edit.patch } : child)),
+	})
+}
+
+/**
  * The child lists of a content: a well's placements and every tab's.
  *
  * @param {object} content The content.

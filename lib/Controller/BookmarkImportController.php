@@ -93,7 +93,7 @@ class BookmarkImportController extends Controller {
 				folders: $this->request->getParam('folders', []),
 				bookmarks: $this->request->getParam('bookmarks', [])
 			);
-			$created = $this->widgetService->importBookmarks(dashboardId: $dashboardId, plan: $plan);
+			return $this->answer(dashboardId: $dashboardId, plan: $plan);
 		} catch (InvalidArgumentException $e) {
 			return $this->context->responseHelper->invalidArgument(message: $e->getMessage());
 		} catch (QuotaExceededException $e) {
@@ -101,7 +101,33 @@ class BookmarkImportController extends Controller {
 		} catch (\Exception $e) {
 			return $this->context->responseHelper->error(exception: $e);
 		}
+	}//end import()
 
+	/**
+	 * Create the import, or, for an edit-mode draft (`draft: true`), answer
+	 * the placements it would create below the draft's lowest edge (`bottom`)
+	 * without writing anything: the draft adds them and its Save stores them
+	 * (edit-mode-draft-and-save REQ-EDIT-001). The quota is checked either way.
+	 *
+	 * @param int                $dashboardId The dashboard.
+	 * @param BookmarkImportPlan $plan        What to create.
+	 *
+	 * @return JSONResponse 201 with the created placements, or 200 with the draft's; `skipped` either way.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 */
+	private function answer(int $dashboardId, BookmarkImportPlan $plan): JSONResponse {
+		if ($this->request->getParam('draft') === true) {
+			$this->widgetService->assertImportFits(dashboardId: $dashboardId, plan: $plan);
+			return $this->context->responseHelper->success(
+				data: [
+					'placements' => $plan->draftPlacements(bottom: max(0, (int)$this->request->getParam('bottom', 0))),
+					'skipped'    => $plan->skipped(),
+				]
+			);
+		}
+
+		$created = $this->widgetService->importBookmarks(dashboardId: $dashboardId, plan: $plan);
 		return $this->context->responseHelper->success(
 			data: [
 				'placements' => $this->context->responseHelper->serializeList(entities: $created),
@@ -109,5 +135,5 @@ class BookmarkImportController extends Controller {
 			],
 			statusCode: 201
 		);
-	}//end import()
+	}//end answer()
 }//end class

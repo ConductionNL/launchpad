@@ -16,7 +16,7 @@
  * The kinds in the column, in board order; `all` holds every card. Layout
  * holds the widgets that group other widgets.
  *
- * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+ * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
  */
 export const KINDS = Object.freeze(['all', 'content', 'tiles', 'layout', 'people', 'data', 'apps', 'office'])
 

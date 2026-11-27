@@ -32,6 +32,7 @@
  */
 
 use OCA\LaunchPad\Service\FirstPaintGreeting;
+use OCA\LaunchPad\Service\FirstPaintPlaceholder;
 
 // Nextcloud's template loader hands the parameters over as $_, a name we cannot choose.
 $vars = $_; // phpcs:ignore Squiz.NamingConventions.ValidVariableName.NotCamelCaps
@@ -113,31 +114,22 @@ left:calc(var(--x)*100%/var(--c));width:calc(var(--w)*100%/var(--c));top:calc(va
 @media (max-width:1100px){.lp-fp__g{--c:var(--c2);--r:var(--r2)}.lp-fp__f{--x:var(--x2);--w:var(--w2);--y:var(--y2);--h:var(--h2)}}
 @media (max-width:768px){.lp-fp__g{--c:var(--c3);--r:var(--r3)}.lp-fp__f{--x:var(--x3);--w:var(--w3);--y:var(--y3);
 --h:var(--h3)}.lp-fp__f--ph{display:none}}
-.lp-fp__d{box-sizing:border-box;height:100%;overflow:hidden;padding:17px 18px;
+.lp-fp__d{box-sizing:border-box;display:flex;flex-direction:column;height:100%;overflow:hidden;padding:17px 18px;
 border:1px solid var(--sc-work-field,var(--color-border-dark,#949494));border-radius:12px;background:var(--color-main-background)}
 .lp-fp__ft{margin:0 0 12px;overflow:hidden;font-size:16px;font-weight:700;line-height:1.2;white-space:nowrap;text-overflow:ellipsis}
 .lp-fp__f--heading .lp-fp__d{padding:0;overflow:visible;border:0;border-radius:0;background:none}
 .lp-fp__f--heading .lp-fp__ft{margin:-4px 0 0;font-size:20px;line-height:25px}
 .lp-fp__f--heading .lp-fp__tx{font-size:14px;line-height:18.2px}
-.lp-fp__f--ground .lp-fp__d{display:flex;justify-content:space-between;gap:12px 24px;padding:8px 8px 0}
+.lp-fp__f--ground .lp-fp__d{display:flex;flex-direction:row;justify-content:space-between;gap:12px 24px;padding:8px 8px 0}
 .lp-fp__f--ground h1{margin:0 0 6px;font-size:28px;font-weight:700;line-height:1.2}
 .lp-fp__tx{margin:0;font-size:15px;color:var(--color-text-maxcontrast)}
-.lp-fp__p{display:flex;flex-direction:column;gap:12px}
-.lp-fp__p i{display:block;height:12px;border-radius:6px;
-background:linear-gradient(90deg,var(--color-background-dark) 0,var(--color-background-hover) 50%,var(--color-background-dark) 100%) 0 0/200% 100%;
-animation:lp-fp-sh 1.8s linear infinite}
-.lp-fp__p .o{display:flex;align-items:center;gap:12px}
-.lp-fp__p .o>i{flex:none;width:32px;height:32px}
-.lp-fp__p .o>span{display:flex;flex:1;flex-direction:column;gap:8px}
-.lp-fp__p i.s{width:60%}
-.lp-fp__p i.n{width:40%;height:36px}
-.lp-fp__p--block,.lp-fp__p--block i,.lp-fp__p--tiles,.lp-fp__p--tiles i{height:100%}
+<?php print_unescaped(FirstPaintPlaceholder::css()); ?>
+.lp-fp__d>.cn-widget-placeholder{flex:1 1 auto;min-height:0}
 .lp-fp__f--tiles .lp-fp__d{padding:0;border:0}
-@keyframes lp-fp-sh{to{background-position:-200% 0}}
 .lp-fp__x{position:absolute;right:28px;bottom:24px;left:28px;margin:0;padding:12px 16px;border-radius:8px;
 background:var(--color-main-background);visibility:hidden;animation:lp-fp-x 0s 15s forwards}
 @keyframes lp-fp-x{to{visibility:visible}}
-@media (prefers-reduced-motion:reduce){.lp-fp__p i{animation:none}.lp-fp__x{animation-duration:0s}}
+@media (prefers-reduced-motion:reduce){.lp-fp__x{animation-duration:0s}}
 		</style>
 		<div class="lp-fp__c">
 		<?php if ($header['mode'] === 'page') : ?>
@@ -191,25 +183,7 @@ background:var(--color-main-background);visibility:hidden;animation:lp-fp-x 0s 1
 								<p class="lp-fp__tx"><?php p($frame['text']); ?></p>
 							<?php endif; ?>
 						<?php else : ?>
-							<div class="lp-fp__p lp-fp__p--<?php p($frame['kind']); ?>" aria-hidden="true">
-							<?php if ($frame['kind'] === 'rows') :
-								for ($i = max(1, intdiv($height - 72, 44)); $i > 0; $i--) :
-									?><span class="o"><i></i><span><i></i><i class="s"></i></span></span><?php
-								endfor;
-							elseif ($frame['kind'] === 'lines') :
-								for ($i = max(2, intdiv($height - 72, 24)); $i > 0; $i--) :
-									if ($i === 1) :
-										?><i class="s"></i><?php
-									else :
-										?><i></i><?php
-									endif;
-								endfor;
-							elseif ($frame['kind'] === 'counter') :
-								?><i class="n"></i><i class="s"></i><?php
-							else :
-								?><i></i><?php
-							endif; ?>
-							</div>
+							<?php print_unescaped(FirstPaintPlaceholder::markup(shape: $frame['kind'], height: ($height - 72))); ?>
 						<?php endif; ?>
 					<?php endif; ?>
 					</div>

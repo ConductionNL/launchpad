@@ -171,6 +171,13 @@ class NotifierTest extends TestCase {
 				'setParsedMessage ["[Open LaunchPad to read the announcement]"]',
 				'setLink ["https:\/\/host\/apps\/launchpad\/"]',
 			]],
+			['announcement_reminder', '11111111-2222-4333-8444-555555555555', ['Nieuwe werkwijze Woo-verzoeken'], [
+				'setRichSubject ["[Please confirm you have read: **Nieuwe werkwijze Woo-verzoeken**]",[]]',
+				'setParsedSubject ["[Please confirm you have read: Nieuwe werkwijze Woo-verzoeken]"]',
+				'setRichMessage ["[Open LaunchPad and press the check on the announcement]",[]]',
+				'setParsedMessage ["[Open LaunchPad and press the check on the announcement]"]',
+				'setLink ["https:\/\/host\/apps\/launchpad\/"]',
+			]],
 		];
 		foreach ($cases as [$subject, $objectId, $params, $expected]) {
 			$notification = $this->notification(subject: $subject, objectId: $objectId, params: $params);

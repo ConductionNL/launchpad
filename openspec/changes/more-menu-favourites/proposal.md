@@ -26,6 +26,8 @@ The boards (design-system PR 1212: LpMeer, LpMeerAlle, LpWerkplek, LpVandaag) dr
 - Item 6: every dashboard row has a star button. Empty is not a favourite, filled yellow is. A click toggles it and the
   choice is stored per person. Set as default stays a separate action.
 - Item 7: Powered by sendent and Conduction move to the footer of the More menu, under both columns.
+- Creating a dashboard moves from the sidebar to "New dashboard" at the foot of the expanded list (Ruben's answer of
+  27 Nov 2026; board follow-up for LpMeerAlle).
 - Item 8: Download moves into This dashboard, between Duplicate as new dashboard and Set as default. The header keeps
   only More.
 - The Settings group gains Announcements for people who may manage announcements (board LpMeer; the page behind it is

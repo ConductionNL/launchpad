@@ -29,8 +29,8 @@ What the user gets:
 A user who owns a personal dashboard, or has a chosen start dashboard, MUST NOT be affected by this requirement. Which
 dashboard the user looked at last MUST NOT count.
 
-On upgrade, a user whose last-used dashboard (`active_dashboard_uuid`) is their copy of a template and who has no start
-dashboard MUST get that copy as their start dashboard, once.
+There is no migration of the last-used dashboard: a member whose copy was only stored as their last-used dashboard
+before this rule lands on their group default or Vandaag until they choose Set as default.
 
 #### Scenario: A new member sees the template, although a dashboard for everyone exists
 
@@ -68,10 +68,3 @@ dashboard MUST get that copy as their start dashboard, once.
 - **AND** a template now targets a group both are in
 - **WHEN** each opens launchpad
 - **THEN** neither MUST be moved to the template and no copy MUST be made for them
-
-#### Scenario: A template member keeps their copy after the upgrade
-
-- **GIVEN** before the upgrade Sanne's last-used dashboard is her copy of "Mijn werkdag" and she has no start dashboard
-- **WHEN** the repair step runs and Sanne opens launchpad
-- **THEN** she MUST see her copy of "Mijn werkdag", not Vandaag
-@e2e exclude needs an instance state from before the upgrade; pinned by the repair step's unit test

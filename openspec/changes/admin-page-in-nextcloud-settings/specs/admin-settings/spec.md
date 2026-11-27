@@ -69,7 +69,9 @@ menu.
 
 Every former admin tab SHALL be a tab of this page, in this order: General, Announcements, Templates, Roles and rights,
 Sharing, Organisation menu, Kiosk, Versions and analytics, Controls, Demo data, Group dashboards, Detail fields, Profile
-fields, and after them the tabs no board names (Embeds, Communities, Search shortcuts, App catalogue). The open tab SHALL
+fields. The former tabs no board draws SHALL be sections of drawn tabs: Embeds and Search shortcuts of General,
+Communities of Group dashboards, App catalogue of Controls; their old fragments and old routes SHALL open the tab that
+holds them at that section. The open tab SHALL
 be in the URL fragment (`/settings/admin/launchpad#templates`), so a link opens that tab and the back button returns to
 the previous one. A tab SHALL load its content when first opened.
 
@@ -84,6 +86,11 @@ the previous one. A tab SHALL load its content when first opened.
 
 - **WHEN** Noor opens `/settings/admin/launchpad#sharing`
 - **THEN** the Sharing tab is open
+
+#### Scenario: A folded tab opens its section
+
+- **WHEN** Noor opens `/settings/admin/launchpad#embeds`
+- **THEN** the General tab is open at its Embeds section, and the tab strip has no Embeds tab
 
 ### Requirement: The old admin route redirects (REQ-ADM-033)
 

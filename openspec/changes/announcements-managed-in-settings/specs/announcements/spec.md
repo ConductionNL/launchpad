@@ -74,15 +74,15 @@ receive one Nextcloud notification.
 
 A notice MUST have an end time. While it is visible it MUST show as a banner above the dashboard grid on the Workspace
 page of everyone it targets, whichever dashboard they open, with its level shown by icon and text, not colour alone, and
-with the read row of REQ-ANN-007 (boards LpIntranet, LpVandaag). On a dismissible notice the check and the x MUST both
-confirm it and close the banner for that reader. A notice that may not be dismissed MUST show only the check and MUST
-stay, marked confirmed, until its end time.
+with the read row of REQ-ANN-007 (boards LpIntranet, LpVandaag), with the same meaning as in the widget: the check MUST
+confirm the notice and keep the banner shown, marked read, until its end time, and the x MUST confirm it and hide the
+banner for that reader. Every notice MUST show both; a stored "may not be dismissed" setting MUST be ignored.
 
 #### Scenario: Maintenance banner
 
-- **GIVEN** a published, non-dismissible warning notice for "Burgerzaken" from Friday 17:00 to Saturday 12:00
+- **GIVEN** a published warning notice for "Burgerzaken" from Friday 17:00 to Saturday 12:00
 - **WHEN** Pieter, in "Burgerzaken", opens any dashboard on Friday at 18:00
-- **THEN** he sees the banner "Onderhoud zaaksysteem zaterdag 08:00 tot 12:00" with a warning icon, the check and no x
+- **THEN** he sees the banner "Onderhoud zaaksysteem zaterdag 08:00 tot 12:00" with a warning icon, the check and the x
 - **AND** on Saturday at 12:01 the banner is gone
 
 #### Scenario: Notice without an end time
@@ -91,9 +91,15 @@ stay, marked confirmed, until its end time.
 - **WHEN** she tries to publish it without an end time
 - **THEN** publishing fails with "A notice needs an end time"
 
-#### Scenario: The x on a dismissible notice confirms it
+#### Scenario: The check keeps the banner, the x hides it
 
-- **GIVEN** a dismissible notice for everyone
+- **GIVEN** a notice for everyone
+- **WHEN** Sanne presses its check
+- **THEN** the banner stays, marked read, and Sanne is counted as confirmed via check
+
+#### Scenario: The x on a notice confirms it
+
+- **GIVEN** a notice for everyone
 - **WHEN** Pieter presses its x
 - **THEN** the banner closes for him and the Announcements tab counts him as confirmed via x
 
@@ -124,8 +130,8 @@ stored announcement End now and Delete; Delete asks first.
 Every announcement SHALL show a read row to each reader in its audience, in the widget, on the banner and in its own
 view: a check ("Read", nl "Gelezen") and an x, and, when the author asked for a confirmation, the date to confirm before.
 Pressing the check or the x SHALL record a confirmation for that reader with which of the two they pressed; both count
-as confirmed (Ruben's review of 27 Nov 2026, item 15). In the widget the check SHALL mark the item read and keep it shown,
-and the x SHALL hide it for that reader. The confirmations SHALL feed Seen and confirmed (REQ-ANN-009).
+as confirmed (Ruben's review of 27 Nov 2026, item 15). In the widget and on the banner alike, the check SHALL mark the item
+read and keep it shown, and the x SHALL hide it for that reader (Ruben, 27 Nov 2026). The confirmations SHALL feed Seen and confirmed (REQ-ANN-009).
 
 #### Scenario: Confirm before Friday
 
@@ -145,7 +151,9 @@ and the x SHALL hide it for that reader. The confirmations SHALL feed Seen and c
 
 The Announcements tab of Launchpad's admin page (board LpAankondiging) SHALL list every announcement, news and notices,
 active, scheduled and ended, each with its kind, its period, the number of people who have seen it and who have confirmed
-it, and the actions Edit and Seen and confirmed; above the list New announcement. It SHALL be reachable from Settings in
+it, and the actions Edit and Seen and confirmed; above the list New announcement. Below it, a second list "Widgets that
+ask for confirmation" SHALL hold every widget placement that asks readers to confirm (dashboard-acknowledgements
+REQ-ACK-008). It SHALL be reachable from Settings in
 the More menu (entry Announcements) and from the widget's Manage link, for managers only. The tab's open announcement and
 section SHALL be in the URL fragment.
 

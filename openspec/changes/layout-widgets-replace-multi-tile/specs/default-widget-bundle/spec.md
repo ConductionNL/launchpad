@@ -9,8 +9,8 @@ the start page of board LpVandaag, not the four-widget bundle of REQ-DWB-001. It
 language ("Vandaag" in Dutch), has the slug `start` and the icon `Home`, and holds, on a 12-column grid: the greeting
 header with the weather; the attention widget ("First thing today"); a heading "At work today" over unread mail,
 today's calendar and recent work; a heading "News and colleagues" over the announcements and the people widget; and
-the headings "My apps" and "Working together" over a well of App or link tiles (one app tile per app among Files, Mail,
-Calendar, Talk, Contacts, Deck, Tasks and Notes that is enabled on the instance, sorted "Most used") and the default
+the headings "My apps" and "Working together" over a well with a dynamic app list (container-widget REQ-CONT-009:
+the viewer's apps without Launchpad, at most six, most used first) and the default
 bundle's brand tiles (whose look REQ-DWB-007 sets). No seed names a register, a wiki space or an organisation's own
 text, and no seed places the multi-tile widget, so the page works on a plain Nextcloud.
 
@@ -26,7 +26,7 @@ unchanged.
 - **GIVEN** an instance without a `default`-group dashboard
 - **WHEN** the install repair step runs and a new user opens Launchpad
 - **THEN** the user MUST land on "Today" (slug `start`) with the board's sixteen placements, "My apps" being a well of
-  app tiles
+  their own apps
 
 #### Scenario: An untouched previous seed hands over the default
 

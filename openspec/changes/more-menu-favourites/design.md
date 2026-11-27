@@ -30,6 +30,11 @@ keeps its size. Less (or closing the menu) returns to the favourites. The column
 `menuitemradio`, the star is a separate button inside the row with its own accessible name ("Add to favourites:
 <name>" / "Remove from favourites: <name>") and `aria-pressed`. Arrow keys move over the rows; Tab reaches the star.
 
+### D3b. Read receipts leave the menu
+
+Ruben (27 Nov 2026): per-widget read receipts move to the admin settings page (change
+`announcements-managed-in-settings`), so This dashboard has no Read receipts item.
+
 ### D4. Star colour
 
 Filled star `#f0b400` as drawn; empty star in the muted text colour. The star never carries the meaning alone: the
@@ -40,8 +45,10 @@ accessible name and `aria-pressed` say it.
 `DashboardSwitcherSidebar.vue`, `SidebarFooter.vue`, `SidebarBackdrop.vue` and `DashboardRowActions.vue` are removed with
 their tests. What only the sidebar offered:
 
-- create a new empty dashboard (REQ-SWITCH-005/008): not drawn on any board. Duplicate as new dashboard stays in This
-  dashboard, and the Marketplace makes dashboards from templates. Open question in the PR.
+- create a new empty dashboard (REQ-SWITCH-005/008): Ruben (27 Nov 2026) puts "New dashboard" at the foot of the
+  expanded Dashboards list, above Less, under the same rule as before (personal dashboards allowed, quota not
+  reached). It creates "My workspace" through `POST /api/dashboard` and opens it. No board draws it yet: board
+  follow-up for LpMeerAlle.
 - delete a personal dashboard from its row (REQ-SWITCH-004): Delete in This dashboard does this.
 - the Documentation link of the sidebar footer: Documentation is already in the Settings group.
 

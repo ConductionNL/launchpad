@@ -29,10 +29,10 @@ menu only (boards LpMeer, LpMeerAlle; runtime-shell REQ-SHELL-014, REQ-SHELL-015
 
 ### Requirement: REQ-SWITCH-005 Create-dashboard affordance
 
-**Reason**: the sidebar goes (item 4); no board draws a create-empty-dashboard control. Duplicate as new dashboard and
-the Marketplace stay.
+**Reason**: the sidebar goes (item 4). Creating a new dashboard moves to "New dashboard" at the foot of the expanded
+Dashboards list in the More menu (runtime-shell REQ-SHELL-015; Ruben, 27 Nov 2026).
 
-**Migration**: none. Listed as an open question in the change.
+**Migration**: none.
 
 ### Requirement: REQ-SWITCH-006 Slide-in animation
 
@@ -48,7 +48,7 @@ the Marketplace stay.
 
 ### Requirement: REQ-SWITCH-008 Dedicated Add-Dashboard card button
 
-**Reason**: the sidebar goes (item 4); see REQ-SWITCH-005.
+**Reason**: the sidebar goes (item 4); New dashboard in the More menu replaces it (REQ-SHELL-015).
 
 **Migration**: none.
 

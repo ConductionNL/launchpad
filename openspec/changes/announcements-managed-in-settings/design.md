@@ -11,8 +11,7 @@ Every management endpoint (`POST`, `PUT`, `DELETE /api/announcements...`, publis
 
 Board LpBeheerRollen also draws a row "Manage announcements" in the role action grid. To keep one source of truth, that
 row shows the groups holding the delegation, read-only, with a link to Nextcloud's Administration privileges, where an
-administrator changes them. Open question in the PR: Ruben may prefer the role action as the source, with launchpad
-writing the delegation.
+administrator changes them (Ruben, 27 Nov 2026: delegation is the authority, the row is read-only).
 
 Migration: the current announcement editor groups (`AnnouncementEditorsPolicy`) become delegated groups of the new class
 once, through the Nextcloud settings app's authorized-group service when it is installed. When it is not, the
@@ -52,12 +51,22 @@ at most once a day per announcement.
 
 - Widget: the check marks the announcement read (filled check, it stays until its end time); the x confirms and hides it
   for that reader.
-- Banner: the check and the x both confirm and close the banner for that reader. A notice that may not be dismissed
-  shows only the check; after it, the banner stays until its end time, marked confirmed.
-- An announcement that asks no confirmation shows the same check and x; they record that the reader saw and closed it,
+- Banner (the announcement bar at the top of the dashboards): the same two with the same meaning (Ruben, 27 Nov 2026).
+  The check confirms and keeps the banner shown, marked read, until its end time; the x confirms and hides it for that
+  reader. Every notice gets both; the former "may not be dismissed" setting no longer removes the x. A stored notice
+  with that setting keeps its other fields; the setting is ignored from now on and leaves the form.
+- An announcement that asks no confirmation shows the same check and x; they record that the reader read or closed it,
   and the manager's counts show it.
 
-Open question in the PR: whether the check should also hide an item in the widget.
+### D4b. Per-widget read receipts move to the admin page too
+
+Ruben (27 Nov 2026): the read receipts of widgets that ask readers to confirm (dashboard-acknowledgements) also move to
+the admin settings page. The Announcements tab gets a second list, "Widgets that ask for confirmation": every placement
+with `requiresAcknowledgement`, with its dashboard, its confirmed and pending counts and the deadline, each opening the
+same Seen and confirmed view as an announcement (LpLeesbevestigingen layout, fed by the existing report of REQ-ACK-004).
+Read receipts leaves the dashboard and the More menu. The report endpoint is authorized with the announcements setting
+class; a template owner who does not hold it no longer reads the report. Editors keep asking for confirmation in the
+widget form (REQ-ACK-007) and readers keep confirming on the widget (REQ-ACK-002, -003).
 
 ### D5. The announcement's own view
 
@@ -69,6 +78,7 @@ for its category. For a manager it also shows Manage, which opens the tab on thi
 
 - Editor groups to delegation (D1).
 - Old confirmations to receipts (D3).
+- The "may not be dismissed" flag of existing notices is ignored (D4).
 - No announcement changes.
 
 ## Risks

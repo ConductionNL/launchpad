@@ -35,8 +35,8 @@ footer. Off the dashboard view there is no This dashboard group and Settings sta
   Duplicate as new dashboard, Download, Set as default, and Delete last, in the error colour behind a rule. Each item
   keeps its rule: Edit and Add widget need edit rights, Sharing and Delete need ownership, Duplicate needs personal
   dashboards to be allowed and the quota not reached, Download is offered to everyone who can open the dashboard
-  (REQ-DPD-003). Read receipts, for an editor of a dashboard with a widget that asks readers to confirm, sits before
-  Delete.
+  (REQ-DPD-003). Read receipts are not in this menu: they live on the Announcements tab of Launchpad's admin page
+  (dashboard-acknowledgements REQ-ACK-008).
 - **Settings** (right, at the bottom, below This dashboard's Delete and behind the same top rule): ONE menu item with a
   cog and a chevron, `aria-haspopup="true"` and `aria-expanded`. It starts folded each time the menu opens and unfolds
   in place as an indented group with a 2 px rule at its start: Personal settings, Admin settings (administrators
@@ -136,8 +136,11 @@ initial state.
 More at the foot of the Dashboards column MUST replace the column's content, in place inside the menu, with every
 dashboard the person can open (board LpMeerAlle), titled "All dashboards": the favourites first in starring order, then
 the others (own, shared, group), each with its star, empty or filled. The column MUST scroll inside the menu with nine
-rows visible while the menu keeps its size. Its foot MUST read Less ("favourites only"), which returns the column to
-the favourites. Closing the menu MUST also return it to the favourites. No separate page or sidebar MUST open.
+rows visible while the menu keeps its size. Below the list, outside the scrolling area, MUST stand "New dashboard"
+(nl "Nieuw dashboard"), offered only when personal dashboards are allowed and the person's quota is not reached: it
+MUST create a personal dashboard named "My workspace" (`POST /api/dashboard`) and open it (Ruben, 27 Nov 2026; board
+follow-up for LpMeerAlle). The foot MUST read Less ("favourites only"), which returns the column to the favourites.
+Closing the menu MUST also return it to the favourites. No separate page or sidebar MUST open.
 
 #### Scenario: Expand and collapse
 
@@ -146,6 +149,18 @@ the favourites. Closing the menu MUST also return it to the favourites. No separ
 - **THEN** the column MUST be titled "All dashboards", list all twelve with the four favourites first, and scroll
   inside the menu
 - **AND** choosing Less MUST show the four favourites again
+
+#### Scenario: New dashboard from the full list
+
+- **GIVEN** personal dashboards are allowed and Pieter is under his quota
+- **WHEN** he opens More, chooses More in the Dashboards column and then New dashboard
+- **THEN** a personal dashboard "My workspace" MUST be created and opened
+
+#### Scenario: No New dashboard without personal dashboards
+
+- **GIVEN** an administrator turned personal dashboards off
+- **WHEN** Pieter expands the Dashboards column
+- **THEN** New dashboard MUST NOT be shown
 
 #### Scenario: Open a dashboard from the full list
 

@@ -64,9 +64,9 @@ any widget without such an action shows no "..." at all. Create embed token MUST
 
 Edit mode: every widget, top level and inside a well or tabs, has the edit action menu with Configure, Duplicate,
 Create embed token and Remove. Create embed token keeps its gate (who may create embed tokens; today administrators)
-and opens the embed token form with the widget preselected, on the Embeds tab of launchpad's admin page. Until change
+and opens the embed token form with the widget preselected, in the Embeds section of the General tab of launchpad's admin page. Until change
 `admin-page-in-nextcloud-settings` lands, that is the current admin route; afterwards
-`/settings/admin/launchpad#embeds`. Because the action leaves the dashboard, it asks to save first when the draft has
+`/settings/admin/launchpad#embeds`, which opens that section. Because the action leaves the dashboard, it asks to save first when the draft has
 changes (D5) and is disabled for a widget the draft added but did not save yet (it has no id).
 
 ## Migration

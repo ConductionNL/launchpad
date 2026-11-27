@@ -29,9 +29,11 @@ This is change 3 of 3 in the widget catalogue chain.
 
 - New capability `tabs-widget` (REQ-TABS-001 to -005): a widget with named tabs, each holding widgets like a well.
 - `container-widget` REQ-CONT-008: inside a well, a tile for an app the viewer may not open is left out for that viewer.
+- `container-widget` REQ-CONT-009: a well can fill itself with the viewer's apps (pinned, excluded, most-used limit,
+  search filter), so the multi-tile widget's behaviour lives on inside a well (Ruben, 27 Nov 2026; board follow-up).
 - `app-tile-widget`: REQ-APPTILE-003 (starter set) uses App or link tiles only; REQ-APPTILE-007 removes `app-tiles`
-  from the catalogue and migrates every placement into a well.
-- `default-widget-bundle` REQ-DWB-008: the start page's "My apps" block is a well of App or link tiles.
+  from the catalogue and migrates every placement into a well with a dynamic app list carrying its settings.
+- `default-widget-bundle` REQ-DWB-008: the start page's "My apps" block is a well with a dynamic app list.
 
 ## Out of scope
 

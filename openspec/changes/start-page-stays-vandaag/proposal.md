@@ -29,8 +29,8 @@ already specified in REQ-DWB-007 and built in launchpad#2201. This change adds n
 - `admin-templates` REQ-TMPL-019: a member's template copy is stored as their start dashboard, so later visits find
   it through step 1. Who counts as "already using launchpad" is now: owns a personal dashboard or chose a start
   dashboard.
-- Upgrade: a person whose last-used dashboard is their template copy, and who has no start dashboard, gets that copy
-  as their start dashboard once, so nobody who was shown a template is moved to Vandaag.
+- No migration (Ruben, 27 Nov 2026): a person who never chose Set as default lands on Vandaag or their group default
+  from now on, whatever they looked at last. Template copies made from now on are stored as the start dashboard.
 
 ## Out of scope
 

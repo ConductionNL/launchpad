@@ -23,20 +23,20 @@ SHALL place the multi-tile widget (`app-tiles`).
 
 The multi-tile widget (`app-tiles`, "Tiles for several apps at once") SHALL NOT be offered in Add widget (Ruben's review
 of 27 Nov 2026, item 13). On upgrade every `app-tiles` placement SHALL be replaced by a well (`container`) in the same
-cell, with the same size, sort order, visibility rules, style, title and placement id, holding one App or link tile in
-app mode per app the placement showed: its pinned apps first in their order (marked pinned), then the other apps it
-listed (the owner's enabled apps on a personal dashboard, the apps enabled for everyone on a group dashboard or a
-template), without its excluded apps and without launchpad. When the placement showed the most-used apps first, the
-well SHALL sort "Most used". Templates and their members' copies SHALL be converted the same way, and the step SHALL be
-idempotent. An `app-tiles` placement met later (an import file, an old template definition) SHALL be converted on import.
+cell, with the same size, sort order, visibility rules, style, title and placement id, whose dynamic app list
+(container-widget REQ-CONT-009) carries the placement's settings: its pinned and excluded apps as they were, its
+most-used limit when it showed the most-used apps (else no limit) and its search filter as it was. Nothing SHALL be
+resolved at migration time, so each viewer keeps seeing their own apps. Templates and their members' copies SHALL be
+converted the same way, and the step SHALL be idempotent. An `app-tiles` placement met later (an import file, an old
+template definition) SHALL be converted on import.
 
 #### Scenario: Pinned apps keep their order
 
-- **GIVEN** a personal dashboard with a multi-tile widget pinning Zaaksysteem then Agenda, excluding Photos, for an owner
-  with the apps Zaaksysteem, Agenda, Files, Photos and Talk
-- **WHEN** the repair step runs
-- **THEN** a well stands in its cell holding tiles for Zaaksysteem and Agenda (pinned, in that order), then Files and
-  Talk, and none for Photos
+- **GIVEN** a dashboard with a multi-tile widget pinning Zaaksysteem then Agenda, excluding Photos, showing the 6 most
+  used with the filter on
+- **WHEN** the repair step runs and a viewer with the apps Zaaksysteem, Agenda, Files, Photos and Talk opens it
+- **THEN** a well stands in its cell with an app list pinning Zaaksysteem and Agenda, excluding Photos, limit 6, filter on
+- **AND** the viewer sees Zaaksysteem and Agenda (pinned, in that order), then Files and Talk, and none for Photos
 @e2e exclude needs a placement stored before the upgrade; pinned by the repair step's unit test and the live check in tasks.md
 
 #### Scenario: The catalogue has no multi-tile widget

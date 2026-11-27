@@ -12,9 +12,10 @@ per feature. A tab strip holds the former admin tabs; the open tab is in the URL
 the browser's back button work without a router.
 
 Tab order, as the boards draw it: General, Announcements, Templates, Roles and rights, Sharing, Organisation menu,
-Kiosk, Versions and analytics, Controls, Demo data, Group dashboards, Detail fields, Profile fields. The tabs that exist
-today but no board names (Embeds, Communities, Search shortcuts, App catalogue) follow at the end in that order (open
-question in the PR: keep, fold into another tab, or drop).
+Kiosk, Versions and analytics, Controls, Demo data, Group dashboards, Detail fields, Profile fields. The four tabs that exist
+today but no board draws are folded into drawn tabs as sections (Ruben, 27 Nov 2026): Embeds and Search shortcuts into
+General, Communities into Group dashboards, App catalogue into Controls. Their old fragments (`#embeds`,
+`#search-shortcuts`, `#communities`, `#app-catalogue`) open the tab that holds them, scrolled to the section.
 
 Each tab's content is the existing component, moved from `src/components/admin/tabs/` and `AdminSettings.vue` into
 sections; what they store and the endpoints they call do not change.
@@ -55,7 +56,8 @@ Nextcloud's settings framework.
   `#announcements` (change `more-menu-favourites`).
 - The manifest's `settingsUrl` values pointing at `/apps/launchpad/admin/<tab>` (sharing, embeds) point at the fragment
   URLs.
-- Create embed token (change `edit-mode-draft-and-save`) opens `#embeds` with the widget chosen.
+- Create embed token (change `edit-mode-draft-and-save`) opens `#embeds` (the Embeds section of General) with the
+  widget chosen.
 
 ### D6. Setup wizard and admin tour move with the page
 

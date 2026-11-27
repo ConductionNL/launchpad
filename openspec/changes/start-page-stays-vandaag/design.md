@@ -33,13 +33,10 @@ Set as default like any other choice.
 
 ## Migration
 
-One repair step, idempotent:
-
-- for each user with an `active_dashboard_uuid` that names a personal dashboard made from an admin template
-  (the copy carries its template's id) and without a `default_dashboard_uuid`: set `default_dashboard_uuid` to that
-  copy.
-- nobody else is touched. A person whose last-used dashboard was another dashboard opens on their group default or on
-  Vandaag from now on; their dashboards stay as they made them.
+None (Ruben, 27 Nov 2026: no migration of the last-viewed dashboard). A person without an explicit Set as default
+lands on Vandaag or their group default after the upgrade; that includes members whose template copy was stored as
+their last-used dashboard. Their copy stays and is one click away in the More menu. Copies made after the upgrade are
+stored as the start dashboard (D2).
 
 ## Risks
 

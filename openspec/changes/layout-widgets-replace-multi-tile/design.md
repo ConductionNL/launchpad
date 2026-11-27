@@ -11,29 +11,37 @@ in the browser for the page load only. Its depth counts with the container's: at
 each other (REQ-CONT-006). In edit mode each tab's grid is editable and a tab can be added, renamed, moved and removed
 in the widget's form; removing a tab with widgets asks first.
 
-### D2. Migration: one well per multi-tile placement
+### D2. A well can fill itself with the viewer's apps
 
-One repair step, idempotent, per dashboard in a transaction. For each `app-tiles` placement:
+Ruben (27 Nov 2026): the multi-tile widget is not frozen into fixed tiles. A well gains a second source of tiles: a
+dynamic app list, `content.appList`:
 
-1. Work out the apps it showed. `pinned` apps first, in their order. Then the rest of the apps it listed: for a
-   personal dashboard the owner's enabled apps; for a group dashboard, a template or a template copy the apps enabled
-   for everyone on the instance. Leave out `exclude` and launchpad.
-2. Replace the placement with a `container` placement in the same cell, same size, same sort order, same visibility
-   rules, style and title, holding one `tile` in app mode per app (REQ-APPTILE-006 shape), in that order, the pinned
-   ones with `pinned: true`.
-3. When `showMostUsed` was on, the well's sort order is "Most used" (REQ-TSO-001), so each viewer's most-used apps come
-   first, as before. `mostUsedLimit` and `showFilter` have no equivalent in a well; they are dropped (open question in
-   the PR).
-4. The placement id of the multi-tile widget goes to the container, so hidden states and links follow.
+```json
+{ "pinned": ["zaaksysteem", "calendar"], "exclude": ["photos"], "mostUsedLimit": 6, "showFilter": true }
+```
 
-A viewer who may not open one of the apps does not see that tile in the well (REQ-CONT-008), as the multi-tile widget
-did not show it either.
+With `appList` set, the well draws, for each viewer at render time, one App or link tile in app mode per app in that
+viewer's own app menu: the pinned apps first in their order (marked pinned), then the others, without the excluded apps
+and without launchpad. `mostUsedLimit` (0 is no limit) shows only that many after the pinned ones, the viewer's most
+used first (the same browser-side usage as REQ-TSO-002); `showFilter` draws a search field above the tiles that narrows
+them by name as the viewer types. Apps the viewer may not open are never in their app menu, so they never show. Tiles
+placed by hand in the same well (`content.placements`) follow the dynamic tiles. The well's form gets a section "Apps
+from the app menu" with these four settings. No board draws it yet: board follow-up for LpWidgetKiezen or a well's
+settings board.
+
+### D2b. Migration: one dynamic well per multi-tile placement
+
+One repair step, idempotent, per dashboard in a transaction. Each `app-tiles` placement becomes a `container` placement
+in the same cell, with the same size, sort order, visibility rules, style, title and placement id, whose `appList`
+carries its settings: `pinned` and `exclude` as they were, `mostUsedLimit` as it was when `showMostUsed` was on and 0
+otherwise, `showFilter` as it was. Templates and their members' copies are converted the same way. Nothing is resolved
+at migration time, so each viewer keeps seeing their own apps, as before.
 
 ### D3. Seeds
 
 `StartPageWidgetSeeds`, `StarterWidgetSeeds` and `DemoSeedWidgets` stop naming `app-tiles`. The start page's "My apps"
-block becomes a well titled "My apps" with one app tile per app among Files, Mail, Calendar, Talk, Contacts, Deck,
-Tasks and Notes that is enabled on the instance, sorted "Most used". The repair step of D2 also converts an existing
+block becomes a well titled "My apps" with the dynamic app list of D2 and the settings the seed used for the multi-tile
+widget (`exclude: ['launchpad']`, `mostUsedLimit: 6`, no filter). The repair step of D2b also converts an existing
 Vandaag.
 
 ### D4. The renderer stays one release
@@ -43,6 +51,5 @@ met before conversion still draws, and the import paths convert it. The release 
 
 ## Risks
 
-- A personal dashboard's well is built from the owner's apps at migration time; an app the owner gets later is not
-  added by itself, where the multi-tile widget would have shown it. Accepted by item 13 ("one App/Link tile per former
-  tile"); listed as an open question.
+- The dynamic list reads the viewer's app menu; it comes with the page's boot data, so a dynamic well adds no request
+  (speed rule).

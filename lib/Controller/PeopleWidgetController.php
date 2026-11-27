@@ -29,6 +29,7 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\InvalidPeopleRequestException;
 use OCA\LaunchPad\Service\PeopleQuery;
 use OCA\LaunchPad\Service\PeopleWidgetService;
+use OCA\LaunchPad\Service\UserEnumerationScope;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -49,13 +50,16 @@ class PeopleWidgetController extends Controller {
 	 * @param IRequest $request HTTP request.
 	 * @param PeopleWidgetService $service People widget service.
 	 * @param ActorResponses $context Holds the actionAuth, userSession, userId and responseHelper.
+	 * @param UserEnumerationScope $enumeration Who the caller may see listed (REQ-PPL-015).
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/specs/people-widget/spec.md#requirement-people-listings-honour-the-user-enumeration-settings-req-ppl-015
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly PeopleWidgetService $service,
 		private readonly ActorResponses $context,
+		private readonly UserEnumerationScope $enumeration,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -92,6 +96,7 @@ class PeopleWidgetController extends Controller {
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/specs/people-widget/spec.md#requirement-people-listings-honour-the-user-enumeration-settings-req-ppl-015
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -126,7 +131,10 @@ class PeopleWidgetController extends Controller {
 		}
 
 		try {
-			$parsedFilters = $this->parseFilters(raw: $filters);
+			$parsedFilters = $this->enumeration->narrowFilters(
+				filters: $this->parseFilters(raw: $filters),
+				viewerId: $user->getUID()
+			);
 		} catch (InvalidArgumentException $e) {
 			return $this->badRequest(exception: $e, message: 'Invalid filters parameter');
 		}

@@ -26,6 +26,7 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\NewColleagues;
+use OCA\LaunchPad\Service\UserEnumerationScope;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -46,13 +47,16 @@ class NewColleaguesController extends Controller {
 	 * @param IRequest       $request   HTTP request.
 	 * @param NewColleagues  $colleagues Who started recently or starts soon.
 	 * @param ActorResponses $context    The caller and the action check.
+	 * @param UserEnumerationScope $enumeration Who the caller may see listed (REQ-PPL-015).
 	 *
 	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 * @spec openspec/specs/people-widget/spec.md#requirement-people-listings-honour-the-user-enumeration-settings-req-ppl-015
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly NewColleagues $colleagues,
 		private readonly ActorResponses $context,
+		private readonly UserEnumerationScope $enumeration,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -73,6 +77,7 @@ class NewColleaguesController extends Controller {
 	 *   same visibility checks as the people widget, for the caller.
 	 *
 	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 * @spec openspec/specs/people-widget/spec.md#requirement-people-listings-honour-the-user-enumeration-settings-req-ppl-015
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -88,15 +93,16 @@ class NewColleaguesController extends Controller {
 			return new JSONResponse(data: ['error' => 'Forbidden'], statusCode: Http::STATUS_FORBIDDEN);
 		}
 
-		return new JSONResponse(
-			data: $this->colleagues->listNew(
-				viewerId: $this->context->userId,
-				window: [
-					'since' => ($since ?? NewColleagues::SINCE_DEFAULT),
-					'until' => ($until ?? NewColleagues::UNTIL_DEFAULT),
-					'today' => gmdate(format: 'Y-m-d'),
-				]
-			)
+		$answer = $this->colleagues->listNew(
+			viewerId: $this->context->userId,
+			window: [
+				'since' => ($since ?? NewColleagues::SINCE_DEFAULT),
+				'until' => ($until ?? NewColleagues::UNTIL_DEFAULT),
+				'today' => gmdate(format: 'Y-m-d'),
+			]
 		);
+		$answer['users'] = $this->enumeration->visibleOnly(viewerId: $this->context->userId, people: $answer['users']);
+
+		return new JSONResponse(data: $answer);
 	}//end getNew()
 }//end class

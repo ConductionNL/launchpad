@@ -141,13 +141,11 @@ class UserEnumerationScopeTest extends TestCase {
 	}//end testNoViewerListsNobody()
 
 	/**
-	 * The people service over Pieter, Anna and Bram, with the given scope.
-	 *
-	 * @param UserEnumerationScope $scope The enumeration scope.
+	 * The people service over Pieter, Anna and Bram.
 	 *
 	 * @return PeopleWidgetService The service.
 	 */
-	private function people(UserEnumerationScope $scope): PeopleWidgetService {
+	private function people(): PeopleWidgetService {
 		$users = [];
 		foreach (['anna' => 'Anna', 'bram' => 'Bram', 'pieter' => 'Pieter'] as $uid => $name) {
 			$user = $this->createMock(originalClassName: IUser::class);
@@ -187,24 +185,24 @@ class UserEnumerationScopeTest extends TestCase {
 			accountManager: $accounts,
 			urlGenerator: $this->createMock(originalClassName: IURLGenerator::class),
 			adminTemplateService: $this->createMock(originalClassName: AdminTemplateService::class),
-			profileFields: $this->createMock(originalClassName: ProfileFieldService::class),
-			enumeration: $scope
+			profileFields: $this->createMock(originalClassName: ProfileFieldService::class)
 		);
 	}//end people()
 
 	/**
-	 * The uids one listing returns.
+	 * The uids one listing returns, its filters narrowed by the scope as
+	 * the controller narrows them.
 	 *
-	 * @param PeopleWidgetService $service The service.
-	 * @param array               $filters The widget's filters.
-	 * @param string|null         $search  Search text.
+	 * @param UserEnumerationScope $scope   The enumeration scope.
+	 * @param array                $filters The widget's filters.
+	 * @param string|null          $search  Search text.
 	 *
 	 * @return array<int, string> The uids, in order.
 	 */
-	private static function uids(PeopleWidgetService $service, array $filters=[], ?string $search=null): array {
-		$answer = $service->listUsers(
+	private function uids(UserEnumerationScope $scope, array $filters=[], ?string $search=null): array {
+		$answer = $this->people()->listUsers(
 			request: new PeopleQuery(
-				filters: $filters,
+				filters: $scope->narrowFilters(filters: $filters, viewerId: 'pieter'),
 				sortBy: 'displayName',
 				search: $search,
 				page: PeopleQuery::window(excludeDisabled: true, showBirthdays: false, limit: 50, offset: 0)
@@ -221,7 +219,7 @@ class UserEnumerationScopeTest extends TestCase {
 	 * @return void
 	 */
 	public function testPeopleWidgetListsEveryoneWhenOpen(): void {
-		$this->assertSame(expected: ['anna', 'bram', 'pieter'], actual: self::uids(service: $this->people(scope: $this->scope())));
+		$this->assertSame(expected: ['anna', 'bram', 'pieter'], actual: $this->uids(scope: $this->scope()));
 	}//end testPeopleWidgetListsEveryoneWhenOpen()
 
 	/**
@@ -231,14 +229,14 @@ class UserEnumerationScopeTest extends TestCase {
 	 * @return void
 	 */
 	public function testPeopleWidgetListsOnlyOwnGroupMembersWhenRestricted(): void {
-		$service = $this->people(scope: $this->scope(settings: self::restricted()));
+		$scope = $this->scope(settings: self::restricted());
 		$zorg = [['fieldName' => 'group', 'operator' => 'in', 'values' => ['zorg']]];
 		$both = [['fieldName' => 'group', 'operator' => 'in', 'values' => ['zorg', 'wonen']]];
 
-		$this->assertSame(expected: ['anna', 'pieter'], actual: self::uids(service: $service));
-		$this->assertSame(expected: ['anna', 'pieter'], actual: self::uids(service: $service, search: 'an'));
-		$this->assertSame(expected: [], actual: self::uids(service: $service, filters: $zorg), message: 'a group the viewer is not in shows nobody');
-		$this->assertSame(expected: ['anna', 'pieter'], actual: self::uids(service: $service, filters: $both));
+		$this->assertSame(expected: ['anna', 'pieter'], actual: $this->uids(scope: $scope));
+		$this->assertSame(expected: ['anna', 'pieter'], actual: $this->uids(scope: $scope, search: 'an'));
+		$this->assertSame(expected: [], actual: $this->uids(scope: $scope, filters: $zorg), message: 'a group the viewer is not in shows nobody');
+		$this->assertSame(expected: ['anna', 'pieter'], actual: $this->uids(scope: $scope, filters: $both));
 	}//end testPeopleWidgetListsOnlyOwnGroupMembersWhenRestricted()
 
 	/**
@@ -247,10 +245,10 @@ class UserEnumerationScopeTest extends TestCase {
 	 * @return void
 	 */
 	public function testPeopleWidgetListsNobodyWhenOff(): void {
-		$service = $this->people(scope: $this->scope(settings: [UserEnumerationScope::KEY_ALLOW => 'no']));
+		$scope = $this->scope(settings: [UserEnumerationScope::KEY_ALLOW => 'no']);
 
-		$this->assertSame(expected: [], actual: self::uids(service: $service));
-		$this->assertSame(expected: [], actual: self::uids(service: $service, search: 'an'));
+		$this->assertSame(expected: [], actual: $this->uids(scope: $scope));
+		$this->assertSame(expected: [], actual: $this->uids(scope: $scope, search: 'an'));
 	}//end testPeopleWidgetListsNobodyWhenOff()
 
 	/**
@@ -283,14 +281,13 @@ class UserEnumerationScopeTest extends TestCase {
 			return $user;
 		});
 
-		$colleagues = new NewColleagues(
-			fields: $fields,
-			values: $values,
-			users: $users,
-			enumeration: $this->scope(settings: self::restricted())
-		);
+		$colleagues = new NewColleagues(fields: $fields, values: $values, users: $users);
 		$answer = $colleagues->listNew(viewerId: 'pieter', window: ['today' => '2026-10-05']);
+		$scope = $this->scope(settings: self::restricted());
 
-		$this->assertSame(expected: ['anna'], actual: array_column($answer['users'], 'id'));
+		$this->assertSame(expected: ['anna', 'bram'], actual: array_column($answer['users'], 'id'), message: 'the selection itself is unscoped');
+		$this->assertSame(expected: ['anna'], actual: array_column($scope->visibleOnly(viewerId: 'pieter', people: $answer['users']), 'id'));
+		$this->assertSame(expected: $answer['users'], actual: $this->scope()->visibleOnly(viewerId: 'pieter', people: $answer['users']), message: 'open: unchanged');
+		$this->assertSame(expected: [], actual: $this->scope(settings: [UserEnumerationScope::KEY_ALLOW => 'no'])->visibleOnly(viewerId: 'pieter', people: $answer['users']));
 	}//end testNewColleaguesListsOnlyOwnGroupMembersWhenRestricted()
 }//end class

@@ -57,18 +57,14 @@ class NewColleagues {
 	 * @param ProfileValueMapper  $values The stored values.
 	 * @param IUserManager        $users  The accounts.
 	 * @param PeopleWidgetService|null $people The people widget's profile (avatar, role, organisation), or none.
-	 * @param UserEnumerationScope|null $enumeration Who the viewer may see listed (REQ-PPL-015); none lists everyone.
 	 *
 	 * @return void
-	 *
-	 * @spec openspec/specs/people-widget/spec.md#requirement-people-listings-honour-the-user-enumeration-settings-req-ppl-015
 	 */
 	public function __construct(
 		private readonly ProfileFieldService $fields,
 		private readonly ProfileValueMapper $values,
 		private readonly IUserManager $users,
 		private readonly ?PeopleWidgetService $people = null,
-		private readonly ?UserEnumerationScope $enumeration = null,
 	) {
 	}//end __construct()
 
@@ -141,14 +137,9 @@ class NewColleagues {
 	 * @return array{id: string, displayName: string, avatarUrl?: string, role?: string, organisation?: string}|null
 	 *
 	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
-	 * @spec openspec/specs/people-widget/spec.md#requirement-people-listings-honour-the-user-enumeration-settings-req-ppl-015
 	 */
 	private function entryFor(?string $viewerId, string $ownerId, array $definition): ?array {
 		if ($this->fields->canSee(viewerId: $viewerId, ownerId: $ownerId, definition: $definition) === false) {
-			return null;
-		}
-
-		if ($this->enumeration?->maySee(viewerId: $viewerId, ownerId: $ownerId) === false) {
 			return null;
 		}
 

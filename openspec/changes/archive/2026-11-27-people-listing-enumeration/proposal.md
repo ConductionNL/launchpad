@@ -15,4 +15,4 @@ same-group users when enumeration is restricted to the user's own groups, nothin
 
 ## Impact
 
-- `UserEnumerationScope` (new), `PeopleWidgetService`, `NewColleagues`, `ApplyActionBaseline`, the action seed.
+- `UserEnumerationScope` (new), `PeopleWidgetController`, `NewColleaguesController`, `ApplyActionBaseline`, the action seed.

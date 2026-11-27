@@ -93,6 +93,39 @@ class UserEnumerationScope {
 	}//end visibleGroupsFor()
 
 	/**
+	 * A people-listing filter list narrowed to what the viewer may see.
+	 *
+	 * Open enumeration: the filters unchanged. Restricted to the viewer's
+	 * groups: the first `group` filter keeps only the viewer's groups (a
+	 * group filter of the viewer's groups is added when there is none).
+	 * Enumeration off: a group filter of no groups, which lists nobody.
+	 *
+	 * @param array<int, array<string, mixed>> $filters  The widget's filters.
+	 * @param string|null                      $viewerId The signed-in user.
+	 *
+	 * @return array<int, array<string, mixed>> The filters to apply.
+	 *
+	 * @spec openspec/specs/people-widget/spec.md#requirement-people-listings-honour-the-user-enumeration-settings-req-ppl-015
+	 */
+	public function narrowFilters(array $filters, ?string $viewerId): array {
+		$visible = $this->visibleGroupsFor(viewerId: $viewerId);
+		if ($visible === null) {
+			return $filters;
+		}
+
+		foreach ($filters as $index => $filter) {
+			if (($filter['fieldName'] ?? null) === 'group') {
+				$asked = $filter['values'] ?? [];
+				$filters[$index]['values'] = array_values(array: array_intersect((array)$asked, $visible));
+				return $filters;
+			}
+		}
+
+		$filters[] = ['fieldName' => 'group', 'operator' => 'in', 'values' => $visible];
+		return $filters;
+	}//end narrowFilters()
+
+	/**
 	 * Whether the viewer may see one account listed, per
 	 * {@see self::visibleGroupsFor()}: in the restricted mode the account
 	 * must share one of the viewer's groups.
@@ -110,13 +143,50 @@ class UserEnumerationScope {
 			return true;
 		}
 
-		if ($groups === []) {
+		return $this->sharesGroup(groups: $groups, ownerId: $ownerId);
+	}//end maySee()
+
+	/**
+	 * The listed people the viewer may see, in their order.
+	 *
+	 * @param string|null                      $viewerId The signed-in user.
+	 * @param array<int, array<string, mixed>> $people   Entries carrying their account id under `id`.
+	 *
+	 * @return array<int, array<string, mixed>> The entries the viewer may see.
+	 *
+	 * @spec openspec/specs/people-widget/spec.md#requirement-people-listings-honour-the-user-enumeration-settings-req-ppl-015
+	 */
+	public function visibleOnly(?string $viewerId, array $people): array {
+		$groups = $this->visibleGroupsFor(viewerId: $viewerId);
+		if ($groups === null) {
+			return $people;
+		}
+
+		$visible = [];
+		foreach ($people as $person) {
+			if ($this->sharesGroup(groups: $groups, ownerId: (string)($person['id'] ?? '')) === true) {
+				$visible[] = $person;
+			}
+		}
+
+		return $visible;
+	}//end visibleOnly()
+
+	/**
+	 * Whether an account is a member of one of the given groups.
+	 *
+	 * @param array<int, string> $groups  The groups.
+	 * @param string             $ownerId The account.
+	 *
+	 * @return bool Whether it shares one.
+	 */
+	private function sharesGroup(array $groups, string $ownerId): bool {
+		if ($groups === [] || $ownerId === '') {
 			return false;
 		}
 
-		$shared = array_intersect($groups, $this->templates->getUserGroupIdsFor(userId: $ownerId));
-		return $shared !== [];
-	}//end maySee()
+		return array_intersect($groups, $this->templates->getUserGroupIdsFor(userId: $ownerId)) !== [];
+	}//end sharesGroup()
 
 	/**
 	 * Whether a core yes/no setting is on.

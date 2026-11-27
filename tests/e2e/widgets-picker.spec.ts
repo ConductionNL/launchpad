@@ -277,11 +277,20 @@ test.describe('REQ-WDG-010 the add/edit modal', () => {
 			page.getByRole('dialog', { name: 'Add Widget', exact: true }),
 		).toHaveCount(0)
 		await expect(dialog.locator(TYPE_SELECT)).toHaveCount(0)
-		await expect(dialog.getByLabel('Image URL')).toHaveValue('/img/x.png')
-		await expect(dialog.getByLabel('Alt text')).toHaveValue('X')
+		// The drawn Image form (REQ-IMG-020): a url that is not a web address
+		// is a file, shown as the chosen file by its name; the alternative
+		// text is "Text for who does not see the image"; the Fit select is
+		// REQ-IMG-005 (kept by Ruben's decision of 25 Nov 2026).
 		await expect(
-			dialog.locator('.vs__selected', { hasText: 'Cover' }),
-		).toBeVisible()
+			dialog.getByRole('radio', { name: /^Upload file/ }),
+		).toBeChecked()
+		await expect(dialog.getByTestId('image-chosen')).toContainText('x.png')
+		await expect(
+			dialog.getByRole('textbox', { name: 'Text for who does not see the image' }),
+		).toHaveValue('X')
+		await expect(
+			dialog.getByTestId('image-fit').locator('.vs__selected'),
+		).toHaveText(/cover/i)
 		await expect(page.locator(PRIMARY)).toHaveText('Save')
 	})
 
@@ -298,12 +307,17 @@ test.describe('REQ-WDG-010 the add/edit modal', () => {
 		).toHaveValue(typed)
 
 		await dialog.locator(TYPE_SELECT).selectOption('image')
-		await expect(dialog.getByLabel('Image URL')).toBeVisible()
+		await expect(
+			dialog.getByRole('group', { name: 'Where does the image come from?' }),
+		).toBeVisible()
 		await expect(
 			dialog.locator('[data-testid="cn-markdown-textarea"]'),
 		).toHaveCount(0)
+		await expect(
+			dialog.getByRole('textbox', { name: 'Text for who does not see the image' }),
+		).toHaveValue('')
+		await dialog.getByText('Web address', { exact: true }).click()
 		await expect(dialog.getByLabel('Image URL')).toHaveValue('')
-		await expect(dialog.getByLabel('Alt text')).toHaveValue('')
 		const values = await dialog
 			.locator('input, textarea')
 			.evaluateAll((els) => els.map((el) => (el as HTMLInputElement).value))
@@ -400,7 +414,9 @@ test.describe('REQ-WDG-010 the widget picker', () => {
 		const image = section.locator('[data-testid="widget-picker-type-image"]')
 		await expect(image).toBeVisible()
 		await expect(section.locator('[data-testid="widget-picker-type-text"]')).toHaveCount(0)
-		await image.click()
+		// The drawn picker (widget-picker-board-sync): a card is chosen, then
+		// the picker's Add widget places it.
+		await chooseAndAdd(image)
 
 		await expect(page.locator('.widget-picker')).toHaveCount(0)
 		const dialog = page.getByRole('dialog', { name: 'Add Widget', exact: true })
@@ -471,7 +487,7 @@ test.describe('REQ-WDG-010 the widget picker', () => {
 					`/api/dashboard/${dashboard!.id}/widgets`,
 				),
 		)
-		await placed.click()
+		await chooseAndAdd(placed)
 		expect((await created).status()).toBe(201)
 		const stored = (await placementsOf(admin, dashboard!.id)).filter(
 			(p) => p.widgetId === widget.id,

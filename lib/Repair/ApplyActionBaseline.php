@@ -67,7 +67,7 @@ class ApplyActionBaseline implements IRepairStep {
 	 * The baseline revision this build ships. Bump when the shipped
 	 * baseline changes AND the change should reach existing instances.
 	 */
-	private const BASELINE_VERSION = 8;
+	private const BASELINE_VERSION = 9;
 
 	/**
 	 * Actions each revision ADDED to the baseline, keyed by revision.
@@ -114,6 +114,12 @@ class ApplyActionBaseline implements IRepairStep {
 	 * seeded admin-only, so every user's start page asked twice and got HTTP
 	 * 403. Writing the menu stays admin-only.
 	 *
+	 * v9: listing people for the People, New colleagues and Birthdays widgets
+	 * (REQ-PPL-015, Ruben 27 Nov 2026). It was seeded admin-only, so those
+	 * widgets were empty for everyone else. The listing follows Nextcloud's
+	 * user-enumeration settings, so it shows no one a user could not already
+	 * find in the share dialog.
+	 *
 	 * @var array<int, array<int, string>>
 	 */
 	private const REVISION_ADDITIONS = [
@@ -146,6 +152,7 @@ class ApplyActionBaseline implements IRepairStep {
 			'admin-org-navigation.get-org-navigation',
 			'admin-org-navigation.get-position',
 		],
+		9 => ['people-widget.get-users'],
 	];
 
 	/**

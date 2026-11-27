@@ -39,6 +39,7 @@ use OCP\IUser;
 use OCP\IUserManager;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
+use Unit\Support\OpenEnumeration;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
@@ -61,6 +62,8 @@ use OCA\LaunchPad\Controller\UserResponses;
  * @uses   \OCA\LaunchPad\Controller\UserResponses
  */
 class PeopleDirectoryGoldenTest extends TestCase {
+	use OpenEnumeration;
+
 
 	private const FIXTURE = __DIR__ . '/fixtures/people-directory.json';
 
@@ -254,7 +257,8 @@ class PeopleDirectoryGoldenTest extends TestCase {
 				actionAuth: $auth
 			), responses: new UserResponses(userId: $viewer, responseHelper: new ResponseHelper(
 				logger: new NullLogger()
-			)))
+			))),
+			enumeration: $this->openEnumeration()
 		);
 
 		[$filters, $excludeDisabled, $showBirthdays, $sortBy, $limit, $offset, $q] = $params;

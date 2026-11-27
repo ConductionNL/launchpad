@@ -62,6 +62,13 @@ class AdminFormStateTest extends TestCase {
 	private array $provided = [];
 
 	/**
+	 * The widget service mock.
+	 *
+	 * @var WidgetService&MockObject
+	 */
+	private WidgetService $widgets;
+
+	/**
 	 * Build the state with mocked sources.
 	 *
 	 * @return AdminFormState
@@ -79,7 +86,7 @@ class AdminFormStateTest extends TestCase {
 		$this->settingMapper = $this->createMock(originalClassName: AdminSettingMapper::class);
 
 		$widgets = $this->createMock(originalClassName: WidgetService::class);
-		$widgets->method('getAvailableWidgets')->willReturn([['id' => 'weather']]);
+		$this->widgets = $widgets;
 		$dashboards = $this->createMock(originalClassName: DashboardService::class);
 		$dashboards->method('getAllowUserDashboards')->willReturn(false);
 		$files = $this->createMock(originalClassName: FileService::class);
@@ -122,6 +129,7 @@ class AdminFormStateTest extends TestCase {
 	 */
 	public function testItProvidesTheAdminInitialState(): void {
 		$state = $this->state();
+		$this->widgets->method('getWidgetCatalogue')->willReturn([['id' => 'weather']]);
 		$this->groupManager->expects($this->once())
 			->method('search')
 			->with('')
@@ -187,4 +195,40 @@ class AdminFormStateTest extends TestCase {
 
 		$this->assertSame(expected: [], actual: $this->provided['configuredGroups']);
 	}//end testANonListLegacySettingGivesNoConfiguredGroups()
+
+	/**
+	 * The widgets are read without loading them, so no widget's dashboard
+	 * script reaches the settings page.
+	 *
+	 * @return void
+	 */
+	public function testTheWidgetsAreReadWithoutLoadingThem(): void {
+		$state = $this->state();
+		$this->groupManager->method('search')->willReturn([]);
+		$this->settingsService->method('getGroupOrder')->willReturn(['staff']);
+		$this->widgets->expects($this->once())->method('getWidgetCatalogue')->willReturn([['id' => 'notes']]);
+		$this->widgets->expects($this->never())->method('getAvailableWidgets');
+
+		$state->provide();
+
+		$this->assertSame(expected: [['id' => 'notes']], actual: $this->provided['widgets']);
+	}//end testTheWidgetsAreReadWithoutLoadingThem()
+
+	/**
+	 * When the registry cannot be read without loading, the loading read is
+	 * the fallback, so the page still lists the widgets.
+	 *
+	 * @return void
+	 */
+	public function testWithoutACatalogueTheLoadingReadIsTheFallback(): void {
+		$state = $this->state();
+		$this->groupManager->method('search')->willReturn([]);
+		$this->settingsService->method('getGroupOrder')->willReturn(['staff']);
+		$this->widgets->method('getWidgetCatalogue')->willReturn(null);
+		$this->widgets->expects($this->once())->method('getAvailableWidgets')->willReturn([['id' => 'weather']]);
+
+		$state->provide();
+
+		$this->assertSame(expected: [['id' => 'weather']], actual: $this->provided['widgets']);
+	}//end testWithoutACatalogueTheLoadingReadIsTheFallback()
 }//end class

@@ -56,6 +56,7 @@ use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
+use OCP\IL10N;
 use OCP\L10N\IFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -209,7 +210,7 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 				groupManager: $groups,
 				db: $this->createMock(IDBConnection::class),
 				config: $this->createMock(IConfig::class),
-				l10nFactory: $this->createMock(IFactory::class)
+				l10nFactory: $this->englishL10n()
 			),
 			outlets: new DashboardOutlets(
 				logger: $this->createMock(LoggerInterface::class)
@@ -364,4 +365,18 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 
 		return "{\n".implode(",\n", $lines)."\n}\n";
 	}//end compact()
+
+	/**
+	 * An l10n factory whose translations answer in English, unchanged.
+	 *
+	 * @return IFactory
+	 */
+	private function englishL10n(): IFactory {
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnCallback(static fn (string $text, array $parameters=[]): string => vsprintf($text, $parameters));
+		$factory = $this->createMock(IFactory::class);
+		$factory->method('get')->willReturn($l10n);
+
+		return $factory;
+	}//end englishL10n()
 }//end class

@@ -39,10 +39,12 @@ use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\FooterService;
 use OCA\LaunchPad\Service\PersonalLayerService;
+use OCA\LaunchPad\Service\StartPageWidgetSeeds;
 use OCA\LaunchPad\Service\TemplateService;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
+use OCP\IL10N;
 use OCP\L10N\IFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -102,7 +104,7 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 				groupManager: $this->createMock(IGroupManager::class),
 				db: $this->createMock(IDBConnection::class),
 				config: $this->createMock(IConfig::class),
-				l10nFactory: $this->createMock(IFactory::class)
+				l10nFactory: $this->englishL10n()
 			),
 			outlets: new DashboardOutlets(
 				logger: $this->createMock(LoggerInterface::class)
@@ -336,14 +338,31 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 		$this->dashboardMapper->expects($this->once())
 			->method('insert')
 			->willReturn($dashboard);
-		$this->placementMapper->expects($this->exactly(4))
+		$inserted = [];
+		$this->placementMapper->expects($this->exactly(16))
 			->method('insert')
-			->willReturnArgument(0);
+			->willReturnCallback(
+				static function (WidgetPlacement $placement) use (&$inserted) {
+					$inserted[] = $placement;
+					return $placement;
+				}
+			);
 
 		$result = $this->service->ensureDefaultDashboard();
 
 		$this->assertSame($dashboard, $result);
 		$this->assertSame(1, $dashboard->getIsDefault());
+		// REQ-DWB-008: the start page is board LpVandaag, under its own slug.
+		$this->assertSame(expected: 'Today', actual: $captured[1]);
+		$this->assertSame(expected: StartPageWidgetSeeds::SLUG, actual: $captured[2]['slug']);
+		$this->assertSame(expected: 'Home', actual: $dashboard->getIcon());
+		$this->assertSame(expected: 'header', actual: $inserted[0]->getWidgetId());
+		$this->assertSame(expected: 0, actual: $inserted[0]->getShowTitle());
+		$this->assertSame(expected: 'Unread mail', actual: $inserted[4]->getCustomTitle());
+		$this->assertSame(
+			expected: ['Conduction', 'Sendent', 'Nextcloud'],
+			actual: array_values(array_filter(array_map(static fn (WidgetPlacement $p): ?string => $p->getTileTitle(), $inserted)))
+		);
 		// A draft is hidden from every non-owner, and this row has none.
 		$this->assertSame(
 			Dashboard::STATUS_PUBLISHED,
@@ -359,10 +378,15 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 	 * @return void
 	 */
 	public function testEnsureDefaultDashboardIsIdempotent(): void {
+		$start = $this->makeDashboard();
+		$start->setSlug(StartPageWidgetSeeds::SLUG);
+		$start->setIsDefault(1);
 		$this->dashboardMapper->expects($this->once())
 			->method('findByGroup')
 			->with(Dashboard::DEFAULT_GROUP_ID)
-			->willReturn([$this->makeDashboard()]);
+			->willReturn([$this->previousSeedDashboard(), $start]);
+		$this->placementMapper->method('findByDashboardId')->willReturn($this->previousSeedPlacements());
+		$this->dashboardMapper->expects($this->never())->method('update');
 
 		$this->dashboardFactory->expects($this->never())->method('create');
 		$this->dashboardMapper->expects($this->never())->method('insert');
@@ -370,4 +394,100 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 
 		$this->assertNull($this->service->ensureDefaultDashboard());
 	}//end testEnsureDefaultDashboardIsIdempotent()
+
+	/**
+	 * An install still starting on the previous seed, untouched, gets the
+	 * start page as its new default; the old dashboard stays, no longer the
+	 * default (REQ-DWB-008).
+	 *
+	 * @return void
+	 */
+	public function testAnUntouchedPreviousSeedHandsTheDefaultToTheStartPage(): void {
+		$previous = $this->previousSeedDashboard();
+		$this->dashboardMapper->method('findByGroup')->willReturn([$previous]);
+		$this->placementMapper->method('findByDashboardId')->with(7)->willReturn($this->previousSeedPlacements());
+		$this->dashboardMapper->expects($this->once())->method('update')->with($previous)->willReturnArgument(0);
+
+		$start = $this->makeDashboard();
+		$this->dashboardFactory->expects($this->once())->method('create')->willReturn($start);
+		$this->dashboardMapper->expects($this->once())->method('insert')->willReturn($start);
+		$this->placementMapper->expects($this->exactly(16))->method('insert')->willReturnArgument(0);
+
+		$this->assertSame(expected: $start, actual: $this->service->ensureDefaultDashboard());
+		$this->assertSame(expected: 0, actual: $previous->getIsDefault());
+		$this->assertSame(expected: 1, actual: $start->getIsDefault());
+	}//end testAnUntouchedPreviousSeedHandsTheDefaultToTheStartPage()
+
+	/**
+	 * A previous seed someone changed (a widget added, or renamed) is left
+	 * as it is, and no start page is added next to it.
+	 *
+	 * @return void
+	 */
+	public function testAChangedPreviousSeedIsLeftAlone(): void {
+		$changed = $this->previousSeedPlacements();
+		$extra = new WidgetPlacement();
+		$extra->setWidgetId('calendar');
+		$changed[] = $extra;
+
+		$renamed = $this->previousSeedDashboard();
+		$renamed->setName('Ons intranet');
+
+		$this->dashboardMapper->method('findByGroup')->willReturnOnConsecutiveCalls([$this->previousSeedDashboard()], [$renamed]);
+		$this->placementMapper->method('findByDashboardId')->willReturnOnConsecutiveCalls($changed, $this->previousSeedPlacements());
+		$this->dashboardMapper->expects($this->never())->method('update');
+		$this->dashboardFactory->expects($this->never())->method('create');
+		$this->placementMapper->expects($this->never())->method('insert');
+
+		$this->assertNull($this->service->ensureDefaultDashboard());
+		$this->assertNull($this->service->ensureDefaultDashboard());
+	}//end testAChangedPreviousSeedIsLeftAlone()
+
+	/**
+	 * The `default` group's dashboard as older versions seeded it.
+	 *
+	 * @return Dashboard
+	 */
+	private function previousSeedDashboard(): Dashboard {
+		$dashboard = new Dashboard();
+		$dashboard->setId(7);
+		$dashboard->setName('Dashboard');
+		$dashboard->setSlug('dashboard');
+		$dashboard->setType(Dashboard::TYPE_GROUP_SHARED);
+		$dashboard->setGroupId(Dashboard::DEFAULT_GROUP_ID);
+		$dashboard->setIsDefault(1);
+
+		return $dashboard;
+	}//end previousSeedDashboard()
+
+	/**
+	 * The placements older versions seeded: three brand tiles and Files.
+	 *
+	 * @return array<int, WidgetPlacement>
+	 */
+	private function previousSeedPlacements(): array {
+		$placements = [];
+		foreach (['Conduction', 'Sendent', 'Nextcloud', null] as $title) {
+			$placement = new WidgetPlacement();
+			$placement->setWidgetId($title === null ? 'files' : 'tile');
+			$placement->setTileTitle($title);
+			$placements[] = $placement;
+		}
+
+		return $placements;
+	}//end previousSeedPlacements()
+
+	/**
+	 * An l10n factory whose translations answer in English, unchanged.
+	 *
+	 * @return IFactory
+	 */
+	private function englishL10n(): IFactory {
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnCallback(static fn (string $text, array $parameters=[]): string => vsprintf($text, $parameters));
+		$factory = $this->createMock(IFactory::class);
+		$factory->method('get')->willReturn($l10n);
+
+		return $factory;
+	}//end englishL10n()
 }//end class

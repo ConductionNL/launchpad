@@ -48,17 +48,24 @@ export function allChildren(content, trail = [], depth = 0) {
 	if (depth > MAX_DEPTH || content === null || typeof content !== 'object') {
 		return []
 	}
-	const found = []
-	for (const { list, title } of childLists(content)) {
-		const here = title ? [...trail, title] : trail
-		for (const child of list) {
-			if (child && typeof child === 'object') {
-				found.push({ child, trail: here })
-				found.push(...allChildren(child.content, [...here, childLabel(child)], depth + 1))
-			}
-		}
-	}
-	return found
+	return childLists(content).flatMap(({ list, title }) => listChildren(list, title ? [...trail, title] : trail, depth))
+}
+
+/**
+ * Every child of one list and of the content of each, with their trails.
+ *
+ * @param {Array<object>} list The children.
+ * @param {Array<string>} trail The titles above the list.
+ * @param {number} depth How deep the list's holder sits.
+ * @return {Array<{child: object, trail: Array<string>}>}
+ */
+function listChildren(list, trail, depth) {
+	return list
+		.filter((child) => child && typeof child === 'object')
+		.flatMap((child) => [
+			{ child, trail },
+			...allChildren(child.content, [...trail, childLabel(child)], depth + 1),
+		])
 }
 
 /**

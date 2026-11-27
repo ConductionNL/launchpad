@@ -19,63 +19,117 @@ declare(strict_types=1);
 
 namespace Unit\Repair;
 
-use OCA\LaunchPad\Db\WidgetPlacement;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Repair\KeyContainerChildren;
+use OCP\DB\IResult;
+use OCP\DB\QueryBuilder\IExpressionBuilder;
+use OCP\DB\QueryBuilder\IQueryBuilder;
+use OCP\IDBConnection;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 /**
+ * The repair step keys the children of stored wells and tabs widgets.
+ *
  * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 class KeyContainerChildrenTest extends TestCase {
 
 	/**
-	 * A stored placement whose content was written before children had keys.
+	 * The content written per placement id.
 	 *
-	 * @param int                  $id      Its id.
-	 * @param string               $type    Its widget type.
-	 * @param array<string, mixed> $content The content.
-	 *
-	 * @return WidgetPlacement
+	 * @var array<int, array<string, mixed>>
 	 */
-	private static function stored(int $id, string $type, array $content): WidgetPlacement {
-		$placement = new WidgetPlacement();
-		$placement->setId($id);
-		$placement->setWidgetId($type);
-		$placement->setContent(json_encode($content));
-		return $placement;
-	}//end stored()
+	private array $written = [];
 
+	/**
+	 * Only the widgets with a child without a key are written, with keys.
+	 *
+	 * @return void
+	 */
 	public function testKeysOnlyTheWidgetsWithAChildWithoutAKey(): void {
-		$well   = self::stored(id: 12, type: 'container', content: ['placements' => [['type' => 'tile'], ['type' => 'tile', 'id' => 4]]]);
-		$keyed  = self::stored(id: 13, type: 'container', content: ['placements' => [['type' => 'tile', 'uuid' => 'a']]]);
-		$tabs   = self::stored(id: 14, type: 'tabs', content: ['tabs' => [['id' => 't', 'placements' => [['type' => 'clock']]]]]);
-		$mapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
-		$mapper->method('findByWidgetId')->willReturnCallback(
-			static fn (string $type): array => ($type === 'container' ? [$well, $keyed] : [$tabs])
-		);
-		$mapper->expects($this->exactly(2))->method('update')->willReturnArgument(0);
+		$rows   = [
+			['id' => 12, 'content' => json_encode(value: ['placements' => [['type' => 'tile'], ['type' => 'tile', 'id' => 4]]])],
+			['id' => 13, 'content' => json_encode(value: ['placements' => [['type' => 'tile', 'uuid' => 'a']]])],
+			['id' => 14, 'content' => json_encode(value: ['tabs' => [['id' => 't', 'placements' => [['type' => 'clock']]]]])],
+			['id' => 15, 'content' => 'not json'],
+		];
 		$output = $this->createMock(originalClassName: IOutput::class);
 		$output->expects($this->once())->method('info')->with('2 well(s) or tabs widget(s) got keys for their widgets.');
 
-		$step = new KeyContainerChildren(placements: $mapper, logger: $this->createMock(originalClassName: LoggerInterface::class));
-		$this->assertSame('Give every widget inside a well or tabs widget a key of its own', $step->getName());
+		$step = new KeyContainerChildren(db: $this->db(rows: $rows), logger: $this->createMock(originalClassName: LoggerInterface::class));
+		$this->assertSame(expected: 'Give every widget inside a well or tabs widget a key of its own', actual: $step->getName());
 		$step->run(output: $output);
 
-		$this->assertSame('12-0', $well->getContentArray()['placements'][0]['uuid']);
-		$this->assertSame(4, $well->getContentArray()['placements'][1]['id']);
-		$this->assertMatchesRegularExpression('/^[0-9a-f]{16}$/', $tabs->getContentArray()['tabs'][0]['placements'][0]['uuid']);
+		$this->assertSame(expected: [12, 14], actual: array_keys($this->written));
+		$this->assertSame(expected: '12-0', actual: $this->written[12]['placements'][0]['uuid']);
+		$this->assertSame(expected: 4, actual: $this->written[12]['placements'][1]['id']);
+		$this->assertMatchesRegularExpression(pattern: '/^[0-9a-f]{16}$/', string: $this->written[14]['tabs'][0]['placements'][0]['uuid']);
 	}//end testKeysOnlyTheWidgetsWithAChildWithoutAKey()
 
+	/**
+	 * A failure is a warning, never a failed upgrade.
+	 *
+	 * @return void
+	 */
 	public function testAFailureIsAWarningNotAFailedUpgrade(): void {
-		$mapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
-		$mapper->method('findByWidgetId')->willThrowException(new RuntimeException('db down'));
+		$db = $this->createMock(originalClassName: IDBConnection::class);
+		$db->method('getQueryBuilder')->willThrowException(new RuntimeException(message: 'db down'));
 		$output = $this->createMock(originalClassName: IOutput::class);
 		$output->expects($this->once())->method('warning')->with('The widgets inside wells were not given keys: db down');
 
-		(new KeyContainerChildren(placements: $mapper, logger: $this->createMock(originalClassName: LoggerInterface::class)))->run(output: $output);
+		(new KeyContainerChildren(db: $db, logger: $this->createMock(originalClassName: LoggerInterface::class)))->run(output: $output);
 	}//end testAFailureIsAWarningNotAFailedUpgrade()
+
+	/**
+	 * A database whose select answers the rows and whose updates are recorded.
+	 *
+	 * @param array<int, array<string, mixed>> $rows The stored wells and tabs widgets.
+	 *
+	 * @return IDBConnection
+	 */
+	private function db(array $rows): IDBConnection {
+		$db = $this->createMock(originalClassName: IDBConnection::class);
+		$db->method('getQueryBuilder')->willReturnCallback(function () use ($rows): IQueryBuilder {
+			$params = [];
+			$set    = [];
+			$expr   = $this->createMock(originalClassName: IExpressionBuilder::class);
+			$expr->method('eq')->willReturnCallback(static fn (string $x, string $y): string => $y);
+			$expr->method('in')->willReturn('widget_id IN');
+
+			$qb = $this->createMock(originalClassName: IQueryBuilder::class);
+			$qb->method('expr')->willReturn($expr);
+			$qb->method('createNamedParameter')->willReturnCallback(static function (mixed $value) use (&$params): string {
+				$name          = ':p' . count($params);
+				$params[$name] = $value;
+				return $name;
+			});
+			$qb->method('select')->willReturnSelf();
+			$qb->method('from')->willReturnSelf();
+			$qb->method('update')->willReturnSelf();
+			$qb->method('set')->willReturnCallback(static function (string $key, string $value) use ($qb, &$set, &$params): IQueryBuilder {
+				$set[$key] = $params[$value];
+				return $qb;
+			});
+			$qb->method('where')->willReturnCallback(function (string $condition) use ($qb, &$set, &$params): IQueryBuilder {
+				if (isset($params[$condition]) === true) {
+					$set['id'] = $params[$condition];
+				}
+
+				return $qb;
+			});
+			$qb->method('executeStatement')->willReturnCallback(function () use (&$set): int {
+				$this->written[$set['id']] = json_decode(json: $set['content'], associative: true);
+				return 1;
+			});
+			$result = $this->createMock(originalClassName: IResult::class);
+			$result->method('fetch')->willReturnOnConsecutiveCalls(...[...$rows, false]);
+			$qb->method('executeQuery')->willReturn($result);
+
+			return $qb;
+		});
+
+		return $db;
+	}//end db()
 }//end class

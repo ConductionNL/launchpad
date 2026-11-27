@@ -26,94 +26,155 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
+ * The keys of the children of wells and tabs widgets.
+ *
  * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 #[CoversClass(ContainerChildKeys::class)]
 #[CoversClass(WidgetPlacement::class)]
 class ContainerChildKeysTest extends TestCase {
 
+	/**
+	 * A well's direct children get the key the well already counted tile
+	 * use with; a child with an id or uuid keeps it.
+	 *
+	 * @return void
+	 */
 	public function testAWellsChildrenGetTheKeyTheWellAlreadyCountedWithAndKeepTheirOwn(): void {
-		$content = (new ContainerChildKeys())->stamp(content: [
-			'title' => 'Apps',
-			'placements' => [
-				['type' => 'tile', 'id' => 5],
-				['type' => 'tile'],
-				['type' => 'text', 'uuid' => 'keep'],
+		$content = (new ContainerChildKeys())->stamp(
+			content: [
+				'title'      => 'Apps',
+				'placements' => [
+					['type' => 'tile', 'id' => 5],
+					['type' => 'tile'],
+					['type' => 'text', 'uuid' => 'keep'],
+				],
 			],
-		], ownerId: 12);
+			ownerId: 12
+		);
 
-		$this->assertSame('Apps', $content['title']);
-		$this->assertSame(5, $content['placements'][0]['id']);
-		$this->assertArrayNotHasKey('uuid', $content['placements'][0]);
-		$this->assertSame('12-1', $content['placements'][1]['uuid']);
-		$this->assertSame('keep', $content['placements'][2]['uuid']);
+		$this->assertSame(expected: 'Apps', actual: $content['title']);
+		$this->assertSame(expected: 5, actual: $content['placements'][0]['id']);
+		$this->assertArrayNotHasKey(key: 'uuid', array: $content['placements'][0]);
+		$this->assertSame(expected: '12-1', actual: $content['placements'][1]['uuid']);
+		$this->assertSame(expected: 'keep', actual: $content['placements'][2]['uuid']);
 	}//end testAWellsChildrenGetTheKeyTheWellAlreadyCountedWithAndKeepTheirOwn()
 
+	/**
+	 * A key another child holds is not handed out twice.
+	 *
+	 * @return void
+	 */
 	public function testAKeyAnotherChildHoldsIsNotHandedOutTwice(): void {
-		$content = (new ContainerChildKeys())->stamp(content: ['placements' => [['type' => 'tile', 'uuid' => '12-1'], ['type' => 'tile']]], ownerId: 12);
+		$content = (new ContainerChildKeys())->stamp(
+			content: ['placements' => [['type' => 'tile', 'uuid' => '12-1'], ['type' => 'tile']]],
+			ownerId: 12
+		);
 
-		$this->assertSame('12-1', $content['placements'][0]['uuid']);
-		$this->assertMatchesRegularExpression('/^[0-9a-f]{16}$/', $content['placements'][1]['uuid']);
+		$this->assertSame(expected: '12-1', actual: $content['placements'][0]['uuid']);
+		$this->assertMatchesRegularExpression(pattern: '/^[0-9a-f]{16}$/', string: $content['placements'][1]['uuid']);
 	}//end testAKeyAnotherChildHoldsIsNotHandedOutTwice()
 
+	/**
+	 * Children inside tabs and nested wells get derived keys; stamping again
+	 * changes nothing.
+	 *
+	 * @return void
+	 */
 	public function testTabsAndNestedChildrenGetDerivedKeysAndStampingTwiceChangesNothing(): void {
-		$content = (new ContainerChildKeys())->stamp(content: [
-			'tabs' => [
-				['id' => 't1', 'placements' => [['type' => 'container', 'content' => ['placements' => [['type' => 'clock']]]]]],
-				'not a tab',
+		$keys    = new ContainerChildKeys();
+		$content = $keys->stamp(
+			content: [
+				'tabs' => [
+					['id' => 't1', 'placements' => [['type' => 'container', 'content' => ['placements' => [['type' => 'clock']]]]]],
+					'not a tab',
+				],
 			],
-		], ownerId: 12);
+			ownerId: 12
+		);
 
 		$outer = $content['tabs'][0]['placements'][0];
-		$this->assertMatchesRegularExpression('/^[0-9a-f]{16}$/', $outer['uuid']);
-		$this->assertMatchesRegularExpression('/^[0-9a-f]{16}$/', $outer['content']['placements'][0]['uuid']);
-		$this->assertSame('not a tab', $content['tabs'][1]);
-		$this->assertSame($content, (new ContainerChildKeys())->stamp(content: $content, ownerId: 12));
+		$this->assertMatchesRegularExpression(pattern: '/^[0-9a-f]{16}$/', string: $outer['uuid']);
+		$this->assertMatchesRegularExpression(pattern: '/^[0-9a-f]{16}$/', string: $outer['content']['placements'][0]['uuid']);
+		$this->assertSame(expected: 'not a tab', actual: $content['tabs'][1]);
+		$this->assertSame(expected: $content, actual: $keys->stamp(content: $content, ownerId: 12));
 	}//end testTabsAndNestedChildrenGetDerivedKeysAndStampingTwiceChangesNothing()
 
+	/**
+	 * The same content written twice gets the same keys, and two equal
+	 * children still get different keys.
+	 *
+	 * @return void
+	 */
 	public function testTheSameContentWrittenTwiceGetsTheSameKeysAndTwinsDiffer(): void {
+		$keys    = new ContainerChildKeys();
 		$content = ['tabs' => [['placements' => [['type' => 'clock'], ['type' => 'clock']]]]];
-		$first   = (new ContainerChildKeys())->stamp(content: $content);
+		$first   = $keys->stamp(content: $content);
 
-		$this->assertSame($first, (new ContainerChildKeys())->stamp(content: $content));
+		$this->assertSame(expected: $first, actual: $keys->stamp(content: $content));
 		$twins = $first['tabs'][0]['placements'];
-		$this->assertNotSame($twins[0]['uuid'], $twins[1]['uuid']);
+		$this->assertNotSame(expected: $twins[0]['uuid'], actual: $twins[1]['uuid']);
 	}//end testTheSameContentWrittenTwiceGetsTheSameKeysAndTwinsDiffer()
 
+	/**
+	 * Content without children is unchanged.
+	 *
+	 * @return void
+	 */
 	public function testContentWithoutChildrenIsUnchanged(): void {
-		$this->assertSame(['text' => 'Hallo'], (new ContainerChildKeys())->stamp(content: ['text' => 'Hallo'], ownerId: 3));
+		$this->assertSame(expected: ['text' => 'Hallo'], actual: (new ContainerChildKeys())->stamp(content: ['text' => 'Hallo'], ownerId: 3));
 	}//end testContentWithoutChildrenIsUnchanged()
 
+	/**
+	 * A child is found by its key at any depth.
+	 *
+	 * @return void
+	 */
 	public function testAChildIsFoundByItsKeyAtAnyDepth(): void {
+		$keys    = new ContainerChildKeys();
 		$content = [
 			'placements' => [['type' => 'tile', 'id' => 5]],
-			'tabs' => [['placements' => [['type' => 'container', 'uuid' => 'w', 'content' => ['placements' => [['type' => 'clock', 'uuid' => 'deep']]]]]]],
+			'tabs'       => [
+				['placements' => [['type' => 'container', 'uuid' => 'w', 'content' => ['placements' => [['type' => 'clock', 'uuid' => 'deep']]]]]],
+			],
 		];
 
-		$this->assertSame(['type' => 'tile', 'id' => 5], (new ContainerChildKeys())->find(content: $content, key: '5'));
-		$this->assertSame(['type' => 'clock', 'uuid' => 'deep'], (new ContainerChildKeys())->find(content: $content, key: 'deep'));
-		$this->assertNull((new ContainerChildKeys())->find(content: $content, key: 'missing'));
-		$this->assertNull((new ContainerChildKeys())->find(content: $content, key: ''));
+		$this->assertSame(expected: ['type' => 'tile', 'id' => 5], actual: $keys->find(content: $content, key: '5'));
+		$this->assertSame(expected: ['type' => 'clock', 'uuid' => 'deep'], actual: $keys->find(content: $content, key: 'deep'));
+		$this->assertNull(actual: $keys->find(content: $content, key: 'missing'));
+		$this->assertNull(actual: $keys->find(content: $content, key: ''));
 	}//end testAChildIsFoundByItsKeyAtAnyDepth()
 
+	/**
+	 * An embed subject names a child only as `<placement id>.<key>`.
+	 *
+	 * @return void
+	 */
 	public function testAnEmbedSubjectNamesAChildOnlyAsPlacementDotKey(): void {
-		$this->assertSame([12, '12-0'], (new ContainerChildKeys())->splitSubject(subjectId: '12.12-0'));
-		$this->assertSame([7, 'ab_CD'], (new ContainerChildKeys())->splitSubject(subjectId: '7.ab_CD'));
-		$this->assertNull((new ContainerChildKeys())->splitSubject(subjectId: '12'));
-		$this->assertNull((new ContainerChildKeys())->splitSubject(subjectId: '012.a'));
-		$this->assertNull((new ContainerChildKeys())->splitSubject(subjectId: '12.a/b'));
-		$this->assertNull((new ContainerChildKeys())->splitSubject(subjectId: '12.'));
-		$this->assertNull((new ContainerChildKeys())->splitSubject(subjectId: 'x.a'));
+		$keys = new ContainerChildKeys();
+
+		$this->assertSame(expected: [12, '12-0'], actual: $keys->splitSubject(subjectId: '12.12-0'));
+		$this->assertSame(expected: [7, 'ab_CD'], actual: $keys->splitSubject(subjectId: '7.ab_CD'));
+		$this->assertNull(actual: $keys->splitSubject(subjectId: '12'));
+		$this->assertNull(actual: $keys->splitSubject(subjectId: '012.a'));
+		$this->assertNull(actual: $keys->splitSubject(subjectId: '12.a/b'));
+		$this->assertNull(actual: $keys->splitSubject(subjectId: '12.'));
+		$this->assertNull(actual: $keys->splitSubject(subjectId: 'x.a'));
 	}//end testAnEmbedSubjectNamesAChildOnlyAsPlacementDotKey()
 
+	/**
+	 * The placement stamps its children whenever its content is set.
+	 *
+	 * @return void
+	 */
 	public function testThePlacementStampsItsChildrenWhenItsContentIsSet(): void {
 		$placement = new WidgetPlacement();
 		$placement->setId(9);
-		$placement->setContentArray(['placements' => [['type' => 'tile']]]);
-		$this->assertSame('9-0', $placement->getContentArray()['placements'][0]['uuid']);
+		$placement->setContentArray(content: ['placements' => [['type' => 'tile']]]);
+		$this->assertSame(expected: '9-0', actual: $placement->getContentArray()['placements'][0]['uuid']);
 
 		$fresh = new WidgetPlacement();
-		$fresh->setContentArray(['placements' => [['type' => 'tile']]]);
-		$this->assertMatchesRegularExpression('/^[0-9a-f]{16}$/', $fresh->getContentArray()['placements'][0]['uuid']);
+		$fresh->setContentArray(content: ['placements' => [['type' => 'tile']]]);
+		$this->assertMatchesRegularExpression(pattern: '/^[0-9a-f]{16}$/', string: $fresh->getContentArray()['placements'][0]['uuid']);
 	}//end testThePlacementStampsItsChildrenWhenItsContentIsSet()
 }//end class

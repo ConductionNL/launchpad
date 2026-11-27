@@ -26,7 +26,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Repair;
 
 use OCA\LaunchPad\Db\ContainerChildKeys;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCP\DB\QueryBuilder\IQueryBuilder;
+use OCP\IDBConnection;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -40,13 +41,18 @@ use Throwable;
  */
 class KeyContainerChildren implements IRepairStep {
 	/**
+	 * The table the widget placements live in.
+	 */
+	private const TABLE = 'launchpad_widget_placements';
+
+	/**
 	 * Constructor.
 	 *
-	 * @param WidgetPlacementMapper $placements The placement store.
-	 * @param LoggerInterface       $logger     PSR-3 logger.
+	 * @param IDBConnection   $db     The database.
+	 * @param LoggerInterface $logger PSR-3 logger.
 	 */
 	public function __construct(
-		private readonly WidgetPlacementMapper $placements,
+		private readonly IDBConnection $db,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -75,23 +81,21 @@ class KeyContainerChildren implements IRepairStep {
 		$keyed = 0;
 		$keys  = new ContainerChildKeys();
 		try {
-			foreach (['container', 'tabs'] as $type) {
-				foreach ($this->placements->findByWidgetId(widgetId: $type) as $placement) {
-					$content = $placement->getContentArray();
-					$ownerId = null;
-					if (is_int($placement->getId()) === true) {
-						$ownerId = $placement->getId();
-					}
-
-					if ($keys->stamp(content: $content, ownerId: $ownerId) === $content) {
-						continue;
-					}
-
-					$placement->setContentArray(content: $content);
-					$this->placements->update(entity: $placement);
-					$keyed++;
-				}
+			$select = $this->db->getQueryBuilder();
+			$select->select('id', 'content')
+				->from(self::TABLE)
+				->where(
+					$select->expr()->in(
+						x: 'widget_id',
+						y: $select->createNamedParameter(value: ['container', 'tabs'], type: IQueryBuilder::PARAM_STR_ARRAY)
+					)
+				);
+			$rows = $select->executeQuery();
+			while (($row = $rows->fetch()) !== false) {
+				$keyed += $this->keyRow(keys: $keys, id: (int)$row['id'], json: (string)($row['content'] ?? ''));
 			}
+
+			$rows->closeCursor();
 		} catch (Throwable $e) {
 			$this->logger->warning(message: '[KeyContainerChildren] could not key the children of wells: ' . $e->getMessage());
 			$output->warning(message: 'The widgets inside wells were not given keys: ' . $e->getMessage());
@@ -100,4 +104,34 @@ class KeyContainerChildren implements IRepairStep {
 
 		$output->info(message: sprintf('%d well(s) or tabs widget(s) got keys for their widgets.', $keyed));
 	}//end run()
+
+	/**
+	 * Key the children of one stored widget; 1 when it was written, else 0.
+	 *
+	 * @param ContainerChildKeys $keys The key stamper.
+	 * @param int                $id   The placement id.
+	 * @param string             $json The stored content.
+	 *
+	 * @return int
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 */
+	private function keyRow(ContainerChildKeys $keys, int $id, string $json): int {
+		$content = json_decode(json: $json, associative: true);
+		if (is_array($content) === false) {
+			return 0;
+		}
+
+		$keyed = $keys->stamp(content: $content, ownerId: $id);
+		if ($keyed === $content) {
+			return 0;
+		}
+
+		$update = $this->db->getQueryBuilder();
+		$update->update(update: self::TABLE)
+			->set(key: 'content', value: $update->createNamedParameter(value: json_encode($keyed)))
+			->where($update->expr()->eq(x: 'id', y: $update->createNamedParameter(value: $id, type: IQueryBuilder::PARAM_INT)));
+		$update->executeStatement();
+		return 1;
+	}//end keyRow()
 }//end class

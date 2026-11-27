@@ -33,8 +33,8 @@
 
 use OCA\LaunchPad\Service\FirstPaintGreeting;
 
-// Nextcloud's template loader hands the parameters over as $_.
-$vars = $_;
+// Nextcloud's template loader hands the parameters over as $_, a name we cannot choose.
+$vars = $_; // phpcs:ignore Squiz.NamingConventions.ValidVariableName.NotCamelCaps
 $fp   = $vars['firstPaint'] ?? null;
 if (is_array($fp) === false) {
 	$fp = null;

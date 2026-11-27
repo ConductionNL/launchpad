@@ -213,6 +213,19 @@ export default {
 		WidgetErrorBoundary,
 	},
 
+	/**
+	 * REQ-WDG-050: the widget on the dashboard that holds a well's or tabs
+	 * widget's children, for their edit menu (embed subject, duplicate, remove).
+	 *
+	 * @return {object}
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 */
+	provide() {
+		return {
+			launchpadChildOwner: () => this.placement ?? null,
+		}
+	},
+
 	props: {
 		placement: REQUIRED_OBJECT_PROP,
 

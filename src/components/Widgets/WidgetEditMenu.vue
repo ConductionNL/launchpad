@@ -27,6 +27,7 @@
 			<DotsVertical :size="20" />
 		</template>
 		<NcActionButton
+			v-if="!hideEdit"
 			:closeAfterClick="true"
 			data-testid="cn-widget-edit-cog-edit"
 			@click="$emit('edit')">
@@ -134,6 +135,12 @@ export default {
 
 		/** Leaves Delete out, for a widget the user may not remove. */
 		removeLocked: {
+			type: Boolean,
+			default: false,
+		},
+
+		/** Leaves the edit item out, for a widget with no form here. */
+		hideEdit: {
 			type: Boolean,
 			default: false,
 		},

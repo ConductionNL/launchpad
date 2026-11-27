@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service\Embed;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\ContainerChildKeys;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Entity\EmbedToken;
@@ -71,6 +72,33 @@ class EmbedRenderService {
 	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-002--public-render-route-validates-jwt-and-enforces-scope
 	 */
 	public function renderWidget(string $widgetId, EmbedToken $token, array $requestFilters=[]): ?array {
+		$placements = $this->widgetPlacements(widgetId: $widgetId);
+		if ($placements === null) {
+			return null;
+		}
+
+		return $this->envelope(token: $token, requestFilters: $requestFilters) + [
+			'subjectType' => 'widget',
+			'placements'  => $placements,
+		];
+	}//end renderWidget()
+
+	/**
+	 * The placements a widget embed shows: one widget on a dashboard, or one
+	 * widget inside a well or a tabs widget (`<placement id>.<child key>`).
+	 *
+	 * @param string $widgetId The subject id.
+	 *
+	 * @return array<int, array<string, mixed>>|null Null when it does not name a widget that exists.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 */
+	private function widgetPlacements(string $widgetId): ?array {
+		$child = (new ContainerChildKeys())->splitSubject(subjectId: $widgetId);
+		if ($child !== null) {
+			return $this->childPlacements(subject: $child);
+		}
+
 		if (ctype_digit($widgetId) === false) {
 			return null;
 		}
@@ -81,11 +109,81 @@ class EmbedRenderService {
 			return null;
 		}
 
-		return $this->envelope(token: $token, requestFilters: $requestFilters) + [
-			'subjectType' => 'widget',
-			'placements'  => $this->forVisitor(placements: [$placement->jsonSerialize()]),
-		];
-	}//end renderWidget()
+		return $this->forVisitor(placements: [$placement->jsonSerialize()]);
+	}//end widgetPlacements()
+
+	/**
+	 * The placements an embed of one widget inside a well or a tabs widget
+	 * shows (REQ-WDG-050): the child drawn as a widget of its own, only while
+	 * its well shows (a well the visibility rules hide hides the child too).
+	 *
+	 * @param array{0: int, 1: string} $subject The well's placement id and the child's key.
+	 *
+	 * @return array<int, array<string, mixed>>|null Null when the well or the child no longer exists.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 */
+	private function childPlacements(array $subject): ?array {
+		try {
+			$parent = $this->widgets->find(id: $subject[0]);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
+		$child = self::typedChild(content: $parent->getContentArray(), key: $subject[1]);
+		if ($child === null) {
+			return null;
+		}
+
+		if ($this->forVisitor(placements: [$parent->jsonSerialize()]) === []) {
+			return [];
+		}
+
+		return [self::childAsPlacement(parent: $parent->jsonSerialize(), child: $child)];
+	}//end childPlacements()
+
+	/**
+	 * The child with this key when it names a widget type, else null.
+	 *
+	 * @param array<string, mixed> $content The well's content.
+	 * @param string               $key     The child's key.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private static function typedChild(array $content, string $key): ?array {
+		$child = (new ContainerChildKeys())->find(content: $content, key: $key);
+		if (is_string($child['type'] ?? null) === false || $child['type'] === '') {
+			return null;
+		}
+
+		return $child;
+	}//end typedChild()
+
+	/**
+	 * A child of a well as a placement of its own: the well's id and
+	 * dashboard, the child's type, content, title and look.
+	 *
+	 * @param array<string, mixed> $parent The well, serialised.
+	 * @param array<string, mixed> $child  The child.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function childAsPlacement(array $parent, array $child): array {
+		$own = $child;
+		unset($own['type'], $own['id'], $own['uuid']);
+
+		return array_merge(
+			$parent,
+			[
+				'widgetId'    => $child['type'],
+				'content'     => (object)[],
+				'styleConfig' => (object)[],
+				'customTitle' => null,
+				'childKey'    => (new ContainerChildKeys())->keyOf(child: $child),
+			],
+			$own
+		);
+	}//end childAsPlacement()
 
 	/**
 	 * One dashboard, with its widgets, for its token.

@@ -69,6 +69,17 @@ and opens the embed token form with the widget preselected, in the Embeds sectio
 `/settings/admin/launchpad#embeds`, which opens that section. Because the action leaves the dashboard, it asks to save first when the draft has
 changes (D5) and is disabled for a widget the draft added but did not save yet (it has no id).
 
+A widget inside a well or a tabs widget has no placement id of its own. Every child therefore carries a key: its
+`id`, else its `uuid`; the server gives a child without either a `uuid` whenever the content is written
+(`WidgetPlacement::setContentArray` through `ContainerChildKeys`: `<placement id>-<index>` for a direct child of a
+well, the key the well already counted tile use with, unless another child holds it; otherwise one derived from the child and its place, so the same content keys the same), and
+the repair step `KeyContainerChildren` keys the children stored before. An embed token names a child as
+`<placement id>.<child key>` (a dot, because the embed route takes the subject id as one path segment); the embed
+renders the child as a widget of its own, and only while its well is visible. The admin Embeds form lists the children
+under their well (`Well › Tab › Child`). A child whose key is not stored yet (added in this draft, inside a tab) has
+the entry disabled until the draft is saved. Duplicate copies the child after itself in the same list without its
+key; Remove takes it out; both change the content of the widget on the dashboard, in the draft.
+
 ## Migration
 
 None for data. Existing dashboards have no versions; their first Save after this change stores the before and after

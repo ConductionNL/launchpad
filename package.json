@@ -9,6 +9,7 @@
 		"npm": "^11.0.0"
 	},
 	"scripts": {
+		"prebuild": "node scripts/copy-widget-placeholders.mjs",
 		"build": "webpack --config webpack.config.js --progress --mode production && npm run build:embed-sdk && npm run check:a11y",
 		"build:embed-sdk": "webpack --config src/embed-sdk/webpack.config.cjs",
 		"check:a11y": "vitest run src/__tests__/axe-core-check.spec.js",
@@ -37,7 +38,7 @@
 		"prepare": "git config core.hooksPath .githooks || true"
 	},
 	"dependencies": {
-		"@conduction/nextcloud-vue": "^2.238.0",
+		"@conduction/nextcloud-vue": "^2.239.0",
 		"@mdi/js": "^7.4.47",
 		"@nextcloud/axios": "^2.6.0",
 		"@nextcloud/dialogs": "^8.0.0",

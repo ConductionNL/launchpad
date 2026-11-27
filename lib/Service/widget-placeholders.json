@@ -1,0 +1,287 @@
+{
+	"action-tiles": {
+		"shape": "tiles"
+	},
+	"ai-chat": {
+		"shape": "block"
+	},
+	"app-tile": {
+		"shape": "tiles"
+	},
+	"app-tiles": {
+		"shape": "tiles"
+	},
+	"attention-flag": {
+		"shape": "lines"
+	},
+	"audit-trail": {
+		"shape": "rows"
+	},
+	"banner": {
+		"shape": "lines"
+	},
+	"calendar": {
+		"shape": "rows"
+	},
+	"chart": {
+		"shape": "block"
+	},
+	"checklist": {
+		"shape": "rows"
+	},
+	"checklist-run": {
+		"shape": "rows"
+	},
+	"chips-field": {
+		"shape": "block"
+	},
+	"choice-picker": {
+		"shape": "block"
+	},
+	"code": {
+		"shape": "block"
+	},
+	"conflict-resolve": {
+		"shape": "block"
+	},
+	"container": {
+		"shape": "block"
+	},
+	"conversation": {
+		"shape": "rows"
+	},
+	"countdown": {
+		"shape": "counter"
+	},
+	"create-form": {
+		"shape": "block"
+	},
+	"data": {
+		"shape": "block"
+	},
+	"delta": {
+		"shape": "counter"
+	},
+	"device-frames": {
+		"shape": "block"
+	},
+	"divider": {
+		"shape": "heading"
+	},
+	"document-review": {
+		"shape": "rows"
+	},
+	"events": {
+		"shape": "rows"
+	},
+	"facts": {
+		"shape": "lines"
+	},
+	"field-groups": {
+		"shape": "lines"
+	},
+	"field-list": {
+		"shape": "lines"
+	},
+	"files": {
+		"shape": "rows"
+	},
+	"flow-runs": {
+		"shape": "rows"
+	},
+	"gauge": {
+		"shape": "block"
+	},
+	"grouped-cards": {
+		"shape": "tiles"
+	},
+	"handoff": {
+		"shape": "lines"
+	},
+	"header": {
+		"shape": "heading"
+	},
+	"image": {
+		"shape": "block"
+	},
+	"index-list": {
+		"shape": "rows"
+	},
+	"interaction-form": {
+		"shape": "block"
+	},
+	"kb-search": {
+		"shape": "block"
+	},
+	"label": {
+		"shape": "heading"
+	},
+	"link": {
+		"shape": "block"
+	},
+	"linked": {
+		"shape": "rows"
+	},
+	"links": {
+		"shape": "rows"
+	},
+	"macros": {
+		"shape": "rows"
+	},
+	"mail": {
+		"shape": "rows"
+	},
+	"map": {
+		"shape": "block"
+	},
+	"markdown": {
+		"shape": "lines"
+	},
+	"menu": {
+		"shape": "rows"
+	},
+	"nc-widget": {
+		"shape": "rows"
+	},
+	"next-step": {
+		"shape": "lines"
+	},
+	"notepad": {
+		"shape": "lines"
+	},
+	"object-geo": {
+		"shape": "block"
+	},
+	"object-links": {
+		"shape": "rows"
+	},
+	"object-list": {
+		"shape": "rows"
+	},
+	"object-table": {
+		"shape": "rows"
+	},
+	"parties": {
+		"shape": "rows"
+	},
+	"party-actions": {
+		"shape": "block"
+	},
+	"people": {
+		"shape": "rows"
+	},
+	"plan": {
+		"shape": "lines"
+	},
+	"presence": {
+		"shape": "rows"
+	},
+	"quicklinks": {
+		"shape": "rows"
+	},
+	"radio-cards": {
+		"shape": "block"
+	},
+	"record-list": {
+		"shape": "rows"
+	},
+	"record-notes": {
+		"shape": "rows"
+	},
+	"related": {
+		"shape": "rows"
+	},
+	"retention": {
+		"shape": "rows"
+	},
+	"row-mark-list": {
+		"shape": "rows"
+	},
+	"saved-view": {
+		"shape": "rows"
+	},
+	"saved-views": {
+		"shape": "rows"
+	},
+	"schema-rules": {
+		"shape": "lines"
+	},
+	"sections": {
+		"shape": "lines"
+	},
+	"settings-form": {
+		"shape": "block"
+	},
+	"share-list": {
+		"shape": "rows"
+	},
+	"slot-grid": {
+		"shape": "block"
+	},
+	"spend-analytics": {
+		"shape": "block"
+	},
+	"stacked-bar": {
+		"shape": "block"
+	},
+	"stages": {
+		"shape": "block"
+	},
+	"stat": {
+		"shape": "counter"
+	},
+	"stat-grid": {
+		"shape": "counter"
+	},
+	"stats-block": {
+		"shape": "counter"
+	},
+	"status-explainer": {
+		"shape": "lines"
+	},
+	"switch-rows": {
+		"shape": "block"
+	},
+	"table": {
+		"shape": "block"
+	},
+	"tabs": {
+		"shape": "block"
+	},
+	"task-form": {
+		"shape": "block"
+	},
+	"tasks": {
+		"shape": "rows"
+	},
+	"team-workload": {
+		"shape": "rows"
+	},
+	"text": {
+		"shape": "lines"
+	},
+	"tile": {
+		"shape": "tiles"
+	},
+	"timeline": {
+		"shape": "rows"
+	},
+	"toggle-table": {
+		"shape": "block"
+	},
+	"video": {
+		"shape": "block"
+	},
+	"week-strip": {
+		"shape": "block"
+	},
+	"work-queue": {
+		"shape": "rows"
+	},
+	"working-calendar": {
+		"shape": "block"
+	},
+	"workspace-filter": {
+		"shape": "block"
+	}
+}

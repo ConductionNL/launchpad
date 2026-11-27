@@ -73,7 +73,14 @@ class FirstPaintShellTest extends TestCase {
 		);
 
 		$this->assertSame(
-			expected: ['mode' => 'page', 'name' => 'Intranet Zuiddrecht', 'description' => 'Groepsdashboard van Communicatie', 'groundId' => ''],
+			expected: [
+				'mode'        => 'page',
+				'name'        => 'Intranet Zuiddrecht',
+				'description' => 'Groepsdashboard van Communicatie',
+				'groundId'    => '',
+				'title'       => '',
+				'content'     => [],
+			],
 			actual: $model['header']
 		);
 		$this->assertSame(expected: [12, 8, 4], actual: $model['columns']);
@@ -96,7 +103,40 @@ class FirstPaintShellTest extends TestCase {
 		$this->assertSame(expected: 'greeting', actual: $model['header']['mode']);
 		$this->assertSame(expected: '7', actual: $model['header']['groundId']);
 		$this->assertSame(expected: 'heading', actual: $model['frames'][0]['kind']);
+		// Without a title of its own the greeting row is titled by the dashboard.
+		$this->assertSame(expected: 'Vandaag', actual: $model['header']['title']);
+		$this->assertSame(expected: ['ground' => true, 'greeting' => true], actual: $model['header']['content']);
 	}//end testTheGreetingHeader()
+
+	/**
+	 * A section heading prints its own words: the title and the line under it
+	 * come from its content, since its card title is switched off (LpVandaag).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-2
+	 */
+	public function testASectionHeadingPrintsItsContent(): void {
+		$model = (new FirstPaintShell())->build(
+			page: [
+				'dashboard'  => ['name' => 'Vandaag', 'gridColumns' => 12],
+				'placements' => [
+					self::placement(
+						id: 1,
+						widgetId: 'section-heading',
+						extra: ['showTitle' => 0, 'content' => ['title' => 'Kennis en nieuws', 'description' => 'De wiki en het nieuws']]
+					),
+					self::placement(id: 2, widgetId: 'header', extra: ['showTitle' => 0, 'content' => ['title' => 'Vandaag', 'ground' => true]]),
+					self::placement(id: 3, widgetId: 'files', extra: ['showTitle' => 0, 'content' => ['title' => 'Not a heading']]),
+				],
+			],
+			catalogue: self::catalogue()
+		);
+
+		$this->assertSame(expected: ['Kennis en nieuws', 'Vandaag', ''], actual: array_column($model['frames'], 'title'));
+		$this->assertSame(expected: ['De wiki en het nieuws', '', ''], actual: array_column($model['frames'], 'text'));
+		$this->assertSame(expected: 'Vandaag', actual: $model['header']['title']);
+	}//end testASectionHeadingPrintsItsContent()
 
 	/**
 	 * Hidden by the personal layer or refused by the role filter: no frame.
@@ -141,8 +181,10 @@ class FirstPaintShellTest extends TestCase {
 	public function testKindOf(): void {
 		$shell = new FirstPaintShell();
 
-		$this->assertSame(expected: 'counter', actual: $shell->kindOf(widgetId: 'files', entry: ['placeholder' => 'counter']));
-		$this->assertSame(expected: 'rows', actual: $shell->kindOf(widgetId: 'files', entry: ['placeholder' => ['shape' => 'spiral']]));
+		$this->assertSame(expected: 'counter', actual: $shell->kindOf(widgetId: 'nc-revenue', entry: ['placeholder' => 'counter']));
+		$this->assertSame(expected: 'rows', actual: $shell->kindOf(widgetId: 'nc-revenue', entry: ['placeholder' => ['shape' => 'spiral']]));
+		$this->assertSame(expected: 'rows', actual: $shell->kindOf(widgetId: 'files', entry: ['placeholder' => 'counter']));
+		$this->assertSame(expected: 'counter', actual: $shell->kindOf(widgetId: 'files', entry: [], placement: ['placeholder' => 'counter']));
 		$this->assertSame(expected: 'tiles', actual: $shell->kindOf(widgetId: 'app-tiles'));
 		$this->assertSame(expected: 'heading', actual: $shell->kindOf(widgetId: 'section-heading'));
 		$this->assertSame(expected: 'rows', actual: $shell->kindOf(widgetId: 'never-heard-of'));

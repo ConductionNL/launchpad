@@ -1,5 +1,14 @@
 {
     "translations": {
+        "Good morning, {name}": "Good morning, {name}",
+        "Good morning": "Good morning",
+        "Good afternoon, {name}": "Good afternoon, {name}",
+        "Good afternoon": "Good afternoon",
+        "Good evening, {name}": "Good evening, {name}",
+        "Good evening": "Good evening",
+        "week {number}": "week {number}",
+        "Loading widgets": "Loading widgets",
+        "The page could not load": "The page could not load",
         "of {audience} confirmed": "of {audience} confirmed",
         "Seen by": "Seen by",
         "Confirmed {date} with the check": "Confirmed {date} with the check",

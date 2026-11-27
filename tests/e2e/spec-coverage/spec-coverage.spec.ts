@@ -27,8 +27,13 @@
  *   @e2e label-widget::newly-added-label-uses-registry-defaults
  */
 
-import { expect, test } from '@playwright/test'
+import type { APIRequestContext } from '@playwright/test'
+import type { SeededDashboard } from '../support/dashboardFixture.ts'
+
+import { expect, request as pwRequest, test } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions.ts'
+import { BASE_URL } from '../support/baseUrl.ts'
+import { removeSeededDashboard, seedActiveDashboard } from '../support/dashboardFixture.ts'
 import { addWidgetFromMore, MORE_MENU } from '../support/dashboardSwitcher.ts'
 import { chooseAndAdd } from '../support/widgetPicker.ts'
 
@@ -42,13 +47,30 @@ const TS = `md-${Date.now()}`
 // admin break-glass bypass so the admin can still add any widget during this
 // suite (see fixtures helper for the bypass it proves).
 let restoreWidgetRestriction: (() => Promise<void>) | null = null
+let adminApi: APIRequestContext | null = null
+let own: SeededDashboard | null = null
 
 test.beforeAll(async () => {
 	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+	// The admin's own dashboard, active, so More offers Add widget (the
+	// sidebar row cog these tests once used on any personal row is gone).
+	adminApi = await pwRequest.newContext({
+		baseURL: BASE_URL,
+		httpCredentials: {
+			username: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+			password: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+		},
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	own = await seedActiveDashboard(adminApi, `E2E spec coverage ${Date.now()}`)
 })
 
 test.afterAll(async () => {
 	await restoreWidgetRestriction?.()
+	if (adminApi !== null) {
+		await removeSeededDashboard(adminApi, own)
+		await adminApi.dispose()
+	}
 })
 
 // Navigate to launchpad and wait for the app to hydrate (More is the first

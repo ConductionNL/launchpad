@@ -52,12 +52,70 @@
 					:aria-labelledby="`${domId}-dashboards`"
 					data-testid="launchpad-more-menu-group-dashboards">
 					<span :id="`${domId}-dashboards`" class="lp-more-menu__title">
-						{{ t('launchpad', 'Dashboards') }}
+						{{ dashboardsExpanded ? t('launchpad', 'All dashboards') : t('launchpad', 'Dashboards') }}
 					</span>
+					<!-- REQ-SHELL-019: above the full list, e.g. Filter by detail. -->
+					<slot v-if="dashboardsExpanded" name="dashboardsTop" />
+					<div
+						class="lp-more-menu__dashboard-list"
+						:class="{ 'lp-more-menu__dashboard-list--all': dashboardsExpanded }"
+						data-testid="launchpad-more-menu-dashboard-list">
+						<div
+							v-for="item in dashboardRows"
+							:key="item.id"
+							class="lp-more-menu__row"
+							:data-depth="item.depth"
+							:style="item.depth ? { paddingInlineStart: `${item.depth * 20}px` } : undefined">
+							<!-- REQ-SHELL-019 / REQ-TREEUI-001: a parent's children show under it. -->
+							<button
+								v-if="item.tree"
+								type="button"
+								class="lp-more-menu__tree"
+								:aria-expanded="String(item.tree.open)"
+								:aria-label="item.tree.open
+									? t('launchpad', 'Collapse {name}', { name: item.label })
+									: t('launchpad', 'Expand {name}', { name: item.label })"
+								tabindex="-1"
+								:data-testid="`tree-expand-${item.tree.uuid}`"
+								@click.stop="item.tree.onToggle()">
+								<ChevronDown v-if="item.tree.open" :size="18" />
+								<ChevronRight v-else :size="18" />
+							</button>
+							<p
+								v-if="item.hint === true"
+								class="lp-more-menu__hint"
+								:data-testid="`launchpad-more-menu-${item.id}`">
+								{{ item.label }}
+							</p>
+							<LaunchpadMoreMenuItem
+								v-else
+								:item="item"
+								:aria-expanded="item.keepOpen ? String(item.expanded === true) : undefined"
+								@click="choose($event, item)" />
+							<!-- REQ-SHELL-016: a star on every dashboard row, short or expanded. -->
+							<button
+								v-if="item.favourite !== undefined"
+								type="button"
+								class="lp-more-menu__star"
+								:class="{ 'lp-more-menu__star--on': item.favourite }"
+								:aria-pressed="String(item.favourite)"
+								:aria-label="item.favourite
+									? t('launchpad', 'Remove from favourites: {name}', { name: item.label })
+									: t('launchpad', 'Add to favourites: {name}', { name: item.label })"
+								tabindex="-1"
+								:data-testid="`launchpad-more-menu-star-${item.id}`"
+								@click.stop="item.onToggleFavourite()">
+								<Star v-if="item.favourite" :size="18" />
+								<StarOutline v-else :size="18" />
+							</button>
+						</div>
+					</div>
+					<!-- REQ-SHELL-015: New dashboard and More/Less stand below the list, outside its scroll. -->
 					<LaunchpadMoreMenuItem
-						v-for="item in dashboards"
+						v-for="item in dashboardFoot"
 						:key="item.id"
 						:item="item"
+						:aria-expanded="item.keepOpen ? String(item.expanded === true) : undefined"
 						@click="choose($event, item)" />
 				</div>
 			</div>
@@ -114,6 +172,8 @@
 					</div>
 				</template>
 			</div>
+			<!-- Ruben's review item 7: "Powered by" under both columns. -->
+			<MoreMenuFooter v-if="!hideFooter" class="lp-more-menu__footer" />
 		</div>
 	</NcPopover>
 </template>
@@ -125,9 +185,15 @@ import ChevronDown from 'vue-material-design-icons/ChevronDown.vue'
 import ChevronRight from 'vue-material-design-icons/ChevronRight.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import DotsHorizontal from 'vue-material-design-icons/DotsHorizontal.vue'
+import Star from 'vue-material-design-icons/Star.vue'
+import StarOutline from 'vue-material-design-icons/StarOutline.vue'
 import LaunchpadMoreMenuItem from './LaunchpadMoreMenuItem.vue'
+import MoreMenuFooter from './MoreMenuFooter.vue'
 
 let menuCounter = 0
+
+/** The Dashboards column's items that stand below the list. */
+const FOOT_ITEMS = new Set(['new-dashboard', 'all-dashboards'])
 
 export default {
 	name: 'LaunchpadMoreMenu',
@@ -139,6 +205,9 @@ export default {
 		DotsHorizontal,
 		LaunchpadMoreMenuItem,
 		NcButton,
+		MoreMenuFooter,
+		Star,
+		StarOutline,
 		NcPopover,
 	},
 
@@ -146,6 +215,7 @@ export default {
 		/**
 		 * The Dashboards group: `{ id, label, icon?, meta?, checked?, href?,
 		 * to?, onClick? }`. `checked` (true or false) makes a radio item.
+		 *
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
 		dashboards: {
@@ -162,11 +232,22 @@ export default {
 		/**
 		 * The This dashboard group: `{ id, label, icon?, destructive?,
 		 * onClick? }`. A destructive item goes last, in the error colour.
+		 *
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
 		actions: {
 			type: Array,
 			default: () => [],
+		},
+
+		/**
+		 * Leave out the "Powered by" footer under both columns.
+		 *
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-5
+		 */
+		hideFooter: {
+			type: Boolean,
+			default: false,
 		},
 	},
 
@@ -181,6 +262,26 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The dashboard rows (and the no-favourites line) inside the scrolling list.
+		 *
+		 * @return {object[]}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 */
+		dashboardRows() {
+			return this.dashboards.filter((item) => !FOOT_ITEMS.has(item.id))
+		},
+
+		/**
+		 * New dashboard and More/Less, below the list.
+		 *
+		 * @return {object[]}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 */
+		dashboardFoot() {
+			return this.dashboards.filter((item) => FOOT_ITEMS.has(item.id))
+		},
+
 		/**
 		 * The button's text and the menu's name.
 		 *
@@ -209,6 +310,16 @@ export default {
 		 */
 		hasEndColumn() {
 			return this.hasActions || this.settings.length > 0
+		},
+
+		/**
+		 * Whether the Dashboards column lists every dashboard.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 */
+		dashboardsExpanded() {
+			return this.dashboards.some((item) => item.keepOpen === true && item.expanded === true)
 		},
 
 		/**
@@ -241,23 +352,30 @@ export default {
 		t,
 
 		/**
-		 * Choose an item: run it, report it and close the menu.
+		 * Choose an item: run it, report it and close the menu. An item that
+		 * keeps the menu open (More / Fewer of the Dashboards column) leaves
+		 * it open.
 		 *
 		 * @param {MouseEvent} event The click.
 		 * @param {object} item The item.
 		 * @return {void}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
 		 */
 		choose(event, item) {
 			if (typeof item.onClick === 'function') {
 				item.onClick(item)
 			}
 			this.$emit('select', item)
+			if (item.keepOpen === true) {
+				return
+			}
 			this.open = false
 		},
 
 		/**
-		 * The visible items in reading order, as elements.
+		 * The visible items in reading order, as elements; a row's star
+		 * follows its row.
 		 *
 		 * @return {HTMLElement[]}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
@@ -267,7 +385,7 @@ export default {
 			if (!panel) {
 				return []
 			}
-			return [...panel.querySelectorAll('.lp-more-menu__item')]
+			return [...panel.querySelectorAll('.lp-more-menu__item, .lp-more-menu__star')]
 				.filter((el) => !el.closest('.lp-more-menu__subgroup') || this.settingsOpen)
 		},
 
@@ -548,6 +666,90 @@ export default {
 	color: var(--color-text-maxcontrast);
 }
 
+/* Ruben's review items 5-7: the full dashboard list scrolls inside the menu,
+   a star sits at the end of each of its rows, and "Powered by" spans both
+   columns at the bottom. */
+.lp-more-menu__dashboard-list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.lp-more-menu__dashboard-list--all {
+	max-height: min(360px, calc(100vh - 260px));
+	overflow-y: auto;
+}
+
+.lp-more-menu__row {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	min-width: 0;
+}
+
+.lp-more-menu__row > .lp-more-menu__item {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.lp-more-menu__star {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	margin: 0;
+	padding: 0;
+	border: none;
+	border-radius: var(--border-radius-element, 6px);
+	background: transparent;
+	color: var(--color-text-maxcontrast);
+	cursor: pointer;
+}
+
+.lp-more-menu__star:hover,
+.lp-more-menu__star:focus-visible {
+	background: var(--color-background-hover);
+}
+
+.lp-more-menu__star--on {
+	color: #f0b400;
+}
+
+/* The theme that tints every button (see the items above) also tinted the
+   star and recoloured it; the raised selector keeps it a plain icon button. */
+.lp-more-menu__star:not(#lp-more-menu-a):not(#lp-more-menu-b) {
+	min-height: 32px !important;
+	padding: 0 !important;
+	border: none !important;
+	background: transparent !important;
+	color: var(--color-text-maxcontrast) !important;
+}
+
+.lp-more-menu__star:not(#lp-more-menu-a):not(#lp-more-menu-b):hover,
+.lp-more-menu__star:not(#lp-more-menu-a):not(#lp-more-menu-b):focus-visible {
+	background: var(--color-background-hover) !important;
+}
+
+.lp-more-menu__star--on:not(#lp-more-menu-a):not(#lp-more-menu-b) {
+	color: #f0b400 !important;
+}
+
+.lp-more-menu__hint {
+	margin: 0;
+	padding: 4px 10px 6px;
+	font-size: 13px;
+	line-height: 1.4;
+	color: var(--color-text-maxcontrast);
+}
+
+.lp-more-menu__footer {
+	grid-column: 1 / -1;
+	margin-top: 6px;
+	border-top: 1px solid var(--color-border);
+}
+
 @media (max-width: 960px) {
 	.lp-more-menu__panel {
 		grid-template-columns: minmax(0, 1fr);
@@ -560,5 +762,19 @@ export default {
 		padding-top: 6px;
 		border-top: 1px solid var(--color-border);
 	}
+}
+
+.lp-more-menu__tree {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 32px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: var(--color-text-maxcontrast);
+	cursor: pointer;
 }
 </style>

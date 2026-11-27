@@ -3,7 +3,7 @@ schema: conduction
 context: |
   Project: LaunchPad
   Repo: ConductionNL/launchpad
-  Type: Nextcloud App (PHP backend + Vue 2 frontend)
+  Type: Nextcloud App (PHP 8.3+ backend + Vue 3 frontend), Nextcloud 32 to 35
   Description: Customizable dashboard for Nextcloud — drag-and-drop widgets, tiles, templates, permissions
   Key components: Dashboards, Widget Placements, Tiles, Conditional Rules, Admin Templates, Admin Settings
   Database: PostgreSQL (own tables via Nextcloud ORM)
@@ -11,9 +11,9 @@ context: |
 
   Architecture:
     Pattern: Full-stack — LaunchPad owns its data model (5 database tables)
-    Grid engine: GridStack 12.x (12-column at >=1400px, 60px cell height, 8px margin, responsive breakpoints 1400/1100/768/480, drag-and-drop)
+    Grid engine: GridStack 14.x (12-column at >=1400px, 60px cell height, 8px margin, responsive breakpoints 1400/1100/768/480, drag-and-drop)
     Widget bridge: Nextcloud Dashboard Widget API v1/v2 (IManager::getWidgets())
-    Frontend: Vue 2.7 + Pinia stores + GridStack integration
+    Frontend: Vue 3.5 (createApp) + vue-router 4 + Pinia 4 stores + @nextcloud/vue 9 + @conduction/nextcloud-vue 2 + GridStack integration
     Backend: Controllers → Services → Mappers/Entities (Nextcloud ORM)
     Admin: Settings panel at Settings → Administration → LaunchPad
 

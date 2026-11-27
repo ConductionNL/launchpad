@@ -74,7 +74,7 @@ import {
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
 import { dashboardsFromApi } from './support/dashboardFirstLoad.ts'
-import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { DASHBOARD_ROWS, openDashboardSettings, openDashboardSwitcher, switchToDashboard } from './support/dashboardSwitcher.ts'
 import { adminContext, contextFor } from './support/principals.ts'
 
 const API = '/index.php/apps/launchpad/api'
@@ -249,27 +249,18 @@ async function activate(dashboard: Seeded): Promise<void> {
 }
 
 /**
- * A dashboard's row in the switcher's personal section.
- *
- * @param page the page.
- * @param name the dashboard name (the row's aria-label).
- * @return the row.
- */
-function switcherRow(page: Page, name: string): Locator {
-	return page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.and(page.locator(`[aria-label="${name}"]`))
-}
-
-/**
- * The icon slot of a dashboard's switcher row.
+ * The icon slot of a dashboard's row in More's full Dashboards list (the
+ * dashboards sidebar is gone, more-menu-favourites).
  *
  * @param page the page.
  * @param name the dashboard name.
- * @return the `.dashboard-switcher-sidebar__icon` span.
+ * @return the `.lp-more-menu__icon` span.
  */
 function rowIcon(page: Page, name: string): Locator {
-	return switcherRow(page, name).locator('.dashboard-switcher-sidebar__icon')
+	return page
+		.locator(DASHBOARD_ROWS)
+		.filter({ has: page.locator('.lp-more-menu__label', { hasText: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`) }) })
+		.locator('.lp-more-menu__icon')
 }
 
 /**
@@ -330,12 +321,8 @@ async function openSwitcher(page: Page): Promise<Error[]> {
  */
 async function openIconPicker(page: Page, dashboard: Seeded): Promise<Locator> {
 	await page.goto('/index.php/apps/launchpad')
-	await openDashboardSwitcher(page)
-	await switcherRow(page, dashboard.name)
-		.locator('.dashboard-row-actions button')
-		.first()
-		.click()
-	await page.locator('[data-testid="cog-dashboard-config"]').click()
+	await switchToDashboard(page, dashboard.name)
+	await openDashboardSettings(page)
 	const nameInput = page.locator(NAME_INPUT).first()
 	await expect(nameInput).toBeVisible({ timeout: 10_000 })
 	// CONTROL: the modal is editing THIS dashboard, not another one.

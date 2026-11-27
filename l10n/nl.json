@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Opens automatically": "Opent automatisch",
+        "Could not add the dashboard to your favourites": "Het dashboard kon niet aan je favorieten worden toegevoegd",
+        "Could not remove the dashboard from your favourites": "Het dashboard kon niet uit je favorieten worden verwijderd",
+        "Star a dashboard to keep it here": "Geef een dashboard een ster om het hier te zien",
+        "New dashboard": "Nieuw dashboard",
+        "favourites only": "alleen favorieten",
+        "Less": "Minder",
+        "Add to favourites: {name}": "Toevoegen aan favorieten: {name}",
+        "Remove from favourites: {name}": "Verwijderen uit favorieten: {name}",
+        "_%n more dashboard_::_%n more dashboards_": ["nog %n dashboard", "nog %n dashboards"],
         "Manage announcements": "Aankondigingen beheren",
         "Administrators and the groups below manage announcements. Who may is set in Nextcloud's Administration privileges.": "Beheerders en de groepen hieronder beheren aankondigingen. Wie dat mag, stel je in bij Beheerrechten van Nextcloud.",
         "The groups cannot be read here; see Administration privileges.": "De groepen kunnen hier niet worden gelezen; zie Beheerrechten.",

@@ -10,7 +10,7 @@ whose canvas is the page; hydra ADR-114 Decision 10 exempts it from rendering th
 
 Everything the panel offered MUST stay reachable through the More menu: the panel's entries (`manifest.menu` in the
 sections main, footer and settings, after the same permission filter the panel applied), the personal settings dialog,
-and the links into Launchpad's admin page in Nextcloud's settings (admin-settings REQ-ADM-032). That covers
+and the links into Launchpad's admin page in Nextcloud's settings (admin-settings REQ-ADM-036). That covers
 Documentation, Marketplace and Features & roadmap (the panel's footer) and Reports, Flows, Templates and the settings
 (its Advanced foldout).
 
@@ -26,7 +26,7 @@ Documentation, Marketplace and Features & roadmap (the panel's footer) and Repor
   Without such a row it sits at the top end of the content, and that column is kept free so a page's own header actions
   are never covered. Its Dashboards group is how a member gets back.
 - The admin page is not a page of the app: it is rendered by Nextcloud's settings framework and shows neither the More
-  menu nor Launchpad's header (admin-settings REQ-ADM-032).
+  menu nor Launchpad's header (admin-settings REQ-ADM-036).
 - A kiosk view (`?kiosk=1`, REQ-KIOSK-001) renders neither.
 
 The menus are keyboard reachable with visible focus and use no colour of their own. An external destination opens in a

@@ -204,7 +204,7 @@ test.describe('workspace canvas and the widget picker (REQ-WDG-027, REQ-WDG-028)
 		)
 
 		await openDashboardSwitcher(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar.open')
+		const sidebar = page.locator('[data-testid="launchpad-more-menu-panel"]')
 		await expect(
 			sidebar.locator('[class*="__modes"], [class*="__mode"]'),
 		).toHaveCount(0)

@@ -49,7 +49,7 @@ const ADMIN_SETTINGS = '/index.php/settings/admin/launchpad'
 const PREFIX = 'initial-state-launchpad-'
 const RUN = Date.now()
 const NAME = `E2E Initial state ${RUN}`
-const ROW = '.dashboard-switcher-sidebar__item'
+const ROW = '[data-testid="launchpad-more-menu-dashboard-list"] [role="menuitemradio"]'
 
 /** The ten workspace keys of the spec's Data Model (REQ-INIT-002). */
 const WORKSPACE_KEYS = [
@@ -187,7 +187,7 @@ test.describe.serial('initial-state contract (REQ-INIT-001, REQ-INIT-002)', () =
 			// The bundle read them: the switcher opens on the dashboard the
 			// initial state named as active.
 			await openDashboardSwitcher(page)
-			await expect(page.locator(ROW).filter({ hasText: NAME })).toHaveClass(/\bactive\b/)
+			await expect(page.locator(ROW).filter({ hasText: NAME })).toHaveAttribute('aria-checked', 'true')
 		} finally {
 			await context.close()
 		}
@@ -274,7 +274,7 @@ test.describe.serial('initial-state contract (REQ-INIT-001, REQ-INIT-002)', () =
 			// workspace opens on the account's own active dashboard.
 			await expect(page.locator('.workspace-shell')).toBeVisible({ timeout: 30_000 })
 			await openDashboardSwitcher(page)
-			await expect(page.locator(ROW).filter({ hasText: NAME })).toHaveClass(/\bactive\b/)
+			await expect(page.locator(ROW).filter({ hasText: NAME })).toHaveAttribute('aria-checked', 'true')
 		} finally {
 			await context.close()
 		}

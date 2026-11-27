@@ -4,17 +4,16 @@
  *
  * Shared e2e helpers for driving the LaunchPad runtime-shell widget flow.
  *
- * The current UI does NOT expose a top-level "Add widget" button. Widgets
- * are added per-dashboard via the dashboard-switcher sidebar: open the
- * sidebar → open the cog ("Dashboard menu") on a personal dashboard row →
- * "Add widget" → "Custom widget" in the picker → the Add Widget modal. These helpers encapsulate
- * that flow so individual specs stay readable.
+ * Widgets are added to the open dashboard through More → Add widget → the
+ * type in the picker → the Add Widget modal. These helpers encapsulate that
+ * flow so individual specs stay readable. (The dashboards sidebar and its
+ * per-row menus are gone, more-menu-favourites.)
  */
 
 import type { Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
-import { MORE_MENU, openDashboardSwitcher } from '../support/dashboardSwitcher.ts'
+import { addWidgetFromMore, closeMore, MORE_MENU, openDashboardSwitcher } from '../support/dashboardSwitcher.ts'
 import { chooseAndAdd } from '../support/widgetPicker.ts'
 
 /** Navigate to the app and wait for the runtime shell to hydrate (503-resilient). */
@@ -27,63 +26,30 @@ export async function gotoLaunchPad(page: Page): Promise<void> {
 		await page.goto('/index.php/apps/launchpad')
 		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 	}
-	const open = await page.locator('.dashboard-switcher-sidebar.open').count()
-	if (open > 0) {
-		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
-		if (await closeBtn.isVisible().catch(() => false)) {
-			await closeBtn.click()
-		} else {
-			await page.keyboard.press('Escape')
-		}
-		await page
-			.waitForFunction(
-				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-				{ timeout: 5_000 },
-			)
-			.catch(() => null)
-	}
 }
 
-/** Open the sidebar (idempotent). */
+/** Open More with every dashboard listed (idempotent); the sidebar is gone. */
 export async function openSidebar(page: Page): Promise<void> {
-	const open = await page.locator('.dashboard-switcher-sidebar.open').count()
-	if (open > 0) {
+	const unfold = page.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]')
+	if (await unfold.isVisible().catch(() => false) && await unfold.getAttribute('aria-expanded') === 'true') {
 		return
 	}
+	await closeMore(page)
 	await openDashboardSwitcher(page)
 }
 
-/** Close the sidebar so the grid is not occluded. */
+/** Close the More menu so the grid is not occluded. */
 export async function closeSidebar(page: Page): Promise<void> {
-	// A closed sidebar stays in the DOM, slid out of the viewport, so its
-	// close button still counts as visible; only an open one needs closing.
-	const closeBtn = page.locator('.dashboard-switcher-sidebar.open .dashboard-switcher-sidebar__close').first()
-	if (await closeBtn.isVisible().catch(() => false)) {
-		await closeBtn.click()
-		await page
-			.waitForFunction(
-				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-				{ timeout: 5_000 },
-			)
-			.catch(() => null)
-	}
+	await closeMore(page)
 }
 
 /**
- * Open the Add Widget modal via the cog menu of the active personal dashboard's
- * row (the first personal row when none is active), picking `type` in the
- * widget picker. Leaves the modal visible, opened on that type.
+ * Open the Add Widget modal of the open dashboard through More → Add widget,
+ * picking `type` in the widget picker. Leaves the modal visible, opened on
+ * that type.
  */
 export async function openAddWidgetModal(page: Page, type = 'label'): Promise<void> {
-	await openSidebar(page)
-	const personalRows = page.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-	const activeRow = personalRows.and(page.locator('.active'))
-	const personalRow = (await activeRow.count()) > 0 ? activeRow.first() : personalRows.first()
-	await expect(personalRow).toBeVisible({ timeout: 8_000 })
-	await personalRow.locator('.dashboard-row-actions button').first().click()
-	const addWidgetItem = page.getByRole('menuitem', { name: /^add widget$/i })
-	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
-	await addWidgetItem.click()
+	await addWidgetFromMore(page)
 	await chooseAndAdd(page.locator(`[data-testid="widget-picker-type-${type}"]`))
 	await expect(
 		page.getByRole('dialog', { name: /add widget/i }).first(),

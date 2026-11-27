@@ -30,7 +30,7 @@ actions live in edit mode.
 - `dashboard-versioning`: REQ-VERS-001 (debounced snapshot on the settings PUT) is replaced by REQ-VERS-010 (every
   Save of edit mode and every save of the dashboard settings makes one version of the whole dashboard, no debounce)
   and REQ-VERS-011 (the very first version also keeps the state before the change).
-- `widgets`: REQ-WDG-047, the widget action menu in view mode and in edit mode, with Create embed token in edit mode.
+- `widgets`: REQ-WDG-050, the widget action menu in view mode and in edit mode, with Create embed token in edit mode.
 
 ## Out of scope
 

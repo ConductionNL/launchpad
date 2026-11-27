@@ -1,6 +1,18 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Announcements" : "Annonces",
+    "Opens automatically" : "S’ouvre automatiquement",
+    "Could not add the dashboard to your favourites" : "Impossible d’ajouter le tableau de bord à vos favoris",
+    "Could not remove the dashboard from your favourites" : "Impossible de retirer le tableau de bord de vos favoris",
+    "Star a dashboard to keep it here" : "Ajoutez une étoile à un tableau de bord pour le voir ici",
+    "New dashboard" : "Nouveau tableau de bord",
+    "favourites only" : "favoris uniquement",
+    "Less" : "Moins",
+    "Add to favourites: {name}" : "Ajouter aux favoris : {name}",
+    "Remove from favourites: {name}" : "Retirer des favoris : {name}",
+    "My workspace" : "Mon espace de travail",
+    "_%n more dashboard_::_%n more dashboards_" : ["%n autre tableau de bord", "%n autres tableaux de bord"],
     "Manage announcements" : "Gérer les annonces",
     "Administrators and the groups below manage announcements. Who may is set in Nextcloud's Administration privileges." : "Les administrateurs et les groupes ci-dessous gèrent les annonces. Qui le peut se règle dans les privilèges d'administration de Nextcloud.",
     "The groups cannot be read here; see Administration privileges." : "Les groupes ne peuvent pas être lus ici ; voir les privilèges d'administration.",

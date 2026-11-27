@@ -73,23 +73,6 @@ afterEach(() => {
 	vi.restoreAllMocks()
 })
 
-describe('Views detail fields', () => {
-	it('are not asked for on mount, but the first time the switcher opens, and only once', async () => {
-		api.getMetadataFieldDefinitions.mockResolvedValue({ data: { fields: [{ key: 'team' }] } })
-		const host = makeHost()
-
-		Views.watch.sidebarOpen.call(host, false)
-		expect(api.getMetadataFieldDefinitions).not.toHaveBeenCalled()
-
-		Views.watch.sidebarOpen.call(host, true)
-		await host.loadDetailFieldsOnce()
-		Views.watch.sidebarOpen.call(host, true)
-
-		expect(api.getMetadataFieldDefinitions).toHaveBeenCalledTimes(1)
-		expect(host.detailFields).toEqual([{ key: 'team' }])
-	})
-})
-
 describe('Views boot view-event', () => {
 	it('is recorded once the page has settled, not while it loads', () => {
 		vi.useFakeTimers()

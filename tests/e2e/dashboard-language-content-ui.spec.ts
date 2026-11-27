@@ -33,7 +33,7 @@ import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
-import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { openDashboardSettings, switchToDashboard } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	API,
@@ -183,13 +183,8 @@ async function signIn(
  */
 async function openLanguagesTab(page: Page, name: string): Promise<Locator> {
 	await page.goto('/index.php/apps/launchpad')
-	await openDashboardSwitcher(page)
-	const row = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.and(page.locator(`[aria-label="${name}"]`))
-		.first()
-	await row.locator('.dashboard-row-actions button').first().click()
-	await page.locator('[data-testid="cog-dashboard-config"]').click()
+	await switchToDashboard(page, name)
+	await openDashboardSettings(page)
 	await page
 		.locator('[data-testid="dashboard-name-input"]')
 		.waitFor({ state: 'visible' })

@@ -10,9 +10,10 @@
  * many bookmarks is refused in the browser before anything is sent. The quota
  * is an admin setting, read first and put back.
  *
- * Discovery: the "App tiles" section is compared with the
+ * Discovery: the Nextcloud apps in "Choose the app" of the App or link tile form
+ * (app-link-tile-widget REQ-APPTILE-004) are compared with the
  * account's own Nextcloud app menu (`/ocs/v2.php/core/navigation/apps`), one
- * app is placed in one click, and an app restricted to a group the account is
+ * app is placed by ticking it, and an app restricted to a group the account is
  * not in stays out while a member of that group sees it. Deck is used when the
  * instance has it; the CI instance may not, so the same steps then run on
  * another app from the account's own menu. The group restriction is put back.
@@ -52,7 +53,6 @@ import {
 	seedDashboardWithWidget,
 	shareWith,
 } from './support/principals.ts'
-import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const STAMP = `${Date.now()}`
 
@@ -339,10 +339,12 @@ async function appMenu(api: APIRequestContext): Promise<NavApp[]> {
 }
 
 /**
- * Open the add flow (More menu → "Add widget").
+ * Open the add flow (More menu, "Add widget"), choose the App or link tile and
+ * then "An app": the "Choose the app" list that replaced the picker's App
+ * tiles section (app-link-tile-widget REQ-APPTILE-004, board LpTegelToevoegen).
  *
  * @param page The page.
- * @return The picker dialog.
+ * @return The "Choose the app" list.
  */
 async function openAddFlow(page: Page): Promise<Locator> {
 	await page
@@ -352,22 +354,26 @@ async function openAddFlow(page: Page): Promise<Locator> {
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 	const picker = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(picker).toBeVisible({ timeout: 10_000 })
-	return picker
+	await picker.getByTestId('widget-picker-type-tile').click()
+	await picker.getByTestId('widget-picker-add').click()
+	await page.getByTestId('tile-mode').getByText('An app', { exact: true }).click()
+	const chooser = page.getByTestId('tile-app-chooser')
+	await expect(chooser).toBeVisible({ timeout: 10_000 })
+	await expect(chooser).toContainText('Choose the app')
+	return chooser
 }
 
 /**
- * The discovered-app entry for an app.
+ * The row of a Nextcloud app in "Choose the app".
  *
- * @param picker The picker.
+ * @param chooser The "Choose the app" list.
  * @param name The app name.
- * @return The entry button.
+ * @return The row.
  */
-function discovered(picker: Locator, name: string): Locator {
-	return picker
-		.locator('[data-testid="widget-picker-section-tiles"]')
-		.getByRole('button', {
-			name: new RegExp(`^\\s*${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`),
-		})
+function discovered(chooser: Locator, name: string): Locator {
+	return chooser
+		.getByTestId('tile-app-row-nextcloud')
+		.filter({ has: chooser.page().locator('.add-tiles__row-name').getByText(name, { exact: true }) })
 }
 
 test.describe('discovery', () => {
@@ -404,7 +410,7 @@ test.describe('discovery', () => {
 	})
 
 	// @e2e tiles::deck-is-discovered
-	test('every app in the account\'s app menu but LaunchPad is under "App tiles" with its icon', async ({
+	test('every app in the account\'s app menu but LaunchPad is in "Choose the app" with its icon', async ({
 		browser,
 	}) => {
 		const menu = (await appMenu(own.owner.api)).filter(
@@ -426,10 +432,6 @@ test.describe('discovery', () => {
 		try {
 			await page.goto('/index.php/apps/launchpad/')
 			const picker = await openAddFlow(page)
-			const section = picker.locator(
-				'[data-testid="widget-picker-section-tiles"]',
-			)
-			await expect(section).toContainText('App tiles')
 			for (const entry of menu) {
 				await expect(discovered(picker, entry.name)).toBeVisible()
 			}
@@ -437,7 +439,7 @@ test.describe('discovery', () => {
 			const chosen = discovered(picker, app.name)
 			const icon = apps.find((a) => a.appId === app.id)?.icon ?? ''
 			expect(icon).not.toBe('')
-			await expect(chosen.locator('.widget-picker__tile-glyph')).toHaveAttribute('style', new RegExp(icon.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+			await expect(chosen.locator('.tile-app-chooser__icon')).toHaveAttribute('style', new RegExp(icon.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
 		} finally {
 			await context.close()
 		}
@@ -462,11 +464,12 @@ test.describe('discovery', () => {
 					res.request().method() === 'POST'
 					&& /\/api\/dashboard\/\d+\/widgets$/.test(res.url()),
 			)
-			await chooseAndAdd(entry)
+			await entry.getByRole('checkbox').check()
+			await page.getByTestId('tile-editor-save').click()
 			const response = await placed
 			expect(response.status(), await response.text()).toBeLessThan(300)
 			const id = Number((await response.json()).id)
-			await page.keyboard.press('Escape')
+			await expect(page.getByTestId('tile-app-chooser')).toBeHidden({ timeout: 10_000 })
 
 			const tileLink = page.locator(
 				`.grid-stack-item[gs-id="${id}"] a[data-testid="cn-app-tile"]`,
@@ -480,7 +483,7 @@ test.describe('discovery', () => {
 
 			const stored = await readPlacements(own.owner.api, own.id)
 			const tile = stored.find((p) => Number(p.id) === id)!
-			expect(tile).toMatchObject({ widgetId: 'app-tile', content: { appId: app.id } })
+			expect(tile).toMatchObject({ widgetId: 'tile', content: { mode: 'app', appId: app.id } })
 			const bottom = Math.max(
 				0,
 				...stored
@@ -540,9 +543,7 @@ test.describe('discovery', () => {
 			try {
 				await page.goto('/index.php/apps/launchpad/')
 				const picker = await openAddFlow(page)
-				await expect(
-					picker.locator('[data-testid="widget-picker-section-tiles"]'),
-				).toContainText('App tiles')
+				await expect(picker.getByTestId('tile-app-row-nextcloud').first()).toBeVisible()
 				await expect(discovered(picker, target!.name)).toHaveCount(0)
 			} finally {
 				await context.close()

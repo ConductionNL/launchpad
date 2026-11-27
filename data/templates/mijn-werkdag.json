@@ -179,7 +179,7 @@
 				"sortOrder": 4
 			},
 			{
-				"widgetId": "app-tiles",
+				"widgetId": "container",
 				"gridX": 0,
 				"gridY": 8,
 				"gridWidth": 8,
@@ -191,13 +191,15 @@
 				"customIcon": null,
 				"content": {
 					"title": "Apps",
-					"pinned": [],
-					"exclude": [
-						"launchpad"
-					],
-					"showFilter": true,
-					"showMostUsed": true,
-					"mostUsedLimit": 4,
+					"placements": [],
+					"appList": {
+						"pinned": [],
+						"exclude": [
+							"launchpad"
+						],
+						"mostUsedLimit": 4,
+						"showFilter": true
+					},
 					"showActions": false
 				},
 				"showTitle": 0,

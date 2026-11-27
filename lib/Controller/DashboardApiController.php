@@ -28,10 +28,12 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\ContrastTooLowException;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Exception\DraftConflictException;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\ResponseDefinitions;
+use OCA\LaunchPad\Service\DashboardDraft;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\MetadataService;
@@ -822,6 +824,59 @@ class DashboardApiController extends Controller {
 	}//end update()
 
 	/**
+	 * Store an edit-mode draft: the grid columns and the full placement list
+	 * in one transaction with its version (REQ-EDIT-002, REQ-VERS-010). One
+	 * refused change answers 403, a colleague's newer widget 409 with those
+	 * widgets as saved now; either way nothing is stored.
+	 *
+	 * @param int                  $dashboardId The dashboard.
+	 * @param array<string, mixed> $fields      The update fields: `gridColumns` and the full `placements` list.
+	 *
+	 * @return JSONResponse The stored dashboard and placements, or the refusal.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 */
+	private function saveDraft(int $dashboardId, array $fields): JSONResponse {
+		if ($this->context->userId === null || $this->services->widgets->draftSave === null) {
+			return $this->context->responseHelper->unauthorized();
+		}
+
+		try {
+			$saved = $this->services->widgets->draftSave->save(
+				draft: new DashboardDraft(
+					dashboardId: $dashboardId,
+					userId: $this->context->userId,
+					gridColumns: $fields['gridColumns'],
+					placements: array_values($fields['placements'])
+				)
+			);
+		} catch (DraftConflictException $e) {
+			return new JSONResponse(
+				data: [
+					'status'     => 'error',
+					'error'      => 'stale',
+					'message'    => $e->getMessage(),
+					'placements' => array_map(static fn ($placement): array => $placement->jsonSerialize(), $e->getCurrent()),
+				],
+				statusCode: Http::STATUS_CONFLICT
+			);
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden(message: $e->getMessage());
+		} catch (InvalidArgumentException $e) {
+			return $this->context->responseHelper->invalidArgument(message: $e->getMessage());
+		} catch (\Exception $e) {
+			return $this->context->responseHelper->error(exception: $e);
+		}//end try
+
+		return $this->context->responseHelper->success(
+			data: [
+				'dashboard'  => $saved['dashboard']->jsonSerialize(),
+				'placements' => array_map(static fn ($placement): array => $placement->jsonSerialize(), $saved['placements']),
+			]
+		);
+	}//end saveDraft()
+
+	/**
 	 * The footer override fields of an update body (REQ-FTR-006): a field
 	 * that is absent or not a string is null and leaves the dashboard alone.
 	 *
@@ -1024,8 +1079,15 @@ class DashboardApiController extends Controller {
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	private function applyUpdate(int $dashboardId, array $fields): JSONResponse {
+		// REQ-EDIT-002: an edit-mode Save sends its whole draft, marked as such,
+		// so the older position-only `placements` patch keeps its meaning.
+		if ($this->request->getParam(key: 'draft') === true && is_array($fields['placements']) === true) {
+			return $this->saveDraft(dashboardId: $dashboardId, fields: $fields);
+		}
+
 		try {
 			$data = $this->buildUpdateData(fields: $fields);
 			$save = fn (): Dashboard => $this->services->dashboardService->updateDashboard(

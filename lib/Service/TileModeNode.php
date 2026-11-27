@@ -46,6 +46,16 @@ final class TileModeNode {
 	public const TILE = 'tile';
 
 	/**
+	 * The retired multi-tile widget type (layout-widgets-replace-multi-tile D2b).
+	 */
+	public const RETIRED_MULTI_TILE = 'app-tiles';
+
+	/**
+	 * The well a multi-tile becomes.
+	 */
+	public const WELL = 'container';
+
+	/**
 	 * Convert one placement in place, its nested children included.
 	 *
 	 * @param WidgetPlacement $placement The placement.
@@ -77,9 +87,16 @@ final class TileModeNode {
 	 * @return array{0: string, 1: array<string, mixed>, 2: int} The type, the content and the number of tiles converted.
 	 *
 	 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
+	 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-5
 	 */
 	public function convertNode(string $type, array $content): array {
 		$changed = 0;
+		if ($type === self::RETIRED_MULTI_TILE) {
+			$type    = self::WELL;
+			$content = (new MultiTileWell())->wellContent(content: $content);
+			$changed++;
+		}
+
 		if ($type === self::RETIRED_APP_TILE) {
 			$type    = self::TILE;
 			$content = $this->appTileContent(content: $content);

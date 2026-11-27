@@ -521,7 +521,7 @@
                 "qb1.addOrderBy(\"id\", \"DESC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":5,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":6,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":5,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"remindedAt\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":6,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"remindedAt\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
         "findDrafts all": {
             "calls": [
@@ -557,7 +557,7 @@
                 "qb1.orderBy(\"updated_at\", \"DESC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":5,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":6,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":5,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"remindedAt\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":6,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"remindedAt\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
         "findAllForManagers all": {
             "calls": [
@@ -579,7 +579,167 @@
                 "qb1.setMaxResults(500)",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":5,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":6,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":5,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"remindedAt\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":6,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"remindedAt\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+        }
+    },
+    "AnnouncementReceiptMapper": {
+        "findOne all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_ann_receipts\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"announcement_uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"announcement_uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"user_id\", \":p2\", null)",
+                "qb1.andWhere(\"eq(\\\"user_id\\\", \\\":p2\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned null"
+        },
+        "findOne rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_ann_receipts\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"announcement_uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"announcement_uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"user_id\", \":p2\", null)",
+                "qb1.andWhere(\"eq(\\\"user_id\\\", \\\":p2\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned OCA\\LaunchPad\\Db\\AnnouncementReceipt {\"announcementUuid\":null,\"userId\":null,\"seenAt\":null,\"confirmedAt\":null,\"confirmedVia\":null}"
+        },
+        "findByAnnouncement all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_ann_receipts\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"announcement_uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"announcement_uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findByAnnouncement rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_ann_receipts\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"announcement_uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"announcement_uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\AnnouncementReceipt {\\\"announcementUuid\\\":null,\\\"userId\\\":null,\\\"seenAt\\\":null,\\\"confirmedAt\\\":null,\\\"confirmedVia\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\AnnouncementReceipt {\\\"announcementUuid\\\":null,\\\"userId\\\":null,\\\"seenAt\\\":null,\\\"confirmedAt\\\":null,\\\"confirmedVia\\\":null}\"]"
+        },
+        "findByUserAmong all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_ann_receipts\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"user_id\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"user_id\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter([\"a-1\",\"a-2\"], 102, null)",
+                "qb1.expr.in(\"announcement_uuid\", \":p2\", null)",
+                "qb1.andWhere(\"in(\\\"announcement_uuid\\\", \\\":p2\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findByUserAmong rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_ann_receipts\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"user_id\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"user_id\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter([\"a-1\",\"a-2\"], 102, null)",
+                "qb1.expr.in(\"announcement_uuid\", \":p2\", null)",
+                "qb1.andWhere(\"in(\\\"announcement_uuid\\\", \\\":p2\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\AnnouncementReceipt {\\\"announcementUuid\\\":null,\\\"userId\\\":null,\\\"seenAt\\\":null,\\\"confirmedAt\\\":null,\\\"confirmedVia\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\AnnouncementReceipt {\\\"announcementUuid\\\":null,\\\"userId\\\":null,\\\"seenAt\\\":null,\\\"confirmedAt\\\":null,\\\"confirmedVia\\\":null}\"]"
+        },
+        "countsFor all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"announcement_uuid\")",
+                "qb1.func()",
+                "qb1.func.count(\"seen_at\", \"\")",
+                "qb1.selectAlias(count(\"seen_at\", \"\"), \"seen\")",
+                "qb1.func()",
+                "qb1.func.count(\"confirmed_at\", \"\")",
+                "qb1.selectAlias(count(\"confirmed_at\", \"\"), \"confirmed\")",
+                "qb1.from(\"launchpad_ann_receipts\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter([\"a-1\",\"a-2\"], 102, null)",
+                "qb1.expr.in(\"announcement_uuid\", \":p1\", null)",
+                "qb1.where(\"in(\\\"announcement_uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.groupBy(\"announcement_uuid\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "countsFor rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"announcement_uuid\")",
+                "qb1.func()",
+                "qb1.func.count(\"seen_at\", \"\")",
+                "qb1.selectAlias(count(\"seen_at\", \"\"), \"seen\")",
+                "qb1.func()",
+                "qb1.func.count(\"confirmed_at\", \"\")",
+                "qb1.selectAlias(count(\"confirmed_at\", \"\"), \"confirmed\")",
+                "qb1.from(\"launchpad_ann_receipts\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter([\"a-1\",\"a-2\"], 102, null)",
+                "qb1.expr.in(\"announcement_uuid\", \":p1\", null)",
+                "qb1.where(\"in(\\\"announcement_uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.groupBy(\"announcement_uuid\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "threw ErrorException: Undefined array key \"announcement_uuid\""
+        },
+        "deleteByAnnouncement all": {
+            "calls": [
+                "qb1 new",
+                "qb1.delete(\"launchpad_ann_receipts\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"announcement_uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"announcement_uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeStatement(null)"
+            ],
+            "outcome": "returned null"
+        },
+        "deleteByAnnouncement rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.delete(\"launchpad_ann_receipts\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"announcement_uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"announcement_uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeStatement(null)"
+            ],
+            "outcome": "returned null"
         }
     },
     "AppRequestMapper": {

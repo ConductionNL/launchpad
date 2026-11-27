@@ -11,7 +11,11 @@
 		     the board look on. The page sits in Nextcloud's settings
 		     framework (`/settings/admin/launchpad`, REQ-ADM-032); the open
 		     tab is the URL fragment, which AdminRoot keeps, not `?tab=`.
-		     The version card comes first on General (Restart setup, Tour). -->
+		     The version card comes first on General (Restart setup, Tour).
+		     Board LpBeheerAlgemeen: one column of cards, and the card reads
+		     "Configured version <v>, up to date" without an application-name
+		     row (launchpad has no separate configuration version, so the
+		     installed version is the configured one). -->
 		<CnAdminSettingsShell
 			ref="shell"
 			appId="launchpad"
@@ -23,8 +27,13 @@
 			:breadcrumbNote="breadcrumbNote"
 			:showVersionCard="showsVersionCard"
 			:appVersion="appVersion"
+			:configuredVersion="appVersion"
+			:isUpToDate="true"
+			inlineUpToDate
+			:showAppName="false"
+			:sectionColumns="1"
 			:showReimport="false"
-			:showUpdateButton="false"
+			:showUpdateButton="true"
 			:tabs="beheerTabs"
 			tabsVariant="underline"
 			tabQueryKey=""
@@ -233,6 +242,8 @@
 
 				<!-- dashboard-quota-limits REQ-QUOTA-001: numeric governance
 				     quotas. `0` = unlimited (no enforcement). -->
+				<!-- Board LpBeheerAlgemeen: the two limits side by side. -->
+				<div class="launchpad-admin__quota-row">
 				<div
 					class="launchpad-admin__field"
 					data-testid="admin-quota-dashboards">
@@ -275,6 +286,7 @@
 							)
 						}}
 					</p>
+				</div>
 				</div>
 				</CnSettingsSection>
 
@@ -1188,6 +1200,14 @@ export default {
 
 .launchpad-admin__field {
 	margin-bottom: 16px;
+}
+
+/* Board LpBeheerAlgemeen: the quota fields share one row, apart from the field above. */
+.launchpad-admin__quota-row {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 12px;
+	margin-top: 16px;
 }
 
 .launchpad-admin__field label {

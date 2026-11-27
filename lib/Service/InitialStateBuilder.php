@@ -375,7 +375,7 @@ class InitialStateBuilder {
 	 *
 	 * @return self
 	 *
-	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-2
 	 */
 	public function setWorkspaceApiReads(?array $reads): self {
 		if ($reads !== null) {

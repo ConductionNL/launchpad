@@ -163,13 +163,12 @@ test.describe('REQ-ASET-008 the admin settings page', () => {
 		await expect(entry).toBeVisible({ timeout: 30_000 })
 		await expect(entry).toContainText('LaunchPad')
 
-		// The section links on to the administration page (REQ-ADM-031).
+		// The entry opens the administration page itself, in Nextcloud's
+		// settings, on its first tab (REQ-ADM-032; the link to a separate
+		// page of REQ-ADM-031 was removed).
 		await entry.click()
-		await expect(page).toHaveURL(/\/settings\/admin\/launchpad/)
-		await page.getByTestId('launchpad-admin-settings-link').getByRole('link').click()
-		// /admin opens General; the router leaves the default tab out of the link.
-		await expect(page).toHaveURL(/\/apps\/launchpad\/admin(\/general)?(\?|#|$)/)
-		await adminTab(page, 'general').click()
+		await expect(page).toHaveURL(/\/settings\/admin\/launchpad(#general)?$/)
+		await expect(adminTab(page, 'general')).toHaveAttribute('aria-selected', 'true', { timeout: 30_000 })
 		await expect(page.getByTestId('admin-default-settings')).toBeVisible({
 			timeout: 30_000,
 		})

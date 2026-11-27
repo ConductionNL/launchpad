@@ -143,3 +143,53 @@ test('wells and tabs nest at most three levels deep', async () => {
 	expect(refused.status()).toBe(400)
 	expect((await refused.json()).error).toBe('container_depth_exceeded')
 })
+
+// REQ-TABS-002 "Tiles in two tabs": a dashboard tile moves into a tab through
+// the tile form's Group, which lists each tab as "<Tabs title> > <tab title>".
+test('a tile moves into a tab through its Group field', async ({ browser }) => {
+	const title = `Zaaksysteem ${RUN}`
+	const tabsTitle = `Werk ${RUN}`
+	const placed = await owner!.api.post(`${API}/dashboard/${dashboard!.id}/widgets`, {
+		data: {
+			widgetId: 'tabs',
+			gridX: 0,
+			gridY: 12,
+			gridWidth: 6,
+			gridHeight: 4,
+			content: { title: tabsTitle, tabs: [{ id: 'team', title: 'Team', placements: [] }, { id: 'samen', title: 'Samenwerken', placements: [] }] },
+		},
+	})
+	expect(placed.status(), await placed.text()).toBeLessThan(300)
+	const tabsId = Number((await placed.json()).id)
+	const tile = await owner!.api.post(`${API}/dashboard/${dashboard!.id}/tile`, {
+		data: { title, linkType: 'url', linkValue: 'https://example.org/zaken', gridX: 6, gridY: 12, gridWidth: 2, gridHeight: 2 },
+	})
+	expect(tile.status(), await tile.text()).toBeLessThan(300)
+
+	const { context, page } = await loginAs(browser, owner!.username, owner!.password)
+	try {
+		await page.goto(`${APP}/${dashboard!.slug}`)
+		const card = page.locator('.tile-widget').filter({ hasText: title })
+		await expect(card).toBeVisible({ timeout: 30_000 })
+		await enterEditMode(page)
+		await card.getByRole('button', { name: 'Tile menu' }).click()
+		await page.getByRole('menuitem', { name: 'Edit tile' }).click()
+
+		const group = page.locator('[data-testid="tile-group"]')
+		await group.click()
+		await page.locator('.vs__dropdown-option').filter({ hasText: `${tabsTitle} > Samenwerken` }).first().click()
+		const saved = page.waitForResponse((res) => res.url().includes(`/widgets/${tabsId}`) && res.request().method() === 'PUT')
+		await page.getByRole('button', { name: 'Save', exact: true }).click()
+		expect((await saved).status()).toBeLessThan(300)
+		await expect(card).toHaveCount(0, { timeout: 15_000 })
+	} finally {
+		await context.close()
+	}
+
+	const stored = await (await owner!.api.get(`${API}/dashboard/${dashboard!.id}`)).json()
+	const tabs = (stored.placements ?? []).find((row: { id: number }) => Number(row.id) === tabsId)
+	expect(tabs.content.tabs[0].placements).toHaveLength(0)
+	expect(tabs.content.tabs[1].placements).toHaveLength(1)
+	expect(tabs.content.tabs[1].placements[0].content.title).toBe(title)
+	expect((stored.placements ?? []).some((row: { content?: { title?: string } }) => row.content?.title === title)).toBe(false)
+})

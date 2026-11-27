@@ -70,6 +70,10 @@ describe('pickerCards', () => {
 		expect(cards.some((card) => card.key === 'own-tile' || card.key.startsWith('catalogue:') || card.key.startsWith('app:'))).toBe(false)
 		expect(cards.find((card) => card.key === 'office-pack')).toMatchObject({ kind: 'office', action: { event: 'addOfficePack' } })
 		expect(typeLine('tile', t)).toBe('One app or web address as a tile.')
+		// add-widget-dialog-with-miniatures REQ-WDG-048: what each card's miniature draws.
+		expect(cards.find((card) => card.key === 'type:clock').miniature).toEqual({ type: 'clock' })
+		expect(cards.find((card) => card.key === 'office-pack').miniature).toMatchObject({ type: 'tile', content: { title: 'Word' } })
+		expect(cards.find((card) => card.key === 'widget:notes').miniature).toEqual({ ncWidget: { iconUrl: '', iconClass: '' } })
 	})
 
 	it('greys out what the role may not add, as the server decides it', () => {

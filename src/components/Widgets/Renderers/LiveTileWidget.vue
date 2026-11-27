@@ -167,6 +167,12 @@ export default {
 
 	props: {
 		/**
+		 * The widget is a miniature in Add widget (REQ-WDG-048): it draws
+		 * its sample content and sends no request.
+		 */
+		preview: { type: Boolean, default: false },
+
+		/**
 		 * Persisted widget content blob:
 		 * `{sourceMode, url, sourceId, valueExpr, refresh, format, badge,
 		 * label, linkUrl, linkTarget}`.
@@ -394,7 +400,11 @@ export default {
 		},
 	},
 
+	/** @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048 */
 	mounted() {
+		if (this.preview) {
+			return
+		}
 		this.load()
 	},
 

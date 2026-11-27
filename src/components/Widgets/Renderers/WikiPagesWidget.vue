@@ -87,6 +87,12 @@ export default {
 	components: { CnStatusList, NcButton, NcTextField, Star, StarOutline },
 
 	props: {
+		/**
+		 * The widget is a miniature in Add widget (REQ-WDG-048): it draws
+		 * its sample content and sends no request.
+		 */
+		preview: { type: Boolean, default: false },
+
 		/** Persisted widget content: `{ space, limit }`. */
 		content: OBJECT_PROP,
 
@@ -151,8 +157,14 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-wiki-widget-shows-favourites-recent-pages-and-search-req-wiki-001 */
+	/**
+	 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-wiki-widget-shows-favourites-recent-pages-and-search-req-wiki-001
+	 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+	 */
 	async created() {
+		if (this.preview) {
+			return
+		}
 		const [recent, favourites] = await Promise.all([
 			searchWikiPages('', this.space ? 50 : this.limit),
 			readWikiFavourites(),

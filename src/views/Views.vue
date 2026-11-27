@@ -444,6 +444,7 @@
 			:open="isAddTilesOpen"
 			:catalogueApps="catalogueApps"
 			:discoveredApps="discoveredApps"
+			:foundServices="foundServices"
 			:officeTiles="officeTiles"
 			:placements="widgetPlacements"
 			:requestAppFn="requestCatalogueApp"
@@ -971,6 +972,8 @@ export default {
 			unavailableSources: {},
 			isWidgetModalOpen: false,
 			discoveredApps: [],
+			// Services an administrator allowed for discovery that answered (REQ-TILE-044).
+			foundServices: [],
 			catalogueApps: [],
 			isConfigModalOpen: false,
 			configModalMode: 'edit',
@@ -2903,22 +2906,41 @@ export default {
 		 * pack loaded; a list that fails to load leaves its section empty.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		async openAddTilesModal() {
 			this.isAddTilesOpen = true
 			await Promise.all([
 				this.loadDiscoveredApps(),
+				this.loadFoundServices(),
 				this.loadCatalogueApps(),
 				this.loadOfficeTiles(),
 			])
 		},
 
 		/**
+		 * Read the services an administrator allowed for discovery that
+		 * answered, for the Add tiles "Found on this server" section. A
+		 * failure leaves them out.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+		 */
+		async loadFoundServices() {
+			try {
+				const response = await api.foundServices()
+				this.foundServices = Array.isArray(response?.data?.services) ? response.data.services : []
+			} catch (error) {
+				this.foundServices = []
+				logger.warn('[Views] Could not read the found services:', error)
+			}
+		},
+
+		/**
 		 * Read the office tile pack for the Add tiles Office section.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		async loadOfficeTiles() {
 			try {
@@ -2937,7 +2959,7 @@ export default {
 		 *
 		 * @param {Array<{kind: string, tile: object}>} choices The chosen tiles.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		async addChosenTiles(choices) {
 			for (const choice of choices) {
@@ -2953,7 +2975,7 @@ export default {
 		 * A bookmarks file chosen in Add tiles: open the bookmark import on it.
 		 *
 		 * @param {File} file The bookmarks file.
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		onAddTilesImportBookmarks(file) {
 			this.isAddTilesOpen = false

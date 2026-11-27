@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Nuk përgjigjet",
+        "port {port}": "porta {port}",
+        "found {time}": "gjetur {time}",
+        "Services to discover": "Shërbime për t’u zbuluar",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "“Shto pllaka” i shfaq këto shërbime kur përgjigjen. LaunchPad pyet vetëm adresat në këtë listë.",
+        "No services on this list yet.": "Ende nuk ka shërbime në këtë listë.",
+        "For example http://localhost:3000": "Për shembull http://localhost:3000",
+        "Add service": "Shto shërbim",
+        "Services to discover saved.": "Shërbimet për t’u zbuluar u ruajtën.",
+        "The services to discover could not be saved.": "Shërbimet për t’u zbuluar nuk mund të ruheshin.",
         "Own publication" : "Publikim i vetë",
         "The upload is larger than this server accepts.": "Ngarkimi është më i madh se sa pranon ky server.",
         "The file is too large.": "Skedari është shumë i madh.",

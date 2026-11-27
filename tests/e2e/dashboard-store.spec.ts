@@ -232,7 +232,8 @@ test.describe('dashboard store', () => {
 	})
 
 	/*
-	 * @e2e openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#scenario-an-unconfigured-store-shows-the-not-configured-state
+	 * @e2e dashboard-store::an-unconfigured-store-shows-the-not-configured-state
+	 * @e2e dashboard-store::no-register-connected
 	 */
 	test('an unconfigured store shows the not-configured note, answered by the route', async ({
 		page,
@@ -253,10 +254,17 @@ test.describe('dashboard store', () => {
 			0,
 		)
 		await expect(page.locator('[data-testid="store-results"]')).toHaveCount(0)
+
+		// REQ-STORE-010 no-register-connected: the banner says no register is
+		// connected and points to the Sharing tab of the admin settings.
+		await expect(page.locator('[data-testid="store-banner-not-connected"]')).toBeVisible()
+		const settings = page.locator('[data-testid="store-banner-settings"]')
+		await expect(settings).toBeVisible()
+		expect(await settings.getAttribute('href')).toMatch(/\/apps\/launchpad\/admin\/sharing$/)
 	})
 
 	/*
-	 * @e2e openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#scenario-an-install-with-no-registry-is-refused-with-a-reason
+	 * @e2e dashboard-store::an-install-with-no-registry-is-refused-with-a-reason
 	 */
 	test('an admin install with no registry is refused with a reason, not a 500', async ({
 		page,
@@ -281,9 +289,9 @@ test.describe('dashboard store', () => {
 	})
 
 	/*
-	 * @e2e openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#scenario-an-administrator-saves-a-registry-and-reads-it-back
-	 * @e2e openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#scenario-the-token-is-never-shown-back
-	 * @e2e openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#scenario-reading-the-config-never-returns-the-token
+	 * @e2e dashboard-store::an-administrator-saves-a-registry-and-reads-it-back
+	 * @e2e dashboard-store::the-token-is-never-shown-back
+	 * @e2e dashboard-store::reading-the-config-never-returns-the-token
 	 */
 	test('an admin saves a registry, reads it back, and never sees the token again', async ({
 		page,
@@ -352,7 +360,7 @@ test.describe('dashboard store', () => {
 	})
 
 	/*
-	 * @e2e openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#scenario-the-saved-registry-is-the-one-the-store-reads
+	 * @e2e dashboard-store::the-saved-registry-is-the-one-the-store-reads
 	 */
 	test('the registry the form saves is the one the store reads', async ({
 		page,
@@ -403,8 +411,10 @@ test.describe('dashboard store', () => {
 		})
 
 		/*
-		 * @e2e openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#scenario-a-non-admin-is-refused-the-registry-config
-		 * @e2e openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#scenario-a-non-admin-is-refused-an-install
+		 * @e2e dashboard-store::a-non-admin-is-refused-the-registry-config
+		 * @e2e dashboard-store::a-non-admin-is-refused-an-install
+		 * @e2e dashboard-store::a-member-cannot-update
+		 * @e2e dashboard-store::a-member-sees-no-publish-action
 		 */
 		test('is refused the registry config and the install, but may search', async ({
 			browser,
@@ -473,6 +483,30 @@ test.describe('dashboard store', () => {
 					`${APP_BASE}/api/store/items/${PROBE_SLUG}/install`,
 				)
 				expect(install.status, 'a non-admin reached the install').toBe(403)
+
+				// REQ-STORE-012: the update is administrative too.
+				const update = await callFromPage(
+					page,
+					'POST',
+					`${APP_BASE}/api/store/items/${PROBE_SLUG}/update`,
+				)
+				expect(update.status, 'a non-admin reached the update').toBe(403)
+
+				// REQ-STORE-013: no publish action on the page, and a publish
+				// request sent anyway is refused.
+				await page.goto(STORE_URL, { waitUntil: 'domcontentloaded' })
+				await expect(page.locator('[data-testid="store-banner"]')).toBeVisible({ timeout: 60_000 })
+				await expect(page.locator('[data-testid="store-publish"]')).toHaveCount(0)
+				const publish = await callFromPage(
+					page,
+					'POST',
+					`${APP_BASE}/api/store/publish`,
+					{
+						item: { slug: 'raads-en-collegewerk', title: 'Raads- en collegewerk', version: '0.9.0' },
+						objects: [{ schema: 'dashboard', id: 'uuid-raad' }],
+					},
+				)
+				expect(publish.status, 'a non-admin reached the publish').toBe(403)
 
 				// A refused write must also not have landed.
 				const stored = await readRegistry()

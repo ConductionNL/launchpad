@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Neodpovedá",
+        "port {port}": "port {port}",
+        "found {time}": "nájdené {time}",
+        "Services to discover": "Služby na vyhľadanie",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "„Pridať dlaždice“ zobrazí tieto služby, keď odpovedajú. LaunchPad sa pýta iba adries z tohto zoznamu.",
+        "No services on this list yet.": "V tomto zozname zatiaľ nie sú žiadne služby.",
+        "For example http://localhost:3000": "Napríklad http://localhost:3000",
+        "Add service": "Pridať službu",
+        "Services to discover saved.": "Služby na vyhľadanie uložené.",
+        "The services to discover could not be saved.": "Služby na vyhľadanie sa nepodarilo uložiť.",
         "Own publication" : "Vlastná publikácia",
         "The upload is larger than this server accepts.": "Nahrávané dáta sú väčšie, než tento server prijíma.",
         "The file is too large.": "Súbor je príliš veľký.",

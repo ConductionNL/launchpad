@@ -259,6 +259,9 @@
 				<!-- REQ-ASET-021: the outside websites widgets may embed or fetch from. -->
 				<AllowedSitesSettings />
 
+				<!-- REQ-TILE-044: the services on the server Add tiles may list. -->
+				<DiscoverableServicesSettings />
+
 				<!-- launcher-tile-launch-types: program schemes and sign-on templates. -->
 				<TileLaunchSettings />
 
@@ -418,6 +421,7 @@ import { generateUrl } from '@nextcloud/router'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
 import AdminCustomCss from './AdminCustomCss.vue'
 import AllowedSitesSettings from './AllowedSitesSettings.vue'
+import DiscoverableServicesSettings from './DiscoverableServicesSettings.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
 import AppCatalogueTab from './tabs/AppCatalogueTab.vue'
 import CommunitiesTab from './tabs/CommunitiesTab.vue'
@@ -449,6 +453,7 @@ export default {
 		CnAdminSettingsShell,
 		CnSettingsSection,
 		CnWalkthrough,
+		DiscoverableServicesSettings,
 		NcButton,
 		NcSelect,
 		NcCheckboxRadioSwitch,

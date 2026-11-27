@@ -427,6 +427,7 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'tileApi#index', 'url' => '/api/tiles', 'verb' => 'GET'],
 		// REQ-DISC-001: the apps in the caller's own app menu, to place as tiles.
 		['name' => 'tileApi#discover', 'url' => '/api/tiles/discover', 'verb' => 'GET'],
+		['name' => 'tileApi#foundServices', 'url' => '/api/tiles/found-services', 'verb' => 'GET'],
 		['name' => 'tileApi#create', 'url' => '/api/tiles', 'verb' => 'POST'],
 		['name' => 'tileApi#update', 'url' => '/api/tiles/{id}', 'verb' => 'PUT'],
 		['name' => 'tileApi#destroy', 'url' => '/api/tiles/{id}', 'verb' => 'DELETE'],
@@ -604,6 +605,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// REQ-ASET-021: the outside websites launchpad may embed or fetch from.
 		['name' => 'allowedSites#show', 'url' => '/api/admin/allowed-sites', 'verb' => 'GET'],
 		['name' => 'allowedSites#update', 'url' => '/api/admin/allowed-sites', 'verb' => 'PUT'],
+		['name' => 'discoverableServices#show', 'url' => '/api/admin/discoverable-services', 'verb' => 'GET'],
+		['name' => 'discoverableServices#update', 'url' => '/api/admin/discoverable-services', 'verb' => 'PUT'],
 
 		// Dashboard export / import (REQ-EXIM-002..004). Both admin-only
 		// via runtime `IGroupManager::isAdmin` check inside the

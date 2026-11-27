@@ -2135,6 +2135,13 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../modals/AddTilesModal.vue | foundServices": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../modals/AddTilesModal.vue | officeTiles": {
 		"type": "Array",
 		"required": false,

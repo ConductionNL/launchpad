@@ -10,6 +10,8 @@ import {
 	catalogueChoice,
 	discoveredChoice,
 	existingTileKeys,
+	foundServiceChoice,
+	foundServiceMeta,
 	officeChoice,
 	signOnKind,
 	tileKey,
@@ -48,6 +50,19 @@ describe('choices per section', () => {
 
 	it('makes a found app its own app tile', () => {
 		expect(discoveredChoice({ appId: 'grafana', name: 'Grafana' })).toEqual({ key: 'app:grafana', kind: 'app-tile', tile: { appId: 'grafana' } })
+	})
+
+	it('makes a found service a web-address tile (REQ-TILE-044)', () => {
+		expect(foundServiceChoice({ name: 'Grafana', url: 'http://localhost:3000' })).toEqual({
+			key: 'url:http://localhost:3000',
+			kind: 'tile',
+			tile: { title: 'Grafana', icon: 'icon-link', iconType: 'class', linkType: 'url', linkValue: 'http://localhost:3000' },
+		})
+	})
+
+	it('describes a found service by state, port and found time (REQ-TILE-044)', () => {
+		expect(foundServiceMeta({ state: 'running', port: 3000, foundAt: 1795757445 })).toMatch(/^Running · port 3000 · found \S.*26/)
+		expect(foundServiceMeta({ state: 'not_responding', port: 443, foundAt: 0 })).toBe('Not responding · port 443')
 	})
 
 	it('makes an office pack tile a tile of its own', () => {

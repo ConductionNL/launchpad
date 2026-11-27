@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Se ne odziva",
+        "port {port}": "vrata {port}",
+        "found {time}": "najdeno {time}",
+        "Services to discover": "Storitve za odkrivanje",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "»Dodaj ploščice« prikaže te storitve, ko se odzovejo. LaunchPad sprašuje samo naslove s tega seznama.",
+        "No services on this list yet.": "Na tem seznamu še ni storitev.",
+        "For example http://localhost:3000": "Na primer http://localhost:3000",
+        "Add service": "Dodaj storitev",
+        "Services to discover saved.": "Storitve za odkrivanje so shranjene.",
+        "The services to discover could not be saved.": "Storitev za odkrivanje ni bilo mogoče shraniti.",
         "Own publication" : "Lastna objava",
         "The upload is larger than this server accepts.": "Nalaganje je večje, kot ga ta strežnik sprejme.",
         "The file is too large.": "Datoteka je prevelika.",

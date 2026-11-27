@@ -1,6 +1,16 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Not responding" : "Ei vastaa",
+    "port {port}" : "portti {port}",
+    "found {time}" : "löydetty {time}",
+    "Services to discover" : "Etsittävät palvelut",
+    "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list." : "”Lisää ruutuja” näyttää nämä palvelut, kun ne vastaavat. LaunchPad kysyy vain tämän luettelon osoitteita.",
+    "No services on this list yet." : "Luettelossa ei ole vielä palveluita.",
+    "For example http://localhost:3000" : "Esimerkiksi http://localhost:3000",
+    "Add service" : "Lisää palvelu",
+    "Services to discover saved." : "Etsittävät palvelut tallennettu.",
+    "The services to discover could not be saved." : "Etsittäviä palveluita ei voitu tallentaa.",
     "Own publication" : "Oma julkaisu",
     "The upload is larger than this server accepts." : "Lähetys on suurempi kuin tämä palvelin hyväksyy.",
     "The file is too large." : "Tiedosto on liian suuri.",

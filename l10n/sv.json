@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Svarar inte",
+        "port {port}": "port {port}",
+        "found {time}": "hittad {time}",
+        "Services to discover": "Tjänster att upptäcka",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "”Lägg till rutor” visar dessa tjänster när de svarar. LaunchPad frågar bara adresserna i den här listan.",
+        "No services on this list yet.": "Inga tjänster i listan ännu.",
+        "For example http://localhost:3000": "Till exempel http://localhost:3000",
+        "Add service": "Lägg till tjänst",
+        "Services to discover saved.": "Tjänster att upptäcka har sparats.",
+        "The services to discover could not be saved.": "Tjänsterna att upptäcka kunde inte sparas.",
         "Own publication" : "Egen publicering",
         "The upload is larger than this server accepts.": "Uppladdningen är större än vad den här servern tar emot.",
         "The file is too large.": "Filen är för stor.",

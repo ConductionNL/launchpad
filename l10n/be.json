@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Не адказвае",
+        "port {port}": "порт {port}",
+        "found {time}": "знойдзена {time}",
+        "Services to discover": "Сэрвісы для выяўлення",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "«Дадаць пліткі» паказвае гэтыя сэрвісы, калі яны адказваюць. LaunchPad апытвае толькі адрасы з гэтага спіса.",
+        "No services on this list yet.": "У гэтым спісе яшчэ няма сэрвісаў.",
+        "For example http://localhost:3000": "Напрыклад, http://localhost:3000",
+        "Add service": "Дадаць сэрвіс",
+        "Services to discover saved.": "Сэрвісы для выяўлення захаваны.",
+        "The services to discover could not be saved.": "Не ўдалося захаваць сэрвісы для выяўлення.",
         "Own publication" : "Уласная публікацыя",
         "The upload is larger than this server accepts.": "Запампоўка большая, чым дазваляе гэты сервер.",
         "The file is too large.": "Файл занадта вялікі.",

@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Ei vasta",
+        "port {port}": "port {port}",
+        "found {time}": "leitud {time}",
+        "Services to discover": "Otsitavad teenused",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "„Lisa paanid“ näitab neid teenuseid, kui need vastavad. LaunchPad küsib ainult selles loendis olevaid aadresse.",
+        "No services on this list yet.": "Selles loendis pole veel teenuseid.",
+        "For example http://localhost:3000": "Näiteks http://localhost:3000",
+        "Add service": "Lisa teenus",
+        "Services to discover saved.": "Otsitavad teenused salvestati.",
+        "The services to discover could not be saved.": "Otsitavaid teenuseid ei õnnestunud salvestada.",
         "Own publication" : "Oma avaldamine",
         "The upload is larger than this server accepts.": "Üleslaadimine on suurem, kui see server lubab.",
         "The file is too large.": "Fail on liiga suur.",

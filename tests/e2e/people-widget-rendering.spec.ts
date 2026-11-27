@@ -266,7 +266,9 @@ test.describe('REQ-PPL-007 / REQ-PPL-008: layouts', () => {
 
 		for (let i = 0; i < NAMES.length; i++) {
 			const box = (await personItems(widget).nth(i).boundingBox())!
-			expect(box.height, `row ${i} is a single compact line`).toBeLessThanOrEqual(64)
+			// The board's list row (LpVandaag "Nieuwe collega's"): a 44px avatar,
+			// 10px above and below and the 1px rule over it, 65px.
+			expect(box.height, `row ${i} is a single compact line`).toBeLessThanOrEqual(65)
 		}
 
 		const scroll = await widget.locator('[role="list"]').first().evaluate((el) => ({

@@ -314,6 +314,12 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/TileWidget.vue | embedHref": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
 	"../../components/TileWidget.vue | placementId": {
 		"type": [
 			"Number",
@@ -1315,6 +1321,36 @@
 		"default": "Widget menu"
 	},
 	"../../components/Widgets/WidgetEditMenu.vue | removeLocked": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | editLabel": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | deleteLabel": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | showWhoSees": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": true
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | embedHref": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | embedDisabled": {
 		"type": "Boolean",
 		"required": false,
 		"validator": false,

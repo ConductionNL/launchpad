@@ -197,7 +197,10 @@ export default {
 			if (owner === undefined || owner === null) {
 				return list
 			}
-			return list.map((child, index) => (childUseKey(child) === ''
+			// REQ-WDG-050: the key the server stamps on save (ContainerChildKeys):
+			// never one another child already holds; such a child stays keyless.
+			const taken = new Set(list.map(childUseKey).filter((key) => key !== ''))
+			return list.map((child, index) => (childUseKey(child) === '' && !taken.has(`${owner}-${index}`)
 				? { ...child, uuid: `${owner}-${index}` }
 				: child))
 		},

@@ -523,6 +523,7 @@ import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import InstallBanner from '../components/Workspace/InstallBanner.vue'
 import PhoneHiddenNotice from '../components/Workspace/PhoneHiddenNotice.vue'
+import { childSubjectId, duplicateChildIn, removeChildIn } from '../utils/containerChildren.js'
 import { embedAdminHref, isOwnedDashboard } from '../utils/dashboardRows.js'
 import { printDashboard } from '../utils/printDashboard.js'
 // The dialogs and modals load the first time they open, not with the page.
@@ -856,6 +857,14 @@ export default {
 	provide() {
 		return {
 			openGroupTileEditor: (target) => this.openGroupTileEditor(target),
+			// REQ-WDG-050: the edit menu of a widget inside a well or tabs widget.
+			launchpadChildActions: {
+				embedHref: (owner, child) => this.childEmbedHref(owner, child),
+				asksFirst: () => this.isDraftDirty,
+				openEmbed: (href) => this.openEmbedAfterDraft(href),
+				duplicate: (ownerId, key) => this.changeChild(ownerId, key, duplicateChildIn),
+				remove: (ownerId, key) => this.changeChild(ownerId, key, removeChildIn),
+			},
 		}
 	},
 
@@ -3470,6 +3479,44 @@ export default {
 		 */
 		async duplicateWidget(placementId) {
 			await useDashboardStore().duplicatePlacement(placementId)
+		},
+
+		/**
+		 * REQ-WDG-050: the embed link of a widget inside a well or tabs widget;
+		 * '' for someone who may not create embed tokens, or a child that
+		 * cannot be named yet (its holder or its key is not stored).
+		 *
+		 * @param {object|null} owner The widget on the dashboard that holds the child.
+		 * @param {object|null} child The child.
+		 * @return {string}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		childEmbedHref(owner, child) {
+			if (this.isAdmin !== true || !this.activeDashboard?.id) {
+				return ''
+			}
+			const subject = childSubjectId(owner?.id, child)
+			return subject === '' ? '' : embedAdminHref(this.activeDashboard, { id: subject })
+		},
+
+		/**
+		 * REQ-WDG-050: Duplicate or Remove in a child's edit menu changes the
+		 * content of the widget on the dashboard that holds it, in the draft.
+		 *
+		 * @param {number|string} ownerId The widget that holds the child.
+		 * @param {string} key The child's key.
+		 * @param {function(object, string): (object|null)} change Makes the new content.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		async changeChild(ownerId, key, change) {
+			const store = useDashboardStore()
+			const owner = store.widgetPlacements.find((p) => String(p.id) === String(ownerId))
+			const content = owner ? change(owner.content ?? {}, key) : null
+			if (content === null) {
+				return
+			}
+			await store.updateWidgetPlacement(owner.id, { content })
 		},
 
 		/**

@@ -50,25 +50,25 @@ class RestyleSeededTilesTest extends TestCase {
 	 * @return void
 	 */
 	public function testEachBrandIsRestyledOnlyWhereTheOldSeedIsLeft(): void {
-		$output = $this->createMock(IOutput::class);
+		$output = $this->createMock(originalClassName: IOutput::class);
 		$output->expects($this->once())->method('info')->with('Restyled 3 seeded brand tile(s).');
 
 		$this->step(db: $this->db(changed: 1))->run($output);
 
-		$this->assertCount(3, $this->statements);
+		$this->assertCount(expectedCount: 3, haystack: $this->statements);
 		foreach (array_keys(SeedTileBrands::BRANDS) as $index => $title) {
 			$brand = SeedTileBrands::BRANDS[$title];
-			$this->assertSame([
+			$this->assertSame(expected: [
 				'tile_icon' => '/apps/launchpad/img/'.$brand['icon'],
 				'tile_icon_type' => 'url',
 				'tile_background_color' => $brand['backgroundColor'],
 				'tile_text_color' => '#ffffff',
-			], $this->statements[$index]['set']);
-			$this->assertSame([
+			], actual: $this->statements[$index]['set']);
+			$this->assertSame(expected: [
 				'tile_type = preset',
 				'tile_title = '.$title,
 				'tile_icon LIKE '.SeedTileBrands::LEGACY_ICONS[$title],
-			], $this->statements[$index]['where']);
+			], actual: $this->statements[$index]['where']);
 		}
 	}//end testEachBrandIsRestyledOnlyWhereTheOldSeedIsLeft()
 
@@ -79,10 +79,11 @@ class RestyleSeededTilesTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheLegacyPatternsMatchWhatOlderVersionsSeeded(): void {
-		$this->assertSame('icon-nextcloud', SeedTileBrands::LEGACY_ICONS['Nextcloud']);
-		$this->assertTrue(fnmatch(str_replace('%', '*', SeedTileBrands::LEGACY_ICONS['Conduction']), '/custom_apps/launchpad/img/conduction-logo.png'));
-		$this->assertTrue(fnmatch(str_replace('%', '*', SeedTileBrands::LEGACY_ICONS['Sendent']), '/apps/launchpad/img/sendent-logo.png'));
-		$this->assertFalse(fnmatch(str_replace('%', '*', SeedTileBrands::LEGACY_ICONS['Sendent']), '/apps/launchpad/img/sendent-white.svg'));
+		$this->assertSame(expected: 'icon-nextcloud', actual: SeedTileBrands::LEGACY_ICONS['Nextcloud']);
+		$conduction = str_replace('%', '*', SeedTileBrands::LEGACY_ICONS['Conduction']);
+		$this->assertTrue(condition: fnmatch($conduction, '/custom_apps/launchpad/img/conduction-logo.png'));
+		$this->assertTrue(condition: fnmatch(str_replace('%', '*', SeedTileBrands::LEGACY_ICONS['Sendent']), '/apps/launchpad/img/sendent-logo.png'));
+		$this->assertFalse(condition: fnmatch(str_replace('%', '*', SeedTileBrands::LEGACY_ICONS['Sendent']), '/apps/launchpad/img/sendent-white.svg'));
 	}//end testTheLegacyPatternsMatchWhatOlderVersionsSeeded()
 
 	/**
@@ -91,9 +92,9 @@ class RestyleSeededTilesTest extends TestCase {
 	 * @return void
 	 */
 	public function testADatabaseFailureIsAWarning(): void {
-		$db = $this->createMock(IDBConnection::class);
+		$db = $this->createMock(originalClassName: IDBConnection::class);
 		$db->method('getQueryBuilder')->willThrowException(new RuntimeException('gone'));
-		$output = $this->createMock(IOutput::class);
+		$output = $this->createMock(originalClassName: IOutput::class);
 		$output->expects($this->once())->method('warning')->with('The seeded brand tiles were not restyled: gone');
 		$output->expects($this->never())->method('info');
 
@@ -108,10 +109,10 @@ class RestyleSeededTilesTest extends TestCase {
 	 * @return RestyleSeededTiles
 	 */
 	private function step(IDBConnection $db): RestyleSeededTiles {
-		$urls = $this->createMock(IURLGenerator::class);
+		$urls = $this->createMock(originalClassName: IURLGenerator::class);
 		$urls->method('imagePath')->willReturnCallback(static fn (string $app, string $file): string => '/apps/'.$app.'/img/'.$file);
 
-		return new RestyleSeededTiles($db, $urls, $this->createMock(LoggerInterface::class));
+		return new RestyleSeededTiles($db, $urls, $this->createMock(originalClassName: LoggerInterface::class));
 	}//end step()
 
 	/**
@@ -122,13 +123,13 @@ class RestyleSeededTilesTest extends TestCase {
 	 * @return IDBConnection
 	 */
 	private function db(int $changed): IDBConnection {
-		$db = $this->createMock(IDBConnection::class);
+		$db = $this->createMock(originalClassName: IDBConnection::class);
 		$db->method('getQueryBuilder')->willReturnCallback(function () use ($changed): IQueryBuilder {
 			$index = count($this->statements);
 			$this->statements[$index] = ['set' => [], 'where' => []];
 			$params = [];
 
-			$expr = $this->createMock(IExpressionBuilder::class);
+			$expr = $this->createMock(originalClassName: IExpressionBuilder::class);
 			$expr->method('eq')->willReturnCallback(static function (string $x, string $y) use (&$params): string {
 				return $x.' = '.$params[$y];
 			});
@@ -136,7 +137,7 @@ class RestyleSeededTilesTest extends TestCase {
 				return $x.' LIKE '.$params[$y];
 			});
 
-			$qb = $this->createMock(IQueryBuilder::class);
+			$qb = $this->createMock(originalClassName: IQueryBuilder::class);
 			$qb->method('expr')->willReturn($expr);
 			$qb->method('createNamedParameter')->willReturnCallback(static function (mixed $value) use (&$params): string {
 				$name = ':p'.count($params);

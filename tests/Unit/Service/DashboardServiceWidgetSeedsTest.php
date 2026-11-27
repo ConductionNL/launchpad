@@ -89,17 +89,17 @@ class DashboardServiceWidgetSeedsTest extends TestCase {
 			static fn (array $seed): bool => $seed['tile'] !== null
 		));
 
-		$this->assertSame(array_keys(SeedTileBrands::BRANDS), array_column(array_column($tiles, 'tile'), 'title'));
+		$this->assertSame(expected: array_keys(SeedTileBrands::BRANDS), actual: array_column(array_column($tiles, 'tile'), 'title'));
 		foreach ($tiles as $seed) {
 			$tile = $seed['tile'];
-			$this->assertSame('url', $tile['iconType'], $tile['title']);
-			$this->assertStringStartsWith('/apps/launchpad/img/', $tile['icon'], $tile['title']);
+			$this->assertSame(expected: 'url', actual: $tile['iconType'], message: $tile['title']);
+			$this->assertStringStartsWith(prefix: '/apps/launchpad/img/', string: $tile['icon'], message: $tile['title']);
 			$file = dirname(__DIR__, 3).'/img/'.substr($tile['icon'], strlen('/apps/launchpad/img/'));
-			$this->assertFileExists($file, $tile['title'].' tile icon is not shipped');
-			$this->assertMatchesRegularExpression('/-white\.svg$/', $file, $tile['title']);
-			$this->assertStringContainsString('<svg', (string) file_get_contents($file), $tile['title']);
-			$this->assertSame(SeedTileBrands::BRANDS[$tile['title']]['backgroundColor'], $tile['backgroundColor']);
-			$this->assertSame('#ffffff', $tile['textColor']);
+			$this->assertFileExists(filename: $file, message: $tile['title'].' tile icon is not shipped');
+			$this->assertMatchesRegularExpression(pattern: '/-white\.svg$/', string: $file, message: $tile['title']);
+			$this->assertStringContainsString(needle: '<svg', haystack: (string) file_get_contents($file), message: $tile['title']);
+			$this->assertSame(expected: SeedTileBrands::BRANDS[$tile['title']]['backgroundColor'], actual: $tile['backgroundColor']);
+			$this->assertSame(expected: '#ffffff', actual: $tile['textColor']);
 		}
 	}//end testEverySeededTileIconIsAShippedWhiteSvg()
 

@@ -76,7 +76,6 @@ import type { AddressInfo } from 'node:net'
 import { expect, request, test } from '@playwright/test'
 import { randomUUID } from 'node:crypto'
 import { createServer } from 'node:http'
-import { adminTab } from './support/adminTab.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import { adminContext, API } from './support/principals.ts'
 
@@ -315,8 +314,12 @@ test('an admin issues an embed token in Admin settings and sees its JWT once', a
 		embedId: String(dashboard?.uuid),
 		embedDashboard: String(dashboard?.id),
 	})
+	// REQ-ADM-032: the embeds are a card of Algemeen; the old tab address
+	// opens it with the dashboard's pre-selection kept.
 	await page.goto(`${SETTINGS_PAGE}/embeds?${query}`)
-	await adminTab(page, 'embeds').click()
+	await expect(page).toHaveURL((url) => /\/admin(\/general)?$/.test(url.pathname)
+		&& url.searchParams.get('section') === 'embeds'
+		&& url.searchParams.get('embedType') === 'dashboard')
 
 	const form = page.locator('[data-test="embed-token-form"]')
 	await expect(form, 'a dashboard link opens the create form').toBeVisible({ timeout: 30_000 })

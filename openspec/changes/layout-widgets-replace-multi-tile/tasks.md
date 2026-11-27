@@ -1,6 +1,6 @@
 # Tasks: layout-widgets-replace-multi-tile
 
-- [ ] Tabs widget: registry entry (kind Layout, sample content for its miniature), renderer on the container's inner grid, WAI-ARIA tabs, form to add, rename, move and remove tabs (asks before removing a tab with widgets), depth limit shared with the container
+- [x] Tabs widget: registry entry (kind Layout, sample content for its miniature), renderer on the container's inner grid, WAI-ARIA tabs, form to add, rename, move and remove tabs (asks before removing a tab with widgets), depth limit shared with the container (launchpad#2255: `TabsWidget.vue`, `TabsWidgetForm.vue`, `utils/tabsWidget.js`; depth guard counts tabs; `tabs` in `lib/widget-types.json` and repair step `GrantTabsWhereWellsAreAllowed` for stored rules; Vitest + PHPUnit; live 27 Nov on NC 34 + PostgreSQL: added through Add widget, Layout, keyboard and depth limit, `tests/e2e/tabs-widget.spec.ts` 6/6 with --repeat-each 2)
 - [ ] Container: a tile for an app the viewer may not open is left out inside a well
 - [ ] Container: dynamic app list `content.appList` (pinned, exclude, mostUsedLimit, showFilter) rendered per viewer from the boot app menu, hand-placed tiles after it; form section "Apps from the app menu"
 - [ ] Remove `app-tiles` from the Add widget catalogue; keep its renderer one release as a fallback; convert it on import
@@ -9,7 +9,7 @@
 - [ ] Board follow-up: the well's "Apps from the app menu" settings need a drawing (design-system)
 - [ ] Translations
 - [ ] Unit tests: tabs widget (render, keyboard, form, depth), container hides tiles the viewer may not open, dynamic app list (pinned order, exclude, limit with most used first, filter narrows, no request), repair step (settings mapped, rules and id kept, idempotent), seeds
-- [ ] Playwright `tests/e2e/tabs-widget.spec.ts`: add Tabs through Add widget, Layout; add a second tab; put an App or link tile in each; Save; the tabs switch with the arrow keys
+- [ ] Playwright `tests/e2e/tabs-widget.spec.ts`: add Tabs through Add widget, Layout; add a second tab; put an App or link tile in each; Save; the tabs switch with the arrow keys (written in launchpad#2255 for Add widget, Layout, a second tab and the arrow keys, live green; the steps 'put an App or link tile in each' and 'Save' join it when app-link-tile-widget and edit-mode-draft-and-save land)
 - [ ] Playwright `tests/e2e/well-app-list.spec.ts`: a well with an app list shows the viewer's apps, pinned first, at most the limit, and the filter narrows them by name
 - [ ] Playwright: Vandaag shows "My apps" as a well of the viewer's apps, and the Add widget catalogue has no multi-tile widget
 - [ ] Live check on a sandbox: an instance with multi-tile placements on personal and group dashboards shows each viewer the same apps as before, in order, with the filter where it was on

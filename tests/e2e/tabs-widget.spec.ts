@@ -72,13 +72,12 @@ test('Tabs is added through Add widget, Layout, with a second tab from its form'
 		await page.getByRole('button', { name: 'Add widget', exact: true }).last().click()
 		await expect(page.locator('[data-testid="tabs-widget-form"]')).toBeVisible()
 		await page.locator('[data-testid="tabs-widget-form-add"]').click()
-		await page.getByRole('button', { name: 'Add widget', exact: true }).last().click()
+		await page.getByRole('dialog').getByRole('button', { name: 'Add', exact: true }).click()
 
 		const widget = page.locator('[data-testid="tabs-widget"]').last()
 		await expect(widget.getByRole('tab')).toHaveText(['Tab 1', 'Tab 2'])
-		const stored = await (await owner!.api.get(`${API}/dashboard/${dashboard!.id}/widgets`)).json()
-		const rows = Array.isArray(stored) ? stored : (stored.widgets ?? stored.data ?? [])
-		const tabs = rows.find((row: { widgetId: string }) => row.widgetId === 'tabs')
+		const stored = await (await owner!.api.get(`${API}/dashboard/${dashboard!.id}`)).json()
+		const tabs = (stored.placements ?? []).find((row: { widgetId: string }) => row.widgetId === 'tabs')
 		expect(tabs?.content?.tabs).toHaveLength(2)
 	} finally {
 		await context.close()

@@ -146,7 +146,7 @@ import RevokeEmbedTokenDialog from '../../../dialogs/RevokeEmbedTokenDialog.vue'
 import EmbedTokenForm from './EmbedTokenForm.vue'
 import EmbedUsageReport from './EmbedUsageReport.vue'
 import { api } from '../../../services/api.js'
-import { embedApi } from '../../../services/embedApi.js'
+import { embedApi, embedLoadError } from '../../../services/embedApi.js'
 import { tokenStatus } from '../../../utils/embedToken.js'
 import { logger } from '../../../utils/logger.js'
 
@@ -220,8 +220,7 @@ export default {
 			if (tokens.status === 'fulfilled') {
 				this.tokens = tokens.value
 			} else {
-				this.error = t('launchpad', 'Embed tokens could not be loaded.')
-				logger.error('Failed to load embed tokens:', tokens.reason)
+				this.error = embedLoadError(tokens.reason)
 			}
 			const dashboardList = dashboards.status === 'fulfilled' ? dashboards.value?.data : null
 			this.dashboards = (Array.isArray(dashboardList) ? dashboardList : (dashboardList?.items ?? dashboardList?.results ?? []))

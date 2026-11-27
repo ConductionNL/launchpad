@@ -16,7 +16,7 @@ import TenantThemeManager from '../TenantThemeManager.vue'
 
 const embed = vi.hoisted(() => ({ listThemes: vi.fn(), createTheme: vi.fn(), updateTheme: vi.fn(), deleteTheme: vi.fn() }))
 const toasts = vi.hoisted(() => ({ showSuccess: vi.fn() }))
-vi.mock('../../../../services/embedApi.js', () => ({ embedApi: embed }))
+vi.mock('../../../../services/embedApi.js', async (importOriginal) => ({ ...(await importOriginal()), embedApi: embed }))
 vi.mock('@nextcloud/dialogs', () => toasts)
 vi.mock('@nextcloud/l10n', () => ({ t: (_app, text) => text, n: (_app, one, many, count) => (count === 1 ? one : many).replace('%n', count) }))
 vi.mock('../../../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))

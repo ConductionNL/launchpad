@@ -18,8 +18,10 @@ import {
 	DASHBOARD_LIMIT,
 	dashboardActionItems,
 	dashboardItems,
+	parseFavourites,
 	settingsMenuItems,
 	startPageSections,
+	toggleFavourite,
 } from '../moreMenuItems.js'
 
 const ENTRIES = [
@@ -47,19 +49,22 @@ function settingsLabels(isAdmin) {
 
 describe('dashboardItems', () => {
 	const onSwitch = vi.fn()
-	const onOpenAll = vi.fn()
-	const items = dashboardItems({
-		userDashboards: [{ id: 1, uuid: 'u-1', name: 'Vandaag' }, { id: 4, name: 'Mijn werkplek' }],
-		groupDashboards: [{ id: 2, name: 'Team Vergunningen' }, { id: 3, name: 'Intranet Zuiddrecht' }, { id: 1, name: 'Vandaag' }],
+	const onToggleExpanded = vi.fn()
+	const onToggleFavourite = vi.fn()
+	const base = {
+		userDashboards: [{ id: 1, uuid: 'u-1', name: 'Vandaag' }, { id: 4, uuid: 'u-4', name: 'Mijn werkplek' }],
+		groupDashboards: [{ id: 2, uuid: 'u-2', name: 'Team Vergunningen' }, { id: 3, uuid: 'u-3', name: 'Intranet Zuiddrecht' }, { id: 1, name: 'Vandaag' }],
 		sharedDashboards: [{ id: 2 }],
 		activeId: 4,
 		defaultUuid: 'u-1',
 		onSwitch,
-		onOpenAll,
-	})
+		onToggleExpanded,
+		onToggleFavourite,
+	}
+	const items = dashboardItems(base)
 
-	it('lists own, then shared and group dashboards once, ending in All dashboards', () => {
-		expect(items.map((i) => i.label)).toEqual(['Vandaag', 'Mijn werkplek', 'Team Vergunningen', 'Intranet Zuiddrecht', 'All dashboards'])
+	it('without favourites lists own, then shared and group dashboards once, ending in More', () => {
+		expect(items.map((i) => i.label)).toEqual(['Vandaag', 'Mijn werkplek', 'Team Vergunningen', 'Intranet Zuiddrecht', 'More'])
 	})
 
 	it('marks default, shared and group, and checks the open one', () => {
@@ -67,17 +72,57 @@ describe('dashboardItems', () => {
 		expect(items.map((i) => i.checked)).toEqual([false, true, false, false, undefined])
 	})
 
-	it('switches with the dashboard\'s source, and All dashboards opens the full list', () => {
+	it('switches with the dashboard\'s source, and More unfolds the column and keeps the menu open', () => {
 		items[2].onClick()
 		expect(onSwitch).toHaveBeenCalledWith(2, 'shared')
+		expect(items.at(-1).keepOpen).toBe(true)
+		expect(items.at(-1).expanded).toBe(false)
 		items.at(-1).onClick()
-		expect(onOpenAll).toHaveBeenCalled()
+		expect(onToggleExpanded).toHaveBeenCalled()
 	})
 
-	it('lists at most the limit before All dashboards', () => {
+	it('without favourites lists at most the limit before More', () => {
 		const many = Array.from({ length: DASHBOARD_LIMIT + 3 }, (_, i) => ({ id: i + 1, name: `D${i}` }))
-		const list = dashboardItems({ userDashboards: many, onSwitch, onOpenAll })
+		const list = dashboardItems({ userDashboards: many, onSwitch })
 		expect(list).toHaveLength(DASHBOARD_LIMIT + 1)
+	})
+
+	it('folded, lists only the favourites, in the order of the full list, and no stars', () => {
+		const list = dashboardItems({ ...base, favourites: ['u-3', 'u-1', 'gone'] })
+		expect(list.map((i) => i.label)).toEqual(['Vandaag', 'Intranet Zuiddrecht', 'More'])
+		expect(list.some((i) => i.favourite !== undefined)).toBe(false)
+	})
+
+	it('unfolded, lists every dashboard beyond the limit, each with its star, ending in Fewer', () => {
+		const many = Array.from({ length: DASHBOARD_LIMIT + 3 }, (_, i) => ({ id: i + 1, uuid: `m-${i}`, name: `D${i}` }))
+		const list = dashboardItems({ userDashboards: many, favourites: ['m-2'], expanded: true, onSwitch, onToggleFavourite })
+		expect(list).toHaveLength(DASHBOARD_LIMIT + 4)
+		expect(list.slice(0, -1).map((i) => i.favourite)).toEqual(many.map((d) => d.uuid === 'm-2'))
+		expect(list.at(-1).label).toBe('Fewer')
+		expect(list.at(-1).expanded).toBe(true)
+		list[5].onToggleFavourite()
+		expect(onToggleFavourite).toHaveBeenCalledWith('m-5')
+	})
+})
+
+describe('toggleFavourite and parseFavourites', () => {
+	it('adds a uuid at the end and removes it again', () => {
+		expect(toggleFavourite(['a'], 'b')).toEqual(['a', 'b'])
+		expect(toggleFavourite(['a', 'b'], 'a')).toEqual(['b'])
+	})
+
+	it('ignores an empty uuid and drops junk from the list', () => {
+		expect(toggleFavourite(['a', '', 3], '')).toEqual(['a'])
+		expect(toggleFavourite(null, 'a')).toEqual(['a'])
+	})
+
+	it('reads a stored JSON list, and anything else as no favourites', () => {
+		expect(parseFavourites('["a","b"]')).toEqual(['a', 'b'])
+		expect(parseFavourites('["a",1,""]')).toEqual(['a'])
+		expect(parseFavourites('{"a":1}')).toEqual([])
+		expect(parseFavourites('not json')).toEqual([])
+		expect(parseFavourites(null)).toEqual([])
+		expect(parseFavourites('')).toEqual([])
 	})
 })
 
@@ -113,13 +158,14 @@ describe('dashboardActionItems', () => {
 	const all = { dashboard, isOwner: true, canEdit: true, canShare: true, canDuplicate: true, emit: vi.fn() }
 	const ids = (options) => dashboardActionItems(options).map((i) => i.id)
 
-	it('offers the board\'s seven actions to the owner, Delete last and destructive', () => {
+	it('offers the board\'s eight actions to the owner, Download included,, Delete last and destructive', () => {
 		const items = dashboardActionItems(all)
 		expect(items.map((i) => i.label)).toEqual([
 			'Edit',
 			'Add widget',
 			'Sharing',
 			'Copy link to this dashboard',
+			'Download',
 			'Duplicate as new dashboard',
 			'Set as default',
 			'Delete',
@@ -128,8 +174,8 @@ describe('dashboardActionItems', () => {
 		expect(items.slice(0, -1).some((i) => i.destructive)).toBe(false)
 	})
 
-	it('offers a viewer who may not edit, share or copy only the link and the default', () => {
-		expect(ids({ dashboard, emit: vi.fn() })).toEqual(['copy-link', 'set-default'])
+	it('offers a viewer who may not edit, share or copy only the link, Download and the default', () => {
+		expect(ids({ dashboard, emit: vi.fn() })).toEqual(['copy-link', 'download', 'set-default'])
 	})
 
 	it('keeps Edit and Add widget behind canEdit, Share behind canShare, Delete behind ownership', () => {
@@ -158,7 +204,7 @@ describe('dashboardActionItems', () => {
 			item.onClick()
 		}
 		expect(emit.mock.calls.map(([event]) => event)).toEqual([
-			'toggleEdit', 'addWidget', 'share', 'copyLink', 'duplicate', 'setDefault', 'delete',
+			'toggleEdit', 'addWidget', 'share', 'copyLink', 'download', 'duplicate', 'setDefault', 'delete',
 		])
 	})
 })

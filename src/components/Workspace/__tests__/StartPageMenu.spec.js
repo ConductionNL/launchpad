@@ -19,6 +19,9 @@ vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 vi.mock('@nextcloud/router', () => ({
 	generateUrl: (tpl, vars) => tpl.replace('{appId}', vars?.appId),
 }))
+vi.mock('@nextcloud/axios', () => ({
+	default: { get: vi.fn(async () => ({ data: { value: null } })), put: vi.fn(async () => ({ data: {} })) },
+}))
 vi.mock('../LaunchpadMoreMenu.vue', () => ({
 	default: {
 		name: 'LaunchpadMoreMenu',
@@ -92,12 +95,14 @@ describe('StartPageMenu', () => {
 		expect(wrapper.attributes('data-walkthrough-id')).toBe('launchpad-more-menu')
 	})
 
-	it('opens a chosen dashboard on the dashboard view, and All dashboards goes there', () => {
-		const { menu, router } = mountMenu()
+	it('opens a chosen dashboard on the dashboard view, and More unfolds the list in place', async () => {
+		const { wrapper, menu, router } = mountMenu()
 		menu.props('dashboards')[1].onClick()
 		expect(router.push).toHaveBeenCalledWith({ name: 'dashboard-detail', params: { id: '2' } })
 		menu.props('dashboards').at(-1).onClick()
-		expect(router.push).toHaveBeenLastCalledWith({ name: 'Workspace' })
+		await wrapper.vm.$nextTick()
+		expect(router.push).toHaveBeenCalledTimes(1)
+		expect(menu.props('dashboards').at(-1).label).toBe('Fewer')
 	})
 
 	it('reads the default dashboard once, on first open, and marks it', async () => {

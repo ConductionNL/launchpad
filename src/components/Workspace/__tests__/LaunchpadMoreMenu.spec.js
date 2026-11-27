@@ -23,6 +23,8 @@ vi.mock('@nextcloud/vue', () => ({
 	},
 }))
 
+vi.mock('@nextcloud/router', () => ({ generateFilePath: (app, dir, file) => `/apps/${app}/${dir}/${file}` }))
+
 import LaunchpadMoreMenu from '../LaunchpadMoreMenu.vue'
 
 const DASHBOARDS = [
@@ -223,5 +225,50 @@ describe('LaunchpadMoreMenu', () => {
 		expect(document.activeElement.getAttribute('data-testid')).toBe('launchpad-more-menu-trigger')
 		expect(wrapper.vm.returnFocus()).toBe(wrapper.find('[data-testid="launchpad-more-menu-trigger"]').element)
 		wrapper.unmount()
+	})
+
+	it('keeps the menu open for More and draws a star per row of the full list (review items 5, 6)', async () => {
+		const onToggleExpanded = vi.fn()
+		const onToggleFavourite = vi.fn()
+		const wrapper = await openMenu({
+			dashboards: [
+				{ id: 'dashboard-1', label: 'Vandaag', checked: true, favourite: true, onToggleFavourite },
+				{ id: 'dashboard-2', label: 'Team', checked: false, favourite: false, onToggleFavourite },
+				{ id: 'all-dashboards', label: 'Fewer', keepOpen: true, expanded: true, onClick: onToggleExpanded },
+			],
+		})
+		const stars = wrapper.findAll('.lp-more-menu__star')
+		expect(stars.map((el) => el.attributes('aria-pressed'))).toEqual(['true', 'false'])
+		expect(stars[0].classes()).toContain('lp-more-menu__star--on')
+		expect(wrapper.find('[data-testid="launchpad-more-menu-dashboard-list"]').classes()).toContain('lp-more-menu__dashboard-list--all')
+		const vandaag = wrapper.find('[data-testid="launchpad-more-menu-item-dashboard-1"]')
+		vandaag.element.focus()
+		await panel(wrapper).trigger('keydown', { key: 'ArrowDown' })
+		expect(document.activeElement).toBe(stars[0].element)
+		await stars[1].trigger('click')
+		expect(onToggleFavourite).toHaveBeenCalledTimes(1)
+		expect(wrapper.vm.open).toBe(true)
+		await wrapper.find('[data-testid="launchpad-more-menu-item-all-dashboards"]').trigger('click')
+		expect(onToggleExpanded).toHaveBeenCalledTimes(1)
+		expect(wrapper.vm.open).toBe(true)
+		wrapper.unmount()
+	})
+
+	it('draws no star on a folded list', async () => {
+		const wrapper = await openMenu()
+		expect(wrapper.findAll('.lp-more-menu__star')).toHaveLength(0)
+		wrapper.unmount()
+	})
+
+	it('ends in the Powered by footer under both columns, unless left out (review item 7)', async () => {
+		const wrapper = await openMenu()
+		const footer = wrapper.find('[data-testid="sidebar-footer"]')
+		expect(footer.exists()).toBe(true)
+		expect(footer.classes()).toContain('lp-more-menu__footer')
+		expect(footer.findAll('a[target="_blank"][rel="noopener noreferrer"]').length).toBeGreaterThanOrEqual(2)
+		wrapper.unmount()
+		const without = await openMenu({ hideFooter: true })
+		expect(without.find('[data-testid="sidebar-footer"]').exists()).toBe(false)
+		without.unmount()
 	})
 })

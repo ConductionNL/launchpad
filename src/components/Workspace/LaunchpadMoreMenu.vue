@@ -318,7 +318,8 @@ export default {
 		},
 
 		/**
-		 * The visible items in reading order, as elements.
+		 * The visible items in reading order, as elements; a row's star
+		 * follows its row.
 		 *
 		 * @return {HTMLElement[]}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
@@ -328,7 +329,7 @@ export default {
 			if (!panel) {
 				return []
 			}
-			return [...panel.querySelectorAll('.lp-more-menu__item')]
+			return [...panel.querySelectorAll('.lp-more-menu__item, .lp-more-menu__star')]
 				.filter((el) => !el.closest('.lp-more-menu__subgroup') || this.settingsOpen)
 		},
 

@@ -545,13 +545,23 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	}//end getContentArray()
 
 	/**
-	 * Set the custom widget content blob from an associative array.
+	 * Set the custom widget content blob from an associative array. Every
+	 * child of a well or a tabs widget gets a key of its own on the way
+	 * (REQ-WDG-050), so an embed token can name it.
 	 *
 	 * @param array $content The content payload to JSON-encode and persist.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
 	public function setContentArray(array $content): void {
+		$ownerId = null;
+		if (is_int($this->id) === true) {
+			$ownerId = $this->id;
+		}
+
+		$content = ContainerChildKeys::stamp(content: $content, ownerId: $ownerId);
 		// Entity setters resolve via __call which uses $args[0]; named args
 		// would break the magic forwarding (see project memory).
 		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters

@@ -39,6 +39,7 @@ use ReflectionProperty;
 
 #[CoversClass(EmbedRenderService::class)]
 #[UsesClass(EmbedToken::class)]
+#[UsesClass(\OCA\LaunchPad\Db\ContainerChildKeys::class)]
 #[UsesClass(ScopeEnforcementService::class)]
 #[UsesClass(\OCA\LaunchPad\Db\Dashboard::class)]
 class EmbedRenderServiceTest extends TestCase {
@@ -114,6 +115,69 @@ class EmbedRenderServiceTest extends TestCase {
 		$this->assertNull($service->render(subjectType: 'report', subjectId: '42', token: $token));
 		$this->assertNull($service->renderWidget(widgetId: '42 OR 1=1', token: $token));
 	}//end testAMissingOrUnknownSubjectIsNull()
+
+	/**
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 */
+	public function testAWidgetInsideAWellIsDrawnAsAWidgetOfItsOwn(): void {
+		$well = $this->createMock(WidgetPlacement::class);
+		$well->method('jsonSerialize')->willReturn(['id' => 12, 'dashboardId' => 7, 'widgetId' => 'container', 'customTitle' => 'Apps', 'styleConfig' => ['backgroundColor' => '#eee'], 'gridX' => 0]);
+		$well->method('getContentArray')->willReturn([
+			'placements' => [
+				['type' => 'text', 'uuid' => '12-0', 'content' => ['text' => 'Eerste']],
+				['type' => 'tabs', 'uuid' => 'ab12', 'content' => ['tabs' => [
+					['id' => 't1', 'placements' => [['type' => 'clock', 'uuid' => 'cd34', 'content' => ['zone' => 'Europe/Amsterdam'], 'customTitle' => 'Klok']]],
+				]]],
+			],
+		]);
+		$this->widgets->expects($this->exactly(2))->method('find')->with(12)->willReturn($well);
+		$service = $this->service();
+
+		$first = $service->render(subjectType: 'widget', subjectId: '12.12-0', token: self::token(subject: ['type' => 'widget', 'id' => '12.12-0']));
+		$this->assertSame('widget', $first['subjectType'] ?? null);
+		$this->assertEquals([[
+			'id' => 12,
+			'dashboardId' => 7,
+			'widgetId' => 'text',
+			'customTitle' => null,
+			'styleConfig' => (object)[],
+			'gridX' => 0,
+			'content' => ['text' => 'Eerste'],
+			'childKey' => '12-0',
+		]], $first['placements'] ?? null);
+
+		$nested = $service->render(subjectType: 'widget', subjectId: '12.cd34', token: self::token());
+		$this->assertSame('clock', $nested['placements'][0]['widgetId'] ?? null);
+		$this->assertSame('Klok', $nested['placements'][0]['customTitle'] ?? null);
+		$this->assertSame(['zone' => 'Europe/Amsterdam'], $nested['placements'][0]['content'] ?? null);
+	}//end testAWidgetInsideAWellIsDrawnAsAWidgetOfItsOwn()
+
+	/**
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 */
+	public function testAMissingChildOrWellIsNullAndAHiddenWellHidesItsChild(): void {
+		$well = $this->createMock(WidgetPlacement::class);
+		$well->method('jsonSerialize')->willReturn(['id' => 12]);
+		$well->method('getContentArray')->willReturn(['placements' => [['type' => 'text', 'uuid' => 'aa'], ['uuid' => 'notype']]]);
+		$this->widgets->method('find')->willReturnCallback(static function (int $id) use ($well) {
+			if ($id === 12) {
+				return $well;
+			}
+
+			throw new DoesNotExistException('gone');
+		});
+		$token = self::token();
+
+		$this->assertNull($this->service()->renderWidget(widgetId: '12.bb', token: $token));
+		$this->assertNull($this->service()->renderWidget(widgetId: '12.notype', token: $token));
+		$this->assertNull($this->service()->renderWidget(widgetId: '13.aa', token: $token));
+		$this->assertNull($this->service()->renderWidget(widgetId: '12.a/b', token: $token));
+
+		$visibility = $this->createMock(originalClassName: ConditionalServiceInterface::class);
+		$visibility->method('visiblePlacements')->willReturn([]);
+		$hidden = new EmbedRenderService($this->dashboards, $this->widgets, $this->themes, new ScopeEnforcementService(), $visibility);
+		$this->assertSame([], $hidden->renderWidget(widgetId: '12.aa', token: $token)['placements'] ?? null);
+	}//end testAMissingChildOrWellIsNullAndAHiddenWellHidesItsChild()
 
 	public function testThePageIsFramedOnlyByTheHostOriginsAndCarriesTheTheme(): void {
 		$response = $this->service()->page(subjectType: 'widget', subjectId: '42', token: self::token());

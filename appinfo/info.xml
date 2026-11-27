@@ -169,6 +169,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			     layout-widgets-replace-multi-tile D2b: every multi-tile becomes
 			     a well that lists each viewer's apps with the same settings. -->
 			<step>OCA\LaunchPad\Repair\ConvertTilesToAppOrLinkTiles</step>
+			<!-- REQ-WDG-050: every widget inside a well or tabs widget gets a key
+			     of its own, so an embed token can name it. Idempotent; runs after
+			     the tile conversion so converted children are keyed too. -->
+			<step>OCA\LaunchPad\Repair\KeyContainerChildren</step>
 		</post-migration>
 		<install>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>

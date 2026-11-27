@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service\Embed;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\ContainerChildKeys;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Entity\EmbedToken;
@@ -71,6 +72,11 @@ class EmbedRenderService {
 	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-002--public-render-route-validates-jwt-and-enforces-scope
 	 */
 	public function renderWidget(string $widgetId, EmbedToken $token, array $requestFilters=[]): ?array {
+		$child = ContainerChildKeys::splitSubject(subjectId: $widgetId);
+		if ($child !== null) {
+			return $this->renderChild(placementId: $child[0], childKey: $child[1], token: $token, requestFilters: $requestFilters);
+		}
+
 		if (ctype_digit($widgetId) === false) {
 			return null;
 		}
@@ -86,6 +92,70 @@ class EmbedRenderService {
 			'placements'  => $this->forVisitor(placements: [$placement->jsonSerialize()]),
 		];
 	}//end renderWidget()
+
+	/**
+	 * One widget inside a well or a tabs widget for its token (REQ-WDG-050):
+	 * the child drawn as a widget of its own. It shows only while its well
+	 * shows: a well the visibility rules hide hides the child too.
+	 *
+	 * @param int                  $placementId    The well's placement id.
+	 * @param string               $childKey       The child's key in it.
+	 * @param EmbedToken           $token          The token, which names this child.
+	 * @param array<string, mixed> $requestFilters The filters the embed asks for.
+	 *
+	 * @return array<string, mixed>|null Null when the well or the child no longer exists.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 */
+	private function renderChild(int $placementId, string $childKey, EmbedToken $token, array $requestFilters): ?array {
+		try {
+			$parent = $this->widgets->find(id: $placementId);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
+		$child = ContainerChildKeys::find(content: $parent->getContentArray(), key: $childKey);
+		if ($child === null || is_string($child['type'] ?? null) === false || $child['type'] === '') {
+			return null;
+		}
+
+		$placements = [];
+		if ($this->forVisitor(placements: [$parent->jsonSerialize()]) !== []) {
+			$placements = [self::childAsPlacement(parent: $parent->jsonSerialize(), child: $child, key: $childKey)];
+		}
+
+		return $this->envelope(token: $token, requestFilters: $requestFilters) + [
+			'subjectType' => 'widget',
+			'placements'  => $placements,
+		];
+	}//end renderChild()
+
+	/**
+	 * A child of a well as a placement of its own: the well's id and
+	 * dashboard, the child's type, content, title and look.
+	 *
+	 * @param array<string, mixed> $parent The well, serialised.
+	 * @param array<string, mixed> $child  The child.
+	 * @param string               $key    The child's key.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function childAsPlacement(array $parent, array $child, string $key): array {
+		$own = $child;
+		unset($own['type'], $own['id'], $own['uuid']);
+
+		return array_merge(
+			$parent,
+			[
+				'widgetId'    => $child['type'],
+				'content'     => (object)[],
+				'styleConfig' => (object)[],
+				'customTitle' => null,
+				'childKey'    => $key,
+			],
+			$own
+		);
+	}//end childAsPlacement()
 
 	/**
 	 * One dashboard, with its widgets, for its token.

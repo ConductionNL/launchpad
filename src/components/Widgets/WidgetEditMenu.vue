@@ -80,8 +80,8 @@
 
 <script>
 import { NcActionButton, NcActions } from '@conduction/nextcloud-vue'
-import { NcActionLink } from '@nextcloud/vue'
 import { t } from '@nextcloud/l10n'
+import { NcActionLink } from '@nextcloud/vue'
 import AccountEye from 'vue-material-design-icons/AccountEye.vue'
 import CodeTags from 'vue-material-design-icons/CodeTags.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'

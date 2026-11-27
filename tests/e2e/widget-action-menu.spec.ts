@@ -15,9 +15,9 @@
  */
 
 import type { APIRequestContext, Page } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, test } from '@playwright/test'
-import type { SeededDashboard } from './support/dashboardFixture.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
 import { enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
 import { adminContext } from './support/principals.ts'

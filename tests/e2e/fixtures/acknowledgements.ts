@@ -230,7 +230,7 @@ export async function share(
  * @return nothing.
  */
 export async function activate(api: APIRequestContext, uuid: string): Promise<void> {
-	const res = await api.post(`${API}/dashboards/active`, { data: { uuid } })
+	const res = await api.post(`${API}/dashboards/default`, { data: { uuid } })
 	expect(res.status(), await res.text()).toBeLessThan(300)
 }
 

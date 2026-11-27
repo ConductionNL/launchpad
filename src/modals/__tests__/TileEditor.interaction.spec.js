@@ -81,19 +81,19 @@ describe('TileEditor form bindings', () => {
 		expect(wrapper.find('.tile-preview__title').text()).toBe('Bestanden')
 	})
 
-	it('writes both colours back into the form and the preview', async () => {
+	it('writes the own colour and the text colour back into the form and the preview', async () => {
 		const wrapper = mountEditor()
-		const [background, text] = wrapper.findAllComponents({ name: 'NcColorPicker' })
+		const [background] = wrapper.findAllComponents({ name: 'NcColorPicker' })
 
 		background.vm.$emit('update:modelValue', '#123456')
-		text.vm.$emit('update:modelValue', '#abcdef')
+		await wrapper.find('[data-testid="tile-editor-text-black"]').trigger('change')
 		await flushPromises()
 
 		expect(wrapper.vm.form.backgroundColor).toBe('#123456')
-		expect(wrapper.vm.form.textColor).toBe('#abcdef')
+		expect(wrapper.vm.form.textColour).toBe('black')
 		const style = wrapper.find('.tile-preview').attributes('style')
 		expect(style).toContain('background: rgb(18, 52, 86)')
-		expect(style).toContain('color: rgb(171, 205, 239)')
+		expect(style).toContain('color: rgb(0, 0, 0)')
 	})
 })
 
@@ -183,7 +183,7 @@ describe('TileEditor theme colours (REQ-ICT-004)', () => {
 
 		await wrapper.find('[data-test="tile-editor-swatch-own"]').trigger('change')
 		expect(wrapper.vm.form.colourToken).toBe('')
-		expect(wrapper.findAllComponents({ name: 'NcColorPicker' })).toHaveLength(2)
+		expect(wrapper.findAllComponents({ name: 'NcColorPicker' })).toHaveLength(1)
 	})
 
 	it('seeds a stored token and ignores one that is not a token', async () => {

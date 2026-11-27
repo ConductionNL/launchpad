@@ -202,7 +202,9 @@ describe('the shipped manifest, gated as a non-admin', () => {
 		const routes = routesFromManifest(manifest, COMPONENT)
 		const gated = routes.filter((r) => r.meta?.permission)
 
-		expect(gated.length, 'no page declares a permission').toBeGreaterThan(0)
+		// REQ-ADM-035: the admin page is no app route any more, so the shipped
+		// manifest may hold no gated page; the guard itself is pinned above.
+		expect(routes.some((r) => /admin/i.test(String(r.path ?? ''))), 'an admin page is an app route').toBe(false)
 
 		for (const route of gated) {
 			expect(
@@ -218,7 +220,10 @@ describe('the shipped manifest, gated as a non-admin', () => {
 		// entry and a page that declared nothing — and the working nav half is
 		// what hid it, since everyone checks visibility through the menu.
 		for (const item of manifest.menu ?? []) {
-			if (!item.permission) {
+			// An entry that links out of the app (the admin settings page in
+			// Nextcloud's settings, REQ-ADM-035) has no page; the server
+			// checks that page itself.
+			if (!item.permission || (item.href && !item.route)) {
 				continue
 			}
 			const page = pageById.get(item.route)

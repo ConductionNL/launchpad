@@ -51,7 +51,7 @@ const ADMIN = {
 
 const APP_BASE = '/apps/launchpad'
 const STORE_URL = `${BASE}/index.php${APP_BASE}/store`
-const SHARING_URL = `${BASE}/index.php/apps/launchpad/admin/sharing`
+const SHARING_URL = `${BASE}/index.php/settings/admin/launchpad#sharing`
 
 /**
  * A registry host that never resolves. `.invalid` is reserved (RFC 6761), so

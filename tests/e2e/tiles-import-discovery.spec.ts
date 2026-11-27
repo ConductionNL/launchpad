@@ -160,7 +160,7 @@ test('on a view-only dashboard there is no way to "Import bookmarks"; with full 
 		await publishForRecipients(admin, full.id)
 		await shareWith(admin, full.id, viewer.username, 'full')
 
-		const active = await viewer.api.post(`${API}/dashboards/active`, {
+		const active = await viewer.api.post(`${API}/dashboards/default`, {
 			data: { uuid: viewOnly.uuid },
 		})
 		expect(active.status(), await active.text()).toBeLessThan(300)
@@ -179,7 +179,7 @@ test('on a view-only dashboard there is no way to "Import bookmarks"; with full 
 			await expect(page.locator('[data-testid="launchpad-more-menu-item-edit"]')).toHaveCount(0)
 			await page.keyboard.press('Escape')
 
-			const switched = await viewer.api.post(`${API}/dashboards/active`, {
+			const switched = await viewer.api.post(`${API}/dashboards/default`, {
 				data: { uuid: full.uuid },
 			})
 			expect(switched.status(), await switched.text()).toBeLessThan(300)

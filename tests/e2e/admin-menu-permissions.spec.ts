@@ -87,7 +87,7 @@ const APP_BASE = '/apps/launchpad'
 /*
  * `menuId` and `href` are what the More menu renders for the surface. More
  * offers the administration page once, as the Settings group's
- * `admin-settings-link` to `/apps/launchpad/admin/general`, and not the
+ * `admin-settings-link` to `/settings/admin/launchpad#general`, and not the
  * manifest entry beside it.
  */
 const ADMIN_PAGES = [
@@ -95,14 +95,14 @@ const ADMIN_PAGES = [
 		id: 'admin-templates',
 		menuId: 'admin-templates',
 		path: '/admin/templates',
-		href: '/admin/templates',
+		href: '/settings/admin/launchpad#templates',
 		route: 'admin-templates-index',
 	},
 	{
 		id: 'admin-settings',
 		menuId: 'admin-settings-link',
 		path: '/admin/general',
-		href: '/apps/launchpad/admin/general',
+		href: '/settings/admin/launchpad#general',
 		route: 'admin-settings',
 	},
 ] as const
@@ -262,10 +262,9 @@ test.describe('manifest permission: the admin surfaces', () => {
 					false,
 				)
 
-				// The administration is a page of this app
-				// (`/apps/launchpad/admin/<tab>`, admin-settings REQ-ADM-030),
-				// and the server checks the reader before it renders: a
-				// non-admin gets 403 and nothing of the page.
+				// The former administration address only redirects to the
+				// settings page (admin-settings REQ-ADM-033) and stays an
+				// administrator's route: a non-admin gets 403 and nothing.
 				const response = await page.goto(`${APP_BASE}${route}`, {
 					waitUntil: 'domcontentloaded',
 				})

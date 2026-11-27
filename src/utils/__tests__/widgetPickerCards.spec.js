@@ -35,15 +35,18 @@ const INPUT = {
 }
 
 describe('widget picker kinds', () => {
-	it('lists the seven kinds of the board in order, with their labels', () => {
-		expect(KINDS).toEqual(['all', 'content', 'tiles', 'people', 'data', 'apps', 'office'])
-		expect(KINDS.map((kind) => kindLabel(kind, t))).toEqual(['All', 'Content', 'Tiles and links', 'People', 'Data and charts', 'From other apps', 'Office'])
+	// add-widget-dialog-with-miniatures REQ-WDG-041: Layout sits after Tiles and links.
+	it('lists the eight kinds of the board in order, with their labels', () => {
+		expect(KINDS).toEqual(['all', 'content', 'tiles', 'layout', 'people', 'data', 'apps', 'office'])
+		expect(KINDS.map((kind) => kindLabel(kind, t))).toEqual(['All', 'Content', 'Tiles and links', 'Layout', 'People', 'Data and charts', 'From other apps', 'Office'])
 		expect(kindLabel('unknown', t)).toBe('unknown')
 	})
 
 	it('puts each type in one kind, content when it names none', () => {
 		expect(['pie-chart', 'graph', 'stat', 'table'].map(kindOfType)).toEqual(['data', 'data', 'data', 'data'])
-		expect(['tile', 'container', 'link'].map(kindOfType)).toEqual(['tiles', 'tiles', 'tiles'])
+		expect(['tile', 'link'].map(kindOfType)).toEqual(['tiles', 'tiles'])
+		// Container groups other widgets: Layout, no longer Tiles and links.
+		expect(kindOfType('container')).toBe('layout')
 		expect(kindOfType('people')).toBe('people')
 		expect(kindOfType('assigned-cases')).toBe('apps')
 		expect(['clock', 'iframe', 'section-heading', 'something-new'].map(kindOfType)).toEqual(['content', 'content', 'content', 'content'])
@@ -58,27 +61,19 @@ describe('widget picker kinds', () => {
 })
 
 describe('pickerCards', () => {
-	it('makes one card per offer, in section order, App tiles ending with Own tile', () => {
+	it('makes one card per offer, in section order, without an App tiles section (REQ-WDG-042 removed)', () => {
 		const cards = pickerCards(INPUT, t)
 		expect(cards.map((card) => card.section)).toEqual([
 			'launchpad', 'launchpad', 'launchpad', 'launchpad', 'launchpad', 'launchpad', 'launchpad', 'launchpad',
-			'tiles', 'tiles', 'tiles',
 			'apps', 'apps',
 		])
-		expect(cards.filter((card) => card.section === 'tiles').map((card) => card.title)).toEqual(['Case system', 'Deck', 'Own tile'])
-		expect(cards.find((card) => card.key === 'catalogue:z1')).toMatchObject({ kind: 'tiles', line: 'Cases for the front office', action: { event: 'addCatalogueApp' } })
-		expect(cards.find((card) => card.key === 'app:deck').badge).toBe('On this dashboard')
-		expect(cards.find((card) => card.key === 'own-tile').action).toEqual({ event: 'addCustom', arg: 'tile' })
+		expect(cards.some((card) => card.key === 'own-tile' || card.key.startsWith('catalogue:') || card.key.startsWith('app:'))).toBe(false)
 		expect(cards.find((card) => card.key === 'office-pack')).toMatchObject({ kind: 'office', action: { event: 'addOfficePack' } })
-	})
-
-	it('puts placed Nextcloud widgets last and badges them, and marks an older widget type', () => {
-		const cards = pickerCards(INPUT, t).filter((card) => card.section === 'apps')
-		expect(cards.map((card) => card.title)).toEqual(['Old widget', 'Notes'])
-		expect(cards[1].badge).toBe('Already added')
-		expect(cards[0].legacy).toBe(true)
-		expect(cards[1].legacy).toBe(false)
-		expect(cards[1].action).toEqual({ event: 'add', arg: 'notes' })
+		expect(typeLine('tile', t)).toBe('One app or web address as a tile.')
+		// add-widget-dialog-with-miniatures REQ-WDG-048: what each card's miniature draws.
+		expect(cards.find((card) => card.key === 'type:clock').miniature).toEqual({ type: 'clock' })
+		expect(cards.find((card) => card.key === 'office-pack').miniature).toMatchObject({ type: 'tile', content: { title: 'Word' } })
+		expect(cards.find((card) => card.key === 'widget:notes').miniature).toEqual({ ncWidget: { iconUrl: '', iconClass: '' } })
 	})
 
 	it('greys out what the role may not add, as the server decides it', () => {
@@ -88,16 +83,13 @@ describe('pickerCards', () => {
 		expect(disabled['type:iframe']).toBe(true)
 		expect(disabled['widget:notes']).toBe(false)
 		expect(disabled['widget:oldie']).toBe(true)
-		// App tiles and Own tile follow `tile`; the office pack follows `container`.
-		expect(disabled['catalogue:z1']).toBe(true)
-		expect(disabled['own-tile']).toBe(true)
+		// The office pack follows `container`.
 		expect(disabled['office-pack']).toBe(true)
-		expect(pickerCards({ ...INPUT, allowedWidgets: ['tile'] }, t).find((card) => card.key === 'own-tile').disabled).toBe(false)
 	})
 
 	it('leaves the office pack out when it is not offered', () => {
 		expect(pickerCards({ ...INPUT, officePack: false }, t).some((card) => card.key === 'office-pack')).toBe(false)
-		expect(pickerCards({}, t).map((card) => card.key)).toEqual(['own-tile'])
+		expect(pickerCards({}, t).map((card) => card.key)).toEqual([])
 	})
 })
 
@@ -105,13 +97,13 @@ describe('counting and filtering', () => {
 	const cards = pickerCards(INPUT, t)
 
 	it('counts the cards of each kind, and every card under All', () => {
-		expect(countByKind(cards)).toEqual({ all: 13, content: 2, tiles: 4, people: 1, data: 2, apps: 3, office: 1 })
+		expect(countByKind(cards)).toEqual({ all: 10, content: 2, tiles: 0, layout: 1, people: 1, data: 2, apps: 3, office: 1 })
 	})
 
 	it('filters to the chosen kind, and searches within it by title or line', () => {
 		expect(filterCards(cards, 'data', '').map((card) => card.title)).toEqual(['Pie chart', 'Graph'])
 		expect(filterCards(cards, 'data', 'PIE').map((card) => card.title)).toEqual(['Pie chart'])
-		expect(filterCards(cards, 'tiles', 'front office').map((card) => card.title)).toEqual(['Case system'])
+		expect(filterCards(cards, 'layout', 'group').map((card) => card.title)).toEqual(['Container'])
 		expect(filterCards(cards, 'all', 'clock').map((card) => card.title)).toEqual(['Clock'])
 		expect(filterCards(cards, 'people', 'clock')).toEqual([])
 	})

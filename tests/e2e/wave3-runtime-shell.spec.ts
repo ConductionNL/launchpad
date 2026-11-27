@@ -97,7 +97,7 @@ test.describe('wave3 runtime-shell + More menu UX', () => {
 		const open = await create(`Wave3 open ${stamp}`)
 		const target = await create(`Wave3 target ${stamp}`)
 		try {
-			const active = await api.post('/index.php/apps/launchpad/api/dashboards/active', {
+			const active = await api.post('/index.php/apps/launchpad/api/dashboards/default', {
 				headers,
 				data: { uuid: open.uuid },
 			})

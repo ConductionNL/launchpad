@@ -62,8 +62,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// Main page
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
 
-		// The administration, a Launchpad page over the full width (REQ-ADM-030).
-		// `/admin` opens General. Registered before the `/{deepLink}` catch-all.
+		// The former administration address: a 303 to /settings/admin/launchpad#<tab>
+		// (REQ-ADM-033). Registered before the `/{deepLink}` catch-all.
 		['name' => 'adminPage#show', 'url' => '/admin/{tab}', 'verb' => 'GET',
 		 'defaults' => ['tab' => 'general'], 'requirements' => ['tab' => '[a-z0-9\-]+']],
 
@@ -241,6 +241,14 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'requirements' => ['id' => '\d+']],
 		['name' => 'kiosk#destroy', 'url' => '/api/kiosk/playlists/{id}', 'verb' => 'DELETE',
 		 'requirements' => ['id' => '\d+']],
+		// Screen link of one dashboard, from its Sharing tab (REQ-KIOSK-006).
+		// `#[NoAdminRequired]` + may-share guard in ScreenLinkController/KioskService.
+		['name' => 'screenLink#show', 'url' => '/api/dashboards/{uuid}/screen-link', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'screenLink#create', 'url' => '/api/dashboards/{uuid}/screen-link', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'screenLink#destroy', 'url' => '/api/dashboards/{uuid}/screen-link', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		// Public (anonymous) kiosk render (REQ-KIOSK-003). #[PublicPage] +
 		// #[NoCSRFRequired] + shared `launchpad_share_access` throttle bucket.
 		// Registered BEFORE the deep-link catch-all at the bottom.
@@ -323,6 +331,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'announcement#index', 'url' => '/api/announcements', 'verb' => 'GET'],
 		['name' => 'announcement#create', 'url' => '/api/announcements', 'verb' => 'POST'],
 		['name' => 'announcement#reach', 'url' => '/api/announcements/reach', 'verb' => 'GET'],
+		// REQ-ANN-008: every announcement for the Announcements tab; managers only.
+		['name' => 'announcement#manage', 'url' => '/api/announcements/manage', 'verb' => 'GET'],
 		['name' => 'announcementGroups#index', 'url' => '/api/announcements/groups', 'verb' => 'GET'],
 		['name' => 'announcementRead#state', 'url' => '/api/announcements/read-state', 'verb' => 'GET'],
 		['name' => 'announcement#follow', 'url' => '/api/announcements/follows', 'verb' => 'POST'],

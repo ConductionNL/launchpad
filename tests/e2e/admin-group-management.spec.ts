@@ -24,7 +24,7 @@ const ADMIN = {
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
 }
 
-const SETTINGS_URL = `${BASE}/index.php/apps/launchpad/admin`
+const SETTINGS_URL = `${BASE}/index.php/settings/admin/launchpad`
 
 test.describe('admin-group-management — Group dashboards tab', () => {
 	test.beforeEach(async ({ page }) => {

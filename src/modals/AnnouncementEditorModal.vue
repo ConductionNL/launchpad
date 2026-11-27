@@ -4,13 +4,15 @@
 -->
 
 <template>
-	<NcModal
-		class="launchpad-modal"
-		size="large"
-		:name="t('launchpad', 'New announcement')"
+	<!-- announcements-managed-in-settings D2: `inline` draws the form as a
+	     section of the Announcements tab instead of a dialog. -->
+	<component
+		:is="inline ? 'section' : 'NcModal'"
+		:class="inline ? 'announcement-editor-section' : 'launchpad-modal'"
+		v-bind="inline ? {} : { size: 'large', name: heading }"
 		@close="$emit('close')">
 		<div class="announcement-editor" data-test="announcement-editor">
-			<h2>{{ t('launchpad', 'New announcement') }}</h2>
+			<h2>{{ heading }}</h2>
 
 			<div class="announcement-editor__columns">
 				<form
@@ -147,7 +149,7 @@
 				</NcButton>
 			</div>
 		</div>
-	</NcModal>
+	</component>
 </template>
 
 <script>
@@ -166,6 +168,57 @@ import { logger } from '../utils/logger.js'
  * @return {string|null}
  */
 export function toIso(value) {
+	return toIsoValue(value)
+}
+
+/**
+ * An ISO time as a `datetime-local` value in the browser's time zone, '' when empty.
+ *
+ * @param {string|null} iso The stored time.
+ * @return {string}
+ * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+ */
+export function toLocalInput(iso) {
+	if (!iso) {
+		return ''
+	}
+	const date = new Date(iso)
+	if (Number.isNaN(date.getTime())) {
+		return ''
+	}
+	const pad = (value) => String(value).padStart(2, '0')
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+/**
+ * The form fields of a stored announcement, for Edit on the Announcements tab.
+ *
+ * @param {object} item The stored announcement.
+ * @return {object} The form.
+ * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+ */
+export function formFromAnnouncement(item) {
+	return {
+		kind: item.kind === 'notice' ? 'notice' : 'news',
+		title: item.title ?? '',
+		body: item.body ?? '',
+		category: item.category ?? '',
+		targetGroups: Array.isArray(item.targetGroups) ? [...item.targetGroups] : [],
+		level: item.level || 'info',
+		dismissible: true,
+		allowComments: item.allowComments !== false,
+		publishAt: toLocalInput(item.publishAt),
+		expiresAt: toLocalInput(item.expiresAt),
+		requiresConfirmation: item.requiresConfirmation === true || item.requiresConfirmation === 1,
+		confirmBefore: item.confirmBefore ? toLocalInput(item.confirmBefore).slice(0, 10) : '',
+	}
+}
+
+/**
+ * @param {string} value The input value.
+ * @return {string|null}
+ */
+function toIsoValue(value) {
 	if (!value) {
 		return null
 	}
@@ -301,19 +354,34 @@ export default {
 
 	components: { AnnouncementCard, NcButton, NcCheckboxRadioSwitch, NcModal, NcSelect, NcTextArea, NcTextField, NoticeBanner },
 
+	props: {
+		/** Draw the form as a section of the Announcements tab, not a dialog. */
+		inline: {
+			type: Boolean,
+			default: false,
+		},
+
+		/** A stored announcement to edit; null writes a new one. */
+		announcement: {
+			type: Object,
+			default: null,
+		},
+	},
+
 	emits: ['close', 'published'],
 
 	data() {
+		const stored = this.announcement
 		return {
 			busy: false,
 			groups: [],
 			error: '',
-			uuid: '',
+			uuid: stored?.uuid ?? '',
 			reach: 0,
 			previewAs: '',
 			previewAsUser: '',
 			previewAsAnswer: null,
-			form: {
+			form: stored ? formFromAnnouncement(stored) : {
 				kind: 'news',
 				title: '',
 				body: '',
@@ -331,6 +399,14 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * @return {string} The form's heading: New or Edit announcement.
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 */
+		heading() {
+			return this.announcement ? t('launchpad', 'Edit announcement') : t('launchpad', 'New announcement')
+		},
+
 		/**
 		 * The kind as two choice cards (REQ-ANN-006).
 		 *

@@ -17,9 +17,9 @@ const dashboard = { id: 7, uuid: 'dash-uuid', name: 'Mijn week', isOwner: true }
 describe('embedAdminHref', () => {
 	it('pre-selects the dashboard, or one widget of it when given a placement', () => {
 		expect(embedAdminHref(dashboard, { id: 12 }))
-			.toBe('/index.php/apps/launchpad/admin/general?tab=embeds&embedType=widget&embedId=12&embedDashboard=7')
+			.toBe('/index.php/settings/admin/launchpad?tab=embeds&embedType=widget&embedId=12&embedDashboard=7#embeds')
 		expect(embedAdminHref(dashboard))
-			.toBe('/index.php/apps/launchpad/admin/general?tab=embeds&embedType=dashboard&embedId=dash-uuid&embedDashboard=7')
+			.toBe('/index.php/settings/admin/launchpad?tab=embeds&embedType=dashboard&embedId=dash-uuid&embedDashboard=7#embeds')
 	})
 })
 

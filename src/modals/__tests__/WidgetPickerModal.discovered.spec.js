@@ -37,77 +37,23 @@ function mountPicker(props = {}) {
 
 const SECTION = '[data-testid="widget-picker-section-tiles"]'
 
-/**
- * Choose a card and press Add widget.
- *
- * @param {object} wrapper the mounted picker.
- * @param {object} card the card.
- * @return {Promise<void>}
- */
-async function place(wrapper, card) {
-	await card.trigger('click')
-	await wrapper.find('[data-testid="widget-picker-add"]').trigger('click')
-}
-
-describe('App tiles', () => {
-	it('lists the discovered apps with their names', () => {
+// app-link-tile-widget REQ-WDG-042 removed: the picker has no App tiles
+// section; the apps are chosen in the App or link tile form.
+describe('the picker without App tiles', () => {
+	it('lists no discovered app and no Own tile', () => {
 		const wrapper = mountPicker()
-		const section = wrapper.find(SECTION)
-		expect(section.exists()).toBe(true)
-		expect(section.find('h3').text()).toBe('App tiles')
-		expect(section.findAll('[data-testid^="widget-picker-app-tile-"]').map((row) => row.text())).toEqual([
-			expect.stringContaining('Deck'),
-			expect.stringContaining('Context Chat'),
-		])
-		expect(section.find('[data-testid="widget-picker-custom-tile"]').text()).toContain('Own tile')
-		expect(section.findAll('.widget-picker__widget').at(-1).attributes('data-testid')).toBe('widget-picker-custom-tile')
-	})
-
-	it('marks an app already on the dashboard', () => {
-		const rows = mountPicker().findAll(`${SECTION} [data-testid^="widget-picker-app-tile-"]`)
-		expect(rows[0].text()).toContain('On this dashboard')
-		expect(rows[1].text()).not.toContain('On this dashboard')
-	})
-
-	it('narrows with the search box', async () => {
-		const wrapper = mountPicker()
-		await wrapper.find('.nc-text').setValue('chat')
-		const rows = wrapper.findAll(`${SECTION} .widget-picker__widget`)
-		expect(rows).toHaveLength(1)
-		expect(rows[0].text()).toContain('Context Chat')
-	})
-
-	it('asks the host to place the chosen app with Add widget, also when it is there already', async () => {
-		const wrapper = mountPicker()
-		await place(wrapper, wrapper.get('[data-testid="widget-picker-app-tile-deck"]'))
-		expect(wrapper.emitted('addApp')[0]).toEqual([DECK])
-		expect(wrapper.emitted('close')).toHaveLength(1)
-	})
-
-	it('draws each app entry in the colour its tile gets', () => {
-		const swatch = mountPicker().get('[data-testid="widget-picker-app-tile-deck"] .widget-picker__tile-swatch')
-		expect(swatch.attributes('style')).toContain('--cn-app-tile-deck')
-	})
-
-	it('offers a custom tile that opens the tile form', async () => {
-		const wrapper = mountPicker({ discoveredApps: [] })
-		await place(wrapper, wrapper.get('[data-testid="widget-picker-custom-tile"]'))
-		expect(wrapper.emitted('addCustom')[0]).toEqual(['tile'])
-	})
-
-	it('leaves the custom tile out when the search does not match it', async () => {
-		const wrapper = mountPicker({ discoveredApps: [] })
-		await wrapper.find('.nc-text').setValue('weather')
 		expect(wrapper.find(SECTION).exists()).toBe(false)
+		expect(wrapper.text()).not.toContain('Deck')
 	})
 })
 
 describe('the tile a discovered app becomes', () => {
-	it('is an app tile for that app, in its default colour, with its count', () => {
+	it('is an App or link tile in app mode for that app, white text, with its count', () => {
 		expect(appTileFromDiscoveredApp(DECK)).toEqual({
-			type: 'app-tile',
-			content: { appId: 'deck', colour: '', showCount: true },
+			type: 'tile',
+			content: { mode: 'app', appId: 'deck', colourToken: '', textColour: 'white', showCount: true, pinned: false },
 		})
+		expect(appTileFromDiscoveredApp(DECK, { colourToken: '--sc-accent', iconOnly: true }).content).toMatchObject({ colourToken: '--sc-accent', iconOnly: true })
 	})
 
 	it('names an app without its own page by its menu id too', () => {
@@ -118,7 +64,8 @@ describe('the tile a discovered app becomes', () => {
 		expect(discoveredAppIdsOnDashboard([
 			{ widgetId: 'app-tile', content: { appId: 'deck' } },
 			{ widgetId: 'app-tile', content: {} },
-		], [DECK, CHAT])).toEqual(['deck'])
+			{ widgetId: 'tile', content: { mode: 'app', appId: 'context_chat_ui' } },
+		], [DECK, CHAT])).toEqual(['deck', 'context_chat_ui'])
 	})
 
 	it('reads which apps are on the dashboard from its app tiles', () => {

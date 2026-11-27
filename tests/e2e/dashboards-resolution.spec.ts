@@ -55,6 +55,7 @@ import {
 	removeFromGroup,
 	removeGroupDashboards,
 	setActivePreference,
+	setStartDashboard,
 	writeGroupOrder,
 	writeSettings,
 } from './support/dashboardsSpec.ts'
@@ -196,9 +197,9 @@ test.describe("REQ-DASH-018 the workspace page's active dashboard", () => {
 		const alice = await fresh('e2e-dash-pref')
 		const x = (await createPersonal(alice.api, { name: `E2E Preferred ${RUN}` }))
 			.dashboard
-		// Without the preference the chain would land on the default group's
-		// dashboard (step 3) before her own (step 6).
-		await setActivePreference(alice.api, x.uuid)
+		// Without a chosen start dashboard the chain would land on the default
+		// group's dashboard (step 3) before her own (step 6).
+		await setStartDashboard(alice.api, x.uuid)
 
 		const page = await resolved(alice)
 		expect(page).toMatchObject({ status: 200, uuid: x.uuid, source: 'user' })
@@ -230,8 +231,8 @@ test.describe("REQ-DASH-018 the workspace page's active dashboard", () => {
 		await addToGroup(admin, alice.username, group)
 		const y = await createGroupDashboard(admin, group, `E2E Stale ${RUN}`)
 		created.push({ groupId: group, uuid: y.uuid })
-		await setActivePreference(alice.api, y.uuid)
-		// While she can see it, the preference is honoured.
+		await setStartDashboard(alice.api, y.uuid)
+		// While she can see it, the start dashboard is honoured.
 		expect(await resolved(alice)).toMatchObject({
 			status: 200,
 			uuid: y.uuid,
@@ -305,7 +306,9 @@ test.describe('REQ-DASH-019 the active-dashboard preference', () => {
 		expect(res.status(), await res.text()).toBe(200)
 		expect(await res.json()).toEqual({ status: 'success' })
 
-		// What was saved is what the next page load opens.
+		// What was saved is the dashboard looked at last; it no longer decides
+		// what the next page load opens: that stays the start page
+		// (REQ-DASH-018, start-page-stays-vandaag).
 		const x = (await createPersonal(alice.api, { name: `E2E Saved ${RUN}` }))
 			.dashboard
 		const saved = await alice.api.post(`${API}/dashboards/active`, {
@@ -315,8 +318,8 @@ test.describe('REQ-DASH-019 the active-dashboard preference', () => {
 		expect(await saved.json()).toEqual({ status: 'success' })
 		expect(await resolved(alice)).toMatchObject({
 			status: 200,
-			uuid: x.uuid,
-			source: 'user',
+			uuid: defaultGroupDefault,
+			source: 'default',
 		})
 	})
 
@@ -326,7 +329,8 @@ test.describe('REQ-DASH-019 the active-dashboard preference', () => {
 		const x = (await createPersonal(alice.api, { name: `E2E Cleared ${RUN}` }))
 			.dashboard
 		await setActivePreference(alice.api, x.uuid)
-		expect(await resolved(alice)).toMatchObject({ uuid: x.uuid, source: 'user' })
+		// The last-used dashboard does not decide where launchpad opens.
+		expect(await resolved(alice)).toMatchObject({ uuid: defaultGroupDefault, source: 'default' })
 
 		const res = await alice.api.post(`${API}/dashboards/active`, {
 			data: { uuid: '' },

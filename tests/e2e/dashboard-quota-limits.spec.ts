@@ -872,7 +872,7 @@ test.describe('quota in the list and the switcher (REQ-QUOTA-006)', () => {
 	}) => {
 		const alice = await freshUser('quota-ui-race')
 		const dashes = await createDashboards(alice.api, 4, 'Race')
-		const activate = await alice.api.post(`${API}/dashboards/active`, {
+		const activate = await alice.api.post(`${API}/dashboards/default`, {
 			data: { uuid: dashes[0].uuid },
 		})
 		expect(activate.status(), await activate.text()).toBeLessThan(300)

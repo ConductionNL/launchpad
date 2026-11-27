@@ -269,7 +269,7 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 		);
 
 		$this->assertSame(
-			expected: ['app-tile', 'app-tile', 'app-tile', 'app-tile', 'calendar', 'nc-widget', 'files', 'weather', 'announcements'],
+			expected: ['tile', 'tile', 'tile', 'tile', 'calendar', 'nc-widget', 'files', 'weather', 'announcements'],
 			actual: array_map(static fn (WidgetPlacement $p): string => $p->getWidgetId(), $captured)
 		);
 		$this->assertSame(

@@ -5,8 +5,8 @@
  *
  * Pins the administration page's initial state: every group, the configured
  * group order with its legacy fallback, the widgets, the user dashboard
- * switch, the link file extensions and `isAdmin` for the Launchpad shell
- * (REQ-INIT-002, REQ-ADM-030).
+ * switch, the link file extensions, the held tabs and the app version
+ * (REQ-INIT-002, REQ-ADM-032, REQ-ADM-034).
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Settings
@@ -62,6 +62,13 @@ class AdminFormStateTest extends TestCase {
 	private array $provided = [];
 
 	/**
+	 * The widget service mock.
+	 *
+	 * @var WidgetService&MockObject
+	 */
+	private WidgetService $widgets;
+
+	/**
 	 * Build the state with mocked sources.
 	 *
 	 * @return AdminFormState
@@ -79,7 +86,7 @@ class AdminFormStateTest extends TestCase {
 		$this->settingMapper = $this->createMock(originalClassName: AdminSettingMapper::class);
 
 		$widgets = $this->createMock(originalClassName: WidgetService::class);
-		$widgets->method('getAvailableWidgets')->willReturn([['id' => 'weather']]);
+		$this->widgets = $widgets;
 		$dashboards = $this->createMock(originalClassName: DashboardService::class);
 		$dashboards->method('getAllowUserDashboards')->willReturn(false);
 		$files = $this->createMock(originalClassName: FileService::class);
@@ -115,12 +122,14 @@ class AdminFormStateTest extends TestCase {
 
 	/**
 	 * The state carries every group, the configured order, the widgets, the
-	 * user-dashboard switch, the file extensions and `isAdmin`.
+	 * user-dashboard switch, the file extensions, the tabs the viewer holds
+	 * and the app version (REQ-ADM-032, REQ-ADM-034).
 	 *
 	 * @return void
 	 */
 	public function testItProvidesTheAdminInitialState(): void {
 		$state = $this->state();
+		$this->widgets->method('getWidgetCatalogue')->willReturn([['id' => 'weather']]);
 		$this->groupManager->expects($this->once())
 			->method('search')
 			->with('')
@@ -128,13 +137,15 @@ class AdminFormStateTest extends TestCase {
 		$this->settingsService->method('getGroupOrder')->willReturn(['staff', 'admin']);
 		$this->settingMapper->expects($this->never())->method('getValue');
 
-		$state->provide();
+		$state->provide(tabs: ['announcements'], version: '1.2.3');
 
 		$schema = $this->provided;
 		$this->assertArrayHasKey(key: InitialStateBuilder::KEY_SCHEMA_VERSION, array: $schema);
 		unset($schema[InitialStateBuilder::KEY_SCHEMA_VERSION]);
 		$this->assertSame(
 			expected: [
+				'adminTabs' => ['announcements'],
+				'version' => '1.2.3',
 				'allGroups' => [
 					['id' => 'admin', 'displayName' => 'Admins'],
 					['id' => 'staff', 'displayName' => 'Staff'],
@@ -143,7 +154,6 @@ class AdminFormStateTest extends TestCase {
 				'widgets' => [['id' => 'weather']],
 				'allowUserDashboards' => false,
 				'linkCreateFileExtensions' => ['docx', 'md'],
-				'isAdmin' => true,
 			],
 			actual: $schema
 		);
@@ -185,4 +195,40 @@ class AdminFormStateTest extends TestCase {
 
 		$this->assertSame(expected: [], actual: $this->provided['configuredGroups']);
 	}//end testANonListLegacySettingGivesNoConfiguredGroups()
+
+	/**
+	 * The widgets are read without loading them, so no widget's dashboard
+	 * script reaches the settings page.
+	 *
+	 * @return void
+	 */
+	public function testTheWidgetsAreReadWithoutLoadingThem(): void {
+		$state = $this->state();
+		$this->groupManager->method('search')->willReturn([]);
+		$this->settingsService->method('getGroupOrder')->willReturn(['staff']);
+		$this->widgets->expects($this->once())->method('getWidgetCatalogue')->willReturn([['id' => 'notes']]);
+		$this->widgets->expects($this->never())->method('getAvailableWidgets');
+
+		$state->provide();
+
+		$this->assertSame(expected: [['id' => 'notes']], actual: $this->provided['widgets']);
+	}//end testTheWidgetsAreReadWithoutLoadingThem()
+
+	/**
+	 * When the registry cannot be read without loading, the loading read is
+	 * the fallback, so the page still lists the widgets.
+	 *
+	 * @return void
+	 */
+	public function testWithoutACatalogueTheLoadingReadIsTheFallback(): void {
+		$state = $this->state();
+		$this->groupManager->method('search')->willReturn([]);
+		$this->settingsService->method('getGroupOrder')->willReturn(['staff']);
+		$this->widgets->method('getWidgetCatalogue')->willReturn(null);
+		$this->widgets->expects($this->once())->method('getAvailableWidgets')->willReturn([['id' => 'weather']]);
+
+		$state->provide();
+
+		$this->assertSame(expected: [['id' => 'weather']], actual: $this->provided['widgets']);
+	}//end testWithoutACatalogueTheLoadingReadIsTheFallback()
 }//end class

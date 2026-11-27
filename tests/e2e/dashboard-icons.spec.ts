@@ -242,7 +242,7 @@ async function storedIcon(dashboard: Seeded): Promise<unknown> {
 async function activate(dashboard: Seeded): Promise<void> {
 	const legacy = await api.post(`${API}/dashboard/${dashboard.id}/activate`)
 	expect(legacy.status(), await legacy.text()).toBeLessThan(300)
-	const pref = await api.post(`${API}/dashboards/active`, {
+	const pref = await api.post(`${API}/dashboards/default`, {
 		data: { uuid: dashboard.uuid },
 	})
 	expect(pref.status(), await pref.text()).toBeLessThan(300)

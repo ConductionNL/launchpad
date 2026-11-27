@@ -111,7 +111,7 @@ async function intranet(who: Principal, label: string): Promise<Dashboard> {
 	const made = { id: Number(dash.id), uuid: String(dash.uuid), name, description }
 	const activate = await who.api.post(`${API}/dashboard/${made.id}/activate`)
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
-	const active = await who.api.post(`${API}/dashboards/active`, {
+	const active = await who.api.post(`${API}/dashboards/default`, {
 		data: { uuid: made.uuid },
 	})
 	expect(active.status(), await active.text()).toBeLessThan(300)

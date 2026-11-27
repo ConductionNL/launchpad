@@ -9,7 +9,8 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { embedApi } from '../embedApi.js'
+import { logger } from '../../utils/logger.js'
+import { embedApi, embedLoadError, needsOpenRegister } from '../embedApi.js'
 
 const http = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() }))
 vi.mock('@nextcloud/axios', () => ({ default: http }))
@@ -64,5 +65,28 @@ describe('embedApi', () => {
 			[`${base}/tenant-themes/th-1`, { params: {} }],
 			[`${base}/tenant-themes/th-1`, { params: { force: true } }],
 		])
+	})
+})
+
+describe('embed lists without OpenRegister', () => {
+	it('reads a 503 as "needs OpenRegister" and anything else as a failure', () => {
+		expect(needsOpenRegister({ response: { status: 503 } })).toBe(true)
+		expect(needsOpenRegister({ response: { status: 500 } })).toBe(false)
+		expect(needsOpenRegister(new Error('network'))).toBe(false)
+		expect(needsOpenRegister(undefined)).toBe(false)
+	})
+
+	it('says a 503 needs OpenRegister and logs no error for it', () => {
+		const error = vi.spyOn(logger, 'error').mockImplementation(() => {})
+		expect(embedLoadError({ response: { status: 503 } })).toBe('Embed tokens need OpenRegister, which is not available.')
+		expect(error).not.toHaveBeenCalled()
+		error.mockRestore()
+	})
+
+	it('logs any other failure as an error', () => {
+		const error = vi.spyOn(logger, 'error').mockImplementation(() => {})
+		expect(embedLoadError({ response: { status: 500 } })).toBe('Embed tokens could not be loaded.')
+		expect(error).toHaveBeenCalledTimes(1)
+		error.mockRestore()
 	})
 })

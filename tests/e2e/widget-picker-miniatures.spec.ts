@@ -1,0 +1,99 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * Playwright e2e for add-widget-dialog-with-miniatures (board LpWidgetKiezen):
+ * Add widget is 1120 px wide, every visible card shows a miniature of its
+ * widget, opening it sends no weather request, Tiles and links lists the tile
+ * widgets, Layout holds Container, and the edit bar has no Add tiles button.
+ *
+ * Gate-19 @e2e traceability:
+ *   @e2e widgets::open-the-picker
+ *   @e2e widgets::filter-by-kind
+ *   @e2e widgets::layout-holds-the-container
+ *   @e2e widgets::the-weather-card-shows-a-weather-widget
+ *   @e2e widgets::no-add-tiles-button
+ *
+ * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md
+ */
+import type { APIRequestContext } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
+
+import { expect, request, test } from '@playwright/test'
+import { gotoLaunchPad } from './fixtures/widget-flow.ts'
+import { BASE_URL } from './support/baseUrl.ts'
+import {
+	removeSeededDashboard,
+	seedActiveDashboard,
+} from './support/dashboardFixture.ts'
+import { enterEditMode } from './support/dashboardSwitcher.ts'
+
+const ADMIN = {
+	user: process.env.NEXTCLOUD_USER || 'admin',
+	pass: process.env.NEXTCLOUD_PASS || 'admin',
+}
+
+let api: APIRequestContext
+let seeded: SeededDashboard | null = null
+
+test.describe.configure({ mode: 'serial' })
+
+test.beforeAll(async () => {
+	api = await request.newContext({
+		baseURL: BASE_URL,
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	seeded = await seedActiveDashboard(api, `E2E Picker miniatures ${Date.now()}`)
+})
+
+test.afterAll(async () => {
+	await removeSeededDashboard(api, seeded)
+	await api?.dispose()
+})
+
+test('Add widget is 1120 px wide and every visible card shows a miniature, with no weather request', async ({ page }) => {
+	const weatherRequests: string[] = []
+	page.on('request', (req) => {
+		if (/\/api\/weather\//.test(req.url())) {
+			weatherRequests.push(req.url())
+		}
+	})
+
+	await gotoLaunchPad(page)
+	await enterEditMode(page)
+	await expect(page.getByTestId('launchpad-edit-bar-add-tiles')).toHaveCount(0)
+	await page.getByTestId('launchpad-edit-bar-add-widget').click()
+
+	const dialog = page.locator('.widget-picker-modal .modal-container')
+	await expect(dialog).toBeVisible()
+	const box = await dialog.boundingBox()
+	const viewport = page.viewportSize()
+	expect(Math.round(box?.width ?? 0)).toBe(Math.min(1120, (viewport?.width ?? 1120) - 32))
+
+	const cards = page.locator('.widget-picker__widget')
+	await expect(cards.first()).toBeVisible()
+	const count = await cards.count()
+	for (let index = 0; index < Math.min(count, 9); index++) {
+		await expect(cards.nth(index).locator('.widget-miniature')).toHaveAttribute('aria-hidden', 'true')
+	}
+
+	const weather = page.getByTestId('widget-picker-type-weather')
+	await weather.scrollIntoViewIfNeeded()
+	await expect(weather.getByTestId('widget-miniature-weather')).toHaveAttribute('data-state', 'ready')
+	await expect(weather.getByTestId('widget-miniature-weather')).toContainText('Utrecht')
+	expect(weatherRequests).toEqual([])
+})
+
+test('Tiles and links lists the tile widgets and Layout holds Container', async ({ page }) => {
+	await gotoLaunchPad(page)
+	await enterEditMode(page)
+	await page.getByTestId('launchpad-edit-bar-add-widget').click()
+
+	await page.getByTestId('widget-picker-kind-tiles').click()
+	await expect(page.getByTestId('widget-picker-type-tile')).toBeVisible()
+	await expect(page.getByTestId('widget-picker-type-container')).toHaveCount(0)
+
+	await page.getByTestId('widget-picker-kind-layout').click()
+	await expect(page.getByTestId('widget-picker-type-container')).toBeVisible()
+})

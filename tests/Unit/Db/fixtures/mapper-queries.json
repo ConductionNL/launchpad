@@ -558,6 +558,28 @@
                 "qb1.executeQuery(null)"
             ],
             "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":5,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":6,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+        },
+        "findAllForManagers all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_announcements\", null)",
+                "qb1.orderBy(\"updated_at\", \"DESC\")",
+                "qb1.setMaxResults(500)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findAllForManagers rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_announcements\", null)",
+                "qb1.orderBy(\"updated_at\", \"DESC\")",
+                "qb1.setMaxResults(500)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":5,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":6,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         }
     },
     "AppRequestMapper": {
@@ -3919,6 +3941,76 @@
             ],
             "outcome": "threw OCP\\AppFramework\\Db\\MultipleObjectsReturnedException: Did not expect more than one result when executing: query \"sql\"; "
         },
+        "findActiveScreenLink all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_kiosk_playlists\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-dashboardUuid\", 2, null)",
+                "qb1.expr.eq(\"screen_dashboard_uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"screen_dashboard_uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"revoked_at\")",
+                "qb1.andWhere(\"isNull(\\\"revoked_at\\\")\")",
+                "qb1.orderBy(\"id\", \"DESC\")",
+                "qb1.setMaxResults(1)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned null"
+        },
+        "findActiveScreenLink rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_kiosk_playlists\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-dashboardUuid\", 2, null)",
+                "qb1.expr.eq(\"screen_dashboard_uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"screen_dashboard_uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"revoked_at\")",
+                "qb1.andWhere(\"isNull(\\\"revoked_at\\\")\")",
+                "qb1.orderBy(\"id\", \"DESC\")",
+                "qb1.setMaxResults(1)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned OCA\\LaunchPad\\Db\\KioskPlaylist {\"id\":5,\"name\":null,\"token\":null,\"url\":null,\"entries\":[],\"refreshSeconds\":300,\"createdBy\":null,\"createdAt\":null,\"revokedAt\":null,\"screenDashboardUuid\":null}"
+        },
+        "revokeScreenLinksOf all": {
+            "calls": [
+                "qb1 new",
+                "qb1.update(\"launchpad_kiosk_playlists\", null)",
+                "qb1.createNamedParameter(\"<date>\", 2, null)",
+                "qb1.set(\"revoked_at\", \":p1\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-dashboardUuid\", 2, null)",
+                "qb1.expr.eq(\"screen_dashboard_uuid\", \":p2\", null)",
+                "qb1.where(\"eq(\\\"screen_dashboard_uuid\\\", \\\":p2\\\", null)\")",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"revoked_at\")",
+                "qb1.andWhere(\"isNull(\\\"revoked_at\\\")\")",
+                "qb1.executeStatement(null)"
+            ],
+            "outcome": "returned 1"
+        },
+        "revokeScreenLinksOf rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.update(\"launchpad_kiosk_playlists\", null)",
+                "qb1.createNamedParameter(\"<date>\", 2, null)",
+                "qb1.set(\"revoked_at\", \":p1\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-dashboardUuid\", 2, null)",
+                "qb1.expr.eq(\"screen_dashboard_uuid\", \":p2\", null)",
+                "qb1.where(\"eq(\\\"screen_dashboard_uuid\\\", \\\":p2\\\", null)\")",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"revoked_at\")",
+                "qb1.andWhere(\"isNull(\\\"revoked_at\\\")\")",
+                "qb1.executeStatement(null)"
+            ],
+            "outcome": "returned 1"
+        },
         "findByCreator all": {
             "calls": [
                 "qb1 new",
@@ -3951,7 +4043,7 @@
                 "qb1.orderBy(\"created_at\", \"DESC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\KioskPlaylist {\\\"id\\\":5,\\\"name\\\":null,\\\"token\\\":null,\\\"url\\\":null,\\\"entries\\\":[],\\\"refreshSeconds\\\":300,\\\"createdBy\\\":null,\\\"createdAt\\\":null,\\\"revokedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\KioskPlaylist {\\\"id\\\":6,\\\"name\\\":null,\\\"token\\\":null,\\\"url\\\":null,\\\"entries\\\":[],\\\"refreshSeconds\\\":300,\\\"createdBy\\\":null,\\\"createdAt\\\":null,\\\"revokedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\KioskPlaylist {\\\"id\\\":5,\\\"name\\\":null,\\\"token\\\":null,\\\"url\\\":null,\\\"entries\\\":[],\\\"refreshSeconds\\\":300,\\\"createdBy\\\":null,\\\"createdAt\\\":null,\\\"revokedAt\\\":null,\\\"screenDashboardUuid\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\KioskPlaylist {\\\"id\\\":6,\\\"name\\\":null,\\\"token\\\":null,\\\"url\\\":null,\\\"entries\\\":[],\\\"refreshSeconds\\\":300,\\\"createdBy\\\":null,\\\"createdAt\\\":null,\\\"revokedAt\\\":null,\\\"screenDashboardUuid\\\":null}\"]"
         },
         "findAllActive all": {
             "calls": [
@@ -3977,7 +4069,7 @@
                 "qb1.orderBy(\"created_at\", \"DESC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\KioskPlaylist {\\\"id\\\":5,\\\"name\\\":null,\\\"token\\\":null,\\\"url\\\":null,\\\"entries\\\":[],\\\"refreshSeconds\\\":300,\\\"createdBy\\\":null,\\\"createdAt\\\":null,\\\"revokedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\KioskPlaylist {\\\"id\\\":6,\\\"name\\\":null,\\\"token\\\":null,\\\"url\\\":null,\\\"entries\\\":[],\\\"refreshSeconds\\\":300,\\\"createdBy\\\":null,\\\"createdAt\\\":null,\\\"revokedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\KioskPlaylist {\\\"id\\\":5,\\\"name\\\":null,\\\"token\\\":null,\\\"url\\\":null,\\\"entries\\\":[],\\\"refreshSeconds\\\":300,\\\"createdBy\\\":null,\\\"createdAt\\\":null,\\\"revokedAt\\\":null,\\\"screenDashboardUuid\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\KioskPlaylist {\\\"id\\\":6,\\\"name\\\":null,\\\"token\\\":null,\\\"url\\\":null,\\\"entries\\\":[],\\\"refreshSeconds\\\":300,\\\"createdBy\\\":null,\\\"createdAt\\\":null,\\\"revokedAt\\\":null,\\\"screenDashboardUuid\\\":null}\"]"
         },
         "softRevoke all": {
             "calls": [

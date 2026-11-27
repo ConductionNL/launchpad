@@ -84,6 +84,8 @@ const CommunitiesWidget = lazyComponent(() => import('../components/Widgets/Rend
 const CommunitiesWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/CommunitiesWidgetForm.vue'), 'CommunitiesWidgetForm')
 const ContainerWidget = lazyComponent(() => import('../components/Widgets/Renderers/ContainerWidget.vue'), 'ContainerWidget')
 const ContainerWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ContainerWidgetForm.vue'), 'ContainerWidgetForm')
+const TabsWidget = lazyComponent(() => import('../components/Widgets/Renderers/TabsWidget.vue'), 'TabsWidget')
+const TabsWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/TabsWidgetForm.vue'), 'TabsWidgetForm')
 const IframeWidget = lazyComponent(() => import('../components/Widgets/Renderers/IframeWidget.vue'), 'IframeWidget')
 const IframeWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/IframeWidgetForm.vue'), 'IframeWidgetForm')
 const LinkButtonWidget = lazyComponent(() => import('../components/Widgets/Renderers/LinkButtonHost.vue'), 'LinkButtonWidget')
@@ -172,6 +174,9 @@ const RENDERER_OVERRIDES = {
 	// integrations-office-tiles: a `create` tile opens the new-file dialog;
 	// every other tile still renders through CnDashTileWidget.
 	tile: TileHost,
+	// REQ-APPTILE-006: the retired app tile renders as the App or link tile in
+	// app mode, so an old placement (an import file, a template) still works.
+	'app-tile': TileHost,
 	// REQ-VID-006: a Nextcloud-file video is resolved for its viewer first.
 	video: VideoHost,
 }
@@ -205,6 +210,26 @@ const FORM_OVERRIDES = {
 	video: VideoWidgetForm,
 }
 
+/**
+ * Types no longer offered in the picker; their placements still render.
+ * `app-tile` is the App or link tile in app mode now (REQ-APPTILE-001).
+ *
+ * @type {string[]}
+ */
+export const RETIRED_TYPES = ['app-tile']
+
+// REQ-APPTILE-001: one widget, "App or link tile", in place of the App tile
+// and the link tile. It keeps the key `tile`: every link tile already is one.
+// New tiles start as a link with white text; the form chooses the mode.
+if (cnGetWidgetTypeEntry('tile')) {
+	const base = cnGetWidgetTypeEntry('tile')
+	registerDashboardWidget('tile', {
+		...base,
+		displayName: 'App or link tile',
+		defaultContent: { ...(base.defaultContent || {}), mode: 'link', textColour: 'white' },
+	})
+}
+
 // The shared bundle (beta.155) exports CnNcWidgetWidget but its self-
 // registration side-effect is absent from the published dist, so
 // `getWidgetTypeEntry('nc-widget')` resolves to null. That drops every existing
@@ -227,6 +252,29 @@ if (!cnGetWidgetTypeEntry('nc-widget')) {
 		icon: 'ViewDashboard',
 	})
 }
+
+// `tabs`: a container with tabs, each tab an inner grid like a well's
+// (layout-widgets-replace-multi-tile D1). The communal `tabs` type is a
+// detail-page widget over sibling definitions; a dashboard's Tabs holds its own
+// placements, so LaunchPad registers its own renderer and form for the type.
+registerDashboardWidget('tabs', {
+	renderer: TabsWidget,
+	form: TabsWidgetForm,
+	defaultContent: {
+		title: '',
+		tabs: [],
+	},
+	// The Add widget miniature draws two tabs (add-widget-dialog-with-miniatures).
+	sampleContent: {
+		tabs: [
+			{ id: 'sample-1', title: 'Team', placements: [] },
+			{ id: 'sample-2', title: 'Projects', placements: [] },
+		],
+	},
+	displayName: 'Tabs',
+	icon: 'TabPlus',
+	ownsTitle: true,
+})
 
 // `clock` — fully client-side ambient tile (REQ-CLOCK-001..003). Always
 // (re-)registered here since it is a LaunchPad-only type, never supplied by
@@ -619,12 +667,15 @@ export const widgetRegistry = Object.fromEntries(
 )
 
 /**
- * List every addable widget type for the app-dashboard surface.
+ * List every addable widget type for the app-dashboard surface: the
+ * registry without the retired types.
  *
+ * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
  * @return {string[]} the offerable type keys.
  */
 export function listWidgetTypes() {
-	return offerableTypes()
+	// REQ-APPTILE-001: a retired type renders but is not offered.
+	return offerableTypes().filter((type) => !RETIRED_TYPES.includes(type))
 }
 
 /**

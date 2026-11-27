@@ -139,7 +139,6 @@
 				:canConfigure="canConfigureActiveDashboard"
 				@setColumns="setGridColumns"
 				@addWidget="openWidgetModal"
-				@addTiles="openAddTilesModal"
 				@openSettings="openConfigModal"
 				@done="toggleEditMode"
 				@dock="editBarDock = $event" />
@@ -256,6 +255,7 @@
 							:linkTarget="(item.content && item.content.linkTarget) || null"
 							:defaultLinkTarget="(activeDashboard && activeDashboard.defaultLinkTarget) || null"
 							:removeLocked="!isRemovablePlacement(item)"
+							:embedHref="placementEmbedHref(item)"
 							@edit="openTileEditorForEdit(item)"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->
@@ -393,24 +393,18 @@
 			:initialFile="bookmarkInitialFile"
 			@close="isBookmarkImportOpen = false; bookmarkInitialFile = null" />
 
-		<!-- add-tiles-dialog REQ-TILE-043: Add tiles (board LpTegelToevoegen). -->
-		<AddTilesModal
-			v-if="mountedModals.addTiles"
-			:open="isAddTilesOpen"
+		<!-- app-link-tile-widget REQ-APPTILE-004: the App or link tile form;
+		     its "Choose the app" list replaced the Add tiles dialog. -->
+		<TileEditor
+			v-if="mountedModals.tileEditor"
+			:open="isTileEditorOpen"
+			:tile="editingTile"
 			:catalogueApps="catalogueApps"
 			:discoveredApps="discoveredApps"
 			:foundServices="foundServices"
 			:officeTiles="officeTiles"
 			:placements="widgetPlacements"
 			:requestAppFn="requestCatalogueApp"
-			:addTiles="addChosenTiles"
-			@importBookmarks="onAddTilesImportBookmarks"
-			@close="isAddTilesOpen = false" />
-
-		<TileEditor
-			v-if="mountedModals.tileEditor"
-			:open="isTileEditorOpen"
-			:tile="editingTile"
 			:dashboardName="(activeDashboard && activeDashboard.name) || ''"
 			:groupName="editingGroupTitle"
 			:groupSort="editingGroupSort"
@@ -418,6 +412,8 @@
 			:groups="tileEditorGroups"
 			@close="closeTileEditor"
 			@save="saveTile"
+			@addApps="addAppsFromForm"
+			@importBookmarks="onAddTilesImportBookmarks"
 			@delete="deleteTile" />
 
 		<!-- Widget right-click context menu (REQ-WDG-015..017). The
@@ -523,10 +519,9 @@ const DeleteDashboardDialog = defineAsyncComponent(() => import('../dialogs/Dele
 const ReadConfirmationDialog = defineAsyncComponent(() => import('../dialogs/ReadConfirmationDialog.vue'))
 const AcknowledgementReportModal = defineAsyncComponent(() => import('../modals/AcknowledgementReportModal.vue'))
 const BookmarkImportModal = defineAsyncComponent(() => import('../modals/BookmarkImportModal.vue'))
-const AddTilesModal = defineAsyncComponent(() => import('../modals/AddTilesModal.vue'))
 
 /** The content keys the tile form writes; every other key survives a save. */
-const TILE_FORM_CONTENT_KEYS = Object.freeze(['healthPingEnabled', 'healthUrl', 'expectedStatus', 'pingInterval', 'internalUrl', 'linkTarget', 'colourToken', 'remote', 'sso'])
+const TILE_FORM_CONTENT_KEYS = Object.freeze(['healthPingEnabled', 'healthUrl', 'expectedStatus', 'pingInterval', 'internalUrl', 'linkTarget', 'colourToken', 'remote', 'sso', 'mode', 'textColour', 'iconOnly', 'pinned'])
 const DashboardConfigModal = defineAsyncComponent(() => import('../modals/DashboardConfigModal.vue'))
 const TileEditor = defineAsyncComponent(() => import('../modals/TileEditor.vue'))
 const VisibilityRulesModal = defineAsyncComponent(() => import('../modals/VisibilityRulesModal.vue'))
@@ -571,6 +566,7 @@ import { hiddenWidgetTitle, isPhoneReady, isPhoneWidth, phoneHiddenPlacements } 
 import { dialogReturnFocus, restoreLostFocus } from '../utils/returnFocus.js'
 import { parseServerStamp } from '../utils/serverStamp.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
+import { appTileAsTileContent, RETIRED_APP_TILE, tileMode } from '../utils/tileMode.js'
 import { busNotices } from '../utils/widgetBusNotices.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
@@ -600,6 +596,63 @@ function barePath(path) {
 export function isTilePlacement(placement) {
 	const id = String(placement?.widgetId ?? '')
 	return id === 'tile' || id === 'app-tile' || id.startsWith('tile-') || Boolean(placement?.tileType)
+}
+
+/**
+ * Whether a placement is an App or link tile in app mode (or a retired app
+ * tile), which the tile form edits.
+ *
+ * @param {object} placement The placement.
+ * @return {boolean}
+ * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+ */
+export function isAppModeTile(placement) {
+	const id = placement?.widgetId
+	return id === RETIRED_APP_TILE || (id === 'tile' && tileMode(placement?.content) === 'app')
+}
+
+/**
+ * The tile form's data for an app-mode tile.
+ *
+ * @param {object} placement The placement.
+ * @return {object} The form data.
+ * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+ */
+export function appTileFormData(placement) {
+	const content = appTileAsTileContent(placement?.content)
+	return {
+		id: placement.id,
+		mode: 'app',
+		appId: content.appId || '',
+		title: placement.customTitle || content.appId || '',
+		colourToken: content.colourToken || '',
+		textColour: content.textColour || '',
+		showCount: content.showCount !== false,
+		pinned: content.pinned === true,
+		iconOnly: content.iconOnly === true,
+	}
+}
+
+/**
+ * The content a link tile stores from the form: its mode, text colour, what
+ * is on it and its pin.
+ *
+ * @param {object} fields The form's fields or appearance.
+ * @return {object} The content fields.
+ * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+ */
+export function linkTileContent(fields) {
+	const content = { mode: 'link', textColour: fields?.textColour || 'white' }
+	if (fields?.colourToken) {
+		content.colourToken = fields.colourToken
+	}
+	if (fields?.iconOnly === true) {
+		content.iconOnly = true
+	}
+	if (fields?.pinned === true) {
+		content.pinned = true
+	}
+	return content
 }
 
 /**
@@ -712,7 +765,6 @@ export default {
 		WidgetPickerModal,
 		CnWidgetStyleEditorModal,
 		BookmarkImportModal,
-		AddTilesModal,
 		TileEditor,
 		DashboardConfigModal,
 		CnAddWidgetModal,
@@ -942,7 +994,6 @@ export default {
 			isTileEditorOpen: false,
 			isBookmarkImportOpen: false,
 			bookmarkInitialFile: null,
-			isAddTilesOpen: false,
 			officeTiles: [],
 			editingTile: null,
 			// REQ-TILE-041: `{containerId, index}` of the tile in a group the
@@ -1063,7 +1114,6 @@ export default {
 				widgetPicker: this.isWidgetModalOpen,
 				config: this.isConfigModalOpen,
 				bookmarkImport: this.isBookmarkImportOpen,
-				addTiles: this.isAddTilesOpen,
 				tileEditor: this.isTileEditorOpen,
 				movePanel: this.movePanelOpen,
 				visibility: this.isVisibilityModalOpen,
@@ -2594,6 +2644,11 @@ export default {
 			// `custom` tiles are handled earlier via TileEditor (isTilePlacement).
 			// Stock Nextcloud-widget placements still have no registry entry and
 			// fall through to the legacy style editor.
+			// REQ-APPTILE-004: an App or link tile in app mode opens the tile form.
+			if (isAppModeTile(placement)) {
+				this.openTileEditor(appTileFormData(placement))
+				return
+			}
 			const resolvedType = this.resolveWidgetType(placement)
 			if (resolvedType) {
 				this.openCustomWidgetEdit({ ...placement, type: resolvedType })
@@ -2872,14 +2927,19 @@ export default {
 		},
 
 		/**
-		 * Open Add tiles with the catalogue, the found apps and the office
-		 * pack loaded; a list that fails to load leaves its section empty.
+		 * Open the App or link tile form for a new tile, with the catalogue,
+		 * the found apps and services and the office pack loaded for its
+		 * "Choose the app" list; a list that fails to load stays empty. It
+		 * replaces the former Add tiles dialog.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		async openAddTilesModal() {
-			this.isAddTilesOpen = true
+			await this.openTileEditor(null)
+			if (!this.isTileEditorOpen) {
+				return
+			}
 			await Promise.all([
 				this.loadDiscoveredApps(),
 				this.loadFoundServices(),
@@ -2923,21 +2983,40 @@ export default {
 		},
 
 		/**
-		 * Place the tiles chosen in Add tiles, one after the other so each
-		 * lands below the last: a found app as its own app tile, the rest as
-		 * ordinary tiles.
+		 * Place the tiles chosen in the tile form, one after the other so each
+		 * lands below the last: an app as an App or link tile in app mode, the
+		 * rest as link tiles, all with the form's appearance.
 		 *
 		 * @param {Array<{kind: string, tile: object}>} choices The chosen tiles.
+		 * @param {object} [appearance] Tile colour, text colour, count, pin.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
-		async addChosenTiles(choices) {
+		async addChosenTiles(choices, appearance = {}) {
 			for (const choice of choices) {
-				if (choice.kind === 'app-tile') {
-					await this.addWidgetToDashboard(appTileFromDiscoveredApp(choice.tile))
+				if (choice.kind === 'app') {
+					await this.addWidgetToDashboard(appTileFromDiscoveredApp(choice.tile, appearance))
 				} else {
-					await this.addTileToDashboard(choice.tile)
+					await this.createTile(choice.tile, linkTileContent(appearance))
 				}
+			}
+		},
+
+		/**
+		 * The tile form's "An app" result: one tile per ticked app, then close
+		 * the form. A failure says so and keeps the form open.
+		 *
+		 * @param {{choices: Array<object>, appearance: object}} result The ticked apps and the appearance.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 */
+		async addAppsFromForm({ choices = [], appearance = {} } = {}) {
+			try {
+				await this.addChosenTiles(choices, appearance)
+				this.closeTileEditor()
+			} catch (error) {
+				logger.error('[Views] Failed to add the chosen apps:', error)
+				showError(t('launchpad', 'The tiles could not be added.'))
 			}
 		},
 
@@ -2948,7 +3027,7 @@ export default {
 		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		onAddTilesImportBookmarks(file) {
-			this.isAddTilesOpen = false
+			this.closeTileEditor()
 			this.bookmarkInitialFile = file
 			this.isBookmarkImportOpen = true
 		},
@@ -2991,6 +3070,11 @@ export default {
 		 */
 		async onPickCustomWidget(type) {
 			this.closeWidgetModal()
+			// REQ-APPTILE-004: the App or link tile opens its own form.
+			if (type === 'tile') {
+				await this.openAddTilesModal()
+				return
+			}
 			await this.openCustomWidgetModal(null, type)
 		},
 
@@ -3364,6 +3448,11 @@ export default {
 				linkTarget: content.linkTarget || '',
 				// icon-only-app-tiles REQ-ICT-004: the theme colour token.
 				colourToken: content.colourToken || '',
+				// app-link-tile-widget REQ-APPTILE-005: the text colour and what is on the tile.
+				mode: 'link',
+				textColour: content.textColour || '',
+				iconOnly: content.iconOnly === true,
+				pinned: content.pinned === true,
 				// launcher-tile-launch-types: remote-desktop and sso settings.
 				...(isLaunchType(placement.tileLinkType) ? launchFields(content) : {}),
 			}
@@ -3451,6 +3540,10 @@ export default {
 		 * @spec openspec/specs/service-health-ping/spec.md
 		 */
 		async saveTile(tileData) {
+			if (tileData.mode === 'app' && this.editingTile?.id) {
+				await this.saveAppTile(tileData)
+				return
+			}
 			if (this.editingGroupTile) {
 				await this.saveGroupTile(tileData)
 				return
@@ -3474,6 +3567,9 @@ export default {
 			if (tileData.colourToken) {
 				healthPingContent.colourToken = tileData.colourToken
 			}
+			// app-link-tile-widget REQ-APPTILE-004, -005: a link tile with its
+			// text colour, what is on it and its pin.
+			Object.assign(healthPingContent, linkTileContent(tileData))
 			// launcher-tile-launch-types: a remote-desktop or sso tile keeps its
 			// settings in the same blob, checked by the server with the link.
 			// What the form does not edit (icon-only, pin, count source) stays.
@@ -3497,6 +3593,33 @@ export default {
 				} else {
 					await this.createTile(tileData, content)
 				}
+				this.closeTileEditor()
+			} catch (error) {
+				this.reportTileSaveError(tileData, error)
+			}
+		},
+
+		/**
+		 * Save the appearance of an App or link tile in app mode: its colours,
+		 * what is on it and its pin; the app stays.
+		 *
+		 * @param {object} tileData The tile form's result.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 */
+		async saveAppTile(tileData) {
+			const placement = (this.widgetPlacements || []).find((candidate) => candidate.id === this.editingTile.id)
+			const content = {
+				...(placement?.content || {}),
+				mode: 'app',
+				colourToken: tileData.colourToken || '',
+				textColour: tileData.textColour || 'white',
+				showCount: tileData.showCount !== false,
+				pinned: tileData.pinned === true,
+				iconOnly: tileData.iconOnly === true,
+			}
+			try {
+				await this.updateWidgetPlacement(this.editingTile.id, { content })
 				this.closeTileEditor()
 			} catch (error) {
 				this.reportTileSaveError(tileData, error)
@@ -3558,7 +3681,10 @@ export default {
 			// the health-ping block (and the office-network address,
 			// launcher-tile-internal-address REQ-TIA-002, and the link target)
 			// with a follow-up patch only when the author actually set one.
-			if (newPlacement?.id && (content.healthPingEnabled || content.internalUrl || content.linkTarget || content.colourToken)) {
+			// app-link-tile-widget REQ-APPTILE-005: also a text colour other than
+			// white, an icon-only tile or a pin.
+			const looks = (content.textColour && content.textColour !== 'white') || content.iconOnly || content.pinned
+			if (newPlacement?.id && (content.healthPingEnabled || content.internalUrl || content.linkTarget || content.colourToken || looks)) {
 				await this.updateWidgetPlacement(newPlacement.id, {
 					content,
 				})

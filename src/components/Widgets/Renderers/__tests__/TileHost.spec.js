@@ -14,6 +14,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@conduction/nextcloud-vue', () => ({
 	CnDashTileWidget: { name: 'CnDashTileWidget', props: ['content', 'placement', 'canEdit'], template: '<div class="cn-tile" />' },
+	CnAppTileWidget: { name: 'CnAppTileWidget', props: ['content', 'placement'], template: '<div class="cn-app-tile" />' },
 }))
 vi.mock('../../../TileWidget.vue', () => ({
 	default: { name: 'TileWidget', props: ['tile', 'editMode'], template: '<div class="lp-tile" />' },
@@ -48,5 +49,35 @@ describe('TileHost', () => {
 		expect(shared.props('content')).toEqual(content)
 		expect(shared.props('placement')).toEqual(placement)
 		expect(shared.props('canEdit')).toBe(true)
+	})
+
+	// app-link-tile-widget REQ-APPTILE-002, -005, -006.
+	it('renders an app-mode tile through the shared app tile in its text colour', () => {
+		const content = { mode: 'app', appId: 'files', colourToken: '--sc-work-field', textColour: '--sc-primary-deep' }
+		const wrapper = mount(TileHost, { props: { content, placement: { id: 5, widgetId: 'tile' } } })
+
+		const app = wrapper.findComponent({ name: 'CnAppTileWidget' })
+		expect(wrapper.findComponent({ name: 'CnDashTileWidget' }).exists()).toBe(false)
+		expect(app.props('content')).toMatchObject({ appId: 'files', colour: 'work-field' })
+		expect(wrapper.find('[data-testid="tile-host-app"]').attributes('style')).toContain('--lp-tile-text: var(--sc-primary-deep, #234a78)')
+	})
+
+	it('draws an app tile without a text colour in white', () => {
+		const wrapper = mount(TileHost, { props: { content: { mode: 'app', appId: 'deck' } } })
+
+		expect(wrapper.find('[data-testid="tile-host-app"]').attributes('style')).toContain('--lp-tile-text: #ffffff')
+	})
+
+	it('renders a retired app tile as an app-mode tile', () => {
+		const wrapper = mount(TileHost, { props: { content: { appId: 'mail', colour: 'accent' }, placement: { id: 6, widgetId: 'app-tile' } } })
+
+		expect(wrapper.findComponent({ name: 'CnAppTileWidget' }).props('content')).toMatchObject({ mode: 'app', appId: 'mail', colour: 'accent' })
+	})
+
+	it('gives a link tile its stored text colour', () => {
+		const content = { mode: 'link', title: 'Intranet', linkType: 'url', linkValue: 'https://intranet.example.org', textColour: 'black' }
+		const wrapper = mount(TileHost, { props: { content, placement: { id: 7 } } })
+
+		expect(wrapper.findComponent({ name: 'CnDashTileWidget' }).props('content')).toEqual({ ...content, textColor: '#000000' })
 	})
 })

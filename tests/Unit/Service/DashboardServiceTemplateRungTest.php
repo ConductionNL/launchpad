@@ -240,7 +240,12 @@ class DashboardServiceTemplateRungTest extends TestCase {
 		self::assertSame('copy-1', $first['api'], 'the grid must load the dashboard the page chose');
 		self::assertSame(Dashboard::PERMISSION_ADD_ONLY, $first['apiPermission']);
 		self::assertSame(1, $this->copiesMade);
-		self::assertSame('copy-1', $this->prefs[DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY]);
+		self::assertSame(
+			expected: 'copy-1',
+			actual: $this->prefs[DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY],
+			message: 'the copy is stored as the start dashboard'
+		);
+		self::assertArrayNotHasKey(key: DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY, array: $this->prefs);
 	}
 
 	/**
@@ -285,6 +290,7 @@ class DashboardServiceTemplateRungTest extends TestCase {
 		self::assertSame(Dashboard::PERMISSION_VIEW_ONLY, $first['apiPermission']);
 		self::assertSame(0, $this->copiesMade);
 		self::assertArrayNotHasKey(DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY, $this->prefs);
+		self::assertArrayNotHasKey(key: DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY, array: $this->prefs);
 	}
 
 	public function testTheDefaultTemplateReplacesTheSeededDashboard(): void {
@@ -340,9 +346,17 @@ class DashboardServiceTemplateRungTest extends TestCase {
 		self::assertSame('my-own', $visit['api'], 'unchanged: the API returns the active personal dashboard');
 	}
 
-	public function testASavedChoiceIsKept(): void {
+	/**
+	 * A chosen start dashboard (Set as default) counts as "already using
+	 * launchpad": no template, no copy.
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/admin-templates/spec.md
+	 *
+	 * @return void
+	 */
+	public function testAChosenStartDashboardIsKept(): void {
 		$this->seedEveryoneDashboard();
-		$this->prefs[DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY] = 'seeded-everyone';
+		$this->prefs[DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY] = 'seeded-everyone';
 		$this->template = $this->template(['behandelaars']);
 
 		$visit = $this->openLaunchpad();
@@ -350,6 +364,27 @@ class DashboardServiceTemplateRungTest extends TestCase {
 		self::assertSame('seeded-everyone', $visit['page']);
 		self::assertSame('seeded-everyone', $visit['api']);
 		self::assertSame(0, $this->copiesMade);
+	}
+
+	/**
+	 * The dashboard looked at last does not count: a member who only
+	 * visited another dashboard still gets the template on the next visit
+	 * to `/apps/launchpad/`.
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/admin-templates/spec.md
+	 *
+	 * @return void
+	 */
+	public function testTheLastUsedDashboardDoesNotCount(): void {
+		$this->seedEveryoneDashboard();
+		$this->prefs[DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY] = 'seeded-everyone';
+		$this->template = $this->template(targetGroups: ['behandelaars']);
+
+		$visit = $this->openLaunchpad();
+
+		self::assertSame(expected: 'copy-1', actual: $visit['page']);
+		self::assertSame(expected: 'copy-1', actual: $visit['api']);
+		self::assertSame(expected: 1, actual: $this->copiesMade);
 	}
 
 	public function testWithoutAnApplicableTemplateNothingChanges(): void {

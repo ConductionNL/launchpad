@@ -59,7 +59,7 @@ import {
 	allowPersonalDashboardsFreely,
 	createGroupDashboard,
 	removeGroupDashboards,
-	setActivePreference,
+	setStartDashboard,
 	writeSettings,
 } from './support/dashboardsSpec.ts'
 import { downloadFromMore } from './support/dashboardSwitcher.ts'
@@ -257,7 +257,7 @@ async function headerOf(page: Page, name: string): Promise<Locator> {
  * @return its header.
  */
 async function open(page: Page, dashboard: { uuid: string; name: string; slug?: string }, search = ''): Promise<Locator> {
-	await setActivePreference(reader!.api, dashboard.uuid)
+	await setStartDashboard(reader!.api, dashboard.uuid)
 	// Pieter's pinned default wins over the active preference on the bare
 	// start page, so any other dashboard is opened by its address.
 	const slug = dashboard.uuid === workplace?.uuid ? '' : (dashboard.slug ?? '')

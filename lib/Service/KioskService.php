@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
+use InvalidArgumentException;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\KioskPlaylist;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
@@ -128,20 +129,12 @@ class KioskService {
 			callerId: $callerId
 		);
 
-		$playlist = new KioskPlaylist();
-		// phpcs:disable CustomSn.Functions.NamedParameters -- Entity magic __call breaks with named args.
-		$playlist->setName($draft->name);
-		$playlist->setToken(
-			$this->secureRandom->generate(
-				length: 64,
-				characters: ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_DIGITS
-			)
+		$playlist = $this->newPlaylist(
+			name: $draft->name,
+			entries: $normalised,
+			refresh: $this->clampRefresh(refresh: $draft->refresh),
+			callerId: $callerId
 		);
-		$playlist->setEntries((string)json_encode($normalised));
-		$playlist->setRefreshSeconds($this->clampRefresh(refresh: $draft->refresh));
-		$playlist->setCreatedBy($callerId);
-		$playlist->setCreatedAt((new DateTime())->format('Y-m-d H:i:s'));
-		// phpcs:enable CustomSn.Functions.NamedParameters
 
 		$saved = $this->stores->playlistMapper->insert(entity: $playlist);
 
@@ -152,6 +145,38 @@ class KioskService {
 
 		return $saved;
 	}//end createPlaylist()
+
+	/**
+	 * A new, unsaved playlist with a fresh 64-character token, its creator
+	 * and its creation time; the entries are stored as given.
+	 *
+	 * @param string                                                    $name     The playlist name.
+	 * @param array<int, array{dashboardUuid: string, dwellSeconds: int}> $entries  Validated entries.
+	 * @param int                                                       $refresh  Refresh interval in seconds.
+	 * @param string                                                    $callerId The creator.
+	 *
+	 * @return KioskPlaylist The unsaved playlist.
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
+	 */
+	public function newPlaylist(string $name, array $entries, int $refresh, string $callerId): KioskPlaylist {
+		$playlist = new KioskPlaylist();
+		// phpcs:disable CustomSn.Functions.NamedParameters -- Entity magic __call breaks with named args.
+		$playlist->setName($name);
+		$playlist->setToken(
+			$this->secureRandom->generate(
+				length: 64,
+				characters: ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_DIGITS
+			)
+		);
+		$playlist->setEntries((string)json_encode($entries));
+		$playlist->setRefreshSeconds($refresh);
+		$playlist->setCreatedBy($callerId);
+		$playlist->setCreatedAt((new DateTime())->format('Y-m-d H:i:s'));
+		// phpcs:enable CustomSn.Functions.NamedParameters
+
+		return $playlist;
+	}//end newPlaylist()
 
 	/**
 	 * Update an existing kiosk playlist.
@@ -168,11 +193,18 @@ class KioskService {
 	 *
 	 * @throws PlaylistNotFoundException When the playlist does not exist or is revoked.
 	 * @throws OCSForbiddenException When the caller may not edit it or share a dashboard.
+	 * @throws InvalidArgumentException When the playlist is a screen link (HTTP 400).
 	 *
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
 	 */
 	public function updatePlaylist(int $id, KioskPlaylistDraft $draft, string $callerId): KioskPlaylist {
 		$playlist = $this->resolveOwnedPlaylist(id: $id, callerId: $callerId);
+
+		// REQ-KIOSK-006: a screen link shows its one dashboard; it does not grow into a rotation.
+		if ($playlist->getScreenDashboardUuid() !== null) {
+			throw new InvalidArgumentException(message: 'A screen link cannot be edited.');
+		}
 
 		$normalised = $this->validateAndNormaliseEntries(
 			entries: $draft->entries,

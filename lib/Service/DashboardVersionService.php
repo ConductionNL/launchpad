@@ -224,6 +224,79 @@ class DashboardVersionService {
 	}//end stateBeforeUpdate()
 
 	/**
+	 * Run a save and write its version in one transaction (REQ-VERS-010,
+	 * REQ-VERS-011).
+	 *
+	 * Every successful save of edit mode or of the dashboard settings makes
+	 * exactly one automatic version of the whole dashboard as it is after the
+	 * save, with no debounce. A dashboard without versions first gets a
+	 * version of the state before the save, so there is always something to
+	 * restore. When the save or the version write fails, both are rolled
+	 * back: a refused or failed save leaves no version.
+	 *
+	 * @param int      $dashboardId The dashboard being saved.
+	 * @param string   $createdBy   The acting user ID.
+	 * @param \Closure $save        Runs the save and returns the saved Dashboard.
+	 *
+	 * @return Dashboard The saved dashboard.
+	 *
+	 * @throws Throwable The save's or the version write's failure, after the rollback.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-the-first-version-keeps-the-state-before-the-change-req-vers-011
+	 */
+	public function saveWithVersion(int $dashboardId, string $createdBy, \Closure $save): Dashboard {
+		$before = $this->stateBeforeUpdate(dashboardId: $dashboardId);
+
+		$this->stores->db?->beginTransaction();
+		try {
+			$after = $save();
+			$this->captureSaved(after: $after, before: $before, createdBy: $createdBy);
+			$this->stores->db?->commit();
+		} catch (Throwable $t) {
+			$this->stores->db?->rollBack();
+			throw $t;
+		}
+
+		return $after;
+	}//end saveWithVersion()
+
+	/**
+	 * Write the versions of one save: the state before it when the dashboard
+	 * has no versions yet, then the state after it. Neither is debounced.
+	 *
+	 * @param Dashboard  $after     The dashboard as saved.
+	 * @param array|null $before    {@see self::stateBeforeUpdate()} of the dashboard, or null.
+	 * @param string     $createdBy The acting user ID.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-the-first-version-keeps-the-state-before-the-change-req-vers-011
+	 */
+	private function captureSaved(Dashboard $after, ?array $before, string $createdBy): void {
+		$uuid = (string)$after->getUuid();
+		if ($uuid === '' || $this->isGroupfolderBacked(dashboard: $after) === true) {
+			return;
+		}
+
+		$automatic = ['note' => null, 'explicit' => false];
+		if ($before !== null && $this->stores->versionMapper->findMaxVersionNumber(dashboardUuid: $uuid) === 0) {
+			$first = $this->newVersion(
+				dashboard: $before['dashboard'],
+				options: $automatic + ['snapshotJson' => $before['snapshotJson']]
+			);
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$first->setCreatedBy($createdBy);
+			$this->insertVersion(entity: $first);
+		}
+
+		$version = $this->newVersion(dashboard: $after, options: $automatic + ['snapshotJson' => null]);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$version->setCreatedBy($createdBy);
+		$this->insertVersion(entity: $version);
+	}//end captureSaved()
+
+	/**
 	 * The next version row of a dashboard, not yet persisted and without
 	 * its author.
 	 *

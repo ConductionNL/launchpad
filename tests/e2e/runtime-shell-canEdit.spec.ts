@@ -124,7 +124,7 @@ test.describe('REQ-SHELL-014: the dashboards are reached through More', () => {
 			const body = await created.json()
 			const dash = body.dashboard ?? body.data?.dashboard ?? body
 			openId = Number(dash.id)
-			const active = await api.post('/index.php/apps/launchpad/api/dashboards/active', {
+			const active = await api.post('/index.php/apps/launchpad/api/dashboards/default', {
 				data: { uuid: dash.uuid },
 			})
 			expect(active.status(), await active.text()).toBeLessThan(300)

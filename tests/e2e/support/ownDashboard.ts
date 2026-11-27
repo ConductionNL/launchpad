@@ -112,7 +112,7 @@ export async function setUpOwnDashboard(
 	).toBeLessThan(300)
 	expect(
 		(
-			await owner.api.post(`${API}/dashboards/active`, {
+			await owner.api.post(`${API}/dashboards/default`, {
 				data: { uuid: dash.uuid },
 			})
 		).status(),

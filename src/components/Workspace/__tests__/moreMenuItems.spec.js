@@ -29,8 +29,7 @@ import {
 
 const ENTRIES = [
 	{ id: 'dashboards', label: 'Dashboards', route: 'Workspace' },
-	{ id: 'admin-templates', label: 'Templates', route: 'admin-templates-index', section: 'settings' },
-	{ id: 'admin-settings', label: 'Admin settings', route: 'admin-settings', section: 'settings' },
+	{ id: 'admin-templates', label: 'Templates', href: '/index.php/settings/admin/launchpad#templates', section: 'settings' },
 	{ id: 'FlowsMenu', label: 'Flows', route: 'Flows', section: 'settings' },
 	{ id: 'Documentation', label: 'Documentation', href: 'https://launchpad.conduction.nl', section: 'footer' },
 	{ id: 'StoreMenu', label: 'Marketplace', route: 'Store', section: 'footer' },

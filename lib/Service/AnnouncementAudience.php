@@ -59,7 +59,7 @@ class AnnouncementAudience {
 	 *
 	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
-	public function of(Announcement $announcement): array {
+	public function members(Announcement $announcement): array {
 		$members = [];
 		$targets = $announcement->getTargetGroupList();
 		if ($targets === []) {
@@ -81,5 +81,5 @@ class AnnouncementAudience {
 		sort($audience);
 
 		return $audience;
-	}//end of()
+	}//end members()
 }//end class

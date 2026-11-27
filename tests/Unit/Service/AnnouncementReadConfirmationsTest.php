@@ -142,16 +142,24 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 */
 	public function testTheXConfirmsAndMarksSeen(): void {
 		$this->annaReads();
-		$this->receipts->method('findOne')->willReturn(null);
-		$this->receipts->expects($this->once())->method('insert')->with(
-			$this->callback(static fn (AnnouncementReceipt $receipt): bool => $receipt->getConfirmedVia() === 'x' && $receipt->getSeenAt() !== null && $receipt->getUserId() === 'anna')
-		)->willReturnArgument(0);
+		$stored = [];
+		$receipts = $this->createMock(originalClassName: AnnouncementReceiptMapper::class);
+		$receipts->method('findOne')->willReturn(null);
+		$receipts->expects($this->once())->method('insert')->willReturnCallback(
+			static function (AnnouncementReceipt $receipt) use (&$stored): AnnouncementReceipt {
+				$stored[] = $receipt;
+				return $receipt;
+			}
+		);
+		$this->receipts = $receipts;
 
 		$answer = $this->service()->confirm(userId: 'anna', uuid: self::UUID, via: 'x');
 
 		$this->assertTrue(condition: $answer['confirmed']);
 		$this->assertSame(expected: 'x', actual: $answer['confirmedVia']);
 		$this->assertNotNull(actual: $answer['confirmedAt']);
+		$this->assertSame(expected: 'anna', actual: $stored[0]->getUserId());
+		$this->assertNotNull(actual: $stored[0]->getSeenAt());
 	}//end testTheXConfirmsAndMarksSeen()
 
 	/**
@@ -219,7 +227,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 		$receipts->method('insert')->willThrowException($exception);
 		$this->receipts = $receipts;
 
-		$this->expectException(DbException::class);
+		$this->expectException(exception: DbException::class);
 		$this->service()->confirm(userId: 'anna', uuid: self::UUID);
 	}//end testAnotherDatabaseErrorIsThrown()
 
@@ -233,12 +241,12 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 
 		try {
 			$this->service()->confirm(userId: 'anna', uuid: self::UUID, via: 'thumbs-up');
-			$this->fail('An unknown kind must be refused');
+			$this->fail(message: 'An unknown kind must be refused');
 		} catch (InvalidArgumentException) {
-			$this->addToAssertionCount(1);
+			$this->addToAssertionCount(count: 1);
 		}
 
-		$this->expectException(InvalidArgumentException::class);
+		$this->expectException(exception: InvalidArgumentException::class);
 		$this->service()->confirm(userId: 'anna', uuid: self::UUID);
 	}//end testAnUnknownKindOrADraftIsRefused()
 
@@ -252,7 +260,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 		$this->announcements->method('reachesUser')->with(['Medewerkers'], 'sanne')->willReturn(false);
 		$this->receipts->expects($this->never())->method('insert');
 
-		$this->expectException(ForbiddenException::class);
+		$this->expectException(exception: ForbiddenException::class);
 		$this->service()->confirm(userId: 'sanne', uuid: self::UUID);
 	}//end testAReaderOutsideTheAudienceIsRefused()
 
@@ -287,7 +295,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 
 		$this->assertSame(expected: [], actual: $this->service()->markSeen(userId: 'anna', uuids: []));
 
-		$this->expectException(InvalidArgumentException::class);
+		$this->expectException(exception: InvalidArgumentException::class);
 		$this->service()->markSeen(userId: 'anna', uuids: array_map(static fn (int $n): string => 'u'.$n, range(1, 101)));
 	}//end testSeenBatchLimits()
 

@@ -9,7 +9,7 @@
  * - POST /api/announcements/{uuid}/confirm   the check or the x (`via`), once
  * - POST /api/announcements/{uuid}/read      the check (kept for older clients)
  * - GET  /api/announcements/{uuid}/receipts  Seen and confirmed, for managers
- * - POST /api/announcements/{uuid}/remind    Send reminder, for managers, once a day
+ * - GET  /api/announcements/receipt-counts   seen and confirmed per announcement, for the tab's list
  *
  * @category Controller
  * @package  OCA\LaunchPad\Controller
@@ -33,7 +33,6 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\AnnouncementReceipt;
 use OCA\LaunchPad\Service\AnnouncementReadConfirmations;
 use OCA\LaunchPad\Service\AnnouncementReceiptReport;
-use OCA\LaunchPad\Service\ReadReceiptPeople;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCA\LaunchPad\Settings\LaunchPadAnnouncementsAdmin;
@@ -57,14 +56,12 @@ class AnnouncementReadController extends Controller {
 	 * @param IRequest                      $request       The request.
 	 * @param AnnouncementReadConfirmations $confirmations The reader's receipts.
 	 * @param AnnouncementReceiptReport     $report        Seen and confirmed for managers.
-	 * @param ReadReceiptPeople             $people        Names and departments on the report rows.
 	 * @param RequestGuard                  $guard         The session user and the action check.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly AnnouncementReadConfirmations $confirmations,
 		private readonly AnnouncementReceiptReport $report,
-		private readonly ReadReceiptPeople $people,
 		private readonly RequestGuard $guard,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
@@ -164,31 +161,31 @@ class AnnouncementReadController extends Controller {
 	public function receipts(string $uuid): JSONResponse {
 		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(
 			run: fn (string $userId): JSONResponse => new JSONResponse(
-				$this->people->withPeople(
-					report: $this->report->report(userId: $userId, uuid: $uuid),
-					viewerId: $userId
-				)
+				$this->report->report(userId: $userId, uuid: $uuid)
 			)
 		);
 	}//end receipts()
 
 	/**
-	 * POST /api/announcements/{uuid}/remind: Send reminder to everyone in
-	 * the audience who has not confirmed; managers only, once a day.
+	 * GET /api/announcements/receipt-counts: per announcement of `uuids`,
+	 * how many have seen and confirmed it; managers only (REQ-ANN-008).
 	 *
-	 * @param string $uuid The announcement.
-	 *
-	 * @return JSONResponse `{uuid, sent, remindedAt}`, or 400 / 403 / 404.
+	 * @return JSONResponse `{counts: {uuid: {seen, confirmed}}}`.
 	 *
 	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
 	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
-	public function remind(string $uuid): JSONResponse {
+	public function counts(): JSONResponse {
+		$uuids = $this->request->getParam(key: 'uuids', default: []);
+		if (is_array($uuids) === false) {
+			$uuids = [];
+		}
+
+		$uuids = array_slice(array_values(array_map('strval', $uuids)), 0, 500);
+
 		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(
-			run: fn (string $userId): JSONResponse => new JSONResponse(
-				$this->report->remind(userId: $userId, uuid: $uuid)
-			)
+			run: fn (): JSONResponse => new JSONResponse(['counts' => (object) $this->report->countsFor(uuids: $uuids)])
 		);
-	}//end remind()
+	}//end counts()
 }//end class

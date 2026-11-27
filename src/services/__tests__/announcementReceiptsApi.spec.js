@@ -57,6 +57,15 @@ describe('announcement receipts client', () => {
 		expect(post).not.toHaveBeenCalled()
 	})
 
+	it('asks the list counts once, and nothing for an empty list', async () => {
+		get.mockResolvedValue({ data: { counts: { a: { seen: 1, confirmed: 0 } } } })
+
+		expect(await announcementsApi.receiptCounts(['a'])).toEqual({ a: { seen: 1, confirmed: 0 } })
+		expect(get).toHaveBeenCalledWith(`${BASE}/receipt-counts`, { params: { uuids: ['a'] } })
+		expect(await announcementsApi.receiptCounts([])).toEqual({})
+		expect(get).toHaveBeenCalledTimes(1)
+	})
+
 	it('reads Seen and confirmed and sends a reminder', async () => {
 		get.mockResolvedValue({ data: { seenCount: 1 } })
 		post.mockResolvedValue({ data: { uuid: 'a', sent: 3 } })

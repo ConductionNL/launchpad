@@ -54,7 +54,7 @@ use OCP\Notification\UnknownNotificationException;
  *   {@see \OCA\LaunchPad\Service\AnnouncementFollowNotifier} to the followers
  *   of a category when an announcement in it becomes visible (REQ-ANN-003).
  * - `announcement_reminder` — sent by
- *   {@see \OCA\LaunchPad\Service\AnnouncementReceiptReport} on Send reminder to
+ *   {@see \OCA\LaunchPad\Service\AnnouncementReminder} on Send reminder to
  *   every reader who has not confirmed an announcement (REQ-ANN-009).
  */
 class Notifier implements INotifier {

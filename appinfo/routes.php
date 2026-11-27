@@ -329,6 +329,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'announcementRead#state', 'url' => '/api/announcements/read-state', 'verb' => 'GET'],
 		// REQ-ANN-009: the announcements that came into view, batched after render.
 		['name' => 'announcementRead#seen', 'url' => '/api/announcements/seen', 'verb' => 'POST'],
+		// REQ-ANN-008: seen and confirmed per announcement on the tab's list; managers only.
+		['name' => 'announcementRead#counts', 'url' => '/api/announcements/receipt-counts', 'verb' => 'GET'],
 		['name' => 'announcement#follow', 'url' => '/api/announcements/follows', 'verb' => 'POST'],
 		['name' => 'announcement#unfollow', 'url' => '/api/announcements/follows/{category}', 'verb' => 'DELETE'],
 		['name' => 'announcement#show',
@@ -364,7 +366,7 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'announcementRead#confirmVia',
 		 'url' => '/api/announcements/{uuid}/confirm', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
-		['name' => 'announcementRead#remind',
+		['name' => 'announcementReminder#remind',
 		 'url' => '/api/announcements/{uuid}/remind', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
 		['name' => 'announcement#unlike',

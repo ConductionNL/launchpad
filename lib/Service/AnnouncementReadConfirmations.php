@@ -239,45 +239,55 @@ class AnnouncementReadConfirmations {
 	 * @throws DbException When the write fails for another reason.
 	 */
 	private function store(?AnnouncementReceipt $receipt, string $uuid, string $userId, ?string $via): AnnouncementReceipt {
-		$now = new DateTime();
-		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		// Entity setters resolve via __call which forwards $args[0].
 		if ($receipt !== null) {
-			if ($receipt->getSeenAt() === null) {
-				$receipt->setSeenAt($now);
-			}
-
-			if ($via !== null) {
-				$receipt->setConfirmedAt($now);
-				$receipt->setConfirmedVia($via);
-			}
-
-			return $this->receipts->update(entity: $receipt);
+			return $this->receipts->update(entity: self::stamp(receipt: $receipt, via: $via));
 		}
 
 		$receipt = new AnnouncementReceipt();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		// Entity setters resolve via __call which forwards $args[0].
 		$receipt->setAnnouncementUuid($uuid);
 		$receipt->setUserId($userId);
-		$receipt->setSeenAt($now);
-		if ($via !== null) {
-			$receipt->setConfirmedAt($now);
-			$receipt->setConfirmedVia($via);
-		}
-
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		try {
-			return $this->receipts->insert(entity: $receipt);
+			return $this->receipts->insert(entity: self::stamp(receipt: $receipt, via: $via));
 		} catch (DbException $exception) {
 			$winner = $this->receipts->findOne(uuid: $uuid, userId: $userId);
 			if ($exception->getReason() !== DbException::REASON_UNIQUE_CONSTRAINT_VIOLATION || $winner === null) {
 				throw $exception;
 			}
 
-			if ($via !== null && $winner->getConfirmedAt() === null) {
-				return $this->store(receipt: $winner, uuid: $uuid, userId: $userId, via: $via);
+			if ($via === null || $winner->getConfirmedAt() !== null) {
+				return $winner;
 			}
 
-			return $winner;
+			return $this->receipts->update(entity: self::stamp(receipt: $winner, via: $via));
 		}
 	}//end store()
+
+	/**
+	 * Mark a receipt seen now when it was not yet, and confirmed now with
+	 * `via` when given.
+	 *
+	 * @param AnnouncementReceipt $receipt The receipt.
+	 * @param string|null         $via     check or x, or null.
+	 *
+	 * @return AnnouncementReceipt The same receipt.
+	 */
+	private static function stamp(AnnouncementReceipt $receipt, ?string $via): AnnouncementReceipt {
+		$now = new DateTime();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		// Entity setters resolve via __call which forwards $args[0].
+		if ($receipt->getSeenAt() === null) {
+			$receipt->setSeenAt($now);
+		}
+
+		if ($via !== null) {
+			$receipt->setConfirmedAt($now);
+			$receipt->setConfirmedVia($via);
+		}
+
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		return $receipt;
+	}//end stamp()
 }//end class

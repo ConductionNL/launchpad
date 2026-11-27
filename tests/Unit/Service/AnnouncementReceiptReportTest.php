@@ -5,8 +5,8 @@
  *
  * Seen and confirmed for managers (REQ-ANN-009): the figures over the
  * audience (seen, not seen, confirmed via the check and the x, not
- * confirmed), the counts of the tab's list, Send reminder to those who have
- * not confirmed at most once a day, and readers refused.
+ * confirmed), the counts of the tab's list, who has not confirmed, whether a
+ * reminder may be sent, and readers refused.
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -19,17 +19,14 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use DateTime;
-use InvalidArgumentException;
 use OCA\LaunchPad\Db\Announcement;
-use OCA\LaunchPad\Db\AnnouncementMapper;
 use OCA\LaunchPad\Db\AnnouncementReceipt;
 use OCA\LaunchPad\Db\AnnouncementReceiptMapper;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
 use OCA\LaunchPad\Service\AnnouncementAudience;
 use OCA\LaunchPad\Service\AnnouncementReceiptReport;
-use OCP\Notification\IManager as INotificationManager;
-use OCP\Notification\INotification;
+use OCA\LaunchPad\Service\ReadReceiptPeople;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -67,20 +64,6 @@ class AnnouncementReceiptReportTest extends TestCase {
 	private AnnouncementAudience $audience;
 
 	/**
-	 * The announcement store double.
-	 *
-	 * @var AnnouncementMapper&MockObject
-	 */
-	private AnnouncementMapper $store;
-
-	/**
-	 * The notification manager double.
-	 *
-	 * @var INotificationManager&MockObject
-	 */
-	private INotificationManager $notifications;
-
-	/**
 	 * Set up the doubles: Femke manages, the audience is four people.
 	 *
 	 * @return void
@@ -89,10 +72,8 @@ class AnnouncementReceiptReportTest extends TestCase {
 		$this->announcements = $this->createMock(originalClassName: AnnouncementServiceInterface::class);
 		$this->receipts      = $this->createMock(originalClassName: AnnouncementReceiptMapper::class);
 		$this->audience      = $this->createMock(originalClassName: AnnouncementAudience::class);
-		$this->store         = $this->createMock(originalClassName: AnnouncementMapper::class);
-		$this->notifications = $this->createMock(originalClassName: INotificationManager::class);
 		$this->announcements->method('isAuthor')->willReturnCallback(static fn (string $userId): bool => $userId === 'femke');
-		$this->audience->method('of')->willReturn(['anna', 'bart', 'cor', 'dirk']);
+		$this->audience->method('members')->willReturn(['anna', 'bart', 'cor', 'dirk']);
 		$this->receipts->method('findByAnnouncement')->willReturn(
 			[
 				$this->receipt(userId: 'anna', via: 'check'),
@@ -109,12 +90,14 @@ class AnnouncementReceiptReportTest extends TestCase {
 	 * @return AnnouncementReceiptReport
 	 */
 	private function service(): AnnouncementReceiptReport {
+		$people = $this->createMock(originalClassName: ReadReceiptPeople::class);
+		$people->method('withPeople')->willReturnCallback(static fn (array $report): array => $report + ['departmentLabel' => '']);
+
 		return new AnnouncementReceiptReport(
 			announcements: $this->announcements,
 			receipts: $this->receipts,
 			audience: $this->audience,
-			store: $this->store,
-			notifications: $this->notifications
+			people: $people
 		);
 	}//end service()
 
@@ -179,14 +162,27 @@ class AnnouncementReceiptReportTest extends TestCase {
 		$this->assertSame(expected: 2, actual: $report['notConfirmedCount']);
 		$this->assertSame(expected: ['cor', 'dirk'], actual: $report['pending']);
 		$this->assertTrue(condition: $report['canRemind']);
-		$this->assertSame(
-			expected: ['userId' => 'bart', 'status' => 'acknowledged', 'seen' => true, 'seenAt' => '2026-10-27T09:00:00+00:00', 'confirmedAt' => '2026-10-27T09:15:00+00:00', 'confirmedVia' => 'x', 'acknowledgedAt' => '2026-10-27T09:15:00+00:00'],
-			actual: $report['rows'][1]
-		);
-		$this->assertSame(
-			expected: ['userId' => 'dirk', 'status' => 'pending', 'seen' => false, 'seenAt' => null, 'confirmedAt' => null, 'confirmedVia' => null, 'acknowledgedAt' => null],
-			actual: $report['rows'][3]
-		);
+		$this->assertSame(expected: '', actual: $report['departmentLabel']);
+		$bart = [
+			'userId'         => 'bart',
+			'status'         => 'acknowledged',
+			'seen'           => true,
+			'seenAt'         => '2026-10-27T09:00:00+00:00',
+			'confirmedAt'    => '2026-10-27T09:15:00+00:00',
+			'confirmedVia'   => 'x',
+			'acknowledgedAt' => '2026-10-27T09:15:00+00:00',
+		];
+		$dirk = [
+			'userId'         => 'dirk',
+			'status'         => 'pending',
+			'seen'           => false,
+			'seenAt'         => null,
+			'confirmedAt'    => null,
+			'confirmedVia'   => null,
+			'acknowledgedAt' => null,
+		];
+		$this->assertSame(expected: $bart, actual: $report['rows'][1]);
+		$this->assertSame(expected: $dirk, actual: $report['rows'][3]);
 	}//end testTheFiguresCountTheAudience()
 
 	/**
@@ -197,7 +193,7 @@ class AnnouncementReceiptReportTest extends TestCase {
 	public function testAReaderIsRefused(): void {
 		$this->announcements->expects($this->never())->method('findFor');
 
-		$this->expectException(ForbiddenException::class);
+		$this->expectException(exception: ForbiddenException::class);
 		$this->service()->report(userId: 'pieter', uuid: self::UUID);
 	}//end testAReaderIsRefused()
 
@@ -216,70 +212,38 @@ class AnnouncementReceiptReportTest extends TestCase {
 	}//end testCountsFillInZero()
 
 	/**
-	 * Send reminder notifies those who have not confirmed and stores the time.
+	 * Who has not confirmed: the audience minus the confirmed, also those who only saw it.
 	 *
 	 * @return void
 	 */
-	public function testRemindNotifiesTheUnconfirmed(): void {
+	public function testUnconfirmedIsTheAudienceMinusTheConfirmed(): void {
+		$this->assertSame(expected: ['cor', 'dirk'], actual: $this->service()->unconfirmed(announcement: $this->announcement()));
+	}//end testUnconfirmedIsTheAudienceMinusTheConfirmed()
+
+	/**
+	 * A reminder may be sent when none was, or the last one a day ago or more.
+	 *
+	 * @return void
+	 */
+	public function testMayRemindOnceADay(): void {
+		$announcement = new Announcement();
+		$this->assertTrue(condition: AnnouncementReceiptReport::mayRemind(announcement: $announcement));
+		$announcement->setRemindedAt(new DateTime('-2 hours'));
+		$this->assertFalse(condition: AnnouncementReceiptReport::mayRemind(announcement: $announcement));
+		$announcement->setRemindedAt(new DateTime('-25 hours'));
+		$this->assertTrue(condition: AnnouncementReceiptReport::mayRemind(announcement: $announcement));
+	}//end testMayRemindOnceADay()
+
+	/**
+	 * A manager gets the announcement; a reader is refused before it is looked up.
+	 *
+	 * @return void
+	 */
+	public function testManagedIsForManagers(): void {
 		$announcement = $this->announcement();
-		$users        = [];
-		$this->notifications->method('createNotification')->willReturnCallback(function () use (&$users): INotification {
-			$notification = $this->createMock(originalClassName: INotification::class);
-			foreach (['setApp', 'setDateTime', 'setObject'] as $setter) {
-				$notification->method($setter)->willReturnSelf();
-			}
+		$this->assertSame(expected: $announcement, actual: $this->service()->managed(userId: 'femke', uuid: self::UUID));
 
-			$notification->method('setUser')->willReturnCallback(static function (string $user) use (&$users, $notification): INotification {
-				$users[] = $user;
-				return $notification;
-			});
-			$notification->method('setSubject')->with('announcement_reminder', ['Nieuwe werkwijze Woo-verzoeken'])->willReturnSelf();
-			return $notification;
-		});
-		$this->notifications->expects($this->exactly(2))->method('notify');
-		$this->store->expects($this->once())->method('update')->with($announcement)->willReturnArgument(0);
-
-		$result = $this->service()->remind(userId: 'femke', uuid: self::UUID);
-
-		$this->assertSame(expected: 2, actual: $result['sent']);
-		$this->assertSame(expected: ['cor', 'dirk'], actual: $users);
-		$this->assertNotNull(actual: $announcement->getRemindedAt());
-	}//end testRemindNotifiesTheUnconfirmed()
-
-	/**
-	 * A second reminder within a day is refused; a day later it is allowed.
-	 *
-	 * @return void
-	 */
-	public function testRemindAtMostOnceADay(): void {
-		$this->announcement(remindedAt: new DateTime('-2 hours'));
-		$this->notifications->expects($this->never())->method('notify');
-
-		$this->assertFalse(condition: $this->service()->report(userId: 'femke', uuid: self::UUID)['canRemind']);
-		$this->expectException(InvalidArgumentException::class);
-		$this->service()->remind(userId: 'femke', uuid: self::UUID);
-	}//end testRemindAtMostOnceADay()
-
-	/**
-	 * A draft cannot be reminded.
-	 *
-	 * @return void
-	 */
-	public function testADraftIsNotReminded(): void {
-		$this->announcement(status: 'draft', remindedAt: new DateTime('-2 days'));
-
-		$this->expectException(InvalidArgumentException::class);
-		$this->service()->remind(userId: 'femke', uuid: self::UUID);
-	}//end testADraftIsNotReminded()
-
-	/**
-	 * Purge removes the receipts of a deleted announcement.
-	 *
-	 * @return void
-	 */
-	public function testPurge(): void {
-		$this->receipts->expects($this->once())->method('deleteByAnnouncement')->with(self::UUID);
-
-		$this->service()->purge(uuid: self::UUID);
-	}//end testPurge()
+		$this->expectException(exception: ForbiddenException::class);
+		$this->service()->managed(userId: 'pieter', uuid: self::UUID);
+	}//end testManagedIsForManagers()
 }//end class

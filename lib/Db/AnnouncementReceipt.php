@@ -1,22 +1,20 @@
 <?php
 
 /**
- * AnnouncementReceipt Entity
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
- * One row in `oc_launchpad_ann_receipts`: what one reader did with one
- * announcement (announcements-managed-in-settings D3): when it was first on
- * their screen, and when and how they confirmed it (the check or the x).
+ * AnnouncementReceipt Entity: one row in `oc_launchpad_ann_receipts`, what one
+ * reader did with one announcement (announcements-managed-in-settings D3):
+ * when it was first on their screen, and when and how they confirmed it,
+ * with the check or with the x.
  *
  * @category  Database
  * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
- * @version   GIT:auto
  * @link      https://conduction.nl
- *
- * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
- * SPDX-License-Identifier: EUPL-1.2
  *
  * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
  */
@@ -25,10 +23,10 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Db;
 
-use DateTime;
 use DateTimeInterface;
-use JsonSerializable;
+use DateTime;
 use OCP\AppFramework\Db\Entity;
+use JsonSerializable;
 
 /**
  * A reader's receipt of an announcement.

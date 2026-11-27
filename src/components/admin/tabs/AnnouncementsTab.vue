@@ -226,6 +226,30 @@ export default {
 			} finally {
 				this.loading = false
 			}
+			await this.loadCounts()
+		},
+
+		/**
+		 * Add how many have seen and confirmed each announcement; the list
+		 * shows without them when they cannot be loaded (REQ-ANN-008).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 */
+		async loadCounts() {
+			if (this.items.length === 0) {
+				return
+			}
+			try {
+				const counts = await announcementsApi.receiptCounts(this.items.map((item) => item.uuid))
+				this.items = this.items.map((item) => ({
+					...item,
+					seenCount: counts[item.uuid]?.seen ?? 0,
+					confirmedCount: counts[item.uuid]?.confirmed ?? 0,
+				}))
+			} catch (error) {
+				logger.error('Loading the seen and confirmed counts failed:', error)
+			}
 		},
 
 		/**

@@ -152,6 +152,20 @@ export const announcementsApi = {
 	},
 
 	/**
+	 * Seen and confirmed per announcement, for the tab's list (REQ-ANN-008).
+	 *
+	 * @param {Array<string>} uuids The announcements.
+	 * @return {Promise<object>} `{<uuid>: {seen, confirmed}}`.
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+	 */
+	async receiptCounts(uuids) {
+		if (!Array.isArray(uuids) || uuids.length === 0) {
+			return {}
+		}
+		return (await axios.get(`${base()}/receipt-counts`, { params: { uuids } })).data.counts ?? {}
+	},
+
+	/**
 	 * Send reminder to everyone who has not confirmed; once a day (REQ-ANN-009).
 	 *
 	 * @param {string} uuid The announcement.

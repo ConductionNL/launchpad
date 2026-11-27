@@ -14,6 +14,7 @@
  * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
  */
 
+import { getCanonicalLocale, translate as t } from '@nextcloud/l10n'
 import { tileFromCatalogueApp } from './discoveredTile.js'
 
 /**
@@ -80,6 +81,24 @@ export function discoveredChoice(app) {
 }
 
 /**
+ * A service found on the server as a choice: a web-address tile to it.
+ *
+ * @param {{name: string, url: string}} service The found service (`GET /api/tiles/found-services`).
+ * @return {{key: string, kind: string, tile: object}} the choice.
+ * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+ */
+export function foundServiceChoice(service) {
+	const tile = {
+		title: String(service?.name || ''),
+		icon: 'icon-link',
+		iconType: 'class',
+		linkType: 'url',
+		linkValue: String(service?.url || ''),
+	}
+	return { key: tileKey(tile), kind: 'tile', tile }
+}
+
+/**
  * An office pack tile as a choice: one tile of its own.
  *
  * @param {{title: string, linkType: string, linkValue: string, icon?: string, iconType?: string}} pack The pack tile.
@@ -131,4 +150,26 @@ export function signOnKind(app) {
 		return 'sso'
 	}
 	return app?.linkType === 'app' ? 'nextcloud' : 'own'
+}
+
+/**
+ * The line beside a found service: its state, its port and when it was found.
+ *
+ * @param {{state: string, port: number, foundAt: number}} service The found service.
+ * @return {string} e.g. "Running · port 3000 · found 27/11/2026, 06:10".
+ * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+ */
+export function foundServiceMeta(service) {
+	const state = service.state === 'running'
+		? t('launchpad', 'Running')
+		: t('launchpad', 'Not responding')
+	const parts = [state, t('launchpad', 'port {port}', { port: String(service.port) })]
+	if (Number(service.foundAt) > 0) {
+		const when = new Date(Number(service.foundAt) * 1000).toLocaleString(getCanonicalLocale(), {
+			dateStyle: 'short',
+			timeStyle: 'short',
+		})
+		parts.push(t('launchpad', 'found {time}', { time: when }))
+	}
+	return parts.join(' · ')
 }

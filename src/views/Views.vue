@@ -444,6 +444,7 @@
 			:open="isAddTilesOpen"
 			:catalogueApps="catalogueApps"
 			:discoveredApps="discoveredApps"
+			:foundServices="foundServices"
 			:officeTiles="officeTiles"
 			:placements="widgetPlacements"
 			:requestAppFn="requestCatalogueApp"
@@ -971,6 +972,8 @@ export default {
 			unavailableSources: {},
 			isWidgetModalOpen: false,
 			discoveredApps: [],
+			// Services an administrator allowed for discovery that answered (REQ-TILE-044).
+			foundServices: [],
 			catalogueApps: [],
 			isConfigModalOpen: false,
 			configModalMode: 'edit',
@@ -2909,9 +2912,28 @@ export default {
 			this.isAddTilesOpen = true
 			await Promise.all([
 				this.loadDiscoveredApps(),
+				this.loadFoundServices(),
 				this.loadCatalogueApps(),
 				this.loadOfficeTiles(),
 			])
+		},
+
+		/**
+		 * Read the services an administrator allowed for discovery that
+		 * answered, for the Add tiles "Found on this server" section. A
+		 * failure leaves them out.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+		 */
+		async loadFoundServices() {
+			try {
+				const response = await api.foundServices()
+				this.foundServices = Array.isArray(response?.data?.services) ? response.data.services : []
+			} catch (error) {
+				this.foundServices = []
+				logger.warn('[Views] Could not read the found services:', error)
+			}
 		},
 
 		/**

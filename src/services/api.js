@@ -711,6 +711,16 @@ export const api = {
 	discoverApps() {
 		return axios.get(`${baseUrl}/api/tiles/discover`)
 	},
+	/**
+	 * The services an administrator allowed for discovery that answered (REQ-TILE-044).
+	 *
+	 * @return {Promise} `{services: [{name, url, port, state, foundAt}]}`.
+	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 */
+	foundServices() {
+		return axios.get(`${baseUrl}/api/tiles/found-services`)
+	},
+
 
 	/**
 	 * The app catalogue entries the current user's groups may see.
@@ -1049,6 +1059,27 @@ export const api = {
 	updateAllowedSites(sites) {
 		return axios.put(`${baseUrl}/api/admin/allowed-sites`, { sites })
 	},
+	/**
+	 * The services an administrator allowed for discovery (REQ-TILE-044).
+	 *
+	 * @return {Promise} `{services: [{name, url}]}`.
+	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 */
+	getDiscoverableServices() {
+		return axios.get(`${baseUrl}/api/admin/discoverable-services`)
+	},
+
+	/**
+	 * Replace the services an administrator allowed for discovery.
+	 *
+	 * @param {Array<{name: string, url: string}>} services The services.
+	 * @return {Promise} `{services}` as stored, or 400 `{message}`.
+	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 */
+	updateDiscoverableServices(services) {
+		return axios.put(`${baseUrl}/api/admin/discoverable-services`, { services })
+	},
+
 
 	/**
 	 * Read the dashboard registry connection. Admin-only on the server.

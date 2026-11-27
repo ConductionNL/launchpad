@@ -124,6 +124,27 @@ class TileApiController extends Controller {
 	}//end discover()
 
 	/**
+	 * The services an administrator allowed for discovery that answered (REQ-TILE-044).
+	 *
+	 * Asks only the addresses on the administrator's list (no port or host
+	 * scan); each answer is cached for five minutes.
+	 *
+	 * @return JSONResponse `{services: [{name, url, port, state, foundAt}]}`.
+	 *
+	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function foundServices(): JSONResponse {
+		$refusal = $this->actionRefusal(action: 'tile.discover');
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		return new JSONResponse(['services' => $this->sources->foundServices?->found() ?? []]);
+	}//end foundServices()
+
+	/**
 	 * Create a new tile.
 	 *
 	 * DEPRECATED — returns HTTP 410 Gone. New tile placements MUST be

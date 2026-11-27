@@ -80,16 +80,35 @@
 				</NcButton>
 			</section>
 
-			<!-- 2. Found on this server (REQ-TILE-044): the apps of the
-			     person's own app menu that have no tile yet. -->
+			<!-- 2. Found on this server (REQ-TILE-044): the services an
+			     administrator allowed for discovery that answered, with their
+			     state, port and when they were found, then the apps of the
+			     person's own app menu; none that has a tile yet. -->
 			<section
-				v-if="foundRows.length > 0"
+				v-if="foundServiceRows.length > 0 || foundRows.length > 0"
 				class="add-tiles__section"
 				data-testid="add-tiles-found">
 				<h3 class="add-tiles__section-title">
 					{{ t('launchpad', 'Found on this server') }}
 				</h3>
 				<ul class="add-tiles__rows">
+					<li
+						v-for="row in foundServiceRows"
+						:key="row.choice.key"
+						class="add-tiles__row"
+						data-testid="add-tiles-found-service">
+						<span class="add-tiles__row-name">{{ row.service.name }}</span>
+						<span class="add-tiles__row-meta" data-testid="add-tiles-found-service-meta">
+							{{ row.meta }}
+						</span>
+						<NcButton
+							:variant="isChosen(row.choice.key) ? 'primary' : 'secondary'"
+							:aria-pressed="isChosen(row.choice.key) ? 'true' : 'false'"
+							:aria-label="t('launchpad', 'Add {name}', { name: row.service.name })"
+							@click="toggle(row.choice)">
+							{{ isChosen(row.choice.key) ? t('launchpad', 'Added') : t('launchpad', 'Add as tile') }}
+						</NcButton>
+					</li>
 					<li
 						v-for="row in foundRows"
 						:key="row.choice.key"
@@ -185,6 +204,8 @@ import {
 	catalogueChoice,
 	discoveredChoice,
 	existingTileKeys,
+	foundServiceChoice,
+	foundServiceMeta,
 	officeChoice,
 	signOnKind,
 	tilesToAdd,
@@ -226,6 +247,8 @@ export default {
 		catalogueApps: { type: Array, default: () => [] },
 		/** The apps of the person's app menu (`GET /api/tiles/discover`). */
 		discoveredApps: { type: Array, default: () => [] },
+		/** The services an administrator allowed for discovery that answered (`GET /api/tiles/found-services`). */
+		foundServices: { type: Array, default: () => [] },
 		/** The office tile pack (`GET /api/office-tiles`). */
 		officeTiles: { type: Array, default: () => [] },
 		/** The active dashboard's placements, to leave out tiles it holds. */
@@ -311,6 +334,20 @@ export default {
 					const choice = catalogueChoice(app)
 					return { app, choice, onDashboard: this.existing.has(choice.key) }
 				})
+		},
+
+		/**
+		 * The found services without a tile on the dashboard, each with its
+		 * state, port and when it was found, in the person's Nextcloud locale.
+		 *
+		 * @return {Array<{service: object, choice: object, meta: string}>}
+		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+		 */
+		foundServiceRows() {
+			return this.foundServices
+				.filter((service) => service && service.name && service.url)
+				.map((service) => ({ service, choice: foundServiceChoice(service), meta: foundServiceMeta(service) }))
+				.filter((row) => !this.existing.has(row.choice.key))
 		},
 
 		/**

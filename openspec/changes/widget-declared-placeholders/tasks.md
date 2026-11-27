@@ -18,7 +18,7 @@
 - **spec_ref**: `openspec/changes/widget-declared-placeholders/specs/first-paint-shell/spec.md#requirement-the-placeholder-shape-comes-from-the-widgets-declaration-req-fps-009`
 - **files**: `lib/Service/FirstPaintShell.php`, `src/components/WidgetWrapper.vue`, `src/components/LazyMount.vue`, `tests/fixtures/widget-placeholders.json`, `tests/Unit/Service/FirstPaintShellPlaceholderTest.php`, `src/utils/__tests__/widgetPlaceholder.fixture.spec.js`
 - [x] `FirstPaintShell` resolves each frame's shape as manifest, registry, catalogue `placeholder`, fallback (the manifest declaration is read from the placement's `placeholder`)
-- [ ] `WidgetWrapper` passes `loading` and nextcloud-vue's `resolveWidgetPlaceholder(...)` result to `CnWidgetWrapper`; `LazyMount` no longer draws its own waiting box; first-paint-skeleton task 5's `WidgetPlaceholder.vue` is not built
+- [x] `WidgetWrapper` passes `loading` and nextcloud-vue's `resolveWidgetPlaceholder(...)` result to `CnWidgetWrapper`; `LazyMount` no longer draws its own waiting box; first-paint-skeleton task 5's `WidgetPlaceholder.vue` is not built (`src/utils/widgetPlaceholder.js` is the one client resolver, used by the card and the shared fixture spec; `loading` is true until LazyMount mounts the content; waiting for the renderer's `loaded` stays with first-paint-skeleton task 6)
 - [x] Tests: one shared fixture, the same shape from both resolvers for every placement
 
 ### Task 4: The shell prints the library's markup

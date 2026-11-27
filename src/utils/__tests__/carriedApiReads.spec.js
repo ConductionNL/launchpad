@@ -8,8 +8,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const state = { workspaceApiReads: [] }
 
-vi.mock('@nextcloud/initial-state', () => ({
-	loadState: (app, key, fallback) => (key in state ? state[key] : fallback),
+vi.mock('../loadInitialState.js', () => ({
+	readWorkspaceApiReads: () => (Array.isArray(state.workspaceApiReads) ? state.workspaceApiReads : []),
 }))
 vi.mock('@nextcloud/axios', () => ({ default: { interceptors: { request: { use: vi.fn() } } } }))
 

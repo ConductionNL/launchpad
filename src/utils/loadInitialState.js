@@ -267,6 +267,19 @@ export function takeBootRead(part) {
 }
 
 /**
+ * The API reads the workspace page answered while it rendered
+ * (`workspaceApiReads`: `[{path, params, data}]`), or an empty list when the
+ * page carries none or the key is malformed.
+ *
+ * @return {Array<object>} The reads.
+ * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-3
+ */
+export function readWorkspaceApiReads() {
+	const reads = readKey('workspaceApiReads', [])
+	return Array.isArray(reads) ? reads : []
+}
+
+/**
  * The runtime manifest the page carries, handed out once. Null when the page
  * did not carry one (none was kept), when it is not a manifest, or once taken.
  *

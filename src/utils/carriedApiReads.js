@@ -15,7 +15,7 @@
  */
 
 import axios from '@nextcloud/axios'
-import { loadState } from '@nextcloud/initial-state'
+import { readWorkspaceApiReads } from './loadInitialState.js'
 
 const APP_SEGMENT = '/apps/launchpad'
 
@@ -66,23 +66,9 @@ function queryEntries(query, params) {
  */
 function reads() {
 	if (carried === null) {
-		carried = keyed(pageReads())
+		carried = keyed(readWorkspaceApiReads())
 	}
 	return carried
-}
-
-/**
- * The list the page carries, or an empty list.
- *
- * @return {Array<object>} The `{path, params, data}` entries.
- */
-function pageReads() {
-	try {
-		const list = loadState('launchpad', 'workspaceApiReads', [])
-		return Array.isArray(list) ? list : []
-	} catch {
-		return []
-	}
 }
 
 /**

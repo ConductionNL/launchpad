@@ -63,7 +63,7 @@ class TileApiControllerTest extends TestCase {
 		$this->actionAuth = $this->createMock(ActionAuthService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->discovery = $this->createMock(ServiceDiscoveryService::class);
-		$this->foundServices = $this->createMock(FoundServicesService::class);
+		$this->foundServices = $this->createMock(originalClassName: FoundServicesService::class);
 		$this->l10n->method('t')->willReturnArgument(0);
 	}
 
@@ -141,32 +141,36 @@ class TileApiControllerTest extends TestCase {
 	 * REQ-TILE-044: the services an administrator allowed for discovery that answered, behind tile.discover.
 	 *
 	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 *
+	 * @return void
 	 */
 	public function testFoundServicesAnswersTheFoundServices(): void {
 		$services = [['name' => 'Grafana', 'url' => 'http://localhost:3000', 'port' => 3000, 'state' => 'running', 'foundAt' => 1795757445]];
 		$this->foundServices->method('found')->willReturn($services);
 		$this->actionAuth->expects($this->once())->method('requireAction')
-			->with($this->isInstanceOf(IUser::class), 'tile.discover');
+			->with($this->isInstanceOf(className: IUser::class), 'tile.discover');
 
-		$response = $this->makeController()->foundServices();
+		$response = $this->makeController(userId: 'alice')->foundServices();
 
-		$this->assertSame(Http::STATUS_OK, $response->getStatus());
-		$this->assertSame(['services' => $services], $response->getData());
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(expected: ['services' => $services], actual: $response->getData());
 	}
 
 	/**
 	 * Without the tile.discover action no address is asked.
 	 *
 	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 *
+	 * @return void
 	 */
 	public function testFoundServicesRefusesWithoutTheAction(): void {
 		$this->actionAuth->method('requireAction')
 			->willThrowException(new \OCP\AppFramework\OCS\OCSForbiddenException());
 		$this->foundServices->expects($this->never())->method('found');
 
-		$response = $this->makeController()->foundServices();
+		$response = $this->makeController(userId: 'alice')->foundServices();
 
-		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
 	}
 
 	public function testCreateReturns410GoneEnvelope(): void {

@@ -39,13 +39,13 @@ class DiscoverableServicesControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testShowAnswersTheList(): void {
-		$services = $this->createMock(FoundServicesService::class);
+		$services = $this->createMock(originalClassName: FoundServicesService::class);
 		$services->method('getServices')->willReturn([['name' => 'Grafana', 'url' => 'http://localhost:3000']]);
 
-		$response = (new DiscoverableServicesController(request: $this->createMock(IRequest::class), foundServices: $services))->show();
+		$response = (new DiscoverableServicesController(request: $this->createMock(originalClassName: IRequest::class), foundServices: $services))->show();
 
-		self::assertSame(Http::STATUS_OK, $response->getStatus());
-		self::assertSame(['services' => [['name' => 'Grafana', 'url' => 'http://localhost:3000']]], $response->getData());
+		self::assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		self::assertSame(expected: ['services' => [['name' => 'Grafana', 'url' => 'http://localhost:3000']]], actual: $response->getData());
 	}//end testShowAnswersTheList()
 
 	/**
@@ -55,15 +55,15 @@ class DiscoverableServicesControllerTest extends TestCase {
 	 */
 	public function testUpdateStoresTheList(): void {
 		$submitted = [['name' => 'Grafana', 'url' => 'HTTP://localhost:3000/']];
-		$services = $this->createMock(FoundServicesService::class);
+		$services = $this->createMock(originalClassName: FoundServicesService::class);
 		$services->expects($this->once())->method('setServices')->with($submitted)
 			->willReturn([['name' => 'Grafana', 'url' => 'http://localhost:3000']]);
 
-		$response = (new DiscoverableServicesController(request: $this->createMock(IRequest::class), foundServices: $services))
+		$response = (new DiscoverableServicesController(request: $this->createMock(originalClassName: IRequest::class), foundServices: $services))
 			->update(services: $submitted);
 
-		self::assertSame(Http::STATUS_OK, $response->getStatus());
-		self::assertSame(['services' => [['name' => 'Grafana', 'url' => 'http://localhost:3000']]], $response->getData());
+		self::assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		self::assertSame(expected: ['services' => [['name' => 'Grafana', 'url' => 'http://localhost:3000']]], actual: $response->getData());
 	}//end testUpdateStoresTheList()
 
 	/**
@@ -72,13 +72,14 @@ class DiscoverableServicesControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testUpdateRefusesAnInvalidList(): void {
-		$services = $this->createMock(FoundServicesService::class);
-		$services->method('setServices')->willThrowException(new InvalidArgumentException('"ftp://a" is not a web address starting with http:// or https://.'));
+		$services = $this->createMock(originalClassName: FoundServicesService::class);
+		$refusal = new InvalidArgumentException(message: '"ftp://a" is not a web address starting with http:// or https://.');
+		$services->method('setServices')->willThrowException($refusal);
 
-		$response = (new DiscoverableServicesController(request: $this->createMock(IRequest::class), foundServices: $services))
+		$response = (new DiscoverableServicesController(request: $this->createMock(originalClassName: IRequest::class), foundServices: $services))
 			->update(services: [['name' => 'x', 'url' => 'ftp://a']]);
 
-		self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-		self::assertSame(['message' => '"ftp://a" is not a web address starting with http:// or https://.'], $response->getData());
+		self::assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+		self::assertSame(expected: ['message' => '"ftp://a" is not a web address starting with http:// or https://.'], actual: $response->getData());
 	}//end testUpdateRefusesAnInvalidList()
 }//end class

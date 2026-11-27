@@ -54,13 +54,6 @@
 			</NcButton>
 		</form>
 
-		<p
-			v-if="error"
-			class="discoverable-services__error"
-			role="alert"
-			data-testid="admin-discoverable-services-error">
-			{{ error }}
-		</p>
 		<div class="discoverable-services__actions">
 			<NcButton
 				variant="primary"
@@ -69,6 +62,13 @@
 				@click="save">
 				{{ t('launchpad', 'Save') }}
 			</NcButton>
+			<p
+				v-if="error"
+				class="discoverable-services__error"
+				role="alert"
+				data-testid="admin-discoverable-services-error">
+				{{ error }}
+			</p>
 		</div>
 	</CnSettingsSection>
 </template>

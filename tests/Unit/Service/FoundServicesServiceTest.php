@@ -129,13 +129,13 @@ class FoundServicesServiceTest extends TestCase {
 		);
 
 		self::assertSame(
-			[
+			expected: [
 				['name' => 'Grafana', 'url' => 'http://localhost:3000'],
 				['name' => 'Uptime Kuma', 'url' => 'https://status.example.org/dashboard'],
 			],
-			$stored
+			actual: $stored
 		);
-		self::assertSame($stored, $this->service()->getServices());
+		self::assertSame(expected: $stored, actual: $this->service()->getServices());
 	}//end testTheListIsStoredNormalised()
 
 	/**
@@ -165,11 +165,11 @@ class FoundServicesServiceTest extends TestCase {
 	 */
 	#[DataProvider('refusedLists')]
 	public function testAnInvalidListIsRefused(mixed $services): void {
-		$this->expectException(InvalidArgumentException::class);
+		$this->expectException(exception: InvalidArgumentException::class);
 		try {
 			$this->service()->setServices(services: $services);
 		} finally {
-			self::assertArrayNotHasKey(FoundServicesService::CONFIG_KEY, $this->values);
+			self::assertArrayNotHasKey(key: FoundServicesService::CONFIG_KEY, array: $this->values);
 		}
 	}//end testAnInvalidListIsRefused()
 
@@ -190,13 +190,13 @@ class FoundServicesServiceTest extends TestCase {
 		$found = $this->service(answers: ['http://localhost:3000' => 302])->found();
 
 		self::assertSame(
-			[['name' => 'Grafana', 'url' => 'http://localhost:3000', 'port' => 3000, 'state' => 'running', 'foundAt' => 1795757445]],
-			$found
+			expected: [['name' => 'Grafana', 'url' => 'http://localhost:3000', 'port' => 3000, 'state' => 'running', 'foundAt' => 1795757445]],
+			actual: $found
 		);
-		self::assertSame(['http://localhost:3000', 'http://localhost:3001'], $this->asked);
-		self::assertFalse($this->lastOptions['allow_redirects']);
-		self::assertFalse($this->lastOptions['http_errors']);
-		self::assertTrue($this->lastOptions['nextcloud']['allow_local_address']);
+		self::assertSame(expected: ['http://localhost:3000', 'http://localhost:3001'], actual: $this->asked);
+		self::assertFalse(condition: $this->lastOptions['allow_redirects']);
+		self::assertFalse(condition: $this->lastOptions['http_errors']);
+		self::assertTrue(condition: $this->lastOptions['nextcloud']['allow_local_address']);
 	}//end testAServiceThatAnswersIsFound()
 
 	/**
@@ -211,8 +211,8 @@ class FoundServicesServiceTest extends TestCase {
 		$later = $this->service(answers: ['https://grafana.example.org' => 503], now: 2000)->found();
 
 		self::assertSame(
-			[['name' => 'Grafana', 'url' => 'https://grafana.example.org', 'port' => 443, 'state' => 'not_responding', 'foundAt' => 1000]],
-			$later
+			expected: [['name' => 'Grafana', 'url' => 'https://grafana.example.org', 'port' => 443, 'state' => 'not_responding', 'foundAt' => 1000]],
+			actual: $later
 		);
 	}//end testTheFoundTimeIsKeptAndTheStateFollowsTheAnswer()
 
@@ -224,14 +224,14 @@ class FoundServicesServiceTest extends TestCase {
 	public function testRemovingAServiceDropsItsFoundTime(): void {
 		$this->service()->setServices(services: [['name' => 'Grafana', 'url' => 'http://localhost:3000']]);
 		$this->service(answers: ['http://localhost:3000' => 200])->found();
-		self::assertStringContainsString('localhost:3000', $this->values[FoundServicesService::FOUND_KEY]);
+		self::assertStringContainsString(needle: 'localhost:3000', haystack: $this->values[FoundServicesService::FOUND_KEY]);
 
 		$this->service()->setServices(services: []);
 		$this->asked = [];
 
-		self::assertSame('{}', $this->values[FoundServicesService::FOUND_KEY]);
-		self::assertSame([], $this->service(answers: ['http://localhost:3000' => 200])->found());
-		self::assertSame([], $this->asked);
+		self::assertSame(expected: '{}', actual: $this->values[FoundServicesService::FOUND_KEY]);
+		self::assertSame(expected: [], actual: $this->service(answers: ['http://localhost:3000' => 200])->found());
+		self::assertSame(expected: [], actual: $this->asked);
 	}//end testRemovingAServiceDropsItsFoundTime()
 
 	/**
@@ -240,8 +240,8 @@ class FoundServicesServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testThePortOfAnAddress(): void {
-		self::assertSame(3000, FoundServicesService::portOf(url: 'http://localhost:3000'));
-		self::assertSame(80, FoundServicesService::portOf(url: 'http://localhost'));
-		self::assertSame(443, FoundServicesService::portOf(url: 'https://grafana.example.org'));
+		self::assertSame(expected: 3000, actual: FoundServicesService::portOf(url: 'http://localhost:3000'));
+		self::assertSame(expected: 80, actual: FoundServicesService::portOf(url: 'http://localhost'));
+		self::assertSame(expected: 443, actual: FoundServicesService::portOf(url: 'https://grafana.example.org'));
 	}//end testThePortOfAnAddress()
 }//end class

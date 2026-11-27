@@ -29,6 +29,7 @@ use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\TileModeNode;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
+use Override;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -62,6 +63,7 @@ class ConvertTilesToAppOrLinkTiles implements IRepairStep {
 	 *
 	 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
 	 */
+	#[Override]
 	public function getName(): string {
 		return 'Turn app tiles and link tiles into App or link tiles';
 	}//end getName()
@@ -75,6 +77,7 @@ class ConvertTilesToAppOrLinkTiles implements IRepairStep {
 	 *
 	 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
 	 */
+	#[Override]
 	public function run(IOutput $output): void {
 		$placements = 0;
 		$tiles      = 0;

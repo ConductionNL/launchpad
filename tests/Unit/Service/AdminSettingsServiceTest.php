@@ -130,7 +130,7 @@ class AdminSettingsServiceTest extends TestCase {
 				'sharingAllowed' => 'everyone',
 				'publicLinksAllowed' => true,
 				// REQ-KIOSK-007: screen links from the Sharing tab are on until switched off.
-				'kioskScreenLinksAllowed' => true,
+				'screenLinksAllowed' => true,
 				// REQ-SHARE-016: no handover until an administrator sets one.
 				'leaverHandover' => ['manager' => false, 'fallbackUid' => ''],
 				'legacyWidgetBridgeEnabled' => false,
@@ -256,7 +256,7 @@ class AdminSettingsServiceTest extends TestCase {
 		// REQ-PSP-003.
 		$this->assertArrayHasKey('defaultAppEnabled', $settings);
 		// REQ-KIOSK-007.
-		$this->assertArrayHasKey('kioskScreenLinksAllowed', $settings);
+		$this->assertArrayHasKey(key: 'screenLinksAllowed', array: $settings);
 		$this->assertCount(expectedCount: 26, haystack: $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 

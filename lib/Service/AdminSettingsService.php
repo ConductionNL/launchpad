@@ -147,7 +147,7 @@ class AdminSettingsService {
 			'sharingRecipientScope' => $this->storedRecipientScope(value: $settings[AdminSettingKey::SHARING_RECIPIENT_SCOPE->value] ?? null),
 			'sharingAllowed' => $this->storedAllowedMode(settings: $settings),
 			'publicLinksAllowed' => ($settings[AdminSettingKey::PUBLIC_LINKS_ALLOWED->value] ?? true) !== false,
-			'kioskScreenLinksAllowed' => ($settings[AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value] ?? true) !== false, // REQ-KIOSK-007
+			'screenLinksAllowed' => ($settings[AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value] ?? true) !== false, // REQ-KIOSK-007
 			'leaverHandover' => $this->storedLeaverHandover(value: $settings[AdminSettingKey::LEAVER_HANDOVER->value] ?? null),
 			// Legacy-widget-bridge spec: the bridge defaults to OFF because
 			// turning it on makes the workspace read the Nextcloud widget
@@ -771,7 +771,7 @@ class AdminSettingsService {
 	 * Persist who may share and whether public and screen links may be made
 	 * (REQ-SHARE-015, REQ-KIOSK-007). A null value is left as it is.
 	 *
-	 * @param array<string, mixed> $settings `sharingAllowed`, `publicLinksAllowed`, `kioskScreenLinksAllowed`.
+	 * @param array<string, mixed> $settings `sharingAllowed`, `publicLinksAllowed`, `screenLinksAllowed`.
 	 *
 	 * @return void
 	 *
@@ -793,7 +793,7 @@ class AdminSettingsService {
 		}
 
 		$this->persistIfGiven(key: AdminSettingKey::PUBLIC_LINKS_ALLOWED->value, value: $settings['publicLinksAllowed'] ?? null);
-		$this->persistIfGiven(key: AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value, value: $settings['kioskScreenLinksAllowed'] ?? null);
+		$this->persistIfGiven(key: AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value, value: $settings['screenLinksAllowed'] ?? null);
 	}//end persistSharingPolicy()
 
 	/**

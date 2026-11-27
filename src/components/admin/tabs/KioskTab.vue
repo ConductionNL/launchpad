@@ -247,7 +247,7 @@ export default {
 			try {
 				const { data } = await api.getAdminSettings()
 				const settings = data?.data ?? data ?? {}
-				this.screenLinksAllowed = settings.kioskScreenLinksAllowed !== false
+				this.screenLinksAllowed = settings.screenLinksAllowed !== false
 			} catch {
 				this.screenLinksAllowed = true
 			}
@@ -266,7 +266,7 @@ export default {
 			this.savingSwitch = true
 			this.error = ''
 			try {
-				await api.updateSharingPolicy({ kioskScreenLinksAllowed: this.screenLinksAllowed })
+				await api.updateSharingPolicy({ screenLinksAllowed: this.screenLinksAllowed })
 			} catch {
 				this.screenLinksAllowed = previous
 				this.error = t('launchpad', 'The setting could not be saved.')

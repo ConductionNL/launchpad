@@ -69,7 +69,7 @@ function linkUrl(uuid: string): string {
 
 /** Switch screen links on or off as the administrator. */
 async function setSwitch(on: boolean): Promise<void> {
-	const res = await admin.put(`${API}/admin/sharing-policy`, { data: { kioskScreenLinksAllowed: on } })
+	const res = await admin.put(`${API}/admin/sharing-policy`, { data: { screenLinksAllowed: on } })
 	expect(res.status(), await res.text()).toBe(200)
 }
 
@@ -99,7 +99,7 @@ test.beforeAll(async () => {
 	const settings = await admin.get(`${API}/admin/settings`)
 	expect(settings.status()).toBe(200)
 	const body = await settings.json()
-	priorSwitch = (body.data ?? body).kioskScreenLinksAllowed !== false
+	priorSwitch = (body.data ?? body).screenLinksAllowed !== false
 	await allowPersonalDashboards(admin, true)
 
 	pieter = await createPrincipal(admin, 'e2e-screen-pieter')
@@ -116,7 +116,7 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-	await admin.put(`${API}/admin/sharing-policy`, { data: { kioskScreenLinksAllowed: priorSwitch } })
+	await admin.put(`${API}/admin/sharing-policy`, { data: { screenLinksAllowed: priorSwitch } })
 	if (kantine !== null && pieter !== null) {
 		await pieter.api.delete(linkUrl(kantine.uuid))
 		await pieter.api.delete(`${API}/dashboard/${kantine.id}`)
@@ -193,7 +193,7 @@ test('with the switch off no new link is made, and an existing one keeps playing
 	await setSwitch(false)
 	try {
 		const settings = await (await admin.get(`${API}/admin/settings`)).json()
-		expect((settings.data ?? settings).kioskScreenLinksAllowed).toBe(false)
+		expect((settings.data ?? settings).screenLinksAllowed).toBe(false)
 		expect(await playAnonymously(existing.token), 'an existing screen link keeps playing').toBe(200)
 
 		const tab = await openSharingTab(browser, pieter!, kantine!)

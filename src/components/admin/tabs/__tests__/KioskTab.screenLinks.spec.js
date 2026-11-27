@@ -110,7 +110,7 @@ describe('KioskTab screen links (REQ-KIOSK-007, REQ-KIOSK-008)', () => {
 	})
 
 	it('reads a stored off', async () => {
-		settings = { kioskScreenLinksAllowed: false }
+		settings = { screenLinksAllowed: false }
 		const wrapper = mountTab()
 		await flushPromises()
 
@@ -126,7 +126,7 @@ describe('KioskTab screen links (REQ-KIOSK-007, REQ-KIOSK-008)', () => {
 
 		expect(axios.put).toHaveBeenCalledWith(
 			expect.stringContaining('/api/admin/sharing-policy'),
-			expect.objectContaining({ kioskScreenLinksAllowed: false }),
+			expect.objectContaining({ screenLinksAllowed: false }),
 		)
 		expect(wrapper.vm.screenLinksAllowed).toBe(false)
 	})

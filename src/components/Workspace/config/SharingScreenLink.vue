@@ -142,6 +142,7 @@ export default {
 		 * Shown to whoever may share; with the switch off only while a link exists.
 		 *
 		 * @return {boolean}
+		 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-5
 		 */
 		visible() {
 			if (!this.policy.mayShare || !this.dashboard?.uuid) {
@@ -155,6 +156,7 @@ export default {
 		 * refreshes and when it was made.
 		 *
 		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-5
 		 */
 		metaLine() {
 			const minutes = Math.max(1, Math.round((this.link?.refreshSeconds ?? 300) / 60))
@@ -171,7 +173,12 @@ export default {
 			return parts.join(' · ')
 		},
 
-		/** @return {string} The dashboard's name for the dialog. */
+		/**
+		 * The dashboard's name for the confirmation.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-5
+		 */
 		dashboardName() {
 			return this.dashboard?.name ?? ''
 		},
@@ -180,6 +187,11 @@ export default {
 	watch: {
 		'dashboard.uuid': {
 			immediate: true,
+			/**
+			 * Read the screen link of the dashboard the tab shows.
+			 *
+			 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-5
+			 */
 			handler() {
 				this.load()
 			},

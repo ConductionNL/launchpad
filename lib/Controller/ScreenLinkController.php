@@ -50,15 +50,15 @@ class ScreenLinkController extends Controller {
 	 * Wire the screen link service and the signed-in user.
 	 *
 	 * @param IRequest          $request     The incoming request.
+	 * @param string|null       $userId      The signed-in user, null without a session.
 	 * @param ScreenLinkService $screenLinks Reads, makes and revokes screen links.
 	 * @param LoggerInterface   $logger      Logs unexpected errors.
-	 * @param string|null       $userId      The signed-in user, null without a session.
 	 */
 	public function __construct(
 		IRequest $request,
+		private readonly ?string $userId,
 		private readonly ScreenLinkService $screenLinks,
 		private readonly LoggerInterface $logger,
-		private readonly ?string $userId,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()

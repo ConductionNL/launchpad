@@ -344,7 +344,7 @@ class SharingPolicyTest extends TestCase {
 			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 
-		$ok = $controller->update(kioskScreenLinksAllowed: false);
+		$ok = $controller->update(screenLinksAllowed: false);
 		$this->assertSame(expected: Http::STATUS_OK, actual: $ok->getStatus());
 		$this->assertSame(expected: ['kiosk_screen_links_allowed' => false], actual: $written);
 	}//end testTheAdminEndpointStoresTheScreenLinkSwitch()

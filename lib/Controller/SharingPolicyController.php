@@ -61,9 +61,9 @@ class SharingPolicyController extends Controller {
 	 *
 	 * A partial patch: a value left out stays as it is.
 	 *
-	 * @param string|null $sharingAllowed          `everyone`, `groups` or `none`.
-	 * @param bool|null   $publicLinksAllowed      Whether public links may be created.
-	 * @param bool|null   $kioskScreenLinksAllowed Whether a Sharing tab may make a screen link (REQ-KIOSK-007).
+	 * @param string|null $sharingAllowed     `everyone`, `groups` or `none`.
+	 * @param bool|null   $publicLinksAllowed Whether public links may be created.
+	 * @param bool|null   $screenLinksAllowed Whether a Sharing tab may make a screen link (REQ-KIOSK-007).
 	 *
 	 * @return JSONResponse The update confirmation, or 400 for an unknown choice.
 	 *
@@ -74,14 +74,14 @@ class SharingPolicyController extends Controller {
 	public function update(
 		string|null $sharingAllowed = null,
 		bool|null $publicLinksAllowed = null,
-		bool|null $kioskScreenLinksAllowed = null,
+		bool|null $screenLinksAllowed = null,
 	): JSONResponse {
 		try {
 			$this->settings->updateSettings(
 				settings: [
-					'sharingAllowed'          => $sharingAllowed,
-					'publicLinksAllowed'      => $publicLinksAllowed,
-					'kioskScreenLinksAllowed' => $kioskScreenLinksAllowed,
+					'sharingAllowed'     => $sharingAllowed,
+					'publicLinksAllowed' => $publicLinksAllowed,
+					'screenLinksAllowed' => $screenLinksAllowed,
 				]
 			);
 

@@ -209,7 +209,7 @@ test.describe('REQ-WDG-005 rules are evaluated when the dashboard renders', () =
 		expect(served).not.toContain(failing)
 
 		// And the rendered grid shows only the matching widget.
-		const preference = await bob.api.post(`${API}/dashboards/active`, {
+		const preference = await bob.api.post(`${API}/dashboards/default`, {
 			data: { uuid: dashboard.uuid },
 		})
 		expect(preference.status(), await preference.text()).toBeLessThan(300)

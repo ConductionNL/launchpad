@@ -238,7 +238,7 @@ test.describe('REQ-PPL-014: the people widget lists new colleagues', () => {
 			data: { shareType: 'user', shareWith: who.pieter.username, permissionLevel: 'view_only' },
 		})
 		expect(share.status(), await share.text()).toBeLessThan(300)
-		const active = await who.pieter.api.post(`${API}/dashboards/active`, {
+		const active = await who.pieter.api.post(`${API}/dashboards/default`, {
 			data: { uuid: dashboard.uuid },
 			timeout: 60_000,
 		})

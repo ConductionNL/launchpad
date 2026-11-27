@@ -293,7 +293,7 @@ async function readShortcuts(
 async function activate(api: APIRequestContext, dash: Seeded): Promise<void> {
 	const a = await api.post(`${API}/dashboard/${dash.id}/activate`)
 	expect(a.status(), await a.text()).toBeLessThan(300)
-	const b = await api.post(`${API}/dashboards/active`, {
+	const b = await api.post(`${API}/dashboards/default`, {
 		data: { uuid: dash.uuid },
 	})
 	expect(b.status(), await b.text()).toBeLessThan(300)

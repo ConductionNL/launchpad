@@ -577,6 +577,12 @@
 					</div>
 				</div>
 
+				<!-- REQ-KIOSK-006: show this dashboard on a screen, between the
+				     public link and the embed tokens. Applies immediately. -->
+				<SharingScreenLink
+					v-if="!isCreate && canManageShares && currentTab === 'sharing'"
+					:dashboard="dashboard" />
+
 				<!-- REQ-LEAF-006: the Talk conversation beside a shared dashboard. -->
 				<SharingConversation
 					v-if="!isCreate && canManageShares"
@@ -710,6 +716,7 @@ import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
 /* Loaded when their tab opens: they bring the export editor and the store. */
 const SharingEmbedTokens = defineAsyncComponent(() => import('../components/Workspace/config/SharingEmbedTokens.vue'))
+const SharingScreenLink = defineAsyncComponent(() => import('../components/Workspace/config/SharingScreenLink.vue'))
 const ExportsTab = defineAsyncComponent(() => import('../components/Workspace/config/ExportsTab.vue'))
 const PublicationTab = defineAsyncComponent(() => import('../components/Workspace/config/PublicationTab.vue'))
 const VersionsTab = defineAsyncComponent(() => import('../components/Workspace/config/VersionsTab.vue'))
@@ -740,6 +747,7 @@ export default {
 		LanguagesTab,
 		SharingConversation,
 		SharingEmbedTokens,
+		SharingScreenLink,
 		PublicationTab,
 		VersionsTab,
 		NcModal,

@@ -13,12 +13,13 @@
             ],
             "refreshSeconds": 300,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create alice own 0": {
@@ -35,12 +36,13 @@
             ],
             "refreshSeconds": 300,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create alice own 45": {
@@ -57,12 +59,13 @@
             ],
             "refreshSeconds": 45,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":45,\"createdBy\":\"alice\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":45,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create alice own 999999": {
@@ -79,12 +82,13 @@
             ],
             "refreshSeconds": 86400,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":86400,\"createdBy\":\"alice\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":86400,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "update alice own playlist 7": {
@@ -96,14 +100,15 @@
             "entries": [],
             "refreshSeconds": 30,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findById 7",
             "isAdmin alice",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}",
             "findById 7"
         ]
     },
@@ -138,7 +143,8 @@
             ],
             "refreshSeconds": 300,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
@@ -147,7 +153,7 @@
             "authorizeShareMutation d-alice alice",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create alice own clamped 0": {
@@ -172,7 +178,8 @@
             ],
             "refreshSeconds": 300,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
@@ -181,7 +188,7 @@
             "authorizeShareMutation d-alice alice",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create alice own clamped 45": {
@@ -206,7 +213,8 @@
             ],
             "refreshSeconds": 45,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
@@ -215,7 +223,7 @@
             "authorizeShareMutation d-alice alice",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":45,\"createdBy\":\"alice\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":45,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create alice own clamped 999999": {
@@ -240,7 +248,8 @@
             ],
             "refreshSeconds": 86400,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
@@ -249,7 +258,7 @@
             "authorizeShareMutation d-alice alice",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":86400,\"createdBy\":\"alice\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":86400,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "update alice own clamped playlist 7": {
@@ -261,7 +270,8 @@
             "entries": [],
             "refreshSeconds": 30,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findById 7",
@@ -272,7 +282,7 @@
             "authorizeShareMutation d-alice alice",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}",
             "findById 7"
         ]
     },
@@ -468,10 +478,11 @@
             "entries": [],
             "refreshSeconds": 300,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create alice none 0": {
@@ -483,10 +494,11 @@
             "entries": [],
             "refreshSeconds": 300,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create alice none 45": {
@@ -498,10 +510,11 @@
             "entries": [],
             "refreshSeconds": 45,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":45,\"createdBy\":\"alice\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":45,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create alice none 999999": {
@@ -513,10 +526,11 @@
             "entries": [],
             "refreshSeconds": 86400,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":86400,\"createdBy\":\"alice\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":86400,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "update alice none playlist 7": {
@@ -528,12 +542,13 @@
             "entries": [],
             "refreshSeconds": 30,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findById 7",
             "isAdmin alice",
-            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}",
             "findById 7"
         ]
     },
@@ -834,10 +849,11 @@
             "entries": [],
             "refreshSeconds": 300,
             "createdBy": "bob",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"bob\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"bob\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create bob none 0": {
@@ -849,10 +865,11 @@
             "entries": [],
             "refreshSeconds": 300,
             "createdBy": "bob",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"bob\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"bob\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create bob none 45": {
@@ -864,10 +881,11 @@
             "entries": [],
             "refreshSeconds": 45,
             "createdBy": "bob",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":45,\"createdBy\":\"bob\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":45,\"createdBy\":\"bob\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create bob none 999999": {
@@ -879,10 +897,11 @@
             "entries": [],
             "refreshSeconds": 86400,
             "createdBy": "bob",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":86400,\"createdBy\":\"bob\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":86400,\"createdBy\":\"bob\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "update bob none playlist 7": {
@@ -918,12 +937,13 @@
             ],
             "refreshSeconds": 300,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create admin own 0": {
@@ -940,12 +960,13 @@
             ],
             "refreshSeconds": 300,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create admin own 45": {
@@ -962,12 +983,13 @@
             ],
             "refreshSeconds": 45,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":45,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":45,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create admin own 999999": {
@@ -984,12 +1006,13 @@
             ],
             "refreshSeconds": 86400,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":86400,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":86400,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "update admin own playlist 7": {
@@ -1001,14 +1024,15 @@
             "entries": [],
             "refreshSeconds": 30,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findById 7",
             "isAdmin admin",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
-            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}",
             "findById 7"
         ]
     },
@@ -1043,7 +1067,8 @@
             ],
             "refreshSeconds": 300,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
@@ -1052,7 +1077,7 @@
             "authorizeShareMutation d-alice admin",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create admin own clamped 0": {
@@ -1077,7 +1102,8 @@
             ],
             "refreshSeconds": 300,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
@@ -1086,7 +1112,7 @@
             "authorizeShareMutation d-alice admin",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create admin own clamped 45": {
@@ -1111,7 +1137,8 @@
             ],
             "refreshSeconds": 45,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
@@ -1120,7 +1147,7 @@
             "authorizeShareMutation d-alice admin",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":45,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":45,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create admin own clamped 999999": {
@@ -1145,7 +1172,8 @@
             ],
             "refreshSeconds": 86400,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
@@ -1154,7 +1182,7 @@
             "authorizeShareMutation d-alice admin",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":86400,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":86400,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "update admin own clamped playlist 7": {
@@ -1166,7 +1194,8 @@
             "entries": [],
             "refreshSeconds": 30,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findById 7",
@@ -1177,7 +1206,7 @@
             "authorizeShareMutation d-alice admin",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
-            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}",
             "findById 7"
         ]
     },
@@ -1208,14 +1237,15 @@
             ],
             "refreshSeconds": 300,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
             "findByUuid d-bob",
             "authorizeShareMutation d-bob admin",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create admin foreign 0": {
@@ -1236,14 +1266,15 @@
             ],
             "refreshSeconds": 300,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
             "findByUuid d-bob",
             "authorizeShareMutation d-bob admin",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create admin foreign 45": {
@@ -1264,14 +1295,15 @@
             ],
             "refreshSeconds": 45,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
             "findByUuid d-bob",
             "authorizeShareMutation d-bob admin",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":45,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":45,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create admin foreign 999999": {
@@ -1292,14 +1324,15 @@
             ],
             "refreshSeconds": 86400,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findByUuid d-alice",
             "authorizeShareMutation d-alice admin",
             "findByUuid d-bob",
             "authorizeShareMutation d-bob admin",
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":86400,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":86400,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "update admin foreign playlist 7": {
@@ -1311,7 +1344,8 @@
             "entries": [],
             "refreshSeconds": 30,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findById 7",
@@ -1320,7 +1354,7 @@
             "authorizeShareMutation d-alice admin",
             "findByUuid d-bob",
             "authorizeShareMutation d-bob admin",
-            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}",
             "findById 7"
         ]
     },
@@ -1445,10 +1479,11 @@
             "entries": [],
             "refreshSeconds": 300,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create admin none 0": {
@@ -1460,10 +1495,11 @@
             "entries": [],
             "refreshSeconds": 300,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create admin none 45": {
@@ -1475,10 +1511,11 @@
             "entries": [],
             "refreshSeconds": 45,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":45,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":45,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "create admin none 999999": {
@@ -1490,10 +1527,11 @@
             "entries": [],
             "refreshSeconds": 86400,
             "createdBy": "admin",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
-            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":86400,\"createdBy\":\"admin\",\"revokedAt\":null}"
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":86400,\"createdBy\":\"admin\",\"revokedAt\":null,\"screenDashboardUuid\":null}"
         ]
     },
     "update admin none playlist 7": {
@@ -1505,12 +1543,13 @@
             "entries": [],
             "refreshSeconds": 30,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findById 7",
             "isAdmin admin",
-            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}",
             "findById 7"
         ]
     },
@@ -1532,14 +1571,15 @@
             "entries": [],
             "refreshSeconds": 30,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findById 7",
             "isAdmin alice",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "update {\"id\":7,\"name\":\"\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "update {\"id\":7,\"name\":\"\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}",
             "findById 7"
         ]
     },
@@ -1552,14 +1592,15 @@
             "entries": [],
             "refreshSeconds": 30,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findById 7",
             "isAdmin alice",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}",
             "findById 7"
         ]
     },
@@ -1572,14 +1613,15 @@
             "entries": [],
             "refreshSeconds": 30,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findById 7",
             "isAdmin alice",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":30,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":30,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}",
             "findById 7"
         ]
     },
@@ -1592,14 +1634,15 @@
             "entries": [],
             "refreshSeconds": 30,
             "createdBy": "alice",
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         "calls": [
             "findById 7",
             "isAdmin alice",
             "findByUuid d-alice",
             "authorizeShareMutation d-alice alice",
-            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":86400,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":86400,\"createdBy\":\"alice\",\"revokedAt\":null,\"screenDashboardUuid\":null}",
             "findById 7"
         ]
     }

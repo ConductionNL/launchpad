@@ -95,7 +95,7 @@ test.beforeAll(async () => {
 	const body = await created.json()
 	const dashboard = body.dashboard ?? body.data?.dashboard ?? body
 	expect((await viewer.api.post(`${API}/dashboard/${dashboard.id}/activate`)).status()).toBeLessThan(300)
-	expect((await viewer.api.post(`${API}/dashboards/active`, { data: { uuid: dashboard.uuid } })).status()).toBeLessThan(300)
+	expect((await viewer.api.post(`${API}/dashboards/default`, { data: { uuid: dashboard.uuid } })).status()).toBeLessThan(300)
 
 	await addPanelTile(Number(dashboard.id), FILES, 'app', 'files', 0)
 	await addPanelTile(Number(dashboard.id), ACTIVITY, 'app', 'activity', 2)

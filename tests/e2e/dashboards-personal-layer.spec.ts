@@ -116,7 +116,7 @@ async function layoutFor(
  * @return the context and page.
  */
 async function openTeam(browser: Browser, who: Principal) {
-	const preference = await who.api.post(`${API}/dashboards/active`, {
+	const preference = await who.api.post(`${API}/dashboards/default`, {
 		data: { uuid: team!.uuid },
 	})
 	expect(preference.status(), await preference.text()).toBeLessThan(300)

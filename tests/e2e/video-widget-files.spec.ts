@@ -174,7 +174,7 @@ async function videoOf(page: Page, placementId: number): Promise<Locator> {
 async function openAs(browser: Browser, who: Principal, placementId: number): Promise<{ context: BrowserContext, page: Page }> {
 	await publishForRecipients(api, dashboard!.id)
 	await shareWith(api, dashboard!.id, who.username, 'view_only')
-	const active = await who.api.post(`${API}/dashboards/active`, { data: { uuid: dashboard!.uuid } })
+	const active = await who.api.post(`${API}/dashboards/default`, { data: { uuid: dashboard!.uuid } })
 	expect(active.status(), await active.text()).toBeLessThan(300)
 
 	const session = await loginAs(browser, who.username, who.password)
@@ -564,7 +564,7 @@ test.describe('video widget: localisation (REQ-VID-011)', () => {
 			expect(created.status(), await created.text()).toBeLessThan(300)
 			const mine = (await created.json()).dashboard ?? {}
 			own = Number(mine.id)
-			const active = await dutch.api.post(`${API}/dashboards/active`, { data: { uuid: mine.uuid } })
+			const active = await dutch.api.post(`${API}/dashboards/default`, { data: { uuid: mine.uuid } })
 			expect(active.status(), await active.text()).toBeLessThan(300)
 			await openWorkspace(session.page)
 			const dialog = await openVideoForm(session.page)

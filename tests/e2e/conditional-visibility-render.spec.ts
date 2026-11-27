@@ -85,7 +85,7 @@ test.describe('conditional visibility at render time (REQ-VIS-013)', () => {
 		expect(ids, 'CONTROL: the rule-free anchor reaches the viewer').toContain(anchorId)
 		expect(ids, 'the hidden widget must not reach the viewer').not.toContain(subjectId)
 
-		const preference = await bob.api.post(`${API}/dashboards/active`, {
+		const preference = await bob.api.post(`${API}/dashboards/default`, {
 			data: { uuid: dashboard.uuid },
 		})
 		expect(preference.status(), await preference.text()).toBeLessThan(300)

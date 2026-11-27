@@ -322,25 +322,52 @@ export function dashboardGroups(placements) {
 	if (!Array.isArray(placements)) {
 		return []
 	}
-	const groups = []
-	for (const placement of placements) {
-		if (!isObject(placement) || placement.id === undefined || placement.id === null) {
-			continue
-		}
-		const content = contentOf(placement)
-		const title = typeof content.title === 'string' ? content.title : ''
-		if (placement.widgetId === 'container') {
-			groups.push({ id: placement.id, title, sortBy: typeof content.sortBy === 'string' ? content.sortBy : '' })
-			continue
-		}
-		if (placement.widgetId === 'tabs' && Array.isArray(content.tabs)) {
-			for (const tab of content.tabs) {
-				if (isObject(tab) && typeof tab.id === 'string' && tab.id !== '') {
-					const tabTitle = typeof tab.title === 'string' ? tab.title : ''
-					groups.push({ id: tabGroupId(placement.id, tab.id), title: [title, tabTitle].filter((part) => part !== '').join(' > '), sortBy: '' })
-				}
-			}
-		}
+	return placements.filter(hasPlacementId).flatMap(groupsOfPlacement)
+}
+
+/**
+ * Whether a placement is an object with an id.
+ *
+ * @param {object|null|undefined} placement A dashboard placement.
+ * @return {boolean}
+ */
+function hasPlacementId(placement) {
+	return isObject(placement) && placement.id !== undefined && placement.id !== null
+}
+
+/**
+ * A text field of an object, or '' when it is not a string.
+ *
+ * @param {object} source The object.
+ * @param {string} field The field name.
+ * @return {string}
+ */
+function textOf(source, field) {
+	return typeof source[field] === 'string' ? source[field] : ''
+}
+
+/**
+ * The groups one placement offers: itself for a `container`, one per tab
+ * for a `tabs` placement, none otherwise.
+ *
+ * @param {object} placement A dashboard placement with an id.
+ * @return {Array<{id: number|string, title: string, sortBy: string}>}
+ * @spec openspec/changes/layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
+ */
+function groupsOfPlacement(placement) {
+	const content = contentOf(placement)
+	const title = textOf(content, 'title')
+	if (placement.widgetId === 'container') {
+		return [{ id: placement.id, title, sortBy: textOf(content, 'sortBy') }]
 	}
-	return groups
+	if (placement.widgetId !== 'tabs' || !Array.isArray(content.tabs)) {
+		return []
+	}
+	return content.tabs
+		.filter((tab) => isObject(tab) && typeof tab.id === 'string' && tab.id !== '')
+		.map((tab) => ({
+			id: tabGroupId(placement.id, tab.id),
+			title: [title, textOf(tab, 'title')].filter((part) => part !== '').join(' > '),
+			sortBy: '',
+		}))
 }

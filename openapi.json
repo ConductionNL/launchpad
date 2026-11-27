@@ -6678,7 +6678,6 @@
                                             }
                                         }
                                     },
-                                    "draft": {},
                                     "gridColumns": {
                                         "type": "integer"
                                     },
@@ -6688,7 +6687,8 @@
                                             "null"
                                         ],
                                         "description": "The default way the dashboard's tiles open; anything not a string is ignored."
-                                    }
+                                    },
+                                    "draft": {}
                                 }
                             }
                         }

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Nuosavas leidinys",
     "The upload is larger than this server accepts." : "Įkeliami duomenys didesni, nei priima šis serveris.",
     "The file is too large." : "Failas per didelis.",
     "This type of file is not allowed here." : "Šio tipo failai čia neleidžiami.",

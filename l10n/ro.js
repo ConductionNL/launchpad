@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Publicație proprie",
     "The upload is larger than this server accepts." : "Încărcarea este mai mare decât acceptă acest server.",
     "The file is too large." : "Fișierul este prea mare.",
     "This type of file is not allowed here." : "Acest tip de fișier nu este permis aici.",

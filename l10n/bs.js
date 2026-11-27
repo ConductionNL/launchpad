@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Vlastita objava",
     "The upload is larger than this server accepts." : "Otpremanje je veće nego što ovaj server prihvata.",
     "The file is too large." : "Datoteka je prevelika.",
     "This type of file is not allowed here." : "Ova vrsta datoteke ovdje nije dozvoljena.",

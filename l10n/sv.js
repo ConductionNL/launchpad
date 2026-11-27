@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Egen publicering",
     "The upload is larger than this server accepts." : "Uppladdningen är större än vad den här servern tar emot.",
     "The file is too large." : "Filen är för stor.",
     "This type of file is not allowed here." : "Den här filtypen är inte tillåten här.",

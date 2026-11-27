@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Vlastná publikácia",
     "The upload is larger than this server accepts." : "Nahrávané dáta sú väčšie, než tento server prijíma.",
     "The file is too large." : "Súbor je príliš veľký.",
     "This type of file is not allowed here." : "Tento typ súboru tu nie je povolený.",

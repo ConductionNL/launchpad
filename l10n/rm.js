@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Atgna publicaziun",
     "The upload is larger than this server accepts." : "La chargiada è pli gronda che quai che quest server accepta.",
     "The file is too large." : "La datoteca è memia gronda.",
     "This type of file is not allowed here." : "Quest tip da datoteca n'è betg permess qua.",

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Saját közzététel",
     "The upload is larger than this server accepts." : "A feltöltés nagyobb, mint amit ez a kiszolgáló elfogad.",
     "The file is too large." : "A fájl túl nagy.",
     "This type of file is not allowed here." : "Ez a fájltípus itt nem engedélyezett.",

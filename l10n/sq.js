@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Publikim i vetë",
     "The upload is larger than this server accepts." : "Ngarkimi është më i madh se sa pranon ky server.",
     "The file is too large." : "Skedari është shumë i madh.",
     "This type of file is not allowed here." : "Ky lloj skedari nuk lejohet këtu.",

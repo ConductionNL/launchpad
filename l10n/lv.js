@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Pašu publikācija",
     "The upload is larger than this server accepts." : "Augšupielāde ir lielāka, nekā šis serveris pieņem.",
     "The file is too large." : "Fails ir pārāk liels.",
     "This type of file is not allowed here." : "Šis faila tips šeit nav atļauts.",

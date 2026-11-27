@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Δική μας δημοσίευση",
     "The upload is larger than this server accepts." : "Η μεταφόρτωση είναι μεγαλύτερη από όσο δέχεται αυτός ο διακομιστής.",
     "The file is too large." : "Το αρχείο είναι πολύ μεγάλο.",
     "This type of file is not allowed here." : "Αυτός ο τύπος αρχείου δεν επιτρέπεται εδώ.",

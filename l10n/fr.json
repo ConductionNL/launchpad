@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Own publication" : "Publication propre",
         "The upload is larger than this server accepts.": "L'envoi dépasse ce que ce serveur accepte.",
         "The file is too large.": "Le fichier est trop volumineux.",
         "This type of file is not allowed here.": "Ce type de fichier n'est pas autorisé ici.",

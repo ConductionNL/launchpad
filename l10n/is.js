@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Eigin útgáfa",
     "The upload is larger than this server accepts." : "Upphleðslan er stærri en þessi þjónn tekur við.",
     "The file is too large." : "Skráin er of stór.",
     "This type of file is not allowed here." : "Þessi skráartegund er ekki leyfð hér.",

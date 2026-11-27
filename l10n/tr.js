@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Kendi yayınımız",
     "The upload is larger than this server accepts." : "Yükleme, bu sunucunun kabul ettiğinden büyük.",
     "The file is too large." : "Dosya çok büyük.",
     "This type of file is not allowed here." : "Bu dosya türüne burada izin verilmiyor.",

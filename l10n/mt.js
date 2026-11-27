@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Pubblikazzjoni proprja",
     "The upload is larger than this server accepts." : "It-tlugħ huwa akbar milli jaċċetta dan is-server.",
     "The file is too large." : "Il-fajl huwa kbir wisq.",
     "This type of file is not allowed here." : "Dan it-tip ta' fajl mhuwiex permess hawn.",

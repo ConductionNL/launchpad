@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Own publication" : "Oma julkaisu",
         "The upload is larger than this server accepts.": "Lähetys on suurempi kuin tämä palvelin hyväksyy.",
         "The file is too large.": "Tiedosto on liian suuri.",
         "This type of file is not allowed here.": "Tämä tiedostotyyppi ei ole sallittu tässä.",

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Сопствена објава",
     "The upload is larger than this server accepts." : "Прикачувањето е поголемо отколку што прифаќа овој сервер.",
     "The file is too large." : "Датотеката е преголема.",
     "This type of file is not allowed here." : "Овој тип датотека не е дозволен тука.",

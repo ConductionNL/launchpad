@@ -69,7 +69,9 @@ test.beforeAll(async () => {
 		const dash = body.dashboard ?? body.data?.dashboard ?? body
 		own.push({ id: Number(dash.id), uuid: dash.uuid, name: `Fav ${i} ${RUN}` })
 	}
-	const preference = await member.api.post(`${API}/dashboards/active`, { data: { uuid: own[0].uuid } })
+	// The member's chosen start dashboard is the one the page opens; since
+	// start-page-stays-vandaag `dashboards/active` only records the last used.
+	const preference = await member.api.post(`${API}/dashboards/default`, { data: { uuid: own[0].uuid } })
 	expect(preference.status(), await preference.text()).toBeLessThan(300)
 })
 

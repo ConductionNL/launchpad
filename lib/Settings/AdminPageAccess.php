@@ -35,7 +35,7 @@ use OCP\Settings\IManager;
 /**
  * The server-side check of the administration page.
  *
- * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
  */
 class AdminPageAccess {
 	/**
@@ -45,7 +45,7 @@ class AdminPageAccess {
 	 * @param IGroupManager $groupManager    Answers whether a user is an administrator.
 	 * @param IManager      $settingsManager Answers which admin settings a delegated administrator holds.
 	 *
-	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 	 */
 	public function __construct(
 		private readonly IUserSession $userSession,

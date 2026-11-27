@@ -9,7 +9,7 @@
  * the admin page itself, {@link AdminRoot}, with the admin initial state
  * provided to every tab (REQ-INIT-003).
  *
- * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
  */
 
 import { registerIcons, registerTranslations } from '@conduction/nextcloud-vue'

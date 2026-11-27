@@ -584,7 +584,7 @@ export default {
 
 	emits: ['tabChange'],
 
-	/** @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032 */
+	/** @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036 */
 	data() {
 		return {
 			loading: true,
@@ -722,7 +722,7 @@ export default {
 		 *
 		 * @spec openspec/changes/admin-group-management/tasks.md#task-1
 		 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
-		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 		 * @return {Array<{id: string, label: string}>}
 		 */
 		beheerTabs() {
@@ -765,7 +765,7 @@ export default {
 		 * Open the tab the address names when it changes (Back, Forward).
 		 *
 		 * @param {string} tab The tab the address names.
-		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 		 */
 		tab(tab) {
 			this.showTab(adminTab(tab))
@@ -775,7 +775,7 @@ export default {
 		 * Scroll to a former tab's section when the fragment names one.
 		 *
 		 * @param {string} section The section.
-		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 		 */
 		section(section) {
 			this.revealSection(section)
@@ -798,6 +798,11 @@ export default {
 		},
 	},
 
+	/**
+	 * Load the admin tour, the settings, the group dashboards and the wizard state.
+	 *
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+	 */
 	async created() {
 		this.loadAdminTour()
 		// The three reads do not depend on each other: ask together, so the
@@ -806,7 +811,7 @@ export default {
 	},
 
 	/**
-	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 	 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
 	 */
 	mounted() {
@@ -821,7 +826,7 @@ export default {
 		 *
 		 * @param {string} id The id of the newly opened tab.
 		 * @spec openspec/specs/admin-settings/spec.md
-		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 		 */
 		onTabChange(id) {
 			this.activeTab = id
@@ -854,7 +859,7 @@ export default {
 		 * Open a tab without a click: the one the address names.
 		 *
 		 * @param {string} id The tab's id.
-		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 		 */
 		showTab(id) {
 			this.activeTab = id
@@ -881,7 +886,7 @@ export default {
 		 * General, as if it had not been seen (REQ-ADM-032, REQ-SHELL-011).
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 		 */
 		startAdminTour() {
 			this.adminTourMounted = false
@@ -1114,7 +1119,7 @@ export default {
 		 * and only for a viewer who holds General (REQ-ADM-032, D6).
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 		 */
 		offerWizardOnce() {
 			if (!this.wizardState || this.wizardState.complete || !this.showsVersionCard) {

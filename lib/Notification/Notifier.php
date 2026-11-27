@@ -142,7 +142,7 @@ class Notifier implements INotifier {
 	 *
 	 * @return string The URL.
 	 *
-	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 	 */
 	private function linkFor(INotification $notification): string {
 		if ($notification->getSubject() === 'announcement_published' || $notification->getSubject() === 'announcement_reminder') {
@@ -184,7 +184,7 @@ class Notifier implements INotifier {
 	 *
 	 * @SuppressWarnings(PHPMD.StaticAccess) AdminTabs is a stateless list of the page's tabs.
 	 *
-	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 	 */
 	private function adminPageLink(string $tab): string {
 		$url = $this->urlGenerator->linkToRouteAbsolute(

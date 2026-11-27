@@ -159,10 +159,12 @@ final class ContainerChildKeys {
 		$taken = $this->takenKeys(list: $list);
 		foreach ($list as $index => $child) {
 			$key = $ownerId . '-' . $index;
-			if (is_array($child) === true && is_int($index) === true && $this->keyOf(child: $child) === '' && isset($taken[$key]) === false) {
-				$list[$index]['uuid'] = $key;
-				$taken[$key]          = true;
+			if ($this->isKeyless(child: $child) === false || isset($taken[$key]) === true) {
+				continue;
 			}
+
+			$list[$index]['uuid'] = $key;
+			$taken[$key]          = true;
 		}
 
 		return $list;
@@ -199,32 +201,54 @@ final class ContainerChildKeys {
 	 * @return array<int|string, mixed>
 	 */
 	private function stampList(array $list, string $path): array {
-		$taken = $this->takenKeys(list: $list);
+		$list = $this->derivedKeys(list: $list, path: $path);
 		foreach ($list as $index => $child) {
-			if (is_array($child) === false) {
-				continue;
-			}
-
-			$where = $path . '/' . $index;
-			if ($this->keyOf(child: $child) === '') {
-				$key = self::derivedKey(where: $where, child: $child);
-				if (isset($taken[$key]) === true) {
-					$key = self::derivedKey(where: $where . '/again', child: $child);
-				}
-
-				$child['uuid'] = $key;
-				$taken[$key]   = true;
-			}
-
 			if (is_array($child['content'] ?? null) === true) {
-				$child['content'] = $this->stampContent(content: $child['content'], path: $where);
+				$list[$index]['content'] = $this->stampContent(content: $child['content'], path: $path . '/' . $index);
 			}
-
-			$list[$index] = $child;
 		}
 
 		return $list;
 	}//end stampList()
+
+	/**
+	 * The children of one list without a key get one derived from the child
+	 * and its place, never one another child holds.
+	 *
+	 * @param array<int|string, mixed> $list The children.
+	 * @param string                   $path Where the list sits.
+	 *
+	 * @return array<int|string, mixed>
+	 */
+	private function derivedKeys(array $list, string $path): array {
+		$taken = $this->takenKeys(list: $list);
+		foreach ($list as $index => $child) {
+			if ($this->isKeyless(child: $child) === false) {
+				continue;
+			}
+
+			$key = self::derivedKey(where: $path . '/' . $index, child: $child);
+			if (isset($taken[$key]) === true) {
+				$key = self::derivedKey(where: $path . '/' . $index . '/again', child: $child);
+			}
+
+			$list[$index]['uuid'] = $key;
+			$taken[$key]          = true;
+		}
+
+		return $list;
+	}//end derivedKeys()
+
+	/**
+	 * Whether this is a child without a key.
+	 *
+	 * @param mixed $child The list entry.
+	 *
+	 * @return bool
+	 */
+	private function isKeyless(mixed $child): bool {
+		return is_array($child) === true && $this->keyOf(child: $child) === '';
+	}//end isKeyless()
 
 	/**
 	 * The keys the children of a list already hold.
@@ -264,22 +288,11 @@ final class ContainerChildKeys {
 	 * @return list<array<string, mixed>>
 	 */
 	private function children(array $content): array {
-		$lists = [($content['placements'] ?? null)];
+		$lists = [(array)($content['placements'] ?? [])];
 		foreach ((array)($content['tabs'] ?? []) as $tab) {
-			if (is_array($tab) === true) {
-				$lists[] = ($tab['placements'] ?? null);
-			}
+			$lists[] = (array)(((array)$tab)['placements'] ?? []);
 		}
 
-		$children = [];
-		foreach ($lists as $list) {
-			foreach ((array)$list as $child) {
-				if (is_array($child) === true) {
-					$children[] = $child;
-				}
-			}
-		}
-
-		return $children;
+		return array_values(array_filter(array_merge(...$lists), 'is_array'));
 	}//end children()
 }//end class

@@ -72,17 +72,31 @@ class EmbedRenderService {
 	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-002--public-render-route-validates-jwt-and-enforces-scope
 	 */
 	public function renderWidget(string $widgetId, EmbedToken $token, array $requestFilters=[]): ?array {
+		$placements = $this->widgetPlacements(widgetId: $widgetId);
+		if ($placements === null) {
+			return null;
+		}
+
+		return $this->envelope(token: $token, requestFilters: $requestFilters) + [
+			'subjectType' => 'widget',
+			'placements'  => $placements,
+		];
+	}//end renderWidget()
+
+	/**
+	 * The placements a widget embed shows: one widget on a dashboard, or one
+	 * widget inside a well or a tabs widget (`<placement id>.<child key>`).
+	 *
+	 * @param string $widgetId The subject id.
+	 *
+	 * @return array<int, array<string, mixed>>|null Null when it does not name a widget that exists.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 */
+	private function widgetPlacements(string $widgetId): ?array {
 		$child = (new ContainerChildKeys())->splitSubject(subjectId: $widgetId);
 		if ($child !== null) {
-			$placements = $this->childPlacements(subject: $child);
-			if ($placements === null) {
-				return null;
-			}
-
-			return $this->envelope(token: $token, requestFilters: $requestFilters) + [
-				'subjectType' => 'widget',
-				'placements'  => $placements,
-			];
+			return $this->childPlacements(subject: $child);
 		}
 
 		if (ctype_digit($widgetId) === false) {
@@ -95,11 +109,8 @@ class EmbedRenderService {
 			return null;
 		}
 
-		return $this->envelope(token: $token, requestFilters: $requestFilters) + [
-			'subjectType' => 'widget',
-			'placements'  => $this->forVisitor(placements: [$placement->jsonSerialize()]),
-		];
-	}//end renderWidget()
+		return $this->forVisitor(placements: [$placement->jsonSerialize()]);
+	}//end widgetPlacements()
 
 	/**
 	 * The placements an embed of one widget inside a well or a tabs widget
@@ -119,8 +130,8 @@ class EmbedRenderService {
 			return null;
 		}
 
-		$child = (new ContainerChildKeys())->find(content: $parent->getContentArray(), key: $subject[1]);
-		if ($child === null || is_string($child['type'] ?? null) === false || $child['type'] === '') {
+		$child = self::typedChild(content: $parent->getContentArray(), key: $subject[1]);
+		if ($child === null) {
 			return null;
 		}
 
@@ -130,6 +141,23 @@ class EmbedRenderService {
 
 		return [self::childAsPlacement(parent: $parent->jsonSerialize(), child: $child)];
 	}//end childPlacements()
+
+	/**
+	 * The child with this key when it names a widget type, else null.
+	 *
+	 * @param array<string, mixed> $content The well's content.
+	 * @param string               $key     The child's key.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private static function typedChild(array $content, string $key): ?array {
+		$child = (new ContainerChildKeys())->find(content: $content, key: $key);
+		if (is_string($child['type'] ?? null) === false || $child['type'] === '') {
+			return null;
+		}
+
+		return $child;
+	}//end typedChild()
 
 	/**
 	 * A child of a well as a placement of its own: the well's id and

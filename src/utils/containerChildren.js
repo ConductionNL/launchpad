@@ -41,7 +41,7 @@ export function childSubjectId(ownerId, child) {
  * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 export function allChildren(content, trail = []) {
-	if (content === null || typeof content !== 'object') {
+	if (!isContent(content)) {
 		return []
 	}
 	return childLists(content).flatMap(({ list, title }) => listChildren(list, title ? [...trail, title] : trail))
@@ -141,7 +141,7 @@ function childLists(content) {
  * @return {object|null}
  */
 function changeChildIn(content, edit) {
-	if (edit.key === '' || content === null || typeof content !== 'object') {
+	if (!isContent(content) || edit.key === '') {
 		return null
 	}
 	for (const entry of childLists(content)) {
@@ -186,4 +186,14 @@ function withList(content, entry) {
 		return { ...content, placements: entry.list }
 	}
 	return { ...content, tabs: content.tabs.map((t, i) => (i === entry.tab ? { ...t, placements: entry.list } : t)) }
+}
+
+/**
+ * Whether this is a content object (a well's or a tab's holder).
+ *
+ * @param {object|null|undefined} content The value.
+ * @return {boolean}
+ */
+function isContent(content) {
+	return content !== null && typeof content === 'object'
 }

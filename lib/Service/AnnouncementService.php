@@ -91,7 +91,7 @@ class AnnouncementService implements AnnouncementServiceInterface {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function isAuthor(string $userId): bool {
 		if ($this->groupManager->isAdmin($userId) === true) {
@@ -131,7 +131,7 @@ class AnnouncementService implements AnnouncementServiceInterface {
 	 *
 	 * @throws ForbiddenException When the user does not manage announcements.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 	 */
 	public function allFor(string $userId): array {
 		if ($this->isAuthor(userId: $userId) === false) {

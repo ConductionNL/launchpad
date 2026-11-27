@@ -5,7 +5,7 @@
  * The announcement form edits a stored announcement on the Announcements tab
  * (announcements-managed-in-settings REQ-ANN-006).
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
  */
 
 import { describe, expect, it } from 'vitest'

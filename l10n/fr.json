@@ -1,5 +1,11 @@
 {
     "translations": {
+        "of {audience} confirmed": "sur {audience} confirmé(s)",
+        "Seen by": "Vu par",
+        "Confirmed {date} with the check": "Confirmé le {date} avec la coche",
+        "Confirmed {date} with the x": "Confirmé le {date} avec la croix",
+        "Seen, not yet": "Vu, pas encore",
+        "Not seen yet": "Pas encore vu",
         "Announcements": "Annonces",
         "Opens automatically": "S’ouvre automatiquement",
         "Could not add the dashboard to your favourites": "Impossible d’ajouter le tableau de bord à vos favoris",

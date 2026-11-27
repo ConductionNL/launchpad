@@ -6,7 +6,7 @@
  * section, End now, Delete, Seen and confirmed, and its state in the fragment
  * (announcements-managed-in-settings REQ-ANN-006, REQ-ANN-008, REQ-ANN-009).
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'

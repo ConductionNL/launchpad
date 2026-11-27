@@ -62,7 +62,7 @@ import InformationOutline from 'vue-material-design-icons/InformationOutline.vue
  * setting is ignored (announcements-managed-in-settings D4). The preview on
  * the Announcements tab renders this same component with `preview` set.
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005
  */
 export default {
 	name: 'NoticeBanner',

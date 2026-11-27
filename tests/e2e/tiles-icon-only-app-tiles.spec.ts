@@ -424,9 +424,13 @@ test('choosing the primary swatch in the tile form stores colourToken "--sc-prim
 		const form = page.getByRole('dialog').filter({ has: page.getByRole('radiogroup') }).last()
 		await expect(form).toBeVisible()
 		const swatches = form.getByRole('radiogroup', { name: /kleur|colou?r/i })
-		await expect(swatches.getByRole('radio')).toHaveCount(8)
+		// Eight theme swatches; the board's "Own colour" choice is a ninth
+		// radio in the same group that keeps the colour pickers.
+		const themeSwatches = swatches.getByRole('radio').and(page.locator('.tile-editor__swatch-input'))
+		await expect(themeSwatches).toHaveCount(8)
+		await expect(swatches.getByRole('radio', { name: /eigen kleur|own colou?r/i })).toHaveCount(1)
 		// Every swatch has a name for a screen reader.
-		for (const radio of await swatches.getByRole('radio').all()) {
+		for (const radio of await themeSwatches.all()) {
 			expect((await radio.getAttribute('aria-label')) ?? (await radio.evaluate((el) => (el as HTMLInputElement).labels?.[0]?.textContent ?? '')))
 				.not.toBe('')
 		}
@@ -439,8 +443,10 @@ test('choosing the primary swatch in the tile form stores colourToken "--sc-prim
 
 		await page.getByRole('button', { name: /^(klaar|done)$/i }).click().catch(() => undefined)
 		const tile = tileOf(page, id)
-		const primary = await rootToken(page, '--sc-primary')
-		expect(primary, 'the page defines no --sc-primary').not.toBe('')
+		// The tile renders through var(--sc-primary, #3669a5): on a theme that
+		// defines the token that value, on an unthemed page the fallback
+		// (src/utils/tileColour.js).
+		const primary = (await rootToken(page, '--sc-primary')) || '#3669a5'
 		await expect
 			.poll(() => tile.evaluate((el) => getComputedStyle(el).backgroundColor))
 			.toBe(await computedColour(page, primary))

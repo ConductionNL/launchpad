@@ -95,6 +95,26 @@ export function resolveSearchField(match, fallbackWords) {
 }
 
 /**
+ * Open Nextcloud's own search dialog by pressing core's top-bar search
+ * button (Nextcloud 31+): core opens its dialog only from that button, and
+ * listens to no event for it. The button next to `field` is preferred, then
+ * the first one on the page.
+ *
+ * @param {HTMLElement|null} field The search field LaunchPad is bound to.
+ * @return {boolean} Whether a button was found and pressed.
+ * @spec openspec/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+ */
+export function openCoreSearchDialog(field) {
+	const button = field?.parentElement?.querySelector(CORE_BUTTON_SELECTOR)
+		?? document.querySelector(CORE_BUTTON_SELECTOR)
+	if (!button) {
+		return false
+	}
+	button.click()
+	return true
+}
+
+/**
  * Take LaunchPad's own field out of the top bar again and show the core
  * button. Does nothing for a field LaunchPad did not make.
  *

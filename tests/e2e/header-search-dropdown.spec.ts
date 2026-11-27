@@ -17,6 +17,7 @@
  *   @e2e nc-unified-search-integration::the-keyboard-drives-the-list
  *   @e2e nc-unified-search-integration::the-shortcut-tip
  *   @e2e nc-unified-search-integration::escape-closes-the-list
+ *   @e2e nc-unified-search-integration::a-top-bar-without-a-field
  *
  * @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
  */
@@ -140,4 +141,39 @@ test('Escape closes the list and the field keeps the query and the focus', async
 	await expect(field).toHaveValue('team')
 	await expect(field).toBeFocused()
 	await expect(field).toHaveAttribute('aria-expanded', 'false')
+})
+
+// @e2e nc-unified-search-integration::a-top-bar-without-a-field
+test('where core\'s top bar has only a search button, a field with the button\'s words stands in its place', async ({ page }) => {
+	await stubUnifiedSearch(page)
+	await gotoLaunchPad(page)
+
+	// Nextcloud 31+ on a desktop: core draws a button that opens its search
+	// dialog, and LaunchPad places its own field right before it.
+	const field = page.getByTestId('header-search-field')
+	await expect(field).toBeVisible({ timeout: 15_000 })
+	const words = await page.evaluate(() => {
+		const input = document.querySelector('[data-testid="header-search-field"]')
+		const button = input?.nextElementSibling
+		if (!button || !button.matches('.unified-search-input__button')) {
+			return null
+		}
+		const label = button.querySelector('.unified-search-input__label')?.textContent?.trim()
+		return label || button.getAttribute('aria-label')?.trim() || null
+	})
+	expect(words, 'the field stands right before core\'s search button').toBeTruthy()
+	await expect(field).toHaveAttribute('placeholder', words!)
+	await expect(field).toHaveAttribute('aria-label', words!)
+
+	// Typing opens the list as with core's own field...
+	await field.click()
+	await field.fill('team')
+	const panel = page.locator(PANEL)
+	await expect(panel).toBeVisible()
+	await expect(panel).toContainText('Permits team')
+
+	// ...and "Show all results" still opens Nextcloud's search dialog.
+	await panel.getByText('Show all results', { exact: true }).click()
+	await expect(panel).toHaveCount(0)
+	await expect(page.locator('.unified-search-modal').first()).toBeVisible({ timeout: 10_000 })
 })

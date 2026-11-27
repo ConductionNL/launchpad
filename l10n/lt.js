@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Pirmiausia išsaugokite pakeitimus, kad galėtumėte pasirinkti, kas mato šį naują valdiklį.",
     "No changes" : "Pakeitimų nėra",
     "Keep editing" : "Tęsti redagavimą",
     "Save changes?" : "Išsaugoti pakeitimus?",

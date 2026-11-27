@@ -481,6 +481,7 @@
 			:widgetTitle="visibilityWidgetTitle"
 			:dashboardName="activeDashboard?.name || ''"
 			:ruleMatch="visibilityRuleMatch"
+			:draft="visibilityDraft"
 			@close="closeVisibilityRules"
 			@ruleAdded="onVisibilityRulesChanged"
 			@ruleUpdated="onVisibilityRulesChanged"
@@ -498,7 +499,7 @@ import {
 	NcEmptyContent,
 	NcLoadingIcon,
 } from '@conduction/nextcloud-vue'
-import { showError, showSuccess } from '@nextcloud/dialogs'
+import { showError, showInfo, showSuccess } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { mapActions, mapState } from 'pinia'
 import { computed, defineAsyncComponent, nextTick, provide, reactive, ref, shallowRef } from 'vue'
@@ -525,6 +526,7 @@ import InstallBanner from '../components/Workspace/InstallBanner.vue'
 import PhoneHiddenNotice from '../components/Workspace/PhoneHiddenNotice.vue'
 import { childSubjectId, duplicateChildIn, removeChildIn } from '../utils/containerChildren.js'
 import { embedAdminHref, isOwnedDashboard } from '../utils/dashboardRows.js'
+import { isDraftPlacement } from '../utils/editDraft.js'
 import { printDashboard } from '../utils/printDashboard.js'
 // The dialogs and modals load the first time they open, not with the page.
 const DeleteDashboardDialog = defineAsyncComponent(() => import('../dialogs/DeleteDashboardDialog.vue'))
@@ -1385,6 +1387,26 @@ export default {
 		 */
 		dashboardColumnOpts() {
 			return dashboardGridColumnOpts(this.activeDashboard?.gridColumns || 12)
+		},
+
+		/**
+		 * REQ-EDIT-001: while edit mode keeps a draft, the rules dialog
+		 * writes the draft: the widget's rules in it, and how they combine.
+		 *
+		 * @return {object|null}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 */
+		visibilityDraft() {
+			const store = useDashboardStore()
+			const id = this.visibilityPlacementId
+			if (store.draft === null || id === null || id === undefined) {
+				return null
+			}
+			return {
+				rules: store.draft.rules?.[String(id)] ?? null,
+				setRules: (rules) => store.setDraftRules(id, rules),
+				setMatch: (mode) => store.updateWidgetPlacement(id, { ruleMatch: mode }),
+			}
 		},
 
 		...mapState(useDashboardStore, [
@@ -2832,6 +2854,12 @@ export default {
 		 */
 		handleContextMenuVisibilityRules(placement) {
 			if (!placement?.id) {
+				return
+			}
+			// REQ-EDIT-001: rules belong to a stored widget; one this draft
+			// added gets them once the draft is saved.
+			if (isDraftPlacement(placement)) {
+				showInfo(t('launchpad', 'Save your changes first to choose who sees this new widget.'))
 				return
 			}
 			this.visibilityPlacementId = placement.id

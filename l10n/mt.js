@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Issejvja l-bidliet tiegħek l-ewwel biex tagħżel min jara dan il-widget ġdid.",
     "No changes" : "L-ebda bidla",
     "Keep editing" : "Kompli editja",
     "Save changes?" : "Issejvja l-bidliet?",

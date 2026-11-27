@@ -13,7 +13,7 @@ import {
 } from '../composables/useGridManager.js'
 import { api } from '../services/api.js'
 import { dropEarlyReads, startEarlyRead } from '../utils/carriedApiReads.js'
-import { clonePlacements, DRAFT_FIELDS, draftChanges, draftRequestBody, newDraftId } from '../utils/editDraft.js'
+import { clonePlacements, DRAFT_FIELDS, draftChanges, draftRequestBody, draftRulesCount, newDraftId, withDraftRules } from '../utils/editDraft.js'
 import { takeBootRead, takeDashboardFirstLoad } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { parseServerStamp } from '../utils/serverStamp.js'
@@ -668,7 +668,10 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		draftChangeCount() {
-			return this.draftDiff?.count ?? 0
+			if (this.draft === null) {
+				return 0
+			}
+			return (this.draftDiff?.count ?? 0) + draftRulesCount(this.draft, this.widgetPlacements)
 		},
 
 		/**
@@ -1323,8 +1326,25 @@ export const useDashboardStore = defineStore('dashboard', {
 				dashboardId: active.id,
 				placements: clonePlacements(this.widgetPlacements),
 				columns: active.gridColumns ?? 12,
+				rules: {},
 			}
 			return true
+		},
+
+		/**
+		 * REQ-EDIT-001: the rules dialog changes the draft only: a widget's
+		 * visibility rules as they will be stored on Save.
+		 *
+		 * @param {number|string} placementId The widget.
+		 * @param {Array<object>} rules Its rules (`ruleType`, `ruleConfig`, `isInclude`).
+		 * @return {void}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 */
+		setDraftRules(placementId, rules) {
+			if (this.draft === null) {
+				return
+			}
+			this.draft = { ...this.draft, rules: { ...(this.draft.rules ?? {}), [String(placementId)]: JSON.parse(JSON.stringify(rules ?? [])) } }
 		},
 
 		/**
@@ -1361,7 +1381,7 @@ export const useDashboardStore = defineStore('dashboard', {
 			const current = { placements: this.widgetPlacements, columns: this.activeDashboard?.gridColumns ?? draft.columns }
 			this.saving = true
 			try {
-				const response = await api.updateDashboard(draft.dashboardId, draftRequestBody(draft, current))
+				const response = await api.updateDashboard(draft.dashboardId, withDraftRules(draftRequestBody(draft, current), draft))
 				this.takeSavedDraft(draft, response.data?.data ?? response.data ?? {})
 				return { saved: true, status: 200, conflicts: [] }
 			} catch (error) {

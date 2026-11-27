@@ -863,8 +863,12 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// table so every literal `/api/...` and explicit page route is
 		// matched first. The negative-lookahead requirement keeps this
 		// catch-all from swallowing API requests if a future API route is
-		// inadvertently added below.
+		// inadvertently added below. It also leaves `/resource/...` alone:
+		// a server that decodes `%2F` (nginx) turns
+		// `/resource/..%2F..%2Fetc%2Fpasswd` into a path the leaf-only
+		// `/resource/{filename}` route does not match, and that request must
+		// be a 404, not the workspace (REQ-RES-006).
 		['name' => 'page#deepLink', 'url' => '/{deepLink}', 'verb' => 'GET',
-		 'requirements' => ['deepLink' => '(?!api(?:/|$)).+']],
+		 'requirements' => ['deepLink' => '(?!(?:api|resource)(?:/|$)).+']],
 	],
 ]);

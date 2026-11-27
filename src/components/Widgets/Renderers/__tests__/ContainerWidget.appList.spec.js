@@ -97,6 +97,15 @@ describe('a well can fill itself with the viewer\'s apps (REQ-CONT-009)', () => 
 		expect(shown(wrapper)).toEqual(['files'])
 	})
 
+	it('counts a click on a listed app as a use of that app in this well', async () => {
+		const wrapper = mountWell({ appList: { pinned: [] } })
+		await flushPromises()
+		await wrapper.findAll('.child')[1].trigger('click')
+
+		const use = JSON.parse(globalThis.localStorage.getItem('launchpad.tileUse') || '{}')
+		expect(use['7-app-zaaksysteem']?.count).toBe(1)
+	})
+
 	it('in edit mode shows the placed tiles on the grid with a note', async () => {
 		const wrapper = mountWell({ appList: { pinned: [] }, placements: [{ id: 5, type: 'text', content: { title: 'Note' } }] }, { editMode: true })
 		await flushPromises()

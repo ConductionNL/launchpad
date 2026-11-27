@@ -45,8 +45,7 @@
 					:key="childKey(child, index)"
 					class="container-widget__child container-widget__cell"
 					:style="cellStyle(child)"
-					:data-launchpad-child="index"
-					@click.capture="countUse(child)">
+					:data-launchpad-child="index">
 					<ContainerChild
 						:placement="child"
 						:editMode="false"
@@ -379,12 +378,15 @@ export default {
 		// A click anywhere in a child counts a use of that child; the child's
 		// own link or button stays the control (no click handler on the cell).
 		this.$refs.innerGrid?.addEventListener('click', this.onChildClick, true)
+		// A well drawn as cells counts its uses on the same capture phase.
+		this.$el?.addEventListener?.('click', this.onFlowClick, true)
 		this.initInnerGrid()
 	},
 
 	/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
 	beforeUnmount() {
 		this.$refs.innerGrid?.removeEventListener('click', this.onChildClick, true)
+		this.$el?.removeEventListener?.('click', this.onFlowClick, true)
 		this.destroyInnerGrid()
 	},
 
@@ -449,6 +451,24 @@ export default {
 			while (cell && cell.parentElement !== grid) {
 				cell = cell.parentElement?.closest('[data-launchpad-child]') ?? null
 			}
+			const child = cell ? this.displayedChildren[Number(cell.dataset.launchpadChild)] : undefined
+			if (child) {
+				this.countUse(child)
+			}
+		},
+
+		/**
+		 * Count a use of the app list's cell a click landed in (REQ-CONT-009).
+		 *
+		 * @param {MouseEvent} event The click, in its capture phase.
+		 * @return {void}
+		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 */
+		onFlowClick(event) {
+			if (!this.flowMode) {
+				return
+			}
+			const cell = event.target?.closest?.('.container-widget__cell[data-launchpad-child]') ?? null
 			const child = cell ? this.displayedChildren[Number(cell.dataset.launchpadChild)] : undefined
 			if (child) {
 				this.countUse(child)

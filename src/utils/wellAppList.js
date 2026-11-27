@@ -25,25 +25,47 @@ const SELF = 'launchpad'
  * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
  */
 export function viewerAppMenu() {
+	const list = bootAppEntries()
+	if (list === null) {
+		return null
+	}
+	return list
+		.filter((app) => typeof app?.id === 'string' && app.id !== '')
+		.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
+		.map(menuEntry)
+}
+
+/**
+ * The raw entries of the boot app menu, or null when the page has none.
+ *
+ * @return {Array<object>|null}
+ */
+function bootAppEntries() {
 	let raw
 	try {
 		raw = loadState('core', 'apps', null)
 	} catch {
 		return null
 	}
-	const list = Array.isArray(raw) ? raw : (raw && typeof raw === 'object' ? Object.values(raw) : null)
-	if (list === null) {
-		return null
+	if (Array.isArray(raw)) {
+		return raw
 	}
-	return list
-		.filter((app) => app && typeof app.id === 'string' && app.id !== '')
-		.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
-		.map((app) => ({
-			id: app.id,
-			label: String(app.name ?? app.id),
-			href: String(app.href ?? ''),
-			icon: String(app.icon ?? ''),
-		}))
+	return raw !== null && typeof raw === 'object' ? Object.values(raw) : null
+}
+
+/**
+ * One app of the menu in the shape the well uses.
+ *
+ * @param {object} app The boot entry.
+ * @return {{id: string, label: string, href: string, icon: string}}
+ */
+function menuEntry(app) {
+	return {
+		id: app.id,
+		label: String(app.name ?? app.id),
+		href: String(app.href ?? ''),
+		icon: String(app.icon ?? ''),
+	}
 }
 
 /**
@@ -55,11 +77,18 @@ export function viewerAppMenu() {
  * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-2
  */
 export function childAppId(child) {
+	return isAppTile(child) ? String(child.content?.appId ?? '') : ''
+}
+
+/**
+ * Whether a child is an App or link tile in app mode, or a retired app tile.
+ *
+ * @param {object} child The child placement.
+ * @return {boolean}
+ */
+function isAppTile(child) {
 	const type = child?.type ?? child?.widgetId
-	if (type === RETIRED_APP_TILE || (type === 'tile' && tileMode(child?.content) === 'app')) {
-		return String(child?.content?.appId ?? '')
-	}
-	return ''
+	return type === RETIRED_APP_TILE || (type === 'tile' && tileMode(child.content) === 'app')
 }
 
 /**
@@ -91,17 +120,36 @@ export function openableChildren(children, menu) {
  * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
  */
 export function normaliseAppList(appList) {
-	if (!appList || typeof appList !== 'object' || Array.isArray(appList)) {
+	if (appList === null || typeof appList !== 'object' || Array.isArray(appList)) {
 		return null
 	}
-	const ids = (value) => (Array.isArray(value) ? value.map(String).filter((id) => id !== '') : [])
-	const limit = Number(appList.mostUsedLimit)
 	return {
-		pinned: ids(appList.pinned),
-		exclude: ids(appList.exclude),
-		mostUsedLimit: Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 0,
+		pinned: appIds(appList.pinned),
+		exclude: appIds(appList.exclude),
+		mostUsedLimit: positiveWhole(appList.mostUsedLimit),
 		showFilter: appList.showFilter === true,
 	}
+}
+
+/**
+ * A stored list of app ids; anything else reads as none.
+ *
+ * @param {Array<string>|null|undefined} value The stored list.
+ * @return {string[]}
+ */
+function appIds(value) {
+	return Array.isArray(value) ? value.map(String).filter((id) => id !== '') : []
+}
+
+/**
+ * A stored limit as a whole number above 0, or 0 for no limit.
+ *
+ * @param {number|string|null|undefined} value The stored limit.
+ * @return {number}
+ */
+function positiveWhole(value) {
+	const number = Number(value)
+	return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0
 }
 
 /**
@@ -133,28 +181,74 @@ export function dynamicTileKey(owner, appId) {
  * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
  */
 export function listedApps(menu, list, options = {}) {
-	const { use = {}, owner = '', query = '' } = options
-	const left = new Set([...list.exclude, SELF])
-	const apps = (Array.isArray(menu) ? menu : []).filter((app) => !left.has(app.id))
-	const pinned = list.pinned
-		.map((id) => apps.find((app) => app.id === id))
-		.filter(Boolean)
-		.map((app) => ({ ...app, pinned: true }))
-	let others = apps.filter((app) => !list.pinned.includes(app.id)).map((app) => ({ ...app, pinned: false }))
-
-	const text = query.trim().toLocaleLowerCase()
+	const { pinned, others } = splitPinned(menu, list)
+	const text = searchText(options.query)
 	if (text !== '') {
 		return [...pinned, ...others].filter((app) => app.label.toLocaleLowerCase().includes(text))
 	}
-	if (list.mostUsedLimit > 0) {
-		const count = (app) => Number(use?.[dynamicTileKey(owner, app.id)]?.count) || 0
-		others = others
-			.map((app, index) => ({ app, index }))
-			.sort((a, b) => count(b.app) - count(a.app) || a.index - b.index)
-			.slice(0, list.mostUsedLimit)
-			.map(({ app }) => app)
+	return [...pinned, ...mostUsedFirst(others, list.mostUsedLimit, (app) => useCount(options.use, options.owner, app.id))]
+}
+
+/**
+ * The search text, trimmed and lower case; '' for none.
+ *
+ * @param {string|undefined} query What the viewer typed.
+ * @return {string}
+ */
+function searchText(query) {
+	return typeof query === 'string' ? query.trim().toLocaleLowerCase() : ''
+}
+
+/**
+ * The menu without the excluded apps and Launchpad, split into the pinned
+ * ones (in the order the list pins them) and the others (in menu order).
+ *
+ * @param {Array<{id: string}>} menu The viewer's app menu.
+ * @param {{pinned: string[], exclude: string[]}} list The normalised app list.
+ * @return {{pinned: Array<object>, others: Array<object>}}
+ */
+function splitPinned(menu, list) {
+	const left = new Set([...list.exclude, SELF])
+	const apps = (Array.isArray(menu) ? menu : []).filter((app) => !left.has(app.id))
+	return {
+		pinned: list.pinned
+			.map((id) => apps.find((app) => app.id === id))
+			.filter(Boolean)
+			.map((app) => ({ ...app, pinned: true })),
+		others: apps.filter((app) => !list.pinned.includes(app.id)).map((app) => ({ ...app, pinned: false })),
 	}
-	return [...pinned, ...others]
+}
+
+/**
+ * At most `limit` apps, the most used first (ties keep menu order); all of
+ * them in menu order without a limit.
+ *
+ * @param {Array<object>} apps The apps in menu order.
+ * @param {number} limit The limit, 0 for none.
+ * @param {function(object): number} count The use count of an app.
+ * @return {Array<object>}
+ */
+function mostUsedFirst(apps, limit, count) {
+	if (limit <= 0) {
+		return apps
+	}
+	return apps
+		.map((app, index) => ({ app, index, uses: count(app) }))
+		.sort((a, b) => b.uses - a.uses || a.index - b.index)
+		.slice(0, limit)
+		.map(({ app }) => app)
+}
+
+/**
+ * How often this browser opened an app from this well.
+ *
+ * @param {object} use This browser's tile use.
+ * @param {string|number} owner The well's own key.
+ * @param {string} appId The app.
+ * @return {number}
+ */
+function useCount(use, owner, appId) {
+	return Number(use?.[dynamicTileKey(owner, appId)]?.count) || 0
 }
 
 /**
@@ -188,5 +282,15 @@ export function appTilePlacements(apps, owner) {
 export function childLabel(child, menu) {
 	const appId = childAppId(child)
 	const app = appId !== '' && Array.isArray(menu) ? menu.find((entry) => entry.id === appId) : null
-	return String(app?.label ?? child?.content?.title ?? child?.title ?? childUseKey(child))
+	return app ? app.label : placedTitle(child)
+}
+
+/**
+ * The title a placed child shows, or its key.
+ *
+ * @param {object} child The child placement.
+ * @return {string}
+ */
+function placedTitle(child) {
+	return String(child?.content?.title ?? child?.title ?? childUseKey(child))
 }

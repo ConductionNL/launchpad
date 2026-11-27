@@ -4,7 +4,7 @@
  *
  * Playwright e2e for add-widget-dialog-with-miniatures (board LpWidgetKiezen):
  * Add widget is 1120 px wide, every visible card shows a miniature of its
- * widget, opening it sends no weather request, Tiles and links lists the tile
+ * widget, no miniature sends a request, Tiles and links lists the tile
  * widgets, Layout holds Container, and the edit bar has no Add tiles button.
  *
  * Gate-19 @e2e traceability:
@@ -52,17 +52,19 @@ test.afterAll(async () => {
 	await api?.dispose()
 })
 
-test('Add widget is 1120 px wide and every visible card shows a miniature, with no weather request', async ({ page }) => {
-	const weatherRequests: string[] = []
-	page.on('request', (req) => {
-		if (/\/api\/weather\//.test(req.url())) {
-			weatherRequests.push(req.url())
-		}
-	})
-
+test('Add widget is 1120 px wide and every card shows a miniature that sends no request', async ({ page }) => {
 	await gotoLaunchPad(page)
 	await enterEditMode(page)
 	await expect(page.getByTestId('launchpad-edit-bar-add-tiles')).toHaveCount(0)
+	await page.waitForLoadState('networkidle')
+	// REQ-WDG-048: miniatures send nothing. The picker's own reads (the tile
+	// form's lists, the assistant check) are not miniature requests.
+	const miniatureRequests: string[] = []
+	page.on('request', (req) => {
+		if (/\/api\/(weather|people|announcements|attention|colleague-activity|livetile|work-packages|activity-report)\b|\/core\/navigation\/apps|\/avatar\/|\/activity\/api\//.test(req.url())) {
+			miniatureRequests.push(req.url())
+		}
+	})
 	await page.getByTestId('launchpad-edit-bar-add-widget').click()
 
 	const dialog = page.locator('.widget-picker-modal .modal-container')
@@ -82,7 +84,11 @@ test('Add widget is 1120 px wide and every visible card shows a miniature, with 
 	await weather.scrollIntoViewIfNeeded()
 	await expect(weather.getByTestId('widget-miniature-weather')).toHaveAttribute('data-state', 'ready')
 	await expect(weather.getByTestId('widget-miniature-weather')).toContainText('Utrecht')
-	expect(weatherRequests).toEqual([])
+	for (let index = 0; index < count; index++) {
+		await cards.nth(index).scrollIntoViewIfNeeded()
+	}
+	await page.waitForTimeout(1500)
+	expect(miniatureRequests).toEqual([])
 })
 
 test('Tiles and links lists the tile widgets and Layout holds Container', async ({ page }) => {

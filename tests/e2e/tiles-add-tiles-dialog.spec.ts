@@ -2,18 +2,17 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The two scenarios of the open change add-tiles-dialog (REQ-TILE-043 and
- * REQ-TILE-044, a delta on `tiles`): the Add tiles dialog with its Office
- * section and its count on the button, and a service found on the server.
- * Gate-19 reads a delta scenario as `tiles::<slug>`, so until this file the
- * two were uncited.
+ * The two scenarios of the former Add tiles dialog (REQ-TILE-043 and
+ * REQ-TILE-044, a delta on `tiles`), now on the App or link tile form that
+ * replaced the dialog (app-link-tile-widget REQ-APPTILE-004, board
+ * LpTegelToevoegen): the "Choose the app" list with the ready-made Office
+ * tiles and the count on the Save button, and a service found on the server.
  *
  * THE FIXTURE
  * ===========
  * Pieter is a throwaway account (English) whose one personal dashboard is
- * "My workspace", empty. The dialog is reached from the edit bar, as the
- * change's proposal says ("reached from the edit bar and the picker's App
- * tiles section").
+ * "My workspace", empty. The form is reached from the edit bar: Add widget,
+ * the "App or link tile" card, then "An app".
  *
  * "Grafana answers on port 3000": the test starts a stand-in on port 3000
  * of this runner that answers as Grafana does (`/api/health` with a
@@ -29,8 +28,6 @@
  *
  * add-office-tiles: the office pack is answered by the test (OFFICE_PACK
  *   below), since no CI instance runs an office server.
- * grafana-found: green since services found on the server were built
- *   (27 Nov 2026, sandbox Nextcloud 34.0.6 + PostgreSQL + Redis).
  *
  * Gate-19 @e2e traceability:
  *   @e2e tiles::add-office-tiles
@@ -38,6 +35,8 @@
  *   @e2e tiles::an-address-that-is-not-a-web-address-is-refused
  *
  * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md
+ * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+ * @spec openspec/changes/app-link-tile-widget/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
  */
 
 import type { Browser, BrowserContext, Locator, Page } from '@playwright/test'
@@ -91,16 +90,17 @@ async function tileTitles(): Promise<string[]> {
 }
 
 /**
- * Open the dashboard, enter edit mode and open Add tiles.
+ * Open the dashboard, enter edit mode, open Add widget, choose the App or
+ * link tile and then "An app", which shows the "Choose the app" list.
  *
  * @param browser The browser.
  * @param officePack The office tile pack the server answers, when the test sets it.
- * @return The context, page and dialog.
+ * @return The context, page and the "Choose the app" list.
  */
 async function openAddTiles(
 	browser: Browser,
 	officePack?: Array<Record<string, string>>,
-): Promise<{ context: BrowserContext; page: Page; dialog: Locator }> {
+): Promise<{ context: BrowserContext; page: Page; chooser: Locator }> {
 	const count = (await readPlacements(own.owner.api, own.id)).length
 	const { context, page } = await openOwnDashboard(browser, own, count)
 	if (officePack !== undefined) {
@@ -111,10 +111,16 @@ async function openAddTiles(
 		}))
 	}
 	await enterEditMode(page)
-	await page.getByRole('button', { name: 'Add tiles' }).click()
-	const dialog = page.getByRole('dialog', { name: /add tiles/i })
-	await expect(dialog).toBeVisible({ timeout: 10_000 })
-	return { context, page, dialog }
+	await page.getByTestId('launchpad-edit-bar-add-widget').click()
+	const card = page.getByTestId('widget-picker-type-tile')
+	await expect(card).toContainText('App or link tile')
+	await card.click()
+	await page.getByTestId('widget-picker-add').click()
+	await page.getByTestId('tile-mode').getByText('An app', { exact: true }).click()
+	const chooser = page.getByTestId('tile-app-chooser')
+	await expect(chooser).toBeVisible({ timeout: 10_000 })
+	await expect(chooser).toContainText('Choose the app')
+	return { context, page, chooser }
 }
 
 test.beforeAll(async () => {
@@ -127,38 +133,28 @@ test.afterAll(async () => {
 })
 
 // @e2e tiles::add-office-tiles
-test('ticking Word, Excel and Outlook web makes the button read "Add 3 tiles", and it adds three tiles to My workspace', async ({
+test('ticking Word, Excel and Outlook web makes Save read "Add 3 tiles", and it adds three tiles to My workspace', async ({
 	browser,
 }) => {
 	const before = await readPlacements(own.owner.api, own.id)
-	const { context, page, dialog } = await openAddTiles(browser, OFFICE_PACK)
+	const { context, page, chooser } = await openAddTiles(browser, OFFICE_PACK)
 	try {
-		// The four sections, in this order.
-		const headings = ['App catalogue', 'Found on this server', 'Ready-made tiles for Office', 'Import bookmarks']
-		const tops: number[] = []
-		for (const heading of headings) {
-			// Office is a group of choice boxes, so its title is the legend of a
-			// fieldset; the other sections carry a heading.
-			const h = dialog.getByRole('heading', { name: heading })
-				.or(dialog.getByRole('group', { name: heading }).locator('legend'))
-				.first()
-			await expect(h, `no section ${heading}`).toBeVisible()
-			tops.push((await h.boundingBox())!.y)
+		// The Office tiles are rows of the one list, marked Office.
+		const office = chooser.getByTestId('tile-app-row-office')
+		await expect(office).toHaveCount(OFFICE_PACK.length, { timeout: 10_000 })
+		for (const row of await office.all()) {
+			await expect(row.getByTestId('tile-app-meta')).toHaveText('Office')
 		}
-		expect([...tops].sort((a, b) => a - b)).toEqual(tops)
-
-		const office = dialog.getByRole('group', { name: 'Ready-made tiles for Office' })
-			.or(dialog.locator('section').filter({ has: page.getByRole('heading', { name: 'Ready-made tiles for Office' }) }))
-			.first()
 		for (const app of ['Word', 'Excel', 'Outlook web']) {
-			await office.getByRole('checkbox', { name: app, exact: true }).check()
+			await office.filter({ hasText: app }).getByRole('checkbox', { name: app, exact: true }).check()
 		}
-		await expect(office.getByRole('checkbox', { name: 'PowerPoint', exact: true })).not.toBeChecked()
+		await expect(office.filter({ hasText: 'PowerPoint' }).getByRole('checkbox')).not.toBeChecked()
 
-		const add = dialog.getByRole('button', { name: 'Add 3 tiles', exact: true })
+		const add = page.getByTestId('tile-editor-save')
+		await expect(add).toHaveText('Add 3 tiles')
 		await expect(add).toBeEnabled()
 		await add.click()
-		await expect(dialog).toBeHidden({ timeout: 15_000 })
+		await expect(chooser).toBeHidden({ timeout: 15_000 })
 
 		await expect.poll(async () => (await readPlacements(own.owner.api, own.id)).length, { timeout: 15_000 })
 			.toBe(before.length + 3)
@@ -219,26 +215,22 @@ test.describe('services found on the server', () => {
 	})
 
 	// @e2e tiles::grafana-found
-	test('Grafana answering on port 3000 without a tile is listed as Running with "Add as tile"', async ({
+	test('Grafana answering on port 3000 without a tile is listed as Running, port 3000, ready to tick', async ({
 		browser,
 	}) => {
 		test.skip(!listening, `port ${GRAFANA_PORT} is taken on this runner, so the Grafana stand-in cannot answer there`)
 		expect(await tileTitles(), 'Grafana already has a tile').not.toContain('Grafana')
 
-		const { context, page, dialog } = await openAddTiles(browser)
+		const { context, chooser } = await openAddTiles(browser)
 		try {
-			// `has` is matched inside each section, so it is rooted at the page.
-			const found = dialog.locator('section, [role="group"]')
-				.filter({ has: page.getByRole('heading', { name: 'Found on this server' }) })
-				.first()
-			await expect(found).toBeVisible()
-			const row = found.getByRole('listitem').filter({ hasText: 'Grafana' })
-				.or(found.locator('tr, li, [data-testid]').filter({ hasText: 'Grafana' }))
-				.first()
+			const row = chooser.getByTestId('tile-app-row-found').filter({ hasText: 'Grafana' })
 			await expect(row, 'Grafana is not listed').toBeVisible({ timeout: 15_000 })
-			await expect(row).toContainText('Running')
-			await expect(row).toContainText(String(GRAFANA_PORT))
-			await expect(row.getByRole('button', { name: 'Add as tile' })).toBeVisible()
+			const meta = row.getByTestId('tile-app-meta')
+			await expect(meta).toContainText('Running')
+			await expect(meta).toContainText(`port ${GRAFANA_PORT}`)
+			const tick = row.getByRole('checkbox', { name: 'Grafana', exact: true })
+			await expect(tick).toBeEnabled()
+			await expect(tick).not.toBeChecked()
 		} finally {
 			await context.close()
 		}

@@ -35,7 +35,7 @@ import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
-import { enterEditMode, MORE_MENU, switchToDashboard } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, openTileAppChooser, switchToDashboard } from './support/dashboardSwitcher.ts'
 import {
 	readPlacements,
 	setUpOwnDashboard,
@@ -126,8 +126,8 @@ const OPENING_FILE = '<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<DL><p><DT><A HREF="h
 /**
  * Open the import dialog the way a person does now that the dashboards
  * sidebar's row menu is gone (more-menu-favourites): open the dashboard
- * through More, edit mode, Add tiles, then a bookmarks file under "Import
- * bookmarks" (REQ-BMI-001).
+ * through More, edit mode, Add widget, the App or link tile on "An app",
+ * then a bookmarks file under "Import bookmarks" (REQ-BMI-001).
  *
  * @param page The page.
  * @param name The dashboard name.
@@ -135,9 +135,8 @@ const OPENING_FILE = '<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<DL><p><DT><A HREF="h
  */
 async function openImport(page: Page, name: string): Promise<Locator> {
 	await switchToDashboard(page, name)
-	await enterEditMode(page)
-	await page.getByRole('button', { name: 'Add tiles' }).click()
-	await page.locator('[data-testid="add-tiles-bookmark-file"]').setInputFiles({
+	const chooser = await openTileAppChooser(page)
+	await chooser.getByTestId('tile-app-bookmark-file').setInputFiles({
 		name: 'bookmarks.html',
 		mimeType: 'text/html',
 		buffer: Buffer.from(OPENING_FILE, 'utf-8'),
@@ -148,7 +147,7 @@ async function openImport(page: Page, name: string): Promise<Locator> {
 }
 
 // @e2e tiles::view-only-dashboard-offers-no-import
-test('on a view-only dashboard there is no way to "Import bookmarks"; with full permission Add tiles offers it', async ({
+test('on a view-only dashboard there is no way to "Import bookmarks"; with full permission the App or link tile form offers it', async ({
 	browser,
 }) => {
 	const viewer = await createPrincipal(admin, 'e2e-bmi-viewer')
@@ -171,8 +170,8 @@ test('on a view-only dashboard there is no way to "Import bookmarks"; with full 
 		)
 		try {
 			await page.goto('/index.php/apps/launchpad/')
-			// View only: More offers no Edit, so there is no way to Add tiles
-			// and its Import bookmarks.
+			// View only: More offers no Edit, so there is no way to Add widget
+			// and the tile form's Import bookmarks.
 			await switchToDashboard(page, `E2E Organisatie ${STAMP}`)
 			await page.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`).click()
 			await expect(page.locator('[data-testid="launchpad-more-menu-item-set-default"]')).toBeVisible()
@@ -185,9 +184,9 @@ test('on a view-only dashboard there is no way to "Import bookmarks"; with full 
 			expect(switched.status(), await switched.text()).toBeLessThan(300)
 			await page.goto('/index.php/apps/launchpad/')
 			await switchToDashboard(page, `E2E Mijn werkplek ${STAMP}`)
-			await enterEditMode(page)
-			await page.getByRole('button', { name: 'Add tiles' }).click()
-			await expect(page.locator('[data-testid="add-tiles-bookmarks"]')).toBeVisible()
+			const chooser = await openTileAppChooser(page)
+			await expect(chooser.getByTestId('tile-app-bookmark-file')).toBeAttached()
+			await expect(chooser.getByText('Import bookmarks')).toBeVisible()
 		} finally {
 			await context.close()
 		}

@@ -56,6 +56,28 @@ export async function enterEditMode(page: Page): Promise<void> {
 }
 
 /**
+ * Open the App or link tile form on "An app", where "Choose the app" and
+ * "Import bookmarks" live (app-link-tile-widget): edit mode, Add widget, the
+ * App or link tile card, Add, then "An app".
+ *
+ * @param page The page, on the dashboard, as someone who may edit it.
+ * @return The "Choose the app" list.
+ */
+export async function openTileAppChooser(page: Page): Promise<Locator> {
+	if (await page.locator('.launchpad-edit-mode').count() === 0) {
+		await enterEditMode(page)
+	}
+	await page.getByTestId('launchpad-edit-bar-add-widget').click()
+	await page.getByTestId('widget-picker-type-tile').click()
+	await page.getByTestId('widget-picker-add').click()
+	await expect(page.getByTestId('tile-mode')).toBeVisible({ timeout: 10_000 })
+	await page.getByTestId('tile-mode').getByText('An app', { exact: true }).click()
+	const chooser = page.getByTestId('tile-app-chooser')
+	await expect(chooser).toBeVisible()
+	return chooser
+}
+
+/**
  * Open the dashboard settings the way a person does: edit mode, then
  * Dashboard settings in the edit bar (board LpBewerken).
  *

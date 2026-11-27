@@ -17,7 +17,7 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import { expect, request, test } from '@playwright/test'
 import { BASE_URL } from './support/baseUrl.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
-import { enterEditMode, switchToDashboard } from './support/dashboardSwitcher.ts'
+import { openTileAppChooser, switchToDashboard } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -93,11 +93,11 @@ test.afterAll(async () => {
 test('one ticked folder becomes a container at the bottom, the other is left out', async ({ page }) => {
 	await page.goto('/index.php/apps/launchpad/')
 	// The dashboards sidebar and its row menu are gone (more-menu-favourites):
-	// the import is reached through edit mode → Add tiles → Import bookmarks.
+	// the import is reached through edit mode → Add widget → App or link tile
+	// → "An app" → Import bookmarks.
 	await switchToDashboard(page, dashboard!.name)
-	await enterEditMode(page)
-	await page.getByRole('button', { name: 'Add tiles' }).click()
-	await page.locator('[data-testid="add-tiles-bookmark-file"]').setInputFiles({
+	const chooser = await openTileAppChooser(page)
+	await chooser.getByTestId('tile-app-bookmark-file').setInputFiles({
 		name: 'bookmarks.html',
 		mimeType: 'text/html',
 		buffer: Buffer.from(BOOKMARKS_FILE, 'utf-8'),

@@ -137,15 +137,15 @@ test.describe('active-dashboard-resolution — empty state', () => {
 
 test.describe('active-dashboard-resolution — switchDashboard wires the POST', () => {
 	// @e2e active-dashboard-resolution::switch-dashboard-posts-active-preference
-	test('clicking a sidebar row activates the chosen dashboard server-side', async ({
+	test('choosing a dashboard in More activates it server-side', async ({
 		page,
 	}) => {
 		await gotoApp(page)
 
-		// Open the sidebar so the dashboard rows are visible.
+		// Open More with every dashboard listed.
 		await openDashboardSwitcher(page)
 
-		const rows = page.locator('.dashboard-switcher-sidebar__item')
+		const rows = page.locator('[data-testid="launchpad-more-menu-dashboard-list"] [role="menuitemradio"]')
 		const rowCount = await rows.count()
 		if (rowCount < 2) {
 			test.skip(true, 'Need at least 2 dashboards to test switching')
@@ -165,10 +165,9 @@ test.describe('active-dashboard-resolution — switchDashboard wires the POST', 
 
 		// Click a non-active PERSONAL (owned) row — only owned dashboards take
 		// an active flag, so this exercises the real switch + persistence path.
+		// A personal row carries no shared/group marker.
 		const ownedInactiveRow = page
-			.locator(
-				'[data-source="user"].dashboard-switcher-sidebar__item:not(.active)',
-			)
+			.locator('[data-testid="launchpad-more-menu-dashboard-list"] [role="menuitemradio"][aria-checked="false"]:not(:has(.lp-more-menu__meta))')
 			.first()
 		await expect(ownedInactiveRow).toBeVisible({ timeout: 5_000 })
 		await ownedInactiveRow.click()

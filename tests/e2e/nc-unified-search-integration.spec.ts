@@ -1122,8 +1122,8 @@ test.describe.serial('unified search: search UI (REQ-SRCH-011)', () => {
 			await expect(page.locator('.workspace-shell')).toBeVisible({ timeout: 30_000 })
 			await openDashboardSwitcher(page)
 			await expect(
-				page.locator('.dashboard-switcher-sidebar__item').filter({ hasText: target.name }),
-			).toHaveClass(/\bactive\b/)
+				page.locator('[data-testid="launchpad-more-menu-dashboard-list"] [role="menuitemradio"]').filter({ hasText: target.name }),
+			).toHaveAttribute('aria-checked', 'true')
 		} finally {
 			await context.close()
 		}

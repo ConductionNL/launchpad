@@ -2413,6 +2413,19 @@
         "Tour": "Tour",
         "News and maintenance notices for the people in your organisation.": "News and maintenance notices for the people in your organisation.",
         "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges.": "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges.",
-        "Launchpad announcements": "Launchpad announcements"
+        "Launchpad announcements": "Launchpad announcements",
+        "Tabs": "Tabs",
+        "No tabs yet. Add one in the widget settings.": "No tabs yet. Add one in the widget settings.",
+        "Tab {number}": "Tab {number}",
+        "No tabs yet.": "No tabs yet.",
+        "Name of tab {number}": "Name of tab {number}",
+        "Move tab {number} up": "Move tab {number} up",
+        "Move tab {number} down": "Move tab {number} down",
+        "Remove tab {number}": "Remove tab {number}",
+        "Add tab": "Add tab",
+        "Remove this tab?": "Remove this tab?",
+        "The tab {name} holds {count} widgets. They are removed with it.": "The tab {name} holds {count} widgets. They are removed with it.",
+        "Add at least one tab.": "Add at least one tab.",
+        "Widgets grouped under tabs.": "Widgets grouped under tabs."
     }
 }

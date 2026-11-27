@@ -1078,6 +1078,42 @@
 		"default": {},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/TabsWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/TabsWidget.vue | placement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/TabsWidget.vue | editMode": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Widgets/Renderers/TabsWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/TabsWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"tabs": [],
+			"title": ""
+		},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/TileHost.vue | content": {
 		"type": "Object",
 		"required": false,

@@ -196,6 +196,39 @@ describe('DashboardConfigModal tab split', () => {
 		expect(wrapper.find('[data-test="config-panel-look"]').exists()).toBe(false)
 	})
 
+	// @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	it('labels the image as the background image, with an upload button, a preview and remove', async () => {
+		const wrapper = mountModal()
+		const image = wrapper.find('[data-testid="look-image"]')
+		expect(image.text()).toContain('Background image')
+		expect(image.text()).toContain('leave empty to follow the theme')
+		expect(image.text()).not.toMatch(/^Image$/m)
+		// The bare browser input is hidden behind a styled button.
+		const input = image.find('[data-testid="look-image-input"]')
+		expect(input.attributes('aria-hidden')).toBe('true')
+		expect(input.classes()).toContain('dashboard-config__file')
+		expect(image.find('[data-testid="look-image-upload"]').text()).toBe('Upload image')
+		expect(image.find('[data-testid="look-image-preview"]').exists()).toBe(false)
+
+		wrapper.vm.look.resource = 'achtergrond.png'
+		await wrapper.vm.$nextTick()
+		const preview = image.find('[data-testid="look-image-preview"]')
+		expect(preview.attributes('src')).toContain('/apps/launchpad/resource/achtergrond.png')
+		expect(image.find('[data-testid="look-image-upload"]').text()).toBe('Choose another image')
+		await image.find('[data-testid="look-image-clear"]').trigger('click')
+		expect(wrapper.vm.look.resource).toBe('')
+	})
+
+	// @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	it('puts each colour picker on one row with its field', () => {
+		const wrapper = mountModal()
+		const rows = wrapper.findAll('.dashboard-config__look-row')
+		expect(rows).toHaveLength(2)
+		for (const row of rows) {
+			expect(row.find('input[type="color"]').exists()).toBe(true)
+		}
+	})
+
 	// @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
 	it('shows the instance theme read-only under Display, with no theme choice or layout field', () => {
 		const wrapper = mountModal()

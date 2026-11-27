@@ -413,8 +413,62 @@ export function requestedPath(response: Response): string | null {
 }
 
 /**
+ * The first contents page the workspace page carries for a placement
+ * (`workspaceApiReads`, REQ-INIT-011), shaped as the response the widget
+ * would otherwise have fetched: status 200, the same body, a URL with the
+ * same path and query. Null when the page did not carry it (a refused or
+ * failing read is never carried; the widget then sends the request).
+ *
+ * @param page the page, on the workspace.
+ * @param placementId the placement.
+ * @return the carried answer as a response, or null.
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/specs/initial-state-contract/spec.md
+ */
+export async function carriedContents(page: Page, placementId: number): Promise<Response | null> {
+	const path = `/api/widgets/files/${placementId}/contents`
+	const encoded = await page.locator('#initial-state-launchpad-workspaceApiReads').getAttribute('value', { timeout: 5_000 }).catch(() => null)
+	if (!encoded) {
+		return null
+	}
+	const reads: Array<{ path: string, params?: Record<string, unknown>, data: unknown }> = JSON.parse(Buffer.from(encoded, 'base64').toString('utf8'))
+	const read = Array.isArray(reads) ? reads.find((entry) => entry?.path === path) : undefined
+	if (!read) {
+		return null
+	}
+	const query = new URLSearchParams(Object.entries(read.params ?? {}).map(([name, value]) => [name, String(value)]))
+	const url = new URL(`/index.php/apps/launchpad${path}?${query}`, page.url()).toString()
+	const body = JSON.stringify(read.data)
+	return {
+		url: () => url,
+		status: () => 200,
+		ok: () => true,
+		json: async () => JSON.parse(body),
+		text: async () => body,
+		request: () => ({ method: () => 'GET', url: () => url }),
+	} as unknown as Response
+}
+
+/**
+ * A placement's first contents answer once the workspace is open: the one
+ * the page carried (see {@link carriedContents}), else the request a
+ * {@link nextContents} started before the page opened.
+ *
+ * @param page the page, on the workspace.
+ * @param placementId the placement.
+ * @param pending the placement's {@link nextContents}, started before navigating.
+ * @return the first contents answer.
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/specs/initial-state-contract/spec.md
+ */
+export async function firstContents(page: Page, placementId: number, pending: Promise<Response>): Promise<Response> {
+	// The page may answer it itself; then no request comes.
+	pending.catch(() => null)
+	return (await carriedContents(page, placementId)) ?? (await pending)
+}
+
+/**
  * Open LaunchPad on the active dashboard and wait for a placement's first
- * contents response.
+ * contents response, or take it from the page when the page carried it
+ * (see {@link carriedContents}).
  *
  * @param page the page, logged in.
  * @param placementId the placement to wait for.
@@ -422,11 +476,32 @@ export function requestedPath(response: Response): string | null {
  */
 export async function openOnWidget(page: Page, placementId: number): Promise<Response> {
 	const first = nextContents(page, placementId)
+	// The page may answer it itself (below); then no request comes.
+	first.catch(() => null)
 	await page.goto('/index.php/apps/launchpad')
-	const response = await first
+	const response = (await carriedContents(page, placementId)) ?? (await first)
 	await expect(filesWidget(page, placementId)).toBeVisible({ timeout: 30_000 })
 	await expect(filesWidget(page, placementId).getByText('Loading folder…')).toHaveCount(0)
 	return response
+}
+
+/**
+ * Open LaunchPad on the active dashboard and wait until a placement's widget
+ * has loaded, however its first page arrived. Since REQ-INIT-011 the
+ * workspace page carries the first page of up to four Files widgets, and
+ * such a widget sends no contents request at all; use this when the test is
+ * about what the widget shows, and {@link openOnWidget} when it is about the
+ * request.
+ *
+ * @param page the page, logged in.
+ * @param placementId the placement to wait for.
+ * @return nothing; the widget is visible and done loading.
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/specs/initial-state-contract/spec.md
+ */
+export async function showWidget(page: Page, placementId: number): Promise<void> {
+	await page.goto('/index.php/apps/launchpad')
+	await expect(filesWidget(page, placementId)).toBeVisible({ timeout: 30_000 })
+	await expect(filesWidget(page, placementId).getByText('Loading folder…')).toHaveCount(0, { timeout: 30_000 })
 }
 
 /**

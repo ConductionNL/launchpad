@@ -2861,7 +2861,12 @@ OC.L10N.register(
     "Create a new screen link" : "Nieuwe schermlink maken",
     "Revoke works within a minute on every screen that uses the link. Whoever has the link sees only this dashboard; a screen with several dashboards is set up by administration under Kiosk." : "Intrekken werkt binnen een minuut op elk scherm dat de link gebruikt. Wie de link heeft, ziet alleen dit dashboard; een scherm met meerdere dashboards stelt beheer in onder Kiosk.",
     "created {date}" : "gemaakt {date}",
-    "_refreshes every minute_::_refreshes every %n minutes_" : ["ververst elke minuut", "ververst elke %n minuten"]
+    "_refreshes every minute_::_refreshes every %n minutes_" : ["ververst elke minuut", "ververst elke %n minuten"],
+    "Restart setup" : "Installatie opnieuw starten",
+    "Tour" : "Rondleiding",
+    "News and maintenance notices for the people in your organisation." : "Nieuws en onderhoudsmeldingen voor de mensen in je organisatie.",
+    "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges." : "Aankondigingen beheer je op dit tabblad. Wie aankondigingen beheert zonder beheerder te zijn, krijgt dit tabblad via de beheerrechten van Nextcloud.",
+    "Launchpad announcements" : "Launchpad-aankondigingen"
 },
 "nplurals=2; plural=(n != 1);"
 );

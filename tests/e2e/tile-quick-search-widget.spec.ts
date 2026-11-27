@@ -63,7 +63,7 @@ const APP_URL = '/index.php/apps/launchpad'
 const API = '/index.php/apps/launchpad/api'
 const SETTINGS = `${API}/admin/settings`
 const SHORTCUTS = `${API}/admin/search-shortcuts`
-const ADMIN_PAGE = '/index.php/apps/launchpad/admin'
+const ADMIN_PAGE = '/index.php/settings/admin/launchpad'
 
 // Stable hooks shipped by RuntimeShellSearch.vue.
 const INPUT = '[data-test="quick-search-input"]'
@@ -1439,8 +1439,8 @@ test.describe('search shortcuts (REQ-SPX-001..003)', () => {
 	async function openShortcutsTab(page: Page): Promise<Locator> {
 		// REQ-ADM-032: the search shortcuts are a card of Algemeen; the old
 		// tab address opens that card.
-		await page.goto(`${ADMIN_PAGE}/search-shortcuts`)
-		await expect(page).toHaveURL(/\/admin(\/general)?\?section=search-shortcuts/)
+		await page.goto(`${ADMIN_PAGE}#search-shortcuts`)
+		await expect(page).toHaveURL(/\/settings\/admin\/launchpad#search-shortcuts$/)
 		const tab = page.locator('[data-testid="search-shortcuts-tab"]')
 		await expect(tab).toBeVisible({ timeout: 15_000 })
 		await expect(tab.getByText('Loading…')).toHaveCount(0, { timeout: 15_000 })

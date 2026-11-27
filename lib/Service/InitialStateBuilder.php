@@ -131,7 +131,7 @@ class InitialStateBuilder {
 	 *
 	 * @var array<string, mixed>
 	 */
-	private array $values = [];
+	protected array $values = [];
 
 	/**
 	 * Constructor.

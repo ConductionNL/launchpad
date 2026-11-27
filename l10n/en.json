@@ -2406,6 +2406,11 @@
         "Create a new screen link": "Create a new screen link",
         "Revoke works within a minute on every screen that uses the link. Whoever has the link sees only this dashboard; a screen with several dashboards is set up by administration under Kiosk.": "Revoke works within a minute on every screen that uses the link. Whoever has the link sees only this dashboard; a screen with several dashboards is set up by administration under Kiosk.",
         "created {date}": "created {date}",
-        "_refreshes every minute_::_refreshes every %n minutes_": ["refreshes every minute", "refreshes every %n minutes"]
+        "_refreshes every minute_::_refreshes every %n minutes_": ["refreshes every minute", "refreshes every %n minutes"],
+        "Restart setup": "Restart setup",
+        "Tour": "Tour",
+        "News and maintenance notices for the people in your organisation.": "News and maintenance notices for the people in your organisation.",
+        "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges.": "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges.",
+        "Launchpad announcements": "Launchpad announcements"
     }
 }

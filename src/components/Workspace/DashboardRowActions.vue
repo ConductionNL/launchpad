@@ -164,13 +164,13 @@ import { embedAdminSearch } from '../../utils/embedToken.js'
  * @param {object|null} placement A widget placement on the dashboard.
  * @return {string}
  * @spec openspec/changes/embedded-analytics/tasks.md#task-40
- * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
  */
 export function embedAdminHref(dashboard, placement = null) {
 	const search = placement
 		? embedAdminSearch('widget', placement.id ?? '', dashboard?.id ?? null)
 		: embedAdminSearch('dashboard', dashboard?.uuid ?? '', dashboard?.id ?? null)
-	return `${adminPageUrl('embeds')}?${search}`
+	return adminPageUrl('embeds', search)
 }
 
 /**

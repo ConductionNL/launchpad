@@ -1793,6 +1793,27 @@
 		"validator": false,
 		"default": ""
 	},
+	"../../components/admin/AdminSettings.vue | heldTabs": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [
+			"general",
+			"announcements",
+			"templates",
+			"roles-permissions",
+			"sharing",
+			"org-navigation",
+			"kiosk",
+			"versioning-audit",
+			"operations",
+			"demo-data",
+			"group-dashboards",
+			"detail-fields",
+			"profile-fields"
+		],
+		"fresh": true
+	},
 	"../../components/admin/AnnouncementEditorsPolicy.vue | groups": {
 		"type": "Array",
 		"required": false,
@@ -2540,18 +2561,6 @@
 		"required": false,
 		"validator": false,
 		"default": null
-	},
-	"../../views/AdminPage.vue | tab": {
-		"type": "String",
-		"required": false,
-		"validator": false,
-		"default": ""
-	},
-	"../../views/AdminSettingsRedirect.vue | tab": {
-		"type": "String",
-		"required": false,
-		"validator": false,
-		"default": ""
 	},
 	"../../views/DashboardPublicShareView.vue | token": {
 		"type": "String",

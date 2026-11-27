@@ -80,7 +80,7 @@ import { BASE_URL } from './support/baseUrl.ts'
 import { adminContext, API } from './support/principals.ts'
 
 const APP = '/index.php/apps/launchpad'
-const SETTINGS_PAGE = `${BASE_URL}/index.php/apps/launchpad/admin`
+const SETTINGS_PAGE = `${BASE_URL}/index.php/settings/admin/launchpad`
 const STAMP = Date.now().toString(36)
 const TEXT_MARKER = `Embed marker ${STAMP}`
 
@@ -316,7 +316,7 @@ test('an admin issues an embed token in Admin settings and sees its JWT once', a
 	})
 	// REQ-ADM-032: the embeds are a card of Algemeen; the old tab address
 	// opens it with the dashboard's pre-selection kept.
-	await page.goto(`${SETTINGS_PAGE}/embeds?${query}`)
+	await page.goto(`${SETTINGS_PAGE}?${query}#embeds`)
 	await expect(page).toHaveURL((url) => /\/admin(\/general)?$/.test(url.pathname)
 		&& url.searchParams.get('section') === 'embeds'
 		&& url.searchParams.get('embedType') === 'dashboard')

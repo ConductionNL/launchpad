@@ -62,8 +62,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// Main page
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
 
-		// The administration, a Launchpad page over the full width (REQ-ADM-030).
-		// `/admin` opens General. Registered before the `/{deepLink}` catch-all.
+		// The former administration address: a 303 to /settings/admin/launchpad#<tab>
+		// (REQ-ADM-033). Registered before the `/{deepLink}` catch-all.
 		['name' => 'adminPage#show', 'url' => '/admin/{tab}', 'verb' => 'GET',
 		 'defaults' => ['tab' => 'general'], 'requirements' => ['tab' => '[a-z0-9\-]+']],
 

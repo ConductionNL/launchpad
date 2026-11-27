@@ -45,7 +45,7 @@ import {
 } from './support/principals.ts'
 
 const T = Date.now()
-const SETTINGS = '/index.php/apps/launchpad/admin'
+const SETTINGS = '/index.php/settings/admin/launchpad'
 
 let admin: APIRequestContext
 let bob: Principal | null = null

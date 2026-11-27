@@ -30,6 +30,7 @@ import {
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
+import { expectOpenDashboard } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -132,9 +133,7 @@ test('the member gets a copy and the listing offers no update yet', async ({
 	)
 	try {
 		await page.goto('/index.php/apps/launchpad/')
-		await expect(
-			page.getByText('Mijn werkdag', { exact: true }).first(),
-		).toBeVisible({ timeout: 30_000 })
+		await expectOpenDashboard(page, 'Mijn werkdag', 30_000)
 	} finally {
 		await context.close()
 	}
@@ -206,9 +205,7 @@ test('the update raises the version, re-syncs the copy, and the member still see
 	)
 	try {
 		await page.goto('/index.php/apps/launchpad/')
-		await expect(
-			page.getByText('Mijn werkdag', { exact: true }).first(),
-		).toBeVisible({ timeout: 30_000 })
+		await expectOpenDashboard(page, 'Mijn werkdag', 30_000)
 		const mine = await context.request.get(`${API}/dashboard`, {
 			headers: { 'OCS-APIRequest': 'true' },
 		})

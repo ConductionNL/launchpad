@@ -47,4 +47,18 @@ describe('applyCustomCss (REQ-THM-003)', () => {
 		expect(style.tagName).toBe('STYLE')
 		expect(document.head.querySelectorAll(`#${GLOBAL_STYLE_ID}`)).toHaveLength(1)
 	})
+
+	// first-paint-skeleton D3: the shell prints the global custom CSS with this
+	// id; the script reuses that element instead of adding a second copy.
+	it('reuses the style element the first-paint shell printed', () => {
+		document.body.innerHTML = `<div id="launchpad-first-paint"><style id="${GLOBAL_STYLE_ID}">.a{color:red}</style></div>`
+		const printed = document.getElementById(GLOBAL_STYLE_ID)
+
+		const style = applyCustomCss(GLOBAL_STYLE_ID, '.a{color:blue}')
+
+		expect(style).toBe(printed)
+		expect(style.textContent).toBe('.a{color:blue}')
+		expect(document.querySelectorAll(`#${GLOBAL_STYLE_ID}`)).toHaveLength(1)
+		document.body.innerHTML = ''
+	})
 })

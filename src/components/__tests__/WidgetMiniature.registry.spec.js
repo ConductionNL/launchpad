@@ -83,6 +83,17 @@ describe('every widget type as a miniature', () => {
 		expect(sampleContentOf('markdown').markdown).toContain('Team meeting')
 	})
 
+	it('gives the shared week strip and stacked bar static samples, the strip in the week of its sample day', async () => {
+		const { SAMPLE_PROPS, sampleContentOf } = await import('../../constants/widgetSamples.js')
+		const strip = sampleContentOf('week-strip')
+		const now = SAMPLE_PROPS['week-strip'].now
+		const monday = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - ((now.getUTCDay() + 6) % 7))
+		expect(strip.source).toBeUndefined()
+		expect(strip.items.map((item) => item.title)).toContain('Council meeting')
+		expect(strip.items.every((item) => Date.parse(item.date) >= monday && Date.parse(item.date) < monday + 5 * 86400000)).toBe(true)
+		expect(sampleContentOf('stacked-bar').segments.map((segment) => segment.label)).toEqual(['Open', 'In progress', 'Done'])
+	})
+
 	it('gives the shared calendar sample events inside the window it asks for, without a request', async () => {
 		const { SAMPLE_PROPS } = await import('../../constants/widgetSamples.js')
 		const from = '2027-03-08T00:00:00.000Z'

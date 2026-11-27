@@ -75,7 +75,11 @@ class AdminPageControllerTest extends TestCase {
 			static function (string $route, array $args = []): string {
 				$tab = $args['tab'] ?? '';
 				unset($args['tab']);
-				$search = $args === [] ? '' : '?' . http_build_query($args);
+				$search = '';
+				if ($args !== []) {
+					$search = '?' . http_build_query($args);
+				}
+
 				return '/index.php/apps/launchpad/admin/' . $tab . $search . '#' . $route;
 			}
 		);

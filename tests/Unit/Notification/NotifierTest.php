@@ -58,7 +58,11 @@ class NotifierTest extends TestCase {
 		$urls->method('linkToRouteAbsolute')->willReturnCallback(
 			static function (string $routeName, array $arguments = []): string {
 				if ($routeName === 'launchpad.adminPage.show') {
-					$section = isset($arguments['section']) === true ? '?section=' . $arguments['section'] : '';
+					$section = '';
+					if (isset($arguments['section']) === true) {
+						$section = '?section=' . $arguments['section'];
+					}
+
 					return 'https://host/apps/launchpad/admin/' . ($arguments['tab'] ?? '') . $section;
 				}
 

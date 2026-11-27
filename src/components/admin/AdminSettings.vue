@@ -761,12 +761,6 @@ export default {
 		},
 
 		/**
-		 * Open a tab without a click: the one the address names.
-		 *
-		 * @param {string} id The tab's id.
-		 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
-		 */
-		/**
 		 * Scroll a folded section into view: the former tab an old address
 		 * or link names (REQ-ADM-032).
 		 *
@@ -786,6 +780,12 @@ export default {
 			})
 		},
 
+		/**
+		 * Open a tab without a click: the one the address names.
+		 *
+		 * @param {string} id The tab's id.
+		 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+		 */
 		showTab(id) {
 			this.activeTab = id
 			const shell = this.$refs.shell

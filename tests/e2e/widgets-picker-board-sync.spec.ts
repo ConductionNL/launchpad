@@ -68,7 +68,9 @@ const DASHBOARD = `My workspace ${STAMP}`
 const EMPLOYEE = `e2e-employee-${STAMP}`
 const CASE_SYSTEM = 'Case system'
 const KINDS = ['All', 'Content', 'Tiles and links', 'People', 'Data and charts', 'From other apps', 'Office']
-const SECTIONS = ['Widgets from Launchpad', 'App tiles', 'From other Nextcloud apps']
+// add-widget-dialog-with-miniatures REQ-WDG-040: two card sections; apps are
+// picked in the App or link tile's form (app-link-tile-widget REQ-APPTILE-001).
+const SECTIONS = ['Widgets from Launchpad', 'From other Nextcloud apps']
 
 let own: OwnDashboard
 let admin: APIRequestContext
@@ -200,7 +202,7 @@ test('Add widget on My workspace opens one dialog with the search, the kinds and
 }) => {
 	const { context, picker } = await openPicker(browser)
 	try {
-		// Titled with the dashboard name over "Add widget", about 720 px wide.
+		// Titled with the dashboard name over "Add widget", 1120 px wide (REQ-WDG-040).
 		const dashboardName = picker.getByText(DASHBOARD, { exact: true }).first()
 		const title = picker.getByRole('heading', { name: 'Add widget', exact: true })
 		await expect(dashboardName).toBeVisible()
@@ -208,7 +210,7 @@ test('Add widget on My workspace opens one dialog with the search, the kinds and
 		expect((await dashboardName.boundingBox())!.y).toBeLessThan((await title.boundingBox())!.y)
 		// The dialog role sits on the full-screen mask; the dialog box is its .modal-container.
 		const width = (await picker.locator('.modal-container').first().boundingBox())!.width
-		expect(Math.abs(width - 720), `the dialog is ${width} px wide`).toBeLessThanOrEqual(24)
+		expect(Math.abs(width - 1120), `the dialog is ${width} px wide`).toBeLessThanOrEqual(24)
 
 		// The search, then the kinds, with the cards to their right.
 		const search = picker.getByRole('textbox', { name: /search/i }).or(picker.getByRole('searchbox')).first()
@@ -229,14 +231,15 @@ test('Add widget on My workspace opens one dialog with the search, the kinds and
 		}
 		expect([...tops].sort((a, b) => a - b)).toEqual(tops)
 
-		// Cards in two columns, each with an icon, a name and one line.
+		// Cards in four columns (board LpWidgetKiezen at 1120 px), each with a
+		// miniature, an icon, a name and one line.
 		const visible = cards(picker)
 		await expect(visible.first()).toBeVisible()
 		const lefts = new Set<number>()
-		for (const card of (await visible.all()).slice(0, 6)) {
+		for (const card of (await visible.all()).slice(0, 8)) {
 			lefts.add(Math.round((await card.boundingBox())!.x))
 		}
-		expect(lefts.size, 'the cards do not stand in two columns').toBe(2)
+		expect(lefts.size, 'the cards do not stand in four columns').toBe(4)
 
 		// It ends with Cancel and Add widget.
 		const cancel = picker.getByRole('button', { name: 'Cancel', exact: true })
@@ -282,30 +285,32 @@ test('choosing Data and charts shows only the data and chart widgets, and the ki
 })
 
 // @e2e widgets::place-an-app-tile
-test('choosing Case system under App tiles and Add widget places a one-cell tile for Case system', async ({
+test('choosing Case system in the App or link tile form and Add widget places a tile for Case system', async ({
 	browser,
 }) => {
 	const before = new Set((await readPlacements(own.owner.api, own.id)).map((p) => Number(p.id)))
 	const { context, page, picker } = await openPicker(browser)
 	try {
-		const section = picker.locator('section').filter({ has: page.getByRole('heading', { name: 'App tiles', exact: true }) }).first()
-		const tile = section.getByRole('button', { name: new RegExp(`^${CASE_SYSTEM}`) }).first()
-		await expect(tile).toBeVisible()
-		// The section ends with the entry Own tile.
-		await expect(section.getByRole('button', { name: /^Own tile/ })).toBeVisible()
-
-		await tile.click()
+		// app-link-tile-widget REQ-APPTILE-001/004: the App tiles gallery became
+		// the App or link tile, whose "Choose the app" list holds the app
+		// catalogue entries the admin approved for the reader's group.
+		await picker.getByTestId('widget-picker-type-tile').click()
+		await picker.getByTestId('widget-picker-add').click()
+		await page.getByTestId('tile-mode').getByText('An app', { exact: true }).click()
+		const chooser = page.getByTestId('tile-app-chooser')
+		const row = chooser.getByRole('checkbox', { name: new RegExp(CASE_SYSTEM) }).first()
+		await expect(row).toBeVisible()
+		await row.check()
 		// Chosen, not yet placed.
 		expect((await readPlacements(own.owner.api, own.id)).length).toBe(before.size)
-		await picker.getByRole('button', { name: 'Add widget', exact: true }).click()
-		await expect(picker).toBeHidden({ timeout: 15_000 })
+		await page.getByTestId('tile-editor-save').click()
 
 		await expect.poll(async () => (await readPlacements(own.owner.api, own.id)).length, { timeout: 15_000 })
 			.toBe(before.size + 1)
 		const placed = (await readPlacements(own.owner.api, own.id)).find((p) => !before.has(Number(p.id)))!
-		const name = String(placed.tileTitle ?? placed.customTitle ?? placed.content?.title ?? '')
+		const content = typeof placed.content === 'string' ? JSON.parse(placed.content) : (placed.content ?? {})
+		const name = String(placed.tileTitle ?? placed.customTitle ?? content.title ?? '')
 		expect(name).toBe(CASE_SYSTEM)
-		expect([Number(placed.gridWidth), Number(placed.gridHeight)], 'the tile is not one cell').toEqual([1, 1])
 	} finally {
 		await context.close()
 	}

@@ -138,16 +138,27 @@ export function resolveColour(name, element = null) {
 	if (!isColourToken(name)) {
 		return String(name || '')
 	}
-	const root = element || (typeof document !== 'undefined' ? document.documentElement : null)
-	let value = ''
-	if (root && typeof getComputedStyle === 'function') {
-		value = getComputedStyle(root).getPropertyValue(name).trim()
-	}
+	const value = themeValue(name, element)
 	if (value !== '') {
 		return value
 	}
 	const known = TILE_COLOUR_TOKENS.find((entry) => entry.token === name)
 	return known ? known.fallback : TILE_COLOUR_TOKENS[0].fallback
+}
+
+/**
+ * The value the theme gives a custom property, or '' where none can be read.
+ *
+ * @param {string} name The custom property.
+ * @param {Element|null} element Where to read it; the document root by default.
+ * @return {string}
+ */
+function themeValue(name, element) {
+	const root = element || (typeof document !== 'undefined' ? document.documentElement : null)
+	if (!root || typeof getComputedStyle !== 'function') {
+		return ''
+	}
+	return getComputedStyle(root).getPropertyValue(name).trim()
 }
 
 /**

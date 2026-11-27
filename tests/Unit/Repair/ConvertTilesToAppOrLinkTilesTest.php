@@ -95,7 +95,8 @@ class ConvertTilesToAppOrLinkTilesTest extends TestCase {
 
 		$this->assertSame(expected: [11, 12], actual: array_map(fn ($p) => $p->getId(), $written));
 		$this->assertSame(expected: 'tile', actual: $appTile->getWidgetId());
-		$this->assertSame(expected: [3, 2, 2, 2, 4], actual: [$appTile->getGridX(), $appTile->getGridY(), $appTile->getGridWidth(), $appTile->getGridHeight(), $appTile->getSortOrder()]);
+		$place = [$appTile->getGridX(), $appTile->getGridY(), $appTile->getGridWidth(), $appTile->getGridHeight(), $appTile->getSortOrder()];
+		$this->assertSame(expected: [3, 2, 2, 2, 4], actual: $place);
 		$this->assertSame(
 			expected: ['appId' => 'files', 'colour' => 'accent', 'showCount' => false, 'pinned' => true, 'mode' => 'app', 'colourToken' => '--sc-accent'],
 			actual: $appTile->getContentArray()
@@ -125,7 +126,8 @@ class ConvertTilesToAppOrLinkTilesTest extends TestCase {
 		$this->assertSame(expected: ['appId' => 'mail', 'mode' => 'app'], actual: $children[0]['content']);
 		$this->assertSame(expected: 'link', actual: $children[1]['content']['mode']);
 		$nested = $children[2]['content']['placements'][0];
-		$this->assertSame(expected: ['tile', 'app', '--sc-primary'], actual: [$nested['type'], $nested['content']['mode'], $nested['content']['colourToken']]);
+		$seen   = [$nested['type'], $nested['content']['mode'], $nested['content']['colourToken']];
+		$this->assertSame(expected: ['tile', 'app', '--sc-primary'], actual: $seen);
 		$this->assertSame(expected: ['text' => 'Hallo'], actual: $children[3]['content']);
 	}//end testConvertsTilesInsideGroups()
 

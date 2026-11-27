@@ -31,6 +31,18 @@ export function appTileFromDiscoveredApp(app, appearance = {}) {
 }
 
 /**
+ * Whether a placement is an App or link tile in app mode, or a retired app tile.
+ *
+ * @param {object} placement The placement.
+ * @return {boolean}
+ * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+ */
+function opensAnApp(placement) {
+	const id = placement?.widgetId
+	return id === 'app-tile' || (id === 'tile' && placement.content?.mode === 'app')
+}
+
+/**
  * The discovered apps a dashboard already holds: an `app-tile` widget by its
  * app id, an `app` tile by its app id, a `url` tile by the address it opens.
  *
@@ -44,7 +56,7 @@ export function discoveredAppIdsOnDashboard(placements, apps) {
 	const appTiles = new Set()
 	const urlTiles = new Set()
 	for (const placement of placements || []) {
-		if (placement?.widgetId === 'app-tile' || (placement?.widgetId === 'tile' && placement.content?.mode === 'app')) {
+		if (opensAnApp(placement)) {
 			appTiles.add(String(placement.content?.appId || ''))
 		} else if (placement?.tileLinkType === 'app') {
 			appTiles.add(String(placement.tileLinkValue || ''))

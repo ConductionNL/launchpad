@@ -85,7 +85,7 @@
 		<!-- dashboards-personal-hide-ui REQ-PERSUI-001: in view mode a widget
 		     on a shared dashboard can be hidden for this person only. Not
 		     offered for a compulsory widget (the server refuses it anyway). -->
-		<!-- REQ-WDG-047: in view mode the menu only holds actions for the
+		<!-- REQ-WDG-050: in view mode the menu only holds actions for the
 		     reader; Create embed token lives in the edit menu below. -->
 		<div v-if="showHideForMe" class="launchpad-widget__cog">
 			<NcActions

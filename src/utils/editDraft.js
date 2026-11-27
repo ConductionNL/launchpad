@@ -61,7 +61,7 @@ export function newDraftId() {
  *
  * @param {object|null} placement The placement.
  * @return {boolean}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-047
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 export function isDraftPlacement(placement) {
 	return typeof placement?.id === 'string' && placement.id.startsWith(DRAFT_ID_PREFIX)

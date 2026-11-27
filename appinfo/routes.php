@@ -293,6 +293,14 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'url' => '/api/dashboards/{uuid}/reactions', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
+		// The More menu's favourite dashboards (more-menu-favourites, REQ-SHELL-016).
+		['name' => 'favouriteDashboardApi#star',
+		 'url' => '/api/dashboards/{uuid}/favourite', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'favouriteDashboardApi#unstar',
+		 'url' => '/api/dashboards/{uuid}/favourite', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+
 		// A person's own arrangement of a dashboard somebody else owns
 		// (dashboards-and-who-may-see-them REQ-DWMS-001, REQ-DWMS-002). The
 		// id requirement is digits only, so these cannot swallow the
@@ -326,6 +334,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// REQ-ANN-008: every announcement for the Announcements tab; managers only.
 		['name' => 'announcement#manage', 'url' => '/api/announcements/manage', 'verb' => 'GET'],
 		['name' => 'announcementGroups#index', 'url' => '/api/announcements/groups', 'verb' => 'GET'],
+		// D1: the groups delegated the announcements setting, for the Roles tab; administrators.
+		['name' => 'announcementDelegation#index', 'url' => '/api/announcements/delegation', 'verb' => 'GET'],
 		['name' => 'announcementRead#state', 'url' => '/api/announcements/read-state', 'verb' => 'GET'],
 		// REQ-ANN-009: the announcements that came into view, batched after render.
 		['name' => 'announcementRead#seen', 'url' => '/api/announcements/seen', 'verb' => 'POST'],
@@ -366,7 +376,7 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'announcementRead#confirmVia',
 		 'url' => '/api/announcements/{uuid}/confirm', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
-		['name' => 'announcementReminder#remind',
+		['name' => 'announcementManager#remind',
 		 'url' => '/api/announcements/{uuid}/remind', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
 		['name' => 'announcement#unlike',
@@ -390,6 +400,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'acknowledgement#report',
 		 'url' => '/api/acknowledgements/report/{announcementKey}', 'verb' => 'GET',
 		 'requirements' => ['announcementKey' => '[A-Za-z0-9\-]+']],
+		// REQ-ACK-008: the widgets that ask for confirmation, on the Announcements tab.
+		['name' => 'announcementManager#widgets',
+		 'url' => '/api/acknowledgements/widgets', 'verb' => 'GET'],
 		['name' => 'acknowledgement#pending',
 		 'url' => '/api/acknowledgements/pending', 'verb' => 'GET'],
 		['name' => 'acknowledgement#acknowledge',

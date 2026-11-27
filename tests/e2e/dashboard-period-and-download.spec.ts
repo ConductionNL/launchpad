@@ -62,6 +62,7 @@ import {
 	setStartDashboard,
 	writeSettings,
 } from './support/dashboardsSpec.ts'
+import { downloadFromMore } from './support/dashboardSwitcher.ts'
 import { isOrListUrl, OR_REGISTER, OR_SCHEMA, setLanguage } from './support/orWidget.ts'
 import {
 	addToGroup,
@@ -406,7 +407,7 @@ test('a dashboard without dated sources shows no period choice', async ({ browse
 		await expect(dated.getByTestId('dashboard-period')).toBeVisible({ timeout: 15_000 })
 
 		const header = await open(page, workplace!)
-		await expect(header.getByTestId('dashboard-download')).toBeVisible()
+		await expect(page.getByTestId('launchpad-more-menu')).toBeVisible()
 		await expect(page.getByText('Goedemorgen').first()).toBeVisible({ timeout: 20_000 })
 		await expect(header.getByTestId('dashboard-period')).toHaveCount(0)
 		await expect(page.getByRole('radio', { name: 'Kwartaal' })).toHaveCount(0)
@@ -500,7 +501,7 @@ test('Pieter downloads the quarter: the print carries the quarter\'s figures and
 		await expect(list.getByText(ROW_TEXT)).toHaveCount(rowsFrom(quarter), { timeout: 30_000 })
 		const sentBefore = sent.length
 
-		await header.getByTestId('dashboard-download').click()
+		await downloadFromMore(page)
 
 		await expect.poll(
 			() => page.evaluate(() => (window as unknown as { __prints: unknown[] }).__prints.length),
@@ -532,7 +533,7 @@ test('the downloaded dashboard names the embedded report with a line that it is 
 	try {
 		await standInRegister(page)
 		await recordPrints(page)
-		const header = await open(page, management!)
+		await open(page, management!)
 		await expect(page.locator('.iframe-widget').first()).toBeAttached({ timeout: 20_000 })
 		const expected = `${EMBED_TITLE}: ingesloten pagina's zitten niet in de download`
 
@@ -541,7 +542,7 @@ test('the downloaded dashboard names the embedded report with a line that it is 
 		await expect(note).toBeHidden()
 
 		// Download prints the page with the note in it...
-		await header.getByTestId('dashboard-download').click()
+		await downloadFromMore(page)
 		await expect.poll(
 			() => page.evaluate(() => (window as unknown as { __prints: unknown[] }).__prints.length),
 		).toBe(1)

@@ -19,6 +19,9 @@ vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 vi.mock('@nextcloud/router', () => ({
 	generateUrl: (tpl, vars) => tpl.replace('{appId}', vars?.appId),
 }))
+vi.mock('@nextcloud/axios', () => ({
+	default: { get: vi.fn(async () => ({ data: { value: null } })), put: vi.fn(async () => ({ data: {} })) },
+}))
 vi.mock('../LaunchpadMoreMenu.vue', () => ({
 	default: {
 		name: 'LaunchpadMoreMenu',
@@ -79,8 +82,13 @@ describe('StartPageMenu', () => {
 		expect(mountMenu(null).menu.exists()).toBe(false)
 	})
 
-	it('offers the dashboards and Settings, and no This dashboard group', () => {
-		const { menu } = mountMenu()
+	it('offers the dashboards and Settings, and no This dashboard group', async () => {
+		const { wrapper, menu } = mountMenu()
+		// Nothing is open off the dashboard view: folded, without favourites,
+		// the column is the line about starring and More.
+		expect(menu.props('dashboards').map((i) => i.id)).toEqual(['favourites-hint', 'all-dashboards'])
+		wrapper.vm.toggleDashboardsExpanded()
+		await wrapper.vm.$nextTick()
 		expect(menu.props('dashboards').map((i) => i.id)).toEqual(['dashboard-1', 'dashboard-2', 'all-dashboards'])
 		expect(menu.props('dashboards').some((i) => i.checked === true)).toBe(false)
 		expect(menu.props('settings').map((i) => i.id)).toEqual(['personal-settings', 'StoreMenu', 'FlowsMenu', 'Documentation'])
@@ -92,22 +100,26 @@ describe('StartPageMenu', () => {
 		expect(wrapper.attributes('data-walkthrough-id')).toBe('launchpad-more-menu')
 	})
 
-	it('opens a chosen dashboard on the dashboard view, and All dashboards goes there', () => {
-		const { menu, router } = mountMenu()
+	it('opens a chosen dashboard on the dashboard view, and More unfolds the list in place', async () => {
+		const { wrapper, menu, router } = mountMenu()
+		menu.props('dashboards').at(-1).onClick()
+		await wrapper.vm.$nextTick()
+		expect(router.push).not.toHaveBeenCalled()
+		expect(menu.props('dashboards').at(-1).label).toBe('Less')
 		menu.props('dashboards')[1].onClick()
 		expect(router.push).toHaveBeenCalledWith({ name: 'dashboard-detail', params: { id: '2' } })
-		menu.props('dashboards').at(-1).onClick()
-		expect(router.push).toHaveBeenLastCalledWith({ name: 'Workspace' })
 	})
 
 	it('reads the default dashboard once, on first open, and marks it', async () => {
-		const { menu } = mountMenu()
+		const { wrapper, menu } = mountMenu()
 		menu.vm.$emit('open')
 		await flushPromises()
 		menu.vm.$emit('open')
 		await flushPromises()
 		expect(api.getDefaultDashboardPreference).toHaveBeenCalledTimes(1)
-		expect(menu.props('dashboards')[0].meta).toBe('default')
+		wrapper.vm.toggleDashboardsExpanded()
+		await wrapper.vm.$nextTick()
+		expect(menu.props('dashboards')[0].pill?.label).toBe('Default')
 	})
 
 	it('reads the dashboards on open when the page has not', async () => {
@@ -121,9 +133,11 @@ describe('StartPageMenu', () => {
 
 	it('keeps the menu working when the default cannot be read', async () => {
 		api.getDefaultDashboardPreference.mockRejectedValue(new Error('500'))
-		const { menu } = mountMenu()
+		const { wrapper, menu } = mountMenu()
 		menu.vm.$emit('open')
 		await flushPromises()
+		wrapper.vm.toggleDashboardsExpanded()
+		await wrapper.vm.$nextTick()
 		expect(menu.props('dashboards')[0].meta).toBeUndefined()
 	})
 })

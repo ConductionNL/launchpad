@@ -504,7 +504,7 @@ export default {
 .launchpad-bulk-ops__table th,
 .launchpad-bulk-ops__table td {
 	padding: 0.25rem 0.5rem;
-	text-align: left;
+	text-align: start;
 }
 
 .launchpad-bulk-ops__col-select {

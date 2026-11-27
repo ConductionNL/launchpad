@@ -36,12 +36,13 @@ import type { SeededUser } from './support/filterBus.ts'
 
 import { expect, request, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
-import { gotoLaunchPad, openSidebar } from './fixtures/widget-flow.ts'
+import { gotoLaunchPad } from './fixtures/widget-flow.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { addWidgetFromMore, switchToDashboard } from './support/dashboardSwitcher.ts'
 import {
 	apiAs,
 	provisionUserWithDashboard,
@@ -99,18 +100,11 @@ async function openPicker(
 	dashboardName: string,
 ): Promise<{ picker: Locator; requests: Request[] }> {
 	await gotoLaunchPad(page)
-	await openSidebar(page)
-	const row = page.locator(
-		`[data-source="user"].dashboard-switcher-sidebar__item[aria-label="${dashboardName}"]`,
-	)
-	await expect(row, `the switcher lists "${dashboardName}"`).toBeVisible({
-		timeout: 15_000,
-	})
-	await row.locator('.dashboard-row-actions button').first().click()
+	await switchToDashboard(page, dashboardName)
 
 	const requests: Request[] = []
 	page.on('request', (req) => requests.push(req))
-	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
+	await addWidgetFromMore(page)
 
 	const picker = page.locator('.widget-picker')
 	await expect(picker, 'the Add widget picker opens').toBeVisible({

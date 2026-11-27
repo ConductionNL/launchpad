@@ -27,9 +27,12 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
+use OCA\LaunchPad\Settings\LaunchPadAnnouncementsAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataDownloadResponse;
@@ -265,8 +268,8 @@ class AcknowledgementController extends Controller {
 
 	/**
 	 * GET /api/acknowledgements/report/{announcementKey} — the
-	 * audience-scoped read-receipt report. Admin / template owner only
-	 * (REQ-ACK-004).
+	 * audience-scoped read-receipt report, for holders of the announcements
+	 * setting (REQ-ACK-004).
 	 *
 	 * @param string $announcementKey The announcement identity.
 	 *
@@ -274,16 +277,18 @@ class AcknowledgementController extends Controller {
 	 *
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-req-ack-004-admin-read-receipt-report-scoped-to-the-audience
 	 */
-	#[NoAdminRequired]
+	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
+	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
 	public function report(string $announcementKey): JSONResponse {
 		if ($this->context->userId === null) {
 			return $this->context->responseHelper->unauthorized();
 		}
 
-		if ($this->isManager(announcementKey: $announcementKey) === false) {
+		if ($this->isManager() === false) {
 			return $this->context->responseHelper->forbidden(
-				message: 'Only an admin or the template owner may read this report'
+				message: 'Only an announcements manager may read this report'
 			);
 		}
 
@@ -306,17 +311,19 @@ class AcknowledgementController extends Controller {
 	 *
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-req-ack-004-admin-read-receipt-report-scoped-to-the-audience
 	 */
-	#[NoAdminRequired]
+	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
+	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
 	#[NoCSRFRequired]
 	public function reportCsv(string $announcementKey) {
 		if ($this->context->userId === null) {
 			return $this->context->responseHelper->unauthorized();
 		}
 
-		if ($this->isManager(announcementKey: $announcementKey) === false) {
+		if ($this->isManager() === false) {
 			return $this->context->responseHelper->forbidden(
-				message: 'Only an admin or the template owner may export this report'
+				message: 'Only an announcements manager may export this report'
 			);
 		}
 
@@ -372,17 +379,15 @@ class AcknowledgementController extends Controller {
 	}//end csvField()
 
 	/**
-	 * Whether the current user may manage (report on) the announcement —
-	 * a Nextcloud admin, a LaunchPad admin, or the announcement's template
-	 * owner (REQ-ACK-004, design "Authorization").
-	 *
-	 * @param string $announcementKey The announcement identity.
+	 * Whether the current user may read a widget's read receipts: an
+	 * administrator or a holder of Launchpad's announcements setting; a
+	 * template owner without it no longer may (REQ-ACK-004).
 	 *
 	 * @return bool True when authorized.
 	 *
-	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-req-ack-004-admin-read-receipt-report-scoped-to-the-audience
 	 */
-	private function isManager(string $announcementKey): bool {
+	private function isManager(): bool {
 		if ($this->context->userId === null) {
 			return false;
 		}
@@ -391,14 +396,6 @@ class AcknowledgementController extends Controller {
 			return true;
 		}
 
-		if ($this->tools->roleService->isAdmin(userId: $this->context->userId) === true) {
-			return true;
-		}
-
-		$owner = $this->tools->acknowledgements->resolveOwnerUserId(
-			announcementKey: $announcementKey
-		);
-
-		return $owner !== null && $owner === $this->context->userId;
+		return $this->tools->managers->manages(userId: $this->context->userId);
 	}//end isManager()
 }//end class

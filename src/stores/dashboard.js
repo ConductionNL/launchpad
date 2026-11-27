@@ -345,6 +345,20 @@ function widgetRequestBody(widgetId, placement) {
 }
 
 /**
+ * A tile's placement fields, the tile form keys they come from (first one
+ * set wins) and their default, as the tile route stores them.
+ */
+const DRAFT_TILE_FIELDS = [
+	['tileTitle', ['title'], ''],
+	['tileIcon', ['icon'], ''],
+	['tileIconType', ['iconType'], 'class'],
+	['tileBackgroundColor', ['backgroundColor', 'bgColor'], '#0082c9'],
+	['tileTextColor', ['textColor', 'txtColor'], '#ffffff'],
+	['tileLinkType', ['linkType'], 'app'],
+	['tileLinkValue', ['linkValue', 'linkVal'], ''],
+]
+
+/**
  * REQ-EDIT-001: the placement fields of a tile added in a draft, from the
  * tile form's fields, as a stored tile carries them.
  *
@@ -353,15 +367,10 @@ function widgetRequestBody(widgetId, placement) {
  * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 function draftTileFields(tileData) {
-	const fields = {
-		tileType: 'custom',
-		tileTitle: tileData.title ?? '',
-		tileIcon: tileData.icon ?? '',
-		tileIconType: tileData.iconType ?? 'class',
-		tileBackgroundColor: tileData.backgroundColor ?? tileData.bgColor ?? '#0082c9',
-		tileTextColor: tileData.textColor ?? tileData.txtColor ?? '#ffffff',
-		tileLinkType: tileData.linkType ?? 'app',
-		tileLinkValue: tileData.linkValue ?? tileData.linkVal ?? '',
+	const fields = { tileType: 'custom' }
+	for (const [field, keys, fallback] of DRAFT_TILE_FIELDS) {
+		const key = keys.find((name) => tileData[name] !== undefined && tileData[name] !== null)
+		fields[field] = key === undefined ? fallback : tileData[key]
 	}
 	if (tileData.content && typeof tileData.content === 'object') {
 		fields.content = tileData.content

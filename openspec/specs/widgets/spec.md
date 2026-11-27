@@ -1119,6 +1119,126 @@ tile search of tile-quick-search.
 - **WHEN** the widget renders
 - **THEN** it names DuckDuckGo as the engine
 
+### Requirement: A widget below the fold loads when it comes into view (REQ-WDG-044)
+
+On a dashboard in view mode, a widget's content SHALL mount, and so ask its source, only when its card comes within one
+viewport height of the visible area, or once the page has settled (2.5 seconds after the card appeared, at the browser's next
+idle moment), or when the page is about to print, whichever comes first. Its card (frame, title, place in the grid) SHALL
+show from the start. A widget whose content has mounted SHALL stay mounted. In edit mode, in the headless export render
+(`?export=1`) and in a browser without IntersectionObserver every widget's content SHALL mount at once.
+
+#### Scenario: The case list below the fold waits for the reader
+
+- **GIVEN** Pieter's start page has the case list widget below the fold
+- **WHEN** he opens the start page
+- **THEN** the widgets on screen ask their sources and the case list does not yet
+- **AND** when he scrolls towards the case list it asks its source and shows the cases
+
+#### Scenario: Everything has loaded before a download
+
+- **GIVEN** Pieter opened his start page and did not scroll
+- **WHEN** the page has settled, or he chooses Download
+- **THEN** every widget has mounted, so the printed dashboard shows every widget's content
+
+#### Scenario: Edit mode shows every widget at once
+
+- **GIVEN** Pieter edits his start page
+- **WHEN** the dashboard shows in edit mode
+- **THEN** every widget's content mounts at once
+
+### Requirement: Every widget shows its own loading and error state (REQ-WDG-046)
+
+No widget SHALL hold up the first render of a dashboard. Every widget's card (frame, title, place in the grid) SHALL
+render at once, with a loading state (a busy status, "Loading…") in place of its content until the content mounts and
+asks its source (REQ-WDG-044). A widget whose content fails to show (an error while it sets up, renders or runs a
+lifecycle hook) SHALL show "Widget not available" with Retry inside its own card, and every other widget SHALL render
+as if it were not there. Retry SHALL mount the content afresh. An error in a widget's event handler or watcher SHALL
+NOT replace the widget.
+
+#### Scenario: A widget's card shows a loading state first
+
+- **GIVEN** Pieter's start page has a widget below the fold
+- **WHEN** he opens the start page
+- **THEN** that widget's card is in the grid with a loading state until it comes into view
+
+#### Scenario: A failing widget stays in its own card
+@e2e exclude no shipped widget can be made to throw while it renders without changing its code; pinned by src/components/__tests__/WidgetErrorBoundary.spec.js ('keeps a widget that fails to render inside its card, beside a working one', 'mounts the widget afresh on Retry')
+
+- **GIVEN** Pieter's start page has a weather widget whose content throws while it renders, and a news widget
+- **WHEN** he opens the start page
+- **THEN** the weather widget's card says "Widget not available" with Retry
+- **AND** the news widget shows its news
+
+### Requirement: The widget picker as LpWidgetKiezen draws it (REQ-WDG-040)
+
+Add widget SHALL open one dialog, 720 px wide, titled with the dashboard name over "Add widget". It SHALL hold a search field, a column of kinds and, to its right, the widgets as cards in two columns, each card with an icon, a name and one line that says what the widget does. The cards SHALL be grouped under "Widgets from Launchpad", "App tiles" and "From other Nextcloud apps". The dialog SHALL end with Cancel and Add widget; a card is chosen by clicking it and placed with Add widget.
+
+#### Scenario: Open the picker
+
+- **GIVEN** Pieter edits My workspace
+- **WHEN** he chooses Add widget
+- **THEN** the dialog shows the search, the kinds and the card sections in that order
+
+### Requirement: Kinds with counts (REQ-WDG-041)
+
+The kind column SHALL list All, Content, Tiles and links, People, Data and charts, From other apps and Office, each with the number of widgets in it, and SHALL filter the cards to the chosen kind. The search SHALL filter within the chosen kind.
+
+#### Scenario: Filter by kind
+
+- **GIVEN** the picker is open on All
+- **WHEN** Pieter chooses Data and charts
+- **THEN** only the data and chart widgets are shown and the kind shows their count
+
+### Requirement: App tiles in the picker (REQ-WDG-042)
+
+The section "App tiles" SHALL show one tile per app in the reader's tile catalogue, square, in the tile's colour with its white icon and its name under it, followed by the entry Own tile. Choosing an app tile SHALL place it as a one-cell tile widget.
+
+#### Scenario: Place an app tile
+
+- **WHEN** Pieter chooses Case system under App tiles and Add widget
+- **THEN** a one-cell tile for Case system is placed on the dashboard
+
+### Requirement: Widgets the role may not add (REQ-WDG-043)
+
+A widget type the reader's role may not add (role feature permissions) SHALL be shown as a grey card that says "Not allowed for your role" and SHALL NOT be chosen. A legacy widget type SHALL carry the label "Older widget type".
+
+#### Scenario: Embedded page not allowed
+
+- **GIVEN** the role Employee may not add Embedded page
+- **THEN** its card is grey, says "Not allowed for your role" and cannot be chosen
+
+### Requirement: The assistant line (REQ-WDG-045)
+
+When the server has a text-to-text assistant for the reader (Nextcloud task processing, `core:text2text`), the picker SHALL show, above the search, a line "Describe what you need" with a field and an Ask button. Asking SHALL send the need and the cards the reader may add (key, name, what it does) and SHALL show the proposal as the proposed widget's name with one sentence why, and the button "Place it like this", which places that widget as Add widget does. The proposal SHALL always be one of the offered cards; any other answer SHALL be shown as "No widget fits; choose one below". Without an assistant the line SHALL NOT be shown. Nothing about the need SHALL be stored by Launchpad, and a proposal SHALL be rate limited per user.
+
+#### Scenario: Ask the assistant
+
+- **GIVEN** the server has a text-to-text assistant
+- **AND** Pieter opens Add widget on My workspace
+- **WHEN** he describes "where I handle my cases" and asks
+- **THEN** the line proposes the app tile Case system with one sentence why
+- **AND** Place it like this places a one-cell tile for Case system on My workspace
+
+#### Scenario: No assistant
+
+- **GIVEN** the server has no text-to-text assistant
+- **THEN** the picker shows no assistant line
+
+### Requirement: The widgets on the first screen render in the first pass (REQ-WDG-047)
+
+A widget whose top row starts within the first screen of the workspace SHALL mount in the dashboard's first render,
+without waiting for it to be reported in view. As soon as the dashboard's placements are known, the renderer of every
+widget type on the first screen SHALL start loading. Widgets further down SHALL keep loading when they come into view
+(REQ-WDG-044).
+
+#### Scenario: The first screen renders at once
+@e2e exclude a timing property (no observer round, chunk requested early); pinned by src/utils/__tests__/firstViewport.spec.js and src/components/__tests__/WidgetWrapper.spec.js ('mounts a widget on the first screen at once and leaves one further down to the observer'); measured in the PR on the reference stack
+
+- **GIVEN** Pieter's start page has tiles in its top rows and a chart far below
+- **WHEN** he opens the start page
+- **THEN** the tiles render in the first pass, with their renderer requested as soon as the dashboard is known
+- **AND** the chart shows a loading state until it comes into view
+
 ## Non-Functional Requirements
 
 - **Performance**: GET /api/widgets MUST return within 1 second even with 50+ registered widgets. Widget item fetching SHOULD be parallelized across widget types.
@@ -1248,123 +1368,3 @@ The system MUST serialize widget items via `WidgetItem::jsonSerialize()` (both V
 - `applyButtons` reaches into the widget impl per-user; button visibility is a widget-impl concern, not the formatter's. The REQ documents the call site, not the underlying permission model.
 - Loader's silent-skip of unknown widget IDs means callers cannot distinguish "widget returned no items" from "widget not registered". Future tightening (e.g. return a `null` sentinel for skipped IDs) is deferred — would be a breaking API change.
 - The V1/V2 empty-message asymmetry is inherent in the Nextcloud `IAPIWidget` contract; V1 callers will always see `emptyContentMessage: ''`. The frontend already special-cases the empty string.
-
-### Requirement: A widget below the fold loads when it comes into view (REQ-WDG-044)
-
-On a dashboard in view mode, a widget's content SHALL mount, and so ask its source, only when its card comes within one
-viewport height of the visible area, or once the page has settled (2.5 seconds after the card appeared, at the browser's next
-idle moment), or when the page is about to print, whichever comes first. Its card (frame, title, place in the grid) SHALL
-show from the start. A widget whose content has mounted SHALL stay mounted. In edit mode, in the headless export render
-(`?export=1`) and in a browser without IntersectionObserver every widget's content SHALL mount at once.
-
-#### Scenario: The case list below the fold waits for the reader
-
-- **GIVEN** Pieter's start page has the case list widget below the fold
-- **WHEN** he opens the start page
-- **THEN** the widgets on screen ask their sources and the case list does not yet
-- **AND** when he scrolls towards the case list it asks its source and shows the cases
-
-#### Scenario: Everything has loaded before a download
-
-- **GIVEN** Pieter opened his start page and did not scroll
-- **WHEN** the page has settled, or he chooses Download
-- **THEN** every widget has mounted, so the printed dashboard shows every widget's content
-
-#### Scenario: Edit mode shows every widget at once
-
-- **GIVEN** Pieter edits his start page
-- **WHEN** the dashboard shows in edit mode
-- **THEN** every widget's content mounts at once
-
-### Requirement: Every widget shows its own loading and error state (REQ-WDG-046)
-
-No widget SHALL hold up the first render of a dashboard. Every widget's card (frame, title, place in the grid) SHALL
-render at once, with a loading state (a busy status, "Loading…") in place of its content until the content mounts and
-asks its source (REQ-WDG-044). A widget whose content fails to show (an error while it sets up, renders or runs a
-lifecycle hook) SHALL show "Widget not available" with Retry inside its own card, and every other widget SHALL render
-as if it were not there. Retry SHALL mount the content afresh. An error in a widget's event handler or watcher SHALL
-NOT replace the widget.
-
-#### Scenario: A widget's card shows a loading state first
-
-- **GIVEN** Pieter's start page has a widget below the fold
-- **WHEN** he opens the start page
-- **THEN** that widget's card is in the grid with a loading state until it comes into view
-
-#### Scenario: A failing widget stays in its own card
-@e2e exclude no shipped widget can be made to throw while it renders without changing its code; pinned by src/components/__tests__/WidgetErrorBoundary.spec.js ('keeps a widget that fails to render inside its card, beside a working one', 'mounts the widget afresh on Retry')
-
-- **GIVEN** Pieter's start page has a weather widget whose content throws while it renders, and a news widget
-- **WHEN** he opens the start page
-- **THEN** the weather widget's card says "Widget not available" with Retry
-- **AND** the news widget shows its news
-
-### Requirement: The widget picker as LpWidgetKiezen draws it (REQ-WDG-040)
-
-Add widget SHALL open one dialog, 720 px wide, titled with the dashboard name over "Add widget". It SHALL hold a search field, a column of kinds and, to its right, the widgets as cards in two columns, each card with an icon, a name and one line that says what the widget does. The cards SHALL be grouped under "Widgets from Launchpad", "App tiles" and "From other Nextcloud apps". The dialog SHALL end with Cancel and Add widget; a card is chosen by clicking it and placed with Add widget.
-
-#### Scenario: Open the picker
-
-- **GIVEN** Pieter edits My workspace
-- **WHEN** he chooses Add widget
-- **THEN** the dialog shows the search, the kinds and the card sections in that order
-
-### Requirement: Kinds with counts (REQ-WDG-041)
-
-The kind column SHALL list All, Content, Tiles and links, People, Data and charts, From other apps and Office, each with the number of widgets in it, and SHALL filter the cards to the chosen kind. The search SHALL filter within the chosen kind.
-
-#### Scenario: Filter by kind
-
-- **GIVEN** the picker is open on All
-- **WHEN** Pieter chooses Data and charts
-- **THEN** only the data and chart widgets are shown and the kind shows their count
-
-### Requirement: App tiles in the picker (REQ-WDG-042)
-
-The section "App tiles" SHALL show one tile per app in the reader's tile catalogue, square, in the tile's colour with its white icon and its name under it, followed by the entry Own tile. Choosing an app tile SHALL place it as a one-cell tile widget.
-
-#### Scenario: Place an app tile
-
-- **WHEN** Pieter chooses Case system under App tiles and Add widget
-- **THEN** a one-cell tile for Case system is placed on the dashboard
-
-### Requirement: Widgets the role may not add (REQ-WDG-043)
-
-A widget type the reader's role may not add (role feature permissions) SHALL be shown as a grey card that says "Not allowed for your role" and SHALL NOT be chosen. A legacy widget type SHALL carry the label "Older widget type".
-
-#### Scenario: Embedded page not allowed
-
-- **GIVEN** the role Employee may not add Embedded page
-- **THEN** its card is grey, says "Not allowed for your role" and cannot be chosen
-
-### Requirement: The assistant line (REQ-WDG-045)
-
-When the server has a text-to-text assistant for the reader (Nextcloud task processing, `core:text2text`), the picker SHALL show, above the search, a line "Describe what you need" with a field and an Ask button. Asking SHALL send the need and the cards the reader may add (key, name, what it does) and SHALL show the proposal as the proposed widget's name with one sentence why, and the button "Place it like this", which places that widget as Add widget does. The proposal SHALL always be one of the offered cards; any other answer SHALL be shown as "No widget fits; choose one below". Without an assistant the line SHALL NOT be shown. Nothing about the need SHALL be stored by Launchpad, and a proposal SHALL be rate limited per user.
-
-#### Scenario: Ask the assistant
-
-- **GIVEN** the server has a text-to-text assistant
-- **AND** Pieter opens Add widget on My workspace
-- **WHEN** he describes "where I handle my cases" and asks
-- **THEN** the line proposes the app tile Case system with one sentence why
-- **AND** Place it like this places a one-cell tile for Case system on My workspace
-
-#### Scenario: No assistant
-
-- **GIVEN** the server has no text-to-text assistant
-- **THEN** the picker shows no assistant line
-
-### Requirement: The widgets on the first screen render in the first pass (REQ-WDG-047)
-
-A widget whose top row starts within the first screen of the workspace SHALL mount in the dashboard's first render,
-without waiting for it to be reported in view. As soon as the dashboard's placements are known, the renderer of every
-widget type on the first screen SHALL start loading. Widgets further down SHALL keep loading when they come into view
-(REQ-WDG-044).
-
-#### Scenario: The first screen renders at once
-@e2e exclude a timing property (no observer round, chunk requested early); pinned by src/utils/__tests__/firstViewport.spec.js and src/components/__tests__/WidgetWrapper.spec.js ('mounts a widget on the first screen at once and leaves one further down to the observer'); measured in the PR on the reference stack
-
-- **GIVEN** Pieter's start page has tiles in its top rows and a chart far below
-- **WHEN** he opens the start page
-- **THEN** the tiles render in the first pass, with their renderer requested as soon as the dashboard is known
-- **AND** the chart shows a loading state until it comes into view

@@ -21,7 +21,6 @@ import type { APIRequestContext, Locator, Page } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, test } from '@playwright/test'
-import { gotoLaunchPad } from './fixtures/widget-flow.ts'
 import {
 	clearSeededWidgets,
 	removeSeededDashboard,
@@ -53,16 +52,19 @@ function localAt(days: number, hour: number): string {
 }
 
 /**
- * Open the workspace and the form "New announcement" in the widget.
+ * Open the Announcements tab of the admin settings page and its form
+ * "New announcement" (announcements-managed-in-settings REQ-ANN-006: the
+ * widget no longer writes).
  *
  * @param page the page.
  * @return the editor.
  */
 async function openEditor(page: Page): Promise<Locator> {
-	await gotoLaunchPad(page)
-	const widget = page.locator('[data-test="announcements-widget"]')
-	await expect(widget).toBeVisible({ timeout: 30_000 })
-	await widget.locator('[data-test="announcements-new"]').click()
+	await page.addInitScript(() => {
+		window.sessionStorage.setItem('launchpad:setup-wizard-offered', '1')
+	})
+	await page.goto('/index.php/settings/admin/launchpad#announcements')
+	await page.getByTestId('announcement-new').click({ timeout: 60_000 })
 	const editor = page.locator('[data-test="announcement-editor"]')
 	await expect(editor).toBeVisible({ timeout: 10_000 })
 	return editor

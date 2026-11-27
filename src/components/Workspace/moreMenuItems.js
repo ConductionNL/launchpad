@@ -8,13 +8,16 @@
  */
 
 import { CnDashboardIcon } from '@conduction/nextcloud-vue'
-import { t } from '@nextcloud/l10n'
+import { n, t } from '@nextcloud/l10n'
 import { h, markRaw } from 'vue'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
+import BullhornOutline from 'vue-material-design-icons/BullhornOutline.vue'
 import ChartBoxOutline from 'vue-material-design-icons/ChartBoxOutline.vue'
+import ChevronUp from 'vue-material-design-icons/ChevronUp.vue'
 import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
+import Download from 'vue-material-design-icons/Download.vue'
 import FileReplaceOutline from 'vue-material-design-icons/FileReplaceOutline.vue'
 import Home from 'vue-material-design-icons/Home.vue'
 import LinkVariant from 'vue-material-design-icons/LinkVariant.vue'
@@ -29,7 +32,6 @@ import Star from 'vue-material-design-icons/Star.vue'
 import StarCheck from 'vue-material-design-icons/StarCheck.vue'
 import StoreOutline from 'vue-material-design-icons/StoreOutline.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
-import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 import ViewGridOutline from 'vue-material-design-icons/ViewGridOutline.vue'
 import { adminPageUrl } from '../../utils/adminPage.js'
 
@@ -39,7 +41,7 @@ import { adminPageUrl } from '../../utils/adminPage.js'
 const SECTIONS = ['main', 'footer', 'settings']
 
 /** The items of the Settings group, in the board's order. */
-const SETTINGS_ITEMS = ['personal-settings', 'admin-settings-link']
+const SETTINGS_ITEMS = ['personal-settings', 'admin-settings-link', 'announcements-link']
 
 /**
  * The order of the app's own destinations, as the boards list them. An
@@ -82,8 +84,9 @@ export function orderDestinations(items) {
 }
 
 /**
- * The Settings group's items: the personal settings and, for an
- * administrator, the admin settings link.
+ * The Settings group's items: the personal settings, for an administrator
+ * the admin settings link and, for whoever may manage announcements, the
+ * Announcements tab after it.
  *
  * @param {Record<string, object[]>} sections The menu items by section.
  * @return {object[]} The items.
@@ -171,10 +174,11 @@ export function resolveMenuItem(item, openUserSettings) {
  * the personal settings and, for an administrator, the link to the admin
  * settings, as the panel's settings foldout does.
  *
- * @param {{ entries: object[], isAdmin: boolean, includePersonalSettings: boolean }} chrome The chrome decision.
+ * @param {{ entries: object[], isAdmin: boolean, canManageAnnouncements?: boolean, includePersonalSettings: boolean }} chrome The chrome decision.
  * @param {(() => void)|null} openUserSettings The injected personal-settings opener.
  * @return {Record<string, object[]>} The menu items by section.
  * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
  * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
  */
 export function startPageSections(chrome, openUserSettings) {
@@ -206,6 +210,16 @@ export function startPageSections(chrome, openUserSettings) {
 			external: false,
 		})
 	}
+	if (chrome.canManageAnnouncements) {
+		// After Admin settings, for whoever may manage announcements: an
+		// administrator or a delegated manager (more-menu-favourites task 10).
+		settings.push({
+			id: 'announcements-link',
+			label: t('launchpad', 'Announcements'),
+			href: adminPageUrl('announcements'),
+			external: false,
+		})
+	}
 	bySection.settings = [...settings, ...bySection.settings]
 	return bySection
 }
@@ -215,7 +229,7 @@ export function startPageSections(chrome, openUserSettings) {
  * that keep the panel.
  *
  * @param {object|null} provided The injected `launchpadChrome` (a ref or a plain value).
- * @return {{ railSuppressed: boolean, entries: object[], isAdmin: boolean, includePersonalSettings: boolean }}
+ * @return {{ railSuppressed: boolean, entries: object[], isAdmin: boolean, canManageAnnouncements: boolean, includePersonalSettings: boolean }}
  * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
  */
 export function readChrome(provided) {
@@ -224,12 +238,10 @@ export function readChrome(provided) {
 		railSuppressed: value?.railSuppressed === true,
 		entries: Array.isArray(value?.entries) ? value.entries : [],
 		isAdmin: value?.isAdmin === true,
+		canManageAnnouncements: value?.canManageAnnouncements === true,
 		includePersonalSettings: value?.includePersonalSettings !== false,
 	}
 }
-
-/** How many dashboards the menu lists before "All dashboards". */
-export const DASHBOARD_LIMIT = 8
 
 /** Icons of the destinations under Settings, by menu entry id. */
 const DESTINATION_ICONS = {
@@ -242,6 +254,7 @@ const DESTINATION_ICONS = {
 	FeaturesRoadmapMenu: MapMarkerPath,
 	'personal-settings': AccountOutline,
 	'admin-settings-link': ShieldAccountOutline,
+	'announcements-link': BullhornOutline,
 }
 
 /**
@@ -277,9 +290,11 @@ export function dashboardMeta(isDefault, source) {
  */
 export function dashboardIcon(dashboard, isDefault) {
 	const name = typeof dashboard?.icon === 'string' ? dashboard.icon.trim() : ''
-	if (name === '') {
-		return markRaw(isDefault ? Home : ViewDashboardOutline)
+	if (name === '' && isDefault) {
+		return markRaw(Home)
 	}
+	// No icon: the shared renderer draws its default (dashboard-icons), the
+	// same component the removed sidebar showed.
 	return markRaw({
 		name: 'DashboardMenuIcon',
 		props: { size: { type: Number, default: 18 } },
@@ -293,9 +308,69 @@ export function dashboardIcon(dashboard, isDefault) {
 }
 
 /**
- * The Dashboards group: the person's own dashboards, then the shared and
- * group ones, at most DASHBOARD_LIMIT, the open one checked, and "All
- * dashboards" last.
+ * The dashboard that opens automatically (REQ-EDM-001..005), which carries the
+ * Default pill (REQ-SHELL-018): the person's pin, else the resolver's group
+ * fallback (steps 2-5): the flagged primary-group dashboard, the flagged
+ * default-group one, the first primary-group one, the first default-group
+ * one. A personal dashboard is never marked without a pin.
+ *
+ * @param {string} pinned The uuid of the person's pinned default, or ''.
+ * @param {object[]} groupDashboards The group, default and shared dashboards.
+ * @return {string} The uuid, or ''.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-15
+ */
+export function effectiveDefaultUuid(pinned, groupDashboards = []) {
+	if (pinned) {
+		return pinned
+	}
+	const primary = groupDashboards.filter((d) => d.source !== 'default' && d.source !== 'shared')
+	const fallback = groupDashboards.filter((d) => d.source === 'default')
+	const flagged = (list) => list.find((d) => Number(d?.isDefault) === 1)
+	const found = [flagged(primary), flagged(fallback), primary[0], fallback[0]].find((d) => Boolean(d?.uuid))
+	return found?.uuid ?? ''
+}
+
+/**
+ * The Default pill on the dashboard that opens automatically (REQ-SHELL-018):
+ * a badge, not a star; the star is the favourite.
+ *
+ * @return {{label: string, title: string, ariaLabel: string}} The pill.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-15
+ */
+function DEFAULT_PILL () {
+  return {
+	label: t('launchpad', 'Default'),
+	title: t('launchpad', 'Opens automatically'),
+	ariaLabel: t('launchpad', 'Default dashboard'),
+}
+}
+
+/** What {@link dashboardItems} assumes for an option it is not given. */
+const DASHBOARD_ITEM_DEFAULTS = {
+	userDashboards: [],
+	groupDashboards: [],
+	sharedDashboards: [],
+	activeId: null,
+	defaultUuid: '',
+	favourites: [],
+	expanded: false,
+	onToggleExpanded: () => {},
+	onToggleFavourite: () => {},
+	onNewDashboard: null,
+	openTrees: [],
+	onToggleTree: () => {},
+}
+
+/**
+ * The Dashboards group (Ruben's review, 27 Nov 2026, items 5 and 6).
+ *
+ * Folded, it is a short list: the person's favourite dashboards, in the
+ * order they starred them. A person without favourites sees the open
+ * dashboard and a line saying that starring a dashboard puts it here
+ * (Ruben's decision, 27 Nov 2026). The open dashboard is checked. "More" closes the list and unfolds the column in
+ * place into every dashboard the person can open, favourites first, with
+ * "New dashboard" below it; "Less" folds it again. Every row carries a star
+ * that marks or unmarks it as a favourite (REQ-SHELL-014..016).
  *
  * @param {object} options The dashboards and what choosing one does.
  * @param {object[]} options.userDashboards The person's own dashboards.
@@ -303,45 +378,243 @@ export function dashboardIcon(dashboard, isDefault) {
  * @param {object[]} options.sharedDashboards Which of those came through a share.
  * @param {string|number|null} options.activeId The open dashboard's id.
  * @param {string} options.defaultUuid The uuid of the person's default dashboard.
+ * @param {string[]} options.favourites The uuids of the person's favourite dashboards.
+ * @param {boolean} options.expanded Whether the column lists every dashboard.
  * @param {(id: string|number, source: string) => void} options.onSwitch Open a dashboard.
- * @param {() => void} options.onOpenAll Open the full list.
+ * @param {() => void} options.onToggleExpanded Unfold or fold the column.
+ * @param {(uuid: string) => void} options.onToggleFavourite Mark or unmark a favourite.
+ * @param {(() => void)|null} options.onNewDashboard Create and open a personal dashboard; null when
+ *   personal dashboards are off or the quota is reached, which leaves New dashboard out.
  * @return {object[]} The items.
- * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
  */
-export function dashboardItems({
-	userDashboards = [],
-	groupDashboards = [],
-	sharedDashboards = [],
-	activeId = null,
-	defaultUuid = '',
-	onSwitch,
-	onOpenAll,
-}) {
-	const items = dashboardRows(userDashboards, groupDashboards, sharedDashboards)
-		.map(({ d, source }) => {
-			const isDefault = Boolean(d.uuid) && d.uuid === defaultUuid
-			return {
-				id: `dashboard-${d.id}`,
-				label: d.name || t('launchpad', 'Dashboard'),
-				icon: dashboardIcon(d, isDefault),
-				meta: dashboardMeta(isDefault, source),
-				checked: d.id === activeId,
-				onClick: () => onSwitch(d.id, source),
-			}
+export function dashboardItems(options) {
+	const o = { ...DASHBOARD_ITEM_DEFAULTS, ...options }
+	const all = dashboardRows(o.userDashboards, o.groupDashboards, o.sharedDashboards)
+	const { rows, starred, showHint, hidden } = columnRows(all, o)
+	const defaultUuid = effectiveDefaultUuid(o.defaultUuid, o.groupDashboards)
+	const context = { activeId: o.activeId, defaultUuid, starred, onSwitch: o.onSwitch, onToggleFavourite: o.onToggleFavourite, onToggleTree: o.onToggleTree }
+	return [
+		...rows.map((row) => dashboardRowItem(row, context)),
+		...hintItems(showHint),
+		...columnFoot(hidden, o.expanded, o.onToggleExpanded, o.onNewDashboard),
+	]
+}
+
+/**
+ * The rows of the expanded list as a tree (REQ-TREEUI-001, REQ-SHELL-019):
+ * every dashboard whose parent is listed goes under that parent, depth-first,
+ * and a parent's children show only while it is open. A parent outside the
+ * list, or a dashboard naming itself, counts as no parent.
+ *
+ * @param {object[]} rows The `{d, source}` rows, in list order.
+ * @param {Set<string>} open The uuids of the open parents.
+ * @return {object[]} The rows with `depth`, `hasChildren` and `open`.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+ */
+function treeRows(rows, open) {
+	const byUuid = new Map(rows.filter(({ d }) => Boolean(d.uuid)).map((row) => [row.d.uuid, row]))
+	const children = new Map()
+	const roots = []
+	for (const row of rows) {
+		const parent = row.d.parentUuid
+		const nested = Boolean(parent) && parent !== row.d.uuid && byUuid.has(parent)
+		if (nested) {
+			children.set(parent, [...(children.get(parent) ?? []), row])
+		} else {
+			roots.push(row)
+		}
+	}
+	const out = []
+	const seen = new Set()
+	const walk = (row, depth) => {
+		const key = row.d.uuid ?? row.d.id
+		if (seen.has(key)) {
+			return
+		}
+		seen.add(key)
+		const kids = children.get(row.d.uuid) ?? []
+		const isOpen = open.has(row.d.uuid)
+		out.push({ ...row, depth, hasChildren: kids.length > 0, open: isOpen })
+		kids.filter(() => isOpen).forEach((kid) => walk(kid, depth + 1))
+	}
+	roots.forEach((root) => walk(root, 0))
+	return out
+}
+
+/**
+ * The tree fields of a row item: its depth and, for a parent, its expand
+ * control. Folded rows carry none.
+ *
+ * @param {object} row The row, with `depth`, `hasChildren` and `open` in the expanded list.
+ * @param {(uuid: string) => void} onToggleTree Show or hide a parent's children.
+ * @return {object} The fields.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+ */
+function treeFields(row, onToggleTree) {
+	if (row.depth === undefined) {
+		return {}
+	}
+	const fields = { depth: row.depth }
+	if (row.hasChildren) {
+		fields.tree = { uuid: row.d.uuid, open: row.open, onToggle: () => onToggleTree(row.d.uuid) }
+	}
+	return fields
+}
+
+/**
+ * The line that a starred dashboard appears here, before anything is
+ * starred (Ruben, 27 Nov 2026).
+ *
+ * @param {boolean} show Whether the column shows it.
+ * @return {object[]} The line, or nothing.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+ */
+function hintItems(show) {
+	if (!show) {
+		return []
+	}
+	return [{ id: 'favourites-hint', hint: true, label: t('launchpad', 'Star a dashboard to keep it here') }]
+}
+
+/**
+ * The rows the Dashboards column shows. Folded: the favourites in starring
+ * order, or, before anything is starred, the open dashboard (Ruben, 27 Nov
+ * 2026). Expanded: the favourites first, then every other dashboard.
+ *
+ * @param {object[]} all Every `{d, source}` row.
+ * @param {object} options The column's options (see {@link dashboardItems}).
+ * @param {string[]} options.favourites The favourite uuids in starring order.
+ * @param {boolean} options.expanded Whether the column lists every dashboard.
+ * @param {string|number|null} options.activeId The open dashboard's id.
+ * @param {string[]} options.openTrees The uuids of the parents whose children show (expanded list).
+ * @return {{rows: object[], starred: Set<string>, showHint: boolean, hidden: number}} The rows,
+ *   and how many dashboards the folded column leaves out.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+ */
+function columnRows(all, { favourites, expanded, activeId, openTrees = [] }) {
+	const byUuid = new Map(all.filter(({ d }) => Boolean(d.uuid)).map((row) => [row.d.uuid, row]))
+	const favouriteRows = favourites.map((uuid) => byUuid.get(uuid)).filter(Boolean)
+	const starred = new Set(favouriteRows.map(({ d }) => d.uuid))
+	if (expanded) {
+		const others = all.filter(({ d }) => !starred.has(d.uuid))
+		return { rows: [...favouriteRows, ...treeRows(others, new Set(openTrees))], starred, showHint: false, hidden: all.length }
+	}
+	if (favouriteRows.length > 0) {
+		return { rows: favouriteRows, starred, showHint: false, hidden: all.length - favouriteRows.length }
+	}
+	const open = all.filter(({ d }) => d.id === activeId)
+	return { rows: open, starred, showHint: true, hidden: all.length - open.length }
+}
+
+/**
+ * One dashboard row: radio item, icon, marker and, with a uuid, its star
+ * (REQ-SHELL-016: every row, short or expanded).
+ *
+ * @param {{d: object, source: string, depth?: number}} row The dashboard, its section and, expanded, its tree place.
+ * @param {object} context What the row needs to know and do.
+ * @param {string|number|null} context.activeId The open dashboard's id.
+ * @param {string} context.defaultUuid The uuid of the person's default dashboard.
+ * @param {Set<string>} context.starred The favourite uuids.
+ * @param {(id: string|number, source: string) => void} context.onSwitch Open a dashboard.
+ * @param {(uuid: string) => void} context.onToggleFavourite Mark or unmark a favourite.
+ * @param {(uuid: string) => void} context.onToggleTree Show or hide a parent's children.
+ * @return {object} The item.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
+ */
+function dashboardRowItem(row, { activeId, defaultUuid, starred, onSwitch, onToggleFavourite, onToggleTree }) {
+	const { d, source } = row
+	const isDefault = Boolean(d.uuid) && d.uuid === defaultUuid
+	const item = {
+		id: `dashboard-${d.id}`,
+		label: d.name || t('launchpad', 'Dashboard'),
+		icon: dashboardIcon(d, isDefault),
+		meta: dashboardMeta(false, source),
+		pill: isDefault ? DEFAULT_PILL() : undefined,
+		checked: d.id === activeId,
+		onClick: () => onSwitch(d.id, source),
+	}
+	if (d.uuid) {
+		item.favourite = starred.has(d.uuid)
+		item.onToggleFavourite = () => onToggleFavourite(d.uuid)
+	}
+	return { ...item, ...treeFields(row, onToggleTree) }
+}
+
+/**
+ * The foot of the Dashboards column: New dashboard (expanded, when creating
+ * is allowed) and More / Less (REQ-SHELL-015).
+ *
+ * @param {number} hidden How many dashboards the folded column leaves out.
+ * @param {boolean} expanded Whether the column lists every dashboard.
+ * @param {() => void} onToggleExpanded Unfold or fold the column.
+ * @param {(() => void)|null} onNewDashboard Create a dashboard, or null.
+ * @return {object[]} The items.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+ */
+function columnFoot(hidden, expanded, onToggleExpanded, onNewDashboard) {
+	const foot = []
+	if (expanded && typeof onNewDashboard === 'function') {
+		foot.push({
+			id: 'new-dashboard',
+			label: t('launchpad', 'New dashboard'),
+			icon: markRaw(Plus),
+			onClick: () => onNewDashboard(),
 		})
-	items.push({
+	}
+	foot.push({
 		id: 'all-dashboards',
-		label: t('launchpad', 'All dashboards'),
-		icon: markRaw(ViewGridOutline),
-		onClick: () => onOpenAll(),
+		label: expanded ? t('launchpad', 'Less') : t('launchpad', 'More'),
+		meta: expanded
+			? t('launchpad', 'favourites only')
+			: n('launchpad', '%n more dashboard', '%n more dashboards', Math.max(hidden, 0)),
+		icon: markRaw(expanded ? ChevronUp : ViewGridOutline),
+		keepOpen: true,
+		expanded,
+		onClick: () => onToggleExpanded(),
 	})
-	return items
+	return foot
+}
+
+/**
+ * The favourites after the person starred or unstarred one dashboard.
+ *
+ * @param {string[]} favourites The uuids that are favourites now.
+ * @param {string} uuid The dashboard the star belongs to.
+ * @return {string[]} The new list: the uuid added at the end, or removed.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
+ */
+export function toggleFavourite(favourites, uuid) {
+	const list = Array.isArray(favourites) ? favourites.filter((u) => typeof u === 'string' && u !== '') : []
+	if (typeof uuid !== 'string' || uuid === '') {
+		return list
+	}
+	return list.includes(uuid) ? list.filter((u) => u !== uuid) : [...list, uuid]
+}
+
+/**
+ * The favourites read from the stored preference: a JSON list of uuids.
+ * Anything else reads as no favourites.
+ *
+ * @param {string|null} stored The stored value.
+ * @return {string[]} The uuids.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
+ */
+export function parseFavourites(stored) {
+	if (typeof stored !== 'string' || stored === '') {
+		return []
+	}
+	try {
+		const value = JSON.parse(stored)
+		return Array.isArray(value) ? value.filter((u) => typeof u === 'string' && u !== '') : []
+	} catch {
+		return []
+	}
 }
 
 /**
  * The dashboards the Dashboards group lists, each once with its section:
- * the person's own first, then the shared and group ones, at most
- * DASHBOARD_LIMIT.
+ * the person's own first, then the shared and group ones.
  *
  * @param {object[]} userDashboards The person's own dashboards.
  * @param {object[]} groupDashboards The group, default and shared dashboards.
@@ -363,7 +636,6 @@ function dashboardRows(userDashboards, groupDashboards, sharedDashboards) {
 			}
 			return known
 		})
-		.slice(0, DASHBOARD_LIMIT)
 }
 
 /**
@@ -448,6 +720,8 @@ function actionRows(options) {
 		{ offered: options.canShare, id: 'share', label: t('launchpad', 'Sharing'), icon: ShareVariant, event: 'share' },
 		{ offered: true, id: 'copy-link', label: t('launchpad', 'Copy link to this dashboard'), icon: LinkVariant, event: 'copyLink' },
 		{ offered: options.canDuplicate, id: 'duplicate', label: t('launchpad', 'Duplicate as new dashboard'), icon: ContentCopy, event: 'duplicate' },
+		// REQ-DPD-003: Download sits between Duplicate and Set as default (board LpMeer).
+		{ offered: options.canDownload !== false, id: 'download', label: t('launchpad', 'Download'), icon: Download, event: 'download' },
 		{ offered: true, id: 'set-default', label: t('launchpad', 'Set as default'), icon: isDefault ? StarCheck : Star, event: 'setDefault' },
 		{ offered: options.isOwner, id: 'delete', label: t('launchpad', 'Delete'), icon: TrashCanOutline, event: 'delete', destructive: true },
 	]

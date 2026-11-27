@@ -34,7 +34,7 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import type { Placement } from './support/widgetPlacements.ts'
 
 import { expect, test } from '@playwright/test'
-import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { switchToDashboard } from './support/dashboardSwitcher.ts'
 import { catalogueFromApi } from './support/widgetCatalogue.ts'
 import {
 	adminApi,
@@ -227,12 +227,7 @@ test.describe('reload interval (REQ-WDG-029)', () => {
 		await expect.poll(calls, { timeout: 10_000 }).toBe(2)
 
 		// … Pieter switches to the other dashboard through the switcher …
-		await openDashboardSwitcher(page)
-		await page
-			.locator('.dashboard-switcher-sidebar__item')
-			.filter({ hasText: other.name })
-			.first()
-			.click()
+		await switchToDashboard(page, other.name)
 		await expect(
 			page.locator('[data-testid="launchpad-dashboard-region"]'),
 		).toHaveAttribute('data-dashboard-uuid', other.uuid, { timeout: 15_000 })

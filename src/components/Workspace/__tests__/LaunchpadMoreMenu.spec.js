@@ -9,7 +9,10 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@nextcloud/l10n', () => ({ t: (_app, text) => text }))
+vi.mock('@nextcloud/l10n', () => ({
+	t: (_app, text, vars) => text.replace(/{(\w+)}/g, (m, k) => vars?.[k] ?? m),
+	n: (_app, one, many, count) => (count === 1 ? one : many).replace('%n', String(count)),
+}))
 vi.mock('@nextcloud/vue', () => ({
 	NcPopover: {
 		name: 'NcPopover',
@@ -22,6 +25,8 @@ vi.mock('@nextcloud/vue', () => ({
 		template: '<button type="button" v-bind="$attrs"><slot name="icon" /><slot /></button>',
 	},
 }))
+
+vi.mock('@nextcloud/router', () => ({ generateFilePath: (app, dir, file) => `/apps/${app}/${dir}/${file}` }))
 
 import LaunchpadMoreMenu from '../LaunchpadMoreMenu.vue'
 
@@ -222,6 +227,114 @@ describe('LaunchpadMoreMenu', () => {
 		expect(wrapper.vm.open).toBe(false)
 		expect(document.activeElement.getAttribute('data-testid')).toBe('launchpad-more-menu-trigger')
 		expect(wrapper.vm.returnFocus()).toBe(wrapper.find('[data-testid="launchpad-more-menu-trigger"]').element)
+		wrapper.unmount()
+	})
+
+	it('keeps the menu open for More and draws a star per row of the full list (review items 5, 6)', async () => {
+		const onToggleExpanded = vi.fn()
+		const onToggleFavourite = vi.fn()
+		const wrapper = await openMenu({
+			dashboards: [
+				{ id: 'dashboard-1', label: 'Vandaag', checked: true, favourite: true, onToggleFavourite },
+				{ id: 'dashboard-2', label: 'Team', checked: false, favourite: false, onToggleFavourite },
+				{ id: 'all-dashboards', label: 'Fewer', keepOpen: true, expanded: true, onClick: onToggleExpanded },
+			],
+		})
+		const stars = wrapper.findAll('.lp-more-menu__star')
+		expect(stars.map((el) => el.attributes('aria-pressed'))).toEqual(['true', 'false'])
+		expect(stars[0].classes()).toContain('lp-more-menu__star--on')
+		expect(wrapper.find('[data-testid="launchpad-more-menu-dashboard-list"]').classes()).toContain('lp-more-menu__dashboard-list--all')
+		const vandaag = wrapper.find('[data-testid="launchpad-more-menu-item-dashboard-1"]')
+		vandaag.element.focus()
+		await panel(wrapper).trigger('keydown', { key: 'ArrowDown' })
+		expect(document.activeElement).toBe(stars[0].element)
+		await stars[1].trigger('click')
+		expect(onToggleFavourite).toHaveBeenCalledTimes(1)
+		expect(wrapper.vm.open).toBe(true)
+		await wrapper.find('[data-testid="launchpad-more-menu-item-all-dashboards"]').trigger('click')
+		expect(onToggleExpanded).toHaveBeenCalledTimes(1)
+		expect(wrapper.vm.open).toBe(true)
+		wrapper.unmount()
+	})
+
+	it('draws a star only on a row that carries one', async () => {
+		const wrapper = await openMenu()
+		expect(wrapper.findAll('.lp-more-menu__star')).toHaveLength(0)
+		wrapper.unmount()
+	})
+
+	it('draws the Default pill with its tooltip and accessible name (REQ-SHELL-018)', async () => {
+		const wrapper = await openMenu({
+			dashboards: [
+				{ id: 'dashboard-1', label: 'Vandaag', checked: true, pill: { label: 'Default', title: 'Opens automatically', ariaLabel: 'Default dashboard' } },
+				{ id: 'dashboard-2', label: 'Team', checked: false },
+				{ id: 'all-dashboards', label: 'More', keepOpen: true, expanded: false },
+			],
+		})
+		const pills = wrapper.findAll('[data-testid="launchpad-more-menu-default-pill"]')
+		expect(pills).toHaveLength(1)
+		expect(pills[0].text()).toBe('Default')
+		expect(pills[0].attributes('title')).toBe('Opens automatically')
+		expect(pills[0].attributes('aria-label')).toBe('Default dashboard')
+		wrapper.unmount()
+	})
+
+	it('names each star by what pressing it does (REQ-SHELL-016)', async () => {
+		const wrapper = await openMenu({
+			dashboards: [
+				{ id: 'dashboard-1', label: 'Vandaag', checked: true, favourite: true, onToggleFavourite: vi.fn() },
+				{ id: 'dashboard-2', label: 'Team', checked: false, favourite: false, onToggleFavourite: vi.fn() },
+				{ id: 'all-dashboards', label: 'More', keepOpen: true, expanded: false },
+			],
+		})
+		expect(wrapper.findAll('.lp-more-menu__star').map((el) => el.attributes('aria-label')))
+			.toEqual(['Remove from favourites: Vandaag', 'Add to favourites: Team'])
+		expect(wrapper.find('.lp-more-menu__title').text()).toBe('Dashboards')
+		wrapper.unmount()
+	})
+
+	it('titles the expanded column All dashboards and puts New dashboard and Less below the scrolling list (REQ-SHELL-015)', async () => {
+		const wrapper = await openMenu({
+			dashboards: [
+				{ id: 'dashboard-1', label: 'Vandaag', checked: true, favourite: false, onToggleFavourite: vi.fn() },
+				{ id: 'new-dashboard', label: 'New dashboard', onClick: vi.fn() },
+				{ id: 'all-dashboards', label: 'Less', keepOpen: true, expanded: true },
+			],
+		})
+		expect(wrapper.find('.lp-more-menu__title').text()).toBe('All dashboards')
+		const list = wrapper.find('[data-testid="launchpad-more-menu-dashboard-list"]')
+		expect(list.find('[data-testid="launchpad-more-menu-item-new-dashboard"]').exists()).toBe(false)
+		expect(list.find('[data-testid="launchpad-more-menu-item-all-dashboards"]').exists()).toBe(false)
+		const group = wrapper.find('[data-testid="launchpad-more-menu-group-dashboards"]')
+		expect(group.find('[data-testid="launchpad-more-menu-item-new-dashboard"]').exists()).toBe(true)
+		expect(group.find('[data-testid="launchpad-more-menu-item-all-dashboards"]').exists()).toBe(true)
+		wrapper.unmount()
+	})
+
+	it('ends in the Powered by footer under both columns, unless left out (review item 7)', async () => {
+		const wrapper = await openMenu()
+		const footer = wrapper.find('[data-testid="more-menu-footer"]')
+		expect(footer.exists()).toBe(true)
+		expect(footer.classes()).toContain('lp-more-menu__footer')
+		expect(footer.findAll('a[target="_blank"][rel="noopener noreferrer"]').length).toBeGreaterThanOrEqual(2)
+		wrapper.unmount()
+		const without = await openMenu({ hideFooter: true })
+		expect(without.find('[data-testid="more-menu-footer"]').exists()).toBe(false)
+		without.unmount()
+	})
+
+	it('draws the line about starring as text, not as a menu item (Ruben, 27 Nov)', async () => {
+		const wrapper = await openMenu({
+			dashboards: [
+				{ id: 'dashboard-1', label: 'Vandaag', checked: true },
+				{ id: 'favourites-hint', hint: true, label: 'Star a dashboard under More to see it here.' },
+				{ id: 'all-dashboards', label: 'More', keepOpen: true, expanded: false },
+			],
+		})
+		const hint = wrapper.find('[data-testid="launchpad-more-menu-favourites-hint"]')
+		expect(hint.element.tagName).toBe('P')
+		expect(hint.text()).toBe('Star a dashboard under More to see it here.')
+		expect(ids(wrapper)).not.toContain('launchpad-more-menu-item-favourites-hint')
 		wrapper.unmount()
 	})
 })

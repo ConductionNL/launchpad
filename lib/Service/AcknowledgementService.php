@@ -375,6 +375,62 @@ class AcknowledgementService implements AcknowledgementServiceInterface {
 	}//end report()
 
 	/**
+	 * The "Widgets that ask for confirmation" list (REQ-ACK-008): one row
+	 * per announcement key, from its blueprint placement and dashboard, with
+	 * the counts and deadline of its report. A key whose report cannot be
+	 * built is left out.
+	 *
+	 * @return list<array<string, mixed>>
+	 *
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+	 */
+	public function listAcknowledged(): array {
+		$byKey = [];
+		foreach ($this->placementMapper->findAcknowledged(which: WidgetPlacementMapper::KEYED) as $placement) {
+			$byKey[(string)$placement->getAnnouncementKey()][] = $placement;
+		}
+
+		$rows = [];
+		foreach ($byKey as $key => $placements) {
+			try {
+				$report = $this->report(announcementKey: (string)$key);
+			} catch (DoesNotExistException) {
+				continue;
+			}
+
+			$blueprint = $this->resolveBlueprintPlacement(placements: $placements);
+			$rows[]    = [
+				'announcementKey'   => (string)$key,
+				'title'             => self::widgetTitle(placement: $blueprint),
+				'dashboard'         => (string)($this->resolveDashboard(placement: $blueprint)?->getName() ?? ''),
+				'deadline'          => $report['deadline'],
+				'overdue'           => $report['overdue'],
+				'acknowledgedCount' => $report['acknowledgedCount'],
+				'pendingCount'      => $report['pendingCount'],
+			];
+		}
+
+		return $rows;
+	}//end listAcknowledged()
+
+	/**
+	 * The widget's title as the editor named it, else its prompt, else its type.
+	 *
+	 * @param WidgetPlacement $placement The placement.
+	 *
+	 * @return string
+	 */
+	private static function widgetTitle(WidgetPlacement $placement): string {
+		foreach ([$placement->getCustomTitle(), $placement->getTileTitle(), $placement->getAcknowledgementPrompt()] as $candidate) {
+			if (is_string($candidate) === true && trim($candidate) !== '') {
+				return trim($candidate);
+			}
+		}
+
+		return (string)$placement->getWidgetId();
+	}//end widgetTitle()
+
+	/**
 	 * Map userId => acknowledgedAt for the current version.
 	 *
 	 * @param string $announcementKey The announcement key.

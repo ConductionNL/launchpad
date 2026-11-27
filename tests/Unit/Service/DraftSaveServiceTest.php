@@ -307,7 +307,10 @@ class DraftSaveServiceTest extends TestCase {
 		$this->service()->save(draft: $this->draft(placements: [
 			['id' => 1],
 			['id' => 2],
-			['widgetId' => 'tile', 'gridX' => 0, 'gridY' => 6, 'tileTitle' => 'Word', 'tileLinkType' => 'url', 'tileLinkValue' => 'https://office.com', 'customTitle' => 'W'],
+			[
+				'widgetId' => 'tile', 'gridX' => 0, 'gridY' => 6, 'tileTitle' => 'Word',
+				'tileLinkType' => 'url', 'tileLinkValue' => 'https://office.com', 'customTitle' => 'W',
+			],
 		]));
 
 		$this->assertSame(

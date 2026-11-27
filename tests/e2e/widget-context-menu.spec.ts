@@ -34,7 +34,7 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import { expect, request, test } from '@playwright/test'
 import { BASE_URL } from './support/baseUrl.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
-import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
 
 // Each run brings its own active personal dashboard (with the default widget
 // bundle) instead of leaning on one an earlier spec left behind: on a fresh
@@ -122,30 +122,9 @@ async function openInEditMode(page: Page) {
 		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 	}
 
-	// Open the sidebar and enter edit mode for the active personal dashboard
-	// via its per-row cog menu ("Edit dashboard").
-	await openDashboardSwitcher(page)
-	const activeRow = page
-		.locator(
-			'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
-		)
-		.first()
-	await activeRow.locator('.dashboard-row-actions button').first().click()
-	await page.getByRole('menuitem', { name: /edit dashboard/i }).click()
-
-	// Wait for edit mode class to appear on the grid container, then close the
-	// sidebar so it does not occlude the grid for the right-click assertions.
-	await page.waitForSelector('.launchpad-edit-mode', { timeout: 8_000 })
-	const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
-	if (await closeBtn.isVisible().catch(() => false)) {
-		await closeBtn.click()
-		await page
-			.waitForFunction(
-				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-				{ timeout: 5_000 },
-			)
-			.catch(() => null)
-	}
+	// Edit mode for the open dashboard through More → Edit (the sidebar's
+	// row menu is gone, more-menu-favourites).
+	await enterEditMode(page)
 }
 
 test.describe('widget-context-menu (REQ-WDG-015..017)', () => {

@@ -26,7 +26,7 @@ import type { SeededDashboard } from './dashboardFixture.ts'
 import { expect, request } from '@playwright/test'
 import { BASE_URL } from './baseUrl.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './dashboardFixture.ts'
-import { MORE_MENU, openDashboardSwitcher } from './dashboardSwitcher.ts'
+import { addWidgetFromMore, closeMore, MORE_MENU, switchToDashboard } from './dashboardSwitcher.ts'
 import { chooseAndAdd } from './widgetPicker.ts'
 
 export const API = '/index.php/apps/launchpad/api'
@@ -278,21 +278,13 @@ export function linksWidget(page: Page, placementId: number): Locator {
 }
 
 /**
- * Close the dashboard switcher sidebar when it is open.
+ * Close the More menu when it is open (the dashboards sidebar is gone).
  *
  * @param page the page.
  * @return nothing.
  */
 export async function closeSwitcher(page: Page): Promise<void> {
-	const close = page
-		.locator(
-			'.dashboard-switcher-sidebar.open .dashboard-switcher-sidebar__close',
-		)
-		.first()
-	if (await close.isVisible().catch(() => false)) {
-		await close.click()
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
-	}
+	await closeMore(page)
 }
 
 /**
@@ -307,15 +299,8 @@ export async function openAddWidget(
 	page: Page,
 	dashboardName: string,
 ): Promise<Locator> {
-	if ((await page.locator('.dashboard-switcher-sidebar.open').count()) === 0) {
-		await openDashboardSwitcher(page)
-	}
-	const row = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.filter({ hasText: dashboardName })
-	await expect(row).toBeVisible({ timeout: 10_000 })
-	await row.locator('.dashboard-row-actions button').first().click()
-	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
+	await switchToDashboard(page, dashboardName)
+	await addWidgetFromMore(page)
 	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-links"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })

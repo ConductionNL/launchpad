@@ -265,26 +265,15 @@ afterEach(() => {
 	document.body.innerHTML = ''
 })
 
-describe('Views — the Meer menu and sidebar wiring', () => {
-	it('opens the sidebar from the Meer menu\'s "All dashboards" and closes it through the sidebar and the backdrop', async () => {
+describe('Views — the Meer menu wiring', () => {
+	it('has no Dashboards panel any more, and the Meer menu\'s Download prints the dashboard (review items 4, 8)', async () => {
 		const { wrapper } = await mountViews()
-		const sidebar = () => wrapper.findComponent({ name: 'DashboardSwitcherSidebar' })
-		const more = () => wrapper.findComponent({ name: 'DashboardMoreMenu' })
-
-		expect(sidebar().props('isOpen')).toBe(false)
-		expect(wrapper.find('.stub-backdrop').exists()).toBe(false)
-
-		await more().vm.$emit('openAll')
-		expect(sidebar().props('isOpen')).toBe(true)
-		expect(wrapper.find('.stub-backdrop').exists()).toBe(true)
-
-		await wrapper.findComponent({ name: 'SidebarBackdrop' }).vm.$emit('close')
-		expect(sidebar().props('isOpen')).toBe(false)
-
-		await more().vm.$emit('openAll')
-		await sidebar().vm.$emit('update:open', false)
-		expect(sidebar().props('isOpen')).toBe(false)
-		expect(wrapper.find('.stub-backdrop').exists()).toBe(false)
+		expect(wrapper.findComponent({ name: 'DashboardSwitcherSidebar' }).exists()).toBe(false)
+		expect(wrapper.findComponent({ name: 'SidebarBackdrop' }).exists()).toBe(false)
+		const print = vi.spyOn(window, 'print').mockImplementation(() => {})
+		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('download')
+		expect(print).toHaveBeenCalledTimes(1)
+		print.mockRestore()
 	}, 90000)
 
 	it('the Meer menu\'s "Share" opens the config drawer on the sharing tab', async () => {
@@ -476,24 +465,14 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 })
 
 describe('Views — read receipts and the colleagues editing', () => {
-	it('"Read receipts" opens the report for the first announcement; its close shuts it', async () => {
+	it('the dashboard offers no read receipts; they are read on the Announcements tab (REQ-ACK-008)', async () => {
 		const { wrapper } = await mountViews({
 			widgetPlacements: [
-				{ id: 1, widgetId: 'text', requiresAcknowledgement: '1', announcementKey: 'ann-a' },
-				{ id: 2, widgetId: 'text', requiresAcknowledgement: 1, announcementKey: 'ann-b' },
-				{ id: 3, widgetId: 'text', requiresAcknowledgement: 1, announcementKey: 'ann-a' },
-				{ id: 4, widgetId: 'text', requiresAcknowledgement: 0, announcementKey: 'ann-c' },
+				{ id: 1, widgetId: 'text', requiresAcknowledgement: 1, announcementKey: 'ann-a' },
 			],
 		})
-		const report = () => wrapper.findComponent({ name: 'AcknowledgementReportModal' })
-		expect(report().exists()).toBe(false)
-
-		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('readReceipts')
-		expect(report().props('open')).toBe(true)
-		expect(report().props('announcementKey')).toBe('ann-a')
-
-		await report().vm.$emit('close')
-		expect(report().props('open')).toBe(false)
+		expect(wrapper.findComponent({ name: 'AcknowledgementReportModal' }).exists()).toBe(false)
+		expect(wrapper.findComponent({ name: 'DashboardMoreMenu' }).props()).not.toHaveProperty('canViewReadReceipts')
 	}, 90000)
 
 	it('in edit mode the colleagues editing are shown, in view mode not', async () => {

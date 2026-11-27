@@ -26,8 +26,8 @@
 import type { APIRequestContext, Locator, Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
-import { gotoLaunchPad, openSidebar } from '../fixtures/widget-flow.ts'
-import { addAndSaveDraft } from './dashboardSwitcher.ts'
+import { gotoLaunchPad } from '../fixtures/widget-flow.ts'
+import { addAndSaveDraft, addWidgetFromMore } from './dashboardSwitcher.ts'
 import { chooseAndAdd } from './widgetPicker.ts'
 
 /** The app root, as the router base reads it. */
@@ -255,21 +255,14 @@ export function treeRow(widget: Locator, label: string): Locator {
 }
 
 /**
- * Open the Add Widget modal from the ACTIVE personal dashboard's row and
+ * Open the Add Widget modal of the open dashboard (More → Add widget) and
  * pick the `menu` type. Leaves the modal open with the menu form mounted.
  *
  * @param page the page, on the start page.
  * @return the dialog.
  */
 export async function openMenuForm(page: Page): Promise<Locator> {
-	await openSidebar(page)
-	const active = page.locator('[data-source="user"].dashboard-switcher-sidebar__item.active')
-	const row = (await active.count()) > 0
-		? active.first()
-		: page.locator('[data-source="user"].dashboard-switcher-sidebar__item').first()
-	await expect(row).toBeVisible({ timeout: 8_000 })
-	await row.locator('.dashboard-row-actions button').first().click()
-	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
+	await addWidgetFromMore(page)
 	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-menu"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })

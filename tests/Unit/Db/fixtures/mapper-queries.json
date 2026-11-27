@@ -6106,7 +6106,7 @@
         }
     },
     "WidgetPlacementMapper": {
-        "findAcknowledgedWithoutKey all": {
+        "findAcknowledged all": {
             "calls": [
                 "qb1 new",
                 "qb1.select(\"*\")",
@@ -6127,7 +6127,7 @@
             ],
             "outcome": "returned array []"
         },
-        "findAcknowledgedWithoutKey rows": {
+        "findAcknowledged rows": {
             "calls": [
                 "qb1 new",
                 "qb1.select(\"*\")",

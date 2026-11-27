@@ -24,6 +24,12 @@
 		</span>
 		<span class="lp-more-menu__label">{{ item.label }}</span>
 		<span v-if="item.meta" class="lp-more-menu__meta">{{ item.meta }}</span>
+		<span
+			v-if="item.pill"
+			class="lp-more-menu__pill"
+			:title="item.pill.title"
+			:aria-label="item.pill.ariaLabel"
+			data-testid="launchpad-more-menu-default-pill">{{ item.pill.label }}</span>
 	</component>
 </template>
 
@@ -71,3 +77,17 @@ export default {
 	},
 }
 </script>
+
+<style scoped>
+.lp-more-menu__pill {
+	flex: none;
+	margin-inline-start: 6px;
+	padding: 0 8px;
+	border-radius: var(--border-radius-pill, 999px);
+	background: var(--color-primary-element-light, #e6f0fa);
+	color: var(--color-primary-element-light-text, #00427a);
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 18px;
+}
+</style>

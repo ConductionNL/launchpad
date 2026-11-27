@@ -59,7 +59,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { dashboardRow, MORE_MENU, openDashboardSettings, openDashboardSwitcher, switchToDashboard } from './support/dashboardSwitcher.ts'
 
 // The recipient account the owner shares to. Overridable so the same spec
 // works against fixtures that seed a different second user.
@@ -105,12 +105,8 @@ async function openSharingTab(page: Page) {
 	if (seeded === null) {
 		throw new Error('dashboard-sharing: beforeAll did not seed a dashboard')
 	}
-	const activeRow = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.and(page.locator(`[aria-label="${seeded.name}"]`))
-		.first()
-	await activeRow.locator('.dashboard-row-actions button').first().click()
-	await page.locator('[data-testid="cog-dashboard-config"]').click()
+	await switchToDashboard(page, seeded.name)
+	await openDashboardSettings(page)
 
 	// The modal opens on the General tab; switch to Sharing.
 	await page
@@ -306,7 +302,7 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 		).toHaveCount(0, { timeout: 8_000 })
 	})
 
-	test('recipient sees the shared dashboard in their switcher', async ({
+	test('recipient sees the shared dashboard in More, marked shared', async ({
 		page,
 		browser,
 	}) => {
@@ -386,13 +382,11 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 			// AJAX call to have passed the action matrix as a non-admin.
 			await openDashboardSwitcher(recipientPage)
 
-			// (4) Visibility: the share shows up in its own switcher
-			// section, not smuggled in under the recipient's group heading.
-			const sharedSection = recipientPage.locator('[data-section="shared"]')
-			await expect(sharedSection).toBeVisible({ timeout: 10_000 })
-			await expect(
-				sharedSection.locator('[data-source="shared"]').first(),
-			).toBeVisible()
+			// (4) Visibility: More's full list holds the share, marked
+			// "shared" (REQ-SHELL-014), not under the recipient's group.
+			const row = dashboardRow(recipientPage, seeded!.name)
+			await expect(row).toBeVisible({ timeout: 10_000 })
+			await expect(row.locator('.lp-more-menu__meta')).toHaveText('shared')
 		} finally {
 			await context.close()
 		}

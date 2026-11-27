@@ -110,4 +110,15 @@ describe('WidgetMiniature', () => {
 		expect(wrapper.findAll('.widget-miniature__nc-row')).toHaveLength(3)
 		expect(wrapper.find('.widget-miniature').attributes('data-state')).toBe('nc')
 	})
+
+	it('gives the people widget a sample data source, so it reads no server', async () => {
+		vi.stubGlobal('IntersectionObserver', undefined)
+		const People = { name: 'People', props: ['content', 'placement', 'preview', 'editMode', 'dataSource'], template: '<div />' }
+		const wrapper = mountMiniature({ type: 'people', entry: { renderer: People } })
+		await flushPromises()
+		const source = wrapper.findComponent({ name: 'People' }).props('dataSource')
+		const page = await source.fetchPeople({ offset: 0 })
+		expect(page.users.map((user) => user.displayName)).toEqual(['Anna de Vries', 'Pieter Jansen', 'Fatima El Amrani'])
+		expect(page.users.every((user) => !user.avatarUrl)).toBe(true)
+	})
 })

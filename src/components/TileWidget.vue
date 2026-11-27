@@ -28,7 +28,7 @@
 			<DragVertical :size="16" />
 		</span>
 		<div v-if="editMode" class="tile-widget__edit">
-			<!-- REQ-WDG-047: the shared edit menu, with Create embed token. -->
+			<!-- REQ-WDG-050: the shared edit menu, with Create embed token. -->
 			<WidgetEditMenu
 				:menuLabel="t('launchpad', 'Tile menu')"
 				:editLabel="t('launchpad', 'Edit tile')"
@@ -193,7 +193,7 @@ export default {
 
 		/** The host refuses removing this tile, so the cog offers no Delete. */
 		removeLocked: FLAG_PROP,
-		// REQ-WDG-047: the admin link that creates an embed token for this
+		// REQ-WDG-050: the admin link that creates an embed token for this
 		// tile, offered in the edit menu only; '' when the viewer may not.
 		embedHref: {
 			type: String,

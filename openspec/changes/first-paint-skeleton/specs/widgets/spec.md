@@ -13,7 +13,7 @@ widget whose content fails to show (an error while it sets up, renders or runs a
 available" with Retry inside its own card, and every other widget SHALL render as if it were not there. Retry SHALL
 mount the content afresh. An error in a widget's event handler or watcher SHALL NOT replace the widget.
 
-#### Scenario: A widget's card shows its placeholder first
+#### Scenario: A widget's card shows a loading state first
 
 - **GIVEN** Pieter's start page has a list widget below the fold
 - **WHEN** he opens the start page

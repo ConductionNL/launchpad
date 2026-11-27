@@ -3,8 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Announcements as a reader sees them (engagement-announcements): a published
- * notice is a banner above the reader's dashboard, and a news item can be
- * liked and commented on through Nextcloud's comments.
+ * notice is a banner above the reader's dashboard with the check and the x
+ * (announcements-managed-in-settings REQ-ANN-005), and a news item can be
+ * liked and commented on through Nextcloud's comments in its own view
+ * (REQ-ANN-011).
  *
  * The admin writes; a throwaway member reads, on a dashboard the admin
  * shares with them that holds the announcements widget.
@@ -123,9 +125,11 @@ test('a notice without an end time is not published', async () => {
 })
 
 // @e2e announcements::maintenance-banner
-test('a published notice is a banner above the reader\'s dashboard, and a dismissible one can be closed', async ({ browser }) => {
+// @e2e announcements::the-check-keeps-the-banner-the-x-hides-it
+test('a published notice is a banner above the reader\'s dashboard; every notice has the check and the x, and the x closes it', async ({ browser }) => {
 	const fixed = `Onderhoud zaaksysteem ${STAMP}`
 	const closable = `Nieuwe koffieautomaat ${STAMP}`
+	// A stored "may not be dismissed" is ignored: that notice gets the x too.
 	await publishAnnouncement({ kind: 'notice', level: 'warning', title: fixed, dismissible: false, expiresAt: tomorrow() })
 	await publishAnnouncement({ kind: 'notice', level: 'info', title: closable, dismissible: true, expiresAt: tomorrow() })
 
@@ -136,7 +140,9 @@ test('a published notice is a banner above the reader\'s dashboard, and a dismis
 		const warning = region.locator('.notice-banner').filter({ hasText: fixed })
 		await expect(warning).toBeVisible({ timeout: 30_000 })
 		await expect(warning.locator('.notice-banner__level')).not.toHaveText('')
-		await expect(warning.locator('[data-test="notice-dismiss"]')).toHaveCount(0)
+		await expect(warning.locator('[data-test="notice-dismiss"]')).toHaveCount(1)
+		await warning.locator('[data-test="notice-confirm"]').click()
+		await expect(warning.locator('[data-test="notice-confirm"]')).toHaveAttribute('aria-label', 'Read')
 
 		const info = region.locator('.notice-banner').filter({ hasText: closable })
 		await info.locator('[data-test="notice-dismiss"]').click()
@@ -151,7 +157,8 @@ test('a published notice is a banner above the reader\'s dashboard, and a dismis
 })
 
 // @e2e announcements::pieter-likes-and-comments
-test('a reader likes and comments on a news item, and the card counts both', async ({ browser }) => {
+// @e2e announcements::open-an-announcement
+test('a reader opens a news item and likes and comments on it in its view, which counts both', async ({ browser }) => {
 	const title = `Nieuwe werkplekken ${STAMP}`
 	const comment = `Komen er ook sta-bureaus? ${STAMP}`
 	await publishAnnouncement({ kind: 'news', title, body: 'Op de 3e verdieping.', allowComments: true, expiresAt: tomorrow() })
@@ -161,19 +168,23 @@ test('a reader likes and comments on a news item, and the card counts both', asy
 		await page.goto('/index.php/apps/launchpad/')
 		const card = page.locator('[data-test="announcement-card"]').filter({ hasText: title })
 		await expect(card).toBeVisible({ timeout: 30_000 })
+		// The widget only shows: no like or comment button on the card.
+		await expect(card.locator('[data-test="announcement-like"], [data-test="announcement-comments"]')).toHaveCount(0)
 
-		await card.locator('[data-test="announcement-like"]').click()
-		await expect(card.locator('[data-test="announcement-like"]')).toHaveText(/1/)
-
-		await card.locator('[data-test="announcement-comments"]').click()
-		await card.getByLabel('Write a comment').fill(comment)
-		await card.getByRole('button', { name: 'Send' }).click()
-		await expect(card.locator('[data-test="announcement-comment-list"]')).toContainText(comment)
+		await card.locator('[data-test="announcement-open"]').click()
+		const view = page.locator('[data-test="announcement-modal"]')
+		await view.locator('[data-test="announcement-like"]').click()
+		await expect(view.locator('[data-test="announcement-like"]')).toHaveText(/1/)
+		await view.getByLabel('Write a comment').fill(comment)
+		await view.getByRole('button', { name: 'Send' }).click()
+		await expect(view.locator('[data-test="announcement-comment-list"]')).toContainText(comment)
 
 		await page.reload()
 		const reloaded = page.locator('[data-test="announcement-card"]').filter({ hasText: title })
-		await expect(reloaded.locator('[data-test="announcement-like"]')).toHaveText(/1/, { timeout: 30_000 })
-		await expect(reloaded.locator('[data-test="announcement-comments"]')).toHaveText(/1/)
+		await reloaded.locator('[data-test="announcement-open"]').click({ timeout: 30_000 })
+		const again = page.locator('[data-test="announcement-modal"]')
+		await expect(again.locator('[data-test="announcement-like"]')).toHaveText(/1/, { timeout: 30_000 })
+		await expect(again.locator('[data-test="announcement-comment-count"]')).toContainText('1')
 	} finally {
 		await context.close()
 	}

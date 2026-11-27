@@ -403,3 +403,25 @@ describe('takeRuntimeManifest', () => {
 		expect(loadInitialState('workspace').runtimeManifest).toEqual({ pages: [] })
 	})
 })
+
+// more-menu-favourites task 10: More's Announcements entry reads this.
+describe('readCanManageAnnouncements', () => {
+	it('is true only when the page says the viewer may manage announcements', async () => {
+		const cases = [
+			[{ canManage: true }, true],
+			[{ canManage: false }, false],
+			[{ canManage: 'yes' }, false],
+			[null, false],
+		]
+		for (const [value, expected] of cases) {
+			pushedState = { announcementsAccess: value }
+			vi.resetModules()
+			const { readCanManageAnnouncements } = await import('../loadInitialState.js')
+			expect(readCanManageAnnouncements()).toBe(expected)
+		}
+		pushedState = {}
+		vi.resetModules()
+		const { readCanManageAnnouncements } = await import('../loadInitialState.js')
+		expect(readCanManageAnnouncements()).toBe(false)
+	})
+})

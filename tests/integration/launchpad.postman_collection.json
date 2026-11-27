@@ -55,6 +55,18 @@
 			"key": "regularPassword",
 			"value": "Newman-Regular-Pw-123",
 			"description": "Must stay in sync with PASSWORD in tests/integration/seed.sh. >= 10 chars because Nextcloud's default password policy silently rejects shorter ones."
+		},
+		{
+			"key": "annManagerUser",
+			"value": "newman-ann-manager"
+		},
+		{
+			"key": "annManagerPassword",
+			"value": "Newman-Ann-Mgr-Pw-123"
+		},
+		{
+			"key": "annUuid",
+			"value": ""
 		}
 	],
 	"item": [
@@ -6347,6 +6359,1614 @@
 									"// 500s or 403s is something we want surfaced. (Real no-auth",
 									"// rejection coverage is enforced separately by PHPUnit.)",
 									"pm.test('no 5xx, no 403', () => pm.expect([200, 302, 401]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Announcements - Managed in settings",
+			"description": "announcements-managed-in-settings: the management endpoints answer 403 to a reader and 200 to a delegated manager (Nextcloud admin delegation of LaunchPadAnnouncementsAdmin).",
+			"item": [
+				{
+					"name": "Setup: group newman-ann-managers",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ocs/v1.php/cloud/groups?format=json",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"cloud",
+								"groups"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						},
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "groupid",
+									"value": "newman-ann-managers",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('group exists', () => pm.expect([200]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Setup: user {{annManagerUser}}",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ocs/v1.php/cloud/users?format=json",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"cloud",
+								"users"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						},
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "userid",
+									"value": "{{annManagerUser}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{annManagerPassword}}",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('user exists', () => pm.expect([200]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Setup: {{annManagerUser}} in newman-ann-managers",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ocs/v1.php/cloud/users/{{annManagerUser}}/groups?format=json",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"cloud",
+								"users",
+								"{{annManagerUser}}",
+								"groups"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						},
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "groupid",
+									"value": "newman-ann-managers",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('member', () => pm.expect([200]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Setup: delegate the announcements setting",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/settings/settings/authorizedgroups/saveSettings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"settings",
+								"settings",
+								"authorizedgroups",
+								"saveSettings"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\"newGroups\": [{\"gid\": \"newman-ann-managers\", \"displayName\": \"newman-ann-managers\"}], \"class\": \"OCA\\\\LaunchPad\\\\Settings\\\\LaunchPadAnnouncementsAdmin\"}"
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('delegated', () => pm.expect([200]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "GET /api/announcements/manage (reader -> 403)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{regularUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{regularPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/announcements/manage",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"announcements",
+								"manage"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('a reader may not manage', () => pm.expect([403]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/announcements (reader -> 403)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{regularUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{regularPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/announcements",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"announcements"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\"kind\": \"news\", \"title\": \"Newman reader\", \"expiresAt\": \"2099-01-01T00:00:00Z\"}"
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('a reader may not write', () => pm.expect([403]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "GET /api/announcements/receipt-counts (reader -> 403)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{regularUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{regularPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/announcements/receipt-counts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"announcements",
+								"receipt-counts"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('a reader reads no counts', () => pm.expect([403]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "GET /api/acknowledgements/widgets (reader -> 403)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{regularUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{regularPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/acknowledgements/widgets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"acknowledgements",
+								"widgets"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('a reader reads no widgets list', () => pm.expect([403]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "GET /api/announcements/delegation (reader -> 403)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{regularUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{regularPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/announcements/delegation",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"announcements",
+								"delegation"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('a reader reads no delegation', () => pm.expect([403]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "GET /api/announcements/manage (delegated manager -> 200)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{annManagerUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{annManagerPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/announcements/manage",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"announcements",
+								"manage"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('a delegated manager manages', () => pm.expect([200]).to.include(pm.response.code));",
+									"pm.test('lists announcements', () => pm.expect(pm.response.json().announcements).to.be.an('array'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/announcements (delegated manager -> 201)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{annManagerUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{annManagerPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/announcements",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"announcements"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\"kind\": \"news\", \"title\": \"Newman delegated\", \"expiresAt\": \"2099-01-01T00:00:00Z\"}"
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('a delegated manager writes', () => pm.expect([201]).to.include(pm.response.code));",
+									"if (pm.response.code === 201) { pm.collectionVariables.set('annUuid', pm.response.json().uuid); }"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/announcements/{uuid}/publish (delegated manager -> 200)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{annManagerUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{annManagerPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/announcements/{{annUuid}}/publish",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"announcements",
+								"{{annUuid}}",
+								"publish"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('published', () => pm.expect([200]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/announcements/{uuid}/confirm (reader, x -> 200)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{regularUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{regularPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/announcements/{{annUuid}}/confirm",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"announcements",
+								"{{annUuid}}",
+								"confirm"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\"via\": \"x\"}"
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('the x confirms', () => pm.expect([200]).to.include(pm.response.code));",
+									"pm.test('via x', () => pm.expect(pm.response.json().confirmedVia).to.eql('x'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "GET /api/announcements/{uuid}/receipts (reader -> 403)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{regularUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{regularPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/announcements/{{annUuid}}/receipts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"announcements",
+								"{{annUuid}}",
+								"receipts"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('a reader reads no receipts', () => pm.expect([403]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "GET /api/announcements/{uuid}/receipts (delegated manager -> 200)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{annManagerUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{annManagerPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/announcements/{{annUuid}}/receipts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"announcements",
+								"{{annUuid}}",
+								"receipts"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('a delegated manager reads the receipts', () => pm.expect([200]).to.include(pm.response.code));",
+									"pm.test('counts the x', () => pm.expect(pm.response.json().confirmedViaX).to.be.at.least(1));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "POST /api/announcements/{uuid}/remind (reader -> 403)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{regularUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{regularPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/announcements/{{annUuid}}/remind",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"announcements",
+								"{{annUuid}}",
+								"remind"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('a reader may not remind', () => pm.expect([403]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "GET /api/acknowledgements/widgets (delegated manager -> 200)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{annManagerUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{annManagerPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/acknowledgements/widgets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"acknowledgements",
+								"widgets"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('a delegated manager reads the widgets list', () => pm.expect([200]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "DELETE /api/announcements/{uuid} (reader -> 403)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{regularUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{regularPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/announcements/{{annUuid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"announcements",
+								"{{annUuid}}"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('a reader may not delete', () => pm.expect([403]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "DELETE /api/announcements/{uuid} (delegated manager -> 200)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{annManagerUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{annManagerPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/announcements/{{annUuid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"announcements",
+								"{{annUuid}}"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('a delegated manager deletes', () => pm.expect([200]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Teardown: remove the delegation",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/settings/settings/authorizedgroups/saveSettings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"settings",
+								"settings",
+								"authorizedgroups",
+								"saveSettings"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\"newGroups\": [], \"class\": \"OCA\\\\LaunchPad\\\\Settings\\\\LaunchPadAnnouncementsAdmin\"}"
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('undelegated', () => pm.expect([200]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Teardown: delete {{annManagerUser}}",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ocs/v1.php/cloud/users/{{annManagerUser}}?format=json",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"cloud",
+								"users",
+								"{{annManagerUser}}"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('user gone', () => pm.expect([200]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Teardown: delete newman-ann-managers",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPassword}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ocs/v1.php/cloud/groups/newman-ann-managers?format=json",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"cloud",
+								"groups",
+								"newman-ann-managers"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// One cookie jar serves the whole run: without this clear the request rides the",
+									"// session of the previous user (often the admin) instead of its own basic auth.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('group gone', () => pm.expect([200]).to.include(pm.response.code));"
 								]
 							}
 						}

@@ -21,6 +21,7 @@ import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
+import { downloadFromMore } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	API,
@@ -79,7 +80,7 @@ test.afterAll(async () => {
 	await admin.dispose()
 })
 
-test('a view-only reader downloads the dashboard from the header, and nothing is sent to the server', async ({ browser }) => {
+test('a view-only reader downloads the dashboard from More, and nothing is sent to the server', async ({ browser }) => {
 	const { context, page } = await loginAs(browser, reader!.username, reader!.password)
 	try {
 		await recordPrints(page)
@@ -94,7 +95,7 @@ test('a view-only reader downloads the dashboard from the header, and nothing is
 		await expect(header.locator('h1')).toHaveText(NAME, { timeout: 30_000 })
 		await expect(header).toContainText('view only')
 
-		await header.getByTestId('dashboard-download').click()
+		await downloadFromMore(page)
 
 		await expect.poll(() => page.evaluate(() => (window as unknown as { __prints: string[] }).__prints))
 			.toEqual([NAME])
@@ -106,7 +107,7 @@ test('a view-only reader downloads the dashboard from the header, and nothing is
 	}
 })
 
-test('the printed page leaves out the top bar and the Download button', async ({ browser }) => {
+test('the printed page leaves out the top bar and the More menu', async ({ browser }) => {
 	const { context, page } = await loginAs(browser, reader!.username, reader!.password)
 	try {
 		await page.goto(`${APP}/${dashboard!.slug}`)
@@ -114,7 +115,8 @@ test('the printed page leaves out the top bar and the Download button', async ({
 		await expect(header.locator('h1')).toHaveText(NAME, { timeout: 30_000 })
 		await page.emulateMedia({ media: 'print' })
 		await expect(header.locator('h1')).toBeVisible()
-		await expect(header.getByTestId('dashboard-download')).toBeHidden()
+		await expect(header.getByTestId('dashboard-download')).toHaveCount(0)
+		await expect(page.getByTestId('launchpad-more-menu')).toBeHidden()
 		await expect(page.locator('#header')).toBeHidden()
 	} finally {
 		await context.close()
@@ -127,6 +129,7 @@ test('the kiosk view does not offer Download', async ({ browser }) => {
 		await page.goto(`${APP}/${dashboard!.slug}?kiosk=1`)
 		await expect(page.locator('#launchpad-app.launchpad-app--kiosk')).toBeVisible({ timeout: 30_000 })
 		await expect(page.getByTestId('dashboard-download')).toHaveCount(0)
+		await expect(page.getByTestId('launchpad-more-menu')).toHaveCount(0)
 	} finally {
 		await context.close()
 	}

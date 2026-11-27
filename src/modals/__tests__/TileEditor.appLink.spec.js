@@ -168,4 +168,20 @@ describe('TileEditor as the App or link tile form', () => {
 		modal.vm.$emit('update:show', false)
 		expect(mountEditor().find('[data-testid="tile-editor-embedded"]').exists()).toBe(false)
 	})
+
+	// Boards LpTegelToevoegen / LpTegelBewerken: the Appearance panel.
+	it('shows the Appearance panel with a preview, and checks an app tile without a colour on the primary colour', async () => {
+		const wrapper = mountEditor()
+		await wrapper.find('[data-testid="tile-mode"] input[value="app"]').setValue(true)
+		await wrapper.find('[data-testid="tile-app-tick-app:zaaksysteem"]').setValue(true)
+		const panel = wrapper.find('[data-testid="tile-editor-appearance"]')
+		expect(panel.find('[data-testid="tile-editor-preview"]').text()).toContain('Zaaksysteem')
+		expect(panel.find('[data-testid="tile-editor-contrast"]').text()).toBe('White on primary: contrast 5.6:1, meets WCAG AA (4.5:1)')
+		expect(saveButton(wrapper).text()).toBe('Add tile')
+	})
+
+	it('leaves out its own heading when embedded', () => {
+		expect(mountEditor(null, { embedded: true }).find('.tile-editor__heading').exists()).toBe(false)
+		expect(mountEditor().find('.tile-editor__heading').exists()).toBe(true)
+	})
 })

@@ -1353,10 +1353,9 @@ export default {
 			'groupSharedDashboards',
 			'defaultGroupDashboards',
 			'sharedWithMeDashboards',
-			// dashboard-quota-limits REQ-QUOTA-006: drive the disabled
-			// create affordance + tooltip from the store getters.
+			// dashboard-quota-limits REQ-QUOTA-006: New dashboard and
+			// Duplicate are offered only under the quota.
 			'dashboardQuotaReached',
-			'dashboardQuotaTooltip',
 			// dashboard-acknowledgements REQ-ACK-002: outstanding count +
 			// per-placement outstanding predicate for the forced-delivery gate.
 			'outstandingAcknowledgementCount',

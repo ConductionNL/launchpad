@@ -787,7 +787,31 @@ class PageController extends Controller {
 	 */
 	protected function addAssets(string $script): void {
 		Util::addScript(application: Application::APP_ID, file: $script);
-		Util::addStyle(application: Application::APP_ID, file: 'launchpad');
+		foreach (self::stylesFor(script: $script) as $style) {
+			Util::addStyle(application: Application::APP_ID, file: $style);
+		}
 	}//end addAssets()
+
+	/**
+	 * The app stylesheets a page with this script links, in order.
+	 *
+	 * The workspace links nextcloud-vue's stylesheet (`css/nextcloud-vue.css`,
+	 * copied there by the build) instead of launchpad-main inserting its ~1 MB
+	 * as text from JavaScript: the browser keeps a linked sheet parsed between
+	 * page loads, which took ~30-100 ms off every warm Workspace load.
+	 *
+	 * @param string $script The script, `launchpad-main` or `launchpad-public`.
+	 *
+	 * @return array<int, string> The stylesheet names under css/.
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md
+	 */
+	public static function stylesFor(string $script): array {
+		if ($script === 'launchpad-main') {
+			return ['nextcloud-vue', 'launchpad'];
+		}
+
+		return ['launchpad'];
+	}//end stylesFor()
 
 }//end class

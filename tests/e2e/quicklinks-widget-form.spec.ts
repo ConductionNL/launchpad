@@ -38,7 +38,7 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import { expect, test } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
-import { enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
+import { enterEditMode, MORE_MENU, saveEditDraft } from './support/dashboardSwitcher.ts'
 import {
 	adminApi,
 	API,
@@ -127,6 +127,8 @@ async function addLinkRow(dialog: Locator, label: string, url: string): Promise<
  */
 async function savedPlacement(dialog: Locator) {
 	await expect(dialog, 'the modal closes on a successful save').toBeHidden({ timeout: 15_000 })
+	// REQ-EDIT-001/002: the widget is in the edit-mode draft until Save.
+	expect(await saveEditDraft(dialog.page())).toBe(200)
 	await expect.poll(async () => (await quicklinksOn(api, dashboard!.id)).length, {
 		message: 'one quicklinks placement is persisted',
 		timeout: 15_000,
@@ -236,9 +238,8 @@ test.describe('quicklinks widget: registration and sizing (REQ-QLNK-001, REQ-QLN
 		expect.soft(placement.gridHeight, 'default gridHeight').toBe(2)
 
 		await expect(quicklinksWidget(page, placement.id)).toBeVisible({ timeout: 15_000 })
-		// Adding a widget already put the dashboard in edit mode; More → Edit
-		// would toggle it back off.
-		await expect(page.locator('.launchpad-edit-mode')).toBeVisible()
+		// Save ended edit mode (REQ-EDIT-002); resizing happens in edit mode.
+		await enterEditMode(page)
 		const item = page
 			.locator('.grid-stack-item')
 			.filter({ has: page.locator(`[data-testid="widget-placement-${placement.id}"]`) })

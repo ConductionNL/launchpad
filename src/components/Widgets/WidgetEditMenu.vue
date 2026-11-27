@@ -7,7 +7,7 @@
 	WidgetEditMenu — the three-dot menu a widget shows in edit mode (board
 	LpBewerken): Edit widget, "Who sees this widget?", Create embed token and
 	Delete widget. Tiles use it too, with their own labels. Create embed token
-	is an edit-mode action only (REQ-WDG-047, review 27 Nov item 21).
+	is an edit-mode action only (REQ-WDG-050, review 27 Nov item 21).
 	The same look and test ids as nc-vue's CnWidgetEditCog, which offers no
 	room for a third item; "Who sees this widget?" is here so the rules
 	dialog is reachable by keyboard and not only by right-click
@@ -45,7 +45,7 @@
 			</template>
 			{{ t('launchpad', 'Who sees this widget?') }}
 		</NcActionButton>
-		<!-- REQ-WDG-047: only for people who may create embed tokens (the host
+		<!-- REQ-WDG-050: only for people who may create embed tokens (the host
 		     passes a link), disabled for a widget that is not saved yet. -->
 		<NcActionLink
 			v-if="embedHref !== '' && !embedDisabled"
@@ -135,7 +135,7 @@ export default {
 
 		/**
 		 * The admin link that creates an embed token for this widget
-		 * (REQ-WDG-047); '' when the person may not create one.
+		 * (REQ-WDG-050); '' when the person may not create one.
 		 */
 		embedHref: {
 			type: String,

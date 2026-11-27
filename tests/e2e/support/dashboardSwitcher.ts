@@ -204,3 +204,79 @@ export async function addWidgetFromMore(page: Page): Promise<void> {
 	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 }
+
+/**
+ * Close the dashboard switcher sidebar when it is open, so it does not cover
+ * the edit bar's Cancel and Save.
+ *
+ * @param page The page.
+ * @return Resolves once it is closed.
+ */
+async function closeSwitcher(page: Page): Promise<void> {
+	const close = page.locator('.dashboard-switcher-sidebar.open .dashboard-switcher-sidebar__close').first()
+	if (await close.isVisible().catch(() => false)) {
+		await close.click()
+		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0, { timeout: 5_000 })
+	}
+}
+
+/**
+ * Store the edit-mode draft (REQ-EDIT-002): choose Save in the edit bar and
+ * wait for its one dashboard request. Edit mode ends with it.
+ *
+ * @param page The page, in edit mode with changes.
+ * @return The answer's status.
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ */
+export async function saveEditDraft(page: Page): Promise<number> {
+	await closeSwitcher(page)
+	const save = page.locator('[data-testid="launchpad-edit-bar-save"]')
+	await expect(save).toBeEnabled({ timeout: 10_000 })
+	const saved = page.waitForResponse(
+		(res) => res.request().method() === 'PUT'
+			&& /\/apps\/launchpad\/api\/dashboard\/\d+$/.test(new URL(res.url()).pathname)
+			&& (res.request().postDataJSON()?.draft === true),
+	)
+	await save.click()
+	return (await saved).status()
+}
+
+/**
+ * Add a widget through an open Add widget (or tile) dialog the way edit mode
+ * does now (REQ-EDIT-001/002): press its Add button, then Save the draft,
+ * and return what the server stored for the new widget.
+ *
+ * @param page The page, in edit mode with the dialog open.
+ * @param dialog The dialog.
+ * @param button The name of its add button.
+ * @return The dashboard id, the stored new placement, and what the Save sent for it.
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ */
+export async function addAndSaveDraft(
+	page: Page,
+	dialog: Locator,
+	button: RegExp = /^add$/i,
+): Promise<{ dashboardId: number, placement: Record<string, any>, sent: Record<string, any> }> {
+	const add = dialog.getByRole('button', { name: button })
+	await expect(add).toBeEnabled({ timeout: 5_000 })
+	await add.click()
+	await expect(dialog).not.toBeVisible({ timeout: 8_000 })
+	await closeSwitcher(page)
+	const saved = page.waitForResponse(
+		(res) => res.request().method() === 'PUT'
+			&& /\/apps\/launchpad\/api\/dashboard\/\d+$/.test(new URL(res.url()).pathname)
+			&& res.request().postDataJSON()?.draft === true,
+	)
+	await page.locator('[data-testid="launchpad-edit-bar-save"]').click()
+	const response = await saved
+	expect(response.status(), await response.text()).toBeLessThan(300)
+	const body = response.request().postDataJSON() as { placements: Array<Record<string, any>> }
+	const kept = new Set(body.placements.filter((p) => p.id !== undefined).map((p) => Number(p.id)))
+	const json = await response.json()
+	const stored = ((json.data ?? json).placements ?? []) as Array<Record<string, any>>
+	return {
+		dashboardId: Number(new URL(response.url()).pathname.match(/dashboard\/(\d+)$/)![1]),
+		placement: stored.find((p) => !kept.has(Number(p.id)))!,
+		sent: body.placements.find((p) => p.id === undefined)!,
+	}
+}

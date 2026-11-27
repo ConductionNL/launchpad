@@ -285,3 +285,50 @@ describe('Views acknowledgements', () => {
 		expect(makeHost().openAcknowledgementReport).toBeUndefined()
 	})
 })
+
+describe('Views moves a tile into a tab (REQ-TABS-002)', () => {
+	const tabs = {
+		id: 31,
+		widgetId: 'tabs',
+		content: { title: 'Werk', tabs: [{ id: 'tab-1', title: 'Team', placements: [] }, { id: 'tab-2', title: 'Samenwerken', placements: [] }] },
+	}
+
+	it('writes the tile into the chosen tab and takes it off the dashboard', async () => {
+		const written = []
+		const host = makeHost({
+			editingTile: { id: 7 },
+			widgetPlacements: [{ id: 7, widgetId: 'tile', isCompulsory: 0 }, tabs],
+			isRemovablePlacement: () => true,
+			writeGroupContent: vi.fn(async (container, content) => {
+				written.push([container.id, content])
+				return true
+			}),
+			removeWidgetFromDashboard: vi.fn(async () => undefined),
+			closeTileEditor: vi.fn(),
+		})
+
+		await host.moveTileIntoGroup({ groupId: '31:tab-2' }, { title: 'Files' })
+
+		expect(written).toHaveLength(1)
+		expect(written[0][0]).toBe(31)
+		expect(written[0][1].tabs[1].placements).toHaveLength(1)
+		expect(written[0][1].tabs[0].placements).toHaveLength(0)
+		expect(host.removeWidgetFromDashboard).toHaveBeenCalledWith(7)
+		expect(host.closeTileEditor).toHaveBeenCalled()
+	})
+
+	it('says so when the Tabs widget is gone', async () => {
+		const { showError } = await import('@nextcloud/dialogs')
+		const host = makeHost({
+			editingTile: { id: 7 },
+			widgetPlacements: [{ id: 7, widgetId: 'tile' }],
+			isRemovablePlacement: () => true,
+			writeGroupContent: vi.fn(),
+		})
+
+		await host.moveTileIntoGroup({ groupId: '31:tab-2' }, {})
+
+		expect(host.writeGroupContent).not.toHaveBeenCalled()
+		expect(showError).toHaveBeenCalled()
+	})
+})

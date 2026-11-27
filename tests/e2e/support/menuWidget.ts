@@ -27,7 +27,7 @@ import type { APIRequestContext, Locator, Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
 import { gotoLaunchPad } from '../fixtures/widget-flow.ts'
-import { addWidgetFromMore } from './dashboardSwitcher.ts'
+import { addAndSaveDraft, addWidgetFromMore } from './dashboardSwitcher.ts'
 import { chooseAndAdd } from './widgetPicker.ts'
 
 /** The app root, as the router base reads it. */
@@ -309,17 +309,9 @@ export async function submitMenuForm(
 	dialog: Locator,
 	api: APIRequestContext,
 ): Promise<SavedPlacement> {
-	const posted = page.waitForResponse((res) => res.request().method() === 'POST'
-		&& /\/api\/dashboard\/\d+\/widgets$/.test(new URL(res.url()).pathname))
-	const add = dialog.getByRole('button', { name: /^add$/i })
-	await expect(add).toBeEnabled({ timeout: 5_000 })
-	await add.click()
-	const response = await posted
-	expect(response.status(), await response.text()).toBeLessThan(300)
-	const dashboardId = Number(new URL(response.url()).pathname.match(/dashboard\/(\d+)\/widgets/)![1])
-	const body = await response.json()
-	const placementId = Number(body.id ?? body.data?.id)
-	await expect(dialog).not.toBeVisible({ timeout: 8_000 })
+	// REQ-EDIT-001/002: Add puts the menu in the draft; Save stores it.
+	const { dashboardId, placement } = await addAndSaveDraft(page, dialog)
+	const placementId = Number(placement.id)
 
 	const stored = (await readPlacements(api, dashboardId)).find((p) => Number(p.id) === placementId)
 	expect(stored, `placement ${placementId} was not stored on dashboard ${dashboardId}`).toBeTruthy()

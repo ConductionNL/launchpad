@@ -338,19 +338,24 @@ function selectedOf(control: Locator): Locator {
 		.locator('.vs__selected')
 }
 
-/** Save the edit dialog and wait for the placement PUT to land. */
+/**
+ * Save the edit dialog, then the edit-mode draft it changed (REQ-EDIT-002),
+ * and wait for that one dashboard request to land with the widget in it.
+ */
 async function saveEdit(page: Page, dialog: Locator, id: number): Promise<void> {
-	const put = page.waitForResponse(
-		(res) =>
-			res.request().method() === 'PUT'
-			&& res.url().includes(`/api/widgets/${id}`),
-		{ timeout: 10_000 },
-	)
 	const save = dialog.getByRole('button', { name: /^save$/i })
 	await expect(save).toBeEnabled({ timeout: 5_000 })
 	await save.click()
-	expect((await put).status()).toBeLessThan(300)
 	await expect(dialog).not.toBeVisible({ timeout: 8_000 })
+	const put = page.waitForResponse(
+		(res) =>
+			res.request().method() === 'PUT'
+			&& res.url().includes(`/api/dashboard/${dashboard!.id}`)
+			&& (res.request().postDataJSON()?.placements ?? []).some((p: { id?: number }) => Number(p.id) === id),
+		{ timeout: 10_000 },
+	)
+	await page.getByTestId('launchpad-edit-bar-save').click()
+	expect((await put).status()).toBeLessThan(300)
 }
 
 /** The combobox of a labelled NcSelect in the divider form. */
@@ -809,20 +814,28 @@ async function addDividerThroughModal(
 	await expect(dialog).toBeVisible({ timeout: 10_000 })
 	await expect(dialog.locator('.cn-divider-widget-form')).toBeVisible()
 
-	const post = page.waitForResponse(
-		(res) =>
-			res.request().method() === 'POST'
-			&& res.url().includes(`/api/dashboard/${dashboard!.id}/widgets`),
-		{ timeout: 10_000 },
-	)
+	// REQ-EDIT-001/002: the divider joins the draft; the edit-mode Save
+	// creates it, in the one dashboard request.
+	const before = new Set((await placementsOf(dashboard!.id)).map((p) => Number(p.id)))
 	await dialog.getByRole('button', { name: /^add$/i }).click()
-	const res = await post
-	expect(res.status(), await res.text()).toBeLessThan(300)
-	const id = placementIdOf(await res.json())
-	extraPlacements.push(id)
 	await expect(dialog).not.toBeVisible({ timeout: 8_000 })
 	await closeSidebar(page)
-	return { body: res.request().postDataJSON(), id }
+	const put = page.waitForResponse(
+		(res) =>
+			res.request().method() === 'PUT'
+			&& res.url().includes(`/api/dashboard/${dashboard!.id}`)
+			&& res.request().postDataJSON()?.draft === true,
+		{ timeout: 10_000 },
+	)
+	await page.getByTestId('launchpad-edit-bar-save').click()
+	const res = await put
+	expect(res.status(), await res.text()).toBeLessThan(300)
+	const added = (await placementsOf(dashboard!.id)).find((p) => !before.has(Number(p.id)) && p.widgetId === 'divider')
+	const id = Number(added.id)
+	extraPlacements.push(id)
+	const body = (res.request().postDataJSON().placements as Array<Record<string, unknown>>)
+		.find((p) => p.id === undefined && p.widgetId === 'divider')
+	return { body, id }
 }
 
 test.describe('REQ-DIV-006 sizing', () => {
@@ -885,6 +898,8 @@ test.describe('REQ-DIV-006 sizing', () => {
 		await expect(readout).toContainText('8 wide by 1 tall')
 		await panel.locator('[data-test="move-save"]').click()
 		await expect(panel).not.toBeVisible({ timeout: 5_000 })
+		// REQ-EDIT-002: the resize is in the draft until Save.
+		await page.getByTestId('launchpad-edit-bar-save').click()
 
 		// Persisted...
 		await expect

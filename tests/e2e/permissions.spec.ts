@@ -601,6 +601,8 @@ test.describe('permission levels on a template copy the user owns', () => {
 			await page.keyboard.press('ArrowRight')
 			await page.keyboard.press('Enter')
 			await expect(panel).not.toBeVisible({ timeout: 5_000 })
+			// REQ-EDIT-002: the move is in the draft until Save.
+			await page.getByTestId('launchpad-edit-bar-save').click()
 			expect(
 				(await saved).status(),
 				'the grid must be allowed to save the move',

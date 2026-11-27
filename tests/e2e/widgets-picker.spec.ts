@@ -52,7 +52,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
+import { addAndSaveDraft, enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
 import { adminContext, API } from './support/principals.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 import {
@@ -342,15 +342,11 @@ test.describe('REQ-WDG-010 the add/edit modal', () => {
 		await dialog.locator('.cn-text-widget-form__textarea').fill('Hello')
 		await dialog.getByLabel('Font size').fill('16px')
 
-		const post = page.waitForRequest(
-			(req) =>
-				req.method() === 'POST'
-				&& new URL(req.url()).pathname.endsWith(
-					`/api/dashboard/${dashboard!.id}/widgets`,
-				),
-		)
-		await page.locator(PRIMARY).click()
-		const body = (await post).postDataJSON() as {
+		// REQ-EDIT-001/002: Add puts the widget in the draft; the edit-mode Save
+		// sends it, new and without an id, in the one dashboard request.
+		const dialogBox = page.locator(PRIMARY).locator('xpath=ancestor::*[@role="dialog"][1]')
+		const { sent } = await addAndSaveDraft(page, dialogBox, /^add$/i)
+		const body = sent as {
 			widgetId: string
 			content: Record<string, unknown>
 		}

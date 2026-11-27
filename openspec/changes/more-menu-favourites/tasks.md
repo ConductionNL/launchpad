@@ -9,7 +9,7 @@
 - [x] This dashboard: no Read receipts item (moved to the admin page) (announcements-managed-in-settings #2287: `canViewReadReceipts` and the `read-receipts` item left DashboardMoreMenu; unit DashboardMoreMenu.spec.js and e2e dashboard-acknowledgements.spec.ts (#2296) check it is absent)
 - [x] Settings group: Announcements entry for people who may manage announcements, after Admin settings
 - [x] Remove `DashboardSwitcherSidebar.vue`, `SidebarFooter.vue`, `SidebarBackdrop.vue`, `DashboardRowActions.vue`, the shell's `sidebarOpen` state and their tests
-- [ ] Translations (en, nl and every shipped locale) for the new strings (en, nl, de, fr done; the other shipped locales open)
+- [x] Translations (en, nl and every shipped locale) for the new strings (en, nl, de, fr, es, it first; every other shipped locale, .js and .json, in help-launchpad-3: the 16 More menu strings incl. All dashboards, This dashboard, More, Default dashboard and the plural with each locale's plural count)
 - [x] Unit tests: favourite controller and service (star, unstar, invisible dashboard 404, cleanup), menu component (empty state, favourites, expand, collapse, star toggle, footer, Download position)
 - [x] Playwright `tests/e2e/more-menu-favourites.spec.ts`: empty state; star a dashboard in the expanded list and see it in the short list after a reload; unstar; Download in This dashboard; New dashboard in the expanded list creates and opens a dashboard; no sidebar and no header Download
 - [x] Rewrite or remove the e2e specs that open the sidebar (except the three that follow REQ-SHELL-018/019 below)

@@ -293,7 +293,7 @@ test('Shift+ArrowRight widens the pending size to 4x2 and Shift+arrows never go 
 })
 
 // @e2e grid-layout::confirming-and-cancelling
-test('Enter saves the pending change through the layout save, Escape closes without saving', async ({
+test('Enter puts the pending change in the draft that Save stores, Escape closes without saving', async ({
 	browser,
 }) => {
 	const [only] = await seed([{ x: 2, y: 3, w: 3, h: 2 }])
@@ -312,10 +312,9 @@ test('Enter saves the pending change through the layout save, Escape closes with
 				placements: Array<Record<string, number>>
 			}
 		).placements
+		// REQ-EDIT-002: the draft Save carries the fields the move changed.
 		expect(sent.find((p) => Number(p.id) === only)).toMatchObject({
 			gridX: 3,
-			gridY: 3,
-			gridWidth: 3,
 			gridHeight: 3,
 		})
 		await expect(panel).toHaveCount(0)
@@ -329,7 +328,9 @@ test('Enter saves the pending change through the layout save, Escape closes with
 			h: 3,
 		})
 
-		// Escape: nothing is saved and the panel closes.
+		// Escape: nothing is saved and the panel closes. Save ended edit
+		// mode, so it is entered again first.
+		await enterEditMode(page)
 		const saves = countSaves(page, own!.id)
 		await openMovePanel(page, only)
 		await page.keyboard.press('ArrowLeft')

@@ -43,8 +43,8 @@ describe('TileWidget removeLocked', () => {
 	})
 })
 
-// @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-047
-describe('TileWidget embed entry (REQ-WDG-047)', () => {
+// @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+describe('TileWidget embed entry (REQ-WDG-050)', () => {
 	const href = '/index.php/apps/launchpad/admin/general?tab=embeds&embedType=widget&embedId=3'
 
 	it('hands the embed link to the edit menu, enabled for a saved tile', () => {

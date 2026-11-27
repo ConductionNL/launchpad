@@ -216,4 +216,55 @@ class BookmarkImportControllerTest extends TestCase {
 		self::assertSame('container', $data['placements'][0]['widgetId']);
 		self::assertSame([['title' => 'Run', 'url' => 'javascript:alert(1)', 'reason' => 'only web addresses can become tiles']], $data['skipped']);
 	}//end testAnImportIs201WithWhatWasCreatedAndSkipped()
+
+	/**
+	 * For an edit-mode draft the import answers 200 with the placements it
+	 * would create below the draft's lowest edge and creates nothing; a tile
+	 * carries the fields a stored tile has (edit-mode-draft-and-save).
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 *
+	 * @return void
+	 */
+	public function testADraftImportAnswersThePlacementsWithoutCreatingThem(): void {
+		$this->permissions->method('canAddWidget')->willReturn(true);
+		$this->widgetService->expects(self::never())->method('importBookmarks');
+		$this->widgetService->expects(self::once())->method('assertImportFits')
+			->with(3, self::callback(callback: static fn (BookmarkImportPlan $plan): bool => $plan->placementCount() === 2));
+
+		$body = self::body() + ['draft' => true, 'bottom' => 7];
+		$body['bookmarks'][] = ['title' => 'Mail', 'url' => 'https://mail.example'];
+		$response = $this->controller(body: $body)->import(dashboardId: 3);
+
+		self::assertSame(expected: 200, actual: $response->getStatus());
+		$placements = $response->getData()['placements'];
+		self::assertSame(expected: ['container', 'tile'], actual: array_column($placements, 'widgetId'));
+		self::assertSame(expected: 7, actual: $placements[0]['gridY']);
+		self::assertArrayNotHasKey(key: 'tile', array: $placements[1]);
+		self::assertSame(
+			expected: [
+				'tileTitle'     => 'Mail',
+				'tileLinkType'  => 'url',
+				'tileLinkValue' => 'https://mail.example',
+				'tileIcon'      => 'icon-link',
+				'tileIconType'  => 'class',
+			],
+			actual: array_intersect_key($placements[1], array_flip(['tileTitle', 'tileLinkType', 'tileLinkValue', 'tileIcon', 'tileIconType']))
+		);
+		self::assertCount(expectedCount: 1, haystack: $response->getData()['skipped']);
+	}//end testADraftImportAnswersThePlacementsWithoutCreatingThem()
+
+	/**
+	 * A draft import over the quota is refused like the import itself.
+	 *
+	 * @return void
+	 */
+	public function testADraftImportOverTheQuotaIs409(): void {
+		$this->permissions->method('canAddWidget')->willReturn(true);
+		$this->widgetService->method('assertImportFits')
+			->willThrowException(new QuotaExceededException(quota: QuotaExceededException::QUOTA_WIDGETS, limit: 20, current: 20));
+
+		$response = $this->controller(body: self::body() + ['draft' => true])->import(dashboardId: 3);
+		self::assertSame(expected: 409, actual: $response->getStatus());
+	}//end testADraftImportOverTheQuotaIs409()
 }//end class

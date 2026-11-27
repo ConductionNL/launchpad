@@ -296,13 +296,38 @@ export function textArea(form: Locator): Locator {
 }
 
 /**
- * Press the dialog's Add button and wait for the new placement to be stored.
+ * Choose the edit bar's Save and return the draft save's request and answer
+ * (REQ-EDIT-002): since edit-mode-draft-and-save an added or edited widget is
+ * written by that one dashboard PUT, not by a widget request of its own.
+ *
+ * @param page the page, in edit mode with changes.
+ * @return the Save request's JSON body and its HTTP status.
+ */
+async function saveDraft(page: Page): Promise<{ sent: Record<string, any>; status: number }> {
+	const save = page.locator('[data-testid="launchpad-edit-bar-save"]')
+	await expect(save).toBeEnabled({ timeout: 10_000 })
+	const [response] = await Promise.all([
+		page.waitForResponse(
+			(r) =>
+				r.request().method() === 'PUT'
+				&& /\/apps\/launchpad\/api\/dashboard\/\d+$/.test(new URL(r.url()).pathname)
+				&& r.request().postDataJSON()?.draft === true,
+			{ timeout: 15_000 },
+		),
+		save.click(),
+	])
+	return { sent: response.request().postDataJSON() ?? {}, status: response.status() }
+}
+
+/**
+ * Press the dialog's Add button, store the edit-mode draft with Save, and
+ * wait for the new placement to be stored.
  *
  * @param page the page.
  * @param dialog the Add Widget dialog.
  * @param api an admin context.
  * @param dashboardId the dashboard the placement lands on.
- * @return the new placement id and the create request's HTTP status.
+ * @return the new placement id and the Save request's HTTP status.
  */
 export async function submitAdd(
 	page: Page,
@@ -313,16 +338,9 @@ export async function submitAdd(
 	const before = new Set((await storedPlacements(api, dashboardId)).map((p) => Number(p.id)))
 	const save = dialog.getByTestId('add-widget-save')
 	await expect(save).toBeEnabled({ timeout: 5_000 })
-	const [response] = await Promise.all([
-		page.waitForResponse(
-			(r) =>
-				r.request().method() === 'POST'
-				&& /\/api\/(v1\/)?dashboard\/\d+\/widgets$/.test(new URL(r.url()).pathname),
-			{ timeout: 15_000 },
-		),
-		save.click(),
-	])
+	await save.click()
 	await expect(dialog).toBeHidden({ timeout: 10_000 })
+	const { status } = await saveDraft(page)
 	let id = 0
 	await expect
 		.poll(async () => {
@@ -333,16 +351,17 @@ export async function submitAdd(
 			return id
 		}, { timeout: 10_000 })
 		.toBeGreaterThan(0)
-	return { id, status: response.status() }
+	return { id, status }
 }
 
 /**
- * Press the Edit dialog's Save button and wait for the placement update.
+ * Press the Edit dialog's Save button, then store the edit-mode draft with
+ * the edit bar's Save.
  *
  * @param page the page.
  * @param dialog the Edit Widget dialog.
  * @param placementId the placement being edited.
- * @return the PUT request's JSON body and its HTTP status.
+ * @return what the Save sent for this placement (its `content` among it) and the HTTP status.
  */
 export async function submitEdit(
 	page: Page,
@@ -351,19 +370,12 @@ export async function submitEdit(
 ): Promise<{ body: Record<string, any>; status: number }> {
 	const save = dialog.getByTestId('add-widget-save')
 	await expect(save).toBeEnabled({ timeout: 5_000 })
-	const path = new RegExp(`/api/(v1/)?widgets/${placementId}$`)
-	const [response] = await Promise.all([
-		page.waitForResponse(
-			(r) =>
-				r.request().method() === 'PUT'
-				&& path.test(new URL(r.url()).pathname)
-				&& (r.request().postData() ?? '').includes('"content"'),
-			{ timeout: 15_000 },
-		),
-		save.click(),
-	])
+	await save.click()
 	await expect(dialog).toBeHidden({ timeout: 10_000 })
-	return { body: response.request().postDataJSON() ?? {}, status: response.status() }
+	const { sent, status } = await saveDraft(page)
+	const placements = (sent.placements ?? []) as Array<Record<string, any>>
+	const body = placements.find((p) => Number(p.id) === Number(placementId)) ?? {}
+	return { body, status }
 }
 
 /**

@@ -175,7 +175,7 @@ export default {
 
 	/**
 	 * @spec openspec/changes/engagement-announcements/tasks.md#task-7
-	 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+	 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
 	 */
 	created() {
 		if (this.preview) {

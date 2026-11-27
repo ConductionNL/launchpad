@@ -471,7 +471,13 @@ test.describe('setup-wizard — fresh instance (complete = false)', () => {
 		storedGroupOrder = await settingRows(GROUP_ORDER_KEY)
 	})
 
-	test.beforeEach(async () => {
+	test.beforeEach(async ({ page }) => {
+		// On a fresh instance the admin page opens the wizard by itself once
+		// per browser session (ADR-042, REQ-ADM-032). These tests open it
+		// through the banner, so the session has already been offered it.
+		await page.addInitScript(() => {
+			window.sessionStorage.setItem('launchpad:setup-wizard-offered', '1')
+		})
 		// The GIVEN of every test in this block: a fresh instance. Neither
 		// row has an endpoint that removes it, so the test removes them on
 		// the instance and then requires the product to read them as absent.

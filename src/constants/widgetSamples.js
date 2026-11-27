@@ -79,7 +79,8 @@ export const SAMPLE_CONTENT = Object.freeze({
 	files: { folderPath: '/', sampleFiles: [{ name: 'Planning.xlsx' }, { name: 'Minutes.docx' }, { name: 'Logo.png' }] },
 	stat: { label: 'Open cases', value: 42, sampleValue: 42, format: 'number' },
 	'app-tiles': { pinned: [], exclude: [], showFilter: false, showMostUsed: false, sampleApps: ['files', 'mail', 'calendar', 'deck'] },
-	'app-tile': { mode: 'app', appId: 'files', colourToken: '--sc-primary', textColour: 'white', showCount: false },
+	// Drawn as a link-mode tile: the app-mode renderer reads the viewer's app menu.
+	'app-tile': { mode: 'link', title: 'Files', linkType: 'url', linkValue: '#', icon: 'Folder', iconType: 'mdi', colourToken: '--sc-primary', textColour: 'white' },
 	delta: { label: 'Requests this week', value: 18, previous: 14, sampleValue: 18, samplePrevious: 14 },
 	gauge: { label: 'Handled on time', value: 82, target: 90, sampleValue: 82 },
 	'object-list': { title: 'Open cases', sampleRows: ROWS },
@@ -145,6 +146,12 @@ export const SAMPLE_CONTENT = Object.freeze({
 	connections: {},
 	'pie-chart': { chartKind: 'donut', source: 'values', values: [{ label: 'Open', value: 12 }, { label: 'In progress', value: 7 }, { label: 'Done', value: 21 }] },
 	graph: { chartKind: 'bar', source: 'values', values: BARS },
+	// nextcloud-vue display types the picker offers; their renderers draw
+	// content only, so the sample needs no preview support there. Types that
+	// read a register or poll (tasks, stacked bar, week strip, notepad, ...)
+	// keep the icon until nextcloud-vue honours `preview`.
+	banner: { text: 'The town hall is closed on 24 December.', variant: 'info' },
+	markdown: { markdown: '### This week\n\n- Team meeting on Tuesday\n- Office hours on Thursday' },
 	announcements: {
 		category: '',
 		limit: 3,
@@ -158,6 +165,14 @@ export const SAMPLE_CONTENT = Object.freeze({
 })
 
 /**
+ * Types whose nextcloud-vue renderer still reads the server in the browser
+ * with `preview` set (checked live on a sandbox, 27 Nov 2026: the people list
+ * and its avatars, the app menu): their miniature shows the type's icon until
+ * nextcloud-vue honours `preview` for them (REQ-WDG-048: no request).
+ */
+export const NOT_PREVIEW_SAFE = Object.freeze(['people', 'app-tiles'])
+
+/**
  * The sample content of a widget type: the registry entry's own
  * `sampleContent` when it has one, else Launchpad's, else null.
  *
@@ -167,6 +182,9 @@ export const SAMPLE_CONTENT = Object.freeze({
  * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
  */
 export function sampleContentOf(type, entry = null) {
+	if (NOT_PREVIEW_SAFE.includes(type) && !entry?.sampleContent) {
+		return null
+	}
 	const sample = entry?.sampleContent ?? SAMPLE_CONTENT[type] ?? null
 	return sample ? JSON.parse(JSON.stringify(sample)) : null
 }

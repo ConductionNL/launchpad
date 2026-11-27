@@ -32,9 +32,10 @@ describe('existingTileKeys', () => {
 		const keys = existingTileKeys([
 			{ tileLinkType: 'url', tileLinkValue: 'https://a.test' },
 			{ widgetId: 'app-tile', content: { appId: 'deck' } },
+			{ widgetId: 'tile', content: { mode: 'app', appId: 'files' } },
 			{ widgetId: 'clock' },
 		])
-		expect([...keys]).toEqual(['url:https://a.test', 'app:deck'])
+		expect([...keys]).toEqual(['url:https://a.test', 'app:deck', 'app:files'])
 		expect(existingTileKeys(null).size).toBe(0)
 	})
 })
@@ -49,7 +50,7 @@ describe('choices per section', () => {
 	})
 
 	it('makes a found app its own app tile', () => {
-		expect(discoveredChoice({ appId: 'grafana', name: 'Grafana' })).toEqual({ key: 'app:grafana', kind: 'app-tile', tile: { appId: 'grafana' } })
+		expect(discoveredChoice({ appId: 'grafana', name: 'Grafana' })).toEqual({ key: 'app:grafana', kind: 'app', tile: { appId: 'grafana' } })
 	})
 
 	it('makes a found service a web-address tile (REQ-TILE-044)', () => {

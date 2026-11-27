@@ -238,7 +238,7 @@ Everything the panel offered MUST stay reachable through the More menu: the pane
 
 - On the dashboard view (`/` and `/dashboards/:id`) the workspace's own More menu (`DashboardMoreMenu`) carries them under its expandable Settings item, beside the dashboards and the open dashboard's actions. A member without an active dashboard gets the same menu (`StartPageMenu`) in the empty state.
 - Both are the one menu of REQ-SHELL-013 (board LpMeer), with the items under Settings in this order: Personal settings, Admin settings for an administrator, then Marketplace, Templates, Reports, Flows, Integrations, Documentation, Features & roadmap (nl Persoonlijke instellingen, Beheerinstellingen, Marktplaats, Sjablonen, Rapporten, Flows, Koppelingen, Documentatie, Functies en roadmap). An entry the board does not name follows at the end. The in-app admin settings route (`admin-settings`) only redirects to Nextcloud's admin settings, so the menu offers that destination once, as the admin settings link. The manifest's `dashboards` entry is the Dashboards group.
-- On every other page (Marketplace, Reports, Flows, Features & roadmap, the admin pages) `App.vue` renders the same More menu at the top end of the content, through `CnAppRoot`'s `#header-actions` slot, and keeps that column free so a page's own header actions are never covered. Its Dashboards group is how a member gets back.
+- On every other page (Marketplace, Reports, Flows, Features & roadmap, the admin pages) `App.vue` renders the same More menu through `CnAppRoot`'s `#header-actions` slot. When the page header draws an action row (the store page's, an index page's header buttons), More is that row's last button, after the page's own actions such as Publish (board LpStore). Without such a row it sits at the top end of the content, and that column is kept free so a page's own header actions are never covered. Its Dashboards group is how a member gets back.
 - A kiosk view (`?kiosk=1`, REQ-KIOSK-001) renders neither.
 
 The menus are keyboard reachable with visible focus and use no colour of their own. An external destination opens in a new tab, as the panel's did.
@@ -246,6 +246,13 @@ The menus are keyboard reachable with visible focus and use no colour of their o
 The admin option "Start page without navigation panel" is no longer offered: with no panel anywhere there is nothing to switch. Neither the frontend nor the backend reads or writes it any more; a stored `start_page_without_navigation` row stays unread (admin-settings REQ-ASET-001).
 
 **Why.** Ruben's review of 22 Nov 2026: the left panel makes no sense for LaunchPad, and the board grid should have the full width. The drawn boards (`launchpad/LpVandaag`, `launchpad/LpStore` and the others) draw no side bar and a Meer button in the top row.
+
+#### Scenario: More is the last button of the store page header
+
+- **GIVEN** a member on the Marketplace page, whose header draws Publish
+- **WHEN** the page renders
+- **THEN** the More menu MUST sit in the page header's action row, after Publish
+- **AND** it MUST NOT be placed outside the content column
 
 #### Scenario: No route renders the panel
 - GIVEN a member opens LaunchPad

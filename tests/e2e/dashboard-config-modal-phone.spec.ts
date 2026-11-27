@@ -55,7 +55,9 @@ async function overflowingElements(page: Page): Promise<string[]> {
 
 		for (const el of Array.from(config.querySelectorAll('*'))) {
 			const rect = el.getBoundingClientRect()
-			if (rect.width === 0 || rect.height === 0 || insideClipper(el)) {
+			// Screen-reader-only text (Nextcloud's .hidden-visually) sits off
+			// screen on purpose; it is not part of the layout.
+			if (rect.width === 0 || rect.height === 0 || insideClipper(el) || el.closest('.hidden-visually')) {
 				continue
 			}
 			if (rect.left < box.left - 1 || rect.right > box.right + 1) {

@@ -1,5 +1,14 @@
 {
     "translations": {
+        "Close {title}": "Cerrar {title}",
+        "Write a comment": "Escribir un comentario",
+        "Send": "Enviar",
+        "Unlike {title}": "Quitar me gusta de {title}",
+        "Like {title}": "Me gusta {title}",
+        "Follow {category}": "Seguir {category}",
+        "Unfollow {category}": "Dejar de seguir {category}",
+        "No announcements": "No hay anuncios",
+        "_%n comment_::_%n comments_": ["%n comentario", "%n comentarios"],
         "Mark as read": "Marcar como leído",
         "Read": "Leído",
         "Close notice": "Cerrar aviso",

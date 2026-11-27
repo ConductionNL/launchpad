@@ -1,5 +1,7 @@
 {
     "translations": {
+        "Close {title}": "Close {title}",
+        "_%n comment_::_%n comments_": ["%n comment", "%n comments"],
         "Mark as read": "Mark as read",
         "Read": "Read",
         "Close notice": "Close notice",

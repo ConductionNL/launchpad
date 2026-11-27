@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Close {title}" : "{title} sluiten",
+    "_%n comment_::_%n comments_" : ["%n reactie", "%n reacties"],
     "Mark as read" : "Markeren als gelezen",
     "Read" : "Gelezen",
     "Close notice" : "Melding sluiten",

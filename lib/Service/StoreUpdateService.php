@@ -28,7 +28,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+ * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
  */
 
 declare(strict_types=1);
@@ -48,7 +48,7 @@ use Throwable;
  *      the version and the re-sync; splitting it would put the write and the
  *      record it must stay in step with in two places.
  *
- * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+ * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
  */
 class StoreUpdateService {
 	/**
@@ -100,7 +100,7 @@ class StoreUpdateService {
 	 *     `upToDate`, `added`, `removed`, `changed`, `kept` and `copies`. `notInstalled`
 	 *     is true when there is nothing to update.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function update(string $slug, string $userId): array {
 		$install = ($this->installs->all()[$slug] ?? null);
@@ -153,7 +153,7 @@ class StoreUpdateService {
 	 *
 	 * @return array<string, mixed> The report.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	private function apply(Dashboard $dashboard, array $job): array {
 		$install = $job['install'];
@@ -208,7 +208,7 @@ class StoreUpdateService {
 	 *
 	 * @return array{fromInstall: array<int, WidgetPlacement>, own: array<int, WidgetPlacement>}
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	private function split(array $placements, array $tracked): array {
 		if ($tracked === []) {
@@ -237,7 +237,7 @@ class StoreUpdateService {
 	 *
 	 * @return array<int, WidgetPlacement> The widgets.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	private function wanted(Dashboard $dashboard, array $payload): array {
 		$asTemplate = ($dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE);
@@ -260,7 +260,7 @@ class StoreUpdateService {
 	 *
 	 * @return list<int> The placement ids.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	private function idsAfter(array $plan): array {
 		$placements = $plan['unchanged'];
@@ -281,7 +281,7 @@ class StoreUpdateService {
 	 *
 	 * @return int How many copies were brought along.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	private function resyncCopies(Dashboard $dashboard, string $userId): int {
 		if ($dashboard->getType() !== Dashboard::TYPE_ADMIN_TEMPLATE) {

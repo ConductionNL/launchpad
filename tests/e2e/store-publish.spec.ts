@@ -40,7 +40,7 @@ function card(own: boolean): Record<string, unknown> {
 
 test.describe('Publish on the marketplace', () => {
 	/*
-	 * @e2e openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#scenario-the-administrator-publishes-raads-en-collegewerk
+	 * @e2e openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#scenario-the-administrator-publishes-raads-en-collegewerk
 	 */
 	test('The administrator publishes a dashboard and its card reads Own publication', async ({ page }) => {
 		let published: Record<string, unknown> | null = null

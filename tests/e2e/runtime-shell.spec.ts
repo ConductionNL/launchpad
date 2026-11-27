@@ -265,6 +265,31 @@ async function gotoAndSettle(page: Page, url: string, key: string): Promise<void
 	await page.waitForTimeout(1_500)
 }
 
+/**
+ * Open the Workspace and let the tour decide. The Workspace carries the
+ * tour's completion in its initial state (`walkthrough_preferences`,
+ * REQ-INIT-010), so the shell reads no preference from the server: wait for
+ * the shell, check the key came with the page and no read went out, then
+ * give the decision a beat to render.
+ *
+ * @param page the page.
+ * @param key the tour's completion key.
+ * @return nothing.
+ */
+async function gotoWorkspaceAndSettle(page: Page, key: string): Promise<void> {
+	const reads: string[] = []
+	page.on('request', (req) => {
+		if (req.method() === 'GET' && req.url().includes(`/api/preferences/${key}`)) {
+			reads.push(req.url())
+		}
+	})
+	await page.goto(APP_URL)
+	await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
+	await expect(page.locator('#initial-state-launchpad-walkthrough_preferences')).toHaveCount(1)
+	await page.waitForTimeout(1_500)
+	expect(reads, 'the Workspace read the tour preference instead of taking it from the page').toEqual([])
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // REQ-SHELL-001 Single mount point
 // ─────────────────────────────────────────────────────────────────────────────
@@ -771,7 +796,7 @@ test.describe('REQ-SHELL-010: the Workspace first-visit tour', () => {
 				.poll(() => readPreference(pieter.api, WORKSPACE_TOUR_KEY))
 				.toBeTruthy()
 
-			await gotoAndSettle(first.page, APP_URL, WORKSPACE_TOUR_KEY)
+			await gotoWorkspaceAndSettle(first.page, WORKSPACE_TOUR_KEY)
 			await expect(first.page.locator(MORE_MENU)).toBeVisible()
 			await expect(first.page.locator(TOUR)).toHaveCount(0)
 		} finally {
@@ -780,7 +805,7 @@ test.describe('REQ-SHELL-010: the Workspace first-visit tour', () => {
 
 		const second = await sessionOf(browser, pieter)
 		try {
-			await gotoAndSettle(second.page, APP_URL, WORKSPACE_TOUR_KEY)
+			await gotoWorkspaceAndSettle(second.page, WORKSPACE_TOUR_KEY)
 			await expect(second.page.locator(MORE_MENU)).toBeVisible()
 			await expect(second.page.locator(TOUR)).toHaveCount(0)
 		} finally {

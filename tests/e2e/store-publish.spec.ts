@@ -40,7 +40,7 @@ function card(own: boolean): Record<string, unknown> {
 
 test.describe('Publish on the marketplace', () => {
 	/*
-	 * @e2e openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#scenario-the-administrator-publishes-raads-en-collegewerk
+	 * @e2e dashboard-store::the-administrator-publishes-raads-en-collegewerk
 	 */
 	test('The administrator publishes a dashboard and its card reads Own publication', async ({ page }) => {
 		let published: Record<string, unknown> | null = null
@@ -90,5 +90,61 @@ test.describe('Publish on the marketplace', () => {
 
 		const item = page.locator('[data-testid="store-results"] > li', { hasText: 'Raads- en collegewerk' })
 		await expect(item).toContainText(/Own publication|Eigen publicatie/, { timeout: 60_000 })
+	})
+
+	/*
+	 * @e2e dashboard-store::the-same-version-twice
+	 *
+	 * The version rule itself (a version at or below the published one is
+	 * refused with 409 version_not_higher) runs server-side against the
+	 * register and is pinned by StorePublishServiceTest; CI has no register,
+	 * so the answer is the service's own refusal, and what this proves is
+	 * that the administrator reads it and nothing is published.
+	 */
+	test('Publishing the same version again is refused with a message asking for a higher version', async ({ page }) => {
+		await page.route('**/apps/launchpad/api/store/items**', (route) => route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({
+				outcome: 'ok',
+				cards: [card(true)],
+				kinds: [],
+				builtIn: [],
+				registry: { name: 'VNG dashboardregister', url: 'https://register.vng.nl/dashboards' },
+				checkedAt: new Date().toISOString(),
+			}),
+		}))
+		await page.route('**/apps/launchpad/api/store/publishable**', (route) => route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({ objects: [{ schema: 'dashboard', id: 'uuid-raad', title: 'Raads- en collegewerk' }] }),
+		}))
+		let attempts = 0
+		await page.route('**/apps/launchpad/api/store/publish', (route) => {
+			attempts += 1
+			return route.fulfill({
+				status: 409,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					outcome: 'version_not_higher',
+					slug: '',
+					message: 'Version 0.9.0 of this dashboard was published before. Publish it with a higher version.',
+				}),
+			})
+		})
+
+		await page.goto(STORE_URL, { waitUntil: 'domcontentloaded' })
+		await page.locator('[data-testid="store-publish"]').first().click({ timeout: 60_000 })
+		const dialog = page.locator('[data-testid="store-publish-dialog"]')
+		await expect(dialog).toBeVisible()
+		await dialog.locator('[data-testid="store-publish-object"]', { hasText: 'Raads- en collegewerk' }).locator('input').check()
+		await dialog.getByRole('textbox', { name: 'Title', exact: true }).fill('Raads- en collegewerk')
+		await dialog.getByRole('textbox', { name: 'Version', exact: true }).fill('0.9.0')
+		await dialog.locator('[data-testid="store-publish-submit"]').click()
+
+		await expect.poll(() => attempts).toBe(1)
+		await expect(page.getByText(/Publish it with a higher version/)).toBeVisible()
+		// Nothing was published: the dialog stays open for a new version.
+		await expect(dialog).toBeVisible()
 	})
 })

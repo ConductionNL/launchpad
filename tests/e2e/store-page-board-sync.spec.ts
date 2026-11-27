@@ -62,7 +62,7 @@ test.describe('the marketplace as board LpStore draws it', () => {
 	})
 
 	/*
-	 * @e2e openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#scenario-the-vng-register-is-connected
+	 * @e2e dashboard-store::the-vng-register-is-connected
 	 */
 	test('shows the banner, the lenses with the categories and 8 cards', async ({ page }) => {
 		await page.goto(STORE_URL, { waitUntil: 'domcontentloaded' })
@@ -89,7 +89,7 @@ test.describe('the marketplace as board LpStore draws it', () => {
 	})
 
 	/*
-	 * @e2e openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#scenario-intranet-gemeente-is-installed
+	 * @e2e dashboard-store::intranet-gemeente-is-installed
 	 */
 	test('an installed card opens its dashboard', async ({ page }) => {
 		await page.goto(STORE_URL, { waitUntil: 'domcontentloaded' })
@@ -100,7 +100,7 @@ test.describe('the marketplace as board LpStore draws it', () => {
 	})
 
 	/*
-	 * @e2e openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#scenario-a-newer-version-in-the-register
+	 * @e2e dashboard-store::a-newer-version-in-the-register
 	 */
 	test('a newer register version counts under Update available', async ({ page }) => {
 		await page.goto(STORE_URL, { waitUntil: 'domcontentloaded' })

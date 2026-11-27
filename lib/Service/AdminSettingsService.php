@@ -147,8 +147,7 @@ class AdminSettingsService {
 			'sharingRecipientScope' => $this->storedRecipientScope(value: $settings[AdminSettingKey::SHARING_RECIPIENT_SCOPE->value] ?? null),
 			'sharingAllowed' => $this->storedAllowedMode(settings: $settings),
 			'publicLinksAllowed' => ($settings[AdminSettingKey::PUBLIC_LINKS_ALLOWED->value] ?? true) !== false,
-			// REQ-KIOSK-007: screen links from the Sharing tab; on unless switched off.
-			'kioskScreenLinksAllowed' => ($settings[AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value] ?? true) !== false,
+			'kioskScreenLinksAllowed' => ($settings[AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value] ?? true) !== false, // REQ-KIOSK-007
 			'leaverHandover' => $this->storedLeaverHandover(value: $settings[AdminSettingKey::LEAVER_HANDOVER->value] ?? null),
 			// Legacy-widget-bridge spec: the bridge defaults to OFF because
 			// turning it on makes the workspace read the Nextcloud widget
@@ -489,10 +488,7 @@ class AdminSettingsService {
 			allowedGroups: $settings['sharingAllowedGroups'] ?? null,
 			recipientScope: $settings['sharingRecipientScope'] ?? null
 		);
-		$this->persistSharingPolicy(
-			allowed: $settings['sharingAllowed'] ?? null,
-			publicLinks: $settings['publicLinksAllowed'] ?? null
-		);
+		$this->persistSharingPolicy(settings: $settings);
 		$this->persistLeaverHandover(handover: $settings['leaverHandover'] ?? null);
 
 		$this->persistSharingAndBridgeSettings(
@@ -502,7 +498,6 @@ class AdminSettingsService {
 		);
 
 		$this->persistIfGiven(key: AdminSettingKey::FILTER_TELEMETRY_ENABLED->value, value: $settings['filterTelemetryEnabled'] ?? null);
-		$this->persistIfGiven(key: AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value, value: $settings['kioskScreenLinksAllowed'] ?? null);
 		$this->persistTileLaunchSettings(settings: $settings);
 		$this->persistAnnouncementEditorGroups(groups: $settings['announcementEditorGroups'] ?? null);
 
@@ -773,19 +768,20 @@ class AdminSettingsService {
 	}//end storedAllowedMode()
 
 	/**
-	 * Persist who may share and whether public links may be created
-	 * (REQ-SHARE-015). A null value is left as it is.
+	 * Persist who may share and whether public and screen links may be made
+	 * (REQ-SHARE-015, REQ-KIOSK-007). A null value is left as it is.
 	 *
-	 * @param string|null $allowed     `everyone`, `groups` or `none`.
-	 * @param bool|null   $publicLinks Whether public links may be created.
+	 * @param array<string, mixed> $settings `sharingAllowed`, `publicLinksAllowed`, `kioskScreenLinksAllowed`.
 	 *
 	 * @return void
 	 *
 	 * @throws \InvalidArgumentException When the choice is unknown.
 	 *
 	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-2
 	 */
-	private function persistSharingPolicy(?string $allowed, ?bool $publicLinks): void {
+	private function persistSharingPolicy(array $settings): void {
+		$allowed = $settings['sharingAllowed'] ?? null;
 		if ($allowed !== null) {
 			if (in_array(needle: $allowed, haystack: SharingLimits::ALLOWED_MODES, strict: true) === false) {
 				throw new InvalidArgumentException(
@@ -796,7 +792,8 @@ class AdminSettingsService {
 			$this->settingMapper->setSetting(key: AdminSettingKey::SHARING_ALLOWED->value, value: $allowed);
 		}
 
-		$this->persistIfGiven(key: AdminSettingKey::PUBLIC_LINKS_ALLOWED->value, value: $publicLinks);
+		$this->persistIfGiven(key: AdminSettingKey::PUBLIC_LINKS_ALLOWED->value, value: $settings['publicLinksAllowed'] ?? null);
+		$this->persistIfGiven(key: AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value, value: $settings['kioskScreenLinksAllowed'] ?? null);
 	}//end persistSharingPolicy()
 
 	/**

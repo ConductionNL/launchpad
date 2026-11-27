@@ -45,6 +45,13 @@ class FirstPaintShell {
 	public const KINDS = ['rows', 'lines', 'block', 'tiles', 'counter', 'heading'];
 
 	/**
+	 * The catalogue entries of the current build, by widget type.
+	 *
+	 * @var array<string, array<string, mixed>>
+	 */
+	private array $entries = [];
+
+	/**
 	 * The fallback kinds, read once per request.
 	 *
 	 * @var array{default: string, kinds: array<string, string>}|null
@@ -52,25 +59,37 @@ class FirstPaintShell {
 	private ?array $fallback = null;
 
 	/**
+	 * Constructor.
+	 *
+	 * @param FirstPaintLayout $layout Where the grid puts each frame per column count.
+	 */
+	public function __construct(
+		private readonly FirstPaintLayout $layout=new FirstPaintLayout(),
+	) {
+	}//end __construct()
+
+	/**
 	 * The view model.
 	 *
-	 * @param array<string, mixed>             $dashboard  name, description, gridColumns of the opened dashboard.
-	 * @param list<array<string, mixed>>       $placements Its placements as the page's layout carries them.
-	 * @param list<array<string, mixed>>       $catalogue  The widget catalogue the page carries (id, title, placeholder, mobileReady).
-	 * @param list<int|string>                 $hidden     Placement ids the personal layer hides for this reader.
+	 * @param array<string, mixed>       $page      The opened page: `dashboard` (name, description, gridColumns),
+	 *                                              `placements` as the page's layout carries them, and `hidden`,
+	 *                                              the placement ids the personal layer hides for this reader.
+	 * @param list<array<string, mixed>> $catalogue The widget catalogue the page carries (id, title, placeholder, mobileReady).
 	 *
 	 * @return array{header: array<string, mixed>, columns: list<int>, frames: list<array<string, mixed>>}
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
 	 */
-	public function build(array $dashboard, array $placements, array $catalogue, array $hidden=[]): array {
-		$columns = (int) ($dashboard['gridColumns'] ?? 12);
-		$entries = [];
+	public function build(array $page, array $catalogue): array {
+		$dashboard     = (array) ($page['dashboard'] ?? []);
+		$placements    = (array) ($page['placements'] ?? []);
+		$columns       = (int) ($dashboard['gridColumns'] ?? 12);
+		$this->entries = [];
 		foreach ($catalogue as $entry) {
-			$entries[(string) ($entry['id'] ?? '')] = $entry;
+			$this->entries[(string) ($entry['id'] ?? '')] = $entry;
 		}
 
-		$hiddenIds = array_map('strval', $hidden);
+		$hiddenIds = array_map('strval', (array) ($page['hidden'] ?? []));
 		$shown     = array_values(
 			array_filter(
 				$placements,
@@ -79,7 +98,7 @@ class FirstPaintShell {
 			)
 		);
 
-		$positions = FirstPaintLayout::positions(
+		$positions = $this->layout->layout(
 			nodes: array_map(
 				static fn (array $placement): array => [
 					'id' => (string) ($placement['id'] ?? ''),
@@ -95,7 +114,7 @@ class FirstPaintShell {
 
 		$frames = [];
 		foreach ($shown as $placement) {
-			$frames[] = $this->frame(placement: $placement, entry: $entries[(string) ($placement['widgetId'] ?? '')] ?? [], positions: $positions);
+			$frames[] = $this->frame(placement: $placement, positions: $positions);
 		}
 
 		return [
@@ -130,18 +149,18 @@ class FirstPaintShell {
 	/**
 	 * One frame.
 	 *
-	 * @param array<string, mixed>                                       $placement The placement.
-	 * @param array<string, mixed>                                       $entry     Its catalogue entry, if any.
+	 * @param array<string, mixed>                                             $placement The placement.
 	 * @param array<int, array<string, array{x: int, y: int, w: int, h: int}>> $positions Positions per column count.
 	 *
 	 * @return array<string, mixed>
 	 */
-	private function frame(array $placement, array $entry, array $positions): array {
-		$id       = (string) ($placement['id'] ?? '');
-		$widgetId = (string) ($placement['widgetId'] ?? '');
-		$at       = [];
+	private function frame(array $placement, array $positions): array {
+		$id        = (string) ($placement['id'] ?? '');
+		$widgetId  = (string) ($placement['widgetId'] ?? '');
+		$entry     = $this->entries[$widgetId] ?? [];
+		$byColumns = [];
 		foreach ($positions as $count => $byId) {
-			$at[$count] = $byId[$id];
+			$byColumns[$count] = $byId[$id];
 		}
 
 		return [
@@ -149,7 +168,7 @@ class FirstPaintShell {
 			'widgetId'    => $widgetId,
 			'title'       => self::titleOf(placement: $placement, entry: $entry),
 			'kind'        => $this->kindOf(widgetId: $widgetId, entry: $entry),
-			'positions'   => $at,
+			'positions'   => $byColumns,
 			'phoneHidden' => ($entry['mobileReady'] ?? true) === false,
 		];
 	}//end frame()

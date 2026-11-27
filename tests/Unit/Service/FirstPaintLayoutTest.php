@@ -72,6 +72,7 @@ class FirstPaintLayoutTest extends TestCase {
 		$this->assertSame(expected: [6, 4], actual: FirstPaintLayout::columnCounts(columns: 6));
 		$this->assertSame(expected: [4], actual: FirstPaintLayout::columnCounts(columns: 4));
 		$this->assertSame(expected: [12, 8, 4], actual: FirstPaintLayout::columnCounts(columns: 0));
+		$this->assertSame(expected: [6, 4], actual: array_keys((new FirstPaintLayout())->layout(nodes: [['id' => 'a', 'w' => 6]], columns: 6)));
 	}//end testColumnCounts()
 
 	/**

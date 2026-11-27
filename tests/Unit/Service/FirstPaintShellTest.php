@@ -53,7 +53,9 @@ class FirstPaintShellTest extends TestCase {
 	 * @return array<string, mixed>
 	 */
 	private static function placement(int $id, string $widgetId, array $extra=[]): array {
-		return $extra + ['id' => $id, 'widgetId' => $widgetId, 'gridX' => 0, 'gridY' => $id, 'gridWidth' => 6, 'gridHeight' => 2, 'isVisible' => 1, 'showTitle' => 1];
+		$base = ['id' => $id, 'widgetId' => $widgetId, 'gridX' => 0, 'gridY' => $id, 'gridWidth' => 6, 'gridHeight' => 2];
+
+		return $extra + $base + ['isVisible' => 1, 'showTitle' => 1];
 	}//end placement()
 
 	/**
@@ -63,8 +65,10 @@ class FirstPaintShellTest extends TestCase {
 	 */
 	public function testThePageHeader(): void {
 		$model = (new FirstPaintShell())->build(
-			dashboard: ['name' => 'Intranet Zuiddrecht', 'description' => 'Groepsdashboard van Communicatie', 'gridColumns' => 12],
-			placements: [self::placement(id: 1, widgetId: 'files')],
+			page: [
+				'dashboard'  => ['name' => 'Intranet Zuiddrecht', 'description' => 'Groepsdashboard van Communicatie', 'gridColumns' => 12],
+				'placements' => [self::placement(id: 1, widgetId: 'files')],
+			],
 			catalogue: self::catalogue()
 		);
 
@@ -82,8 +86,10 @@ class FirstPaintShellTest extends TestCase {
 	 */
 	public function testTheGreetingHeader(): void {
 		$model = (new FirstPaintShell())->build(
-			dashboard: ['name' => 'Vandaag', 'gridColumns' => 12],
-			placements: [self::placement(id: 7, widgetId: 'header', extra: ['content' => ['ground' => true, 'greeting' => true]])],
+			page: [
+				'dashboard'  => ['name' => 'Vandaag', 'gridColumns' => 12],
+				'placements' => [self::placement(id: 7, widgetId: 'header', extra: ['content' => ['ground' => true, 'greeting' => true]])],
+			],
 			catalogue: []
 		);
 
@@ -101,8 +107,10 @@ class FirstPaintShellTest extends TestCase {
 	 */
 	public function testFrames(): void {
 		$model = (new FirstPaintShell())->build(
-			dashboard: ['name' => 'Werk', 'gridColumns' => 8],
-			placements: [
+			page: [
+				'dashboard'  => ['name' => 'Werk', 'gridColumns' => 8],
+				'hidden'     => [9],
+				'placements' => [
 				self::placement(id: 1, widgetId: 'files'),
 				self::placement(id: 2, widgetId: 'files', extra: ['customTitle' => ' Mijn bestanden ']),
 				self::placement(id: 3, widgetId: 'files', extra: ['showTitle' => 0]),
@@ -111,9 +119,9 @@ class FirstPaintShellTest extends TestCase {
 				self::placement(id: 6, widgetId: 'map'),
 				self::placement(id: 8, widgetId: 'chart', extra: ['isVisible' => 0]),
 				self::placement(id: 9, widgetId: 'chart'),
+				],
 			],
-			catalogue: self::catalogue(),
-			hidden: [9]
+			catalogue: self::catalogue()
 		);
 
 		$this->assertSame(expected: ['1', '2', '3', '4', '5', '6'], actual: array_column($model['frames'], 'id'));

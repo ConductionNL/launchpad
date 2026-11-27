@@ -29,9 +29,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Settings;
 
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\Settings\IDelegatedSettings;
 
-class LaunchPadAdmin implements IDelegatedSettings {
+class LaunchPadAdmin extends LaunchPadSectionSettings {
 	/**
 	 * Constructor.
 	 *
@@ -56,15 +55,6 @@ class LaunchPadAdmin implements IDelegatedSettings {
 	}//end getForm()
 
 	/**
-	 * Get the settings section ID.
-	 *
-	 * @return string The section ID.
-	 */
-	public function getSection(): string {
-		return 'launchpad';
-	}//end getSection()
-
-	/**
 	 * Get the settings priority.
 	 *
 	 * @return int The priority.
@@ -81,17 +71,4 @@ class LaunchPadAdmin implements IDelegatedSettings {
 	public function getName(): ?string {
 		return null;
 	}//end getName()
-
-	/**
-	 * App config keys an authorized (delegated) admin may manage.
-	 *
-	 * Returned as a map of appId => list of allowed config keys. LaunchPad
-	 * exposes no delegatable sub-keys yet, so this is intentionally empty;
-	 * the attribute still scopes the endpoint to full admins.
-	 *
-	 * @return array<string,string[]> Map of appId to allowed config keys.
-	 */
-	public function getAuthorizedAppConfig(): array {
-		return [];
-	}//end getAuthorizedAppConfig()
 }//end class

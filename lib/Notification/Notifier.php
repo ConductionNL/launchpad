@@ -179,6 +179,8 @@ class Notifier implements INotifier {
 	 *
 	 * @return string The absolute URL.
 	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) AdminTabs is a stateless list of the page's tabs.
+	 *
 	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
 	 */
 	private function adminPageLink(string $tab): string {

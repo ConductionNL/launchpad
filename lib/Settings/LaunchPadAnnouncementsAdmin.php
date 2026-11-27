@@ -30,14 +30,13 @@ namespace OCA\LaunchPad\Settings;
 
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IL10N;
-use OCP\Settings\IDelegatedSettings;
 
 /**
  * The delegable announcements setting.
  *
  * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-delegated-admin-settings-per-area-req-adm-034
  */
-class LaunchPadAnnouncementsAdmin implements IDelegatedSettings {
+class LaunchPadAnnouncementsAdmin extends LaunchPadSectionSettings {
 	/**
 	 * Constructor.
 	 *
@@ -72,17 +71,6 @@ class LaunchPadAnnouncementsAdmin implements IDelegatedSettings {
 	}//end getForm()
 
 	/**
-	 * The section: Launchpad's, next to {@see LaunchPadAdmin}.
-	 *
-	 * @return string The section ID.
-	 *
-	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-delegated-admin-settings-per-area-req-adm-034
-	 */
-	public function getSection(): string {
-		return 'launchpad';
-	}//end getSection()
-
-	/**
 	 * After {@see LaunchPadAdmin}, so the whole page renders first.
 	 *
 	 * @return int The priority.
@@ -103,16 +91,4 @@ class LaunchPadAnnouncementsAdmin implements IDelegatedSettings {
 	public function getName(): ?string {
 		return $this->l->t(text: 'Launchpad announcements');
 	}//end getName()
-
-	/**
-	 * App config keys a delegated announcements manager may change: none,
-	 * announcements are stored through Launchpad's own endpoints.
-	 *
-	 * @return array<string,string[]> Map of appId to allowed config keys.
-	 *
-	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-delegated-admin-settings-per-area-req-adm-034
-	 */
-	public function getAuthorizedAppConfig(): array {
-		return [];
-	}//end getAuthorizedAppConfig()
 }//end class

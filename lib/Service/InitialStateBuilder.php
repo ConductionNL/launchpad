@@ -754,34 +754,22 @@ class InitialStateBuilder {
 	}//end setPublicStartToken()
 
 	/**
-	 * The tabs of the admin settings page the viewer may open (REQ-ADM-034).
-	 * Optional key of the admin page.
+	 * The admin settings page's own keys: the tabs the viewer may open
+	 * (REQ-ADM-034) and the running app version its version card reads
+	 * (REQ-ADM-032). Optional keys of the admin page.
 	 *
-	 * @param list<string> $tabs Tab ids, in the page's order.
+	 * @param list<string> $tabs    Tab ids, in the page's order.
+	 * @param string       $version The app version.
 	 *
 	 * @return self For chaining.
 	 *
 	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-delegated-admin-settings-per-area-req-adm-034
 	 */
-	public function setAdminTabs(array $tabs): self {
+	public function setAdminPage(array $tabs, string $version): self {
 		$this->values['adminTabs'] = $tabs;
+		$this->values['version']   = $version;
 		return $this;
-	}//end setAdminTabs()
-
-	/**
-	 * The running app version, read by the admin settings page's version
-	 * card (REQ-ADM-032). Optional key of the admin page.
-	 *
-	 * @param string $version The app version.
-	 *
-	 * @return self For chaining.
-	 *
-	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
-	 */
-	public function setAppVersion(string $version): self {
-		$this->values['version'] = $version;
-		return $this;
-	}//end setAppVersion()
+	}//end setAdminPage()
 
 	/**
 	 * Validate required keys then push every buffered pair plus the

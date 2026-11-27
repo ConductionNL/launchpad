@@ -76,6 +76,8 @@ class AdminPageController extends Controller {
 	 *
 	 * @return RedirectResponse The redirect.
 	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) AdminTabs is a stateless list of the page's tabs.
+	 *
 	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-old-admin-route-redirects-req-adm-033
 	 */
 	#[NoCSRFRequired]

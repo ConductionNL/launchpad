@@ -85,6 +85,8 @@ class AdminSettingsForm {
 	 *
 	 * @return void
 	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) Util is Nextcloud's only API for page scripts and styles.
+	 *
 	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
 	 */
 	protected function addAssets(): void {

@@ -56,11 +56,8 @@ class AdminPageControllerTest extends TestCase {
 			static fn (string $key): ?string => $query[$key] ?? null
 		);
 		$urls = $this->createMock(originalClassName: IURLGenerator::class);
-		$urls->method('linkToRoute')->willReturnCallback(
-			static fn (string $route, array $args = []): string => $route === 'settings.AdminSettings.index'
-				? '/index.php/settings/admin/' . ($args['section'] ?? '')
-				: '/elsewhere'
-		);
+		$urls->method('linkToRoute')->with('settings.AdminSettings.index', ['section' => 'launchpad'])
+			->willReturn('/index.php/settings/admin/launchpad');
 
 		return new AdminPageController(request: $request, urlGenerator: $urls);
 	}//end controller()

@@ -114,8 +114,7 @@ class AdminFormState {
 				$this->sources->fileService->getAllowedExtensions()
 			)
 			// REQ-ADM-034: the page shows only the tabs the viewer holds.
-			->setAdminTabs(array_values($tabs))
-			->setAppVersion($version)
+			->setAdminPage(array_values($tabs), $version)
 			->apply();
 	}//end provide()
 }//end class

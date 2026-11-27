@@ -71,6 +71,7 @@ Users MUST be able to create new personal dashboards with a name, optional descr
 
 #### Scenario: Dashboard creation creates default placements
 - GIVEN user "alice" has no dashboards and no templates apply
+- AND her groups carry a role layout (REQ-RFP-002) that seeds nothing
 - WHEN she accesses LaunchPad for the first time (triggers `tryCreateFromTemplate()`)
 - THEN the system MUST create a "My Dashboard" with two default placements:
   - "recommendations" widget at (0, 0) with size 6x5
@@ -130,11 +131,21 @@ Users MUST be able to retrieve their currently active dashboard along with its p
 #### Scenario: First-time user with no template gets default dashboard
 - GIVEN user "dave" has no dashboards
 - AND no admin template matches dave's groups
+- AND dave's groups carry a role layout (REQ-RFP-002)
 - AND `allowUserDashboards` is true
 - WHEN he sends GET /api/dashboard
-- THEN the system MUST create a default "My Dashboard" with recommendations and activity widgets
+- THEN the system MUST create a default "My Dashboard" seeded from that role layout
 - AND the response MUST return the newly created dashboard
 @e2e exclude needs an instance without the seeded `default`-group dashboard (SeedDefaultDashboard), which getEffectiveDashboard() answers before it provisions a personal one; removing it would empty the shared instance. Pinned by tests/Unit/Service/DashboardServiceCreationGoldenTest.php::testProvisionedDashboardPlacements
+
+#### Scenario: First-time user without a template or role layout chooses on the first-visit page
+- GIVEN user "dave" has no dashboards and sees none
+- AND no admin template matches dave's groups and his groups carry no role layout
+- AND `allowUserDashboards` is true
+- WHEN he sends GET /api/dashboard, or opens LaunchPad
+- THEN the system MUST NOT create a dashboard for him; the answer has no dashboard
+- AND the shell shows the first-visit page with the starter widgets (REQ-SHELL-005), where he chooses to start with them or empty
+- NOTE: until 26 Nov 2026 the read provisioned a "My Dashboard" here, so the drawn first-visit choice (board LpEersteKeer) never showed
 
 #### Scenario: First-time user with dashboards disabled and no template
 - GIVEN user "eve" has no dashboards

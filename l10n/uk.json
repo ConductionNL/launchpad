@@ -1,6 +1,11 @@
 {
     "translations": {
         "Own publication" : "Власна публікація",
+        "The upload is larger than this server accepts.": "Завантаження більше, ніж приймає цей сервер.",
+        "The file is too large.": "Файл завеликий.",
+        "This type of file is not allowed here.": "Такий тип файлу тут не дозволено.",
+        "The upload failed.": "Не вдалося завантажити.",
+        "{name} was not uploaded: {reason}": "{name} не завантажено: {reason}",
         "New colleagues": "Нові колеги",
         "Required: this widget cannot be removed" : "Обов'язковий: цей віджет не можна видалити",
         "Connections of this dashboard": "Підключення цієї панелі",

@@ -2,6 +2,11 @@ OC.L10N.register(
     "launchpad",
     {
     "Own publication" : "Publicación propia",
+    "The upload is larger than this server accepts." : "La subida es mayor de lo que acepta este servidor.",
+    "The file is too large." : "El archivo es demasiado grande.",
+    "This type of file is not allowed here." : "Este tipo de archivo no está permitido aquí.",
+    "The upload failed." : "La subida ha fallado.",
+    "{name} was not uploaded: {reason}" : "{name} no se ha subido: {reason}",
     "New colleagues" : "Nuevos compañeros",
     "Required: this widget cannot be removed" : "Obligatorio: este widget no se puede quitar",
     "Connections of this dashboard" : "Conexiones de este panel",

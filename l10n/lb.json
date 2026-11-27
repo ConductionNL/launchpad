@@ -1,6 +1,11 @@
 {
     "translations": {
         "Own publication" : "Eegen Publikatioun",
+        "The upload is larger than this server accepts.": "Den Upload ass méi grouss, wéi dëse Server unhëlt.",
+        "The file is too large.": "De Fichier ass ze grouss.",
+        "This type of file is not allowed here.": "Dësen Typ vu Fichier ass hei net erlaabt.",
+        "The upload failed.": "Den Upload ass feelgeschloen.",
+        "{name} was not uploaded: {reason}": "{name} gouf net eropgelueden: {reason}",
         "New colleagues": "Nei Kolleegen",
         "Required: this widget cannot be removed" : "Obligatoresch: dëse Widget kann net ewechgeholl ginn",
         "Connections of this dashboard": "Verbindunge vun dësem Dashboard",

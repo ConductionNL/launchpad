@@ -496,12 +496,12 @@ class PermissionService {
 		Dashboard $dashboard,
 		?string $userId = null,
 	): string {
-		// REQ-DASH-014: group-shared dashboards are read-only for
-		// non-admin members and fully editable for admins, regardless of
-		// the row's persisted `permissionLevel` field (which is kept on
-		// the row for forward-compat with future per-tile editing).
+		// REQ-DASH-014: group-shared dashboards are fully editable for
+		// admins and editors, and read-only for other members unless the
+		// row says `add_only`: an intranet colleagues add widgets to
+		// (demo-data-showcases, REQ-DEMO-001; board LpIntranet).
 		if ($dashboard->getType() === Dashboard::TYPE_GROUP_SHARED) {
-			return $this->groupSharedPermissionLevel(userId: $userId);
+			return $this->groupSharedPermissionLevel(dashboard: $dashboard, userId: $userId);
 		}
 
 		// If based on a template, use template's permission level.
@@ -531,17 +531,28 @@ class PermissionService {
 	 * `resolveAccessLevel`) has already succeeded — they edit through the
 	 * membership path, not an unconditional override.
 	 *
-	 * @param string|null $userId The user ID, or NULL for no user.
+	 * A member who is neither keeps the row's `add_only`, so a group
+	 * dashboard stored as add-only (the Zuiddrecht intranet) takes their
+	 * widgets; every other stored level reads view_only for them.
 	 *
-	 * @return string Full for admins and editors, view_only otherwise.
+	 * @param Dashboard   $dashboard The group-shared dashboard.
+	 * @param string|null $userId    The user ID, or NULL for no user.
+	 *
+	 * @return string Full for admins and editors, add_only when the row says so, view_only otherwise.
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
-	private function groupSharedPermissionLevel(?string $userId): string {
+	private function groupSharedPermissionLevel(Dashboard $dashboard, ?string $userId): string {
 		if ($userId !== null
 			&& ($this->groupManager->isAdmin(userId: $userId) === true
 			|| $this->roleService->isAdmin(userId: $userId) === true
 			|| $this->roleService->isEditorOrHigher(userId: $userId) === true)
 		) {
 			return Dashboard::PERMISSION_FULL;
+		}
+
+		if ($userId !== null && $dashboard->getPermissionLevel() === Dashboard::PERMISSION_ADD_ONLY) {
+			return Dashboard::PERMISSION_ADD_ONLY;
 		}
 
 		return Dashboard::PERMISSION_VIEW_ONLY;

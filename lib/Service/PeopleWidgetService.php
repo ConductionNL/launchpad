@@ -800,14 +800,15 @@ class PeopleWidgetService {
 	/**
 	 * Project a single user to the response shape.
 	 *
-	 * @param IUser $user The user to project.
-	 * @param bool $showBirthdays When false, omits the birthdate field
-	 *                            unconditionally (REQ-PPL-005).
+	 * @param IUser       $user          The user to project.
+	 * @param bool        $showBirthdays When false, omits the birthdate field
+	 *                                   unconditionally (REQ-PPL-005).
+	 * @param string|null $viewerId      Who the profile is for; null: the current listing's viewer.
 	 *
 	 * @return array<string, mixed>
 	 * @spec   openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 */
-	public function buildUserProfile(IUser $user, bool $showBirthdays): array {
+	public function buildUserProfile(IUser $user, bool $showBirthdays, ?string $viewerId=null): array {
 		$uid = $user->getUID();
 
 		$profile = [
@@ -824,10 +825,7 @@ class PeopleWidgetService {
 			$profile['email'] = $email;
 		}
 
-		$accountFields = $this->buildAccountFields(
-			user: $user,
-			showBirthdays: $showBirthdays
-		);
+		$accountFields = $this->buildAccountFields(user: $user, showBirthdays: $showBirthdays, viewerId: $viewerId);
 
 		return array_merge($profile, $accountFields);
 	}//end buildUserProfile()
@@ -836,13 +834,14 @@ class PeopleWidgetService {
 	 * Read the standard `IAccountManager` properties for a user, omitting
 	 * empty values. Birthdate is normalised to ISO-8601.
 	 *
-	 * @param IUser $user The user.
-	 * @param bool $showBirthdays When false, the birthdate property is
-	 *                            skipped even if set.
+	 * @param IUser       $user          The user.
+	 * @param bool        $showBirthdays When false, the birthdate property is
+	 *                                   skipped even if set.
+	 * @param string|null $viewerId      Who the fields are for; null: the current listing's viewer.
 	 *
 	 * @return array<string, string>
 	 */
-	private function buildAccountFields(IUser $user, bool $showBirthdays): array {
+	private function buildAccountFields(IUser $user, bool $showBirthdays, ?string $viewerId=null): array {
 		try {
 			$account = $this->accountManager->getAccount(user: $user);
 		} catch (Exception $e) {
@@ -851,7 +850,7 @@ class PeopleWidgetService {
 
 		$fields = [];
 		foreach (self::shownProperties(showBirthdays: $showBirthdays) as $property) {
-			$value = $this->visibleValue(account: $account, property: $property, ownerId: $user->getUID());
+			$value = $this->visibleValue(account: $account, property: $property, ownerId: $user->getUID(), viewerId: $viewerId ?? $this->viewerId);
 			$fields += self::accountField(property: $property, value: $value);
 		}
 
@@ -923,19 +922,20 @@ class PeopleWidgetService {
 	 * @param IAccount $account The owner's account.
 	 * @param string $property The property name.
 	 * @param string $ownerId The owner's user id.
+	 * @param string|null $viewerId Who the value is for.
 	 *
 	 * @return string|null The value, or null when unreadable or hidden.
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
-	private function visibleValue(IAccount $account, string $property, string $ownerId): ?string {
+	private function visibleValue(IAccount $account, string $property, string $ownerId, ?string $viewerId): ?string {
 		try {
 			$prop = $account->getProperty(property: $property);
 		} catch (Exception) {
 			return null;
 		}
 
-		if ($this->profileFields->scopeAllows(scope: $prop->getScope(), viewerId: $this->viewerId, ownerId: $ownerId) === false) {
+		if ($this->profileFields->scopeAllows(scope: $prop->getScope(), viewerId: $viewerId, ownerId: $ownerId) === false) {
 			return null;
 		}
 

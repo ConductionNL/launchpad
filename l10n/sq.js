@@ -2,6 +2,11 @@ OC.L10N.register(
     "launchpad",
     {
     "Own publication" : "Publikim i vetë",
+    "The upload is larger than this server accepts." : "Ngarkimi është më i madh se sa pranon ky server.",
+    "The file is too large." : "Skedari është shumë i madh.",
+    "This type of file is not allowed here." : "Ky lloj skedari nuk lejohet këtu.",
+    "The upload failed." : "Ngarkimi dështoi.",
+    "{name} was not uploaded: {reason}" : "{name} nuk u ngarkua: {reason}",
     "New colleagues" : "Kolegë të rinj",
     "Required: this widget cannot be removed" : "I detyrueshëm: ky widget nuk mund të hiqet",
     "Connections of this dashboard" : "Lidhjet e këtij paneli",

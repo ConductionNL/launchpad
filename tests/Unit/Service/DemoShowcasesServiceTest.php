@@ -231,6 +231,39 @@ class DemoShowcasesServiceTest extends TestCase {
 	}
 
 	/**
+	 * REQ-DEMO-001: an archive that says add_only (a shared intranet) keeps
+	 * it on install; any other level installs as view_only.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md
+	 */
+	public function testInstallKeepsAddOnlyAndNothingElse(): void {
+		$stored = [];
+		$this->dashboardManager->method('getWidgets')->willReturn([]);
+		$this->appConfig->method('getValueString')->willReturn('');
+		$this->dashboardMapper->method('insert')->willReturnCallback(function (Dashboard $entity) use (&$stored): Dashboard {
+			$stored[] = $entity->getPermissionLevel();
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setId(count($stored));
+			return $entity;
+		});
+
+		foreach (['de-bron' => 'add_only', 'de-linden' => 'full'] as $showcaseId => $level) {
+			$payload = $this->validDashboardPayload(uuid: 'src-' . $showcaseId, widgets: []);
+			$payload['permissionLevel'] = $level;
+			$this->writeFixtureZip(
+				showcaseId: $showcaseId,
+				manifest: ['schemaVersion' => 1, 'showcaseName' => $showcaseId, 'showcaseLanguage' => 'nl'],
+				dashboardPayload: $payload,
+			);
+			$this->service->installShowcase(showcaseId: $showcaseId, lang: 'nl');
+		}
+
+		$this->assertSame(expected: [Dashboard::PERMISSION_ADD_ONLY, Dashboard::PERMISSION_VIEW_ONLY], actual: $stored);
+	}
+
+	/**
 	 * launcher-app-catalogue task 9: an install seeds the demo app catalogue,
 	 * and a seed that fails is logged without undoing the showcase.
 	 *

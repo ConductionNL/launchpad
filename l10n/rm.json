@@ -1,6 +1,11 @@
 {
     "translations": {
         "Own publication" : "Atgna publicaziun",
+        "The upload is larger than this server accepts.": "La chargiada è pli gronda che quai che quest server accepta.",
+        "The file is too large.": "La datoteca è memia gronda.",
+        "This type of file is not allowed here.": "Quest tip da datoteca n'è betg permess qua.",
+        "The upload failed.": "La chargiada n'è betg reussida.",
+        "{name} was not uploaded: {reason}": "{name} n'è betg vegnì chargià: {reason}",
         "New colleagues": "Novs collegas",
         "Required: this widget cannot be removed" : "Obligatoric: quest widget na po betg vegnir allontanà",
         "Connections of this dashboard": "Colliaziuns da quest dashboard",

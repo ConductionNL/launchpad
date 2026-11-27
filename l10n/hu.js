@@ -2,6 +2,11 @@ OC.L10N.register(
     "launchpad",
     {
     "Own publication" : "Saját közzététel",
+    "The upload is larger than this server accepts." : "A feltöltés nagyobb, mint amit ez a kiszolgáló elfogad.",
+    "The file is too large." : "A fájl túl nagy.",
+    "This type of file is not allowed here." : "Ez a fájltípus itt nem engedélyezett.",
+    "The upload failed." : "A feltöltés sikertelen.",
+    "{name} was not uploaded: {reason}" : "{name} nem lett feltöltve: {reason}",
     "New colleagues" : "Új kollégák",
     "Required: this widget cannot be removed" : "Kötelező: ez a widget nem távolítható el",
     "Connections of this dashboard" : "Az irányítópult kapcsolatai",

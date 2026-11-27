@@ -1,6 +1,11 @@
 {
     "translations": {
         "Own publication" : "Eigen publicatie",
+        "The upload is larger than this server accepts.": "De upload is groter dan deze server accepteert.",
+        "The file is too large.": "Het bestand is te groot.",
+        "This type of file is not allowed here.": "Dit type bestand is hier niet toegestaan.",
+        "The upload failed.": "Het uploaden is mislukt.",
+        "{name} was not uploaded: {reason}": "{name} is niet geüpload: {reason}",
         "New colleagues": "Nieuwe collega's",
         "Required: this widget cannot be removed" : "Verplicht: deze widget kan niet worden verwijderd",
         "Connections of this dashboard": "Koppelingen van dit dashboard",

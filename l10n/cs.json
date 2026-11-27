@@ -1,6 +1,11 @@
 {
     "translations": {
         "Own publication" : "Vlastní publikace",
+        "The upload is larger than this server accepts.": "Nahrávaná data jsou větší, než tento server přijímá.",
+        "The file is too large.": "Soubor je příliš velký.",
+        "This type of file is not allowed here.": "Tento typ souboru zde není povolen.",
+        "The upload failed.": "Nahrání se nezdařilo.",
+        "{name} was not uploaded: {reason}": "{name} nebyl nahrán: {reason}",
         "New colleagues": "Noví kolegové",
         "Required: this widget cannot be removed" : "Povinné: tento widget nelze odebrat",
         "Connections of this dashboard": "Připojení tohoto panelu",

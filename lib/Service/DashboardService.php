@@ -3427,11 +3427,22 @@ class DashboardService {
 	}//end uniqueRootSlugFor()
 
 	/**
-	 * Try to create a dashboard from a template or empty.
+	 * Try to create a dashboard from a template, or from the user's role layout.
+	 *
+	 * A user with no template and no role layout gets nothing here: a read
+	 * (`GET /api/dashboard`, the page's first load) does not mint a "My
+	 * Dashboard" behind their back. The shell then shows the first-visit
+	 * page, where they choose to start with the starter widgets or empty
+	 * (REQ-SHELL-005, board LpEersteKeer). Before, with personal dashboards
+	 * allowed, the read always provisioned one, so that choice never showed
+	 * (demo seed: `nieuw` opened on "My Dashboard", 26 Nov 2026).
 	 *
 	 * @param string $userId The user ID.
 	 *
 	 * @return array|null The dashboard result or null.
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md#requirement-empty-state-req-shell-005
+	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
 	private function tryCreateFromTemplate(string $userId): ?array {
 		$allowUserDashboards = $this->getAllowUserDashboards();
@@ -3445,7 +3456,9 @@ class DashboardService {
 			);
 		}
 
-		if ($allowUserDashboards === true) {
+		if ($allowUserDashboards === true
+			&& $this->limits->roleFeaturePerm?->hasRoleLayoutDefaultsFor(userId: $userId) === true
+		) {
 			return $this->provisionPersonalDashboard(userId: $userId);
 		}
 

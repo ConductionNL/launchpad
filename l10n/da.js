@@ -2,6 +2,11 @@ OC.L10N.register(
     "launchpad",
     {
     "Own publication" : "Egen publikation",
+    "The upload is larger than this server accepts." : "Uploaden er større, end denne server accepterer.",
+    "The file is too large." : "Filen er for stor.",
+    "This type of file is not allowed here." : "Denne filtype er ikke tilladt her.",
+    "The upload failed." : "Uploaden mislykkedes.",
+    "{name} was not uploaded: {reason}" : "{name} blev ikke uploadet: {reason}",
     "New colleagues" : "Nye kolleger",
     "Required: this widget cannot be removed" : "Påkrævet: denne widget kan ikke fjernes",
     "Connections of this dashboard" : "Forbindelser på dette dashboard",

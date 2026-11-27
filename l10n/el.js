@@ -2,6 +2,11 @@ OC.L10N.register(
     "launchpad",
     {
     "Own publication" : "Δική μας δημοσίευση",
+    "The upload is larger than this server accepts." : "Η μεταφόρτωση είναι μεγαλύτερη από όσο δέχεται αυτός ο διακομιστής.",
+    "The file is too large." : "Το αρχείο είναι πολύ μεγάλο.",
+    "This type of file is not allowed here." : "Αυτός ο τύπος αρχείου δεν επιτρέπεται εδώ.",
+    "The upload failed." : "Η μεταφόρτωση απέτυχε.",
+    "{name} was not uploaded: {reason}" : "Το {name} δεν μεταφορτώθηκε: {reason}",
     "New colleagues" : "Νέοι συνάδελφοι",
     "Required: this widget cannot be removed" : "Υποχρεωτικό: αυτό το γραφικό στοιχείο δεν μπορεί να αφαιρεθεί",
     "Connections of this dashboard" : "Συνδέσεις αυτού του πίνακα",

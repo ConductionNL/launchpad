@@ -1042,6 +1042,12 @@
 		},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/NewsWidget.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Widgets/Renderers/NewsWidget.vue | content": {
 		"type": "Object",
 		"required": false,

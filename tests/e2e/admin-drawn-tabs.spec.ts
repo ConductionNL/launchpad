@@ -60,7 +60,9 @@ test.describe('REQ-ADM-032 the administration shows the twelve drawn tabs', () =
 		]
 		for (const [former, host, content] of cases) {
 			await page.goto(`${ADMIN_PAGE}/${former}`)
-			await expect(page).toHaveURL(new RegExp(`/admin/${host}\\?section=${former}$`))
+			// The router leaves the default tab out: General is /admin.
+			const address = host === 'general' ? '(/general)?' : `/${host}`
+			await expect(page).toHaveURL(new RegExp(`/admin${address}\\?section=${former}$`))
 			await expect(adminTab(page, host)).toHaveAttribute('aria-selected', 'true', { timeout: 60_000 })
 			const section = page.locator(`[data-admin-section="${former}"]`)
 			await expect(section.locator(content)).toBeVisible()
@@ -77,7 +79,12 @@ test.describe('REQ-ADM-032 the administration shows the twelve drawn tabs', () =
 			embedDashboard: '1',
 		})
 		await page.goto(`${ADMIN_PAGE}/embeds?${query}`)
-		await expect(page).toHaveURL(/\/admin\/general\?section=embeds&embedType=dashboard&embedId=e2e-drawn-tabs-uuid&embedDashboard=1$/)
+		// The pre-selection is kept; the order of the parameters is the URL generator's.
+		await expect(page).toHaveURL((url) => /\/admin(\/general)?$/.test(url.pathname)
+			&& url.searchParams.get('section') === 'embeds'
+			&& url.searchParams.get('embedType') === 'dashboard'
+			&& url.searchParams.get('embedId') === 'e2e-drawn-tabs-uuid'
+			&& url.searchParams.get('embedDashboard') === '1')
 		await expect(page.locator('[data-test="embed-token-form"]')).toBeVisible({ timeout: 60_000 })
 	})
 })

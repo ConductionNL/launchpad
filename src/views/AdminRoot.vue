@@ -38,7 +38,7 @@ export default {
 		adminTabs: { from: 'adminTabs', default: () => [] },
 	},
 
-	/** @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032 */
+	/** @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036 */
 	data() {
 		return {
 			hash: globalThis.location?.hash ?? '',
@@ -61,7 +61,7 @@ export default {
 		 * first held tab.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 		 */
 		currentTab() {
 			return heldTab(parseAdminFragment(this.hash).tab, this.tabs)
@@ -71,7 +71,7 @@ export default {
 		 * The former tab the fragment names (`#embeds`), or ''.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 		 */
 		currentSection() {
 			return parseAdminFragment(this.hash).section
@@ -91,7 +91,7 @@ export default {
 		 * Follow the fragment when it changes (a link, Back, Forward).
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 		 */
 		onHashChange() {
 			this.hash = globalThis.location?.hash ?? ''
@@ -102,7 +102,7 @@ export default {
 		 *
 		 * @param {string} id The tab's id.
 		 * @return {void}
-		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 		 */
 		openTab(id) {
 			if (id === this.currentTab && this.currentSection === '') {

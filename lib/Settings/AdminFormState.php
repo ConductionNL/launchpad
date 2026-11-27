@@ -67,7 +67,7 @@ class AdminFormState {
 	 * @return void
 	 *
 	 * @spec openspec/specs/initial-state-contract/spec.md#requirement-versioned-key-set-per-page-req-init-002
-	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-delegated-admin-settings-per-area-req-adm-034
 	 */
 	public function provide(array $tabs=AdminTabs::TABS, string $version=''): void {
@@ -128,7 +128,7 @@ class AdminFormState {
 	 *
 	 * @return array The widget descriptors.
 	 *
-	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 	 */
 	private function widgets(): array {
 		return $this->sources->widgetService->getWidgetCatalogue() ?? $this->sources->widgetService->getAvailableWidgets();

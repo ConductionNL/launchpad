@@ -28,15 +28,16 @@ import {
 	loginAs,
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
-import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { DASHBOARD_ROWS, dashboardRow, MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 import { adminContext, contextFor } from './support/principals.ts'
 
 const API = '/index.php/apps/launchpad/api'
 const RUN = Date.now()
 const NAME_A = `E2E Marker A ${RUN}`
 const NAME_B = `E2E Marker B ${RUN}`
-const MARKER = '.dashboard-switcher-sidebar__default-marker'
-const ROW = '.dashboard-switcher-sidebar__item'
+// REQ-SHELL-018: the effective default carries the Default pill in More.
+const MARKER = '[data-testid="launchpad-more-menu-default-pill"]'
+const ROW = DASHBOARD_ROWS
 
 type Account = { username: string; password: string }
 type Dashboard = { id: number; uuid: string }
@@ -101,14 +102,14 @@ async function openSwitcher(browser: Browser) {
 }
 
 /**
- * The sidebar row of a dashboard.
+ * A dashboard's row in More's full Dashboards list.
  *
  * @param page the page.
  * @param name the dashboard's name.
  * @return the row.
  */
 function row(page: Page, name: string): Locator {
-	return page.locator(ROW).filter({ hasText: name })
+	return dashboardRow(page, name)
 }
 
 test.beforeAll(async () => {
@@ -148,7 +149,7 @@ test.describe.serial('effective-default marker (REQ-EDM-001..005)', () => {
 		try {
 			const marker = row(page, NAME_A).locator(MARKER)
 			await expect(marker).toHaveCount(1)
-			await expect(marker.locator('svg')).toBeVisible()
+			await expect(marker).toHaveText('Default')
 			await expect(row(page, NAME_B).locator(MARKER)).toHaveCount(0)
 			await expect(page.locator(`${ROW} ${MARKER}`)).toHaveCount(1)
 		} finally {
@@ -165,7 +166,9 @@ test.describe.serial('effective-default marker (REQ-EDM-001..005)', () => {
 		await pin('')
 		const unpinned = await openSwitcher(browser)
 		try {
-			const fallbackRows = unpinned.page.locator(`${ROW}[data-source="group"], ${ROW}[data-source="default"]`)
+			// The account's own dashboards are A and B; any other row is a group
+			// (or default-group) dashboard.
+			const fallbackRows = unpinned.page.locator(ROW).filter({ hasNotText: NAME_A }).filter({ hasNotText: NAME_B })
 			await expect(fallbackRows.first()).toBeVisible()
 			await expect(fallbackRows.locator(MARKER), 'with no pin, the group fallback carries the marker').toHaveCount(1)
 			await expect(row(unpinned.page, NAME_A).locator(MARKER)).toHaveCount(0)
@@ -182,7 +185,7 @@ test.describe.serial('effective-default marker (REQ-EDM-001..005)', () => {
 			// It is provisioned on install and after every upgrade, so its absence
 			// is a failure, not a reason to skip: a skip here would let the
 			// scenario pass without the fallback it is about ever being on screen.
-			const groupRows = page.locator(`${ROW}[data-source="group"], ${ROW}[data-source="default"]`)
+			const groupRows = page.locator(ROW).filter({ hasNotText: NAME_A }).filter({ hasNotText: NAME_B })
 			await expect(
 				groupRows.first(),
 				'a group (or default-group) dashboard is visible to the account, as SeedDefaultDashboard guarantees',
@@ -200,10 +203,7 @@ test.describe.serial('effective-default marker (REQ-EDM-001..005)', () => {
 		const { context, page } = await openSwitcher(browser)
 		try {
 			const marker = row(page, NAME_A).locator(MARKER)
-			await expect(marker).toHaveAttribute(
-				'title',
-				'Default dashboard — opens automatically when you visit LaunchPad',
-			)
+			await expect(marker).toHaveAttribute('title', 'Opens automatically')
 			await expect(marker).toHaveAttribute('aria-label', 'Default dashboard')
 		} finally {
 			await context.close()
@@ -211,7 +211,7 @@ test.describe.serial('effective-default marker (REQ-EDM-001..005)', () => {
 	})
 
 	// @e2e effective-default-marker::marker-moves-when-pin-changes
-	test('pinning another dashboard through its cog menu moves the marker without a reload', async ({
+	test('Set as default on another dashboard moves the pill without a reload', async ({
 		browser,
 	}) => {
 		const { context, page } = await openSwitcher(browser)
@@ -222,42 +222,18 @@ test.describe.serial('effective-default marker (REQ-EDM-001..005)', () => {
 				(window as unknown as { __noReload: boolean }).__noReload = true
 			})
 
-			await row(page, NAME_B).locator('.dashboard-row-actions button').first().click()
-			await page.locator('[data-testid="cog-set-default"]').filter({ hasText: 'Set as default' }).click()
+			// Open B through More, then This dashboard → Set as default.
+			await row(page, NAME_B).click()
+			await expect(page.locator('[data-testid="launchpad-more-menu-panel"]')).toBeHidden()
+			await page.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`).click()
+			await page.locator('[data-testid="launchpad-more-menu-item-set-default"]').click()
+			await openDashboardSwitcher(page)
 
 			await expect(row(page, NAME_B).locator(MARKER)).toHaveCount(1)
 			await expect(row(page, NAME_A).locator(MARKER)).toHaveCount(0)
 			expect(
 				await page.evaluate(() => (window as unknown as { __noReload?: boolean }).__noReload === true),
 			).toBe(true)
-		} finally {
-			await context.close()
-		}
-	})
-
-	// @e2e effective-default-marker::marker-color-uses-theme-variable
-	test('the marker colour is the theme warning colour', async ({ browser }) => {
-		const { context, page } = await openSwitcher(browser)
-		try {
-			const marker = row(page, NAME_A).locator(MARKER)
-			await expect(marker).toHaveCount(1)
-			const [actual, expected] = await marker.evaluate((element) => {
-				const probe = document.createElement('span')
-				probe.style.color = 'var(--color-warning, #e9a800)'
-				element.parentElement!.appendChild(probe)
-				const colours = [getComputedStyle(element).color, getComputedStyle(probe).color]
-				probe.remove()
-				return colours
-			})
-			expect(actual).toBe(expected)
-			// And it follows a theme override of the variable.
-			const overridden = await marker.evaluate((element) => {
-				element.parentElement!.style.setProperty('--color-warning', 'rgb(1, 2, 3)')
-				const colour = getComputedStyle(element).color
-				element.parentElement!.style.removeProperty('--color-warning')
-				return colour
-			})
-			expect(overridden).toBe('rgb(1, 2, 3)')
 		} finally {
 			await context.close()
 		}

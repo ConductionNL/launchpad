@@ -5,7 +5,9 @@
 
 <!--
 	WidgetEditMenu — the three-dot menu a widget shows in edit mode (board
-	LpBewerken): Edit widget, "Who sees this widget?" and Delete widget.
+	LpBewerken): Edit widget, "Who sees this widget?", Create embed token and
+	Delete widget. Tiles use it too, with their own labels. Create embed token
+	is an edit-mode action only (REQ-WDG-047, review 27 Nov item 21).
 	The same look and test ids as nc-vue's CnWidgetEditCog, which offers no
 	room for a third item; "Who sees this widget?" is here so the rules
 	dialog is reachable by keyboard and not only by right-click
@@ -31,9 +33,10 @@
 			<template #icon>
 				<Pencil :size="20" />
 			</template>
-			{{ t('launchpad', 'Edit widget') }}
+			{{ editLabel || t('launchpad', 'Edit widget') }}
 		</NcActionButton>
 		<NcActionButton
+			v-if="showWhoSees"
 			:closeAfterClick="true"
 			data-testid="widget-who-sees"
 			@click="$emit('whoSees')">
@@ -41,6 +44,26 @@
 				<AccountEye :size="20" />
 			</template>
 			{{ t('launchpad', 'Who sees this widget?') }}
+		</NcActionButton>
+		<!-- REQ-WDG-047: only for people who may create embed tokens (the host
+		     passes a link), disabled for a widget that is not saved yet. -->
+		<NcActionLink
+			v-if="embedHref !== '' && !embedDisabled"
+			:href="embedHref"
+			data-testid="widget-create-embed-token">
+			<template #icon>
+				<CodeTags :size="20" />
+			</template>
+			{{ t('launchpad', 'Create embed token') }}
+		</NcActionLink>
+		<NcActionButton
+			v-else-if="embedHref !== ''"
+			:disabled="true"
+			data-testid="widget-create-embed-token">
+			<template #icon>
+				<CodeTags :size="20" />
+			</template>
+			{{ t('launchpad', 'Create embed token') }}
 		</NcActionButton>
 		<NcActionButton
 			v-if="!removeLocked"
@@ -50,7 +73,7 @@
 			<template #icon>
 				<Delete :size="20" />
 			</template>
-			{{ t('launchpad', 'Delete widget') }}
+			{{ deleteLabel || t('launchpad', 'Delete widget') }}
 		</NcActionButton>
 	</NcActions>
 </template>
@@ -58,7 +81,9 @@
 <script>
 import { NcActionButton, NcActions } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { NcActionLink } from '@nextcloud/vue'
 import AccountEye from 'vue-material-design-icons/AccountEye.vue'
+import CodeTags from 'vue-material-design-icons/CodeTags.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
 import DotsVertical from 'vue-material-design-icons/DotsVertical.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
@@ -68,9 +93,11 @@ export default {
 
 	components: {
 		AccountEye,
+		CodeTags,
 		Delete,
 		DotsVertical,
 		NcActionButton,
+		NcActionLink,
 		NcActions,
 		Pencil,
 	},
@@ -84,6 +111,39 @@ export default {
 
 		/** Leaves Delete out, for a widget the user may not remove. */
 		removeLocked: {
+			type: Boolean,
+			default: false,
+		},
+
+		/** Label of the edit item; '' keeps "Edit widget". */
+		editLabel: {
+			type: String,
+			default: '',
+		},
+
+		/** Label of the delete item; '' keeps "Delete widget". */
+		deleteLabel: {
+			type: String,
+			default: '',
+		},
+
+		/** Offers "Who sees this widget?" (REQ-CVUI-007). */
+		showWhoSees: {
+			type: Boolean,
+			default: true,
+		},
+
+		/**
+		 * The admin link that creates an embed token for this widget
+		 * (REQ-WDG-047); '' when the person may not create one.
+		 */
+		embedHref: {
+			type: String,
+			default: '',
+		},
+
+		/** Shows Create embed token disabled, for a widget not saved yet. */
+		embedDisabled: {
 			type: Boolean,
 			default: false,
 		},

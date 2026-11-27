@@ -17,9 +17,9 @@ const createOfficeFile = vi.fn()
 const showError = vi.fn()
 
 vi.mock('@conduction/nextcloud-vue', () => ({
-	CnWidgetEditCog: { name: 'CnWidgetEditCog', template: '<div class="cog" />' },
 	CnDashboardIcon: { name: 'CnDashboardIcon', template: '<i />' },
 }))
+vi.mock('../Widgets/WidgetEditMenu.vue', () => ({ default: { name: 'WidgetEditMenu', template: '<div class="cog" />' } }))
 vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => '/nc' + path }))
 vi.mock('@nextcloud/l10n', () => ({ t: (_app, text) => text }))
 vi.mock('@nextcloud/dialogs', () => ({ showError }))

@@ -450,27 +450,25 @@ class StoreService {
 		?string $registryRegister = null,
 		?string $registryName = null,
 	): void {
+		$values = [
+			self::CONFIG_URL           => $registryUrl,
+			self::CONFIG_REGISTRY_AUTH => $registryToken,
+			self::CONFIG_REGISTER      => $registryRegister,
+			self::CONFIG_NAME          => $registryName,
+		];
+
 		$written = [];
+		foreach ($values as $key => $value) {
+			if ($value === null) {
+				continue;
+			}
 
-		if ($registryUrl !== null) {
-			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_URL, trim($registryUrl));
-			$written[] = self::CONFIG_URL;
-		}
-
-		if ($registryToken !== null) {
-			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_REGISTRY_AUTH, trim($registryToken));
-			$written[] = self::CONFIG_REGISTRY_AUTH;
-		}
-
-		if ($registryRegister !== null) {
-			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_REGISTER, trim($registryRegister));
-			$written[] = self::CONFIG_REGISTER;
+			$this->appConfig->setValueString(Application::APP_ID, $key, trim($value));
+			$written[] = $key;
 		}
 
 		// A name is a label only; it does not ask integriq to look again.
-		if ($registryName !== null) {
-			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_NAME, trim($registryName));
-		}
+		$written = array_values(array_diff($written, [self::CONFIG_NAME]));
 
 		$this->connectionReporter?->refreshFromSave(savedKeys: $written);
 	}//end updateRegistryConfig()

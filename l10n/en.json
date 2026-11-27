@@ -1,5 +1,10 @@
 {
     "translations": {
+        "Widgets that ask for confirmation": "Widgets that ask for confirmation",
+        "Widgets on dashboards that ask their readers to confirm they have read them.": "Widgets on dashboards that ask their readers to confirm they have read them.",
+        "No widget asks for confirmation.": "No widget asks for confirmation.",
+        "Widget · {dashboard}": "Widget · {dashboard}",
+        "The widgets that ask for confirmation could not be loaded.": "The widgets that ask for confirmation could not be loaded.",
         "Close {title}": "Close {title}",
         "_%n comment_::_%n comments_": ["%n comment", "%n comments"],
         "Mark as read": "Mark as read",

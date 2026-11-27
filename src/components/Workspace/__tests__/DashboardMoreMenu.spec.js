@@ -136,12 +136,10 @@ describe('DashboardMoreMenu', () => {
 		}
 	})
 
-	it('offers the read receipts before Delete when the dashboard asks for them', () => {
-		const { wrapper, menu, ids } = mountMenu({ canViewReadReceipts: true })
-		expect(ids('actions').slice(-2)).toEqual(['read-receipts', 'delete'])
-		menu.props('actions').find((item) => item.id === 'read-receipts').onClick()
-		expect(wrapper.emitted('readReceipts')).toHaveLength(1)
-		expect(mountMenu({ canViewReadReceipts: true, source: 'group', dashboard: TEAM }).ids('actions').at(-1)).toBe('read-receipts')
+	it('offers no read receipts: they are read on the Announcements tab (REQ-ACK-008)', () => {
+		const { ids } = mountMenu({ canViewReadReceipts: true })
+		expect(ids('actions')).not.toContain('read-receipts')
+		expect(ids('actions').at(-1)).toBe('delete')
 	})
 
 	it('names Save dashboard while editing', () => {

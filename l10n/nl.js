@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Widgets that ask for confirmation" : "Widgets die om bevestiging vragen",
+    "Widgets on dashboards that ask their readers to confirm they have read them." : "Widgets op dashboards die hun lezers vragen te bevestigen dat ze ze hebben gelezen.",
+    "No widget asks for confirmation." : "Geen widget vraagt om bevestiging.",
+    "Widget · {dashboard}" : "Widget · {dashboard}",
+    "The widgets that ask for confirmation could not be loaded." : "De widgets die om bevestiging vragen konden niet worden geladen.",
     "Close {title}" : "{title} sluiten",
     "_%n comment_::_%n comments_" : ["%n reactie", "%n reacties"],
     "Mark as read" : "Markeren als gelezen",

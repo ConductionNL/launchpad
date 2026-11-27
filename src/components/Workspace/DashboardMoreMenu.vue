@@ -18,8 +18,6 @@
 
 <script>
 import { t } from '@nextcloud/l10n'
-import { markRaw } from 'vue'
-import CheckDecagramOutline from 'vue-material-design-icons/CheckDecagramOutline.vue'
 import { isOwnedDashboard } from './DashboardRowActions.vue'
 import LaunchpadMoreMenu from './LaunchpadMoreMenu.vue'
 import {
@@ -106,12 +104,6 @@ export default {
 			default: false,
 		},
 
-		/** Whether the read receipts of the active dashboard are offered. */
-		canViewReadReceipts: {
-			type: Boolean,
-			default: false,
-		},
-
 		/** Whether the dashboard is being edited. */
 		isEditMode: {
 			type: Boolean,
@@ -128,7 +120,6 @@ export default {
 		'copyLink',
 		'duplicate',
 		'setDefault',
-		'readReceipts',
 		'delete',
 	],
 
@@ -166,14 +157,16 @@ export default {
 		},
 
 		/**
-		 * The This dashboard group. Read receipts, when the dashboard asks
-		 * for them, sit before Delete, which stays last.
+		 * The This dashboard group; Delete stays last. Read receipts are not
+		 * offered here: they are read on the Announcements tab of the admin
+		 * settings page (REQ-ACK-008).
 		 *
 		 * @return {object[]}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
 		 */
 		actions() {
-			const items = dashboardActionItems({
+			return dashboardActionItems({
 				dashboard: this.dashboard,
 				isOwner: isOwnedDashboard(this.dashboard, this.source),
 				isDefault: Boolean(this.dashboard?.uuid) && this.dashboard.uuid === this.defaultUuid,
@@ -183,16 +176,6 @@ export default {
 				canDuplicate: this.canDuplicate,
 				emit: (event) => this.$emit(event),
 			})
-			if (this.dashboard && this.canViewReadReceipts) {
-				const at = items.findIndex((item) => item.destructive === true)
-				items.splice(at === -1 ? items.length : at, 0, {
-					id: 'read-receipts',
-					label: t('launchpad', 'Read receipts'),
-					icon: markRaw(CheckDecagramOutline),
-					onClick: () => this.$emit('readReceipts'),
-				})
-			}
-			return items
 		},
 	},
 }

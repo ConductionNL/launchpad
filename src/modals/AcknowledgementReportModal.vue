@@ -155,6 +155,9 @@ export default {
 
 		/** The dashboard the announcement is on. */
 		dashboardName: TEXT_PROP,
+
+		/** A widget's read confirmations: the eyebrow reads "Widget · <dashboard>" (REQ-ACK-010). */
+		widget: FLAG_PROP,
 	},
 
 	emits: ['close'],
@@ -190,10 +193,16 @@ export default {
 		},
 
 		/**
-		 * @return {string} "Announcement · <dashboard>".
+		 * @return {string} "Widget · <dashboard>" or "Announcement · <dashboard>".
 		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 		 */
 		eyebrow() {
+			if (this.widget) {
+				return this.dashboardName
+					? t('launchpad', 'Widget · {dashboard}', { dashboard: this.dashboardName })
+					: t('launchpad', 'Widget')
+			}
 			return this.dashboardName
 				? t('launchpad', 'Announcement · {dashboard}', { dashboard: this.dashboardName })
 				: t('launchpad', 'Announcement')

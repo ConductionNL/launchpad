@@ -166,6 +166,17 @@ export const announcementsApi = {
 	},
 
 	/**
+	 * The widgets that ask readers to confirm, with dashboard, counts and
+	 * deadline (REQ-ACK-008); for announcement managers.
+	 *
+	 * @return {Promise<Array<object>>} `{announcementKey, title, dashboard, deadline, overdue, acknowledgedCount, pendingCount}`.
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+	 */
+	async acknowledgedWidgets() {
+		return (await axios.get(generateUrl('/apps/launchpad/api/acknowledgements/widgets'))).data.widgets ?? []
+	},
+
+	/**
 	 * Send reminder to everyone who has not confirmed; once a day (REQ-ANN-009).
 	 *
 	 * @param {string} uuid The announcement.

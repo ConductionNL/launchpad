@@ -1611,12 +1611,6 @@
 		"validator": false,
 		"default": false
 	},
-	"../../components/Workspace/DashboardMoreMenu.vue | canViewReadReceipts": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
 	"../../components/Workspace/DashboardMoreMenu.vue | isEditMode": {
 		"type": "Boolean",
 		"required": false,
@@ -2342,6 +2336,12 @@
 		"required": false,
 		"validator": false,
 		"default": ""
+	},
+	"../../modals/AcknowledgementReportModal.vue | widget": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../modals/AnnouncementEditorModal.vue | inline": {
 		"type": "Boolean",

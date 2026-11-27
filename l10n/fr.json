@@ -1,5 +1,10 @@
 {
     "translations": {
+        "Widgets that ask for confirmation": "Widgets qui demandent une confirmation",
+        "Widgets on dashboards that ask their readers to confirm they have read them.": "Widgets des tableaux de bord qui demandent à leurs lecteurs de confirmer leur lecture.",
+        "No widget asks for confirmation.": "Aucun widget ne demande de confirmation.",
+        "Widget · {dashboard}": "Widget · {dashboard}",
+        "The widgets that ask for confirmation could not be loaded.": "Les widgets qui demandent une confirmation n'ont pas pu être chargés.",
         "Close {title}": "Fermer {title}",
         "Write a comment": "Écrire un commentaire",
         "Send": "Envoyer",

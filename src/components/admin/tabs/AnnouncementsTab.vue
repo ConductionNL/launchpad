@@ -108,6 +108,69 @@
 				</tbody>
 			</table>
 		</CnSettingsSection>
+
+		<!-- REQ-ACK-008: the widgets that ask readers to confirm, each opening
+		     its read confirmations (REQ-ACK-010). -->
+		<CnSettingsSection
+			v-if="!editing && !receiptsOf"
+			:name="t('launchpad', 'Widgets that ask for confirmation')"
+			:description="t('launchpad', 'Widgets on dashboards that ask their readers to confirm they have read them.')"
+			data-testid="admin-acknowledged-widgets">
+			<p v-if="widgetsError" class="announcements-tab__error" role="alert">
+				{{ widgetsError }}
+			</p>
+			<p v-else-if="widgets.length === 0" class="announcements-tab__hint">
+				{{ t('launchpad', 'No widget asks for confirmation.') }}
+			</p>
+			<table v-else class="announcements-tab__table">
+				<thead>
+					<tr>
+						<th scope="col">
+							{{ t('launchpad', 'Widget') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Dashboard') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Confirmed') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Not confirmed yet') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Confirm before') }}
+						</th>
+						<th scope="col">
+							<span class="hidden-visually">{{ t('launchpad', 'Actions') }}</span>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="widget in widgets" :key="widget.announcementKey" data-testid="acknowledged-widget-row">
+						<td>{{ widget.title }}</td>
+						<td>{{ widget.dashboard || '–' }}</td>
+						<td>{{ widget.acknowledgedCount }}</td>
+						<td>{{ widget.pendingCount }}</td>
+						<td :class="{ 'announcements-tab__error': widget.overdue }">
+							{{ formatTime(widget.deadline) }}
+						</td>
+						<td class="announcements-tab__actions">
+							<NcButton variant="tertiary" data-testid="acknowledged-widget-open" @click="openWidget(widget)">
+								{{ t('launchpad', 'Read confirmations') }}
+							</NcButton>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</CnSettingsSection>
+
+		<AcknowledgementReportModal
+			:open="openWidgetItem !== null"
+			:announcementKey="openWidgetItem ? openWidgetItem.announcementKey : ''"
+			:title="openWidgetItem ? openWidgetItem.title : ''"
+			:dashboardName="openWidgetItem ? openWidgetItem.dashboard : ''"
+			:widget="true"
+			@close="openWidgetItem = null" />
 	</div>
 </template>
 
@@ -115,6 +178,7 @@
 import { CnSettingsSection } from '@conduction/nextcloud-vue'
 import { getCanonicalLocale } from '@nextcloud/l10n'
 import { NcButton } from '@nextcloud/vue'
+import AcknowledgementReportModal from '../../../modals/AcknowledgementReportModal.vue'
 import AnnouncementEditorModal from '../../../modals/AnnouncementEditorModal.vue'
 import AnnouncementReceipts from './AnnouncementReceipts.vue'
 import { announcementsApi } from '../../../services/announcementsApi.js'
@@ -175,6 +239,7 @@ export default {
 	name: 'AnnouncementsTab',
 
 	components: {
+		AcknowledgementReportModal,
 		AnnouncementEditorModal,
 		AnnouncementReceipts,
 		CnSettingsSection,
@@ -189,12 +254,15 @@ export default {
 			editing: null,
 			receiptsOf: null,
 			receipts: null,
+			widgets: [],
+			widgetsError: '',
+			openWidgetItem: null,
 		}
 	},
 
 	/** @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008 */
 	async mounted() {
-		await this.load()
+		await Promise.all([this.load(), this.loadWidgets()])
 		this.followFragment()
 	},
 
@@ -227,6 +295,34 @@ export default {
 				this.loading = false
 			}
 			await this.loadCounts()
+		},
+
+		/**
+		 * Load the widgets that ask for confirmation (REQ-ACK-008).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+		 */
+		async loadWidgets() {
+			this.widgetsError = ''
+			try {
+				this.widgets = await announcementsApi.acknowledgedWidgets()
+			} catch (error) {
+				logger.error('Loading the widgets that ask for confirmation failed:', error)
+				this.widgets = []
+				this.widgetsError = this.t('launchpad', 'The widgets that ask for confirmation could not be loaded.')
+			}
+		},
+
+		/**
+		 * Open the read confirmations of one widget (REQ-ACK-010).
+		 *
+		 * @param {object} widget The row.
+		 * @return {void}
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 */
+		openWidget(widget) {
+			this.openWidgetItem = widget
 		},
 
 		/**

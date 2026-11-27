@@ -374,11 +374,11 @@ function columnRows(all, favourites, expanded, activeId) {
  *
  * @param {{d: object, source: string}} row The dashboard and its section.
  * @param {object} context What the row needs to know and do.
- * @param context.activeId
- * @param context.defaultUuid
- * @param context.starred
- * @param context.onSwitch
- * @param context.onToggleFavourite
+ * @param {string|number|null} context.activeId The open dashboard's id.
+ * @param {string} context.defaultUuid The uuid of the person's default dashboard.
+ * @param {Set<string>} context.starred The favourite uuids.
+ * @param {(id: string|number, source: string) => void} context.onSwitch Open a dashboard.
+ * @param {(uuid: string) => void} context.onToggleFavourite Mark or unmark a favourite.
  * @return {object} The item.
  * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
  */

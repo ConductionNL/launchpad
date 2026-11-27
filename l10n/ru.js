@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Loading widgets" : "Загрузка виджетов",
+    "All widgets loaded" : "Все виджеты загружены",
+    "The page could not load" : "Не удалось загрузить страницу",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Ещё загружается %n виджет", "Ещё загружаются %n виджета", "Ещё загружается %n виджетов"],
     "Save your changes first to choose who sees this new widget." : "Сначала сохраните изменения, чтобы выбрать, кто видит этот новый виджет.",
     "No changes" : "Нет изменений",
     "Keep editing" : "Продолжить редактирование",

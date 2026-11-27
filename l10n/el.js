@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Loading widgets" : "Φόρτωση γραφικών στοιχείων",
+    "All widgets loaded" : "Όλα τα γραφικά στοιχεία φορτώθηκαν",
+    "The page could not load" : "Δεν ήταν δυνατή η φόρτωση της σελίδας",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Φορτώνεται ακόμη %n γραφικό στοιχείο", "Φορτώνονται ακόμη %n γραφικά στοιχεία"],
     "Save your changes first to choose who sees this new widget." : "Αποθηκεύστε πρώτα τις αλλαγές σας για να επιλέξετε ποιος βλέπει αυτό το νέο γραφικό στοιχείο.",
     "No changes" : "Καμία αλλαγή",
     "Keep editing" : "Συνέχεια επεξεργασίας",

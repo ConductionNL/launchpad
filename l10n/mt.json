@@ -1,5 +1,9 @@
 {
     "translations": {
+        "Loading widgets": "Qed jiġu mgħobbija l-widgets",
+        "All widgets loaded": "Il-widgets kollha tgħabbew",
+        "The page could not load": "Il-paġna ma setgħetx titgħabba",
+        "_Still loading %n widget_::_Still loading %n widgets_": ["Għadu qed jitgħabba %n widget", "Għadhom qed jitgħabbew %n widgets", "Għadhom qed jitgħabbew %n widgets", "Għadhom qed jitgħabbew %n widgets"],
         "Save your changes first to choose who sees this new widget.": "Issejvja l-bidliet tiegħek l-ewwel biex tagħżel min jara dan il-widget ġdid.",
         "No changes": "L-ebda bidla",
         "Keep editing": "Kompli editja",

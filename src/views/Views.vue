@@ -31,6 +31,13 @@
 				class="launchpad-floating-controls"
 				:class="{ 'launchpad-floating-controls--docked': controlsDock !== null }"
 				data-testid="launchpad-top-controls">
+				<!-- first-paint-skeleton REQ-FPS-005: the page's one status line,
+				     beside More. The shell's role=status element moves in here
+				     (firstPaintStatus.js); Vue renders no children of its own. -->
+				<span
+					ref="statusSlot"
+					class="launchpad-status-slot"
+					data-testid="launchpad-status-slot" />
 				<!-- Board LpMeer: More is the page header's only control. -->
 				<DashboardMoreMenu
 					:dashboard="activeDashboard"
@@ -200,6 +207,7 @@
 			<CnDashboardGrid
 				v-if="activeDashboard"
 				:key="`grid-columns-${activeDashboard.gridColumns || 12}`"
+				ref="dashboardGrid"
 				:layout="gridLayout"
 				:editable="isEditMode"
 				:fillHeight="fillsHeight"
@@ -567,6 +575,7 @@ import { lookStyle } from '../utils/dashboardLook.js'
 import { addressWithPeriod, namesPeriod, readPeriod } from '../utils/dashboardPeriod.js'
 import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
 import { handOver } from '../utils/firstPaintHandover.js'
+import { adoptStatusLine, countWaitingWidgets } from '../utils/firstPaintStatus.js'
 import { preloadFirstViewportRenderers } from '../utils/firstViewport.js'
 import { gridItemLabel } from '../utils/gridItemLabel.js'
 import { dashboardGroups, groupChildToTile, isGroupTileChild, parseTabGroupId, withGroupTileRemoved, withGroupTileSaved, withTileMovedIn, withTileMovedIntoTab } from '../utils/groupTiles.js'
@@ -2016,6 +2025,8 @@ export default {
 	/** @spec openspec/specs/dashboards/spec.md */
 	beforeUnmount() {
 		window.removeEventListener('beforeunload', this.onBeforeUnloadDraft)
+		this.statusLineGone = true
+		this.stopStatusLine?.()
 		this.stopKiosk?.()
 		clearInterval(this.kioskRefresh)
 		applyCustomCss(DASHBOARD_STYLE_ID, '')
@@ -2222,7 +2233,34 @@ export default {
 		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
 		 */
 		onGridMounted() {
+			this.startStatusLine()
 			handOver()
+		},
+
+		/**
+		 * Take over the shell's status line (same element) before the shell
+		 * goes, and count down the first-screen widgets still waiting on it.
+		 * Once per page: a grid rebuilt for a new column count keeps counting.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-loading-state-is-calm-and-accessible-req-fps-005
+		 */
+		startStatusLine() {
+			const slot = this.$refs.statusSlot
+			const root = this.$refs.dashboardGrid?.$el
+			if (this.stopStatusLine || !slot || !(root instanceof HTMLElement)) {
+				return
+			}
+			const node = adoptStatusLine(slot)
+			// The grid lays out in this frame: count once it has.
+			const frame = globalThis.requestAnimationFrame?.bind(globalThis) || ((fn) => setTimeout(fn, 0))
+			this.stopStatusLine = () => {}
+			frame(() => {
+				if (this.statusLineGone) {
+					return
+				}
+				this.stopStatusLine = countWaitingWidgets({ root, node })
+			})
 		},
 
 		...mapActions(useDashboardStore, [
@@ -4886,6 +4924,24 @@ export default {
 	.launchpad-grid-item {
 		transition: none;
 	}
+}
+
+/* first-paint-skeleton REQ-FPS-005: the status line the shell printed,
+ * moved in by firstPaintStatus.js (so it carries no scoped attribute). */
+.launchpad-status-slot {
+	display: inline-flex;
+	align-items: center;
+}
+
+.launchpad-status-slot :deep(.launchpad-status-line) {
+	margin: 0;
+	font-size: 13px;
+	white-space: nowrap;
+	color: var(--color-text-maxcontrast);
+}
+
+.launchpad-status-slot :deep(.launchpad-status-line:empty) {
+	display: none;
 }
 
 .launchpad-floating-controls {

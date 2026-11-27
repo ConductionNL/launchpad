@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Loading widgets" : "Učitavanje widgeta",
+    "All widgets loaded" : "Svi widgeti su učitani",
+    "The page could not load" : "Stranicu nije bilo moguće učitati",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Još se učitava %n widget", "Još se učitavaju %n widgeta", "Još se učitava %n widgeta"],
     "Save your changes first to choose who sees this new widget." : "Prvo sačuvajte promjene da biste odabrali ko vidi ovaj novi widget.",
     "No changes" : "Nema promjena",
     "Keep editing" : "Nastavi uređivanje",

@@ -1,6 +1,8 @@
 OC.L10N.register(
     "launchpad",
     {
+    "All widgets loaded" : "Alle widgets geladen",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Nog %n widget wordt geladen", "Nog %n widgets worden geladen"],
     "Save your changes first to choose who sees this new widget." : "Sla eerst je wijzigingen op om te kiezen wie deze nieuwe widget ziet.",
     "Good morning, {name}" : "Goedemorgen, {name}",
     "Good morning" : "Goedemorgen",

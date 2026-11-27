@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Loading widgets" : "Ielādē logrīkus",
+    "All widgets loaded" : "Visi logrīki ielādēti",
+    "The page could not load" : "Lapu neizdevās ielādēt",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Vēl tiek ielādēts %n logrīks", "Vēl tiek ielādēti %n logrīki", "Vēl tiek ielādēti %n logrīku"],
     "Save your changes first to choose who sees this new widget." : "Vispirms saglabājiet izmaiņas, lai izvēlētos, kas redz šo jauno logrīku.",
     "No changes" : "Nav izmaiņu",
     "Keep editing" : "Turpināt rediģēt",

@@ -1,5 +1,9 @@
 {
     "translations": {
+        "Loading widgets": "Po ngarkohen widget-et",
+        "All widgets loaded": "Të gjitha widget-et u ngarkuan",
+        "The page could not load": "Faqja nuk mund të ngarkohej",
+        "_Still loading %n widget_::_Still loading %n widgets_": ["Po ngarkohet ende %n widget", "Po ngarkohen ende %n widget-e"],
         "Save your changes first to choose who sees this new widget.": "Ruani fillimisht ndryshimet për të zgjedhur kush e sheh këtë widget të ri.",
         "No changes": "Asnjë ndryshim",
         "Keep editing": "Vazhdo redaktimin",

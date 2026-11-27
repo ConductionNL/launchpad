@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Loading widgets" : "Widgete gi gelueden",
+    "All widgets loaded" : "All Widgete geluede",
+    "The page could not load" : "D'Säit konnt net geluede ginn",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Nach %n Widget gëtt gelueden", "Nach %n Widgete gi gelueden"],
     "Save your changes first to choose who sees this new widget." : "Späichert éischt Är Ännerungen, fir ze wielen, wien dësen neie Widget gesäit.",
     "No changes" : "Keng Ännerungen",
     "Keep editing" : "Weider änneren",

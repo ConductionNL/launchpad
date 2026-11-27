@@ -1,5 +1,9 @@
 {
     "translations": {
+        "Loading widgets": "Зареждане на уиджети",
+        "All widgets loaded": "Всички уиджети са заредени",
+        "The page could not load": "Страницата не можа да се зареди",
+        "_Still loading %n widget_::_Still loading %n widgets_": ["Все още се зарежда %n уиджет", "Все още се зареждат %n уиджета"],
         "Save your changes first to choose who sees this new widget.": "Първо запазете промените, за да изберете кой вижда този нов уиджет.",
         "No changes": "Няма промени",
         "Keep editing": "Продължи редактирането",

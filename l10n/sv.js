@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Loading widgets" : "Läser in widgetar",
+    "All widgets loaded" : "Alla widgetar har lästs in",
+    "The page could not load" : "Sidan kunde inte läsas in",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Läser fortfarande in %n widget", "Läser fortfarande in %n widgetar"],
     "Save your changes first to choose who sees this new widget." : "Spara först dina ändringar för att välja vem som ser den nya widgeten.",
     "No changes" : "Inga ändringar",
     "Keep editing" : "Fortsätt redigera",

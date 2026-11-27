@@ -1,5 +1,9 @@
 {
     "translations": {
+        "Loading widgets": "Se încarcă widgeturile",
+        "All widgets loaded": "Toate widgeturile au fost încărcate",
+        "The page could not load": "Pagina nu a putut fi încărcată",
+        "_Still loading %n widget_::_Still loading %n widgets_": ["Se mai încarcă %n widget", "Se mai încarcă %n widgeturi", "Se mai încarcă %n de widgeturi"],
         "Save your changes first to choose who sees this new widget.": "Salvați mai întâi modificările pentru a alege cine vede acest widget nou.",
         "No changes": "Nicio modificare",
         "Keep editing": "Continuă editarea",

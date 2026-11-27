@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Loading widgets" : "Įkeliami valdikliai",
+    "All widgets loaded" : "Visi valdikliai įkelti",
+    "The page could not load" : "Puslapio nepavyko įkelti",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Dar įkeliamas %n valdiklis", "Dar įkeliami %n valdikliai", "Dar įkeliama %n valdiklių"],
     "Save your changes first to choose who sees this new widget." : "Pirmiausia išsaugokite pakeitimus, kad galėtumėte pasirinkti, kas mato šį naują valdiklį.",
     "No changes" : "Pakeitimų nėra",
     "Keep editing" : "Tęsti redagavimą",

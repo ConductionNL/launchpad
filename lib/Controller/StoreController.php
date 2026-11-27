@@ -168,7 +168,7 @@ class StoreController extends Controller {
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-004-installing-must-require-an-administrator
 	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function install(string $slug): JSONResponse {
@@ -215,7 +215,7 @@ class StoreController extends Controller {
 	 * @return JSONResponse 200 with the update report, 404 when the item is not installed here,
 	 *     or 400 when the update was refused.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function update(string $slug): JSONResponse {
@@ -248,7 +248,7 @@ class StoreController extends Controller {
 	 *
 	 * @return JSONResponse 200 with `{objects: [{schema, id, title}]}`.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function publishable(): JSONResponse {
@@ -274,7 +274,7 @@ class StoreController extends Controller {
 	 *
 	 * @return JSONResponse `{outcome, slug, message?}`.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function publish(): JSONResponse {

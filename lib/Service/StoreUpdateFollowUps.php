@@ -7,7 +7,7 @@
  * along with the merge re-sync, write the version note, and log a failure.
  * Kept together so {@see StoreUpdateService} takes one parameter for them.
  *
- * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+ * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
  *
  * @category  Service
  * @package   OCA\LaunchPad\Service
@@ -30,7 +30,7 @@ use Psr\Log\LoggerInterface;
 /**
  * The re-sync, the version service and the logger of a marketplace update.
  *
- * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+ * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
  */
 class StoreUpdateFollowUps {
 	/**

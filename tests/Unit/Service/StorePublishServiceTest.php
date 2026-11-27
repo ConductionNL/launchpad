@@ -38,7 +38,7 @@ use PHPUnit\Framework\TestCase;
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors the constructor.
  * @SuppressWarnings(PHPMD.TooManyPublicMethods) One test per declared scenario.
  *
- * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+ * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
  */
 class StorePublishServiceTest extends TestCase {
 	/** @var StoreService&MockObject */

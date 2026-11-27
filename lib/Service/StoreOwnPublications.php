@@ -30,7 +30,7 @@ use OCP\IL10N;
 /**
  * Remember and mark this instance's own publications.
  *
- * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+ * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
  */
 class StoreOwnPublications {
 	/**
@@ -59,7 +59,7 @@ class StoreOwnPublications {
 	 *
 	 * @return array<int, array<string, mixed>>
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
 	public function annotate(array $cards): array {
 		$own = array_flip($this->published());
@@ -80,7 +80,7 @@ class StoreOwnPublications {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
 	public function remember(string $slug): void {
 		$published = $this->published();

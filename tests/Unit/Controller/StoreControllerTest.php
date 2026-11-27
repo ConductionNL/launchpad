@@ -132,7 +132,7 @@ class StoreControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function testUpdateIsAdminOnly(): void {
 		$method = new ReflectionMethod(objectOrMethod: StoreController::class, method: 'update');
@@ -146,7 +146,7 @@ class StoreControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function testUpdateStatusFollowsTheReport(): void {
 		$this->signIn(uid: 'admin');
@@ -175,7 +175,7 @@ class StoreControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function testInstallOfAnInstalledItemUpdatesInPlace(): void {
 		$this->signIn(uid: 'admin');
@@ -447,7 +447,7 @@ class StoreControllerTest extends TestCase {
 	/**
 	 * REQ-STORE-013: publish is admin-only, not merely signed-in, so a member's request is refused with 403.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 *
 	 * @return void
 	 */
@@ -462,7 +462,7 @@ class StoreControllerTest extends TestCase {
 	/**
 	 * REQ-STORE-013: the dialog's item and objects reach the service, and an ok passes through.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 *
 	 * @return void
 	 */
@@ -493,7 +493,7 @@ class StoreControllerTest extends TestCase {
 	/**
 	 * REQ-STORE-013: the same version twice is a 409, a refused request a 400, a register refusal a 200 with its outcome.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 *
 	 * @return void
 	 */
@@ -519,7 +519,7 @@ class StoreControllerTest extends TestCase {
 	/**
 	 * REQ-STORE-013: the dialog lists the administrator's publishable dashboards.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 *
 	 * @return void
 	 */
@@ -539,7 +539,7 @@ class StoreControllerTest extends TestCase {
 	/**
 	 * REQ-STORE-013: the search marks this instance's own publications.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 *
 	 * @return void
 	 */

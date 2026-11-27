@@ -45,7 +45,7 @@ function card(updated: boolean): Record<string, unknown> {
 
 test.describe('Update on the marketplace', () => {
 	/*
-	 * @e2e openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#scenario-the-sociaal-domein-dashboard-is-updated
+	 * @e2e openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#scenario-the-sociaal-domein-dashboard-is-updated
 	 */
 	test('Update brings the installed dashboard to the newer version and the card shows Installed', async ({ page }) => {
 		let updated = false

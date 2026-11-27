@@ -354,7 +354,7 @@ class StoreService {
 	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-005-an-install-must-reuse-importservice-not-reimplement-it
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function resolveItem(string $slug): array {
 		if ($this->discovery === null) {
@@ -392,7 +392,7 @@ class StoreService {
 	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
 	 * @psalm-suppress MixedReturnStatement The engine's outcome passes through verbatim.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
 	public function publish(array $item): array {
 		// Without OpenRegister nothing is sent and the answer is empty.

@@ -370,4 +370,30 @@ class DemoSeedBoardWidgetsTest extends TestCase {
 			$this->assertSame(expected: 14, actual: $placement['content']['newUntilDays']);
 		}
 	}//end testNewColleaguePlacementsListByStartDate()
+
+	/**
+	 * "Nieuwe collega's" and "Verjaardagen" are lists to read, drawn without a
+	 * search box (boards LpVandaag, LpIntranet); "Vind een collega op
+	 * expertise" keeps its search.
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md#requirement-req-demo-010-demo-seed-of-the-boards
+	 *
+	 * @return void
+	 */
+	public function testListPeoplePlacementsHaveNoSearchBox(): void {
+		$seen = [];
+		foreach (self::placementsOf(type: 'people') as $placement) {
+			$title = (string)($placement['customTitle'] ?? '');
+			$seen[$title] = true;
+			$expected = in_array(needle: $title, haystack: ["Nieuwe collega's", 'Verjaardagen'], strict: true) === false;
+			$this->assertSame(
+				expected: $expected,
+				actual: ($placement['content']['showSearch'] ?? true),
+				message: $title
+			);
+		}
+
+		$this->assertArrayHasKey(key: 'Verjaardagen', array: $seen);
+		$this->assertArrayHasKey(key: 'Vind een collega op expertise', array: $seen);
+	}//end testListPeoplePlacementsHaveNoSearchBox()
 }//end class

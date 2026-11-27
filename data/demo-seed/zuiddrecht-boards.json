@@ -691,7 +691,8 @@
 						"excludeDisabled": true,
 						"sortBy": "createdAt",
 						"columns": 2,
-						"showActions": false
+						"showActions": false,
+						"showSearch": false
 					}
 				},
 				{
@@ -708,7 +709,8 @@
 						"excludeDisabled": true,
 						"sortBy": "birthday",
 						"columns": 2,
-						"showActions": false
+						"showActions": false,
+						"showSearch": false
 					}
 				},
 				{
@@ -1694,7 +1696,8 @@
 						"excludeDisabled": true,
 						"sortBy": "createdAt",
 						"columns": 2,
-						"showActions": false
+						"showActions": false,
+						"showSearch": false
 					}
 				},
 				{
@@ -1711,7 +1714,8 @@
 						"excludeDisabled": true,
 						"sortBy": "birthday",
 						"columns": 2,
-						"showActions": false
+						"showActions": false,
+						"showSearch": false
 					}
 				},
 				{

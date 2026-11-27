@@ -214,10 +214,65 @@
 }
 
 /* The card gives the inset; a widget inside it adds none of its own, so its
-   first line starts on the title's 18px (the agenda, recent work, mail). The
-   renderer's own 16px padding added a second inset. */
-.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard :is(.widget-renderer, .cn-links-widget, .cn-menu-widget) {
+   first line starts on the title's 18px (the agenda, recent work, mail, a
+   text card such as "Van de gemeentesecretaris", the people lists). The
+   renderer's own padding (16px, the text widget's 16px, the people widget's
+   8px, the status report's 12px and spend analytics' 8px: LpManagement
+   "Compliance", "Uitgaven per afdeling") added a second inset. The text widget sets its padding inline, hence
+   the !important on its own rule. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard :is(.widget-renderer, .cn-links-widget, .cn-menu-widget, .cn-people-widget, .status-report, .cn-spend-analytics-widget) {
 	padding: 0;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-text-widget {
+	padding: 0 !important;
+}
+
+/* A table in a text card is the boards' table (LpVandaag, LpIntranet
+   "Werken op het stadskantoor"): 13px, cells 6px 8px with only a rule under
+   each row, the head row semibold and muted, no box around it. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-text-widget table {
+	width: 100%;
+	border: 0;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-text-widget :is(th, td) {
+	padding: 6px 8px;
+	border: 0;
+	border-bottom: 1px solid var(--cn-board-hairline, var(--color-border));
+	line-height: 1.5;
+	text-align: start;
+	vertical-align: top;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-text-widget th {
+	background: none;
+	color: var(--color-text-maxcontrast);
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+/* A placement that asks for a read confirmation is an announcement (REQ-ACK-011,
+   LpVandaag, LpIntranet "Nieuwe werkwijze Woo-verzoeken"): a 4px bar in the
+   primary colour on its left edge, 24px in on the left and 20px on the
+   right, a 17px title. */
+.cn-look-board .launchpad-container .launchpad-widget--announcement .cn-widget-wrapper--nc-dashboard {
+	box-shadow: inset 4px 0 0 var(--color-primary-element);
+}
+
+.cn-look-board .launchpad-container .launchpad-widget--announcement .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__header {
+	padding: 16px 20px 8px 24px;
+}
+
+.cn-look-board .launchpad-container .launchpad-widget--announcement .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__content {
+	padding: 0 20px 16px 24px;
+}
+
+.cn-look-board .launchpad-container .launchpad-widget--announcement .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__title {
+	font-size: 17px;
+	line-height: 1.3;
 }
 
 /* "Vandaag eerst" draws its own heading inside the card, 14px from the top

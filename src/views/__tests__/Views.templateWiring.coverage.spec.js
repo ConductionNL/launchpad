@@ -457,24 +457,14 @@ describe('Views — the Meer menu wiring', () => {
 })
 
 describe('Views — read receipts and the colleagues editing', () => {
-	it('"Read receipts" opens the report for the first announcement; its close shuts it', async () => {
+	it('the dashboard offers no read receipts; they are read on the Announcements tab (REQ-ACK-008)', async () => {
 		const { wrapper } = await mountViews({
 			widgetPlacements: [
-				{ id: 1, widgetId: 'text', requiresAcknowledgement: '1', announcementKey: 'ann-a' },
-				{ id: 2, widgetId: 'text', requiresAcknowledgement: 1, announcementKey: 'ann-b' },
-				{ id: 3, widgetId: 'text', requiresAcknowledgement: 1, announcementKey: 'ann-a' },
-				{ id: 4, widgetId: 'text', requiresAcknowledgement: 0, announcementKey: 'ann-c' },
+				{ id: 1, widgetId: 'text', requiresAcknowledgement: 1, announcementKey: 'ann-a' },
 			],
 		})
-		const report = () => wrapper.findComponent({ name: 'AcknowledgementReportModal' })
-		expect(report().exists()).toBe(false)
-
-		await wrapper.findComponent({ name: 'DashboardMoreMenu' }).vm.$emit('readReceipts')
-		expect(report().props('open')).toBe(true)
-		expect(report().props('announcementKey')).toBe('ann-a')
-
-		await report().vm.$emit('close')
-		expect(report().props('open')).toBe(false)
+		expect(wrapper.findComponent({ name: 'AcknowledgementReportModal' }).exists()).toBe(false)
+		expect(wrapper.findComponent({ name: 'DashboardMoreMenu' }).props()).not.toHaveProperty('canViewReadReceipts')
 	}, 90000)
 
 	it('in edit mode the colleagues editing are shown, in view mode not', async () => {

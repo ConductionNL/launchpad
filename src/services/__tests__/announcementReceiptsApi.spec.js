@@ -66,6 +66,13 @@ describe('announcement receipts client', () => {
 		expect(get).toHaveBeenCalledTimes(1)
 	})
 
+	it('lists the widgets that ask for confirmation', async () => {
+		get.mockResolvedValue({ data: { widgets: [{ announcementKey: 'ak-1' }] } })
+
+		expect(await announcementsApi.acknowledgedWidgets()).toEqual([{ announcementKey: 'ak-1' }])
+		expect(get).toHaveBeenCalledWith('/index.php/apps/launchpad/api/acknowledgements/widgets')
+	})
+
 	it('reads Seen and confirmed and sends a reminder', async () => {
 		get.mockResolvedValue({ data: { seenCount: 1 } })
 		post.mockResolvedValue({ data: { uuid: 'a', sent: 3 } })

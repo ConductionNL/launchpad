@@ -555,7 +555,7 @@ export default {
 
 .group-priority__item--stale {
 	opacity: 0.7;
-	border-left: 3px solid var(--color-warning, #c93);
+	border-inline-start: 3px solid var(--color-warning, #c93);
 }
 
 .group-priority__handle {
@@ -571,7 +571,7 @@ export default {
 	color: var(--color-warning, #c93);
 	font-style: italic;
 	font-size: 12px;
-	margin-left: 4px;
+	margin-inline-start: 4px;
 }
 
 .group-priority__move {

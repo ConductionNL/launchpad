@@ -44,9 +44,6 @@
 					:canDuplicate="canDuplicateActiveDashboard"
 					:canCreate="canCreatePersonalDashboard"
 					:detailFields="detailFields"
-					:canViewReadReceipts="
-						canEdit && acknowledgementAnnouncementKeys.length > 0
-					"
 					:isEditMode="isEditMode"
 					@switch="onSidebarSwitch"
 					@download="downloadActiveDashboard"
@@ -60,9 +57,6 @@
 					@share="openShareDrawer"
 					@copyLink="copyDashboardLink"
 					@duplicate="onSidebarCreateDashboard"
-					@readReceipts="
-						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
-					"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)"
 					@newDashboard="createWorkspaceDashboard"
 					@expandDashboards="loadDetailFieldsOnce"
@@ -108,15 +102,6 @@
 			@confirm="confirmDeleteDashboard" />
 
 
-
-		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
-		<AcknowledgementReportModal
-			v-if="mountedModals.ackReport"
-			:open="ackReportOpen"
-			:announcementKey="ackReportKey"
-			:title="ackReportTitle"
-			:dashboardName="activeDashboard?.name || ''"
-			@close="ackReportOpen = false" />
 
 		<!-- Main dashboard grid -->
 		<!-- platform-dashboard-theme-and-css REQ-THM-001: the dashboard's own
@@ -524,7 +509,6 @@ import { printDashboard } from '../utils/printDashboard.js'
 // The dialogs and modals load the first time they open, not with the page.
 const DeleteDashboardDialog = defineAsyncComponent(() => import('../dialogs/DeleteDashboardDialog.vue'))
 const ReadConfirmationDialog = defineAsyncComponent(() => import('../dialogs/ReadConfirmationDialog.vue'))
-const AcknowledgementReportModal = defineAsyncComponent(() => import('../modals/AcknowledgementReportModal.vue'))
 const BookmarkImportModal = defineAsyncComponent(() => import('../modals/BookmarkImportModal.vue'))
 
 /** The content keys the tile form writes; every other key survives a save. */
@@ -767,7 +751,6 @@ export default {
 		ViewDashboard,
 		CnDashboardGrid,
 		WidgetWrapper,
-		AcknowledgementReportModal,
 		TileWidget,
 		WidgetPickerModal,
 		CnWidgetStyleEditorModal,
@@ -1046,8 +1029,6 @@ export default {
 			defaultDashboardUuid: '',
 			// dashboard-acknowledgements REQ-ACK-004: admin read-receipt
 			// report modal state.
-			ackReportOpen: false,
-			ackReportKey: '',
 			// engagement-acknowledgement-toggle: the placement whose read
 			// confirmation is being set up.
 			readConfirmationPlacement: null,
@@ -1117,7 +1098,6 @@ export default {
 		openModals() {
 			return {
 				deleteDialog: this.deleteTarget !== null,
-				ackReport: this.ackReportOpen,
 				widgetPicker: this.isWidgetModalOpen,
 				config: this.isConfigModalOpen,
 				bookmarkImport: this.isBookmarkImportOpen,
@@ -1331,27 +1311,6 @@ export default {
 		},
 
 		/**
-		 * dashboard-acknowledgements REQ-ACK-004: distinct announcement keys of
-		 * the placements on the active dashboard that require acknowledgement.
-		 * Drives the admin "Read receipts" affordance (shown only when at least
-		 * one placement carries a requirement and the user can edit).
-		 *
-		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-		 * @return {string[]} the announcement keys.
-		 */
-		/**
-		 * The title of the announcement whose read confirmations are open
-		 * (REQ-ACK-010), '' when none is.
-		 *
-		 * @return {string} The widget title.
-		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
-		 */
-		ackReportTitle() {
-			const placement = (this.widgetPlacements || []).find((p) => p.announcementKey === this.ackReportKey)
-			return placement ? resolveWidgetTitle(placement, this.availableWidgets) : ''
-		},
-
-		/**
 		 * The placement whose "Who sees this widget?" dialog is open.
 		 *
 		 * @return {object|null} The placement, null when none is open.
@@ -1379,16 +1338,6 @@ export default {
 		 */
 		visibilityRuleMatch() {
 			return this.visibilityPlacement?.ruleMatch === 'all' ? 'all' : 'any'
-		},
-
-		acknowledgementAnnouncementKeys() {
-			const keys = (this.widgetPlacements || [])
-				.filter(
-					(p) =>
-						Number(p.requiresAcknowledgement) === 1 && p.announcementKey,
-				)
-				.map((p) => p.announcementKey)
-			return [...new Set(keys)]
 		},
 
 		/**
@@ -2193,19 +2142,6 @@ export default {
 		onWidgetAcknowledged() {
 			const dashboardStore = useDashboardStore()
 			dashboardStore.fetchPendingAcknowledgements()
-		},
-
-		/**
-		 * Open the admin read-receipt report for an announcement
-		 * (REQ-ACK-004).
-		 *
-		 * @param {string} announcementKey Key identifying the announcement
-		 *   whose acknowledgement report should be shown.
-		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-		 */
-		openAcknowledgementReport(announcementKey) {
-			this.ackReportKey = announcementKey
-			this.ackReportOpen = true
 		},
 
 		...mapActions(useDashboardStore, [

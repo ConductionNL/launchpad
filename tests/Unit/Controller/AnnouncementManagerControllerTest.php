@@ -1,10 +1,11 @@
 <?php
 
 /**
- * AnnouncementReminderControllerTest
+ * AnnouncementManagerControllerTest
  *
- * Send reminder (REQ-ANN-009): through the manage check, for the session
- * user; a second one the same day is 400; signed out is the guard's answer.
+ * Send reminder (REQ-ANN-009) and the widgets that ask for confirmation
+ * (REQ-ACK-008): through the manage check, for the session user; a second
+ * reminder the same day is 400; signed out is the guard's answer.
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -17,7 +18,8 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use InvalidArgumentException;
-use OCA\LaunchPad\Controller\AnnouncementReminderController;
+use OCA\LaunchPad\Controller\AnnouncementManagerController;
+use OCA\LaunchPad\Kernel\Contracts\AcknowledgementServiceInterface;
 use OCA\LaunchPad\Service\AnnouncementReminder;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Http\JSONResponse;
@@ -26,13 +28,29 @@ use OCP\IUser;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for AnnouncementReminderController.
+ * Tests for AnnouncementManagerController.
  *
- * @covers \OCA\LaunchPad\Controller\AnnouncementReminderController
+ * @covers \OCA\LaunchPad\Controller\AnnouncementManagerController
  */
-class AnnouncementReminderControllerTest extends TestCase {
+class AnnouncementManagerControllerTest extends TestCase {
 
 	private const UUID = '11111111-2222-4333-8444-555555555555';
+
+	/**
+	 * The acknowledgement service double.
+	 *
+	 * @var AcknowledgementServiceInterface
+	 */
+	private AcknowledgementServiceInterface $acknowledgements;
+
+	/**
+	 * Set up the double.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		$this->acknowledgements = $this->createMock(originalClassName: AcknowledgementServiceInterface::class);
+	}//end setUp()
 
 	/**
 	 * The controller with a reminder double, refusing the listed actions.
@@ -41,9 +59,9 @@ class AnnouncementReminderControllerTest extends TestCase {
 	 * @param list<string>         $refused  Actions the matrix refuses.
 	 * @param bool                 $signedIn Whether someone is signed in.
 	 *
-	 * @return AnnouncementReminderController
+	 * @return AnnouncementManagerController
 	 */
-	private function controller(AnnouncementReminder $reminder, array $refused = [], bool $signedIn = true): AnnouncementReminderController {
+	private function controller(AnnouncementReminder $reminder, array $refused = [], bool $signedIn = true): AnnouncementManagerController {
 		$user = $this->createMock(originalClassName: IUser::class);
 		$user->method('getUID')->willReturn('femke');
 		$guard = $this->createMock(originalClassName: RequestGuard::class);
@@ -63,10 +81,11 @@ class AnnouncementReminderControllerTest extends TestCase {
 
 		$guard->method('sessionUser')->willReturn($session);
 
-		return new AnnouncementReminderController(
+		return new AnnouncementManagerController(
 			request: $this->createMock(originalClassName: IRequest::class),
 			reminder: $reminder,
-			guard: $guard
+			guard: $guard,
+			acknowledgements: $this->acknowledgements
 		);
 	}//end controller()
 
@@ -88,4 +107,17 @@ class AnnouncementReminderControllerTest extends TestCase {
 		$this->assertSame(expected: 403, actual: $this->controller(reminder: $reminder, refused: ['announcement.manage'])->remind(self::UUID)->getStatus());
 		$this->assertSame(expected: 401, actual: $this->controller(reminder: $reminder, signedIn: false)->remind(self::UUID)->getStatus());
 	}//end testRemindIsForManagersOnceADay()
+
+	/**
+	 * The widgets that ask for confirmation, through the manage check (REQ-ACK-008).
+	 *
+	 * @return void
+	 */
+	public function testWidgets(): void {
+		$this->acknowledgements->method('listAcknowledged')->willReturn([['announcementKey' => 'ak-1']]);
+		$reminder = $this->createMock(originalClassName: AnnouncementReminder::class);
+
+		$this->assertSame(expected: ['widgets' => [['announcementKey' => 'ak-1']]], actual: $this->controller(reminder: $reminder)->widgets()->getData());
+		$this->assertSame(expected: 403, actual: $this->controller(reminder: $reminder, refused: ['announcement.manage'])->widgets()->getStatus());
+	}//end testWidgets()
 }//end class

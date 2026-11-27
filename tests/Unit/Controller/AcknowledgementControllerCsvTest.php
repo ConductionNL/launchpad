@@ -14,7 +14,7 @@ namespace Unit\Controller;
 use OCA\LaunchPad\Controller\AcknowledgementController;
 use OCA\LaunchPad\Controller\AcknowledgementTools;
 use OCA\LaunchPad\Service\AcknowledgementService;
-use OCA\LaunchPad\Service\RoleService;
+use OCA\LaunchPad\Service\AnnouncementManagers;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
@@ -48,9 +48,9 @@ class AcknowledgementControllerCsvTest extends TestCase {
 	/**
 	 * The role service double.
 	 *
-	 * @var RoleService&MockObject
+	 * @var AnnouncementManagers&MockObject
 	 */
-	private RoleService $roles;
+	private AnnouncementManagers $roles;
 
 	/**
 	 * The group manager double.
@@ -66,7 +66,7 @@ class AcknowledgementControllerCsvTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		$this->service = $this->createMock(AcknowledgementService::class);
-		$this->roles = $this->createMock(RoleService::class);
+		$this->roles = $this->createMock(originalClassName: AnnouncementManagers::class);
 		$this->groups = $this->createMock(IGroupManager::class);
 	}//end setUp()
 
@@ -80,7 +80,11 @@ class AcknowledgementControllerCsvTest extends TestCase {
 	private function controller(?string $userId = 'alice'): AcknowledgementController {
 		return new AcknowledgementController(
 			request: $this->createMock(IRequest::class),
-			tools: new AcknowledgementTools(acknowledgements: $this->service, roleService: $this->roles, logger: $this->createMock(LoggerInterface::class)),
+			tools: new AcknowledgementTools(
+				acknowledgements: $this->service,
+				managers: $this->roles,
+				logger: $this->createMock(originalClassName: LoggerInterface::class)
+			),
 			groupManager: $this->groups,
 			context: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
@@ -143,13 +147,13 @@ class AcknowledgementControllerCsvTest extends TestCase {
 	}//end testAReportWithoutRowsIsOnlyTheHeader()
 
 	/**
-	 * A user who is neither admin nor owner may not export, and nothing is read.
+	 * A user who is neither admin nor announcements manager may not export, and nothing is read.
 	 *
 	 * @return void
 	 */
 	public function testANonManagerMayNotExport(): void {
 		$this->groups->method('isAdmin')->willReturn(false);
-		$this->roles->expects(self::once())->method('isAdmin')->with('alice')->willReturn(false);
+		$this->roles->expects(self::once())->method('manages')->with('alice')->willReturn(false);
 		$this->service->method('resolveOwnerUserId')->willReturn('bob');
 		$this->service->expects(self::never())->method('report');
 
@@ -157,28 +161,26 @@ class AcknowledgementControllerCsvTest extends TestCase {
 	}//end testANonManagerMayNotExport()
 
 	/**
-	 * A launchpad admin passes the check without the owner being looked up.
+	 * A holder of the announcements setting passes the check without the owner being looked up.
 	 *
 	 * @return void
 	 */
-	public function testALaunchpadAdminIsAManager(): void {
+	public function testAnAnnouncementsManagerIsAManager(): void {
 		$this->groups->method('isAdmin')->willReturn(false);
-		$this->roles->method('isAdmin')->willReturn(true);
+		$this->roles->method('manages')->willReturn(true);
 		$this->service->expects(self::never())->method('resolveOwnerUserId');
 		$this->service->expects(self::once())->method('report')->with('ak-2')->willThrowException(new DoesNotExistException('none'));
 
 		self::assertSame(Http::STATUS_NOT_FOUND, $this->controller()->reportCsv('ak-2')->getStatus());
-	}//end testALaunchpadAdminIsAManager()
+	}//end testAnAnnouncementsManagerIsAManager()
 
 	/**
-	 * The template owner may export; an unknown announcement is a 404.
+	 * For an administrator, an unknown announcement is a 404.
 	 *
 	 * @return void
 	 */
 	public function testAnUnknownAnnouncementIsNotFound(): void {
-		$this->groups->method('isAdmin')->willReturn(false);
-		$this->roles->method('isAdmin')->willReturn(false);
-		$this->service->method('resolveOwnerUserId')->with('ak-9')->willReturn('alice');
+		$this->groups->method('isAdmin')->willReturn(true);
 		$this->service->method('report')->willThrowException(new DoesNotExistException('none'));
 
 		self::assertSame(Http::STATUS_NOT_FOUND, $this->controller()->reportCsv('ak-9')->getStatus());

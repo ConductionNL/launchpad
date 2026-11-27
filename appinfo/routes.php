@@ -334,6 +334,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// REQ-ANN-008: every announcement for the Announcements tab; managers only.
 		['name' => 'announcement#manage', 'url' => '/api/announcements/manage', 'verb' => 'GET'],
 		['name' => 'announcementGroups#index', 'url' => '/api/announcements/groups', 'verb' => 'GET'],
+		// D1: the groups delegated the announcements setting, for the Roles tab; administrators.
+		['name' => 'announcementDelegation#index', 'url' => '/api/announcements/delegation', 'verb' => 'GET'],
 		['name' => 'announcementRead#state', 'url' => '/api/announcements/read-state', 'verb' => 'GET'],
 		// REQ-ANN-009: the announcements that came into view, batched after render.
 		['name' => 'announcementRead#seen', 'url' => '/api/announcements/seen', 'verb' => 'POST'],
@@ -374,7 +376,7 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'announcementRead#confirmVia',
 		 'url' => '/api/announcements/{uuid}/confirm', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
-		['name' => 'announcementReminder#remind',
+		['name' => 'announcementManager#remind',
 		 'url' => '/api/announcements/{uuid}/remind', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
 		['name' => 'announcement#unlike',
@@ -398,6 +400,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'acknowledgement#report',
 		 'url' => '/api/acknowledgements/report/{announcementKey}', 'verb' => 'GET',
 		 'requirements' => ['announcementKey' => '[A-Za-z0-9\-]+']],
+		// REQ-ACK-008: the widgets that ask for confirmation, on the Announcements tab.
+		['name' => 'announcementManager#widgets',
+		 'url' => '/api/acknowledgements/widgets', 'verb' => 'GET'],
 		['name' => 'acknowledgement#pending',
 		 'url' => '/api/acknowledgements/pending', 'verb' => 'GET'],
 		['name' => 'acknowledgement#acknowledge',

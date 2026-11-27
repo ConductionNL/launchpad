@@ -100,16 +100,20 @@
             "description": "List, read, write, publish and follow announcements."
         },
         {
+            "name": "announcement-delegation",
+            "description": "Who holds the announcements setting."
+        },
+        {
             "name": "announcement-groups",
             "description": "The target group picker's list."
         },
         {
-            "name": "announcement-read",
-            "description": "The receipt endpoints of announcements."
+            "name": "announcement-manager",
+            "description": "The announcement managers' reminder and widgets list."
         },
         {
-            "name": "announcement-reminder",
-            "description": "The reminder endpoint of announcements."
+            "name": "announcement-read",
+            "description": "The receipt endpoints of announcements."
         },
         {
             "name": "attention",
@@ -447,8 +451,8 @@
             "get": {
                 "operationId": "acknowledgement-report",
                 "x-launchpad-stability": "internal",
-                "summary": "GET /api/acknowledgements/report/{announcementKey} — the audience-scoped read-receipt report",
-                "description": "GET /api/acknowledgements/report/{announcementKey} — the audience-scoped read-receipt report. Admin / template owner only (REQ-ACK-004). Needs a signed-in Nextcloud user.",
+                "summary": "GET /api/acknowledgements/report/{announcementKey} — the audience-scoped read-receipt report, for holders of the announcements setting (REQ-ACK-004)",
+                "description": "GET /api/acknowledgements/report/{announcementKey} — the audience-scoped read-receipt report, for holders of the announcements setting (REQ-ACK-004). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "acknowledgement"
                 ],
@@ -479,6 +483,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
@@ -494,7 +501,7 @@
                 "operationId": "acknowledgement-report-csv",
                 "x-launchpad-stability": "internal",
                 "summary": "GET /api/acknowledgements/report/{announcementKey}/csv — the report as a downloadable CSV compliance file",
-                "description": "GET /api/acknowledgements/report/{announcementKey}/csv — the report as a downloadable CSV compliance file. Admin / template owner only (REQ-ACK-004 / REQ-ACK-006). Needs a signed-in Nextcloud user.",
+                "description": "GET /api/acknowledgements/report/{announcementKey}/csv — the report as a downloadable CSV compliance file. Admin / template owner only (REQ-ACK-004 / REQ-ACK-006). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "acknowledgement"
                 ],
@@ -526,11 +533,46 @@
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
                     },
                     "500": {
                         "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            }
+        },
+        "/acknowledgements/widgets": {
+            "get": {
+                "operationId": "announcement-manager-widgets",
+                "x-launchpad-stability": "internal",
+                "summary": "Every widget that asks for confirmation, with its dashboard, counts and deadline",
+                "description": "Every widget that asks for confirmation, with its dashboard, counts and deadline. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "announcement-manager"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
                     }
                 }
             }
@@ -5163,6 +5205,38 @@
                 }
             }
         },
+        "/announcements/delegation": {
+            "get": {
+                "operationId": "announcement-delegation-index",
+                "x-launchpad-stability": "internal",
+                "summary": "The delegated groups, and whether delegation can be read here",
+                "description": "The delegated groups, and whether delegation can be read here. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "announcement-delegation"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/announcements/follows": {
             "post": {
                 "operationId": "announcement-follow",
@@ -6065,12 +6139,12 @@
         },
         "/announcements/{uuid}/remind": {
             "post": {
-                "operationId": "announcement-reminder-remind",
+                "operationId": "announcement-manager-remind",
                 "x-launchpad-stability": "internal",
                 "summary": "Send reminder to everyone in the audience who has not confirmed",
                 "description": "Send reminder to everyone in the audience who has not confirmed. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
-                    "announcement-reminder"
+                    "announcement-manager"
                 ],
                 "parameters": [
                     {

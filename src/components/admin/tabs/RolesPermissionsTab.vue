@@ -13,11 +13,14 @@
 		<RoleLayoutDefaultsSection data-testid="admin-layout-defaults-section" />
 		<div class="roles-permissions-tab__spacer" />
 		<ActionAuthMatrix />
+		<div class="roles-permissions-tab__spacer" />
+		<AnnouncementManagersRow />
 	</div>
 </template>
 
 <script>
 import ActionAuthMatrix from '../ActionAuthMatrix.vue'
+import AnnouncementManagersRow from '../AnnouncementManagersRow.vue'
 import RoleLayoutDefaultsSection from '../RoleLayoutDefaultsSection.vue'
 import RolePermissionsSection from '../RolePermissionsSection.vue'
 
@@ -26,6 +29,10 @@ import RolePermissionsSection from '../RolePermissionsSection.vue'
  * Hosts the relocated `RolePermissionsSection`, the role-based layout
  * defaults, and the ADR-023 action-authorization matrix. These were three
  * of the eleven flat sections inside the old monolithic `AdminSettings.vue`.
+ * Below them the read-only "Manage announcements" row: the groups delegated
+ * the announcements setting (announcements-managed-in-settings D1).
+ *
+ * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
  */
 export default {
 	name: 'RolesPermissionsTab',
@@ -34,6 +41,7 @@ export default {
 		RolePermissionsSection,
 		RoleLayoutDefaultsSection,
 		ActionAuthMatrix,
+		AnnouncementManagersRow,
 	},
 }
 </script>

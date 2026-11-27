@@ -298,7 +298,7 @@ export default {
 .launchpad-admin__matrix td {
 	border: 1px solid var(--color-border);
 	padding: 6px 10px;
-	text-align: left;
+	text-align: start;
 }
 
 .launchpad-admin__matrix-group {

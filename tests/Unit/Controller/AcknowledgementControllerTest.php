@@ -25,7 +25,7 @@ use OCA\LaunchPad\Controller\AcknowledgementTools;
 use OCA\LaunchPad\Controller\AcknowledgementController;
 use OCA\LaunchPad\Db\Acknowledgement;
 use OCA\LaunchPad\Service\AcknowledgementService;
-use OCA\LaunchPad\Service\RoleService;
+use OCA\LaunchPad\Service\AnnouncementManagers;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -59,7 +59,7 @@ class AcknowledgementControllerTest extends TestCase {
 	 *
 	 * @var RoleService&MockObject
 	 */
-	private RoleService&MockObject $roleService;
+	private AnnouncementManagers&MockObject $roleService;
 
 	/**
 	 * Group manager double.
@@ -83,7 +83,7 @@ class AcknowledgementControllerTest extends TestCase {
 	protected function setUp(): void {
 		$this->request = $this->createMock(originalClassName: IRequest::class);
 		$this->service = $this->createMock(originalClassName: AcknowledgementService::class);
-		$this->roleService = $this->createMock(originalClassName: RoleService::class);
+		$this->roleService = $this->createMock(originalClassName: AnnouncementManagers::class);
 		$this->groupManager = $this->createMock(originalClassName: IGroupManager::class);
 		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
 	}
@@ -100,7 +100,7 @@ class AcknowledgementControllerTest extends TestCase {
 			request: $this->request,
 			tools: new AcknowledgementTools(
 				acknowledgements: $this->service,
-				roleService: $this->roleService,
+				managers: $this->roleService,
 				logger: $this->logger
 			),
 			groupManager: $this->groupManager,
@@ -343,7 +343,7 @@ class AcknowledgementControllerTest extends TestCase {
 	 */
 	public function testReportRejectsNonOwner(): void {
 		$this->groupManager->method('isAdmin')->willReturn(false);
-		$this->roleService->method('isAdmin')->willReturn(false);
+		$this->roleService->method('manages')->willReturn(false);
 		// Owner resolves to someone else.
 		$this->service->method('resolveOwnerUserId')->willReturn('carol');
 		$this->service->expects($this->never())->method('report');
@@ -357,14 +357,19 @@ class AcknowledgementControllerTest extends TestCase {
 	}
 
 	/**
-	 * REQ-ACK-004: the template owner may read the report.
+	 * REQ-ACK-004: the template owner without the announcements setting is
+	 * refused; a holder of the setting reads the report.
 	 *
 	 * @return void
 	 */
-	public function testReportAllowsOwner(): void {
+	public function testReportAllowsAnAnnouncementsManagerNotTheOwner(): void {
 		$this->groupManager->method('isAdmin')->willReturn(false);
-		$this->roleService->method('isAdmin')->willReturn(false);
+		$this->roleService->method('manages')->willReturnOnConsecutiveCalls(false, true);
 		$this->service->method('resolveOwnerUserId')->willReturn('alice');
+		$this->assertSame(
+			expected: Http::STATUS_FORBIDDEN,
+			actual: $this->makeController()->report(announcementKey: 'ak-1')->getStatus()
+		);
 		$this->service->expects($this->once())
 			->method('report')
 			->with('ak-1')
@@ -386,7 +391,7 @@ class AcknowledgementControllerTest extends TestCase {
 			expected: Http::STATUS_OK,
 			actual: $response->getStatus()
 		);
-	}
+	}//end testReportAllowsAnAnnouncementsManagerNotTheOwner()
 
 	/**
 	 * REQ-ACK-010: the report rows carry the person's name and department.
@@ -404,7 +409,7 @@ class AcknowledgementControllerTest extends TestCase {
 			->willReturn(['rows' => [['userId' => 'sanne', 'displayName' => 'Sanne de Vries', 'department' => 'KCC']], 'departmentLabel' => 'Afdeling']);
 		$controller = new AcknowledgementController(
 			request: $this->request,
-			tools: new AcknowledgementTools(acknowledgements: $this->service, roleService: $this->roleService, logger: $this->logger, people: $people),
+			tools: new AcknowledgementTools(acknowledgements: $this->service, managers: $this->roleService, logger: $this->logger, people: $people),
 			groupManager: $this->groupManager,
 			context: new UserResponses(userId: 'alice', responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
@@ -446,7 +451,7 @@ class AcknowledgementControllerTest extends TestCase {
 	 */
 	public function testReportCsvRejectsNonManager(): void {
 		$this->groupManager->method('isAdmin')->willReturn(false);
-		$this->roleService->method('isAdmin')->willReturn(false);
+		$this->roleService->method('manages')->willReturn(false);
 		$this->service->method('resolveOwnerUserId')->willReturn('carol');
 		$this->service->expects($this->never())->method('report');
 

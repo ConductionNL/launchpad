@@ -40,6 +40,16 @@ use OCP\IDBConnection;
  */
 class WidgetPlacementMapper extends QBMapper {
 	use ColumnMatchQueries;
+
+	/**
+	 * findAcknowledged(): the placements that carry an announcement key.
+	 */
+	public const KEYED = 'keyed';
+
+	/**
+	 * findAcknowledged(): the placements without an announcement key yet.
+	 */
+	public const UNKEYED = 'unkeyed';
 	use OrphanRowQueries;
 
 	/**
@@ -117,15 +127,28 @@ class WidgetPlacementMapper extends QBMapper {
 	}//end ensureAnnouncementKey()
 
 	/**
-	 * Every placement that asks for confirmation but has no announcement key
-	 * yet: rows written before keys were given on every save (REQ-ACK-009).
+	 * Every placement that asks for confirmation: KEYED, oldest first, those
+	 * with an announcement key, the "Widgets that ask for confirmation" list
+	 * of the Announcements tab (REQ-ACK-008); UNKEYED those without one yet,
+	 * rows written before keys were given on every save (REQ-ACK-009).
+	 *
+	 * @param string $which self::KEYED or self::UNKEYED.
 	 *
 	 * @return WidgetPlacement[]
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
 	 */
-	public function findAcknowledgedWithoutKey(): array {
+	public function findAcknowledged(string $which): array {
 		$qb = $this->selectWhere(match: ['requires_acknowledgement' => 1]);
+		if ($which === self::KEYED) {
+			$qb->andWhere($qb->expr()->isNotNull(x: 'announcement_key'))
+				->andWhere($qb->expr()->neq(x: 'announcement_key', y: $qb->createNamedParameter(value: '')))
+				->orderBy(sort: 'id', order: 'ASC');
+
+			return $this->findEntities(query: $qb);
+		}
+
 		$qb->andWhere(
 			$qb->expr()->orX(
 				$qb->expr()->isNull(x: 'announcement_key'),
@@ -134,7 +157,7 @@ class WidgetPlacementMapper extends QBMapper {
 		);
 
 		return $this->findEntities(query: $qb);
-	}//end findAcknowledgedWithoutKey()
+	}//end findAcknowledged()
 
 	/**
 	 * Find placement by ID.

@@ -77,3 +77,18 @@ export async function openSettingsGroup(page: Page): Promise<void> {
 	}
 	await expect(toggle).toHaveAttribute('aria-expanded', 'true')
 }
+
+/**
+ * Download the open dashboard through More → Download (This dashboard): the
+ * page header has no Download button of its own any more (REVIEW-LAUNCHPAD
+ * item 8, REQ-SHELL-018).
+ *
+ * @param page The page, on a dashboard.
+ * @return Resolves once Download was chosen.
+ */
+export async function downloadFromMore(page: Page): Promise<void> {
+	const more = page.locator(MORE_MENU)
+	await expect(more).toBeVisible({ timeout: 30_000 })
+	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	await page.locator('[data-testid="launchpad-more-menu-item-download"]').click()
+}

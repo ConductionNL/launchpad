@@ -218,6 +218,7 @@ test('This dashboard ends in Delete', async ({ page }) => {
 		'Add widget',
 		'Sharing',
 		'Copy link to this dashboard',
+		'Download',
 		'Duplicate as new dashboard',
 		'Set as default',
 		'Delete',

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Spara först dina ändringar för att välja vem som ser den nya widgeten.",
     "No changes" : "Inga ändringar",
     "Keep editing" : "Fortsätt redigera",
     "Save changes?" : "Spara ändringar?",

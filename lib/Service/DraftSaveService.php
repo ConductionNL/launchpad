@@ -135,7 +135,8 @@ class DraftSaveService {
 	 *
 	 * @param DashboardDraft $draft The draft.
 	 *
-	 * @return array{add: list<array<string, mixed>>, change: array<int, array<string, mixed>>, remove: list<int>}
+	 * @return array{add: list<array<string, mixed>>, change: array<int, array<string, mixed>>, remove: list<int>,
+	 *                rules: array<int, list<array<string, mixed>>>}
 	 *
 	 * @throws InvalidArgumentException When the draft is malformed or names a widget of another dashboard.
 	 *
@@ -166,9 +167,42 @@ class DraftSaveService {
 
 		$plan['change'] = array_filter($plan['change'], static fn (array $changes): bool => $changes !== []);
 		$plan['remove'] = array_values(array_diff(array_keys($stored), array_keys($kept)));
+		$plan['rules']  = $this->rulesPlan(placements: $draft->placements);
 
 		return $plan;
 	}//end plan()
+
+	/**
+	 * The visibility rules the draft replaces, by placement id (REQ-EDIT-001:
+	 * the rules dialog changes the draft only). A widget the draft adds gets
+	 * its rules once it is saved, as with the rule routes.
+	 *
+	 * @param list<array<string, mixed>> $placements The draft's placements.
+	 *
+	 * @return array<int, list<array<string, mixed>>>
+	 *
+	 * @throws InvalidArgumentException When a rule is malformed or names a new widget.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 */
+	private function rulesPlan(array $placements): array {
+		$rules = [];
+		foreach ($placements as $item) {
+			$list = $this->guard->rules->fromItem(item: (array)$item);
+			if ($list === null) {
+				continue;
+			}
+
+			$id = self::draftId(item: $item);
+			if ($id === null) {
+				throw new InvalidArgumentException(message: 'rules can be set once the widget is saved');
+			}
+
+			$rules[$id] = $list;
+		}
+
+		return $rules;
+	}//end rulesPlan()
 
 	/**
 	 * The stored id a draft placement names, or null for a new one.
@@ -281,6 +315,10 @@ class DraftSaveService {
 		}
 
 		$this->applyChanges(changes: $plan['change']);
+
+		foreach ($plan['rules'] ?? [] as $placementId => $rules) {
+			$this->guard->rules->replace(placementId: (int)$placementId, rules: $rules);
+		}
 
 		// Added last, so a new widget finds its spot in the layout as moved
 		// and with the removed widgets gone.

@@ -24,6 +24,8 @@ use OCA\LaunchPad\Exception\StalePlacementException;
 use OCA\LaunchPad\Service\DashboardDraft;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardVersionService;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
+use OCA\LaunchPad\Service\DraftRules;
 use OCA\LaunchPad\Service\DraftSaveGuard;
 use OCA\LaunchPad\Service\DraftSaveService;
 use OCA\LaunchPad\Service\PermissionService;
@@ -56,6 +58,13 @@ class DraftSaveServiceTest extends TestCase {
 	private array $writes = [];
 
 	/**
+	 * The visibility rules.
+	 *
+	 * @var ConditionalServiceInterface&MockObject
+	 */
+	private ConditionalServiceInterface&MockObject $rules;
+
+	/**
 	 * Mocks: two stored widgets (1 at the top, 2 below), everything allowed,
 	 * the version service running the save it wraps.
 	 *
@@ -67,6 +76,7 @@ class DraftSaveServiceTest extends TestCase {
 		$this->roleWidgets = $this->createMock(originalClassName: RoleFeaturePermissionService::class);
 		$this->dashboards  = $this->createMock(originalClassName: DashboardService::class);
 		$this->versions    = $this->createMock(originalClassName: DashboardVersionService::class);
+		$this->rules       = $this->createMock(originalClassName: ConditionalServiceInterface::class);
 
 		$this->widgets->method('getDashboardPlacements')->willReturn([
 			$this->placement(id: 1, gridY: 0),
@@ -141,7 +151,8 @@ class DraftSaveServiceTest extends TestCase {
 			guard: new DraftSaveGuard(
 				permissions: $this->permissions,
 				roleWidgets: $this->roleWidgets,
-				placements: $this->createMock(originalClassName: WidgetPlacementService::class)
+				placements: $this->createMock(originalClassName: WidgetPlacementService::class),
+				rules: new DraftRules(rules: $this->rules, permissions: $this->permissions)
 			),
 			dashboards: $this->dashboards,
 			versions: $this->versions
@@ -169,8 +180,70 @@ class DraftSaveServiceTest extends TestCase {
 			['id' => 1, 'gridY' => 0, 'version' => 3],
 			['id' => 2, 'gridY' => 4],
 		]));
-		$this->assertSame(expected: ['add' => [], 'change' => [], 'remove' => []], actual: $unchanged);
+		$this->assertSame(expected: ['add' => [], 'change' => [], 'remove' => [], 'rules' => []], actual: $unchanged);
 	}//end testThePlanSortsTheDraft()
+
+	/**
+	 * The rules dialog changes the draft only: Save replaces the widget's
+	 * rules inside the version's save, after the placement changes.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 *
+	 * @return void
+	 */
+	public function testSaveReplacesTheRulesTheDraftChanged(): void {
+		$stored = new \OCA\LaunchPad\Db\ConditionalRule();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$stored->setId(40);
+		$this->rules->method('getRules')->with(1)->willReturn([$stored]);
+		$this->rules->method('deleteRule')->willReturnCallback(function (int $ruleId): void {
+			$this->writes[] = 'delete rule '.$ruleId;
+		});
+		$this->rules->method('addRule')->willReturnCallback(
+			function (int $placementId, string $ruleType, array $ruleConfig, bool $isInclude): \OCA\LaunchPad\Db\ConditionalRule {
+				$this->writes[] = 'add rule '.$placementId.' '.$ruleType.' '.json_encode(value: $ruleConfig).' '.var_export(value: $isInclude, return: true);
+				return new \OCA\LaunchPad\Db\ConditionalRule();
+			}
+		);
+		$this->permissions->expects($this->once())->method('verifyPlacementOwnership')->with('alice', 1);
+
+		$this->service()->save(draft: $this->draft(placements: [
+			['id' => 1, 'rules' => [['ruleType' => 'group', 'ruleConfig' => ['groups' => ['hr']], 'isInclude' => false]]],
+			['id' => 2],
+		]));
+
+		$this->assertSame(expected: ['dashboard []', 'delete rule 40', "add rule 1 group {\"groups\":[\"hr\"]} false"], actual: $this->writes);
+	}//end testSaveReplacesTheRulesTheDraftChanged()
+
+	/**
+	 * Someone who does not own the dashboard may not change who sees a
+	 * widget; malformed rules and rules on a new widget are refused; nothing
+	 * is stored.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 *
+	 * @return void
+	 */
+	public function testRefusedRulesStoreNothing(): void {
+		$this->versions->expects($this->never())->method('saveWithVersion');
+		$this->permissions->method('verifyPlacementOwnership')->willThrowException(new ForbiddenException(message: 'no'));
+		$rule = ['ruleType' => 'group', 'ruleConfig' => []];
+		$refusals = [
+			[[['id' => 1, 'rules' => [$rule]], ['id' => 2]], ForbiddenException::class],
+			[[['id' => 1, 'rules' => [['ruleType' => 'weather', 'ruleConfig' => []]]], ['id' => 2]], InvalidArgumentException::class],
+			[[['id' => 1, 'rules' => [['ruleType' => 'group']]], ['id' => 2]], InvalidArgumentException::class],
+			[[['id' => 1, 'rules' => 'all']], InvalidArgumentException::class],
+			[[['id' => 1], ['id' => 2], ['widgetId' => 'text', 'rules' => [$rule]]], InvalidArgumentException::class],
+		];
+		foreach ($refusals as [$placements, $expected]) {
+			try {
+				$this->service()->save(draft: $this->draft(placements: $placements));
+				$this->fail(message: 'The draft was saved');
+			} catch (\Exception $e) {
+				$this->assertInstanceOf(expected: $expected, actual: $e);
+			}
+		}
+	}//end testRefusedRulesStoreNothing()
 
 	/**
 	 * Save writes the columns, then removals, changes and additions, inside

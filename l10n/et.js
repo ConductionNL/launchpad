@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Salvestage esmalt muudatused, et valida, kes seda uut vidinat näeb.",
     "No changes" : "Muudatusi pole",
     "Keep editing" : "Jätka muutmist",
     "Save changes?" : "Kas salvestada muudatused?",

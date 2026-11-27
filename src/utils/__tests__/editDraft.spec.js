@@ -13,9 +13,11 @@ import {
 	clonePlacements,
 	draftChanges,
 	draftRequestBody,
+	draftRulesCount,
 	isDraftPlacement,
 	newDraftId,
 	placementChanges,
+	withDraftRules,
 } from '../editDraft.js'
 
 const stored = {
@@ -74,5 +76,25 @@ describe('editDraft', () => {
 				{ widgetId: 'weather', gridX: 0, gridY: 8, gridWidth: 4, gridHeight: 3, customTitle: 'Weer' },
 			],
 		})
+	})
+})
+
+// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+describe('editDraft — visibility rules in the draft', () => {
+	it('counts the widgets whose rules the draft changed, not removed ones', () => {
+		const draft = { rules: { 1: [], 2: [{ ruleType: 'group' }], 9: [] } }
+		expect(draftRulesCount(draft, [{ id: 1 }, { id: 2 }])).toBe(2)
+		expect(draftRulesCount({}, [{ id: 1 }])).toBe(0)
+	})
+
+	it('puts each changed widget\'s rules on its placement in the Save body', () => {
+		const body = { draft: true, gridColumns: 12, placements: [{ id: 1 }, { id: 2, gridY: 3 }, { widgetId: 'text' }] }
+		const draft = { rules: { 2: [{ id: 5, ruleType: 'group', ruleConfig: { groups: ['hr'] }, isInclude: false, _inDraft: true }] } }
+		expect(withDraftRules(body, draft).placements).toEqual([
+			{ id: 1 },
+			{ id: 2, gridY: 3, rules: [{ ruleType: 'group', ruleConfig: { groups: ['hr'] }, isInclude: false }] },
+			{ widgetId: 'text' },
+		])
+		expect(withDraftRules(body, {}).placements).toEqual(body.placements)
 	})
 })

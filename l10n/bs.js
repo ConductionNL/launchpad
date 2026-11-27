@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Prvo sačuvajte promjene da biste odabrali ko vidi ovaj novi widget.",
     "No changes" : "Nema promjena",
     "Keep editing" : "Nastavi uređivanje",
     "Save changes?" : "Sačuvati promjene?",

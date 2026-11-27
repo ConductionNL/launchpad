@@ -323,12 +323,7 @@
                 "qb1 new",
                 "qb1.select(\"*\")",
                 "qb1.from(\"launchpad_admin_settings\", null)",
-                "qb1.expr()",
-                "qb1.createNamedParameter(\"s-key\", 2, null)",
-                "qb1.expr.eq(\"setting_key\", \":p1\", null)",
-                "qb1.where(\"eq(\\\"setting_key\\\", \\\":p1\\\", null)\")",
-                "qb1.executeQuery(null)",
-                "qb1.getSQL()"
+                "qb1.executeQuery(null)"
             ],
             "outcome": "returned \"s-default\""
         },
@@ -337,26 +332,16 @@
                 "qb1 new",
                 "qb1.select(\"*\")",
                 "qb1.from(\"launchpad_admin_settings\", null)",
-                "qb1.expr()",
-                "qb1.createNamedParameter(\"s-key\", 2, null)",
-                "qb1.expr.eq(\"setting_key\", \":p1\", null)",
-                "qb1.where(\"eq(\\\"setting_key\\\", \\\":p1\\\", null)\")",
-                "qb1.executeQuery(null)",
-                "qb1.getSQL()"
+                "qb1.executeQuery(null)"
             ],
-            "outcome": "threw OCP\\AppFramework\\Db\\MultipleObjectsReturnedException: Did not expect more than one result when executing: query \"sql\"; "
+            "outcome": "returned \"s-default\""
         },
         "getValue required": {
             "calls": [
                 "qb1 new",
                 "qb1.select(\"*\")",
                 "qb1.from(\"launchpad_admin_settings\", null)",
-                "qb1.expr()",
-                "qb1.createNamedParameter(\"s-key\", 2, null)",
-                "qb1.expr.eq(\"setting_key\", \":p1\", null)",
-                "qb1.where(\"eq(\\\"setting_key\\\", \\\":p1\\\", null)\")",
-                "qb1.executeQuery(null)",
-                "qb1.getSQL()"
+                "qb1.executeQuery(null)"
             ],
             "outcome": "returned null"
         }

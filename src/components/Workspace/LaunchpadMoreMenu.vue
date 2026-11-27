@@ -590,17 +590,20 @@ export default {
 }
 
 .lp-more-menu__item--destructive:not(#lp-more-menu-a):not(#lp-more-menu-b) {
+	margin-top: 4px !important;
 	border-top: 1px solid var(--color-border) !important;
 	color: var(--color-error-text, var(--color-error)) !important;
 }
 
 .lp-more-menu__settings:not(#lp-more-menu-a):not(#lp-more-menu-b) {
 	min-height: 38px !important;
+	margin-top: 6px !important;
 	padding-top: 6px !important;
 	border-top: 1px solid var(--color-border) !important;
 }
 
 .lp-more-menu__column > .lp-more-menu__settings:first-child:not(#lp-more-menu-a):not(#lp-more-menu-b) {
+	margin-top: 0 !important;
 	padding-top: 0 !important;
 	border-top: none !important;
 }
@@ -746,8 +749,12 @@ export default {
 
 /* The theme that tints every button (see the items above) also tinted the
    star and recoloured it; the raised selector keeps it a plain icon button. */
-.lp-more-menu__star:not(#lp-more-menu-a):not(#lp-more-menu-b) {
+/* Nextcloud's button margin (3px above and below) also stretched every
+   dashboard row to 40px through its star; the rows are 34px apart. */
+.lp-more-menu__star:not(#lp-more-menu-a):not(#lp-more-menu-b),
+.lp-more-menu__tree:not(#lp-more-menu-a):not(#lp-more-menu-b) {
 	min-height: 32px !important;
+	margin: 0 !important;
 	padding: 0 !important;
 	border: none !important;
 	background: transparent !important;
@@ -784,10 +791,11 @@ export default {
 	}
 
 	/* Stacked, Settings follows the Dashboards group and keeps its rule. */
-	.lp-more-menu__column + .lp-more-menu__column > .lp-more-menu__settings:first-child {
-		margin-top: 6px;
-		padding-top: 6px;
-		border-top: 1px solid var(--color-border);
+	.lp-more-menu__column + .lp-more-menu__column > .lp-more-menu__settings:first-child,
+	.lp-more-menu__column + .lp-more-menu__column > .lp-more-menu__settings:first-child:not(#lp-more-menu-a):not(#lp-more-menu-b):not(#lp-more-menu-c) {
+		margin-top: 6px !important;
+		padding-top: 6px !important;
+		border-top: 1px solid var(--color-border) !important;
 	}
 }
 

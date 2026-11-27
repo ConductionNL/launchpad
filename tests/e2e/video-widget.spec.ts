@@ -52,7 +52,7 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, test } from '@playwright/test'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
-import { enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
+import { enterEditMode, MORE_MENU, saveEditDraft } from './support/dashboardSwitcher.ts'
 import { adminContext } from './support/principals.ts'
 import {
 	addVideoByUrl,
@@ -244,7 +244,7 @@ test.describe('video widget: storing a configuration (REQ-VID-002, REQ-VID-010)'
 	})
 
 	// @e2e video-widget::placement-update-modifies-video-config
-	test('editing a placement sends PUT /api/widgets/{id}, stores the new config and renders it', async ({ page }) => {
+	test('editing a placement and saving the dashboard stores the new config and renders it', async ({ page }) => {
 		const id = await seed({ sourceType: 'youtube', videoUrl: YT_EMBED, ...DEFAULTS, posterUrl: '' })
 		await openWorkspace(page)
 		await enterEditMode(page)
@@ -255,11 +255,10 @@ test.describe('video widget: storing a configuration (REQ-VID-002, REQ-VID-010)'
 		await url.fill('https://vimeo.com/76979871')
 		await expect(dialog.getByText('Detected: Vimeo', { exact: true })).toBeVisible()
 
-		const put = page.waitForRequest((r) =>
-			r.method() === 'PUT' && new URL(r.url()).pathname.endsWith(`/api/widgets/${id}`))
 		await dialog.locator('[data-testid="add-widget-save"]').click()
-		await put
 		await expect(dialog).not.toBeVisible({ timeout: 10_000 })
+		// The edit lands in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 
 		const stored = await storedContent(api, dashboard!.id, id)
 		expect(stored).toMatchObject({ sourceType: 'vimeo', videoUrl: 'https://player.vimeo.com/video/76979871' })

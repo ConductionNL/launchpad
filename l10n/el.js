@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Αποθηκεύστε πρώτα τις αλλαγές σας για να επιλέξετε ποιος βλέπει αυτό το νέο γραφικό στοιχείο.",
     "No changes" : "Καμία αλλαγή",
     "Keep editing" : "Συνέχεια επεξεργασίας",
     "Save changes?" : "Αποθήκευση αλλαγών;",

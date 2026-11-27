@@ -31,6 +31,7 @@ vi.mock('../../services/api.js', () => ({
 		addTile: vi.fn(),
 		removeWidget: vi.fn(),
 		updateWidgetPlacement: vi.fn(),
+		importBookmarks: vi.fn(),
 	},
 }))
 
@@ -138,5 +139,73 @@ describe('dashboard store — edit-mode draft', () => {
 		api.updateGroupDashboard.mockResolvedValue({})
 		await store.setGridColumns(8)
 		expect(api.updateGroupDashboard).toHaveBeenCalledTimes(1)
+	})
+})
+
+// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+describe('dashboard store — visibility rules in the draft', () => {
+	beforeEach(() => {
+		setActivePinia(createPinia())
+		vi.clearAllMocks()
+	})
+
+	it('counts a widget whose rules changed and sends its rules with Save', async () => {
+		const store = storeOn()
+		store.beginDraft()
+		store.setDraftRules(1, [{ id: null, ruleType: 'group', ruleConfig: { groups: ['hr'] }, isInclude: true }])
+		expect(store.draftChangeCount).toBe(1)
+		expect(store.isDraftDirty).toBe(true)
+
+		api.updateDashboard.mockResolvedValue({ data: { data: { placements: store.widgetPlacements } } })
+		await store.saveDraft()
+		const body = api.updateDashboard.mock.calls[0][1]
+		expect(body.placements.find((p) => p.id === 1).rules).toEqual([{ ruleType: 'group', ruleConfig: { groups: ['hr'] }, isInclude: true }])
+		expect(body.placements.find((p) => p.id === 2).rules).toBeUndefined()
+		expect(store.draft).toBeNull()
+	})
+
+	it('keeps no rules outside a draft', () => {
+		const store = storeOn()
+		store.setDraftRules(1, [])
+		expect(store.draft).toBeNull()
+		expect(store.draftChangeCount).toBe(0)
+	})
+})
+
+// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+describe('dashboard store — bookmark import in the draft', () => {
+	beforeEach(() => {
+		setActivePinia(createPinia())
+		vi.clearAllMocks()
+	})
+
+	it('asks only for the layout below the draft and adds it to the draft', async () => {
+		const store = storeOn()
+		store.beginDraft()
+		api.importBookmarks.mockResolvedValue({ data: {
+			placements: [
+				{ widgetId: 'container', gridX: 0, gridY: 2, gridWidth: 4, gridHeight: 3, content: { title: 'Werk', placements: [] } },
+				{ widgetId: 'tile', gridX: 0, gridY: 5, gridWidth: 2, gridHeight: 2, tileTitle: 'Mail', tileLinkType: 'url', tileLinkValue: 'https://mail.example' },
+			],
+			skipped: [{ title: 'Run' }],
+		} })
+
+		const result = await store.importBookmarks({ folders: [], bookmarks: [] })
+
+		expect(api.importBookmarks).toHaveBeenCalledWith(7, { folders: [], bookmarks: [], draft: true, bottom: 2 })
+		expect(result.placements.map((p) => p.id)).toEqual([expect.stringMatching(/^draft-/), expect.stringMatching(/^draft-/)])
+		expect(result.skipped).toEqual([{ title: 'Run' }])
+		expect(store.widgetPlacements).toHaveLength(4)
+		expect(store.draftChangeCount).toBe(2)
+	})
+
+	it('creates at once without a draft', async () => {
+		const store = storeOn('group')
+		api.importBookmarks.mockResolvedValue({ data: { placements: [{ id: 30, widgetId: 'container' }], skipped: [] } })
+
+		await store.importBookmarks({ folders: [], bookmarks: [] })
+
+		expect(api.importBookmarks).toHaveBeenCalledWith(7, { folders: [], bookmarks: [] })
+		expect(store.widgetPlacements.map((p) => p.id)).toEqual([1, 2, 30])
 	})
 })

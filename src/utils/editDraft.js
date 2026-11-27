@@ -184,3 +184,37 @@ export function draftRequestBody(stored, draft) {
 	})
 	return { draft: true, gridColumns: Number(draft.columns), placements }
 }
+
+/**
+ * REQ-EDIT-001: how many widgets' visibility rules the draft changed: the
+ * rules dialog writes the draft's `rules` (by placement id); a widget the
+ * draft removed no longer counts.
+ *
+ * @param {{rules?: object}} draft The draft.
+ * @param {Array<object>} placements The draft's placements.
+ * @return {number}
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ */
+export function draftRulesCount(draft, placements) {
+	const ids = new Set((placements ?? []).map((placement) => String(placement.id)))
+	return Object.keys(draft?.rules ?? {}).filter((id) => ids.has(id)).length
+}
+
+/**
+ * REQ-EDIT-002: the Save body with each widget's changed visibility rules
+ * (type, configuration, include or exclude) on its placement.
+ *
+ * @param {{placements: Array<object>}} body The body `draftRequestBody` made.
+ * @param {{rules?: object}} draft The draft.
+ * @return {object}
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ */
+export function withDraftRules(body, draft) {
+	const rules = draft?.rules ?? {}
+	return {
+		...body,
+		placements: body.placements.map((item) => (item.id !== undefined && rules[String(item.id)]
+			? { ...item, rules: rules[String(item.id)].map(({ ruleType, ruleConfig, isInclude }) => ({ ruleType, ruleConfig, isInclude: isInclude !== false })) }
+			: item)),
+	}
+}

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Save your changes first to choose who sees this new widget.",
     "Good morning, {name}" : "Good morning, {name}",
     "Good morning" : "Good morning",
     "Good afternoon, {name}" : "Good afternoon, {name}",

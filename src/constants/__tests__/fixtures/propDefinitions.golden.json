@@ -490,6 +490,12 @@
 		"validator": false,
 		"default": "any"
 	},
+	"../../components/Widgets/ConditionalVisibilityEditor.vue | draft": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/Widgets/Renderers/ActivityReportWidget.vue | preview": {
 		"type": "Boolean",
 		"required": false,
@@ -2667,6 +2673,12 @@
 		"required": false,
 		"validator": false,
 		"default": "any"
+	},
+	"../../modals/VisibilityRulesModal.vue | draft": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../modals/WidgetMovePanel.vue | open": {
 		"type": "Boolean",

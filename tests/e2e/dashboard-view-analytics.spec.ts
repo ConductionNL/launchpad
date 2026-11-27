@@ -1209,6 +1209,10 @@ test.describe.serial('the Tiles report in administration (REQ-TILEUI-001/002)', 
 	 * @return nothing.
 	 */
 	async function openTiles(page: Page, period: string): Promise<void> {
+		// The admin page address ends in a fragment (REQ-ADM-036): a second
+		// goto to it from the same page only changes the fragment and loads
+		// nothing, so leave the page first to read the setting again.
+		await page.goto('about:blank')
 		await page.goto(ADMIN_PAGE)
 		const select = page.locator('#launchpad-analytics-period')
 		await expect(select).toBeVisible({ timeout: 30_000 })

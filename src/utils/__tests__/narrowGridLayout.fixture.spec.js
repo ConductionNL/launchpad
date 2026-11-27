@@ -5,11 +5,15 @@
  * The grid's column-change layout against the fixture the server's twin
  * (lib/Service/FirstPaintLayout.php) is tested on too, so the first-paint
  * shell lays out exactly what the grid lays out after the hand-over
- * (first-paint-skeleton D3).
+ * (first-paint-skeleton D3). The layout runs through GridStack's own engine
+ * with the dashboard's column-change callback, so the fixture holds what the
+ * grid really draws, including its collision push and top-gravity pack after
+ * a move-and-scale.
  *
  * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
  */
 
+import { GridStackEngine } from 'gridstack/dist/gridstack-engine.js'
 import { describe, expect, it } from 'vitest'
 import fixture from '../../../tests/fixtures/first-paint-layouts.json'
 import { DASHBOARD_BREAKPOINTS, dashboardColumnLayout } from '../narrowGridLayout.js'
@@ -34,7 +38,10 @@ function columnCounts(columns) {
 }
 
 /**
- * Where every node goes at one column count, keyed by id, with the defaults filled in.
+ * Where every node goes at one column count, keyed by id, with the defaults
+ * filled in: the grid takes the stored nodes in at the dashboard's columns
+ * (row order, then packed), then changes to `to` columns with
+ * dashboardColumnLayout as CnDashboardGrid's columnOpts do.
  *
  * @param {Array<object>} stored The stored nodes.
  * @param {number} from The dashboard's column count.
@@ -42,13 +49,19 @@ function columnCounts(columns) {
  * @return {object}
  */
 function layoutFor(stored, from, to) {
-	let placed = stored.map((node) => ({ ...node }))
-	if (to !== from) {
-		const out = []
-		dashboardColumnLayout(to, from, out, placed)
-		placed = out
+	const engine = new GridStackEngine({ column: from, mode: 'top' })
+	const nodes = stored
+		.map((node) => ({ x: 0, y: 0, w: 1, h: 1, ...node }))
+		.sort((a, b) => (a.y - b.y) || (a.x - b.x))
+	engine.batchUpdate()
+	for (const node of nodes) {
+		engine.addNode(node)
 	}
-	return Object.fromEntries(placed.map((node) => [node.id, { x: node.x ?? 0, y: node.y ?? 0, w: node.w ?? 1, h: node.h ?? 1 }]))
+	engine.batchUpdate(false)
+	if (to !== from) {
+		engine.columnChanged(from, to, dashboardColumnLayout)
+	}
+	return Object.fromEntries(engine.nodes.map((node) => [node.id, { x: node.x, y: node.y, w: node.w, h: node.h }]))
 }
 
 describe('narrowGridLayout against the first-paint fixture', () => {

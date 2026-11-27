@@ -29,7 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Repair;
 
-use DateTime;
+use DateTimeImmutable;
 use OCA\LaunchPad\Db\RoleFeaturePermission;
 use OCA\LaunchPad\Db\RoleFeaturePermissionMapper;
 use OCP\Migration\IOutput;
@@ -129,7 +129,7 @@ class GrantTabsWhereWellsAreAllowed implements IRepairStep {
 			$allowed[] = self::TABS;
 			// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 			$rule->setAllowedWidgets(json_encode(value: array_values($allowed)));
-			$rule->setUpdatedAt((new DateTime())->format(format: 'c'));
+			$rule->setUpdatedAt((new DateTimeImmutable())->format(format: 'c'));
 			// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 			$this->permMapper->update(entity: $rule);
 		} catch (Throwable $e) {

@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Opens automatically": "Opens automatically",
+        "Could not add the dashboard to your favourites": "Could not add the dashboard to your favourites",
+        "Could not remove the dashboard from your favourites": "Could not remove the dashboard from your favourites",
+        "Star a dashboard to keep it here": "Star a dashboard to keep it here",
+        "New dashboard": "New dashboard",
+        "favourites only": "favourites only",
+        "Less": "Less",
+        "Add to favourites: {name}": "Add to favourites: {name}",
+        "Remove from favourites: {name}": "Remove from favourites: {name}",
+        "_%n more dashboard_::_%n more dashboards_": ["%n more dashboard", "%n more dashboards"],
         "Close {title}": "Close {title}",
         "_%n comment_::_%n comments_": ["%n comment", "%n comments"],
         "Mark as read": "Mark as read",

@@ -32,13 +32,14 @@ import type { APIRequestContext, Locator, Page } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, test } from '@playwright/test'
-import { closeSidebar, gotoLaunchPad, openSidebar } from './fixtures/widget-flow.ts'
+import { closeSidebar, gotoLaunchPad } from './fixtures/widget-flow.ts'
 import { adminTab } from './support/adminTab.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { addWidgetFromMore, switchToDashboard } from './support/dashboardSwitcher.ts'
 import { describeRun, runOcc } from './support/occ.ts'
 import { adminContext, API } from './support/principals.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
@@ -177,14 +178,8 @@ async function openWidgetForm(
 	type: string,
 	formClass: string,
 ): Promise<{ dialog: Locator; form: Locator }> {
-	await openSidebar(page)
-	const row = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.filter({ hasText: dashboard!.name })
-		.first()
-	await expect(row).toBeVisible({ timeout: 10_000 })
-	await row.locator('.dashboard-row-actions button').first().click()
-	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
+	await switchToDashboard(page, dashboard!.name)
+	await addWidgetFromMore(page)
 	await chooseAndAdd(page.locator(`[data-testid="widget-picker-type-${type}"]`))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })

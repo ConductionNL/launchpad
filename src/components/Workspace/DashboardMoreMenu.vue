@@ -13,15 +13,27 @@
 		:settings="settings"
 		:actions="actions"
 		class="launchpad-more-menu"
-		data-testid="launchpad-more-menu" />
+		data-testid="launchpad-more-menu"
+		@open="foldDashboards">
+		<!-- REQ-SHELL-019 / REQ-MDUI-003: Filter by detail above the full list. -->
+		<template #dashboardsTop>
+			<DetailFilter
+				v-if="detailFields.length > 0"
+				class="lp-more-menu__detail-filter"
+				:fields="detailFields"
+				@change="$emit('detailFilter', $event)" />
+		</template>
+	</LaunchpadMoreMenu>
 </template>
 
 <script>
 import { t } from '@nextcloud/l10n'
 import { markRaw } from 'vue'
 import CheckDecagramOutline from 'vue-material-design-icons/CheckDecagramOutline.vue'
-import { isOwnedDashboard } from './DashboardRowActions.vue'
+import DetailFilter from './DetailFilter.vue'
 import LaunchpadMoreMenu from './LaunchpadMoreMenu.vue'
+import { favouriteDashboardsMixin } from '../../services/favouriteDashboards.js'
+import { isOwnedDashboard } from '../../utils/dashboardRows.js'
 import {
 	dashboardActionItems,
 	dashboardItems,
@@ -34,8 +46,11 @@ export default {
 	name: 'DashboardMoreMenu',
 
 	components: {
+		DetailFilter,
 		LaunchpadMoreMenu,
 	},
+
+	mixins: [favouriteDashboardsMixin],
 
 	inject: {
 		/** What `App.vue` decided about the navigation panel (see StartPageMenu). */
@@ -106,6 +121,24 @@ export default {
 			default: false,
 		},
 
+		/**
+		 * The detail fields the full list can be filtered by (REQ-MDUI-003);
+		 * the host reads them the first time the list is expanded.
+		 */
+		detailFields: {
+			type: Array,
+			default: () => [],
+		},
+
+		/**
+		 * Whether the expanded Dashboards list offers New dashboard: personal
+		 * dashboards allowed and the quota not reached (REQ-SHELL-015).
+		 */
+		canCreate: {
+			type: Boolean,
+			default: false,
+		},
+
 		/** Whether the read receipts of the active dashboard are offered. */
 		canViewReadReceipts: {
 			type: Boolean,
@@ -121,7 +154,7 @@ export default {
 
 	emits: [
 		'switch',
-		'openAll',
+		'download',
 		'toggleEdit',
 		'addWidget',
 		'share',
@@ -130,14 +163,19 @@ export default {
 		'setDefault',
 		'readReceipts',
 		'delete',
+		'newDashboard',
+		'detailFilter',
+		'expandDashboards',
 	],
 
 	computed: {
 		/**
-		 * The Dashboards group, the open one checked.
+		 * The Dashboards group, the open one checked: the favourites, or
+		 * every dashboard with a star each once unfolded.
 		 *
 		 * @return {object[]}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
 		 */
 		dashboards() {
 			return dashboardItems({
@@ -146,8 +184,14 @@ export default {
 				sharedDashboards: this.sharedDashboards,
 				activeId: this.dashboard?.id ?? null,
 				defaultUuid: this.defaultUuid,
+				favourites: this.favourites,
+				expanded: this.dashboardsExpanded,
 				onSwitch: (id, source) => this.$emit('switch', id, source),
-				onOpenAll: () => this.$emit('openAll'),
+				onToggleExpanded: () => this.onToggleExpanded(),
+				onToggleFavourite: (uuid) => this.toggleDashboardFavourite(uuid),
+				openTrees: this.openTrees,
+				onToggleTree: (uuid) => this.toggleTree(uuid),
+				onNewDashboard: this.canCreate ? () => this.$emit('newDashboard') : null,
 			})
 		},
 
@@ -166,11 +210,12 @@ export default {
 		},
 
 		/**
-		 * The This dashboard group. Read receipts, when the dashboard asks
-		 * for them, sit before Delete, which stays last.
+		 * The This dashboard group, Download included. Read receipts, when
+		 * the dashboard asks for them, sit before Delete, which stays last.
 		 *
 		 * @return {object[]}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-5
 		 */
 		actions() {
 			const items = dashboardActionItems({
@@ -193,6 +238,21 @@ export default {
 				})
 			}
 			return items
+		},
+	},
+
+	methods: {
+		/**
+		 * More / Less; the first unfold asks the host for the detail fields.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+		 */
+		onToggleExpanded() {
+			this.toggleDashboardsExpanded()
+			if (this.dashboardsExpanded) {
+				this.$emit('expandDashboards')
+			}
 		},
 	},
 }

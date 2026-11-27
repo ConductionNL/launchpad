@@ -7,11 +7,6 @@
  * Covers the UI-observable scenarios from the following specs that are not
  * covered by the dedicated per-widget test files:
  *
- *   @e2e dashboard-switcher::all-three-sections-present
- *   @e2e dashboard-switcher::personal-section-visible-when-allowed-even-with-empty-list
- *   @e2e dashboard-switcher::card-visible-with-personal-dashboards-enabled
- *   @e2e dashboard-switcher::card-hidden-when-personal-dashboards-disabled
- *   @e2e dashboard-switcher::click-invokes-create-flow
  *   @e2e grid-layout::initialize-grid-with-default-12-column-layout
  *   @e2e grid-layout::initialize-grid-with-custom-column-count
  *   @e2e grid-layout::initialize-grid-with-no-widget-placements
@@ -33,17 +28,14 @@
  */
 
 import type { APIRequestContext } from '@playwright/test'
+import type { SeededDashboard } from '../support/dashboardFixture.ts'
 
 import { expect, request as pwRequest, test } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions.ts'
-import { BASE_URL as BASE } from '../support/baseUrl.ts'
-import { MORE_MENU, openDashboardSwitcher } from '../support/dashboardSwitcher.ts'
+import { BASE_URL } from '../support/baseUrl.ts'
+import { removeSeededDashboard, seedActiveDashboard } from '../support/dashboardFixture.ts'
+import { addWidgetFromMore, MORE_MENU } from '../support/dashboardSwitcher.ts'
 import { chooseAndAdd } from '../support/widgetPicker.ts'
-
-const ADMIN_CREDS = {
-	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
-	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -55,19 +47,34 @@ const TS = `md-${Date.now()}`
 // admin break-glass bypass so the admin can still add any widget during this
 // suite (see fixtures helper for the bypass it proves).
 let restoreWidgetRestriction: (() => Promise<void>) | null = null
+let adminApi: APIRequestContext | null = null
+let own: SeededDashboard | null = null
 
 test.beforeAll(async () => {
 	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+	// The admin's own dashboard, active, so More offers Add widget (the
+	// sidebar row cog these tests once used on any personal row is gone).
+	adminApi = await pwRequest.newContext({
+		baseURL: BASE_URL,
+		httpCredentials: {
+			username: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+			password: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+		},
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	own = await seedActiveDashboard(adminApi, `E2E spec coverage ${Date.now()}`)
 })
 
 test.afterAll(async () => {
 	await restoreWidgetRestriction?.()
+	if (adminApi !== null) {
+		await removeSeededDashboard(adminApi, own)
+		await adminApi.dispose()
+	}
 })
 
-// Navigate to launchpad and wait for the app to hydrate.
-// The sidebar-toggle button is the first stable landmark injected by the Vue
-// bootstrap; we also ensure the sidebar is closed before returning so that
-// the grid and workspace elements are not occluded by the slide-in panel.
+// Navigate to launchpad and wait for the app to hydrate (More is the first
+// stable landmark the Vue bootstrap renders).
 async function gotoLaunchPad(
 	page: Parameters<typeof test>[1] extends never ? never : any,
 ) {
@@ -81,286 +88,18 @@ async function gotoLaunchPad(
 		await page.goto('/index.php/apps/launchpad')
 		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 	}
-	// Close sidebar if it happened to be open from a prior test run (or from
-	// a redirect that lands with the sidebar pre-open).
-	const isSidebarOpen = await page
-		.locator('.dashboard-switcher-sidebar.open')
-		.count()
-	if (isSidebarOpen > 0) {
-		// Click the close button inside the sidebar.
-		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
-		if (await closeBtn.isVisible().catch(() => false)) {
-			await closeBtn.click()
-		} else {
-			await page.keyboard.press('Escape')
-		}
-		await page.waitForFunction(
-			() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-			{ timeout: 5_000 },
-		)
-	}
 }
 
-// Open the sidebar and wait for the slide-in transition to settle.
-async function openSidebar(page: any) {
-	await openDashboardSwitcher(page)
-}
-
-// Open the Add-Widget modal via the per-row cog ("Dashboard menu") on the
-// first personal dashboard row, pick the widget type in the picker, then
-// wait for the dialog to be visible.
+// Open the Add-Widget modal of the open dashboard through More → Add widget,
+// pick the widget type in the picker, then wait for the dialog.
 async function openAddWidgetModal(page: any, type = 'label') {
-	// Ensure the sidebar is open.
-	const sidebarOpen = await page
-		.locator('.dashboard-switcher-sidebar.open')
-		.count()
-	if (sidebarOpen === 0) {
-		await openSidebar(page)
-	}
-
-	// Click the "Dashboard menu" cog on the first personal dashboard row.
-	// The row attribute is data-source="user".
-	const personalRow = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.first()
-	await expect(personalRow).toBeVisible({ timeout: 5_000 })
-	await personalRow.locator('.dashboard-row-actions button').first().click()
-
-	// Click "Add widget" in the dropdown, then the type in the picker.
-	const addWidgetItem = page.getByRole('menuitem', { name: /^add widget$/i })
-	await expect(addWidgetItem).toBeVisible({ timeout: 5_000 })
-	await addWidgetItem.click()
+	await addWidgetFromMore(page)
 	await chooseAndAdd(page.locator(`[data-testid="widget-picker-type-${type}"]`))
-
-	// Wait for the Add Widget dialog to be visible.
-	// Two elements carry role="dialog" for this modal (outer mask + inner pane);
-	// use .first() to avoid strict-mode violations, then assert visibility.
+	// Two elements carry role="dialog" for this modal (outer mask + inner pane).
 	await expect(
 		page.getByRole('dialog', { name: /add widget/i }).first(),
 	).toBeVisible({ timeout: 10_000 })
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Dashboard Switcher
-// ─────────────────────────────────────────────────────────────────────────────
-
-test.describe('dashboard-switcher sidebar', () => {
-	test.beforeEach(async ({ page }) => {
-		await gotoLaunchPad(page)
-	})
-
-	// @e2e dashboard-switcher::all-three-sections-present
-	test('sidebar opens and shows at least one dashboard section', async ({
-		page,
-	}) => {
-		await openSidebar(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		await expect(sidebar).toBeVisible()
-
-		// At least one section heading must be present — in the admin fixture the
-		// personal ("My Dashboards") section always exists.
-		const anySection = sidebar.locator(
-			'[class*="section"] h2, [class*="section"] h3, .dashboard-switcher-sidebar__heading',
-		)
-		const count = await anySection.count()
-		expect(count).toBeGreaterThan(0)
-	})
-
-	// @e2e dashboard-switcher::personal-section-visible-when-allowed-even-with-empty-list
-	test('personal section is visible in admin fixture (allowUserDashboards implied true)', async ({
-		page,
-	}) => {
-		await openSidebar(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		// Admin fixture always has user dashboards; verify the section renders rows.
-		const rows = sidebar.locator('li.dashboard-switcher-sidebar__item')
-		await expect(rows.first()).toBeVisible()
-	})
-
-	/*
-	 * BOTH TESTS BELOW USED TO INHERIT THE FLAG THEY NAME, AND BOTH WERE GREEN
-	 * FOR A REASON THAT HAD NOTHING TO DO WITH THEM.
-	 *
-	 * `allow_user_dashboards` is OFF on a fresh instance. The first test
-	 * asserted the card is visible "when personal dashboards are enabled"
-	 * without enabling anything; the second read `GET /api/admin/settings` and
-	 * branched on it, falling through to `allowed = true` whenever the read
-	 * FAILED — so an unreadable settings response silently became "expect the
-	 * card to be visible", which is a check that cannot report its own
-	 * blindness.
-	 *
-	 * They passed because `allow-personal-dashboards-flag.spec.ts` runs
-	 * earlier in alphabetical order and switches the flag on. Measured in run
-	 * 31388540423: with that spec excluded (it is red in the CI fixture), both
-	 * of these went red — while the product was fine.
-	 *
-	 * A test that asserts behaviour under an admin flag has to SET that flag.
-	 * Each now establishes its own precondition and restores it, so the pair
-	 * is a real A/B: the two arms differ only in the setting, which is what
-	 * makes either of them evidence about the setting.
-	 */
-	const SETTINGS_API = '/index.php/apps/launchpad/api/admin/settings'
-
-	/*
-	 * `page.request` is the WRONG CLIENT for the admin API and this is the
-	 * second thing these two tests got wrong. It shares the page's cookie jar,
-	 * so it authenticates by session — and a session-authenticated call to
-	 * these endpoints needs Nextcloud's `requesttoken`, which the fixture does
-	 * not attach. Measured in run 31389746411: `GET /api/admin/settings`
-	 * through `page.request` answered NOT OK, and the previous version of this
-	 * test treated exactly that response as "personal dashboards are enabled".
-	 *
-	 * Every other spec in this repo talks to the API through an explicit
-	 * `Authorization: Basic` context for the same reason. So does this one now.
-	 * `storageState: undefined` keeps the admin session out of it, so the
-	 * header is what decides the caller.
-	 */
-	async function adminApi(): Promise<APIRequestContext> {
-		return pwRequest.newContext({
-			baseURL: BASE,
-			storageState: undefined,
-			extraHTTPHeaders: {
-				'OCS-APIRequest': 'true',
-				Authorization: `Basic ${Buffer.from(`${ADMIN_CREDS.user}:${ADMIN_CREDS.pass}`).toString('base64')}`,
-			},
-		})
-	}
-
-	/** Set `allowUserDashboards` and return the value it had before. */
-	async function setAllowUserDashboards(value: boolean): Promise<boolean> {
-		const api = await adminApi()
-		try {
-			const before = await api.get(SETTINGS_API)
-			expect(
-				before.status(),
-				'the admin settings must be readable — an unreadable response used to be read as "enabled"',
-			).toBe(200)
-			const prior = (await before.json()).allowUserDashboards === true
-			const put = await api.put(SETTINGS_API, {
-				data: { allowUserDash: value },
-			})
-			expect(put.status(), await put.text()).toBeLessThan(300)
-			return prior
-		} finally {
-			await api.dispose()
-		}
-	}
-
-	// @e2e dashboard-switcher::card-visible-with-personal-dashboards-enabled
-	test('Add-Dashboard card renders in sidebar when personal dashboards are enabled', async ({
-		page,
-	}) => {
-		const prior = await setAllowUserDashboards(true)
-		try {
-			await gotoLaunchPad(page)
-			await openSidebar(page)
-			const sidebar = page.locator('.dashboard-switcher-sidebar')
-			const addCard = sidebar.getByRole('button', {
-				name: /add dashboard|dashboard toevoegen/i,
-			})
-			await expect(addCard).toBeVisible()
-		} finally {
-			await setAllowUserDashboards(prior)
-		}
-	})
-
-	// @e2e dashboard-switcher::card-hidden-when-personal-dashboards-disabled
-	test('workspace renders without Add-Dashboard card when allowUserDashboards is false (admin setting)', async ({
-		page,
-	}) => {
-		const prior = await setAllowUserDashboards(false)
-		try {
-			await gotoLaunchPad(page)
-			await openSidebar(page)
-			const sidebar = page.locator('.dashboard-switcher-sidebar')
-			const addCard = sidebar.getByRole('button', {
-				name: /add dashboard|dashboard toevoegen/i,
-			})
-			// Absent from the DOM, not merely hidden — a `display:none` card is
-			// still a create affordance to anything that walks the tree.
-			await expect(addCard).toHaveCount(0)
-		} finally {
-			await setAllowUserDashboards(prior)
-		}
-	})
-
-	/*
-	 * THIRD TEST WITH THE SAME DEFECT, AND THE MOST EXPENSIVE VERSION OF IT.
-	 *
-	 * This one inherited `allowUserDashboards` like the two above, but instead
-	 * of failing when the flag was off it SKIPPED — `test.skip(true,
-	 * 'allowUserDashboards is false in this environment')`. A skip is not a
-	 * neutral outcome here: the `@e2e` annotation on the line above keeps
-	 * claiming `dashboard-switcher::click-invokes-create-flow` as covered, so
-	 * the scenario counted while nothing exercised it. Measured in run
-	 * 31390900033: `65 tests … 64 passed, 1 skipped`, and this was the one.
-	 *
-	 * The environment it was describing is the DEFAULT one — the flag is off on
-	 * a fresh instance — so the skip was not a rare escape hatch, it was the
-	 * normal path. It sets the flag it needs, like its two siblings.
-	 */
-	// @e2e dashboard-switcher::click-invokes-create-flow
-	test('clicking Add-Dashboard card opens the Create dashboard dialog', async ({
-		page,
-	}) => {
-		const prior = await setAllowUserDashboards(true)
-		try {
-			await gotoLaunchPad(page)
-			await runCreateFlowAssertions(page)
-		} finally {
-			await setAllowUserDashboards(prior)
-		}
-	})
-
-	async function runCreateFlowAssertions(page: any) {
-		await openSidebar(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addCard = sidebar.getByRole('button', {
-			name: /add dashboard|dashboard toevoegen/i,
-		})
-
-		// No conditional skip. The precondition is established above, so an
-		// absent card is now a failure — which is what it always meant.
-		await expect(
-			addCard,
-			'the Add-Dashboard card must be present once personal dashboards are enabled',
-		).toBeVisible()
-
-		// Clicking "Add dashboard" either opens a "Create dashboard" dialog or
-		// fires a create POST immediately — the current UI forks the active
-		// dashboard into a new personal one
-		// (POST /api/dashboards/{uuid}/fork). Both are valid create flows, so
-		// arm the request listener BEFORE the click and accept either a
-		// create POST (`…/dashboard` | `…/dashboards`) or a fork POST.
-		const createRequestPromise = page
-			.waitForRequest(
-				(req) =>
-					req.method() === 'POST'
-					&& /\/api\/dashboard(?:s)?(?:\/[0-9a-f-]+\/fork)?(?:\?|$)/.test(
-						req.url(),
-					),
-				{ timeout: 8_000 },
-			)
-			.catch(() => null)
-
-		await addCard.click()
-
-		const dialogVisible = await page
-			.getByRole('dialog', { name: /create dashboard/i })
-			.isVisible({ timeout: 3_000 })
-			.catch(() => false)
-
-		if (!dialogVisible) {
-			// No dialog — a create/fork POST must have fired instead.
-			const req = await createRequestPromise
-			expect(
-				req,
-				'clicking Add-Dashboard must either open the dialog or fire a create/fork POST',
-			).not.toBeNull()
-		}
-		// If dialog IS visible, the create flow is working.
-	}
-})
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Grid Layout — initialisation + edit-mode toggle
@@ -369,13 +108,6 @@ test.describe('dashboard-switcher sidebar', () => {
 test.describe('grid layout initialisation and edit mode', () => {
 	test.beforeEach(async ({ page }) => {
 		await gotoLaunchPad(page)
-		// Ensure the sidebar is fully closed so the grid is not occluded.
-		await page
-			.waitForFunction(
-				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-				{ timeout: 5_000 },
-			)
-			.catch(() => null)
 	})
 
 	// @e2e grid-layout::initialize-grid-with-default-12-column-layout
@@ -456,24 +188,10 @@ test.describe('grid layout initialisation and edit mode', () => {
 	// @e2e grid-layout::enter-edit-mode
 	// @e2e grid-layout::exit-edit-mode
 	// @e2e grid-layout::edit-mode-watcher-responds-to-prop-changes
-	test('edit mode can be entered via the row-cog "Add widget" action', async ({
+	test('edit mode can be entered via More → Add widget', async ({
 		page,
 	}) => {
-		await openSidebar(page)
-		const personalRow = page
-			.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-			.first()
-		if (!(await personalRow.isVisible().catch(() => false))) {
-			return // No personal dashboard — skip gracefully.
-		}
-		await personalRow.locator('.dashboard-row-actions button').first().click()
-		const addWidgetItem = page.getByRole('menuitem', {
-			name: /^add widget$/i,
-		})
-		if (!(await addWidgetItem.isVisible().catch(() => false))) {
-			return
-		}
-		await addWidgetItem.click()
+		await addWidgetFromMore(page)
 		await chooseAndAdd(page.locator('[data-testid="widget-picker-type-label"]'))
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(dialog).toBeVisible({ timeout: 8_000 })
@@ -521,9 +239,6 @@ test.describe('label widget – additional scenarios', () => {
 		await expect(addBtn).toBeEnabled({ timeout: 3_000 })
 		await addBtn.click()
 
-		// Close sidebar if still open
-		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
-		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
 
 		const placement = page
 			.locator('.cn-label-widget')
@@ -552,8 +267,6 @@ test.describe('label widget – additional scenarios', () => {
 		await expect(addBtn).toBeEnabled({ timeout: 3_000 })
 		await addBtn.click()
 
-		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
-		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
 
 		const placement = page
 			.locator('.cn-label-widget')
@@ -616,8 +329,6 @@ test.describe('label widget – additional scenarios', () => {
 		await expect(addBtn).toBeEnabled({ timeout: 3_000 })
 		await addBtn.click()
 
-		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
-		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
 
 		const placement = page
 			.locator('.cn-label-widget')
@@ -655,8 +366,6 @@ test.describe('label widget – additional scenarios', () => {
 		await expect(addBtn).toBeEnabled({ timeout: 3_000 })
 		await addBtn.click()
 
-		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
-		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
 
 		const placement = page
 			.locator('.cn-label-widget')

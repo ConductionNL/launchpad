@@ -86,7 +86,7 @@ const LOGGED_OUT = { cookies: [], origins: [] }
 /** Workspace chrome, as rendered by the normal (non-kiosk) dashboard route. */
 const NC_HEADER = '#header'
 const APP_NAVIGATION = '.app-navigation, #app-navigation'
-const SWITCHER = '.dashboard-switcher-sidebar'
+const SWITCHER = '[data-testid="launchpad-more-menu-panel"]'
 /** The workspace's More menu, which holds the dashboard switcher. */
 const SIDEBAR_TOGGLE = MORE_MENU
 const FLOATING_CONTROLS = '.launchpad-floating-controls'

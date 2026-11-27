@@ -81,12 +81,13 @@ import type { Principal } from './support/principals.ts'
 import { expect, request as pwRequest, test } from '@playwright/test'
 import { deflateSync } from 'zlib'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
-import { closeSidebar, gotoLaunchPad, openSidebar } from './fixtures/widget-flow.ts'
+import { closeSidebar, gotoLaunchPad } from './fixtures/widget-flow.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { addWidgetFromMore, switchToDashboard } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	API,
@@ -1016,14 +1017,8 @@ test.describe('resource-uploads: multipart upload (REQ-RES-014)', () => {
 			const png = makePng(200, 200)
 
 			await gotoLaunchPad(page)
-			await openSidebar(page)
-			const row = page.locator(
-				'[data-source="user"].dashboard-switcher-sidebar__item',
-				{ hasText: (seeded as SeededDashboard).name },
-			)
-			await expect(row).toBeVisible({ timeout: 8_000 })
-			await row.locator('.dashboard-row-actions button').first().click()
-			await page.getByRole('menuitem', { name: /^add widget$/i }).click()
+			await switchToDashboard(page, (seeded as SeededDashboard).name)
+			await addWidgetFromMore(page)
 			await chooseAndAdd(page.locator('[data-testid="widget-picker-type-image"]'))
 			const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 			await expect(dialog).toBeVisible({ timeout: 10_000 })

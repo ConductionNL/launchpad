@@ -20,19 +20,8 @@
 					size="compact"
 					data-testid="dashboard-period"
 					@update:modelValue="$emit('update:period', $event)" />
-				<!-- REQ-DPD-003: everyone who can open the dashboard may download
-				     it, view-only included; the header is not drawn in the kiosk
-				     and public views, so neither offers it. -->
-				<NcButton
-					class="launchpad-print-hide"
-					variant="secondary"
-					data-testid="dashboard-download"
-					@click="download">
-					<template #icon>
-						<Download :size="20" />
-					</template>
-					{{ t('launchpad', 'Download') }}
-				</NcButton>
+				<!-- REQ-DPD-003: Download lives in the More menu's This dashboard
+				     group now (Ruben's review item 8); the header keeps only More. -->
 				<!-- The top-right controls teleport in here (headerActionsDock.js). -->
 				<div :class="dockClass" />
 			</div>
@@ -50,13 +39,10 @@
 <script>
 import { CnSegmentedControl } from '@conduction/nextcloud-vue'
 import { getCanonicalLocale, t } from '@nextcloud/l10n'
-import { NcButton } from '@nextcloud/vue'
 import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
-import Download from 'vue-material-design-icons/Download.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import { PAGE_HEADER_DOCK_CLASS } from '../../utils/headerActionsDock.js'
-import { printDashboard } from '../../utils/printDashboard.js'
 
 /** Milliseconds in a day. */
 const DAY_MS = 86400000
@@ -112,7 +98,7 @@ export function rightsText(permissionLevel) {
 /**
  * DashboardPageHeader: the page title row of a dashboard without a greeting
  * on the page ground (LpWerkplek, LpIntranet, LpAfdeling, LpManagement): the
- * dashboard name, Download (REQ-DPD-003) beside the docked "Meer" menu, and a line
+ * dashboard name, the docked "Meer" menu (Download is in it, REQ-DPD-003), and a line
  * saying what kind of dashboard it is and when it last changed.
  *
  * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
@@ -123,7 +109,7 @@ export function rightsText(permissionLevel) {
 export default {
 	name: 'DashboardPageHeader',
 
-	components: { CnSegmentedControl, Download, NcButton },
+	components: { CnSegmentedControl },
 
 	props: {
 		/** The active dashboard (`name`, `description`, `updatedAt`). */
@@ -255,16 +241,6 @@ export default {
 
 	methods: {
 		t,
-
-		/**
-		 * Download the dashboard as a PDF: the reader's browser prints the
-		 * page as it is now, with the period and filters applied.
-		 *
-		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
-		 */
-		download() {
-			printDashboard(this.dashboard.name)
-		},
 	},
 }
 </script>

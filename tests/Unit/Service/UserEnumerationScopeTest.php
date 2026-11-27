@@ -287,7 +287,9 @@ class UserEnumerationScopeTest extends TestCase {
 
 		$this->assertSame(expected: ['anna', 'bram'], actual: array_column($answer['users'], 'id'), message: 'the selection itself is unscoped');
 		$this->assertSame(expected: ['anna'], actual: array_column($scope->visibleOnly(viewerId: 'pieter', people: $answer['users']), 'id'));
-		$this->assertSame(expected: $answer['users'], actual: $this->scope()->visibleOnly(viewerId: 'pieter', people: $answer['users']), message: 'open: unchanged');
-		$this->assertSame(expected: [], actual: $this->scope(settings: [UserEnumerationScope::KEY_ALLOW => 'no'])->visibleOnly(viewerId: 'pieter', people: $answer['users']));
+		$open = $this->scope()->visibleOnly(viewerId: 'pieter', people: $answer['users']);
+		$off = $this->scope(settings: [UserEnumerationScope::KEY_ALLOW => 'no'])->visibleOnly(viewerId: 'pieter', people: $answer['users']);
+		$this->assertSame(expected: $answer['users'], actual: $open, message: 'open: unchanged');
+		$this->assertSame(expected: [], actual: $off);
 	}//end testNewColleaguesListsOnlyOwnGroupMembersWhenRestricted()
 }//end class

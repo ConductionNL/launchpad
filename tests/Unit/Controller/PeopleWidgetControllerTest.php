@@ -294,7 +294,7 @@ class PeopleWidgetControllerTest extends TestCase {
 			->willReturn($narrowed);
 		$this->service->expects($this->once())
 			->method('listUsers')
-			->with($this->callback(static fn (PeopleQuery $query): bool => $query->filters === $narrowed))
+			->with($this->callback(callback: static fn (PeopleQuery $query): bool => $query->filters === $narrowed))
 			->willReturn(['users' => [], 'total' => 0, 'hasMore' => false]);
 
 		$this->buildController(userId: 'alice', enumeration: $scope)

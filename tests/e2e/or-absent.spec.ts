@@ -59,7 +59,7 @@ import {
 } from './support/principals.ts'
 
 const APP = '/index.php/apps/launchpad'
-const ADMIN_SETTINGS = '/index.php/apps/launchpad/admin'
+const ADMIN_SETTINGS = '/index.php/settings/admin/launchpad'
 const RUN = Date.now()
 const STAMP = `E2E OR-less ${RUN}`
 

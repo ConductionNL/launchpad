@@ -217,6 +217,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
 
 	<settings>
 		<admin>OCA\LaunchPad\Settings\LaunchPadAdmin</admin>
+		<admin>OCA\LaunchPad\Settings\LaunchPadAnnouncementsAdmin</admin>
 		<admin-section>OCA\LaunchPad\Settings\LaunchPadAdminSection</admin-section>
 	</settings>
 

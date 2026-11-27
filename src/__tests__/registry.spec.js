@@ -3,16 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * The page registry: the dashboard view renders without waiting for a chunk,
- * the administration still loads on demand.
+ * and no admin page is an app page (the admin page is in Nextcloud's settings,
+ * REQ-ADM-035).
  *
  * @spec openspec/specs/runtime-shell/spec.md
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-no-admin-page-in-the-apps-router-or-manifest-req-adm-035
  */
 
 import { describe, expect, it, vi } from 'vitest'
 
 const workspaceView = { name: 'WorkspaceApp', render: () => null }
 vi.mock('../views/WorkspaceApp.vue', () => ({ default: workspaceView }))
-vi.mock('../views/AdminPage.vue', () => ({ default: { name: 'AdminPage', render: () => null } }))
 
 const { default: registry } = await import('../registry.js')
 
@@ -22,8 +23,7 @@ describe('page registry', () => {
 		expect(registry.WorkspaceApp.component).toBe(workspaceView)
 	})
 
-	it('keeps the administration page an on-demand chunk', () => {
-		expect(registry.AdminPage.kind).toBe('page')
-		expect(typeof registry.AdminPage.component.__asyncLoader).toBe('function')
+	it('holds no admin page', () => {
+		expect(Object.keys(registry).filter((name) => /admin/i.test(name))).toEqual([])
 	})
 })

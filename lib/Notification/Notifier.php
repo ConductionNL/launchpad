@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Notification;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Controller\AdminPageController;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Settings\AdminTabs;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IL10N;
 use OCP\IURLGenerator;
@@ -139,7 +139,7 @@ class Notifier implements INotifier {
 	 *
 	 * @return string The URL.
 	 *
-	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
 	 */
 	private function linkFor(INotification $notification): string {
 		if ($notification->getSubject() === 'announcement_published') {
@@ -172,23 +172,24 @@ class Notifier implements INotifier {
 	}//end linkFor()
 
 	/**
-	 * The administration page on one tab (REQ-ADM-030).
+	 * The admin settings page on one tab, `/settings/admin/launchpad#<tab>`
+	 * (REQ-ADM-032); a former tab opens its host tab at that section.
 	 *
 	 * @param string $tab The tab.
 	 *
 	 * @return string The absolute URL.
 	 *
-	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
-	 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+	 * @SuppressWarnings(PHPMD.StaticAccess) AdminTabs is a stateless list of the page's tabs.
+	 *
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
 	 */
 	private function adminPageLink(string $tab): string {
-		// A former tab is a section of a drawn tab now (REQ-ADM-032).
-		$arguments = ['tab' => $tab];
-		if (array_key_exists(key: $tab, array: AdminPageController::FOLDED_TABS) === true) {
-			$arguments = ['tab' => AdminPageController::FOLDED_TABS[$tab], 'section' => $tab];
-		}
+		$url = $this->urlGenerator->linkToRouteAbsolute(
+			routeName: 'settings.AdminSettings.index',
+			arguments: ['section' => Application::APP_ID]
+		);
 
-		return $this->urlGenerator->linkToRouteAbsolute(routeName: 'launchpad.adminPage.show', arguments: $arguments);
+		return $url.'#'.AdminTabs::fragment(tab: $tab);
 	}//end adminPageLink()
 
 	/**

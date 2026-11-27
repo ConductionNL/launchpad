@@ -43,7 +43,7 @@ import { describeRun, runOcc } from './support/occ.ts'
 import { adminContext, API } from './support/principals.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 
-const SETTINGS_PAGE = `${BASE_URL}/index.php/apps/launchpad/admin`
+const SETTINGS_PAGE = `${BASE_URL}/index.php/settings/admin/launchpad`
 const SITES = `${API}/admin/allowed-sites`
 const STAMP = Date.now().toString(36)
 /** The KCC API of the scenario, made unique per run and never resolvable. */

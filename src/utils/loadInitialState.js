@@ -136,6 +136,11 @@ const PAGE_KEYS = {
 		widgets: [],
 		allowUserDashboards: false,
 		linkCreateFileExtensions: ['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'],
+		// admin-page-in-nextcloud-settings REQ-ADM-034: the tabs the viewer
+		// holds. Optional key; empty means every tab.
+		adminTabs: [],
+		// REQ-ADM-032: the running app version for the version card. Optional key.
+		version: '',
 	},
 	// sharing-public-start-page D3 (version 3): the public link the start
 	// page at /apps/launchpad/start shows. Absent on /s/{token}, where the

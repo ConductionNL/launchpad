@@ -37,7 +37,7 @@
  * beforeAll and written back in afterAll, the seeded groups and the probe
  * account are deleted.
  *
- * The admin page is `/apps/launchpad/admin` (the banner lives in the
+ * The admin page is `/settings/admin/launchpad` (the banner lives in the
  * General tab of AdminSettings.vue). The spec still names
  * `/apps/launchpad/admin/dashboards`, which is a deep-link slug in the SPA, not
  * the admin section. The step counter reads "Step n / 5": five steps, Welcome,
@@ -128,7 +128,7 @@ import {
 } from './support/principals.ts'
 
 const ADMIN_USER = process.env.NC_ADMIN_USER ?? 'admin'
-const ADMIN_PAGE = '/index.php/apps/launchpad/admin'
+const ADMIN_PAGE = '/index.php/settings/admin/launchpad'
 const WIZARD_API = `${API}/admin/setup-wizard`
 const GROUPS_API = `${API}/admin/groups`
 const SHOWCASES_API = `${API}/admin/demo-showcases`

@@ -40,19 +40,6 @@ describe('App support note', () => {
 		).toBe(true)
 	})
 
-	it('waits on a page load that opens the administration page, where the admin tour comes first', () => {
-		boot.path = '/index.php/apps/launchpad/admin/general'
-		try {
-			expect(
-				App.computed.supportNoteForThisAccount.call({
-					permissions: ['user', 'admin'],
-				}),
-			).toBe(false)
-		} finally {
-			boot.path = '/index.php/apps/launchpad/'
-		}
-	})
-
 	it('is what the root receives', () => {
 		// The template binding is the wiring; a computed nobody binds is a
 		// guard with no call site.

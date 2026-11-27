@@ -181,7 +181,7 @@ test.describe('Integrations over the connection registry', () => {
 		const byKey = await rowsByKey(api)
 		expect(Object.keys(byKey).sort()).toEqual(DECLARED.map((d) => d.key).sort())
 		expect(String(byKey['dashboard-registry']?.settingsUrl ?? '')).toBe(
-			'/apps/launchpad/admin/sharing#section-dashboard-registry',
+			'/settings/admin/launchpad#sharing/section-dashboard-registry',
 		)
 
 		await openIntegrations(page)

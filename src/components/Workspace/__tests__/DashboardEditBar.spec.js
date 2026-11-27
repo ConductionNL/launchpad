@@ -37,15 +37,13 @@ describe('DashboardEditBar', () => {
 		expect(bar.text()).toContain('You are editing Mijn werkplek')
 	})
 
-	it('holds Columns, Add widget, Add tiles, Dashboard settings and Done, in that order', () => {
-		const labels = mountBar().findAll('button').map((b) => b.text())
-		expect(labels).toEqual(['6', '8', '12', 'Add widget', 'Add tiles', 'Dashboard settings', 'Done'])
-	})
-
-	it('emits addTiles from Add tiles (add-tiles-dialog REQ-TILE-043)', async () => {
+	// add-widget-dialog-with-miniatures REQ-WDG-049: Add widget is the one way in, no Add tiles.
+	it('holds Columns, Add widget, Dashboard settings and Done, in that order, and no Add tiles', () => {
 		const wrapper = mountBar()
-		await wrapper.find('[data-testid="launchpad-edit-bar-add-tiles"]').trigger('click')
-		expect(wrapper.emitted('addTiles')).toHaveLength(1)
+		const labels = wrapper.findAll('button').map((b) => b.text())
+		expect(labels).toEqual(['6', '8', '12', 'Add widget', 'Dashboard settings', 'Done'])
+		expect(wrapper.find('[data-testid="launchpad-edit-bar-add-tiles"]').exists()).toBe(false)
+		expect(DashboardEditBar.emits).not.toContain('addTiles')
 	})
 
 	it('marks the current column count pressed and emits a chosen one', async () => {

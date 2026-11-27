@@ -7,7 +7,7 @@
  * admin settings and switching the start page on, and the refusal of a link
  * protected by a password.
  *
- * Drives `PublicStartPageSettings.vue` on `/apps/launchpad/admin` as the
+ * Drives `PublicStartPageSettings.vue` on `/settings/admin/launchpad` as the
  * admin (Noor), and reads the result back from `GET /api/admin/public-start`.
  * Each test seeds its own dashboards and public links, and puts the start
  * page setting back the way it found it before it ends: while the start page
@@ -97,7 +97,7 @@ async function dashboardWithLink(name: string, password?: string): Promise<strin
 
 /** Open the Sharing tab of the LaunchPad admin settings. */
 async function openSharingTab(page: Page): Promise<Locator> {
-	await page.goto('/index.php/apps/launchpad/admin')
+	await page.goto('/index.php/settings/admin/launchpad')
 	const tab = adminTab(page, 'sharing')
 	await expect(tab).toBeVisible({ timeout: 20_000 })
 	await tab.click()

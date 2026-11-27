@@ -57,8 +57,9 @@ const LAUNCHPAD_ORDER = [
 
 /**
  * Panel entries the Launchpad group leaves out because another item already
- * offers them: the dashboards (the Dashboards group) and the in-app admin
- * settings route (the Settings group links to the admin settings).
+ * offers them: the dashboards (the Dashboards group) and a stale
+ * `admin-settings` menu entry an older runtime manifest may still carry (the
+ * Settings group links to the admin settings page, REQ-ADM-032).
  */
 const OFFERED_ELSEWHERE = ['dashboards', 'admin-settings']
 
@@ -174,7 +175,7 @@ export function resolveMenuItem(item, openUserSettings) {
  * @param {(() => void)|null} openUserSettings The injected personal-settings opener.
  * @return {Record<string, object[]>} The menu items by section.
  * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
- * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
  */
 export function startPageSections(chrome, openUserSettings) {
 	const bySection = Object.fromEntries(SECTIONS.map((s) => [s, []]))
@@ -200,7 +201,7 @@ export function startPageSections(chrome, openUserSettings) {
 		settings.push({
 			id: 'admin-settings-link',
 			label: t('launchpad', 'Admin settings'),
-			// The administration, a Launchpad page (admin-settings REQ-ADM-030).
+			// The admin settings page in Nextcloud's settings (REQ-ADM-032).
 			href: adminPageUrl(),
 			external: false,
 		})

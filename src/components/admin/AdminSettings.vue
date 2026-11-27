@@ -8,8 +8,10 @@
 		<!-- The board look: the shell draws the h1, the path line and the
 		     Documentatie button, and lays its sections out as cards in two
 		     columns (board LpBeheerAlgemeen). The shell's own `look` switches
-		     the board look on. The open tab is in the page's path
-		     (`/apps/launchpad/admin/<tab>`, REQ-ADM-030), not in `?tab=`. -->
+		     the board look on. The page sits in Nextcloud's settings
+		     framework (`/settings/admin/launchpad`, REQ-ADM-032); the open
+		     tab is the URL fragment, which AdminRoot keeps, not `?tab=`.
+		     The version card comes first on General (Restart setup, Tour). -->
 		<CnAdminSettingsShell
 			ref="shell"
 			appId="launchpad"
@@ -19,12 +21,36 @@
 			docUrl="https://launchpad.conduction.nl/docs/intro"
 			:breadcrumbs="breadcrumbs"
 			:breadcrumbNote="breadcrumbNote"
-			:showVersionCard="false"
+			:showVersionCard="showsVersionCard"
+			:appVersion="appVersion"
+			:showReimport="false"
+			:showUpdateButton="false"
 			:tabs="beheerTabs"
 			tabsVariant="underline"
 			tabQueryKey=""
 			lazyTabs
 			@tabChange="onTabChange">
+			<!-- REQ-ADM-032: the version card's own actions. -->
+			<template #actions>
+				<NcButton
+					variant="secondary"
+					data-testid="admin-version-restart-setup"
+					@click="openWizard">
+					{{ t('launchpad', 'Restart setup') }}
+				</NcButton>
+				<NcButton
+					v-if="adminTour"
+					variant="secondary"
+					data-testid="admin-version-tour"
+					@click="startAdminTour">
+					{{ t('launchpad', 'Tour') }}
+				</NcButton>
+			</template>
+			<!-- REQ-ADM-034: the Announcements tab, the one a delegated
+			     announcements manager holds. -->
+			<template #tab-announcements>
+				<AnnouncementsTab />
+			</template>
 			<!-- Each tab draws its own content in the shell's `tab-<id>` slot.
 			     With `lazyTabs` the shell mounts only the open tab's slot: it
 			     fetches fresh on each visit, and the page does not load all
@@ -432,6 +458,7 @@ import AdminCustomCss from './AdminCustomCss.vue'
 import AllowedSitesSettings from './AllowedSitesSettings.vue'
 import DiscoverableServicesSettings from './DiscoverableServicesSettings.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
+import AnnouncementsTab from './tabs/AnnouncementsTab.vue'
 import AppCatalogueTab from './tabs/AppCatalogueTab.vue'
 import CommunitiesTab from './tabs/CommunitiesTab.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
@@ -449,7 +476,7 @@ import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
 import TileLaunchSettings from './TileLaunchSettings.vue'
 import manifest from '../../manifest.json'
 import { api } from '../../services/api.js'
-import { adminTab } from '../../utils/adminPage.js'
+import { ADMIN_TABS, adminTab } from '../../utils/adminPage.js'
 import { ADMIN_TOUR_WALKTHROUGH_KEY, adminTourManifest, loadAdminTourSeen, persistAdminTourSeen } from '../../utils/adminWalkthrough.js'
 import { logger } from '../../utils/logger.js'
 
@@ -459,6 +486,7 @@ export default {
 	components: {
 		AdminCustomCss,
 		AllowedSitesSettings,
+		AnnouncementsTab,
 		CnAdminSettingsShell,
 		CnSettingsSection,
 		CnWalkthrough,
@@ -502,11 +530,14 @@ export default {
 			from: 'configuredGroups',
 			default: () => [],
 		},
+
+		// REQ-ADM-032: the running version for the version card.
+		appVersion: { from: 'version', default: '' },
 	},
 
 	props: {
 		/**
-		 * The tab the page's address names (REQ-ADM-030). An unknown or
+		 * The tab the page's address names (REQ-ADM-032). An unknown or
 		 * empty tab opens General.
 		 */
 		tab: {
@@ -522,11 +553,20 @@ export default {
 			type: String,
 			default: '',
 		},
+
+		/**
+		 * The tabs the viewer holds (REQ-ADM-034), in the page's order; the
+		 * page shows only these.
+		 */
+		heldTabs: {
+			type: Array,
+			default: () => [...ADMIN_TABS],
+		},
 	},
 
 	emits: ['tabChange'],
 
-	/** @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030 */
+	/** @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032 */
 	data() {
 		return {
 			loading: true,
@@ -585,7 +625,8 @@ export default {
 		 * @spec openspec/changes/record-parity-requirements/specs/runtime-shell/spec.md#requirement-the-admin-area-has-its-own-first-visit-tour-req-shell-011
 		 */
 		adminTourReady() {
-			return this.adminTour !== null && this.adminTourSeen !== null && this.activeTab === 'general'
+			// The tour waits while the setup wizard is open (REQ-ADM-032, D6).
+			return this.adminTour !== null && this.adminTourSeen !== null && this.activeTab === 'general' && !this.showWizard
 		},
 
 		/**
@@ -656,48 +697,47 @@ export default {
 		},
 
 		/**
-		 * Ordered Beheer tab descriptors: the twelve tabs the Beheer boards
-		 * draw (REQ-ADM-032). Labels live here so they stay translatable in
+		 * Ordered Beheer tab descriptors: the thirteen tabs the Beheer boards
+		 * draw, those the viewer holds (REQ-ADM-032, REQ-ADM-034). Labels live here so they stay translatable in
 		 * one place; each `id` after the first names the shell slot
 		 * `tab-<id>`; the first tab is the default slot.
 		 *
 		 * @spec openspec/changes/admin-group-management/tasks.md#task-1
 		 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
 		 * @return {Array<{id: string, label: string}>}
 		 */
 		beheerTabs() {
-			return [
-				{ id: 'general', label: this.t('launchpad', 'General') },
-				{ id: 'templates', label: this.t('launchpad', 'Templates') },
-				{ id: 'operations', label: this.t('launchpad', 'Controls') },
-				{
-					id: 'roles-permissions',
-					label: this.t('launchpad', 'Roles and permissions'),
-				},
-				{
-					id: 'versioning-audit',
-					label: this.t('launchpad', 'Versions and analytics'),
-				},
-				{ id: 'sharing', label: this.t('launchpad', 'Sharing') },
-				{ id: 'kiosk', label: this.t('launchpad', 'Kiosk') },
-				{
-					id: 'org-navigation',
-					label: this.t('launchpad', 'Organisation menu'),
-				},
-				{ id: 'demo-data', label: this.t('launchpad', 'Demo data') },
-				{
-					id: 'group-dashboards',
-					label: this.t('launchpad', 'Group dashboards'),
-				},
-				{
-					id: 'detail-fields',
-					label: this.t('launchpad', 'Detail fields'),
-				},
-				{
-					id: 'profile-fields',
-					label: this.t('launchpad', 'Profile fields'),
-				},
-			]
+			const labels = {
+				general: this.t('launchpad', 'General'),
+				announcements: this.t('launchpad', 'Announcements'),
+				templates: this.t('launchpad', 'Templates'),
+				'roles-permissions': this.t('launchpad', 'Roles and permissions'),
+				sharing: this.t('launchpad', 'Sharing'),
+				'org-navigation': this.t('launchpad', 'Organisation menu'),
+				kiosk: this.t('launchpad', 'Kiosk'),
+				'versioning-audit': this.t('launchpad', 'Versions and analytics'),
+				operations: this.t('launchpad', 'Controls'),
+				'demo-data': this.t('launchpad', 'Demo data'),
+				'group-dashboards': this.t('launchpad', 'Group dashboards'),
+				'detail-fields': this.t('launchpad', 'Detail fields'),
+				'profile-fields': this.t('launchpad', 'Profile fields'),
+			}
+			const held = Array.isArray(this.heldTabs) ? this.heldTabs : ADMIN_TABS
+			return ADMIN_TABS
+				.filter((id) => held.includes(id))
+				.map((id) => ({ id, label: labels[id] }))
+		},
+
+		/**
+		 * The version card shows on General, so only to a viewer who holds
+		 * the whole page; an announcements manager sees none (REQ-ADM-034).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-delegated-admin-settings-per-area-req-adm-034
+		 */
+		showsVersionCard() {
+			return !Array.isArray(this.heldTabs) || this.heldTabs.includes('general')
 		},
 	},
 
@@ -707,10 +747,20 @@ export default {
 		 * Open the tab the address names when it changes (Back, Forward).
 		 *
 		 * @param {string} tab The tab the address names.
-		 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
 		 */
 		tab(tab) {
 			this.showTab(adminTab(tab))
+		},
+
+		/**
+		 * Scroll to a former tab's section when the fragment names one.
+		 *
+		 * @param {string} section The section.
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 */
+		section(section) {
+			this.revealSection(section)
 		},
 
 		/**
@@ -738,7 +788,7 @@ export default {
 	},
 
 	/**
-	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
 	 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
 	 */
 	mounted() {
@@ -753,7 +803,7 @@ export default {
 		 *
 		 * @param {string} id The id of the newly opened tab.
 		 * @spec openspec/specs/admin-settings/spec.md
-		 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
 		 */
 		onTabChange(id) {
 			this.activeTab = id
@@ -764,7 +814,7 @@ export default {
 		 * Scroll a folded section into view: the former tab an old address
 		 * or link names (REQ-ADM-032).
 		 *
-		 * @param {string} section A key of FOLDED_ADMIN_TABS, or ''.
+		 * @param {string} section A key of FOLDED_ADMIN_TABS, a `section-*` element id, or ''.
 		 * @return {void}
 		 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
 		 */
@@ -773,7 +823,9 @@ export default {
 				return
 			}
 			this.$nextTick(() => {
-				const target = this.$el?.querySelector?.(`[data-admin-section="${section}"]`)
+				// A former tab's section, or an element id a settings link names.
+				const selector = section.startsWith('section-') ? `#${section}` : `[data-admin-section="${section}"]`
+				const target = this.$el?.querySelector?.(selector)
 				if (target && typeof target.scrollIntoView === 'function') {
 					target.scrollIntoView({ block: 'start' })
 				}
@@ -784,7 +836,7 @@ export default {
 		 * Open a tab without a click: the one the address names.
 		 *
 		 * @param {string} id The tab's id.
-		 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
 		 */
 		showTab(id) {
 			this.activeTab = id
@@ -804,6 +856,25 @@ export default {
 			if (this.adminTour) {
 				this.adminTourSeen = await loadAdminTourSeen('launchpad')
 			}
+		},
+
+		/**
+		 * Start the admin tour again from the version card's Tour button: on
+		 * General, as if it had not been seen (REQ-ADM-032, REQ-SHELL-011).
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 */
+		startAdminTour() {
+			this.adminTourMounted = false
+			this.adminTourSeen = ''
+			if (this.activeTab !== 'general') {
+				this.onTabChange('general')
+				this.showTab('general')
+			}
+			this.$nextTick(() => {
+				this.adminTourMounted = true
+			})
 		},
 
 		/**
@@ -1012,10 +1083,36 @@ export default {
 			try {
 				const { data } = await api.getSetupWizardState()
 				this.wizardState = data || null
+				this.offerWizardOnce()
 			} catch (e) {
 				logger.warn('Failed to load setup wizard state:', e)
 				this.wizardState = null
 			}
+		},
+
+		/**
+		 * Open the setup wizard by itself on the first visit of the settings
+		 * page while setup is not done (ADR-042): once per browser session,
+		 * and only for a viewer who holds General (REQ-ADM-032, D6).
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 */
+		offerWizardOnce() {
+			if (!this.wizardState || this.wizardState.complete || !this.showsVersionCard) {
+				return
+			}
+			const key = 'launchpad:setup-wizard-offered'
+			try {
+				if (globalThis.sessionStorage?.getItem(key)) {
+					return
+				}
+				globalThis.sessionStorage?.setItem(key, '1')
+			} catch (e) {
+				// Without storage the banner still offers the wizard.
+				return
+			}
+			this.showWizard = true
 		},
 
 		/** @spec openspec/specs/admin-settings/spec.md */

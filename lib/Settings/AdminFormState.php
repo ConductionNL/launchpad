@@ -31,7 +31,7 @@ namespace OCA\LaunchPad\Settings;
 
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\InitialState\Page;
-use OCA\LaunchPad\Service\InitialStateBuilder;
+use OCA\LaunchPad\Service\AdminPageStateBuilder;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\IGroupManager;
 
@@ -61,12 +61,16 @@ class AdminFormState {
 	/**
 	 * Provide the full admin initial-state contract.
 	 *
+	 * @param list<string> $tabs    The tabs of the admin settings page the viewer may open (REQ-ADM-034).
+	 * @param string       $version The running app version, for the version card (REQ-ADM-032).
+	 *
 	 * @return void
 	 *
 	 * @spec openspec/specs/initial-state-contract/spec.md#requirement-versioned-key-set-per-page-req-init-002
-	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-delegated-admin-settings-per-area-req-adm-034
 	 */
-	public function provide(): void {
+	public function provide(array $tabs=AdminTabs::TABS, string $version=''): void {
 		$allGroups = [];
 		foreach ($this->groupManager->search(search: '') as $group) {
 			$allGroups[] = [
@@ -98,10 +102,12 @@ class AdminFormState {
 
 		$allowUserDashboards = $this->sources->dashboardService->getAllowUserDashboards();
 
-		(new InitialStateBuilder(
+		(new AdminPageStateBuilder(
 			initialState: $this->initialState,
 			page: Page::ADMIN
 		))
+			// REQ-ADM-034: the page shows only the tabs the viewer holds.
+			->setAdminPage(array_values($tabs), $version)
 			->setAllGroups($allGroups)
 			->setConfiguredGroups($configuredGroups)
 			->setWidgets($this->sources->widgetService->getAvailableWidgets())
@@ -109,9 +115,6 @@ class AdminFormState {
 			->setLinkCreateFileExtensions(
 				$this->sources->fileService->getAllowedExtensions()
 			)
-			// The page renders in the Launchpad shell only for a (delegated)
-			// administrator, whose More menu then offers the admin entries.
-			->setIsAdmin(true)
 			->apply();
 	}//end provide()
 }//end class

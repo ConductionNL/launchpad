@@ -41,7 +41,7 @@ const STAMP = `${Date.now()}`
 const TILE_TITLE = `Zaaksysteem ${STAMP}`
 const PUBLIC_URL = 'https://zaken.gemeente.nl/'
 const INTERNAL_URL = 'http://zaken.intern/'
-const SETTINGS_URL = `${BASE}/index.php/apps/launchpad/admin`
+const SETTINGS_URL = `${BASE}/index.php/settings/admin/launchpad`
 
 let admin: APIRequestContext
 let viewer: Principal

@@ -64,7 +64,7 @@ import {
 } from './support/principals.ts'
 
 const RUN = Date.now()
-const SETTINGS = '/index.php/apps/launchpad/admin'
+const SETTINGS = '/index.php/settings/admin/launchpad'
 
 let admin: APIRequestContext
 let settingsBefore: Awaited<ReturnType<typeof allowPersonalDashboardsFreely>> | null = null

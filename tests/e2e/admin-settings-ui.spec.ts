@@ -152,6 +152,15 @@ test.afterAll(async () => {
 	await admin.dispose()
 })
 
+// On an instance whose setup is not done the setup wizard opens by itself on
+// the first visit in a browser session (ADR-042) and covers the tabs; these
+// tests are about the settings, so the session has already been offered it.
+test.beforeEach(async ({ page }) => {
+	await page.addInitScript(() => {
+		window.sessionStorage.setItem('launchpad:setup-wizard-offered', '1')
+	})
+})
+
 test.describe('REQ-ASET-008 the admin settings page', () => {
 	// @e2e admin-settings::admin-settings-page-is-registered
 	test('Settings > Administration lists LaunchPad and the entry opens its page', async ({
@@ -163,12 +172,10 @@ test.describe('REQ-ASET-008 the admin settings page', () => {
 		await expect(entry).toBeVisible({ timeout: 30_000 })
 		await expect(entry).toContainText('LaunchPad')
 
-		// The section links on to the administration page (REQ-ADM-031).
+		// REQ-ADM-032: the section IS the administration page (no link on to
+		// an in-app /apps/launchpad/admin route any more); General opens first.
 		await entry.click()
-		await expect(page).toHaveURL(/\/settings\/admin\/launchpad/)
-		await page.getByTestId('launchpad-admin-settings-link').getByRole('link').click()
-		// /admin opens General; the router leaves the default tab out of the link.
-		await expect(page).toHaveURL(/\/apps\/launchpad\/admin(\/general)?(\?|#|$)/)
+		await expect(page).toHaveURL(/\/settings\/admin\/launchpad(#general)?$/)
 		await adminTab(page, 'general').click()
 		await expect(page.getByTestId('admin-default-settings')).toBeVisible({
 			timeout: 30_000,

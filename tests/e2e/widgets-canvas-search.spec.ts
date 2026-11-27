@@ -27,7 +27,7 @@
 import type { Locator, Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
-import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, openDashboardSwitcher, saveEditDraft } from './support/dashboardSwitcher.ts'
 import { catalogueFromApi } from './support/widgetCatalogue.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 import {
@@ -257,28 +257,20 @@ test.describe('workspace canvas and the widget picker (REQ-WDG-027, REQ-WDG-028)
 			available.map((w) => String(w.title)).sort(),
 		)
 
-		const created = page.waitForResponse(
-			(res) =>
-				res.request().method() === 'POST'
-				&& new URL(res.url()).pathname.endsWith(
-					`/apps/launchpad/api/dashboard/${dash.id}/widgets`,
-				),
-		)
 		// A click chooses the card; "Add widget" places it (widget-picker-board-sync).
 		await chooseAndAdd(
 			picker.locator('[data-testid="widget-picker-section-apps"] button.widget-picker__widget', {
 				hasText: String(extra.title),
 			}),
 		)
-		const response = await created
-		expect(response.status()).toBe(201)
-		const placement = await response.json()
-		expect(placement.widgetId).toBe(extra.id)
+		// It lands in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 
 		const stored = (await seeds.placements(dash)).filter(
 			(p) => p.widgetId === extra.id,
 		)
 		expect(stored).toHaveLength(1)
+		const placement = stored[0]
 		await page.keyboard.press('Escape')
 		await expect(gridItem(page, Number(placement.id))).toHaveCount(1, {
 			timeout: 10_000,

@@ -4,7 +4,7 @@
 -->
 
 <template>
-	<!-- widget-picker-board-sync REQ-WDG-040: one 720 px dialog, titled with
+	<!-- widget-picker-board-sync REQ-WDG-040: one 1120 px dialog (REQ-WDG-048), titled with
 	     the dashboard over "Add widget": the search, the kinds and, to their
 	     right, the cards in two columns under three headings; Cancel and
 	     Add widget at the foot. A card is chosen by a click and placed with
@@ -124,6 +124,18 @@
 								:data-testid="card.testid"
 								@click="choose(card)"
 								@dblclick="place(card)">
+								<!-- REQ-WDG-048: the widget itself, scaled down, above its icon, name and line. -->
+								<WidgetMiniature
+									class="widget-picker__miniature"
+									:type="card.miniature && card.miniature.type || ''"
+									:entry="card.miniature && card.miniature.type ? entryOf(card.miniature.type) : null"
+									:content="card.miniature && card.miniature.content || null"
+									:ncWidget="card.miniature && card.miniature.ncWidget || null">
+									<template #icon>
+										<ViewDashboardOutline :size="32" />
+									</template>
+								</WidgetMiniature>
+								<span class="widget-picker__widget-row">
 								<span
 									v-if="card.icon.kind === 'tile' || card.icon.kind === 'own'"
 									class="widget-picker__widget-icon widget-picker__tile-swatch"
@@ -171,6 +183,7 @@
 									<span v-if="card.badge" class="widget-picker__widget-badge">
 										{{ card.badge }}
 									</span>
+								</span>
 								</span>
 								<Check
 									v-if="chosenKey === card.key"
@@ -260,7 +273,9 @@ import Check from 'vue-material-design-icons/Check.vue'
 import Magnify from 'vue-material-design-icons/Magnify.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
+import WidgetMiniature from '../components/WidgetMiniature.vue'
 import { FLAG_PROP, LIST_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
+import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { assistantAvailable, proposeWidget } from '../services/widgetAssistant.js'
 import { countByKind, filterCards, kindLabel, KINDS, pickerCards, sectionLabel, SECTIONS } from '../utils/widgetPickerCards.js'
 
@@ -288,6 +303,7 @@ export default {
 		Plus,
 		Check,
 		ViewDashboardOutline,
+		WidgetMiniature,
 	},
 
 	props: {
@@ -465,6 +481,17 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * The registry entry a card's miniature draws.
+		 *
+		 * @param {string} type The widget type.
+		 * @return {object|null}
+		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+		 */
+		entryOf(type) {
+			return getWidgetTypeEntry(type)
+		},
+
 		t,
 
 		/**
@@ -649,9 +676,10 @@ export default {
 </script>
 
 <style scoped>
-/* REQ-WDG-040: the dialog is 720 px wide (narrower on a small screen). */
+/* REQ-WDG-040: the dialog is 1120 px wide (narrower on a small screen), room
+   for the miniatures (REQ-WDG-048). */
 .widget-picker-modal :deep(.modal-container) {
-	width: 720px;
+	width: 1120px;
 	max-width: calc(100vw - 32px);
 }
 
@@ -778,7 +806,7 @@ export default {
 
 .widget-picker__grid {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 8px;
 }
 
@@ -799,9 +827,11 @@ export default {
 }
 
 .widget-picker__widget {
+	position: relative;
 	display: flex;
-	align-items: flex-start;
-	gap: 12px;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 8px;
 	padding: 12px;
 	border: 2px solid var(--color-border);
 	background: var(--color-main-background);
@@ -952,5 +982,17 @@ export default {
 	.widget-picker__widget {
 		transition-duration: 0.01ms;
 	}
+}
+.widget-picker__widget-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	min-width: 0;
+}
+
+.widget-picker__widget-action--check {
+	position: absolute;
+	top: 8px;
+	inset-inline-end: 8px;
 }
 </style>

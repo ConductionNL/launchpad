@@ -361,7 +361,7 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 		)
 		expect(published.status(), await published.text()).toBe(200)
 		await quietFirstVisit(member.api)
-		const active = await member.api.post(`${API}/dashboards/active`, {
+		const active = await member.api.post(`${API}/dashboards/default`, {
 			data: { uuid: groupDashboard.uuid },
 		})
 		expect(active.status(), await active.text()).toBeLessThan(300)

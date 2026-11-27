@@ -164,7 +164,7 @@ test('on a view-only dashboard the menu has no "Import bookmarks"; with full per
 		await publishForRecipients(admin, full.id)
 		await shareWith(admin, full.id, viewer.username, 'full')
 
-		const active = await viewer.api.post(`${API}/dashboards/active`, {
+		const active = await viewer.api.post(`${API}/dashboards/default`, {
 			data: { uuid: viewOnly.uuid },
 		})
 		expect(active.status(), await active.text()).toBeLessThan(300)
@@ -184,7 +184,7 @@ test('on a view-only dashboard the menu has no "Import bookmarks"; with full per
 			).toHaveCount(0)
 			await page.keyboard.press('Escape')
 
-			const switched = await viewer.api.post(`${API}/dashboards/active`, {
+			const switched = await viewer.api.post(`${API}/dashboards/default`, {
 				data: { uuid: full.uuid },
 			})
 			expect(switched.status(), await switched.text()).toBeLessThan(300)

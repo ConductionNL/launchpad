@@ -168,7 +168,7 @@ async function activeIdOf(who: Principal): Promise<number> {
 async function activate(who: Principal, dash: Dashboard): Promise<void> {
 	const legacy = await who.api.post(`${API}/dashboard/${dash.id}/activate`)
 	expect(legacy.status(), await legacy.text()).toBeLessThan(300)
-	const pref = await who.api.post(`${API}/dashboards/active`, {
+	const pref = await who.api.post(`${API}/dashboards/default`, {
 		data: { uuid: dash.uuid },
 	})
 	expect(pref.status(), await pref.text()).toBeLessThan(300)

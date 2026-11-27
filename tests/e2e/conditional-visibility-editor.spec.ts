@@ -286,7 +286,7 @@ test.beforeAll(async () => {
 	)
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
 	const preference = await api.post(
-		'/index.php/apps/launchpad/api/dashboards/active',
+		'/index.php/apps/launchpad/api/dashboards/default',
 		{
 			data: { uuid: dashboardUuid },
 		},
@@ -2063,7 +2063,7 @@ test.describe('conditional-visibility editor — preview equals render for a rea
 			`${API}/dashboard/${dashboardId}/activate`,
 		)
 		expect(activate.status(), await activate.text()).toBeLessThan(300)
-		const preference = await who.api.post(`${API}/dashboards/active`, {
+		const preference = await who.api.post(`${API}/dashboards/default`, {
 			data: { uuid: String(dash.uuid) },
 		})
 		expect(preference.status(), await preference.text()).toBeLessThan(300)

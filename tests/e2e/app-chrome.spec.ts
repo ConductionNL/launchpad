@@ -296,7 +296,7 @@ test.describe('app chrome (ADR-114)', () => {
 		const linked = await create(`Linked ${stamp}`)
 		const other = await create(`Other ${stamp}`)
 		try {
-			const active = await api.post('/index.php/apps/launchpad/api/dashboards/active', {
+			const active = await api.post('/index.php/apps/launchpad/api/dashboards/default', {
 				headers,
 				data: { uuid: other.uuid },
 			})

@@ -126,7 +126,7 @@ async function viewer(
 	})
 	expect(created.status(), await created.text()).toBeLessThan(300)
 	const dash = (await created.json()).dashboard
-	const active = await who.api.post(`${API}/dashboards/active`, {
+	const active = await who.api.post(`${API}/dashboards/default`, {
 		data: { uuid: dash.uuid },
 	})
 	expect(active.status(), await active.text()).toBeLessThan(300)
@@ -559,7 +559,7 @@ test.describe('per-dashboard footer rendering (REQ-FTR-006)', () => {
 		principals.push(reader)
 		await publishForRecipients(admin, adminDash!.id)
 		await shareWith(admin, adminDash!.id, reader.username, 'view_only')
-		const active = await reader.api.post(`${API}/dashboards/active`, {
+		const active = await reader.api.post(`${API}/dashboards/default`, {
 			data: { uuid: adminDash!.uuid },
 		})
 		expect(active.status(), await active.text()).toBeLessThan(300)

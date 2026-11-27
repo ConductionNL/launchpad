@@ -116,7 +116,7 @@ export async function activate(
 ): Promise<void> {
 	const legacy = await api.post(`${API}/dashboard/${dashboard.id}/activate`)
 	expect(legacy.status(), await legacy.text()).toBeLessThan(300)
-	const preference = await api.post(`${API}/dashboards/active`, {
+	const preference = await api.post(`${API}/dashboards/default`, {
 		data: { uuid: dashboard.uuid },
 	})
 	expect(preference.status(), await preference.text()).toBeLessThan(300)

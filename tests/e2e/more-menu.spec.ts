@@ -88,7 +88,7 @@ async function ownActiveDashboard(as: APIRequestContext, name: string): Promise<
 	expect(id, `no dashboard id in ${JSON.stringify(body)}`).toBeTruthy()
 	const activate = await as.post(`${API}/dashboard/${id}/activate`)
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
-	const preference = await as.post(`${API}/dashboards/active`, { data: { uuid: dash.uuid } })
+	const preference = await as.post(`${API}/dashboards/default`, { data: { uuid: dash.uuid } })
 	expect(preference.status(), await preference.text()).toBeLessThan(300)
 	return { id, uuid: dash.uuid, name }
 }
@@ -256,7 +256,7 @@ test('a dashboard picked under Dashboards opens, and stays open after a reload',
 	const { context, page } = await memberSession(browser)
 	try {
 		// The second dashboard is now the active one; go back to the first through the API.
-		const back = await owner.post(`${API}/dashboards/active`, { data: { uuid: memberDashboard?.uuid } })
+		const back = await owner.post(`${API}/dashboards/default`, { data: { uuid: memberDashboard?.uuid } })
 		expect(back.status(), await back.text()).toBeLessThan(300)
 
 		const panel = await openMore(page)

@@ -126,7 +126,7 @@ test.beforeAll(async ({ browser }) => {
 	).toBe(200)
 	expect(
 		(
-			await user.api.post(`${API}/dashboards/active`, {
+			await user.api.post(`${API}/dashboards/default`, {
 				data: { uuid: dash.uuid },
 			})
 		).status(),

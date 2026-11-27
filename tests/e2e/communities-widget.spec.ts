@@ -102,7 +102,7 @@ test.beforeAll(async () => {
 	const reader = await apiAs(member.username, member.password)
 	try {
 		// A new account's first request also sets up its home folder, which takes a while.
-		const active = await reader.post(`${API}/dashboards/active`, { data: { uuid: dash.uuid }, timeout: 60_000 })
+		const active = await reader.post(`${API}/dashboards/default`, { data: { uuid: dash.uuid }, timeout: 60_000 })
 		expect(active.status(), await active.text()).toBeLessThan(300)
 	} finally {
 		await reader.dispose()

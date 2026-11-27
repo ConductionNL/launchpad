@@ -114,7 +114,7 @@ test.beforeAll(async () => {
 		const dash = body.dashboard ?? body.data?.dashboard ?? body
 		dashboardId = Number(dash.id)
 		await api.post(`${API}/dashboard/${dash.id}/activate`)
-		await api.post(`${API}/dashboards/active`, { data: { uuid: dash.uuid } })
+		await api.post(`${API}/dashboards/default`, { data: { uuid: dash.uuid } })
 		const probe = await api.get(`${API}/work-packages`)
 		integrationState = probe.ok() ? String((await probe.json()).state ?? '') : ''
 	} finally {

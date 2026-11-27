@@ -101,7 +101,7 @@ export async function createOwnDashboard(
 
 	const activate = await api.post(`${API}/dashboard/${id}/activate`)
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
-	const preference = await api.post(`${API}/dashboards/active`, {
+	const preference = await api.post(`${API}/dashboards/default`, {
 		data: { uuid: dash.uuid },
 	})
 	expect(preference.status(), await preference.text()).toBeLessThan(300)

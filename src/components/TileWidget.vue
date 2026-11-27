@@ -11,7 +11,7 @@
 		:data-tile-id="tile.id"
 		:style="{
 			'--tile-bg-color': backgroundCss,
-			'--tile-text-color': tile.textColor || '#ffffff',
+			'--tile-text-color': textCss,
 		}">
 		<!-- Shared edit cog in edit mode (Edit / Delete), matching the
 		     OpenBuild widget chrome used across the dashboard. The absolute
@@ -62,7 +62,7 @@
 			<svg
 				v-if="tile.iconType === 'svg'"
 				class="tile-widget__icon"
-				:style="{ fill: tile.textColor || '#ffffff' }"
+				:style="{ fill: textCss }"
 				viewBox="0 0 24 24">
 				<path :d="tile.icon" />
 			</svg>
@@ -72,6 +72,12 @@
 					v-if="tile.iconType === 'class'"
 					class="icon"
 					:class="[tile.icon]" />
+				<!-- REQ-APPTILE-005: an SVG icon takes the chosen text colour. -->
+				<span
+					v-else-if="tile.iconType === 'url' && maskIcon"
+					class="tile-widget__mask"
+					data-testid="tile-icon-mask"
+					:style="{ '--tile-icon-mask': `url(&quot;${tile.icon}&quot;)` }" />
 				<img
 					v-else-if="tile.iconType === 'url'"
 					:src="tile.icon"
@@ -87,7 +93,7 @@
 					v-else-if="tile.iconType === 'mdi'"
 					:name="tile.icon"
 					:size="64"
-					:style="{ color: tile.textColor || '#ffffff' }" />
+					:style="{ color: textCss }" />
 			</div>
 			<!-- An icon-only tile marks itself as the app tiles do (LpVandaag):
 			     a pin at the top left, a count or an outage dot at the top right. -->
@@ -113,8 +119,8 @@
 				v-if="!iconOnly"
 				class="tile-widget__title"
 				:style="{
-					color: tile.textColor || '#ffffff',
-					'--title-color': tile.textColor || '#ffffff',
+					color: textCss,
+					'--title-color': textCss,
 				}">
 				{{ tile.title }}
 			</div>
@@ -163,6 +169,7 @@ import { logger } from '../utils/logger.js'
 import { tileBackground } from '../utils/tileColour.js'
 import { launchHref, launchTarget, LINK_PROGRAM } from '../utils/tileLaunch.js'
 import { isSameOrigin, NEW_TAB, resolveLinkTarget, SIDE_PANEL } from '../utils/tileLinkTarget.js'
+import { isTextColour, textColourValue } from '../utils/tileTextColour.js'
 
 const { recordTileClick } = useTileClickTracking()
 
@@ -303,6 +310,31 @@ export default {
 		 */
 		backgroundCss() {
 			return tileBackground(this.tile, this.content)
+		},
+
+		/**
+		 * The colour of the title, the count and the icon: the tile's stored
+		 * text colour, else its own text colour, else white.
+		 *
+		 * @return {string} The CSS colour.
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 */
+		textCss() {
+			if (isTextColour(this.content?.textColour)) {
+				return textColourValue(this.content.textColour)
+			}
+			return this.tile?.textColor || '#ffffff'
+		},
+
+		/**
+		 * Whether the icon is an SVG drawn in the text colour: only when the
+		 * tile stores a text colour; an uploaded full-colour image stays as is.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 */
+		maskIcon() {
+			return isTextColour(this.content?.textColour) && /\.svg(\?|#|$)/i.test(String(this.tile?.icon || ''))
 		},
 
 		/**
@@ -452,7 +484,7 @@ export default {
 			style.id = styleId
 			style.textContent = `
 				.tile-widget[data-tile-id="${this.tile.id}"] .tile-widget__title {
-					color: ${this.tile.textColor || '#ffffff'} !important;
+					color: ${this.textCss} !important;
 				}
 			`
 			document.head.appendChild(style)
@@ -738,6 +770,16 @@ export default {
 	background-size: 100%;
 }
 
+/* REQ-APPTILE-005: an SVG icon painted in the tile's text colour. */
+.tile-widget__mask {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background-color: var(--tile-text-color, #fff);
+	mask: var(--tile-icon-mask) center / contain no-repeat;
+	-webkit-mask: var(--tile-icon-mask) center / contain no-repeat;
+}
+
 /* The marks of an icon-only tile, as CnAppTile draws them. */
 .tile-widget__pin {
 	position: absolute;
@@ -756,8 +798,9 @@ export default {
 	height: 20px;
 	padding: 0 6px;
 	border-radius: 10px;
-	background: #fff;
-	color: #1b1c1d;
+	/* REQ-APPTILE-005: the count in the tile's text colour. */
+	background: var(--tile-text-color, #fff);
+	color: var(--tile-bg-color, #1b1c1d);
 	font-size: 12px;
 	font-weight: 700;
 	line-height: 20px;

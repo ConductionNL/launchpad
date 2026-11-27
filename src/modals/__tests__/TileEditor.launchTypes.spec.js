@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for the launch types of `TileEditor.vue`
- * (launcher-tile-launch-types task 4): the "Tile type" choice cards
- * (tile-form-board-sync REQ-TILE-040), the fields each
+ * (launcher-tile-launch-types task 4): a stored former type shows its
+ * fields under "How it opens" (app-link-tile-widget REQ-TILE-040), the fields each
  * type shows, the template picker with no free address field for single
  * sign-on, and the hint naming the schemes an administrator allowed.
  */
@@ -56,12 +56,16 @@ async function pick(wrapper, selectLabel, value) {
 	await wrapper.find(`.select[data-label="${selectLabel}"] .option[data-value="${value}"]`).trigger('click')
 }
 
-function typeCards(wrapper) {
-	return wrapper.find('[data-testid="tile-link-type"]').findAll('.choice-cards__card')
-}
-
-async function pickType(wrapper, value) {
-	await wrapper.find(`[data-testid="tile-link-type"] input[value="${value}"]`).setValue(true)
+/**
+ * A tile stored with a former tile type (app-link-tile-widget REQ-TILE-040:
+ * the types are no choice cards any more; a stored one keeps its fields).
+ *
+ * @param {string} linkType The stored type.
+ * @param {object} [fields] More fields.
+ * @return {object} The wrapper.
+ */
+function mountStored(linkType, fields = {}) {
+	return mountEditor({ id: 9, title: 'Stored', linkType, linkValue: '', ...fields })
 }
 
 describe('TileEditor launch types', () => {
@@ -78,28 +82,21 @@ describe('TileEditor launch types', () => {
 		globalThis.t = plainT
 	})
 
-	it('offers the four tile types as choice cards, each with one line of explanation', () => {
+	it('offers no tile type cards, only An app or A link', () => {
 		const wrapper = mountEditor()
-		expect(wrapper.find('[data-testid="tile-link-type"]').attributes('role')).toBe('radiogroup')
-		expect(typeCards(wrapper).map((c) => c.find('.choice-cards__title').text()))
-			.toEqual(['Web address', 'App with single sign-on', 'Legacy Windows program', 'Program on this computer'])
-		expect(typeCards(wrapper).map((c) => c.attributes('data-value'))).toEqual(['url', 'sso', 'remote-desktop', 'program'])
-		expect(typeCards(wrapper).every((c) => c.find('.choice-cards__hint').text() !== '')).toBe(true)
-		expect(wrapper.find('[data-testid="tile-link-type"] input[value="url"]').element.checked).toBe(true)
+		expect(wrapper.find('[data-testid="tile-link-type"]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="tile-mode"]').findAll('.choice-cards__card').map((c) => c.attributes('data-value'))).toEqual(['app', 'link'])
+		expect(wrapper.find('[data-testid="tile-how-it-opens"]').exists()).toBe(false)
 	})
 
-	it('keeps an older app tile selectable under its own label', () => {
-		const cards = typeCards(mountEditor({ id: 1, title: 'Files', linkType: 'app', linkValue: 'files' }))
-		expect(cards[0].attributes('data-value')).toBe('app')
-		expect(cards[0].find('.choice-cards__title').text()).toBe('Nextcloud app')
-		expect(cards[0].find('input').element.checked).toBe(true)
-		expect(labels(mountEditor({ id: 1, title: 'Files', linkType: 'app', linkValue: 'files' }))).toContain('Web address')
+	it('shows a stored former type under How it opens', () => {
+		const wrapper = mountStored('program')
+		expect(wrapper.find('[data-testid="tile-how-it-opens"]').text()).toBe('How it opens')
 	})
 
 	it('asks a program tile for its address and names the allowed schemes', async () => {
 		initialState.tileAllowedSchemes = ['ms-word', 'vscode']
-		const wrapper = mountEditor()
-		await pickType(wrapper, 'program')
+		const wrapper = mountStored('program')
 
 		expect(labels(wrapper)).toContain('Program address')
 		expect(labels(wrapper)).not.toContain('Web address')
@@ -107,15 +104,13 @@ describe('TileEditor launch types', () => {
 	})
 
 	it('says when no scheme is allowed yet', async () => {
-		const wrapper = mountEditor()
-		await pickType(wrapper, 'program')
+		const wrapper = mountStored('program')
 		expect(wrapper.find('.text-field[data-label="Program address"] small').text())
 			.toBe('No program schemes are allowed yet. An administrator allows them on the LaunchPad admin page.')
 	})
 
 	it('shows the gateway address, or the RDP fields, for a remote desktop', async () => {
-		const wrapper = mountEditor()
-		await pickType(wrapper, 'remote-desktop')
+		const wrapper = mountStored('remote-desktop', { remoteMode: 'gateway' })
 		expect(labels(wrapper)).toContain('Gateway address')
 		expect(labels(wrapper)).not.toContain('Computer or server')
 
@@ -128,8 +123,7 @@ describe('TileEditor launch types', () => {
 
 	it('lets an sso author pick a template and enter an app id, with no address field', async () => {
 		initialState.ssoLaunchTemplates = [{ key: 'entra', name: 'Microsoft Entra ID' }]
-		const wrapper = mountEditor()
-		await pickType(wrapper, 'sso')
+		const wrapper = mountStored('sso')
 
 		expect(labels(wrapper)).toEqual(expect.arrayContaining(['Name', 'App id', 'Internal address (optional)']))
 		expect(labels(wrapper)).not.toContain('Web address')
@@ -143,15 +137,8 @@ describe('TileEditor launch types', () => {
 	})
 
 	it('says when there are no sign-on templates', async () => {
-		const wrapper = mountEditor()
-		await pickType(wrapper, 'sso')
+		const wrapper = mountStored('sso')
 		expect(wrapper.text()).toContain('No sign-on templates yet. An administrator adds them on the LaunchPad admin page.')
 	})
 
-	it('clears an address the server resolved when the type changes', async () => {
-		const wrapper = mountEditor({ id: 4, title: 'Salaris', linkType: 'sso', linkValue: 'https://launcher.example/a1', ssoTemplate: 'entra', ssoAppId: 'a1' })
-		await pickType(wrapper, 'url')
-		expect(wrapper.vm.form.linkValue).toBe('')
-		expect(wrapper.vm.form.linkType).toBe('url')
-	})
 })

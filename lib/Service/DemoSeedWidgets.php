@@ -238,7 +238,15 @@ class DemoSeedWidgets {
 		}
 
 		if ($enabled === true && $appTiles === true) {
-			$content = ['appId' => $appId, 'colour' => $colour, 'showCount' => true];
+			// REQ-APPTILE-001: an App or link tile in app mode.
+			$content = [
+				'mode'        => 'app',
+				'appId'       => $appId,
+				'colour'      => $colour,
+				'colourToken' => '--sc-' . $colour,
+				'textColour'  => 'white',
+				'showCount'   => true,
+			];
 			// The board's glyph and the app's own counter (LpVandaag).
 			if (is_string($tile['icon'] ?? null) === true) {
 				$content['icon'] = $tile['icon'];
@@ -249,7 +257,7 @@ class DemoSeedWidgets {
 			}
 
 			return [
-				'widgetId'    => self::APP_TILE_TYPE,
+				'widgetId'    => TileModeNode::TILE,
 				'customTitle' => (string)$tile['name'],
 				'content'     => $content,
 			];

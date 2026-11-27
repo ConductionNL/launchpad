@@ -213,3 +213,19 @@ describe('phone readiness (REQ-MRA-007)', () => {
 		expect(isPhoneReady(getWidgetTypeEntry('clock'))).toBe(true)
 	})
 })
+
+// app-link-tile-widget REQ-APPTILE-001, -006.
+describe('the App or link tile', () => {
+	it('offers the tile as "App or link tile" and no longer the app tile', async () => {
+		const { getWidgetTypeEntry, listWidgetTypes, getDefaultContent } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('tile')
+		expect(listWidgetTypes()).not.toContain('app-tile')
+		expect(getWidgetTypeEntry('tile').displayName).toBe('App or link tile')
+		expect(getDefaultContent('tile')).toMatchObject({ mode: 'link', textColour: 'white' })
+	})
+
+	it('still renders a retired app tile through the tile host', async () => {
+		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		expect(getWidgetTypeEntry('app-tile').renderer).toBe(getWidgetTypeEntry('tile').renderer)
+	})
+})

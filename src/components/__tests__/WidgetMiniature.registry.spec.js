@@ -5,7 +5,8 @@
  * Every widget type draws its miniature from its sample content with the
  * `preview` flag and sends no request (add-widget-dialog-with-miniatures
  * REQ-WDG-048). A type without sample content fails here, so none is
- * forgotten.
+ * forgotten. nextcloud-vue is a stub under vitest, so its renderers are
+ * checked for requests live, in tests/e2e/widget-picker-miniatures.spec.ts.
  *
  * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
  */
@@ -38,7 +39,7 @@ const SAMPLE_TEXT = {
 	weather: 'Utrecht',
 }
 
-const NOT_SAFE = ['people', 'app-tiles']
+const NOT_SAFE = []
 
 let requests
 
@@ -71,7 +72,7 @@ describe('every widget type as a miniature', () => {
 		const missing = TYPES.filter((type) => !SAMPLE_CONTENT[type] && !getWidgetTypeEntry(type)?.sampleContent)
 		expect(missing).toEqual([])
 		// Until nextcloud-vue honours preview for them, these draw their icon.
-		expect(NOT_PREVIEW_SAFE.map((type) => sampleContentOf(type, getWidgetTypeEntry(type)))).toEqual([null, null])
+		expect(NOT_PREVIEW_SAFE.map((type) => sampleContentOf(type, getWidgetTypeEntry(type))).every((sample) => sample === null)).toBe(true)
 	})
 
 	it('has sample content for the content-only nextcloud-vue types the picker offers', async () => {

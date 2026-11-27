@@ -91,6 +91,8 @@ test('Add widget is 1120 px wide and every card shows a miniature that sends no 
 	}
 	await page.waitForTimeout(1500)
 	expect(miniatureRequests).toEqual([])
+	// The shared people list draws its sample people, not the server's.
+	await expect(page.getByTestId('widget-picker-type-people').locator('.widget-miniature')).toContainText('Anna de Vries')
 })
 
 test('Tiles and links lists the tile widgets and Layout holds Container', async ({ page }) => {

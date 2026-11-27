@@ -78,7 +78,19 @@ export const SAMPLE_CONTENT = Object.freeze({
 	container: { title: 'My apps', placements: [] },
 	files: { folderPath: '/', sampleFiles: [{ name: 'Planning.xlsx' }, { name: 'Minutes.docx' }, { name: 'Logo.png' }] },
 	stat: { label: 'Open cases', value: 42, sampleValue: 42, format: 'number' },
-	'app-tiles': { pinned: [], exclude: [], showFilter: false, showMostUsed: false, sampleApps: ['files', 'mail', 'calendar', 'deck'] },
+	// Given `apps`, the shared app tiles draw them and do not read the app menu.
+	'app-tiles': {
+		pinned: [],
+		exclude: [],
+		showFilter: false,
+		showMostUsed: false,
+		apps: [
+			{ id: 'files', label: 'Files', href: '#', icon: '' },
+			{ id: 'mail', label: 'Mail', href: '#', icon: '' },
+			{ id: 'calendar', label: 'Calendar', href: '#', icon: '' },
+			{ id: 'deck', label: 'Deck', href: '#', icon: '' },
+		],
+	},
 	// Drawn as a link-mode tile: the app-mode renderer reads the viewer's app menu.
 	'app-tile': { mode: 'link', title: 'Files', linkType: 'url', linkValue: '#', icon: 'Folder', iconType: 'mdi', colourToken: '--sc-primary', textColour: 'white' },
 	delta: { label: 'Requests this week', value: 18, previous: 14, sampleValue: 18, samplePrevious: 14 },
@@ -166,11 +178,31 @@ export const SAMPLE_CONTENT = Object.freeze({
 
 /**
  * Types whose nextcloud-vue renderer still reads the server in the browser
- * with `preview` set (checked live on a sandbox, 27 Nov 2026: the people list
- * and its avatars, the app menu): their miniature shows the type's icon until
- * nextcloud-vue honours `preview` for them (REQ-WDG-048: no request).
+ * with `preview` set: their miniature shows the type's icon until
+ * nextcloud-vue honours `preview` for them (REQ-WDG-048: no request). The
+ * people list and the app tiles, caught live on 27 Nov 2026, now draw from
+ * their sample (`SAMPLE_PROPS`, `content.apps`).
  */
-export const NOT_PREVIEW_SAFE = Object.freeze(['people', 'app-tiles'])
+export const NOT_PREVIEW_SAFE = Object.freeze([])
+
+/**
+ * Props besides the content a renderer needs to draw its sample without a
+ * request: the shared people widget reads through a `dataSource`, which the
+ * miniature gives the sample people (no avatar address, so initials).
+ *
+ * @type {Record<string, object>}
+ */
+export const SAMPLE_PROPS = Object.freeze({
+	people: {
+		dataSource: {
+			fetchPeople: async () => ({
+				users: PEOPLE.map((person, index) => ({ id: person.uid, uid: person.uid, displayName: person.displayName, role: person.title, department: index === 2 ? 'Social affairs' : 'Permits' })),
+				total: PEOPLE.length,
+				hasMore: false,
+			}),
+		},
+	},
+})
 
 /**
  * The sample content of a widget type: the registry entry's own

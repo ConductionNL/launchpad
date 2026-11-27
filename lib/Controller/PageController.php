@@ -121,6 +121,7 @@ class PageController extends Controller {
 	 * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-2
 	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
 	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -157,11 +158,9 @@ class PageController extends Controller {
 
 		$descriptors = $this->splitDescriptors(visible: $visible);
 		$activeState = $this->describeActive(active: $active, userId: $userId);
+		$inputs = $this->firstPaintInputs(userId: $userId, visible: $visible) + $activeState + ['widgets' => $widgets, 'active' => $active];
 
-		$builder = new InitialStateBuilder(
-			initialState: $this->sources->initialState,
-			page: Page::WORKSPACE
-		);
+		$builder = new InitialStateBuilder(initialState: $this->sources->initialState, page: Page::WORKSPACE);
 
 		$builder
 			->setWidgets($widgets)
@@ -189,17 +188,55 @@ class PageController extends Controller {
 			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
 			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
 			->setTalkEnabled($this->isAppEnabledForViewer(appId: 'spreed'))
-			->setIntegrationApps($this->integrationApps())
-			->setUserTimezone($this->userTimezone(userId: $userId))
+			->setIntegrationApps($inputs['apps'])
+			->setUserTimezone($inputs['timezone'])
 			->setFooter(...$this->sources->dashboards->footerState(dashboard: $active['dashboard'] ?? null, userId: $userId))
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
-			->setDashboardFirstLoad($this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible))
+			->setDashboardFirstLoad($inputs['firstLoad'])
 			->setOrgNavigation($this->settings->orgNavigation?->firstLoad(userId: $userId))
 			->setWorkspaceBootReads($this->sources->bootReads?->firstLoad(userId: $userId))
 			->setShellReads(reads: $this->sources->shell->firstLoad(userId: $userId, visible: $visible))
 			->setWorkspaceApiReads($this->sources->dashboards->payloads?->apiReads?->firstLoad(userId: $userId, opening: ($active ?? []) + $activeState))
 			->apply();
 
+		// First-paint-skeleton D1: the header and the widget frames in the
+		// page's HTML, from the same values; none without a dashboard.
+		$context = ['user' => $this->userSession->getUser(), 'reloadUrl' => $this->request->getRequestUri()];
+
+		return $this->workspaceResponse(params: FirstPaintPage::params(page: $inputs, context: $context));
+	}//end index()
+
+	/**
+	 * The values the initial state and the first-paint shell share, read
+	 * once: the first dashboard load, the integration apps and the reader's
+	 * time zone (first-paint-skeleton D1).
+	 *
+	 * @param string $userId  The user, or ''.
+	 * @param array  $visible The visible dashboards.
+	 *
+	 * @return array{firstLoad: array|null, apps: array, timezone: string}
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 */
+	private function firstPaintInputs(string $userId, array $visible): array {
+		return [
+			'firstLoad' => $this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible),
+			'apps'      => $this->integrationApps(),
+			'timezone'  => $this->userTimezone(userId: $userId),
+		];
+	}//end firstPaintInputs()
+
+	/**
+	 * The workspace page, without the Nextcloud layout for `kiosk=1`
+	 * (REQ-KIOSK-001).
+	 *
+	 * @param array<string, mixed> $params The template's parameters (the first-paint shell).
+	 *
+	 * @return TemplateResponse The page.
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 */
+	private function workspaceResponse(array $params=[]): TemplateResponse {
 		// 🔴 NO CHROME SLOT IDS. This used to pass
 		// `'id-app-navigation' => null` (REQ-SHELL-001), which suppressed
 		// Nextcloud's left navigation panel because the app rendered its own
@@ -214,20 +251,10 @@ class PageController extends Controller {
 		//
 		// The slide-in sidebar is unaffected; it lives inside the workspace
 		// view, not in the chrome slot.
-		return $this->workspaceResponse();
-	}//end index()
-
-	/**
-	 * The workspace page, without the Nextcloud layout for `kiosk=1`
-	 * (REQ-KIOSK-001).
-	 *
-	 * @return TemplateResponse The page.
-	 */
-	private function workspaceResponse(): TemplateResponse {
 		$response = new TemplateResponse(
 			appName: Application::APP_ID,
 			templateName: 'index',
-			params: [],
+			params: $params,
 			renderAs: $this->kioskRenderAs(default: TemplateResponse::RENDER_AS_USER)
 		);
 		$response->setContentSecurityPolicy(csp: $this->buildWorkspaceCsp());

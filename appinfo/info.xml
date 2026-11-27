@@ -52,7 +52,7 @@ Ideaal voor organisaties die consistente, samengestelde dashboards willen voor h
 
 Vrij en open source onder de EUPL-1.2-licentie.
     ]]></description>
-	<version>1.1.21-unstable.20261127075109</version>
+	<version>1.1.21-unstable.20261127102234</version>
 	<licence>EUPL-1.2</licence>
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
 	<namespace>LaunchPad</namespace>
@@ -154,6 +154,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			<!-- REQ-TILE-041: the address links stored inside tile groups become
 			     tile nodes the tile form edits. Idempotent. -->
 			<step>OCA\LaunchPad\Repair\ConvertGroupLinksToTiles</step>
+			<!-- REQ-DWB-007: seeded brand tiles that still carry the old seed
+			     (a white PNG on white, an undefined icon class) become the white
+			     logo on the brand colour. A tile its owner changed is kept. -->
+			<step>OCA\LaunchPad\Repair\RestyleSeededTiles</step>
 		</post-migration>
 		<install>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>

@@ -182,8 +182,9 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 		$this->assertSame('tile', $captured[2]->getWidgetId());
 		$this->assertSame('preset', $captured[2]->getTileType());
 		$this->assertSame('Nextcloud', $captured[2]->getTileTitle());
-		$this->assertSame('icon-nextcloud', $captured[2]->getTileIcon());
-		$this->assertSame('class', $captured[2]->getTileIconType());
+		$this->assertStringEndsWith(suffix: 'nextcloud-white.svg', string: $captured[2]->getTileIcon());
+		$this->assertSame(expected: 'url', actual: $captured[2]->getTileIconType());
+		$this->assertSame(expected: '#0082C9', actual: $captured[2]->getTileBackgroundColor());
 		$this->assertSame(8, $captured[2]->getGridX());
 
 		$this->assertSame('files', $captured[3]->getWidgetId());

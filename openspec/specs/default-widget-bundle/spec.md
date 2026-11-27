@@ -47,11 +47,9 @@ WHEN a user creates a new dashboard via `POST /api/dashboard` (e.g. the sidebar'
 | 2 | `tile` | `preset` | `Nextcloud` | (8, 0, 4, 3) |
 | 3 | `files` | NULL | NULL | (0, 3, 12, 5) |
 
-Conduction tile MUST link to `https://conduction.nl` with the
-Conduction PNG asset. Sendent tile MUST link to
-`https://sendent.com` with the Sendent PNG asset. Nextcloud tile
-MUST link to `https://nextcloud.com` with the `icon-nextcloud` CSS
-class (`tileIconType: 'class'`).
+Conduction tile MUST link to `https://conduction.nl`, Sendent tile
+to `https://sendent.com` and Nextcloud tile to `https://nextcloud.com`.
+Each seeded tile follows REQ-DWB-007.
 
 #### Scenario: New dashboard ships four seeded placements
 - **GIVEN** a user creates a new dashboard via `POST /api/dashboard`
@@ -144,6 +142,33 @@ during the initial `loadDashboards()` call.
 - **WHEN** `Views.vue` renders while `loading` is true
 - **THEN** an `NcLoadingIcon` shim MUST be shown instead of the "No dashboard yet" empty-state
 
+### Requirement: REQ-DWB-007 A default tile is the brand's white logo on the brand's colour
+
+A seeded brand tile MUST show the organisation's logo as a white SVG
+(`tileIconType: 'url'`, a file under `img/` that exists), without the
+payoff, on the brand's primary colour, with white text:
+
+| Tile | Icon | Background |
+|---|---|---|
+| Conduction | `img/conduction-white.svg` | `#21468B` |
+| Sendent | `img/sendent-white.svg` | `#141B62` |
+| Nextcloud | `img/nextcloud-white.svg` | `#0082C9` |
+
+A seeded tile MUST NOT name a CSS icon class or an image that is not
+shipped. An existing seeded tile that still carries the previous seed
+(the Conduction or Sendent PNG, or the `icon-nextcloud` class) MUST be
+restyled once on upgrade; a tile its owner changed is kept.
+
+#### Scenario: Every seeded tile icon is a shipped white SVG
+- **GIVEN** the default widget seeds
+- **WHEN** each brand tile is read
+- **THEN** its icon MUST be a `url` naming an SVG file that exists under `img/`, on the brand colour above, with `#ffffff` text
+
+#### Scenario: An old seeded tile is restyled, an edited one is kept
+- **GIVEN** a placement seeded with `icon-nextcloud` and one whose owner set their own icon
+- **WHEN** the post-migration repair runs
+- **THEN** the first MUST show `nextcloud-white.svg` on `#0082C9` and the second MUST be unchanged
+
 ### Requirement: REQ-DWB-008 The start page is the Vandaag layout
 
 The dashboard everyone starts on (the `default` group's default
@@ -187,6 +212,9 @@ bundle for a new dashboard (REQ-DWB-001) is unchanged.
 - `tests/Unit/Service/DashboardServiceCreateDefaultsTest.php` —
   asserts the four placements ship with the correct widgetId,
   tileType, tileTitle, tileLinkValue, and grid coordinates.
+- `tests/Unit/Service/DashboardServiceWidgetSeedsTest.php` — every
+  seeded brand tile icon is a shipped white SVG (REQ-DWB-007).
+- `tests/Unit/Repair/RestyleSeededTilesTest.php` — the upgrade restyle.
 - `src/views/__tests__/Views.loadingState.spec.js` — asserts the
   loading shim renders when `loading=true` and the empty-state
   renders when `loading=false`.
@@ -194,7 +222,6 @@ bundle for a new dashboard (REQ-DWB-001) is unchanged.
   pins the create-response envelope: `placements.length === 4`
   with the per-tile shape and grid coordinates listed in
   REQ-DWB-001 above.
-
 - `tests/Unit/Service/StartPageWidgetSeedsTest.php` and the
   `ensureDefaultDashboard` cases of `DashboardServiceCreateDefaultsTest`
   — the start page (REQ-DWB-008); `tests/e2e/start-page.spec.ts` live.

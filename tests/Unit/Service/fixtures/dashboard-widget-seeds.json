@@ -9,10 +9,10 @@
             "sortOrder": 0,
             "tile": {
                 "title": "Conduction",
-                "icon": "/apps/launchpad/img/conduction-logo.png",
+                "icon": "/apps/launchpad/img/conduction-white.svg",
                 "iconType": "url",
-                "backgroundColor": "#ffffff",
-                "textColor": "#000000",
+                "backgroundColor": "#21468B",
+                "textColor": "#ffffff",
                 "linkType": "url",
                 "linkValue": "https://conduction.nl"
             }
@@ -26,10 +26,10 @@
             "sortOrder": 1,
             "tile": {
                 "title": "Sendent",
-                "icon": "/apps/launchpad/img/sendent-logo.png",
+                "icon": "/apps/launchpad/img/sendent-white.svg",
                 "iconType": "url",
-                "backgroundColor": "#ffffff",
-                "textColor": "#000000",
+                "backgroundColor": "#141B62",
+                "textColor": "#ffffff",
                 "linkType": "url",
                 "linkValue": "https://sendent.com"
             }
@@ -43,9 +43,9 @@
             "sortOrder": 2,
             "tile": {
                 "title": "Nextcloud",
-                "icon": "icon-nextcloud",
-                "iconType": "class",
-                "backgroundColor": "#0082c9",
+                "icon": "/apps/launchpad/img/nextcloud-white.svg",
+                "iconType": "url",
+                "backgroundColor": "#0082C9",
                 "textColor": "#ffffff",
                 "linkType": "url",
                 "linkValue": "https://nextcloud.com"
@@ -71,10 +71,10 @@
             "sortOrder": 0,
             "tile": {
                 "title": "Conduction",
-                "icon": "/custom/launchpad/conduction-logo.png",
+                "icon": "/custom/launchpad/conduction-white.svg",
                 "iconType": "url",
-                "backgroundColor": "#ffffff",
-                "textColor": "#000000",
+                "backgroundColor": "#21468B",
+                "textColor": "#ffffff",
                 "linkType": "url",
                 "linkValue": "https://conduction.nl"
             }
@@ -88,10 +88,10 @@
             "sortOrder": 1,
             "tile": {
                 "title": "Sendent",
-                "icon": "/custom/launchpad/sendent-logo.png",
+                "icon": "/custom/launchpad/sendent-white.svg",
                 "iconType": "url",
-                "backgroundColor": "#ffffff",
-                "textColor": "#000000",
+                "backgroundColor": "#141B62",
+                "textColor": "#ffffff",
                 "linkType": "url",
                 "linkValue": "https://sendent.com"
             }
@@ -105,9 +105,9 @@
             "sortOrder": 2,
             "tile": {
                 "title": "Nextcloud",
-                "icon": "icon-nextcloud",
-                "iconType": "class",
-                "backgroundColor": "#0082c9",
+                "icon": "/custom/launchpad/nextcloud-white.svg",
+                "iconType": "url",
+                "backgroundColor": "#0082C9",
                 "textColor": "#ffffff",
                 "linkType": "url",
                 "linkValue": "https://nextcloud.com"

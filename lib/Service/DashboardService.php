@@ -37,6 +37,7 @@ use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
+use OCA\LaunchPad\Support\SeedTileBrands;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -195,6 +196,8 @@ class DashboardService {
 	 *
 	 * A tile with `iconType` `url` names a bundled image under
 	 * `launchpad/img/`; {@see self::defaultWidgetSeeds()} resolves it.
+	 * A brand tile is its white logo on the brand colour
+	 * ({@see SeedTileBrands}, REQ-DWB-007).
 	 *
 	 * @var array<int, array<string, mixed>>
 	 */
@@ -208,10 +211,10 @@ class DashboardService {
 			'sortOrder' => 0,
 			'tile' => [
 				'title' => 'Conduction',
-				'icon' => 'conduction-logo.png',
+				'icon' => SeedTileBrands::BRANDS['Conduction']['icon'],
 				'iconType' => 'url',
-				'backgroundColor' => '#ffffff',
-				'textColor' => '#000000',
+				'backgroundColor' => SeedTileBrands::BRANDS['Conduction']['backgroundColor'],
+				'textColor' => SeedTileBrands::TEXT_COLOR,
 				'linkType' => 'url',
 				'linkValue' => 'https://conduction.nl',
 			],
@@ -225,10 +228,10 @@ class DashboardService {
 			'sortOrder' => 1,
 			'tile' => [
 				'title' => 'Sendent',
-				'icon' => 'sendent-logo.png',
+				'icon' => SeedTileBrands::BRANDS['Sendent']['icon'],
 				'iconType' => 'url',
-				'backgroundColor' => '#ffffff',
-				'textColor' => '#000000',
+				'backgroundColor' => SeedTileBrands::BRANDS['Sendent']['backgroundColor'],
+				'textColor' => SeedTileBrands::TEXT_COLOR,
 				'linkType' => 'url',
 				'linkValue' => 'https://sendent.com',
 			],
@@ -242,10 +245,10 @@ class DashboardService {
 			'sortOrder' => 2,
 			'tile' => [
 				'title' => 'Nextcloud',
-				'icon' => 'icon-nextcloud',
-				'iconType' => 'class',
-				'backgroundColor' => '#0082c9',
-				'textColor' => '#ffffff',
+				'icon' => SeedTileBrands::BRANDS['Nextcloud']['icon'],
+				'iconType' => 'url',
+				'backgroundColor' => SeedTileBrands::BRANDS['Nextcloud']['backgroundColor'],
+				'textColor' => SeedTileBrands::TEXT_COLOR,
 				'linkType' => 'url',
 				'linkValue' => 'https://nextcloud.com',
 			],

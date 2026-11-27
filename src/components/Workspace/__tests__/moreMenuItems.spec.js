@@ -238,10 +238,12 @@ describe('dashboardActionItems', () => {
 })
 
 describe('dashboardIcon', () => {
-	it('draws the dashboard\'s own icon by name, else the house or the generic dashboard', async () => {
+	it('draws the dashboard\'s own icon by name, the house for the default, else the renderer\'s default', async () => {
 		const { dashboardIcon } = await import('../moreMenuItems.js')
 		expect(dashboardIcon({ icon: 'Bullhorn' }, false).name).toBe('DashboardMenuIcon')
 		expect(dashboardIcon({ icon: '' }, true).name).toMatch(/Home/)
-		expect(dashboardIcon({}, false).name).toMatch(/ViewDashboard/)
+		// dashboard-icons: no icon goes through the shared renderer, which draws its default.
+		expect(dashboardIcon({}, false).name).toBe('DashboardMenuIcon')
+		expect(dashboardIcon({ icon: '   ' }, false).name).toBe('DashboardMenuIcon')
 	})
 })

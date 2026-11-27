@@ -31,7 +31,6 @@ import Star from 'vue-material-design-icons/Star.vue'
 import StarCheck from 'vue-material-design-icons/StarCheck.vue'
 import StoreOutline from 'vue-material-design-icons/StoreOutline.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
-import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 import ViewGridOutline from 'vue-material-design-icons/ViewGridOutline.vue'
 import { adminPageUrl } from '../../utils/adminPage.js'
 
@@ -275,9 +274,11 @@ export function dashboardMeta(isDefault, source) {
  */
 export function dashboardIcon(dashboard, isDefault) {
 	const name = typeof dashboard?.icon === 'string' ? dashboard.icon.trim() : ''
-	if (name === '') {
-		return markRaw(isDefault ? Home : ViewDashboardOutline)
+	if (name === '' && isDefault) {
+		return markRaw(Home)
 	}
+	// No icon: the shared renderer draws its default (dashboard-icons), the
+	// same component the removed sidebar showed.
 	return markRaw({
 		name: 'DashboardMenuIcon',
 		props: { size: { type: Number, default: 18 } },

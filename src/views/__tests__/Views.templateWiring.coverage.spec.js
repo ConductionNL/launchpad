@@ -101,7 +101,7 @@ const stubs = {
 		template: '<div class="stub-confirm" />',
 	}),
 	DashboardEditBar: passthrough('DashboardEditBar', {
-		props: { dashboardName: String, columns: Number, canConfigure: Boolean },
+		props: { dashboardName: String, columns: Number, canConfigure: Boolean, changeCount: Number, saving: Boolean },
 	}),
 	AcknowledgementReportModal: passthrough('AcknowledgementReportModal', {
 		props: { open: Boolean, announcementKey: String },
@@ -428,7 +428,8 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/fork`, expect.anything())
 	}, 90000)
 
-	it('edit mode shows the edit bar: its settings, columns and Done', async () => {
+	// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	it('edit mode shows the edit bar: its settings, columns into the draft, and Save', async () => {
 		const { wrapper } = await mountViews()
 		const bar = () => wrapper.findComponent({ name: 'DashboardEditBar' })
 		expect(bar().exists()).toBe(false)
@@ -438,22 +439,29 @@ describe('Views — the Meer menu and sidebar wiring', () => {
 		expect(bar().exists()).toBe(true)
 		expect(bar().props('canConfigure')).toBe(true)
 		expect(bar().props('columns')).toBe(12)
+		expect(bar().props('changeCount')).toBe(0)
 
 		await bar().vm.$emit('openSettings')
 		const config = wrapper.findComponent({ name: 'DashboardConfigModal' })
 		expect(config.props('open')).toBe(true)
 		expect(config.props('initialTab')).toBe('general')
 
+		// REQ-EDIT-001: the columns change the draft only; nothing is sent.
+		axios.put.mockClear()
 		await bar().vm.$emit('setColumns', 8)
 		await flushPromises()
+		expect(axios.put).not.toHaveBeenCalled()
+		expect(bar().props('columns')).toBe(8)
+		expect(bar().props('changeCount')).toBe(1)
+
+		// REQ-EDIT-002: Save sends the draft in one request and leaves edit mode.
+		await bar().vm.$emit('save')
+		await flushPromises()
+		expect(axios.put).toHaveBeenCalledTimes(1)
 		expect(axios.put).toHaveBeenCalledWith(
 			expect.stringMatching(/\/api\/dashboard\/\d+$/),
-			{ gridColumns: 8 },
+			expect.objectContaining({ draft: true, gridColumns: 8 }),
 		)
-		expect(bar().props('columns')).toBe(8)
-
-		await bar().vm.$emit('done')
-		await flushPromises()
 		expect(bar().exists()).toBe(false)
 	}, 90000)
 

@@ -2,17 +2,23 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The edit bar of board LpBewerken: Columns 6, 8 or 12, Add widget,
- * Dashboard settings and Done, and the dock for the More menu.
+ * The edit bar of board LpBewerken: the draft pill, Columns 6, 8 or 12, Add
+ * widget, Dashboard settings, Cancel and Save, and the dock for the More menu
+ * (REQ-EDIT-001).
+ *
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@nextcloud/l10n', () => ({
-	t: (_app, text, vars = {}) =>
-		text.replace(/\{(\w+)\}/g, (_m, k) => vars[k] ?? `{${k}}`),
-}))
+vi.mock('@nextcloud/l10n', () => {
+	const fill = (text, vars = {}) => text.replace(/\{(\w+)\}/g, (_m, k) => vars[k] ?? `{${k}}`)
+	return {
+		t: (_app, text, vars = {}) => fill(text, vars),
+		n: (_app, one, many, count, vars = {}) => fill(count === 1 ? one : many, vars),
+	}
+})
 
 import DashboardEditBar from '../DashboardEditBar.vue'
 
@@ -38,10 +44,12 @@ describe('DashboardEditBar', () => {
 	})
 
 	// add-widget-dialog-with-miniatures REQ-WDG-049: Add widget is the one way in, no Add tiles.
-	it('holds Columns, Add widget, Dashboard settings and Done, in that order, and no Add tiles', () => {
+	it('holds Columns, Add widget, Dashboard settings, Cancel and Save, in that order, and no Add tiles or Done', () => {
 		const wrapper = mountBar()
 		const labels = wrapper.findAll('button').map((b) => b.text())
-		expect(labels).toEqual(['6', '8', '12', 'Add widget', 'Dashboard settings', 'Done'])
+		expect(labels).toEqual(['6', '8', '12', 'Add widget', 'Dashboard settings', 'Cancel', 'Save'])
+		expect(wrapper.find('[data-testid="launchpad-edit-bar-done"]').exists()).toBe(false)
+		expect(wrapper.text()).not.toContain('saved immediately')
 		expect(wrapper.find('[data-testid="launchpad-edit-bar-add-tiles"]').exists()).toBe(false)
 		expect(DashboardEditBar.emits).not.toContain('addTiles')
 	})
@@ -69,12 +77,30 @@ describe('DashboardEditBar', () => {
 		expect(mountBar({ canConfigure: false }).find('[data-testid="launchpad-edit-bar-settings"]').exists()).toBe(false)
 	})
 
-	it('emits Add widget and Done', async () => {
-		const wrapper = mountBar()
+	it('emits Add widget, Cancel and Save', async () => {
+		const wrapper = mountBar({ changeCount: 2 })
 		await wrapper.find('[data-testid="launchpad-edit-bar-add-widget"]').trigger('click')
-		await wrapper.find('[data-testid="launchpad-edit-bar-done"]').trigger('click')
+		await wrapper.find('[data-testid="launchpad-edit-bar-cancel"]').trigger('click')
+		await wrapper.find('[data-testid="launchpad-edit-bar-save"]').trigger('click')
 		expect(wrapper.emitted('addWidget')).toHaveLength(1)
-		expect(wrapper.emitted('done')).toHaveLength(1)
+		expect(wrapper.emitted('cancel')).toHaveLength(1)
+		expect(wrapper.emitted('save')).toHaveLength(1)
+	})
+
+	it('shows No changes with Save disabled, and counts the draft once there are changes', async () => {
+		const wrapper = mountBar()
+		const pill = () => wrapper.find('[data-testid="launchpad-edit-bar-draft"]')
+		expect(pill().text()).toBe('No changes')
+		expect(wrapper.find('[data-testid="launchpad-edit-bar-save"]').attributes('disabled')).toBeDefined()
+
+		await wrapper.setProps({ changeCount: 1 })
+		expect(pill().text()).toBe('Draft · 1 change')
+		await wrapper.setProps({ changeCount: 3 })
+		expect(pill().text()).toBe('Draft · 3 changes')
+		expect(wrapper.find('[data-testid="launchpad-edit-bar-save"]').attributes('disabled')).toBeUndefined()
+
+		await wrapper.setProps({ saving: true })
+		expect(wrapper.find('[data-testid="launchpad-edit-bar-save"]').attributes('disabled')).toBeDefined()
 	})
 
 	it('hands its dock to the page while shown, and takes it back when gone', () => {

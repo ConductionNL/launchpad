@@ -1553,6 +1553,18 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Workspace/DashboardEditBar.vue | changeCount": {
+		"type": "Number",
+		"required": false,
+		"validator": false,
+		"default": 0
+	},
+	"../../components/Workspace/DashboardEditBar.vue | saving": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Workspace/DashboardLanguageHeading.vue | dashboard": {
 		"type": "Object",
 		"required": false,
@@ -2185,6 +2197,24 @@
 		"default": ""
 	},
 	"../../dialogs/DeleteTenantThemeDialog.vue | tokenCount": {
+		"type": "Number",
+		"required": false,
+		"validator": false,
+		"default": 0
+	},
+	"../../dialogs/EditDraftLeaveDialog.vue | open": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../dialogs/EditDraftLeaveDialog.vue | mode": {
+		"type": "String",
+		"required": false,
+		"validator": true,
+		"default": "leave"
+	},
+	"../../dialogs/EditDraftLeaveDialog.vue | count": {
 		"type": "Number",
 		"required": false,
 		"validator": false,

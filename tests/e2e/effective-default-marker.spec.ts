@@ -227,6 +227,7 @@ test.describe.serial('effective-default marker (REQ-EDM-001..005)', () => {
 			await expect(page.locator('[data-testid="launchpad-more-menu-panel"]')).toBeHidden()
 			await page.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`).click()
 			await page.locator('[data-testid="launchpad-more-menu-item-set-default"]').click()
+			await expect(page.locator('[data-testid="launchpad-more-menu-panel"]')).toBeHidden()
 			await openDashboardSwitcher(page)
 
 			await expect(row(page, NAME_B).locator(MARKER)).toHaveCount(1)

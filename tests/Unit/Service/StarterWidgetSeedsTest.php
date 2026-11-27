@@ -71,7 +71,9 @@ class StarterWidgetSeedsTest extends TestCase {
 	 */
 	public function testNoMenuFallsBackToTheAppGrid(): void {
 		$seeds = StarterWidgetSeeds::seeds(menuAppIds: []);
-		$this->assertSame(expected: 'app-tiles', actual: $seeds[0]['widgetId']);
+		// Layout-widgets-replace-multi-tile D3: a well that lists each viewer's apps.
+		$this->assertSame(expected: 'container', actual: $seeds[0]['widgetId']);
+		$this->assertSame(expected: ['launchpad'], actual: $seeds[0]['content']['appList']['exclude']);
 		$this->assertSame(expected: [], actual: self::tileApps(seeds: $seeds));
 		$this->assertCount(expectedCount: 6, haystack: $seeds);
 	}//end testNoMenuFallsBackToTheAppGrid()

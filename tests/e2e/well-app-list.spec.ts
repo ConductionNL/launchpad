@@ -11,6 +11,7 @@
  * account rather than a fixed list.
  *
  * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+ * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-6
  */
 
 import type { APIRequestContext, Page } from '@playwright/test'
@@ -18,6 +19,7 @@ import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
+import { enterEditMode } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	allowPersonalDashboards,
@@ -128,5 +130,40 @@ test('a well with an app list shows the viewer\'s apps, pinned first, at most th
 		await expect(cells).toHaveCount(2)
 	} finally {
 		await context.close()
+	}
+})
+
+test('the start page shows "My apps" as a well of the viewer\'s apps, and Add widget offers no multi-tile', async ({ browser }) => {
+	const fresh = await createPrincipal(admin, 'e2e-well-start')
+	const { context, page } = await loginAs(browser, fresh.username, fresh.password)
+	try {
+		await page.goto(APP)
+		const menu = (await appMenu(page)).filter((app) => app.id !== 'launchpad')
+		const flow = page.getByTestId('container-flow').first()
+		await expect(flow).toBeVisible({ timeout: 30_000 })
+		// The seed lists up to six apps after the pinned ones (none pinned).
+		await expect(flow.locator('.container-widget__cell')).toHaveCount(Math.min(6, menu.length))
+
+		const stored = await (await fresh.api.get(`${API}/dashboards/visible`)).json()
+		const rows = Array.isArray(stored) ? stored : (stored.items ?? stored.dashboards ?? [])
+		for (const row of rows) {
+			const detail = await (await fresh.api.get(`${API}/dashboard/${row.id}`)).json()
+			const types = (detail.placements ?? []).map((placement: { widgetId: string }) => placement.widgetId)
+			expect(types, 'no seeded dashboard holds a multi-tile').not.toContain('app-tiles')
+		}
+	} finally {
+		await context.close()
+		await removePrincipal(admin, fresh)
+	}
+
+	const own = await loginAs(browser, viewer!.username, viewer!.password)
+	try {
+		await own.page.goto(`${APP}/${dashboard!.slug}`)
+		await enterEditMode(own.page)
+		await own.page.locator('[data-testid="launchpad-edit-bar-add-widget"]').click()
+		await expect(own.page.getByText('Widgets grouped under tabs.')).toBeVisible()
+		await expect(own.page.getByText('Tiles for several apps at once.')).toHaveCount(0)
+	} finally {
+		await own.context.close()
 	}
 })

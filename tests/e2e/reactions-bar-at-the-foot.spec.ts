@@ -104,18 +104,35 @@ test('on Zuiddrecht intranet the reactions bar sits at the foot, and a reaction 
 	const emoji = before.allowed.find((e) => (before.counts[e] ?? 0) === 0)
 	expect(emoji, `an allowed emoji nobody used yet in ${JSON.stringify(before)}`).toBeTruthy()
 
-	const answered = page.waitForResponse(
-		(r) =>
-			r.url().includes(`/api/dashboards/${dashboard!.uuid}/reactions`)
-			&& r.request().method() === 'GET',
-		{ timeout: 60_000 },
-	)
+	// Since #2190 (REQ-INIT-011) the page carries the opening dashboard's
+	// reactions read in its initial state and the bar mounts from it without
+	// a GET; the bar's own request is only the fallback. Accept either.
+	const path = `/api/dashboards/${dashboard!.uuid}/reactions`
+	const asked: number[] = []
+	page.on('response', (r) => {
+		if (r.url().includes(path) && r.request().method() === 'GET') {
+			asked.push(r.status())
+		}
+	})
 	await page.goto('/index.php/apps/launchpad')
 	const region = page.locator(
 		`[data-testid="launchpad-dashboard-region"][data-dashboard-uuid="${dashboard!.uuid}"]`,
 	)
 	await expect(region).toBeVisible({ timeout: 30_000 })
-	expect((await answered).status()).toBe(200)
+	const carried = await page.evaluate((wanted) => {
+		const input = document.querySelector<HTMLInputElement>(
+			'input[type="hidden"][id="initial-state-launchpad-workspaceApiReads"]',
+		)
+		if (input === null) {
+			return false
+		}
+		const bytes = Uint8Array.from(atob(input.value), (c) => c.charCodeAt(0))
+		const reads = JSON.parse(new TextDecoder().decode(bytes)) as Array<{ path: string }>
+		return (reads ?? []).some((entry) => entry.path === wanted)
+	}, path)
+	if (!carried) {
+		await expect.poll(() => asked, { timeout: 30_000 }).toContain(200)
+	}
 
 	const bar = page.getByTestId('dashboard-reactions')
 	await expect(bar).toBeVisible()

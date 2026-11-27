@@ -48,7 +48,7 @@ class StartPageWidgetSeedsTest extends TestCase {
 		$this->assertSame(
 			expected: [
 				'header', 'weather', 'attention', 'section-heading', 'nc-widget', 'calendar', 'recent-work',
-				'section-heading', 'announcements', 'people', 'section-heading', 'section-heading', 'app-tiles',
+				'section-heading', 'announcements', 'people', 'section-heading', 'section-heading', 'container',
 				'tile', 'tile', 'tile',
 			],
 			actual: array_column($seeds, 'widgetId')

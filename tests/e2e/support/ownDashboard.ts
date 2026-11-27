@@ -327,6 +327,10 @@ export function nextLayoutSave(page: Page, dashboardId: number): PromiseLike<Res
 				&& new RegExp(`/api/dashboard/${dashboardId}(\\?|$)`).test(res.url()),
 			{ timeout: 15_000 },
 		)
+		const sidebarClose = page.locator('.dashboard-switcher-sidebar.open .dashboard-switcher-sidebar__close').first()
+		if (await sidebarClose.isVisible().catch(() => false)) {
+			await sidebarClose.click()
+		}
 		const save = page.locator('[data-testid="launchpad-edit-bar-save"]')
 		if (await save.isVisible() && await save.isEnabled()) {
 			await save.click()

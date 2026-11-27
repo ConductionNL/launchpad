@@ -75,6 +75,21 @@ export async function openSettingsGroup(page: Page): Promise<void> {
 }
 
 /**
+ * Close the dashboard switcher sidebar when it is open, so it does not cover
+ * the edit bar's Cancel and Save.
+ *
+ * @param page The page.
+ * @return Resolves once it is closed.
+ */
+async function closeSwitcher(page: Page): Promise<void> {
+	const close = page.locator('.dashboard-switcher-sidebar.open .dashboard-switcher-sidebar__close').first()
+	if (await close.isVisible().catch(() => false)) {
+		await close.click()
+		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0, { timeout: 5_000 })
+	}
+}
+
+/**
  * Store the edit-mode draft (REQ-EDIT-002): choose Save in the edit bar and
  * wait for its one dashboard request. Edit mode ends with it.
  *
@@ -83,6 +98,7 @@ export async function openSettingsGroup(page: Page): Promise<void> {
  * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
 export async function saveEditDraft(page: Page): Promise<number> {
+	await closeSwitcher(page)
 	const save = page.locator('[data-testid="launchpad-edit-bar-save"]')
 	await expect(save).toBeEnabled({ timeout: 10_000 })
 	const saved = page.waitForResponse(
@@ -114,6 +130,7 @@ export async function addAndSaveDraft(
 	await expect(add).toBeEnabled({ timeout: 5_000 })
 	await add.click()
 	await expect(dialog).not.toBeVisible({ timeout: 8_000 })
+	await closeSwitcher(page)
 	const saved = page.waitForResponse(
 		(res) => res.request().method() === 'PUT'
 			&& /\/apps\/launchpad\/api\/dashboard\/\d+$/.test(new URL(res.url()).pathname)

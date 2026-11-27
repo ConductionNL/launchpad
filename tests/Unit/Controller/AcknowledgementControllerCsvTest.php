@@ -66,7 +66,7 @@ class AcknowledgementControllerCsvTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		$this->service = $this->createMock(AcknowledgementService::class);
-		$this->roles = $this->createMock(AnnouncementManagers::class);
+		$this->roles = $this->createMock(originalClassName: AnnouncementManagers::class);
 		$this->groups = $this->createMock(IGroupManager::class);
 	}//end setUp()
 
@@ -80,7 +80,7 @@ class AcknowledgementControllerCsvTest extends TestCase {
 	private function controller(?string $userId = 'alice'): AcknowledgementController {
 		return new AcknowledgementController(
 			request: $this->createMock(IRequest::class),
-			tools: new AcknowledgementTools(acknowledgements: $this->service, managers: $this->roles, logger: $this->createMock(LoggerInterface::class)),
+			tools: new AcknowledgementTools(acknowledgements: $this->service, managers: $this->roles, logger: $this->createMock(originalClassName: LoggerInterface::class)),
 			groupManager: $this->groups,
 			context: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);

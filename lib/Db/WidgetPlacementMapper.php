@@ -117,15 +117,29 @@ class WidgetPlacementMapper extends QBMapper {
 	}//end ensureAnnouncementKey()
 
 	/**
-	 * Every placement that asks for confirmation but has no announcement key
-	 * yet: rows written before keys were given on every save (REQ-ACK-009).
+	 * Every placement that asks for confirmation, oldest first: with
+	 * \$withKey false those without an announcement key yet, rows written
+	 * before keys were given on every save (REQ-ACK-009); with \$withKey
+	 * true those with one, the "Widgets that ask for confirmation" list of
+	 * the Announcements tab (REQ-ACK-008).
+	 *
+	 * @param bool $withKey Whether to list the placements with a key.
 	 *
 	 * @return WidgetPlacement[]
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
 	 */
-	public function findAcknowledgedWithoutKey(): array {
+	public function findAcknowledged(bool $withKey=false): array {
 		$qb = $this->selectWhere(match: ['requires_acknowledgement' => 1]);
+		if ($withKey === true) {
+			$qb->andWhere($qb->expr()->isNotNull(x: 'announcement_key'))
+				->andWhere($qb->expr()->neq(x: 'announcement_key', y: $qb->createNamedParameter(value: '')))
+				->orderBy(sort: 'id', order: 'ASC');
+
+			return $this->findEntities(query: $qb);
+		}
+
 		$qb->andWhere(
 			$qb->expr()->orX(
 				$qb->expr()->isNull(x: 'announcement_key'),
@@ -134,25 +148,7 @@ class WidgetPlacementMapper extends QBMapper {
 		);
 
 		return $this->findEntities(query: $qb);
-	}//end findAcknowledgedWithoutKey()
-
-	/**
-	 * Every placement that asks for confirmation and carries an announcement
-	 * key, oldest first: the "Widgets that ask for confirmation" list of the
-	 * Announcements tab (REQ-ACK-008).
-	 *
-	 * @return WidgetPlacement[]
-	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
-	 */
-	public function findAcknowledgedWithKey(): array {
-		$qb = $this->selectWhere(match: ['requires_acknowledgement' => 1]);
-		$qb->andWhere($qb->expr()->isNotNull(x: 'announcement_key'))
-			->andWhere($qb->expr()->neq(x: 'announcement_key', y: $qb->createNamedParameter(value: '')))
-			->orderBy(sort: 'id', order: 'ASC');
-
-		return $this->findEntities(query: $qb);
-	}//end findAcknowledgedWithKey()
+	}//end findAcknowledged()
 
 	/**
 	 * Find placement by ID.

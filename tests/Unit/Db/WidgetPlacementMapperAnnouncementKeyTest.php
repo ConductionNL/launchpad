@@ -129,7 +129,7 @@ class WidgetPlacementMapperAnnouncementKeyTest extends TestCase {
 	public function testFindsThePlacementsThatAskForConfirmationWithoutAKey(): void {
 		$recorder       = new QueryRecorder($this);
 		$recorder->rows = [['id' => '9', 'requires_acknowledgement' => '1']];
-		$found          = (new WidgetPlacementMapper($recorder->connection()))->findAcknowledgedWithoutKey();
+		$found          = (new WidgetPlacementMapper($recorder->connection()))->findAcknowledged(withKey: false);
 
 		$this->assertCount(expectedCount: 1, haystack: $found);
 		$this->assertSame(expected: 9, actual: $found[0]->getId());

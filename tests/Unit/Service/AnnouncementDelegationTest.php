@@ -102,7 +102,11 @@ class AnnouncementDelegationTest extends TestCase {
 			 * @return array
 			 */
 			public function findExistingGroupsForClass(string $class): array {
-				return $class === LaunchPadAnnouncementsAdmin::class ? $this->entries : [];
+				if ($class !== LaunchPadAnnouncementsAdmin::class) {
+					return [];
+				}
+
+				return $this->entries;
 			}
 		};
 

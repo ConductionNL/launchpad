@@ -25,8 +25,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\AcknowledgedWidgets;
-use OCA\LaunchPad\Service\RequestGuard;
+use OCA\LaunchPad\Kernel\Contracts\AcknowledgementServiceInterface;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCA\LaunchPad\Settings\LaunchPadAnnouncementsAdmin;
 use OCP\AppFramework\Controller;
@@ -40,19 +39,16 @@ use OCP\IRequest;
  * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
  */
 class AcknowledgedWidgetsController extends Controller {
-	use AnswersAnnouncementRequests;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest            $request The request.
-	 * @param AcknowledgedWidgets $widgets The list.
-	 * @param RequestGuard        $guard   The session user and the action check.
+	 * @param IRequest                        $request          The request.
+	 * @param AcknowledgementServiceInterface $acknowledgements Lists the widgets with their counts.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AcknowledgedWidgets $widgets,
-		private readonly RequestGuard $guard,
+		private readonly AcknowledgementServiceInterface $acknowledgements,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -60,15 +56,13 @@ class AcknowledgedWidgetsController extends Controller {
 	/**
 	 * Every widget that asks for confirmation, with its dashboard, counts and deadline.
 	 *
-	 * @return JSONResponse `{widgets: [...]}`, or 401 / 403.
+	 * @return JSONResponse `{widgets: [...]}`; Nextcloud answers 403 without the setting.
 	 *
 	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
 	 */
 	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
 	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
 	public function index(): JSONResponse {
-		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(
-			run: fn (): JSONResponse => new JSONResponse(['widgets' => $this->widgets->list()])
-		);
+		return new JSONResponse(['widgets' => $this->acknowledgements->listAcknowledged()]);
 	}//end index()
 }//end class

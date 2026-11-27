@@ -385,6 +385,53 @@ class AcknowledgementServiceTest extends TestCase {
 	}
 
 	/**
+	 * REQ-ACK-008: the widgets that ask for confirmation, one row per key
+	 * from the template's placement, with the report's counts; a key whose
+	 * placements are gone by the time of the report is left out.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+	 */
+	public function testListAcknowledgedHasOneRowPerKey(): void {
+		$template = new Dashboard();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$template->setId(1);
+		$template->setName('Intranet Zuiddrecht');
+		$template->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
+		$template->setTargetGroups(json_encode(['team']));
+		$blueprint = $this->makePlacement(key: 'ak-1', dashboardId: 1);
+		$blueprint->setCustomTitle('New expense rules');
+		$copy = $this->makePlacement(key: 'ak-1', dashboardId: 2);
+		$copy->setCustomTitle('Copy');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$gone = $this->makePlacement(key: 'ak-gone', dashboardId: 9);
+
+		$this->placementMapper->method('findAcknowledged')->with(true)->willReturn([$copy, $blueprint, $gone]);
+		$this->placementMapper->method('findByAnnouncementKey')->willReturnMap(
+			[
+				['ak-1', [$blueprint, $copy]],
+				['ak-gone', []],
+			]
+		);
+		$this->dashboardMapper->method('find')->willReturnCallback(
+			static fn (int $id): Dashboard => $id === 1 ? $template : throw new DoesNotExistException('gone')
+		);
+		$group = $this->createMock(originalClassName: IGroup::class);
+		$group->method('getUsers')->willReturn([$this->makeUser(uid: 'alice'), $this->makeUser(uid: 'bob')]);
+		$this->groupManager->method('get')->willReturn($group);
+		$this->ackMapper->method('findByAnnouncement')->willReturn([$this->makeReceipt(key: 'ak-1', userId: 'alice', version: 1)]);
+
+		$rows = $this->service->listAcknowledged();
+
+		$this->assertCount(expectedCount: 1, haystack: $rows);
+		$this->assertSame(expected: 'ak-1', actual: $rows[0]['announcementKey']);
+		$this->assertSame(expected: 'New expense rules', actual: $rows[0]['title']);
+		$this->assertSame(expected: 'Intranet Zuiddrecht', actual: $rows[0]['dashboard']);
+		$this->assertSame(expected: 1, actual: $rows[0]['acknowledgedCount']);
+	}
+
+	/**
 	 * Route announcement ak-1 through a template that targets one group of
 	 * the given members.
 	 *

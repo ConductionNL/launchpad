@@ -15,7 +15,7 @@ import SharingEmbedTokens from '../SharingEmbedTokens.vue'
 
 const embed = vi.hoisted(() => ({ listTokens: vi.fn(), createToken: vi.fn(), revokeToken: vi.fn() }))
 const api = vi.hoisted(() => ({ getDashboardById: vi.fn() }))
-vi.mock('../../../../services/embedApi.js', () => ({ embedApi: embed }))
+vi.mock('../../../../services/embedApi.js', async (importOriginal) => ({ ...(await importOriginal()), embedApi: embed }))
 vi.mock('../../../../services/api.js', () => ({ api }))
 vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => `/index.php${path}` }))
 vi.mock('@nextcloud/l10n', () => ({

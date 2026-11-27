@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Db\WidgetPlacement;
+
 use OCP\IRequest;
 
 /**
@@ -69,32 +71,7 @@ class RequestDataExtractor {
 	private const PLACEMENT_FIELDS = [
 		// The widget version the change was made on (building-edit-a-dashboard-together, task 1.2).
 		'version',
-		'gridX',
-		'gridY',
-		'gridWidth',
-		'gridHeight',
-		'isVisible',
-		'showTitle',
-		'customTitle',
-		'customIcon',
-		'styleConfig',
-		'content',
-		// The widget's calculated fields (widget-calculated-fields, task 21).
-		'calculatedFields',
-		'tileTitle',
-		'tileIcon',
-		'tileIconType',
-		'tileBackgroundColor',
-		'tileTextColor',
-		'tileLinkType',
-		'tileLinkValue',
-		'requiresAcknowledgement',
-		'acknowledgementPrompt',
-		'acknowledgementDeadline',
-		'reacknowledgeOnChange',
-		'acknowledgementContentVersion',
-		// Whether all or one include rule must match (REQ-VIS-014).
-		'ruleMatch',
+		...WidgetPlacement::EDITABLE_FIELDS,
 	];
 
 	/**

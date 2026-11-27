@@ -104,6 +104,20 @@ class FirstPaintLayout {
 	}//end positions()
 
 	/**
+	 * positions() for a caller that holds an instance.
+	 *
+	 * @param list<array<string, mixed>> $nodes   The placements as stored, at the dashboard's columns.
+	 * @param int                        $columns The dashboard's column count.
+	 *
+	 * @return array<int, array<string, array{x: int, y: int, w: int, h: int}>>
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
+	 */
+	public function layout(array $nodes, int $columns): array {
+		return self::positions(nodes: $nodes, columns: $columns);
+	}//end layout()
+
+	/**
 	 * GridStack's column change as dashboardColumnLayout() does it:
 	 * reading-order flow on a narrow grid, move-and-scale everywhere else.
 	 *

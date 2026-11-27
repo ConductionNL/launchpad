@@ -79,13 +79,19 @@ export default {
 </script>
 
 <style scoped>
+/* Board LpMeer: an outlined white pill, 20px high, on the tinted current row. */
 .lp-more-menu__pill {
 	flex: none;
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	height: 20px;
 	margin-inline-start: 6px;
 	padding: 0 8px;
-	border-radius: var(--border-radius-pill, 999px);
-	background: var(--color-primary-element-light, #e6f0fa);
-	color: var(--color-primary-element-light-text, #00427a);
+	border: 1px solid color-mix(in srgb, var(--color-primary-element, #3669a5) 35%, var(--color-main-background, #ffffff));
+	border-radius: 10px;
+	background: var(--color-main-background, #ffffff);
+	color: var(--color-primary-element-light-text, #234a78);
 	font-size: 11px;
 	font-weight: 600;
 	line-height: 18px;

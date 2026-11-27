@@ -111,10 +111,16 @@
 						</div>
 					</div>
 					<!-- REQ-SHELL-015: New dashboard and More/Less stand below the list, outside its scroll. -->
+					<!-- Boards LpMeer / LpMeerAlle: the foot rows are 38px with a rule above the first; New dashboard in the brand colour. -->
 					<LaunchpadMoreMenuItem
-						v-for="item in dashboardFoot"
+						v-for="(item, index) in dashboardFoot"
 						:key="item.id"
 						:item="item"
+						class="lp-more-menu__foot"
+						:class="{
+							'lp-more-menu__foot--first': index === 0,
+							'lp-more-menu__item--primary': item.id === 'new-dashboard',
+						}"
 						:aria-expanded="item.keepOpen ? String(item.expanded === true) : undefined"
 						@click="choose($event, item)" />
 				</div>
@@ -557,9 +563,14 @@ export default {
 /* The same theme also gives every button a tinted background, a height and
    padding of its own and no border, so each row read as a selected button
    and the rules above Delete and Settings were gone (LpMeer). */
+/* Nextcloud's own button rule adds a 3px margin above and below and its
+   15px text to every item, so rows stood 42px apart instead of the 34px
+   (32px row, 2px gap, 14px text) boards LpMeer and LpMeerAlle draw. */
 .lp-more-menu__item:not(#lp-more-menu-a):not(#lp-more-menu-b) {
-	min-height: 34px !important;
+	min-height: 32px !important;
+	margin: 0 !important;
 	padding: 0 10px !important;
+	font-size: 14px !important;
 	border-top: none !important;
 	background: transparent !important;
 	color: var(--color-main-text) !important;
@@ -592,6 +603,22 @@ export default {
 .lp-more-menu__column > .lp-more-menu__settings:first-child:not(#lp-more-menu-a):not(#lp-more-menu-b) {
 	padding-top: 0 !important;
 	border-top: none !important;
+}
+
+.lp-more-menu__foot:not(#lp-more-menu-a):not(#lp-more-menu-b) {
+	min-height: 38px !important;
+	border-radius: 0 !important;
+}
+
+.lp-more-menu__foot--first:not(#lp-more-menu-a):not(#lp-more-menu-b) {
+	margin-top: 4px !important;
+	padding-top: 4px !important;
+	border-top: 1px solid var(--color-border) !important;
+}
+
+.lp-more-menu__item--primary:not(#lp-more-menu-a):not(#lp-more-menu-b) {
+	color: var(--color-primary-element) !important;
+	font-weight: 600 !important;
 }
 
 .lp-more-menu__settings--open:not(#lp-more-menu-a):not(#lp-more-menu-b) {
@@ -746,7 +773,7 @@ export default {
 
 .lp-more-menu__footer {
 	grid-column: 1 / -1;
-	margin-top: 6px;
+	margin-top: 10px;
 	border-top: 1px solid var(--color-border);
 }
 

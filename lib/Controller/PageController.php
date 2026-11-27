@@ -158,14 +158,8 @@ class PageController extends Controller {
 
 		$descriptors = $this->splitDescriptors(visible: $visible);
 		$activeState = $this->describeActive(active: $active, userId: $userId);
-		$firstLoad   = $this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible);
-		$timezone    = $this->userTimezone(userId: $userId);
-		$integrationApps = $this->integrationApps();
 
-		$builder = new InitialStateBuilder(
-			initialState: $this->sources->initialState,
-			page: Page::WORKSPACE
-		);
+		$builder = new InitialStateBuilder(initialState: $this->sources->initialState, page: Page::WORKSPACE);
 
 		$builder
 			->setWidgets($widgets)
@@ -193,11 +187,11 @@ class PageController extends Controller {
 			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
 			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
 			->setTalkEnabled($this->isAppEnabledForViewer(appId: 'spreed'))
-			->setIntegrationApps($integrationApps)
-			->setUserTimezone($timezone)
+			->setIntegrationApps($this->integrationApps())
+			->setUserTimezone($this->userTimezone(userId: $userId))
 			->setFooter(...$this->sources->dashboards->footerState(dashboard: $active['dashboard'] ?? null, userId: $userId))
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
-			->setDashboardFirstLoad($firstLoad)
+			->setDashboardFirstLoad($this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible))
 			->setOrgNavigation($this->settings->orgNavigation?->firstLoad(userId: $userId))
 			->setWorkspaceBootReads($this->sources->bootReads?->firstLoad(userId: $userId))
 			->setShellReads(reads: $this->sources->shell->firstLoad(userId: $userId, visible: $visible))
@@ -206,16 +200,9 @@ class PageController extends Controller {
 
 		// First-paint-skeleton D1: the header and the widget frames in the
 		// page's HTML, from the same values; none without a dashboard.
-		$firstPaint = FirstPaintPage::model(
-			firstLoad: $firstLoad,
-			activeState: $activeState,
-			active: $active,
-			widgets: $widgets,
-			reader: ['user' => $this->userSession->getUser(), 'timezone' => $timezone],
-			apps: $integrationApps
-		);
+		$context = ['active' => $active, 'user' => $this->userSession->getUser(), 'reloadUrl' => $this->request->getRequestUri()];
 
-		return $this->workspaceResponse(params: ['firstPaint' => $firstPaint, 'reloadUrl' => $this->request->getRequestUri()]);
+		return $this->workspaceResponse(params: FirstPaintPage::params(state: $builder, context: $context));
 	}//end index()
 
 	/**

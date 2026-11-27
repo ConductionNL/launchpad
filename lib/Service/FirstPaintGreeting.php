@@ -46,29 +46,20 @@ class FirstPaintGreeting {
 	/**
 	 * The greeting line, or '' when the header shows none.
 	 *
-	 * @param IL10N                $l           The app's translations, in the reader's language.
-	 * @param array<string, mixed> $content     The header placement's content (greeting, showDate, showWeek).
-	 * @param string               $displayName The reader's display name.
-	 * @param DateTimeImmutable    $now         The moment of the request.
-	 * @param string               $timezone    The reader's time zone, '' for the server's.
-	 * @param string               $locale      The reader's locale, such as nl_NL or en_US.
+	 * @param IL10N                $l       The app's translations, in the reader's language.
+	 * @param array<string, mixed> $content The header placement's content (greeting, showDate, showWeek).
+	 * @param array<string, mixed> $reader  `name` (display name), `timezone` ('' for the server's) and `locale` (nl_NL, en_US).
+	 * @param DateTimeImmutable    $now     The moment of the request.
 	 *
 	 * @return string
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-2
 	 */
-	public static function line(
-		IL10N $l,
-		array $content,
-		string $displayName,
-		DateTimeImmutable $now,
-		string $timezone,
-		string $locale
-	): string {
-		$local = $now->setTimezone(self::zone(timezone: $timezone));
+	public static function line(IL10N $l, array $content, array $reader, DateTimeImmutable $now): string {
+		$local = $now->setTimezone(self::zone(timezone: (string) ($reader['timezone'] ?? '')));
 		$parts = [
-			self::greeting(l: $l, content: $content, displayName: $displayName, hour: (int) $local->format('G')),
-			self::date(content: $content, moment: $local, locale: $locale),
+			self::greeting(l: $l, content: $content, displayName: (string) ($reader['name'] ?? ''), hour: (int) $local->format('G')),
+			self::date(content: $content, moment: $local, locale: (string) ($reader['locale'] ?? '')),
 		];
 		if (($content['showWeek'] ?? false) === true) {
 			$parts[] = self::fill(text: $l->t('week {number}'), values: ['number' => (int) $local->format('W')]);

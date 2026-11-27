@@ -149,7 +149,7 @@ $fp = (isset($_['firstPaint']) === true && is_array($_['firstPaint']) === true) 
 					<?php if ($ground === true) : ?>
 						<div>
 							<h1><?php p($header['title']); ?></h1>
-							<p class="lp-fp__tx"><?php p(FirstPaintGreeting::line(l: $l, content: $header['content'], displayName: $fp['reader']['name'], now: new DateTimeImmutable(), timezone: $fp['reader']['timezone'], locale: $l->getLocaleCode())); ?></p>
+							<p class="lp-fp__tx"><?php p(FirstPaintGreeting::line(l: $l, content: $header['content'], reader: $fp['reader'] + ['locale' => $l->getLocaleCode()], now: new DateTimeImmutable())); ?></p>
 						</div>
 						<?php $actions(); ?>
 					<?php else : ?>

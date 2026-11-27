@@ -11,6 +11,9 @@ namespace Unit\Controller;
 
 use JsonSerializable;
 use OCA\LaunchPad\Controller\FirstPaintPage;
+use OCA\LaunchPad\Service\InitialStateBuilder;
+use OCA\LaunchPad\Service\InitialState\Page;
+use OCP\AppFramework\Services\IInitialState;
 use OCP\IUser;
 use PHPUnit\Framework\TestCase;
 
@@ -32,7 +35,17 @@ class FirstPaintPageTest extends TestCase {
 	 * @return array<string, mixed>
 	 */
 	private static function placement(int $id, string $widgetId, int $y=0): array {
-		return ['id' => $id, 'widgetId' => $widgetId, 'gridX' => 0, 'gridY' => $y, 'gridWidth' => 4, 'gridHeight' => 2, 'isVisible' => 1, 'showTitle' => 1, 'customTitle' => 'W'.$id];
+		return [
+			'id'          => $id,
+			'widgetId'    => $widgetId,
+			'gridX'       => 0,
+			'gridY'       => $y,
+			'gridWidth'   => 4,
+			'gridHeight'  => 2,
+			'isVisible'   => 1,
+			'showTitle'   => 1,
+			'customTitle' => 'W'.$id,
+		];
 	}//end placement()
 
 	/**
@@ -44,31 +57,52 @@ class FirstPaintPageTest extends TestCase {
 	 */
 	private static function opened(array $row): array {
 		return ['dashboard' => new class($row) implements JsonSerializable {
+
 			/**
+			 * Constructor.
+			 *
 			 * @param array<string, mixed> $row The row.
 			 */
 			public function __construct(private array $row) {
 			}
 
 			/**
+			 * The row.
+			 *
 			 * @return array<string, mixed>
 			 */
 			public function jsonSerialize(): array {
 				return $this->row;
 			}
-		}];
+		},
+		];
 	}//end opened()
 
 	/**
-	 * REQ-FPS-006: no first load, or nothing opened, means no shell.
+	 * The page values for an opened user dashboard u-1 with two placements.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function page(): array {
+		return [
+			'firstLoad'         => ['visible' => [], 'active' => null],
+			'activeDashboardId' => 'u-1',
+			'dashboardSource'   => 'user',
+			'layout'            => [self::placement(id: 1, widgetId: 'text'), self::placement(id: 2, widgetId: 'text', y: 2)],
+			'active'            => self::opened(row: ['uuid' => 'u-1', 'name' => 'Projecten', 'gridColumns' => 12]),
+		];
+	}//end page()
+
+	/**
+	 * REQ-FPS-006: no first load, nothing opened, or no dashboard means no shell.
 	 *
 	 * @return void
 	 */
 	public function testNoDashboardNoShell(): void {
-		$state = ['activeDashboardId' => 'u-1', 'dashboardSource' => 'user', 'layout' => [self::placement(id: 1, widgetId: 'text')]];
-		$this->assertNull(FirstPaintPage::model(firstLoad: null, activeState: $state, active: self::opened(row: ['name' => 'A']), widgets: [], reader: []));
-		$this->assertNull(FirstPaintPage::model(firstLoad: ['visible' => [], 'active' => null], activeState: ['activeDashboardId' => ''] + $state, active: self::opened(row: ['name' => 'A']), widgets: [], reader: []));
-		$this->assertNull(FirstPaintPage::model(firstLoad: ['visible' => [], 'active' => null], activeState: $state, active: null, widgets: [], reader: []));
+		$this->assertNull(actual: FirstPaintPage::model(page: ['firstLoad' => null] + self::page(), reader: []));
+		$this->assertNull(actual: FirstPaintPage::model(page: ['activeDashboardId' => ''] + self::page(), reader: []));
+		$this->assertNull(actual: FirstPaintPage::model(page: ['active' => null] + self::page(), reader: []));
+		$this->assertNotNull(actual: FirstPaintPage::model(page: self::page(), reader: []));
 	}//end testNoDashboardNoShell()
 
 	/**
@@ -79,19 +113,25 @@ class FirstPaintPageTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheShellDrawsWhatTheStoreRenders(): void {
-		$state     = ['activeDashboardId' => 'u-1', 'dashboardSource' => 'user', 'layout' => [self::placement(id: 1, widgetId: 'text'), self::placement(id: 2, widgetId: 'text', y: 2)]];
-		$firstLoad = ['visible' => [], 'active' => ['dashboard' => ['uuid' => 'u-1', 'name' => 'Vandaag', 'gridColumns' => 12, 'isDefault' => 1], 'placements' => [self::placement(id: 1, widgetId: 'text')]]];
-
-		$user = $this->createMock(originalClassName: IUser::class);
+		$envelope = [
+			'dashboard'  => ['uuid' => 'u-1', 'name' => 'Vandaag', 'gridColumns' => 12, 'isDefault' => 1],
+			'placements' => [self::placement(id: 1, widgetId: 'text')],
+		];
+		$user     = $this->createMock(originalClassName: IUser::class);
 		$user->method('getDisplayName')->willReturn('Pieter Jansen');
-		$model = FirstPaintPage::model(firstLoad: $firstLoad, activeState: $state, active: self::opened(row: ['name' => 'Old']), widgets: [], reader: ['user' => $user, 'timezone' => 'Europe/Amsterdam']);
+
+		$model = FirstPaintPage::model(
+			page: ['firstLoad' => ['visible' => [], 'active' => $envelope]] + self::page(),
+			reader: ['user' => $user, 'timezone' => 'Europe/Amsterdam']
+		);
 		$this->assertSame(expected: ['1'], actual: array_column($model['frames'], 'id'));
 		$this->assertSame(expected: 'Vandaag', actual: $model['header']['name']);
 		$this->assertSame(expected: ['name' => 'Pieter Jansen', 'timezone' => 'Europe/Amsterdam'], actual: $model['reader']);
-		$this->assertTrue($model['isDefault']);
+		$this->assertTrue(condition: $model['isDefault']);
 		$this->assertSame(expected: 'user', actual: $model['source']);
 
-		$deep = FirstPaintPage::model(firstLoad: $firstLoad, activeState: ['activeDashboardId' => 'u-2'] + $state, active: self::opened(row: ['uuid' => 'u-2', 'name' => 'Projecten', 'gridColumns' => 12]), widgets: [], reader: []);
+		$other = ['dashboard' => ['uuid' => 'u-9'] + $envelope['dashboard']] + $envelope;
+		$deep  = FirstPaintPage::model(page: ['firstLoad' => ['visible' => [], 'active' => $other]] + self::page(), reader: []);
 		$this->assertSame(expected: ['1', '2'], actual: array_column($deep['frames'], 'id'));
 		$this->assertSame(expected: 'Projecten', actual: $deep['header']['name']);
 	}//end testTheShellDrawsWhatTheStoreRenders()
@@ -103,24 +143,45 @@ class FirstPaintPageTest extends TestCase {
 	 * @return void
 	 */
 	public function testWidgetsOfAMissingAppAreLeftOut(): void {
-		$state = ['activeDashboardId' => 'u-1', 'dashboardSource' => 'group', 'layout' => [
-			self::placement(id: 1, widgetId: 'text'),
-			self::placement(id: 2, widgetId: 'wiki-pages'),
-			self::placement(id: 3, widgetId: 'assigned-cases'),
-			self::placement(id: 4, widgetId: 'work-packages'),
-		]];
-		$model = FirstPaintPage::model(
-			firstLoad: ['visible' => [], 'active' => null],
-			activeState: $state,
-			active: self::opened(row: ['uuid' => 'u-1', 'name' => 'Team', 'gridColumns' => 12]),
-			widgets: [],
-			reader: [],
-			apps: ['openregister' => false, 'dossiq' => 'zaakafhandel', 'integration_openproject' => true]
-		);
+		$page = [
+			'layout' => [
+				self::placement(id: 1, widgetId: 'text'),
+				self::placement(id: 2, widgetId: 'wiki-pages'),
+				self::placement(id: 3, widgetId: 'assigned-cases'),
+				self::placement(id: 4, widgetId: 'work-packages'),
+			],
+			'apps'   => ['openregister' => false, 'dossiq' => 'zaakafhandel', 'integration_openproject' => true],
+		] + self::page();
+		$model = FirstPaintPage::model(page: $page, reader: []);
 		$this->assertSame(expected: ['1', '3', '4'], actual: array_column($model['frames'], 'id'));
-		$this->assertFalse(FirstPaintPage::offered(widgetId: 'connections', apps: ['integriq' => '']));
-		$this->assertTrue(FirstPaintPage::offered(widgetId: 'calendar', apps: []));
+		$this->assertFalse(condition: FirstPaintPage::offered(widgetId: 'connections', apps: ['integriq' => '']));
+		$this->assertTrue(condition: FirstPaintPage::offered(widgetId: 'calendar', apps: []));
 	}//end testWidgetsOfAMissingAppAreLeftOut()
+
+	/**
+	 * The parameters read the page's own initial state, so the shell and the
+	 * page name the same widgets; the Reload link is the page's address.
+	 *
+	 * @return void
+	 */
+	public function testParamsReadTheInitialState(): void {
+		$builder = new InitialStateBuilder(initialState: $this->createMock(originalClassName: IInitialState::class), page: Page::WORKSPACE);
+		$builder->setLayout([self::placement(id: 5, widgetId: 'text')])
+			->setActiveDashboardId('u-1')
+			->setDashboardSource('group')
+			->setWidgets([])
+			->setUserTimezone('Europe/Amsterdam')
+			->setDashboardFirstLoad(['visible' => [], 'active' => null]);
+
+		$params = FirstPaintPage::params(
+			state: $builder,
+			context: ['active' => self::opened(row: ['uuid' => 'u-1', 'name' => 'Team']), 'user' => null, 'reloadUrl' => '/apps/launchpad/team']
+		);
+		$this->assertSame(expected: '/apps/launchpad/team', actual: $params['reloadUrl']);
+		$this->assertSame(expected: ['5'], actual: array_column($params['firstPaint']['frames'], 'id'));
+		$this->assertSame(expected: 'group', actual: $params['firstPaint']['source']);
+		$this->assertSame(expected: 'Europe/Amsterdam', actual: $params['firstPaint']['reader']['timezone']);
+	}//end testParamsReadTheInitialState()
 
 	/**
 	 * The PHP list is the browser's list: every `requiresApp` in the widget
@@ -129,19 +190,24 @@ class FirstPaintPageTest extends TestCase {
 	 * @return void
 	 */
 	public function testRequiresAppMatchesTheWidgetRegistry(): void {
-		$source = (string) file_get_contents(__DIR__.'/../../../src/constants/widgetRegistry.js');
-		preg_match_all("/registerDashboardWidget\\('([^']+)'.*?(?=registerDashboardWidget\\(|\\z)/s", $source, $blocks, PREG_SET_ORDER);
+		$source = (string) file_get_contents(filename: __DIR__.'/../../../src/constants/widgetRegistry.js');
+		preg_match_all(
+			pattern: "/registerDashboardWidget\\('([^']+)'.*?(?=registerDashboardWidget\\(|\\z)/s",
+			subject: $source,
+			matches: $blocks,
+			flags: PREG_SET_ORDER
+		);
 		$found = [];
 		foreach ($blocks as $block) {
-			if (preg_match("/requiresApp:\\s*'([^']+)'/", $block[0], $app) === 1) {
+			if (preg_match(pattern: "/requiresApp:\\s*'([^']+)'/", subject: $block[0], matches: $app) === 1) {
 				$found[$block[1]] = $app[1];
 			}
 		}
 
-		ksort($found);
+		ksort(array: $found);
 		$expected = FirstPaintPage::REQUIRES_APP;
-		ksort($expected);
-		$this->assertNotEmpty($found);
+		ksort(array: $expected);
+		$this->assertNotEmpty(actual: $found);
 		$this->assertSame(expected: $expected, actual: $found);
 	}//end testRequiresAppMatchesTheWidgetRegistry()
 }//end class

@@ -73,7 +73,14 @@ class FirstPaintShellTest extends TestCase {
 		);
 
 		$this->assertSame(
-			expected: ['mode' => 'page', 'name' => 'Intranet Zuiddrecht', 'description' => 'Groepsdashboard van Communicatie', 'groundId' => '', 'title' => '', 'content' => []],
+			expected: [
+				'mode'        => 'page',
+				'name'        => 'Intranet Zuiddrecht',
+				'description' => 'Groepsdashboard van Communicatie',
+				'groundId'    => '',
+				'title'       => '',
+				'content'     => [],
+			],
 			actual: $model['header']
 		);
 		$this->assertSame(expected: [12, 8, 4], actual: $model['columns']);
@@ -114,7 +121,11 @@ class FirstPaintShellTest extends TestCase {
 			page: [
 				'dashboard'  => ['name' => 'Vandaag', 'gridColumns' => 12],
 				'placements' => [
-					self::placement(id: 1, widgetId: 'section-heading', extra: ['showTitle' => 0, 'content' => ['title' => 'Kennis en nieuws', 'description' => 'De wiki en het nieuws']]),
+					self::placement(
+						id: 1,
+						widgetId: 'section-heading',
+						extra: ['showTitle' => 0, 'content' => ['title' => 'Kennis en nieuws', 'description' => 'De wiki en het nieuws']]
+					),
 					self::placement(id: 2, widgetId: 'header', extra: ['showTitle' => 0, 'content' => ['title' => 'Vandaag', 'ground' => true]]),
 					self::placement(id: 3, widgetId: 'files', extra: ['showTitle' => 0, 'content' => ['title' => 'Not a heading']]),
 				],

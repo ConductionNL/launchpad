@@ -33,6 +33,7 @@ namespace OCA\LaunchPad\Controller;
 
 use JsonSerializable;
 use OCA\LaunchPad\Service\FirstPaintShell;
+use OCA\LaunchPad\Service\InitialStateBuilder;
 use OCP\IUser;
 
 /**
@@ -56,64 +57,75 @@ class FirstPaintPage {
 	];
 
 	/**
+	 * The template's parameters: the shell, drawn from the values the page's
+	 * initial state carries, and the page's own address for the
+	 * could-not-load line's Reload link.
+	 *
+	 * @param InitialStateBuilder  $state   The page's initial state, filled.
+	 * @param array<string, mixed> $context `active` (the opened dashboard as resolved), `user` (IUser or null), `reloadUrl`.
+	 *
+	 * @return array{firstPaint: array<string, mixed>|null, reloadUrl: string}
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 */
+	public static function params(InitialStateBuilder $state, array $context): array {
+		$page = [
+			'firstLoad'         => $state->value(key: 'dashboardFirstLoad'),
+			'activeDashboardId' => $state->value(key: 'activeDashboardId'),
+			'dashboardSource'   => $state->value(key: 'dashboardSource'),
+			'layout'            => $state->value(key: 'layout'),
+			'widgets'           => $state->value(key: 'widgets'),
+			'apps'              => $state->value(key: 'integrationApps'),
+			'active'            => $context['active'] ?? null,
+		];
+
+		return [
+			'firstPaint' => self::model(page: $page, reader: ['user' => $context['user'] ?? null, 'timezone' => $state->value(key: 'userTimezone')]),
+			'reloadUrl'  => (string) ($context['reloadUrl'] ?? ''),
+		];
+	}//end params()
+
+	/**
 	 * The shell the template prints, or null when the page opens without a
 	 * dashboard (REQ-FPS-006).
 	 *
-	 * @param array|null           $firstLoad   The `dashboardFirstLoad` the page carries, or null.
-	 * @param array<string, mixed> $activeState The page's active-dashboard state (activeDashboardId, dashboardSource, layout).
-	 * @param array|null           $active      The opened dashboard as the page resolved it (`dashboard` entity), or null.
-	 * @param array                $widgets     The widget catalogue the page carries.
-	 * @param array<string, mixed> $reader      The reader: `user` (IUser or null) and `timezone`.
-	 * @param array<string, mixed> $apps        The `integrationApps` the page carries: app id to true, or to its installed id.
+	 * @param array<string, mixed> $page   `firstLoad`, `activeDashboardId`, `dashboardSource`, `layout`, `widgets` and `apps`
+	 *                                     as the initial state carries them, and `active`, the opened dashboard as resolved.
+	 * @param array<string, mixed> $reader `user` (IUser or null) and `timezone`.
 	 *
 	 * @return array<string, mixed>|null
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
 	 */
-	public static function model(
-		?array $firstLoad,
-		array $activeState,
-		?array $active,
-		array $widgets,
-		array $reader,
-		array $apps=[]
-	): ?array {
-		$uuid = (string) ($activeState['activeDashboardId'] ?? '');
-		if ($firstLoad === null || $uuid === '') {
+	public static function model(array $page, array $reader): ?array {
+		$uuid      = (string) ($page['activeDashboardId'] ?? '');
+		$firstLoad = $page['firstLoad'] ?? null;
+		if (is_array($firstLoad) === false || $uuid === '') {
 			return null;
 		}
 
-		$dashboard = [];
-		if (($active['dashboard'] ?? null) instanceof JsonSerializable) {
-			$dashboard = (array) $active['dashboard']->jsonSerialize();
-		}
-
-		$placements = (array) ($activeState['layout'] ?? []);
-		$envelope   = $firstLoad['active'] ?? null;
-		if (is_array($envelope) === true && (string) ($envelope['dashboard']['uuid'] ?? '') === $uuid) {
-			$dashboard  = (array) $envelope['dashboard'];
-			$placements = (array) ($envelope['placements'] ?? []);
-		}
-
+		[$dashboard, $placements] = self::opened(page: $page, envelope: $firstLoad['active'] ?? null, uuid: $uuid);
 		if ($dashboard === []) {
 			return null;
 		}
 
-		$placements = array_values(
-			array_filter(
-				$placements,
-				static fn (mixed $placement): bool => is_array($placement) === true
-					&& self::offered(widgetId: (string) ($placement['widgetId'] ?? ''), apps: $apps)
-			)
-		);
-
+		$apps  = (array) ($page['apps'] ?? []);
 		$shell = (new FirstPaintShell())->build(
-			page: ['dashboard' => $dashboard, 'placements' => $placements],
-			catalogue: array_values(array_filter($widgets, 'is_array'))
+			page: [
+				'dashboard'  => $dashboard,
+				'placements' => array_values(
+					array_filter(
+						$placements,
+						static fn (mixed $placement): bool => is_array($placement) === true
+							&& self::offered(widgetId: (string) ($placement['widgetId'] ?? ''), apps: $apps)
+					)
+				),
+			],
+			catalogue: array_values(array_filter((array) ($page['widgets'] ?? []), 'is_array'))
 		);
 
 		return $shell + [
-			'source'    => (string) ($activeState['dashboardSource'] ?? ''),
+			'source'    => (string) ($page['dashboardSource'] ?? ''),
 			'isDefault' => (int) ($dashboard['isDefault'] ?? 0) === 1,
 			'reader'    => [
 				'name'     => self::displayName(user: $reader['user'] ?? null),
@@ -121,6 +133,31 @@ class FirstPaintPage {
 			],
 		];
 	}//end model()
+
+	/**
+	 * The dashboard and placements the mounted page draws first: the store
+	 * renders the first-load envelope (placements after the visibility rules)
+	 * when it is the opened dashboard; a deep link to another dashboard draws
+	 * that dashboard's `layout`.
+	 *
+	 * @param array<string, mixed> $page     The page values (see model()).
+	 * @param mixed                $envelope The first load's `active` envelope.
+	 * @param string               $uuid     The opened dashboard's uuid.
+	 *
+	 * @return array{0: array<string, mixed>, 1: array}
+	 */
+	private static function opened(array $page, mixed $envelope, string $uuid): array {
+		if (is_array($envelope) === true && (string) ($envelope['dashboard']['uuid'] ?? '') === $uuid) {
+			return [(array) $envelope['dashboard'], (array) ($envelope['placements'] ?? [])];
+		}
+
+		$dashboard = [];
+		if (($page['active']['dashboard'] ?? null) instanceof JsonSerializable) {
+			$dashboard = (array) $page['active']['dashboard']->jsonSerialize();
+		}
+
+		return [$dashboard, (array) ($page['layout'] ?? [])];
+	}//end opened()
 
 	/**
 	 * The reader's display name, '' without a user.

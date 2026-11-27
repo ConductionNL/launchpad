@@ -38,6 +38,7 @@ use PHPUnit\Framework\TestCase;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
 use OCA\LaunchPad\Controller\UserResponses;
+use OCA\LaunchPad\Service\FoundServicesService;
 
 class TileApiControllerTest extends TestCase {
 	/** @var TileService&MockObject */
@@ -52,6 +53,8 @@ class TileApiControllerTest extends TestCase {
 	private IUserSession $userSession;
 	/** @var ServiceDiscoveryService&MockObject */
 	private ServiceDiscoveryService $discovery;
+	/** @var FoundServicesService&MockObject */
+	private FoundServicesService $foundServices;
 
 	protected function setUp(): void {
 		$this->tileService = $this->createMock(TileService::class);
@@ -60,6 +63,7 @@ class TileApiControllerTest extends TestCase {
 		$this->actionAuth = $this->createMock(ActionAuthService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->discovery = $this->createMock(ServiceDiscoveryService::class);
+		$this->foundServices = $this->createMock(FoundServicesService::class);
 		$this->l10n->method('t')->willReturnArgument(0);
 	}
 
@@ -77,7 +81,8 @@ class TileApiControllerTest extends TestCase {
 			sources: new TileSources(
 				tileService: $this->tileService,
 				l10n: $this->l10n,
-				discovery: $this->discovery
+				discovery: $this->discovery,
+				foundServices: $this->foundServices
 			),
 			caller: new ActionCaller(
 				actionAuth: $this->actionAuth,
@@ -130,6 +135,38 @@ class TileApiControllerTest extends TestCase {
 		$response = $this->makeController(userId: null)->discover();
 
 		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+	}
+
+	/**
+	 * REQ-TILE-044: the services an administrator allowed for discovery that answered, behind tile.discover.
+	 *
+	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 */
+	public function testFoundServicesAnswersTheFoundServices(): void {
+		$services = [['name' => 'Grafana', 'url' => 'http://localhost:3000', 'port' => 3000, 'state' => 'running', 'foundAt' => 1795757445]];
+		$this->foundServices->method('found')->willReturn($services);
+		$this->actionAuth->expects($this->once())->method('requireAction')
+			->with($this->isInstanceOf(IUser::class), 'tile.discover');
+
+		$response = $this->makeController()->foundServices();
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame(['services' => $services], $response->getData());
+	}
+
+	/**
+	 * Without the tile.discover action no address is asked.
+	 *
+	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 */
+	public function testFoundServicesRefusesWithoutTheAction(): void {
+		$this->actionAuth->method('requireAction')
+			->willThrowException(new \OCP\AppFramework\OCS\OCSForbiddenException());
+		$this->foundServices->expects($this->never())->method('found');
+
+		$response = $this->makeController()->foundServices();
+
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
 	}
 
 	public function testCreateReturns410GoneEnvelope(): void {

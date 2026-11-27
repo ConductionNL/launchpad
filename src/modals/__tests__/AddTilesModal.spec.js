@@ -95,6 +95,51 @@ describe('AddTilesModal sections', () => {
 	})
 })
 
+describe('AddTilesModal services found on the server (REQ-TILE-044)', () => {
+	const SERVICES = [
+		{ name: 'Grafana', url: 'http://localhost:3000', port: 3000, state: 'running', foundAt: 1795757445 },
+		{ name: 'Uptime Kuma', url: 'http://localhost:3001', port: 3001, state: 'not_responding', foundAt: 1795750000 },
+	]
+
+	it('Grafana found: listed as Running with its port and Add as tile (scenario)', () => {
+		const wrapper = mountModal({ discoveredApps: [], foundServices: SERVICES })
+		expect(wrapper.find('[data-testid="add-tiles-found"]').exists()).toBe(true)
+		const rows = wrapper.findAll('[data-testid="add-tiles-found-service"]')
+		expect(rows).toHaveLength(2)
+		expect(rows[0].text()).toContain('Grafana')
+		expect(rows[0].find('[data-testid="add-tiles-found-service-meta"]').text()).toMatch(/^Running · port 3000 · found .+/)
+		expect(rows[0].text()).toContain('Add as tile')
+		expect(rows[1].text()).toContain('Not responding · port 3001')
+	})
+
+	it('leaves out a service the dashboard already has a tile for', () => {
+		const wrapper = mountModal({
+			discoveredApps: [],
+			foundServices: SERVICES,
+			placements: [{ tileLinkType: 'url', tileLinkValue: 'http://localhost:3000' }],
+		})
+		const rows = wrapper.findAll('[data-testid="add-tiles-found-service"]')
+		expect(rows.map((row) => row.text())).toEqual([expect.stringContaining('Uptime Kuma')])
+	})
+
+	it('adds a found service as a web-address tile', async () => {
+		const addTiles = vi.fn().mockResolvedValue(undefined)
+		const wrapper = mountModal({ discoveredApps: [], foundServices: SERVICES, addTiles })
+		await wrapper.findAll('[data-testid="add-tiles-found-service"]')[0].find('button').trigger('click')
+		expect(confirm(wrapper).text()).toContain('1')
+		await confirm(wrapper).trigger('click')
+		await flushPromises()
+		expect(addTiles).toHaveBeenCalledWith([
+			{ key: 'url:http://localhost:3000', kind: 'tile', tile: { title: 'Grafana', icon: 'icon-link', iconType: 'class', linkType: 'url', linkValue: 'http://localhost:3000' } },
+		])
+	})
+
+	it('shows no Found section when nothing was found and the app menu offers nothing', () => {
+		const wrapper = mountModal({ discoveredApps: [], foundServices: [] })
+		expect(wrapper.find('[data-testid="add-tiles-found"]').exists()).toBe(false)
+	})
+})
+
 describe('AddTilesModal Add Office tiles (scenario)', () => {
 	it('reads Add 3 tiles after ticking Word, Excel and Outlook web and adds three tiles', async () => {
 		const addTiles = vi.fn().mockResolvedValue(undefined)

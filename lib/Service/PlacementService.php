@@ -398,6 +398,23 @@ class PlacementService {
 	}//end importBookmarks()
 
 	/**
+	 * Refuse a bookmark import that does not fit the quota, before an
+	 * edit-mode draft takes its placements; nothing is written.
+	 *
+	 * @param int                $dashboardId The dashboard.
+	 * @param BookmarkImportPlan $plan        What to create.
+	 *
+	 * @return void
+	 *
+	 * @throws \OCA\LaunchPad\Exception\QuotaExceededException When the import does not fit the quota.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 */
+	public function assertImportFits(int $dashboardId, BookmarkImportPlan $plan): void {
+		$this->quotaService?->assertCanAddPlacements(dashboardId: $dashboardId, count: $plan->placementCount());
+	}//end assertImportFits()
+
+	/**
 	 * One placement of an import: a container with its link children, or a
 	 * tile opening the bookmark in a new tab.
 	 *

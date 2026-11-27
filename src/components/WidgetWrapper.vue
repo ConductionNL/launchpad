@@ -41,7 +41,9 @@
 			:flush="isChromelessFrame || rendersOwnHeader"
 			:showRefresh="false"
 			:showRequestFeature="false"
-			:showActions="showActionsMenu">
+			:showActions="showActionsMenu"
+			:loading="!contentShown"
+			:placeholder="placeholder">
 			<!-- REQ-IFRAME-005: the "Outage" tag in the card head, by icon-free
 			     text so it never relies on colour alone. -->
 			<template v-if="headStatus.outage" #title-meta>
@@ -51,9 +53,11 @@
 			</template>
 			<!-- REQ-WDG-044: the content below the fold mounts when it comes
 			     into view (or once the page has settled); the card shows at once. -->
-			<!-- REQ-WDG-046: until then a loading state, and a widget that
-			     fails to show keeps its error inside this card. -->
-			<LazyMount :eager="mountsAtOnce">
+			<!-- REQ-WDG-046: until then the card waits in the widget's
+			     declared placeholder (widget-declared-placeholders: CnWidgetWrapper
+			     draws it, aria-busy on the card), and a widget that fails to show
+			     keeps its error inside this card. -->
+			<LazyMount :eager="mountsAtOnce" @shown="contentShown = true">
 				<WidgetErrorBoundary>
 					<WidgetRenderer
 						:widget="widget"
@@ -163,6 +167,7 @@ import {
 } from '../constants/propDefinitions.js'
 import { isDraftPlacement } from '../utils/editDraft.js'
 import { inFirstViewport } from '../utils/firstViewport.js'
+import { placementPlaceholder } from '../utils/widgetPlaceholder.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 /**
@@ -273,10 +278,25 @@ export default {
 			// What the renderer reports for the card head (REQ-IFRAME-005):
 			// the source line under the title and the outage tag.
 			headStatus: { subtitle: '', outage: false },
+			// Whether LazyMount has mounted the content; until then the card
+			// waits in its placeholder (widget-declared-placeholders).
+			contentShown: false,
 		}
 	},
 
 	computed: {
+		/**
+		 * The shape the card waits in: the placement's own declaration, the
+		 * registry's for its type, the Nextcloud widget's from the catalogue,
+		 * else rows; the order the first-paint shell uses on the server.
+		 *
+		 * @return {{shape: string, count?: number}}
+		 * @spec openspec/changes/widget-declared-placeholders/specs/first-paint-shell/spec.md#requirement-the-placeholder-shape-comes-from-the-widgets-declaration-req-fps-009
+		 */
+		placeholder() {
+			return placementPlaceholder(this.placement, this.widget)
+		},
+
 		/**
 		 * REQ-WDG-050: Create embed token is disabled for a widget that is not
 		 * stored yet: no placement, or one the draft added.

@@ -298,6 +298,21 @@ class WidgetService {
 	}//end importBookmarks()
 
 	/**
+	 * Refuse a bookmark import that does not fit the quota, before an
+	 * edit-mode draft takes its placements; nothing is written.
+	 *
+	 * @param int                $dashboardId The dashboard.
+	 * @param BookmarkImportPlan $plan        What to create.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 */
+	public function assertImportFits(int $dashboardId, BookmarkImportPlan $plan): void {
+		$this->placementService->assertImportFits(dashboardId: $dashboardId, plan: $plan);
+	}//end assertImportFits()
+
+	/**
 	 * Update a widget placement.
 	 *
 	 * When the update carries a `content` payload, run the same save-time

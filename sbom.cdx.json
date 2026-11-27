@@ -830,8 +830,8 @@
       "type": "library",
       "name": "nextcloud-vue",
       "group": "@conduction",
-      "version": "2.241.0",
-      "bom-ref": "launchpad@1.0.0|@conduction/nextcloud-vue@2.241.0",
+      "version": "2.244.0",
+      "bom-ref": "launchpad@1.0.0|@conduction/nextcloud-vue@2.244.0",
       "licenses": [
         {
           "license": {
@@ -839,15 +839,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/%40conduction/nextcloud-vue@2.241.0",
+      "purl": "pkg:npm/%40conduction/nextcloud-vue@2.244.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/@conduction/nextcloud-vue/-/nextcloud-vue-2.241.0.tgz",
+          "url": "https://registry.npmjs.org/@conduction/nextcloud-vue/-/nextcloud-vue-2.244.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "84574f6678d8ec6cd2d20f5c38187281d620c56dddf415cfdec7bef36dfef8eb96d9004ab5365cb5469f78fe291f9b07f1c15bf3bba4dc1266456547830175e9"
+              "content": "9f8cd99869ceaa3e8e4074d2ea8f06222701378674197fb10741a17c2eea6ca33ff49b386331771d4fdd12a4c89c7bc418f1fdcb85bd6758c0980bd9955ca089"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -865,7 +865,7 @@
           "name": "dialogs",
           "group": "@nextcloud",
           "version": "7.6.0",
-          "bom-ref": "launchpad@1.0.0|@conduction/nextcloud-vue@2.241.0|@nextcloud/dialogs@7.6.0",
+          "bom-ref": "launchpad@1.0.0|@conduction/nextcloud-vue@2.244.0|@nextcloud/dialogs@7.6.0",
           "licenses": [
             {
               "license": {
@@ -899,7 +899,7 @@
               "name": "initial-state",
               "group": "@nextcloud",
               "version": "3.0.0",
-              "bom-ref": "launchpad@1.0.0|@conduction/nextcloud-vue@2.241.0|@nextcloud/dialogs@7.6.0|@nextcloud/initial-state@3.0.0",
+              "bom-ref": "launchpad@1.0.0|@conduction/nextcloud-vue@2.244.0|@nextcloud/dialogs@7.6.0|@nextcloud/initial-state@3.0.0",
               "licenses": [
                 {
                   "license": {

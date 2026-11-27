@@ -5,7 +5,8 @@
 
 <template>
 	<div class="activity-report" data-testid="activity-report-widget">
-		<form class="activity-report__controls" @submit.prevent="load">
+		<!-- REQ-WDG-048, board LpWidgetKiezen: the miniature draws the report, not the filter. -->
+		<form v-if="!preview" class="activity-report__controls" @submit.prevent="load">
 			<NcTextField
 				v-model="user"
 				:label="t('launchpad', 'Person (empty for yourself)')"
@@ -285,6 +286,9 @@ export default {
 	 */
 	async created() {
 		if (this.preview) {
+			// REQ-WDG-048: a miniature draws its sample report, no request.
+			this.loading = false
+			this.report = this.content?.sampleData?.report ?? null
 			return
 		}
 		await this.load()

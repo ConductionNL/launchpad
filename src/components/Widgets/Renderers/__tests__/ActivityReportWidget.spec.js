@@ -153,4 +153,16 @@ describe('ActivityReportWidget', () => {
 
 		expect(wrapper.find('[data-testid="activity-report-error"]').exists()).toBe(true)
 	})
+
+	it('draws its sample report as a miniature and asks nothing (REQ-WDG-048)', async () => {
+		const wrapper = mount(ActivityReportWidget, {
+			props: { preview: true, content: { days: 7, sampleData: { report: report({ total: 23 }) } } },
+		})
+		await flushPromises()
+
+		expect(loadActivityReport).not.toHaveBeenCalled()
+		expect(wrapper.find('[data-testid="activity-report-loading"]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="activity-report-summary"]').exists()).toBe(true)
+		expect(wrapper.find('form').exists()).toBe(false)
+	})
 })

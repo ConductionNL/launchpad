@@ -99,7 +99,7 @@ export const SAMPLE_CONTENT = Object.freeze({
 	chart: { chartType: 'bar', title: 'Requests per month', series: [{ name: 'Requests', data: BARS.map((bar) => bar.value) }], labels: BARS.map((bar) => bar.label) },
 	'stats-block': { items: [{ label: 'Open', value: 12 }, { label: 'Late', value: 3 }, { label: 'Done', value: 48 }] },
 	table: { title: 'Cases', sampleRows: ROWS },
-	calendar: { sampleEvents: [{ title: 'Team meeting', start: sampleDate(0) }, { title: 'Office hours', start: sampleDate(1) }] },
+	calendar: { viewMode: 'agenda', daysAhead: 7, showViewModes: false },
 	people: { layout: 'list', samplePeople: PEOPLE },
 	'spend-analytics': { sampleSeries: BARS },
 	'nc-widget': { widgetId: '', displayMode: 'vertical' },
@@ -139,10 +139,32 @@ export const SAMPLE_CONTENT = Object.freeze({
 			],
 		},
 	},
-	'activity-report': { days: 30 },
+	'activity-report': {
+		days: 7,
+		sampleData: {
+			report: {
+				self: true,
+				subject: '',
+				purpose: '',
+				available: true,
+				from: '2026-11-26',
+				to: '2026-12-02',
+				total: 23,
+				counts: { file_changed: 11, file_created: 5, comments: 4, calendar_event: 3 },
+				days: { '2026-11-26': 3, '2026-11-27': 5, '2026-11-30': 7, '2026-12-01': 2, '2026-12-02': 6 },
+			},
+		},
+	},
 	'status-report': {},
 	clock: { style: 'digital', hourFormat: '24', timezone: 'Europe/Amsterdam', showDate: true, sampleTime: sampleDate(0) },
-	communities: { title: '', onlyPinned: false },
+	communities: {
+		title: '',
+		onlyPinned: false,
+		sampleCommunities: [
+			{ token: 'sample-cycling', name: 'Cycling club', description: 'Rides on Friday afternoon', members: 18, pinned: false, joined: false },
+			{ token: 'sample-sustainable', name: 'Sustainable office', description: 'Ideas for a greener town hall', members: 42, pinned: true, joined: true },
+		],
+	},
 	weather: {
 		location: 'Utrecht',
 		unitsOverride: 'metric',
@@ -193,6 +215,24 @@ export const NOT_PREVIEW_SAFE = Object.freeze([])
  * @type {Record<string, object>}
  */
 export const SAMPLE_PROPS = Object.freeze({
+	// The shared calendar reads through a `dataSource`: the sample events land
+	// on the first days of whatever window the widget asks for.
+	calendar: {
+		dataSource: {
+			fetchEvents: async ({ from }) => {
+				const start = new Date(from)
+				const at = (days, hours) => new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate() + days, hours)).toISOString()
+				return {
+					events: [
+						{ uid: 'sample-team', title: 'Team meeting', start: at(0, 9), end: at(0, 10), allDay: false, calendarName: 'Work' },
+						{ uid: 'sample-hours', title: 'Office hours', start: at(1, 13), end: at(1, 15), allDay: false, calendarName: 'Work' },
+						{ uid: 'sample-council', title: 'Council meeting', start: at(2, 19), end: at(2, 21), allDay: false, calendarName: 'Council' },
+					],
+					failures: [],
+				}
+			},
+		},
+	},
 	people: {
 		dataSource: {
 			fetchPeople: async () => ({

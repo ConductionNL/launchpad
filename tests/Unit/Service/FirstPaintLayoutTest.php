@@ -57,8 +57,27 @@ class FirstPaintLayoutTest extends TestCase {
 			$expected[(int) $count] = $positions;
 		}
 
-		$this->assertSame(expected: $expected, actual: FirstPaintLayout::positions(nodes: $case['nodes'], columns: $case['columns']));
+		$actual = FirstPaintLayout::positions(nodes: $case['nodes'], columns: $case['columns']);
+
+		// Where each widget goes counts, not the order of the keys (the Vitest twin compares the same way).
+		$this->assertSame(expected: self::byId(layout: $expected), actual: self::byId(layout: $actual));
 	}//end testTheFixtureLayouts()
+
+	/**
+	 * A layout with every column count's widgets sorted by id.
+	 *
+	 * @param array<int, array<string, mixed>> $layout Column count => id => position.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function byId(array $layout): array {
+		foreach ($layout as $count => $byId) {
+			ksort($byId);
+			$layout[$count] = $byId;
+		}
+
+		return $layout;
+	}//end byId()
 
 	/**
 	 * The column counts: the dashboard's own, then 8 and 4 when they narrow it.

@@ -17,6 +17,7 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import { expect, request, test } from '@playwright/test'
 import { BASE_URL } from './support/baseUrl.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
+import { enterEditMode, switchToDashboard } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -91,14 +92,16 @@ test.afterAll(async () => {
 // @e2e tiles::a-script-bookmark-is-skipped
 test('one ticked folder becomes a container at the bottom, the other is left out', async ({ page }) => {
 	await page.goto('/index.php/apps/launchpad/')
-	await page.locator('[data-testid="launchpad-more-menu"] button').first().click()
-	await page.getByText('All dashboards', { exact: true }).click()
-
-	const row = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.filter({ hasText: dashboard!.name })
-	await row.locator('.dashboard-row-actions button').first().click()
-	await page.getByRole('menuitem', { name: /import bookmarks/i }).click()
+	// The dashboards sidebar and its row menu are gone (more-menu-favourites):
+	// the import is reached through edit mode → Add tiles → Import bookmarks.
+	await switchToDashboard(page, dashboard!.name)
+	await enterEditMode(page)
+	await page.getByRole('button', { name: 'Add tiles' }).click()
+	await page.locator('[data-testid="add-tiles-bookmark-file"]').setInputFiles({
+		name: 'bookmarks.html',
+		mimeType: 'text/html',
+		buffer: Buffer.from(BOOKMARKS_FILE, 'utf-8'),
+	})
 
 	const dialog = page.locator('[data-testid="bookmark-import"]')
 	await dialog.locator('[data-testid="bookmark-import-file"]').setInputFiles({

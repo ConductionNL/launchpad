@@ -33,12 +33,13 @@ import type { APIRequestContext, Locator, Page } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, request, test } from '@playwright/test'
-import { closeSidebar, gotoLaunchPad, openSidebar } from './fixtures/widget-flow.ts'
+import { closeSidebar, gotoLaunchPad } from './fixtures/widget-flow.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { addWidgetFromMore, enterEditMode as enterEditModeFromMore, switchToDashboard } from './support/dashboardSwitcher.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const API = '/index.php/apps/launchpad/api'
@@ -275,14 +276,8 @@ async function enterEditMode(page: Page): Promise<void> {
 	if ((await page.locator('.launchpad-edit-mode').count()) > 0) {
 		return
 	}
-	await openSidebar(page)
-	const row = page.locator(
-		`[data-source="user"].dashboard-switcher-sidebar__item[aria-label="${DASHBOARD_NAME}"]`,
-	)
-	await row.locator('.dashboard-row-actions button').first().click()
-	await page.locator('[data-testid="cog-edit-dashboard"]').click()
-	await page.waitForSelector('.launchpad-edit-mode', { timeout: 8_000 })
-	await closeSidebar(page)
+	await switchToDashboard(page, DASHBOARD_NAME)
+	await enterEditModeFromMore(page)
 }
 
 /**
@@ -807,12 +802,8 @@ async function addDividerThroughModal(
 	page: Page,
 ): Promise<{ body: any; id: number }> {
 	await openDashboard(page)
-	await openSidebar(page)
-	const row = page.locator(
-		`[data-source="user"].dashboard-switcher-sidebar__item[aria-label="${DASHBOARD_NAME}"]`,
-	)
-	await row.locator('.dashboard-row-actions button').first().click()
-	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
+	await switchToDashboard(page, DASHBOARD_NAME)
+	await addWidgetFromMore(page)
 	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-divider"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })

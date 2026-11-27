@@ -45,12 +45,13 @@ import {
 	deprovisionUser,
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
-import { closeSidebar, gotoLaunchPad, openSidebar } from './fixtures/widget-flow.ts'
+import { closeSidebar, gotoLaunchPad } from './fixtures/widget-flow.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { addWidgetFromMore, switchToDashboard } from './support/dashboardSwitcher.ts'
 import { contextFor } from './support/principals.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 
@@ -218,16 +219,8 @@ function tileOf(page: Page, placementId: number): Locator {
 async function openTileForm(
 	page: Page,
 ): Promise<{ dialog: Locator; form: Locator }> {
-	await openSidebar(page)
-	const row = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.filter({ hasText: shownDash!.name })
-		.first()
-	await expect(row).toBeVisible({ timeout: 10_000 })
-	await row.locator('.dashboard-row-actions button').first().click()
-	const item = page.getByRole('menuitem', { name: /^add widget$/i })
-	await expect(item).toBeVisible({ timeout: 5_000 })
-	await item.click()
+	await switchToDashboard(page, shownDash!.name)
+	await addWidgetFromMore(page)
 	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-livetile"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })

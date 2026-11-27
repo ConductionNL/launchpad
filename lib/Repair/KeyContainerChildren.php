@@ -73,6 +73,7 @@ class KeyContainerChildren implements IRepairStep {
 	 */
 	public function run(IOutput $output): void {
 		$keyed = 0;
+		$keys  = new ContainerChildKeys();
 		try {
 			foreach (['container', 'tabs'] as $type) {
 				foreach ($this->placements->findByWidgetId(widgetId: $type) as $placement) {
@@ -82,7 +83,7 @@ class KeyContainerChildren implements IRepairStep {
 						$ownerId = $placement->getId();
 					}
 
-					if (ContainerChildKeys::stamp(content: $content, ownerId: $ownerId) === $content) {
+					if ($keys->stamp(content: $content, ownerId: $ownerId) === $content) {
 						continue;
 					}
 

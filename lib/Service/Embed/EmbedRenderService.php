@@ -72,7 +72,7 @@ class EmbedRenderService {
 	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-002--public-render-route-validates-jwt-and-enforces-scope
 	 */
 	public function renderWidget(string $widgetId, EmbedToken $token, array $requestFilters=[]): ?array {
-		$child = ContainerChildKeys::splitSubject(subjectId: $widgetId);
+		$child = (new ContainerChildKeys())->splitSubject(subjectId: $widgetId);
 		if ($child !== null) {
 			return $this->renderChild(placementId: $child[0], childKey: $child[1], token: $token, requestFilters: $requestFilters);
 		}
@@ -114,7 +114,7 @@ class EmbedRenderService {
 			return null;
 		}
 
-		$child = ContainerChildKeys::find(content: $parent->getContentArray(), key: $childKey);
+		$child = (new ContainerChildKeys())->find(content: $parent->getContentArray(), key: $childKey);
 		if ($child === null || is_string($child['type'] ?? null) === false || $child['type'] === '') {
 			return null;
 		}

@@ -561,7 +561,7 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 			$ownerId = $this->id;
 		}
 
-		$content = ContainerChildKeys::stamp(content: $content, ownerId: $ownerId);
+		$content = (new ContainerChildKeys())->stamp(content: $content, ownerId: $ownerId);
 		// Entity setters resolve via __call which uses $args[0]; named args
 		// would break the magic forwarding (see project memory).
 		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters

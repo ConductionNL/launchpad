@@ -36,10 +36,14 @@ namespace OCA\LaunchPad\Db;
  * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 final class ContainerChildKeys {
-	/** What separates the placement id from the child key in an embed subject. */
+	/**
+	 * What separates the placement id from the child key in an embed subject.
+	 */
 	public const SEPARATOR = '.';
 
-	/** The nesting a lookup follows at most (REQ-CONT-006 allows 3). */
+	/**
+	 * The nesting a lookup follows at most (REQ-CONT-006 allows 3).
+	 */
 	private const MAX_DEPTH = 4;
 
 	/**
@@ -55,7 +59,7 @@ final class ContainerChildKeys {
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
-	public static function stamp(array $content, ?int $ownerId=null, int $depth=0, string $path=''): array {
+	public function stamp(array $content, ?int $ownerId=null, int $depth=0, string $path=''): array {
 		if ($depth > self::MAX_DEPTH) {
 			return $content;
 		}
@@ -66,13 +70,13 @@ final class ContainerChildKeys {
 				$owner = $ownerId;
 			}
 
-			$content['placements'] = self::stampList(list: $content['placements'], ownerId: $owner, depth: $depth, path: $path . '/p');
+			$content['placements'] = $this->stampList(list: $content['placements'], ownerId: $owner, depth: $depth, path: $path . '/p');
 		}
 
 		if (is_array($content['tabs'] ?? null) === true) {
 			foreach ($content['tabs'] as $at => $tab) {
 				if (is_array($tab) === true && is_array($tab['placements'] ?? null) === true) {
-					$content['tabs'][$at]['placements'] = self::stampList(list: $tab['placements'], ownerId: null, depth: $depth, path: $path . '/t' . $at);
+					$content['tabs'][$at]['placements'] = $this->stampList(list: $tab['placements'], ownerId: null, depth: $depth, path: $path . '/t' . $at);
 				}
 			}
 		}
@@ -89,7 +93,7 @@ final class ContainerChildKeys {
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
-	public static function keyOf(array $child): string {
+	public function keyOf(array $child): string {
 		$id = ($child['id'] ?? null);
 		if (is_int($id) === true || (is_string($id) === true && $id !== '')) {
 			return (string)$id;
@@ -114,18 +118,18 @@ final class ContainerChildKeys {
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
-	public static function find(array $content, string $key, int $depth=0): ?array {
+	public function find(array $content, string $key, int $depth=0): ?array {
 		if ($key === '' || $depth > self::MAX_DEPTH) {
 			return null;
 		}
 
-		foreach (self::children(content: $content) as $child) {
-			if (self::keyOf(child: $child) === $key) {
+		foreach ($this->children(content: $content) as $child) {
+			if ($this->keyOf(child: $child) === $key) {
 				return $child;
 			}
 
 			if (is_array($child['content'] ?? null) === true) {
-				$found = self::find(content: $child['content'], key: $key, depth: ($depth + 1));
+				$found = $this->find(content: $child['content'], key: $key, depth: ($depth + 1));
 				if ($found !== null) {
 					return $found;
 				}
@@ -145,7 +149,7 @@ final class ContainerChildKeys {
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
-	public static function splitSubject(string $subjectId): ?array {
+	public function splitSubject(string $subjectId): ?array {
 		if (preg_match('/^([1-9][0-9]*)\.([A-Za-z0-9_-]{1,64})$/', $subjectId, $match) !== 1) {
 			return null;
 		}
@@ -163,11 +167,11 @@ final class ContainerChildKeys {
 	 *
 	 * @return array<int|string, mixed>
 	 */
-	private static function stampList(array $list, ?int $ownerId, int $depth, string $path): array {
+	private function stampList(array $list, ?int $ownerId, int $depth, string $path): array {
 		$taken = [];
 		foreach ($list as $child) {
-			if (is_array($child) === true && self::keyOf(child: $child) !== '') {
-				$taken[self::keyOf(child: $child)] = true;
+			if (is_array($child) === true && $this->keyOf(child: $child) !== '') {
+				$taken[$this->keyOf(child: $child)] = true;
 			}
 		}
 
@@ -176,7 +180,7 @@ final class ContainerChildKeys {
 				continue;
 			}
 
-			if (self::keyOf(child: $child) === '') {
+			if ($this->keyOf(child: $child) === '') {
 				$key = self::newKey(ownerId: $ownerId, index: $index, child: $child, path: $path);
 				if (isset($taken[$key]) === true) {
 					$key = self::newKey(ownerId: null, index: $index, child: $child, path: $path);
@@ -187,7 +191,7 @@ final class ContainerChildKeys {
 			}
 
 			if (is_array($child['content'] ?? null) === true) {
-				$child['content'] = self::stamp(content: $child['content'], ownerId: null, depth: ($depth + 1), path: $path . '/' . $index);
+				$child['content'] = $this->stamp(content: $child['content'], ownerId: null, depth: ($depth + 1), path: $path . '/' . $index);
 			}
 
 			$list[$index] = $child;
@@ -221,7 +225,7 @@ final class ContainerChildKeys {
 	 *
 	 * @return list<array<string, mixed>>
 	 */
-	private static function children(array $content): array {
+	private function children(array $content): array {
 		$lists = [($content['placements'] ?? null)];
 		foreach ((array)($content['tabs'] ?? []) as $tab) {
 			if (is_array($tab) === true) {

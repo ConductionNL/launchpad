@@ -1,6 +1,15 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Close {title}" : "Fermer {title}",
+    "Write a comment" : "Écrire un commentaire",
+    "Send" : "Envoyer",
+    "Unlike {title}" : "Ne plus aimer {title}",
+    "Like {title}" : "Aimer {title}",
+    "Follow {category}" : "Suivre {category}",
+    "Unfollow {category}" : "Ne plus suivre {category}",
+    "No announcements" : "Aucune annonce",
+    "_%n comment_::_%n comments_" : ["%n commentaire", "%n commentaires"],
     "Mark as read" : "Marquer comme lu",
     "Read" : "Lu",
     "Close notice" : "Fermer l'avis",

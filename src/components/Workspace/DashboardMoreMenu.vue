@@ -21,9 +21,9 @@
 import { t } from '@nextcloud/l10n'
 import { markRaw } from 'vue'
 import CheckDecagramOutline from 'vue-material-design-icons/CheckDecagramOutline.vue'
-import { isOwnedDashboard } from '../../utils/dashboardRows.js'
 import LaunchpadMoreMenu from './LaunchpadMoreMenu.vue'
 import { favouriteDashboardsMixin } from '../../services/favouriteDashboards.js'
+import { isOwnedDashboard } from '../../utils/dashboardRows.js'
 import {
 	dashboardActionItems,
 	dashboardItems,

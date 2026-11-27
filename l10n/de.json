@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Could not add the dashboard to your favourites": "Das Dashboard konnte nicht zu deinen Favoriten hinzugefügt werden",
+        "Could not remove the dashboard from your favourites": "Das Dashboard konnte nicht aus deinen Favoriten entfernt werden",
+        "Star a dashboard to keep it here": "Markiere ein Dashboard mit einem Stern, um es hier zu sehen",
+        "New dashboard": "Neues Dashboard",
+        "favourites only": "nur Favoriten",
+        "Less": "Weniger",
+        "Add to favourites: {name}": "Zu Favoriten hinzufügen: {name}",
+        "Remove from favourites: {name}": "Aus Favoriten entfernen: {name}",
+        "My workspace": "Mein Arbeitsplatz",
+        "_%n more dashboard_::_%n more dashboards_": ["%n weiteres Dashboard", "%n weitere Dashboards"],
         "Not responding": "Antwortet nicht",
         "port {port}": "Port {port}",
         "found {time}": "gefunden {time}",

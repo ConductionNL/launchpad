@@ -1,5 +1,14 @@
 {
     "translations": {
+        "Could not add the dashboard to your favourites": "Het dashboard kon niet aan je favorieten worden toegevoegd",
+        "Could not remove the dashboard from your favourites": "Het dashboard kon niet uit je favorieten worden verwijderd",
+        "Star a dashboard to keep it here": "Geef een dashboard een ster om het hier te zien",
+        "New dashboard": "Nieuw dashboard",
+        "favourites only": "alleen favorieten",
+        "Less": "Minder",
+        "Add to favourites: {name}": "Toevoegen aan favorieten: {name}",
+        "Remove from favourites: {name}": "Verwijderen uit favorieten: {name}",
+        "_%n more dashboard_::_%n more dashboards_": ["nog %n dashboard", "nog %n dashboards"],
         "Background image": "Achtergrondafbeelding",
         "Shown behind this dashboard; leave empty to follow the theme.": "Wordt achter dit dashboard getoond; laat leeg om het thema te volgen.",
         "Upload image": "Afbeelding uploaden",

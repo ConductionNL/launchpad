@@ -1,6 +1,15 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Could not add the dashboard to your favourites" : "Could not add the dashboard to your favourites",
+    "Could not remove the dashboard from your favourites" : "Could not remove the dashboard from your favourites",
+    "Star a dashboard to keep it here" : "Star a dashboard to keep it here",
+    "New dashboard" : "New dashboard",
+    "favourites only" : "favourites only",
+    "Less" : "Less",
+    "Add to favourites: {name}" : "Add to favourites: {name}",
+    "Remove from favourites: {name}" : "Remove from favourites: {name}",
+    "_%n more dashboard_::_%n more dashboards_" : ["%n more dashboard", "%n more dashboards"],
     "_%s and %n more change_::_%s and %n more changes_" : ["%s and %n more change", "%s and %n more changes"],
     "share_not_found" : "Share not found",
     "share_expired" : "This share has expired",

@@ -36,8 +36,8 @@ vi.mock('../LaunchpadMoreMenu.vue', () => ({
 	},
 }))
 
-import { setFavouriteDashboards } from '../../../services/favouriteDashboards.js'
 import DashboardMoreMenu from '../DashboardMoreMenu.vue'
+import { setFavouriteDashboards } from '../../../services/favouriteDashboards.js'
 import { orderDestinations } from '../moreMenuItems.js'
 
 const ENTRIES = [

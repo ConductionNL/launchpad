@@ -508,12 +508,12 @@ import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageH
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardPageHeader from '../components/Workspace/DashboardPageHeader.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
-import { embedAdminHref, isOwnedDashboard } from '../utils/dashboardRows.js'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import InstallBanner from '../components/Workspace/InstallBanner.vue'
 import PhoneHiddenNotice from '../components/Workspace/PhoneHiddenNotice.vue'
+import { embedAdminHref, isOwnedDashboard } from '../utils/dashboardRows.js'
 import { printDashboard } from '../utils/printDashboard.js'
 // The dialogs and modals load the first time they open, not with the page.
 const DeleteDashboardDialog = defineAsyncComponent(() => import('../dialogs/DeleteDashboardDialog.vue'))

@@ -299,7 +299,7 @@ test.describe('the Add Widget modal', () => {
 		await expect(added.getByLabel('Sort tiles', { exact: true })).toBeVisible()
 		const apps = form.getByTestId('container-app-list')
 		await expect(apps).toBeVisible()
-		await expect(apps.locator('legend')).toHaveText('Apps from the app menu')
+		await expect(apps.locator('#container-app-list-title')).toHaveText('Apps from the app menu')
 		await expect(apps.getByTestId('container-app-list-pinned')).toHaveCount(0)
 		await expect(form.locator('.nc-select')).toHaveCount(2)
 		await expect(form.locator('.cn-color-picker')).toHaveCount(1)

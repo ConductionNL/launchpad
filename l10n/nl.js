@@ -2991,12 +2991,17 @@ OC.L10N.register(
     "{text} on {tile}: contrast {ratio}:1, meets WCAG AA (4.5:1)" : "{text} op {tile}: contrast {ratio}:1, voldoet aan WCAG AA (4.5:1)",
     "Apps from the app menu appear here for each viewer." : "Apps uit het app-menu verschijnen hier voor iedere kijker.",
     "Filter apps" : "Apps filteren",
-    "Apps from the app menu" : "Apps uit het app-menu",
-    "Show each viewer the apps of their own app menu" : "Toon iedere kijker de apps uit het eigen app-menu",
-    "Pinned first" : "Vastgezet bovenaan",
-    "Leave out" : "Weglaten",
-    "Most used apps after the pinned ones (0 shows all)" : "Meest gebruikte apps na de vastgezette (0 toont alle)",
-    "Show a search field above the apps" : "Toon een zoekveld boven de apps"
+    "Apps from the app menu" : "Apps uit het appmenu",
+    "Pinned first" : "Vastgezette apps eerst",
+    "Leave out" : "Uitsluiten",
+    "A well puts tiles together. The tiles come from the app menu, from a list you put together yourself, or both." : "Een well zet tegels bij elkaar. De tegels komen uit het appmenu, uit een lijst die je zelf samenstelt, of allebei.",
+    "A dynamic list: the well follows the viewer's app menu, so each viewer sees their own apps." : "Een dynamische lijst: de well volgt het appmenu van de kijker, zodat iedere kijker de eigen apps ziet.",
+    "These apps come first, for every viewer who has them." : "Deze apps staan vooraan, voor iedere kijker die ze heeft.",
+    "Most used apps, at most" : "Meestgebruikte apps, maximaal",
+    "After the pinned apps, by use." : "Na de vastgezette apps, op gebruik.",
+    "These apps never come from the app menu into the well, not even when they are pinned." : "Deze apps komen nooit uit het appmenu in de well, ook niet als ze vastgezet zijn.",
+    "Show filter" : "Filter tonen",
+    "A search field above the tiles." : "Een zoekveld boven de tegels."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -2510,10 +2510,15 @@
         "Apps from the app menu appear here for each viewer.": "Apps from the app menu appear here for each viewer.",
         "Filter apps": "Filter apps",
         "Apps from the app menu": "Apps from the app menu",
-        "Show each viewer the apps of their own app menu": "Show each viewer the apps of their own app menu",
         "Pinned first": "Pinned first",
         "Leave out": "Leave out",
-        "Most used apps after the pinned ones (0 shows all)": "Most used apps after the pinned ones (0 shows all)",
-        "Show a search field above the apps": "Show a search field above the apps"
+        "A well puts tiles together. The tiles come from the app menu, from a list you put together yourself, or both.": "A well puts tiles together. The tiles come from the app menu, from a list you put together yourself, or both.",
+        "A dynamic list: the well follows the viewer's app menu, so each viewer sees their own apps.": "A dynamic list: the well follows the viewer's app menu, so each viewer sees their own apps.",
+        "These apps come first, for every viewer who has them.": "These apps come first, for every viewer who has them.",
+        "Most used apps, at most": "Most used apps, at most",
+        "After the pinned apps, by use.": "After the pinned apps, by use.",
+        "These apps never come from the app menu into the well, not even when they are pinned.": "These apps never come from the app menu into the well, not even when they are pinned.",
+        "Show filter": "Show filter",
+        "A search field above the tiles.": "A search field above the tiles."
     }
 }

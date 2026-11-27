@@ -25,7 +25,7 @@ const embed = vi.hoisted(() => ({
 }))
 const dashboards = vi.hoisted(() => ({ getVisibleDashboards: vi.fn() }))
 const toasts = vi.hoisted(() => ({ showSuccess: vi.fn() }))
-vi.mock('../../../../services/embedApi.js', () => ({ embedApi: embed }))
+vi.mock('../../../../services/embedApi.js', async (importOriginal) => ({ ...(await importOriginal()), embedApi: embed }))
 vi.mock('../../../../services/api.js', () => ({ api: dashboards }))
 vi.mock('@nextcloud/dialogs', () => toasts)
 vi.mock('@nextcloud/l10n', () => ({

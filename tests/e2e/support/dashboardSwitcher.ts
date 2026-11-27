@@ -73,3 +73,23 @@ export async function openSettingsGroup(page: Page): Promise<void> {
 	}
 	await expect(toggle).toHaveAttribute('aria-expanded', 'true')
 }
+
+/**
+ * Store the edit-mode draft (REQ-EDIT-002): choose Save in the edit bar and
+ * wait for its one dashboard request. Edit mode ends with it.
+ *
+ * @param page The page, in edit mode with changes.
+ * @return The answer's status.
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ */
+export async function saveEditDraft(page: Page): Promise<number> {
+	const save = page.locator('[data-testid="launchpad-edit-bar-save"]')
+	await expect(save).toBeEnabled({ timeout: 10_000 })
+	const saved = page.waitForResponse(
+		(res) => res.request().method() === 'PUT'
+			&& /\/apps\/launchpad\/api\/dashboard\/\d+$/.test(new URL(res.url()).pathname)
+			&& (res.request().postDataJSON()?.draft === true),
+	)
+	await save.click()
+	return (await saved).status()
+}

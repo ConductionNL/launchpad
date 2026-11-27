@@ -119,22 +119,29 @@ async function addLabel(
 		.first()
 		.fill(text)
 
+	// REQ-EDIT-001/002: the new widget joins the draft; the edit-mode Save
+	// creates it, in the one dashboard request.
+	await dialog.getByRole('button', { name: /^add$/i }).click()
+	await expect(dialog).toBeHidden({ timeout: 10_000 })
 	const created = page.waitForResponse(
 		(res) =>
-			res.request().method() === 'POST'
-			&& /\/api\/dashboard\/\d+\/widgets(\?|$)/.test(res.url()),
+			res.request().method() === 'PUT'
+			&& /\/api\/dashboard\/\d+(\?|$)/.test(res.url())
+			&& res.request().postDataJSON()?.draft === true,
 	)
-	await dialog.getByRole('button', { name: /^add$/i }).click()
+	await page.getByTestId('launchpad-edit-bar-save').click()
 	const response = await created
-	expect(response.status(), await response.text()).toBe(201)
-	const sent = response.request().postDataJSON() as Record<string, unknown>
+	expect(response.status(), await response.text()).toBe(200)
+	const sent = (response.request().postDataJSON() as { placements: Array<Record<string, unknown>> })
+		.placements.find((p) => p.id === undefined)!
 	expect(sent.gridWidth ?? sent.w, 'the add flow sends the default width').toBe(4)
 	expect(sent.gridHeight ?? sent.h, 'the add flow sends the default height').toBe(
 		4,
 	)
 	const body = await response.json()
-	const placement = body.data ?? body
-	await expect(dialog).toBeHidden({ timeout: 10_000 })
+	const stored = ((body.data ?? body).placements ?? []) as Array<Record<string, unknown>>
+	const placement = stored.find((p) => (p.content as { text?: string } | null)?.text === text
+		|| JSON.stringify(p.content ?? '').includes(text))!
 	return {
 		id: Number(placement.id),
 		rect: {
@@ -169,12 +176,9 @@ function assertNothingMoved(writes: Request[], before: Map<number, Rect>): void 
 		for (const p of body?.placements ?? []) {
 			const old = before.get(Number(p.id))
 			if (old) {
-				expect({
-					x: p.gridX,
-					y: p.gridY,
-					w: p.gridWidth,
-					h: p.gridHeight,
-				}).toEqual(old)
+				// A draft Save sends only the fields that changed (REQ-EDIT-002).
+				const moved = { x: p.gridX ?? old.x, y: p.gridY ?? old.y, w: p.gridWidth ?? old.w, h: p.gridHeight ?? old.h }
+				expect(moved).toEqual(old)
 			}
 		}
 	}

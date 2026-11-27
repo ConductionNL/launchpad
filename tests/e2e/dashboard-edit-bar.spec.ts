@@ -4,7 +4,7 @@
  *
  * The edit bar of board LpBewerken and the Versions tab of board LpVersies.
  * Edit mode shows the bar with Columns 6, 8 or 12, Add widget, Dashboard
- * settings and Done; Dashboard settings opens the settings window, whose
+ * settings, Cancel and Save; Dashboard settings opens the settings window, whose
  * last tab is Versions.
  *
  * Gate-19 @e2e traceability:
@@ -25,7 +25,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
+import { enterEditMode, MORE_MENU, saveEditDraft } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -95,7 +95,7 @@ async function gridColumns(page: Page): Promise<number> {
 	})
 }
 
-test('edit mode shows the edit bar with its four controls', async ({ page }) => {
+test('edit mode shows the edit bar with its controls and the draft pill', async ({ page }) => {
 	// @e2e dashboards::edit-mode-shows-the-edit-bar
 	const bar = await openInEditMode(page)
 	await expect(bar).toHaveAttribute('role', 'toolbar')
@@ -109,8 +109,12 @@ test('edit mode shows the edit bar with its four controls', async ({ page }) => 
 	await expect(
 		bar.getByRole('button', { name: 'Dashboard settings' }),
 	).toHaveAttribute('aria-haspopup', 'dialog')
-	await expect(bar.getByRole('button', { name: 'Done' })).toBeVisible()
-	// The More menu docks at the end of the bar, so it never covers Done.
+	// REQ-EDIT-001: the draft pill, Cancel and a disabled Save; no Done.
+	await expect(bar.getByTestId('launchpad-edit-bar-draft')).toHaveText('No changes')
+	await expect(bar.getByRole('button', { name: 'Cancel' })).toBeVisible()
+	await expect(bar.getByRole('button', { name: 'Save' })).toBeDisabled()
+	await expect(bar.getByRole('button', { name: 'Done' })).toHaveCount(0)
+	// The More menu docks at the end of the bar, so it never covers Save.
 	await expect(bar.locator(MORE_MENU)).toBeVisible()
 })
 
@@ -141,6 +145,9 @@ test('columns change the grid and are kept', async ({ page }) => {
 	await expect(eight).toHaveAttribute('aria-pressed', 'true')
 	await expect(twelve).toHaveAttribute('aria-pressed', 'false')
 	await expect.poll(() => gridColumns(page)).toBe(8)
+	// REQ-EDIT-001: the draft holds the columns until Save.
+	expect(await storedColumns()).toBe(12)
+	expect(await saveEditDraft(page)).toBe(200)
 	await expect.poll(storedColumns).toBe(8)
 
 	// Kept: a fresh load still renders and stores 8.
@@ -153,13 +160,14 @@ test('columns change the grid and are kept', async ({ page }) => {
 	await expect(
 		barAgain.locator('[data-testid="launchpad-edit-bar-columns-12"]'),
 	).toHaveAttribute('aria-pressed', 'true')
+	expect(await saveEditDraft(page)).toBe(200)
 	await expect.poll(storedColumns).toBe(12)
 })
 
-test('Done leaves edit mode', async ({ page }) => {
+test('Cancel without changes leaves edit mode at once', async ({ page }) => {
 	// @e2e dashboards::done-leaves-edit-mode
 	const bar = await openInEditMode(page)
-	await bar.getByRole('button', { name: 'Done' }).click()
+	await bar.getByRole('button', { name: 'Cancel' }).click()
 	await expect(page.locator(BAR)).toHaveCount(0)
 	await expect(page.locator('.launchpad-edit-mode')).toHaveCount(0)
 })

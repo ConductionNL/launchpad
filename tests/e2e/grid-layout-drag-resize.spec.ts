@@ -334,41 +334,27 @@ test('one drag saves every placement, each matched by id with its new x, y, w an
 		const response = await saved
 		expect(response.status()).toBe(200)
 
+		// REQ-EDIT-002: the one Save carries every placement of the draft by id,
+		// the moved one with its changed fields.
 		const body = response.request().postDataJSON() as {
+			draft: boolean
 			placements: Array<Record<string, number>>
 		}
-		expect(Array.isArray(body.placements)).toBe(true)
+		expect(body.draft).toBe(true)
 		const sent = new Map(body.placements.map((p) => [Number(p.id), p]))
 		expect([...sent.keys()].sort((l, r) => l - r)).toEqual(
 			[a, b, c].sort((l, r) => l - r),
 		)
-		expect(sent.get(a)).toMatchObject({
-			gridX: 0,
-			gridY: 4,
-			gridWidth: 4,
-			gridHeight: 2,
-		})
-		expect(sent.get(b)).toMatchObject({
-			gridX: 4,
-			gridY: 0,
-			gridWidth: 4,
-			gridHeight: 3,
-		})
-		expect(sent.get(c)).toMatchObject({
-			gridX: 8,
-			gridY: 0,
-			gridWidth: 4,
-			gridHeight: 2,
-		})
+		expect(sent.get(a)).toMatchObject({ gridY: 4 })
 
-		// What was sent is what the grid shows and what the server keeps.
+		// What the grid shows is what the server keeps.
 		const rendered = await renderedRects(page)
 		const stored = await placementRects(own!.owner.api, own!.id)
+		expect(stored.get(a)).toEqual({ x: 0, y: 4, w: 4, h: 2 })
+		expect(stored.get(b)).toEqual({ x: 4, y: 0, w: 4, h: 3 })
+		expect(stored.get(c)).toEqual({ x: 8, y: 0, w: 4, h: 2 })
 		for (const id of [a, b, c]) {
-			const p = sent.get(id)!
-			const rect = { x: p.gridX, y: p.gridY, w: p.gridWidth, h: p.gridHeight }
-			expect(rendered.get(id)).toEqual(rect)
-			expect(stored.get(id)).toEqual(rect)
+			expect(rendered.get(id)).toEqual(stored.get(id))
 		}
 	} finally {
 		await context.close()
@@ -421,7 +407,7 @@ test('three quick repositionings each send their own save', async ({ browser }) 
 })
 
 // @e2e grid-layout::concurrent-edits-from-multiple-tabs
-test('two tabs each save their own move and the last save wins', async ({
+test('two tabs each save their own move, and each Save keeps the other one', async ({
 	browser,
 }) => {
 	const [a, b] = await seed([
@@ -461,9 +447,10 @@ test('two tabs each save their own move and the last save wins', async ({
 		const response = await secondSave
 		expect(response.status()).toBe(200)
 
-		// Last save wins: the server now holds exactly the second tab's layout.
+		// Each Save stores only what its draft changed (REQ-EDIT-002, D4): the
+		// first tab's move of a stays, the second tab's move of b is added.
 		const stored = await placementRects(own!.owner.api, own!.id)
-		expect(stored.get(a)).toEqual({ x: 0, y: 0, w: 4, h: 2 })
+		expect(stored.get(a)).toEqual({ x: 0, y: 3, w: 4, h: 2 })
 		expect(stored.get(b)).toEqual({ x: 6, y: 4, w: 4, h: 2 })
 	} finally {
 		await context.close()

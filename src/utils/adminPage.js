@@ -8,7 +8,7 @@
  * previous tab, without a router. `lib/Settings/AdminTabs.php` knows the
  * same tabs.
  *
- * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
  */
 
 import { generateUrl } from '@nextcloud/router'
@@ -25,7 +25,7 @@ export const ANNOUNCEMENTS_TAB = 'announcements'
  * Kiosk, Versions and analytics, Controls, Demo data, Group dashboards,
  * Detail fields, Profile fields.
  *
- * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
  */
 export const ADMIN_TABS = [
 	'general',
@@ -47,7 +47,7 @@ export const ADMIN_TABS = [
  * Former tabs that are now a section of a drawn tab, and the tab that holds
  * each: their fragment opens the host tab at that section.
  *
- * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
  */
 export const FOLDED_ADMIN_TABS = Object.freeze({
 	embeds: 'general',
@@ -62,7 +62,7 @@ export const FOLDED_ADMIN_TABS = Object.freeze({
  *
  * @param {string} [tab] The tab the address names.
  * @return {string} A tab id.
- * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
  */
 export function adminTab(tab) {
 	if (ADMIN_TABS.includes(tab)) {
@@ -80,7 +80,7 @@ export function adminTab(tab) {
  *
  * @param {string} [hash] The fragment, with or without its `#`.
  * @return {{tab: string, section: string}} The tab and the section ('' for none).
- * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
  */
 export function parseAdminFragment(hash) {
 	const [name, rest = ''] = String(hash ?? '').replace(/^#/, '').split('/')
@@ -131,7 +131,7 @@ export function heldTabs(provided) {
  * @param {string} [tab] The tab or former tab.
  * @param {string} [query] A query string without `?`.
  * @return {string} The URL.
- * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
  */
 export function adminPageUrl(tab = DEFAULT_ADMIN_TAB, query = '') {
 	const fragment = ADMIN_TABS.includes(tab) || Object.hasOwn(FOLDED_ADMIN_TABS, tab ?? '') ? tab : DEFAULT_ADMIN_TAB

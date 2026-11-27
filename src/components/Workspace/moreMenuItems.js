@@ -179,7 +179,7 @@ export function resolveMenuItem(item, openUserSettings) {
  * @return {Record<string, object[]>} The menu items by section.
  * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
  * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
- * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
  */
 export function startPageSections(chrome, openUserSettings) {
 	const bySection = Object.fromEntries(SECTIONS.map((s) => [s, []]))

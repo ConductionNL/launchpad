@@ -54,7 +54,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { enterEditMode, MORE_MENU, openDashboardSettings } from './support/dashboardSwitcher.ts'
+import { enterEditMode, MORE_MENU, openDashboardSettings, saveEditDraft } from './support/dashboardSwitcher.ts'
 import { quietFirstVisit } from './support/firstVisit.ts'
 import {
 	adminContext,
@@ -492,12 +492,6 @@ test.describe('REQ-VERSUI-004 each automatic version says what changed', () => {
 					.locator('.grid-stack-item')
 					.filter({ has: page.locator(`[data-placement-id="${nieuws}"]`) })
 				await expect(item).toBeVisible({ timeout: 20_000 })
-				const saved = page.waitForResponse(
-					(r) =>
-						r.request().method() === 'PUT'
-						&& new URL(r.url()).pathname.endsWith(`/api/dashboard/${dash!.id}`),
-					{ timeout: 30_000 },
-				)
 				await item.focus()
 				await page.keyboard.press('Enter')
 				await expect(page.locator('[data-testid="widget-context-menu"]')).toBeVisible()
@@ -509,30 +503,18 @@ test.describe('REQ-VERSUI-004 each automatic version says what changed', () => {
 				await page.keyboard.press('ArrowRight')
 				await page.keyboard.press('Enter')
 				await expect(panel).toBeHidden()
-				expect((await saved).status()).toBe(200)
+				// REQ-EDIT-002: the move is in the draft until Save.
+				expect(await saveEditDraft(page)).toBe(200)
 				const after = await pieter.api.get(`${API}/dashboard/${dash.id}`)
 				const moved = ((await after.json()).placements as Array<{ id: number; gridX: number }>)
 					.find((p) => p.id === nieuws)
 				expect(moved?.gridX, 'the move is stored').toBeGreaterThan(0)
 
-				// THEN: the snapshot is written by the next save once the
-				// 60-second window has passed, and says what changed.
-				await expect
-					.poll(
-						async () => {
-							const put = await pieter!.api.put(`${API}/dashboard/${dash!.id}`, {
-								data: { name: dash!.name },
-							})
-							expect(put.status(), await put.text()).toBe(200)
-							const list = await pieter!.api.get(
-								`${API}/dashboards/${dash!.uuid}/versions`,
-							)
-							expect(list.status(), await list.text()).toBe(200)
-							return ((await list.json()).versions as Array<{ note: string | null }>)
-								.map((v) => v.note)
-						},
-						{ timeout: 120_000, intervals: [5_000, 10_000, 15_000] },
-					)
+				// THEN (REQ-VERS-010/011): the Save made its version at once, after
+				// the state before it, and the version says what changed.
+				const list = await pieter.api.get(`${API}/dashboards/${dash.uuid}/versions`)
+				expect(list.status(), await list.text()).toBe(200)
+				expect(((await list.json()).versions as Array<{ note: string | null }>).map((v) => v.note))
 					.toContain('Widget Nieuws moved')
 
 				await page.goto('/index.php/apps/launchpad/')

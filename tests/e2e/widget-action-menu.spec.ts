@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The widget action menu follows the mode (REQ-WDG-047, review 27 Nov 2026
+ * The widget action menu follows the mode (REQ-WDG-050, review 27 Nov 2026
  * item 21): in view mode no widget offers "Create embed token" and a tile
  * shows no "..." at all; in edit mode an administrator finds Create embed
  * token in the edit menu of a widget and of a tile, linking to the Embeds
@@ -11,7 +11,7 @@
  * Seeds its own dashboard: a new dashboard gets the default bundle, tiles
  * and a Files widget.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-047
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 
 import type { APIRequestContext, Page } from '@playwright/test'

@@ -72,7 +72,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { enterEditMode, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { enterEditMode, openDashboardSwitcher, saveEditDraft } from './support/dashboardSwitcher.ts'
 import { solidPng } from './support/pngFixture.ts'
 import { publishForRecipients } from './support/principals.ts'
 
@@ -658,6 +658,9 @@ test.describe('image widget — broken-image fallback', () => {
 		await expect
 			.poll(async () => Number(await item.getAttribute('gs-x')), { timeout: 5_000 })
 			.toBeGreaterThan(startX)
+		// REQ-EDIT-002: the move is in the draft until Save; then edit again.
+		expect(await saveEditDraft(page)).toBe(200)
+		await enterEditMode(page)
 		await expect
 			.poll(async () => Number((await readPlacement(dashboard.id, otherId))?.gridX), {
 				timeout: 10_000,

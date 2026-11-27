@@ -44,6 +44,19 @@ use OCA\LaunchPad\Exception\StalePlacementException;
  */
 class DraftSaveService {
 	/**
+	 * A tile's placement fields and the keys the tile route takes them by.
+	 */
+	private const TILE_KEYS = [
+		'tileTitle'           => 'title',
+		'tileIcon'            => 'icon',
+		'tileIconType'        => 'iconType',
+		'tileBackgroundColor' => 'bgColor',
+		'tileTextColor'       => 'txtColor',
+		'tileLinkType'        => 'linkType',
+		'tileLinkValue'       => 'linkVal',
+	];
+
+	/**
 	 * Constructor.
 	 *
 	 * @param WidgetService           $widgets    Reads, adds, changes and removes placements.
@@ -287,6 +300,11 @@ class DraftSaveService {
 	 * @return void
 	 */
 	private function addPlacement(int $dashboardId, array $layout): void {
+		if ($layout['widgetId'] === 'tile') {
+			$this->addTile(dashboardId: $dashboardId, layout: $layout);
+			return;
+		}
+
 		$created   = array_intersect_key($layout, array_flip(['isCompulsory', 'gridX', 'gridY', 'gridWidth', 'gridHeight', 'content']));
 		$placement = $this->widgets->addWidget(dashboardId: $dashboardId, widgetId: $layout['widgetId'], layout: $created);
 
@@ -295,4 +313,31 @@ class DraftSaveService {
 			$this->widgets->updatePlacement(placementId: (int)$placement->getId(), data: $rest);
 		}
 	}//end addPlacement()
+
+	/**
+	 * Add a tile of the draft the way the tile route does (a custom tile with
+	 * its launch link checked), then its other fields.
+	 *
+	 * @param int                  $dashboardId The dashboard.
+	 * @param array<string, mixed> $layout      {@see self::newPlacement()} of a `tile`.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 */
+	private function addTile(int $dashboardId, array $layout): void {
+		$tileData = array_intersect_key($layout, array_flip(['gridX', 'gridY', 'gridWidth', 'gridHeight', 'content']));
+		foreach (self::TILE_KEYS as $field => $key) {
+			if (array_key_exists($field, $layout) === true) {
+				$tileData[$key] = $layout[$field];
+			}
+		}
+
+		$placement = $this->widgets->addTileFromArray(dashboardId: $dashboardId, tileData: $tileData);
+
+		$rest = array_diff_key($layout, $tileData, self::TILE_KEYS, ['widgetId' => true, 'isCompulsory' => true, 'content' => true]);
+		if ($rest !== []) {
+			$this->widgets->updatePlacement(placementId: (int)$placement->getId(), data: $rest);
+		}
+	}//end addTile()
 }//end class

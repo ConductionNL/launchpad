@@ -148,7 +148,10 @@ test('a four-row widget on the 12-column grid is 4 x 60 = 240 px tall, its conte
 })
 
 // @e2e grid-layout::save-failure-with-retry
-test('a failed layout save is reported and retried up to three times', async ({
+// REQ-EDIT-002 (edit-mode-draft-and-save): a move goes into the draft; a Save
+// that fails says so and keeps the person in edit mode with the draft, so
+// they can Save again.
+test('a failed Save is reported, and edit mode keeps the draft to save again', async ({
 	browser,
 }) => {
 	const [a] = await seed([{ x: 0, y: 0, w: 4, h: 2 }])
@@ -171,12 +174,18 @@ test('a failed layout save is reported and retried up to three times', async ({
 			},
 		)
 		await dragBy(page, a, 4, 0)
+		expect(attempts).toBe(0)
+		await expect(page.getByTestId('launchpad-edit-bar-draft')).toHaveText('Draft · 1 change')
+		await page.getByTestId('launchpad-edit-bar-save').click()
 		// @nextcloud/dialogs 8 renders an error toast as role="alert", with
 		// hashed CSS-module classes and no `.toastify` any more.
 		await expect(page.getByRole('alert').first()).toBeVisible({
 			timeout: 15_000,
 		})
-		await expect.poll(() => attempts, { timeout: 30_000 }).toBe(4)
+		expect(attempts).toBe(1)
+		await expect(page.locator('.launchpad-edit-mode')).toBeVisible()
+		await expect(page.getByTestId('launchpad-edit-bar-draft')).toHaveText('Draft · 1 change')
+		await expect(page.getByTestId('launchpad-edit-bar-save')).toBeEnabled()
 	} finally {
 		await context.close()
 	}

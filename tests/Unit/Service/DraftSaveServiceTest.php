@@ -287,4 +287,39 @@ class DraftSaveServiceTest extends TestCase {
 			$this->assertSame(expected: [1, 2], actual: array_map(static fn (WidgetPlacement $p): int => (int)$p->getId(), $e->getCurrent()));
 		}
 	}//end testColleaguesChangesFailTheSaveWithThoseWidgets()
+
+	/**
+	 * A tile added in the draft is created the way the tile route does, with
+	 * its title, colours and link under the tile route's keys.
+	 *
+	 * @return void
+	 */
+	public function testANewTileIsCreatedThroughTheTileRoute(): void {
+		$this->widgets->method('addTileFromArray')->willReturnCallback(function (int $dashboardId, array $tileData): WidgetPlacement {
+			$this->writes[] = 'tile '.json_encode(value: $tileData);
+			return $this->placement(id: 10, gridY: 0);
+		});
+		$this->widgets->method('updatePlacement')->willReturnCallback(function (int $placementId, array $data): WidgetPlacement {
+			$this->writes[] = 'change '.$placementId.' '.json_encode(value: $data);
+			return $this->placement(id: $placementId, gridY: 0);
+		});
+
+		$this->service()->save(draft: $this->draft(placements: [
+			['id' => 1],
+			['id' => 2],
+			[
+				'widgetId' => 'tile', 'gridX' => 0, 'gridY' => 6, 'tileTitle' => 'Word',
+				'tileLinkType' => 'url', 'tileLinkValue' => 'https://office.com', 'customTitle' => 'W',
+			],
+		]));
+
+		$this->assertSame(
+			expected: [
+				'dashboard []',
+				'tile {"gridX":0,"gridY":6,"title":"Word","linkType":"url","linkVal":"https:\\/\\/office.com"}',
+				'change 10 {"customTitle":"W"}',
+			],
+			actual: $this->writes
+		);
+	}//end testANewTileIsCreatedThroughTheTileRoute()
 }//end class

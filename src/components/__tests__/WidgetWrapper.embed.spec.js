@@ -2,13 +2,13 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * "Create embed token" is an edit-mode action (REQ-WDG-047, review 27 Nov
+ * "Create embed token" is an edit-mode action (REQ-WDG-050, review 27 Nov
  * item 21): in view mode a widget shows no action menu unless it has an
  * action for the reader (Hide for me), and never the embed entry; in edit
  * mode the widget's edit menu holds it, linking to the admin page's Embeds
  * section with the widget pre-selected, disabled for an unsaved widget.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-047
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 
 import { mount } from '@vue/test-utils'
@@ -42,7 +42,7 @@ function mountWidget(props, placement = { id: 5, widgetId: 'text', isCompulsory:
 
 const entry = (wrapper) => wrapper.find('[data-testid="widget-create-embed-token"]')
 
-describe('WidgetWrapper embed entry (REQ-WDG-047)', () => {
+describe('WidgetWrapper embed entry (REQ-WDG-050)', () => {
 	it('is not offered in view mode, and a widget without reader actions shows no menu', () => {
 		const wrapper = mountWidget({ embedHref: href })
 		expect(entry(wrapper).exists()).toBe(false)

@@ -288,3 +288,36 @@ test('Powered by is the menu footer, and Download is in This dashboard between D
 		await context.close()
 	}
 })
+
+/**
+ * Open More's Settings group and list its item test ids.
+ *
+ * @param page the page.
+ * @return the data-testid of every item in the group, in order.
+ */
+async function settingsGroupIds(page: Page): Promise<string[]> {
+	await openMore(page)
+	const panel = page.locator('[data-testid="launchpad-more-menu-panel"]')
+	await panel.locator('[data-testid="launchpad-more-menu-settings"]').click()
+	const group = panel.locator('[data-testid="launchpad-more-menu-group-settings"]')
+	await expect(group).toBeVisible()
+	return group.locator('.lp-more-menu__item').evaluateAll((els) => els.map((el) => el.getAttribute('data-testid') ?? ''))
+}
+
+test('Settings lists Announcements after Admin settings for whoever may manage announcements, and not for a member (task 10)', async ({ page, browser }) => {
+	// The suite's admin may manage announcements.
+	const ids = await settingsGroupIds(page)
+	const at = (id: string) => ids.indexOf(`launchpad-more-menu-item-${id}`)
+	expect(at('announcements-link')).toBeGreaterThan(-1)
+	expect(at('announcements-link')).toBe(at('admin-settings-link') + 1)
+	const link = page.locator('[data-testid="launchpad-more-menu-item-announcements-link"]')
+	await expect(link).toHaveAttribute('href', /\/settings\/admin\/launchpad#announcements$/)
+
+	const { context, page: memberPage } = await memberSession(browser)
+	try {
+		const memberIds = await settingsGroupIds(memberPage)
+		expect(memberIds).not.toContain('launchpad-more-menu-item-announcements-link')
+	} finally {
+		await context.close()
+	}
+})

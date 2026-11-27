@@ -13,6 +13,7 @@ import {
 } from '../composables/useGridManager.js'
 import { api } from '../services/api.js'
 import { dropEarlyReads, startEarlyRead } from '../utils/carriedApiReads.js'
+import { clonePlacements, draftChanges, draftRequestBody, newDraftId } from '../utils/editDraft.js'
 import { takeBootRead, takeDashboardFirstLoad } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { parseServerStamp } from '../utils/serverStamp.js'
@@ -514,6 +515,10 @@ export const useDashboardStore = defineStore('dashboard', {
 		pathCache: {},
 		activeDashboard: null,
 		widgetPlacements: [],
+		// edit-mode-draft-and-save REQ-EDIT-001: while edit mode lasts, the
+		// placements and grid columns as stored when it began; null outside
+		// edit mode (or on a group dashboard, which still saves at once).
+		draft: null,
 		permissionLevel: 'full',
 		// User's primary group id — read from initial state by the
 		// workspace bootstrap. Used by `resolveActive` to mirror the
@@ -564,6 +569,40 @@ export const useDashboardStore = defineStore('dashboard', {
 
 	getters: {
 		activeDashboardId: (state) => state.activeDashboard?.id,
+
+		/**
+		 * REQ-EDIT-001: what the open draft changed, or null outside one.
+		 *
+		 * @param {object} state The store state.
+		 * @return {object|null}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 */
+		draftDiff: (state) => (state.draft === null
+			? null
+			: draftChanges(state.draft, {
+				placements: state.widgetPlacements,
+				columns: state.activeDashboard?.gridColumns ?? state.draft.columns,
+			})),
+
+		/**
+		 * REQ-EDIT-001: the number of changed things the draft pill shows.
+		 *
+		 * @return {number}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 */
+		draftChangeCount() {
+			return this.draftDiff?.count ?? 0
+		},
+
+		/**
+		 * REQ-EDIT-003: whether the open draft has changes to lose.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+		 */
+		isDraftDirty() {
+			return this.draftChangeCount > 0
+		},
 
 		getPlacementById: (state) => (id) => {
 			return state.widgetPlacements.find((p) => p.id === id)
@@ -853,6 +892,11 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async switchDashboard(dashboardId) {
+			// REQ-EDIT-003: a draft belongs to one dashboard; leaving it drops
+			// it (the page asked first whether to save).
+			if (this.draft !== null && this.draft.dashboardId !== dashboardId) {
+				this.draft = null
+			}
 			this.loading = true
 			try {
 				const target = this.dashboards.find((d) => d.id === dashboardId)
@@ -1185,6 +1229,116 @@ export const useDashboardStore = defineStore('dashboard', {
 		},
 
 		/**
+		 * REQ-EDIT-001: begin a draft as edit mode begins: the placements and
+		 * columns stored now are kept to compare and to go back to. A group
+		 * dashboard keeps saving each change, until its endpoint takes drafts.
+		 *
+		 * @return {boolean} Whether a draft is open.
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 */
+		beginDraft() {
+			const active = this.activeDashboard
+			if (!active || active.source === SOURCE_GROUP || active.source === SOURCE_DEFAULT) {
+				this.draft = null
+				return false
+			}
+			this.draft = {
+				dashboardId: active.id,
+				placements: clonePlacements(this.widgetPlacements),
+				columns: active.gridColumns ?? 12,
+			}
+			return true
+		},
+
+		/**
+		 * REQ-EDIT-004: drop the draft and show what was stored before edit
+		 * mode began. Nothing is sent.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-cancel-discards-the-draft-req-edit-004
+		 */
+		discardDraft() {
+			if (this.draft === null) {
+				return
+			}
+			if (this.activeDashboard?.id === this.draft.dashboardId) {
+				this.widgetPlacements = clonePlacements(this.draft.placements)
+				this.activeDashboard = { ...this.activeDashboard, gridColumns: this.draft.columns }
+			}
+			this.draft = null
+		},
+
+		/**
+		 * REQ-EDIT-002: store the draft in one request. On success the stored
+		 * placements replace the draft and the draft ends; a refusal (403, 400)
+		 * or a colleague's newer widget (409) keeps the draft and says why.
+		 *
+		 * @return {Promise<{saved: boolean, status: (number|null), conflicts: Array<object>}>}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+		 */
+		async saveDraft() {
+			const draft = this.draft
+			if (draft === null) {
+				return { saved: true, status: null, conflicts: [] }
+			}
+			const current = { placements: this.widgetPlacements, columns: this.activeDashboard?.gridColumns ?? draft.columns }
+			this.saving = true
+			try {
+				const response = await api.updateDashboard(draft.dashboardId, draftRequestBody(draft, current))
+				const body = response.data?.data ?? response.data ?? {}
+				if (Array.isArray(body.placements)) {
+					this.widgetPlacements = body.placements
+				}
+				if (body.dashboard && this.activeDashboard?.id === draft.dashboardId) {
+					this.activeDashboard = { ...this.activeDashboard, ...body.dashboard }
+				}
+				this.draft = null
+				return { saved: true, status: 200, conflicts: [] }
+			} catch (error) {
+				const status = error?.response?.status ?? null
+				const data = error?.response?.data ?? {}
+				logger.error('Failed to save the draft:', error)
+				if (status === 409 && Array.isArray(data.placements)) {
+					showError(t('launchpad', 'A colleague changed {count} of these widgets first. Nothing was saved.', { count: data.placements.length }))
+					return { saved: false, status, conflicts: data.placements }
+				}
+				showError(data.message || t('launchpad', 'The changes could not be saved.'))
+				return { saved: false, status, conflicts: [] }
+			} finally {
+				this.saving = false
+			}
+		},
+
+		/**
+		 * REQ-EDIT-001: add a widget to the draft only, with a draft id, and
+		 * apply the push-downs its spot caused.
+		 *
+		 * @param {object} body The widget as the add request would carry it (`widgetId`, grid, content, tile fields).
+		 * @param {Array<object>} pushed The push-down side effects of its spot.
+		 * @return {object} The draft placement.
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 */
+		addDraftPlacement(body, pushed = []) {
+			const placement = {
+				id: newDraftId(),
+				dashboardId: this.activeDashboard?.id ?? null,
+				isCompulsory: 0,
+				isVisible: 1,
+				showTitle: 1,
+				content: null,
+				...body,
+			}
+			this.widgetPlacements.push(placement)
+			if (Array.isArray(pushed) && pushed.length > 0) {
+				const pushIndex = new Map(pushed.map((p) => [String(p.id), p.gridY]))
+				this.widgetPlacements = this.widgetPlacements.map((p) => (
+					pushIndex.has(String(p.id)) ? { ...p, gridY: pushIndex.get(String(p.id)) } : p
+				))
+			}
+			return placement
+		},
+
+		/**
 		 * Persist the whole placement layout. Local state updates immediately
 		 * for responsiveness; the write is debounced and routed to the
 		 * personal or group endpoint per the active dashboard's source
@@ -1203,6 +1357,10 @@ export const useDashboardStore = defineStore('dashboard', {
 
 			// Update local state immediately for responsiveness
 			this.widgetPlacements = placements
+			// REQ-EDIT-001: in a draft a move or resize changes the draft only.
+			if (this.draft !== null) {
+				return
+			}
 
 			// Debounced save to backend
 			this.saving = true
@@ -1288,6 +1446,10 @@ export const useDashboardStore = defineStore('dashboard', {
 				)
 			}
 			apply(columns)
+			// REQ-EDIT-001: in a draft the columns change the draft only.
+			if (this.draft !== null) {
+				return true
+			}
 			try {
 				if (active.source === SOURCE_GROUP || active.source === SOURCE_DEFAULT) {
 					await api.updateGroupDashboard(active.groupId, active.uuid, {
@@ -1332,6 +1494,10 @@ export const useDashboardStore = defineStore('dashboard', {
 					size: defaultSizeFor(type, this.activeDashboard?.gridColumns || undefined),
 					store: this,
 				})
+				// REQ-EDIT-001: in a draft the widget joins the draft only.
+				if (this.draft !== null) {
+					return this.addDraftPlacement(widgetRequestBody(widgetId, placement), placement.pushed)
+				}
 				const response = await api.addWidget(
 					this.activeDashboard.id,
 					widgetRequestBody(widgetId, placement),
@@ -1388,6 +1554,16 @@ export const useDashboardStore = defineStore('dashboard', {
 					store: this,
 				})
 
+				if (this.draft !== null) {
+					return this.addDraftPlacement({
+						widgetId: 'tile',
+						...tileData,
+						gridX: placement.x,
+						gridY: placement.y,
+						gridWidth: placement.w,
+						gridHeight: placement.h,
+					}, placement.pushed)
+				}
 				const response = await api.addTile(this.activeDashboard.id, {
 					...tileData,
 					gridX: placement.x,
@@ -1477,6 +1653,12 @@ export const useDashboardStore = defineStore('dashboard', {
 			const placement = this.getPlacementById(placementId)
 			if (placement?.isCompulsory && this.permissionLevel !== 'full') {
 				logger.warn('Cannot remove compulsory widget')
+				return
+			}
+
+			// REQ-EDIT-001: in a draft the widget leaves the draft only.
+			if (this.draft !== null) {
+				this.widgetPlacements = this.widgetPlacements.filter((p) => p.id !== placementId)
 				return
 			}
 
@@ -1618,6 +1800,14 @@ export const useDashboardStore = defineStore('dashboard', {
 				'[DashboardStore] updateWidgetPlacement called:',
 				JSON.stringify({ placementId, updates }, null, 2),
 			)
+			// REQ-EDIT-001: in a draft a configured widget changes the draft only.
+			if (this.draft !== null) {
+				const at = this.widgetPlacements.findIndex((p) => p.id === placementId)
+				if (at !== -1) {
+					this.widgetPlacements.splice(at, 1, { ...this.widgetPlacements[at], ...updates })
+				}
+				return
+			}
 			try {
 				const response = await api.updateWidgetPlacement(
 					placementId,

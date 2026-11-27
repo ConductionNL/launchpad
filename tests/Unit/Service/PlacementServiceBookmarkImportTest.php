@@ -191,13 +191,14 @@ class PlacementServiceBookmarkImportTest extends TestCase {
 	 * @return void
 	 */
 	public function testADraftImportChecksTheQuotaAndWritesNothing(): void {
-		$this->withWidgetLimit(20);
+		$this->withWidgetLimit(limit: 20);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$this->placementMapper->method('countByDashboardId')->willReturnOnConsecutiveCalls(17, 18);
 		$this->placementMapper->expects(self::never())->method('insert');
 		$this->db->expects(self::never())->method('beginTransaction');
 
 		$this->service->assertImportFits(dashboardId: 7, plan: self::plan());
-		$this->expectException(QuotaExceededException::class);
+		$this->expectException(exception: QuotaExceededException::class);
 		$this->service->assertImportFits(dashboardId: 7, plan: self::plan());
 	}//end testADraftImportChecksTheQuotaAndWritesNothing()
 

@@ -436,6 +436,10 @@ test('choosing Kwartaal narrows the dated list to this quarter, keeps it in the 
 
 		const embed = page.locator('.iframe-widget').first()
 		await expect(embed).toBeAttached({ timeout: 20_000 })
+		// The embed's host never resolves, so the widget moves on its own from
+		// loading to its outage card. Take the snapshot once it has settled,
+		// or a late outage reads as the period touching the embed.
+		await expect(embed.locator('.iframe-widget__state')).toHaveCount(0, { timeout: 30_000 })
 		const embedText = await embed.innerText()
 		await embed.evaluate((el) => {
 			(el as unknown as { __e2eMark?: number }).__e2eMark = 1

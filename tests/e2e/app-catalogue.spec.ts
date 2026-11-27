@@ -11,12 +11,16 @@
  * NON-ADMIN accounts logged in through `loginAs()`, which starts from an
  * empty storage state, so neither one inherits the admin session.
  *
- * Gate-19 @e2e traceability:
- *   @e2e app-catalogue::member-adds-catalogue-app-as-tile
- *   @e2e app-catalogue::non-member-does-not-see-entry
- *   @e2e app-catalogue::request-declined-with-a-note
+ * Gate-19 @e2e traceability (the scenario names of openspec/specs/app-catalogue):
+ *   @e2e app-catalogue::administrator-adds-an-app-for-one-group
+ *   @e2e app-catalogue::member-adds-the-app
+ *   @e2e app-catalogue::non-member-does-not-see-it
+ *   @e2e app-catalogue::pieter-asks-for-a-map-viewer
+ *   @e2e app-catalogue::too-many-open-requests
+ *   @e2e app-catalogue::request-declined-with-a-reason
+ *   @e2e app-catalogue::request-approved
  *
- * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md
+ * @spec openspec/specs/app-catalogue/spec.md
  */
 
 import type { APIRequestContext, Page } from '@playwright/test'
@@ -44,6 +48,10 @@ const APP_NAME = `Zaaksysteem ${RUN}`
 const APP_URL = `https://zaken.example.nl/${RUN}`
 const REQUESTED_APP = `Kaartviewer ${RUN}`
 const DECLINE_NOTE = 'Gebruik de kaartlaag in het zaaksysteem'
+const ADMIN_APP_NAME = `Zaaksysteem beheer ${RUN}`
+const APPROVED_APP = `Kaartviewer goedgekeurd ${RUN}`
+const APPROVED_URL = `https://kaart.example.nl/${RUN}`
+const LIMIT_PREFIX = `Limiet ${RUN}`
 
 type Account = { username: string; password: string }
 
@@ -106,6 +114,42 @@ async function openAddFlow(page: Page) {
 	return dialog
 }
 
+/**
+ * The parsed subjects of an account's Nextcloud notifications, or null
+ * when the notifications app is not enabled.
+ *
+ * @param account the account, or the administrator when omitted.
+ * @return the subjects, or null.
+ */
+async function notificationSubjects(account?: Account): Promise<string[] | null> {
+	const api = await apiAs(account)
+	try {
+		const res = await api.get('/ocs/v2.php/apps/notifications/api/v2/notifications?format=json')
+		if (res.status() === 404) {
+			return null
+		}
+		expect(res.status(), await res.text()).toBe(200)
+		return ((await res.json()).ocs?.data ?? []).map((entry: { subject: string }) => entry.subject)
+	} finally {
+		await api.dispose()
+	}
+}
+
+/**
+ * Open the administration page on the App catalogue tab.
+ *
+ * @param page a page with the administrator's credentials.
+ * @return nothing.
+ */
+async function openCatalogueTab(page: Page): Promise<void> {
+	await page.context().setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
+	await page.goto('/index.php/apps/launchpad/admin')
+	const tab = adminTab(page, 'app-catalogue')
+	await expect(tab).toBeVisible({ timeout: 20_000 })
+	await tab.click()
+	await expect(page.locator('[data-testid="app-catalogue-entries"]')).toBeVisible({ timeout: 10_000 })
+}
+
 test.beforeAll(async () => {
 	admin = await apiAs()
 
@@ -152,8 +196,14 @@ test.afterAll(async () => {
 	const listed = await admin.get(`${API}/admin/catalogue`)
 	if (listed.ok()) {
 		const { requests = [] } = await listed.json()
+		const { apps = [] } = await (await admin.get(`${API}/admin/catalogue`)).json()
+		for (const app of apps) {
+			if (app.name === ADMIN_APP_NAME || app.name === APPROVED_APP) {
+				await admin.delete(`${API}/admin/catalogue/${app.uuid}`)
+			}
+		}
 		for (const open of requests) {
-			if (open.appName === REQUESTED_APP) {
+			if (open.appName === REQUESTED_APP || open.appName === APPROVED_APP || String(open.appName).startsWith(LIMIT_PREFIX)) {
 				await admin.post(`${API}/admin/catalogue/requests/${open.uuid}/decline`, {
 					data: { note: 'e2e cleanup' },
 				})
@@ -170,7 +220,7 @@ test.afterAll(async () => {
 })
 
 test.describe('app catalogue (REQ-ACAT-002, REQ-ACAT-003, REQ-ACAT-004)', () => {
-	// @e2e app-catalogue::member-adds-catalogue-app-as-tile
+	// @e2e app-catalogue::member-adds-the-app
 	test('a group member adds the catalogue app as a tile from the add flow', async ({
 		browser,
 	}) => {
@@ -206,7 +256,7 @@ test.describe('app catalogue (REQ-ACAT-002, REQ-ACAT-003, REQ-ACAT-004)', () => 
 		}
 	})
 
-	// @e2e app-catalogue::non-member-does-not-see-entry
+	// @e2e app-catalogue::non-member-does-not-see-it
 	test('a non-member neither sees the entry nor gets it from the API', async ({
 		browser,
 	}) => {
@@ -230,7 +280,8 @@ test.describe('app catalogue (REQ-ACAT-002, REQ-ACAT-003, REQ-ACAT-004)', () => 
 		}
 	})
 
-	// @e2e app-catalogue::request-declined-with-a-note
+	// @e2e app-catalogue::pieter-asks-for-a-map-viewer
+	// @e2e app-catalogue::request-declined-with-a-reason
 	test('a request sent from the add flow is declined with a note and the requester hears back', async ({
 		browser,
 		page,
@@ -254,6 +305,11 @@ test.describe('app catalogue (REQ-ACAT-002, REQ-ACAT-003, REQ-ACAT-004)', () => 
 		} finally {
 			await context.close()
 		}
+
+		// Every administrator hears of it.
+		const adminSubjects = await notificationSubjects()
+		test.skip(adminSubjects === null, 'the notifications app is not enabled on this instance')
+		expect(adminSubjects).toContain(`${member!.username} asked for the app ${REQUESTED_APP}`)
 
 		// The administrator declines it on the admin page, with a note.
 		await page.context().setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
@@ -303,5 +359,80 @@ test.describe('app catalogue (REQ-ACAT-002, REQ-ACAT-003, REQ-ACAT-004)', () => 
 		} finally {
 			await api.dispose()
 		}
+	})
+
+	// @e2e app-catalogue::administrator-adds-an-app-for-one-group
+	test('an administrator adds an app for one group and it is listed with that group', async ({ page }) => {
+		await openCatalogueTab(page)
+		await page.locator('[data-testid="app-catalogue-add"]').click()
+		const form = page.locator('[data-testid="app-catalogue-form"]')
+		await expect(form).toBeVisible()
+		await form.getByRole('textbox', { name: 'Name' }).fill(ADMIN_APP_NAME)
+		await form.getByRole('textbox', { name: 'Web address' }).fill(`${APP_URL}/beheer`)
+		const groups = form.getByRole('combobox', { name: 'Visible to groups' })
+		await groups.click()
+		await groups.fill(GROUP)
+		await expect(page.locator('.vs__dropdown-option').filter({ hasText: GROUP })).toBeVisible()
+		await groups.press('Enter')
+		await page.keyboard.press('Escape')
+		await form.getByRole('button', { name: 'Save app' }).click()
+		await expect(page.locator('[data-testid="app-catalogue-notice"]')).toContainText('App saved.')
+
+		const entry = page.locator('[data-testid="app-catalogue-entry"]').filter({ hasText: ADMIN_APP_NAME })
+		await expect(entry).toBeVisible()
+		await expect(entry.locator('[data-testid="app-catalogue-entry-groups"]')).toContainText(GROUP)
+
+		const listed = await admin.get(`${API}/admin/catalogue`)
+		const stored = ((await listed.json()).apps ?? []).find((app: { name: string }) => app.name === ADMIN_APP_NAME)
+		expect(stored).toMatchObject({ linkType: 'url', linkValue: `${APP_URL}/beheer`, targetGroups: [GROUP] })
+	})
+
+	// @e2e app-catalogue::too-many-open-requests
+	test('an eleventh open request is refused', async () => {
+		const api = await apiAs(outsider!)
+		try {
+			for (let i = 1; i <= 10; i++) {
+				const sent = await api.post(`${API}/catalogue/requests`, {
+					data: { appName: `${LIMIT_PREFIX} ${i}`, purpose: 'e2e' },
+				})
+				expect(sent.status(), await sent.text()).toBeLessThan(300)
+			}
+			const eleventh = await api.post(`${API}/catalogue/requests`, {
+				data: { appName: `${LIMIT_PREFIX} 11`, purpose: 'e2e' },
+			})
+			expect(eleventh.status()).toBeGreaterThanOrEqual(400)
+			expect((await eleventh.json()).error).toBe('You have 10 open requests. Wait for an answer first.')
+		} finally {
+			await api.dispose()
+		}
+	})
+
+	// @e2e app-catalogue::request-approved
+	test('an approved request lands in the catalogue and the requester hears back', async ({ page }) => {
+		const api = await apiAs(member!)
+		try {
+			const sent = await api.post(`${API}/catalogue/requests`, {
+				data: { appName: APPROVED_APP, purpose: 'Ik moet percelen bekijken bij vergunningen' },
+			})
+			expect(sent.status(), await sent.text()).toBeLessThan(300)
+		} finally {
+			await api.dispose()
+		}
+
+		await openCatalogueTab(page)
+		const row = page.locator('[data-testid="app-catalogue-request"]').filter({ hasText: APPROVED_APP })
+		await expect(row).toBeVisible({ timeout: 10_000 })
+		await row.getByRole('button', { name: 'Approve', exact: true }).click()
+		const form = page.locator('[data-testid="app-catalogue-form"]')
+		await expect(form.getByRole('textbox', { name: 'Name' })).toHaveValue(APPROVED_APP)
+		await form.getByRole('textbox', { name: 'Web address' }).fill(APPROVED_URL)
+		await form.getByRole('button', { name: 'Save app' }).click()
+		await expect(page.locator('[data-testid="app-catalogue-notice"]')).toContainText(`${APPROVED_APP} is now in the app catalogue`)
+		await expect(page.locator('[data-testid="app-catalogue-entry"]').filter({ hasText: APPROVED_APP })).toBeVisible()
+		await expect(row).toHaveCount(0)
+
+		const subjects = await notificationSubjects(member!)
+		test.skip(subjects === null, 'the notifications app is not enabled on this instance')
+		expect(subjects).toContain(`${APPROVED_APP} is now in the app catalogue`)
 	})
 })

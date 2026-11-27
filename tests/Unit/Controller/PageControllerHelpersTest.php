@@ -394,16 +394,17 @@ class PageControllerHelpersTest extends TestCase {
 		}
 	}
 	/**
-	 * The workspace links nextcloud-vue's stylesheet ahead of the app's own;
-	 * the public page keeps the app stylesheet only.
+	 * The workspace and the public page link nextcloud-vue's stylesheet ahead
+	 * of the app's own; any other script keeps the app stylesheet only.
 	 *
 	 * @spec openspec/specs/runtime-shell/spec.md
 	 *
 	 * @return void
 	 */
-	public function testWorkspaceLinksTheLibraryStylesheetFirst(): void {
+	public function testWorkspaceAndPublicPageLinkTheLibraryStylesheetFirst(): void {
 		$this->assertSame(['nextcloud-vue', 'launchpad'], PageController::stylesFor(script: 'launchpad-main'));
-		$this->assertSame(['launchpad'], PageController::stylesFor(script: 'launchpad-public'));
-	}//end testWorkspaceLinksTheLibraryStylesheetFirst()
+		$this->assertSame(['nextcloud-vue', 'launchpad'], PageController::stylesFor(script: 'launchpad-public'));
+		$this->assertSame(['launchpad'], PageController::stylesFor(script: 'launchpad-kiosk'));
+	}//end testWorkspaceAndPublicPageLinkTheLibraryStylesheetFirst()
 
 }

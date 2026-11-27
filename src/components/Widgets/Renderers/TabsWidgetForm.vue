@@ -97,7 +97,7 @@ import { moveTab, newTab, normaliseTabs, tabHasWidgets } from '../../../utils/ta
  *
  * @param {object} source The stored or default content.
  * @return {{content: object, tabs: Array<object>, title: string}}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
  */
 function formState(source) {
 	const tabs = normaliseTabs(source.tabs)
@@ -113,7 +113,7 @@ function formState(source) {
  * (layout-widgets-replace-multi-tile D1). Removing a tab that holds widgets
  * asks first. A tab's widgets are placed on its own grid in edit mode.
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
  */
 export default {
 	name: 'TabsWidgetForm',
@@ -145,7 +145,7 @@ export default {
 		 * The name of the tab being removed.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		removingName() {
 			return this.tabs[this.removing]?.title ?? ''
@@ -155,14 +155,14 @@ export default {
 		 * How many widgets the tab being removed holds.
 		 *
 		 * @return {number}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		removingCount() {
 			return this.tabs[this.removing]?.placements?.length ?? 0
 		},
 	},
 
-	/** @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1 */
+	/** @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1 */
 	mounted() {
 		this.emit()
 	},
@@ -175,7 +175,7 @@ export default {
 		 *
 		 * @param {string} value The title.
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		onTitle(value) {
 			this.title = value
@@ -186,7 +186,7 @@ export default {
 		 * Add an empty tab at the end.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		add() {
 			this.tabs = [...this.tabs, newTab(this.tabs, t('launchpad', 'Tab {number}', { number: this.tabs.length + 1 }))]
@@ -199,7 +199,7 @@ export default {
 		 * @param {number} index The tab.
 		 * @param {string} value Its new name.
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		rename(index, value) {
 			this.tabs = this.tabs.map((tab, i) => (i === index ? { ...tab, title: value } : tab))
@@ -212,7 +212,7 @@ export default {
 		 * @param {number} index The tab.
 		 * @param {number} step -1 up, +1 down.
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		move(index, step) {
 			this.tabs = moveTab(this.tabs, index, step)
@@ -224,7 +224,7 @@ export default {
 		 *
 		 * @param {number} index The tab.
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		askRemove(index) {
 			if (tabHasWidgets(this.tabs[index])) {
@@ -238,7 +238,7 @@ export default {
 		 * Remove the tab the confirmation was for.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		confirmRemove() {
 			const index = this.removing
@@ -253,7 +253,7 @@ export default {
 		 *
 		 * @param {number} index The tab.
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		remove(index) {
 			this.tabs = this.tabs.filter((_tab, i) => i !== index)
@@ -264,7 +264,7 @@ export default {
 		 * Tell the host the whole content.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		emit() {
 			this.$emit('update:content', { ...this.content, title: this.title, tabs: this.tabs })
@@ -274,7 +274,7 @@ export default {
 		 * A Tabs widget needs at least one tab.
 		 *
 		 * @return {Array<string>} The errors.
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		validate() {
 			return this.tabs.length === 0 ? [t('launchpad', 'Add at least one tab.')] : []

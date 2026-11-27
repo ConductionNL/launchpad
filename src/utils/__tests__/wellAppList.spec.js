@@ -4,7 +4,7 @@
  *
  * A well's app tiles from the viewer's app menu (REQ-CONT-008, REQ-CONT-009).
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'

@@ -5,7 +5,7 @@
  * TabsWidgetForm: add, rename, move and remove tabs; removing a tab with
  * widgets asks first (layout-widgets-replace-multi-tile D1).
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
  */
 
 import { mount } from '@vue/test-utils'

@@ -118,7 +118,7 @@ export default {
 		 * already chosen that the editor does not have.
 		 *
 		 * @return {Array<{value: string, label: string}>}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
 		 */
 		appOptions() {
 			const options = (viewerAppMenu() ?? [])
@@ -194,7 +194,7 @@ export default {
 		 *
 		 * @param {boolean} on Whether the well lists the viewer's apps.
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
 		 */
 		onAppListOn(on) {
 			this.appList = on === true ? normaliseAppList({ exclude: ['launchpad'] }) : null
@@ -207,7 +207,7 @@ export default {
 		 * @param {string} key `pinned`, `exclude`, `mostUsedLimit` or `showFilter`.
 		 * @param {string[]|number|boolean} value The new value.
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
 		 */
 		setAppList(key, value) {
 			this.appList = normaliseAppList({ ...this.appList, [key]: value })

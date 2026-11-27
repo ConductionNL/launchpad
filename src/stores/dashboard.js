@@ -344,6 +344,17 @@ function widgetRequestBody(widgetId, placement) {
 	return requestBody
 }
 
+/**
+ * The lowest occupied edge of a layout (`gridY + gridHeight`), 0 when empty.
+ *
+ * @param {Array<object>} placements The placements.
+ * @return {number}
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ */
+export function lowestEdge(placements) {
+	return (placements ?? []).reduce((max, p) => Math.max(max, (Number(p.gridY) || 0) + (Number(p.gridHeight) || 0)), 0)
+}
+
 /** The fields a duplicate leaves behind: where it sits, and calculated fields. */
 const DUPLICATE_SKIPPED = new Set(['gridX', 'gridY', 'gridWidth', 'gridHeight', 'calculatedFields'])
 
@@ -1687,9 +1698,16 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
 		 */
 		async importBookmarks(chosen) {
-			const response = await api.importBookmarks(this.activeDashboard.id, chosen)
-			const placements = Array.isArray(response.data?.placements) ? response.data.placements : []
-			this.widgetPlacements.push(...placements)
+			// REQ-EDIT-001: in a draft the server only lays the import out
+			// below the draft's lowest edge; the draft adds it, Save stores it.
+			const inDraft = this.draft !== null
+			const body = inDraft ? { ...chosen, draft: true, bottom: lowestEdge(this.widgetPlacements) } : chosen
+			const response = await api.importBookmarks(this.activeDashboard.id, body)
+			const answered = Array.isArray(response.data?.placements) ? response.data.placements : []
+			const placements = inDraft ? answered.map((placement) => this.addDraftPlacement(placement)) : answered
+			if (!inDraft) {
+				this.widgetPlacements.push(...placements)
+			}
 			return { placements, skipped: Array.isArray(response.data?.skipped) ? response.data.skipped : [] }
 		},
 

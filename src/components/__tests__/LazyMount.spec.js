@@ -192,6 +192,31 @@ describe('WidgetWrapper mounts its content through LazyMount', () => {
 		expect(mountWrapper(true).findComponent(LazyMount).props('eager')).toBe(true)
 	})
 
+	it('waits in the placement\'s placeholder until LazyMount is shown', async () => {
+		const CardStub = { name: 'CnWidgetWrapper', props: ['loading', 'placeholder'], template: '<div><slot /></div>' }
+		const wrapper = shallowMount(WidgetWrapper, {
+			propsData: { placement: { id: 1, widgetId: 'no-such-widget-type', showTitle: true }, widget: { title: 'Widget' }, editMode: false },
+			mocks: { t: (_app, key) => key },
+			global: { stubs: { CnWidgetWrapper: CardStub } },
+		})
+		const card = wrapper.findComponent(CardStub)
+		expect(card.props('loading')).toBe(true)
+		expect(card.props('placeholder')).toEqual({ shape: 'rows' })
+
+		wrapper.findComponent(LazyMount).vm.$emit('shown')
+		await wrapper.vm.$nextTick()
+		expect(card.props('loading')).toBe(false)
+	})
+
+	it('draws the shape the registry declares for the type', () => {
+		const wrapper = shallowMount(WidgetWrapper, {
+			propsData: { placement: { id: 2, widgetId: 'chart', showTitle: true }, widget: null, editMode: false },
+			mocks: { t: (_app, key) => key },
+			global: { stubs: { CnWidgetWrapper: { template: '<div><slot /></div>' } } },
+		})
+		expect(wrapper.vm.placeholder).toEqual({ shape: 'block' })
+	})
+
 	it('knows the headless export render by ?export=1', () => {
 		expect(isExportRender({ search: '?export=1&subject=dashboard&id=4' })).toBe(true)
 		expect(isExportRender({ search: '?export=0' })).toBe(false)

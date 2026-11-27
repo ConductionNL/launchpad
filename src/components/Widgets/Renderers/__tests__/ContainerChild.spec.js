@@ -179,4 +179,16 @@ describe('ContainerChild — the edit menu of a widget inside a well (REQ-WDG-05
 		const wrapper = mount(ContainerChild, { props: { placement: { uuid: 'a', type: 'label' }, editMode: true } })
 		expect(wrapper.find('[data-testid="container-child-menu"]').exists()).toBe(false)
 	})
+
+	it('offers Configure for a widget the widget form can edit, and opens it with the child', () => {
+		const { wrapper, actions } = mountChild(
+			{ placement: { uuid: 'a', type: 'label' }, editMode: true },
+			{ canConfigure: vi.fn(() => true), configure: vi.fn() },
+		)
+		const menu = wrapper.findComponent({ name: 'WidgetEditMenu' })
+		expect(menu.props('hideEdit')).toBe(false)
+		menu.vm.$emit('edit')
+		expect(actions.configure).toHaveBeenCalledWith(12, 'a')
+		expect(wrapper.emitted('editTile')).toBeUndefined()
+	})
 })

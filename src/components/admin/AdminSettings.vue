@@ -511,6 +511,9 @@ const SharingTab = defineAsyncComponent(() => import('./tabs/SharingTab.vue'))
 const TemplatesPage = defineAsyncComponent(() => import('./tabs/TemplatesPage.vue'))
 const VersioningAuditTab = defineAsyncComponent(() => import('./tabs/VersioningAuditTab.vue'))
 
+/** How long an old address keeps its section in view while the tab above it loads (REQ-ADM-032). */
+const REVEAL_SETTLE_MS = 3000
+
 export default {
 	name: 'AdminSettings',
 
@@ -845,6 +848,17 @@ export default {
 		this.revealSection(this.section)
 	},
 
+	/**
+	 * Stop following a section that is still being revealed.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+	 */
+	beforeUnmount() {
+		if (typeof this.stopReveal === 'function') {
+			this.stopReveal()
+		}
+	},
+
 	methods: {
 		/**
 		 * Switch the active admin tab, and tell the page so its address
@@ -863,22 +877,61 @@ export default {
 		 * Scroll a folded section into view: the former tab an old address
 		 * or link names (REQ-ADM-032).
 		 *
+		 * The tab's content mounts and reads its data after the first tick,
+		 * so the cards above the section grow after it was scrolled to and
+		 * push it out of view. For a short while (REVEAL_SETTLE_MS) the
+		 * section is scrolled to again whenever it moved, until the
+		 * administrator scrolls, clicks or types.
+		 *
 		 * @param {string} section A key of FOLDED_ADMIN_TABS, a `section-*` element id, or ''.
 		 * @return {void}
 		 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
 		 */
 		revealSection(section) {
+			if (typeof this.stopReveal === 'function') {
+				this.stopReveal()
+			}
 			if (!section) {
 				return
 			}
-			this.$nextTick(() => {
-				// A former tab's section, or an element id a settings link names.
-				const selector = section.startsWith('section-') ? `#${section}` : `[data-admin-section="${section}"]`
+			// A former tab's section, or an element id a settings link names.
+			const selector = section.startsWith('section-') ? `#${section}` : `[data-admin-section="${section}"]`
+			const topOf = (el) => (typeof el.getBoundingClientRect === 'function' ? el.getBoundingClientRect().top : null)
+			let placedAt = null
+			const reveal = () => {
 				const target = this.$el?.querySelector?.(selector)
-				if (target && typeof target.scrollIntoView === 'function') {
-					target.scrollIntoView({ block: 'start' })
+				if (!target || typeof target.scrollIntoView !== 'function') {
+					return
 				}
-			})
+				const top = topOf(target)
+				if (placedAt === null || top === null || Math.abs(top - placedAt) > 1) {
+					target.scrollIntoView({ block: 'start' })
+					placedAt = topOf(target)
+				}
+			}
+			this.$nextTick(reveal)
+			if (typeof window === 'undefined' || typeof window.setInterval !== 'function') {
+				return
+			}
+			const events = ['wheel', 'touchstart', 'keydown', 'mousedown']
+			let timer = null
+			const stop = () => {
+				window.clearInterval(timer)
+				events.forEach((name) => window.removeEventListener(name, stop, true))
+				if (this.stopReveal === stop) {
+					this.stopReveal = null
+				}
+			}
+			const started = Date.now()
+			timer = window.setInterval(() => {
+				if (Date.now() - started > REVEAL_SETTLE_MS) {
+					stop()
+					return
+				}
+				reveal()
+			}, 100)
+			events.forEach((name) => window.addEventListener(name, stop, true))
+			this.stopReveal = stop
 		},
 
 		/**

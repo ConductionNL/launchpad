@@ -10,7 +10,7 @@
  * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
  */
 
-import { TILE_COLOUR_TOKENS, isColourToken } from './tileColour.js'
+import { isColourToken, TILE_COLOUR_TOKENS } from './tileColour.js'
 
 /** The text colour a tile without one draws in. */
 export const DEFAULT_TEXT_COLOUR = 'white'
@@ -155,7 +155,7 @@ export function resolveColour(name, element = null) {
  * theme, and whether it meets WCAG AA.
  *
  * @param {{textColour?: string, colourToken?: string, backgroundColor?: string}} tile The text colour, the tile colour token, or its own hex colour.
- * @param {Function} [resolve] Resolves a colour name to a CSS colour; the current theme by default.
+ * @param {function(string): string} [resolve] Resolves a colour name to a CSS colour; the current theme by default.
  * @return {{ratio: number|null, passes: boolean}} The ratio, rounded to one decimal, and whether it is at least 4.5:1.
  * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
  */

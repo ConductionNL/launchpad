@@ -25,7 +25,32 @@
 			</p>
 
 			<div class="tile-editor__form">
-				<div class="form-row">
+				<!-- app-link-tile-widget REQ-APPTILE-004: first the choice. A
+				     placed tile keeps its mode. -->
+				<ChoiceCards
+					:modelValue="form.mode"
+					:options="modeOptions"
+					:label="t('launchpad', 'What does the tile open?')"
+					:columns="2"
+					name="tile-mode"
+					data-testid="tile-mode"
+					@update:modelValue="chooseMode" />
+
+				<TileAppChooser
+					v-if="isAppMode && !tile"
+					:catalogueApps="catalogueApps"
+					:discoveredApps="discoveredApps"
+					:foundServices="foundServices"
+					:officeTiles="officeTiles"
+					:placements="placements"
+					:requestAppFn="requestAppFn"
+					@update:chosen="chosenApps = $event"
+					@importBookmarks="$emit('importBookmarks', $event)" />
+				<p v-else-if="isAppMode" class="tile-editor__hint" data-testid="tile-editor-app">
+					{{ t('launchpad', 'Opens the app {app}.', { app: tile.title || tile.appId || '' }) }}
+				</p>
+
+				<div v-if="!isAppMode" class="form-row">
 					<div class="form-row__item">
 						<NcTextField
 							v-model="form.title"
@@ -59,16 +84,18 @@
 				<!-- launcher-tile-launch-types: what the tile opens. The server
 				     checks every type (TileLinkValidator); an sso tile's address
 				     is resolved there from the template, so it has no address field. -->
-				<ChoiceCards
-					:modelValue="form.linkType"
-					:options="linkTypeOptions"
-					:label="t('launchpad', 'Tile type')"
-					:columns="2"
-					name="tile-link-type"
-					data-testid="tile-link-type"
-					@update:modelValue="onLinkType" />
+				<!-- REQ-TILE-040: the former tile types are no choice cards any
+				     more; a tile stored with one keeps its fields here. -->
+				<h3
+					v-if="!isAppMode && isLaunchTile"
+					class="tile-editor__label tile-editor__how"
+					data-testid="tile-how-it-opens">
+					{{ t('launchpad', 'How it opens') }}
+				</h3>
 
-				<template v-if="form.linkType === 'program'">
+				<template v-if="isAppMode" />
+
+				<template v-else-if="form.linkType === 'program'">
 					<NcTextField
 						v-model="form.linkValue"
 						:label="t('launchpad', 'Program address')"
@@ -159,7 +186,7 @@
 				</template>
 
 				<!-- Web address and internal address side by side (REQ-TILE-040). -->
-				<div class="form-row">
+				<div v-if="!isAppMode" class="form-row">
 					<div v-if="hasWebAddress" class="form-row__item">
 						<NcTextField
 							v-model="form.linkValue"
@@ -175,19 +202,22 @@
 							type="text" />
 					</div>
 				</div>
-				<p v-if="!inGroup" class="tile-editor__hint-small tile-editor__address-in-effect">
+				<p v-if="brandLine" class="tile-editor__hint-small" data-testid="tile-editor-brand">
+					{{ brandLine }}
+				</p>
+				<p v-if="!inGroup && !isAppMode" class="tile-editor__hint-small tile-editor__address-in-effect">
 					{{ addressInEffect }}
 				</p>
 				<!-- REQ-TILE-041: a tile in a group is a child of the group, not a
 				     placement of its own, so what needs its own placement on the
 				     server (launching, the availability check, the office-network
 				     address, where it opens) is not offered here. -->
-				<p v-else class="tile-editor__hint-small" data-testid="tile-in-group-hint">
+				<p v-else-if="inGroup" class="tile-editor__hint-small" data-testid="tile-in-group-hint">
 					{{ t('launchpad', 'A tile in a group opens its web address in a new tab.') }}
 				</p>
 
 				<!-- Launcher-tile-open-behaviour: how the tile opens, as three cards. -->
-				<div v-if="!inGroup" class="tile-editor__opens-in" data-test="tile-editor-opens-in">
+				<div v-if="!inGroup && !isAppMode" class="tile-editor__opens-in" data-test="tile-editor-opens-in">
 					<ChoiceCards
 						:modelValue="form.linkTarget"
 						:options="linkTargetOptions"
@@ -216,14 +246,14 @@
 				</div>
 
 				<!-- The icon with its preview, a picker on demand and an upload. -->
-				<div class="tile-editor__field tile-editor__icon">
+				<div v-if="!isAppMode" class="tile-editor__field tile-editor__icon">
 					<span class="tile-editor__label">{{ t('launchpad', 'Icon') }}</span>
 					<div class="tile-editor__icon-row">
 						<div
 							class="tile-preview"
 							:style="{
 								background: previewBackground,
-								color: form.colourToken ? '#ffffff' : form.textColor,
+								color: textCss,
 							}">
 							<img
 								v-if="isUrlIcon"
@@ -233,7 +263,7 @@
 							<svg
 								v-else
 								class="tile-preview__icon"
-								:style="{ fill: form.textColor }"
+								:style="{ fill: textCss }"
 								viewBox="0 0 24 24">
 								<path :d="displayIcon" />
 							</svg>
@@ -263,6 +293,9 @@
 							<p v-if="iconUploadError" class="tile-editor__warning" role="alert">
 								{{ iconUploadError }}
 							</p>
+							<p class="tile-editor__hint-small" data-testid="tile-icon-colour-note">
+								{{ t('launchpad', 'An SVG icon is drawn in the text colour; an uploaded colour image is shown as it is.') }}
+							</p>
 						</div>
 					</div>
 					<!-- No `url-icon-groups`: CnIconBrowser ships the NL Design sets
@@ -279,7 +312,7 @@
 				</div>
 
 				<div class="tile-editor__field">
-					<span :id="colourLabelId" class="tile-editor__label">{{ t('launchpad', 'Colour') }}</span>
+					<span :id="colourLabelId" class="tile-editor__label">{{ t('launchpad', 'Tile colour') }}</span>
 					<!-- REQ-ICT-004 (board LpTegelBewerken): eight theme colours,
 					     each previewing the white icon; "Own colour" keeps the
 					     colour pickers for a hex colour. -->
@@ -304,9 +337,9 @@
 								:aria-label="swatch.label"
 								:data-test="'tile-editor-swatch' + swatch.token"
 								@change="form.colourToken = swatch.token">
-							<span class="tile-editor__swatch-icon" aria-hidden="true">A</span>
+							<span class="tile-editor__swatch-icon" :style="{ color: textCss }" aria-hidden="true">A</span>
 						</label>
-						<label class="tile-editor__swatch-own">
+						<label v-if="!isAppMode" class="tile-editor__swatch-own">
 							<input
 								type="radio"
 								name="tile-colour"
@@ -317,7 +350,7 @@
 							{{ t('launchpad', 'Own colour') }}
 						</label>
 					</div>
-					<div v-if="form.colourToken === ''" class="form-row">
+					<div v-if="form.colourToken === '' && !isAppMode" class="form-row">
 						<div class="form-row__item">
 							<NcColorPicker v-model="form.backgroundColor">
 								<NcButton
@@ -334,28 +367,76 @@
 								</NcButton>
 							</NcColorPicker>
 						</div>
-
-						<div class="form-row__item">
-							<NcColorPicker v-model="form.textColor">
-								<NcButton
-									variant="tertiary"
-									:aria-label="t('launchpad', 'Pick text color')">
-									<template #icon>
-										<div
-											class="color-preview"
-											:style="{
-												backgroundColor: form.textColor,
-											}" />
-									</template>
-									{{ t('launchpad', 'Icon and text') }} {{ form.textColor }}
-								</NcButton>
-							</NcColorPicker>
-						</div>
 					</div>
 				</div>
 
+				<!-- REQ-APPTILE-005: the text colour, with its contrast on the tile colour. -->
+				<div class="tile-editor__field">
+					<span :id="textColourLabelId" class="tile-editor__label">{{ t('launchpad', 'Text colour') }}</span>
+					<div
+						class="tile-editor__swatches"
+						role="radiogroup"
+						:aria-labelledby="textColourLabelId"
+						data-testid="tile-editor-text-colours">
+						<label
+							v-for="swatch in textColourSwatches"
+							:key="swatch.name"
+							class="tile-editor__swatch tile-editor__swatch--text"
+							:class="{ 'tile-editor__swatch--on': form.textColour === swatch.name }"
+							:style="{ background: previewBackground, color: swatch.css }"
+							:title="swatch.label">
+							<input
+								type="radio"
+								class="tile-editor__swatch-input"
+								name="tile-text-colour"
+								:value="swatch.name"
+								:checked="form.textColour === swatch.name"
+								:aria-label="swatch.label"
+								:data-testid="'tile-editor-text-' + swatch.name"
+								@change="form.textColour = swatch.name">
+							<span class="tile-editor__swatch-icon" aria-hidden="true">A</span>
+						</label>
+					</div>
+					<p
+						class="tile-editor__contrast"
+						:class="{ 'tile-editor__warning': !contrast.passes }"
+						:role="contrast.passes ? null : 'alert'"
+						data-testid="tile-editor-contrast">
+						<AlertOutline v-if="!contrast.passes" :size="16" aria-hidden="true" />
+						{{ contrastLine }}
+					</p>
+				</div>
+
+				<!-- What is on the tile, and Pin (REQ-APPTILE-004). -->
+				<fieldset class="tile-editor__fieldset" data-testid="tile-editor-on-tile">
+					<legend>{{ t('launchpad', 'What is on the tile') }}</legend>
+					<NcCheckboxRadioSwitch
+						:modelValue="form.iconOnly !== true"
+						type="switch"
+						data-testid="tile-editor-show-name"
+						@update:modelValue="form.iconOnly = !$event">
+						{{ t('launchpad', 'Show the name') }}
+					</NcCheckboxRadioSwitch>
+					<NcCheckboxRadioSwitch
+						v-if="isAppMode"
+						:modelValue="form.showCount !== false"
+						type="switch"
+						data-testid="tile-editor-show-count"
+						@update:modelValue="form.showCount = $event">
+						{{ t('launchpad', 'Show the count of new items') }}
+					</NcCheckboxRadioSwitch>
+					<NcCheckboxRadioSwitch
+						:modelValue="form.pinned === true"
+						type="switch"
+						data-testid="tile-editor-pin"
+						@update:modelValue="form.pinned = $event">
+						{{ t('launchpad', 'Pin') }}
+					</NcCheckboxRadioSwitch>
+				</fieldset>
+
 				<!-- REQ-TILE-041: the sort order of the tile's group. -->
 				<NcSelect
+					v-if="!isAppMode"
 					:modelValue="groupSortBy"
 					:options="groupSortOptions"
 					:inputLabel="t('launchpad', 'Sort order in this group')"
@@ -366,7 +447,7 @@
 					data-testid="tile-group-sort"
 					@update:modelValue="groupSortBy = $event" />
 
-				<div v-if="!inGroup" class="tile-editor__health-ping">
+				<div v-if="!inGroup && !isAppMode" class="tile-editor__health-ping">
 					<NcCheckboxRadioSwitch
 						:modelValue="form.healthPingEnabled"
 						type="switch"
@@ -430,8 +511,12 @@
 						<NcButton @click="$emit('close')">
 							{{ t('launchpad', 'Cancel') }}
 						</NcButton>
-						<NcButton variant="primary" @click="saveTile">
-							{{ t('launchpad', 'Save') }}
+						<NcButton
+							variant="primary"
+							data-testid="tile-editor-save"
+							:disabled="isAppMode && !tile && chosenApps.length === 0"
+							@click="saveTile">
+							{{ isAppMode && !tile ? addAppsLabel : t('launchpad', 'Save') }}
 						</NcButton>
 					</div>
 				</div>
@@ -453,7 +538,9 @@ import {
 } from '@conduction/nextcloud-vue'
 import { mdiLink } from '@mdi/js'
 import { translate as t } from '@nextcloud/l10n'
+import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
 import ChoiceCards from '../components/ChoiceCards.vue'
+import TileAppChooser from '../components/TileAppChooser.vue'
 import { FLAG_PROP, LIST_PROP, NULLABLE_OBJECT_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { fetchHealthPingBadge, validateHealthPingConfig } from '../services/healthPingClient.js'
 import { ICON_CATALOGUE, loadIconCatalogue, normaliseIconValue } from '../services/iconCatalogue.js'
@@ -464,7 +551,9 @@ import { lastCheckLine } from '../utils/tileAvailability.js'
 import { isColourToken, TILE_COLOUR_TOKENS, tileBackground } from '../utils/tileColour.js'
 import { DEFAULT_RDP_PORT, launchFields, LINK_PROGRAM, LINK_REMOTE, LINK_SSO } from '../utils/tileLaunch.js'
 import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
+import { brandDefaults } from '../utils/tileMode.js'
 import { normaliseSortMode } from '../utils/tileSort.js'
+import { DEFAULT_TEXT_COLOUR, isTextColour, TEXT_COLOURS, textColourValue, textContrast } from '../utils/tileTextColour.js'
 
 const MIN_PING_INTERVAL = 15
 const DEFAULT_PING_INTERVAL = 60
@@ -496,6 +585,8 @@ export default {
 		NcSelect,
 		CnIconBrowser,
 		ChoiceCards,
+		TileAppChooser,
+		AlertOutline,
 	},
 
 	props: {
@@ -520,9 +611,22 @@ export default {
 		 * `{id, title, sortBy}` for each group (REQ-TILE-041).
 		 */
 		groups: LIST_PROP,
+
+		// app-link-tile-widget REQ-APPTILE-004: the sources of "Choose the app".
+		catalogueApps: LIST_PROP,
+
+		discoveredApps: LIST_PROP,
+
+		foundServices: LIST_PROP,
+
+		officeTiles: LIST_PROP,
+
+		placements: LIST_PROP,
+
+		requestAppFn: { type: Function, default: null },
 	},
 
-	emits: ['close', 'save', 'delete'],
+	emits: ['close', 'save', 'delete', 'addApps', 'importBookmarks'],
 
 	data() {
 		return {
@@ -533,6 +637,11 @@ export default {
 				backgroundColor: '#0082c9',
 				textColor: '#ffffff',
 				colourToken: '',
+				mode: 'link',
+				textColour: DEFAULT_TEXT_COLOUR,
+				iconOnly: false,
+				pinned: false,
+				showCount: true,
 				linkType: 'url',
 				linkValue: '',
 				internalUrl: '',
@@ -545,6 +654,10 @@ export default {
 			},
 
 			healthUrlError: '',
+			// REQ-APPTILE-004: the apps ticked in "Choose the app".
+			chosenApps: [],
+			// REQ-APPTILE-004: the brand whose defaults the form filled in.
+			brand: '',
 			iconBrowserOpen: false,
 			iconUploading: false,
 			iconUploadError: '',
@@ -594,6 +707,116 @@ export default {
 		 * @return {string}
 		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
 		 */
+		/**
+		 * @return {boolean} Whether the tile opens an app.
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 */
+		isAppMode() {
+			return this.form.mode === 'app'
+		},
+
+		/**
+		 * The two choice cards; a placed tile keeps its mode.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 */
+		modeOptions() {
+			const placed = Boolean(this.tile)
+			return [
+				{ value: 'app', label: t('launchpad', 'An app'), hint: t('launchpad', 'One of your apps, with its icon and new items.'), disabled: (placed && !this.isAppMode) || this.inGroup },
+				{ value: 'link', label: t('launchpad', 'A link'), hint: t('launchpad', 'Any web address, with a title and an icon.'), disabled: placed && this.isAppMode },
+			]
+		},
+
+		/**
+		 * @return {boolean} Whether the tile was stored with a former tile type.
+		 * @spec openspec/changes/app-link-tile-widget/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 */
+		isLaunchTile() {
+			return [LINK_PROGRAM, LINK_REMOTE, LINK_SSO].includes(this.form.linkType)
+		},
+
+		/**
+		 * @return {string} The text colour as CSS.
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 */
+		textCss() {
+			return textColourValue(this.form.textColour)
+		},
+
+		/**
+		 * @return {string} The id of the Text colour label.
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 */
+		textColourLabelId() {
+			return 'tile-editor-text-colour-' + (this.tile?.id ?? 'new')
+		},
+
+		/**
+		 * The text colours: the theme's tile colours, white and black.
+		 *
+		 * @return {Array<{name: string, label: string, css: string}>}
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 */
+		textColourSwatches() {
+			return TEXT_COLOURS.map((name) => ({ name, label: this.colourName(name), css: textColourValue(name) }))
+		},
+
+		/**
+		 * @return {{ratio: number|null, passes: boolean}} The contrast in the current theme.
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 */
+		contrast() {
+			return textContrast({
+				textColour: this.form.textColour,
+				colourToken: this.form.colourToken,
+				backgroundColor: this.form.colourToken ? '' : this.form.backgroundColor,
+			})
+		},
+
+		/**
+		 * The contrast line as drawn: "White on primary: contrast 5.6:1, meets
+		 * WCAG AA (4.5:1)", or the warning below it.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 */
+		contrastLine() {
+			const vars = {
+				text: this.colourName(this.form.textColour),
+				tile: this.form.colourToken ? this.colourName(this.form.colourToken).toLowerCase() : t('launchpad', 'the own colour'),
+				ratio: this.contrast.ratio === null ? '?' : this.contrast.ratio.toFixed(1),
+			}
+			if (this.contrast.passes) {
+				return t('launchpad', '{text} on {tile}: contrast {ratio}:1, meets WCAG AA (4.5:1)', vars)
+			}
+			return t('launchpad', '{text} on {tile}: contrast {ratio}:1, below WCAG AA (4.5:1). Choose white or a lighter tile colour.', vars)
+		},
+
+		/**
+		 * @return {string} The line that says the brand's defaults were used.
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 */
+		brandLine() {
+			if (this.brand === '' || this.isAppMode) {
+				return ''
+			}
+			return t('launchpad', 'The {brand} tile shows its white logo, without payoff, on the brand colour.', { brand: this.brand })
+		},
+
+		/**
+		 * @return {string} The primary button in app mode.
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 */
+		addAppsLabel() {
+			const count = this.chosenApps.length
+			if (count <= 1) {
+				return t('launchpad', 'Add widget')
+			}
+			return t('launchpad', 'Add {count} tiles', { count })
+		},
+
 		previewBackground() {
 			return tileBackground({ backgroundColor: this.form.backgroundColor }, { colourToken: this.form.colourToken })
 		},
@@ -786,50 +1009,7 @@ export default {
 			return normaliseIconValue(this.form.icon)
 		},
 
-		/**
-		 * What a tile can open. A type this editor does not offer (an older
-		 * `app` or `internal` tile) stays selectable so editing keeps it.
-		 *
-		 * Four choice cards with one line of explanation each (REQ-TILE-040).
-		 *
-		 * @return {Array<{value: string, label: string, hint: string}>}
-		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
-		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
-		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
-		 */
-		linkTypeOptions() {
-			const options = [
-				{ value: 'url', label: t('launchpad', 'Web address'), hint: t('launchpad', 'A website or a page on this Nextcloud.') },
-			]
-			// REQ-TILE-041: a tile in a group has no placement the server can
-			// launch, so it only opens an address.
-			if (!this.inGroup) {
-				options.push(...this.launchTypeOptions)
-			}
-			const current = this.form.linkType
-			if (current && !options.some((option) => option.value === current)) {
-				options.unshift({
-					value: current,
-					label: current === 'app' ? t('launchpad', 'Nextcloud app') : t('launchpad', 'Link'),
-					hint: t('launchpad', 'An older tile type, kept while you edit.'),
-				})
-			}
-			return options
-		},
 
-		/**
-		 * The tile types the server launches for a tile of its own.
-		 *
-		 * @return {Array<{value: string, label: string, hint: string}>}
-		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
-		 */
-		launchTypeOptions() {
-			return [
-				{ value: LINK_SSO, label: t('launchpad', 'App with single sign-on'), hint: t('launchpad', 'Signs in through your identity provider.') },
-				{ value: LINK_REMOTE, label: t('launchpad', 'Legacy Windows program'), hint: t('launchpad', 'Through remote desktop or a web gateway.') },
-				{ value: LINK_PROGRAM, label: t('launchpad', 'Program on this computer'), hint: t('launchpad', 'Starts a program installed on the device.') },
-			]
-		},
 
 		/**
 		 * The sign-on templates an author picks from.
@@ -873,11 +1053,13 @@ export default {
 		/**
 		 * Re-check whether the address may open in the panel whenever it changes.
 		 *
+		 * @param {string} value The new web address.
 		 * @return {void}
 		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
 		 */
-		'form.linkValue': function() {
+		'form.linkValue': function(value) {
 			this.checkPanelAllowed()
+			this.applyBrandDefaults(value)
 		},
 
 		/**
@@ -910,12 +1092,19 @@ export default {
 						iconType: newTile.iconType || 'class',
 						colourToken: isColourToken(newTile.colourToken) ? newTile.colourToken : '',
 						linkTarget: newTile.linkTarget || '',
+						mode: newTile.mode === 'app' ? 'app' : 'link',
+						textColour: isTextColour(newTile.textColour) ? newTile.textColour : DEFAULT_TEXT_COLOUR,
+						iconOnly: newTile.iconOnly === true,
+						pinned: newTile.pinned === true,
+						showCount: newTile.showCount !== false,
 					}
 				} else {
 					this.resetForm()
 				}
 				this.lastReading = null
 				this.targetGroupId = null
+				this.chosenApps = []
+				this.brand = ''
 				this.loadLastCheck()
 			},
 		},
@@ -951,28 +1140,66 @@ export default {
 		 * @param {string} value the chosen SVG path or icon URL.
 		 * @return {void}
 		 */
+		/**
+		 * Choose An app or A link (a new tile only).
+		 *
+		 * @param {string} mode 'app' or 'link'.
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 */
+		chooseMode(mode) {
+			if (this.tile || (mode !== 'app' && mode !== 'link')) {
+				return
+			}
+			this.form.mode = mode
+		},
+
+		/**
+		 * The name of a tile or text colour.
+		 *
+		 * @param {string} name The token, white or black.
+		 * @return {string}
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 */
+		colourName(name) {
+			if (name === 'white') {
+				return t('launchpad', 'White')
+			}
+			if (name === 'black') {
+				return t('launchpad', 'Black')
+			}
+			return this.colourSwatches.find((swatch) => swatch.token === name)?.label || name
+		},
+
+		/**
+		 * A new link tile to the Conduction, Nextcloud or sendent site takes
+		 * the brand's white logo, colour and white text (REQ-DWB-007).
+		 *
+		 * @param {string} address The web address.
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 */
+		applyBrandDefaults(address) {
+			if (this.tile || this.isAppMode) {
+				return
+			}
+			const brand = brandDefaults(address)
+			if (!brand) {
+				this.brand = ''
+				return
+			}
+			this.brand = brand.brand
+			this.form.icon = brand.icon
+			this.form.iconType = brand.iconType
+			this.form.backgroundColor = brand.backgroundColor
+			this.form.colourToken = brand.colourToken
+			this.form.textColour = brand.textColour
+			this.form.textColor = '#ffffff'
+		},
+
 		onIcon(value) {
 			this.form.icon = value
 			this.form.iconType = isCustomIconUrl(value) ? 'url' : 'svg'
 		},
 
-		/**
-		 * Switch what the tile opens. Leaving a type whose address the server
-		 * resolves clears the stale address.
-		 *
-		 * @param {string} value The new link type.
-		 * @return {void}
-		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
-		 */
-		onLinkType(value) {
-			if (value === this.form.linkType) {
-				return
-			}
-			if ([LINK_REMOTE, LINK_SSO].includes(this.form.linkType) || [LINK_REMOTE, LINK_SSO].includes(value)) {
-				this.form.linkValue = ''
-			}
-			this.form.linkType = value
-		},
 
 		/** @spec openspec/specs/tiles/spec.md */
 		resetForm() {
@@ -983,6 +1210,11 @@ export default {
 				backgroundColor: '#0082c9',
 				textColor: '#ffffff',
 				colourToken: '',
+				mode: 'link',
+				textColour: DEFAULT_TEXT_COLOUR,
+				iconOnly: false,
+				pinned: false,
+				showCount: true,
 				linkType: 'url',
 				linkValue: '',
 				internalUrl: '',
@@ -1173,6 +1405,22 @@ export default {
 		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		saveTile() {
+			// REQ-APPTILE-004: a new app tile per ticked app, with the appearance.
+			if (this.isAppMode && !this.tile) {
+				if (this.chosenApps.length > 0) {
+					this.$emit('addApps', {
+						choices: this.chosenApps,
+						appearance: {
+							colourToken: this.form.colourToken,
+							textColour: this.form.textColour,
+							showCount: this.form.showCount !== false,
+							pinned: this.form.pinned === true,
+							iconOnly: this.form.iconOnly === true,
+						},
+					})
+				}
+				return
+			}
 			const tile = {
 				...this.form,
 				expectedStatus:

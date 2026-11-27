@@ -163,9 +163,9 @@ import { useTilePanelStore } from '../stores/tilePanel.js'
 import { isOnOfficeNetwork } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { tileBackground } from '../utils/tileColour.js'
-import { isTextColour, textColourValue } from '../utils/tileTextColour.js'
 import { launchHref, launchTarget, LINK_PROGRAM } from '../utils/tileLaunch.js'
 import { isSameOrigin, NEW_TAB, resolveLinkTarget, SIDE_PANEL } from '../utils/tileLinkTarget.js'
+import { isTextColour, textColourValue } from '../utils/tileTextColour.js'
 
 const { recordTileClick } = useTileClickTracking()
 

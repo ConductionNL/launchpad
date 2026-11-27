@@ -249,25 +249,98 @@ export function withTileMovedIn(containerContent, tileContent, tileData) {
 }
 
 /**
+ * The id of a tab as a group a tile can move into: `<placement id>:<tab id>`.
+ *
+ * @param {number|string} placementId The Tabs placement.
+ * @param {string} tabId The tab.
+ * @return {string}
+ * @spec openspec/changes/layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
+ */
+export function tabGroupId(placementId, tabId) {
+	return `${placementId}:${tabId}`
+}
+
+/**
+ * The Tabs placement and tab a group id names, or null for a well's id.
+ *
+ * @param {number|string|null} groupId The chosen group.
+ * @return {{placementId: number, tabId: string}|null}
+ * @spec openspec/changes/layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
+ */
+export function parseTabGroupId(groupId) {
+	if (typeof groupId !== 'string') {
+		return null
+	}
+	const at = groupId.indexOf(':')
+	const placementId = Number(groupId.slice(0, at))
+	const tabId = groupId.slice(at + 1)
+	return at > 0 && Number.isFinite(placementId) && tabId !== '' ? { placementId, tabId } : null
+}
+
+/**
+ * Move a dashboard tile into one tab of a Tabs widget (REQ-TABS-002): the
+ * tab gains it as a tile node at its bottom, as a well does (withTileMovedIn).
+ *
+ * @param {object} tabsContent The Tabs placement's content.
+ * @param {string} tabId The tab.
+ * @param {object} tileContent The tile placement's content blob.
+ * @param {object} tileData The tile form's result.
+ * @return {object|null} The new content; null when the tab is not there.
+ * @spec openspec/changes/layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
+ */
+export function withTileMovedIntoTab(tabsContent, tabId, tileContent, tileData) {
+	if (!isObject(tabsContent) || !Array.isArray(tabsContent.tabs)) {
+		return null
+	}
+	const at = tabsContent.tabs.findIndex((tab) => isObject(tab) && tab.id === tabId)
+	if (at === -1) {
+		return null
+	}
+	const tab = tabsContent.tabs[at]
+	const placements = Array.isArray(tab.placements) ? tab.placements : []
+	const node = groupChildFromTile({ type: 'tile', content: isObject(tileContent) ? tileContent : {} }, tileData)
+	node.gridX = 0
+	node.gridY = bottomRow(placements)
+	node.gridWidth = MOVED_TILE_SIZE
+	node.gridHeight = MOVED_TILE_SIZE
+	const tabs = [...tabsContent.tabs]
+	tabs[at] = { ...tab, placements: [...placements, node] }
+	return { ...tabsContent, tabs }
+}
+
+/**
  * The groups on a dashboard a tile can move into: each `container`
- * placement with its title and stored sort order.
+ * placement with its title and stored sort order, and each tab of a `tabs`
+ * placement as "<Tabs title> > <tab title>" (REQ-TABS-002).
  *
  * @param {Array<object>} placements The dashboard's placements.
- * @return {Array<{id: number, title: string, sortBy: string}>}
+ * @return {Array<{id: number|string, title: string, sortBy: string}>}
  * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+ * @spec openspec/changes/layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
  */
 export function dashboardGroups(placements) {
 	if (!Array.isArray(placements)) {
 		return []
 	}
-	return placements
-		.filter((placement) => isObject(placement) && placement.widgetId === 'container' && placement.id !== undefined && placement.id !== null)
-		.map((placement) => {
-			const content = contentOf(placement)
-			return {
-				id: placement.id,
-				title: typeof content.title === 'string' ? content.title : '',
-				sortBy: typeof content.sortBy === 'string' ? content.sortBy : '',
+	const groups = []
+	for (const placement of placements) {
+		if (!isObject(placement) || placement.id === undefined || placement.id === null) {
+			continue
+		}
+		const content = contentOf(placement)
+		const title = typeof content.title === 'string' ? content.title : ''
+		if (placement.widgetId === 'container') {
+			groups.push({ id: placement.id, title, sortBy: typeof content.sortBy === 'string' ? content.sortBy : '' })
+			continue
+		}
+		if (placement.widgetId === 'tabs' && Array.isArray(content.tabs)) {
+			for (const tab of content.tabs) {
+				if (isObject(tab) && typeof tab.id === 'string' && tab.id !== '') {
+					const tabTitle = typeof tab.title === 'string' ? tab.title : ''
+					groups.push({ id: tabGroupId(placement.id, tab.id), title: [title, tabTitle].filter((part) => part !== '').join(' > '), sortBy: '' })
+				}
 			}
-		})
+		}
+	}
+	return groups
 }

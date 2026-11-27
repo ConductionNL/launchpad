@@ -12,9 +12,12 @@ import {
 	groupChildFromTile,
 	groupChildToTile,
 	isGroupTileChild,
+	parseTabGroupId,
+	tabGroupId,
 	withGroupTileRemoved,
 	withGroupTileSaved,
 	withTileMovedIn,
+	withTileMovedIntoTab,
 } from '../groupTiles.js'
 
 const caseSystem = {
@@ -220,5 +223,56 @@ describe('dashboardGroups', () => {
 			{ id: 3, title: '', sortBy: '' },
 		])
 		expect(dashboardGroups(undefined)).toEqual([])
+	})
+})
+
+describe('a tab as a group (REQ-TABS-002)', () => {
+	const TABS = {
+		id: 31,
+		widgetId: 'tabs',
+		content: {
+			title: 'Werk',
+			tabs: [
+				{ id: 'tab-1', title: 'Team', placements: [{ type: 'tile', gridX: 0, gridY: 0, gridWidth: 2, gridHeight: 2, content: { title: 'Mail' } }] },
+				{ id: 'tab-2', title: 'Samenwerken', placements: [] },
+				{ title: 'no id' },
+			],
+		},
+	}
+
+	it('lists each tab of a Tabs widget beside the wells', () => {
+		const groups = dashboardGroups([
+			{ id: 30, widgetId: 'container', content: { title: 'Mijn apps', sortBy: 'manual' } },
+			TABS,
+			{ id: 32, widgetId: 'tabs', content: { tabs: [{ id: 'a', title: 'Alleen' }] } },
+		])
+		expect(groups).toEqual([
+			{ id: 30, title: 'Mijn apps', sortBy: 'manual' },
+			{ id: '31:tab-1', title: 'Werk > Team', sortBy: '' },
+			{ id: '31:tab-2', title: 'Werk > Samenwerken', sortBy: '' },
+			{ id: '32:a', title: 'Alleen', sortBy: '' },
+		])
+	})
+
+	it('reads a tab group id back, and nothing from a well id', () => {
+		expect(tabGroupId(31, 'tab-2')).toBe('31:tab-2')
+		expect(parseTabGroupId('31:tab-2')).toEqual({ placementId: 31, tabId: 'tab-2' })
+		expect(parseTabGroupId(30)).toBeNull()
+		expect(parseTabGroupId(':tab')).toBeNull()
+		expect(parseTabGroupId('x:tab')).toBeNull()
+		expect(parseTabGroupId('31:')).toBeNull()
+	})
+
+	it('moves a tile into a tab at its bottom, leaving the other tabs alone', () => {
+		const moved = withTileMovedIntoTab(TABS.content, 'tab-1', { title: 'Files', linkType: 'url', linkValue: '/apps/files' }, {})
+		expect(moved.tabs[0].placements).toHaveLength(2)
+		expect(moved.tabs[0].placements[1]).toMatchObject({ type: 'tile', gridX: 0, gridY: 2, gridWidth: 2, gridHeight: 2 })
+		expect(moved.tabs[1]).toBe(TABS.content.tabs[1])
+		expect(TABS.content.tabs[0].placements).toHaveLength(1)
+
+		const empty = withTileMovedIntoTab(TABS.content, 'tab-2', {}, {})
+		expect(empty.tabs[1].placements[0]).toMatchObject({ gridY: 0 })
+		expect(withTileMovedIntoTab(TABS.content, 'gone', {}, {})).toBeNull()
+		expect(withTileMovedIntoTab(null, 'tab-1', {}, {})).toBeNull()
 	})
 })

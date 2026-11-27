@@ -22,7 +22,8 @@
  * @spec openspec/changes/nc-dashboard-widget-proxy/tasks.md#task-8
  */
 
-import type { Page } from '@playwright/test'
+import type { APIRequestContext, Page } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, test } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
@@ -31,14 +32,30 @@ import {
 	gotoLaunchPad,
 	openAddWidgetModal,
 } from './fixtures/widget-flow.ts'
+import {
+	removeSeededDashboard,
+	seedActiveDashboard,
+} from './support/dashboardFixture.ts'
+import { adminContext } from './support/principals.ts'
 
 let restoreWidgetRestriction: (() => Promise<void>) | null = null
+let api: APIRequestContext | null = null
+let seeded: SeededDashboard | null = null
 
 test.beforeAll(async () => {
 	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+	// openAddWidgetModal drives the cog of a PERSONAL dashboard row. Since a
+	// read no longer mints 'My Dashboard' (REQ-SHELL-005 first-visit choice),
+	// the admin may have none, so the file brings its own active one.
+	api = await adminContext()
+	seeded = await seedActiveDashboard(api, `E2E nc-widget ${Date.now()}`)
 })
 
 test.afterAll(async () => {
+	if (api) {
+		await removeSeededDashboard(api, seeded)
+		await api.dispose()
+	}
 	await restoreWidgetRestriction?.()
 })
 

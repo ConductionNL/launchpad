@@ -291,11 +291,16 @@ test.describe('the Add Widget modal', () => {
 			communal.getByRole('textbox', { name: /title \(optional\)/i }),
 		).toHaveCount(1)
 
-		// LaunchPad adds exactly one control next to it: "Sort tiles".
-		await expect(form.locator(':scope > *')).toHaveCount(2)
+		// LaunchPad adds "Sort tiles" next to it, and the section "Apps from
+		// the app menu" (REQ-CONT-009), off until switched on.
+		await expect(form.locator(':scope > *')).toHaveCount(3)
 		const added = form.locator(':scope > *').nth(1)
 		await expect(added).toHaveClass(/nc-select/)
 		await expect(added.getByLabel('Sort tiles', { exact: true })).toBeVisible()
+		const apps = form.getByTestId('container-app-list')
+		await expect(apps).toBeVisible()
+		await expect(apps.locator('legend')).toHaveText('Apps from the app menu')
+		await expect(apps.getByTestId('container-app-list-pinned')).toHaveCount(0)
 		await expect(form.locator('.nc-select')).toHaveCount(2)
 		await expect(form.locator('.cn-color-picker')).toHaveCount(1)
 

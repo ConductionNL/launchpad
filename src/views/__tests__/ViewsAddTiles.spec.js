@@ -2,11 +2,12 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Views' side of the Add tiles dialog (add-tiles-dialog REQ-TILE-043): it
- * opens with its lists loaded, places the chosen tiles and hands a bookmarks
- * file to the bookmark import.
+ * Views' side of the App or link tile form (app-link-tile-widget
+ * REQ-APPTILE-004, replacing the Add tiles dialog): the form opens with its
+ * "Choose the app" lists loaded, places the chosen tiles with the form's
+ * appearance and hands a bookmarks file to the bookmark import.
  *
- * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md
+ * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
  */
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -33,7 +34,9 @@ function makeHost(state = {}) {
 		discoveredApps: [],
 		catalogueApps: [],
 		officeTiles: [],
-		isAddTilesOpen: false,
+		isTileEditorOpen: false,
+		editingTile: null,
+		editingGroupTile: null,
 		isBookmarkImportOpen: false,
 		bookmarkInitialFile: null,
 		...state,
@@ -58,11 +61,12 @@ describe('Views Add tiles', () => {
 		api.discoverApps.mockResolvedValue({ data: { apps: [{ appId: 'grafana' }] } })
 		api.catalogueApps.mockResolvedValue({ data: { apps: [{ name: 'Wiki' }] } })
 		api.officeTilePack.mockResolvedValue({ data: { tiles: office } })
-		const host = makeHost()
+		const host = makeHost({ enterEditMode: vi.fn().mockResolvedValue(true) })
 
 		await host.openAddTilesModal()
 
-		expect(host.isAddTilesOpen).toBe(true)
+		expect(host.isTileEditorOpen).toBe(true)
+		expect(host.editingTile).toBeNull()
 		expect(host.discoveredApps).toEqual([{ appId: 'grafana' }])
 		expect(host.catalogueApps).toEqual([{ name: 'Wiki' }])
 		expect(host.officeTiles).toEqual(office)
@@ -79,22 +83,47 @@ describe('Views Add tiles', () => {
 		expect(logger.warn).toHaveBeenCalledWith('[Views] Could not load the office tiles:', error)
 	})
 
-	it('places a found app as an app tile and the rest as tiles, in order', async () => {
+	it('opens nothing when edit mode cannot be entered', async () => {
+		const host = makeHost({ enterEditMode: vi.fn().mockResolvedValue(false) })
+		await host.openAddTilesModal()
+		expect(host.isTileEditorOpen).toBe(false)
+		expect(api.catalogueApps).not.toHaveBeenCalled()
+	})
+
+	it('places an app as an App or link tile in app mode and the rest as link tiles, in order', async () => {
 		const calls = []
 		const addWidgetToDashboard = vi.fn(async (payload) => calls.push(['widget', payload]))
-		const addTileToDashboard = vi.fn(async (tile) => calls.push(['tile', tile]))
-		const host = makeHost({ addWidgetToDashboard, addTileToDashboard })
+		const addTileToDashboard = vi.fn(async (tile) => {
+			calls.push(['tile', tile])
+			return { id: 9 }
+		})
+		const updateWidgetPlacement = vi.fn(async (id, patch) => calls.push(['patch', id, patch]))
+		const host = makeHost({ addWidgetToDashboard, addTileToDashboard, updateWidgetPlacement })
 		const word = { title: 'Word', linkType: 'create', linkValue: 'doc' }
 
 		await host.addChosenTiles([
-			{ key: 'app:grafana', kind: 'app-tile', tile: { appId: 'grafana' } },
+			{ key: 'app:grafana', kind: 'app', tile: { appId: 'grafana' } },
 			{ key: 'create:doc', kind: 'tile', tile: word },
-		])
+		], { colourToken: '--sc-accent', textColour: 'black', showCount: false })
 
 		expect(calls).toEqual([
-			['widget', { type: 'app-tile', content: { appId: 'grafana', colour: '', showCount: true } }],
+			['widget', { type: 'tile', content: { mode: 'app', appId: 'grafana', colourToken: '--sc-accent', textColour: 'black', showCount: false, pinned: false } }],
 			['tile', word],
+			['patch', 9, { content: { mode: 'link', textColour: 'black', colourToken: '--sc-accent' } }],
 		])
+	})
+
+	it('closes the form after adding the apps, and says so when adding fails', async () => {
+		const addWidgetToDashboard = vi.fn().mockResolvedValue({})
+		const host = makeHost({ addWidgetToDashboard, isTileEditorOpen: true })
+		await host.addAppsFromForm({ choices: [{ kind: 'app', tile: { appId: 'files' } }], appearance: {} })
+		expect(addWidgetToDashboard).toHaveBeenCalledTimes(1)
+		expect(host.isTileEditorOpen).toBe(false)
+
+		const failing = makeHost({ addWidgetToDashboard: vi.fn().mockRejectedValue(new Error('409')), isTileEditorOpen: true })
+		await failing.addAppsFromForm({ choices: [{ kind: 'app', tile: { appId: 'files' } }] })
+		expect(failing.isTileEditorOpen).toBe(true)
+		expect(logger.error).toHaveBeenCalled()
 	})
 
 	it('stops and rejects when a placement fails, so the dialog stays open', async () => {
@@ -103,12 +132,12 @@ describe('Views Add tiles', () => {
 	})
 
 	it('hands a bookmarks file to the bookmark import', () => {
-		const host = makeHost({ isAddTilesOpen: true })
+		const host = makeHost({ isTileEditorOpen: true })
 		const file = { name: 'bookmarks.html' }
 
 		host.onAddTilesImportBookmarks(file)
 
-		expect(host.isAddTilesOpen).toBe(false)
+		expect(host.isTileEditorOpen).toBe(false)
 		expect(host.bookmarkInitialFile).toBe(file)
 		expect(host.isBookmarkImportOpen).toBe(true)
 	})

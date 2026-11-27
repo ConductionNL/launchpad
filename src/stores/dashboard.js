@@ -89,7 +89,7 @@ export const STATUS_SCHEDULED = 'scheduled'
  *
  * @param {object} state The Pinia store state.
  * @return {Array<((d: object) => boolean)|false>} The checks.
- * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+ * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/dashboards/spec.md
  */
 function resolutionRules(state) {
 	const startUuid = state.startDashboardUuid || ''
@@ -707,7 +707,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 *
 		 * @param {object} state The Pinia store state.
 		 * @return {object|null} The resolved dashboard row, or null.
-		 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+		 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/dashboards/spec.md
 		 */
 		resolveActive: (state) => {
 			const list = state.dashboards || []

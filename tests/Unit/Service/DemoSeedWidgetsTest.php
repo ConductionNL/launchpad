@@ -76,11 +76,14 @@ class DemoSeedWidgetsTest extends TestCase {
 	public function testTileOfAnEnabledAppIsAnAppTileWhenThatTypeExists(): void {
 		$result = $this->expander(types: ['app-tile', 'tile'], apps: ['spreed'])->expand(entries: [['tile' => 'talk', 'gridX' => 3, 'gridY' => 1]]);
 
-		$this->assertSame(expected: 'app-tile', actual: $result['placed'][0]['widgetId']);
+		$this->assertSame(expected: 'tile', actual: $result['placed'][0]['widgetId']);
 		$this->assertSame(
 			expected: [
+				'mode'        => 'app',
 				'appId'       => 'spreed',
 				'colour'      => 'work-ink',
+				'colourToken' => '--sc-work-ink',
+				'textColour'  => 'white',
 				'showCount'   => true,
 				'icon'        => 'MessageTextOutline',
 				'countSource' => ['dashboardWidget' => 'spreed'],

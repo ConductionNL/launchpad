@@ -16,7 +16,7 @@
  *   @e2e dashboards::a-link-still-opens-its-dashboard
  *
  * @spec openspec/specs/default-widget-bundle/spec.md#requirement-req-dwb-008-the-start-page-is-the-vandaag-layout
- * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+ * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/dashboards/spec.md
  */
 
 import { expect, request, test } from '@playwright/test'

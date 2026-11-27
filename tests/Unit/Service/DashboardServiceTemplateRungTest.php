@@ -350,7 +350,7 @@ class DashboardServiceTemplateRungTest extends TestCase {
 	 * A chosen start dashboard (Set as default) counts as "already using
 	 * launchpad": no template, no copy.
 	 *
-	 * @spec openspec/changes/start-page-stays-vandaag/specs/admin-templates/spec.md
+	 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/admin-templates/spec.md
 	 *
 	 * @return void
 	 */
@@ -371,7 +371,7 @@ class DashboardServiceTemplateRungTest extends TestCase {
 	 * visited another dashboard still gets the template on the next visit
 	 * to `/apps/launchpad/`.
 	 *
-	 * @spec openspec/changes/start-page-stays-vandaag/specs/admin-templates/spec.md
+	 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/admin-templates/spec.md
 	 *
 	 * @return void
 	 */

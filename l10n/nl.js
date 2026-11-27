@@ -2869,6 +2869,7 @@ OC.L10N.register(
     "News and maintenance notices for the people in your organisation." : "Nieuws en onderhoudsmeldingen voor de mensen in je organisatie.",
     "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges." : "Aankondigingen beheer je op dit tabblad. Wie aankondigingen beheert zonder beheerder te zijn, krijgt dit tabblad via de beheerrechten van Nextcloud.",
     "Launchpad announcements" : "Launchpad-aankondigingen",
+<<<<<<< HEAD
     "Seen and confirmed" : "Gezien en bevestigd",
     "{confirmed} confirmed, {pending} not yet confirmed" : "{confirmed} bevestigd, {pending} nog niet bevestigd",
     "Not confirmed" : "Niet bevestigd",
@@ -2883,6 +2884,32 @@ OC.L10N.register(
     "The announcement could not be ended." : "De aankondiging kon niet worden beëindigd.",
     "The announcement could not be deleted." : "De aankondiging kon niet worden verwijderd.",
     "Delete the announcement \"{title}\"?" : "De aankondiging \"{title}\" verwijderen?"
+=======
+    "A link" : "Een link",
+    "An SVG icon is drawn in the text colour; an uploaded colour image is shown as it is." : "Een SVG-pictogram krijgt de tekstkleur; een geüploade kleurenafbeelding blijft zoals hij is.",
+    "An app" : "Een app",
+    "Any web address, with a title and an icon." : "Elk webadres, met een titel en een pictogram.",
+    "App or link tile" : "App- of linktegel",
+    "Black" : "Zwart",
+    "Choose the app" : "Kies de app",
+    "How it opens" : "Hoe hij opent",
+    "One app or web address as a tile." : "Eén app of webadres als tegel.",
+    "One of your apps, with its icon and new items." : "Een van je apps, met zijn pictogram en nieuwe items.",
+    "Opens the app {app}." : "Opent de app {app}.",
+    "Pin" : "Vastzetten",
+    "Request app from IT" : "App aanvragen bij IT",
+    "Show the count of new items" : "Toon het aantal nieuwe items",
+    "Show the name" : "Toon de naam",
+    "The {brand} tile shows its white logo, without payoff, on the brand colour." : "De {brand}-tegel toont het witte logo, zonder payoff, op de merkkleur.",
+    "Tile colour" : "Tegelkleur",
+    "What does the tile open?" : "Wat opent de tegel?",
+    "What is on the tile" : "Wat staat er op de tegel",
+    "White" : "Wit",
+    "the own colour" : "de eigen kleur",
+    "{count} new" : "{count} nieuw",
+    "{text} on {tile}: contrast {ratio}:1, below WCAG AA (4.5:1). Choose white or a lighter tile colour." : "{text} op {tile}: contrast {ratio}:1, onder WCAG AA (4.5:1). Kies wit of een lichtere tegelkleur.",
+    "{text} on {tile}: contrast {ratio}:1, meets WCAG AA (4.5:1)" : "{text} op {tile}: contrast {ratio}:1, voldoet aan WCAG AA (4.5:1)"
+>>>>>>> origin/development
 },
 "nplurals=2; plural=(n != 1);"
 );

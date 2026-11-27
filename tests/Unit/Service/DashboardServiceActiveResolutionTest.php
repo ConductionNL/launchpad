@@ -198,7 +198,7 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 	 * resolves and is returned with the source attached by the
 	 * visible-list builder.
 	 *
-	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/dashboards/spec.md
 	 *
 	 * @return void
 	 */
@@ -246,7 +246,7 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 	 * dashboard the start page Vandaag (default-group default) wins, and
 	 * the last-used pref is neither honoured nor cleared.
 	 *
-	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/dashboards/spec.md
 	 *
 	 * @return void
 	 */
@@ -779,7 +779,7 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 	 * last-used preference: `GET /api/dashboard` follows the page chain
 	 * and goes on to the next rung (REQ-DASH-018).
 	 *
-	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/dashboards/spec.md
 	 *
 	 * @return void
 	 */

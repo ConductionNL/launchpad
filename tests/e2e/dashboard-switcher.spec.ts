@@ -166,7 +166,7 @@ async function activeIdOf(who: Principal): Promise<number> {
  * @param page the page.
  * @param uuid the dashboard the switch must record.
  * @return resolves once the matching request has been answered.
- * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+ * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/dashboards/spec.md
  */
 function lastUsedStored(page: Page, uuid: string): Promise<unknown> {
 	return page.waitForResponse(

@@ -159,14 +159,15 @@ final class StarterWidgetSeeds {
 			$seeds = [];
 			foreach ($apps as $index => $appId) {
 				$seeds[] = [
-					'widgetId' => 'app-tile',
+					// REQ-APPTILE-001: an App or link tile in app mode.
+					'widgetId' => 'tile',
 					'gridX' => $index * 2,
 					'gridY' => 0,
 					'gridWidth' => 2,
 					'gridHeight' => 2,
 					'sortOrder' => 0,
 					'tile' => null,
-					'content' => ['appId' => $appId, 'colour' => '', 'showCount' => true],
+					'content' => ['mode' => 'app', 'appId' => $appId, 'colour' => '', 'textColour' => 'white', 'showCount' => true],
 				];
 			}
 		}

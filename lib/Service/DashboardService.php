@@ -548,7 +548,7 @@ class DashboardService {
 	 * @return array|null The built result, or null when no visible start dashboard is chosen.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/dashboards/spec.md
 	 */
 	private function resolvePreferredEffectiveDashboard(string $userId): array|null {
 		$startUuid = $this->getDefaultPreference(userId: $userId);
@@ -2034,7 +2034,7 @@ class DashboardService {
 	 *                                                          `'default'`; or `null` when no dashboard exists at all.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
-	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/dashboards/spec.md
 	 */
 	public function resolveActiveDashboard(
 		string $userId,
@@ -2121,7 +2121,7 @@ class DashboardService {
 	 *
 	 * @return array{dashboard: Dashboard, source: string}|null The hit, or null to fall through.
 	 *
-	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+	 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/dashboards/spec.md
 	 */
 	private function resolvePreferredActiveDashboard(string $userId, array $byUuid): ?array {
 		return $this->resolvePreferredDashboard(
@@ -2267,7 +2267,7 @@ class DashboardService {
 	 * @return array{dashboard: Dashboard, viewOnly: bool}|null The dashboard to show, or null to fall through.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-019
-	 * @spec openspec/changes/start-page-stays-vandaag/specs/admin-templates/spec.md
+	 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/admin-templates/spec.md
 	 */
 	private function resolveTemplateRung(string $userId): ?array {
 		$template = $this->builders->templateService->getApplicableTemplate(userId: $userId);
@@ -2295,7 +2295,7 @@ class DashboardService {
 	 *
 	 * @return bool True when the template is not shown.
 	 *
-	 * @spec openspec/changes/start-page-stays-vandaag/specs/admin-templates/spec.md
+	 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/admin-templates/spec.md
 	 */
 	private function templateStepsAside(string $userId, Dashboard $template): bool {
 		return $this->stores->dashboardMapper->findByUserId(userId: $userId) !== []
@@ -2314,7 +2314,7 @@ class DashboardService {
 	 *
 	 * @return Dashboard The copy.
 	 *
-	 * @spec openspec/changes/start-page-stays-vandaag/specs/admin-templates/spec.md
+	 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/admin-templates/spec.md
 	 */
 	private function copyTemplateFor(string $userId, Dashboard $template): Dashboard {
 		$copy = $this->builders->templateService->createDashboardFromTemplate(

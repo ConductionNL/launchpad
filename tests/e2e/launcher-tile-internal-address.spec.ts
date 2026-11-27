@@ -132,7 +132,11 @@ test('the administrator adds an office range and reads whether their address is 
 
 	await expect(section.getByTestId('admin-office-networks-input')).toHaveValue('10.20.0.0/16')
 	await expect(section.getByTestId('admin-office-networks-current')).toContainText(/inside|outside/)
-	expect((await readSettings()).officeNetworks).toEqual(['10.20.0.0/16'])
+	// Save does not wait for the store before the field reads back what was
+	// typed, so the stored list is polled rather than read once (a single read
+	// raced the PUT and saw [] on a loaded instance).
+	await expect.poll(async () => (await readSettings()).officeNetworks, { timeout: 15_000 })
+		.toEqual(['10.20.0.0/16'])
 })
 
 // @e2e tiles::malformed-range-is-refused

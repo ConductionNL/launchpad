@@ -20,15 +20,28 @@ import { addToGroup, adminContext, createGroup, removeGroup } from './support/pr
 
 const SETTINGS_PAGE = '/index.php/settings/admin/launchpad'
 const ANNOUNCEMENTS_CLASS = 'OCA\\LaunchPad\\Settings\\LaunchPadAnnouncementsAdmin'
+// Nextcloud's delegation endpoint lives under the settings app's own prefix
+// (`/apps/settings/` + the route), as its admin page calls it.
+const DELEGATION_URL = '/index.php/apps/settings/settings/authorizedgroups/saveSettings'
 
 test.describe('REQ-ADM-032 the admin page lives in Nextcloud\'s settings framework', () => {
+	// On an instance whose setup is not done the setup wizard opens by itself
+	// on the first visit in a browser session (ADR-042). These tests are about
+	// the page and its tabs, so the session has already been offered it.
+	test.beforeEach(async ({ page }) => {
+		await page.addInitScript(() => {
+			window.sessionStorage.setItem('launchpad:setup-wizard-offered', '1')
+		})
+	})
+
 	// @e2e admin-settings::an-administrator-opens-the-page
 	test('an administrator sees the settings menu, the version card first and the tabs', async ({ page }) => {
 		await page.goto(SETTINGS_PAGE)
 		const strip = page.getByTestId('cn-admin-settings-tabs')
 		await expect(strip).toBeVisible({ timeout: 60_000 })
-		// Nextcloud's admin settings menu, with Launchpad selected.
-		const navigation = page.locator('#app-navigation')
+		// Nextcloud's admin settings menu, with Launchpad selected
+		// (`#app-navigation-vue` since Nextcloud 33's Vue settings navigation).
+		const navigation = page.locator('#app-navigation-vue, #app-navigation').first()
 		await expect(navigation).toBeVisible()
 		await expect(navigation.locator('a[href$="/settings/admin/launchpad"]')).toHaveAttribute('aria-current', /page|true/)
 		// The version card comes before the first settings section.
@@ -86,7 +99,7 @@ test.describe('REQ-ADM-034 delegated admin settings per area', () => {
 		const { context, page } = await loginAs(browser, femke.username, femke.password)
 		try {
 			await addToGroup(api, femke.username, group)
-			const delegated = await api.post('/index.php/settings/authorizedgroups/saveSettings', {
+			const delegated = await api.post(DELEGATION_URL, {
 				data: { newGroups: [{ gid: group, displayName: group }], class: ANNOUNCEMENTS_CLASS },
 			})
 			expect(delegated.ok(), 'the announcements setting is delegated').toBeTruthy()
@@ -105,7 +118,7 @@ test.describe('REQ-ADM-034 delegated admin settings per area', () => {
 			expect(refused.status()).toBe(403)
 		} finally {
 			await context.close()
-			await api.post('/index.php/settings/authorizedgroups/saveSettings', {
+			await api.post(DELEGATION_URL, {
 				data: { newGroups: [], class: ANNOUNCEMENTS_CLASS },
 			})
 			await deprovisionUser(femke.username)

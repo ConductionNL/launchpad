@@ -10,6 +10,6 @@
 - [x] `tests/performance/budget.json`: the settings page
 - [x] Translations
 - [x] Unit tests: settings classes (section, priority, delegation), redirect controller (each tab, unknown tab), tab visibility per held class, AdminRoot renders the version card first
-- [ ] Playwright `tests/e2e/admin-settings-page.spec.ts` (written; not yet run against an instance): an administrator opens `/settings/admin/launchpad`, sees Nextcloud's admin menu with Launchpad selected, the version card first and the tabs; `/apps/launchpad/admin/sharing` lands on the Sharing tab; a member gets no page; a person holding only the announcements setting sees only the Announcements tab
+- [x] Playwright `tests/e2e/admin-settings-page.spec.ts` (run live on a Nextcloud 34 sandbox, 5 passed): an administrator opens `/settings/admin/launchpad`, sees Nextcloud's admin menu with Launchpad selected, the version card first and the tabs; `/apps/launchpad/admin/sharing` lands on the Sharing tab; a member gets no page; a person holding only the announcements setting sees only the Announcements tab
 - [x] Move the e2e specs that open `/apps/launchpad/admin/...` (admin-settings-*, admin-templates group, kiosk, sharing, demo data) to the settings URL
 - [ ] Live check on a sandbox against the LpBeheer boards, and the settings page within the speed rule

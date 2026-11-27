@@ -104,10 +104,15 @@ const FIELD_ORDER = [
 	/^Internal address/,
 	/^Open in$/,
 	/^Icon$/,
-	/^Tile colour$/,
 	/^Sort order in this group$/,
 	/^Check availability$/,
 ]
+
+/**
+ * The fields of the Appearance column beside them (LpTegelBewerken as built by
+ * app-link-tile-widget: preview, Tile colour, Text colour, what is on the tile).
+ */
+const APPEARANCE_FIELDS = [/^Tile colour$/, /^Text colour$/]
 
 let own: OwnDashboard
 let admin: APIRequestContext
@@ -258,6 +263,19 @@ test('Edit tile on Case system shows the fields in board order, with its single 
 		}
 		// Name and Group side by side.
 		expect(Math.abs(boxes[0].y - boxes[1].y)).toBeLessThan(4)
+
+		// Tile colour and Text colour sit in the Appearance column, to the right
+		// of every field above, under its heading and in that order.
+		const appearance = await labelBox(form, /^Appearance$/)
+		const columnStart = Math.max(...boxes.map((box) => box.x))
+		let previousY = appearance.y
+		for (const label of APPEARANCE_FIELDS) {
+			const box = await labelBox(form, label)
+			expect(box.x, `${label} is in the Appearance column`).toBeGreaterThan(columnStart)
+			expect(Math.abs(box.x - appearance.x), `${label} lines up with Appearance`).toBeLessThan(8)
+			expect(box.y, `${label} comes below what is above it`).toBeGreaterThan(previousY)
+			previousY = box.y
+		}
 
 		// A link tile that opens through single sign-on: the sign-on template and the app id.
 		await expect(form.getByRole('radiogroup', { name: 'What does the tile open?' })

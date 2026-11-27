@@ -603,6 +603,7 @@ import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
 import { addressWithPeriod, namesPeriod, readPeriod } from '../utils/dashboardPeriod.js'
 import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
+import { preloadFirstViewportRenderers } from '../utils/firstViewport.js'
 import { gridItemLabel } from '../utils/gridItemLabel.js'
 import { dashboardGroups, groupChildToTile, isGroupTileChild, withGroupTileRemoved, withGroupTileSaved, withTileMovedIn } from '../utils/groupTiles.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
@@ -1702,6 +1703,28 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * Fetch the renderers of the widgets on the first screen as soon as
+		 * the placements are known, so they are there when the grid mounts them.
+		 *
+		 * @param {object[]} placements The shown placements.
+		 * @return {void}
+		 * @spec openspec/changes/archive/2026-11-27-first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
+		 */
+		shownPlacements: {
+			immediate: true,
+			/**
+			 * Start the first-screen renderer loads.
+			 *
+			 * @param {object[]} placements The shown placements.
+			 * @return {void}
+			 * @spec openspec/changes/archive/2026-11-27-first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
+			 */
+			handler(placements) {
+				preloadFirstViewportRenderers(placements, getWidgetTypeEntry)
+			},
+		},
+
 		/**
 		 * The first time the switcher opens, read the fields its "Filter by
 		 * detail" offers.

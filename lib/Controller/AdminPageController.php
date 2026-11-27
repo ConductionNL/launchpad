@@ -53,7 +53,8 @@ class AdminPageController extends Controller {
 	public const DEFAULT_TAB = 'general';
 
 	/**
-	 * The tabs of the administration, as `AdminSettings.vue` declares them.
+	 * The tabs of the administration, as `AdminSettings.vue` declares them:
+	 * the twelve the Beheer boards draw (REQ-ADM-032).
 	 */
 	public const TABS = [
 		'general',
@@ -62,17 +63,31 @@ class AdminPageController extends Controller {
 		'roles-permissions',
 		'versioning-audit',
 		'sharing',
-		'embeds',
 		'kiosk',
-		'communities',
 		'org-navigation',
 		'demo-data',
 		'group-dashboards',
 		'detail-fields',
 		'profile-fields',
-		'search-shortcuts',
-		'app-catalogue',
 	];
+
+	/**
+	 * Former tabs that are now a section of a drawn tab, and the tab that
+	 * holds each (REQ-ADM-032). An old address opens the host tab on that
+	 * section; `src/utils/adminPage.js` knows the same map.
+	 */
+	public const FOLDED_TABS = [
+		'embeds'           => 'general',
+		'search-shortcuts' => 'general',
+		'communities'      => 'group-dashboards',
+		'app-catalogue'    => 'operations',
+	];
+
+	/**
+	 * Query parameters an old address carries on to its host tab: the embed
+	 * form's pre-selection (`embedType`, `embedId`, `embedDashboard`).
+	 */
+	private const KEPT_QUERY = ['embedType', 'embedId', 'embedDashboard'];
 
 	/**
 	 * Constructor.
@@ -104,6 +119,7 @@ class AdminPageController extends Controller {
 	 * @return TemplateResponse|RedirectResponse The page, the 403, or the redirect to General.
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
 	 */
 	#[NoCSRFRequired]
 	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
@@ -117,6 +133,10 @@ class AdminPageController extends Controller {
 			);
 			$forbidden->setStatus(status: Http::STATUS_FORBIDDEN);
 			return $forbidden;
+		}
+
+		if (array_key_exists(key: $tab, array: self::FOLDED_TABS) === true) {
+			return $this->redirectToSection(section: $tab);
 		}
 
 		if (in_array(needle: $tab, haystack: self::TABS, strict: true) === false) {
@@ -133,6 +153,36 @@ class AdminPageController extends Controller {
 
 		return new TemplateResponse(appName: Application::APP_ID, templateName: 'index');
 	}//end show()
+
+	/**
+	 * Send an old tab address to the tab that holds it now, naming the
+	 * section, with the embed form's pre-selection kept.
+	 *
+	 * @param string $section A key of FOLDED_TABS.
+	 *
+	 * @return RedirectResponse The redirect to the host tab.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+	 */
+	private function redirectToSection(string $section): RedirectResponse {
+		$arguments = [
+			'tab'     => self::FOLDED_TABS[$section],
+			'section' => $section,
+		];
+		foreach (self::KEPT_QUERY as $name) {
+			$value = $this->request->getParam(key: $name);
+			if (is_string(value: $value) === true && $value !== '') {
+				$arguments[$name] = $value;
+			}
+		}
+
+		return new RedirectResponse(
+			redirectURL: $this->urlGenerator->linkToRoute(
+				routeName: Application::APP_ID . '.adminPage.show',
+				arguments: $arguments
+			)
+		);
+	}//end redirectToSection()
 
 	/**
 	 * Load the Launchpad shell's script and style.

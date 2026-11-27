@@ -71,6 +71,10 @@
 			</template>
 			<template #tab-operations>
 				<OperationsTab />
+				<!-- REQ-ADM-032: the app catalogue is a section of Bediening. -->
+				<div class="launchpad-admin__folded" data-admin-section="app-catalogue">
+					<AppCatalogueTab :groups="injectedAllGroups" />
+				</div>
 			</template>
 			<template #tab-roles-permissions>
 				<RolesPermissionsTab />
@@ -83,14 +87,8 @@
 					:groups="injectedAllGroups"
 					:configuredGroups="configuredGroups" />
 			</template>
-			<template #tab-embeds>
-				<EmbedsTab />
-			</template>
 			<template #tab-kiosk>
 				<KioskTab />
-			</template>
-			<template #tab-communities>
-				<CommunitiesTab />
 			</template>
 			<template #tab-org-navigation>
 				<OrgNavigationTab :groups="injectedAllGroups" />
@@ -100,18 +98,16 @@
 			</template>
 			<template #tab-group-dashboards>
 				<GroupDashboardsTab />
+				<!-- REQ-ADM-032: pinned communities are a section of Groepsdashboards. -->
+				<div class="launchpad-admin__folded" data-admin-section="communities">
+					<CommunitiesTab />
+				</div>
 			</template>
 			<template #tab-detail-fields>
 				<MetadataFieldsSettings />
 			</template>
 			<template #tab-profile-fields>
 				<ProfileFieldsTab />
-			</template>
-			<template #tab-search-shortcuts>
-				<SearchShortcutsTab />
-			</template>
-			<template #tab-app-catalogue>
-				<AppCatalogueTab :groups="injectedAllGroups" />
 			</template>
 
 			<!-- Algemeen (board LpBeheerAlgemeen): the organisation-wide
@@ -382,6 +378,19 @@
 				<CnSettingsSection :name="t('launchpad', 'Custom CSS')">
 					<AdminCustomCss />
 				</CnSettingsSection>
+
+				<!-- REQ-ADM-032: embeds and search shortcuts are cards of
+				     Algemeen, not tabs of their own (boards LpBeheer*). -->
+				<CnSettingsSection
+					:name="t('launchpad', 'Embeds')"
+					data-admin-section="embeds">
+					<EmbedsTab />
+				</CnSettingsSection>
+				<CnSettingsSection
+					:name="t('launchpad', 'Search shortcuts')"
+					data-admin-section="search-shortcuts">
+					<SearchShortcutsTab />
+				</CnSettingsSection>
 			</template>
 		</CnAdminSettingsShell>
 
@@ -501,6 +510,15 @@ export default {
 		 * empty tab opens General.
 		 */
 		tab: {
+			type: String,
+			default: '',
+		},
+
+		/**
+		 * A former tab the address points at (REQ-ADM-032), e.g. `embeds`:
+		 * the page opens its host tab scrolled to that section.
+		 */
+		section: {
 			type: String,
 			default: '',
 		},
@@ -638,11 +656,13 @@ export default {
 		},
 
 		/**
-		 * Ordered Beheer tab descriptors. Labels live here so they stay
-		 * translatable in one place; each `id` after the first names the shell slot
+		 * Ordered Beheer tab descriptors: the twelve tabs the Beheer boards
+		 * draw (REQ-ADM-032). Labels live here so they stay translatable in
+		 * one place; each `id` after the first names the shell slot
 		 * `tab-<id>`; the first tab is the default slot.
 		 *
 		 * @spec openspec/changes/admin-group-management/tasks.md#task-1
+		 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
 		 * @return {Array<{id: string, label: string}>}
 		 */
 		beheerTabs() {
@@ -659,9 +679,7 @@ export default {
 					label: this.t('launchpad', 'Versions and analytics'),
 				},
 				{ id: 'sharing', label: this.t('launchpad', 'Sharing') },
-				{ id: 'embeds', label: this.t('launchpad', 'Embeds') },
 				{ id: 'kiosk', label: this.t('launchpad', 'Kiosk') },
-				{ id: 'communities', label: this.t('launchpad', 'Communities') },
 				{
 					id: 'org-navigation',
 					label: this.t('launchpad', 'Organisation menu'),
@@ -678,14 +696,6 @@ export default {
 				{
 					id: 'profile-fields',
 					label: this.t('launchpad', 'Profile fields'),
-				},
-				{
-					id: 'search-shortcuts',
-					label: this.t('launchpad', 'Search shortcuts'),
-				},
-				{
-					id: 'app-catalogue',
-					label: this.t('launchpad', 'App catalogue'),
 				},
 			]
 		},
@@ -727,9 +737,13 @@ export default {
 		await this.loadWizardState()
 	},
 
-	/** @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030 */
+	/**
+	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+	 */
 	mounted() {
 		this.showTab(this.activeTab)
+		this.revealSection(this.section)
 	},
 
 	methods: {
@@ -744,6 +758,26 @@ export default {
 		onTabChange(id) {
 			this.activeTab = id
 			this.$emit('tabChange', id)
+		},
+
+		/**
+		 * Scroll a folded section into view: the former tab an old address
+		 * or link names (REQ-ADM-032).
+		 *
+		 * @param {string} section A key of FOLDED_ADMIN_TABS, or ''.
+		 * @return {void}
+		 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+		 */
+		revealSection(section) {
+			if (!section) {
+				return
+			}
+			this.$nextTick(() => {
+				const target = this.$el?.querySelector?.(`[data-admin-section="${section}"]`)
+				if (target && typeof target.scrollIntoView === 'function') {
+					target.scrollIntoView({ block: 'start' })
+				}
+			})
 		},
 
 		/**

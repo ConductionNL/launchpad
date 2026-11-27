@@ -8,6 +8,7 @@
 		<AdminSettings
 			v-if="servedHere"
 			:tab="currentTab"
+			:section="currentSection"
 			@tabChange="openTab" />
 		<AdminSettingsRedirect v-else :tab="currentTab" />
 	</div>
@@ -17,7 +18,7 @@
 import { provide } from 'vue'
 import AdminSettings from '../components/admin/AdminSettings.vue'
 import AdminSettingsRedirect from './AdminSettingsRedirect.vue'
-import { adminTab, isAdminPagePath } from '../utils/adminPage.js'
+import { adminSection, adminTab, isAdminPagePath } from '../utils/adminPage.js'
 import { bootPath } from '../utils/bootPath.js'
 import { loadInitialState } from '../utils/loadInitialState.js'
 
@@ -83,6 +84,17 @@ export default {
 		 */
 		currentTab() {
 			return adminTab(this.tab)
+		},
+
+		/**
+		 * The former tab the address points at (`/admin/embeds`,
+		 * `?section=embeds` or `?tab=embeds`), or ''.
+		 *
+		 * @return {string}
+		 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+		 */
+		currentSection() {
+			return adminSection(this.tab, globalThis.location?.search ?? '') ?? ''
 		},
 	},
 

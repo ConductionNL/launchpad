@@ -8,13 +8,16 @@
  */
 
 import { flushPromises, mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const axiosMock = vi.hoisted(() => ({
-	get: vi.fn(async () => ({ data: { value: null } })),
-	put: vi.fn(async () => ({ data: {} })),
+	get: vi.fn(async () => ({ data: {} })),
+	post: vi.fn(async () => ({ data: {} })),
+	delete: vi.fn(async () => ({ data: {} })),
 }))
 vi.mock('@nextcloud/axios', () => ({ default: axiosMock }))
+const showError = vi.hoisted(() => vi.fn())
+vi.mock('@nextcloud/dialogs', () => ({ showError }))
 
 vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 	...(await importOriginal()),
@@ -22,7 +25,7 @@ vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 }))
 vi.mock('@nextcloud/router', async (importOriginal) => ({
 	...(await importOriginal()),
-	generateUrl: (tpl, vars) => tpl.replace('{appId}', vars?.appId),
+	generateUrl: (tpl, vars) => tpl.replace('{appId}', vars?.appId).replace('{uuid}', vars?.uuid),
 }))
 vi.mock('../LaunchpadMoreMenu.vue', () => ({
 	default: {
@@ -33,6 +36,7 @@ vi.mock('../LaunchpadMoreMenu.vue', () => ({
 	},
 }))
 
+import { setFavouriteDashboards } from '../../../services/favouriteDashboards.js'
 import DashboardMoreMenu from '../DashboardMoreMenu.vue'
 import { orderDestinations } from '../moreMenuItems.js'
 
@@ -82,6 +86,11 @@ function mountMenu(props = {}, chrome = { railSuppressed: true, entries: ENTRIES
 }
 
 describe('DashboardMoreMenu', () => {
+	beforeEach(() => {
+		setFavouriteDashboards([])
+		vi.clearAllMocks()
+	})
+
 	it('hands the one menu the board\'s three groups', () => {
 		const { ids } = mountMenu()
 		expect(ids('dashboards')).toEqual(['dashboard-1', 'favourites-hint', 'all-dashboards'])
@@ -96,7 +105,7 @@ describe('DashboardMoreMenu', () => {
 			'Documentation',
 			'FeaturesRoadmapMenu',
 		])
-		expect(ids('actions')).toEqual(['edit', 'add-widget', 'share', 'copy-link', 'download', 'duplicate', 'set-default', 'delete'])
+		expect(ids('actions')).toEqual(['edit', 'add-widget', 'share', 'copy-link', 'duplicate', 'download', 'set-default', 'delete'])
 	})
 
 	it('marks the open, the default, the shared and the group dashboards', async () => {
@@ -116,32 +125,55 @@ describe('DashboardMoreMenu', () => {
 		const unfolded = wrapper.findComponent({ name: 'LaunchpadMoreMenu' }).props('dashboards')
 		unfolded[1].onClick()
 		expect(wrapper.emitted('switch')).toEqual([[2, 'shared']])
-		expect(unfolded.at(-1).label).toBe('Fewer')
+		expect(unfolded.at(-1).label).toBe('Less')
 		expect(unfolded.slice(0, -1).map((i) => i.favourite)).toEqual([false, false, false])
 		expect(wrapper.emitted('openAll')).toBeUndefined()
 	})
 
-	it('reads the favourites once, lists only them folded, and stores a star', async () => {
-		axiosMock.get.mockResolvedValueOnce({ data: { value: '["u-3"]' } })
+	it('lists the page\'s favourites folded without a request, and stars through the API', async () => {
+		setFavouriteDashboards(['u-3'])
+		axiosMock.post.mockResolvedValueOnce({ data: { favourites: ['u-3', 'u-1'] } })
 		const { wrapper } = mountMenu()
-		await flushPromises()
 		const menu = () => wrapper.findComponent({ name: 'LaunchpadMoreMenu' })
 		expect(menu().props('dashboards').map((i) => i.id)).toEqual(['dashboard-3', 'all-dashboards'])
 		menu().props('dashboards').at(-1).onClick()
 		await wrapper.vm.$nextTick()
-		menu().props('dashboards')[0].onToggleFavourite()
+		expect(axiosMock.get).not.toHaveBeenCalled()
+		menu().props('dashboards').find((i) => i.id === 'dashboard-1').onToggleFavourite()
 		await flushPromises()
-		expect(axiosMock.put).toHaveBeenLastCalledWith(expect.stringContaining('/api/preferences/favourite-dashboards'), { value: '["u-3","u-1"]' })
-		expect(menu().props('dashboards')[0].favourite).toBe(true)
+		expect(axiosMock.post).toHaveBeenLastCalledWith('/apps/launchpad/api/dashboards/u-1/favourite')
+		expect(menu().props('dashboards').map((i) => i.id).slice(0, 2)).toEqual(['dashboard-3', 'dashboard-1'])
+		expect(menu().props('dashboards')[1].favourite).toBe(true)
 	})
 
-	it('puts the favourites back when storing a star fails', async () => {
-		axiosMock.put.mockRejectedValueOnce(new Error('500'))
+	it('unstars through DELETE', async () => {
+		setFavouriteDashboards(['u-3'])
 		const { wrapper } = mountMenu()
-		await flushPromises()
+		await wrapper.vm.toggleDashboardFavourite('u-3')
+		expect(axiosMock.delete).toHaveBeenCalledWith('/apps/launchpad/api/dashboards/u-3/favourite')
+		expect(wrapper.vm.favourites).toEqual([])
+	})
+
+	it('puts the favourites back with an error toast when storing a star fails', async () => {
+		axiosMock.post.mockRejectedValueOnce(new Error('500'))
+		const { wrapper } = mountMenu()
 		wrapper.vm.toggleDashboardsExpanded()
 		await wrapper.vm.toggleDashboardFavourite('u-2')
 		expect(wrapper.vm.favourites).toEqual([])
+		expect(showError).toHaveBeenCalledWith('Could not add the dashboard to your favourites')
+	})
+
+	it('offers New dashboard in the expanded list only when it may create, and reports it', async () => {
+		const { wrapper } = mountMenu({ canCreate: true })
+		wrapper.vm.toggleDashboardsExpanded()
+		await wrapper.vm.$nextTick()
+		const items = wrapper.findComponent({ name: 'LaunchpadMoreMenu' }).props('dashboards')
+		items.find((i) => i.id === 'new-dashboard').onClick()
+		expect(wrapper.emitted('newDashboard')).toHaveLength(1)
+		const without = mountMenu()
+		without.wrapper.vm.toggleDashboardsExpanded()
+		await without.wrapper.vm.$nextTick()
+		expect(without.ids('dashboards')).not.toContain('new-dashboard')
 	})
 
 	it('folds the column again every time the menu opens', async () => {
@@ -156,7 +188,7 @@ describe('DashboardMoreMenu', () => {
 		for (const item of menu.props('actions')) {
 			item.onClick()
 		}
-		for (const event of ['toggleEdit', 'addWidget', 'share', 'copyLink', 'download', 'duplicate', 'setDefault', 'delete']) {
+		for (const event of ['toggleEdit', 'addWidget', 'share', 'copyLink', 'duplicate', 'download', 'setDefault', 'delete']) {
 			expect(wrapper.emitted(event), event).toHaveLength(1)
 		}
 	})

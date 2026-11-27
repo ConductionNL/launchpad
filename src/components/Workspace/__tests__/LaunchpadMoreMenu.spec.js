@@ -9,7 +9,10 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@nextcloud/l10n', () => ({ t: (_app, text) => text }))
+vi.mock('@nextcloud/l10n', () => ({
+	t: (_app, text, vars) => text.replace(/{(\w+)}/g, (m, k) => vars?.[k] ?? m),
+	n: (_app, one, many, count) => (count === 1 ? one : many).replace('%n', String(count)),
+}))
 vi.mock('@nextcloud/vue', () => ({
 	NcPopover: {
 		name: 'NcPopover',
@@ -254,9 +257,41 @@ describe('LaunchpadMoreMenu', () => {
 		wrapper.unmount()
 	})
 
-	it('draws no star on a folded list', async () => {
+	it('draws a star only on a row that carries one', async () => {
 		const wrapper = await openMenu()
 		expect(wrapper.findAll('.lp-more-menu__star')).toHaveLength(0)
+		wrapper.unmount()
+	})
+
+	it('names each star by what pressing it does (REQ-SHELL-016)', async () => {
+		const wrapper = await openMenu({
+			dashboards: [
+				{ id: 'dashboard-1', label: 'Vandaag', checked: true, favourite: true, onToggleFavourite: vi.fn() },
+				{ id: 'dashboard-2', label: 'Team', checked: false, favourite: false, onToggleFavourite: vi.fn() },
+				{ id: 'all-dashboards', label: 'More', keepOpen: true, expanded: false },
+			],
+		})
+		expect(wrapper.findAll('.lp-more-menu__star').map((el) => el.attributes('aria-label')))
+			.toEqual(['Remove from favourites: Vandaag', 'Add to favourites: Team'])
+		expect(wrapper.find('.lp-more-menu__title').text()).toBe('Dashboards')
+		wrapper.unmount()
+	})
+
+	it('titles the expanded column All dashboards and puts New dashboard and Less below the scrolling list (REQ-SHELL-015)', async () => {
+		const wrapper = await openMenu({
+			dashboards: [
+				{ id: 'dashboard-1', label: 'Vandaag', checked: true, favourite: false, onToggleFavourite: vi.fn() },
+				{ id: 'new-dashboard', label: 'New dashboard', onClick: vi.fn() },
+				{ id: 'all-dashboards', label: 'Less', keepOpen: true, expanded: true },
+			],
+		})
+		expect(wrapper.find('.lp-more-menu__title').text()).toBe('All dashboards')
+		const list = wrapper.find('[data-testid="launchpad-more-menu-dashboard-list"]')
+		expect(list.find('[data-testid="launchpad-more-menu-item-new-dashboard"]').exists()).toBe(false)
+		expect(list.find('[data-testid="launchpad-more-menu-item-all-dashboards"]').exists()).toBe(false)
+		const group = wrapper.find('[data-testid="launchpad-more-menu-group-dashboards"]')
+		expect(group.find('[data-testid="launchpad-more-menu-item-new-dashboard"]').exists()).toBe(true)
+		expect(group.find('[data-testid="launchpad-more-menu-item-all-dashboards"]').exists()).toBe(true)
 		wrapper.unmount()
 	})
 

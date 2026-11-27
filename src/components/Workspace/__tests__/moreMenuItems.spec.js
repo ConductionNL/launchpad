@@ -9,7 +9,10 @@
 
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@nextcloud/l10n', () => ({ t: (_app, text) => text }))
+vi.mock('@nextcloud/l10n', () => ({
+	t: (_app, text, vars) => text.replace(/{(\w+)}/g, (m, k) => vars?.[k] ?? m),
+	n: (_app, one, many, count) => (count === 1 ? one : many).replace('%n', String(count)),
+}))
 vi.mock('@nextcloud/router', () => ({
 	generateUrl: (tpl, vars) => tpl.replace('{appId}', vars?.appId),
 }))
@@ -64,8 +67,12 @@ describe('dashboardItems', () => {
 
 	it('without favourites lists the open dashboard, a line about starring, and More', () => {
 		expect(items.map((i) => i.id)).toEqual(['dashboard-4', 'favourites-hint', 'all-dashboards'])
-		expect(items[1]).toMatchObject({ hint: true, label: 'Star a dashboard under More to see it here.' })
+		expect(items[1]).toMatchObject({ hint: true, label: 'Star a dashboard to keep it here' })
 		expect(items[0].checked).toBe(true)
+		// REQ-SHELL-016: the open dashboard's row carries its (empty) star.
+		expect(items[0].favourite).toBe(false)
+		// Four dashboards, one shown: "3 more dashboards".
+		expect(items.at(-1).meta).toBe('3 more dashboards')
 	})
 
 	it('without favourites and nothing open, lists only the line and More', () => {
@@ -75,8 +82,8 @@ describe('dashboardItems', () => {
 
 	it('unfolded, lists own, then shared and group dashboards once, marked, the open one checked', () => {
 		const all = dashboardItems({ ...base, expanded: true })
-		expect(all.map((i) => i.label)).toEqual(['Vandaag', 'Mijn werkplek', 'Team Vergunningen', 'Intranet Zuiddrecht', 'Fewer'])
-		expect(all.map((i) => i.meta)).toEqual(['default', undefined, 'shared', 'group', undefined])
+		expect(all.map((i) => i.label)).toEqual(['Vandaag', 'Mijn werkplek', 'Team Vergunningen', 'Intranet Zuiddrecht', 'Less'])
+		expect(all.map((i) => i.meta)).toEqual(['default', undefined, 'shared', 'group', 'favourites only'])
 		expect(all.map((i) => i.checked)).toEqual([false, true, false, false, undefined])
 	})
 
@@ -90,18 +97,36 @@ describe('dashboardItems', () => {
 		expect(onToggleExpanded).toHaveBeenCalled()
 	})
 
-	it('folded, lists only the favourites, in the order of the full list, and no stars', () => {
+	it('folded, lists only the favourites, in starring order, each with a filled star', () => {
 		const list = dashboardItems({ ...base, favourites: ['u-3', 'u-1', 'gone'] })
-		expect(list.map((i) => i.label)).toEqual(['Vandaag', 'Intranet Zuiddrecht', 'More'])
-		expect(list.some((i) => i.favourite !== undefined)).toBe(false)
+		expect(list.map((i) => i.label)).toEqual(['Intranet Zuiddrecht', 'Vandaag', 'More'])
+		expect(list.slice(0, -1).map((i) => i.favourite)).toEqual([true, true])
+		expect(list.at(-1).meta).toBe('2 more dashboards')
 	})
 
-	it('unfolded, lists every dashboard, each with its star, ending in Fewer', () => {
+	it('unfolded, lists the favourites first in starring order, then the others', () => {
+		const list = dashboardItems({ ...base, favourites: ['u-3', 'u-1'], expanded: true })
+		expect(list.map((i) => i.label)).toEqual(['Intranet Zuiddrecht', 'Vandaag', 'Mijn werkplek', 'Team Vergunningen', 'Less'])
+		expect(list.map((i) => i.favourite)).toEqual([true, true, false, false, undefined])
+	})
+
+	it('unfolded, offers New dashboard above Less only when creating is allowed', () => {
+		const onNewDashboard = vi.fn()
+		const withCreate = dashboardItems({ ...base, expanded: true, onNewDashboard })
+		expect(withCreate.slice(-2).map((i) => i.id)).toEqual(['new-dashboard', 'all-dashboards'])
+		expect(withCreate.at(-2).label).toBe('New dashboard')
+		withCreate.at(-2).onClick()
+		expect(onNewDashboard).toHaveBeenCalled()
+		expect(dashboardItems({ ...base, expanded: true }).some((i) => i.id === 'new-dashboard')).toBe(false)
+		expect(dashboardItems({ ...base, onNewDashboard }).some((i) => i.id === 'new-dashboard')).toBe(false)
+	})
+
+	it('unfolded, lists every dashboard, each with its star, ending in Less', () => {
 		const many = Array.from({ length: 11 }, (_, i) => ({ id: i + 1, uuid: `m-${i}`, name: `D${i}` }))
 		const list = dashboardItems({ userDashboards: many, favourites: ['m-2'], expanded: true, onSwitch, onToggleFavourite })
 		expect(list).toHaveLength(12)
-		expect(list.slice(0, -1).map((i) => i.favourite)).toEqual(many.map((d) => d.uuid === 'm-2'))
-		expect(list.at(-1).label).toBe('Fewer')
+		expect(list.slice(0, -1).map((i) => i.favourite)).toEqual([true, ...Array(10).fill(false)])
+		expect(list.at(-1).label).toBe('Less')
 		expect(list.at(-1).expanded).toBe(true)
 		list[5].onToggleFavourite()
 		expect(onToggleFavourite).toHaveBeenCalledWith('m-5')
@@ -161,15 +186,15 @@ describe('dashboardActionItems', () => {
 	const all = { dashboard, isOwner: true, canEdit: true, canShare: true, canDuplicate: true, emit: vi.fn() }
 	const ids = (options) => dashboardActionItems(options).map((i) => i.id)
 
-	it('offers the board\'s eight actions to the owner, Download included,, Delete last and destructive', () => {
+	it('offers the board\'s eight actions to the owner, Download between Duplicate and Set as default, Delete last and destructive', () => {
 		const items = dashboardActionItems(all)
 		expect(items.map((i) => i.label)).toEqual([
 			'Edit',
 			'Add widget',
 			'Sharing',
 			'Copy link to this dashboard',
-			'Download',
 			'Duplicate as new dashboard',
+			'Download',
 			'Set as default',
 			'Delete',
 		])
@@ -207,7 +232,7 @@ describe('dashboardActionItems', () => {
 			item.onClick()
 		}
 		expect(emit.mock.calls.map(([event]) => event)).toEqual([
-			'toggleEdit', 'addWidget', 'share', 'copyLink', 'download', 'duplicate', 'setDefault', 'delete',
+			'toggleEdit', 'addWidget', 'share', 'copyLink', 'duplicate', 'download', 'setDefault', 'delete',
 		])
 	})
 })

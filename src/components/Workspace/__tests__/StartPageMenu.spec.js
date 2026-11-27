@@ -105,7 +105,7 @@ describe('StartPageMenu', () => {
 		menu.props('dashboards').at(-1).onClick()
 		await wrapper.vm.$nextTick()
 		expect(router.push).not.toHaveBeenCalled()
-		expect(menu.props('dashboards').at(-1).label).toBe('Fewer')
+		expect(menu.props('dashboards').at(-1).label).toBe('Less')
 		menu.props('dashboards')[1].onClick()
 		expect(router.push).toHaveBeenCalledWith({ name: 'dashboard-detail', params: { id: '2' } })
 	})

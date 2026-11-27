@@ -26,7 +26,9 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Db;
 
 use DateTime;
+use InvalidArgumentException;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Db\Entity;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
@@ -126,4 +128,30 @@ class AnnouncementMapper extends QBMapper {
 
 		return $this->findEntities(query: $qb);
 	}//end findAllForManagers()
+
+	/**
+	 * Delete an announcement together with its seen and confirmed receipts.
+	 *
+	 * @param Announcement $entity The announcement.
+	 *
+	 * @return Announcement The deleted announcement.
+	 *
+	 * @throws InvalidArgumentException When the entity is not an announcement.
+	 *
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 */
+	public function delete(Entity $entity): Entity {
+		if ($entity instanceof Announcement === false) {
+			throw new InvalidArgumentException('Only an announcement is deleted here');
+		}
+
+		if ($entity->getUuid() !== null) {
+			$qb = $this->db->getQueryBuilder();
+			$qb->delete(AnnouncementReceiptMapper::TABLE)
+				->where($qb->expr()->eq('announcement_uuid', $qb->createNamedParameter($entity->getUuid())))
+				->executeStatement();
+		}
+
+		return parent::delete(entity: $entity);
+	}//end delete()
 }//end class

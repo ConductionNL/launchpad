@@ -53,6 +53,9 @@ use OCP\Notification\UnknownNotificationException;
  * - `announcement_published` — sent by
  *   {@see \OCA\LaunchPad\Service\AnnouncementFollowNotifier} to the followers
  *   of a category when an announcement in it becomes visible (REQ-ANN-003).
+ * - `announcement_reminder` — sent by
+ *   {@see \OCA\LaunchPad\Service\AnnouncementReminder} on Send reminder to
+ *   every reader who has not confirmed an announcement (REQ-ANN-009).
  */
 class Notifier implements INotifier {
 	/**
@@ -142,7 +145,7 @@ class Notifier implements INotifier {
 	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
 	 */
 	private function linkFor(INotification $notification): string {
-		if ($notification->getSubject() === 'announcement_published') {
+		if ($notification->getSubject() === 'announcement_published' || $notification->getSubject() === 'announcement_reminder') {
 			return $this->urlGenerator->linkToRouteAbsolute(routeName: 'launchpad.page.index');
 		}
 
@@ -215,6 +218,7 @@ class Notifier implements INotifier {
 			'app_requested' => $this->appRequestedCopy(params: $params, l: $l),
 			'app_request_decided' => $this->appDecidedCopy(params: $params, l: $l),
 			'announcement_published' => $this->announcementCopy(params: $params, l: $l),
+			'announcement_reminder' => $this->reminderCopy(params: $params, l: $l),
 			default => throw new UnknownNotificationException(
 				message: 'Unknown subject: ' . $notification->getSubject()
 			),
@@ -432,6 +436,27 @@ class Notifier implements INotifier {
 
 		return $copy;
 	}//end announcementCopy()
+
+	/**
+	 * Copy for `announcement_reminder`: Send reminder to a reader who has not confirmed (REQ-ANN-009).
+	 *
+	 * @param array $params The subject parameters: title.
+	 * @param IL10N $l      The localisation.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 */
+	private function reminderCopy(array $params, IL10N $l): NotificationCopy {
+		$title = [(string)($params[0] ?? '')];
+
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('Please confirm you have read: **%s**', $title);
+		$copy->parsedSubject = $l->t('Please confirm you have read: %s', $title);
+		$copy->message       = $l->t('Open LaunchPad and press the check on the announcement');
+
+		return $copy;
+	}//end reminderCopy()
 
 	/**
 	 * Build the deep-link URL for a dashboard.

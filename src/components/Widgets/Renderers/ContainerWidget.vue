@@ -23,7 +23,39 @@
 			{{ sortDescription }}
 		</p>
 
+		<!-- REQ-CONT-009: an app list's note in edit mode; the tiles are drawn per viewer. -->
+		<p v-if="editMode && appList" class="container-widget__app-list-note" data-testid="container-app-list-note">
+			{{ t('launchpad', 'Apps from the app menu appear here for each viewer.') }}
+		</p>
+
+		<template v-if="flowMode">
+			<input
+				v-if="appList.showFilter"
+				v-model="query"
+				type="search"
+				class="container-widget__filter"
+				data-testid="container-app-filter"
+				:aria-label="t('launchpad', 'Filter apps')"
+				:placeholder="t('launchpad', 'Filter apps')">
+			<!-- A list drawn per viewer is laid out as cells, not on the
+			     editable inner grid, so the filter can close it up at once. -->
+			<div class="launchpad-container-flow" data-testid="container-flow">
+				<div
+					v-for="(child, index) in displayedChildren"
+					:key="childKey(child, index)"
+					class="container-widget__child container-widget__cell"
+					:style="cellStyle(child)"
+					:data-launchpad-child="index">
+					<ContainerChild
+						:placement="child"
+						:editMode="false"
+						:canEditTile="false" />
+				</div>
+			</div>
+		</template>
+
 		<div
+			v-else
 			ref="innerGrid"
 			class="grid-stack launchpad-container-grid"
 			:aria-describedby="sortDescription ? descriptionId : null">
@@ -69,6 +101,14 @@ import {
 	sortChildren,
 	USAGE_MODES,
 } from '../../../utils/tileSort.js'
+import {
+	appTilePlacements,
+	childLabel,
+	listedApps,
+	normaliseAppList,
+	openableChildren,
+	viewerAppMenu,
+} from '../../../utils/wellAppList.js'
 
 const { recordTileUse } = useTileClickTracking()
 
@@ -133,6 +173,9 @@ export default {
 			// changes on the next load, not while tiles are being clicked.
 			tileUse: readTileUse(),
 			descriptionId: `container-sort-${descriptionCounter}`,
+			// The viewer's app menu from the page's boot data (REQ-CONT-008, -009).
+			appMenu: viewerAppMenu(),
+			query: '',
 		}
 	},
 
@@ -159,6 +202,52 @@ export default {
 				: child))
 		},
 
+		/**
+		 * The well's app list, or null (REQ-CONT-009).
+		 *
+		 * @return {object|null}
+		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 */
+		appList() {
+			return normaliseAppList(this.content?.appList)
+		},
+
+		/**
+		 * Whether the well is drawn as cells: a viewer's app list in view mode.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 */
+		flowMode() {
+			return !this.editMode && this.appList !== null
+		},
+
+		/**
+		 * The children this viewer may see: in view mode an app tile for an app
+		 * outside the viewer's app menu is left out (REQ-CONT-008).
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-2
+		 */
+		visibleChildren() {
+			return this.editMode ? this.children : openableChildren(this.children, this.appMenu)
+		},
+
+		/**
+		 * The tiles of the app list for this viewer (REQ-CONT-009).
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 */
+		dynamicChildren() {
+			if (!this.flowMode) {
+				return []
+			}
+			const owner = this.placement?.id ?? this.placement?.uuid ?? this.descriptionId
+			const apps = listedApps(this.appMenu ?? [], this.appList, { use: this.tileUse, owner, query: this.query })
+			return appTilePlacements(apps, owner)
+		},
+
 		/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
 		sortMode() {
 			return normaliseSortMode(this.content?.sortBy)
@@ -173,11 +262,18 @@ export default {
 		 * @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md
 		 */
 		displayedChildren() {
-			if (this.editMode || this.sortMode === 'manual') {
+			if (this.flowMode) {
+				// REQ-CONT-009: the app list's tiles first, the placed ones after.
+				const text = this.query.trim().toLocaleLowerCase()
+				const placed = this.orderedChildren(this.visibleChildren)
+					.filter((child) => text === '' || childLabel(child, this.appMenu).toLocaleLowerCase().includes(text))
+				return [...this.dynamicChildren, ...placed]
+			}
+			if (this.editMode || (this.sortMode === 'manual' && this.visibleChildren.length === this.children.length)) {
 				return this.children
 			}
-			const ordered = sortChildren(this.children, this.sortMode, { use: this.tileUse, locale: getLanguage() })
-			return reflowChildren(ordered, NESTED_COLUMNS)
+			// A sorted view, or a tile left out (REQ-CONT-008): closed up row by row.
+			return reflowChildren(this.orderedChildren(this.visibleChildren), NESTED_COLUMNS)
 		},
 
 		/**
@@ -259,22 +355,71 @@ export default {
 		},
 	},
 
+	watch: {
+		/**
+		 * Edit mode draws an app list's well on the inner grid, view mode as
+		 * cells: start or stop the grid with it.
+		 *
+		 * @param {boolean} flow Whether the well is now drawn as cells.
+		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 */
+		async flowMode(flow) {
+			if (flow) {
+				this.destroyInnerGrid()
+				return
+			}
+			await this.$nextTick()
+			this.initInnerGrid()
+		},
+	},
+
 	/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
 	mounted() {
 		// A click anywhere in a child counts a use of that child; the child's
 		// own link or button stays the control (no click handler on the cell).
 		this.$refs.innerGrid?.addEventListener('click', this.onChildClick, true)
+		// A well drawn as cells counts its uses on the same capture phase.
+		this.$el?.addEventListener?.('click', this.onFlowClick, true)
 		this.initInnerGrid()
 	},
 
 	/** @spec openspec/changes/launcher-tile-sorting/specs/container-widget/spec.md */
 	beforeUnmount() {
 		this.$refs.innerGrid?.removeEventListener('click', this.onChildClick, true)
+		this.$el?.removeEventListener?.('click', this.onFlowClick, true)
 		this.destroyInnerGrid()
 	},
 
 	methods: {
 		t,
+
+		/**
+		 * Children in the well's sort: the chosen sort, or by hand in their
+		 * stored reading order.
+		 *
+		 * @param {Array<object>} list The children.
+		 * @return {Array<object>}
+		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-2
+		 */
+		orderedChildren(list) {
+			if (this.sortMode !== 'manual') {
+				return sortChildren(list, this.sortMode, { use: this.tileUse, locale: getLanguage() })
+			}
+			return [...list].sort((a, b) => (Number(a.gridY) || 0) - (Number(b.gridY) || 0) || (Number(a.gridX) || 0) - (Number(b.gridX) || 0))
+		},
+
+		/**
+		 * A cell's span on the well's columns and rows when drawn as cells.
+		 *
+		 * @param {object} child The child placement.
+		 * @return {object} The style.
+		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 */
+		cellStyle(child) {
+			const width = Math.min(Math.max(1, Number(child.gridWidth) || 2), NESTED_COLUMNS)
+			const height = Math.max(1, Number(child.gridHeight) || 2)
+			return { 'grid-column': `span ${width}`, 'grid-row': `span ${height}` }
+		},
 
 		/**
 		 * Open the tile form for the child at `index`. In edit mode the children
@@ -306,6 +451,24 @@ export default {
 			while (cell && cell.parentElement !== grid) {
 				cell = cell.parentElement?.closest('[data-launchpad-child]') ?? null
 			}
+			const child = cell ? this.displayedChildren[Number(cell.dataset.launchpadChild)] : undefined
+			if (child) {
+				this.countUse(child)
+			}
+		},
+
+		/**
+		 * Count a use of the app list's cell a click landed in (REQ-CONT-009).
+		 *
+		 * @param {MouseEvent} event The click, in its capture phase.
+		 * @return {void}
+		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 */
+		onFlowClick(event) {
+			if (!this.flowMode) {
+				return
+			}
+			const cell = event.target?.closest?.('.container-widget__cell[data-launchpad-child]') ?? null
 			const child = cell ? this.displayedChildren[Number(cell.dataset.launchpadChild)] : undefined
 			if (child) {
 				this.countUse(child)
@@ -397,7 +560,7 @@ export default {
 		 * @spec openspec/specs/container-widget/spec.md
 		 */
 		async initInnerGrid() {
-			if (!this.$refs.innerGrid) {
+			if (!this.$refs.innerGrid || this.gridInstance) {
 				return
 			}
 			// No initialiser: the catch below returns, so the binding is only ever
@@ -510,6 +673,25 @@ export default {
 </script>
 
 <style scoped>
+.launchpad-container-flow {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	grid-auto-rows: 40px;
+	gap: 4px;
+	pointer-events: auto;
+}
+
+.container-widget__filter {
+	width: 100%;
+	margin-bottom: 4px;
+	pointer-events: auto;
+}
+
+.container-widget__app-list-note {
+	color: var(--color-text-maxcontrast);
+	font-size: 0.9em;
+}
+
 .container-widget {
 	width: 100%;
 	height: 100%;

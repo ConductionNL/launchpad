@@ -225,6 +225,39 @@ final class BookmarkImportPlan {
 	}//end layout()
 
 	/**
+	 * The placements of the import as an edit-mode draft adds them
+	 * (edit-mode-draft-and-save REQ-EDIT-001): the layout of
+	 * {@see self::layout()}, each tile with the fields a stored tile carries,
+	 * so the draft's Save creates them as the import would.
+	 *
+	 * @param int $bottom The draft's lowest occupied edge (`gridY + gridHeight`).
+	 *
+	 * @return list<array<string, mixed>>
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 */
+	public function draftPlacements(int $bottom): array {
+		return array_map(
+			static function (array $spec): array {
+				if (isset($spec['tile']) === false) {
+					return $spec;
+				}
+
+				$tile = $spec['tile'];
+				unset($spec['tile']);
+				return $spec + [
+					'tileTitle'     => $tile['title'],
+					'tileLinkType'  => 'url',
+					'tileLinkValue' => $tile['url'],
+					'tileIcon'      => 'icon-link',
+					'tileIconType'  => 'class',
+				];
+			},
+			$this->layout(bottom: $bottom)
+		);
+	}//end draftPlacements()
+
+	/**
 	 * The tiles of a container, two to a row of its four-column grid. Each
 	 * bookmark is a full tile node (REQ-TILE-041), so the tile form edits it.
 	 *

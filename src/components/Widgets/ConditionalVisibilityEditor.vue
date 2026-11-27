@@ -549,7 +549,14 @@ export default {
 			await this.loadRules()
 		},
 
-		/** Fetch the placement's rules, clearing them when the fetch fails. */
+		/**
+		 * Fetch the placement's rules, clearing them when the fetch fails; in
+		 * an edit-mode draft that changed them, take the draft's (REQ-EDIT-001).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 */
 		async loadRules() {
 			this.loading = true
 			this.preview.reset()

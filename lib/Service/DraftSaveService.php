@@ -135,7 +135,8 @@ class DraftSaveService {
 	 *
 	 * @param DashboardDraft $draft The draft.
 	 *
-	 * @return array{add: list<array<string, mixed>>, change: array<int, array<string, mixed>>, remove: list<int>, rules: array<int, list<array<string, mixed>>>}
+	 * @return array{add: list<array<string, mixed>>, change: array<int, array<string, mixed>>, remove: list<int>,
+	 *                rules: array<int, list<array<string, mixed>>>}
 	 *
 	 * @throws InvalidArgumentException When the draft is malformed or names a widget of another dashboard.
 	 *

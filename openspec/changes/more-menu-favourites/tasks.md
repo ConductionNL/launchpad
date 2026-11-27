@@ -6,7 +6,7 @@
 - [x] Star button per row (`aria-pressed`, accessible name per state, `#f0b400` filled); toggling updates the store optimistically and rolls back with an error toast on failure
 - [x] Footer of the menu: Powered by sendent and Conduction, links with `target="_blank" rel="noopener noreferrer"`
 - [x] This dashboard: Download between Duplicate as new dashboard and Set as default; remove the header Download button
-- [ ] This dashboard: no Read receipts item (moved to the admin page)
+- [x] This dashboard: no Read receipts item (moved to the admin page) (announcements-managed-in-settings #2287: `canViewReadReceipts` and the `read-receipts` item left DashboardMoreMenu; unit DashboardMoreMenu.spec.js and e2e dashboard-acknowledgements.spec.ts (#2296) check it is absent)
 - [x] Settings group: Announcements entry for people who may manage announcements, after Admin settings
 - [x] Remove `DashboardSwitcherSidebar.vue`, `SidebarFooter.vue`, `SidebarBackdrop.vue`, `DashboardRowActions.vue`, the shell's `sidebarOpen` state and their tests
 - [ ] Translations (en, nl and every shipped locale) for the new strings (en, nl, de, fr done; the other shipped locales open)

@@ -263,6 +263,22 @@ describe('LaunchpadMoreMenu', () => {
 		wrapper.unmount()
 	})
 
+	it('draws the Default pill with its tooltip and accessible name (REQ-SHELL-018)', async () => {
+		const wrapper = await openMenu({
+			dashboards: [
+				{ id: 'dashboard-1', label: 'Vandaag', checked: true, pill: { label: 'Default', title: 'Opens automatically', ariaLabel: 'Default dashboard' } },
+				{ id: 'dashboard-2', label: 'Team', checked: false },
+				{ id: 'all-dashboards', label: 'More', keepOpen: true, expanded: false },
+			],
+		})
+		const pills = wrapper.findAll('[data-testid="launchpad-more-menu-default-pill"]')
+		expect(pills).toHaveLength(1)
+		expect(pills[0].text()).toBe('Default')
+		expect(pills[0].attributes('title')).toBe('Opens automatically')
+		expect(pills[0].attributes('aria-label')).toBe('Default dashboard')
+		wrapper.unmount()
+	})
+
 	it('names each star by what pressing it does (REQ-SHELL-016)', async () => {
 		const wrapper = await openMenu({
 			dashboards: [

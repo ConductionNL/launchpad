@@ -83,7 +83,10 @@ describe('dashboardItems', () => {
 	it('unfolded, lists own, then shared and group dashboards once, marked, the open one checked', () => {
 		const all = dashboardItems({ ...base, expanded: true })
 		expect(all.map((i) => i.label)).toEqual(['Vandaag', 'Mijn werkplek', 'Team Vergunningen', 'Intranet Zuiddrecht', 'Less'])
-		expect(all.map((i) => i.meta)).toEqual(['default', undefined, 'shared', 'group', 'favourites only'])
+		expect(all.map((i) => i.meta)).toEqual([undefined, undefined, 'shared', 'group', 'favourites only'])
+		// REQ-SHELL-018: the default carries the Default pill, no other row does.
+		expect(all.map((i) => i.pill?.label)).toEqual(['Default', undefined, undefined, undefined, undefined])
+		expect(all[0].pill).toEqual({ label: 'Default', title: 'Opens automatically', ariaLabel: 'Default dashboard' })
 		expect(all.map((i) => i.checked)).toEqual([false, true, false, false, undefined])
 	})
 

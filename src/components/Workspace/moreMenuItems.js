@@ -291,6 +291,21 @@ export function dashboardIcon(dashboard, isDefault) {
 	})
 }
 
+/**
+ * The Default pill on the dashboard that opens automatically (REQ-SHELL-018):
+ * a badge, not a star; the star is the favourite.
+ *
+ * @return {{label: string, title: string, ariaLabel: string}} The pill.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-15
+ */
+function DEFAULT_PILL () {
+  return {
+	label: t('launchpad', 'Default'),
+	title: t('launchpad', 'Opens automatically'),
+	ariaLabel: t('launchpad', 'Default dashboard'),
+}
+}
+
 /** What {@link dashboardItems} assumes for an option it is not given. */
 const DASHBOARD_ITEM_DEFAULTS = {
 	userDashboards: [],
@@ -406,7 +421,8 @@ function dashboardRowItem({ d, source }, { activeId, defaultUuid, starred, onSwi
 		id: `dashboard-${d.id}`,
 		label: d.name || t('launchpad', 'Dashboard'),
 		icon: dashboardIcon(d, isDefault),
-		meta: dashboardMeta(isDefault, source),
+		meta: dashboardMeta(false, source),
+		pill: isDefault ? DEFAULT_PILL() : undefined,
 		checked: d.id === activeId,
 		onClick: () => onSwitch(d.id, source),
 	}

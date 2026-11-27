@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Opens automatically" : "S’ouvre automatiquement",
     "Could not add the dashboard to your favourites" : "Impossible d’ajouter le tableau de bord à vos favoris",
     "Could not remove the dashboard from your favourites" : "Impossible de retirer le tableau de bord de vos favoris",
     "Star a dashboard to keep it here" : "Ajoutez une étoile à un tableau de bord pour le voir ici",

@@ -119,7 +119,7 @@ describe('StartPageMenu', () => {
 		expect(api.getDefaultDashboardPreference).toHaveBeenCalledTimes(1)
 		wrapper.vm.toggleDashboardsExpanded()
 		await wrapper.vm.$nextTick()
-		expect(menu.props('dashboards')[0].meta).toBe('default')
+		expect(menu.props('dashboards')[0].pill?.label).toBe('Default')
 	})
 
 	it('reads the dashboards on open when the page has not', async () => {

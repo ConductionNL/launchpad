@@ -113,7 +113,7 @@ describe('DashboardMoreMenu', () => {
 		wrapper.vm.toggleDashboardsExpanded()
 		await wrapper.vm.$nextTick()
 		const [today, team, intranet] = wrapper.findComponent({ name: 'LaunchpadMoreMenu' }).props('dashboards')
-		expect(today).toMatchObject({ checked: true, meta: 'default' })
+		expect(today).toMatchObject({ checked: true, pill: { label: 'Default' } })
 		expect(team).toMatchObject({ checked: false, meta: 'shared' })
 		expect(intranet).toMatchObject({ checked: false, meta: 'group' })
 	})

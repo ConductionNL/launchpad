@@ -57,7 +57,28 @@ final class StartPageWidgetSeeds {
 	 * @spec openspec/specs/default-widget-bundle/spec.md#requirement-req-dwb-008-the-start-page-is-the-vandaag-layout
 	 */
 	public static function seeds(IL10N $l10n, array $brandTiles): array {
-		$seeds = [
+		$seeds = array_merge(
+			self::today(l10n: $l10n),
+			self::workingDay(l10n: $l10n),
+			self::newsAndColleagues(l10n: $l10n),
+			self::apps(l10n: $l10n, brandTiles: $brandTiles)
+		);
+		foreach (array_keys($seeds) as $order) {
+			$seeds[$order]['sortOrder'] = $order;
+		}
+
+		return $seeds;
+	}//end seeds()
+
+	/**
+	 * The greeting with the weather, then what needs attention today.
+	 *
+	 * @param IL10N $l10n Translates the titles.
+	 *
+	 * @return array<int, array<string, mixed>> The seeds.
+	 */
+	private static function today(IL10N $l10n): array {
+		return [
 			self::widget(type: 'header', grid: [0, 0, 10, 2], content: [
 				'title' => $l10n->t('Today'),
 				'greeting' => true,
@@ -74,6 +95,18 @@ final class StartPageWidgetSeeds {
 				'showActions' => false,
 				'itemCards' => true,
 			]),
+		];
+	}//end today()
+
+	/**
+	 * The working day: unread mail, today's calendar and recent work.
+	 *
+	 * @param IL10N $l10n Translates the titles.
+	 *
+	 * @return array<int, array<string, mixed>> The seeds.
+	 */
+	private static function workingDay(IL10N $l10n): array {
+		return [
 			self::heading(grid: [0, 5, 12, 1], title: $l10n->t('At work today'), description: $l10n->t('Mail, calendar and where you left off')),
 			self::widget(type: 'nc-widget', grid: [0, 6, 4, 7], title: $l10n->t('Unread mail'), content: [
 				'widgetId' => 'mail-unread',
@@ -94,8 +127,27 @@ final class StartPageWidgetSeeds {
 				'showActions' => false,
 				'apps' => ['files', 'deck', 'dav'],
 			]),
-			self::heading(grid: [0, 13, 12, 1], title: $l10n->t('News and colleagues'), description: $l10n->t('The organisation\'s news and who works here')),
-			self::widget(type: 'announcements', grid: [0, 14, 6, 5], title: $l10n->t('News'), content: ['category' => '', 'limit' => 4, 'showActions' => false]),
+		];
+	}//end workingDay()
+
+	/**
+	 * The organisation's news and its people.
+	 *
+	 * @param IL10N $l10n Translates the titles.
+	 *
+	 * @return array<int, array<string, mixed>> The seeds.
+	 */
+	private static function newsAndColleagues(IL10N $l10n): array {
+		$description = $l10n->t('The organisation\'s news and who works here');
+
+		return [
+			self::heading(grid: [0, 13, 12, 1], title: $l10n->t('News and colleagues'), description: $description),
+			self::widget(
+				type: 'announcements',
+				grid: [0, 14, 6, 5],
+				title: $l10n->t('News'),
+				content: ['category' => '', 'limit' => 4, 'showActions' => false]
+			),
 			self::widget(type: 'people', grid: [6, 14, 6, 5], title: $l10n->t('Find a colleague'), content: [
 				'layout' => 'list',
 				'filters' => [],
@@ -104,6 +156,19 @@ final class StartPageWidgetSeeds {
 				'columns' => 2,
 				'showActions' => false,
 			]),
+		];
+	}//end newsAndColleagues()
+
+	/**
+	 * The app tiles beside the organisation's brand tiles.
+	 *
+	 * @param IL10N                            $l10n       Translates the titles.
+	 * @param array<int, array<string, mixed>> $brandTiles The default bundle's seeds; those with a `tile` set are placed.
+	 *
+	 * @return array<int, array<string, mixed>> The seeds.
+	 */
+	private static function apps(IL10N $l10n, array $brandTiles): array {
+		$seeds = [
 			self::heading(grid: [0, 19, 6, 1], title: $l10n->t('My apps'), description: $l10n->t('One tile per app')),
 			self::heading(grid: [6, 19, 6, 1], title: $l10n->t('Working together'), description: $l10n->t('The organisation\'s tiles')),
 			self::widget(type: 'app-tiles', grid: [0, 20, 6, 4], content: [
@@ -133,12 +198,8 @@ final class StartPageWidgetSeeds {
 			$column += 2;
 		}
 
-		foreach (array_keys($seeds) as $order) {
-			$seeds[$order]['sortOrder'] = $order;
-		}
-
 		return $seeds;
-	}//end seeds()
+	}//end apps()
 
 	/**
 	 * One widget seed.

@@ -339,7 +339,7 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 			->method('insert')
 			->willReturn($dashboard);
 		$inserted = [];
-		$this->placementMapper->expects($this->exactly(16))
+		$this->placementMapper->expects($this->exactly(count: 16))
 			->method('insert')
 			->willReturnCallback(
 				static function (WidgetPlacement $placement) use (&$inserted) {
@@ -411,7 +411,7 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 		$start = $this->makeDashboard();
 		$this->dashboardFactory->expects($this->once())->method('create')->willReturn($start);
 		$this->dashboardMapper->expects($this->once())->method('insert')->willReturn($start);
-		$this->placementMapper->expects($this->exactly(16))->method('insert')->willReturnArgument(0);
+		$this->placementMapper->expects($this->exactly(count: 16))->method('insert')->willReturnArgument(0);
 
 		$this->assertSame(expected: $start, actual: $this->service->ensureDefaultDashboard());
 		$this->assertSame(expected: 0, actual: $previous->getIsDefault());
@@ -439,8 +439,8 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 		$this->dashboardFactory->expects($this->never())->method('create');
 		$this->placementMapper->expects($this->never())->method('insert');
 
-		$this->assertNull($this->service->ensureDefaultDashboard());
-		$this->assertNull($this->service->ensureDefaultDashboard());
+		$this->assertNull(actual: $this->service->ensureDefaultDashboard());
+		$this->assertNull(actual: $this->service->ensureDefaultDashboard());
 	}//end testAChangedPreviousSeedIsLeftAlone()
 
 	/**
@@ -467,10 +467,13 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 	 */
 	private function previousSeedPlacements(): array {
 		$placements = [];
-		foreach (['Conduction', 'Sendent', 'Nextcloud', null] as $title) {
+		foreach (['Conduction' => 'tile', 'Sendent' => 'tile', 'Nextcloud' => 'tile', '' => 'files'] as $title => $type) {
 			$placement = new WidgetPlacement();
-			$placement->setWidgetId($title === null ? 'files' : 'tile');
-			$placement->setTileTitle($title);
+			$placement->setWidgetId($type);
+			if ($title !== '') {
+				$placement->setTileTitle($title);
+			}
+
 			$placements[] = $placement;
 		}
 
@@ -483,9 +486,9 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 	 * @return IFactory
 	 */
 	private function englishL10n(): IFactory {
-		$l10n = $this->createMock(IL10N::class);
+		$l10n = $this->createMock(originalClassName: IL10N::class);
 		$l10n->method('t')->willReturnCallback(static fn (string $text, array $parameters=[]): string => vsprintf($text, $parameters));
-		$factory = $this->createMock(IFactory::class);
+		$factory = $this->createMock(originalClassName: IFactory::class);
 		$factory->method('get')->willReturn($l10n);
 
 		return $factory;

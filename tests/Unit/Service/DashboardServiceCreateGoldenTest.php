@@ -372,9 +372,9 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 	 * @return IFactory
 	 */
 	private function englishL10n(): IFactory {
-		$l10n = $this->createMock(IL10N::class);
+		$l10n = $this->createMock(originalClassName: IL10N::class);
 		$l10n->method('t')->willReturnCallback(static fn (string $text, array $parameters=[]): string => vsprintf($text, $parameters));
-		$factory = $this->createMock(IFactory::class);
+		$factory = $this->createMock(originalClassName: IFactory::class);
 		$factory->method('get')->willReturn($l10n);
 
 		return $factory;

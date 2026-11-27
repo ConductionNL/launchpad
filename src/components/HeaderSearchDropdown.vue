@@ -84,6 +84,7 @@ import {
 } from '../services/headerSearch.js'
 import {
 	fieldWords,
+	openCoreSearchDialog,
 	removeInlineField,
 	resolveSearchField,
 } from '../utils/headerSearchField.js'
@@ -462,8 +463,11 @@ export default {
 		choose(option) {
 			if (option.key === SHOW_ALL_KEY) {
 				const query = this.query.trim()
+				const field = this.field
 				this.close()
 				performFallback({ type: 'unified-search', query })
+				// Core's dialog opens only from its own top-bar button.
+				openCoreSearchDialog(field)
 				return
 			}
 			if (option.url) {

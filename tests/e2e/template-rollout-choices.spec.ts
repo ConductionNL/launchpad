@@ -183,8 +183,17 @@ test.describe('the rollout window (REQ-RESYNC-008, REQ-RESYNC-006)', () => {
 		const push = dialog.getByTestId('template-resync-apply')
 		await expect(push).toHaveText('Push to 1 dashboards')
 		await expect(push).toBeEnabled()
+		const pushed = page.waitForResponse(
+			(r) =>
+				r.request().method() === 'POST'
+				&& /\/api\/admin\/templates\/\d+\/resync/.test(r.url())
+				&& r.request().postDataJSON()?.dryRun === false,
+		)
 		await push.click()
-		await expect(page.getByTestId('template-resync-success')).toBeVisible()
+		expect((await pushed).status()).toBeLessThan(300)
+		// The templates page closes the window once the push is done
+		// (TemplatesPage closes it on `resynced`).
+		await expect(dialog).toBeHidden({ timeout: 10_000 })
 
 		const after = await placementsOf(copy.who.api, copy.dashboardId)
 		expect(after.filter((p) => p.customTitle === birthdays)).toHaveLength(1)

@@ -98,11 +98,18 @@ describe('TileWidget', () => {
 		expect(down.find('[data-testid="tile-badge"]').exists()).toBe(false)
 		expect(down.find('a').attributes('aria-label')).toBe('Council, outage')
 
-		const since = new Date(2026, 10, 25, 9, 12).toISOString()
-		down.findComponent({ name: 'HealthPingBadge' }).vm.$emit('reading', { state: 'offline', downSince: since })
-		await down.vm.$nextTick()
-		const time = new Date(since).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-		expect(down.find('a').attributes('aria-label')).toBe(`Council, outage since ${time}`)
+		// The time follows the viewer's Nextcloud locale, not the browser's:
+		// a Dutch user read "storing sinds 10:28 PM" on an en-US browser.
+		const previousLocale = globalThis._nc_l10n_locale
+		globalThis._nc_l10n_locale = 'nl_NL'
+		try {
+			const since = new Date(2026, 10, 25, 21, 12).toISOString()
+			down.findComponent({ name: 'HealthPingBadge' }).vm.$emit('reading', { state: 'offline', downSince: since })
+			await down.vm.$nextTick()
+			expect(down.find('a').attributes('aria-label')).toBe('Council, outage since 21:12')
+		} finally {
+			globalThis._nc_l10n_locale = previousLocale
+		}
 
 		down.findComponent({ name: 'HealthPingBadge' }).vm.$emit('reading', { state: 'online', downSince: null })
 		await down.vm.$nextTick()

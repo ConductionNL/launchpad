@@ -80,7 +80,10 @@ test.beforeAll(async () => {
 	try {
 		const enable = await admin.put(`${API}/admin/settings`, { data: { allowUserDash: true } })
 		expect(enable.status(), await enable.text()).toBeLessThan(300)
-		const deck = await admin.post('/ocs/v1.php/cloud/apps/deck')
+		// OCS v2: an app that is not installed answers 404 ("The request app
+		// was not found"). OCS v1 answers HTTP 200 with that failure in the
+		// body, so `ok()` read true and the test ran without Deck.
+		const deck = await admin.post('/ocs/v2.php/cloud/apps/deck')
 		deckEnabled = deck.ok()
 	} finally {
 		await admin.dispose()

@@ -2846,7 +2846,19 @@ OC.L10N.register(
     "Reason: %1$s" : "Reden: %1$s",
     "Notes: %1$s" : "Toelichting: %1$s",
     "Revocation timestamp: %1$s" : "Ingetrokken op: %1$s",
-    "Group dashboard of %s" : "Groepsdashboard van %s"
+    "Group dashboard of %s" : "Groepsdashboard van %s",
+    "Show on a screen" : "Op een scherm tonen",
+    "A link that shows this dashboard full screen on a display, without a Nextcloud account." : "Een link die dit dashboard schermvullend op een beeldscherm toont, zonder Nextcloud-account.",
+    "Screen link" : "Schermlink",
+    "Create screen link" : "Schermlink maken",
+    "New screen links are switched off." : "Nieuwe schermlinks staan uit.",
+    "The screen link could not be created." : "De schermlink kon niet worden gemaakt.",
+    "The screen link could not be revoked." : "De schermlink kon niet worden ingetrokken.",
+    "Revoke screen link" : "Schermlink intrekken",
+    "Revoke the screen link of {name}? A screen showing it stops showing this dashboard." : "De schermlink van {name} intrekken? Een scherm dat hem toont, toont dit dashboard dan niet meer.",
+    "Allow showing dashboards on a screen" : "Dashboards op een scherm toestaan",
+    "People who may share a dashboard can make a screen link for it on its Sharing tab. Separate from public links. Existing screen links keep playing until they are revoked." : "Wie een dashboard mag delen, kan er op het tabblad Delen een schermlink voor maken. Los van openbare links. Bestaande schermlinks blijven spelen tot ze worden ingetrokken.",
+    "{dashboard}, made by {creator}" : "{dashboard}, gemaakt door {creator}"
 },
 "nplurals=2; plural=(n != 1);"
 );

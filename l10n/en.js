@@ -14,7 +14,20 @@ OC.L10N.register(
     "_{count} comment_::_{count} comments_" : ["{count} comment", "{count} comments"],
     "_Reaches {count} person_::_Reaches {count} people_" : ["Reaches {count} person", "Reaches {count} people"],
     "_All %n open case_::_All %n open cases_" : ["All %n open case", "All %n open cases"],
-    "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_" : ["You have hidden %n widget on shared dashboards","You have hidden %n widgets on shared dashboards"]
+    "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_" : ["You have hidden %n widget on shared dashboards","You have hidden %n widgets on shared dashboards"],
+    "Show on a screen" : "Show on a screen",
+    "A link that shows this dashboard full screen on a display, without a Nextcloud account." : "A link that shows this dashboard full screen on a display, without a Nextcloud account.",
+    "Screen link" : "Screen link",
+    "Create screen link" : "Create screen link",
+    "New screen links are switched off." : "New screen links are switched off.",
+    "The screen link could not be created." : "The screen link could not be created.",
+    "The screen link could not be revoked." : "The screen link could not be revoked.",
+    "Revoke screen link" : "Revoke screen link",
+    "Revoke the screen link of {name}? A screen showing it stops showing this dashboard." : "Revoke the screen link of {name}? A screen showing it stops showing this dashboard.",
+    "Allow showing dashboards on a screen" : "Allow showing dashboards on a screen",
+    "People who may share a dashboard can make a screen link for it on its Sharing tab. Separate from public links. Existing screen links keep playing until they are revoked." : "People who may share a dashboard can make a screen link for it on its Sharing tab. Separate from public links. Existing screen links keep playing until they are revoked.",
+    "{dashboard}, made by {creator}" : "{dashboard}, made by {creator}",
+    "The setting could not be saved." : "The setting could not be saved."
 },
 "nplurals=2; plural=(n != 1);"
 );

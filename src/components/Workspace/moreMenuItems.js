@@ -290,6 +290,20 @@ export function dashboardIcon(dashboard, isDefault) {
 	})
 }
 
+/** What {@link dashboardItems} assumes for an option it is not given. */
+const DASHBOARD_ITEM_DEFAULTS = {
+	userDashboards: [],
+	groupDashboards: [],
+	sharedDashboards: [],
+	activeId: null,
+	defaultUuid: '',
+	favourites: [],
+	expanded: false,
+	onToggleExpanded: () => {},
+	onToggleFavourite: () => {},
+	onNewDashboard: null,
+}
+
 /**
  * The Dashboards group (Ruben's review, 27 Nov 2026, items 5 and 6).
  *
@@ -317,25 +331,15 @@ export function dashboardIcon(dashboard, isDefault) {
  * @return {object[]} The items.
  * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
  */
-export function dashboardItems({
-	userDashboards = [],
-	groupDashboards = [],
-	sharedDashboards = [],
-	activeId = null,
-	defaultUuid = '',
-	favourites = [],
-	expanded = false,
-	onSwitch,
-	onToggleExpanded = () => {},
-	onToggleFavourite = () => {},
-	onNewDashboard = null,
-}) {
-	const all = dashboardRows(userDashboards, groupDashboards, sharedDashboards)
-	const { rows, starred, showHint, hidden } = columnRows(all, favourites, expanded, activeId)
+export function dashboardItems(options) {
+	const o = { ...DASHBOARD_ITEM_DEFAULTS, ...options }
+	const all = dashboardRows(o.userDashboards, o.groupDashboards, o.sharedDashboards)
+	const { rows, starred, showHint, hidden } = columnRows(all, o.favourites, o.expanded, o.activeId)
+	const context = { activeId: o.activeId, defaultUuid: o.defaultUuid, starred, onSwitch: o.onSwitch, onToggleFavourite: o.onToggleFavourite }
 	return [
-		...rows.map((row) => dashboardRowItem(row, { activeId, defaultUuid, starred, onSwitch, onToggleFavourite })),
+		...rows.map((row) => dashboardRowItem(row, context)),
 		...hintItems(showHint),
-		...columnFoot(hidden, expanded, onToggleExpanded, onNewDashboard),
+		...columnFoot(hidden, o.expanded, o.onToggleExpanded, o.onNewDashboard),
 	]
 }
 

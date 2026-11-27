@@ -1,0 +1,11 @@
+# Tasks: shell-boot-reads-from-initial-state
+
+- [x] 1. A builder for `setup_status` (the status document for an admin, `{forbidden: true}` for a caller the endpoint refuses, nothing for a delegated admin or on failure) and `walkthrough_preferences` (`{seen, progress}` as stored)
+- [x] 2. The Workspace page carries both keys, built by that builder
+- [x] 3. Unit tests: the builder (admin, refused caller, delegated admin, failing read, no user, stored and unset preferences, the key the preference endpoint stores) and the builder keys
+- [x] 4. Raise `@conduction/nextcloud-vue` to the first release carrying nextcloud-vue#2378 (it reads both keys); until then the keys are carried and unused
+  - Done (cloud, 2026-11-27): raised to `^2.233.0-beta.1`, the first published version carrying #2378 (its `readPreloadedSetupStatus()` reads `setup_status` from initial state; 2.232.2, npm latest, has neither key). vitest 4209/4209, eslint 0 errors, production build compiles. Move to 2.233.0 when it is published as latest.
+- [x] 5. Measure on a live instance: the Workspace opens without `/api/setup/status` and the two walkthrough preference requests (perf spec, before/after)
+  - Done (cloud live lane, 2026-11-27), sandbox reference stack (nginx, php-fpm 8.3 + opcache, MariaDB, Redis, APCu), NC 34.0.6, OpenRegister main 1abff0ac, admin, warm. Before = development 0d300be8 (nc-vue 2.230.0), after = development c46ae19f (nc-vue 2.233.0-beta.1), same instance, only the bundle swapped.
+  - Requests per Workspace load (5 warm loads each): before 9 LaunchPad API reads, including `GET /api/setup/status` twice and `GET /api/preferences/walkthrough_completed_version` and `...-progress` once each; after 5, none of those four. Scenarios of REQ-INIT-010 hold.
+  - ADR-124 perf spec (`definePerformanceSpec`, Workspace usable, median): before 617 ms (5 runs) and 619 ms (9 runs); after 656 ms (5 runs) and 593 ms (9 runs). The four reads were in flight beside the page's own reads, so the usable time does not move; the Workspace stays over its 300 ms budget. The slowest requests left are announcements, reactions, `contactsmenu/teams` and `user_status` (170-240 ms in the page under the per-session request queue).

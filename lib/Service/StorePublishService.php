@@ -35,7 +35,7 @@ use OCA\LaunchPad\Db\DashboardMapper;
 /**
  * Publish a dashboard to the connected register.
  *
- * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+ * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
  */
 class StorePublishService {
 	/**
@@ -103,7 +103,7 @@ class StorePublishService {
 	 *
 	 * @return list<array{schema: string, id: string, title: string}>
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
 	public function publishable(string $userId): array {
 		$objects = [];
@@ -124,7 +124,7 @@ class StorePublishService {
 	 *
 	 * @return array{outcome: string, slug: string, message?: string}
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
 	public function publish(array $item, array $objects, string $userId): array {
 		$slug = trim((string)($item['slug'] ?? ''));
@@ -181,7 +181,7 @@ class StorePublishService {
 	 *
 	 * @return array<int, array<string, mixed>>
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
 	public function annotate(array $cards): array {
 		return $this->own->annotate(cards: $cards);
@@ -194,7 +194,7 @@ class StorePublishService {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
 	public function exportWithoutPersonalData(Dashboard $dashboard): array {
 		$payload = $this->export->serializeDashboard(dashboard: $dashboard);

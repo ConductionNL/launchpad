@@ -68,7 +68,7 @@ class StoreInstalls {
 	 * @return array<string, array{version: string, dashboardId: int, dashboardUuid: string, placementIds: list<int>}>
 	 *
 	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function all(): array {
 		$decoded = json_decode(json: $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_KEY, '{}'), associative: true);
@@ -107,7 +107,7 @@ class StoreInstalls {
 	 * @return void
 	 *
 	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function record(string $slug, string $version, array $dashboard): void {
 		$dashboardId = (int)($dashboard['id'] ?? 0);
@@ -132,7 +132,7 @@ class StoreInstalls {
 	 *
 	 * @return list<int> The placement ids.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	private function placementIdsOf(int $dashboardId): array {
 		if ($this->placements === null) {

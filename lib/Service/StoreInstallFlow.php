@@ -7,7 +7,7 @@
  * the store endpoints use together, so the controller takes one parameter for
  * them. Either may be absent; the controller then skips what it needs.
  *
- * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+ * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
  *
  * @category  Service
  * @package   OCA\LaunchPad\Service
@@ -28,7 +28,7 @@ namespace OCA\LaunchPad\Service;
 /**
  * The install record and the updater of the marketplace.
  *
- * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+ * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
  */
 class StoreInstallFlow {
 	/**

@@ -148,9 +148,13 @@ test('wells and tabs nest at most three levels deep', async () => {
 
 // REQ-TABS-002 "Tiles in two tabs": a dashboard tile moves into a tab through
 // the tile form's Group, which lists each tab as "<Tabs title> > <tab title>".
-test('a tile moves into a tab through its Group field', async ({ browser }) => {
-	const title = `Zaaksysteem ${RUN}`
+// One tile goes into each tab; each tab then shows only its own tile.
+test('a tile moves into each tab through its Group field', async ({ browser }) => {
 	const tabsTitle = `Werk ${RUN}`
+	const moves = [
+		{ title: `Teamsite ${RUN}`, tab: 'Team', at: 0 },
+		{ title: `Zaaksysteem ${RUN}`, tab: 'Samenwerken', at: 1 },
+	]
 	const placed = await owner!.api.post(`${API}/dashboard/${dashboard!.id}/widgets`, {
 		data: {
 			widgetId: 'tabs',
@@ -163,35 +167,50 @@ test('a tile moves into a tab through its Group field', async ({ browser }) => {
 	})
 	expect(placed.status(), await placed.text()).toBeLessThan(300)
 	const tabsId = Number((await placed.json()).id)
-	const tile = await owner!.api.post(`${API}/dashboard/${dashboard!.id}/tile`, {
-		data: { title, linkType: 'url', linkValue: 'https://example.org/zaken', gridX: 6, gridY: 12, gridWidth: 2, gridHeight: 2 },
-	})
-	expect(tile.status(), await tile.text()).toBeLessThan(300)
+	for (const [index, move] of moves.entries()) {
+		const tile = await owner!.api.post(`${API}/dashboard/${dashboard!.id}/tile`, {
+			data: { title: move.title, linkType: 'url', linkValue: `https://example.org/${move.at}`, gridX: 6 + index * 2, gridY: 12, gridWidth: 2, gridHeight: 2 },
+		})
+		expect(tile.status(), await tile.text()).toBeLessThan(300)
+	}
 
 	const { context, page } = await loginAs(browser, owner!.username, owner!.password)
 	try {
 		await page.goto(`${APP}/${dashboard!.slug}`)
-		const card = page.locator('.tile-widget').filter({ hasText: title })
-		await expect(card).toBeVisible({ timeout: 30_000 })
+		await expect(page.locator('.tile-widget').filter({ hasText: moves[0].title })).toBeVisible({ timeout: 30_000 })
 		await enterEditMode(page)
-		await card.getByRole('button', { name: 'Tile menu' }).click()
-		await page.getByRole('menuitem', { name: 'Edit tile' }).click()
+		for (const move of moves) {
+			const card = page.locator('.tile-widget').filter({ hasText: move.title })
+			await card.getByRole('button', { name: 'Tile menu' }).click()
+			await page.getByRole('menuitem', { name: 'Edit tile' }).click()
+			await page.locator('[data-testid="tile-group"]').click()
+			await page.locator('.vs__dropdown-option').filter({ hasText: `${tabsTitle} > ${move.tab}` }).first().click()
+			await page.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click()
+			await expect(card).toHaveCount(0, { timeout: 15_000 })
+		}
+		// The moves sit in the edit-mode draft until the edit bar's Save (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 
-		const group = page.locator('[data-testid="tile-group"]')
-		await group.click()
-		await page.locator('.vs__dropdown-option').filter({ hasText: `${tabsTitle} > Samenwerken` }).first().click()
-		const saved = page.waitForResponse((res) => res.url().includes(`/widgets/${tabsId}`) && res.request().method() === 'PUT')
-		await page.getByRole('button', { name: 'Save', exact: true }).click()
-		expect((await saved).status()).toBeLessThan(300)
-		await expect(card).toHaveCount(0, { timeout: 15_000 })
+		await page.reload()
+		// The tab strip carries the Tabs title as its label, which tells this widget apart.
+		const widget = page.getByTestId('tabs-widget').filter({ has: page.getByRole('tablist', { name: tabsTitle }) })
+		await expect(widget).toHaveCount(1, { timeout: 30_000 })
+		for (const move of moves) {
+			await widget.getByRole('tab', { name: move.tab }).click()
+			const panel = widget.getByRole('tabpanel')
+			await expect(panel.getByText(move.title)).toBeVisible({ timeout: 15_000 })
+			const other = moves.find((candidate) => candidate !== move)!
+			await expect(panel.getByText(other.title)).toHaveCount(0)
+		}
 	} finally {
 		await context.close()
 	}
 
 	const stored = await (await owner!.api.get(`${API}/dashboard/${dashboard!.id}`)).json()
 	const tabs = (stored.placements ?? []).find((row: { id: number }) => Number(row.id) === tabsId)
-	expect(tabs.content.tabs[0].placements).toHaveLength(0)
-	expect(tabs.content.tabs[1].placements).toHaveLength(1)
-	expect(tabs.content.tabs[1].placements[0].content.title).toBe(title)
-	expect((stored.placements ?? []).some((row: { content?: { title?: string } }) => row.content?.title === title)).toBe(false)
+	for (const move of moves) {
+		expect(tabs.content.tabs[move.at].placements).toHaveLength(1)
+		expect(tabs.content.tabs[move.at].placements[0].content.title).toBe(move.title)
+		expect((stored.placements ?? []).some((row: { content?: { title?: string } }) => row.content?.title === move.title)).toBe(false)
+	}
 })

@@ -59,6 +59,13 @@ class FirstPaintShell {
 	private ?array $fallback = null;
 
 	/**
+	 * The placeholder declarations of nextcloud-vue's widget registry, read once per request.
+	 *
+	 * @var array<string, mixed>|null
+	 */
+	private ?array $registry = null;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param FirstPaintLayout $layout Where the grid puts each frame per column count.
@@ -125,26 +132,73 @@ class FirstPaintShell {
 	}//end build()
 
 	/**
-	 * The placeholder kind of a widget type: its own declaration in the
-	 * catalogue, else the fallback table, else its default.
+	 * The placeholder kind of a placement, in the order of REQ-FPS-009: the
+	 * manifest declaration the placement carries, the declaration of its type
+	 * in nextcloud-vue's widget registry (widget-placeholders.json), the
+	 * Nextcloud widget's `placeholder` in the catalogue, the fallback table,
+	 * and otherwise its default. An invalid declaration at any step is skipped.
 	 *
-	 * @param string               $widgetId The widget type.
-	 * @param array<string, mixed> $entry    Its catalogue entry, if any.
+	 * @param string               $widgetId  The widget type.
+	 * @param array<string, mixed> $entry     Its catalogue entry, if any.
+	 * @param array<string, mixed> $placement The placement, if any.
 	 *
 	 * @return string One of KINDS.
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
+	 * @spec openspec/changes/widget-declared-placeholders/tasks.md#task-3
 	 */
-	public function kindOf(string $widgetId, array $entry=[]): string {
-		$declared = $entry['placeholder']['shape'] ?? $entry['placeholder'] ?? null;
-		if (is_string($declared) === true && in_array($declared, self::KINDS, true) === true) {
-			return $declared;
+	public function kindOf(string $widgetId, array $entry=[], array $placement=[]): string {
+		$registry = $this->registry();
+		foreach ([$placement['placeholder'] ?? null, $registry[$widgetId] ?? null, $entry['placeholder'] ?? null] as $declared) {
+			$shape = self::shapeOf(declared: $declared);
+			if ($shape !== null) {
+				return $shape;
+			}
 		}
 
 		$fallback = $this->fallback();
 
 		return $fallback['kinds'][$widgetId] ?? $fallback['default'];
 	}//end kindOf()
+
+	/**
+	 * The shape of a declaration: a shape name or `['shape' => <name>, 'count' => n]`.
+	 *
+	 * @param mixed $declared The declaration.
+	 *
+	 * @return string|null One of KINDS, or null when the declaration is not a valid one.
+	 *
+	 * @spec openspec/changes/widget-declared-placeholders/tasks.md#task-3
+	 */
+	private static function shapeOf(mixed $declared): ?string {
+		if (is_array($declared) === true) {
+			$declared = $declared['shape'] ?? null;
+		}
+
+		if (is_string($declared) === true && in_array($declared, self::KINDS, true) === true) {
+			return $declared;
+		}
+
+		return null;
+	}//end shapeOf()
+
+	/**
+	 * The registry's declarations: the committed copy of nextcloud-vue's
+	 * widget-placeholders.json, by widget type.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/widget-declared-placeholders/tasks.md#task-2
+	 */
+	private function registry(): array {
+		if ($this->registry === null) {
+			$file           = __DIR__.'/widget-placeholders.json';
+			$read           = is_file($file) === true ? json_decode((string) file_get_contents($file), true) : [];
+			$this->registry = is_array($read) === true ? $read : [];
+		}
+
+		return $this->registry;
+	}//end registry()
 
 	/**
 	 * One frame.
@@ -167,7 +221,7 @@ class FirstPaintShell {
 			'id'          => $id,
 			'widgetId'    => $widgetId,
 			'title'       => self::titleOf(placement: $placement, entry: $entry),
-			'kind'        => $this->kindOf(widgetId: $widgetId, entry: $entry),
+			'kind'        => $this->kindOf(widgetId: $widgetId, entry: $entry, placement: $placement),
 			'positions'   => $byColumns,
 			'phoneHidden' => ($entry['mobileReady'] ?? true) === false,
 		];

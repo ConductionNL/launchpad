@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Manage announcements" : "Aankondigingen beheren",
+    "Administrators and the groups below manage announcements. Who may is set in Nextcloud's Administration privileges." : "Beheerders en de groepen hieronder beheren aankondigingen. Wie dat mag, stel je in bij Beheerrechten van Nextcloud.",
+    "The groups cannot be read here; see Administration privileges." : "De groepen kunnen hier niet worden gelezen; zie Beheerrechten.",
+    "No group yet: only administrators manage announcements." : "Nog geen groep: alleen beheerders beheren aankondigingen.",
+    "Open Administration privileges" : "Beheerrechten openen",
     "Widgets that ask for confirmation" : "Widgets die om bevestiging vragen",
     "Widgets on dashboards that ask their readers to confirm they have read them." : "Widgets op dashboards die hun lezers vragen te bevestigen dat ze ze hebben gelezen.",
     "No widget asks for confirmation." : "Geen widget vraagt om bevestiging.",

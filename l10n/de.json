@@ -1,5 +1,10 @@
 {
     "translations": {
+        "Manage announcements": "Ankündigungen verwalten",
+        "Administrators and the groups below manage announcements. Who may is set in Nextcloud's Administration privileges.": "Administratoren und die folgenden Gruppen verwalten Ankündigungen. Wer das darf, wird in den Administrationsrechten von Nextcloud festgelegt.",
+        "The groups cannot be read here; see Administration privileges.": "Die Gruppen können hier nicht gelesen werden; siehe Administrationsrechte.",
+        "No group yet: only administrators manage announcements.": "Noch keine Gruppe: Nur Administratoren verwalten Ankündigungen.",
+        "Open Administration privileges": "Administrationsrechte öffnen",
         "Widgets that ask for confirmation": "Widgets, die um Bestätigung bitten",
         "Widgets on dashboards that ask their readers to confirm they have read them.": "Widgets auf Dashboards, deren Leser bestätigen sollen, dass sie sie gelesen haben.",
         "No widget asks for confirmation.": "Kein Widget bittet um Bestätigung.",

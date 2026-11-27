@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Manage announcements" : "Gérer les annonces",
+    "Administrators and the groups below manage announcements. Who may is set in Nextcloud's Administration privileges." : "Les administrateurs et les groupes ci-dessous gèrent les annonces. Qui le peut se règle dans les privilèges d'administration de Nextcloud.",
+    "The groups cannot be read here; see Administration privileges." : "Les groupes ne peuvent pas être lus ici ; voir les privilèges d'administration.",
+    "No group yet: only administrators manage announcements." : "Aucun groupe pour l’instant : seuls les administrateurs gèrent les annonces.",
+    "Open Administration privileges" : "Ouvrir les privilèges d'administration",
     "Widgets that ask for confirmation" : "Widgets qui demandent une confirmation",
     "Widgets on dashboards that ask their readers to confirm they have read them." : "Widgets des tableaux de bord qui demandent à leurs lecteurs de confirmer leur lecture.",
     "No widget asks for confirmation." : "Aucun widget ne demande de confirmation.",

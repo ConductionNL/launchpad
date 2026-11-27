@@ -104,6 +104,10 @@
             "description": "List, read, write, publish and follow announcements."
         },
         {
+            "name": "announcement-delegation",
+            "description": "Who holds the announcements setting."
+        },
+        {
             "name": "announcement-groups",
             "description": "The target group picker's list."
         },
@@ -5198,6 +5202,38 @@
                         }
                     },
                     "required": false
+                }
+            }
+        },
+        "/announcements/delegation": {
+            "get": {
+                "operationId": "announcement-delegation-index",
+                "x-launchpad-stability": "internal",
+                "summary": "The delegated groups, and whether delegation can be read here",
+                "description": "The delegated groups, and whether delegation can be read here. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "announcement-delegation"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
                 }
             }
         },

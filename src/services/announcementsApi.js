@@ -177,6 +177,17 @@ export const announcementsApi = {
 	},
 
 	/**
+	 * The groups that hold the announcements setting through Nextcloud's admin
+	 * delegation, for the Roles tab (announcements-managed-in-settings D1).
+	 *
+	 * @return {Promise<object>} `{available, groups: [{id, displayName}]}`.
+	 * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
+	 */
+	async delegation() {
+		return (await axios.get(`${base()}/delegation`)).data
+	},
+
+	/**
 	 * Send reminder to everyone who has not confirmed; once a day (REQ-ANN-009).
 	 *
 	 * @param {string} uuid The announcement.

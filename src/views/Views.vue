@@ -1713,6 +1713,13 @@ export default {
 		 */
 		shownPlacements: {
 			immediate: true,
+			/**
+			 * Start the first-screen renderer loads.
+			 *
+			 * @param {object[]} placements The shown placements.
+			 * @return {void}
+			 * @spec openspec/changes/first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
+			 */
 			handler(placements) {
 				preloadFirstViewportRenderers(placements, getWidgetTypeEntry)
 			},

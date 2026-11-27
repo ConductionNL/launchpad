@@ -25,6 +25,19 @@ const TYPES = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../lib/w
  */
 const DRAWN_ELSEWHERE = ['ai-assistant']
 
+/**
+ * What a miniature that draws a loaded state shows from its sample data
+ * (board LpWidgetKiezen: the miniature looks like the widget in use).
+ */
+const SAMPLE_TEXT = {
+	announcements: 'New opening hours of the town hall',
+	attention: 'Permit Dorpsstraat 12',
+	'colleague-activity': 'Anna de Vries',
+	livetile: '128',
+	'recent-work': 'Planning.xlsx',
+	weather: 'Utrecht',
+}
+
 let requests
 
 beforeEach(() => {
@@ -68,6 +81,9 @@ describe('every widget type as a miniature', () => {
 
 		expect(requests).toEqual([])
 		expect(state()).toBe('ready')
+		if (SAMPLE_TEXT[type]) {
+			expect(wrapper.text()).toContain(SAMPLE_TEXT[type])
+		}
 		wrapper.unmount()
 	}, 20000)
 })

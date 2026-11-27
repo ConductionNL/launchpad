@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -39,7 +39,7 @@ use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
 /**
  * Reports and counts for announcement managers.
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
  */
 class AnnouncementReceiptReport {
 
@@ -77,7 +77,7 @@ class AnnouncementReceiptReport {
 	 *
 	 * @throws ForbiddenException When the user does not manage announcements.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function report(string $userId, string $uuid): array {
 		$announcement = $this->managed(userId: $userId, uuid: $uuid);
@@ -132,7 +132,7 @@ class AnnouncementReceiptReport {
 	 *
 	 * @return array<string, array{seen: int, confirmed: int}> Keyed by uuid; zero for one without receipts.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function countsFor(array $uuids): array {
 		$stored = $this->receipts->countsFor(uuids: $uuids);
@@ -151,7 +151,7 @@ class AnnouncementReceiptReport {
 	 *
 	 * @return string[] User ids.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function unconfirmed(Announcement $announcement): array {
 		$confirmed = [];
@@ -179,7 +179,7 @@ class AnnouncementReceiptReport {
 	 *
 	 * @throws ForbiddenException When the user does not manage announcements.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function managed(string $userId, string $uuid): Announcement {
 		if ($this->announcements->isAuthor(userId: $userId) === false) {
@@ -196,7 +196,7 @@ class AnnouncementReceiptReport {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function mayRemind(Announcement $announcement): bool {
 		$last = $announcement->getRemindedAt();

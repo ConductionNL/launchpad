@@ -150,15 +150,21 @@ function widgetTitles(picker: Locator): Locator {
 }
 
 /**
- * The names of the discovered apps the picker lists.
+ * The apps are no longer a section of the picker: since app-link-tile-widget
+ * (REQ-APPTILE-001/004) they are listed in the App or link tile's form, under
+ * "Choose the app", with its own search. Open that form from the picker on
+ * "An app" and return its search box and its list.
  *
- * @param picker the picker.
- * @return the names, in order.
+ * @param page the page, with the picker open.
+ * @return the form's app search and app list.
  */
-function appNames(picker: Locator): Locator {
-	return picker.locator(
-		'[data-testid="widget-picker-section-tiles"] .widget-picker__widget-title',
-	)
+async function openAppChooser(page: Page): Promise<{ search: Locator; chooser: Locator }> {
+	await page.locator('[data-testid="widget-picker-type-tile"]').click()
+	await page.locator('[data-testid="widget-picker-add"]').click()
+	await page.getByTestId('tile-mode').getByText('An app', { exact: true }).click()
+	const chooser = page.getByTestId('tile-app-chooser')
+	await expect(chooser).toBeVisible({ timeout: 10_000 })
+	return { search: chooser.getByRole('textbox', { name: 'Search apps', exact: true }), chooser }
 }
 
 test.beforeAll(async () => {
@@ -295,14 +301,19 @@ test.describe('workspace canvas and the widget picker (REQ-WDG-027, REQ-WDG-028)
 
 		await picker.locator('.widget-picker__search input').fill('cal')
 		await expect(widgetTitles(picker)).toHaveText(['Calendar'])
-		await expect(appNames(picker)).toHaveText(['Calendar'])
 		await expect(
 			picker.locator('[data-testid="widget-picker-office-pack"]'),
 		).toHaveCount(0)
-		// The approved-catalogue cards share the App tiles section; none matches.
 		await expect(
 			picker.locator('[data-testid^="widget-picker-catalogue-"]'),
 		).toHaveCount(0)
+
+		// The apps narrow the same way in the App or link tile's list.
+		await picker.locator('.widget-picker__search input').fill('')
+		const { search, chooser } = await openAppChooser(page)
+		await search.fill('cal')
+		await expect(chooser.getByText('Calendar', { exact: true }).first()).toBeVisible()
+		await expect(chooser.getByText('Files', { exact: true })).toHaveCount(0)
 	})
 
 	// @e2e widgets::clearing-the-search
@@ -317,7 +328,6 @@ test.describe('workspace canvas and the widget picker (REQ-WDG-027, REQ-WDG-028)
 
 		await search.fill('cal')
 		await expect(widgetTitles(picker)).toHaveText(['Calendar'])
-		await expect(appNames(picker)).toHaveText(['Calendar'])
 
 		await search.fill('')
 		await expect(widgetTitles(picker)).toHaveText([
@@ -325,12 +335,14 @@ test.describe('workspace canvas and the widget picker (REQ-WDG-027, REQ-WDG-028)
 			'Notes',
 			'Upcoming cards',
 		])
-		// Board LpWidgetKiezen ends the app tiles with "Eigen tegel" ("Own
-		// tile", widget-picker-board-sync), which a search for "cal" left out.
-		await expect(appNames(picker)).toHaveText(['Calendar', 'Files', 'Own tile'])
-		await expect(
-			picker.locator('[data-testid="widget-picker-office-pack"]'),
-		).toBeVisible()
+
+		// The app list of the App or link tile comes back the same way.
+		const apps = await openAppChooser(page)
+		await apps.search.fill('cal')
+		await expect(apps.chooser.getByText('Files', { exact: true })).toHaveCount(0)
+		await apps.search.fill('')
+		await expect(apps.chooser.getByText('Calendar', { exact: true }).first()).toBeVisible()
+		await expect(apps.chooser.getByText('Files', { exact: true }).first()).toBeVisible()
 	})
 
 	// @e2e widgets::nothing-matches

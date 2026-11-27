@@ -119,7 +119,7 @@ import { logger } from '../utils/logger.js'
  * like, comment and follow are sent from here and reported with
  * `update:reactions` and `update:followed`.
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
  */
 export default {
 	name: 'AnnouncementModal',
@@ -170,7 +170,7 @@ export default {
 	computed: {
 		/**
 		 * @return {string} The publish date in the reader's locale.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
 		 */
 		formattedDate() {
 			const date = new Date(this.announcement?.publishAt ?? '')
@@ -179,7 +179,7 @@ export default {
 
 		/**
 		 * @return {string} "Confirm before 30 October", or ''.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
 		 */
 		confirmBeforeText() {
 			return confirmBeforeLabel(this.announcement?.confirmBefore ?? null, getCanonicalLocale())
@@ -187,7 +187,7 @@ export default {
 
 		/**
 		 * @return {boolean} Whether the reader follows the category.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
 		 */
 		isFollowed() {
 			return this.followed.includes(this.announcement?.category)
@@ -198,11 +198,11 @@ export default {
 		/**
 		 * Load the comments each time another announcement opens.
 		 *
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
 		 */
 		'announcement.uuid': {
 			immediate: true,
-			/** @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011 */
+			/** @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011 */
 			handler() {
 				this.comments = []
 				this.draftComment = ''
@@ -217,7 +217,7 @@ export default {
 
 		/**
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
 		 */
 		async loadComments() {
 			if (!this.announcement?.allowComments) {
@@ -233,7 +233,7 @@ export default {
 
 		/**
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
 		 */
 		async toggleLike() {
 			const uuid = this.announcement.uuid
@@ -247,7 +247,7 @@ export default {
 
 		/**
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
 		 */
 		async sendComment() {
 			const message = this.draftComment.trim()
@@ -266,7 +266,7 @@ export default {
 
 		/**
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
 		 */
 		async toggleFollow() {
 			const category = this.announcement.category

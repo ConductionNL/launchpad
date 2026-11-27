@@ -42,6 +42,7 @@ import {
 	writeAppConfig,
 } from './support/adminTemplates.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
+import { expectOpenDashboard } from './support/dashboardSwitcher.ts'
 import {
 	addToGroup,
 	adminContext,
@@ -216,9 +217,7 @@ test('the admin adds mijn-werkdag on the Templates page and gives it to a group'
 	)
 	try {
 		await memberPage.goto('/index.php/apps/launchpad/')
-		await expect(
-			memberPage.getByText('Mijn werkdag', { exact: true }).first(),
-		).toBeVisible({ timeout: 45_000 })
+		await expectOpenDashboard(memberPage, 'Mijn werkdag', 45_000)
 	} finally {
 		await context.close()
 	}

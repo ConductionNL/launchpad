@@ -6,7 +6,7 @@
  * fragment, a former tab's fragment opens its host tab at that section, and
  * only the held tabs show (admin-settings REQ-ADM-032, REQ-ADM-034).
  *
- * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
  */
 
 import { describe, expect, it, vi } from 'vitest'

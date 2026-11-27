@@ -120,7 +120,7 @@ class AnnouncementMapper extends QBMapper {
 	 *
 	 * @return list<Announcement>
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 	 */
 	public function findAllForManagers(): array {
 		$qb = $this->db->getQueryBuilder();
@@ -138,7 +138,7 @@ class AnnouncementMapper extends QBMapper {
 	 *
 	 * @throws InvalidArgumentException When the entity is not an announcement.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function delete(Entity $entity): Entity {
 		if ($entity instanceof Announcement === false) {

@@ -281,3 +281,23 @@ describe('AdminSettings: title and breadcrumbs', () => {
 		expect(title.options).toEqual({ escape: false })
 	})
 })
+
+describe('AdminSettings: first reads', () => {
+	it('asks for the settings, the group dashboards and the wizard state together, not one after another', async () => {
+		let release
+		const pending = new Promise((resolve) => { release = resolve })
+		api.getAdminSettings.mockReturnValueOnce(pending.then(() => ({ data: {} })))
+		const wrapper = shallowMount(AdminSettings, {
+			global: { provide: { configuredGroups: ['staff'] }, mocks: { t } },
+		})
+		await Promise.resolve()
+
+		// The settings read is still open, yet the other two already went out.
+		expect(api.listGroupDashboards).toHaveBeenCalled()
+		expect(api.getSetupWizardState).toHaveBeenCalledTimes(1)
+
+		release()
+		await flushPromises()
+		expect(wrapper.vm.loading).toBe(false)
+	})
+})

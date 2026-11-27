@@ -52,21 +52,18 @@ test.describe('tile widget type (REQ-WDG-022)', () => {
 		await page
 			.locator('[data-testid="launchpad-more-menu-item-add-widget"]')
 			.click()
-		await chooseAndAdd(page.locator('[data-testid="widget-picker-type-tile"]'))
+		const card = page.locator('[data-testid="widget-picker-type-tile"]')
+		await expect(card).toContainText('App or link tile')
+		await chooseAndAdd(card)
 
-		const dialog = page.getByRole('dialog', { name: 'Add Widget' })
-		await expect(dialog).toBeVisible({ timeout: 10_000 })
-		const select = dialog.locator('[data-testid="widget-type-select"]')
-		const option = select.locator('[data-testid="widget-type-option-tile"]')
-		await expect(option).toHaveCount(1)
-		await expect(option).toHaveText('Tile')
-		await expect(option).toBeEnabled()
-
-		await select.selectOption('tile')
-		await expect(select).toHaveValue('tile')
-		const form = dialog.locator('.cn-add-widget-modal__form .cn-dash-tile-form')
-		await expect(form).toBeVisible()
-		await expect(form.getByLabel('Title', { exact: true })).toBeVisible()
+		// app-link-tile-widget REQ-APPTILE-004: choosing the tile opens its form
+		// inside Add widget, starting with the choice An app or A link.
+		const mode = page.getByTestId('tile-mode')
+		await expect(mode).toBeVisible({ timeout: 10_000 })
+		await expect(mode.getByText('An app', { exact: true })).toBeVisible()
+		await mode.getByText('A link', { exact: true }).click()
+		await expect(page.getByRole('textbox', { name: 'Name', exact: true })).toBeVisible()
+		await expect(page.getByRole('textbox', { name: 'Web address', exact: true })).toBeVisible()
 	})
 
 	// @e2e widgets::tile-renders-with-content-from-placement

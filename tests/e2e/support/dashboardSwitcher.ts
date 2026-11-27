@@ -42,6 +42,26 @@ export async function openDashboardSwitcher(page: Page): Promise<void> {
 }
 
 /**
+ * Assert which dashboard the page opened: More's Dashboards column marks the
+ * open one (`aria-checked`). Since the dashboards sidebar is gone its name is
+ * nowhere else on the page (a template's header carries its own title).
+ *
+ * @param page The page, on LaunchPad.
+ * @param name The dashboard name.
+ * @param timeout How long the page may take to show More.
+ * @return Resolves once the open dashboard is confirmed and More is closed.
+ */
+export async function expectOpenDashboard(page: Page, name: string, timeout = 30_000): Promise<void> {
+	const more = page.locator(MORE_MENU)
+	await expect(more).toBeVisible({ timeout })
+	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	const open = page.locator('[data-testid="launchpad-more-menu-dashboard-list"] [role="menuitemradio"][aria-checked="true"]')
+	await expect(open).toHaveCount(1)
+	await expect(open).toContainText(name)
+	await page.keyboard.press('Escape')
+}
+
+/**
  * Put the active dashboard in edit mode through More → Edit.
  *
  * @param page The page, on the start page, as someone who may edit it.

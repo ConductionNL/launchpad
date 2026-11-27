@@ -20,8 +20,8 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -44,7 +44,7 @@ use OCP\DB\Exception as DbException;
 /**
  * Records and answers a reader's seen and confirmed receipts.
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  */
 class AnnouncementReadConfirmations {
 
@@ -79,7 +79,7 @@ class AnnouncementReadConfirmations {
 	 *
 	 * @return string The key.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-6
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-6
 	 */
 	public static function key(string $uuid): string {
 		return self::KEY_PREFIX.$uuid;
@@ -99,7 +99,7 @@ class AnnouncementReadConfirmations {
 	 * @throws InvalidArgumentException When via is unknown or the announcement is not published.
 	 * @throws ForbiddenException       When the reader is not in its audience.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function confirm(string $userId, string $uuid, string $via=AnnouncementReceipt::VIA_CHECK): array {
 		if (in_array(needle: $via, haystack: [AnnouncementReceipt::VIA_CHECK, AnnouncementReceipt::VIA_X], strict: true) === false) {
@@ -139,7 +139,7 @@ class AnnouncementReadConfirmations {
 	 *
 	 * @throws InvalidArgumentException When more than MAX_SEEN_BATCH uuids are sent.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function markSeen(string $userId, array $uuids): array {
 		$uuids = array_values(array_unique(array_filter(array_map('strval', $uuids), static fn (string $uuid): bool => $uuid !== '')));
@@ -185,7 +185,7 @@ class AnnouncementReadConfirmations {
 	 *
 	 * @return array{seen: string[], confirmed: string[], closed: string[], receipts: string[]} Uuids.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function stateFor(string $userId, array $announcements): array {
 		$uuids = array_map(static fn (Announcement $announcement): string => (string) $announcement->getUuid(), $announcements);
@@ -219,7 +219,7 @@ class AnnouncementReadConfirmations {
 	 *
 	 * @return array{seen: string[], confirmed: string[], closed: string[], receipts: string[]} Uuids.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	public function stateOfVisible(string $userId): array {
 		return $this->stateFor(userId: $userId, announcements: $this->announcements->visibleTo(userId: $userId));

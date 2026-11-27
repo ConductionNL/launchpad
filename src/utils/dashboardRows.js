@@ -18,7 +18,7 @@ import { embedAdminSearch } from './embedToken.js'
  * @param {object|null} placement A widget placement on the dashboard.
  * @return {string}
  * @spec openspec/changes/embedded-analytics/tasks.md#task-40
- * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
  */
 export function embedAdminHref(dashboard, placement = null) {
 	const search = placement

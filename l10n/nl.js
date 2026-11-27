@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "of {audience} confirmed" : "van {audience} bevestigd",
+    "Seen by" : "Gezien door",
+    "Confirmed {date} with the check" : "Bevestigd {date} met het vinkje",
+    "Confirmed {date} with the x" : "Bevestigd {date} met het kruisje",
+    "Seen, not yet" : "Gezien, nog niet",
+    "Not seen yet" : "Nog niet gezien",
     "Opens automatically" : "Opent automatisch",
     "Could not add the dashboard to your favourites" : "Het dashboard kon niet aan je favorieten worden toegevoegd",
     "Could not remove the dashboard from your favourites" : "Het dashboard kon niet uit je favorieten worden verwijderd",

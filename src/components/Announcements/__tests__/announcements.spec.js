@@ -564,7 +564,7 @@ describe('AnnouncementEditorModal', () => {
 describe('Read confirmation (REQ-ANN-007)', () => {
 	const ASKING = { uuid: 'r', kind: 'news', title: 'New procedure', requiresConfirmation: true, confirmBefore: '2026-10-30T22:59:00Z', publishAt: '2026-10-26T08:00:00Z' }
 
-	// @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	// @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	it('the card shows the check, the x and the date to confirm before; Manage only for a manager', async () => {
 		const wrapper = mountWith(AnnouncementCard, { announcement: ASKING, manageUrl: '/settings/admin/launchpad#announcements/r' })
 		expect(wrapper.find('[data-test="announcement-confirm-before"]').text()).toMatch(/^Confirm before .*30/)
@@ -587,7 +587,7 @@ describe('Read confirmation (REQ-ANN-007)', () => {
 		expect(confirmBeforeLabel('not a date')).toBe('')
 	})
 
-	// @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	// @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	it('in the widget the check marks the item read and keeps it, the x confirms and hides it', async () => {
 		announcementsApi.list.mockResolvedValue({ announcements: [ASKING, NEWS[0]], reactions: {}, followedCategories: [], canAuthor: true })
 		announcementsApi.readState.mockResolvedValue({ seen: [], confirmed: [], closed: [] })
@@ -610,7 +610,7 @@ describe('Read confirmation (REQ-ANN-007)', () => {
 		expect(wrapper.vm.openItem).toBeNull()
 	})
 
-	// @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	// @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	it('a failed confirmation says so and takes the mark back', async () => {
 		announcementsApi.list.mockResolvedValue({ announcements: [ASKING], reactions: {}, followedCategories: [], canAuthor: false })
 		announcementsApi.readState.mockRejectedValue(new Error('offline'))
@@ -628,7 +628,7 @@ describe('Read confirmation (REQ-ANN-007)', () => {
 		expect(readConfirmationState({ confirmed: ['a', 5], closed: 'x' })).toEqual({ seen: [], confirmed: ['a'], closed: [] })
 	})
 
-	// @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
+	// @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
 	it('the view shows the full text and the read row, and the social part only when allowed', async () => {
 		const modal = mountWith(AnnouncementModal, { announcement: { ...ASKING, body: 'Lange tekst', allowComments: false }, manageUrl: '/x' })
 		await flushPromises()

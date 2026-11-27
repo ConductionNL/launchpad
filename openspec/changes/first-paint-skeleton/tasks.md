@@ -9,9 +9,9 @@
 ### Task 2: The view model and the layout twin
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002`
 - **files**: `lib/Service/FirstPaintShell.php`, `lib/Service/FirstPaintLayout.php`, `lib/Service/first-paint-kinds.json`, `src/utils/narrowGridLayout.js`, `tests/fixtures/first-paint-layouts.json`
-- [ ] `FirstPaintLayout`: positions per column count (dashboard columns, 8, 4) with the same scaling and reading order as `narrowGridLayout.js`
-- [ ] `FirstPaintShell`: header (name and meta line, or the greeting row), frames (id, title, kind, positions, fit row, phone hidden), from the opened dashboard's rendered placements and the personal layer
-- [ ] `first-paint-kinds.json`: widget type to placeholder kind (D5), `rows` for an unknown type
+- [x] `FirstPaintLayout`: positions per column count (dashboard columns, 8, 4) with the same scaling and reading order as `narrowGridLayout.js` (tests: `FirstPaintLayoutTest.php` and `narrowGridLayout.fixture.spec.js` on `tests/fixtures/first-paint-layouts.json`, five dashboards)
+- [ ] `FirstPaintShell`: header (name and meta line, or the greeting row), frames (id, title, kind, positions, fit row, phone hidden), from the opened dashboard's rendered placements and the personal layer (built: header modes, frames with id, title, kind, positions per column count, phone hidden, hidden and refused placements left out; open: the fit row and the greeting text)
+- [x] `first-paint-kinds.json`: widget type to placeholder kind (D5), `rows` for an unknown type (a type's own catalogue `placeholder` declaration wins, widget-declared-placeholders)
 - [ ] Greeting and date in the reader's language and time zone, same strings as the browser
 - [ ] Tests: `tests/Unit/Service/FirstPaintLayoutTest.php` and `src/utils/__tests__/narrowGridLayout.fixture.spec.js` on the one shared fixture; `tests/Unit/Service/FirstPaintShellTest.php` (header modes, titles, showTitle off, kinds, personal layer, escaping); greeting formatting nl and en on both sides
 

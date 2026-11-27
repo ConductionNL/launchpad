@@ -20,7 +20,7 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -42,7 +42,7 @@ use Throwable;
 /**
  * Moves the announcement editor groups to the delegation.
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
  */
 class MoveAnnouncementEditorsToDelegation implements IRepairStep {
 	/**
@@ -57,7 +57,7 @@ class MoveAnnouncementEditorsToDelegation implements IRepairStep {
 	 * @param ContainerInterface $container Resolves the settings app's service when it is there.
 	 * @param LoggerInterface    $logger    Logs a group that could not be moved.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settings,
@@ -71,7 +71,7 @@ class MoveAnnouncementEditorsToDelegation implements IRepairStep {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function getName(): string {
 		return 'Move the announcement editor groups to the delegated announcements setting';
@@ -86,7 +86,7 @@ class MoveAnnouncementEditorsToDelegation implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function run(IOutput $output): void {
 		$groups = $this->settings->getValue(key: AdminSettingKey::ANNOUNCEMENT_EDITOR_GROUPS->value, default: []);

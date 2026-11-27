@@ -137,7 +137,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @return WidgetPlacement[]
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
 	 */
 	public function findAcknowledged(string $which): array {
 		$qb = $this->selectWhere(match: ['requires_acknowledgement' => 1]);

@@ -1,5 +1,11 @@
 {
     "translations": {
+        "of {audience} confirmed": "of {audience} confirmed",
+        "Seen by": "Seen by",
+        "Confirmed {date} with the check": "Confirmed {date} with the check",
+        "Confirmed {date} with the x": "Confirmed {date} with the x",
+        "Seen, not yet": "Seen, not yet",
+        "Not seen yet": "Not seen yet",
         "Opens automatically": "Opens automatically",
         "Could not add the dashboard to your favourites": "Could not add the dashboard to your favourites",
         "Could not remove the dashboard from your favourites": "Could not remove the dashboard from your favourites",

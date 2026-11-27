@@ -690,6 +690,12 @@ export default {
    every link with !important, hence the weight here. */
 .tile-widget.tile-widget--icon-only {
 	border-radius: 8px;
+	/* REQ-ICT-001: an app tile is a square. A grid row (60 px) is lower than
+	   a desktop column is wide, so the square takes the cell's height and its
+	   width follows; a column narrower than the row caps it. */
+	width: auto;
+	max-width: 100%;
+	aspect-ratio: 1 / 1;
 }
 
 .tile-widget--icon-only .tile-widget__link {

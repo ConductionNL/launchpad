@@ -29,10 +29,9 @@
  *
  * EXPECTED RED (the change's tasks.md has every item open)
  * ============
- * add-office-tiles: there is no Add tiles dialog; the edit bar offers
- *   Columns, Add widget, Dashboard settings and Done
- *   (src/components/Workspace/DashboardEditBar.vue), and the office pack is
- *   one container from the widget picker.
+ * add-office-tiles: green since the Add tiles dialog was built (27 Nov 2026,
+ *   sandbox Nextcloud 34.0.6), with the office pack answered by the test
+ *   (OFFICE_PACK below), since no CI instance runs an office server.
  * grafana-found: there is no discovery of services on the server.
  *
  * Written in the cloud lane without a live instance; not yet run.
@@ -58,6 +57,22 @@ const STAMP = `${Date.now()}`
 const DASHBOARD = `My workspace ${STAMP}`
 const GRAFANA_PORT = 3000
 
+/*
+ * The office pack as a server with an office suite answers it. Word, Excel and
+ * PowerPoint are the suite's file creators (TemplateManager::listCreators(),
+ * which only an installed office server such as Collabora registers) and
+ * Outlook web a link tile; a CI or sandbox instance has no office server, so
+ * its pack holds only Files. The pack is answered here so the scenario proves
+ * the dialog: ticking, the button count and the three tiles stored. What the
+ * server puts in the pack is pinned by tests/Unit/Service/OfficeTilesServiceTest.php.
+ */
+const OFFICE_PACK = [
+	{ title: 'Word', linkType: 'create', linkValue: 'richdocuments:.docx', icon: 'icon-filetype-file', iconType: 'class' },
+	{ title: 'Excel', linkType: 'create', linkValue: 'richdocuments:.xlsx', icon: 'icon-filetype-file', iconType: 'class' },
+	{ title: 'PowerPoint', linkType: 'create', linkValue: 'richdocuments:.pptx', icon: 'icon-filetype-file', iconType: 'class' },
+	{ title: 'Outlook web', linkType: 'url', linkValue: 'https://outlook.office.com/mail/', icon: '', iconType: 'class' },
+]
+
 let own: OwnDashboard
 
 test.setTimeout(120_000)
@@ -77,11 +92,22 @@ async function tileTitles(): Promise<string[]> {
  * Open the dashboard, enter edit mode and open Add tiles.
  *
  * @param browser The browser.
+ * @param officePack The office tile pack the server answers, when the test sets it.
  * @return The context, page and dialog.
  */
-async function openAddTiles(browser: Browser): Promise<{ context: BrowserContext; page: Page; dialog: Locator }> {
+async function openAddTiles(
+	browser: Browser,
+	officePack?: Array<Record<string, string>>,
+): Promise<{ context: BrowserContext; page: Page; dialog: Locator }> {
 	const count = (await readPlacements(own.owner.api, own.id)).length
 	const { context, page } = await openOwnDashboard(browser, own, count)
+	if (officePack !== undefined) {
+		await page.route('**/apps/launchpad/api/office-tiles', (route) => route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({ tiles: officePack }),
+		}))
+	}
 	await enterEditMode(page)
 	await page.getByRole('button', { name: 'Add tiles' }).click()
 	const dialog = page.getByRole('dialog', { name: /add tiles/i })
@@ -103,7 +129,7 @@ test('ticking Word, Excel and Outlook web makes the button read "Add 3 tiles", a
 	browser,
 }) => {
 	const before = await readPlacements(own.owner.api, own.id)
-	const { context, page, dialog } = await openAddTiles(browser)
+	const { context, page, dialog } = await openAddTiles(browser, OFFICE_PACK)
 	try {
 		// The four sections, in this order.
 		const headings = ['App catalogue', 'Found on this server', 'Ready-made tiles for Office', 'Import bookmarks']

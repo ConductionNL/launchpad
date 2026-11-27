@@ -68,8 +68,13 @@ class LinksWidgetTest extends TestCase {
 		return $placement;
 	}//end placement()
 
+	/**
+	 * The widget declares rows as its first-paint placeholder.
+	 *
+	 * @return void
+	 */
 	public function testItDeclaresRowsAsItsPlaceholder(): void {
-		$this->assertSame('rows', $this->widget->getPlaceholder());
+		$this->assertSame(expected: 'rows', actual: $this->widget->getPlaceholder());
 	}
 
 	public function testRegistryMetadata(): void {

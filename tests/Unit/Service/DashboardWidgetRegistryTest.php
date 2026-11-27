@@ -73,6 +73,11 @@ class RecordingWidget implements IWidget {
  * A widget that declares its first-paint placeholder.
  */
 class DeclaringRecordingWidget extends RecordingWidget {
+	/**
+	 * The declared placeholder shape.
+	 *
+	 * @return string
+	 */
 	public function getPlaceholder(): string {
 		return 'counter';
 	}
@@ -215,7 +220,7 @@ class DashboardWidgetRegistryTest extends TestCase {
 		$this->assertSame('activity', $catalogue[0]['id']);
 		$this->assertSame('Activity', $catalogue[0]['title']);
 		$this->assertSame(0, $activity->loads);
-		$this->assertArrayNotHasKey('placeholder', $catalogue[0]);
+		$this->assertArrayNotHasKey(key: 'placeholder', array: $catalogue[0]);
 
 		$without = new WidgetService(
 			platform: new WidgetPlatform(dashboardManager: $manager, userSession: $session),
@@ -225,24 +230,32 @@ class DashboardWidgetRegistryTest extends TestCase {
 		$this->assertNull($without->getWidgetCatalogue());
 	}
 
+	/**
+	 * The catalogue carries a declared placeholder without loading the widget.
+	 *
+	 * @return void
+	 */
 	public function testTheCatalogueCarriesADeclaredPlaceholderWithoutLoading(): void {
-		$revenue = new DeclaringRecordingWidget('revenue');
+		$revenue = new DeclaringRecordingWidget(id: 'revenue');
 		$this->built = ['Revenue' => $revenue];
 		$manager = new PendingManager();
-		$manager->lazyRegisterWidget('Revenue', 'revenue');
+		$manager->lazyRegisterWidget(widgetClass: 'Revenue', appId: 'revenue');
 		$service = new WidgetService(
 			platform: new WidgetPlatform(
 				dashboardManager: $manager,
-				userSession: $this->createMock(IUserSession::class),
-				registry: new DashboardWidgetRegistry($manager, $this->apps(), $this->container())
+				userSession: $this->createMock(originalClassName: IUserSession::class),
+				registry: new DashboardWidgetRegistry(dashboardManager: $manager, appManager: $this->apps(), container: $this->container())
 			),
-			placementService: $this->createMock(PlacementService::class),
-			rendering: new WidgetRendering(widgetFormatter: new WidgetFormatter(), widgetItemLoader: $this->createMock(WidgetItemLoader::class))
+			placementService: $this->createMock(originalClassName: PlacementService::class),
+			rendering: new WidgetRendering(
+				widgetFormatter: new WidgetFormatter(),
+				widgetItemLoader: $this->createMock(originalClassName: WidgetItemLoader::class)
+			)
 		);
 
 		$catalogue = $service->getWidgetCatalogue();
 
-		$this->assertSame('counter', $catalogue[0]['placeholder']);
-		$this->assertSame(0, $revenue->loads);
+		$this->assertSame(expected: 'counter', actual: $catalogue[0]['placeholder']);
+		$this->assertSame(expected: 0, actual: $revenue->loads);
 	}
 }

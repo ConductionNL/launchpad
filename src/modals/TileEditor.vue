@@ -818,6 +818,7 @@ export default {
 				tile: this.form.colourToken || this.isAppMode
 					? this.colourName(this.form.colourToken || '--sc-primary').toLowerCase()
 					: t('launchpad', 'the own colour'),
+
 				ratio: this.contrast.ratio === null ? '?' : this.contrast.ratio.toFixed(1),
 			}
 			if (this.contrast.passes) {

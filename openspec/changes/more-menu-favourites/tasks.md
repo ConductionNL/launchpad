@@ -15,4 +15,4 @@
 - [x] Rewrite or remove the e2e specs that open the sidebar (except the three that follow REQ-SHELL-018/019 below)
 - [ ] Live check on a sandbox against LpMeer and LpMeerAlle (pixel pass), and the page within the speed rule
 - [x] Default pill on the effective-default row, folded and expanded (REQ-SHELL-018): "Default", tooltip "Opens automatically", accessible name "Default dashboard"; `effective-default-marker.spec.ts` follows
-- [ ] Full list: icons through the shared renderer, children indented under their parent with expand (REQ-TREEUI-001), "Filter by detail" above the list with the detail fields read on first expand (REQ-MDUI-003); `dashboards-tree-ui.spec.ts` and the MDUI-003 test follow
+- [x] Full list: icons through the shared renderer, children indented under their parent with expand (REQ-TREEUI-001), "Filter by detail" above the list with the detail fields read on first expand (REQ-MDUI-003); `dashboards-tree-ui.spec.ts` and the MDUI-003 test follow

@@ -129,7 +129,8 @@ initial state.
 
 - **GIVEN** a member on a dashboard after the page has loaded
 - **WHEN** they open More and press More in the Dashboards column
-- **THEN** no request MUST be sent
+- **THEN** no request MUST be sent, except the one-time read of the detail fields for Filter by detail
+  (REQ-SHELL-019) on the first unfold, and only when that read has not happened yet
 
 ### Requirement: More turns the column into the list of every dashboard (REQ-SHELL-015)
 

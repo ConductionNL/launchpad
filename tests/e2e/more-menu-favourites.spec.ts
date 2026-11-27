@@ -177,7 +177,8 @@ test('More turns the column into All dashboards with a star per row, New dashboa
 		for (const pressed of await stars.evaluateAll((els) => els.map((el) => el.getAttribute('aria-pressed')))) {
 			expect(pressed).toBe('false')
 		}
-		expect(requests).toEqual([])
+		// Only the one-time detail-field read of Filter by detail (REQ-SHELL-019).
+		expect(requests.filter((url) => !url.endsWith('/api/metadata-fields'))).toEqual([])
 
 		await page.locator(UNFOLD).click()
 		expect(await rows(page)).toEqual([own[0].name])

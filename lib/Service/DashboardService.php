@@ -2025,8 +2025,6 @@ class DashboardService {
 	 * when the saved UUID is not visible the pref is deleted and a WARNING
 	 * is logged before falling through to step 2.
 	 *
-	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
-	 *
 	 * @param string $userId The user ID.
 	 * @param string|null $primaryGroupId The user's primary group ID, or null /
 	 *                                    {@see Dashboard::DEFAULT_GROUP_ID}.
@@ -2036,6 +2034,7 @@ class DashboardService {
 	 *                                                          `'default'`; or `null` when no dashboard exists at all.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
 	 */
 	public function resolveActiveDashboard(
 		string $userId,

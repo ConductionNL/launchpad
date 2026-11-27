@@ -7,7 +7,7 @@
  * Leaving edit mode keeps the state from before editing as a version
  * (REQ-VERS-010, versions-on-widget-edits).
  *
- * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-versions-on-widget-edits/tasks.md#task-3
  */
 
 declare(strict_types=1);

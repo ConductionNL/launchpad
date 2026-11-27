@@ -96,7 +96,7 @@ class DashboardPresenceApiControllerTest extends TestCase {
 	 * An admitted join begins the edit session, a leave ends it before the
 	 * presence goes (REQ-VERS-010).
 	 *
-	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-27-versions-on-widget-edits/tasks.md#task-3
 	 */
 	public function testJoinBeginsAndLeaveEndsTheEditSession(): void {
 		$versions = $this->createMock(DashboardVersionService::class);
@@ -121,7 +121,7 @@ class DashboardPresenceApiControllerTest extends TestCase {
 	/**
 	 * A refused join keeps no state.
 	 *
-	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-27-versions-on-widget-edits/tasks.md#task-3
 	 */
 	public function testARefusedJoinBeginsNoSession(): void {
 		$versions = $this->createMock(DashboardVersionService::class);

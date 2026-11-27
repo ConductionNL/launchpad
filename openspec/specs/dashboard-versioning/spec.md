@@ -450,6 +450,41 @@ ran the re-sync and a list of widget changes.
 - **WHEN** the administrator re-syncs the template
 - **THEN** the copy's Versions tab shows a version by "Template Intranet" with "Updated from the template"
 
+### Requirement: REQ-VERS-010 Leaving edit mode keeps the state from before editing
+
+An edit session runs from the moment an editor enters edit mode on a dashboard (`POST /api/dashboards/{uuid}/presence`
+admits them) until they leave it (`DELETE /api/dashboards/{uuid}/presence`). The system MUST keep the dashboard as it
+was when the session began (dashboard fields and every widget with its configuration), once per session: a renewal of
+the presence MUST NOT replace it. When the session ends and the dashboard's widgets or fields differ from that state,
+the system MUST store that state as one automatic version (REQ-VERS-001's note says what changed), independent of the
+60-second debounce. It MUST NOT store a version when nothing changed, or when the newest version already holds that
+state. A failure to keep or store the state MUST NOT refuse entering or leaving edit mode. A session whose end never
+arrives MAY store no version; the kept state expires after 12 hours.
+
+#### Scenario: Changing a widget keeps a version
+
+- **GIVEN** Ruben's dashboard "My Dashboard" has no versions and holds a Notes widget titled "Today"
+- **WHEN** he enters edit mode, renames the widget to "This week" and leaves edit mode
+- **THEN** the Versions tab lists one automatic version by Ruben
+- **AND** restoring it brings the widget back with the title "Today"
+
+#### Scenario: Several changes in one session keep one version
+
+- **GIVEN** a dashboard with three widgets
+- **WHEN** the editor adds a widget, removes another and configures the third, then leaves edit mode
+- **THEN** one version is stored, holding the three widgets as they were before the session
+
+#### Scenario: Editing without changes keeps no version
+
+- **WHEN** an editor enters and leaves edit mode without changing anything
+- **THEN** no version is stored
+
+#### Scenario: A version the settings save already stored is not stored twice
+
+- **GIVEN** an editor enters edit mode and the first change is a dashboard settings save, which stores the state before it (REQ-VERS-001)
+- **WHEN** the editor leaves edit mode
+- **THEN** no second version with that same state is stored
+
 ## Non-Functional Requirements
 
 - **Performance**: GET /api/dashboards/{uuid}/versions MUST return within 500ms for dashboards with up to 50 versions. Restore operations MUST complete within 2 seconds.
@@ -485,3 +520,4 @@ ran the re-sync and a list of widget changes.
 - Nextcloud `OCP\IVersionManager` (Nextcloud 28+) — used by the eventual FilesVersioningStrategy.
 - Nextcloud `ICacheFactory::createDistributed()` — backs the per-dashboard debounce window.
 - WCAG 2.1 AA: version list and restore button SHOULD be keyboard-operable when the frontend lands.
+- REQ-VERS-010 (Leaving edit mode keeps a version): `DashboardPresenceApiController::join()` calls `DashboardVersionService::beginEditSession()` (the state at the start, per editor and dashboard, in the `launchpad_versioning` cache for 12 h; a renewal keeps the first); `leave()` calls `endEditSession()`, which stores that state as an automatic version outside the debounce when the dashboard's widgets or fields differ and the newest version does not already hold it (change versions-on-widget-edits, archived 2026-11-27).

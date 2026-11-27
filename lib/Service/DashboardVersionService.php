@@ -242,7 +242,7 @@ class DashboardVersionService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-versions-on-widget-edits/tasks.md#task-1
 	 */
 	public function beginEditSession(string $dashboardUuid, string $userId): void {
 		$cache = $this->getCache();
@@ -283,7 +283,7 @@ class DashboardVersionService {
 	 *
 	 * @return DashboardVersion|null The version, or null when none was stored.
 	 *
-	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-versions-on-widget-edits/tasks.md#task-1
 	 */
 	public function endEditSession(string $dashboardUuid, string $userId): ?DashboardVersion {
 		$cache = $this->getCache();
@@ -334,7 +334,7 @@ class DashboardVersionService {
 	 *
 	 * @return bool True when it does.
 	 *
-	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-versions-on-widget-edits/tasks.md#task-1
 	 */
 	private function newestVersionHolds(string $dashboardUuid, string $snapshotJson): bool {
 		$latest = $this->stores->versionMapper->findLatestByDashboard(dashboardUuid: $dashboardUuid, limit: 1);
@@ -354,7 +354,7 @@ class DashboardVersionService {
 	 *
 	 * @return bool True when the content is the same.
 	 *
-	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-versions-on-widget-edits/tasks.md#task-1
 	 */
 	private function sameContent(string $firstJson, string $secondJson): bool {
 		$first  = json_decode($firstJson, true);
@@ -371,7 +371,7 @@ class DashboardVersionService {
 	 *
 	 * @return string The fields, encoded with sorted keys.
 	 *
-	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-versions-on-widget-edits/tasks.md#task-1
 	 */
 	private function comparableDashboard(mixed $payload): string {
 		$dashboard = [];

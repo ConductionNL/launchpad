@@ -62,7 +62,7 @@ class DashboardPresenceApiController extends Controller {
 	 *                                               version when editing ends (REQ-VERS-010); none when not injected.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
-	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-27-versions-on-widget-edits/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -85,7 +85,7 @@ class DashboardPresenceApiController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
-	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-27-versions-on-widget-edits/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function join(string $uuid): JSONResponse {
@@ -117,7 +117,7 @@ class DashboardPresenceApiController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
-	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-27-versions-on-widget-edits/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function leave(string $uuid): JSONResponse {

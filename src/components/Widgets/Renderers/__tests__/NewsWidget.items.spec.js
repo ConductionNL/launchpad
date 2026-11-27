@@ -190,4 +190,18 @@ describe('NewsWidget clicks and dates', () => {
 		await flushPromises()
 		expect(wrapper.find('.news-widget__date').text()).toBe('2 minutes ago')
 	})
+
+	it('as a miniature draws its sample headlines and fetches no feed (REQ-WDG-048)', async () => {
+		const wrapper = mount(NewsWidget, {
+			props: {
+				preview: true,
+				content: { layout: 'list', itemLimit: 3, showSummary: true, sampleItems: [{ guid: 's1', title: 'Council meeting moved', summary: 'Now on Thursday.', pubDate: '2026-12-01T09:00:00Z', link: '#' }] },
+				placement: { id: 7 },
+			},
+		})
+		await flushPromises()
+
+		expect(axios.get).not.toHaveBeenCalled()
+		expect(wrapper.text()).toContain('Council meeting moved')
+	})
 })

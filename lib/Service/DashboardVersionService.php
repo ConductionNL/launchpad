@@ -90,6 +90,14 @@ class DashboardVersionService {
 	public const DEBOUNCE_SECONDS = 60;
 
 	/**
+	 * How long the state at the start of an edit session is kept, in seconds.
+	 * A session whose leave never arrives (the browser closed) stores no version.
+	 *
+	 * @var int
+	 */
+	public const EDIT_SESSION_SECONDS = 43200;
+
+	/**
 	 * Cache namespace used for the per-dashboard debounce key.
 	 *
 	 * @var string
@@ -222,6 +230,171 @@ class DashboardVersionService {
 
 		return ['dashboard' => $dashboard, 'snapshotJson' => $this->buildDefaultSnapshot(dashboard: $dashboard)];
 	}//end stateBeforeUpdate()
+
+	/**
+	 * Start an edit session: keep the dashboard as it is when this person
+	 * enters edit mode, so leaving it can store that state as a version
+	 * (REQ-VERS-010). A renewal while the session runs keeps the first state.
+	 * Never throws: a missing version must not keep anyone out of edit mode.
+	 *
+	 * @param string $dashboardUuid The dashboard entering edit mode.
+	 * @param string $userId        The editor.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-1
+	 */
+	public function beginEditSession(string $dashboardUuid, string $userId): void {
+		$cache = $this->getCache();
+		if ($cache === null || $dashboardUuid === '' || $userId === '') {
+			return;
+		}
+
+		try {
+			$key = $this->editSessionKey(dashboardUuid: $dashboardUuid, userId: $userId);
+			if ($cache->hasKey(key: $key) === true) {
+				return;
+			}
+
+			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $dashboardUuid);
+			$cache->set(
+				key: $key,
+				value: $this->buildDefaultSnapshot(dashboard: $dashboard),
+				ttl: self::EDIT_SESSION_SECONDS
+			);
+		} catch (Throwable $t) {
+			$this->logger->warning(
+				message: 'launchpad: keeping the state at the start of editing failed',
+				context: ['exception' => $t, 'dashboardUuid' => $dashboardUuid]
+			);
+		}//end try
+	}//end beginEditSession()
+
+	/**
+	 * End an edit session: when the dashboard changed since this person
+	 * entered edit mode, store the state from then as an automatic version
+	 * (REQ-VERS-010), outside the 60-second debounce, so restoring it undoes
+	 * the session. Nothing is stored when nothing changed, or when the newest
+	 * version already holds that state (a settings save stored it). Never
+	 * throws.
+	 *
+	 * @param string $dashboardUuid The dashboard leaving edit mode.
+	 * @param string $userId        The editor.
+	 *
+	 * @return DashboardVersion|null The version, or null when none was stored.
+	 *
+	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-1
+	 */
+	public function endEditSession(string $dashboardUuid, string $userId): ?DashboardVersion {
+		$cache = $this->getCache();
+		if ($cache === null || $dashboardUuid === '' || $userId === '') {
+			return null;
+		}
+
+		try {
+			$key    = $this->editSessionKey(dashboardUuid: $dashboardUuid, userId: $userId);
+			$before = $cache->get(key: $key);
+			$cache->remove(key: $key);
+			if (is_string($before) === false || $before === '') {
+				return null;
+			}
+
+			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $dashboardUuid);
+			$current   = $this->buildDefaultSnapshot(dashboard: $dashboard);
+			if ($this->sameContent(firstJson: $before, secondJson: $current) === true
+				|| $this->newestVersionHolds(dashboardUuid: $dashboardUuid, snapshotJson: $before) === true
+			) {
+				return null;
+			}
+
+			$entity = $this->newVersion(
+				dashboard: $dashboard,
+				options: ['snapshotJson' => $before, 'note' => null, 'explicit' => false]
+			);
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$entity->setCreatedBy($userId);
+
+			return $this->insertVersion(entity: $entity);
+		} catch (DoesNotExistException) {
+			return null;
+		} catch (Throwable $t) {
+			$this->logger->warning(
+				message: 'launchpad: storing the version of an edit session failed',
+				context: ['exception' => $t, 'dashboardUuid' => $dashboardUuid]
+			);
+			return null;
+		}//end try
+	}//end endEditSession()
+
+	/**
+	 * Whether the newest stored version of a dashboard holds this content.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 * @param string $snapshotJson  The content.
+	 *
+	 * @return bool True when it does.
+	 *
+	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-1
+	 */
+	private function newestVersionHolds(string $dashboardUuid, string $snapshotJson): bool {
+		$latest = $this->stores->versionMapper->findLatestByDashboard(dashboardUuid: $dashboardUuid, limit: 1);
+		if ($latest === []) {
+			return false;
+		}
+
+		return $this->sameContent(firstJson: (string)$latest[0]->getSnapshotJson(), secondJson: $snapshotJson);
+	}//end newestVersionHolds()
+
+	/**
+	 * Whether two snapshots hold the same dashboard and widgets, ignoring
+	 * row ids and timestamps.
+	 *
+	 * @param string $firstJson  One snapshot.
+	 * @param string $secondJson The other.
+	 *
+	 * @return bool True when the content is the same.
+	 *
+	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-1
+	 */
+	private function sameContent(string $firstJson, string $secondJson): bool {
+		$first  = json_decode($firstJson, true);
+		$second = json_decode($secondJson, true);
+
+		return $this->comparablePlacements(payload: $first) === $this->comparablePlacements(payload: $second)
+			&& $this->comparableDashboard(payload: $first) === $this->comparableDashboard(payload: $second);
+	}//end sameContent()
+
+	/**
+	 * A snapshot's dashboard fields without the ones every save moves.
+	 *
+	 * @param mixed $payload The decoded snapshot.
+	 *
+	 * @return string The fields, encoded with sorted keys.
+	 *
+	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-1
+	 */
+	private function comparableDashboard(mixed $payload): string {
+		$dashboard = [];
+		if (is_array($payload) === true && is_array($payload['dashboard'] ?? null) === true) {
+			$dashboard = $payload['dashboard'];
+		}
+
+		unset($dashboard['updatedAt'], $dashboard['createdAt']);
+		ksort($dashboard);
+		return (string)json_encode($dashboard);
+	}//end comparableDashboard()
+
+	/**
+	 * The cache key of one editor's session on one dashboard.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 * @param string $userId        The editor.
+	 *
+	 * @return string The key.
+	 */
+	private function editSessionKey(string $dashboardUuid, string $userId): string {
+		return 'launchpad_ver_edit_'.md5($dashboardUuid.'/'.$userId);
+	}//end editSessionKey()
 
 	/**
 	 * The next version row of a dashboard, not yet persisted and without

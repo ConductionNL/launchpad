@@ -22,6 +22,7 @@ use OCA\LaunchPad\Controller\DashboardPresenceApiController;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\DashboardPresenceService;
+use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -72,7 +73,7 @@ class DashboardPresenceApiControllerTest extends TestCase {
 	 *
 	 * @return DashboardPresenceApiController
 	 */
-	private function controller(?string $userId = 'sanne'): DashboardPresenceApiController {
+	private function controller(?string $userId = 'sanne', ?DashboardVersionService $versions = null): DashboardPresenceApiController {
 		$session = $this->createMock(IUserSession::class);
 		$user    = null;
 		if ($userId !== null) {
@@ -86,9 +87,49 @@ class DashboardPresenceApiControllerTest extends TestCase {
 			request: $this->createMock(IRequest::class),
 			presence: $this->presence,
 			guard: new RequestGuard(userSession: $session, groupManager: $this->createMock(IGroupManager::class), actionAuth: $this->actionAuth),
-			userId: $userId
+			userId: $userId,
+			versions: $versions
 		);
 	}//end controller()
+
+	/**
+	 * An admitted join begins the edit session, a leave ends it before the
+	 * presence goes (REQ-VERS-010).
+	 *
+	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-3
+	 */
+	public function testJoinBeginsAndLeaveEndsTheEditSession(): void {
+		$versions = $this->createMock(DashboardVersionService::class);
+		$order    = [];
+		$this->presence->method('join')->willReturn([]);
+		$versions->expects(self::once())->method('beginEditSession')->with('dash-7', 'sanne');
+		$versions->expects(self::once())->method('endEditSession')->with('dash-7', 'sanne')
+			->willReturnCallback(static function () use (&$order): null {
+				$order[] = 'version';
+				return null;
+			});
+		$this->presence->method('leave')->willReturnCallback(static function () use (&$order): void {
+			$order[] = 'leave';
+		});
+		$controller = $this->controller(versions: $versions);
+
+		self::assertSame(Http::STATUS_OK, $controller->join(uuid: 'dash-7')->getStatus());
+		self::assertSame(Http::STATUS_NO_CONTENT, $controller->leave(uuid: 'dash-7')->getStatus());
+		self::assertSame(['version', 'leave'], $order);
+	}//end testJoinBeginsAndLeaveEndsTheEditSession()
+
+	/**
+	 * A refused join keeps no state.
+	 *
+	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-3
+	 */
+	public function testARefusedJoinBeginsNoSession(): void {
+		$versions = $this->createMock(DashboardVersionService::class);
+		$this->presence->method('join')->willThrowException(new ForbiddenException(message: 'You may not edit this dashboard'));
+		$versions->expects(self::never())->method('beginEditSession');
+
+		self::assertSame(Http::STATUS_FORBIDDEN, $this->controller(versions: $versions)->join(uuid: 'dash-7')->getStatus());
+	}//end testARefusedJoinBeginsNoSession()
 
 	/**
 	 * An editor gets the colleagues editing, under the join action.

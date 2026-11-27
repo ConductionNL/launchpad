@@ -34,6 +34,7 @@ namespace OCA\LaunchPad\Controller;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\DashboardPresenceService;
+use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -57,14 +58,18 @@ class DashboardPresenceApiController extends Controller {
 	 * @param DashboardPresenceService $presence The presence lists.
 	 * @param RequestGuard             $guard    The action gate.
 	 * @param string|null              $userId   The signed-in user.
+	 * @param DashboardVersionService|null $versions Keeps the state at the start of editing and stores it as a
+	 *                                               version when editing ends (REQ-VERS-010); none when not injected.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
+	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly DashboardPresenceService $presence,
 		private readonly RequestGuard $guard,
 		private readonly ?string $userId,
+		private readonly ?DashboardVersionService $versions=null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -80,6 +85,7 @@ class DashboardPresenceApiController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
+	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function join(string $uuid): JSONResponse {
@@ -96,6 +102,10 @@ class DashboardPresenceApiController extends Controller {
 			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_FORBIDDEN);
 		}
 
+		// Admitted as an editor: keep the dashboard as it is now, once per
+		// session (a renewal keeps the first state).
+		$this->versions?->beginEditSession(dashboardUuid: $uuid, userId: (string)$this->userId);
+
 		return new JSONResponse(data: ['editors' => $editors], statusCode: Http::STATUS_OK);
 	}//end join()
 
@@ -107,6 +117,7 @@ class DashboardPresenceApiController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
+	 * @spec openspec/changes/versions-on-widget-edits/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function leave(string $uuid): JSONResponse {
@@ -115,6 +126,8 @@ class DashboardPresenceApiController extends Controller {
 			return $refusal;
 		}
 
+		// Editing ends: what changed since it began becomes one version.
+		$this->versions?->endEditSession(dashboardUuid: $uuid, userId: (string)$this->userId);
 		$this->presence->leave(dashboardUuid: $uuid, userId: (string)$this->userId);
 		return new JSONResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
 	}//end leave()

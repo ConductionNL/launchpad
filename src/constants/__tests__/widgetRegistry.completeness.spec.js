@@ -69,9 +69,11 @@ describe('widgetRegistry completeness (REQ-WDG-023)', () => {
 	})
 
 	it('listWidgetTypes() MUST surface every EXPECTED_TYPES entry with non-null form + renderer', async () => {
-		const { widgetRegistry, listWidgetTypes } =
+		const { widgetRegistry, listWidgetTypes, RETIRED_TYPES } =
 			await import('../widgetRegistry.js')
-		const surfaced = listWidgetTypes()
+		// A retired type (REQ-APPTILE-001: `app-tile`) still renders, so it
+		// stays registered, but the picker no longer offers it.
+		const surfaced = [...listWidgetTypes(), ...RETIRED_TYPES]
 
 		for (const type of EXPECTED_TYPES) {
 			const entry = widgetRegistry[type]

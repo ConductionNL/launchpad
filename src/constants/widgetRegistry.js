@@ -172,6 +172,9 @@ const RENDERER_OVERRIDES = {
 	// integrations-office-tiles: a `create` tile opens the new-file dialog;
 	// every other tile still renders through CnDashTileWidget.
 	tile: TileHost,
+	// REQ-APPTILE-006: the retired app tile renders as the App or link tile in
+	// app mode, so an old placement (an import file, a template) still works.
+	'app-tile': TileHost,
 	// REQ-VID-006: a Nextcloud-file video is resolved for its viewer first.
 	video: VideoHost,
 }
@@ -203,6 +206,26 @@ const FORM_OVERRIDES = {
 	container: ContainerWidgetForm,
 	// REQ-VID-005: the URL is checked by the parse endpoint.
 	video: VideoWidgetForm,
+}
+
+/**
+ * Types no longer offered in the picker; their placements still render.
+ * `app-tile` is the App or link tile in app mode now (REQ-APPTILE-001).
+ *
+ * @type {string[]}
+ */
+export const RETIRED_TYPES = ['app-tile']
+
+// REQ-APPTILE-001: one widget, "App or link tile", in place of the App tile
+// and the link tile. It keeps the key `tile`: every link tile already is one.
+// New tiles start as a link with white text; the form chooses the mode.
+if (cnGetWidgetTypeEntry('tile')) {
+	const base = cnGetWidgetTypeEntry('tile')
+	registerDashboardWidget('tile', {
+		...base,
+		displayName: 'App or link tile',
+		defaultContent: { ...(base.defaultContent || {}), mode: 'link', textColour: 'white' },
+	})
 }
 
 // The shared bundle (beta.155) exports CnNcWidgetWidget but its self-
@@ -619,12 +642,15 @@ export const widgetRegistry = Object.fromEntries(
 )
 
 /**
- * List every addable widget type for the app-dashboard surface.
+ * List every addable widget type for the app-dashboard surface: the
+ * registry without the retired types.
  *
+ * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
  * @return {string[]} the offerable type keys.
  */
 export function listWidgetTypes() {
-	return offerableTypes()
+	// REQ-APPTILE-001: a retired type renders but is not offered.
+	return offerableTypes().filter((type) => !RETIRED_TYPES.includes(type))
 }
 
 /**

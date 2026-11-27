@@ -20,6 +20,7 @@ namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Db\Entity;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\IDBConnection;
 
@@ -32,6 +33,17 @@ use OCP\IDBConnection;
  */
 class AdminSettingMapper extends QBMapper {
 	use ColumnMatchQueries;
+
+	/**
+	 * Every stored setting, decoded, read once per mapper instance (one request).
+	 *
+	 * A Workspace render asks for ~20 settings one by one; each used to be its
+	 * own query. Null until the first read; every write through this mapper
+	 * empties it.
+	 *
+	 * @var array<string, mixed>|null
+	 */
+	private ?array $values = null;
 
 	/**
 	 * Constructor
@@ -65,8 +77,14 @@ class AdminSettingMapper extends QBMapper {
 	 * Get all settings as key-value array.
 	 *
 	 * @return array The settings as key-value pairs.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#req-aset-001
 	 */
 	public function getAllAsArray(): array {
+		if ($this->values !== null) {
+			return $this->values;
+		}
+
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from(from: $this->getTableName());
@@ -78,6 +96,7 @@ class AdminSettingMapper extends QBMapper {
 			$result[$entity->getSettingKey()] = $entity->getValueDecoded();
 		}
 
+		$this->values = $result;
 		return $result;
 	}//end getAllAsArray()
 
@@ -110,14 +129,60 @@ class AdminSettingMapper extends QBMapper {
 	 * @param string $key The setting key.
 	 * @param mixed $default The default value.
 	 *
+	 * Answered from the settings read once per request (getAllAsArray).
+	 *
 	 * @return mixed The setting value or default.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#req-aset-001
 	 */
 	public function getValue(string $key, mixed $default = null): mixed {
-		try {
-			$setting = $this->findByKey(key: $key);
-			return $setting->getValueDecoded();
-		} catch (DoesNotExistException) {
-			return $default;
+		$values = $this->getAllAsArray();
+		if (array_key_exists($key, $values) === true) {
+			return $values[$key];
 		}
+
+		return $default;
 	}//end getValue()
+
+	/**
+	 * Insert a setting row and forget the settings read so far.
+	 *
+	 * @param Entity $entity The setting.
+	 *
+	 * @return Entity The inserted setting.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#req-aset-001
+	 */
+	public function insert(Entity $entity): Entity {
+		$this->values = null;
+		return parent::insert(entity: $entity);
+	}//end insert()
+
+	/**
+	 * Update a setting row and forget the settings read so far.
+	 *
+	 * @param Entity $entity The setting.
+	 *
+	 * @return Entity The updated setting.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#req-aset-001
+	 */
+	public function update(Entity $entity): Entity {
+		$this->values = null;
+		return parent::update(entity: $entity);
+	}//end update()
+
+	/**
+	 * Delete a setting row and forget the settings read so far.
+	 *
+	 * @param Entity $entity The setting.
+	 *
+	 * @return Entity The deleted setting.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#req-aset-001
+	 */
+	public function delete(Entity $entity): Entity {
+		$this->values = null;
+		return parent::delete(entity: $entity);
+	}//end delete()
 }//end class

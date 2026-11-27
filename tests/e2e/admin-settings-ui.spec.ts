@@ -362,10 +362,10 @@ test.describe('REQ-ASET-015 and REQ-ASET-003 the switch as the pages carry it', 
 
 		expect(await initialStateFromPage(page, 'allowUserDashboards')).toBe(false)
 
-		// Control: the sidebar is open and lists the user's own dashboard.
+		// Control: More is open and lists the user's own dashboard.
 		await expect(
 			page
-				.locator('.dashboard-switcher-sidebar.open')
+				.locator('[data-testid="launchpad-more-menu-panel"]')
 				.getByText(userDashboard!.name)
 				.first(),
 		).toBeVisible()

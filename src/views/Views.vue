@@ -1456,8 +1456,7 @@ export default {
 		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
 		 */
 		canCreatePersonalDashboard() {
-			return (this.allowUserDashboards === true || this.isAdmin === true)
-				&& !this.dashboardQuotaReached
+			return this.allowUserDashboards === true && !this.dashboardQuotaReached
 		},
 
 		/**

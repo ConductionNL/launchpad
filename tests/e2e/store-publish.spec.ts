@@ -40,7 +40,7 @@ function card(own: boolean): Record<string, unknown> {
 
 test.describe('Publish on the marketplace', () => {
 	/*
-	 * @e2e openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#scenario-the-administrator-publishes-raads-en-collegewerk
+	 * @e2e openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#scenario-the-administrator-publishes-raads-en-collegewerk
 	 */
 	test('The administrator publishes a dashboard and its card reads Own publication', async ({ page }) => {
 		let published: Record<string, unknown> | null = null
@@ -76,8 +76,10 @@ test.describe('Publish on the marketplace', () => {
 		const dialog = page.locator('[data-testid="store-publish-dialog"]')
 		await expect(dialog).toBeVisible()
 		await dialog.locator('[data-testid="store-publish-object"]', { hasText: 'Raads- en collegewerk' }).locator('input').check()
-		await dialog.locator('[data-testid="store-publish-title"] input').fill('Raads- en collegewerk')
-		await dialog.locator('[data-testid="store-publish-version"] input').fill('0.9.0')
+		// NcTextField puts the data-testid on its <input> itself, so the
+		// fields are found by their label, as a user finds them.
+		await dialog.getByRole('textbox', { name: 'Title', exact: true }).fill('Raads- en collegewerk')
+		await dialog.getByRole('textbox', { name: 'Version', exact: true }).fill('0.9.0')
 		await dialog.locator('[data-testid="store-publish-submit"]').click()
 
 		await expect.poll(() => published).not.toBeNull()

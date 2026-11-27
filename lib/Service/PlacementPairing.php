@@ -27,7 +27,7 @@
  * marketplace update (dashboard-store REQ-STORE-012).
  *
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
- * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+ * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
  *
  * @category  Service
  * @package   OCA\LaunchPad\Service
@@ -52,7 +52,7 @@ use Throwable;
  * Pair a dashboard's widgets with a new version's and write the plan.
  *
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
- * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+ * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
  */
 class PlacementPairing {
 	/**
@@ -108,7 +108,7 @@ class PlacementPairing {
 	 *               removed:array<int,WidgetPlacement>}
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function pair(array $installed, array $wanted): array {
 		$exact = $this->pairBy(
@@ -245,7 +245,7 @@ class PlacementPairing {
 	 *               changed:array<int,array{widget:string, fields:array<int,string>}>, unchanged:int}
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function describe(array $plan): array {
 		$changed = [];
@@ -302,7 +302,7 @@ class PlacementPairing {
 	 * @throws RuntimeException When a write fails. Nothing is kept then.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
 	 */
 	public function apply(Dashboard $template, array $plan): void {
 		$now = (new DateTimeImmutable())->format(format: 'Y-m-d H:i:s');

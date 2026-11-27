@@ -65,7 +65,7 @@ class StoreDescriptorBuilder {
 	 *
 	 * @psalm-suppress MixedMethodCall Instantiated from a class string by design.
 	 *
-	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
 	 */
 	public function build(): object {
 		$class = self::DESCRIPTOR_CLASS;

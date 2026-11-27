@@ -11,7 +11,7 @@
  * bar, the personal layer, each Files widget) keeps its own code path and
  * error handling: a read the page did not carry simply goes out.
  *
- * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-3
  */
 
 import axios from '@nextcloud/axios'
@@ -31,7 +31,7 @@ let installed = false
  * @param {string} url The request URL (relative or absolute, may hold a query).
  * @param {object} [params] The request's params.
  * @return {string|null} The key, or null for a URL outside the app.
- * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-3
  */
 export function requestKey(url, params = {}) {
 	const raw = String(url || '')
@@ -88,7 +88,7 @@ function keyed(list) {
  * @param {string} url The request URL.
  * @param {object} [params] The request's params.
  * @return {{data: (object|Array|string|null)}|null} The answer, or null when the page did not carry it or it was taken.
- * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-3
  */
 export function takeCarriedRead(url, params) {
 	const key = requestKey(url, params)
@@ -106,7 +106,7 @@ export function takeCarriedRead(url, params) {
  *
  * @param {object} config The axios request config.
  * @return {object} The config, with an adapter that answers from the page when carried.
- * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-3
  */
 export function answerCarried(config) {
 	if (String(config?.method || 'get').toLowerCase() !== 'get') {
@@ -132,7 +132,7 @@ export function answerCarried(config) {
  *
  * @param {object} [client] The axios instance (default: `@nextcloud/axios`).
  * @return {void}
- * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-3
  */
 export function installCarriedReads(client = axios) {
 	if (installed) {
@@ -146,7 +146,7 @@ export function installCarriedReads(client = axios) {
  * Forget what was read and installed (tests only).
  *
  * @return {void}
- * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-4
  */
 export function resetCarriedReads() {
 	carried = null

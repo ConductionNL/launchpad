@@ -196,7 +196,7 @@ class InitialStateBuilderTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-4
 	 */
 	public function testTheWorkspaceApiReadsAreProvidedOnlyWhenGiven(): void {
 		$reads = [['path' => '/api/announcements', 'params' => [], 'data' => ['announcements' => []]]];

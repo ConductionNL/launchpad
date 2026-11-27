@@ -19,7 +19,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-1
  */
 
 declare(strict_types=1);
@@ -38,7 +38,7 @@ use Throwable;
  * controller actions the browser would call, so every access check and every
  * payload stays exactly the one the endpoint gives.
  *
- * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-1
  */
 class WorkspaceApiReads {
 
@@ -61,7 +61,7 @@ class WorkspaceApiReads {
 	 *                                      built only when its read is made.
 	 * @param LoggerInterface    $logger    Logs a read that failed.
 	 *
-	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-1
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
@@ -81,7 +81,7 @@ class WorkspaceApiReads {
 	 *
 	 * @return list<array{path: string, params: array<string, mixed>, data: mixed}>|null The reads, or null when none.
 	 *
-	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-1
 	 */
 	public function firstLoad(string $userId, array $opening): ?array {
 		if ($userId === '') {
@@ -126,7 +126,7 @@ class WorkspaceApiReads {
 	 *
 	 * @return list<array|null> The reads, null where one was left out.
 	 *
-	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-1
 	 */
 	private function dashboardReads(string $userId, Dashboard $dashboard): array {
 		$reads = [];
@@ -156,7 +156,7 @@ class WorkspaceApiReads {
 	 *
 	 * @return list<array|null> The reads, null where one was left out.
 	 *
-	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-1
 	 */
 	private function filesReads(array $layout): array {
 		$reads = [];
@@ -182,7 +182,7 @@ class WorkspaceApiReads {
 	 *
 	 * @return list<int> The placement ids.
 	 *
-	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-1
 	 */
 	private function filesPlacementIds(array $layout): array {
 		$ids = [];
@@ -212,7 +212,7 @@ class WorkspaceApiReads {
 	 *
 	 * @return array{path: string, params: array<string, mixed>, data: mixed}|null The read, or null when left out.
 	 *
-	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-1
 	 */
 	private function read(array $request, callable $read): ?array {
 		try {

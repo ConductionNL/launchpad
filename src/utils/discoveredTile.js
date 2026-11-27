@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
 
+import { appTileContent } from './tileMode.js'
+
 /**
  * A discovered app (an entry of the user's Nextcloud app menu, from
  * `GET /api/tiles/discover`) as an app tile, and which discovered apps a
@@ -10,19 +12,22 @@
  */
 
 /**
- * The `app-tile` widget a discovered app becomes: one square tile for that
- * app, in its default colour, with its count of new items. The tile reads its
- * name, icon and address from the viewer's own app menu when it draws.
+ * The App or link tile a discovered app becomes: one square tile in app mode
+ * for that app, with its count of new items, in the form's appearance. The
+ * tile reads its name, icon and address from the viewer's own app menu when
+ * it draws.
  *
  * @param {{appId: string}} app The discovered app.
- * @return {{type: string, content: {appId: string, colour: string, showCount: boolean}}} The widget payload.
- * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+ * @param {object} [appearance] Tile colour, text colour, count and pin.
+ * @return {{type: string, content: object}} The widget payload.
+ * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
  */
-export function appTileFromDiscoveredApp(app) {
-	return {
-		type: 'app-tile',
-		content: { appId: String(app.appId), colour: '', showCount: true },
+export function appTileFromDiscoveredApp(app, appearance = {}) {
+	const content = appTileContent(app.appId, appearance)
+	if (appearance.iconOnly === true) {
+		content.iconOnly = true
 	}
+	return { type: 'tile', content }
 }
 
 /**
@@ -39,7 +44,7 @@ export function discoveredAppIdsOnDashboard(placements, apps) {
 	const appTiles = new Set()
 	const urlTiles = new Set()
 	for (const placement of placements || []) {
-		if (placement?.widgetId === 'app-tile') {
+		if (placement?.widgetId === 'app-tile' || (placement?.widgetId === 'tile' && placement.content?.mode === 'app')) {
 			appTiles.add(String(placement.content?.appId || ''))
 		} else if (placement?.tileLinkType === 'app') {
 			appTiles.add(String(placement.tileLinkValue || ''))

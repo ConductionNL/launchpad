@@ -204,6 +204,10 @@ describe('Views tile editor', () => {
 			pingInterval: 30,
 			linkTarget: '',
 			colourToken: '',
+			mode: 'link',
+			textColour: '',
+			iconOnly: false,
+			pinned: false,
 		})
 	})
 
@@ -216,7 +220,8 @@ describe('Views tile editor', () => {
 		}
 		const host = makeHost({ updateWidgetPlacement, closeTileEditor: vi.fn(), editingTile: { id: 8 }, widgetPlacements: [placement] })
 
-		await host.saveTile({ title: 'Zaaksysteem', linkType: 'url', linkValue: 'https://z.test', colourToken: '--sc-primary', healthPingEnabled: false })
+		// The form carries what is on the tile and the pin (REQ-APPTILE-004) from the content.
+		await host.saveTile({ title: 'Zaaksysteem', linkType: 'url', linkValue: 'https://z.test', colourToken: '--sc-primary', healthPingEnabled: false, iconOnly: true, pinned: true })
 
 		const { content } = updateWidgetPlacement.mock.calls[0][1]
 		expect(content).toMatchObject({ iconOnly: true, pinned: true, countSource: { register: 'r', schema: 's' }, colourToken: '--sc-primary', healthPingEnabled: false })
@@ -347,8 +352,8 @@ describe('Views server-app discovery', () => {
 
 		await host.addDiscoveredApp({ appId: 'deck', name: 'Deck', href: 'https://elders.example.nl/', icon: '/deck.svg' })
 		expect(addWidgetToDashboard).toHaveBeenCalledWith({
-			type: 'app-tile',
-			content: { appId: 'deck', colour: '', showCount: true },
+			type: 'tile',
+			content: { mode: 'app', appId: 'deck', colourToken: '', textColour: 'white', showCount: true, pinned: false },
 		})
 
 		const error = new Error('quota')

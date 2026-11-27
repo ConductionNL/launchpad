@@ -520,7 +520,7 @@ describe('Views saving tiles and custom widgets', () => {
 			tileTextColor: '#fff',
 			tileLinkType: 'url',
 			tileLinkValue: 'https://example.org',
-			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60, internalUrl: '' },
+			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60, internalUrl: '', mode: 'link', textColour: 'white' },
 		})
 		expect(host.closeTileEditor).toHaveBeenCalledTimes(1)
 	})
@@ -539,7 +539,7 @@ describe('Views saving tiles and custom widgets', () => {
 
 		await host.saveTile({ ...tile, healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30 })
 		expect(host.updateWidgetPlacement).toHaveBeenCalledWith(9, {
-			content: { healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30, internalUrl: '' },
+			content: { healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30, internalUrl: '', mode: 'link', textColour: 'white' },
 		})
 		expect(host.closeTileEditor).toHaveBeenCalledTimes(2)
 	})
@@ -554,7 +554,7 @@ describe('Views saving tiles and custom widgets', () => {
 
 		await host.saveTile({ ...tile, internalUrl: 'http://zaken.intern' })
 		expect(host.updateWidgetPlacement).toHaveBeenCalledWith(9, {
-			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60, internalUrl: 'http://zaken.intern' },
+			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60, internalUrl: 'http://zaken.intern', mode: 'link', textColour: 'white' },
 		})
 	})
 

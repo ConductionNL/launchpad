@@ -308,12 +308,14 @@ test.describe('app chrome (ADR-114)', () => {
 			await expect(page.locator('.workspace-shell')).toBeVisible({
 				timeout: 30_000,
 			})
-			// The shell writes the opened dashboard's own address back.
+			// The shell writes the opened dashboard's own address back, and the
+			// address, not the start dashboard, decides what is open
+			// (REQ-DASH-018: a link opens its dashboard). `GET /api/dashboard`
+			// answers the start dashboard since start-page-stays-vandaag.
 			await expect(page).toHaveURL(new RegExp(`/${linked.slug}(\\?|$)`), { timeout: 15_000 })
-			await expect.poll(async () => {
-				const res = await api.get('/index.php/apps/launchpad/api/dashboard', { headers })
-				return (await res.json()).dashboard?.uuid
-			}, { timeout: 15_000 }).toBe(linked.uuid)
+			await expect(
+				page.locator(`[data-testid="launchpad-dashboard-region"][data-dashboard-uuid="${linked.uuid}"]`),
+			).toBeVisible({ timeout: 15_000 })
 		} finally {
 			await api.delete(`/index.php/apps/launchpad/api/dashboard/${linked.id}`, { headers })
 			await api.delete(`/index.php/apps/launchpad/api/dashboard/${other.id}`, { headers })

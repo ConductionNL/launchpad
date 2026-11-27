@@ -199,3 +199,13 @@ describe('WidgetWrapper mounts its content through LazyMount', () => {
 		expect(isExportRender(null)).toBe(false)
 	})
 })
+
+describe('LazyMount rootMargin', () => {
+	it('watches one viewport ahead by default, and only the visible area with rootMargin 0px', () => {
+		vi.spyOn(LazyMountSupport, 'observer').mockReturnValue(FakeObserver)
+		vi.spyOn(LazyMountSupport, 'whenSettled').mockReturnValue(() => {})
+		mountLazy()
+		mountLazy({ rootMargin: '0px' })
+		expect(FakeObserver.instances.map((observer) => observer.options.rootMargin)).toEqual([ROOT_MARGIN, '0px'])
+	})
+})

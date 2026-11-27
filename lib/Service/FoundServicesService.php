@@ -42,6 +42,8 @@ use Throwable;
 
 /**
  * Stores the administrator's list of services to discover and reports which answer.
+ *
+ * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
  */
 class FoundServicesService {
 

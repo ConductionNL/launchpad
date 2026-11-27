@@ -427,6 +427,35 @@
             "tile.discover"
         ]
     },
+    "TileApiController::foundServices / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileApiController::foundServices / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileApiController::foundServices / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "tile.discover"
+        ]
+    },
+    "TileApiController::foundServices / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "tile.discover"
+        ]
+    },
     "TileApiController::create / anonymous": {
         "status": 401,
         "body": {

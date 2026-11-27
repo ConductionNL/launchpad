@@ -42,8 +42,8 @@ import { expect, test } from '@playwright/test'
 import { createServer } from 'node:http'
 import { enterEditMode } from './support/dashboardSwitcher.ts'
 import { setLanguage } from './support/orWidget.ts'
-import { adminContext, API } from './support/principals.ts'
 import { openOwnDashboard, readPlacements, setUpOwnDashboard, tearDownOwnDashboard } from './support/ownDashboard.ts'
+import { adminContext, API } from './support/principals.ts'
 
 const STAMP = `${Date.now()}`
 const DASHBOARD = `My workspace ${STAMP}`

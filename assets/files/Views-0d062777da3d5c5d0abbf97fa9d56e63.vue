@@ -3132,7 +3132,7 @@ export default {
 		 * form opens inside Add widget; a list that fails stays empty.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
 		 */
 		async loadTileFormLists() {
 			await Promise.all([
@@ -3149,7 +3149,7 @@ export default {
 		 *
 		 * @param {object} tileData The form's result.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
 		 */
 		async saveTileFromPicker(tileData) {
 			this.editingTile = null
@@ -3164,7 +3164,7 @@ export default {
 		 *
 		 * @param {{choices: Array<object>, appearance: object}} result The ticked apps and the appearance.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
 		 */
 		async addAppsFromPicker(result) {
 			if (await this.addAppsFromForm(result)) {

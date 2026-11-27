@@ -1808,13 +1808,6 @@
 		],
 		"fresh": true
 	},
-	"../../components/admin/AnnouncementEditorsPolicy.vue | groups": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
 	"../../components/admin/DashboardSharingPolicy.vue | groups": {
 		"type": "Array",
 		"required": false,
@@ -2193,6 +2186,18 @@
 		"type": "Function",
 		"required": true,
 		"validator": false
+	},
+	"../../modals/AnnouncementEditorModal.vue | inline": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/AnnouncementEditorModal.vue | announcement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../modals/BookmarkImportModal.vue | open": {
 		"type": "Boolean",

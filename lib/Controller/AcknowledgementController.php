@@ -277,7 +277,7 @@ class AcknowledgementController extends Controller {
 	 *
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-req-ack-004-admin-read-receipt-report-scoped-to-the-audience
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-req-ack-004-admin-read-receipt-report-scoped-to-the-audience
 	 */
 	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
 	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
@@ -311,7 +311,7 @@ class AcknowledgementController extends Controller {
 	 *
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-req-ack-004-admin-read-receipt-report-scoped-to-the-audience
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-req-ack-004-admin-read-receipt-report-scoped-to-the-audience
 	 */
 	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
 	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
@@ -385,7 +385,7 @@ class AcknowledgementController extends Controller {
 	 *
 	 * @return bool True when authorized.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-req-ack-004-admin-read-receipt-report-scoped-to-the-audience
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-req-ack-004-admin-read-receipt-report-scoped-to-the-audience
 	 */
 	private function isManager(): bool {
 		if ($this->context->userId === null) {

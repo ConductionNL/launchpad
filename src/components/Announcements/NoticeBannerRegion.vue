@@ -33,7 +33,7 @@ export const TICK_MS = 60000
  * Once the notices are on screen they are recorded as seen, in one call after
  * render. Notices closed under the former per-user preference stay hidden.
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005
  */
 export default {
 	name: 'NoticeBannerRegion',
@@ -52,7 +52,7 @@ export default {
 	computed: {
 		/**
 		 * @return {Array<object>} The notices to show now: not ended, not closed.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005
 		 */
 		visible() {
 			return this.notices.filter((notice) => {
@@ -65,7 +65,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-8 */
+	/** @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-8 */
 	created() {
 		this.load()
 		this.timer = setInterval(() => {
@@ -73,13 +73,13 @@ export default {
 		}, TICK_MS)
 	},
 
-	/** @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-8 */
+	/** @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-8 */
 	beforeUnmount() {
 		clearInterval(this.timer)
 	},
 
 	methods: {
-		/** @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-8 */
+		/** @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-8 */
 		async load() {
 			// All at once: the banner is often the largest paint of the page,
 			// and asking one after the other put a round trip before it.
@@ -114,7 +114,7 @@ export default {
 		/**
 		 * Record the notices on screen as seen, after render, without waiting.
 		 *
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		markSeen() {
 			const uuids = this.visible.map((notice) => notice.uuid)
@@ -131,7 +131,7 @@ export default {
 		 *
 		 * @param {string} uuid The notice.
 		 * @param {string} via `check` or `x`.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005
 		 */
 		async confirm(uuid, via) {
 			if (!this.notices.some((item) => item.uuid === uuid)) {

@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "of {audience} confirmed" : "su {audience} confermati",
+    "Seen by" : "Visto da",
+    "Confirmed {date} with the check" : "Confermato il {date} con la spunta",
+    "Confirmed {date} with the x" : "Confermato il {date} con la croce",
+    "Seen, not yet" : "Visto, non ancora",
+    "Not seen yet" : "Non ancora visto",
     "Announcements" : "Annunci",
     "Opens automatically" : "Si apre automaticamente",
     "Could not add the dashboard to your favourites" : "Impossibile aggiungere la dashboard ai preferiti",

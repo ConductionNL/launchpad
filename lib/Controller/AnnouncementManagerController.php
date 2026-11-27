@@ -16,8 +16,8 @@
  * @license  EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @link     https://conduction.nl
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
- * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -41,7 +41,7 @@ use OCP\IRequest;
 /**
  * The announcement managers' reminder and widgets list.
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
  */
 class AnnouncementManagerController extends Controller {
 	use AnswersAnnouncementRequests;
@@ -70,7 +70,7 @@ class AnnouncementManagerController extends Controller {
 	 *
 	 * @return JSONResponse `{uuid, sent, remindedAt}`, or 400 / 403 / 404.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
 	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
@@ -87,7 +87,7 @@ class AnnouncementManagerController extends Controller {
 	 *
 	 * @return JSONResponse `{widgets: [...]}`, or 401 / 403.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
 	 */
 	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
 	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]

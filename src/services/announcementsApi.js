@@ -61,7 +61,7 @@ export const announcementsApi = {
 	 * Every announcement for the Announcements tab, managers only (REQ-ANN-008).
 	 *
 	 * @return {Promise<Array<object>>}
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 	 */
 	async manageList() {
 		return (await axios.get(`${base()}/manage`)).data.announcements ?? []
@@ -72,7 +72,7 @@ export const announcementsApi = {
 	 *
 	 * @param {string} uuid The announcement.
 	 * @return {Promise<object>}
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 	 */
 	async remove(uuid) {
 		return (await axios.delete(`${base()}/${uuid}`)).data
@@ -119,7 +119,7 @@ export const announcementsApi = {
 	 * @param {string} uuid The announcement.
 	 * @param {string} [via] `check` (default) or `x`.
 	 * @return {Promise<object>} `{uuid, confirmed, confirmedAt, confirmedVia}`.
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	async confirmRead(uuid, via = 'check') {
 		return (await axios.post(`${base()}/${uuid}/confirm`, { via })).data
@@ -131,7 +131,7 @@ export const announcementsApi = {
 	 *
 	 * @param {Array<string>} uuids The announcements on screen.
 	 * @return {Promise<Array<string>>} The uuids recorded by this call.
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	async markSeen(uuids) {
 		if (!Array.isArray(uuids) || uuids.length === 0) {
@@ -145,7 +145,7 @@ export const announcementsApi = {
 	 *
 	 * @param {string} uuid The announcement.
 	 * @return {Promise<object>} The report: figures and one row per person.
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	async receipts(uuid) {
 		return (await axios.get(`${base()}/${uuid}/receipts`)).data
@@ -156,7 +156,7 @@ export const announcementsApi = {
 	 *
 	 * @param {Array<string>} uuids The announcements.
 	 * @return {Promise<object>} `{<uuid>: {seen, confirmed}}`.
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 	 */
 	async receiptCounts(uuids) {
 		if (!Array.isArray(uuids) || uuids.length === 0) {
@@ -170,7 +170,7 @@ export const announcementsApi = {
 	 * deadline (REQ-ACK-008); for announcement managers.
 	 *
 	 * @return {Promise<Array<object>>} `{announcementKey, title, dashboard, deadline, overdue, acknowledgedCount, pendingCount}`.
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
 	 */
 	async acknowledgedWidgets() {
 		return (await axios.get(generateUrl('/apps/launchpad/api/acknowledgements/widgets'))).data.widgets ?? []
@@ -181,7 +181,7 @@ export const announcementsApi = {
 	 * delegation, for the Roles tab (announcements-managed-in-settings D1).
 	 *
 	 * @return {Promise<object>} `{available, groups: [{id, displayName}]}`.
-	 * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-3
 	 */
 	async delegation() {
 		return (await axios.get(`${base()}/delegation`)).data
@@ -192,7 +192,7 @@ export const announcementsApi = {
 	 *
 	 * @param {string} uuid The announcement.
 	 * @return {Promise<object>} `{uuid, sent, remindedAt}`.
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	async remind(uuid) {
 		return (await axios.post(`${base()}/${uuid}/remind`)).data

@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-6
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-6
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -40,7 +40,7 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Seen and confirmed receipts of announcements.
  *
- * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-6
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-6
  */
 class Version002024Date20261127160000 extends SimpleMigrationStep {
 
@@ -85,7 +85,7 @@ class Version002024Date20261127160000 extends SimpleMigrationStep {
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) The signature is Nextcloud's.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-6
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-6
 	 */
 	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ?ISchemaWrapper {
 		// @var ISchemaWrapper $schema.
@@ -125,7 +125,7 @@ class Version002024Date20261127160000 extends SimpleMigrationStep {
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) The signature is Nextcloud's.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-6
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-6
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
 		if ($this->db->tableExists(self::ACKNOWLEDGEMENTS) === false || $this->db->tableExists(self::TABLE) === false) {

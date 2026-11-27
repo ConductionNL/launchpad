@@ -15,7 +15,7 @@
  * @license  EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @link     https://conduction.nl
  *
- * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-3
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -36,7 +36,7 @@ use OCP\IRequest;
 /**
  * Who holds the announcements setting.
  *
- * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-3
  */
 class AnnouncementDelegationController extends Controller {
 
@@ -58,7 +58,7 @@ class AnnouncementDelegationController extends Controller {
 	 *
 	 * @return JSONResponse `{available, groups: [{id, displayName}]}`.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-3
 	 */
 	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
 	public function index(): JSONResponse {

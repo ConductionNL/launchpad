@@ -190,7 +190,7 @@ import { logger } from '../../../utils/logger.js'
  * @param {object} item The announcement.
  * @param {Date} now The current moment.
  * @return {'draft'|'scheduled'|'active'|'ended'}
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
  */
 export function announcementStatus(item, now) {
 	if (item.status !== 'published') {
@@ -211,7 +211,7 @@ export function announcementStatus(item, now) {
  *
  * @param {string} hash The fragment.
  * @return {{uuid: string, section: string}}
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
  */
 export function announcementsFragment(hash) {
 	const [tab, uuid = '', section = ''] = String(hash ?? '').replace(/^#/, '').split('/')
@@ -233,7 +233,7 @@ export function announcementsFragment(hash) {
  * announcement and section are in the URL fragment, so the widget's Manage
  * link opens it directly.
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
  */
 export default {
 	name: 'AnnouncementsTab',
@@ -260,7 +260,7 @@ export default {
 		}
 	},
 
-	/** @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008 */
+	/** @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008 */
 	async mounted() {
 		await Promise.all([this.load(), this.loadWidgets()])
 		this.followFragment()
@@ -271,7 +271,7 @@ export default {
 
 		/**
 		 * @return {Date} The current moment.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 		 */
 		now() {
 			return new Date()
@@ -281,7 +281,7 @@ export default {
 		 * Load every announcement.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 		 */
 		async load() {
 			this.loading = true
@@ -301,7 +301,7 @@ export default {
 		 * Load the widgets that ask for confirmation (REQ-ACK-008).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
 		 */
 		async loadWidgets() {
 			this.widgetsError = ''
@@ -319,7 +319,7 @@ export default {
 		 *
 		 * @param {object} widget The row.
 		 * @return {void}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
 		 */
 		openWidget(widget) {
 			this.openWidgetItem = widget
@@ -330,7 +330,7 @@ export default {
 		 * shows without them when they cannot be loaded (REQ-ANN-008).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 		 */
 		async loadCounts() {
 			if (this.items.length === 0) {
@@ -352,7 +352,7 @@ export default {
 		 * Open the announcement or section the fragment names.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 		 */
 		followFragment() {
 			const { uuid, section } = announcementsFragment(globalThis.location?.hash ?? '')
@@ -382,7 +382,7 @@ export default {
 		 *
 		 * @param {object|null} item The announcement.
 		 * @return {void}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 		 */
 		openForm(item) {
 			this.receiptsOf = null
@@ -392,7 +392,7 @@ export default {
 
 		/**
 		 * @return {void}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 		 */
 		closeForm() {
 			this.editing = null
@@ -401,7 +401,7 @@ export default {
 
 		/**
 		 * @return {void}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 		 */
 		openList() {
 			this.receiptsOf = null
@@ -413,7 +413,7 @@ export default {
 		 * After Save: back to the list, reloaded.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 		 */
 		async onSaved() {
 			this.closeForm()
@@ -425,7 +425,7 @@ export default {
 		 *
 		 * @param {object} item The announcement.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		async openReceipts(item) {
 			this.editing = null
@@ -446,7 +446,7 @@ export default {
 		 *
 		 * @param {object} item The announcement.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 		 */
 		async endNow(item) {
 			try {
@@ -463,7 +463,7 @@ export default {
 		 *
 		 * @param {object} item The announcement.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 		 */
 		async remove(item) {
 			const question = this.t('launchpad', 'Delete the announcement "{title}"?', { title: item.title })
@@ -484,7 +484,7 @@ export default {
 		 *
 		 * @param {object} item The announcement.
 		 * @return {string}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 		 */
 		statusLabel(item) {
 			const labels = {
@@ -501,7 +501,7 @@ export default {
 		 *
 		 * @param {string|null} iso The time.
 		 * @return {string}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 		 */
 		formatTime(iso) {
 			if (!iso) {

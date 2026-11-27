@@ -267,7 +267,7 @@ test('a passed deadline is shown as overdue but the notice still needs an explic
 		expect(pending.items.map((i) => i.announcementKey)).toContain(KEY)
 
 		// AND: the item is reportable as overdue in the read-receipt report.
-		const report = await reportOf(tom!.api, KEY)
+		const report = await reportOf(admin, KEY)
 		expect(report.deadline).toBe(PAST_DEADLINE)
 		expect(report.overdue).toBe(true)
 		expect(report.pending).toContain(alice!.username)
@@ -316,7 +316,7 @@ test('signing off writes one receipt and answers with its timestamp', async ({
 
 		// THEN: exactly one receipt (ak-1, alice, 1, <now>) — the report holds
 		// one acknowledged entry for her, with that timestamp.
-		const report = await reportOf(tom!.api, KEY)
+		const report = await reportOf(admin, KEY)
 		expect(
 			report.acknowledged.filter((a) => a.userId === alice!.username),
 		).toEqual([
@@ -377,7 +377,7 @@ test('acknowledging again returns the original receipt', async () => {
 	expect(Number(body.id)).toBe(firstReceipt!.id)
 	// AND: … with the original acknowledgedAt unchanged.
 	expect(body.acknowledgedAt).toBe(firstReceipt!.acknowledgedAt)
-	const report = await reportOf(tom!.api, KEY)
+	const report = await reportOf(admin, KEY)
 	expect(report.acknowledged.filter((a) => a.userId === alice!.username)).toEqual([
 		{ userId: alice!.username, acknowledgedAt: firstReceipt!.acknowledgedAt },
 	])
@@ -396,7 +396,7 @@ test('alice cannot sign off for bob', async () => {
 	)
 
 	// AND: no receipt for bob.
-	const report = await reportOf(tom!.api, KEY)
+	const report = await reportOf(admin, KEY)
 	expect(report.pending).toContain(bob!.username)
 	expect(report.acknowledged.map((a) => a.userId)).not.toContain(bob!.username)
 
@@ -418,7 +418,7 @@ test('pieter, who sees tom\'s dashboard through a share but holds no copy, must 
 	expect(pending.items.filter((i) => i.announcementKey === KEY)).toHaveLength(1)
 
 	// AND: … and he is pending in tom's read-receipt report.
-	const report = await reportOf(tom!.api, KEY)
+	const report = await reportOf(admin, KEY)
 	expect(report.pending).toContain(pieter!.username)
 	expect(report.rows.map((r) => r.userId)).not.toContain(olaf!.username)
 })
@@ -453,7 +453,7 @@ test('someone outside the audience cannot acknowledge, not even by naming a memb
 	expect(borrowed.status(), await borrowed.text()).toBe(403)
 
 	// AND: no receipt was written — none for olaf, alice's unchanged.
-	const report = await reportOf(tom!.api, KEY)
+	const report = await reportOf(admin, KEY)
 	expect(report.rows.map((r) => r.userId)).not.toContain(olaf!.username)
 	expect(
 		report.acknowledged.find((a) => a.userId === alice!.username)
@@ -470,15 +470,19 @@ test('someone outside the audience cannot acknowledge, not even by naming a memb
 })
 
 // @e2e dashboard-acknowledgements::non-author-cannot-read-the-report
-test('a recipient who is not the author cannot read the report or its CSV', async () => {
-	const report = await bob!.api.get(`${ACKS}/report/${KEY}`)
-	expect(report.status(), await report.text()).toBe(403)
-	const csv = await bob!.api.get(`${ACKS}/report/${KEY}/csv`)
-	expect(csv.status(), await csv.text()).toBe(403)
+// announcements-managed-in-settings REQ-ACK-004: the report is read by holders
+// of the announcements setting; a template owner without it is refused too.
+test('a recipient and the template owner without the announcements setting cannot read the report or its CSV', async () => {
+	for (const who of [bob!, tom!]) {
+		const report = await who.api.get(`${ACKS}/report/${KEY}`)
+		expect(report.status(), await report.text()).toBe(403)
+		const csv = await who.api.get(`${ACKS}/report/${KEY}/csv`)
+		expect(csv.status(), await csv.text()).toBe(403)
+	}
 
-	// Control: the author can.
-	expect((await tom!.api.get(`${ACKS}/report/${KEY}`)).status()).toBe(200)
-	expect((await tom!.api.get(`${ACKS}/report/${KEY}/csv`)).status()).toBe(200)
+	// Control: an administrator, who always holds the setting, can.
+	expect((await admin.get(`${ACKS}/report/${KEY}`)).status()).toBe(200)
+	expect((await admin.get(`${ACKS}/report/${KEY}/csv`)).status()).toBe(200)
 })
 
 // @e2e dashboard-acknowledgements::a-recipient-cannot-change-the-requirement-on-their-copy
@@ -522,8 +526,8 @@ test('the report exports as CSV with one row per audience member', async () => {
 	})
 	expect(ack.status(), await ack.text()).toBe(200)
 
-	const report = await reportOf(tom!.api, KEY)
-	const res = await tom!.api.get(`${ACKS}/report/${KEY}/csv`)
+	const report = await reportOf(admin, KEY)
+	const res = await admin.get(`${ACKS}/report/${KEY}/csv`)
 	expect(res.status(), await res.text()).toBe(200)
 	expect(res.headers()['content-type']).toContain('text/csv')
 	const lines = (await res.text()).split('\r\n').filter((l) => l !== '')
@@ -553,7 +557,7 @@ test('the report exports as CSV with one row per audience member', async () => {
 // @e2e dashboard-acknowledgements::read-the-report
 // @e2e dashboard-acknowledgements::the-key-reaches-the-dashboard
 // @e2e dashboard-acknowledgements::who-has-not-confirmed
-test('the author opens Read confirmations on the dashboard: 3 of 7 confirmed, the 4 pending names with their department, a CSV', async ({
+test('an announcements manager opens the widget\'s read confirmations on the Announcements tab: 3 of 7 confirmed, the 4 pending names with their department, a CSV', async ({
 	browser,
 }) => {
 	// The administrator marks one profile field as the department
@@ -595,30 +599,43 @@ test('the author opens Read confirmations on the dashboard: 3 of 7 confirmed, th
 		expect(saved.status(), await saved.text()).toBe(200)
 	}
 
-	const { context, page } = await loginAs(browser, tom!.username, tom!.password)
+	// THEN (REQ-ACK-009): the placement tom's dashboard loads carries its
+	// announcementKey, and tom's More menu offers no Read receipts: they are
+	// read on the Announcements tab (announcements-managed-in-settings REQ-ACK-008).
+	const loaded = await placementWithText(tom!.api, source!.id, NOTICE)
+	expect(loaded.announcementKey).toBe(KEY)
+	const owner = await loginAs(browser, tom!.username, tom!.password)
 	try {
-		// THEN (REQ-ACK-009): the placement tom's dashboard loads carries its
-		// announcementKey …
-		const loaded = await placementWithText(tom!.api, source!.id, NOTICE)
-		expect(loaded.announcementKey).toBe(KEY)
-		await page.goto('/index.php/apps/launchpad/')
-		const more = page.locator(MORE_MENU)
+		await owner.page.goto('/index.php/apps/launchpad/')
+		const more = owner.page.locator(MORE_MENU)
 		await expect(more).toBeVisible({ timeout: 30_000 })
 		await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
-		// … and Read receipts appears in the More menu, which it only does
-		// when a loaded placement asks for confirmation and has its key.
-		const item = page.locator(
-			'[data-testid="launchpad-more-menu-item-read-receipts"]',
-		)
-		await expect(item).toBeVisible()
-		await item.click()
+		await expect(owner.page.locator('[data-testid="launchpad-more-menu-item-download"]')).toBeVisible()
+		await expect(owner.page.locator('[data-testid="launchpad-more-menu-item-read-receipts"]')).toHaveCount(0)
+	} finally {
+		await owner.context.close()
+	}
+
+	// The administrator, who holds the announcements setting, opens it under
+	// Widgets that ask for confirmation.
+	const { context, page } = await loginAs(browser, process.env.NC_ADMIN_USER ?? 'admin', process.env.NC_ADMIN_PASS ?? 'admin')
+	try {
+		await page.addInitScript(() => {
+			window.sessionStorage.setItem('launchpad:setup-wizard-offered', '1')
+		})
+		await page.goto('/index.php/settings/admin/launchpad#announcements')
+		const listed = page.getByTestId('admin-acknowledged-widgets')
+			.getByTestId('acknowledged-widget-row')
+			.filter({ hasText: `Intranet ${RUN}` })
+		await expect(listed).toBeVisible({ timeout: 60_000 })
+		await listed.getByTestId('acknowledged-widget-open').click()
 
 		const report = page.locator('[data-testid="acknowledgement-report"]')
 		await expect(report).toBeVisible({ timeout: 15_000 })
 		await expect(report.locator('h2')).toHaveText(/^Read confirmations/)
 		await expect(
 			report.locator('[data-testid="ack-report-eyebrow"]'),
-		).toHaveText(`Announcement · Intranet ${RUN}`)
+		).toHaveText(`Widget · Intranet ${RUN}`)
 		// THEN: 3 confirmed (alice, carol, dave) of the live audience of 7 …
 		const summary = report.locator('[data-testid="ack-summary"]')
 		await expect(summary).toContainText('3 of 7 confirmed')
@@ -762,7 +779,7 @@ test('a version above the published one is refused and leaves no receipt; lower 
 		acknowledgementContentVersion: 3,
 	})
 	expect(published.status(), await published.text()).toBe(200)
-	const report = await reportOf(tom!.api, KEY)
+	const report = await reportOf(admin, KEY)
 	expect(report.contentVersion).toBe(3)
 	// A row also names the reader (displayName, department); only the receipt matters here.
 	expect(report.rows.find((r) => r.userId === erin!.username)).toMatchObject({

@@ -151,16 +151,19 @@ test('the tile editor has name, icon, colour, tile type and address fields and s
 		await tile(page, CLASS).getByRole('button', { name: 'Tile menu' }).click()
 		await page.getByRole('menuitem', { name: 'Edit tile' }).click()
 		const editor = page.getByRole('dialog', { name: 'Edit Tile' })
-		await expect(editor.getByLabel('Name')).toHaveValue(CLASS)
+		await expect(editor.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(CLASS)
 		await expect(editor.getByText('Icon', { exact: true }).first()).toBeVisible()
 		await expect(editor.getByRole('button', { name: 'Choose an icon' })).toBeVisible()
 		await expect(editor.getByRole('button', { name: 'Pick background color' })).toBeVisible()
-		await expect(editor.getByRole('button', { name: 'Pick text color' })).toBeVisible()
-		await expect(editor.getByRole('radiogroup', { name: 'Tile type' })).toBeVisible()
+		// The App or link tile form (app-link-tile-widget, board LpTegelBewerken):
+		// the text colour is a swatch group, and the choice of what the tile
+		// opens replaced the Tile type radios.
+		await expect(editor.getByRole('radiogroup', { name: 'Text colour' })).toBeVisible()
+		await expect(editor.getByRole('radiogroup', { name: 'What does the tile open?' })).toBeVisible()
 		await expect(editor.getByRole('textbox', { name: 'Web address' })).toBeVisible()
 
 		const renamed = `${CLASS} hernoemd`
-		await editor.getByLabel('Name').fill(renamed)
+		await editor.getByRole('textbox', { name: 'Name', exact: true }).fill(renamed)
 		const saved = page.waitForResponse(
 			(res) =>
 				res.request().method() === 'PUT'

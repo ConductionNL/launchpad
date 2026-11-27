@@ -173,7 +173,7 @@ export function toIso(value) {
  *
  * @param {string|null} iso The stored time.
  * @return {string}
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
  */
 export function toLocalInput(iso) {
 	if (!iso) {
@@ -192,7 +192,7 @@ export function toLocalInput(iso) {
  *
  * @param {object} item The stored announcement.
  * @return {object} The form.
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
  */
 export function formFromAnnouncement(item) {
 	return {
@@ -398,7 +398,7 @@ export default {
 	computed: {
 		/**
 		 * @return {string} The form's heading: New or Edit announcement.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 		 */
 		heading() {
 			return this.announcement ? t('launchpad', 'Edit announcement') : t('launchpad', 'New announcement')

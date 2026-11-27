@@ -30,6 +30,7 @@ import {
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
+import { expectOpenDashboard } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -131,9 +132,7 @@ test('a new member of the group sees the template on their first visit', async (
 		await page.goto('/index.php/apps/launchpad/')
 
 		// The header widget of the template, and the page is not the empty state.
-		await expect(
-			page.getByText('Mijn werkdag', { exact: true }).first(),
-		).toBeVisible({ timeout: 30_000 })
+		await expectOpenDashboard(page, 'Mijn werkdag', 30_000)
 		await expect(page.getByText('You have no dashboard yet')).toHaveCount(0)
 
 		// What the server holds for this member: one personal copy made from
@@ -169,9 +168,7 @@ test('a second visit shows the same copy and makes no second one', async ({
 	)
 	try {
 		await page.goto('/index.php/apps/launchpad/')
-		await expect(
-			page.getByText('Mijn werkdag', { exact: true }).first(),
-		).toBeVisible({ timeout: 30_000 })
+		await expectOpenDashboard(page, 'Mijn werkdag', 30_000)
 
 		const visible = await context.request.get(`${API}/dashboards/visible`, {
 			headers: { 'OCS-APIRequest': 'true' },

@@ -18,7 +18,6 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
-import { gotoLaunchPad } from './fixtures/widget-flow.ts'
 import {
 	clearSeededWidgets,
 	removeSeededDashboard,
@@ -52,16 +51,19 @@ function dayAhead(days: number, hour = 8): { date: string, local: string } {
 }
 
 /**
- * Open the workspace and the form "New announcement" in the widget.
+ * Open the Announcements tab of the admin settings page and its form
+ * "New announcement" (announcements-managed-in-settings REQ-ANN-006: the
+ * widget no longer writes).
  *
  * @param page the page.
  * @return the editor.
  */
 async function openEditor(page: Page): Promise<Locator> {
-	await gotoLaunchPad(page)
-	const widget = page.locator('[data-test="announcements-widget"]')
-	await expect(widget).toBeVisible({ timeout: 30_000 })
-	await widget.locator('[data-test="announcements-new"]').click()
+	await page.addInitScript(() => {
+		window.sessionStorage.setItem('launchpad:setup-wizard-offered', '1')
+	})
+	await page.goto('/index.php/settings/admin/launchpad#announcements')
+	await page.getByTestId('announcement-new').click({ timeout: 60_000 })
 	const editor = page.locator('[data-test="announcement-editor"]')
 	await expect(editor).toBeVisible({ timeout: 10_000 })
 	return editor
@@ -111,7 +113,7 @@ test('the author writes and schedules an announcement with a read confirmation',
 	await editor.locator('[data-test="editor-confirm-before"]').fill(dayAhead(5).date)
 
 	const preview = editor.locator('[data-test="editor-preview-pane"]')
-	await expect(preview.locator('[data-test="announcement-confirm-read"]')).toHaveText('I have read this')
+	await expect(preview.locator('[data-test="announcement-confirm-read"]')).toHaveAttribute('aria-label', 'Mark as read')
 	await expect(preview.locator('[data-test="announcement-confirm-before"]')).toContainText('Confirm before')
 	await expect(editor.locator('[data-test="editor-publish"]')).toHaveText('Schedule')
 

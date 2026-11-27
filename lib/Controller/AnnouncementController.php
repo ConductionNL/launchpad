@@ -118,7 +118,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 	 */
 	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
 	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]

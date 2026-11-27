@@ -445,7 +445,7 @@ class Notifier implements INotifier {
 	 *
 	 * @return NotificationCopy
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	private function reminderCopy(array $params, IL10N $l): NotificationCopy {
 		$title = [(string)($params[0] ?? '')];

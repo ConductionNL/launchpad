@@ -16,7 +16,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
  */
 
 declare(strict_types=1);
@@ -32,7 +32,7 @@ use OCP\IDBConnection;
  *
  * @template-extends QBMapper<AnnouncementReceipt>
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
  */
 class AnnouncementReceiptMapper extends QBMapper {
 	use ColumnMatchQueries;
@@ -59,7 +59,7 @@ class AnnouncementReceiptMapper extends QBMapper {
 	 *
 	 * @return AnnouncementReceipt|null
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function findOne(string $uuid, string $userId): ?AnnouncementReceipt {
 		$found = $this->findEntities(query: $this->selectWhere(match: ['announcement_uuid' => $uuid, 'user_id' => $userId]));
@@ -74,7 +74,7 @@ class AnnouncementReceiptMapper extends QBMapper {
 	 *
 	 * @return list<AnnouncementReceipt>
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function findByAnnouncement(string $uuid): array {
 		return $this->findEntities(query: $this->selectWhere(match: ['announcement_uuid' => $uuid]));
@@ -88,7 +88,7 @@ class AnnouncementReceiptMapper extends QBMapper {
 	 *
 	 * @return list<AnnouncementReceipt>
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function findByUserAmong(string $userId, array $uuids): array {
 		if ($uuids === []) {
@@ -114,7 +114,7 @@ class AnnouncementReceiptMapper extends QBMapper {
 	 *
 	 * @return array<string, array{seen: int, confirmed: int}> Keyed by uuid; absent uuids have no receipts.
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function countsFor(array $uuids): array {
 		if ($uuids === []) {
@@ -155,7 +155,7 @@ class AnnouncementReceiptMapper extends QBMapper {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function deleteByAnnouncement(string $uuid): void {
 		$this->deleteWhere(match: ['announcement_uuid' => $uuid])->executeStatement();

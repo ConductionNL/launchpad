@@ -391,7 +391,7 @@ class AcknowledgementServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
 	 */
 	public function testListAcknowledgedHasOneRowPerKey(): void {
 		$template = new Dashboard();

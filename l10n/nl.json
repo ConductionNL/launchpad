@@ -2573,6 +2573,8 @@
         "Accent color": "Accentkleur",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Geef dit dashboard eigen kleuren. Laat een veld leeg om het thema te volgen.",
         "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)": "Knoppen in deze kleur zijn slecht te zien (contrast {ratio} op 1, nodig is 3 op 1)",
+        "Only this dashboard gets these colours. The header and the navigation follow the theme.": "Alleen dit dashboard krijgt deze kleuren. De kop en de navigatie volgen het thema.",
+        "Contrast of the accent colour on the background: {ratio} to 1. At least 3 to 1.": "Contrast van de accentkleur op de achtergrond: {ratio} op 1. Minimaal 3 op 1.",
         "Enter colors like #1f5c3a.": "Voer kleuren in zoals #1f5c3a.",
         "Custom CSS": "Eigen CSS",
         "CSS for all of LaunchPad": "CSS voor heel LaunchPad",

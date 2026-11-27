@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Sem alterações",
+        "Keep editing": "Continuar a editar",
+        "Save changes?": "Guardar as alterações?",
+        "Discard changes?": "Descartar as alterações?",
+        "Don't save": "Não guardar",
+        "The changes could not be saved.": "Não foi possível guardar as alterações.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Um colega alterou primeiro {count} destes widgets. Nada foi guardado.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Rascunho · {count} alteração", "Rascunho · {count} alterações"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Este painel tem {count} alteração por guardar.", "Este painel tem {count} alterações por guardar."],
+        "Duplicate": "Duplicar",
+        "The widget could not be duplicated.": "Não foi possível duplicar o widget.",
         "Add to favourites: {name}": "Adicionar aos favoritos: {name}",
         "All dashboards": "Todos os painéis",
         "Announcements": "Anúncios",

@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Ingen ændringer",
+        "Keep editing": "Fortsæt redigering",
+        "Save changes?": "Gem ændringer?",
+        "Discard changes?": "Kassér ændringer?",
+        "Don't save": "Gem ikke",
+        "The changes could not be saved.": "Ændringerne kunne ikke gemmes.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "En kollega ændrede {count} af disse widgets først. Intet blev gemt.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Kladde · {count} ændring", "Kladde · {count} ændringer"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Dette dashboard har {count} ikke-gemt ændring.", "Dette dashboard har {count} ikke-gemte ændringer."],
+        "Duplicate": "Dupliker",
+        "The widget could not be duplicated.": "Widgetten kunne ikke duplikeres.",
         "Add to favourites: {name}": "Føj til favoritter: {name}",
         "All dashboards": "Alle dashboards",
         "Announcements": "Meddelelser",

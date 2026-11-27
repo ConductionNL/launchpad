@@ -1,6 +1,17 @@
 OC.L10N.register(
     "launchpad",
     {
+    "No changes" : "Keine Änderungen",
+    "Keep editing" : "Weiter bearbeiten",
+    "Save changes?" : "Änderungen speichern?",
+    "Discard changes?" : "Änderungen verwerfen?",
+    "Don't save" : "Nicht speichern",
+    "The changes could not be saved." : "Die Änderungen konnten nicht gespeichert werden.",
+    "A colleague changed {count} of these widgets first. Nothing was saved." : "Ein Kollege hat {count} dieser Widgets zuerst geändert. Es wurde nichts gespeichert.",
+    "_Draft · {count} change_::_Draft · {count} changes_" : ["Entwurf · {count} Änderung", "Entwurf · {count} Änderungen"],
+    "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._" : ["Dieses Dashboard hat {count} ungespeicherte Änderung.", "Dieses Dashboard hat {count} ungespeicherte Änderungen."],
+    "Duplicate" : "Duplizieren",
+    "The widget could not be duplicated." : "Das Widget konnte nicht dupliziert werden.",
     "All dashboards" : "Alle Dashboards",
     "More" : "Mehr",
     "This dashboard" : "Dieses Dashboard",

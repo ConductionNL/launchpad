@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Ei muutoksia",
+        "Keep editing": "Jatka muokkausta",
+        "Save changes?": "Tallennetaanko muutokset?",
+        "Discard changes?": "Hylätäänkö muutokset?",
+        "Don't save": "Älä tallenna",
+        "The changes could not be saved.": "Muutoksia ei voitu tallentaa.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Kollega muutti ensin {count} näistä pienoisohjelmista. Mitään ei tallennettu.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Luonnos · {count} muutos", "Luonnos · {count} muutosta"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Tällä kojelaudalla on {count} tallentamaton muutos.", "Tällä kojelaudalla on {count} tallentamatonta muutosta."],
+        "Duplicate": "Monista",
+        "The widget could not be duplicated.": "Pienoisohjelmaa ei voitu monistaa.",
         "Add to favourites: {name}": "Lisää suosikkeihin: {name}",
         "All dashboards": "Kaikki koontinäytöt",
         "Announcements": "Tiedotteet",

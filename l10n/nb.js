@@ -1,6 +1,17 @@
 OC.L10N.register(
     "launchpad",
     {
+    "No changes" : "Ingen endringer",
+    "Keep editing" : "Fortsett redigering",
+    "Save changes?" : "Lagre endringer?",
+    "Discard changes?" : "Forkaste endringer?",
+    "Don't save" : "Ikke lagre",
+    "The changes could not be saved." : "Endringene kunne ikke lagres.",
+    "A colleague changed {count} of these widgets first. Nothing was saved." : "En kollega endret {count} av disse modulene først. Ingenting ble lagret.",
+    "_Draft · {count} change_::_Draft · {count} changes_" : ["Utkast · {count} endring", "Utkast · {count} endringer"],
+    "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._" : ["Dette dashbordet har {count} ulagret endring.", "Dette dashbordet har {count} ulagrede endringer."],
+    "Duplicate" : "Dupliser",
+    "The widget could not be duplicated." : "Modulen kunne ikke dupliseres.",
     "Add to favourites: {name}" : "Legg til i favoritter: {name}",
     "All dashboards" : "Alle dashbord",
     "Announcements" : "Kunngjøringer",

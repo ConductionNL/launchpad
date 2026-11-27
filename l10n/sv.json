@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Inga ändringar",
+        "Keep editing": "Fortsätt redigera",
+        "Save changes?": "Spara ändringar?",
+        "Discard changes?": "Ignorera ändringar?",
+        "Don't save": "Spara inte",
+        "The changes could not be saved.": "Ändringarna kunde inte sparas.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "En kollega ändrade {count} av dessa widgetar först. Inget sparades.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Utkast · {count} ändring", "Utkast · {count} ändringar"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Den här instrumentpanelen har {count} osparad ändring.", "Den här instrumentpanelen har {count} osparade ändringar."],
+        "Duplicate": "Duplicera",
+        "The widget could not be duplicated.": "Widgeten kunde inte dupliceras.",
         "Add to favourites: {name}": "Lägg till i favoriter: {name}",
         "All dashboards": "Alla instrumentpaneler",
         "Announcements": "Meddelanden",

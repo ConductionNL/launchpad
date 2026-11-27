@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Asnjë ndryshim",
+        "Keep editing": "Vazhdo redaktimin",
+        "Save changes?": "Të ruhen ndryshimet?",
+        "Discard changes?": "Të hidhen poshtë ndryshimet?",
+        "Don't save": "Mos ruaj",
+        "The changes could not be saved.": "Ndryshimet nuk mund të ruheshin.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Një koleg ndryshoi i pari {count} nga këto widget-e. Asgjë nuk u ruajt.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Draft · {count} ndryshim", "Draft · {count} ndryshime"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Ky panel ka {count} ndryshim të paruajtur.", "Ky panel ka {count} ndryshime të paruajtura."],
+        "Duplicate": "Dyfisho",
+        "The widget could not be duplicated.": "Widget-i nuk mund të dyfishohej.",
         "Add to favourites: {name}": "Shto te të preferuarat: {name}",
         "All dashboards": "Të gjitha pultet",
         "Announcements": "Njoftime",

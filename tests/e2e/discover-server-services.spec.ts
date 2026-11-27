@@ -34,7 +34,6 @@ import {
 } from './fixtures/secondary-user.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import { contextFor } from './support/principals.ts'
-import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -59,10 +58,12 @@ async function apiAs(who?: Account): Promise<APIRequestContext> {
 }
 
 /**
- * Open the add flow ("More" → "Add widget") and return the picker.
+ * Open the add flow ("More" → "Add widget"), choose the App or link tile and
+ * then "An app", and return the "Choose the app" list that replaced the
+ * picker's App tiles section (app-link-tile-widget REQ-APPTILE-004).
  *
  * @param page the page.
- * @return the picker dialog.
+ * @return the "Choose the app" list.
  */
 async function openAddFlow(page: Page): Promise<Locator> {
 	await page.goto('/index.php/apps/launchpad')
@@ -72,7 +73,26 @@ async function openAddFlow(page: Page): Promise<Locator> {
 	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 	const picker = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(picker).toBeVisible({ timeout: 10_000 })
-	return picker
+	await picker.getByTestId('widget-picker-type-tile').click()
+	await picker.getByTestId('widget-picker-add').click()
+	await page.getByTestId('tile-mode').getByText('An app', { exact: true }).click()
+	const chooser = page.getByTestId('tile-app-chooser')
+	await expect(chooser).toBeVisible({ timeout: 10_000 })
+	await expect(chooser).toContainText('Choose the app')
+	return chooser
+}
+
+/**
+ * The row of a Nextcloud app in "Choose the app".
+ *
+ * @param chooser the "Choose the app" list.
+ * @param name the app name.
+ * @return the row.
+ */
+function appRow(chooser: Locator, name: string): Locator {
+	return chooser
+		.getByTestId('tile-app-row-nextcloud')
+		.filter({ has: chooser.page().locator('.add-tiles__row-name').getByText(name, { exact: true }) })
 }
 
 test.beforeAll(async () => {
@@ -133,25 +153,24 @@ test('Deck is discovered, placed in one click and then marked as on this dashboa
 
 	const { context, page } = await loginAs(browser, account!.username, account!.password)
 	try {
-		const picker = await openAddFlow(page)
-		const section = picker.locator('[data-testid="widget-picker-section-tiles"]')
-		await expect(section).toContainText('App tiles')
-		const entry = section.getByRole('button', { name: new RegExp(`^\\s*${deck!.name}`) })
+		const chooser = await openAddFlow(page)
+		const entry = appRow(chooser, deck!.name)
 		await expect(entry).toBeVisible()
-		await expect(entry.locator('.widget-picker__tile-glyph')).toHaveAttribute('style', /url\(/)
+		await expect(entry.locator('.tile-app-chooser__icon')).toHaveAttribute('style', /url\(/)
 		await expect(entry).not.toContainText('On this dashboard')
 
 		const placed = page.waitForResponse((res) =>
 			/\/api\/dashboard\/\d+\/widgets$/.test(res.url()) && res.request().method() === 'POST',
 		)
-		await chooseAndAdd(entry)
+		await entry.getByRole('checkbox').check()
+		await page.getByTestId('tile-editor-save').click()
 		const response = await placed
 		expect(response.status(), await response.text()).toBeLessThan(300)
 		expect(response.request().postDataJSON()).toMatchObject({
-			widgetId: 'app-tile',
-			content: { appId: 'deck' },
+			widgetId: 'tile',
+			content: { mode: 'app', appId: 'deck' },
 		})
-		await page.keyboard.press('Escape')
+		await expect(chooser).toBeHidden({ timeout: 10_000 })
 
 		const tile = page.getByRole('link', { name: new RegExp(`^${deck!.name}`) }).and(page.locator('[data-testid="cn-app-tile"]'))
 		await expect(tile).toBeVisible({ timeout: 10_000 })
@@ -164,11 +183,7 @@ test('Deck is discovered, placed in one click and then marked as on this dashboa
 
 		// The next time the add flow opens, Deck is marked.
 		const again = await openAddFlow(page)
-		await expect(
-			again
-				.locator('[data-testid="widget-picker-section-tiles"]')
-				.getByRole('button', { name: new RegExp(`^\\s*${deck!.name}`) }),
-		).toContainText('On this dashboard')
+		await expect(appRow(again, deck!.name)).toContainText('On this dashboard')
 	} finally {
 		await context.close()
 	}

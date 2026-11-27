@@ -108,7 +108,6 @@ definition) SHALL be converted on import and SHALL render as an app tile. No til
 - **GIVEN** a dashboard with an `app-tile` for Files at column 3, row 2, coloured `--sc-accent`
 - **WHEN** the repair step runs and the owner opens the dashboard
 - **THEN** a tile for Files is at column 3, row 2 in the accent colour, with the same placement id
-@e2e exclude needs a placement stored before the upgrade; pinned by the repair step's unit test and the live check in tasks.md
 
 #### Scenario: Running the step twice changes nothing
 

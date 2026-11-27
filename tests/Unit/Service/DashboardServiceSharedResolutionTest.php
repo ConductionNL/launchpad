@@ -616,7 +616,7 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 	 */
 	public function testAnActiveSharedDashboardReportsTheSharePermissionLevel(): void {
 		$shared = $this->makeDashboard(7, 'uuid-shared', 'owner');
-		$this->prefs[DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY] = 'uuid-shared';
+		$this->prefs[DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY] = 'uuid-shared';
 
 		$this->dashboardMapper->method('findVisibleToUser')->willReturn([]);
 		$this->dashResolver->method('findSharedDashboards')->willReturn(

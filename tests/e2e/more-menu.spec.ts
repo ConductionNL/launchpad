@@ -88,7 +88,7 @@ async function ownActiveDashboard(as: APIRequestContext, name: string): Promise<
 	expect(id, `no dashboard id in ${JSON.stringify(body)}`).toBeTruthy()
 	const activate = await as.post(`${API}/dashboard/${id}/activate`)
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
-	const preference = await as.post(`${API}/dashboards/active`, { data: { uuid: dash.uuid } })
+	const preference = await as.post(`${API}/dashboards/default`, { data: { uuid: dash.uuid } })
 	expect(preference.status(), await preference.text()).toBeLessThan(300)
 	return { id, uuid: dash.uuid, name }
 }
@@ -255,26 +255,34 @@ test('a dashboard picked under Dashboards opens, and stays open after a reload',
 	const other = await ownActiveDashboard(owner, `E2E More menu other ${Date.now()}`)
 	const { context, page } = await memberSession(browser)
 	try {
-		// The second dashboard is now the active one; go back to the first through the API.
-		const back = await owner.post(`${API}/dashboards/active`, { data: { uuid: memberDashboard?.uuid } })
+		// The second dashboard is now the start dashboard; make the first one the start again.
+		const back = await owner.post(`${API}/dashboards/default`, { data: { uuid: memberDashboard?.uuid } })
 		expect(back.status(), await back.text()).toBeLessThan(300)
 
 		const panel = await openMore(page)
 		const item = panel.locator(`[data-testid="launchpad-more-menu-item-dashboard-${other.id}"]`)
 		await expect(item).toHaveText(new RegExp(other.name))
-		// The pick is stored in the background; reopening reloads the page.
+		// The pick is stored in the background, and the address names the picked dashboard.
 		const stored = page.waitForResponse((res) => res.url().includes('/api/dashboards/active') && res.request().method() === 'POST')
 		await item.click()
 		await expect(panel).toBeHidden()
 		await stored
+		await expect(page).not.toHaveURL(/\/apps\/launchpad\/?$/)
 
-		const reopened = await openMore(page)
-		await expect(reopened.locator(`[data-testid="launchpad-more-menu-item-dashboard-${other.id}"]`)).toHaveAttribute('aria-checked', 'true')
+		await page.locator(TRIGGER).click()
+		await expect(page.locator(PANEL).locator(`[data-testid="launchpad-more-menu-item-dashboard-${other.id}"]`)).toHaveAttribute('aria-checked', 'true')
 		await page.keyboard.press('Escape')
 
+		// A reload keeps the dashboard the address names (REQ-DASH-018: a link opens its dashboard).
 		await page.reload()
-		const afterReload = await openMore(page)
-		await expect(afterReload.locator(`[data-testid="launchpad-more-menu-item-dashboard-${other.id}"]`)).toHaveAttribute('aria-checked', 'true')
+		await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
+		await page.locator(TRIGGER).click()
+		await expect(page.locator(PANEL).locator(`[data-testid="launchpad-more-menu-item-dashboard-${other.id}"]`)).toHaveAttribute('aria-checked', 'true')
+		await page.keyboard.press('Escape')
+
+		// A fresh visit to /apps/launchpad/ opens the start dashboard, not the one picked last.
+		const fresh = await openMore(page)
+		await expect(fresh.locator(`[data-testid="launchpad-more-menu-item-dashboard-${memberDashboard?.id}"]`)).toHaveAttribute('aria-checked', 'true')
 	} finally {
 		await context.close()
 		await removeSeededDashboard(owner, other)

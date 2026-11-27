@@ -75,7 +75,7 @@ let pieterB: DashboardRow
 async function activate(who: Principal, dash: DashboardRow): Promise<void> {
 	const legacy = await who.api.post(`${API}/dashboard/${dash.id}/activate`)
 	expect(legacy.status(), await legacy.text()).toBeLessThan(300)
-	const preference = await who.api.post(`${API}/dashboards/active`, {
+	const preference = await who.api.post(`${API}/dashboards/default`, {
 		data: { uuid: dash.uuid },
 	})
 	expect(preference.status(), await preference.text()).toBeLessThan(300)

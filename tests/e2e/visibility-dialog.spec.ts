@@ -85,7 +85,7 @@ test.beforeAll(async () => {
 		expect(res.status(), await res.text()).toBeLessThan(300)
 	}
 
-	const activate = await admin.post(`${API}/dashboards/active`, { data: { uuid: String(dash.uuid) } })
+	const activate = await admin.post(`${API}/dashboards/default`, { data: { uuid: String(dash.uuid) } })
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
 })
 

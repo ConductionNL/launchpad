@@ -80,7 +80,7 @@ export class Seeds {
 	async activate(dash: SeededDashboard): Promise<void> {
 		const legacy = await this.api.post(`${LP_API}/dashboard/${dash.id}/activate`)
 		expect(legacy.status(), await legacy.text()).toBeLessThan(300)
-		const pref = await this.api.post(`${LP_API}/dashboards/active`, {
+		const pref = await this.api.post(`${LP_API}/dashboards/default`, {
 			data: { uuid: dash.uuid },
 		})
 		expect(pref.status(), await pref.text()).toBeLessThan(300)

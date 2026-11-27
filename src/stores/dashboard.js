@@ -79,7 +79,8 @@ export const STATUS_SCHEDULED = 'scheduled'
  * The checks resolveActive tries in order (REQ-DASH-018), each a predicate
  * over the visible rows, or `false` when it does not apply:
  *
- *   1. activeDashboard if still in the visible list
+ *   1. the chosen start dashboard (Set as default) if still in the visible
+ *      list; the dashboard open now or looked at last does not count
  *   2. group-shared isDefault=1 in primaryGroup (state.primaryGroup)
  *   3. default-group isDefault=1
  *   4. first group-shared in primaryGroup
@@ -88,16 +89,16 @@ export const STATUS_SCHEDULED = 'scheduled'
  *
  * @param {object} state The Pinia store state.
  * @return {Array<((d: object) => boolean)|false>} The checks.
+ * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/dashboards/spec.md
  */
 function resolutionRules(state) {
-	const activeId = state.activeDashboard?.id
+	const startUuid = state.startDashboardUuid || ''
 	const primary = state.primaryGroup || ''
 	const inPrimary = (d) => d.source === SOURCE_GROUP && d.groupId === primary
 	const inDefault = (d) => d.source === SOURCE_DEFAULT
 	const isDefault = (d) => Number(d.isDefault) === 1
-	const hasActive = activeId !== undefined && activeId !== null
 	return [
-		hasActive && ((d) => d.id === activeId || d.uuid === activeId),
+		startUuid !== '' && ((d) => d.uuid === startUuid),
 		primary !== '' && ((d) => inPrimary(d) && isDefault(d)),
 		(d) => inDefault(d) && isDefault(d),
 		primary !== '' && inPrimary,
@@ -518,6 +519,10 @@ export const useDashboardStore = defineStore('dashboard', {
 		// workspace bootstrap. Used by `resolveActive` to mirror the
 		// backend 7-step precedence (REQ-DASH-018).
 		primaryGroup: '',
+		// The person's chosen start dashboard (Set as default,
+		// `default_dashboard_uuid`): step 1 of `resolveActive`. The
+		// dashboard open now is NOT the start dashboard (REQ-DASH-018).
+		startDashboardUuid: '',
 		loading: false,
 		// The first loadDashboards() has finished.
 		loadedOnce: false,
@@ -689,7 +694,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * group dashboards refreshed). The order is identical to the PHP
 		 * resolver so the next page load picks the same dashboard:
 		 *
-		 *   1. activeDashboard if still in the visible list
+		 *   1. the chosen start dashboard if still in the visible list
 		 *   2. group-shared isDefault=1 in primaryGroup (state.primaryGroup)
 		 *   3. default-group isDefault=1
 		 *   4. first group-shared in primaryGroup
@@ -702,6 +707,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 *
 		 * @param {object} state The Pinia store state.
 		 * @return {object|null} The resolved dashboard row, or null.
+		 * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/dashboards/spec.md
 		 */
 		resolveActive: (state) => {
 			const list = state.dashboards || []

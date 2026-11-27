@@ -49,34 +49,10 @@ function mountPicker(props = {}) {
 const rows = (wrapper) => wrapper.findAll('[data-testid^="widget-picker-catalogue-"]')
 
 describe('From the app catalogue', () => {
-	it('lists the entries the server returned, with their descriptions', () => {
-		const wrapper = mountPicker()
-		// widget-picker-board-sync REQ-WDG-042: the catalogue's apps are the App tiles.
-		const section = wrapper.find('[data-testid="widget-picker-section-tiles"]')
-		expect(section.find('h3').text()).toBe('App tiles')
-		expect(rows(wrapper).map((row) => row.text())).toEqual([
-			expect.stringContaining('Zaaksysteem'),
-			expect.stringContaining('Agenda'),
-		])
-		expect(rows(wrapper)[0].text()).toContain('Cases and permits')
-		expect(rows(wrapper)[0].find('span.icon-folder').exists()).toBe(true)
-		expect(rows(wrapper)[1].find('img').attributes('src')).toBe('/apps/calendar/img/calendar.svg')
-	})
-
-	it('narrows with the same search box', async () => {
-		const wrapper = mountPicker()
-		await wrapper.find('.nc-text').setValue('zaak')
-		expect(rows(wrapper)).toHaveLength(1)
-		expect(rows(wrapper)[0].text()).toContain('Zaaksysteem')
-		await wrapper.find('.nc-text').setValue('calendar')
-		expect(rows(wrapper)[0].text()).toContain('Agenda')
-	})
-
-	it('asks the host to place the picked entry with Add widget', async () => {
-		const wrapper = mountPicker()
-		await rows(wrapper)[0].trigger('click')
-		await wrapper.find('[data-testid="widget-picker-add"]').trigger('click')
-		expect(wrapper.emitted('addCatalogueApp')[0]).toEqual([ZAAK])
+	// app-link-tile-widget REQ-WDG-042 removed: the catalogue is listed in the
+	// App or link tile form, not as picker cards.
+	it('lists no catalogue entry as a picker card', () => {
+		expect(rows(mountPicker())).toHaveLength(0)
 	})
 
 	it('is left out when the catalogue has nothing for the user', () => {

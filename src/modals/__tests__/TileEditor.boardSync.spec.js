@@ -89,18 +89,20 @@ describe('TileEditor as LpTegelBewerken draws it', () => {
 		expect(mountEditor(caseSystem).find('[data-testid="tile-editor-where"]').text()).toBe('No group · My workspace')
 	})
 
-	it('shows the fields in the board\'s order, with App with single sign-on and New tab chosen', () => {
+	it('shows the fields in the board\'s order, with A link chosen and a stored sign-on tile under How it opens', () => {
 		const wrapper = mountEditor({ ...caseSystem, linkType: 'url', linkValue: 'https://zaak.example' })
 		const html = wrapper.html()
 		const order = [
+			'data-testid="tile-mode"',
 			'data-label="Name"',
 			'data-label="Group"',
-			'data-testid="tile-link-type"',
 			'data-label="Web address"',
 			'data-label="Internal address (optional)"',
 			'data-test="tile-editor-opens-in"',
 			'tile-editor__icon',
-			'Colour',
+			'Tile colour',
+			'Text colour',
+			'data-testid="tile-editor-contrast"',
 			'data-label="Sort order in this group"',
 			'tile-editor__health-ping',
 			'Delete tile',
@@ -109,7 +111,9 @@ describe('TileEditor as LpTegelBewerken draws it', () => {
 		expect([...order].sort((a, b) => a - b)).toEqual(order)
 
 		const sso = mountEditor(caseSystem)
-		expect(sso.find('[data-testid="tile-link-type"] input[value="sso"]').element.checked).toBe(true)
+		expect(wrapper.find('[data-testid="tile-mode"] input[value="link"]').element.checked).toBe(true)
+		expect(sso.find('[data-testid="tile-how-it-opens"]').exists()).toBe(true)
+		expect(sso.find('[data-testid="tile-link-type"]').exists()).toBe(false)
 		expect(sso.find('[data-test="tile-editor-opens-in"] input[value="new-tab"]').element.checked).toBe(true)
 	})
 
@@ -176,7 +180,8 @@ describe('TileEditor as LpTegelBewerken draws it', () => {
 	it('in a group, offers only a web address and none of what needs a tile of its own', async () => {
 		const tile = { title: 'Intranet', linkType: 'url', linkValue: 'https://intranet.example.org' }
 		const wrapper = mountEditor(tile, { groupName: 'Work apps', groupSort: 'alphabetical', inGroup: true })
-		expect(wrapper.findAll('[data-testid="tile-link-type"] input').map((input) => input.element.value)).toEqual(['url'])
+		expect(wrapper.find('[data-testid="tile-link-type"]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="tile-mode"] input[value="app"]').element.disabled).toBe(true)
 		expect(wrapper.find('.text-field[data-label="Internal address (optional)"]').exists()).toBe(false)
 		expect(wrapper.find('[data-test="tile-editor-opens-in"]').exists()).toBe(false)
 		expect(wrapper.find('.tile-editor__health-ping').exists()).toBe(false)
@@ -188,14 +193,14 @@ describe('TileEditor as LpTegelBewerken draws it', () => {
 		expect(wrapper.emitted('save')[0][0]).toMatchObject({ title: 'Intranet', linkValue: 'https://intranet.example.org', groupSortBy: 'alphabetical' })
 	})
 
-	it('keeps an older type of a group tile selectable', () => {
+	it('keeps the web address of an older app tile in a group', () => {
 		const wrapper = mountEditor({ title: 'Files', linkType: 'app', linkValue: 'files' }, { groupName: 'Work apps', inGroup: true })
-		expect(wrapper.findAll('[data-testid="tile-link-type"] input').map((input) => input.element.value)).toEqual(['app', 'url'])
+		expect(wrapper.find('.text-field[data-label="Web address"]').element.value).toBe('files')
 	})
 
-	it('outside a group still offers the four types, the internal address and the check', () => {
+	it('outside a group still offers the internal address and the check', () => {
 		const wrapper = mountEditor(caseSystem)
-		expect(wrapper.findAll('[data-testid="tile-link-type"] input')).toHaveLength(4)
+		expect(wrapper.find('.text-field[data-label="Internal address (optional)"]').exists()).toBe(true)
 		expect(wrapper.find('.tile-editor__health-ping').exists()).toBe(true)
 		expect(wrapper.find('[data-testid="tile-in-group-hint"]').exists()).toBe(false)
 	})

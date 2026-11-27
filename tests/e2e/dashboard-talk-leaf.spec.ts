@@ -51,7 +51,7 @@ import { loginAs } from './fixtures/secondary-user.ts'
 import {
 	createGroupDashboard,
 	removeGroupDashboards,
-	setActivePreference,
+	setStartDashboard,
 } from './support/dashboardsSpec.ts'
 import { setUpOwnDashboard, tearDownOwnDashboard } from './support/ownDashboard.ts'
 import {
@@ -152,7 +152,7 @@ async function openWithTalk(
 	principal: Principal,
 	uuid: string,
 ): Promise<{ context: BrowserContext; page: Page; integrationStatuses: number[] }> {
-	await setActivePreference(principal.api, uuid)
+	await setStartDashboard(principal.api, uuid)
 	const { context, page } = await loginAs(browser, principal.username, principal.password)
 	await pretendTalkIsInstalled(context)
 	const integrationStatuses: number[] = []

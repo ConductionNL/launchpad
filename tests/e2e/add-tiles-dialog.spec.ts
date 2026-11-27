@@ -2,8 +2,9 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Playwright e2e for add-tiles-dialog (board LpTegelToevoegen): add Word and
- * Excel from the Office section of Add tiles.
+ * Playwright e2e for the ready-made Office tiles in the App or link tile form
+ * (app-link-tile-widget REQ-APPTILE-004, board LpTegelToevoegen; the former
+ * Add tiles dialog): add Word and Excel from the "Choose the app" list.
  *
  * The office tile pack is stubbed in the browser with Word, Excel,
  * PowerPoint and Outlook web, so the spec does not depend on which office
@@ -14,6 +15,7 @@
  *   @e2e tiles::add-office-tiles
  *
  * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md
+ * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
  */
 import type { APIRequestContext } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'
@@ -67,20 +69,20 @@ test('add Word and Excel from the Office section', async ({ page }) => {
 
 	await gotoLaunchPad(page)
 	await enterEditMode(page)
-	await page.getByTestId('launchpad-edit-bar-add-tiles').click()
+	await page.getByTestId('launchpad-edit-bar-add-widget').click()
+	await page.getByTestId('widget-picker-type-tile').click()
+	await page.getByTestId('widget-picker-add').click()
+	await page.getByTestId('tile-mode').getByText('An app', { exact: true }).click()
 
-	const dialog = page.getByTestId('add-tiles')
-	await expect(dialog).toBeVisible()
-	const office = dialog.getByTestId('add-tiles-office')
-	await expect(office).toContainText('Ready-made tiles for Office')
-
-	await office.getByLabel('Word').check()
-	await office.getByLabel('Excel').check()
-	const confirm = dialog.getByTestId('add-tiles-confirm')
+	const chooser = page.getByTestId('tile-app-chooser')
+	await expect(chooser).toBeVisible()
+	await chooser.getByRole('listitem').filter({ hasText: 'Word' }).getByRole('checkbox').check()
+	await chooser.getByRole('listitem').filter({ hasText: 'Excel' }).getByRole('checkbox').check()
+	const confirm = page.getByTestId('tile-editor-save')
 	await expect(confirm).toHaveText('Add 2 tiles')
 	await confirm.click()
 
-	await expect(dialog).toBeHidden()
+	await expect(chooser).toBeHidden()
 	const grid = page.getByTestId('launchpad-dashboard-region')
 	await expect(grid.getByText('Word', { exact: true })).toBeVisible()
 	await expect(grid.getByText('Excel', { exact: true })).toBeVisible()

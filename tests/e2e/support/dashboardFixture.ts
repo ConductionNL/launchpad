@@ -31,9 +31,11 @@
  * ACTIVATION IS TWO MECHANISMS, NOT ONE
  * =====================================
  * `POST /api/dashboard/{id}/activate` sets the legacy id-based `is_active`
- * column. `POST /api/dashboards/active` sets a per-user UUID PREFERENCE, and
- * the shell resolves its dashboard through THAT. Calling only the first one
- * loads whatever dashboard a previous spec's preference points at — measured,
+ * column. `POST /api/dashboards/default` sets the per-user START DASHBOARD
+ * (Set as default), and the shell resolves `/apps/launchpad/` through THAT
+ * (REQ-DASH-018). The last-used preference (`POST /api/dashboards/active`)
+ * no longer decides where launchpad opens. Calling only the first one loads
+ * whatever dashboard a previous spec's start dashboard points at — measured,
  * and the reason tile-quick-search calls both.
  */
 
@@ -80,7 +82,7 @@ export async function seedActiveDashboard(
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
 
 	const preference = await api.post(
-		'/index.php/apps/launchpad/api/dashboards/active',
+		'/index.php/apps/launchpad/api/dashboards/default',
 		{ data: { uuid: dash.uuid } },
 	)
 	expect(preference.status(), await preference.text()).toBeLessThan(300)

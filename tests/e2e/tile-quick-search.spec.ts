@@ -237,7 +237,7 @@ test.beforeAll(async () => {
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
 
 	const setPreference = await api.post(
-		'/index.php/apps/launchpad/api/dashboards/active',
+		'/index.php/apps/launchpad/api/dashboards/default',
 		{
 			data: { uuid: dash.uuid },
 		},

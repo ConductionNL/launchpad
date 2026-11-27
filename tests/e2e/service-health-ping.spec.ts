@@ -391,7 +391,7 @@ test.beforeAll(async () => {
 	const dashboard = body.dashboard ?? body.data?.dashboard ?? body
 	dashboardId = Number(dashboard.id)
 	expect((await author.api.post(`${API}/dashboard/${dashboardId}/activate`)).status()).toBeLessThan(300)
-	expect((await author.api.post(`${API}/dashboards/active`, { data: { uuid: dashboard.uuid } })).status()).toBeLessThan(300)
+	expect((await author.api.post(`${API}/dashboards/default`, { data: { uuid: dashboard.uuid } })).status()).toBeLessThan(300)
 
 	// Can Nextcloud reach the fixture at all? One ping says.
 	const probeUrl = `${upstreamBase}/ok?p=probe`

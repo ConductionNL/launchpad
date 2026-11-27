@@ -201,16 +201,25 @@ async function openStore(
 /**
  * Open Beheer ▸ Sharing and wait for the registry form to finish loading.
  *
+ * The admin page lives at `/settings/admin/launchpad#sharing` (REQ-ADM-036):
+ * a second `goto` to that address only changes the fragment and loads
+ * nothing, so a re-read reloads the page instead.
+ *
  * @param page The page.
+ * @param reload Reload the page that is already open, to read the server's values again.
  */
-async function openRegistryForm(page: Page): Promise<void> {
+async function openRegistryForm(page: Page, reload = false): Promise<void> {
 	const loaded = page.waitForResponse(
 		(res) =>
 			res.url().includes(`${APP_BASE}/api/store/config`)
 			&& res.request().method() === 'GET',
 		{ timeout: 60_000 },
 	)
-	await page.goto(SHARING_URL, { waitUntil: 'domcontentloaded' })
+	if (reload) {
+		await page.reload({ waitUntil: 'domcontentloaded' })
+	} else {
+		await page.goto(SHARING_URL, { waitUntil: 'domcontentloaded' })
+	}
 	await loaded
 	await expect(
 		page.locator('[data-test="dashboard-registry-settings"]'),
@@ -260,7 +269,8 @@ test.describe('dashboard store', () => {
 		await expect(page.locator('[data-testid="store-banner-not-connected"]')).toBeVisible()
 		const settings = page.locator('[data-testid="store-banner-settings"]')
 		await expect(settings).toBeVisible()
-		expect(await settings.getAttribute('href')).toMatch(/\/apps\/launchpad\/admin\/sharing$/)
+		// The admin page lives in Nextcloud's settings (REQ-ADM-036).
+		expect(await settings.getAttribute('href')).toMatch(/\/settings\/admin\/launchpad#sharing$/)
 	})
 
 	/*
@@ -330,8 +340,9 @@ test.describe('dashboard store', () => {
 			(res) =>
 				res.url().includes(`${APP_BASE}/api/store/config`)
 				&& res.request().method() === 'GET',
+			{ timeout: 60_000 },
 		)
-		await openRegistryForm(page)
+		await openRegistryForm(page, true)
 		const readRes = await reread
 		const readText = await readRes.text()
 

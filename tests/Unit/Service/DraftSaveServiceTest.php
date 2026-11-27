@@ -23,6 +23,7 @@ use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\StalePlacementException;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardVersionService;
+use OCA\LaunchPad\Service\DraftSaveGuard;
 use OCA\LaunchPad\Service\DraftSaveService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
@@ -123,11 +124,13 @@ class DraftSaveServiceTest extends TestCase {
 	private function service(): DraftSaveService {
 		return new DraftSaveService(
 			widgets: $this->widgets,
-			permissions: $this->permissions,
-			roleWidgets: $this->roleWidgets,
+			guard: new DraftSaveGuard(
+				permissions: $this->permissions,
+				roleWidgets: $this->roleWidgets,
+				placements: $this->createMock(originalClassName: WidgetPlacementService::class)
+			),
 			dashboards: $this->dashboards,
-			versions: $this->versions,
-			placements: $this->createMock(originalClassName: WidgetPlacementService::class)
+			versions: $this->versions
 		);
 	}//end service()
 

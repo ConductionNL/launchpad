@@ -806,12 +806,6 @@ class DashboardApiController extends Controller {
 			return $denial;
 		}
 
-		// REQ-EDIT-002: an edit-mode Save sends its whole draft, marked as such,
-		// so the older position-only `placements` patch keeps its meaning.
-		if ($this->request->getParam(key: 'draft') === true && is_array($placements) === true) {
-			return $this->saveDraft(dashboardId: $id, gridColumns: $look['gridColumns'], draft: $placements);
-		}
-
 		return $this->applyUpdate(
 			dashboardId: $id,
 			fields: [
@@ -843,12 +837,12 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	private function saveDraft(int $dashboardId, ?int $gridColumns, array $draft): JSONResponse {
-		if ($this->context->userId === null || $this->services->draftSave === null) {
+		if ($this->context->userId === null || $this->services->widgets->draftSave === null) {
 			return $this->context->responseHelper->unauthorized();
 		}
 
 		try {
-			$saved = $this->services->draftSave->save(
+			$saved = $this->services->widgets->draftSave->save(
 				dashboardId: $dashboardId,
 				userId: $this->context->userId,
 				gridColumns: $gridColumns,
@@ -1083,8 +1077,15 @@ class DashboardApiController extends Controller {
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	private function applyUpdate(int $dashboardId, array $fields): JSONResponse {
+		// REQ-EDIT-002: an edit-mode Save sends its whole draft, marked as such,
+		// so the older position-only `placements` patch keeps its meaning.
+		if ($this->request->getParam(key: 'draft') === true && is_array($fields['placements']) === true) {
+			return $this->saveDraft(dashboardId: $dashboardId, gridColumns: $fields['gridColumns'], draft: $fields['placements']);
+		}
+
 		try {
 			$data = $this->buildUpdateData(fields: $fields);
 			$save = fn (): Dashboard => $this->services->dashboardService->updateDashboard(

@@ -87,7 +87,7 @@ class DashboardApiControllerShowAccessTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->createMock(originalClassName: IRequest::class),
-			services: new DashboardApiServices(dashboardService: $this->dashboards, visibility: $this->visibility),
+			services: new DashboardApiServices(dashboardService: $this->dashboards, widgets: new \OCA\LaunchPad\Controller\DashboardApiWidgets(visibility: $this->visibility)),
 			access: new DashboardApiAccess(
 				permissionService: $this->createMock(originalClassName: PermissionService::class),
 				history: new DashboardApiHistory(

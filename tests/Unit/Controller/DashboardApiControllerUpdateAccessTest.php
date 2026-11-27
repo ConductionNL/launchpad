@@ -96,6 +96,9 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 	 * @param bool        $denyAction Whether the action check refuses.
 	 * @param array       $body       Extra request parameters by name.
 	 * @param DashboardVersionService|null $versions The version service, a plain double when null.
+	 * @param \Exception|null              $serviceRefusal What the dashboard service throws on a save, or null.
+	 * @param string|null                  $metadataAllowed The only user allowed metadata edits, $allowed when null.
+	 * @param bool                         $mayDelete Whether deleting dashboards is allowed.
 	 * @param DraftSaveService|null        $draftSave The draft save (REQ-EDIT-002), none when null.
 	 *
 	 * @return DashboardApiController
@@ -176,7 +179,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $request,
-			services: new DashboardApiServices(dashboardService: $service, draftSave: $draftSave),
+			services: new DashboardApiServices(dashboardService: $service, widgets: new \OCA\LaunchPad\Controller\DashboardApiWidgets(draftSave: $draftSave)),
 			access: new DashboardApiAccess(permissionService: $permissions, history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
 				versionService: $versions,

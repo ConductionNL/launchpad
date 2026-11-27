@@ -87,7 +87,11 @@ class AnnouncementServiceTest extends TestCase {
 	 *
 	 * @return AnnouncementService
 	 */
-	private function service(array $editorGroups = ['redactie'], ?AnnouncementFollowNotifier $notifier = null, ?AnnouncementManagers $managers = null): AnnouncementService {
+	private function service(
+		array $editorGroups = ['redactie'],
+		?AnnouncementFollowNotifier $notifier = null,
+		?AnnouncementManagers $managers = null
+	): AnnouncementService {
 		$mapper = $this->createMock(AnnouncementMapper::class);
 		$mapper->method('insert')->willReturnCallback(function (Announcement $entity): Announcement {
 			$this->stored[$entity->getUuid()] = $entity;
@@ -149,7 +153,7 @@ class AnnouncementServiceTest extends TestCase {
 
 		if ($managers === null) {
 			// The former editor groups, as AnnouncementManagers reads them until the move to the delegation.
-			$managers = $this->createMock(AnnouncementManagers::class);
+			$managers = $this->createMock(originalClassName: AnnouncementManagers::class);
 			$managers->method('manages')->willReturnCallback(
 				fn (string $userId): bool => array_intersect($editorGroups, $this->groupsOf[$userId] ?? []) !== []
 			);
@@ -242,10 +246,11 @@ class AnnouncementServiceTest extends TestCase {
 		// Every manager manages every announcement (announcements-managed-in-settings D2).
 		$adminNews = $service->create('admin', ['title' => 'Van de beheerder', 'expiresAt' => self::UNTIL]);
 		$service->publish('admin', $adminNews->getUuid());
-		$this->assertSame('Overschreven', $service->update('karin', $adminNews->getUuid(), ['title' => 'Overschreven'])->getTitle());
-		$this->assertCount(1, $service->allFor('karin'));
+		$updated = $service->update(userId: 'karin', uuid: $adminNews->getUuid(), input: ['title' => 'Overschreven']);
+		$this->assertSame(expected: 'Overschreven', actual: $updated->getTitle());
+		$this->assertCount(expectedCount: 1, haystack: $service->allFor(userId: 'karin'));
 		$this->expectException(ForbiddenException::class);
-		$service->allFor('pieter');
+		$service->allFor(userId: 'pieter');
 	}//end testOnlyEditorsAuthorTheirOwn()
 
 	/**
@@ -255,13 +260,14 @@ class AnnouncementServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testADelegatedManagerAuthors(): void {
-		$managers = $this->createMock(AnnouncementManagers::class);
+		$managers = $this->createMock(originalClassName: AnnouncementManagers::class);
 		$managers->method('manages')->willReturnCallback(static fn (string $userId): bool => $userId === 'femke');
 		$service = $this->service(editorGroups: [], managers: $managers);
 
-		$this->assertTrue($service->isAuthor('femke'));
-		$this->assertFalse($service->isAuthor('karin'));
-		$this->assertSame('Van Femke', $service->create('femke', ['title' => 'Van Femke', 'expiresAt' => self::UNTIL])->getTitle());
+		$this->assertTrue(condition: $service->isAuthor(userId: 'femke'));
+		$this->assertFalse(condition: $service->isAuthor(userId: 'karin'));
+		$created = $service->create(userId: 'femke', input: ['title' => 'Van Femke', 'expiresAt' => self::UNTIL]);
+		$this->assertSame(expected: 'Van Femke', actual: $created->getTitle());
 	}//end testADelegatedManagerAuthors()
 
 	/**
@@ -273,8 +279,8 @@ class AnnouncementServiceTest extends TestCase {
 		$service = $this->service();
 		$draft = $service->create('karin', ['title' => 'Concept', 'expiresAt' => self::UNTIL]);
 
-		$this->assertSame([$draft], $service->allFor('karin'));
-		$this->assertSame([$draft], $service->allFor('admin'));
+		$this->assertSame(expected: [$draft], actual: $service->allFor(userId: 'karin'));
+		$this->assertSame(expected: [$draft], actual: $service->allFor(userId: 'admin'));
 		$this->assertSame('Concept', $service->findFor('admin', $draft->getUuid())->getTitle());
 
 		$this->expectException(DoesNotExistException::class);

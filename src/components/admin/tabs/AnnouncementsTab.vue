@@ -192,6 +192,7 @@ export default {
 		}
 	},
 
+	/** @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008 */
 	async mounted() {
 		await this.load()
 		this.followFragment()
@@ -200,7 +201,10 @@ export default {
 	methods: {
 		announcementStatus,
 
-		/** @return {Date} The current moment. */
+		/**
+		 * @return {Date} The current moment.
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 */
 		now() {
 			return new Date()
 		},
@@ -266,13 +270,19 @@ export default {
 			this.setFragment(item ? `/${item.uuid}` : '')
 		},
 
-		/** @return {void} */
+		/**
+		 * @return {void}
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 */
 		closeForm() {
 			this.editing = null
 			this.setFragment('')
 		},
 
-		/** @return {void} */
+		/**
+		 * @return {void}
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 */
 		openList() {
 			this.receiptsOf = null
 			this.receipts = null
@@ -283,6 +293,7 @@ export default {
 		 * After Save: back to the list, reloaded.
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 		 */
 		async onSaved() {
 			this.closeForm()
@@ -353,6 +364,7 @@ export default {
 		 *
 		 * @param {object} item The announcement.
 		 * @return {string}
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 		 */
 		statusLabel(item) {
 			const labels = {
@@ -369,6 +381,7 @@ export default {
 		 *
 		 * @param {string|null} iso The time.
 		 * @return {string}
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 		 */
 		formatTime(iso) {
 			if (!iso) {

@@ -130,7 +130,7 @@ class AnnouncementControllerTest extends TestCase {
 
 		$this->assertSame(['Inloopspreekuur privacy'], array_column($data['announcements'], 'title'));
 		$this->assertSame(['Medewerkers'], $data['announcements'][0]['targetGroups']);
-		$this->assertArrayNotHasKey('drafts', $data);
+		$this->assertArrayNotHasKey(key: 'drafts', array: $data);
 		$this->assertSame(['Privacy'], $data['followedCategories']);
 		$this->assertFalse($data['canAuthor']);
 		$this->assertSame(['announcement.read'], $this->checked);

@@ -1013,9 +1013,9 @@ class DashboardApiController extends Controller {
 	/**
 	 * Apply an allowed update and answer with the saved dashboard.
 	 *
-	 * Captures an automatic version snapshot of the state before the save,
-	 * once the save succeeded (REQ-VERS-001). Parent, slug, depth and cycle violations answer 400
-	 * (REQ-DASH-023..029).
+	 * Every successful save makes one version of the dashboard as saved, in
+	 * the save's transaction (REQ-VERS-010/011). Parent, slug, depth and cycle
+	 * violations answer 400 (REQ-DASH-023..029).
 	 *
 	 * @param int                  $dashboardId The dashboard ID.
 	 * @param array<string, mixed> $fields      The nullable update fields by name, in patch order.
@@ -1023,27 +1023,21 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The updated dashboard, or the error.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
 	 */
 	private function applyUpdate(int $dashboardId, array $fields): JSONResponse {
 		try {
-			$data   = $this->buildUpdateData(fields: $fields);
-			$before = $this->access->history->versionService->stateBeforeUpdate(dashboardId: $dashboardId);
-
-			$dashboard = $this->services->dashboardService->updateDashboard(
+			$data = $this->buildUpdateData(fields: $fields);
+			$save = fn (): Dashboard => $this->services->dashboardService->updateDashboard(
 				dashboardId: $dashboardId,
 				userId: $this->context->userId,
 				data: $data
 			);
 
-			// REQ-VERS-001: once the PUT succeeded, snapshot the state it
-			// replaced. The version service enforces its own debounce
-			// window (60 s) so rapid drag-and-drop edits do not flood the
-			// table. Failures are swallowed so they do not surface to the
-			// dashboard PUT response.
-			$this->captureAutomaticSnapshot(
-				dashboard: ($before['dashboard'] ?? $dashboard),
-				snapshotJson: ($before['snapshotJson'] ?? null)
-			);
+			// REQ-VERS-010/011: every successful save makes one version of
+			// the dashboard as saved, without debounce, in the same
+			// transaction; a failed save leaves no version.
+			$dashboard = $this->saveWithVersion(dashboardId: $dashboardId, save: $save);
 
 			return $this->context->responseHelper->success(
 				data: ['dashboard' => $dashboard->jsonSerialize()]
@@ -2447,41 +2441,27 @@ class DashboardApiController extends Controller {
 	}//end buildGroupUpdateData()
 
 	/**
-	 * Capture an automatic version snapshot after a successful update
-	 * (REQ-VERS-001). The version service enforces a 60-second debounce
-	 * window so a flurry of drag-and-drop saves does not flood the
-	 * table.
+	 * Run a dashboard save with its version (REQ-VERS-010/011): one version
+	 * of the dashboard as saved, in the save's transaction, the first one
+	 * preceded by the state before. Without a user there is no author, so
+	 * the save runs without a version.
 	 *
-	 * Failures here MUST NOT surface to the dashboard PUT response —
-	 * the user's edit succeeded; missing one snapshot is a quality of
-	 * life regression, not a data-integrity bug. We log + swallow.
+	 * @param int      $dashboardId The dashboard being saved.
+	 * @param \Closure $save        Runs the save and returns the saved dashboard.
 	 *
-	 * @param \OCA\LaunchPad\Db\Dashboard $dashboard    The dashboard as it was before the update.
-	 * @param string|null                 $snapshotJson Its payload built before the update, or null to build it now.
+	 * @return Dashboard The saved dashboard.
 	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
 	 */
-	private function captureAutomaticSnapshot(
-		\OCA\LaunchPad\Db\Dashboard $dashboard,
-		?string $snapshotJson = null,
-	): void {
+	private function saveWithVersion(int $dashboardId, \Closure $save): Dashboard {
 		if ($this->context->userId === null) {
-			return;
+			return $save();
 		}
 
-		try {
-			$this->access->history->versionService->captureSnapshot(
-				dashboard: $dashboard,
-				createdBy: $this->context->userId,
-				options: ['snapshotJson' => $snapshotJson]
-			);
-		} catch (\Throwable $t) {
-			$this->access->history->logger->warning(
-				message: 'launchpad: automatic version snapshot failed',
-				context: ['exception' => $t]
-			);
-		}
-	}//end captureAutomaticSnapshot()
+		return $this->access->history->versionService->saveWithVersion(
+			dashboardId: $dashboardId,
+			createdBy: $this->context->userId,
+			save: $save
+		);
+	}//end saveWithVersion()
 }//end class

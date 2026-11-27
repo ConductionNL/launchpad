@@ -1108,7 +1108,7 @@ export default {
 					return
 				}
 				globalThis.sessionStorage?.setItem(key, '1')
-			} catch (e) {
+			} catch {
 				// Without storage the banner still offers the wizard.
 				return
 			}

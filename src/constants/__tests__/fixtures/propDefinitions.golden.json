@@ -314,6 +314,12 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/TileWidget.vue | embedHref": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
 	"../../components/TileWidget.vue | placementId": {
 		"type": [
 			"Number",
@@ -1356,6 +1362,36 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Widgets/WidgetEditMenu.vue | editLabel": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | deleteLabel": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | showWhoSees": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": true
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | embedHref": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | embedDisabled": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Widgets/WidgetRowFilter.vue | modelValue": {
 		"type": "String",
 		"required": false,
@@ -1891,13 +1927,6 @@
 		],
 		"fresh": true
 	},
-	"../../components/admin/AnnouncementEditorsPolicy.vue | groups": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
 	"../../components/admin/DashboardSharingPolicy.vue | groups": {
 		"type": "Array",
 		"required": false,
@@ -2224,6 +2253,18 @@
 		"required": false,
 		"validator": false,
 		"default": ""
+	},
+	"../../modals/AnnouncementEditorModal.vue | inline": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/AnnouncementEditorModal.vue | announcement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../modals/BookmarkImportModal.vue | open": {
 		"type": "Boolean",

@@ -111,4 +111,19 @@ class AnnouncementMapper extends QBMapper {
 
 		return $this->findEntities(query: $qb);
 	}//end findDrafts()
+
+	/**
+	 * Every announcement, news and notices in every status, newest first:
+	 * the list of the Announcements tab (REQ-ANN-008).
+	 *
+	 * @return list<Announcement>
+	 *
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+	 */
+	public function findAllForManagers(): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')->from($this->getTableName())->orderBy('updated_at', 'DESC')->setMaxResults(500);
+
+		return $this->findEntities(query: $qb);
+	}//end findAllForManagers()
 }//end class

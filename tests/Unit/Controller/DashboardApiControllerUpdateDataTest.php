@@ -153,7 +153,7 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 			),
 			access: new DashboardApiAccess(permissionService: $permissions, history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
-				versionService: $this->createMock(DashboardVersionService::class),
+				versionService: $this->versionServiceRunningSaves(),
 				analyticsService: $this->createMock(AnalyticsService::class),
 				logger: $this->createMock(LoggerInterface::class)
 			)),
@@ -335,4 +335,18 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 			$response->getData()
 		);
 	}//end testScheduleWithoutTimesIsABadRequest()
+
+	/**
+	 * A version service mock that runs the save it wraps, as the real one
+	 * does (REQ-VERS-010).
+	 *
+	 * @return DashboardVersionService The mock.
+	 */
+	private function versionServiceRunningSaves(): DashboardVersionService {
+		$versions = $this->createMock(originalClassName: DashboardVersionService::class);
+		$versions->method('saveWithVersion')->willReturnCallback(
+			static fn (int $dashboardId, string $createdBy, \Closure $save): \OCA\LaunchPad\Db\Dashboard => $save()
+		);
+		return $versions;
+	}//end versionServiceRunningSaves()
 }//end class

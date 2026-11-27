@@ -176,7 +176,7 @@ export function startEarlyRead(url, params = {}, client = axios) {
 	let response
 	try {
 		response = Promise.resolve(client.get(url, { params, [EARLY_FLAG]: true }))
-	} catch (error) {
+	} catch {
 		// An early read is only a head start: if it cannot start, the GET goes out later.
 		return
 	}

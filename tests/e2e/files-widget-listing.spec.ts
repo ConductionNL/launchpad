@@ -41,6 +41,7 @@ import {
 	crumbs,
 	fileIdOf,
 	filesWidget,
+	firstContents,
 	mkdirs,
 	nextContents,
 	openOnWidget,
@@ -264,7 +265,7 @@ test('with an empty or missing MIME filter every file and folder is returned', a
 
 	const pending = nextContents(page, missing)
 	const emptyResponse = await openOnWidget(page, empty)
-	const missingResponse = await pending
+	const missingResponse = await firstContents(page, missing, pending)
 	for (const response of [emptyResponse, missingResponse]) {
 		expect((await response.json()).items.map((i: any) => i.name).sort()).toEqual(expected)
 	}

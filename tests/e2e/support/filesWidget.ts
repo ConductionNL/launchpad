@@ -449,6 +449,23 @@ export async function carriedContents(page: Page, placementId: number): Promise<
 }
 
 /**
+ * A placement's first contents answer once the workspace is open: the one
+ * the page carried (see {@link carriedContents}), else the request a
+ * {@link nextContents} started before the page opened.
+ *
+ * @param page the page, on the workspace.
+ * @param placementId the placement.
+ * @param pending the placement's {@link nextContents}, started before navigating.
+ * @return the first contents answer.
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/specs/initial-state-contract/spec.md
+ */
+export async function firstContents(page: Page, placementId: number, pending: Promise<Response>): Promise<Response> {
+	// The page may answer it itself; then no request comes.
+	pending.catch(() => null)
+	return (await carriedContents(page, placementId)) ?? (await pending)
+}
+
+/**
  * Open LaunchPad on the active dashboard and wait for a placement's first
  * contents response, or take it from the page when the page carried it
  * (see {@link carriedContents}).

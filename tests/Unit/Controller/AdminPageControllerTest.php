@@ -61,22 +61,32 @@ class AdminPageControllerTest extends TestCase {
 	/**
 	 * The controller, for a reader the access check allows or refuses.
 	 *
-	 * @param bool $allowed Whether the reader is a (delegated) administrator.
+	 * @param bool                  $allowed Whether the reader is a (delegated) administrator.
+	 * @param array<string, string> $query   The request's query parameters.
 	 *
 	 * @return AdminPageController
 	 */
-	private function controller(bool $allowed): AdminPageController {
+	private function controller(bool $allowed, array $query = []): AdminPageController {
 		$access = $this->createMock(originalClassName: AdminPageAccess::class);
 		$access->method('allows')->willReturn($allowed);
 		$this->formState = $this->createMock(originalClassName: AdminFormState::class);
 		$urls = $this->createMock(originalClassName: IURLGenerator::class);
 		$urls->method('linkToRoute')->willReturnCallback(
-			static fn (string $route, array $args = []): string => '/index.php/apps/launchpad/admin/' . ($args['tab'] ?? '') . '#' . $route
+			static function (string $route, array $args = []): string {
+				$tab = $args['tab'] ?? '';
+				unset($args['tab']);
+				$search = $args === [] ? '' : '?' . http_build_query($args);
+				return '/index.php/apps/launchpad/admin/' . $tab . $search . '#' . $route;
+			}
+		);
+		$request = $this->createMock(originalClassName: IRequest::class);
+		$request->method('getParam')->willReturnCallback(
+			static fn (string $key, $default = null) => $query[$key] ?? $default
 		);
 
 		$test = $this;
 		return new class(
-			request: $this->createMock(originalClassName: IRequest::class),
+			request: $request,
 			access: $access,
 			formState: $this->formState,
 			urlGenerator: $urls,
@@ -213,6 +223,88 @@ class AdminPageControllerTest extends TestCase {
 		);
 		$this->assertFalse(condition: $this->assetsAdded);
 	}//end testAnUnknownTabRedirectsToGeneral()
+
+	/**
+	 * The page declares the twelve tabs the Beheer boards draw (REQ-ADM-032).
+	 *
+	 * @return void
+	 */
+	public function testThePageDeclaresTheTwelveDrawnTabs(): void {
+		$this->assertSame(
+			expected: [
+				'general', 'templates', 'operations', 'roles-permissions', 'versioning-audit', 'sharing',
+				'kiosk', 'org-navigation', 'demo-data', 'group-dashboards', 'detail-fields', 'profile-fields',
+			],
+			actual: AdminPageController::TABS
+		);
+		foreach (AdminPageController::FOLDED_TABS as $host) {
+			$this->assertContains(needle: $host, haystack: AdminPageController::TABS);
+		}
+	}//end testThePageDeclaresTheTwelveDrawnTabs()
+
+	/**
+	 * Former tabs and the address their old link opens.
+	 *
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function foldedTabs(): array {
+		return [
+			'embeds'           => ['embeds', '/index.php/apps/launchpad/admin/general?section=embeds#launchpad.adminPage.show'],
+			'search shortcuts' => ['search-shortcuts', '/index.php/apps/launchpad/admin/general?section=search-shortcuts#launchpad.adminPage.show'],
+			'communities'      => ['communities', '/index.php/apps/launchpad/admin/group-dashboards?section=communities#launchpad.adminPage.show'],
+			'app catalogue'    => ['app-catalogue', '/index.php/apps/launchpad/admin/operations?section=app-catalogue#launchpad.adminPage.show'],
+		];
+	}//end foldedTabs()
+
+	/**
+	 * An old tab address opens the tab that holds it now, on its section (REQ-ADM-032).
+	 *
+	 * @param string $tab      The former tab.
+	 * @param string $expected The redirect target.
+	 *
+	 * @return void
+	 */
+	#[DataProvider('foldedTabs')]
+	public function testAFormerTabRedirectsToItsHostTab(string $tab, string $expected): void {
+		$controller = $this->controller(allowed: true);
+		$this->formState->expects($this->never())->method('provide');
+
+		$response = $controller->show(tab: $tab);
+
+		$this->assertInstanceOf(expected: RedirectResponse::class, actual: $response);
+		$this->assertSame(expected: $expected, actual: $response->getRedirectURL());
+		$this->assertFalse(condition: $this->assetsAdded);
+	}//end testAFormerTabRedirectsToItsHostTab()
+
+	/**
+	 * A link from a dashboard into the embeds keeps the form's pre-selection, and nothing else.
+	 *
+	 * @return void
+	 */
+	public function testAnEmbedsLinkKeepsItsPreselection(): void {
+		$controller = $this->controller(
+			allowed: true,
+			query: ['embedType' => 'widget', 'embedId' => '12', 'embedDashboard' => '7', 'other' => 'x', 'tab' => 'embeds']
+		);
+
+		$response = $controller->show(tab: 'embeds');
+
+		$this->assertSame(
+			expected: '/index.php/apps/launchpad/admin/general?section=embeds&embedType=widget&embedId=12&embedDashboard=7#launchpad.adminPage.show',
+			actual: $response->getRedirectURL()
+		);
+	}//end testAnEmbedsLinkKeepsItsPreselection()
+
+	/**
+	 * A former tab is refused to a non-admin like any other: the check comes first.
+	 *
+	 * @return void
+	 */
+	public function testANonAdminGets403AlsoOnAFormerTab(): void {
+		$response = $this->controller(allowed: false)->show(tab: 'embeds');
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+	}//end testANonAdminGets403AlsoOnAFormerTab()
 
 	/**
 	 * The route lets a delegated Launchpad administrator past Nextcloud's own

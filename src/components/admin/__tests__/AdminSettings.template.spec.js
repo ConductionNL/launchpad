@@ -66,6 +66,9 @@ const TABS = [
 	'DemoDataTab',
 	'GroupDashboardsTab',
 	'EmbedsTab',
+	'SearchShortcutsTab',
+	'CommunitiesTab',
+	'AppCatalogueTab',
 	'MetadataFieldsSettings',
 	'ProfileFieldsTab',
 	'SetupWizardModal',
@@ -108,17 +111,22 @@ beforeEach(() => {
 describe('AdminSettings tab slots', () => {
 	it('draws each tab component in its own slot', async () => {
 		const wrapper = await mountPage()
+		// REQ-ADM-032: Bediening also holds the app catalogue, Groepsdashboards the communities.
+		expect(wrapper.find('[data-slot="tab-operations"] [data-tab="OperationsTab"]').exists()).toBe(true)
+		expect(wrapper.find('[data-slot="tab-group-dashboards"] [data-tab="GroupDashboardsTab"]').exists()).toBe(true)
+		// Algemeen's cards hold the embeds and the search shortcuts.
+		expect(wrapper.find('[data-slot="default"] [data-section="Embeds"] [data-tab="EmbedsTab"]').exists()).toBe(true)
+		expect(wrapper.find('[data-slot="default"] [data-section="Search shortcuts"] [data-tab="SearchShortcutsTab"]').exists()).toBe(true)
 		const expected = {
 			'tab-templates': 'TemplatesPage',
-			'tab-operations': 'OperationsTab',
+			'tab-operations': 'AppCatalogueTab',
 			'tab-roles-permissions': 'RolesPermissionsTab',
 			'tab-versioning-audit': 'VersioningAuditTab',
 			'tab-sharing': 'SharingTab',
 			'tab-kiosk': 'KioskTab',
 			'tab-org-navigation': 'OrgNavigationTab',
 			'tab-demo-data': 'DemoDataTab',
-			'tab-group-dashboards': 'GroupDashboardsTab',
-			'tab-embeds': 'EmbedsTab',
+			'tab-group-dashboards': 'CommunitiesTab',
 			'tab-detail-fields': 'MetadataFieldsSettings',
 			'tab-profile-fields': 'ProfileFieldsTab',
 		}

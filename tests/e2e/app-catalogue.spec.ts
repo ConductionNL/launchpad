@@ -143,8 +143,9 @@ async function notificationSubjects(account?: Account): Promise<string[] | null>
  */
 async function openCatalogueTab(page: Page): Promise<void> {
 	await page.context().setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
+	// REQ-ADM-032: the app catalogue is a section of Bediening (operations).
 	await page.goto('/index.php/apps/launchpad/admin')
-	const tab = adminTab(page, 'app-catalogue')
+	const tab = adminTab(page, 'operations')
 	await expect(tab).toBeVisible({ timeout: 20_000 })
 	await tab.click()
 	await expect(page.locator('[data-testid="app-catalogue-entries"]')).toBeVisible({ timeout: 10_000 })
@@ -314,7 +315,7 @@ test.describe('app catalogue (REQ-ACAT-002, REQ-ACAT-003, REQ-ACAT-004)', () => 
 		// The administrator declines it on the admin page, with a note.
 		await page.context().setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
 		await page.goto('/index.php/apps/launchpad/admin')
-		const tab = adminTab(page, 'app-catalogue')
+		const tab = adminTab(page, 'operations')
 		await expect(tab).toBeVisible({ timeout: 20_000 })
 		await tab.click()
 		const row = page

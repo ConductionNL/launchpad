@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Notification;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Controller\AdminPageController;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IL10N;
@@ -178,9 +179,16 @@ class Notifier implements INotifier {
 	 * @return string The absolute URL.
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
 	 */
 	private function adminPageLink(string $tab): string {
-		return $this->urlGenerator->linkToRouteAbsolute(routeName: 'launchpad.adminPage.show', arguments: ['tab' => $tab]);
+		// A former tab is a section of a drawn tab now (REQ-ADM-032).
+		$arguments = ['tab' => $tab];
+		if (array_key_exists(key: $tab, array: AdminPageController::FOLDED_TABS) === true) {
+			$arguments = ['tab' => AdminPageController::FOLDED_TABS[$tab], 'section' => $tab];
+		}
+
+		return $this->urlGenerator->linkToRouteAbsolute(routeName: 'launchpad.adminPage.show', arguments: $arguments);
 	}//end adminPageLink()
 
 	/**

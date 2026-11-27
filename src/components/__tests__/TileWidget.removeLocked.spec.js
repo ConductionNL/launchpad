@@ -14,7 +14,7 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('@conduction/nextcloud-vue', () => ({
 	CnDashboardIcon: { name: 'CnDashboardIcon', template: '<i />' },
 }))
-vi.mock('../Widgets/WidgetEditMenu.vue', () => ({ default: { name: 'WidgetEditMenu', props: ['removeLocked', 'embedHref', 'embedDisabled'], template: '<div class="cog" />' } }))
+vi.mock('../Widgets/WidgetEditMenu.vue', () => ({ default: { name: 'WidgetEditMenu', props: ['removeLocked', 'embedHref', 'embedDisabled', 'embedAsksFirst'], emits: ['duplicate', 'embed'], template: '<div class="cog" />' } }))
 vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => '/nc' + path }))
 vi.mock('../../composables/useTileClickTracking.js', () => ({ useTileClickTracking: () => ({ recordTileClick: vi.fn() }) }))
 vi.mock('../HealthPingBadge.vue', () => ({ default: { name: 'HealthPingBadge', template: '<span />' } }))
@@ -55,6 +55,20 @@ describe('TileWidget embed entry (REQ-WDG-050)', () => {
 
 	it('disables it for a tile that is not saved yet', () => {
 		expect(cogOf({ embedHref: href }).props('embedDisabled')).toBe(true)
+	})
+
+	it('disables it for a tile the draft added', () => {
+		expect(cogOf({ embedHref: href, placementId: 'draft-4' }).props('embedDisabled')).toBe(true)
+	})
+
+	it('passes on that the draft has changes, and forwards embed and duplicate', async () => {
+		const cog = cogOf({ embedHref: href, placementId: 3, embedAsksFirst: true })
+		expect(cog.props('embedAsksFirst')).toBe(true)
+		cog.vm.$emit('embed', href)
+		cog.vm.$emit('duplicate')
+		const tile = cog.vm.$parent
+		expect(tile.$.emitsOptions).toHaveProperty('embed')
+		expect(tile.$.emitsOptions).toHaveProperty('duplicate')
 	})
 
 	it('shows no menu at all in view mode', () => {

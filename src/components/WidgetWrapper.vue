@@ -129,9 +129,12 @@
 				:menuLabel="t('launchpad', 'Widget menu')"
 				:removeLocked="!canRemove"
 				:embedHref="embedHref"
-				:embedDisabled="!placement || placement.id === undefined || placement.id === null"
+				:embedDisabled="embedDisabled"
+				:embedAsksFirst="embedAsksFirst"
 				@edit="$emit('edit', placement)"
 				@whoSees="$emit('whoSees', placement)"
+				@duplicate="$emit('duplicate', placement.id)"
+				@embed="$emit('embed', $event)"
 				@remove="$emit('remove', placement.id)" />
 		</div>
 	</div>
@@ -158,6 +161,7 @@ import {
 	REQUIRED_OBJECT_PROP,
 	TEXT_PROP,
 } from '../constants/propDefinitions.js'
+import { isDraftPlacement } from '../utils/editDraft.js'
 import { inFirstViewport } from '../utils/firstViewport.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
@@ -243,9 +247,13 @@ export default {
 		// embedded-analytics task 40: the Beheer ▸ Embeds link that creates an
 		// embed token for this widget; '' when the viewer may not create one.
 		embedHref: TEXT_PROP,
+
+		// REQ-WDG-050 / REQ-EDIT-003: the draft has unsaved changes, so Create
+		// embed token emits `embed` for the host to ask to save first.
+		embedAsksFirst: FLAG_PROP,
 	},
 
-	emits: ['remove', 'style', 'edit', 'whoSees', 'acknowledged', 'hideForMe'],
+	emits: ['remove', 'style', 'edit', 'whoSees', 'duplicate', 'embed', 'acknowledged', 'hideForMe'],
 
 	data() {
 		return {
@@ -256,6 +264,18 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * REQ-WDG-050: Create embed token is disabled for a widget that is not
+		 * stored yet: no placement, or one the draft added.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		embedDisabled() {
+			const id = this.placement?.id
+			return id === undefined || id === null || isDraftPlacement(this.placement)
+		},
+
 		/**
 		 * Whether the content mounts at once instead of when it comes into
 		 * view: in edit mode, in the headless export render (`?export=1`),

@@ -2174,6 +2174,8 @@
         "CSS saved": "CSS saved",
         "The custom CSS could not be loaded.": "The custom CSS could not be loaded.",
         "The custom CSS could not be saved.": "The custom CSS could not be saved.",
+        "Duplicate": "Duplicate",
+        "The widget could not be duplicated.": "The widget could not be duplicated.",
         "Create embed token": "Create embed token",
         "Embeds": "Embeds",
         "Embed usage": "Embed usage",

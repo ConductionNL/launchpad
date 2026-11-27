@@ -2617,6 +2617,8 @@
         "CSS saved": "CSS opgeslagen",
         "The custom CSS could not be loaded.": "De eigen CSS kon niet worden geladen.",
         "The custom CSS could not be saved.": "De eigen CSS kon niet worden opgeslagen.",
+        "Duplicate": "Dupliceren",
+        "The widget could not be duplicated.": "De widget kon niet worden gedupliceerd.",
         "Create embed token": "Insluittoken maken",
         "Embeds": "Insluitingen",
         "Embed usage": "Gebruik van insluitingen",

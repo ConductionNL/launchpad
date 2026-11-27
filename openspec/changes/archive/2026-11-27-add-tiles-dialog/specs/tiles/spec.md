@@ -28,6 +28,7 @@ An administrator allows a service for discovery by putting it on the Services to
 - **WHEN** Pieter opens Add tiles
 - **THEN** LaunchPad asked those two addresses and no other
 - **AND** Grafana is listed with port 3000 and the time it was found, and Uptime Kuma is not listed
+@e2e exclude a browser test cannot observe which addresses the Nextcloud server asked, so "no other" has nothing to assert on; pinned by tests/Unit/Service/FoundServicesServiceTest.php testAServiceThatAnswersIsFound (the asked list is exactly the two listed addresses); the Grafana row with port and found time is cited by tiles::grafana-found
 
 #### Scenario: An address that is not a web address is refused
 

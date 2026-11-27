@@ -6,7 +6,7 @@
  * sections in board order, counting, adding from each section, no duplicate
  * tile, and the hand-over to the bookmark import.
  *
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md
  */
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'

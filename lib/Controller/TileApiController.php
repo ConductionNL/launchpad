@@ -131,7 +131,7 @@ class TileApiController extends Controller {
 	 *
 	 * @return JSONResponse `{services: [{name, url, port, state, foundAt}]}`.
 	 *
-	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]

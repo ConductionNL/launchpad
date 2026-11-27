@@ -11,7 +11,7 @@
  * discovered app (`{appId}`). The key is what makes two choices the same
  * tile: the link for a tile, the app for an app tile.
  *
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
  */
 
 import { getCanonicalLocale, translate as t } from '@nextcloud/l10n'
@@ -23,7 +23,7 @@ import { tileFromCatalogueApp } from './discoveredTile.js'
  *
  * @param {{linkType?: string, linkValue?: string}} tile The tile.
  * @return {string} the key.
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
  */
 export function tileKey(tile) {
 	const type = String(tile?.linkType || 'url')
@@ -39,7 +39,7 @@ export function tileKey(tile) {
  *
  * @param {Array<object>} placements The dashboard's placements.
  * @return {Set<string>} the keys.
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
  */
 export function existingTileKeys(placements) {
 	const keys = new Set()
@@ -58,7 +58,7 @@ export function existingTileKeys(placements) {
  *
  * @param {object} app The catalogue entry.
  * @return {{key: string, kind: string, tile: object}} the choice.
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
  */
 export function catalogueChoice(app) {
 	const tile = tileFromCatalogueApp(app)
@@ -70,7 +70,7 @@ export function catalogueChoice(app) {
  *
  * @param {{appId: string}} app The discovered app.
  * @return {{key: string, kind: string, tile: object}} the choice.
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
  */
 export function discoveredChoice(app) {
 	return {
@@ -85,7 +85,7 @@ export function discoveredChoice(app) {
  *
  * @param {{name: string, url: string}} service The found service (`GET /api/tiles/found-services`).
  * @return {{key: string, kind: string, tile: object}} the choice.
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
  */
 export function foundServiceChoice(service) {
 	const tile = {
@@ -103,7 +103,7 @@ export function foundServiceChoice(service) {
  *
  * @param {{title: string, linkType: string, linkValue: string, icon?: string, iconType?: string}} pack The pack tile.
  * @return {{key: string, kind: string, tile: object}} the choice.
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
  */
 export function officeChoice(pack) {
 	const tile = {
@@ -122,7 +122,7 @@ export function officeChoice(pack) {
  * @param {Array<{key: string}>} choices The chosen choices, in order.
  * @param {Set<string>} existing The keys on the dashboard.
  * @return {Array<{key: string, kind: string, tile: object}>} the tiles to add.
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
  */
 export function tilesToAdd(choices, existing = new Set()) {
 	const seen = new Set(existing)
@@ -143,7 +143,7 @@ export function tilesToAdd(choices, existing = new Set()) {
  *
  * @param {{linkType?: string, signOn?: string}} app The catalogue entry.
  * @return {'nextcloud'|'sso'|'own'} the kind.
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
  */
 export function signOnKind(app) {
 	if (app?.signOn === 'sso') {
@@ -157,7 +157,7 @@ export function signOnKind(app) {
  *
  * @param {{state: string, port: number, foundAt: number}} service The found service.
  * @return {string} e.g. "Running · port 3000 · found 27/11/2026, 06:10".
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
  */
 export function foundServiceMeta(service) {
 	const state = service.state === 'running'

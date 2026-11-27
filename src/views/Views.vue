@@ -2906,7 +2906,7 @@ export default {
 		 * pack loaded; a list that fails to load leaves its section empty.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		async openAddTilesModal() {
 			this.isAddTilesOpen = true
@@ -2924,7 +2924,7 @@ export default {
 		 * failure leaves them out.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 		 */
 		async loadFoundServices() {
 			try {
@@ -2940,7 +2940,7 @@ export default {
 		 * Read the office tile pack for the Add tiles Office section.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		async loadOfficeTiles() {
 			try {
@@ -2959,7 +2959,7 @@ export default {
 		 *
 		 * @param {Array<{kind: string, tile: object}>} choices The chosen tiles.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		async addChosenTiles(choices) {
 			for (const choice of choices) {
@@ -2975,7 +2975,7 @@ export default {
 		 * A bookmarks file chosen in Add tiles: open the bookmark import on it.
 		 *
 		 * @param {File} file The bookmarks file.
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		onAddTilesImportBookmarks(file) {
 			this.isAddTilesOpen = false

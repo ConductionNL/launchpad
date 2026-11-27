@@ -5,7 +5,7 @@
  * Sending a request for a missing app to IT and saying how it went
  * (launcher-app-catalogue REQ-ACAT-003), for the dialogs that offer it.
  *
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
  */
 
 import { t } from '@nextcloud/l10n'
@@ -17,7 +17,7 @@ import { t } from '@nextcloud/l10n'
  * @param {string} appName The app asked for.
  * @param {string} purpose What it is for.
  * @return {Promise<{failed: boolean, message: string}>} how it went.
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
  */
 export async function sendAppRequest(requestAppFn, appName, purpose) {
 	try {

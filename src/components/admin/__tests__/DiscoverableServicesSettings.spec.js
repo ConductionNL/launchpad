@@ -7,7 +7,7 @@
  * the list through PUT /api/admin/discoverable-services; a refusal shows the
  * server's message (REQ-TILE-044).
  *
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

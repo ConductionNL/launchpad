@@ -235,7 +235,7 @@ function emptyRequest() {
  * The host does the API work: it passes the lists and `addTiles(choices)`,
  * and opens its bookmark import when the dialog emits `importBookmarks`.
  *
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
  */
 export default {
 	name: 'AddTilesModal',
@@ -278,12 +278,12 @@ export default {
 		/**
 		 * Two-way `show` for NcModal: closing it closes the dialog.
 		 *
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		isOpen: {
 			/**
 			 * @return {boolean} whether the dialog is open.
-			 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+			 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 			 */
 			get() {
 				return this.open
@@ -291,7 +291,7 @@ export default {
 
 			/**
 			 * @param {boolean} value the new `show`.
-			 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+			 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 			 */
 			set(value) {
 				if (!value) {
@@ -304,7 +304,7 @@ export default {
 		 * Whether the request can be sent: a name, and nothing in flight.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		canSendRequest() {
 			return !this.request.busy && this.request.name.trim() !== ''
@@ -314,7 +314,7 @@ export default {
 		 * The keys of the tiles the dashboard holds.
 		 *
 		 * @return {Set<string>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		existing() {
 			return existingTileKeys(this.placements)
@@ -324,7 +324,7 @@ export default {
 		 * The catalogue rows matching the search, by name or description.
 		 *
 		 * @return {Array<{app: object, choice: object, onDashboard: boolean}>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		catalogueRows() {
 			const query = this.search.trim().toLowerCase()
@@ -343,7 +343,7 @@ export default {
 		 * state, port and when it was found, in the person's Nextcloud locale.
 		 *
 		 * @return {Array<{service: object, id: string, choice: object, meta: string}>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 		 */
 		foundServiceRows() {
 			return this.foundServices
@@ -361,7 +361,7 @@ export default {
 		 * The found apps without a tile on the dashboard.
 		 *
 		 * @return {Array<{app: object, choice: object}>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 		 */
 		foundRows() {
 			return this.discoveredApps
@@ -374,7 +374,7 @@ export default {
 		 * The office pack tiles to tick.
 		 *
 		 * @return {Array<{pack: object, choice: object, onDashboard: boolean}>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		officeRows() {
 			return this.officeTiles
@@ -389,7 +389,7 @@ export default {
 		 * The tiles the button adds: once each, none the dashboard holds.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		chosenTiles() {
 			return tilesToAdd(this.chosen, this.existing)
@@ -399,7 +399,7 @@ export default {
 		 * "Add 3 tiles".
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		addLabel() {
 			const count = this.chosenTiles.length
@@ -418,7 +418,7 @@ export default {
 		 * Start afresh each time the dialog opens.
 		 *
 		 * @param {boolean} value whether it is open.
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		open(value) {
 			if (value) {
@@ -435,7 +435,7 @@ export default {
 		 *
 		 * @param {string} key The choice key.
 		 * @return {boolean}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		isChosen(key) {
 			return this.chosen.some((choice) => choice.key === key)
@@ -446,7 +446,7 @@ export default {
 		 *
 		 * @param {{key: string}} choice The choice.
 		 * @param {boolean} on Whether it is chosen.
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		setChosen(choice, on) {
 			const without = this.chosen.filter((item) => item.key !== choice.key)
@@ -457,7 +457,7 @@ export default {
 		 * Flip a choice.
 		 *
 		 * @param {{key: string}} choice The choice.
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		toggle(choice) {
 			this.setChosen(choice, !this.isChosen(choice.key))
@@ -468,7 +468,7 @@ export default {
 		 *
 		 * @param {object} app The catalogue entry.
 		 * @return {string}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		signOnLabel(app) {
 			const kind = signOnKind(app)
@@ -484,7 +484,7 @@ export default {
 		 * A dropped bookmarks file.
 		 *
 		 * @param {DragEvent} event The drop.
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		onDrop(event) {
 			this.dragOver = false
@@ -495,7 +495,7 @@ export default {
 		 * Hand a bookmarks file to the bookmark import.
 		 *
 		 * @param {File|undefined} file The file.
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		onFile(file) {
 			if (file) {
@@ -507,7 +507,7 @@ export default {
 		 * Place the chosen tiles, then close.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		async submit() {
 			const tiles = this.chosenTiles
@@ -530,7 +530,7 @@ export default {
 		/**
 		 * Open the request form, starting from the search.
 		 *
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		openRequestForm() {
 			this.request = { ...emptyRequest(), open: true, name: this.search.trim() }
@@ -539,7 +539,7 @@ export default {
 		/**
 		 * Close the request form.
 		 *
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		closeRequestForm() {
 			this.request = emptyRequest()
@@ -549,7 +549,7 @@ export default {
 		 * Ask IT for the app and say how it went.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		async submitRequest() {
 			if (!this.canSendRequest || !this.requestAppFn) {
@@ -570,7 +570,7 @@ export default {
 		/**
 		 * Forget the choices and the forms.
 		 *
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		reset() {
 			this.search = ''
@@ -582,7 +582,7 @@ export default {
 		/**
 		 * Close the dialog.
 		 *
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		close() {
 			this.reset()

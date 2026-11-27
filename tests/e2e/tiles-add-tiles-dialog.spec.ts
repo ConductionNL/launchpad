@@ -30,8 +30,9 @@
  * Gate-19 @e2e traceability:
  *   @e2e tiles::add-office-tiles
  *   @e2e tiles::grafana-found
+ *   @e2e tiles::an-address-that-is-not-a-web-address-is-refused
  *
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md
  */
 
 import type { Browser, BrowserContext, Locator, Page } from '@playwright/test'
@@ -210,4 +211,23 @@ test.describe('services found on the server', () => {
 			await context.close()
 		}
 	})
+})
+
+// @e2e tiles::an-address-that-is-not-a-web-address-is-refused
+test('saving a service whose address is ftp://files.example.org answers 400 with the reason and leaves the list as it was', async () => {
+	const admin = await adminContext()
+	try {
+		const before = await admin.get(DISCOVERABLE)
+		expect(before.status(), await before.text()).toBe(200)
+		const list = (await before.json()).services
+
+		const put = await admin.put(DISCOVERABLE, { data: { services: [{ name: 'Files', url: 'ftp://files.example.org' }] } })
+		expect(put.status()).toBe(400)
+		expect((await put.json()).message).toBe('"ftp://files.example.org" is not a web address starting with http:// or https://.')
+
+		const after = await admin.get(DISCOVERABLE)
+		expect((await after.json()).services).toEqual(list)
+	} finally {
+		await admin.dispose()
+	}
 })

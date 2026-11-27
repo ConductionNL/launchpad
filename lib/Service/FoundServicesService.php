@@ -24,7 +24,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
  */
 
 declare(strict_types=1);
@@ -43,7 +43,7 @@ use Throwable;
 /**
  * Stores the administrator's list of services to discover and reports which answer.
  *
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
  */
 class FoundServicesService {
 
@@ -124,7 +124,7 @@ class FoundServicesService {
 	 *
 	 * @return array<int, array{name: string, url: string}> The services, in the order stored.
 	 *
-	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 	 */
 	public function getServices(): array {
 		$services = [];
@@ -152,7 +152,7 @@ class FoundServicesService {
 	 *
 	 * @throws InvalidArgumentException When the list or an entry is not valid; the message says why.
 	 *
-	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 	 */
 	public function setServices(mixed $services): array {
 		if (is_array($services) === false || array_is_list($services) === false) {
@@ -193,7 +193,7 @@ class FoundServicesService {
 	 *
 	 * @return array<int, array{name: string, url: string, port: int, state: string, foundAt: int}> The found services.
 	 *
-	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 	 */
 	public function found(): array {
 		$services = $this->getServices();
@@ -238,7 +238,7 @@ class FoundServicesService {
 	 *
 	 * @return string|null The address, or null when it is not one.
 	 *
-	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 	 */
 	public static function normaliseUrl(string $raw): ?string {
 		$parts = parse_url(trim($raw));
@@ -274,7 +274,7 @@ class FoundServicesService {
 	 *
 	 * @return integer The port.
 	 *
-	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 	 */
 	public static function portOf(string $url): int {
 		$parts = parse_url($url);

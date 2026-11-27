@@ -86,7 +86,7 @@ import { logger } from '../../utils/logger.js'
  * and Save. The server checks every address and refuses one that is not a
  * web address; its message shows here.
  *
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
  */
 export default {
 	name: 'DiscoverableServicesSettings',
@@ -108,7 +108,7 @@ export default {
 		}
 	},
 
-	/** @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044 */
+	/** @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044 */
 	created() {
 		this.load()
 	},
@@ -120,7 +120,7 @@ export default {
 		 * Read the stored list.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 		 */
 		async load() {
 			try {
@@ -137,7 +137,7 @@ export default {
 		 * Add the entered service (saved with Save); an address already listed is replaced.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 		 */
 		add() {
 			const service = { name: this.newName.trim(), url: this.newUrl.trim() }
@@ -149,7 +149,7 @@ export default {
 		/**
 		 * @param {string} url The row's address.
 		 * @return {void}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 		 */
 		removeRow(url) {
 			this.rows = this.rows.filter((row) => row.url !== url)
@@ -159,7 +159,7 @@ export default {
 		 * Save the list; the server's refusal is shown as it is.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 		 */
 		async save() {
 			this.saving = true

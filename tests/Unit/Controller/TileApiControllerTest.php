@@ -140,7 +140,7 @@ class TileApiControllerTest extends TestCase {
 	/**
 	 * REQ-TILE-044: the services an administrator allowed for discovery that answered, behind tile.discover.
 	 *
-	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 	 *
 	 * @return void
 	 */
@@ -159,7 +159,7 @@ class TileApiControllerTest extends TestCase {
 	/**
 	 * Without the tile.discover action no address is asked.
 	 *
-	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 	 *
 	 * @return void
 	 */

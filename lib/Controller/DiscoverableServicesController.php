@@ -36,7 +36,7 @@ use OCP\IRequest;
 /**
  * `GET` and `PUT /api/admin/discoverable-services`, for LaunchPad administrators only.
  *
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
  */
 class DiscoverableServicesController extends Controller {
 
@@ -58,7 +58,7 @@ class DiscoverableServicesController extends Controller {
 	 *
 	 * @return DataResponse `{services: [{name, url}]}`.
 	 *
-	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function show(): DataResponse {
@@ -72,7 +72,7 @@ class DiscoverableServicesController extends Controller {
 	 *
 	 * @return DataResponse `{services}` as stored, or `{message}` with 400.
 	 *
-	 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function update(mixed $services = []): DataResponse {

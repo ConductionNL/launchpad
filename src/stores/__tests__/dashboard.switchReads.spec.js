@@ -5,7 +5,7 @@
  * A dashboard switch starts the target's reactions and (when somebody else
  * owns it) personal-layer reads beside the dashboard read (REQ-INIT-012).
  *
- * @spec openspec/changes/dashboard-switch-reads-early/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-dashboard-switch-reads-early/tasks.md#task-3
  */
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'

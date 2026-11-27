@@ -74,7 +74,15 @@ class EmbedRenderService {
 	public function renderWidget(string $widgetId, EmbedToken $token, array $requestFilters=[]): ?array {
 		$child = (new ContainerChildKeys())->splitSubject(subjectId: $widgetId);
 		if ($child !== null) {
-			return $this->renderChild(placementId: $child[0], childKey: $child[1], token: $token, requestFilters: $requestFilters);
+			$placements = $this->childPlacements(subject: $child);
+			if ($placements === null) {
+				return null;
+			}
+
+			return $this->envelope(token: $token, requestFilters: $requestFilters) + [
+				'subjectType' => 'widget',
+				'placements'  => $placements,
+			];
 		}
 
 		if (ctype_digit($widgetId) === false) {
@@ -94,41 +102,34 @@ class EmbedRenderService {
 	}//end renderWidget()
 
 	/**
-	 * One widget inside a well or a tabs widget for its token (REQ-WDG-050):
-	 * the child drawn as a widget of its own. It shows only while its well
-	 * shows: a well the visibility rules hide hides the child too.
+	 * The placements an embed of one widget inside a well or a tabs widget
+	 * shows (REQ-WDG-050): the child drawn as a widget of its own, only while
+	 * its well shows (a well the visibility rules hide hides the child too).
 	 *
-	 * @param int                  $placementId    The well's placement id.
-	 * @param string               $childKey       The child's key in it.
-	 * @param EmbedToken           $token          The token, which names this child.
-	 * @param array<string, mixed> $requestFilters The filters the embed asks for.
+	 * @param array{0: int, 1: string} $subject The well's placement id and the child's key.
 	 *
-	 * @return array<string, mixed>|null Null when the well or the child no longer exists.
+	 * @return array<int, array<string, mixed>>|null Null when the well or the child no longer exists.
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
-	private function renderChild(int $placementId, string $childKey, EmbedToken $token, array $requestFilters): ?array {
+	private function childPlacements(array $subject): ?array {
 		try {
-			$parent = $this->widgets->find(id: $placementId);
+			$parent = $this->widgets->find(id: $subject[0]);
 		} catch (DoesNotExistException) {
 			return null;
 		}
 
-		$child = (new ContainerChildKeys())->find(content: $parent->getContentArray(), key: $childKey);
+		$child = (new ContainerChildKeys())->find(content: $parent->getContentArray(), key: $subject[1]);
 		if ($child === null || is_string($child['type'] ?? null) === false || $child['type'] === '') {
 			return null;
 		}
 
-		$placements = [];
-		if ($this->forVisitor(placements: [$parent->jsonSerialize()]) !== []) {
-			$placements = [self::childAsPlacement(parent: $parent->jsonSerialize(), child: $child, key: $childKey)];
+		if ($this->forVisitor(placements: [$parent->jsonSerialize()]) === []) {
+			return [];
 		}
 
-		return $this->envelope(token: $token, requestFilters: $requestFilters) + [
-			'subjectType' => 'widget',
-			'placements'  => $placements,
-		];
-	}//end renderChild()
+		return [self::childAsPlacement(parent: $parent->jsonSerialize(), child: $child)];
+	}//end childPlacements()
 
 	/**
 	 * A child of a well as a placement of its own: the well's id and
@@ -136,11 +137,10 @@ class EmbedRenderService {
 	 *
 	 * @param array<string, mixed> $parent The well, serialised.
 	 * @param array<string, mixed> $child  The child.
-	 * @param string               $key    The child's key.
 	 *
 	 * @return array<string, mixed>
 	 */
-	private static function childAsPlacement(array $parent, array $child, string $key): array {
+	private static function childAsPlacement(array $parent, array $child): array {
 		$own = $child;
 		unset($own['type'], $own['id'], $own['uuid']);
 
@@ -151,7 +151,7 @@ class EmbedRenderService {
 				'content'     => (object)[],
 				'styleConfig' => (object)[],
 				'customTitle' => null,
-				'childKey'    => $key,
+				'childKey'    => (new ContainerChildKeys())->keyOf(child: $child),
 			],
 			$own
 		);

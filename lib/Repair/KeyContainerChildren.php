@@ -46,6 +46,13 @@ class KeyContainerChildren implements IRepairStep {
 	private const TABLE = 'launchpad_widget_placements';
 
 	/**
+	 * Stamps the keys.
+	 *
+	 * @var ContainerChildKeys
+	 */
+	private readonly ContainerChildKeys $keys;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param IDBConnection   $db     The database.
@@ -55,6 +62,7 @@ class KeyContainerChildren implements IRepairStep {
 		private readonly IDBConnection $db,
 		private readonly LoggerInterface $logger,
 	) {
+		$this->keys = new ContainerChildKeys();
 	}//end __construct()
 
 	/**
@@ -79,7 +87,6 @@ class KeyContainerChildren implements IRepairStep {
 	 */
 	public function run(IOutput $output): void {
 		$keyed = 0;
-		$keys  = new ContainerChildKeys();
 		try {
 			$select = $this->db->getQueryBuilder();
 			$select->select('id', 'content')
@@ -92,7 +99,7 @@ class KeyContainerChildren implements IRepairStep {
 				);
 			$rows = $select->executeQuery();
 			while (($row = $rows->fetch()) !== false) {
-				$keyed += $this->keyRow(keys: $keys, id: (int)$row['id'], json: (string)($row['content'] ?? ''));
+				$keyed += $this->keyRow(id: (int)$row['id'], json: (string)($row['content'] ?? ''));
 			}
 
 			$rows->closeCursor();
@@ -108,21 +115,20 @@ class KeyContainerChildren implements IRepairStep {
 	/**
 	 * Key the children of one stored widget; 1 when it was written, else 0.
 	 *
-	 * @param ContainerChildKeys $keys The key stamper.
-	 * @param int                $id   The placement id.
-	 * @param string             $json The stored content.
+	 * @param int    $id   The placement id.
+	 * @param string $json The stored content.
 	 *
 	 * @return int
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
-	private function keyRow(ContainerChildKeys $keys, int $id, string $json): int {
+	private function keyRow(int $id, string $json): int {
 		$content = json_decode(json: $json, associative: true);
 		if (is_array($content) === false) {
 			return 0;
 		}
 
-		$keyed = $keys->stamp(content: $content, ownerId: $id);
+		$keyed = $this->keys->stamp(content: $content, ownerId: $id);
 		if ($keyed === $content) {
 			return 0;
 		}

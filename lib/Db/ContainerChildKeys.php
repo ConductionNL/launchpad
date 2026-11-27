@@ -42,46 +42,22 @@ final class ContainerChildKeys {
 	public const SEPARATOR = '.';
 
 	/**
-	 * The nesting a lookup follows at most (REQ-CONT-006 allows 3).
-	 */
-	private const MAX_DEPTH = 4;
-
-	/**
 	 * Give every child of this content, at every depth, a key; children that
 	 * have one keep it. Content without children comes back unchanged.
 	 *
 	 * @param array<string, mixed> $content The placement's content.
 	 * @param int|null             $ownerId The placement id, when known.
-	 * @param int                  $depth   How deep this content sits.
-	 * @param string               $path    Where this content sits, for derived keys.
 	 *
 	 * @return array<string, mixed> The content with every child keyed.
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
-	public function stamp(array $content, ?int $ownerId=null, int $depth=0, string $path=''): array {
-		if ($depth > self::MAX_DEPTH) {
-			return $content;
+	public function stamp(array $content, ?int $ownerId=null): array {
+		if ($ownerId !== null && is_array($content['placements'] ?? null) === true) {
+			$content['placements'] = $this->ownerKeys(list: $content['placements'], ownerId: $ownerId);
 		}
 
-		if (is_array($content['placements'] ?? null) === true) {
-			$owner = null;
-			if ($depth === 0) {
-				$owner = $ownerId;
-			}
-
-			$content['placements'] = $this->stampList(list: $content['placements'], ownerId: $owner, depth: $depth, path: $path . '/p');
-		}
-
-		if (is_array($content['tabs'] ?? null) === true) {
-			foreach ($content['tabs'] as $at => $tab) {
-				if (is_array($tab) === true && is_array($tab['placements'] ?? null) === true) {
-					$content['tabs'][$at]['placements'] = $this->stampList(list: $tab['placements'], ownerId: null, depth: $depth, path: $path . '/t' . $at);
-				}
-			}
-		}
-
-		return $content;
+		return $this->stampContent(content: $content, path: '');
 	}//end stamp()
 
 	/**
@@ -112,27 +88,20 @@ final class ContainerChildKeys {
 	 *
 	 * @param array<string, mixed> $content The placement's content.
 	 * @param string               $key     The child's key.
-	 * @param int                  $depth   How deep this content sits.
 	 *
 	 * @return array<string, mixed>|null
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
-	public function find(array $content, string $key, int $depth=0): ?array {
-		if ($key === '' || $depth > self::MAX_DEPTH) {
+	public function find(array $content, string $key): ?array {
+		if ($key === '') {
 			return null;
 		}
 
 		foreach ($this->children(content: $content) as $child) {
-			if ($this->keyOf(child: $child) === $key) {
-				return $child;
-			}
-
-			if (is_array($child['content'] ?? null) === true) {
-				$found = $this->find(content: $child['content'], key: $key, depth: ($depth + 1));
-				if ($found !== null) {
-					return $found;
-				}
+			$found = $this->findIn(child: $child, key: $key);
+			if ($found !== null) {
+				return $found;
 			}
 		}
 
@@ -158,32 +127,89 @@ final class ContainerChildKeys {
 	}//end splitSubject()
 
 	/**
-	 * Key the children of one list.
+	 * This child when it has the key, else the child with the key inside it.
 	 *
-	 * @param array<int|string, mixed> $list    The children.
-	 * @param int|null                 $ownerId The well's placement id, for its direct children.
-	 * @param int                      $depth   How deep the list's parent sits.
-	 * @param string                   $path    Where the list sits, for derived keys.
+	 * @param array<string, mixed> $child The child.
+	 * @param string               $key   The key.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function findIn(array $child, string $key): ?array {
+		if ($this->keyOf(child: $child) === $key) {
+			return $child;
+		}
+
+		if (is_array($child['content'] ?? null) === true) {
+			return $this->find(content: $child['content'], key: $key);
+		}
+
+		return null;
+	}//end findIn()
+
+	/**
+	 * The direct children of a well whose placement id is known get
+	 * `<owner id>-<index>` when they have no key and no other child holds it.
+	 *
+	 * @param array<int|string, mixed> $list    The well's children.
+	 * @param int                      $ownerId The well's placement id.
 	 *
 	 * @return array<int|string, mixed>
 	 */
-	private function stampList(array $list, ?int $ownerId, int $depth, string $path): array {
-		$taken = [];
-		foreach ($list as $child) {
-			if (is_array($child) === true && $this->keyOf(child: $child) !== '') {
-				$taken[$this->keyOf(child: $child)] = true;
+	private function ownerKeys(array $list, int $ownerId): array {
+		$taken = $this->takenKeys(list: $list);
+		foreach ($list as $index => $child) {
+			$key = $ownerId . '-' . $index;
+			if (is_array($child) === true && is_int($index) === true && $this->keyOf(child: $child) === '' && isset($taken[$key]) === false) {
+				$list[$index]['uuid'] = $key;
+				$taken[$key]          = true;
 			}
 		}
 
+		return $list;
+	}//end ownerKeys()
+
+	/**
+	 * Key the children of a content: a well's list and every tab's.
+	 *
+	 * @param array<string, mixed> $content The content.
+	 * @param string               $path    Where the content sits, for derived keys.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function stampContent(array $content, string $path): array {
+		if (is_array($content['placements'] ?? null) === true) {
+			$content['placements'] = $this->stampList(list: $content['placements'], path: $path . '/p');
+		}
+
+		foreach ((array)($content['tabs'] ?? []) as $at => $tab) {
+			if (is_array($tab) === true && is_array($tab['placements'] ?? null) === true) {
+				$content['tabs'][$at]['placements'] = $this->stampList(list: $tab['placements'], path: $path . '/t' . $at);
+			}
+		}
+
+		return $content;
+	}//end stampContent()
+
+	/**
+	 * Key the children of one list, and the children inside each.
+	 *
+	 * @param array<int|string, mixed> $list The children.
+	 * @param string                   $path Where the list sits, for derived keys.
+	 *
+	 * @return array<int|string, mixed>
+	 */
+	private function stampList(array $list, string $path): array {
+		$taken = $this->takenKeys(list: $list);
 		foreach ($list as $index => $child) {
 			if (is_array($child) === false) {
 				continue;
 			}
 
+			$where = $path . '/' . $index;
 			if ($this->keyOf(child: $child) === '') {
-				$key = self::newKey(ownerId: $ownerId, index: $index, child: $child, path: $path);
+				$key = self::derivedKey(where: $where, child: $child);
 				if (isset($taken[$key]) === true) {
-					$key = self::newKey(ownerId: null, index: $index, child: $child, path: $path);
+					$key = self::derivedKey(where: $where . '/again', child: $child);
 				}
 
 				$child['uuid'] = $key;
@@ -191,7 +217,7 @@ final class ContainerChildKeys {
 			}
 
 			if (is_array($child['content'] ?? null) === true) {
-				$child['content'] = $this->stamp(content: $child['content'], ownerId: null, depth: ($depth + 1), path: $path . '/' . $index);
+				$child['content'] = $this->stampContent(content: $child['content'], path: $where);
 			}
 
 			$list[$index] = $child;
@@ -201,22 +227,34 @@ final class ContainerChildKeys {
 	}//end stampList()
 
 	/**
-	 * A new key for a child that has none.
+	 * The keys the children of a list already hold.
 	 *
-	 * @param int|null             $ownerId The well's placement id, when known.
-	 * @param int|string           $index   The child's place in its list.
-	 * @param array<string, mixed> $child   The child.
-	 * @param string               $path    Where its list sits.
+	 * @param array<int|string, mixed> $list The children.
+	 *
+	 * @return array<string, true>
+	 */
+	private function takenKeys(array $list): array {
+		$taken = [];
+		foreach ($list as $child) {
+			if (is_array($child) === true && $this->keyOf(child: $child) !== '') {
+				$taken[$this->keyOf(child: $child)] = true;
+			}
+		}
+
+		return $taken;
+	}//end takenKeys()
+
+	/**
+	 * A key derived from a child and its place: the same content keys the same.
+	 *
+	 * @param string               $where Where the child sits.
+	 * @param array<string, mixed> $child The child.
 	 *
 	 * @return string
 	 */
-	private static function newKey(?int $ownerId, int|string $index, array $child, string $path): string {
-		if ($ownerId !== null && is_int($index) === true) {
-			return $ownerId . '-' . $index;
-		}
-
-		return substr(hash('sha256', $path . '/' . $index . '|' . (string)json_encode($child)), 0, 16);
-	}//end newKey()
+	private static function derivedKey(string $where, array $child): string {
+		return substr(hash('sha256', $where . '|' . (string)json_encode($child)), 0, 16);
+	}//end derivedKey()
 
 	/**
 	 * The direct children of a well's or a tabs widget's content.

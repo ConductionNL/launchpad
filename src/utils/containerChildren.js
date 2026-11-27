@@ -16,9 +16,6 @@ import { childUseKey } from './tileSort.js'
 /** A key an embed subject may carry (the server's `splitSubject`). */
 const EMBEDDABLE_KEY = /^[A-Za-z0-9_-]{1,64}$/
 
-/** The nesting followed at most (REQ-CONT-006 allows 3). */
-const MAX_DEPTH = 4
-
 /**
  * The embed subject id of a child, or '' when it cannot be named yet.
  *
@@ -40,15 +37,14 @@ export function childSubjectId(ownerId, child) {
  *
  * @param {object|null} content The content of a well or tabs widget.
  * @param {Array<string>} trail The titles above this content.
- * @param {number} depth How deep this content sits.
  * @return {Array<{child: object, trail: Array<string>}>}
  * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
-export function allChildren(content, trail = [], depth = 0) {
-	if (depth > MAX_DEPTH || content === null || typeof content !== 'object') {
+export function allChildren(content, trail = []) {
+	if (content === null || typeof content !== 'object') {
 		return []
 	}
-	return childLists(content).flatMap(({ list, title }) => listChildren(list, title ? [...trail, title] : trail, depth))
+	return childLists(content).flatMap(({ list, title }) => listChildren(list, title ? [...trail, title] : trail))
 }
 
 /**
@@ -56,15 +52,14 @@ export function allChildren(content, trail = [], depth = 0) {
  *
  * @param {Array<object>} list The children.
  * @param {Array<string>} trail The titles above the list.
- * @param {number} depth How deep the list's holder sits.
  * @return {Array<{child: object, trail: Array<string>}>}
  */
-function listChildren(list, trail, depth) {
+function listChildren(list, trail) {
 	return list
 		.filter((child) => child && typeof child === 'object')
 		.flatMap((child) => [
 			{ child, trail },
-			...allChildren(child.content, [...trail, childLabel(child)], depth + 1),
+			...allChildren(child.content, [...trail, childLabel(child)]),
 		])
 }
 
@@ -92,7 +87,7 @@ export function childLabel(child) {
  * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 export function duplicateChildIn(content, key) {
-	return changeChildIn(content, key, (list, at) => {
+	return changeChildIn(content, { key, change: (list, at) => {
 		const copy = JSON.parse(JSON.stringify(list[at]))
 		delete copy.id
 		delete copy.uuid
@@ -101,7 +96,7 @@ export function duplicateChildIn(content, key) {
 			copy.gridY = bottom
 		}
 		return [...list.slice(0, at + 1), copy, ...list.slice(at + 1)]
-	})
+	} })
 }
 
 /**
@@ -113,7 +108,7 @@ export function duplicateChildIn(content, key) {
  * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 export function removeChildIn(content, key) {
-	return changeChildIn(content, key, (list, at) => [...list.slice(0, at), ...list.slice(at + 1)])
+	return changeChildIn(content, { key, change: (list, at) => [...list.slice(0, at), ...list.slice(at + 1)] })
 }
 
 /**
@@ -142,26 +137,38 @@ function childLists(content) {
  * depth; nothing else is touched. Null when no child has the key.
  *
  * @param {object} content The content.
- * @param {string} key The child's key.
- * @param {function(Array<object>, number): Array<object>} change Makes the new list.
- * @param {number} depth How deep this content sits.
+ * @param {{key: string, change: function(Array<object>, number): Array<object>}} edit The child's key and how its list changes.
  * @return {object|null}
  */
-function changeChildIn(content, key, change, depth = 0) {
-	if (key === '' || depth > MAX_DEPTH || content === null || typeof content !== 'object') {
+function changeChildIn(content, edit) {
+	if (edit.key === '' || content === null || typeof content !== 'object') {
 		return null
 	}
-	for (const { list, tab } of childLists(content)) {
-		const at = list.findIndex((child) => childUseKey(child) === key)
-		if (at !== -1) {
-			return withList(content, tab, change(list, at))
+	for (const entry of childLists(content)) {
+		const list = changeList(entry.list, edit)
+		if (list !== null) {
+			return withList(content, { tab: entry.tab, list })
 		}
-		for (let index = 0; index < list.length; index++) {
-			const inner = changeChildIn(list[index]?.content, key, change, depth + 1)
-			if (inner !== null) {
-				const next = list.map((child, i) => (i === index ? { ...child, content: inner } : child))
-				return withList(content, tab, next)
-			}
+	}
+	return null
+}
+
+/**
+ * One list changed: the child of the key here, or inside one of the children.
+ *
+ * @param {Array<object>} list The children.
+ * @param {{key: string, change: function(Array<object>, number): Array<object>}} edit The child's key and how its list changes.
+ * @return {Array<object>|null}
+ */
+function changeList(list, edit) {
+	const at = list.findIndex((child) => childUseKey(child) === edit.key)
+	if (at !== -1) {
+		return edit.change(list, at)
+	}
+	for (let index = 0; index < list.length; index++) {
+		const inner = changeChildIn(list[index]?.content, edit)
+		if (inner !== null) {
+			return list.map((child, i) => (i === index ? { ...child, content: inner } : child))
 		}
 	}
 	return null
@@ -171,13 +178,12 @@ function changeChildIn(content, key, change, depth = 0) {
  * The content with one child list replaced.
  *
  * @param {object} content The content.
- * @param {number|null} tab The tab the list belongs to, or null for the well's own list.
- * @param {Array<object>} list The new list.
+ * @param {{tab: (number|null), list: Array<object>}} entry The tab the list belongs to (null: the well's own list) and the new list.
  * @return {object}
  */
-function withList(content, tab, list) {
-	if (tab === null) {
-		return { ...content, placements: list }
+function withList(content, entry) {
+	if (entry.tab === null) {
+		return { ...content, placements: entry.list }
 	}
-	return { ...content, tabs: content.tabs.map((t, i) => (i === tab ? { ...t, placements: list } : t)) }
+	return { ...content, tabs: content.tabs.map((t, i) => (i === entry.tab ? { ...t, placements: entry.list } : t)) }
 }

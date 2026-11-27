@@ -28,9 +28,9 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 	},
 	NcButton: {
 		name: 'NcButton',
-		props: ['variant'],
+		props: ['variant', 'text'],
 		emits: ['click'],
-		template: '<button @click="$emit(\'click\')"><slot /></button>',
+		template: '<button @click="$emit(\'click\')">{{ text }}<slot /></button>',
 	},
 }))
 

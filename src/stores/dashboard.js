@@ -345,6 +345,27 @@ function widgetRequestBody(widgetId, placement) {
 }
 
 /**
+ * REQ-EDIT-002: what a refused or failed draft Save tells the person, and
+ * what the page gets back: a colleague's newer widgets (409) are named, any
+ * other refusal shows the server's reason. The draft stays.
+ *
+ * @param {object} error The axios error.
+ * @return {{saved: false, status: (number|null), conflicts: Array<object>}}
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ */
+function draftSaveFailure(error) {
+	const status = error?.response?.status ?? null
+	const data = error?.response?.data ?? {}
+	logger.error('Failed to save the draft:', error)
+	if (status === 409 && Array.isArray(data.placements)) {
+		showError(t('launchpad', 'A colleague changed {count} of these widgets first. Nothing was saved.', { count: data.placements.length }))
+		return { saved: false, status, conflicts: data.placements }
+	}
+	showError(data.message || t('launchpad', 'The changes could not be saved.'))
+	return { saved: false, status, conflicts: [] }
+}
+
+/**
  * The toast text for a dashboard that could not be forked (REQ-ASET-003,
  * extended): the stable `personal_dashboards_disabled` 403 and a 404 get
  * their own message, anything else the generic one.
@@ -1285,28 +1306,32 @@ export const useDashboardStore = defineStore('dashboard', {
 			this.saving = true
 			try {
 				const response = await api.updateDashboard(draft.dashboardId, draftRequestBody(draft, current))
-				const body = response.data?.data ?? response.data ?? {}
-				if (Array.isArray(body.placements)) {
-					this.widgetPlacements = body.placements
-				}
-				if (body.dashboard && this.activeDashboard?.id === draft.dashboardId) {
-					this.activeDashboard = { ...this.activeDashboard, ...body.dashboard }
-				}
-				this.draft = null
+				this.takeSavedDraft(draft, response.data?.data ?? response.data ?? {})
 				return { saved: true, status: 200, conflicts: [] }
 			} catch (error) {
-				const status = error?.response?.status ?? null
-				const data = error?.response?.data ?? {}
-				logger.error('Failed to save the draft:', error)
-				if (status === 409 && Array.isArray(data.placements)) {
-					showError(t('launchpad', 'A colleague changed {count} of these widgets first. Nothing was saved.', { count: data.placements.length }))
-					return { saved: false, status, conflicts: data.placements }
-				}
-				showError(data.message || t('launchpad', 'The changes could not be saved.'))
-				return { saved: false, status, conflicts: [] }
+				return draftSaveFailure(error)
 			} finally {
 				this.saving = false
 			}
+		},
+
+		/**
+		 * REQ-EDIT-002: after a stored draft, the stored placements and
+		 * dashboard replace the draft, and the draft ends.
+		 *
+		 * @param {object} draft The draft that was saved.
+		 * @param {object} body The answer: `placements` and `dashboard`.
+		 * @return {void}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+		 */
+		takeSavedDraft(draft, body) {
+			if (Array.isArray(body.placements)) {
+				this.widgetPlacements = body.placements
+			}
+			if (body.dashboard && this.activeDashboard?.id === draft.dashboardId) {
+				this.activeDashboard = { ...this.activeDashboard, ...body.dashboard }
+			}
+			this.draft = null
 		},
 
 		/**

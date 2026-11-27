@@ -29,10 +29,9 @@
 			<NcButton
 				v-if="mode !== 'cancel'"
 				variant="primary"
+				:text="t('launchpad', 'Save')"
 				data-testid="edit-draft-save"
-				@click="$emit('choose', 'save')">
-				{{ t('launchpad', 'Save') }}
-			</NcButton>
+				@click="$emit('choose', 'save')" />
 		</template>
 	</NcDialog>
 </template>

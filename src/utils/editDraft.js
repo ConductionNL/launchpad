@@ -73,6 +73,7 @@ export function isDraftPlacement(placement) {
  *
  * @param {Array<object>} placements The placements.
  * @return {Array<object>}
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 export function clonePlacements(placements) {
 	return JSON.parse(JSON.stringify(Array.isArray(placements) ? placements : []))

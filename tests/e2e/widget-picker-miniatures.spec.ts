@@ -108,7 +108,7 @@ test('Tiles and links lists the tile widgets and Layout holds Container', async 
 	await expect(page.getByTestId('widget-picker-type-container')).toBeVisible()
 })
 
-test('the KPI, calendar, activity report, communities, week strip, stacked bar and news miniatures draw their samples without a request', async ({ page }) => {
+test('the KPI, calendar, activity report, communities, week strip, stacked bar, news and notepad miniatures draw their samples without a request', async ({ page }) => {
 	await gotoLaunchPad(page)
 	await enterEditMode(page)
 	await expect(page.getByTestId('launchpad-dashboard-region')).toBeVisible()
@@ -117,7 +117,7 @@ test('the KPI, calendar, activity report, communities, week strip, stacked bar a
 	// the activity report when in use; as a miniature they read nothing.
 	const miniatureRequests: string[] = []
 	page.on('request', (req) => {
-		if (/\/api\/widgets\/news\/|\/aggregations\/|\/api\/objects\/|\/api\/activity-report|\/api\/calendar|\/apps\/spreed\/|\/ocs\/v2\.php\/apps\/spreed/.test(req.url())) {
+		if (/\/api\/widgets\/news\/|\/provisioning_api\/|\/apps\/provisioning_api\/|\/aggregations\/|\/api\/objects\/|\/api\/activity-report|\/api\/calendar|\/apps\/spreed\/|\/ocs\/v2\.php\/apps\/spreed/.test(req.url())) {
 			miniatureRequests.push(req.url())
 		}
 	})
@@ -133,6 +133,7 @@ test('the KPI, calendar, activity report, communities, week strip, stacked bar a
 		'week-strip': 'Council meeting',
 		'stacked-bar': 'In progress',
 		news: 'Road works on the Dorpsstraat',
+		notepad: 'Call Anna about the permit',
 	}
 	for (const [type, text] of Object.entries(samples)) {
 		const card = page.getByTestId(`widget-picker-type-${type}`)

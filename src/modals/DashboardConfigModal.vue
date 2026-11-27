@@ -278,23 +278,52 @@
 						data-testid="look-contrast-error">
 						{{ t('launchpad', 'Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)', { ratio: lookAccentCheck.ratio.toFixed(1) }) }}
 					</p>
-					<div class="dashboard-config__field">
-						<label class="dashboard-config__label" for="look-image-input">
-							{{ t('launchpad', 'Image') }}
-						</label>
-						<input
-							id="look-image-input"
-							type="file"
-							accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
-							data-testid="look-image-input"
-							:disabled="lookUploading"
-							@change="onLookImage">
-						<p v-if="look.resource" class="dashboard-config__hint" data-testid="look-image-name">
-							{{ look.resource }}
-							<NcButton variant="tertiary" data-testid="look-image-clear" @click="look.resource = ''">
+					<!-- The dashboard's background image (review 27 Nov item 17):
+					     a styled upload button, a small preview and a remove
+					     action instead of the bare browser file input. -->
+					<div class="dashboard-config__field" data-testid="look-image">
+						<span id="look-image-label" class="dashboard-config__label">
+							{{ t('launchpad', 'Background image') }}
+						</span>
+						<p class="dashboard-config__hint">
+							{{ t('launchpad', 'Shown behind this dashboard; leave empty to follow the theme.') }}
+						</p>
+						<div class="dashboard-config__image-row">
+							<img
+								v-if="look.resource"
+								class="dashboard-config__image-preview"
+								:src="lookImageUrl"
+								alt=""
+								data-testid="look-image-preview">
+							<span v-if="look.resource" class="dashboard-config__image-name" data-testid="look-image-name">
+								{{ look.resource }}
+							</span>
+							<NcButton
+								aria-describedby="look-image-label"
+								data-testid="look-image-upload"
+								:disabled="lookUploading"
+								@click="pickLookImage">
+								{{ look.resource ? t('launchpad', 'Choose another image') : t('launchpad', 'Upload image') }}
+							</NcButton>
+							<NcButton
+								v-if="look.resource"
+								variant="tertiary"
+								data-testid="look-image-clear"
+								@click="look.resource = ''">
 								{{ t('launchpad', 'Remove') }}
 							</NcButton>
-						</p>
+							<input
+								id="look-image-input"
+								ref="lookImageFile"
+								class="dashboard-config__file"
+								type="file"
+								accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+								tabindex="-1"
+								aria-hidden="true"
+								data-testid="look-image-input"
+								:disabled="lookUploading"
+								@change="onLookImage">
+						</div>
 						<p v-if="lookUploadError" class="dashboard-config__error" role="alert">
 							{{ lookUploadError }}
 						</p>
@@ -1067,6 +1096,13 @@ export default {
 		},
 
 		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
+		lookImageUrl() {
+			return this.look.resource
+				? generateUrl('/apps/launchpad/resource/' + encodeURIComponent(this.look.resource))
+				: ''
+		},
+
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
 		lookBackgroundHex() {
 			return normaliseHex(this.look.background)
 		},
@@ -1248,6 +1284,15 @@ export default {
 		 * @return {Promise<void>}
 		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
 		 */
+		/**
+		 * Open the browser's file picker behind the styled upload button.
+		 *
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		pickLookImage() {
+			this.$refs.lookImageFile?.click()
+		},
+
 		async onLookImage(event) {
 			const file = event?.target?.files?.[0]
 			if (!file) {
@@ -1263,6 +1308,9 @@ export default {
 				this.lookUploadError = t('launchpad', 'Failed to upload image')
 			} finally {
 				this.lookUploading = false
+				if (event?.target) {
+					event.target.value = ''
+				}
 			}
 		},
 
@@ -1957,10 +2005,55 @@ export default {
 	font-weight: bold;
 }
 
+/* .dashboard-config__field stacks its children (flex-direction: column);
+   a look row puts the colour picker NEXT TO its field, on one row. */
 .dashboard-config__look-row {
 	display: flex;
+	flex-direction: row;
 	align-items: flex-end;
 	gap: 8px;
+}
+
+.dashboard-config__look-row > :first-child {
+	flex: 1 1 auto;
+	min-inline-size: 0;
+}
+
+.dashboard-config__swatch {
+	flex: 0 0 auto;
+}
+
+.dashboard-config__image-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+.dashboard-config__image-preview {
+	inline-size: 64px;
+	block-size: 40px;
+	object-fit: cover;
+	border: 1px solid var(--color-border-dark);
+	border-radius: var(--border-radius);
+}
+
+.dashboard-config__image-name {
+	overflow: hidden;
+	max-inline-size: 16em;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--color-text-maxcontrast);
+}
+
+/* The real file input stays in the DOM for the picker, out of sight. */
+.dashboard-config__file {
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
 }
 
 .dashboard-config__swatch {

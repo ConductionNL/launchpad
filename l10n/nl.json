@@ -1,5 +1,9 @@
 {
     "translations": {
+        "Background image": "Achtergrondafbeelding",
+        "Shown behind this dashboard; leave empty to follow the theme.": "Wordt achter dit dashboard getoond; laat leeg om het thema te volgen.",
+        "Upload image": "Afbeelding uploaden",
+        "Choose another image": "Andere afbeelding kiezen",
         "The dashboard everyone starts on. Edit it to change what your whole organisation sees.": "Het dashboard waarmee iedereen begint. Pas het aan om te veranderen wat de hele organisatie ziet.",
         "Today": "Vandaag",
         "First thing today": "Vandaag eerst",

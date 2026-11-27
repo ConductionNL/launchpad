@@ -5,7 +5,7 @@
  * The HTTP client's early reads: GETs started before the component that
  * wants them renders, answered once from the request in flight.
  *
- * @spec openspec/changes/dashboard-switch-reads-early/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-dashboard-switch-reads-early/tasks.md#task-3
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 

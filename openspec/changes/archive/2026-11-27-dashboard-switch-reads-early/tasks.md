@@ -1,0 +1,9 @@
+# Tasks: dashboard-switch-reads-early
+
+- [x] 1. The app's HTTP client keeps early GETs in flight (5 s, once) and answers the first matching GET from one; a later or expired GET goes out; the early GET itself is never answered from its own entry
+- [x] 2. `switchDashboard()` starts the target's reactions read and, when the target's row says the caller does not own it, its personal-layer read, beside the dashboard read, after dropping the previous switch's early reads
+- [x] 3. Unit tests: the client (answered once, expiry, failure answers with the error, dropped on the next switch, own request not self-answered, non-GET untouched) and the store (reads started for a shared and an owned dashboard, none without a uuid)
+- [x] 4. Measure on the sandbox reference stack, before/after (live; numbers in the PR or the nightly)
+  - Sandbox reference stack (nginx, php-fpm 8.3 static 8 + opcache, MariaDB, APCu, Redis locking), NC 34.0.6, OpenRegister main, launchpad development 2c24a4e (after) vs 992696f (before), demo seed zuiddrecht-boards, pieter, 1920x1080. A switch is timed from the click on a row in All dashboards until 300 ms pass with no request in flight; 10 switches per run, 3 interleaved rounds.
+  - Medians: before 259 / 293 / 300 ms, after 273 / 266 / 322 ms. That is within noise. Requests per switch are the same (7-13), and every reactions GET is answered from the early read (one reactions request per switch, not two).
+  - Request timeline: the reactions read now starts together with `GET /api/dashboard/{id}` (+38-156 ms after the click) instead of after it (+94-186 ms), so it is off the critical path. A switch still ends on the widget reads that start after the render (files/calendar/xwiki contents, announcements), so the total does not move. The next lever is those widget reads (and `GET /api/dashboards/{uuid}/path`, which also follows the render).

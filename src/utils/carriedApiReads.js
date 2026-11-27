@@ -146,7 +146,7 @@ export function answerCarried(config) {
  *
  * @param {object} config The axios request config.
  * @return {object} The config, with an adapter that answers from the early read when one matches.
- * @spec openspec/changes/dashboard-switch-reads-early/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-dashboard-switch-reads-early/tasks.md#task-1
  */
 function answerEarly(config) {
 	const pending = takeEarlyRead(config.url, config.params)
@@ -166,7 +166,7 @@ function answerEarly(config) {
  * @param {object} [params] The request's params.
  * @param {object} [client] The axios instance (default: `@nextcloud/axios`).
  * @return {void}
- * @spec openspec/changes/dashboard-switch-reads-early/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-dashboard-switch-reads-early/tasks.md#task-1
  */
 export function startEarlyRead(url, params = {}, client = axios) {
 	const key = requestKey(url, params)
@@ -191,7 +191,7 @@ export function startEarlyRead(url, params = {}, client = axios) {
  * @param {string} url The request URL.
  * @param {object} [params] The request's params.
  * @return {Promise<object>|null} The early response, or null when there is none (or it expired).
- * @spec openspec/changes/dashboard-switch-reads-early/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-dashboard-switch-reads-early/tasks.md#task-1
  */
 export function takeEarlyRead(url, params) {
 	const key = requestKey(url, params)
@@ -207,7 +207,7 @@ export function takeEarlyRead(url, params) {
  * Drop every early read not yet taken (a new switch starts its own).
  *
  * @return {void}
- * @spec openspec/changes/dashboard-switch-reads-early/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-dashboard-switch-reads-early/tasks.md#task-1
  */
 export function dropEarlyReads() {
 	early.clear()

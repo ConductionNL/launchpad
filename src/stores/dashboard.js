@@ -479,7 +479,7 @@ function cacheMetadata(store, { uuid, map }) {
  *
  * @param {object|undefined} target The switcher row of the dashboard being opened.
  * @return {void}
- * @spec openspec/changes/dashboard-switch-reads-early/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-27-dashboard-switch-reads-early/tasks.md#task-2
  */
 export function startSwitchReads(target) {
 	dropEarlyReads()

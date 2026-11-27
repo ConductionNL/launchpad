@@ -17,12 +17,14 @@
 		@close="$emit('close')">
 		<!-- tile-form-board-sync REQ-TILE-040: one 640 px form, in the board's order. -->
 		<div class="tile-editor">
-			<h2 class="tile-editor__heading">
-				{{ heading }}
-			</h2>
-			<p class="tile-editor__where" data-testid="tile-editor-where">
-				{{ whereLine }}
-			</p>
+			<template v-if="!embedded">
+				<h2 class="tile-editor__heading">
+					{{ heading }}
+				</h2>
+				<p class="tile-editor__where" data-testid="tile-editor-where">
+					{{ whereLine }}
+				</p>
+			</template>
 
 			<div class="tile-editor__form">
 				<!-- app-link-tile-widget REQ-APPTILE-004: first the choice. A
@@ -36,470 +38,498 @@
 					data-testid="tile-mode"
 					@update:modelValue="chooseMode" />
 
-				<TileAppChooser
-					v-if="isAppMode && !tile"
-					:catalogueApps="catalogueApps"
-					:discoveredApps="discoveredApps"
-					:foundServices="foundServices"
-					:officeTiles="officeTiles"
-					:placements="placements"
-					:requestAppFn="requestAppFn"
-					@update:chosen="chosenApps = $event"
-					@importBookmarks="$emit('importBookmarks', $event)" />
-				<p v-else-if="isAppMode" class="tile-editor__hint" data-testid="tile-editor-app">
-					{{ t('launchpad', 'Opens the app {app}.', { app: tile.title || tile.appId || '' }) }}
-				</p>
+				<!-- Board LpTegelToevoegen / LpTegelBewerken: the fields on the left,
+				     the Appearance panel on the right. -->
+				<div class="tile-editor__columns">
+					<div class="tile-editor__main">
+						<TileAppChooser
+							v-if="isAppMode && !tile"
+							:catalogueApps="catalogueApps"
+							:discoveredApps="discoveredApps"
+							:foundServices="foundServices"
+							:officeTiles="officeTiles"
+							:placements="placements"
+							:requestAppFn="requestAppFn"
+							@update:chosen="chosenApps = $event"
+							@importBookmarks="$emit('importBookmarks', $event)" />
+						<p v-else-if="isAppMode" class="tile-editor__hint" data-testid="tile-editor-app">
+							{{ t('launchpad', 'Opens the app {app}.', { app: tile.title || tile.appId || '' }) }}
+						</p>
 
-				<div v-if="!isAppMode" class="form-row">
-					<div class="form-row__item">
-						<NcTextField
-							v-model="form.title"
-							:label="t('launchpad', 'Name')"
-							:placeholder="t('launchpad', 'Enter tile name')"
-							required />
-					</div>
-					<div class="form-row__item">
-						<!-- REQ-TILE-041: a tile on the dashboard moves into one of
-						     its groups from here; a tile in a group shows its group. -->
+						<div v-if="!isAppMode" class="form-row">
+							<div class="form-row__item">
+								<NcTextField
+									v-model="form.title"
+									:label="t('launchpad', 'Name')"
+									:placeholder="t('launchpad', 'Enter tile name')"
+									required />
+							</div>
+							<div class="form-row__item">
+								<!-- REQ-TILE-041: a tile on the dashboard moves into one of
+								     its groups from here; a tile in a group shows its group. -->
+								<NcSelect
+									v-if="canMoveIntoGroup"
+									:modelValue="targetGroupId"
+									:options="groupChoices"
+									:inputLabel="t('launchpad', 'Group')"
+									:reduce="(option) => option.value"
+									:clearable="false"
+									label="label"
+									data-testid="tile-group"
+									@update:modelValue="chooseGroup($event)" />
+								<NcTextField
+									v-else
+									:modelValue="groupLabel"
+									:label="t('launchpad', 'Group')"
+									:helperText="groupName ? '' : t('launchpad', 'Tiles in a group share its sort order.')"
+									disabled
+									data-testid="tile-group" />
+							</div>
+						</div>
+
+						<!-- launcher-tile-launch-types: what the tile opens. The server
+						     checks every type (TileLinkValidator); an sso tile's address
+						     is resolved there from the template, so it has no address field. -->
+						<!-- REQ-TILE-040: the former tile types are no choice cards any
+						     more; a tile stored with one keeps its fields here. -->
+						<h3
+							v-if="!isAppMode && isLaunchTile"
+							class="tile-editor__label tile-editor__how"
+							data-testid="tile-how-it-opens">
+							{{ t('launchpad', 'How it opens') }}
+						</h3>
+
+						<template v-if="isAppMode" />
+
+						<template v-else-if="form.linkType === 'program'">
+							<NcTextField
+								v-model="form.linkValue"
+								:label="t('launchpad', 'Program address')"
+								:helperText="programHelp"
+								type="text"
+								data-testid="tile-program-address" />
+						</template>
+
+						<template v-else-if="form.linkType === 'remote-desktop'">
+							<fieldset class="tile-editor__fieldset">
+								<legend>{{ t('launchpad', 'Connection') }}</legend>
+								<NcCheckboxRadioSwitch
+									:modelValue="form.remoteMode === 'gateway'"
+									type="radio"
+									name="tile-remote-mode"
+									data-testid="tile-remote-gateway"
+									@update:modelValue="form.remoteMode = 'gateway'">
+									{{ t('launchpad', 'Through a web gateway') }}
+								</NcCheckboxRadioSwitch>
+								<NcCheckboxRadioSwitch
+									:modelValue="form.remoteMode === 'rdp'"
+									type="radio"
+									name="tile-remote-mode"
+									data-testid="tile-remote-rdp"
+									@update:modelValue="form.remoteMode = 'rdp'">
+									{{ t('launchpad', 'Download an RDP file') }}
+								</NcCheckboxRadioSwitch>
+							</fieldset>
+
+							<NcTextField
+								v-if="form.remoteMode === 'gateway'"
+								v-model="form.remoteUrl"
+								:label="t('launchpad', 'Gateway address')"
+								:helperText="t('launchpad', 'An https address, such as your Guacamole, Citrix or Azure Virtual Desktop web page.')"
+								type="text"
+								data-testid="tile-remote-url" />
+							<template v-else>
+								<div class="form-row">
+									<div class="form-row__item">
+										<NcTextField
+											v-model="form.rdpHost"
+											:label="t('launchpad', 'Computer or server')"
+											type="text"
+											data-testid="tile-rdp-host" />
+									</div>
+									<div class="form-row__item">
+										<NcTextField
+											v-model="form.rdpPort"
+											:label="t('launchpad', 'Port')"
+											:helperText="t('launchpad', 'Leave empty for {port}.', { port: DEFAULT_RDP_PORT })"
+											type="number"
+											data-testid="tile-rdp-port" />
+									</div>
+								</div>
+								<NcTextField
+									v-model="form.rdpRemoteApp"
+									:label="t('launchpad', 'Published program (optional)')"
+									:helperText="t('launchpad', 'The RemoteApp name, such as ||Belastingen. Leave empty for the whole desktop.')"
+									type="text"
+									data-testid="tile-rdp-program" />
+								<NcTextField
+									v-model="form.rdpGateway"
+									:label="t('launchpad', 'Remote desktop gateway (optional)')"
+									type="text"
+									data-testid="tile-rdp-gateway" />
+							</template>
+						</template>
+
+						<template v-else-if="form.linkType === 'sso'">
+							<NcSelect
+								:modelValue="form.ssoTemplate || null"
+								:options="ssoTemplateOptions"
+								:inputLabel="t('launchpad', 'Sign-on template')"
+								:reduce="(option) => option.value"
+								:clearable="false"
+								label="label"
+								data-testid="tile-sso-template"
+								@update:modelValue="form.ssoTemplate = $event" />
+							<p v-if="ssoTemplateOptions.length === 0" class="tile-editor__hint-small">
+								{{ t('launchpad', 'No sign-on templates yet. An administrator adds them on the LaunchPad admin page.') }}
+							</p>
+							<NcTextField
+								v-model="form.ssoAppId"
+								:label="t('launchpad', 'App id')"
+								:helperText="t('launchpad', 'The id the identity provider gives this app.')"
+								type="text"
+								data-testid="tile-sso-app-id" />
+						</template>
+
+						<!-- Web address and internal address side by side (REQ-TILE-040). -->
+						<div v-if="!isAppMode" class="form-row">
+							<div v-if="hasWebAddress" class="form-row__item">
+								<NcTextField
+									v-model="form.linkValue"
+									:label="t('launchpad', 'Web address')"
+									:placeholder="t('launchpad', 'https://example.com or /apps/files')"
+									type="text" />
+							</div>
+							<div v-if="!inGroup" class="form-row__item">
+								<NcTextField
+									v-model="form.internalUrl"
+									:label="t('launchpad', 'Internal address (optional)')"
+									:placeholder="t('launchpad', 'e.g. http://intranet.local')"
+									type="text" />
+							</div>
+						</div>
+						<p v-if="brandLine" class="tile-editor__hint-small" data-testid="tile-editor-brand">
+							{{ brandLine }}
+						</p>
+						<p v-if="!inGroup && !isAppMode" class="tile-editor__hint-small tile-editor__address-in-effect">
+							{{ addressInEffect }}
+						</p>
+						<!-- REQ-TILE-041: a tile in a group is a child of the group, not a
+						     placement of its own, so what needs its own placement on the
+						     server (launching, the availability check, the office-network
+						     address, where it opens) is not offered here. -->
+						<p v-else-if="inGroup" class="tile-editor__hint-small" data-testid="tile-in-group-hint">
+							{{ t('launchpad', 'A tile in a group opens its web address in a new tab.') }}
+						</p>
+
+						<!-- Launcher-tile-open-behaviour: how the tile opens, as three cards. -->
+						<div v-if="!inGroup && !isAppMode" class="tile-editor__opens-in" data-test="tile-editor-opens-in">
+							<ChoiceCards
+								:modelValue="form.linkTarget"
+								:options="linkTargetOptions"
+								:label="t('launchpad', 'Open in')"
+								:columns="3"
+								name="tile-link-target"
+								@update:modelValue="form.linkTarget = $event" />
+							<p class="tile-editor__hint" data-test="tile-editor-opens-in-default">
+								<template v-if="form.linkTarget === ''">
+									{{ t('launchpad', 'None chosen: the tile opens as the dashboard decides.') }}
+								</template>
+								<NcButton
+									v-else
+									variant="tertiary"
+									data-test="tile-editor-follow-dashboard"
+									@click="form.linkTarget = ''">
+									{{ t('launchpad', 'Open as the dashboard decides') }}
+								</NcButton>
+							</p>
+							<p
+								v-if="panelRefusal"
+								class="tile-editor__hint"
+								data-test="tile-editor-panel-refusal">
+								{{ panelRefusal }}
+							</p>
+						</div>
+
+						<!-- The icon with its preview, a picker on demand and an upload. -->
+						<div v-if="!isAppMode" class="tile-editor__field tile-editor__icon">
+							<span class="tile-editor__label">{{ t('launchpad', 'Icon') }}</span>
+							<div class="tile-editor__icon-row">
+								<div
+									class="tile-preview"
+									:style="{
+										background: previewBackground,
+										color: textCss,
+									}">
+									<img
+										v-if="isUrlIcon"
+										class="tile-preview__icon"
+										:src="displayIcon"
+										alt="" />
+									<svg
+										v-else
+										class="tile-preview__icon"
+										:style="{ fill: textCss }"
+										viewBox="0 0 24 24">
+										<path :d="displayIcon" />
+									</svg>
+									<span class="tile-preview__title">{{ form.title }}</span>
+								</div>
+								<div class="tile-editor__icon-actions">
+									<NcButton
+										data-testid="tile-icon-choose"
+										:aria-expanded="iconBrowserOpen ? 'true' : 'false'"
+										@click="iconBrowserOpen = !iconBrowserOpen">
+										{{ iconBrowserOpen ? t('launchpad', 'Close the icon list') : t('launchpad', 'Choose an icon') }}
+									</NcButton>
+									<NcButton
+										data-testid="tile-icon-upload"
+										:disabled="iconUploading"
+										@click="pickIconFile">
+										{{ t('launchpad', 'Upload another icon') }}
+									</NcButton>
+									<input
+										ref="iconFile"
+										class="tile-editor__file"
+										type="file"
+										accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+										tabindex="-1"
+										aria-hidden="true"
+										@change="onIconFile">
+									<p v-if="iconUploadError" class="tile-editor__warning" role="alert">
+										{{ iconUploadError }}
+									</p>
+									<p class="tile-editor__hint-small" data-testid="tile-icon-colour-note">
+										{{ t('launchpad', 'An SVG icon is drawn in the text colour; an uploaded colour image is shown as it is.') }}
+									</p>
+								</div>
+							</div>
+							<!-- No `url-icon-groups`: CnIconBrowser ships the NL Design sets
+							     (Gemeente / Den Haag / RVO) by default and fetches RVO's
+							     1.9 MB only when its tab is opened. Passing them explicitly,
+							     as this used to, forced the whole pack into the eager bundle. -->
+							<CnIconBrowser
+								v-if="iconBrowserOpen"
+								inline
+								:label="t('launchpad', 'Icon')"
+								:value="displayIcon"
+								:icons="iconCatalogue"
+								@input="onIcon" />
+						</div>
+
+
+						<!-- REQ-TILE-041: the sort order of the tile's group. -->
 						<NcSelect
-							v-if="canMoveIntoGroup"
-							:modelValue="targetGroupId"
-							:options="groupChoices"
-							:inputLabel="t('launchpad', 'Group')"
+							v-if="!isAppMode"
+							:modelValue="groupSortBy"
+							:options="groupSortOptions"
+							:inputLabel="t('launchpad', 'Sort order in this group')"
 							:reduce="(option) => option.value"
 							:clearable="false"
+							:disabled="!groupName && targetGroupId === null"
 							label="label"
-							data-testid="tile-group"
-							@update:modelValue="chooseGroup($event)" />
-						<NcTextField
-							v-else
-							:modelValue="groupLabel"
-							:label="t('launchpad', 'Group')"
-							:helperText="groupName ? '' : t('launchpad', 'Tiles in a group share its sort order.')"
-							disabled
-							data-testid="tile-group" />
-					</div>
-				</div>
+							data-testid="tile-group-sort"
+							@update:modelValue="groupSortBy = $event" />
 
-				<!-- launcher-tile-launch-types: what the tile opens. The server
-				     checks every type (TileLinkValidator); an sso tile's address
-				     is resolved there from the template, so it has no address field. -->
-				<!-- REQ-TILE-040: the former tile types are no choice cards any
-				     more; a tile stored with one keeps its fields here. -->
-				<h3
-					v-if="!isAppMode && isLaunchTile"
-					class="tile-editor__label tile-editor__how"
-					data-testid="tile-how-it-opens">
-					{{ t('launchpad', 'How it opens') }}
-				</h3>
+						<div v-if="!inGroup && !isAppMode" class="tile-editor__health-ping">
+							<NcCheckboxRadioSwitch
+								:modelValue="form.healthPingEnabled"
+								type="switch"
+								@update:modelValue="onHealthPingToggle">
+								{{ t('launchpad', 'Check availability') }}
+							</NcCheckboxRadioSwitch>
 
-				<template v-if="isAppMode" />
-
-				<template v-else-if="form.linkType === 'program'">
-					<NcTextField
-						v-model="form.linkValue"
-						:label="t('launchpad', 'Program address')"
-						:helperText="programHelp"
-						type="text"
-						data-testid="tile-program-address" />
-				</template>
-
-				<template v-else-if="form.linkType === 'remote-desktop'">
-					<fieldset class="tile-editor__fieldset">
-						<legend>{{ t('launchpad', 'Connection') }}</legend>
-						<NcCheckboxRadioSwitch
-							:modelValue="form.remoteMode === 'gateway'"
-							type="radio"
-							name="tile-remote-mode"
-							data-testid="tile-remote-gateway"
-							@update:modelValue="form.remoteMode = 'gateway'">
-							{{ t('launchpad', 'Through a web gateway') }}
-						</NcCheckboxRadioSwitch>
-						<NcCheckboxRadioSwitch
-							:modelValue="form.remoteMode === 'rdp'"
-							type="radio"
-							name="tile-remote-mode"
-							data-testid="tile-remote-rdp"
-							@update:modelValue="form.remoteMode = 'rdp'">
-							{{ t('launchpad', 'Download an RDP file') }}
-						</NcCheckboxRadioSwitch>
-					</fieldset>
-
-					<NcTextField
-						v-if="form.remoteMode === 'gateway'"
-						v-model="form.remoteUrl"
-						:label="t('launchpad', 'Gateway address')"
-						:helperText="t('launchpad', 'An https address, such as your Guacamole, Citrix or Azure Virtual Desktop web page.')"
-						type="text"
-						data-testid="tile-remote-url" />
-					<template v-else>
-						<div class="form-row">
-							<div class="form-row__item">
+							<template v-if="form.healthPingEnabled">
+								<!-- REQ-TILE-042: the last check's result with its time. -->
+								<p
+									v-if="tile && tile.id"
+									class="tile-editor__hint-small tile-editor__last-check"
+									data-testid="tile-last-check">
+									{{ lastCheck }}
+								</p>
 								<NcTextField
-									v-model="form.rdpHost"
-									:label="t('launchpad', 'Computer or server')"
+									v-model="form.healthUrl"
+									:label="t('launchpad', 'Health check URL')"
+									:placeholder="t('launchpad', 'https://…')"
 									type="text"
-									data-testid="tile-rdp-host" />
-							</div>
-							<div class="form-row__item">
-								<NcTextField
-									v-model="form.rdpPort"
-									:label="t('launchpad', 'Port')"
-									:helperText="t('launchpad', 'Leave empty for {port}.', { port: DEFAULT_RDP_PORT })"
-									type="number"
-									data-testid="tile-rdp-port" />
-							</div>
+									@update:modelValue="healthUrlError = ''"
+									@blur="checkHealthUrlAllowed" />
+								<p v-if="healthUrlError" class="tile-editor__warning">
+									{{ healthUrlError }}
+								</p>
+
+								<div class="form-row">
+									<div class="form-row__item">
+										<NcTextField
+											v-model="form.expectedStatus"
+											type="number"
+											:label="
+												t('launchpad', 'Expected HTTP status')
+											" />
+									</div>
+									<div class="form-row__item">
+										<NcTextField
+											v-model="form.pingInterval"
+											type="number"
+											:label="
+												t('launchpad', 'Check interval (seconds)')
+											" />
+									</div>
+								</div>
+								<p class="tile-editor__hint-small">
+									{{
+										t('launchpad', 'Minimum {min} seconds.', {
+											min: MIN_PING_INTERVAL,
+										})
+									}}
+								</p>
+							</template>
 						</div>
-						<NcTextField
-							v-model="form.rdpRemoteApp"
-							:label="t('launchpad', 'Published program (optional)')"
-							:helperText="t('launchpad', 'The RemoteApp name, such as ||Belastingen. Leave empty for the whole desktop.')"
-							type="text"
-							data-testid="tile-rdp-program" />
-						<NcTextField
-							v-model="form.rdpGateway"
-							:label="t('launchpad', 'Remote desktop gateway (optional)')"
-							type="text"
-							data-testid="tile-rdp-gateway" />
-					</template>
-				</template>
-
-				<template v-else-if="form.linkType === 'sso'">
-					<NcSelect
-						:modelValue="form.ssoTemplate || null"
-						:options="ssoTemplateOptions"
-						:inputLabel="t('launchpad', 'Sign-on template')"
-						:reduce="(option) => option.value"
-						:clearable="false"
-						label="label"
-						data-testid="tile-sso-template"
-						@update:modelValue="form.ssoTemplate = $event" />
-					<p v-if="ssoTemplateOptions.length === 0" class="tile-editor__hint-small">
-						{{ t('launchpad', 'No sign-on templates yet. An administrator adds them on the LaunchPad admin page.') }}
-					</p>
-					<NcTextField
-						v-model="form.ssoAppId"
-						:label="t('launchpad', 'App id')"
-						:helperText="t('launchpad', 'The id the identity provider gives this app.')"
-						type="text"
-						data-testid="tile-sso-app-id" />
-				</template>
-
-				<!-- Web address and internal address side by side (REQ-TILE-040). -->
-				<div v-if="!isAppMode" class="form-row">
-					<div v-if="hasWebAddress" class="form-row__item">
-						<NcTextField
-							v-model="form.linkValue"
-							:label="t('launchpad', 'Web address')"
-							:placeholder="t('launchpad', 'https://example.com or /apps/files')"
-							type="text" />
 					</div>
-					<div v-if="!inGroup" class="form-row__item">
-						<NcTextField
-							v-model="form.internalUrl"
-							:label="t('launchpad', 'Internal address (optional)')"
-							:placeholder="t('launchpad', 'e.g. http://intranet.local')"
-							type="text" />
-					</div>
-				</div>
-				<p v-if="brandLine" class="tile-editor__hint-small" data-testid="tile-editor-brand">
-					{{ brandLine }}
-				</p>
-				<p v-if="!inGroup && !isAppMode" class="tile-editor__hint-small tile-editor__address-in-effect">
-					{{ addressInEffect }}
-				</p>
-				<!-- REQ-TILE-041: a tile in a group is a child of the group, not a
-				     placement of its own, so what needs its own placement on the
-				     server (launching, the availability check, the office-network
-				     address, where it opens) is not offered here. -->
-				<p v-else-if="inGroup" class="tile-editor__hint-small" data-testid="tile-in-group-hint">
-					{{ t('launchpad', 'A tile in a group opens its web address in a new tab.') }}
-				</p>
-
-				<!-- Launcher-tile-open-behaviour: how the tile opens, as three cards. -->
-				<div v-if="!inGroup && !isAppMode" class="tile-editor__opens-in" data-test="tile-editor-opens-in">
-					<ChoiceCards
-						:modelValue="form.linkTarget"
-						:options="linkTargetOptions"
-						:label="t('launchpad', 'Open in')"
-						:columns="3"
-						name="tile-link-target"
-						@update:modelValue="form.linkTarget = $event" />
-					<p class="tile-editor__hint" data-test="tile-editor-opens-in-default">
-						<template v-if="form.linkTarget === ''">
-							{{ t('launchpad', 'None chosen: the tile opens as the dashboard decides.') }}
-						</template>
-						<NcButton
-							v-else
-							variant="tertiary"
-							data-test="tile-editor-follow-dashboard"
-							@click="form.linkTarget = ''">
-							{{ t('launchpad', 'Open as the dashboard decides') }}
-						</NcButton>
-					</p>
-					<p
-						v-if="panelRefusal"
-						class="tile-editor__hint"
-						data-test="tile-editor-panel-refusal">
-						{{ panelRefusal }}
-					</p>
-				</div>
-
-				<!-- The icon with its preview, a picker on demand and an upload. -->
-				<div v-if="!isAppMode" class="tile-editor__field tile-editor__icon">
-					<span class="tile-editor__label">{{ t('launchpad', 'Icon') }}</span>
-					<div class="tile-editor__icon-row">
-						<div
-							class="tile-preview"
-							:style="{
-								background: previewBackground,
-								color: textCss,
-							}">
-							<img
-								v-if="isUrlIcon"
-								class="tile-preview__icon"
-								:src="displayIcon"
-								alt="" />
-							<svg
-								v-else
-								class="tile-preview__icon"
-								:style="{ fill: textCss }"
-								viewBox="0 0 24 24">
-								<path :d="displayIcon" />
-							</svg>
-							<span class="tile-preview__title">{{ form.title }}</span>
-						</div>
-						<div class="tile-editor__icon-actions">
-							<NcButton
-								data-testid="tile-icon-choose"
-								:aria-expanded="iconBrowserOpen ? 'true' : 'false'"
-								@click="iconBrowserOpen = !iconBrowserOpen">
-								{{ iconBrowserOpen ? t('launchpad', 'Close the icon list') : t('launchpad', 'Choose an icon') }}
-							</NcButton>
-							<NcButton
-								data-testid="tile-icon-upload"
-								:disabled="iconUploading"
-								@click="pickIconFile">
-								{{ t('launchpad', 'Upload another icon') }}
-							</NcButton>
-							<input
-								ref="iconFile"
-								class="tile-editor__file"
-								type="file"
-								accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
-								tabindex="-1"
-								aria-hidden="true"
-								@change="onIconFile">
-							<p v-if="iconUploadError" class="tile-editor__warning" role="alert">
-								{{ iconUploadError }}
-							</p>
-							<p class="tile-editor__hint-small" data-testid="tile-icon-colour-note">
-								{{ t('launchpad', 'An SVG icon is drawn in the text colour; an uploaded colour image is shown as it is.') }}
+					<aside class="tile-editor__appearance" data-testid="tile-editor-appearance">
+						<h3 class="tile-editor__appearance-title">
+							{{ t('launchpad', 'Appearance') }}
+						</h3>
+						<!-- The tile as it will look, with what the form explains about it. -->
+						<div class="tile-editor__appearance-preview">
+							<div
+								class="tile-preview tile-preview--square"
+								data-testid="tile-editor-preview"
+								:style="{ background: previewBackground, color: textCss }">
+								<span v-if="form.pinned" class="tile-preview__pin" aria-hidden="true">•</span>
+								<span class="tile-preview__glyph" aria-hidden="true">{{ previewInitial }}</span>
+								<span v-if="form.iconOnly !== true" class="tile-preview__title">{{ previewName }}</span>
+							</div>
+							<p class="tile-editor__hint-small">
+								{{ previewLine }}
 							</p>
 						</div>
-					</div>
-					<!-- No `url-icon-groups`: CnIconBrowser ships the NL Design sets
-					     (Gemeente / Den Haag / RVO) by default and fetches RVO's
-					     1.9 MB only when its tab is opened. Passing them explicitly,
-					     as this used to, forced the whole pack into the eager bundle. -->
-					<CnIconBrowser
-						v-if="iconBrowserOpen"
-						inline
-						:label="t('launchpad', 'Icon')"
-						:value="displayIcon"
-						:icons="iconCatalogue"
-						@input="onIcon" />
-				</div>
-
-				<div class="tile-editor__field">
-					<span :id="colourLabelId" class="tile-editor__label">{{ t('launchpad', 'Tile colour') }}</span>
-					<!-- REQ-ICT-004 (board LpTegelBewerken): eight theme colours,
-					     each previewing the white icon; "Own colour" keeps the
-					     colour pickers for a hex colour. -->
-					<div
-						class="tile-editor__swatches"
-						role="radiogroup"
-						:aria-labelledby="colourLabelId"
-						data-test="tile-editor-swatches">
-						<label
-							v-for="swatch in colourSwatches"
-							:key="swatch.token"
-							class="tile-editor__swatch"
-							:class="{ 'tile-editor__swatch--on': form.colourToken === swatch.token }"
-							:style="{ background: swatch.css }"
-							:title="swatch.label">
-							<input
-								type="radio"
-								class="tile-editor__swatch-input"
-								name="tile-colour"
-								:value="swatch.token"
-								:checked="form.colourToken === swatch.token"
-								:aria-label="swatch.label"
-								:data-test="'tile-editor-swatch' + swatch.token"
-								@change="form.colourToken = swatch.token">
-							<span class="tile-editor__swatch-icon" :style="{ color: textCss }" aria-hidden="true">A</span>
-						</label>
-						<label v-if="!isAppMode" class="tile-editor__swatch-own">
-							<input
-								type="radio"
-								name="tile-colour"
-								value=""
-								:checked="form.colourToken === ''"
-								data-test="tile-editor-swatch-own"
-								@change="form.colourToken = ''">
-							{{ t('launchpad', 'Own colour') }}
-						</label>
-					</div>
-					<div v-if="form.colourToken === '' && !isAppMode" class="form-row">
-						<div class="form-row__item">
-							<NcColorPicker v-model="form.backgroundColor">
-								<NcButton
-									variant="tertiary"
-									:aria-label="t('launchpad', 'Pick background color')">
-									<template #icon>
-										<div
-											class="color-preview"
-											:style="{
-												backgroundColor: form.backgroundColor,
-											}" />
-									</template>
-									{{ t('launchpad', 'Background') }} {{ form.backgroundColor }}
-								</NcButton>
-							</NcColorPicker>
-						</div>
-					</div>
-				</div>
-
-				<!-- REQ-APPTILE-005: the text colour, with its contrast on the tile colour. -->
-				<div class="tile-editor__field">
-					<span :id="textColourLabelId" class="tile-editor__label">{{ t('launchpad', 'Text colour') }}</span>
-					<div
-						class="tile-editor__swatches"
-						role="radiogroup"
-						:aria-labelledby="textColourLabelId"
-						data-testid="tile-editor-text-colours">
-						<label
-							v-for="swatch in textColourSwatches"
-							:key="swatch.name"
-							class="tile-editor__swatch tile-editor__swatch--text"
-							:class="{ 'tile-editor__swatch--on': form.textColour === swatch.name }"
-							:style="{ background: previewBackground, color: swatch.css }"
-							:title="swatch.label">
-							<input
-								type="radio"
-								class="tile-editor__swatch-input"
-								name="tile-text-colour"
-								:value="swatch.name"
-								:checked="form.textColour === swatch.name"
-								:aria-label="swatch.label"
-								:data-testid="'tile-editor-text-' + swatch.name"
-								@change="form.textColour = swatch.name">
-							<span class="tile-editor__swatch-icon" aria-hidden="true">A</span>
-						</label>
-					</div>
-					<p
-						class="tile-editor__contrast"
-						:class="{ 'tile-editor__warning': !contrast.passes }"
-						:role="contrast.passes ? null : 'alert'"
-						data-testid="tile-editor-contrast">
-						<AlertOutline v-if="!contrast.passes" :size="16" aria-hidden="true" />
-						{{ contrastLine }}
-					</p>
-				</div>
-
-				<!-- What is on the tile, and Pin (REQ-APPTILE-004). -->
-				<fieldset class="tile-editor__fieldset" data-testid="tile-editor-on-tile">
-					<legend>{{ t('launchpad', 'What is on the tile') }}</legend>
-					<NcCheckboxRadioSwitch
-						:modelValue="form.iconOnly !== true"
-						type="switch"
-						data-testid="tile-editor-show-name"
-						@update:modelValue="form.iconOnly = !$event">
-						{{ t('launchpad', 'Show the name') }}
-					</NcCheckboxRadioSwitch>
-					<NcCheckboxRadioSwitch
-						v-if="isAppMode"
-						:modelValue="form.showCount !== false"
-						type="switch"
-						data-testid="tile-editor-show-count"
-						@update:modelValue="form.showCount = $event">
-						{{ t('launchpad', 'Show the count of new items') }}
-					</NcCheckboxRadioSwitch>
-					<NcCheckboxRadioSwitch
-						:modelValue="form.pinned === true"
-						type="switch"
-						data-testid="tile-editor-pin"
-						@update:modelValue="form.pinned = $event">
-						{{ t('launchpad', 'Pin') }}
-					</NcCheckboxRadioSwitch>
-				</fieldset>
-
-				<!-- REQ-TILE-041: the sort order of the tile's group. -->
-				<NcSelect
-					v-if="!isAppMode"
-					:modelValue="groupSortBy"
-					:options="groupSortOptions"
-					:inputLabel="t('launchpad', 'Sort order in this group')"
-					:reduce="(option) => option.value"
-					:clearable="false"
-					:disabled="!groupName && targetGroupId === null"
-					label="label"
-					data-testid="tile-group-sort"
-					@update:modelValue="groupSortBy = $event" />
-
-				<div v-if="!inGroup && !isAppMode" class="tile-editor__health-ping">
-					<NcCheckboxRadioSwitch
-						:modelValue="form.healthPingEnabled"
-						type="switch"
-						@update:modelValue="onHealthPingToggle">
-						{{ t('launchpad', 'Check availability') }}
-					</NcCheckboxRadioSwitch>
-
-					<template v-if="form.healthPingEnabled">
-						<!-- REQ-TILE-042: the last check's result with its time. -->
-						<p
-							v-if="tile && tile.id"
-							class="tile-editor__hint-small tile-editor__last-check"
-							data-testid="tile-last-check">
-							{{ lastCheck }}
-						</p>
-						<NcTextField
-							v-model="form.healthUrl"
-							:label="t('launchpad', 'Health check URL')"
-							:placeholder="t('launchpad', 'https://…')"
-							type="text"
-							@update:modelValue="healthUrlError = ''"
-							@blur="checkHealthUrlAllowed" />
-						<p v-if="healthUrlError" class="tile-editor__warning">
-							{{ healthUrlError }}
-						</p>
-
-						<div class="form-row">
-							<div class="form-row__item">
-								<NcTextField
-									v-model="form.expectedStatus"
-									type="number"
-									:label="
-										t('launchpad', 'Expected HTTP status')
-									" />
+						<div class="tile-editor__field">
+							<span :id="colourLabelId" class="tile-editor__label">{{ t('launchpad', 'Tile colour') }}</span>
+							<!-- REQ-ICT-004 (board LpTegelBewerken): eight theme colours,
+							     each previewing the white icon; "Own colour" keeps the
+							     colour pickers for a hex colour. -->
+							<div
+								class="tile-editor__swatches"
+								role="radiogroup"
+								:aria-labelledby="colourLabelId"
+								data-test="tile-editor-swatches">
+								<label
+									v-for="swatch in colourSwatches"
+									:key="swatch.token"
+									class="tile-editor__swatch"
+									:class="{ 'tile-editor__swatch--on': form.colourToken === swatch.token }"
+									:style="{ background: swatch.css }"
+									:title="swatch.label">
+									<input
+										type="radio"
+										class="tile-editor__swatch-input"
+										name="tile-colour"
+										:value="swatch.token"
+										:checked="form.colourToken === swatch.token"
+										:aria-label="swatch.label"
+										:data-test="'tile-editor-swatch' + swatch.token"
+										@change="form.colourToken = swatch.token">
+									<span class="tile-editor__swatch-icon" :style="{ color: textCss }" aria-hidden="true">A</span>
+								</label>
+								<label v-if="!isAppMode" class="tile-editor__swatch-own">
+									<input
+										type="radio"
+										name="tile-colour"
+										value=""
+										:checked="form.colourToken === ''"
+										data-test="tile-editor-swatch-own"
+										@change="form.colourToken = ''">
+									{{ t('launchpad', 'Own colour') }}
+								</label>
 							</div>
-							<div class="form-row__item">
-								<NcTextField
-									v-model="form.pingInterval"
-									type="number"
-									:label="
-										t('launchpad', 'Check interval (seconds)')
-									" />
+							<div v-if="form.colourToken === '' && !isAppMode" class="form-row">
+								<div class="form-row__item">
+									<NcColorPicker v-model="form.backgroundColor">
+										<NcButton
+											variant="tertiary"
+											:aria-label="t('launchpad', 'Pick background color')">
+											<template #icon>
+												<div
+													class="color-preview"
+													:style="{
+														backgroundColor: form.backgroundColor,
+													}" />
+											</template>
+											{{ t('launchpad', 'Background') }} {{ form.backgroundColor }}
+										</NcButton>
+									</NcColorPicker>
+								</div>
 							</div>
 						</div>
-						<p class="tile-editor__hint-small">
-							{{
-								t('launchpad', 'Minimum {min} seconds.', {
-									min: MIN_PING_INTERVAL,
-								})
-							}}
+
+						<!-- REQ-APPTILE-005: the text colour, with its contrast on the tile colour. -->
+						<div class="tile-editor__field">
+							<span :id="textColourLabelId" class="tile-editor__label">{{ t('launchpad', 'Text colour') }}</span>
+							<div
+								class="tile-editor__swatches"
+								role="radiogroup"
+								:aria-labelledby="textColourLabelId"
+								data-testid="tile-editor-text-colours">
+								<label
+									v-for="swatch in textColourSwatches"
+									:key="swatch.name"
+									class="tile-editor__swatch tile-editor__swatch--text"
+									:class="{ 'tile-editor__swatch--on': form.textColour === swatch.name }"
+									:style="{ background: previewBackground, color: swatch.css }"
+									:title="swatch.label">
+									<input
+										type="radio"
+										class="tile-editor__swatch-input"
+										name="tile-text-colour"
+										:value="swatch.name"
+										:checked="form.textColour === swatch.name"
+										:aria-label="swatch.label"
+										:data-testid="'tile-editor-text-' + swatch.name"
+										@change="form.textColour = swatch.name">
+									<span class="tile-editor__swatch-icon" aria-hidden="true">A</span>
+								</label>
+							</div>
+							<p
+								class="tile-editor__contrast"
+								:class="{ 'tile-editor__warning': !contrast.passes }"
+								:role="contrast.passes ? null : 'alert'"
+								data-testid="tile-editor-contrast">
+								<AlertOutline v-if="!contrast.passes" :size="16" aria-hidden="true" />
+								{{ contrastLine }}
+							</p>
+						</div>
+
+						<!-- What is on the tile, and Pin (REQ-APPTILE-004). -->
+						<fieldset class="tile-editor__fieldset" data-testid="tile-editor-on-tile">
+							<legend>{{ t('launchpad', 'What is on the tile') }}</legend>
+							<NcCheckboxRadioSwitch
+								:modelValue="form.iconOnly !== true"
+								type="switch"
+								data-testid="tile-editor-show-name"
+								@update:modelValue="form.iconOnly = !$event">
+								{{ t('launchpad', 'Show the name') }}
+							</NcCheckboxRadioSwitch>
+							<NcCheckboxRadioSwitch
+								v-if="isAppMode"
+								:modelValue="form.showCount !== false"
+								type="switch"
+								data-testid="tile-editor-show-count"
+								@update:modelValue="form.showCount = $event">
+								{{ t('launchpad', 'Show the count of new items') }}
+							</NcCheckboxRadioSwitch>
+							<NcCheckboxRadioSwitch
+								:modelValue="form.pinned === true"
+								type="switch"
+								data-testid="tile-editor-pin"
+								@update:modelValue="form.pinned = $event">
+								{{ t('launchpad', 'Pin') }}
+							</NcCheckboxRadioSwitch>
+						</fieldset>
+						<p class="tile-editor__hint-small tile-editor__brand-note">
+							{{ t('launchpad', 'The organisation\'s standard tiles (Conduction, Nextcloud, sendent) show the brand\'s white logo on its colour, without payoff.') }}
 						</p>
-					</template>
+					</aside>
 				</div>
 
 				<div class="tile-editor__actions">
@@ -765,10 +795,13 @@ export default {
 		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
 		 */
 		contrast() {
+			// An app tile without a chosen colour is checked on the primary colour,
+			// as its preview draws it.
+			const colourToken = this.form.colourToken || (this.isAppMode ? '--sc-primary' : '')
 			return textContrast({
 				textColour: this.form.textColour,
-				colourToken: this.form.colourToken,
-				backgroundColor: this.form.colourToken ? '' : this.form.backgroundColor,
+				colourToken,
+				backgroundColor: colourToken ? '' : this.form.backgroundColor,
 			})
 		},
 
@@ -782,7 +815,9 @@ export default {
 		contrastLine() {
 			const vars = {
 				text: this.colourName(this.form.textColour),
-				tile: this.form.colourToken ? this.colourName(this.form.colourToken).toLowerCase() : t('launchpad', 'the own colour'),
+				tile: this.form.colourToken || this.isAppMode
+					? this.colourName(this.form.colourToken || '--sc-primary').toLowerCase()
+					: t('launchpad', 'the own colour'),
 				ratio: this.contrast.ratio === null ? '?' : this.contrast.ratio.toFixed(1),
 			}
 			if (this.contrast.passes) {
@@ -809,7 +844,7 @@ export default {
 		addAppsLabel() {
 			const count = this.chosenApps.length
 			if (count <= 1) {
-				return t('launchpad', 'Add widget')
+				return t('launchpad', 'Add tile')
 			}
 			return t('launchpad', 'Add {count} tiles', { count })
 		},
@@ -820,7 +855,48 @@ export default {
 		 * @return {string}
 		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
 		 */
+		/**
+		 * The name the preview tile carries: the chosen app, else the title.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 */
+		previewName() {
+			if (this.isAppMode) {
+				const first = this.chosenApps[0]
+				const app = first ? this.discoveredApps.find((entry) => entry.appId === first.tile?.appId) : null
+				return app?.name || first?.tile?.title || this.tile?.title || t('launchpad', 'App')
+			}
+			return this.form.title || t('launchpad', 'Title')
+		},
+
+		/**
+		 * @return {string} The first letter of the preview's name, as its glyph.
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 */
+		previewInitial() {
+			return this.previewName.charAt(0).toUpperCase()
+		},
+
+		/**
+		 * The line beside the preview: what the tile shows (boards
+		 * LpTegelToevoegen, LpTegelBewerken).
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 */
+		previewLine() {
+			if (this.isAppMode) {
+				return t('launchpad', 'The app\'s icon in the text colour on the tile colour, with its count of new items.')
+			}
+			return t('launchpad', 'A link has no count. Its title and icon are on the tile as you choose below.')
+		},
+
 		previewBackground() {
+			// An app tile without a chosen colour takes the primary colour here.
+			if (this.isAppMode && !this.form.colourToken) {
+				return tileBackground(null, { colourToken: '--sc-primary' })
+			}
 			return tileBackground({ backgroundColor: this.form.backgroundColor }, { colourToken: this.form.colourToken })
 		},
 
@@ -971,9 +1047,9 @@ export default {
 			}
 			return {
 				show: this.isOpen,
-				class: 'launchpad-modal',
+				class: 'launchpad-modal tile-editor-modal',
 				name: this.heading,
-				size: 'normal',
+				size: 'large',
 				'onUpdate:show': (value) => {
 					this.isOpen = value
 				},
@@ -1468,9 +1544,93 @@ export default {
 </script>
 
 <style scoped>
+.tile-editor__contrast {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	margin: 6px 0 0;
+}
+
+.tile-editor__contrast.tile-editor__warning {
+	padding: 8px 10px;
+	border: 1px solid var(--color-warning);
+	border-radius: var(--border-radius);
+	background: var(--color-warning-hover, var(--color-background-hover));
+}
+
+/* Boards LpTegelToevoegen / LpTegelBewerken: fields left, Appearance right. */
+.tile-editor-modal :deep(.modal-container) {
+	width: 1000px;
+	max-width: calc(100vw - 32px);
+}
+
+.tile-editor__columns {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+	gap: 24px;
+	align-items: start;
+}
+
+@media (max-width: 900px) {
+	.tile-editor__columns {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.tile-editor__main {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-width: 0;
+}
+
+.tile-editor__appearance {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 16px 18px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-large);
+	background: var(--color-background-hover);
+}
+
+.tile-editor__appearance-title {
+	margin: 0;
+	font-size: 16px;
+}
+
+.tile-editor__appearance-preview {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.tile-preview--square {
+	position: relative;
+	flex: 0 0 96px;
+	width: 96px;
+	height: 96px;
+	border-radius: var(--border-radius-large);
+}
+
+.tile-preview__glyph {
+	font-size: 36px;
+	font-weight: 700;
+}
+
+.tile-preview__pin {
+	position: absolute;
+	top: 4px;
+	inset-inline-start: 8px;
+}
+
+.tile-editor__brand-note {
+	padding-top: 12px;
+	border-top: 1px solid var(--color-border);
+}
+
 .tile-editor {
 	padding: 20px;
-	max-width: 640px;
 	box-sizing: border-box;
 }
 

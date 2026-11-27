@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "LaunchPad",
-        "version": "1.1.24-unstable.20261127140104",
+        "version": "1.1.24-unstable.20261127170000",
         "description": "The JSON API of LaunchPad, the dashboard app for Nextcloud: dashboards and their widgets and tiles, kiosk screens, public shares, role-based layouts and permissions, templates and the admin settings behind them.\n\nEvery path is served under `/api/v1/`, the version this document describes. The unversioned `/api/` paths keep working, are deprecated, and name their `/api/v1/` successor in a `Link` header next to a `Deprecation` header. Errors are RFC 9457 problem details (`application/problem+json`), and every response carries an `API-Version` header. Paths that implement an external standard keep the formats of that standard and are not described here.",
         "contact": {
             "name": "Conduction B.V.",
@@ -105,7 +105,11 @@
         },
         {
             "name": "announcement-read",
-            "description": "The read confirmation endpoints of announcements."
+            "description": "The receipt endpoints of announcements."
+        },
+        {
+            "name": "announcement-reminder",
+            "description": "The reminder endpoint of announcements."
         },
         {
             "name": "attention",
@@ -5367,11 +5371,100 @@
             "get": {
                 "operationId": "announcement-read-state",
                 "x-launchpad-stability": "internal",
-                "summary": "GET /api/announcements/read-state: the uuids among what the reader sees that the reader confirmed, and those whose read confirmations the reader may open",
-                "description": "GET /api/announcements/read-state: the uuids among what the reader sees that the reader confirmed, and those whose read confirmations the reader may open. Asked beside the list, not after it. Needs a signed-in Nextcloud user.",
+                "summary": "GET /api/announcements/read-state: among what the reader sees, the uuids seen, confirmed and closed (x), and those whose receipts the reader may open",
+                "description": "GET /api/announcements/read-state: among what the reader sees, the uuids seen, confirmed and closed (x), and those whose receipts the reader may open. Asked beside the list, not after it. Needs a signed-in Nextcloud user.",
                 "tags": [
                     "announcement-read"
                 ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/announcements/receipt-counts": {
+            "get": {
+                "operationId": "announcement-read-counts",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/announcements/receipt-counts: per announcement of `uuids`, how many have seen and confirmed it; managers only (REQ-ANN-008)",
+                "description": "GET /api/announcements/receipt-counts: per announcement of `uuids`, how many have seen and confirmed it; managers only (REQ-ANN-008). Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "announcement-read"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuids",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/announcements/seen": {
+            "post": {
+                "operationId": "announcement-read-seen",
+                "x-launchpad-stability": "internal",
+                "summary": "POST /api/announcements/seen: record `uuids` as seen by the reader, once each; the client sends it after render, never before",
+                "description": "POST /api/announcements/seen: record `uuids` as seen by the reader, once each; the client sends it after render, never before. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement-read"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "uuids": {
+                                        "type": "array"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "The request succeeded.",
@@ -5685,6 +5778,63 @@
                 }
             }
         },
+        "/announcements/{uuid}/confirm": {
+            "post": {
+                "operationId": "announcement-read-confirm-via",
+                "x-launchpad-stability": "internal",
+                "summary": "POST /api/announcements/{uuid}/confirm: the check (`via=check`) or the x (`via=x`) for the signed-in reader, once",
+                "description": "POST /api/announcements/{uuid}/confirm: the check (`via=check`) or the x (`via=x`) for the signed-in reader, once. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement-read"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "via": {}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/announcements/{uuid}/like": {
             "post": {
                 "operationId": "announcement-like",
@@ -5825,8 +5975,8 @@
             "post": {
                 "operationId": "announcement-read-confirm",
                 "x-launchpad-stability": "internal",
-                "summary": "POST /api/announcements/{uuid}/read: \"I have read this\" for the signed-in reader, once",
-                "description": "POST /api/announcements/{uuid}/read: \"I have read this\" for the signed-in reader, once. Needs a signed-in Nextcloud user.",
+                "summary": "POST /api/announcements/{uuid}/read: the check, for older clients",
+                "description": "POST /api/announcements/{uuid}/read: the check, for older clients. Needs a signed-in Nextcloud user.",
                 "tags": [
                     "announcement-read"
                 ],
@@ -5869,10 +6019,54 @@
             "get": {
                 "operationId": "announcement-read-receipts",
                 "x-launchpad-stability": "internal",
-                "summary": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator",
-                "description": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "summary": "GET /api/announcements/{uuid}/receipts: Seen and confirmed for one announcement, with names and departments; managers only",
+                "description": "GET /api/announcements/{uuid}/receipts: Seen and confirmed for one announcement, with names and departments; managers only. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement-read"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/announcements/{uuid}/remind": {
+            "post": {
+                "operationId": "announcement-reminder-remind",
+                "x-launchpad-stability": "internal",
+                "summary": "Send reminder to everyone in the audience who has not confirmed",
+                "description": "Send reminder to everyone in the audience who has not confirmed. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "announcement-reminder"
                 ],
                 "parameters": [
                     {

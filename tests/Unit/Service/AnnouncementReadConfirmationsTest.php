@@ -3,14 +3,16 @@
 /**
  * AnnouncementReadConfirmationsTest
  *
- * "I have read this" on an announcement (REQ-ANN-007): only a published
- * announcement that asks for it, only its audience, once; the card state per
- * list; and the author's report of who confirmed.
+ * The reader's receipts of an announcement (REQ-ANN-007, REQ-ANN-009): the
+ * check and the x both confirm, once, keeping the first time and kind; only
+ * a published announcement and only its audience; seen once per reader, only
+ * for what the reader may see; and the state the widget and banner read.
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
  */
 
 declare(strict_types=1);
@@ -19,17 +21,13 @@ namespace Unit\Service;
 
 use DateTime;
 use InvalidArgumentException;
-use OCA\LaunchPad\Db\Acknowledgement;
-use OCA\LaunchPad\Db\AcknowledgementMapper;
 use OCA\LaunchPad\Db\Announcement;
+use OCA\LaunchPad\Db\AnnouncementReceipt;
+use OCA\LaunchPad\Db\AnnouncementReceiptMapper;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
 use OCA\LaunchPad\Service\AnnouncementReadConfirmations;
 use OCP\DB\Exception as DbException;
-use OCP\IGroup;
-use OCP\IGroupManager;
-use OCP\IUser;
-use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -37,13 +35,15 @@ use PHPUnit\Framework\TestCase;
  * Tests for AnnouncementReadConfirmations.
  *
  * @covers \OCA\LaunchPad\Service\AnnouncementReadConfirmations
- * @uses   \OCA\LaunchPad\Db\Acknowledgement
+ * @uses   \OCA\LaunchPad\Db\AnnouncementReceipt
  * @uses   \OCA\LaunchPad\Db\Announcement
  * @uses   \OCA\LaunchPad\Exception\ForbiddenException
  */
 class AnnouncementReadConfirmationsTest extends TestCase {
 
 	private const UUID = '11111111-2222-4333-8444-555555555555';
+
+	private const OTHER = '99999999-2222-4333-8444-555555555555';
 
 	/**
 	 * The announcements double.
@@ -55,23 +55,9 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	/**
 	 * The receipts double.
 	 *
-	 * @var AcknowledgementMapper&MockObject
+	 * @var AnnouncementReceiptMapper&MockObject
 	 */
-	private AcknowledgementMapper $receipts;
-
-	/**
-	 * The group manager double.
-	 *
-	 * @var IGroupManager&MockObject
-	 */
-	private IGroupManager $groupManager;
-
-	/**
-	 * The user manager double.
-	 *
-	 * @var IUserManager&MockObject
-	 */
-	private IUserManager $userManager;
+	private AnnouncementReceiptMapper $receipts;
 
 	/**
 	 * Set up the doubles.
@@ -80,9 +66,9 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		$this->announcements = $this->createMock(originalClassName: AnnouncementServiceInterface::class);
-		$this->receipts      = $this->createMock(originalClassName: AcknowledgementMapper::class);
-		$this->groupManager  = $this->createMock(originalClassName: IGroupManager::class);
-		$this->userManager   = $this->createMock(originalClassName: IUserManager::class);
+		$this->receipts      = $this->createMock(originalClassName: AnnouncementReceiptMapper::class);
+		$this->receipts->method('insert')->willReturnArgument(0);
+		$this->receipts->method('update')->willReturnArgument(0);
 	}//end setUp()
 
 	/**
@@ -91,42 +77,23 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 * @return AnnouncementReadConfirmations
 	 */
 	private function service(): AnnouncementReadConfirmations {
-		return new AnnouncementReadConfirmations(
-			announcements: $this->announcements,
-			receipts: $this->receipts,
-			groupManager: $this->groupManager,
-			userManager: $this->userManager
-		);
+		return new AnnouncementReadConfirmations(announcements: $this->announcements, receipts: $this->receipts);
 	}//end service()
 
 	/**
 	 * An announcement.
 	 *
-	 * @param bool          $asks    Whether it asks for a read confirmation.
-	 * @param array<string> $groups  The target groups.
-	 * @param string        $status  The status.
-	 * @param string        $uuid    The uuid.
-	 * @param string        $author  The author.
+	 * @param string        $uuid   The uuid.
+	 * @param string        $status The status.
+	 * @param array<string> $groups The target groups.
 	 *
 	 * @return Announcement
 	 */
-	private function announcement(
-		bool $asks = true,
-		array $groups = ['Medewerkers'],
-		string $status = 'published',
-		string $uuid = self::UUID,
-		string $author = 'pieter'
-	): Announcement {
+	private function announcement(string $uuid = self::UUID, string $status = 'published', array $groups = ['Medewerkers']): Announcement {
 		$announcement = new Announcement();
-		$announcement->setAuthorId($author);
 		$announcement->setUuid($uuid);
-		$announcement->setTitle('New procedure');
 		$announcement->setStatus($status);
 		$announcement->setTargetGroupList($groups);
-		$announcement->setRequiresConfirmation((int) $asks);
-		if ($asks === true) {
-			$announcement->setConfirmBefore(new DateTime('2026-10-30T23:59:00+00:00'));
-		}
 
 		return $announcement;
 	}//end announcement()
@@ -134,254 +101,218 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	/**
 	 * A stored receipt.
 	 *
-	 * @param string $userId The reader.
+	 * @param string      $uuid The announcement.
+	 * @param bool        $seen Whether it was seen.
+	 * @param string|null $via  How it was confirmed, or null.
 	 *
-	 * @return Acknowledgement
+	 * @return AnnouncementReceipt
 	 */
-	private function receipt(string $userId): Acknowledgement {
-		$receipt = new Acknowledgement();
-		$receipt->setAnnouncementKey('announcement-' . self::UUID);
-		$receipt->setUserId($userId);
-		$receipt->setAcknowledgedAt(new DateTime('2026-10-27 09:15:00'));
+	private function receipt(string $uuid = self::UUID, bool $seen = true, ?string $via = null): AnnouncementReceipt {
+		$receipt = new AnnouncementReceipt();
+		$receipt->setAnnouncementUuid($uuid);
+		$receipt->setUserId('anna');
+		if ($seen === true) {
+			$receipt->setSeenAt(new DateTime('2026-10-27T09:00:00+00:00'));
+		}
+
+		if ($via !== null) {
+			$receipt->setConfirmedAt(new DateTime('2026-10-27T09:15:00+00:00'));
+			$receipt->setConfirmedVia($via);
+		}
 
 		return $receipt;
 	}//end receipt()
 
 	/**
-	 * A reader in the audience confirms once; the receipt carries the announcement's key.
+	 * Let anna read the published announcement.
+	 *
+	 * @param Announcement|null $announcement The announcement, default the published one.
 	 *
 	 * @return void
 	 */
-	public function testAReaderInTheAudienceConfirms(): void {
-		$this->announcements->method('findFor')->with('anna', self::UUID)->willReturn($this->announcement());
-		$this->announcements->method('reachesUser')->with(['Medewerkers'], 'anna')->willReturn(true);
-		$this->receipts->method('findOneFor')->willReturn(null);
-		$this->receipts->expects($this->once())->method('record')
-			->with('announcement-' . self::UUID, 'anna', 1)
-			->willReturn($this->receipt(userId: 'anna'));
+	private function annaReads(?Announcement $announcement = null): void {
+		$this->announcements->method('findFor')->with('anna', self::UUID)->willReturn($announcement ?? $this->announcement());
+		$this->announcements->method('reachesUser')->willReturn(true);
+	}//end annaReads()
+
+	/**
+	 * A first confirmation with the x stores seen, confirmed and the kind.
+	 *
+	 * @return void
+	 */
+	public function testTheXConfirmsAndMarksSeen(): void {
+		$this->annaReads();
+		$stored = [];
+		$receipts = $this->createMock(originalClassName: AnnouncementReceiptMapper::class);
+		$receipts->method('findOne')->willReturn(null);
+		$receipts->expects($this->once())->method('insert')->willReturnCallback(
+			static function (AnnouncementReceipt $receipt) use (&$stored): AnnouncementReceipt {
+				$stored[] = $receipt;
+				return $receipt;
+			}
+		);
+		$this->receipts = $receipts;
+
+		$answer = $this->service()->confirm(userId: 'anna', uuid: self::UUID, via: 'x');
+
+		$this->assertTrue(condition: $answer['confirmed']);
+		$this->assertSame(expected: 'x', actual: $answer['confirmedVia']);
+		$this->assertNotNull(actual: $answer['confirmedAt']);
+		$this->assertSame(expected: 'anna', actual: $stored[0]->getUserId());
+		$this->assertNotNull(actual: $stored[0]->getSeenAt());
+	}//end testTheXConfirmsAndMarksSeen()
+
+	/**
+	 * Confirming a seen receipt updates it and keeps the seen time.
+	 *
+	 * @return void
+	 */
+	public function testConfirmingASeenReceiptKeepsTheSeenTime(): void {
+		$this->annaReads();
+		$this->receipts->method('findOne')->willReturn($this->receipt());
+		$this->receipts->expects($this->never())->method('insert');
+		$this->receipts->expects($this->once())->method('update')->willReturnArgument(0);
 
 		$answer = $this->service()->confirm(userId: 'anna', uuid: self::UUID);
 
-		$this->assertSame(expected: ['uuid' => self::UUID, 'confirmed' => true, 'confirmedAt' => '2026-10-27 09:15:00'], actual: $answer);
-	}//end testAReaderInTheAudienceConfirms()
+		$this->assertSame(expected: 'check', actual: $answer['confirmedVia']);
+	}//end testConfirmingASeenReceiptKeepsTheSeenTime()
 
 	/**
-	 * A second confirmation answers the first and stores nothing.
+	 * A second confirmation answers the first, kind and time.
 	 *
 	 * @return void
 	 */
-	public function testASecondConfirmationAnswersTheFirst(): void {
-		$this->announcements->method('findFor')->willReturn($this->announcement(groups: []));
-		$this->announcements->method('reachesUser')->with([], 'anna')->willReturn(true);
-		$this->receipts->method('findOneFor')->willReturn($this->receipt(userId: 'anna'));
-		$this->receipts->expects($this->never())->method('record');
+	public function testASecondConfirmationKeepsTheFirst(): void {
+		$this->annaReads();
+		$this->receipts->method('findOne')->willReturn($this->receipt(via: 'check'));
+		$this->receipts->expects($this->never())->method('update');
+		$this->receipts->expects($this->never())->method('insert');
 
-		$this->assertTrue(condition: $this->service()->confirm(userId: 'anna', uuid: self::UUID)['confirmed']);
-	}//end testASecondConfirmationAnswersTheFirst()
+		$answer = $this->service()->confirm(userId: 'anna', uuid: self::UUID, via: 'x');
+
+		$this->assertSame(expected: 'check', actual: $answer['confirmedVia']);
+		$this->assertSame(expected: '2026-10-27T09:15:00+00:00', actual: $answer['confirmedAt']);
+	}//end testASecondConfirmationKeepsTheFirst()
 
 	/**
-	 * A concurrent identical write answers the row that won the race.
+	 * A concurrent first write answers the row that won, confirming it when it was only seen.
 	 *
 	 * @return void
 	 */
-	public function testARaceAnswersTheWinningRow(): void {
-		$this->announcements->method('findFor')->willReturn($this->announcement(groups: []));
-		$this->announcements->method('reachesUser')->willReturn(true);
-		$this->receipts->method('findOneFor')->willReturnOnConsecutiveCalls(null, $this->receipt(userId: 'anna'));
+	public function testARaceConfirmsTheWinningRow(): void {
+		$this->annaReads();
 		$exception = $this->createMock(originalClassName: DbException::class);
 		$exception->method('getReason')->willReturn(DbException::REASON_UNIQUE_CONSTRAINT_VIOLATION);
-		$this->receipts->method('record')->willThrowException($exception);
+		$receipts = $this->createMock(originalClassName: AnnouncementReceiptMapper::class);
+		$receipts->method('findOne')->willReturnOnConsecutiveCalls(null, $this->receipt());
+		$receipts->method('insert')->willThrowException($exception);
+		$receipts->expects($this->once())->method('update')->willReturnArgument(0);
+		$this->receipts = $receipts;
 
-		$this->assertSame(expected: '2026-10-27 09:15:00', actual: $this->service()->confirm(userId: 'anna', uuid: self::UUID)['confirmedAt']);
-	}//end testARaceAnswersTheWinningRow()
+		$this->assertSame(expected: 'check', actual: $this->service()->confirm(userId: 'anna', uuid: self::UUID)['confirmedVia']);
+	}//end testARaceConfirmsTheWinningRow()
 
 	/**
-	 * An announcement that does not ask, or a draft, cannot be confirmed.
+	 * Another database error is not swallowed.
 	 *
 	 * @return void
 	 */
-	public function testOnlyAPublishedQuestionCanBeConfirmed(): void {
-		$this->announcements->method('findFor')->willReturnOnConsecutiveCalls(
-			$this->announcement(asks: false),
-			$this->announcement(status: 'draft')
-		);
-		$this->receipts->expects($this->never())->method('record');
+	public function testAnotherDatabaseErrorIsThrown(): void {
+		$this->annaReads();
+		$exception = $this->createMock(originalClassName: DbException::class);
+		$exception->method('getReason')->willReturn(DbException::REASON_DRIVER);
+		$receipts = $this->createMock(originalClassName: AnnouncementReceiptMapper::class);
+		$receipts->method('findOne')->willReturn(null);
+		$receipts->method('insert')->willThrowException($exception);
+		$this->receipts = $receipts;
 
-		foreach ([1, 2] as $attempt) {
-			try {
-				$this->service()->confirm(userId: 'anna', uuid: self::UUID);
-				$this->fail(message: 'Attempt ' . $attempt . ' was accepted');
-			} catch (InvalidArgumentException $exception) {
-				$this->assertSame(expected: 'This announcement does not ask for a read confirmation', actual: $exception->getMessage());
-			}
-		}
-	}//end testOnlyAPublishedQuestionCanBeConfirmed()
+		$this->expectException(exception: DbException::class);
+		$this->service()->confirm(userId: 'anna', uuid: self::UUID);
+	}//end testAnotherDatabaseErrorIsThrown()
 
 	/**
-	 * An administrator outside the target groups sees it but cannot confirm it.
+	 * An unknown kind, or a draft, cannot be confirmed.
 	 *
 	 * @return void
 	 */
-	public function testSomeoneOutsideTheAudienceCannotConfirm(): void {
-		$this->announcements->method('findFor')->willReturn($this->announcement());
-		$this->announcements->method('reachesUser')->willReturn(false);
-		$this->receipts->expects($this->never())->method('record');
-
-		$this->expectException(exception: ForbiddenException::class);
-		$this->service()->confirm(userId: 'admin', uuid: self::UUID);
-	}//end testSomeoneOutsideTheAudienceCannotConfirm()
-
-	/**
-	 * The card state: which asking announcements the reader confirmed, in one query, and which reports the reader may open.
-	 *
-	 * @return void
-	 */
-	public function testTheStatePerListAsksOnce(): void {
-		$other = '99999999-2222-4333-8444-555555555555';
-		$this->receipts->expects($this->once())->method('findKeysConfirmedBy')
-			->with('pieter', ['announcement-' . self::UUID, 'announcement-' . $other])
-			->willReturn(['announcement-' . $other]);
-		$this->groupManager->method('isAdmin')->willReturn(false);
-		$this->announcements->method('isAuthor')->with('pieter')->willReturn(true);
-
-		$state = $this->service()->stateFor(
-			userId: 'pieter',
-			announcements: [
-				$this->announcement(),
-				$this->announcement(asks: false, uuid: '00000000-2222-4333-8444-555555555555'),
-				$this->announcement(uuid: $other, author: 'marieke'),
-			]
-		);
-
-		// Every manager reads the receipts of every asking announcement (announcements-managed-in-settings D1).
-		$this->assertSame(expected: ['confirmed' => [$other], 'receipts' => [self::UUID, $other]], actual: $state);
-	}//end testTheStatePerListAsksOnce()
-
-	/**
-	 * The author's report: one row per member of the target groups, confirmed or not yet, with the deadline.
-	 *
-	 * @return void
-	 */
-	public function testTheAuthorReadsWhoConfirmed(): void {
-		$this->announcements->method('findFor')->willReturn($this->announcement(groups: ['Medewerkers', 'HR']));
-		$this->announcements->method('isAuthor')->with('pieter')->willReturn(true);
-		$this->groupManager->method('get')->willReturnCallback(fn (string $groupId): ?IGroup => match ($groupId) {
-			'Medewerkers' => $this->group(members: ['jan', 'anna']),
-			default => null,
-		});
-		$this->receipts->method('findByAnnouncement')->with('announcement-' . self::UUID, 1)->willReturn([$this->receipt(userId: 'anna')]);
-
-		$report = $this->service()->report(userId: 'pieter', uuid: self::UUID);
-
-		$this->assertSame(expected: 'New procedure', actual: $report['title']);
-		$this->assertSame(expected: '2026-10-30', actual: $report['deadline']);
-		$this->assertTrue(condition: $report['overdue']);
-		$this->assertSame(expected: 1, actual: $report['acknowledgedCount']);
-		$this->assertSame(expected: ['jan'], actual: $report['pending']);
-		$this->assertSame(
-			expected: [
-				['userId' => 'anna', 'status' => 'acknowledged', 'acknowledgedAt' => '2026-10-27 09:15:00'],
-				['userId' => 'jan', 'status' => 'pending', 'acknowledgedAt' => null],
-			],
-			actual: $report['rows']
-		);
-	}//end testTheAuthorReadsWhoConfirmed()
-
-	/**
-	 * An announcement to everyone reports everyone who logged in.
-	 *
-	 * @return void
-	 */
-	public function testAnAnnouncementToEveryoneReportsEveryone(): void {
-		$this->announcements->method('findFor')->willReturn($this->announcement(groups: []));
-		$this->announcements->method('isAuthor')->willReturn(true);
-		$this->userManager->method('callForSeenUsers')->willReturnCallback(function (callable $callback): void {
-			foreach (['zoe', 'bram'] as $uid) {
-				$callback($this->user(uid: $uid));
-			}
-		});
-		$this->receipts->method('findByAnnouncement')->willReturn([]);
-
-		$this->assertSame(expected: ['bram', 'zoe'], actual: $this->service()->report(userId: 'admin', uuid: self::UUID)['pending']);
-	}//end testAnAnnouncementToEveryoneReportsEveryone()
-
-	/**
-	 * Only an announcements manager reads the report, and only of an announcement that asks.
-	 *
-	 * @return void
-	 */
-	public function testTheReportIsGuarded(): void {
-		$this->announcements->method('findFor')->willReturnOnConsecutiveCalls($this->announcement(), $this->announcement(asks: false));
-		$this->announcements->method('isAuthor')->willReturnCallback(static fn (string $userId): bool => $userId === 'pieter');
+	public function testAnUnknownKindOrADraftIsRefused(): void {
+		$this->annaReads(announcement: $this->announcement(status: 'draft'));
 
 		try {
-			$this->service()->report(userId: 'anna', uuid: self::UUID);
-			$this->fail(message: 'A reader read the report');
-		} catch (ForbiddenException) {
+			$this->service()->confirm(userId: 'anna', uuid: self::UUID, via: 'thumbs-up');
+			$this->fail(message: 'An unknown kind must be refused');
+		} catch (InvalidArgumentException) {
 			$this->addToAssertionCount(count: 1);
 		}
 
 		$this->expectException(exception: InvalidArgumentException::class);
-		$this->service()->report(userId: 'pieter', uuid: self::UUID);
-	}//end testTheReportIsGuarded()
+		$this->service()->confirm(userId: 'anna', uuid: self::UUID);
+	}//end testAnUnknownKindOrADraftIsRefused()
 
 	/**
-	 * The state of what the reader sees now comes from the visible announcements.
+	 * A reader outside the audience cannot confirm.
 	 *
 	 * @return void
 	 */
-	public function testTheStateOfWhatTheReaderSees(): void {
-		$this->announcements->method('visibleTo')->with('anna')->willReturn([$this->announcement(author: 'pieter')]);
-		$this->receipts->method('findKeysConfirmedBy')->willReturn(['announcement-' . self::UUID]);
-		$this->groupManager->method('isAdmin')->willReturn(false);
+	public function testAReaderOutsideTheAudienceIsRefused(): void {
+		$this->announcements->method('findFor')->willReturn($this->announcement());
+		$this->announcements->method('reachesUser')->with(['Medewerkers'], 'sanne')->willReturn(false);
+		$this->receipts->expects($this->never())->method('insert');
+
+		$this->expectException(exception: ForbiddenException::class);
+		$this->service()->confirm(userId: 'sanne', uuid: self::UUID);
+	}//end testAReaderOutsideTheAudienceIsRefused()
+
+	/**
+	 * Seen records only what the reader may see, once: a new one is
+	 * inserted, an unseen confirmed one is updated, a seen one is skipped.
+	 *
+	 * @return void
+	 */
+	public function testSeenRecordsOnlyVisibleUnseenOnes(): void {
+		$third = '33333333-2222-4333-8444-555555555555';
+		$this->announcements->method('visibleTo')->with('anna')->willReturn(
+			[$this->announcement(), $this->announcement(uuid: self::OTHER), $this->announcement(uuid: $third)]
+		);
+		$unseen = $this->receipt(uuid: $third, seen: false);
+		$this->receipts->method('findByUserAmong')->willReturn([$this->receipt(uuid: self::OTHER), $unseen]);
+		$this->receipts->expects($this->once())->method('insert')->willReturnArgument(0);
+		$this->receipts->expects($this->once())->method('update')->with($unseen)->willReturnArgument(0);
+
+		$recorded = $this->service()->markSeen(userId: 'anna', uuids: [self::UUID, self::OTHER, $third, 'not-visible', self::UUID, '']);
+
+		$this->assertSame(expected: [self::UUID, $third], actual: $recorded);
+	}//end testSeenRecordsOnlyVisibleUnseenOnes()
+
+	/**
+	 * An empty batch asks nothing; a batch over the limit is refused.
+	 *
+	 * @return void
+	 */
+	public function testSeenBatchLimits(): void {
+		$this->announcements->expects($this->never())->method('visibleTo');
+
+		$this->assertSame(expected: [], actual: $this->service()->markSeen(userId: 'anna', uuids: []));
+
+		$this->expectException(exception: InvalidArgumentException::class);
+		$this->service()->markSeen(userId: 'anna', uuids: array_map(static fn (int $n): string => 'u'.$n, range(1, 101)));
+	}//end testSeenBatchLimits()
+
+	/**
+	 * The state names what the reader saw, confirmed and closed; a manager may open every receipt.
+	 *
+	 * @return void
+	 */
+	public function testStateOfVisible(): void {
+		$this->announcements->method('visibleTo')->willReturn([$this->announcement(), $this->announcement(uuid: self::OTHER)]);
+		$this->announcements->method('isAuthor')->willReturnOnConsecutiveCalls(false, true);
+		$this->receipts->method('findByUserAmong')->willReturn([$this->receipt(via: 'x'), $this->receipt(uuid: self::OTHER)]);
 
 		$this->assertSame(
-			expected: ['confirmed' => [self::UUID], 'receipts' => []],
+			expected: ['seen' => [self::UUID, self::OTHER], 'confirmed' => [self::UUID], 'closed' => [self::UUID], 'receipts' => []],
 			actual: $this->service()->stateOfVisible(userId: 'anna')
 		);
-	}//end testTheStateOfWhatTheReaderSees()
-
-	/**
-	 * A deadline still ahead is not overdue.
-	 *
-	 * @return void
-	 */
-	public function testADeadlineAheadIsNotOverdue(): void {
-		$announcement = $this->announcement();
-		$announcement->setConfirmBefore(new DateTime('+3 days'));
-		$this->announcements->method('findFor')->willReturn($announcement);
-		$this->announcements->method('isAuthor')->willReturn(true);
-		$this->groupManager->method('get')->willReturn(null);
-		$this->receipts->method('findByAnnouncement')->willReturn([]);
-
-		$this->assertFalse(condition: $this->service()->report(userId: 'admin', uuid: self::UUID)['overdue']);
-	}//end testADeadlineAheadIsNotOverdue()
-
-	/**
-	 * A group of the given members.
-	 *
-	 * @param array<string> $members User ids.
-	 *
-	 * @return IGroup
-	 */
-	private function group(array $members): IGroup {
-		$group = $this->createMock(originalClassName: IGroup::class);
-		$group->method('getUsers')->willReturn(array_map(fn (string $uid): IUser => $this->user(uid: $uid), $members));
-
-		return $group;
-	}//end group()
-
-	/**
-	 * A user.
-	 *
-	 * @param string $uid The user id.
-	 *
-	 * @return IUser
-	 */
-	private function user(string $uid): IUser {
-		$user = $this->createMock(originalClassName: IUser::class);
-		$user->method('getUID')->willReturn($uid);
-
-		return $user;
-	}//end user()
+		$this->assertSame(expected: [self::UUID, self::OTHER], actual: $this->service()->stateOfVisible(userId: 'anna')['receipts']);
+	}//end testStateOfVisible()
 }//end class

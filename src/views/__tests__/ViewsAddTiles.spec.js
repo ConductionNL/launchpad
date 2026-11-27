@@ -19,6 +19,7 @@ vi.mock('../../services/api.js', () => ({
 		catalogueApps: vi.fn(),
 		discoverApps: vi.fn(),
 		officeTilePack: vi.fn(),
+		foundServices: vi.fn(),
 	},
 }))
 vi.mock('../../utils/logger.js', () => ({
@@ -140,5 +141,34 @@ describe('Views Add tiles', () => {
 		expect(host.isTileEditorOpen).toBe(false)
 		expect(host.bookmarkInitialFile).toBe(file)
 		expect(host.isBookmarkImportOpen).toBe(true)
+	})
+
+	// add-widget-dialog-with-miniatures REQ-WDG-040: the form inside Add widget.
+	it('loads the form\'s lists when it opens inside Add widget', async () => {
+		api.discoverApps.mockResolvedValue({ data: { apps: [{ appId: 'files' }] } })
+		api.catalogueApps.mockResolvedValue({ data: { apps: [] } })
+		api.officeTilePack.mockResolvedValue({ data: { tiles: [] } })
+		const host = makeHost()
+		await host.loadTileFormLists()
+		expect(host.discoveredApps).toEqual([{ appId: 'files' }])
+	})
+
+	it('places a link tile saved inside Add widget and closes Add widget', async () => {
+		const saveTile = vi.fn().mockResolvedValue(undefined)
+		const host = makeHost({ saveTile, isWidgetModalOpen: true, editingTile: { id: 3 } })
+		await host.saveTileFromPicker({ title: 'Intranet' })
+		expect(host.editingTile).toBeNull()
+		expect(saveTile).toHaveBeenCalledWith({ title: 'Intranet' })
+		expect(host.isWidgetModalOpen).toBe(false)
+	})
+
+	it('closes Add widget after the apps are placed, and keeps it open when they are not', async () => {
+		const ok = makeHost({ addAppsFromForm: vi.fn().mockResolvedValue(true), isWidgetModalOpen: true })
+		await ok.addAppsFromPicker({ choices: [] })
+		expect(ok.isWidgetModalOpen).toBe(false)
+
+		const failed = makeHost({ addAppsFromForm: vi.fn().mockResolvedValue(false), isWidgetModalOpen: true })
+		await failed.addAppsFromPicker({ choices: [] })
+		expect(failed.isWidgetModalOpen).toBe(true)
 	})
 })

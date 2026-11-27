@@ -226,10 +226,10 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 		);
 
 		$this->assertSame(
-			expected: ['app-tiles', 'calendar', 'nc-widget', 'files', 'weather', 'announcements'],
+			expected: ['container', 'calendar', 'nc-widget', 'files', 'weather', 'announcements'],
 			actual: array_map(static fn (WidgetPlacement $p): string => $p->getWidgetId(), $captured)
 		);
-		$this->assertSame(expected: ['launchpad'], actual: $captured[0]->getContentArray()['exclude']);
+		$this->assertSame(expected: ['launchpad'], actual: $captured[0]->getContentArray()['appList']['exclude']);
 		$this->assertSame(expected: ['personal'], actual: $captured[1]->getContentArray()['internalCalendars']);
 		$this->assertSame(expected: 'mail', actual: $captured[2]->getContentArray()['widgetId']);
 		$this->assertSame(expected: [], actual: $captured[3]->getContentArray());

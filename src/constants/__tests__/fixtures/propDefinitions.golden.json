@@ -33,17 +33,6 @@
 		"required": true,
 		"validator": false
 	},
-	"../../components/Announcements/AnnouncementCard.vue | reactions": {
-		"type": "Object",
-		"required": false,
-		"validator": false,
-		"default": {
-			"likes": 0,
-			"comments": 0,
-			"liked": false
-		},
-		"fresh": true
-	},
 	"../../components/Announcements/AnnouncementCard.vue | preview": {
 		"type": "Boolean",
 		"required": false,
@@ -56,11 +45,11 @@
 		"validator": false,
 		"default": false
 	},
-	"../../components/Announcements/AnnouncementCard.vue | canReport": {
-		"type": "Boolean",
+	"../../components/Announcements/AnnouncementCard.vue | manageUrl": {
+		"type": "String",
 		"required": false,
 		"validator": false,
-		"default": false
+		"default": ""
 	},
 	"../../components/Announcements/NoticeBanner.vue | notice": {
 		"type": "Object",
@@ -68,6 +57,12 @@
 		"validator": false
 	},
 	"../../components/Announcements/NoticeBanner.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Announcements/NoticeBanner.vue | read": {
 		"type": "Boolean",
 		"required": false,
 		"validator": false,
@@ -2135,6 +2130,16 @@
 		"validator": false,
 		"default": ""
 	},
+	"../../components/admin/tabs/AnnouncementReceipts.vue | announcement": {
+		"type": "Object",
+		"required": true,
+		"validator": false
+	},
+	"../../components/admin/tabs/AnnouncementReceipts.vue | report": {
+		"type": "Object",
+		"required": true,
+		"validator": false
+	},
 	"../../components/admin/tabs/AppCatalogueTab.vue | groups": {
 		"type": "Array",
 		"required": false,
@@ -2380,6 +2385,42 @@
 		"validator": false,
 		"default": null
 	},
+	"../../modals/AnnouncementModal.vue | announcement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../modals/AnnouncementModal.vue | reactions": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"likes": 0,
+			"comments": 0,
+			"liked": false
+		},
+		"fresh": true
+	},
+	"../../modals/AnnouncementModal.vue | followed": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/AnnouncementModal.vue | confirmed": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/AnnouncementModal.vue | manageUrl": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
 	"../../modals/BookmarkImportModal.vue | open": {
 		"type": "Boolean",
 		"required": false,
@@ -2613,6 +2654,12 @@
 		"default": [],
 		"fresh": true
 	},
+	"../../modals/TileEditor.vue | embedded": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../modals/TileEditor.vue | catalogueApps": {
 		"type": "Array",
 		"required": false,
@@ -2759,6 +2806,27 @@
 		"fresh": true
 	},
 	"../../modals/WidgetPickerModal.vue | catalogueApps": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/WidgetPickerModal.vue | foundServices": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/WidgetPickerModal.vue | officeTiles": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../modals/WidgetPickerModal.vue | placements": {
 		"type": "Array",
 		"required": false,
 		"validator": false,

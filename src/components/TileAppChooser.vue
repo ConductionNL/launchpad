@@ -173,7 +173,7 @@ export default {
 
 		/**
 		 * Every row, in order: the Nextcloud apps, the catalogue, the found
-		 * services, Office; filtered by the search.
+		 * services, Office; one row per app, filtered by the search.
 		 *
 		 * @return {Array<object>} The rows.
 		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
@@ -219,7 +219,17 @@ export default {
 					choice: officeChoice(pack),
 				}))
 			const query = this.search.trim().toLowerCase()
+			// Two sources offering the same app (the Office pack's Files and
+			// the Nextcloud app Files) are one row: the first source wins.
+			const seen = new Set()
 			return [...apps, ...catalogue, ...services, ...office]
+				.filter((row) => {
+					if (seen.has(row.choice.key)) {
+						return false
+					}
+					seen.add(row.choice.key)
+					return true
+				})
 				.filter((row) => !query || row.name.toLowerCase().includes(query) || String(row.description || '').toLowerCase().includes(query))
 				.map((row) => ({ ...row, onDashboard: this.existing.has(row.choice.key) }))
 		},

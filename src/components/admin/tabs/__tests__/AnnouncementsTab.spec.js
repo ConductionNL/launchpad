@@ -16,7 +16,9 @@ const api = vi.hoisted(() => ({
 	update: vi.fn(),
 	remove: vi.fn(),
 	receipts: vi.fn(),
+	receiptCounts: vi.fn(),
 }))
+vi.mock('../../../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
 vi.mock('../../../../services/announcementsApi.js', () => ({ announcementsApi: api }))
 vi.mock('../../../../modals/AnnouncementEditorModal.vue', () => ({ default: { name: 'AnnouncementEditorModal', render: () => null } }))
 
@@ -57,11 +59,20 @@ describe('AnnouncementsTab', () => {
 		expect(announcementsFragment('#sharing/abc')).toEqual({ uuid: '', section: '' })
 	})
 
-	it('loads every announcement for the list', async () => {
-		api.manageList.mockResolvedValue([{ uuid: 'a', title: 'Onderhoud' }])
+	it('loads every announcement for the list, with its seen and confirmed counts', async () => {
+		api.manageList.mockResolvedValue([{ uuid: 'a', title: 'Onderhoud' }, { uuid: 'b', title: 'Nieuw' }])
+		api.receiptCounts.mockResolvedValue({ a: { seen: 3, confirmed: 2 } })
 		const ctx = context()
 		await ctx.load()
-		expect(ctx.items).toEqual([{ uuid: 'a', title: 'Onderhoud' }])
+		expect(api.receiptCounts).toHaveBeenCalledWith(['a', 'b'])
+		expect(ctx.items).toEqual([
+			{ uuid: 'a', title: 'Onderhoud', seenCount: 3, confirmedCount: 2 },
+			{ uuid: 'b', title: 'Nieuw', seenCount: 0, confirmedCount: 0 },
+		])
+		api.receiptCounts.mockRejectedValue(new Error('500'))
+		await ctx.load()
+		expect(ctx.items).toHaveLength(2)
+		expect(ctx.items[0].seenCount).toBeUndefined()
 		api.manageList.mockRejectedValue(new Error('403'))
 		await ctx.load()
 		expect(ctx.error).toBe('The announcements could not be loaded.')

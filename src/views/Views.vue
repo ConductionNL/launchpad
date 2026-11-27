@@ -386,12 +386,19 @@
 			:dashboardName="(activeDashboard && activeDashboard.name) || ''"
 			:allowedWidgets="pickerAllowedWidgets"
 			:requestAppFn="requestCatalogueApp"
+			:foundServices="foundServices"
+			:officeTiles="officeTiles"
+			:placements="widgetPlacements"
 			@close="onWidgetPickerClose"
 			@add="addWidget"
 			@addCustom="onPickCustomWidget"
 			@addApp="addDiscoveredApp"
 			@addCatalogueApp="addCatalogueApp"
-			@addOfficePack="addOfficePack" />
+			@addOfficePack="addOfficePack"
+			@tileForm="loadTileFormLists"
+			@tileSave="saveTileFromPicker"
+			@addApps="addAppsFromPicker"
+			@importBookmarks="onAddTilesImportBookmarks" />
 
 		<!-- Custom widget add/edit modal — registry-driven host for label,
 		     text, image, link-button, etc. (REQ-WDG-010..014). The modal does
@@ -3175,6 +3182,51 @@ export default {
 		},
 
 		/**
+		 * Load the lists of the App or link tile's "Choose the app" when its
+		 * form opens inside Add widget; a list that fails stays empty.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 */
+		async loadTileFormLists() {
+			await Promise.all([
+				this.loadDiscoveredApps(),
+				this.loadFoundServices(),
+				this.loadCatalogueApps(),
+				this.loadOfficeTiles(),
+			])
+		},
+
+		/**
+		 * A link tile saved from the form inside Add widget: place it, then
+		 * close Add widget.
+		 *
+		 * @param {object} tileData The form's result.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 */
+		async saveTileFromPicker(tileData) {
+			this.editingTile = null
+			this.editingGroupTile = null
+			await this.saveTile(tileData)
+			this.closeWidgetModal()
+		},
+
+		/**
+		 * The apps ticked in the form inside Add widget: place a tile each,
+		 * then close Add widget.
+		 *
+		 * @param {{choices: Array<object>, appearance: object}} result The ticked apps and the appearance.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 */
+		async addAppsFromPicker(result) {
+			if (await this.addAppsFromForm(result)) {
+				this.closeWidgetModal()
+			}
+		},
+
+		/**
 		 * Place the tiles chosen in the tile form, one after the other so each
 		 * lands below the last: an app as an App or link tile in app mode, the
 		 * rest as link tiles, all with the form's appearance.
@@ -3199,16 +3251,18 @@ export default {
 		 * the form. A failure says so and keeps the form open.
 		 *
 		 * @param {{choices: Array<object>, appearance: object}} result The ticked apps and the appearance.
-		 * @return {Promise<void>}
+		 * @return {Promise<boolean>} Whether every tile was placed.
 		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		async addAppsFromForm({ choices = [], appearance = {} } = {}) {
 			try {
 				await this.addChosenTiles(choices, appearance)
 				this.closeTileEditor()
+				return true
 			} catch (error) {
 				logger.error('[Views] Failed to add the chosen apps:', error)
 				showError(t('launchpad', 'The tiles could not be added.'))
+				return false
 			}
 		},
 
@@ -3220,6 +3274,7 @@ export default {
 		 */
 		onAddTilesImportBookmarks(file) {
 			this.closeTileEditor()
+			this.isWidgetModalOpen = false
 			this.bookmarkInitialFile = file
 			this.isBookmarkImportOpen = true
 		},

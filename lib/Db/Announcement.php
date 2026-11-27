@@ -65,6 +65,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setAuthorId(string $authorId)
  * @method DateTime|null getNotifiedAt()
  * @method void setNotifiedAt(?DateTime $notifiedAt)
+ * @method DateTime|null getRemindedAt()
+ * @method void setRemindedAt(?DateTime $remindedAt)
  * @method DateTime|null getCreatedAt()
  * @method void setCreatedAt(?DateTime $createdAt)
  * @method DateTime|null getUpdatedAt()
@@ -197,6 +199,14 @@ class Announcement extends Entity implements JsonSerializable {
 	protected ?DateTime $notifiedAt = null;
 
 	/**
+	 * When a manager last sent a reminder to those who have not confirmed
+	 * (REQ-ANN-009: at most once a day).
+	 *
+	 * @var ?DateTime
+	 */
+	protected ?DateTime $remindedAt = null;
+
+	/**
 	 * When it was written.
 	 *
 	 * @var ?DateTime
@@ -224,6 +234,7 @@ class Announcement extends Entity implements JsonSerializable {
 		$this->addType(fieldName: 'publishAt', type: 'datetime');
 		$this->addType(fieldName: 'expiresAt', type: 'datetime');
 		$this->addType(fieldName: 'notifiedAt', type: 'datetime');
+		$this->addType(fieldName: 'remindedAt', type: 'datetime');
 		$this->addType(fieldName: 'createdAt', type: 'datetime');
 		$this->addType(fieldName: 'updatedAt', type: 'datetime');
 	}//end __construct()
@@ -316,6 +327,7 @@ class Announcement extends Entity implements JsonSerializable {
 			'requiresConfirmation' => $this->requiresConfirmation === 1,
 			'confirmBefore' => self::iso(date: $this->confirmBefore),
 			'authorId' => $this->authorId,
+			'remindedAt' => self::iso(date: $this->remindedAt),
 			'createdAt' => self::iso(date: $this->createdAt),
 			'updatedAt' => self::iso(date: $this->updatedAt),
 		];

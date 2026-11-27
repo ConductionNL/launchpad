@@ -67,6 +67,17 @@ describe('TileAppChooser', () => {
 		expect(wrapper.text()).toContain('Running · port 3000')
 	})
 
+	it('lists an app two sources offer once: the Office pack\'s Files is the Nextcloud app Files', async () => {
+		const wrapper = mountChooser({
+			officeTiles: [{ title: 'Files', linkType: 'app', linkValue: 'files', icon: '', iconType: 'class' }, ...OFFICE],
+		})
+		expect(wrapper.findAll('[data-testid="tile-app-tick-app:files"]')).toHaveLength(1)
+		expect(wrapper.find('[data-testid="tile-app-row-nextcloud"]').text()).toContain('Files')
+		await tick(wrapper, 'app:files').setValue(true)
+		const emitted = wrapper.emitted('update:chosen')
+		expect(emitted[emitted.length - 1][0]).toHaveLength(1)
+	})
+
 	it('shows the count of new items where an app has one', () => {
 		const counts = mountChooser().findAll('[data-testid="tile-app-count"]')
 		expect(counts).toHaveLength(1)

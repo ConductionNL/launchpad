@@ -34,7 +34,6 @@ import {
 import { adminTab } from './support/adminTab.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import { contextFor } from './support/principals.ts'
-import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -227,18 +226,25 @@ test.describe('app catalogue (REQ-ACAT-002, REQ-ACAT-003, REQ-ACAT-004)', () => 
 	}) => {
 		const { context, page } = await loginAs(browser, member!.username, member!.password)
 		try {
+			// app-link-tile-widget REQ-APPTILE-004: the catalogue is a source of
+			// the "Choose the app" list of the App or link tile form.
 			const dialog = await openAddFlow(page)
-			await dialog.getByRole('textbox', { name: /search widgets/i }).fill('zaak')
+			await dialog.getByTestId('widget-picker-type-tile').click()
+			await dialog.getByTestId('widget-picker-add').click()
+			await page.getByTestId('tile-mode').getByText('An app', { exact: true }).click()
+			const chooser = page.getByTestId('tile-app-chooser')
+			await expect(chooser).toBeVisible({ timeout: 10_000 })
+			await chooser.getByRole('textbox', { name: 'Search apps' }).fill('zaak')
 
-			const section = dialog.locator('[data-testid="widget-picker-section-tiles"]')
-			await expect(section).toBeVisible()
-			await expect(section).toContainText('App tiles')
+			const row = chooser.getByTestId('tile-app-row-catalogue').filter({ hasText: APP_NAME })
+			await expect(row).toBeVisible()
+			await row.getByRole('checkbox').check()
 
 			const placed = page.waitForResponse((res) =>
 				/\/api\/dashboard\/\d+\/tile$/.test(res.url())
 				&& res.request().method() === 'POST',
 			)
-			await chooseAndAdd(section.getByRole('button', { name: new RegExp(APP_NAME) }))
+			await page.getByTestId('tile-editor-save').click()
 			const response = await placed
 			expect(response.status(), await response.text()).toBeLessThan(300)
 			const sent = response.request().postDataJSON()
@@ -294,9 +300,16 @@ test.describe('app catalogue (REQ-ACAT-002, REQ-ACAT-003, REQ-ACAT-004)', () => 
 			member!.password,
 		)
 		try {
+			// app-link-tile-widget REQ-APPTILE-004: Request app from IT sits
+			// under the "Choose the app" list of the App or link tile form.
 			const dialog = await openAddFlow(memberPage)
-			const requestBlock = dialog.locator('[data-testid="widget-picker-request"]')
-			await requestBlock.getByRole('button', { name: /can't find your app/i }).click()
+			await dialog.getByTestId('widget-picker-type-tile').click()
+			await dialog.getByTestId('widget-picker-add').click()
+			await memberPage.getByTestId('tile-mode').getByText('An app', { exact: true }).click()
+			const chooser = memberPage.getByTestId('tile-app-chooser')
+			await expect(chooser).toBeVisible({ timeout: 10_000 })
+			await chooser.getByTestId('tile-app-request').click()
+			const requestBlock = chooser.getByRole('form', { name: 'Request app from IT' })
 			await requestBlock.getByRole('textbox', { name: 'App name' }).fill(REQUESTED_APP)
 			await requestBlock
 				.getByRole('textbox', { name: /what do you need it for/i })

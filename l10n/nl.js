@@ -1,6 +1,26 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Close {title}" : "{title} sluiten",
+    "_%n comment_::_%n comments_" : ["%n reactie", "%n reacties"],
+    "Mark as read" : "Markeren als gelezen",
+    "Read" : "Gelezen",
+    "Close notice" : "Melding sluiten",
+    "Seen" : "Gezien",
+    "Not seen" : "Niet gezien",
+    "In the audience" : "In de doelgroep",
+    "{count} not yet seen" : "{count} nog niet gezien",
+    "{check} with the check, {x} with the x" : "{check} met het vinkje, {x} met het kruisje",
+    "Send reminder" : "Herinnering sturen",
+    "Confirmed with the check" : "Bevestigd met het vinkje",
+    "Confirmed with the x" : "Bevestigd met het kruisje",
+    "Seen, not confirmed" : "Gezien, niet bevestigd",
+    "The reminder could not be sent." : "De herinnering kon niet worden verstuurd.",
+    "Seen and confirmed could not be loaded." : "Gezien en bevestigd kon niet worden geladen.",
+    "Please confirm you have read: **%s**" : "Bevestig dat je dit hebt gelezen: **%s**",
+    "Please confirm you have read: %s" : "Bevestig dat je dit hebt gelezen: %s",
+    "Open LaunchPad and press the check on the announcement" : "Open LaunchPad en druk op het vinkje bij de aankondiging",
+    "_Reminder sent to %n person_::_Reminder sent to %n people_" : ["Herinnering verstuurd naar %n persoon", "Herinnering verstuurd naar %n personen"],
     "Background image" : "Achtergrondafbeelding",
     "Shown behind this dashboard; leave empty to follow the theme." : "Wordt achter dit dashboard getoond; laat leeg om het thema te volgen.",
     "Upload image" : "Afbeelding uploaden",
@@ -2928,7 +2948,15 @@ OC.L10N.register(
     "the own colour" : "de eigen kleur",
     "{count} new" : "{count} nieuw",
     "{text} on {tile}: contrast {ratio}:1, below WCAG AA (4.5:1). Choose white or a lighter tile colour." : "{text} op {tile}: contrast {ratio}:1, onder WCAG AA (4.5:1). Kies wit of een lichtere tegelkleur.",
-    "{text} on {tile}: contrast {ratio}:1, meets WCAG AA (4.5:1)" : "{text} op {tile}: contrast {ratio}:1, voldoet aan WCAG AA (4.5:1)"
+    "{text} on {tile}: contrast {ratio}:1, meets WCAG AA (4.5:1)" : "{text} op {tile}: contrast {ratio}:1, voldoet aan WCAG AA (4.5:1)",
+    "Apps from the app menu appear here for each viewer." : "Apps uit het app-menu verschijnen hier voor iedere kijker.",
+    "Filter apps" : "Apps filteren",
+    "Apps from the app menu" : "Apps uit het app-menu",
+    "Show each viewer the apps of their own app menu" : "Toon iedere kijker de apps uit het eigen app-menu",
+    "Pinned first" : "Vastgezet bovenaan",
+    "Leave out" : "Weglaten",
+    "Most used apps after the pinned ones (0 shows all)" : "Meest gebruikte apps na de vastgezette (0 toont alle)",
+    "Show a search field above the apps" : "Toon een zoekveld boven de apps"
 },
 "nplurals=2; plural=(n != 1);"
 );

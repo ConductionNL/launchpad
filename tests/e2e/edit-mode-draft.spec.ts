@@ -18,7 +18,7 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, test } from '@playwright/test'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
-import { enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
+import { dashboardRow, enterEditMode, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 import { adminContext } from './support/principals.ts'
 
 const STAMP = Date.now().toString(36)
@@ -148,8 +148,9 @@ test('choosing another dashboard with changes asks Save changes?, and Don\'t sav
 	await page.locator('[data-testid="launchpad-edit-bar-columns-6"]').click()
 	await expect(page.locator(PILL)).toHaveText('Draft · 1 change')
 
-	await page.locator(MORE_MENU).locator('[data-testid="launchpad-more-menu-trigger"]').click()
-	await page.locator('[data-testid^="launchpad-more-menu-item-dashboard-"]').filter({ hasText: `E2E Concept ander ${STAMP}` }).click()
+	// More, then every dashboard (REQ-SHELL-015), then the other one.
+	await openDashboardSwitcher(page)
+	await dashboardRow(page, `E2E Concept ander ${STAMP}`).click()
 	const dialog = page.getByTestId('edit-draft-leave-dialog')
 	await expect(dialog).toContainText('Save changes?')
 	await expect(page.getByTestId('edit-draft-keep')).toBeVisible()

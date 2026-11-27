@@ -158,7 +158,7 @@ test('the owner makes a screen link on the Sharing tab, a logged-out screen play
 		}
 
 		await block.locator('[data-test="sharing-screen-link-revoke"]').click()
-		await tab.page.getByRole('dialog').getByRole('button', { name: 'Revoke', exact: true }).click()
+		await tab.page.getByRole('dialog', { name: 'Revoke screen link' }).getByRole('button', { name: 'Revoke', exact: true }).click()
 		await expect(block.locator('[data-test="sharing-screen-link-create"]')).toBeVisible()
 		expect(await playAnonymously(token)).toBe(404)
 	} finally {

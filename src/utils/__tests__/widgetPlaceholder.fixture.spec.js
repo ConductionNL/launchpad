@@ -11,7 +11,8 @@
  * @spec openspec/changes/widget-declared-placeholders/tasks.md#task-3
  */
 
-import { resolveWidgetPlaceholder } from '@conduction/nextcloud-vue'
+// The library barrel is stubbed in Vitest (vitest.config.js); the resolver is a plain module.
+import { resolveWidgetPlaceholder } from '@conduction/nextcloud-vue/src/utils/resolveWidgetPlaceholder.js'
 import { describe, expect, it } from 'vitest'
 import kinds from '../../../lib/Service/first-paint-kinds.json'
 import registry from '../../../lib/Service/widget-placeholders.json'

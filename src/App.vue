@@ -35,9 +35,16 @@
 		  workspace's own More menu, on every other page this one.
 		-->
 		<template v-if="showsPageMenu" #header-actions>
-			<div class="launchpad-page-menu" data-testid="launchpad-page-menu">
-				<StartPageMenu />
-			</div>
+			<!-- Board LpStore: on a page whose header draws an action row, More
+			     is that row's last button; elsewhere it stays at the top end. -->
+			<Teleport :to="pageMenuTarget || 'body'" :disabled="!pageMenuTarget">
+				<div
+					class="launchpad-page-menu"
+					:class="{ 'launchpad-page-menu--in-header': !!pageMenuTarget }"
+					data-testid="launchpad-page-menu">
+					<StartPageMenu />
+				</div>
+			</Teleport>
 		</template>
 		<!--
 			The user settings dialog. Every per-person setting lives here;
@@ -73,6 +80,7 @@ import { buildPeopleSource } from './services/widgetDataAdapters.js'
 import { isAdminPagePath } from './utils/adminPage.js'
 import { bootPath } from './utils/bootPath.js'
 import { isKioskMode } from './utils/kioskMode.js'
+import { watchPageMenuTarget } from './utils/pageMenuTarget.js'
 import { permits } from './utils/permissions.js'
 
 /**
@@ -251,6 +259,13 @@ export default {
 			 * `registry`, so Add integration needs this map.
 			 */
 			customComponents,
+			/**
+			 * The page header action row the More menu sits in, or null
+			 * when the page draws none (REQ-SHELL-009, board LpStore).
+			 *
+			 * @type {Element|null}
+			 */
+			pageMenuTarget: null,
 		}
 	},
 
@@ -405,15 +420,28 @@ export default {
 		},
 	},
 
-	/** @spec openspec/specs/people-widget/spec.md */
+	/**
+	 * @spec openspec/specs/people-widget/spec.md
+	 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
+	 */
 	mounted() {
 		window.addEventListener('hashchange', this.openUserSettingsFromHash)
 		this.openUserSettingsFromHash()
+		this.stopPageMenuWatch = watchPageMenuTarget(this.$el instanceof Element ? this.$el : null, (target) => {
+			this.pageMenuTarget = target
+		})
 	},
 
-	/** @spec openspec/specs/people-widget/spec.md */
+	/**
+	 * @spec openspec/specs/people-widget/spec.md
+	 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
+	 */
 	beforeUnmount() {
 		window.removeEventListener('hashchange', this.openUserSettingsFromHash)
+		if (this.stopPageMenuWatch) {
+			this.stopPageMenuWatch()
+			this.stopPageMenuWatch = null
+		}
 	},
 
 	methods: {
@@ -470,6 +498,13 @@ export default {
 	top: calc(2 * var(--default-grid-baseline, 4px));
 	inset-inline-end: calc(2 * var(--default-grid-baseline, 4px));
 	z-index: 10;
+}
+
+/* Board LpStore: in the page header's action row More is the last button,
+   after Publish, whatever order the row's own buttons mount in. */
+.launchpad-page-menu--in-header {
+	position: static;
+	order: 99;
 }
 
 #app-content-vue:has(> .launchpad-page-menu) {

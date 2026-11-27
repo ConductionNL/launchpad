@@ -8,5 +8,5 @@
 - [x] Translations for the new strings (#2259: the miniatures add no visible text)
 - [x] Unit tests: every registered type renders a miniature from `sampleContent` with `preview` and sends no request (fails on a type without sample content); picker width, kinds and counts; no Add tiles button (#2259: `WidgetMiniature.registry.spec.js`, `WidgetMiniature.spec.js`, picker and card specs)
 - [x] Playwright `tests/e2e/widget-picker-miniatures.spec.ts`: open Add widget, every visible card shows a miniature, the dialog is 1120 px wide, choosing Tiles and links lists the tile widgets; the edit bar has no Add tiles button (#2259; live green 2/2 on a sandbox Nextcloud 34, sqlite + php -S, 27 Nov 2026)
-- [ ] Speed: the picker opens within the speed rule on the reference stack (first useful content <= 300 ms)
+- [x] Speed: the picker opens within the speed rule on the reference stack (first useful content <= 300 ms) (27 Nov 2026, sandbox reference stack (nginx, php-fpm 8.3 with opcache + APCu, MariaDB, Redis locking): click on Add widget to the first card with its miniature frame drawn: 104 ms the first time, then 50, 37, 45, 47, 50, 40, 53 ms)
 - [ ] Live check on a sandbox against LpWidgetKiezen (pixel pass)

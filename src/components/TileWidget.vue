@@ -317,7 +317,7 @@ export default {
 		 * text colour, else its own text colour, else white.
 		 *
 		 * @return {string} The CSS colour.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
 		 */
 		textCss() {
 			if (isTextColour(this.content?.textColour)) {
@@ -331,7 +331,7 @@ export default {
 		 * tile stores a text colour; an uploaded full-colour image stays as is.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
 		 */
 		maskIcon() {
 			return isTextColour(this.content?.textColour) && /\.svg(\?|#|$)/i.test(String(this.tile?.icon || ''))

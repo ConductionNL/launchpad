@@ -17,7 +17,7 @@
  *   @e2e app-tile-widget::black-on-a-dark-tile-warns
  *   @e2e app-tile-widget::the-text-colour-is-used-on-the-tile
  *
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md
  */
 import type { APIRequestContext, Page } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'

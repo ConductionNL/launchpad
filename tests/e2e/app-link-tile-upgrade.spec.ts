@@ -18,7 +18,7 @@
  * Gate-19 @e2e traceability:
  *   @e2e app-tile-widget::an-old-app-tile-survives-the-upgrade
  *
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
  */
 
 import type { APIRequestContext } from '@playwright/test'

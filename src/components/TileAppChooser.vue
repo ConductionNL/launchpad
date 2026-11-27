@@ -127,8 +127,8 @@ function emptyRequest() {
  * `update:chosen`; the form adds them on Save. A bookmarks file goes to the
  * host's bookmark import through `importBookmarks`.
  *
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
- * @spec openspec/changes/app-link-tile-widget/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
  */
 export default {
 	name: 'TileAppChooser',
@@ -157,7 +157,7 @@ export default {
 	computed: {
 		/**
 		 * @return {boolean} Whether the request can be sent.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		canSendRequest() {
 			return !this.request.busy && this.request.name.trim() !== ''
@@ -165,7 +165,7 @@ export default {
 
 		/**
 		 * @return {Set<string>} The keys of the tiles on the dashboard.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
 		 */
 		existing() {
 			return existingTileKeys(this.placements)
@@ -176,7 +176,7 @@ export default {
 		 * services, Office; one row per app, filtered by the search.
 		 *
 		 * @return {Array<object>} The rows.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		rows() {
 			const apps = this.discoveredApps
@@ -241,7 +241,7 @@ export default {
 		/**
 		 * @param {string} key The choice key.
 		 * @return {boolean} Whether it is ticked.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		isChosen(key) {
 			return this.chosen.some((choice) => choice.key === key)
@@ -252,7 +252,7 @@ export default {
 		 *
 		 * @param {object} choice The row's choice.
 		 * @param {boolean} on Ticked.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		setChosen(choice, on) {
 			const without = this.chosen.filter((item) => item.key !== choice.key)
@@ -265,7 +265,7 @@ export default {
 		 *
 		 * @param {object} app The catalogue entry.
 		 * @return {string}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		signOnLabel(app) {
 			const kind = signOnKind(app)
@@ -279,7 +279,7 @@ export default {
 
 		/**
 		 * @param {File|undefined} file The bookmarks file.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		onFile(file) {
 			if (file) {
@@ -287,12 +287,12 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004 */
+		/** @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004 */
 		openRequestForm() {
 			this.request = { ...emptyRequest(), open: true, name: this.search.trim() }
 		},
 
-		/** @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004 */
+		/** @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004 */
 		closeRequestForm() {
 			this.request = emptyRequest()
 		},
@@ -301,7 +301,7 @@ export default {
 		 * Ask IT for a missing app (REQ-ACAT-003).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		async submitRequest() {
 			if (!this.canSendRequest || !this.requestAppFn) {

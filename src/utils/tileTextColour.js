@@ -7,7 +7,7 @@
  * the name (`content.textColour`) and draws its title, count and icon in it;
  * the form checks its contrast on the tile colour against WCAG AA (4.5:1).
  *
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
  */
 
 import { isColourToken, TILE_COLOUR_TOKENS } from './tileColour.js'
@@ -32,7 +32,7 @@ export const TEXT_COLOURS = Object.freeze([
  *
  * @param {unknown} value The stored value.
  * @return {boolean}
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
  */
 export function isTextColour(value) {
 	return value === 'white' || value === 'black' || isColourToken(value)
@@ -43,7 +43,7 @@ export function isTextColour(value) {
  *
  * @param {{textColour?: string}|null} content The tile's content.
  * @return {string} The text colour name.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
  */
 export function tileTextColour(content) {
 	return isTextColour(content?.textColour) ? content.textColour : DEFAULT_TEXT_COLOUR
@@ -55,7 +55,7 @@ export function tileTextColour(content) {
  *
  * @param {string} textColour The text colour name.
  * @return {string} The CSS value.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
  */
 export function textColourValue(textColour) {
 	if (PLAIN[textColour]) {
@@ -73,7 +73,7 @@ export function textColourValue(textColour) {
  *
  * @param {string} value The colour.
  * @return {Array<number>|null} The red, green and blue channels, 0..255, or null.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
  */
 export function parseColour(value) {
 	const text = String(value || '').trim().toLowerCase()
@@ -110,7 +110,7 @@ function luminance(channels) {
  * @param {string} first One colour.
  * @param {string} second The other.
  * @return {number|null} 1..21.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
  */
 export function contrastRatio(first, second) {
 	const a = parseColour(first)
@@ -129,7 +129,7 @@ export function contrastRatio(first, second) {
  * @param {string} name The colour.
  * @param {Element|null} [element] Where the theme's custom properties are read; the document root by default.
  * @return {string} The CSS colour.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
  */
 export function resolveColour(name, element = null) {
 	if (PLAIN[name]) {
@@ -168,7 +168,7 @@ function themeValue(name, element) {
  * @param {{textColour?: string, colourToken?: string, backgroundColor?: string}} tile The text colour, the tile colour token, or its own hex colour.
  * @param {function(string): string} [resolve] Resolves a colour name to a CSS colour; the current theme by default.
  * @return {{ratio: number|null, passes: boolean}} The ratio, rounded to one decimal, and whether it is at least 4.5:1.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
  */
 export function textContrast(tile, resolve = resolveColour) {
 	const text = resolve(tileTextColour(tile))

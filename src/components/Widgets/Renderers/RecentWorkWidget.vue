@@ -214,6 +214,8 @@ export default {
 	 */
 	async mounted() {
 		if (this.preview) {
+			// REQ-WDG-048: a miniature draws its sample state.
+			Object.assign(this.$data, { loading: false, ...(this.content?.sampleData || {}) })
 			return
 		}
 		const [{ default: axios }, { generateOcsUrl }] = await Promise.all([

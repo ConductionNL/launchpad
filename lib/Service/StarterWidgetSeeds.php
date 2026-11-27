@@ -60,7 +60,8 @@ final class StarterWidgetSeeds {
 	 * @var array<string, mixed>
 	 */
 	public const APP_GRID_SEED = [
-		'widgetId' => 'app-tiles',
+		// Layout-widgets-replace-multi-tile D3: a well that lists each viewer's apps.
+		'widgetId' => 'container',
 		'gridX' => 0,
 		'gridY' => 0,
 		'gridWidth' => 8,
@@ -68,11 +69,13 @@ final class StarterWidgetSeeds {
 		'sortOrder' => 0,
 		'tile' => null,
 		'content' => [
-			'pinned' => [],
-			'exclude' => ['launchpad'],
-			'showFilter' => true,
-			'showMostUsed' => true,
-			'mostUsedLimit' => 4,
+			'placements' => [],
+			'appList' => [
+				'pinned' => [],
+				'exclude' => ['launchpad'],
+				'mostUsedLimit' => 4,
+				'showFilter' => true,
+			],
 		],
 	];
 

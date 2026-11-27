@@ -179,6 +179,8 @@ export default {
 	 */
 	created() {
 		if (this.preview) {
+			// REQ-WDG-048: a miniature draws its sample state.
+			Object.assign(this.$data, { loading: false, ...(this.content?.sampleData || {}) })
 			return
 		}
 		this.load()

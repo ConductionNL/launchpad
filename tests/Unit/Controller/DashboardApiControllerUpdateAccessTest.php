@@ -485,7 +485,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 	public function testADraftBodyGoesToTheDraftSave(): void {
 		$draftSave = $this->createMock(originalClassName: DraftSaveService::class);
 		$draftSave->expects($this->once())->method('save')
-			->with($this->callback(static fn ($draft): bool => $draft->dashboardId === 7 && $draft->userId === 'alice'
+			->with($this->callback(callback: static fn ($draft): bool => $draft->dashboardId === 7 && $draft->userId === 'alice'
 				&& $draft->gridColumns === 8 && $draft->placements === [['id' => 1, 'gridY' => 2]]))
 			->willReturn(['dashboard' => new Dashboard(), 'placements' => [new WidgetPlacement()]]);
 

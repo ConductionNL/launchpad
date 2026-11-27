@@ -70,7 +70,7 @@ class FirstPaintGreeting {
 			self::date(content: $content, moment: $local, locale: $locale),
 		];
 		if (($content['showWeek'] ?? false) === true) {
-			$parts[] = $l->t('week {number}', ['number' => (int) $local->format('W')]);
+			$parts[] = self::fill(text: $l->t('week {number}'), values: ['number' => (int) $local->format('W')]);
 		}
 
 		return implode(' · ', array_values(array_filter($parts, static fn (string $part): bool => $part !== '')));
@@ -100,15 +100,34 @@ class FirstPaintGreeting {
 		}
 
 		if ($hour < 12) {
-			return $name !== '' ? $l->t('Good morning, {name}', ['name' => $name]) : $l->t('Good morning');
+			return $name !== '' ? self::fill(text: $l->t('Good morning, {name}'), values: ['name' => $name]) : $l->t('Good morning');
 		}
 
 		if ($hour < 18) {
-			return $name !== '' ? $l->t('Good afternoon, {name}', ['name' => $name]) : $l->t('Good afternoon');
+			return $name !== '' ? self::fill(text: $l->t('Good afternoon, {name}'), values: ['name' => $name]) : $l->t('Good afternoon');
 		}
 
-		return $name !== '' ? $l->t('Good evening, {name}', ['name' => $name]) : $l->t('Good evening');
+		return $name !== '' ? self::fill(text: $l->t('Good evening, {name}'), values: ['name' => $name]) : $l->t('Good evening');
 	}//end greeting()
+
+	/**
+	 * Fill `{key}` placeholders. Nextcloud's IL10N::t() fills `%s` only;
+	 * these strings keep the browser's `{name}` form so the two sides share
+	 * one wording.
+	 *
+	 * @param string                    $text   The translated text.
+	 * @param array<string, int|string> $values The values by key.
+	 *
+	 * @return string
+	 */
+	private static function fill(string $text, array $values): string {
+		$pairs = [];
+		foreach ($values as $key => $value) {
+			$pairs['{'.$key.'}'] = (string) $value;
+		}
+
+		return strtr($text, $pairs);
+	}//end fill()
 
 	/**
 	 * The long date, "vrijdag 27 november 2026", or '' without `showDate`.

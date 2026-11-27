@@ -1,5 +1,14 @@
 {
     "translations": {
+        "Good morning, {name}": "Goedemorgen, {name}",
+        "Good morning": "Goedemorgen",
+        "Good afternoon, {name}": "Goedemiddag, {name}",
+        "Good afternoon": "Goedemiddag",
+        "Good evening, {name}": "Goedenavond, {name}",
+        "Good evening": "Goedenavond",
+        "week {number}": "week {number}",
+        "Loading widgets": "Widgets worden geladen",
+        "The page could not load": "De pagina kon niet worden geladen",
         "of {audience} confirmed": "van {audience} bevestigd",
         "Seen by": "Gezien door",
         "Confirmed {date} with the check": "Bevestigd {date} met het vinkje",

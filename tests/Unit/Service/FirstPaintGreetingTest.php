@@ -38,13 +38,9 @@ class FirstPaintGreetingTest extends TestCase {
 		];
 		$l = $this->createMock(originalClassName: IL10N::class);
 		$l->method('t')->willReturnCallback(
+			// As Nextcloud's IL10N: `{name}` is not filled in by t() itself.
 			callback: static function (string $text, array $parameters=[]) use ($language, $nl): string {
-				$text = $language === 'nl' ? ($nl[$text] ?? $text) : $text;
-				foreach ($parameters as $key => $value) {
-					$text = str_replace('{'.$key.'}', (string) $value, $text);
-				}
-
-				return $text;
+				return vsprintf($language === 'nl' ? ($nl[$text] ?? $text) : $text, $parameters);
 			}
 		);
 

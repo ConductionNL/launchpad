@@ -91,6 +91,9 @@ class AdminSettingsForm {
 	 */
 	protected function addAssets(): void {
 		Util::addScript(application: Application::APP_ID, file: 'launchpad-settings');
+		// The library stylesheet, linked instead of inserted by the bundle
+		// (the build copies it to css/nextcloud-vue.css).
+		Util::addStyle(application: Application::APP_ID, file: 'nextcloud-vue');
 		Util::addStyle(application: Application::APP_ID, file: 'launchpad');
 	}//end addAssets()
 

@@ -25,8 +25,9 @@ import { widgetBridge } from './services/widgetBridge.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 
 import './publicPath.js'
-// The library's own stylesheet (board look, dialogs).
-import '@conduction/nextcloud-vue/css/index.css'
+// The library's stylesheet is linked by the page (AdminSettingsForm adds
+// css/nextcloud-vue.css), so it stays parsed between loads instead of being
+// inserted from this bundle as text.
 import './styles/modals.css'
 
 // Keep the bridge's side-effecting construction in the bundle.

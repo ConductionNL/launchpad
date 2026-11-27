@@ -465,32 +465,38 @@ import {
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
-import SetupWizardModal from '../../modals/SetupWizardModal.vue'
+import { defineAsyncComponent } from 'vue'
 import AdminCustomCss from './AdminCustomCss.vue'
 import AllowedSitesSettings from './AllowedSitesSettings.vue'
 import DiscoverableServicesSettings from './DiscoverableServicesSettings.vue'
-import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
-import AnnouncementsTab from './tabs/AnnouncementsTab.vue'
-import AppCatalogueTab from './tabs/AppCatalogueTab.vue'
-import CommunitiesTab from './tabs/CommunitiesTab.vue'
-import DemoDataTab from './tabs/DemoDataTab.vue'
 import EmbedsTab from './tabs/EmbedsTab.vue'
-import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
-import KioskTab from './tabs/KioskTab.vue'
-import OperationsTab from './tabs/OperationsTab.vue'
-import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
-import ProfileFieldsTab from './tabs/ProfileFieldsTab.vue'
-import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
 import SearchShortcutsTab from './tabs/SearchShortcutsTab.vue'
-import SharingTab from './tabs/SharingTab.vue'
-import TemplatesPage from './tabs/TemplatesPage.vue'
-import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
 import TileLaunchSettings from './TileLaunchSettings.vue'
 import manifest from '../../manifest.json'
 import { api } from '../../services/api.js'
 import { ADMIN_TABS, adminTab } from '../../utils/adminPage.js'
 import { ADMIN_TOUR_WALKTHROUGH_KEY, adminTourManifest, loadAdminTourSeen, persistAdminTourSeen } from '../../utils/adminWalkthrough.js'
 import { logger } from '../../utils/logger.js'
+
+// Only General shows on arrival: every other tab (lazyTabs mounts a tab's
+// slot when it opens), the detail-fields panel and the setup wizard load
+// their code when first shown, so the settings bundle the page parses first
+// holds General alone.
+const SetupWizardModal = defineAsyncComponent(() => import('../../modals/SetupWizardModal.vue'))
+const MetadataFieldsSettings = defineAsyncComponent(() => import('./MetadataFieldsSettings.vue'))
+const AnnouncementsTab = defineAsyncComponent(() => import('./tabs/AnnouncementsTab.vue'))
+const AppCatalogueTab = defineAsyncComponent(() => import('./tabs/AppCatalogueTab.vue'))
+const CommunitiesTab = defineAsyncComponent(() => import('./tabs/CommunitiesTab.vue'))
+const DemoDataTab = defineAsyncComponent(() => import('./tabs/DemoDataTab.vue'))
+const GroupDashboardsTab = defineAsyncComponent(() => import('./tabs/GroupDashboardsTab.vue'))
+const KioskTab = defineAsyncComponent(() => import('./tabs/KioskTab.vue'))
+const OperationsTab = defineAsyncComponent(() => import('./tabs/OperationsTab.vue'))
+const OrgNavigationTab = defineAsyncComponent(() => import('./tabs/OrgNavigationTab.vue'))
+const ProfileFieldsTab = defineAsyncComponent(() => import('./tabs/ProfileFieldsTab.vue'))
+const RolesPermissionsTab = defineAsyncComponent(() => import('./tabs/RolesPermissionsTab.vue'))
+const SharingTab = defineAsyncComponent(() => import('./tabs/SharingTab.vue'))
+const TemplatesPage = defineAsyncComponent(() => import('./tabs/TemplatesPage.vue'))
+const VersioningAuditTab = defineAsyncComponent(() => import('./tabs/VersioningAuditTab.vue'))
 
 export default {
 	name: 'AdminSettings',
@@ -794,9 +800,9 @@ export default {
 
 	async created() {
 		this.loadAdminTour()
-		await this.loadData()
-		await this.loadGroupSharedDashboards()
-		await this.loadWizardState()
+		// The three reads do not depend on each other: ask together, so the
+		// wizard banner is not the third round trip of the page.
+		await Promise.all([this.loadData(), this.loadGroupSharedDashboards(), this.loadWizardState()])
 	},
 
 	/**

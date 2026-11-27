@@ -137,6 +137,9 @@ class PeopleWidgetService {
 	 *                                                   `IGroupManager::getUserGroupIds`
 	 *                                                   (REQ-TMPL-013 grep guard).
 	 * @param ProfileFieldService $profileFields Custom profile fields and their visibility.
+	 * @param UserEnumerationScope|null $enumeration Who the viewer may see listed (REQ-PPL-015); none lists everyone.
+	 *
+	 * @spec openspec/specs/people-widget/spec.md#requirement-people-listings-honour-the-user-enumeration-settings-req-ppl-015
 	 */
 	public function __construct(
 		private readonly IUserManager $userManager,
@@ -145,6 +148,7 @@ class PeopleWidgetService {
 		private readonly IURLGenerator $urlGenerator,
 		private readonly AdminTemplateService $adminTemplateService,
 		private readonly ProfileFieldService $profileFields,
+		private readonly ?UserEnumerationScope $enumeration=null,
 	) {
 	}//end __construct()
 
@@ -173,12 +177,16 @@ class PeopleWidgetService {
 	 *                                  when the query is shorter than 2 characters.
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
+	 * @spec openspec/specs/people-widget/spec.md#requirement-people-listings-honour-the-user-enumeration-settings-req-ppl-015
 	 */
 	public function listUsers(PeopleQuery $request, ?string $viewerId=null): array {
 		$this->viewerId = $viewerId;
 		$this->assertListable(request: $request);
 
-		$groupFilter = $this->extractGroupFilter(filters: $request->filters);
+		$groupFilter = $this->withinEnumerationScope(
+			groupFilter: $this->extractGroupFilter(filters: $request->filters),
+			viewerId: $viewerId
+		);
 
 		if (trim(string: (string)$request->search) !== '') {
 			return $this->listSearchMatches(request: $request, groupFilter: $groupFilter);
@@ -186,6 +194,41 @@ class PeopleWidgetService {
 
 		return $this->listBrowsePage(request: $request, groupFilter: $groupFilter);
 	}//end listUsers()
+
+	/**
+	 * Narrow the widget's group filter to the groups Nextcloud's
+	 * user-enumeration settings let the viewer see (REQ-PPL-015).
+	 *
+	 * Enumeration open: the widget's own filter, unchanged. Restricted to
+	 * the viewer's groups: the widget's groups that are among them, or all
+	 * of them when the widget has no filter. Enumeration off: a filter of
+	 * no groups, which lists nobody.
+	 *
+	 * @param array|null  $groupFilter The widget's group filter, or null.
+	 * @param string|null $viewerId    The signed-in user.
+	 *
+	 * @return array|null The group filter to apply, or null for the whole directory.
+	 *
+	 * @spec openspec/specs/people-widget/spec.md#requirement-people-listings-honour-the-user-enumeration-settings-req-ppl-015
+	 */
+	private function withinEnumerationScope(?array $groupFilter, ?string $viewerId): ?array {
+		$visible = $this->enumeration?->visibleGroupsFor(viewerId: $viewerId);
+		if ($visible === null) {
+			return $groupFilter;
+		}
+
+		if ($groupFilter === null) {
+			return ['fieldName' => 'group', 'operator' => 'in', 'values' => $visible];
+		}
+
+		$asked = $groupFilter['values'] ?? [];
+		if (is_array(value: $asked) === false) {
+			$asked = [];
+		}
+
+		$groupFilter['values'] = array_values(array: array_intersect($asked, $visible));
+		return $groupFilter;
+	}//end withinEnumerationScope()
 
 	/**
 	 * Refuse a page window outside 1..MAX_LIMIT or below offset 0, and the

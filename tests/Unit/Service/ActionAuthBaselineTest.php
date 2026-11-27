@@ -69,7 +69,6 @@ class ActionAuthBaselineTest extends TestCase {
 		'metadata-admin.get-field',
 		'metadata-admin.update-field',
 		'metadata-admin.delete-field',
-		'people-widget.get-users',
 		'search-shortcut.list',
 		'search-shortcut.save',
 		'profile-fields.get-definitions',
@@ -93,6 +92,8 @@ class ActionAuthBaselineTest extends TestCase {
 		'admin-org-navigation.get-position',
 		'dashboard.list',
 		'dashboard.visible',
+		// REQ-PPL-015: listing people follows the user-enumeration settings.
+		'people-widget.get-users',
 		'dashboard.get-active',
 		'dashboard.show',
 		'dashboard.create',

@@ -51,6 +51,7 @@ import registry from './registry.js'
 import { appBase } from './utils/bootPath.js'
 import { installCarriedReads } from './utils/carriedApiReads.js'
 import { applyCustomCss, GLOBAL_STYLE_ID } from './utils/customCss.js'
+import { holdMountWhileShellShows } from './utils/firstPaintHandover.js'
 import { mountHeaderSearch } from './utils/headerSearchMount.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { logger } from './utils/logger.js'
@@ -265,6 +266,9 @@ for (const [key, value] of Object.entries(initialState)) {
 app.provide('runtimeManifest', runtimeManifest)
 app.provide('manifestLoading', manifestLoading)
 
+// first-paint-skeleton D4: while the server's shell shows, the mounted page
+// is laid out but hidden; the grid's first layout hands over (Views.vue).
+holdMountWhileShellShows()
 app.mount('#workspace-vue')
 
 // header-search-dropdown REQ-SRCH-013: the top bar's search field shows its

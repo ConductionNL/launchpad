@@ -210,7 +210,8 @@
 				cellHeightCssVar="--launchpad-cell-height"
 				:itemKey="placementItemKey"
 				:itemLabel="placementItemLabel"
-				@layoutChange="updatePlacements">
+				@layoutChange="updatePlacements"
+				@vue:mounted="onGridMounted">
 				<template #widget="{ item }">
 					<!-- tile-quick-search. Dimming is REACTIVE: the `search`
 					     widget writes the current match set into the tileSearch
@@ -556,6 +557,7 @@ import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
 import { addressWithPeriod, namesPeriod, readPeriod } from '../utils/dashboardPeriod.js'
 import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
+import { handOver } from '../utils/firstPaintHandover.js'
 import { preloadFirstViewportRenderers } from '../utils/firstViewport.js'
 import { gridItemLabel } from '../utils/gridItemLabel.js'
 import { dashboardGroups, groupChildToTile, isGroupTileChild, withGroupTileRemoved, withGroupTileSaved, withTileMovedIn } from '../utils/groupTiles.js'
@@ -1930,6 +1932,11 @@ export default {
 	mounted() {
 		// REQ-EDIT-003: a reload or closing the tab with unsaved changes warns.
 		window.addEventListener('beforeunload', this.onBeforeUnloadDraft)
+		// first-paint-skeleton D4: without a dashboard there is no grid to
+		// wait for, so the page takes over from any shell at once.
+		if (!this.activeDashboard) {
+			handOver()
+		}
 		if (this.kiosk) {
 			this.stopKiosk = startKioskView(window)
 			// REQ-KIOSK-004: a kiosk view re-reads its widgets in place.
@@ -2166,6 +2173,17 @@ export default {
 		onWidgetAcknowledged() {
 			const dashboardStore = useDashboardStore()
 			dashboardStore.fetchPendingAcknowledgements()
+		},
+
+		/**
+		 * The grid has laid out (GridStack lays out in its mounted hook): the
+		 * page takes over from the server's first-paint shell in one frame.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
+		 */
+		onGridMounted() {
+			handOver()
 		},
 
 		...mapActions(useDashboardStore, [

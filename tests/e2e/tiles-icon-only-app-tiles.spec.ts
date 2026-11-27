@@ -423,7 +423,9 @@ test('choosing the primary swatch in the tile form stores colourToken "--sc-prim
 		await page.getByRole('menuitem', { name: /tegel bewerken|edit tile/i }).click()
 		const form = page.getByRole('dialog').filter({ has: page.getByRole('radiogroup') }).last()
 		await expect(form).toBeVisible()
-		const swatches = form.getByRole('radiogroup', { name: /kleur|colou?r/i })
+		// The tile colour, not the text colour group beside it (app-link-tile-widget
+		// REQ-APPTILE-005 added Text colour to the same form).
+		const swatches = form.getByRole('radiogroup', { name: /^(tegelkleur|tile colou?r)$/i })
 		// Eight theme swatches; the board's "Own colour" choice is a ninth
 		// radio in the same group that keeps the colour pickers.
 		const themeSwatches = swatches.getByRole('radio').and(page.locator('.tile-editor__swatch-input'))

@@ -95,15 +95,16 @@ const FIXTURE_HOST = process.env.HEALTH_PING_FIXTURE_HOST || process.env.LIVE_TI
 const FIELD_ORDER = [
 	/^Name$/,
 	/^Group$/,
-	/^Tile type$/,
-	// Case system is an app with single sign-on: its own address fields are
-	// the sign-on template and the app id (REQ-TILE-040, decided 25 Nov).
+	// Since app-link-tile-widget (board LpTegelBewerken) the form starts with
+	// "What does the tile open?" and has no Tile type: a sign-on tile shows
+	// "How it opens" with its sign-on template and app id (REQ-TILE-040).
+	/^How it opens$/,
 	/^Sign-on template$/,
 	/^App id$/,
 	/^Internal address/,
 	/^Open in$/,
 	/^Icon$/,
-	/^Colou?r$/,
+	/^Tile colour$/,
 	/^Sort order in this group$/,
 	/^Check availability$/,
 ]
@@ -235,7 +236,7 @@ test.afterAll(async () => {
 })
 
 // @e2e tiles::edit-the-case-system-tile
-test('Edit tile on Case system shows the fields in board order, with App with single sign-on and New tab chosen', async ({
+test('Edit tile on Case system shows the fields in board order, with its single sign-on and New tab chosen', async ({
 	browser,
 }) => {
 	const { context, page } = await open(browser)
@@ -258,12 +259,11 @@ test('Edit tile on Case system shows the fields in board order, with App with si
 		// Name and Group side by side.
 		expect(Math.abs(boxes[0].y - boxes[1].y)).toBeLessThan(4)
 
-		// Tile type: four choice cards, App with single sign-on chosen.
-		const type = form.getByRole('radiogroup', { name: 'Tile type' })
-		for (const card of ['Web address', 'App with single sign-on', 'Legacy Windows program', 'Program on this computer']) {
-			await expect(type.getByRole('radio', { name: new RegExp(`^${card}`) })).toBeVisible()
-		}
-		await expect(type.getByRole('radio', { name: /^App with single sign-on/ })).toBeChecked()
+		// A link tile that opens through single sign-on: the sign-on template and the app id.
+		await expect(form.getByRole('radiogroup', { name: 'What does the tile open?' })
+			.getByRole('radio', { name: /^A link/ })).toBeChecked()
+		await expect(form.getByRole('combobox', { name: 'Sign-on template' })).toBeVisible()
+		await expect(form.getByRole('textbox', { name: 'App id', exact: true })).not.toHaveValue('')
 
 		// Open in: three choice cards, New tab chosen.
 		const openIn = form.getByRole('radiogroup', { name: 'Open in' })
@@ -282,13 +282,6 @@ test('Edit tile on Case system shows the fields in board order, with App with si
 		expect(cancel.x).toBeLessThan(save.x)
 		expect(Math.abs(del.y - save.y)).toBeLessThan(8)
 
-		// A web-address tile shows Web address and Internal address side by
-		// side (not saved: the form is closed with the page).
-		await type.getByRole('radio', { name: /^Web address/ }).check({ force: true })
-		const web = (await form.getByRole('textbox', { name: 'Web address', exact: true }).boundingBox())!
-		const internal = (await form.getByRole('textbox', { name: 'Internal address (optional)' }).boundingBox())!
-		expect(Math.abs(web.y - internal.y)).toBeLessThan(4)
-		expect(web.x).toBeLessThan(internal.x)
 	} finally {
 		await context.close()
 	}

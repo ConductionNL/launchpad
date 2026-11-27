@@ -156,4 +156,16 @@ describe('CommunitiesWidget', () => {
 		const empty = await mountWidget()
 		expect(empty.find('[data-testid="communities-empty"]').text()).toBe('There are no open communities to join yet.')
 	})
+
+	it('draws its sample communities as a miniature, without Talk and without calling it (REQ-WDG-048)', async () => {
+		const wrapper = mount(CommunitiesWidget, {
+			props: { preview: true, content: { sampleCommunities: [DUURZAAMHEID, VRAAG_ICT] } },
+			global: { provide: { talkEnabled: false, pinnedCommunities: [] }, stubs: { NcButton } },
+		})
+		await flushPromises()
+
+		expect(loadCommunities).not.toHaveBeenCalled()
+		expect(wrapper.find('[data-testid="communities-list"]').exists()).toBe(true)
+		expect(wrapper.text()).toContain('Duurzaamheid')
+	})
 })

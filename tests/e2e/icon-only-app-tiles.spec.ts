@@ -31,7 +31,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { enterEditMode } from './support/dashboardSwitcher.ts'
+import { enterEditMode, saveEditDraft } from './support/dashboardSwitcher.ts'
 
 const API = '/index.php/apps/launchpad/api'
 const ADMIN = {
@@ -132,10 +132,13 @@ test('choosing a swatch in the tile form changes the tile colour', async ({ page
 	await zaak.getByRole('button', { name: 'Tile menu' }).click()
 	await page.getByRole('menuitem', { name: 'Edit tile' }).click()
 
-	await page.getByRole('radio', { name: 'Primary', exact: true }).check()
+	// The form has two "Primary" swatches (tile colour and text colour): pick the tile colour's.
+	await page.locator('input[name="tile-colour"][value="--sc-primary"]').check()
 	await page.getByRole('button', { name: /^save$/i }).click()
 
 	await expect(zaak).toHaveAttribute('style', /--tile-bg-color: var\(--sc-primary/)
+	// The tile form writes the edit-mode draft; Save stores it (REQ-EDIT-002).
+	expect(await saveEditDraft(page)).toBe(200)
 	const placement = await (await api.get(`${API}/widgets/${zaakId}`)).json().catch(() => null)
 	if (placement?.content) {
 		expect(placement.content.colourToken).toBe('--sc-primary')

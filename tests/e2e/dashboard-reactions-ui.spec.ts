@@ -87,7 +87,7 @@ async function pietersDashboard(label: string): Promise<Dashboard> {
 	seeded.push(made)
 	const activate = await pieter!.api.post(`${API}/dashboard/${made.id}/activate`)
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
-	const active = await pieter!.api.post(`${API}/dashboards/active`, {
+	const active = await pieter!.api.post(`${API}/dashboards/default`, {
 		data: { uuid: made.uuid },
 	})
 	expect(active.status(), await active.text()).toBeLessThan(300)

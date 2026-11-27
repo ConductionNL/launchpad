@@ -251,7 +251,7 @@ test.describe('REQ-HDR-006 file id image with ACL validation', () => {
 
 			const readerApi = await contextFor(reader.username, reader.password)
 			try {
-				const active = await readerApi.post(`${API}/dashboards/active`, { data: { uuid: suite.dashboard().uuid } })
+				const active = await readerApi.post(`${API}/dashboards/default`, { data: { uuid: suite.dashboard().uuid } })
 				expect(active.status(), await active.text()).toBeLessThan(300)
 			} finally {
 				await readerApi.dispose()

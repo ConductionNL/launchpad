@@ -876,7 +876,7 @@ test.describe('image widget — a file-mode cell seen by someone who may not rea
 		})
 		expect(share.status(), await share.text()).toBeLessThan(300)
 		// A new account's first request also sets up its home folder, which takes a while.
-		const active = await viewerApi.post(`${API}/dashboards/active`, {
+		const active = await viewerApi.post(`${API}/dashboards/default`, {
 			data: { uuid: dashboard.uuid },
 			timeout: 60_000,
 		})

@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "LaunchPad",
-        "version": "1.1.23-unstable.20261127141959",
+        "version": "1.1.23-unstable.20261127142517",
         "description": "The JSON API of LaunchPad, the dashboard app for Nextcloud: dashboards and their widgets and tiles, kiosk screens, public shares, role-based layouts and permissions, templates and the admin settings behind them.\n\nEvery path is served under `/api/v1/`, the version this document describes. The unversioned `/api/` paths keep working, are deprecated, and name their `/api/v1/` successor in a `Link` header next to a `Deprecation` header. Errors are RFC 9457 problem details (`application/problem+json`), and every response carries an `API-Version` header. Paths that implement an external standard keep the formats of that standard and are not described here.",
         "contact": {
             "name": "Conduction B.V.",
@@ -270,6 +270,10 @@
         {
             "name": "scheduled-export",
             "description": "Scheduled exports over HTTP."
+        },
+        {
+            "name": "screen-link",
+            "description": "Read, create and revoke the screen link of a dashboard."
         },
         {
             "name": "setup",
@@ -4204,6 +4208,13 @@
                                             "null"
                                         ],
                                         "description": "Whether public links may be created."
+                                    },
+                                    "screenLinksAllowed": {
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ],
+                                        "description": "Whether a Sharing tab may make a screen link (REQ-KIOSK-007)."
                                     }
                                 }
                             }
@@ -9132,6 +9143,146 @@
                 }
             }
         },
+        "/dashboards/{uuid}/screen-link": {
+            "get": {
+                "operationId": "screen-link-show",
+                "x-launchpad-stability": "internal",
+                "summary": "The active screen link of the dashboard: 200 with the link, 204 when there is none, 403 for a caller who is neither owner nor admin",
+                "description": "The active screen link of the dashboard: 200 with the link, 204 when there is none, 403 for a caller who is neither owner nor admin. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "screen-link"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The dashboard UUID.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The request succeeded; there is no body.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "screen-link-create",
+                "x-launchpad-stability": "internal",
+                "summary": "Create the screen link, or return the existing one: 201 when made now, 200 when it existed, 403 when the caller may not share the dashboard or screen links are switched off",
+                "description": "Create the screen link, or return the existing one: 201 when made now, 200 when it existed, 403 when the caller may not share the dashboard or screen links are switched off. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "screen-link"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The dashboard UUID.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "The resource was created.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "screen-link-destroy",
+                "x-launchpad-stability": "internal",
+                "summary": "Revoke the screen link: 204, also when there was none; 403 for a caller who is neither owner nor admin",
+                "description": "Revoke the screen link: 204, also when there was none; 403 for a caller who is neither owner nor admin. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "screen-link"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The dashboard UUID.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The request succeeded; there is no body.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            }
+        },
         "/dashboards/{uuid}/translations": {
             "get": {
                 "operationId": "dashboard-translation-api-list",
@@ -11395,6 +11546,9 @@
                             }
                         }
                     },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
@@ -11477,6 +11631,9 @@
                             }
                         }
                     },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
@@ -11518,6 +11675,9 @@
                                 "$ref": "#/components/headers/API-Version"
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"

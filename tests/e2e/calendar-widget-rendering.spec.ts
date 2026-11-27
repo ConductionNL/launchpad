@@ -342,7 +342,7 @@ test.describe('REQ-CAL-010 empty state and feedback', () => {
 			const key = await calendarKey(api, calendar.name)
 			const dash = await createDashboard(api, `E2E Agenda NL ${STAMP}`)
 			expect((await api.post(`${API}/dashboard/${dash.id}/activate`)).status()).toBeLessThan(300)
-			expect((await api.post(`${API}/dashboards/active`, { data: { uuid: dash.uuid } })).status())
+			expect((await api.post(`${API}/dashboards/default`, { data: { uuid: dash.uuid } })).status())
 				.toBeLessThan(300)
 			await placeCalendar(api, dash.id, { internalCalendars: [key], viewMode: 'agenda', daysAhead: 7 })
 

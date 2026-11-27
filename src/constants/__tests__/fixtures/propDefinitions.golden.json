@@ -1804,6 +1804,12 @@
 		"validator": false,
 		"default": null
 	},
+	"../../components/Workspace/config/SharingScreenLink.vue | dashboard": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/Workspace/config/VersionsTab.vue | dashboardUuid": {
 		"type": "String",
 		"required": false,

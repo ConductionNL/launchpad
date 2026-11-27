@@ -99,6 +99,16 @@ const RESOLVE_STATES = {
 		dashboards: rows([0, 3]),
 		activeDashboard: { id: null },
 	},
+	'start dashboard visible': {
+		dashboards: rows([0, 1, 2, 3]),
+		startDashboardUuid: 'g1',
+		activeDashboard: { id: 2 },
+		primaryGroup: 'sales',
+	},
+	'start dashboard gone': {
+		dashboards: rows([0, 3]),
+		startDashboardUuid: 'missing',
+	},
 	'primary group default': {
 		dashboards: rows([0, 1, 2, 4, 5]),
 		primaryGroup: 'sales',

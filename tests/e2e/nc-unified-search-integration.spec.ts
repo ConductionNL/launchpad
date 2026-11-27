@@ -1108,7 +1108,7 @@ test.describe.serial('unified search: search UI (REQ-SRCH-011)', () => {
 		const alice = await account('click')
 		const other = await dashboard(alice, `Other board ${RUN}`)
 		const target = await dashboard(alice, `Marketing Dashboard ${RUN}`)
-		const active = await alice.api.post(`${API}/dashboards/active`, { data: { uuid: other.uuid } })
+		const active = await alice.api.post(`${API}/dashboards/default`, { data: { uuid: other.uuid } })
 		expect(active.status(), await active.text()).toBe(200)
 
 		const provider = await launchpadProvider(alice)

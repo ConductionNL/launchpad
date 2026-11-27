@@ -460,13 +460,21 @@ class PageControllerIndexTest extends TestCase {
 		$this->adminSettings->method('getSettings')->willReturn([]);
 
 		$this->controller()->index();
-		$this->assertSame(expected: ['mayShare' => true, 'publicLinksAllowed' => true], actual: $this->state['sharingPolicy']);
+		$this->assertSame(
+			expected: ['mayShare' => true, 'publicLinksAllowed' => true, 'screenLinksAllowed' => true],
+			actual: $this->state['sharingPolicy']
+		);
 
 		$sharing = $this->createMock(originalClassName: SharingLimits::class);
 		$sharing->method('mayShare')->with('pieter')->willReturn(false);
 		$sharing->method('publicLinksAllowed')->willReturn(false);
+		// REQ-KIOSK-007: the screen link switch rides along.
+		$sharing->method('screenLinksAllowed')->willReturn(false);
 		$this->controller(sharing: $sharing)->index();
-		$this->assertSame(expected: ['mayShare' => false, 'publicLinksAllowed' => false], actual: $this->state['sharingPolicy']);
+		$this->assertSame(
+			expected: ['mayShare' => false, 'publicLinksAllowed' => false, 'screenLinksAllowed' => false],
+			actual: $this->state['sharingPolicy']
+		);
 	}//end testTheWorkspaceCarriesTheSharingPolicy()
 
 	/**

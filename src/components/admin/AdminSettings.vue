@@ -813,7 +813,7 @@ export default {
 		 * Scroll a folded section into view: the former tab an old address
 		 * or link names (REQ-ADM-032).
 		 *
-		 * @param {string} section A key of FOLDED_ADMIN_TABS, or ''.
+		 * @param {string} section A key of FOLDED_ADMIN_TABS, a `section-*` element id, or ''.
 		 * @return {void}
 		 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
 		 */
@@ -822,7 +822,9 @@ export default {
 				return
 			}
 			this.$nextTick(() => {
-				const target = this.$el?.querySelector?.(`[data-admin-section="${section}"]`)
+				// A former tab's section, or an element id a settings link names.
+				const selector = section.startsWith('section-') ? `#${section}` : `[data-admin-section="${section}"]`
+				const target = this.$el?.querySelector?.(selector)
 				if (target && typeof target.scrollIntoView === 'function') {
 					target.scrollIntoView({ block: 'start' })
 				}

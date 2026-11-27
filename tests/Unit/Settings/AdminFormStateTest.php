@@ -5,8 +5,8 @@
  *
  * Pins the administration page's initial state: every group, the configured
  * group order with its legacy fallback, the widgets, the user dashboard
- * switch, the link file extensions and `isAdmin` for the Launchpad shell
- * (REQ-INIT-002, REQ-ADM-030).
+ * switch, the link file extensions, the held tabs and the app version
+ * (REQ-INIT-002, REQ-ADM-032, REQ-ADM-034).
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Settings
@@ -115,7 +115,8 @@ class AdminFormStateTest extends TestCase {
 
 	/**
 	 * The state carries every group, the configured order, the widgets, the
-	 * user-dashboard switch, the file extensions and `isAdmin`.
+	 * user-dashboard switch, the file extensions, the tabs the viewer holds
+	 * and the app version (REQ-ADM-032, REQ-ADM-034).
 	 *
 	 * @return void
 	 */
@@ -128,7 +129,7 @@ class AdminFormStateTest extends TestCase {
 		$this->settingsService->method('getGroupOrder')->willReturn(['staff', 'admin']);
 		$this->settingMapper->expects($this->never())->method('getValue');
 
-		$state->provide();
+		$state->provide(tabs: ['announcements'], version: '1.2.3');
 
 		$schema = $this->provided;
 		$this->assertArrayHasKey(key: InitialStateBuilder::KEY_SCHEMA_VERSION, array: $schema);
@@ -143,7 +144,8 @@ class AdminFormStateTest extends TestCase {
 				'widgets' => [['id' => 'weather']],
 				'allowUserDashboards' => false,
 				'linkCreateFileExtensions' => ['docx', 'md'],
-				'isAdmin' => true,
+				'adminTabs' => ['announcements'],
+				'version' => '1.2.3',
 			],
 			actual: $schema
 		);

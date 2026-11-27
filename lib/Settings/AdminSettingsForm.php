@@ -75,11 +75,22 @@ class AdminSettingsForm {
 			tabs: $tabs,
 			version: $this->appManager->getAppVersion(appId: Application::APP_ID)
 		);
-		Util::addScript(application: Application::APP_ID, file: 'launchpad-settings');
-		Util::addStyle(application: Application::APP_ID, file: 'launchpad');
+		$this->addAssets();
 
 		return new TemplateResponse(appName: Application::APP_ID, templateName: 'settings/admin');
 	}//end render()
+
+	/**
+	 * Load the settings bundle and the app stylesheet.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+	 */
+	protected function addAssets(): void {
+		Util::addScript(application: Application::APP_ID, file: 'launchpad-settings');
+		Util::addStyle(application: Application::APP_ID, file: 'launchpad');
+	}//end addAssets()
 
 	/**
 	 * An empty form: what a second settings class renders when the first

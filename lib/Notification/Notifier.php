@@ -139,7 +139,7 @@ class Notifier implements INotifier {
 	 *
 	 * @return string The URL.
 	 *
-	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
 	 */
 	private function linkFor(INotification $notification): string {
 		if ($notification->getSubject() === 'announcement_published') {

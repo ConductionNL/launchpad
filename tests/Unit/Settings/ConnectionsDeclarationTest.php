@@ -223,7 +223,7 @@ class ConnectionsDeclarationTest extends TestCase {
 	 * A link into a section that does not exist scrolls nowhere and logs
 	 * nothing. A copy of the link itself does not count as the element, and
 	 * neither does an id that only starts with the anchor. The administration
-	 * is the Launchpad page `/apps/launchpad/admin/<tab>` (REQ-ADM-030).
+	 * page is `/settings/admin/launchpad#<tab>/<anchor>` (REQ-ADM-032).
 	 *
 	 * @return void
 	 */
@@ -237,8 +237,8 @@ class ConnectionsDeclarationTest extends TestCase {
 			}
 
 			$url = (string) $connection['settingsUrl'];
-			$this->assertStringStartsWith(prefix: '/apps/launchpad/admin/', string: $url, message: $connection['key']);
-			$anchor = substr($url, ((int) strpos($url, '#') + 1));
+			$this->assertStringStartsWith(prefix: '/settings/admin/launchpad#', string: $url, message: $connection['key']);
+			$anchor = substr($url, ((int) strrpos($url, '/') + 1));
 			$this->assertMatchesRegularExpression(pattern: '/^section-[a-z0-9-]+$/', string: $anchor, message: $connection['key']);
 			$this->assertMatchesRegularExpression(
 				pattern: '/\bid="' . preg_quote($anchor, '/') . '"/',
@@ -256,7 +256,7 @@ class ConnectionsDeclarationTest extends TestCase {
 	 *
 	 * The admin page mounts a tab's content only while that tab is open, so an
 	 * anchor on the Sharing tab does not exist in the page while another tab
-	 * is open. The administration page opens the tab its path names.
+	 * is open. The admin settings page opens the tab its fragment names.
 	 *
 	 * @return void
 	 */
@@ -266,8 +266,8 @@ class ConnectionsDeclarationTest extends TestCase {
 		$sharing  = (string) file_get_contents($this->root() . '/src/components/admin/tabs/SharingTab.vue');
 		$registry = (string) file_get_contents($this->root() . '/src/components/admin/DashboardRegistrySettings.vue');
 
-		$this->assertSame(expected: '/apps/launchpad/admin/sharing#section-dashboard-registry', actual: $url);
-		$this->assertStringContainsString(needle: "id: 'sharing'", haystack: $admin);
+		$this->assertSame(expected: '/settings/admin/launchpad#sharing/section-dashboard-registry', actual: $url);
+		$this->assertStringContainsString(needle: "sharing: this.t('launchpad', 'Sharing')", haystack: $admin);
 		$this->assertStringContainsString(needle: '<template #tab-sharing>', haystack: $admin);
 		$this->assertStringContainsString(needle: '<DashboardRegistrySettings />', haystack: $sharing);
 		$this->assertStringContainsString(needle: 'id="section-dashboard-registry"', haystack: $registry);

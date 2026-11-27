@@ -3,9 +3,10 @@
 /**
  * AdminPageAccessTest
  *
- * Pins who may open the administration page (REQ-ADM-030): a Nextcloud
- * administrator, a user Nextcloud's admin delegation grants the Launchpad
- * settings, and nobody else.
+ * Pins who may open the admin settings page and which tabs (REQ-ADM-034): a
+ * Nextcloud administrator and a user Nextcloud's admin delegation grants the
+ * Launchpad settings hold every tab, a user it grants only the announcements
+ * setting holds Announcements, nobody else holds any.
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Settings
@@ -23,9 +24,10 @@ declare(strict_types=1);
 namespace Unit\Settings;
 
 use OCA\LaunchPad\Settings\AdminPageAccess;
+use OCA\LaunchPad\Settings\AdminTabs;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
+use OCA\LaunchPad\Settings\LaunchPadAnnouncementsAdmin;
 use OCP\IGroupManager;
-use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\IUserSession;
 use OCP\Settings\IManager;
@@ -38,6 +40,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \OCA\LaunchPad\Settings\AdminPageAccess
  * @uses   \OCA\LaunchPad\Settings\LaunchPadAdmin
+ * @uses   \OCA\LaunchPad\Settings\AdminTabs
  */
 class AdminPageAccessTest extends TestCase {
 
@@ -83,7 +86,26 @@ class AdminPageAccessTest extends TestCase {
 		$this->settingsManager->expects($this->never())->method('getAllowedAdminSettings');
 
 		$this->assertTrue(condition: $access->allows());
+		$this->assertSame(expected: AdminTabs::TABS, actual: $access->tabs());
+		$this->assertTrue(condition: $access->allowsAnnouncements());
 	}//end testAnAdministratorIsAllowed()
+
+	/**
+	 * A user the admin delegation grants only the announcements setting holds
+	 * only the Announcements tab, and not the whole page.
+	 *
+	 * @return void
+	 */
+	public function testAnAnnouncementsManagerHoldsOnlyTheAnnouncementsTab(): void {
+		$access = $this->access();
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->settingsManager->method('getAllowedAdminSettings')
+			->willReturn([20 => [$this->createMock(originalClassName: LaunchPadAnnouncementsAdmin::class)]]);
+
+		$this->assertFalse(condition: $access->allows());
+		$this->assertTrue(condition: $access->allowsAnnouncements());
+		$this->assertSame(expected: ['announcements'], actual: $access->tabs());
+	}//end testAnAnnouncementsManagerHoldsOnlyTheAnnouncementsTab()
 
 	/**
 	 * A user the admin delegation grants the Launchpad settings may open it.
@@ -95,9 +117,11 @@ class AdminPageAccessTest extends TestCase {
 		$this->groupManager->method('isAdmin')->willReturn(false);
 		$this->settingsManager->method('getAllowedAdminSettings')
 			->with('launchpad', $this->anything())
-			->willReturn([10 => [new LaunchPadAdmin(urlGenerator: $this->createMock(originalClassName: IURLGenerator::class))]]);
+			->willReturn([10 => [$this->createMock(originalClassName: LaunchPadAdmin::class)]]);
 
 		$this->assertTrue(condition: $access->allows());
+		$this->assertTrue(condition: $access->allowsAnnouncements());
+		$this->assertSame(expected: AdminTabs::TABS, actual: $access->tabs());
 	}//end testADelegatedLaunchpadAdministratorIsAllowed()
 
 	/**
@@ -109,10 +133,10 @@ class AdminPageAccessTest extends TestCase {
 		$access = $this->access();
 		$this->groupManager->method('isAdmin')->willReturn(false);
 		$this->settingsManager->method('getAllowedAdminSettings')
-			->willReturnOnConsecutiveCalls([5 => [$this->createMock(originalClassName: ISettings::class)]], []);
+			->willReturn([5 => [$this->createMock(originalClassName: ISettings::class)]]);
 
 		$this->assertFalse(condition: $access->allows());
-		$this->assertFalse(condition: $access->allows());
+		$this->assertSame(expected: [], actual: $access->tabs());
 	}//end testAnyoneElseIsRefused()
 
 	/**

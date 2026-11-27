@@ -72,17 +72,24 @@ export function adminTab(tab) {
 }
 
 /**
- * The tab and folded section a URL fragment names: `#sharing` opens Sharing,
- * `#embeds` opens General at its Embeds section, an empty or unknown
- * fragment opens General.
+ * The tab and section a URL fragment names: `#sharing` opens Sharing,
+ * `#embeds` opens General at its Embeds section,
+ * `#sharing/section-dashboard-registry` opens Sharing at the element with
+ * that id (a settings link of `lib/Settings/connections.json`), an empty or
+ * unknown fragment opens General.
  *
  * @param {string} [hash] The fragment, with or without its `#`.
  * @return {{tab: string, section: string}} The tab and the section ('' for none).
  * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
  */
 export function parseAdminFragment(hash) {
-	const name = String(hash ?? '').replace(/^#/, '').split('/')[0]
-	const section = Object.hasOwn(FOLDED_ADMIN_TABS, name) ? name : ''
+	const [name, rest = ''] = String(hash ?? '').replace(/^#/, '').split('/')
+	let section = ''
+	if (Object.hasOwn(FOLDED_ADMIN_TABS, name)) {
+		section = name
+	} else if (/^section-[a-z0-9-]+$/.test(rest)) {
+		section = rest
+	}
 	return { tab: adminTab(name), section }
 }
 

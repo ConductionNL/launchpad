@@ -229,6 +229,44 @@ describe('DashboardConfigModal tab split', () => {
 		}
 	})
 
+	// @spec openspec/changes/own-look-fields/specs/dashboards/spec.md#requirement-a-colour-field-shows-its-picker-beside-its-input-req-thm-005
+	it('draws Own look as on the board: a card, labels above, the swatch left of each hex field', () => {
+		const wrapper = mountModal()
+		const look = wrapper.find('[data-test="config-look"]')
+		expect(look.find('.dashboard-config__look-title').text()).toBe('Own look')
+		expect(look.text()).toContain('Only this dashboard gets these colours. The header and the navigation follow the theme.')
+		const grid = look.find('.dashboard-config__look-grid')
+		const fields = grid.findAll('.dashboard-config__look-field')
+		// Accent, background and the background image, side by side.
+		expect(fields).toHaveLength(3)
+		expect(fields[2].attributes('data-testid')).toBe('look-image')
+		for (const [i, name] of [[0, 'Accent color'], [1, 'Background color']]) {
+			const label = fields[i].find('label')
+			expect(label.text()).toBe(name)
+			const row = fields[i].find('.dashboard-config__look-row')
+			const children = row.element.children
+			expect(children[0].getAttribute('type')).toBe('color')
+			expect(label.attributes('for')).toBe(i === 0 ? 'look-accent-input' : 'look-background-input')
+		}
+	})
+
+	// @spec openspec/changes/own-look-fields/specs/dashboards/spec.md#requirement-a-colour-field-shows-its-picker-beside-its-input-req-thm-005
+	it('shows the readable contrast under the fields once an accent is set, and the error when it is too low', async () => {
+		const wrapper = mountModal()
+		expect(wrapper.find('[data-testid="look-contrast-ok"]').exists()).toBe(false)
+		wrapper.vm.look.accent = '#1f5c3a'
+		wrapper.vm.look.background = '#f1f6f2'
+		await wrapper.vm.$nextTick()
+		const ok = wrapper.find('[data-testid="look-contrast-ok"]')
+		expect(ok.exists()).toBe(true)
+		expect(ok.text()).toContain('Contrast of the accent colour on the background')
+		expect(ok.text()).toContain('At least 3 to 1.')
+		wrapper.vm.look.accent = '#f0f0f0'
+		await wrapper.vm.$nextTick()
+		expect(wrapper.find('[data-testid="look-contrast-ok"]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="look-contrast-error"]').exists()).toBe(true)
+	})
+
 	// @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
 	it('shows the instance theme read-only under Display, with no theme choice or layout field', () => {
 		const wrapper = mountModal()

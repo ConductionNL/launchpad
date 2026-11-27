@@ -35,7 +35,7 @@
 ### Task 5: Placeholders in the mounted page
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/widgets/spec.md#requirement-every-widget-shows-its-own-loading-and-error-state-req-wdg-046`
 - **files**: `src/components/LazyMount.vue`, `src/components/WidgetWrapper.vue`, `src/components/WidgetPlaceholder.vue`
-- [ ] `WidgetPlaceholder.vue` draws the kind from `first-paint-kinds.json` with the same markup and classes as the shell
+- [x] `WidgetPlaceholder.vue` draws the kind from `first-paint-kinds.json` with the same markup and classes as the shell (superseded by widget-declared-placeholders task 3: not built; CnWidgetWrapper draws nextcloud-vue's placeholder from `loading` + `placeholder`)
 - [ ] `LazyMount` shows it instead of "Loading…", `aria-busy` on the card, no per-card status; frame token `work-field` while waiting, `work-line` when loaded
 - [ ] Tests: `src/components/__tests__/WidgetPlaceholder.spec.js`, update `WidgetErrorBoundary.spec.js` and `LazyMount` tests for the new waiting state
 

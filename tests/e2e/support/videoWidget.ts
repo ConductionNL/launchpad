@@ -31,7 +31,7 @@
 import type { APIRequestContext, Locator, Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
-import { MORE_MENU } from './dashboardSwitcher.ts'
+import { MORE_MENU, saveEditDraft } from './dashboardSwitcher.ts'
 import { chooseAndAdd } from './widgetPicker.ts'
 
 /** The LaunchPad API root. */
@@ -228,6 +228,8 @@ export async function submitVideoForm(
 	await expect(add).toBeEnabled({ timeout: 5_000 })
 	await add.click()
 	await expect(dialog).not.toBeVisible({ timeout: 10_000 })
+	// Add keeps the widget in the edit-mode draft; Save stores it (REQ-EDIT-002).
+	expect(await saveEditDraft(page)).toBeLessThan(300)
 
 	let created: Placement | undefined
 	await expect.poll(async () => {

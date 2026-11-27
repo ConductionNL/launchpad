@@ -65,9 +65,10 @@ import './services/widgetBridge.js'
 // (platform-baseline REQ-PLB-009).
 import './utils/installPrompt.js'
 import 'gridstack/dist/gridstack.min.css'
-// The library's own stylesheet (board look, widgets, dialogs). Without it
-// the page only had the library CSS another app's bundle happened to load.
-import '@conduction/nextcloud-vue/css/index.css'
+// The library's own stylesheet (board look, widgets, dialogs) is not imported
+// here: the build copies it to css/nextcloud-vue.css and the page links it
+// (PageController::stylesFor), so the browser keeps it parsed between loads
+// instead of this bundle inserting ~1 MB of CSS text on every page load.
 import './styles/workspace.css'
 import './styles/modals.css'
 import './styles/kiosk.css'

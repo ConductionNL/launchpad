@@ -2849,6 +2849,14 @@
         "the own colour": "de eigen kleur",
         "{count} new": "{count} nieuw",
         "{text} on {tile}: contrast {ratio}:1, below WCAG AA (4.5:1). Choose white or a lighter tile colour.": "{text} op {tile}: contrast {ratio}:1, onder WCAG AA (4.5:1). Kies wit of een lichtere tegelkleur.",
-        "{text} on {tile}: contrast {ratio}:1, meets WCAG AA (4.5:1)": "{text} op {tile}: contrast {ratio}:1, voldoet aan WCAG AA (4.5:1)"
+        "{text} on {tile}: contrast {ratio}:1, meets WCAG AA (4.5:1)": "{text} op {tile}: contrast {ratio}:1, voldoet aan WCAG AA (4.5:1)",
+        "Apps from the app menu appear here for each viewer.": "Apps uit het app-menu verschijnen hier voor iedere kijker.",
+        "Filter apps": "Apps filteren",
+        "Apps from the app menu": "Apps uit het app-menu",
+        "Show each viewer the apps of their own app menu": "Toon iedere kijker de apps uit het eigen app-menu",
+        "Pinned first": "Vastgezet bovenaan",
+        "Leave out": "Weglaten",
+        "Most used apps after the pinned ones (0 shows all)": "Meest gebruikte apps na de vastgezette (0 toont alle)",
+        "Show a search field above the apps": "Toon een zoekveld boven de apps"
     }
 }

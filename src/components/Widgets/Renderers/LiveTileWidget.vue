@@ -403,6 +403,8 @@ export default {
 	/** @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048 */
 	mounted() {
 		if (this.preview) {
+			// REQ-WDG-048: a miniature draws its sample state.
+			Object.assign(this.$data, { loading: false, ...(this.content?.sampleData || {}) })
 			return
 		}
 		this.load()

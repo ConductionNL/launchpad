@@ -84,7 +84,9 @@ final class TileModeNode {
 			$type    = self::TILE;
 			$content = $this->appTileContent(content: $content);
 			$changed++;
-		} else if ($type === self::TILE && isset($content['mode']) === false) {
+		}
+
+		if ($type === self::TILE && isset($content['mode']) === false) {
 			$content['mode'] = 'link';
 			$changed++;
 		}
@@ -112,6 +114,23 @@ final class TileModeNode {
 	}//end appTileContent()
 
 	/**
+	 * Convert one nested item: a child (an array with a `type` and a
+	 * `content`) as a node, any other array by walking it.
+	 *
+	 * @param array<mixed> $item The item.
+	 *
+	 * @return array{0: array<mixed>, 1: int} The item and the number of tiles converted.
+	 */
+	private function convertItem(array $item): array {
+		if (is_string($item['type'] ?? null) === false || is_array($item['content'] ?? null) === false) {
+			return $this->convertChildren(value: $item);
+		}
+
+		[$item['type'], $item['content'], $count] = $this->convertNode(type: $item['type'], content: $item['content']);
+		return [$item, $count];
+	}//end convertItem()
+
+	/**
 	 * Walk a content value and convert every child (an array with a `type`
 	 * and a `content`) it holds, at any depth.
 	 *
@@ -126,12 +145,7 @@ final class TileModeNode {
 				continue;
 			}
 
-			if (is_string($item['type'] ?? null) === true && is_array($item['content'] ?? null) === true) {
-				[$item['type'], $item['content'], $count] = $this->convertNode(type: $item['type'], content: $item['content']);
-			} else {
-				[$item, $count] = $this->convertChildren(value: $item);
-			}
-
+			[$item, $count] = $this->convertItem(item: $item);
 			if ($count > 0) {
 				$value[$key] = $item;
 				$changed    += $count;

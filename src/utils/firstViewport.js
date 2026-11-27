@@ -20,7 +20,7 @@ export const GRID_ROW_PITCH = 68
  *
  * @param {number} [viewportHeight] A height in pixels.
  * @return {number} The height.
- * @spec openspec/changes/first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
+ * @spec openspec/changes/archive/2026-11-27-first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
  */
 function screenHeight(viewportHeight) {
 	if (Number.isFinite(viewportHeight)) {
@@ -35,7 +35,7 @@ function screenHeight(viewportHeight) {
  * @param {object} placement The placement (`gridY` in rows).
  * @param {number} [viewportHeight] The screen height in pixels; the window's by default.
  * @return {boolean} True when its top row is on the first screen.
- * @spec openspec/changes/first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
+ * @spec openspec/changes/archive/2026-11-27-first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
  */
 export function inFirstViewport(placement, viewportHeight) {
 	const y = Number(placement ? placement.gridY : NaN)
@@ -48,7 +48,7 @@ export function inFirstViewport(placement, viewportHeight) {
  * @param {object[]} placements The placements.
  * @param {number} [viewportHeight] The screen height in pixels.
  * @return {string[]} The types.
- * @spec openspec/changes/first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
+ * @spec openspec/changes/archive/2026-11-27-first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
  */
 function firstScreenTypes(placements, viewportHeight) {
 	const onScreen = (placements || []).filter((p) => typeof p?.widgetId === 'string' && inFirstViewport(p, viewportHeight))
@@ -60,7 +60,7 @@ function firstScreenTypes(placements, viewportHeight) {
  *
  * @param {object|null} entry A widget type's registry entry.
  * @return {(() => Promise<object>)|null} The loader.
- * @spec openspec/changes/first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
+ * @spec openspec/changes/archive/2026-11-27-first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
  */
 function rendererLoad(entry) {
 	const lazy = entry && entry.renderer && entry.renderer.__cnLazy
@@ -74,7 +74,7 @@ function rendererLoad(entry) {
  * @param {(type: string) => (object|null)} resolveEntry Looks up a widget type's registry entry.
  * @param {number} [viewportHeight] The screen height in pixels.
  * @return {number} How many renderer loads were started (or were already done).
- * @spec openspec/changes/first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
+ * @spec openspec/changes/archive/2026-11-27-first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
  */
 export function preloadFirstViewportRenderers(placements, resolveEntry, viewportHeight) {
 	const loads = firstScreenTypes(placements, viewportHeight).map((type) => rendererLoad(resolveEntry(type))).filter(Boolean)

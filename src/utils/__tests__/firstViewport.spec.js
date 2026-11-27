@@ -5,7 +5,7 @@
  * The widgets on the first screen render in the first pass, with their
  * renderer chunks fetched as soon as the placements are known.
  *
- * @spec openspec/changes/first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
+ * @spec openspec/changes/archive/2026-11-27-first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
  */
 import { describe, expect, it, vi } from 'vitest'
 import { GRID_ROW_PITCH, inFirstViewport, preloadFirstViewportRenderers } from '../firstViewport.js'

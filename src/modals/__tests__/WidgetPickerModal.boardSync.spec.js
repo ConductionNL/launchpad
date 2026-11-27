@@ -71,7 +71,7 @@ describe('WidgetPickerModal as LpWidgetKiezen draws it', () => {
 		const wrapper = mountPicker()
 		expect(wrapper.find('nav.widget-picker__kinds').attributes('aria-label')).toBe('Kinds of widget')
 		expect(wrapper.findAll('.widget-picker__kind').map((node) => `${node.find('.widget-picker__kind-label').text()} ${node.find('.widget-picker__kind-count').text()}`)).toEqual([
-			'All 8', 'Content 2', 'Tiles and links 2', 'People 0', 'Data and charts 2', 'From other apps 1', 'Office 1',
+			'All 8', 'Content 2', 'Tiles and links 2', 'Layout 0', 'People 0', 'Data and charts 2', 'From other apps 1', 'Office 1',
 		])
 		expect(kind(wrapper, 'all').attributes('aria-pressed')).toBe('true')
 	})

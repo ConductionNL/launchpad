@@ -12,8 +12,13 @@
  * picker emits when the card is placed with Add widget, and its argument.
  */
 
-/** The kinds in the column, in board order; `all` holds every card. */
-export const KINDS = Object.freeze(['all', 'content', 'tiles', 'people', 'data', 'apps', 'office'])
+/**
+ * The kinds in the column, in board order; `all` holds every card. Layout
+ * holds the widgets that group other widgets.
+ *
+ * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-kinds-with-counts-req-wdg-041
+ */
+export const KINDS = Object.freeze(['all', 'content', 'tiles', 'layout', 'people', 'data', 'apps', 'office'])
 
 /** The card sections, in board order. */
 export const SECTIONS = Object.freeze(['launchpad', 'tiles', 'apps'])
@@ -29,7 +34,7 @@ const TYPE_KINDS = Object.freeze({
 	tile: 'tiles',
 	links: 'tiles',
 	menu: 'tiles',
-	container: 'tiles',
+	container: 'layout',
 	'app-tiles': 'tiles',
 	'app-tile': 'tiles',
 	livetile: 'tiles',
@@ -77,6 +82,7 @@ export function kindLabel(kind, t) {
 		all: t('launchpad', 'All'),
 		content: t('launchpad', 'Content'),
 		tiles: t('launchpad', 'Tiles and links'),
+		layout: t('launchpad', 'Layout'),
 		people: t('launchpad', 'People'),
 		data: t('launchpad', 'Data and charts'),
 		apps: t('launchpad', 'From other apps'),

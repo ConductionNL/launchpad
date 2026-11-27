@@ -71,8 +71,8 @@ afterEach(() => {
 	vi.restoreAllMocks()
 })
 
-describe('LazyMount shows a loading state until its content mounts', () => {
-	it('shows a busy status in the waiting box', () => {
+describe('LazyMount leaves the waiting state to the card', () => {
+	it('draws no box or status of its own while it waits', () => {
 		vi.spyOn(LazyMountSupport, 'observer').mockReturnValue(SilentObserver)
 		vi.spyOn(LazyMountSupport, 'whenSettled').mockReturnValue(() => {})
 		const wrapper = mount(LazyMount, {
@@ -80,22 +80,21 @@ describe('LazyMount shows a loading state until its content mounts', () => {
 			global,
 		})
 
-		const loading = wrapper.find('[data-testid="widget-loading"]')
-		expect(loading.exists()).toBe(true)
-		expect(loading.attributes('role')).toBe('status')
-		expect(loading.attributes('aria-busy')).toBe('true')
+		expect(wrapper.find('[data-testid="widget-loading"]').exists()).toBe(false)
+		expect(wrapper.find('[role="status"]').exists()).toBe(false)
 		expect(wrapper.find('.content').exists()).toBe(false)
+		expect(wrapper.emitted('shown')).toBeUndefined()
 	})
 
-	it('shows no loading state once mounted', () => {
+	it('says it is shown once mounted', () => {
 		vi.spyOn(LazyMountSupport, 'observer').mockReturnValue(null)
 		const wrapper = mount(LazyMount, {
 			slots: { default: () => h('p', { class: 'content' }, 'content') },
 			global,
 		})
 
-		expect(wrapper.find('[data-testid="widget-loading"]').exists()).toBe(false)
 		expect(wrapper.find('.content').exists()).toBe(true)
+		expect(wrapper.emitted('shown')).toHaveLength(1)
 	})
 })
 

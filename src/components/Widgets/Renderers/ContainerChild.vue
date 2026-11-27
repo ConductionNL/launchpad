@@ -18,12 +18,12 @@
 				:menuLabel="showsTileEdit ? tileMenuLabel : widgetMenuLabel"
 				:editLabel="showsTileEdit ? editTileLabel : ''"
 				:deleteLabel="showsTileEdit ? deleteTileLabel : ''"
-				:hideEdit="!showsTileEdit"
+				:hideEdit="!showsTileEdit && !canConfigure"
 				:showWhoSees="false"
 				:embedHref="embedHref"
 				:embedDisabled="embedHref === ''"
 				:embedAsksFirst="embedAsksFirst"
-				@edit="$emit('editTile')"
+				@edit="edit"
 				@duplicate="duplicate"
 				@embed="openEmbed"
 				@remove="remove" />
@@ -214,6 +214,17 @@ export default {
 			return this.launchpadChildActions?.asksFirst() === true
 		},
 
+		/**
+		 * Whether the widget form can configure this child (a registry
+		 * widget with a form), when it is not a group tile.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		canConfigure() {
+			return childUseKey(this.placement) !== '' && this.launchpadChildActions?.canConfigure?.(this.placement) === true
+		},
+
 		/** @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050 */
 		widgetMenuLabel() {
 			return t('launchpad', 'Widget menu')
@@ -227,6 +238,21 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Edit: a group tile opens the tile form; any other child the widget
+		 * form (REQ-WDG-050 Configure).
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		edit() {
+			if (this.showsTileEdit) {
+				this.$emit('editTile')
+				return
+			}
+			this.launchpadChildActions?.configure(this.owner.id, childUseKey(this.placement))
+		},
+
 		/**
 		 * REQ-WDG-050: Duplicate places a copy after this child, in its list.
 		 *
@@ -282,11 +308,13 @@ export default {
 	position: relative;
 }
 
+/* Above the inner grid's resize handle (GridStack and the dashboard's grid
+   styles draw it at z-index 100-101): on a small child it sits on the menu. */
 .container-child__edit {
 	position: absolute;
 	top: 2px;
 	inset-inline-end: 2px;
-	z-index: 1;
+	z-index: 110;
 	pointer-events: auto;
 }
 

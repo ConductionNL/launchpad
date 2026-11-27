@@ -456,6 +456,12 @@ export function listWidgetTypes() {
 		(t) => dashboardWidgetRegistry[t].form,
 	)
 }
+// The placeholder resolver is a plain module: the real one, so the card and
+// the shared placeholder fixture are tested against the library's own order.
+export {
+	normalizeWidgetPlaceholder,
+	resolveWidgetPlaceholder,
+} from '@conduction/nextcloud-vue/src/utils/resolveWidgetPlaceholder.js'
 export const getWidgetTypeEntry = (type) => dashboardWidgetRegistry[type] || null
 export function getDefaultContent(type) {
 	return {

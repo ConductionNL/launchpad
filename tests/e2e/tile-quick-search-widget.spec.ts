@@ -51,7 +51,7 @@ import type { APIRequestContext, Locator, Page } from '@playwright/test'
 import { expect, request, test } from '@playwright/test'
 import { closeSidebar } from './fixtures/widget-flow.ts'
 import { BASE_URL } from './support/baseUrl.ts'
-import { addWidgetFromMore, enterEditMode, switchToDashboard } from './support/dashboardSwitcher.ts'
+import { addAndSaveDraft, addWidgetFromMore, enterEditMode, saveEditDraft, switchToDashboard } from './support/dashboardSwitcher.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN = {
@@ -968,18 +968,11 @@ test.describe('tile quick-search — widget configuration (REQ-QSEARCH-005)', ()
 
 			await expect(dialog.locator('.search-widget-form')).toBeVisible()
 
-			const created = page.waitForResponse(
-				(r) =>
-					r.request().method() === 'POST'
-					&& r.url().includes(`/api/dashboard/${main.id}/widgets`),
-			)
-			await dialog.locator('[data-testid="add-widget-save"]').click()
-			const response = await created
-			expect(response.status(), await response.text()).toBe(201)
-			const body = await response.json()
-			addedId = Number(body.id ?? body.placement?.id ?? body.data?.id)
+			// Add keeps it in the edit-mode draft; Save stores it (REQ-EDIT-002).
+			const { dashboardId, placement } = await addAndSaveDraft(page, dialog)
+			expect(dashboardId).toBe(main.id)
+			addedId = Number(placement?.id)
 			expect(addedId, 'the new placement id').toBeTruthy()
-			await expect(dialog).not.toBeVisible({ timeout: 10_000 })
 
 			// THEN: the persisted content is the default.
 			const stored = await withApi(async (api) =>
@@ -1028,14 +1021,10 @@ test.describe('tile quick-search — widget configuration (REQ-QSEARCH-005)', ()
 		const dialog = await openSearchWidgetEditor(page, searchId)
 		await dialog.getByLabel('Placeholder text').fill(custom)
 
-		const saved = page.waitForResponse(
-			(r) =>
-				r.request().method() === 'PUT'
-				&& r.url().includes(`/api/widgets/${searchId}`),
-		)
 		await dialog.locator('[data-testid="add-widget-save"]').click()
-		expect((await saved).status()).toBeLessThan(300)
 		await expect(dialog).not.toBeVisible({ timeout: 10_000 })
+		// The edit lands in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 
 		await expect(inputOf(page, searchId)).toHaveAttribute('placeholder', custom)
 
@@ -1061,14 +1050,10 @@ test.describe('tile quick-search — widget configuration (REQ-QSEARCH-005)', ()
 		await chooseFallbackMode(page, dialog, 3)
 		await dialog.getByLabel('Search URL').fill(WIDGET_TEMPLATE)
 
-		const saved = page.waitForResponse(
-			(r) =>
-				r.request().method() === 'PUT'
-				&& r.url().includes(`/api/widgets/${searchId}`),
-		)
 		await dialog.locator('[data-testid="add-widget-save"]').click()
-		expect((await saved).status()).toBeLessThan(300)
 		await expect(dialog).not.toBeVisible({ timeout: 10_000 })
+		// The edit lands in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 
 		// THEN: content.fallbackTarget persists that value.
 		const stored = await withApi(async (api) =>
@@ -1628,16 +1613,12 @@ test.describe('tile quick-search — removing the widget (REQ-QSEARCH-005)', () 
 			await openWorkspace(page, TILES[0], 1)
 			await enterEditMode(page)
 			await openCog(page, searchId)
-			const deleted = page.waitForResponse(
-				(r) =>
-					r.request().method() === 'DELETE'
-					&& r.url().includes(`/api/widgets/${searchId}`),
-			)
 			await page
 				.locator('[data-testid="cn-widget-edit-cog-delete"]')
 				.first()
 				.click()
-			expect((await deleted).status()).toBeLessThan(300)
+			// The removal lands in the edit-mode draft; Save stores it (REQ-EDIT-002).
+			expect(await saveEditDraft(page)).toBeLessThan(300)
 
 			// Re-rendered in place: no bar.
 			await expect(cell(page, searchId)).toHaveCount(0, { timeout: 10_000 })

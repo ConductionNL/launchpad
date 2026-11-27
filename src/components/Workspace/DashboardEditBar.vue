@@ -3,23 +3,31 @@
   - SPDX-License-Identifier: EUPL-1.2
   -
   - DashboardEditBar: the bar over a dashboard in edit mode (board
-  - LpBewerken). It names the dashboard being edited and holds the edit
-  - actions: Columns 6, 8 or 12, Add widget, Dashboard settings and Done.
-  - Its last element is where the page's More menu docks while the bar is
-  - shown (`dock`), so the floating menu never covers Done.
+  - LpBewerken). It names the dashboard being edited and holds the draft
+  - pill, Columns 6, 8 or 12, Add widget, Dashboard settings, Cancel and Save
+  - (REQ-EDIT-001). Its last element is where the page's More menu docks while
+  - the bar is shown (`dock`), so the floating menu never covers Save.
 -->
 <template>
 	<div
 		class="launchpad-edit-bar"
 		role="toolbar"
 		:aria-label="t('launchpad', 'Edit dashboard')"
-		data-testid="launchpad-edit-bar">
+		data-testid="launchpad-edit-bar"
+		@keydown.esc="$emit('leave')">
 		<Pencil :size="20" class="launchpad-edit-bar__icon" />
 		<strong class="launchpad-edit-bar__title">
 			{{ t('launchpad', 'You are editing {name}', { name: dashboardName }) }}
 		</strong>
-		<span class="launchpad-edit-bar__note">
-			{{ t('launchpad', 'Changes are saved immediately') }}
+		<!-- REQ-EDIT-001: the draft pill, "Draft · n changes" or "No changes". -->
+		<span
+			class="launchpad-edit-bar__pill"
+			:class="{ 'launchpad-edit-bar__pill--dirty': changeCount > 0 }"
+			role="status"
+			data-testid="launchpad-edit-bar-draft">
+			{{ changeCount > 0
+				? n('launchpad', 'Draft · {count} change', 'Draft · {count} changes', changeCount, { count: changeCount })
+				: t('launchpad', 'No changes') }}
 		</span>
 		<span class="launchpad-edit-bar__spacer" />
 		<span :id="columnsLabelId" class="launchpad-edit-bar__label">
@@ -63,18 +71,26 @@
 		</button>
 		<button
 			type="button"
-			class="launchpad-edit-bar__button launchpad-edit-bar__button--done"
-			data-testid="launchpad-edit-bar-done"
-			@click="$emit('done')">
+			class="launchpad-edit-bar__button"
+			data-testid="launchpad-edit-bar-cancel"
+			@click="$emit('cancel')">
+			{{ t('launchpad', 'Cancel') }}
+		</button>
+		<button
+			type="button"
+			class="launchpad-edit-bar__button launchpad-edit-bar__button--save"
+			:disabled="changeCount === 0 || saving"
+			data-testid="launchpad-edit-bar-save"
+			@click="$emit('save')">
 			<Check :size="16" />
-			{{ t('launchpad', 'Done') }}
+			{{ t('launchpad', 'Save') }}
 		</button>
 		<div ref="dock" class="launchpad-edit-bar__dock" />
 	</div>
 </template>
 
 <script>
-import { t } from '@nextcloud/l10n'
+import { n, t } from '@nextcloud/l10n'
 import Check from 'vue-material-design-icons/Check.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
@@ -116,9 +132,21 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
+		/** REQ-EDIT-001: the number of changes in the draft. */
+		changeCount: {
+			type: Number,
+			default: 0,
+		},
+
+		/** Whether a Save is under way. */
+		saving: {
+			type: Boolean,
+			default: false,
+		},
 	},
 
-	emits: ['setColumns', 'addWidget', 'openSettings', 'done', 'dock'],
+	emits: ['setColumns', 'addWidget', 'openSettings', 'cancel', 'save', 'leave', 'dock'],
 
 	data() {
 		return {
@@ -137,6 +165,7 @@ export default {
 
 	methods: {
 		t,
+		n,
 	},
 }
 </script>
@@ -166,9 +195,21 @@ export default {
 	font-weight: 600;
 }
 
-.launchpad-edit-bar__note {
-	font-size: 14px;
-	opacity: 0.9;
+.launchpad-edit-bar__pill {
+	display: inline-flex;
+	align-items: center;
+	height: 26px;
+	padding: 0 12px;
+	border-radius: 13px;
+	background: color-mix(in srgb, var(--color-primary-element-text) 16%, transparent);
+	font-size: 13px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.launchpad-edit-bar__pill--dirty {
+	background: var(--color-primary-element-text);
+	color: var(--color-primary-element);
 }
 
 .launchpad-edit-bar__spacer {
@@ -224,7 +265,12 @@ export default {
 	color: var(--color-primary-element-text);
 }
 
-.launchpad-edit-bar__button--done {
+.launchpad-edit-bar__button:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+.launchpad-edit-bar__button--save {
 	padding: 0 16px;
 	border-color: transparent;
 	background: var(--color-primary-element-text);

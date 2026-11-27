@@ -43,6 +43,10 @@ function makeHost() {
 	for (const [name, fn] of Object.entries(Views.methods)) {
 		host[name] = fn.bind(host)
 	}
+	// The mapped draft actions (REQ-EDIT-001), replaced after binding.
+	host.beginDraft = vi.fn()
+	host.discardDraft = vi.fn()
+	host.saveDraft = vi.fn(async () => ({ saved: true }))
 	host.loadDashboards = vi.fn()
 	host.createDashboard = vi.fn()
 	host.switchDashboard = vi.fn()

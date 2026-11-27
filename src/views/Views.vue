@@ -101,6 +101,14 @@
 			@update:open="onDeleteDialog"
 			@confirm="confirmDeleteDashboard" />
 
+		<!-- REQ-EDIT-003/004: Save changes? / Discard changes? (board LpBewerken). -->
+		<EditDraftLeaveDialog
+			v-if="draftPrompt !== null"
+			:open="true"
+			:mode="draftPrompt.mode"
+			:count="draftChangeCount"
+			@choose="draftPrompt.resolve($event)" />
+
 
 
 		<!-- Main dashboard grid -->
@@ -122,10 +130,14 @@
 				:dashboardName="activeDashboard.name || ''"
 				:columns="activeDashboard.gridColumns || 12"
 				:canConfigure="canConfigureActiveDashboard"
+				:changeCount="draftChangeCount"
+				:saving="savingDraft"
 				@setColumns="setGridColumns"
 				@addWidget="openWidgetModal"
 				@openSettings="openConfigModal"
-				@done="toggleEditMode"
+				@cancel="onCancelEdit"
+				@save="onSaveEdit"
+				@leave="toggleEditMode"
 				@dock="editBarDock = $event" />
 			<!-- openregister-leaf-integrations REQ-LEAF-002: the Talk
 			     discussion of a shared or group dashboard; the access chain
@@ -509,6 +521,7 @@ import { embedAdminHref, isOwnedDashboard } from '../utils/dashboardRows.js'
 import { printDashboard } from '../utils/printDashboard.js'
 // The dialogs and modals load the first time they open, not with the page.
 const DeleteDashboardDialog = defineAsyncComponent(() => import('../dialogs/DeleteDashboardDialog.vue'))
+const EditDraftLeaveDialog = defineAsyncComponent(() => import('../dialogs/EditDraftLeaveDialog.vue'))
 const ReadConfirmationDialog = defineAsyncComponent(() => import('../dialogs/ReadConfirmationDialog.vue'))
 const BookmarkImportModal = defineAsyncComponent(() => import('../modals/BookmarkImportModal.vue'))
 
@@ -774,6 +787,7 @@ export default {
 		ActiveFiltersPanel,
 		FilterBreadcrumb,
 		DeleteDashboardDialog,
+		EditDraftLeaveDialog,
 		CoEditorsBanner,
 		EditLockBanner,
 		HiddenWidgetsControl,
@@ -951,6 +965,10 @@ export default {
 			stopKiosk: null,
 			kioskRefresh: null,
 			isEditMode: false,
+			/** REQ-EDIT-003/004: the open leave or cancel question, with its answer callback. */
+			draftPrompt: null,
+			/** REQ-EDIT-002: a Save of the draft is under way. */
+			savingDraft: false,
 			/** The viewport width, for the phone rule (REQ-MRA-007). */
 			viewportWidth: typeof window === 'undefined' ? 0 : window.innerWidth,
 			/** The dialogs and modals opened at least once, which stay mounted from then on. */
@@ -1371,6 +1389,9 @@ export default {
 			// per-placement outstanding predicate for the forced-delivery gate.
 			'outstandingAcknowledgementCount',
 			'isPlacementOutstanding',
+			// edit-mode-draft-and-save REQ-EDIT-001: the draft pill and the leave prompt.
+			'draftChangeCount',
+			'isDraftDirty',
 		]),
 
 		...mapState(useWidgetStore, ['availableWidgets']),
@@ -1909,6 +1930,8 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	mounted() {
+		// REQ-EDIT-003: a reload or closing the tab with unsaved changes warns.
+		window.addEventListener('beforeunload', this.onBeforeUnloadDraft)
 		// first-paint-skeleton D4: without a dashboard there is no grid to
 		// wait for, so the page takes over from any shell at once.
 		if (!this.activeDashboard) {
@@ -1953,6 +1976,7 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	beforeUnmount() {
+		window.removeEventListener('beforeunload', this.onBeforeUnloadDraft)
 		this.stopKiosk?.()
 		clearInterval(this.kioskRefresh)
 		applyCustomCss(DASHBOARD_STYLE_ID, '')
@@ -2175,6 +2199,9 @@ export default {
 			'removeWidgetFromDashboard',
 			'updateWidgetPlacement',
 			'recordViewEvent',
+			'beginDraft',
+			'discardDraft',
+			'saveDraft',
 		]),
 
 		/**
@@ -2494,8 +2521,116 @@ export default {
 				await this.enterEditMode()
 				return
 			}
+			// REQ-EDIT-003: leaving edit mode another way than Save asks first.
+			if (!(await this.confirmLeaveDraft())) {
+				return
+			}
 			this.leaveEditMode()
 			await this.presence.stop()
+		},
+
+		/**
+		 * REQ-EDIT-002: Save stores the draft in one request and leaves edit
+		 * mode; a refused or conflicting save keeps the draft and edit mode.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+		 */
+		async onSaveEdit() {
+			if (this.savingDraft) {
+				return
+			}
+			this.savingDraft = true
+			try {
+				const result = await this.saveDraft()
+				if (!result.saved) {
+					return
+				}
+			} finally {
+				this.savingDraft = false
+			}
+			this.leaveEditMode()
+			await this.presence.stop()
+		},
+
+		/**
+		 * REQ-EDIT-004: Cancel leaves edit mode without storing anything,
+		 * asking "Discard changes?" first when the draft has changes.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-cancel-discards-the-draft-req-edit-004
+		 */
+		async onCancelEdit() {
+			if (this.isDraftDirty && (await this.askDraft('cancel')) !== 'discard') {
+				return
+			}
+			this.discardDraft()
+			this.leaveEditMode()
+			await this.presence.stop()
+		},
+
+		/**
+		 * REQ-EDIT-003: before edit mode or the dashboard is left another way
+		 * than Save or Cancel, ask "Save changes?" when the draft has changes.
+		 * Don't save drops the draft, Save stores it; either goes on. Keep
+		 * editing stays.
+		 *
+		 * @return {Promise<boolean>} Whether to go on leaving.
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+		 */
+		async confirmLeaveDraft() {
+			if (!this.isEditMode || !this.isDraftDirty) {
+				this.discardDraft()
+				return true
+			}
+			const choice = await this.askDraft('leave')
+			if (choice === 'discard') {
+				this.discardDraft()
+				return true
+			}
+			if (choice === 'save') {
+				this.savingDraft = true
+				try {
+					return (await this.saveDraft()).saved
+				} finally {
+					this.savingDraft = false
+				}
+			}
+			return false
+		},
+
+		/**
+		 * Open the leave or cancel question and wait for the answer.
+		 *
+		 * @param {'leave'|'cancel'} mode Which question.
+		 * @return {Promise<'discard'|'keep'|'save'>}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+		 */
+		askDraft(mode) {
+			return new Promise((resolve) => {
+				this.draftPrompt = {
+					mode,
+					resolve: (choice) => {
+						this.draftPrompt = null
+						resolve(choice)
+					},
+				}
+			})
+		},
+
+		/**
+		 * REQ-EDIT-003: the browser's own leave warning while the draft has
+		 * changes.
+		 *
+		 * @param {BeforeUnloadEvent} event The event.
+		 * @return {void}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+		 */
+		onBeforeUnloadDraft(event) {
+			if (this.isEditMode && this.isDraftDirty) {
+				event.preventDefault()
+				event.returnValue = ''
+			}
 		},
 
 		/**
@@ -2520,6 +2655,8 @@ export default {
 			}
 			const allowed = await this.presence.start(String(uuid))
 			if (allowed) {
+				// REQ-EDIT-001: changes from here on go into a draft.
+				this.beginDraft()
 				this.isEditMode = true
 			}
 			return allowed
@@ -2532,6 +2669,8 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		leaveEditMode() {
+			// A draft left by any other way (edit rights gone) is dropped.
+			this.discardDraft()
 			this.isEditMode = false
 			this.closeWidgetModal()
 			this.closeStyleEditor()
@@ -3872,6 +4011,10 @@ export default {
 			// signature is kept explicit so per-source behaviour can land
 			// without re-touching this view (and so the load-bearing
 			// REQ-SWITCH-002 contract is visible at the call site).
+			// REQ-EDIT-003: switching with unsaved changes asks first.
+			if (!(await this.confirmLeaveDraft())) {
+				return
+			}
 			await this.dropEditLock()
 			await this.switchDashboard(id)
 		},

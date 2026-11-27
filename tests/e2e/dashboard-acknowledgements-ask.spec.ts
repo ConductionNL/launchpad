@@ -107,15 +107,20 @@ test('Sanne asks for a read confirmation from the widget menu and Pieter sees th
 		await dialog.getByText('Ask readers to confirm they have read this').click()
 		await dialog.getByLabel('What readers confirm').fill(SENTENCE)
 
+		await dialog.getByRole('button', { name: 'Save' }).click()
+		await expect(dialog).toBeHidden({ timeout: 10_000 })
+		// REQ-EDIT-002: the read confirmation is in the draft; Save stores it.
 		const saved = page.waitForResponse(
 			(r) =>
-				new URL(r.url()).pathname.endsWith(`/api/widgets/${placementId}`)
+				/\/api\/dashboard\/\d+$/.test(new URL(r.url()).pathname)
 				&& r.request().method() === 'PUT',
 		)
-		await dialog.getByRole('button', { name: 'Save' }).click()
+		await page.getByTestId('launchpad-edit-bar-save').click()
 		const response = await saved
 		expect(response.status(), await response.text()).toBe(200)
-		expect(JSON.parse(response.request().postData() ?? '{}')).toMatchObject({
+		const sent = (JSON.parse(response.request().postData() ?? '{}').placements ?? [])
+			.find((p: { id?: number }) => Number(p.id) === placementId)
+		expect(sent).toMatchObject({
 			requiresAcknowledgement: 1,
 			acknowledgementPrompt: SENTENCE,
 		})

@@ -18,6 +18,7 @@ import type {
 	Browser,
 	BrowserContext,
 	Page,
+	Response,
 } from '@playwright/test'
 import type { RoleFeaturePermissionRow } from '../fixtures/role-feature-permissions.ts'
 import type { Principal } from './principals.ts'
@@ -307,17 +308,34 @@ export async function openOwnDashboard(
 }
 
 /**
- * Wait for the next layout save of a dashboard (`PUT /api/dashboard/{id}`).
+ * The next layout save of a dashboard (`PUT /api/dashboard/{id}`). In edit
+ * mode a layout change goes into the draft (REQ-EDIT-001), so awaiting this
+ * chooses Save in the edit bar first, when it is there and enabled, and then
+ * waits for that one request (REQ-EDIT-002). Call it before the change and
+ * await it after, as before.
  *
  * @param page The page.
  * @param dashboardId The dashboard.
- * @return The response, once it arrives.
+ * @return A promise-like for the response, once it arrives.
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
-export function nextLayoutSave(page: Page, dashboardId: number) {
-	return page.waitForResponse(
-		(res) =>
-			res.request().method() === 'PUT'
-			&& new RegExp(`/api/dashboard/${dashboardId}(\\?|$)`).test(res.url()),
-		{ timeout: 15_000 },
-	)
+export function nextLayoutSave(page: Page, dashboardId: number): PromiseLike<Response> {
+	const run = async (): Promise<Response> => {
+		const response = page.waitForResponse(
+			(res) =>
+				res.request().method() === 'PUT'
+				&& new RegExp(`/api/dashboard/${dashboardId}(\\?|$)`).test(res.url()),
+			{ timeout: 15_000 },
+		)
+		const sidebarClose = page.locator('.dashboard-switcher-sidebar.open .dashboard-switcher-sidebar__close').first()
+		if (await sidebarClose.isVisible().catch(() => false)) {
+			await sidebarClose.click()
+		}
+		const save = page.locator('[data-testid="launchpad-edit-bar-save"]')
+		if (await save.isVisible() && await save.isEnabled()) {
+			await save.click()
+		}
+		return response
+	}
+	return { then: (resolve, reject) => run().then(resolve, reject) }
 }

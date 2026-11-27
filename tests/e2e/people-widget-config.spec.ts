@@ -28,14 +28,14 @@
  * @spec openspec/specs/people-widget/spec.md
  */
 
-import type { APIRequestContext, Locator, Page, Response } from '@playwright/test'
+import type { APIRequestContext, Locator, Page } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'
 import type { Person } from './support/peopleWidget.ts'
 
 import { expect, test } from '@playwright/test'
 import { closeSidebar, gotoLaunchPad, openAddWidgetModal } from './fixtures/widget-flow.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
-import { enterEditMode } from './support/dashboardSwitcher.ts'
+import { addAndSaveDraft, enterEditMode } from './support/dashboardSwitcher.ts'
 import {
 	groupFilter,
 	peopleWidget,
@@ -114,37 +114,27 @@ async function pick(page: Page, select: Locator, option: RegExp): Promise<void> 
 }
 
 /**
- * Submit the modal and return the add request's response.
+ * Submit the modal and Save the edit-mode draft (REQ-EDIT-001/002): the new
+ * widget is created by that Save.
  *
  * @param page the page.
  * @param dialog the dialog.
- * @return the response to the placement POST.
+ * @return the dashboard id and the new placement's id.
  */
-async function submitAdd(page: Page, dialog: Locator): Promise<Response> {
-	const added = page.waitForResponse(
-		(res) => res.request().method() === 'POST' && ADD_REQUEST.test(res.url()),
-		{ timeout: 20_000 },
-	)
-	const addBtn = dialog.getByRole('button', { name: /^add$/i })
-	await expect(addBtn).toBeEnabled({ timeout: 5_000 })
-	await addBtn.click()
-	const response = await added
-	expect(response.status(), await response.text()).toBeLessThan(300)
-	await expect(dialog).not.toBeVisible({ timeout: 10_000 })
-	return response
+async function submitAdd(page: Page, dialog: Locator): Promise<{ dashboardId: number, placementId: number }> {
+	const { dashboardId, placement } = await addAndSaveDraft(page, dialog)
+	return { dashboardId, placementId: Number(placement.id) }
 }
 
 /**
  * Read a placement back from the server.
  *
- * @param response the add request's response.
+ * @param added the dashboard id and placement id of the new widget.
  * @return the dashboard id and the placement as the server keeps it.
  */
-async function readBack(response: Response): Promise<{ dashboardId: number, placement: Record<string, unknown> }> {
-	const dashboardId = Number(ADD_REQUEST.exec(response.url())![1])
-	const created = await response.json()
-	const placementId = Number(created.id ?? created.data?.id ?? created.placement?.id)
-	expect(placementId, JSON.stringify(created)).toBeTruthy()
+async function readBack(added: { dashboardId: number, placementId: number }): Promise<{ dashboardId: number, placement: Record<string, unknown> }> {
+	const { dashboardId, placementId } = added
+	expect(placementId).toBeTruthy()
 
 	const res = await admin.get(`${API}/dashboard/${dashboardId}`)
 	expect(res.status(), await res.text()).toBe(200)

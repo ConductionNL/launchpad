@@ -47,7 +47,13 @@ import { expect, test } from '@playwright/test'
 import { createServer } from 'node:http'
 import { enterEditMode } from './support/dashboardSwitcher.ts'
 import { setLanguage } from './support/orWidget.ts'
-import { openOwnDashboard, readPlacements, setUpOwnDashboard, tearDownOwnDashboard } from './support/ownDashboard.ts'
+import {
+	nextLayoutSave,
+	openOwnDashboard,
+	readPlacements,
+	setUpOwnDashboard,
+	tearDownOwnDashboard,
+} from './support/ownDashboard.ts'
 import { adminContext, API } from './support/principals.ts'
 
 const STAMP = `${Date.now()}`
@@ -155,6 +161,8 @@ test('ticking Word, Excel and Outlook web makes Save read "Add 3 tiles", and it 
 		await expect(add).toBeEnabled()
 		await add.click()
 		await expect(chooser).toBeHidden({ timeout: 15_000 })
+		// REQ-EDIT-002: the three tiles are in the draft; Save stores them.
+		expect((await nextLayoutSave(page, own.id)).status()).toBe(200)
 
 		await expect.poll(async () => (await readPlacements(own.owner.api, own.id)).length, { timeout: 15_000 })
 			.toBe(before.length + 3)

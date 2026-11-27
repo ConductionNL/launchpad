@@ -183,6 +183,26 @@ class PlacementServiceBookmarkImportTest extends TestCase {
 	}//end testAnImportLargerThanTheRoomLeftCreatesNothing()
 
 	/**
+	 * For an edit-mode draft the quota is checked for the whole import and
+	 * nothing is written (edit-mode-draft-and-save).
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 *
+	 * @return void
+	 */
+	public function testADraftImportChecksTheQuotaAndWritesNothing(): void {
+		$this->withWidgetLimit(limit: 20);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->placementMapper->method('countByDashboardId')->willReturnOnConsecutiveCalls(17, 18);
+		$this->placementMapper->expects(self::never())->method('insert');
+		$this->db->expects(self::never())->method('beginTransaction');
+
+		$this->service->assertImportFits(dashboardId: 7, plan: self::plan());
+		$this->expectException(exception: QuotaExceededException::class);
+		$this->service->assertImportFits(dashboardId: 7, plan: self::plan());
+	}//end testADraftImportChecksTheQuotaAndWritesNothing()
+
+	/**
 	 * A write failing halfway rolls the transaction back and rethrows.
 	 *
 	 * @return void

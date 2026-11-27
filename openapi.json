@@ -6630,6 +6630,10 @@
                                     },
                                     "bookmarks": {
                                         "type": "array"
+                                    },
+                                    "draft": {},
+                                    "bottom": {
+                                        "type": "integer"
                                     }
                                 }
                             }

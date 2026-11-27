@@ -744,6 +744,12 @@
 		},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/CommunitiesWidget.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Widgets/Renderers/CommunitiesWidget.vue | content": {
 		"type": "Object",
 		"required": false,

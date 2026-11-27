@@ -71,7 +71,7 @@ describe('WidgetPickerModal as LpWidgetKiezen draws it', () => {
 		const wrapper = mountPicker()
 		expect(wrapper.find('nav.widget-picker__kinds').attributes('aria-label')).toBe('Kinds of widget')
 		expect(wrapper.findAll('.widget-picker__kind').map((node) => `${node.find('.widget-picker__kind-label').text()} ${node.find('.widget-picker__kind-count').text()}`)).toEqual([
-			'All 8', 'Content 2', 'Tiles and links 2', 'Layout 0', 'People 0', 'Data and charts 2', 'From other apps 1', 'Office 1',
+			'All 6', 'Content 2', 'Tiles and links 0', 'Layout 0', 'People 0', 'Data and charts 2', 'From other apps 1', 'Office 1',
 		])
 		expect(kind(wrapper, 'all').attributes('aria-pressed')).toBe('true')
 	})
@@ -111,9 +111,8 @@ describe('WidgetPickerModal as LpWidgetKiezen draws it', () => {
 
 	it('places a card on a double click', async () => {
 		const wrapper = mountPicker()
-		await wrapper.find('[data-testid="widget-picker-catalogue-z1"]').trigger('dblclick')
-		expect(wrapper.emitted('addCatalogueApp')[0][0]).toMatchObject({ uuid: 'z1' })
-		expect(wrapper.emitted('close')).toHaveLength(1)
+		await wrapper.find('[data-testid="widget-picker-type-clock"]').trigger('dblclick')
+		expect(wrapper.emitted('addCustom')[0]).toEqual(['clock'])
 	})
 
 	it('forgets a choice the search hides', async () => {
@@ -144,13 +143,11 @@ describe('WidgetPickerModal as LpWidgetKiezen draws it', () => {
 		expect(card.text()).toContain('A widget from another Nextcloud app.')
 	})
 
-	it('draws an app tile in its colour and ends the App tiles with Own tile', () => {
+	// app-link-tile-widget REQ-WDG-042 removed: no App tiles section, no Own tile.
+	it('has no App tiles section and no Own tile', () => {
 		const wrapper = mountPicker()
-		const section = wrapper.find('[data-testid="widget-picker-section-tiles"]')
-		const cards = section.findAll('.widget-picker__widget')
-		expect(cards.map((card) => card.find('.widget-picker__widget-title').text())).toEqual(['Case system', 'Own tile'])
-		expect(cards[0].find('.widget-picker__tile-swatch').attributes('style')).toContain('--widget-picker-tile-colour')
-		expect(cards[1].find('.widget-picker__tile-swatch--own').exists()).toBe(true)
+		expect(wrapper.find('[data-testid="widget-picker-section-tiles"]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="widget-picker-custom-tile"]').exists()).toBe(false)
 	})
 
 	it('starts again on All with no choice after it closes', async () => {

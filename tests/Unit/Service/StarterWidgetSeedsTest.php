@@ -36,7 +36,7 @@ class StarterWidgetSeedsTest extends TestCase {
 	private static function tileApps(array $seeds): array {
 		$apps = [];
 		foreach ($seeds as $seed) {
-			if ($seed['widgetId'] === 'app-tile') {
+			if ($seed['widgetId'] === 'tile' && ($seed['content']['mode'] ?? null) === 'app') {
 				$apps[] = $seed['content']['appId'];
 			}
 		}

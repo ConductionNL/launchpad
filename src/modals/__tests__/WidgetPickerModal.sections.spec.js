@@ -58,21 +58,19 @@ function mountPicker(props = {}) {
 }
 
 describe('WidgetPickerModal sections', () => {
-	it('shows the Launchpad widgets, the App tiles and the other apps\' widgets, in that order', () => {
+	it('shows the Launchpad widgets and the other apps\' widgets, in that order, without App tiles', () => {
 		const wrapper = mountPicker()
 		const ids = wrapper
 			.findAll('section[data-testid^="widget-picker-section-"]')
 			.map((section) => section.attributes('data-testid'))
 
+		// app-link-tile-widget REQ-WDG-042 removed: the apps are in the tile form.
 		expect(ids).toEqual([
 			'widget-picker-section-launchpad',
-			'widget-picker-section-tiles',
 			'widget-picker-section-apps',
 		])
-		expect(wrapper.findAll('section h3').map((h) => h.text())).toEqual(['Widgets from Launchpad', 'App tiles', 'From other Nextcloud apps'])
+		expect(wrapper.findAll('section h3').map((h) => h.text())).toEqual(['Widgets from Launchpad', 'From other Nextcloud apps'])
 		expect(wrapper.find('[data-testid="widget-picker-section-launchpad"] [data-testid="widget-picker-office-pack"]').exists()).toBe(true)
-		expect(wrapper.find('[data-testid="widget-picker-section-tiles"]').text()).toContain('Mail')
-		expect(wrapper.find('[data-testid="widget-picker-section-tiles"]').text()).toContain('Files')
 		expect(wrapper.find('[data-testid="widget-picker-section-apps"]').text()).toContain('Notes')
 		expect(wrapper.find('.nc-empty').exists()).toBe(false)
 	})
@@ -80,13 +78,10 @@ describe('WidgetPickerModal sections', () => {
 	it('places what each section offers through its own event', async () => {
 		const wrapper = mountPicker()
 
-		await place(wrapper, wrapper.find('[data-testid="widget-picker-catalogue-c-1"]'))
 		await place(wrapper, wrapper.find('[data-testid="widget-picker-office-pack"]'))
-		await place(wrapper, wrapper.find('[data-testid="widget-picker-app-tile-files"]'))
 
-		expect(wrapper.emitted('addCatalogueApp')).toEqual([[MAIL]])
 		expect(wrapper.emitted('addOfficePack')).toHaveLength(1)
-		expect(wrapper.emitted('addApp')).toEqual([[FILES]])
+		expect(wrapper.find('[data-testid="widget-picker-app-tile-files"]').exists()).toBe(false)
 	})
 
 	it('lists each Launchpad type and asks for its form when one is picked', async () => {

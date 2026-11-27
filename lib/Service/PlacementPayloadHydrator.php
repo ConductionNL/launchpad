@@ -118,6 +118,8 @@ class PlacementPayloadHydrator {
 
 		$this->applyTile(placement: $placement, payload: $payload);
 		$this->applyBlobs(placement: $placement, payload: $payload);
+		// REQ-APPTILE-006: an app tile in an import file arrives as an App or link tile.
+		(new TileModeNode())->convertPlacement(placement: $placement);
 
 		return $placement;
 	}//end hydrate()

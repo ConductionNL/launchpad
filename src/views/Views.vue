@@ -524,7 +524,7 @@ import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import InstallBanner from '../components/Workspace/InstallBanner.vue'
 import PhoneHiddenNotice from '../components/Workspace/PhoneHiddenNotice.vue'
-import { childSubjectId, duplicateChildIn, removeChildIn } from '../utils/containerChildren.js'
+import { childSubjectId, duplicateChildIn, findChildIn, patchChildIn, removeChildIn } from '../utils/containerChildren.js'
 import { embedAdminHref, isOwnedDashboard } from '../utils/dashboardRows.js'
 import { isDraftPlacement } from '../utils/editDraft.js'
 import { printDashboard } from '../utils/printDashboard.js'
@@ -866,6 +866,8 @@ export default {
 				openEmbed: (href) => this.openEmbedAfterDraft(href),
 				duplicate: (ownerId, key) => this.changeChild(ownerId, key, duplicateChildIn),
 				remove: (ownerId, key) => this.changeChild(ownerId, key, removeChildIn),
+				canConfigure: (child) => this.resolveWidgetType({ widgetId: child?.type }) !== null,
+				configure: (ownerId, key) => this.configureChild(ownerId, key),
 			},
 		}
 	},
@@ -3130,7 +3132,7 @@ export default {
 		 * form opens inside Add widget; a list that fails stays empty.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
 		 */
 		async loadTileFormLists() {
 			await Promise.all([
@@ -3147,7 +3149,7 @@ export default {
 		 *
 		 * @param {object} tileData The form's result.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
 		 */
 		async saveTileFromPicker(tileData) {
 			this.editingTile = null
@@ -3162,7 +3164,7 @@ export default {
 		 *
 		 * @param {{choices: Array<object>, appearance: object}} result The ticked apps and the appearance.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
 		 */
 		async addAppsFromPicker(result) {
 			if (await this.addAppsFromForm(result)) {
@@ -3329,6 +3331,10 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async saveCustomWidget(payload) {
+			if (this.customWidgetEditing?.childOf) {
+				await this.saveChildWidget(this.customWidgetEditing.childOf, payload)
+				return
+			}
 			try {
 				const chrome = payload.chrome || {}
 				if (this.customWidgetEditing?.id) {
@@ -3545,6 +3551,40 @@ export default {
 				return
 			}
 			await store.updateWidgetPlacement(owner.id, { content })
+		},
+
+		/**
+		 * REQ-WDG-050: Configure in the edit menu of a widget inside a well or
+		 * tabs widget opens the widget form with the child's content and look.
+		 *
+		 * @param {number|string} ownerId The widget on the dashboard that holds the child.
+		 * @param {string} key The child's key.
+		 * @return {void}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		configureChild(ownerId, key) {
+			const owner = useDashboardStore().widgetPlacements.find((p) => String(p.id) === String(ownerId))
+			const child = owner ? findChildIn(owner.content, key) : null
+			const type = this.resolveWidgetType({ widgetId: child?.type })
+			if (type === null) {
+				return
+			}
+			this.openCustomWidgetEdit({ ...child, id: undefined, widgetId: type, type, childOf: { ownerId: owner.id, key } })
+		},
+
+		/**
+		 * REQ-WDG-050: the widget form saved a child: its content and look go
+		 * back into the holding widget's content, in the draft.
+		 *
+		 * @param {{ownerId: (number|string), key: string}} childOf The child.
+		 * @param {{content: object, chrome?: object}} payload What the form saved.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		async saveChildWidget(childOf, payload) {
+			const patch = { content: payload.content, ...this.chromePatch(payload.chrome || {}, this.customWidgetEditing?.styleConfig) }
+			await this.changeChild(childOf.ownerId, childOf.key, (content, key) => patchChildIn(content, { key, patch }))
+			this.closeCustomWidgetModal()
 		},
 
 		/**

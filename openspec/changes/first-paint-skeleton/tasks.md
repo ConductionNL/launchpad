@@ -50,9 +50,9 @@
 ### Task 7: The status line
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-loading-state-is-calm-and-accessible-req-fps-005`
 - **files**: `src/utils/firstPaintStatus.js`, `src/views/Views.vue`, `l10n/`
-- [ ] Take over the server's `role=status` node; count the first-screen widgets still waiting; at most one text change per 2 seconds; "All widgets loaded" once when the last is there, then empty
-- [ ] Strings "Loading widgets", "Still loading %n widget" / "Still loading %n widgets", "All widgets loaded", "The page could not load" and "Reload" in every shipped locale (nl: "Widgets worden geladen", "Nog %n widget wordt geladen" / "Nog %n widgets worden geladen", "Alle widgets geladen", "De pagina kon niet worden geladen", "Opnieuw laden"), used by both PHP and JS
-- [ ] Tests: `src/utils/__tests__/firstPaintStatus.spec.js` (same node, countdown, throttle, empties; below-fold widgets not counted)
+- [x] Take over the server's `role=status` node; count the first-screen widgets still waiting; at most one text change per 2 seconds; "All widgets loaded" once when the last is there, then empty (help-launchpad-2: `src/utils/firstPaintStatus.js`; Views.vue moves the shell's node into a slot beside More before the hand-over, so it is the same element; a waiting widget is a first-screen grid item with `aria-busy="true"` inside, counted from the hand-over on)
+- [x] Strings "Loading widgets", "Still loading %n widget" / "Still loading %n widgets", "All widgets loaded", "The page could not load" and "Reload" in every shipped locale (nl: "Widgets worden geladen", "Nog %n widget wordt geladen" / "Nog %n widgets worden geladen", "Alle widgets geladen", "De pagina kon niet worden geladen", "Opnieuw laden"), used by both PHP and JS (help-launchpad-2: all 37 shipped locales, .json and .js, plural forms per locale rule; "Reload" already in every locale)
+- [x] Tests: `src/utils/__tests__/firstPaintStatus.spec.js` (same node, countdown, throttle, empties; below-fold widgets not counted) (help-launchpad-2: 7 tests)
 
 ### Task 8: End-to-end
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md`

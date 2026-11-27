@@ -1,5 +1,9 @@
 {
     "translations": {
+        "Loading widgets": "Widget'lar yükleniyor",
+        "All widgets loaded": "Tüm widget'lar yüklendi",
+        "The page could not load": "Sayfa yüklenemedi",
+        "_Still loading %n widget_::_Still loading %n widgets_": ["%n widget hâlâ yükleniyor", "%n widget hâlâ yükleniyor"],
         "Save your changes first to choose who sees this new widget.": "Bu yeni pencere öğesini kimin göreceğini seçmek için önce değişikliklerinizi kaydedin.",
         "No changes": "Değişiklik yok",
         "Keep editing": "Düzenlemeye devam et",

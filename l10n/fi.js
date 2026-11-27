@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Loading widgets" : "Ladataan pienoisohjelmia",
+    "All widgets loaded" : "Kaikki pienoisohjelmat ladattu",
+    "The page could not load" : "Sivua ei voitu ladata",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Ladataan vielä %n pienoisohjelma", "Ladataan vielä %n pienoisohjelmaa"],
     "Save your changes first to choose who sees this new widget." : "Tallenna muutokset ensin, jotta voit valita, kuka näkee tämän uuden pienoisohjelman.",
     "No changes" : "Ei muutoksia",
     "Keep editing" : "Jatka muokkausta",

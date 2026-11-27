@@ -1,5 +1,9 @@
 {
     "translations": {
+        "Loading widgets": "Загрузка віджэтаў",
+        "All widgets loaded": "Усе віджэты загружаны",
+        "The page could not load": "Не ўдалося загрузіць старонку",
+        "_Still loading %n widget_::_Still loading %n widgets_": ["Яшчэ загружаецца %n віджэт", "Яшчэ загружаюцца %n віджэты", "Яшчэ загружаецца %n віджэтаў"],
         "Save your changes first to choose who sees this new widget.": "Спачатку захавайце змены, каб выбраць, хто бачыць гэты новы віджэт.",
         "No changes": "Няма змен",
         "Keep editing": "Працягваць рэдагаванне",

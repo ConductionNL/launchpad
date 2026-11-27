@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Loading widgets" : "Widgets werden geladen",
+    "All widgets loaded" : "Alle Widgets geladen",
+    "The page could not load" : "Die Seite konnte nicht geladen werden",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Noch %n Widget wird geladen", "Noch %n Widgets werden geladen"],
     "Save your changes first to choose who sees this new widget." : "Speichern Sie zuerst Ihre Änderungen, um festzulegen, wer dieses neue Widget sieht.",
     "No changes" : "Keine Änderungen",
     "Keep editing" : "Weiter bearbeiten",

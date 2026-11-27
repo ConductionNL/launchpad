@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Loading widgets" : "Načítání widgetů",
+    "All widgets loaded" : "Všechny widgety načteny",
+    "The page could not load" : "Stránku se nepodařilo načíst",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Stále se načítá %n widget", "Stále se načítají %n widgety", "Stále se načítá %n widgetů"],
     "Save your changes first to choose who sees this new widget." : "Nejprve uložte změny, abyste mohli zvolit, kdo uvidí tento nový widget.",
     "No changes" : "Žádné změny",
     "Keep editing" : "Pokračovat v úpravách",

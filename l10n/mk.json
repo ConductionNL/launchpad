@@ -1,5 +1,9 @@
 {
     "translations": {
+        "Loading widgets": "Се вчитуваат виџети",
+        "All widgets loaded": "Сите виџети се вчитани",
+        "The page could not load": "Страницата не можеше да се вчита",
+        "_Still loading %n widget_::_Still loading %n widgets_": ["Уште се вчитува %n виџет", "Уште се вчитуваат %n виџети"],
         "Save your changes first to choose who sees this new widget.": "Прво зачувајте ги промените за да изберете кој го гледа овој нов графички елемент.",
         "No changes": "Нема промени",
         "Keep editing": "Продолжи со уредување",

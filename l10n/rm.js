@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Loading widgets" : "Chargiar widgets",
+    "All widgets loaded" : "Tut ils widgets chargiads",
+    "The page could not load" : "La pagina n'ha betg pudì vegnir chargiada",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Anc %n widget vegn chargià", "Anc %n widgets vegnan chargiads"],
     "Save your changes first to choose who sees this new widget." : "Memorisescha l'emprim tias midadas per tscherner tgi che vesa quest nov widget.",
     "No changes" : "Naginas midadas",
     "Keep editing" : "Cuntinuar a modifitgar",

@@ -1,5 +1,9 @@
 {
     "translations": {
+        "Loading widgets": "Nalaganje gradnikov",
+        "All widgets loaded": "Vsi gradniki so naloženi",
+        "The page could not load": "Strani ni bilo mogoče naložiti",
+        "_Still loading %n widget_::_Still loading %n widgets_": ["Nalaga se še %n gradnik", "Nalagata se še %n gradnika", "Nalagajo se še %n gradniki", "Nalaga se še %n gradnikov"],
         "Save your changes first to choose who sees this new widget.": "Najprej shranite spremembe, da izberete, kdo vidi ta novi gradnik.",
         "No changes": "Ni sprememb",
         "Keep editing": "Nadaljuj urejanje",

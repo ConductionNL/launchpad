@@ -1,5 +1,9 @@
 {
     "translations": {
+        "Loading widgets": "Laster inn widgeter",
+        "All widgets loaded": "Alle widgeter er lastet inn",
+        "The page could not load": "Siden kunne ikke lastes inn",
+        "_Still loading %n widget_::_Still loading %n widgets_": ["Laster fortsatt inn %n widget", "Laster fortsatt inn %n widgeter"],
         "Save your changes first to choose who sees this new widget.": "Lagre endringene først for å velge hvem som ser denne nye modulen.",
         "No changes": "Ingen endringer",
         "Keep editing": "Fortsett redigering",

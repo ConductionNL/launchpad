@@ -1,5 +1,9 @@
 {
     "translations": {
+        "Loading widgets": "Chargement des widgets",
+        "All widgets loaded": "Tous les widgets sont chargés",
+        "The page could not load": "La page n’a pas pu être chargée",
+        "_Still loading %n widget_::_Still loading %n widgets_": ["Encore %n widget en cours de chargement", "Encore %n widgets en cours de chargement"],
         "Save your changes first to choose who sees this new widget.": "Enregistrez d'abord vos modifications pour choisir qui voit ce nouveau widget.",
         "No changes": "Aucune modification",
         "Keep editing": "Continuer la modification",

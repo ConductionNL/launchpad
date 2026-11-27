@@ -120,71 +120,62 @@ class FirstPaintGridEngine {
 		$key = count($this->nodes);
 		$this->nodes[$key] = $this->boundFix(node: $node);
 		$this->order[]     = $key;
-		$this->fixCollisions(key: $key, target: $this->nodes[$key], collide: null, skip: null);
+		$this->fixCollisions(target: $this->nodes[$key], exclude: [$key]);
 	}//end add()
 
 	/**
 	 * _fixCollisions(): every node in the target's rows moves below the target.
-	 * GridStack only reports a move of the node itself, which this push never makes, so the answer is always false.
 	 *
-	 * @param int                       $key     The node that takes its place.
-	 * @param array<string, int|string> $target  Where it goes.
-	 * @param int|null                  $collide A node already known to overlap it.
-	 * @param int|null                  $skip    A node the push ignores (the one that started it).
+	 * @param array<string, int|string> $target  Where the node goes.
+	 * @param list<int|null>            $exclude The node itself, then the node that started the push (if any).
 	 *
-	 * @return bool Whether the node itself moved (never, see above).
+	 * @return void
 	 */
-	private function fixCollisions(int $key, array $target, ?int $collide, ?int $skip): bool {
+	private function fixCollisions(array $target, array $exclude): void {
 		$this->sortOrder(direction: -1);
-		$collide = ($collide ?? $this->collide(key: $key, area: $target, skip: null));
-		if ($collide === null) {
-			return false;
+		if ($this->collide(area: $target, exclude: [$exclude[0]]) === null) {
+			return;
 		}
 
 		$area    = ['x' => 0, 'w' => $this->column, 'y' => (int) $target['y'], 'h' => (int) $target['h']];
-		$collide = $this->collide(key: $key, area: $area, skip: $skip);
+		$collide = $this->collide(area: $area, exclude: $exclude);
 		$guard   = 0;
 		$limit   = (count($this->nodes) * 2);
 		while ($collide !== null && $guard++ <= $limit) {
 			$other = $this->nodes[$collide];
 			$moved = $this->moveNode(
-				key: $collide,
 				target: ['x' => (int) $other['x'], 'y' => ((int) $target['y'] + (int) $target['h']), 'w' => (int) $other['w'], 'h' => (int) $other['h']],
-				skip: $key
+				exclude: [$collide, $exclude[0]]
 			);
 			if ($moved === false) {
-				return false;
+				return;
 			}
 
-			$collide = $this->collide(key: $key, area: $area, skip: $skip);
+			$collide = $this->collide(area: $area, exclude: $exclude);
 		}
-
-		return false;
 	}//end fixCollisions()
 
 	/**
 	 * moveNode() without dragging: push what the new place overlaps, then move.
 	 *
-	 * @param int                       $key    The node.
-	 * @param array<string, int|string> $target Where it goes.
-	 * @param int                       $skip   The node that pushes it.
+	 * @param array<string, int|string> $target  Where the node goes.
+	 * @param array{0: int, 1: int}     $exclude The node, then the node that pushes it.
 	 *
 	 * @return bool Whether it moved.
 	 */
-	private function moveNode(int $key, array $target, int $skip): bool {
+	private function moveNode(array $target, array $exclude): bool {
+		$key    = $exclude[0];
 		$before = $this->nodes[$key];
 		$target = $this->boundFix(node: $target);
 		if (self::samePos(left: $before, right: $target) === true) {
 			return false;
 		}
 
-		$collides = $this->collideAll(key: $key, area: $target, skip: $skip);
-		if ($collides !== []) {
-			$this->fixCollisions(key: $key, target: $target, collide: $collides[0], skip: $skip);
+		if ($this->collide(area: $target, exclude: $exclude) !== null) {
+			$this->fixCollisions(target: $target, exclude: $exclude);
 		}
 
-		$node = $this->nodes[$key];
-		$this->nodes[$key] = ['x' => (int) $target['x'], 'y' => (int) $target['y'], 'w' => (int) $target['w'], 'h' => (int) $target['h']] + $node;
+		$this->nodes[$key] = ['x' => (int) $target['x'], 'y' => (int) $target['y'], 'w' => (int) $target['w'], 'h' => (int) $target['h']] + $before;
 
 		return self::samePos(left: $this->nodes[$key], right: $before) === false;
 	}//end moveNode()
@@ -204,7 +195,7 @@ class FirstPaintGridEngine {
 				}
 
 				$area = ['y' => $raised] + $this->nodes[$key];
-				if ($index !== 0 && $this->collide(key: $key, area: $area, skip: null) !== null) {
+				if ($index !== 0 && $this->collide(area: $area, exclude: [$key]) !== null) {
 					break;
 				}
 
@@ -216,35 +207,20 @@ class FirstPaintGridEngine {
 	/**
 	 * The first node, in the engine's order, that overlaps $area.
 	 *
-	 * @param int                       $key  The node itself, left out.
-	 * @param array<string, int|string> $area The area.
-	 * @param int|null                  $skip Another node to leave out.
+	 * @param array<string, int|string> $area    The area.
+	 * @param list<int|null>            $exclude Nodes left out.
 	 *
 	 * @return int|null
 	 */
-	private function collide(int $key, array $area, ?int $skip): ?int {
-		return ($this->collideAll(key: $key, area: $area, skip: $skip)[0] ?? null);
-	}//end collide()
-
-	/**
-	 * Every node, in the engine's order, that overlaps $area.
-	 *
-	 * @param int                       $key  The node itself, left out.
-	 * @param array<string, int|string> $area The area.
-	 * @param int|null                  $skip Another node to leave out.
-	 *
-	 * @return list<int>
-	 */
-	private function collideAll(int $key, array $area, ?int $skip): array {
-		$hits = [];
+	private function collide(array $area, array $exclude): ?int {
 		foreach ($this->order as $other) {
-			if ($other !== $key && $other !== $skip && self::intercepts(left: $this->nodes[$other], right: $area) === true) {
-				$hits[] = $other;
+			if (in_array($other, $exclude, true) === false && self::intercepts(left: $this->nodes[$other], right: $area) === true) {
+				return $other;
 			}
 		}
 
-		return $hits;
-	}//end collideAll()
+		return null;
+	}//end collide()
 
 	/**
 	 * Re-sort the engine's order (sortNodes()).

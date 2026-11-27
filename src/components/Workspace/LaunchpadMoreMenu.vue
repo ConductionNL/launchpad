@@ -54,6 +54,8 @@
 					<span :id="`${domId}-dashboards`" class="lp-more-menu__title">
 						{{ dashboardsExpanded ? t('launchpad', 'All dashboards') : t('launchpad', 'Dashboards') }}
 					</span>
+					<!-- REQ-SHELL-019: above the full list, e.g. Filter by detail. -->
+					<slot v-if="dashboardsExpanded" name="dashboardsTop" />
 					<div
 						class="lp-more-menu__dashboard-list"
 						:class="{ 'lp-more-menu__dashboard-list--all': dashboardsExpanded }"

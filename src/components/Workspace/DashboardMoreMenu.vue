@@ -14,13 +14,23 @@
 		:actions="actions"
 		class="launchpad-more-menu"
 		data-testid="launchpad-more-menu"
-		@open="foldDashboards" />
+		@open="foldDashboards">
+		<!-- REQ-SHELL-019 / REQ-MDUI-003: Filter by detail above the full list. -->
+		<template #dashboardsTop>
+			<DetailFilter
+				v-if="detailFields.length > 0"
+				class="lp-more-menu__detail-filter"
+				:fields="detailFields"
+				@change="$emit('detailFilter', $event)" />
+		</template>
+	</LaunchpadMoreMenu>
 </template>
 
 <script>
 import { t } from '@nextcloud/l10n'
 import { markRaw } from 'vue'
 import CheckDecagramOutline from 'vue-material-design-icons/CheckDecagramOutline.vue'
+import DetailFilter from './DetailFilter.vue'
 import LaunchpadMoreMenu from './LaunchpadMoreMenu.vue'
 import { favouriteDashboardsMixin } from '../../services/favouriteDashboards.js'
 import { isOwnedDashboard } from '../../utils/dashboardRows.js'
@@ -36,6 +46,7 @@ export default {
 	name: 'DashboardMoreMenu',
 
 	components: {
+		DetailFilter,
 		LaunchpadMoreMenu,
 	},
 
@@ -111,6 +122,15 @@ export default {
 		},
 
 		/**
+		 * The detail fields the full list can be filtered by (REQ-MDUI-003);
+		 * the host reads them the first time the list is expanded.
+		 */
+		detailFields: {
+			type: Array,
+			default: () => [],
+		},
+
+		/**
 		 * Whether the expanded Dashboards list offers New dashboard: personal
 		 * dashboards allowed and the quota not reached (REQ-SHELL-015).
 		 */
@@ -144,6 +164,8 @@ export default {
 		'readReceipts',
 		'delete',
 		'newDashboard',
+		'detailFilter',
+		'expandDashboards',
 	],
 
 	computed: {
@@ -165,7 +187,7 @@ export default {
 				favourites: this.favourites,
 				expanded: this.dashboardsExpanded,
 				onSwitch: (id, source) => this.$emit('switch', id, source),
-				onToggleExpanded: () => this.toggleDashboardsExpanded(),
+				onToggleExpanded: () => this.onToggleExpanded(),
 				onToggleFavourite: (uuid) => this.toggleDashboardFavourite(uuid),
 				openTrees: this.openTrees,
 				onToggleTree: (uuid) => this.toggleTree(uuid),
@@ -216,6 +238,21 @@ export default {
 				})
 			}
 			return items
+		},
+	},
+
+	methods: {
+		/**
+		 * More / Less; the first unfold asks the host for the detail fields.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+		 */
+		onToggleExpanded() {
+			this.toggleDashboardsExpanded()
+			if (this.dashboardsExpanded) {
+				this.$emit('expandDashboards')
+			}
 		},
 	},
 }

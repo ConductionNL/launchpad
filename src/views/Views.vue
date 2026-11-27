@@ -43,6 +43,7 @@
 					:canShare="canShareActiveDashboard"
 					:canDuplicate="canDuplicateActiveDashboard"
 					:canCreate="canCreatePersonalDashboard"
+					:detailFields="detailFields"
 					:canViewReadReceipts="
 						canEdit && acknowledgementAnnouncementKeys.length > 0
 					"
@@ -63,7 +64,9 @@
 						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
 					"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)"
-					@newDashboard="createWorkspaceDashboard" />
+					@newDashboard="createWorkspaceDashboard"
+					@expandDashboards="loadDetailFieldsOnce"
+					@detailFilter="onDetailFilter" />
 				<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
 			     of the user's outstanding mandatory-read items. Hidden entirely
 			     when zero so dashboards without acknowledgement requirements are
@@ -2238,6 +2241,38 @@ export default {
 		 * later key wins, so the store action could never run. The local one
 		 * (which delegates to `removeWidget`) is what `@delete` invokes.
 		 */
+
+		/**
+		 * Read the detail fields once, the first time More's full Dashboards
+		 * list is expanded: Filter by detail lives there (REQ-SHELL-019), so
+		 * the page does not ask for them while it loads.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+		 */
+		loadDetailFieldsOnce() {
+			if (this.detailFieldsRequested) {
+				return Promise.resolve()
+			}
+			this.detailFieldsRequested = true
+			return this.loadDetailFields()
+		},
+
+		/**
+		 * Read the detail fields, for Filter by detail.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+		 */
+		async loadDetailFields() {
+			try {
+				const { data } = await api.getMetadataFieldDefinitions()
+				this.detailFields = Array.isArray(data?.fields) ? data.fields : []
+			} catch {
+				this.detailFields = []
+			}
+		},
 
 		/**
 		 * Keep only the dashboards the detail filter kept.

@@ -163,6 +163,15 @@ describe('DashboardMoreMenu', () => {
 		expect(showError).toHaveBeenCalledWith('Could not add the dashboard to your favourites')
 	})
 
+	it('asks for the detail fields on the first unfold only (REQ-SHELL-019)', async () => {
+		const { wrapper, menu } = mountMenu({ detailFields: [{ key: 'team', label: 'Team' }] })
+		menu.props('dashboards').at(-1).onClick()
+		await wrapper.vm.$nextTick()
+		expect(wrapper.emitted('expandDashboards')).toHaveLength(1)
+		menu.props('dashboards').at(-1).onClick()
+		expect(wrapper.emitted('expandDashboards')).toHaveLength(1)
+	})
+
 	it('offers New dashboard in the expanded list only when it may create, and reports it', async () => {
 		const { wrapper } = mountMenu({ canCreate: true })
 		wrapper.vm.toggleDashboardsExpanded()

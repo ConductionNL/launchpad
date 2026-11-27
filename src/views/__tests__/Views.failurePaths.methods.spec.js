@@ -65,6 +65,17 @@ beforeEach(async () => {
 })
 
 describe('Views metadata fields and filter', () => {
+	it('keeps the fields from the server and empties them when the read fails', async () => {
+		api.getMetadataFieldDefinitions.mockResolvedValue({ data: { fields: [{ key: 'team' }] } })
+		const host = makeHost({ detailFields: [] })
+		await host.loadDetailFields()
+		expect(host.detailFields).toEqual([{ key: 'team' }])
+
+		api.getMetadataFieldDefinitions.mockRejectedValue(new Error('down'))
+		await host.loadDetailFields()
+		expect(host.detailFields).toEqual([])
+	})
+
 	it('a failed filter read is logged and clears the filter', async () => {
 		const error = new Error('down')
 		api.getVisibleDashboards.mockRejectedValue(error)

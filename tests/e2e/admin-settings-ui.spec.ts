@@ -343,14 +343,14 @@ test.describe('REQ-ASET-020 program schemes and launch templates', () => {
 
 test.describe('REQ-ASET-015 and REQ-ASET-003 the switch as the pages carry it', () => {
 	// @e2e admin-settings::initial-state-matches-setting-on-the-workspace-page
-	test('with the switch on the workspace page carries allowUserDashboards true and offers Add dashboard', async () => {
+	test('with the switch on the workspace page carries allowUserDashboards true and offers New dashboard', async () => {
 		await writeSettings(admin, { allowUserDash: true, allowMultiDash: true })
 		const page = userSession!.page
 		await openWorkspaceSidebar(page)
 
 		expect(await initialStateFromPage(page, 'allowUserDashboards')).toBe(true)
-		// The value reaches the sidebar through `provide`, which is what draws the button.
-		await expect(page.getByTestId('add-dashboard-button')).toBeVisible()
+		// The value draws New dashboard at the foot of More's full list (REQ-SHELL-015).
+		await expect(page.locator('[data-testid="launchpad-more-menu-item-new-dashboard"]')).toBeVisible()
 	})
 
 	// @e2e admin-settings::frontend-hides-create-affordance-when-disabled
@@ -369,8 +369,8 @@ test.describe('REQ-ASET-015 and REQ-ASET-003 the switch as the pages carry it', 
 				.getByText(userDashboard!.name)
 				.first(),
 		).toBeVisible()
-		// "Add dashboard" is both the create entry and the only fork affordance.
-		await expect(page.getByTestId('add-dashboard-button')).toHaveCount(0)
+		// New dashboard (More's full list) is the create entry; Duplicate the fork.
+		await expect(page.locator('[data-testid="launchpad-more-menu-item-new-dashboard"]')).toHaveCount(0)
 		await expect(
 			page.getByRole('button', { name: /^Create (your first )?dashboard$/ }),
 		).toHaveCount(0)

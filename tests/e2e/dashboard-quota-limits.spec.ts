@@ -63,7 +63,9 @@ import {
 
 const RUN = Date.now()
 const SETTINGS = `${API}/admin/settings`
-const ADD_BUTTON = '[data-testid="add-dashboard-button"]'
+// New dashboard at the foot of More's full list (more-menu-favourites,
+// REQ-SHELL-015): offered only under the quota, so at the limit it is not there.
+const ADD_BUTTON = '[data-testid="launchpad-more-menu-item-new-dashboard"]'
 const QUOTA_HINT = '[data-testid="dashboard-quota-hint"]'
 
 interface Settings {
@@ -814,49 +816,29 @@ test.describe('quota in the list and the switcher (REQ-QUOTA-006)', () => {
 	})
 
 	// @e2e dashboard-quota-limits::create-button-disabled-at-the-limit
-	test('at 5 of 5 "Add dashboard" is disabled and says why, in English and Dutch', async ({
+	test('at 5 of 5 More offers no New dashboard and no Duplicate; under it both are there', async ({
 		browser,
 	}) => {
 		const alice = await freshUser('quota-ui-limit')
-		await createDashboards(alice.api, 5, 'Full')
+		await createDashboards(alice.api, 4, 'Full')
 		try {
 			await setQuotas(5, 0)
-
-			const page = await switcherAs(browser, alice)
+			const under = await switcherAs(browser, alice)
 			try {
-				const button = page.locator(ADD_BUTTON)
-				await expect(button).toBeVisible({ timeout: 10_000 })
-				await expect(button).toBeDisabled()
-				await expect(button).toHaveAttribute(
-					'title',
-					'You have reached the limit of 5 dashboards',
-				)
-				await expect(page.locator(QUOTA_HINT)).toHaveText(
-					'You have reached the limit of 5 dashboards',
-				)
+				await expect(under.locator(ADD_BUTTON)).toBeVisible({ timeout: 10_000 })
 			} finally {
-				await page.context().close()
+				await under.context().close()
 			}
 
-			const lang = await admin.put(
-				`/ocs/v1.php/cloud/users/${encodeURIComponent(alice.username)}`,
-				{ form: { key: 'language', value: 'nl' } },
-			)
-			expect(lang.ok(), await lang.text()).toBe(true)
-			const nl = await switcherAs(browser, alice)
+			await createDashboard(alice.api, `Full 5 ${RUN}`)
+			const page = await switcherAs(browser, alice)
 			try {
-				const button = nl.locator(ADD_BUTTON)
-				await expect(button).toBeDisabled({ timeout: 10_000 })
-				await expect(button).toContainText('Dashboard toevoegen')
-				await expect(button).toHaveAttribute(
-					'title',
-					'Je hebt de limiet van 5 dashboards bereikt',
-				)
-				await expect(nl.locator(QUOTA_HINT)).toHaveText(
-					'Je hebt de limiet van 5 dashboards bereikt',
-				)
+				// CONTROL: the full list is open.
+				await expect(page.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]')).toHaveAttribute('aria-expanded', 'true')
+				await expect(page.locator(ADD_BUTTON)).toHaveCount(0)
+				await expect(page.locator('[data-testid="launchpad-more-menu-item-duplicate"]')).toHaveCount(0)
 			} finally {
-				await nl.context().close()
+				await page.context().close()
 			}
 		} finally {
 			await unlimited()
@@ -877,8 +859,6 @@ test.describe('quota in the list and the switcher (REQ-QUOTA-006)', () => {
 			const button = page.locator(ADD_BUTTON)
 			await expect(button).toBeVisible({ timeout: 10_000 })
 			await expect(button).toBeEnabled()
-			await expect(button).not.toHaveAttribute('title', /.+/)
-			await expect(button).toHaveAttribute('aria-label', 'Add dashboard')
 			await expect(page.locator(QUOTA_HINT)).toHaveCount(0)
 			await expect(page.getByText(/reached the limit/i)).toHaveCount(0)
 		} finally {
@@ -926,9 +906,9 @@ test.describe('quota in the list and the switcher (REQ-QUOTA-006)', () => {
 					}).first(),
 				).toBeVisible({ timeout: 10_000 })
 
-				// The envelope was read again, so the affordance now disables.
+				// The envelope was read again, so New dashboard is no longer offered.
 				await openDashboardSwitcher(page)
-				await expect(page.locator(ADD_BUTTON)).toBeDisabled({
+				await expect(page.locator(ADD_BUTTON)).toHaveCount(0, {
 					timeout: 10_000,
 				})
 				expect((await listMine(alice.api)).items).toHaveLength(5)

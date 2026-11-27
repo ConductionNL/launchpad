@@ -32,8 +32,8 @@
 import type { Placement } from './support/widgetPlacements.ts'
 
 import { expect, test } from '@playwright/test'
-import { adminApi, openInEditMode, Seeds } from './support/widgetPlacements.ts'
 import { saveEditDraft } from './support/dashboardSwitcher.ts'
+import { adminApi, openInEditMode, Seeds } from './support/widgetPlacements.ts'
 
 const RUN = Date.now()
 

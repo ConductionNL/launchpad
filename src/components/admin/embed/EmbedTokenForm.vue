@@ -175,6 +175,7 @@
 import { NcButton, NcCheckboxRadioSwitch, NcSelect, NcTextArea, NcTextField } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { api } from '../../../services/api.js'
+import { allChildren, childLabel, childSubjectId } from '../../../utils/containerChildren.js'
 import {
 	createPayload,
 	cspPreview,
@@ -288,10 +289,19 @@ export default {
 
 		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */
 		placementOptions() {
-			return this.placements.map((placement) => ({
-				id: placement.id,
-				label: placement.customTitle || placement.tileTitle || `${placement.widgetId} #${placement.id}`,
-			}))
+			const options = []
+			for (const placement of this.placements) {
+				const label = placement.customTitle || placement.tileTitle || `${placement.widgetId} #${placement.id}`
+				options.push({ id: placement.id, label })
+				// REQ-WDG-050: a widget inside a well or tabs widget is a subject too.
+				for (const { child, trail } of allChildren(placement.content)) {
+					const id = childSubjectId(placement.id, child)
+					if (id !== '') {
+						options.push({ id, label: [label, ...trail, childLabel(child)].join(' › ') })
+					}
+				}
+			}
+			return options
 		},
 
 		/** @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md */

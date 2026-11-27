@@ -4,23 +4,29 @@
 -->
 
 <template>
-	<!-- REQ-TILE-041: in edit mode a tile in a group opens the tile form. -->
-	<div v-if="childRenderer && showsTileEdit" class="container-child container-child--tile">
+	<!-- REQ-TILE-041 / REQ-WDG-050: in edit mode every child has the widget
+	     edit menu; a tile in a group also opens the tile form from it. -->
+	<div v-if="childRenderer && showsMenu" class="container-child container-child--menu">
 		<component
 			:is="childRenderer"
 			:content="childContent"
 			:placement="placement"
 			:editMode="editMode"
 			v-bind="extraProps" />
-		<!-- The same tile menu as a tile on the dashboard (REQ-TILE-010). -->
-		<div class="container-child__edit" data-testid="container-child-tile-menu">
-			<CnWidgetEditCog
-				icon="kebab"
-				:menuLabel="tileMenuLabel"
-				:editLabel="editTileLabel"
-				:deleteLabel="deleteTileLabel"
+		<div class="container-child__edit" :data-testid="showsTileEdit ? 'container-child-tile-menu' : 'container-child-menu'">
+			<WidgetEditMenu
+				:menuLabel="showsTileEdit ? tileMenuLabel : widgetMenuLabel"
+				:editLabel="showsTileEdit ? editTileLabel : ''"
+				:deleteLabel="showsTileEdit ? deleteTileLabel : ''"
+				:hideEdit="!showsTileEdit"
+				:showWhoSees="false"
+				:embedHref="embedHref"
+				:embedDisabled="embedHref === ''"
+				:embedAsksFirst="embedAsksFirst"
 				@edit="$emit('editTile')"
-				@remove="$emit('removeTile')" />
+				@duplicate="duplicate"
+				@embed="openEmbed"
+				@remove="remove" />
 		</div>
 	</div>
 	<component
@@ -36,7 +42,7 @@
 </template>
 
 <script>
-import { CnWidgetEditCog } from '@conduction/nextcloud-vue'
+import WidgetEditMenu from '../WidgetEditMenu.vue'
 import {
 	FLAG_PROP,
 	REQUIRED_OBJECT_PROP,
@@ -47,6 +53,7 @@ import {
 	buildWidgetDataProvide,
 } from '../../../services/widgetDataAdapters.js'
 import { isGroupTileChild } from '../../../utils/groupTiles.js'
+import { childUseKey } from '../../../utils/tileSort.js'
 
 /**
  * ContainerChild — registry-driven dispatcher for a single child placement
@@ -72,7 +79,14 @@ export default {
 	name: 'ContainerChild',
 
 	components: {
-		CnWidgetEditCog,
+		WidgetEditMenu,
+	},
+
+	inject: {
+		// REQ-WDG-050: the widget on the dashboard that holds this child, and
+		// the dashboard's child actions (embed link, duplicate, remove).
+		launchpadChildOwner: { default: () => () => null },
+		launchpadChildActions: { default: null },
 	},
 
 	/**
@@ -157,10 +171,102 @@ export default {
 			return t('launchpad', 'Delete tile')
 		},
 
+		/**
+		 * REQ-WDG-050: whether this child shows the edit menu: in edit mode,
+		 * on a dashboard that offers the child actions, or as a group tile.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		showsMenu() {
+			return this.showsTileEdit || (this.editMode && this.launchpadChildActions !== null && this.owner !== null)
+		},
+
+		/**
+		 * The widget on the dashboard that holds this child, or null.
+		 *
+		 * @return {object|null}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		owner() {
+			return this.launchpadChildOwner() ?? null
+		},
+
+		/**
+		 * The child's embed link; '' when it cannot be named yet or the
+		 * person may not create embed tokens (the entry is then disabled or
+		 * left out by the menu).
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		embedHref() {
+			return this.launchpadChildActions?.embedHref(this.owner, this.placement) ?? ''
+		},
+
+		/**
+		 * The draft has unsaved changes, so Create embed token asks first.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		embedAsksFirst() {
+			return this.launchpadChildActions?.asksFirst() === true
+		},
+
+		/** @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050 */
+		widgetMenuLabel() {
+			return t('launchpad', 'Widget menu')
+		},
+
 		/** @spec openspec/specs/container-widget/spec.md */
 		unknownLabel() {
 			const type = this.placement?.type || ''
 			return t('launchpad', 'Unknown widget type: {type}', { type })
+		},
+	},
+
+	methods: {
+		/**
+		 * REQ-WDG-050: Duplicate places a copy after this child, in its list.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		duplicate() {
+			const key = childUseKey(this.placement)
+			if (key !== '' && this.owner) {
+				this.launchpadChildActions?.duplicate(this.owner.id, key)
+			}
+		},
+
+		/**
+		 * Remove: a group tile goes through the tile form's remove; any other
+		 * child is taken out of its list (REQ-WDG-050).
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		remove() {
+			if (this.showsTileEdit) {
+				this.$emit('removeTile')
+				return
+			}
+			const key = childUseKey(this.placement)
+			if (key !== '' && this.owner) {
+				this.launchpadChildActions?.remove(this.owner.id, key)
+			}
+		},
+
+		/**
+		 * Create embed token with unsaved changes: the dashboard asks first.
+		 *
+		 * @param {string} href The embed token form.
+		 * @return {void}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		openEmbed(href) {
+			this.launchpadChildActions?.openEmbed(href)
 		},
 	},
 }
@@ -172,7 +278,7 @@ export default {
 	height: 100%;
 }
 
-.container-child--tile {
+.container-child--menu {
 	position: relative;
 }
 

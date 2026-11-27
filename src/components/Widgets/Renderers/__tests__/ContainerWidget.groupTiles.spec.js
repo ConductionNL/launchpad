@@ -15,8 +15,10 @@ import ContainerChild from '../ContainerChild.vue'
 import ContainerWidget from '../ContainerWidget.vue'
 import { readTileUse } from '../../../../utils/tileSort.js'
 
+// The child's edit menu (WidgetEditMenu since REQ-WDG-050), stubbed down to
+// its labels, Edit and Delete.
 const CnWidgetEditCog = {
-	name: 'CnWidgetEditCog',
+	name: 'WidgetEditMenu',
 	props: ['menuLabel', 'editLabel', 'deleteLabel'],
 	emits: ['edit', 'remove'],
 	template: '<div class="cog" :data-menu="menuLabel"><button class="edit" @click="$emit(\'edit\')">{{ editLabel }}</button><button class="remove" @click="$emit(\'remove\')">{{ deleteLabel }}</button></div>',
@@ -40,7 +42,7 @@ beforeEach(() => {
 function mountChild(placement, props = {}) {
 	return mount(ContainerChild, {
 		props: { placement, editMode: true, canEditTile: true, ...props },
-		global: { stubs: { CnWidgetEditCog } },
+		global: { stubs: { WidgetEditMenu: CnWidgetEditCog } },
 	})
 }
 
@@ -83,7 +85,7 @@ function mountGroup(props, opener) {
 	return mount(ContainerWidget, {
 		props,
 		global: {
-			stubs: { CnWidgetEditCog },
+			stubs: { WidgetEditMenu: CnWidgetEditCog },
 			provide: opener ? { openGroupTileEditor: opener } : {},
 		},
 	})

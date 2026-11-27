@@ -23,23 +23,57 @@
  * that the two green tests here can finally stand behind a claim.
  */
 
-import { expect, test } from '@playwright/test'
+import type { APIRequestContext } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
+
+import { expect, request, test } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import {
 	closeSidebar,
 	gotoLaunchPad,
 	openAddWidgetModal,
 } from './fixtures/widget-flow.ts'
+import { BASE_URL } from './support/baseUrl.ts'
+import {
+	removeSeededDashboard,
+	seedActiveDashboard,
+} from './support/dashboardFixture.ts'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
 
+const ADMIN = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
+
 let restoreWidgetRestriction: (() => Promise<void>) | null = null
+let api: APIRequestContext | null = null
+let seeded: SeededDashboard | null = null
 
 test.beforeAll(async () => {
 	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+
+	/*
+	 * SEED A DASHBOARD. openAddWidgetModal() opens the cog of a personal
+	 * dashboard row, and on a fresh instance the admin has none: the sidebar
+	 * lists only the default dashboard, so every test here missed the row
+	 * (live, 27 Nov 2026, launchpad shard 5/8). Seed and activate this file's
+	 * own, as label-widget-content-edit.spec.ts does, instead of leaning on a
+	 * dashboard an earlier spec happened to leave behind.
+	 */
+	api = await request.newContext({
+		baseURL: BASE_URL,
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	seeded = await seedActiveDashboard(api, `E2E Label ${Date.now()}`)
 })
 
 test.afterAll(async () => {
 	await restoreWidgetRestriction?.()
+	if (api !== null) {
+		await removeSeededDashboard(api, seeded)
+		await api.dispose()
+	}
 })
 
 /**

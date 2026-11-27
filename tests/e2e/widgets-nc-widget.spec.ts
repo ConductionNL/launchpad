@@ -125,9 +125,13 @@ async function serveItems(
 }
 
 /**
- * An init script that registers a native render callback for `widgetId` as
- * soon as the LaunchPad widget bridge has installed `OCA.Dashboard.register`,
- * i.e. before any placement can mount. The callback records the class of the
+ * An init script that registers a native render callback for `widgetId` in
+ * the same task in which the LaunchPad widget bridge installs
+ * `OCA.Dashboard.register`, i.e. before any placement can mount. First-screen
+ * widgets mount in the first render, right after the bridge runs, so a timer
+ * that polls for `register` would come too late. Property traps on
+ * `window.OCA`, `OCA.Dashboard` and `Dashboard.register` call the bridge's
+ * `register` the moment it is assigned. The callback records the class of the
  * element it was handed and paints a marker into it.
  *
  * @param page the page.
@@ -138,25 +142,46 @@ async function registerNativeEarly(page: Page, widgetId: string): Promise<void> 
 	await page.addInitScript((id) => {
 		const w = window as unknown as Record<string, any>
 		w.__e2eNativeMounts = []
-		const register = () => {
-			const dash = w.OCA && w.OCA.Dashboard
-			if (!dash || typeof dash.register !== 'function' || !dash.callbacks) {
-				return false
-			}
-			dash.register(id, (el: HTMLElement) => {
-				w.__e2eNativeMounts.push(el.className)
-				el.innerHTML =
-					'<p data-testid="e2e-native-body">painted by the native callback</p>'
+		const paint = (el: HTMLElement) => {
+			w.__e2eNativeMounts.push(el.className)
+			el.innerHTML =
+				'<p data-testid="e2e-native-body">painted by the native callback</p>'
+		}
+		const trap = (
+			owner: Record<string, any>,
+			key: string,
+			onSet: (value: any) => void,
+		) => {
+			let current = owner[key]
+			Object.defineProperty(owner, key, {
+				configurable: true,
+				enumerable: true,
+				get: () => current,
+				set: (value) => {
+					current = value
+					onSet(value)
+				},
 			})
-			return true
+			if (current !== undefined) {
+				onSet(current)
+			}
 		}
-		if (!register()) {
-			const timer = setInterval(() => {
-				if (register()) {
-					clearInterval(timer)
-				}
-			}, 0)
+		const onRegister = (register: unknown) => {
+			if (typeof register === 'function') {
+				register(id, paint)
+			}
 		}
+		const onDashboard = (dash: unknown) => {
+			if (dash && typeof dash === 'object') {
+				trap(dash as Record<string, any>, 'register', onRegister)
+			}
+		}
+		const onOca = (oca: unknown) => {
+			if (oca && typeof oca === 'object') {
+				trap(oca as Record<string, any>, 'Dashboard', onDashboard)
+			}
+		}
+		trap(w, 'OCA', onOca)
 	}, widgetId)
 }
 

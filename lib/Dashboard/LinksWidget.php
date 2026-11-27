@@ -71,6 +71,17 @@ class LinksWidget extends LaunchPadApiWidget {
 	}//end getTitle()
 
 	/**
+	 * The placeholder shape the first paint draws for this widget: a list of rows.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/changes/widget-declared-placeholders/tasks.md#task-1
+	 */
+	public function getPlaceholder(): string {
+		return 'rows';
+	}//end getPlaceholder()
+
+	/**
 	 * Position among the other dashboard widgets.
 	 *
 	 * @return integer

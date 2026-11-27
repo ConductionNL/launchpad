@@ -47,7 +47,6 @@
 		</NcActionButton>
 		<!-- REQ-WDG-050: Duplicate places a copy below the other widgets. -->
 		<NcActionButton
-			v-if="showDuplicate"
 			:closeAfterClick="true"
 			data-testid="widget-duplicate"
 			@click="$emit('duplicate')">
@@ -179,12 +178,6 @@ export default {
 		embedAsksFirst: {
 			type: Boolean,
 			default: false,
-		},
-
-		/** Offers Duplicate (REQ-WDG-050). */
-		showDuplicate: {
-			type: Boolean,
-			default: true,
 		},
 	},
 

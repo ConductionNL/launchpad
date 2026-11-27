@@ -154,7 +154,6 @@ import LazyMount from './LazyMount.vue'
 import WidgetErrorBoundary from './WidgetErrorBoundary.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
 import WidgetEditMenu from './Widgets/WidgetEditMenu.vue'
-import { isDraftPlacement } from '../utils/editDraft.js'
 import {
 	FLAG_PROP,
 	LIST_PROP,
@@ -162,6 +161,7 @@ import {
 	REQUIRED_OBJECT_PROP,
 	TEXT_PROP,
 } from '../constants/propDefinitions.js'
+import { isDraftPlacement } from '../utils/editDraft.js'
 import { inFirstViewport } from '../utils/firstViewport.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 

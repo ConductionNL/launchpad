@@ -32,6 +32,7 @@
  *  - Look:                 CUSTOM_CSS
  *  - Communities:          PINNED_COMMUNITIES
  *  - Default app:          DEFAULT_APP_ENABLED
+ *  - Kiosk:                KIOSK_SCREEN_LINKS_ALLOWED (dashboard-show-on-a-screen)
  *
  * @category Db
  * @package  OCA\LaunchPad\Db

@@ -282,9 +282,10 @@ test.describe('the view\'s first API reads (REQ-INIT-011)', () => {
 			const carried = reads.map((read) => read.path)
 			expect(carried).toEqual(expect.arrayContaining(firstReadPaths(dash.uuid, placementId)))
 
-			// The Files widget shows its first page from the carried answer...
+			// The Files widget shows its first page from the carried answer (the
+			// banner and reactions bar mount with it)...
+			await page.waitForLoadState('load')
 			await expect(page.getByText(FILE).first()).toBeVisible({ timeout: 30_000 })
-			await page.waitForLoadState('networkidle')
 			// ...and none of the carried endpoints was asked.
 			const asked = gets.filter((path) => carried.some((read) => path.endsWith(`/apps/launchpad${read}`)))
 			expect(asked).toEqual([])

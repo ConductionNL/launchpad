@@ -423,5 +423,4 @@ export default {
 	flex-wrap: wrap;
 	gap: 4px;
 }
-
 </style>

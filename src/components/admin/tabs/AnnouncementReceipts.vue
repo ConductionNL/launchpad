@@ -277,7 +277,7 @@ export default {
 			try {
 				const result = await announcementsApi.remind(this.announcement.uuid)
 				this.reminded = true
-				this.message = this.n('launchpad', 'Reminder sent to {count} person', 'Reminder sent to {count} people', result.sent ?? 0, { count: result.sent ?? 0 })
+				this.message = this.n('launchpad', 'Reminder sent to %n person', 'Reminder sent to %n people', result.sent ?? 0)
 			} catch (error) {
 				logger.error('Sending the reminder failed:', error)
 				this.message = error?.response?.data?.message || this.t('launchpad', 'The reminder could not be sent.')

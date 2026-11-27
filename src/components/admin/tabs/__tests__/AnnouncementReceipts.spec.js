@@ -23,7 +23,7 @@ vi.mock('../../../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
 const fill = (text, vars = {}) => text.replace(/\{(\w+)\}/g, (_m, key) => vars[key] ?? `{${key}}`)
 const mocks = {
 	t: (_app, text, vars) => fill(text, vars),
-	n: (_app, one, many, count, vars) => fill(count === 1 ? one : many, vars),
+	n: (_app, one, many, count) => (count === 1 ? one : many).replace('%n', String(count)),
 }
 const NcButton = { props: ['disabled', 'variant', 'pressed'], emits: ['click'], template: '<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>' }
 

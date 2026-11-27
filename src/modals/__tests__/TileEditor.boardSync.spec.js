@@ -100,11 +100,13 @@ describe('TileEditor as LpTegelBewerken draws it', () => {
 			'data-label="Internal address (optional)"',
 			'data-test="tile-editor-opens-in"',
 			'tile-editor__icon',
+			'data-label="Sort order in this group"',
+			'tile-editor__health-ping',
+			// The Appearance panel, to the right of the fields.
+			'data-testid="tile-editor-appearance"',
 			'Tile colour',
 			'Text colour',
 			'data-testid="tile-editor-contrast"',
-			'data-label="Sort order in this group"',
-			'tile-editor__health-ping',
 			'Delete tile',
 		].map((needle) => html.indexOf(needle))
 		expect(order.every((at) => at >= 0)).toBe(true)

@@ -460,6 +460,12 @@ export default {
 .tile-app-chooser {
 	width: 100%;
 	padding: 0;
+	gap: 12px;
+}
+
+.tile-app-chooser .add-tiles__title {
+	font-size: 15px;
+	font-weight: 600;
 }
 
 .tile-app-chooser__icon {

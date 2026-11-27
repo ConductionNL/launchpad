@@ -171,6 +171,8 @@ const LATER_KEYS = [
 	'sharingAllowed',
 	'publicLinksAllowed',
 	'leaverHandover',
+	// Screen links switch (REQ-KIOSK-007), dashboard-show-on-a-screen, 27 Nov 2026.
+	'screenLinksAllowed',
 ]
 
 /**

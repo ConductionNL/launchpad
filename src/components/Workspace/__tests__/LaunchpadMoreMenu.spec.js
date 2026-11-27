@@ -311,6 +311,38 @@ describe('LaunchpadMoreMenu', () => {
 		wrapper.unmount()
 	})
 
+	it('draws the foot rows as boards LpMeer and LpMeerAlle do: a rule above the first, New dashboard in the brand colour', async () => {
+		const wrapper = await openMenu({
+			dashboards: [
+				{ id: 'dashboard-1', label: 'Vandaag', checked: true, favourite: false, onToggleFavourite: vi.fn() },
+				{ id: 'new-dashboard', label: 'New dashboard', onClick: vi.fn() },
+				{ id: 'all-dashboards', label: 'Less', keepOpen: true, expanded: true },
+			],
+		})
+		const create = wrapper.find('[data-testid="launchpad-more-menu-item-new-dashboard"]')
+		const less = wrapper.find('[data-testid="launchpad-more-menu-item-all-dashboards"]')
+		expect(create.classes()).toEqual(expect.arrayContaining(['lp-more-menu__foot', 'lp-more-menu__foot--first', 'lp-more-menu__item--primary']))
+		expect(less.classes()).toContain('lp-more-menu__foot')
+		expect(less.classes()).not.toContain('lp-more-menu__foot--first')
+		expect(less.classes()).not.toContain('lp-more-menu__item--primary')
+		// The dashboard rows above are no foot rows.
+		expect(wrapper.find('[data-testid="launchpad-more-menu-item-dashboard-1"]').classes()).not.toContain('lp-more-menu__foot')
+		wrapper.unmount()
+	})
+
+	it('puts a divider between the two Powered by logos (board LpMeer)', async () => {
+		const wrapper = await openMenu()
+		const footer = wrapper.find('[data-testid="more-menu-footer"]')
+		const kids = footer.element.children
+		const divider = footer.find('.lp-more-menu-footer__divider')
+		expect(divider.exists()).toBe(true)
+		expect(divider.attributes('aria-hidden')).toBe('true')
+		expect(Array.from(kids).map((el) => el.className.split(' ')[0])).toEqual([
+			'lp-more-menu-footer__caption', 'lp-more-menu-footer__link', 'lp-more-menu-footer__divider', 'lp-more-menu-footer__link',
+		])
+		wrapper.unmount()
+	})
+
 	it('ends in the Powered by footer under both columns, unless left out (review item 7)', async () => {
 		const wrapper = await openMenu()
 		const footer = wrapper.find('[data-testid="more-menu-footer"]')

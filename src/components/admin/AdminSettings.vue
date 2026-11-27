@@ -291,13 +291,19 @@
 				</CnSettingsSection>
 
 				<!-- REQ-ASET-021: the outside websites widgets may embed or fetch from. -->
-				<AllowedSitesSettings />
+				<LazyMount rootMargin="0px" :eager="opensOnSection">
+					<AllowedSitesSettings />
+				</LazyMount>
 
 				<!-- REQ-TILE-044: the services on the server Add tiles may list. -->
-				<DiscoverableServicesSettings />
+				<LazyMount rootMargin="0px" :eager="opensOnSection">
+					<DiscoverableServicesSettings />
+				</LazyMount>
 
 				<!-- launcher-tile-launch-types: program schemes and sign-on templates. -->
-				<TileLaunchSettings />
+				<LazyMount rootMargin="0px" :eager="opensOnSection">
+					<TileLaunchSettings />
+				</LazyMount>
 
 				<!-- launcher-tile-internal-address REQ-TIA-001: the office networks a
 				     tile's office-network address is used on. Saved on its own, so a
@@ -414,7 +420,9 @@
 
 				<!-- Administrator CSS, cleaned and scoped on save (REQ-THM-003). -->
 				<CnSettingsSection :name="t('launchpad', 'Custom CSS')">
-					<AdminCustomCss />
+					<LazyMount rootMargin="0px" :eager="opensOnSection">
+						<AdminCustomCss />
+					</LazyMount>
 				</CnSettingsSection>
 
 				<!-- REQ-ADM-032: embeds and search shortcuts are cards of
@@ -422,12 +430,16 @@
 				<CnSettingsSection
 					:name="t('launchpad', 'Embeds')"
 					data-admin-section="embeds">
-					<EmbedsTab />
+					<LazyMount rootMargin="0px" :eager="opensOnSection">
+						<EmbedsTab />
+					</LazyMount>
 				</CnSettingsSection>
 				<CnSettingsSection
 					:name="t('launchpad', 'Search shortcuts')"
 					data-admin-section="search-shortcuts">
-					<SearchShortcutsTab />
+					<LazyMount rootMargin="0px" :eager="opensOnSection">
+						<SearchShortcutsTab />
+					</LazyMount>
 				</CnSettingsSection>
 			</template>
 		</CnAdminSettingsShell>
@@ -466,6 +478,7 @@ import {
 } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { defineAsyncComponent } from 'vue'
+import LazyMount from '../LazyMount.vue'
 import AdminCustomCss from './AdminCustomCss.vue'
 import AllowedSitesSettings from './AllowedSitesSettings.vue'
 import DiscoverableServicesSettings from './DiscoverableServicesSettings.vue'
@@ -498,6 +511,9 @@ const SharingTab = defineAsyncComponent(() => import('./tabs/SharingTab.vue'))
 const TemplatesPage = defineAsyncComponent(() => import('./tabs/TemplatesPage.vue'))
 const VersioningAuditTab = defineAsyncComponent(() => import('./tabs/VersioningAuditTab.vue'))
 
+/** How long an old address keeps its section in view while the tab above it loads (REQ-ADM-032). */
+const REVEAL_SETTLE_MS = 3000
+
 export default {
 	name: 'AdminSettings',
 
@@ -509,6 +525,7 @@ export default {
 		CnSettingsSection,
 		CnWalkthrough,
 		DiscoverableServicesSettings,
+		LazyMount,
 		NcButton,
 		NcSelect,
 		NcCheckboxRadioSwitch,
@@ -635,6 +652,18 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Whether the page opens on a named section: then the General cards
+		 * below the fold mount at once, so the scroll lands where it should
+		 * and nothing above it grows afterwards.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+		 */
+		opensOnSection() {
+			return Boolean(this.section)
+		},
+
 		/**
 		 * Whether the admin tour may be mounted now: there is one, its seen
 		 * version is loaded, and the General tab is open (REQ-SHELL-011).
@@ -819,6 +848,17 @@ export default {
 		this.revealSection(this.section)
 	},
 
+	/**
+	 * Stop following a section that is still being revealed.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+	 */
+	beforeUnmount() {
+		if (typeof this.stopReveal === 'function') {
+			this.stopReveal()
+		}
+	},
+
 	methods: {
 		/**
 		 * Switch the active admin tab, and tell the page so its address
@@ -837,22 +877,61 @@ export default {
 		 * Scroll a folded section into view: the former tab an old address
 		 * or link names (REQ-ADM-032).
 		 *
+		 * The tab's content mounts and reads its data after the first tick,
+		 * so the cards above the section grow after it was scrolled to and
+		 * push it out of view. For a short while (REVEAL_SETTLE_MS) the
+		 * section is scrolled to again whenever it moved, until the
+		 * administrator scrolls, clicks or types.
+		 *
 		 * @param {string} section A key of FOLDED_ADMIN_TABS, a `section-*` element id, or ''.
 		 * @return {void}
 		 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
 		 */
 		revealSection(section) {
+			if (typeof this.stopReveal === 'function') {
+				this.stopReveal()
+			}
 			if (!section) {
 				return
 			}
-			this.$nextTick(() => {
-				// A former tab's section, or an element id a settings link names.
-				const selector = section.startsWith('section-') ? `#${section}` : `[data-admin-section="${section}"]`
+			// A former tab's section, or an element id a settings link names.
+			const selector = section.startsWith('section-') ? `#${section}` : `[data-admin-section="${section}"]`
+			const topOf = (el) => (typeof el.getBoundingClientRect === 'function' ? el.getBoundingClientRect().top : null)
+			let placedAt = null
+			const reveal = () => {
 				const target = this.$el?.querySelector?.(selector)
-				if (target && typeof target.scrollIntoView === 'function') {
-					target.scrollIntoView({ block: 'start' })
+				if (!target || typeof target.scrollIntoView !== 'function') {
+					return
 				}
-			})
+				const top = topOf(target)
+				if (placedAt === null || top === null || Math.abs(top - placedAt) > 1) {
+					target.scrollIntoView({ block: 'start' })
+					placedAt = topOf(target)
+				}
+			}
+			this.$nextTick(reveal)
+			if (typeof window === 'undefined' || typeof window.setInterval !== 'function') {
+				return
+			}
+			const events = ['wheel', 'touchstart', 'keydown', 'mousedown']
+			let timer = null
+			const stop = () => {
+				window.clearInterval(timer)
+				events.forEach((name) => window.removeEventListener(name, stop, true))
+				if (this.stopReveal === stop) {
+					this.stopReveal = null
+				}
+			}
+			const started = Date.now()
+			timer = window.setInterval(() => {
+				if (Date.now() - started > REVEAL_SETTLE_MS) {
+					stop()
+					return
+				}
+				reveal()
+			}, 100)
+			events.forEach((name) => window.addEventListener(name, stop, true))
+			this.stopReveal = stop
 		},
 
 		/**

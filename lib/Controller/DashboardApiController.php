@@ -33,6 +33,7 @@ use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\ResponseDefinitions;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldSources;
 use OCA\LaunchPad\Service\DashboardDraft;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
@@ -868,13 +869,55 @@ class DashboardApiController extends Controller {
 			return $this->context->responseHelper->error(exception: $e);
 		}//end try
 
-		return $this->context->responseHelper->success(
-			data: [
-				'dashboard'  => $saved['dashboard']->jsonSerialize(),
-				'placements' => array_map(static fn ($placement): array => $placement->jsonSerialize(), $saved['placements']),
-			]
-		);
+		$body = [
+			'dashboard'  => $saved['dashboard']->jsonSerialize(),
+			'placements' => array_map(static fn ($placement): array => $placement->jsonSerialize(), $saved['placements']),
+		];
+		$warnings = $this->cleanupRemovedFields(removed: $saved['removed'] ?? []);
+		if ($warnings !== []) {
+			$body['warnings'] = $warnings;
+		}
+
+		return $this->context->responseHelper->success(data: $body);
 	}//end saveDraft()
+
+	/**
+	 * Take the calculated fields of the widgets a draft Save removed off
+	 * their source schema, as the single-widget DELETE does
+	 * (widget-calculated-fields, task 28). Runs after the save, so a
+	 * failing source leaves a warning instead of undoing the Save.
+	 *
+	 * @param list<\OCA\LaunchPad\Db\WidgetPlacement> $removed The removed widgets as they were stored.
+	 *
+	 * @return list<mixed> The cleanup warnings.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 */
+	private function cleanupRemovedFields(array $removed): array {
+		$fields = $this->services->widgets->fields;
+		if ($fields === null) {
+			return [];
+		}
+
+		$warnings = [];
+		foreach ($removed as $placement) {
+			if ($fields->hasServerFields(fields: $placement->getCalculatedFieldsArray()) === false) {
+				continue;
+			}
+
+			$warnings = [
+				...$warnings,
+				...$fields->cleanupServerFields(
+					widget: [
+						'id'     => (string) $placement->getId(),
+						'source' => (new CalculatedFieldSources())->sourceKey(content: $placement->getContentArray()),
+					]
+				),
+			];
+		}
+
+		return $warnings;
+	}//end cleanupRemovedFields()
 
 	/**
 	 * The footer override fields of an update body (REQ-FTR-006): a field
@@ -1563,15 +1606,39 @@ class DashboardApiController extends Controller {
 
 		return $this->runGroupMutation(
 			mutation: fn (): JSONResponse => $this->dashboardResponse(
-				dashboard: $this->services->dashboardService->updateGroupShared(
-					actorUserId: $this->context->userId,
-					groupId: $target->groupId,
-					uuid: $target->uuid,
-					patch: $patch
-				)
+				dashboard: $this->saveGroupWithVersion(target: $target, patch: $patch)
 			)
 		);
 	}//end updateGroupDashboard()
+
+	/**
+	 * Save a group-shared patch with its version (REQ-VERS-010/011): the
+	 * group dashboard's settings save makes one version, in the save's
+	 * transaction, like the personal dashboard's.
+	 *
+	 * @param GroupDashboardTarget $target The group and dashboard UUID.
+	 * @param array<string, mixed> $patch  The non-null patch fields.
+	 *
+	 * @return Dashboard The saved dashboard.
+	 *
+	 * @throws DoesNotExistException When the group has no dashboard with that UUID.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 */
+	private function saveGroupWithVersion(GroupDashboardTarget $target, array $patch): Dashboard {
+		$service = $this->services->dashboardService;
+		$dashboardId = (int) $service->findGroupDashboard(groupId: $target->groupId, uuid: $target->uuid)->getId();
+
+		return $this->saveWithVersion(
+			dashboardId: $dashboardId,
+			save: fn (): Dashboard => $service->updateGroupShared(
+				actorUserId: (string) $this->context->userId,
+				groupId: $target->groupId,
+				uuid: $target->uuid,
+				patch: $patch
+			)
+		);
+	}//end saveGroupWithVersion()
 
 	/**
 	 * Run a group-shared mutation, answering an unknown dashboard with 404

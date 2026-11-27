@@ -14,6 +14,7 @@ import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
 import BullhornOutline from 'vue-material-design-icons/BullhornOutline.vue'
 import ChartBoxOutline from 'vue-material-design-icons/ChartBoxOutline.vue'
+import ChevronDown from 'vue-material-design-icons/ChevronDown.vue'
 import ChevronUp from 'vue-material-design-icons/ChevronUp.vue'
 import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
@@ -32,7 +33,6 @@ import Star from 'vue-material-design-icons/Star.vue'
 import StarCheck from 'vue-material-design-icons/StarCheck.vue'
 import StoreOutline from 'vue-material-design-icons/StoreOutline.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
-import ViewGridOutline from 'vue-material-design-icons/ViewGridOutline.vue'
 import { adminPageUrl } from '../../utils/adminPage.js'
 
 /**
@@ -551,6 +551,7 @@ function dashboardRowItem(row, { activeId, defaultUuid, starred, onSwitch, onTog
  * @param {(() => void)|null} onNewDashboard Create a dashboard, or null.
  * @return {object[]} The items.
  * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
  */
 function columnFoot(hidden, expanded, onToggleExpanded, onNewDashboard) {
 	const foot = []
@@ -568,7 +569,8 @@ function columnFoot(hidden, expanded, onToggleExpanded, onNewDashboard) {
 		meta: expanded
 			? t('launchpad', 'favourites only')
 			: n('launchpad', '%n more dashboard', '%n more dashboards', Math.max(hidden, 0)),
-		icon: markRaw(expanded ? ChevronUp : ViewGridOutline),
+		// Board LpMeer draws the folded More with a chevron down, LpMeerAlle Less with a chevron up.
+		icon: markRaw(expanded ? ChevronUp : ChevronDown),
 		keepOpen: true,
 		expanded,
 		onClick: () => onToggleExpanded(),

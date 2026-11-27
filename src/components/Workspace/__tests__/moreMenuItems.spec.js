@@ -124,6 +124,11 @@ describe('dashboardItems', () => {
 		expect(dashboardItems({ ...base, onNewDashboard }).some((i) => i.id === 'new-dashboard')).toBe(false)
 	})
 
+	it('draws More folded with a chevron down and Less with a chevron up (boards LpMeer, LpMeerAlle)', () => {
+		expect(dashboardItems(base).at(-1).icon.name).toMatch(/ChevronDown/)
+		expect(dashboardItems({ ...base, expanded: true }).at(-1).icon.name).toMatch(/ChevronUp/)
+	})
+
 	it('unfolded, lists every dashboard, each with its star, ending in Less', () => {
 		const many = Array.from({ length: 11 }, (_, i) => ({ id: i + 1, uuid: `m-${i}`, name: `D${i}` }))
 		const list = dashboardItems({ userDashboards: many, favourites: ['m-2'], expanded: true, onSwitch, onToggleFavourite })

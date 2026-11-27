@@ -20,8 +20,9 @@
 			target="_blank"
 			rel="noopener noreferrer"
 			aria-label="sendent">
-			<img :src="sendentLogo" alt="sendent" class="lp-more-menu-footer__image">
+			<img :src="sendentLogo" alt="sendent" class="lp-more-menu-footer__image lp-more-menu-footer__image--sendent">
 		</a>
+		<span class="lp-more-menu-footer__divider" aria-hidden="true" />
 		<a
 			class="lp-more-menu-footer__link"
 			href="https://conduction.nl"
@@ -68,21 +69,27 @@ export default {
 </script>
 
 <style scoped>
+/* Board LpMeer: "Powered by" in plain 12px muted text, the two logos 15
+   and 13px high with a thin rule between them. */
 .lp-more-menu-footer {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 12px;
-	padding: 10px 16px;
+	gap: 14px;
+	padding: 10px 10px 12px;
 	border-top: 1px solid var(--color-border, #e0e0e0);
 }
 
 .lp-more-menu-footer__caption {
-	font-size: 11px;
-	font-weight: 600;
-	letter-spacing: 0.5px;
-	text-transform: uppercase;
+	font-size: 12px;
+	font-weight: 400;
 	color: var(--color-text-maxcontrast, #757575);
+}
+
+.lp-more-menu-footer__divider {
+	width: 1px;
+	height: 14px;
+	background: var(--color-border, #e4e6ea);
 }
 
 .lp-more-menu-footer__link {
@@ -99,9 +106,13 @@ export default {
 }
 
 .lp-more-menu-footer__image {
-	height: 16px;
+	height: 13px;
 	width: auto;
 	object-fit: contain;
+}
+
+.lp-more-menu-footer__image--sendent {
+	height: 15px;
 }
 
 /* The Conduction wordmark is white: invert it on light themes only. */

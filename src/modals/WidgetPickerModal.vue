@@ -847,7 +847,8 @@ export default {
 
 .widget-picker__grid {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	/* Board LpWidgetKiezen: four cards a row in the 1120 px dialog. */
+	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 8px;
 }
 
@@ -872,8 +873,9 @@ export default {
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
-	gap: 8px;
-	padding: 12px;
+	gap: 10px;
+	overflow: hidden;
+	padding: 0;
 	border: 2px solid var(--color-border);
 	background: var(--color-main-background);
 	border-radius: var(--border-radius-large);
@@ -1030,6 +1032,7 @@ export default {
 	align-items: flex-start;
 	gap: 12px;
 	min-width: 0;
+	padding: 0 12px 12px;
 }
 
 .widget-picker__widget-action--check {

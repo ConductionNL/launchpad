@@ -194,29 +194,35 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 	}//end stubVisible()
 
 	/**
-	 * REQ-DASH-018 step 1 (happy path): saved pref UUID resolves and is
-	 * returned with the source attached by the visible-list builder.
+	 * REQ-DASH-018 step 1 (happy path): the chosen start dashboard
+	 * resolves and is returned with the source attached by the
+	 * visible-list builder.
+	 *
+	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
 	 *
 	 * @return void
 	 */
-	public function testStep1HonoursSavedPreference(): void {
+	public function testStep1HonoursChosenStartDashboard(): void {
 		$personal = $this->makeDashboard('uuid-pref', Dashboard::TYPE_USER, null, 0, 'alice');
+		$groupDefault = $this->makeDashboard(
+			uuid: 'uuid-group-default',
+			type: Dashboard::TYPE_GROUP_SHARED,
+			groupId: 'marketing',
+			isDefault: 1
+		);
 		$this->stubVisible('alice', [
+			['dashboard' => $groupDefault, 'source' => Dashboard::SOURCE_GROUP],
 			['dashboard' => $personal, 'source' => Dashboard::SOURCE_USER],
 		]);
 
-		// Wave3.7 added a Step 0 default-dashboard pref read before the
-		// active-dashboard pref. Return '' for the default key so the
-		// resolver falls through to Step 1, which is what the original
-		// assertion exercises.
 		$this->config
 			->method('getUserValue')
 			->willReturnCallback(function ($uid, $app, $key, $default) {
 				if ($key === DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY) {
-					return '';
+					return 'uuid-pref';
 				}
 				if ($key === DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY) {
-					return 'uuid-pref';
+					return 'uuid-group-default';
 				}
 				return $default;
 			});
@@ -232,7 +238,56 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 		$this->assertNotNull($result);
 		$this->assertSame('uuid-pref', $result['dashboard']->getUuid());
 		$this->assertSame(Dashboard::SOURCE_USER, $result['source']);
-	}//end testStep1HonoursSavedPreference()
+	}//end testStep1HonoursChosenStartDashboard()
+
+	/**
+	 * REQ-DASH-018: the dashboard looked at last (`active_dashboard_uuid`)
+	 * does not decide where launchpad opens. Without a chosen start
+	 * dashboard the start page Vandaag (default-group default) wins, and
+	 * the last-used pref is neither honoured nor cleared.
+	 *
+	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+	 *
+	 * @return void
+	 */
+	public function testLastUsedDashboardDoesNotWinOverTheStartPage(): void {
+		$team = $this->makeDashboard(
+			uuid: 'uuid-team',
+			type: Dashboard::TYPE_GROUP_SHARED,
+			groupId: 'vergunningen'
+		);
+		$vandaag = $this->makeDashboard(
+			uuid: 'uuid-vandaag',
+			type: Dashboard::TYPE_GROUP_SHARED,
+			groupId: Dashboard::DEFAULT_GROUP_ID,
+			isDefault: 1
+		);
+		$this->stubVisible('pieter', [
+			['dashboard' => $team, 'source' => Dashboard::SOURCE_GROUP],
+			['dashboard' => $vandaag, 'source' => Dashboard::SOURCE_DEFAULT],
+		]);
+		$this->config
+			->method('getUserValue')
+			->willReturnCallback(function ($uid, $app, $key, $default) {
+				if ($key === DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY) {
+					return 'uuid-team';
+				}
+				if ($key === DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY) {
+					return '';
+				}
+				return $default;
+			});
+		$this->config->expects($this->never())->method('deleteUserValue');
+
+		$result = $this->service->resolveActiveDashboard(
+			userId: 'pieter',
+			primaryGroupId: null
+		);
+
+		$this->assertNotNull($result);
+		$this->assertSame('uuid-vandaag', $result['dashboard']->getUuid());
+		$this->assertSame(Dashboard::SOURCE_DEFAULT, $result['source']);
+	}//end testLastUsedDashboardDoesNotWinOverTheStartPage()
 
 	/**
 	 * REQ-DASH-018 stale-pref: saved UUID is no longer visible — the
@@ -252,15 +307,15 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 			['dashboard' => $groupDefault, 'source' => Dashboard::SOURCE_GROUP],
 		]);
 
-		// Wave3.7: keep the default-key read empty so the stale-pref
-		// exercise applies to the active-key path the test was written for.
+		// The start dashboard (default key) is stale; the last-used key is
+		// not read by the chain at all.
 		$this->config
 			->method('getUserValue')
 			->willReturnCallback(function ($uid, $app, $key, $default) {
-				if ($key === DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY) {
+				if ($key === DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY) {
 					return '';
 				}
-				if ($key === DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY) {
+				if ($key === DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY) {
 					return 'stale-uuid';
 				}
 				return $default;
@@ -269,13 +324,13 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 		$this->config
 			->expects($this->once())
 			->method('deleteUserValue')
-			->with('alice', Application::APP_ID, DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY);
+			->with('alice', Application::APP_ID, DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY);
 
 		$this->logger
 			->expects($this->once())
 			->method('warning')
 			->with(
-				$this->stringContains('stale active_dashboard_uuid'),
+				$this->stringContains('stale default_dashboard_uuid'),
 				$this->callback(function ($context) {
 					return ($context['uuid'] ?? null) === 'stale-uuid'
 						&& ($context['user'] ?? null) === 'alice';
@@ -497,15 +552,14 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 			['dashboard' => $current, 'source' => Dashboard::SOURCE_GROUP],
 		]);
 
-		// Wave3.7: keep default-key empty so the stale exercise applies
-		// to the active-key path only.
+		// The chosen start dashboard sits in a group she left.
 		$this->config
 			->method('getUserValue')
 			->willReturnCallback(function ($uid, $app, $key, $default) {
-				if ($key === DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY) {
+				if ($key === DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY) {
 					return '';
 				}
-				if ($key === DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY) {
+				if ($key === DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY) {
 					return 'uuid-old-engineering';
 				}
 				return $default;
@@ -536,17 +590,14 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 	 */
 	public function testStalePrefDeletedExactlyOncePerResolve(): void {
 		$this->stubVisible('alice', []);
-		// Wave3.7: only the active-key read returns the stale value; the
-		// default-key returns '' so Step 0 is skipped and the assertion
-		// about exactly-one deleteUserValue continues to apply to the
-		// active-key clear.
+		// Only the start-dashboard key holds a (stale) value.
 		$this->config
 			->method('getUserValue')
 			->willReturnCallback(function ($uid, $app, $key, $default) {
-				if ($key === DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY) {
+				if ($key === DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY) {
 					return '';
 				}
-				if ($key === DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY) {
+				if ($key === DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY) {
 					return 'stale';
 				}
 				return $default;
@@ -613,9 +664,9 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 	}//end testSetActivePreferenceEmptyStringClears()
 
 	/**
-	 * REQ-DASH-019 regression: getEffectiveDashboard (the API view
-	 * resolver behind `GET /api/dashboard`) MUST honour the saved
-	 * last-used preference against the full visible set — including a
+	 * REQ-DASH-018 regression: getEffectiveDashboard (the API view
+	 * resolver behind `GET /api/dashboard`) MUST honour the chosen
+	 * start dashboard against the full visible set — including a
 	 * group/default (showcase) dashboard whose `user_id` is NULL — so the
 	 * view matches the landing URL that resolveActiveDashboard() produces.
 	 * Previously it only consulted the legacy `is_active` column, 404'ing
@@ -623,7 +674,7 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetEffectiveDashboardHonoursActivePrefForGroupDashboard(): void {
+	public function testGetEffectiveDashboardHonoursStartDashboardForGroupDashboard(): void {
 		$showcase = $this->makeDashboard(
 			uuid: 'uuid-showcase',
 			type: Dashboard::TYPE_GROUP_SHARED,
@@ -639,10 +690,10 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 		$this->config
 			->method('getUserValue')
 			->willReturnCallback(function ($uid, $app, $key, $default) {
-				if ($key === DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY) {
+				if ($key === DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY) {
 					return '';
 				}
-				if ($key === DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY) {
+				if ($key === DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY) {
 					return 'uuid-showcase';
 				}
 				return $default;
@@ -666,7 +717,7 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 		$result = $this->service->getEffectiveDashboard(userId: 'alice');
 
 		$this->assertSame($expected, $result);
-	}//end testGetEffectiveDashboardHonoursActivePrefForGroupDashboard()
+	}//end testGetEffectiveDashboardHonoursStartDashboardForGroupDashboard()
 
 	/**
 	 * Wire both preference keys.
@@ -724,22 +775,24 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 	}//end testEffectiveDashboardPinnedDefaultBeatsLastUsed()
 
 	/**
-	 * An invisible pin falls through to a visible last-used preference.
+	 * An invisible start dashboard does NOT fall back to a visible
+	 * last-used preference: `GET /api/dashboard` follows the page chain
+	 * and goes on to the next rung (REQ-DASH-018).
+	 *
+	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
 	 *
 	 * @return void
 	 */
-	public function testEffectiveDashboardInvisiblePinFallsToLastUsed(): void {
+	public function testEffectiveDashboardIgnoresTheLastUsedPreference(): void {
 		$last = $this->makeDashboard(uuid: 'uuid-last', type: Dashboard::TYPE_GROUP_SHARED, groupId: 'staff');
 		$last->setId(2);
 		$this->stubVisible('alice', [['dashboard' => $last, 'source' => Dashboard::SOURCE_GROUP]]);
 		$this->stubPrefs(default: 'uuid-gone', active: 'uuid-last');
-		$this->placementMapper->method('findByDashboardId')->with(2)->willReturn([]);
-		$this->dashResolver->method('buildResult')->willReturnCallback(
-			static fn (Dashboard $dashboard, array $placements): array => ['built' => $dashboard->getUuid()]
-		);
+		$this->dashResolver->expects($this->never())->method('buildResult');
+		$this->dashResolver->method('tryGetActiveDashboard')->with(userId: 'alice')->willReturn(['legacy' => true]);
 
-		$this->assertSame(['built' => 'uuid-last'], $this->resolveEffective());
-	}//end testEffectiveDashboardInvisiblePinFallsToLastUsed()
+		$this->assertSame(['legacy' => true], $this->resolveEffective());
+	}//end testEffectiveDashboardIgnoresTheLastUsedPreference()
 
 	/**
 	 * Invisible preferences fall through to the legacy active row, without clearing anything.

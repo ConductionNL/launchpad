@@ -531,8 +531,10 @@ class DashboardService {
 	}//end resolveEffectiveDashboard()
 
 	/**
-	 * Steps 0-1 of {@see self::resolveEffectiveDashboard()}: the pinned
-	 * default, then the last-used preference.
+	 * Step 1 of {@see self::resolveEffectiveDashboard()}: the person's
+	 * chosen start dashboard (Set as default, `default_dashboard_uuid`).
+	 * The last-used dashboard (`active_dashboard_uuid`) no longer decides
+	 * where launchpad opens (REQ-DASH-018).
 	 *
 	 * Both resolve against the user's full visible set. This honours a
 	 * group/default (showcase) dashboard whose `user_id` is NULL — not
@@ -543,45 +545,27 @@ class DashboardService {
 	 *
 	 * @param string $userId The user ID.
 	 *
-	 * @return array|null The built result, or null when neither preference is visible.
+	 * @return array|null The built result, or null when no visible start dashboard is chosen.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
 	 */
 	private function resolvePreferredEffectiveDashboard(string $userId): array|null {
-		$defaultUuid = $this->getDefaultPreference(userId: $userId);
-		$activeUuid = $this->getLastUsedPreference(userId: $userId);
-		if ($defaultUuid === '' && $activeUuid === '') {
+		$startUuid = $this->getDefaultPreference(userId: $userId);
+		if ($startUuid === '') {
 			return null;
 		}
 
-		$visible = $this->getVisibleToUser(userId: $userId);
-		// Default pin wins over last-used — same precedence as
-		// resolveActiveDashboard() steps 0 then 1.
-		foreach ([$defaultUuid, $activeUuid] as $prefUuid) {
-			$entry = $this->findVisibleByUuid(visible: $visible, uuid: $prefUuid);
-			if ($entry !== null) {
-				return $this->preferredResult(entry: $entry, userId: $userId);
-			}
+		$entry = $this->findVisibleByUuid(
+			visible: $this->getVisibleToUser(userId: $userId),
+			uuid: $startUuid
+		);
+		if ($entry === null) {
+			return null;
 		}
 
-		return null;
+		return $this->preferredResult(entry: $entry, userId: $userId);
 	}//end resolvePreferredEffectiveDashboard()
-
-	/**
-	 * The auto-overwriting last-used dashboard preference (REQ-DASH-019).
-	 *
-	 * @param string $userId The user ID.
-	 *
-	 * @return string The stored UUID, or '' when unset.
-	 */
-	private function getLastUsedPreference(string $userId): string {
-		return (string)$this->platform->config->getUserValue(
-			userId: $userId,
-			appName: Application::APP_ID,
-			key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY,
-			default: ''
-		);
-	}//end getLastUsedPreference()
 
 	/**
 	 * The visible entry with this UUID; null for an empty UUID or no match.
@@ -2022,8 +2006,10 @@ class DashboardService {
 	 * chain defined in REQ-DASH-018.
 	 *
 	 * Steps:
-	 *  1. Saved `active_dashboard_uuid` preference — if the UUID resolves to
-	 *     a dashboard currently visible to the user (REQ-DASH-013).
+	 *  1. The chosen start dashboard (`default_dashboard_uuid`, Set as
+	 *     default) — if the UUID resolves to a dashboard currently visible
+	 *     to the user (REQ-DASH-013). The last-used dashboard
+	 *     (`active_dashboard_uuid`) does not decide where launchpad opens.
 	 *  2. `group_shared` with `isDefault = 1` in the user's primary group.
 	 *  3. `group_shared` with `isDefault = 1` in the `'default'` group.
 	 *  4. First `group_shared` (by sortOrder ASC, then createdAt) in the
@@ -2038,6 +2024,8 @@ class DashboardService {
 	 * The only side-effect on read is the stale-pref auto-clear in step 1:
 	 * when the saved UUID is not visible the pref is deleted and a WARNING
 	 * is logged before falling through to step 2.
+	 *
+	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
 	 *
 	 * @param string $userId The user ID.
 	 * @param string|null $primaryGroupId The user's primary group ID, or null /
@@ -2060,7 +2048,7 @@ class DashboardService {
 		// and to avoid redundant DB round-trips.
 		$visible = $this->getVisibleToUser(userId: $userId);
 
-		// Steps 0-1: the pinned default, then the saved preference.
+		// Step 1: the chosen start dashboard.
 		$preferred = $this->resolvePreferredActiveDashboard(
 			userId: $userId,
 			byUuid: $this->indexVisibleByUuid(visible: $visible)
@@ -2120,33 +2108,27 @@ class DashboardService {
 	}//end indexVisibleByUuid()
 
 	/**
-	 * Steps 0-1 of {@see self::resolveActiveDashboard()}.
+	 * Step 1 of {@see self::resolveActiveDashboard()}: the chosen start
+	 * dashboard.
 	 *
-	 * Step 0 (wave3.7): explicit default — if the user has pinned a
-	 * default dashboard via the per-row "Set as default" action, it always
-	 * wins over the auto-overwriting `active_dashboard_uuid` pref so
-	 * visiting `/apps/launchpad/` consistently opens the same dashboard
-	 * regardless of where the user navigated last. Step 1: saved preference.
+	 * Only the explicit "Set as default" choice counts, so visiting
+	 * `/apps/launchpad/` opens the start page (Vandaag) or the chosen start
+	 * dashboard regardless of where the user navigated last. The
+	 * auto-overwriting `active_dashboard_uuid` pref is still written on a
+	 * switch (REQ-DASH-019) but is not read here (REQ-DASH-018).
 	 *
 	 * @param string                                                     $userId The user ID.
 	 * @param array<string, array{dashboard: Dashboard, source: string}> $byUuid UUID-keyed visible index.
 	 *
 	 * @return array{dashboard: Dashboard, source: string}|null The hit, or null to fall through.
+	 *
+	 * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
 	 */
 	private function resolvePreferredActiveDashboard(string $userId, array $byUuid): ?array {
-		$pinned = $this->resolvePreferredDashboard(
-			userId: $userId,
-			byUuid: $byUuid,
-			prefKey: self::DEFAULT_DASHBOARD_UUID_PREF_KEY
-		);
-		if ($pinned !== null) {
-			return $pinned;
-		}
-
 		return $this->resolvePreferredDashboard(
 			userId: $userId,
 			byUuid: $byUuid,
-			prefKey: self::ACTIVE_DASHBOARD_UUID_PREF_KEY
+			prefKey: self::DEFAULT_DASHBOARD_UUID_PREF_KEY
 		);
 	}//end resolvePreferredActiveDashboard()
 
@@ -2276,8 +2258,8 @@ class DashboardService {
 	 * the user's own primary group, which is the more specific of the two.
 	 *
 	 * With personal dashboards allowed the user receives a copy, once, and it
-	 * becomes their saved choice, so every later visit resolves it through
-	 * the preference step and this rung stays silent (it only fires for a
+	 * becomes their start dashboard, so every later visit resolves it through
+	 * the start-dashboard step and this rung stays silent (it only fires for a
 	 * user who owns nothing). With personal dashboards off no copy may be
 	 * made (REQ-ASET-003), and the template itself is shown, view only.
 	 *
@@ -2286,6 +2268,7 @@ class DashboardService {
 	 * @return array{dashboard: Dashboard, viewOnly: bool}|null The dashboard to show, or null to fall through.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-019
+	 * @spec openspec/changes/start-page-stays-vandaag/specs/admin-templates/spec.md
 	 */
 	private function resolveTemplateRung(string $userId): ?array {
 		$template = $this->builders->templateService->getApplicableTemplate(userId: $userId);
@@ -2302,43 +2285,44 @@ class DashboardService {
 
 	/**
 	 * Whether the applicable template is not this user's start: they own
-	 * a dashboard already, or the template targets no group and their
-	 * primary group has a default of its own.
+	 * a dashboard already, chose a start dashboard, or the template targets
+	 * no group and their primary group has a default of its own.
 	 *
-	 * "First time" means: owns nothing yet. Whoever has a personal
-	 * dashboard already made, or was given, their start.
+	 * "Already using launchpad" means: owns a personal dashboard or chose a
+	 * start dashboard. Which dashboard they looked at last does not count.
 	 *
 	 * @param string    $userId   The user.
 	 * @param Dashboard $template The applicable template.
 	 *
 	 * @return bool True when the template is not shown.
+	 *
+	 * @spec openspec/changes/start-page-stays-vandaag/specs/admin-templates/spec.md
 	 */
 	private function templateStepsAside(string $userId, Dashboard $template): bool {
 		return $this->stores->dashboardMapper->findByUserId(userId: $userId) !== []
+			|| $this->getDefaultPreference(userId: $userId) !== ''
 			|| ($template->getTargetGroupsArray() === []
 			&& $this->hasPrimaryGroupDefault(userId: $userId) === true);
 	}//end templateStepsAside()
 
 	/**
-	 * Copy the template for the user and make the copy their active
-	 * dashboard.
+	 * Copy the template for the user and make the copy their start
+	 * dashboard (`default_dashboard_uuid`), so later visits find it through
+	 * step 1 of REQ-DASH-018.
 	 *
 	 * @param string    $userId   The user.
 	 * @param Dashboard $template The applicable template.
 	 *
 	 * @return Dashboard The copy.
+	 *
+	 * @spec openspec/changes/start-page-stays-vandaag/specs/admin-templates/spec.md
 	 */
 	private function copyTemplateFor(string $userId, Dashboard $template): Dashboard {
 		$copy = $this->builders->templateService->createDashboardFromTemplate(
 			userId: $userId,
 			template: $template
 		);
-		$this->platform->config->setUserValue(
-			userId: $userId,
-			appName: Application::APP_ID,
-			key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY,
-			value: (string)$copy->getUuid()
-		);
+		$this->setDefaultPreference(userId: $userId, uuid: (string)$copy->getUuid());
 
 		return $copy;
 	}//end copyTemplateFor()

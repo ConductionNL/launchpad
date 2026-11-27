@@ -82,7 +82,7 @@ async function waitForShell(page: ReturnType<typeof test.extend>['page']) {
 	await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
 }
 
-test.describe('REQ-SHELL-004: the dashboards are reached through More', () => {
+test.describe('REQ-SHELL-014: the dashboards are reached through More', () => {
 	test.beforeEach(async ({ page }) => {
 		await waitForShell(page)
 	})
@@ -92,20 +92,23 @@ test.describe('REQ-SHELL-004: the dashboards are reached through More', () => {
 		await expect(page.locator(MORE_MENU)).toHaveCount(1)
 		await expect(page.locator(MORE_MENU)).toBeVisible()
 		await expect(page.locator('.launchpad-sidebar-toggle')).toHaveCount(0)
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
+		await expect(page.locator('.dashboard-switcher-sidebar')).toHaveCount(0)
 	})
 
-	// @e2e runtime-shell::all-dashboards-opens-the-switcher
-	test('All dashboards in More opens the switcher, and its close button closes it', async ({ page }) => {
+	// @e2e runtime-shell::more-unfolds-in-place
+	test('More in the Dashboards column unfolds it in place, and Less folds it, without a sidebar', async ({ page }) => {
 		await openDashboardSwitcher(page)
-		await page.locator('.dashboard-switcher-sidebar__close').click()
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
+		await expect(page.locator('.dashboard-switcher-sidebar')).toHaveCount(0)
+		const unfold = page.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]')
+		await unfold.click()
+		await expect(unfold).toHaveAttribute('aria-expanded', 'false')
+		await expect(page.locator('[data-testid="launchpad-more-menu-panel"]')).toBeVisible()
 	})
 
 	// @e2e runtime-shell::no-active-dashboard-select-control
 	test('More marks the open dashboard and the page has no dashboard select', async ({ browser }) => {
-		// A fresh member, so the open dashboard is among the few More lists
-		// (it lists eight before "All dashboards").
+		// A fresh member without favourites: More's expanded list holds every
+		// dashboard they can open (REQ-SHELL-015).
 		const { username, password } = await provisionThrowawayUser('e2e-more-mark')
 		// Seed a second dashboard beside the shipped default one and make it
 		// the open one, so "the open dashboard is the marked one" is checked
@@ -132,7 +135,7 @@ test.describe('REQ-SHELL-004: the dashboards are reached through More', () => {
 		try {
 			await waitForShell(page)
 			await expect(page.locator('select[name="activeDashboard"]')).toHaveCount(0)
-			await page.locator(MORE_MENU).locator('[data-testid="launchpad-more-menu-trigger"]').click()
+			await openDashboardSwitcher(page)
 			const rows = page.locator('[data-testid^="launchpad-more-menu-item-dashboard-"]')
 			await expect(rows.first()).toBeVisible()
 			expect(await rows.count(), 'more than one dashboard is listed').toBeGreaterThan(1)

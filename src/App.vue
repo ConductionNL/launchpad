@@ -78,6 +78,7 @@ import customComponents from './customComponents.js'
 import { LAZY_ICON_CATALOGUE } from './services/iconCatalogue.js'
 import { buildPeopleSource } from './services/widgetDataAdapters.js'
 import { isKioskMode } from './utils/kioskMode.js'
+import { readCanManageAnnouncements } from './utils/loadInitialState.js'
 import { watchPageMenuTarget } from './utils/pageMenuTarget.js'
 import { permits } from './utils/permissions.js'
 
@@ -316,14 +317,16 @@ export default {
 		 * The decision `StartPageMenu` renders from (REQ-SHELL-009). The
 		 * panel is never rendered, so the menus always carry its entries.
 		 *
-		 * @return {{ railSuppressed: boolean, entries: object[], isAdmin: boolean, includePersonalSettings: boolean }}
+		 * @return {{ railSuppressed: boolean, entries: object[], isAdmin: boolean, canManageAnnouncements: boolean, includePersonalSettings: boolean }}
 		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
 		 */
 		chromeState() {
 			return {
 				railSuppressed: true,
 				entries: this.chromeMenuEntries,
 				isAdmin: permits('admin', this.permissions),
+				canManageAnnouncements: readCanManageAnnouncements(),
 				includePersonalSettings:
 					this.manifest?.nav?.includePersonalSettings !== false,
 			}

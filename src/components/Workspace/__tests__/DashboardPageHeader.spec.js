@@ -35,11 +35,11 @@ describe('DashboardPageHeader', () => {
 		expect(wrapper.find('.' + PAGE_HEADER_DOCK_CLASS).exists()).toBe(true)
 	})
 
-	it('offers Download as its only action of its own: Edit and Add widget are in the More menu (LpWerkplek)', () => {
+	it('has no button of its own: Download, Edit and Add widget are in the More menu (review item 8)', () => {
 		for (const props of [{}, { source: 'group' }, { isDefault: true }, { permissionLevel: 'view_only' }]) {
-			const buttons = mountHeader(props).findAll('button')
-			expect(buttons).toHaveLength(1)
-			expect(buttons[0].attributes('data-testid')).toBe('dashboard-download')
+			const header = mountHeader(props)
+			expect(header.findAll('button')).toHaveLength(0)
+			expect(header.find('[data-testid="dashboard-download"]').exists()).toBe(false)
 		}
 	})
 
@@ -135,14 +135,3 @@ describe('lastChangedText', () => {
 })
 
 // @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
-describe('Download (REQ-DPD-003)', () => {
-	it('prints the dashboard in the reader\'s browser, also with view-only rights', async () => {
-		const print = vi.spyOn(window, 'print').mockImplementation(() => {})
-		const wrapper = mountHeader({ permissionLevel: 'view_only', dashboard: { name: 'Managementinformatie', description: '', updatedAt: null } })
-		const button = wrapper.find('[data-testid="dashboard-download"]')
-		expect(button.text()).toBe('Download')
-		await button.trigger('click')
-		expect(print).toHaveBeenCalledTimes(1)
-		print.mockRestore()
-	})
-})

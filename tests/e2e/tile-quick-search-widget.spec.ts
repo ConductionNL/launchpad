@@ -51,7 +51,7 @@ import type { APIRequestContext, Locator, Page } from '@playwright/test'
 import { expect, request, test } from '@playwright/test'
 import { closeSidebar } from './fixtures/widget-flow.ts'
 import { BASE_URL } from './support/baseUrl.ts'
-import { enterEditMode, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { addWidgetFromMore, enterEditMode, switchToDashboard } from './support/dashboardSwitcher.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN = {
@@ -960,14 +960,8 @@ test.describe('tile quick-search — widget configuration (REQ-QSEARCH-005)', ()
 
 			// Add Widget flow on THIS dashboard's row (widget-flow.ts opens
 			// the first personal row, which need not be this one).
-			await openDashboardSwitcher(page)
-			const row = page
-				.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-				.filter({ hasText: MAIN_NAME })
-				.first()
-			await expect(row).toBeVisible({ timeout: 10_000 })
-			await row.locator('.dashboard-row-actions button').first().click()
-			await page.getByRole('menuitem', { name: /^add widget$/i }).click()
+			await switchToDashboard(page, MAIN_NAME)
+			await addWidgetFromMore(page)
 			await chooseAndAdd(page.locator('[data-testid="widget-picker-type-search"]'))
 			const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 			await expect(dialog).toBeVisible({ timeout: 10_000 })

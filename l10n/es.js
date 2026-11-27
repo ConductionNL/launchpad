@@ -1,6 +1,18 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Announcements" : "Anuncios",
+    "Opens automatically" : "Se abre automáticamente",
+    "Could not add the dashboard to your favourites" : "No se pudo añadir el panel a tus favoritos",
+    "Could not remove the dashboard from your favourites" : "No se pudo quitar el panel de tus favoritos",
+    "Star a dashboard to keep it here" : "Marca un panel con una estrella para verlo aquí",
+    "New dashboard" : "Nuevo panel",
+    "favourites only" : "solo favoritos",
+    "Less" : "Menos",
+    "Add to favourites: {name}" : "Añadir a favoritos: {name}",
+    "Remove from favourites: {name}" : "Quitar de favoritos: {name}",
+    "My workspace" : "Mi espacio de trabajo",
+    "_%n more dashboard_::_%n more dashboards_" : ["%n panel más", "%n paneles más"],
     "Close {title}" : "Cerrar {title}",
     "Write a comment" : "Escribir un comentario",
     "Send" : "Enviar",

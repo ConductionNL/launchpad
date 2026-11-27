@@ -13,17 +13,13 @@
  * (fixtures/secondary-user.ts).
  *
  * Where the surfaces live (read from the source, not guessed):
- *  - the "action menu" of a dashboard is the per-row cog in the switcher
- *    (src/components/Workspace/DashboardRowActions.vue, aria-label
- *    "Dashboard menu"); the start page's "More" menu
- *    (DashboardMoreMenu.vue) carries the same edit entries under the same
- *    gate, so the non-edit test checks both;
+ *  - the "action menu" of a dashboard is This dashboard in the "More" menu
+ *    (DashboardMoreMenu.vue); the per-row cog of the old dashboards sidebar
+ *    is gone (more-menu-favourites);
  *  - the widget context menu is WidgetContextMenu.vue
  *    (`data-testid="widget-context-menu"`), opened from
  *    `useGridManager.onWidgetRightClick`, which calls `preventDefault()` only
  *    when it opens;
- *  - the backdrop is SidebarBackdrop.vue (`.launchpad-sidebar-backdrop`),
- *    teleported to body beside the sidebar by Views.vue;
  *  - the support note is nextcloud-vue's CnSupportDialog
  *    (`data-testid-modal="cn-support-dialog"`, title "Support {appName}"),
  *    mounted by CnAppRoot unless App.vue passes `:supportDialog="false"`;
@@ -35,8 +31,6 @@
  *   @e2e runtime-shell::mount-point-present
  *   @e2e runtime-shell::non-edit-user-has-no-edit-affordances-visible
  *   @e2e runtime-shell::canedit-user-sees-full-edit-menu
- *   @e2e runtime-shell::backdrop-closes-sidebar-on-click
- *   @e2e runtime-shell::click-on-the-sidebar-itself-does-not-close-it
  *   @e2e runtime-shell::a-members-first-visit-shows-no-support-note
  *   @e2e runtime-shell::an-administrators-first-visit-keeps-the-note
  *   @e2e runtime-shell::a-first-visit-starts-the-tour
@@ -68,7 +62,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { enterEditMode, MORE_MENU, openDashboardSwitcher, openSettingsGroup } from './support/dashboardSwitcher.ts'
+import { enterEditMode, MORE_MENU, openSettingsGroup } from './support/dashboardSwitcher.ts'
 import {
 	ADMIN_TOUR_KEY,
 	quietFirstVisit,
@@ -91,8 +85,6 @@ const APP_URL = '/index.php/apps/launchpad'
 const ADMIN_PAGE_URL = '/index.php/settings/admin/launchpad'
 const RUN = Date.now()
 
-const ROW = '.dashboard-switcher-sidebar__item'
-const SIDEBAR = '.dashboard-switcher-sidebar'
 const CONTEXT_MENU = '[data-testid="widget-context-menu"]'
 const TOUR = '.cn-walkthrough'
 const TOUR_CARD = '.cn-walkthrough__card'
@@ -160,19 +152,6 @@ async function openLaunchPad(page: Page): Promise<void> {
 }
 
 /**
- * The switcher row of a dashboard, by its exact name.
- *
- * @param page the page.
- * @param name the dashboard's name.
- * @return the row.
- */
-function row(page: Page, name: string): Locator {
-	return page.locator(ROW).filter({
-		has: page.locator('.dashboard-switcher-sidebar__label', { hasText: name }),
-	})
-}
-
-/**
  * Record, for every right-click from now on, whether the page suppressed the
  * browser's own menu. A bubble-phase listener on `window` runs after every
  * handler on the widget, so it sees the final `defaultPrevented`.
@@ -200,17 +179,6 @@ async function recordedContextMenus(page: Page): Promise<boolean[]> {
 	return page.evaluate(
 		() => (window as unknown as { lpContextMenus: boolean[] }).lpContextMenus,
 	)
-}
-
-/**
- * Close the switcher sidebar with its own close button.
- *
- * @param page the page.
- * @return nothing.
- */
-async function closeSwitcher(page: Page): Promise<void> {
-	await page.locator('.dashboard-switcher-sidebar__close').click()
-	await expect(page.locator(SIDEBAR)).not.toHaveClass(/\bopen\b/)
 }
 
 /**
@@ -413,31 +381,6 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 			)
 			await page.keyboard.press('Escape')
 
-			// The dashboard's own action menu, the row cog in the switcher.
-			await openDashboardSwitcher(page)
-			await row(page, GROUP_DASH)
-				.locator('.dashboard-row-actions button')
-				.first()
-				.click()
-			await expect(
-				page.getByRole('menuitem', {
-					name: /Set as default|Default dashboard/,
-				}),
-			).toBeVisible()
-			await expect(
-				page.getByRole('menuitem', { name: /^Add widget$/ }),
-			).toHaveCount(0)
-			await expect(
-				page.getByRole('menuitem', {
-					name: /Save dashboard|Edit dashboard/,
-				}),
-			).toHaveCount(0)
-			await expect(
-				page.getByRole('menuitem', { name: /Dashboard configuration/ }),
-			).toHaveCount(0)
-			await page.keyboard.press('Escape')
-			await closeSwitcher(page)
-
 			// Right-click falls through to the browser: nothing suppresses the
 			// native menu and LaunchPad's own popover does not open.
 			await recordContextMenus(page)
@@ -478,37 +421,6 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 		await page.keyboard.press('Escape')
 		await expect(panel).toBeHidden()
 
-		// And the same entries in the dashboard's row cog in the switcher.
-		await openDashboardSwitcher(page)
-		await row(page, ADMIN_DASH)
-			.locator('.dashboard-row-actions button')
-			.first()
-			.click()
-		// CONTROL: the menu is open.
-		await expect(
-			page.getByRole('menuitem', { name: /Set as default|Default dashboard/ }),
-		).toBeVisible()
-		// The edit entry reads "Edit dashboard" outside edit mode and
-		// "Save dashboard" inside it.
-		for (const name of [
-			/^Add widget$/,
-			/Save dashboard|Edit dashboard/,
-			/Dashboard configuration…/,
-		]) {
-			await expect
-				.soft(
-					page.getByRole('menuitem', { name }),
-					`action menu entry ${name}`,
-				)
-				.toBeVisible()
-		}
-		await page.keyboard.press('Escape')
-		// Documentation moved out of the row menu into the switcher's footer.
-		await expect
-			.soft(page.locator(SIDEBAR).getByRole('link', { name: /Documentation/ }))
-			.toBeVisible()
-		await closeSwitcher(page)
-
 		// The widget context menu belongs to edit mode (REQ-WDG-015).
 		await enterEditMode(page)
 		await recordContextMenus(page)
@@ -520,62 +432,6 @@ test.describe('REQ-SHELL-002: edit affordances gated by canEdit', () => {
 			)
 			.toEqual([true])
 		await expect.soft(page.locator(CONTEXT_MENU)).toBeVisible()
-	})
-})
-
-// ─────────────────────────────────────────────────────────────────────────────
-// REQ-SHELL-006 Sidebar backdrop
-// ─────────────────────────────────────────────────────────────────────────────
-
-test.describe('REQ-SHELL-006: sidebar backdrop', () => {
-	let admin: APIRequestContext
-	let dashboard: SeededDashboard | null = null
-
-	test.beforeAll(async () => {
-		admin = await adminContext()
-		dashboard = await seedActiveDashboard(admin, `E2E Shell backdrop ${RUN}`)
-	})
-
-	test.afterAll(async () => {
-		await removeSeededDashboard(admin, dashboard)
-		await admin.dispose()
-	})
-
-	test.beforeEach(async ({ page }) => {
-		await openLaunchPad(page)
-		await openDashboardSwitcher(page)
-	})
-
-	// @e2e runtime-shell::backdrop-closes-sidebar-on-click
-	test('a click on the backdrop closes the sidebar', async ({ page }) => {
-		const backdrop = page.locator('.launchpad-sidebar-backdrop')
-		await expect(backdrop).toBeVisible()
-		const sidebar = page.locator(SIDEBAR)
-		const sidebarBox = (await sidebar.boundingBox())!
-		const backdropBox = (await backdrop.boundingBox())!
-		// A point of the backdrop well clear of the 280px panel and of the
-		// top-right controls.
-		await page.mouse.click(
-			sidebarBox.x + sidebarBox.width + 200,
-			backdropBox.y + backdropBox.height / 2,
-		)
-		await expect(sidebar).not.toHaveClass(/\bopen\b/)
-		await expect(backdrop).toHaveCount(0)
-	})
-
-	// @e2e runtime-shell::click-on-the-sidebar-itself-does-not-close-it
-	test('a click on the sidebar panel itself leaves it open', async ({ page }) => {
-		const sidebar = page.locator(SIDEBAR)
-		await expect(sidebar).toHaveClass(/\bopen\b/)
-		// The panel's heading: inside the panel, and not a control.
-		await page.locator('.dashboard-switcher-sidebar__title').click()
-		await expect(sidebar).toHaveClass(/\bopen\b/)
-		await expect(page.locator('.launchpad-sidebar-backdrop')).toBeVisible()
-		// CONTROL: the same session closes it from the backdrop, so the click
-		// above was not simply ignored by a sidebar that never closes.
-		const box = (await sidebar.boundingBox())!
-		await page.mouse.click(box.x + box.width + 200, box.y + box.height / 2)
-		await expect(sidebar).not.toHaveClass(/\bopen\b/)
 	})
 })
 

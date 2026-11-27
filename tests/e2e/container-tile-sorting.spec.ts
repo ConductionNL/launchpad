@@ -236,8 +236,15 @@ test('most used: the counts stay in the browser, a click sends nothing but the t
 }) => {
 	await sortBy('most-used')
 	closePopups(context)
+	// Opening the dashboard records one page view (REQ-ANLT-002), sent after
+	// the page has loaded. It is not caused by a click, so it is waited for
+	// before listening; with analytics off it never comes.
+	const viewed = page
+		.waitForRequest((req) => req.url().includes('/view-event'), { timeout: 15_000 })
+		.catch(() => null)
 	await page.goto('/index.php/apps/launchpad/')
 	await drawnOrder(page)
+	await viewed
 
 	const origin = new URL(BASE_URL).origin
 	const sent: Request[] = []

@@ -421,9 +421,9 @@ test('REQ-SAW-005: with financeq not installed the widget shows its empty state 
 				.getByText(NEIGHBOUR_TEXT),
 		).toBeVisible()
 		await openSidebar(page)
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toBeVisible()
+		await expect(page.locator('[data-testid="launchpad-more-menu-panel"]')).toBeVisible()
 		await closeSidebar(page)
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
+		await expect(page.locator('[data-testid="launchpad-more-menu-panel"]')).toBeHidden()
 	} finally {
 		await unplace(id)
 	}

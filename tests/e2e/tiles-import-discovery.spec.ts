@@ -35,7 +35,7 @@ import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
-import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, openTileAppChooser, switchToDashboard } from './support/dashboardSwitcher.ts'
 import {
 	readPlacements,
 	setUpOwnDashboard,
@@ -120,39 +120,34 @@ function bookmarksFile(folders: Record<string, number>): string {
 	].join('\n')
 }
 
-/**
- * The row cog of a dashboard in the sidebar, opened.
- *
- * @param page The page.
- * @param name The dashboard name.
- */
-async function openRowMenu(page: Page, name: string): Promise<void> {
-	await openDashboardSwitcher(page)
-	const row = page
-		.locator('.dashboard-switcher-sidebar__item')
-		.filter({ hasText: name })
-	await expect(row).toHaveCount(1)
-	await row.locator('.dashboard-row-actions button').first().click()
-	await expect(page.locator('[data-testid="cog-set-default"]')).toBeVisible()
-}
+/** A bookmarks file with one bookmark, only to open the import dialog. */
+const OPENING_FILE = '<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<DL><p><DT><A HREF="https://example.invalid/">Open</A></DL>'
 
 /**
- * Open the import dialog from a dashboard's row cog.
+ * Open the import dialog the way a person does now that the dashboards
+ * sidebar's row menu is gone (more-menu-favourites): open the dashboard
+ * through More, edit mode, Add widget, the App or link tile on "An app",
+ * then a bookmarks file under "Import bookmarks" (REQ-BMI-001).
  *
  * @param page The page.
  * @param name The dashboard name.
  * @return The dialog.
  */
 async function openImport(page: Page, name: string): Promise<Locator> {
-	await openRowMenu(page, name)
-	await page.getByRole('menuitem', { name: 'Import bookmarks' }).click()
+	await switchToDashboard(page, name)
+	const chooser = await openTileAppChooser(page)
+	await chooser.getByTestId('tile-app-bookmark-file').setInputFiles({
+		name: 'bookmarks.html',
+		mimeType: 'text/html',
+		buffer: Buffer.from(OPENING_FILE, 'utf-8'),
+	})
 	const dialog = page.locator('[data-testid="bookmark-import"]')
 	await expect(dialog).toBeVisible()
 	return dialog
 }
 
 // @e2e tiles::view-only-dashboard-offers-no-import
-test('on a view-only dashboard the menu has no "Import bookmarks"; with full permission it does', async ({
+test('on a view-only dashboard there is no way to "Import bookmarks"; with full permission the App or link tile form offers it', async ({
 	browser,
 }) => {
 	const viewer = await createPrincipal(admin, 'e2e-bmi-viewer')
@@ -175,13 +170,12 @@ test('on a view-only dashboard the menu has no "Import bookmarks"; with full per
 		)
 		try {
 			await page.goto('/index.php/apps/launchpad/')
-			await openRowMenu(page, `E2E Organisatie ${STAMP}`)
-			await expect(
-				page.getByRole('menuitem', { name: 'Import bookmarks' }),
-			).toHaveCount(0)
-			await expect(
-				page.locator('[data-testid="cog-import-bookmarks"]'),
-			).toHaveCount(0)
+			// View only: More offers no Edit, so there is no way to Add widget
+			// and the tile form's Import bookmarks.
+			await switchToDashboard(page, `E2E Organisatie ${STAMP}`)
+			await page.locator(`${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`).click()
+			await expect(page.locator('[data-testid="launchpad-more-menu-item-set-default"]')).toBeVisible()
+			await expect(page.locator('[data-testid="launchpad-more-menu-item-edit"]')).toHaveCount(0)
 			await page.keyboard.press('Escape')
 
 			const switched = await viewer.api.post(`${API}/dashboards/default`, {
@@ -189,10 +183,10 @@ test('on a view-only dashboard the menu has no "Import bookmarks"; with full per
 			})
 			expect(switched.status(), await switched.text()).toBeLessThan(300)
 			await page.goto('/index.php/apps/launchpad/')
-			await openRowMenu(page, `E2E Mijn werkplek ${STAMP}`)
-			await expect(
-				page.getByRole('menuitem', { name: 'Import bookmarks' }),
-			).toBeVisible()
+			await switchToDashboard(page, `E2E Mijn werkplek ${STAMP}`)
+			const chooser = await openTileAppChooser(page)
+			await expect(chooser.getByTestId('tile-app-bookmark-file')).toBeAttached()
+			await expect(chooser.getByText('Import bookmarks')).toBeVisible()
 		} finally {
 			await context.close()
 		}

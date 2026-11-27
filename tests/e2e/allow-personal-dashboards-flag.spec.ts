@@ -77,14 +77,8 @@ async function openSidebar(
 	page: ReturnType<typeof test.extend>['page'],
 ): Promise<void> {
 	await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 10_000 })
-	// Only click if the sidebar is not already open.
-	const isOpen = await page
-		.locator('.dashboard-switcher-sidebar.open')
-		.isVisible()
-		.catch(() => false)
-	if (!isOpen) {
-		await openDashboardSwitcher(page)
-	}
+	// Idempotent: More with every dashboard listed (the sidebar is gone).
+	await openDashboardSwitcher(page)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -130,10 +124,8 @@ test.describe('allow-personal-dashboards-flag — sidebar button visibility', ()
 		await waitForShell(page)
 
 		await openSidebar(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addBtn = sidebar.getByRole('button', {
-			name: /add dashboard|dashboard toevoegen/i,
-		})
+		// New dashboard at the foot of More's full list (REQ-SHELL-015).
+		const addBtn = page.locator('[data-testid="launchpad-more-menu-item-new-dashboard"]')
 
 		// The button MUST be absent from the DOM (v-if removes it entirely).
 		await expect(addBtn).toHaveCount(0)
@@ -149,10 +141,8 @@ test.describe('allow-personal-dashboards-flag — sidebar button visibility', ()
 		await waitForShell(page)
 
 		await openSidebar(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addBtn = sidebar.getByRole('button', {
-			name: /add dashboard|dashboard toevoegen/i,
-		})
+		// New dashboard at the foot of More's full list (REQ-SHELL-015).
+		const addBtn = page.locator('[data-testid="launchpad-more-menu-item-new-dashboard"]')
 
 		await expect(addBtn).toBeVisible({ timeout: 8_000 })
 	})

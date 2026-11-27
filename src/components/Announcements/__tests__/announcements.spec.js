@@ -43,6 +43,7 @@ vi.mock('../../../services/announcementsApi.js', () => ({
 		groups: vi.fn(),
 		confirmRead: vi.fn(),
 		readState: vi.fn(),
+		markSeen: vi.fn(),
 		receipts: vi.fn(),
 		dismissedNotices: vi.fn(),
 		saveDismissedNotices: vi.fn(),
@@ -82,6 +83,7 @@ const NEWS = [
 beforeEach(() => {
 	vi.clearAllMocks()
 	announcementsApi.readState.mockResolvedValue({ confirmed: [], receipts: [] })
+	announcementsApi.markSeen.mockResolvedValue([])
 	announcementsApi.list.mockResolvedValue({
 		announcements: NEWS,
 		reactions: { a: { likes: 0, comments: 0, liked: false } },
@@ -185,55 +187,77 @@ describe('AnnouncementsWidgetForm', () => {
 })
 
 describe('NoticeBanner', () => {
-	it('shows the level by icon and text, and a close button only when dismissible', () => {
+	it('shows the level by icon and text, and the check and the x on every notice', () => {
 		const warning = mountWith(NoticeBanner, { notice: { uuid: 'n', title: 'Onderhoud', level: 'warning', dismissible: false } })
 		expect(warning.attributes('role')).toBe('alert')
 		expect(warning.find('.notice-banner__level').text()).toBe('Warning')
-		expect(warning.find('[data-test="notice-dismiss"]').exists()).toBe(false)
+		warning.find('[data-test="notice-confirm"]').trigger('click')
+		warning.find('[data-test="notice-dismiss"]').trigger('click')
+		expect(warning.emitted('confirm')).toEqual([['n', 'check'], ['n', 'x']])
 
-		const info = mountWith(NoticeBanner, { notice: { uuid: 'i', title: 'Let op', level: 'info', dismissible: true } })
+		const info = mountWith(NoticeBanner, { notice: { uuid: 'i', title: 'Let op', level: 'info' }, read: true })
 		expect(info.find('.notice-banner__level').text()).toBe('Information')
-		info.find('[data-test="notice-dismiss"]').trigger('click')
-		expect(info.emitted('dismiss')).toEqual([['i']])
+		expect(info.find('[data-test="notice-confirm"]').attributes('aria-label')).toBe('Read')
 
 		const preview = mountWith(NoticeBanner, { notice: { uuid: 'i', title: 'Let op', dismissible: true }, preview: true })
 		expect(preview.find('[data-test="notice-dismiss"]').exists()).toBe(false)
+		expect(preview.find('[data-test="notice-confirm"]').exists()).toBe(false)
 	})
 })
 
 describe('NoticeBannerRegion', () => {
-	it('shows the notices, hides dismissed dismissible ones, and drops one at its end time', async () => {
+	const notices = () => [
+		{ uuid: 'w', kind: 'notice', title: 'Onderhoud zaaksysteem', level: 'warning', dismissible: false, expiresAt: '2026-11-14T12:00:00Z' },
+		{ uuid: 'd', kind: 'notice', title: 'Nieuwe printer', level: 'info', dismissible: true, expiresAt: '2026-11-20T00:00:00Z' },
+		{ uuid: 'x', kind: 'notice', title: 'Al weggeklikt', level: 'info', dismissible: true, expiresAt: '2026-11-20T00:00:00Z' },
+		{ uuid: 'c', kind: 'notice', title: 'Eerder gesloten', level: 'info', dismissible: false, expiresAt: '2026-11-20T00:00:00Z' },
+		NEWS[0],
+	]
+
+	it('hides closed notices, marks read ones, records the rest as seen, and drops one at its end time', async () => {
 		vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] })
 		vi.setSystemTime(new Date('2026-11-13T18:00:00Z'))
-		announcementsApi.list.mockResolvedValue({
-			announcements: [
-				{ uuid: 'w', kind: 'notice', title: 'Onderhoud zaaksysteem', level: 'warning', dismissible: false, expiresAt: '2026-11-14T12:00:00Z' },
-				{ uuid: 'd', kind: 'notice', title: 'Nieuwe printer', level: 'info', dismissible: true, expiresAt: '2026-11-20T00:00:00Z' },
-				{ uuid: 'x', kind: 'notice', title: 'Al weggeklikt', level: 'info', dismissible: true, expiresAt: '2026-11-20T00:00:00Z' },
-				NEWS[0],
-			],
-		})
-		announcementsApi.dismissedNotices.mockResolvedValue(['x', 'w', 'gone'])
+		announcementsApi.list.mockResolvedValue({ announcements: notices() })
+		announcementsApi.dismissedNotices.mockResolvedValue(['x', 'gone'])
+		announcementsApi.readState.mockResolvedValue({ seen: ['w'], confirmed: ['w', 'c'], closed: ['c'], receipts: [] })
 		const wrapper = mountWith(NoticeBannerRegion)
 		await flushPromises()
 
 		expect(wrapper.findAll('[data-test="notice-banner"]').map((b) => b.find('.notice-banner__title').text()))
 			.toEqual(['Onderhoud zaaksysteem', 'Nieuwe printer'])
-
-		await wrapper.vm.dismiss('d')
-		await wrapper.vm.dismiss('w')
-		expect(announcementsApi.saveDismissedNotices).toHaveBeenCalledTimes(1)
-		expect(announcementsApi.saveDismissedNotices).toHaveBeenCalledWith(['x', 'w', 'd'])
-		expect(wrapper.findAll('[data-test="notice-banner"]')).toHaveLength(1)
+		expect(wrapper.findAllComponents(NoticeBanner).map((b) => b.props('read'))).toEqual([true, false])
+		expect(announcementsApi.markSeen).toHaveBeenCalledTimes(1)
+		expect(announcementsApi.markSeen).toHaveBeenCalledWith(['w', 'd'])
 
 		vi.setSystemTime(new Date('2026-11-14T12:01:00Z'))
 		vi.advanceTimersByTime(TICK_MS)
 		await flushPromises()
-		expect(wrapper.find('[data-test="notice-region"]').exists()).toBe(false)
+		expect(wrapper.findAll('[data-test="notice-banner"]')).toHaveLength(1)
 		wrapper.unmount()
 	})
 
-	it('asks for the notices and the dismissed ones at the same time', async () => {
+	it('the check confirms and keeps the banner, the x confirms and hides it', async () => {
+		announcementsApi.list.mockResolvedValue({ announcements: [{ uuid: 'd', kind: 'notice', title: 'Nieuwe printer', level: 'info' }, { uuid: 'e', kind: 'notice', title: 'Brandoefening', level: 'info' }] })
+		announcementsApi.dismissedNotices.mockResolvedValue([])
+		announcementsApi.confirmRead.mockResolvedValue({ confirmed: true })
+		const wrapper = mountWith(NoticeBannerRegion)
+		await flushPromises()
+
+		await wrapper.find('[data-test="notice-confirm"]').trigger('click')
+		await flushPromises()
+		expect(announcementsApi.confirmRead).toHaveBeenCalledWith('d', 'check')
+		expect(wrapper.findAll('[data-test="notice-banner"]')).toHaveLength(2)
+		expect(wrapper.findAllComponents(NoticeBanner)[0].props('read')).toBe(true)
+
+		await wrapper.findAll('[data-test="notice-dismiss"]')[1].trigger('click')
+		await flushPromises()
+		expect(announcementsApi.confirmRead).toHaveBeenCalledWith('e', 'x')
+		expect(wrapper.findAll('[data-test="notice-banner"]')).toHaveLength(1)
+		expect(announcementsApi.saveDismissedNotices).not.toHaveBeenCalled()
+		wrapper.unmount()
+	})
+
+	it('asks for the notices, the dismissed ones and the read state at the same time', async () => {
 		let release
 		announcementsApi.list.mockReturnValue(new Promise((resolve) => { release = resolve }))
 		announcementsApi.dismissedNotices.mockResolvedValue([])
@@ -241,26 +265,32 @@ describe('NoticeBannerRegion', () => {
 		await flushPromises()
 
 		expect(announcementsApi.dismissedNotices).toHaveBeenCalled()
+		expect(announcementsApi.readState).toHaveBeenCalled()
 		release({ announcements: [] })
 		await flushPromises()
+		expect(announcementsApi.markSeen).not.toHaveBeenCalled()
 		wrapper.unmount()
 	})
 
-	it('still shows the notices when the dismissed list cannot be read', async () => {
+	it('still shows the notices when the dismissed list or the read state cannot be read', async () => {
 		announcementsApi.list.mockResolvedValue({
-			announcements: [{ uuid: 'd', kind: 'notice', title: 'Nieuwe printer', level: 'info', dismissible: true }],
+			announcements: [{ uuid: 'd', kind: 'notice', title: 'Nieuwe printer', level: 'info' }],
 		})
 		announcementsApi.dismissedNotices.mockRejectedValue(new Error('preferences down'))
+		announcementsApi.readState.mockRejectedValue(new Error('state down'))
+		announcementsApi.markSeen.mockRejectedValue(new Error('seen down'))
 		const wrapper = mountWith(NoticeBannerRegion)
 		await flushPromises()
 
 		expect(wrapper.vm.dismissed).toEqual([])
 		expect(wrapper.findAll('[data-test="notice-banner"]')).toHaveLength(1)
 		expect(logger.error).toHaveBeenCalledWith('Failed to load dismissed notices:', expect.any(Error))
+		expect(logger.error).toHaveBeenCalledWith('Failed to load the read state of the notices:', expect.any(Error))
+		expect(logger.error).toHaveBeenCalledWith('Failed to record the notices as seen:', expect.any(Error))
 		wrapper.unmount()
 	})
 
-	it('shows no region when the notices cannot be loaded, and keeps the old dismissed list', async () => {
+	it('shows no region when the notices cannot be loaded', async () => {
 		announcementsApi.list.mockRejectedValue(new Error('server down'))
 		announcementsApi.dismissedNotices.mockResolvedValue(['d'])
 		const wrapper = mountWith(NoticeBannerRegion)
@@ -268,35 +298,34 @@ describe('NoticeBannerRegion', () => {
 
 		expect(wrapper.find('[data-test="notice-region"]').exists()).toBe(false)
 		expect(wrapper.vm.notices).toEqual([])
-		expect(wrapper.vm.dismissed).toEqual([])
 		expect(logger.error).toHaveBeenCalledWith('Failed to load notices:', expect.any(Error))
 		wrapper.unmount()
 	})
 
-	it('hides a dismissed notice even when saving the preference fails', async () => {
+	it('hides a closed notice even when saving the confirmation fails', async () => {
 		announcementsApi.list.mockResolvedValue({
-			announcements: [{ uuid: 'd', kind: 'notice', title: 'Nieuwe printer', level: 'info', dismissible: true }],
+			announcements: [{ uuid: 'd', kind: 'notice', title: 'Nieuwe printer', level: 'info' }],
 		})
 		announcementsApi.dismissedNotices.mockResolvedValue([])
-		announcementsApi.saveDismissedNotices.mockRejectedValue(new Error('save failed'))
+		announcementsApi.confirmRead.mockRejectedValue(new Error('save failed'))
 		const wrapper = mountWith(NoticeBannerRegion)
 		await flushPromises()
 
-		await wrapper.vm.dismiss('d')
+		await wrapper.vm.confirm('d', 'x')
 		await flushPromises()
 		expect(wrapper.find('[data-test="notice-region"]').exists()).toBe(false)
-		expect(logger.error).toHaveBeenCalledWith('Failed to save the dismissed notice:', expect.any(Error))
+		expect(logger.error).toHaveBeenCalledWith('Failed to confirm the notice:', expect.any(Error))
 		wrapper.unmount()
 	})
 
-	it('ignores a dismiss for an unknown notice', async () => {
+	it('ignores a confirmation for an unknown notice', async () => {
 		announcementsApi.list.mockResolvedValue({ announcements: [] })
 		announcementsApi.dismissedNotices.mockResolvedValue([])
 		const wrapper = mountWith(NoticeBannerRegion)
 		await flushPromises()
 
-		await wrapper.vm.dismiss('nope')
-		expect(announcementsApi.saveDismissedNotices).not.toHaveBeenCalled()
+		await wrapper.vm.confirm('nope', 'x')
+		expect(announcementsApi.confirmRead).not.toHaveBeenCalled()
 		wrapper.unmount()
 	})
 })

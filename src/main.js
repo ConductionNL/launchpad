@@ -49,6 +49,7 @@ import bundledStub from './manifest.json'
 import registry from './registry.js'
 // Captures the boot address before the router's catch-all redirects it.
 import { appBase } from './utils/bootPath.js'
+import { installCarriedReads } from './utils/carriedApiReads.js'
 import { applyCustomCss, GLOBAL_STYLE_ID } from './utils/customCss.js'
 import { mountHeaderSearch } from './utils/headerSearchMount.js'
 import { loadInitialState } from './utils/loadInitialState.js'
@@ -230,6 +231,10 @@ router.beforeEach((to) => permissionGuard(to, permissions))
 // bookkeeping to what it is handed.
 const pageTypesProp = { ...defaultPageTypes }
 const registryProp = { ...registry }
+
+// The GETs the workspace page answered while it rendered (workspaceApiReads)
+// are served from the page once, before any component asks for them.
+installCarriedReads()
 
 const app = createApp({
 	name: 'LaunchpadRoot',

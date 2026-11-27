@@ -366,6 +366,26 @@ class InitialStateBuilder {
 	}//end setWorkspaceBootReads()
 
 	/**
+	 * Set the API reads the workspace view makes right after it mounts, as
+	 * `[{path, params, data}]` (see {@see \OCA\LaunchPad\Controller\WorkspaceApiReads}),
+	 * so the browser answers each of those GETs once from the page instead of
+	 * asking. Optional key; left out when null.
+	 *
+	 * @param array|null $reads The reads, or null.
+	 *
+	 * @return self
+	 *
+	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-2
+	 */
+	public function setWorkspaceApiReads(?array $reads): self {
+		if ($reads !== null) {
+			$this->values['workspaceApiReads'] = $reads;
+		}
+
+		return $this;
+	}//end setWorkspaceApiReads()
+
+	/**
 	 * Set what the app shell reads before it asks, by initial-state key:
 	 * `runtimeManifest` (see setRuntimeManifest()), `setup_status` (the
 	 * document `GET /api/setup/status` answers an admin, or `{forbidden: true}`

@@ -190,6 +190,41 @@ class InitialStateBuilderTest extends TestCase {
 	}//end testTheWorkspaceBootReadsAreProvidedOnlyWhenGiven()
 
 	/**
+	 * The workspace's carried API reads reach the page under
+	 * `workspaceApiReads` when given, and are left out when null, so every
+	 * read goes out.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-4
+	 */
+	public function testTheWorkspaceApiReadsAreProvidedOnlyWhenGiven(): void {
+		$reads = [['path' => '/api/announcements', 'params' => [], 'data' => ['announcements' => []]]];
+		foreach ([[$reads, true], [null, false]] as [$value, $provided]) {
+			$sink = [];
+			(new InitialStateBuilder(initialState: $this->makeRecordingState(sink: $sink), page: Page::WORKSPACE))
+				->setWidgets([])
+				->setLayout([])
+				->setPrimaryGroup('g')
+				->setPrimaryGroupName('G')
+				->setIsAdmin(false)
+				->setActiveDashboardId('')
+				->setDashboardSource('group')
+				->setGroupDashboards([])
+				->setUserDashboards([])
+				->setAllowUserDashboards(false)
+				->setAllowedWidgets(null)
+				->setWorkspaceApiReads($value)
+				->apply();
+
+			$this->assertSame(expected: $provided, actual: array_key_exists('workspaceApiReads', $sink));
+			if ($provided === true) {
+				$this->assertSame(expected: $reads, actual: $sink['workspaceApiReads']);
+			}
+		}
+	}//end testTheWorkspaceApiReadsAreProvidedOnlyWhenGiven()
+
+	/**
 	 * The shell's setup status and walkthrough preferences reach the page
 	 * under the keys nextcloud-vue reads when given, and are left out when
 	 * null, so the shell asks.

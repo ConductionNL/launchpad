@@ -37,12 +37,14 @@ class DashboardPayloads {
 	/**
 	 * Constructor.
 	 *
-	 * @param DashboardApiServices $services The dashboard, quota, translation and visibility services.
-	 * @param RequestActor|null    $actor    The action matrix check; without it no first load is given.
+	 * @param DashboardApiServices   $services The dashboard, quota, translation and visibility services.
+	 * @param RequestActor|null      $actor    The action matrix check; without it no first load is given.
+	 * @param WorkspaceApiReads|null $apiReads The workspace's first API reads, answered with the page.
 	 */
 	public function __construct(
 		private readonly DashboardApiServices $services,
 		private readonly ?RequestActor $actor=null,
+		public readonly ?WorkspaceApiReads $apiReads=null,
 	) {
 	}//end __construct()
 

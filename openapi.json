@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "LaunchPad",
-        "version": "1.1.17-unstable.20261125203000",
+        "version": "1.1.18-unstable.20261125162514",
         "description": "The JSON API of LaunchPad, the dashboard app for Nextcloud: dashboards and their widgets and tiles, kiosk screens, public shares, role-based layouts and permissions, templates and the admin settings behind them.\n\nEvery path is served under `/api/v1/`, the version this document describes. The unversioned `/api/` paths keep working, are deprecated, and name their `/api/v1/` successor in a `Link` header next to a `Deprecation` header. Errors are RFC 9457 problem details (`application/problem+json`), and every response carries an `API-Version` header. Paths that implement an external standard keep the formats of that standard and are not described here.",
         "contact": {
             "name": "Conduction B.V.",
@@ -330,6 +330,10 @@
         {
             "name": "widget-api",
             "description": "Controller for managing dashboard widgets."
+        },
+        {
+            "name": "widget-proposal",
+            "description": "Serves the widget picker's assistant line."
         },
         {
             "name": "work-packages",
@@ -14261,6 +14265,84 @@
                     },
                     "502": {
                         "$ref": "#/components/responses/Problem502"
+                    }
+                }
+            }
+        },
+        "/widget-picker/assistant": {
+            "get": {
+                "operationId": "widget-proposal-assistant",
+                "x-launchpad-stability": "internal",
+                "summary": "`GET /api/widget-picker/assistant`: whether the assistant line can answer",
+                "description": "`GET /api/widget-picker/assistant`: whether the assistant line can answer. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "widget-proposal"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/widget-picker/proposal": {
+            "post": {
+                "operationId": "widget-proposal-propose",
+                "x-launchpad-stability": "internal",
+                "summary": "`POST /api/widget-picker/proposal`: propose one offered card for a need",
+                "description": "`POST /api/widget-picker/proposal`: propose one offered card for a need. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "widget-proposal"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "need": {},
+                                    "cards": {}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/Problem503"
                     }
                 }
             }

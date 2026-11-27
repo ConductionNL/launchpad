@@ -4,7 +4,7 @@
  *
  * The widget picker's cards, kinds and counts (widget-picker-board-sync).
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md
+ * @spec openspec/specs/widgets/spec.md
  */
 
 import { describe, expect, it } from 'vitest'

@@ -9,7 +9,7 @@
  * widgets stand as cards under "From other Nextcloud apps", and a card is
  * placed with Add widget after it is chosen.
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+ * @spec openspec/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
  */
 
 import { mount } from '@vue/test-utils'

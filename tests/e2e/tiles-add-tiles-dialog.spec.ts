@@ -109,7 +109,11 @@ test('ticking Word, Excel and Outlook web makes the button read "Add 3 tiles", a
 		const headings = ['App catalogue', 'Found on this server', 'Ready-made tiles for Office', 'Import bookmarks']
 		const tops: number[] = []
 		for (const heading of headings) {
+			// Office is a group of choice boxes, so its title is the legend of a
+			// fieldset; the other sections carry a heading.
 			const h = dialog.getByRole('heading', { name: heading })
+				.or(dialog.getByRole('group', { name: heading }).locator('legend'))
+				.first()
 			await expect(h, `no section ${heading}`).toBeVisible()
 			tops.push((await h.boundingBox())!.y)
 		}

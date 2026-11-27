@@ -43,7 +43,7 @@
  *   @e2e widgets::place-an-app-tile
  *   @e2e widgets::embedded-page-not-allowed
  *
- * @spec openspec/changes/widget-picker-board-sync/specs/widgets/spec.md
+ * @spec openspec/specs/widgets/spec.md
  */
 
 import type { APIRequestContext, Browser, BrowserContext, Locator, Page } from '@playwright/test'

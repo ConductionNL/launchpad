@@ -529,16 +529,28 @@ test.describe('permission levels on a template copy the user owns', () => {
 
 	/** Open a widget's edit cog and list its menu items by name. */
 	async function cogItems(page: Page, placementId: number): Promise<string[]> {
-		await page
+		const trigger = page
 			.locator(
 				`[data-testid="widget-placement-${placementId}"] .launchpad-widget__cog button`,
 			)
 			.first()
-			.click()
-		const items = page.getByRole('menuitem')
+		await trigger.click()
+		// Read only the menu this trigger opened: a menu another widget left
+		// open would otherwise answer for this one.
+		const menuId = await trigger.getAttribute('aria-controls')
+		const menu = menuId ? page.locator(`[id="${menuId}"]`) : page.getByRole('menu')
+		const items = menu.getByRole('menuitem')
 		await expect(items.first()).toBeVisible({ timeout: 5_000 })
 		const names = (await items.allInnerTexts()).map((s) => s.trim())
-		await page.keyboard.press('Escape')
+		// Close it with Escape sent to the menu itself: a page-level Escape
+		// can miss it when focus sits elsewhere, and clicking the trigger
+		// after an Escape that did land reopens the menu.
+		await expect(async () => {
+			if (await menu.isVisible()) {
+				await menu.press('Escape')
+			}
+			await expect(menu).toBeHidden({ timeout: 1_000 })
+		}).toPass({ timeout: 5_000 })
 		return names
 	}
 
@@ -629,10 +641,9 @@ test.describe('permission levels on a template copy the user owns', () => {
 			// below finds the option when it is there.
 			expect(await cogItems(page, loose!.id)).toContain('Delete widget')
 
-			// SUSPECTED BUG: WidgetWrapper.vue always renders CnWidgetEditCog
-			// with Delete, and WidgetContextMenu.vue always renders Remove;
-			// only Views.vue's removeWidget() refuses afterwards with a toast.
-			// The spec says the option MUST NOT be available.
+			// The spec says the option MUST NOT be available: WidgetEditMenu
+			// and WidgetContextMenu leave Delete/Remove out through
+			// Views.vue's isRemovablePlacement().
 			expect
 				.soft(await cogItems(page, locked.id), 'compulsory widget cog')
 				.not.toContain('Delete widget')

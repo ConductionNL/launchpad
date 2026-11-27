@@ -229,7 +229,7 @@ describe('DashboardConfigModal tab split', () => {
 		}
 	})
 
-	// @spec openspec/changes/own-look-fields/specs/dashboards/spec.md#requirement-a-colour-field-shows-its-picker-beside-its-input-req-thm-005
+	// @spec openspec/changes/archive/2026-11-27-own-look-fields/specs/dashboards/spec.md#requirement-a-colour-field-shows-its-picker-beside-its-input-req-thm-005
 	it('draws Own look as on the board: a card, labels above, the swatch left of each hex field', () => {
 		const wrapper = mountModal()
 		const look = wrapper.find('[data-test="config-look"]')
@@ -250,7 +250,7 @@ describe('DashboardConfigModal tab split', () => {
 		}
 	})
 
-	// @spec openspec/changes/own-look-fields/specs/dashboards/spec.md#requirement-a-colour-field-shows-its-picker-beside-its-input-req-thm-005
+	// @spec openspec/changes/archive/2026-11-27-own-look-fields/specs/dashboards/spec.md#requirement-a-colour-field-shows-its-picker-beside-its-input-req-thm-005
 	it('shows the readable contrast under the fields once an accent is set, and the error when it is too low', async () => {
 		const wrapper = mountModal()
 		expect(wrapper.find('[data-testid="look-contrast-ok"]').exists()).toBe(false)

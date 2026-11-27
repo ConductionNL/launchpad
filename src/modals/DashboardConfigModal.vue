@@ -1111,7 +1111,7 @@ export default {
 		 * picker) left of the hex field, on one row.
 		 *
 		 * @return {object[]}
-		 * @spec openspec/changes/own-look-fields/specs/dashboards/spec.md#requirement-a-colour-field-shows-its-picker-beside-its-input-req-thm-005
+		 * @spec openspec/changes/archive/2026-11-27-own-look-fields/specs/dashboards/spec.md#requirement-a-colour-field-shows-its-picker-beside-its-input-req-thm-005
 		 */
 		lookColourFields() {
 			return [
@@ -2035,7 +2035,8 @@ export default {
 	padding: 14px 16px;
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius-large, 10px);
-	background: var(--color-background-hover);
+	/* The board's #fafbfc: a lighter step than the hover background. */
+	background: color-mix(in srgb, var(--color-background-hover) 40%, var(--color-main-background));
 }
 
 .dashboard-config__look-head {
@@ -2052,6 +2053,7 @@ export default {
 	margin: 0;
 	font-size: 14px;
 	font-weight: 700;
+	line-height: 1.2;
 }
 
 .dashboard-config__section-heading {

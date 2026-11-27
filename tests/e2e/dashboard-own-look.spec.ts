@@ -9,7 +9,7 @@
  * dashboard's background, and after Remove the dashboard follows the theme.
  * Runs as the admin (the project's storage state).
  *
- * @e2e openspec/changes/own-look-fields/specs/dashboards/spec.md
+ * @e2e openspec/changes/archive/2026-11-27-own-look-fields/specs/dashboards/spec.md
  */
 
 import type { APIRequestContext, Locator, Page } from '@playwright/test'

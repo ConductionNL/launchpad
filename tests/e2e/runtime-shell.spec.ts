@@ -258,9 +258,19 @@ async function gotoAndSettle(page: Page, url: string, key: string): Promise<void
 			res.request().method() === 'GET'
 			&& res.url().includes(`/api/preferences/${key}`),
 		{ timeout: 30_000 },
-	)
+	).catch(() => null)
 	await page.goto(url)
-	expect((await read).status()).toBe(200)
+	// The Workspace boots with the walkthrough's completion key in its initial
+	// state (`walkthrough_preferences`, REQ-INIT-010), so for that key it
+	// reads nothing over the network and decides at mount. Every other key,
+	// and any page without that state, is still read from the server.
+	const fromInitialState = key.startsWith(WORKSPACE_TOUR_KEY)
+		&& await page.locator('#initial-state-launchpad-walkthrough_preferences').count() > 0
+	if (fromInitialState === false) {
+		const res = await read
+		expect(res, `GET /api/preferences/${key} was not read`).not.toBeNull()
+		expect(res!.status()).toBe(200)
+	}
 	// The overlay mounts on the next render after the read resolves.
 	await page.waitForTimeout(1_500)
 }

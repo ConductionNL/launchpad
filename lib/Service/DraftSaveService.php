@@ -79,7 +79,8 @@ class DraftSaveService {
 	 *
 	 * @param DashboardDraft $draft The draft.
 	 *
-	 * @return array{dashboard: Dashboard, placements: list<WidgetPlacement>, removed: list<WidgetPlacement>} The stored dashboard and placements, and the widgets the save removed as they were stored.
+	 * @return array{dashboard: Dashboard, placements: list<WidgetPlacement>, removed: list<WidgetPlacement>}
+	 *         The stored dashboard and placements, and the removed widgets as they were stored.
 	 *
 	 * @throws InvalidArgumentException When the draft names a widget of another dashboard or is malformed (400).
 	 * @throws ForbiddenException       When one change is not allowed (403); nothing is stored.

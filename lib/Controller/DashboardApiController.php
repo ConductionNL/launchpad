@@ -33,7 +33,7 @@ use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\ResponseDefinitions;
-use OCA\LaunchPad\Service\CalculatedFieldService;
+use OCA\LaunchPad\Service\CalculatedFields\CalculatedFieldSources;
 use OCA\LaunchPad\Service\DashboardDraft;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
@@ -910,7 +910,7 @@ class DashboardApiController extends Controller {
 				...$fields->cleanupServerFields(
 					widget: [
 						'id'     => (string) $placement->getId(),
-						'source' => CalculatedFieldService::sourceKey(content: $placement->getContentArray()),
+						'source' => (new CalculatedFieldSources())->sourceKey(content: $placement->getContentArray()),
 					]
 				),
 			];

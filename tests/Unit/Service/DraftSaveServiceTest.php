@@ -211,7 +211,9 @@ class DraftSaveServiceTest extends TestCase {
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	public function testSaveReturnsTheRemovedWidgets(): void {
-		$this->widgets->method('updatePlacement')->willReturnCallback(fn (int $placementId): WidgetPlacement => $this->placement(id: $placementId, gridY: 0));
+		$this->widgets->method('updatePlacement')->willReturnCallback(
+			fn (int $placementId): WidgetPlacement => $this->placement(id: $placementId, gridY: 0)
+		);
 
 		$saved = $this->service()->save(draft: $this->draft(placements: [['id' => 1, 'version' => 3]]));
 

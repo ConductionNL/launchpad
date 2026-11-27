@@ -46,7 +46,7 @@ import type { Locator, Page } from '@playwright/test'
 import type { PlacementRow } from './support/headerWidget.ts'
 
 import { expect, test } from '@playwright/test'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, saveEditDraft } from './support/dashboardSwitcher.ts'
 import {
 	banner,
 	contrastRatio,
@@ -151,7 +151,7 @@ async function pickColour(page: Page, dialog: Locator, label: string, hex: strin
 }
 
 /**
- * Press Add, wait for the placement to be created and the modal to close,
+ * Press Add, wait for the modal to close, Save the edit-mode draft,
  * and read the new placement back from the server.
  *
  * @param page the page.
@@ -162,11 +162,10 @@ async function submit(page: Page, dialog: Locator): Promise<PlacementRow> {
 	const dashboardId = suite.dashboard().id
 	const before = (await headerPlacements(suite.api(), dashboardId)).map((p) => p.id)
 	await expect(addButton(dialog)).toBeEnabled({ timeout: 5_000 })
-	const created = page.waitForResponse((r) =>
-		r.request().method() === 'POST' && r.url().includes(`/api/dashboard/${dashboardId}/widgets`))
+	// Add puts the header in the edit-mode draft; Save stores it (REQ-EDIT-001/002).
 	await addButton(dialog).click()
-	expect((await created).status()).toBe(201)
 	await expect(dialog).not.toBeVisible({ timeout: 10_000 })
+	expect(await saveEditDraft(page)).toBe(200)
 
 	const after = await headerPlacements(suite.api(), dashboardId)
 	const fresh = after.filter((p) => !before.includes(p.id))

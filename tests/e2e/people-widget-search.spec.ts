@@ -64,7 +64,6 @@ import {
 import { adminContext, API } from './support/principals.ts'
 
 const STAMP = `${Date.now()}`
-const ROW = '[data-testid="launchpad-more-menu-dashboard-list"] [role="menuitemradio"]'
 
 let admin: APIRequestContext
 let group = ''

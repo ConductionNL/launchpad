@@ -211,3 +211,46 @@ shows More.
 - **GIVEN** a member opens More
 - **THEN** the menu's footer MUST show Powered by with the sendent and Conduction logos, each a link that opens in a new
   tab with `rel="noopener noreferrer"`
+
+### Requirement: The default dashboard carries a Default pill (REQ-SHELL-018)
+
+Ruben (27 Nov 2026, launchpad#2204; board LpMeer after design-system#1215): the dashboard that opens automatically (the
+effective default of REQ-EDM-001..005) MUST be marked in the More menu's Dashboards column, folded and expanded, with a
+pill (badge) reading "Default" (nl "Standaard"), not with a star: the yellow star is the favourite (REQ-SHELL-016). The
+pill MUST carry the tooltip "Opens automatically" (nl "Opent automatisch") and the accessible name "Default
+dashboard". Exactly one row carries it. Set as default MUST move it to the chosen dashboard without a reload.
+
+#### Scenario: The pill marks the effective default
+
+- **GIVEN** Pieter pinned "Vandaag" as his default
+- **WHEN** he opens More and More in the Dashboards column
+- **THEN** the "Vandaag" row MUST show the Default pill with the tooltip "Opens automatically", and no other row MUST
+
+#### Scenario: Set as default moves the pill
+
+- **GIVEN** Pieter on "Team Vergunningen", whose row has no pill
+- **WHEN** he chooses Set as default under This dashboard
+- **THEN** the pill MUST move to "Team Vergunningen" without a page reload
+
+### Requirement: The full list keeps the sidebar's icons, tree and detail filter (REQ-SHELL-019)
+
+Ruben (27 Nov 2026, launchpad#2204; board LpMeerAlle after design-system#1215): the expanded "All dashboards" list MUST
+take over what only the removed sidebar offered. Each row MUST show the dashboard's icon through the shared icon
+renderer (dashboard-icons). A dashboard with a parent MUST be listed indented under its parent, and a parent MUST carry an
+expand control that shows or hides its children (REQ-TREEUI-001). When the administrator defined detail fields, "Filter
+by detail" MUST stand above the list: choosing a field and a value MUST leave only the dashboards with that value
+(REQ-MDUI-003), and clearing it MUST show every dashboard again. The detail fields MUST be read only the first time the
+list is expanded, not when the page loads.
+
+#### Scenario: Children under their parent
+
+- **GIVEN** Sanne owns "Afdeling" with the child "Team Noord"
+- **WHEN** she expands the Dashboards column
+- **THEN** "Team Noord" MUST be listed indented under "Afdeling", and the expand control on "Afdeling" MUST hide and show
+  it
+
+#### Scenario: Filter by detail
+
+- **GIVEN** the detail field Department, with Payroll set to Finance and Onboarding to HR
+- **WHEN** Pieter expands the Dashboards column and filters on Department Finance
+- **THEN** only Payroll MUST be listed

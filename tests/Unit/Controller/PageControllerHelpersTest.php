@@ -402,9 +402,9 @@ class PageControllerHelpersTest extends TestCase {
 	 * @return void
 	 */
 	public function testWorkspaceAndPublicPageLinkTheLibraryStylesheetFirst(): void {
-		$this->assertSame(['nextcloud-vue', 'launchpad'], PageController::stylesFor(script: 'launchpad-main'));
-		$this->assertSame(['nextcloud-vue', 'launchpad'], PageController::stylesFor(script: 'launchpad-public'));
-		$this->assertSame(['launchpad'], PageController::stylesFor(script: 'launchpad-kiosk'));
+		$this->assertSame(expected: ['nextcloud-vue', 'launchpad'], actual: PageController::stylesFor(script: 'launchpad-main'));
+		$this->assertSame(expected: ['nextcloud-vue', 'launchpad'], actual: PageController::stylesFor(script: 'launchpad-public'));
+		$this->assertSame(expected: ['launchpad'], actual: PageController::stylesFor(script: 'launchpad-kiosk'));
 	}//end testWorkspaceAndPublicPageLinkTheLibraryStylesheetFirst()
 
 }

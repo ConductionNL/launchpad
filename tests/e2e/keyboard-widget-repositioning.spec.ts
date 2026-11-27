@@ -32,6 +32,7 @@
 import type { Placement } from './support/widgetPlacements.ts'
 
 import { expect, test } from '@playwright/test'
+import { saveEditDraft } from './support/dashboardSwitcher.ts'
 import { adminApi, openInEditMode, Seeds } from './support/widgetPlacements.ts'
 
 const RUN = Date.now()
@@ -117,6 +118,9 @@ test.describe('keyboard-accessible widget repositioning (grid-layout)', () => {
 			10,
 		)
 		expect(movedX).toBeGreaterThan(startX)
+
+		// The move lands in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBe(200)
 
 		// Reload and confirm the new position persisted.
 		await page.reload({ waitUntil: 'domcontentloaded' })

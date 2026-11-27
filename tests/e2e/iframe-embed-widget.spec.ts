@@ -50,7 +50,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { addWidgetFromMore, MORE_MENU, switchToDashboard } from './support/dashboardSwitcher.ts'
+import { addWidgetFromMore, MORE_MENU, saveEditDraft, switchToDashboard } from './support/dashboardSwitcher.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const API = '/index.php/apps/launchpad/api'
@@ -348,6 +348,8 @@ test('an allow-listed URL saves through the modal and lands in the placement con
 		await add.click()
 		await expect(dialog).not.toBeVisible({ timeout: 10_000 })
 		await closeSidebar(page)
+		// Add puts the widget in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBe(200)
 
 		// The save succeeded: exactly one iframe placement, whose whole config
 		// sits in the placement's content blob — the existing widget-content
@@ -680,6 +682,8 @@ test('the frame is always sandboxed with the toggled tokens and never allow-top-
 		await add.click()
 		await expect(dialog).not.toBeVisible({ timeout: 10_000 })
 		await closeSidebar(page)
+		// Add puts the widget in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBe(200)
 
 		const stored = (await iframePlacements(dashboard)).find(
 			(p) => p.content?.title === 'Toggled',

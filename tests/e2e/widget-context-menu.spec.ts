@@ -34,7 +34,7 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import { expect, request, test } from '@playwright/test'
 import { BASE_URL } from './support/baseUrl.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
-import { enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
+import { enterEditMode, MORE_MENU, saveEditDraft } from './support/dashboardSwitcher.ts'
 
 // Each run brings its own active personal dashboard (with the default widget
 // bundle) instead of leaning on one an earlier spec left behind: on a fresh
@@ -242,8 +242,10 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		await expect(page.locator(`[gs-id="${gsId}"]`)).toHaveCount(0, {
 			timeout: 5_000,
 		})
+		// The removal is part of the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 
-		// Reload and confirm the placement is absent (DELETE persisted).
+		// Reload and confirm the placement is absent (the Save persisted it).
 		await page.reload({ waitUntil: 'domcontentloaded' })
 		await page.waitForSelector('.launchpad-container', { timeout: 20_000 })
 		await page.waitForTimeout(1_000)

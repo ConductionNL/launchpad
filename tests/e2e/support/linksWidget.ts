@@ -26,7 +26,7 @@ import type { SeededDashboard } from './dashboardFixture.ts'
 import { expect, request } from '@playwright/test'
 import { BASE_URL } from './baseUrl.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './dashboardFixture.ts'
-import { addWidgetFromMore, closeMore, MORE_MENU, switchToDashboard } from './dashboardSwitcher.ts'
+import { addWidgetFromMore, closeMore, MORE_MENU, saveEditDraft, switchToDashboard } from './dashboardSwitcher.ts'
 import { chooseAndAdd } from './widgetPicker.ts'
 
 export const API = '/index.php/apps/launchpad/api'
@@ -390,7 +390,9 @@ export function saveButton(dialog: Locator): Locator {
 }
 
 /**
- * Press the primary button and wait for the modal to close.
+ * Press the primary button, wait for the modal to close, and Save the
+ * edit-mode draft the form wrote to (REQ-EDIT-001/002), so the widget is
+ * stored on the server.
  *
  * @param dialog the dialog.
  * @return nothing.
@@ -399,6 +401,7 @@ export async function submit(dialog: Locator): Promise<void> {
 	await expect(saveButton(dialog)).toBeEnabled({ timeout: 5_000 })
 	await saveButton(dialog).click()
 	await expect(dialog).toBeHidden({ timeout: 10_000 })
+	expect(await saveEditDraft(dialog.page())).toBe(200)
 }
 
 /**

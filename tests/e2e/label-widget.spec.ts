@@ -38,7 +38,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, saveEditDraft } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -142,6 +142,9 @@ test.describe('label widget', () => {
 			.first()
 			.evaluate((el) => window.getComputedStyle(el).fontSize)
 		expect(fontSize).toBe('24px')
+
+		// Add put the label in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBe(200)
 
 		// Persistence: the placement survives a full page reload.
 		await page.reload()

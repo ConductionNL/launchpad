@@ -37,6 +37,7 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import { expect, test } from '@playwright/test'
 import { gotoLaunchPad } from './fixtures/widget-flow.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
+import { saveEditDraft } from './support/dashboardSwitcher.ts'
 import {
 	ACTION,
 	adminApi,
@@ -120,35 +121,39 @@ async function rowLabels(dialog: Locator): Promise<string[]> {
 }
 
 /**
- * Click the modal's primary button and wait for the write it causes.
+ * Click the modal's primary button, then Save the edit-mode draft: a new
+ * widget and an edit both land in the draft and are stored by the edit bar's
+ * Save (REQ-EDIT-001/002).
  *
  * @param page the page.
  * @param dialog the Add/Edit Widget dialog.
  * @param method POST for a new widget, PUT for an edit.
- * @return the placement id and the dashboard it landed on.
+ * @return the placement id (for a new widget; NaN for an edit) and the dashboard it landed on.
  */
 async function submit(
 	page: Page,
 	dialog: Locator,
 	method: 'POST' | 'PUT',
 ): Promise<{ placementId: number; dashboardId: number }> {
-	const write = page.waitForResponse((r) => r.request().method() === method
-		&& (method === 'POST'
-			? /\/api\/dashboard\/\d+\/widgets$/.test(new URL(r.url()).pathname)
-			: /\/api\/widgets\/\d+$/.test(new URL(r.url()).pathname)))
 	await expect(dialog.locator(SAVE)).toBeEnabled()
 	await dialog.locator(SAVE).click()
-	const res = await write
-	expect(res.status(), await res.text()).toBeLessThan(300)
 	await expect(dialog).toBeHidden({ timeout: 10_000 })
-	const path = new URL(res.url()).pathname
-	if (method === 'POST') {
-		const body = await res.json()
-		const placementId = Number(body.id ?? body.data?.id ?? body.placement?.id)
-		seeded.push(placementId)
-		return { placementId, dashboardId: Number(/dashboard\/(\d+)\//.exec(path)![1]) }
+	const saved = page.waitForResponse((r) => r.request().method() === 'PUT'
+		&& /\/api\/dashboard\/\d+$/.test(new URL(r.url()).pathname)
+		&& r.request().postDataJSON()?.draft === true)
+	expect(await saveEditDraft(page)).toBeLessThan(300)
+	const res = await saved
+	const dashboardId = Number(/dashboard\/(\d+)$/.exec(new URL(res.url()).pathname)![1])
+	if (method === 'PUT') {
+		return { placementId: Number.NaN, dashboardId }
 	}
-	return { placementId: Number(/widgets\/(\d+)$/.exec(path)![1]), dashboardId: dashboard!.id }
+	const sent = res.request().postDataJSON() as { placements: Array<{ id?: number }> }
+	const kept = new Set(sent.placements.filter((p) => p.id !== undefined).map((p) => Number(p.id)))
+	const body = await res.json()
+	const stored = ((body.data ?? body).placements ?? []) as Array<{ id: number }>
+	const placementId = Number(stored.find((p) => !kept.has(Number(p.id)))?.id)
+	seeded.push(placementId)
+	return { placementId, dashboardId }
 }
 
 test.describe('link button form: fields (REQ-LBN-006)', () => {

@@ -1,0 +1,255 @@
+<!--
+  - SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
+-->
+
+<template>
+	<div
+		v-if="visible"
+		class="dashboard-config__field sharing-screen"
+		data-test="sharing-screen-link">
+		<label class="dashboard-config__label">
+			{{ t('launchpad', 'Show on a screen') }}
+		</label>
+		<p class="dashboard-config__hint">
+			{{ t('launchpad', 'A link that shows this dashboard full screen on a display, without a Nextcloud account.') }}
+		</p>
+
+		<RevokeScreenLinkDialog
+			v-if="confirmingRevoke"
+			open
+			:name="dashboardName"
+			@confirm="revoke"
+			@update:open="confirmingRevoke = $event" />
+
+		<NcLoadingIcon v-if="loading" />
+		<div v-else-if="link" class="sharing-screen__row" data-test="sharing-screen-link-row">
+			<input
+				class="dashboard-config__public-url"
+				type="text"
+				readonly
+				data-test="sharing-screen-link-url"
+				:aria-label="t('launchpad', 'Screen link')"
+				:value="link.url"
+				@focus="$event.target.select()">
+			<NcButton
+				variant="tertiary"
+				data-test="sharing-screen-link-copy"
+				:aria-label="t('launchpad', 'Copy link')"
+				:title="copied ? t('launchpad', 'Copied') : t('launchpad', 'Copy link')"
+				@click="copy">
+				<template #icon>
+					<Check v-if="copied" :size="18" />
+					<ContentCopy v-else :size="18" />
+				</template>
+			</NcButton>
+			<NcButton
+				variant="tertiary"
+				data-test="sharing-screen-link-revoke"
+				:aria-label="t('launchpad', 'Revoke link')"
+				:title="t('launchpad', 'Revoke link')"
+				@click="confirmingRevoke = true">
+				<template #icon>
+					<Close :size="18" />
+				</template>
+			</NcButton>
+		</div>
+		<template v-if="!loading">
+			<p
+				v-if="!policy.screenLinksAllowed"
+				class="dashboard-config__hint"
+				data-test="sharing-screen-link-off">
+				{{ t('launchpad', 'New screen links are switched off.') }}
+			</p>
+			<NcButton
+				v-else-if="!link"
+				variant="secondary"
+				data-test="sharing-screen-link-create"
+				:disabled="busy"
+				@click="create">
+				<template #icon>
+					<Monitor :size="20" />
+				</template>
+				{{ t('launchpad', 'Create screen link') }}
+			</NcButton>
+		</template>
+		<p class="hidden-visually" aria-live="polite">
+			{{ copied ? t('launchpad', 'Link copied') : '' }}
+		</p>
+		<p v-if="error !== ''" class="dashboard-config__hint" role="alert" data-test="sharing-screen-link-error">
+			{{ error }}
+		</p>
+	</div>
+</template>
+
+<script>
+import { NcButton, NcLoadingIcon } from '@conduction/nextcloud-vue'
+import { t } from '@nextcloud/l10n'
+import Check from 'vue-material-design-icons/Check.vue'
+import Close from 'vue-material-design-icons/Close.vue'
+import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
+import Monitor from 'vue-material-design-icons/Monitor.vue'
+import RevokeScreenLinkDialog from '../../../dialogs/RevokeScreenLinkDialog.vue'
+import { NULLABLE_OBJECT_PROP } from '../../../constants/propDefinitions.js'
+import { screenLinkApi } from '../../../services/screenLinkApi.js'
+import { readSharingPolicy } from '../../../utils/loadInitialState.js'
+import { logger } from '../../../utils/logger.js'
+
+/**
+ * SharingScreenLink: the "Show on a screen" block on a dashboard's Sharing
+ * tab (REQ-KIOSK-006, REQ-KIOSK-007). Creates, copies and revokes the
+ * dashboard's screen link, a kiosk playlist of this one dashboard. With the
+ * administrator's switch off it offers no new link, but keeps an existing
+ * one with Revoke.
+ *
+ * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-5
+ */
+export default {
+	name: 'SharingScreenLink',
+
+	components: {
+		Check,
+		Close,
+		ContentCopy,
+		Monitor,
+		NcButton,
+		NcLoadingIcon,
+		RevokeScreenLinkDialog,
+	},
+
+	props: {
+		/** The dashboard whose Sharing tab this is. */
+		dashboard: NULLABLE_OBJECT_PROP,
+	},
+
+	data() {
+		return {
+			policy: readSharingPolicy(),
+			link: null,
+			loading: false,
+			busy: false,
+			copied: false,
+			confirmingRevoke: false,
+			error: '',
+		}
+	},
+
+	computed: {
+		/**
+		 * Shown to whoever may share; with the switch off only while a link exists.
+		 *
+		 * @return {boolean}
+		 */
+		visible() {
+			if (!this.policy.mayShare || !this.dashboard?.uuid) {
+				return false
+			}
+			return this.policy.screenLinksAllowed || this.loading || this.link !== null
+		},
+
+		/** @return {string} The dashboard's name for the dialog. */
+		dashboardName() {
+			return this.dashboard?.name ?? ''
+		},
+	},
+
+	watch: {
+		'dashboard.uuid': {
+			immediate: true,
+			handler() {
+				this.load()
+			},
+		},
+	},
+
+	methods: {
+		t,
+
+		/**
+		 * Read the dashboard's active screen link.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-5
+		 */
+		async load() {
+			if (!this.policy.mayShare || !this.dashboard?.uuid) {
+				return
+			}
+			this.loading = true
+			this.error = ''
+			try {
+				this.link = await screenLinkApi.get(this.dashboard.uuid)
+			} catch (error) {
+				logger.error('Screen link could not be read:', error)
+				this.link = null
+			} finally {
+				this.loading = false
+			}
+		},
+
+		/**
+		 * Create the screen link (or get the existing one).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-5
+		 */
+		async create() {
+			this.busy = true
+			this.error = ''
+			try {
+				this.link = await screenLinkApi.create(this.dashboard.uuid)
+			} catch (error) {
+				logger.error('Screen link could not be created:', error)
+				this.error = t('launchpad', 'The screen link could not be created.')
+			} finally {
+				this.busy = false
+			}
+		},
+
+		/**
+		 * Revoke the screen link after the confirmation.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-5
+		 */
+		async revoke() {
+			this.confirmingRevoke = false
+			this.busy = true
+			this.error = ''
+			try {
+				await screenLinkApi.revoke(this.dashboard.uuid)
+				this.link = null
+				this.copied = false
+			} catch (error) {
+				logger.error('Screen link could not be revoked:', error)
+				this.error = t('launchpad', 'The screen link could not be revoked.')
+			} finally {
+				this.busy = false
+			}
+		},
+
+		/**
+		 * Copy the link to the clipboard.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-5
+		 */
+		async copy() {
+			try {
+				await navigator.clipboard.writeText(this.link.url)
+				this.copied = true
+			} catch (error) {
+				logger.error('Clipboard write failed:', error)
+			}
+		},
+	},
+}
+</script>
+
+<style scoped>
+.sharing-screen__row {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+</style>

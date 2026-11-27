@@ -23,12 +23,11 @@
  * the admin are shown to succeed in the same test.
  *
  * Gate-19 @e2e traceability:
- *   @e2e dashboard-versioning::automatic-snapshot-on-put
- *   @e2e dashboard-versioning::debouncing-rapid-edits
- *   @e2e dashboard-versioning::failed-put-does-not-create-snapshot
- *   @e2e dashboard-versioning::snapshot-captures-full-state
+ *   @e2e dashboard-versioning::the-first-save-of-an-old-dashboard
+ *   @e2e dashboard-versioning::two-saves-in-a-minute-make-two-versions
+ *   @e2e dashboard-versioning::a-failed-save-makes-no-version
+ *   @e2e dashboard-versioning::saving-the-dashboard-settings-makes-a-version
  *   @e2e dashboard-versioning::create-a-named-snapshot
- *   @e2e dashboard-versioning::explicit-snapshot-bypasses-debounce
  *   @e2e dashboard-versioning::empty-note-is-valid
  *   @e2e dashboard-versioning::only-owners-and-admins-can-create
  *   @e2e dashboard-versioning::list-versions-for-a-dashboard-with-history
@@ -314,9 +313,12 @@ test.afterAll(async () => {
 	await admin.dispose()
 })
 
-test.describe('REQ-VERS-001 snapshots taken by a save', () => {
-	test('a PUT takes one snapshot of the dashboard as it was before the update', async () => {
-		// @e2e dashboard-versioning::automatic-snapshot-on-put
+// REQ-VERS-001 (a debounced snapshot on the settings PUT) was replaced by
+// REQ-VERS-010 / REQ-VERS-011 (edit-mode-draft-and-save): every save makes one
+// version, and a dashboard's first save also keeps the state before it.
+test.describe('REQ-VERS-010/011 versions taken by a save', () => {
+	test('the first PUT keeps the dashboard as it was before (version 1) and as it is after (version 2)', async () => {
+		// @e2e dashboard-versioning::the-first-save-of-an-old-dashboard
 		const dash = await createDashboard(admin, `${STAMP} auto before`)
 		const placementId = await addTextWidget(admin, dash.id, 'auto-widget', 0)
 		expect((await listVersions(admin, dash.uuid)).versions).toEqual([])
@@ -337,13 +339,13 @@ test.describe('REQ-VERS-001 snapshots taken by a save', () => {
 		})
 		expect(put.status(), await put.text()).toBe(200)
 
-		// THEN a version exists, created by the saver.
+		// THEN two versions exist, created by the saver (REQ-VERS-011).
 		const { versions } = await listVersions(admin, dash.uuid)
-		expect(numbers(versions)).toEqual([1])
-		expect(versions[0].createdBy).toBe(ADMIN_USER)
+		expect(numbers(versions)).toEqual([2, 1])
+		expect(versions.every((v) => v.createdBy === ADMIN_USER)).toBe(true)
 
-		// AND it holds the full widget tree and metadata as they were BEFORE
-		// the update: the old name and the widget at its old position.
+		// AND version 1 holds the full widget tree and metadata as they were
+		// BEFORE the update: the old name and the widget at its old position.
 		const { snapshot: snap } = await fetchVersion(admin, dash.uuid, 1)
 		expect(snap.dashboard.uuid).toBe(dash.uuid)
 		expect(snap.dashboard.name).toBe(`${STAMP} auto before`)
@@ -351,38 +353,37 @@ test.describe('REQ-VERS-001 snapshots taken by a save', () => {
 		expect(snap.placements[0].content.text).toBe('auto-widget')
 		expect(snap.placements[0].gridX).toBe(0)
 		expect(snap.placements[0].gridY).toBe(0)
+
+		// AND version 2 holds it as it is AFTER the save (REQ-VERS-010).
+		const { snapshot: after } = await fetchVersion(admin, dash.uuid, 2)
+		expect(after.dashboard.name).toBe(`${STAMP} auto after`)
+		expect(after.placements).toHaveLength(1)
+		expect(after.placements[0].gridX).toBe(3)
+		expect(after.placements[0].gridY).toBe(1)
 	})
 
-	test('five PUTs in a burst take one snapshot; a PUT after 60 seconds takes another', async () => {
-		// @e2e dashboard-versioning::debouncing-rapid-edits
-		// The debounce window is 60 real seconds, so this test waits it out.
-		test.setTimeout(180_000)
+	test('five PUTs in a burst make five versions, without debounce', async () => {
+		// @e2e dashboard-versioning::two-saves-in-a-minute-make-two-versions
 		const dash = await createDashboard(admin, `${STAMP} burst`)
 		await addTextWidget(admin, dash.id, 'burst-widget')
 
-		const burstStart = await serverNow(admin)
 		for (let i = 1; i <= 5; i++) {
 			const put = await admin.put(`${API}/dashboard/${dash.id}`, {
 				data: { name: `${STAMP} burst ${i}` },
 			})
 			expect(put.status(), await put.text()).toBe(200)
 		}
-		expect(numbers((await listVersions(admin, dash.uuid)).versions)).toEqual([1])
-
-		// Past the window, with room for the Date header's one-second resolution.
-		await waitForServerClock(admin, burstStart, 63_000, 150_000)
-
-		const late = await admin.put(`${API}/dashboard/${dash.id}`, {
-			data: { name: `${STAMP} burst late` },
-		})
-		expect(late.status(), await late.text()).toBe(200)
+		// The first save keeps the state before it as well (REQ-VERS-011):
+		// 2 + 4 versions, the newest holding the last name.
 		expect(numbers((await listVersions(admin, dash.uuid)).versions)).toEqual([
-			2, 1,
+			6, 5, 4, 3, 2, 1,
 		])
+		const { snapshot: newest } = await fetchVersion(admin, dash.uuid, 6)
+		expect(newest.dashboard.name).toBe(`${STAMP} burst 5`)
 	})
 
 	test('a PUT refused with 400 records no snapshot and changes nothing', async () => {
-		// @e2e dashboard-versioning::failed-put-does-not-create-snapshot
+		// @e2e dashboard-versioning::a-failed-save-makes-no-version
 		const dash = await createDashboard(admin, `${STAMP} failed put`)
 		const placementId = await addTextWidget(admin, dash.id, 'failed-widget', 0)
 
@@ -416,17 +417,18 @@ test.describe('REQ-VERS-001 snapshots taken by a save', () => {
 		expect(after.placements[0].gridX).toBe(0)
 		expect(after.placements[0].gridY).toBe(0)
 
-		// Control: the same save without the bad field does take a snapshot,
-		// so the empty list above is about the failure, not a dead hook.
+		// Control: the same save without the bad field does make versions (the
+		// state before and after, REQ-VERS-011), so the empty list above is
+		// about the failure, not a dead hook.
 		const ok = await admin.put(`${API}/dashboard/${dash.id}`, {
 			data: { name: `${STAMP} failed put ok` },
 		})
 		expect(ok.status(), await ok.text()).toBe(200)
-		expect(numbers((await listVersions(admin, dash.uuid)).versions)).toEqual([1])
+		expect(numbers((await listVersions(admin, dash.uuid)).versions)).toEqual([2, 1])
 	})
 
 	test('the snapshot holds all four widgets and every field as they were before the PUT, and restores to that state', async () => {
-		// @e2e dashboard-versioning::snapshot-captures-full-state
+		// @e2e dashboard-versioning::saving-the-dashboard-settings-makes-a-version
 		const dash = await createDashboard(admin, `${STAMP} full state`)
 		const ids: number[] = []
 		for (let i = 0; i < 4; i++) {
@@ -465,10 +467,10 @@ test.describe('REQ-VERS-001 snapshots taken by a save', () => {
 		expect(put.status(), await put.text()).toBe(200)
 
 		const { versions } = await listVersions(admin, dash.uuid)
-		expect(numbers(versions)).toEqual([1])
+		expect(numbers(versions)).toEqual([2, 1])
 		const { snapshot: snap } = await fetchVersion(admin, dash.uuid, 1)
 
-		// THEN all four widgets and every dashboard field as they were before
+		// THEN version 1 holds all four widgets and every dashboard field as they were before
 		// the PUT: the old name and description, the widgets at their old places.
 		expect(snap.dashboard.uuid).toBe(dash.uuid)
 		expect(snap.dashboard.name).toBe(before.dashboard.name)
@@ -512,8 +514,8 @@ test.describe('REQ-VERS-002 explicit snapshots', () => {
 		})
 	})
 
-	test('an explicit snapshot inside the debounce window is still taken', async () => {
-		// @e2e dashboard-versioning::explicit-snapshot-bypasses-debounce
+	test('an explicit snapshot right after a save takes the next number', async () => {
+		// @e2e dashboard-versioning::create-a-named-snapshot
 		const dash = await createDashboard(admin, `${STAMP} bypass`)
 		await addTextWidget(admin, dash.id, 'bypass-widget')
 
@@ -521,23 +523,23 @@ test.describe('REQ-VERS-002 explicit snapshots', () => {
 			data: { name: `${STAMP} bypass saved` },
 		})
 		expect(put.status(), await put.text()).toBe(200)
-		expect(numbers((await listVersions(admin, dash.uuid)).versions)).toEqual([1])
+		expect(numbers((await listVersions(admin, dash.uuid)).versions)).toEqual([2, 1])
 
-		// A second save inside the window is debounced ...
+		// A second save at once makes its own version (REQ-VERS-010) ...
 		const put2 = await admin.put(`${API}/dashboard/${dash.id}`, {
 			data: { name: `${STAMP} bypass saved again` },
 		})
 		expect(put2.status(), await put2.text()).toBe(200)
-		expect(numbers((await listVersions(admin, dash.uuid)).versions)).toEqual([1])
+		expect(numbers((await listVersions(admin, dash.uuid)).versions)).toEqual([3, 2, 1])
 
-		// ... but an explicit snapshot is not.
+		// ... and an explicit snapshot right after takes the next number.
 		const res = await admin.post(`${API}/dashboards/${dash.uuid}/versions`, {
-			data: { note: 'inside the window' },
+			data: { note: 'right after a save' },
 		})
 		expect(res.status(), await res.text()).toBe(201)
-		expect((await res.json()).version.versionNumber).toBe(2)
+		expect((await res.json()).version.versionNumber).toBe(4)
 		expect(numbers((await listVersions(admin, dash.uuid)).versions)).toEqual([
-			2, 1,
+			4, 3, 2, 1,
 		])
 	})
 
@@ -1010,8 +1012,9 @@ test.describe('REQ-VERS-007 activity', () => {
 		})
 		expect(put.status(), await put.text()).toBe(200)
 
-		// The snapshot was taken ...
-		expect(numbers((await listVersions(admin, dash.uuid)).versions)).toEqual([1])
+		// The snapshots were taken (the first save keeps the state before and
+		// after it, REQ-VERS-011) ...
+		expect(numbers((await listVersions(admin, dash.uuid)).versions)).toEqual([2, 1])
 		// ... and the stream did not grow, and holds no restore event.
 		const after = await launchpadActivity()
 		expect(after.length).toBe(before.length)

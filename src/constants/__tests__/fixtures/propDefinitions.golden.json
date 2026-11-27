@@ -1781,6 +1781,12 @@
 		"validator": false,
 		"default": ""
 	},
+	"../../components/admin/AdminSettings.vue | section": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
 	"../../components/admin/AnnouncementEditorsPolicy.vue | groups": {
 		"type": "Array",
 		"required": false,

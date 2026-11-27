@@ -10,6 +10,8 @@
  * gets Tabs too. A rule without wells, or one that denies Tabs, is kept.
  * Idempotent.
  *
+ * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ *
  * @category Repair
  * @package  OCA\LaunchPad\Repair
  *
@@ -18,8 +20,6 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * @link https://conduction.nl
- *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2

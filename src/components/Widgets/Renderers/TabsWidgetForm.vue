@@ -92,6 +92,23 @@ import { NULLABLE_OBJECT_PROP, objectProp } from '../../../constants/propDefinit
 import { moveTab, newTab, normaliseTabs, tabHasWidgets } from '../../../utils/tabsWidget.js'
 
 /**
+ * The form's starting state from the stored content: a new widget starts
+ * with one tab.
+ *
+ * @param {object} source The stored or default content.
+ * @return {{content: object, tabs: Array<object>, title: string}}
+ * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ */
+function formState(source) {
+	const tabs = normaliseTabs(source.tabs)
+	return {
+		content: { ...source },
+		tabs: tabs.length > 0 ? tabs : [newTab([], t('launchpad', 'Tab {number}', { number: 1 }))],
+		title: typeof source.title === 'string' ? source.title : '',
+	}
+}
+
+/**
  * TabsWidgetForm: add, rename, move and remove the tabs of a Tabs widget
  * (layout-widgets-replace-multi-tile D1). Removing a tab that holds widgets
  * asks first. A tab's widgets are placed on its own grid in edit mode.
@@ -120,23 +137,26 @@ export default {
 	emits: ['update:content'],
 
 	data() {
-		const source = this.editingWidget?.content ?? this.value ?? {}
-		const tabs = normaliseTabs(source.tabs)
-		return {
-			content: { ...source },
-			tabs: tabs.length > 0 ? tabs : [newTab([], t('launchpad', 'Tab {number}', { number: 1 }))],
-			title: typeof source.title === 'string' ? source.title : '',
-			removing: null,
-		}
+		return { ...formState(this.editingWidget?.content ?? this.value ?? {}), removing: null }
 	},
 
 	computed: {
-		/** @return {string} The name of the tab being removed. */
+		/**
+		 * The name of the tab being removed.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 */
 		removingName() {
 			return this.tabs[this.removing]?.title ?? ''
 		},
 
-		/** @return {number} How many widgets the tab being removed holds. */
+		/**
+		 * How many widgets the tab being removed holds.
+		 *
+		 * @return {number}
+		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 */
 		removingCount() {
 			return this.tabs[this.removing]?.placements?.length ?? 0
 		},

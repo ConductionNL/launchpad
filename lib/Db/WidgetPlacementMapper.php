@@ -137,6 +137,24 @@ class WidgetPlacementMapper extends QBMapper {
 	}//end findAcknowledgedWithoutKey()
 
 	/**
+	 * Every placement that asks for confirmation and carries an announcement
+	 * key, oldest first: the "Widgets that ask for confirmation" list of the
+	 * Announcements tab (REQ-ACK-008).
+	 *
+	 * @return WidgetPlacement[]
+	 *
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+	 */
+	public function findAcknowledgedWithKey(): array {
+		$qb = $this->selectWhere(match: ['requires_acknowledgement' => 1]);
+		$qb->andWhere($qb->expr()->isNotNull(x: 'announcement_key'))
+			->andWhere($qb->expr()->neq(x: 'announcement_key', y: $qb->createNamedParameter(value: '')))
+			->orderBy(sort: 'id', order: 'ASC');
+
+		return $this->findEntities(query: $qb);
+	}//end findAcknowledgedWithKey()
+
+	/**
 	 * Find placement by ID.
 	 *
 	 * @param int $id The placement ID.

@@ -6148,6 +6148,48 @@
             ],
             "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"ruleMatch\\\":\\\"any\\\",\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"ruleMatch\\\":\\\"any\\\",\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
+        "findAcknowledgedWithKey all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_widget_placements\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(1, 1, null)",
+                "qb1.expr.eq(\"requires_acknowledgement\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"requires_acknowledgement\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.expr.isNotNull(\"announcement_key\")",
+                "qb1.andWhere(\"isNotNull(\\\"announcement_key\\\")\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"\", 2, null)",
+                "qb1.expr.neq(\"announcement_key\", \":p2\", null)",
+                "qb1.andWhere(\"neq(\\\"announcement_key\\\", \\\":p2\\\", null)\")",
+                "qb1.orderBy(\"id\", \"ASC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findAcknowledgedWithKey rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_widget_placements\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(1, 1, null)",
+                "qb1.expr.eq(\"requires_acknowledgement\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"requires_acknowledgement\\\", \\\":p1\\\", null)\")",
+                "qb1.expr()",
+                "qb1.expr.isNotNull(\"announcement_key\")",
+                "qb1.andWhere(\"isNotNull(\\\"announcement_key\\\")\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"\", 2, null)",
+                "qb1.expr.neq(\"announcement_key\", \":p2\", null)",
+                "qb1.andWhere(\"neq(\\\"announcement_key\\\", \\\":p2\\\", null)\")",
+                "qb1.orderBy(\"id\", \"ASC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"ruleMatch\\\":\\\"any\\\",\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"calculatedFields\\\":[],\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"ruleMatch\\\":\\\"any\\\",\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+        },
         "find all": {
             "calls": [
                 "qb1 new",

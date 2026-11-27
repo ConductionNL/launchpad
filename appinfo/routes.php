@@ -390,6 +390,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'acknowledgement#report',
 		 'url' => '/api/acknowledgements/report/{announcementKey}', 'verb' => 'GET',
 		 'requirements' => ['announcementKey' => '[A-Za-z0-9\-]+']],
+		// REQ-ACK-008: the widgets that ask for confirmation, on the Announcements tab.
+		['name' => 'acknowledgedWidgets#index',
+		 'url' => '/api/acknowledgements/widgets', 'verb' => 'GET'],
 		['name' => 'acknowledgement#pending',
 		 'url' => '/api/acknowledgements/pending', 'verb' => 'GET'],
 		['name' => 'acknowledgement#acknowledge',

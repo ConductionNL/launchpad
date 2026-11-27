@@ -3,7 +3,7 @@
 /**
  * AcknowledgementTools
  *
- * The acknowledgement and role services and the log of the acknowledgement API.
+ * The acknowledgement service, who manages announcements, and the log of the acknowledgement API.
  *
  * @category  Controller
  * @package   OCA\LaunchPad\Controller
@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Kernel\Contracts\AcknowledgementServiceInterface;
+use OCA\LaunchPad\Service\AnnouncementManagers;
 use OCA\LaunchPad\Service\ReadReceiptPeople;
-use OCA\LaunchPad\Service\RoleService;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -38,13 +38,13 @@ class AcknowledgementTools {
 	 * Constructor.
 	 *
 	 * @param AcknowledgementServiceInterface $acknowledgements The service.
-	 * @param RoleService            $roleService LaunchPad role gate.
+	 * @param AnnouncementManagers   $managers    Who holds the announcements setting (REQ-ACK-004).
 	 * @param LoggerInterface        $logger PSR logger.
 	 * @param ReadReceiptPeople|null $people The names and departments on a report (REQ-ACK-010).
 	 */
 	public function __construct(
 		public readonly AcknowledgementServiceInterface $acknowledgements,
-		public readonly RoleService $roleService,
+		public readonly AnnouncementManagers $managers,
 		public readonly LoggerInterface $logger,
 		public readonly ?ReadReceiptPeople $people = null,
 	) {

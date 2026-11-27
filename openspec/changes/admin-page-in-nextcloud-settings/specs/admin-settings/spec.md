@@ -5,13 +5,13 @@
 ### Requirement: The administration is a Launchpad page over the full width (REQ-ADM-030)
 
 **Reason**: Ruben's review of 27 Nov 2026, item 19 (ADR-004, ADR-079): the admin page moves into Nextcloud's settings
-framework at `/settings/admin/launchpad` (REQ-ADM-032). It is no longer a launchpad page or route.
+framework at `/settings/admin/launchpad` (REQ-ADM-036). It is no longer a launchpad page or route.
 
 **Migration**: `/apps/launchpad/admin/<tab>` redirects to the settings page (REQ-ADM-033).
 
 ### Requirement: Nextcloud's settings point to the page (REQ-ADM-031)
 
-**Reason**: Nextcloud's settings entry is the page itself now (REQ-ADM-032); there is nothing to point to.
+**Reason**: Nextcloud's settings entry is the page itself now (REQ-ADM-036); there is nothing to point to.
 
 **Migration**: none.
 
@@ -20,7 +20,7 @@ framework at `/settings/admin/launchpad` (REQ-ADM-032). It is no longer a launch
 ### Requirement: Admin Settings UI (REQ-ASET-008)
 
 The admin settings MUST be the Launchpad entry of Nextcloud's administration settings, `/settings/admin/launchpad`,
-rendered by Nextcloud's settings framework (REQ-ADM-032). The form MUST save each change as soon as it is made; it has
+rendered by Nextcloud's settings framework (REQ-ADM-036). The form MUST save each change as soon as it is made; it has
 no Save button.
 
 #### Scenario: Admin settings page is registered
@@ -58,7 +58,7 @@ no Save button.
 
 ## ADDED Requirements
 
-### Requirement: The admin page lives in Nextcloud's settings framework (REQ-ADM-032)
+### Requirement: The admin page lives in Nextcloud's settings framework (REQ-ADM-036)
 
 Launchpad's admin page SHALL be `/settings/admin/launchpad`, registered through `lib/Settings/` (an admin settings
 class in Launchpad's admin section) and rendered by a settings entry point, inside Nextcloud's settings shell with

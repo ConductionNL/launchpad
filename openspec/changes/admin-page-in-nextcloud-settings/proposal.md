@@ -27,7 +27,7 @@ selected, the version card first on the first tab, then one settings section per
 
 ## What changes
 
-- `admin-settings`: REQ-ADM-030 and REQ-ADM-031 are removed. REQ-ASET-008 is rewritten. New: REQ-ADM-032 (the page in
+- `admin-settings`: REQ-ADM-030 and REQ-ADM-031 are removed. REQ-ASET-008 is rewritten. New: REQ-ADM-036 (the page in
   Nextcloud's settings framework, with its tabs), REQ-ADM-033 (the old route redirects), REQ-ADM-034 (delegated admin
   settings per area, the Announcements tab among them), REQ-ADM-035 (no admin page in the app's router or manifest).
 - `runtime-shell` REQ-SHELL-009: the admin pages are no longer launchpad pages; More links out to the settings page.

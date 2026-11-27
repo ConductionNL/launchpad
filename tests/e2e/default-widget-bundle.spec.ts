@@ -56,7 +56,7 @@ const BUNDLE = [
 		widgetId: 'tile',
 		tileTitle: 'Nextcloud',
 		link: 'https://nextcloud.com',
-		iconType: 'class',
+		iconType: 'url',
 		grid: [8, 0, 4, 3],
 	},
 	{
@@ -213,10 +213,12 @@ test.describe.serial('default widget bundle (REQ-DWB-001, 002, 005, 006)', () =>
 			expect(tile.tileIconType).toBe(want.iconType)
 			expect(String(tile.tileIcon ?? '')).not.toBe('')
 		})
-		// The Nextcloud tile names a CSS class, the others a bundled PNG.
-		expect(tiles[2].tileIcon).toBe('icon-nextcloud')
-		expect(String(tiles[0].tileIcon)).toMatch(/conduction-logo\.png$/)
-		expect(String(tiles[1].tileIcon)).toMatch(/sendent-logo\.png$/)
+		// REQ-DWB-007: each brand tile is its white SVG logo on the brand colour.
+		expect(String(tiles[0].tileIcon)).toMatch(/conduction-white\.svg$/)
+		expect(String(tiles[1].tileIcon)).toMatch(/sendent-white\.svg$/)
+		expect(String(tiles[2].tileIcon)).toMatch(/nextcloud-white\.svg$/)
+		expect(tiles.map((tile) => String(tile.tileBackgroundColor).toUpperCase())).toEqual(['#21468B', '#141B62', '#0082C9'])
+		expect(tiles.map((tile) => tile.tileTextColor)).toEqual(['#ffffff', '#ffffff', '#ffffff'])
 		// The files widget is no tile: its tile columns stay empty.
 		expect(placements()[3].tileType ?? null).toBeNull()
 	})

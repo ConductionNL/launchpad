@@ -31,6 +31,7 @@ use Exception;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardWrites;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\DashboardFactory;
@@ -439,6 +440,65 @@ class DashboardServiceGroupSharedTest extends TestCase {
 		$result = $this->service->getVisibleToUser(userId: 'alice');
 		$this->assertSame($expected, $result);
 	}//end testGetVisibleToUserDelegatesToMapper()
+
+	/**
+	 * A second read in the same request is answered without the database,
+	 * as copies a caller may change without changing the next answer.
+	 *
+	 * @return void
+	 */
+	public function testASecondReadInTheRequestIsKept(): void {
+		$this->adminTemplateService->method('getUserGroupIdsFor')->willReturn(['marketing']);
+		$dashboard = new Dashboard();
+		$dashboard->setUuid('uuid-1');
+		$dashboard->setName('Team');
+		$this->dashboardMapper
+			->expects($this->once())
+			->method('findVisibleToUser')
+			->willReturn([['dashboard' => $dashboard, 'source' => 'user']]);
+
+		$first = $this->service->getVisibleToUser(userId: 'alice');
+		$first[0]['dashboard']->setName('Changed by a caller');
+		$second = $this->service->getVisibleToUser(userId: 'alice');
+
+		$this->assertSame('uuid-1', $second[0]['dashboard']->getUuid());
+		$this->assertSame('Team', $second[0]['dashboard']->getName());
+		$this->assertNotSame($first[0]['dashboard'], $second[0]['dashboard']);
+	}//end testASecondReadInTheRequestIsKept()
+
+	/**
+	 * A dashboard or share write makes the next read go to the database again.
+	 *
+	 * @return void
+	 */
+	public function testAWriteMakesTheNextReadQueryAgain(): void {
+		$this->adminTemplateService->method('getUserGroupIdsFor')->willReturn([]);
+		$this->dashboardMapper
+			->expects($this->exactly(2))
+			->method('findVisibleToUser')
+			->willReturn([]);
+
+		$this->service->getVisibleToUser(userId: 'alice');
+		DashboardWrites::bump();
+		$this->service->getVisibleToUser(userId: 'alice');
+	}//end testAWriteMakesTheNextReadQueryAgain()
+
+	/**
+	 * Each user has their own kept read.
+	 *
+	 * @return void
+	 */
+	public function testEachUserHasTheirOwnRead(): void {
+		$this->adminTemplateService->method('getUserGroupIdsFor')->willReturn([]);
+		$this->dashboardMapper
+			->expects($this->exactly(2))
+			->method('findVisibleToUser')
+			->willReturn([]);
+
+		$this->service->getVisibleToUser(userId: 'alice');
+		$this->service->getVisibleToUser(userId: 'bob');
+		$this->service->getVisibleToUser(userId: 'alice');
+	}//end testEachUserHasTheirOwnRead()
 
 	/**
 	 * REQ-DASH-015: setGroupDefault rejects non-admin actors with the

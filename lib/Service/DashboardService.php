@@ -30,6 +30,7 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardWrites;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardAudienceChangedEvent;
@@ -263,6 +264,17 @@ class DashboardService {
 			'tile' => null,
 		],
 	];
+
+	/**
+	 * The visible-dashboards list per user for this request, before the
+	 * user's set-aside filter, with the dashboard write count it was read at.
+	 *
+	 * A Workspace render asks for it four or more times; each read is six to
+	 * eight queries. Kept only while no dashboard or share row was written.
+	 *
+	 * @var array<string, array{writes: int, entries: array<int, array{dashboard: Dashboard, source: string}>}>
+	 */
+	private array $visibleRead = [];
 
 	/**
 	 * Constructor
@@ -1767,6 +1779,48 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function getVisibleToUser(string $userId): array {
+		$kept = $this->visibleRead[$userId] ?? null;
+		if ($kept !== null && $kept['writes'] === DashboardWrites::count()) {
+			return $this->withoutSetAside(userId: $userId, entries: self::copies(entries: $kept['entries']));
+		}
+
+		$filtered = $this->readVisibleToUser(userId: $userId);
+		$this->visibleRead[$userId] = [
+			'writes' => DashboardWrites::count(),
+			'entries' => self::copies(entries: $filtered),
+		];
+
+		return $this->withoutSetAside(userId: $userId, entries: $filtered);
+	}//end getVisibleToUser()
+
+	/**
+	 * Copies of the entries' dashboards, so a caller changing one never
+	 * changes the list kept for the request.
+	 *
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $entries The entries.
+	 *
+	 * @return array<int, array{dashboard: Dashboard, source: string}> The copies.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	private static function copies(array $entries): array {
+		foreach ($entries as $index => $entry) {
+			$entries[$index]['dashboard'] = clone $entry['dashboard'];
+		}
+
+		return $entries;
+	}//end copies()
+
+	/**
+	 * The dashboards visible to a user before the set-aside filter, read from the database.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return array<int, array{dashboard: Dashboard, source: string}> List of {dashboard, source} pairs.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	private function readVisibleToUser(string $userId): array {
 		$this->materialiseScheduledDashboards();
 
 		$userGroupIds = $this->builders->adminTemplateService->getUserGroupIdsFor(
@@ -1819,8 +1873,8 @@ class DashboardService {
 			$filtered[] = $sharedEntry;
 		}
 
-		return $this->withoutSetAside(userId: $userId, entries: $filtered);
-	}//end getVisibleToUser()
+		return $filtered;
+	}//end readVisibleToUser()
 
 	/**
 	 * Drop the organisation-wide dashboards a user has set aside

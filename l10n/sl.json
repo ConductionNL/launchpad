@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Ni sprememb",
+        "Keep editing": "Nadaljuj urejanje",
+        "Save changes?": "Ali želite shraniti spremembe?",
+        "Discard changes?": "Ali želite zavreči spremembe?",
+        "Don't save": "Ne shrani",
+        "The changes could not be saved.": "Sprememb ni bilo mogoče shraniti.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Sodelavec je prvi spremenil {count} od teh gradnikov. Nič ni bilo shranjeno.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Osnutek · {count} sprememba", "Osnutek · {count} spremembi", "Osnutek · {count} spremembe", "Osnutek · {count} sprememb"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Ta nadzorna plošča ima {count} neshranjeno spremembo.", "Ta nadzorna plošča ima {count} neshranjeni spremembi.", "Ta nadzorna plošča ima {count} neshranjene spremembe.", "Ta nadzorna plošča ima {count} neshranjenih sprememb."],
+        "Duplicate": "Podvoji",
+        "The widget could not be duplicated.": "Gradnika ni bilo mogoče podvojiti.",
         "Add to favourites: {name}": "Dodaj med priljubljene: {name}",
         "All dashboards": "Vse nadzorne plošče",
         "Announcements": "Obvestila",

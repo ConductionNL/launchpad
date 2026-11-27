@@ -1,6 +1,17 @@
 OC.L10N.register(
     "launchpad",
     {
+    "No changes" : "Няма змен",
+    "Keep editing" : "Працягваць рэдагаванне",
+    "Save changes?" : "Захаваць змены?",
+    "Discard changes?" : "Адкінуць змены?",
+    "Don't save" : "Не захоўваць",
+    "The changes could not be saved." : "Не ўдалося захаваць змены.",
+    "A colleague changed {count} of these widgets first. Nothing was saved." : "Калега першым змяніў {count} з гэтых віджэтаў. Нічога не захавана.",
+    "_Draft · {count} change_::_Draft · {count} changes_" : ["Чарнавік · {count} змена", "Чарнавік · {count} змены", "Чарнавік · {count} змен"],
+    "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._" : ["На гэтай панэлі {count} незахаваная змена.", "На гэтай панэлі {count} незахаваныя змены.", "На гэтай панэлі {count} незахаваных змен."],
+    "Duplicate" : "Дубляваць",
+    "The widget could not be duplicated." : "Не ўдалося дубляваць віджэт.",
     "Add to favourites: {name}" : "Дадаць у абранае: {name}",
     "All dashboards" : "Усе панэлі",
     "Announcements" : "Аб'явы",

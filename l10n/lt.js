@@ -1,6 +1,17 @@
 OC.L10N.register(
     "launchpad",
     {
+    "No changes" : "Pakeitimų nėra",
+    "Keep editing" : "Tęsti redagavimą",
+    "Save changes?" : "Išsaugoti pakeitimus?",
+    "Discard changes?" : "Atmesti pakeitimus?",
+    "Don't save" : "Neišsaugoti",
+    "The changes could not be saved." : "Pakeitimų nepavyko išsaugoti.",
+    "A colleague changed {count} of these widgets first. Nothing was saved." : "Kolega pirmas pakeitė {count} iš šių valdiklių. Niekas neišsaugota.",
+    "_Draft · {count} change_::_Draft · {count} changes_" : ["Juodraštis · {count} pakeitimas", "Juodraštis · {count} pakeitimai", "Juodraštis · {count} pakeitimų"],
+    "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._" : ["Šiame skydelyje yra {count} neišsaugotas pakeitimas.", "Šiame skydelyje yra {count} neišsaugoti pakeitimai.", "Šiame skydelyje yra {count} neišsaugotų pakeitimų."],
+    "Duplicate" : "Dubliuoti",
+    "The widget could not be duplicated." : "Valdiklio nepavyko dubliuoti.",
     "Add to favourites: {name}" : "Pridėti prie mėgstamų: {name}",
     "All dashboards" : "Visi skydeliai",
     "Announcements" : "Skelbimai",

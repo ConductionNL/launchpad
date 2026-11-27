@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Keng Ännerungen",
+        "Keep editing": "Weider änneren",
+        "Save changes?": "Ännerunge späicheren?",
+        "Discard changes?": "Ännerunge verwerfen?",
+        "Don't save": "Net späicheren",
+        "The changes could not be saved.": "D'Ännerunge konnten net gespäichert ginn.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "E Kolleg huet {count} vun dëse Widgets als Éischt geännert. Näischt gouf gespäichert.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Entworf · {count} Ännerung", "Entworf · {count} Ännerungen"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Dëse Dashboard huet {count} net gespäichert Ännerung.", "Dëse Dashboard huet {count} net gespäichert Ännerungen."],
+        "Duplicate": "Duplizéieren",
+        "The widget could not be duplicated.": "De Widget konnt net dupliziert ginn.",
         "Add to favourites: {name}": "Bei d'Favoritten derbäisetzen: {name}",
         "All dashboards": "All Dashboards",
         "Announcements": "Ukënnegungen",

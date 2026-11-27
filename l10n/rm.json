@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Naginas midadas",
+        "Keep editing": "Cuntinuar a modifitgar",
+        "Save changes?": "Memorisar las midadas?",
+        "Discard changes?": "Rinunziar a las midadas?",
+        "Don't save": "Betg memorisar",
+        "The changes could not be saved.": "Las midadas n'han betg pudì vegnir memorisadas.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "In collega ha midà sco emprim {count} da quests widgets. Nagut n'è vegnì memorisà.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Sboz · {count} midada", "Sboz · {count} midadas"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Quest dashboard ha {count} midada betg memorisada.", "Quest dashboard ha {count} midadas betg memorisadas."],
+        "Duplicate": "Duplitgar",
+        "The widget could not be duplicated.": "Il widget n'ha betg pudì vegnir duplitgà.",
         "Add to favourites: {name}": "Agiuntar als favurits: {name}",
         "All dashboards": "Tut ils tabladis",
         "Announcements": "Annunzias",

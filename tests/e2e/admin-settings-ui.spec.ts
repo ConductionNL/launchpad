@@ -152,6 +152,15 @@ test.afterAll(async () => {
 	await admin.dispose()
 })
 
+// On an instance whose setup is not done the setup wizard opens by itself on
+// the first visit in a browser session (ADR-042) and covers the tabs; these
+// tests are about the settings, so the session has already been offered it.
+test.beforeEach(async ({ page }) => {
+	await page.addInitScript(() => {
+		window.sessionStorage.setItem('launchpad:setup-wizard-offered', '1')
+	})
+})
+
 test.describe('REQ-ASET-008 the admin settings page', () => {
 	// @e2e admin-settings::admin-settings-page-is-registered
 	test('Settings > Administration lists LaunchPad and the entry opens its page', async ({

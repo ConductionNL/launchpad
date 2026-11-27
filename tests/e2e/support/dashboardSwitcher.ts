@@ -17,17 +17,21 @@ import { expect } from '@playwright/test'
 export const MORE_MENU = '[data-testid="launchpad-more-menu"]'
 
 /**
- * Open the dashboard switcher sidebar from the More menu.
+ * Open the More menu and unfold its Dashboards column into every dashboard.
  *
  * @param page The page, on the start page.
- * @return Resolves once the sidebar is open.
+ * @return Resolves once the column is unfolded.
  */
 export async function openDashboardSwitcher(page: Page): Promise<void> {
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
-	await page.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]').click()
-	await expect(page.locator('.dashboard-switcher-sidebar.open')).toBeVisible({ timeout: 10_000 })
+	// No slide-in panel any more (REVIEW-LAUNCHPAD items 4-5, REQ-SHELL-016):
+	// "More" at the bottom of the Dashboards column unfolds it in place into
+	// every dashboard the person can open, and the menu stays open.
+	const unfold = page.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]')
+	await unfold.click()
+	await expect(unfold).toHaveAttribute('aria-expanded', 'true', { timeout: 10_000 })
 }
 
 /**

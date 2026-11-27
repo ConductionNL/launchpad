@@ -192,7 +192,9 @@ class WidgetPlacementMapperCoverageTest extends TestCase {
 	}//end testFindAllSelectsEveryRowOrderedById()
 
 	/**
-	 * findByAnnouncementKey() filters by the announcement key column.
+	 * findByAnnouncementKey() filters by the announcement key column, oldest
+	 * placement first, so the first placement that carried the key is the
+	 * report's author on every database.
 	 *
 	 * @return void
 	 */
@@ -201,7 +203,7 @@ class WidgetPlacementMapperCoverageTest extends TestCase {
 			->findByAnnouncementKey('ann-1');
 
 		$this->assertSame(
-			array_merge($this->selectWhere('announcement_key', '"ann-1"', 2), ['qb1.executeQuery(null)']),
+			array_merge($this->selectWhere('announcement_key', '"ann-1"', 2), ['qb1.orderBy("id", "ASC")', 'qb1.executeQuery(null)']),
 			$this->recorder->calls
 		);
 		$this->assertSame(['ann-1', 'ann-1'], array_map(fn (WidgetPlacement $p): ?string => $p->getAnnouncementKey(), $rows));

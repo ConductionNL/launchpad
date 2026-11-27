@@ -33,6 +33,7 @@ let group = ''
 let userDashboardsWere = false
 let femke: Principal | null = null
 const readers: Principal[] = []
+const dashboardOf = new Map<string, number>()
 const written: string[] = []
 
 test.describe.configure({ mode: 'serial' })
@@ -62,6 +63,7 @@ async function readerWithWidget(prefix: string): Promise<Principal> {
 	const reader = await createPrincipal(admin, prefix)
 	readers.push(reader)
 	const dashboard = await createPersonalDashboard(reader, `E2E ${prefix} ${STAMP}`)
+	dashboardOf.set(reader.username, dashboard.id)
 	const placed = await reader.api.post(`${API}/dashboard/${dashboard.id}/widgets`, {
 		data: { widgetId: 'announcements', gridX: 0, gridY: 0, gridWidth: 6, gridHeight: 6, content: {} },
 	})
@@ -258,8 +260,7 @@ test('on a notice the check keeps the banner, marked read, and the x closes it',
 // @e2e dashboard-acknowledgements::the-key-reaches-the-dashboard
 test('a widget that asks for confirmation is listed on the tab, and the dashboard has no Read receipts', async ({ browser }) => {
 	const owner = readers[0] ?? await readerWithWidget('e2e-ann-owner')
-	const dashboard = (await (await owner.api.get(`${API}/dashboards/default`)).json())
-	const dashboardId = Number(dashboard.id ?? dashboard.dashboard?.id ?? dashboard.data?.id)
+	const dashboardId = dashboardOf.get(owner.username)!
 	const text = `New expense rules ${STAMP}`
 	const placement = await addTextWidget(owner.api, dashboardId, text, 6)
 	const asked = await updatePlacement(owner.api, placement, { requiresAcknowledgement: 1, acknowledgementPrompt: 'I have read the expense rules', customTitle: text })
@@ -285,7 +286,9 @@ test('a widget that asks for confirmation is listed on the tab, and the dashboar
 
 	const ownerView = await openAs(browser, owner)
 	try {
-		await ownerView.page.getByTestId('dashboard-more-menu').click({ timeout: 60_000 })
+		await ownerView.page.getByTestId('launchpad-more-menu-trigger').click({ timeout: 60_000 })
+		// The menu is open (its Download is there), and it has no Read receipts.
+		await expect(ownerView.page.getByText('Download', { exact: true }).first()).toBeVisible()
 		await expect(ownerView.page.getByText('Read receipts', { exact: true })).toHaveCount(0)
 	} finally {
 		await ownerView.close()

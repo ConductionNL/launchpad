@@ -54,6 +54,13 @@ class AnnouncementReadConfirmations {
 	public const MAX_SEEN_BATCH = 100;
 
 	/**
+	 * The prefix of the key under which read confirmations were stored in
+	 * the acknowledgements table before the receipts table; the migration
+	 * carries them over (Version002024Date20261127160000).
+	 */
+	public const KEY_PREFIX = 'announcement-';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param AnnouncementServiceInterface $announcements The announcements a user may read or manage.
@@ -64,6 +71,19 @@ class AnnouncementReadConfirmations {
 		private readonly AnnouncementReceiptMapper $receipts,
 	) {
 	}//end __construct()
+
+	/**
+	 * The former acknowledgement key of an announcement's read confirmations.
+	 *
+	 * @param string $uuid The announcement's uuid.
+	 *
+	 * @return string The key.
+	 *
+	 * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-6
+	 */
+	public static function key(string $uuid): string {
+		return self::KEY_PREFIX.$uuid;
+	}//end key()
 
 	/**
 	 * The check or the x: record the reader's confirmation once. Only a

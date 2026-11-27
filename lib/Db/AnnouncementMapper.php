@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Db;
 
 use DateTime;
+use InvalidArgumentException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\Entity;
 use OCP\AppFramework\Db\QBMapper;
@@ -135,11 +136,13 @@ class AnnouncementMapper extends QBMapper {
 	 *
 	 * @return Announcement The deleted announcement.
 	 *
+	 * @throws InvalidArgumentException When the entity is not an announcement.
+	 *
 	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function delete(Entity $entity): Entity {
 		if ($entity instanceof Announcement === false) {
-			throw new \InvalidArgumentException('Only an announcement is deleted here');
+			throw new InvalidArgumentException('Only an announcement is deleted here');
 		}
 
 		if ($entity->getUuid() !== null) {

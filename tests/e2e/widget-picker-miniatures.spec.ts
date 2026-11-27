@@ -107,3 +107,39 @@ test('Tiles and links lists the tile widgets and Layout holds Container', async 
 	await page.getByTestId('widget-picker-kind-layout').click()
 	await expect(page.getByTestId('widget-picker-type-container')).toBeVisible()
 })
+
+test('the KPI, calendar, activity report, communities, week strip and stacked bar miniatures draw their samples without a request', async ({ page }) => {
+	await gotoLaunchPad(page)
+	await enterEditMode(page)
+	await expect(page.getByTestId('launchpad-dashboard-region')).toBeVisible()
+	await page.waitForTimeout(1500)
+	// REQ-WDG-048: these read OpenRegister aggregates, the calendar, Talk or
+	// the activity report when in use; as a miniature they read nothing.
+	const miniatureRequests: string[] = []
+	page.on('request', (req) => {
+		if (/\/aggregations\/|\/api\/objects\/|\/api\/activity-report|\/api\/calendar|\/apps\/spreed\/|\/ocs\/v2\.php\/apps\/spreed/.test(req.url())) {
+			miniatureRequests.push(req.url())
+		}
+	})
+	await page.getByTestId('launchpad-edit-bar-add-widget').click()
+
+	const samples: Record<string, string> = {
+		stat: '42',
+		delta: '18',
+		gauge: '82%',
+		calendar: 'Team meeting',
+		'activity-report': 'file changed',
+		communities: 'Cycling club',
+		'week-strip': 'Council meeting',
+		'stacked-bar': 'In progress',
+	}
+	for (const [type, text] of Object.entries(samples)) {
+		const card = page.getByTestId(`widget-picker-type-${type}`)
+		await card.scrollIntoViewIfNeeded()
+		const miniature = card.getByTestId(`widget-miniature-${type}`)
+		await expect(miniature, type).toHaveAttribute('data-state', 'ready', { timeout: 10_000 })
+		await expect(miniature, type).toContainText(text, { timeout: 10_000 })
+	}
+	await page.waitForTimeout(1000)
+	expect(miniatureRequests).toEqual([])
+})

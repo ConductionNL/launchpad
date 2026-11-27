@@ -134,10 +134,10 @@ animation:lp-fp-sh 1.8s linear infinite}
 .lp-fp__p--block,.lp-fp__p--block i,.lp-fp__p--tiles,.lp-fp__p--tiles i{height:100%}
 .lp-fp__f--tiles .lp-fp__d{padding:0;border:0}
 @keyframes lp-fp-sh{to{background-position:-200% 0}}
-@media (prefers-reduced-motion:reduce){.lp-fp__p i{animation:none}}
 .lp-fp__x{position:absolute;right:28px;bottom:24px;left:28px;margin:0;padding:12px 16px;border-radius:8px;
 background:var(--color-main-background);visibility:hidden;animation:lp-fp-x 0s 15s forwards}
 @keyframes lp-fp-x{to{visibility:visible}}
+@media (prefers-reduced-motion:reduce){.lp-fp__p i{animation:none}.lp-fp__x{animation-duration:0s}}
 		</style>
 		<div class="lp-fp__c">
 		<?php if ($header['mode'] === 'page') : ?>

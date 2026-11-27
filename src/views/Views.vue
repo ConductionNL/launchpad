@@ -3015,7 +3015,7 @@ export default {
 		 *
 		 * @param {object} app The catalogue entry.
 		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
-		 * @spec openspec/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
+		 * @spec openspec/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		async addCatalogueApp(app) {
 			try {

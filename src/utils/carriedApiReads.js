@@ -40,14 +40,23 @@ export function requestKey(url, params = {}) {
 		return null
 	}
 	const [path, query = ''] = raw.slice(at + APP_SEGMENT.length).split('?')
-	const entries = [...new URLSearchParams(query).entries()]
-	for (const [name, value] of Object.entries(params || {})) {
-		if (value !== undefined && value !== null) {
-			entries.push([name, String(value)])
-		}
-	}
-	entries.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-	return path + '?' + new URLSearchParams(entries).toString()
+	return path + '?' + new URLSearchParams(queryEntries(query, params)).toString()
+}
+
+/**
+ * A request's query as sorted `[name, value]` pairs: the URL's own query plus
+ * its params, values as strings, empty params left out.
+ *
+ * @param {string} query The query string from the URL.
+ * @param {object} params The request's params.
+ * @return {Array<Array<string>>} The pairs.
+ */
+function queryEntries(query, params) {
+	const given = Object.entries(params || {})
+		.filter(([, value]) => value !== undefined && value !== null)
+		.map(([name, value]) => [name, String(value)])
+	return [...new URLSearchParams(query).entries(), ...given]
+		.sort(([a], [b]) => a.localeCompare(b))
 }
 
 /**
@@ -56,22 +65,35 @@ export function requestKey(url, params = {}) {
  * @return {Map<string, object|Array|string|null>} The reads by key.
  */
 function reads() {
-	if (carried !== null) {
-		return carried
-	}
-	carried = new Map()
-	let list
-	try {
-		list = loadState('launchpad', 'workspaceApiReads', [])
-	} catch {
-		list = []
-	}
-	for (const entry of Array.isArray(list) ? list : []) {
-		if (entry && typeof entry.path === 'string' && Object.hasOwn(entry, 'data')) {
-			carried.set(requestKey(APP_SEGMENT + entry.path, entry.params || {}), entry.data)
-		}
+	if (carried === null) {
+		carried = keyed(pageReads())
 	}
 	return carried
+}
+
+/**
+ * The list the page carries, or an empty list.
+ *
+ * @return {Array<object>} The `{path, params, data}` entries.
+ */
+function pageReads() {
+	try {
+		const list = loadState('launchpad', 'workspaceApiReads', [])
+		return Array.isArray(list) ? list : []
+	} catch {
+		return []
+	}
+}
+
+/**
+ * The well-formed entries by request key.
+ *
+ * @param {Array<object>} list The `{path, params, data}` entries.
+ * @return {Map<string, object|Array|string|null>} The reads by key.
+ */
+function keyed(list) {
+	const usable = list.filter((entry) => typeof entry?.path === 'string' && Object.hasOwn(entry, 'data'))
+	return new Map(usable.map((entry) => [requestKey(APP_SEGMENT + entry.path, entry.params || {}), entry.data]))
 }
 
 /**
@@ -138,6 +160,7 @@ export function installCarriedReads(client = axios) {
  * Forget what was read and installed (tests only).
  *
  * @return {void}
+ * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-4
  */
 export function resetCarriedReads() {
 	carried = null

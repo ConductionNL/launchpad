@@ -58,7 +58,6 @@ class PageSources {
 		public readonly AdminTemplateService $adminTemplateService,
 		public readonly ?WorkspaceBootReads $bootReads=null,
 		public readonly ShellBootReads $shell=new ShellBootReads(),
-		public readonly ?WorkspaceApiReads $apiReads=null,
 	) {
 	}//end __construct()
 }//end class

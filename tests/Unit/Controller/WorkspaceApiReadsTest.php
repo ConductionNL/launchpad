@@ -134,7 +134,7 @@ class WorkspaceApiReadsTest extends TestCase {
 			['id' => 5, 'widgetId' => 'tile', 'isVisible' => 1],
 			['id' => 6, 'widgetId' => 'files', 'isVisible' => 0],
 		];
-		$reads = $this->reads()->firstLoad(userId: 'pieter', dashboard: self::dashboard(owner: null), layout: $layout);
+		$reads = $this->reads()->firstLoad(userId: 'pieter', opening: ['dashboard' => self::dashboard(owner: null), 'layout' => $layout]);
 
 		$this->assertSame(
 			expected: [
@@ -157,7 +157,7 @@ class WorkspaceApiReadsTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnOwnDashboardCarriesNoPersonalLayer(): void {
-		$reads = $this->reads()->firstLoad(userId: 'pieter', dashboard: self::dashboard(owner: 'pieter'), layout: []);
+		$reads = $this->reads()->firstLoad(userId: 'pieter', opening: ['dashboard' => self::dashboard(owner: 'pieter'), 'layout' => []]);
 
 		$this->assertNotContains(needle: '/api/dashboards/7/personal-layer', haystack: self::paths(reads: $reads));
 		$this->assertNotContains(needle: PersonalLayerApiController::class, haystack: $this->built);
@@ -175,7 +175,7 @@ class WorkspaceApiReadsTest extends TestCase {
 		$this->reactions = $this->createMock(originalClassName: DashboardReactionApiController::class);
 		$this->reactions->method('getReactions')->willThrowException(new RuntimeException('database gone'));
 
-		$reads = $this->reads()->firstLoad(userId: 'pieter', dashboard: self::dashboard(owner: 'pieter'), layout: []);
+		$reads = $this->reads()->firstLoad(userId: 'pieter', opening: ['dashboard' => self::dashboard(owner: 'pieter'), 'layout' => []]);
 
 		$this->assertSame(expected: ['/api/preferences/dismissed-notices'], actual: self::paths(reads: $reads));
 	}//end testARefusedOrFailingReadIsLeftOut()
@@ -186,7 +186,7 @@ class WorkspaceApiReadsTest extends TestCase {
 	 * @return void
 	 */
 	public function testNothingIsReadForAnAnonymousPage(): void {
-		$this->assertNull($this->reads()->firstLoad(userId: '', dashboard: self::dashboard(owner: null), layout: []));
+		$this->assertNull(actual: $this->reads()->firstLoad(userId: '', opening: ['dashboard' => self::dashboard(owner: null), 'layout' => []]));
 		$this->assertSame(expected: [], actual: $this->built);
 	}//end testNothingIsReadForAnAnonymousPage()
 
@@ -201,7 +201,7 @@ class WorkspaceApiReadsTest extends TestCase {
 			$layout[] = ['id' => $id, 'widgetId' => 'files', 'isVisible' => 1];
 		}
 
-		$reads = $this->reads()->firstLoad(userId: 'pieter', dashboard: self::dashboard(owner: 'pieter'), layout: $layout);
+		$reads = $this->reads()->firstLoad(userId: 'pieter', opening: ['dashboard' => self::dashboard(owner: 'pieter'), 'layout' => $layout]);
 		$files = array_filter(self::paths(reads: $reads), static fn (string $path): bool => str_starts_with($path, '/api/widgets/files/'));
 
 		$this->assertCount(expectedCount: WorkspaceApiReads::MAX_FILES_WIDGETS, haystack: $files);

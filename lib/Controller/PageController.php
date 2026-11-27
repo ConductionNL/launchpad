@@ -137,8 +137,6 @@ class PageController extends Controller {
 		);
 
 		$routingGroup = $this->resolveRoutingGroup(userId: $userId);
-		$primaryGroupId = $routingGroup['id'];
-		$primaryGroupName = $routingGroup['name'];
 
 		$isAdmin = false;
 		$visible = [];
@@ -151,7 +149,7 @@ class PageController extends Controller {
 			$active = $this->resolveActive(
 				userId: $userId,
 				deepLink: $deepLink,
-				primaryGroupId: $primaryGroupId
+				primaryGroupId: $routingGroup['id']
 			);
 			$visible = $this->sources->dashboards->dashboardService->getVisibleToUser(userId: $userId);
 		}
@@ -167,8 +165,8 @@ class PageController extends Controller {
 		$builder
 			->setWidgets($widgets)
 			->setLayout($activeState['layout'])
-			->setPrimaryGroup($primaryGroupId)
-			->setPrimaryGroupName($primaryGroupName)
+			->setPrimaryGroup($routingGroup['id'])
+			->setPrimaryGroupName($routingGroup['name'])
 			->setIsAdmin($isAdmin)
 			->setActiveDashboardId($activeState['activeDashboardId'])
 			->setDashboardSource($activeState['dashboardSource'])
@@ -198,13 +196,7 @@ class PageController extends Controller {
 			->setOrgNavigation($this->settings->orgNavigation?->firstLoad(userId: $userId))
 			->setWorkspaceBootReads($this->sources->bootReads?->firstLoad(userId: $userId))
 			->setShellReads(reads: $this->sources->shell->firstLoad(userId: $userId))
-			->setWorkspaceApiReads(
-				$this->sources->apiReads?->firstLoad(
-					userId: $userId,
-					dashboard: $active['dashboard'] ?? null,
-					layout: $activeState['layout']
-				)
-			)
+			->setWorkspaceApiReads($this->sources->dashboards->payloads?->apiReads?->firstLoad(userId: $userId, opening: ($active ?? []) + $activeState))
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass

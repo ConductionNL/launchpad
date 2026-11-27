@@ -43,6 +43,7 @@ class DashboardPayloads {
 	public function __construct(
 		private readonly DashboardApiServices $services,
 		private readonly ?RequestActor $actor=null,
+		public readonly ?WorkspaceApiReads $apiReads=null,
 	) {
 	}//end __construct()
 

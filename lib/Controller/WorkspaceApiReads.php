@@ -75,37 +75,40 @@ class WorkspaceApiReads {
 	 * answers. A read that is refused, fails or answers anything but 200 is
 	 * left out, so the browser asks for it and meets the same answer.
 	 *
-	 * @param string         $userId    The viewer, or '' when nobody is logged in.
-	 * @param Dashboard|null $dashboard The dashboard the page opens on, or null.
-	 * @param array          $layout    That dashboard's serialised placements.
+	 * @param string $userId  The viewer, or '' when nobody is logged in.
+	 * @param array  $opening `{dashboard, layout}`: the Dashboard the page
+	 *                        opens on (or null) and its serialised placements.
 	 *
 	 * @return list<array{path: string, params: array<string, mixed>, data: mixed}>|null The reads, or null when none.
 	 *
 	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-1
 	 */
-	public function firstLoad(string $userId, ?Dashboard $dashboard, array $layout): ?array {
+	public function firstLoad(string $userId, array $opening): ?array {
 		if ($userId === '') {
 			return null;
 		}
 
-		$reads = [];
-		$this->add(
-			reads: $reads,
-			path: '/api/announcements',
-			params: [],
-			read: fn (): mixed => $this->container->get(AnnouncementController::class)->index()
-		);
-		$this->add(
-			reads: $reads,
-			path: '/api/preferences/dismissed-notices',
-			params: [],
-			read: fn (): mixed => $this->container->get(PreferencesController::class)->getPreference(key: 'dismissed-notices')
-		);
+		$reads = [
+			$this->read(
+				request: ['path' => '/api/announcements'],
+				read: fn (): mixed => $this->container->get(AnnouncementController::class)->index()
+			),
+			$this->read(
+				request: ['path' => '/api/preferences/dismissed-notices'],
+				read: fn (): mixed => $this->container->get(PreferencesController::class)->getPreference(key: 'dismissed-notices')
+			),
+		];
 
-		if ($dashboard !== null) {
-			$this->addDashboardReads(reads: $reads, userId: $userId, dashboard: $dashboard, layout: $layout);
+		$dashboard = $opening['dashboard'] ?? null;
+		if ($dashboard instanceof Dashboard) {
+			$reads = [
+				...$reads,
+				...$this->dashboardReads(userId: $userId, dashboard: $dashboard),
+				...$this->filesReads(layout: (array)($opening['layout'] ?? [])),
+			];
 		}
 
+		$reads = array_values(array_filter($reads, static fn (?array $read): bool => $read !== null));
 		if ($reads === []) {
 			return null;
 		}
@@ -115,44 +118,51 @@ class WorkspaceApiReads {
 
 	/**
 	 * The reads that belong to the dashboard the page opens on: its reactions,
-	 * the viewer's personal layer when somebody else owns it (the workspace
-	 * reads it only then), and the first page of each visible Files widget.
+	 * and the viewer's personal layer when somebody else owns it (the
+	 * workspace reads it only then).
 	 *
-	 * @param array     $reads     The reads so far, appended to.
 	 * @param string    $userId    The viewer.
 	 * @param Dashboard $dashboard The dashboard.
-	 * @param array     $layout    Its serialised placements.
 	 *
-	 * @return void
+	 * @return list<array|null> The reads, null where one was left out.
 	 *
 	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-1
 	 */
-	private function addDashboardReads(array &$reads, string $userId, Dashboard $dashboard, array $layout): void {
+	private function dashboardReads(string $userId, Dashboard $dashboard): array {
+		$reads = [];
 		$uuid = (string)$dashboard->getUuid();
 		if ($uuid !== '') {
-			$this->add(
-				reads: $reads,
-				path: '/api/dashboards/'.rawurlencode($uuid).'/reactions',
-				params: [],
+			$reads[] = $this->read(
+				request: ['path' => '/api/dashboards/'.rawurlencode($uuid).'/reactions'],
 				read: fn (): mixed => $this->container->get(DashboardReactionApiController::class)->getReactions(uuid: $uuid)
 			);
 		}
 
 		$dashboardId = (int)$dashboard->getId();
 		if ($dashboardId > 0 && $dashboard->getUserId() !== $userId) {
-			$this->add(
-				reads: $reads,
-				path: '/api/dashboards/'.$dashboardId.'/personal-layer',
-				params: [],
+			$reads[] = $this->read(
+				request: ['path' => '/api/dashboards/'.$dashboardId.'/personal-layer'],
 				read: fn (): mixed => $this->container->get(PersonalLayerApiController::class)->show(dashboardId: $dashboardId)
 			);
 		}
 
+		return $reads;
+	}//end dashboardReads()
+
+	/**
+	 * The first page of each visible Files widget on the layout.
+	 *
+	 * @param array $layout The serialised placements.
+	 *
+	 * @return list<array|null> The reads, null where one was left out.
+	 *
+	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-1
+	 */
+	private function filesReads(array $layout): array {
+		$reads = [];
 		foreach ($this->filesPlacementIds(layout: $layout) as $placementId) {
-			$this->add(
-				reads: $reads,
-				path: '/api/widgets/files/'.$placementId.'/contents',
-				params: self::FILES_FIRST_PAGE,
+			$reads[] = $this->read(
+				request: ['path' => '/api/widgets/files/'.$placementId.'/contents', 'params' => self::FILES_FIRST_PAGE],
 				read: fn (): mixed => $this->container->get(FilesWidgetController::class)->contents(
 					placementId: $placementId,
 					currentPath: self::FILES_FIRST_PAGE['currentPath'],
@@ -160,7 +170,9 @@ class WorkspaceApiReads {
 				)
 			);
 		}
-	}//end addDashboardReads()
+
+		return $reads;
+	}//end filesReads()
 
 	/**
 	 * The ids of the visible Files widgets on the layout, at most
@@ -193,32 +205,30 @@ class WorkspaceApiReads {
 	}//end filesPlacementIds()
 
 	/**
-	 * Make one read and keep it when it answered 200.
+	 * Make one read; keep it only when it answered 200.
 	 *
-	 * @param array                    $reads  The reads so far, appended to.
-	 * @param string                   $path   The endpoint below `/apps/launchpad`.
-	 * @param array<string, mixed>     $params The query the client sends.
-	 * @param callable(): mixed        $read   Calls the controller action.
+	 * @param array{path: string, params?: array<string, mixed>} $request The endpoint below `/apps/launchpad` and the query the client sends.
+	 * @param callable(): mixed                                   $read    Calls the controller action.
 	 *
-	 * @return void
+	 * @return array{path: string, params: array<string, mixed>, data: mixed}|null The read, or null when left out.
 	 *
 	 * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-1
 	 */
-	private function add(array &$reads, string $path, array $params, callable $read): void {
+	private function read(array $request, callable $read): ?array {
 		try {
 			$response = $read();
 		} catch (Throwable $e) {
 			$this->logger->warning(
-				'LaunchPad: '.$path.' left out of the page: '.$e->getMessage(),
+				'LaunchPad: '.$request['path'].' left out of the page: '.$e->getMessage(),
 				['app' => 'launchpad']
 			);
-			return;
+			return null;
 		}
 
 		if (($response instanceof JSONResponse) === false || $response->getStatus() !== Http::STATUS_OK) {
-			return;
+			return null;
 		}
 
-		$reads[] = ['path' => $path, 'params' => $params, 'data' => $response->getData()];
-	}//end add()
+		return ['path' => $request['path'], 'params' => $request['params'] ?? [], 'data' => $response->getData()];
+	}//end read()
 }//end class

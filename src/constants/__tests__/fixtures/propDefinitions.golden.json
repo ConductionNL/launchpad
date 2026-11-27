@@ -73,6 +73,12 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Announcements/NoticeBanner.vue | read": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/ChoiceCards.vue | label": {
 		"type": "String",
 		"required": false,
@@ -2122,6 +2128,16 @@
 		"required": false,
 		"validator": false,
 		"default": ""
+	},
+	"../../components/admin/tabs/AnnouncementReceipts.vue | announcement": {
+		"type": "Object",
+		"required": true,
+		"validator": false
+	},
+	"../../components/admin/tabs/AnnouncementReceipts.vue | report": {
+		"type": "Object",
+		"required": true,
+		"validator": false
 	},
 	"../../components/admin/tabs/AppCatalogueTab.vue | groups": {
 		"type": "Array",

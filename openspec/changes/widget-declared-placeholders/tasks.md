@@ -10,16 +10,16 @@
 ### Task 2: The registry's declarations on the server
 - **spec_ref**: `openspec/changes/widget-declared-placeholders/specs/first-paint-shell/spec.md#requirement-the-placeholder-shape-comes-from-the-widgets-declaration-req-fps-009`
 - **files**: `package.json` (`prebuild`), `scripts/copy-widget-placeholders.mjs`, `lib/Service/widget-placeholders.json`, `lib/Service/first-paint-kinds.json`, `src/utils/__tests__/widgetPlaceholders.copy.spec.js`
-- [ ] Copy `@conduction/nextcloud-vue/widget-placeholders.json` to `lib/Service/widget-placeholders.json` on prebuild; commit the copy
-- [ ] `first-paint-kinds.json` reduced to `{ "default": "rows" }` plus entries for launchpad types the registry does not declare
-- [ ] Tests: the committed copy equals the installed package's file; no fallback entry for a declared type
+- [x] Copy `@conduction/nextcloud-vue/widget-placeholders.json` to `lib/Service/widget-placeholders.json` on prebuild; commit the copy
+- [x] `first-paint-kinds.json` reduced to `{ "default": "rows" }` plus entries for launchpad types the registry does not declare
+- [x] Tests: the committed copy equals the installed package's file; no fallback entry for a declared type
 
 ### Task 3: One resolution order in PHP and JS
 - **spec_ref**: `openspec/changes/widget-declared-placeholders/specs/first-paint-shell/spec.md#requirement-the-placeholder-shape-comes-from-the-widgets-declaration-req-fps-009`
 - **files**: `lib/Service/FirstPaintShell.php`, `src/components/WidgetWrapper.vue`, `src/components/LazyMount.vue`, `tests/fixtures/widget-placeholders.json`, `tests/Unit/Service/FirstPaintShellPlaceholderTest.php`, `src/utils/__tests__/widgetPlaceholder.fixture.spec.js`
-- [ ] `FirstPaintShell` resolves each frame's shape as manifest, registry, catalogue `placeholder`, fallback
+- [x] `FirstPaintShell` resolves each frame's shape as manifest, registry, catalogue `placeholder`, fallback (the manifest declaration is read from the placement's `placeholder`)
 - [ ] `WidgetWrapper` passes `loading` and nextcloud-vue's `resolveWidgetPlaceholder(...)` result to `CnWidgetWrapper`; `LazyMount` no longer draws its own waiting box; first-paint-skeleton task 5's `WidgetPlaceholder.vue` is not built
-- [ ] Tests: one shared fixture, the same shape from both resolvers for every placement
+- [x] Tests: one shared fixture, the same shape from both resolvers for every placement
 
 ### Task 4: The shell prints the library's markup
 - **spec_ref**: `openspec/changes/widget-declared-placeholders/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002`

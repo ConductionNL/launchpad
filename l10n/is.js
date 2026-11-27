@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Vistaðu breytingarnar fyrst til að velja hverjir sjá þennan nýja viðmótshluta.",
     "No changes" : "Engar breytingar",
     "Keep editing" : "Halda áfram að breyta",
     "Save changes?" : "Vista breytingar?",

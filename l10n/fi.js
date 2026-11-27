@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Tallenna muutokset ensin, jotta voit valita, kuka näkee tämän uuden pienoisohjelman.",
     "No changes" : "Ei muutoksia",
     "Keep editing" : "Jatka muokkausta",
     "Save changes?" : "Tallennetaanko muutokset?",

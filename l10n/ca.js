@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Deseu primer els canvis per triar qui veu aquest giny nou.",
     "No changes" : "Cap canvi",
     "Keep editing" : "Continua editant",
     "Save changes?" : "Voleu desar els canvis?",

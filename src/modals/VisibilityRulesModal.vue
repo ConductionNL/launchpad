@@ -25,6 +25,7 @@
 				:placementId="placementId"
 				:availableGroups="offeredGroups"
 				:ruleMatch="ruleMatch"
+				:draft="draft"
 				data-test="conditional-visibility-editor"
 				@ruleAdded="$emit('ruleAdded')"
 				@ruleUpdated="$emit('ruleUpdated')"
@@ -86,6 +87,12 @@ export default {
 		ruleMatch: {
 			type: String,
 			default: 'any',
+		},
+
+		/** REQ-EDIT-001: the open edit-mode draft the dialog writes, or null. */
+		draft: {
+			type: Object,
+			default: null,
 		},
 	},
 

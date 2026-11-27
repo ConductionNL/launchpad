@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Oma avaldamine",
+    "The upload is larger than this server accepts." : "Üleslaadimine on suurem, kui see server lubab.",
+    "The file is too large." : "Fail on liiga suur.",
+    "This type of file is not allowed here." : "Seda failitüüpi siin ei lubata.",
+    "The upload failed." : "Üleslaadimine ebaõnnestus.",
+    "{name} was not uploaded: {reason}" : "{name} jäi üles laadimata: {reason}",
     "New colleagues" : "Uued kolleegid",
     "Required: this widget cannot be removed" : "Kohustuslik: seda vidinat ei saa eemaldada",
     "Connections of this dashboard" : "Selle töölaua ühendused",

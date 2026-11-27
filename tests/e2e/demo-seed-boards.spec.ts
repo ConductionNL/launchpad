@@ -6,10 +6,11 @@
  * creates the Zuiddrecht users, groups and boards; Pieter opens on Vandaag;
  * a second run adds nothing and changes no board.
  *
- * Not here yet: a-first-visit. Live on 26 Nov 2026, after a run with
- * --retire-showcases `nieuw` opened on an auto-provisioned "My Dashboard"
- * (DashboardService::provisionPersonalDashboard, allowUserDashboards on)
- * instead of the first-visit page; that needs triage first.
+ * a-first-visit: after a run with --retire-showcases `nieuw` opens on the
+ * first-visit page. Live on 26 Nov 2026 she opened on a "My Dashboard" the
+ * read had provisioned for her (allowUserDashboards on); a read now leaves
+ * that choice to her (REQ-SHELL-005), so the test runs with personal
+ * dashboards allowed, the setting the starter offer needs.
  *
  * The seed writes fixed users and fixed dashboard uuids, so the file runs
  * serially and each test starts from a run of the seed itself.
@@ -19,6 +20,7 @@ import type { APIRequestContext } from '@playwright/test'
 
 import { expect, request, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
+import { readAllowUserDashboards, setAllowUserDashboards } from './support/adminTemplates.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import { runOcc } from './support/occ.ts'
 
@@ -137,5 +139,62 @@ test('a second run adds no user, group or board and leaves every board as it was
 		expect(await boardsOf(api)).toEqual(before)
 	} finally {
 		await api.dispose()
+	}
+})
+
+/**
+ * An API context signed in as the suite's administrator.
+ *
+ * @return The context; the caller disposes it.
+ */
+async function adminApi(): Promise<APIRequestContext> {
+	return request.newContext({
+		baseURL: BASE_URL,
+		storageState: undefined,
+		httpCredentials: {
+			username: process.env.NC_ADMIN_USER ?? 'admin',
+			password: process.env.NC_ADMIN_PASS ?? 'admin',
+			send: 'always',
+		},
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+}
+
+// @e2e demo-data-showcases::a-first-visit
+// @e2e dashboards::first-time-user-without-a-template-or-role-layout-chooses-on-the-first-visit-page
+test('after a run with --retire-showcases nieuw opens on the first-visit page with the starter widgets', async ({ browser }) => {
+	const admin = await adminApi()
+	const allowedBefore = await readAllowUserDashboards(admin)
+	try {
+		await setAllowUserDashboards(admin, true)
+		const out = await loadSeed('--retire-showcases')
+		expect(out).toMatch(/^First visit reset for nieuw/m)
+		const lang = await runOcc('user:setting', 'nieuw', 'core', 'lang', 'nl')
+		expect(lang.code, lang.stderr).toBe(0)
+
+		const { context, page } = await loginAs(browser, 'nieuw', PASSWORD)
+		try {
+			await page.goto(APP)
+			await expect(page.getByRole('heading', { level: 2, name: 'U heeft nog geen dashboard', exact: true })).toBeVisible({ timeout: 30_000 })
+			await expect(page.getByTestId('workspace-starter-widgets')).toBeVisible()
+			await expect(page.getByTestId('workspace-create-with-starters')).toBeVisible()
+		} finally {
+			await context.close()
+		}
+
+		// Opening the page chose nothing for her: she owns no dashboard yet.
+		const api = await apiAs('nieuw')
+		try {
+			const visible = await api.get(`${API}/dashboards/visible`)
+			expect(visible.status(), await visible.text()).toBe(200)
+			const body = await visible.json()
+			const owned = ((body.items ?? body) as Array<{ source?: string }>).filter((d) => d.source === 'user')
+			expect(owned).toEqual([])
+		} finally {
+			await api.dispose()
+		}
+	} finally {
+		await setAllowUserDashboards(admin, allowedBefore)
+		await admin.dispose()
 	}
 })

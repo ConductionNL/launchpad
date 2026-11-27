@@ -1,5 +1,11 @@
 {
     "translations": {
+        "Own publication" : "Publicație proprie",
+        "The upload is larger than this server accepts.": "Încărcarea este mai mare decât acceptă acest server.",
+        "The file is too large.": "Fișierul este prea mare.",
+        "This type of file is not allowed here.": "Acest tip de fișier nu este permis aici.",
+        "The upload failed.": "Încărcarea a eșuat.",
+        "{name} was not uploaded: {reason}": "{name} nu a fost încărcat: {reason}",
         "New colleagues": "Colegi noi",
         "Required: this widget cannot be removed" : "Obligatoriu: acest widget nu poate fi eliminat",
         "Connections of this dashboard": "Conexiunile acestui panou",

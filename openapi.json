@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "LaunchPad",
-        "version": "1.1.18-unstable.20261125162514",
+        "version": "1.1.19-unstable.20261127011337",
         "description": "The JSON API of LaunchPad, the dashboard app for Nextcloud: dashboards and their widgets and tiles, kiosk screens, public shares, role-based layouts and permissions, templates and the admin settings behind them.\n\nEvery path is served under `/api/v1/`, the version this document describes. The unversioned `/api/` paths keep working, are deprecated, and name their `/api/v1/` successor in a `Link` header next to a `Deprecation` header. Errors are RFC 9457 problem details (`application/problem+json`), and every response carries an `API-Version` header. Paths that implement an external standard keep the formats of that standard and are not described here.",
         "contact": {
             "name": "Conduction B.V.",
@@ -13489,6 +13489,94 @@
                 }
             }
         },
+        "/store/publish": {
+            "post": {
+                "operationId": "store-publish",
+                "x-launchpad-stability": "internal",
+                "summary": "Publish one dashboard to the connected register",
+                "description": "Publish one dashboard to the connected register. Administrative (REQ-STORE-013): anyone else is refused with 403 by the attribute before this body runs. The body is `{item, objects}` as the publish dialog sends it. A request this server refuses is a 400, a version that is not higher a 409; the register's own answer is passed through unchanged as the outcome (REQ-STORE-003). Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "store"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "item": {
+                                        "type": "array"
+                                    },
+                                    "objects": {
+                                        "type": "array"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    }
+                }
+            }
+        },
+        "/store/publishable": {
+            "get": {
+                "operationId": "store-publishable",
+                "x-launchpad-stability": "internal",
+                "summary": "The dashboards an administrator may publish, for the publish dialog",
+                "description": "The dashboards an administrator may publish, for the publish dialog. Administrative (REQ-STORE-013): anyone else is refused with 403 by the attribute. Only the administrator's own dashboards and the admin templates are offered, never another person's. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "store"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/summary-mail/me": {
             "get": {
                 "operationId": "summary-mail-show",
@@ -14662,6 +14750,9 @@
                             }
                         }
                     },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
@@ -14670,6 +14761,9 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
+                    },
+                    "413": {
+                        "$ref": "#/components/responses/Problem413"
                     },
                     "500": {
                         "$ref": "#/components/responses/Problem500"

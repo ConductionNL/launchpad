@@ -24,6 +24,7 @@ namespace Unit\Controller;
 use OCA\LaunchPad\Controller\StoreController;
 use OCA\LaunchPad\Service\StoreInstallFlow;
 use OCA\LaunchPad\Service\StoreInstalls;
+use OCA\LaunchPad\Service\StorePublishService;
 use OCA\LaunchPad\Service\StoreService;
 use OCA\LaunchPad\Service\StoreUpdateService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
@@ -98,7 +99,7 @@ class StoreControllerTest extends TestCase {
 		$search = new ReflectionMethod(StoreController::class, 'search');
 		$this->assertCount(1, $search->getAttributes(NoAdminRequired::class));
 
-		foreach (['install', 'update', 'getConfig', 'updateConfig'] as $name) {
+		foreach (['install', 'update', 'getConfig', 'updateConfig', 'publishable', 'publish'] as $name) {
 			$method = new ReflectionMethod(StoreController::class, $name);
 			$attributes = $method->getAttributes(AuthorizedAdminSetting::class);
 			$this->assertCount(1, $attributes, $name . ' must be admin-gated');
@@ -427,4 +428,130 @@ class StoreControllerTest extends TestCase {
 			$response->getData()
 		);
 	}//end testInstallWithoutAUserIsUnauthorized()
+	/**
+	 * A controller with a publish service.
+	 *
+	 * @param StorePublishService $publications The publish service.
+	 *
+	 * @return StoreController
+	 */
+	private function publishingController(StorePublishService $publications): StoreController {
+		return new StoreController(
+			request: $this->request,
+			storeService: $this->storeService,
+			userSession: $this->userSession,
+			flow: new StoreInstallFlow(publications: $publications)
+		);
+	}//end publishingController()
+
+	/**
+	 * REQ-STORE-013: publish is admin-only, not merely signed-in, so a member's request is refused with 403.
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 *
+	 * @return void
+	 */
+	public function testPublishIsAdminOnly(): void {
+		foreach (['publish', 'publishable'] as $name) {
+			$method = new ReflectionMethod(objectOrMethod: StoreController::class, method: $name);
+			$this->assertCount(expectedCount: 0, haystack: $method->getAttributes(name: NoAdminRequired::class), message: $name);
+			$this->assertCount(expectedCount: 1, haystack: $method->getAttributes(name: AuthorizedAdminSetting::class), message: $name);
+		}
+	}//end testPublishIsAdminOnly()
+
+	/**
+	 * REQ-STORE-013: the dialog's item and objects reach the service, and an ok passes through.
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 *
+	 * @return void
+	 */
+	public function testPublishPassesTheDialogBodyAndTheOutcome(): void {
+		$this->signIn(uid: 'admin');
+		$item = ['slug' => 'raads-en-collegewerk', 'title' => 'Raads- en collegewerk', 'version' => '0.9.0'];
+		$objects = [['schema' => 'dashboard', 'id' => 'uuid-1']];
+		$this->request->method('getParam')->willReturnCallback(
+			static fn (string $key): ?array => ['item' => $item, 'objects' => $objects][$key] ?? null
+		);
+
+		$seen = [];
+		$publications = $this->createMock(originalClassName: StorePublishService::class);
+		$publications->method('publish')->willReturnCallback(
+			static function (array $item, array $objects, string $userId) use (&$seen): array {
+				$seen = [$item, $objects, $userId];
+				return ['outcome' => 'ok', 'slug' => 'raads-en-collegewerk'];
+			}
+		);
+
+		$response = $this->publishingController(publications: $publications)->publish();
+
+		$this->assertSame(expected: [$item, $objects, 'admin'], actual: $seen);
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(expected: ['outcome' => 'ok', 'slug' => 'raads-en-collegewerk'], actual: $response->getData());
+	}//end testPublishPassesTheDialogBodyAndTheOutcome()
+
+	/**
+	 * REQ-STORE-013: the same version twice is a 409, a refused request a 400, a register refusal a 200 with its outcome.
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 *
+	 * @return void
+	 */
+	public function testPublishStatusFollowsTheOutcome(): void {
+		$this->signIn(uid: 'admin');
+		$this->request->method('getParam')->willReturn(null);
+		$cases = [
+			StorePublishService::OUTCOME_VERSION_NOT_HIGHER => Http::STATUS_CONFLICT,
+			StorePublishService::OUTCOME_INVALID_REQUEST => Http::STATUS_BAD_REQUEST,
+			'store_rejected' => Http::STATUS_OK,
+		];
+		foreach ($cases as $outcome => $status) {
+			$publications = $this->createMock(originalClassName: StorePublishService::class);
+			$publications->method('publish')->willReturn(['outcome' => $outcome, 'slug' => '', 'message' => 'x']);
+
+			$response = $this->publishingController(publications: $publications)->publish();
+
+			$this->assertSame(expected: $status, actual: $response->getStatus(), message: $outcome);
+			$this->assertSame(expected: $outcome, actual: $response->getData()['outcome']);
+		}
+	}//end testPublishStatusFollowsTheOutcome()
+
+	/**
+	 * REQ-STORE-013: the dialog lists the administrator's publishable dashboards.
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 *
+	 * @return void
+	 */
+	public function testPublishableListsTheAdministratorsDashboards(): void {
+		$this->signIn(uid: 'admin');
+		$objects = [['schema' => 'dashboard', 'id' => 'uuid-1', 'title' => 'Raads- en collegewerk']];
+		$publications = $this->createMock(originalClassName: StorePublishService::class);
+		$publications->method('publishable')->willReturnCallback(
+			static fn (string $userId): array => array_filter($objects, static fn (): bool => $userId === 'admin')
+		);
+
+		$data = $this->publishingController(publications: $publications)->publishable()->getData();
+
+		$this->assertSame(expected: ['objects' => $objects], actual: $data);
+	}//end testPublishableListsTheAdministratorsDashboards()
+
+	/**
+	 * REQ-STORE-013: the search marks this instance's own publications.
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 *
+	 * @return void
+	 */
+	public function testSearchMarksOwnPublications(): void {
+		$this->signIn(uid: 'admin');
+		$this->request->method('getParam')->willReturn(null);
+		$this->storeService->method('search')->willReturn(['outcome' => 'ok', 'cards' => [['slug' => 'a']]]);
+		$publications = $this->createMock(originalClassName: StorePublishService::class);
+		$publications->method('annotate')->willReturn([['slug' => 'a', 'typeName' => 'Own publication']]);
+
+		$data = $this->publishingController(publications: $publications)->search()->getData();
+
+		$this->assertSame(expected: 'Own publication', actual: $data['cards'][0]['typeName']);
+	}//end testSearchMarksOwnPublications()
 }//end class

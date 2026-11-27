@@ -31,17 +31,23 @@ from the marketplace" (dashboard-versioning). Only administrators SHALL update; 
 
 ### Requirement: REQ-STORE-013 An administrator publishes a dashboard to the connected register
 
-The marketplace page SHALL offer "Publish dashboard" ("Dashboard publiceren") to administrators only, and only when a
-register is connected (REQ-STORE-009) and OpenRegister's store plane accepts publications. Publishing SHALL let the
-administrator pick one dashboard, fill in its title, description, category, the kind of organisation it is for and a
-version, and SHALL send the dashboard's export (dashboard-export-import, the same format an install imports) through
-OpenRegister's store plane to the connected register; LaunchPad SHALL NOT talk to the register directly. An export
-SHALL contain no personal data: no owners, shares, personal layers, read receipts or reactions. Publishing a dashboard
-that was published before SHALL require a higher version. The register's answer SHALL reach the administrator
-unchanged (REQ-STORE-003). The item SHALL appear on the page as "Eigen publicatie". Without a connected register, or
-while the store plane cannot accept publications, the action SHALL NOT show.
+The marketplace page SHALL offer "Publish dashboard" ("Dashboard publiceren") to administrators only. Publishing SHALL
+let the administrator pick one dashboard (their own or an admin template, never another person's), fill in its title,
+description, category, publisher and a version, and SHALL send the dashboard's export (dashboard-export-import, the
+same format an install imports) through OpenRegister's store plane to the connected register; LaunchPad SHALL NOT
+talk to the register directly. An export SHALL contain no personal data: no owners, groups, shares, personal layers,
+read receipts or reactions. Publishing a dashboard that was published before SHALL require a higher version. The
+register's answer SHALL reach the administrator unchanged (REQ-STORE-003). The item SHALL appear on the page as
+"Eigen publicatie". Without a connected register, or while the store plane cannot accept publications, a publish
+SHALL answer with that outcome and the remedy, and send nothing.
 
-This requirement depends on OpenRegister's change `store-over-federated-config`; it is not built before that lands.
+Decided 25 Nov 2026 (product decisions delegated by Ruben): the publish uses OpenRegister's store-plane publish
+(`GenericStoreService::publish()`, change store-publish-route, on OpenRegister main), which is what this requirement
+needs; the rest of `store-over-federated-config` (configuration sets, decidiq as first consumer) does not touch a
+dashboard publish. The form is nextcloud-vue's shared publish dialog (`CnStorePublishDialog`): its fields are the
+category, title, description, version and publisher, so the earlier "kind of organisation it is for" field is not
+asked. The page config is static, so the action shows to administrators whether or not a register is connected; a
+publish without one answers not_configured with the remedy to connect one.
 
 #### Scenario: The administrator publishes Raads- en collegewerk
 

@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Oma julkaisu",
+    "The upload is larger than this server accepts." : "Lähetys on suurempi kuin tämä palvelin hyväksyy.",
+    "The file is too large." : "Tiedosto on liian suuri.",
+    "This type of file is not allowed here." : "Tämä tiedostotyyppi ei ole sallittu tässä.",
+    "The upload failed." : "Lähetys epäonnistui.",
+    "{name} was not uploaded: {reason}" : "Tiedostoa {name} ei lähetetty: {reason}",
     "New colleagues" : "Uudet kollegat",
     "Required: this widget cannot be removed" : "Pakollinen: tätä pienoisohjelmaa ei voi poistaa",
     "Connections of this dashboard" : "Tämän kojelaudan yhteydet",

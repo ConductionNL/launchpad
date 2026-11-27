@@ -140,6 +140,9 @@ class FilesWidgetController extends Controller {
 		}
 
 		$files = $this->normaliseUploadedFiles();
+		if ($files === []) {
+			return $this->noFileReceived();
+		}
 
 		return $this->respond(
 			operation: fn (): array => $this->sources->service->uploadFiles(
@@ -181,6 +184,36 @@ class FilesWidgetController extends Controller {
 			action: 'delete'
 		);
 	}//end destroy()
+
+	/**
+	 * The refusal for an upload in which no file arrived.
+	 *
+	 * PHP drops a request body larger than `post_max_size` and leaves
+	 * `$_FILES` empty, so a request that carried a body but no file is
+	 * answered 413 `upload_too_large`; a request without a body 400
+	 * `no_files`. Either way the widget can say why nothing was uploaded.
+	 *
+	 * @return JSONResponse The 413 or 400 refusal.
+	 *
+	 * @spec openspec/specs/files-widget/spec.md
+	 */
+	private function noFileReceived(): JSONResponse {
+		if ((int) $this->request->getHeader('Content-Length') > 0) {
+			return new JSONResponse(
+				data: [
+					'status' => 'error',
+					'error' => 'upload_too_large',
+					'message' => 'The upload is larger than this server accepts',
+				],
+				statusCode: Http::STATUS_REQUEST_ENTITY_TOO_LARGE
+			);
+		}
+
+		return new JSONResponse(
+			data: ['status' => 'error', 'error' => 'no_files', 'message' => 'No file was received'],
+			statusCode: Http::STATUS_BAD_REQUEST
+		);
+	}//end noFileReceived()
 
 	/**
 	 * The signed-in user and the placement's folder config, else the 401 or 403 refusal.

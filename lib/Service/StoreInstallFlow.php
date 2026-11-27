@@ -36,12 +36,14 @@ class StoreInstallFlow {
 	 *
 	 * @param StoreInstalls|null      $installs Which item and version an install created which dashboard.
 	 * @param StoreUpdateService|null $updates  Brings an installed item to a newer version in place.
+	 * @param StorePublishService|null $publications Publishes a dashboard to the connected register (REQ-STORE-013).
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		public readonly ?StoreInstalls $installs = null,
 		public readonly ?StoreUpdateService $updates = null,
+		public readonly ?StorePublishService $publications = null,
 	) {
 	}//end __construct()
 }//end class

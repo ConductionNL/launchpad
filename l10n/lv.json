@@ -1,5 +1,11 @@
 {
     "translations": {
+        "Own publication" : "Pašu publikācija",
+        "The upload is larger than this server accepts.": "Augšupielāde ir lielāka, nekā šis serveris pieņem.",
+        "The file is too large.": "Fails ir pārāk liels.",
+        "This type of file is not allowed here.": "Šis faila tips šeit nav atļauts.",
+        "The upload failed.": "Augšupielāde neizdevās.",
+        "{name} was not uploaded: {reason}": "{name} netika augšupielādēts: {reason}",
         "New colleagues": "Jaunie kolēģi",
         "Required: this widget cannot be removed" : "Obligāts: šo logrīku nevar noņemt",
         "Connections of this dashboard": "Šī informācijas paneļa savienojumi",

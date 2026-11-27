@@ -537,6 +537,43 @@ class FilesWidgetServiceTest extends TestCase {
 	}//end testUploadReturnsErrorForFailedUploadEntries()
 
 	/**
+	 * A file PHP refused for its size answers file_too_large, not upload_failed,
+	 * so the widget can say why; other transport errors stay upload_failed.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/files-widget/spec.md
+	 */
+	public function testUploadNamesAFileRefusedForItsSize(): void {
+		$this->configuredFolder->method('isReadable')->willReturn(true);
+		$this->configuredFolder->method('isUpdateable')->willReturn(true);
+		$this->userFolder->method('getById')->willReturn([$this->configuredFolder]);
+		$this->configuredFolder->expects($this->never())->method('newFile');
+
+		$entry = static fn (string $name, int $error): array => ['name' => $name, 'tmp_name' => '', 'error' => $error, 'size' => 0];
+		$result = $this->service->uploadFiles(
+			userId: 'alice',
+			config: ['fileId' => 99, 'allowUpload' => true],
+			currentSubPath: null,
+			uploadedFiles: [
+				$entry('ini.bin', UPLOAD_ERR_INI_SIZE),
+				$entry('form.bin', UPLOAD_ERR_FORM_SIZE),
+				$entry('partial.bin', UPLOAD_ERR_PARTIAL),
+			]
+		);
+
+		$this->assertSame(expected: [], actual: $result['uploaded']);
+		$this->assertSame(
+			expected: [
+				['name' => 'ini.bin', 'error' => 'file_too_large'],
+				['name' => 'form.bin', 'error' => 'file_too_large'],
+				['name' => 'partial.bin', 'error' => 'upload_failed'],
+			],
+			actual: $result['errors']
+		);
+	}//end testUploadNamesAFileRefusedForItsSize()
+
+	/**
 	 * M3: when a file comes through with UPLOAD_ERR_OK but the path is
 	 * not a genuine PHP upload (is_uploaded_file returns false), the
 	 * entry must be rejected with upload_failed.

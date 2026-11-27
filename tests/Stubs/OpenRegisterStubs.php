@@ -109,6 +109,20 @@ namespace OCA\OpenRegister\AppHost\Service {
 			public readonly array $types;
 
 			/**
+			 * Fields that may leave this server.
+			 *
+			 * @var array<int, string>
+			 */
+			public readonly array $publishFields;
+
+			/**
+			 * Groups whose members may publish.
+			 *
+			 * @var array<int, string>
+			 */
+			public readonly array $publishGroups;
+
+			/**
 			 * Constructor.
 			 *
 			 * @param StoreListing $listing The read half.
@@ -123,6 +137,8 @@ namespace OCA\OpenRegister\AppHost\Service {
 				$this->defaultRegister = $listing->defaultRegister;
 				$this->cardFields = $listing->cardFields;
 				$this->types = $sharing->types;
+				$this->publishFields = $sharing->publishFields;
+				$this->publishGroups = $sharing->publishGroups;
 			}//end __construct()
 		}//end class
 	}
@@ -156,6 +172,18 @@ namespace OCA\OpenRegister\AppHost\Service {
 			public function resolve(StoreDescriptor $descriptor, string $slug): ?array {
 				return null;
 			}//end resolve()
+
+			/**
+			 * Publish one object to the remote store.
+			 *
+			 * @param StoreDescriptor      $descriptor Store parameters.
+			 * @param array<string, mixed> $payload    The object, carrying its slug.
+			 *
+			 * @return array{outcome: string, slug: string}
+			 */
+			public function publish(StoreDescriptor $descriptor, array $payload): array {
+				return ['outcome' => 'not_configured', 'slug' => ''];
+			}//end publish()
 		}//end class
 	}
 }

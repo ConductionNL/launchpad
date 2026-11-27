@@ -13649,8 +13649,8 @@
     {
       "type": "library",
       "name": "gridstack",
-      "version": "13.3.0",
-      "bom-ref": "launchpad@1.0.0|gridstack@13.3.0",
+      "version": "14.1.1",
+      "bom-ref": "launchpad@1.0.0|gridstack@14.1.1",
       "licenses": [
         {
           "license": {
@@ -13658,15 +13658,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/gridstack@13.3.0",
+      "purl": "pkg:npm/gridstack@14.1.1",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/gridstack/-/gridstack-13.3.0.tgz",
+          "url": "https://registry.npmjs.org/gridstack/-/gridstack-14.1.1.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "d6da85777fe16f70923895851bc68595e086593e86ab1fe19e3453efca1c9e2c69d173e4e406ba531926d2a9fd5471702eb11d3856fe657b50653f9afc8752de"
+              "content": "ee8c68b2bfe1b61798d900a038db7232dfe54004b4cffdf8690a626fb5ff5440d35ac20d222250fda23bfb2540be85b5188ec18510656e8fe05e55e12ccfcb3a"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""

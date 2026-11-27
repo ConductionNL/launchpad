@@ -57,6 +57,27 @@ export const announcementsApi = {
 	},
 
 	/** @param {object} input The author fields. @return {Promise<object>} The draft. */
+	/**
+	 * Every announcement for the Announcements tab, managers only (REQ-ANN-008).
+	 *
+	 * @return {Promise<Array<object>>}
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+	 */
+	async manageList() {
+		return (await axios.get(`${base()}/manage`)).data.announcements ?? []
+	},
+
+	/**
+	 * Delete an announcement (REQ-ANN-006).
+	 *
+	 * @param {string} uuid The announcement.
+	 * @return {Promise<object>}
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+	 */
+	async remove(uuid) {
+		return (await axios.delete(`${base()}/${uuid}`)).data
+	},
+
 	async create(input) {
 		return (await axios.post(base(), input)).data
 	},

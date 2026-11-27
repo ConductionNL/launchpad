@@ -2395,6 +2395,20 @@
         "Tour": "Tour",
         "News and maintenance notices for the people in your organisation.": "News and maintenance notices for the people in your organisation.",
         "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges.": "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges.",
-        "Launchpad announcements": "Launchpad announcements"
+        "Launchpad announcements": "Launchpad announcements",
+        "Seen and confirmed": "Seen and confirmed",
+        "{confirmed} confirmed, {pending} not yet confirmed": "{confirmed} confirmed, {pending} not yet confirmed",
+        "Not confirmed": "Not confirmed",
+        "Back to the announcements": "Back to the announcements",
+        "Edit announcement": "Edit announcement",
+        "No announcements yet.": "No announcements yet.",
+        "Shown until": "Shown until",
+        "End now": "End now",
+        "Ended": "Ended",
+        "The announcements could not be loaded.": "The announcements could not be loaded.",
+        "The read confirmations could not be loaded.": "The read confirmations could not be loaded.",
+        "The announcement could not be ended.": "The announcement could not be ended.",
+        "The announcement could not be deleted.": "The announcement could not be deleted.",
+        "Delete the announcement \"{title}\"?": "Delete the announcement \"{title}\"?"
     }
 }

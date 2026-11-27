@@ -2814,6 +2814,20 @@
         "Tour": "Rondleiding",
         "News and maintenance notices for the people in your organisation.": "Nieuws en onderhoudsmeldingen voor de mensen in je organisatie.",
         "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges.": "Aankondigingen beheer je op dit tabblad. Wie aankondigingen beheert zonder beheerder te zijn, krijgt dit tabblad via de beheerrechten van Nextcloud.",
-        "Launchpad announcements": "Launchpad-aankondigingen"
+        "Launchpad announcements": "Launchpad-aankondigingen",
+        "Seen and confirmed": "Gezien en bevestigd",
+        "{confirmed} confirmed, {pending} not yet confirmed": "{confirmed} bevestigd, {pending} nog niet bevestigd",
+        "Not confirmed": "Niet bevestigd",
+        "Back to the announcements": "Terug naar de aankondigingen",
+        "Edit announcement": "Aankondiging bewerken",
+        "No announcements yet.": "Nog geen aankondigingen.",
+        "Shown until": "Tonen tot",
+        "End now": "Nu beëindigen",
+        "Ended": "Beëindigd",
+        "The announcements could not be loaded.": "De aankondigingen konden niet worden geladen.",
+        "The read confirmations could not be loaded.": "De leesbevestigingen konden niet worden geladen.",
+        "The announcement could not be ended.": "De aankondiging kon niet worden beëindigd.",
+        "The announcement could not be deleted.": "De aankondiging kon niet worden verwijderd.",
+        "Delete the announcement \"{title}\"?": "De aankondiging \"{title}\" verwijderen?"
     }
 }

@@ -90,7 +90,11 @@ first layout, the view makes `#workspace-vue` visible and removes the shell in t
 the shell carries `data-placement-id`; the mounted grid item carries the same, which lets the e2e compare the two.
 
 If the bundle fails to run, the shell stays on screen with its status line. After 15 seconds without a hand-over the
-status line says that the page could not load and offers the browser's reload as a link (open question 3).
+status line says "De pagina kon niet worden geladen" (en "The page could not load") with a Reload link that reloads the
+page (board `launchpad/LpLadenMislukt`, to be drawn). The shell has no script, so the 15 seconds are a CSS animation
+delay that shows the message and the link, and the hand-over removes the shell before it shows; the link is a plain
+link to the page's own address. The message is in a second live region that only becomes visible at that moment, so it
+is announced once.
 
 ### D5. Placeholder kinds
 
@@ -132,8 +136,8 @@ available".
 One element with `role="status"` sits in the header next to Meer (board LpLaden). The server renders it with
 "Widgets worden geladen" (en "Loading widgets"); `firstPaintStatus.js` takes the same node over, so the live region is
 never replaced and a screen reader does not hear it twice. It then reads "Nog n widgets worden geladen" (en "Still
-loading n widgets", plural forms) for the widgets on the first screen still waiting, and is emptied and hidden when the
-last one is there. Widgets below the fold that wait for the reader to scroll do not hold it open.
+loading n widgets", plural forms) for the widgets on the first screen still waiting. When the last one is there it
+says "Alle widgets geladen" (en "All widgets loaded") once, and is emptied and hidden after that announcement. Widgets below the fold that wait for the reader to scroll do not hold it open.
 
 To keep it calm for a screen reader the text changes at most once every 2 seconds; the visible count and the spoken
 count are the same text. Per widget nothing is announced: the card has `aria-busy="true"` while it waits and the
@@ -158,7 +162,7 @@ with its seeded widgets), the Playwright performance helper records, before this
 - first useful content: the moment the header text and every first-screen frame with its title are painted (the shell's
   paint; before this change, the moment the grid's first frame is painted);
 - total: the moment the status line empties (before this change, the moment the last first-screen widget has rendered);
-- the Nextcloud floor: the same measures for Nextcloud's own page on the same stack in the same run (open question 2);
+- the Nextcloud floor, as the speed rule defines it: the same measures for the bare Nextcloud Dashboard with no Conduction app enabled, on the same reference stack, warm, in the same run;
 - CLS from the first paint until the hand-over and until total.
 
 The speed rule: first useful content at most 300 ms, total at most the floor plus 150 ms, CLS 0. The numbers go in the

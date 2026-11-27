@@ -33,19 +33,21 @@ Boards LpLaden (first paint) and LpLadenDeels (partly loaded) draw it; LpVandaag
   - REQ-FPS-004: each widget swaps its placeholder for its content when its own data arrives; widgets whose data comes
     in the initial state render filled in the first pass.
   - REQ-FPS-005: placeholders are `aria-hidden`, waiting widgets `aria-busy`, one `role=status` line counts down
-    ("Widgets worden geladen", "Nog 7 widgets worden geladen"), the shimmer stops under `prefers-reduced-motion`.
+    ("Widgets worden geladen", "Nog 7 widgets worden geladen", once "Alle widgets geladen"), the shimmer stops under `prefers-reduced-motion`.
   - REQ-FPS-006: no dashboard to show, no shell.
   - REQ-FPS-007: first paint, first useful content and total are measured before and after on the reference stack,
-    against the speed rule.
+    against the speed rule and its floor (the bare Nextcloud Dashboard with no Conduction app enabled, on the same reference stack, warm, in the same run).
+  - REQ-FPS-008: when the scripts have not taken over after 15 seconds, the shell says the page could not load, with a
+    Reload link (board LpLadenMislukt).
 - `widgets`: REQ-WDG-046 is modified. The waiting box shows the content-shaped placeholder instead of the text
   "Loading…", and the busy state moves from a per-widget status to `aria-busy` on the card, so a screen reader hears
   one status line for the whole page instead of one per widget.
 
 ## Out of scope
 
-- The public share page (`templates/public.php`), the embed page and the kiosk route's own template: they do not carry
-  `dashboardFirstLoad`. The kiosk view of the workspace (`?kiosk=1`) uses the same template and is in scope. The other
-  two follow once this one is measured (open question 1).
+- The public share page (`templates/public.php`) and the embed page: out of scope, follow-up. They do not carry
+  `dashboardFirstLoad`; a follow-up change gives them a shell once this one is measured. The kiosk view of the workspace
+  (`?kiosk=1`) uses the same template and is in scope.
 - Nested grids inside a container, well or tabs widget: the container's frame is drawn at its position with a block
   placeholder; its children appear when it mounts.
 - nextcloud-vue's own widget hosts outside launchpad.
@@ -58,8 +60,9 @@ Boards LpLaden (first paint) and LpLadenDeels (partly loaded) draw it; LpVandaag
 - `src/main.js` (hand-over), `src/views/Views.vue`, `src/components/LazyMount.vue`, `src/components/WidgetWrapper.vue`,
   a new `src/utils/firstPaintStatus.js` (the status line).
 - No new initial-state key: the shell is built from the values the page already reads. The schema version stays.
-- New strings: "Loading widgets" and "Still loading %n widget(s)", in every shipped locale.
+- New strings: "Loading widgets", "Still loading %n widget(s)", "All widgets loaded", "The page could not load" and
+  "Reload", in every shipped locale.
 
 ## Boards
 
-LpLaden, LpLadenDeels, LpVandaag (see screens.md).
+LpLaden, LpLadenDeels, LpVandaag, and LpLadenMislukt (could not load, to be drawn) (see screens.md).

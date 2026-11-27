@@ -124,8 +124,8 @@ Every placeholder SHALL be `aria-hidden="true"`. A widget that is waiting SHALL 
 and a frame in the design-system token `work-field` (AA for non-text); a loaded widget a frame in `work-line`. The page
 SHALL have one status line with `role="status"`, next to Meer, that reads "Widgets worden geladen" (en "Loading
 widgets") in the shell and then counts down the first-screen widgets still waiting, "Nog 7 widgets worden geladen" (en
-"Still loading 7 widgets"), changing its text at most once every 2 seconds, and SHALL be emptied when the last one is
-there. The status line SHALL be the same element from the shell to the mounted page. Nothing SHALL be announced per
+"Still loading 7 widgets"), changing its text at most once every 2 seconds. When the last first-screen widget has loaded it SHALL announce "Alle
+widgets geladen" (en "All widgets loaded") once, and SHALL then be emptied. The status line SHALL be the same element from the shell to the mounted page. Nothing SHALL be announced per
 widget. The placeholders' shimmer SHALL be subtle (1.8 s) and SHALL NOT run under `prefers-reduced-motion: reduce`. The
 shell SHALL use design-system tokens only, so dark mode and the NL Design themes apply.
 
@@ -141,7 +141,7 @@ shell SHALL use design-system tokens only, so dark mode and the NL Design themes
 - **GIVEN** Pieter's start page with 7 first-screen widgets that wait on other apps
 - **WHEN** the Nextcloud widgets have loaded
 - **THEN** the status line reads "Nog 7 widgets worden geladen"
-- **AND** when the last of the 7 is there, the status line is empty
+- **AND** when the last of the 7 is there, the status line announces "Alle widgets geladen" once and then is empty
 
 #### Scenario: No shimmer with reduced motion
 
@@ -166,7 +166,7 @@ mount as before (its empty state, REQ-SHELL-005). The shell SHALL never draw wid
 
 The performance suite SHALL measure on the reference stack, warm, before and after this change: first paint, first
 useful content (the header text and every first-screen frame with its title painted), total (the status line emptied,
-every first-screen widget loaded) and the Nextcloud floor (Nextcloud's own page on the same stack, in the same run), and
+every first-screen widget loaded) and the Nextcloud floor (the bare Nextcloud Dashboard with no Conduction app enabled, on the same reference stack, warm, in the same run), and
 the layout shift from first paint to total. The workspace SHALL show its first useful content within 300 ms, SHALL be
 complete within the Nextcloud floor plus 150 ms, and SHALL have a layout shift of 0 between the shell and the mounted
 page.
@@ -174,7 +174,29 @@ page.
 #### Scenario: The start page meets the speed rule
 @e2e exclude a timing budget on the reference stack, not a pass or fail in a shared CI runner; measured by tests/e2e/performance.spec.ts (budget entry `workspace-first-paint` in tests/performance/budget.json) in the nightly sweep, and before and after in the PR on the reference stack
 
-- **GIVEN** the reference stack, warm, with Mijn werkdag as the start page
+- **GIVEN** the reference stack, warm, with Mijn werkdag as the start page, and the floor measured in the same run on
+  the bare Nextcloud Dashboard with no Conduction app enabled
 - **WHEN** the start page is opened ten times
 - **THEN** the median first useful content is at most 300 ms
 - **AND** the median total is at most the Nextcloud floor plus 150 ms, and the layout shift is 0
+
+### Requirement: The shell says when the page could not load (REQ-FPS-008)
+
+When the page has not taken over from the shell 15 seconds after the shell was painted (the scripts did not load or did
+not run), the shell SHALL say "De pagina kon niet worden geladen" (en "The page could not load") with a Reload link that
+opens the same address again (board `launchpad/LpLadenMislukt`). The message SHALL be announced once to a screen reader
+and the link SHALL be reachable by keyboard. The shell SHALL do this without script. A page that takes over within the
+15 seconds SHALL never show the message.
+
+#### Scenario: The scripts do not arrive
+
+- **GIVEN** Pieter opens his start page and the launchpad scripts are blocked
+- **WHEN** 15 seconds have passed
+- **THEN** the shell says "De pagina kon niet worden geladen" with a Reload link
+- **AND** choosing Reload opens the start page again
+
+#### Scenario: A normal load never shows the message
+
+- **GIVEN** Pieter opens his start page and the scripts load
+- **WHEN** the page takes over and 15 seconds pass
+- **THEN** the message has never been shown

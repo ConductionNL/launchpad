@@ -3,7 +3,7 @@
 ### Task 1: Measure before
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-first-paint-is-measured-against-the-speed-rule-req-fps-007`
 - **files**: `tests/e2e/performance.spec.ts`, `tests/performance/budget.json`
-- [ ] Add the measures to the performance helper use: first paint, first useful content, total, layout shift, and the Nextcloud floor in the same run
+- [ ] Add the measures to the performance helper use: first paint, first useful content, total, layout shift, and the Nextcloud floor (the bare Nextcloud Dashboard with no Conduction app enabled, on the same reference stack, warm, in the same run)
 - [ ] Record the numbers on the reference stack (sandbox, Nextcloud 34, launchpad `development`, warm, Mijn werkdag, median of 10) before any code below lands, in the PR
 
 ### Task 2: The view model and the layout twin
@@ -28,7 +28,7 @@
 - **files**: `src/main.js`, `src/views/Views.vue`, `src/utils/firstPaintHandover.js`
 - [ ] `#workspace-vue` hidden until the grid's first layout; then visible and the shell removed in one animation frame
 - [ ] `applyCustomCss` reuses the printed style element
-- [ ] The shell stays with its status line when the bundle fails; after 15 seconds the line says the page could not load, with a reload link
+- [ ] The shell stays with its status line when the bundle fails; after 15 seconds, without script, it says the page could not load with a Reload link (REQ-FPS-008, board LpLadenMislukt)
 - [ ] Tests: `src/utils/__tests__/firstPaintHandover.spec.js` (one frame, hidden until layout, failure text)
 
 ### Task 5: Placeholders in the mounted page
@@ -49,8 +49,8 @@
 ### Task 7: The status line
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-loading-state-is-calm-and-accessible-req-fps-005`
 - **files**: `src/utils/firstPaintStatus.js`, `src/views/Views.vue`, `l10n/`
-- [ ] Take over the server's `role=status` node; count the first-screen widgets still waiting; at most one text change per 2 seconds; empty when done
-- [ ] Strings "Loading widgets" and "Still loading %n widget" / "Still loading %n widgets" in every shipped locale (nl: "Widgets worden geladen", "Nog %n widget wordt geladen" / "Nog %n widgets worden geladen"), used by both PHP and JS
+- [ ] Take over the server's `role=status` node; count the first-screen widgets still waiting; at most one text change per 2 seconds; "All widgets loaded" once when the last is there, then empty
+- [ ] Strings "Loading widgets", "Still loading %n widget" / "Still loading %n widgets", "All widgets loaded", "The page could not load" and "Reload" in every shipped locale (nl: "Widgets worden geladen", "Nog %n widget wordt geladen" / "Nog %n widgets worden geladen", "Alle widgets geladen", "De pagina kon niet worden geladen", "Opnieuw laden"), used by both PHP and JS
 - [ ] Tests: `src/utils/__tests__/firstPaintStatus.spec.js` (same node, countdown, throttle, empties; below-fold widgets not counted)
 
 ### Task 8: End-to-end
@@ -60,14 +60,15 @@
 - [ ] Every frame's rect in the shell equals its grid item's rect after the hand-over, within 1 px, at 1440, 1100 and 390 px wide; layout shift 0; no blank frame
 - [ ] Hidden and refused widgets have no frame; no shell without a dashboard
 - [ ] A slow route (Playwright `route` delay on one widget's source): the others fill, that one keeps its placeholder, the status line counts it
-- [ ] Accessibility: placeholders `aria-hidden`, waiting cards `aria-busy`, one `role=status`; no shimmer animation with `reducedMotion: 'reduce'`
+- [ ] Accessibility: placeholders `aria-hidden`, waiting cards `aria-busy`, one `role=status` announcing "All widgets loaded" once; no shimmer animation with `reducedMotion: 'reduce'`
+- [ ] Scripts blocked (`route` abort on the launchpad bundle): after 15 seconds the could-not-load message and Reload show; a normal load never shows them
 
 ### Task 9: Measure after and live check
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-first-paint-is-measured-against-the-speed-rule-req-fps-007`
 - **files**: `tests/performance/budget.json`
 - [ ] Measure after on the same reference stack and in the same way as task 1; before and after table in the PR (first paint, first useful content, total, floor, CLS)
 - [ ] Budget entry `workspace-first-paint`: first useful content 300 ms, total floor plus 150 ms, CLS 0
-- [ ] Live check on a sandbox against LpLaden (first paint, throttled), LpLadenDeels (one slow app) and LpVandaag (loaded), in light and dark, with a screen reader pass on the status line
+- [ ] Live check on a sandbox against LpLaden (first paint, throttled), LpLadenDeels (one slow app), LpLadenMislukt (scripts blocked) and LpVandaag (loaded), in light and dark, with a screen reader pass on the status line
 - [ ] Test with multiple Nextcloud widgets enabled, with a view-only shared dashboard and a group template dashboard, and with a conditional visibility rule that hides a widget
 
 ### Task 10: Docs

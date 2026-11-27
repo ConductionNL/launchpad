@@ -2,110 +2,147 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The person's favourite dashboards (Ruben's review, 27 Nov 2026, item 6):
- * a list of dashboard uuids kept per user through the app's generic
- * preferences endpoint. The More menu reads them once and writes the whole
- * list back on every star.
+ * The person's favourite dashboards (more-menu-favourites, REQ-SHELL-014 and
+ * REQ-SHELL-016): a list of dashboard uuids in starring order, kept per person
+ * on the server. The page carries the list in its initial state, so opening
+ * More reads nothing; a star goes to `POST`/`DELETE
+ * /api/dashboards/{uuid}/favourite`, which answers the new list.
  */
 
 import axios from '@nextcloud/axios'
+import { showError } from '@nextcloud/dialogs'
+import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
-import { parseFavourites, toggleFavourite } from '../components/Workspace/moreMenuItems.js'
-
-/** The preference key the favourites live under. */
-export const FAVOURITE_DASHBOARDS_KEY = 'favourite-dashboards'
+import { reactive } from 'vue'
+import { toggleFavourite } from '../components/Workspace/moreMenuItems.js'
+import { readFavouriteDashboards } from '../utils/loadInitialState.js'
 
 /**
- * The favourites endpoint.
- *
- * @return {string} The URL.
+ * One list for the whole page, so the dashboard view's menu and the menu on
+ * every other page show the same stars. Seeded lazily from the initial state.
  */
-function url() {
-	return generateUrl(`/apps/launchpad/api/preferences/${FAVOURITE_DASHBOARDS_KEY}`)
+const state = reactive({ favourites: null })
+
+/**
+ * The favourites, seeding them from the initial state on first use.
+ *
+ * @return {string[]} The uuids in starring order.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+ */
+export function favouriteDashboards() {
+	if (state.favourites === null) {
+		state.favourites = readFavouriteDashboards()
+	}
+	return state.favourites
 }
 
 /**
- * Read the person's favourites. A failed read is no favourites.
+ * Replace the list (tests, and the server's answer after a star).
  *
- * @return {Promise<string[]>} The uuids.
- * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-017-a-star-marks-a-dashboard-as-a-favourite-per-person
+ * @param {string[]|null} uuids The uuids, or null to reseed from the initial state.
+ * @return {void}
  */
-export async function loadFavouriteDashboards() {
+export function setFavouriteDashboards(uuids) {
+	state.favourites = Array.isArray(uuids) ? uuids.filter((u) => typeof u === 'string' && u !== '') : null
+}
+
+/**
+ * The favourite endpoint of one dashboard.
+ *
+ * @param {string} uuid The dashboard uuid.
+ * @return {string} The URL.
+ */
+function favouriteUrl(uuid) {
+	return generateUrl('/apps/launchpad/api/dashboards/{uuid}/favourite', { uuid })
+}
+
+/**
+ * Star or unstar a dashboard. The list changes at once; the server's answer
+ * replaces it, and a failure puts the previous list back with an error toast.
+ *
+ * @param {string} uuid The dashboard uuid.
+ * @return {Promise<boolean>} Whether the server took the change.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
+ */
+export async function toggleDashboardFavourite(uuid) {
+	const before = favouriteDashboards()
+	const starring = !before.includes(uuid)
+	state.favourites = toggleFavourite(before, uuid)
 	try {
-		const { data } = await axios.get(url())
-		return parseFavourites(data?.value ?? null)
+		const { data } = starring
+			? await axios.post(favouriteUrl(uuid))
+			: await axios.delete(favouriteUrl(uuid))
+		if (Array.isArray(data?.favourites)) {
+			setFavouriteDashboards(data.favourites)
+		}
+		return true
 	} catch {
-		return []
+		state.favourites = before
+		showError(starring
+			? t('launchpad', 'Could not add the dashboard to your favourites')
+			: t('launchpad', 'Could not remove the dashboard from your favourites'))
+		return false
 	}
 }
 
 /**
- * Store the person's favourites.
- *
- * @param {string[]} uuids The uuids.
- * @return {Promise<void>}
- * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-017-a-star-marks-a-dashboard-as-a-favourite-per-person
- */
-export async function saveFavouriteDashboards(uuids) {
-	await axios.put(url(), { value: uuids.length > 0 ? JSON.stringify(uuids) : '' })
-}
-
-/**
  * The More menu's favourites state, shared by the dashboard view's menu and
- * the menu on every other page: `favourites`, `dashboardsExpanded`, a load
- * on mount, `toggleDashboardFavourite(uuid)` and `toggleDashboardsExpanded()`.
- * A failed write puts the previous list back.
+ * the menu on every other page: `favourites`, `dashboardsExpanded`,
+ * `toggleDashboardFavourite(uuid)`, `toggleDashboardsExpanded()` and
+ * `foldDashboards()`.
  *
- * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-017-a-star-marks-a-dashboard-as-a-favourite-per-person
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
  */
 export const favouriteDashboardsMixin = {
 	data() {
 		return {
-			favourites: [],
 			dashboardsExpanded: false,
 		}
 	},
 
-	async mounted() {
-		this.favourites = await loadFavouriteDashboards()
+	created() {
+		// Seed outside the computed, so reading it never writes state.
+		favouriteDashboards()
+	},
+
+	computed: {
+		/**
+		 * The favourites in starring order.
+		 *
+		 * @return {string[]} The uuids.
+		 */
+		favourites() {
+			return state.favourites ?? []
+		},
 	},
 
 	methods: {
 		/**
-		 * Unfold the Dashboards column into every dashboard, or fold it.
+		 * More / Less in the Dashboards column.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-016-the-dashboards-column-lists-the-favourites-and-unfolds-in-place
 		 */
 		toggleDashboardsExpanded() {
 			this.dashboardsExpanded = !this.dashboardsExpanded
 		},
 
 		/**
-		 * Fold the Dashboards column again, as every opening starts folded.
+		 * Back to the favourites (the menu opened again).
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-016-the-dashboards-column-lists-the-favourites-and-unfolds-in-place
 		 */
 		foldDashboards() {
 			this.dashboardsExpanded = false
 		},
 
 		/**
-		 * Star or unstar a dashboard and store the list.
+		 * Star or unstar a dashboard.
 		 *
-		 * @param {string} uuid The dashboard's uuid.
-		 * @return {Promise<void>}
-		 * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-017-a-star-marks-a-dashboard-as-a-favourite-per-person
+		 * @param {string} uuid The dashboard uuid.
+		 * @return {Promise<boolean>} Whether the server took it.
 		 */
-		async toggleDashboardFavourite(uuid) {
-			const before = this.favourites
-			this.favourites = toggleFavourite(before, uuid)
-			try {
-				await saveFavouriteDashboards(this.favourites)
-			} catch {
-				this.favourites = before
-			}
+		toggleDashboardFavourite(uuid) {
+			return toggleDashboardFavourite(uuid)
 		},
 	},
 }

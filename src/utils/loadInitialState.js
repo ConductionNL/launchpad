@@ -129,6 +129,10 @@ const PAGE_KEYS = {
 		// footer-customization REQ-FTR-007: the viewer's Nextcloud language,
 		// which picks the footer variant. Optional key.
 		viewerLocale: 'en',
+		// more-menu-favourites REQ-SHELL-014/016: the viewer's favourite
+		// dashboard uuids in starring order, limited to the dashboards they can
+		// open. Optional key; an empty list shows the no-favourites state.
+		favouriteDashboards: [],
 	},
 	admin: {
 		allGroups: [],
@@ -175,6 +179,19 @@ export function loadInitialState(page) {
 	}
 
 	return state
+}
+
+/**
+ * The viewer's favourite dashboard uuids the page carries (REQ-SHELL-014):
+ * opening More reads them from here, never from the API. Anything that is not
+ * a list of non-empty strings reads as no favourites.
+ *
+ * @return {string[]} The uuids in starring order.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+ */
+export function readFavouriteDashboards() {
+	const value = readKey('favouriteDashboards', [])
+	return Array.isArray(value) ? value.filter((uuid) => typeof uuid === 'string' && uuid !== '') : []
 }
 
 /**

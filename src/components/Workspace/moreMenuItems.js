@@ -312,7 +312,7 @@ export function dashboardIcon(dashboard, isDefault) {
  * @param {() => void} options.onToggleExpanded Unfold or fold the column.
  * @param {(uuid: string) => void} options.onToggleFavourite Mark or unmark a favourite.
  * @return {object[]} The items.
- * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-016-the-dashboards-column-lists-the-favourites-and-unfolds-in-place
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
  */
 export function dashboardItems({
 	userDashboards = [],
@@ -377,7 +377,7 @@ export function dashboardItems({
  * @param {string[]} favourites The uuids that are favourites now.
  * @param {string} uuid The dashboard the star belongs to.
  * @return {string[]} The new list: the uuid added at the end, or removed.
- * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-017-a-star-marks-a-dashboard-as-a-favourite-per-person
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
  */
 export function toggleFavourite(favourites, uuid) {
 	const list = Array.isArray(favourites) ? favourites.filter((u) => typeof u === 'string' && u !== '') : []
@@ -393,7 +393,7 @@ export function toggleFavourite(favourites, uuid) {
  *
  * @param {string|null} stored The stored value.
  * @return {string[]} The uuids.
- * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-017-a-star-marks-a-dashboard-as-a-favourite-per-person
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
  */
 export function parseFavourites(stored) {
 	if (typeof stored !== 'string' || stored === '') {

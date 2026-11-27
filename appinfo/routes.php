@@ -285,6 +285,14 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'url' => '/api/dashboards/{uuid}/reactions', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
+		// The More menu's favourite dashboards (more-menu-favourites, REQ-SHELL-016).
+		['name' => 'favouriteDashboardApi#star',
+		 'url' => '/api/dashboards/{uuid}/favourite', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'favouriteDashboardApi#unstar',
+		 'url' => '/api/dashboards/{uuid}/favourite', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+
 		// A person's own arrangement of a dashboard somebody else owns
 		// (dashboards-and-who-may-see-them REQ-DWMS-001, REQ-DWMS-002). The
 		// id requirement is digits only, so these cannot swallow the

@@ -143,7 +143,7 @@ export default {
 		 *
 		 * @return {object[]}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
-		 * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-016-the-dashboards-column-lists-the-favourites-and-unfolds-in-place
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
 		 */
 		dashboards() {
 			return dashboardItems({
@@ -180,7 +180,7 @@ export default {
 		 *
 		 * @return {object[]}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
-		 * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-018-powered-by-and-download-live-in-the-more-menu
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-5
 		 */
 		actions() {
 			const items = dashboardActionItems({

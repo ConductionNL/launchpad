@@ -214,7 +214,7 @@ export default {
 		/**
 		 * Leave out the "Powered by" footer under both columns.
 		 *
-		 * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-018-powered-by-and-download-live-in-the-more-menu
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-5
 		 */
 		hideFooter: {
 			type: Boolean,
@@ -267,7 +267,7 @@ export default {
 		 * Whether the Dashboards column lists every dashboard.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-016-the-dashboards-column-lists-the-favourites-and-unfolds-in-place
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
 		 */
 		dashboardsExpanded() {
 			return this.dashboards.some((item) => item.keepOpen === true && item.expanded === true)
@@ -311,7 +311,7 @@ export default {
 		 * @param {object} item The item.
 		 * @return {void}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
-		 * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-016-the-dashboards-column-lists-the-favourites-and-unfolds-in-place
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
 		 */
 		choose(event, item) {
 			if (typeof item.onClick === 'function') {

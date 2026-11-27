@@ -4077,7 +4077,7 @@ export default {
 		 * (Ruben's review item 8).
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-018-powered-by-and-download-live-in-the-more-menu
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-5
 		 */
 		downloadActiveDashboard() {
 			printDashboard(this.activeDashboard?.name ?? '')

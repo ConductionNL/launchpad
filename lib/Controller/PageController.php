@@ -120,6 +120,7 @@ class PageController extends Controller {
 	 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-2
 	 * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-2
 	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -192,6 +193,7 @@ class PageController extends Controller {
 			->setUserTimezone($this->userTimezone(userId: $userId))
 			->setFooter(...$this->sources->dashboards->footerState(dashboard: $active['dashboard'] ?? null, userId: $userId))
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
+			->setFavouriteDashboards($this->favouriteDashboards(userId: $userId, visible: $visible))
 			->setDashboardFirstLoad($this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible))
 			->setOrgNavigation($this->settings->orgNavigation?->firstLoad(userId: $userId))
 			->setWorkspaceBootReads($this->sources->bootReads?->firstLoad(userId: $userId))
@@ -215,6 +217,31 @@ class PageController extends Controller {
 		// view, not in the chrome slot.
 		return $this->workspaceResponse();
 	}//end index()
+
+	/**
+	 * The viewer's favourite dashboards, checked against the dashboards the
+	 * page already read, so a gone or hidden one drops out without another
+	 * query (more-menu-favourites, REQ-SHELL-014).
+	 *
+	 * @param string $userId  The viewer, or '' when nobody is logged in.
+	 * @param array  $visible The entries of getVisibleToUser().
+	 *
+	 * @return array<int, string> The favourite uuids in starring order.
+	 *
+	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+	 */
+	private function favouriteDashboards(string $userId, array $visible): array {
+		if ($userId === '' || $this->sources->favourites === null) {
+			return [];
+		}
+
+		$uuids = [];
+		foreach ($visible as $entry) {
+			$uuids[] = (string) $entry['dashboard']->getUuid();
+		}
+
+		return $this->sources->favourites->listFor(userId: $userId, visibleUuids: $uuids);
+	}//end favouriteDashboards()
 
 	/**
 	 * The workspace page, without the Nextcloud layout for `kiosk=1`

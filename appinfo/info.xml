@@ -141,6 +141,9 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			     managers, ict-beheer, hrm) lets its members keep LaunchPad's own
 			     widgets, which a rule without them hides on every dashboard. -->
 			<step>OCA\LaunchPad\Repair\BroadenShippedGroupWidgetRules</step>
+			<!-- layout-widgets-replace-multi-tile D1: a rule that lets its group
+			     add wells lets it add the Tabs widget too. Idempotent. -->
+			<step>OCA\LaunchPad\Repair\GrantTabsWhereWellsAreAllowed</step>
 			<!-- REQ-PSP-003: instances installed before the install step existed
 			     get LaunchPad as default app too, but only when no default app
 			     is configured at all. -->

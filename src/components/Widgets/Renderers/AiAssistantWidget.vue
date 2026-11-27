@@ -127,6 +127,12 @@ export default {
 	name: 'AiAssistantWidget',
 
 	props: {
+		/**
+		 * The widget is a miniature in Add widget (REQ-WDG-048): it draws
+		 * its sample content and sends no request.
+		 */
+		preview: { type: Boolean, default: false },
+
 		/** Persisted content: `{agentUuid?}`. */
 		content: OBJECT_PROP,
 
@@ -182,8 +188,14 @@ export default {
 		},
 	},
 
-	/** @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md */
+	/**
+	 * @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md
+	 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+	 */
 	async mounted() {
+		if (this.preview) {
+			return
+		}
 		try {
 			await axios.get(chatHealthUrl(CHAT_APP_ID), { timeout: 5000 })
 			this.available = true

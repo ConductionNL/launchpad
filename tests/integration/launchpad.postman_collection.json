@@ -753,7 +753,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{}"
+							"raw": "{\"expiresAt\": \"{{publicShareExpiresAt}}\"}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/public-share",
@@ -772,6 +772,17 @@
 						}
 					},
 					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// REQ-SHARE-015: every new public link has an expiry date; the server refuses one without (400).",
+									"const expires = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().replace(/\\.\\d{3}Z$/, 'Z');",
+									"pm.collectionVariables.set('publicShareExpiresAt', expires);"
+								]
+							}
+						},
 						{
 							"listen": "test",
 							"script": {

@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "All dashboards" : "Tutte le dashboard",
+    "More" : "Altro",
+    "This dashboard" : "Questa dashboard",
+    "Default dashboard" : "Dashboard predefinita",
     "of {audience} confirmed" : "su {audience} confermati",
     "Seen by" : "Visto da",
     "Confirmed {date} with the check" : "Confermato il {date} con la spunta",

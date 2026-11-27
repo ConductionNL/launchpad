@@ -625,7 +625,8 @@ export default {
 		 * @spec openspec/changes/record-parity-requirements/specs/runtime-shell/spec.md#requirement-the-admin-area-has-its-own-first-visit-tour-req-shell-011
 		 */
 		adminTourReady() {
-			return this.adminTour !== null && this.adminTourSeen !== null && this.activeTab === 'general'
+			// The tour waits while the setup wizard is open (REQ-ADM-032, D6).
+			return this.adminTour !== null && this.adminTourSeen !== null && this.activeTab === 'general' && !this.showWizard
 		},
 
 		/**
@@ -1082,10 +1083,36 @@ export default {
 			try {
 				const { data } = await api.getSetupWizardState()
 				this.wizardState = data || null
+				this.offerWizardOnce()
 			} catch (e) {
 				logger.warn('Failed to load setup wizard state:', e)
 				this.wizardState = null
 			}
+		},
+
+		/**
+		 * Open the setup wizard by itself on the first visit of the settings
+		 * page while setup is not done (ADR-042): once per browser session,
+		 * and only for a viewer who holds General (REQ-ADM-032, D6).
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+		 */
+		offerWizardOnce() {
+			if (!this.wizardState || this.wizardState.complete || !this.showsVersionCard) {
+				return
+			}
+			const key = 'launchpad:setup-wizard-offered'
+			try {
+				if (globalThis.sessionStorage?.getItem(key)) {
+					return
+				}
+				globalThis.sessionStorage?.setItem(key, '1')
+			} catch (e) {
+				// Without storage the banner still offers the wizard.
+				return
+			}
+			this.showWizard = true
 		},
 
 		/** @spec openspec/specs/admin-settings/spec.md */

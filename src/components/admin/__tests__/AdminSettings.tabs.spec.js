@@ -80,6 +80,24 @@ describe('AdminSettings tabs', () => {
 		expect(source).toContain(':showVersionCard="showsVersionCard"')
 	})
 
+	it('opens the setup wizard once on a first visit while setup is not done (D6)', () => {
+		globalThis.sessionStorage.clear()
+		const ctx = { wizardState: { complete: false }, showsVersionCard: true, showWizard: false }
+		AdminSettings.methods.offerWizardOnce.call(ctx)
+		expect(ctx.showWizard).toBe(true)
+		ctx.showWizard = false
+		AdminSettings.methods.offerWizardOnce.call(ctx)
+		expect(ctx.showWizard).toBe(false)
+		globalThis.sessionStorage.clear()
+		const done = { wizardState: { complete: true }, showsVersionCard: true, showWizard: false }
+		AdminSettings.methods.offerWizardOnce.call(done)
+		expect(done.showWizard).toBe(false)
+		const manager = { wizardState: { complete: false }, showsVersionCard: false, showWizard: false }
+		AdminSettings.methods.offerWizardOnce.call(manager)
+		expect(manager.showWizard).toBe(false)
+		expect(AdminSettings.computed.adminTourReady.call({ adminTour: {}, adminTourSeen: '', activeTab: 'general', showWizard: true })).toBe(false)
+	})
+
 	it('offers Restart setup and Tour on the version card (REQ-ADM-032)', () => {
 		expect(source).toContain('data-testid="admin-version-restart-setup"')
 		expect(source).toContain('data-testid="admin-version-tour"')

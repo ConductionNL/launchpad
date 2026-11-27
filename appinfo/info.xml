@@ -158,6 +158,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			     (a white PNG on white, an undefined icon class) become the white
 			     logo on the brand colour. A tile its owner changed is kept. -->
 			<step>OCA\LaunchPad\Repair\RestyleSeededTiles</step>
+			<!-- REQ-APPTILE-006: every app tile becomes an App or link tile in
+			     app mode (same id and everything else), every tile without a
+			     mode a link tile, groups and tabs included. Idempotent. -->
+			<step>OCA\LaunchPad\Repair\ConvertTilesToAppOrLinkTiles</step>
 		</post-migration>
 		<install>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>

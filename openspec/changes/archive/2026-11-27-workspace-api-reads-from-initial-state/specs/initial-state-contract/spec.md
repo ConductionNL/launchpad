@@ -2,7 +2,7 @@
 
 ## ADDED Requirements
 
-### Requirement: The workspace carries its view's first API reads (REQ-INIT-009)
+### Requirement: The workspace carries its view's first API reads (REQ-INIT-011)
 
 The Workspace page SHOULD carry the optional key `workspaceApiReads`: a list of `{path, params, data}` where `path` is a launchpad endpoint below `/apps/launchpad`, `params` the query the view sends, and `data` exactly what that endpoint answers the caller with status 200. It covers `GET /api/announcements`, `GET /api/preferences/dismissed-notices`, `GET /api/dashboards/{uuid}/reactions` of the dashboard the page opens on, `GET /api/dashboards/{id}/personal-layer` of that dashboard when the caller does not own it, and the first page (`currentPath=/`, `limit=50`) of `GET /api/widgets/files/{placementId}/contents` for at most four visible Files widgets on it. A read MUST be answered through the endpoint's own controller action and MUST be left out when that action refuses, fails or answers anything but 200. The app's HTTP client MUST answer the first GET matching a carried read (same path and query) from the page, once, and MUST send every later GET and every request that matches nothing.
 

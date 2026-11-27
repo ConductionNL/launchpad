@@ -7,7 +7,7 @@
  * What the workspace page carries for the API reads its view makes right
  * after it mounts.
  *
- * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-4
  */
 
 declare(strict_types=1);

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * The first loads the workspace page carries in its initial state
- * (REQ-INIT-006..009), and what a caller the action matrix refuses gets
+ * (REQ-INIT-006..009, REQ-INIT-011), and what a caller the action matrix refuses gets
  * instead: no key on the page, and the bundle asks the endpoint itself and
  * meets the same refusal.
  *
@@ -17,6 +17,7 @@ import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
+import { mkdirs, putFile, removePlacements, seedFilesPlacement } from './support/filesWidget.ts'
 import {
 	adminContext,
 	API,
@@ -221,6 +222,110 @@ test('a caller refused manifest.index gets no runtimeManifest, and the page meet
 			expect(response?.status()).toBe(200)
 			expect(await initialState(page)).not.toHaveProperty('runtimeManifest')
 			expect((await refused).status()).toBe(403)
+		} finally {
+			await context.close()
+		}
+	})
+})
+
+/** A carried read: the endpoint below /apps/launchpad, its query and its answer. */
+type CarriedRead = { path: string, params?: Record<string, unknown>, data: unknown }
+
+/** The view's first API reads REQ-INIT-011 says the page carries. */
+function firstReadPaths(uuid: string, placementId: number): string[] {
+	return [
+		'/api/announcements',
+		'/api/preferences/dismissed-notices',
+		`/api/dashboards/${uuid}/reactions`,
+		`/api/widgets/files/${placementId}/contents`,
+	]
+}
+
+test.describe('the view\'s first API reads (REQ-INIT-011)', () => {
+	const FILE = `first-read-${Date.now()}.txt`
+	const FOLDER = `first-read-dir-${Date.now()}`
+	const INNER = 'inside-the-folder.txt'
+	let placementId = 0
+
+	test.beforeAll(async () => {
+		await putFile(pieter!.api, pieter!.username, `/${FILE}`, 'carried with the page')
+		await mkdirs(pieter!.api, pieter!.username, `/${FOLDER}`)
+		await putFile(pieter!.api, pieter!.username, `/${FOLDER}/${INNER}`, 'asked for later')
+		placementId = await seedFilesPlacement(pieter!.api, dash.id, { folderPath: '/' }, 0)
+	})
+
+	test.afterAll(async () => {
+		if (placementId) {
+			await removePlacements(pieter!.api, [placementId])
+		}
+	})
+
+	// @e2e initial-state-contract::the-workspace-opens-without-asking-for-its-banner-reactions-and-files
+	// Pieter owns this dashboard, so the personal-layer read (only carried for
+	// a dashboard somebody else owns) is not part of it; the PHPUnit builder
+	// test pins that read.
+	test('the workspace opens without asking for its banner, reactions and files', async ({ browser }) => {
+		const { context, page } = await loginAs(browser, pieter!.username, pieter!.password)
+		try {
+			const gets: string[] = []
+			page.on('request', (req) => {
+				if (req.method() === 'GET') {
+					gets.push(new URL(req.url()).pathname)
+				}
+			})
+			const response = await page.goto(APP)
+			expect(response?.status()).toBe(200)
+
+			// The default widget bundle may add a Files widget of its own, so
+			// the page carries at least these reads.
+			const reads = ((await initialState(page)).workspaceApiReads ?? []) as CarriedRead[]
+			const carried = reads.map((read) => read.path)
+			expect(carried).toEqual(expect.arrayContaining(firstReadPaths(dash.uuid, placementId)))
+
+			// The Files widget shows its first page from the carried answer...
+			await expect(page.getByText(FILE).first()).toBeVisible({ timeout: 30_000 })
+			await page.waitForLoadState('networkidle')
+			// ...and none of the carried endpoints was asked.
+			const asked = gets.filter((path) => carried.some((read) => path.endsWith(`/apps/launchpad${read}`)))
+			expect(asked).toEqual([])
+		} finally {
+			await context.close()
+		}
+	})
+
+	// @e2e initial-state-contract::a-refused-read-is-asked-for
+	test('a caller refused announcement.read gets no carried announcements, and the banner meets the same refusal', async ({ browser }) => {
+		await whileRefused('announcement.read', async () => {
+			const { context, page } = await loginAs(browser, pieter!.username, pieter!.password)
+			try {
+				const refused = page.waitForResponse((res) => isRead(res, '/announcements'), { timeout: 30_000 })
+				const response = await page.goto(APP)
+				expect(response?.status()).toBe(200)
+				const reads = ((await initialState(page)).workspaceApiReads ?? []) as CarriedRead[]
+				expect(reads.map((read) => read.path)).not.toContain('/api/announcements')
+				expect((await refused).status()).toBe(403)
+			} finally {
+				await context.close()
+			}
+		})
+	})
+
+	// @e2e initial-state-contract::a-later-read-asks-the-server
+	test('opening a folder in the Files widget asks the server for that page', async ({ browser }) => {
+		const { context, page } = await loginAs(browser, pieter!.username, pieter!.password)
+		try {
+			const response = await page.goto(APP)
+			expect(response?.status()).toBe(200)
+			await expect(page.getByText(FILE).first()).toBeVisible({ timeout: 30_000 })
+
+			// Opening a folder is a later read: the widget's client sends it.
+			// Both Files widgets (the default bundle's and this file's) list the folder.
+			const asked = page.waitForResponse((res) => res.request().method() === 'GET'
+				&& /\/apps\/launchpad\/api\/widgets\/files\/\d+\/contents$/.test(new URL(res.url()).pathname)
+				&& new URL(res.url()).searchParams.get('currentPath') === `/${FOLDER}`, { timeout: 30_000 })
+			await page.getByText(FOLDER, { exact: true }).first().click()
+			expect((await asked).status()).toBe(200)
+			await expect(page.getByText(INNER).first()).toBeVisible({ timeout: 30_000 })
 		} finally {
 			await context.close()
 		}

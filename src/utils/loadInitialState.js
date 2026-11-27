@@ -272,7 +272,7 @@ export function takeBootRead(part) {
  * page carries none or the key is malformed.
  *
  * @return {Array<object>} The reads.
- * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-3
  */
 export function readWorkspaceApiReads() {
 	const reads = readKey('workspaceApiReads', [])

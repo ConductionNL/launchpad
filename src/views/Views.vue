@@ -560,7 +560,7 @@ import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogu
 import { handOver } from '../utils/firstPaintHandover.js'
 import { preloadFirstViewportRenderers } from '../utils/firstViewport.js'
 import { gridItemLabel } from '../utils/gridItemLabel.js'
-import { dashboardGroups, groupChildToTile, isGroupTileChild, withGroupTileRemoved, withGroupTileSaved, withTileMovedIn } from '../utils/groupTiles.js'
+import { dashboardGroups, groupChildToTile, isGroupTileChild, parseTabGroupId, withGroupTileRemoved, withGroupTileSaved, withTileMovedIn, withTileMovedIntoTab } from '../utils/groupTiles.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { isKioskMode, KIOSK_REFRESH_MS, startKioskView } from '../utils/kioskMode.js'
 import { loadInitialState, takeBootRead } from '../utils/loadInitialState.js'
@@ -3784,6 +3784,7 @@ export default {
 		 * @param {object} content The tile's content blob, as the save writes it.
 		 * @return {Promise<void>}
 		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
+		 * @spec openspec/changes/layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
 		 */
 		async moveTileIntoGroup(tileData, content) {
 			const placementId = this.editingTile.id
@@ -3792,14 +3793,21 @@ export default {
 				showError(t('launchpad', 'This tile is part of the start page your administrator set for your group and cannot move into a group.'))
 				return
 			}
+			// A tab of a Tabs widget is a group too (REQ-TABS-002).
+			const tab = parseTabGroupId(tileData.groupId)
 			const container = (this.widgetPlacements || []).find(
-				(candidate) => candidate.id === tileData.groupId && candidate.widgetId === 'container',
+				tab
+					? (candidate) => candidate.id === tab.placementId && candidate.widgetId === 'tabs'
+					: (candidate) => candidate.id === tileData.groupId && candidate.widgetId === 'container',
 			)
 			if (!container) {
 				showError(t('launchpad', 'This group is no longer on the dashboard. Reload the dashboard and try again.'))
 				return
 			}
-			if (!(await this.writeGroupContent(container, withTileMovedIn(container.content || {}, content, tileData)))) {
+			const moved = tab
+				? withTileMovedIntoTab(container.content || {}, tab.tabId, content, tileData)
+				: withTileMovedIn(container.content || {}, content, tileData)
+			if (!(await this.writeGroupContent(container, moved))) {
 				return
 			}
 			try {

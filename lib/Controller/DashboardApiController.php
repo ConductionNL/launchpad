@@ -1563,15 +1563,39 @@ class DashboardApiController extends Controller {
 
 		return $this->runGroupMutation(
 			mutation: fn (): JSONResponse => $this->dashboardResponse(
-				dashboard: $this->services->dashboardService->updateGroupShared(
-					actorUserId: $this->context->userId,
-					groupId: $target->groupId,
-					uuid: $target->uuid,
-					patch: $patch
-				)
+				dashboard: $this->saveGroupWithVersion(target: $target, patch: $patch)
 			)
 		);
 	}//end updateGroupDashboard()
+
+	/**
+	 * Save a group-shared patch with its version (REQ-VERS-010/011): the
+	 * group dashboard's settings save makes one version, in the save's
+	 * transaction, like the personal dashboard's.
+	 *
+	 * @param GroupDashboardTarget $target The group and dashboard UUID.
+	 * @param array<string, mixed> $patch  The non-null patch fields.
+	 *
+	 * @return Dashboard The saved dashboard.
+	 *
+	 * @throws DoesNotExistException When the group has no dashboard with that UUID.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 */
+	private function saveGroupWithVersion(GroupDashboardTarget $target, array $patch): Dashboard {
+		$service = $this->services->dashboardService;
+		$dashboardId = (int) $service->findGroupDashboard(groupId: $target->groupId, uuid: $target->uuid)->getId();
+
+		return $this->saveWithVersion(
+			dashboardId: $dashboardId,
+			save: fn (): Dashboard => $service->updateGroupShared(
+				actorUserId: (string) $this->context->userId,
+				groupId: $target->groupId,
+				uuid: $target->uuid,
+				patch: $patch
+			)
+		);
+	}//end saveGroupWithVersion()
 
 	/**
 	 * Run a group-shared mutation, answering an unknown dashboard with 404

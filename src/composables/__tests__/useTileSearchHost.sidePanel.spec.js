@@ -18,6 +18,7 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 	CnWidgetEditCog: { name: 'CnWidgetEditCog', template: '<div />' },
 	CnDashboardIcon: { name: 'CnDashboardIcon', template: '<i />' },
 }))
+vi.mock('../../components/Widgets/WidgetEditMenu.vue', () => ({ default: { name: 'WidgetEditMenu', template: '<div />' } }))
 vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => '/nc' + path }))
 vi.mock('../useTileClickTracking.js', () => ({ useTileClickTracking: () => ({ recordTileClick: vi.fn() }) }))
 vi.mock('../../components/HealthPingBadge.vue', () => ({ default: { name: 'HealthPingBadge', template: '<span />' } }))

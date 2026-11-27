@@ -300,6 +300,7 @@
 							:linkTarget="(item.content && item.content.linkTarget) || null"
 							:defaultLinkTarget="(activeDashboard && activeDashboard.defaultLinkTarget) || null"
 							:removeLocked="!isRemovablePlacement(item)"
+							:embedHref="placementEmbedHref(item)"
 							@edit="openTileEditorForEdit(item)"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->

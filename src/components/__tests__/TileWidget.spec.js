@@ -13,13 +13,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const recordTileClick = vi.fn()
 
 vi.mock('@conduction/nextcloud-vue', () => ({
-	CnWidgetEditCog: {
-		name: 'CnWidgetEditCog',
-		emits: ['edit', 'remove'],
-		template: '<div class="cog"><button class="cog-edit" @click="$emit(\'edit\')" /><button class="cog-remove" @click="$emit(\'remove\')" /></div>',
-	},
 	CnDashboardIcon: { name: 'CnDashboardIcon', props: ['name', 'size'], template: '<i class="mdi" :data-name="name" />' },
 }))
+vi.mock('../Widgets/WidgetEditMenu.vue', () => ({ default: {
+	name: 'WidgetEditMenu',
+	emits: ['edit', 'remove'],
+	template: '<div class="cog"><button class="cog-edit" @click="$emit(\'edit\')" /><button class="cog-remove" @click="$emit(\'remove\')" /></div>',
+} }))
 vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => '/nc' + path }))
 vi.mock('../../composables/useTileClickTracking.js', () => ({
 	useTileClickTracking: () => ({ recordTileClick }),

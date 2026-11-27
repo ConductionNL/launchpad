@@ -28,12 +28,15 @@
 			<DragVertical :size="16" />
 		</span>
 		<div v-if="editMode" class="tile-widget__edit">
-			<CnWidgetEditCog
-				icon="kebab"
+			<!-- REQ-WDG-047: the shared edit menu, with Create embed token. -->
+			<WidgetEditMenu
 				:menuLabel="t('launchpad', 'Tile menu')"
 				:editLabel="t('launchpad', 'Edit tile')"
 				:deleteLabel="t('launchpad', 'Delete tile')"
-				:canDelete="!removeLocked"
+				:showWhoSees="false"
+				:removeLocked="removeLocked"
+				:embedHref="embedHref"
+				:embedDisabled="placementId === null || placementId === undefined || placementId === ''"
 				@edit="$emit('edit')"
 				@remove="$emit('remove')" />
 		</div>
@@ -140,7 +143,7 @@
 </template>
 
 <script>
-import { CnDashboardIcon, CnWidgetEditCog } from '@conduction/nextcloud-vue'
+import { CnDashboardIcon } from '@conduction/nextcloud-vue'
 import { getCurrentUser } from '@nextcloud/auth'
 import { showError } from '@nextcloud/dialogs'
 import { getCanonicalLocale, t } from '@nextcloud/l10n'
@@ -149,6 +152,7 @@ import { defineAsyncComponent } from 'vue'
 import DragVertical from 'vue-material-design-icons/DragVertical.vue'
 import Pin from 'vue-material-design-icons/Pin.vue'
 import HealthPingBadge from './HealthPingBadge.vue'
+import WidgetEditMenu from './Widgets/WidgetEditMenu.vue'
 import { useTileClickTracking } from '../composables/useTileClickTracking.js'
 import { FLAG_PROP, REQUIRED_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
@@ -168,7 +172,7 @@ export default {
 	components: {
 		Pin,
 		DragVertical,
-		CnWidgetEditCog,
+		WidgetEditMenu,
 		CnDashboardIcon,
 		HealthPingBadge,
 		// Loaded on first use: only a `create` office tile renders it.
@@ -182,6 +186,12 @@ export default {
 
 		/** The host refuses removing this tile, so the cog offers no Delete. */
 		removeLocked: FLAG_PROP,
+		// REQ-WDG-047: the admin link that creates an embed token for this
+		// tile, offered in the edit menu only; '' when the viewer may not.
+		embedHref: {
+			type: String,
+			default: '',
+		},
 
 		/**
 		 * The widget placement id — forwarded to {@link HealthPingBadge}

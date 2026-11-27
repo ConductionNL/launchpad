@@ -13,6 +13,10 @@
  *   @e2e runtime-shell::more-unfolds-in-place
  *   @e2e runtime-shell::starring-survives-a-reload
  *   @e2e runtime-shell::download-from-more
+ *   @e2e runtime-shell::new-dashboard-from-the-full-list
+ *   @e2e runtime-shell::favourite-of-a-hidden-dashboard-is-404
+ *
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-12
  */
 
 import type { APIRequestContext, Browser, BrowserContext, Page } from '@playwright/test'
@@ -38,7 +42,9 @@ const TRIGGER = `${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`
 const LIST = '[data-testid="launchpad-more-menu-dashboard-list"]'
 const UNFOLD = '[data-testid="launchpad-more-menu-item-all-dashboards"]'
 const HINT = '[data-testid="launchpad-more-menu-favourites-hint"]'
-const HINT_TEXT = 'Star a dashboard under More to see it here.'
+const HINT_TEXT = 'Star a dashboard to keep it here'
+const TITLE = '[data-testid="launchpad-more-menu-group-dashboards"] .lp-more-menu__title'
+const NEW = '[data-testid="launchpad-more-menu-item-new-dashboard"]'
 
 let api: APIRequestContext
 let seeded: SeededDashboard | null = null
@@ -65,7 +71,6 @@ test.beforeAll(async () => {
 	}
 	const preference = await member.api.post(`${API}/dashboards/active`, { data: { uuid: own[0].uuid } })
 	expect(preference.status(), await preference.text()).toBeLessThan(300)
-	await member.api.put(`${API}/preferences/favourite-dashboards`, { data: { value: '' } })
 })
 
 test.afterAll(async () => {
@@ -103,7 +108,8 @@ async function openMore(page: Page): Promise<void> {
 }
 
 /**
- * The labels of the Dashboards column's rows, More/Fewer included.
+ * The labels of the Dashboards column's dashboard rows (More, Less and New
+ * dashboard stand below the list).
  *
  * @param page the page.
  * @return the labels.
@@ -125,71 +131,141 @@ test('the dashboard has no Dashboards panel and its header keeps only More', asy
 	}
 })
 
-test('More unfolds every dashboard in place, each with an empty star, and Fewer folds it', async ({ browser }) => {
+test('without favourites the column shows the open dashboard, the starring line and More (REQ-SHELL-014)', async ({ browser }) => {
 	const { context, page } = await memberSession(browser)
 	try {
 		await openMore(page)
-		// Without favourites the folded column is the open dashboard, a line
-		// saying that a star puts a dashboard here, and More (Ruben, 27 Nov).
-		expect(await rows(page)).toEqual([own[0].name, 'More'])
+		expect(await rows(page)).toEqual([own[0].name])
 		await expect(page.locator(HINT)).toHaveText(HINT_TEXT)
-		await expect(page.locator(`${LIST} .lp-more-menu__star`)).toHaveCount(0)
-
-		await page.locator(UNFOLD).click()
-		await expect(page.locator('[data-testid="launchpad-more-menu-panel"]')).toBeVisible()
-		await expect(page.locator(UNFOLD)).toHaveAttribute('aria-expanded', 'true')
-		const all = await rows(page)
-		for (const d of own) {
-			expect(all).toContain(d.name)
-		}
-		expect(all.at(-1)).toBe('Fewer')
-		const stars = page.locator(`${LIST} .lp-more-menu__star`)
-		expect(await stars.count()).toBeGreaterThanOrEqual(COUNT)
-		for (const pressed of await stars.evaluateAll((els) => els.map((el) => el.getAttribute('aria-pressed')))) {
-			expect(pressed).toBe('false')
-		}
-
-		await page.locator(UNFOLD).click()
-		expect(await rows(page)).toEqual([own[0].name, 'More'])
+		await expect(page.locator(TITLE)).toHaveText('Dashboards')
+		// The open dashboard's row carries its (empty) star.
+		await expect(page.locator(`${LIST} .lp-more-menu__star`)).toHaveCount(1)
+		await expect(page.locator(UNFOLD)).toContainText('More')
+		// The count is every other dashboard the member can open (checked
+		// against the expanded list in the next test).
+		await expect(page.locator(UNFOLD)).toContainText(/\d+ more dashboards/)
 	} finally {
 		await context.close()
 	}
 })
 
-test('a star is stored for the person, survives a reload, and the folded column then lists only the favourites', async ({ browser }) => {
+test('More turns the column into All dashboards with a star per row, New dashboard below it, and Less folds it (REQ-SHELL-015)', async ({ browser }) => {
+	const { context, page } = await memberSession(browser)
+	try {
+		await openMore(page)
+		// Opening More and pressing More fetch nothing (the page carries the list).
+		const requests: string[] = []
+		page.on('request', (r) => {
+			if (r.url().includes('/apps/launchpad/api/')) {
+				requests.push(r.url())
+			}
+		})
+		await page.locator(UNFOLD).click()
+		await expect(page.locator('[data-testid="launchpad-more-menu-panel"]')).toBeVisible()
+		await expect(page.locator(UNFOLD)).toHaveAttribute('aria-expanded', 'true')
+		await expect(page.locator(TITLE)).toHaveText('All dashboards')
+		const all = await rows(page)
+		for (const d of own) {
+			expect(all).toContain(d.name)
+		}
+		await expect(page.locator(UNFOLD)).toContainText('Less')
+		await expect(page.locator(NEW)).toBeVisible()
+		// New dashboard and Less stand below the scrolling list, not in it.
+		await expect(page.locator(`${LIST} ${NEW}`)).toHaveCount(0)
+		const stars = page.locator(`${LIST} .lp-more-menu__star`)
+		expect(await stars.count()).toBeGreaterThanOrEqual(COUNT)
+		for (const pressed of await stars.evaluateAll((els) => els.map((el) => el.getAttribute('aria-pressed')))) {
+			expect(pressed).toBe('false')
+		}
+		expect(requests).toEqual([])
+
+		await page.locator(UNFOLD).click()
+		expect(await rows(page)).toEqual([own[0].name])
+		await expect(page.locator(UNFOLD)).toContainText(`${all.length - 1} more dashboards`)
+	} finally {
+		await context.close()
+	}
+})
+
+test('a star is stored for the person, survives a reload, and unstarring removes it (REQ-SHELL-016)', async ({ browser }) => {
 	const { context, page } = await memberSession(browser)
 	try {
 		await openMore(page)
 		await page.locator(UNFOLD).click()
 		const last = own[COUNT - 1]
 		const star = page.locator(`[data-testid="launchpad-more-menu-star-dashboard-${last.id}"]`)
-		const stored = page.waitForResponse((r) => r.url().includes('/api/preferences/favourite-dashboards') && r.request().method() === 'PUT')
+		await expect(star).toHaveAttribute('aria-label', `Add to favourites: ${last.name}`)
+		const stored = page.waitForResponse((r) => r.url().endsWith(`/api/dashboards/${last.uuid}/favourite`) && r.request().method() === 'POST')
 		await star.click()
-		expect((await stored).status()).toBe(200)
+		const answer = await stored
+		expect(answer.status()).toBe(200)
+		expect((await answer.json()).favourites).toEqual([last.uuid])
 		await expect(star).toHaveAttribute('aria-pressed', 'true')
-		await expect(star).toHaveCSS('color', 'rgb(245, 179, 1)')
-		// Starring does not switch: the open dashboard is still the first.
+		await expect(star).toHaveCSS('color', 'rgb(240, 180, 0)')
+		// Starring neither switches nor closes the menu.
+		await expect(page.locator('[data-testid="launchpad-more-menu-panel"]')).toBeVisible()
 		await expect(page.locator(`[data-testid="launchpad-more-menu-item-dashboard-${own[0].id}"]`)).toHaveAttribute('aria-checked', 'true')
 
 		await page.reload()
 		await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
 		await page.locator(TRIGGER).click()
-		expect(await rows(page)).toEqual([last.name, 'More'])
+		expect(await rows(page)).toEqual([last.name])
 		await expect(page.locator(HINT)).toHaveCount(0)
+		await expect(page.locator(UNFOLD)).toContainText(/\d+ more dashboards/)
 
-		await page.locator(UNFOLD).click()
-		const again = page.waitForResponse((r) => r.url().includes('/api/preferences/favourite-dashboards') && r.request().method() === 'PUT')
+		// Unstar from the short list.
+		const removed = page.waitForResponse((r) => r.url().endsWith(`/api/dashboards/${last.uuid}/favourite`) && r.request().method() === 'DELETE')
 		await page.locator(`[data-testid="launchpad-more-menu-star-dashboard-${last.id}"]`).click()
-		await again
-		await page.locator(UNFOLD).click()
-		expect(await rows(page)).toEqual([own[0].name, 'More'])
+		expect((await removed).status()).toBe(200)
+		expect(await rows(page)).toEqual([own[0].name])
 		await expect(page.locator(HINT)).toBeVisible()
 	} finally {
 		await context.close()
 	}
 })
 
-test('Powered by and Documentation are the menu footer, and Download is in This dashboard', async ({ browser }) => {
+test('the server refuses a favourite on a dashboard the person cannot open with 404 (REQ-SHELL-016)', async () => {
+	expect(member).not.toBeNull()
+	expect(seeded).not.toBeNull()
+	const hidden = await api.post(`${API}/dashboard`, { data: { name: `Hidden ${RUN}` } })
+	expect(hidden.status(), await hidden.text()).toBeLessThan(300)
+	const body = await hidden.json()
+	const dash = body.dashboard ?? body.data?.dashboard ?? body
+	try {
+		const refused = await (member as Principal).api.post(`${API}/dashboards/${dash.uuid}/favourite`)
+		expect(refused.status()).toBe(404)
+		const unknown = await (member as Principal).api.delete(`${API}/dashboards/no-such-uuid/favourite`)
+		expect(unknown.status()).toBe(404)
+	} finally {
+		await api.delete(`${API}/dashboard/${dash.id}`)
+	}
+})
+
+test('New dashboard in the expanded list creates "My workspace" and opens it (REQ-SHELL-015)', async ({ browser }) => {
+	const { context, page } = await memberSession(browser)
+	let createdId: number | null = null
+	try {
+		await openMore(page)
+		await page.locator(UNFOLD).click()
+		const created = page.waitForResponse((r) => /\/api\/dashboard$/.test(r.url()) && r.request().method() === 'POST')
+		await page.locator(NEW).click()
+		const answer = await created
+		expect(answer.status(), await answer.text()).toBeLessThan(300)
+		const body = await answer.json()
+		const dash = body.dashboard ?? body.data?.dashboard ?? body
+		createdId = Number(dash.id)
+		expect(dash.name).toBe('My workspace')
+		await page.locator(TRIGGER).click()
+		await expect(page.locator(`[data-testid="launchpad-more-menu-item-dashboard-${createdId}"]`)).toHaveAttribute('aria-checked', 'true')
+	} finally {
+		if (createdId !== null && member !== null) {
+			await member.api.delete(`${API}/dashboard/${createdId}`)
+		}
+		await context.close()
+	}
+})
+
+test('Powered by is the menu footer, and Download is in This dashboard between Duplicate and Set as default (REQ-SHELL-017, REQ-DPD-003)', async ({ browser }) => {
 	const { context, page } = await memberSession(browser)
 	try {
 		await openMore(page)
@@ -199,7 +275,12 @@ test('Powered by and Documentation are the menu footer, and Download is in This 
 		for (const href of ['https://sendent.com', 'https://conduction.nl']) {
 			await expect(footer.locator(`a[href="${href}"]`)).toHaveAttribute('rel', 'noopener noreferrer')
 		}
-		await expect(page.locator('[data-testid="launchpad-more-menu-group-this-dashboard"] [data-testid="launchpad-more-menu-item-download"]')).toBeVisible()
+		const group = page.locator('[data-testid="launchpad-more-menu-group-this-dashboard"]')
+		await expect(group.locator('[data-testid="launchpad-more-menu-item-download"]')).toBeVisible()
+		const ids = await group.locator('.lp-more-menu__item').evaluateAll((els) => els.map((el) => el.getAttribute('data-testid')))
+		const at = (id: string) => ids.indexOf(`launchpad-more-menu-item-${id}`)
+		expect(at('download')).toBeGreaterThan(at('duplicate'))
+		expect(at('download')).toBeLessThan(at('set-default'))
 	} finally {
 		await context.close()
 	}

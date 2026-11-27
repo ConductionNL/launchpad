@@ -218,8 +218,8 @@ test('This dashboard ends in Delete', async ({ page }) => {
 		'Add widget',
 		'Sharing',
 		'Copy link to this dashboard',
-		'Download',
 		'Duplicate as new dashboard',
+		'Download',
 		'Set as default',
 		'Delete',
 	])
@@ -249,8 +249,7 @@ test('Escape returns focus to More', async ({ browser }) => {
 	}
 })
 
-// As the member: Dashboards lists at most DASHBOARD_LIMIT (8) dashboards, and
-// the suite's admin on a shared instance owns more than that.
+// As the member: the suite's admin on a shared instance owns many dashboards.
 test('a dashboard picked under Dashboards opens, and stays open after a reload', async ({ browser }) => {
 	const owner = (member as Principal).api
 	const other = await ownActiveDashboard(owner, `E2E More menu other ${Date.now()}`)
@@ -261,6 +260,9 @@ test('a dashboard picked under Dashboards opens, and stays open after a reload',
 		expect(back.status(), await back.text()).toBeLessThan(300)
 
 		const panel = await openMore(page)
+		// Without favourites the folded column holds only the open dashboard:
+		// More turns it into every dashboard (REQ-SHELL-015).
+		await panel.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]').click()
 		const item = panel.locator(`[data-testid="launchpad-more-menu-item-dashboard-${other.id}"]`)
 		await expect(item).toHaveText(new RegExp(other.name))
 		// The pick is stored in the background; reopening reloads the page.

@@ -32,6 +32,9 @@ use OCA\LaunchPad\Service\AnalyticsService;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DashboardVersionService;
+use OCA\LaunchPad\Service\DraftSaveService;
+use OCA\LaunchPad\Exception\DraftConflictException;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -93,6 +96,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 	 * @param bool        $denyAction Whether the action check refuses.
 	 * @param array       $body       Extra request parameters by name.
 	 * @param DashboardVersionService|null $versions The version service, a plain double when null.
+	 * @param DraftSaveService|null        $draftSave The draft save (REQ-EDIT-002), none when null.
 	 *
 	 * @return DashboardApiController
 	 */
@@ -105,7 +109,8 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 		?DashboardVersionService $versions=null,
 		?\Exception $serviceRefusal=null,
 		?string $metadataAllowed=null,
-		bool $mayDelete=true
+		bool $mayDelete=true,
+		?DraftSaveService $draftSave=null
 	): DashboardApiController {
 		$user = null;
 		if ($sessionUid !== null) {
@@ -171,7 +176,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $request,
-			services: new DashboardApiServices(dashboardService: $service),
+			services: new DashboardApiServices(dashboardService: $service, draftSave: $draftSave),
 			access: new DashboardApiAccess(permissionService: $permissions, history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
 				versionService: $versions,
@@ -464,4 +469,72 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 
 		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
 	}//end testAServiceRefusalOfADeleteIsForbidden()
+
+	/**
+	 * REQ-EDIT-002: a body marked as a draft goes to the draft save with its
+	 * columns and full placement list; the stored placements come back.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 */
+	public function testADraftBodyGoesToTheDraftSave(): void {
+		$draftSave = $this->createMock(originalClassName: DraftSaveService::class);
+		$draftSave->expects($this->once())->method('save')
+			->with(7, 'alice', 8, [['id' => 1, 'gridY' => 2]])
+			->willReturn(['dashboard' => new Dashboard(), 'placements' => [new WidgetPlacement()]]);
+
+		$response = $this->controller(
+			sessionUid: 'alice',
+			userId: 'alice',
+			body: ['draft' => true, 'gridColumns' => 8],
+			draftSave: $draftSave
+		)->update(7, placements: [['id' => 1, 'gridY' => 2]]);
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertCount(expectedCount: 1, haystack: $response->getData()['data']['placements'] ?? $response->getData()['placements']);
+		$this->assertSame(expected: [], actual: $this->saved);
+	}//end testADraftBodyGoesToTheDraftSave()
+
+	/**
+	 * Without the draft mark a placements list stays the old position patch.
+	 *
+	 * @return void
+	 */
+	public function testAPlacementsListWithoutTheDraftMarkStaysAPositionPatch(): void {
+		$draftSave = $this->createMock(originalClassName: DraftSaveService::class);
+		$draftSave->expects($this->never())->method('save');
+
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', draftSave: $draftSave)
+			->update(7, placements: [['id' => 1, 'gridY' => 2]]);
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(expected: [[7, 'alice']], actual: $this->saved);
+	}//end testAPlacementsListWithoutTheDraftMarkStaysAPositionPatch()
+
+	/**
+	 * A refused change answers 403 and a colleague's newer widget 409 with
+	 * that widget as saved now.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 */
+	public function testARefusedOrConflictingDraftAnswers403Or409(): void {
+		$refused = $this->createMock(originalClassName: DraftSaveService::class);
+		$refused->method('save')->willThrowException(new ForbiddenException(message: 'This widget is required'));
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', body: ['draft' => true], draftSave: $refused)
+			->update(7, placements: []);
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+
+		$newer = new WidgetPlacement();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$newer->setId(5);
+		$conflict = $this->createMock(originalClassName: DraftSaveService::class);
+		$conflict->method('save')->willThrowException(new DraftConflictException(current: [$newer]));
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', body: ['draft' => true], draftSave: $conflict)
+			->update(7, placements: [['id' => 5, 'gridY' => 1, 'version' => 1]]);
+		$this->assertSame(expected: Http::STATUS_CONFLICT, actual: $response->getStatus());
+		$this->assertSame(expected: 5, actual: $response->getData()['placements'][0]['id']);
+	}//end testARefusedOrConflictingDraftAnswers403Or409()
 }//end class

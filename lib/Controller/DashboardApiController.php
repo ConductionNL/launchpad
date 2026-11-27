@@ -28,6 +28,7 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\ContrastTooLowException;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
+use OCA\LaunchPad\Exception\DraftConflictException;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
@@ -805,6 +806,12 @@ class DashboardApiController extends Controller {
 			return $denial;
 		}
 
+		// REQ-EDIT-002: an edit-mode Save sends its whole draft, marked as such,
+		// so the older position-only `placements` patch keeps its meaning.
+		if ($this->request->getParam(key: 'draft') === true && is_array($placements) === true) {
+			return $this->saveDraft(dashboardId: $id, gridColumns: $look['gridColumns'], draft: $placements);
+		}
+
 		return $this->applyUpdate(
 			dashboardId: $id,
 			fields: [
@@ -820,6 +827,58 @@ class DashboardApiController extends Controller {
 			] + $footer + $look
 		);
 	}//end update()
+
+	/**
+	 * Store an edit-mode draft: the grid columns and the full placement list
+	 * in one transaction with its version (REQ-EDIT-002, REQ-VERS-010). One
+	 * refused change answers 403, a colleague's newer widget 409 with those
+	 * widgets as saved now; either way nothing is stored.
+	 *
+	 * @param int                        $dashboardId The dashboard.
+	 * @param int|null                   $gridColumns The draft's grid columns, or null to keep them.
+	 * @param list<array<string, mixed>> $draft       The full placement list.
+	 *
+	 * @return JSONResponse The stored dashboard and placements, or the refusal.
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 */
+	private function saveDraft(int $dashboardId, ?int $gridColumns, array $draft): JSONResponse {
+		if ($this->context->userId === null || $this->services->draftSave === null) {
+			return $this->context->responseHelper->unauthorized();
+		}
+
+		try {
+			$saved = $this->services->draftSave->save(
+				dashboardId: $dashboardId,
+				userId: $this->context->userId,
+				gridColumns: $gridColumns,
+				draft: array_values($draft)
+			);
+		} catch (DraftConflictException $e) {
+			return new JSONResponse(
+				data: [
+					'status'     => 'error',
+					'error'      => 'stale',
+					'message'    => $e->getMessage(),
+					'placements' => array_map(static fn ($placement): array => $placement->jsonSerialize(), $e->getCurrent()),
+				],
+				statusCode: Http::STATUS_CONFLICT
+			);
+		} catch (ForbiddenException $e) {
+			return $this->context->responseHelper->forbidden(message: $e->getMessage());
+		} catch (InvalidArgumentException $e) {
+			return $this->context->responseHelper->invalidArgument(message: $e->getMessage());
+		} catch (\Exception $e) {
+			return $this->context->responseHelper->error(exception: $e);
+		}//end try
+
+		return $this->context->responseHelper->success(
+			data: [
+				'dashboard'  => $saved['dashboard']->jsonSerialize(),
+				'placements' => array_map(static fn ($placement): array => $placement->jsonSerialize(), $saved['placements']),
+			]
+		);
+	}//end saveDraft()
 
 	/**
 	 * The footer override fields of an update body (REQ-FTR-006): a field

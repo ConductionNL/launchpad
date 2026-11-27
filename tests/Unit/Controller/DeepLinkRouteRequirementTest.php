@@ -27,14 +27,14 @@ class DeepLinkRouteRequirementTest extends TestCase {
 	 * @return string
 	 */
 	private function deepLinkPattern(): string {
-		$declared = require dirname(__DIR__, 3).'/appinfo/routes.php';
+		$declared = require dirname(path: __DIR__, levels: 3).'/appinfo/routes.php';
 		foreach ($declared['routes'] as $route) {
 			if ($route['name'] === 'page#deepLink' && $route['url'] === '/{deepLink}') {
 				return '#^(?:'.$route['requirements']['deepLink'].')$#';
 			}
 		}
 
-		self::fail('no /{deepLink} route in appinfo/routes.php');
+		self::fail(message: 'no /{deepLink} route in appinfo/routes.php');
 	}//end deepLinkPattern()
 
 	/**
@@ -45,9 +45,9 @@ class DeepLinkRouteRequirementTest extends TestCase {
 	public function testResourcePathsAreNotDeepLinks(): void {
 		$pattern = $this->deepLinkPattern();
 
-		self::assertSame(0, preg_match($pattern, 'resource/../../etc/passwd'));
-		self::assertSame(0, preg_match($pattern, 'resource/does-not-exist.png'));
-		self::assertSame(0, preg_match($pattern, 'resource'));
+		self::assertSame(expected: 0, actual: preg_match(pattern: $pattern, subject: 'resource/../../etc/passwd'));
+		self::assertSame(expected: 0, actual: preg_match(pattern: $pattern, subject: 'resource/does-not-exist.png'));
+		self::assertSame(expected: 0, actual: preg_match(pattern: $pattern, subject: 'resource'));
 	}//end testResourcePathsAreNotDeepLinks()
 
 	/**
@@ -58,9 +58,9 @@ class DeepLinkRouteRequirementTest extends TestCase {
 	public function testApiStaysOutAndSlugChainsStayIn(): void {
 		$pattern = $this->deepLinkPattern();
 
-		self::assertSame(0, preg_match($pattern, 'api/dashboards'));
-		self::assertSame(1, preg_match($pattern, 'team/sales'));
-		self::assertSame(1, preg_match($pattern, 'resources-overview'));
-		self::assertSame(1, preg_match($pattern, 'apiary'));
+		self::assertSame(expected: 0, actual: preg_match(pattern: $pattern, subject: 'api/dashboards'));
+		self::assertSame(expected: 1, actual: preg_match(pattern: $pattern, subject: 'team/sales'));
+		self::assertSame(expected: 1, actual: preg_match(pattern: $pattern, subject: 'resources-overview'));
+		self::assertSame(expected: 1, actual: preg_match(pattern: $pattern, subject: 'apiary'));
 	}//end testApiStaysOutAndSlugChainsStayIn()
 }//end class

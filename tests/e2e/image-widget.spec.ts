@@ -42,7 +42,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, saveEditDraft } from './support/dashboardSwitcher.ts'
 import { apiAs, openAddWidgetDialog } from './support/filesWidget.ts'
 
 const APP_ID = process.env.APP_ID || 'launchpad'
@@ -160,6 +160,9 @@ test.describe('image widget', () => {
 			.locator(`.cn-image-widget__img[src*="/apps/${APP_ID}/resource/"]`)
 			.last()
 		await expect(uploaded).toBeAttached({ timeout: 8_000 })
+
+		// Add put the widget in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBe(200)
 
 		// Reload and verify persistence.
 		await page.reload()

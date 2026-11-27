@@ -11,7 +11,7 @@
  * comments; a widget that asks for confirmation is listed on the tab, and the
  * dashboard offers no Read receipts.
  *
- * @e2e openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md
+ * @e2e openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md
  */
 
 import type { APIRequestContext, Browser, Page } from '@playwright/test'

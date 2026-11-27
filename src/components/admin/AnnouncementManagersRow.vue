@@ -44,7 +44,7 @@ import { logger } from '../../utils/logger.js'
  * admin delegation, with a link to Administration privileges, where an
  * administrator changes them. Delegation is the one authority.
  *
- * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-3
  */
 export default {
 	name: 'AnnouncementManagersRow',
@@ -62,14 +62,14 @@ export default {
 	computed: {
 		/**
 		 * @return {string} Nextcloud's Administration privileges page.
-		 * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-3
 		 */
 		privilegesUrl() {
 			return generateUrl('/settings/admin/admindelegation')
 		},
 	},
 
-	/** @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3 */
+	/** @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-3 */
 	created() {
 		this.load()
 	},
@@ -77,7 +77,7 @@ export default {
 	methods: {
 		/**
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-3
 		 */
 		async load() {
 			try {

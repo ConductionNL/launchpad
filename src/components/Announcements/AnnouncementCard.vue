@@ -102,8 +102,8 @@ export function confirmBeforeLabel(confirmBefore, locale) {
  * here: those live in the view. The tab's preview renders this same
  * component with `preview` set.
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  */
 export default {
 	name: 'AnnouncementCard',
@@ -141,7 +141,7 @@ export default {
 	computed: {
 		/**
 		 * @return {string} The publish date in the reader's locale.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
 		 */
 		formattedDate() {
 			const date = new Date(this.announcement.publishAt)
@@ -150,7 +150,7 @@ export default {
 
 		/**
 		 * @return {string} "Confirm before 30 October", or '' without a deadline.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 		 */
 		confirmBeforeText() {
 			return confirmBeforeLabel(this.announcement.confirmBefore, getCanonicalLocale())

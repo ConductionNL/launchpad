@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-3
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -37,7 +37,7 @@ use Throwable;
 /**
  * Reads the groups delegated the announcements setting.
  *
- * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-3
  */
 class AnnouncementDelegation {
 
@@ -65,7 +65,7 @@ class AnnouncementDelegation {
 	 *
 	 * @return array{available: bool, groups: list<array{id: string, displayName: string}>}
 	 *
-	 * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-3
 	 */
 	public function groups(): array {
 		if ($this->container->has(self::DELEGATION_SERVICE) === false) {

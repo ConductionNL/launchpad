@@ -6,7 +6,7 @@
  * groups, none yet, or unreadable, and always the link to Administration
  * privileges (announcements-managed-in-settings D1).
  *
- * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-3
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

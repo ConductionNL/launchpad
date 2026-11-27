@@ -29,8 +29,8 @@
 import type { APIRequestContext, BrowserContext, Locator, Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
-import { gotoLaunchPad, openSidebar } from '../fixtures/widget-flow.ts'
-import { enterEditMode } from './dashboardSwitcher.ts'
+import { gotoLaunchPad } from '../fixtures/widget-flow.ts'
+import { addWidgetFromMore, enterEditMode, switchToDashboard } from './dashboardSwitcher.ts'
 import { contextFor } from './principals.ts'
 import { chooseAndAdd } from './widgetPicker.ts'
 
@@ -196,14 +196,8 @@ export function collectPopups(context: BrowserContext): Page[] {
  * @return the dialog.
  */
 export async function openAddLinkForm(page: Page, dashboardName: string): Promise<Locator> {
-	await openSidebar(page)
-	const row = page
-		.locator('.dashboard-switcher-sidebar__item')
-		.filter({ hasText: dashboardName })
-		.first()
-	await expect(row).toBeVisible({ timeout: 10_000 })
-	await row.locator('.dashboard-row-actions button').first().click()
-	await page.locator('[data-testid="cog-add-widget"]').click()
+	await switchToDashboard(page, dashboardName)
+	await addWidgetFromMore(page)
 	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-link"]'))
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await expect(dialog).toBeVisible({ timeout: 10_000 })

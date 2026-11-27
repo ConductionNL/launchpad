@@ -124,6 +124,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 	await liftCalendarCreationLimitForRun(baseURL, username, password)
 	await markSupportNoteSeen(page)
 	await settleSetupWizard(page)
+	await completeAdminSetupWizard(page)
 	if (await healLeftoverWidgetRestriction()) {
 		console.warn('[global-setup] put back the shipped default widget rule over a leftover e2e restriction')
 	}
@@ -287,6 +288,50 @@ async function settleSetupWizard(page: Page): Promise<void> {
 			'[playwright globalSetup] could not settle the setup wizard:',
 			error,
 		)
+	}
+}
+
+/**
+ * Mark launchpad's own admin setup wizard complete, so it does not open over
+ * the admin page.
+ *
+ * This is a different wizard from the one `settleSetupWizard` settles: the
+ * LaunchPad setup wizard of the admin page (ADR-042, `setup_wizard_complete`
+ * in `oc_launchpad_admin_settings`). Since the admin page moved into
+ * Nextcloud's settings (REQ-ADM-032) it opens by itself on the first visit in
+ * a browser session while that flag is false, which is every fresh instance,
+ * CI's included. Its `aria-modal` intercepts every click on the tabs, so each
+ * spec that opens a tab failed there with "subtree intercepts pointer
+ * events" (prometheus-metrics, public-start-page-admin, role-based-content,
+ * runtime-shell's admin tour, sharing-policy ... on 27 Nov 2026, NC 34).
+ * setup-wizard.spec.ts removes the flag itself before each test that needs
+ * a fresh instance, so a completed flag here takes nothing from it.
+ *
+ * @param page A page already authenticated against the instance.
+ */
+async function completeAdminSetupWizard(page: Page): Promise<void> {
+	try {
+		const status = await page.evaluate(async () => {
+			const token =
+				document
+					.querySelector('head[data-requesttoken]')
+					?.getAttribute('data-requesttoken')
+				?? document.getElementById('requesttoken')?.getAttribute('value')
+				?? ''
+			const res = await fetch('/index.php/apps/launchpad/api/admin/setup-wizard/complete', {
+				method: 'POST',
+				headers: { requesttoken: token, 'OCS-APIRequest': 'true' },
+			})
+			return res.status
+		})
+		if (status >= 400) {
+			console.warn(
+				`[playwright globalSetup] admin setup wizard complete returned ${status}; `
+					+ 'it will open over the admin page tabs.',
+			)
+		}
+	} catch (error) {
+		console.warn('[playwright globalSetup] could not complete the admin setup wizard:', error)
 	}
 }
 

@@ -44,7 +44,7 @@ const NAME_A = `E2E Deeplink A ${RUN}`
 const NAME_B = `E2E Deeplink B ${RUN}`
 const SLUG_A = `e2e-deeplink-a-${RUN}`
 const SLUG_B = `e2e-deeplink-b-${RUN}`
-const ROW = '.dashboard-switcher-sidebar__item'
+const ROW = '[data-testid="launchpad-more-menu-dashboard-list"] [role="menuitemradio"]'
 
 type Account = { username: string; password: string }
 type Dashboard = { id: number; uuid: string }
@@ -99,7 +99,7 @@ function pathOf(page: Page): string {
 }
 
 /**
- * The sidebar row of a dashboard.
+ * The More menu row of a dashboard (every dashboard listed).
  *
  * @param page the page.
  * @param name the dashboard's name.
@@ -229,7 +229,7 @@ test.describe.serial('dashboard deep-linking (REQ-DDL-002..007)', () => {
 			// passes it through initial state as `deepLinkPath`.
 			expect(await deepLinkPathOnPage(page)).toBe(`/${SLUG_B}`)
 			await openDashboardSwitcher(page)
-			await expect(row(page, NAME_B)).toHaveClass(/\bactive\b/)
+			await expect(row(page, NAME_B)).toHaveAttribute('aria-checked', 'true')
 			expect(pathOf(page)).toBe(`/apps/launchpad/${SLUG_B}`)
 		} finally {
 			await context.close()
@@ -261,7 +261,7 @@ test.describe.serial('dashboard deep-linking (REQ-DDL-002..007)', () => {
 		const { context, page } = await openAt(browser, `${APP}/${SLUG_A}`)
 		try {
 			await openDashboardSwitcher(page)
-			await expect(row(page, NAME_A)).toHaveClass(/\bactive\b/)
+			await expect(row(page, NAME_A)).toHaveAttribute('aria-checked', 'true')
 			// The initial mount replaces the address, it never pushes.
 			expect(await pushes(page)).toBe(0)
 
@@ -271,11 +271,9 @@ test.describe.serial('dashboard deep-linking (REQ-DDL-002..007)', () => {
 
 			await page.goBack()
 			await expect.poll(() => pathOf(page)).toBe(`/apps/launchpad/${SLUG_A}`)
-			// Back is a same-document navigation: the sidebar may still be open.
-			if (!(await page.locator('.dashboard-switcher-sidebar.open').isVisible())) {
-				await openDashboardSwitcher(page)
-			}
-			await expect(row(page, NAME_A)).toHaveClass(/\bactive\b/)
+			// Back is a same-document navigation; open More's full list (idempotent).
+			await openDashboardSwitcher(page)
+			await expect(row(page, NAME_A)).toHaveAttribute('aria-checked', 'true')
 			expect(dashB.uuid).not.toBe(dashA.uuid)
 		} finally {
 			await context.close()

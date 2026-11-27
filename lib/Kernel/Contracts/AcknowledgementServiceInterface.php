@@ -152,4 +152,16 @@ interface AcknowledgementServiceInterface {
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 	 */
 	public function resolveOwnerUserId(string $announcementKey): ?string;
+
+	/**
+	 * The "Widgets that ask for confirmation" list of the Announcements tab
+	 * (REQ-ACK-008): one row per announcement key, from its blueprint
+	 * placement, with the widget's title, its dashboard, the deadline and
+	 * the confirmed and pending counts of the audience report.
+	 *
+	 * @return list<array<string, mixed>> announcementKey, title, dashboard, deadline, overdue, acknowledgedCount, pendingCount.
+	 *
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+	 */
+	public function listAcknowledged(): array;
 }//end interface

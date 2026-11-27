@@ -36,13 +36,15 @@
 		</div>
 		<div
 			v-else-if="renderer && !showFallback"
-			class="widget-miniature__stage">
-			<component
-				:is="renderer"
-				:content="sample"
-				:placement="samplePlacement"
-				:preview="true"
-				:editMode="false" />
+			class="widget-miniature__card">
+			<div class="widget-miniature__stage">
+				<component
+					:is="renderer"
+					:content="sample"
+					:placement="samplePlacement"
+					:preview="true"
+					:editMode="false" />
+			</div>
 		</div>
 		<span v-else class="widget-miniature__icon" data-testid="widget-miniature-icon">
 			<slot name="icon" />
@@ -208,13 +210,25 @@ export default {
 	width: 100%;
 	aspect-ratio: 200 / 112;
 	overflow: hidden;
-	border-radius: var(--border-radius-large);
+	padding: 10px 12px;
+	border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
 	background: var(--color-background-hover);
 	pointer-events: none;
 	user-select: none;
 }
 
-/* The renderer draws at twice the frame's size and is scaled down to it. */
+/* Board LpWidgetKiezen: the widget sits as a small white card on the grey
+   band. The renderer draws at twice that card's size and is scaled down. */
+.widget-miniature__card {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	background: var(--color-main-background);
+}
+
 .widget-miniature__stage {
 	position: absolute;
 	inset: 0 auto auto 0;
@@ -224,7 +238,6 @@ export default {
 	transform-origin: top left;
 	padding: 8px;
 	box-sizing: border-box;
-	background: var(--color-main-background);
 }
 
 .widget-miniature__icon {

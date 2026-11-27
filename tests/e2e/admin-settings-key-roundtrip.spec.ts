@@ -361,10 +361,8 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
 		// under test.
 		await writeSettings(api, { allowUserDash: true, allowMultiDash: true })
 		await addButton()
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const add = sidebar.getByRole('button', {
-			name: /add dashboard|dashboard toevoegen/i,
-		})
+		// New dashboard at the foot of More's full list (REQ-SHELL-015).
+		const add = page.locator('[data-testid="launchpad-more-menu-item-new-dashboard"]')
 		await expect(
 			add,
 			'precondition failed: the control is absent with the flag ON',
@@ -375,9 +373,7 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
 		await writeSettings(api, { allowUserDashboards: false })
 		await addButton()
 		await expect(
-			page
-				.locator('.dashboard-switcher-sidebar')
-				.getByRole('button', { name: /add dashboard|dashboard toevoegen/i }),
+			page.locator('[data-testid="launchpad-more-menu-item-new-dashboard"]'),
 			'PUT {"allowUserDashboards": false} did not reach the rendered app: '
 				+ 'the Add-Dashboard control is still there.',
 		).toHaveCount(0)
@@ -392,11 +388,6 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
  */
 async function openSidebar(page: Page): Promise<void> {
 	await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 10_000 })
-	const isOpen = await page
-		.locator('.dashboard-switcher-sidebar.open')
-		.isVisible()
-		.catch(() => false)
-	if (!isOpen) {
-		await openDashboardSwitcher(page)
-	}
+	// Idempotent: More with every dashboard listed (the sidebar is gone).
+	await openDashboardSwitcher(page)
 }

@@ -41,7 +41,7 @@ class MintAnnouncementKeysTest extends TestCase {
 		$first  = new WidgetPlacement();
 		$second = new WidgetPlacement();
 		$mapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
-		$mapper->method('findAcknowledgedWithoutKey')->willReturn([$first, $second]);
+		$mapper->method('findAcknowledged')->willReturn([$first, $second]);
 		$mapper->expects($this->exactly(count: 2))->method('update')->willReturnArgument(0);
 		$output = $this->createMock(originalClassName: IOutput::class);
 		$output->expects($this->once())->method('info')->with('2 widget(s) got an announcement key.');
@@ -58,7 +58,7 @@ class MintAnnouncementKeysTest extends TestCase {
 	 */
 	public function testAFailureIsAWarning(): void {
 		$mapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
-		$mapper->method('findAcknowledgedWithoutKey')->willThrowException(new RuntimeException('database gone'));
+		$mapper->method('findAcknowledged')->willThrowException(new RuntimeException('database gone'));
 		$output = $this->createMock(originalClassName: IOutput::class);
 		$output->expects($this->once())->method('warning')->with('The announcement keys were not given: database gone');
 		$output->expects($this->never())->method('info');

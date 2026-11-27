@@ -41,6 +41,7 @@ use RuntimeException;
  * @covers \OCA\LaunchPad\Controller\LaunchPadAdminDelegation
  * @covers \OCA\LaunchPad\Controller\WalkthroughPreferencesFirstLoad
  * @covers \OCA\LaunchPad\Service\PreferenceKey
+ * @covers \OCA\LaunchPad\Service\FavouriteDashboardService
  * @covers \OCA\LaunchPad\Service\SetupStatusDocument
  */
 class ShellBootReadsTest extends TestCase {
@@ -189,12 +190,13 @@ class ShellBootReadsTest extends TestCase {
 		$this->groups->method('isAdmin')->willReturn(false);
 		$this->settings->method('getAllowedAdminSettings')->willReturn([]);
 
-		$this->assertSame(
-			expected: ['runtimeManifest' => null, 'setup_status' => ['forbidden' => true], 'walkthrough_preferences' => null],
+		$unwired = ['runtimeManifest' => null, 'walkthrough_preferences' => null, 'favouriteDashboards' => null, 'announcementsAccess' => null];
+		$this->assertEquals(
+			expected: ['setup_status' => ['forbidden' => true]] + $unwired,
 			actual: (new ShellBootReads(setupStatus: $this->setupStatus()))->firstLoad(userId: 'marieke')
 		);
-		$this->assertSame(
-			expected: ['runtimeManifest' => null, 'setup_status' => null, 'walkthrough_preferences' => null],
+		$this->assertEquals(
+			expected: ['setup_status' => null] + $unwired,
 			actual: (new ShellBootReads())->firstLoad(userId: 'marieke')
 		);
 	}//end testTheShellReadsComeByInitialStateKey()

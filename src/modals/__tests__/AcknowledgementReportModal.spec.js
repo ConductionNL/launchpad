@@ -115,6 +115,13 @@ describe('AcknowledgementReportModal', () => {
 		expect(wrapper.find('[data-testid="ack-summary"]').text()).toBe('0 of 0 confirmed · 0 to go')
 	})
 
+	it('names a widget\'s read confirmations "Widget · <dashboard>" (REQ-ACK-010)', async () => {
+		api.getAcknowledgementReport.mockResolvedValue({ data: { rows: [] } })
+		expect(mountModal({ widget: true }).find('[data-testid="ack-report-eyebrow"]').text()).toBe('Widget · Intranet Zuiddrecht')
+		expect(mountModal({ widget: true, dashboardName: '' }).find('[data-testid="ack-report-eyebrow"]').text()).toBe('Widget')
+		await flushPromises()
+	})
+
 	it('shows an error and no report when loading fails, and closes', async () => {
 		api.getAcknowledgementReport.mockRejectedValue(new Error('403'))
 		const wrapper = mountModal()

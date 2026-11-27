@@ -129,6 +129,14 @@ const PAGE_KEYS = {
 		// footer-customization REQ-FTR-007: the viewer's Nextcloud language,
 		// which picks the footer variant. Optional key.
 		viewerLocale: 'en',
+		// more-menu-favourites REQ-SHELL-014/016: the viewer's favourite
+		// dashboard uuids in starring order, limited to the dashboards they can
+		// open. Optional key; an empty list shows the no-favourites state.
+		favouriteDashboards: [],
+		// more-menu-favourites task 10: whether the viewer may manage
+		// announcements (an administrator or a delegated manager), which
+		// offers More's Announcements entry. Optional key.
+		announcementsAccess: null,
 	},
 	admin: {
 		allGroups: [],
@@ -180,6 +188,32 @@ export function loadInitialState(page) {
 	}
 
 	return state
+}
+
+/**
+ * The viewer's favourite dashboard uuids the page carries (REQ-SHELL-014):
+ * opening More reads them from here, never from the API. Anything that is not
+ * a list of non-empty strings reads as no favourites.
+ *
+ * @return {string[]} The uuids in starring order.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+ */
+export function readFavouriteDashboards() {
+	const value = readKey('favouriteDashboards', [])
+	return Array.isArray(value) ? value.filter((uuid) => typeof uuid === 'string' && uuid !== '') : []
+}
+
+/**
+ * Whether the viewer may manage announcements (an administrator, or a member
+ * of a group the announcements setting is delegated to), as the page carries
+ * it; More offers its Announcements entry from this, without a request.
+ *
+ * @return {boolean} True only when the page says so.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
+ */
+export function readCanManageAnnouncements() {
+	const value = readKey('announcementsAccess', null)
+	return value !== null && typeof value === 'object' && value.canManage === true
 }
 
 /**

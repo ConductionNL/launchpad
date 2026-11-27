@@ -16,7 +16,10 @@ const api = vi.hoisted(() => ({
 	update: vi.fn(),
 	remove: vi.fn(),
 	receipts: vi.fn(),
+	receiptCounts: vi.fn(),
+	acknowledgedWidgets: vi.fn(),
 }))
+vi.mock('../../../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
 vi.mock('../../../../services/announcementsApi.js', () => ({ announcementsApi: api }))
 vi.mock('../../../../modals/AnnouncementEditorModal.vue', () => ({ default: { name: 'AnnouncementEditorModal', render: () => null } }))
 
@@ -30,7 +33,7 @@ const t = (_app, text, vars = {}) => text.replace(/{(\w+)}/g, (_m, key) => vars[
  * @return {object}
  */
 function context() {
-	const ctx = { t, items: [], loading: false, error: '', editing: null, receiptsOf: null, receipts: null }
+	const ctx = { t, items: [], loading: false, error: '', editing: null, receiptsOf: null, receipts: null, widgets: [], widgetsError: '', openWidgetItem: null }
 	for (const [name, method] of Object.entries(AnnouncementsTab.methods)) {
 		ctx[name] = method.bind(ctx)
 	}
@@ -57,11 +60,20 @@ describe('AnnouncementsTab', () => {
 		expect(announcementsFragment('#sharing/abc')).toEqual({ uuid: '', section: '' })
 	})
 
-	it('loads every announcement for the list', async () => {
-		api.manageList.mockResolvedValue([{ uuid: 'a', title: 'Onderhoud' }])
+	it('loads every announcement for the list, with its seen and confirmed counts', async () => {
+		api.manageList.mockResolvedValue([{ uuid: 'a', title: 'Onderhoud' }, { uuid: 'b', title: 'Nieuw' }])
+		api.receiptCounts.mockResolvedValue({ a: { seen: 3, confirmed: 2 } })
 		const ctx = context()
 		await ctx.load()
-		expect(ctx.items).toEqual([{ uuid: 'a', title: 'Onderhoud' }])
+		expect(api.receiptCounts).toHaveBeenCalledWith(['a', 'b'])
+		expect(ctx.items).toEqual([
+			{ uuid: 'a', title: 'Onderhoud', seenCount: 3, confirmedCount: 2 },
+			{ uuid: 'b', title: 'Nieuw', seenCount: 0, confirmedCount: 0 },
+		])
+		api.receiptCounts.mockRejectedValue(new Error('500'))
+		await ctx.load()
+		expect(ctx.items).toHaveLength(2)
+		expect(ctx.items[0].seenCount).toBeUndefined()
 		api.manageList.mockRejectedValue(new Error('403'))
 		await ctx.load()
 		expect(ctx.error).toBe('The announcements could not be loaded.')
@@ -102,5 +114,20 @@ describe('AnnouncementsTab', () => {
 		api.receipts.mockRejectedValue(new Error('400'))
 		await ctx.openReceipts({ uuid: 'abc', title: 'X' })
 		expect(ctx.receipts.error).toBeTruthy()
+	})
+
+	it('lists the widgets that ask for confirmation and opens one (REQ-ACK-008)', async () => {
+		const row = { announcementKey: 'ak-1', title: 'New expense rules', dashboard: 'Intranet', acknowledgedCount: 3, pendingCount: 2 }
+		api.acknowledgedWidgets.mockResolvedValue([row])
+		const ctx = context()
+		await ctx.loadWidgets()
+		expect(ctx.widgets).toEqual([row])
+		ctx.openWidget(row)
+		expect(ctx.openWidgetItem).toBe(row)
+
+		api.acknowledgedWidgets.mockRejectedValue(new Error('403'))
+		await ctx.loadWidgets()
+		expect(ctx.widgets).toEqual([])
+		expect(ctx.widgetsError).toBe('The widgets that ask for confirmation could not be loaded.')
 	})
 })

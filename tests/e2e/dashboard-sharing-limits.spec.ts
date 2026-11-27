@@ -29,7 +29,7 @@ import type { OwnDashboard, SharingSettings } from './support/shareApi.ts'
 
 import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
-import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { openDashboardSettings, switchToDashboard } from './support/dashboardSwitcher.ts'
 import {
 	addToGroup,
 	adminContext,
@@ -134,13 +134,8 @@ async function openPieterSharingTab(browser: Browser) {
 		pieter!.password,
 	)
 	await page.goto('/index.php/apps/launchpad')
-	await openDashboardSwitcher(page)
-	const row = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.and(page.locator(`[aria-label="${pieterDash!.name}"]`))
-		.first()
-	await row.locator('.dashboard-row-actions button').first().click()
-	await page.locator('[data-testid="cog-dashboard-config"]').click()
+	await switchToDashboard(page, pieterDash!.name)
+	await openDashboardSettings(page)
 	await page
 		.locator('[data-testid="dashboard-name-input"]')
 		.waitFor({ state: 'visible', timeout: 8_000 })

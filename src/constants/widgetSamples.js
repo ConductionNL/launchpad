@@ -79,7 +79,8 @@ export const SAMPLE_CONTENT = Object.freeze({
 	files: { folderPath: '/', sampleFiles: [{ name: 'Planning.xlsx' }, { name: 'Minutes.docx' }, { name: 'Logo.png' }] },
 	stat: { label: 'Open cases', value: 42, sampleValue: 42, format: 'number' },
 	'app-tiles': { pinned: [], exclude: [], showFilter: false, showMostUsed: false, sampleApps: ['files', 'mail', 'calendar', 'deck'] },
-	'app-tile': { mode: 'app', appId: 'files', colourToken: '--sc-primary', textColour: 'white', showCount: false },
+	// Drawn as a link-mode tile: the app-mode renderer reads the viewer's app menu.
+	'app-tile': { mode: 'link', title: 'Files', linkType: 'url', linkValue: '#', icon: 'Folder', iconType: 'mdi', colourToken: '--sc-primary', textColour: 'white' },
 	delta: { label: 'Requests this week', value: 18, previous: 14, sampleValue: 18, samplePrevious: 14 },
 	gauge: { label: 'Handled on time', value: 82, target: 90, sampleValue: 82 },
 	'object-list': { title: 'Open cases', sampleRows: ROWS },
@@ -92,9 +93,40 @@ export const SAMPLE_CONTENT = Object.freeze({
 	'nc-widget': { widgetId: '', displayMode: 'vertical' },
 	map: { center: [52.09, 5.12], zoom: 11, markers: [] },
 	'ai-assistant': { agentUuid: '' },
-	attention: { limit: 3 },
-	'colleague-activity': { limit: 3, days: 7 },
-	'recent-work': { limit: 3 },
+	attention: {
+		limit: 3,
+		sampleData: {
+			sourceCount: 3,
+			items: [
+				{ key: 'a1', id: 'a1', appId: 'dossiq', appName: 'Cases', title: 'Permit Dorpsstraat 12', reason: 'Deadline today', severity: 'high', href: '#', actionLabel: 'Open' },
+				{ key: 'a2', id: 'a2', appId: 'mail', appName: 'Mail', title: 'Question about the subsidy', reason: 'Unanswered for 3 days', severity: 'medium', href: '#', actionLabel: 'Reply' },
+				{ key: 'a3', id: 'a3', appId: 'deck', appName: 'Deck', title: 'Plan the council meeting', reason: 'Assigned to you', severity: 'low', href: '#', actionLabel: 'Open' },
+			],
+		},
+	},
+	'colleague-activity': {
+		limit: 3,
+		days: 7,
+		sampleData: {
+			total: 3,
+			actors: 3,
+			entries: [
+				{ id: 1, type: 'file_changed', actorDisplayName: 'Anna de Vries', title: 'changed Planning.xlsx', link: '#', timestamp: Date.UTC(2026, 11, 2, 8) / 1000 },
+				{ id: 2, type: 'file_created', actorDisplayName: 'Pieter Jansen', title: 'created Minutes.docx', link: '#', timestamp: Date.UTC(2026, 11, 2, 7) / 1000 },
+				{ id: 3, type: 'comments', actorDisplayName: 'Fatima El Amrani', title: 'commented on Budget 2027', link: '#', timestamp: Date.UTC(2026, 11, 1, 15) / 1000 },
+			],
+		},
+	},
+	'recent-work': {
+		limit: 3,
+		sampleData: {
+			activities: [
+				{ app: 'files', type: 'file_changed', subject: 'You changed Planning.xlsx', object_name: 'Planning.xlsx', link: '#', datetime: sampleDate(-0.1) },
+				{ app: 'files', type: 'file_created', subject: 'You created Minutes.docx', object_name: 'Minutes.docx', link: '#', datetime: sampleDate(-0.5) },
+				{ app: 'deck', type: 'deck', subject: 'You moved Plan the council meeting', object_name: 'Plan the council meeting', link: '#', datetime: sampleDate(-1) },
+			],
+		},
+	},
 	'activity-report': { days: 30 },
 	'status-report': {},
 	clock: { style: 'digital', hourFormat: '24', timezone: 'Europe/Amsterdam', showDate: true, sampleTime: sampleDate(0) },
@@ -104,7 +136,7 @@ export const SAMPLE_CONTENT = Object.freeze({
 		unitsOverride: 'metric',
 		sampleReading: { location: 'Utrecht', tempValue: 7, units: 'metric', condition: 'rain', conditionCode: 'rain', conditionText: 'Light rain', stale: false },
 	},
-	livetile: { label: 'Visitors today', sourceMode: 'url', url: '', sampleValue: 128 },
+	livetile: { label: 'Visitors today', sourceMode: 'url', url: '', sampleData: { reading: { value: 128, stale: false } } },
 	iframe: { url: '', title: 'A page from another site', height: 400 },
 	search: { placeholder: 'Search apps, files and people' },
 	'section-heading': { title: 'My apps', description: 'One tile per app' },
@@ -114,8 +146,31 @@ export const SAMPLE_CONTENT = Object.freeze({
 	connections: {},
 	'pie-chart': { chartKind: 'donut', source: 'values', values: [{ label: 'Open', value: 12 }, { label: 'In progress', value: 7 }, { label: 'Done', value: 21 }] },
 	graph: { chartKind: 'bar', source: 'values', values: BARS },
-	announcements: { category: '', limit: 3 },
+	// nextcloud-vue display types the picker offers; their renderers draw
+	// content only, so the sample needs no preview support there. Types that
+	// read a register or poll (tasks, stacked bar, week strip, notepad, ...)
+	// keep the icon until nextcloud-vue honours `preview`.
+	banner: { text: 'The town hall is closed on 24 December.', variant: 'info' },
+	markdown: { markdown: '### This week\n\n- Team meeting on Tuesday\n- Office hours on Thursday' },
+	announcements: {
+		category: '',
+		limit: 3,
+		sampleData: {
+			announcements: [
+				{ uuid: 's-1', kind: 'news', category: '', title: 'New opening hours of the town hall', body: 'From January the desks open at eight.', publishAt: sampleDate(-1) },
+				{ uuid: 's-2', kind: 'news', category: '', title: 'Team outing on 12 December', body: 'Sign up with Fatima before Friday.', publishAt: sampleDate(-2) },
+			],
+		},
+	},
 })
+
+/**
+ * Types whose nextcloud-vue renderer still reads the server in the browser
+ * with `preview` set (checked live on a sandbox, 27 Nov 2026: the people list
+ * and its avatars, the app menu): their miniature shows the type's icon until
+ * nextcloud-vue honours `preview` for them (REQ-WDG-048: no request).
+ */
+export const NOT_PREVIEW_SAFE = Object.freeze(['people', 'app-tiles'])
 
 /**
  * The sample content of a widget type: the registry entry's own
@@ -127,6 +182,9 @@ export const SAMPLE_CONTENT = Object.freeze({
  * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
  */
 export function sampleContentOf(type, entry = null) {
+	if (NOT_PREVIEW_SAFE.includes(type) && !entry?.sampleContent) {
+		return null
+	}
 	const sample = entry?.sampleContent ?? SAMPLE_CONTENT[type] ?? null
 	return sample ? JSON.parse(JSON.stringify(sample)) : null
 }

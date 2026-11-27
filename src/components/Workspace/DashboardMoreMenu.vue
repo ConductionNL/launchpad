@@ -13,15 +13,25 @@
 		:settings="settings"
 		:actions="actions"
 		class="launchpad-more-menu"
-		data-testid="launchpad-more-menu" />
+		data-testid="launchpad-more-menu"
+		@open="foldDashboards">
+		<!-- REQ-SHELL-019 / REQ-MDUI-003: Filter by detail above the full list. -->
+		<template #dashboardsTop>
+			<DetailFilter
+				v-if="detailFields.length > 0"
+				class="lp-more-menu__detail-filter"
+				:fields="detailFields"
+				@change="$emit('detailFilter', $event)" />
+		</template>
+	</LaunchpadMoreMenu>
 </template>
 
 <script>
 import { t } from '@nextcloud/l10n'
-import { markRaw } from 'vue'
-import CheckDecagramOutline from 'vue-material-design-icons/CheckDecagramOutline.vue'
-import { isOwnedDashboard } from './DashboardRowActions.vue'
+import DetailFilter from './DetailFilter.vue'
 import LaunchpadMoreMenu from './LaunchpadMoreMenu.vue'
+import { favouriteDashboardsMixin } from '../../services/favouriteDashboards.js'
+import { isOwnedDashboard } from '../../utils/dashboardRows.js'
 import {
 	dashboardActionItems,
 	dashboardItems,
@@ -34,8 +44,11 @@ export default {
 	name: 'DashboardMoreMenu',
 
 	components: {
+		DetailFilter,
 		LaunchpadMoreMenu,
 	},
+
+	mixins: [favouriteDashboardsMixin],
 
 	inject: {
 		/** What `App.vue` decided about the navigation panel (see StartPageMenu). */
@@ -106,8 +119,20 @@ export default {
 			default: false,
 		},
 
-		/** Whether the read receipts of the active dashboard are offered. */
-		canViewReadReceipts: {
+		/**
+		 * The detail fields the full list can be filtered by (REQ-MDUI-003);
+		 * the host reads them the first time the list is expanded.
+		 */
+		detailFields: {
+			type: Array,
+			default: () => [],
+		},
+
+		/**
+		 * Whether the expanded Dashboards list offers New dashboard: personal
+		 * dashboards allowed and the quota not reached (REQ-SHELL-015).
+		 */
+		canCreate: {
 			type: Boolean,
 			default: false,
 		},
@@ -121,23 +146,27 @@ export default {
 
 	emits: [
 		'switch',
-		'openAll',
+		'download',
 		'toggleEdit',
 		'addWidget',
 		'share',
 		'copyLink',
 		'duplicate',
 		'setDefault',
-		'readReceipts',
 		'delete',
+		'newDashboard',
+		'detailFilter',
+		'expandDashboards',
 	],
 
 	computed: {
 		/**
-		 * The Dashboards group, the open one checked.
+		 * The Dashboards group, the open one checked: the favourites, or
+		 * every dashboard with a star each once unfolded.
 		 *
 		 * @return {object[]}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
 		 */
 		dashboards() {
 			return dashboardItems({
@@ -146,8 +175,14 @@ export default {
 				sharedDashboards: this.sharedDashboards,
 				activeId: this.dashboard?.id ?? null,
 				defaultUuid: this.defaultUuid,
+				favourites: this.favourites,
+				expanded: this.dashboardsExpanded,
 				onSwitch: (id, source) => this.$emit('switch', id, source),
-				onOpenAll: () => this.$emit('openAll'),
+				onToggleExpanded: () => this.onToggleExpanded(),
+				onToggleFavourite: (uuid) => this.toggleDashboardFavourite(uuid),
+				openTrees: this.openTrees,
+				onToggleTree: (uuid) => this.toggleTree(uuid),
+				onNewDashboard: this.canCreate ? () => this.$emit('newDashboard') : null,
 			})
 		},
 
@@ -166,14 +201,17 @@ export default {
 		},
 
 		/**
-		 * The This dashboard group. Read receipts, when the dashboard asks
-		 * for them, sit before Delete, which stays last.
+		 * The This dashboard group, Download included; Delete stays last.
+		 * Read receipts are not offered here: they are read on the
+		 * Announcements tab of the admin settings page (REQ-ACK-008).
 		 *
 		 * @return {object[]}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-5
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
 		 */
 		actions() {
-			const items = dashboardActionItems({
+			return dashboardActionItems({
 				dashboard: this.dashboard,
 				isOwner: isOwnedDashboard(this.dashboard, this.source),
 				isDefault: Boolean(this.dashboard?.uuid) && this.dashboard.uuid === this.defaultUuid,
@@ -183,16 +221,21 @@ export default {
 				canDuplicate: this.canDuplicate,
 				emit: (event) => this.$emit(event),
 			})
-			if (this.dashboard && this.canViewReadReceipts) {
-				const at = items.findIndex((item) => item.destructive === true)
-				items.splice(at === -1 ? items.length : at, 0, {
-					id: 'read-receipts',
-					label: t('launchpad', 'Read receipts'),
-					icon: markRaw(CheckDecagramOutline),
-					onClick: () => this.$emit('readReceipts'),
-				})
+		},
+	},
+
+	methods: {
+		/**
+		 * More / Less; the first unfold asks the host for the detail fields.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+		 */
+		onToggleExpanded() {
+			this.toggleDashboardsExpanded()
+			if (this.dashboardsExpanded) {
+				this.$emit('expandDashboards')
 			}
-			return items
 		},
 	},
 }

@@ -100,12 +100,20 @@
             "description": "List, read, write, publish and follow announcements."
         },
         {
+            "name": "announcement-delegation",
+            "description": "Who holds the announcements setting."
+        },
+        {
             "name": "announcement-groups",
             "description": "The target group picker's list."
         },
         {
+            "name": "announcement-manager",
+            "description": "The announcement managers' reminder and widgets list."
+        },
+        {
             "name": "announcement-read",
-            "description": "The read confirmation endpoints of announcements."
+            "description": "The receipt endpoints of announcements."
         },
         {
             "name": "attention",
@@ -166,6 +174,10 @@
         {
             "name": "embed-token-api",
             "description": "Admin endpoints for embed tokens."
+        },
+        {
+            "name": "favourite-dashboard-api",
+            "description": "Favourite dashboard endpoints."
         },
         {
             "name": "file",
@@ -439,8 +451,8 @@
             "get": {
                 "operationId": "acknowledgement-report",
                 "x-launchpad-stability": "internal",
-                "summary": "GET /api/acknowledgements/report/{announcementKey} — the audience-scoped read-receipt report",
-                "description": "GET /api/acknowledgements/report/{announcementKey} — the audience-scoped read-receipt report. Admin / template owner only (REQ-ACK-004). Needs a signed-in Nextcloud user.",
+                "summary": "GET /api/acknowledgements/report/{announcementKey} — the audience-scoped read-receipt report, for holders of the announcements setting (REQ-ACK-004)",
+                "description": "GET /api/acknowledgements/report/{announcementKey} — the audience-scoped read-receipt report, for holders of the announcements setting (REQ-ACK-004). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "acknowledgement"
                 ],
@@ -471,6 +483,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
@@ -486,7 +501,7 @@
                 "operationId": "acknowledgement-report-csv",
                 "x-launchpad-stability": "internal",
                 "summary": "GET /api/acknowledgements/report/{announcementKey}/csv — the report as a downloadable CSV compliance file",
-                "description": "GET /api/acknowledgements/report/{announcementKey}/csv — the report as a downloadable CSV compliance file. Admin / template owner only (REQ-ACK-004 / REQ-ACK-006). Needs a signed-in Nextcloud user.",
+                "description": "GET /api/acknowledgements/report/{announcementKey}/csv — the report as a downloadable CSV compliance file. Admin / template owner only (REQ-ACK-004 / REQ-ACK-006). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "acknowledgement"
                 ],
@@ -518,11 +533,46 @@
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
                     },
                     "500": {
                         "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            }
+        },
+        "/acknowledgements/widgets": {
+            "get": {
+                "operationId": "announcement-manager-widgets",
+                "x-launchpad-stability": "internal",
+                "summary": "Every widget that asks for confirmation, with its dashboard, counts and deadline",
+                "description": "Every widget that asks for confirmation, with its dashboard, counts and deadline. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "announcement-manager"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
                     }
                 }
             }
@@ -5155,6 +5205,38 @@
                 }
             }
         },
+        "/announcements/delegation": {
+            "get": {
+                "operationId": "announcement-delegation-index",
+                "x-launchpad-stability": "internal",
+                "summary": "The delegated groups, and whether delegation can be read here",
+                "description": "The delegated groups, and whether delegation can be read here. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "announcement-delegation"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/announcements/follows": {
             "post": {
                 "operationId": "announcement-follow",
@@ -5367,11 +5449,100 @@
             "get": {
                 "operationId": "announcement-read-state",
                 "x-launchpad-stability": "internal",
-                "summary": "GET /api/announcements/read-state: the uuids among what the reader sees that the reader confirmed, and those whose read confirmations the reader may open",
-                "description": "GET /api/announcements/read-state: the uuids among what the reader sees that the reader confirmed, and those whose read confirmations the reader may open. Asked beside the list, not after it. Needs a signed-in Nextcloud user.",
+                "summary": "GET /api/announcements/read-state: among what the reader sees, the uuids seen, confirmed and closed (x), and those whose receipts the reader may open",
+                "description": "GET /api/announcements/read-state: among what the reader sees, the uuids seen, confirmed and closed (x), and those whose receipts the reader may open. Asked beside the list, not after it. Needs a signed-in Nextcloud user.",
                 "tags": [
                     "announcement-read"
                 ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/announcements/receipt-counts": {
+            "get": {
+                "operationId": "announcement-read-counts",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/announcements/receipt-counts: per announcement of `uuids`, how many have seen and confirmed it; managers only (REQ-ANN-008)",
+                "description": "GET /api/announcements/receipt-counts: per announcement of `uuids`, how many have seen and confirmed it; managers only (REQ-ANN-008). Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "announcement-read"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuids",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/announcements/seen": {
+            "post": {
+                "operationId": "announcement-read-seen",
+                "x-launchpad-stability": "internal",
+                "summary": "POST /api/announcements/seen: record `uuids` as seen by the reader, once each; the client sends it after render, never before",
+                "description": "POST /api/announcements/seen: record `uuids` as seen by the reader, once each; the client sends it after render, never before. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement-read"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "uuids": {
+                                        "type": "array"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "The request succeeded.",
@@ -5685,6 +5856,63 @@
                 }
             }
         },
+        "/announcements/{uuid}/confirm": {
+            "post": {
+                "operationId": "announcement-read-confirm-via",
+                "x-launchpad-stability": "internal",
+                "summary": "POST /api/announcements/{uuid}/confirm: the check (`via=check`) or the x (`via=x`) for the signed-in reader, once",
+                "description": "POST /api/announcements/{uuid}/confirm: the check (`via=check`) or the x (`via=x`) for the signed-in reader, once. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement-read"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "via": {}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/announcements/{uuid}/like": {
             "post": {
                 "operationId": "announcement-like",
@@ -5825,8 +6053,8 @@
             "post": {
                 "operationId": "announcement-read-confirm",
                 "x-launchpad-stability": "internal",
-                "summary": "POST /api/announcements/{uuid}/read: \"I have read this\" for the signed-in reader, once",
-                "description": "POST /api/announcements/{uuid}/read: \"I have read this\" for the signed-in reader, once. Needs a signed-in Nextcloud user.",
+                "summary": "POST /api/announcements/{uuid}/read: the check, for older clients",
+                "description": "POST /api/announcements/{uuid}/read: the check, for older clients. Needs a signed-in Nextcloud user.",
                 "tags": [
                     "announcement-read"
                 ],
@@ -5869,10 +6097,54 @@
             "get": {
                 "operationId": "announcement-read-receipts",
                 "x-launchpad-stability": "internal",
-                "summary": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator",
-                "description": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "summary": "GET /api/announcements/{uuid}/receipts: Seen and confirmed for one announcement, with names and departments; managers only",
+                "description": "GET /api/announcements/{uuid}/receipts: Seen and confirmed for one announcement, with names and departments; managers only. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement-read"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/announcements/{uuid}/remind": {
+            "post": {
+                "operationId": "announcement-manager-remind",
+                "x-launchpad-stability": "internal",
+                "summary": "Send reminder to everyone in the audience who has not confirmed",
+                "description": "Send reminder to everyone in the audience who has not confirmed. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "announcement-manager"
                 ],
                 "parameters": [
                     {
@@ -7929,6 +8201,92 @@
                         "description": "The dashboard.",
                         "schema": {
                             "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/dashboards/{uuid}/favourite": {
+            "post": {
+                "operationId": "favourite-dashboard-api-star",
+                "x-launchpad-stability": "internal",
+                "summary": "POST /api/dashboards/{uuid}/favourite: star a dashboard",
+                "description": "POST /api/dashboards/{uuid}/favourite: star a dashboard. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "favourite-dashboard-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The dashboard UUID.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "favourite-dashboard-api-unstar",
+                "x-launchpad-stability": "internal",
+                "summary": "DELETE /api/dashboards/{uuid}/favourite: unstar a dashboard",
+                "description": "DELETE /api/dashboards/{uuid}/favourite: unstar a dashboard. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "favourite-dashboard-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The dashboard UUID.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],

@@ -1,59 +1,9 @@
 <template>
 	<div id="launchpad-app" :class="{ 'launchpad-app--fill': fillsHeight, 'launchpad-app--kiosk': kiosk }">
-		<!-- Slide-in sidebar (REQ-SWITCH-001..007). The sidebar keeps the
-		     `isOpen` prop / `update:open` event pair mandated by the spec.
-		     Vue 3 removed the component-level `model: { prop, event }`
-		     option, so a bare `v-model` here would bind `modelValue` /
-		     `update:modelValue` — neither of which the sidebar declares —
-		     and the panel would never open. Bind both halves explicitly.
-		     Once `runtime-shell` ships and replaces this view with
-		     `WorkspaceApp.vue`, the same binding shape applies.
-
-		     TELEPORTED TO BODY, and the reason is a stacking context, not a
-		     z-index. The sidebar and its backdrop are `position: fixed`, but
-		     fixed positioning does not escape a stacking context — it only
-		     escapes the scroll flow. Until #551 this view WAS the page, so
-		     there was no context to escape. #551 adopted the shared shell, so
-		     this view now renders inside `#app-content`, a sibling of
-		     `.app-navigation`, and NcAppNavigation carries `z-index: 1400` on
-		     ITSELF. A sibling with a z-index paints above the whole of a
-		     sibling subtree whose own z-index is auto, so the sidebar's 1500
-		     could never win: it was competing inside a box that had already
-		     lost.
-
-		     That cost 58 e2e failures across eleven specs, every one of them
-		     `locator.click` timing out with the SAME interceptor named in the
-		     log, `[data-testid="cn-nav"] .app-navigation`. Raising the number
-		     again would not have helped. Teleporting makes the sidebar a
-		     sibling of the navigation rather than a descendant of the content,
-		     which is the only place its z-index means what it says. -->
-		<!-- REQ-KIOSK-001: a kiosk view has no switcher and no top controls. -->
-		<Teleport v-if="!kiosk" to="body">
-			<DashboardSwitcherSidebar
-				:isOpen="sidebarOpen"
-				:groupName="primaryGroupName"
-				:groupDashboards="sidebarGroupDashboards"
-				:userDashboards="sidebarUserDashboards"
-				:activeDashboardId="activeDashboard?.id"
-				:allowUserDashboards="allowUserDashboards"
-				:canEdit="canEdit"
-				:defaultUuid="defaultDashboardUuid"
-				:dashboardQuotaReached="dashboardQuotaReached"
-				:dashboardQuotaTooltip="dashboardQuotaTooltip"
-				:isEditMode="isEditMode"
-				:filterFields="detailFields"
-				@update:open="sidebarOpen = $event"
-				@filter="onDetailFilter"
-				@switch="onSidebarSwitch"
-				@createDashboard="onSidebarCreateDashboard"
-				@deleteDashboard="onSidebarDeleteDashboard"
-				@toggleEdit="onRowToggleEdit"
-				@openConfig="onRowOpenConfig"
-				@addWidget="onRowAddWidget"
-				@importBookmarks="onRowImportBookmarks"
-				@setDefault="onRowSetDefault" />
-			<SidebarBackdrop v-if="sidebarOpen" @close="sidebarOpen = false" />
-		</Teleport>
+		<!-- Ruben's review (27 Nov 2026) item 4: no left Dashboards panel any
+		     more. Dashboards are switched in the More menu, whose Dashboards
+		     column lists the favourites and unfolds in place into every
+		     dashboard (DashboardMoreMenu). -->
 
 		<!-- The page's top-right controls: the "Meer" menu, and the
 		     acknowledgement count and hidden-widgets control when they apply. -->
@@ -92,12 +42,11 @@
 					:canEdit="canEdit"
 					:canShare="canShareActiveDashboard"
 					:canDuplicate="canDuplicateActiveDashboard"
-					:canViewReadReceipts="
-						canEdit && acknowledgementAnnouncementKeys.length > 0
-					"
+					:canCreate="canCreatePersonalDashboard"
+					:detailFields="detailFields"
 					:isEditMode="isEditMode"
 					@switch="onSidebarSwitch"
-					@openAll="sidebarOpen = true"
+					@download="downloadActiveDashboard"
 					@toggleEdit="
 						onRowToggleEdit(activeDashboard, activeDashboardSource)
 					"
@@ -108,10 +57,10 @@
 					@share="openShareDrawer"
 					@copyLink="copyDashboardLink"
 					@duplicate="onSidebarCreateDashboard"
-					@readReceipts="
-						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
-					"
-					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
+					@delete="onSidebarDeleteDashboard(activeDashboard.id)"
+					@newDashboard="createWorkspaceDashboard"
+					@expandDashboards="loadDetailFieldsOnce"
+					@detailFilter="onDetailFilter" />
 				<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
 			     of the user's outstanding mandatory-read items. Hidden entirely
 			     when zero so dashboards without acknowledgement requirements are
@@ -153,15 +102,6 @@
 			@confirm="confirmDeleteDashboard" />
 
 
-
-		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
-		<AcknowledgementReportModal
-			v-if="mountedModals.ackReport"
-			:open="ackReportOpen"
-			:announcementKey="ackReportKey"
-			:title="ackReportTitle"
-			:dashboardName="activeDashboard?.name || ''"
-			@close="ackReportOpen = false" />
 
 		<!-- Main dashboard grid -->
 		<!-- platform-dashboard-theme-and-css REQ-THM-001: the dashboard's own
@@ -559,18 +499,16 @@ import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageH
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardPageHeader from '../components/Workspace/DashboardPageHeader.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
-import { embedAdminHref, isOwnedDashboard } from '../components/Workspace/DashboardRowActions.vue'
-import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import InstallBanner from '../components/Workspace/InstallBanner.vue'
 import PhoneHiddenNotice from '../components/Workspace/PhoneHiddenNotice.vue'
-import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
+import { embedAdminHref, isOwnedDashboard } from '../utils/dashboardRows.js'
+import { printDashboard } from '../utils/printDashboard.js'
 // The dialogs and modals load the first time they open, not with the page.
 const DeleteDashboardDialog = defineAsyncComponent(() => import('../dialogs/DeleteDashboardDialog.vue'))
 const ReadConfirmationDialog = defineAsyncComponent(() => import('../dialogs/ReadConfirmationDialog.vue'))
-const AcknowledgementReportModal = defineAsyncComponent(() => import('../modals/AcknowledgementReportModal.vue'))
 const BookmarkImportModal = defineAsyncComponent(() => import('../modals/BookmarkImportModal.vue'))
 
 /** The content keys the tile form writes; every other key survives a save. */
@@ -813,7 +751,6 @@ export default {
 		ViewDashboard,
 		CnDashboardGrid,
 		WidgetWrapper,
-		AcknowledgementReportModal,
 		TileWidget,
 		WidgetPickerModal,
 		CnWidgetStyleEditorModal,
@@ -824,10 +761,8 @@ export default {
 		WidgetContextMenu,
 		WidgetMovePanel,
 		VisibilityRulesModal,
-		DashboardSwitcherSidebar,
 		DashboardEditBar,
 		DashboardMoreMenu,
-		SidebarBackdrop,
 		DashboardDiscussion,
 		DashboardReactions,
 		ReadConfirmationDialog,
@@ -1075,9 +1010,6 @@ export default {
 			// `movePanelPlacement`.
 			movePanelOpen: false,
 			movePanelPlacement: null,
-			// `dashboard-switcher` capability state — controlled here, the
-			// sidebar emits update:open(boolean) via its v-model rebind.
-			sidebarOpen: false,
 			// REQ-ANLT-011 — per-uuid debounce ledger. Maps dashboard
 			// UUID → last-send millisecond timestamp so two near-
 			// simultaneous mounts of the same dashboard (multi-tab,
@@ -1097,8 +1029,6 @@ export default {
 			defaultDashboardUuid: '',
 			// dashboard-acknowledgements REQ-ACK-004: admin read-receipt
 			// report modal state.
-			ackReportOpen: false,
-			ackReportKey: '',
 			// engagement-acknowledgement-toggle: the placement whose read
 			// confirmation is being set up.
 			readConfirmationPlacement: null,
@@ -1168,7 +1098,6 @@ export default {
 		openModals() {
 			return {
 				deleteDialog: this.deleteTarget !== null,
-				ackReport: this.ackReportOpen,
 				widgetPicker: this.isWidgetModalOpen,
 				config: this.isConfigModalOpen,
 				bookmarkImport: this.isBookmarkImportOpen,
@@ -1382,27 +1311,6 @@ export default {
 		},
 
 		/**
-		 * dashboard-acknowledgements REQ-ACK-004: distinct announcement keys of
-		 * the placements on the active dashboard that require acknowledgement.
-		 * Drives the admin "Read receipts" affordance (shown only when at least
-		 * one placement carries a requirement and the user can edit).
-		 *
-		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-		 * @return {string[]} the announcement keys.
-		 */
-		/**
-		 * The title of the announcement whose read confirmations are open
-		 * (REQ-ACK-010), '' when none is.
-		 *
-		 * @return {string} The widget title.
-		 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
-		 */
-		ackReportTitle() {
-			const placement = (this.widgetPlacements || []).find((p) => p.announcementKey === this.ackReportKey)
-			return placement ? resolveWidgetTitle(placement, this.availableWidgets) : ''
-		},
-
-		/**
 		 * The placement whose "Who sees this widget?" dialog is open.
 		 *
 		 * @return {object|null} The placement, null when none is open.
@@ -1432,16 +1340,6 @@ export default {
 			return this.visibilityPlacement?.ruleMatch === 'all' ? 'all' : 'any'
 		},
 
-		acknowledgementAnnouncementKeys() {
-			const keys = (this.widgetPlacements || [])
-				.filter(
-					(p) =>
-						Number(p.requiresAcknowledgement) === 1 && p.announcementKey,
-				)
-				.map((p) => p.announcementKey)
-			return [...new Set(keys)]
-		},
-
 		/**
 		 * Responsive breakpoint options for CnDashboardGrid (REQ-GRID-007):
 		 * the shared nc-vue helper's reflow, with a reading-order flow on a
@@ -1464,10 +1362,9 @@ export default {
 			'groupSharedDashboards',
 			'defaultGroupDashboards',
 			'sharedWithMeDashboards',
-			// dashboard-quota-limits REQ-QUOTA-006: drive the disabled
-			// create affordance + tooltip from the store getters.
+			// dashboard-quota-limits REQ-QUOTA-006: New dashboard and
+			// Duplicate are offered only under the quota.
 			'dashboardQuotaReached',
-			'dashboardQuotaTooltip',
 			// dashboard-acknowledgements REQ-ACK-002: outstanding count +
 			// per-placement outstanding predicate for the forced-delivery gate.
 			'outstandingAcknowledgementCount',
@@ -1557,6 +1454,18 @@ export default {
 			return Boolean(this.activeDashboard?.uuid)
 				&& (this.allowUserDashboards === true || this.isAdmin === true)
 				&& !this.dashboardQuotaReached
+		},
+
+		/**
+		 * Whether More's expanded Dashboards list offers New dashboard:
+		 * personal dashboards allowed and the quota not reached (REQ-SHELL-015,
+		 * REQ-ASET-003, REQ-QUOTA-006).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 */
+		canCreatePersonalDashboard() {
+			return this.allowUserDashboards === true && !this.dashboardQuotaReached
 		},
 
 		/**
@@ -1780,20 +1689,6 @@ export default {
 			handler(placements) {
 				preloadFirstViewportRenderers(placements, getWidgetTypeEntry)
 			},
-		},
-
-		/**
-		 * The first time the switcher opens, read the fields its "Filter by
-		 * detail" offers.
-		 *
-		 * @param {boolean} open Whether the switcher is open.
-		 * @return {void}
-		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-		 */
-		sidebarOpen(open) {
-			if (open) {
-				this.loadDetailFieldsOnce()
-			}
 		},
 
 		openModals: {
@@ -2249,19 +2144,6 @@ export default {
 			dashboardStore.fetchPendingAcknowledgements()
 		},
 
-		/**
-		 * Open the admin read-receipt report for an announcement
-		 * (REQ-ACK-004).
-		 *
-		 * @param {string} announcementKey Key identifying the announcement
-		 *   whose acknowledgement report should be shown.
-		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
-		 */
-		openAcknowledgementReport(announcementKey) {
-			this.ackReportKey = announcementKey
-			this.ackReportOpen = true
-		},
-
 		...mapActions(useDashboardStore, [
 			'switchDashboard',
 			'createDashboard',
@@ -2354,6 +2236,38 @@ export default {
 		 */
 
 		/**
+		 * Read the detail fields once, the first time More's full Dashboards
+		 * list is expanded: Filter by detail lives there (REQ-SHELL-019), so
+		 * the page does not ask for them while it loads.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+		 */
+		loadDetailFieldsOnce() {
+			if (this.detailFieldsRequested) {
+				return Promise.resolve()
+			}
+			this.detailFieldsRequested = true
+			return this.loadDetailFields()
+		},
+
+		/**
+		 * Read the detail fields, for Filter by detail.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+		 */
+		async loadDetailFields() {
+			try {
+				const { data } = await api.getMetadataFieldDefinitions()
+				this.detailFields = Array.isArray(data?.fields) ? data.fields : []
+			} catch {
+				this.detailFields = []
+			}
+		},
+
+		/**
 		 * Keep only the dashboards the detail filter kept.
 		 *
 		 * @param {Array<object>} list Dashboards of one section.
@@ -2389,37 +2303,6 @@ export default {
 					'[Views] Failed to load default-dashboard preference:',
 					error,
 				)
-			}
-		},
-
-		/**
-		 * Read the detail fields once, the first time the switcher opens: the
-		 * filter that uses them lives there, so the page does not ask for them
-		 * while it loads.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-		 */
-		loadDetailFieldsOnce() {
-			if (this.detailFieldsRequested) {
-				return Promise.resolve()
-			}
-			this.detailFieldsRequested = true
-			return this.loadDetailFields()
-		},
-
-		/**
-		 * Read the detail fields, for the switcher's filter.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-		 */
-		async loadDetailFields() {
-			try {
-				const { data } = await api.getMetadataFieldDefinitions()
-				this.detailFields = Array.isArray(data?.fields) ? data.fields : []
-			} catch {
-				this.detailFields = []
 			}
 		},
 
@@ -4306,6 +4189,18 @@ export default {
 		},
 
 		/**
+		 * Download the open dashboard as a PDF: the browser prints the page
+		 * as it is now. Moved from the page header into the More menu
+		 * (Ruben's review item 8).
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-5
+		 */
+		downloadActiveDashboard() {
+			printDashboard(this.activeDashboard?.name ?? '')
+		},
+
+		/**
 		 * Row cog "Configure" — switch to the row's dashboard, then open the
 		 * dashboard config modal.
 		 *
@@ -4462,6 +4357,22 @@ export default {
 			} catch {
 				// Error surfaces via the store's showError toast; nothing
 				// additional to do here.
+			}
+		},
+
+		/**
+		 * New dashboard in More's expanded Dashboards list: create a personal
+		 * dashboard named "My workspace" and open it (REQ-SHELL-015). The store
+		 * shows the toast when the server refuses (REQ-ASET-003, quota).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 */
+		async createWorkspaceDashboard() {
+			try {
+				await this.createDashboard(t('launchpad', 'My workspace'))
+			} catch {
+				// The store reported it.
 			}
 		},
 

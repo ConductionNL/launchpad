@@ -35,6 +35,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { addWidgetFromMore, switchToDashboard } from './support/dashboardSwitcher.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 
 const ADMIN = {
@@ -212,13 +213,8 @@ test('REQ-ADA-001: ai-assistant is a listed widget type the Add Widget modal off
 		await gotoLaunchPad(page)
 
 		// listWidgetTypes() is what the modal's type picker offers.
-		await openSidebar(page)
-		const row = page.locator(
-			`.dashboard-switcher-sidebar__item[data-source="user"][aria-label="${name}"]`,
-		)
-		await expect(row).toBeVisible({ timeout: 10_000 })
-		await row.locator('.dashboard-row-actions button').first().click()
-		await page.getByRole('menuitem', { name: /^add widget$/i }).click()
+		await switchToDashboard(page, name)
+		await addWidgetFromMore(page)
 		await chooseAndAdd(page.locator('[data-testid="widget-picker-type-ai-assistant"]'))
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(dialog).toBeVisible({ timeout: 10_000 })
@@ -406,7 +402,7 @@ test('REQ-ADA-004: without Hermiq the widget offers no input and says why, and t
 			page.locator('.cn-label-widget').filter({ hasText: labelText }),
 		).toBeVisible()
 		await openSidebar(page)
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toBeVisible()
+		await expect(page.locator('[data-testid="launchpad-more-menu-panel"]')).toBeVisible()
 		await closeSidebar(page)
 	} finally {
 		await removeSeededDashboard(api, dashboard)

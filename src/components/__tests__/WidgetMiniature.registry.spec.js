@@ -25,6 +25,21 @@ const TYPES = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../lib/w
  */
 const DRAWN_ELSEWHERE = ['ai-assistant']
 
+/**
+ * What a miniature that draws a loaded state shows from its sample data
+ * (board LpWidgetKiezen: the miniature looks like the widget in use).
+ */
+const SAMPLE_TEXT = {
+	announcements: 'New opening hours of the town hall',
+	attention: 'Permit Dorpsstraat 12',
+	'colleague-activity': 'Anna de Vries',
+	livetile: '128',
+	'recent-work': 'Planning.xlsx',
+	weather: 'Utrecht',
+}
+
+const NOT_SAFE = ['people', 'app-tiles']
+
 let requests
 
 beforeEach(() => {
@@ -52,8 +67,17 @@ describe('every widget type as a miniature', () => {
 	it('has sample content for every type', async () => {
 		const { getWidgetTypeEntry } = await import('../../constants/widgetRegistry.js')
 		const { sampleContentOf } = await import('../../constants/widgetSamples.js')
-		const missing = TYPES.filter((type) => sampleContentOf(type, getWidgetTypeEntry(type)) === null)
+		const { NOT_PREVIEW_SAFE, SAMPLE_CONTENT } = await import('../../constants/widgetSamples.js')
+		const missing = TYPES.filter((type) => !SAMPLE_CONTENT[type] && !getWidgetTypeEntry(type)?.sampleContent)
 		expect(missing).toEqual([])
+		// Until nextcloud-vue honours preview for them, these draw their icon.
+		expect(NOT_PREVIEW_SAFE.map((type) => sampleContentOf(type, getWidgetTypeEntry(type)))).toEqual([null, null])
+	})
+
+	it('has sample content for the content-only nextcloud-vue types the picker offers', async () => {
+		const { sampleContentOf } = await import('../../constants/widgetSamples.js')
+		expect(sampleContentOf('banner')).toMatchObject({ variant: 'info' })
+		expect(sampleContentOf('markdown').markdown).toContain('Team meeting')
 	})
 
 	it.each(TYPES.filter((type) => !DRAWN_ELSEWHERE.includes(type)))('draws %s from its sample with preview and sends no request', async (type) => {
@@ -67,7 +91,10 @@ describe('every widget type as a miniature', () => {
 		await new Promise((resolve) => setTimeout(resolve, 20))
 
 		expect(requests).toEqual([])
-		expect(state()).toBe('ready')
+		expect(state()).toBe(NOT_SAFE.includes(type) ? 'fallback' : 'ready')
+		if (SAMPLE_TEXT[type]) {
+			expect(wrapper.text()).toContain(SAMPLE_TEXT[type])
+		}
 		wrapper.unmount()
 	}, 20000)
 })

@@ -2,7 +2,7 @@
 
 ## ADDED Requirements
 
-### Requirement: The widget action menu follows the mode (REQ-WDG-047)
+### Requirement: The widget action menu follows the mode (REQ-WDG-050)
 
 In view mode a widget MUST show an action menu ("...") only when it has an action for the reader: its own user
 actions (such as refresh) or Hide for me on a dashboard the reader does not own. A widget without such an action, a

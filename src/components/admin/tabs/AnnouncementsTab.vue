@@ -28,18 +28,7 @@
 					{{ receipts.error }}
 				</p>
 			</template>
-			<template v-else>
-				<p data-testid="announcement-receipts-counts">
-					{{ t('launchpad', '{confirmed} confirmed, {pending} not yet confirmed', { confirmed: receipts.acknowledgedCount, pending: receipts.pendingCount }) }}
-				</p>
-				<ul class="announcements-tab__receipts">
-					<li v-for="row in receipts.rows" :key="row.userId">
-						<span>{{ row.userId }}</span>
-						<span class="announcements-tab__status">{{ row.status === 'acknowledged' ? t('launchpad', 'Confirmed') : t('launchpad', 'Not confirmed') }}</span>
-						<span v-if="row.acknowledgedAt" class="announcements-tab__time">{{ row.acknowledgedAt }}</span>
-					</li>
-				</ul>
-			</template>
+			<AnnouncementReceipts v-else :announcement="receiptsOf" :report="receipts" />
 			<NcButton variant="tertiary" data-testid="announcement-receipts-back" @click="openList">
 				{{ t('launchpad', 'Back to the announcements') }}
 			</NcButton>
@@ -75,6 +64,12 @@
 							{{ t('launchpad', 'Shown until') }}
 						</th>
 						<th scope="col">
+							{{ t('launchpad', 'Seen') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Confirmed') }}
+						</th>
+						<th scope="col">
 							<span class="hidden-visually">{{ t('launchpad', 'Actions') }}</span>
 						</th>
 					</tr>
@@ -85,12 +80,14 @@
 						<td>{{ item.kind === 'notice' ? t('launchpad', 'Maintenance notice') : t('launchpad', 'News') }}</td>
 						<td>{{ statusLabel(item) }}</td>
 						<td>{{ formatTime(item.expiresAt) }}</td>
+						<td data-testid="announcement-seen-count">{{ item.seenCount ?? 0 }}</td>
+						<td data-testid="announcement-confirmed-count">{{ item.confirmedCount ?? 0 }}</td>
 						<td class="announcements-tab__actions">
 							<NcButton variant="tertiary" data-testid="announcement-edit" @click="openForm(item)">
 								{{ t('launchpad', 'Edit') }}
 							</NcButton>
 							<NcButton
-								v-if="item.requiresConfirmation"
+								v-if="item.status === 'published'"
 								variant="tertiary"
 								data-testid="announcement-receipts"
 								@click="openReceipts(item)">
@@ -111,6 +108,69 @@
 				</tbody>
 			</table>
 		</CnSettingsSection>
+
+		<!-- REQ-ACK-008: the widgets that ask readers to confirm, each opening
+		     its read confirmations (REQ-ACK-010). -->
+		<CnSettingsSection
+			v-if="!editing && !receiptsOf"
+			:name="t('launchpad', 'Widgets that ask for confirmation')"
+			:description="t('launchpad', 'Widgets on dashboards that ask their readers to confirm they have read them.')"
+			data-testid="admin-acknowledged-widgets">
+			<p v-if="widgetsError" class="announcements-tab__error" role="alert">
+				{{ widgetsError }}
+			</p>
+			<p v-else-if="widgets.length === 0" class="announcements-tab__hint">
+				{{ t('launchpad', 'No widget asks for confirmation.') }}
+			</p>
+			<table v-else class="announcements-tab__table">
+				<thead>
+					<tr>
+						<th scope="col">
+							{{ t('launchpad', 'Widget') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Dashboard') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Confirmed') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Not confirmed yet') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Confirm before') }}
+						</th>
+						<th scope="col">
+							<span class="hidden-visually">{{ t('launchpad', 'Actions') }}</span>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="widget in widgets" :key="widget.announcementKey" data-testid="acknowledged-widget-row">
+						<td>{{ widget.title }}</td>
+						<td>{{ widget.dashboard || '–' }}</td>
+						<td>{{ widget.acknowledgedCount }}</td>
+						<td>{{ widget.pendingCount }}</td>
+						<td :class="{ 'announcements-tab__error': widget.overdue }">
+							{{ formatTime(widget.deadline) }}
+						</td>
+						<td class="announcements-tab__actions">
+							<NcButton variant="tertiary" data-testid="acknowledged-widget-open" @click="openWidget(widget)">
+								{{ t('launchpad', 'Read confirmations') }}
+							</NcButton>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</CnSettingsSection>
+
+		<AcknowledgementReportModal
+			:open="openWidgetItem !== null"
+			:announcementKey="openWidgetItem ? openWidgetItem.announcementKey : ''"
+			:title="openWidgetItem ? openWidgetItem.title : ''"
+			:dashboardName="openWidgetItem ? openWidgetItem.dashboard : ''"
+			:widget="true"
+			@close="openWidgetItem = null" />
 	</div>
 </template>
 
@@ -118,7 +178,9 @@
 import { CnSettingsSection } from '@conduction/nextcloud-vue'
 import { getCanonicalLocale } from '@nextcloud/l10n'
 import { NcButton } from '@nextcloud/vue'
+import AcknowledgementReportModal from '../../../modals/AcknowledgementReportModal.vue'
 import AnnouncementEditorModal from '../../../modals/AnnouncementEditorModal.vue'
+import AnnouncementReceipts from './AnnouncementReceipts.vue'
 import { announcementsApi } from '../../../services/announcementsApi.js'
 import { logger } from '../../../utils/logger.js'
 
@@ -165,8 +227,9 @@ export function announcementsFragment(hash) {
  * managed. It lists every announcement, news and notices, draft, scheduled,
  * active and ended (REQ-ANN-008); New announcement and Edit open the form
  * with its live preview as a section of the tab (REQ-ANN-006); End now sets
- * the end time to now; Delete asks first; Seen and confirmed shows who
- * confirmed an announcement that asks for it (REQ-ANN-009). The open
+ * the end time to now; Delete asks first; each row shows how many have
+ * seen and confirmed it, and Seen and confirmed opens the receipts of a
+ * published announcement (REQ-ANN-009, AnnouncementReceipts). The open
  * announcement and section are in the URL fragment, so the widget's Manage
  * link opens it directly.
  *
@@ -176,7 +239,9 @@ export default {
 	name: 'AnnouncementsTab',
 
 	components: {
+		AcknowledgementReportModal,
 		AnnouncementEditorModal,
+		AnnouncementReceipts,
 		CnSettingsSection,
 		NcButton,
 	},
@@ -189,12 +254,15 @@ export default {
 			editing: null,
 			receiptsOf: null,
 			receipts: null,
+			widgets: [],
+			widgetsError: '',
+			openWidgetItem: null,
 		}
 	},
 
 	/** @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008 */
 	async mounted() {
-		await this.load()
+		await Promise.all([this.load(), this.loadWidgets()])
 		this.followFragment()
 	},
 
@@ -225,6 +293,58 @@ export default {
 				this.error = this.t('launchpad', 'The announcements could not be loaded.')
 			} finally {
 				this.loading = false
+			}
+			await this.loadCounts()
+		},
+
+		/**
+		 * Load the widgets that ask for confirmation (REQ-ACK-008).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+		 */
+		async loadWidgets() {
+			this.widgetsError = ''
+			try {
+				this.widgets = await announcementsApi.acknowledgedWidgets()
+			} catch (error) {
+				logger.error('Loading the widgets that ask for confirmation failed:', error)
+				this.widgets = []
+				this.widgetsError = this.t('launchpad', 'The widgets that ask for confirmation could not be loaded.')
+			}
+		},
+
+		/**
+		 * Open the read confirmations of one widget (REQ-ACK-010).
+		 *
+		 * @param {object} widget The row.
+		 * @return {void}
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 */
+		openWidget(widget) {
+			this.openWidgetItem = widget
+		},
+
+		/**
+		 * Add how many have seen and confirmed each announcement; the list
+		 * shows without them when they cannot be loaded (REQ-ANN-008).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 */
+		async loadCounts() {
+			if (this.items.length === 0) {
+				return
+			}
+			try {
+				const counts = await announcementsApi.receiptCounts(this.items.map((item) => item.uuid))
+				this.items = this.items.map((item) => ({
+					...item,
+					seenCount: counts[item.uuid]?.seen ?? 0,
+					confirmedCount: counts[item.uuid]?.confirmed ?? 0,
+				}))
+			} catch (error) {
+				logger.error('Loading the seen and confirmed counts failed:', error)
 			}
 		},
 
@@ -315,8 +435,8 @@ export default {
 			try {
 				this.receipts = await announcementsApi.receipts(item.uuid)
 			} catch (error) {
-				logger.error('Loading the read confirmations failed:', error)
-				this.receipts = { error: this.t('launchpad', 'The read confirmations could not be loaded.') }
+				logger.error('Loading the receipts failed:', error)
+				this.receipts = { error: this.t('launchpad', 'Seen and confirmed could not be loaded.') }
 			}
 		},
 
@@ -422,21 +542,5 @@ export default {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px;
-}
-
-.announcements-tab__receipts {
-	list-style: none;
-	padding: 0;
-}
-
-.announcements-tab__receipts li {
-	display: flex;
-	gap: 12px;
-	padding: 4px 0;
-}
-
-.announcements-tab__status,
-.announcements-tab__time {
-	color: var(--color-text-maxcontrast);
 }
 </style>

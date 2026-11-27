@@ -70,24 +70,6 @@
 				</p>
 			</form>
 
-			<!-- REQ-WDG-040: the App or link tile's form opens inside this dialog. -->
-			<TileEditor
-				v-if="tileForm"
-				embedded
-				:open="true"
-				:tile="null"
-				:dashboardName="dashboardName"
-				:catalogueApps="catalogueApps"
-				:discoveredApps="discoveredApps"
-				:foundServices="foundServices"
-				:officeTiles="officeTiles"
-				:placements="placements"
-				:requestAppFn="requestAppFn"
-				@close="tileForm = false"
-				@save="$emit('tileSave', $event)"
-				@addApps="$emit('addApps', $event)"
-				@importBookmarks="$emit('importBookmarks', $event)" />
-			<template v-else>
 			<div class="widget-picker__search">
 				<NcTextField
 					v-model="searchQuery"
@@ -119,6 +101,37 @@
 				</nav>
 
 				<div class="widget-picker__list">
+					<!-- REQ-WDG-040 (board LpTegelToevoegen): the App or link tile's
+					     form opens here, under a way back to Tiles and links. -->
+					<div v-if="tileForm" class="widget-picker__tile-form" data-testid="widget-picker-tile-form">
+						<p class="widget-picker__crumbs">
+							<NcButton
+								variant="tertiary"
+								data-testid="widget-picker-tile-back"
+								@click="tileForm = false">
+								{{ t('launchpad', 'Tiles and links') }}
+							</NcButton>
+							<span aria-hidden="true">/</span>
+							<strong>{{ t('launchpad', 'App or link tile') }}</strong>
+							<span class="widget-picker__crumbs-line">{{ t('launchpad', 'One tile of one cell, moved on its own and grouped in a Container or Tabs.') }}</span>
+						</p>
+						<TileEditor
+							embedded
+							:open="true"
+							:tile="null"
+							:dashboardName="dashboardName"
+							:catalogueApps="catalogueApps"
+							:discoveredApps="discoveredApps"
+							:foundServices="foundServices"
+							:officeTiles="officeTiles"
+							:placements="placements"
+							:requestAppFn="requestAppFn"
+							@close="tileForm = false"
+							@save="$emit('tileSave', $event)"
+							@addApps="$emit('addApps', $event)"
+							@importBookmarks="$emit('importBookmarks', $event)" />
+					</div>
+					<template v-else>
 					<section
 						v-for="section in visibleSections"
 						:key="section.id"
@@ -264,10 +277,11 @@
 							</div>
 						</form>
 					</section>
+					</template>
 				</div>
 			</div>
 
-			<div class="widget-picker__actions">
+			<div v-if="!tileForm" class="widget-picker__actions">
 				<NcButton data-testid="widget-picker-cancel" @click="$emit('close')">
 					{{ t('launchpad', 'Cancel') }}
 				</NcButton>
@@ -279,7 +293,6 @@
 					{{ t('launchpad', 'Add widget') }}
 				</NcButton>
 			</div>
-			</template>
 		</div>
 	</NcModal>
 </template>
@@ -847,7 +860,8 @@ export default {
 
 .widget-picker__grid {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	/* Board LpWidgetKiezen: four cards a row in the 1120 px dialog. */
+	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 8px;
 }
 
@@ -872,8 +886,9 @@ export default {
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
-	gap: 8px;
-	padding: 12px;
+	gap: 10px;
+	overflow: hidden;
+	padding: 0;
 	border: 2px solid var(--color-border);
 	background: var(--color-main-background);
 	border-radius: var(--border-radius-large);
@@ -1025,11 +1040,28 @@ export default {
 	}
 }
 
+.widget-picker__crumbs {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 8px;
+}
+
+.widget-picker__crumbs-line {
+	color: var(--color-text-maxcontrast);
+}
+
+.widget-picker__tile-form :deep(.tile-editor) {
+	padding: 0;
+}
+
 .widget-picker__widget-row {
 	display: flex;
 	align-items: flex-start;
 	gap: 12px;
 	min-width: 0;
+	padding: 0 12px 12px;
 }
 
 .widget-picker__widget-action--check {

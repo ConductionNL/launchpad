@@ -214,9 +214,9 @@ test.describe("REQ-DASH-018 the workspace page's active dashboard", () => {
 			await openDashboardSwitcher(browserPage)
 			await expect(
 				browserPage
-					.locator('.dashboard-switcher-sidebar__item')
+					.locator('[data-testid="launchpad-more-menu-dashboard-list"] [role="menuitemradio"]')
 					.filter({ hasText: x.name }),
-			).toHaveClass(/\bactive\b/)
+			).toHaveAttribute('aria-checked', 'true')
 		} finally {
 			await context.close()
 		}

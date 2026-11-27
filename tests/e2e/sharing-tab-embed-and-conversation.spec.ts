@@ -27,7 +27,7 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import { expect, request, test } from '@playwright/test'
 import { BASE_URL } from './support/baseUrl.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
-import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { openDashboardSettings, switchToDashboard } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -51,13 +51,8 @@ async function openSharingTab(page: Page): Promise<Locator> {
 		throw new Error('sharing-tab-embed-and-conversation: beforeAll did not seed a dashboard')
 	}
 	await page.goto('/index.php/apps/launchpad')
-	await openDashboardSwitcher(page)
-	const row = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.and(page.locator(`[aria-label="${seeded.name}"]`))
-		.first()
-	await row.locator('.dashboard-row-actions button').first().click()
-	await page.locator('[data-testid="cog-dashboard-config"]').click()
+	await switchToDashboard(page, seeded.name)
+	await openDashboardSettings(page)
 	await page.locator('[data-testid="dashboard-name-input"]').waitFor({ state: 'visible', timeout: 8_000 })
 	await page.locator('[data-test="config-tab-sharing"]').click()
 	const panel = page.locator('[data-test="config-panel-sharing"]')

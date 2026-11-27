@@ -281,11 +281,7 @@ describe('Views acknowledgements', () => {
 		expect(fetch).toHaveBeenCalledTimes(1)
 	})
 
-	it('opens the read-receipt report for an announcement', () => {
-		const host = makeHost()
-
-		host.openAcknowledgementReport('welcome-2026')
-
-		expect([host.ackReportOpen, host.ackReportKey]).toEqual([true, 'welcome-2026'])
+	it('has no read-receipt report of its own (REQ-ACK-008)', () => {
+		expect(makeHost().openAcknowledgementReport).toBeUndefined()
 	})
 })

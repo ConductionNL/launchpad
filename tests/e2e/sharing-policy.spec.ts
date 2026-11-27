@@ -31,7 +31,7 @@ import { expect, request, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
 import { visibleDashboards } from './support/adminTemplates.ts'
 import { BASE_URL } from './support/baseUrl.ts'
-import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { openDashboardSettings, switchToDashboard } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	allowPersonalDashboards,
@@ -317,13 +317,8 @@ test('with no handover set, a leaver\'s dashboards follow REQ-SHARE-012, not the
 async function openPieterSharingTab(browser: Browser, name: string) {
 	const { context, page } = await loginAs(browser, pieter!.username, pieter!.password)
 	await page.goto('/index.php/apps/launchpad')
-	await openDashboardSwitcher(page)
-	const row = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.and(page.locator(`[aria-label="${name}"]`))
-		.first()
-	await row.locator('.dashboard-row-actions button').first().click()
-	await page.locator('[data-testid="cog-dashboard-config"]').click()
+	await switchToDashboard(page, name)
+	await openDashboardSettings(page)
 	await page.locator('[data-testid="dashboard-name-input"]').waitFor({ state: 'visible', timeout: 8_000 })
 	await page.locator('[data-test="config-tab-sharing"]').click()
 	const panel = page.locator('[data-test="config-panel-sharing"]')

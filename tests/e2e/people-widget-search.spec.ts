@@ -44,8 +44,9 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import type { PeoplePlacement, Person } from './support/peopleWidget.ts'
 
 import { expect, test } from '@playwright/test'
-import { closeSidebar, gotoLaunchPad, openSidebar } from './fixtures/widget-flow.ts'
+import { gotoLaunchPad } from './fixtures/widget-flow.ts'
 import { removeSeededDashboard } from './support/dashboardFixture.ts'
+import { switchToDashboard } from './support/dashboardSwitcher.ts'
 import {
 	groupFilter,
 	isPeopleRequest,
@@ -63,7 +64,6 @@ import {
 import { adminContext, API } from './support/principals.ts'
 
 const STAMP = `${Date.now()}`
-const ROW = '.dashboard-switcher-sidebar__item'
 
 let admin: APIRequestContext
 let group = ''
@@ -147,18 +147,13 @@ async function leaveAndReturn(
 	home: string,
 	between?: () => Promise<void>,
 ): Promise<void> {
-	await openSidebar(page)
-	await page.locator(ROW).filter({ hasText: away }).first().click()
-	await expect(page.locator(ROW).filter({ hasText: away }).first()).toHaveClass(/\bactive\b/, { timeout: 15_000 })
+	await switchToDashboard(page, away)
 	await expect(peopleWidget(page)).toHaveCount(0, { timeout: 15_000 })
 	if (between) {
 		await between()
 	}
-	// Choosing a dashboard closes the switcher; reopen it to come back.
-	await openSidebar(page)
-	await page.locator(ROW).filter({ hasText: home }).first().click()
-	await expect(page.locator(ROW).filter({ hasText: home }).first()).toHaveClass(/\bactive\b/, { timeout: 15_000 })
-	await closeSidebar(page)
+	// Choosing a dashboard closes More; open it again to come back.
+	await switchToDashboard(page, home)
 }
 
 /**

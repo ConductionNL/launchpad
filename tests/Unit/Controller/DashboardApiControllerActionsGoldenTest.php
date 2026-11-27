@@ -91,7 +91,7 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 			services: new DashboardApiServices($this->dashboardService),
 			access: new DashboardApiAccess(permissionService: $this->permissionService, history: new DashboardApiHistory(
 				$this->treeService,
-				$this->createMock(DashboardVersionService::class),
+				$this->versionServiceRunningSaves(),
 				$this->createMock(AnalyticsService::class),
 				$this->logger,
 			)),
@@ -532,4 +532,18 @@ class DashboardApiControllerActionsGoldenTest extends TestCase {
 			$method->invoke($this->controller(), $this->dashboard('leaf', 'mid'), 'alice')
 		);
 	}
+
+	/**
+	 * A version service mock that runs the save it wraps, as the real one
+	 * does (REQ-VERS-010).
+	 *
+	 * @return DashboardVersionService The mock.
+	 */
+	private function versionServiceRunningSaves(): DashboardVersionService {
+		$versions = $this->createMock(originalClassName: DashboardVersionService::class);
+		$versions->method('saveWithVersion')->willReturnCallback(
+			static fn (int $dashboardId, string $createdBy, \Closure $save): \OCA\LaunchPad\Db\Dashboard => $save()
+		);
+		return $versions;
+	}//end versionServiceRunningSaves()
 }//end class

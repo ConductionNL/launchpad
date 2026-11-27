@@ -148,6 +148,12 @@ export default {
 	},
 
 	props: {
+		/**
+		 * The widget is a miniature in Add widget (REQ-WDG-048): it draws
+		 * its sample content and sends no request.
+		 */
+		preview: { type: Boolean, default: false },
+
 		/** Persisted widget content: `{ limit, layout, columns, itemCards }`; `itemCards` draws one card per record. */
 		content: OBJECT_PROP,
 	},
@@ -262,8 +268,14 @@ export default {
 		},
 	},
 
-	/** @spec openspec/specs/attention-feed/spec.md#req-att-005 */
+	/**
+	 * @spec openspec/specs/attention-feed/spec.md#req-att-005
+	 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+	 */
 	async created() {
+		if (this.preview) {
+			return
+		}
 		await this.load()
 	},
 

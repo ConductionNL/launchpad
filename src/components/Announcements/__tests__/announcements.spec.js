@@ -157,7 +157,7 @@ describe('AnnouncementsWidget', () => {
 		expect(announcementsApi.unfollow).toHaveBeenCalledWith('Privacy')
 	})
 
-	it('shows the load error and offers authors a new announcement', async () => {
+	it('shows the load error and offers managers Manage, no form (REQ-ANN-010)', async () => {
 		announcementsApi.list.mockRejectedValueOnce(new Error('x'))
 		const failed = mountWith(AnnouncementsWidget)
 		await flushPromises()
@@ -167,8 +167,10 @@ describe('AnnouncementsWidget', () => {
 		const author = mountWith(AnnouncementsWidget)
 		await flushPromises()
 		expect(author.text()).toContain('No announcements')
-		await author.find('[data-test="announcements-new"]').trigger('click')
-		expect(author.find('[data-test="announcement-editor"]').exists()).toBe(true)
+		expect(author.find('[data-test="announcements-new"]').exists()).toBe(false)
+		expect(author.find('[data-test="announcements-manage"]').exists()).toBe(true)
+		expect(author.find('[data-test="announcement-editor"]').exists()).toBe(false)
+		expect(author.vm.manageUrl).toMatch(/\/settings\/admin\/launchpad#announcements$/)
 	})
 })
 

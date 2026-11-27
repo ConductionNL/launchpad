@@ -53,6 +53,10 @@ the fleet contract and a gate can check that every class in an app's `lib/Dashbo
 `node_modules` in a release. A Vitest test compares the committed copy with the installed package, so a library
 upgrade that changes a shape fails until the copy is refreshed.
 
+A type that launchpad itself registers declares its shape once on that registration, as the ADR-036 amendment
+prefers, and so lands in the same table. A widget offered from an app manifest may override its type's shape with
+`widgetDef.placeholder` (step 1 of D1).
+
 ### D4. The fallback table
 
 `first-paint-kinds.json` keeps its name and its readers and becomes `{ "default": "rows" }` plus entries only for a
@@ -73,8 +77,8 @@ decides.
 
 ## Risks
 
-1. A Conduction widget without `getPlaceholder()` silently draws rows. Accepted by the decision; the hydra fleet task
-   list and gate close it per app.
+1. A Conduction widget without `getPlaceholder()` silently draws rows. The hydra gate `widget-placeholder-declared`
+   (ADR-036 amendment, built as a follow-up) fails such a class in its own app's checks.
 2. The committed JSON copy goes stale: the Vitest comparison fails the build.
 3. Ordering with first-paint-skeleton: this change depends on it and archives after it, so REQ-FPS-002 exists when the
    modification is applied.

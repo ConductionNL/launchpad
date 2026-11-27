@@ -4,7 +4,7 @@
 - **spec_ref**: `openspec/changes/widget-declared-placeholders/specs/first-paint-shell/spec.md#requirement-the-placeholder-shape-comes-from-the-widgets-declaration-req-fps-009`
 - **files**: `lib/Service/WidgetFormatter.php`, `lib/Dashboard/LinksWidget.php`, `lib/Dashboard/NewsWidget.php`, `tests/Unit/Service/WidgetFormatterTest.php`
 - [ ] `WidgetFormatter::buildBaseData()` reads `getPlaceholder()` when the widget has it, validates the shape (and a count of 1 to 24), and adds `placeholder` to the descriptor; an invalid value is dropped with a debug log naming the widget id
-- [ ] `launchpad_links` and `launchpad_news` declare `rows`
+- [ ] `launchpad_links` and `launchpad_news` declare `rows`; the shape is checked against each widget's board when it is built
 - [ ] Tests: a declaring widget, a silent widget, an invalid value, a count; the catalogue read without `load()` carries it
 
 ### Task 2: The registry's declarations on the server
@@ -25,6 +25,7 @@
 - **spec_ref**: `openspec/changes/widget-declared-placeholders/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002`
 - **files**: `templates/index.php`, `lib/Service/FirstPaintShell.php`, `tests/e2e/first-paint-shell.spec.ts`
 - [ ] Placeholders printed in nextcloud-vue's `cn-widget-placeholder` markup; `css/widget-placeholder.css` from the package inlined in the style block, inside the 6 KB budget
+- [ ] Check each shape the shell draws on LpVandaag against boards LpLaden and LpLadenDeels; a mismatch is fixed at the widget's declaration, not in the fallback table
 - [ ] e2e: a declaring Conduction Nextcloud widget, the Talk widget (rows) and a `chart` placement (block) show the same shape in the shell and after the hand-over
 - [ ] Test with multiple Nextcloud widgets enabled, with a view-only shared dashboard and a group template dashboard, and with a conditional visibility rule that hides a widget
 

@@ -66,7 +66,7 @@ let instanceCounter = 0
  * Home and End jump to the first and last. The open tab is kept for the page
  * load only.
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
  */
 export default {
 	name: 'TabsWidget',
@@ -99,7 +99,7 @@ export default {
 		 * The stored tabs, each with an id, a title and a placements list.
 		 *
 		 * @return {Array<{id: string, title: string, placements: Array<object>}>}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		tabs() {
 			return normaliseTabs(this.content?.tabs)
@@ -109,7 +109,7 @@ export default {
 		 * The open tab, or null when there are none.
 		 *
 		 * @return {object|null}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		activeTab() {
 			return this.tabs[Math.min(this.activeIndex, this.tabs.length - 1)] ?? null
@@ -119,7 +119,7 @@ export default {
 		 * The open tab as a well's content: its placements on the widget's padding and background.
 		 *
 		 * @return {object}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		panelContent() {
 			return {
@@ -135,7 +135,7 @@ export default {
 		 * (which edits a well's `content.placements`) is not offered inside a tab.
 		 *
 		 * @return {object}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		panelPlacement() {
 			return { uuid: `${this.placement?.id ?? this.uid}-${this.activeTab?.id ?? ''}` }
@@ -145,7 +145,7 @@ export default {
 		 * The strip's accessible name: the widget's own, or its title.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		stripLabel() {
 			const label = this.content?.ariaLabel || this.content?.title || ''
@@ -158,7 +158,7 @@ export default {
 		 * Keep the open tab in range when tabs are removed.
 		 *
 		 * @param {number} count The number of tabs.
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		'tabs.length': function(count) {
 			if (this.activeIndex >= count) {
@@ -175,7 +175,7 @@ export default {
 		 *
 		 * @param {number} index The tab's position.
 		 * @return {string}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		tabId(index) {
 			return `${this.uid}-tab-${index}`
@@ -186,7 +186,7 @@ export default {
 		 *
 		 * @param {number} index The tab's position.
 		 * @return {string}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		panelId(index) {
 			return `${this.uid}-panel-${index}`
@@ -198,7 +198,7 @@ export default {
 		 * @param {object} tab The tab.
 		 * @param {number} index Its position.
 		 * @return {string}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		tabTitle(tab, index) {
 			return tab.title.trim() !== '' ? tab.title : t('launchpad', 'Tab {number}', { number: index + 1 })
@@ -209,7 +209,7 @@ export default {
 		 *
 		 * @param {number} index The tab's position.
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		select(index) {
 			this.activeIndex = index
@@ -221,7 +221,7 @@ export default {
 		 *
 		 * @param {KeyboardEvent} event The key press on the strip.
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		onKeydown(event) {
 			const count = this.tabs.length
@@ -245,7 +245,7 @@ export default {
 		 *
 		 * @param {object} panel The well content the inner grid emitted.
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 		 */
 		onPanelContent(panel) {
 			const index = this.tabs.indexOf(this.activeTab)

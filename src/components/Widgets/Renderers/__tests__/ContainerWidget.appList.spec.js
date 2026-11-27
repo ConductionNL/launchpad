@@ -6,7 +6,7 @@
  * (REQ-CONT-008) and can fill itself with the viewer's apps, with a limit and
  * a filter (REQ-CONT-009).
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

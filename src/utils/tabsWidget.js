@@ -7,7 +7,7 @@
  * stored list safely and make the edits the widget's form offers, always
  * returning a new list.
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
  */
 
 let tabCounter = 0
@@ -18,7 +18,7 @@ let tabCounter = 0
  *
  * @param {Array<object>|null|undefined} tabs The stored `content.tabs`.
  * @return {Array<{id: string, title: string, placements: Array<object>}>}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
  */
 export function normaliseTabs(tabs) {
 	if (!Array.isArray(tabs)) {
@@ -40,7 +40,7 @@ export function normaliseTabs(tabs) {
  * @param {Array<object>} tabs The current tabs.
  * @param {string} title The new tab's title.
  * @return {{id: string, title: string, placements: Array}}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
  */
 export function newTab(tabs, title) {
 	const taken = new Set(tabs.map((tab) => tab.id))
@@ -59,7 +59,7 @@ export function newTab(tabs, title) {
  * @param {number} index The tab to move.
  * @param {number} step -1 or +1.
  * @return {Array<object>}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
  */
 export function moveTab(tabs, index, step) {
 	const target = index + step
@@ -77,7 +77,7 @@ export function moveTab(tabs, index, step) {
  *
  * @param {object} tab The tab.
  * @return {boolean}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
  */
 export function tabHasWidgets(tab) {
 	return Array.isArray(tab?.placements) && tab.placements.length > 0

@@ -254,7 +254,7 @@ export function withTileMovedIn(containerContent, tileContent, tileData) {
  * @param {number|string} placementId The Tabs placement.
  * @param {string} tabId The tab.
  * @return {string}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
  */
 export function tabGroupId(placementId, tabId) {
 	return `${placementId}:${tabId}`
@@ -265,7 +265,7 @@ export function tabGroupId(placementId, tabId) {
  *
  * @param {number|string|null} groupId The chosen group.
  * @return {{placementId: number, tabId: string}|null}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
  */
 export function parseTabGroupId(groupId) {
 	if (typeof groupId !== 'string') {
@@ -286,7 +286,7 @@ export function parseTabGroupId(groupId) {
  * @param {object} tileContent The tile placement's content blob.
  * @param {object} tileData The tile form's result.
  * @return {object|null} The new content; null when the tab is not there.
- * @spec openspec/changes/layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
  */
 export function withTileMovedIntoTab(tabsContent, tabId, tileContent, tileData) {
 	if (!isObject(tabsContent) || !Array.isArray(tabsContent.tabs)) {
@@ -316,7 +316,7 @@ export function withTileMovedIntoTab(tabsContent, tabId, tileContent, tileData) 
  * @param {Array<object>} placements The dashboard's placements.
  * @return {Array<{id: number|string, title: string, sortBy: string}>}
  * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
- * @spec openspec/changes/layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
  */
 export function dashboardGroups(placements) {
 	if (!Array.isArray(placements)) {
@@ -352,7 +352,7 @@ function textOf(source, field) {
  *
  * @param {object} placement A dashboard placement with an id.
  * @return {Array<{id: number|string, title: string, sortBy: string}>}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/specs/tabs-widget/spec.md#requirement-each-tab-holds-widgets-req-tabs-002
  */
 function groupsOfPlacement(placement) {
 	const content = contentOf(placement)

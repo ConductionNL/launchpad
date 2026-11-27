@@ -5,7 +5,7 @@
  * ContainerWidgetForm: "Apps from the app menu" turns the well's app list on
  * and off and stores its four settings (REQ-CONT-009).
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
  */
 
 import { mount } from '@vue/test-utils'

@@ -59,7 +59,7 @@ class WidgetPlacementService {
 	 * @throws InvalidArgumentException When the depth limit is exceeded.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-15
-	 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 	 */
 	public function validateContainerDepth(array $content, int $depth = 0): void {
 		// The `placements[]` key marks this content as a container, and a
@@ -127,7 +127,7 @@ class WidgetPlacementService {
 	 *
 	 * @return list<array> The child placements; none for another widget.
 	 *
-	 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 	 */
 	private function childPlacements(array $content): array {
 		$lists = [($content['placements'] ?? null)];

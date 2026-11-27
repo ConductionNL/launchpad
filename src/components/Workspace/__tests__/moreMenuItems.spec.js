@@ -238,6 +238,25 @@ describe('settingsMenuItems', () => {
 		expect(settingsLabels(false)).not.toContain('Admin settings')
 	})
 
+	// more-menu-favourites task 10: Announcements after Admin settings for
+	// whoever may manage announcements.
+	it('offers Announcements after Admin settings to whoever may manage announcements', () => {
+		const items = (isAdmin) => settingsMenuItems(startPageSections(
+			{ railSuppressed: true, entries: ENTRIES, isAdmin, canManageAnnouncements: true, includePersonalSettings: true },
+			() => {},
+		))
+		const admin = items(true)
+		expect(admin.map((i) => i.label).slice(0, 3)).toEqual(['Personal settings', 'Admin settings', 'Announcements'])
+		expect(admin[2].href).toMatch(/\/settings\/admin\/launchpad#announcements$/)
+		// A delegated manager who is not an administrator gets it too.
+		expect(items(false).map((i) => i.label).slice(0, 2)).toEqual(['Personal settings', 'Announcements'])
+	})
+
+	it('leaves Announcements out for anyone who may not manage them', () => {
+		expect(settingsLabels(true)).not.toContain('Announcements')
+		expect(settingsLabels(false)).not.toContain('Announcements')
+	})
+
 	it('opens an external destination in a new tab', () => {
 		const chrome = { railSuppressed: true, entries: ENTRIES, isAdmin: false }
 		const docs = settingsMenuItems(startPageSections(chrome, null)).find((i) => i.id === 'Documentation')

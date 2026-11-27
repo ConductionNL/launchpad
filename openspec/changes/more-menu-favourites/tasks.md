@@ -7,7 +7,7 @@
 - [x] Footer of the menu: Powered by sendent and Conduction, links with `target="_blank" rel="noopener noreferrer"`
 - [x] This dashboard: Download between Duplicate as new dashboard and Set as default; remove the header Download button
 - [ ] This dashboard: no Read receipts item (moved to the admin page)
-- [ ] Settings group: Announcements entry for people who may manage announcements, after Admin settings
+- [x] Settings group: Announcements entry for people who may manage announcements, after Admin settings
 - [x] Remove `DashboardSwitcherSidebar.vue`, `SidebarFooter.vue`, `SidebarBackdrop.vue`, `DashboardRowActions.vue`, the shell's `sidebarOpen` state and their tests
 - [ ] Translations (en, nl and every shipped locale) for the new strings (en, nl, de, fr done; the other shipped locales open)
 - [x] Unit tests: favourite controller and service (star, unstar, invisible dashboard 404, cleanup), menu component (empty state, favourites, expand, collapse, star toggle, footer, Download position)

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Announcements" : "Annunci",
     "Opens automatically" : "Si apre automaticamente",
     "Could not add the dashboard to your favourites" : "Impossibile aggiungere la dashboard ai preferiti",
     "Could not remove the dashboard from your favourites" : "Impossibile rimuovere la dashboard dai preferiti",

@@ -12,6 +12,7 @@ import { n, t } from '@nextcloud/l10n'
 import { h, markRaw } from 'vue'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
+import BullhornOutline from 'vue-material-design-icons/BullhornOutline.vue'
 import ChartBoxOutline from 'vue-material-design-icons/ChartBoxOutline.vue'
 import ChevronUp from 'vue-material-design-icons/ChevronUp.vue'
 import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
@@ -40,7 +41,7 @@ import { adminPageUrl } from '../../utils/adminPage.js'
 const SECTIONS = ['main', 'footer', 'settings']
 
 /** The items of the Settings group, in the board's order. */
-const SETTINGS_ITEMS = ['personal-settings', 'admin-settings-link']
+const SETTINGS_ITEMS = ['personal-settings', 'admin-settings-link', 'announcements-link']
 
 /**
  * The order of the app's own destinations, as the boards list them. An
@@ -83,8 +84,9 @@ export function orderDestinations(items) {
 }
 
 /**
- * The Settings group's items: the personal settings and, for an
- * administrator, the admin settings link.
+ * The Settings group's items: the personal settings, for an administrator
+ * the admin settings link and, for whoever may manage announcements, the
+ * Announcements tab after it.
  *
  * @param {Record<string, object[]>} sections The menu items by section.
  * @return {object[]} The items.
@@ -172,10 +174,11 @@ export function resolveMenuItem(item, openUserSettings) {
  * the personal settings and, for an administrator, the link to the admin
  * settings, as the panel's settings foldout does.
  *
- * @param {{ entries: object[], isAdmin: boolean, includePersonalSettings: boolean }} chrome The chrome decision.
+ * @param {{ entries: object[], isAdmin: boolean, canManageAnnouncements?: boolean, includePersonalSettings: boolean }} chrome The chrome decision.
  * @param {(() => void)|null} openUserSettings The injected personal-settings opener.
  * @return {Record<string, object[]>} The menu items by section.
  * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
  * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
  */
 export function startPageSections(chrome, openUserSettings) {
@@ -207,6 +210,16 @@ export function startPageSections(chrome, openUserSettings) {
 			external: false,
 		})
 	}
+	if (chrome.canManageAnnouncements) {
+		// After Admin settings, for whoever may manage announcements: an
+		// administrator or a delegated manager (more-menu-favourites task 10).
+		settings.push({
+			id: 'announcements-link',
+			label: t('launchpad', 'Announcements'),
+			href: adminPageUrl('announcements'),
+			external: false,
+		})
+	}
 	bySection.settings = [...settings, ...bySection.settings]
 	return bySection
 }
@@ -216,7 +229,7 @@ export function startPageSections(chrome, openUserSettings) {
  * that keep the panel.
  *
  * @param {object|null} provided The injected `launchpadChrome` (a ref or a plain value).
- * @return {{ railSuppressed: boolean, entries: object[], isAdmin: boolean, includePersonalSettings: boolean }}
+ * @return {{ railSuppressed: boolean, entries: object[], isAdmin: boolean, canManageAnnouncements: boolean, includePersonalSettings: boolean }}
  * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
  */
 export function readChrome(provided) {
@@ -225,6 +238,7 @@ export function readChrome(provided) {
 		railSuppressed: value?.railSuppressed === true,
 		entries: Array.isArray(value?.entries) ? value.entries : [],
 		isAdmin: value?.isAdmin === true,
+		canManageAnnouncements: value?.canManageAnnouncements === true,
 		includePersonalSettings: value?.includePersonalSettings !== false,
 	}
 }
@@ -240,6 +254,7 @@ const DESTINATION_ICONS = {
 	FeaturesRoadmapMenu: MapMarkerPath,
 	'personal-settings': AccountOutline,
 	'admin-settings-link': ShieldAccountOutline,
+	'announcements-link': BullhornOutline,
 }
 
 /**

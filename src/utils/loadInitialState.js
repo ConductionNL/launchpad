@@ -133,6 +133,10 @@ const PAGE_KEYS = {
 		// dashboard uuids in starring order, limited to the dashboards they can
 		// open. Optional key; an empty list shows the no-favourites state.
 		favouriteDashboards: [],
+		// more-menu-favourites task 10: whether the viewer may manage
+		// announcements (an administrator or a delegated manager), which
+		// offers More's Announcements entry. Optional key.
+		announcementsAccess: null,
 	},
 	admin: {
 		allGroups: [],
@@ -197,6 +201,19 @@ export function loadInitialState(page) {
 export function readFavouriteDashboards() {
 	const value = readKey('favouriteDashboards', [])
 	return Array.isArray(value) ? value.filter((uuid) => typeof uuid === 'string' && uuid !== '') : []
+}
+
+/**
+ * Whether the viewer may manage announcements (an administrator, or a member
+ * of a group the announcements setting is delegated to), as the page carries
+ * it; More offers its Announcements entry from this, without a request.
+ *
+ * @return {boolean} True only when the page says so.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
+ */
+export function readCanManageAnnouncements() {
+	const value = readKey('announcementsAccess', null)
+	return value !== null && typeof value === 'object' && value.canManage === true
 }
 
 /**

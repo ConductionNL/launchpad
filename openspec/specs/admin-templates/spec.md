@@ -1059,44 +1059,6 @@ On a copy made from an admin template whose permission level is not `full`, the 
 - WHEN he chooses "Delete widget" on it
 - THEN it MUST be removed as before, with no message
 
-## Non-Functional Requirements
-
-- **Performance**: Template distribution (copying placements) MUST complete within 2 seconds per user, even for templates with 20+ widget placements. The first-access check MUST add no more than 200ms to the initial dashboard load. `GET /api/templates/gallery` MUST return within 500ms even with 100+ templates; the gallery list SHOULD NOT fetch widget placements (use `WidgetPlacementMapper::countByDashboardId()` for the count, not `findByDashboardId()`).
-- **Data integrity**: Template copies MUST be atomic -- if any placement fails to copy, the entire copy operation MUST be rolled back. The single-default invariant MUST be enforced at the database/service level. Save-as-template (REQ-TMPL-015) deep-copy MUST also be atomic — if placement copy fails, the entire operation MUST be rolled back.
-- **Scalability**: Template distribution MUST work efficiently for organizations with 1000+ users. The system SHOULD NOT eagerly copy templates to all users; copies MUST be created on-demand at first access.
-- **Security**: Only Nextcloud admin users MUST be able to create, update, or delete templates. Only dashboard owners can call `POST /api/dashboards/{uuid}/save-as-template`. Only admins can call `POST /api/admin/templates/{uuid}/preview-image`. Group membership checks MUST use Nextcloud's `IGroupManager` API.
-- **Storage**: Preview images MUST be stored using the existing resource-uploads pipeline (same MIME validation, SVG sanitisation, 5 MB cap as `POST /api/resources`).
-- **Localization**: Admin template management UI labels and error messages MUST support English and Dutch.
-
-### Current Implementation Status
-
-**Fully implemented:**
-- REQ-TMPL-001 (Create Admin Template): `AdminTemplateService::createTemplate()` in `lib/Service/AdminTemplateService.php` creates dashboards with `type: "admin_template"`, `userId: null`, default `gridColumns: 12`. Default clearing via `clearDefaultTemplates()` is implemented.
-- REQ-TMPL-002 (List Admin Templates): `AdminTemplateService::listTemplates()` calls `DashboardMapper::findAdminTemplates()`.
-- REQ-TMPL-003 (Update Admin Template): `AdminTemplateService::updateTemplate()` with `applyTemplateUpdates()` handles name, description, targetGroups, permissionLevel, isDefault, gridColumns.
-- REQ-TMPL-004 (Delete Admin Template): `AdminTemplateService::deleteTemplate()` deletes placements first via `placementMapper->deleteByDashboardId()`, then deletes the template.
-- REQ-TMPL-005 (Template Distribution): `TemplateService::getApplicableTemplate()` checks group membership via `IGroupManager::getUserGroupIds()`. `createDashboardFromTemplate()` copies all placements including `isCompulsory` flags.
-- REQ-TMPL-006 (Template Copy Independence): Copies are independent -- `buildDashboardFromTemplate()` creates a new Dashboard entity, `copyTemplatePlacements()` creates new WidgetPlacement entities.
-- REQ-TMPL-007 (Template Widget Management): Templates share the same widget placement API as regular dashboards.
-- REQ-TMPL-008 (Only One Default): `clearDefaultTemplates()` on DashboardMapper ensures single default.
-- REQ-TMPL-009 (Get Template with Placements): `AdminTemplateService::getTemplateWithPlacements()` returns template + placements.
-- REQ-TMPL-014 (Gallery endpoint): `AdminTemplateService::getGallery()` + `TemplateController::gallery()` expose `GET /api/templates/gallery`. Backed by `DashboardMapper::findAllTemplatesForGallery()` and the composite `(type, template_category)` index added in `Version001012Date20260503000000`.
-- REQ-TMPL-015 (Save-as-template): `AdminTemplateService::saveAsTemplate()` + `TemplateController::saveAsTemplate()` expose `POST /api/dashboards/{uuid}/save-as-template`. Owner-only, transactional, uses `WidgetPlacementMapper::cloneToDashboard()` for the deep copy.
-- REQ-TMPL-016 (Metadata fields): `templateCategory`, `templateDescription`, `templatePreviewImage` columns added to `oc_launchpad_dashboards`; serialised via `Dashboard::jsonSerialize()`.
-- REQ-TMPL-017 (Preview image upload): `AdminTemplateService::uploadPreviewImage()` + `AdminController::uploadTemplatePreviewImage()` expose `POST /api/admin/templates/{uuid}/preview-image`. Reuses `ResourceService::upload()` for storage.
-
-**Not yet implemented:**
-- REQ-TMPL-001 validation: No server-side validation for `permissionLevel` values.
-- REQ-TMPL-002 widget_count: Template list response does NOT include a widget placement count.
-- REQ-TMPL-005 multi-template distribution: Only ONE template is distributed per first-access.
-- REQ-TMPL-011 group fetching: `AdminSettings.vue` group selector has `availableGroups` hardcoded to empty array.
-
-### Standards & References
-- Nextcloud Group API: `OCP\IGroupManager::getUserGroupIds()`
-- Nextcloud User API: `OCP\IUserManager::get()`
-- WCAG 2.1 AA for the admin template management UI (modal dialogs, form fields)
-- WAI-ARIA: Modal dialog accessibility via `NcModal` component
-
 ### Requirement: REQ-RESYNC-006 Add-only strategy adds new template widgets and changes nothing else
 
 `POST /api/admin/templates/{id}/resync` SHALL accept `strategy: "add_only"`. Under it, each copy SHALL gain the
@@ -1141,3 +1103,41 @@ dashboards"). Only Keep personal changes is preselected.
 - **WHEN** the admin chooses Push changes
 - **THEN** the window says the template gained Leesbevestiging and Verjaardagen and lost Oud nieuws
 - **AND** it offers the three choices with Keep personal changes selected, says 38 people changed their dashboard, and the button reads "Push to 212 dashboards"
+
+## Non-Functional Requirements
+
+- **Performance**: Template distribution (copying placements) MUST complete within 2 seconds per user, even for templates with 20+ widget placements. The first-access check MUST add no more than 200ms to the initial dashboard load. `GET /api/templates/gallery` MUST return within 500ms even with 100+ templates; the gallery list SHOULD NOT fetch widget placements (use `WidgetPlacementMapper::countByDashboardId()` for the count, not `findByDashboardId()`).
+- **Data integrity**: Template copies MUST be atomic -- if any placement fails to copy, the entire copy operation MUST be rolled back. The single-default invariant MUST be enforced at the database/service level. Save-as-template (REQ-TMPL-015) deep-copy MUST also be atomic — if placement copy fails, the entire operation MUST be rolled back.
+- **Scalability**: Template distribution MUST work efficiently for organizations with 1000+ users. The system SHOULD NOT eagerly copy templates to all users; copies MUST be created on-demand at first access.
+- **Security**: Only Nextcloud admin users MUST be able to create, update, or delete templates. Only dashboard owners can call `POST /api/dashboards/{uuid}/save-as-template`. Only admins can call `POST /api/admin/templates/{uuid}/preview-image`. Group membership checks MUST use Nextcloud's `IGroupManager` API.
+- **Storage**: Preview images MUST be stored using the existing resource-uploads pipeline (same MIME validation, SVG sanitisation, 5 MB cap as `POST /api/resources`).
+- **Localization**: Admin template management UI labels and error messages MUST support English and Dutch.
+
+### Current Implementation Status
+
+**Fully implemented:**
+- REQ-TMPL-001 (Create Admin Template): `AdminTemplateService::createTemplate()` in `lib/Service/AdminTemplateService.php` creates dashboards with `type: "admin_template"`, `userId: null`, default `gridColumns: 12`. Default clearing via `clearDefaultTemplates()` is implemented.
+- REQ-TMPL-002 (List Admin Templates): `AdminTemplateService::listTemplates()` calls `DashboardMapper::findAdminTemplates()`.
+- REQ-TMPL-003 (Update Admin Template): `AdminTemplateService::updateTemplate()` with `applyTemplateUpdates()` handles name, description, targetGroups, permissionLevel, isDefault, gridColumns.
+- REQ-TMPL-004 (Delete Admin Template): `AdminTemplateService::deleteTemplate()` deletes placements first via `placementMapper->deleteByDashboardId()`, then deletes the template.
+- REQ-TMPL-005 (Template Distribution): `TemplateService::getApplicableTemplate()` checks group membership via `IGroupManager::getUserGroupIds()`. `createDashboardFromTemplate()` copies all placements including `isCompulsory` flags.
+- REQ-TMPL-006 (Template Copy Independence): Copies are independent -- `buildDashboardFromTemplate()` creates a new Dashboard entity, `copyTemplatePlacements()` creates new WidgetPlacement entities.
+- REQ-TMPL-007 (Template Widget Management): Templates share the same widget placement API as regular dashboards.
+- REQ-TMPL-008 (Only One Default): `clearDefaultTemplates()` on DashboardMapper ensures single default.
+- REQ-TMPL-009 (Get Template with Placements): `AdminTemplateService::getTemplateWithPlacements()` returns template + placements.
+- REQ-TMPL-014 (Gallery endpoint): `AdminTemplateService::getGallery()` + `TemplateController::gallery()` expose `GET /api/templates/gallery`. Backed by `DashboardMapper::findAllTemplatesForGallery()` and the composite `(type, template_category)` index added in `Version001012Date20260503000000`.
+- REQ-TMPL-015 (Save-as-template): `AdminTemplateService::saveAsTemplate()` + `TemplateController::saveAsTemplate()` expose `POST /api/dashboards/{uuid}/save-as-template`. Owner-only, transactional, uses `WidgetPlacementMapper::cloneToDashboard()` for the deep copy.
+- REQ-TMPL-016 (Metadata fields): `templateCategory`, `templateDescription`, `templatePreviewImage` columns added to `oc_launchpad_dashboards`; serialised via `Dashboard::jsonSerialize()`.
+- REQ-TMPL-017 (Preview image upload): `AdminTemplateService::uploadPreviewImage()` + `AdminController::uploadTemplatePreviewImage()` expose `POST /api/admin/templates/{uuid}/preview-image`. Reuses `ResourceService::upload()` for storage.
+
+**Not yet implemented:**
+- REQ-TMPL-001 validation: No server-side validation for `permissionLevel` values.
+- REQ-TMPL-002 widget_count: Template list response does NOT include a widget placement count.
+- REQ-TMPL-005 multi-template distribution: Only ONE template is distributed per first-access.
+- REQ-TMPL-011 group fetching: `AdminSettings.vue` group selector has `availableGroups` hardcoded to empty array.
+
+### Standards & References
+- Nextcloud Group API: `OCP\IGroupManager::getUserGroupIds()`
+- Nextcloud User API: `OCP\IUserManager::get()`
+- WCAG 2.1 AA for the admin template management UI (modal dialogs, form fields)
+- WAI-ARIA: Modal dialog accessibility via `NcModal` component

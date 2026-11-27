@@ -2809,6 +2809,11 @@
         "New announcements": "Nieuwe aankondigingen",
         "What changed on your dashboards": "Wat er op je dashboards veranderde",
         "Open LaunchPad": "LaunchPad openen",
-        "You get this mail because you asked for it in your LaunchPad settings.": "Je krijgt deze mail omdat je erom vroeg in je LaunchPad-instellingen."
+        "You get this mail because you asked for it in your LaunchPad settings.": "Je krijgt deze mail omdat je erom vroeg in je LaunchPad-instellingen.",
+        "Restart setup": "Installatie opnieuw starten",
+        "Tour": "Rondleiding",
+        "News and maintenance notices for the people in your organisation.": "Nieuws en onderhoudsmeldingen voor de mensen in je organisatie.",
+        "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges.": "Aankondigingen beheer je op dit tabblad. Wie aankondigingen beheert zonder beheerder te zijn, krijgt dit tabblad via de beheerrechten van Nextcloud.",
+        "Launchpad announcements": "Launchpad-aankondigingen"
     }
 }

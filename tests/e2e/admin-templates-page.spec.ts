@@ -39,7 +39,7 @@ const ADMIN = {
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
 }
 
-const SETTINGS_URL = `${BASE}/index.php/apps/launchpad/admin/templates`
+const SETTINGS_URL = `${BASE}/index.php/settings/admin/launchpad#templates`
 
 // The component under test, named after the file it covers. The selector is
 // unchanged — this only makes the link between spec and component readable in

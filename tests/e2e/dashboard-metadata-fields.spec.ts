@@ -82,7 +82,7 @@ import {
 const RUN = Date.now()
 const FIELDS = `${API}/admin/metadata-fields`
 const SETTINGS = `${API}/admin/settings`
-const SETTINGS_PAGE = `${BASE}/index.php/apps/launchpad/admin`
+const SETTINGS_PAGE = `${BASE}/index.php/settings/admin/launchpad`
 const ROW = '.dashboard-switcher-sidebar__item'
 
 /** Five minutes either way: "current time" on a container clock. */

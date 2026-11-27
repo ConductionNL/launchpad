@@ -14,7 +14,7 @@
  *   @e2e widgets::the-weather-card-shows-a-weather-widget
  *   @e2e widgets::no-add-tiles-button
  *
- * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md
+ * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md
  */
 import type { APIRequestContext } from '@playwright/test'
 import type { SeededDashboard } from './support/dashboardFixture.ts'

@@ -10,7 +10,7 @@
  * Every type of `lib/widget-types.json` MUST have an entry: the miniature
  * registry test fails on a type without one.
  *
- * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+ * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
  */
 
 const DAY = 24 * 60 * 60 * 1000
@@ -272,7 +272,7 @@ export const SAMPLE_PROPS = Object.freeze({
  * @param {string} type The widget type.
  * @param {{sampleContent?: object}|null} [entry] The type's registry entry.
  * @return {object|null} A fresh copy, or null for a type without one.
- * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+ * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
  */
 export function sampleContentOf(type, entry = null) {
 	if (NOT_PREVIEW_SAFE.includes(type) && !entry?.sampleContent) {

@@ -20,7 +20,7 @@ import type { APIRequestContext, Locator, Page } from '@playwright/test'
 
 import { expect, request } from '@playwright/test'
 import { BASE_URL } from './baseUrl.ts'
-import { enterEditMode, openDashboardSwitcher } from './dashboardSwitcher.ts'
+import { addWidgetFromMore, enterEditMode, switchToDashboard } from './dashboardSwitcher.ts'
 import { chooseAndAdd } from './widgetPicker.ts'
 
 const ADMIN = {
@@ -202,14 +202,8 @@ export function quicklinksDialog(page: Page): Locator {
  * @return the dialog with the quicklinks form mounted.
  */
 export async function openAddQuicklinks(page: Page, dashboardName: string): Promise<Locator> {
-	await openDashboardSwitcher(page)
-	const row = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.filter({ hasText: dashboardName })
-		.first()
-	await expect(row).toBeVisible({ timeout: 10_000 })
-	await row.locator('.dashboard-row-actions button').first().click()
-	await page.getByRole('menuitem', { name: /^add widget$/i }).click()
+	await switchToDashboard(page, dashboardName)
+	await addWidgetFromMore(page)
 	await chooseAndAdd(page.locator('[data-testid="widget-picker-type-quicklinks"]'))
 
 	const modal = page.getByRole('dialog', { name: /add widget/i }).first()

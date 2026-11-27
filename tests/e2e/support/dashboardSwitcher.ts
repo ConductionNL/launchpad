@@ -4,12 +4,12 @@
  *
  * Reach the dashboard switcher the way a person does on the start page.
  *
- * The start page has one "More" menu (lpvandaag-start-page); its Dashboards
- * group ends in "All dashboards", which opens the switcher sidebar with a row
- * and a row menu per dashboard.
+ * Every page has one "More" menu (REQ-SHELL-013); its Dashboards column lists
+ * the favourites and unfolds in place into every dashboard (REQ-SHELL-014,
+ * -015). There is no dashboards sidebar and no per-row menu any more.
  */
 
-import type { Page } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
 
 import { expect } from '@playwright/test'
 
@@ -91,4 +91,67 @@ export async function downloadFromMore(page: Page): Promise<void> {
 	await expect(more).toBeVisible({ timeout: 30_000 })
 	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
 	await page.locator('[data-testid="launchpad-more-menu-item-download"]').click()
+}
+
+/** The rows of the More menu's Dashboards column (radio items). */
+export const DASHBOARD_ROWS = '[data-testid="launchpad-more-menu-dashboard-list"] [role="menuitemradio"]'
+
+/**
+ * One dashboard's row in the More menu's Dashboards column, by its name.
+ *
+ * @param page The page, with More open.
+ * @param name The dashboard's name.
+ * @return The row.
+ */
+export function dashboardRow(page: Page, name: string): Locator {
+	return page.locator(DASHBOARD_ROWS).filter({ hasText: name }).first()
+}
+
+/**
+ * Close the More menu when it is open.
+ *
+ * @param page The page.
+ * @return Resolves once no More menu panel is visible.
+ */
+export async function closeMore(page: Page): Promise<void> {
+	const panel = page.locator('[data-testid="launchpad-more-menu-panel"]')
+	if (await panel.isVisible().catch(() => false)) {
+		await page.keyboard.press('Escape')
+		await expect(panel).toBeHidden({ timeout: 5_000 })
+	}
+}
+
+/**
+ * Open a dashboard by name the way a person does: More, More in the
+ * Dashboards column (every dashboard), then its row (REQ-SHELL-014, -015).
+ * The dashboards sidebar and its per-row menus are gone (more-menu-favourites).
+ *
+ * @param page The page, on the workspace.
+ * @param name The dashboard's name.
+ * @return Resolves once the menu closed and the row is the checked one.
+ */
+export async function switchToDashboard(page: Page, name: string): Promise<void> {
+	await openDashboardSwitcher(page)
+	const row = dashboardRow(page, name)
+	await expect(row).toBeVisible({ timeout: 10_000 })
+	if (await row.getAttribute('aria-checked') === 'true') {
+		await closeMore(page)
+		return
+	}
+	await row.click()
+	await expect(page.locator('[data-testid="launchpad-more-menu-panel"]')).toBeHidden({ timeout: 10_000 })
+}
+
+/**
+ * Open the Add widget dialog of the open dashboard through More → Add widget.
+ *
+ * @param page The page, on a dashboard the person may edit.
+ * @return Resolves once Add widget was chosen.
+ */
+export async function addWidgetFromMore(page: Page): Promise<void> {
+	await closeMore(page)
+	const more = page.locator(MORE_MENU)
+	await expect(more).toBeVisible({ timeout: 30_000 })
+	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
 }

@@ -78,10 +78,14 @@ test.describe('REQ-SHELL-005: the first dashboard starts with the starter widget
 	test('with starter widgets stores an app tile per most-used app and the other starters, and no choice keeps the default bundle', async () => {
 		const starters = await create({ name: 'My workspace', widgets: 'starters' })
 		const stored = await readPlacements(owner!.api, starters)
-		const tiles = stored.filter((p) => p.widgetId === 'app-tile')
+		// An app tile is the App or link tile in app mode since app-link-tile-widget
+		// (REQ-APPTILE-001): `tile` with `content.mode: 'app'`, no longer `app-tile`.
+		const isAppTile = (p: { widgetId?: unknown; content?: { mode?: unknown } }) =>
+			p.widgetId === 'tile' && p.content?.mode === 'app'
+		const tiles = stored.filter(isAppTile)
 		expect(tiles.length).toBeGreaterThan(0)
 		expect(tiles.length).toBeLessThanOrEqual(4)
-		expect(stored.slice(0, tiles.length).every((p) => p.widgetId === 'app-tile')).toBe(true)
+		expect(stored.slice(0, tiles.length).every(isAppTile)).toBe(true)
 		expect(stored.slice(tiles.length).map((p) => p.widgetId)).toEqual(STARTERS_AFTER_APPS)
 		// Files is in every account's app menu and is the most-used app.
 		expect(tiles[0].content?.appId).toBe('files')

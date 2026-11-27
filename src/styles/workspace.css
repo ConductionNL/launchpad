@@ -214,10 +214,43 @@
 }
 
 /* The card gives the inset; a widget inside it adds none of its own, so its
-   first line starts on the title's 18px (the agenda, recent work, mail). The
-   renderer's own 16px padding added a second inset. */
-.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard :is(.widget-renderer, .cn-links-widget, .cn-menu-widget) {
+   first line starts on the title's 18px (the agenda, recent work, mail, a
+   text card such as "Van de gemeentesecretaris", the people lists). The
+   renderer's own padding (16px, the text widget's 16px, the people widget's
+   8px) added a second inset. The text widget sets its padding inline, hence
+   the !important on its own rule. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard :is(.widget-renderer, .cn-links-widget, .cn-menu-widget, .cn-people-widget) {
 	padding: 0;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-text-widget {
+	padding: 0 !important;
+}
+
+/* A table in a text card is the boards' table (LpVandaag, LpIntranet
+   "Werken op het stadskantoor"): 13px, cells 6px 8px with only a rule under
+   each row, the head row semibold and muted, no box around it. */
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-text-widget table {
+	width: 100%;
+	border: 0;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-text-widget :is(th, td) {
+	padding: 6px 8px;
+	border: 0;
+	border-bottom: 1px solid var(--cn-board-hairline, var(--color-border));
+	line-height: 1.5;
+	text-align: start;
+	vertical-align: top;
+}
+
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-text-widget th {
+	background: none;
+	color: var(--color-text-maxcontrast);
+	font-weight: 600;
+	white-space: nowrap;
 }
 
 /* "Vandaag eerst" draws its own heading inside the card, 14px from the top

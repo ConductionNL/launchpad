@@ -59,7 +59,7 @@ function firstScreenTypes(placements, viewportHeight) {
  * The loader of a lazily loaded renderer, or null.
  *
  * @param {object|null} entry A widget type's registry entry.
- * @return {Function|null} The loader.
+ * @return {(() => Promise<object>)|null} The loader.
  * @spec openspec/changes/first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
  */
 function rendererLoad(entry) {

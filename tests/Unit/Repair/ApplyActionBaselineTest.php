@@ -474,4 +474,45 @@ class ApplyActionBaselineTest extends TestCase {
 		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['admin-org-navigation.get-position']);
 		$this->assertSame(expected: ['admin'], actual: $written['tile.create'], message: 'v8 adds only its own actions');
 	}//end testAnInstanceAtV7LetsUsersReadTheOrganisationMenu()
+
+	/**
+	 * An instance at v8 lets every user list people from v9 (REQ-PPL-015);
+	 * an entry an admin changed is kept.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV8LetsUsersListPeople(): void {
+		$this->appConfig->method('getValueInt')->willReturn(8);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'people-widget.get-users' => ['admin'],
+			'tile.create' => ['admin'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['people-widget.get-users']);
+		$this->assertSame(expected: ['admin'], actual: $written['tile.create'], message: 'v9 adds only its own action');
+	}//end testAnInstanceAtV8LetsUsersListPeople()
+
+	/**
+	 * An instance at v8 whose admin narrowed people listing to a group keeps it.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV8KeepsANarrowedPeopleListing(): void {
+		$this->appConfig->method('getValueInt')->willReturn(8);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'people-widget.get-users' => ['admin', 'hr'],
+		]);
+		$this->actionAuth->expects($this->never())->method('setMatrix');
+
+		$this->step->run($this->output);
+	}//end testAnInstanceAtV8KeepsANarrowedPeopleListing()
 }//end class

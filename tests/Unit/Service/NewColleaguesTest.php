@@ -27,6 +27,7 @@ use OCA\LaunchPad\Db\ProfileValueMapper;
 use OCA\LaunchPad\Service\NewColleagues;
 use OCA\LaunchPad\Service\PeopleWidgetService;
 use OCA\LaunchPad\Service\ProfileFieldService;
+use OCA\LaunchPad\Service\UserEnumerationScope;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\AppFramework\OCS\OCSForbiddenException;
@@ -34,11 +35,14 @@ use OCP\IUserManager;
 use OCP\IUserSession;
 use Psr\Log\NullLogger;
 use PHPUnit\Framework\TestCase;
+use Unit\Support\OpenEnumeration;
 
 /**
  * Yasmina starts Monday, Lotte and Thomas started; Ella's date is hidden.
  */
 class NewColleaguesTest extends TestCase {
+	use OpenEnumeration;
+
 
 	/** @var array{from: string, to: string}|null The range the mapper was asked for. */
 	private ?array $askedRange = null;
@@ -194,10 +198,11 @@ class NewColleaguesTest extends TestCase {
 	 *
 	 * @param string|null $userId  The caller.
 	 * @param bool        $allowed Whether the action check lets them list people.
+	 * @param UserEnumerationScope|null $enumeration The enumeration scope; open when none.
 	 *
 	 * @return NewColleaguesController The controller.
 	 */
-	private function controller(?string $userId, bool $allowed): NewColleaguesController {
+	private function controller(?string $userId, bool $allowed, ?UserEnumerationScope $enumeration=null): NewColleaguesController {
 		$user = $this->createMock(originalClassName: IUser::class);
 		$session = $this->createMock(originalClassName: IUserSession::class);
 		if ($userId !== null) {
@@ -214,7 +219,8 @@ class NewColleaguesTest extends TestCase {
 			context: new ActorResponses(
 				actor: new RequestActor(userSession: $session, actionAuth: $auth),
 				responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger()))
-			)
+			),
+			enumeration: ($enumeration ?? $this->openEnumeration())
 		);
 	}//end controller()
 
@@ -232,5 +238,25 @@ class NewColleaguesTest extends TestCase {
 		$this->assertSame(expected: 200, actual: $ok->getStatus());
 		$this->assertTrue(condition: $ok->getData()['configured']);
 	}//end testTheRouteChecksTheCaller()
+
+	/**
+	 * The route lists only the people the enumeration scope lets the caller see (REQ-PPL-015).
+	 *
+	 * @spec openspec/specs/people-widget/spec.md#requirement-people-listings-honour-the-user-enumeration-settings-req-ppl-015
+	 *
+	 * @return void
+	 */
+	public function testTheRouteListsOnlyWhomTheCallerMaySee(): void {
+		$scope = $this->createMock(originalClassName: UserEnumerationScope::class);
+		$scope->expects($this->once())->method('visibleOnly')->willReturnCallback(
+			static fn (?string $viewerId, array $people): array => array_values(
+				array_filter($people, static fn (array $person): bool => $viewerId === 'pieter' && $person['id'] === 'lotte')
+			)
+		);
+
+		$answer = $this->controller(userId: 'pieter', allowed: true, enumeration: $scope)->getNew()->getData();
+
+		$this->assertSame(expected: ['lotte'], actual: array_column($answer['users'], 'id'));
+	}//end testTheRouteListsOnlyWhomTheCallerMaySee()
 
 }//end class

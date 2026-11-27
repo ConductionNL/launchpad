@@ -71,7 +71,7 @@
     "metadata-admin.get-field": ["admin"],
     "metadata-admin.update-field": ["admin"],
     "metadata-admin.delete-field": ["admin"],
-    "people-widget.get-users": ["admin"],
+    "people-widget.get-users": ["admin", "@all"],
     "search-shortcut.list": ["admin"],
     "search-shortcut.save": ["admin"],
     "profile-fields.get-own": ["admin", "@all"],

@@ -28,6 +28,7 @@ use OCA\LaunchPad\Controller\PeopleWidgetController;
 use OCA\LaunchPad\Exception\InvalidPeopleRequestException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\PeopleQuery;
+use OCA\LaunchPad\Service\UserEnumerationScope;
 use OCA\LaunchPad\Service\PeopleWidgetService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -35,6 +36,7 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Unit\Support\OpenEnumeration;
 use Psr\Log\LoggerInterface;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use Psr\Log\NullLogger;
@@ -43,6 +45,8 @@ use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\UserResponses;
 
 class PeopleWidgetControllerTest extends TestCase {
+	use OpenEnumeration;
+
 
 	/**
 	 * @var IRequest&MockObject
@@ -275,11 +279,35 @@ class PeopleWidgetControllerTest extends TestCase {
 	}//end testReadsANumericLimitString()
 
 	/**
-	 * @param string|null $userId The user id (null for anonymous).
+	 * The widget's filters reach the service narrowed by the enumeration
+	 * scope, for the caller (REQ-PPL-015).
+	 *
+	 * @spec openspec/specs/people-widget/spec.md#requirement-people-listings-honour-the-user-enumeration-settings-req-ppl-015
+	 *
+	 * @return void
+	 */
+	public function testNarrowsTheFiltersToWhomTheCallerMaySee(): void {
+		$narrowed = [['fieldName' => 'group', 'operator' => 'in', 'values' => ['wonen']]];
+		$scope = $this->createMock(originalClassName: UserEnumerationScope::class);
+		$scope->expects($this->once())->method('narrowFilters')
+			->with([['fieldName' => 'group', 'operator' => 'in', 'values' => ['wonen', 'zorg']]], 'alice')
+			->willReturn($narrowed);
+		$this->service->expects($this->once())
+			->method('listUsers')
+			->with($this->callback(callback: static fn (PeopleQuery $query): bool => $query->filters === $narrowed))
+			->willReturn(['users' => [], 'total' => 0, 'hasMore' => false]);
+
+		$this->buildController(userId: 'alice', enumeration: $scope)
+			->getUsers(filters: '[{"fieldName":"group","operator":"in","values":["wonen","zorg"]}]');
+	}//end testNarrowsTheFiltersToWhomTheCallerMaySee()
+
+	/**
+	 * @param string|null               $userId      The user id (null for anonymous).
+	 * @param UserEnumerationScope|null $enumeration The enumeration scope; open when none.
 	 *
 	 * @return PeopleWidgetController
 	 */
-	private function buildController(?string $userId): PeopleWidgetController {
+	private function buildController(?string $userId, ?UserEnumerationScope $enumeration=null): PeopleWidgetController {
 		if ($userId !== null) {
 			$user = $this->createMock(IUser::class);
 			$user->method('getUID')->willReturn($userId);
@@ -296,7 +324,8 @@ class PeopleWidgetControllerTest extends TestCase {
 				actionAuth: $this->actionAuth
 			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(
 				logger: new NullLogger()
-			)))
+			))),
+			enumeration: ($enumeration ?? $this->openEnumeration())
 		);
 	}//end buildController()
 }//end class

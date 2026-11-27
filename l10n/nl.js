@@ -722,7 +722,7 @@ OC.L10N.register(
     "Folder path or folder id is required" : "Mappad of map-id is verplicht",
     "People" : "Personen",
     "Card" : "Kaart",
-    "Layout" : "Lay-out",
+    "Layout" : "Indeling",
     "Display name" : "Weergavenaam",
     "Group filter (comma-separated, blank for all)" : "Groepsfilter (komma-gescheiden, leeg voor alle)",
     "e.g. management, product" : "bv. management, product",

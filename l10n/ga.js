@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Sábháil d'athruithe ar dtús chun a roghnú cé a fheiceann an ghiuirléid nua seo.",
     "No changes" : "Gan athruithe",
     "Keep editing" : "Lean ar aghaidh ag eagarthóireacht",
     "Save changes?" : "Sábháil athruithe?",

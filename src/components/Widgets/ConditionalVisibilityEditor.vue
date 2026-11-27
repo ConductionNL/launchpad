@@ -356,6 +356,17 @@ export default {
 			type: String,
 			default: 'any',
 		},
+
+		/**
+		 * REQ-EDIT-001: the open edit-mode draft, or null. With a draft the
+		 * dialog changes the draft only: `rules` are the widget's rules in the
+		 * draft (null: not changed yet), `setRules(rules)` and
+		 * `setMatch(mode)` write the draft; Save stores them.
+		 */
+		draft: {
+			type: Object,
+			default: null,
+		},
 	},
 
 	emits: ['ruleAdded', 'ruleUpdated', 'ruleRemoved', 'ruleMatchChanged'],
@@ -538,10 +549,23 @@ export default {
 			await this.loadRules()
 		},
 
-		/** Fetch the placement's rules, clearing them when the fetch fails. */
+		/**
+		 * Fetch the placement's rules, clearing them when the fetch fails; in
+		 * an edit-mode draft that changed them, take the draft's (REQ-EDIT-001).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 */
 		async loadRules() {
 			this.loading = true
 			this.preview.reset()
+			// REQ-EDIT-001: rules this draft changed come from the draft.
+			if (Array.isArray(this.draft?.rules)) {
+				this.rules = this.draft.rules.map((rule) => ({ ...rule, _localKey: rule.id ? undefined : this.nextLocalId--, _inDraft: true }))
+				this.loading = false
+				return
+			}
 			try {
 				const { data } = await api.getWidgetRules(this.placementId)
 				this.rules = editableRules(rulesFromResponse(data))
@@ -602,6 +626,10 @@ export default {
 		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings
 		 */
 		async onRowSave(row, payload) {
+			if (this.draft) {
+				this.saveRowToDraft(row, payload)
+				return
+			}
 			this.setRowBusy(row, true)
 			try {
 				if (row.id !== null && row.id !== undefined) {
@@ -614,6 +642,40 @@ export default {
 			} finally {
 				this.setRowBusy(row, false)
 			}
+		},
+
+		/**
+		 * REQ-EDIT-001: with a draft, a saved card changes the draft only: the
+		 * row takes the edit, its editor closes, and the draft gets the rules.
+		 *
+		 * @param {object} row The rule row.
+		 * @param {object} payload Rule fields (`ruleType`, `ruleConfig`, `isInclude`).
+		 * @return {void}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 */
+		saveRowToDraft(row, payload) {
+			const index = this.rules.indexOf(row)
+			if (index === -1) {
+				return
+			}
+			const saved = { ...row, ...payload, _inDraft: true }
+			this.rules[index] = saved
+			this.editingKeys = { ...this.editingKeys, [this.rowKey(row)]: false }
+			this.draft.setRules(this.draftRules())
+			this.$emit(row.id ? 'ruleUpdated' : 'ruleAdded')
+		},
+
+		/**
+		 * The rules the draft keeps: stored ones and those saved into the
+		 * draft, not a new card still being filled in.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 */
+		draftRules() {
+			return this.rules
+				.filter((rule) => rule.id || rule._inDraft)
+				.map(({ id, ruleType, ruleConfig, isInclude }) => ({ id: id ?? null, ruleType, ruleConfig, isInclude }))
 		},
 
 		/**
@@ -666,6 +728,12 @@ export default {
 		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings
 		 */
 		async onRowRemove(row) {
+			if (this.draft) {
+				this.rules = this.rules.filter((r) => r !== row)
+				this.draft.setRules(this.draftRules())
+				this.$emit('ruleRemoved')
+				return
+			}
 			if (row.id === null || row.id === undefined) {
 				// Never-persisted draft — discard locally, no API call.
 				this.rules = this.rules.filter((r) => r !== row)
@@ -700,6 +768,11 @@ export default {
 			const previous = this.matchMode
 			this.matchMode = mode
 			if (this.placementId === null || this.placementId === undefined) {
+				return
+			}
+			if (this.draft) {
+				this.draft.setMatch(mode)
+				this.$emit('ruleMatchChanged', mode)
 				return
 			}
 			this.savingMatch = true
@@ -741,7 +814,9 @@ export default {
 		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 		 */
 		isEditing(row) {
-			return row.id === null || row.id === undefined || !!this.editingKeys[this.rowKey(row)]
+			// REQ-EDIT-001: a rule saved into the draft reads as saved.
+			const unsaved = (row.id === null || row.id === undefined) && !row._inDraft
+			return unsaved || !!this.editingKeys[this.rowKey(row)]
 		},
 
 		/**

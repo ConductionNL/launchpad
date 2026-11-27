@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Спачатку захавайце змены, каб выбраць, хто бачыць гэты новы віджэт.",
     "No changes" : "Няма змен",
     "Keep editing" : "Працягваць рэдагаванне",
     "Save changes?" : "Захаваць змены?",

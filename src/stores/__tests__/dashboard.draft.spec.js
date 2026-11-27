@@ -140,3 +140,33 @@ describe('dashboard store — edit-mode draft', () => {
 		expect(api.updateGroupDashboard).toHaveBeenCalledTimes(1)
 	})
 })
+
+// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+describe('dashboard store — visibility rules in the draft', () => {
+	beforeEach(() => {
+		setActivePinia(createPinia())
+		vi.clearAllMocks()
+	})
+
+	it('counts a widget whose rules changed and sends its rules with Save', async () => {
+		const store = storeOn()
+		store.beginDraft()
+		store.setDraftRules(1, [{ id: null, ruleType: 'group', ruleConfig: { groups: ['hr'] }, isInclude: true }])
+		expect(store.draftChangeCount).toBe(1)
+		expect(store.isDraftDirty).toBe(true)
+
+		api.updateDashboard.mockResolvedValue({ data: { data: { placements: store.widgetPlacements } } })
+		await store.saveDraft()
+		const body = api.updateDashboard.mock.calls[0][1]
+		expect(body.placements.find((p) => p.id === 1).rules).toEqual([{ ruleType: 'group', ruleConfig: { groups: ['hr'] }, isInclude: true }])
+		expect(body.placements.find((p) => p.id === 2).rules).toBeUndefined()
+		expect(store.draft).toBeNull()
+	})
+
+	it('keeps no rules outside a draft', () => {
+		const store = storeOn()
+		store.setDraftRules(1, [])
+		expect(store.draft).toBeNull()
+		expect(store.draftChangeCount).toBe(0)
+	})
+})

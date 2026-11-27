@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Először mentse a változásokat, hogy kiválaszthassa, ki látja ezt az új modult.",
     "No changes" : "Nincs változás",
     "Keep editing" : "Szerkesztés folytatása",
     "Save changes?" : "Menti a változásokat?",

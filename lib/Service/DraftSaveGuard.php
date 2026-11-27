@@ -41,6 +41,7 @@ class DraftSaveGuard {
 	 * @param PermissionService            $permissions The per-change permission checks.
 	 * @param RoleFeaturePermissionService $roleWidgets Which widget types a role may add.
 	 * @param WidgetPlacementService       $placements  Checks container nesting.
+	 * @param DraftRules                   $rules       Reads, checks and stores the draft's visibility rules.
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
@@ -48,6 +49,7 @@ class DraftSaveGuard {
 		private readonly PermissionService $permissions,
 		private readonly RoleFeaturePermissionService $roleWidgets,
 		private readonly WidgetPlacementService $placements,
+		public readonly DraftRules $rules,
 	) {
 	}//end __construct()
 
@@ -76,6 +78,10 @@ class DraftSaveGuard {
 
 		foreach ($plan['change'] as $placementId => $changes) {
 			$this->assertMayChange(userId: $draft->userId, change: ['id' => (int)$placementId, 'fields' => $changes]);
+		}
+
+		foreach (array_keys($plan['rules'] ?? []) as $placementId) {
+			$this->rules->assertMayReplace(userId: $draft->userId, placementId: (int)$placementId);
 		}
 	}//end authorize()
 

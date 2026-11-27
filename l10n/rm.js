@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Memorisescha l'emprim tias midadas per tscherner tgi che vesa quest nov widget.",
     "No changes" : "Naginas midadas",
     "Keep editing" : "Cuntinuar a modifitgar",
     "Save changes?" : "Memorisar las midadas?",

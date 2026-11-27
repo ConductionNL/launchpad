@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Save your changes first to choose who sees this new widget." : "Nejprve uložte změny, abyste mohli zvolit, kdo uvidí tento nový widget.",
     "No changes" : "Žádné změny",
     "Keep editing" : "Pokračovat v úpravách",
     "Save changes?" : "Uložit změny?",

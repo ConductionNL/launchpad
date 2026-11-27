@@ -5,8 +5,8 @@
 
 <!--
 	WidgetEditMenu — the three-dot menu a widget shows in edit mode (board
-	LpBewerken): Edit widget, "Who sees this widget?", Create embed token and
-	Delete widget. Tiles use it too, with their own labels. Create embed token
+	LpBewerken): Edit widget, "Who sees this widget?", Duplicate, Create embed
+	token and Delete widget. Tiles use it too, with their own labels. Create embed token
 	is an edit-mode action only (REQ-WDG-050, review 27 Nov item 21).
 	The same look and test ids as nc-vue's CnWidgetEditCog, which offers no
 	room for a third item; "Who sees this widget?" is here so the rules
@@ -45,10 +45,32 @@
 			</template>
 			{{ t('launchpad', 'Who sees this widget?') }}
 		</NcActionButton>
+		<!-- REQ-WDG-050: Duplicate places a copy below the other widgets. -->
+		<NcActionButton
+			v-if="showDuplicate"
+			:closeAfterClick="true"
+			data-testid="widget-duplicate"
+			@click="$emit('duplicate')">
+			<template #icon>
+				<ContentCopy :size="20" />
+			</template>
+			{{ t('launchpad', 'Duplicate') }}
+		</NcActionButton>
 		<!-- REQ-WDG-050: only for people who may create embed tokens (the host
-		     passes a link), disabled for a widget that is not saved yet. -->
+		     passes a link), disabled for a widget that is not saved yet. With
+		     unsaved changes it is a button: the host asks to save first. -->
+		<NcActionButton
+			v-if="embedHref !== '' && !embedDisabled && embedAsksFirst"
+			:closeAfterClick="true"
+			data-testid="widget-create-embed-token"
+			@click="$emit('embed', embedHref)">
+			<template #icon>
+				<CodeTags :size="20" />
+			</template>
+			{{ t('launchpad', 'Create embed token') }}
+		</NcActionButton>
 		<NcActionLink
-			v-if="embedHref !== '' && !embedDisabled"
+			v-else-if="embedHref !== '' && !embedDisabled"
 			:href="embedHref"
 			data-testid="widget-create-embed-token">
 			<template #icon>
@@ -84,6 +106,7 @@ import { t } from '@nextcloud/l10n'
 import { NcActionLink } from '@nextcloud/vue'
 import AccountEye from 'vue-material-design-icons/AccountEye.vue'
 import CodeTags from 'vue-material-design-icons/CodeTags.vue'
+import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
 import DotsVertical from 'vue-material-design-icons/DotsVertical.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
@@ -94,6 +117,7 @@ export default {
 	components: {
 		AccountEye,
 		CodeTags,
+		ContentCopy,
 		Delete,
 		DotsVertical,
 		NcActionButton,
@@ -147,9 +171,24 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
+		/**
+		 * The draft has unsaved changes: Create embed token emits `embed`
+		 * with its link, so the host asks to save first (REQ-EDIT-003).
+		 */
+		embedAsksFirst: {
+			type: Boolean,
+			default: false,
+		},
+
+		/** Offers Duplicate (REQ-WDG-050). */
+		showDuplicate: {
+			type: Boolean,
+			default: true,
+		},
 	},
 
-	emits: ['edit', 'whoSees', 'remove'],
+	emits: ['edit', 'whoSees', 'duplicate', 'embed', 'remove'],
 
 	methods: {
 		t,

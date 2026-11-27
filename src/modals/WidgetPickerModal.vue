@@ -70,6 +70,24 @@
 				</p>
 			</form>
 
+			<!-- REQ-WDG-040: the App or link tile's form opens inside this dialog. -->
+			<TileEditor
+				v-if="tileForm"
+				embedded
+				:open="true"
+				:tile="null"
+				:dashboardName="dashboardName"
+				:catalogueApps="catalogueApps"
+				:discoveredApps="discoveredApps"
+				:foundServices="foundServices"
+				:officeTiles="officeTiles"
+				:placements="placements"
+				:requestAppFn="requestAppFn"
+				@close="tileForm = false"
+				@save="$emit('tileSave', $event)"
+				@addApps="$emit('addApps', $event)"
+				@importBookmarks="$emit('importBookmarks', $event)" />
+			<template v-else>
 			<div class="widget-picker__search">
 				<NcTextField
 					v-model="searchQuery"
@@ -261,6 +279,7 @@
 					{{ t('launchpad', 'Add widget') }}
 				</NcButton>
 			</div>
+			</template>
 		</div>
 	</NcModal>
 </template>
@@ -269,6 +288,7 @@
 import { appTileColourValue } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { NcButton, NcEmptyContent, NcModal, NcTextField } from '@nextcloud/vue'
+import { defineAsyncComponent } from 'vue'
 import Check from 'vue-material-design-icons/Check.vue'
 import Magnify from 'vue-material-design-icons/Magnify.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
@@ -304,6 +324,7 @@ export default {
 		Check,
 		ViewDashboardOutline,
 		WidgetMiniature,
+		TileEditor: defineAsyncComponent(() => import('./TileEditor.vue')),
 	},
 
 	props: {
@@ -337,6 +358,17 @@ export default {
 		 */
 		catalogueApps: LIST_PROP,
 
+		/**
+		 * The services found on the server, the office tiles and the
+		 * dashboard's placements, for the App or link tile's form
+		 * (REQ-WDG-040, app-link-tile-widget REQ-APPTILE-004).
+		 */
+		foundServices: LIST_PROP,
+
+		officeTiles: LIST_PROP,
+
+		placements: LIST_PROP,
+
 		/** The dashboard the widget goes on, shown over the title. */
 		dashboardName: TEXT_PROP,
 
@@ -359,7 +391,7 @@ export default {
 		},
 	},
 
-	emits: ['close', 'add', 'addApp', 'addCatalogueApp', 'addCustom', 'addOfficePack'],
+	emits: ['close', 'add', 'addApp', 'addCatalogueApp', 'addCustom', 'addOfficePack', 'tileForm', 'tileSave', 'addApps', 'importBookmarks'],
 
 	data() {
 		return {
@@ -377,6 +409,8 @@ export default {
 			assistantBusy: false,
 			assistantProposal: null,
 			assistantMessage: '',
+			// REQ-WDG-040: the App or link tile's form is shown in this dialog.
+			tileForm: false,
 		}
 	},
 
@@ -474,6 +508,7 @@ export default {
 				this.searchQuery = ''
 				this.chosenKind = 'all'
 				this.chosenKey = ''
+				this.tileForm = false
 				this.closeRequestForm()
 				this.clearAssistant()
 			},
@@ -545,6 +580,12 @@ export default {
 				return
 			}
 			const { event, arg } = card.action
+			// REQ-WDG-040: the App or link tile opens its form inside this dialog.
+			if (event === 'addCustom' && arg === 'tile') {
+				this.tileForm = true
+				this.$emit('tileForm')
+				return
+			}
 			if (arg === undefined) {
 				this.$emit(event)
 			} else {

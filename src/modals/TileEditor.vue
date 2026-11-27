@@ -9,11 +9,11 @@
 	     Both halves are silent failures: the compiler drops the unknown `.sync`
 	     modifier and Vue never warns about the missing prop, so the field
 	     renders empty and never writes back. Use `v-model` throughout. -->
-	<NcModal
-		v-model:show="isOpen"
-		class="launchpad-modal"
-		:name="heading"
-		size="normal"
+	<!-- add-widget-dialog-with-miniatures REQ-WDG-040: embedded, the form is
+	     drawn inside the Add widget dialog instead of a dialog of its own. -->
+	<component
+		:is="embedded ? 'div' : 'NcModal'"
+		v-bind="frameProps"
 		@close="$emit('close')">
 		<!-- tile-form-board-sync REQ-TILE-040: one 640 px form, in the board's order. -->
 		<div class="tile-editor">
@@ -522,7 +522,7 @@
 				</div>
 			</div>
 		</div>
-	</NcModal>
+	</component>
 </template>
 
 <script>
@@ -611,6 +611,9 @@ export default {
 		 * `{id, title, sortBy}` for each group (REQ-TILE-041).
 		 */
 		groups: LIST_PROP,
+
+		// add-widget-dialog-with-miniatures REQ-WDG-040: drawn inside Add widget.
+		embedded: FLAG_PROP,
 
 		// app-link-tile-widget REQ-APPTILE-004: the sources of "Choose the app".
 		catalogueApps: LIST_PROP,
@@ -954,6 +957,27 @@ export default {
 		 */
 		lastCheck() {
 			return lastCheckLine(this.lastReading, new Date(), t)
+		},
+
+		/**
+		 * The frame's attributes: the dialog's, or a plain block inside Add widget.
+		 *
+		 * @return {object}
+		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 */
+		frameProps() {
+			if (this.embedded) {
+				return { class: 'tile-editor-embedded', 'data-testid': 'tile-editor-embedded' }
+			}
+			return {
+				show: this.isOpen,
+				class: 'launchpad-modal',
+				name: this.heading,
+				size: 'normal',
+				'onUpdate:show': (value) => {
+					this.isOpen = value
+				},
+			}
 		},
 
 		isOpen: {

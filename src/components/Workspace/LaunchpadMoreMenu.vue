@@ -52,14 +52,14 @@
 					:aria-labelledby="`${domId}-dashboards`"
 					data-testid="launchpad-more-menu-group-dashboards">
 					<span :id="`${domId}-dashboards`" class="lp-more-menu__title">
-						{{ t('launchpad', 'Dashboards') }}
+						{{ dashboardsExpanded ? t('launchpad', 'All dashboards') : t('launchpad', 'Dashboards') }}
 					</span>
 					<div
 						class="lp-more-menu__dashboard-list"
 						:class="{ 'lp-more-menu__dashboard-list--all': dashboardsExpanded }"
 						data-testid="launchpad-more-menu-dashboard-list">
 						<div
-							v-for="item in dashboards"
+							v-for="item in dashboardRows"
 							:key="item.id"
 							class="lp-more-menu__row">
 							<p
@@ -73,7 +73,7 @@
 								:item="item"
 								:aria-expanded="item.keepOpen ? String(item.expanded === true) : undefined"
 								@click="choose($event, item)" />
-							<!-- Ruben's review item 6: a star per row of the full list. -->
+							<!-- REQ-SHELL-016: a star on every dashboard row, short or expanded. -->
 							<button
 								v-if="item.favourite !== undefined"
 								type="button"
@@ -81,8 +81,8 @@
 								:class="{ 'lp-more-menu__star--on': item.favourite }"
 								:aria-pressed="String(item.favourite)"
 								:aria-label="item.favourite
-									? t('launchpad', 'Remove {name} from favourites', { name: item.label })
-									: t('launchpad', 'Add {name} to favourites', { name: item.label })"
+									? t('launchpad', 'Remove from favourites: {name}', { name: item.label })
+									: t('launchpad', 'Add to favourites: {name}', { name: item.label })"
 								tabindex="-1"
 								:data-testid="`launchpad-more-menu-star-${item.id}`"
 								@click.stop="item.onToggleFavourite()">
@@ -91,6 +91,13 @@
 							</button>
 						</div>
 					</div>
+					<!-- REQ-SHELL-015: New dashboard and More/Less stand below the list, outside its scroll. -->
+					<LaunchpadMoreMenuItem
+						v-for="item in dashboardFoot"
+						:key="item.id"
+						:item="item"
+						:aria-expanded="item.keepOpen ? String(item.expanded === true) : undefined"
+						@click="choose($event, item)" />
 				</div>
 			</div>
 			<div v-if="hasEndColumn" class="lp-more-menu__column">
@@ -147,7 +154,7 @@
 				</template>
 			</div>
 			<!-- Ruben's review item 7: "Powered by" under both columns. -->
-			<SidebarFooter v-if="!hideFooter" class="lp-more-menu__footer" />
+			<MoreMenuFooter v-if="!hideFooter" class="lp-more-menu__footer" />
 		</div>
 	</NcPopover>
 </template>
@@ -162,9 +169,12 @@ import DotsHorizontal from 'vue-material-design-icons/DotsHorizontal.vue'
 import Star from 'vue-material-design-icons/Star.vue'
 import StarOutline from 'vue-material-design-icons/StarOutline.vue'
 import LaunchpadMoreMenuItem from './LaunchpadMoreMenuItem.vue'
-import SidebarFooter from './SidebarFooter.vue'
+import MoreMenuFooter from './MoreMenuFooter.vue'
 
 let menuCounter = 0
+
+/** The Dashboards column's items that stand below the list. */
+const FOOT_ITEMS = new Set(['new-dashboard', 'all-dashboards'])
 
 export default {
 	name: 'LaunchpadMoreMenu',
@@ -176,7 +186,7 @@ export default {
 		DotsHorizontal,
 		LaunchpadMoreMenuItem,
 		NcButton,
-		SidebarFooter,
+		MoreMenuFooter,
 		Star,
 		StarOutline,
 		NcPopover,
@@ -233,6 +243,26 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The dashboard rows (and the no-favourites line) inside the scrolling list.
+		 *
+		 * @return {object[]}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 */
+		dashboardRows() {
+			return this.dashboards.filter((item) => !FOOT_ITEMS.has(item.id))
+		},
+
+		/**
+		 * New dashboard and More/Less, below the list.
+		 *
+		 * @return {object[]}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 */
+		dashboardFoot() {
+			return this.dashboards.filter((item) => FOOT_ITEMS.has(item.id))
+		},
+
 		/**
 		 * The button's text and the menu's name.
 		 *
@@ -665,7 +695,7 @@ export default {
 }
 
 .lp-more-menu__star--on {
-	color: #f5b301;
+	color: #f0b400;
 }
 
 /* The theme that tints every button (see the items above) also tinted the
@@ -684,7 +714,7 @@ export default {
 }
 
 .lp-more-menu__star--on:not(#lp-more-menu-a):not(#lp-more-menu-b) {
-	color: #f5b301 !important;
+	color: #f0b400 !important;
 }
 
 .lp-more-menu__hint {

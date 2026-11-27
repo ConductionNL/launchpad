@@ -42,6 +42,7 @@
 					:canEdit="canEdit"
 					:canShare="canShareActiveDashboard"
 					:canDuplicate="canDuplicateActiveDashboard"
+					:canCreate="canCreatePersonalDashboard"
 					:canViewReadReceipts="
 						canEdit && acknowledgementAnnouncementKeys.length > 0
 					"
@@ -61,7 +62,8 @@
 					@readReceipts="
 						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
 					"
-					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
+					@delete="onSidebarDeleteDashboard(activeDashboard.id)"
+					@newDashboard="createWorkspaceDashboard" />
 				<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
 			     of the user's outstanding mandatory-read items. Hidden entirely
 			     when zero so dashboards without acknowledgement requirements are
@@ -506,7 +508,7 @@ import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageH
 import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardPageHeader from '../components/Workspace/DashboardPageHeader.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
-import { embedAdminHref, isOwnedDashboard } from '../components/Workspace/DashboardRowActions.vue'
+import { embedAdminHref, isOwnedDashboard } from '../utils/dashboardRows.js'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
@@ -964,9 +966,6 @@ export default {
 			// `movePanelPlacement`.
 			movePanelOpen: false,
 			movePanelPlacement: null,
-			// `dashboard-switcher` capability state — controlled here, the
-			// sidebar emits update:open(boolean) via its v-model rebind.
-			sidebarOpen: false,
 			// REQ-ANLT-011 — per-uuid debounce ledger. Maps dashboard
 			// UUID → last-send millisecond timestamp so two near-
 			// simultaneous mounts of the same dashboard (multi-tab,
@@ -1450,6 +1449,19 @@ export default {
 		},
 
 		/**
+		 * Whether More's expanded Dashboards list offers New dashboard:
+		 * personal dashboards allowed and the quota not reached (REQ-SHELL-015,
+		 * REQ-ASET-003, REQ-QUOTA-006).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 */
+		canCreatePersonalDashboard() {
+			return (this.allowUserDashboards === true || this.isAdmin === true)
+				&& !this.dashboardQuotaReached
+		},
+
+		/**
 		 * "Goes live on …" and/or "Comes down on …" for the active dashboard.
 		 *
 		 * @return {string} The note, or empty.
@@ -1670,20 +1682,6 @@ export default {
 			handler(placements) {
 				preloadFirstViewportRenderers(placements, getWidgetTypeEntry)
 			},
-		},
-
-		/**
-		 * The first time the switcher opens, read the fields its "Filter by
-		 * detail" offers.
-		 *
-		 * @param {boolean} open Whether the switcher is open.
-		 * @return {void}
-		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-		 */
-		sidebarOpen(open) {
-			if (open) {
-				this.loadDetailFieldsOnce()
-			}
 		},
 
 		openModals: {
@@ -2279,37 +2277,6 @@ export default {
 					'[Views] Failed to load default-dashboard preference:',
 					error,
 				)
-			}
-		},
-
-		/**
-		 * Read the detail fields once, the first time the switcher opens: the
-		 * filter that uses them lives there, so the page does not ask for them
-		 * while it loads.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-		 */
-		loadDetailFieldsOnce() {
-			if (this.detailFieldsRequested) {
-				return Promise.resolve()
-			}
-			this.detailFieldsRequested = true
-			return this.loadDetailFields()
-		},
-
-		/**
-		 * Read the detail fields, for the switcher's filter.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-		 */
-		async loadDetailFields() {
-			try {
-				const { data } = await api.getMetadataFieldDefinitions()
-				this.detailFields = Array.isArray(data?.fields) ? data.fields : []
-			} catch {
-				this.detailFields = []
 			}
 		},
 
@@ -4240,6 +4207,22 @@ export default {
 			} catch {
 				// Error surfaces via the store's showError toast; nothing
 				// additional to do here.
+			}
+		},
+
+		/**
+		 * New dashboard in More's expanded Dashboards list: create a personal
+		 * dashboard named "My workspace" and open it (REQ-SHELL-015). The store
+		 * shows the toast when the server refuses (REQ-ASET-003, quota).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 */
+		async createWorkspaceDashboard() {
+			try {
+				await this.createDashboard(t('launchpad', 'My workspace'))
+			} catch {
+				// The store reported it.
 			}
 		},
 

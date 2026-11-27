@@ -21,7 +21,7 @@
 import { t } from '@nextcloud/l10n'
 import { markRaw } from 'vue'
 import CheckDecagramOutline from 'vue-material-design-icons/CheckDecagramOutline.vue'
-import { isOwnedDashboard } from './DashboardRowActions.vue'
+import { isOwnedDashboard } from '../../utils/dashboardRows.js'
 import LaunchpadMoreMenu from './LaunchpadMoreMenu.vue'
 import { favouriteDashboardsMixin } from '../../services/favouriteDashboards.js'
 import {
@@ -110,6 +110,15 @@ export default {
 			default: false,
 		},
 
+		/**
+		 * Whether the expanded Dashboards list offers New dashboard: personal
+		 * dashboards allowed and the quota not reached (REQ-SHELL-015).
+		 */
+		canCreate: {
+			type: Boolean,
+			default: false,
+		},
+
 		/** Whether the read receipts of the active dashboard are offered. */
 		canViewReadReceipts: {
 			type: Boolean,
@@ -134,6 +143,7 @@ export default {
 		'setDefault',
 		'readReceipts',
 		'delete',
+		'newDashboard',
 	],
 
 	computed: {
@@ -157,6 +167,7 @@ export default {
 				onSwitch: (id, source) => this.$emit('switch', id, source),
 				onToggleExpanded: () => this.toggleDashboardsExpanded(),
 				onToggleFavourite: (uuid) => this.toggleDashboardFavourite(uuid),
+				onNewDashboard: this.canCreate ? () => this.$emit('newDashboard') : null,
 			})
 		},
 

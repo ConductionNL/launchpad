@@ -193,7 +193,7 @@ test('Powered by and Documentation are the menu footer, and Download is in This 
 	const { context, page } = await memberSession(browser)
 	try {
 		await openMore(page)
-		const footer = page.locator('[data-testid="launchpad-more-menu-panel"] [data-testid="sidebar-footer"]')
+		const footer = page.locator('[data-testid="launchpad-more-menu-panel"] [data-testid="more-menu-footer"]')
 		await expect(footer).toBeVisible()
 		await expect(footer).toContainText('Powered by')
 		for (const href of ['https://sendent.com', 'https://conduction.nl']) {

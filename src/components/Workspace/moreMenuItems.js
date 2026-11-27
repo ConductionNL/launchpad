@@ -8,7 +8,7 @@
  */
 
 import { CnDashboardIcon } from '@conduction/nextcloud-vue'
-import { t } from '@nextcloud/l10n'
+import { n, t } from '@nextcloud/l10n'
 import { h, markRaw } from 'vue'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
@@ -294,11 +294,12 @@ export function dashboardIcon(dashboard, isDefault) {
  * The Dashboards group (Ruben's review, 27 Nov 2026, items 5 and 6).
  *
  * Folded, it is a short list: the person's favourite dashboards, in the
- * order of the full list. A person without favourites sees the open
+ * order they starred them. A person without favourites sees the open
  * dashboard and a line saying that starring a dashboard puts it here
  * (Ruben's decision, 27 Nov 2026). The open dashboard is checked. "More" closes the list and unfolds the column in
- * place into every dashboard the person can open, each row with a star that
- * marks or unmarks it as a favourite; "Fewer" folds it again.
+ * place into every dashboard the person can open, favourites first, with
+ * "New dashboard" below it; "Less" folds it again. Every row carries a star
+ * that marks or unmarks it as a favourite (REQ-SHELL-014..016).
  *
  * @param {object} options The dashboards and what choosing one does.
  * @param {object[]} options.userDashboards The person's own dashboards.
@@ -311,6 +312,8 @@ export function dashboardIcon(dashboard, isDefault) {
  * @param {(id: string|number, source: string) => void} options.onSwitch Open a dashboard.
  * @param {() => void} options.onToggleExpanded Unfold or fold the column.
  * @param {(uuid: string) => void} options.onToggleFavourite Mark or unmark a favourite.
+ * @param {(() => void)|null} options.onNewDashboard Create and open a personal dashboard; null when
+ *   personal dashboards are off or the quota is reached, which leaves New dashboard out.
  * @return {object[]} The items.
  * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
  */
@@ -325,13 +328,17 @@ export function dashboardItems({
 	onSwitch,
 	onToggleExpanded = () => {},
 	onToggleFavourite = () => {},
+	onNewDashboard = null,
 }) {
 	const all = dashboardRows(userDashboards, groupDashboards, sharedDashboards)
-	const starred = new Set(favourites)
-	let rows = all
+	const byUuid = new Map(all.filter(({ d }) => Boolean(d.uuid)).map((row) => [row.d.uuid, row]))
+	// Favourites in the order the person starred them (board LpMeer).
+	const favouriteRows = favourites.map((uuid) => byUuid.get(uuid)).filter(Boolean)
+	const starred = new Set(favouriteRows.map(({ d }) => d.uuid))
+	const others = all.filter(({ d }) => !d.uuid || !starred.has(d.uuid))
+	let rows = [...favouriteRows, ...others]
 	let showHint = false
 	if (!expanded) {
-		const favouriteRows = all.filter(({ d }) => Boolean(d.uuid) && starred.has(d.uuid))
 		// Ruben, 27 Nov 2026: before anything is starred, the open dashboard
 		// and a line saying that a star puts a dashboard here.
 		showHint = favouriteRows.length === 0
@@ -347,7 +354,8 @@ export function dashboardItems({
 			checked: d.id === activeId,
 			onClick: () => onSwitch(d.id, source),
 		}
-		if (expanded && d.uuid) {
+		// REQ-SHELL-016: every row, short or expanded, carries its star.
+		if (d.uuid) {
 			item.favourite = starred.has(d.uuid)
 			item.onToggleFavourite = () => onToggleFavourite(d.uuid)
 		}
@@ -357,12 +365,24 @@ export function dashboardItems({
 		items.push({
 			id: 'favourites-hint',
 			hint: true,
-			label: t('launchpad', 'Star a dashboard under More to see it here.'),
+			label: t('launchpad', 'Star a dashboard to keep it here'),
 		})
 	}
+	if (expanded && typeof onNewDashboard === 'function') {
+		items.push({
+			id: 'new-dashboard',
+			label: t('launchpad', 'New dashboard'),
+			icon: markRaw(Plus),
+			onClick: () => onNewDashboard(),
+		})
+	}
+	const moreCount = all.length - (expanded ? 0 : rows.length)
 	items.push({
 		id: 'all-dashboards',
-		label: expanded ? t('launchpad', 'Fewer') : t('launchpad', 'More'),
+		label: expanded ? t('launchpad', 'Less') : t('launchpad', 'More'),
+		meta: expanded
+			? t('launchpad', 'favourites only')
+			: n('launchpad', '%n more dashboard', '%n more dashboards', Math.max(moreCount, 0)),
 		icon: markRaw(expanded ? ChevronUp : ViewGridOutline),
 		keepOpen: true,
 		expanded,
@@ -514,9 +534,9 @@ function actionRows(options) {
 		{ offered: options.canEdit, id: 'add-widget', label: t('launchpad', 'Add widget'), icon: Plus, event: 'addWidget' },
 		{ offered: options.canShare, id: 'share', label: t('launchpad', 'Sharing'), icon: ShareVariant, event: 'share' },
 		{ offered: true, id: 'copy-link', label: t('launchpad', 'Copy link to this dashboard'), icon: LinkVariant, event: 'copyLink' },
-		// Ruben's review item 8: Download moved here from the page header.
-		{ offered: options.canDownload !== false, id: 'download', label: t('launchpad', 'Download'), icon: Download, event: 'download' },
 		{ offered: options.canDuplicate, id: 'duplicate', label: t('launchpad', 'Duplicate as new dashboard'), icon: ContentCopy, event: 'duplicate' },
+		// REQ-DPD-003: Download sits between Duplicate and Set as default (board LpMeer).
+		{ offered: options.canDownload !== false, id: 'download', label: t('launchpad', 'Download'), icon: Download, event: 'download' },
 		{ offered: true, id: 'set-default', label: t('launchpad', 'Set as default'), icon: isDefault ? StarCheck : Star, event: 'setDefault' },
 		{ offered: options.isOwner, id: 'delete', label: t('launchpad', 'Delete'), icon: TrashCanOutline, event: 'delete', destructive: true },
 	]

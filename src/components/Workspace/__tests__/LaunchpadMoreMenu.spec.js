@@ -262,13 +262,13 @@ describe('LaunchpadMoreMenu', () => {
 
 	it('ends in the Powered by footer under both columns, unless left out (review item 7)', async () => {
 		const wrapper = await openMenu()
-		const footer = wrapper.find('[data-testid="sidebar-footer"]')
+		const footer = wrapper.find('[data-testid="more-menu-footer"]')
 		expect(footer.exists()).toBe(true)
 		expect(footer.classes()).toContain('lp-more-menu__footer')
 		expect(footer.findAll('a[target="_blank"][rel="noopener noreferrer"]').length).toBeGreaterThanOrEqual(2)
 		wrapper.unmount()
 		const without = await openMenu({ hideFooter: true })
-		expect(without.find('[data-testid="sidebar-footer"]').exists()).toBe(false)
+		expect(without.find('[data-testid="more-menu-footer"]').exists()).toBe(false)
 		without.unmount()
 	})
 

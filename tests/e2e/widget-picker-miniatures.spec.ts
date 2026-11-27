@@ -108,16 +108,17 @@ test('Tiles and links lists the tile widgets and Layout holds Container', async 
 	await expect(page.getByTestId('widget-picker-type-container')).toBeVisible()
 })
 
-test('the KPI, calendar, activity report, communities, week strip, stacked bar, news and notepad miniatures draw their samples without a request', async ({ page }) => {
+test('the KPI, calendar, activity report, communities, week strip, stacked bar, news, notepad, running flows, tasks, saved view and object table miniatures draw their samples without a request', async ({ page }) => {
 	await gotoLaunchPad(page)
 	await enterEditMode(page)
 	await expect(page.getByTestId('launchpad-dashboard-region')).toBeVisible()
 	await page.waitForTimeout(1500)
 	// REQ-WDG-048: these read OpenRegister aggregates, the calendar, Talk or
-	// the activity report when in use; as a miniature they read nothing.
+	// the activity report, flow runs, tasks or saved views when in use; as a
+	// miniature they read nothing.
 	const miniatureRequests: string[] = []
 	page.on('request', (req) => {
-		if (/\/api\/widgets\/news\/|\/provisioning_api\/|\/apps\/provisioning_api\/|\/aggregations\/|\/api\/objects\/|\/api\/activity-report|\/api\/calendar|\/apps\/spreed\/|\/ocs\/v2\.php\/apps\/spreed/.test(req.url())) {
+		if (/\/api\/widgets\/news\/|\/provisioning_api\/|\/apps\/provisioning_api\/|\/aggregations\/|\/api\/objects\/|\/api\/activity-report|\/api\/calendar|\/apps\/spreed\/|\/ocs\/v2\.php\/apps\/spreed|\/api\/flow-runs|\/api\/flow-tasks|\/api\/views/.test(req.url())) {
 			miniatureRequests.push(req.url())
 		}
 	})
@@ -134,6 +135,10 @@ test('the KPI, calendar, activity report, communities, week strip, stacked bar, 
 		'stacked-bar': 'In progress',
 		news: 'Road works on the Dorpsstraat',
 		notepad: 'Call Anna about the permit',
+		'flow-runs': 'Permit intake',
+		tasks: 'Review permit Dorpsstraat 12',
+		'saved-view': 'Permit Dorpsstraat 12',
+		'object-table': 'Permit Dorpsstraat 12',
 	}
 	for (const [type, text] of Object.entries(samples)) {
 		const card = page.getByTestId(`widget-picker-type-${type}`)

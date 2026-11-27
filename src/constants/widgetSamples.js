@@ -181,9 +181,10 @@ export const SAMPLE_CONTENT = Object.freeze({
 	'pie-chart': { chartKind: 'donut', source: 'values', values: [{ label: 'Open', value: 12 }, { label: 'In progress', value: 7 }, { label: 'Done', value: 21 }] },
 	graph: { chartKind: 'bar', source: 'values', values: BARS },
 	// nextcloud-vue display types the picker offers; their renderers draw
-	// content only, so the sample needs no preview support there. Types that
-	// read a register or poll (tasks, stacked bar, week strip, notepad, ...)
-	// keep the icon until nextcloud-vue honours `preview`.
+	// content only, so the sample needs no preview support there. The types
+	// that read a register, a flow or a note (stat, delta, gauge, notepad,
+	// flow-runs, tasks, saved-view, object-table) carry their own
+	// `sampleContent` in nextcloud-vue and honour `preview` there.
 	banner: { text: 'The town hall is closed on 24 December.', variant: 'info' },
 	// Static entries the shared week strip draws without a source; its `now`
 	// (SAMPLE_PROPS) puts them in the sample week.

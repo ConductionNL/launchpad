@@ -2182,59 +2182,6 @@
 		"validator": false,
 		"default": ""
 	},
-<<<<<<< HEAD
-	"../../modals/AddTilesModal.vue | open": {
-		"type": "Boolean",
-		"required": false,
-		"validator": false,
-		"default": false
-	},
-	"../../modals/AddTilesModal.vue | catalogueApps": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
-	"../../modals/AddTilesModal.vue | discoveredApps": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
-	"../../modals/AddTilesModal.vue | foundServices": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
-	"../../modals/AddTilesModal.vue | officeTiles": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
-	"../../modals/AddTilesModal.vue | placements": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
-	"../../modals/AddTilesModal.vue | requestAppFn": {
-		"type": "Function",
-		"required": false,
-		"validator": false,
-		"default": null
-	},
-	"../../modals/AddTilesModal.vue | addTiles": {
-		"type": "Function",
-		"required": true,
-		"validator": false
-	},
 	"../../modals/AnnouncementEditorModal.vue | inline": {
 		"type": "Boolean",
 		"required": false,
@@ -2247,8 +2194,6 @@
 		"validator": false,
 		"default": null
 	},
-=======
->>>>>>> origin/development
 	"../../modals/BookmarkImportModal.vue | open": {
 		"type": "Boolean",
 		"required": false,

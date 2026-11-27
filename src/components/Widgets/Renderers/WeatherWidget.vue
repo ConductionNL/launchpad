@@ -121,17 +121,20 @@ export default {
 
 	props: {
 		/**
+		 * The widget is a miniature in Add widget (REQ-WDG-048): it draws
+		 * its sample content and sends no request.
+		 */
+		preview: { type: Boolean, default: false },
+
+		/**
 		 * Persisted widget content blob: `{location, unitsOverride}`.
 		 *
-		 * Declared but not read here on purpose: the reading is resolved
-		 * SERVER-side by `GET /api/weather/{placementId}`, which loads this
-		 * same blob off the placement row. Keeping the prop absorbs
-		 * `WidgetRenderer.vue`'s uniform `:content` binding and documents what
-		 * the type persists.
+		 * The reading is resolved SERVER-side by `GET /api/weather/{placementId}`,
+		 * which loads this same blob off the placement row; here only a
+		 * miniature reads its `sampleReading` (REQ-WDG-048).
 		 *
-		 * @type {{location?: string, unitsOverride?: string}}
+		 * @type {{location?: string, unitsOverride?: string, sampleReading?: object}}
 		 */
-		// eslint-disable-next-line vue/no-unused-properties -- resolved server-side; see above
 		content: OBJECT_PROP,
 
 		/**
@@ -229,7 +232,13 @@ export default {
 		},
 	},
 
+	/** @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048 */
 	mounted() {
+		if (this.preview) {
+			this.reading = this.content?.sampleReading || null
+			this.loading = false
+			return
+		}
 		this.load()
 	},
 

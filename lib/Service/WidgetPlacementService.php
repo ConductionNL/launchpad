@@ -59,28 +59,16 @@ class WidgetPlacementService {
 	 * @throws InvalidArgumentException When the depth limit is exceeded.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-15
+	 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
 	 */
 	public function validateContainerDepth(array $content, int $depth = 0): void {
-		if (isset($content['placements']) === false
-			|| is_array($content['placements']) === false
-		) {
-			return;
-		}
-
-		// The `placements[]` key marks this content as a container —
-		// the current node IS one container level. If we're already at
-		// (or beyond) the cap, having any placements at all violates
-		// the invariant: a container at depth MAX cannot contain a
-		// container child (which would push the tree to MAX + 1).
-		// We only reject when one of those children is itself another
-		// container, matching the proposal wording: "depth > 3 AND any
-		// placements[] child is also a container".
-		$children = $content['placements'];
-		foreach ($children as $child) {
-			if (is_array($child) === false) {
-				continue;
-			}
-
+		// The `placements[]` key marks this content as a container, and a
+		// Tabs widget is a container whose tabs each hold a `placements[]`
+		// (REQ-CONT-006 counts wells and tabs together). The current node
+		// IS one level; only a child that is itself a container or tabs
+		// adds the next one, matching the proposal wording: "depth > 3 AND
+		// any placements[] child is also a container".
+		foreach ($this->childPlacements(content: $content) as $child) {
 			$this->validateChildDepth(child: $child, depth: $depth);
 		}//end foreach
 	}//end validateContainerDepth()
@@ -107,9 +95,11 @@ class WidgetPlacementService {
 		}
 
 		$isChildContainer = (
-			($child['type'] ?? null) === 'container'
+			in_array(needle: ($child['type'] ?? null), haystack: ['container', 'tabs'], strict: true) === true
 			|| (isset($childContent['placements']) === true
 				&& is_array($childContent['placements']) === true)
+			|| (isset($childContent['tabs']) === true
+				&& is_array($childContent['tabs']) === true)
 		);
 
 		if ($isChildContainer === false) {
@@ -128,4 +118,40 @@ class WidgetPlacementService {
 			depth: $childDepth
 		);
 	}//end validateChildDepth()
+
+	/**
+	 * The child placements of a container's or a Tabs widget's content: the
+	 * container's `placements[]`, and every tab's `placements[]`.
+	 *
+	 * @param array $content The widget placement's `content` blob.
+	 *
+	 * @return list<array> The child placements; none for another widget.
+	 *
+	 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+	 */
+	private function childPlacements(array $content): array {
+		$lists = [($content['placements'] ?? null)];
+		if (is_array($content['tabs'] ?? null) === true) {
+			foreach ($content['tabs'] as $tab) {
+				if (is_array($tab) === true) {
+					$lists[] = ($tab['placements'] ?? null);
+				}
+			}
+		}
+
+		$children = [];
+		foreach ($lists as $list) {
+			if (is_array($list) === false) {
+				continue;
+			}
+
+			foreach ($list as $child) {
+				if (is_array($child) === true) {
+					$children[] = $child;
+				}
+			}
+		}
+
+		return $children;
+	}//end childPlacements()
 }//end class

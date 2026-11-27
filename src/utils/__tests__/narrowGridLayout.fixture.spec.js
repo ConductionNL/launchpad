@@ -13,8 +13,8 @@
  * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
  */
 
-import { describe, expect, it } from 'vitest'
 import { GridStackEngine } from 'gridstack/dist/gridstack-engine.js'
+import { describe, expect, it } from 'vitest'
 import fixture from '../../../tests/fixtures/first-paint-layouts.json'
 import { DASHBOARD_BREAKPOINTS, dashboardColumnLayout } from '../narrowGridLayout.js'
 

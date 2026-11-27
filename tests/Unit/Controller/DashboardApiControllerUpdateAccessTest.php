@@ -158,6 +158,14 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 			$service->expects($this->never())->method('deleteDashboard');
 		}
 
+		if ($versions === null) {
+			// The version service runs the save it wraps (REQ-VERS-010).
+			$versions = $this->createMock(originalClassName: DashboardVersionService::class);
+			$versions->method('saveWithVersion')->willReturnCallback(
+				static fn (int $dashboardId, string $createdBy, \Closure $save): Dashboard => $save()
+			);
+		}
+
 		$request = $this->createMock(IRequest::class);
 		$request->method('getParam')->willReturnCallback(static fn (string $key) => $key === 'userId' ? 'alice' : ($body[$key] ?? null));
 
@@ -166,7 +174,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 			services: new DashboardApiServices(dashboardService: $service),
 			access: new DashboardApiAccess(permissionService: $permissions, history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
-				versionService: ($versions ?? $this->createMock(originalClassName: DashboardVersionService::class)),
+				versionService: $versions,
 				analyticsService: $this->createMock(AnalyticsService::class),
 				logger: $this->createMock(LoggerInterface::class)
 			)),
@@ -401,32 +409,31 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 		$this->assertSame([['canEditDashboardMetadata', 'bob', 7]], $this->asked);
 	}//end testPermissionUsesTheInjectedUserId()
 	/**
-	 * REQ-VERS-001: the automatic snapshot holds the dashboard as it was before
-	 * the PUT, taken before the save and written once the save succeeded.
+	 * REQ-VERS-010: an update runs inside the version service's save, so the
+	 * version is written in the save's transaction by the acting user.
 	 *
 	 * @return void
 	 */
-	public function testAnUpdateSnapshotsTheStateItReplaces(): void {
-		$before = new Dashboard();
-		$before->setName('Before');
+	public function testAnUpdateSavesWithItsVersion(): void {
 		$versions = $this->createMock(originalClassName: DashboardVersionService::class);
-		$versions->expects($this->once())->method('stateBeforeUpdate')->with(7)
-			->willReturn(['dashboard' => $before, 'snapshotJson' => '{"before":true}']);
-		$versions->expects($this->once())->method('captureSnapshot')
-			->with($this->identicalTo(value: $before), 'alice', ['snapshotJson' => '{"before":true}']);
+		$versions->expects($this->once())->method('saveWithVersion')
+			->with(7, 'alice', $this->isInstanceOf(\Closure::class))
+			->willReturnCallback(static fn (int $dashboardId, string $createdBy, \Closure $save): Dashboard => $save());
 
 		$response = $this->controller(sessionUid: 'alice', userId: 'alice', versions: $versions)->update(7, name: 'After');
 
 		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
-	}//end testAnUpdateSnapshotsTheStateItReplaces()
+		$this->assertSame(expected: [[7, 'alice']], actual: $this->saved);
+	}//end testAnUpdateSavesWithItsVersion()
 
 	/**
-	 * A refused update records no snapshot.
+	 * A refused update records no version: the save never starts.
 	 *
 	 * @return void
 	 */
 	public function testARefusedUpdateRecordsNoSnapshot(): void {
 		$versions = $this->createMock(originalClassName: DashboardVersionService::class);
+		$versions->expects($this->never())->method('saveWithVersion');
 		$versions->expects($this->never())->method('captureSnapshot');
 
 		$response = $this->controller(sessionUid: 'bob', userId: 'bob', versions: $versions)->update(7, name: 'x');

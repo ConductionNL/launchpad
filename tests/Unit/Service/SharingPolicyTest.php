@@ -152,6 +152,23 @@ class SharingPolicyTest extends TestCase {
 	}//end testPublicLinksAreOnUnlessSwitchedOff()
 
 	/**
+	 * REQ-KIOSK-007: screen links are on unless switched off.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-8
+	 */
+	public function testScreenLinksAreOnUnlessSwitchedOff(): void {
+		$this->assertTrue(condition: $this->limits()->screenLinksAllowed());
+
+		$this->stored = ['kiosk_screen_links_allowed' => false];
+		$this->assertFalse(condition: $this->limits()->screenLinksAllowed());
+
+		$this->stored = ['kiosk_screen_links_allowed' => true];
+		$this->assertTrue(condition: $this->limits()->screenLinksAllowed());
+	}//end testScreenLinksAreOnUnlessSwitchedOff()
+
+	/**
 	 * Scenario "A public link needs an expiry date".
 	 *
 	 * @return void

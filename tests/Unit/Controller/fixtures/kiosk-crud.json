@@ -17,7 +17,8 @@
             "refreshSeconds": 300,
             "createdBy": null,
             "createdAt": null,
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         [
             [
@@ -111,7 +112,8 @@
             "refreshSeconds": 300,
             "createdBy": null,
             "createdAt": null,
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         [
             [
@@ -191,7 +193,8 @@
                 "refreshSeconds": 300,
                 "createdBy": null,
                 "createdAt": null,
-                "revokedAt": null
+                "revokedAt": null,
+                "screenDashboardUuid": null
             },
             {
                 "id": null,
@@ -202,7 +205,8 @@
                 "refreshSeconds": 300,
                 "createdBy": null,
                 "createdAt": null,
-                "revokedAt": null
+                "revokedAt": null,
+                "screenDashboardUuid": null
             }
         ],
         [
@@ -265,7 +269,8 @@
             "refreshSeconds": 300,
             "createdBy": null,
             "createdAt": null,
-            "revokedAt": null
+            "revokedAt": null,
+            "screenDashboardUuid": null
         },
         [
             [

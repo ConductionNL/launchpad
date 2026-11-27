@@ -49,19 +49,20 @@ describe('AdminSettings tabs', () => {
 
 	it('puts General first, the tab the shell opens on', () => {
 		expect(tabs[0]).toEqual({ id: 'general', label: 'General' })
-		expect(tabs[1].id).toBe('templates')
+		expect(tabs[1].id).toBe('announcements')
 	})
 
-	it('hands the twelve drawn tabs to the admin shell as an underline strip (REQ-ADM-032)', () => {
+	it('hands the thirteen drawn tabs to the admin shell in the boards\' order (REQ-ADM-032)', () => {
 		expect(tabs.map((tab) => tab.id)).toEqual([
 			'general',
+			'announcements',
 			'templates',
-			'operations',
 			'roles-permissions',
-			'versioning-audit',
 			'sharing',
-			'kiosk',
 			'org-navigation',
+			'kiosk',
+			'versioning-audit',
+			'operations',
 			'demo-data',
 			'group-dashboards',
 			'detail-fields',
@@ -71,7 +72,33 @@ describe('AdminSettings tabs', () => {
 		expect(render).toContain('tabsVariant: "underline"')
 	})
 
-	it('keeps the open tab in the page path, not in ?tab= or browser storage', () => {
+	it('shows only the tabs the viewer holds, and the version card only with General (REQ-ADM-034)', () => {
+		const held = AdminSettings.computed.beheerTabs.call({ t, heldTabs: ['announcements'] })
+		expect(held).toEqual([{ id: 'announcements', label: 'Announcements' }])
+		expect(AdminSettings.computed.showsVersionCard.call({ heldTabs: ['announcements'] })).toBe(false)
+		expect(AdminSettings.computed.showsVersionCard.call({ heldTabs: ['general', 'announcements'] })).toBe(true)
+		expect(source).toContain(':showVersionCard="showsVersionCard"')
+	})
+
+	it('offers Restart setup and Tour on the version card (REQ-ADM-032)', () => {
+		expect(source).toContain('data-testid="admin-version-restart-setup"')
+		expect(source).toContain('data-testid="admin-version-tour"')
+		const ctx = {
+			activeTab: 'kiosk',
+			adminTourMounted: true,
+			adminTourSeen: '1.0.0',
+			onTabChange: vi.fn(),
+			showTab: vi.fn(),
+			$nextTick: (fn) => fn(),
+		}
+		AdminSettings.methods.startAdminTour.call(ctx)
+		expect(ctx.adminTourSeen).toBe('')
+		expect(ctx.adminTourMounted).toBe(true)
+		expect(ctx.onTabChange).toHaveBeenCalledWith('general')
+		expect(ctx.showTab).toHaveBeenCalledWith('general')
+	})
+
+	it('keeps the open tab out of ?tab= and browser storage (the fragment is AdminRoot\'s)', () => {
 		expect(render).toContain('tabQueryKey: ""')
 		expect(source).not.toContain('tabStorageKey')
 	})
@@ -179,7 +206,7 @@ describe('AdminSettings page header', () => {
 	it('draws in the board look of the admin shell', () => {
 		expect(source).toContain('<CnAdminSettingsShell')
 		expect(source).toContain('look="board"')
-		expect(source).toContain(':showVersionCard="false"')
+		expect(source).toContain(':showVersionCard="showsVersionCard"')
 	})
 
 	it('names the open tab in the title', () => {

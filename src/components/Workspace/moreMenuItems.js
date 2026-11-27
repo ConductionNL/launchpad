@@ -57,9 +57,11 @@ const LAUNCHPAD_ORDER = [
 
 /**
  * Panel entries the Launchpad group leaves out because another item already
- * offers them: the dashboards (the Dashboards group).
+ * offers them: the dashboards (the Dashboards group) and a stale
+ * `admin-settings` menu entry an older runtime manifest may still carry (the
+ * Settings group links to the admin settings page, REQ-ADM-032).
  */
-const OFFERED_ELSEWHERE = ['dashboards']
+const OFFERED_ELSEWHERE = ['dashboards', 'admin-settings']
 
 /**
  * The app's own destinations in the board's order.

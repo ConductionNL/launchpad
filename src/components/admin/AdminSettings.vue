@@ -722,8 +722,9 @@ export default {
 				'detail-fields': this.t('launchpad', 'Detail fields'),
 				'profile-fields': this.t('launchpad', 'Profile fields'),
 			}
+			const held = Array.isArray(this.heldTabs) ? this.heldTabs : ADMIN_TABS
 			return ADMIN_TABS
-				.filter((id) => this.heldTabs.includes(id))
+				.filter((id) => held.includes(id))
 				.map((id) => ({ id, label: labels[id] }))
 		},
 
@@ -735,7 +736,7 @@ export default {
 		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-delegated-admin-settings-per-area-req-adm-034
 		 */
 		showsVersionCard() {
-			return this.heldTabs.includes('general')
+			return !Array.isArray(this.heldTabs) || this.heldTabs.includes('general')
 		},
 	},
 

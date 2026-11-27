@@ -114,4 +114,11 @@ describe('AiAssistantWidget', () => {
 		)
 		expect(wrapper.text()).toContain('Two cases are overdue.')
 	})
+
+	// add-widget-dialog-with-miniatures REQ-WDG-048: a miniature asks nothing.
+	it('sends no request as a miniature', async () => {
+		mount(AiAssistantWidget, { props: { content: { agentUuid: '' }, placement: big, preview: true } })
+		await flushPromises()
+		expect(axios.get).not.toHaveBeenCalled()
+	})
 })

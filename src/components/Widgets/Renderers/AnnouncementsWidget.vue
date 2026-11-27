@@ -125,6 +125,12 @@ export default {
 	components: { AcknowledgementReportModal, AnnouncementCard, NcButton, NcSelect, NcTextField },
 
 	props: {
+		/**
+		 * The widget is a miniature in Add widget (REQ-WDG-048): it draws
+		 * its sample content and sends no request.
+		 */
+		preview: { type: Boolean, default: false },
+
 		/** Placement content: `category` (initial filter) and `limit`. */
 		content: {
 			type: Object,
@@ -185,8 +191,14 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/engagement-announcements/tasks.md#task-7 */
+	/**
+	 * @spec openspec/changes/engagement-announcements/tasks.md#task-7
+	 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+	 */
 	created() {
+		if (this.preview) {
+			return
+		}
 		this.load()
 	},
 

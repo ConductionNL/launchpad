@@ -5,28 +5,33 @@
 
 <template>
 	<div class="announcement-receipts" data-testid="announcement-receipts-view">
-		<div class="announcement-receipts__figures" data-testid="announcement-receipts-counts">
-			<div class="announcement-receipts__figure">
-				<strong>{{ report.audienceCount ?? report.rows.length }}</strong>
-				<span>{{ t('launchpad', 'In the audience') }}</span>
-			</div>
-			<div class="announcement-receipts__figure">
-				<strong data-testid="receipts-seen">{{ report.seenCount ?? 0 }}</strong>
-				<span>{{ t('launchpad', 'Seen') }}</span>
-				<small>{{ t('launchpad', '{count} not yet seen', { count: report.notSeenCount ?? 0 }) }}</small>
-			</div>
-			<div class="announcement-receipts__figure">
-				<strong data-testid="receipts-confirmed">{{ report.confirmedCount ?? report.acknowledgedCount ?? 0 }}</strong>
-				<span>{{ t('launchpad', 'Confirmed') }}</span>
-				<small>{{ t('launchpad', '{check} with the check, {x} with the x', { check: report.confirmedViaCheck ?? 0, x: report.confirmedViaX ?? 0 }) }}</small>
-			</div>
-			<div class="announcement-receipts__figure">
-				<strong data-testid="receipts-not-confirmed">{{ report.notConfirmedCount ?? report.pendingCount ?? 0 }}</strong>
-				<span>{{ t('launchpad', 'Not confirmed') }}</span>
-			</div>
+		<!-- LpLeesbevestigingen: the confirmed count over the audience, the
+		     number still to go and the deadline, a bar; below it what the spec
+		     adds: who has seen it and how they confirmed (REQ-ANN-009). -->
+		<p class="announcement-receipts__summary" data-testid="announcement-receipts-counts">
+			<strong class="announcement-receipts__big" data-testid="receipts-confirmed">{{ confirmedCount }}</strong>
+			<span>{{ t('launchpad', 'of {audience} confirmed', { audience: audienceCount }) }}</span>
+			<span> · {{ t('launchpad', '{count} to go', { count: notConfirmedCount }) }}</span>
+			<span v-if="deadlineText" :class="{ 'announcement-receipts__overdue': report.overdue }"> · {{ deadlineText }}</span>
+		</p>
+		<div
+			class="announcement-receipts__bar"
+			role="progressbar"
+			:aria-valuenow="percent"
+			aria-valuemin="0"
+			aria-valuemax="100"
+			:aria-label="t('launchpad', 'Read confirmations')"
+			data-testid="receipts-bar">
+			<span class="announcement-receipts__bar-fill" :style="{ width: `${percent}%` }" />
 		</div>
+		<p class="announcement-receipts__detail">
+			<span>{{ t('launchpad', 'Seen by') }} <strong data-testid="receipts-seen">{{ report.seenCount ?? 0 }}</strong></span>
+			<span> · {{ t('launchpad', '{count} not yet seen', { count: report.notSeenCount ?? 0 }) }}</span>
+			<span> · {{ t('launchpad', '{check} with the check, {x} with the x', { check: report.confirmedViaCheck ?? 0, x: report.confirmedViaX ?? 0 }) }}</span>
+			<span class="hidden-visually" data-testid="receipts-not-confirmed">{{ notConfirmedCount }}</span>
+		</p>
 
-		<div class="announcement-receipts__bar">
+		<div class="announcement-receipts__bar-row">
 			<div class="announcement-receipts__filters" role="group" :aria-label="t('launchpad', 'Show')">
 				<NcButton
 					v-for="option in filterOptions"
@@ -40,6 +45,9 @@
 			</div>
 			<div class="announcement-receipts__tools">
 				<NcButton variant="secondary" data-testid="receipts-download" @click="download">
+					<template #icon>
+						<Download :size="20" />
+					</template>
 					{{ t('launchpad', 'Download') }}
 				</NcButton>
 				<NcButton
@@ -59,38 +67,45 @@
 			<thead>
 				<tr>
 					<th scope="col">
-						{{ t('launchpad', 'Name') }}
+						{{ t('launchpad', 'Employee') }}
 					</th>
-					<th v-if="report.departmentLabel" scope="col">
-						{{ report.departmentLabel }}
+					<th scope="col">
+						{{ report.departmentLabel || t('launchpad', 'Department') }}
 					</th>
 					<th scope="col">
 						{{ t('launchpad', 'Status') }}
-					</th>
-					<th scope="col">
-						{{ t('launchpad', 'Time') }}
 					</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr v-for="row in shownRows" :key="row.userId" data-testid="receipts-row">
-					<td>{{ row.displayName || row.userId }}</td>
-					<td v-if="report.departmentLabel">
-						{{ row.department }}
+					<td>
+						<span class="announcement-receipts__person">
+							<span class="announcement-receipts__initials" aria-hidden="true">{{ initialsOf(row.displayName || row.userId) }}</span>
+							{{ row.displayName || row.userId }}
+						</span>
 					</td>
-					<td>{{ statusText(row) }}</td>
-					<td>{{ formatTime(row.confirmedAt || row.acknowledgedAt || row.seenAt) }}</td>
+					<td>{{ row.department || '—' }}</td>
+					<td>
+						<span :class="`announcement-receipts__badge announcement-receipts__badge--${badgeOf(row)}`">
+							{{ statusText(row) }}
+						</span>
+					</td>
 				</tr>
 			</tbody>
 		</table>
+		<p class="announcement-receipts__note" data-testid="receipts-shown">
+			{{ t('launchpad', '{shown} of {total} shown. Download gives the full list with the date and time of each confirmation.', { shown: shownRows.length, total: audienceCount }) }}
+		</p>
 	</div>
 </template>
 
 <script>
-import { getCanonicalLocale } from '@nextcloud/l10n'
 import { NcButton } from '@nextcloud/vue'
+import Download from 'vue-material-design-icons/Download.vue'
 import { announcementsApi } from '../../../services/announcementsApi.js'
 import { logger } from '../../../utils/logger.js'
+import { initialsOf, receiptDate } from '../../../utils/readReceipts.js'
 
 /**
  * A row's status: confirmed via the check or the x, seen, or not seen.
@@ -174,7 +189,7 @@ export function receiptsCsv(rows) {
 export default {
 	name: 'AnnouncementReceipts',
 
-	components: { NcButton },
+	components: { Download, NcButton },
 
 	props: {
 		/** The announcement. */
@@ -200,6 +215,47 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * @return {number} The audience size.
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 */
+		audienceCount() {
+			return this.report.audienceCount ?? (Array.isArray(this.report.rows) ? this.report.rows.length : 0)
+		},
+
+		/**
+		 * @return {number} How many confirmed, either way.
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 */
+		confirmedCount() {
+			return this.report.confirmedCount ?? this.report.acknowledgedCount ?? 0
+		},
+
+		/**
+		 * @return {number} How many have not confirmed.
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 */
+		notConfirmedCount() {
+			return this.report.notConfirmedCount ?? Math.max(0, this.audienceCount - this.confirmedCount)
+		},
+
+		/**
+		 * @return {number} The confirmed share, 0 to 100.
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 */
+		percent() {
+			return this.audienceCount > 0 ? Math.round((this.confirmedCount / this.audienceCount) * 100) : 0
+		},
+
+		/**
+		 * @return {string} "deadline Friday 30 October", or ''.
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 */
+		deadlineText() {
+			const date = receiptDate(this.report.deadline, { weekday: 'long', day: 'numeric', month: 'long' })
+			return date ? this.t('launchpad', 'deadline {date}', { date }) : ''
+		},
+
 		/**
 		 * @return {Array<{id: string, label: string}>} The four filters.
 		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
@@ -231,31 +287,33 @@ export default {
 	},
 
 	methods: {
+		initialsOf,
+
+		/**
+		 * @param {object} row A report row.
+		 * @return {string} The badge colour: acknowledged or pending.
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 */
+		badgeOf(row) {
+			const status = receiptStatus(row)
+			return status === 'check' || status === 'x' ? 'acknowledged' : 'pending'
+		},
+
 		/**
 		 * @param {object} row A report row.
 		 * @return {string} The status as the list names it.
 		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		statusText(row) {
-			const labels = {
-				check: this.t('launchpad', 'Confirmed with the check'),
-				x: this.t('launchpad', 'Confirmed with the x'),
-				seen: this.t('launchpad', 'Seen, not confirmed'),
-				'not-seen': this.t('launchpad', 'Not seen'),
+			const status = receiptStatus(row)
+			const date = receiptDate(row.confirmedAt || row.acknowledgedAt, { day: 'numeric', month: 'short' })
+			if (status === 'check') {
+				return date ? this.t('launchpad', 'Confirmed {date} with the check', { date }) : this.t('launchpad', 'Confirmed with the check')
 			}
-			return labels[receiptStatus(row)]
-		},
-
-		/**
-		 * @param {string|null} iso A stored time.
-		 * @return {string} The time in the reader's locale, or a dash.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
-		 */
-		formatTime(iso) {
-			const date = new Date(iso ?? '')
-			return !iso || Number.isNaN(date.getTime())
-				? '–'
-				: date.toLocaleString(getCanonicalLocale(), { dateStyle: 'medium', timeStyle: 'short' })
+			if (status === 'x') {
+				return date ? this.t('launchpad', 'Confirmed {date} with the x', { date }) : this.t('launchpad', 'Confirmed with the x')
+			}
+			return status === 'seen' ? this.t('launchpad', 'Seen, not yet') : this.t('launchpad', 'Not seen yet')
 		},
 
 		/**
@@ -301,45 +359,59 @@ export default {
 </script>
 
 <style scoped>
-.announcement-receipts__figures {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-	gap: 12px;
-	margin-bottom: 16px;
+.announcement-receipts__summary {
+	margin: 0 0 8px;
 }
 
-.announcement-receipts__figure {
-	display: flex;
-	flex-direction: column;
-	padding: 12px;
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius-large);
+.announcement-receipts__big {
+	font-size: 28px;
+	margin-inline-end: 6px;
 }
 
-.announcement-receipts__figure strong {
-	font-size: 24px;
-}
-
-.announcement-receipts__figure small {
-	color: var(--color-text-maxcontrast);
+.announcement-receipts__overdue {
+	color: var(--color-error-text, var(--color-error));
 }
 
 .announcement-receipts__bar {
+	height: 8px;
+	border-radius: var(--border-radius-pill, 100px);
+	background: var(--color-background-dark);
+	overflow: hidden;
+}
+
+.announcement-receipts__bar-fill {
+	display: block;
+	height: 100%;
+	background: var(--color-primary-element);
+}
+
+.announcement-receipts__detail,
+.announcement-receipts__note,
+.announcement-receipts__message {
+	margin: 8px 0 0;
+	color: var(--color-text-maxcontrast);
+}
+
+.announcement-receipts__bar-row {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
 	gap: 8px;
+	margin-top: 12px;
 }
 
-.announcement-receipts__filters,
+.announcement-receipts__filters {
+	display: flex;
+	gap: 2px;
+	padding: 2px;
+	border-radius: var(--border-radius-large);
+	background: var(--color-background-dark);
+}
+
 .announcement-receipts__tools {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 4px;
-}
-
-.announcement-receipts__message {
-	color: var(--color-text-maxcontrast);
+	gap: 8px;
 }
 
 .announcement-receipts__table {
@@ -350,8 +422,46 @@ export default {
 
 .announcement-receipts__table th,
 .announcement-receipts__table td {
-	padding: 6px 8px;
+	padding: 10px 12px;
 	text-align: start;
 	border-bottom: 1px solid var(--color-border);
+}
+
+.announcement-receipts__table th {
+	font-weight: normal;
+	color: var(--color-text-maxcontrast);
+}
+
+.announcement-receipts__person {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.announcement-receipts__initials {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: var(--color-background-dark);
+	font-size: 12px;
+	font-weight: bold;
+}
+
+.announcement-receipts__badge {
+	padding: 2px 8px;
+	border-radius: var(--border-radius);
+}
+
+.announcement-receipts__badge--acknowledged {
+	color: var(--color-success-text, var(--color-success));
+	background: var(--color-success-hover, transparent);
+}
+
+.announcement-receipts__badge--pending {
+	color: var(--color-warning-text, var(--color-warning));
+	background: var(--color-warning-hover, transparent);
 }
 </style>

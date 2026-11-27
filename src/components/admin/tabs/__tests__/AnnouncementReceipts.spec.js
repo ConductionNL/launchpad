@@ -78,6 +78,13 @@ describe('AnnouncementReceipts', () => {
 		expect(wrapper.find('[data-testid="receipts-confirmed"]').text()).toBe('2')
 		expect(wrapper.find('[data-testid="receipts-not-confirmed"]').text()).toBe('2')
 		expect(wrapper.text()).toContain('1 with the check, 1 with the x')
+		expect(wrapper.find('[data-testid="receipts-bar"]').attributes('aria-valuenow')).toBe('50')
+		expect(wrapper.find('[data-testid="receipts-shown"]').text()).toMatch(/^4 of 4 shown\./)
+		const rows = wrapper.findAll('[data-testid="receipts-row"]').map((row) => row.text())
+		expect(rows[0]).toMatch(/^A\s*Anna.*Confirmed .* with the check$/)
+		expect(rows[1]).toMatch(/with the x$/)
+		expect(rows[2]).toMatch(/Seen, not yet$/)
+		expect(rows[3]).toMatch(/Not seen yet$/)
 		expect(wrapper.findAll('[data-testid="receipts-row"]')).toHaveLength(4)
 
 		await wrapper.find('[data-testid="receipts-filter-not-seen"]').trigger('click')

@@ -20,7 +20,6 @@ namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\AppFramework\Db\Entity;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\IDBConnection;
 
@@ -38,7 +37,7 @@ class AdminSettingMapper extends QBMapper {
 	 * Every stored setting, decoded, read once per mapper instance (one request).
 	 *
 	 * A Workspace render asks for ~20 settings one by one; each used to be its
-	 * own query. Null until the first read; every write through this mapper
+	 * own query. Null until the first read; setSetting() (the only writer)
 	 * empties it.
 	 *
 	 * @var array<string, mixed>|null
@@ -107,8 +106,11 @@ class AdminSettingMapper extends QBMapper {
 	 * @param mixed $value The setting value.
 	 *
 	 * @return AdminSetting The created or updated setting.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#req-aset-002
 	 */
 	public function setSetting(string $key, mixed $value): AdminSetting {
+		$this->values = null;
 		try {
 			$setting = $this->findByKey(key: $key);
 			$setting->setValueEncoded($value);
@@ -126,10 +128,10 @@ class AdminSettingMapper extends QBMapper {
 	/**
 	 * Get a setting value with default.
 	 *
+	 * Answered from the settings read once per request (getAllAsArray).
+	 *
 	 * @param string $key The setting key.
 	 * @param mixed $default The default value.
-	 *
-	 * Answered from the settings read once per request (getAllAsArray).
 	 *
 	 * @return mixed The setting value or default.
 	 *
@@ -143,46 +145,4 @@ class AdminSettingMapper extends QBMapper {
 
 		return $default;
 	}//end getValue()
-
-	/**
-	 * Insert a setting row and forget the settings read so far.
-	 *
-	 * @param Entity $entity The setting.
-	 *
-	 * @return Entity The inserted setting.
-	 *
-	 * @spec openspec/specs/admin-settings/spec.md#req-aset-001
-	 */
-	public function insert(Entity $entity): Entity {
-		$this->values = null;
-		return parent::insert(entity: $entity);
-	}//end insert()
-
-	/**
-	 * Update a setting row and forget the settings read so far.
-	 *
-	 * @param Entity $entity The setting.
-	 *
-	 * @return Entity The updated setting.
-	 *
-	 * @spec openspec/specs/admin-settings/spec.md#req-aset-001
-	 */
-	public function update(Entity $entity): Entity {
-		$this->values = null;
-		return parent::update(entity: $entity);
-	}//end update()
-
-	/**
-	 * Delete a setting row and forget the settings read so far.
-	 *
-	 * @param Entity $entity The setting.
-	 *
-	 * @return Entity The deleted setting.
-	 *
-	 * @spec openspec/specs/admin-settings/spec.md#req-aset-001
-	 */
-	public function delete(Entity $entity): Entity {
-		$this->values = null;
-		return parent::delete(entity: $entity);
-	}//end delete()
 }//end class

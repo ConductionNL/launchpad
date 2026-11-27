@@ -141,12 +141,12 @@ class AdminSettingMapperTest extends TestCase {
 		];
 		$mapper = new AdminSettingMapper($recorder->connection());
 
-		$this->assertSame(25, $mapper->getValue('limit', 10));
-		$this->assertNull($mapper->getValue('unset', 'fallback'));
-		$this->assertSame('fallback', $mapper->getValue('missing', 'fallback'));
-		$this->assertSame(['limit' => 25, 'unset' => null], $mapper->getAllAsArray());
+		$this->assertSame(expected: 25, actual: $mapper->getValue(key: 'limit', default: 10));
+		$this->assertNull(actual: $mapper->getValue(key: 'unset', default: 'fallback'));
+		$this->assertSame(expected: 'fallback', actual: $mapper->getValue(key: 'missing', default: 'fallback'));
+		$this->assertSame(expected: ['limit' => 25, 'unset' => null], actual: $mapper->getAllAsArray());
 
-		$this->assertCount(1, preg_grep('/\.executeQuery\(/', $recorder->calls));
+		$this->assertCount(expectedCount: 1, haystack: preg_grep(pattern: '/\.executeQuery\(/', array: $recorder->calls));
 	}//end testManyReadsCostOneQuery()
 
 	/**
@@ -159,10 +159,10 @@ class AdminSettingMapperTest extends TestCase {
 		$recorder->rows = [['id' => 1, 'setting_key' => 'limit', 'setting_value' => '25']];
 		$mapper = new AdminSettingMapper($recorder->connection());
 
-		$this->assertSame(25, $mapper->getValue('limit'));
-		$mapper->setSetting('limit', 40);
+		$this->assertSame(expected: 25, actual: $mapper->getValue(key: 'limit'));
+		$mapper->setSetting(key: 'limit', value: 40);
 		$recorder->rows = [['id' => 1, 'setting_key' => 'limit', 'setting_value' => '40']];
 
-		$this->assertSame(40, $mapper->getValue('limit'));
+		$this->assertSame(expected: 40, actual: $mapper->getValue(key: 'limit'));
 	}//end testAWriteMakesTheNextReadQueryAgain()
 }//end class

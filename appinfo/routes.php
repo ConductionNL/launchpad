@@ -45,6 +45,10 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'store#update', 'url' => '/api/store/items/{slug}/update', 'verb' => 'POST',
 		 'requirements' => ['slug' => '[a-z0-9][a-z0-9\-]*[a-z0-9]']],
 
+		// REQ-STORE-013: the publish dialog lists the dashboards and publishes one.
+		['name' => 'store#publishable', 'url' => '/api/store/publishable', 'verb' => 'GET'],
+		['name' => 'store#publish', 'url' => '/api/store/publish', 'verb' => 'POST'],
+
 		// Generic per-user preferences (used by shared nextcloud-vue widgets, e.g. CnSupportDialog).
 		['name' => 'preferences#getPreference', 'url' => '/api/preferences/{key}', 'verb' => 'GET'],
 		['name' => 'preferences#setPreference', 'url' => '/api/preferences/{key}', 'verb' => 'PUT'],

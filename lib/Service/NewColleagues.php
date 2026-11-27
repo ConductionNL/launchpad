@@ -154,7 +154,7 @@ class NewColleagues {
 		}
 
 		// The list shows photo, role and team (REQ-PPL-014), read as the people widget reads them.
-		$profile = $this->people->buildUserProfile(user: $user, showBirthdays: false);
+		$profile = $this->people->buildUserProfile(user: $user, showBirthdays: false, viewerId: $viewerId);
 		foreach (['avatarUrl', 'role', 'organisation'] as $key) {
 			if (is_string(value: ($profile[$key] ?? null)) === true && $profile[$key] !== '') {
 				$entry[$key] = $profile[$key];

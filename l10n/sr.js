@@ -1,6 +1,12 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Own publication" : "Сопствена објава",
+    "The upload is larger than this server accepts." : "Отпремање је веће него што овај сервер прихвата.",
+    "The file is too large." : "Датотека је превелика.",
+    "This type of file is not allowed here." : "Ова врста датотеке овде није дозвољена.",
+    "The upload failed." : "Отпремање није успело.",
+    "{name} was not uploaded: {reason}" : "{name} није отпремљена: {reason}",
     "New colleagues" : "Нове колеге",
     "Required: this widget cannot be removed" : "Обавезно: овај виџет не може да се уклони",
     "Connections of this dashboard" : "Везе ове контролне табле",

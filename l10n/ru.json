@@ -1,5 +1,11 @@
 {
     "translations": {
+        "Own publication" : "Собственная публикация",
+        "The upload is larger than this server accepts.": "Загрузка больше, чем принимает этот сервер.",
+        "The file is too large.": "Файл слишком большой.",
+        "This type of file is not allowed here.": "Этот тип файла здесь не разрешён.",
+        "The upload failed.": "Не удалось загрузить.",
+        "{name} was not uploaded: {reason}": "{name} не загружен: {reason}",
         "New colleagues": "Новые коллеги",
         "Required: this widget cannot be removed" : "Обязательный: этот виджет нельзя удалить",
         "Connections of this dashboard": "Подключения этой панели",

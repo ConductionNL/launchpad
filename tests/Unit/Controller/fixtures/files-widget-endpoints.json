@@ -219,7 +219,14 @@
                         "fileId": 9
                     },
                     "/sub",
-                    []
+                    [
+                        {
+                            "name": "a.txt",
+                            "tmp_name": "/t/a",
+                            "size": 1,
+                            "error": 0
+                        }
+                    ]
                 ]
             ]
         ],
@@ -239,7 +246,14 @@
                         "fileId": 5
                     },
                     "/sub",
-                    []
+                    [
+                        {
+                            "name": "a.txt",
+                            "tmp_name": "/t/a",
+                            "size": 1,
+                            "error": 0
+                        }
+                    ]
                 ]
             ]
         ],
@@ -259,7 +273,14 @@
                         "fileId": 6
                     },
                     "/sub",
-                    []
+                    [
+                        {
+                            "name": "a.txt",
+                            "tmp_name": "/t/a",
+                            "size": 1,
+                            "error": 0
+                        }
+                    ]
                 ]
             ]
         ],
@@ -281,7 +302,14 @@
                         "fileId": 9
                     },
                     "/sub",
-                    []
+                    [
+                        {
+                            "name": "a.txt",
+                            "tmp_name": "/t/a",
+                            "size": 1,
+                            "error": 0
+                        }
+                    ]
                 ]
             ]
         ],
@@ -303,7 +331,14 @@
                         "fileId": 9
                     },
                     "/sub",
-                    []
+                    [
+                        {
+                            "name": "a.txt",
+                            "tmp_name": "/t/a",
+                            "size": 1,
+                            "error": 0
+                        }
+                    ]
                 ]
             ]
         ],
@@ -324,7 +359,14 @@
                         "fileId": 9
                     },
                     "/sub",
-                    []
+                    [
+                        {
+                            "name": "a.txt",
+                            "tmp_name": "/t/a",
+                            "size": 1,
+                            "error": 0
+                        }
+                    ]
                 ]
             ]
         ],

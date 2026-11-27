@@ -88,23 +88,27 @@ class StoreService {
 	];
 
 	/**
-	 * Fully-qualified name of the engine's descriptor value object.
+	 * The fields of a publication that may leave this server (REQ-STORE-013).
 	 *
-	 * Held as a string so no `OCA\OpenRegister\…` symbol is touched at load
-	 * time. Instantiated only after the injected client proved non-null.
+	 * The engine sends the slug plus exactly these fields, never anything else
+	 * the payload carries, so an owner or a share field a caller forgot to
+	 * strip still never reaches the register.
+	 *
+	 * @var list<string>
 	 */
-	private const DESCRIPTOR_CLASS = 'OCA\\OpenRegister\\AppHost\\Service\\StoreDescriptor';
+	public const PUBLISH_FIELDS = ['title', 'description', 'category', 'version', 'publisher', 'widgets', 'dashboards'];
 
 	/**
-	 * The read half of the descriptor, in OpenRegister releases that split it
-	 * into a listing and a sharing part. Absent in older releases.
+	 * Who may publish: Nextcloud administrators (REQ-STORE-013).
+	 *
+	 * @var list<string>
 	 */
-	private const LISTING_CLASS = 'OCA\\OpenRegister\\AppHost\\Service\\StoreListing';
+	public const PUBLISH_GROUPS = ['admin'];
 
 	/**
-	 * The share half of the descriptor, next to {@see self::LISTING_CLASS}.
+	 * Outcome reported when the engine cannot take a publication.
 	 */
-	private const SHARING_CLASS = 'OCA\\OpenRegister\\AppHost\\Service\\StoreSharing';
+	public const OUTCOME_NOT_PUBLISHABLE = 'not_publishable';
 
 	/**
 	 * Outcome reported when there is nothing to talk to.
@@ -371,6 +375,31 @@ class StoreService {
 	}//end resolveItem()
 
 	/**
+	 * Publish one item to the connected register through OpenRegister's store plane.
+	 *
+	 * LaunchPad never talks to the register itself: the engine owns the
+	 * transport guard, sends only {@see self::PUBLISH_FIELDS} and checks that
+	 * the register stored the slug it was sent. Its outcome is passed through
+	 * verbatim, like a search's (REQ-STORE-003).
+	 *
+	 * @param array<string, mixed> $item The item, carrying its slug.
+	 *
+	 * The caller checks {@see self::isAvailable()} first: without OpenRegister
+	 * the outcome it reports is not_configured, and this answers an empty array.
+	 *
+	 * @return array<string, mixed> `{outcome, slug}` as the engine answered.
+	 *
+	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
+	 * @psalm-suppress MixedReturnStatement The engine's outcome passes through verbatim.
+	 *
+	 * @spec openspec/changes/store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 */
+	public function publish(array $item): array {
+		// Without OpenRegister nothing is sent and the answer is empty.
+		return (array)$this->discovery?->publish(descriptor: $this->descriptor(), payload: $item);
+	}//end publish()
+
+	/**
 	 * The registry connection, with the token redacted.
 	 *
 	 * 🔴 THE TOKEN NEVER LEAVES THE SERVER. The read reports only WHETHER one
@@ -421,27 +450,25 @@ class StoreService {
 		?string $registryRegister = null,
 		?string $registryName = null,
 	): void {
+		$values = [
+			self::CONFIG_URL           => $registryUrl,
+			self::CONFIG_REGISTRY_AUTH => $registryToken,
+			self::CONFIG_REGISTER      => $registryRegister,
+			self::CONFIG_NAME          => $registryName,
+		];
+
 		$written = [];
+		foreach ($values as $key => $value) {
+			if ($value === null) {
+				continue;
+			}
 
-		if ($registryUrl !== null) {
-			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_URL, trim($registryUrl));
-			$written[] = self::CONFIG_URL;
-		}
-
-		if ($registryToken !== null) {
-			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_REGISTRY_AUTH, trim($registryToken));
-			$written[] = self::CONFIG_REGISTRY_AUTH;
-		}
-
-		if ($registryRegister !== null) {
-			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_REGISTER, trim($registryRegister));
-			$written[] = self::CONFIG_REGISTER;
+			$this->appConfig->setValueString(Application::APP_ID, $key, trim($value));
+			$written[] = $key;
 		}
 
 		// A name is a label only; it does not ask integriq to look again.
-		if ($registryName !== null) {
-			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_NAME, trim($registryName));
-		}
+		$written = array_values(array_diff($written, [self::CONFIG_NAME]));
 
 		$this->connectionReporter?->refreshFromSave(savedKeys: $written);
 	}//end updateRegistryConfig()
@@ -456,40 +483,10 @@ class StoreService {
 	 *
 	 * @throws RuntimeException When OpenRegister supplied a client but not a descriptor class.
 	 *
-	 * @psalm-suppress MixedMethodCall Instantiated from a class string by design.
-	 *
 	 * @spec openspec/specs/dashboard-store/spec.md
 	 */
 	private function descriptor(): object {
-		$class = self::DESCRIPTOR_CLASS;
-		if (class_exists($class) === false) {
-			throw new RuntimeException(message: 'OpenRegister store descriptor is unavailable.');
-		}
-
-		// OpenRegister now builds the descriptor from a listing and a sharing
-		// part (the two classes ship together); named arguments for the old
-		// flat form are an Error there.
-		if (class_exists(self::LISTING_CLASS) === true) {
-			$listingClass = self::LISTING_CLASS;
-			$sharingClass = self::SHARING_CLASS;
-			return new $class(
-				listing: new $listingClass(
-					appId: Application::APP_ID,
-					schema: self::REMOTE_SCHEMA,
-					defaultRegister: self::DEFAULT_REGISTER,
-					cardFields: self::CARD_FIELDS
-				),
-				sharing: new $sharingClass(types: [])
-			);
-		}
-
-		return new $class(
-			appId: Application::APP_ID,
-			schema: self::REMOTE_SCHEMA,
-			defaultRegister: self::DEFAULT_REGISTER,
-			cardFields: self::CARD_FIELDS,
-			types: []
-		);
+		return (new StoreDescriptorBuilder())->build();
 	}//end descriptor()
 
 	/**

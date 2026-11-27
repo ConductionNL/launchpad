@@ -70,6 +70,15 @@
 				@change="onFileInputChange" />
 		</div>
 
+		<ul
+			v-if="uploadErrors.length > 0"
+			class="files-widget__upload-errors"
+			role="alert">
+			<li v-for="(message, index) in uploadErrors" :key="index">
+				{{ message }}
+			</li>
+		</ul>
+
 		<div v-if="loading" class="files-widget__state">
 			{{ t('launchpad', 'Loading folder…') }}
 		</div>
@@ -238,6 +247,51 @@ function uploadFormData(fileList) {
 }
 
 /**
+ * The sentence for one upload refusal code.
+ *
+ * @param {string} code The code the upload endpoint answered.
+ * @return {string} Why the upload did not happen.
+ * @spec openspec/specs/files-widget/spec.md
+ */
+function uploadReason(code) {
+	switch (code) {
+	case 'upload_too_large':
+		return t('launchpad', 'The upload is larger than this server accepts.')
+	case 'file_too_large':
+		return t('launchpad', 'The file is too large.')
+	case 'file_type_not_allowed':
+		return t('launchpad', 'This type of file is not allowed here.')
+	case 'no_access':
+		return t('launchpad', "You don't have access to this folder.")
+	case 'folder_not_found':
+		return t('launchpad', 'Folder no longer exists.')
+	default:
+		return t('launchpad', 'The upload failed.')
+	}
+}
+
+/**
+ * What to tell the user after an upload: one line per file the server
+ * refused in a 200 answer, or one line when the whole request was refused.
+ *
+ * @param {object|null} response The upload response, or null when the request failed.
+ * @param {object|null} err The request error, or null when it succeeded.
+ * @return {string[]} The lines to show; empty when everything was stored.
+ * @spec openspec/specs/files-widget/spec.md
+ */
+function uploadErrorMessages(response, err) {
+	if (err) {
+		return [uploadReason(err?.response?.status === 413 ? 'upload_too_large' : err?.response?.data?.error)]
+	}
+
+	const errors = Array.isArray(response?.data?.errors) ? response.data.errors : []
+	return errors.map((entry) => t('launchpad', '{name} was not uploaded: {reason}', {
+		name: entry?.name ?? '',
+		reason: uploadReason(entry?.error),
+	}))
+}
+
+/**
  * The error state a failed contents request maps to.
  *
  * @param {object} err The request error.
@@ -284,6 +338,7 @@ export default {
 			nextCursor: null,
 			searchQuery: '',
 			confirmTarget: null,
+			uploadErrors: [],
 		}
 	},
 
@@ -623,14 +678,16 @@ export default {
 			}
 
 			const formData = uploadFormData(fileList)
+			this.showUploadErrors([])
 
 			try {
-				await this.postUpload(formData)
-				this.fetchContents()
-			} catch {
-				// Surface failure by re-fetching; the user can retry.
-				this.fetchContents()
+				const response = await this.postUpload(formData)
+				this.showUploadErrors(uploadErrorMessages(response, null))
+			} catch (err) {
+				// Say why, and re-fetch so the listing stays true; the user can retry.
+				this.showUploadErrors(uploadErrorMessages(null, err))
 			} finally {
+				this.fetchContents()
 				this.resetFileInput()
 			}
 		},
@@ -639,15 +696,29 @@ export default {
 		 * Upload a form of files into the current folder.
 		 *
 		 * @param {FormData} formData The files to upload.
+		 * @return {Promise<object>} The upload response.
+		 * @spec openspec/specs/files-widget/spec.md
 		 */
 		async postUpload(formData) {
 			const { axios, url } = await filesEndpoint(
 				'/apps/launchpad/api/widgets/files/{placementId}/upload',
 				{ placementId: this.placementId },
 			)
-			await axios.post(url, formData, {
+			return axios.post(url, formData, {
 				params: { currentPath: this.currentSubPath },
 			})
+		},
+
+		/**
+		 * Show the lines of the last upload's refusals; unchanged when both are empty.
+		 *
+		 * @param {string[]} messages The lines to show.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
+		showUploadErrors(messages) {
+			if (messages.length > 0 || this.uploadErrors.length > 0) {
+				this.uploadErrors = messages
+			}
 		},
 
 		/** Clear the hidden file input so the same file can be chosen again. */
@@ -693,6 +764,13 @@ export default {
 	gap: 8px;
 	height: 100%;
 	overflow: hidden;
+}
+
+.files-widget__upload-errors {
+	margin: 0;
+	padding: 4px 8px;
+	list-style: none;
+	color: var(--color-error-text, var(--color-error));
 }
 
 .files-widget__toolbar {

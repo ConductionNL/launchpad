@@ -331,16 +331,27 @@ export function dashboardItems({
 	onNewDashboard = null,
 }) {
 	const all = dashboardRows(userDashboards, groupDashboards, sharedDashboards)
-	const { rows, starred, showHint } = columnRows(all, favourites, expanded, activeId)
-	const items = rows.map((row) => dashboardRowItem(row, { activeId, defaultUuid, starred, onSwitch, onToggleFavourite }))
-	if (showHint) {
-		items.push({
-			id: 'favourites-hint',
-			hint: true,
-			label: t('launchpad', 'Star a dashboard to keep it here'),
-		})
+	const { rows, starred, showHint, hidden } = columnRows(all, favourites, expanded, activeId)
+	return [
+		...rows.map((row) => dashboardRowItem(row, { activeId, defaultUuid, starred, onSwitch, onToggleFavourite })),
+		...hintItems(showHint),
+		...columnFoot(hidden, expanded, onToggleExpanded, onNewDashboard),
+	]
+}
+
+/**
+ * The line that a starred dashboard appears here, before anything is
+ * starred (Ruben, 27 Nov 2026).
+ *
+ * @param {boolean} show Whether the column shows it.
+ * @return {object[]} The line, or nothing.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+ */
+function hintItems(show) {
+	if (!show) {
+		return []
 	}
-	return [...items, ...columnFoot(all.length - (expanded ? 0 : rows.length), expanded, onToggleExpanded, onNewDashboard)]
+	return [{ id: 'favourites-hint', hint: true, label: t('launchpad', 'Star a dashboard to keep it here') }]
 }
 
 /**
@@ -352,7 +363,8 @@ export function dashboardItems({
  * @param {string[]} favourites The favourite uuids in starring order.
  * @param {boolean} expanded Whether the column lists every dashboard.
  * @param {string|number|null} activeId The open dashboard's id.
- * @return {{rows: object[], starred: Set<string>, showHint: boolean}} The rows.
+ * @return {{rows: object[], starred: Set<string>, showHint: boolean, hidden: number}} The rows,
+ *   and how many dashboards the folded column leaves out.
  * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
  */
 function columnRows(all, favourites, expanded, activeId) {
@@ -360,12 +372,13 @@ function columnRows(all, favourites, expanded, activeId) {
 	const favouriteRows = favourites.map((uuid) => byUuid.get(uuid)).filter(Boolean)
 	const starred = new Set(favouriteRows.map(({ d }) => d.uuid))
 	if (expanded) {
-		return { rows: [...favouriteRows, ...all.filter(({ d }) => !starred.has(d.uuid))], starred, showHint: false }
+		return { rows: [...favouriteRows, ...all.filter(({ d }) => !starred.has(d.uuid))], starred, showHint: false, hidden: all.length }
 	}
 	if (favouriteRows.length > 0) {
-		return { rows: favouriteRows, starred, showHint: false }
+		return { rows: favouriteRows, starred, showHint: false, hidden: all.length - favouriteRows.length }
 	}
-	return { rows: all.filter(({ d }) => d.id === activeId), starred, showHint: true }
+	const open = all.filter(({ d }) => d.id === activeId)
+	return { rows: open, starred, showHint: true, hidden: all.length - open.length }
 }
 
 /**

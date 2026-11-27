@@ -11,12 +11,45 @@
  */
 
 import axios from '@nextcloud/axios'
+import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
+import { logger } from '../utils/logger.js'
 
 const baseUrl = generateUrl('/apps/launchpad')
 
 const tokenUrl = (id = '') => `${baseUrl}/api/embed-tokens${id === '' ? '' : `/${encodeURIComponent(id)}`}`
 const themeUrl = (id = '') => `${baseUrl}/api/tenant-themes${id === '' ? '' : `/${encodeURIComponent(id)}`}`
+
+/**
+ * Whether an embed API failure is the 503 the embed endpoints answer when
+ * OpenRegister is not installed or not enabled: an expected state, not an
+ * error (the app works without OpenRegister, REQ-ORA).
+ *
+ * @param {unknown} error The rejection.
+ * @return {boolean} True for the "OpenRegister is absent" answer.
+ * @spec openspec/specs/embedded-analytics/spec.md
+ */
+export function needsOpenRegister(error) {
+	return error?.response?.status === 503
+}
+
+/**
+ * The notice for a token list that could not be loaded. Without OpenRegister
+ * (503) the notice says so and nothing is logged as an error; any other
+ * failure is logged.
+ *
+ * @param {unknown} error The rejection.
+ * @return {string} The notice to show.
+ * @spec openspec/specs/embedded-analytics/spec.md
+ */
+export function embedLoadError(error) {
+	if (needsOpenRegister(error)) {
+		logger.debug('Embed tokens need OpenRegister:', error)
+		return t('launchpad', 'Embed tokens need OpenRegister, which is not available.')
+	}
+	logger.error('Failed to load embed tokens:', error)
+	return t('launchpad', 'Embed tokens could not be loaded.')
+}
 
 export const embedApi = {
 	/**

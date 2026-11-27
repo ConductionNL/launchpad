@@ -512,7 +512,7 @@ test.describe('scheduled exports: the Exports tab of the dashboard settings (REQ
 		const otherJson = await other.json()
 		const otherUuid = String((otherJson.dashboard ?? otherJson.data?.dashboard ?? otherJson).uuid)
 		expect((await api.post(`${API}/dashboard/${own!.id}/activate`)).status()).toBeLessThan(300)
-		expect((await api.post(`${API}/dashboards/active`, { data: { uuid: own!.uuid } })).status()).toBeLessThan(300)
+		expect((await api.post(`${API}/dashboards/default`, { data: { uuid: own!.uuid } })).status()).toBeLessThan(300)
 
 		const recipients = [{ channel: 'nextcloudFiles', channelConfig: { targetPath: '/Exports e2e tab' } }]
 		const renderTargets = [{ format: 'csv' }]

@@ -36,7 +36,6 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSettingKey;
-use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Db\AnnouncementMapper;
 use OCA\LaunchPad\Exception\ForbiddenException;
@@ -64,7 +63,7 @@ class AnnouncementService implements AnnouncementServiceInterface {
 	 *
 	 * @param AnnouncementMapper       $announcements The announcements.
 	 * @param AnnouncementInput        $input         Checks and copies an author's fields.
-	 * @param AdminSettingMapper       $settings      Reads the editor groups setting.
+	 * @param AnnouncementManagers     $managers      Who manages announcements by delegation (REQ-ADM-034).
 	 * @param AdminTemplateService     $userGroups    The reader's groups (the one place that asks Nextcloud).
 	 * @param IGroupManager            $groupManager  Administrators and group sizes.
 	 * @param ITimeFactory             $time          The clock.
@@ -74,7 +73,7 @@ class AnnouncementService implements AnnouncementServiceInterface {
 	public function __construct(
 		private readonly AnnouncementMapper $announcements,
 		private readonly AnnouncementInput $input,
-		private readonly AdminSettingMapper $settings,
+		private readonly AnnouncementManagers $managers,
 		private readonly AdminTemplateService $userGroups,
 		private readonly IGroupManager $groupManager,
 		private readonly ITimeFactory $time,
@@ -84,25 +83,22 @@ class AnnouncementService implements AnnouncementServiceInterface {
 	}//end __construct()
 
 	/**
-	 * Whether a user may write announcements: an administrator or a member of an editor group.
+	 * Whether a user manages announcements: an administrator, a holder of
+	 * Launchpad's admin settings or of the delegated announcements setting
+	 * (REQ-ADM-034), see {@see AnnouncementManagers}.
 	 *
 	 * @param string $userId The user.
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function isAuthor(string $userId): bool {
 		if ($this->groupManager->isAdmin($userId) === true) {
 			return true;
 		}
 
-		$editors = $this->settings->getValue(key: self::EDITOR_GROUPS_SETTING, default: []);
-		if (is_array($editors) === false || $editors === []) {
-			return false;
-		}
-
-		return array_intersect($editors, $this->userGroups->getUserGroupIdsFor($userId)) !== [];
+		return $this->managers->manages(userId: $userId);
 	}//end isAuthor()
 
 	/**
@@ -126,25 +122,24 @@ class AnnouncementService implements AnnouncementServiceInterface {
 	}//end visibleTo()
 
 	/**
-	 * The drafts a user may see: every draft for an administrator, their own for an author, none otherwise.
+	 * Every announcement for the Announcements tab (REQ-ANN-008): active,
+	 * scheduled, ended and drafts, news and notices.
 	 *
-	 * @param string $userId The user.
+	 * @param string $userId The manager.
 	 *
 	 * @return list<Announcement>
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
+	 * @throws ForbiddenException When the user does not manage announcements.
+	 *
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
 	 */
-	public function draftsFor(string $userId): array {
-		if ($this->groupManager->isAdmin($userId) === true) {
-			return $this->announcements->findDrafts(authorId: null);
-		}
-
+	public function allFor(string $userId): array {
 		if ($this->isAuthor(userId: $userId) === false) {
-			return [];
+			throw new ForbiddenException(message: 'Only an announcements manager may list every announcement');
 		}
 
-		return $this->announcements->findDrafts(authorId: $userId);
-	}//end draftsFor()
+		return $this->announcements->findAllForManagers();
+	}//end allFor()
 
 	/**
 	 * One announcement as a user may see it; anything they may not see is not found.
@@ -160,7 +155,7 @@ class AnnouncementService implements AnnouncementServiceInterface {
 	 */
 	public function findFor(string $userId, string $uuid): Announcement {
 		$announcement = $this->announcements->findByUuid(uuid: $uuid);
-		if ($this->mayManage(userId: $userId, announcement: $announcement) === true) {
+		if ($this->mayManage(userId: $userId) === true) {
 			return $announcement;
 		}
 
@@ -352,27 +347,23 @@ class AnnouncementService implements AnnouncementServiceInterface {
 	 */
 	private function managed(string $userId, string $uuid): Announcement {
 		$announcement = $this->findFor(userId: $userId, uuid: $uuid);
-		if ($this->mayManage(userId: $userId, announcement: $announcement) === false) {
-			throw new ForbiddenException(message: 'Only the author or an administrator may change this announcement');
+		if ($this->mayManage(userId: $userId) === false) {
+			throw new ForbiddenException(message: 'Only an announcements manager may change this announcement');
 		}
 
 		return $announcement;
 	}//end managed()
 
 	/**
-	 * Whether a user may change an announcement: an administrator, or its author while still an author.
+	 * Whether a user may change an announcement: every manager may, since the
+	 * Announcements tab manages all of them (announcements-managed-in-settings D2).
 	 *
-	 * @param string       $userId       The user.
-	 * @param Announcement $announcement The announcement.
+	 * @param string $userId The user.
 	 *
 	 * @return bool
 	 */
-	private function mayManage(string $userId, Announcement $announcement): bool {
-		if ($this->groupManager->isAdmin($userId) === true) {
-			return true;
-		}
-
-		return $announcement->getAuthorId() === $userId && $this->isAuthor(userId: $userId) === true;
+	private function mayManage(string $userId): bool {
+		return $this->isAuthor(userId: $userId);
 	}//end mayManage()
 
 	/**

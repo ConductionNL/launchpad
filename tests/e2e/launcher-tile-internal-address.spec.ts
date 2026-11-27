@@ -41,7 +41,7 @@ const STAMP = `${Date.now()}`
 const TILE_TITLE = `Zaaksysteem ${STAMP}`
 const PUBLIC_URL = 'https://zaken.gemeente.nl/'
 const INTERNAL_URL = 'http://zaken.intern/'
-const SETTINGS_URL = `${BASE}/index.php/apps/launchpad/admin`
+const SETTINGS_URL = `${BASE}/index.php/settings/admin/launchpad`
 
 let admin: APIRequestContext
 let viewer: Principal
@@ -102,7 +102,7 @@ test.beforeAll(async () => {
 	const dashboard = body.dashboard ?? body.data?.dashboard ?? body
 	const activate = await viewer.api.post(`${API}/dashboard/${dashboard.id}/activate`)
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
-	const preference = await viewer.api.post(`${API}/dashboards/active`, { data: { uuid: dashboard.uuid } })
+	const preference = await viewer.api.post(`${API}/dashboards/default`, { data: { uuid: dashboard.uuid } })
 	expect(preference.status(), await preference.text()).toBeLessThan(300)
 
 	const tile = await viewer.api.post(`${API}/dashboard/${dashboard.id}/tile`, {

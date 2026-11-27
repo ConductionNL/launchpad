@@ -35,7 +35,7 @@ const ADMIN = {
 }
 
 const API = '/index.php/apps/launchpad/api'
-const SETTINGS_PAGE = `${BASE}/index.php/apps/launchpad/admin`
+const SETTINGS_PAGE = `${BASE}/index.php/settings/admin/launchpad`
 
 /** Every dashboard this file creates carries this prefix, so cleanup is exact. */
 const STAMP = `E2E ImportArchive ${Date.now()}`

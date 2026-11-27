@@ -7,7 +7,7 @@
  * tiles without duplicates.
  *
  * A choice is `{key, kind, tile}`: `kind` is `tile` for an ordinary tile
- * (`{title, icon, iconType, linkType, linkValue}`) or `app-tile` for a
+ * (`{title, icon, iconType, linkType, linkValue}`) or `app` (an App or link tile in app mode) for a
  * discovered app (`{appId}`). The key is what makes two choices the same
  * tile: the link for a tile, the app for an app tile.
  *
@@ -44,7 +44,8 @@ export function tileKey(tile) {
 export function existingTileKeys(placements) {
 	const keys = new Set()
 	for (const placement of placements || []) {
-		if (placement?.widgetId === 'app-tile' && placement.content?.appId) {
+		const appMode = placement?.widgetId === 'app-tile' || (placement?.widgetId === 'tile' && placement.content?.mode === 'app')
+		if (appMode && placement.content?.appId) {
 			keys.add(tileKey({ linkType: 'app', linkValue: placement.content.appId }))
 		} else if (placement?.tileLinkType) {
 			keys.add(tileKey({ linkType: placement.tileLinkType, linkValue: placement.tileLinkValue }))
@@ -75,7 +76,7 @@ export function catalogueChoice(app) {
 export function discoveredChoice(app) {
 	return {
 		key: tileKey({ linkType: 'app', linkValue: app.appId }),
-		kind: 'app-tile',
+		kind: 'app',
 		tile: { appId: String(app.appId) },
 	}
 }

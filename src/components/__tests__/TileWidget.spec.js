@@ -13,13 +13,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const recordTileClick = vi.fn()
 
 vi.mock('@conduction/nextcloud-vue', () => ({
-	CnWidgetEditCog: {
-		name: 'CnWidgetEditCog',
-		emits: ['edit', 'remove'],
-		template: '<div class="cog"><button class="cog-edit" @click="$emit(\'edit\')" /><button class="cog-remove" @click="$emit(\'remove\')" /></div>',
-	},
 	CnDashboardIcon: { name: 'CnDashboardIcon', props: ['name', 'size'], template: '<i class="mdi" :data-name="name" />' },
 }))
+vi.mock('../Widgets/WidgetEditMenu.vue', () => ({ default: {
+	name: 'WidgetEditMenu',
+	emits: ['edit', 'remove'],
+	template: '<div class="cog"><button class="cog-edit" @click="$emit(\'edit\')" /><button class="cog-remove" @click="$emit(\'remove\')" /></div>',
+} }))
 vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => '/nc' + path }))
 vi.mock('../../composables/useTileClickTracking.js', () => ({
 	useTileClickTracking: () => ({ recordTileClick }),
@@ -289,5 +289,33 @@ describe('TileWidget', () => {
 			await link.trigger('click')
 			expect(wrapper.find('[role="status"]').exists()).toBe(false)
 		})
+	})
+})
+
+// app-link-tile-widget REQ-APPTILE-005: the tile's own text colour.
+describe('TileWidget text colour', () => {
+	it('draws the title in the stored text colour', () => {
+		const wrapper = mount(TileWidget, { props: { tile: tile({ textColor: '#ff0000' }), content: { textColour: '--sc-primary-deep' } } })
+
+		expect(wrapper.find('.tile-widget').attributes('style')).toContain('--tile-text-color: var(--sc-primary-deep, #234a78)')
+		expect(wrapper.find('.tile-widget__title').attributes('style')).toContain('var(--sc-primary-deep, #234a78)')
+	})
+
+	it('keeps the tile\'s own text colour, else white, without one stored', () => {
+		expect(mount(TileWidget, { props: { tile: tile({ textColor: '#ff0000' }), content: {} } }).vm.textCss).toBe('#ff0000')
+		expect(mount(TileWidget, { props: { tile: tile({ textColor: '' }), content: null } }).vm.textCss).toBe('#ffffff')
+	})
+
+	it('paints an SVG icon in the text colour and shows another image as it is', () => {
+		const svg = mount(TileWidget, { props: { tile: tile({ iconType: 'url', icon: '/apps/launchpad/img/nextcloud-white.svg' }), content: { textColour: 'black' } } })
+		expect(svg.find('[data-testid="tile-icon-mask"]').exists()).toBe(true)
+		expect(svg.find('img').exists()).toBe(false)
+
+		const png = mount(TileWidget, { props: { tile: tile({ iconType: 'url', icon: '/logo.png' }), content: { textColour: 'black' } } })
+		expect(png.find('[data-testid="tile-icon-mask"]').exists()).toBe(false)
+		expect(png.find('img').exists()).toBe(true)
+
+		const unset = mount(TileWidget, { props: { tile: tile({ iconType: 'url', icon: '/logo.svg' }), content: {} } })
+		expect(unset.find('img').exists()).toBe(true)
 	})
 })

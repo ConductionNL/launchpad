@@ -36,7 +36,6 @@ const TYPE_KINDS = Object.freeze({
 	menu: 'tiles',
 	container: 'layout',
 	'app-tiles': 'tiles',
-	'app-tile': 'tiles',
 	livetile: 'tiles',
 	people: 'people',
 	'colleague-activity': 'people',
@@ -125,14 +124,13 @@ export function typeLine(type, t) {
 		quicklinks: () => t('launchpad', 'A row of links to pages.'),
 		video: () => t('launchpad', 'A video from a file or a web address.'),
 		news: () => t('launchpad', 'Items from a news feed.'),
-		tile: () => t('launchpad', 'One app or page as a tile.'),
+		tile: () => t('launchpad', 'One app or web address as a tile.'),
 		links: () => t('launchpad', 'A list of links.'),
 		menu: () => t('launchpad', 'A menu of pages.'),
 		container: () => t('launchpad', 'A group of tiles that share an order.'),
 		files: () => t('launchpad', 'Files from a folder.'),
 		stat: () => t('launchpad', 'One number from your data.'),
 		'app-tiles': () => t('launchpad', 'Tiles for several apps at once.'),
-		'app-tile': () => t('launchpad', 'One app as a tile.'),
 		delta: () => t('launchpad', 'A number and how it changed.'),
 		gauge: () => t('launchpad', 'A number against its target.'),
 		'object-list': () => t('launchpad', 'A list of items from a register.'),
@@ -243,61 +241,6 @@ function launchpadCards(input, t) {
 }
 
 /**
- * The cards under "App tiles": the reader's tile catalogue, the apps this
- * server runs for them, then Own tile (REQ-WDG-042). They all follow the
- * role's `tile` permission.
- *
- * @param {object} input See {@link pickerCards}.
- * @param {function(string, string, object=): string} t The translate function.
- * @return {Array<object>}
- * @spec openspec/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
- */
-function tileCards(input, t) {
-	const { catalogueApps = [], discoveredApps = [], allowedWidgets = null, placedAppIds = [] } = input
-	const disabled = !roleAllows('tile', allowedWidgets)
-	const catalogue = catalogueApps.map((app) => card({
-		key: `catalogue:${app.uuid}`,
-		kind: 'tiles',
-		section: 'tiles',
-		title: app.name,
-		line: app.description || t('launchpad', 'An app your organisation approved.'),
-		icon: {
-			kind: 'tile',
-			appId: app.uuid,
-			url: app.iconType === 'url' ? app.icon || '' : '',
-			className: app.iconType === 'url' ? '' : app.icon || '',
-		},
-		disabled,
-		action: { event: 'addCatalogueApp', arg: app },
-		testid: `widget-picker-catalogue-${app.uuid}`,
-	}))
-	const discovered = discoveredApps.map((app) => card({
-		key: `app:${app.appId}`,
-		kind: 'tiles',
-		section: 'tiles',
-		title: app.name,
-		line: t('launchpad', 'An app on this server.'),
-		icon: { kind: 'tile', appId: app.appId, mask: app.icon || '' },
-		disabled,
-		badge: placedAppIds.includes(app.appId) ? t('launchpad', 'On this dashboard') : '',
-		action: { event: 'addApp', arg: app },
-		testid: `widget-picker-app-tile-${app.appId}`,
-	}))
-	const own = card({
-		key: 'own-tile',
-		kind: 'tiles',
-		section: 'tiles',
-		title: t('launchpad', 'Own tile'),
-		line: t('launchpad', 'A tile for any address.'),
-		icon: { kind: 'own' },
-		disabled,
-		action: { event: 'addCustom', arg: 'tile' },
-		testid: 'widget-picker-custom-tile',
-	})
-	return [...catalogue, ...discovered, own]
-}
-
-/**
  * The cards under "From other Nextcloud apps": the Nextcloud widgets, those
  * not on the dashboard first, then by their order.
  *
@@ -343,7 +286,9 @@ function appWidgetCards(input, t) {
  * @spec openspec/specs/widgets/spec.md
  */
 export function pickerCards(input, t) {
-	return [...launchpadCards(input, t), ...tileCards(input, t), ...appWidgetCards(input, t)]
+	// REQ-APPTILE-001: the apps are chosen in the App or link tile's form,
+	// so the picker has no App tiles section (REQ-WDG-042 removed).
+	return [...launchpadCards(input, t), ...appWidgetCards(input, t)]
 }
 
 /**

@@ -206,7 +206,7 @@ test.describe('demo showcase — case-handler', () => {
 		}
 		await api.delete(`${SHOWCASES}/${SHOWCASE_ID}`)
 		if (previousActiveUuid !== null) {
-			await api.post(`${API}/dashboards/active`, {
+			await api.post(`${API}/dashboards/default`, {
 				data: { uuid: previousActiveUuid },
 			})
 		}
@@ -364,7 +364,7 @@ test.describe('demo showcase — case-handler', () => {
 		// Make the showcase the active dashboard for this user, the way the
 		// switcher does — the shell resolves through the per-user UUID
 		// preference, not the legacy is_active column.
-		const activate = await api.post(`${API}/dashboards/active`, {
+		const activate = await api.post(`${API}/dashboards/default`, {
 			data: { uuid: installedUuid },
 		})
 		expect(activate.status(), await activate.text()).toBeLessThan(300)

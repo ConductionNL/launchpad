@@ -154,7 +154,7 @@ class AnnouncementReadConfirmations {
 				$confirmed[] = $uuid;
 			}
 
-			if ($this->mayManage(userId: $userId, announcement: $announcement) === true) {
+			if ($this->mayManage(userId: $userId) === true) {
 				$receipts[] = $uuid;
 			}
 		}
@@ -193,8 +193,8 @@ class AnnouncementReadConfirmations {
 	 */
 	public function report(string $userId, string $uuid): array {
 		$announcement = $this->announcements->findFor(userId: $userId, uuid: $uuid);
-		if ($this->mayManage(userId: $userId, announcement: $announcement) === false) {
-			throw new ForbiddenException(message: 'Only the author or an administrator may read the read confirmations');
+		if ($this->mayManage(userId: $userId) === false) {
+			throw new ForbiddenException(message: 'Only an announcements manager may read the read confirmations');
 		}
 
 		if ($announcement->getRequiresConfirmation() !== 1) {
@@ -257,20 +257,17 @@ class AnnouncementReadConfirmations {
 
 	/**
 	 * Whether a user may read an announcement's read confirmations: an
-	 * administrator, or its author while still an announcement editor, the
-	 * same people who may change it.
+	 * announcements manager, the same people who may change it
+	 * (announcements-managed-in-settings D1).
 	 *
-	 * @param string       $userId       The user.
-	 * @param Announcement $announcement The announcement.
+	 * @param string $userId The user.
 	 *
 	 * @return bool
+	 *
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
-	private function mayManage(string $userId, Announcement $announcement): bool {
-		if ($this->groupManager->isAdmin($userId) === true) {
-			return true;
-		}
-
-		return $announcement->getAuthorId() === $userId && $this->announcements->isAuthor(userId: $userId) === true;
+	private function mayManage(string $userId): bool {
+		return $this->announcements->isAuthor(userId: $userId);
 	}//end mayManage()
 
 	/**

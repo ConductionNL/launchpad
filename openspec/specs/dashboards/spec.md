@@ -636,58 +636,73 @@ Updates to a group-shared dashboard via `PUT /api/dashboards/group/{groupId}/{uu
 
 ### Requirement: REQ-DASH-018 Active-dashboard resolution chain (multi-scope)
 
-When the workspace page renders for a user, the system MUST resolve which dashboard is "active" by walking the following precedence and stopping at the first match:
+When the workspace page renders for a user at `/apps/launchpad/` without naming a dashboard, the system MUST resolve
+which dashboard to open by walking the following precedence and stopping at the first match (board LpVandaag: launchpad
+opens on the start page unless the person chose another start dashboard):
 
-1. The dashboard whose UUID equals the user's `active_dashboard_uuid` preference, IF that dashboard is currently visible to the user (per REQ-DASH-013).
-1b. For a user who owns no personal dashboard: the admin template that applies to them (admin-templates REQ-TMPL-019, which also says when the default template waits for step 2).
+1. The person's chosen start dashboard: the dashboard whose UUID equals their `default_dashboard_uuid` preference (set
+   with Set as default in the More menu), IF that dashboard is currently visible to the user (per REQ-DASH-013).
+1b. For a user who owns no personal dashboard and has no start dashboard: the admin template that applies to them
+   (admin-templates REQ-TMPL-019).
 2. The `group_shared` dashboard with `isDefault = 1` in the user's primary group (per REQ-DASH-015).
-3. The `group_shared` dashboard with `isDefault = 1` in the synthetic `'default'` group.
+3. The `group_shared` dashboard with `isDefault = 1` in the synthetic `'default'` group: the start page Vandaag
+   (default-widget-bundle REQ-DWB-008).
 4. The first `group_shared` dashboard (by `sortOrder` ascending, then `createdAt`) in the user's primary group.
 5. The first `group_shared` dashboard in the `'default'` group.
 6. The user's first personal `user`-type dashboard (by `sortOrder`, then `createdAt`).
-7. `null` — the workspace page MUST then render an empty-state with a "Create your first dashboard" affordance.
+7. `null`: the workspace page MUST then render an empty-state with a "Create your first dashboard" affordance.
 
-The resolver MUST attach a `source` field to the returned dashboard descriptor with one of `'user'`, `'group'`, `'default'`. REQ-DASH-018 supersedes REQ-DASH-009 for the workspace boot path; REQ-DASH-009 remains in force for personal-only callers (e.g. `GET /api/dashboard`).
+The last-used dashboard (`active_dashboard_uuid`, REQ-DASH-019) MUST NOT decide which dashboard opens. A URL that names a
+dashboard (`/apps/launchpad/<slug>`, `/apps/launchpad/dashboards/<id>`) MUST open that dashboard, as before.
+
+The resolver MUST attach a `source` field to the returned dashboard descriptor with one of `'user'`, `'group'`,
+`'default'`. REQ-DASH-018 supersedes REQ-DASH-009 for the workspace boot path; `GET /api/dashboard` MUST follow the same
+order.
+
+#### Scenario: The start page wins over the last-used dashboard
+
+- **GIVEN** Pieter has no start dashboard of his own, and the `default` group's default is Vandaag
+- **AND** he opened "Team Vergunningen" from the More menu yesterday
+- **WHEN** he opens `/apps/launchpad/`
+- **THEN** the dashboard shown MUST be Vandaag with `source = 'default'`
 
 #### Scenario: Honoured user preference
 
-- GIVEN user "alice" has `active_dashboard_uuid` set to `<X.uuid>`
-- AND `X` is a personal dashboard owned by alice
-- WHEN she opens the workspace page
-- THEN the resolved active dashboard MUST be `X` with `source = 'user'`
+- **GIVEN** Pieter chose Set as default on "Mijn werkplek"
+- **WHEN** he opens `/apps/launchpad/`
+- **THEN** the dashboard shown MUST be "Mijn werkplek" with `source = 'user'`
 
 #### Scenario: Stale preference is silently cleared
 
-- GIVEN user "alice" has `active_dashboard_uuid` set to `<Y.uuid>`
-- AND `Y` has been deleted (or is no longer visible to alice)
-- WHEN she opens the workspace page
-- THEN the resolver MUST clear her `active_dashboard_uuid` preference (set to empty string or unset)
-- AND MUST proceed down the precedence chain
-- AND the response MUST NOT raise an error to the user
+- **GIVEN** Pieter's start dashboard was a group dashboard that has been deleted
+- **WHEN** he opens `/apps/launchpad/`
+- **THEN** his `default_dashboard_uuid` MUST be cleared and the page MUST open Vandaag without an error
 
 #### Scenario: Group default wins over default-group default
 
-- GIVEN user "bob" belongs to group "engineering"
-- AND group "engineering" has a default dashboard `E`
-- AND the `'default'` group also has a default dashboard `D`
-- AND bob has no `active_dashboard_uuid` preference
-- WHEN he opens the workspace page
-- THEN the resolved dashboard MUST be `E` with `source = 'group'`
+- **GIVEN** Bob belongs to "engineering", which has a default dashboard `E`, and Bob has no start dashboard
+- **WHEN** he opens `/apps/launchpad/`
+- **THEN** the dashboard shown MUST be `E` with `source = 'group'`
 
 #### Scenario: Falls through to default group when primary group has no dashboards
 
-- GIVEN user "carol" belongs to group "support" which has zero group-shared dashboards
-- AND the `'default'` group has one default dashboard `D`
-- WHEN she opens the workspace page
-- THEN the resolved dashboard MUST be `D` with `source = 'default'`
+- **GIVEN** Carol belongs to "support", which has no group dashboards, and the `default` group's default is Vandaag
+- **AND** Carol has no start dashboard
+- **WHEN** she opens `/apps/launchpad/`
+- **THEN** the dashboard shown MUST be Vandaag with `source = 'default'`
+
+#### Scenario: A link still opens its dashboard
+
+- **GIVEN** Pieter has no start dashboard
+- **WHEN** he opens `/apps/launchpad/team-vergunningen`
+- **THEN** "Team Vergunningen" MUST open, and a later visit to `/apps/launchpad/` MUST open Vandaag
 
 #### Scenario: Empty state when no dashboards exist anywhere
 
-- GIVEN a brand-new LaunchPad install with no dashboards of any type
-- WHEN any user opens the workspace page
-- THEN the resolver MUST return `null`
-- AND the response MUST include `activeDashboardId: ''` in initial state
-- AND the page MUST render the empty-state UI
+- **GIVEN** a brand-new launchpad install with no dashboards of any type
+- **WHEN** any user opens the workspace page
+- **THEN** the resolver MUST return `null`, the initial state MUST carry `activeDashboardId: ''` and the page MUST render
+  the empty state
 @e2e exclude needs a brand-new install with no dashboard of any type, which would empty the shared instance. Pinned by tests/Unit/Service/DashboardServiceActiveResolutionTest.php::testStep7EmptyStateReturnsNull and tests/Unit/Controller/PageControllerHelpersTest.php::testNoActiveDashboardDescribesAnEmptyGroupWorkspace
 
 ### Requirement: REQ-DASH-019 Persist active-dashboard preference
@@ -1607,6 +1622,34 @@ layout is its column choice in the edit bar (REQ-DASH-038) and where its widgets
 - **GIVEN** the same Details tab
 - **WHEN** Pieter sets an accent colour under Own look and saves
 - **THEN** the dashboard takes the accent, and Thema still reads "Huisstijl Zuiddrecht"
+
+### Requirement: A colour field shows its picker beside its input (REQ-THM-005)
+
+Every colour field in Launchpad, the accent and background colour of Own look (board LpDashboardInstellingen) among them,
+SHALL show its labelled input and its colour picker on one row, the picker showing the current colour beside the input;
+they SHALL NOT wrap at the width of the dialog they are in. Under 480 px they MAY stack. In Own look, as the board draws it,
+the block is an inset card, each colour field has its label above it and its swatch left of the hex field, and the accent,
+the background colour and the background image stand side by side.
+
+#### Scenario: The accent field
+
+- **GIVEN** the owner opens the dashboard settings, tab Details, at 1440 px
+- **WHEN** Own look renders
+- **THEN** the accent colour's input and its picker stand on one row, and so do the background colour's
+
+### Requirement: The background image is a labelled upload with a preview (REQ-THM-006)
+
+Own look SHALL offer the dashboard's background image as "Background image" (nl "Achtergrondafbeelding") with the hint
+"Shown behind this dashboard; leave empty to follow the theme", a styled upload button in the app's language instead of
+the browser's bare file input, and, once an image is set, a small preview with a Remove action. Removing it SHALL make
+the dashboard follow the theme again. Every image upload in Launchpad SHALL follow this pattern.
+
+#### Scenario: Set and remove a background image
+
+- **GIVEN** the owner in Own look
+- **WHEN** they upload an image with the upload button and save
+- **THEN** a preview of the image shows beside Remove, and the dashboard shows it as its background
+- **AND** after Remove and save, the dashboard follows the theme
 
 ### Requirement: The header says what dashboard this is and what the reader may do (REQ-DPD-001)
 

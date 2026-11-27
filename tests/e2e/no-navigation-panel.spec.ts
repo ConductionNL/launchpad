@@ -133,7 +133,7 @@ test('Reports and Flows render no panel either', async ({ browser }) => {
 test('an admin page renders no panel', async ({ page }) => {
 	// The default storage state is the administrator, the one principal who
 	// may open the admin pages.
-	await page.goto('/index.php/apps/launchpad/admin/templates')
+	await page.goto('/index.php/settings/admin/launchpad#templates')
 	await expect(page.locator('[data-testid="launchpad-page-menu"]')).toBeVisible({ timeout: 30_000 })
 	await expectNoPanel(page)
 })

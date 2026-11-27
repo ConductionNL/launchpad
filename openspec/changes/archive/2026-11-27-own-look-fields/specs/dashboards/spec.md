@@ -6,7 +6,9 @@
 
 Every colour field in Launchpad, the accent and background colour of Own look (board LpDashboardInstellingen) among them,
 SHALL show its labelled input and its colour picker on one row, the picker showing the current colour beside the input;
-they SHALL NOT wrap at the width of the dialog they are in. Under 480 px they MAY stack.
+they SHALL NOT wrap at the width of the dialog they are in. Under 480 px they MAY stack. In Own look, as the board draws it,
+the block is an inset card, each colour field has its label above it and its swatch left of the hex field, and the accent,
+the background colour and the background image stand side by side.
 
 #### Scenario: The accent field
 

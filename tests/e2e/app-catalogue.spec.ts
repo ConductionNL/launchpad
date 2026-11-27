@@ -88,7 +88,7 @@ async function seedOwnDashboard(account: Account): Promise<void> {
 		const dash = body.dashboard ?? body.data?.dashboard ?? body
 		const activate = await api.post(`${API}/dashboard/${dash.id}/activate`)
 		expect(activate.status(), await activate.text()).toBeLessThan(300)
-		const preference = await api.post(`${API}/dashboards/active`, {
+		const preference = await api.post(`${API}/dashboards/default`, {
 			data: { uuid: dash.uuid },
 		})
 		expect(preference.status(), await preference.text()).toBeLessThan(300)
@@ -144,7 +144,7 @@ async function notificationSubjects(account?: Account): Promise<string[] | null>
 async function openCatalogueTab(page: Page): Promise<void> {
 	await page.context().setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
 	// REQ-ADM-032: the app catalogue is a section of Bediening (operations).
-	await page.goto('/index.php/apps/launchpad/admin')
+	await page.goto('/index.php/settings/admin/launchpad')
 	const tab = adminTab(page, 'operations')
 	await expect(tab).toBeVisible({ timeout: 20_000 })
 	await tab.click()
@@ -314,7 +314,7 @@ test.describe('app catalogue (REQ-ACAT-002, REQ-ACAT-003, REQ-ACAT-004)', () => 
 
 		// The administrator declines it on the admin page, with a note.
 		await page.context().setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
-		await page.goto('/index.php/apps/launchpad/admin')
+		await page.goto('/index.php/settings/admin/launchpad')
 		const tab = adminTab(page, 'operations')
 		await expect(tab).toBeVisible({ timeout: 20_000 })
 		await tab.click()

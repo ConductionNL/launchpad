@@ -45,7 +45,7 @@ import {
 } from './support/principals.ts'
 
 const APP = '/index.php/apps/launchpad'
-const ADMIN_SETTINGS = '/index.php/apps/launchpad/admin'
+const ADMIN_SETTINGS = '/index.php/settings/admin/launchpad'
 const PREFIX = 'initial-state-launchpad-'
 const RUN = Date.now()
 const NAME = `E2E Initial state ${RUN}`
@@ -149,7 +149,7 @@ test.beforeAll(async () => {
 	expect(created.status(), await created.text()).toBe(201)
 	const body = (await created.json()).dashboard
 	dash = { id: Number(body.id), uuid: String(body.uuid) }
-	const active = await user.api.post(`${API}/dashboards/active`, { data: { uuid: dash.uuid } })
+	const active = await user.api.post(`${API}/dashboards/default`, { data: { uuid: dash.uuid } })
 	expect(active.status(), await active.text()).toBeLessThan(300)
 })
 

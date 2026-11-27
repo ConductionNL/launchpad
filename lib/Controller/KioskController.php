@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use Exception;
+use InvalidArgumentException;
 use Throwable;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
@@ -378,7 +379,7 @@ class KioskController extends Controller {
 
 	/**
 	 * Run a playlist change: unknown playlist → 404, not authorized → 403,
-	 * anything else logged → 500.
+	 * a screen link edited as a playlist → 400, anything else logged → 500.
 	 *
 	 * @param \Closure $operation Runs the change and builds the success response.
 	 *
@@ -396,6 +397,12 @@ class KioskController extends Controller {
 			return new DataResponse(
 				data: ['error' => 'Not authorized'],
 				statusCode: Http::STATUS_FORBIDDEN
+			);
+		} catch (InvalidArgumentException $e) {
+			// REQ-KIOSK-006: a screen link cannot be edited into a rotation.
+			return new DataResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
 			);
 		} catch (Exception $e) {
 			$this->logError(message: $e->getMessage());

@@ -43,7 +43,7 @@ test.describe.configure({ mode: 'serial' })
 test.setTimeout(240_000)
 
 // The administration is a Launchpad page since admin-full-width-page.
-const SETTINGS_PAGE = `${BASE_URL}/index.php/apps/launchpad/admin/general`
+const SETTINGS_PAGE = `${BASE_URL}/index.php/settings/admin/launchpad#general`
 const SWITCH_LABEL = 'Open LaunchPad after signing in'
 
 let admin: APIRequestContext

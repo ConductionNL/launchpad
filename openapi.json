@@ -272,6 +272,10 @@
             "description": "Scheduled exports over HTTP."
         },
         {
+            "name": "screen-link",
+            "description": "Read, create and revoke the screen link of a dashboard."
+        },
+        {
             "name": "setup",
             "description": "First-time setup wizard endpoints."
         },
@@ -4204,6 +4208,13 @@
                                             "null"
                                         ],
                                         "description": "Whether public links may be created."
+                                    },
+                                    "screenLinksAllowed": {
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ],
+                                        "description": "Whether a Sharing tab may make a screen link (REQ-KIOSK-007)."
                                     }
                                 }
                             }
@@ -5031,7 +5042,7 @@
             "get": {
                 "operationId": "announcement-index",
                 "x-launchpad-stability": "internal",
-                "summary": "`GET /api/announcements`: what the user sees now, their drafts when they author, and the categories they follow",
+                "summary": "`GET /api/announcements`: what the user sees now and the categories they follow; drafts are managed on the Announcements tab (REQ-ANN-010)",
                 "description": "GET /api/announcements: the announcements the user sees now, their drafts when they author, and the categories they follow. Needs a signed-in Nextcloud user.",
                 "tags": [
                     "announcement"
@@ -5062,7 +5073,7 @@
                 "operationId": "announcement-create",
                 "x-launchpad-stability": "internal",
                 "summary": "`POST /api/announcements`: write a draft; 403 for someone who may not author",
-                "description": "POST /api/announcements: write a draft. Administrators and announcement editors only. Needs a signed-in Nextcloud user.",
+                "description": "POST /api/announcements: write a draft. Administrators and announcement editors only. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement"
                 ],
@@ -5266,12 +5277,44 @@
                 }
             }
         },
+        "/announcements/manage": {
+            "get": {
+                "operationId": "announcement-manage",
+                "x-launchpad-stability": "internal",
+                "summary": "`GET /api/announcements/manage`: every announcement for the Announcements tab, news and notices, active, scheduled, ended and drafts (REQ-ANN-008)",
+                "description": "`GET /api/announcements/manage`: every announcement for the Announcements tab, news and notices, active, scheduled, ended and drafts (REQ-ANN-008). Nextcloud checks the announcements setting before this runs (REQ-ADM-034). Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "announcement"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/announcements/reach": {
             "get": {
                 "operationId": "announcement-reach",
                 "x-launchpad-stability": "internal",
                 "summary": "`GET /api/announcements/reach`: about how many people the target groups reach, for the preview",
-                "description": "GET /api/announcements/reach: about how many people the target groups reach, for the preview. Announcement editors only. Needs a signed-in Nextcloud user.",
+                "description": "GET /api/announcements/reach: about how many people the target groups reach, for the preview. Announcement editors only. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement"
                 ],
@@ -5399,7 +5442,7 @@
                 "operationId": "announcement-update",
                 "x-launchpad-stability": "internal",
                 "summary": "`PUT /api/announcements/{uuid}`: change an announcement",
-                "description": "PUT /api/announcements/{uuid}: change an announcement. Its author or an administrator. Needs a signed-in Nextcloud user.",
+                "description": "PUT /api/announcements/{uuid}: change an announcement. Its author or an administrator. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement"
                 ],
@@ -5483,7 +5526,7 @@
                 "operationId": "announcement-destroy",
                 "x-launchpad-stability": "internal",
                 "summary": "`DELETE /api/announcements/{uuid}`: delete an announcement",
-                "description": "DELETE /api/announcements/{uuid}: delete an announcement. Its author or an administrator. Needs a signed-in Nextcloud user.",
+                "description": "DELETE /api/announcements/{uuid}: delete an announcement. Its author or an administrator. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement"
                 ],
@@ -5739,7 +5782,7 @@
                 "operationId": "announcement-publish",
                 "x-launchpad-stability": "internal",
                 "summary": "`POST /api/announcements/{uuid}/publish`: publish after the preview; a notice without an end time is refused",
-                "description": "`POST /api/announcements/{uuid}/publish`: publish after the preview; a notice without an end time is refused. Needs a signed-in Nextcloud user.",
+                "description": "`POST /api/announcements/{uuid}/publish`: publish after the preview; a notice without an end time is refused. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement"
                 ],
@@ -5827,7 +5870,7 @@
                 "operationId": "announcement-read-receipts",
                 "x-launchpad-stability": "internal",
                 "summary": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator",
-                "description": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator. Needs a signed-in Nextcloud user.",
+                "description": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement-read"
                 ],
@@ -9132,6 +9175,146 @@
                 }
             }
         },
+        "/dashboards/{uuid}/screen-link": {
+            "get": {
+                "operationId": "screen-link-show",
+                "x-launchpad-stability": "internal",
+                "summary": "The active screen link of the dashboard: 200 with the link, 204 when there is none, 403 for a caller who is neither owner nor admin",
+                "description": "The active screen link of the dashboard: 200 with the link, 204 when there is none, 403 for a caller who is neither owner nor admin. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "screen-link"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The dashboard UUID.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The request succeeded; there is no body.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "screen-link-create",
+                "x-launchpad-stability": "internal",
+                "summary": "Create the screen link, or return the existing one: 201 when made now, 200 when it existed, 403 when the caller may not share the dashboard or screen links are switched off",
+                "description": "Create the screen link, or return the existing one: 201 when made now, 200 when it existed, 403 when the caller may not share the dashboard or screen links are switched off. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "screen-link"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The dashboard UUID.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "The resource was created.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "screen-link-destroy",
+                "x-launchpad-stability": "internal",
+                "summary": "Revoke the screen link: 204, also when there was none; 403 for a caller who is neither owner nor admin",
+                "description": "Revoke the screen link: 204, also when there was none; 403 for a caller who is neither owner nor admin. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "screen-link"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The dashboard UUID.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The request succeeded; there is no body.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            }
+        },
         "/dashboards/{uuid}/translations": {
             "get": {
                 "operationId": "dashboard-translation-api-list",
@@ -11395,6 +11578,9 @@
                             }
                         }
                     },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
@@ -11477,6 +11663,9 @@
                             }
                         }
                     },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     },
@@ -11518,6 +11707,9 @@
                                 "$ref": "#/components/headers/API-Version"
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"

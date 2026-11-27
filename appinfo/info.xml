@@ -148,6 +148,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			<!-- REQ-ASET-021: the per-feature host lists are merged into the
 			     one allowed websites list with their purpose, once. -->
 			<step>OCA\LaunchPad\Repair\MergeAllowedSites</step>
+			<!-- announcements-managed-in-settings D1: editor groups become the delegated announcements setting. -->
+			<step>OCA\LaunchPad\Repair\MoveAnnouncementEditorsToDelegation</step>
 			<!-- REQ-ACK-009: a widget that asks for a read confirmation gets its
 			     announcement key, so Read receipts shows for it. -->
 			<step>OCA\LaunchPad\Repair\MintAnnouncementKeys</step>
@@ -158,6 +160,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			     (a white PNG on white, an undefined icon class) become the white
 			     logo on the brand colour. A tile its owner changed is kept. -->
 			<step>OCA\LaunchPad\Repair\RestyleSeededTiles</step>
+			<!-- REQ-APPTILE-006: every app tile becomes an App or link tile in
+			     app mode (same id and everything else), every tile without a
+			     mode a link tile, groups and tabs included. Idempotent. -->
+			<step>OCA\LaunchPad\Repair\ConvertTilesToAppOrLinkTiles</step>
 		</post-migration>
 		<install>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
@@ -213,6 +219,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
 
 	<settings>
 		<admin>OCA\LaunchPad\Settings\LaunchPadAdmin</admin>
+		<admin>OCA\LaunchPad\Settings\LaunchPadAnnouncementsAdmin</admin>
 		<admin-section>OCA\LaunchPad\Settings\LaunchPadAdminSection</admin-section>
 	</settings>
 

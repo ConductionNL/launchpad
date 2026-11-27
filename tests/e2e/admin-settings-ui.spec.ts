@@ -50,7 +50,7 @@ import {
 	removePrincipal,
 } from './support/principals.ts'
 
-const SETTINGS_PAGE = `${BASE}/index.php/apps/launchpad/admin`
+const SETTINGS_PAGE = `${BASE}/index.php/settings/admin/launchpad`
 const WORKSPACE = '/index.php/apps/launchpad/'
 const DISABLED_TEXT = 'Personal dashboards are not enabled by your administrator'
 
@@ -126,7 +126,7 @@ test.beforeAll(async ({ browser }) => {
 	).toBe(200)
 	expect(
 		(
-			await user.api.post(`${API}/dashboards/active`, {
+			await user.api.post(`${API}/dashboards/default`, {
 				data: { uuid: dash.uuid },
 			})
 		).status(),

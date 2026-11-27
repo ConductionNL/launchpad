@@ -150,7 +150,7 @@ class DashboardApiControllerLookTest extends TestCase {
 			services: new DashboardApiServices(dashboardService: $service),
 			access: new DashboardApiAccess(permissionService: $permissions, history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
-				versionService: $this->createMock(DashboardVersionService::class),
+				versionService: $this->versionServiceRunningSaves(),
 				analyticsService: $this->createMock(AnalyticsService::class),
 				logger: $this->createMock(LoggerInterface::class)
 			)),
@@ -226,4 +226,18 @@ class DashboardApiControllerLookTest extends TestCase {
 		$this->assertSame([['canEditDashboardMetadata', 'alice', 7]], $this->asked);
 		$this->assertSame(['name' => 'Team Groen'], $this->saved[0][2]);
 	}
+
+	/**
+	 * A version service mock that runs the save it wraps, as the real one
+	 * does (REQ-VERS-010).
+	 *
+	 * @return DashboardVersionService The mock.
+	 */
+	private function versionServiceRunningSaves(): DashboardVersionService {
+		$versions = $this->createMock(originalClassName: DashboardVersionService::class);
+		$versions->method('saveWithVersion')->willReturnCallback(
+			static fn (int $dashboardId, string $createdBy, \Closure $save): \OCA\LaunchPad\Db\Dashboard => $save()
+		);
+		return $versions;
+	}//end versionServiceRunningSaves()
 }

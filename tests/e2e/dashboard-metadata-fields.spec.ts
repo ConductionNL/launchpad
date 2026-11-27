@@ -82,7 +82,7 @@ import {
 const RUN = Date.now()
 const FIELDS = `${API}/admin/metadata-fields`
 const SETTINGS = `${API}/admin/settings`
-const SETTINGS_PAGE = `${BASE}/index.php/apps/launchpad/admin`
+const SETTINGS_PAGE = `${BASE}/index.php/settings/admin/launchpad`
 const ROW = '.dashboard-switcher-sidebar__item'
 
 /** Five minutes either way: "current time" on a container clock. */
@@ -292,7 +292,7 @@ async function openDetails(page: Page, name: string): Promise<Locator> {
  * @return nothing.
  */
 async function activate(ctx: APIRequestContext, uuid: string): Promise<void> {
-	const res = await ctx.post(`${API}/dashboards/active`, { data: { uuid } })
+	const res = await ctx.post(`${API}/dashboards/default`, { data: { uuid } })
 	expect(res.status(), await res.text()).toBeLessThan(300)
 }
 

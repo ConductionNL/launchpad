@@ -85,9 +85,9 @@
 		<!-- dashboards-personal-hide-ui REQ-PERSUI-001: in view mode a widget
 		     on a shared dashboard can be hidden for this person only. Not
 		     offered for a compulsory widget (the server refuses it anyway). -->
-		<!-- embedded-analytics task 40: an administrator can create an embed
-		     token for this one widget, in Beheer ▸ Embeds with it pre-selected. -->
-		<div v-if="showHideForMe || showEmbed" class="launchpad-widget__cog">
+		<!-- REQ-WDG-047: in view mode the menu only holds actions for the
+		     reader; Create embed token lives in the edit menu below. -->
+		<div v-if="showHideForMe" class="launchpad-widget__cog">
 			<NcActions
 				:aria-label="t('launchpad', 'Widget options')"
 				:forceMenu="true">
@@ -101,15 +101,6 @@
 					</template>
 					{{ t('launchpad', 'Hide for me') }}
 				</NcActionButton>
-				<NcActionLink
-					v-if="showEmbed"
-					:href="embedHref"
-					data-testid="widget-create-embed-token">
-					<template #icon>
-						<CodeTags :size="20" />
-					</template>
-					{{ t('launchpad', 'Create embed token') }}
-				</NcActionLink>
 			</NcActions>
 		</div>
 		<!-- LpBewerken: in edit mode every widget shows a drag grip at its top
@@ -137,6 +128,8 @@
 			<WidgetEditMenu
 				:menuLabel="t('launchpad', 'Widget menu')"
 				:removeLocked="!canRemove"
+				:embedHref="embedHref"
+				:embedDisabled="!placement || placement.id === undefined || placement.id === null"
 				@edit="$emit('edit', placement)"
 				@whoSees="$emit('whoSees', placement)"
 				@remove="$emit('remove', placement.id)" />
@@ -150,8 +143,6 @@ import {
 	NcActionButton,
 	NcActions,
 } from '@conduction/nextcloud-vue'
-import { NcActionLink } from '@nextcloud/vue'
-import CodeTags from 'vue-material-design-icons/CodeTags.vue'
 import DragVertical from 'vue-material-design-icons/DragVertical.vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import LockOutline from 'vue-material-design-icons/LockOutline.vue'
@@ -206,12 +197,10 @@ export default {
 
 	components: {
 		CnWidgetWrapper,
-		CodeTags,
 		DragVertical,
 		EyeOff,
 		LockOutline,
 		NcActionButton,
-		NcActionLink,
 		NcActions,
 		WidgetRenderer,
 		WidgetEditMenu,
@@ -293,17 +282,6 @@ export default {
 				&& !this.editMode
 				&& Number(this.placement?.isCompulsory) !== 1
 			)
-		},
-
-		/**
-		 * Whether "Create embed token" is offered: view mode, with a link
-		 * from the host (only an administrator gets one).
-		 *
-		 * @return {boolean}
-		 * @spec openspec/changes/embedded-analytics/tasks.md#task-40
-		 */
-		showEmbed() {
-			return this.embedHref !== '' && !this.editMode
 		},
 
 		/**

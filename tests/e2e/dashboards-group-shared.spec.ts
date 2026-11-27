@@ -69,7 +69,7 @@ import {
 	listVisible,
 	openWorkspace,
 	removeGroupDashboards,
-	setActivePreference,
+	setStartDashboard,
 	showDashboard,
 	writeSettings,
 } from './support/dashboardsSpec.ts'
@@ -471,7 +471,7 @@ test.describe('REQ-DASH-014 group-scoped endpoints', () => {
 			gridX: 0,
 			gridY: 30,
 		})
-		await setActivePreference(bob.api, d1.uuid)
+		await setStartDashboard(bob.api, d1.uuid)
 		const before = await openWorkspace(bob.api)
 		expect(before.state.activeDashboardId).toBe(d1.uuid)
 

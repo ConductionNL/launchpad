@@ -47,7 +47,7 @@ async function expectNoSeriousViolations(page: Page, selector: string, testInfo:
 
 // @e2e exclude an accessibility check of the admin launch settings, not a scenario of the tiles spec
 test('the admin section for schemes and sign-on templates has no serious axe findings', async ({ page }, testInfo) => {
-	await page.goto('/index.php/apps/launchpad/admin')
+	await page.goto('/index.php/settings/admin/launchpad')
 	await adminTab(page, 'general').click()
 	const section = page.getByTestId('admin-tile-launch')
 	await expect(section).toBeVisible({ timeout: 30_000 })
@@ -67,7 +67,7 @@ test('the "Can\'t find your app?" request form has no serious axe findings', asy
 		const body = await created.json()
 		const dashboard = body.dashboard ?? body.data?.dashboard ?? body
 		expect((await member.api.post(`${API}/dashboard/${dashboard.id}/activate`)).status()).toBeLessThan(300)
-		expect((await member.api.post(`${API}/dashboards/active`, { data: { uuid: dashboard.uuid } })).status()).toBeLessThan(300)
+		expect((await member.api.post(`${API}/dashboards/default`, { data: { uuid: dashboard.uuid } })).status()).toBeLessThan(300)
 
 		const { context, page } = await loginAs(browser, member.username, member.password)
 		try {

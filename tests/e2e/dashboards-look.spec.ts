@@ -80,7 +80,7 @@ async function activate(dash: SeededDashboard): Promise<void> {
 	).toBeLessThan(300)
 	expect(
 		(
-			await admin.post(`${API}/dashboards/active`, {
+			await admin.post(`${API}/dashboards/default`, {
 				data: { uuid: dash.uuid },
 			})
 		).status(),
@@ -270,7 +270,7 @@ test.describe('dashboards — a look of its own and custom CSS (REQ-THM-001..003
 
 			expect(
 				(
-					await pieter.api.post(`${API}/dashboards/active`, {
+					await pieter.api.post(`${API}/dashboards/default`, {
 						data: { uuid: dark.uuid },
 					})
 				).status(),
@@ -314,7 +314,7 @@ test.describe('dashboards — a look of its own and custom CSS (REQ-THM-001..003
 		const original = String((await previous.json()).customCss ?? '')
 
 		try {
-			await page.goto('/index.php/apps/launchpad/admin')
+			await page.goto('/index.php/settings/admin/launchpad')
 			const input = page.getByTestId('admin-custom-css-input')
 			await expect(input).toBeEnabled({ timeout: 30_000 })
 			await input.fill(

@@ -125,7 +125,7 @@ import RevokeEmbedTokenDialog from '../../../dialogs/RevokeEmbedTokenDialog.vue'
 import EmbedTokenForm from '../../admin/embed/EmbedTokenForm.vue'
 import { NULLABLE_OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { api } from '../../../services/api.js'
-import { embedApi } from '../../../services/embedApi.js'
+import { embedApi, embedLoadError } from '../../../services/embedApi.js'
 import { embedCode, tokensForDashboard, tokenStatus } from '../../../utils/embedToken.js'
 import { logger } from '../../../utils/logger.js'
 
@@ -262,8 +262,7 @@ export default {
 				this.allTokens = tokens.value
 			} else {
 				this.allTokens = []
-				this.error = t('launchpad', 'Embed tokens could not be loaded.')
-				logger.error('Failed to load embed tokens:', tokens.reason)
+				this.error = embedLoadError(tokens.reason)
 			}
 			const placements = detail.status === 'fulfilled' ? detail.value?.data?.placements : null
 			this.placements = Array.isArray(placements) ? placements : []

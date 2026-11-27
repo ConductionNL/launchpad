@@ -2,11 +2,13 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The administration page's address: `/apps/launchpad/admin/<tab>`, a
- * Launchpad page over the full width (admin-settings REQ-ADM-030). The tab
- * is in the path, so a link opens it and switching tabs changes it.
+ * The admin settings page's address: `/settings/admin/launchpad#<tab>`,
+ * inside Nextcloud's settings framework (admin-settings REQ-ADM-032). The
+ * open tab is the URL fragment, so a link opens it and Back returns to the
+ * previous tab, without a router. `lib/Settings/AdminTabs.php` knows the
+ * same tabs.
  *
- * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
  */
 
 import { generateUrl } from '@nextcloud/router'
@@ -14,22 +16,27 @@ import { generateUrl } from '@nextcloud/router'
 /** The tab a page without a (known) tab opens on. */
 export const DEFAULT_ADMIN_TAB = 'general'
 
+/** The tab a delegated announcements manager holds (REQ-ADM-034). */
+export const ANNOUNCEMENTS_TAB = 'announcements'
+
 /**
- * The tabs of the administration, as `AdminSettings.vue` declares them and
- * `AdminPageController::TABS` knows them: the twelve tabs the Beheer boards
- * draw (LpBeheer*), in their order.
+ * The thirteen tabs, in the boards' order (LpBeheer*): General,
+ * Announcements, Templates, Roles and rights, Sharing, Organisation menu,
+ * Kiosk, Versions and analytics, Controls, Demo data, Group dashboards,
+ * Detail fields, Profile fields.
  *
- * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
  */
 export const ADMIN_TABS = [
 	'general',
+	'announcements',
 	'templates',
-	'operations',
 	'roles-permissions',
-	'versioning-audit',
 	'sharing',
-	'kiosk',
 	'org-navigation',
+	'kiosk',
+	'versioning-audit',
+	'operations',
 	'demo-data',
 	'group-dashboards',
 	'detail-fields',
@@ -37,11 +44,10 @@ export const ADMIN_TABS = [
 ]
 
 /**
- * Former tabs that are now a section of a drawn tab (REQ-ADM-032), and the
- * tab that holds each: an old address or link opens the host tab on that
- * section. `AdminPageController::FOLDED_TABS` knows the same map.
+ * Former tabs that are now a section of a drawn tab, and the tab that holds
+ * each: their fragment opens the host tab at that section.
  *
- * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
  */
 export const FOLDED_ADMIN_TABS = Object.freeze({
 	embeds: 'general',
@@ -56,8 +62,7 @@ export const FOLDED_ADMIN_TABS = Object.freeze({
  *
  * @param {string} [tab] The tab the address names.
  * @return {string} A tab id.
- * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
- * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
  */
 export function adminTab(tab) {
 	if (ADMIN_TABS.includes(tab)) {
@@ -67,43 +72,69 @@ export function adminTab(tab) {
 }
 
 /**
- * The folded section an address points at: the former tab it names in its
- * path or in `?section=` / `?tab=`, or null.
+ * The tab and section a URL fragment names: `#sharing` opens Sharing,
+ * `#embeds` opens General at its Embeds section,
+ * `#sharing/section-dashboard-registry` opens Sharing at the element with
+ * that id (a settings link of `lib/Settings/connections.json`), an empty or
+ * unknown fragment opens General.
  *
- * @param {string} [tab] The tab the path names.
- * @param {string} [search] The query string, e.g. `?tab=embeds&embedType=widget`.
- * @return {string|null} A key of FOLDED_ADMIN_TABS, or null.
- * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+ * @param {string} [hash] The fragment, with or without its `#`.
+ * @return {{tab: string, section: string}} The tab and the section ('' for none).
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
  */
-export function adminSection(tab, search = '') {
-	const query = new URLSearchParams(String(search ?? ''))
-	const candidates = [tab, query.get('section'), query.get('tab')]
-	const found = candidates.find((name) => typeof name === 'string' && Object.hasOwn(FOLDED_ADMIN_TABS, name))
-	return found ?? null
+export function parseAdminFragment(hash) {
+	const [name, rest = ''] = String(hash ?? '').replace(/^#/, '').split('/')
+	let section = ''
+	if (Object.hasOwn(FOLDED_ADMIN_TABS, name)) {
+		section = name
+	} else if (/^section-[a-z0-9-]+$/.test(rest)) {
+		section = rest
+	}
+	return { tab: adminTab(name), section }
 }
 
 /**
- * The address of the administration page on one tab.
+ * The tab to open among the ones the viewer holds: the named tab when held,
+ * else the first held tab.
  *
- * @param {string} [tab] The tab.
+ * @param {string} tab The tab the address names.
+ * @param {string[]} held The tabs the viewer holds, in the page's order.
+ * @return {string} A tab id ('' when the viewer holds none).
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-delegated-admin-settings-per-area-req-adm-034
+ */
+export function heldTab(tab, held) {
+	if (held.includes(tab)) {
+		return tab
+	}
+	return held[0] ?? ''
+}
+
+/**
+ * The tabs the viewer holds, in the page's order: the server's list
+ * (initial state `adminTabs`), every tab when it sent none.
+ *
+ * @param {unknown} provided The `adminTabs` initial state.
+ * @return {string[]} Tab ids.
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-delegated-admin-settings-per-area-req-adm-034
+ */
+export function heldTabs(provided) {
+	if (!Array.isArray(provided) || provided.length === 0) {
+		return [...ADMIN_TABS]
+	}
+	return ADMIN_TABS.filter((tab) => provided.includes(tab))
+}
+
+/**
+ * The address of the admin settings page on one tab (or a former tab's
+ * section), with an optional query, e.g. the widget an embed token is for.
+ *
+ * @param {string} [tab] The tab or former tab.
+ * @param {string} [query] A query string without `?`.
  * @return {string} The URL.
- * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
  */
-export function adminPageUrl(tab = DEFAULT_ADMIN_TAB) {
-	// The tab is one of ADMIN_TABS, so it needs no encoding. A former tab
-	// opens its host tab (REQ-ADM-032); a caller that wants the section
-	// names it in the query (`tab=` or `section=`), see adminSection().
-	return generateUrl(`/apps/launchpad/admin/${adminTab(tab)}`)
-}
-
-/**
- * Whether an address is the administration page, which the server renders
- * with the administration's initial state.
- *
- * @param {string} pathname The pathname.
- * @return {boolean} True for `…/apps/launchpad/admin` and its tabs.
- * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-the-administration-is-a-launchpad-page-over-the-full-width-req-adm-030
- */
-export function isAdminPagePath(pathname) {
-	return /\/apps\/launchpad\/admin(?:\/|$)/.test(String(pathname ?? ''))
+export function adminPageUrl(tab = DEFAULT_ADMIN_TAB, query = '') {
+	const fragment = ADMIN_TABS.includes(tab) || Object.hasOwn(FOLDED_ADMIN_TABS, tab ?? '') ? tab : DEFAULT_ADMIN_TAB
+	const search = query ? `?${query}` : ''
+	return `${generateUrl('/settings/admin/launchpad')}${search}#${fragment}`
 }

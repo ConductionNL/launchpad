@@ -77,8 +77,6 @@ import { REQUIRED_OBJECT_PROP } from './constants/propDefinitions.js'
 import customComponents from './customComponents.js'
 import { LAZY_ICON_CATALOGUE } from './services/iconCatalogue.js'
 import { buildPeopleSource } from './services/widgetDataAdapters.js'
-import { isAdminPagePath } from './utils/adminPage.js'
-import { bootPath } from './utils/bootPath.js'
 import { isKioskMode } from './utils/kioskMode.js'
 import { watchPageMenuTarget } from './utils/pageMenuTarget.js'
 import { permits } from './utils/permissions.js'
@@ -342,15 +340,11 @@ export default {
 		 * `false` to opt out; any other value keeps its default, which is the
 		 * library's per-user "once ever" behaviour for the administrator.
 		 *
-		 * Not on a page load that opens the administration page either: that
-		 * page starts its own first-visit tour (REQ-SHELL-011), and the tour
-		 * comes first. The note waits for the next page load elsewhere.
-		 *
-		 * @return {boolean} false for a non-admin account and on the administration page.
+		 * @return {boolean} false for a non-admin account.
 		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-008
 		 */
 		supportNoteForThisAccount() {
-			return permits('admin', this.permissions) && !isAdminPagePath(bootPath())
+			return permits('admin', this.permissions)
 		},
 
 		/**

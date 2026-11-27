@@ -136,6 +136,11 @@ const PAGE_KEYS = {
 		widgets: [],
 		allowUserDashboards: false,
 		linkCreateFileExtensions: ['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'],
+		// admin-page-in-nextcloud-settings REQ-ADM-034: the tabs the viewer
+		// holds. Optional key; empty means every tab.
+		adminTabs: [],
+		// REQ-ADM-032: the running app version for the version card. Optional key.
+		version: '',
 	},
 	// sharing-public-start-page D3 (version 3): the public link the start
 	// page at /apps/launchpad/start shows. Absent on /s/{token}, where the
@@ -190,14 +195,17 @@ let runtimeManifestTaken = false
  * groups, and creating a public link. A page without the key offers both; the
  * server refuses what the policy does not allow.
  *
- * @return {{mayShare: boolean, publicLinksAllowed: boolean}} The policy.
+ * @return {{mayShare: boolean, publicLinksAllowed: boolean, screenLinksAllowed: boolean}} The policy.
  * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+ * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-2
  */
 export function readSharingPolicy() {
 	const policy = readKey('sharingPolicy', null)
 	return {
 		mayShare: policy?.mayShare !== false,
 		publicLinksAllowed: policy?.publicLinksAllowed !== false,
+		// REQ-KIOSK-007: new screen links from the Sharing tab; on unless switched off.
+		screenLinksAllowed: policy?.screenLinksAllowed !== false,
 	}
 }
 

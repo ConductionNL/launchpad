@@ -167,6 +167,8 @@ describe('Views — a tile in a group', () => {
 			healthPingEnabled: true,
 			healthUrl: 'https://mail.example.org/health',
 			internalUrl: 'http://mail.local',
+			// The form carries the pin it was opened with (REQ-APPTILE-004).
+			pinned: true,
 			groupId: 41,
 			groupSortBy: 'alphabetical',
 		})

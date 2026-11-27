@@ -14,12 +14,7 @@ OC.L10N.register(
     "_{count} comment_::_{count} comments_" : ["{count} comment", "{count} comments"],
     "_Reaches {count} person_::_Reaches {count} people_" : ["Reaches {count} person", "Reaches {count} people"],
     "_All %n open case_::_All %n open cases_" : ["All %n open case", "All %n open cases"],
-    "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_" : ["You have hidden %n widget on shared dashboards","You have hidden %n widgets on shared dashboards"],
-    "Restart setup" : "Restart setup",
-    "Tour" : "Tour",
-    "News and maintenance notices for the people in your organisation." : "News and maintenance notices for the people in your organisation.",
-    "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges." : "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges.",
-    "Launchpad announcements" : "Launchpad announcements"
+    "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_" : ["You have hidden %n widget on shared dashboards","You have hidden %n widgets on shared dashboards"]
 },
 "nplurals=2; plural=(n != 1);"
 );

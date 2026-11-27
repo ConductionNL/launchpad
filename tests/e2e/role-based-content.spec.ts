@@ -22,7 +22,7 @@ import { expect, test } from '@playwright/test'
 import { adminTab } from './support/adminTab.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
 
-const ADMIN_URL = `${BASE}/index.php/apps/launchpad/admin`
+const ADMIN_URL = `${BASE}/index.php/settings/admin/launchpad`
 
 /**
  * Scenario: Admin settings page shows the role-layout defaults section.

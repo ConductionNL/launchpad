@@ -108,7 +108,7 @@ const API = `${APP}/api`
 const ANALYTICS = `${API}/admin/analytics`
 const ENABLED_KEY =
 	'/ocs/v2.php/apps/provisioning_api/api/v1/config/apps/launchpad/analytics_enabled'
-const ADMIN_PAGE = '/index.php/apps/launchpad/admin/versioning-audit'
+const ADMIN_PAGE = '/index.php/settings/admin/launchpad#versioning-audit'
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',

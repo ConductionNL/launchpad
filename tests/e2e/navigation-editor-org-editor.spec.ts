@@ -53,7 +53,7 @@ import {
 } from './support/principals.ts'
 
 const RUN = Date.now()
-const SETTINGS = '/index.php/apps/launchpad/admin'
+const SETTINGS = '/index.php/settings/admin/launchpad'
 const ADMIN_USER = process.env.NC_ADMIN_USER ?? 'admin'
 
 let admin: APIRequestContext

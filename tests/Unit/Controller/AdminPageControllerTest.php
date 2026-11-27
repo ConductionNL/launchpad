@@ -3,11 +3,10 @@
 /**
  * AdminPageControllerTest
  *
- * Pins the administration page (REQ-ADM-030): a reader who is no (delegated)
- * administrator gets a 403 before anything of the page renders, an
- * administrator the Launchpad shell with the administration's initial state,
- * and the tab comes from the route, an unknown one sending the reader to
- * General.
+ * Pins the former administration address (REQ-ADM-033): every
+ * `/apps/launchpad/admin/{tab}` answers with a 303 to
+ * `/settings/admin/launchpad#{tab}`, a former tab keeps its name as the
+ * fragment, an unknown tab opens General, and the embed query survives.
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Controller
@@ -25,19 +24,14 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use OCA\LaunchPad\Controller\AdminPageController;
-use OCA\LaunchPad\Settings\AdminFormState;
-use OCA\LaunchPad\Settings\AdminPageAccess;
+use OCA\LaunchPad\Settings\AdminTabs;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
-use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
-use OCP\AppFramework\Http\RedirectResponse;
-use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
@@ -45,304 +39,90 @@ use ReflectionMethod;
  * Tests for AdminPageController.
  *
  * @covers \OCA\LaunchPad\Controller\AdminPageController
+ * @uses   \OCA\LaunchPad\Settings\AdminTabs
  */
 class AdminPageControllerTest extends TestCase {
 
-	/** @var AdminFormState&MockObject */
-	private $formState;
-
 	/**
-	 * Whether the assets were registered.
+	 * The controller with a request carrying the given query.
 	 *
-	 * @var boolean
-	 */
-	public bool $assetsAdded = false;
-
-	/**
-	 * The controller, for a reader the access check allows or refuses.
-	 *
-	 * @param bool                  $allowed Whether the reader is a (delegated) administrator.
-	 * @param array<string, string> $query   The request's query parameters.
+	 * @param array<string, string> $query The query parameters.
 	 *
 	 * @return AdminPageController
 	 */
-	private function controller(bool $allowed, array $query = []): AdminPageController {
-		$access = $this->createMock(originalClassName: AdminPageAccess::class);
-		$access->method('allows')->willReturn($allowed);
-		$this->formState = $this->createMock(originalClassName: AdminFormState::class);
-		$urls = $this->createMock(originalClassName: IURLGenerator::class);
-		$urls->method('linkToRoute')->willReturnCallback(
-			static function (string $route, array $args = []): string {
-				$tab = $args['tab'] ?? '';
-				unset($args['tab']);
-				$search = '';
-				if ($args !== []) {
-					$search = '?' . http_build_query($args);
-				}
-
-				return '/index.php/apps/launchpad/admin/' . $tab . $search . '#' . $route;
-			}
-		);
+	private function controller(array $query = []): AdminPageController {
 		$request = $this->createMock(originalClassName: IRequest::class);
 		$request->method('getParam')->willReturnCallback(
-			static fn (string $key, $default = null) => $query[$key] ?? $default
+			static fn (string $key): ?string => $query[$key] ?? null
 		);
+		$urls = $this->createMock(originalClassName: IURLGenerator::class);
+		$urls->method('linkToRoute')->with('settings.AdminSettings.index', ['section' => 'launchpad'])
+			->willReturn('/index.php/settings/admin/launchpad');
 
-		$test = $this;
-		return new class(
-			request: $request,
-			access: $access,
-			formState: $this->formState,
-			urlGenerator: $urls,
-			test: $test
-		) extends AdminPageController {
-			/**
-			 * Constructor.
-			 *
-			 * @param IRequest                $request      The request.
-			 * @param AdminPageAccess         $access       The access check.
-			 * @param AdminFormState          $formState    The initial state.
-			 * @param IURLGenerator           $urlGenerator The URL generator.
-			 * @param AdminPageControllerTest $test         Records the asset registration.
-			 */
-			public function __construct(
-				IRequest $request,
-				AdminPageAccess $access,
-				AdminFormState $formState,
-				IURLGenerator $urlGenerator,
-				private readonly AdminPageControllerTest $test,
-			) {
-				parent::__construct(request: $request, access: $access, formState: $formState, urlGenerator: $urlGenerator);
-			}
-
-			/**
-			 * Nextcloud's asset registry is not loaded in a unit test.
-			 *
-			 * @return void
-			 */
-			protected function addAssets(): void {
-				$this->test->assetsAdded = true;
-			}
-		};
+		return new AdminPageController(request: $request, urlGenerator: $urls);
 	}//end controller()
 
 	/**
-	 * A reader who is no administrator gets a 403, and nothing of the page:
-	 * no initial state, no script.
+	 * Each tab of the page, a former tab and an unknown name.
 	 *
-	 * @return void
-	 */
-	public function testANonAdminGets403BeforeAnythingRenders(): void {
-		$controller = $this->controller(allowed: false);
-		$this->formState->expects($this->never())->method('provide');
-
-		$response = $controller->show(tab: 'general');
-
-		$this->assertInstanceOf(expected: TemplateResponse::class, actual: $response);
-		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
-		$this->assertSame(expected: 'core', actual: $response->getApp());
-		$this->assertSame(expected: '403', actual: $response->getTemplateName());
-		$this->assertSame(expected: [], actual: $response->getParams());
-		$this->assertFalse(condition: $this->assetsAdded);
-	}//end testANonAdminGets403BeforeAnythingRenders()
-
-	/**
-	 * An unknown tab is refused the same way to a non-admin: the check comes first.
-	 *
-	 * @return void
-	 */
-	public function testANonAdminGets403AlsoOnAnUnknownTab(): void {
-		$response = $this->controller(allowed: false)->show(tab: 'nonsense');
-
-		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
-	}//end testANonAdminGets403AlsoOnAnUnknownTab()
-
-	/**
-	 * Every tab the page declares.
-	 *
-	 * @return array<string, array{0: string}>
+	 * @return array<string, array{0: string, 1: string}>
 	 */
 	public static function tabs(): array {
 		$cases = [];
-		foreach (AdminPageController::TABS as $tab) {
-			$cases[$tab] = [$tab];
+		foreach (AdminTabs::TABS as $tab) {
+			$cases[$tab] = [$tab, $tab];
 		}
 
-		return $cases;
+		return $cases + [
+			'former tab embeds' => ['embeds', 'embeds'],
+			'former tab app-catalogue' => ['app-catalogue', 'app-catalogue'],
+			'unknown tab' => ['nonsense', 'general'],
+			'no tab' => ['', 'general'],
+		];
 	}//end tabs()
 
 	/**
-	 * A (delegated) administrator gets the Launchpad shell with the
-	 * administration's initial state, on the tab the route names.
+	 * The former address answers 303 to the settings page on that tab.
 	 *
-	 * @param string $tab The tab.
+	 * @param string $tab      The tab the former address names.
+	 * @param string $fragment The fragment the redirect opens.
 	 *
 	 * @return void
 	 */
 	#[DataProvider('tabs')]
-	public function testAnAdministratorGetsThePageOnTheRoutesTab(string $tab): void {
-		$controller = $this->controller(allowed: true);
-		$this->formState->expects($this->once())->method('provide');
+	public function testTheFormerAddressRedirectsToTheSettingsPage(string $tab, string $fragment): void {
+		$response = $this->controller()->show(tab: $tab);
 
-		$response = $controller->show(tab: $tab);
-
-		$this->assertInstanceOf(expected: TemplateResponse::class, actual: $response);
-		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
-		$this->assertSame(expected: 'launchpad', actual: $response->getApp());
-		$this->assertSame(expected: 'index', actual: $response->getTemplateName());
-		$this->assertSame(expected: TemplateResponse::RENDER_AS_USER, actual: $response->getRenderAs());
-		$this->assertTrue(condition: $this->assetsAdded);
-	}//end testAnAdministratorGetsThePageOnTheRoutesTab()
+		$this->assertSame(expected: Http::STATUS_SEE_OTHER, actual: $response->getStatus());
+		$this->assertSame(expected: '/index.php/settings/admin/launchpad#' . $fragment, actual: $response->getRedirectURL());
+	}//end testTheFormerAddressRedirectsToTheSettingsPage()
 
 	/**
-	 * Without a tab the page opens on General.
+	 * A link into the Embeds section keeps the widget it names, before the
+	 * fragment; other query parameters are dropped.
 	 *
 	 * @return void
 	 */
-	public function testWithoutATabThePageOpensOnGeneral(): void {
-		$controller = $this->controller(allowed: true);
-		$this->formState->expects($this->once())->method('provide');
+	public function testTheEmbedQuerySurvivesTheRedirect(): void {
+		$response = $this->controller(query: ['embedType' => 'widget', 'embedId' => '5', 'other' => 'x'])->show(tab: 'embeds');
 
-		$response = $controller->show();
-
-		$this->assertInstanceOf(expected: TemplateResponse::class, actual: $response);
-		$this->assertSame(expected: 'general', actual: AdminPageController::DEFAULT_TAB);
-	}//end testWithoutATabThePageOpensOnGeneral()
-
-	/**
-	 * An unknown tab sends the reader to General, before any state is provided.
-	 *
-	 * @return void
-	 */
-	public function testAnUnknownTabRedirectsToGeneral(): void {
-		$controller = $this->controller(allowed: true);
-		$this->formState->expects($this->never())->method('provide');
-
-		$response = $controller->show(tab: 'settings');
-
-		$this->assertInstanceOf(expected: RedirectResponse::class, actual: $response);
 		$this->assertSame(
-			expected: '/index.php/apps/launchpad/admin/general#launchpad.adminPage.show',
+			expected: '/index.php/settings/admin/launchpad?embedType=widget&embedId=5#embeds',
 			actual: $response->getRedirectURL()
 		);
-		$this->assertFalse(condition: $this->assetsAdded);
-	}//end testAnUnknownTabRedirectsToGeneral()
+	}//end testTheEmbedQuerySurvivesTheRedirect()
 
 	/**
-	 * The page declares the twelve tabs the Beheer boards draw (REQ-ADM-032).
+	 * The route stays an administrator's route and never a public one.
 	 *
 	 * @return void
 	 */
-	public function testThePageDeclaresTheTwelveDrawnTabs(): void {
-		$this->assertSame(
-			expected: [
-				'general', 'templates', 'operations', 'roles-permissions', 'versioning-audit', 'sharing',
-				'kiosk', 'org-navigation', 'demo-data', 'group-dashboards', 'detail-fields', 'profile-fields',
-			],
-			actual: AdminPageController::TABS
-		);
-		foreach (AdminPageController::FOLDED_TABS as $host) {
-			$this->assertContains(needle: $host, haystack: AdminPageController::TABS);
-		}
-	}//end testThePageDeclaresTheTwelveDrawnTabs()
+	public function testTheRouteStaysAnAdministratorsRoute(): void {
+		$method = new ReflectionMethod(objectOrMethod: AdminPageController::class, method: 'show');
+		$admin = $method->getAttributes(name: AuthorizedAdminSetting::class);
 
-	/**
-	 * Former tabs and the address their old link opens.
-	 *
-	 * @return array<string, array{0: string, 1: string}>
-	 */
-	public static function foldedTabs(): array {
-		return [
-			'embeds'           => ['embeds', '/index.php/apps/launchpad/admin/general?section=embeds#launchpad.adminPage.show'],
-			'search shortcuts' => ['search-shortcuts', '/index.php/apps/launchpad/admin/general?section=search-shortcuts#launchpad.adminPage.show'],
-			'communities'      => ['communities', '/index.php/apps/launchpad/admin/group-dashboards?section=communities#launchpad.adminPage.show'],
-			'app catalogue'    => ['app-catalogue', '/index.php/apps/launchpad/admin/operations?section=app-catalogue#launchpad.adminPage.show'],
-		];
-	}//end foldedTabs()
-
-	/**
-	 * An old tab address opens the tab that holds it now, on its section (REQ-ADM-032).
-	 *
-	 * @param string $tab      The former tab.
-	 * @param string $expected The redirect target.
-	 *
-	 * @return void
-	 */
-	#[DataProvider('foldedTabs')]
-	public function testAFormerTabRedirectsToItsHostTab(string $tab, string $expected): void {
-		$controller = $this->controller(allowed: true);
-		$this->formState->expects($this->never())->method('provide');
-
-		$response = $controller->show(tab: $tab);
-
-		$this->assertInstanceOf(expected: RedirectResponse::class, actual: $response);
-		$this->assertSame(expected: $expected, actual: $response->getRedirectURL());
-		$this->assertFalse(condition: $this->assetsAdded);
-	}//end testAFormerTabRedirectsToItsHostTab()
-
-	/**
-	 * A link from a dashboard into the embeds keeps the form's pre-selection, and nothing else.
-	 *
-	 * @return void
-	 */
-	public function testAnEmbedsLinkKeepsItsPreselection(): void {
-		$controller = $this->controller(
-			allowed: true,
-			query: ['embedType' => 'widget', 'embedId' => '12', 'embedDashboard' => '7', 'other' => 'x', 'tab' => 'embeds']
-		);
-
-		$response = $controller->show(tab: 'embeds');
-
-		$this->assertSame(
-			expected: '/index.php/apps/launchpad/admin/general?section=embeds&embedType=widget&embedId=12&embedDashboard=7#launchpad.adminPage.show',
-			actual: $response->getRedirectURL()
-		);
-	}//end testAnEmbedsLinkKeepsItsPreselection()
-
-	/**
-	 * A former tab is refused to a non-admin like any other: the check comes first.
-	 *
-	 * @return void
-	 */
-	public function testANonAdminGets403AlsoOnAFormerTab(): void {
-		$response = $this->controller(allowed: false)->show(tab: 'embeds');
-
-		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
-	}//end testANonAdminGets403AlsoOnAFormerTab()
-
-	/**
-	 * The route lets a delegated Launchpad administrator past Nextcloud's own
-	 * check, and nobody else: `AuthorizedAdminSetting(LaunchPadAdmin)`, no
-	 * `NoAdminRequired`, no `PublicPage`.
-	 *
-	 * @return void
-	 */
-	public function testTheRouteAdmitsDelegatedAdministrators(): void {
-		$reflection = new ReflectionMethod(objectOrMethod: AdminPageController::class, method: 'show');
-
-		$admin = $reflection->getAttributes(name: AuthorizedAdminSetting::class);
 		$this->assertCount(expectedCount: 1, haystack: $admin);
-		$this->assertSame(expected: LaunchPadAdmin::class, actual: $admin[0]->newInstance()->getSettings());
-		$this->assertSame(expected: [], actual: $reflection->getAttributes(name: NoAdminRequired::class));
-		$this->assertSame(expected: [], actual: $reflection->getAttributes(name: PublicPage::class));
-	}//end testTheRouteAdmitsDelegatedAdministrators()
-
-	/**
-	 * The route is registered under `/admin/{tab}`, General by default, before
-	 * the deep-link catch-all that would otherwise take it.
-	 *
-	 * @return void
-	 */
-	public function testTheRouteIsRegisteredBeforeTheCatchAll(): void {
-		$routes = (require dirname(__DIR__, 3) . '/appinfo/routes.php')['routes'];
-		$names = array_column($routes, 'name');
-		$admin = array_search('adminPage#show', $names, true);
-		$catchAll = array_search('page#deepLink', $names, true);
-
-		$this->assertIsInt(actual: $admin);
-		$this->assertIsInt(actual: $catchAll);
-		$this->assertLessThan(expected: $catchAll, actual: $admin);
-		$this->assertSame(expected: '/admin/{tab}', actual: $routes[$admin]['url']);
-		$this->assertSame(expected: ['tab' => 'general'], actual: $routes[$admin]['defaults']);
-	}//end testTheRouteIsRegisteredBeforeTheCatchAll()
+		$this->assertSame(expected: ['settings' => LaunchPadAdmin::class], actual: $admin[0]->getArguments());
+		$this->assertCount(expectedCount: 0, haystack: $method->getAttributes(name: PublicPage::class));
+	}//end testTheRouteStaysAnAdministratorsRoute()
 }//end class

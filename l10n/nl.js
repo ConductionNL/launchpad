@@ -2846,7 +2846,12 @@ OC.L10N.register(
     "Reason: %1$s" : "Reden: %1$s",
     "Notes: %1$s" : "Toelichting: %1$s",
     "Revocation timestamp: %1$s" : "Ingetrokken op: %1$s",
-    "Group dashboard of %s" : "Groepsdashboard van %s"
+    "Group dashboard of %s" : "Groepsdashboard van %s",
+    "Restart setup" : "Installatie opnieuw starten",
+    "Tour" : "Rondleiding",
+    "News and maintenance notices for the people in your organisation." : "Nieuws en onderhoudsmeldingen voor de mensen in je organisatie.",
+    "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges." : "Aankondigingen beheer je op dit tabblad. Wie aankondigingen beheert zonder beheerder te zijn, krijgt dit tabblad via de beheerrechten van Nextcloud.",
+    "Launchpad announcements" : "Launchpad-aankondigingen"
 },
 "nplurals=2; plural=(n != 1);"
 );

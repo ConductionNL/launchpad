@@ -139,7 +139,7 @@ test('an old app tile for Files is still at column 3, row 2 in the accent colour
 	expect(before.widgetId, 'the fixture is not stored as an old app tile').toBe('app-tile')
 
 	const owner = await loginAs(browser, account!.username, account!.password)
-	let colourBefore = ''
+	let colourBefore: string
 	try {
 		await owner.page.goto('/index.php/apps/launchpad')
 		const files = owner.page.locator('[data-testid="cn-app-tile"][href*="/apps/files"]')

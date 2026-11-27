@@ -16,7 +16,6 @@ use OCA\LaunchPad\Service\DashboardBuilders;
 use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardWrites;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\AdminTemplateService;
@@ -117,8 +116,6 @@ class DashboardServiceTemplateRungTest extends TestCase {
 		$templateService->method('getApplicableTemplate')->willReturnCallback(fn (): ?Dashboard => $this->template);
 		$templateService->method('createDashboardFromTemplate')->willReturnCallback(
 			function (string $userId, Dashboard $template): Dashboard {
-				// The real copy is a DashboardMapper insert, which counts as a dashboard write.
-				DashboardWrites::bump();
 				$this->copiesMade++;
 				$copy = new Dashboard();
 				$copy->setId(100 + $this->copiesMade);

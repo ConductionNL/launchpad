@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\AppFramework\Db\Entity;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\ICompositeExpression;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -56,48 +55,6 @@ class DashboardShareMapper extends QBMapper {
 			entityClass: DashboardShare::class
 		);
 	}//end __construct()
-
-	/**
-	 * Insert a row; counts as a write for the request's visibility reads.
-	 *
-	 * @param Entity $entity The row.
-	 *
-	 * @return Entity The inserted row.
-	 *
-	 * @spec openspec/specs/dashboards/spec.md
-	 */
-	public function insert(Entity $entity): Entity {
-		DashboardWrites::bump();
-		return parent::insert(entity: $entity);
-	}//end insert()
-
-	/**
-	 * Update a row; counts as a write for the request's visibility reads.
-	 *
-	 * @param Entity $entity The row.
-	 *
-	 * @return Entity The updated row.
-	 *
-	 * @spec openspec/specs/dashboards/spec.md
-	 */
-	public function update(Entity $entity): Entity {
-		DashboardWrites::bump();
-		return parent::update(entity: $entity);
-	}//end update()
-
-	/**
-	 * Delete a row; counts as a write for the request's visibility reads.
-	 *
-	 * @param Entity $entity The row.
-	 *
-	 * @return Entity The deleted row.
-	 *
-	 * @spec openspec/specs/dashboards/spec.md
-	 */
-	public function delete(Entity $entity): Entity {
-		DashboardWrites::bump();
-		return parent::delete(entity: $entity);
-	}//end delete()
 
 	/**
 	 * Find a share by ID.
@@ -282,7 +239,6 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteByDashboardId(int $dashboardId): int {
-		DashboardWrites::bump();
 		$qb = $this->deleteWhere(match: ['dashboard_id' => $dashboardId]);
 
 		return $qb->executeStatement();
@@ -300,7 +256,6 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteByRecipientUser(string $userId): int {
-		DashboardWrites::bump();
 		$qb = $this->deleteWhere(match: ['share_type' => DashboardShare::SHARE_TYPE_USER, 'share_with' => $userId]);
 
 		return $qb->executeStatement();
@@ -320,7 +275,6 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteNotIn(int $dashboardId, array $keepKeys): int {
-		DashboardWrites::bump();
 		// Load existing rows and delete those whose composite key is not in keepKeys.
 		$existing = $this->findByDashboardId(dashboardId: $dashboardId);
 		$deleted = 0;
@@ -365,7 +319,6 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteOrphaned(): int {
-		DashboardWrites::bump();
 		return $this->deleteOrphanRows(link: self::ORPHAN_LINK);
 	}//end deleteOrphaned()
 
@@ -387,7 +340,6 @@ class DashboardShareMapper extends QBMapper {
 		string $shareWith,
 		string $ownerId,
 	): int {
-		DashboardWrites::bump();
 		// Every value is bound on this one builder: a second builder for the
 		// subquery would number its parameters from 1 as well and collide.
 		$qb = $this->db->getQueryBuilder();
@@ -436,7 +388,6 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteByDashboardUuid(string $dashboardUuid): int {
-		DashboardWrites::bump();
 		$qb = $this->db->getQueryBuilder();
 		$qb->delete(delete: $this->getTableName())
 			->where(

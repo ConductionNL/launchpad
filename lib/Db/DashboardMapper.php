@@ -23,7 +23,6 @@ namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\AppFramework\Db\Entity;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
@@ -60,48 +59,6 @@ class DashboardMapper extends QBMapper {
 			entityClass: Dashboard::class
 		);
 	}//end __construct()
-
-	/**
-	 * Insert a row; counts as a write for the request's visibility reads.
-	 *
-	 * @param Entity $entity The row.
-	 *
-	 * @return Entity The inserted row.
-	 *
-	 * @spec openspec/specs/dashboards/spec.md
-	 */
-	public function insert(Entity $entity): Entity {
-		DashboardWrites::bump();
-		return parent::insert(entity: $entity);
-	}//end insert()
-
-	/**
-	 * Update a row; counts as a write for the request's visibility reads.
-	 *
-	 * @param Entity $entity The row.
-	 *
-	 * @return Entity The updated row.
-	 *
-	 * @spec openspec/specs/dashboards/spec.md
-	 */
-	public function update(Entity $entity): Entity {
-		DashboardWrites::bump();
-		return parent::update(entity: $entity);
-	}//end update()
-
-	/**
-	 * Delete a row; counts as a write for the request's visibility reads.
-	 *
-	 * @param Entity $entity The row.
-	 *
-	 * @return Entity The deleted row.
-	 *
-	 * @spec openspec/specs/dashboards/spec.md
-	 */
-	public function delete(Entity $entity): Entity {
-		DashboardWrites::bump();
-		return parent::delete(entity: $entity);
-	}//end delete()
 
 	/**
 	 * Find dashboard by ID.
@@ -220,7 +177,6 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/dashboards/spec.md
 	 */
 	public function deactivateAllForUser(string $userId): void {
-		DashboardWrites::bump();
 		$this->updateWhere(
 			set: ['is_active' => 0, 'updated_at' => $this->now()],
 			match: ['user_id' => $userId]
@@ -237,7 +193,6 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/dashboards/spec.md
 	 */
 	public function setActive(int $dashboardId, string $userId): void {
-		DashboardWrites::bump();
 		// First, deactivate all dashboards for the user.
 		$this->deactivateAllForUser(userId: $userId);
 
@@ -452,7 +407,6 @@ class DashboardMapper extends QBMapper {
 		string $groupId,
 		?string $exceptUuid = null,
 	): int {
-		DashboardWrites::bump();
 		$qb = $this->updateWhere(
 			set: ['is_default' => 0, 'updated_at' => $this->now()],
 			match: ['type' => Dashboard::TYPE_GROUP_SHARED, 'group_id' => $groupId]
@@ -488,7 +442,6 @@ class DashboardMapper extends QBMapper {
 		string $groupId,
 		string $uuid,
 	): int {
-		DashboardWrites::bump();
 		return $this->updateWhere(
 			set: ['is_default' => 1, 'updated_at' => $this->now()],
 			match: ['type' => Dashboard::TYPE_GROUP_SHARED, 'group_id' => $groupId, 'uuid' => $uuid]
@@ -729,7 +682,6 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/activity-feed-integration/spec.md
 	 */
 	public function setPublishedIfScheduled(Dashboard $dashboard): bool {
-		DashboardWrites::bump();
 		return $this->updateWhere(
 			set: [
 				'publication_status' => Dashboard::STATUS_PUBLISHED,
@@ -853,7 +805,6 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/admin-templates/spec.md#scenario-set-a-template-as-default-when-no-default-exists
 	 */
 	public function clearDefaultTemplates(): void {
-		DashboardWrites::bump();
 		$this->updateWhere(
 			set: ['is_default' => 0, 'updated_at' => $this->now()],
 			match: ['type' => Dashboard::TYPE_ADMIN_TEMPLATE, 'is_default' => 1]

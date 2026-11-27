@@ -108,3 +108,75 @@ describe('ContainerChild — provided data sources', () => {
 		expect(axiosGet.mock.calls[0][0]).toBe('/index.php/apps/launchpad/api/widgets/calendar/2/events')
 	})
 })
+
+// @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+describe('ContainerChild — the edit menu of a widget inside a well (REQ-WDG-050)', () => {
+	/**
+	 * A child mounted with the dashboard's child actions.
+	 *
+	 * @param {object} props The props.
+	 * @param {object} overrides Child actions to replace.
+	 * @return {object} The wrapper and the actions.
+	 */
+	function mountChild(props, overrides = {}) {
+		const actions = {
+			embedHref: vi.fn(() => '/settings/admin/launchpad?embedId=12.a#embeds'),
+			asksFirst: vi.fn(() => false),
+			openEmbed: vi.fn(),
+			duplicate: vi.fn(),
+			remove: vi.fn(),
+			...overrides,
+		}
+		const wrapper = mount(ContainerChild, {
+			props,
+			global: { provide: { launchpadChildOwner: () => ({ id: 12 }), launchpadChildActions: actions } },
+		})
+		return { wrapper, actions }
+	}
+
+	it('shows no menu in view mode', () => {
+		const { wrapper } = mountChild({ placement: { uuid: 'a', type: 'label' } })
+		expect(wrapper.find('[data-testid="cn-widget-edit-cog"]').exists()).toBe(false)
+	})
+
+	it('offers Duplicate, Create embed token and Remove in edit mode, and no form for a non-tile', () => {
+		const { wrapper, actions } = mountChild({ placement: { uuid: 'a', type: 'label' }, editMode: true })
+		expect(wrapper.find('[data-testid="container-child-menu"]').exists()).toBe(true)
+		expect(wrapper.find('[data-testid="cn-widget-edit-cog-edit"]').exists()).toBe(false)
+		expect(actions.embedHref).toHaveBeenCalledWith({ id: 12 }, { uuid: 'a', type: 'label' })
+		const menu = wrapper.findComponent({ name: 'WidgetEditMenu' })
+		expect(menu.props('embedHref')).toBe('/settings/admin/launchpad?embedId=12.a#embeds')
+		expect(menu.props('embedDisabled')).toBe(false)
+
+		menu.vm.$emit('duplicate')
+		menu.vm.$emit('remove')
+		menu.vm.$emit('embed', 'x')
+		expect(actions.duplicate).toHaveBeenCalledWith(12, 'a')
+		expect(actions.remove).toHaveBeenCalledWith(12, 'a')
+		expect(actions.openEmbed).toHaveBeenCalledWith('x')
+	})
+
+	it('disables the embed entry for a child that cannot be named yet, and asks first with changes', () => {
+		const { wrapper } = mountChild({ placement: { type: 'label' }, editMode: true }, { embedHref: () => '', asksFirst: () => true })
+		const menu = wrapper.findComponent({ name: 'WidgetEditMenu' })
+		expect(menu.props('embedDisabled')).toBe(true)
+		expect(menu.props('embedAsksFirst')).toBe(true)
+	})
+
+	it('keeps the tile form and its remove for a tile in a group', () => {
+		const { wrapper, actions } = mountChild({ placement: { uuid: 'a', type: 'tile', content: { title: 'Mail' } }, editMode: true, canEditTile: true })
+		expect(wrapper.find('[data-testid="container-child-tile-menu"]').exists()).toBe(true)
+		const menu = wrapper.findComponent({ name: 'WidgetEditMenu' })
+		expect(menu.props('hideEdit')).toBe(false)
+		menu.vm.$emit('edit')
+		menu.vm.$emit('remove')
+		expect(wrapper.emitted('editTile')).toHaveLength(1)
+		expect(wrapper.emitted('removeTile')).toHaveLength(1)
+		expect(actions.remove).not.toHaveBeenCalled()
+	})
+
+	it('shows no menu without a dashboard that offers the child actions', () => {
+		const wrapper = mount(ContainerChild, { props: { placement: { uuid: 'a', type: 'label' }, editMode: true } })
+		expect(wrapper.find('[data-testid="container-child-menu"]').exists()).toBe(false)
+	})
+})

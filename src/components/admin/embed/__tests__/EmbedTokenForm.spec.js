@@ -145,6 +145,29 @@ describe('EmbedTokenForm', () => {
 		expect(wrapper.find('[data-test="embed-token-filter-context"]').exists()).toBe(false)
 	})
 
+	// @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	it('offers the widgets inside a well or tabs widget as <placement>.<key>', async () => {
+		dashboardsApi.getDashboardById.mockResolvedValue({ data: { placements: [{
+			id: 43,
+			widgetId: 'container',
+			customTitle: 'Werk',
+			content: {
+				placements: [{ type: 'tile', uuid: '43-0', tileTitle: 'Mail' }, { type: 'label' }],
+				tabs: [{ title: 'Team', placements: [{ type: 'clock', uuid: 'c1' }] }],
+			},
+		}] } })
+		const wrapper = mountForm()
+		await wrapper.find('[data-test="embed-subject-type-widget"] input').trigger('change')
+		select(wrapper, 'embed-subject-dashboard').vm.$emit('update:modelValue', DASHBOARDS[1])
+		await flushPromises()
+
+		expect(select(wrapper, 'embed-subject-widget').props('options')).toEqual([
+			{ id: 43, label: 'Werk' },
+			{ id: '43.43-0', label: 'Werk › Mail' },
+			{ id: '43.c1', label: 'Werk › Team › clock' },
+		])
+	})
+
 	it('edits only name, description and rate limit of a stored token', async () => {
 		const token = { id: 't-1', name: 'Zeist', description: '', subject: { type: 'dashboard', id: 'dash-uuid' }, scope: { mode: 'read' }, hostOrigins: ['https://a.nl'], rateLimitPolicy: null }
 		const wrapper = mountForm({ token })

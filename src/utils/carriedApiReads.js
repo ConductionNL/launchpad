@@ -11,6 +11,11 @@
  * bar, the personal layer, each Files widget) keeps its own code path and
  * error handling: a read the page did not carry simply goes out.
  *
+ * The same client also answers from early reads: GETs the store starts
+ * before the component that wants them has rendered (a dashboard switch
+ * starts the target's reactions and personal layer beside the dashboard
+ * read), kept in flight for 5 s and taken once.
+ *
  * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-3
  */
 
@@ -22,6 +27,15 @@ const APP_SEGMENT = '/apps/launchpad'
 /** @type {Map<string, object|Array|string|null>|null} Carried reads by request key, emptied as they are used. */
 let carried = null
 let installed = false
+
+/** How long an early read waits for the GET that wants it. */
+export const EARLY_TTL_MS = 5000
+
+/** Marks the early request itself, so it is not answered from its own entry. */
+const EARLY_FLAG = 'launchpadEarlyRead'
+
+/** @type {Map<string, {response: Promise<object>, expires: number}>} Early reads in flight by request key. */
+const early = new Map()
 
 /**
  * The key of a GET: its path below `/apps/launchpad` plus its query, with the
@@ -114,7 +128,7 @@ export function answerCarried(config) {
 	}
 	const hit = takeCarriedRead(config.url, config.params)
 	if (hit === null) {
-		return config
+		return config[EARLY_FLAG] === true ? config : answerEarly(config)
 	}
 	config.adapter = () => Promise.resolve({
 		data: hit.data,
@@ -125,6 +139,78 @@ export function answerCarried(config) {
 		request: null,
 	})
 	return config
+}
+
+/**
+ * Answer a GET from an early read still in flight, once.
+ *
+ * @param {object} config The axios request config.
+ * @return {object} The config, with an adapter that answers from the early read when one matches.
+ * @spec openspec/changes/dashboard-switch-reads-early/tasks.md#task-1
+ */
+function answerEarly(config) {
+	const pending = takeEarlyRead(config.url, config.params)
+	if (pending === null) {
+		return config
+	}
+	config.adapter = () => pending.then((response) => ({ ...response, config }))
+	return config
+}
+
+/**
+ * Start a GET now and keep it, in flight, for the first matching GET within
+ * {@link EARLY_TTL_MS}. The early request itself goes out normally (it may be
+ * answered from the page's carried reads, never from its own entry).
+ *
+ * @param {string} url The request URL.
+ * @param {object} [params] The request's params.
+ * @param {object} [client] The axios instance (default: `@nextcloud/axios`).
+ * @return {void}
+ * @spec openspec/changes/dashboard-switch-reads-early/tasks.md#task-1
+ */
+export function startEarlyRead(url, params = {}, client = axios) {
+	const key = requestKey(url, params)
+	if (key === null) {
+		return
+	}
+	let response
+	try {
+		response = Promise.resolve(client.get(url, { params, [EARLY_FLAG]: true }))
+	} catch {
+		// An early read is only a head start: if it cannot start, the GET goes out later.
+		return
+	}
+	// Nobody may ask for it: a failure must not surface as unhandled.
+	response.catch(() => {})
+	early.set(key, { response, expires: Date.now() + EARLY_TTL_MS })
+}
+
+/**
+ * Take the early read of one GET, once, while it is fresh.
+ *
+ * @param {string} url The request URL.
+ * @param {object} [params] The request's params.
+ * @return {Promise<object>|null} The early response, or null when there is none (or it expired).
+ * @spec openspec/changes/dashboard-switch-reads-early/tasks.md#task-1
+ */
+export function takeEarlyRead(url, params) {
+	const key = requestKey(url, params)
+	const entry = key === null ? undefined : early.get(key)
+	if (entry === undefined) {
+		return null
+	}
+	early.delete(key)
+	return entry.expires >= Date.now() ? entry.response : null
+}
+
+/**
+ * Drop every early read not yet taken (a new switch starts its own).
+ *
+ * @return {void}
+ * @spec openspec/changes/dashboard-switch-reads-early/tasks.md#task-1
+ */
+export function dropEarlyReads() {
+	early.clear()
 }
 
 /**
@@ -151,4 +237,5 @@ export function installCarriedReads(client = axios) {
 export function resetCarriedReads() {
 	carried = null
 	installed = false
+	early.clear()
 }

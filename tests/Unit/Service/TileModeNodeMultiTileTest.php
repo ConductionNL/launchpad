@@ -1,14 +1,15 @@
 <?php
 
 /**
- * ConvertMultiTilesToWellsTest
+ * TileModeNodeMultiTileTest
  *
  * Every multi-tile becomes a well whose app list carries its settings, in
  * place (same id, cell, size, order, rules, style, title), nested ones too,
- * and a second run changes nothing (layout-widgets-replace-multi-tile D2b).
+ * on upgrade and on import, and a second pass changes nothing
+ * (layout-widgets-replace-multi-tile D2b).
  *
  * @category  Test
- * @package   OCA\LaunchPad\Tests\Unit\Repair
+ * @package   OCA\LaunchPad\Tests\Unit\Service
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
@@ -21,21 +22,16 @@
 
 declare(strict_types=1);
 
-namespace Unit\Repair;
+namespace Unit\Service;
 
 use OCA\LaunchPad\Db\WidgetPlacement;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
-use OCA\LaunchPad\Repair\ConvertMultiTilesToWells;
-use OCA\LaunchPad\Service\MultiTileNode;
-use OCP\Migration\IOutput;
+use OCA\LaunchPad\Service\TileModeNode;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
-use RuntimeException;
 
 /**
  * Multi-tiles become wells of the viewer's apps.
  */
-class ConvertMultiTilesToWellsTest extends TestCase {
+class TileModeNodeMultiTileTest extends TestCase {
 
 	/**
 	 * A placement of the given type and content.
@@ -60,32 +56,6 @@ class ConvertMultiTilesToWellsTest extends TestCase {
 	}//end placement()
 
 	/**
-	 * Run the step over the placements and return what it wrote.
-	 *
-	 * @param array<int, WidgetPlacement> $placements The stored placements.
-	 *
-	 * @return array<int, WidgetPlacement> The placements written.
-	 */
-	private function runOver(array $placements): array {
-		$written = [];
-		$mapper  = $this->createMock(originalClassName: WidgetPlacementMapper::class);
-		$mapper->method('findAll')->willReturn($placements);
-		$mapper->method('update')->willReturnCallback(
-			function (WidgetPlacement $entity) use (&$written): WidgetPlacement {
-				$written[] = $entity;
-				return $entity;
-			}
-		);
-		$step = new ConvertMultiTilesToWells(
-			placements: $mapper,
-			multiTile: new MultiTileNode(),
-			logger: $this->createMock(originalClassName: LoggerInterface::class)
-		);
-		$step->run(output: $this->createMock(originalClassName: IOutput::class));
-		return $written;
-	}//end runOver()
-
-	/**
 	 * The settings become the well's app list; the rest of the placement stays.
 	 *
 	 * @return void
@@ -105,14 +75,11 @@ class ConvertMultiTilesToWellsTest extends TestCase {
 			]
 		);
 
-		$written = $this->runOver(placements: [$multi, self::placement(id: 12, type: 'clock', content: [])]);
-
-		$this->assertSame(expected: [$multi], actual: $written);
+		$this->assertSame(expected: 1, actual: (new TileModeNode())->convertPlacement(placement: $multi));
 		$this->assertSame(expected: 'container', actual: $multi->getWidgetId());
-		$this->assertSame(expected: 11, actual: $multi->getId());
 		$this->assertSame(
-			expected: [3, 2, 6, 4, 4],
-			actual: [$multi->getGridX(), $multi->getGridY(), $multi->getGridWidth(), $multi->getGridHeight(), $multi->getSortOrder()]
+			expected: [11, 3, 2, 6, 4, 4],
+			actual: [$multi->getId(), $multi->getGridX(), $multi->getGridY(), $multi->getGridWidth(), $multi->getGridHeight(), $multi->getSortOrder()]
 		);
 		$this->assertSame(
 			expected: [
@@ -134,7 +101,8 @@ class ConvertMultiTilesToWellsTest extends TestCase {
 		$off      = self::placement(id: 1, type: 'app-tiles', content: ['showMostUsed' => false, 'mostUsedLimit' => 6, 'showFilter' => false]);
 		$defaults = self::placement(id: 2, type: 'app-tiles', content: []);
 
-		$this->runOver(placements: [$off, $defaults]);
+		(new TileModeNode())->convertPlacement(placement: $off);
+		(new TileModeNode())->convertPlacement(placement: $defaults);
 
 		$this->assertSame(
 			expected: ['pinned' => [], 'exclude' => [], 'mostUsedLimit' => 0, 'showFilter' => false],
@@ -152,9 +120,9 @@ class ConvertMultiTilesToWellsTest extends TestCase {
 	 * @return void
 	 */
 	public function testAFixedAppListBecomesAppTilesInOrder(): void {
-		$fixed = self::placement(id: 3, type: 'app-tiles', content: ['apps' => [['id' => 'files'], ['id' => 'spreed']]]);
+		$fixed = self::placement(id: 3, type: 'app-tiles', content: ['apps' => [['id' => 'files'], 'spreed', ['label' => 'no id']]]);
 
-		$this->runOver(placements: [$fixed]);
+		(new TileModeNode())->convertPlacement(placement: $fixed);
 
 		$content = $fixed->getContentArray();
 		$this->assertArrayNotHasKey(key: 'appList', array: $content);
@@ -164,40 +132,22 @@ class ConvertMultiTilesToWellsTest extends TestCase {
 	}//end testAFixedAppListBecomesAppTilesInOrder()
 
 	/**
-	 * A multi-tile inside a well or a tab is converted too, and a second run writes nothing.
+	 * A multi-tile inside a tab is converted too, and a second pass changes nothing.
 	 *
 	 * @return void
 	 */
-	public function testNestedMultiTilesAreConvertedAndASecondRunIsANoOp(): void {
+	public function testNestedMultiTilesAreConvertedOnce(): void {
 		$tabs = self::placement(
 			id: 4,
 			type: 'tabs',
 			content: ['tabs' => [['id' => 'a', 'title' => 'A', 'placements' => [['type' => 'app-tiles', 'content' => ['pinned' => ['files']]]]]]]
 		);
 
-		$this->assertCount(expectedCount: 1, haystack: $this->runOver(placements: [$tabs]));
+		$this->assertSame(expected: 1, actual: (new TileModeNode())->convertPlacement(placement: $tabs));
 		$child = $tabs->getContentArray()['tabs'][0]['placements'][0];
 		$this->assertSame(expected: 'container', actual: $child['type']);
 		$this->assertSame(expected: ['files'], actual: $child['content']['appList']['pinned']);
 
-		$this->assertSame(expected: [], actual: $this->runOver(placements: [$tabs]));
-	}//end testNestedMultiTilesAreConvertedAndASecondRunIsANoOp()
-
-	/**
-	 * A store that cannot be read is a warning, not a failed upgrade.
-	 *
-	 * @return void
-	 */
-	public function testAnUnreadableStoreIsAWarning(): void {
-		$mapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
-		$mapper->method('findAll')->willThrowException(new RuntimeException('db down'));
-		$output = $this->createMock(originalClassName: IOutput::class);
-		$output->expects($this->once())->method('warning');
-
-		(new ConvertMultiTilesToWells(
-			placements: $mapper,
-			multiTile: new MultiTileNode(),
-			logger: $this->createMock(originalClassName: LoggerInterface::class)
-		))->run(output: $output);
-	}//end testAnUnreadableStoreIsAWarning()
+		$this->assertSame(expected: 0, actual: (new TileModeNode())->convertPlacement(placement: $tabs));
+	}//end testNestedMultiTilesAreConvertedOnce()
 }//end class

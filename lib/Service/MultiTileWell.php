@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MultiTileNode
+ * MultiTileWell
  *
  * Turns the retired multi-tile widget (`app-tiles`, "Tiles for several apps
  * at once") into a well (`container`) that lists each viewer's apps
@@ -31,74 +31,22 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
-use OCA\LaunchPad\Db\WidgetPlacement;
-
 /**
- * Converts multi-tile placements, and multi-tiles nested in wells and tabs,
- * into wells. Idempotent: a well is never changed again.
+ * The well a multi-tile becomes; {@see TileModeNode} converts the type.
  *
  * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-5
  */
-final class MultiTileNode {
+final class MultiTileWell {
 
 	/**
-	 * The retired multi-tile widget type.
-	 */
-	public const MULTI_TILE = 'app-tiles';
-
-	/**
-	 * The well's widget type.
-	 */
-	public const WELL = 'container';
-
-	/**
-	 * The multi-tile's defaults when a setting was never stored.
+	 * The multi-tile's most-used limit when it was never stored.
 	 */
 	private const DEFAULT_MOST_USED_LIMIT = 4;
 
 	/**
-	 * Convert one placement in place, its nested children included.
-	 *
-	 * @param WidgetPlacement $placement The placement.
-	 *
-	 * @return int The number of multi-tiles converted.
-	 *
-	 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-5
+	 * The App or link tile's widget type.
 	 */
-	public function convertPlacement(WidgetPlacement $placement): int {
-		[$type, $content, $changed] = $this->convertNode(type: (string) $placement->getWidgetId(), content: $placement->getContentArray());
-		if ($changed === 0) {
-			return 0;
-		}
-
-		// Entity setters resolve through __call, which reads $args[0].
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$placement->setWidgetId($type);
-		$placement->setContentArray(content: $content);
-		return $changed;
-	}//end convertPlacement()
-
-	/**
-	 * Convert one node (a placement's type and content, or a child's).
-	 *
-	 * @param string               $type    The widget type.
-	 * @param array<string, mixed> $content The content.
-	 *
-	 * @return array{0: string, 1: array<string, mixed>, 2: int} The type, the content and the number converted.
-	 *
-	 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-5
-	 */
-	public function convertNode(string $type, array $content): array {
-		$changed = 0;
-		if ($type === self::MULTI_TILE) {
-			$type    = self::WELL;
-			$content = $this->wellContent(content: $content);
-			$changed++;
-		}
-
-		[$content, $nested] = $this->convertChildren(value: $content);
-		return [$type, $content, $changed + $nested];
-	}//end convertNode()
+	private const TILE = 'tile';
 
 	/**
 	 * A multi-tile's content as a well's: its app settings as the well's app
@@ -107,8 +55,10 @@ final class MultiTileNode {
 	 * @param array<string, mixed> $content The multi-tile's content.
 	 *
 	 * @return array<string, mixed> The well's content.
+	 *
+	 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-5
 	 */
-	private function wellContent(array $content): array {
+	public function wellContent(array $content): array {
 		$well = array_diff_key($content, array_flip(['pinned', 'exclude', 'showFilter', 'showMostUsed', 'mostUsedLimit', 'apps', 'status']));
 		$well['placements'] = [];
 		if (is_array($content['apps'] ?? null) === true && $content['apps'] !== []) {
@@ -173,7 +123,7 @@ final class MultiTileNode {
 			}
 
 			$tiles[] = [
-				'type'       => TileModeNode::TILE,
+				'type'       => self::TILE,
 				'gridX'      => (count($tiles) % 4),
 				'gridY'      => (intdiv(count($tiles), 4) * 2),
 				'gridWidth'  => 1,
@@ -204,45 +154,4 @@ final class MultiTileNode {
 
 		return '';
 	}//end appIdOf()
-
-	/**
-	 * Walk a content value and convert every child (an array with a `type`
-	 * and a `content`) it holds, at any depth.
-	 *
-	 * @param array<mixed> $value The value.
-	 *
-	 * @return array{0: array<mixed>, 1: int} The value and the number converted.
-	 */
-	private function convertChildren(array $value): array {
-		$changed = 0;
-		foreach ($value as $key => $item) {
-			if (is_array($item) === false) {
-				continue;
-			}
-
-			[$item, $count] = $this->convertItem(item: $item);
-			if ($count > 0) {
-				$value[$key] = $item;
-				$changed    += $count;
-			}
-		}
-
-		return [$value, $changed];
-	}//end convertChildren()
-
-	/**
-	 * Convert one nested item: a child as a node, any other array by walking it.
-	 *
-	 * @param array<mixed> $item The item.
-	 *
-	 * @return array{0: array<mixed>, 1: int} The item and the number converted.
-	 */
-	private function convertItem(array $item): array {
-		if (is_string($item['type'] ?? null) === false || is_array($item['content'] ?? null) === false) {
-			return $this->convertChildren(value: $item);
-		}
-
-		[$item['type'], $item['content'], $count] = $this->convertNode(type: $item['type'], content: $item['content']);
-		return [$item, $count];
-	}//end convertItem()
 }//end class

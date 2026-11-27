@@ -85,11 +85,15 @@ test('a widget below the fold shows a loading state in its card until it comes i
 
 	const card = page.locator(`[data-testid="widget-placement-${belowFold}"]`)
 	await expect(card).toHaveCount(1, { timeout: 30_000 })
-	const loading = card.getByTestId('widget-loading')
-	await expect(loading).toHaveAttribute('role', 'status')
-	await expect(loading).toHaveAttribute('aria-busy', 'true')
+	// widget-declared-placeholders: the card waits in its declared placeholder
+	// (CnWidgetWrapper draws it and marks the card busy); no status of its own.
+	const placeholder = card.getByTestId('cn-widget-wrapper-placeholder')
+	await expect(placeholder).toHaveCount(1)
+	await expect(card.locator('[aria-busy="true"]')).toHaveCount(1)
+	await expect(card.getByTestId('widget-loading')).toHaveCount(0)
 
 	await page.locator(`[data-placement-id="${belowFold}"]`).scrollIntoViewIfNeeded()
-	await expect(loading).toHaveCount(0, { timeout: 5_000 })
+	await expect(placeholder).toHaveCount(0, { timeout: 5_000 })
+	await expect(card.locator('[aria-busy="true"]')).toHaveCount(0)
 	await expect(card.getByText(`below the fold ${RUN}`).first()).toBeVisible()
 })

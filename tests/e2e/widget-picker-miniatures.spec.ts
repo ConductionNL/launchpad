@@ -56,7 +56,9 @@ test('Add widget is 1120 px wide and every card shows a miniature that sends no 
 	await gotoLaunchPad(page)
 	await enterEditMode(page)
 	await expect(page.getByTestId('launchpad-edit-bar-add-tiles')).toHaveCount(0)
-	await page.waitForLoadState('networkidle')
+	// Let the dashboard's own widgets finish their reads first.
+	await expect(page.getByTestId('launchpad-dashboard-region')).toBeVisible()
+	await page.waitForTimeout(1500)
 	// REQ-WDG-048: miniatures send nothing. The picker's own reads (the tile
 	// form's lists, the assistant check) are not miniature requests.
 	const miniatureRequests: string[] = []

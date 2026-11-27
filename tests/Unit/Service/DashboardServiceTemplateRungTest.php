@@ -240,8 +240,12 @@ class DashboardServiceTemplateRungTest extends TestCase {
 		self::assertSame('copy-1', $first['api'], 'the grid must load the dashboard the page chose');
 		self::assertSame(Dashboard::PERMISSION_ADD_ONLY, $first['apiPermission']);
 		self::assertSame(1, $this->copiesMade);
-		self::assertSame('copy-1', $this->prefs[DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY], 'the copy is stored as the start dashboard');
-		self::assertArrayNotHasKey(DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY, $this->prefs);
+		self::assertSame(
+			expected: 'copy-1',
+			actual: $this->prefs[DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY],
+			message: 'the copy is stored as the start dashboard'
+		);
+		self::assertArrayNotHasKey(key: DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY, array: $this->prefs);
 	}
 
 	/**
@@ -286,7 +290,7 @@ class DashboardServiceTemplateRungTest extends TestCase {
 		self::assertSame(Dashboard::PERMISSION_VIEW_ONLY, $first['apiPermission']);
 		self::assertSame(0, $this->copiesMade);
 		self::assertArrayNotHasKey(DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY, $this->prefs);
-		self::assertArrayNotHasKey(DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY, $this->prefs);
+		self::assertArrayNotHasKey(key: DashboardService::DEFAULT_DASHBOARD_UUID_PREF_KEY, array: $this->prefs);
 	}
 
 	public function testTheDefaultTemplateReplacesTheSeededDashboard(): void {
@@ -347,6 +351,8 @@ class DashboardServiceTemplateRungTest extends TestCase {
 	 * launchpad": no template, no copy.
 	 *
 	 * @spec openspec/changes/start-page-stays-vandaag/specs/admin-templates/spec.md
+	 *
+	 * @return void
 	 */
 	public function testAChosenStartDashboardIsKept(): void {
 		$this->seedEveryoneDashboard();
@@ -366,17 +372,19 @@ class DashboardServiceTemplateRungTest extends TestCase {
 	 * to `/apps/launchpad/`.
 	 *
 	 * @spec openspec/changes/start-page-stays-vandaag/specs/admin-templates/spec.md
+	 *
+	 * @return void
 	 */
 	public function testTheLastUsedDashboardDoesNotCount(): void {
 		$this->seedEveryoneDashboard();
 		$this->prefs[DashboardService::ACTIVE_DASHBOARD_UUID_PREF_KEY] = 'seeded-everyone';
-		$this->template = $this->template(['behandelaars']);
+		$this->template = $this->template(targetGroups: ['behandelaars']);
 
 		$visit = $this->openLaunchpad();
 
-		self::assertSame('copy-1', $visit['page']);
-		self::assertSame('copy-1', $visit['api']);
-		self::assertSame(1, $this->copiesMade);
+		self::assertSame(expected: 'copy-1', actual: $visit['page']);
+		self::assertSame(expected: 'copy-1', actual: $visit['api']);
+		self::assertSame(expected: 1, actual: $this->copiesMade);
 	}
 
 	public function testWithoutAnApplicableTemplateNothingChanges(): void {

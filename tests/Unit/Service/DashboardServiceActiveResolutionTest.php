@@ -262,7 +262,7 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 			groupId: Dashboard::DEFAULT_GROUP_ID,
 			isDefault: 1
 		);
-		$this->stubVisible('pieter', [
+		$this->stubVisible(userId: 'pieter', visible: [
 			['dashboard' => $team, 'source' => Dashboard::SOURCE_GROUP],
 			['dashboard' => $vandaag, 'source' => Dashboard::SOURCE_DEFAULT],
 		]);
@@ -284,9 +284,9 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 			primaryGroupId: null
 		);
 
-		$this->assertNotNull($result);
-		$this->assertSame('uuid-vandaag', $result['dashboard']->getUuid());
-		$this->assertSame(Dashboard::SOURCE_DEFAULT, $result['source']);
+		$this->assertNotNull(actual: $result);
+		$this->assertSame(expected: 'uuid-vandaag', actual: $result['dashboard']->getUuid());
+		$this->assertSame(expected: Dashboard::SOURCE_DEFAULT, actual: $result['source']);
 	}//end testLastUsedDashboardDoesNotWinOverTheStartPage()
 
 	/**
@@ -330,7 +330,7 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 			->expects($this->once())
 			->method('warning')
 			->with(
-				$this->stringContains('stale default_dashboard_uuid'),
+				$this->stringContains(string: 'stale default_dashboard_uuid'),
 				$this->callback(function ($context) {
 					return ($context['uuid'] ?? null) === 'stale-uuid'
 						&& ($context['user'] ?? null) === 'alice';
@@ -791,7 +791,7 @@ class DashboardServiceActiveResolutionTest extends TestCase {
 		$this->dashResolver->expects($this->never())->method('buildResult');
 		$this->dashResolver->method('tryGetActiveDashboard')->with(userId: 'alice')->willReturn(['legacy' => true]);
 
-		$this->assertSame(['legacy' => true], $this->resolveEffective());
+		$this->assertSame(expected: ['legacy' => true], actual: $this->resolveEffective());
 	}//end testEffectiveDashboardIgnoresTheLastUsedPreference()
 
 	/**

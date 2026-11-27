@@ -830,15 +830,17 @@ export const useDashboardStore = defineStore('dashboard', {
 				const isPersonalOwned =
 					target?.source === SOURCE_USER && target?.isOwner !== false
 
-				if (isPersonalOwned) {
-					// Persist the active flag for owned personal dashboards.
-					await api.activateDashboard(dashboardId)
-				}
-
 				// Always load full dashboard data via the by-id endpoint;
 				// it returns placements + the user's effective permission
-				// level for both owned and shared dashboards.
-				const response = await api.getDashboardById(dashboardId)
+				// level for both owned and shared dashboards. For an owned
+				// personal dashboard the active flag is persisted alongside:
+				// the read does not depend on it, so the two go out together
+				// instead of one after the other (in-app navigation budget,
+				// ADR-124). A failure of either still fails the switch.
+				const [response] = await Promise.all([
+					api.getDashboardById(dashboardId),
+					isPersonalOwned ? api.activateDashboard(dashboardId) : null,
+				])
 				this.activeDashboard = {
 					...response.data.dashboard,
 					isOwner: response.data.isOwner,

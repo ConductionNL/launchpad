@@ -101,6 +101,8 @@ describe('WidgetWrapper — edit cog', () => {
 					CnWidgetWrapper: { template: '<div><slot /></div>' },
 					// The real LazyMount: edit mode mounts the renderer at once.
 					LazyMount: false,
+					// The real boundary passes the renderer through (REQ-WDG-046).
+					WidgetErrorBoundary: false,
 				},
 			},
 		})

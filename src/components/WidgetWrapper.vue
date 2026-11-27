@@ -48,13 +48,17 @@
 			</template>
 			<!-- REQ-WDG-044: the content below the fold mounts when it comes
 			     into view (or once the page has settled); the card shows at once. -->
+			<!-- REQ-WDG-046: until then a loading state, and a widget that
+			     fails to show keeps its error inside this card. -->
 			<LazyMount :eager="mountsAtOnce">
-				<WidgetRenderer
-					:widget="widget"
-					:placement="placement"
-					:editMode="editMode"
-					@status="onRendererStatus"
-					@editRequest="$emit('edit', placement)" />
+				<WidgetErrorBoundary>
+					<WidgetRenderer
+						:widget="widget"
+						:placement="placement"
+						:editMode="editMode"
+						@status="onRendererStatus"
+						@editRequest="$emit('edit', placement)" />
+				</WidgetErrorBoundary>
 			</LazyMount>
 		</CnWidgetWrapper>
 
@@ -150,6 +154,7 @@ import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import LockOutline from 'vue-material-design-icons/LockOutline.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import LazyMount from './LazyMount.vue'
+import WidgetErrorBoundary from './WidgetErrorBoundary.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
 import WidgetEditMenu from './Widgets/WidgetEditMenu.vue'
 import {
@@ -208,6 +213,7 @@ export default {
 		WidgetEditMenu,
 		AcknowledgementPrompt,
 		LazyMount,
+		WidgetErrorBoundary,
 	},
 
 	props: {

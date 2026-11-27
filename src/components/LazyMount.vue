@@ -7,8 +7,9 @@
 	LazyMount — mounts its slot once the element comes within one viewport
 	height of the visible area, once the page has settled (SETTLE_DELAY_MS,
 	then the next idle moment), or when the page is about to print; whichever comes
-	first (widgets REQ-WDG-044). Until then it holds an empty box that fills
-	its parent, so the card around it keeps its place. Once mounted the slot
+	first (widgets REQ-WDG-044). Until then it holds a box that fills its
+	parent and shows a loading state (REQ-WDG-046), so the card around it keeps
+	its place and says its content is on the way. Once mounted the slot
 	stays mounted. `eager`, and a browser without IntersectionObserver, mount
 	at once.
 -->
@@ -16,10 +17,19 @@
 <template>
 	<div class="launchpad-lazy-mount" :data-mounted="shown ? 'true' : 'false'">
 		<slot v-if="shown" />
+		<div
+			v-else
+			class="launchpad-lazy-mount__loading"
+			role="status"
+			aria-busy="true"
+			data-testid="widget-loading">
+			<NcLoadingIcon :size="24" :name="t('launchpad', 'Loading…')" />
+		</div>
 	</div>
 </template>
 
 <script>
+import { NcLoadingIcon } from '@conduction/nextcloud-vue'
 import { FLAG_PROP } from '../constants/propDefinitions.js'
 
 /** How long a deferred slot leaves the widgets on screen to load first. */
@@ -84,6 +94,8 @@ export const LazyMountSupport = {
  */
 export default {
 	name: 'LazyMount',
+
+	components: { NcLoadingIcon },
 
 	props: {
 		eager: FLAG_PROP,
@@ -191,6 +203,15 @@ export default {
 
 .launchpad-lazy-mount[data-mounted='false'] {
 	display: block;
+	width: 100%;
+	height: 100%;
+	min-height: 24px;
+}
+
+.launchpad-lazy-mount__loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	width: 100%;
 	height: 100%;
 	min-height: 24px;

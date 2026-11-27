@@ -53,65 +53,82 @@ class DraftSaveGuard {
 
 	/**
 	 * Check every change of the plan before anything is written: removing,
-	 * adding (by widget type) and changing (with the acknowledgement and
-	 * rule-match fields their own checks), and container nesting.
+	 * adding and changing, each with the checks of its own route.
 	 *
-	 * @param int                  $dashboardId The dashboard.
-	 * @param string               $userId      The person saving.
-	 * @param array<string, mixed> $plan        {@see self::plan()}.
+	 * @param DashboardDraft       $draft The draft.
+	 * @param array<string, mixed> $plan  {@see DraftSaveService::plan()}.
 	 *
 	 * @return void
 	 *
-	 * @throws ForbiddenException When one change is not allowed.
-	 * @throws InvalidArgumentException When a container nests too deep.
+	 * @throws ForbiddenException       When one change is not allowed.
+	 * @throws InvalidArgumentException When one change is malformed.
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
-	public function authorize(int $dashboardId, string $userId, array $plan): void {
+	public function authorize(DashboardDraft $draft, array $plan): void {
 		foreach ($plan['remove'] as $placementId) {
-			if ($this->permissions->canRemoveWidget(userId: $userId, placementId: $placementId) === false) {
-				throw new ForbiddenException(message: $this->permissions->widgetRefusal(userId: $userId, placementId: $placementId));
-			}
+			$this->assertMayRemove(userId: $draft->userId, placementId: $placementId);
 		}
 
 		foreach ($plan['add'] as $layout) {
-			$this->assertMayAdd(dashboardId: $dashboardId, userId: $userId, layout: $layout);
+			$this->assertMayAdd(draft: $draft, layout: $layout);
 		}
 
 		foreach ($plan['change'] as $placementId => $changes) {
-			$this->assertMayChange(placementId: (int)$placementId, userId: $userId, changes: $changes);
+			$this->assertMayChange(userId: $draft->userId, change: ['id' => (int)$placementId, 'fields' => $changes]);
 		}
 	}//end authorize()
 
 	/**
-	 * Refuse a new widget the person may not add, a compulsory one they may
-	 * not place, or one whose container nests too deep.
+	 * Refuse removing a widget the person may not remove (a compulsory one).
 	 *
-	 * @param int                  $dashboardId The dashboard.
-	 * @param string               $userId      The person saving.
-	 * @param array<string, mixed> $layout      The new placement.
+	 * @param string $userId      The person saving.
+	 * @param int    $placementId The placement.
 	 *
 	 * @return void
 	 *
-	 * @throws ForbiddenException When it may not be added.
+	 * @throws ForbiddenException When it may not be removed.
 	 */
-	private function assertMayAdd(int $dashboardId, string $userId, array $layout): void {
-		if ($this->permissions->canAddWidget(userId: $userId, dashboardId: $dashboardId) === false
-			|| $this->roleWidgets->isWidgetAllowed(userId: $userId, widgetId: $layout['widgetId']) === false
+	private function assertMayRemove(string $userId, int $placementId): void {
+		if ($this->permissions->canRemoveWidget(userId: $userId, placementId: $placementId) === false) {
+			throw new ForbiddenException(message: $this->permissions->widgetRefusal(userId: $userId, placementId: $placementId));
+		}
+	}//end assertMayRemove()
+
+	/**
+	 * Refuse a new widget the person may not add, a compulsory one they may
+	 * not place, fields that need a saved widget, or a container nested too
+	 * deep.
+	 *
+	 * @param DashboardDraft       $draft  The draft.
+	 * @param array<string, mixed> $layout The new placement.
+	 *
+	 * @return void
+	 *
+	 * @throws ForbiddenException       When it may not be added.
+	 * @throws InvalidArgumentException When it carries fields that need a saved widget.
+	 */
+	private function assertMayAdd(DashboardDraft $draft, array $layout): void {
+		if ($this->permissions->canAddWidget(userId: $draft->userId, dashboardId: $draft->dashboardId) === false
+			|| $this->roleWidgets->isWidgetAllowed(userId: $draft->userId, widgetId: $layout['widgetId']) === false
 		) {
-			throw new ForbiddenException(message: $this->permissions->widgetRefusal(userId: $userId, dashboardId: $dashboardId));
+			throw new ForbiddenException(message: $this->permissions->widgetRefusal(userId: $draft->userId, dashboardId: $draft->dashboardId));
 		}
 
-		if ($layout['isCompulsory'] === 1 && $this->permissions->mayPlaceCompulsory(userId: $userId, dashboardId: $dashboardId) === false) {
+		if ($layout['isCompulsory'] === 1
+			&& $this->permissions->mayPlaceCompulsory(userId: $draft->userId, dashboardId: $draft->dashboardId) === false
+		) {
 			throw new ForbiddenException(message: 'Only an administrator may place a required widget');
 		}
 
 		// A new widget has no id to check these against yet; they are set on
 		// the saved widget through its own form.
-		foreach (['calculatedFields', ...WidgetPlacement::ACKNOWLEDGEMENT_FIELDS] as $field) {
-			if (empty($layout[$field]) === false) {
-				throw new InvalidArgumentException(message: $field.' can be set once the widget is saved');
-			}
+		$later = array_filter(
+			array_intersect_key($layout, array_flip(['calculatedFields', ...WidgetPlacement::ACKNOWLEDGEMENT_FIELDS])),
+			static fn (mixed $value): bool => empty($value) === false
+		);
+		if ($later !== []) {
+			throw new InvalidArgumentException(message: array_key_first($later).' can be set once the widget is saved');
 		}
 
 		$this->assertDepth(fields: $layout);
@@ -119,47 +136,64 @@ class DraftSaveGuard {
 
 	/**
 	 * Refuse a change to a widget the person may not edit, an acknowledgement
-	 * they may not manage, or a rule match they do not own.
+	 * they may not manage, a rule match they do not own, or calculated fields.
 	 *
-	 * @param int                  $placementId The placement.
-	 * @param string               $userId      The person saving.
-	 * @param array<string, mixed> $changes     The changed fields.
+	 * @param string                                          $userId The person saving.
+	 * @param array{id: int, fields: array<string, mixed>}    $change The placement and its changed fields.
 	 *
 	 * @return void
 	 *
-	 * @throws ForbiddenException When the change is not allowed.
+	 * @throws ForbiddenException       When the change is not allowed.
+	 * @throws InvalidArgumentException When the change is malformed.
 	 */
-	private function assertMayChange(int $placementId, string $userId, array $changes): void {
-		if ($this->permissions->canStyleWidget(userId: $userId, placementId: $placementId) === false) {
-			throw new ForbiddenException(message: $this->permissions->widgetRefusal(userId: $userId, placementId: $placementId));
+	private function assertMayChange(string $userId, array $change): void {
+		if ($this->permissions->canStyleWidget(userId: $userId, placementId: $change['id']) === false) {
+			throw new ForbiddenException(message: $this->permissions->widgetRefusal(userId: $userId, placementId: $change['id']));
 		}
 
-		if (array_intersect(WidgetPlacement::ACKNOWLEDGEMENT_FIELDS, array_keys($changes)) !== []
-			&& $this->permissions->canManageAcknowledgement(userId: $userId, placementId: $placementId) === false
+		if (array_intersect(WidgetPlacement::ACKNOWLEDGEMENT_FIELDS, array_keys($change['fields'])) !== []
+			&& $this->permissions->canManageAcknowledgement(userId: $userId, placementId: $change['id']) === false
 		) {
 			throw new ForbiddenException(message: 'Only an admin or the template owner may set an acknowledgement requirement');
 		}
 
-		if (array_key_exists('ruleMatch', $changes) === true) {
-			if (in_array($changes['ruleMatch'], WidgetPlacement::RULE_MATCHES, true) === false) {
-				throw new InvalidArgumentException(message: 'ruleMatch must be any or all');
-			}
-
-			try {
-				$this->permissions->verifyPlacementOwnership(userId: $userId, placementId: $placementId);
-			} catch (\Exception) {
-				throw new ForbiddenException(message: 'Only the dashboard owner or an admin may change how the rules combine');
-			}
-		}
-
-		if (array_key_exists('calculatedFields', $changes) === true) {
+		if (array_key_exists('calculatedFields', $change['fields']) === true) {
 			// Calculated fields are compiled and written to their source by
 			// the widget's own save; the draft does not carry them yet.
 			throw new InvalidArgumentException(message: 'Calculated fields are saved from the widget form, not with the draft');
 		}
 
-		$this->assertDepth(fields: $changes);
+		$this->assertRuleMatch(userId: $userId, change: $change);
+		$this->assertDepth(fields: $change['fields']);
 	}//end assertMayChange()
+
+	/**
+	 * Refuse a rule match that is not any or all, or one set by someone who
+	 * does not own the widget's dashboard (REQ-VIS-014).
+	 *
+	 * @param string                                       $userId The person saving.
+	 * @param array{id: int, fields: array<string, mixed>} $change The placement and its changed fields.
+	 *
+	 * @return void
+	 *
+	 * @throws ForbiddenException       When they may not change it.
+	 * @throws InvalidArgumentException When the value is not any or all.
+	 */
+	private function assertRuleMatch(string $userId, array $change): void {
+		if (array_key_exists('ruleMatch', $change['fields']) === false) {
+			return;
+		}
+
+		if (in_array($change['fields']['ruleMatch'], WidgetPlacement::RULE_MATCHES, true) === false) {
+			throw new InvalidArgumentException(message: 'ruleMatch must be any or all');
+		}
+
+		try {
+			$this->permissions->verifyPlacementOwnership(userId: $userId, placementId: $change['id']);
+		} catch (\Exception) {
+			throw new ForbiddenException(message: 'Only the dashboard owner or an admin may change how the rules combine');
+		}
+	}//end assertRuleMatch()
 
 	/**
 	 * Refuse container content nested deeper than allowed (REQ-CONT-006).
@@ -169,7 +203,7 @@ class DraftSaveGuard {
 	 * @return void
 	 */
 	private function assertDepth(array $fields): void {
-		if (isset($fields['content']) === true && is_array($fields['content']) === true) {
+		if (is_array($fields['content'] ?? null) === true) {
 			$this->placements->validateContainerDepth(content: $fields['content']);
 		}
 	}//end assertDepth()

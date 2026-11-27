@@ -24,6 +24,7 @@ namespace Unit\Controller;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Controller\DashboardApiHistory;
 use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiWidgets;
 use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\ForbiddenException;
@@ -179,7 +180,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $request,
-			services: new DashboardApiServices(dashboardService: $service, widgets: new \OCA\LaunchPad\Controller\DashboardApiWidgets(draftSave: $draftSave)),
+			services: new DashboardApiServices(dashboardService: $service, widgets: new DashboardApiWidgets(draftSave: $draftSave)),
 			access: new DashboardApiAccess(permissionService: $permissions, history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
 				versionService: $versions,
@@ -484,7 +485,8 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 	public function testADraftBodyGoesToTheDraftSave(): void {
 		$draftSave = $this->createMock(originalClassName: DraftSaveService::class);
 		$draftSave->expects($this->once())->method('save')
-			->with(7, 'alice', 8, [['id' => 1, 'gridY' => 2]])
+			->with($this->callback(static fn ($draft): bool => $draft->dashboardId === 7 && $draft->userId === 'alice'
+				&& $draft->gridColumns === 8 && $draft->placements === [['id' => 1, 'gridY' => 2]]))
 			->willReturn(['dashboard' => new Dashboard(), 'placements' => [new WidgetPlacement()]]);
 
 		$response = $this->controller(

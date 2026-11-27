@@ -27,6 +27,7 @@ use InvalidArgumentException;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Exception\DraftConflictException;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\StalePlacementException;
 
 /**
@@ -63,10 +64,7 @@ class DraftSaveService {
 	/**
 	 * Store a draft: its grid columns and its full placement list.
 	 *
-	 * @param int                              $dashboardId The dashboard.
-	 * @param string                           $userId      The person saving.
-	 * @param int|null                         $gridColumns The draft's grid columns, or null to keep them.
-	 * @param list<array<string, mixed>>       $draft       The full placement list of the draft.
+	 * @param DashboardDraft $draft The draft.
 	 *
 	 * @return array{dashboard: Dashboard, placements: list<WidgetPlacement>} The stored dashboard and placements.
 	 *
@@ -76,27 +74,26 @@ class DraftSaveService {
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
-	public function save(int $dashboardId, string $userId, ?int $gridColumns, array $draft): array {
-		$plan = $this->plan(dashboardId: $dashboardId, draft: $draft);
-		$this->guard->authorize(dashboardId: $dashboardId, userId: $userId, plan: $plan);
+	public function save(DashboardDraft $draft): array {
+		$plan = $this->plan(draft: $draft);
+		$this->guard->authorize(draft: $draft, plan: $plan);
 
 		$dashboard = $this->versions->saveWithVersion(
-			dashboardId: $dashboardId,
-			createdBy: $userId,
-			save: fn (): Dashboard => $this->apply(dashboardId: $dashboardId, userId: $userId, gridColumns: $gridColumns, plan: $plan)
+			dashboardId: $draft->dashboardId,
+			createdBy: $draft->userId,
+			save: fn (): Dashboard => $this->apply(draft: $draft, plan: $plan)
 		);
 
 		return [
 			'dashboard'  => $dashboard,
-			'placements' => $this->widgets->getDashboardPlacements(dashboardId: $dashboardId),
+			'placements' => $this->widgets->getDashboardPlacements(dashboardId: $draft->dashboardId),
 		];
 	}//end save()
 
 	/**
 	 * Sort the draft into added, changed and removed placements.
 	 *
-	 * @param int                        $dashboardId The dashboard.
-	 * @param list<array<string, mixed>> $draft       The full placement list of the draft.
+	 * @param DashboardDraft $draft The draft.
 	 *
 	 * @return array{add: list<array<string, mixed>>, change: array<int, array<string, mixed>>, remove: list<int>}
 	 *
@@ -104,40 +101,55 @@ class DraftSaveService {
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
-	public function plan(int $dashboardId, array $draft): array {
+	public function plan(DashboardDraft $draft): array {
 		$stored = [];
-		foreach ($this->widgets->getDashboardPlacements(dashboardId: $dashboardId) as $placement) {
+		foreach ($this->widgets->getDashboardPlacements(dashboardId: $draft->dashboardId) as $placement) {
 			$stored[(int)$placement->getId()] = $placement;
 		}
 
 		$plan = ['add' => [], 'change' => [], 'remove' => []];
 		$kept = [];
-		foreach ($draft as $item) {
-			if (is_array($item) === false) {
-				throw new InvalidArgumentException(message: 'Every placement of a draft must be an object');
-			}
-
-			if (isset($item['id']) === false || $item['id'] === '') {
-				$plan['add'][] = $this->newPlacement(item: $item);
+		foreach ($draft->placements as $item) {
+			$id = self::draftId(item: $item);
+			if ($id === null) {
+				$plan['add'][] = self::newPlacement(item: $item);
 				continue;
 			}
 
-			$id = (int)$item['id'];
 			if (isset($stored[$id]) === false) {
 				throw new InvalidArgumentException(message: 'Widget '.$id.' is not on this dashboard');
 			}
 
 			$kept[$id] = true;
-			$changes   = self::changedFields(stored: $stored[$id], item: $item);
-			if ($changes !== []) {
-				$plan['change'][$id] = $changes;
-			}
-		}//end foreach
+			$plan['change'][$id] = self::changedFields(stored: $stored[$id], item: $item);
+		}
 
+		$plan['change'] = array_filter($plan['change'], static fn (array $changes): bool => $changes !== []);
 		$plan['remove'] = array_values(array_diff(array_keys($stored), array_keys($kept)));
 
 		return $plan;
 	}//end plan()
+
+	/**
+	 * The stored id a draft placement names, or null for a new one.
+	 *
+	 * @param mixed $item The draft placement.
+	 *
+	 * @return int|null
+	 *
+	 * @throws InvalidArgumentException When it is not an object.
+	 */
+	private static function draftId(mixed $item): ?int {
+		if (is_array($item) === false) {
+			throw new InvalidArgumentException(message: 'Every placement of a draft must be an object');
+		}
+
+		if (isset($item['id']) === false || $item['id'] === '') {
+			return null;
+		}
+
+		return (int)$item['id'];
+	}//end draftId()
 
 	/**
 	 * The fields of a draft placement that differ from the stored one, with
@@ -152,20 +164,14 @@ class DraftSaveService {
 	 */
 	public static function changedFields(WidgetPlacement $stored, array $item): array {
 		$current = $stored->jsonSerialize();
-		$changes = [];
-		foreach (WidgetPlacement::EDITABLE_FIELDS as $field) {
-			if (array_key_exists($field, $item) === false) {
-				continue;
-			}
+		$changes = array_filter(
+			array_intersect_key($item, array_flip(WidgetPlacement::EDITABLE_FIELDS)),
+			static fn (mixed $value, string $field): bool => array_key_exists($field, $current) === false
+				|| self::normal(value: $current[$field]) != self::normal(value: $value),
+			ARRAY_FILTER_USE_BOTH
+		);
 
-			if (array_key_exists($field, $current) === true && self::same(left: $current[$field], right: $item[$field]) === true) {
-				continue;
-			}
-
-			$changes[$field] = $item[$field];
-		}
-
-		if ($changes !== [] && isset($item['version']) === true && is_numeric($item['version']) === true) {
+		if ($changes !== [] && is_numeric($item['version'] ?? null) === true) {
 			$changes['version'] = (int)$item['version'];
 		}
 
@@ -173,54 +179,41 @@ class DraftSaveService {
 	}//end changedFields()
 
 	/**
-	 * Whether a stored value and a draft value are the same, comparing
-	 * JSON objects by content and numbers by value.
+	 * A value as compared: JSON text decoded, booleans as 0 or 1.
 	 *
-	 * @param mixed $left  The stored value.
-	 * @param mixed $right The draft value.
+	 * @param mixed $value The stored or draft value.
 	 *
-	 * @return bool
+	 * @return mixed
 	 */
-	private static function same(mixed $left, mixed $right): bool {
-		$normal = static function (mixed $value): mixed {
-			if (is_string($value) === true && ($value === '' || in_array($value[0], ['{', '['], true) === true)) {
-				$decoded = json_decode(json: $value, associative: true);
-				return $decoded ?? $value;
-			}
+	private static function normal(mixed $value): mixed {
+		if (is_bool($value) === true) {
+			return (int)$value;
+		}
 
-			if (is_bool($value) === true) {
-				return (int)$value;
-			}
+		if (is_string($value) === true && in_array(substr($value, 0, 1), ['{', '['], true) === true) {
+			return json_decode(json: $value, associative: true) ?? $value;
+		}
 
-			return $value;
-		};
-
-		return $normal($left) == $normal($right);
-	}//end same()
+		return $value;
+	}//end normal()
 
 	/**
 	 * The fields of a new draft placement.
 	 *
 	 * @param array<string, mixed> $item The draft placement without id.
 	 *
-	 * @return array<string, mixed> Its widget type, layout and fields.
+	 * @return array<string, mixed> Its widget type, compulsory flag and fields.
 	 *
 	 * @throws InvalidArgumentException When it names no widget type.
 	 */
-	private function newPlacement(array $item): array {
+	private static function newPlacement(array $item): array {
 		$widgetId = $item['widgetId'] ?? null;
 		if (is_string($widgetId) === false || $widgetId === '') {
 			throw new InvalidArgumentException(message: 'A new widget in a draft needs its widgetId');
 		}
 
-		$layout = ['widgetId' => $widgetId, 'isCompulsory' => (int)($item['isCompulsory'] ?? 0)];
-		foreach (WidgetPlacement::EDITABLE_FIELDS as $field) {
-			if (array_key_exists($field, $item) === true) {
-				$layout[$field] = $item[$field];
-			}
-		}
-
-		return $layout;
+		return ['widgetId' => $widgetId, 'isCompulsory' => (int)($item['isCompulsory'] ?? 0)]
+			+ array_intersect_key($item, array_flip(WidgetPlacement::EDITABLE_FIELDS));
 	}//end newPlacement()
 
 	/**
@@ -228,31 +221,51 @@ class DraftSaveService {
 	 * colleague changed first is collected; when there is one, the whole
 	 * save fails with them so the transaction rolls back.
 	 *
-	 * @param int                  $dashboardId The dashboard.
-	 * @param string               $userId      The person saving.
-	 * @param int|null             $gridColumns The grid columns, or null.
-	 * @param array<string, mixed> $plan        {@see self::plan()}.
+	 * @param DashboardDraft       $draft The draft.
+	 * @param array<string, mixed> $plan  {@see self::plan()}.
 	 *
 	 * @return Dashboard The saved dashboard.
 	 *
 	 * @throws DraftConflictException When a colleague changed a widget of the draft first.
 	 */
-	private function apply(int $dashboardId, string $userId, ?int $gridColumns, array $plan): Dashboard {
+	private function apply(DashboardDraft $draft, array $plan): Dashboard {
 		$data = [];
-		if ($gridColumns !== null) {
-			$data['gridColumns'] = $gridColumns;
+		if ($draft->gridColumns !== null) {
+			$data['gridColumns'] = $draft->gridColumns;
 		}
 
-		$dashboard = $this->dashboards->updateDashboard(dashboardId: $dashboardId, userId: $userId, data: $data);
+		$dashboard = $this->dashboards->updateDashboard(dashboardId: $draft->dashboardId, userId: $draft->userId, data: $data);
 
 		foreach ($plan['remove'] as $placementId) {
 			$this->widgets->removePlacement(placementId: $placementId);
 		}
 
+		$this->applyChanges(changes: $plan['change']);
+
+		// Added last, so a new widget finds its spot in the layout as moved
+		// and with the removed widgets gone.
+		foreach ($plan['add'] as $layout) {
+			$this->addPlacement(dashboardId: $draft->dashboardId, layout: $layout);
+		}
+
+		return $dashboard;
+	}//end apply()
+
+	/**
+	 * Change the placements; widgets a colleague changed first fail the save
+	 * together.
+	 *
+	 * @param array<int, array<string, mixed>> $changes The changed fields by placement id.
+	 *
+	 * @return void
+	 *
+	 * @throws DraftConflictException When a colleague changed a widget of the draft first.
+	 */
+	private function applyChanges(array $changes): void {
 		$stale = [];
-		foreach ($plan['change'] as $placementId => $changes) {
+		foreach ($changes as $placementId => $fields) {
 			try {
-				$this->widgets->updatePlacement(placementId: (int)$placementId, data: $changes);
+				$this->widgets->updatePlacement(placementId: (int)$placementId, data: $fields);
 			} catch (StalePlacementException $e) {
 				$stale[] = $e->getCurrent();
 			}
@@ -261,20 +274,12 @@ class DraftSaveService {
 		if ($stale !== []) {
 			throw new DraftConflictException(current: $stale);
 		}
-
-		// Added last, so a new widget finds its spot in the layout as moved
-		// and with the removed widgets gone.
-		foreach ($plan['add'] as $layout) {
-			$this->addPlacement(dashboardId: $dashboardId, layout: $layout);
-		}
-
-		return $dashboard;
-	}//end apply()
+	}//end applyChanges()
 
 	/**
 	 * Add one new placement of the draft: created with its layout and
-	 * content, then given the draft's other fields (title, style, tile and
-	 * acknowledgement fields), which creation does not take.
+	 * content, then given the draft's other fields (title, style, tile
+	 * fields), which creation does not take.
 	 *
 	 * @param int                  $dashboardId The dashboard.
 	 * @param array<string, mixed> $layout      {@see self::newPlacement()}.
@@ -282,13 +287,7 @@ class DraftSaveService {
 	 * @return void
 	 */
 	private function addPlacement(int $dashboardId, array $layout): void {
-		$created = ['isCompulsory' => $layout['isCompulsory']];
-		foreach (['gridX', 'gridY', 'gridWidth', 'gridHeight', 'content'] as $field) {
-			if (array_key_exists($field, $layout) === true) {
-				$created[$field] = $layout[$field];
-			}
-		}
-
+		$created   = array_intersect_key($layout, array_flip(['isCompulsory', 'gridX', 'gridY', 'gridWidth', 'gridHeight', 'content']));
 		$placement = $this->widgets->addWidget(dashboardId: $dashboardId, widgetId: $layout['widgetId'], layout: $created);
 
 		$rest = array_diff_key($layout, $created, ['widgetId' => true]);

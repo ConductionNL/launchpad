@@ -33,6 +33,7 @@ use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\ResponseDefinitions;
+use OCA\LaunchPad\Service\DashboardDraft;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\MetadataService;
@@ -828,25 +829,26 @@ class DashboardApiController extends Controller {
 	 * refused change answers 403, a colleague's newer widget 409 with those
 	 * widgets as saved now; either way nothing is stored.
 	 *
-	 * @param int                        $dashboardId The dashboard.
-	 * @param int|null                   $gridColumns The draft's grid columns, or null to keep them.
-	 * @param list<array<string, mixed>> $draft       The full placement list.
+	 * @param int                  $dashboardId The dashboard.
+	 * @param array<string, mixed> $fields      The update fields: `gridColumns` and the full `placements` list.
 	 *
 	 * @return JSONResponse The stored dashboard and placements, or the refusal.
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
-	private function saveDraft(int $dashboardId, ?int $gridColumns, array $draft): JSONResponse {
+	private function saveDraft(int $dashboardId, array $fields): JSONResponse {
 		if ($this->context->userId === null || $this->services->widgets->draftSave === null) {
 			return $this->context->responseHelper->unauthorized();
 		}
 
 		try {
 			$saved = $this->services->widgets->draftSave->save(
-				dashboardId: $dashboardId,
-				userId: $this->context->userId,
-				gridColumns: $gridColumns,
-				draft: array_values($draft)
+				draft: new DashboardDraft(
+					dashboardId: $dashboardId,
+					userId: $this->context->userId,
+					gridColumns: $fields['gridColumns'],
+					placements: array_values($fields['placements'])
+				)
 			);
 		} catch (DraftConflictException $e) {
 			return new JSONResponse(
@@ -1083,7 +1085,7 @@ class DashboardApiController extends Controller {
 		// REQ-EDIT-002: an edit-mode Save sends its whole draft, marked as such,
 		// so the older position-only `placements` patch keeps its meaning.
 		if ($this->request->getParam(key: 'draft') === true && is_array($fields['placements']) === true) {
-			return $this->saveDraft(dashboardId: $dashboardId, gridColumns: $fields['gridColumns'], draft: $fields['placements']);
+			return $this->saveDraft(dashboardId: $dashboardId, fields: $fields);
 		}
 
 		try {

@@ -21,6 +21,7 @@ use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Exception\DraftConflictException;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\StalePlacementException;
+use OCA\LaunchPad\Service\DashboardDraft;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\DraftSaveGuard;
@@ -117,6 +118,19 @@ class DraftSaveServiceTest extends TestCase {
 	}//end placement()
 
 	/**
+	 * A draft of dashboard 7.
+	 *
+	 * @param list<array<string, mixed>> $placements  The placement list.
+	 * @param string                     $userId      The person saving.
+	 * @param int|null                   $gridColumns The grid columns.
+	 *
+	 * @return DashboardDraft
+	 */
+	private function draft(array $placements, string $userId='alice', ?int $gridColumns=null): DashboardDraft {
+		return new DashboardDraft(dashboardId: 7, userId: $userId, gridColumns: $gridColumns, placements: $placements);
+	}//end draft()
+
+	/**
 	 * The service under test.
 	 *
 	 * @return DraftSaveService
@@ -142,19 +156,19 @@ class DraftSaveServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testThePlanSortsTheDraft(): void {
-		$plan = $this->service()->plan(dashboardId: 7, draft: [
+		$plan = $this->service()->plan(draft: $this->draft(placements: [
 			['id' => 1, 'gridX' => 0, 'gridY' => 8, 'gridWidth' => 4, 'gridHeight' => 4, 'version' => 3],
 			['widgetId' => 'clock', 'gridX' => 4, 'gridY' => 0],
-		]);
+		]));
 
 		$this->assertSame(expected: [1 => ['gridY' => 8, 'version' => 3]], actual: $plan['change']);
 		$this->assertSame(expected: [2], actual: $plan['remove']);
 		$this->assertSame(expected: 'clock', actual: $plan['add'][0]['widgetId']);
 
-		$unchanged = $this->service()->plan(dashboardId: 7, draft: [
+		$unchanged = $this->service()->plan(draft: $this->draft(placements: [
 			['id' => 1, 'gridY' => 0, 'version' => 3],
 			['id' => 2, 'gridY' => 4],
-		]);
+		]));
 		$this->assertSame(expected: ['add' => [], 'change' => [], 'remove' => []], actual: $unchanged);
 	}//end testThePlanSortsTheDraft()
 
@@ -171,10 +185,10 @@ class DraftSaveServiceTest extends TestCase {
 			return $this->placement(id: $placementId, gridY: 0);
 		});
 
-		$this->service()->save(dashboardId: 7, userId: 'alice', gridColumns: 8, draft: [
+		$this->service()->save(draft: $this->draft(userId: 'alice', gridColumns: 8, placements: [
 			['id' => 1, 'gridY' => 8, 'version' => 3],
 			['widgetId' => 'clock', 'gridX' => 4, 'gridY' => 0, 'customTitle' => 'Tijd'],
-		]);
+		]));
 
 		$this->assertSame(
 			expected: [
@@ -203,10 +217,10 @@ class DraftSaveServiceTest extends TestCase {
 
 		$this->expectException(exception: ForbiddenException::class);
 		$this->expectExceptionMessage(message: 'This widget is required');
-		$this->service()->save(dashboardId: 7, userId: 'member', gridColumns: null, draft: [
+		$this->service()->save(draft: $this->draft(userId: 'member', gridColumns: null, placements: [
 			['id' => 1],
 			['widgetId' => 'text'],
-		]);
+		]));
 	}//end testARefusedRemovalStoresNothing()
 
 	/**
@@ -221,11 +235,11 @@ class DraftSaveServiceTest extends TestCase {
 		$this->versions->expects($this->never())->method('saveWithVersion');
 
 		$this->expectException(exception: ForbiddenException::class);
-		$this->service()->save(dashboardId: 7, userId: 'member', gridColumns: null, draft: [
+		$this->service()->save(draft: $this->draft(userId: 'member', gridColumns: null, placements: [
 			['id' => 1],
 			['id' => 2],
 			['widgetId' => 'iframe'],
-		]);
+		]));
 	}//end testAWidgetTheRoleMayNotAddRefusesTheSave()
 
 	/**
@@ -235,7 +249,7 @@ class DraftSaveServiceTest extends TestCase {
 	 */
 	public function testAWidgetOfAnotherDashboardIsRefused(): void {
 		$this->expectException(exception: InvalidArgumentException::class);
-		$this->service()->plan(dashboardId: 7, draft: [['id' => 99]]);
+		$this->service()->plan(draft: $this->draft(placements: [['id' => 99]]));
 	}//end testAWidgetOfAnotherDashboardIsRefused()
 
 	/**
@@ -246,10 +260,10 @@ class DraftSaveServiceTest extends TestCase {
 	public function testADraftChangingCalculatedFieldsIsRefused(): void {
 		$this->versions->expects($this->never())->method('saveWithVersion');
 		$this->expectException(exception: InvalidArgumentException::class);
-		$this->service()->save(dashboardId: 7, userId: 'alice', gridColumns: null, draft: [
+		$this->service()->save(draft: $this->draft(userId: 'alice', gridColumns: null, placements: [
 			['id' => 1, 'calculatedFields' => [['key' => 'x']]],
 			['id' => 2],
-		]);
+		]));
 	}//end testADraftChangingCalculatedFieldsIsRefused()
 
 	/**
@@ -264,10 +278,10 @@ class DraftSaveServiceTest extends TestCase {
 		});
 
 		try {
-			$this->service()->save(dashboardId: 7, userId: 'alice', gridColumns: null, draft: [
+			$this->service()->save(draft: $this->draft(userId: 'alice', gridColumns: null, placements: [
 				['id' => 1, 'gridY' => 8, 'version' => 2],
 				['id' => 2, 'gridY' => 9, 'version' => 2],
-			]);
+			]));
 			$this->fail(message: 'Expected a conflict');
 		} catch (DraftConflictException $e) {
 			$this->assertSame(expected: [1, 2], actual: array_map(static fn (WidgetPlacement $p): int => (int)$p->getId(), $e->getCurrent()));

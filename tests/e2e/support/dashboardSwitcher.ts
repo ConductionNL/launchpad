@@ -25,12 +25,19 @@ export const MORE_MENU = '[data-testid="launchpad-more-menu"]'
 export async function openDashboardSwitcher(page: Page): Promise<void> {
 	const more = page.locator(MORE_MENU)
 	await expect(more).toBeVisible({ timeout: 30_000 })
-	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
-	// No slide-in panel any more (REVIEW-LAUNCHPAD items 4-5, REQ-SHELL-016):
+	// Idempotent: a menu that is already open is not toggled shut.
+	const panel = page.locator('[data-testid="launchpad-more-menu-panel"]')
+	if (!await panel.isVisible().catch(() => false)) {
+		await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	}
+	// No slide-in panel any more (more-menu-favourites, REQ-SHELL-015):
 	// "More" at the bottom of the Dashboards column unfolds it in place into
 	// every dashboard the person can open, and the menu stays open.
 	const unfold = page.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]')
-	await unfold.click()
+	await expect(unfold).toBeVisible({ timeout: 10_000 })
+	if (await unfold.getAttribute('aria-expanded') !== 'true') {
+		await unfold.click()
+	}
 	await expect(unfold).toHaveAttribute('aria-expanded', 'true', { timeout: 10_000 })
 }
 

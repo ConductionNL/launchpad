@@ -98,7 +98,7 @@ class RequestDataExtractorTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
+	 * @spec openspec/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 	 */
 	public function testTileDataKeepsAGivenSize(): void {
 		$data = RequestDataExtractor::extractTileData($this->request(params: ['gridWidth' => 1, 'gridHeight' => '1']));
@@ -111,7 +111,7 @@ class RequestDataExtractorTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
+	 * @spec openspec/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 	 */
 	public function testTileDataLeavesOutAnUnusableSize(): void {
 		$data = RequestDataExtractor::extractTileData($this->request(params: ['gridWidth' => 0, 'gridHeight' => 'big']));

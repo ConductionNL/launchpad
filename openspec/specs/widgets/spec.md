@@ -1189,15 +1189,6 @@ The kind column SHALL list All, Content, Tiles and links, People, Data and chart
 - **WHEN** Pieter chooses Data and charts
 - **THEN** only the data and chart widgets are shown and the kind shows their count
 
-### Requirement: App tiles in the picker (REQ-WDG-042)
-
-The section "App tiles" SHALL show one tile per app in the reader's tile catalogue, square, in the tile's colour with its white icon and its name under it, followed by the entry Own tile. Choosing an app tile SHALL place it as a one-cell tile widget.
-
-#### Scenario: Place an app tile
-
-- **WHEN** Pieter chooses Case system under App tiles and Add widget
-- **THEN** a one-cell tile for Case system is placed on the dashboard
-
 ### Requirement: Widgets the role may not add (REQ-WDG-043)
 
 A widget type the reader's role may not add (role feature permissions) SHALL be shown as a grey card that says "Not allowed for your role" and SHALL NOT be chosen. A legacy widget type SHALL carry the label "Older widget type".

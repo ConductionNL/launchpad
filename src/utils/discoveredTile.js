@@ -20,7 +20,7 @@ import { appTileContent } from './tileMode.js'
  * @param {{appId: string}} app The discovered app.
  * @param {object} [appearance] Tile colour, text colour, count and pin.
  * @return {{type: string, content: object}} The widget payload.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
  */
 export function appTileFromDiscoveredApp(app, appearance = {}) {
 	const content = appTileContent(app.appId, appearance)
@@ -35,7 +35,7 @@ export function appTileFromDiscoveredApp(app, appearance = {}) {
  *
  * @param {object} placement The placement.
  * @return {boolean}
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
  */
 function opensAnApp(placement) {
 	const id = placement?.widgetId

@@ -8,7 +8,7 @@
  * address. A retired `app-tile` met later (an import file, an old template)
  * is read as a `tile` in app mode.
  *
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
  */
 
 import { imagePath } from '@nextcloud/router'
@@ -22,7 +22,7 @@ export const RETIRED_APP_TILE = 'app-tile'
  *
  * @param {{mode?: string}|null} content The tile's content.
  * @return {'app'|'link'} The mode.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
  */
 export function tileMode(content) {
 	return content?.mode === 'app' ? 'app' : 'link'
@@ -34,7 +34,7 @@ export function tileMode(content) {
  *
  * @param {{colourToken?: string, colour?: string}|null} content The tile's content.
  * @return {string} The key, or '' for the app's own colour.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-an-app-tile-shows-one-app-the-viewer-may-open-req-apptile-002
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-an-app-tile-shows-one-app-the-viewer-may-open-req-apptile-002
  */
 export function appTileColourKey(content) {
 	const token = String(content?.colourToken || '')
@@ -50,7 +50,7 @@ export function appTileColourKey(content) {
  * @param {string} appId The app.
  * @param {object} [appearance] Tile colour, text colour, count and pin from the form.
  * @return {object} The content.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
  */
 export function appTileContent(appId, appearance = {}) {
 	return {
@@ -69,7 +69,7 @@ export function appTileContent(appId, appearance = {}) {
  *
  * @param {object|null} content The `app-tile` content.
  * @return {object} The `tile` content.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
  */
 export function appTileAsTileContent(content) {
 	const out = { ...(content || {}), mode: 'app' }
@@ -87,7 +87,7 @@ export function appTileAsTileContent(content) {
  *
  * @param {object} item The placement or child.
  * @return {object} The same object, or a converted copy.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
  */
 export function asAppOrLinkTile(item) {
 	if (!item || typeof item !== 'object') {
@@ -116,7 +116,7 @@ const BRANDS = Object.freeze([
  *
  * @param {string} address The web address the tile opens, or its title.
  * @return {{brand: string, icon: string, iconType: string, backgroundColor: string, colourToken: string, textColour: string}|null} The defaults.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
  */
 export function brandDefaults(address) {
 	const text = String(address || '').trim().toLowerCase()

@@ -35,8 +35,8 @@
  *   @e2e tiles::an-address-that-is-not-a-web-address-is-refused
  *
  * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
- * @spec openspec/changes/app-link-tile-widget/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
  */
 
 import type { Browser, BrowserContext, Locator, Page } from '@playwright/test'

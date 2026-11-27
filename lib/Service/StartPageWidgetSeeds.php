@@ -171,12 +171,15 @@ final class StartPageWidgetSeeds {
 		$seeds = [
 			self::heading(grid: [0, 19, 6, 1], title: $l10n->t('My apps'), description: $l10n->t('One tile per app')),
 			self::heading(grid: [6, 19, 6, 1], title: $l10n->t('Working together'), description: $l10n->t('The organisation\'s tiles')),
-			self::widget(type: 'app-tiles', grid: [0, 20, 6, 4], content: [
-				'pinned' => [],
-				'exclude' => ['launchpad'],
-				'showFilter' => false,
-				'showMostUsed' => true,
-				'mostUsedLimit' => 6,
+			// Layout-widgets-replace-multi-tile D3: "My apps" is a well of each viewer's apps.
+			self::widget(type: 'container', grid: [0, 20, 6, 4], content: [
+				'placements' => [],
+				'appList' => [
+					'pinned' => [],
+					'exclude' => ['launchpad'],
+					'mostUsedLimit' => 6,
+					'showFilter' => false,
+				],
 			]),
 		];
 

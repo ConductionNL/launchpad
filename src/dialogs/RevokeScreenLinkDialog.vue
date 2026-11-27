@@ -36,7 +36,7 @@ import { REQUIRED_FLAG_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
  * RevokeScreenLinkDialog: the confirmation before a dashboard's screen link
  * is revoked, because the screen on the wall goes dark (REQ-KIOSK-006).
  *
- * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-5
+ * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-5
  */
 export default {
 	name: 'RevokeScreenLinkDialog',

@@ -153,7 +153,7 @@ class KioskPlaylistMapper extends QBMapper {
 	 *
 	 * @return KioskPlaylist|null The screen link, or null when there is none.
 	 *
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-1
 	 */
 	public function findActiveScreenLink(string $dashboardUuid): ?KioskPlaylist {
 		$qb = $this->selectWhere(match: ['screen_dashboard_uuid' => $dashboardUuid]);
@@ -177,7 +177,7 @@ class KioskPlaylistMapper extends QBMapper {
 	 *
 	 * @return int The number of screen links revoked.
 	 *
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
 	 */
 	public function revokeScreenLinksOf(string $dashboardUuid): int {
 		$qb = $this->updateWhere(

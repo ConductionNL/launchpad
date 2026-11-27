@@ -157,7 +157,7 @@ class SharingLimits {
 	 *
 	 * @return bool True when new screen links may be made.
 	 *
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-2
 	 */
 	public function screenLinksAllowed(): bool {
 		return $this->settings->getValue(key: AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value, default: true) !== false;

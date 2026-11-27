@@ -5,7 +5,7 @@
  * KioskTab: the screen link switch and the screen link rows
  * (dashboard-show-on-a-screen REQ-KIOSK-007, REQ-KIOSK-008).
  *
- * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-8
+ * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-8
  */
 
 import axios from '@nextcloud/axios'

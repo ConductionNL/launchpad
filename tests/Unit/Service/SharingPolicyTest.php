@@ -156,7 +156,7 @@ class SharingPolicyTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-8
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-8
 	 */
 	public function testScreenLinksAreOnUnlessSwitchedOff(): void {
 		$this->assertTrue(condition: $this->limits()->screenLinksAllowed());

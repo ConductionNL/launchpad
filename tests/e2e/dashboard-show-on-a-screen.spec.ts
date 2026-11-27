@@ -27,7 +27,7 @@
  *   @e2e dashboard-kiosk-mode::noor-finds-the-canteen-screen
  *   @e2e dashboard-kiosk-mode::deleting-the-dashboard-revokes-its-screen-link
  *
- * @spec openspec/changes/dashboard-show-on-a-screen/specs/dashboard-kiosk-mode/spec.md
+ * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/specs/dashboard-kiosk-mode/spec.md
  */
 
 import type { APIRequestContext, Browser, Page } from '@playwright/test'

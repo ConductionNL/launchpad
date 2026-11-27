@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -31,7 +31,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Revokes the screen link of a deleted dashboard.
  *
- * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
  */
 class ScreenLinksListener extends DashboardCleanupListener {
 	protected const CLEANED = 'revoked %d screen link(s)';
@@ -56,7 +56,7 @@ class ScreenLinksListener extends DashboardCleanupListener {
 	 *
 	 * @return int The number of screen links revoked.
 	 *
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
 	 */
 	protected function cleanUp(DashboardDeletedEvent $event): int {
 		return $this->playlistMapper->revokeScreenLinksOf(

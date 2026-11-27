@@ -190,7 +190,7 @@ export default {
 		 * Playlists first, then the screen links (REQ-KIOSK-008).
 		 *
 		 * @return {object[]}
-		 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-6
+		 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-6
 		 */
 		orderedPlaylists() {
 			const playlists = this.store.playlists.filter((p) => !this.isScreenLink(p))
@@ -219,7 +219,7 @@ export default {
 		 *
 		 * @param {object} playlist Playlist row.
 		 * @return {boolean}
-		 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-6
+		 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-6
 		 */
 		isScreenLink(playlist) {
 			return typeof playlist?.screenDashboardUuid === 'string' && playlist.screenDashboardUuid !== ''
@@ -230,7 +230,7 @@ export default {
 		 *
 		 * @param {object} playlist Screen link row.
 		 * @return {string}
-		 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-6
+		 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-6
 		 */
 		dashboardTitle(playlist) {
 			const dashboard = this.dashboards.find((d) => d.uuid === playlist.screenDashboardUuid)
@@ -241,7 +241,7 @@ export default {
 		 * Read the screen link switch (REQ-KIOSK-007); on when not set.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-6
+		 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-6
 		 */
 		async loadSwitch() {
 			try {
@@ -258,7 +258,7 @@ export default {
 		 *
 		 * @param {boolean} value The new state.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-6
+		 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-6
 		 */
 		async setScreenLinksAllowed(value) {
 			const previous = this.screenLinksAllowed

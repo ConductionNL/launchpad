@@ -213,7 +213,7 @@ class KioskPlaylist extends Entity implements JsonSerializable {
 	 * @return array
 	 *
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-2
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-1
 	 */
 	public function jsonSerialize(): array {
 		return [

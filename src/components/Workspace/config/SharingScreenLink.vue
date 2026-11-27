@@ -104,7 +104,7 @@ import { logger } from '../../../utils/logger.js'
  * administrator's switch off it offers no new link, but keeps an existing
  * one with Revoke.
  *
- * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-5
+ * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-5
  */
 export default {
 	name: 'SharingScreenLink',
@@ -191,7 +191,7 @@ export default {
 		 * Read the dashboard's active screen link.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-5
+		 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-5
 		 */
 		async load() {
 			if (!this.policy.mayShare || !this.dashboard?.uuid) {
@@ -213,7 +213,7 @@ export default {
 		 * Create the screen link (or get the existing one).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-5
+		 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-5
 		 */
 		async create() {
 			this.busy = true
@@ -232,7 +232,7 @@ export default {
 		 * Revoke the screen link after the confirmation.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-5
+		 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-5
 		 */
 		async revoke() {
 			this.confirmingRevoke = false
@@ -254,7 +254,7 @@ export default {
 		 * Copy the link to the clipboard.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-5
+		 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-5
 		 */
 		async copy() {
 			try {

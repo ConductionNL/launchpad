@@ -192,7 +192,7 @@ let runtimeManifestTaken = false
  *
  * @return {{mayShare: boolean, publicLinksAllowed: boolean, screenLinksAllowed: boolean}} The policy.
  * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
- * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-2
  */
 export function readSharingPolicy() {
 	const policy = readKey('sharingPolicy', null)

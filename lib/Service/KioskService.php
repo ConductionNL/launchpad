@@ -172,7 +172,7 @@ class KioskService {
 	 * @throws InvalidArgumentException When the playlist is a screen link (HTTP 400).
 	 *
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-3
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
 	 */
 	public function updatePlaylist(int $id, KioskPlaylistDraft $draft, string $callerId): KioskPlaylist {
 		$playlist = $this->resolveOwnedPlaylist(id: $id, callerId: $callerId);
@@ -249,7 +249,7 @@ class KioskService {
 	 *
 	 * @throws OCSForbiddenException When the dashboard does not exist or the caller is neither owner nor admin.
 	 *
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
 	 */
 	public function getScreenLink(string $dashboardUuid, string $callerId): ?KioskPlaylist {
 		$this->resolveShareableDashboard(dashboardUuid: $dashboardUuid, callerId: $callerId);
@@ -274,7 +274,7 @@ class KioskService {
 	 * @throws OCSForbiddenException When the dashboard does not exist, the caller may not share it,
 	 *                               or screen links are switched off.
 	 *
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
 	 */
 	public function createScreenLink(string $dashboardUuid, string $callerId): array {
 		$dashboard = $this->resolveShareableDashboard(dashboardUuid: $dashboardUuid, callerId: $callerId);
@@ -329,7 +329,7 @@ class KioskService {
 	 *
 	 * @throws OCSForbiddenException When the dashboard does not exist or the caller is neither owner nor admin.
 	 *
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
 	 */
 	public function revokeScreenLink(string $dashboardUuid, string $callerId): void {
 		$this->resolveShareableDashboard(dashboardUuid: $dashboardUuid, callerId: $callerId);

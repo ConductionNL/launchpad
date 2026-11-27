@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -37,7 +37,7 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Marks a kiosk playlist as the screen link of one dashboard.
  *
- * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-1
  */
 class Version002023Date20261127140000 extends SimpleMigrationStep {
 
@@ -73,7 +73,7 @@ class Version002023Date20261127140000 extends SimpleMigrationStep {
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $output and $options are required by SimpleMigrationStep.
 	 *
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-1
 	 */
 	public function changeSchema(
 		IOutput $output,

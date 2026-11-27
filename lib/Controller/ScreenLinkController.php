@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-4
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -43,7 +43,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Read, create and revoke the screen link of a dashboard.
  *
- * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-4
  */
 class ScreenLinkController extends Controller {
 	/**
@@ -71,7 +71,7 @@ class ScreenLinkController extends Controller {
 	 *
 	 * @return DataResponse The screen link, 204, 401 or 403.
 	 *
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-4
 	 */
 	#[NoAdminRequired]
 	public function show(string $uuid): DataResponse {
@@ -96,7 +96,7 @@ class ScreenLinkController extends Controller {
 	 *
 	 * @return DataResponse The screen link, 401 or 403.
 	 *
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-4
 	 */
 	#[NoAdminRequired]
 	public function create(string $uuid): DataResponse {
@@ -121,7 +121,7 @@ class ScreenLinkController extends Controller {
 	 *
 	 * @return DataResponse 204, 401 or 403.
 	 *
-	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-4
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-4
 	 */
 	#[NoAdminRequired]
 	public function destroy(string $uuid): DataResponse {

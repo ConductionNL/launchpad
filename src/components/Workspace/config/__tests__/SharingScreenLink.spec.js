@@ -5,7 +5,7 @@
  * SharingScreenLink: the "Show on a screen" block of the Sharing tab
  * (dashboard-show-on-a-screen REQ-KIOSK-006, REQ-KIOSK-007), in each state.
  *
- * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-8
+ * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-8
  */
 
 import axios from '@nextcloud/axios'

@@ -315,6 +315,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'announcement#index', 'url' => '/api/announcements', 'verb' => 'GET'],
 		['name' => 'announcement#create', 'url' => '/api/announcements', 'verb' => 'POST'],
 		['name' => 'announcement#reach', 'url' => '/api/announcements/reach', 'verb' => 'GET'],
+		// REQ-ANN-008: every announcement for the Announcements tab; managers only.
+		['name' => 'announcement#manage', 'url' => '/api/announcements/manage', 'verb' => 'GET'],
 		['name' => 'announcementGroups#index', 'url' => '/api/announcements/groups', 'verb' => 'GET'],
 		['name' => 'announcementRead#state', 'url' => '/api/announcements/read-state', 'verb' => 'GET'],
 		['name' => 'announcement#follow', 'url' => '/api/announcements/follows', 'verb' => 'POST'],

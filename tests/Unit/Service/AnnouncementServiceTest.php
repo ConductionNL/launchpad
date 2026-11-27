@@ -25,6 +25,7 @@ use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\AnnouncementFollowNotifier;
 use OCA\LaunchPad\Service\AnnouncementInput;
+use OCA\LaunchPad\Service\AnnouncementManagers;
 use OCA\LaunchPad\Service\AnnouncementService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -87,7 +88,7 @@ class AnnouncementServiceTest extends TestCase {
 	 *
 	 * @return AnnouncementService
 	 */
-	private function service(array $editorGroups = ['redactie'], ?AnnouncementFollowNotifier $notifier = null): AnnouncementService {
+	private function service(array $editorGroups = ['redactie'], ?AnnouncementFollowNotifier $notifier = null, ?AnnouncementManagers $managers = null): AnnouncementService {
 		$mapper = $this->createMock(AnnouncementMapper::class);
 		$mapper->method('insert')->willReturnCallback(function (Announcement $entity): Announcement {
 			$this->stored[$entity->getUuid()] = $entity;
@@ -114,6 +115,7 @@ class AnnouncementServiceTest extends TestCase {
 				&& ($item->getPublishAt() === null || $item->getPublishAt() <= $now)
 				&& ($item->getExpiresAt() === null || $item->getExpiresAt() > $now)
 		)));
+		$mapper->method('findAllForManagers')->willReturnCallback(fn (): array => array_values($this->stored));
 		$mapper->method('findDrafts')->willReturnCallback(fn (?string $authorId): array => array_values(array_filter(
 			$this->stored,
 			static fn (Announcement $item): bool => $item->getStatus() === 'draft' && ($authorId === null || $item->getAuthorId() === $authorId)
@@ -151,7 +153,7 @@ class AnnouncementServiceTest extends TestCase {
 		$userManager->method('countUsersTotal')->willReturn(4);
 		$userManager->method('userExists')->willReturnCallback(fn (string $uid): bool => array_key_exists($uid, $this->groupsOf));
 
-		return new AnnouncementService($mapper, new AnnouncementInput(), $settings, $userGroups, $groupManager, $time, $userManager, $notifier);
+		return new AnnouncementService($mapper, new AnnouncementInput(), $settings, $userGroups, $groupManager, $time, $userManager, $notifier, $managers);
 	}//end service()
 
 	/**
@@ -235,11 +237,30 @@ class AnnouncementServiceTest extends TestCase {
 			$this->assertSame([], $this->stored);
 		}
 
+		// Every manager manages every announcement (announcements-managed-in-settings D2).
 		$adminNews = $service->create('admin', ['title' => 'Van de beheerder', 'expiresAt' => self::UNTIL]);
 		$service->publish('admin', $adminNews->getUuid());
+		$this->assertSame('Overschreven', $service->update('karin', $adminNews->getUuid(), ['title' => 'Overschreven'])->getTitle());
+		$this->assertCount(1, $service->allFor('karin'));
 		$this->expectException(ForbiddenException::class);
-		$service->update('karin', $adminNews->getUuid(), ['title' => 'Overschreven']);
+		$service->allFor('pieter');
 	}//end testOnlyEditorsAuthorTheirOwn()
+
+	/**
+	 * A person Nextcloud's admin delegation gives the announcements setting
+	 * manages announcements without being in an editor group (REQ-ADM-034).
+	 *
+	 * @return void
+	 */
+	public function testADelegatedManagerAuthors(): void {
+		$managers = $this->createMock(AnnouncementManagers::class);
+		$managers->method('manages')->willReturnCallback(static fn (string $userId): bool => $userId === 'femke');
+		$service = $this->service(editorGroups: [], managers: $managers);
+
+		$this->assertTrue($service->isAuthor('femke'));
+		$this->assertFalse($service->isAuthor('karin'));
+		$this->assertSame('Van Femke', $service->create('femke', ['title' => 'Van Femke', 'expiresAt' => self::UNTIL])->getTitle());
+	}//end testADelegatedManagerAuthors()
 
 	/**
 	 * A draft is visible to its author and to administrators only.

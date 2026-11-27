@@ -33,8 +33,11 @@ use OCA\LaunchPad\Kernel\Contracts\AnnouncementCommentServiceInterface;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementFollowServiceInterface;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
 use OCA\LaunchPad\Service\RequestGuard;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
+use OCA\LaunchPad\Settings\LaunchPadAnnouncementsAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
@@ -109,6 +112,29 @@ class AnnouncementController extends Controller {
 	}//end index()
 
 	/**
+	 * `GET /api/announcements/manage`: every announcement for the
+	 * Announcements tab, news and notices, active, scheduled, ended and
+	 * drafts (REQ-ANN-008). Nextcloud checks the announcements setting before
+	 * this runs (REQ-ADM-034).
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+	 */
+	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
+	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
+	public function manage(): JSONResponse {
+		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(run: fn (string $userId): JSONResponse => new JSONResponse(
+			[
+				'announcements' => array_map(
+					static fn (Announcement $item): array => $item->jsonSerialize(),
+					$this->announcements->allFor(userId: $userId)
+				),
+			]
+		));
+	}//end manage()
+
+	/**
 	 * `GET /api/announcements/{uuid}`: one announcement; 404 when the user may not see it.
 	 *
 	 * @param string $uuid The announcement.
@@ -131,7 +157,8 @@ class AnnouncementController extends Controller {
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
-	#[NoAdminRequired]
+	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
+	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
 	public function create(): JSONResponse {
 		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(run: fn (string $userId): JSONResponse => new JSONResponse(
 			$this->announcements->create(userId: $userId, input: $this->input())->jsonSerialize(),
@@ -148,7 +175,8 @@ class AnnouncementController extends Controller {
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
-	#[NoAdminRequired]
+	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
+	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
 	public function update(string $uuid): JSONResponse {
 		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(run: fn (string $userId): JSONResponse => new JSONResponse(
 			$this->announcements->update(userId: $userId, uuid: $uuid, input: $this->input())->jsonSerialize()
@@ -164,7 +192,8 @@ class AnnouncementController extends Controller {
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
 	 */
-	#[NoAdminRequired]
+	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
+	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
 	public function publish(string $uuid): JSONResponse {
 		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(run: fn (string $userId): JSONResponse => new JSONResponse(
 			$this->announcements->publish(userId: $userId, uuid: $uuid)->jsonSerialize()
@@ -180,7 +209,8 @@ class AnnouncementController extends Controller {
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
-	#[NoAdminRequired]
+	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
+	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
 	public function destroy(string $uuid): JSONResponse {
 		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(run: function (string $userId) use ($uuid): JSONResponse {
 			$this->announcements->delete(userId: $userId, uuid: $uuid);
@@ -196,7 +226,8 @@ class AnnouncementController extends Controller {
 	 *
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
 	 */
-	#[NoAdminRequired]
+	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
+	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
 	public function reach(): JSONResponse {
 		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(run: function (string $userId): JSONResponse {
 			if ($this->announcements->isAuthor(userId: $userId) === false) {

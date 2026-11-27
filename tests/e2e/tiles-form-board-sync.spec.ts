@@ -73,7 +73,13 @@ import { readSettings, writeSettings } from './support/adminSettings.ts'
 import { storedContent, tileOf } from './support/appTiles.ts'
 import { enterEditMode } from './support/dashboardSwitcher.ts'
 import { setLanguage } from './support/orWidget.ts'
-import { openOwnDashboard, readPlacements, setUpOwnDashboard, tearDownOwnDashboard } from './support/ownDashboard.ts'
+import {
+	nextLayoutSave,
+	openOwnDashboard,
+	readPlacements,
+	setUpOwnDashboard,
+	tearDownOwnDashboard,
+} from './support/ownDashboard.ts'
 import { adminContext, API } from './support/principals.ts'
 
 const STAMP = `${Date.now()}`
@@ -313,9 +319,9 @@ test('setting Sort order in this group to Last used first orders Work apps by ea
 		const sort = form.getByLabel('Sort order in this group')
 		await sort.click()
 		await chooseOption(page, 'Last used first')
-		const saved = page.waitForResponse((res) => res.request().method() === 'PUT' && res.url().includes('/api/widgets/'))
 		await form.getByRole('button', { name: 'Save' }).click()
-		expect((await saved).status()).toBeLessThan(300)
+		// REQ-EDIT-002: the tile form changes the draft; the edit-mode Save stores it.
+		expect((await nextLayoutSave(page, own.id)).status()).toBeLessThan(300)
 		expect((await storedContent(own.owner.api, own.id, groupId)).sortBy).toBe('last-used')
 	} finally {
 		await context.close()
@@ -449,9 +455,9 @@ test('choosing a group in Edit tile moves a dashboard tile into that group, keep
 		const form = await openTileForm(page, tileOf(page, reportsId), 'Reports')
 		await form.getByRole('combobox', { name: 'Group', exact: true }).click()
 		await chooseOption(page, archive)
-		const moved = page.waitForResponse((res) => res.request().method() === 'PUT' && res.url().includes(`/api/widgets/${archiveId}`))
 		await form.getByRole('button', { name: 'Save' }).click()
-		expect((await moved).status()).toBeLessThan(300)
+		// REQ-EDIT-002: the move into the group is in the draft until Save.
+		expect((await nextLayoutSave(page, own.id)).status()).toBeLessThan(300)
 
 		// The group holds Reports as a tile at its bottom, with its settings.
 		await expect.poll(async () => (await readPlacements(own.owner.api, own.id)).some((p) => Number(p.id) === reportsId), {

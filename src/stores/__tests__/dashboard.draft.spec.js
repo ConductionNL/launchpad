@@ -123,6 +123,15 @@ describe('dashboard store — edit-mode draft', () => {
 		expect(api.removeWidget).not.toHaveBeenCalled()
 	})
 
+	it('adds a tile to the draft with the tile fields a stored tile carries', async () => {
+		const store = storeOn()
+		store.beginDraft()
+		const tile = await store.addTileToDashboard({ title: 'Word', icon: 'word.svg', iconType: 'url', linkType: 'url', linkValue: 'https://office.com' })
+		expect(api.addTile).not.toHaveBeenCalled()
+		expect(tile).toMatchObject({ widgetId: 'tile', tileType: 'custom', tileTitle: 'Word', tileIcon: 'word.svg', tileLinkType: 'url', tileLinkValue: 'https://office.com' })
+		expect(store.draftChangeCount).toBe(1)
+	})
+
 	it('opens no draft on a group dashboard, which still saves each change', async () => {
 		const store = storeOn('group')
 		expect(store.beginDraft()).toBe(false)

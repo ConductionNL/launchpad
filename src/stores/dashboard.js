@@ -345,6 +345,31 @@ function widgetRequestBody(widgetId, placement) {
 }
 
 /**
+ * REQ-EDIT-001: the placement fields of a tile added in a draft, from the
+ * tile form's fields, as a stored tile carries them.
+ *
+ * @param {object} tileData The tile form's fields (`title`, `icon`, `backgroundColor`, ...).
+ * @return {object} The placement's tile fields.
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ */
+function draftTileFields(tileData) {
+	const fields = {
+		tileType: 'custom',
+		tileTitle: tileData.title ?? '',
+		tileIcon: tileData.icon ?? '',
+		tileIconType: tileData.iconType ?? 'class',
+		tileBackgroundColor: tileData.backgroundColor ?? tileData.bgColor ?? '#0082c9',
+		tileTextColor: tileData.textColor ?? tileData.txtColor ?? '#ffffff',
+		tileLinkType: tileData.linkType ?? 'app',
+		tileLinkValue: tileData.linkValue ?? tileData.linkVal ?? '',
+	}
+	if (tileData.content && typeof tileData.content === 'object') {
+		fields.content = tileData.content
+	}
+	return fields
+}
+
+/**
  * REQ-EDIT-002: what a refused or failed draft Save tells the person, and
  * what the page gets back: a colleague's newer widgets (409) are named, any
  * other refusal shows the server's reason. The draft stays.
@@ -1579,10 +1604,12 @@ export const useDashboardStore = defineStore('dashboard', {
 					store: this,
 				})
 
+				// REQ-EDIT-001: in a draft the tile joins the draft only, with the
+				// tile fields a stored tile carries; Save creates it as a tile.
 				if (this.draft !== null) {
 					return this.addDraftPlacement({
 						widgetId: 'tile',
-						...tileData,
+						...draftTileFields(tileData),
 						gridX: placement.x,
 						gridY: placement.y,
 						gridWidth: placement.w,

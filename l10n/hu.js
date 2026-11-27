@@ -1,6 +1,16 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Not responding" : "Nem válaszol",
+    "port {port}" : "port {port}",
+    "found {time}" : "megtalálva {time}",
+    "Services to discover" : "Felderítendő szolgáltatások",
+    "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list." : "A „Csempék hozzáadása” megmutatja ezeket a szolgáltatásokat, ha válaszolnak. A LaunchPad csak a listán szereplő címeket kérdezi le.",
+    "No services on this list yet." : "Ezen a listán még nincs szolgáltatás.",
+    "For example http://localhost:3000" : "Például http://localhost:3000",
+    "Add service" : "Szolgáltatás hozzáadása",
+    "Services to discover saved." : "A felderítendő szolgáltatások mentve.",
+    "The services to discover could not be saved." : "A felderítendő szolgáltatásokat nem sikerült menteni.",
     "Own publication" : "Saját közzététel",
     "The upload is larger than this server accepts." : "A feltöltés nagyobb, mint amit ez a kiszolgáló elfogad.",
     "The file is too large." : "A fájl túl nagy.",

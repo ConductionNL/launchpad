@@ -1,6 +1,16 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Not responding" : "Не отговаря",
+    "port {port}" : "порт {port}",
+    "found {time}" : "открито {time}",
+    "Services to discover" : "Услуги за откриване",
+    "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list." : "„Добавяне на плочки“ показва тези услуги, когато отговарят. LaunchPad проверява само адресите от този списък.",
+    "No services on this list yet." : "Все още няма услуги в този списък.",
+    "For example http://localhost:3000" : "Например http://localhost:3000",
+    "Add service" : "Добавяне на услуга",
+    "Services to discover saved." : "Услугите за откриване са запазени.",
+    "The services to discover could not be saved." : "Услугите за откриване не можаха да бъдат запазени.",
     "Own publication" : "Собствена публикация",
     "The upload is larger than this server accepts." : "Каченото е по-голямо, отколкото този сървър приема.",
     "The file is too large." : "Файлът е твърде голям.",

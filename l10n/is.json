@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Svarar ekki",
+        "port {port}": "gátt {port}",
+        "found {time}": "fannst {time}",
+        "Services to discover": "Þjónustur til að finna",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "„Bæta við reitum“ sýnir þessar þjónustur þegar þær svara. LaunchPad spyr aðeins vistföngin á þessum lista.",
+        "No services on this list yet.": "Engar þjónustur á þessum lista enn.",
+        "For example http://localhost:3000": "Til dæmis http://localhost:3000",
+        "Add service": "Bæta við þjónustu",
+        "Services to discover saved.": "Þjónustur til að finna vistaðar.",
+        "The services to discover could not be saved.": "Ekki tókst að vista þjónustur til að finna.",
         "Own publication" : "Eigin útgáfa",
         "The upload is larger than this server accepts.": "Upphleðslan er stærri en þessi þjónn tekur við.",
         "The file is too large.": "Skráin er of stór.",

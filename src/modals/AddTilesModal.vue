@@ -97,14 +97,16 @@
 						:key="row.choice.key"
 						class="add-tiles__row"
 						data-testid="add-tiles-found-service">
-						<span class="add-tiles__row-name">{{ row.service.name }}</span>
+						<span :id="row.id" class="add-tiles__row-name">{{ row.service.name }}</span>
 						<span class="add-tiles__row-meta" data-testid="add-tiles-found-service-meta">
 							{{ row.meta }}
 						</span>
+						<!-- The visible text is the button's name (label in name);
+						     the service it adds is its description. -->
 						<NcButton
 							:variant="isChosen(row.choice.key) ? 'primary' : 'secondary'"
 							:aria-pressed="isChosen(row.choice.key) ? 'true' : 'false'"
-							:aria-label="t('launchpad', 'Add {name}', { name: row.service.name })"
+							:aria-describedby="row.id"
 							@click="toggle(row.choice)">
 							{{ isChosen(row.choice.key) ? t('launchpad', 'Added') : t('launchpad', 'Add as tile') }}
 						</NcButton>
@@ -340,13 +342,18 @@ export default {
 		 * The found services without a tile on the dashboard, each with its
 		 * state, port and when it was found, in the person's Nextcloud locale.
 		 *
-		 * @return {Array<{service: object, choice: object, meta: string}>}
+		 * @return {Array<{service: object, id: string, choice: object, meta: string}>}
 		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
 		 */
 		foundServiceRows() {
 			return this.foundServices
 				.filter((service) => service && service.name && service.url)
-				.map((service) => ({ service, choice: foundServiceChoice(service), meta: foundServiceMeta(service) }))
+				.map((service, index) => ({
+					service,
+					id: `add-tiles-found-service-${index}`,
+					choice: foundServiceChoice(service),
+					meta: foundServiceMeta(service),
+				}))
 				.filter((row) => !this.existing.has(row.choice.key))
 		},
 

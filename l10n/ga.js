@@ -1,6 +1,16 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Not responding" : "Ní fhreagraíonn",
+    "port {port}" : "port {port}",
+    "found {time}" : "aimsithe {time}",
+    "Services to discover" : "Seirbhísí le haimsiú",
+    "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list." : "Taispeánann “Cuir tíleanna leis” na seirbhísí seo nuair a fhreagraíonn siad. Ní cheistíonn LaunchPad ach na seoltaí ar an liosta seo.",
+    "No services on this list yet." : "Níl aon seirbhísí ar an liosta seo fós.",
+    "For example http://localhost:3000" : "Mar shampla http://localhost:3000",
+    "Add service" : "Cuir seirbhís leis",
+    "Services to discover saved." : "Sábháladh na seirbhísí le haimsiú.",
+    "The services to discover could not be saved." : "Níorbh fhéidir na seirbhísí le haimsiú a shábháil.",
     "Own publication" : "Foilseachán féin",
     "The upload is larger than this server accepts." : "Tá an t-uaslódáil níos mó ná mar a ghlacann an freastalaí seo leis.",
     "The file is too large." : "Tá an comhad rómhór.",

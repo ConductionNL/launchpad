@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "No responde",
+        "port {port}": "puerto {port}",
+        "found {time}": "encontrado {time}",
+        "Services to discover": "Servicios que descubrir",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "«Añadir mosaicos» muestra estos servicios cuando responden. LaunchPad solo consulta las direcciones de esta lista.",
+        "No services on this list yet.": "Todavía no hay servicios en esta lista.",
+        "For example http://localhost:3000": "Por ejemplo http://localhost:3000",
+        "Add service": "Añadir servicio",
+        "Services to discover saved.": "Servicios que descubrir guardados.",
+        "The services to discover could not be saved.": "No se pudieron guardar los servicios que descubrir.",
         "Own publication" : "Publicación propia",
         "The upload is larger than this server accepts.": "La subida es mayor de lo que acepta este servidor.",
         "The file is too large.": "El archivo es demasiado grande.",

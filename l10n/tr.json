@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Yanıt vermiyor",
+        "port {port}": "bağlantı noktası {port}",
+        "found {time}": "bulundu {time}",
+        "Services to discover": "Keşfedilecek hizmetler",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "\"Kutucuk ekle\" bu hizmetleri yanıt verdiklerinde gösterir. LaunchPad yalnızca bu listedeki adresleri sorgular.",
+        "No services on this list yet.": "Bu listede henüz hizmet yok.",
+        "For example http://localhost:3000": "Örneğin http://localhost:3000",
+        "Add service": "Hizmet ekle",
+        "Services to discover saved.": "Keşfedilecek hizmetler kaydedildi.",
+        "The services to discover could not be saved.": "Keşfedilecek hizmetler kaydedilemedi.",
         "Own publication" : "Kendi yayınımız",
         "The upload is larger than this server accepts.": "Yükleme, bu sunucunun kabul ettiğinden büyük.",
         "The file is too large.": "Dosya çok büyük.",

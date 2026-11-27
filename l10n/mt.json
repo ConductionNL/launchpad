@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Ma jirrispondix",
+        "port {port}": "port {port}",
+        "found {time}": "misjub {time}",
+        "Services to discover": "Servizzi biex jinstabu",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "“Żid madum” juri dawn is-servizzi meta jirrispondu. LaunchPad jistaqsi biss l-indirizzi f’din il-lista.",
+        "No services on this list yet.": "Għad m’hemm l-ebda servizz f’din il-lista.",
+        "For example http://localhost:3000": "Pereżempju http://localhost:3000",
+        "Add service": "Żid servizz",
+        "Services to discover saved.": "Is-servizzi biex jinstabu ġew issejvjati.",
+        "The services to discover could not be saved.": "Is-servizzi biex jinstabu ma setgħux jiġu ssejvjati.",
         "Own publication" : "Pubblikazzjoni proprja",
         "The upload is larger than this server accepts.": "It-tlugħ huwa akbar milli jaċċetta dan is-server.",
         "The file is too large.": "Il-fajl huwa kbir wisq.",

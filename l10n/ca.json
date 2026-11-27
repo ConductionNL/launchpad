@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "No respon",
+        "port {port}": "port {port}",
+        "found {time}": "trobat {time}",
+        "Services to discover": "Serveis per descobrir",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "«Afegeix rajoles» mostra aquests serveis quan responen. LaunchPad només consulta les adreces d’aquesta llista.",
+        "No services on this list yet.": "Encara no hi ha cap servei en aquesta llista.",
+        "For example http://localhost:3000": "Per exemple http://localhost:3000",
+        "Add service": "Afegeix un servei",
+        "Services to discover saved.": "S’han desat els serveis per descobrir.",
+        "The services to discover could not be saved.": "No s’han pogut desar els serveis per descobrir.",
         "Own publication" : "Publicació pròpia",
         "The upload is larger than this server accepts.": "La pujada és més gran del que accepta aquest servidor.",
         "The file is too large.": "El fitxer és massa gran.",

@@ -702,12 +702,6 @@ export default {
 		},
 
 		/**
-		 * The preview's background: the chosen token, else the hex colour.
-		 *
-		 * @return {string}
-		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
-		 */
-		/**
 		 * @return {boolean} Whether the tile opens an app.
 		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
@@ -817,6 +811,12 @@ export default {
 			return t('launchpad', 'Add {count} tiles', { count })
 		},
 
+		/**
+		 * The preview's background: the chosen token, else the hex colour.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 */
 		previewBackground() {
 			return tileBackground({ backgroundColor: this.form.backgroundColor }, { colourToken: this.form.colourToken })
 		},
@@ -1130,17 +1130,6 @@ export default {
 		},
 
 		/**
-		 * Store the picked icon. CnIconBrowser emits an SVG path (MDI) or a URL
-		 * (Thematiq/upload); derive iconType from the value so TileWidget renders
-		 * the right element. `isCustomIconUrl` is the REQ-ICON-005 URL/name
-		 * discriminator — `iconType` is derived from it rather than guessed,
-		 * so a picked value and its stored type can never disagree.
-		 *
-		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-005
-		 * @param {string} value the chosen SVG path or icon URL.
-		 * @return {void}
-		 */
-		/**
 		 * Choose An app or A link (a new tile only).
 		 *
 		 * @param {string} mode 'app' or 'link'.
@@ -1195,6 +1184,17 @@ export default {
 			this.form.textColor = '#ffffff'
 		},
 
+		/**
+		 * Store the picked icon. CnIconBrowser emits an SVG path (MDI) or a URL
+		 * (Thematiq/upload); derive iconType from the value so TileWidget renders
+		 * the right element. `isCustomIconUrl` is the REQ-ICON-005 URL/name
+		 * discriminator — `iconType` is derived from it rather than guessed,
+		 * so a picked value and its stored type can never disagree.
+		 *
+		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-005
+		 * @param {string} value the chosen SVG path or icon URL.
+		 * @return {void}
+		 */
 		onIcon(value) {
 			this.form.icon = value
 			this.form.iconType = isCustomIconUrl(value) ? 'url' : 'svg'

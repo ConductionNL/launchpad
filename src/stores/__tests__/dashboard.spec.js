@@ -615,6 +615,53 @@ describe('useDashboardStore — switchDashboard wires the active-pref POST', () 
 		expect(mockApi.setActiveDashboardPreference).toHaveBeenCalledWith('uuid-1')
 	})
 
+	it('asks for the dashboard and persists the active flag at the same time, not one after the other', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.dashboards = [
+			{ id: 'd-2', uuid: 'uuid-2', source: 'user', isOwner: true },
+		]
+
+		let releaseActivate
+		mockApi.activateDashboard.mockReturnValue(new Promise((resolve) => { releaseActivate = resolve }))
+		mockApi.getDashboardById.mockResolvedValue({
+			data: { dashboard: { id: 'd-2', uuid: 'uuid-2' }, placements: [{ id: 7 }], permissionLevel: 'full', isOwner: true, sharedBy: null },
+		})
+		mockApi.setActiveDashboardPreference.mockResolvedValue({ data: { status: 'success' } })
+
+		const switching = store.switchDashboard('d-2')
+		await Promise.resolve()
+		// The read went out while the activate is still pending.
+		expect(mockApi.getDashboardById).toHaveBeenCalledWith('d-2')
+		expect(mockApi.activateDashboard).toHaveBeenCalledWith('d-2')
+
+		releaseActivate({ data: { status: 'ok' } })
+		await switching
+		expect(store.widgetPlacements).toEqual([{ id: 7 }])
+		expect(store.loading).toBe(false)
+	})
+
+	it('a failed activate still fails the switch and leaves the dashboard as it was', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.dashboards = [
+			{ id: 'd-3', uuid: 'uuid-3', source: 'user', isOwner: true },
+		]
+		store.activeDashboard = { id: 'd-0', uuid: 'uuid-0' }
+
+		mockApi.activateDashboard.mockRejectedValue(new Error('500'))
+		mockApi.getDashboardById.mockResolvedValue({
+			data: { dashboard: { id: 'd-3', uuid: 'uuid-3' }, placements: [], permissionLevel: 'full', isOwner: true, sharedBy: null },
+		})
+		mockApi.setActiveDashboardPreference.mockClear()
+
+		await store.switchDashboard('d-3')
+
+		expect(store.activeDashboard.uuid).toBe('uuid-0')
+		expect(mockApi.setActiveDashboardPreference).not.toHaveBeenCalled()
+		expect(store.loading).toBe(false)
+	})
+
 	it('does NOT call the legacy activate endpoint for a group/default dashboard', async () => {
 		const { useDashboardStore } = await import('../dashboard.js')
 		const store = useDashboardStore()

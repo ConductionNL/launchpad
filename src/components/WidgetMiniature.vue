@@ -40,6 +40,7 @@
 			<div class="widget-miniature__stage">
 				<component
 					:is="renderer"
+					v-bind="sampleProps"
 					:content="sample"
 					:placement="samplePlacement"
 					:preview="true"
@@ -55,7 +56,7 @@
 <script>
 import { loadLazyComponent } from '@conduction/nextcloud-vue'
 import { markRaw } from 'vue'
-import { sampleContentOf } from '../constants/widgetSamples.js'
+import { SAMPLE_PROPS, sampleContentOf } from '../constants/widgetSamples.js'
 
 /** A renderer chunk that has not loaded after this long shows the icon. */
 const LOAD_TIMEOUT = 10000
@@ -105,6 +106,14 @@ export default {
 		 */
 		sample() {
 			return this.content || (this.type ? sampleContentOf(this.type, this.entry) : null)
+		},
+
+		/**
+		 * @return {object} Props besides the content the type's renderer needs to draw its sample without a request.
+		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+		 */
+		sampleProps() {
+			return (!this.content && SAMPLE_PROPS[this.type]) || {}
 		},
 
 		/**

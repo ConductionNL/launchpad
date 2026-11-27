@@ -89,25 +89,24 @@ class FirstPaintLayout {
 	 */
 	public static function positions(array $nodes, int $columns): array {
 		$counts = self::columnCounts(columns: $columns);
-		$wide   = FirstPaintGridEngine::settle(
+		$wide   = (new FirstPaintGridEngine(column: $counts[0]))->settle(
 			nodes: array_map(static fn (array $node): array => self::normalise(node: $node), $nodes),
-			column: $counts[0],
 			direction: 1
 		);
 		$out    = [];
 		foreach ($counts as $count) {
+			$engine = new FirstPaintGridEngine(column: $count);
 			$placed = $wide;
 			if ($count !== $counts[0]) {
-				// columnChanged(): the layout callback gets the nodes last to first, then the engine adds them back last to first.
-				$placed = FirstPaintGridEngine::settle(
-					nodes: self::columnLayout(column: $count, oldColumn: $counts[0], nodes: FirstPaintGridEngine::sorted(nodes: $wide, direction: -1)),
-					column: $count,
+				// GridStack columnChanged(): the layout callback gets the nodes last to first, then the engine adds them back last to first.
+				$placed = $engine->settle(
+					nodes: self::columnLayout(column: $count, oldColumn: $counts[0], nodes: $engine->sorted(nodes: $wide, direction: -1)),
 					direction: -1
 				);
 			}
 
 			// Keyed top to bottom, left to right: the reading order on a narrow grid.
-			foreach (FirstPaintGridEngine::sorted(nodes: $placed, direction: 1) as $node) {
+			foreach ($engine->sorted(nodes: $placed, direction: 1) as $node) {
 				$out[$count][(string) $node['id']] = ['x' => (int) $node['x'], 'y' => (int) $node['y'], 'w' => (int) $node['w'], 'h' => (int) $node['h']];
 			}
 		}

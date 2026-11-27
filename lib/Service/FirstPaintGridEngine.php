@@ -56,7 +56,7 @@ class FirstPaintGridEngine {
 	 *
 	 * @param int $column The column count.
 	 */
-	private function __construct(private readonly int $column) {
+	public function __construct(private readonly int $column) {
 	}//end __construct()
 
 	/**
@@ -65,22 +65,22 @@ class FirstPaintGridEngine {
 	 * change (direction -1: columnChanged() adds the last node first).
 	 *
 	 * @param list<array<string, int|string>> $nodes     The nodes with x, y, w and h set.
-	 * @param int                             $column    The column count.
 	 * @param int                             $direction 1 to add first to last, -1 last to first.
 	 *
 	 * @return list<array<string, int|string>> The placed nodes, top to bottom.
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
 	 */
-	public static function settle(array $nodes, int $column, int $direction): array {
-		$engine = new self(column: max(1, $column));
-		foreach (self::sorted(nodes: $nodes, direction: $direction) as $node) {
-			$engine->add(node: $node);
+	public function settle(array $nodes, int $direction): array {
+		$this->nodes = [];
+		$this->order = [];
+		foreach ($this->sorted(nodes: $nodes, direction: $direction) as $node) {
+			$this->add(node: $node);
 		}
 
-		$engine->pack();
+		$this->pack();
 
-		return array_map(fn (int $key): array => $engine->nodes[$key], $engine->order);
+		return array_map(fn (int $key): array => $this->nodes[$key], $this->order);
 	}//end settle()
 
 	/**
@@ -93,7 +93,7 @@ class FirstPaintGridEngine {
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
 	 */
-	public static function sorted(array $nodes, int $direction): array {
+	public function sorted(array $nodes, int $direction): array {
 		usort(
 			$nodes,
 			static function (array $left, array $right) use ($direction): int {
@@ -144,7 +144,8 @@ class FirstPaintGridEngine {
 		$area    = ['x' => 0, 'w' => $this->column, 'y' => (int) $target['y'], 'h' => (int) $target['h']];
 		$collide = $this->collide(key: $key, area: $area, skip: $skip);
 		$guard   = 0;
-		while ($collide !== null && $guard++ <= (count($this->nodes) * 2)) {
+		$limit   = (count($this->nodes) * 2);
+		while ($collide !== null && $guard++ <= $limit) {
 			$other = $this->nodes[$collide];
 			$moved = $this->moveNode(
 				key: $collide,
@@ -197,17 +198,17 @@ class FirstPaintGridEngine {
 		$this->sortOrder(direction: 1);
 		foreach ($this->order as $index => $key) {
 			while ((int) $this->nodes[$key]['y'] > 0) {
-				$up = 0;
+				$raised = 0;
 				if ($index !== 0) {
-					$up = ((int) $this->nodes[$key]['y'] - 1);
+					$raised = ((int) $this->nodes[$key]['y'] - 1);
 				}
 
-				$area = ['y' => $up] + $this->nodes[$key];
+				$area = ['y' => $raised] + $this->nodes[$key];
 				if ($index !== 0 && $this->collide(key: $key, area: $area, skip: null) !== null) {
 					break;
 				}
 
-				$this->nodes[$key]['y'] = $up;
+				$this->nodes[$key]['y'] = $raised;
 			}
 		}
 	}//end pack()

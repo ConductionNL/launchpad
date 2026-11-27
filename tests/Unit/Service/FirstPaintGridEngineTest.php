@@ -58,7 +58,7 @@ class FirstPaintGridEngineTest extends TestCase {
 
 		$this->assertSame(
 			expected: ['a' => '0,0,6,2', 'b' => '6,0,6,3', 'c' => '0,2,6,2'],
-			actual: self::at(nodes: FirstPaintGridEngine::settle(nodes: $nodes, column: 12, direction: 1))
+			actual: self::at(nodes: (new FirstPaintGridEngine(column: 12))->settle(nodes: $nodes, direction: 1))
 		);
 	}//end testAPackedLayoutStays()
 
@@ -76,7 +76,7 @@ class FirstPaintGridEngineTest extends TestCase {
 
 		$this->assertSame(
 			expected: ['a' => '0,0,4,2', 'b' => '0,2,4,2', 'c' => '4,0,4,1'],
-			actual: self::at(nodes: FirstPaintGridEngine::settle(nodes: $nodes, column: 8, direction: 1))
+			actual: self::at(nodes: (new FirstPaintGridEngine(column: 8))->settle(nodes: $nodes, direction: 1))
 		);
 	}//end testTopGravityClosesAGap()
 
@@ -108,7 +108,7 @@ class FirstPaintGridEngineTest extends TestCase {
 				'tasks'    => '5,7,3,4',
 				'welcome'  => '0,0,5,2',
 			],
-			actual: self::at(nodes: FirstPaintGridEngine::settle(nodes: $nodes, column: 8, direction: -1))
+			actual: self::at(nodes: (new FirstPaintGridEngine(column: 8))->settle(nodes: $nodes, direction: -1))
 		);
 	}//end testOverlapsArePushedDownThenPacked()
 
@@ -125,7 +125,7 @@ class FirstPaintGridEngineTest extends TestCase {
 
 		$this->assertSame(
 			expected: ['edge' => '5,1,3,1', 'wide' => '0,0,8,1'],
-			actual: self::at(nodes: FirstPaintGridEngine::settle(nodes: $nodes, column: 8, direction: 1))
+			actual: self::at(nodes: (new FirstPaintGridEngine(column: 8))->settle(nodes: $nodes, direction: 1))
 		);
 	}//end testNodesAreKeptInsideTheGrid()
 
@@ -141,7 +141,8 @@ class FirstPaintGridEngineTest extends TestCase {
 			['id' => 'a', 'x' => 0, 'y' => 0, 'w' => 1, 'h' => 1],
 		];
 
-		$this->assertSame(expected: ['a', 'b', 'c'], actual: array_column(FirstPaintGridEngine::sorted(nodes: $nodes, direction: 1), 'id'));
-		$this->assertSame(expected: ['c', 'b', 'a'], actual: array_column(FirstPaintGridEngine::sorted(nodes: $nodes, direction: -1), 'id'));
+		$engine = new FirstPaintGridEngine(column: 12);
+		$this->assertSame(expected: ['a', 'b', 'c'], actual: array_column($engine->sorted(nodes: $nodes, direction: 1), 'id'));
+		$this->assertSame(expected: ['c', 'b', 'a'], actual: array_column($engine->sorted(nodes: $nodes, direction: -1), 'id'));
 	}//end testSorted()
 }//end class

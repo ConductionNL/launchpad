@@ -18,12 +18,13 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\DashboardEditing;
 use OCA\LaunchPad\Controller\DashboardPresenceApiController;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\DashboardPresenceService;
-use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\RequestGuard;
+use OCA\LaunchPad\Service\Versions\EditSessionVersions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\OCS\OCSForbiddenException;
@@ -73,7 +74,7 @@ class DashboardPresenceApiControllerTest extends TestCase {
 	 *
 	 * @return DashboardPresenceApiController
 	 */
-	private function controller(?string $userId = 'sanne', ?DashboardVersionService $versions = null): DashboardPresenceApiController {
+	private function controller(?string $userId = 'sanne', ?EditSessionVersions $sessions = null): DashboardPresenceApiController {
 		$session = $this->createMock(IUserSession::class);
 		$user    = null;
 		if ($userId !== null) {
@@ -85,25 +86,26 @@ class DashboardPresenceApiControllerTest extends TestCase {
 
 		return new DashboardPresenceApiController(
 			request: $this->createMock(IRequest::class),
-			presence: $this->presence,
+			editing: new DashboardEditing(presence: $this->presence, sessions: $sessions),
 			guard: new RequestGuard(userSession: $session, groupManager: $this->createMock(IGroupManager::class), actionAuth: $this->actionAuth),
-			userId: $userId,
-			versions: $versions
+			userId: $userId
 		);
 	}//end controller()
 
 	/**
-	 * An admitted join begins the edit session, a leave ends it before the
+	 * An admitted join begins the edit session; a leave ends it before the
 	 * presence goes (REQ-VERS-010).
+	 *
+	 * @return void
 	 *
 	 * @spec openspec/changes/archive/2026-11-27-versions-on-widget-edits/tasks.md#task-3
 	 */
 	public function testJoinBeginsAndLeaveEndsTheEditSession(): void {
-		$versions = $this->createMock(DashboardVersionService::class);
+		$sessions = $this->createMock(originalClassName: EditSessionVersions::class);
 		$order    = [];
 		$this->presence->method('join')->willReturn([]);
-		$versions->expects(self::once())->method('beginEditSession')->with('dash-7', 'sanne');
-		$versions->expects(self::once())->method('endEditSession')->with('dash-7', 'sanne')
+		$sessions->expects(self::once())->method('begin')->with('dash-7', 'sanne');
+		$sessions->expects(self::once())->method('end')->with('dash-7', 'sanne')
 			->willReturnCallback(static function () use (&$order): null {
 				$order[] = 'version';
 				return null;
@@ -111,24 +113,28 @@ class DashboardPresenceApiControllerTest extends TestCase {
 		$this->presence->method('leave')->willReturnCallback(static function () use (&$order): void {
 			$order[] = 'leave';
 		});
-		$controller = $this->controller(versions: $versions);
+		$controller = $this->controller(sessions: $sessions);
 
-		self::assertSame(Http::STATUS_OK, $controller->join(uuid: 'dash-7')->getStatus());
-		self::assertSame(Http::STATUS_NO_CONTENT, $controller->leave(uuid: 'dash-7')->getStatus());
-		self::assertSame(['version', 'leave'], $order);
+		self::assertSame(expected: Http::STATUS_OK, actual: $controller->join(uuid: 'dash-7')->getStatus());
+		self::assertSame(expected: Http::STATUS_NO_CONTENT, actual: $controller->leave(uuid: 'dash-7')->getStatus());
+		self::assertSame(expected: ['version', 'leave'], actual: $order);
 	}//end testJoinBeginsAndLeaveEndsTheEditSession()
 
 	/**
 	 * A refused join keeps no state.
 	 *
+	 * @return void
+	 *
 	 * @spec openspec/changes/archive/2026-11-27-versions-on-widget-edits/tasks.md#task-3
 	 */
 	public function testARefusedJoinBeginsNoSession(): void {
-		$versions = $this->createMock(DashboardVersionService::class);
+		$sessions = $this->createMock(originalClassName: EditSessionVersions::class);
 		$this->presence->method('join')->willThrowException(new ForbiddenException(message: 'You may not edit this dashboard'));
-		$versions->expects(self::never())->method('beginEditSession');
+		$sessions->expects(self::never())->method('begin');
 
-		self::assertSame(Http::STATUS_FORBIDDEN, $this->controller(versions: $versions)->join(uuid: 'dash-7')->getStatus());
+		$response = $this->controller(sessions: $sessions)->join(uuid: 'dash-7');
+
+		self::assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
 	}//end testARefusedJoinBeginsNoSession()
 
 	/**

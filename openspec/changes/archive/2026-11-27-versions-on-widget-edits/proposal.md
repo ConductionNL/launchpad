@@ -21,5 +21,5 @@ endpoints, and edit mode saves every change at once, so there was no save moment
 
 ## Impact
 
-- `DashboardVersionService::beginEditSession()` / `endEditSession()` (new), `DashboardPresenceApiController::join()` /
+- `Versions\EditSessionVersions` (new), `DashboardEditing` (new holder), `DashboardVersionService::captureSnapshot()` (`force` option), `DashboardPresenceApiController::join()` /
   `leave()`.

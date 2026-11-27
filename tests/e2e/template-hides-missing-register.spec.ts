@@ -22,6 +22,7 @@ import {
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
+import { expectOpenDashboard } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -114,9 +115,7 @@ test('the ticket list is not shown and no error line appears', async ({
 	)
 	try {
 		await page.goto('/index.php/apps/launchpad/')
-		await expect(
-			page.getByText('Mijn werkdag', { exact: true }).first(),
-		).toBeVisible({ timeout: 30_000 })
+		await expectOpenDashboard(page, 'Mijn werkdag', 30_000)
 		// Mijn werkdag v6 (data/templates/mijn-werkdag.json) gives each app a
 		// stat card. dossiq's shows when dossiq is enabled; without it the card
 		// is left out like any widget whose app is missing (REQ-CASES-004), so

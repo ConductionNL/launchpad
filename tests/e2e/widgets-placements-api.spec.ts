@@ -62,6 +62,7 @@ import {
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
 import { clearSeededWidgets } from './support/dashboardFixture.ts'
+import { expectOpenDashboard } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	allowPersonalDashboards,
@@ -841,9 +842,7 @@ test.describe('REQ-WDG-005 compulsory widgets (copies of an admin template)', ()
 		)
 		try {
 			await page.goto('/index.php/apps/launchpad/')
-			await expect(
-				page.getByText('Mijn werkdag', { exact: true }).first(),
-			).toBeVisible({ timeout: 60_000 })
+			await expectOpenDashboard(page, 'Mijn werkdag', 60_000)
 		} finally {
 			await context.close()
 		}

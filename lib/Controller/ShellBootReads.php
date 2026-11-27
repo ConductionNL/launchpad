@@ -23,9 +23,6 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use OCA\LaunchPad\Service\AnnouncementService;
-use OCA\LaunchPad\Service\FavouriteDashboardService;
-
 /**
  * The shell's (nextcloud-vue CnAppRoot) boot reads the workspace page carries:
  * the kept runtime manifest, the setup status, the walkthrough preferences and
@@ -40,8 +37,7 @@ class ShellBootReads {
 	 * @param ManifestFirstLoad|null               $manifest    The kept runtime manifest.
 	 * @param SetupStatusFirstLoad|null            $setupStatus The setup status.
 	 * @param WalkthroughPreferencesFirstLoad|null $walkthrough The walkthrough preferences.
-	 * @param FavouriteDashboardService|null       $favourites  The favourite dashboards (REQ-SHELL-014).
-	 * @param AnnouncementService|null             $announcements Whether the viewer may manage announcements (More's Announcements entry).
+	 * @param MoreMenuFirstLoad|null               $moreMenu    The favourite dashboards (REQ-SHELL-014) and who may manage announcements.
 	 *
 	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
 	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
@@ -50,8 +46,7 @@ class ShellBootReads {
 		public readonly ?ManifestFirstLoad $manifest=null,
 		public readonly ?SetupStatusFirstLoad $setupStatus=null,
 		public readonly ?WalkthroughPreferencesFirstLoad $walkthrough=null,
-		public readonly ?FavouriteDashboardService $favourites=null,
-		public readonly ?AnnouncementService $announcements=null,
+		public readonly ?MoreMenuFirstLoad $moreMenu=null,
 	) {
 	}//end __construct()
 
@@ -78,26 +73,7 @@ class ShellBootReads {
 			'runtimeManifest'         => $this->manifest?->firstLoad(userId: $userId),
 			'setup_status'            => $this->setupStatus?->firstLoad(userId: $userId),
 			'walkthrough_preferences' => $this->walkthrough?->firstLoad(userId: $userId),
-			'favouriteDashboards'     => $this->favourites?->forPage(userId: $userId, visible: $visible),
-			'announcementsAccess'     => $this->announcementsAccess(userId: $userId),
+			...($this->moreMenu ?? new MoreMenuFirstLoad())->firstLoad(userId: $userId, visible: $visible),
 		];
 	}//end firstLoad()
-
-	/**
-	 * Whether the caller may manage announcements: an administrator, or a
-	 * member of a group the announcements setting is delegated to.
-	 *
-	 * @param string $userId The caller's uid, or '' when nobody is logged in.
-	 *
-	 * @return array{canManage: bool}|null Null when nobody is logged in or the read is not wired.
-	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
-	 */
-	private function announcementsAccess(string $userId): ?array {
-		if ($userId === '' || $this->announcements === null) {
-			return null;
-		}
-
-		return ['canManage' => $this->announcements->isAuthor(userId: $userId)];
-	}//end announcementsAccess()
 }//end class

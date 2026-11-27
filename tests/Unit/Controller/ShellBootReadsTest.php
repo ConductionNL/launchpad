@@ -19,9 +19,7 @@ use OCA\LaunchPad\Controller\SetupStatusFirstLoad;
 use OCA\LaunchPad\Controller\ShellBootReads;
 use OCA\LaunchPad\Controller\WalkthroughPreferencesFirstLoad;
 use OCA\LaunchPad\Kernel\Contracts\DemoDataServiceInterface;
-use OCA\LaunchPad\Service\AnnouncementService;
 use OCA\LaunchPad\Service\DemoSeedPreferences;
-use OCA\LaunchPad\Service\FavouriteDashboardService;
 use OCA\LaunchPad\Service\PreferenceKey;
 use OCA\LaunchPad\Service\SetupStatusDocument;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
@@ -192,50 +190,14 @@ class ShellBootReadsTest extends TestCase {
 		$this->groups->method('isAdmin')->willReturn(false);
 		$this->settings->method('getAllowedAdminSettings')->willReturn([]);
 
-		$this->assertSame(
-			expected: ['runtimeManifest' => null, 'setup_status' => ['forbidden' => true], 'walkthrough_preferences' => null, 'favouriteDashboards' => null, 'announcementsAccess' => null],
+		$unwired = ['runtimeManifest' => null, 'walkthrough_preferences' => null, 'favouriteDashboards' => null, 'announcementsAccess' => null];
+		$this->assertEquals(
+			expected: ['setup_status' => ['forbidden' => true]] + $unwired,
 			actual: (new ShellBootReads(setupStatus: $this->setupStatus()))->firstLoad(userId: 'marieke')
 		);
-		$this->assertSame(
-			expected: ['runtimeManifest' => null, 'setup_status' => null, 'walkthrough_preferences' => null, 'favouriteDashboards' => null, 'announcementsAccess' => null],
+		$this->assertEquals(
+			expected: ['setup_status' => null] + $unwired,
 			actual: (new ShellBootReads())->firstLoad(userId: 'marieke')
 		);
 	}//end testTheShellReadsComeByInitialStateKey()
-
-	/**
-	 * The favourite dashboards come under `favouriteDashboards`, checked
-	 * against the visible entries the page passes (more-menu-favourites).
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
-	 */
-	public function testTheFavouritesComeWithTheVisibleEntries(): void {
-		$favourites = $this->createMock(originalClassName: FavouriteDashboardService::class);
-		$favourites->expects($this->once())->method('forPage')
-			->with('marieke', [['dashboard' => 'x']])
-			->willReturn(['u-1']);
-		$reads = (new ShellBootReads(favourites: $favourites))->firstLoad(userId: 'marieke', visible: [['dashboard' => 'x']]);
-		$this->assertSame(expected: ['u-1'], actual: $reads['favouriteDashboards']);
-	}//end testTheFavouritesComeWithTheVisibleEntries()
-
-	/**
-	 * Whether the viewer may manage announcements comes under
-	 * `announcementsAccess`, for a logged-in viewer only.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
-	 */
-	public function testTheAnnouncementsAccessComesForALoggedInViewer(): void {
-		$announcements = $this->createMock(originalClassName: AnnouncementService::class);
-		$announcements->expects($this->exactly(2))->method('isAuthor')
-			->with('marieke')
-			->willReturnOnConsecutiveCalls(true, false);
-		$reads = new ShellBootReads(announcements: $announcements);
-
-		$this->assertSame(expected: ['canManage' => true], actual: $reads->firstLoad(userId: 'marieke')['announcementsAccess']);
-		$this->assertSame(expected: ['canManage' => false], actual: $reads->firstLoad(userId: 'marieke')['announcementsAccess']);
-		$this->assertNull(actual: $reads->firstLoad(userId: '')['announcementsAccess']);
-	}//end testTheAnnouncementsAccessComesForALoggedInViewer()
 }//end class

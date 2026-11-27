@@ -1,6 +1,17 @@
 OC.L10N.register(
     "launchpad",
     {
+    "No changes" : "Değişiklik yok",
+    "Keep editing" : "Düzenlemeye devam et",
+    "Save changes?" : "Değişiklikler kaydedilsin mi?",
+    "Discard changes?" : "Değişiklikler atılsın mı?",
+    "Don't save" : "Kaydetme",
+    "The changes could not be saved." : "Değişiklikler kaydedilemedi.",
+    "A colleague changed {count} of these widgets first. Nothing was saved." : "Bir iş arkadaşı bu pencere öğelerinden {count} tanesini önce değiştirdi. Hiçbir şey kaydedilmedi.",
+    "_Draft · {count} change_::_Draft · {count} changes_" : ["Taslak · {count} değişiklik", "Taslak · {count} değişiklik"],
+    "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._" : ["Bu panoda kaydedilmemiş {count} değişiklik var.", "Bu panoda kaydedilmemiş {count} değişiklik var."],
+    "Duplicate" : "Çoğalt",
+    "The widget could not be duplicated." : "Pencere öğesi çoğaltılamadı.",
     "Add to favourites: {name}" : "Sık kullanılanlara ekle: {name}",
     "All dashboards" : "Tüm panolar",
     "Announcements" : "Duyurular",

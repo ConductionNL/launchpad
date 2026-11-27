@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Muudatusi pole",
+        "Keep editing": "Jätka muutmist",
+        "Save changes?": "Kas salvestada muudatused?",
+        "Discard changes?": "Kas loobuda muudatustest?",
+        "Don't save": "Ära salvesta",
+        "The changes could not be saved.": "Muudatusi ei õnnestunud salvestada.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Kolleeg muutis enne {count} neist vidinatest. Midagi ei salvestatud.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Mustand · {count} muudatus", "Mustand · {count} muudatust"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Sellel töölaual on {count} salvestamata muudatus.", "Sellel töölaual on {count} salvestamata muudatust."],
+        "Duplicate": "Kopeeri",
+        "The widget could not be duplicated.": "Vidinat ei õnnestunud kopeerida.",
         "Add to favourites: {name}": "Lisa lemmikutesse: {name}",
         "All dashboards": "Kõik töölauad",
         "Announcements": "Teadaanded",

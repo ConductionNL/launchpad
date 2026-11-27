@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Nema promjena",
+        "Keep editing": "Nastavi uređivanje",
+        "Save changes?": "Spremiti promjene?",
+        "Discard changes?": "Odbaciti promjene?",
+        "Don't save": "Nemoj spremiti",
+        "The changes could not be saved.": "Promjene nije bilo moguće spremiti.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Kolega je prvi promijenio {count} od ovih widgeta. Ništa nije spremljeno.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Skica · {count} promjena", "Skica · {count} promjene", "Skica · {count} promjena"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Ova nadzorna ploča ima {count} nespremljenu promjenu.", "Ova nadzorna ploča ima {count} nespremljene promjene.", "Ova nadzorna ploča ima {count} nespremljenih promjena."],
+        "Duplicate": "Dupliciraj",
+        "The widget could not be duplicated.": "Widget nije bilo moguće duplicirati.",
         "Add to favourites: {name}": "Dodaj u favorite: {name}",
         "All dashboards": "Sve nadzorne ploče",
         "Announcements": "Obavijesti",

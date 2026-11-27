@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Няма промени",
+        "Keep editing": "Продължи редактирането",
+        "Save changes?": "Да се запазят ли промените?",
+        "Discard changes?": "Да се отхвърлят ли промените?",
+        "Don't save": "Не запазвай",
+        "The changes could not be saved.": "Промените не можаха да бъдат запазени.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Колега промени първи {count} от тези уиджети. Нищо не е запазено.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Чернова · {count} промяна", "Чернова · {count} промени"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Това табло има {count} незапазена промяна.", "Това табло има {count} незапазени промени."],
+        "Duplicate": "Дублиране",
+        "The widget could not be duplicated.": "Уиджетът не можа да бъде дублиран.",
         "Add to favourites: {name}": "Добавяне в любими: {name}",
         "All dashboards": "Всички табла",
         "Announcements": "Обявления",

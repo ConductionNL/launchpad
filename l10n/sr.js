@@ -1,6 +1,17 @@
 OC.L10N.register(
     "launchpad",
     {
+    "No changes" : "Нема измена",
+    "Keep editing" : "Настави уређивање",
+    "Save changes?" : "Сачувати измене?",
+    "Discard changes?" : "Одбацити измене?",
+    "Don't save" : "Немој сачувати",
+    "The changes could not be saved." : "Измене нису могле да се сачувају.",
+    "A colleague changed {count} of these widgets first. Nothing was saved." : "Колега је први изменио {count} од ових виџета. Ништа није сачувано.",
+    "_Draft · {count} change_::_Draft · {count} changes_" : ["Нацрт · {count} измена", "Нацрт · {count} измене", "Нацрт · {count} измена"],
+    "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._" : ["Ова контролна табла има {count} несачувану измену.", "Ова контролна табла има {count} несачуване измене.", "Ова контролна табла има {count} несачуваних измена."],
+    "Duplicate" : "Дуплирај",
+    "The widget could not be duplicated." : "Виџет није могао да се дуплира.",
     "Add to favourites: {name}" : "Додај у омиљене: {name}",
     "All dashboards" : "Све контролне табле",
     "Announcements" : "Обавештења",

@@ -77,7 +77,7 @@ export const SAMPLE_CONTENT = Object.freeze({
 	menu: { items: [{ label: 'Home', url: '#' }, { label: 'News', url: '#' }, { label: 'Contact', url: '#' }] },
 	container: { title: 'My apps', placements: [] },
 	files: { folderPath: '/', sampleFiles: [{ name: 'Planning.xlsx' }, { name: 'Minutes.docx' }, { name: 'Logo.png' }] },
-	stat: { label: 'Open cases', value: 42, sampleValue: 42, format: 'number' },
+	stat: { label: 'Open cases', sampleValue: 42 },
 	// Given `apps`, the shared app tiles draw them and do not read the app menu.
 	'app-tiles': {
 		pinned: [],
@@ -93,8 +93,8 @@ export const SAMPLE_CONTENT = Object.freeze({
 	},
 	// Drawn as a link-mode tile: the app-mode renderer reads the viewer's app menu.
 	'app-tile': { mode: 'link', title: 'Files', linkType: 'url', linkValue: '#', icon: 'Folder', iconType: 'mdi', colourToken: '--sc-primary', textColour: 'white' },
-	delta: { label: 'Requests this week', value: 18, previous: 14, sampleValue: 18, samplePrevious: 14 },
-	gauge: { label: 'Handled on time', value: 82, target: 90, sampleValue: 82 },
+	delta: { label: 'Requests this week', sampleValue: 18, samplePrevious: 14 },
+	gauge: { label: 'Handled on time', sampleValue: 82, sampleTarget: 100 },
 	'object-list': { title: 'Open cases', sampleRows: ROWS },
 	chart: { chartType: 'bar', title: 'Requests per month', series: [{ name: 'Requests', data: BARS.map((bar) => bar.value) }], labels: BARS.map((bar) => bar.label) },
 	'stats-block': { items: [{ label: 'Open', value: 12 }, { label: 'Late', value: 3 }, { label: 'Done', value: 48 }] },

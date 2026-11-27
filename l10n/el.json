@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Καμία αλλαγή",
+        "Keep editing": "Συνέχεια επεξεργασίας",
+        "Save changes?": "Αποθήκευση αλλαγών;",
+        "Discard changes?": "Απόρριψη αλλαγών;",
+        "Don't save": "Να μην αποθηκευτεί",
+        "The changes could not be saved.": "Δεν ήταν δυνατή η αποθήκευση των αλλαγών.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Ένας συνάδελφος άλλαξε πρώτος {count} από αυτά τα γραφικά στοιχεία. Δεν αποθηκεύτηκε τίποτα.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Πρόχειρο · {count} αλλαγή", "Πρόχειρο · {count} αλλαγές"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Αυτός ο πίνακας έχει {count} μη αποθηκευμένη αλλαγή.", "Αυτός ο πίνακας έχει {count} μη αποθηκευμένες αλλαγές."],
+        "Duplicate": "Αντιγραφή",
+        "The widget could not be duplicated.": "Δεν ήταν δυνατή η αντιγραφή του γραφικού στοιχείου.",
         "Add to favourites: {name}": "Προσθήκη στα αγαπημένα: {name}",
         "All dashboards": "Όλοι οι πίνακες",
         "Announcements": "Ανακοινώσεις",

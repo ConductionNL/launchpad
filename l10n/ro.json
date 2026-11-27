@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Nicio modificare",
+        "Keep editing": "Continuă editarea",
+        "Save changes?": "Salvați modificările?",
+        "Discard changes?": "Renunțați la modificări?",
+        "Don't save": "Nu salva",
+        "The changes could not be saved.": "Modificările nu au putut fi salvate.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Un coleg a modificat primul {count} dintre aceste widgeturi. Nu s-a salvat nimic.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Ciornă · {count} modificare", "Ciornă · {count} modificări", "Ciornă · {count} de modificări"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Acest panou are {count} modificare nesalvată.", "Acest panou are {count} modificări nesalvate.", "Acest panou are {count} de modificări nesalvate."],
+        "Duplicate": "Duplică",
+        "The widget could not be duplicated.": "Widgetul nu a putut fi duplicat.",
         "Add to favourites: {name}": "Adaugă la favorite: {name}",
         "All dashboards": "Toate tablourile de bord",
         "Announcements": "Anunțuri",

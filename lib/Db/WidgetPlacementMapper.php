@@ -250,11 +250,17 @@ class WidgetPlacementMapper extends QBMapper {
 	 *
 	 * @param string $announcementKey The stable announcement identity.
 	 *
-	 * @return WidgetPlacement[] The matching placements (may be empty).
+	 * Ordered by id, oldest first: without a template, the report's author is
+	 * the owner of the first placement that carried the key, and only the id
+	 * says which that is. Without the order PostgreSQL returns an updated row
+	 * last, so the author's own edit handed the report to a later copy's owner.
+	 *
+	 * @return WidgetPlacement[] The matching placements (may be empty), oldest first.
 	 * @spec   openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 	 */
 	public function findByAnnouncementKey(string $announcementKey): array {
-		$qb = $this->selectWhere(match: ['announcement_key' => $announcementKey]);
+		$qb = $this->selectWhere(match: ['announcement_key' => $announcementKey])
+			->orderBy(sort: 'id', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByAnnouncementKey()

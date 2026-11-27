@@ -475,7 +475,7 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 		$this->dashboardService->method('findGroupDashboard')->willReturn($stored);
 		$this->dashboardService->expects($this->once())->method('updateGroupShared')->willReturn($stored);
 
-		$versions = $this->createMock(DashboardVersionService::class);
+		$versions = $this->createMock(originalClassName: DashboardVersionService::class);
 		$versions->expects($this->once())->method('saveWithVersion')
 			->with(42, 'admin', $this->isInstanceOf(className: \Closure::class))
 			->willReturnCallback(static fn (int $dashboardId, string $createdBy, \Closure $save): Dashboard => $save());

@@ -30,7 +30,8 @@ namespace OCA\LaunchPad\Db;
  * child's key is its `id` when it has one, else its `uuid`. A child without
  * either gets a `uuid`: `<owner id>-<index>` for a direct child of a well
  * whose placement id is known (the key the well already used to count tile
- * use, ContainerWidget.vue), a random one otherwise.
+ * use, ContainerWidget.vue), otherwise one derived from the child and its
+ * place, so writing the same content twice gives the same keys.
  *
  * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
@@ -48,12 +49,13 @@ final class ContainerChildKeys {
 	 * @param array<string, mixed> $content The placement's content.
 	 * @param int|null             $ownerId The placement id, when known.
 	 * @param int                  $depth   How deep this content sits.
+	 * @param string               $path    Where this content sits, for derived keys.
 	 *
 	 * @return array<string, mixed> The content with every child keyed.
 	 *
 	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
-	public static function stamp(array $content, ?int $ownerId=null, int $depth=0): array {
+	public static function stamp(array $content, ?int $ownerId=null, int $depth=0, string $path=''): array {
 		if ($depth > self::MAX_DEPTH) {
 			return $content;
 		}
@@ -64,13 +66,13 @@ final class ContainerChildKeys {
 				$owner = $ownerId;
 			}
 
-			$content['placements'] = self::stampList(list: $content['placements'], ownerId: $owner, depth: $depth);
+			$content['placements'] = self::stampList(list: $content['placements'], ownerId: $owner, depth: $depth, path: $path . '/p');
 		}
 
 		if (is_array($content['tabs'] ?? null) === true) {
 			foreach ($content['tabs'] as $at => $tab) {
 				if (is_array($tab) === true && is_array($tab['placements'] ?? null) === true) {
-					$content['tabs'][$at]['placements'] = self::stampList(list: $tab['placements'], ownerId: null, depth: $depth);
+					$content['tabs'][$at]['placements'] = self::stampList(list: $tab['placements'], ownerId: null, depth: $depth, path: $path . '/t' . $at);
 				}
 			}
 		}
@@ -157,10 +159,11 @@ final class ContainerChildKeys {
 	 * @param array<int|string, mixed> $list    The children.
 	 * @param int|null                 $ownerId The well's placement id, for its direct children.
 	 * @param int                      $depth   How deep the list's parent sits.
+	 * @param string                   $path    Where the list sits, for derived keys.
 	 *
 	 * @return array<int|string, mixed>
 	 */
-	private static function stampList(array $list, ?int $ownerId, int $depth): array {
+	private static function stampList(array $list, ?int $ownerId, int $depth, string $path): array {
 		$taken = [];
 		foreach ($list as $child) {
 			if (is_array($child) === true && self::keyOf(child: $child) !== '') {
@@ -174,9 +177,9 @@ final class ContainerChildKeys {
 			}
 
 			if (self::keyOf(child: $child) === '') {
-				$key = self::newKey(ownerId: $ownerId, index: $index);
+				$key = self::newKey(ownerId: $ownerId, index: $index, child: $child, path: $path);
 				if (isset($taken[$key]) === true) {
-					$key = self::newKey(ownerId: null, index: $index);
+					$key = self::newKey(ownerId: null, index: $index, child: $child, path: $path);
 				}
 
 				$child['uuid'] = $key;
@@ -184,7 +187,7 @@ final class ContainerChildKeys {
 			}
 
 			if (is_array($child['content'] ?? null) === true) {
-				$child['content'] = self::stamp(content: $child['content'], ownerId: null, depth: ($depth + 1));
+				$child['content'] = self::stamp(content: $child['content'], ownerId: null, depth: ($depth + 1), path: $path . '/' . $index);
 			}
 
 			$list[$index] = $child;
@@ -196,17 +199,19 @@ final class ContainerChildKeys {
 	/**
 	 * A new key for a child that has none.
 	 *
-	 * @param int|null   $ownerId The well's placement id, when known.
-	 * @param int|string $index   The child's place in its list.
+	 * @param int|null             $ownerId The well's placement id, when known.
+	 * @param int|string           $index   The child's place in its list.
+	 * @param array<string, mixed> $child   The child.
+	 * @param string               $path    Where its list sits.
 	 *
 	 * @return string
 	 */
-	private static function newKey(?int $ownerId, int|string $index): string {
+	private static function newKey(?int $ownerId, int|string $index, array $child, string $path): string {
 		if ($ownerId !== null && is_int($index) === true) {
 			return $ownerId . '-' . $index;
 		}
 
-		return bin2hex(random_bytes(8));
+		return substr(hash('sha256', $path . '/' . $index . '|' . (string)json_encode($child)), 0, 16);
 	}//end newKey()
 
 	/**

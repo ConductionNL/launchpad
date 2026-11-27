@@ -72,7 +72,7 @@ changes (D5) and is disabled for a widget the draft added but did not save yet (
 A widget inside a well or a tabs widget has no placement id of its own. Every child therefore carries a key: its
 `id`, else its `uuid`; the server gives a child without either a `uuid` whenever the content is written
 (`WidgetPlacement::setContentArray` through `ContainerChildKeys`: `<placement id>-<index>` for a direct child of a
-well, the key the well already counted tile use with, unless another child holds it; a random one otherwise), and
+well, the key the well already counted tile use with, unless another child holds it; otherwise one derived from the child and its place, so the same content keys the same), and
 the repair step `KeyContainerChildren` keys the children stored before. An embed token names a child as
 `<placement id>.<child key>` (a dot, because the embed route takes the subject id as one path segment); the embed
 renders the child as a widget of its own, and only while its well is visible. The admin Embeds form lists the children

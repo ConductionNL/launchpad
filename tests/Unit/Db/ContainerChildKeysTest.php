@@ -56,7 +56,7 @@ class ContainerChildKeysTest extends TestCase {
 		$this->assertMatchesRegularExpression('/^[0-9a-f]{16}$/', $content['placements'][1]['uuid']);
 	}//end testAKeyAnotherChildHoldsIsNotHandedOutTwice()
 
-	public function testTabsAndNestedChildrenGetRandomKeysAndStampingTwiceChangesNothing(): void {
+	public function testTabsAndNestedChildrenGetDerivedKeysAndStampingTwiceChangesNothing(): void {
 		$content = ContainerChildKeys::stamp(content: [
 			'tabs' => [
 				['id' => 't1', 'placements' => [['type' => 'container', 'content' => ['placements' => [['type' => 'clock']]]]]],
@@ -69,7 +69,16 @@ class ContainerChildKeysTest extends TestCase {
 		$this->assertMatchesRegularExpression('/^[0-9a-f]{16}$/', $outer['content']['placements'][0]['uuid']);
 		$this->assertSame('not a tab', $content['tabs'][1]);
 		$this->assertSame($content, ContainerChildKeys::stamp(content: $content, ownerId: 12));
-	}//end testTabsAndNestedChildrenGetRandomKeysAndStampingTwiceChangesNothing()
+	}//end testTabsAndNestedChildrenGetDerivedKeysAndStampingTwiceChangesNothing()
+
+	public function testTheSameContentWrittenTwiceGetsTheSameKeysAndTwinsDiffer(): void {
+		$content = ['tabs' => [['placements' => [['type' => 'clock'], ['type' => 'clock']]]]];
+		$first   = ContainerChildKeys::stamp(content: $content);
+
+		$this->assertSame($first, ContainerChildKeys::stamp(content: $content));
+		$twins = $first['tabs'][0]['placements'];
+		$this->assertNotSame($twins[0]['uuid'], $twins[1]['uuid']);
+	}//end testTheSameContentWrittenTwiceGetsTheSameKeysAndTwinsDiffer()
 
 	public function testContentWithoutChildrenIsUnchanged(): void {
 		$this->assertSame(['text' => 'Hallo'], ContainerChildKeys::stamp(content: ['text' => 'Hallo'], ownerId: 3));

@@ -198,6 +198,13 @@ class PageController extends Controller {
 			->setOrgNavigation($this->settings->orgNavigation?->firstLoad(userId: $userId))
 			->setWorkspaceBootReads($this->sources->bootReads?->firstLoad(userId: $userId))
 			->setShellReads(reads: $this->sources->shell->firstLoad(userId: $userId))
+			->setWorkspaceApiReads(
+				$this->sources->apiReads?->firstLoad(
+					userId: $userId,
+					dashboard: $active['dashboard'] ?? null,
+					layout: $activeState['layout']
+				)
+			)
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass

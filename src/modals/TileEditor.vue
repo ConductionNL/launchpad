@@ -1040,7 +1040,7 @@ export default {
 		 * The frame's attributes: the dialog's, or a plain block inside Add widget.
 		 *
 		 * @return {object}
-		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+		 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
 		 */
 		frameProps() {
 			if (this.embedded) {

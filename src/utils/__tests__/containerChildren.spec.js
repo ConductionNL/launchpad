@@ -9,7 +9,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { allChildren, childLabel, childSubjectId, duplicateChildIn, removeChildIn } from '../containerChildren.js'
+import { allChildren, childLabel, childSubjectId, duplicateChildIn, findChildIn, patchChildIn, removeChildIn } from '../containerChildren.js'
 
 const content = {
 	title: 'Werk',
@@ -66,5 +66,23 @@ describe('containerChildren', () => {
 	it('changes nothing for an unknown key', () => {
 		expect(duplicateChildIn(content, 'nope')).toBeNull()
 		expect(removeChildIn(content, '')).toBeNull()
+	})
+
+	it('finds a child by its key at any depth', () => {
+		expect(findChildIn(content, 'deep')).toEqual({ type: 'clock', uuid: 'deep' })
+		expect(findChildIn(content, '5').tileTitle).toBe('Mail')
+		expect(findChildIn(content, '')).toBeNull()
+		expect(findChildIn(null, 'deep')).toBeNull()
+	})
+
+	it('patches a child in place, at any depth, touching nothing else', () => {
+		const next = patchChildIn(content, { key: '12-1', patch: { content: { title: 'Hallo' }, customTitle: 'Groet' } })
+		expect(next.placements[1]).toMatchObject({ uuid: '12-1', content: { title: 'Hallo' }, customTitle: 'Groet', gridHeight: 3 })
+		expect(next.placements[0]).toBe(content.placements[0])
+		expect(content.placements[1].content.title).toBe('Welkom')
+
+		const deep = patchChildIn(content, { key: 'deep', patch: { content: { zone: 'UTC' } } })
+		expect(deep.tabs[0].placements[0].content.placements[0]).toEqual({ type: 'clock', uuid: 'deep', content: { zone: 'UTC' } })
+		expect(patchChildIn(content, { key: 'nope', patch: {} })).toBeNull()
 	})
 })

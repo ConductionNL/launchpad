@@ -270,7 +270,13 @@ test.describe('REQ-WDG-001 discover available widgets', () => {
 		expect(status).toBe(200)
 
 		for (const widget of body) {
-			expect(Object.keys(widget).sort()).toEqual([
+			// A widget that declares its first-paint shape also carries
+			// `placeholder` (REQ-FPS-009, widget-declared-placeholders); the
+			// others leave it out.
+			if ('placeholder' in widget) {
+				expect(typeof widget.placeholder, `${widget.id} placeholder`).toBe('string')
+			}
+			expect(Object.keys(widget).filter((key) => key !== 'placeholder').sort()).toEqual([
 				'buttons',
 				'iconClass',
 				'iconUrl',

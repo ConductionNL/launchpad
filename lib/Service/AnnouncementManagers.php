@@ -28,9 +28,10 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use OCA\LaunchPad\Db\AdminSettingKey;
+use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCA\LaunchPad\Settings\LaunchPadAnnouncementsAdmin;
-use OCP\IGroupManager;
 use OCP\IUserManager;
 use OCP\Settings\IManager;
 
@@ -43,16 +44,18 @@ class AnnouncementManagers {
 	/**
 	 * Constructor.
 	 *
-	 * @param IGroupManager $groupManager    Answers whether a user is an administrator.
-	 * @param IUserManager  $userManager     Finds the user.
-	 * @param IManager      $settingsManager Answers which admin settings a user holds by delegation.
+	 * @param IUserManager         $userManager     Finds the user.
+	 * @param IManager             $settingsManager Answers which admin settings a user holds by delegation.
+	 * @param AdminSettingMapper   $settings        Reads the former editor groups.
+	 * @param AdminTemplateService $userGroups      The user's groups.
 	 *
 	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function __construct(
-		private readonly IGroupManager $groupManager,
 		private readonly IUserManager $userManager,
 		private readonly IManager $settingsManager,
+		private readonly AdminSettingMapper $settings,
+		private readonly AdminTemplateService $userGroups,
 	) {
 	}//end __construct()
 
@@ -61,15 +64,11 @@ class AnnouncementManagers {
 	 *
 	 * @param string $userId The user.
 	 *
-	 * @return bool True for an administrator or a holder of either Launchpad setting.
+	 * @return bool True for a holder of either Launchpad setting, or a member of a former editor group.
 	 *
 	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function manages(string $userId): bool {
-		if ($this->groupManager->isAdmin($userId) === true) {
-			return true;
-		}
-
 		$user = $this->userManager->get($userId);
 		if ($user === null) {
 			return false;
@@ -83,6 +82,11 @@ class AnnouncementManagers {
 			}
 		}
 
-		return false;
+		$editors = $this->settings->getValue(key: AdminSettingKey::ANNOUNCEMENT_EDITOR_GROUPS->value, default: []);
+		if (is_array($editors) === false || $editors === []) {
+			return false;
+		}
+
+		return array_intersect($editors, $this->userGroups->getUserGroupIdsFor($userId)) !== [];
 	}//end manages()
 }//end class

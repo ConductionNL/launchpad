@@ -123,7 +123,6 @@ class AnnouncementControllerTest extends TestCase {
 	 */
 	public function testIndexListsWhatTheUserSees(): void {
 		$this->service->method('visibleTo')->with('pieter')->willReturn([$this->announcement()]);
-		$this->service->method('draftsFor')->willReturn([]);
 		$this->follows->method('followedCategories')->willReturn(['Privacy']);
 		$this->service->method('isAuthor')->willReturn(false);
 
@@ -131,7 +130,7 @@ class AnnouncementControllerTest extends TestCase {
 
 		$this->assertSame(['Inloopspreekuur privacy'], array_column($data['announcements'], 'title'));
 		$this->assertSame(['Medewerkers'], $data['announcements'][0]['targetGroups']);
-		$this->assertSame([], $data['drafts']);
+		$this->assertArrayNotHasKey('drafts', $data);
 		$this->assertSame(['Privacy'], $data['followedCategories']);
 		$this->assertFalse($data['canAuthor']);
 		$this->assertSame(['announcement.read'], $this->checked);
@@ -274,7 +273,6 @@ class AnnouncementControllerTest extends TestCase {
 		$uuid = '11111111-2222-4333-8444-555555555555';
 		$reactions = $this->createMock(AnnouncementCommentService::class);
 		$this->service->method('visibleTo')->willReturn([$this->announcement()]);
-		$this->service->method('draftsFor')->willReturn([]);
 		$reactions->method('countsFor')->willReturn([$uuid => ['likes' => 1, 'comments' => 1, 'liked' => true]]);
 		$reactions->method('like')->with('pieter', $uuid)->willReturn(['likes' => 1, 'liked' => true]);
 		$reactions->method('unlike')->with('pieter', $uuid)->willReturn(['likes' => 0, 'liked' => false]);

@@ -52,7 +52,7 @@ class MoveAnnouncementEditorsToDelegationTest extends TestCase {
 	 */
 	private function step(mixed $groups, bool $service, bool $fails, ?bool &$cleared): MoveAnnouncementEditorsToDelegation {
 		$cleared = false;
-		$settings = $this->createMock(AdminSettingMapper::class);
+		$settings = $this->createMock(originalClassName: AdminSettingMapper::class);
 		$settings->method('getValue')->willReturn($groups);
 		$settings->method('setSetting')->willReturnCallback(function (string $key, mixed $value) use (&$cleared) {
 			$cleared = ($key === 'announcement_editor_groups' && $value === []);
@@ -80,11 +80,11 @@ class MoveAnnouncementEditorsToDelegationTest extends TestCase {
 				$this->test->created[] = [$groupId, $class];
 			}
 		};
-		$container = $this->createMock(ContainerInterface::class);
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
 		$container->method('has')->willReturn($service);
 		$container->method('get')->willReturn($delegation);
 
-		return new MoveAnnouncementEditorsToDelegation($settings, $container, $this->createMock(LoggerInterface::class));
+		return new MoveAnnouncementEditorsToDelegation($settings, $container, $this->createMock(originalClassName: LoggerInterface::class));
 	}//end step()
 
 	/**
@@ -93,10 +93,14 @@ class MoveAnnouncementEditorsToDelegationTest extends TestCase {
 	 * @return void
 	 */
 	public function testEditorGroupsBecomeDelegatedGroups(): void {
-		$this->step(['redactie', '', 'communicatie'], true, false, $cleared)->run($this->createMock(IOutput::class));
+		$step = $this->step(groups: ['redactie', '', 'communicatie'], service: true, fails: false, cleared: $cleared);
+		$step->run($this->createMock(originalClassName: IOutput::class));
 
-		$this->assertSame([['redactie', LaunchPadAnnouncementsAdmin::class], ['communicatie', LaunchPadAnnouncementsAdmin::class]], $this->created);
-		$this->assertTrue($cleared);
+		$this->assertSame(
+			expected: [['redactie', LaunchPadAnnouncementsAdmin::class], ['communicatie', LaunchPadAnnouncementsAdmin::class]],
+			actual: $this->created
+		);
+		$this->assertTrue(condition: $cleared);
 	}//end testEditorGroupsBecomeDelegatedGroups()
 
 	/**
@@ -105,12 +109,12 @@ class MoveAnnouncementEditorsToDelegationTest extends TestCase {
 	 * @return void
 	 */
 	public function testNothingChangesWithoutTheDelegationService(): void {
-		$this->step(['redactie'], false, false, $cleared)->run($this->createMock(IOutput::class));
-		$this->assertFalse($cleared);
-		$this->step(['redactie'], true, true, $cleared)->run($this->createMock(IOutput::class));
-		$this->assertFalse($cleared);
-		$this->step([], true, false, $cleared)->run($this->createMock(IOutput::class));
-		$this->assertFalse($cleared);
-		$this->assertSame([], $this->created);
+		$this->step(groups: ['redactie'], service: false, fails: false, cleared: $cleared)->run($this->createMock(originalClassName: IOutput::class));
+		$this->assertFalse(condition: $cleared);
+		$this->step(groups: ['redactie'], service: true, fails: true, cleared: $cleared)->run($this->createMock(originalClassName: IOutput::class));
+		$this->assertFalse(condition: $cleared);
+		$this->step(groups: [], service: true, fails: false, cleared: $cleared)->run($this->createMock(originalClassName: IOutput::class));
+		$this->assertFalse(condition: $cleared);
+		$this->assertSame(expected: [], actual: $this->created);
 	}//end testNothingChangesWithoutTheDelegationService()
 }//end class

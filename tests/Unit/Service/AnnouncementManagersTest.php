@@ -3,9 +3,9 @@
 /**
  * AnnouncementManagersTest
  *
- * Pins who manages announcements (REQ-ADM-034): an administrator, a holder of
- * Launchpad's admin settings or of the delegated announcements setting, and
- * nobody else.
+ * Pins who manages announcements (REQ-ADM-034): a holder of Launchpad's
+ * admin settings or of the delegated announcements setting, a member of a
+ * former editor group until the move, and nobody else.
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Service
@@ -24,12 +24,13 @@ namespace Unit\Service;
 
 use OCA\LaunchPad\Controller\AnnouncementController;
 use OCA\LaunchPad\Controller\AnnouncementReadController;
+use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\AnnouncementManagers;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCA\LaunchPad\Settings\LaunchPadAnnouncementsAdmin;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
-use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Settings\IManager;
@@ -53,23 +54,26 @@ class AnnouncementManagersTest extends TestCase {
 	 * @return AnnouncementManagers
 	 */
 	private function managers(array $held): AnnouncementManagers {
-		$groups = $this->createMock(IGroupManager::class);
-		$groups->method('isAdmin')->willReturnCallback(static fn (string $uid): bool => $uid === 'admin');
-		$users = $this->createMock(IUserManager::class);
+		$users = $this->createMock(originalClassName: IUserManager::class);
 		$users->method('get')->willReturnCallback(function (string $uid): ?IUser {
 			if ($uid === 'ghost') {
 				return null;
 			}
-			$user = $this->createMock(IUser::class);
+			$user = $this->createMock(originalClassName: IUser::class);
 			$user->method('getUID')->willReturn($uid);
 			return $user;
 		});
-		$settings = $this->createMock(IManager::class);
+		$settings = $this->createMock(originalClassName: IManager::class);
 		$settings->method('getAllowedAdminSettings')->willReturnCallback(
 			static fn (string $section, IUser $user): array => [10 => ($held[$user->getUID()] ?? [])]
 		);
 
-		return new AnnouncementManagers(groupManager: $groups, userManager: $users, settingsManager: $settings);
+		$stored = $this->createMock(originalClassName: AdminSettingMapper::class);
+		$stored->method('getValue')->willReturn(['redactie']);
+		$groups = $this->createMock(originalClassName: AdminTemplateService::class);
+		$groups->method('getUserGroupIdsFor')->willReturnMap([['karin', ['redactie']], ['femke', []], ['dirk', []], ['pieter', []], ['sanne', []]]);
+
+		return new AnnouncementManagers(userManager: $users, settingsManager: $settings, settings: $stored, userGroups: $groups);
 	}//end managers()
 
 	/**
@@ -78,18 +82,18 @@ class AnnouncementManagersTest extends TestCase {
 	 * @return void
 	 */
 	public function testWhoManages(): void {
-		$managers = $this->managers([
-			'femke' => [$this->createMock(LaunchPadAnnouncementsAdmin::class)],
-			'dirk' => [$this->createMock(LaunchPadAdmin::class)],
-			'pieter' => [$this->createMock(ISettings::class)],
+		$managers = $this->managers(held: [
+			'femke' => [$this->createMock(originalClassName: LaunchPadAnnouncementsAdmin::class)],
+			'dirk' => [$this->createMock(originalClassName: LaunchPadAdmin::class)],
+			'pieter' => [$this->createMock(originalClassName: ISettings::class)],
 		]);
 
-		$this->assertTrue($managers->manages('admin'));
-		$this->assertTrue($managers->manages('femke'));
-		$this->assertTrue($managers->manages('dirk'));
-		$this->assertFalse($managers->manages('pieter'));
-		$this->assertFalse($managers->manages('sanne'));
-		$this->assertFalse($managers->manages('ghost'));
+		$this->assertTrue(condition: $managers->manages('femke'));
+		$this->assertTrue(condition: $managers->manages('karin'), message: 'a former editor group counts until the move');
+		$this->assertTrue(condition: $managers->manages('dirk'));
+		$this->assertFalse(condition: $managers->manages('pieter'));
+		$this->assertFalse(condition: $managers->manages('sanne'));
+		$this->assertFalse(condition: $managers->manages('ghost'));
 	}//end testWhoManages()
 
 	/**
@@ -125,8 +129,8 @@ class AnnouncementManagersTest extends TestCase {
 			$reflection->getAttributes(AuthorizedAdminSetting::class)
 		);
 
-		$this->assertContains(LaunchPadAnnouncementsAdmin::class, $classes);
-		$this->assertContains(LaunchPadAdmin::class, $classes);
-		$this->assertSame([], $reflection->getAttributes(NoAdminRequired::class));
+		$this->assertContains(needle: LaunchPadAnnouncementsAdmin::class, haystack: $classes);
+		$this->assertContains(needle: LaunchPadAdmin::class, haystack: $classes);
+		$this->assertSame(expected: [], actual: $reflection->getAttributes(NoAdminRequired::class));
 	}//end testManagementEndpointsNameTheSetting()
 }//end class

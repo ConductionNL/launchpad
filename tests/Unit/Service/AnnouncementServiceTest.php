@@ -18,7 +18,6 @@ namespace Unit\Service;
 
 use DateTime;
 use InvalidArgumentException;
-use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Db\AnnouncementMapper;
 use OCA\LaunchPad\Exception\ForbiddenException;
@@ -121,11 +120,6 @@ class AnnouncementServiceTest extends TestCase {
 			static fn (Announcement $item): bool => $item->getStatus() === 'draft' && ($authorId === null || $item->getAuthorId() === $authorId)
 		)));
 
-		$settings = $this->createMock(AdminSettingMapper::class);
-		$settings->method('getValue')->willReturnCallback(
-			static fn (string $key, mixed $default = null): mixed => ($key === 'announcement_editor_groups') ? $editorGroups : $default
-		);
-
 		$userGroups = $this->createMock(AdminTemplateService::class);
 		$userGroups->method('getUserGroupIdsFor')->willReturnCallback(fn (string $userId): array => ($this->groupsOf[$userId] ?? []));
 
@@ -153,7 +147,15 @@ class AnnouncementServiceTest extends TestCase {
 		$userManager->method('countUsersTotal')->willReturn(4);
 		$userManager->method('userExists')->willReturnCallback(fn (string $uid): bool => array_key_exists($uid, $this->groupsOf));
 
-		return new AnnouncementService($mapper, new AnnouncementInput(), $settings, $userGroups, $groupManager, $time, $userManager, $notifier, $managers);
+		if ($managers === null) {
+			// The former editor groups, as AnnouncementManagers reads them until the move to the delegation.
+			$managers = $this->createMock(AnnouncementManagers::class);
+			$managers->method('manages')->willReturnCallback(
+				fn (string $userId): bool => array_intersect($editorGroups, $this->groupsOf[$userId] ?? []) !== []
+			);
+		}
+
+		return new AnnouncementService($mapper, new AnnouncementInput(), $managers, $userGroups, $groupManager, $time, $userManager, $notifier);
 	}//end service()
 
 	/**
@@ -271,9 +273,8 @@ class AnnouncementServiceTest extends TestCase {
 		$service = $this->service();
 		$draft = $service->create('karin', ['title' => 'Concept', 'expiresAt' => self::UNTIL]);
 
-		$this->assertSame([$draft], $service->draftsFor('karin'));
-		$this->assertSame([$draft], $service->draftsFor('admin'));
-		$this->assertSame([], $service->draftsFor('pieter'));
+		$this->assertSame([$draft], $service->allFor('karin'));
+		$this->assertSame([$draft], $service->allFor('admin'));
 		$this->assertSame('Concept', $service->findFor('admin', $draft->getUuid())->getTitle());
 
 		$this->expectException(DoesNotExistException::class);

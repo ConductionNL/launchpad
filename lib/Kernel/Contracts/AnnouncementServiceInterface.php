@@ -74,16 +74,6 @@ interface AnnouncementServiceInterface {
 	 */
 	public function visibleTo(string $userId): array;
 
-	/**
-	 * The drafts a user may see: every draft for an administrator, their own for an author, none otherwise.
-	 *
-	 * @param string $userId The user.
-	 *
-	 * @return list<\OCA\LaunchPad\Db\Announcement>
-	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
-	 */
-	public function draftsFor(string $userId): array;
 
 	/**
 	 * One announcement as a user may see it; anything they may not see is not found.

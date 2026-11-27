@@ -89,7 +89,7 @@ class AnnouncementController extends Controller {
 	}//end __construct()
 
 	/**
-	 * `GET /api/announcements`: what the user sees now, their drafts when they author, and the categories they follow.
+	 * `GET /api/announcements`: what the user sees now and the categories they follow; drafts are managed on the Announcements tab (REQ-ANN-010).
 	 *
 	 * @return JSONResponse
 	 *
@@ -102,7 +102,6 @@ class AnnouncementController extends Controller {
 			return new JSONResponse(
 				[
 					'announcements' => array_map(static fn (Announcement $item): array => $item->jsonSerialize(), $visible),
-					'drafts' => array_map(static fn (Announcement $item): array => $item->jsonSerialize(), $this->announcements->draftsFor(userId: $userId)),
 					'followedCategories' => $this->follows->followedCategories(userId: $userId),
 					'canAuthor' => $this->announcements->isAuthor(userId: $userId),
 					'reactions' => (object) ($this->reactions?->countsFor(userId: $userId, announcements: $visible) ?? []),

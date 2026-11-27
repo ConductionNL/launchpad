@@ -40,7 +40,7 @@ use OCA\LaunchPad\Db\Announcement;
  */
 interface AnnouncementServiceInterface {
 	/**
-	 * Whether a user may write announcements: an administrator or a member of an editor group.
+	 * Whether a user manages announcements (REQ-ADM-034).
 	 *
 	 * @param string $userId The user.
 	 *
@@ -49,6 +49,19 @@ interface AnnouncementServiceInterface {
 	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
 	 */
 	public function isAuthor(string $userId): bool;
+
+	/**
+	 * Every announcement for the Announcements tab (REQ-ANN-008).
+	 *
+	 * @param string $userId The manager.
+	 *
+	 * @return list<\OCA\LaunchPad\Db\Announcement>
+	 *
+	 * @throws \OCA\LaunchPad\Exception\ForbiddenException When the user does not manage announcements.
+	 *
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+	 */
+	public function allFor(string $userId): array;
 
 	/**
 	 * The published announcements a reader sees now, newest first.
@@ -61,16 +74,6 @@ interface AnnouncementServiceInterface {
 	 */
 	public function visibleTo(string $userId): array;
 
-	/**
-	 * The drafts a user may see: every draft for an administrator, their own for an author, none otherwise.
-	 *
-	 * @param string $userId The user.
-	 *
-	 * @return list<\OCA\LaunchPad\Db\Announcement>
-	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
-	 */
-	public function draftsFor(string $userId): array;
 
 	/**
 	 * One announcement as a user may see it; anything they may not see is not found.

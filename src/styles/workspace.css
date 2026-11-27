@@ -217,9 +217,10 @@
    first line starts on the title's 18px (the agenda, recent work, mail, a
    text card such as "Van de gemeentesecretaris", the people lists). The
    renderer's own padding (16px, the text widget's 16px, the people widget's
-   8px) added a second inset. The text widget sets its padding inline, hence
+   8px, the status report's 12px and spend analytics' 8px: LpManagement
+   "Compliance", "Uitgaven per afdeling") added a second inset. The text widget sets its padding inline, hence
    the !important on its own rule. */
-.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard :is(.widget-renderer, .cn-links-widget, .cn-menu-widget, .cn-people-widget) {
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard :is(.widget-renderer, .cn-links-widget, .cn-menu-widget, .cn-people-widget, .status-report, .cn-spend-analytics-widget) {
 	padding: 0;
 }
 

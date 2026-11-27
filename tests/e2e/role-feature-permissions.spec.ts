@@ -229,6 +229,25 @@ async function widgetIds(api: APIRequestContext): Promise<string[]> {
 	return ((await res.json()) as any[]).map((w) => String(w.id))
 }
 
+/**
+ * The registry entries Nextcloud itself offers this context, in registry
+ * order. "Every registered widget" (REQ-RFP-009) is per user: Nextcloud's
+ * dashboard manager leaves a conditional widget out for a user it does not
+ * apply to (OpenRegister's operations widget is admin-only), so the admin's
+ * registry is not the list an ordinary user can get.
+ *
+ * @param api The user's request context.
+ * @return The registry entries Nextcloud's dashboard API lists for that user.
+ */
+async function registryOfferedTo(api: APIRequestContext): Promise<{ id: string; title: string }[]> {
+	const res = await api.get('/ocs/v2.php/apps/dashboard/api/v1/widgets?format=json', {
+		headers: { 'OCS-APIRequest': 'true', Accept: 'application/json' },
+	})
+	expect(res.status(), await res.text()).toBe(200)
+	const offered = new Set(Object.keys((await res.json()).ocs.data))
+	return registry.filter((w) => offered.has(w.id))
+}
+
 /** `GET /api/widgets/items` for one widget id, the way `api.getWidgetItems` sends it. */
 async function widgetItems(api: APIRequestContext, widgetId: string) {
 	return api.get(`${API}/widgets/items?widgets[]=${encodeURIComponent(widgetId)}`)
@@ -1158,7 +1177,7 @@ test('with no role-feature-permission rows at all, every user gets the full widg
 			const res = await anyone.api.get(`${API}/widgets`)
 			expect(res.status()).toBe(200)
 			expect(((await res.json()) as any[]).map((w) => String(w.id))).toEqual(
-				registry.map((w) => w.id),
+				(await registryOfferedTo(anyone.api)).map((w) => w.id),
 			)
 		})
 	} finally {
@@ -1190,7 +1209,9 @@ test('a user whose group has no row, with no default row, gets the full widget l
 			),
 		).toBe(false)
 
-		expect(await widgetIds(jan.api)).toEqual(registry.map((w) => w.id))
+		expect(await widgetIds(jan.api)).toEqual(
+			(await registryOfferedTo(jan.api)).map((w) => w.id),
+		)
 		// Control: a configured role in the same instance is still filtered.
 		const manager = await member('mgrunconf', G.managers)
 		expect(await widgetIds(manager.api)).toEqual(
@@ -1252,7 +1273,9 @@ test('with nothing configured the initial state carries null and the card librar
 		try {
 			const titles = await pickerWidgetTitles(page, registry[0].title)
 			expect(await initialAllowedWidgets(page)).toBeNull()
-			expect([...titles].sort()).toEqual(registry.map((w) => w.title).sort())
+			expect([...titles].sort()).toEqual(
+				(await registryOfferedTo(anyone.api)).map((w) => w.title).sort(),
+			)
 		} finally {
 			await context.close()
 		}

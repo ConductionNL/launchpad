@@ -241,6 +241,14 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'requirements' => ['id' => '\d+']],
 		['name' => 'kiosk#destroy', 'url' => '/api/kiosk/playlists/{id}', 'verb' => 'DELETE',
 		 'requirements' => ['id' => '\d+']],
+		// Screen link of one dashboard, from its Sharing tab (REQ-KIOSK-006).
+		// `#[NoAdminRequired]` + may-share guard in ScreenLinkController/KioskService.
+		['name' => 'screenLink#show', 'url' => '/api/dashboards/{uuid}/screen-link', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'screenLink#create', 'url' => '/api/dashboards/{uuid}/screen-link', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'screenLink#destroy', 'url' => '/api/dashboards/{uuid}/screen-link', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		// Public (anonymous) kiosk render (REQ-KIOSK-003). #[PublicPage] +
 		// #[NoCSRFRequired] + shared `launchpad_share_access` throttle bucket.
 		// Registered BEFORE the deep-link catch-all at the bottom.

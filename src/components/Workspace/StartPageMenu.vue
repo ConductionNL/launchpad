@@ -117,6 +117,8 @@ export default {
 				onSwitch: (id) => this.openDashboard(id),
 				onToggleExpanded: () => this.toggleDashboardsExpanded(),
 				onToggleFavourite: (uuid) => this.toggleDashboardFavourite(uuid),
+				openTrees: this.openTrees,
+				onToggleTree: (uuid) => this.toggleTree(uuid),
 			})
 		},
 

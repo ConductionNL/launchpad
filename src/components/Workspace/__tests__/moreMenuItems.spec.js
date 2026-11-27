@@ -137,6 +137,42 @@ describe('dashboardItems', () => {
 	})
 })
 
+describe('dashboardItems tree (REQ-SHELL-019, REQ-TREEUI-001)', () => {
+	const tree = {
+		userDashboards: [
+			{ id: 1, uuid: 'hr', name: 'HR' },
+			{ id: 2, uuid: 'on', name: 'Onboarding', parentUuid: 'hr' },
+			{ id: 3, uuid: 'va', name: 'Vacation rules', parentUuid: 'hr' },
+			{ id: 4, uuid: 'x', name: 'Loose', parentUuid: 'gone' },
+		],
+		expanded: true,
+		onSwitch: vi.fn(),
+	}
+	const rows = (list) => list.filter((i) => i.id.startsWith('dashboard-'))
+
+	it('closed, a parent carries an expand control and its children are not listed', () => {
+		const onToggleTree = vi.fn()
+		const list = rows(dashboardItems({ ...tree, onToggleTree }))
+		expect(list.map((i) => i.label)).toEqual(['HR', 'Loose'])
+		expect(list[0].tree).toMatchObject({ uuid: 'hr', open: false })
+		expect(list[1].tree).toBeUndefined()
+		list[0].tree.onToggle()
+		expect(onToggleTree).toHaveBeenCalledWith('hr')
+	})
+
+	it('open, the children follow their parent one level deeper', () => {
+		const list = rows(dashboardItems({ ...tree, openTrees: ['hr'] }))
+		expect(list.map((i) => [i.label, i.depth])).toEqual([['HR', 0], ['Onboarding', 1], ['Vacation rules', 1], ['Loose', 0]])
+		expect(list[0].tree.open).toBe(true)
+	})
+
+	it('the folded column has no tree', () => {
+		const list = rows(dashboardItems({ ...tree, expanded: false, favourites: ['on'] }))
+		expect(list.map((i) => i.label)).toEqual(['Onboarding'])
+		expect(list[0].depth).toBeUndefined()
+	})
+})
+
 describe('effectiveDefaultUuid', () => {
 	const groups = [
 		{ uuid: 'g-1', source: 'group' },

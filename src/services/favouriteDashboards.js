@@ -98,6 +98,7 @@ export const favouriteDashboardsMixin = {
 	data() {
 		return {
 			dashboardsExpanded: false,
+			openTrees: [],
 		}
 	},
 
@@ -132,6 +133,19 @@ export const favouriteDashboardsMixin = {
 		 */
 		toggleDashboardsExpanded() {
 			this.dashboardsExpanded = !this.dashboardsExpanded
+		},
+
+		/**
+		 * Show or hide a parent's children in the full list (REQ-SHELL-019).
+		 *
+		 * @param {string} uuid The parent's uuid.
+		 * @return {void}
+		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+		 */
+		toggleTree(uuid) {
+			this.openTrees = this.openTrees.includes(uuid)
+				? this.openTrees.filter((open) => open !== uuid)
+				: [...this.openTrees, uuid]
 		},
 
 		/**

@@ -341,6 +341,8 @@ const DASHBOARD_ITEM_DEFAULTS = {
 	onToggleExpanded: () => {},
 	onToggleFavourite: () => {},
 	onNewDashboard: null,
+	openTrees: [],
+	onToggleTree: () => {},
 }
 
 /**
@@ -373,14 +375,75 @@ const DASHBOARD_ITEM_DEFAULTS = {
 export function dashboardItems(options) {
 	const o = { ...DASHBOARD_ITEM_DEFAULTS, ...options }
 	const all = dashboardRows(o.userDashboards, o.groupDashboards, o.sharedDashboards)
-	const { rows, starred, showHint, hidden } = columnRows(all, o.favourites, o.expanded, o.activeId)
+	const { rows, starred, showHint, hidden } = columnRows(all, o.favourites, o.expanded, o.activeId, o.openTrees)
 	const defaultUuid = effectiveDefaultUuid(o.defaultUuid, o.groupDashboards)
-	const context = { activeId: o.activeId, defaultUuid, starred, onSwitch: o.onSwitch, onToggleFavourite: o.onToggleFavourite }
+	const context = { activeId: o.activeId, defaultUuid, starred, onSwitch: o.onSwitch, onToggleFavourite: o.onToggleFavourite, onToggleTree: o.onToggleTree }
 	return [
 		...rows.map((row) => dashboardRowItem(row, context)),
 		...hintItems(showHint),
 		...columnFoot(hidden, o.expanded, o.onToggleExpanded, o.onNewDashboard),
 	]
+}
+
+/**
+ * The rows of the expanded list as a tree (REQ-TREEUI-001, REQ-SHELL-019):
+ * every dashboard whose parent is listed goes under that parent, depth-first,
+ * and a parent's children show only while it is open. A parent outside the
+ * list, or a dashboard naming itself, counts as no parent.
+ *
+ * @param {object[]} rows The `{d, source}` rows, in list order.
+ * @param {Set<string>} open The uuids of the open parents.
+ * @return {object[]} The rows with `depth`, `hasChildren` and `open`.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+ */
+function treeRows(rows, open) {
+	const byUuid = new Map(rows.filter(({ d }) => Boolean(d.uuid)).map((row) => [row.d.uuid, row]))
+	const children = new Map()
+	const roots = []
+	for (const row of rows) {
+		const parent = row.d.parentUuid
+		const nested = Boolean(parent) && parent !== row.d.uuid && byUuid.has(parent)
+		if (nested) {
+			children.set(parent, [...(children.get(parent) ?? []), row])
+		} else {
+			roots.push(row)
+		}
+	}
+	const out = []
+	const seen = new Set()
+	const walk = (row, depth) => {
+		const key = row.d.uuid ?? row.d.id
+		if (seen.has(key)) {
+			return
+		}
+		seen.add(key)
+		const kids = children.get(row.d.uuid) ?? []
+		const isOpen = open.has(row.d.uuid)
+		out.push({ ...row, depth, hasChildren: kids.length > 0, open: isOpen })
+		kids.filter(() => isOpen).forEach((kid) => walk(kid, depth + 1))
+	}
+	roots.forEach((root) => walk(root, 0))
+	return out
+}
+
+/**
+ * The tree fields of a row item: its depth and, for a parent, its expand
+ * control. Folded rows carry none.
+ *
+ * @param {object} row The row, with `depth`, `hasChildren` and `open` in the expanded list.
+ * @param {(uuid: string) => void} onToggleTree Show or hide a parent's children.
+ * @return {object} The fields.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+ */
+function treeFields(row, onToggleTree) {
+	if (row.depth === undefined) {
+		return {}
+	}
+	const fields = { depth: row.depth }
+	if (row.hasChildren) {
+		fields.tree = { uuid: row.d.uuid, open: row.open, onToggle: () => onToggleTree(row.d.uuid) }
+	}
+	return fields
 }
 
 /**
@@ -407,16 +470,18 @@ function hintItems(show) {
  * @param {string[]} favourites The favourite uuids in starring order.
  * @param {boolean} expanded Whether the column lists every dashboard.
  * @param {string|number|null} activeId The open dashboard's id.
+ * @param {string[]} openTrees The uuids of the parents whose children show (expanded list).
  * @return {{rows: object[], starred: Set<string>, showHint: boolean, hidden: number}} The rows,
  *   and how many dashboards the folded column leaves out.
  * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
  */
-function columnRows(all, favourites, expanded, activeId) {
+function columnRows(all, favourites, expanded, activeId, openTrees = []) {
 	const byUuid = new Map(all.filter(({ d }) => Boolean(d.uuid)).map((row) => [row.d.uuid, row]))
 	const favouriteRows = favourites.map((uuid) => byUuid.get(uuid)).filter(Boolean)
 	const starred = new Set(favouriteRows.map(({ d }) => d.uuid))
 	if (expanded) {
-		return { rows: [...favouriteRows, ...all.filter(({ d }) => !starred.has(d.uuid))], starred, showHint: false, hidden: all.length }
+		const others = all.filter(({ d }) => !starred.has(d.uuid))
+		return { rows: [...favouriteRows, ...treeRows(others, new Set(openTrees))], starred, showHint: false, hidden: all.length }
 	}
 	if (favouriteRows.length > 0) {
 		return { rows: favouriteRows, starred, showHint: false, hidden: all.length - favouriteRows.length }
@@ -429,17 +494,19 @@ function columnRows(all, favourites, expanded, activeId) {
  * One dashboard row: radio item, icon, marker and, with a uuid, its star
  * (REQ-SHELL-016: every row, short or expanded).
  *
- * @param {{d: object, source: string}} row The dashboard and its section.
+ * @param {{d: object, source: string, depth?: number}} row The dashboard, its section and, expanded, its tree place.
  * @param {object} context What the row needs to know and do.
  * @param {string|number|null} context.activeId The open dashboard's id.
  * @param {string} context.defaultUuid The uuid of the person's default dashboard.
  * @param {Set<string>} context.starred The favourite uuids.
  * @param {(id: string|number, source: string) => void} context.onSwitch Open a dashboard.
  * @param {(uuid: string) => void} context.onToggleFavourite Mark or unmark a favourite.
+ * @param {(uuid: string) => void} context.onToggleTree Show or hide a parent's children.
  * @return {object} The item.
  * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
  */
-function dashboardRowItem({ d, source }, { activeId, defaultUuid, starred, onSwitch, onToggleFavourite }) {
+function dashboardRowItem(row, { activeId, defaultUuid, starred, onSwitch, onToggleFavourite, onToggleTree }) {
+	const { d, source } = row
 	const isDefault = Boolean(d.uuid) && d.uuid === defaultUuid
 	const item = {
 		id: `dashboard-${d.id}`,
@@ -454,7 +521,7 @@ function dashboardRowItem({ d, source }, { activeId, defaultUuid, starred, onSwi
 		item.favourite = starred.has(d.uuid)
 		item.onToggleFavourite = () => onToggleFavourite(d.uuid)
 	}
-	return item
+	return { ...item, ...treeFields(row, onToggleTree) }
 }
 
 /**

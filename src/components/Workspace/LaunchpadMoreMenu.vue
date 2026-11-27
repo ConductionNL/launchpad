@@ -61,7 +61,24 @@
 						<div
 							v-for="item in dashboardRows"
 							:key="item.id"
-							class="lp-more-menu__row">
+							class="lp-more-menu__row"
+							:data-depth="item.depth"
+							:style="item.depth ? { paddingInlineStart: `${item.depth * 20}px` } : undefined">
+							<!-- REQ-SHELL-019 / REQ-TREEUI-001: a parent's children show under it. -->
+							<button
+								v-if="item.tree"
+								type="button"
+								class="lp-more-menu__tree"
+								:aria-expanded="String(item.tree.open)"
+								:aria-label="item.tree.open
+									? t('launchpad', 'Collapse {name}', { name: item.label })
+									: t('launchpad', 'Expand {name}', { name: item.label })"
+								tabindex="-1"
+								:data-testid="`tree-expand-${item.tree.uuid}`"
+								@click.stop="item.tree.onToggle()">
+								<ChevronDown v-if="item.tree.open" :size="18" />
+								<ChevronRight v-else :size="18" />
+							</button>
 							<p
 								v-if="item.hint === true"
 								class="lp-more-menu__hint"
@@ -743,5 +760,18 @@ export default {
 		padding-top: 6px;
 		border-top: 1px solid var(--color-border);
 	}
+}
+.lp-more-menu__tree {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 32px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: var(--color-text-maxcontrast);
+	cursor: pointer;
 }
 </style>

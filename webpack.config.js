@@ -9,6 +9,8 @@ const webpack = require('webpack')
 
 webpackConfig.entry = {
 	main: path.join(__dirname, 'src', 'main.js'),
+	// The admin page in Nextcloud's settings framework (/settings/admin/launchpad, REQ-ADM-032).
+	settings: path.join(__dirname, 'src', 'settings.js'),
 	// Anonymous read-only public-share page (/apps/launchpad/s/{token}).
 	public: path.join(__dirname, 'src', 'public.js'),
 	// Login-page redirect to the public start page (sharing-public-start-page D2).

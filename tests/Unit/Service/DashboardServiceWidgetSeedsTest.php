@@ -37,6 +37,7 @@ use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\FooterService;
 use OCA\LaunchPad\Service\PersonalLayerService;
 use OCA\LaunchPad\Service\TemplateService;
+use OCA\LaunchPad\Support\SeedTileBrands;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
@@ -72,6 +73,35 @@ class DashboardServiceWidgetSeedsTest extends TestCase {
 
 		$this->assertSame(json_decode((string) file_get_contents($fixture), true), $actual);
 	}//end testSeedsMatchTheRecording()
+
+	/**
+	 * Every seeded brand tile names a shipped white SVG on its brand colour.
+	 * A tile icon that does not exist under `img/`, or a CSS icon class, shows
+	 * an empty tile, so this fails on a missing tile icon (REQ-DWB-007).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/default-widget-bundle/spec.md#requirement-req-dwb-007-a-default-tile-is-the-brands-white-logo-on-the-brands-colour
+	 */
+	public function testEverySeededTileIconIsAShippedWhiteSvg(): void {
+		$tiles = array_values(array_filter(
+			$this->seeds(urls: null),
+			static fn (array $seed): bool => $seed['tile'] !== null
+		));
+
+		$this->assertSame(expected: array_keys(SeedTileBrands::BRANDS), actual: array_column(array_column($tiles, 'tile'), 'title'));
+		foreach ($tiles as $seed) {
+			$tile = $seed['tile'];
+			$this->assertSame(expected: 'url', actual: $tile['iconType'], message: $tile['title']);
+			$this->assertStringStartsWith(prefix: '/apps/launchpad/img/', string: $tile['icon'], message: $tile['title']);
+			$file = dirname(__DIR__, 3).'/img/'.substr($tile['icon'], strlen('/apps/launchpad/img/'));
+			$this->assertFileExists(filename: $file, message: $tile['title'].' tile icon is not shipped');
+			$this->assertMatchesRegularExpression(pattern: '/-white\.svg$/', string: $file, message: $tile['title']);
+			$this->assertStringContainsString(needle: '<svg', haystack: (string) file_get_contents($file), message: $tile['title']);
+			$this->assertSame(expected: SeedTileBrands::BRANDS[$tile['title']]['backgroundColor'], actual: $tile['backgroundColor']);
+			$this->assertSame(expected: '#ffffff', actual: $tile['textColor']);
+		}
+	}//end testEverySeededTileIconIsAShippedWhiteSvg()
 
 	/**
 	 * Run the private seed table.

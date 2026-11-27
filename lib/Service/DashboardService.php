@@ -37,6 +37,7 @@ use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
+use OCA\LaunchPad\Support\SeedTileBrands;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -96,6 +97,13 @@ class DashboardService {
 	 * @var string
 	 */
 	public const SEED_SET_STARTERS = 'starters';
+
+	/**
+	 * Seed set: the organisation's start page, board LpVandaag ({@see StartPageWidgetSeeds}).
+	 *
+	 * @var string
+	 */
+	public const SEED_SET_START = 'start';
 
 	/**
 	 * HTTP-like error message for non-admin attempting an admin-only mutation.
@@ -188,6 +196,8 @@ class DashboardService {
 	 *
 	 * A tile with `iconType` `url` names a bundled image under
 	 * `launchpad/img/`; {@see self::defaultWidgetSeeds()} resolves it.
+	 * A brand tile is its white logo on the brand colour
+	 * ({@see SeedTileBrands}, REQ-DWB-007).
 	 *
 	 * @var array<int, array<string, mixed>>
 	 */
@@ -201,10 +211,10 @@ class DashboardService {
 			'sortOrder' => 0,
 			'tile' => [
 				'title' => 'Conduction',
-				'icon' => 'conduction-logo.png',
+				'icon' => SeedTileBrands::BRANDS['Conduction']['icon'],
 				'iconType' => 'url',
-				'backgroundColor' => '#ffffff',
-				'textColor' => '#000000',
+				'backgroundColor' => SeedTileBrands::BRANDS['Conduction']['backgroundColor'],
+				'textColor' => SeedTileBrands::TEXT_COLOR,
 				'linkType' => 'url',
 				'linkValue' => 'https://conduction.nl',
 			],
@@ -218,10 +228,10 @@ class DashboardService {
 			'sortOrder' => 1,
 			'tile' => [
 				'title' => 'Sendent',
-				'icon' => 'sendent-logo.png',
+				'icon' => SeedTileBrands::BRANDS['Sendent']['icon'],
 				'iconType' => 'url',
-				'backgroundColor' => '#ffffff',
-				'textColor' => '#000000',
+				'backgroundColor' => SeedTileBrands::BRANDS['Sendent']['backgroundColor'],
+				'textColor' => SeedTileBrands::TEXT_COLOR,
 				'linkType' => 'url',
 				'linkValue' => 'https://sendent.com',
 			],
@@ -235,10 +245,10 @@ class DashboardService {
 			'sortOrder' => 2,
 			'tile' => [
 				'title' => 'Nextcloud',
-				'icon' => 'icon-nextcloud',
-				'iconType' => 'class',
-				'backgroundColor' => '#0082c9',
-				'textColor' => '#ffffff',
+				'icon' => SeedTileBrands::BRANDS['Nextcloud']['icon'],
+				'iconType' => 'url',
+				'backgroundColor' => SeedTileBrands::BRANDS['Nextcloud']['backgroundColor'],
+				'textColor' => SeedTileBrands::TEXT_COLOR,
 				'linkType' => 'url',
 				'linkValue' => 'https://nextcloud.com',
 			],
@@ -3633,19 +3643,36 @@ class DashboardService {
 			groupId: Dashboard::DEFAULT_GROUP_ID
 		);
 		if (count(value: $existing) > 0) {
-			return null;
+			return $this->replaceUntouchedPreviousStartPage(existing: $existing);
 		}
+
+		return $this->createStartPage();
+	}//end ensureDefaultDashboard()
+
+	/**
+	 * Create the organisation's start page: board LpVandaag, the `default`
+	 * group's default dashboard, published, seeded with
+	 * {@see StartPageWidgetSeeds} and named in the instance language.
+	 *
+	 * @return Dashboard The persisted start page.
+	 *
+	 * @spec openspec/specs/default-widget-bundle/spec.md#requirement-req-dwb-008-the-start-page-is-the-vandaag-layout
+	 */
+	private function createStartPage(): Dashboard {
+		$l10n = $this->platform->l10nFactory->get(app: Application::APP_ID);
 
 		$dashboard = $this->builders->dashboardFactory->create(
 			userId: null,
-			name: 'Dashboard',
+			name: $l10n->t('Today'),
 			options: [
-				'description'     => 'The dashboard everyone starts on. Edit it to change what your whole organisation sees.',
+				'description'     => $l10n->t('The dashboard everyone starts on. Edit it to change what your whole organisation sees.'),
 				'type'            => Dashboard::TYPE_GROUP_SHARED,
 				'groupId'         => Dashboard::DEFAULT_GROUP_ID,
 				'permissionLevel' => Dashboard::PERMISSION_VIEW_ONLY,
+				'slug'            => StartPageWidgetSeeds::SLUG,
 			]
 		);
+		$dashboard->setIcon('Home');
 		// Rung 3 of resolveGroupSharedDashboard() requires isDefault; without
 		// it the row is only reachable through the weaker rung-5 fallback.
 		$dashboard->setIsDefault(1);
@@ -3653,11 +3680,73 @@ class DashboardService {
 		$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
 
 		$persisted = $this->stores->dashboardMapper->insert(entity: $dashboard);
-		$this->seedDefaultWidgets(dashboardId: $persisted->getId());
+		$this->seedDefaultWidgets(dashboardId: $persisted->getId(), seedSet: self::SEED_SET_START);
 		$this->announceAudience(dashboard: $persisted);
 
 		return $persisted;
-	}//end ensureDefaultDashboard()
+	}//end createStartPage()
+
+	/**
+	 * Give an install that still starts on the previous seed the start page.
+	 *
+	 * Older versions seeded the `default` group's default dashboard as
+	 * "Dashboard" with three brand tiles and a Files widget. When that
+	 * dashboard is still exactly as seeded, the start page is created next
+	 * to it and becomes the default; the old dashboard is kept, no longer
+	 * the default, so nothing anyone made is removed. A changed dashboard,
+	 * or one more start page, is left alone.
+	 *
+	 * @param array<int, Dashboard> $existing The `default` group's dashboards.
+	 *
+	 * @return Dashboard|null The new start page, or null when nothing changed.
+	 *
+	 * @spec openspec/specs/default-widget-bundle/spec.md#requirement-req-dwb-008-the-start-page-is-the-vandaag-layout
+	 */
+	private function replaceUntouchedPreviousStartPage(array $existing): ?Dashboard {
+		$previous = null;
+		foreach ($existing as $dashboard) {
+			if ($dashboard->getSlug() === StartPageWidgetSeeds::SLUG) {
+				return null;
+			}
+
+			if ((int)$dashboard->getIsDefault() === 1 && $this->isUntouchedPreviousSeed(dashboard: $dashboard) === true) {
+				$previous = $dashboard;
+			}
+		}
+
+		if ($previous === null) {
+			return null;
+		}
+
+		$previous->setIsDefault(0);
+		$this->stores->dashboardMapper->update(entity: $previous);
+
+		return $this->createStartPage();
+	}//end replaceUntouchedPreviousStartPage()
+
+	/**
+	 * Whether a dashboard is the previous start seed, unchanged: named
+	 * "Dashboard", with exactly the Conduction, Sendent and Nextcloud tiles
+	 * and the Files widget, in that order.
+	 *
+	 * @param Dashboard $dashboard The candidate.
+	 *
+	 * @return bool True when it is the untouched previous seed.
+	 *
+	 * @spec openspec/specs/default-widget-bundle/spec.md#requirement-req-dwb-008-the-start-page-is-the-vandaag-layout
+	 */
+	private function isUntouchedPreviousSeed(Dashboard $dashboard): bool {
+		if ($dashboard->getName() !== 'Dashboard') {
+			return false;
+		}
+
+		$shape = array_map(
+			static fn (WidgetPlacement $placement): string => $placement->getWidgetId().':'.(string)$placement->getTileTitle(),
+			$this->stores->placementMapper->findByDashboardId(dashboardId: (int)$dashboard->getId())
+		);
+
+		return $shape === ['tile:Conduction', 'tile:Sendent', 'tile:Nextcloud', 'files:'];
+	}//end isUntouchedPreviousSeed()
 
 	/**
 	 * Announce a new group dashboard's audience, so its discussion object is
@@ -3715,6 +3804,13 @@ class DashboardService {
 		$seeds = $this->defaultWidgetSeeds();
 		if ($seedSet === self::SEED_SET_STARTERS) {
 			$seeds = StarterWidgetSeeds::seeds(menuAppIds: $menuAppIds);
+		}
+
+		if ($seedSet === self::SEED_SET_START) {
+			$seeds = StartPageWidgetSeeds::seeds(
+				l10n: $this->platform->l10nFactory->get(app: Application::APP_ID),
+				brandTiles: $seeds
+			);
 		}
 
 		$placements = [];
@@ -3776,9 +3872,13 @@ class DashboardService {
 		$placement->setGridWidth($config['gridWidth']);
 		$placement->setGridHeight($config['gridHeight']);
 		$placement->setSortOrder($config['sortOrder']);
-		$placement->setShowTitle(1);
+		$placement->setShowTitle($config['showTitle'] ?? 1);
 		$placement->setIsVisible(1);
 		$placement->setCreatedAt($now);
+		if (isset($config['customTitle']) === true) {
+			$placement->setCustomTitle($config['customTitle']);
+		}
+
 		$placement->setUpdatedAt($now);
 
 		if (isset($config['content']) === true) {

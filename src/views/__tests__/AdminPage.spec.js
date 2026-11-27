@@ -25,10 +25,10 @@ vi.mock('../../utils/loadInitialState.js', () => ({
 vi.mock('../../components/admin/AdminSettings.vue', () => ({
 	default: {
 		name: 'AdminSettings',
-		props: ['tab'],
+		props: ['tab', 'section'],
 		emits: ['tabChange'],
 		inject: { allGroups: { default: () => [] } },
-		template: '<div data-testid="admin-settings" :data-tab="tab" :data-groups="allGroups.length" />',
+		template: '<div data-testid="admin-settings" :data-tab="tab" :data-section="section" :data-groups="allGroups.length" />',
 	},
 }))
 vi.mock('../AdminSettingsRedirect.vue', () => ({
@@ -42,7 +42,7 @@ vi.mock('../AdminSettingsRedirect.vue', () => ({
 import AdminPage from '../AdminPage.vue'
 import { startPageSections } from '../../components/Workspace/moreMenuItems.js'
 import manifest from '../../manifest.json'
-import { ADMIN_TABS, adminPageUrl, adminTab, isAdminPagePath } from '../../utils/adminPage.js'
+import { ADMIN_TABS, adminPageUrl, adminSection, adminTab, FOLDED_ADMIN_TABS, isAdminPagePath } from '../../utils/adminPage.js'
 import { routesFromManifest } from '../../utils/manifestRoutes.js'
 
 /**
@@ -77,6 +77,37 @@ describe('the administration page address', () => {
 		expect(isAdminPagePath('/settings/admin/launchpad')).toBe(false)
 	})
 
+	it('opens a former tab on the tab that holds it now (REQ-ADM-032)', () => {
+		expect(ADMIN_TABS).toHaveLength(12)
+		expect(adminTab('embeds')).toBe('general')
+		expect(adminTab('search-shortcuts')).toBe('general')
+		expect(adminTab('communities')).toBe('group-dashboards')
+		expect(adminTab('app-catalogue')).toBe('operations')
+		expect(adminTab('toString')).toBe('general')
+		expect(adminPageUrl('embeds')).toBe('/index.php/apps/launchpad/admin/general')
+		for (const host of Object.values(FOLDED_ADMIN_TABS)) {
+			expect(ADMIN_TABS).toContain(host)
+		}
+	})
+
+	it('finds the section an old address points at in its path or query', () => {
+		expect(adminSection('embeds')).toBe('embeds')
+		expect(adminSection('general', '?section=search-shortcuts')).toBe('search-shortcuts')
+		expect(adminSection('general', '?tab=embeds&embedType=widget&embedId=5')).toBe('embeds')
+		expect(adminSection('general', '?tab=kiosk')).toBeNull()
+		expect(adminSection('general', '?section=constructor')).toBeNull()
+		expect(adminSection('', '')).toBeNull()
+	})
+
+	it('knows the same former tabs as the server', async () => {
+		const { readFileSync } = await import('node:fs')
+		const { join } = await import('node:path')
+		const php = readFileSync(join(__dirname, '../../../lib/Controller/AdminPageController.php'), 'utf8')
+		for (const [tab, host] of Object.entries(FOLDED_ADMIN_TABS)) {
+			expect(php).toMatch(new RegExp(`'${tab}'\\s*=> '${host}'`))
+		}
+	})
+
 	it('knows the same tabs as the server', async () => {
 		const { readFileSync } = await import('node:fs')
 		const { join } = await import('node:path')
@@ -89,8 +120,14 @@ describe('the administration page address', () => {
 
 describe('AdminPage', () => {
 	it('opens the tab the route names', () => {
-		const { wrapper } = mountPage('embeds')
-		expect(wrapper.find('[data-testid="admin-settings"]').attributes('data-tab')).toBe('embeds')
+		const { wrapper } = mountPage('kiosk')
+		expect(wrapper.find('[data-testid="admin-settings"]').attributes('data-tab')).toBe('kiosk')
+	})
+
+	it('opens a former tab on its host tab, naming the section', () => {
+		const settings = mountPage('embeds').wrapper.find('[data-testid="admin-settings"]')
+		expect(settings.attributes('data-tab')).toBe('general')
+		expect(settings.attributes('data-section')).toBe('embeds')
 	})
 
 	it('opens General for an unknown or missing tab', () => {

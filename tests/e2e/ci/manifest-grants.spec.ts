@@ -28,7 +28,18 @@
  *   @e2e manifest-grants::recipient-sees-only-the-granted-one
  *   @e2e manifest-grants::revoking-removes-it-again
  *
+ * THE MANIFEST IS KEPT FOR A MINUTE (REQ-INIT-009). `GET /api/manifest` keeps
+ * the manifest it builds per user for {@link MANIFEST_KEPT_MS}, and the control
+ * read below is what fills it. So a grant or a revoke reaches the recipient's
+ * manifest up to a minute later, by design ("a dashboard shared with the user
+ * in OpenRegister reaches their menu at most 60 seconds later"). The reads
+ * after the grant and after the revoke therefore poll until that window has
+ * passed instead of asserting the very next answer. Measured 27 Nov 2026 on
+ * OpenRegister main with #11203: the immediate read returned the kept, pre-grant
+ * manifest 3 out of 3 times, while a read after the window held the grant.
+ *
  * @spec openspec/specs/runtime-shell/spec.md
+ * @spec openspec/specs/initial-state-contract/spec.md
  */
 
 import type { APIRequestContext } from '@playwright/test'
@@ -54,6 +65,12 @@ const RECIPIENT = { user: 'e2e-grantee', pass: 'E2eGranteePw123' }
 function basic(user: string, pass: string): string {
 	return `Basic ${Buffer.from(`${user}:${pass}`).toString('base64')}`
 }
+
+/*
+ * ManifestCache::TTL (60 s) plus room for a slow answer. The polls end as soon
+ * as the expected manifest arrives, so this is a ceiling, not a wait.
+ */
+const MANIFEST_KEPT_MS = 75_000
 
 const REGISTER = 'launchpad'
 const SCHEMA = 'dashboard'
@@ -119,6 +136,9 @@ test.describe('object grants surface a shared dashboard in the manifest', () => 
 	test('the recipient sees exactly the granted dashboard, and loses it on revoke', async ({
 		baseURL,
 	}) => {
+		// Two kept-manifest windows (grant, revoke) plus the setup calls.
+		test.setTimeout(3 * MANIFEST_KEPT_MS)
+
 		const admin = await apiAs(baseURL!, ADMIN)
 		const grantee = await apiAs(baseURL!, RECIPIENT)
 
@@ -157,11 +177,16 @@ test.describe('object grants surface a shared dashboard in the manifest', () => 
 		expect(grant.status(), await grant.text()).toBeLessThan(300)
 		const shareId = (await grant.json()).id
 
+		// Up to a minute later (the kept manifest, REQ-INIT-009) the grant shows.
+		await expect
+			.poll(async () => manifestSlugs(grantee), {
+				message: 'a granted dashboard must appear in the recipient manifest',
+				timeout: MANIFEST_KEPT_MS,
+				intervals: [5_000],
+			})
+			.toContain(sharedSlug)
+
 		const after = await manifestSlugs(grantee)
-		expect(
-			after,
-			'a granted dashboard must appear in the recipient manifest',
-		).toContain(sharedSlug)
 		expect(
 			after,
 			'the recipient must NOT see the ungranted dashboard — that would be a manifest-wide leak',
@@ -174,11 +199,13 @@ test.describe('object grants surface a shared dashboard in the manifest', () => 
 		)
 		expect(revoke.status(), await revoke.text()).toBeLessThan(300)
 
-		const afterRevoke = await manifestSlugs(grantee)
-		expect(
-			afterRevoke,
-			'revoking the grant must remove it from the manifest',
-		).not.toContain(sharedSlug)
+		await expect
+			.poll(async () => manifestSlugs(grantee), {
+				message: 'revoking the grant must remove it from the manifest',
+				timeout: MANIFEST_KEPT_MS,
+				intervals: [5_000],
+			})
+			.not.toContain(sharedSlug)
 
 		await admin.dispose()
 		await grantee.dispose()

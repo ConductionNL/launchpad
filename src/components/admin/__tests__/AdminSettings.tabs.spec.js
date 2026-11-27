@@ -52,7 +52,7 @@ describe('AdminSettings tabs', () => {
 		expect(tabs[1].id).toBe('templates')
 	})
 
-	it('hands the thirteen tabs to the admin shell as an underline strip', () => {
+	it('hands the twelve drawn tabs to the admin shell as an underline strip (REQ-ADM-032)', () => {
 		expect(tabs.map((tab) => tab.id)).toEqual([
 			'general',
 			'templates',
@@ -60,16 +60,12 @@ describe('AdminSettings tabs', () => {
 			'roles-permissions',
 			'versioning-audit',
 			'sharing',
-			'embeds',
 			'kiosk',
-			'communities',
 			'org-navigation',
 			'demo-data',
 			'group-dashboards',
 			'detail-fields',
 			'profile-fields',
-			'search-shortcuts',
-			'app-catalogue',
 		])
 		expect(source).toContain(':tabs="beheerTabs"')
 		expect(render).toContain('tabsVariant: "underline"')
@@ -84,15 +80,49 @@ describe('AdminSettings tabs', () => {
 		const data = (tab) => AdminSettings.data.call({ t, tab }).activeTab
 		expect(data('sharing')).toBe('sharing')
 		expect(data('nonsense')).toBe('general')
+		expect(data('embeds')).toBe('general')
+		expect(data('communities')).toBe('group-dashboards')
+		expect(data('app-catalogue')).toBe('operations')
 		expect(data('')).toBe('general')
 	})
 
 	it('opens the route\'s tab in the shell without a click', () => {
 		const shell = { chosenTabId: '' }
 		const ctx = { activeTab: 'general', $refs: { shell } }
-		AdminSettings.methods.showTab.call(ctx, 'embeds')
-		expect(ctx.activeTab).toBe('embeds')
-		expect(shell.chosenTabId).toBe('embeds')
+		AdminSettings.methods.showTab.call(ctx, 'kiosk')
+		expect(ctx.activeTab).toBe('kiosk')
+		expect(shell.chosenTabId).toBe('kiosk')
+	})
+
+	it('draws the former tabs as sections of the tabs that hold them (REQ-ADM-032)', () => {
+		const slot = (id) => {
+			const start = source.indexOf(`<template #tab-${id}>`)
+			return source.slice(start, source.indexOf('</template>', start))
+		}
+		expect(slot('operations')).toContain('data-admin-section="app-catalogue"')
+		expect(slot('operations')).toContain('<AppCatalogueTab')
+		expect(slot('group-dashboards')).toContain('data-admin-section="communities"')
+		expect(slot('group-dashboards')).toContain('<CommunitiesTab')
+		expect(source).toContain('data-admin-section="embeds"')
+		expect(source).toContain('data-admin-section="search-shortcuts"')
+		for (const id of ['embeds', 'communities', 'search-shortcuts', 'app-catalogue']) {
+			expect(source).not.toContain(`<template #tab-${id}>`)
+		}
+	})
+
+	it('scrolls the section an old address names into view', async () => {
+		const target = { scrollIntoView: vi.fn() }
+		const ctx = {
+			$el: { querySelector: vi.fn(() => target) },
+			$nextTick: (fn) => fn(),
+		}
+		AdminSettings.methods.revealSection.call(ctx, 'embeds')
+		expect(ctx.$el.querySelector).toHaveBeenCalledWith('[data-admin-section="embeds"]')
+		expect(target.scrollIntoView).toHaveBeenCalledWith({ block: 'start' })
+
+		ctx.$el.querySelector.mockClear()
+		AdminSettings.methods.revealSection.call(ctx, '')
+		expect(ctx.$el.querySelector).not.toHaveBeenCalled()
 	})
 
 	it('follows a new route tab (Back, Forward)', () => {

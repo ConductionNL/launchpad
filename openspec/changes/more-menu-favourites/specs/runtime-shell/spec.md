@@ -1,53 +1,213 @@
 # Delta: runtime-shell
 
-## MODIFIED Requirements
+## REMOVED Requirements
 
 ### Requirement: REQ-SHELL-004 The dashboards are reached through More
 
-The shell MUST NOT render a sidebar-toggle (hamburger) button, a title strip with the active dashboard's name, or a slide-in dashboards panel. Dashboards are switched in the More menu only (REQ-SHELL-016).
+**Reason**: Ruben's review of 27 Nov 2026, item 4: "All dashboards" no longer opens a sidebar. The Dashboards column
+of the More menu holds the favourites and expands in place (REQ-SHELL-014, REQ-SHELL-015).
 
-- The Dashboards group marks the open dashboard (`role="menuitemradio"`, `aria-checked="true"`) and ends in "More" (folded) or "Fewer" (unfolded).
+**Migration**: none. The rules of REQ-SHELL-004 that stay (no hamburger, no title strip, no active-dashboard select)
+are part of REQ-SHELL-014.
 
-#### Scenario: No dashboards panel
-- **GIVEN** Pieter opens a dashboard
-- **THEN** the page has no `.dashboard-switcher-sidebar` and no backdrop
-- **AND** the header's only button is More
+### Requirement: Sidebar backdrop (REQ-SHELL-006)
+
+**Reason**: there is no sidebar left to close (item 4).
+
+**Migration**: none.
+
+## MODIFIED Requirements
+
+### Requirement: REQ-SHELL-013 One More menu, the same on every page
+
+The page header MUST carry one control: More. There MUST be no "Startpagina aanpassen" button, no Menu button, no Edit
+button, no "Add widget" button and no Download button in the header; editing starts from More, and the edit bar carries
+the edit actions.
+
+More MUST be the same menu on every page of the app (board `launchpad/LpMeer`): on the start page, on any dashboard, in
+the empty state and on every other launchpad page. It is a popover of 600 px with two columns and a footer: the left
+column holds only Dashboards (REQ-SHELL-014), the right column This dashboard and below it Settings, the footer runs
+under both columns (REQ-SHELL-017). Below 960 px it is one column in the order Dashboards, This dashboard, Settings,
+footer. Off the dashboard view there is no This dashboard group and Settings stands alone in the right column:
+
+- **Dashboards** (left): REQ-SHELL-014 and REQ-SHELL-015.
+- **This dashboard** (right, only where a dashboard is open): Edit, Add widget, Sharing, Copy link to this dashboard,
+  Duplicate as new dashboard, Download, Set as default, and Delete last, in the error colour behind a rule. Each item
+  keeps its rule: Edit and Add widget need edit rights, Sharing and Delete need ownership, Duplicate needs personal
+  dashboards to be allowed and the quota not reached, Download is offered to everyone who can open the dashboard
+  (REQ-DPD-003). Read receipts are not in this menu: they live on the Announcements tab of Launchpad's admin page
+  (dashboard-acknowledgements REQ-ACK-008).
+- **Settings** (right, at the bottom, below This dashboard's Delete and behind the same top rule): ONE menu item with a
+  cog and a chevron, `aria-haspopup="true"` and `aria-expanded`. It starts folded each time the menu opens and unfolds
+  in place as an indented group with a 2 px rule at its start: Personal settings, Admin settings (administrators
+  only), Announcements (people who may manage announcements only; the Announcements tab of launchpad's admin page),
+  Marketplace, Templates, Reports, Flows, Integrations, Documentation, Features and roadmap (nl Persoonlijke
+  instellingen, Beheerinstellingen, Aankondigingen, Marktplaats, Sjablonen, Rapporten, Flows, Koppelingen,
+  Documentatie, Functies en roadmap). An entry the board does not name follows at the end.
+
+More MUST NOT offer Versions (a tab of the dashboard settings, REQ-DASH-039), Schedule or Unpublish (the Publication
+tab), or a second Settings item under This dashboard; the dashboard settings open from the edit bar.
+
+The shell MUST NOT render a sidebar-toggle (hamburger) button, a title strip with the active dashboard's name, a
+dashboards sidebar or a standalone "Active dashboard" select.
+
+The menu is a WAI-ARIA menu: the arrow keys move through every visible item over both columns in the visual order
+(Dashboards, This dashboard, Settings and its unfolded group, the footer links last), Home and End jump to the first
+and last, Right unfolds Settings and Left folds it, and Escape closes the menu and returns focus to More.
+
+**Why.** Ruben's decisions of 22 and 23 Nov 2026 (one menu, identical everywhere) and of 27 Nov 2026, items 4 to 8:
+no sidebar, favourites in the menu, the logos in its footer and Download as a menu action (boards LpMeer, LpMeerAlle,
+LpWerkplek, LpVandaag).
+
+#### Scenario: The header carries only More
+
+- **GIVEN** a member on the start page
+- **WHEN** the page renders
+- **THEN** the only control at the top MUST be More, with no "Startpagina aanpassen", Menu, Edit, Add widget or
+  Download button
+- **AND** no dashboards sidebar and no sidebar toggle MUST be rendered
+
+#### Scenario: Settings unfolds in place
+
+- **GIVEN** a member with More open
+- **WHEN** they choose Settings
+- **THEN** Settings, at the bottom of the right column below Delete, MUST report `aria-expanded="true"` and its
+  destinations MUST show indented below it in that column, while the menu stays open
+
+#### Scenario: This dashboard ends in Delete
+
+- **GIVEN** the owner of the open dashboard with More open
+- **WHEN** they read This dashboard
+- **THEN** it MUST list Edit, Add widget, Sharing, Copy link to this dashboard, Duplicate as new dashboard, Download,
+  Set as default and Delete, in that order, and no Versions or Settings item
+
+#### Scenario: Escape returns focus to More
+
+- **GIVEN** a member moving through More with the arrow keys
+- **WHEN** they press Escape
+- **THEN** the menu MUST close and focus MUST be on More
+
+#### Scenario: Announcements for a manager only
+
+- **GIVEN** Femke may manage announcements and is not an administrator, and Pieter may not
+- **WHEN** each opens More and unfolds Settings
+- **THEN** Femke MUST see Announcements and no Admin settings, and Pieter MUST see neither
 
 ## ADDED Requirements
 
-### Requirement: REQ-SHELL-016 The Dashboards column lists the favourites and unfolds in place
+### Requirement: The Dashboards column lists the favourite dashboards (REQ-SHELL-014)
 
-Folded, the More menu's Dashboards column MUST list the person's favourite dashboards (REQ-SHELL-017) in the order of the full list. Before the person has starred any dashboard, the column MUST show the open dashboard (if any), a line saying that starring a dashboard makes it appear here, and "More" (Ruben's decision, 27 Nov 2026). Its last item "More" MUST unfold the column in place, keeping the menu open, into a scrollable list of every dashboard the person can open, ending in "Fewer", which folds it again. Every opening of the menu MUST start folded.
+The left column of More (board LpMeer) MUST list the person's favourite dashboards, in the order they starred them, as
+radio items (`role="menuitemradio"`) with the open one checked and highlighted, each with its icon, its name, the
+marker default, shared or group where it applies, and its star (REQ-SHELL-016). Below the list, behind a rule, MUST
+stand the entry More with the number of other dashboards ("8 more dashboards"), which expands the column
+(REQ-SHELL-015).
 
-#### Scenario: Favourites only
-- **GIVEN** Pieter starred "Team Vergunningen" and can open five dashboards
-- **WHEN** he opens More
-- **THEN** the Dashboards column lists "Team Vergunningen" and "More"
+Before the person has starred any dashboard, the column MUST show the open dashboard (checked), one line saying that a
+starred dashboard appears here, and More (Ruben, 27 Nov 2026, launchpad#2204). Off the dashboard view no dashboard is
+checked, and choosing one opens it on the dashboard view.
 
-#### Scenario: Nothing starred yet
-- **GIVEN** Pieter has starred nothing and has "Vandaag" open
-- **WHEN** he opens More
-- **THEN** the Dashboards column lists "Vandaag", the line "Star a dashboard under More to see it here." and "More"
+Opening More MUST NOT send a request: the favourites and the dashboards the person can open come with the page's
+initial state.
 
-#### Scenario: More unfolds in place
-- **GIVEN** the menu is open and folded
-- **WHEN** Pieter chooses "More"
-- **THEN** the menu stays open and the column lists all five dashboards, each with a star, and ends in "Fewer"
+#### Scenario: Pieter's favourites
 
-### Requirement: REQ-SHELL-017 A star marks a dashboard as a favourite, per person
+- **GIVEN** Pieter starred Vandaag, Mijn werkplek, Team Vergunningen and Intranet Zuiddrecht, in that order, and can
+  open twelve dashboards
+- **WHEN** he opens More on Vandaag
+- **THEN** the Dashboards column MUST list those four in that order, Vandaag checked and marked default, each with a
+  filled star
+- **AND** below them MUST stand More with "8 more dashboards"
 
-Every row of the unfolded list MUST carry a star button (`aria-pressed`), empty for a dashboard that is not a favourite and filled yellow for one that is. Clicking it MUST toggle the favourite without switching dashboards and store the person's list (preference `favourite-dashboards`, a JSON list of uuids). A failed write MUST put the previous list back. "Set as default" stays a separate action.
+#### Scenario: No favourites yet
 
-#### Scenario: Starring survives a reload
-- **GIVEN** Pieter unfolds the list
-- **WHEN** he clicks the empty star of "Intranet"
-- **THEN** the star fills, the list is stored, and after a reload the folded column lists "Intranet"
+- **GIVEN** Noor has starred nothing and is on "Mijn werkplek"
+- **WHEN** she opens More
+- **THEN** the column MUST show "Mijn werkplek" checked, the line that a starred dashboard appears here, and More
 
-### Requirement: REQ-SHELL-018 Powered by and Download live in the More menu
+#### Scenario: Opening the menu fetches nothing
 
-The More menu MUST end in a footer under both columns with the Documentation link and "Powered by" with the sendent and Conduction logos, each opening in a new tab (`rel="noopener noreferrer"`). The This dashboard group MUST offer "Download" (after "Copy link to this dashboard") to everyone who can open the dashboard; the page header MUST NOT carry its own Download button.
+- **GIVEN** a member on a dashboard after the page has loaded
+- **WHEN** they open More and press More in the Dashboards column
+- **THEN** no request MUST be sent
 
-#### Scenario: Download from More
-- **GIVEN** Pieter may only view a dashboard
-- **WHEN** he chooses More > Download
-- **THEN** his browser prints the dashboard as it is now
+### Requirement: More turns the column into the list of every dashboard (REQ-SHELL-015)
+
+More at the foot of the Dashboards column MUST replace the column's content, in place inside the menu, with every
+dashboard the person can open (board LpMeerAlle), titled "All dashboards": the favourites first in starring order, then
+the others (own, shared, group), each with its star, empty or filled. The column MUST scroll inside the menu with nine
+rows visible while the menu keeps its size. Below the list, outside the scrolling area, MUST stand "New dashboard"
+(nl "Nieuw dashboard"), offered only when personal dashboards are allowed and the person's quota is not reached: it
+MUST create a personal dashboard named "My workspace" (`POST /api/dashboard`) and open it (Ruben, 27 Nov 2026; board
+follow-up for LpMeerAlle). The foot MUST read Less ("favourites only"), which returns the column to the favourites.
+Closing the menu MUST also return it to the favourites. No separate page or sidebar MUST open.
+
+#### Scenario: Expand and collapse
+
+- **GIVEN** Pieter with four favourites and twelve dashboards
+- **WHEN** he opens More and chooses More in the Dashboards column
+- **THEN** the column MUST be titled "All dashboards", list all twelve with the four favourites first, and scroll
+  inside the menu
+- **AND** choosing Less MUST show the four favourites again
+
+#### Scenario: New dashboard from the full list
+
+- **GIVEN** personal dashboards are allowed and Pieter is under his quota
+- **WHEN** he opens More, chooses More in the Dashboards column and then New dashboard
+- **THEN** a personal dashboard "My workspace" MUST be created and opened
+
+#### Scenario: No New dashboard without personal dashboards
+
+- **GIVEN** an administrator turned personal dashboards off
+- **WHEN** Pieter expands the Dashboards column
+- **THEN** New dashboard MUST NOT be shown
+
+#### Scenario: Open a dashboard from the full list
+
+- **GIVEN** the expanded list
+- **WHEN** Pieter chooses "Project Havenpark"
+- **THEN** "Project Havenpark" MUST open and the menu MUST close
+
+### Requirement: A star makes a dashboard a favourite, per person (REQ-SHELL-016)
+
+Every dashboard row in the Dashboards column, short or expanded, MUST carry a star button with `aria-pressed`. An empty
+star means not a favourite; pressing it MUST fill the star yellow (`#f0b400`) and add the dashboard to the end of the
+person's favourites. Pressing a filled star MUST empty it and remove the dashboard from the favourites. The star's
+accessible name MUST say what pressing it does ("Add to favourites: <name>", "Remove from favourites: <name>").
+Pressing the star MUST NOT open the dashboard or close the menu.
+
+The favourites MUST be stored per person on the server (`POST` and `DELETE /api/dashboards/{uuid}/favourite`, the
+preference `favourite_dashboards`), so they follow the person to another browser. The server MUST answer 404 for a
+dashboard the person cannot open. A favourite whose dashboard was deleted or is no longer visible MUST be dropped.
+Set as default (This dashboard) MUST stay a separate action; starring MUST NOT change the start dashboard.
+
+#### Scenario: Star a dashboard
+
+- **GIVEN** Pieter has the expanded list open
+- **WHEN** he presses the empty star of "Managementinformatie"
+- **THEN** the star MUST be filled yellow with `aria-pressed="true"` and the menu MUST stay open
+- **AND** after a reload, More MUST list "Managementinformatie" last among his favourites
+
+#### Scenario: Unstar a dashboard
+
+- **GIVEN** "Team Vergunningen" is one of Pieter's favourites
+- **WHEN** he presses its filled star
+- **THEN** it MUST leave the short list, and his start dashboard MUST be unchanged
+
+#### Scenario: A dashboard the person cannot open
+
+- **WHEN** Pieter sends `POST /api/dashboards/{uuid}/favourite` for a group dashboard he is not a member of
+- **THEN** the response MUST be 404 and his favourites MUST be unchanged
+
+### Requirement: The More menu ends in the Powered by footer (REQ-SHELL-017)
+
+Under both columns of More MUST run a footer, behind a rule, with "Powered by" and the logos of sendent and Conduction
+from the brand assets (board LpMeer). Each logo MUST link to its company's site with `target="_blank"
+rel="noopener noreferrer"` and have the company name as its accessible name. The footer MUST show on every page that
+shows More.
+
+#### Scenario: The logos are in the menu
+
+- **GIVEN** a member opens More
+- **THEN** the menu's footer MUST show Powered by with the sendent and Conduction logos, each a link that opens in a new
+  tab with `rel="noopener noreferrer"`

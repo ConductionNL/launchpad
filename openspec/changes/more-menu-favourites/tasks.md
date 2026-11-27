@@ -1,10 +1,16 @@
 # Tasks: more-menu-favourites
 
-- [x] 1. Unmount the dashboard switcher sidebar and its backdrop from the dashboard view (REQ-SHELL-004)
-- [x] 2. Dashboards column: favourites short list, "More" unfolds in place and keeps the menu open, "Fewer" folds, every opening starts folded; without favourites the open dashboard, a line about starring and More (Ruben, 27 Nov) (REQ-SHELL-016)
-- [x] 3. Star per row of the unfolded list, stored per user through the preferences endpoint, rolled back on a failed write, reachable with the arrow keys (REQ-SHELL-017)
-- [x] 4. Powered by + Documentation footer in the More menu; Download in This dashboard, not in the header (REQ-SHELL-018)
-- [x] 5. Unit tests: moreMenuItems (folded, favourites, unfolded, stars, toggle/parse), LaunchpadMoreMenu (keep open, stars, keyboard, footer), DashboardMoreMenu (load, store, rollback, fold on open, Download), StartPageMenu, DashboardPageHeader, Views wiring
-- [x] 6. Verified live on the sandbox (NC 34 tarball, MariaDB, Redis, APCu, OR main): header only More, no panel, More keeps the menu open with stars, a star stores (PUT 200) and survives a reload, Download in This dashboard
-- [ ] 7. e2e: support/dashboardSwitcher.ts (done), more-menu, dashboard-download, dashboard-period-and-download (green live) and the new more-menu-favourites.spec.ts (4/4 live) are done; left: dashboard-switcher.spec.ts (tests the removed panel itself: rewrite or retire with task 8) and the other ~40 specs that click inside `.dashboard-switcher-sidebar`
-- [ ] 8. Delete DashboardSwitcherSidebar and its tests once no spec drives it
+- [ ] Backend: `POST`/`DELETE /api/dashboards/{uuid}/favourite` (visible dashboards only, idempotent, answers the list); preference `favourite_dashboards`; dropped entries cleaned on read; route auth `#[NoAdminRequired]`
+- [ ] Initial state: `favouriteDashboards` next to the visible dashboards in `PageController::index` (no fetch on menu open)
+- [ ] `DashboardMoreMenu.vue` / `LaunchpadMoreMenu.vue`: Dashboards column shows favourites; empty state with the open dashboard, the explanation line and More; More expands to all dashboards in place (nine rows, scrolling), Less returns; New dashboard below the list (personal dashboards allowed, quota not reached) creates and opens "My workspace"
+- [ ] Star button per row (`aria-pressed`, accessible name per state, `#f0b400` filled); toggling updates the store optimistically and rolls back with an error toast on failure
+- [ ] Footer of the menu: Powered by sendent and Conduction, links with `target="_blank" rel="noopener noreferrer"`
+- [ ] This dashboard: Download between Duplicate as new dashboard and Set as default; remove the header Download button
+- [ ] This dashboard: no Read receipts item (moved to the admin page)
+- [ ] Settings group: Announcements entry for people who may manage announcements, after Admin settings
+- [ ] Remove `DashboardSwitcherSidebar.vue`, `SidebarFooter.vue`, `SidebarBackdrop.vue`, `DashboardRowActions.vue`, the shell's `sidebarOpen` state and their tests
+- [ ] Translations (en, nl and every shipped locale) for the new strings
+- [ ] Unit tests: favourite controller and service (star, unstar, invisible dashboard 404, cleanup), menu component (empty state, favourites, expand, collapse, star toggle, footer, Download position)
+- [ ] Playwright `tests/e2e/more-menu-favourites.spec.ts`: empty state; star a dashboard in the expanded list and see it in the short list after a reload; unstar; Download in This dashboard; New dashboard in the expanded list creates and opens a dashboard; no sidebar and no header Download
+- [ ] Rewrite or remove the e2e specs that open the sidebar
+- [ ] Live check on a sandbox against LpMeer and LpMeerAlle (pixel pass), and the page within the speed rule

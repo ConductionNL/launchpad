@@ -30,7 +30,7 @@ const dashboard = { id: 7, uuid: 'dash-uuid' }
 describe('Views placementEmbedHref', () => {
 	it('links an administrator to a widget token for the placement', () => {
 		expect(hrefFor({ isAdmin: true, activeDashboard: dashboard }, { id: 5 }))
-			.toBe('/index.php/apps/launchpad/admin/embeds?tab=embeds&embedType=widget&embedId=5&embedDashboard=7')
+			.toBe('/index.php/apps/launchpad/admin/general?tab=embeds&embedType=widget&embedId=5&embedDashboard=7')
 	})
 
 	it('gives nothing to a non-administrator or without a saved dashboard and placement', () => {

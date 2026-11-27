@@ -5,7 +5,6 @@
 
 <template>
 	<div class="search-shortcuts-tab" data-testid="search-shortcuts-tab">
-		<h3>{{ t('launchpad', 'Search shortcuts') }}</h3>
 		<p class="search-shortcuts-tab__intro">
 			{{
 				t(

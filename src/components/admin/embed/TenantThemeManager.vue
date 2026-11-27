@@ -354,7 +354,13 @@ export default {
 	gap: 8px;
 }
 
+.tenant-theme-manager__variable > :last-child {
+	flex: 1 1 auto;
+	min-inline-size: 0;
+}
+
 .tenant-theme-manager__variable input[type='color'] {
+	flex: 0 0 auto;
 	width: 44px;
 	height: 36px;
 	border: 1px solid var(--color-border);

@@ -7,6 +7,6 @@
 - [x] Remove the Add tiles button from the edit bar and the empty state; Add widget is the one entry (the empty state already offered Add widget only; the Add tiles dialog itself goes with change app-link-tile-widget, which puts the tile form in this dialog)
 - [x] Translations for the new strings (#2259: the miniatures add no visible text)
 - [x] Unit tests: every registered type renders a miniature from `sampleContent` with `preview` and sends no request (fails on a type without sample content); picker width, kinds and counts; no Add tiles button (#2259: `WidgetMiniature.registry.spec.js`, `WidgetMiniature.spec.js`, picker and card specs)
-- [ ] Playwright `tests/e2e/widget-picker-miniatures.spec.ts`: open Add widget, every visible card shows a miniature, the dialog is 1120 px wide, choosing Tiles and links lists the tile widgets; the edit bar has no Add tiles button (#2259: written, not yet run live)
+- [x] Playwright `tests/e2e/widget-picker-miniatures.spec.ts`: open Add widget, every visible card shows a miniature, the dialog is 1120 px wide, choosing Tiles and links lists the tile widgets; the edit bar has no Add tiles button (#2259; live green 2/2 on a sandbox Nextcloud 34, sqlite + php -S, 27 Nov 2026)
 - [ ] Speed: the picker opens within the speed rule on the reference stack (first useful content <= 300 ms)
 - [ ] Live check on a sandbox against LpWidgetKiezen (pixel pass)

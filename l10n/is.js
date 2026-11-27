@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The upload is larger than this server accepts." : "Upphleðslan er stærri en þessi þjónn tekur við.",
+    "The file is too large." : "Skráin er of stór.",
+    "This type of file is not allowed here." : "Þessi skráartegund er ekki leyfð hér.",
+    "The upload failed." : "Upphleðsla mistókst.",
+    "{name} was not uploaded: {reason}" : "{name} var ekki hlaðið upp: {reason}",
     "New colleagues" : "Nýir samstarfsmenn",
     "Required: this widget cannot be removed" : "Áskilið: ekki er hægt að fjarlægja þessa græju",
     "Connections of this dashboard" : "Tengingar þessa mælaborðs",

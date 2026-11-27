@@ -1,5 +1,10 @@
 {
     "translations": {
+        "The upload is larger than this server accepts.": "It-tlugħ huwa akbar milli jaċċetta dan is-server.",
+        "The file is too large.": "Il-fajl huwa kbir wisq.",
+        "This type of file is not allowed here.": "Dan it-tip ta' fajl mhuwiex permess hawn.",
+        "The upload failed.": "It-tlugħ ma rnexxiex.",
+        "{name} was not uploaded: {reason}": "{name} ma ttellax: {reason}",
         "New colleagues": "Kollegi ġodda",
         "Required: this widget cannot be removed" : "Obbligatorju: dan il-widget ma jistax jitneħħa",
         "Connections of this dashboard": "Konnessjonijiet ta’ dan id-dashboard",

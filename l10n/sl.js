@@ -1,6 +1,11 @@
 OC.L10N.register(
     "launchpad",
     {
+    "The upload is larger than this server accepts." : "Nalaganje je večje, kot ga ta strežnik sprejme.",
+    "The file is too large." : "Datoteka je prevelika.",
+    "This type of file is not allowed here." : "Ta vrsta datoteke tukaj ni dovoljena.",
+    "The upload failed." : "Nalaganje ni uspelo.",
+    "{name} was not uploaded: {reason}" : "{name} ni bila naložena: {reason}",
     "New colleagues" : "Novi sodelavci",
     "Required: this widget cannot be removed" : "Obvezno: tega gradnika ni mogoče odstraniti",
     "Connections of this dashboard" : "Povezave te nadzorne plošče",

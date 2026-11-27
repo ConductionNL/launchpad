@@ -1,5 +1,10 @@
 {
     "translations": {
+        "The upload is larger than this server accepts.": "Otpremanje je veće nego što ovaj server prihvata.",
+        "The file is too large.": "Datoteka je prevelika.",
+        "This type of file is not allowed here.": "Ova vrsta datoteke ovdje nije dozvoljena.",
+        "The upload failed.": "Otpremanje nije uspjelo.",
+        "{name} was not uploaded: {reason}": "{name} nije otpremljena: {reason}",
         "New colleagues": "Nove kolege",
         "Required: this widget cannot be removed" : "Obavezno: ovaj widget se ne može ukloniti",
         "Connections of this dashboard": "Veze ove kontrolne table",

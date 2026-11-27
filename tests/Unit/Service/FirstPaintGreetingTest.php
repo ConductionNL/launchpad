@@ -81,11 +81,11 @@ class FirstPaintGreetingTest extends TestCase {
 
 		$this->assertSame(
 			expected: 'Goedemiddag, Pieter · maandag 5 oktober 2026 · week 41',
-			actual: FirstPaintGreeting::line(l: $this->l10n(language: 'nl'), content: $content, reader: self::reader(locale: 'nl_NL'), now: $now)
+			actual: FirstPaintGreeting::line(l: $this->l10n(language: 'nl'), input: self::reader(locale: 'nl_NL') + ['content' => $content, 'now' => $now])
 		);
 		$this->assertSame(
 			expected: 'Good afternoon, Pieter · Monday, October 5, 2026 · week 41',
-			actual: FirstPaintGreeting::line(l: $this->l10n(), content: $content, reader: self::reader(), now: $now)
+			actual: FirstPaintGreeting::line(l: $this->l10n(), input: self::reader() + ['content' => $content, 'now' => $now])
 		);
 	}//end testTheVandaagLineInDutchAndEnglish()
 
@@ -99,26 +99,26 @@ class FirstPaintGreetingTest extends TestCase {
 		$content = ['greeting' => true];
 		$this->assertSame(
 			expected: 'Good morning, Pieter',
-			actual: FirstPaintGreeting::greeting(l: $l, content: $content, displayName: 'Pieter Jansen', hour: 11)
+			actual: FirstPaintGreeting::greeting(l: $l, input: ['content' => $content, 'name' => 'Pieter Jansen', 'hour' => 11])
 		);
 		$this->assertSame(
 			expected: 'Good afternoon, Pieter',
-			actual: FirstPaintGreeting::greeting(l: $l, content: $content, displayName: 'Pieter Jansen', hour: 12)
+			actual: FirstPaintGreeting::greeting(l: $l, input: ['content' => $content, 'name' => 'Pieter Jansen', 'hour' => 12])
 		);
 		$this->assertSame(
 			expected: 'Good evening, Pieter',
-			actual: FirstPaintGreeting::greeting(l: $l, content: $content, displayName: 'Pieter Jansen', hour: 18)
+			actual: FirstPaintGreeting::greeting(l: $l, input: ['content' => $content, 'name' => 'Pieter Jansen', 'hour' => 18])
 		);
 
 		// 23:30 UTC is 00:30 in Amsterdam (morning) and 19:30 in New York (evening).
 		$late = new DateTimeImmutable('2026-10-05T23:30:00Z');
 		$this->assertSame(
 			expected: 'Good morning, Pieter',
-			actual: FirstPaintGreeting::line(l: $l, content: $content, reader: self::reader(), now: $late)
+			actual: FirstPaintGreeting::line(l: $l, input: self::reader() + ['content' => $content, 'now' => $late])
 		);
 		$this->assertSame(
 			expected: 'Good evening, Pieter',
-			actual: FirstPaintGreeting::line(l: $l, content: $content, reader: self::reader(timezone: 'America/New_York'), now: $late)
+			actual: FirstPaintGreeting::line(l: $l, input: self::reader(timezone: 'America/New_York') + ['content' => $content, 'now' => $late])
 		);
 	}//end testTheHourIsTheReadersHour()
 
@@ -133,20 +133,20 @@ class FirstPaintGreetingTest extends TestCase {
 		$now = new DateTimeImmutable('2026-10-05T11:10:00Z');
 		$this->assertSame(
 			expected: 'Good afternoon, Pieter Jansen',
-			actual: FirstPaintGreeting::greeting(l: $l, content: ['greeting' => 'full'], displayName: 'Pieter Jansen', hour: 13)
+			actual: FirstPaintGreeting::greeting(l: $l, input: ['content' => ['greeting' => 'full'], 'name' => 'Pieter Jansen', 'hour' => 13])
 		);
 		$this->assertSame(
 			expected: 'Good afternoon',
-			actual: FirstPaintGreeting::greeting(l: $l, content: ['greeting' => true], displayName: '  ', hour: 13)
+			actual: FirstPaintGreeting::greeting(l: $l, input: ['content' => ['greeting' => true], 'name' => '  ', 'hour' => 13])
 		);
-		$this->assertSame(expected: '', actual: FirstPaintGreeting::greeting(l: $l, content: [], displayName: 'Pieter', hour: 13));
+		$this->assertSame(expected: '', actual: FirstPaintGreeting::greeting(l: $l, input: ['content' => [], 'name' => 'Pieter', 'hour' => 13]));
 		$this->assertSame(
 			expected: 'Monday, October 5, 2026',
-			actual: FirstPaintGreeting::line(l: $l, content: ['showDate' => true], reader: self::reader(), now: $now)
+			actual: FirstPaintGreeting::line(l: $l, input: self::reader() + ['content' => ['showDate' => true], 'now' => $now])
 		);
 		$this->assertSame(
 			expected: '',
-			actual: FirstPaintGreeting::line(l: $l, content: [], reader: self::reader(timezone: 'Nowhere/Unknown', locale: ''), now: $now)
+			actual: FirstPaintGreeting::line(l: $l, input: self::reader(timezone: 'Nowhere/Unknown', locale: '') + ['content' => [], 'now' => $now])
 		);
 	}//end testNameAndParts()
 }//end class

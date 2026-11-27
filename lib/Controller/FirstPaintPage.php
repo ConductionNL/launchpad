@@ -33,7 +33,6 @@ namespace OCA\LaunchPad\Controller;
 
 use JsonSerializable;
 use OCA\LaunchPad\Service\FirstPaintShell;
-use OCA\LaunchPad\Service\InitialStateBuilder;
 use OCP\IUser;
 
 /**
@@ -61,26 +60,16 @@ class FirstPaintPage {
 	 * initial state carries, and the page's own address for the
 	 * could-not-load line's Reload link.
 	 *
-	 * @param InitialStateBuilder  $state   The page's initial state, filled.
-	 * @param array<string, mixed> $context `active` (the opened dashboard as resolved), `user` (IUser or null), `reloadUrl`.
+	 * @param array<string, mixed> $page    The page values (see model()).
+	 * @param array<string, mixed> $context `user` (IUser or null) and `reloadUrl`.
 	 *
 	 * @return array{firstPaint: array<string, mixed>|null, reloadUrl: string}
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
 	 */
-	public static function params(InitialStateBuilder $state, array $context): array {
-		$page = [
-			'firstLoad'         => $state->value(key: 'dashboardFirstLoad'),
-			'activeDashboardId' => $state->value(key: 'activeDashboardId'),
-			'dashboardSource'   => $state->value(key: 'dashboardSource'),
-			'layout'            => $state->value(key: 'layout'),
-			'widgets'           => $state->value(key: 'widgets'),
-			'apps'              => $state->value(key: 'integrationApps'),
-			'active'            => $context['active'] ?? null,
-		];
-
+	public static function params(array $page, array $context): array {
 		return [
-			'firstPaint' => self::model(page: $page, reader: ['user' => $context['user'] ?? null, 'timezone' => $state->value(key: 'userTimezone')]),
+			'firstPaint' => self::model(page: $page, reader: ['user' => $context['user'] ?? null, 'timezone' => $page['timezone'] ?? '']),
 			'reloadUrl'  => (string) ($context['reloadUrl'] ?? ''),
 		];
 	}//end params()
@@ -89,8 +78,9 @@ class FirstPaintPage {
 	 * The shell the template prints, or null when the page opens without a
 	 * dashboard (REQ-FPS-006).
 	 *
-	 * @param array<string, mixed> $page   `firstLoad`, `activeDashboardId`, `dashboardSource`, `layout`, `widgets` and `apps`
-	 *                                     as the initial state carries them, and `active`, the opened dashboard as resolved.
+	 * @param array<string, mixed> $page   `firstLoad`, `activeDashboardId`, `dashboardSource`, `layout`, `widgets`, `apps`
+	 *                                     and `timezone` as the initial state carries them, and `active`, the opened
+	 *                                     dashboard as resolved.
 	 * @param array<string, mixed> $reader `user` (IUser or null) and `timezone`.
 	 *
 	 * @return array<string, mixed>|null
@@ -104,7 +94,7 @@ class FirstPaintPage {
 			return null;
 		}
 
-		[$dashboard, $placements] = self::opened(page: $page, envelope: $firstLoad['active'] ?? null, uuid: $uuid);
+		[$dashboard, $placements] = self::opened(page: $page, uuid: $uuid);
 		if ($dashboard === []) {
 			return null;
 		}
@@ -140,13 +130,13 @@ class FirstPaintPage {
 	 * when it is the opened dashboard; a deep link to another dashboard draws
 	 * that dashboard's `layout`.
 	 *
-	 * @param array<string, mixed> $page     The page values (see model()).
-	 * @param mixed                $envelope The first load's `active` envelope.
-	 * @param string               $uuid     The opened dashboard's uuid.
+	 * @param array<string, mixed> $page The page values (see model()).
+	 * @param string               $uuid The opened dashboard's uuid.
 	 *
 	 * @return array{0: array<string, mixed>, 1: array}
 	 */
-	private static function opened(array $page, mixed $envelope, string $uuid): array {
+	private static function opened(array $page, string $uuid): array {
+		$envelope = $page['firstLoad']['active'] ?? null;
 		if (is_array($envelope) === true && (string) ($envelope['dashboard']['uuid'] ?? '') === $uuid) {
 			return [(array) $envelope['dashboard'], (array) ($envelope['placements'] ?? [])];
 		}

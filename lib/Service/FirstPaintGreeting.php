@@ -46,20 +46,26 @@ class FirstPaintGreeting {
 	/**
 	 * The greeting line, or '' when the header shows none.
 	 *
-	 * @param IL10N                $l       The app's translations, in the reader's language.
-	 * @param array<string, mixed> $content The header placement's content (greeting, showDate, showWeek).
-	 * @param array<string, mixed> $reader  `name` (display name), `timezone` ('' for the server's) and `locale` (nl_NL, en_US).
-	 * @param DateTimeImmutable    $now     The moment of the request.
+	 * @param IL10N                $l     The app's translations, in the reader's language.
+	 * @param array<string, mixed> $input `content` (the header placement's: greeting, showDate, showWeek), `name` (the
+	 *                                    reader's display name), `timezone` ('' for the server's), `locale` (nl_NL,
+	 *                                    en_US) and `now` (DateTimeImmutable, the moment of the request).
 	 *
 	 * @return string
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-2
 	 */
-	public static function line(IL10N $l, array $content, array $reader, DateTimeImmutable $now): string {
-		$local = $now->setTimezone(self::zone(timezone: (string) ($reader['timezone'] ?? '')));
+	public static function line(IL10N $l, array $input): string {
+		$content = (array) ($input['content'] ?? []);
+		$now     = $input['now'] ?? null;
+		if (($now instanceof DateTimeImmutable) === false) {
+			$now = new DateTimeImmutable();
+		}
+
+		$local = $now->setTimezone(self::zone(timezone: (string) ($input['timezone'] ?? '')));
 		$parts = [
-			self::greeting(l: $l, content: $content, displayName: (string) ($reader['name'] ?? ''), hour: (int) $local->format('G')),
-			self::date(content: $content, moment: $local, locale: (string) ($reader['locale'] ?? '')),
+			self::greeting(l: $l, input: ['content' => $content, 'name' => (string) ($input['name'] ?? ''), 'hour' => (int) $local->format('G')]),
+			self::date(moment: $local, input: ['content' => $content, 'locale' => (string) ($input['locale'] ?? '')]),
 		];
 		if (($content['showWeek'] ?? false) === true) {
 			$parts[] = self::fill(text: $l->t('week {number}'), values: ['number' => (int) $local->format('W')]);
@@ -71,26 +77,26 @@ class FirstPaintGreeting {
 	/**
 	 * "Good afternoon, Pieter", by the hour, or '' when the header greets nobody.
 	 *
-	 * @param IL10N                $l           The translations.
-	 * @param array<string, mixed> $content     The header content.
-	 * @param string               $displayName The reader's display name.
-	 * @param int                  $hour        The hour in the reader's time zone, 0 to 23.
+	 * @param IL10N                $l     The translations.
+	 * @param array<string, mixed> $input `content` (the header content), `name` (the reader's display name) and `hour`
+	 *                                    (in the reader's time zone, 0 to 23).
 	 *
 	 * @return string
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-2
 	 */
-	public static function greeting(IL10N $l, array $content, string $displayName, int $hour): string {
-		$mode = $content['greeting'] ?? false;
+	public static function greeting(IL10N $l, array $input): string {
+		$mode = $input['content']['greeting'] ?? false;
 		if ($mode !== true && $mode !== 'full' && $mode !== 'first') {
 			return '';
 		}
 
-		$name = trim($displayName);
+		$name = trim((string) ($input['name'] ?? ''));
 		if ($name !== '' && $mode !== 'full') {
 			$name = (string) preg_split('/\s+/', $name)[0];
 		}
 
+		$hour = (int) ($input['hour'] ?? 12);
 		$part = 'evening';
 		if ($hour < 12) {
 			$part = 'morning';
@@ -133,28 +139,23 @@ class FirstPaintGreeting {
 	/**
 	 * The long date, "vrijdag 27 november 2026", or '' without `showDate`.
 	 *
-	 * @param array<string, mixed> $content The header content.
-	 * @param DateTimeImmutable    $moment  The moment, in the reader's time zone.
-	 * @param string               $locale  The reader's locale.
+	 * @param DateTimeImmutable    $moment The moment, in the reader's time zone.
+	 * @param array<string, mixed> $input  `content` (the header content) and `locale`.
 	 *
 	 * @return string
 	 */
-	private static function date(array $content, DateTimeImmutable $moment, string $locale): string {
-		if (($content['showDate'] ?? false) !== true) {
+	private static function date(DateTimeImmutable $moment, array $input): string {
+		if (($input['content']['showDate'] ?? false) !== true) {
 			return '';
 		}
 
+		$locale = (string) ($input['locale'] ?? '');
 		if ($locale === '') {
 			$locale = 'en_US';
 		}
 
-		$formatter = new IntlDateFormatter(
-			$locale,
-			IntlDateFormatter::FULL,
-			IntlDateFormatter::NONE,
-			$moment->getTimezone()
-		);
-		$text = $formatter->format($moment);
+		$formatter = new IntlDateFormatter($locale, IntlDateFormatter::FULL, IntlDateFormatter::NONE, $moment->getTimezone());
+		$text      = $formatter->format($moment);
 		if (is_string($text) === false) {
 			return '';
 		}

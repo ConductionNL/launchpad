@@ -11,9 +11,6 @@ namespace Unit\Controller;
 
 use JsonSerializable;
 use OCA\LaunchPad\Controller\FirstPaintPage;
-use OCA\LaunchPad\Service\InitialStateBuilder;
-use OCA\LaunchPad\Service\InitialState\Page;
-use OCP\AppFramework\Services\IInitialState;
 use OCP\IUser;
 use PHPUnit\Framework\TestCase;
 
@@ -159,29 +156,22 @@ class FirstPaintPageTest extends TestCase {
 	}//end testWidgetsOfAMissingAppAreLeftOut()
 
 	/**
-	 * The parameters read the page's own initial state, so the shell and the
-	 * page name the same widgets; the Reload link is the page's address.
+	 * The parameters carry the shell and the page's own address for Reload;
+	 * the reader's zone comes with the page values.
 	 *
 	 * @return void
 	 */
-	public function testParamsReadTheInitialState(): void {
-		$builder = new InitialStateBuilder(initialState: $this->createMock(originalClassName: IInitialState::class), page: Page::WORKSPACE);
-		$builder->setLayout([self::placement(id: 5, widgetId: 'text')])
-			->setActiveDashboardId('u-1')
-			->setDashboardSource('group')
-			->setWidgets([])
-			->setUserTimezone('Europe/Amsterdam')
-			->setDashboardFirstLoad(['visible' => [], 'active' => null]);
-
+	public function testParamsCarryTheShellAndTheReloadAddress(): void {
 		$params = FirstPaintPage::params(
-			state: $builder,
-			context: ['active' => self::opened(row: ['uuid' => 'u-1', 'name' => 'Team']), 'user' => null, 'reloadUrl' => '/apps/launchpad/team']
+			page: ['timezone' => 'Europe/Amsterdam', 'dashboardSource' => 'group'] + self::page(),
+			context: ['user' => null, 'reloadUrl' => '/apps/launchpad/team']
 		);
 		$this->assertSame(expected: '/apps/launchpad/team', actual: $params['reloadUrl']);
-		$this->assertSame(expected: ['5'], actual: array_column($params['firstPaint']['frames'], 'id'));
+		$this->assertSame(expected: ['1', '2'], actual: array_column($params['firstPaint']['frames'], 'id'));
 		$this->assertSame(expected: 'group', actual: $params['firstPaint']['source']);
 		$this->assertSame(expected: 'Europe/Amsterdam', actual: $params['firstPaint']['reader']['timezone']);
-	}//end testParamsReadTheInitialState()
+		$this->assertNull(actual: FirstPaintPage::params(page: ['firstLoad' => null] + self::page(), context: [])['firstPaint']);
+	}//end testParamsCarryTheShellAndTheReloadAddress()
 
 	/**
 	 * The PHP list is the browser's list: every `requiresApp` in the widget

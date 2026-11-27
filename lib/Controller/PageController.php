@@ -158,6 +158,7 @@ class PageController extends Controller {
 
 		$descriptors = $this->splitDescriptors(visible: $visible);
 		$activeState = $this->describeActive(active: $active, userId: $userId);
+		$inputs = $this->firstPaintInputs(userId: $userId, visible: $visible) + $activeState + ['widgets' => $widgets, 'active' => $active];
 
 		$builder = new InitialStateBuilder(initialState: $this->sources->initialState, page: Page::WORKSPACE);
 
@@ -187,11 +188,11 @@ class PageController extends Controller {
 			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
 			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
 			->setTalkEnabled($this->isAppEnabledForViewer(appId: 'spreed'))
-			->setIntegrationApps($this->integrationApps())
-			->setUserTimezone($this->userTimezone(userId: $userId))
+			->setIntegrationApps($inputs['apps'])
+			->setUserTimezone($inputs['timezone'])
 			->setFooter(...$this->sources->dashboards->footerState(dashboard: $active['dashboard'] ?? null, userId: $userId))
 			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
-			->setDashboardFirstLoad($this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible))
+			->setDashboardFirstLoad($inputs['firstLoad'])
 			->setOrgNavigation($this->settings->orgNavigation?->firstLoad(userId: $userId))
 			->setWorkspaceBootReads($this->sources->bootReads?->firstLoad(userId: $userId))
 			->setShellReads(reads: $this->sources->shell->firstLoad(userId: $userId, visible: $visible))
@@ -200,10 +201,30 @@ class PageController extends Controller {
 
 		// First-paint-skeleton D1: the header and the widget frames in the
 		// page's HTML, from the same values; none without a dashboard.
-		$context = ['active' => $active, 'user' => $this->userSession->getUser(), 'reloadUrl' => $this->request->getRequestUri()];
+		$context = ['user' => $this->userSession->getUser(), 'reloadUrl' => $this->request->getRequestUri()];
 
-		return $this->workspaceResponse(params: FirstPaintPage::params(state: $builder, context: $context));
+		return $this->workspaceResponse(params: FirstPaintPage::params(page: $inputs, context: $context));
 	}//end index()
+
+	/**
+	 * The values the initial state and the first-paint shell share, read
+	 * once: the first dashboard load, the integration apps and the reader's
+	 * time zone (first-paint-skeleton D1).
+	 *
+	 * @param string $userId  The user, or ''.
+	 * @param array  $visible The visible dashboards.
+	 *
+	 * @return array{firstLoad: array|null, apps: array, timezone: string}
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 */
+	private function firstPaintInputs(string $userId, array $visible): array {
+		return [
+			'firstLoad' => $this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible),
+			'apps'      => $this->integrationApps(),
+			'timezone'  => $this->userTimezone(userId: $userId),
+		];
+	}//end firstPaintInputs()
 
 	/**
 	 * The workspace page, without the Nextcloud layout for `kiosk=1`

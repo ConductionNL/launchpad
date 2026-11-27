@@ -793,21 +793,6 @@ class InitialStateBuilder {
 	}//end apply()
 
 	/**
-	 * A value this builder holds, as it will reach the page; null when it
-	 * was not set. Lets the page's first-paint shell draw from the same
-	 * values (first-paint-skeleton D1).
-	 *
-	 * @param string $key The initial-state key.
-	 *
-	 * @return mixed
-	 *
-	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
-	 */
-	public function value(string $key): mixed {
-		return $this->values[$key] ?? null;
-	}//end value()
-
-	/**
 	 * A value that encodes as JSON `null`. Nextcloud's initial-state service
 	 * drops a plain PHP `null` with a warning, so a key whose value is
 	 * `null` (e.g. `allowedWidgets` when nothing is configured, REQ-RFP-010)

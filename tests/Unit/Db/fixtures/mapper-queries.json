@@ -558,6 +558,28 @@
                 "qb1.executeQuery(null)"
             ],
             "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":5,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":6,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+        },
+        "findAllForManagers all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_announcements\", null)",
+                "qb1.orderBy(\"updated_at\", \"DESC\")",
+                "qb1.setMaxResults(500)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findAllForManagers rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_announcements\", null)",
+                "qb1.orderBy(\"updated_at\", \"DESC\")",
+                "qb1.setMaxResults(500)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":5,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\Announcement {\\\"id\\\":6,\\\"uuid\\\":null,\\\"kind\\\":null,\\\"title\\\":null,\\\"body\\\":null,\\\"category\\\":null,\\\"level\\\":null,\\\"dismissible\\\":false,\\\"targetGroups\\\":[],\\\"status\\\":null,\\\"publishAt\\\":null,\\\"expiresAt\\\":null,\\\"allowComments\\\":false,\\\"requiresConfirmation\\\":false,\\\"confirmBefore\\\":null,\\\"authorId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         }
     },
     "AppRequestMapper": {

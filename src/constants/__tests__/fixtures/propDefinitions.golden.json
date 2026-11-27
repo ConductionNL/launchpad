@@ -314,6 +314,12 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/TileWidget.vue | embedHref": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
 	"../../components/TileWidget.vue | placementId": {
 		"type": [
 			"Number",
@@ -349,6 +355,30 @@
 	},
 	"../../components/TileWidget.vue | defaultLinkTarget": {
 		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/WidgetMiniature.vue | type": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/WidgetMiniature.vue | entry": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/WidgetMiniature.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/WidgetMiniature.vue | ncWidget": {
+		"type": "Object",
 		"required": false,
 		"validator": false,
 		"default": null
@@ -447,6 +477,12 @@
 		"validator": false,
 		"default": "any"
 	},
+	"../../components/Widgets/Renderers/ActivityReportWidget.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Widgets/Renderers/ActivityReportWidget.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -468,6 +504,12 @@
 			"days": 30
 		},
 		"fresh": true
+	},
+	"../../components/Widgets/Renderers/AiAssistantWidget.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../components/Widgets/Renderers/AiAssistantWidget.vue | content": {
 		"type": "Object",
@@ -496,6 +538,12 @@
 			"agentUuid": ""
 		},
 		"fresh": true
+	},
+	"../../components/Widgets/Renderers/AnnouncementsWidget.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../components/Widgets/Renderers/AnnouncementsWidget.vue | content": {
 		"type": "Object",
@@ -550,6 +598,12 @@
 			"limit": 4
 		},
 		"fresh": true
+	},
+	"../../components/Widgets/Renderers/AttentionWidget.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../components/Widgets/Renderers/AttentionWidget.vue | content": {
 		"type": "Object",
@@ -665,6 +719,12 @@
 			"showDate": true
 		},
 		"fresh": true
+	},
+	"../../components/Widgets/Renderers/ColleagueActivityWidget.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../components/Widgets/Renderers/ColleagueActivityWidget.vue | content": {
 		"type": "Object",
@@ -908,6 +968,12 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Widgets/Renderers/LiveTileWidget.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Widgets/Renderers/LiveTileWidget.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -1009,6 +1075,12 @@
 		"required": false,
 		"validator": false,
 		"default": ""
+	},
+	"../../components/Widgets/Renderers/RecentWorkWidget.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../components/Widgets/Renderers/RecentWorkWidget.vue | content": {
 		"type": "Object",
@@ -1119,6 +1191,42 @@
 		"default": {},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/TabsWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/TabsWidget.vue | placement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/TabsWidget.vue | editMode": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Widgets/Renderers/TabsWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/TabsWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"tabs": [],
+			"title": ""
+		},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/TileHost.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -1172,6 +1280,12 @@
 		"default": {},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/WeatherWidget.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Widgets/Renderers/WeatherWidget.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -1207,6 +1321,12 @@
 		},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/WikiPagesWidget.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Widgets/Renderers/WikiPagesWidget.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -1236,6 +1356,12 @@
 			"limit": 3
 		},
 		"fresh": true
+	},
+	"../../components/Widgets/Renderers/WorkPackagesWidget.vue | preview": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../components/Widgets/Renderers/WorkPackagesWidget.vue | placement": {
 		"type": "Object",
@@ -1315,6 +1441,36 @@
 		"default": "Widget menu"
 	},
 	"../../components/Widgets/WidgetEditMenu.vue | removeLocked": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | editLabel": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | deleteLabel": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | showWhoSees": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": true
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | embedHref": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../components/Widgets/WidgetEditMenu.vue | embedDisabled": {
 		"type": "Boolean",
 		"required": false,
 		"validator": false,
@@ -1855,13 +2011,6 @@
 		],
 		"fresh": true
 	},
-	"../../components/admin/AnnouncementEditorsPolicy.vue | groups": {
-		"type": "Array",
-		"required": false,
-		"validator": false,
-		"default": [],
-		"fresh": true
-	},
 	"../../components/admin/DashboardSharingPolicy.vue | groups": {
 		"type": "Array",
 		"required": false,
@@ -2188,6 +2337,18 @@
 		"required": false,
 		"validator": false,
 		"default": ""
+	},
+	"../../modals/AnnouncementEditorModal.vue | inline": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/AnnouncementEditorModal.vue | announcement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
 	},
 	"../../modals/BookmarkImportModal.vue | open": {
 		"type": "Boolean",

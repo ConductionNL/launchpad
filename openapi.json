@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "LaunchPad",
-        "version": "1.1.23-unstable.20261127142517",
+        "version": "1.1.24-unstable.20261127140104",
         "description": "The JSON API of LaunchPad, the dashboard app for Nextcloud: dashboards and their widgets and tiles, kiosk screens, public shares, role-based layouts and permissions, templates and the admin settings behind them.\n\nEvery path is served under `/api/v1/`, the version this document describes. The unversioned `/api/` paths keep working, are deprecated, and name their `/api/v1/` successor in a `Link` header next to a `Deprecation` header. Errors are RFC 9457 problem details (`application/problem+json`), and every response carries an `API-Version` header. Paths that implement an external standard keep the formats of that standard and are not described here.",
         "contact": {
             "name": "Conduction B.V.",
@@ -5042,7 +5042,7 @@
             "get": {
                 "operationId": "announcement-index",
                 "x-launchpad-stability": "internal",
-                "summary": "`GET /api/announcements`: what the user sees now, their drafts when they author, and the categories they follow",
+                "summary": "`GET /api/announcements`: what the user sees now and the categories they follow; drafts are managed on the Announcements tab (REQ-ANN-010)",
                 "description": "GET /api/announcements: the announcements the user sees now, their drafts when they author, and the categories they follow. Needs a signed-in Nextcloud user.",
                 "tags": [
                     "announcement"
@@ -5073,7 +5073,7 @@
                 "operationId": "announcement-create",
                 "x-launchpad-stability": "internal",
                 "summary": "`POST /api/announcements`: write a draft; 403 for someone who may not author",
-                "description": "POST /api/announcements: write a draft. Administrators and announcement editors only. Needs a signed-in Nextcloud user.",
+                "description": "POST /api/announcements: write a draft. Administrators and announcement editors only. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement"
                 ],
@@ -5277,12 +5277,44 @@
                 }
             }
         },
+        "/announcements/manage": {
+            "get": {
+                "operationId": "announcement-manage",
+                "x-launchpad-stability": "internal",
+                "summary": "`GET /api/announcements/manage`: every announcement for the Announcements tab, news and notices, active, scheduled, ended and drafts (REQ-ANN-008)",
+                "description": "`GET /api/announcements/manage`: every announcement for the Announcements tab, news and notices, active, scheduled, ended and drafts (REQ-ANN-008). Nextcloud checks the announcements setting before this runs (REQ-ADM-034). Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "announcement"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/announcements/reach": {
             "get": {
                 "operationId": "announcement-reach",
                 "x-launchpad-stability": "internal",
                 "summary": "`GET /api/announcements/reach`: about how many people the target groups reach, for the preview",
-                "description": "GET /api/announcements/reach: about how many people the target groups reach, for the preview. Announcement editors only. Needs a signed-in Nextcloud user.",
+                "description": "GET /api/announcements/reach: about how many people the target groups reach, for the preview. Announcement editors only. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement"
                 ],
@@ -5410,7 +5442,7 @@
                 "operationId": "announcement-update",
                 "x-launchpad-stability": "internal",
                 "summary": "`PUT /api/announcements/{uuid}`: change an announcement",
-                "description": "PUT /api/announcements/{uuid}: change an announcement. Its author or an administrator. Needs a signed-in Nextcloud user.",
+                "description": "PUT /api/announcements/{uuid}: change an announcement. Its author or an administrator. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement"
                 ],
@@ -5494,7 +5526,7 @@
                 "operationId": "announcement-destroy",
                 "x-launchpad-stability": "internal",
                 "summary": "`DELETE /api/announcements/{uuid}`: delete an announcement",
-                "description": "DELETE /api/announcements/{uuid}: delete an announcement. Its author or an administrator. Needs a signed-in Nextcloud user.",
+                "description": "DELETE /api/announcements/{uuid}: delete an announcement. Its author or an administrator. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement"
                 ],
@@ -5750,7 +5782,7 @@
                 "operationId": "announcement-publish",
                 "x-launchpad-stability": "internal",
                 "summary": "`POST /api/announcements/{uuid}/publish`: publish after the preview; a notice without an end time is refused",
-                "description": "`POST /api/announcements/{uuid}/publish`: publish after the preview; a notice without an end time is refused. Needs a signed-in Nextcloud user.",
+                "description": "`POST /api/announcements/{uuid}/publish`: publish after the preview; a notice without an end time is refused. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement"
                 ],
@@ -5838,7 +5870,7 @@
                 "operationId": "announcement-read-receipts",
                 "x-launchpad-stability": "internal",
                 "summary": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator",
-                "description": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator. Needs a signed-in Nextcloud user.",
+                "description": "GET /api/announcements/{uuid}/receipts: who confirmed and who has not yet, for the author or an administrator. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
                     "announcement-read"
                 ],
@@ -6655,7 +6687,8 @@
                                             "null"
                                         ],
                                         "description": "The default way the dashboard's tiles open; anything not a string is ignored."
-                                    }
+                                    },
+                                    "draft": {}
                                 }
                             }
                         }
@@ -6697,6 +6730,9 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
                     }
                 }
             },

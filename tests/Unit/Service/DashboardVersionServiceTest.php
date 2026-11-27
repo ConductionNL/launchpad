@@ -908,4 +908,144 @@ class DashboardVersionServiceTest extends TestCase {
 		$this->assertSame(expected: $stored->getName(), actual: json_decode(json: $state['snapshotJson'], associative: true)['dashboard']['name']);
 		$this->assertNull(actual: $this->service->stateBeforeUpdate(dashboardId: 8));
 	}//end testStateBeforeUpdateReadsTheStoredDashboard()
+
+	/**
+	 * A service whose stores carry the given connection.
+	 *
+	 * @param IDBConnection $db The connection.
+	 *
+	 * @return DashboardVersionService The service.
+	 */
+	private function serviceWithDb(IDBConnection $db): DashboardVersionService {
+		return new DashboardVersionService(
+			stores: new VersionStores(
+				versionMapper: $this->versionMapper,
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				db: $db
+			),
+			groupManager: $this->groupManager,
+			cacheFactory: $this->cacheFactory,
+			logger: $this->createMock(originalClassName: LoggerInterface::class)
+		);
+	}//end serviceWithDb()
+
+	/**
+	 * REQ-VERS-011: the first save of a dashboard without versions stores
+	 * the state before the save, then the state after it, in one transaction.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-the-first-version-keeps-the-state-before-the-change-req-vers-011
+	 */
+	public function testFirstSaveStoresTheStateBeforeAndAfter(): void {
+		$before = $this->makeDashboard();
+		$after  = $this->makeDashboard();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$after->setName('After');
+		$this->dashboardMapper->method('find')->willReturn($before);
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
+		$this->versionMapper->method('findLatestByDashboard')->willReturn([]);
+
+		$max = 0;
+		$this->versionMapper->method('findMaxVersionNumber')->willReturnCallback(static function () use (&$max): int {
+			return $max;
+		});
+		$inserted = [];
+		$this->versionMapper->method('insert')->willReturnCallback(
+			static function (DashboardVersion $row) use (&$inserted, &$max): DashboardVersion {
+				$inserted[] = $row;
+				$max        = $row->getVersionNumber();
+				return $row;
+			}
+		);
+
+		$db = $this->createMock(originalClassName: IDBConnection::class);
+		$db->expects($this->once())->method('beginTransaction');
+		$db->expects($this->once())->method('commit');
+		$db->expects($this->never())->method('rollBack');
+
+		$saved = $this->serviceWithDb(db: $db)->saveWithVersion(dashboardId: 7, createdBy: 'alice', save: static fn (): Dashboard => $after);
+
+		$this->assertSame(expected: $after, actual: $saved);
+		$this->assertCount(expectedCount: 2, haystack: $inserted);
+		$this->assertSame(expected: [1, 2], actual: [$inserted[0]->getVersionNumber(), $inserted[1]->getVersionNumber()]);
+		$this->assertSame(expected: 'Test', actual: json_decode(json: $inserted[0]->getSnapshotJson(), associative: true)['dashboard']['name']);
+		$this->assertSame(expected: 'After', actual: json_decode(json: $inserted[1]->getSnapshotJson(), associative: true)['dashboard']['name']);
+		$this->assertSame(expected: ['alice', 'alice'], actual: [$inserted[0]->getCreatedBy(), $inserted[1]->getCreatedBy()]);
+	}//end testFirstSaveStoresTheStateBeforeAndAfter()
+
+	/**
+	 * REQ-VERS-010: a later save stores exactly one version, even inside the
+	 * old debounce window.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 */
+	public function testEverySaveStoresOneVersionWithoutDebounce(): void {
+		$dashboard = $this->makeDashboard();
+		$this->dashboardMapper->method('find')->willReturn($dashboard);
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
+		$this->versionMapper->method('findLatestByDashboard')->willReturn([]);
+		$this->versionMapper->method('findMaxVersionNumber')->willReturn(4);
+		$this->cache->method('hasKey')->willReturn(true);
+		$this->versionMapper->expects($this->exactly(count: 2))->method('insert')->willReturnArgument(0);
+
+		$db      = $this->createMock(originalClassName: IDBConnection::class);
+		$service = $this->serviceWithDb(db: $db);
+		$service->saveWithVersion(dashboardId: 7, createdBy: 'alice', save: static fn (): Dashboard => $dashboard);
+		$service->saveWithVersion(dashboardId: 7, createdBy: 'alice', save: static fn (): Dashboard => $dashboard);
+	}//end testEverySaveStoresOneVersionWithoutDebounce()
+
+	/**
+	 * REQ-VERS-010: a failed save stores no version and rolls back.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 */
+	public function testAFailedSaveStoresNoVersion(): void {
+		$this->dashboardMapper->method('find')->willReturn($this->makeDashboard());
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
+		$this->versionMapper->expects($this->never())->method('insert');
+
+		$db = $this->createMock(originalClassName: IDBConnection::class);
+		$db->expects($this->once())->method('beginTransaction');
+		$db->expects($this->never())->method('commit');
+		$db->expects($this->once())->method('rollBack');
+
+		$this->expectException(exception: \RuntimeException::class);
+		$this->serviceWithDb(db: $db)->saveWithVersion(
+			dashboardId: 7,
+			createdBy: 'alice',
+			save: static function (): Dashboard {
+				throw new \RuntimeException('refused');
+			}
+		);
+	}//end testAFailedSaveStoresNoVersion()
+
+	/**
+	 * REQ-VERS-010: when the version cannot be written the save is rolled
+	 * back too, so save and version stay together.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 */
+	public function testAFailingVersionWriteRollsTheSaveBack(): void {
+		$dashboard = $this->makeDashboard();
+		$this->dashboardMapper->method('find')->willReturn($dashboard);
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
+		$this->versionMapper->method('findLatestByDashboard')->willReturn([]);
+		$this->versionMapper->method('findMaxVersionNumber')->willReturn(3);
+		$this->versionMapper->method('insert')->willThrowException(new \RuntimeException('db down'));
+
+		$db = $this->createMock(originalClassName: IDBConnection::class);
+		$db->expects($this->never())->method('commit');
+		$db->expects($this->once())->method('rollBack');
+
+		$this->expectException(exception: \RuntimeException::class);
+		$this->serviceWithDb(db: $db)->saveWithVersion(dashboardId: 7, createdBy: 'alice', save: static fn (): Dashboard => $dashboard);
+	}//end testAFailingVersionWriteRollsTheSaveBack()
 }//end class

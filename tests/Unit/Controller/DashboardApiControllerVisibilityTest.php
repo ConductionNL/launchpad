@@ -17,6 +17,7 @@ use OCA\LaunchPad\Controller\DashboardApiAccess;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Controller\DashboardApiHistory;
 use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiWidgets;
 use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use OCA\LaunchPad\Controller\UserResponses;
@@ -92,7 +93,10 @@ class DashboardApiControllerVisibilityTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->createMock(originalClassName: IRequest::class),
-			services: new DashboardApiServices(dashboardService: $this->dashboards, visibility: $this->visibility, roleWidgets: $roleWidgets),
+			services: new DashboardApiServices(
+				dashboardService: $this->dashboards,
+				widgets: new DashboardApiWidgets(visibility: $this->visibility, roleWidgets: $roleWidgets)
+			),
 			access: new DashboardApiAccess(
 				permissionService: $this->createMock(originalClassName: PermissionService::class),
 				history: new DashboardApiHistory(

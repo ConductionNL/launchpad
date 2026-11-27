@@ -24,6 +24,7 @@
 import { mapState } from 'pinia'
 import LaunchpadMoreMenu from './LaunchpadMoreMenu.vue'
 import { api } from '../../services/api.js'
+import { favouriteDashboardsMixin } from '../../services/favouriteDashboards.js'
 import { useDashboardStore } from '../../stores/dashboard.js'
 import { logger } from '../../utils/logger.js'
 import {
@@ -39,6 +40,8 @@ export default {
 	components: {
 		LaunchpadMoreMenu,
 	},
+
+	mixins: [favouriteDashboardsMixin],
 
 	inject: {
 		/**
@@ -109,8 +112,11 @@ export default {
 				sharedDashboards: this.sharedWithMeDashboards,
 				activeId: null,
 				defaultUuid: this.defaultUuid,
+				favourites: this.favourites,
+				expanded: this.dashboardsExpanded,
 				onSwitch: (id) => this.openDashboard(id),
-				onOpenAll: () => this.openWorkspace(),
+				onToggleExpanded: () => this.toggleDashboardsExpanded(),
+				onToggleFavourite: (uuid) => this.toggleDashboardFavourite(uuid),
 			})
 		},
 
@@ -134,6 +140,7 @@ export default {
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
 		 */
 		async onOpen() {
+			this.foldDashboards()
 			if (!this.loadedOnce) {
 				await useDashboardStore().loadDashboards()
 			}
@@ -158,16 +165,6 @@ export default {
 		 */
 		openDashboard(id) {
 			this.$router?.push({ name: 'dashboard-detail', params: { id: String(id) } })
-		},
-
-		/**
-		 * Go to the dashboard view, where every dashboard is listed.
-		 *
-		 * @return {void}
-		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
-		 */
-		openWorkspace() {
-			this.$router?.push({ name: 'Workspace' })
 		},
 	},
 }

@@ -13,7 +13,8 @@
 		:settings="settings"
 		:actions="actions"
 		class="launchpad-more-menu"
-		data-testid="launchpad-more-menu" />
+		data-testid="launchpad-more-menu"
+		@open="foldDashboards" />
 </template>
 
 <script>
@@ -22,6 +23,7 @@ import { markRaw } from 'vue'
 import CheckDecagramOutline from 'vue-material-design-icons/CheckDecagramOutline.vue'
 import { isOwnedDashboard } from './DashboardRowActions.vue'
 import LaunchpadMoreMenu from './LaunchpadMoreMenu.vue'
+import { favouriteDashboardsMixin } from '../../services/favouriteDashboards.js'
 import {
 	dashboardActionItems,
 	dashboardItems,
@@ -36,6 +38,8 @@ export default {
 	components: {
 		LaunchpadMoreMenu,
 	},
+
+	mixins: [favouriteDashboardsMixin],
 
 	inject: {
 		/** What `App.vue` decided about the navigation panel (see StartPageMenu). */
@@ -121,7 +125,7 @@ export default {
 
 	emits: [
 		'switch',
-		'openAll',
+		'download',
 		'toggleEdit',
 		'addWidget',
 		'share',
@@ -134,10 +138,12 @@ export default {
 
 	computed: {
 		/**
-		 * The Dashboards group, the open one checked.
+		 * The Dashboards group, the open one checked: the favourites, or
+		 * every dashboard with a star each once unfolded.
 		 *
 		 * @return {object[]}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-016-the-dashboards-column-lists-the-favourites-and-unfolds-in-place
 		 */
 		dashboards() {
 			return dashboardItems({
@@ -146,8 +152,11 @@ export default {
 				sharedDashboards: this.sharedDashboards,
 				activeId: this.dashboard?.id ?? null,
 				defaultUuid: this.defaultUuid,
+				favourites: this.favourites,
+				expanded: this.dashboardsExpanded,
 				onSwitch: (id, source) => this.$emit('switch', id, source),
-				onOpenAll: () => this.$emit('openAll'),
+				onToggleExpanded: () => this.toggleDashboardsExpanded(),
+				onToggleFavourite: (uuid) => this.toggleDashboardFavourite(uuid),
 			})
 		},
 
@@ -166,11 +175,12 @@ export default {
 		},
 
 		/**
-		 * The This dashboard group. Read receipts, when the dashboard asks
-		 * for them, sit before Delete, which stays last.
+		 * The This dashboard group, Download included. Read receipts, when
+		 * the dashboard asks for them, sit before Delete, which stays last.
 		 *
 		 * @return {object[]}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
+		 * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-018-powered-by-and-download-live-in-the-more-menu
 		 */
 		actions() {
 			const items = dashboardActionItems({

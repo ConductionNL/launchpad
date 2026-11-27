@@ -1,59 +1,9 @@
 <template>
 	<div id="launchpad-app" :class="{ 'launchpad-app--fill': fillsHeight, 'launchpad-app--kiosk': kiosk }">
-		<!-- Slide-in sidebar (REQ-SWITCH-001..007). The sidebar keeps the
-		     `isOpen` prop / `update:open` event pair mandated by the spec.
-		     Vue 3 removed the component-level `model: { prop, event }`
-		     option, so a bare `v-model` here would bind `modelValue` /
-		     `update:modelValue` — neither of which the sidebar declares —
-		     and the panel would never open. Bind both halves explicitly.
-		     Once `runtime-shell` ships and replaces this view with
-		     `WorkspaceApp.vue`, the same binding shape applies.
-
-		     TELEPORTED TO BODY, and the reason is a stacking context, not a
-		     z-index. The sidebar and its backdrop are `position: fixed`, but
-		     fixed positioning does not escape a stacking context — it only
-		     escapes the scroll flow. Until #551 this view WAS the page, so
-		     there was no context to escape. #551 adopted the shared shell, so
-		     this view now renders inside `#app-content`, a sibling of
-		     `.app-navigation`, and NcAppNavigation carries `z-index: 1400` on
-		     ITSELF. A sibling with a z-index paints above the whole of a
-		     sibling subtree whose own z-index is auto, so the sidebar's 1500
-		     could never win: it was competing inside a box that had already
-		     lost.
-
-		     That cost 58 e2e failures across eleven specs, every one of them
-		     `locator.click` timing out with the SAME interceptor named in the
-		     log, `[data-testid="cn-nav"] .app-navigation`. Raising the number
-		     again would not have helped. Teleporting makes the sidebar a
-		     sibling of the navigation rather than a descendant of the content,
-		     which is the only place its z-index means what it says. -->
-		<!-- REQ-KIOSK-001: a kiosk view has no switcher and no top controls. -->
-		<Teleport v-if="!kiosk" to="body">
-			<DashboardSwitcherSidebar
-				:isOpen="sidebarOpen"
-				:groupName="primaryGroupName"
-				:groupDashboards="sidebarGroupDashboards"
-				:userDashboards="sidebarUserDashboards"
-				:activeDashboardId="activeDashboard?.id"
-				:allowUserDashboards="allowUserDashboards"
-				:canEdit="canEdit"
-				:defaultUuid="defaultDashboardUuid"
-				:dashboardQuotaReached="dashboardQuotaReached"
-				:dashboardQuotaTooltip="dashboardQuotaTooltip"
-				:isEditMode="isEditMode"
-				:filterFields="detailFields"
-				@update:open="sidebarOpen = $event"
-				@filter="onDetailFilter"
-				@switch="onSidebarSwitch"
-				@createDashboard="onSidebarCreateDashboard"
-				@deleteDashboard="onSidebarDeleteDashboard"
-				@toggleEdit="onRowToggleEdit"
-				@openConfig="onRowOpenConfig"
-				@addWidget="onRowAddWidget"
-				@importBookmarks="onRowImportBookmarks"
-				@setDefault="onRowSetDefault" />
-			<SidebarBackdrop v-if="sidebarOpen" @close="sidebarOpen = false" />
-		</Teleport>
+		<!-- Ruben's review (27 Nov 2026) item 4: no left Dashboards panel any
+		     more. Dashboards are switched in the More menu, whose Dashboards
+		     column lists the favourites and unfolds in place into every
+		     dashboard (DashboardMoreMenu). -->
 
 		<!-- The page's top-right controls: the "Meer" menu, and the
 		     acknowledgement count and hidden-widgets control when they apply. -->
@@ -97,7 +47,7 @@
 					"
 					:isEditMode="isEditMode"
 					@switch="onSidebarSwitch"
-					@openAll="sidebarOpen = true"
+					@download="downloadActiveDashboard"
 					@toggleEdit="
 						onRowToggleEdit(activeDashboard, activeDashboardSource)
 					"
@@ -557,13 +507,12 @@ import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardPageHeader from '../components/Workspace/DashboardPageHeader.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
 import { embedAdminHref, isOwnedDashboard } from '../components/Workspace/DashboardRowActions.vue'
-import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import FilterBreadcrumb from '../components/Workspace/FilterBreadcrumb.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import InstallBanner from '../components/Workspace/InstallBanner.vue'
 import PhoneHiddenNotice from '../components/Workspace/PhoneHiddenNotice.vue'
-import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
+import { printDashboard } from '../utils/printDashboard.js'
 // The dialogs and modals load the first time they open, not with the page.
 const DeleteDashboardDialog = defineAsyncComponent(() => import('../dialogs/DeleteDashboardDialog.vue'))
 const ReadConfirmationDialog = defineAsyncComponent(() => import('../dialogs/ReadConfirmationDialog.vue'))
@@ -764,10 +713,8 @@ export default {
 		WidgetContextMenu,
 		WidgetMovePanel,
 		VisibilityRulesModal,
-		DashboardSwitcherSidebar,
 		DashboardEditBar,
 		DashboardMoreMenu,
-		SidebarBackdrop,
 		DashboardDiscussion,
 		DashboardReactions,
 		ReadConfirmationDialog,
@@ -4099,6 +4046,18 @@ export default {
 		async onRowToggleEdit(dashboard, source) {
 			await this.maybeSwitchTo(dashboard.id, source)
 			this.toggleEditMode()
+		},
+
+		/**
+		 * Download the open dashboard as a PDF: the browser prints the page
+		 * as it is now. Moved from the page header into the More menu
+		 * (Ruben's review item 8).
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/more-menu-favourites/specs/runtime-shell/spec.md#requirement-req-shell-018-powered-by-and-download-live-in-the-more-menu
+		 */
+		downloadActiveDashboard() {
+			printDashboard(this.activeDashboard?.name ?? '')
 		},
 
 		/**

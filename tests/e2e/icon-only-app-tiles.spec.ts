@@ -134,7 +134,7 @@ test('choosing a swatch in the tile form changes the tile colour', async ({ page
 
 	// The form has two "Primary" swatches (tile colour and text colour): pick the tile colour's.
 	await page.locator('input[name="tile-colour"][value="--sc-primary"]').check()
-	await page.getByRole('button', { name: /^save$/i }).click()
+	await page.getByTestId('tile-editor-save').click()
 
 	await expect(zaak).toHaveAttribute('style', /--tile-bg-color: var\(--sc-primary/)
 	// The tile form writes the edit-mode draft; Save stores it (REQ-EDIT-002).

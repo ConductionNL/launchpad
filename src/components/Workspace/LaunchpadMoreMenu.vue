@@ -62,7 +62,14 @@
 							v-for="item in dashboards"
 							:key="item.id"
 							class="lp-more-menu__row">
+							<p
+								v-if="item.hint === true"
+								class="lp-more-menu__hint"
+								:data-testid="`launchpad-more-menu-${item.id}`">
+								{{ item.label }}
+							</p>
 							<LaunchpadMoreMenuItem
+								v-else
 								:item="item"
 								:aria-expanded="item.keepOpen ? String(item.expanded === true) : undefined"
 								@click="choose($event, item)" />
@@ -678,6 +685,14 @@ export default {
 
 .lp-more-menu__star--on:not(#lp-more-menu-a):not(#lp-more-menu-b) {
 	color: #f5b301 !important;
+}
+
+.lp-more-menu__hint {
+	margin: 0;
+	padding: 4px 10px 6px;
+	font-size: 13px;
+	line-height: 1.4;
+	color: var(--color-text-maxcontrast);
 }
 
 .lp-more-menu__footer {

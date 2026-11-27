@@ -271,4 +271,19 @@ describe('LaunchpadMoreMenu', () => {
 		expect(without.find('[data-testid="sidebar-footer"]').exists()).toBe(false)
 		without.unmount()
 	})
+
+	it('draws the line about starring as text, not as a menu item (Ruben, 27 Nov)', async () => {
+		const wrapper = await openMenu({
+			dashboards: [
+				{ id: 'dashboard-1', label: 'Vandaag', checked: true },
+				{ id: 'favourites-hint', hint: true, label: 'Star a dashboard under More to see it here.' },
+				{ id: 'all-dashboards', label: 'More', keepOpen: true, expanded: false },
+			],
+		})
+		const hint = wrapper.find('[data-testid="launchpad-more-menu-favourites-hint"]')
+		expect(hint.element.tagName).toBe('P')
+		expect(hint.text()).toBe('Star a dashboard under More to see it here.')
+		expect(ids(wrapper)).not.toContain('launchpad-more-menu-item-favourites-hint')
+		wrapper.unmount()
+	})
 })

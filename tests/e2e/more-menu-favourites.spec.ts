@@ -31,12 +31,14 @@ const ADMIN = {
 	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
 }
 
-/** One more than the folded column lists for a person without favourites. */
+/** More dashboards than the old folded list of eight held. */
 const COUNT = 9
 const RUN = Date.now()
 const TRIGGER = `${MORE_MENU} [data-testid="launchpad-more-menu-trigger"]`
 const LIST = '[data-testid="launchpad-more-menu-dashboard-list"]'
 const UNFOLD = '[data-testid="launchpad-more-menu-item-all-dashboards"]'
+const HINT = '[data-testid="launchpad-more-menu-favourites-hint"]'
+const HINT_TEXT = 'Star a dashboard under More to see it here.'
 
 let api: APIRequestContext
 let seeded: SeededDashboard | null = null
@@ -127,9 +129,10 @@ test('More unfolds every dashboard in place, each with an empty star, and Fewer 
 	const { context, page } = await memberSession(browser)
 	try {
 		await openMore(page)
-		// Without favourites the folded column lists eight and then More.
-		expect(await rows(page)).toHaveLength(9)
-		expect((await rows(page)).at(-1)).toBe('More')
+		// Without favourites the folded column is the open dashboard, a line
+		// saying that a star puts a dashboard here, and More (Ruben, 27 Nov).
+		expect(await rows(page)).toEqual([own[0].name, 'More'])
+		await expect(page.locator(HINT)).toHaveText(HINT_TEXT)
 		await expect(page.locator(`${LIST} .lp-more-menu__star`)).toHaveCount(0)
 
 		await page.locator(UNFOLD).click()
@@ -147,7 +150,7 @@ test('More unfolds every dashboard in place, each with an empty star, and Fewer 
 		}
 
 		await page.locator(UNFOLD).click()
-		expect(await rows(page)).toHaveLength(9)
+		expect(await rows(page)).toEqual([own[0].name, 'More'])
 	} finally {
 		await context.close()
 	}
@@ -172,13 +175,15 @@ test('a star is stored for the person, survives a reload, and the folded column 
 		await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
 		await page.locator(TRIGGER).click()
 		expect(await rows(page)).toEqual([last.name, 'More'])
+		await expect(page.locator(HINT)).toHaveCount(0)
 
 		await page.locator(UNFOLD).click()
 		const again = page.waitForResponse((r) => r.url().includes('/api/preferences/favourite-dashboards') && r.request().method() === 'PUT')
 		await page.locator(`[data-testid="launchpad-more-menu-star-dashboard-${last.id}"]`).click()
 		await again
 		await page.locator(UNFOLD).click()
-		expect(await rows(page)).toHaveLength(9)
+		expect(await rows(page)).toEqual([own[0].name, 'More'])
+		await expect(page.locator(HINT)).toBeVisible()
 	} finally {
 		await context.close()
 	}

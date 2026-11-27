@@ -17,12 +17,17 @@ The shell MUST NOT render a sidebar-toggle (hamburger) button, a title strip wit
 
 ### Requirement: REQ-SHELL-016 The Dashboards column lists the favourites and unfolds in place
 
-Folded, the More menu's Dashboards column MUST list the person's favourite dashboards (REQ-SHELL-017) in the order of the full list; a person without favourites sees the first eight dashboards. Its last item "More" MUST unfold the column in place, keeping the menu open, into a scrollable list of every dashboard the person can open, ending in "Fewer", which folds it again. Every opening of the menu MUST start folded.
+Folded, the More menu's Dashboards column MUST list the person's favourite dashboards (REQ-SHELL-017) in the order of the full list. Before the person has starred any dashboard, the column MUST show the open dashboard (if any), a line saying that starring a dashboard makes it appear here, and "More" (Ruben's decision, 27 Nov 2026). Its last item "More" MUST unfold the column in place, keeping the menu open, into a scrollable list of every dashboard the person can open, ending in "Fewer", which folds it again. Every opening of the menu MUST start folded.
 
 #### Scenario: Favourites only
 - **GIVEN** Pieter starred "Team Vergunningen" and can open five dashboards
 - **WHEN** he opens More
 - **THEN** the Dashboards column lists "Team Vergunningen" and "More"
+
+#### Scenario: Nothing starred yet
+- **GIVEN** Pieter has starred nothing and has "Vandaag" open
+- **WHEN** he opens More
+- **THEN** the Dashboards column lists "Vandaag", the line "Star a dashboard under More to see it here." and "More"
 
 #### Scenario: More unfolds in place
 - **GIVEN** the menu is open and folded

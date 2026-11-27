@@ -84,7 +84,7 @@ function mountMenu(props = {}, chrome = { railSuppressed: true, entries: ENTRIES
 describe('DashboardMoreMenu', () => {
 	it('hands the one menu the board\'s three groups', () => {
 		const { ids } = mountMenu()
-		expect(ids('dashboards')).toEqual(['dashboard-1', 'dashboard-2', 'dashboard-3', 'all-dashboards'])
+		expect(ids('dashboards')).toEqual(['dashboard-1', 'favourites-hint', 'all-dashboards'])
 		expect(ids('settings')).toEqual([
 			'personal-settings',
 			'admin-settings-link',
@@ -99,9 +99,11 @@ describe('DashboardMoreMenu', () => {
 		expect(ids('actions')).toEqual(['edit', 'add-widget', 'share', 'copy-link', 'download', 'duplicate', 'set-default', 'delete'])
 	})
 
-	it('marks the open, the default, the shared and the group dashboards', () => {
-		const { menu } = mountMenu()
-		const [today, team, intranet] = menu.props('dashboards')
+	it('marks the open, the default, the shared and the group dashboards', async () => {
+		const { wrapper } = mountMenu()
+		wrapper.vm.toggleDashboardsExpanded()
+		await wrapper.vm.$nextTick()
+		const [today, team, intranet] = wrapper.findComponent({ name: 'LaunchpadMoreMenu' }).props('dashboards')
 		expect(today).toMatchObject({ checked: true, meta: 'default' })
 		expect(team).toMatchObject({ checked: false, meta: 'shared' })
 		expect(intranet).toMatchObject({ checked: false, meta: 'group' })
@@ -109,11 +111,11 @@ describe('DashboardMoreMenu', () => {
 
 	it('switches dashboards, and More unfolds every dashboard with a star in place', async () => {
 		const { wrapper, menu } = mountMenu()
-		menu.props('dashboards')[1].onClick()
-		expect(wrapper.emitted('switch')).toEqual([[2, 'shared']])
 		menu.props('dashboards').at(-1).onClick()
 		await wrapper.vm.$nextTick()
 		const unfolded = wrapper.findComponent({ name: 'LaunchpadMoreMenu' }).props('dashboards')
+		unfolded[1].onClick()
+		expect(wrapper.emitted('switch')).toEqual([[2, 'shared']])
 		expect(unfolded.at(-1).label).toBe('Fewer')
 		expect(unfolded.slice(0, -1).map((i) => i.favourite)).toEqual([false, false, false])
 		expect(wrapper.emitted('openAll')).toBeUndefined()

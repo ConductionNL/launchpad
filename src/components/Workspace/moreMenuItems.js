@@ -229,9 +229,6 @@ export function readChrome(provided) {
 	}
 }
 
-/** How many dashboards the folded column lists for a person without favourites. */
-export const DASHBOARD_LIMIT = 8
-
 /** Icons of the destinations under Settings, by menu entry id. */
 const DESTINATION_ICONS = {
 	StoreMenu: StoreOutline,
@@ -297,9 +294,9 @@ export function dashboardIcon(dashboard, isDefault) {
  * The Dashboards group (Ruben's review, 27 Nov 2026, items 5 and 6).
  *
  * Folded, it is a short list: the person's favourite dashboards, in the
- * order of the full list. A person without favourites sees the first
- * DASHBOARD_LIMIT dashboards instead, so the column is never empty. The open
- * dashboard is checked. "More" closes the list and unfolds the column in
+ * order of the full list. A person without favourites sees the open
+ * dashboard and a line saying that starring a dashboard puts it here
+ * (Ruben's decision, 27 Nov 2026). The open dashboard is checked. "More" closes the list and unfolds the column in
  * place into every dashboard the person can open, each row with a star that
  * marks or unmarks it as a favourite; "Fewer" folds it again.
  *
@@ -332,9 +329,13 @@ export function dashboardItems({
 	const all = dashboardRows(userDashboards, groupDashboards, sharedDashboards)
 	const starred = new Set(favourites)
 	let rows = all
+	let showHint = false
 	if (!expanded) {
 		const favouriteRows = all.filter(({ d }) => Boolean(d.uuid) && starred.has(d.uuid))
-		rows = favouriteRows.length > 0 ? favouriteRows : all.slice(0, DASHBOARD_LIMIT)
+		// Ruben, 27 Nov 2026: before anything is starred, the open dashboard
+		// and a line saying that a star puts a dashboard here.
+		showHint = favouriteRows.length === 0
+		rows = showHint ? all.filter(({ d }) => d.id === activeId) : favouriteRows
 	}
 	const items = rows.map(({ d, source }) => {
 		const isDefault = Boolean(d.uuid) && d.uuid === defaultUuid
@@ -352,6 +353,13 @@ export function dashboardItems({
 		}
 		return item
 	})
+	if (showHint) {
+		items.push({
+			id: 'favourites-hint',
+			hint: true,
+			label: t('launchpad', 'Star a dashboard under More to see it here.'),
+		})
+	}
 	items.push({
 		id: 'all-dashboards',
 		label: expanded ? t('launchpad', 'Fewer') : t('launchpad', 'More'),

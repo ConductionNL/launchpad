@@ -15,7 +15,6 @@ vi.mock('@nextcloud/router', () => ({
 }))
 
 import {
-	DASHBOARD_LIMIT,
 	dashboardActionItems,
 	dashboardItems,
 	parseFavourites,
@@ -63,28 +62,32 @@ describe('dashboardItems', () => {
 	}
 	const items = dashboardItems(base)
 
-	it('without favourites lists own, then shared and group dashboards once, ending in More', () => {
-		expect(items.map((i) => i.label)).toEqual(['Vandaag', 'Mijn werkplek', 'Team Vergunningen', 'Intranet Zuiddrecht', 'More'])
+	it('without favourites lists the open dashboard, a line about starring, and More', () => {
+		expect(items.map((i) => i.id)).toEqual(['dashboard-4', 'favourites-hint', 'all-dashboards'])
+		expect(items[1]).toMatchObject({ hint: true, label: 'Star a dashboard under More to see it here.' })
+		expect(items[0].checked).toBe(true)
 	})
 
-	it('marks default, shared and group, and checks the open one', () => {
-		expect(items.map((i) => i.meta)).toEqual(['default', undefined, 'shared', 'group', undefined])
-		expect(items.map((i) => i.checked)).toEqual([false, true, false, false, undefined])
+	it('without favourites and nothing open, lists only the line and More', () => {
+		const list = dashboardItems({ ...base, activeId: null })
+		expect(list.map((i) => i.id)).toEqual(['favourites-hint', 'all-dashboards'])
+	})
+
+	it('unfolded, lists own, then shared and group dashboards once, marked, the open one checked', () => {
+		const all = dashboardItems({ ...base, expanded: true })
+		expect(all.map((i) => i.label)).toEqual(['Vandaag', 'Mijn werkplek', 'Team Vergunningen', 'Intranet Zuiddrecht', 'Fewer'])
+		expect(all.map((i) => i.meta)).toEqual(['default', undefined, 'shared', 'group', undefined])
+		expect(all.map((i) => i.checked)).toEqual([false, true, false, false, undefined])
 	})
 
 	it('switches with the dashboard\'s source, and More unfolds the column and keeps the menu open', () => {
-		items[2].onClick()
+		const all = dashboardItems({ ...base, expanded: true })
+		all[2].onClick()
 		expect(onSwitch).toHaveBeenCalledWith(2, 'shared')
 		expect(items.at(-1).keepOpen).toBe(true)
 		expect(items.at(-1).expanded).toBe(false)
 		items.at(-1).onClick()
 		expect(onToggleExpanded).toHaveBeenCalled()
-	})
-
-	it('without favourites lists at most the limit before More', () => {
-		const many = Array.from({ length: DASHBOARD_LIMIT + 3 }, (_, i) => ({ id: i + 1, name: `D${i}` }))
-		const list = dashboardItems({ userDashboards: many, onSwitch })
-		expect(list).toHaveLength(DASHBOARD_LIMIT + 1)
 	})
 
 	it('folded, lists only the favourites, in the order of the full list, and no stars', () => {
@@ -93,10 +96,10 @@ describe('dashboardItems', () => {
 		expect(list.some((i) => i.favourite !== undefined)).toBe(false)
 	})
 
-	it('unfolded, lists every dashboard beyond the limit, each with its star, ending in Fewer', () => {
-		const many = Array.from({ length: DASHBOARD_LIMIT + 3 }, (_, i) => ({ id: i + 1, uuid: `m-${i}`, name: `D${i}` }))
+	it('unfolded, lists every dashboard, each with its star, ending in Fewer', () => {
+		const many = Array.from({ length: 11 }, (_, i) => ({ id: i + 1, uuid: `m-${i}`, name: `D${i}` }))
 		const list = dashboardItems({ userDashboards: many, favourites: ['m-2'], expanded: true, onSwitch, onToggleFavourite })
-		expect(list).toHaveLength(DASHBOARD_LIMIT + 4)
+		expect(list).toHaveLength(12)
 		expect(list.slice(0, -1).map((i) => i.favourite)).toEqual(many.map((d) => d.uuid === 'm-2'))
 		expect(list.at(-1).label).toBe('Fewer')
 		expect(list.at(-1).expanded).toBe(true)

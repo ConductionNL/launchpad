@@ -31,9 +31,11 @@ const DRAWN_ELSEWHERE = ['ai-assistant']
  * (board LpWidgetKiezen: the miniature looks like the widget in use).
  */
 const SAMPLE_TEXT = {
+	'activity-report': 'file changed',
 	announcements: 'New opening hours of the town hall',
 	attention: 'Permit Dorpsstraat 12',
 	'colleague-activity': 'Anna de Vries',
+	communities: 'Cycling club',
 	livetile: '128',
 	'recent-work': 'Planning.xlsx',
 	weather: 'Utrecht',
@@ -79,6 +81,17 @@ describe('every widget type as a miniature', () => {
 		const { sampleContentOf } = await import('../../constants/widgetSamples.js')
 		expect(sampleContentOf('banner')).toMatchObject({ variant: 'info' })
 		expect(sampleContentOf('markdown').markdown).toContain('Team meeting')
+	})
+
+	it('gives the shared calendar sample events inside the window it asks for, without a request', async () => {
+		const { SAMPLE_PROPS } = await import('../../constants/widgetSamples.js')
+		const from = '2027-03-08T00:00:00.000Z'
+		const to = '2027-03-15T00:00:00.000Z'
+		const { events, failures } = await SAMPLE_PROPS.calendar.dataSource.fetchEvents({ from, to })
+		expect(failures).toEqual([])
+		expect(events.map((event) => event.title)).toEqual(['Team meeting', 'Office hours', 'Council meeting'])
+		expect(events.every((event) => event.start >= from && event.start < to)).toBe(true)
+		expect(requests).toEqual([])
 	})
 
 	it.each(TYPES.filter((type) => !DRAWN_ELSEWHERE.includes(type)))('draws %s from its sample with preview and sends no request', async (type) => {

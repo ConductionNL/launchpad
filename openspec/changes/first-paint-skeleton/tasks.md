@@ -26,10 +26,10 @@
 ### Task 4: Hand-over without a shift
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003`
 - **files**: `src/main.js`, `src/views/Views.vue`, `src/utils/firstPaintHandover.js`
-- [ ] `#workspace-vue` hidden until the grid's first layout; then visible and the shell removed in one animation frame
-- [ ] `applyCustomCss` reuses the printed style element
+- [x] `#workspace-vue` hidden until the grid's first layout; then visible and the shell removed in one animation frame (`firstPaintHandover.js`: main.js holds the mount point before mounting, Views.vue hands over on the grid's `vue:mounted`, or at once without a dashboard; checked live with an injected shell)
+- [x] `applyCustomCss` reuses the printed style element (it looks the element up by id; `customCss.spec.js` pins it for the shell's `launchpad-custom-css`)
 - [ ] The shell stays with its status line when the bundle fails; after 15 seconds, without script, it says the page could not load with a Reload link (REQ-FPS-008, board LpLadenMislukt)
-- [ ] Tests: `src/utils/__tests__/firstPaintHandover.spec.js` (one frame, hidden until layout, failure text)
+- [ ] Tests: `src/utils/__tests__/firstPaintHandover.spec.js` (one frame, hidden until layout, failure text) (one frame and hidden until layout written; the failure text comes with the template)
 
 ### Task 5: Placeholders in the mounted page
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/widgets/spec.md#requirement-every-widget-shows-its-own-loading-and-error-state-req-wdg-046`

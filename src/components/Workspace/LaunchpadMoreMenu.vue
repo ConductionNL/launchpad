@@ -763,6 +763,7 @@ export default {
 		border-top: 1px solid var(--color-border);
 	}
 }
+
 .lp-more-menu__tree {
 	display: inline-flex;
 	flex: none;

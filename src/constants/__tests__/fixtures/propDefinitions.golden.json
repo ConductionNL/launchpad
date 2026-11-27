@@ -1419,6 +1419,13 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Workspace/DashboardMoreMenu.vue | detailFields": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../components/Workspace/DashboardMoreMenu.vue | canCreate": {
 		"type": "Boolean",
 		"required": false,

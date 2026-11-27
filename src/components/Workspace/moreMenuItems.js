@@ -375,7 +375,7 @@ const DASHBOARD_ITEM_DEFAULTS = {
 export function dashboardItems(options) {
 	const o = { ...DASHBOARD_ITEM_DEFAULTS, ...options }
 	const all = dashboardRows(o.userDashboards, o.groupDashboards, o.sharedDashboards)
-	const { rows, starred, showHint, hidden } = columnRows(all, o.favourites, o.expanded, o.activeId, o.openTrees)
+	const { rows, starred, showHint, hidden } = columnRows(all, o)
 	const defaultUuid = effectiveDefaultUuid(o.defaultUuid, o.groupDashboards)
 	const context = { activeId: o.activeId, defaultUuid, starred, onSwitch: o.onSwitch, onToggleFavourite: o.onToggleFavourite, onToggleTree: o.onToggleTree }
 	return [
@@ -467,15 +467,16 @@ function hintItems(show) {
  * 2026). Expanded: the favourites first, then every other dashboard.
  *
  * @param {object[]} all Every `{d, source}` row.
- * @param {string[]} favourites The favourite uuids in starring order.
- * @param {boolean} expanded Whether the column lists every dashboard.
- * @param {string|number|null} activeId The open dashboard's id.
- * @param {string[]} openTrees The uuids of the parents whose children show (expanded list).
+ * @param {object} options The column's options (see {@link dashboardItems}).
+ * @param {string[]} options.favourites The favourite uuids in starring order.
+ * @param {boolean} options.expanded Whether the column lists every dashboard.
+ * @param {string|number|null} options.activeId The open dashboard's id.
+ * @param {string[]} options.openTrees The uuids of the parents whose children show (expanded list).
  * @return {{rows: object[], starred: Set<string>, showHint: boolean, hidden: number}} The rows,
  *   and how many dashboards the folded column leaves out.
  * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
  */
-function columnRows(all, favourites, expanded, activeId, openTrees = []) {
+function columnRows(all, { favourites, expanded, activeId, openTrees = [] }) {
 	const byUuid = new Map(all.filter(({ d }) => Boolean(d.uuid)).map((row) => [row.d.uuid, row]))
 	const favouriteRows = favourites.map((uuid) => byUuid.get(uuid)).filter(Boolean)
 	const starred = new Set(favouriteRows.map(({ d }) => d.uuid))

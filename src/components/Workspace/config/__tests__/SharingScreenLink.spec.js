@@ -24,6 +24,7 @@ vi.mock('@nextcloud/router', () => ({
 vi.mock('@nextcloud/l10n', () => ({
 	t: (_app, text, vars = {}) =>
 		text.replace(/\{(\w+)\}/g, (_m, k) => vars[k] ?? `{${k}}`),
+	n: (_app, one, many, count) => (count === 1 ? one : many).replace('%n', String(count)),
 }))
 vi.mock('../../../../utils/loadInitialState.js', () => ({
 	readSharingPolicy: () => policy.value,
@@ -41,7 +42,7 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 }))
 
 const kantine = { uuid: 'dash-kantine', name: 'Kantine' }
-const link = { token: 'kan123', url: 'https://cloud.example/index.php/apps/launchpad/kiosk/kan123', screenDashboardUuid: 'dash-kantine' }
+const link = { token: 'kan123', url: 'https://cloud.example/index.php/apps/launchpad/kiosk/kan123', screenDashboardUuid: 'dash-kantine', refreshSeconds: 300, createdAt: '2026-11-27 10:58:00' }
 
 function mountBlock() {
 	return mount(SharingScreenLink, { props: { dashboard: kantine } })
@@ -76,6 +77,15 @@ describe('SharingScreenLink (REQ-KIOSK-006, REQ-KIOSK-007)', () => {
 		expect(wrapper.find('[data-test="sharing-screen-link-copy"]').exists()).toBe(true)
 		expect(wrapper.find('[data-test="sharing-screen-link-revoke"]').exists()).toBe(true)
 		expect(wrapper.find('[data-test="sharing-screen-link-create"]').exists()).toBe(false)
+	})
+
+	it('says under the link that it is read only and how often it refreshes (board LpDelen)', async () => {
+		axios.get.mockResolvedValue({ status: 200, data: link })
+		const wrapper = mountBlock()
+		await flushPromises()
+
+		const meta = wrapper.find('[data-test="sharing-screen-link-meta"]').text()
+		expect(meta).toMatch(/^Read only · refreshes every 5 minutes · created /)
 	})
 
 	it('copies the link and says so in a live region', async () => {

@@ -12,7 +12,7 @@
 			{{ t('launchpad', 'Show on a screen') }}
 		</label>
 		<p class="dashboard-config__hint">
-			{{ t('launchpad', 'A link that shows this dashboard full screen on a display, without a Nextcloud account.') }}
+			{{ t('launchpad', 'A screen link opens this dashboard as a kiosk screen: no app frame, no account, read only, and it refreshes itself. For the screen in the canteen or at the desk.') }}
 		</p>
 
 		<RevokeScreenLinkDialog
@@ -23,7 +23,8 @@
 			@update:open="confirmingRevoke = $event" />
 
 		<NcLoadingIcon v-if="loading" />
-		<div v-else-if="link" class="sharing-screen__row" data-test="sharing-screen-link-row">
+		<div v-else-if="link" class="sharing-screen__link" data-test="sharing-screen-link-row">
+			<div class="sharing-screen__row">
 			<input
 				class="dashboard-config__public-url"
 				type="text"
@@ -32,27 +33,26 @@
 				:aria-label="t('launchpad', 'Screen link')"
 				:value="link.url"
 				@focus="$event.target.select()">
-			<NcButton
-				variant="tertiary"
-				data-test="sharing-screen-link-copy"
-				:aria-label="t('launchpad', 'Copy link')"
-				:title="copied ? t('launchpad', 'Copied') : t('launchpad', 'Copy link')"
-				@click="copy">
-				<template #icon>
-					<Check v-if="copied" :size="18" />
-					<ContentCopy v-else :size="18" />
-				</template>
-			</NcButton>
-			<NcButton
-				variant="tertiary"
-				data-test="sharing-screen-link-revoke"
-				:aria-label="t('launchpad', 'Revoke link')"
-				:title="t('launchpad', 'Revoke link')"
-				@click="confirmingRevoke = true">
-				<template #icon>
-					<Close :size="18" />
-				</template>
-			</NcButton>
+				<NcButton
+					variant="secondary"
+					data-test="sharing-screen-link-copy"
+					@click="copy">
+					<template #icon>
+						<Check v-if="copied" :size="18" />
+						<ContentCopy v-else :size="18" />
+					</template>
+					{{ copied ? t('launchpad', 'Copied') : t('launchpad', 'Copy') }}
+				</NcButton>
+				<NcButton
+					variant="error"
+					data-test="sharing-screen-link-revoke"
+					@click="confirmingRevoke = true">
+					{{ t('launchpad', 'Revoke') }}
+				</NcButton>
+			</div>
+			<p class="dashboard-config__hint" data-test="sharing-screen-link-meta">
+				{{ metaLine }}
+			</p>
 		</div>
 		<template v-if="!loading">
 			<p
@@ -70,9 +70,12 @@
 				<template #icon>
 					<Monitor :size="20" />
 				</template>
-				{{ t('launchpad', 'Create screen link') }}
+				{{ t('launchpad', 'Create a new screen link') }}
 			</NcButton>
 		</template>
+		<p class="dashboard-config__hint sharing-screen__note">
+			{{ t('launchpad', 'Revoke works within a minute on every screen that uses the link. Whoever has the link sees only this dashboard; a screen with several dashboards is set up by administration under Kiosk.') }}
+		</p>
 		<p class="hidden-visually" aria-live="polite">
 			{{ copied ? t('launchpad', 'Link copied') : '' }}
 		</p>
@@ -84,9 +87,8 @@
 
 <script>
 import { NcButton, NcLoadingIcon } from '@conduction/nextcloud-vue'
-import { t } from '@nextcloud/l10n'
+import { n, t } from '@nextcloud/l10n'
 import Check from 'vue-material-design-icons/Check.vue'
-import Close from 'vue-material-design-icons/Close.vue'
 import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
 import Monitor from 'vue-material-design-icons/Monitor.vue'
 import RevokeScreenLinkDialog from '../../../dialogs/RevokeScreenLinkDialog.vue'
@@ -109,7 +111,6 @@ export default {
 
 	components: {
 		Check,
-		Close,
 		ContentCopy,
 		Monitor,
 		NcButton,
@@ -145,6 +146,27 @@ export default {
 				return false
 			}
 			return this.policy.screenLinksAllowed || this.loading || this.link !== null
+		},
+
+		/**
+		 * The line under the link (board LpDelen): read only, how often it
+		 * refreshes and when it was made.
+		 *
+		 * @return {string}
+		 */
+		metaLine() {
+			const minutes = Math.max(1, Math.round((this.link?.refreshSeconds ?? 300) / 60))
+			const created = this.link?.createdAt
+				? new Date(this.link.createdAt.replace(' ', 'T')).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+				: ''
+			const parts = [
+				t('launchpad', 'Read only'),
+				n('launchpad', 'refreshes every minute', 'refreshes every %n minutes', minutes),
+			]
+			if (created !== '') {
+				parts.push(t('launchpad', 'created {date}', { date: created }))
+			}
+			return parts.join(' · ')
 		},
 
 		/** @return {string} The dashboard's name for the dialog. */
@@ -250,6 +272,15 @@ export default {
 .sharing-screen__row {
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: 8px;
+}
+
+.sharing-screen__row .dashboard-config__public-url {
+	flex: 1;
+	min-width: 0;
+}
+
+.sharing-screen__note {
+	margin-top: 8px;
 }
 </style>

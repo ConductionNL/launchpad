@@ -2392,9 +2392,7 @@
         "Open LaunchPad": "Open LaunchPad",
         "You get this mail because you asked for it in your LaunchPad settings.": "You get this mail because you asked for it in your LaunchPad settings.",
         "Show on a screen": "Show on a screen",
-        "A link that shows this dashboard full screen on a display, without a Nextcloud account.": "A link that shows this dashboard full screen on a display, without a Nextcloud account.",
         "Screen link": "Screen link",
-        "Create screen link": "Create screen link",
         "New screen links are switched off.": "New screen links are switched off.",
         "The screen link could not be created.": "The screen link could not be created.",
         "The screen link could not be revoked.": "The screen link could not be revoked.",
@@ -2403,6 +2401,11 @@
         "Allow showing dashboards on a screen": "Allow showing dashboards on a screen",
         "People who may share a dashboard can make a screen link for it on its Sharing tab. Separate from public links. Existing screen links keep playing until they are revoked.": "People who may share a dashboard can make a screen link for it on its Sharing tab. Separate from public links. Existing screen links keep playing until they are revoked.",
         "{dashboard}, made by {creator}": "{dashboard}, made by {creator}",
-        "The setting could not be saved.": "The setting could not be saved."
+        "The setting could not be saved.": "The setting could not be saved.",
+        "A screen link opens this dashboard as a kiosk screen: no app frame, no account, read only, and it refreshes itself. For the screen in the canteen or at the desk.": "A screen link opens this dashboard as a kiosk screen: no app frame, no account, read only, and it refreshes itself. For the screen in the canteen or at the desk.",
+        "Create a new screen link": "Create a new screen link",
+        "Revoke works within a minute on every screen that uses the link. Whoever has the link sees only this dashboard; a screen with several dashboards is set up by administration under Kiosk.": "Revoke works within a minute on every screen that uses the link. Whoever has the link sees only this dashboard; a screen with several dashboards is set up by administration under Kiosk.",
+        "created {date}": "created {date}",
+        "_refreshes every minute_::_refreshes every %n minutes_": ["refreshes every minute", "refreshes every %n minutes"]
     }
 }

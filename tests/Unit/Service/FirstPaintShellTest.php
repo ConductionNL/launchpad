@@ -181,8 +181,10 @@ class FirstPaintShellTest extends TestCase {
 	public function testKindOf(): void {
 		$shell = new FirstPaintShell();
 
-		$this->assertSame(expected: 'counter', actual: $shell->kindOf(widgetId: 'files', entry: ['placeholder' => 'counter']));
-		$this->assertSame(expected: 'rows', actual: $shell->kindOf(widgetId: 'files', entry: ['placeholder' => ['shape' => 'spiral']]));
+		$this->assertSame(expected: 'counter', actual: $shell->kindOf(widgetId: 'nc-revenue', entry: ['placeholder' => 'counter']));
+		$this->assertSame(expected: 'rows', actual: $shell->kindOf(widgetId: 'nc-revenue', entry: ['placeholder' => ['shape' => 'spiral']]));
+		$this->assertSame(expected: 'rows', actual: $shell->kindOf(widgetId: 'files', entry: ['placeholder' => 'counter']));
+		$this->assertSame(expected: 'counter', actual: $shell->kindOf(widgetId: 'files', entry: [], placement: ['placeholder' => 'counter']));
 		$this->assertSame(expected: 'tiles', actual: $shell->kindOf(widgetId: 'app-tiles'));
 		$this->assertSame(expected: 'heading', actual: $shell->kindOf(widgetId: 'section-heading'));
 		$this->assertSame(expected: 'rows', actual: $shell->kindOf(widgetId: 'never-heard-of'));

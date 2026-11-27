@@ -17,7 +17,10 @@
 <template>
 	<div
 		class="launchpad-widget"
-		:class="{ 'launchpad-widget--editing': editMode }"
+		:class="{
+			'launchpad-widget--editing': editMode,
+			'launchpad-widget--announcement': asksForConfirmation,
+		}"
 		:data-testid="
 			placement?.id ? `widget-placement-${placement.id}` : 'widget-placement'
 		"
@@ -315,6 +318,18 @@ export default {
 				this.placement.widgetId
 				&& this.placement.widgetId.startsWith('tile-')
 			)
+		},
+
+		/**
+		 * REQ-ACK-011: whether the placement asks its readers to confirm they
+		 * read it. Such a placement is an announcement and wears the boards'
+		 * announcement frame (LpVandaag, LpIntranet), confirmed or not.
+		 *
+		 * @spec openspec/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-looks-like-an-announcement-req-ack-011
+		 * @return {boolean}
+		 */
+		asksForConfirmation() {
+			return Number(this.placement?.requiresAcknowledgement) === 1
 		},
 
 		/**

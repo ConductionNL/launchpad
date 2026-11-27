@@ -35,6 +35,7 @@ const TYPE_KINDS = Object.freeze({
 	links: 'tiles',
 	menu: 'tiles',
 	container: 'layout',
+	tabs: 'layout',
 	'app-tiles': 'tiles',
 	livetile: 'tiles',
 	people: 'people',
@@ -128,6 +129,7 @@ export function typeLine(type, t) {
 		links: () => t('launchpad', 'A list of links.'),
 		menu: () => t('launchpad', 'A menu of pages.'),
 		container: () => t('launchpad', 'A group of tiles that share an order.'),
+		tabs: () => t('launchpad', 'Widgets grouped under tabs.'),
 		files: () => t('launchpad', 'Files from a folder.'),
 		stat: () => t('launchpad', 'One number from your data.'),
 		'app-tiles': () => t('launchpad', 'Tiles for several apps at once.'),
@@ -193,6 +195,11 @@ export function isLegacyWidget(widget) {
 }
 
 /**
+ * The office pack's miniature: one ready-made office tile (REQ-WDG-048).
+ */
+const OFFICE_SAMPLE = Object.freeze({ mode: 'link', title: 'Word', linkType: 'url', linkValue: '#', icon: 'FileWordBox', iconType: 'mdi', colourToken: '--sc-primary-deep', textColour: 'white' })
+
+/**
  * A card with the fields every card shares.
  *
  * @param {object} fields The card's own fields.
@@ -220,6 +227,7 @@ function launchpadCards(input, t) {
 		title: entry.title,
 		line: typeLine(entry.type, t),
 		icon: { kind: 'type' },
+		miniature: { type: entry.type },
 		disabled: !roleAllows(entry.type, allowedWidgets),
 		action: { event: 'addCustom', arg: entry.type },
 		testid: `widget-picker-type-${entry.type}`,
@@ -232,6 +240,7 @@ function launchpadCards(input, t) {
 			title: t('launchpad', 'Office tiles'),
 			line: t('launchpad', 'A tile for each new document and office app.'),
 			icon: { kind: 'type' },
+			miniature: { type: 'tile', content: OFFICE_SAMPLE },
 			disabled: !roleAllows('container', allowedWidgets),
 			action: { event: 'addOfficePack', arg: undefined },
 			testid: 'widget-picker-office-pack',
@@ -261,6 +270,7 @@ function appWidgetCards(input, t) {
 			title: widget.title,
 			line: t('launchpad', 'A widget from another Nextcloud app.'),
 			icon: { kind: 'image', url: widget.iconUrl || '', className: widget.iconClass || '' },
+			miniature: { ncWidget: { iconUrl: widget.iconUrl || '', iconClass: widget.iconClass || '' } },
 			disabled: !roleAllows(widget.id, allowedWidgets),
 			legacy: isLegacyWidget(widget),
 			badge: placed(widget) ? t('launchpad', 'Already added') : '',

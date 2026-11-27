@@ -143,6 +143,21 @@ describe('WidgetPickerModal as LpWidgetKiezen draws it', () => {
 		expect(card.text()).toContain('A widget from another Nextcloud app.')
 	})
 
+	// add-widget-dialog-with-miniatures REQ-WDG-048: a miniature on every card.
+	it('shows a miniature above the icon, name and line of every card', () => {
+		const wrapper = mountPicker()
+		const cards = wrapper.findAll('.widget-picker__widget')
+		expect(cards.length).toBeGreaterThan(0)
+		for (const card of cards) {
+			const miniature = card.find('.widget-miniature')
+			expect(miniature.exists()).toBe(true)
+			expect(miniature.attributes('aria-hidden')).toBe('true')
+			expect(card.element.firstElementChild.classList.contains('widget-miniature')).toBe(true)
+		}
+		expect(wrapper.find('[data-testid="widget-picker-type-clock"] [data-testid="widget-miniature-clock"]').exists()).toBe(true)
+		expect(wrapper.find('[data-testid="widget-picker-widget-notes"] [data-testid="widget-miniature-nc"]').exists()).toBe(true)
+	})
+
 	// app-link-tile-widget REQ-WDG-042 removed: no App tiles section, no Own tile.
 	it('has no App tiles section and no Own tile', () => {
 		const wrapper = mountPicker()

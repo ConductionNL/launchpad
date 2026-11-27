@@ -175,18 +175,18 @@ class DashboardPayloads {
 			$serialized[] = $placement->jsonSerialize();
 		}
 
-		if ($this->services->roleWidgets !== null) {
-			$serialized = $this->services->roleWidgets->hideUnpermittedPlacements(
+		if ($this->services->widgets->roleWidgets !== null) {
+			$serialized = $this->services->widgets->roleWidgets->hideUnpermittedPlacements(
 				placements: $serialized,
 				userId: $userId
 			);
 		}
 
-		if ($this->services->visibility === null) {
+		if ($this->services->widgets->visibility === null) {
 			return $serialized;
 		}
 
-		return $this->services->visibility->visiblePlacements(
+		return $this->services->widgets->visibility->visiblePlacements(
 			placements: $serialized,
 			userId: $userId,
 			canEdit: $permissionLevel !== Dashboard::PERMISSION_VIEW_ONLY

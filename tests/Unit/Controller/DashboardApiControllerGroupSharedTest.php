@@ -115,6 +115,10 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 		$this->groupCreation = $this->createMock(originalClassName: GroupDashboardCreation::class);
 		$this->treeService = $this->createMock(DashboardTreeService::class);
 		$this->versionService = $this->createMock(DashboardVersionService::class);
+		// The version service runs the save it wraps (REQ-VERS-010).
+		$this->versionService->method('saveWithVersion')->willReturnCallback(
+			static fn (int $dashboardId, string $createdBy, \Closure $save): Dashboard => $save()
+		);
 		$this->analyticsService = $this->createMock(AnalyticsService::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->userSession = $this->createMock(IUserSession::class);
@@ -456,6 +460,31 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 	}//end testUpdateGroupReturns200ForAdmin()
+
+	/**
+	 * REQ-VERS-010: the group dashboard's settings save makes one version of
+	 * that dashboard, in the save's transaction.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 */
+	public function testUpdateGroupSavesWithItsVersion(): void {
+		$stored = $this->makeDashboard(uuid: 'dash-1', groupId: 'marketing', type: Dashboard::TYPE_GROUP_SHARED);
+		$stored->setId(42);
+		$this->dashboardService->method('findGroupDashboard')->willReturn($stored);
+		$this->dashboardService->expects($this->once())->method('updateGroupShared')->willReturn($stored);
+
+		$versions = $this->createMock(originalClassName: DashboardVersionService::class);
+		$versions->expects($this->once())->method('saveWithVersion')
+			->with(42, 'admin', $this->isInstanceOf(className: \Closure::class))
+			->willReturnCallback(static fn (int $dashboardId, string $createdBy, \Closure $save): Dashboard => $save());
+		$this->versionService = $versions;
+
+		$response = $this->makeController(userId: 'admin')->updateGroup(groupId: 'marketing', uuid: 'dash-1', name: 'New Name');
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+	}//end testUpdateGroupSavesWithItsVersion()
 
 	// -------------------------------------------------------------------------
 	// REQ-DASH-014 — DELETE /api/dashboards/group/{groupId}/{uuid} (deleteGroup)

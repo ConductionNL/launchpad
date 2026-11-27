@@ -291,13 +291,19 @@
 				</CnSettingsSection>
 
 				<!-- REQ-ASET-021: the outside websites widgets may embed or fetch from. -->
-				<AllowedSitesSettings />
+				<LazyMount rootMargin="0px" :eager="opensOnSection">
+					<AllowedSitesSettings />
+				</LazyMount>
 
 				<!-- REQ-TILE-044: the services on the server Add tiles may list. -->
-				<DiscoverableServicesSettings />
+				<LazyMount rootMargin="0px" :eager="opensOnSection">
+					<DiscoverableServicesSettings />
+				</LazyMount>
 
 				<!-- launcher-tile-launch-types: program schemes and sign-on templates. -->
-				<TileLaunchSettings />
+				<LazyMount rootMargin="0px" :eager="opensOnSection">
+					<TileLaunchSettings />
+				</LazyMount>
 
 				<!-- launcher-tile-internal-address REQ-TIA-001: the office networks a
 				     tile's office-network address is used on. Saved on its own, so a
@@ -414,7 +420,9 @@
 
 				<!-- Administrator CSS, cleaned and scoped on save (REQ-THM-003). -->
 				<CnSettingsSection :name="t('launchpad', 'Custom CSS')">
-					<AdminCustomCss />
+					<LazyMount rootMargin="0px" :eager="opensOnSection">
+						<AdminCustomCss />
+					</LazyMount>
 				</CnSettingsSection>
 
 				<!-- REQ-ADM-032: embeds and search shortcuts are cards of
@@ -422,12 +430,16 @@
 				<CnSettingsSection
 					:name="t('launchpad', 'Embeds')"
 					data-admin-section="embeds">
-					<EmbedsTab />
+					<LazyMount rootMargin="0px" :eager="opensOnSection">
+						<EmbedsTab />
+					</LazyMount>
 				</CnSettingsSection>
 				<CnSettingsSection
 					:name="t('launchpad', 'Search shortcuts')"
 					data-admin-section="search-shortcuts">
-					<SearchShortcutsTab />
+					<LazyMount rootMargin="0px" :eager="opensOnSection">
+						<SearchShortcutsTab />
+					</LazyMount>
 				</CnSettingsSection>
 			</template>
 		</CnAdminSettingsShell>
@@ -466,6 +478,7 @@ import {
 } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { defineAsyncComponent } from 'vue'
+import LazyMount from '../LazyMount.vue'
 import AdminCustomCss from './AdminCustomCss.vue'
 import AllowedSitesSettings from './AllowedSitesSettings.vue'
 import DiscoverableServicesSettings from './DiscoverableServicesSettings.vue'
@@ -509,6 +522,7 @@ export default {
 		CnSettingsSection,
 		CnWalkthrough,
 		DiscoverableServicesSettings,
+		LazyMount,
 		NcButton,
 		NcSelect,
 		NcCheckboxRadioSwitch,
@@ -635,6 +649,18 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Whether the page opens on a named section: then the General cards
+		 * below the fold mount at once, so the scroll lands where it should
+		 * and nothing above it grows afterwards.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+		 */
+		opensOnSection() {
+			return Boolean(this.section)
+		},
+
 		/**
 		 * Whether the admin tour may be mounted now: there is one, its seen
 		 * version is loaded, and the General tab is open (REQ-SHELL-011).

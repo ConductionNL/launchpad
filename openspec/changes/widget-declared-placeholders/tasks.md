@@ -3,9 +3,9 @@
 ### Task 1: The Nextcloud widget declaration in the catalogue
 - **spec_ref**: `openspec/changes/widget-declared-placeholders/specs/first-paint-shell/spec.md#requirement-the-placeholder-shape-comes-from-the-widgets-declaration-req-fps-009`
 - **files**: `lib/Service/WidgetFormatter.php`, `lib/Dashboard/LinksWidget.php`, `lib/Dashboard/NewsWidget.php`, `tests/Unit/Service/WidgetFormatterTest.php`
-- [ ] `WidgetFormatter::buildBaseData()` reads `getPlaceholder()` when the widget has it, validates the shape (and a count of 1 to 24), and adds `placeholder` to the descriptor; an invalid value is dropped with a debug log naming the widget id
-- [ ] `launchpad_links` and `launchpad_news` declare `rows`; the shape is checked against each widget's board when it is built
-- [ ] Tests: a declaring widget, a silent widget, an invalid value, a count; the catalogue read without `load()` carries it
+- [x] `WidgetFormatter::buildBaseData()` reads `getPlaceholder()` when the widget has it, validates the shape (and a count of 1 to 24), and adds `placeholder` to the descriptor; an invalid value is dropped with a debug log naming the widget id
+- [x] `launchpad_links` and `launchpad_news` declare `rows`; the shape is checked against each widget's board when it is built (both are lists of items with an icon and a subtitle: rows)
+- [x] Tests: a declaring widget, a silent widget, an invalid value, a count; the catalogue read without `load()` carries it
 
 ### Task 2: The registry's declarations on the server
 - **spec_ref**: `openspec/changes/widget-declared-placeholders/specs/first-paint-shell/spec.md#requirement-the-placeholder-shape-comes-from-the-widgets-declaration-req-fps-009`
@@ -32,4 +32,4 @@
 ### Task 5: Docs
 - **spec_ref**: `openspec/changes/widget-declared-placeholders/proposal.md`
 - **files**: `docs/`
-- [ ] Developer note: how a widget declares its placeholder (manifest, registry, `getPlaceholder()` on a Nextcloud widget class) and that undeclared widgets draw rows
+- [x] Developer note: how a widget declares its placeholder (manifest, registry, `getPlaceholder()` on a Nextcloud widget class) and that undeclared widgets draw rows

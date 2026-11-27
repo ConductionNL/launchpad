@@ -317,8 +317,9 @@ test('an admin issues an embed token in Admin settings and sees its JWT once', a
 	// REQ-ADM-032: the embeds are a card of Algemeen; the old tab address
 	// opens it with the dashboard's pre-selection kept.
 	await page.goto(`${SETTINGS_PAGE}?${query}#embeds`)
-	await expect(page).toHaveURL((url) => /\/admin(\/general)?$/.test(url.pathname)
-		&& url.searchParams.get('section') === 'embeds'
+	// The page is Nextcloud's settings page itself; no in-app route rewrites
+	// the address any more, so the pre-selection stays in the query.
+	await expect(page).toHaveURL((url) => /\/settings\/admin\/launchpad$/.test(url.pathname)
 		&& url.searchParams.get('embedType') === 'dashboard')
 
 	const form = page.locator('[data-test="embed-token-form"]')

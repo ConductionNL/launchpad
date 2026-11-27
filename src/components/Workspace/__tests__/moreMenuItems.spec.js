@@ -20,6 +20,7 @@ vi.mock('@nextcloud/router', () => ({
 import {
 	dashboardActionItems,
 	dashboardItems,
+	effectiveDefaultUuid,
 	parseFavourites,
 	settingsMenuItems,
 	startPageSections,
@@ -133,6 +134,32 @@ describe('dashboardItems', () => {
 		expect(list.at(-1).expanded).toBe(true)
 		list[5].onToggleFavourite()
 		expect(onToggleFavourite).toHaveBeenCalledWith('m-5')
+	})
+})
+
+describe('effectiveDefaultUuid', () => {
+	const groups = [
+		{ uuid: 'g-1', source: 'group' },
+		{ uuid: 'g-2', source: 'group', isDefault: 1 },
+		{ uuid: 'd-1', source: 'default' },
+		{ uuid: 'd-2', source: 'default', isDefault: 1 },
+		{ uuid: 's-1', source: 'shared', isDefault: 1 },
+	]
+
+	it('is the pin when there is one', () => {
+		expect(effectiveDefaultUuid('u-9', groups)).toBe('u-9')
+	})
+
+	it('falls back to the flagged primary-group, then the flagged default-group dashboard', () => {
+		expect(effectiveDefaultUuid('', groups)).toBe('g-2')
+		expect(effectiveDefaultUuid('', groups.filter((d) => d.uuid !== 'g-2'))).toBe('d-2')
+	})
+
+	it('then to the first primary-group and the first default-group dashboard, never a shared one', () => {
+		expect(effectiveDefaultUuid('', [{ uuid: 'g-1', source: 'group' }, { uuid: 'd-1', source: 'default' }])).toBe('g-1')
+		expect(effectiveDefaultUuid('', [{ uuid: 's-1', source: 'shared' }, { uuid: 'd-1', source: 'default' }])).toBe('d-1')
+		expect(effectiveDefaultUuid('', [{ uuid: 's-1', source: 'shared', isDefault: 1 }])).toBe('')
+		expect(effectiveDefaultUuid('', [])).toBe('')
 	})
 })
 

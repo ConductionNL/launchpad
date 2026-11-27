@@ -292,6 +292,29 @@ export function dashboardIcon(dashboard, isDefault) {
 }
 
 /**
+ * The dashboard that opens automatically (REQ-EDM-001..005), which carries the
+ * Default pill (REQ-SHELL-018): the person's pin, else the resolver's group
+ * fallback (steps 2-5): the flagged primary-group dashboard, the flagged
+ * default-group one, the first primary-group one, the first default-group
+ * one. A personal dashboard is never marked without a pin.
+ *
+ * @param {string} pinned The uuid of the person's pinned default, or ''.
+ * @param {object[]} groupDashboards The group, default and shared dashboards.
+ * @return {string} The uuid, or ''.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-15
+ */
+export function effectiveDefaultUuid(pinned, groupDashboards = []) {
+	if (pinned) {
+		return pinned
+	}
+	const primary = groupDashboards.filter((d) => d.source !== 'default' && d.source !== 'shared')
+	const fallback = groupDashboards.filter((d) => d.source === 'default')
+	const flagged = (list) => list.find((d) => Number(d?.isDefault) === 1)
+	const found = [flagged(primary), flagged(fallback), primary[0], fallback[0]].find((d) => Boolean(d?.uuid))
+	return found?.uuid ?? ''
+}
+
+/**
  * The Default pill on the dashboard that opens automatically (REQ-SHELL-018):
  * a badge, not a star; the star is the favourite.
  *
@@ -351,7 +374,8 @@ export function dashboardItems(options) {
 	const o = { ...DASHBOARD_ITEM_DEFAULTS, ...options }
 	const all = dashboardRows(o.userDashboards, o.groupDashboards, o.sharedDashboards)
 	const { rows, starred, showHint, hidden } = columnRows(all, o.favourites, o.expanded, o.activeId)
-	const context = { activeId: o.activeId, defaultUuid: o.defaultUuid, starred, onSwitch: o.onSwitch, onToggleFavourite: o.onToggleFavourite }
+	const defaultUuid = effectiveDefaultUuid(o.defaultUuid, o.groupDashboards)
+	const context = { activeId: o.activeId, defaultUuid, starred, onSwitch: o.onSwitch, onToggleFavourite: o.onToggleFavourite }
 	return [
 		...rows.map((row) => dashboardRowItem(row, context)),
 		...hintItems(showHint),

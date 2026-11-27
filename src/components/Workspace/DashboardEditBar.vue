@@ -13,7 +13,8 @@
 		class="launchpad-edit-bar"
 		role="toolbar"
 		:aria-label="t('launchpad', 'Edit dashboard')"
-		data-testid="launchpad-edit-bar">
+		data-testid="launchpad-edit-bar"
+		@keydown.esc="$emit('leave')">
 		<Pencil :size="20" class="launchpad-edit-bar__icon" />
 		<strong class="launchpad-edit-bar__title">
 			{{ t('launchpad', 'You are editing {name}', { name: dashboardName }) }}
@@ -145,7 +146,7 @@ export default {
 		},
 	},
 
-	emits: ['setColumns', 'addWidget', 'openSettings', 'cancel', 'save', 'dock'],
+	emits: ['setColumns', 'addWidget', 'openSettings', 'cancel', 'save', 'leave', 'dock'],
 
 	data() {
 		return {

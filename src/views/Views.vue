@@ -197,6 +197,7 @@
 				@openSettings="openConfigModal"
 				@cancel="onCancelEdit"
 				@save="onSaveEdit"
+				@leave="toggleEditMode"
 				@dock="editBarDock = $event" />
 			<!-- openregister-leaf-integrations REQ-LEAF-002: the Talk
 			     discussion of a shared or group dashboard; the access chain

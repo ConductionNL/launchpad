@@ -103,6 +103,13 @@ describe('DashboardEditBar', () => {
 		expect(wrapper.find('[data-testid="launchpad-edit-bar-save"]').attributes('disabled')).toBeDefined()
 	})
 
+	// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+	it('asks to leave on Escape', async () => {
+		const wrapper = mountBar()
+		await wrapper.find('[data-testid="launchpad-edit-bar"]').trigger('keydown', { key: 'Escape' })
+		expect(wrapper.emitted('leave')).toHaveLength(1)
+	})
+
 	it('hands its dock to the page while shown, and takes it back when gone', () => {
 		const onDock = vi.fn()
 		const wrapper = mountBar({ onDock })

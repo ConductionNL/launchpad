@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/workspace-api-reads-from-initial-state/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-4
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 

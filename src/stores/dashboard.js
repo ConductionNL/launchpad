@@ -5,12 +5,14 @@
 
 import { showError } from '@nextcloud/dialogs'
 import { translate as t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
 import { defineStore } from 'pinia'
 import {
 	defaultSizeFor,
 	placeNewWidget,
 } from '../composables/useGridManager.js'
 import { api } from '../services/api.js'
+import { dropEarlyReads, startEarlyRead } from '../utils/carriedApiReads.js'
 import { takeBootRead, takeDashboardFirstLoad } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { parseServerStamp } from '../utils/serverStamp.js'
@@ -467,6 +469,32 @@ function cacheMetadata(store, { uuid, map }) {
 	return map
 }
 
+/**
+ * Start the reads a dashboard switch is followed by, beside the dashboard
+ * read: the target's reactions (the reactions bar) and, when its switcher
+ * row says somebody else owns it, the caller's personal layer on it (the
+ * "Hidden (n)" control). The HTTP client answers the components' own GETs
+ * from these once (REQ-INIT-012). What the previous switch started and
+ * nobody took is dropped first.
+ *
+ * @param {object|undefined} target The switcher row of the dashboard being opened.
+ * @return {void}
+ * @spec openspec/changes/dashboard-switch-reads-early/tasks.md#task-2
+ */
+export function startSwitchReads(target) {
+	dropEarlyReads()
+	if (!target) {
+		return
+	}
+	const base = generateUrl('/apps/launchpad')
+	if (typeof target.uuid === 'string' && target.uuid !== '') {
+		startEarlyRead(`${base}/api/dashboards/${encodeURIComponent(target.uuid)}/reactions`)
+	}
+	if (target.isOwner === false && target.id !== undefined && target.id !== null) {
+		startEarlyRead(`${base}/api/dashboards/${encodeURIComponent(target.id)}/personal-layer`)
+	}
+}
+
 export const useDashboardStore = defineStore('dashboard', {
 	state: () => ({
 		// `dashboards` carries every dashboard visible to the user
@@ -829,6 +857,8 @@ export const useDashboardStore = defineStore('dashboard', {
 				// rely solely on the UUID preference persisted below.
 				const isPersonalOwned =
 					target?.source === SOURCE_USER && target?.isOwner !== false
+
+				startSwitchReads(target)
 
 				// Always load full dashboard data via the by-id endpoint;
 				// it returns placements + the user's effective permission

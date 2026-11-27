@@ -131,7 +131,8 @@ class NewColleaguesTest extends TestCase {
 	}//end testThreeNewColleaguesNewestFirst()
 
 	/**
-	 * Each new colleague carries photo, role and team from the people widget's profile.
+	 * Each new colleague carries photo, role and team from the people widget's
+	 * profile, built for the viewer so the owner's scopes apply to them.
 	 *
 	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
 	 *
@@ -139,7 +140,9 @@ class NewColleaguesTest extends TestCase {
 	 */
 	public function testEachNewColleagueCarriesPhotoRoleAndTeam(): void {
 		$people = $this->createMock(originalClassName: PeopleWidgetService::class);
-		$people->method('buildUserProfile')->willReturn(
+		$people->method('buildUserProfile')
+			->with($this->anything(), false, 'pieter')
+			->willReturn(
 			['uid' => 'x', 'avatarUrl' => '/avatar/x/128', 'role' => 'Beleidsadviseur', 'organisation' => 'Team Wonen', 'email' => 'x@example.org']
 		);
 		$withPeople = $this->colleagues(definitions: [['key' => 'joined', 'startDate' => true]], people: $people);

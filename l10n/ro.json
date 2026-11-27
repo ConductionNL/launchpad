@@ -1,5 +1,15 @@
 {
     "translations": {
+        "Not responding": "Nu răspunde",
+        "port {port}": "port {port}",
+        "found {time}": "găsit {time}",
+        "Services to discover": "Servicii de descoperit",
+        "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list.": "„Adaugă plăci” afișează aceste servicii când răspund. LaunchPad interoghează doar adresele din această listă.",
+        "No services on this list yet.": "Încă nu există servicii în această listă.",
+        "For example http://localhost:3000": "De exemplu http://localhost:3000",
+        "Add service": "Adaugă serviciu",
+        "Services to discover saved.": "Serviciile de descoperit au fost salvate.",
+        "The services to discover could not be saved.": "Serviciile de descoperit nu au putut fi salvate.",
         "Own publication" : "Publicație proprie",
         "The upload is larger than this server accepts.": "Încărcarea este mai mare decât acceptă acest server.",
         "The file is too large.": "Fișierul este prea mare.",

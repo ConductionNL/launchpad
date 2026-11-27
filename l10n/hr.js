@@ -1,6 +1,16 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Not responding" : "Ne odgovara",
+    "port {port}" : "port {port}",
+    "found {time}" : "pronađeno {time}",
+    "Services to discover" : "Usluge za otkrivanje",
+    "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list." : "„Dodaj pločice” prikazuje ove usluge kada odgovore. LaunchPad provjerava samo adrese s ovog popisa.",
+    "No services on this list yet." : "Na ovom popisu još nema usluga.",
+    "For example http://localhost:3000" : "Na primjer http://localhost:3000",
+    "Add service" : "Dodaj uslugu",
+    "Services to discover saved." : "Usluge za otkrivanje spremljene.",
+    "The services to discover could not be saved." : "Usluge za otkrivanje nije moguće spremiti.",
     "Own publication" : "Vlastita objava",
     "The upload is larger than this server accepts." : "Prijenos je veći nego što ovaj poslužitelj prihvaća.",
     "The file is too large." : "Datoteka je prevelika.",

@@ -17,30 +17,27 @@
  *
  * "Grafana answers on port 3000": the test starts a stand-in on port 3000
  * of this runner that answers as Grafana does (`/api/health` with a
- * `database` and `version`, a login page titled Grafana). The server must
- * see it on the runner's address; on a runner where port 3000 is taken, or
- * where Nextcloud runs elsewhere and cannot reach it, the test skips and
- * says so. "An administrator allowed for discovery" has no setting yet; the
- * change names none. When it lands, the GIVEN belongs in beforeAll here, and
- * until then the test can only be red.
+ * `database` and `version`, a login page titled Grafana). "An administrator
+ * allowed for discovery": beforeAll puts Grafana on the administrator's
+ * Services to discover list (`PUT /api/admin/discoverable-services`) at
+ * `E2E_GRAFANA_URL`, by default `http://localhost:3000`, the address at which
+ * Nextcloud reaches this runner when both run on one machine; afterAll puts
+ * the earlier list back. On a runner where port 3000 is taken the test skips
+ * and says so.
  *
- * Not serial on purpose: both are expected red, and a serial file would
- * skip the second.
+ * Not serial on purpose: a red in the first would skip the second.
  *
- * EXPECTED RED (the change's tasks.md has every item open)
- * ============
- * add-office-tiles: green since the Add tiles dialog was built (27 Nov 2026,
- *   sandbox Nextcloud 34.0.6), with the office pack answered by the test
- *   (OFFICE_PACK below), since no CI instance runs an office server.
- * grafana-found: there is no discovery of services on the server.
- *
- * Written in the cloud lane without a live instance; not yet run.
+ * add-office-tiles: the office pack is answered by the test (OFFICE_PACK
+ *   below), since no CI instance runs an office server.
+ * grafana-found: green since services found on the server were built
+ *   (27 Nov 2026, sandbox Nextcloud 34.0.6 + PostgreSQL + Redis).
  *
  * Gate-19 @e2e traceability:
  *   @e2e tiles::add-office-tiles
  *   @e2e tiles::grafana-found
+ *   @e2e tiles::an-address-that-is-not-a-web-address-is-refused
  *
- * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md
+ * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md
  */
 
 import type { Browser, BrowserContext, Locator, Page } from '@playwright/test'
@@ -52,10 +49,15 @@ import { createServer } from 'node:http'
 import { enterEditMode } from './support/dashboardSwitcher.ts'
 import { setLanguage } from './support/orWidget.ts'
 import { openOwnDashboard, readPlacements, setUpOwnDashboard, tearDownOwnDashboard } from './support/ownDashboard.ts'
+import { adminContext, API } from './support/principals.ts'
 
 const STAMP = `${Date.now()}`
 const DASHBOARD = `My workspace ${STAMP}`
 const GRAFANA_PORT = 3000
+/** Where Nextcloud reaches the Grafana stand-in. */
+const GRAFANA_URL = process.env.E2E_GRAFANA_URL?.trim() || `http://localhost:${GRAFANA_PORT}`
+/** The administrator's list of services to discover (REQ-TILE-044). */
+const DISCOVERABLE = `${API}/admin/discoverable-services`
 
 /*
  * The office pack as a server with an office suite answers it. Word, Excel and
@@ -173,6 +175,7 @@ test('ticking Word, Excel and Outlook web makes the button read "Add 3 tiles", a
 test.describe('services found on the server', () => {
 	let server: Server | undefined
 	let listening = false
+	let earlier: unknown[] = []
 
 	test.beforeAll(async () => {
 		server = createServer((req: IncomingMessage, res: ServerResponse) => {
@@ -188,9 +191,27 @@ test.describe('services found on the server', () => {
 			server!.once('error', () => resolve(false))
 			server!.listen(GRAFANA_PORT, '0.0.0.0', () => resolve(true))
 		})
+
+		// GIVEN an administrator allowed Grafana for discovery.
+		const admin = await adminContext()
+		try {
+			const read = await admin.get(DISCOVERABLE)
+			expect(read.status(), await read.text()).toBe(200)
+			earlier = (await read.json()).services ?? []
+			const put = await admin.put(DISCOVERABLE, { data: { services: [{ name: 'Grafana', url: GRAFANA_URL }] } })
+			expect(put.status(), await put.text()).toBe(200)
+		} finally {
+			await admin.dispose()
+		}
 	})
 
 	test.afterAll(async () => {
+		const admin = await adminContext()
+		try {
+			await admin.put(DISCOVERABLE, { data: { services: earlier } })
+		} finally {
+			await admin.dispose()
+		}
 		if (server?.listening) {
 			server.closeAllConnections()
 			await new Promise<void>((resolve) => server!.close(() => resolve()))
@@ -204,10 +225,11 @@ test.describe('services found on the server', () => {
 		test.skip(!listening, `port ${GRAFANA_PORT} is taken on this runner, so the Grafana stand-in cannot answer there`)
 		expect(await tileTitles(), 'Grafana already has a tile').not.toContain('Grafana')
 
-		const { context, dialog } = await openAddTiles(browser)
+		const { context, page, dialog } = await openAddTiles(browser)
 		try {
+			// `has` is matched inside each section, so it is rooted at the page.
 			const found = dialog.locator('section, [role="group"]')
-				.filter({ has: dialog.getByRole('heading', { name: 'Found on this server' }) })
+				.filter({ has: page.getByRole('heading', { name: 'Found on this server' }) })
 				.first()
 			await expect(found).toBeVisible()
 			const row = found.getByRole('listitem').filter({ hasText: 'Grafana' })
@@ -221,4 +243,23 @@ test.describe('services found on the server', () => {
 			await context.close()
 		}
 	})
+})
+
+// @e2e tiles::an-address-that-is-not-a-web-address-is-refused
+test('saving a service whose address is ftp://files.example.org answers 400 with the reason and leaves the list as it was', async () => {
+	const admin = await adminContext()
+	try {
+		const before = await admin.get(DISCOVERABLE)
+		expect(before.status(), await before.text()).toBe(200)
+		const list = (await before.json()).services
+
+		const put = await admin.put(DISCOVERABLE, { data: { services: [{ name: 'Files', url: 'ftp://files.example.org' }] } })
+		expect(put.status()).toBe(400)
+		expect((await put.json()).message).toBe('"ftp://files.example.org" is not a web address starting with http:// or https://.')
+
+		const after = await admin.get(DISCOVERABLE)
+		expect((await after.json()).services).toEqual(list)
+	} finally {
+		await admin.dispose()
+	}
 })

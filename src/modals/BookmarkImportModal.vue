@@ -178,13 +178,13 @@ export default {
 		/**
 		 * Read the handed-over file when the dialog opens with one.
 		 *
-		 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+		 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 		 */
 		open: {
 			immediate: true,
 			/**
 			 * @param {boolean} value whether the dialog is open.
-			 * @spec openspec/changes/add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
+			 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-the-add-tiles-dialog-req-tile-043
 			 */
 			handler(value) {
 				if (value && this.initialFile) {

@@ -1,6 +1,16 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Not responding" : "Не відповідає",
+    "port {port}" : "порт {port}",
+    "found {time}" : "знайдено {time}",
+    "Services to discover" : "Сервіси для виявлення",
+    "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list." : "«Додати плитки» показує ці сервіси, коли вони відповідають. LaunchPad опитує лише адреси з цього списку.",
+    "No services on this list yet." : "У цьому списку ще немає сервісів.",
+    "For example http://localhost:3000" : "Наприклад, http://localhost:3000",
+    "Add service" : "Додати сервіс",
+    "Services to discover saved." : "Сервіси для виявлення збережено.",
+    "The services to discover could not be saved." : "Не вдалося зберегти сервіси для виявлення.",
     "Own publication" : "Власна публікація",
     "The upload is larger than this server accepts." : "Завантаження більше, ніж приймає цей сервер.",
     "The file is too large." : "Файл завеликий.",

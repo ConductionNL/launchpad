@@ -1,6 +1,16 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Not responding" : "Δεν αποκρίνεται",
+    "port {port}" : "θύρα {port}",
+    "found {time}" : "βρέθηκε {time}",
+    "Services to discover" : "Υπηρεσίες προς εντοπισμό",
+    "Add tiles lists these services when they answer. LaunchPad only asks the addresses on this list." : "Η «Προσθήκη πλακιδίων» εμφανίζει αυτές τις υπηρεσίες όταν αποκρίνονται. Το LaunchPad ρωτά μόνο τις διευθύνσεις αυτής της λίστας.",
+    "No services on this list yet." : "Δεν υπάρχουν ακόμη υπηρεσίες σε αυτή τη λίστα.",
+    "For example http://localhost:3000" : "Για παράδειγμα http://localhost:3000",
+    "Add service" : "Προσθήκη υπηρεσίας",
+    "Services to discover saved." : "Οι υπηρεσίες προς εντοπισμό αποθηκεύτηκαν.",
+    "The services to discover could not be saved." : "Δεν ήταν δυνατή η αποθήκευση των υπηρεσιών προς εντοπισμό.",
     "Own publication" : "Δική μας δημοσίευση",
     "The upload is larger than this server accepts." : "Η μεταφόρτωση είναι μεγαλύτερη από όσο δέχεται αυτός ο διακομιστής.",
     "The file is too large." : "Το αρχείο είναι πολύ μεγάλο.",

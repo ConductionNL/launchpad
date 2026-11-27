@@ -32,6 +32,7 @@ namespace OCA\LaunchPad\Service;
 
 use DateTimeImmutable;
 use DateTimeZone;
+use Exception;
 use IntlDateFormatter;
 use OCP\IL10N;
 
@@ -178,8 +179,12 @@ class FirstPaintGreeting {
 	 * @return DateTimeZone
 	 */
 	private static function zone(string $timezone): DateTimeZone {
-		if ($timezone !== '' && in_array($timezone, DateTimeZone::listIdentifiers(), true) === true) {
-			return new DateTimeZone($timezone);
+		if ($timezone !== '') {
+			try {
+				return new DateTimeZone($timezone);
+			} catch (Exception) {
+				// An unknown zone name: the server's zone below.
+			}
 		}
 
 		return new DateTimeZone(date_default_timezone_get());

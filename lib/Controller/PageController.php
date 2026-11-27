@@ -204,33 +204,14 @@ class PageController extends Controller {
 			->setWorkspaceApiReads($this->sources->dashboards->payloads?->apiReads?->firstLoad(userId: $userId, opening: ($active ?? []) + $activeState))
 			->apply();
 
-		// 🔴 NO CHROME SLOT IDS. This used to pass
-		// `'id-app-navigation' => null` (REQ-SHELL-001), which suppressed
-		// Nextcloud's left navigation panel because the app rendered its own
-		// slide-in sidebar and nothing else.
-		//
-		// `launchpad-manifest-tier-3` roots the app on `CnAppRoot`, which
-		// renders `NcContent` — and `NcContent` allocates that panel for
-		// `CnAppNav` itself. Suppressing it here would leave the shared
-		// chrome, ADR-114's four footer destinations included, with nowhere to
-		// render: not an error, an empty rail. Every other app in the fleet
-		// passes no slot ids and lets `NcContent` do it.
-		//
-		// The slide-in sidebar is unaffected; it lives inside the workspace
-		// view, not in the chrome slot.
-		// first-paint-skeleton D1: the header and the widget frames in the
+		// First-paint-skeleton D1: the header and the widget frames in the
 		// page's HTML, from the same values; none without a dashboard.
-		$opened = [];
-		if (isset($active['dashboard']) === true) {
-			$opened = $active['dashboard']->jsonSerialize();
-		}
-
 		$firstPaint = FirstPaintPage::model(
 			firstLoad: $firstLoad,
 			activeState: $activeState,
-			dashboard: $opened,
+			active: $active,
 			widgets: $widgets,
-			reader: ['name' => $this->userSession->getUser()?->getDisplayName() ?? '', 'timezone' => $timezone],
+			reader: ['user' => $this->userSession->getUser(), 'timezone' => $timezone],
 			apps: $integrationApps
 		);
 
@@ -248,6 +229,20 @@ class PageController extends Controller {
 	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
 	 */
 	private function workspaceResponse(array $params=[]): TemplateResponse {
+		// 🔴 NO CHROME SLOT IDS. This used to pass
+		// `'id-app-navigation' => null` (REQ-SHELL-001), which suppressed
+		// Nextcloud's left navigation panel because the app rendered its own
+		// slide-in sidebar and nothing else.
+		//
+		// `launchpad-manifest-tier-3` roots the app on `CnAppRoot`, which
+		// renders `NcContent` — and `NcContent` allocates that panel for
+		// `CnAppNav` itself. Suppressing it here would leave the shared
+		// chrome, ADR-114's four footer destinations included, with nowhere to
+		// render: not an error, an empty rail. Every other app in the fleet
+		// passes no slot ids and lets `NcContent` do it.
+		//
+		// The slide-in sidebar is unaffected; it lives inside the workspace
+		// view, not in the chrome slot.
 		$response = new TemplateResponse(
 			appName: Application::APP_ID,
 			templateName: 'index',

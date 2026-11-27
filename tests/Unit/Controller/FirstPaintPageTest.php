@@ -9,7 +9,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use JsonSerializable;
 use OCA\LaunchPad\Controller\FirstPaintPage;
+use OCP\IUser;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -34,15 +36,39 @@ class FirstPaintPageTest extends TestCase {
 	}//end placement()
 
 	/**
+	 * The page's resolved entry for an opened dashboard.
+	 *
+	 * @param array<string, mixed> $row The dashboard as it serialises.
+	 *
+	 * @return array{dashboard: JsonSerializable}
+	 */
+	private static function opened(array $row): array {
+		return ['dashboard' => new class($row) implements JsonSerializable {
+			/**
+			 * @param array<string, mixed> $row The row.
+			 */
+			public function __construct(private array $row) {
+			}
+
+			/**
+			 * @return array<string, mixed>
+			 */
+			public function jsonSerialize(): array {
+				return $this->row;
+			}
+		}];
+	}//end opened()
+
+	/**
 	 * REQ-FPS-006: no first load, or nothing opened, means no shell.
 	 *
 	 * @return void
 	 */
 	public function testNoDashboardNoShell(): void {
 		$state = ['activeDashboardId' => 'u-1', 'dashboardSource' => 'user', 'layout' => [self::placement(id: 1, widgetId: 'text')]];
-		$this->assertNull(FirstPaintPage::model(firstLoad: null, activeState: $state, dashboard: ['name' => 'A'], widgets: [], reader: []));
-		$this->assertNull(FirstPaintPage::model(firstLoad: ['visible' => [], 'active' => null], activeState: ['activeDashboardId' => ''] + $state, dashboard: ['name' => 'A'], widgets: [], reader: []));
-		$this->assertNull(FirstPaintPage::model(firstLoad: ['visible' => [], 'active' => null], activeState: $state, dashboard: [], widgets: [], reader: []));
+		$this->assertNull(FirstPaintPage::model(firstLoad: null, activeState: $state, active: self::opened(row: ['name' => 'A']), widgets: [], reader: []));
+		$this->assertNull(FirstPaintPage::model(firstLoad: ['visible' => [], 'active' => null], activeState: ['activeDashboardId' => ''] + $state, active: self::opened(row: ['name' => 'A']), widgets: [], reader: []));
+		$this->assertNull(FirstPaintPage::model(firstLoad: ['visible' => [], 'active' => null], activeState: $state, active: null, widgets: [], reader: []));
 	}//end testNoDashboardNoShell()
 
 	/**
@@ -56,14 +82,16 @@ class FirstPaintPageTest extends TestCase {
 		$state     = ['activeDashboardId' => 'u-1', 'dashboardSource' => 'user', 'layout' => [self::placement(id: 1, widgetId: 'text'), self::placement(id: 2, widgetId: 'text', y: 2)]];
 		$firstLoad = ['visible' => [], 'active' => ['dashboard' => ['uuid' => 'u-1', 'name' => 'Vandaag', 'gridColumns' => 12, 'isDefault' => 1], 'placements' => [self::placement(id: 1, widgetId: 'text')]]];
 
-		$model = FirstPaintPage::model(firstLoad: $firstLoad, activeState: $state, dashboard: ['name' => 'Old'], widgets: [], reader: ['name' => 'Pieter Jansen', 'timezone' => 'Europe/Amsterdam']);
+		$user = $this->createMock(originalClassName: IUser::class);
+		$user->method('getDisplayName')->willReturn('Pieter Jansen');
+		$model = FirstPaintPage::model(firstLoad: $firstLoad, activeState: $state, active: self::opened(row: ['name' => 'Old']), widgets: [], reader: ['user' => $user, 'timezone' => 'Europe/Amsterdam']);
 		$this->assertSame(expected: ['1'], actual: array_column($model['frames'], 'id'));
 		$this->assertSame(expected: 'Vandaag', actual: $model['header']['name']);
 		$this->assertSame(expected: ['name' => 'Pieter Jansen', 'timezone' => 'Europe/Amsterdam'], actual: $model['reader']);
 		$this->assertTrue($model['isDefault']);
 		$this->assertSame(expected: 'user', actual: $model['source']);
 
-		$deep = FirstPaintPage::model(firstLoad: $firstLoad, activeState: ['activeDashboardId' => 'u-2'] + $state, dashboard: ['uuid' => 'u-2', 'name' => 'Projecten', 'gridColumns' => 12], widgets: [], reader: []);
+		$deep = FirstPaintPage::model(firstLoad: $firstLoad, activeState: ['activeDashboardId' => 'u-2'] + $state, active: self::opened(row: ['uuid' => 'u-2', 'name' => 'Projecten', 'gridColumns' => 12]), widgets: [], reader: []);
 		$this->assertSame(expected: ['1', '2'], actual: array_column($deep['frames'], 'id'));
 		$this->assertSame(expected: 'Projecten', actual: $deep['header']['name']);
 	}//end testTheShellDrawsWhatTheStoreRenders()
@@ -84,7 +112,7 @@ class FirstPaintPageTest extends TestCase {
 		$model = FirstPaintPage::model(
 			firstLoad: ['visible' => [], 'active' => null],
 			activeState: $state,
-			dashboard: ['uuid' => 'u-1', 'name' => 'Team', 'gridColumns' => 12],
+			active: self::opened(row: ['uuid' => 'u-1', 'name' => 'Team', 'gridColumns' => 12]),
 			widgets: [],
 			reader: [],
 			apps: ['openregister' => false, 'dossiq' => 'zaakafhandel', 'integration_openproject' => true]

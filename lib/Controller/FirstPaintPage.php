@@ -31,7 +31,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use JsonSerializable;
 use OCA\LaunchPad\Service\FirstPaintShell;
+use OCP\IUser;
 
 /**
  * Builds the template's first-paint parameter.
@@ -59,9 +61,9 @@ class FirstPaintPage {
 	 *
 	 * @param array|null           $firstLoad   The `dashboardFirstLoad` the page carries, or null.
 	 * @param array<string, mixed> $activeState The page's active-dashboard state (activeDashboardId, dashboardSource, layout).
-	 * @param array<string, mixed> $dashboard   The opened dashboard, serialised; empty when none.
+	 * @param array|null           $active      The opened dashboard as the page resolved it (`dashboard` entity), or null.
 	 * @param array                $widgets     The widget catalogue the page carries.
-	 * @param array<string, mixed> $reader      The reader: `name` (display name) and `timezone`.
+	 * @param array<string, mixed> $reader      The reader: `user` (IUser or null) and `timezone`.
 	 * @param array<string, mixed> $apps        The `integrationApps` the page carries: app id to true, or to its installed id.
 	 *
 	 * @return array<string, mixed>|null
@@ -71,7 +73,7 @@ class FirstPaintPage {
 	public static function model(
 		?array $firstLoad,
 		array $activeState,
-		array $dashboard,
+		?array $active,
 		array $widgets,
 		array $reader,
 		array $apps=[]
@@ -79,6 +81,11 @@ class FirstPaintPage {
 		$uuid = (string) ($activeState['activeDashboardId'] ?? '');
 		if ($firstLoad === null || $uuid === '') {
 			return null;
+		}
+
+		$dashboard = [];
+		if (($active['dashboard'] ?? null) instanceof JsonSerializable) {
+			$dashboard = (array) $active['dashboard']->jsonSerialize();
 		}
 
 		$placements = (array) ($activeState['layout'] ?? []);
@@ -109,11 +116,26 @@ class FirstPaintPage {
 			'source'    => (string) ($activeState['dashboardSource'] ?? ''),
 			'isDefault' => (int) ($dashboard['isDefault'] ?? 0) === 1,
 			'reader'    => [
-				'name'     => (string) ($reader['name'] ?? ''),
+				'name'     => self::displayName(user: $reader['user'] ?? null),
 				'timezone' => (string) ($reader['timezone'] ?? ''),
 			],
 		];
 	}//end model()
+
+	/**
+	 * The reader's display name, '' without a user.
+	 *
+	 * @param mixed $user The IUser, or null.
+	 *
+	 * @return string
+	 */
+	private static function displayName(mixed $user): string {
+		if ($user instanceof IUser) {
+			return $user->getDisplayName();
+		}
+
+		return '';
+	}//end displayName()
 
 	/**
 	 * Whether the mounted page shows a widget type to this viewer: always,

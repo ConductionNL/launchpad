@@ -205,7 +205,9 @@ test.beforeAll(async () => {
 		return hit[0]
 	}
 	notice = byWidget('header')
-	untouched = byWidget('app-tiles')
+	// The template's apps block is a well of the viewer's apps since the
+	// multi-tile was retired (layout-widgets-replace-multi-tile D3).
+	untouched = byWidget('container')
 	calendar = byWidget('calendar')
 })
 

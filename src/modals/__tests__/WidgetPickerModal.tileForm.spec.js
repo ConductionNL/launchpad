@@ -7,7 +7,7 @@
  * REQ-APPTILE-004): placing its card swaps the cards for the form; the
  * form's results go to the host; Cancel goes back to the cards.
  *
- * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
+ * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
  */
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'

@@ -232,7 +232,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048 */
+	/** @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048 */
 	mounted() {
 		if (this.preview) {
 			this.reading = this.content?.sampleReading || null

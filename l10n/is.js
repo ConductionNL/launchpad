@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Loading widgets" : "Hleð inn viðmótshlutum",
+    "All widgets loaded" : "Allir viðmótshlutar hlaðnir",
+    "The page could not load" : "Ekki tókst að hlaða síðunni",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Enn verið að hlaða inn %n viðmótshluta", "Enn verið að hlaða inn %n viðmótshlutum"],
     "Save your changes first to choose who sees this new widget." : "Vistaðu breytingarnar fyrst til að velja hverjir sjá þennan nýja viðmótshluta.",
     "No changes" : "Engar breytingar",
     "Keep editing" : "Halda áfram að breyta",

@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Loading widgets" : "Vidinate laadimine",
+    "All widgets loaded" : "Kõik vidinad on laaditud",
+    "The page could not load" : "Lehte ei õnnestunud laadida",
+    "_Still loading %n widget_::_Still loading %n widgets_" : ["Laadimisel on veel %n vidin", "Laadimisel on veel %n vidinat"],
     "Save your changes first to choose who sees this new widget." : "Salvestage esmalt muudatused, et valida, kes seda uut vidinat näeb.",
     "No changes" : "Muudatusi pole",
     "Keep editing" : "Jätka muutmist",

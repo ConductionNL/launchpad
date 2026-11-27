@@ -10,8 +10,8 @@
  * data), so the expectations follow whatever apps the instance gives a new
  * account rather than a fixed list.
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-6
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-6
  */
 
 import type { APIRequestContext, Page } from '@playwright/test'

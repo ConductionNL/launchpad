@@ -4,7 +4,7 @@
 -->
 
 <template>
-	<div class="container-widget" :style="wrapperStyle">
+	<div class="container-widget" :class="{ 'container-widget--editing': editMode }" :style="wrapperStyle">
 		<div v-if="hasTitle || canForgetUsage" class="container-widget__header">
 			<h4 v-if="hasTitle" class="container-widget__title">
 				{{ titleText }}
@@ -209,7 +209,7 @@ export default {
 		 * The well's app list, or null (REQ-CONT-009).
 		 *
 		 * @return {object|null}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
 		 */
 		appList() {
 			return normaliseAppList(this.content?.appList)
@@ -219,7 +219,7 @@ export default {
 		 * Whether the well is drawn as cells: a viewer's app list in view mode.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
 		 */
 		flowMode() {
 			return !this.editMode && this.appList !== null
@@ -230,7 +230,7 @@ export default {
 		 * outside the viewer's app menu is left out (REQ-CONT-008).
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-2
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-2
 		 */
 		visibleChildren() {
 			return this.editMode ? this.children : openableChildren(this.children, this.appMenu)
@@ -240,7 +240,7 @@ export default {
 		 * The tiles of the app list for this viewer (REQ-CONT-009).
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
 		 */
 		dynamicChildren() {
 			if (!this.flowMode) {
@@ -364,7 +364,7 @@ export default {
 		 * cells: start or stop the grid with it.
 		 *
 		 * @param {boolean} flow Whether the well is now drawn as cells.
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
 		 */
 		async flowMode(flow) {
 			if (flow) {
@@ -402,7 +402,7 @@ export default {
 		 *
 		 * @param {Array<object>} list The children.
 		 * @return {Array<object>}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-2
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-2
 		 */
 		orderedChildren(list) {
 			if (this.sortMode !== 'manual') {
@@ -416,7 +416,7 @@ export default {
 		 *
 		 * @param {object} child The child placement.
 		 * @return {object} The style.
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
 		 */
 		cellStyle(child) {
 			const width = Math.min(Math.max(1, Number(child.gridWidth) || 2), NESTED_COLUMNS)
@@ -465,7 +465,7 @@ export default {
 		 *
 		 * @param {MouseEvent} event The click, in its capture phase.
 		 * @return {void}
-		 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
 		 */
 		onFlowClick(event) {
 			if (!this.flowMode) {
@@ -724,6 +724,12 @@ export default {
 .launchpad-container-grid {
 	flex: 1;
 	min-height: 0;
+}
+
+/* REQ-WDG-050: in edit mode a child's cell does not clip, so the edit menu of
+   a child one row tall stays whole and clickable above the resize handle. */
+.container-widget--editing .launchpad-container-grid > .grid-stack-item > .grid-stack-item-content {
+	overflow: visible;
 }
 
 .container-widget__child {

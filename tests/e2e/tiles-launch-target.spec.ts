@@ -39,7 +39,7 @@ import type {
 import type { OwnDashboard } from './support/ownDashboard.ts'
 
 import { expect, test } from '@playwright/test'
-import { enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
+import { enterEditMode, saveEditDraft } from './support/dashboardSwitcher.ts'
 import {
 	openOwnDashboard,
 	readPlacements,
@@ -358,21 +358,14 @@ test('setting "Opens in" to Same tab in the editor makes the web tile open in th
 			.locator('[data-test="tile-editor-opens-in"]')
 			.getByText('Same tab', { exact: true })
 			.click()
-		const saved = page.waitForResponse(
-			(res) =>
-				res.request().method() === 'PUT'
-				&& res.url().includes(`/api/widgets/${ids[INTRANET]}`),
-		)
 		await editor.getByRole('button', { name: 'Save' }).click()
-		expect((await saved).status()).toBe(200)
+		await expect(editor).toBeHidden({ timeout: 10_000 })
+		// Edit mode keeps a draft (REQ-EDIT-001/002): the edit bar's Save stores
+		// the tile and leaves edit mode.
+		expect(await saveEditDraft(page)).toBe(200)
 		expect((await storedContent(ids[INTRANET])).linkTarget).toBe('same-tab')
 
 		// Back on the Workspace page in view mode, the click stays in this tab.
-		await page
-			.locator(MORE_MENU)
-			.locator('[data-testid="launchpad-more-menu-trigger"]')
-			.click()
-		await page.locator('[data-testid="launchpad-more-menu-item-edit"]').click()
 		await expect(page.locator('.launchpad-edit-mode')).toHaveCount(0)
 		await expect(link(page, INTRANET)).toHaveAttribute('target', '_self')
 		const pages = context.pages().length

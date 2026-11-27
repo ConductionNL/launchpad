@@ -32,6 +32,7 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import type { Placement } from './support/widgetPlacements.ts'
 
 import { expect, test } from '@playwright/test'
+import { saveEditDraft } from './support/dashboardSwitcher.ts'
 import {
 	adminApi,
 	contentCentre,
@@ -213,19 +214,10 @@ test.describe('widget context menu (REQ-WDG-015..017)', () => {
 		const at = await contentCentre(page, w1.id)
 		await rightClickAt(page, w1.id, at.x, at.y)
 
-		// The REQ-WDG-005 delete path. appinfo/routes.php names it
-		// `widgetApi#removePlacement` at DELETE /api/widgets/{placementId};
-		// the scenario's `/api/placements/{id}` spelling does not exist.
-		const deleted = page.waitForResponse(
-			(res) =>
-				res.request().method() === 'DELETE'
-				&& new URL(res.url()).pathname.endsWith(
-					`/apps/launchpad/api/widgets/${w1.id}`,
-				),
-		)
+		// Since edit-mode-draft-and-save the removal lands in the edit-mode
+		// draft and the edit bar's Save stores it (REQ-EDIT-002).
 		await page.locator('[data-testid="ctx-remove"]').click()
 		await expect(page.locator(MENU)).toHaveCount(0)
-		expect((await deleted).status()).toBe(200)
 
 		// Off the grid (GridStack's removeWidget takes its item node), the other one stays.
 		await expect(gridItem(page, w1.id)).toHaveCount(0)
@@ -233,6 +225,7 @@ test.describe('widget context menu (REQ-WDG-015..017)', () => {
 			0,
 		)
 		await expect(gridItem(page, w2.id)).toBeVisible()
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 
 		const ids = (await seeds.placements(dash)).map((p) => p.id)
 		expect(ids).not.toContain(w1.id)

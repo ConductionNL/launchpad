@@ -1,5 +1,9 @@
 {
     "translations": {
+        "Loading widgets": "Widgetek betöltése",
+        "All widgets loaded": "Minden widget betöltődött",
+        "The page could not load": "Az oldalt nem sikerült betölteni",
+        "_Still loading %n widget_::_Still loading %n widgets_": ["Még %n widget töltődik", "Még %n widget töltődik"],
         "Save your changes first to choose who sees this new widget.": "Először mentse a változásokat, hogy kiválaszthassa, ki látja ezt az új modult.",
         "No changes": "Nincs változás",
         "Keep editing": "Szerkesztés folytatása",

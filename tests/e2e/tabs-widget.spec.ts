@@ -11,7 +11,7 @@
  * or link tile in a tab through the UI and the edit-mode Save join this file
  * when the app-link-tile-widget and edit-mode-draft-and-save changes land.
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
  */
 
 import type { APIRequestContext } from '@playwright/test'

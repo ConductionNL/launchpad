@@ -21,7 +21,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-5
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-5
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -34,7 +34,7 @@ namespace OCA\LaunchPad\Service;
 /**
  * The well a multi-tile becomes; {@see TileModeNode} converts the type.
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-5
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-5
  */
 final class MultiTileWell {
 
@@ -56,7 +56,7 @@ final class MultiTileWell {
 	 *
 	 * @return array<string, mixed> The well's content.
 	 *
-	 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-5
+	 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-5
 	 */
 	public function wellContent(array $content): array {
 		$well = array_diff_key($content, array_flip(['pinned', 'exclude', 'showFilter', 'showMostUsed', 'mostUsedLimit', 'apps', 'status']));

@@ -10,7 +10,7 @@
  * Every type of `lib/widget-types.json` MUST have an entry: the miniature
  * registry test fails on a type without one.
  *
- * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+ * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
  */
 
 const DAY = 24 * 60 * 60 * 1000
@@ -181,9 +181,10 @@ export const SAMPLE_CONTENT = Object.freeze({
 	'pie-chart': { chartKind: 'donut', source: 'values', values: [{ label: 'Open', value: 12 }, { label: 'In progress', value: 7 }, { label: 'Done', value: 21 }] },
 	graph: { chartKind: 'bar', source: 'values', values: BARS },
 	// nextcloud-vue display types the picker offers; their renderers draw
-	// content only, so the sample needs no preview support there. Types that
-	// read a register or poll (tasks, stacked bar, week strip, notepad, ...)
-	// keep the icon until nextcloud-vue honours `preview`.
+	// content only, so the sample needs no preview support there. The types
+	// that read a register, a flow or a note (stat, delta, gauge, notepad,
+	// flow-runs, tasks, saved-view, object-table) carry their own
+	// `sampleContent` in nextcloud-vue and honour `preview` there.
 	banner: { text: 'The town hall is closed on 24 December.', variant: 'info' },
 	// Static entries the shared week strip draws without a source; its `now`
 	// (SAMPLE_PROPS) puts them in the sample week.
@@ -271,7 +272,7 @@ export const SAMPLE_PROPS = Object.freeze({
  * @param {string} type The widget type.
  * @param {{sampleContent?: object}|null} [entry] The type's registry entry.
  * @return {object|null} A fresh copy, or null for a type without one.
- * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+ * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
  */
 export function sampleContentOf(type, entry = null) {
 	if (NOT_PREVIEW_SAFE.includes(type) && !entry?.sampleContent) {

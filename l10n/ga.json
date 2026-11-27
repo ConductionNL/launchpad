@@ -1,5 +1,9 @@
 {
     "translations": {
+        "Loading widgets": "Giuirléidí á lódáil",
+        "All widgets loaded": "Gach giuirléid lódáilte",
+        "The page could not load": "Níorbh fhéidir an leathanach a lódáil",
+        "_Still loading %n widget_::_Still loading %n widgets_": ["%n ghiuirléid fós á lódáil", "%n ghiuirléid fós á lódáil", "%n ghiuirléid fós á lódáil", "%n ngiuirléid fós á lódáil", "%n giuirléid fós á lódáil"],
         "Save your changes first to choose who sees this new widget.": "Sábháil d'athruithe ar dtús chun a roghnú cé a fheiceann an ghiuirléid nua seo.",
         "No changes": "Gan athruithe",
         "Keep editing": "Lean ar aghaidh ag eagarthóireacht",

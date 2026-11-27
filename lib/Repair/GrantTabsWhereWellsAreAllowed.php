@@ -10,7 +10,7 @@
  * gets Tabs too. A rule without wells, or one that denies Tabs, is kept.
  * Idempotent.
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
  *
  * @category Repair
  * @package  OCA\LaunchPad\Repair
@@ -40,7 +40,7 @@ use Throwable;
 /**
  * Let a group that may add wells add Tabs as well.
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
  */
 class GrantTabsWhereWellsAreAllowed implements IRepairStep {
 	/**
@@ -74,7 +74,7 @@ class GrantTabsWhereWellsAreAllowed implements IRepairStep {
 	 *
 	 * @return string The step name.
 	 *
-	 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 	 */
 	public function getName(): string {
 		return 'Let groups that may add wells add the Tabs widget';
@@ -88,7 +88,7 @@ class GrantTabsWhereWellsAreAllowed implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-1
 	 */
 	public function run(IOutput $output): void {
 		try {

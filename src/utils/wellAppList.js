@@ -7,7 +7,7 @@
  * data (`core`/`apps`, the entries of the top bar's app menu), so reading it
  * adds no request, and an app the viewer may not open is never in it.
  *
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
  */
 
 import { loadState } from '@nextcloud/initial-state'
@@ -22,7 +22,7 @@ const SELF = 'launchpad'
  * Null when the page carries no app menu, so callers leave tiles alone.
  *
  * @return {Array<{id: string, label: string, href: string, icon: string}>|null}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
  */
 export function viewerAppMenu() {
 	const list = bootAppEntries()
@@ -74,7 +74,7 @@ function menuEntry(app) {
  *
  * @param {object} child The child placement.
  * @return {string}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-2
  */
 export function childAppId(child) {
 	return isAppTile(child) ? String(child.content?.appId ?? '') : ''
@@ -99,7 +99,7 @@ function isAppTile(child) {
  * @param {Array<object>} children The well's children.
  * @param {Array<{id: string}>|null} menu The viewer's app menu.
  * @return {Array<object>}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-2
  */
 export function openableChildren(children, menu) {
 	if (!Array.isArray(menu)) {
@@ -117,7 +117,7 @@ export function openableChildren(children, menu) {
  *
  * @param {object|null|undefined} appList The stored `content.appList`.
  * @return {{pinned: string[], exclude: string[], mostUsedLimit: number, showFilter: boolean}|null}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
  */
 export function normaliseAppList(appList) {
 	if (appList === null || typeof appList !== 'object' || Array.isArray(appList)) {
@@ -159,7 +159,7 @@ function positiveWhole(value) {
  * @param {string|number} owner The well's own key.
  * @param {string} appId The app.
  * @return {string}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
  */
 export function dynamicTileKey(owner, appId) {
 	return `${owner}-app-${appId}`
@@ -178,7 +178,7 @@ export function dynamicTileKey(owner, appId) {
  * @param {string|number} [options.owner] The well's own key.
  * @param {string} [options.query] The search text.
  * @return {Array<{id: string, label: string, pinned: boolean}>}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
  */
 export function listedApps(menu, list, options = {}) {
 	const { pinned, others } = splitPinned(menu, list)
@@ -258,7 +258,7 @@ function useCount(use, owner, appId) {
  * @param {Array<{id: string, pinned: boolean}>} apps The listed apps.
  * @param {string|number} owner The well's own key.
  * @return {Array<object>}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
  */
 export function appTilePlacements(apps, owner) {
 	return apps.map((app) => ({
@@ -277,7 +277,7 @@ export function appTilePlacements(apps, owner) {
  * @param {object} child The child placement.
  * @param {Array<{id: string, label: string}>|null} menu The viewer's app menu.
  * @return {string}
- * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-layout-widgets-replace-multi-tile/tasks.md#task-3
  */
 export function childLabel(child, menu) {
 	const appId = childAppId(child)

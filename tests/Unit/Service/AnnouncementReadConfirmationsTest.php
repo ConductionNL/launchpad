@@ -253,7 +253,8 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 			]
 		);
 
-		$this->assertSame(expected: ['confirmed' => [$other], 'receipts' => [self::UUID]], actual: $state);
+		// Every manager reads the receipts of every asking announcement (announcements-managed-in-settings D1).
+		$this->assertSame(expected: ['confirmed' => [$other], 'receipts' => [self::UUID, $other]], actual: $state);
 	}//end testTheStatePerListAsksOnce()
 
 	/**
@@ -263,7 +264,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 */
 	public function testTheAuthorReadsWhoConfirmed(): void {
 		$this->announcements->method('findFor')->willReturn($this->announcement(groups: ['Medewerkers', 'HR']));
-		$this->groupManager->method('isAdmin')->with('pieter')->willReturn(true);
+		$this->announcements->method('isAuthor')->with('pieter')->willReturn(true);
 		$this->groupManager->method('get')->willReturnCallback(fn (string $groupId): ?IGroup => match ($groupId) {
 			'Medewerkers' => $this->group(members: ['jan', 'anna']),
 			default => null,
@@ -293,7 +294,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	 */
 	public function testAnAnnouncementToEveryoneReportsEveryone(): void {
 		$this->announcements->method('findFor')->willReturn($this->announcement(groups: []));
-		$this->groupManager->method('isAdmin')->willReturn(true);
+		$this->announcements->method('isAuthor')->willReturn(true);
 		$this->userManager->method('callForSeenUsers')->willReturnCallback(function (callable $callback): void {
 			foreach (['zoe', 'bram'] as $uid) {
 				$callback($this->user(uid: $uid));
@@ -305,14 +306,13 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 	}//end testAnAnnouncementToEveryoneReportsEveryone()
 
 	/**
-	 * Only the author or an administrator reads the report, and only of an announcement that asks.
+	 * Only an announcements manager reads the report, and only of an announcement that asks.
 	 *
 	 * @return void
 	 */
 	public function testTheReportIsGuarded(): void {
 		$this->announcements->method('findFor')->willReturnOnConsecutiveCalls($this->announcement(), $this->announcement(asks: false));
-		$this->groupManager->method('isAdmin')->willReturn(false);
-		$this->announcements->method('isAuthor')->willReturn(true);
+		$this->announcements->method('isAuthor')->willReturnCallback(static fn (string $userId): bool => $userId === 'pieter');
 
 		try {
 			$this->service()->report(userId: 'anna', uuid: self::UUID);
@@ -350,7 +350,7 @@ class AnnouncementReadConfirmationsTest extends TestCase {
 		$announcement = $this->announcement();
 		$announcement->setConfirmBefore(new DateTime('+3 days'));
 		$this->announcements->method('findFor')->willReturn($announcement);
-		$this->groupManager->method('isAdmin')->willReturn(true);
+		$this->announcements->method('isAuthor')->willReturn(true);
 		$this->groupManager->method('get')->willReturn(null);
 		$this->receipts->method('findByAnnouncement')->willReturn([]);
 

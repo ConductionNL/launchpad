@@ -21,12 +21,14 @@
 				@click="toggleFollow(category)">
 				{{ isFollowed(category) ? t('launchpad', 'Unfollow {category}', { category }) : t('launchpad', 'Follow {category}', { category }) }}
 			</NcButton>
+			<!-- announcements-managed-in-settings REQ-ANN-010: the widget only
+			     shows; a manager manages on the Announcements tab. -->
 			<NcButton
 				v-if="canAuthor"
-				variant="primary"
-				data-test="announcements-new"
-				@click="editorOpen = true">
-				{{ t('launchpad', 'New announcement') }}
+				variant="secondary"
+				:href="manageUrl"
+				data-test="announcements-manage">
+				{{ t('launchpad', 'Manage') }}
 			</NcButton>
 		</div>
 
@@ -78,10 +80,6 @@
 			:title="receiptsItem ? receiptsItem.title : ''"
 			@close="receiptsItem = null" />
 
-		<AnnouncementEditorModal
-			v-if="editorOpen"
-			@close="editorOpen = false"
-			@published="onPublished" />
 	</section>
 </template>
 
@@ -89,9 +87,9 @@
 import { t } from '@nextcloud/l10n'
 import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
 import AcknowledgementReportModal from '../../../modals/AcknowledgementReportModal.vue'
-import AnnouncementEditorModal from '../../../modals/AnnouncementEditorModal.vue'
 import AnnouncementCard from '../../Announcements/AnnouncementCard.vue'
 import { announcementsApi } from '../../../services/announcementsApi.js'
+import { adminPageUrl } from '../../../utils/adminPage.js'
 import { logger } from '../../../utils/logger.js'
 
 /**
@@ -111,8 +109,9 @@ export function readConfirmationState(state) {
  * AnnouncementsWidget — the news announcements that reach the reader,
  * newest first, with a category filter, like and comment counts, comments,
  * and follow per category (REQ-ANN-001..003). Notices are not listed here;
- * they show as banners above the grid (REQ-ANN-005). Authors get a "New
- * announcement" button that opens the editor with its preview step. A
+ * they show as banners above the grid (REQ-ANN-005). The widget only shows:
+ * a manager gets Manage, which opens the Announcements tab of the admin
+ * settings page (REQ-ANN-010); nothing is written here. A
  * reader confirms "I have read this"; the author opens who confirmed
  * (REQ-ANN-007).
  *
@@ -123,7 +122,7 @@ export function readConfirmationState(state) {
 export default {
 	name: 'AnnouncementsWidget',
 
-	components: { AcknowledgementReportModal, AnnouncementCard, AnnouncementEditorModal, NcButton, NcSelect, NcTextField },
+	components: { AcknowledgementReportModal, AnnouncementCard, NcButton, NcSelect, NcTextField },
 
 	props: {
 		/** Placement content: `category` (initial filter) and `limit`. */
@@ -145,13 +144,22 @@ export default {
 			openUuid: '',
 			comments: [],
 			draftComment: '',
-			editorOpen: false,
 			readConfirmations: { confirmed: [], receipts: [] },
 			receiptsItem: null,
 		}
 	},
 
 	computed: {
+		/**
+		 * The Announcements tab of the admin settings page (REQ-ANN-010).
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
+		 */
+		manageUrl() {
+			return adminPageUrl('announcements')
+		},
+
 		/** @return {Array<object>} News items, newest first, filtered and limited. */
 		shown() {
 			const limit = Number(this.content?.limit) > 0 ? Number(this.content.limit) : 10
@@ -324,12 +332,6 @@ export default {
 		 */
 		openReceipts(uuid) {
 			this.receiptsItem = this.announcements.find((item) => item.uuid === uuid) ?? null
-		},
-
-		/** @spec openspec/changes/engagement-announcements/tasks.md#task-8 */
-		onPublished() {
-			this.editorOpen = false
-			this.load()
 		},
 	},
 }

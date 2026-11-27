@@ -143,9 +143,13 @@ test('"Sign in" opens the login form, which signs the staff member in', async ({
 		await page.getByRole('link', { name: 'Sign in' }).click()
 		await expect(page).toHaveURL(/\/login\?direct=1/)
 		await signIn(page)
-		// Where a signed-in user lands is the instance's default app.
+		// Where a signed-in user lands is the instance's default app, never the
+		// public start page. The URL cannot tell: the default-group start page
+		// carries the slug `start` (REQ-DWB-008), so the page itself is checked.
 		await expect(page).not.toHaveURL(/\/login/, { timeout: 60_000 })
-		await expect(page).not.toHaveURL(/\/start/)
+		await expect(page.locator('#user-menu')).toBeVisible({ timeout: 30_000 })
+		await expect(page.locator('.public-share-view')).toHaveCount(0)
+		await expect(page.getByRole('link', { name: 'Sign in' })).toHaveCount(0)
 	} finally {
 		await page.context().close()
 	}

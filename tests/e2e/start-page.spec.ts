@@ -7,7 +7,16 @@
  *
  *   @e2e default-widget-bundle::a-fresh-install-starts-on-vandaag
  *
+ * The start page stays Vandaag (REQ-DASH-018): the dashboard a person looked
+ * at last does not decide where `/apps/launchpad/` opens; only Set as default
+ * (the chosen start dashboard) does.
+ *
+ *   @e2e dashboards::the-start-page-wins-over-the-last-used-dashboard
+ *   @e2e dashboards::honoured-user-preference
+ *   @e2e dashboards::a-link-still-opens-its-dashboard
+ *
  * @spec openspec/specs/default-widget-bundle/spec.md#requirement-req-dwb-008-the-start-page-is-the-vandaag-layout
+ * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
  */
 
 import { expect, request, test } from '@playwright/test'
@@ -74,6 +83,64 @@ test.describe('start page (REQ-DWB-008)', () => {
 			}
 		} finally {
 			await deprovisionUser(username)
+		}
+	})
+})
+
+test.describe('the start page stays Vandaag (REQ-DASH-018)', () => {
+	// @e2e dashboards::the-start-page-wins-over-the-last-used-dashboard
+	// @e2e dashboards::a-link-still-opens-its-dashboard
+	// @e2e dashboards::honoured-user-preference
+	test('a member who opened another dashboard lands on Vandaag again, until Set as default', async ({ browser }) => {
+		const admin = await request.newContext({
+			baseURL: BASE_URL,
+			httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+			extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+		})
+		const API = '/index.php/apps/launchpad/api'
+		const name = `E2E Team ${Date.now()}`
+		let team: { uuid: string, slug: string } | undefined
+		const { username, password } = await provisionThrowawayUser()
+		try {
+			const created = await admin.post(`${API}/dashboards/group/default`, { data: { name } })
+			expect(created.status(), await created.text()).toBe(201)
+			const body = (await created.json()).dashboard ?? {}
+			team = { uuid: String(body.uuid), slug: String(body.slug ?? '') }
+			const published = await admin.post(`${API}/dashboards/${team.uuid}/publish`)
+			expect(published.status(), await published.text()).toBeLessThan(300)
+
+			const { context, page } = await loginAs(browser, username, password)
+			try {
+				// A link opens its dashboard ...
+				await page.goto(`/index.php/apps/launchpad/${team.slug}`)
+				await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
+
+				// ... and the record of looking at it last does not move the start page.
+				const switched = await page.request.post(`${API}/dashboards/active`, {
+					data: { uuid: team.uuid },
+					headers: { requesttoken: await page.evaluate(() => (window as any).OC?.requestToken ?? '') },
+				})
+				expect(switched.status(), await switched.text()).toBeLessThan(300)
+				await page.goto('/index.php/apps/launchpad')
+				await expect(page).toHaveURL(/\/apps\/launchpad\/start/, { timeout: 20_000 })
+
+				// Set as default: from now on `/apps/launchpad/` opens the chosen dashboard.
+				const chosen = await page.request.post(`${API}/dashboards/default`, {
+					data: { uuid: team.uuid },
+					headers: { requesttoken: await page.evaluate(() => (window as any).OC?.requestToken ?? '') },
+				})
+				expect(chosen.status(), await chosen.text()).toBeLessThan(300)
+				await page.goto('/index.php/apps/launchpad')
+				await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
+			} finally {
+				await context.close()
+			}
+		} finally {
+			await deprovisionUser(username)
+			if (team !== undefined) {
+				await admin.delete(`${API}/dashboards/group/default/${team.uuid}`)
+			}
+			await admin.dispose()
 		}
 	})
 })

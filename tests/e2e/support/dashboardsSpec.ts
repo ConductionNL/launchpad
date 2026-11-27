@@ -334,6 +334,24 @@ export async function setActivePreference(
 }
 
 /**
+ * Choose the caller's start dashboard (Set as default, `default_dashboard_uuid`):
+ * the dashboard `/apps/launchpad/` opens on (REQ-DASH-018 step 1). The
+ * last-used preference ({@link setActivePreference}) no longer decides that.
+ *
+ * @param api the caller's context.
+ * @param uuid the dashboard uuid, or '' to clear.
+ * @return nothing.
+ * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+ */
+export async function setStartDashboard(
+	api: APIRequestContext,
+	uuid: string,
+): Promise<void> {
+	const res = await api.post(`${API}/dashboards/default`, { data: { uuid } })
+	expect(res.status(), await res.text()).toBeLessThan(300)
+}
+
+/**
  * Open the workspace page as the caller and decode its initial state.
  *
  * @param api the caller's context.

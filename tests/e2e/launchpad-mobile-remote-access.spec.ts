@@ -110,7 +110,7 @@ test.beforeAll(async () => {
 	)
 	await publishForRecipients(owner.api, dashboard.id)
 	await shareWith(owner.api, dashboard.id, viewer.username, 'view_only')
-	const active = await viewer.api.post(`${API}/dashboards/active`, {
+	const active = await viewer.api.post(`${API}/dashboards/default`, {
 		data: { uuid: dashboard.uuid },
 	})
 	expect(active.status(), await active.text()).toBeLessThan(300)

@@ -158,6 +158,26 @@ async function activeIdOf(who: Principal): Promise<number> {
 }
 
 /**
+ * Wait for the switch to record a dashboard as the account's last-used one
+ * (`POST /api/dashboards/active`, REQ-DASH-019). Since start-page-stays-vandaag
+ * `GET /api/dashboard` answers the start dashboard, not the one switched to,
+ * so the stored pick is what a switch leaves on the server.
+ *
+ * @param page the page.
+ * @param uuid the dashboard the switch must record.
+ * @return resolves once the matching request has been answered.
+ * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+ */
+function lastUsedStored(page: Page, uuid: string): Promise<unknown> {
+	return page.waitForResponse(
+		(res) =>
+			res.request().method() === 'POST'
+			&& res.url().includes('/api/dashboards/active')
+			&& (res.request().postData() ?? '').includes(uuid),
+	)
+}
+
+/**
  * Make a personal dashboard the account's active one (both mechanisms; see
  * support/dashboardFixture.ts).
  *
@@ -168,7 +188,7 @@ async function activeIdOf(who: Principal): Promise<number> {
 async function activate(who: Principal, dash: Dashboard): Promise<void> {
 	const legacy = await who.api.post(`${API}/dashboard/${dash.id}/activate`)
 	expect(legacy.status(), await legacy.text()).toBeLessThan(300)
-	const pref = await who.api.post(`${API}/dashboards/active`, {
+	const pref = await who.api.post(`${API}/dashboards/default`, {
 		data: { uuid: dash.uuid },
 	})
 	expect(pref.status(), await pref.text()).toBeLessThan(300)
@@ -365,11 +385,12 @@ test('clicking a personal row closes the sidebar and switches to it as a user da
 					`/api/dashboard/${personalB.id}`,
 				),
 		)
+		const stored = lastUsedStored(page, personalB.uuid)
 		await target.locator('.dashboard-switcher-sidebar__label').click()
 		await expect(sidebar(page)).not.toHaveClass(/\bopen\b/)
 		expect((await activated).status()).toBe(200)
 		expect((await loaded).status()).toBe(200)
-		await expect.poll(() => activeIdOf(maria)).toBe(personalB.id)
+		await stored
 		// The ordering of update:open(false) before switch() inside one tick
 		// is pinned by src/components/Workspace/__tests__/
 		// DashboardSwitcherSidebar.spec.js ("emits update:open(false) BEFORE
@@ -414,10 +435,11 @@ test('clicking a Default row switches to it as a default dashboard, not a group 
 				res.request().method() === 'GET'
 				&& new URL(res.url()).pathname.endsWith(`/api/dashboard/${d1.id}`),
 		)
+		const stored = lastUsedStored(page, d1.uuid)
 		await target.locator('.dashboard-switcher-sidebar__label').click()
 		await expect(sidebar(page)).not.toHaveClass(/\bopen\b/)
 		expect((await loaded).status()).toBe(200)
-		await expect.poll(() => activeIdOf(maria)).toBe(d1.id)
+		await stored
 		// A default row is never treated as the caller's own: no legacy
 		// activate call, which only a `user` source makes (stores/dashboard.js
 		// switchDashboard).
@@ -456,11 +478,12 @@ test('switching moves the active class from the old row to the new one', async (
 	try {
 		await openDashboardSwitcher(page)
 		await expect(row(page, personalA.name)).toHaveClass(/\bactive\b/)
+		const stored = lastUsedStored(page, personalB.uuid)
 		await row(page, personalB.name)
 			.locator('.dashboard-switcher-sidebar__label')
 			.click()
 		await expect(sidebar(page)).not.toHaveClass(/\bopen\b/)
-		await expect.poll(() => activeIdOf(maria)).toBe(personalB.id)
+		await stored
 
 		await openDashboardSwitcher(page)
 		await expect(row(page, personalB.name)).toHaveClass(/\bactive\b/)

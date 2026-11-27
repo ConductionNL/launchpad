@@ -150,7 +150,7 @@ test.describe('REQ-VERSUI-004 several changes in one save', () => {
 			const name = String(dash.name)
 			const activate = await femke.api.post(`${API}/dashboard/${dashId}/activate`)
 			expect(activate.status(), await activate.text()).toBeLessThan(300)
-			const pref = await femke.api.post(`${API}/dashboards/active`, {
+			const pref = await femke.api.post(`${API}/dashboards/default`, {
 				data: { uuid },
 			})
 			expect(pref.status(), await pref.text()).toBeLessThan(300)

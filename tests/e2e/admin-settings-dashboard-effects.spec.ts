@@ -296,7 +296,7 @@ test.describe('REQ-ASET-003 the personal-dashboard switch', () => {
 			'Renamed P1',
 		)
 
-		const active = await alice.api.post(`${API}/dashboards/active`, {
+		const active = await alice.api.post(`${API}/dashboards/default`, {
 			data: { uuid: p2.uuid },
 		})
 		expect(active.status(), await active.text()).toBe(200)

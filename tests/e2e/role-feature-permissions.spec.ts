@@ -292,7 +292,7 @@ async function ownDashboard(p: Principal, name: string): Promise<number> {
 	dashboards.push({ api: p.api, id })
 	const activate = await p.api.post(`${API}/dashboard/${id}/activate`)
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
-	const pref = await p.api.post(`${API}/dashboards/active`, {
+	const pref = await p.api.post(`${API}/dashboards/default`, {
 		data: { uuid: dash.uuid },
 	})
 	expect(pref.status(), await pref.text()).toBeLessThan(300)

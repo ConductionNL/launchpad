@@ -141,7 +141,7 @@ function serverSoon(seconds: number): string {
 async function openAs(browser: Browser, dash: DashboardRow) {
 	const activate = await alice!.api.post(`${API}/dashboard/${dash.id}/activate`)
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
-	const preference = await alice!.api.post(`${API}/dashboards/active`, {
+	const preference = await alice!.api.post(`${API}/dashboards/default`, {
 		data: { uuid: dash.uuid },
 	})
 	expect(preference.status(), await preference.text()).toBeLessThan(300)

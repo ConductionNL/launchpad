@@ -101,7 +101,7 @@ test.beforeAll(async () => {
 		})
 		expect(graph.status(), await graph.text()).toBeLessThan(300)
 		await api.post(`${API}/dashboard/${dash.id}/activate`)
-		await api.post(`${API}/dashboards/active`, { data: { uuid: dash.uuid } })
+		await api.post(`${API}/dashboards/default`, { data: { uuid: dash.uuid } })
 	} finally {
 		await api.dispose()
 	}

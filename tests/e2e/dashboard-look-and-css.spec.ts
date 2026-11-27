@@ -49,7 +49,7 @@ let plain: SeededDashboard | null = null
 async function activate(dashboard: SeededDashboard): Promise<void> {
 	const activated = await api.post(`${DASHBOARD}/${dashboard.id}/activate`)
 	expect(activated.status(), await activated.text()).toBeLessThan(300)
-	const preference = await api.post('/index.php/apps/launchpad/api/dashboards/active', {
+	const preference = await api.post('/index.php/apps/launchpad/api/dashboards/default', {
 		data: { uuid: dashboard.uuid },
 	})
 	expect(preference.status(), await preference.text()).toBeLessThan(300)

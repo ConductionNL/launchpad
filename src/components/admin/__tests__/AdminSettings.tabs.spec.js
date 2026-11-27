@@ -170,6 +170,65 @@ describe('AdminSettings tabs', () => {
 		expect(ctx.$el.querySelector).not.toHaveBeenCalled()
 	})
 
+	it('scrolls to the section again when the tab above it grows, until the administrator scrolls', () => {
+		vi.useFakeTimers()
+		let top = 0
+		let target = null
+		const ctx = {
+			$el: { querySelector: vi.fn(() => target) },
+			$nextTick: (fn) => fn(),
+		}
+		try {
+			// The tab's async content is not there at the first tick.
+			AdminSettings.methods.revealSection.call(ctx, 'app-catalogue')
+			target = {
+				scrollIntoView: vi.fn(() => { top = 0 }),
+				getBoundingClientRect: () => ({ top }),
+			}
+			vi.advanceTimersByTime(100)
+			expect(target.scrollIntoView).toHaveBeenCalledTimes(1)
+			// Nothing moved: no new scroll.
+			vi.advanceTimersByTime(300)
+			expect(target.scrollIntoView).toHaveBeenCalledTimes(1)
+			// The cards above it loaded and pushed it down.
+			top = 640
+			vi.advanceTimersByTime(100)
+			expect(target.scrollIntoView).toHaveBeenCalledTimes(2)
+			// The administrator scrolls: the page stops following.
+			window.dispatchEvent(new Event('wheel'))
+			expect(ctx.stopReveal).toBeNull()
+			top = 900
+			vi.advanceTimersByTime(500)
+			expect(target.scrollIntoView).toHaveBeenCalledTimes(2)
+		} finally {
+			vi.useRealTimers()
+		}
+	})
+
+	it('stops following the section after the settle time', () => {
+		vi.useFakeTimers()
+		let top = 0
+		const target = {
+			scrollIntoView: vi.fn(() => { top = 0 }),
+			getBoundingClientRect: () => ({ top }),
+		}
+		const ctx = {
+			$el: { querySelector: vi.fn(() => target) },
+			$nextTick: (fn) => fn(),
+		}
+		try {
+			AdminSettings.methods.revealSection.call(ctx, 'communities')
+			expect(target.scrollIntoView).toHaveBeenCalledTimes(1)
+			vi.advanceTimersByTime(3_200)
+			top = 500
+			vi.advanceTimersByTime(500)
+			expect(target.scrollIntoView).toHaveBeenCalledTimes(1)
+			expect(ctx.stopReveal).toBeNull()
+		} finally {
+			vi.useRealTimers()
+		}
+	})
+
 	it('follows a new route tab (Back, Forward)', () => {
 		const ctx = { showTab: vi.fn() }
 		AdminSettings.watch.tab.call(ctx, 'kiosk')

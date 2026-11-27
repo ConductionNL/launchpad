@@ -331,36 +331,8 @@ export function dashboardItems({
 	onNewDashboard = null,
 }) {
 	const all = dashboardRows(userDashboards, groupDashboards, sharedDashboards)
-	const byUuid = new Map(all.filter(({ d }) => Boolean(d.uuid)).map((row) => [row.d.uuid, row]))
-	// Favourites in the order the person starred them (board LpMeer).
-	const favouriteRows = favourites.map((uuid) => byUuid.get(uuid)).filter(Boolean)
-	const starred = new Set(favouriteRows.map(({ d }) => d.uuid))
-	const others = all.filter(({ d }) => !d.uuid || !starred.has(d.uuid))
-	let rows = [...favouriteRows, ...others]
-	let showHint = false
-	if (!expanded) {
-		// Ruben, 27 Nov 2026: before anything is starred, the open dashboard
-		// and a line saying that a star puts a dashboard here.
-		showHint = favouriteRows.length === 0
-		rows = showHint ? all.filter(({ d }) => d.id === activeId) : favouriteRows
-	}
-	const items = rows.map(({ d, source }) => {
-		const isDefault = Boolean(d.uuid) && d.uuid === defaultUuid
-		const item = {
-			id: `dashboard-${d.id}`,
-			label: d.name || t('launchpad', 'Dashboard'),
-			icon: dashboardIcon(d, isDefault),
-			meta: dashboardMeta(isDefault, source),
-			checked: d.id === activeId,
-			onClick: () => onSwitch(d.id, source),
-		}
-		// REQ-SHELL-016: every row, short or expanded, carries its star.
-		if (d.uuid) {
-			item.favourite = starred.has(d.uuid)
-			item.onToggleFavourite = () => onToggleFavourite(d.uuid)
-		}
-		return item
-	})
+	const { rows, starred, showHint } = columnRows(all, favourites, expanded, activeId)
+	const items = rows.map((row) => dashboardRowItem(row, { activeId, defaultUuid, starred, onSwitch, onToggleFavourite }))
 	if (showHint) {
 		items.push({
 			id: 'favourites-hint',
@@ -368,27 +340,98 @@ export function dashboardItems({
 			label: t('launchpad', 'Star a dashboard to keep it here'),
 		})
 	}
+	return [...items, ...columnFoot(all.length - (expanded ? 0 : rows.length), expanded, onToggleExpanded, onNewDashboard)]
+}
+
+/**
+ * The rows the Dashboards column shows. Folded: the favourites in starring
+ * order, or, before anything is starred, the open dashboard (Ruben, 27 Nov
+ * 2026). Expanded: the favourites first, then every other dashboard.
+ *
+ * @param {object[]} all Every `{d, source}` row.
+ * @param {string[]} favourites The favourite uuids in starring order.
+ * @param {boolean} expanded Whether the column lists every dashboard.
+ * @param {string|number|null} activeId The open dashboard's id.
+ * @return {{rows: object[], starred: Set<string>, showHint: boolean}} The rows.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+ */
+function columnRows(all, favourites, expanded, activeId) {
+	const byUuid = new Map(all.filter(({ d }) => Boolean(d.uuid)).map((row) => [row.d.uuid, row]))
+	const favouriteRows = favourites.map((uuid) => byUuid.get(uuid)).filter(Boolean)
+	const starred = new Set(favouriteRows.map(({ d }) => d.uuid))
+	if (expanded) {
+		return { rows: [...favouriteRows, ...all.filter(({ d }) => !starred.has(d.uuid))], starred, showHint: false }
+	}
+	if (favouriteRows.length > 0) {
+		return { rows: favouriteRows, starred, showHint: false }
+	}
+	return { rows: all.filter(({ d }) => d.id === activeId), starred, showHint: true }
+}
+
+/**
+ * One dashboard row: radio item, icon, marker and, with a uuid, its star
+ * (REQ-SHELL-016: every row, short or expanded).
+ *
+ * @param {{d: object, source: string}} row The dashboard and its section.
+ * @param {object} context What the row needs to know and do.
+ * @param context.activeId
+ * @param context.defaultUuid
+ * @param context.starred
+ * @param context.onSwitch
+ * @param context.onToggleFavourite
+ * @return {object} The item.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
+ */
+function dashboardRowItem({ d, source }, { activeId, defaultUuid, starred, onSwitch, onToggleFavourite }) {
+	const isDefault = Boolean(d.uuid) && d.uuid === defaultUuid
+	const item = {
+		id: `dashboard-${d.id}`,
+		label: d.name || t('launchpad', 'Dashboard'),
+		icon: dashboardIcon(d, isDefault),
+		meta: dashboardMeta(isDefault, source),
+		checked: d.id === activeId,
+		onClick: () => onSwitch(d.id, source),
+	}
+	if (d.uuid) {
+		item.favourite = starred.has(d.uuid)
+		item.onToggleFavourite = () => onToggleFavourite(d.uuid)
+	}
+	return item
+}
+
+/**
+ * The foot of the Dashboards column: New dashboard (expanded, when creating
+ * is allowed) and More / Less (REQ-SHELL-015).
+ *
+ * @param {number} hidden How many dashboards the folded column leaves out.
+ * @param {boolean} expanded Whether the column lists every dashboard.
+ * @param {() => void} onToggleExpanded Unfold or fold the column.
+ * @param {(() => void)|null} onNewDashboard Create a dashboard, or null.
+ * @return {object[]} The items.
+ * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+ */
+function columnFoot(hidden, expanded, onToggleExpanded, onNewDashboard) {
+	const foot = []
 	if (expanded && typeof onNewDashboard === 'function') {
-		items.push({
+		foot.push({
 			id: 'new-dashboard',
 			label: t('launchpad', 'New dashboard'),
 			icon: markRaw(Plus),
 			onClick: () => onNewDashboard(),
 		})
 	}
-	const moreCount = all.length - (expanded ? 0 : rows.length)
-	items.push({
+	foot.push({
 		id: 'all-dashboards',
 		label: expanded ? t('launchpad', 'Less') : t('launchpad', 'More'),
 		meta: expanded
 			? t('launchpad', 'favourites only')
-			: n('launchpad', '%n more dashboard', '%n more dashboards', Math.max(moreCount, 0)),
+			: n('launchpad', '%n more dashboard', '%n more dashboards', Math.max(hidden, 0)),
 		icon: markRaw(expanded ? ChevronUp : ViewGridOutline),
 		keepOpen: true,
 		expanded,
 		onClick: () => onToggleExpanded(),
 	})
-	return items
+	return foot
 }
 
 /**

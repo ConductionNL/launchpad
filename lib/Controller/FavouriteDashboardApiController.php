@@ -98,12 +98,13 @@ class FavouriteDashboardApiController extends Controller {
 			return new JSONResponse(data: ['error' => 'Not authenticated'], statusCode: Http::STATUS_UNAUTHORIZED);
 		}
 
+		$method = 'unstar';
+		if ($star === true) {
+			$method = 'star';
+		}
+
 		try {
-			if ($star === true) {
-				$favourites = $this->favourites->star(userId: $user->getUID(), uuid: $uuid);
-			} else {
-				$favourites = $this->favourites->unstar(userId: $user->getUID(), uuid: $uuid);
-			}
+			$favourites = $this->favourites->$method(userId: $user->getUID(), uuid: $uuid);
 		} catch (DoesNotExistException $e) {
 			return new JSONResponse(data: ['error' => 'Dashboard not found'], statusCode: Http::STATUS_NOT_FOUND);
 		}

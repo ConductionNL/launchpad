@@ -23,9 +23,12 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Service\FavouriteDashboardService;
+
 /**
  * The shell's (nextcloud-vue CnAppRoot) boot reads the workspace page carries:
- * the kept runtime manifest, the setup status and the walkthrough preferences.
+ * the kept runtime manifest, the setup status, the walkthrough preferences and
+ * the viewer's favourite dashboards for the More menu.
  *
  * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
  */
@@ -36,30 +39,40 @@ class ShellBootReads {
 	 * @param ManifestFirstLoad|null               $manifest    The kept runtime manifest.
 	 * @param SetupStatusFirstLoad|null            $setupStatus The setup status.
 	 * @param WalkthroughPreferencesFirstLoad|null $walkthrough The walkthrough preferences.
+	 * @param FavouriteDashboardService|null       $favourites  The favourite dashboards (REQ-SHELL-014).
+	 *
+	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
 	 */
 	public function __construct(
 		public readonly ?ManifestFirstLoad $manifest=null,
 		public readonly ?SetupStatusFirstLoad $setupStatus=null,
 		public readonly ?WalkthroughPreferencesFirstLoad $walkthrough=null,
+		public readonly ?FavouriteDashboardService $favourites=null,
 	) {
 	}//end __construct()
 
 	/**
 	 * The reads for the caller, under the initial-state keys the shell reads:
-	 * `runtimeManifest`, `setup_status` and `walkthrough_preferences`. A read
-	 * that is not wired, or that gives nothing, is null.
+	 * `runtimeManifest`, `setup_status`, `walkthrough_preferences` and
+	 * `favouriteDashboards`. A read that is not wired, or that gives nothing,
+	 * is null.
 	 *
-	 * @param string $userId The caller's uid.
+	 * @param string $userId  The caller's uid, or '' when nobody is logged in.
+	 * @param array  $visible The entries of DashboardService::getVisibleToUser()
+	 *                        the page already read; the favourites are checked
+	 *                        against them without another query.
 	 *
 	 * @return array<string, array|null> The reads by initial-state key.
 	 *
 	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
 	 */
-	public function firstLoad(string $userId): array {
+	public function firstLoad(string $userId, array $visible=[]): array {
 		return [
 			'runtimeManifest'         => $this->manifest?->firstLoad(userId: $userId),
 			'setup_status'            => $this->setupStatus?->firstLoad(userId: $userId),
 			'walkthrough_preferences' => $this->walkthrough?->firstLoad(userId: $userId),
+			'favouriteDashboards'     => $this->favourites?->forPage(userId: $userId, visible: $visible),
 		];
 	}//end firstLoad()
 }//end class

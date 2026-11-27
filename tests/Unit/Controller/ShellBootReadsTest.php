@@ -20,6 +20,7 @@ use OCA\LaunchPad\Controller\ShellBootReads;
 use OCA\LaunchPad\Controller\WalkthroughPreferencesFirstLoad;
 use OCA\LaunchPad\Kernel\Contracts\DemoDataServiceInterface;
 use OCA\LaunchPad\Service\DemoSeedPreferences;
+use OCA\LaunchPad\Service\FavouriteDashboardService;
 use OCA\LaunchPad\Service\PreferenceKey;
 use OCA\LaunchPad\Service\SetupStatusDocument;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
@@ -41,6 +42,7 @@ use RuntimeException;
  * @covers \OCA\LaunchPad\Controller\LaunchPadAdminDelegation
  * @covers \OCA\LaunchPad\Controller\WalkthroughPreferencesFirstLoad
  * @covers \OCA\LaunchPad\Service\PreferenceKey
+ * @covers \OCA\LaunchPad\Service\FavouriteDashboardService
  * @covers \OCA\LaunchPad\Service\SetupStatusDocument
  */
 class ShellBootReadsTest extends TestCase {
@@ -190,12 +192,29 @@ class ShellBootReadsTest extends TestCase {
 		$this->settings->method('getAllowedAdminSettings')->willReturn([]);
 
 		$this->assertSame(
-			expected: ['runtimeManifest' => null, 'setup_status' => ['forbidden' => true], 'walkthrough_preferences' => null],
+			expected: ['runtimeManifest' => null, 'setup_status' => ['forbidden' => true], 'walkthrough_preferences' => null, 'favouriteDashboards' => null],
 			actual: (new ShellBootReads(setupStatus: $this->setupStatus()))->firstLoad(userId: 'marieke')
 		);
 		$this->assertSame(
-			expected: ['runtimeManifest' => null, 'setup_status' => null, 'walkthrough_preferences' => null],
+			expected: ['runtimeManifest' => null, 'setup_status' => null, 'walkthrough_preferences' => null, 'favouriteDashboards' => null],
 			actual: (new ShellBootReads())->firstLoad(userId: 'marieke')
 		);
 	}//end testTheShellReadsComeByInitialStateKey()
+
+	/**
+	 * The favourite dashboards come under `favouriteDashboards`, checked
+	 * against the visible entries the page passes (more-menu-favourites).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+	 */
+	public function testTheFavouritesComeWithTheVisibleEntries(): void {
+		$favourites = $this->createMock(originalClassName: FavouriteDashboardService::class);
+		$favourites->expects($this->once())->method('forPage')
+			->with('marieke', [['dashboard' => 'x']])
+			->willReturn(['u-1']);
+		$reads = (new ShellBootReads(favourites: $favourites))->firstLoad(userId: 'marieke', visible: [['dashboard' => 'x']]);
+		$this->assertSame(expected: ['u-1'], actual: $reads['favouriteDashboards']);
+	}//end testTheFavouritesComeWithTheVisibleEntries()
 }//end class

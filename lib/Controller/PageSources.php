@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Service\AdminTemplateService;
-use OCA\LaunchPad\Service\FavouriteDashboardService;
 use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Services\IInitialState;
 
@@ -49,11 +48,8 @@ class PageSources {
 	 *                                           the workspace view takes from the initial state.
 	 * @param ShellBootReads          $shell     The kept runtime manifest, setup status and walkthrough
 	 *                                           preferences the app shell takes from the initial state.
-	 * @param FavouriteDashboardService|null $favourites The viewer's favourite dashboards for the More
-	 *                                                   menu (REQ-SHELL-014).
 	 *
 	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
 	 */
 	public function __construct(
 		public readonly IInitialState $initialState,
@@ -62,7 +58,6 @@ class PageSources {
 		public readonly AdminTemplateService $adminTemplateService,
 		public readonly ?WorkspaceBootReads $bootReads=null,
 		public readonly ShellBootReads $shell=new ShellBootReads(),
-		public readonly ?FavouriteDashboardService $favourites=null,
 	) {
 	}//end __construct()
 }//end class

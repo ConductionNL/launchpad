@@ -675,24 +675,6 @@ class InitialStateBuilder {
 	}//end setFooter()
 
 	/**
-	 * Set the viewer's favourite dashboards (workspace): their uuids in
-	 * starring order, limited to the dashboards they can open, so opening the
-	 * More menu reads nothing (more-menu-favourites, REQ-SHELL-014).
-	 *
-	 * Optional key; the JS reader defaults to an empty list.
-	 *
-	 * @param array<int, string> $uuids The favourite dashboard uuids.
-	 *
-	 * @return self Fluent.
-	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
-	 */
-	public function setFavouriteDashboards(array $uuids): self {
-		$this->values['favouriteDashboards'] = array_values(array: $uuids);
-		return $this;
-	}//end setFavouriteDashboards()
-
-	/**
 	 * Set the Talk conversation tokens the organisation pinned (workspace).
 	 *
 	 * Optional key; the JS reader defaults to an empty list

@@ -93,6 +93,31 @@ class FavouriteDashboardService {
 	}//end listFor()
 
 	/**
+	 * The favourites the page carries: checked against the visible entries the
+	 * page already read, so a gone or hidden one drops out without another
+	 * query (REQ-SHELL-014). Null when nobody is logged in.
+	 *
+	 * @param string $userId  The viewer, or ''.
+	 * @param array  $visible The entries of DashboardService::getVisibleToUser().
+	 *
+	 * @return array<string>|null The favourite UUIDs in starring order.
+	 *
+	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+	 */
+	public function forPage(string $userId, array $visible): ?array {
+		if ($userId === '') {
+			return null;
+		}
+
+		$uuids = array_map(
+			static fn (array $entry): string => (string) $entry['dashboard']->getUuid(),
+			$visible
+		);
+
+		return $this->listFor(userId: $userId, visibleUuids: $uuids);
+	}//end forPage()
+
+	/**
 	 * Star a dashboard. Idempotent: starring a favourite again changes nothing.
 	 *
 	 * @param string $userId The person.

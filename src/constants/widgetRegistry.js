@@ -84,6 +84,8 @@ const CommunitiesWidget = lazyComponent(() => import('../components/Widgets/Rend
 const CommunitiesWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/CommunitiesWidgetForm.vue'), 'CommunitiesWidgetForm')
 const ContainerWidget = lazyComponent(() => import('../components/Widgets/Renderers/ContainerWidget.vue'), 'ContainerWidget')
 const ContainerWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/ContainerWidgetForm.vue'), 'ContainerWidgetForm')
+const TabsWidget = lazyComponent(() => import('../components/Widgets/Renderers/TabsWidget.vue'), 'TabsWidget')
+const TabsWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/TabsWidgetForm.vue'), 'TabsWidgetForm')
 const IframeWidget = lazyComponent(() => import('../components/Widgets/Renderers/IframeWidget.vue'), 'IframeWidget')
 const IframeWidgetForm = lazyComponent(() => import('../components/Widgets/Renderers/IframeWidgetForm.vue'), 'IframeWidgetForm')
 const LinkButtonWidget = lazyComponent(() => import('../components/Widgets/Renderers/LinkButtonHost.vue'), 'LinkButtonWidget')
@@ -250,6 +252,29 @@ if (!cnGetWidgetTypeEntry('nc-widget')) {
 		icon: 'ViewDashboard',
 	})
 }
+
+// `tabs`: a container with tabs, each tab an inner grid like a well's
+// (layout-widgets-replace-multi-tile D1). The communal `tabs` type is a
+// detail-page widget over sibling definitions; a dashboard's Tabs holds its own
+// placements, so LaunchPad registers its own renderer and form for the type.
+registerDashboardWidget('tabs', {
+	renderer: TabsWidget,
+	form: TabsWidgetForm,
+	defaultContent: {
+		title: '',
+		tabs: [],
+	},
+	// The Add widget miniature draws two tabs (add-widget-dialog-with-miniatures).
+	sampleContent: {
+		tabs: [
+			{ id: 'sample-1', title: 'Team', placements: [] },
+			{ id: 'sample-2', title: 'Projects', placements: [] },
+		],
+	},
+	displayName: 'Tabs',
+	icon: 'TabPlus',
+	ownsTitle: true,
+})
 
 // `clock` — fully client-side ambient tile (REQ-CLOCK-001..003). Always
 // (re-)registered here since it is a LaunchPad-only type, never supplied by

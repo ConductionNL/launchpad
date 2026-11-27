@@ -44,7 +44,7 @@ import {
 	putEvent,
 } from './support/calendarFixture.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, saveEditDraft } from './support/dashboardSwitcher.ts'
 import { adminContext } from './support/principals.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 
@@ -167,7 +167,9 @@ async function addIcs(dialog: Locator, address: string): Promise<void> {
 }
 
 /**
- * Save the modal and wait for it to close.
+ * Save the modal, wait for it to close, and store the edit-mode draft with
+ * the edit bar's Save (REQ-EDIT-002): an added or changed widget is only
+ * written on that Save.
  *
  * @param dialog the dialog.
  * @return nothing.
@@ -177,6 +179,7 @@ async function save(dialog: Locator): Promise<void> {
 	await expect(button).toBeEnabled({ timeout: 5_000 })
 	await button.click()
 	await expect(dialog).not.toBeVisible({ timeout: 10_000 })
+	expect(await saveEditDraft(dialog.page())).toBeLessThan(300)
 }
 
 /**

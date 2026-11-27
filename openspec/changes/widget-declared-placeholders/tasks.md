@@ -24,9 +24,9 @@
 ### Task 4: The shell prints the library's markup
 - **spec_ref**: `openspec/changes/widget-declared-placeholders/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002`
 - **files**: `templates/index.php`, `lib/Service/FirstPaintShell.php`, `tests/e2e/first-paint-shell.spec.ts`
-- [ ] Placeholders printed in nextcloud-vue's `cn-widget-placeholder` markup; `css/widget-placeholder.css` from the package inlined in the style block, inside the 6 KB budget
+- [x] Placeholders printed in nextcloud-vue's `cn-widget-placeholder` markup; `css/widget-placeholder.css` from the package inlined in the style block, inside the 6 KB budget (`FirstPaintPlaceholder::markup()` / `::css()`; the CSS is copied to `lib/Service/widget-placeholder.css` on prebuild and checked against the package; style block ~4.9 KB, pinned under 6 KB by `FirstPaintPlaceholderTest`)
 - [ ] Check each shape the shell draws on LpVandaag against boards LpLaden and LpLadenDeels; a mismatch is fixed at the widget's declaration, not in the fallback table
-- [ ] e2e: a declaring Conduction Nextcloud widget, the Talk widget (rows) and a `chart` placement (block) show the same shape in the shell and after the hand-over
+- [ ] e2e: a declaring Conduction Nextcloud widget, the Talk widget (rows) and a `chart` placement (block) show the same shape in the shell and after the hand-over (written: `tests/e2e/first-paint-shell.spec.ts`, runs in nightly)
 - [ ] Test with multiple Nextcloud widgets enabled, with a view-only shared dashboard and a group template dashboard, and with a conditional visibility rule that hides a widget
 
 ### Task 5: Docs

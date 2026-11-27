@@ -110,11 +110,27 @@ class AdminFormState {
 			->setAdminPage(array_values($tabs), $version)
 			->setAllGroups($allGroups)
 			->setConfiguredGroups($configuredGroups)
-			->setWidgets($this->sources->widgetService->getAvailableWidgets())
+			->setWidgets($this->widgets())
 			->setAllowUserDashboards($allowUserDashboards)
 			->setLinkCreateFileExtensions(
 				$this->sources->fileService->getAllowedExtensions()
 			)
 			->apply();
 	}//end provide()
+
+	/**
+	 * The Nextcloud widgets for the admin page, read without running any
+	 * widget's `load()`. `IManager::getWidgets()` loads every widget, and each
+	 * `load()` adds that widget's dashboard script (photos, recommendations,
+	 * OpenRegister ...) to the settings page, where they run and fetch for a
+	 * dashboard that is not there. Falls back to the loading read only when
+	 * the registry cannot be read that way.
+	 *
+	 * @return array The widget descriptors.
+	 *
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+	 */
+	private function widgets(): array {
+		return $this->sources->widgetService->getWidgetCatalogue() ?? $this->sources->widgetService->getAvailableWidgets();
+	}//end widgets()
 }//end class

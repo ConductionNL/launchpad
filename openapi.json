@@ -4080,13 +4080,6 @@
                                             "null"
                                         ],
                                         "description": "LaunchPad is the default app after sign-in (REQ-PSP-003)."
-                                    },
-                                    "kioskScreenLinksAllowed": {
-                                        "type": [
-                                            "boolean",
-                                            "null"
-                                        ],
-                                        "description": "A dashboard's Sharing tab may make a screen link (REQ-KIOSK-007)."
                                     }
                                 }
                             }
@@ -4215,6 +4208,13 @@
                                             "null"
                                         ],
                                         "description": "Whether public links may be created."
+                                    },
+                                    "kioskScreenLinksAllowed": {
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ],
+                                        "description": "Whether a Sharing tab may make a screen link (REQ-KIOSK-007)."
                                     }
                                 }
                             }

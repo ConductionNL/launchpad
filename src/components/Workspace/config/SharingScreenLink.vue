@@ -15,12 +15,15 @@
 			{{ t('launchpad', 'A screen link opens this dashboard as a kiosk screen: no app frame, no account, read only, and it refreshes itself. For the screen in the canteen or at the desk.') }}
 		</p>
 
-		<RevokeScreenLinkDialog
+		<!-- A screen on the wall goes dark, so Revoke asks first. -->
+		<CnConfirmDialog
 			v-if="confirmingRevoke"
-			open
-			:name="dashboardName"
+			:dialogTitle="t('launchpad', 'Revoke screen link')"
+			:message="t('launchpad', 'Revoke the screen link of {name}? A screen showing it stops showing this dashboard.', { name: dashboardName })"
+			:confirmLabel="t('launchpad', 'Revoke')"
+			variant="error"
 			@confirm="revoke"
-			@update:open="confirmingRevoke = $event" />
+			@close="confirmingRevoke = false" />
 
 		<NcLoadingIcon v-if="loading" />
 		<div v-else-if="link" class="sharing-screen__link" data-test="sharing-screen-link-row">
@@ -86,12 +89,11 @@
 </template>
 
 <script>
-import { NcButton, NcLoadingIcon } from '@conduction/nextcloud-vue'
+import { CnConfirmDialog, NcButton, NcLoadingIcon } from '@conduction/nextcloud-vue'
 import { n, t } from '@nextcloud/l10n'
 import Check from 'vue-material-design-icons/Check.vue'
 import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
 import Monitor from 'vue-material-design-icons/Monitor.vue'
-import RevokeScreenLinkDialog from '../../../dialogs/RevokeScreenLinkDialog.vue'
 import { NULLABLE_OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { screenLinkApi } from '../../../services/screenLinkApi.js'
 import { readSharingPolicy } from '../../../utils/loadInitialState.js'
@@ -111,11 +113,11 @@ export default {
 
 	components: {
 		Check,
+		CnConfirmDialog,
 		ContentCopy,
 		Monitor,
 		NcButton,
 		NcLoadingIcon,
-		RevokeScreenLinkDialog,
 	},
 
 	props: {

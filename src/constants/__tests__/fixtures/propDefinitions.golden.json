@@ -2070,17 +2070,6 @@
 		"validator": false,
 		"default": ""
 	},
-	"../../dialogs/RevokeScreenLinkDialog.vue | open": {
-		"type": "Boolean",
-		"required": true,
-		"validator": false
-	},
-	"../../dialogs/RevokeScreenLinkDialog.vue | name": {
-		"type": "String",
-		"required": false,
-		"validator": false,
-		"default": ""
-	},
 	"../../dialogs/RoleLayoutDefaultEditorDialog.vue | open": {
 		"type": "Boolean",
 		"required": true,

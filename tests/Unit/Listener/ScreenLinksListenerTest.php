@@ -33,16 +33,26 @@ use Psr\Log\LoggerInterface;
  */
 class ScreenLinksListenerTest extends TestCase {
 
+	/**
+	 * Scenario "Deleting the dashboard revokes its screen link".
+	 *
+	 * @return void
+	 */
 	public function testDeletingADashboardRevokesItsScreenLink(): void {
-		$mapper = $this->createMock(KioskPlaylistMapper::class);
+		$mapper = $this->createMock(originalClassName: KioskPlaylistMapper::class);
 		$mapper->expects($this->once())->method('revokeScreenLinksOf')->with('dash-kantine')->willReturn(1);
 
-		$listener = new ScreenLinksListener(playlistMapper: $mapper, logger: $this->createMock(LoggerInterface::class));
-		$listener->handle(new DashboardDeletedEvent(
-			dashboardUuid: 'dash-kantine',
-			ownerUserId: 'pieter',
-			type: 'user',
-			deletedAt: new DateTimeImmutable()
-		));
-	}
-}
+		$listener = new ScreenLinksListener(
+			playlistMapper: $mapper,
+			logger: $this->createMock(originalClassName: LoggerInterface::class)
+		);
+		$listener->handle(
+			new DashboardDeletedEvent(
+				dashboardUuid: 'dash-kantine',
+				ownerUserId: 'pieter',
+				type: 'user',
+				deletedAt: new DateTimeImmutable()
+			)
+		);
+	}//end testDeletingADashboardRevokesItsScreenLink()
+}//end class

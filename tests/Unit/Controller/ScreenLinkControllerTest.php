@@ -3,7 +3,8 @@
 /**
  * ScreenLinkControllerTest
  *
- * The three screen link endpoints and their status codes (REQ-KIOSK-006).
+ * The three screen link endpoints and their status codes (REQ-KIOSK-006),
+ * and the 400 for a playlist update on a screen link.
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Controller
@@ -21,11 +22,13 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use InvalidArgumentException;
 use OCA\LaunchPad\Controller\KioskController;
 use OCA\LaunchPad\Controller\ScreenLinkController;
 use OCA\LaunchPad\Db\KioskPlaylist;
 use OCA\LaunchPad\Service\KioskService;
 use OCA\LaunchPad\Service\PublicShareContext;
+use OCA\LaunchPad\Service\ScreenLinkService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
@@ -34,94 +37,138 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
+/**
+ * Screen link endpoint tests.
+ */
 class ScreenLinkControllerTest extends TestCase {
 
-	/** @var KioskService&MockObject */
-	private $kioskService;
+	/**
+	 * The screen link service.
+	 *
+	 * @var ScreenLinkService&MockObject
+	 */
+	private $screenLinks;
 
+	/**
+	 * Mock the service.
+	 *
+	 * @return void
+	 */
 	protected function setUp(): void {
-		$this->kioskService = $this->createMock(KioskService::class);
-	}
+		$this->screenLinks = $this->createMock(originalClassName: ScreenLinkService::class);
+	}//end setUp()
 
-	private function controller(?string $userId = 'pieter'): ScreenLinkController {
+	/**
+	 * The controller for a caller.
+	 *
+	 * @param string|null $userId The signed-in user, null for none.
+	 *
+	 * @return ScreenLinkController The controller.
+	 */
+	private function controller(?string $userId='pieter'): ScreenLinkController {
 		return new ScreenLinkController(
-			request: $this->createMock(IRequest::class),
-			kioskService: $this->kioskService,
-			logger: $this->createMock(LoggerInterface::class),
+			request: $this->createMock(originalClassName: IRequest::class),
+			screenLinks: $this->screenLinks,
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
 			userId: $userId
 		);
-	}
+	}//end controller()
 
+	/**
+	 * A screen link of "Kantine".
+	 *
+	 * @return KioskPlaylist The screen link.
+	 */
 	private function link(): KioskPlaylist {
 		$link = new KioskPlaylist();
 		$link->setToken('tok');
 		$link->setScreenDashboardUuid('dash-kantine');
 		return $link;
-	}
+	}//end link()
 
-	public function testShowAnswers200WithTheLink(): void {
-		$this->kioskService->method('getScreenLink')->willReturn($this->link());
+	/**
+	 * GET answers 200 with the link, 204 without one.
+	 *
+	 * @return void
+	 */
+	public function testShowAnswers200WithTheLinkAnd204WithoutOne(): void {
+		$this->screenLinks->method('get')->willReturnOnConsecutiveCalls($this->link(), null);
 
-		$response = $this->controller()->show(uuid: 'dash-kantine');
+		$with = $this->controller()->show(uuid: 'dash-kantine');
+		$this->assertSame(expected: Http::STATUS_OK, actual: $with->getStatus());
+		$this->assertSame(expected: 'tok', actual: $with->getData()['token']);
+		$this->assertSame(expected: Http::STATUS_NO_CONTENT, actual: $this->controller()->show(uuid: 'dash-kantine')->getStatus());
+	}//end testShowAnswers200WithTheLinkAnd204WithoutOne()
 
-		$this->assertSame(Http::STATUS_OK, $response->getStatus());
-		$this->assertSame('tok', $response->getData()['token']);
-	}
-
-	public function testShowAnswers204WithoutALink(): void {
-		$this->kioskService->method('getScreenLink')->willReturn(null);
-
-		$this->assertSame(Http::STATUS_NO_CONTENT, $this->controller()->show(uuid: 'dash-kantine')->getStatus());
-	}
-
+	/**
+	 * POST answers 201 when the link is made and 200 when it existed.
+	 *
+	 * @return void
+	 */
 	public function testCreateAnswers201WhenMadeAnd200WhenItExisted(): void {
-		$this->kioskService->method('createScreenLink')->willReturnOnConsecutiveCalls(
+		$this->screenLinks->method('create')->willReturnOnConsecutiveCalls(
 			['playlist' => $this->link(), 'created' => true],
 			['playlist' => $this->link(), 'created' => false]
 		);
 
-		$this->assertSame(Http::STATUS_CREATED, $this->controller()->create(uuid: 'dash-kantine')->getStatus());
-		$this->assertSame(Http::STATUS_OK, $this->controller()->create(uuid: 'dash-kantine')->getStatus());
-	}
+		$this->assertSame(expected: Http::STATUS_CREATED, actual: $this->controller()->create(uuid: 'dash-kantine')->getStatus());
+		$this->assertSame(expected: Http::STATUS_OK, actual: $this->controller()->create(uuid: 'dash-kantine')->getStatus());
+	}//end testCreateAnswers201WhenMadeAnd200WhenItExisted()
 
+	/**
+	 * A refusal answers 403.
+	 *
+	 * @return void
+	 */
 	public function testCreateAnswers403WhenRefused(): void {
-		$this->kioskService->method('createScreenLink')->willThrowException(new OCSForbiddenException('no'));
+		$this->screenLinks->method('create')->willThrowException(new OCSForbiddenException('no'));
 
-		$this->assertSame(Http::STATUS_FORBIDDEN, $this->controller(userId: 'ella')->create(uuid: 'dash-kantine')->getStatus());
-	}
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $this->controller(userId: 'ella')->create(uuid: 'dash-kantine')->getStatus());
+	}//end testCreateAnswers403WhenRefused()
 
+	/**
+	 * DELETE answers 204, and 403 when refused.
+	 *
+	 * @return void
+	 */
 	public function testDestroyAnswers204And403(): void {
-		$this->kioskService->expects($this->exactly(2))->method('revokeScreenLink')->willReturnOnConsecutiveCalls(
+		$this->screenLinks->expects($this->exactly(count: 2))->method('revoke')->willReturnOnConsecutiveCalls(
 			null,
-			$this->throwException(new OCSForbiddenException('no'))
+			$this->throwException(exception: new OCSForbiddenException('no'))
 		);
 
-		$this->assertSame(Http::STATUS_NO_CONTENT, $this->controller()->destroy(uuid: 'dash-kantine')->getStatus());
-		$this->assertSame(Http::STATUS_FORBIDDEN, $this->controller()->destroy(uuid: 'dash-kantine')->getStatus());
-	}
+		$this->assertSame(expected: Http::STATUS_NO_CONTENT, actual: $this->controller()->destroy(uuid: 'dash-kantine')->getStatus());
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $this->controller()->destroy(uuid: 'dash-kantine')->getStatus());
+	}//end testDestroyAnswers204And403()
 
-	public function testAnonymousCallerAnswers401(): void {
-		$this->kioskService->expects($this->never())->method('createScreenLink');
+	/**
+	 * A caller without a session answers 401; an unexpected error 500.
+	 *
+	 * @return void
+	 */
+	public function testAnonymousAnswers401AndAnErrorAnswers500(): void {
+		$this->screenLinks->method('get')->willThrowException(new RuntimeException('db down'));
 
-		$this->assertSame(Http::STATUS_UNAUTHORIZED, $this->controller(userId: null)->create(uuid: 'dash-kantine')->getStatus());
-	}
+		$this->assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $this->controller(userId: null)->create(uuid: 'dash-kantine')->getStatus());
+		$this->assertSame(expected: Http::STATUS_INTERNAL_SERVER_ERROR, actual: $this->controller()->show(uuid: 'dash-kantine')->getStatus());
+	}//end testAnonymousAnswers401AndAnErrorAnswers500()
 
-	public function testUnexpectedErrorAnswers500(): void {
-		$this->kioskService->method('getScreenLink')->willThrowException(new RuntimeException('db down'));
-
-		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $this->controller()->show(uuid: 'dash-kantine')->getStatus());
-	}
-
+	/**
+	 * Scenario "A screen link does not grow into a rotation": PUT answers 400.
+	 *
+	 * @return void
+	 */
 	public function testPlaylistUpdateOnAScreenLinkAnswers400(): void {
-		$this->kioskService->method('updatePlaylist')->willThrowException(new \InvalidArgumentException('A screen link cannot be edited.'));
+		$kiosk = $this->createMock(originalClassName: KioskService::class);
+		$kiosk->method('updatePlaylist')->willThrowException(new InvalidArgumentException('A screen link cannot be edited.'));
 		$controller = new KioskController(
-			request: $this->createMock(IRequest::class),
-			kioskService: $this->kioskService,
-			shareContext: $this->createMock(PublicShareContext::class),
-			logger: $this->createMock(LoggerInterface::class),
+			request: $this->createMock(originalClassName: IRequest::class),
+			kioskService: $kiosk,
+			shareContext: $this->createMock(originalClassName: PublicShareContext::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
 			userId: 'pieter'
 		);
 
-		$this->assertSame(Http::STATUS_BAD_REQUEST, $controller->update(id: 7, name: 'x', entries: [])->getStatus());
-	}
-}
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $controller->update(id: 7, name: 'x', entries: [])->getStatus());
+	}//end testPlaylistUpdateOnAScreenLinkAnswers400()
+}//end class

@@ -61,21 +61,28 @@ class SharingPolicyController extends Controller {
 	 *
 	 * A partial patch: a value left out stays as it is.
 	 *
-	 * @param string|null $sharingAllowed     `everyone`, `groups` or `none`.
-	 * @param bool|null   $publicLinksAllowed Whether public links may be created.
+	 * @param string|null $sharingAllowed          `everyone`, `groups` or `none`.
+	 * @param bool|null   $publicLinksAllowed      Whether public links may be created.
+	 * @param bool|null   $kioskScreenLinksAllowed Whether a Sharing tab may make a screen link (REQ-KIOSK-007).
 	 *
 	 * @return JSONResponse The update confirmation, or 400 for an unknown choice.
 	 *
 	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function update(
 		string|null $sharingAllowed = null,
 		bool|null $publicLinksAllowed = null,
+		bool|null $kioskScreenLinksAllowed = null,
 	): JSONResponse {
 		try {
 			$this->settings->updateSettings(
-				settings: ['sharingAllowed' => $sharingAllowed, 'publicLinksAllowed' => $publicLinksAllowed]
+				settings: [
+					'sharingAllowed'          => $sharingAllowed,
+					'publicLinksAllowed'      => $publicLinksAllowed,
+					'kioskScreenLinksAllowed' => $kioskScreenLinksAllowed,
+				]
 			);
 
 			return $this->responseHelper->success(data: ['status' => 'ok']);

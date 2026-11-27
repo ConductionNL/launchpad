@@ -292,11 +292,7 @@ class Application extends App implements IBootstrap {
 			event: DashboardDeletedEvent::class,
 			listener: DashboardSharesListener::class
 		);
-		// REQ-KIOSK-006: a deleted dashboard's screen link stops playing.
-		$context->registerEventListener(
-			event: DashboardDeletedEvent::class,
-			listener: ScreenLinksListener::class
-		);
+		$context->registerEventListener(event: DashboardDeletedEvent::class, listener: ScreenLinksListener::class);
 		$context->registerEventListener(
 			event: DashboardDeletedEvent::class,
 			listener: MetadataValuesListener::class

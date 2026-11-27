@@ -125,7 +125,7 @@ describe('KioskTab screen links (REQ-KIOSK-007, REQ-KIOSK-008)', () => {
 		await flushPromises()
 
 		expect(axios.put).toHaveBeenCalledWith(
-			expect.stringContaining('/api/admin/settings'),
+			expect.stringContaining('/api/admin/sharing-policy'),
 			expect.objectContaining({ kioskScreenLinksAllowed: false }),
 		)
 		expect(wrapper.vm.screenLinksAllowed).toBe(false)

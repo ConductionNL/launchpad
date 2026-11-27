@@ -266,7 +266,7 @@ export default {
 			this.savingSwitch = true
 			this.error = ''
 			try {
-				await api.updateAdminSettings({ kioskScreenLinksAllowed: this.screenLinksAllowed })
+				await api.updateSharingPolicy({ kioskScreenLinksAllowed: this.screenLinksAllowed })
 			} catch {
 				this.screenLinksAllowed = previous
 				this.error = t('launchpad', 'The setting could not be saved.')

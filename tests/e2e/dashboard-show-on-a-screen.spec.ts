@@ -69,7 +69,7 @@ function linkUrl(uuid: string): string {
 
 /** Switch screen links on or off as the administrator. */
 async function setSwitch(on: boolean): Promise<void> {
-	const res = await admin.put(`${API}/admin/settings`, { data: { kioskScreenLinksAllowed: on } })
+	const res = await admin.put(`${API}/admin/sharing-policy`, { data: { kioskScreenLinksAllowed: on } })
 	expect(res.status(), await res.text()).toBe(200)
 }
 
@@ -116,7 +116,7 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-	await admin.put(`${API}/admin/settings`, { data: { kioskScreenLinksAllowed: priorSwitch } })
+	await admin.put(`${API}/admin/sharing-policy`, { data: { kioskScreenLinksAllowed: priorSwitch } })
 	if (kantine !== null && pieter !== null) {
 		await pieter.api.delete(linkUrl(kantine.uuid))
 		await pieter.api.delete(`${API}/dashboard/${kantine.id}`)
@@ -158,7 +158,7 @@ test('the owner makes a screen link on the Sharing tab, a logged-out screen play
 		}
 
 		await block.locator('[data-test="sharing-screen-link-revoke"]').click()
-		await tab.page.locator('[data-test="revoke-screen-link-confirm"]').click()
+		await tab.page.getByRole('dialog').getByRole('button', { name: 'Revoke', exact: true }).click()
 		await expect(block.locator('[data-test="sharing-screen-link-create"]')).toBeVisible()
 		expect(await playAnonymously(token)).toBe(404)
 	} finally {

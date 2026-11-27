@@ -129,20 +129,12 @@ class KioskService {
 			callerId: $callerId
 		);
 
-		$playlist = new KioskPlaylist();
-		// phpcs:disable CustomSn.Functions.NamedParameters -- Entity magic __call breaks with named args.
-		$playlist->setName($draft->name);
-		$playlist->setToken(
-			$this->secureRandom->generate(
-				length: 64,
-				characters: ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_DIGITS
-			)
+		$playlist = $this->newPlaylist(
+			name: $draft->name,
+			entries: $normalised,
+			refresh: $this->clampRefresh(refresh: $draft->refresh),
+			callerId: $callerId
 		);
-		$playlist->setEntries((string)json_encode($normalised));
-		$playlist->setRefreshSeconds($this->clampRefresh(refresh: $draft->refresh));
-		$playlist->setCreatedBy($callerId);
-		$playlist->setCreatedAt((new DateTime())->format('Y-m-d H:i:s'));
-		// phpcs:enable CustomSn.Functions.NamedParameters
 
 		$saved = $this->stores->playlistMapper->insert(entity: $playlist);
 
@@ -153,6 +145,38 @@ class KioskService {
 
 		return $saved;
 	}//end createPlaylist()
+
+	/**
+	 * A new, unsaved playlist with a fresh 64-character token, its creator
+	 * and its creation time; the entries are stored as given.
+	 *
+	 * @param string                                                    $name     The playlist name.
+	 * @param array<int, array{dashboardUuid: string, dwellSeconds: int}> $entries  Validated entries.
+	 * @param int                                                       $refresh  Refresh interval in seconds.
+	 * @param string                                                    $callerId The creator.
+	 *
+	 * @return KioskPlaylist The unsaved playlist.
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
+	 */
+	public function newPlaylist(string $name, array $entries, int $refresh, string $callerId): KioskPlaylist {
+		$playlist = new KioskPlaylist();
+		// phpcs:disable CustomSn.Functions.NamedParameters -- Entity magic __call breaks with named args.
+		$playlist->setName($name);
+		$playlist->setToken(
+			$this->secureRandom->generate(
+				length: 64,
+				characters: ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_DIGITS
+			)
+		);
+		$playlist->setEntries((string)json_encode($entries));
+		$playlist->setRefreshSeconds($refresh);
+		$playlist->setCreatedBy($callerId);
+		$playlist->setCreatedAt((new DateTime())->format('Y-m-d H:i:s'));
+		// phpcs:enable CustomSn.Functions.NamedParameters
+
+		return $playlist;
+	}//end newPlaylist()
 
 	/**
 	 * Update an existing kiosk playlist.
@@ -237,129 +261,6 @@ class KioskService {
 		$playlist = $this->resolveOwnedPlaylist(id: $id, callerId: $callerId);
 		$this->stores->playlistMapper->softRevoke(id: (int)$playlist->getId());
 	}//end revokePlaylist()
-
-	/**
-	 * The active screen link of a dashboard (REQ-KIOSK-006), for its owner
-	 * or an administrator (REQ-KIOSK-008).
-	 *
-	 * @param string $dashboardUuid The dashboard UUID.
-	 * @param string $callerId      Caller user ID.
-	 *
-	 * @return KioskPlaylist|null The screen link, or null when there is none.
-	 *
-	 * @throws OCSForbiddenException When the dashboard does not exist or the caller is neither owner nor admin.
-	 *
-	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
-	 */
-	public function getScreenLink(string $dashboardUuid, string $callerId): ?KioskPlaylist {
-		$this->resolveShareableDashboard(dashboardUuid: $dashboardUuid, callerId: $callerId);
-
-		return $this->stores->playlistMapper->findActiveScreenLink(dashboardUuid: $dashboardUuid);
-	}//end getScreenLink()
-
-	/**
-	 * Create the screen link of a dashboard: a playlist of that one
-	 * dashboard (REQ-KIOSK-006). Idempotent: when the dashboard already has
-	 * an active screen link, that one is returned and nothing is made.
-	 *
-	 * The caller must be allowed to share the dashboard (owner or admin,
-	 * REQ-SHARE-001) under the sharing policy (REQ-SHARE-014, REQ-SHARE-015),
-	 * and a new link needs the administrator's switch on (REQ-KIOSK-007).
-	 *
-	 * @param string $dashboardUuid The dashboard UUID.
-	 * @param string $callerId      Caller user ID.
-	 *
-	 * @return array{playlist: KioskPlaylist, created: bool} The screen link and whether it was made now.
-	 *
-	 * @throws OCSForbiddenException When the dashboard does not exist, the caller may not share it,
-	 *                               or screen links are switched off.
-	 *
-	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
-	 */
-	public function createScreenLink(string $dashboardUuid, string $callerId): array {
-		$dashboard = $this->resolveShareableDashboard(dashboardUuid: $dashboardUuid, callerId: $callerId);
-
-		if ($this->stores->sharing !== null && $this->stores->sharing->mayShare(userId: $callerId) === false) {
-			throw new OCSForbiddenException('You are not allowed to share dashboards.');
-		}
-
-		$existing = $this->stores->playlistMapper->findActiveScreenLink(dashboardUuid: $dashboardUuid);
-		if ($existing !== null) {
-			return ['playlist' => $existing, 'created' => false];
-		}
-
-		if ($this->stores->sharing !== null && $this->stores->sharing->screenLinksAllowed() === false) {
-			throw new OCSForbiddenException('Screen links are switched off.');
-		}
-
-		$playlist = new KioskPlaylist();
-		// phpcs:disable CustomSn.Functions.NamedParameters -- Entity magic __call breaks with named args.
-		$playlist->setName((string)($dashboard->getName() ?? ''));
-		$playlist->setToken(
-			$this->secureRandom->generate(
-				length: 64,
-				characters: ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_DIGITS
-			)
-		);
-		$playlist->setEntries((string)json_encode([['dashboardUuid' => $dashboardUuid, 'dwellSeconds' => self::DWELL_MIN]]));
-		$playlist->setRefreshSeconds(self::REFRESH_DEFAULT);
-		$playlist->setCreatedBy($callerId);
-		$playlist->setCreatedAt((new DateTime())->format('Y-m-d H:i:s'));
-		$playlist->setScreenDashboardUuid($dashboardUuid);
-		// phpcs:enable CustomSn.Functions.NamedParameters
-
-		$saved = $this->stores->playlistMapper->insert(entity: $playlist);
-
-		$this->logger->debug(
-			message: sprintf('launchpad: screen link created by %s', $callerId),
-			context: ['app' => 'launchpad']
-		);
-
-		return ['playlist' => $saved, 'created' => true];
-	}//end createScreenLink()
-
-	/**
-	 * Revoke the screen link of a dashboard (REQ-KIOSK-006, REQ-KIOSK-008):
-	 * its owner or an administrator. Idempotent: no screen link is a no-op.
-	 *
-	 * @param string $dashboardUuid The dashboard UUID.
-	 * @param string $callerId      Caller user ID.
-	 *
-	 * @return void
-	 *
-	 * @throws OCSForbiddenException When the dashboard does not exist or the caller is neither owner nor admin.
-	 *
-	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
-	 */
-	public function revokeScreenLink(string $dashboardUuid, string $callerId): void {
-		$this->resolveShareableDashboard(dashboardUuid: $dashboardUuid, callerId: $callerId);
-
-		$this->stores->playlistMapper->revokeScreenLinksOf(dashboardUuid: $dashboardUuid);
-	}//end revokeScreenLink()
-
-	/**
-	 * The dashboard behind a screen link request, when the caller is its
-	 * owner or an administrator. A missing dashboard answers like a refused
-	 * one, so the endpoint does not reveal which UUIDs exist.
-	 *
-	 * @param string $dashboardUuid The dashboard UUID.
-	 * @param string $callerId      Caller user ID.
-	 *
-	 * @return Dashboard The dashboard.
-	 *
-	 * @throws OCSForbiddenException When the dashboard does not exist or the caller is neither owner nor admin.
-	 */
-	private function resolveShareableDashboard(string $dashboardUuid, string $callerId): Dashboard {
-		try {
-			$dashboard = $this->stores->dashMapper->findByUuid(uuid: $dashboardUuid);
-		} catch (DoesNotExistException) {
-			throw new OCSForbiddenException('Not authorized');
-		}
-
-		$this->stores->shareService->authorizeShareMutation(dashboard: $dashboard, userId: $callerId);
-
-		return $dashboard;
-	}//end resolveShareableDashboard()
 
 	/**
 	 * Render a playlist for anonymous wall-display access.

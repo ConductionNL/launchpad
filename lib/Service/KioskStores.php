@@ -40,15 +40,12 @@ class KioskStores {
 	 * @param DashboardMapper       $dashMapper Dashboard mapper for existence/ownership.
 	 * @param WidgetPlacementMapper $placementMapper Placements of each played dashboard.
 	 * @param PublicShareService    $shareService Reused owner-or-admin authorization rule.
-	 * @param SharingLimits|null    $sharing Who may share and whether screen links are on (REQ-KIOSK-006,
-	 *                                       REQ-KIOSK-007); without it both are allowed.
 	 */
 	public function __construct(
 		public readonly KioskPlaylistMapper $playlistMapper,
 		public readonly DashboardMapper $dashMapper,
 		public readonly WidgetPlacementMapper $placementMapper,
 		public readonly PublicShareService $shareService,
-		public readonly ?SharingLimits $sharing = null,
 	) {
 	}//end __construct()
 }//end class

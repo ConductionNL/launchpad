@@ -89,7 +89,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 21 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 20 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 
@@ -279,21 +279,6 @@ class AdminControllerSettingsAliasTest extends TestCase {
 
 		$this->controller->updateSettings(defaultAppEnabled: false);
 	}//end testDefaultAppSwitchIsPassedThrough()
-
-	/**
-	 * REQ-KIOSK-007: the screen link switch reaches the service.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-8
-	 */
-	public function testScreenLinkSwitchIsPassedThrough(): void {
-		$this->settingsService->expects($this->once())
-			->method('updateSettings')
-			->with($this->settingsMatching(['defaultAppEnabled' => null, 'kioskScreenLinksAllowed' => false]));
-
-		$this->controller->updateSettings(kioskScreenLinksAllowed: false);
-	}//end testScreenLinkSwitchIsPassedThrough()
 
 	/**
 	 * Engagement-communities REQ-COMM-003: the pinned tokens reach the

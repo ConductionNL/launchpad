@@ -6,7 +6,7 @@
  * The screen link of one dashboard, from its Sharing tab (REQ-KIOSK-006):
  * read, create (idempotent) and revoke. A screen link is a kiosk playlist of
  * that one dashboard, played at `/kiosk/{token}` like every playlist.
- * `#[NoAdminRequired]`: KioskService checks on every request that the caller
+ * `#[NoAdminRequired]`: ScreenLinkService checks on every request that the caller
  * may share the dashboard, and for a create that screen links are on
  * (REQ-KIOSK-007).
  *
@@ -31,7 +31,7 @@ namespace OCA\LaunchPad\Controller;
 use Closure;
 use Exception;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\KioskService;
+use OCA\LaunchPad\Service\ScreenLinkService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -47,16 +47,16 @@ use Psr\Log\LoggerInterface;
  */
 class ScreenLinkController extends Controller {
 	/**
-	 * Constructor.
+	 * Wire the screen link service and the signed-in user.
 	 *
-	 * @param IRequest        $request      The incoming request.
-	 * @param KioskService    $kioskService The kiosk-playlist service.
-	 * @param LoggerInterface $logger       PSR-3 logger.
-	 * @param string|null     $userId       Authenticated user ID.
+	 * @param IRequest          $request     The incoming request.
+	 * @param ScreenLinkService $screenLinks Reads, makes and revokes screen links.
+	 * @param LoggerInterface   $logger      Logs unexpected errors.
+	 * @param string|null       $userId      The signed-in user, null without a session.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly KioskService $kioskService,
+		private readonly ScreenLinkService $screenLinks,
 		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
 	) {
@@ -77,7 +77,7 @@ class ScreenLinkController extends Controller {
 	public function show(string $uuid): DataResponse {
 		return $this->respond(
 			operation: function (string $callerId) use ($uuid): DataResponse {
-				$link = $this->kioskService->getScreenLink(dashboardUuid: $uuid, callerId: $callerId);
+				$link = $this->screenLinks->get(dashboardUuid: $uuid, callerId: $callerId);
 				if ($link === null) {
 					return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
 				}
@@ -102,7 +102,7 @@ class ScreenLinkController extends Controller {
 	public function create(string $uuid): DataResponse {
 		return $this->respond(
 			operation: function (string $callerId) use ($uuid): DataResponse {
-				$result = $this->kioskService->createScreenLink(dashboardUuid: $uuid, callerId: $callerId);
+				$result = $this->screenLinks->create(dashboardUuid: $uuid, callerId: $callerId);
 				$status = Http::STATUS_OK;
 				if ($result['created'] === true) {
 					$status = Http::STATUS_CREATED;
@@ -127,7 +127,7 @@ class ScreenLinkController extends Controller {
 	public function destroy(string $uuid): DataResponse {
 		return $this->respond(
 			operation: function (string $callerId) use ($uuid): DataResponse {
-				$this->kioskService->revokeScreenLink(dashboardUuid: $uuid, callerId: $callerId);
+				$this->screenLinks->revoke(dashboardUuid: $uuid, callerId: $callerId);
 				return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
 			}
 		);

@@ -38,7 +38,12 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 		template: '<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
 	},
 	NcLoadingIcon: { name: 'NcLoadingIcon', template: '<span class="loading" />' },
-	NcDialog: { name: 'NcDialog', template: '<div><slot /><slot name="actions" /></div>' },
+	CnConfirmDialog: {
+		name: 'CnConfirmDialog',
+		props: ['dialogTitle', 'message', 'confirmLabel', 'variant'],
+		emits: ['confirm', 'close'],
+		template: '<div class="confirm-stub">{{ message }}<button data-test="revoke-screen-link-confirm" @click="$emit(\'confirm\')">ok</button></div>',
+	},
 }))
 
 const kantine = { uuid: 'dash-kantine', name: 'Kantine' }

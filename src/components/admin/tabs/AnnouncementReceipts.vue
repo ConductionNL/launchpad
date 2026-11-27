@@ -112,7 +112,7 @@ import { initialsOf, receiptDate } from '../../../utils/readReceipts.js'
  *
  * @param {object} row A report row.
  * @return {'check'|'x'|'seen'|'not-seen'}
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
  */
 export function receiptStatus(row) {
 	if (row.confirmedAt || row.status === 'acknowledged') {
@@ -127,7 +127,7 @@ export function receiptStatus(row) {
  * @param {Array<object>} rows The report rows.
  * @param {string} filter `all`, `confirmed`, `not-confirmed` or `not-seen`.
  * @return {Array<object>}
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
  */
 export function filterReceipts(rows, filter) {
 	return rows.filter((row) => {
@@ -151,7 +151,7 @@ export function filterReceipts(rows, filter) {
  *
  * @param {Array<object>} rows The report rows.
  * @return {string}
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
  */
 export function receiptsCsv(rows) {
 	const cell = (value) => {
@@ -184,7 +184,7 @@ export function receiptsCsv(rows) {
  * Everyone, Confirmed, Not confirmed and Not seen; one row per person with
  * status and time; Download as CSV; and Send reminder, at most once a day.
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
  */
 export default {
 	name: 'AnnouncementReceipts',
@@ -217,7 +217,7 @@ export default {
 	computed: {
 		/**
 		 * @return {number} The audience size.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		audienceCount() {
 			return this.report.audienceCount ?? (Array.isArray(this.report.rows) ? this.report.rows.length : 0)
@@ -225,7 +225,7 @@ export default {
 
 		/**
 		 * @return {number} How many confirmed, either way.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		confirmedCount() {
 			return this.report.confirmedCount ?? this.report.acknowledgedCount ?? 0
@@ -233,7 +233,7 @@ export default {
 
 		/**
 		 * @return {number} How many have not confirmed.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		notConfirmedCount() {
 			return this.report.notConfirmedCount ?? Math.max(0, this.audienceCount - this.confirmedCount)
@@ -241,7 +241,7 @@ export default {
 
 		/**
 		 * @return {number} The confirmed share, 0 to 100.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		percent() {
 			return this.audienceCount > 0 ? Math.round((this.confirmedCount / this.audienceCount) * 100) : 0
@@ -249,7 +249,7 @@ export default {
 
 		/**
 		 * @return {string} "deadline Friday 30 October", or ''.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		deadlineText() {
 			const date = receiptDate(this.report.deadline, { weekday: 'long', day: 'numeric', month: 'long' })
@@ -258,7 +258,7 @@ export default {
 
 		/**
 		 * @return {Array<{id: string, label: string}>} The four filters.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		filterOptions() {
 			return [
@@ -271,7 +271,7 @@ export default {
 
 		/**
 		 * @return {Array<object>} The rows the filter keeps.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		shownRows() {
 			return filterReceipts(Array.isArray(this.report.rows) ? this.report.rows : [], this.filter)
@@ -279,7 +279,7 @@ export default {
 
 		/**
 		 * @return {boolean} Whether Send reminder may be pressed now.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		canRemind() {
 			return this.report.canRemind !== false && !this.reminded && this.announcement.status === 'published'
@@ -292,7 +292,7 @@ export default {
 		/**
 		 * @param {object} row A report row.
 		 * @return {string} The badge colour: acknowledged or pending.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		badgeOf(row) {
 			const status = receiptStatus(row)
@@ -302,7 +302,7 @@ export default {
 		/**
 		 * @param {object} row A report row.
 		 * @return {string} The status as the list names it.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		statusText(row) {
 			const status = receiptStatus(row)
@@ -320,7 +320,7 @@ export default {
 		 * Download every person as CSV.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		download() {
 			const blob = new Blob([receiptsCsv(Array.isArray(this.report.rows) ? this.report.rows : [])], { type: 'text/csv;charset=utf-8' })
@@ -338,7 +338,7 @@ export default {
 		 * Send reminder to everyone who has not confirmed.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		async remind() {
 			this.reminding = true

@@ -72,7 +72,7 @@ import { logger } from '../../../utils/logger.js'
  *
  * @param {object|undefined} state `{seen, confirmed, closed}` from the server.
  * @return {{seen: Array<string>, confirmed: Array<string>, closed: Array<string>}}
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  */
 export function readConfirmationState(state) {
 	const list = (value) => (Array.isArray(value) ? value.filter((uuid) => typeof uuid === 'string') : [])
@@ -90,7 +90,7 @@ export function readConfirmationState(state) {
  * recorded as seen in one call after render (REQ-ANN-009). Notices are not
  * listed here; they show as banners above the grid (REQ-ANN-005).
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
  */
 export default {
 	name: 'AnnouncementsWidget',
@@ -130,7 +130,7 @@ export default {
 		 * The Announcements tab of the admin settings page (REQ-ANN-010).
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
 		 */
 		manageUrl() {
 			return adminPageUrl('announcements')
@@ -138,7 +138,7 @@ export default {
 
 		/**
 		 * @return {Array<object>} News items, newest first, filtered, without the closed ones, limited.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
 		 */
 		shown() {
 			const limit = Number(this.content?.limit) > 0 ? Number(this.content.limit) : 10
@@ -151,7 +151,7 @@ export default {
 
 		/**
 		 * @return {object|null} The announcement whose view is open.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
 		 */
 		openItem() {
 			return this.announcements.find((item) => item.uuid === this.openUuid) ?? null
@@ -190,7 +190,7 @@ export default {
 		t,
 
 		/**
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
 		 */
 		async load() {
 			this.loading = true
@@ -221,7 +221,7 @@ export default {
 		/**
 		 * Record the items on screen that were not seen yet, after render, without waiting.
 		 *
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		markSeen() {
 			const uuids = this.shown.map((item) => item.uuid).filter((uuid) => !this.readState.seen.includes(uuid))
@@ -237,7 +237,7 @@ export default {
 		/**
 		 * @param {string} uuid The announcement.
 		 * @return {string} The Announcements tab on this announcement.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-widget-only-shows-req-ann-010
 		 */
 		manageUrlOf(uuid) {
 			return `${this.manageUrl}/${uuid}`
@@ -254,7 +254,7 @@ export default {
 		/**
 		 * @param {string} uuid The announcement.
 		 * @param {object} state Its new `{likes, comments, liked}`.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
 		 */
 		setReactions(uuid, state) {
 			this.reactions = { ...this.reactions, [uuid]: state }
@@ -264,7 +264,7 @@ export default {
 		 * Open the announcement's own view.
 		 *
 		 * @param {string} uuid The announcement.
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011
 		 */
 		open(uuid) {
 			this.openUuid = uuid
@@ -277,7 +277,7 @@ export default {
 		 * @param {string} uuid The announcement.
 		 * @param {string} via `check` or `x`.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 		 */
 		async confirm(uuid, via = 'check') {
 			const before = this.readState

@@ -5,7 +5,7 @@
  * Seen and confirmed (board LpLeesbevestigingen, REQ-ANN-009): the figures,
  * the four filters, the status of a row, the CSV, and Send reminder once.
  *
- * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

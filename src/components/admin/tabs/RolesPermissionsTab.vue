@@ -32,7 +32,7 @@ import RolePermissionsSection from '../RolePermissionsSection.vue'
  * Below them the read-only "Manage announcements" row: the groups delegated
  * the announcements setting (announcements-managed-in-settings D1).
  *
- * @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/tasks.md#task-3
  */
 export default {
 	name: 'RolesPermissionsTab',

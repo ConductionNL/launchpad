@@ -163,11 +163,22 @@ class FirstPaintShell {
 			$byColumns[$count] = $byId[$id];
 		}
 
+		$kind    = $this->kindOf(widgetId: $widgetId, entry: $entry);
+		$title   = self::titleOf(placement: $placement, entry: $entry);
+		$content = (array) ($placement['content'] ?? []);
+		$text    = '';
+		if ($kind === 'heading' && $title === '') {
+			// A section heading's words are its content, not its card title.
+			$title = trim((string) ($content['title'] ?? $content['text'] ?? ''));
+			$text  = trim((string) ($content['description'] ?? ''));
+		}
+
 		return [
 			'id'          => $id,
 			'widgetId'    => $widgetId,
-			'title'       => self::titleOf(placement: $placement, entry: $entry),
-			'kind'        => $this->kindOf(widgetId: $widgetId, entry: $entry),
+			'title'       => $title,
+			'text'        => $text,
+			'kind'        => $kind,
 			'positions'   => $byColumns,
 			'phoneHidden' => ($entry['mobileReady'] ?? true) === false,
 		];
@@ -180,7 +191,7 @@ class FirstPaintShell {
 	 * @param array<string, mixed>       $dashboard  The dashboard.
 	 * @param list<array<string, mixed>> $placements The shown placements.
 	 *
-	 * @return array{mode: string, name: string, description: string, groundId: string}
+	 * @return array{mode: string, name: string, description: string, groundId: string, title: string, content: array<string, mixed>}
 	 */
 	private static function header(array $dashboard, array $placements): array {
 		$header = [
@@ -188,11 +199,19 @@ class FirstPaintShell {
 			'name'        => (string) ($dashboard['name'] ?? ''),
 			'description' => (string) ($dashboard['description'] ?? ''),
 			'groundId'    => '',
+			'title'       => '',
+			'content'     => [],
 		];
 		foreach ($placements as $placement) {
 			if (($placement['widgetId'] ?? '') === 'header' && ($placement['content']['ground'] ?? false) === true) {
 				$header['mode']     = 'greeting';
 				$header['groundId'] = (string) ($placement['id'] ?? '');
+				$header['content']  = (array) $placement['content'];
+				$header['title']    = trim((string) ($placement['content']['title'] ?? ''));
+				if ($header['title'] === '') {
+					$header['title'] = $header['name'];
+				}
+
 				break;
 			}
 		}

@@ -37,6 +37,7 @@ const SAMPLE_TEXT = {
 	'colleague-activity': 'Anna de Vries',
 	communities: 'Cycling club',
 	livetile: '128',
+	news: 'Road works on the Dorpsstraat',
 	'recent-work': 'Planning.xlsx',
 	weather: 'Utrecht',
 }

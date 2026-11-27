@@ -27,9 +27,9 @@ function sampleDate(days) {
 }
 
 const NEWS_ITEMS = [
-	{ title: 'New opening hours of the town hall', summary: 'From January the desks open at eight.', date: sampleDate(-1) },
-	{ title: 'Road works on the Dorpsstraat', summary: 'Two weeks of detours around the market.', date: sampleDate(-2) },
-	{ title: 'Council meeting moved', summary: 'The meeting is now on Thursday.', date: sampleDate(-3) },
+	{ guid: 'sample-hours', title: 'New opening hours of the town hall', summary: 'From January the desks open at eight.', sourceTitle: 'Town hall', pubDate: sampleDate(-1), link: '#' },
+	{ guid: 'sample-roads', title: 'Road works on the Dorpsstraat', summary: 'Two weeks of detours around the market.', sourceTitle: 'Town hall', pubDate: sampleDate(-2), link: '#' },
+	{ guid: 'sample-council', title: 'Council meeting moved', summary: 'The meeting is now on Thursday.', sourceTitle: 'Council', pubDate: sampleDate(-3), link: '#' },
 ]
 
 const PEOPLE = [

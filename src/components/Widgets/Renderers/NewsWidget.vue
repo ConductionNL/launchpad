@@ -270,6 +270,12 @@ export default {
 	},
 
 	props: {
+		/**
+		 * The widget is a miniature in Add widget (REQ-WDG-048): it draws
+		 * `content.sampleItems` and fetches no feed.
+		 */
+		preview: { type: Boolean, default: false },
+
 		/** Persisted widget content blob (placement.styleConfig.content). */
 		content: OBJECT_PROP,
 
@@ -411,11 +417,21 @@ export default {
 			 * @spec openspec/specs/news-widget/spec.md
 			 */
 			handler(newId) {
-				if (newId !== null && newId !== undefined) {
+				if (newId !== null && newId !== undefined && !this.preview) {
 					this.loadItems()
 				}
 			},
 		},
+	},
+
+	/**
+	 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+	 */
+	created() {
+		if (this.preview) {
+			// REQ-WDG-048: a miniature draws its sample headlines.
+			this.items = Array.isArray(this.content?.sampleItems) ? this.content.sampleItems : []
+		}
 	},
 
 	methods: {

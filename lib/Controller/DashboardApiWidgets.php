@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
+use OCA\LaunchPad\Service\CalculatedFieldService;
 use OCA\LaunchPad\Service\DraftSaveService;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 
@@ -40,11 +41,13 @@ class DashboardApiWidgets {
 	 * @param ConditionalServiceInterface|null  $visibility  Applies the widget visibility rules when a dashboard renders.
 	 * @param RoleFeaturePermissionService|null $roleWidgets Hides the widgets the viewer's role does not permit.
 	 * @param DraftSaveService|null             $draftSave   Stores an edit-mode draft in one save (REQ-EDIT-002).
+	 * @param CalculatedFieldService|null       $fields      Takes a removed widget's calculated fields off its source schema.
 	 */
 	public function __construct(
 		public readonly ?ConditionalServiceInterface $visibility=null,
 		public readonly ?RoleFeaturePermissionService $roleWidgets=null,
 		public readonly ?DraftSaveService $draftSave=null,
+		public readonly ?CalculatedFieldService $fields=null,
 	) {
 	}//end __construct()
 }//end class

@@ -203,6 +203,25 @@ class DraftSaveServiceTest extends TestCase {
 	}//end testSaveWritesTheWholeDraftInsideTheVersionedSave()
 
 	/**
+	 * The save hands back the widgets it removed as they were stored, so
+	 * their calculated fields can leave the source schema after the Save.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 */
+	public function testSaveReturnsTheRemovedWidgets(): void {
+		$this->widgets->method('updatePlacement')->willReturnCallback(fn (int $placementId): WidgetPlacement => $this->placement(id: $placementId, gridY: 0));
+
+		$saved = $this->service()->save(draft: $this->draft(placements: [['id' => 1, 'version' => 3]]));
+
+		$this->assertSame(expected: [2], actual: array_map(static fn (WidgetPlacement $placement): int => (int) $placement->getId(), $saved['removed']));
+
+		$kept = $this->service()->save(draft: $this->draft(placements: [['id' => 1, 'version' => 3], ['id' => 2, 'version' => 3]]));
+		$this->assertSame(expected: [], actual: $kept['removed']);
+	}//end testSaveReturnsTheRemovedWidgets()
+
+	/**
 	 * One refused change stores nothing: the check runs before the save starts.
 	 *
 	 * @return void

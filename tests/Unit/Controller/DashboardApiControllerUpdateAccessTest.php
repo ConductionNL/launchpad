@@ -30,6 +30,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\AnalyticsService;
+use OCA\LaunchPad\Service\CalculatedFieldService;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DashboardVersionService;
@@ -80,6 +81,13 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 	 * @var list<array{0: int, 1: string}>
 	 */
 	private array $saved = [];
+
+	/**
+	 * The calculated-field service the controller gets, none when null.
+	 *
+	 * @var CalculatedFieldService|null
+	 */
+	private ?CalculatedFieldService $fields = null;
 
 	/**
 	 * Action checks seen, as [uid, action].
@@ -180,7 +188,7 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $request,
-			services: new DashboardApiServices(dashboardService: $service, widgets: new DashboardApiWidgets(draftSave: $draftSave)),
+			services: new DashboardApiServices(dashboardService: $service, widgets: new DashboardApiWidgets(draftSave: $draftSave, fields: $this->fields)),
 			access: new DashboardApiAccess(permissionService: $permissions, history: new DashboardApiHistory(
 				treeService: $this->createMock(DashboardTreeService::class),
 				versionService: $versions,
@@ -500,6 +508,43 @@ class DashboardApiControllerUpdateAccessTest extends TestCase {
 		$this->assertCount(expectedCount: 1, haystack: $response->getData()['data']['placements'] ?? $response->getData()['placements']);
 		$this->assertSame(expected: [], actual: $this->saved);
 	}//end testADraftBodyGoesToTheDraftSave()
+
+	/**
+	 * A widget a draft Save removed takes its calculated fields off its
+	 * source schema, as the single-widget DELETE does; the cleanup's
+	 * warnings travel with the answer (widget-calculated-fields, task 28).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 */
+	public function testADraftSaveCleansUpTheRemovedWidgetsFields(): void {
+		$withFields = new WidgetPlacement();
+		$plain      = new WidgetPlacement();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$withFields->setId(5);
+		$withFields->setContent(json_encode(value: ['register' => 'zaken', 'schema' => 'zaak']));
+		$withFields->setCalculatedFields(json_encode(value: [['name' => 'days', 'server' => true]]));
+		$plain->setId(6);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$draftSave = $this->createMock(originalClassName: DraftSaveService::class);
+		$draftSave->method('save')->willReturn(['dashboard' => new Dashboard(), 'placements' => [], 'removed' => [$withFields, $plain]]);
+
+		$fields = $this->createMock(originalClassName: CalculatedFieldService::class);
+		$fields->method('hasServerFields')->willReturnCallback(static fn ($stored): bool => is_array($stored) && $stored !== []);
+		$fields->expects($this->once())->method('cleanupServerFields')
+			->with(['id' => '5', 'source' => 'zaken/zaak'])
+			->willReturn(['The source schema zaken/zaak could not be reached.']);
+		$this->fields = $fields;
+
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', body: ['draft' => true], draftSave: $draftSave)
+			->update(7, placements: []);
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$data = $response->getData()['data'] ?? $response->getData();
+		$this->assertSame(expected: ['The source schema zaken/zaak could not be reached.'], actual: $data['warnings']);
+	}//end testADraftSaveCleansUpTheRemovedWidgetsFields()
 
 	/**
 	 * Without the draft mark a placements list stays the old position patch.

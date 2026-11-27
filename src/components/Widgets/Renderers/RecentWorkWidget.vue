@@ -210,7 +210,7 @@ export default {
 	 * @return {Promise<void>}
 	 * @spec openspec/specs/widgets/spec.md
 	 * @spec openspec/changes/archive/2026-11-24-recent-work-and-web-search-widgets/specs/widgets/spec.md#requirement-recent-work-shows-where-the-reader-left-off-req-wdg-032
-	 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
+	 * @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
 	 */
 	async mounted() {
 		if (this.preview) {

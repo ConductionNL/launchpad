@@ -15,9 +15,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const network = vi.hoisted(() => ({ office: false }))
 
 vi.mock('@conduction/nextcloud-vue', () => ({
-	CnWidgetEditCog: { name: 'CnWidgetEditCog', template: '<div />' },
 	CnDashboardIcon: { name: 'CnDashboardIcon', props: ['name', 'size'], template: '<i />' },
 }))
+vi.mock('../Widgets/WidgetEditMenu.vue', () => ({ default: { name: 'WidgetEditMenu', template: '<div />' } }))
 vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => '/nc' + path }))
 vi.mock('../../composables/useTileClickTracking.js', () => ({ useTileClickTracking: () => ({ recordTileClick: vi.fn() }) }))
 vi.mock('../HealthPingBadge.vue', () => ({ default: { name: 'HealthPingBadge', template: '<span />' } }))

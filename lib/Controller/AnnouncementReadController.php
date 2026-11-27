@@ -30,7 +30,10 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\AnnouncementReadConfirmations;
 use OCA\LaunchPad\Service\ReadReceiptPeople;
 use OCA\LaunchPad\Service\RequestGuard;
+use OCA\LaunchPad\Settings\LaunchPadAdmin;
+use OCA\LaunchPad\Settings\LaunchPadAnnouncementsAdmin;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
@@ -107,7 +110,8 @@ class AnnouncementReadController extends Controller {
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
-	#[NoAdminRequired]
+	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
+	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
 	public function receipts(string $uuid): JSONResponse {
 		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(
 			run: fn (string $userId): JSONResponse => new JSONResponse(

@@ -29,14 +29,14 @@
         "Add service": "Dienst toevoegen",
         "Services to discover saved.": "Te zoeken diensten opgeslagen.",
         "The services to discover could not be saved.": "De te zoeken diensten konden niet worden opgeslagen.",
-        "Own publication" : "Eigen publicatie",
+        "Own publication": "Eigen publicatie",
         "The upload is larger than this server accepts.": "De upload is groter dan deze server accepteert.",
         "The file is too large.": "Het bestand is te groot.",
         "This type of file is not allowed here.": "Dit type bestand is hier niet toegestaan.",
         "The upload failed.": "Het uploaden is mislukt.",
         "{name} was not uploaded: {reason}": "{name} is niet geüpload: {reason}",
         "New colleagues": "Nieuwe collega's",
-        "Required: this widget cannot be removed" : "Verplicht: deze widget kan niet worden verwijderd",
+        "Required: this widget cannot be removed": "Verplicht: deze widget kan niet worden verwijderd",
         "Connections of this dashboard": "Koppelingen van dit dashboard",
         "Connection states need the Integrations app": "Voor de staat van koppelingen is de app Integraties nodig",
         "No widget on this dashboard uses an outside connection": "Geen widget op dit dashboard gebruikt een externe koppeling",
@@ -51,10 +51,7 @@
         "Widget %1$s renamed to %2$s": "Widget %1$s hernoemd tot %2$s",
         "Widget %s moved": "Widget %s verplaatst",
         "Widget %s resized": "Widget %s van formaat veranderd",
-        "_%s and %n more change_::_%s and %n more changes_": [
-            "%s en %n andere wijziging",
-            "%s en %n andere wijzigingen"
-        ],
+        "_%s and %n more change_::_%s and %n more changes_": ["%s en %n andere wijziging", "%s en %n andere wijzigingen"],
         "Load example data?": "Voorbeeldgegevens laden?",
         "Example data fills the lists, detail pages and dashboards so you can see the app working straight away. Each card has its own Load button. Pick \"None\" on a production install.": "Voorbeeldgegevens vullen de lijsten, detailpagina’s en dashboards, zodat je de app meteen ziet werken. Elke kaart heeft een eigen knop Laden. Kies \"Geen\" op een productieomgeving.",
         "None, I will set this up myself": "Geen, ik richt dit zelf in",
@@ -1085,10 +1082,7 @@
         "Kiosk playlists": "Kioskafspeellijsten",
         "New playlist": "Nieuwe afspeellijst",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Richt een wanddisplay of receptiescherm op een afspeellijst-URL om dashboards onbemand en zonder schermrand te laten roteren.",
-        "_%n dashboard_::_%n dashboards_": [
-            "%n dashboard",
-            "%n dashboards"
-        ],
+        "_%n dashboard_::_%n dashboards_": ["%n dashboard", "%n dashboards"],
         "refresh every {seconds}s": "ververst elke {seconds}s",
         "Copy URL": "URL kopiëren",
         "Revoke": "Intrekken",
@@ -1151,10 +1145,7 @@
         "Deadline: {date}": "Deadline: {date}",
         "Could not record your acknowledgement. Please try again.": "Je bevestiging kon niet worden vastgelegd. Probeer het opnieuw.",
         "You have items awaiting acknowledgement": "Je hebt items die op bevestiging wachten",
-        "_%n item to acknowledge_::_%n items to acknowledge_": [
-            "%n item te bevestigen",
-            "%n items te bevestigen"
-        ],
+        "_%n item to acknowledge_::_%n items to acknowledge_": ["%n item te bevestigen", "%n items te bevestigen"],
         "Read receipts": "Leesbevestigingen",
         "Read-receipt report": "Leesbevestigingsrapport",
         "Acknowledged": "Bevestigd",
@@ -1823,10 +1814,7 @@
         "default": "standaard",
         "shared": "gedeeld",
         "group": "groep",
-        "_%n thing from all your apps that needs attention today_::_%n things from all your apps that need attention today_": [
-            "%n ding uit al je apps dat vandaag aandacht vraagt",
-            "%n dingen uit al je apps die vandaag aandacht vragen"
-        ],
+        "_%n thing from all your apps that needs attention today_::_%n things from all your apps that need attention today_": ["%n ding uit al je apps dat vandaag aandacht vraagt", "%n dingen uit al je apps die vandaag aandacht vragen"],
         "App template": "App-sjabloon",
         "Adapter": "Adapter",
         "Source template": "Bronsjabloon",
@@ -1874,10 +1862,7 @@
         "Pinned communities saved.": "Vastgezette community's opgeslagen.",
         "At most {max} conversations can be pinned.": "Er kunnen hoogstens {max} gesprekken worden vastgezet.",
         "The pinned communities could not be saved.": "De vastgezette community's konden niet worden opgeslagen.",
-        "_%n member_::_%n members_": [
-            "%n lid",
-            "%n leden"
-        ],
+        "_%n member_::_%n members_": ["%n lid", "%n leden"],
         "New announcement in %1$s: **%2$s**": "Nieuwe aankondiging in %1$s: **%2$s**",
         "New announcement in %1$s: %2$s": "Nieuwe aankondiging in %1$s: %2$s",
         "Open LaunchPad to read the announcement": "Open LaunchPad om de aankondiging te lezen",
@@ -2166,10 +2151,7 @@
         "Name the register and the schema": "Noem het register en het schema",
         "Show 1 to 20 cases": "Toon 1 tot 20 zaken",
         "My cases": "Mijn zaken",
-        "_All %n open case_::_All %n open cases_": [
-            "Alle %n open zaak",
-            "Alle %n open zaken"
-        ],
+        "_All %n open case_::_All %n open cases_": ["Alle %n open zaak", "Alle %n open zaken"],
         "Total": "Totaal",
         "Data source": "Gegevensbron",
         "A register query": "Een registerquery",
@@ -2192,8 +2174,8 @@
         "You are editing {name}": "Je bewerkt {name}",
         "Changes are saved immediately": "Wijzigingen worden direct bewaard",
         "Dashboard settings": "Dashboardinstellingen",
-        "The layout could not be saved. Trying again." : "De indeling kon niet worden opgeslagen. We proberen het opnieuw.",
-        "The layout could not be saved." : "De indeling kon niet worden opgeslagen.",
+        "The layout could not be saved. Trying again.": "De indeling kon niet worden opgeslagen. We proberen het opnieuw.",
+        "The layout could not be saved.": "De indeling kon niet worden opgeslagen.",
         "The number of columns could not be saved.": "Het aantal kolommen kon niet worden bewaard.",
         "Done": "Klaar",
         "Copy link to this dashboard": "Link naar dit dashboard kopiëren",
@@ -2556,10 +2538,7 @@
         "Asks for its own sign-in": "Vraagt om een eigen aanmelding",
         "The tiles could not be added.": "De tegels konden niet worden toegevoegd.",
         "Group dashboard of %s": "Groepsdashboard van %s",
-        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": [
-            "Gedeeld door %1$s · %n widget",
-            "Gedeeld door %1$s · %n widgets"
-        ],
+        "_Shared by %1$s · %n widget_::_Shared by %1$s · %n widgets_": ["Gedeeld door %1$s · %n widget", "Gedeeld door %1$s · %n widgets"],
         "{app}, outage since {time}": "{app}, storing sinds {time}",
         "Own colour": "Eigen kleur",
         "Primary, dark": "Primair, donker",
@@ -2688,14 +2667,8 @@
         "The link to this content has been withdrawn.": "De link naar deze inhoud is ingetrokken.",
         "This content cannot be shown on this website.": "Deze inhoud kan niet op deze website worden getoond.",
         "The content could not be loaded.": "De inhoud kon niet worden geladen.",
-        "_%n request arrived after the token was revoked._::_%n requests arrived after the token was revoked._": [
-            "%n aanvraag kwam binnen nadat het token was ingetrokken.",
-            "%n aanvragen kwamen binnen nadat het token was ingetrokken."
-        ],
-        "_%n embed token uses this theme and falls back to the default theme._::_%n embed tokens use this theme and fall back to the default theme._": [
-            "%n insluittoken gebruikt dit thema en valt terug op het standaardthema.",
-            "%n insluittokens gebruiken dit thema en vallen terug op het standaardthema."
-        ],
+        "_%n request arrived after the token was revoked._::_%n requests arrived after the token was revoked._": ["%n aanvraag kwam binnen nadat het token was ingetrokken.", "%n aanvragen kwamen binnen nadat het token was ingetrokken."],
+        "_%n embed token uses this theme and falls back to the default theme._::_%n embed tokens use this theme and fall back to the default theme._": ["%n insluittoken gebruikt dit thema en valt terug op het standaardthema.", "%n insluittokens gebruiken dit thema en vallen terug op het standaardthema."],
         "Groups that may share": "Groepen die mogen delen",
         "Only members of these groups can share their dashboards. Leave empty to let everyone share.": "Alleen leden van deze groepen kunnen hun dashboards delen. Laat leeg om iedereen te laten delen.",
         "Who can receive a share": "Wie een gedeeld dashboard kan ontvangen",
@@ -2775,14 +2748,8 @@
         "Notice": "Melding",
         "A notice needs an end time": "Een melding heeft een eindtijd nodig",
         "Announcements": "Aankondigingen",
-        "_{count} comment_::_{count} comments_": [
-            "{count} reactie",
-            "{count} reacties"
-        ],
-        "_Reaches {count} person_::_Reaches {count} people_": [
-            "Bereikt {count} persoon",
-            "Bereikt {count} personen"
-        ],
+        "_{count} comment_::_{count} comments_": ["{count} reactie", "{count} reacties"],
+        "_Reaches {count} person_::_Reaches {count} people_": ["Bereikt {count} persoon", "Bereikt {count} personen"],
         "Personal dashboard": "Persoonlijk dashboard",
         "Personal dashboard · opens first": "Persoonlijk dashboard · opent als eerste",
         "Last changed {when}": "Laatst aangepast {when}",
@@ -2832,6 +2799,20 @@
         "News and maintenance notices for the people in your organisation.": "Nieuws en onderhoudsmeldingen voor de mensen in je organisatie.",
         "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges.": "Aankondigingen beheer je op dit tabblad. Wie aankondigingen beheert zonder beheerder te zijn, krijgt dit tabblad via de beheerrechten van Nextcloud.",
         "Launchpad announcements": "Launchpad-aankondigingen",
+        "Seen and confirmed": "Gezien en bevestigd",
+        "{confirmed} confirmed, {pending} not yet confirmed": "{confirmed} bevestigd, {pending} nog niet bevestigd",
+        "Not confirmed": "Niet bevestigd",
+        "Back to the announcements": "Terug naar de aankondigingen",
+        "Edit announcement": "Aankondiging bewerken",
+        "No announcements yet.": "Nog geen aankondigingen.",
+        "Shown until": "Tonen tot",
+        "End now": "Nu beëindigen",
+        "Ended": "Beëindigd",
+        "The announcements could not be loaded.": "De aankondigingen konden niet worden geladen.",
+        "The read confirmations could not be loaded.": "De leesbevestigingen konden niet worden geladen.",
+        "The announcement could not be ended.": "De aankondiging kon niet worden beëindigd.",
+        "The announcement could not be deleted.": "De aankondiging kon niet worden verwijderd.",
+        "Delete the announcement \"{title}\"?": "De aankondiging \"{title}\" verwijderen?",
         "A link": "Een link",
         "An SVG icon is drawn in the text colour; an uploaded colour image is shown as it is.": "Een SVG-pictogram krijgt de tekstkleur; een geüploade kleurenafbeelding blijft zoals hij is.",
         "An app": "Een app",

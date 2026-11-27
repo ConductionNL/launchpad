@@ -55,6 +55,9 @@ import { loadLazyComponent } from '@conduction/nextcloud-vue'
 import { markRaw } from 'vue'
 import { sampleContentOf } from '../constants/widgetSamples.js'
 
+/** A renderer chunk that has not loaded after this long shows the icon. */
+const LOAD_TIMEOUT = 10000
+
 /**
  * WidgetMiniature — the miniature of a widget type on its card in Add widget
  * (REQ-WDG-048, board LpWidgetKiezen). It mounts the type's renderer with the
@@ -168,7 +171,8 @@ export default {
 
 	methods: {
 		/**
-		 * The card came into view: load the renderer's chunk and draw it.
+		 * The card came into view: load the renderer's chunk and draw it; a
+		 * chunk that does not load in time shows the icon.
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/changes/add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048
@@ -180,7 +184,10 @@ export default {
 			this.visible = true
 			this.observer?.disconnect()
 			try {
-				const renderer = await loadLazyComponent(this.entry.renderer)
+				const renderer = await Promise.race([
+					loadLazyComponent(this.entry.renderer),
+					new Promise((resolve) => setTimeout(() => resolve(null), LOAD_TIMEOUT)),
+				])
 				if (!renderer) {
 					this.failed = true
 					return

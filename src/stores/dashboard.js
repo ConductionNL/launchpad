@@ -13,7 +13,7 @@ import {
 } from '../composables/useGridManager.js'
 import { api } from '../services/api.js'
 import { dropEarlyReads, startEarlyRead } from '../utils/carriedApiReads.js'
-import { clonePlacements, draftChanges, draftRequestBody, newDraftId } from '../utils/editDraft.js'
+import { clonePlacements, DRAFT_FIELDS, draftChanges, draftRequestBody, newDraftId } from '../utils/editDraft.js'
 import { takeBootRead, takeDashboardFirstLoad } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { parseServerStamp } from '../utils/serverStamp.js'
@@ -342,6 +342,28 @@ function widgetRequestBody(widgetId, placement) {
 		requestBody.content = widgetId.content ?? {}
 	}
 	return requestBody
+}
+
+/** The fields a duplicate leaves behind: where it sits, and calculated fields. */
+const DUPLICATE_SKIPPED = new Set(['gridX', 'gridY', 'gridWidth', 'gridHeight', 'calculatedFields'])
+
+/**
+ * REQ-WDG-050: the fields a duplicate takes from its original: every draft
+ * field that is set, except its position and its calculated fields, deep
+ * copied so the two never share an object.
+ *
+ * @param {object} original The placement to copy.
+ * @return {object} The fields.
+ * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ */
+export function duplicateFields(original) {
+	const fields = {}
+	for (const field of DRAFT_FIELDS) {
+		if (!DUPLICATE_SKIPPED.has(field) && original?.[field] !== undefined && original[field] !== null) {
+			fields[field] = JSON.parse(JSON.stringify(original[field]))
+		}
+	}
+	return fields
 }
 
 /**
@@ -1395,6 +1417,63 @@ export const useDashboardStore = defineStore('dashboard', {
 				))
 			}
 			return placement
+		},
+
+		/**
+		 * REQ-WDG-050: Duplicate in a widget's edit menu. The copy carries the
+		 * widget's type, size, content, look and rules, goes below the other
+		 * widgets (REQ-GRID-006), and joins the draft; without a draft (a group
+		 * dashboard) it is added and given its fields at once. Calculated
+		 * fields stay with the original: they write to a source schema, and a
+		 * draft may not change them (REQ-EDIT-002).
+		 *
+		 * @param {number|string} placementId The widget to copy.
+		 * @return {Promise<object|null>} The copy, or null when nothing was copied.
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		async duplicatePlacement(placementId) {
+			const original = this.widgetPlacements.find((p) => String(p.id) === String(placementId))
+			if (!original) {
+				return null
+			}
+			const spot = newPlacement(null, {
+				size: { w: Number(original.gridWidth) || 4, h: Number(original.gridHeight) || 4 },
+				store: this,
+			})
+			const fields = duplicateFields(original)
+			const body = {
+				widgetId: original.widgetId,
+				...fields,
+				gridX: spot.x,
+				gridY: spot.y,
+				gridWidth: spot.w,
+				gridHeight: spot.h,
+			}
+			if (this.draft !== null) {
+				return this.addDraftPlacement(body, spot.pushed)
+			}
+			try {
+				const { content, ...rest } = fields
+				const response = await api.addWidget(this.activeDashboard.id, {
+					widgetId: body.widgetId,
+					gridX: body.gridX,
+					gridY: body.gridY,
+					gridWidth: body.gridWidth,
+					gridHeight: body.gridHeight,
+					...(content !== undefined ? { content } : {}),
+				})
+				let copy = response.data
+				if (Object.keys(rest).length > 0 && copy?.id !== undefined) {
+					copy = (await api.updateWidgetPlacement(copy.id, rest)).data ?? copy
+				}
+				this.widgetPlacements.push(copy)
+				return copy
+			} catch (error) {
+				this.handleWidgetQuotaError(error)
+				logger.error('Failed to duplicate widget:', error)
+				showError(t('launchpad', 'The widget could not be duplicated.'))
+				return null
+			}
 		},
 
 		/**

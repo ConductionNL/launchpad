@@ -736,7 +736,7 @@ export default {
 
 		/**
 		 * @return {boolean} Whether the tile opens an app.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		isAppMode() {
 			return this.form.mode === 'app'
@@ -746,7 +746,7 @@ export default {
 		 * The two choice cards; a placed tile keeps its mode.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		modeOptions() {
 			const placed = Boolean(this.tile)
@@ -758,7 +758,7 @@ export default {
 
 		/**
 		 * @return {boolean} Whether the tile was stored with a former tile type.
-		 * @spec openspec/changes/app-link-tile-widget/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/tiles/spec.md#requirement-the-tile-form-as-lptegelbewerken-draws-it-req-tile-040
 		 */
 		isLaunchTile() {
 			return [LINK_PROGRAM, LINK_REMOTE, LINK_SSO].includes(this.form.linkType)
@@ -766,7 +766,7 @@ export default {
 
 		/**
 		 * @return {string} The text colour as CSS.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
 		 */
 		textCss() {
 			return textColourValue(this.form.textColour)
@@ -774,7 +774,7 @@ export default {
 
 		/**
 		 * @return {string} The id of the Text colour label.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
 		 */
 		textColourLabelId() {
 			return 'tile-editor-text-colour-' + (this.tile?.id ?? 'new')
@@ -784,7 +784,7 @@ export default {
 		 * The text colours: the theme's tile colours, white and black.
 		 *
 		 * @return {Array<{name: string, label: string, css: string}>}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
 		 */
 		textColourSwatches() {
 			return TEXT_COLOURS.map((name) => ({ name, label: this.colourName(name), css: textColourValue(name) }))
@@ -792,7 +792,7 @@ export default {
 
 		/**
 		 * @return {{ratio: number|null, passes: boolean}} The contrast in the current theme.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
 		 */
 		contrast() {
 			// An app tile without a chosen colour is checked on the primary colour,
@@ -810,7 +810,7 @@ export default {
 		 * WCAG AA (4.5:1)", or the warning below it.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
 		 */
 		contrastLine() {
 			const vars = {
@@ -829,7 +829,7 @@ export default {
 
 		/**
 		 * @return {string} The line that says the brand's defaults were used.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		brandLine() {
 			if (this.brand === '' || this.isAppMode) {
@@ -840,7 +840,7 @@ export default {
 
 		/**
 		 * @return {string} The primary button in app mode.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		addAppsLabel() {
 			const count = this.chosenApps.length
@@ -854,7 +854,7 @@ export default {
 		 * The name the preview tile carries: the chosen app, else the title.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		previewName() {
 			if (this.isAppMode) {
@@ -867,7 +867,7 @@ export default {
 
 		/**
 		 * @return {string} The first letter of the preview's name, as its glyph.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		previewInitial() {
 			return this.previewName.charAt(0).toUpperCase()
@@ -878,7 +878,7 @@ export default {
 		 * LpTegelToevoegen, LpTegelBewerken).
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		previewLine() {
 			if (this.isAppMode) {
@@ -1234,7 +1234,7 @@ export default {
 		 * Choose An app or A link (a new tile only).
 		 *
 		 * @param {string} mode 'app' or 'link'.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		chooseMode(mode) {
 			if (this.tile || (mode !== 'app' && mode !== 'link')) {
@@ -1248,7 +1248,7 @@ export default {
 		 *
 		 * @param {string} name The token, white or black.
 		 * @return {string}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
 		 */
 		colourName(name) {
 			if (name === 'white') {
@@ -1265,7 +1265,7 @@ export default {
 		 * the brand's white logo, colour and white text (REQ-DWB-007).
 		 *
 		 * @param {string} address The web address.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		applyBrandDefaults(address) {
 			if (this.tile || this.isAppMode) {

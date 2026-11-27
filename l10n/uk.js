@@ -1,6 +1,17 @@
 OC.L10N.register(
     "launchpad",
     {
+    "No changes" : "Немає змін",
+    "Keep editing" : "Продовжити редагування",
+    "Save changes?" : "Зберегти зміни?",
+    "Discard changes?" : "Скасувати зміни?",
+    "Don't save" : "Не зберігати",
+    "The changes could not be saved." : "Не вдалося зберегти зміни.",
+    "A colleague changed {count} of these widgets first. Nothing was saved." : "Колега першим змінив {count} з цих віджетів. Нічого не збережено.",
+    "_Draft · {count} change_::_Draft · {count} changes_" : ["Чернетка · {count} зміна", "Чернетка · {count} зміни", "Чернетка · {count} змін"],
+    "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._" : ["На цій панелі {count} незбережена зміна.", "На цій панелі {count} незбережені зміни.", "На цій панелі {count} незбережених змін."],
+    "Duplicate" : "Дублювати",
+    "The widget could not be duplicated." : "Не вдалося дублювати віджет.",
     "Add to favourites: {name}" : "Додати до обраного: {name}",
     "All dashboards" : "Усі дашборди",
     "Announcements" : "Оголошення",

@@ -36,9 +36,9 @@ function mountMenu(props = {}) {
 }
 
 describe('WidgetEditMenu', () => {
-	it('offers Edit widget, Who sees this widget? and Delete widget, in that order', () => {
+	it('offers Edit widget, Who sees this widget?, Duplicate and Delete widget, in that order', () => {
 		const items = mountMenu().findAll('[role="menuitem"]').map((item) => item.text())
-		expect(items).toEqual(['Edit widget', 'Who sees this widget?', 'Delete widget'])
+		expect(items).toEqual(['Edit widget', 'Who sees this widget?', 'Duplicate', 'Delete widget'])
 	})
 
 	it('choosing Who sees this widget? asks for the dialog', async () => {

@@ -673,7 +673,7 @@ export const widgetRegistry = Object.fromEntries(
  * List every addable widget type for the app-dashboard surface: the
  * registry without the retired types.
  *
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
  * @return {string[]} the offerable type keys.
  */
 export function listWidgetTypes() {

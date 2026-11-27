@@ -39,7 +39,7 @@ use Throwable;
  * updated in place, so its id, position, size, rules, style and personal
  * state stay as they were.
  *
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
  */
 class ConvertTilesToAppOrLinkTiles implements IRepairStep {
 	/**
@@ -61,7 +61,7 @@ class ConvertTilesToAppOrLinkTiles implements IRepairStep {
 	 *
 	 * @return string The step name.
 	 *
-	 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
+	 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
 	 */
 	#[Override]
 	public function getName(): string {
@@ -75,7 +75,7 @@ class ConvertTilesToAppOrLinkTiles implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
+	 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
 	 */
 	#[Override]
 	public function run(IOutput $output): void {

@@ -6,7 +6,7 @@
  * the choice An app / A link, adding several apps at once, the text colour
  * with its contrast line and warning, and the brand defaults.
  *
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md
  */
 
 import { mount } from '@vue/test-utils'

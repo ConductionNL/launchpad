@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Нема промени",
+        "Keep editing": "Продолжи со уредување",
+        "Save changes?": "Да се зачуваат промените?",
+        "Discard changes?": "Да се отфрлат промените?",
+        "Don't save": "Не зачувувај",
+        "The changes could not be saved.": "Промените не можеа да се зачуваат.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Колега прв промени {count} од овие графички елементи. Ништо не е зачувано.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Нацрт · {count} промена", "Нацрт · {count} промени"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Оваа табла има {count} незачувана промена.", "Оваа табла има {count} незачувани промени."],
+        "Duplicate": "Удвои",
+        "The widget could not be duplicated.": "Графичкиот елемент не можеше да се удвои.",
         "Add to favourites: {name}": "Додај во омилени: {name}",
         "All dashboards": "Сите контролни табли",
         "Announcements": "Објави",

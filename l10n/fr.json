@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Aucune modification",
+        "Keep editing": "Continuer la modification",
+        "Save changes?": "Enregistrer les modifications ?",
+        "Discard changes?": "Abandonner les modifications ?",
+        "Don't save": "Ne pas enregistrer",
+        "The changes could not be saved.": "Les modifications n'ont pas pu être enregistrées.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Un collègue a modifié {count} de ces widgets avant vous. Rien n'a été enregistré.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Brouillon · {count} modification", "Brouillon · {count} modifications"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Ce tableau de bord a {count} modification non enregistrée.", "Ce tableau de bord a {count} modifications non enregistrées."],
+        "Duplicate": "Dupliquer",
+        "The widget could not be duplicated.": "Le widget n'a pas pu être dupliqué.",
         "All dashboards": "Tous les tableaux de bord",
         "More": "Plus",
         "This dashboard": "Ce tableau de bord",

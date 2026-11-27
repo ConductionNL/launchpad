@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "L-ebda bidla",
+        "Keep editing": "Kompli editja",
+        "Save changes?": "Issejvja l-bidliet?",
+        "Discard changes?": "Twarrab il-bidliet?",
+        "Don't save": "Tissejvjax",
+        "The changes could not be saved.": "Il-bidliet ma setgħux jiġu ssejvjati.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Kollega biddel {count} minn dawn il-widgets l-ewwel. Xejn ma ġie ssejvjat.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Abbozz · {count} bidla", "Abbozz · {count} bidliet", "Abbozz · {count}-il bidla", "Abbozz · {count} bidla"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Dan id-dashboard għandu {count} bidla mhux issejvjata.", "Dan id-dashboard għandu {count} bidliet mhux issejvjati.", "Dan id-dashboard għandu {count}-il bidla mhux issejvjata.", "Dan id-dashboard għandu {count} bidla mhux issejvjata."],
+        "Duplicate": "Idduplika",
+        "The widget could not be duplicated.": "Il-widget ma setax jiġi dduplikat.",
         "Add to favourites: {name}": "Żid mal-favoriti: {name}",
         "All dashboards": "Id-dashboards kollha",
         "Announcements": "Avviżi",

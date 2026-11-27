@@ -59,7 +59,7 @@ import {
 	textWidget,
 } from './support/adminTemplates.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
-import { enterEditMode } from './support/dashboardSwitcher.ts'
+import { enterEditMode, saveEditDraft } from './support/dashboardSwitcher.ts'
 import {
 	addToGroup,
 	adminContext,
@@ -541,17 +541,13 @@ test.describe('deleting a compulsory widget from a copy (REQ-TMPL-023)', () => {
 	// @e2e admin-templates::a-widget-that-is-not-compulsory-is-deleted-as-before
 	test('a widget that is not compulsory is removed, with no message', async () => {
 		const { page, who, copyId } = session!
-		const removed = page.waitForResponse(
-			(r) =>
-				r.request().method() === 'DELETE'
-				&& r.url().includes('/api/widgets/'),
-		)
 		await chooseDelete(FREE)
-		expect((await removed).status()).toBe(200)
 		await expect(page.getByText(FREE, { exact: true })).toHaveCount(0)
 		await expect(
 			page.getByText(`"${FREE}" is part of the start page`),
 		).toHaveCount(0)
+		// The delete is part of the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBe(200)
 		expect(
 			(await placementsOf(who.api, copyId)).map((p) => p.customTitle),
 		).not.toContain(FREE)

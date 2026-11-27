@@ -240,21 +240,23 @@ test.describe('app catalogue (REQ-ACAT-002, REQ-ACAT-003, REQ-ACAT-004)', () => 
 			await expect(row).toBeVisible()
 			await row.getByRole('checkbox').check()
 
-			const placed = page.waitForResponse((res) =>
-				/\/api\/dashboard\/\d+\/tile$/.test(res.url())
-				&& res.request().method() === 'POST',
-			)
 			await page.getByTestId('tile-editor-save').click()
-			const response = await placed
-			expect(response.status(), await response.text()).toBeLessThan(300)
-			const sent = response.request().postDataJSON()
-			expect(sent).toMatchObject({
-				title: APP_NAME,
-				linkType: 'url',
-				linkValue: APP_URL,
-			})
+			await expect(chooser).toBeHidden({ timeout: 15_000 })
 
-			await page.keyboard.press('Escape')
+			// edit-mode-draft-and-save REQ-EDIT-002: the tile is in the draft;
+			// Save stores it with the catalogue app's address.
+			const saved = page.waitForResponse((res) =>
+				res.request().method() === 'PUT'
+				&& /\/apps\/launchpad\/api\/dashboard\/\d+$/.test(new URL(res.url()).pathname)
+				&& res.request().postDataJSON()?.draft === true,
+			)
+			await page.getByTestId('launchpad-edit-bar-save').click()
+			const response = await saved
+			expect(response.status(), await response.text()).toBeLessThan(300)
+			const sent = JSON.stringify(response.request().postDataJSON())
+			expect(sent).toContain(APP_NAME)
+			expect(sent).toContain(APP_URL)
+
 			await expect(
 				page.locator('.launchpad-grid-item').filter({ hasText: APP_NAME }),
 			).toBeVisible({ timeout: 10_000 })

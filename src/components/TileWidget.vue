@@ -36,8 +36,11 @@
 				:showWhoSees="false"
 				:removeLocked="removeLocked"
 				:embedHref="embedHref"
-				:embedDisabled="placementId === null || placementId === undefined || placementId === ''"
+				:embedDisabled="embedDisabled"
+				:embedAsksFirst="embedAsksFirst"
 				@edit="$emit('edit')"
+				@duplicate="$emit('duplicate')"
+				@embed="$emit('embed', $event)"
 				@remove="$emit('remove')" />
 		</div>
 
@@ -164,6 +167,7 @@ import { FLAG_PROP, REQUIRED_OBJECT_PROP } from '../constants/propDefinitions.js
 import { api } from '../services/api.js'
 import { COUNT_TTL_MS, countLabel, resolveTileCount, sourceType } from '../services/tileCount.js'
 import { useTilePanelStore } from '../stores/tilePanel.js'
+import { isDraftPlacement } from '../utils/editDraft.js'
 import { isOnOfficeNetwork } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { tileBackground } from '../utils/tileColour.js'
@@ -199,6 +203,10 @@ export default {
 			type: String,
 			default: '',
 		},
+
+		// REQ-WDG-050 / REQ-EDIT-003: the draft has unsaved changes, so Create
+		// embed token emits `embed` for the host to ask to save first.
+		embedAsksFirst: FLAG_PROP,
 
 		/**
 		 * The widget placement id — forwarded to {@link HealthPingBadge}
@@ -262,7 +270,7 @@ export default {
 		},
 	},
 
-	emits: ['edit', 'remove'],
+	emits: ['edit', 'duplicate', 'embed', 'remove'],
 
 	data() {
 		return {
@@ -279,6 +287,18 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * REQ-WDG-050: Create embed token is disabled for a tile that is not
+		 * stored yet: no placement id, or one the draft added.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		embedDisabled() {
+			const id = this.placementId
+			return id === null || id === undefined || id === '' || isDraftPlacement({ id })
+		},
+
 		/**
 		 * Whether the tile shows only its glyph, with the name as its tooltip
 		 * and accessible name (the app tiles of LpVandaag and LpWerkplek).
@@ -317,7 +337,7 @@ export default {
 		 * text colour, else its own text colour, else white.
 		 *
 		 * @return {string} The CSS colour.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
 		 */
 		textCss() {
 			if (isTextColour(this.content?.textColour)) {
@@ -331,7 +351,7 @@ export default {
 		 * tile stores a text colour; an uploaded full-colour image stays as is.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
 		 */
 		maskIcon() {
 			return isTextColour(this.content?.textColour) && /\.svg(\?|#|$)/i.test(String(this.tile?.icon || ''))

@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Nincs változás",
+        "Keep editing": "Szerkesztés folytatása",
+        "Save changes?": "Menti a változásokat?",
+        "Discard changes?": "Elveti a változásokat?",
+        "Don't save": "Ne mentse",
+        "The changes could not be saved.": "A változásokat nem sikerült menteni.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Egy kolléga előbb módosított {count} modult ezek közül. Semmi sem lett mentve.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Piszkozat · {count} változás", "Piszkozat · {count} változás"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Ezen az irányítópulton {count} nem mentett változás van.", "Ezen az irányítópulton {count} nem mentett változás van."],
+        "Duplicate": "Másolat készítése",
+        "The widget could not be duplicated.": "A modult nem sikerült megkettőzni.",
         "Add to favourites: {name}": "Hozzáadás a kedvencekhez: {name}",
         "All dashboards": "Összes irányítópult",
         "Announcements": "Közlemények",

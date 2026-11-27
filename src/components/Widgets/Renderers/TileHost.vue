@@ -42,7 +42,7 @@ import { isTextColour, textColourValue, tileTextColour } from '../../../utils/ti
  * shared CnDashTileWidget. Both modes draw in the tile's text colour.
  *
  * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-a-new-tile-creates-a-real-document-and-never-overwrites-req-oft-002
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-an-app-tile-shows-one-app-the-viewer-may-open-req-apptile-002
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-an-app-tile-shows-one-app-the-viewer-may-open-req-apptile-002
  */
 export default {
 	name: 'TileHost',
@@ -69,7 +69,7 @@ export default {
 		 * tile in app mode.
 		 *
 		 * @return {object} The content.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
 		 */
 		tileContent() {
 			const type = this.placement?.widgetId ?? this.placement?.type
@@ -80,7 +80,7 @@ export default {
 		 * Whether the tile opens an app.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-an-app-tile-shows-one-app-the-viewer-may-open-req-apptile-002
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-an-app-tile-shows-one-app-the-viewer-may-open-req-apptile-002
 		 */
 		isAppMode() {
 			return tileMode(this.tileContent) === 'app'
@@ -90,7 +90,7 @@ export default {
 		 * The text colour as CSS (white when none is stored).
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
 		 */
 		textCss() {
 			return textColourValue(tileTextColour(this.tileContent))
@@ -100,7 +100,7 @@ export default {
 		 * The content the shared app tile reads: its colour as a palette key.
 		 *
 		 * @return {object}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-an-app-tile-shows-one-app-the-viewer-may-open-req-apptile-002
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-an-app-tile-shows-one-app-the-viewer-may-open-req-apptile-002
 		 */
 		appContent() {
 			return { ...this.tileContent, colour: appTileColourKey(this.tileContent) }
@@ -110,7 +110,7 @@ export default {
 		 * The content the shared link tile reads: a stored text colour wins.
 		 *
 		 * @return {object}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
 		 */
 		linkContent() {
 			const content = this.tileContent

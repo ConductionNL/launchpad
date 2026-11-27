@@ -31,7 +31,7 @@ use OCA\LaunchPad\Db\WidgetPlacement;
  * Converts placements and the children stored inside groups and tabs to the
  * App or link tile. Idempotent: a converted tile is never changed again.
  *
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
  */
 final class TileModeNode {
 
@@ -62,7 +62,7 @@ final class TileModeNode {
 	 *
 	 * @return int The number of tiles converted.
 	 *
-	 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
+	 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
 	 */
 	public function convertPlacement(WidgetPlacement $placement): int {
 		$type = (string) $placement->getWidgetId();
@@ -86,7 +86,7 @@ final class TileModeNode {
 	 *
 	 * @return array{0: string, 1: array<string, mixed>, 2: int} The type, the content and the number of tiles converted.
 	 *
-	 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
+	 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-existing-app-tiles-and-link-tiles-become-app-or-link-tiles-req-apptile-006
 	 * @spec openspec/changes/layout-widgets-replace-multi-tile/tasks.md#task-5
 	 */
 	public function convertNode(string $type, array $content): array {

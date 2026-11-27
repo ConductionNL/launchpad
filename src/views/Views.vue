@@ -254,7 +254,10 @@
 							:defaultLinkTarget="(activeDashboard && activeDashboard.defaultLinkTarget) || null"
 							:removeLocked="!isRemovablePlacement(item)"
 							:embedHref="placementEmbedHref(item)"
+							:embedAsksFirst="isDraftDirty"
 							@edit="openTileEditorForEdit(item)"
+							@duplicate="duplicateWidget(item.id)"
+							@embed="openEmbedAfterDraft"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->
 						<WidgetWrapper
@@ -268,7 +271,10 @@
 							"
 							:canHideForMe="canHideForMe"
 							:embedHref="placementEmbedHref(item)"
+							:embedAsksFirst="isDraftDirty"
 							:removeLocked="!isRemovablePlacement(item)"
+							@duplicate="duplicateWidget"
+							@embed="openEmbedAfterDraft"
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
 							@edit="handleContextMenuEdit(item)"
@@ -610,7 +616,7 @@ export function isTilePlacement(placement) {
  *
  * @param {object} placement The placement.
  * @return {boolean}
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
  */
 export function isAppModeTile(placement) {
 	const id = placement?.widgetId
@@ -622,7 +628,7 @@ export function isAppModeTile(placement) {
  *
  * @param {object} placement The placement.
  * @return {object} The form data.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
  */
 export function appTileFormData(placement) {
 	const content = appTileAsTileContent(placement?.content)
@@ -645,7 +651,7 @@ export function appTileFormData(placement) {
  *
  * @param {object} fields The form's fields or appearance.
  * @return {object} The content fields.
- * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
+ * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-text-colour-is-the-tiles-own-and-is-checked-for-contrast-req-apptile-005
  */
 export function linkTileContent(fields) {
 	const content = { mode: 'link', textColour: fields?.textColour || 'white' }
@@ -3015,7 +3021,7 @@ export default {
 		 *
 		 * @param {object} app The catalogue entry.
 		 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
-		 * @spec openspec/specs/widgets/spec.md#requirement-app-tiles-in-the-picker-req-wdg-042
+		 * @spec openspec/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		async addCatalogueApp(app) {
 			try {
@@ -3033,7 +3039,7 @@ export default {
 		 * replaces the former Add tiles dialog.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		async openAddTilesModal() {
 			await this.openTileEditor(null)
@@ -3135,7 +3141,7 @@ export default {
 		 * @param {Array<{kind: string, tile: object}>} choices The chosen tiles.
 		 * @param {object} [appearance] Tile colour, text colour, count, pin.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		async addChosenTiles(choices, appearance = {}) {
 			for (const choice of choices) {
@@ -3153,7 +3159,7 @@ export default {
 		 *
 		 * @param {{choices: Array<object>, appearance: object}} result The ticked apps and the appearance.
 		 * @return {Promise<boolean>} Whether every tile was placed.
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		async addAppsFromForm({ choices = [], appearance = {} } = {}) {
 			try {
@@ -3455,6 +3461,34 @@ export default {
 		},
 
 		/**
+		 * REQ-WDG-050: Duplicate in a widget's edit menu places a copy below
+		 * the other widgets, in the draft.
+		 *
+		 * @param {number|string} placementId The widget to copy.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		async duplicateWidget(placementId) {
+			await useDashboardStore().duplicatePlacement(placementId)
+		},
+
+		/**
+		 * REQ-WDG-050 / REQ-EDIT-003: Create embed token leaves the dashboard
+		 * for the admin page, so with unsaved changes it asks "Save changes?"
+		 * first; Keep editing stays, Save or Don't save go on.
+		 *
+		 * @param {string} href The embed token form of the admin page.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		async openEmbedAfterDraft(href) {
+			if (typeof href !== 'string' || href === '' || !(await this.confirmLeaveDraft())) {
+				return
+			}
+			window.location.assign(href)
+		},
+
+		/**
 		 * Whether the user may remove a placement: not a compulsory widget
 		 * on a dashboard the user holds with less than full permission.
 		 *
@@ -3753,7 +3787,7 @@ export default {
 		 *
 		 * @param {object} tileData The tile form's result.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 		 */
 		async saveAppTile(tileData) {
 			const placement = (this.widgetPlacements || []).find((candidate) => candidate.id === this.editingTile.id)

@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Нет изменений",
+        "Keep editing": "Продолжить редактирование",
+        "Save changes?": "Сохранить изменения?",
+        "Discard changes?": "Отменить изменения?",
+        "Don't save": "Не сохранять",
+        "The changes could not be saved.": "Не удалось сохранить изменения.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Коллега первым изменил {count} из этих виджетов. Ничего не сохранено.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Черновик · {count} изменение", "Черновик · {count} изменения", "Черновик · {count} изменений"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["На этой панели {count} несохранённое изменение.", "На этой панели {count} несохранённых изменения.", "На этой панели {count} несохранённых изменений."],
+        "Duplicate": "Дублировать",
+        "The widget could not be duplicated.": "Не удалось дублировать виджет.",
         "Add to favourites: {name}": "Добавить в избранное: {name}",
         "All dashboards": "Все дашборды",
         "Announcements": "Объявления",

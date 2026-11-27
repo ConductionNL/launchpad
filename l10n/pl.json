@@ -1,5 +1,16 @@
 {
     "translations": {
+        "No changes": "Brak zmian",
+        "Keep editing": "Kontynuuj edycję",
+        "Save changes?": "Zapisać zmiany?",
+        "Discard changes?": "Odrzucić zmiany?",
+        "Don't save": "Nie zapisuj",
+        "The changes could not be saved.": "Nie udało się zapisać zmian.",
+        "A colleague changed {count} of these widgets first. Nothing was saved.": "Współpracownik jako pierwszy zmienił {count} z tych widżetów. Nic nie zostało zapisane.",
+        "_Draft · {count} change_::_Draft · {count} changes_": ["Wersja robocza · {count} zmiana", "Wersja robocza · {count} zmiany", "Wersja robocza · {count} zmian"],
+        "_This dashboard has {count} unsaved change._::_This dashboard has {count} unsaved changes._": ["Ten pulpit ma {count} niezapisaną zmianę.", "Ten pulpit ma {count} niezapisane zmiany.", "Ten pulpit ma {count} niezapisanych zmian."],
+        "Duplicate": "Duplikuj",
+        "The widget could not be duplicated.": "Nie udało się zduplikować widżetu.",
         "Add to favourites: {name}": "Dodaj do ulubionych: {name}",
         "All dashboards": "Wszystkie pulpity",
         "Announcements": "Ogłoszenia",

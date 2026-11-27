@@ -108,7 +108,7 @@ test('Tiles and links lists the tile widgets and Layout holds Container', async 
 	await expect(page.getByTestId('widget-picker-type-container')).toBeVisible()
 })
 
-test('the KPI, calendar, activity report and communities miniatures draw their samples without a request', async ({ page }) => {
+test('the KPI, calendar, activity report, communities, week strip and stacked bar miniatures draw their samples without a request', async ({ page }) => {
 	await gotoLaunchPad(page)
 	await enterEditMode(page)
 	await expect(page.getByTestId('launchpad-dashboard-region')).toBeVisible()
@@ -130,6 +130,8 @@ test('the KPI, calendar, activity report and communities miniatures draw their s
 		calendar: 'Team meeting',
 		'activity-report': 'file changed',
 		communities: 'Cycling club',
+		'week-strip': 'Council meeting',
+		'stacked-bar': 'In progress',
 	}
 	for (const [type, text] of Object.entries(samples)) {
 		const card = page.getByTestId(`widget-picker-type-${type}`)

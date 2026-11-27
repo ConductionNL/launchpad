@@ -185,6 +185,24 @@ export const SAMPLE_CONTENT = Object.freeze({
 	// read a register or poll (tasks, stacked bar, week strip, notepad, ...)
 	// keep the icon until nextcloud-vue honours `preview`.
 	banner: { text: 'The town hall is closed on 24 December.', variant: 'info' },
+	// Static entries the shared week strip draws without a source; its `now`
+	// (SAMPLE_PROPS) puts them in the sample week.
+	'week-strip': {
+		days: 5,
+		items: [
+			{ title: 'Permit Dorpsstraat 12', meta: 'Deadline', date: sampleDate(0) },
+			{ title: 'Council meeting', meta: 'Agenda', date: sampleDate(1) },
+			{ title: 'Subsidy sports club', meta: 'Decision', date: sampleDate(2) },
+		],
+	},
+	// Static segments the shared stacked bar draws without a source.
+	'stacked-bar': {
+		segments: [
+			{ key: 'open', label: 'Open', value: 12 },
+			{ key: 'progress', label: 'In progress', value: 7 },
+			{ key: 'done', label: 'Done', value: 21 },
+		],
+	},
 	markdown: { markdown: '### This week\n\n- Team meeting on Tuesday\n- Office hours on Thursday' },
 	announcements: {
 		category: '',
@@ -215,6 +233,8 @@ export const NOT_PREVIEW_SAFE = Object.freeze([])
  * @type {Record<string, object>}
  */
 export const SAMPLE_PROPS = Object.freeze({
+	// The week strip draws the week around the sample day, not today's.
+	'week-strip': { now: new Date(Date.UTC(2026, 11, 2, 9)) },
 	// The shared calendar reads through a `dataSource`: the sample events land
 	// on the first days of whatever window the widget asks for.
 	calendar: {

@@ -202,6 +202,7 @@ export default {
 		 */
 		'announcement.uuid': {
 			immediate: true,
+			/** @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-has-its-own-view-req-ann-011 */
 			handler() {
 				this.comments = []
 				this.draftComment = ''

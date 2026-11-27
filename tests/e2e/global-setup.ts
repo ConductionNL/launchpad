@@ -121,6 +121,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 
 	await dismissFirstRunWizard(page)
 	await disableFirstRunWizardForRun(baseURL, username, password)
+	await liftCalendarCreationLimitForRun(baseURL, username, password)
 	await markSupportNoteSeen(page)
 	await settleSetupWizard(page)
 	if (await healLeftoverWidgetRestriction()) {
@@ -383,6 +384,57 @@ async function disableFirstRunWizardForRun(
 		}
 	} catch (error) {
 		console.warn('[playwright globalSetup] could not turn the first-run wizard off:', error)
+	}
+}
+
+/**
+ * Lift Nextcloud's calendar-creation rate limit for the run.
+ *
+ * The calendar-widget specs each create their own calendar over CalDAV
+ * (support/calendarFixture.ts) and delete it afterwards, but the `dav` app
+ * allows one user 10 new calendars per hour (`rateLimitCalendarCreation`).
+ * The suite creates more than that as admin, so from the eleventh on every
+ * MKCALENDAR answers 429 "Too many calendars created" and the calendar specs
+ * fail with nothing wrong in LaunchPad. Measured 27 Nov 2026 on a fresh
+ * Nextcloud 34: shard 1/8 failed 7 calendar tests this way, and all 21 tests
+ * of calendar-widget-config and calendar-widget-rendering passed with the
+ * limit raised.
+ *
+ * The suite only runs against an instance it may write to (support/baseUrl),
+ * so it raises the limit through the provisioning API, as it turns the
+ * first-run wizard off. Best-effort: a refusal is reported, never fatal.
+ *
+ * @param {string} baseURL the instance under test.
+ * @param {string} username an admin account.
+ * @param {string} password its password.
+ * @return {Promise<void>}
+ */
+async function liftCalendarCreationLimitForRun(
+	baseURL: string,
+	username: string,
+	password: string,
+): Promise<void> {
+	try {
+		const res = await fetch(
+			new URL('/ocs/v2.php/apps/provisioning_api/api/v1/config/apps/dav/rateLimitCalendarCreation', baseURL),
+			{
+				method: 'POST',
+				headers: {
+					Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+					'OCS-APIRequest': 'true',
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: 'value=1000',
+			},
+		)
+		if (!res.ok) {
+			console.warn(
+				`[playwright globalSetup] raising the calendar-creation limit returned ${res.status}; `
+					+ 'calendar specs past the tenth calendar this hour may get 429.',
+			)
+		}
+	} catch (error) {
+		console.warn('[playwright globalSetup] could not raise the calendar-creation limit:', error)
 	}
 }
 

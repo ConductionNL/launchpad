@@ -61,18 +61,21 @@ class PageDashboards {
 	 *
 	 * @param string $userId The viewer.
 	 *
-	 * @return array{mayShare: bool, publicLinksAllowed: bool}
+	 * @return array{mayShare: bool, publicLinksAllowed: bool, screenLinksAllowed: bool}
 	 *
 	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-2
 	 */
 	public function sharingPolicy(string $userId): array {
 		if ($this->sharing === null) {
-			return ['mayShare' => true, 'publicLinksAllowed' => true];
+			return ['mayShare' => true, 'publicLinksAllowed' => true, 'screenLinksAllowed' => true];
 		}
 
 		return [
 			'mayShare'           => $this->sharing->mayShare(userId: $userId),
 			'publicLinksAllowed' => $this->sharing->publicLinksAllowed(),
+			// REQ-KIOSK-007: the Sharing tab offers Create screen link only while this is on.
+			'screenLinksAllowed' => $this->sharing->screenLinksAllowed(),
 		];
 	}//end sharingPolicy()
 

@@ -67,6 +67,7 @@ final class AdminSettingsValidator {
 		'allowMultipleDashboards',
 		'legacyWidgetBridgeEnabled',
 		'filterTelemetryEnabled',
+		'kioskScreenLinksAllowed',
 		'defaultAppEnabled',
 	];
 

@@ -147,6 +147,8 @@ class AdminSettingsService {
 			'sharingRecipientScope' => $this->storedRecipientScope(value: $settings[AdminSettingKey::SHARING_RECIPIENT_SCOPE->value] ?? null),
 			'sharingAllowed' => $this->storedAllowedMode(settings: $settings),
 			'publicLinksAllowed' => ($settings[AdminSettingKey::PUBLIC_LINKS_ALLOWED->value] ?? true) !== false,
+			// REQ-KIOSK-007: screen links from the Sharing tab; on unless switched off.
+			'kioskScreenLinksAllowed' => ($settings[AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value] ?? true) !== false,
 			'leaverHandover' => $this->storedLeaverHandover(value: $settings[AdminSettingKey::LEAVER_HANDOVER->value] ?? null),
 			// Legacy-widget-bridge spec: the bridge defaults to OFF because
 			// turning it on makes the workspace read the Nextcloud widget
@@ -500,6 +502,7 @@ class AdminSettingsService {
 		);
 
 		$this->persistIfGiven(key: AdminSettingKey::FILTER_TELEMETRY_ENABLED->value, value: $settings['filterTelemetryEnabled'] ?? null);
+		$this->persistIfGiven(key: AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value, value: $settings['kioskScreenLinksAllowed'] ?? null);
 		$this->persistTileLaunchSettings(settings: $settings);
 		$this->persistAnnouncementEditorGroups(groups: $settings['announcementEditorGroups'] ?? null);
 

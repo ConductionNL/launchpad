@@ -32,6 +32,8 @@
  * @method void setCreatedAt(?string $createdAt)
  * @method string|null getRevokedAt()
  * @method void setRevokedAt(?string $revokedAt)
+ * @method string|null getScreenDashboardUuid()
+ * @method void setScreenDashboardUuid(?string $screenDashboardUuid)
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -64,6 +66,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setCreatedAt(?string $createdAt)
  * @method string|null getRevokedAt()
  * @method void setRevokedAt(?string $revokedAt)
+ * @method string|null getScreenDashboardUuid()
+ * @method void setScreenDashboardUuid(?string $screenDashboardUuid)
  */
 class KioskPlaylist extends Entity implements JsonSerializable {
 
@@ -115,6 +119,14 @@ class KioskPlaylist extends Entity implements JsonSerializable {
 	 * @var string|null
 	 */
 	protected ?string $revokedAt = null;
+
+	/**
+	 * The dashboard this playlist is the screen link of (REQ-KIOSK-006);
+	 * null for a playlist made on the admin page's Kiosk tab.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $screenDashboardUuid = null;
 
 	/**
 	 * Computed public URL — populated by KioskPlaylistMapper after load, not a DB column.
@@ -201,6 +213,7 @@ class KioskPlaylist extends Entity implements JsonSerializable {
 	 * @return array
 	 *
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-2
+	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-1
 	 */
 	public function jsonSerialize(): array {
 		return [
@@ -213,6 +226,8 @@ class KioskPlaylist extends Entity implements JsonSerializable {
 			'createdBy' => $this->createdBy,
 			'createdAt' => $this->createdAt,
 			'revokedAt' => $this->revokedAt,
+			// REQ-KIOSK-008: the Kiosk tab tells screen links from playlists.
+			'screenDashboardUuid' => $this->screenDashboardUuid,
 		];
 	}//end jsonSerialize()
 }//end class

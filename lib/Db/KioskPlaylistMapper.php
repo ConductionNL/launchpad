@@ -146,6 +146,50 @@ class KioskPlaylistMapper extends QBMapper {
 	}//end findById()
 
 	/**
+	 * Find the active screen link of a dashboard (REQ-KIOSK-006): the
+	 * newest playlist marked with that dashboard that is not revoked.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 *
+	 * @return KioskPlaylist|null The screen link, or null when there is none.
+	 *
+	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-1
+	 */
+	public function findActiveScreenLink(string $dashboardUuid): ?KioskPlaylist {
+		$qb = $this->selectWhere(match: ['screen_dashboard_uuid' => $dashboardUuid]);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'))
+			->orderBy(sort: 'id', order: 'DESC')
+			->setMaxResults(maxResults: 1);
+
+		$found = $this->findEntities(query: $qb);
+		if ($found === []) {
+			return null;
+		}
+
+		return $this->hydrateUrl(playlist: $found[0]);
+	}//end findActiveScreenLink()
+
+	/**
+	 * Soft-revoke every active screen link of a dashboard, when the
+	 * dashboard is deleted (REQ-KIOSK-006).
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 *
+	 * @return int The number of screen links revoked.
+	 *
+	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-3
+	 */
+	public function revokeScreenLinksOf(string $dashboardUuid): int {
+		$qb = $this->updateWhere(
+			set: ['revoked_at' => $this->now()],
+			match: ['screen_dashboard_uuid' => $dashboardUuid]
+		);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'));
+
+		return $qb->executeStatement();
+	}//end revokeScreenLinksOf()
+
+	/**
 	 * Find all active playlists created by a given user.
 	 *
 	 * @param string $createdBy The creator user ID.

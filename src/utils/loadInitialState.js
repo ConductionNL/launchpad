@@ -190,14 +190,17 @@ let runtimeManifestTaken = false
  * groups, and creating a public link. A page without the key offers both; the
  * server refuses what the policy does not allow.
  *
- * @return {{mayShare: boolean, publicLinksAllowed: boolean}} The policy.
+ * @return {{mayShare: boolean, publicLinksAllowed: boolean, screenLinksAllowed: boolean}} The policy.
  * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+ * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-2
  */
 export function readSharingPolicy() {
 	const policy = readKey('sharingPolicy', null)
 	return {
 		mayShare: policy?.mayShare !== false,
 		publicLinksAllowed: policy?.publicLinksAllowed !== false,
+		// REQ-KIOSK-007: new screen links from the Sharing tab; on unless switched off.
+		screenLinksAllowed: policy?.screenLinksAllowed !== false,
 	}
 }
 

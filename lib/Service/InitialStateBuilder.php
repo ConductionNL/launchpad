@@ -545,13 +545,19 @@ class InitialStateBuilder {
 	 *
 	 * @param bool $mayShare           Whether the viewer may share dashboards.
 	 * @param bool $publicLinksAllowed Whether public links may be created.
+	 * @param bool $screenLinksAllowed Whether new screen links may be made (REQ-KIOSK-007).
 	 *
 	 * @return self Fluent.
 	 *
 	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/dashboard-show-on-a-screen/tasks.md#task-2
 	 */
-	public function setSharingPolicy(bool $mayShare, bool $publicLinksAllowed): self {
-		$this->values['sharingPolicy'] = ['mayShare' => $mayShare, 'publicLinksAllowed' => $publicLinksAllowed];
+	public function setSharingPolicy(bool $mayShare, bool $publicLinksAllowed, bool $screenLinksAllowed=true): self {
+		$this->values['sharingPolicy'] = [
+			'mayShare'           => $mayShare,
+			'publicLinksAllowed' => $publicLinksAllowed,
+			'screenLinksAllowed' => $screenLinksAllowed,
+		];
 		return $this;
 	}//end setSharingPolicy()
 

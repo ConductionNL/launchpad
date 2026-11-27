@@ -460,6 +460,7 @@ class AdminController extends Controller {
 	 * @param array|null $pinnedCommunities Talk conversation tokens pinned as the organisation's
 	 *                                      communities, at most 20 (REQ-COMM-003).
 	 * @param bool|null  $defaultAppEnabled LaunchPad is the default app after sign-in (REQ-PSP-003).
+	 * @param bool|null  $kioskScreenLinksAllowed A dashboard's Sharing tab may make a screen link (REQ-KIOSK-007).
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -494,6 +495,7 @@ class AdminController extends Controller {
 		array|null $officeNetworks = null,
 		array|null $pinnedCommunities = null,
 		bool|null $defaultAppEnabled = null,
+		bool|null $kioskScreenLinksAllowed = null,
 	): JSONResponse {
 		// REQ-ASET-002: Nextcloud casts a bool parameter before it gets here
 		// ("maybe" arrives as true), so the raw value is checked first.
@@ -526,6 +528,7 @@ class AdminController extends Controller {
 					'officeNetworks'              => $officeNetworks,
 					'pinnedCommunities'           => $pinnedCommunities,
 					'defaultAppEnabled'           => $defaultAppEnabled,
+					'kioskScreenLinksAllowed'     => $kioskScreenLinksAllowed,
 				]
 			);
 

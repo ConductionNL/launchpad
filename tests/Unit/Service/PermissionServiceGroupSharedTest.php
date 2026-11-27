@@ -45,18 +45,19 @@ class PermissionServiceGroupSharedTest extends TestCase {
 	/**
 	 * Build a PermissionService for one kind of user and an installed showcase.
 	 *
-	 * @param bool $launchpadAdmin Whether the user holds the LaunchPad admin role.
-	 * @param bool $editor         Whether the user holds the Editor role or higher.
+	 * @param bool   $launchpadAdmin Whether the user holds the LaunchPad admin role.
+	 * @param bool   $editor         Whether the user holds the Editor role or higher.
+	 * @param string $level          The showcase's stored permission level.
 	 *
 	 * @return PermissionService
 	 */
-	private function serviceFor(bool $launchpadAdmin, bool $editor): PermissionService {
+	private function serviceFor(bool $launchpadAdmin, bool $editor, string $level=Dashboard::PERMISSION_VIEW_ONLY): PermissionService {
 		$showcase = new Dashboard();
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$showcase->setId(12);
 		$showcase->setType(Dashboard::TYPE_GROUP_SHARED);
 		$showcase->setGroupId(Dashboard::DEFAULT_GROUP_ID);
-		$showcase->setPermissionLevel(Dashboard::PERMISSION_VIEW_ONLY);
+		$showcase->setPermissionLevel($level);
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
 		$dashboards = $this->createMock(DashboardMapper::class);
@@ -119,4 +120,33 @@ class PermissionServiceGroupSharedTest extends TestCase {
 
 		$this->assertTrue($service->canEditDashboard(userId: 'admin', dashboardId: 12));
 	}//end testALaunchpadAdminCanEditAShowcase()
+
+	/**
+	 * A plain member may add widgets to a group dashboard stored as
+	 * add_only (the Zuiddrecht intranet) and may not rename it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md
+	 */
+	public function testAMemberAddsWidgetsToAnAddOnlyGroupDashboard(): void {
+		$service = $this->serviceFor(launchpadAdmin: false, editor: false, level: Dashboard::PERMISSION_ADD_ONLY);
+
+		$this->assertSame(expected: Dashboard::PERMISSION_ADD_ONLY, actual: $service->resolveAccessLevel(userId: 'alice', dashboardId: 12));
+		$this->assertTrue(condition: $service->canAddWidget(userId: 'alice', dashboardId: 12));
+		$this->assertFalse(condition: $service->canEditDashboardMetadata(userId: 'alice', dashboardId: 12));
+	}//end testAMemberAddsWidgetsToAnAddOnlyGroupDashboard()
+
+	/**
+	 * Only add_only is taken from the row: a group dashboard stored as full
+	 * still reads view_only for a plain member.
+	 *
+	 * @return void
+	 */
+	public function testAStoredFullLevelStaysReadOnlyForAMember(): void {
+		$service = $this->serviceFor(launchpadAdmin: false, editor: false, level: Dashboard::PERMISSION_FULL);
+
+		$this->assertSame(expected: Dashboard::PERMISSION_VIEW_ONLY, actual: $service->resolveAccessLevel(userId: 'alice', dashboardId: 12));
+		$this->assertFalse(condition: $service->canAddWidget(userId: 'alice', dashboardId: 12));
+	}//end testAStoredFullLevelStaysReadOnlyForAMember()
 }//end class

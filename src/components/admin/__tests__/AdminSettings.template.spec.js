@@ -137,6 +137,21 @@ describe('AdminSettings tab slots', () => {
 		}
 	})
 
+	it('draws the LpBeheer version card and single column of cards', async () => {
+		// @spec openspec/changes/admin-page-in-nextcloud-settings/tasks.md (live check against LpBeheer)
+		const wrapper = await mountPage({ version: '1.2.3' })
+		const attrs = wrapper.findComponent({ name: 'CnAdminSettingsShell' }).vm.$attrs
+
+		// Board: "Ingestelde versie 2.4.0, bijgewerkt", no Application name row, one column.
+		expect(attrs.appVersion).toBe('1.2.3')
+		expect(attrs.configuredVersion).toBe('1.2.3')
+		expect(attrs.isUpToDate).toBe(true)
+		expect(attrs.inlineUpToDate).not.toBe(false)
+		expect(attrs.showUpdateButton).toBe(true)
+		expect(attrs.showAppName).toBe(false)
+		expect(attrs.sectionColumns).toBe(1)
+	})
+
 	it('hands the injected groups to the sharing and org-navigation tabs', async () => {
 		const wrapper = await mountPage()
 

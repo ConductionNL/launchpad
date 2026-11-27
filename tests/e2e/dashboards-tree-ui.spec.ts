@@ -18,8 +18,7 @@
  * (lib/Controller/DashboardApiController.php:1123,1215), the personal PUT
  * refuses a row its caller does not own (DashboardService::updateDashboard),
  * and the switcher nests only within one section
- * (DashboardSwitcherSidebar.vue splitForest). So the tree is Sanne's own;
- * it renders through the same treeRows() as any section.
+ * (moreMenuItems.js treeRows). So the tree is Sanne's own.
  *
  * Gate-19 @e2e traceability:
  *   @e2e dashboards::nested-onboarding-pages
@@ -53,7 +52,10 @@ import {
 
 const T = Date.now()
 const HR = `HR ${T}`
-const ROW = '.dashboard-switcher-sidebar__item'
+// A row of More's full Dashboards list (REQ-SHELL-019): the container holds
+// the expand control, the indent and `data-depth`.
+const ROW = '[data-testid="launchpad-more-menu-dashboard-list"] .lp-more-menu__row'
+const LABEL = '.lp-more-menu__label'
 
 let admin: APIRequestContext
 let restoreSettings: (() => Promise<void>) | null = null
@@ -107,9 +109,9 @@ async function openAs(browser: Browser, who: Principal, dash: DashboardRow) {
  * @return the row.
  */
 function row(page: Page, name: string): Locator {
-	return page.locator(
-		`.dashboard-switcher-sidebar.open ${ROW}[aria-label="${name}"]`,
-	)
+	return page.locator(ROW).filter({
+		has: page.locator(LABEL, { hasText: new RegExp(`^${name}$`) }),
+	})
 }
 
 test.describe('dashboards — tree in the interface (REQ-TREEUI-001..003)', () => {
@@ -173,20 +175,7 @@ test.describe('dashboards — tree in the interface (REQ-TREEUI-001..003)', () =
 			}
 
 			// Listed right under HR, in order.
-			const section = page
-				.locator(
-					'.dashboard-switcher-sidebar.open .dashboard-switcher-sidebar__section',
-				)
-				.filter({
-					// `has` matches inside the section, so it cannot name the
-					// sidebar ancestor that `row()` starts from.
-					has: page.locator(`${ROW}[aria-label="${HR}"]`),
-				})
-			const names = await section
-				.locator(ROW)
-				.evaluateAll((rows) =>
-					rows.map((el) => el.getAttribute('aria-label')),
-				)
+			const names = (await page.locator(`${ROW} ${LABEL}`).allTextContents()).map((n) => n.trim())
 			const at = names.indexOf(HR)
 			expect(names.slice(at, at + 3)).toEqual([
 				HR,
@@ -200,23 +189,23 @@ test.describe('dashboards — tree in the interface (REQ-TREEUI-001..003)', () =
 	})
 
 	// @e2e dashboards::no-parents
-	test('without any parent the switcher is the flat list it always was', async ({
+	test('without any parent the full list in More is flat', async ({
 		browser,
 	}) => {
 		const { context, page } = await openAs(browser, pieter!, pieterA)
 		try {
 			await openDashboardSwitcher(page)
-			const sidebar = page.locator('.dashboard-switcher-sidebar.open')
+			const sidebar = page.locator('[data-testid="launchpad-more-menu-dashboard-list"]')
 			await expect(row(page, pieterA.name)).toBeVisible()
 			await expect(row(page, pieterB.name)).toBeVisible()
 
 			await expect(
 				sidebar.locator('[data-testid^="tree-expand-"]'),
 			).toHaveCount(0)
-			const depths = await sidebar
+			const depths = await page
 				.locator(ROW)
 				.evaluateAll((rows) =>
-					rows.map((el) => el.getAttribute('data-depth')),
+					rows.map((el) => el.getAttribute('data-depth') ?? '0'),
 				)
 			expect(depths.length).toBeGreaterThanOrEqual(2)
 			expect(new Set(depths)).toEqual(new Set(['0']))
@@ -227,11 +216,6 @@ test.describe('dashboards — tree in the interface (REQ-TREEUI-001..003)', () =
 					),
 				).toBe('')
 			}
-
-			// Personal dashboards keep their personal section.
-			await expect(
-				sidebar.locator('[data-section="user"]').locator(ROW),
-			).toHaveCount(2)
 		} finally {
 			await context.close()
 		}

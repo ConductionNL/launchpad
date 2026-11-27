@@ -224,3 +224,14 @@ describe('sameDestination', () => {
 		expect(sameDestination(undefined, '/apps/calendar')).toBe(false)
 	})
 })
+
+describe('WidgetWrapper — first screen (first-viewport-widgets)', () => {
+	it('mounts a widget on the first screen at once and leaves one further down to the observer', () => {
+		const top = mountWrapper({ id: 20, widgetId: 'data', gridY: 0, styleConfig: {} })
+		const below = mountWrapper({ id: 21, widgetId: 'data', gridY: 500, styleConfig: {} })
+		const unplaced = mountWrapper({ id: 22, widgetId: 'data', styleConfig: {} })
+		expect(top.vm.mountsAtOnce).toBe(true)
+		expect(below.vm.mountsAtOnce).toBe(false)
+		expect(unplaced.vm.mountsAtOnce).toBe(false)
+	})
+})

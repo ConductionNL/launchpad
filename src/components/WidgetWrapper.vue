@@ -164,6 +164,7 @@ import {
 	REQUIRED_OBJECT_PROP,
 	TEXT_PROP,
 } from '../constants/propDefinitions.js'
+import { inFirstViewport } from '../utils/firstViewport.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 /**
@@ -265,14 +266,15 @@ export default {
 	computed: {
 		/**
 		 * Whether the content mounts at once instead of when it comes into
-		 * view: in edit mode, and in the headless export render (`?export=1`),
-		 * which prints the whole dashboard.
+		 * view: in edit mode, in the headless export render (`?export=1`),
+		 * which prints the whole dashboard, and on the first screen, where
+		 * waiting for the observer only delays the first paint by a frame.
 		 *
 		 * @return {boolean}
 		 * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
 		 */
 		mountsAtOnce() {
-			return this.editMode || isExportRender()
+			return this.editMode || isExportRender() || inFirstViewport(this.placement)
 		},
 
 		/**

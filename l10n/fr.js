@@ -1,6 +1,10 @@
 OC.L10N.register(
     "launchpad",
     {
+    "All dashboards" : "Tous les tableaux de bord",
+    "More" : "Plus",
+    "This dashboard" : "Ce tableau de bord",
+    "Default dashboard" : "Tableau de bord par défaut",
     "of {audience} confirmed" : "sur {audience} confirmé(s)",
     "Seen by" : "Vu par",
     "Confirmed {date} with the check" : "Confirmé le {date} avec la coche",

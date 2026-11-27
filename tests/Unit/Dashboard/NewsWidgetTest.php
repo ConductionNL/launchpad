@@ -78,6 +78,10 @@ class NewsWidgetTest extends TestCase {
 		return $placement;
 	}//end placement()
 
+	public function testItDeclaresRowsAsItsPlaceholder(): void {
+		$this->assertSame('rows', $this->widget->getPlaceholder());
+	}
+
 	public function testRegistryMetadata(): void {
 		$this->assertInstanceOf(IAPIWidgetV2::class, $this->widget);
 		$this->assertInstanceOf(IIconWidget::class, $this->widget);

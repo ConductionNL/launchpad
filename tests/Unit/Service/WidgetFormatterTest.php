@@ -29,6 +29,7 @@ use OCP\Dashboard\Model\WidgetButton;
 use OCP\Dashboard\Model\WidgetOptions;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * @covers \OCA\LaunchPad\Service\WidgetFormatter
@@ -128,10 +129,120 @@ class WidgetFormatterTest extends TestCase {
 
 		$this->assertSame(60, $data['reloadInterval']);
 	}
+	public function testADeclaringWidgetCarriesItsPlaceholder(): void {
+		$data = (new WidgetFormatter())->format(widget: new WidgetFormatterTestPlaceholderWidget('counter'), userId: 'alice');
+
+		$this->assertSame('counter', $data['placeholder']);
+	}
+
+	public function testASilentWidgetCarriesNoPlaceholder(): void {
+		$widget = $this->createMock(IWidget::class);
+		$this->base($widget);
+
+		$data = (new WidgetFormatter())->format(widget: $widget, userId: 'alice');
+
+		$this->assertArrayNotHasKey('placeholder', $data);
+	}
+
+	public function testInvalidPlaceholderIsDropped(): void {
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects($this->once())
+			->method('debug')
+			->with($this->stringContains('placeholder'), $this->callback(fn (array $context): bool => $context['widget'] === 'declaring'));
+
+		$data = (new WidgetFormatter($logger))->format(widget: new WidgetFormatterTestPlaceholderWidget('spinner'), userId: 'alice');
+
+		$this->assertArrayNotHasKey('placeholder', $data);
+	}
+
+	public function testAShapeWithACountIsCarried(): void {
+		$widget = new WidgetFormatterTestPlaceholderWidget(['shape' => 'rows', 'count' => 5]);
+
+		$data = (new WidgetFormatter())->format(widget: $widget, userId: 'alice');
+
+		$this->assertSame(['shape' => 'rows', 'count' => 5], $data['placeholder']);
+	}
+
+	/**
+	 * @dataProvider invalidDeclarations
+	 */
+	public function testInvalidShapesAndCountsAreDropped(mixed $declared): void {
+		$data = (new WidgetFormatter())->format(widget: new WidgetFormatterTestPlaceholderWidget($declared), userId: 'alice');
+
+		$this->assertArrayNotHasKey('placeholder', $data);
+	}
+
+	public static function invalidDeclarations(): array {
+		return [
+			'unknown shape' => ['spinner'],
+			'empty string' => [''],
+			'count zero' => [['shape' => 'rows', 'count' => 0]],
+			'count above 24' => [['shape' => 'rows', 'count' => 25]],
+			'count as text' => [['shape' => 'rows', 'count' => '5']],
+			'no shape' => [['count' => 3]],
+			'unknown shape in array' => [['shape' => 'grid']],
+			'a number' => [3],
+			'null' => [null],
+		];
+	}
+
+	public function testAThrowingDeclarationIsDropped(): void {
+		$data = (new WidgetFormatter())->format(widget: new WidgetFormatterTestPlaceholderWidget(new \RuntimeException('boom')), userId: 'alice');
+
+		$this->assertArrayNotHasKey('placeholder', $data);
+	}
+
+	public function testEveryShapeIsAccepted(): void {
+		foreach (WidgetFormatter::PLACEHOLDER_SHAPES as $shape) {
+			$data = (new WidgetFormatter())->format(widget: new WidgetFormatterTestPlaceholderWidget($shape), userId: 'alice');
+			$this->assertSame($shape, $data['placeholder']);
+		}
+	}
 }
 
 /**
  * A widget that serves both item APIs.
  */
 interface WidgetFormatterTestDualApiWidget extends IAPIWidget, IAPIWidgetV2 {
+}
+
+/**
+ * A widget that declares a placeholder (or throws when asked).
+ */
+class WidgetFormatterTestPlaceholderWidget implements IWidget {
+	public function __construct(
+		private readonly mixed $placeholder,
+	) {
+	}
+
+	public function getId(): string {
+		return 'declaring';
+	}
+
+	public function getTitle(): string {
+		return 'Declaring';
+	}
+
+	public function getOrder(): int {
+		return 1;
+	}
+
+	public function getIconClass(): string {
+		return '';
+	}
+
+	public function getUrl(): ?string {
+		return null;
+	}
+
+	public function load(): void {
+	}
+
+	public function getPlaceholder(): mixed {
+		if ($this->placeholder instanceof \Throwable) {
+			throw $this->placeholder;
+		}
+
+		return $this->placeholder;
+	}
 }

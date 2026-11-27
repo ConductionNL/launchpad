@@ -70,6 +70,15 @@ class RecordingWidget implements IWidget {
 }
 
 /**
+ * A widget that declares its first-paint placeholder.
+ */
+class DeclaringRecordingWidget extends RecordingWidget {
+	public function getPlaceholder(): string {
+		return 'counter';
+	}
+}
+
+/**
  * A widget that is switched off.
  */
 class SwitchedOffWidget extends RecordingWidget implements IConditionalWidget {
@@ -206,6 +215,7 @@ class DashboardWidgetRegistryTest extends TestCase {
 		$this->assertSame('activity', $catalogue[0]['id']);
 		$this->assertSame('Activity', $catalogue[0]['title']);
 		$this->assertSame(0, $activity->loads);
+		$this->assertArrayNotHasKey('placeholder', $catalogue[0]);
 
 		$without = new WidgetService(
 			platform: new WidgetPlatform(dashboardManager: $manager, userSession: $session),
@@ -213,5 +223,26 @@ class DashboardWidgetRegistryTest extends TestCase {
 			rendering: new WidgetRendering(widgetFormatter: new WidgetFormatter(), widgetItemLoader: $this->createMock(WidgetItemLoader::class))
 		);
 		$this->assertNull($without->getWidgetCatalogue());
+	}
+
+	public function testTheCatalogueCarriesADeclaredPlaceholderWithoutLoading(): void {
+		$revenue = new DeclaringRecordingWidget('revenue');
+		$this->built = ['Revenue' => $revenue];
+		$manager = new PendingManager();
+		$manager->lazyRegisterWidget('Revenue', 'revenue');
+		$service = new WidgetService(
+			platform: new WidgetPlatform(
+				dashboardManager: $manager,
+				userSession: $this->createMock(IUserSession::class),
+				registry: new DashboardWidgetRegistry($manager, $this->apps(), $this->container())
+			),
+			placementService: $this->createMock(PlacementService::class),
+			rendering: new WidgetRendering(widgetFormatter: new WidgetFormatter(), widgetItemLoader: $this->createMock(WidgetItemLoader::class))
+		);
+
+		$catalogue = $service->getWidgetCatalogue();
+
+		$this->assertSame('counter', $catalogue[0]['placeholder']);
+		$this->assertSame(0, $revenue->loads);
 	}
 }

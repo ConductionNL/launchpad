@@ -803,10 +803,7 @@ class PeopleWidgetService {
 	 * @param IUser       $user          The user to project.
 	 * @param bool        $showBirthdays When false, omits the birthdate field
 	 *                                   unconditionally (REQ-PPL-005).
-	 * @param string|null $viewerId      Who the profile is for; decides which
-	 *                                   account properties their scope shows.
-	 *                                   Null: the viewer of the current
-	 *                                   listing ({@see self::listUsers()}).
+	 * @param string|null $viewerId      Who the profile is for; null: the current listing's viewer.
 	 *
 	 * @return array<string, mixed>
 	 * @spec   openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
@@ -828,11 +825,7 @@ class PeopleWidgetService {
 			$profile['email'] = $email;
 		}
 
-		$accountFields = $this->buildAccountFields(
-			user: $user,
-			showBirthdays: $showBirthdays,
-			viewerId: $viewerId
-		);
+		$accountFields = $this->buildAccountFields(user: $user, showBirthdays: $showBirthdays, viewerId: $viewerId);
 
 		return array_merge($profile, $accountFields);
 	}//end buildUserProfile()
@@ -844,13 +837,11 @@ class PeopleWidgetService {
 	 * @param IUser       $user          The user.
 	 * @param bool        $showBirthdays When false, the birthdate property is
 	 *                                   skipped even if set.
-	 * @param string|null $viewerId      Who the fields are for; null: the
-	 *                                   viewer of the current listing.
+	 * @param string|null $viewerId      Who the fields are for; null: the current listing's viewer.
 	 *
 	 * @return array<string, string>
 	 */
 	private function buildAccountFields(IUser $user, bool $showBirthdays, ?string $viewerId=null): array {
-		$viewerId ??= $this->viewerId;
 		try {
 			$account = $this->accountManager->getAccount(user: $user);
 		} catch (Exception $e) {
@@ -859,7 +850,7 @@ class PeopleWidgetService {
 
 		$fields = [];
 		foreach (self::shownProperties(showBirthdays: $showBirthdays) as $property) {
-			$value = $this->visibleValue(account: $account, property: $property, ownerId: $user->getUID(), viewerId: $viewerId);
+			$value = $this->visibleValue(account: $account, property: $property, ownerId: $user->getUID(), viewerId: $viewerId ?? $this->viewerId);
 			$fields += self::accountField(property: $property, value: $value);
 		}
 

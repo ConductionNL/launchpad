@@ -67,7 +67,7 @@ test('the "Can\'t find your app?" request form has no serious axe findings', asy
 		const body = await created.json()
 		const dashboard = body.dashboard ?? body.data?.dashboard ?? body
 		expect((await member.api.post(`${API}/dashboard/${dashboard.id}/activate`)).status()).toBeLessThan(300)
-		expect((await member.api.post(`${API}/dashboards/active`, { data: { uuid: dashboard.uuid } })).status()).toBeLessThan(300)
+		expect((await member.api.post(`${API}/dashboards/default`, { data: { uuid: dashboard.uuid } })).status()).toBeLessThan(300)
 
 		const { context, page } = await loginAs(browser, member.username, member.password)
 		try {

@@ -34,6 +34,7 @@ use OCA\LaunchPad\Listener\LocksListener;
 use OCA\LaunchPad\Listener\MetadataValuesListener;
 use OCA\LaunchPad\Listener\ProfileFieldsListener;
 use OCA\LaunchPad\Listener\PublicSharesListener;
+use OCA\LaunchPad\Listener\ScreenLinksListener;
 use OCA\LaunchPad\Listener\ReactionsListener;
 use OCA\LaunchPad\Listener\TranslationsListener;
 use OCA\LaunchPad\Listener\TreeListener;
@@ -291,6 +292,7 @@ class Application extends App implements IBootstrap {
 			event: DashboardDeletedEvent::class,
 			listener: DashboardSharesListener::class
 		);
+		$context->registerEventListener(event: DashboardDeletedEvent::class, listener: ScreenLinksListener::class);
 		$context->registerEventListener(
 			event: DashboardDeletedEvent::class,
 			listener: MetadataValuesListener::class

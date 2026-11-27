@@ -189,7 +189,7 @@ async function readerWidget(content: Record<string, unknown>): Promise<number> {
 async function readerPage(browser: Browser, dashboard: { id: number, uuid: string } = readerDash): Promise<Page> {
 	const api = await apiAs(reader!)
 	try {
-		await api.post(`${API}/dashboards/active`, { data: { uuid: dashboard.uuid } })
+		await api.post(`${API}/dashboards/default`, { data: { uuid: dashboard.uuid } })
 	} finally {
 		await api.dispose()
 	}

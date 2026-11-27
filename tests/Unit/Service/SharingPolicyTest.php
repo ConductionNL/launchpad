@@ -152,6 +152,23 @@ class SharingPolicyTest extends TestCase {
 	}//end testPublicLinksAreOnUnlessSwitchedOff()
 
 	/**
+	 * REQ-KIOSK-007: screen links are on unless switched off.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-8
+	 */
+	public function testScreenLinksAreOnUnlessSwitchedOff(): void {
+		$this->assertTrue(condition: $this->limits()->screenLinksAllowed());
+
+		$this->stored = ['kiosk_screen_links_allowed' => false];
+		$this->assertFalse(condition: $this->limits()->screenLinksAllowed());
+
+		$this->stored = ['kiosk_screen_links_allowed' => true];
+		$this->assertTrue(condition: $this->limits()->screenLinksAllowed());
+	}//end testScreenLinksAreOnUnlessSwitchedOff()
+
+	/**
 	 * Scenario "A public link needs an expiry date".
 	 *
 	 * @return void
@@ -306,5 +323,30 @@ class SharingPolicyTest extends TestCase {
 		$refused = $controller->update(sharingAllowed: 'friends');
 		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $refused->getStatus());
 	}//end testTheAdminEndpointStoresThePolicy()
+
+	/**
+	 * REQ-KIOSK-007: the same endpoint stores the screen link switch.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-8
+	 */
+	public function testTheAdminEndpointStoresTheScreenLinkSwitch(): void {
+		$written = [];
+		$mapper = $this->createMock(originalClassName: AdminSettingMapper::class);
+		$mapper->method('setSetting')->willReturnCallback(function (string $key, mixed $value) use (&$written): AdminSetting {
+			$written[$key] = $value;
+			return new AdminSetting();
+		});
+		$controller = new SharingPolicyController(
+			request: $this->createMock(originalClassName: IRequest::class),
+			settings: new AdminSettingsService(settingMapper: $mapper),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
+		);
+
+		$ok = $controller->update(screenLinksAllowed: false);
+		$this->assertSame(expected: Http::STATUS_OK, actual: $ok->getStatus());
+		$this->assertSame(expected: ['kiosk_screen_links_allowed' => false], actual: $written);
+	}//end testTheAdminEndpointStoresTheScreenLinkSwitch()
 
 }//end class

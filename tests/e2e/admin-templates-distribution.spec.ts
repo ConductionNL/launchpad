@@ -652,7 +652,7 @@ test.describe('what the page shows on a first visit (REQ-TMPL-019)', () => {
 		const pieterOwn = Number((await own.json()).dashboard.id)
 
 		const lotte = await member('lotte', [g])
-		const pinned = await lotte.api.post(`${API}/dashboards/active`, {
+		const pinned = await lotte.api.post(`${API}/dashboards/default`, {
 			data: { uuid: everyone!.uuid },
 		})
 		expect(pinned.status()).toBe(200)

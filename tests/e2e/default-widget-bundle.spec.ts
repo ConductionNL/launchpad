@@ -139,7 +139,7 @@ test.beforeAll(async () => {
 		created = { status: res.status(), body: await res.json() }
 		const dash = (created.body.dashboard ?? {}) as Record<string, unknown>
 		// Seeding only: make the new dashboard the one LaunchPad opens.
-		const active = await api.post(`${API}/dashboards/active`, {
+		const active = await api.post(`${API}/dashboards/default`, {
 			data: { uuid: dash.uuid },
 		})
 		expect(active.status(), await active.text()).toBeLessThan(300)

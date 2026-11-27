@@ -9,7 +9,7 @@
  * dashboard's background, and after Remove the dashboard follows the theme.
  * Runs as the admin (the project's storage state).
  *
- * @e2e openspec/changes/own-look-fields/specs/dashboards/spec.md
+ * @e2e openspec/changes/archive/2026-11-27-own-look-fields/specs/dashboards/spec.md
  */
 
 import type { APIRequestContext, Locator, Page } from '@playwright/test'
@@ -112,9 +112,11 @@ test('each colour field and its picker stand on one row at 1440 px', async ({ pa
 		await expect(picker, `${field} has a picker`).toHaveCount(1)
 		const a = (await input.boundingBox())!
 		const b = (await picker.boundingBox())!
-		// One row: the picker sits right of the input and overlaps it vertically.
-		expect(b.x, `${field}: picker beside the input`).toBeGreaterThanOrEqual(a.x + a.width - 1)
+		// One row, as board LpDashboardInstellingen draws it: the swatch sits
+		// left of the hex field and overlaps it vertically.
+		expect(b.x + b.width, `${field}: picker beside the input, on its left`).toBeLessThanOrEqual(a.x + 1)
 		expect(b.y, `${field}: not wrapped below`).toBeLessThan(a.y + a.height)
+		expect(b.y + b.height, `${field}: not wrapped above`).toBeGreaterThan(a.y)
 	}
 })
 

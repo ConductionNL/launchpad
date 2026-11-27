@@ -431,16 +431,38 @@ describe('useDashboardStore — resolveActive (REQ-DASH-018)', () => {
 		expect(store.resolveActive).toBeNull()
 	})
 
-	it('step 1: honours the currently-active dashboard if still visible', async () => {
+	it('step 1: honours the chosen start dashboard if still visible', async () => {
 		const { useDashboardStore } = await import('../dashboard.js')
 		const store = useDashboardStore()
 		store.dashboards = [
-			make({ uuid: 'a', source: 'user' }),
+			make({ uuid: 'd', source: 'default', groupId: 'default', isDefault: 1 }),
 			make({ uuid: 'b', source: 'group', groupId: 'eng' }),
 		]
-		store.activeDashboard = { id: 'b' }
+		store.startDashboardUuid = 'b'
 		store.primaryGroup = 'eng'
 		expect(store.resolveActive.uuid).toBe('b')
+	})
+
+	it('the dashboard looked at last does not win over the start page', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.dashboards = [
+			make({ uuid: 'team', source: 'group', groupId: 'eng' }),
+			make({ uuid: 'vandaag', source: 'default', groupId: 'default', isDefault: 1 }),
+		]
+		store.activeDashboard = { id: 'team' }
+		store.primaryGroup = 'support'
+		expect(store.resolveActive.uuid).toBe('vandaag')
+	})
+
+	it('a start dashboard that is no longer visible falls through', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.dashboards = [
+			make({ uuid: 'vandaag', source: 'default', groupId: 'default', isDefault: 1 }),
+		]
+		store.startDashboardUuid = 'deleted'
+		expect(store.resolveActive.uuid).toBe('vandaag')
 	})
 
 	it('step 2: primary-group default beats default-group default', async () => {

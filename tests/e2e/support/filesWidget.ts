@@ -280,7 +280,7 @@ export async function placementsOf(
 export async function activate(api: APIRequestContext, dashboard: { id: number, uuid: string }): Promise<void> {
 	const legacy = await api.post(`${API}/dashboard/${dashboard.id}/activate`)
 	expect(legacy.status(), await legacy.text()).toBeLessThan(300)
-	const active = await api.post(`${API}/dashboards/active`, { data: { uuid: dashboard.uuid } })
+	const active = await api.post(`${API}/dashboards/default`, { data: { uuid: dashboard.uuid } })
 	expect(active.status(), await active.text()).toBeLessThan(300)
 }
 

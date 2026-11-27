@@ -152,6 +152,18 @@ class SharingLimits {
 	}//end publicLinksAllowed()
 
 	/**
+	 * Whether a dashboard's Sharing tab may make a screen link (REQ-KIOSK-007);
+	 * on when the administrator never stored the switch.
+	 *
+	 * @return bool True when new screen links may be made.
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-2
+	 */
+	public function screenLinksAllowed(): bool {
+		return $this->settings->getValue(key: AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value, default: true) !== false;
+	}//end screenLinksAllowed()
+
+	/**
 	 * Who may receive a share: everyone, or people who share a group with the sharer.
 	 *
 	 * An unknown stored value reads as `everyone`, today's behaviour.

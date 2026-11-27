@@ -154,7 +154,7 @@ test.describe('dashboard export and import — widget configuration survives', (
 			}
 		}
 		if (previousActiveUuid !== null) {
-			await api.post(`${API}/dashboards/active`, {
+			await api.post(`${API}/dashboards/default`, {
 				data: { uuid: previousActiveUuid },
 			})
 		}
@@ -240,7 +240,7 @@ test.describe('dashboard export and import — widget configuration survives', (
 		expect(removed.status(), await removed.text()).toBeLessThan(300)
 		sourceId = null
 
-		const activate = await api.post(`${API}/dashboards/active`, {
+		const activate = await api.post(`${API}/dashboards/default`, {
 			data: { uuid: imported.uuid },
 		})
 		expect(activate.status(), await activate.text()).toBeLessThan(300)

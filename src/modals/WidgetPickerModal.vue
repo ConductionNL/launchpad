@@ -983,6 +983,7 @@ export default {
 		transition-duration: 0.01ms;
 	}
 }
+
 .widget-picker__widget-row {
 	display: flex;
 	align-items: flex-start;

@@ -213,10 +213,13 @@ const FORM_OVERRIDES = {
 /**
  * Types no longer offered in the picker; their placements still render.
  * `app-tile` is the App or link tile in app mode now (REQ-APPTILE-001).
+ * `app-tiles`, the multi-tile, is a well listing each viewer's apps now; its
+ * renderer stays one release for a template or import met before conversion
+ * (layout-widgets-replace-multi-tile D4).
  *
  * @type {string[]}
  */
-export const RETIRED_TYPES = ['app-tile']
+export const RETIRED_TYPES = ['app-tile', 'app-tiles']
 
 // REQ-APPTILE-001: one widget, "App or link tile", in place of the App tile
 // and the link tile. It keeps the key `tile`: every link tile already is one.

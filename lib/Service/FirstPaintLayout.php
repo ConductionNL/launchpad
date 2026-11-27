@@ -60,7 +60,11 @@ class FirstPaintLayout {
 	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
 	 */
 	public static function columnCounts(int $columns): array {
-		$max    = $columns > 0 ? $columns : 12;
+		$max = 12;
+		if ($columns > 0) {
+			$max = $columns;
+		}
+
 		$counts = [$max];
 		foreach ([self::MEDIUM_COLUMNS, self::NARROW_COLUMNS] as $count) {
 			if (min($count, $max) < $counts[count($counts) - 1]) {
@@ -103,9 +107,9 @@ class FirstPaintLayout {
 	 * GridStack's column change as dashboardColumnLayout() does it:
 	 * reading-order flow on a narrow grid, move-and-scale everywhere else.
 	 *
-	 * @param int                                    The new column count.
-	 * @param int                                $oldColumn The column count the nodes come from.
-	 * @param list<array<string, int|string>>    $nodes     The nodes.
+	 * @param int                             $column    The new column count.
+	 * @param int                             $oldColumn The column count the nodes come from.
+	 * @param list<array<string, int|string>> $nodes     The nodes.
 	 *
 	 * @return list<array<string, int|string>> The placed nodes.
 	 *
@@ -179,27 +183,30 @@ class FirstPaintLayout {
 	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
 	 */
 	public static function flowNarrow(array $nodes, int $column, int $fromColumns): array {
-		$x         = 0;
-		$y         = 0;
+		$col       = 0;
+		$row       = 0;
 		$rowHeight = 0;
 		foreach ($nodes as $i => $node) {
 			$cell = self::isCell(node: $node, fromColumns: $fromColumns);
-			if ($cell === false || ($x + 1) > $column) {
+			if ($cell === false || ($col + 1) > $column) {
 				// A new row: below the tiles placed so far.
-				$y        += ($x > 0) ? $rowHeight : 0;
-				$x         = 0;
+				if ($col > 0) {
+					$row += $rowHeight;
+				}
+
+				$col       = 0;
 				$rowHeight = 0;
 			}
 
 			if ($cell === true) {
-				$nodes[$i] = ['x' => $x, 'y' => $y, 'w' => 1] + $node;
-				$x        += 1;
+				$nodes[$i] = ['x' => $col, 'y' => $row, 'w' => 1] + $node;
+				$col      += 1;
 				$rowHeight = max($rowHeight, (int) $node['h']);
 				continue;
 			}
 
-			$nodes[$i] = ['x' => 0, 'y' => $y, 'w' => $column] + $node;
-			$y        += (int) $node['h'];
+			$nodes[$i] = ['x' => 0, 'y' => $row, 'w' => $column] + $node;
+			$row      += (int) $node['h'];
 		}
 
 		return $nodes;

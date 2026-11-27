@@ -40,6 +40,7 @@ import {
 	crumbs,
 	fileIdOf,
 	filesWidget,
+	firstContents,
 	mkdirs,
 	nextContents,
 	openOnWidget,
@@ -154,7 +155,7 @@ test('two files widgets on one dashboard keep their own configuration and their 
 
 	const bFirst = nextContents(page, b)
 	await openOnWidget(page, a)
-	await bFirst
+	await firstContents(page, b, bFirst)
 	const widgetA = filesWidget(page, a)
 	const widgetB = filesWidget(page, b)
 	await expect(widgetB.locator('.cn-files-widget__row')).toHaveCount(2)

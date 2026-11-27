@@ -67,6 +67,7 @@ import {
 	seedOwnActiveDashboard,
 	setSharePermissions,
 	shareWithUser,
+	showWidget,
 	unshare,
 } from './support/filesWidget.ts'
 import { publishForRecipients } from './support/principals.ts'
@@ -221,9 +222,10 @@ test('upload and delete default to off, can be switched on, and only show where 
 	const on = await seedFilesPlacement(admin, adminDash.id, { folderPath: `/${own}`, allowUpload: true, allowDelete: true }, 30)
 	const unset = await seedFilesPlacement(admin, adminDash.id, { folderPath: `/${own}` }, 40)
 	adminPlacements.push(on, unset)
-	const pending = nextContents(page, unset)
-	await openOnWidget(page, on)
-	await pending
+	// Both widgets may be answered from the page (REQ-INIT-011), so wait for
+	// what they show rather than for a contents request.
+	await showWidget(page, on)
+	await expect(filesWidget(page, unset)).toBeVisible({ timeout: 30_000 })
 	await expect(filesWidget(page, on).getByRole('button', { name: 'Upload File' })).toBeVisible()
 	await expect(filesWidget(page, on).getByRole('button', { name: 'Delete mine.txt' })).toBeVisible()
 	// With neither flag stored, both default to false.
@@ -236,8 +238,9 @@ test('upload and delete default to off, can be switched on, and only show where 
 	await shareToReader(ro, PERM.READ)
 	const readers = await readerWidget({ folderPath: `/flags-ro-${RUN}`, allowUpload: true, allowDelete: true })
 	const readerView = await readerPage(browser)
-	await openOnWidget(readerView, readers)
+	await showWidget(readerView, readers)
 	const widget = filesWidget(readerView, readers)
+	await expect(widget.locator('.cn-files-widget__row')).toHaveCount(1)
 	expect(await rowNames(widget)).toEqual(['theirs.txt'])
 	await expect(widget.getByRole('button', { name: 'Upload File' })).toHaveCount(0)
 	await expect(widget.getByRole('button', { name: /^Delete / })).toHaveCount(0)

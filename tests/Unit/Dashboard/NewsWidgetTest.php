@@ -78,6 +78,15 @@ class NewsWidgetTest extends TestCase {
 		return $placement;
 	}//end placement()
 
+	/**
+	 * The widget declares rows as its first-paint placeholder.
+	 *
+	 * @return void
+	 */
+	public function testItDeclaresRowsAsItsPlaceholder(): void {
+		$this->assertSame(expected: 'rows', actual: $this->widget->getPlaceholder());
+	}
+
 	public function testRegistryMetadata(): void {
 		$this->assertInstanceOf(IAPIWidgetV2::class, $this->widget);
 		$this->assertInstanceOf(IIconWidget::class, $this->widget);

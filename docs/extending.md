@@ -101,6 +101,24 @@ Each widget entry-point is currently bundled independently, which means Vue + `@
 
 LaunchPad's `index()` controller builds the **Add Widget** picker from `IManager::getWidgets()` (via `WidgetService::getAvailableWidgets()`). Your widget shows up automatically with the title and icon-class declared in your `IWidget`. No template hooks, no front-end registration step in LaunchPad.
 
+### 6. Declare the placeholder shape
+
+While a dashboard loads, LaunchPad draws every widget frame at its place with a grey placeholder, first from the server and then in the mounted page, so nothing jumps when the content arrives. The shape of that placeholder comes from the widget's own declaration. The first of these wins:
+
+1. **The app manifest**: a page's widget definition may set `placeholder` (`widgetDef.placeholder`) to override its type's shape.
+2. **The nextcloud-vue widget registry**: a widget type registered in `@conduction/nextcloud-vue` declares its shape once on the type (LaunchPad reads the package's `widget-placeholders.json`).
+3. **Your Nextcloud widget class**: add a public `getPlaceholder()` method. Nextcloud's `IWidget` has no such method, so it is duck-typed; no extra interface is needed.
+4. Otherwise the widget draws **rows**.
+
+```php
+public function getPlaceholder(): string|array
+{
+    return 'rows';                              // or ['shape' => 'rows', 'count' => 5]
+}
+```
+
+The shape is one of `rows` (lists), `lines` (text), `block` (a field, table, chart or other single area), `tiles` (one square per app tile), `counter` (a number) or `heading` (a section title, no placeholder body). A `count` is an integer from 1 to 24 and is clipped to the frame; without it the frame's height decides. Any other value is ignored (LaunchPad logs it at debug level with your widget id) and the widget draws rows. The method is read when the widget catalogue is built, without calling `load()`, so it must not do any work. Every Conduction app's `lib/Dashboard` widget declares one (hydra gate `widget-placeholder-declared`); other vendors' widgets (Talk, Calendar, Mail, Deck) draw rows.
+
 ---
 
 ## Path 2 — Drive a widget from OpenRegister

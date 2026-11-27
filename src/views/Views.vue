@@ -1709,7 +1709,7 @@ export default {
 		 *
 		 * @param {object[]} placements The shown placements.
 		 * @return {void}
-		 * @spec openspec/changes/first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
+		 * @spec openspec/changes/archive/2026-11-27-first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
 		 */
 		shownPlacements: {
 			immediate: true,
@@ -1718,7 +1718,7 @@ export default {
 			 *
 			 * @param {object[]} placements The shown placements.
 			 * @return {void}
-			 * @spec openspec/changes/first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
+			 * @spec openspec/changes/archive/2026-11-27-first-viewport-widgets/specs/widgets/spec.md#requirement-the-widgets-on-the-first-screen-render-in-the-first-pass-req-wdg-047
 			 */
 			handler(placements) {
 				preloadFirstViewportRenderers(placements, getWidgetTypeEntry)

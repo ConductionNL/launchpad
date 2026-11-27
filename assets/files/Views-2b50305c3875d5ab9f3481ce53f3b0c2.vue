@@ -184,7 +184,6 @@
 				:canConfigure="canConfigureActiveDashboard"
 				@setColumns="setGridColumns"
 				@addWidget="openWidgetModal"
-				@addTiles="openAddTilesModal"
 				@openSettings="openConfigModal"
 				@done="toggleEditMode"
 				@dock="editBarDock = $event" />

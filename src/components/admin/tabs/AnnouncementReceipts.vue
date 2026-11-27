@@ -200,7 +200,10 @@ export default {
 	},
 
 	computed: {
-		/** @return {Array<{id: string, label: string}>} */
+		/**
+		 * @return {Array<{id: string, label: string}>} The four filters.
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 */
 		filterOptions() {
 			return [
 				{ id: 'all', label: this.t('launchpad', 'Everyone') },
@@ -210,12 +213,18 @@ export default {
 			]
 		},
 
-		/** @return {Array<object>} The rows the filter keeps. */
+		/**
+		 * @return {Array<object>} The rows the filter keeps.
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 */
 		shownRows() {
 			return filterReceipts(Array.isArray(this.report.rows) ? this.report.rows : [], this.filter)
 		},
 
-		/** @return {boolean} Whether Send reminder may be pressed now. */
+		/**
+		 * @return {boolean} Whether Send reminder may be pressed now.
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 */
 		canRemind() {
 			return this.report.canRemind !== false && !this.reminded && this.announcement.status === 'published'
 		},
@@ -240,6 +249,7 @@ export default {
 		/**
 		 * @param {string|null} iso A stored time.
 		 * @return {string} The time in the reader's locale, or a dash.
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 		 */
 		formatTime(iso) {
 			const date = new Date(iso ?? '')

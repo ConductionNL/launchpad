@@ -131,14 +131,18 @@ class AnnouncementMapper extends QBMapper {
 	/**
 	 * Delete an announcement together with its seen and confirmed receipts.
 	 *
-	 * @param Entity $entity The announcement.
+	 * @param Announcement $entity The announcement.
 	 *
-	 * @return Entity The deleted announcement.
+	 * @return Announcement The deleted announcement.
 	 *
 	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	public function delete(Entity $entity): Entity {
-		if ($entity instanceof Announcement && $entity->getUuid() !== null) {
+		if ($entity instanceof Announcement === false) {
+			throw new \InvalidArgumentException('Only an announcement is deleted here');
+		}
+
+		if ($entity->getUuid() !== null) {
 			$qb = $this->db->getQueryBuilder();
 			$qb->delete(AnnouncementReceiptMapper::TABLE)
 				->where($qb->expr()->eq('announcement_uuid', $qb->createNamedParameter($entity->getUuid())))

@@ -48,9 +48,20 @@ class AnnouncementReminderControllerTest extends TestCase {
 		$user->method('getUID')->willReturn('femke');
 		$guard = $this->createMock(originalClassName: RequestGuard::class);
 		$guard->method('actionRefusal')->willReturnCallback(
-			static fn (string $action): ?JSONResponse => in_array(needle: $action, haystack: $refused, strict: true) === true ? new JSONResponse([], 403) : null
+			static function (string $action) use ($refused): ?JSONResponse {
+				if (in_array(needle: $action, haystack: $refused, strict: true) === true) {
+					return new JSONResponse([], 403);
+				}
+
+				return null;
+			}
 		);
-		$guard->method('sessionUser')->willReturn($signedIn === true ? $user : new JSONResponse([], 401));
+		$session = new JSONResponse([], 401);
+		if ($signedIn === true) {
+			$session = $user;
+		}
+
+		$guard->method('sessionUser')->willReturn($session);
 
 		return new AnnouncementReminderController(
 			request: $this->createMock(originalClassName: IRequest::class),

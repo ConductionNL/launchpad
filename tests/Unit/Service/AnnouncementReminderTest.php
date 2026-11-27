@@ -31,7 +31,6 @@ use PHPUnit\Framework\TestCase;
  * Tests for AnnouncementReminder.
  *
  * @covers \OCA\LaunchPad\Service\AnnouncementReminder
- * @uses   \OCA\LaunchPad\Service\AnnouncementReceiptReport
  * @uses   \OCA\LaunchPad\Db\Announcement
  */
 class AnnouncementReminderTest extends TestCase {
@@ -69,6 +68,9 @@ class AnnouncementReminderTest extends TestCase {
 		$this->store         = $this->createMock(originalClassName: AnnouncementMapper::class);
 		$this->notifications = $this->createMock(originalClassName: INotificationManager::class);
 		$this->report->method('unconfirmed')->willReturn(['cor', 'dirk']);
+		$this->report->method('mayRemind')->willReturnCallback(
+			static fn (Announcement $announcement): bool => $announcement->getRemindedAt() === null || $announcement->getRemindedAt() < new DateTime('-1 day')
+		);
 	}//end setUp()
 
 	/**

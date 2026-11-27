@@ -116,7 +116,7 @@ class AnnouncementReceiptReport {
 			'confirmedViaX'      => $figures['x'],
 			'notConfirmedCount'  => ($audience - $confirmed),
 			'remindedAt'         => $announcement->getRemindedAt()?->format(DateTimeInterface::ATOM),
-			'canRemind'          => self::mayRemind(announcement: $announcement),
+			'canRemind'          => $this->mayRemind(announcement: $announcement),
 			'acknowledgedCount'  => $confirmed,
 			'pendingCount'       => count($pending),
 			'pending'            => array_column($pending, 'userId'),
@@ -198,7 +198,7 @@ class AnnouncementReceiptReport {
 	 *
 	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
-	public static function mayRemind(Announcement $announcement): bool {
+	public function mayRemind(Announcement $announcement): bool {
 		$last = $announcement->getRemindedAt();
 
 		return $last === null || (time() - $last->getTimestamp()) >= self::REMINDER_INTERVAL;

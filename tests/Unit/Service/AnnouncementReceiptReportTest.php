@@ -227,11 +227,11 @@ class AnnouncementReceiptReportTest extends TestCase {
 	 */
 	public function testMayRemindOnceADay(): void {
 		$announcement = new Announcement();
-		$this->assertTrue(condition: AnnouncementReceiptReport::mayRemind(announcement: $announcement));
+		$this->assertTrue(condition: $this->service()->mayRemind(announcement: $announcement));
 		$announcement->setRemindedAt(new DateTime('-2 hours'));
-		$this->assertFalse(condition: AnnouncementReceiptReport::mayRemind(announcement: $announcement));
+		$this->assertFalse(condition: $this->service()->mayRemind(announcement: $announcement));
 		$announcement->setRemindedAt(new DateTime('-25 hours'));
-		$this->assertTrue(condition: AnnouncementReceiptReport::mayRemind(announcement: $announcement));
+		$this->assertTrue(condition: $this->service()->mayRemind(announcement: $announcement));
 	}//end testMayRemindOnceADay()
 
 	/**

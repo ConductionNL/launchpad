@@ -50,7 +50,10 @@ export default {
 	},
 
 	computed: {
-		/** @return {Array<object>} The notices to show now. */
+		/**
+		 * @return {Array<object>} The notices to show now: not ended, not closed.
+		 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005
+		 */
 		visible() {
 			return this.notices.filter((notice) => {
 				const ends = Date.parse(notice.expiresAt ?? '')

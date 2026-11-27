@@ -108,6 +108,10 @@
             "description": "The receipt endpoints of announcements."
         },
         {
+            "name": "announcement-reminder",
+            "description": "The reminder endpoint of announcements."
+        },
+        {
             "name": "attention",
             "description": "The attention sources endpoint."
         },
@@ -5395,6 +5399,48 @@
                 }
             }
         },
+        "/announcements/receipt-counts": {
+            "get": {
+                "operationId": "announcement-read-counts",
+                "x-launchpad-stability": "internal",
+                "summary": "GET /api/announcements/receipt-counts: per announcement of `uuids`, how many have seen and confirmed it; managers only (REQ-ANN-008)",
+                "description": "GET /api/announcements/receipt-counts: per announcement of `uuids`, how many have seen and confirmed it; managers only (REQ-ANN-008). Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "announcement-read"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuids",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/announcements/seen": {
             "post": {
                 "operationId": "announcement-read-seen",
@@ -6015,12 +6061,12 @@
         },
         "/announcements/{uuid}/remind": {
             "post": {
-                "operationId": "announcement-read-remind",
+                "operationId": "announcement-reminder-remind",
                 "x-launchpad-stability": "internal",
-                "summary": "POST /api/announcements/{uuid}/remind: Send reminder to everyone in the audience who has not confirmed; managers only, once a day",
-                "description": "POST /api/announcements/{uuid}/remind: Send reminder to everyone in the audience who has not confirmed; managers only, once a day. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "summary": "Send reminder to everyone in the audience who has not confirmed",
+                "description": "Send reminder to everyone in the audience who has not confirmed. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
-                    "announcement-read"
+                    "announcement-reminder"
                 ],
                 "parameters": [
                     {

@@ -81,7 +81,7 @@ class AnnouncementReminder {
 			throw new InvalidArgumentException('Only a published announcement can be reminded');
 		}
 
-		if (AnnouncementReceiptReport::mayRemind(announcement: $announcement) === false) {
+		if ($this->report->mayRemind(announcement: $announcement) === false) {
 			throw new InvalidArgumentException('A reminder was already sent in the last 24 hours');
 		}
 

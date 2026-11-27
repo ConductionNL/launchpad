@@ -18,16 +18,30 @@
 			<strong class="notice-banner__title">{{ notice.title }}</strong>
 			<span v-if="notice.body" class="notice-banner__body">{{ notice.body }}</span>
 		</div>
-		<NcButton
-			v-if="notice.dismissible && !preview"
-			variant="tertiary"
-			:aria-label="t('launchpad', 'Dismiss notice')"
-			data-test="notice-dismiss"
-			@click="$emit('dismiss', notice.uuid)">
-			<template #icon>
-				<Close :size="20" />
-			</template>
-		</NcButton>
+		<div v-if="!preview" class="notice-banner__actions">
+			<NcButton
+				variant="tertiary"
+				:pressed="read"
+				:aria-label="read ? t('launchpad', 'Read') : t('launchpad', 'Mark as read')"
+				:title="read ? t('launchpad', 'Read') : t('launchpad', 'Mark as read')"
+				data-test="notice-confirm"
+				@click="$emit('confirm', notice.uuid, 'check')">
+				<template #icon>
+					<CheckCircle v-if="read" :size="20" />
+					<CheckCircleOutline v-else :size="20" />
+				</template>
+			</NcButton>
+			<NcButton
+				variant="tertiary"
+				:aria-label="t('launchpad', 'Close notice')"
+				:title="t('launchpad', 'Close notice')"
+				data-test="notice-dismiss"
+				@click="$emit('confirm', notice.uuid, 'x')">
+				<template #icon>
+					<Close :size="20" />
+				</template>
+			</NcButton>
+		</div>
 	</div>
 </template>
 
@@ -35,21 +49,25 @@
 import { t } from '@nextcloud/l10n'
 import { NcButton } from '@nextcloud/vue'
 import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
+import CheckCircle from 'vue-material-design-icons/CheckCircle.vue'
+import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import Close from 'vue-material-design-icons/Close.vue'
 import InformationOutline from 'vue-material-design-icons/InformationOutline.vue'
 
 /**
  * NoticeBanner — one notice above the dashboard grid (REQ-ANN-005). The
- * level shows by icon and by text, not by colour alone; a dismissible notice
- * has a close button, a non-dismissible one none. The editor's preview
- * renders this same component with `preview` set.
+ * level shows by icon and by text, not by colour alone. Every notice has the
+ * read row (REQ-ANN-007): the check ("Read", filled once confirmed) and the
+ * x; both emit `confirm` with the kind. A stored "may not be dismissed"
+ * setting is ignored (announcements-managed-in-settings D4). The preview on
+ * the Announcements tab renders this same component with `preview` set.
  *
- * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005
+ * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005
  */
 export default {
 	name: 'NoticeBanner',
 
-	components: { AlertOutline, Close, InformationOutline, NcButton },
+	components: { AlertOutline, CheckCircle, CheckCircleOutline, Close, InformationOutline, NcButton },
 
 	props: {
 		/** The notice, as the announcements API returns it. */
@@ -58,14 +76,20 @@ export default {
 			required: true,
 		},
 
-		/** Rendered in the editor's preview: no dismiss button. */
+		/** Rendered in the editor's preview: no read row. */
 		preview: {
+			type: Boolean,
+			default: false,
+		},
+
+		/** The reader confirmed it: the check is filled. */
+		read: {
 			type: Boolean,
 			default: false,
 		},
 	},
 
-	emits: ['dismiss'],
+	emits: ['confirm'],
 
 	computed: {
 		/** @return {string} `warning` or `info`. */
@@ -123,6 +147,11 @@ export default {
 	flex: 1 1 260px;
 }
 
+.notice-banner__actions {
+	display: flex;
+	flex: none;
+	gap: 4px;
+}
 .notice-banner--warning .notice-banner__body {
 	color: var(--color-primary-element-light);
 }

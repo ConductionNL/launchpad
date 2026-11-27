@@ -61,9 +61,6 @@
 							label="label"
 							:clearable="false"
 							data-test="editor-level" />
-						<NcCheckboxRadioSwitch v-model="form.dismissible" data-test="editor-dismissible">
-							{{ t('launchpad', 'Readers may dismiss this notice') }}
-						</NcCheckboxRadioSwitch>
 					</template>
 					<template v-else>
 						<NcTextField v-model="form.category" :label="t('launchpad', 'Category')" data-test="editor-category" />

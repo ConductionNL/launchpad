@@ -217,9 +217,10 @@
    first line starts on the title's 18px (the agenda, recent work, mail, a
    text card such as "Van de gemeentesecretaris", the people lists). The
    renderer's own padding (16px, the text widget's 16px, the people widget's
-   8px) added a second inset. The text widget sets its padding inline, hence
+   8px, the status report's 12px and spend analytics' 8px: LpManagement
+   "Compliance", "Uitgaven per afdeling") added a second inset. The text widget sets its padding inline, hence
    the !important on its own rule. */
-.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard :is(.widget-renderer, .cn-links-widget, .cn-menu-widget, .cn-people-widget) {
+.cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard :is(.widget-renderer, .cn-links-widget, .cn-menu-widget, .cn-people-widget, .status-report, .cn-spend-analytics-widget) {
 	padding: 0;
 }
 
@@ -251,6 +252,27 @@
 	color: var(--color-text-maxcontrast);
 	font-weight: 600;
 	white-space: nowrap;
+}
+
+/* A placement that asks for a read confirmation is an announcement (REQ-ACK-011,
+   LpVandaag, LpIntranet "Nieuwe werkwijze Woo-verzoeken"): a 4px bar in the
+   primary colour on its left edge, 24px in on the left and 20px on the
+   right, a 17px title. */
+.cn-look-board .launchpad-container .launchpad-widget--announcement .cn-widget-wrapper--nc-dashboard {
+	box-shadow: inset 4px 0 0 var(--color-primary-element);
+}
+
+.cn-look-board .launchpad-container .launchpad-widget--announcement .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__header {
+	padding: 16px 20px 8px 24px;
+}
+
+.cn-look-board .launchpad-container .launchpad-widget--announcement .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__content {
+	padding: 0 20px 16px 24px;
+}
+
+.cn-look-board .launchpad-container .launchpad-widget--announcement .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__title {
+	font-size: 17px;
+	line-height: 1.3;
 }
 
 /* "Vandaag eerst" draws its own heading inside the card, 14px from the top

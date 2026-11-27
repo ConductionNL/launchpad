@@ -111,8 +111,40 @@ async function summaryOf(
 }
 
 /**
- * Log Pieter in and open LaunchPad on his active dashboard, waiting until
- * the bar's own summary request has answered.
+ * The reactions summary the page carries in its initial state. Since
+ * REQ-INIT-011 the workspace page carries the opening dashboard's reactions
+ * read (`workspaceApiReads`), and the bar mounts from it without asking the
+ * server; null when the page did not carry it.
+ *
+ * @param page the page.
+ * @param uuid the dashboard.
+ * @return the carried summary, or null.
+ */
+async function carriedSummary(
+	page: Page,
+	uuid: string,
+): Promise<{ enabled?: boolean } | null> {
+	return page.evaluate((path) => {
+		const input = document.querySelector<HTMLInputElement>(
+			'input[type="hidden"][id="initial-state-launchpad-workspaceApiReads"]',
+		)
+		if (input === null) {
+			return null
+		}
+		const bytes = Uint8Array.from(atob(input.value), (c) => c.charCodeAt(0))
+		const reads = JSON.parse(new TextDecoder().decode(bytes)) as Array<{
+			path: string
+			data: unknown
+		}>
+		const read = (reads ?? []).find((entry) => entry.path === path)
+		return read === undefined ? null : (read.data as { enabled?: boolean })
+	}, `/api/dashboards/${uuid}/reactions`)
+}
+
+/**
+ * Log Pieter in and open LaunchPad on his active dashboard, and take the
+ * summary the bar mounted from: the one the page carries (REQ-INIT-011), or,
+ * when the page did not carry it, the bar's own summary request.
  *
  * @param browser the browser.
  * @param uuid the dashboard expected to open.
@@ -135,21 +167,34 @@ async function openAsPieter(
 			// The server-side preference set in beforeAll is the real mechanism.
 		}
 	})
-	const answered = page.waitForResponse(
-		(r) =>
+	const asked: Array<Promise<{ status: number; enabled: boolean }>> = []
+	page.on('response', (r) => {
+		if (
 			r.url().includes(`/api/dashboards/${uuid}/reactions`)
-			&& r.request().method() === 'GET',
-		{ timeout: 60_000 },
-	)
+			&& r.request().method() === 'GET'
+		) {
+			asked.push(
+				r.json().then((body) => ({
+					status: r.status(),
+					enabled: body?.enabled === true,
+				})),
+			)
+		}
+	})
 	await page.goto('/index.php/apps/launchpad')
 	await expect(
 		page.locator(
 			`[data-testid="launchpad-dashboard-region"][data-dashboard-uuid="${uuid}"]`,
 		),
 	).toBeVisible({ timeout: 30_000 })
-	const response = await answered
-	expect(response.status()).toBe(200)
-	return { context, page, enabled: (await response.json()).enabled === true }
+	const carried = await carriedSummary(page, uuid)
+	if (carried !== null) {
+		return { context, page, enabled: carried.enabled === true }
+	}
+	await expect.poll(() => asked.length, { timeout: 30_000 }).toBeGreaterThan(0)
+	const answer = await asked[0]
+	expect(answer.status).toBe(200)
+	return { context, page, enabled: answer.enabled }
 }
 
 test.beforeAll(async () => {

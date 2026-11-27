@@ -127,4 +127,42 @@ class AdminSettingMapperTest extends TestCase {
 		$this->assertNotNull($setting->getUpdatedAt());
 		$this->assertContains('qb2.insert("launchpad_admin_settings")', $recorder->calls);
 	}//end testSetSettingInsertsANewKey()
+
+	/**
+	 * Many reads in one request cost one query: the settings are read once.
+	 *
+	 * @return void
+	 */
+	public function testManyReadsCostOneQuery(): void {
+		$recorder = new QueryRecorder(test: $this);
+		$recorder->rows = [
+			['id' => 1, 'setting_key' => 'limit', 'setting_value' => '25'],
+			['id' => 2, 'setting_key' => 'unset', 'setting_value' => null],
+		];
+		$mapper = new AdminSettingMapper($recorder->connection());
+
+		$this->assertSame(expected: 25, actual: $mapper->getValue(key: 'limit', default: 10));
+		$this->assertNull(actual: $mapper->getValue(key: 'unset', default: 'fallback'));
+		$this->assertSame(expected: 'fallback', actual: $mapper->getValue(key: 'missing', default: 'fallback'));
+		$this->assertSame(expected: ['limit' => 25, 'unset' => null], actual: $mapper->getAllAsArray());
+
+		$this->assertCount(expectedCount: 1, haystack: preg_grep(pattern: '/\.executeQuery\(/', array: $recorder->calls));
+	}//end testManyReadsCostOneQuery()
+
+	/**
+	 * A write empties the read settings, so the next read sees the database again.
+	 *
+	 * @return void
+	 */
+	public function testAWriteMakesTheNextReadQueryAgain(): void {
+		$recorder = new QueryRecorder(test: $this);
+		$recorder->rows = [['id' => 1, 'setting_key' => 'limit', 'setting_value' => '25']];
+		$mapper = new AdminSettingMapper($recorder->connection());
+
+		$this->assertSame(expected: 25, actual: $mapper->getValue(key: 'limit'));
+		$mapper->setSetting(key: 'limit', value: 40);
+		$recorder->rows = [['id' => 1, 'setting_key' => 'limit', 'setting_value' => '40']];
+
+		$this->assertSame(expected: 40, actual: $mapper->getValue(key: 'limit'));
+	}//end testAWriteMakesTheNextReadQueryAgain()
 }//end class

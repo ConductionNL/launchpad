@@ -230,39 +230,93 @@
 					v-if="!isCreate && canManageShares"
 					class="dashboard-config__look"
 					data-test="config-look">
-					<h3 class="dashboard-config__section-heading">
-						{{ t('launchpad', 'Own look') }}
-					</h3>
-					<p class="dashboard-config__hint">
-						{{ t('launchpad', 'Give this dashboard its own colors. Leave a field empty to follow the theme.') }}
-					</p>
-					<div class="dashboard-config__field dashboard-config__look-row">
-						<NcTextField
-							:modelValue="look.accent"
-							:label="t('launchpad', 'Accent color')"
-							placeholder="#1f5c3a"
-							data-testid="look-accent"
-							@update:modelValue="look.accent = $event" />
-						<input
-							type="color"
-							class="dashboard-config__swatch"
-							:value="lookAccentHex || '#000000'"
-							:aria-label="t('launchpad', 'Accent color')"
-							@input="look.accent = $event.target.value">
+					<!-- Board LpDashboardInstellingen: an inset card, the title and
+					     its hint, then the colour fields and the image side by
+					     side, each colour field with its swatch left of the hex. -->
+					<div class="dashboard-config__look-head">
+						<h3 class="dashboard-config__look-title">
+							{{ t('launchpad', 'Own look') }}
+						</h3>
+						<p class="dashboard-config__hint">
+							{{ t('launchpad', 'Only this dashboard gets these colours. The header and the navigation follow the theme.') }}
+						</p>
 					</div>
-					<div class="dashboard-config__field dashboard-config__look-row">
-						<NcTextField
-							:modelValue="look.background"
-							:label="t('launchpad', 'Background color')"
-							placeholder="#ffffff"
-							data-testid="look-background"
-							@update:modelValue="look.background = $event" />
-						<input
-							type="color"
-							class="dashboard-config__swatch"
-							:value="lookBackgroundHex || '#ffffff'"
-							:aria-label="t('launchpad', 'Background color')"
-							@input="look.background = $event.target.value">
+					<div class="dashboard-config__look-grid">
+						<div
+							v-for="field in lookColourFields"
+							:key="field.key"
+							class="dashboard-config__look-field">
+							<label :for="field.inputId" class="dashboard-config__look-label">
+								{{ field.label }}
+							</label>
+							<div class="dashboard-config__field dashboard-config__look-row">
+								<input
+									type="color"
+									class="dashboard-config__swatch"
+									:value="field.hex || field.fallback"
+									:aria-label="field.label"
+									:data-testid="field.testid + '-picker'"
+									@input="look[field.key] = $event.target.value">
+								<NcTextField
+									:id="field.inputId"
+									:modelValue="look[field.key]"
+									:label="field.label"
+									labelOutside
+									:placeholder="field.placeholder"
+									:data-testid="field.testid"
+									@update:modelValue="look[field.key] = $event" />
+							</div>
+						</div>
+						<!-- The dashboard's background image (review 27 Nov item 17):
+						     a styled upload button, a small preview and a remove
+						     action instead of the bare browser file input. -->
+						<div class="dashboard-config__field dashboard-config__look-field" data-testid="look-image">
+							<span id="look-image-label" class="dashboard-config__look-label">
+								{{ t('launchpad', 'Background image') }}
+							</span>
+							<p class="dashboard-config__hint">
+								{{ t('launchpad', 'Shown behind this dashboard; leave empty to follow the theme.') }}
+							</p>
+							<div class="dashboard-config__image-row">
+								<img
+									v-if="look.resource"
+									class="dashboard-config__image-preview"
+									:src="lookImageUrl"
+									alt=""
+									data-testid="look-image-preview">
+								<span v-if="look.resource" class="dashboard-config__image-name" data-testid="look-image-name">
+									{{ look.resource }}
+								</span>
+								<NcButton
+									aria-describedby="look-image-label"
+									data-testid="look-image-upload"
+									:disabled="lookUploading"
+									@click="pickLookImage">
+									{{ look.resource ? t('launchpad', 'Choose another image') : t('launchpad', 'Upload image') }}
+								</NcButton>
+								<NcButton
+									v-if="look.resource"
+									variant="tertiary"
+									data-testid="look-image-clear"
+									@click="look.resource = ''">
+									{{ t('launchpad', 'Remove') }}
+								</NcButton>
+								<input
+									id="look-image-input"
+									ref="lookImageFile"
+									class="dashboard-config__file"
+									type="file"
+									accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+									tabindex="-1"
+									aria-hidden="true"
+									data-testid="look-image-input"
+									:disabled="lookUploading"
+									@change="onLookImage">
+							</div>
+							<p v-if="lookUploadError" class="dashboard-config__error" role="alert">
+								{{ lookUploadError }}
+							</p>
+						</div>
 					</div>
 					<p
 						v-if="lookFormatError"
@@ -278,56 +332,12 @@
 						data-testid="look-contrast-error">
 						{{ t('launchpad', 'Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)', { ratio: lookAccentCheck.ratio.toFixed(1) }) }}
 					</p>
-					<!-- The dashboard's background image (review 27 Nov item 17):
-					     a styled upload button, a small preview and a remove
-					     action instead of the bare browser file input. -->
-					<div class="dashboard-config__field" data-testid="look-image">
-						<span id="look-image-label" class="dashboard-config__label">
-							{{ t('launchpad', 'Background image') }}
-						</span>
-						<p class="dashboard-config__hint">
-							{{ t('launchpad', 'Shown behind this dashboard; leave empty to follow the theme.') }}
-						</p>
-						<div class="dashboard-config__image-row">
-							<img
-								v-if="look.resource"
-								class="dashboard-config__image-preview"
-								:src="lookImageUrl"
-								alt=""
-								data-testid="look-image-preview">
-							<span v-if="look.resource" class="dashboard-config__image-name" data-testid="look-image-name">
-								{{ look.resource }}
-							</span>
-							<NcButton
-								aria-describedby="look-image-label"
-								data-testid="look-image-upload"
-								:disabled="lookUploading"
-								@click="pickLookImage">
-								{{ look.resource ? t('launchpad', 'Choose another image') : t('launchpad', 'Upload image') }}
-							</NcButton>
-							<NcButton
-								v-if="look.resource"
-								variant="tertiary"
-								data-testid="look-image-clear"
-								@click="look.resource = ''">
-								{{ t('launchpad', 'Remove') }}
-							</NcButton>
-							<input
-								id="look-image-input"
-								ref="lookImageFile"
-								class="dashboard-config__file"
-								type="file"
-								accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
-								tabindex="-1"
-								aria-hidden="true"
-								data-testid="look-image-input"
-								:disabled="lookUploading"
-								@change="onLookImage">
-						</div>
-						<p v-if="lookUploadError" class="dashboard-config__error" role="alert">
-							{{ lookUploadError }}
-						</p>
-					</div>
+					<p
+						v-else-if="lookAccentCheck.ratio !== null"
+						class="dashboard-config__look-ok"
+						data-testid="look-contrast-ok">
+						{{ t('launchpad', 'Contrast of the accent colour on the background: {ratio} to 1. At least 3 to 1.', { ratio: lookAccentCheck.ratio.toFixed(1) }) }}
+					</p>
 				</section>
 			</div>
 			<!-- /general panel -->
@@ -1093,6 +1103,21 @@ export default {
 		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
 		lookAccentHex() {
 			return normaliseHex(this.look.accent)
+		},
+
+		/**
+		 * The two colour fields of Own look, each drawn as on board
+		 * LpDashboardInstellingen: its label above, the swatch (the colour
+		 * picker) left of the hex field, on one row.
+		 *
+		 * @return {object[]}
+		 * @spec openspec/changes/archive/2026-11-27-own-look-fields/specs/dashboards/spec.md#requirement-a-colour-field-shows-its-picker-beside-its-input-req-thm-005
+		 */
+		lookColourFields() {
+			return [
+				{ key: 'accent', label: t('launchpad', 'Accent color'), testid: 'look-accent', inputId: 'look-accent-input', placeholder: '#1f5c3a', hex: this.lookAccentHex, fallback: '#000000' },
+				{ key: 'background', label: t('launchpad', 'Background color'), testid: 'look-background', inputId: 'look-background-input', placeholder: '#ffffff', hex: this.lookBackgroundHex, fallback: '#ffffff' },
+			]
 		},
 
 		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
@@ -2001,8 +2026,34 @@ export default {
 	text-align: center;
 }
 
+/* Board LpDashboardInstellingen: Own look is an inset card on Details. */
 .dashboard-config__look {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 	margin-top: 16px;
+	padding: 14px 16px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-large, 10px);
+	/* The board's #fafbfc: a lighter step than the hover background. */
+	background: color-mix(in srgb, var(--color-background-hover) 40%, var(--color-main-background));
+}
+
+.dashboard-config__look-head {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.dashboard-config__look-head .dashboard-config__hint {
+	margin: 0;
+}
+
+.dashboard-config__look-title {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.2;
 }
 
 .dashboard-config__section-heading {
@@ -2011,18 +2062,49 @@ export default {
 	font-weight: bold;
 }
 
+/* The colour fields and the image side by side, two to a row in the dialog. */
+.dashboard-config__look-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 14px 18px;
+	align-items: start;
+}
+
+.dashboard-config__look-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-inline-size: 0;
+}
+
+.dashboard-config__look-label {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--color-main-text);
+}
+
 /* .dashboard-config__field stacks its children (flex-direction: column);
-   a look row puts the colour picker NEXT TO its field, on one row. */
+   a look row puts the swatch (the colour picker) NEXT TO its field. */
 .dashboard-config__look-row {
 	display: flex;
 	flex-direction: row;
-	align-items: flex-end;
+	align-items: center;
 	gap: 8px;
 }
 
-.dashboard-config__look-row > :first-child {
+.dashboard-config__look-row > :last-child {
 	flex: 1 1 auto;
 	min-inline-size: 0;
+}
+
+.dashboard-config__look-ok {
+	margin: 0;
+	padding: 10px 12px;
+	border-radius: var(--border-radius-element, 8px);
+	background: color-mix(in srgb, var(--color-success) 12%, var(--color-main-background));
+	color: var(--color-success-text);
+	font-size: 13px;
+	line-height: 1.45;
 }
 
 .dashboard-config__swatch {
@@ -2063,11 +2145,11 @@ export default {
 }
 
 .dashboard-config__swatch {
-	inline-size: 44px;
-	block-size: 44px;
+	inline-size: 40px;
+	block-size: 40px;
 	padding: 2px;
-	border: 1px solid var(--color-border-dark);
-	border-radius: var(--border-radius);
+	border: 1px solid var(--color-border-maxcontrast, var(--color-border-dark));
+	border-radius: var(--border-radius-element, 8px);
 	background: var(--color-main-background);
 	cursor: pointer;
 }

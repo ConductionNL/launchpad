@@ -264,7 +264,7 @@ test.describe('app chrome (ADR-114)', () => {
 		// about it. What survives is the half that is about LaunchPad rather
 		// than about the nav component: the administration, a page of the app
 		// itself (admin-settings REQ-ADM-030).
-		await page.goto('/index.php/apps/launchpad/admin', {
+		await page.goto('/index.php/settings/admin/launchpad', {
 			waitUntil: 'domcontentloaded',
 		})
 		await expect(

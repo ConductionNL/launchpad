@@ -123,7 +123,7 @@ import { NcButton, NcLoadingIcon, NcNoteCard, NcTextArea, NcTextField } from '@c
 import { showSuccess } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import DeleteTenantThemeDialog from '../../../dialogs/DeleteTenantThemeDialog.vue'
-import { embedApi } from '../../../services/embedApi.js'
+import { embedApi, needsOpenRegister } from '../../../services/embedApi.js'
 import { onlyRootRules } from '../../../utils/embedToken.js'
 import { logger } from '../../../utils/logger.js'
 
@@ -232,8 +232,13 @@ export default {
 			try {
 				this.themes = await embedApi.listThemes()
 			} catch (error) {
-				this.error = t('launchpad', 'Themes could not be loaded.')
-				logger.error('Failed to load tenant themes:', error)
+				if (needsOpenRegister(error)) {
+					this.error = t('launchpad', 'Themes need OpenRegister, which is not available.')
+					logger.debug('Tenant themes need OpenRegister:', error)
+				} else {
+					this.error = t('launchpad', 'Themes could not be loaded.')
+					logger.error('Failed to load tenant themes:', error)
+				}
 			} finally {
 				this.loading = false
 			}

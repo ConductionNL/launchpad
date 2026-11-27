@@ -643,7 +643,7 @@
         "Folder path or folder id is required": "Mappad of map-id is verplicht",
         "People": "Personen",
         "Card": "Kaart",
-        "Layout": "Lay-out",
+        "Layout": "Indeling",
         "Display name": "Weergavenaam",
         "Group filter (comma-separated, blank for all)": "Groepsfilter (komma-gescheiden, leeg voor alle)",
         "e.g. management, product": "bv. management, product",
@@ -2573,6 +2573,8 @@
         "Accent color": "Accentkleur",
         "Give this dashboard its own colors. Leave a field empty to follow the theme.": "Geef dit dashboard eigen kleuren. Laat een veld leeg om het thema te volgen.",
         "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)": "Knoppen in deze kleur zijn slecht te zien (contrast {ratio} op 1, nodig is 3 op 1)",
+        "Only this dashboard gets these colours. The header and the navigation follow the theme.": "Alleen dit dashboard krijgt deze kleuren. De kop en de navigatie volgen het thema.",
+        "Contrast of the accent colour on the background: {ratio} to 1. At least 3 to 1.": "Contrast van de accentkleur op de achtergrond: {ratio} op 1. Minimaal 3 op 1.",
         "Enter colors like #1f5c3a.": "Voer kleuren in zoals #1f5c3a.",
         "Custom CSS": "Eigen CSS",
         "CSS for all of LaunchPad": "CSS voor heel LaunchPad",
@@ -2809,6 +2811,11 @@
         "New announcements": "Nieuwe aankondigingen",
         "What changed on your dashboards": "Wat er op je dashboards veranderde",
         "Open LaunchPad": "LaunchPad openen",
-        "You get this mail because you asked for it in your LaunchPad settings.": "Je krijgt deze mail omdat je erom vroeg in je LaunchPad-instellingen."
+        "You get this mail because you asked for it in your LaunchPad settings.": "Je krijgt deze mail omdat je erom vroeg in je LaunchPad-instellingen.",
+        "Restart setup": "Installatie opnieuw starten",
+        "Tour": "Rondleiding",
+        "News and maintenance notices for the people in your organisation.": "Nieuws en onderhoudsmeldingen voor de mensen in je organisatie.",
+        "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges.": "Aankondigingen beheer je op dit tabblad. Wie aankondigingen beheert zonder beheerder te zijn, krijgt dit tabblad via de beheerrechten van Nextcloud.",
+        "Launchpad announcements": "Launchpad-aankondigingen"
     }
 }

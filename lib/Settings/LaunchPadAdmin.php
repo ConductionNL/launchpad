@@ -3,12 +3,12 @@
 /**
  * LaunchPadAdmin
  *
- * Launchpad's entry under Nextcloud's administration settings. The
- * administration itself is a Launchpad page over the full width
- * (`/apps/launchpad/admin/{tab}`, {@see \OCA\LaunchPad\Controller\AdminPageController});
- * this entry says so in one line and links to it (REQ-ADM-031). The class
- * is still the setting Nextcloud's admin delegation grants, which the
- * administrator endpoints name in `#[AuthorizedAdminSetting]`.
+ * Launchpad's admin settings page under Nextcloud's administration settings,
+ * `/settings/admin/launchpad` (REQ-ADM-032): every tab. Nextcloud's admin
+ * delegation grants this class to a delegated Launchpad administrator, and
+ * the administrator endpoints name it in `#[AuthorizedAdminSetting]`
+ * (REQ-ADM-034). The Announcements tab alone is
+ * {@see LaunchPadAnnouncementsAdmin}.
  *
  * @category  Settings
  * @package   OCA\LaunchPad\Settings
@@ -18,6 +18,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
+ *
  * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  */
@@ -26,52 +28,31 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Settings;
 
-use OCA\LaunchPad\AppInfo\Application;
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\IURLGenerator;
-use OCP\Settings\IDelegatedSettings;
 
-class LaunchPadAdmin implements IDelegatedSettings {
+class LaunchPadAdmin extends LaunchPadSectionSettings {
 	/**
 	 * Constructor.
 	 *
-	 * @param IURLGenerator $urlGenerator Builds the address of the administration page.
+	 * @param AdminSettingsForm $form Renders the admin settings page.
 	 *
-	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-nextclouds-settings-point-to-the-page-req-adm-031
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
 	 */
 	public function __construct(
-		private readonly IURLGenerator $urlGenerator,
+		private readonly AdminSettingsForm $form,
 	) {
 	}//end __construct()
 
 	/**
-	 * The settings entry: one line and a link to the administration page.
+	 * The admin settings page with every tab.
 	 *
 	 * @return TemplateResponse The template response.
 	 *
-	 * @spec openspec/changes/archive/2026-11-24-admin-full-width-page/specs/admin-settings/spec.md#requirement-nextclouds-settings-point-to-the-page-req-adm-031
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-032
 	 */
 	public function getForm(): TemplateResponse {
-		return new TemplateResponse(
-			appName: Application::APP_ID,
-			templateName: 'settings/admin',
-			params: [
-				'adminPageUrl' => $this->urlGenerator->linkToRoute(
-					routeName: Application::APP_ID . '.adminPage.show',
-					arguments: ['tab' => 'general']
-				),
-			]
-		);
+		return $this->form->render();
 	}//end getForm()
-
-	/**
-	 * Get the settings section ID.
-	 *
-	 * @return string The section ID.
-	 */
-	public function getSection(): string {
-		return 'launchpad';
-	}//end getSection()
 
 	/**
 	 * Get the settings priority.
@@ -90,17 +71,4 @@ class LaunchPadAdmin implements IDelegatedSettings {
 	public function getName(): ?string {
 		return null;
 	}//end getName()
-
-	/**
-	 * App config keys an authorized (delegated) admin may manage.
-	 *
-	 * Returned as a map of appId => list of allowed config keys. LaunchPad
-	 * exposes no delegatable sub-keys yet, so this is intentionally empty;
-	 * the attribute still scopes the endpoint to full admins.
-	 *
-	 * @return array<string,string[]> Map of appId to allowed config keys.
-	 */
-	public function getAuthorizedAppConfig(): array {
-		return [];
-	}//end getAuthorizedAppConfig()
 }//end class

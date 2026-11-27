@@ -2,41 +2,42 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The administration shows the twelve tabs the Beheer boards draw
- * (admin-drawn-tabs, REQ-ADM-032): Embeds and Search shortcuts are cards of
+ * The admin settings page (`/settings/admin/launchpad`) shows the thirteen
+ * tabs the Beheer boards draw (admin-page-in-nextcloud-settings, REQ-ADM-032): Embeds and Search shortcuts are cards of
  * General, Communities a section of Group dashboards, App catalogue a
- * section of Controls; an old tab address opens the tab that holds it, on
+ * section of Controls; an old tab fragment opens the tab that holds it, on
  * that section, with the embed form's pre-selection kept. Runs as the admin
  * (the project's storage state).
  *
- * @e2e openspec/changes/archive/2026-11-27-admin-drawn-tabs/specs/admin-settings/spec.md
+ * @e2e openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md
  */
 
 import { expect, test } from '@playwright/test'
 import { adminTab } from './support/adminTab.ts'
 
-const ADMIN_PAGE = '/index.php/apps/launchpad/admin'
+const ADMIN_PAGE = '/index.php/settings/admin/launchpad'
 
 const DRAWN = [
 	'general',
+	'announcements',
 	'templates',
-	'operations',
 	'roles-permissions',
-	'versioning-audit',
 	'sharing',
-	'kiosk',
 	'org-navigation',
+	'kiosk',
+	'versioning-audit',
+	'operations',
 	'demo-data',
 	'group-dashboards',
 	'detail-fields',
 	'profile-fields',
 ]
 
-test.describe('REQ-ADM-032 the administration shows the twelve drawn tabs', () => {
+test.describe('REQ-ADM-032 the administration shows the thirteen drawn tabs', () => {
 	// @e2e admin-settings::the-tab-strip-as-drawn
-	test('the tab strip shows the twelve drawn tabs, and General holds Embeds and Search shortcuts', async ({ page }) => {
+	test('the tab strip shows the thirteen drawn tabs, and General holds Embeds and Search shortcuts', async ({ page }) => {
 		await page.setViewportSize({ width: 1440, height: 900 })
-		await page.goto(`${ADMIN_PAGE}/general`)
+		await page.goto(`${ADMIN_PAGE}#general`)
 		const strip = page.getByTestId('cn-admin-settings-tabs')
 		await expect(strip).toBeVisible({ timeout: 60_000 })
 		await expect(strip.getByRole('tab')).toHaveCount(DRAWN.length)
@@ -59,10 +60,8 @@ test.describe('REQ-ADM-032 the administration shows the twelve drawn tabs', () =
 			['embeds', 'general', '[data-test="embeds-tab"]'],
 		]
 		for (const [former, host, content] of cases) {
-			await page.goto(`${ADMIN_PAGE}/${former}`)
-			// The router leaves the default tab out: General is /admin.
-			const address = host === 'general' ? '(/general)?' : `/${host}`
-			await expect(page).toHaveURL(new RegExp(`/admin${address}\\?section=${former}$`))
+			await page.goto(`${ADMIN_PAGE}#${former}`)
+			await expect(page).toHaveURL(new RegExp(`/settings/admin/launchpad#${former}$`))
 			await expect(adminTab(page, host)).toHaveAttribute('aria-selected', 'true', { timeout: 60_000 })
 			const section = page.locator(`[data-admin-section="${former}"]`)
 			await expect(section.locator(content)).toBeVisible()
@@ -78,10 +77,9 @@ test.describe('REQ-ADM-032 the administration shows the twelve drawn tabs', () =
 			embedId: 'e2e-drawn-tabs-uuid',
 			embedDashboard: '1',
 		})
-		await page.goto(`${ADMIN_PAGE}/embeds?${query}`)
-		// The pre-selection is kept; the order of the parameters is the URL generator's.
-		await expect(page).toHaveURL((url) => /\/admin(\/general)?$/.test(url.pathname)
-			&& url.searchParams.get('section') === 'embeds'
+		await page.goto(`${ADMIN_PAGE}?${query}#embeds`)
+		await expect(page).toHaveURL((url) => url.pathname.endsWith('/settings/admin/launchpad')
+			&& url.hash === '#embeds'
 			&& url.searchParams.get('embedType') === 'dashboard'
 			&& url.searchParams.get('embedId') === 'e2e-drawn-tabs-uuid'
 			&& url.searchParams.get('embedDashboard') === '1')

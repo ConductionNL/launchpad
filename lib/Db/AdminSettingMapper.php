@@ -34,6 +34,17 @@ class AdminSettingMapper extends QBMapper {
 	use ColumnMatchQueries;
 
 	/**
+	 * Every stored setting, decoded, read once per mapper instance (one request).
+	 *
+	 * A Workspace render asks for ~20 settings one by one; each used to be its
+	 * own query. Null until the first read; setSetting() (the only writer)
+	 * empties it.
+	 *
+	 * @var array<string, mixed>|null
+	 */
+	private ?array $values = null;
+
+	/**
 	 * Constructor
 	 *
 	 * @param IDBConnection $db The database connection.
@@ -65,8 +76,14 @@ class AdminSettingMapper extends QBMapper {
 	 * Get all settings as key-value array.
 	 *
 	 * @return array The settings as key-value pairs.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#req-aset-001
 	 */
 	public function getAllAsArray(): array {
+		if ($this->values !== null) {
+			return $this->values;
+		}
+
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from(from: $this->getTableName());
@@ -78,6 +95,7 @@ class AdminSettingMapper extends QBMapper {
 			$result[$entity->getSettingKey()] = $entity->getValueDecoded();
 		}
 
+		$this->values = $result;
 		return $result;
 	}//end getAllAsArray()
 
@@ -88,8 +106,11 @@ class AdminSettingMapper extends QBMapper {
 	 * @param mixed $value The setting value.
 	 *
 	 * @return AdminSetting The created or updated setting.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#req-aset-002
 	 */
 	public function setSetting(string $key, mixed $value): AdminSetting {
+		$this->values = null;
 		try {
 			$setting = $this->findByKey(key: $key);
 			$setting->setValueEncoded($value);
@@ -107,17 +128,21 @@ class AdminSettingMapper extends QBMapper {
 	/**
 	 * Get a setting value with default.
 	 *
+	 * Answered from the settings read once per request (getAllAsArray).
+	 *
 	 * @param string $key The setting key.
 	 * @param mixed $default The default value.
 	 *
 	 * @return mixed The setting value or default.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#req-aset-001
 	 */
 	public function getValue(string $key, mixed $default = null): mixed {
-		try {
-			$setting = $this->findByKey(key: $key);
-			return $setting->getValueDecoded();
-		} catch (DoesNotExistException) {
-			return $default;
+		$values = $this->getAllAsArray();
+		if (array_key_exists($key, $values) === true) {
+			return $values[$key];
 		}
+
+		return $default;
 	}//end getValue()
 }//end class

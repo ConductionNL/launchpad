@@ -1910,7 +1910,13 @@ OC.L10N.register(
     "New announcements" : "Neue Ankündigungen",
     "What changed on your dashboards" : "Was sich auf deinen Dashboards geändert hat",
     "Open LaunchPad" : "LaunchPad öffnen",
-    "You get this mail because you asked for it in your LaunchPad settings." : "Du erhältst diese E-Mail, weil du sie in deinen LaunchPad-Einstellungen angefordert hast."
+    "You get this mail because you asked for it in your LaunchPad settings." : "Du erhältst diese E-Mail, weil du sie in deinen LaunchPad-Einstellungen angefordert hast.",
+    "Restart setup" : "Einrichtung neu starten",
+    "Tour" : "Rundgang",
+    "Announcements" : "Ankündigungen",
+    "News and maintenance notices for the people in your organisation." : "Neuigkeiten und Wartungshinweise für die Menschen in Ihrer Organisation.",
+    "Announcements are managed on this tab. People who manage announcements without being an administrator get this tab through Nextcloud's administration privileges." : "Ankündigungen werden auf diesem Tab verwaltet. Wer Ankündigungen verwaltet, ohne Administrator zu sein, erhält diesen Tab über die Administrationsrechte von Nextcloud.",
+    "Launchpad announcements" : "Launchpad-Ankündigungen"
 },
 "nplurals=2; plural=(n != 1);"
 );

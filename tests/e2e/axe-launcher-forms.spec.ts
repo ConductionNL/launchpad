@@ -47,7 +47,7 @@ async function expectNoSeriousViolations(page: Page, selector: string, testInfo:
 
 // @e2e exclude an accessibility check of the admin launch settings, not a scenario of the tiles spec
 test('the admin section for schemes and sign-on templates has no serious axe findings', async ({ page }, testInfo) => {
-	await page.goto('/index.php/apps/launchpad/admin')
+	await page.goto('/index.php/settings/admin/launchpad')
 	await adminTab(page, 'general').click()
 	const section = page.getByTestId('admin-tile-launch')
 	await expect(section).toBeVisible({ timeout: 30_000 })

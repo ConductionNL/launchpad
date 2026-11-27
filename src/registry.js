@@ -12,15 +12,13 @@
  * and the manifest names it, so it has to be resolvable by name.
  */
 
-import { defineAsyncComponent } from 'vue'
-
-// The dashboard view and everything under it load as a chunk of their own,
-// fetched when the dashboard route first renders.
-const WorkspaceApp = defineAsyncComponent(() => import(/* webpackChunkName: "workspace" */ './views/WorkspaceApp.vue').then((m) => m.default))
-const AdminPage = defineAsyncComponent(() => import(/* webpackChunkName: "admin-page" */ './views/AdminPage.vue').then((m) => m.default))
+// The dashboard view is the page nearly every visit lands on, so it ships in
+// launchpad-main and renders in the same task as the app mount. As a lazy chunk
+// it evaluated only after Nextcloud's own load handlers, ~100 ms later on
+// screen (first useful content, ADR-124).
+// @spec openspec/specs/runtime-shell/spec.md
+import WorkspaceApp from './views/WorkspaceApp.vue'
 
 export default {
 	WorkspaceApp: { kind: 'page', component: WorkspaceApp },
-	// The administration (admin-settings REQ-ADM-030), loaded with the admin routes.
-	AdminPage: { kind: 'page', component: AdminPage },
 }

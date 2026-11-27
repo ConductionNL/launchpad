@@ -851,12 +851,6 @@ export default {
 		},
 
 		/**
-		 * The preview's background: the chosen token, else the hex colour.
-		 *
-		 * @return {string}
-		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
-		 */
-		/**
 		 * The name the preview tile carries: the chosen app, else the title.
 		 *
 		 * @return {string}
@@ -893,6 +887,12 @@ export default {
 			return t('launchpad', 'A link has no count. Its title and icon are on the tile as you choose below.')
 		},
 
+		/**
+		 * The preview's background: the chosen token, else the hex colour.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+		 */
 		previewBackground() {
 			// An app tile without a chosen colour takes the primary colour here.
 			if (this.isAppMode && !this.form.colourToken) {

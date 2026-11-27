@@ -1,12 +1,12 @@
 # Tasks: announcements-managed-in-settings
 
-- [ ] `#[AuthorizedAdminSetting(LaunchPadAnnouncementsAdmin)]` on every management endpoint; readers keep `#[NoAdminRequired]` reads scoped to their audience
-- [ ] Migration of the announcement editor groups to the delegation (settings app service, fallback notice); remove the editor groups setting
+- [x] `#[AuthorizedAdminSetting(LaunchPadAnnouncementsAdmin)]` on every management endpoint; readers keep `#[NoAdminRequired]` reads scoped to their audience
+- [x] Migration of the announcement editor groups to the delegation (settings app service, fallback notice); remove the editor groups setting
 - [ ] Roles tab: the "Manage announcements" row shows the delegated groups and links to Administration privileges
-- [ ] Announcements tab (board LpAankondiging): list with seen and confirmed counts, form with preview, End now, Delete, fragment state
+- [ ] Announcements tab (board LpAankondiging): list with seen and confirmed counts, form with preview, End now, Delete, fragment state (done in #PR: list, inline form with preview for new and edit, End now, Delete, fragment state; open: seen and confirmed counts per row, which need the receipts table)
 - [ ] Seen and confirmed section (board LpLeesbevestigingen): figures, filters, list, CSV download, Send reminder (once a day)
 - [ ] Receipts: table, `POST /api/announcements/seen` (batched, after render), `POST /api/announcements/{uuid}/confirm`, carry-over of old confirmations, receipts and remind endpoints for managers
-- [ ] Widget: items with check, x, deadline, count and Open; Manage for managers; no create, edit, like, comment or follow; form keeps display settings only
+- [ ] Widget: items with check, x, deadline, count and Open; Manage for managers; no create, edit, like, comment or follow; form keeps display settings only (done in #PR: Manage for managers, no create or edit; open: check/x, Open and moving likes, comments and follow into the modal)
 - [ ] Banner: check confirms and keeps it shown as read, x confirms and hides it; every notice gets both; the non-dismissible setting leaves the form and is ignored
 - [ ] Announcements tab: list "Widgets that ask for confirmation" with dashboard, counts and deadline, opening the Seen and confirmed view from the REQ-ACK-004 report; report endpoint authorized with the announcements setting; remove Read receipts from the dashboard and the More menu
 - [ ] `src/modals/AnnouncementModal.vue`: full text, read row, likes, comments, follow when allowed, Manage for managers

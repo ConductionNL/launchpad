@@ -59,7 +59,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, openDashboardSettings, openDashboardSwitcher, switchToDashboard } from './support/dashboardSwitcher.ts'
 
 // The recipient account the owner shares to. Overridable so the same spec
 // works against fixtures that seed a different second user.
@@ -105,12 +105,8 @@ async function openSharingTab(page: Page) {
 	if (seeded === null) {
 		throw new Error('dashboard-sharing: beforeAll did not seed a dashboard')
 	}
-	const activeRow = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.and(page.locator(`[aria-label="${seeded.name}"]`))
-		.first()
-	await activeRow.locator('.dashboard-row-actions button').first().click()
-	await page.locator('[data-testid="cog-dashboard-config"]').click()
+	await switchToDashboard(page, seeded.name)
+	await openDashboardSettings(page)
 
 	// The modal opens on the General tab; switch to Sharing.
 	await page

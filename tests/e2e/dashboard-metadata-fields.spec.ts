@@ -70,7 +70,7 @@ import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
 import { adminTab } from './support/adminTab.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
-import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { openDashboardSettings, openDashboardSwitcher, switchToDashboard } from './support/dashboardSwitcher.ts'
 import {
 	adminContext,
 	API,
@@ -272,13 +272,8 @@ async function pick(page: Page, select: Locator, text: string): Promise<void> {
  */
 async function openDetails(page: Page, name: string): Promise<Locator> {
 	await page.goto('/index.php/apps/launchpad')
-	await openDashboardSwitcher(page)
-	const row = page
-		.locator(`[data-source="user"]${ROW}`)
-		.and(page.locator(`[aria-label="${name}"]`))
-		.first()
-	await row.locator('.dashboard-row-actions button').first().click()
-	await page.locator('[data-testid="cog-dashboard-config"]').click()
+	await switchToDashboard(page, name)
+	await openDashboardSettings(page)
 	const details = page.locator('[data-testid="details-tab"]')
 	await expect(details).toBeVisible({ timeout: 15_000 })
 	return details

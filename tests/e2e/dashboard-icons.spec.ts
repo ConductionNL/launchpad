@@ -74,7 +74,7 @@ import {
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
 import { dashboardsFromApi } from './support/dashboardFirstLoad.ts'
-import { openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { openDashboardSettings, openDashboardSwitcher, switchToDashboard } from './support/dashboardSwitcher.ts'
 import { adminContext, contextFor } from './support/principals.ts'
 
 const API = '/index.php/apps/launchpad/api'
@@ -330,12 +330,8 @@ async function openSwitcher(page: Page): Promise<Error[]> {
  */
 async function openIconPicker(page: Page, dashboard: Seeded): Promise<Locator> {
 	await page.goto('/index.php/apps/launchpad')
-	await openDashboardSwitcher(page)
-	await switcherRow(page, dashboard.name)
-		.locator('.dashboard-row-actions button')
-		.first()
-		.click()
-	await page.locator('[data-testid="cog-dashboard-config"]').click()
+	await switchToDashboard(page, dashboard.name)
+	await openDashboardSettings(page)
 	const nameInput = page.locator(NAME_INPUT).first()
 	await expect(nameInput).toBeVisible({ timeout: 10_000 })
 	// CONTROL: the modal is editing THIS dashboard, not another one.

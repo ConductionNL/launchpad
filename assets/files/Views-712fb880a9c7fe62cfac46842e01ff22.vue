@@ -254,7 +254,10 @@
 							:defaultLinkTarget="(activeDashboard && activeDashboard.defaultLinkTarget) || null"
 							:removeLocked="!isRemovablePlacement(item)"
 							:embedHref="placementEmbedHref(item)"
+							:embedAsksFirst="isDraftDirty"
 							@edit="openTileEditorForEdit(item)"
+							@duplicate="duplicateWidget(item.id)"
+							@embed="openEmbedAfterDraft"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->
 						<WidgetWrapper
@@ -268,7 +271,10 @@
 							"
 							:canHideForMe="canHideForMe"
 							:embedHref="placementEmbedHref(item)"
+							:embedAsksFirst="isDraftDirty"
 							:removeLocked="!isRemovablePlacement(item)"
+							@duplicate="duplicateWidget"
+							@embed="openEmbedAfterDraft"
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
 							@edit="handleContextMenuEdit(item)"
@@ -3452,6 +3458,34 @@ export default {
 		 */
 		async addWidget(widgetId) {
 			await this.addWidgetToDashboard(widgetId)
+		},
+
+		/**
+		 * REQ-WDG-050: Duplicate in a widget's edit menu places a copy below
+		 * the other widgets, in the draft.
+		 *
+		 * @param {number|string} placementId The widget to copy.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		async duplicateWidget(placementId) {
+			await useDashboardStore().duplicatePlacement(placementId)
+		},
+
+		/**
+		 * REQ-WDG-050 / REQ-EDIT-003: Create embed token leaves the dashboard
+		 * for the admin page, so with unsaved changes it asks "Save changes?"
+		 * first; Keep editing stays, Save or Don't save go on.
+		 *
+		 * @param {string} href The embed token form of the admin page.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		async openEmbedAfterDraft(href) {
+			if (typeof href !== 'string' || href === '' || !(await this.confirmLeaveDraft())) {
+				return
+			}
+			window.location.assign(href)
 		},
 
 		/**

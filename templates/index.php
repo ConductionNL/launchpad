@@ -76,13 +76,13 @@ $fp = (isset($_['firstPaint']) === true && is_array($_['firstPaint']) === true) 
 	?>
 	<div id="launchpad-first-paint" class="lp-fp">
 		<style>
-#app-workspace{position:relative}
-.lp-fp{position:absolute;inset:0;z-index:1;overflow:hidden;color:var(--color-main-text)}
-.lp-fp__c{box-sizing:border-box;height:100%;padding:8px 20px 0}
+#app-workspace{position:relative;flex:1 1 auto;min-width:0;min-height:calc(100vh - var(--header-height,50px) - var(--body-container-margin,8px))}
+.lp-fp{position:absolute;inset:0;z-index:1;overflow:hidden;background:var(--color-main-background-blur,rgba(255,255,255,.8));color:var(--color-main-text)}
+.lp-fp__c{box-sizing:border-box;height:100%;padding:8px 20px 0;background:var(--color-background-hover,#f5f5f5)}
 .lp-fp__h{display:flex;flex-direction:column;gap:14px;padding:16px 8px 8px}
 .lp-fp__r{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px 24px}
 .lp-fp__t{flex:1 1 320px;min-width:0;margin:0;font-size:28px;font-weight:700;line-height:1.2}
-.lp-fp__a{display:flex;align-items:center;gap:10px}
+.lp-fp__a{display:flex;flex:none;align-items:center;gap:10px;white-space:nowrap}
 .lp-fp__b{box-sizing:border-box;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px 0 12px;border:2px solid var(--color-border-dark,#949494);border-radius:var(--border-radius-element,8px);font-weight:700}
 .lp-fp__s{margin:0;font-size:13px;color:var(--color-text-maxcontrast)}
 .lp-fp__m{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0;font-size:15px;color:var(--color-text-maxcontrast)}
@@ -92,10 +92,11 @@ $fp = (isset($_['firstPaint']) === true && is_array($_['firstPaint']) === true) 
 @media (max-width:1400px){.lp-fp__g{--c:var(--c1);--r:var(--r1)}.lp-fp__f{--x:var(--x1);--w:var(--w1);--y:var(--y1);--h:var(--h1)}}
 @media (max-width:1100px){.lp-fp__g{--c:var(--c2);--r:var(--r2)}.lp-fp__f{--x:var(--x2);--w:var(--w2);--y:var(--y2);--h:var(--h2)}}
 @media (max-width:768px){.lp-fp__g{--c:var(--c3);--r:var(--r3)}.lp-fp__f{--x:var(--x3);--w:var(--w3);--y:var(--y3);--h:var(--h3)}.lp-fp__f--ph{display:none}}
-.lp-fp__d{box-sizing:border-box;height:100%;overflow:hidden;padding:16px 18px;border:1px solid var(--sc-work-field,var(--color-border-dark,#949494));border-radius:12px;background:var(--color-main-background)}
+.lp-fp__d{box-sizing:border-box;height:100%;overflow:hidden;padding:17px 18px;border:1px solid var(--sc-work-field,var(--color-border-dark,#949494));border-radius:12px;background:var(--color-main-background)}
 .lp-fp__ft{margin:0 0 12px;overflow:hidden;font-size:16px;font-weight:700;line-height:1.2;white-space:nowrap;text-overflow:ellipsis}
-.lp-fp__f--heading .lp-fp__d{padding:8px 0 0;border:0;border-radius:0;background:none}
-.lp-fp__f--heading .lp-fp__ft{margin:0 0 4px;font-size:20px}
+.lp-fp__f--heading .lp-fp__d{padding:0;overflow:visible;border:0;border-radius:0;background:none}
+.lp-fp__f--heading .lp-fp__ft{margin:-4px 0 0;font-size:20px;line-height:25px}
+.lp-fp__f--heading .lp-fp__tx{font-size:14px;line-height:18.2px}
 .lp-fp__f--ground .lp-fp__d{display:flex;justify-content:space-between;gap:12px 24px;padding:8px 8px 0}
 .lp-fp__f--ground h1{margin:0 0 6px;font-size:28px;font-weight:700;line-height:1.2}
 .lp-fp__tx{margin:0;font-size:15px;color:var(--color-text-maxcontrast)}

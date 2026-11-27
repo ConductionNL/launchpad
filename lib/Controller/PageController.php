@@ -220,10 +220,15 @@ class PageController extends Controller {
 		// view, not in the chrome slot.
 		// first-paint-skeleton D1: the header and the widget frames in the
 		// page's HTML, from the same values; none without a dashboard.
+		$opened = [];
+		if (isset($active['dashboard']) === true) {
+			$opened = $active['dashboard']->jsonSerialize();
+		}
+
 		$firstPaint = FirstPaintPage::model(
 			firstLoad: $firstLoad,
 			activeState: $activeState,
-			dashboard: isset($active['dashboard']) === true ? $active['dashboard']->jsonSerialize() : [],
+			dashboard: $opened,
 			widgets: $widgets,
 			reader: ['name' => $this->userSession->getUser()?->getDisplayName() ?? '', 'timezone' => $timezone],
 			apps: $integrationApps

@@ -99,15 +99,24 @@ class FirstPaintGreeting {
 			$name = (string) preg_split('/\s+/', $name)[0];
 		}
 
+		$part = 'evening';
 		if ($hour < 12) {
-			return $name !== '' ? self::fill(text: $l->t('Good morning, {name}'), values: ['name' => $name]) : $l->t('Good morning');
+			$part = 'morning';
+		} else if ($hour < 18) {
+			$part = 'afternoon';
 		}
 
-		if ($hour < 18) {
-			return $name !== '' ? self::fill(text: $l->t('Good afternoon, {name}'), values: ['name' => $name]) : $l->t('Good afternoon');
+		$words = [
+			'morning'   => [$l->t('Good morning, {name}'), $l->t('Good morning')],
+			'afternoon' => [$l->t('Good afternoon, {name}'), $l->t('Good afternoon')],
+			'evening'   => [$l->t('Good evening, {name}'), $l->t('Good evening')],
+		][$part];
+
+		if ($name === '') {
+			return $words[1];
 		}
 
-		return $name !== '' ? self::fill(text: $l->t('Good evening, {name}'), values: ['name' => $name]) : $l->t('Good evening');
+		return self::fill(text: $words[0], values: ['name' => $name]);
 	}//end greeting()
 
 	/**
@@ -143,15 +152,22 @@ class FirstPaintGreeting {
 			return '';
 		}
 
+		if ($locale === '') {
+			$locale = 'en_US';
+		}
+
 		$formatter = new IntlDateFormatter(
-			$locale !== '' ? $locale : 'en_US',
+			$locale,
 			IntlDateFormatter::FULL,
 			IntlDateFormatter::NONE,
 			$moment->getTimezone()
 		);
 		$text = $formatter->format($moment);
+		if (is_string($text) === false) {
+			return '';
+		}
 
-		return is_string($text) === true ? $text : '';
+		return $text;
 	}//end date()
 
 	/**

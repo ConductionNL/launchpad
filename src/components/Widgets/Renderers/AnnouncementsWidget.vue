@@ -60,8 +60,8 @@
 <script>
 import { t } from '@nextcloud/l10n'
 import { NcButton, NcSelect } from '@nextcloud/vue'
-import AnnouncementCard from '../../Announcements/AnnouncementCard.vue'
 import AnnouncementModal from '../../../modals/AnnouncementModal.vue'
+import AnnouncementCard from '../../Announcements/AnnouncementCard.vue'
 import { announcementsApi } from '../../../services/announcementsApi.js'
 import { adminPageUrl } from '../../../utils/adminPage.js'
 import { logger } from '../../../utils/logger.js'

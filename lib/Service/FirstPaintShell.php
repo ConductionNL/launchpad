@@ -192,9 +192,14 @@ class FirstPaintShell {
 	 */
 	private function registry(): array {
 		if ($this->registry === null) {
+			$this->registry = [];
 			$file           = __DIR__.'/widget-placeholders.json';
-			$read           = is_file($file) === true ? json_decode((string) file_get_contents($file), true) : [];
-			$this->registry = is_array($read) === true ? $read : [];
+			if (is_file($file) === true) {
+				$read = json_decode((string) file_get_contents($file), true);
+				if (is_array($read) === true) {
+					$this->registry = $read;
+				}
+			}
 		}
 
 		return $this->registry;

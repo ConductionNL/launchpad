@@ -9,8 +9,10 @@
  * (1400 px and wider), 8 (from 1100 px, GridStack's move-and-scale) and 4
  * (below 1100 px, the reading-order flow). The shell prints these positions so
  * it lays out exactly what the grid lays out after the hand-over. One fixture,
- * tests/fixtures/first-paint-layouts.json, runs in both PHPUnit and Vitest so
- * the two cannot drift.
+ * tests/fixtures/first-paint-layouts.json, runs in both PHPUnit and Vitest
+ * (there against GridStack's own engine) so the two cannot drift. After the
+ * move-and-scale or the reading-order flow, FirstPaintGridEngine pushes
+ * overlapping widgets down and packs them up as GridStack does.
  *
  * @category Service
  * @package  OCA\LaunchPad\Service
@@ -87,16 +89,26 @@ class FirstPaintLayout {
 	 */
 	public static function positions(array $nodes, int $columns): array {
 		$counts = self::columnCounts(columns: $columns);
-		$wide   = array_map(static fn (array $node): array => self::normalise(node: $node), $nodes);
+		$wide   = FirstPaintGridEngine::settle(
+			nodes: array_map(static fn (array $node): array => self::normalise(node: $node), $nodes),
+			column: $counts[0],
+			direction: 1
+		);
 		$out    = [];
 		foreach ($counts as $count) {
 			$placed = $wide;
 			if ($count !== $counts[0]) {
-				$placed = self::columnLayout(column: $count, oldColumn: $counts[0], nodes: $wide);
+				// columnChanged(): the layout callback gets the nodes last to first, then the engine adds them back last to first.
+				$placed = FirstPaintGridEngine::settle(
+					nodes: self::columnLayout(column: $count, oldColumn: $counts[0], nodes: FirstPaintGridEngine::sorted(nodes: $wide, direction: -1)),
+					column: $count,
+					direction: -1
+				);
 			}
 
-			foreach ($placed as $node) {
-				$out[$count][(string) $node['id']] = ['x' => $node['x'], 'y' => $node['y'], 'w' => $node['w'], 'h' => $node['h']];
+			// Keyed top to bottom, left to right: the reading order on a narrow grid.
+			foreach (FirstPaintGridEngine::sorted(nodes: $placed, direction: 1) as $node) {
+				$out[$count][(string) $node['id']] = ['x' => (int) $node['x'], 'y' => (int) $node['y'], 'w' => (int) $node['w'], 'h' => (int) $node['h']];
 			}
 		}
 

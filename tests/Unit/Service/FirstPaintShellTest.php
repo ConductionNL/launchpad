@@ -53,7 +53,7 @@ class FirstPaintShellTest extends TestCase {
 	 * @return array<string, mixed>
 	 */
 	private static function placement(int $id, string $widgetId, array $extra=[]): array {
-		$base = ['id' => $id, 'widgetId' => $widgetId, 'gridX' => 0, 'gridY' => $id, 'gridWidth' => 6, 'gridHeight' => 2];
+		$base = ['id' => $id, 'widgetId' => $widgetId, 'gridX' => 0, 'gridY' => ($id * 2), 'gridWidth' => 6, 'gridHeight' => 2];
 
 		return $extra + $base + ['isVisible' => 1, 'showTitle' => 1];
 	}//end placement()

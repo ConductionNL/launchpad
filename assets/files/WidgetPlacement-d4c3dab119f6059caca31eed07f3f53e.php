@@ -122,6 +122,54 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	public const RULE_MATCHES = [self::RULE_MATCH_ANY, self::RULE_MATCH_ALL];
 
 	/**
+	 * The fields a placement update may change: the per-widget update route
+	 * and an edit-mode draft save take the same ones (REQ-EDIT-002).
+	 *
+	 * @var list<string>
+	 */
+	public const EDITABLE_FIELDS = [
+		'gridX',
+		'gridY',
+		'gridWidth',
+		'gridHeight',
+		'isVisible',
+		'showTitle',
+		'customTitle',
+		'customIcon',
+		'styleConfig',
+		'content',
+		// The widget's calculated fields (widget-calculated-fields, task 21).
+		'calculatedFields',
+		'tileTitle',
+		'tileIcon',
+		'tileIconType',
+		'tileBackgroundColor',
+		'tileTextColor',
+		'tileLinkType',
+		'tileLinkValue',
+		'requiresAcknowledgement',
+		'acknowledgementPrompt',
+		'acknowledgementDeadline',
+		'reacknowledgeOnChange',
+		'acknowledgementContentVersion',
+		// Whether all or one include rule must match (REQ-VIS-014).
+		'ruleMatch',
+	];
+
+	/**
+	 * The acknowledgement fields, which need the acknowledgement permission.
+	 *
+	 * @var list<string>
+	 */
+	public const ACKNOWLEDGEMENT_FIELDS = [
+		'requiresAcknowledgement',
+		'acknowledgementPrompt',
+		'acknowledgementDeadline',
+		'reacknowledgeOnChange',
+		'acknowledgementContentVersion',
+	];
+
+	/**
 	 * The dashboard ID.
 	 *
 	 * @var integer

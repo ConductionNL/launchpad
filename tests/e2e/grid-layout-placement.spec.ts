@@ -34,6 +34,7 @@ import { expect, test } from '@playwright/test'
 import { MORE_MENU } from './support/dashboardSwitcher.ts'
 import {
 	anyOverlap,
+	nextLayoutSave,
 	openOwnDashboard,
 	placementRects,
 	renderedRects,
@@ -390,13 +391,11 @@ test('a widget removed from the widget menu leaves the grid and the rest stays p
 				`.grid-stack > .grid-stack-item[gs-id="${removed}"] .launchpad-grid-item`,
 			)
 			.click({ button: 'right' })
-		const deleted = page.waitForResponse(
-			(res) =>
-				res.request().method() === 'DELETE'
-				&& res.url().includes(`/api/widgets/${removed}`),
-		)
+		// REQ-EDIT-001: the removal is in the draft; nothing is deleted yet.
+		const writes = recordWrites(page)
 		await page.locator('[data-testid="ctx-remove"]').click()
-		expect((await deleted).status()).toBeLessThan(300)
+		await expect(page.getByTestId('launchpad-edit-bar-draft')).toHaveText('Draft · 1 change')
+		expect(writes).toHaveLength(0)
 
 		await expect(
 			page.locator(`.grid-stack > .grid-stack-item[gs-id="${removed}"]`),
@@ -420,6 +419,8 @@ test('a widget removed from the widget menu leaves the grid and the rest stays p
 			h: 2,
 		})
 
+		// Save stores the removal (REQ-EDIT-002).
+		expect((await nextLayoutSave(page, own!.id)).status()).toBe(200)
 		const stored = await placementRects(own!.owner.api, own!.id)
 		expect([...stored.keys()]).toEqual([kept])
 	} finally {

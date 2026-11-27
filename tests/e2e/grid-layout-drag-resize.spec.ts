@@ -362,7 +362,9 @@ test('one drag saves every placement, each matched by id with its new x, y, w an
 })
 
 // @e2e grid-layout::multiple-rapid-changes
-test('three quick repositionings each send their own save', async ({ browser }) => {
+// REQ-EDIT-001/002: quick repositionings go into the draft, each counted, and
+// the one Save stores the last position of every widget.
+test('three quick repositionings are counted in the draft and stored by one Save', async ({ browser }) => {
 	const ids = await seed([
 		{ x: 0, y: 0, w: 2, h: 2 },
 		{ x: 2, y: 0, w: 2, h: 2 },
@@ -387,10 +389,15 @@ test('three quick repositionings each send their own save', async ({ browser }) 
 		})
 		for (const [index, id] of ids.entries()) {
 			await dragBy(page, id, 0, 3 + index * 2)
-			await expect.poll(() => saves.length).toBeGreaterThanOrEqual(index + 1)
+			await expect(page.getByTestId('launchpad-edit-bar-draft')).toHaveText(
+				index === 0 ? 'Draft · 1 change' : `Draft · ${index + 1} changes`,
+			)
 		}
+		expect(saves).toHaveLength(0)
 
-		const last = new Map(saves[saves.length - 1].map((p) => [Number(p.id), p]))
+		expect((await nextLayoutSave(page, own!.id)).status()).toBe(200)
+		expect(saves).toHaveLength(1)
+		const last = new Map(saves[0].map((p) => [Number(p.id), p]))
 		expect(last.get(ids[0])).toMatchObject({ gridY: 3 })
 		expect(last.get(ids[1])).toMatchObject({ gridY: 5 })
 		expect(last.get(ids[2])).toMatchObject({ gridY: 7 })

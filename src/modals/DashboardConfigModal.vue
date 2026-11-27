@@ -1293,6 +1293,12 @@ export default {
 			this.$refs.lookImageFile?.click()
 		},
 
+		/**
+		 * Upload the picked background image and keep its resource name.
+		 *
+		 * @param {Event} event The file input's change event.
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
 		async onLookImage(event) {
 			const file = event?.target?.files?.[0]
 			if (!file) {
@@ -2052,7 +2058,7 @@ export default {
 	inline-size: 1px;
 	block-size: 1px;
 	overflow: hidden;
-	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
 	white-space: nowrap;
 }
 

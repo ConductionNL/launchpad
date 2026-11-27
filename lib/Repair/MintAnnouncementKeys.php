@@ -73,7 +73,7 @@ class MintAnnouncementKeys implements IRepairStep {
 	public function run(IOutput $output): void {
 		try {
 			$given = 0;
-			foreach ($this->placements->findAcknowledged(withKey: false) as $placement) {
+			foreach ($this->placements->findAcknowledged(which: WidgetPlacementMapper::UNKEYED) as $placement) {
 				// The mapper's update gives the key.
 				$this->placements->update(entity: $placement);
 				$given++;

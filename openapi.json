@@ -36,10 +36,6 @@
     ],
     "tags": [
         {
-            "name": "acknowledged-widgets",
-            "description": "The list of widgets that ask readers to confirm."
-        },
-        {
             "name": "acknowledgement",
             "description": "Mandatory-read acknowledgement endpoints."
         },
@@ -112,12 +108,12 @@
             "description": "The target group picker's list."
         },
         {
-            "name": "announcement-read",
-            "description": "The receipt endpoints of announcements."
+            "name": "announcement-manager",
+            "description": "The announcement managers' reminder and widgets list."
         },
         {
-            "name": "announcement-reminder",
-            "description": "The reminder endpoint of announcements."
+            "name": "announcement-read",
+            "description": "The receipt endpoints of announcements."
         },
         {
             "name": "attention",
@@ -547,12 +543,12 @@
         },
         "/acknowledgements/widgets": {
             "get": {
-                "operationId": "acknowledged-widgets-index",
+                "operationId": "announcement-manager-widgets",
                 "x-launchpad-stability": "internal",
                 "summary": "Every widget that asks for confirmation, with its dashboard, counts and deadline",
                 "description": "Every widget that asks for confirmation, with its dashboard, counts and deadline. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
-                    "acknowledged-widgets"
+                    "announcement-manager"
                 ],
                 "responses": {
                     "200": {
@@ -6139,12 +6135,12 @@
         },
         "/announcements/{uuid}/remind": {
             "post": {
-                "operationId": "announcement-reminder-remind",
+                "operationId": "announcement-manager-remind",
                 "x-launchpad-stability": "internal",
                 "summary": "Send reminder to everyone in the audience who has not confirmed",
                 "description": "Send reminder to everyone in the audience who has not confirmed. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
-                    "announcement-reminder"
+                    "announcement-manager"
                 ],
                 "parameters": [
                     {

@@ -368,7 +368,7 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'announcementRead#confirmVia',
 		 'url' => '/api/announcements/{uuid}/confirm', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
-		['name' => 'announcementReminder#remind',
+		['name' => 'announcementManager#remind',
 		 'url' => '/api/announcements/{uuid}/remind', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
 		['name' => 'announcement#unlike',
@@ -393,7 +393,7 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'url' => '/api/acknowledgements/report/{announcementKey}', 'verb' => 'GET',
 		 'requirements' => ['announcementKey' => '[A-Za-z0-9\-]+']],
 		// REQ-ACK-008: the widgets that ask for confirmation, on the Announcements tab.
-		['name' => 'acknowledgedWidgets#index',
+		['name' => 'announcementManager#widgets',
 		 'url' => '/api/acknowledgements/widgets', 'verb' => 'GET'],
 		['name' => 'acknowledgement#pending',
 		 'url' => '/api/acknowledgements/pending', 'verb' => 'GET'],

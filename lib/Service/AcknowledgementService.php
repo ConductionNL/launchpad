@@ -386,7 +386,7 @@ class AcknowledgementService implements AcknowledgementServiceInterface {
 	 */
 	public function listAcknowledged(): array {
 		$byKey = [];
-		foreach ($this->placementMapper->findAcknowledged(withKey: true) as $placement) {
+		foreach ($this->placementMapper->findAcknowledged(which: WidgetPlacementMapper::KEYED) as $placement) {
 			$byKey[(string)$placement->getAnnouncementKey()][] = $placement;
 		}
 

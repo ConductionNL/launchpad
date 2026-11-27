@@ -407,7 +407,7 @@ class AcknowledgementServiceTest extends TestCase {
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$gone = $this->makePlacement(key: 'ak-gone', dashboardId: 9);
 
-		$this->placementMapper->method('findAcknowledged')->with(true)->willReturn([$copy, $blueprint, $gone]);
+		$this->placementMapper->method('findAcknowledged')->with('keyed')->willReturn([$copy, $blueprint, $gone]);
 		$this->placementMapper->method('findByAnnouncementKey')->willReturnMap(
 			[
 				['ak-1', [$blueprint, $copy]],
@@ -415,7 +415,13 @@ class AcknowledgementServiceTest extends TestCase {
 			]
 		);
 		$this->dashboardMapper->method('find')->willReturnCallback(
-			static fn (int $id): Dashboard => $id === 1 ? $template : throw new DoesNotExistException('gone')
+			static function (int $id) use ($template): Dashboard {
+				if ($id !== 1) {
+					throw new DoesNotExistException('gone');
+				}
+
+				return $template;
+			}
 		);
 		$group = $this->createMock(originalClassName: IGroup::class);
 		$group->method('getUsers')->willReturn([$this->makeUser(uid: 'alice'), $this->makeUser(uid: 'bob')]);

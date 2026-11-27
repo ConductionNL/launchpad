@@ -40,6 +40,16 @@ use OCP\IDBConnection;
  */
 class WidgetPlacementMapper extends QBMapper {
 	use ColumnMatchQueries;
+
+	/**
+	 * findAcknowledged(): the placements that carry an announcement key.
+	 */
+	public const KEYED = 'keyed';
+
+	/**
+	 * findAcknowledged(): the placements without an announcement key yet.
+	 */
+	public const UNKEYED = 'unkeyed';
 	use OrphanRowQueries;
 
 	/**
@@ -117,22 +127,21 @@ class WidgetPlacementMapper extends QBMapper {
 	}//end ensureAnnouncementKey()
 
 	/**
-	 * Every placement that asks for confirmation, oldest first: with
-	 * \$withKey false those without an announcement key yet, rows written
-	 * before keys were given on every save (REQ-ACK-009); with \$withKey
-	 * true those with one, the "Widgets that ask for confirmation" list of
-	 * the Announcements tab (REQ-ACK-008).
+	 * Every placement that asks for confirmation: KEYED, oldest first, those
+	 * with an announcement key, the "Widgets that ask for confirmation" list
+	 * of the Announcements tab (REQ-ACK-008); UNKEYED those without one yet,
+	 * rows written before keys were given on every save (REQ-ACK-009).
 	 *
-	 * @param bool $withKey Whether to list the placements with a key.
+	 * @param string $which self::KEYED or self::UNKEYED.
 	 *
 	 * @return WidgetPlacement[]
 	 *
 	 * @spec openspec/changes/archive/2026-11-24-read-receipts-dialog/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-has-a-key-req-ack-009
 	 * @spec openspec/changes/announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
 	 */
-	public function findAcknowledged(bool $withKey=false): array {
+	public function findAcknowledged(string $which): array {
 		$qb = $this->selectWhere(match: ['requires_acknowledgement' => 1]);
-		if ($withKey === true) {
+		if ($which === self::KEYED) {
 			$qb->andWhere($qb->expr()->isNotNull(x: 'announcement_key'))
 				->andWhere($qb->expr()->neq(x: 'announcement_key', y: $qb->createNamedParameter(value: '')))
 				->orderBy(sort: 'id', order: 'ASC');

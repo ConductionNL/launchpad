@@ -113,25 +113,53 @@ export const announcementsApi = {
 	},
 
 	/**
-	 * "I have read this" for the signed-in reader (REQ-ANN-007).
+	 * The check or the x for the signed-in reader: both confirm, once
+	 * (REQ-ANN-007).
 	 *
 	 * @param {string} uuid The announcement.
-	 * @return {Promise<object>} `{uuid, confirmed, confirmedAt}`.
-	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @param {string} [via] `check` (default) or `x`.
+	 * @return {Promise<object>} `{uuid, confirmed, confirmedAt, confirmedVia}`.
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
-	async confirmRead(uuid) {
-		return (await axios.post(`${base()}/${uuid}/read`)).data
+	async confirmRead(uuid, via = 'check') {
+		return (await axios.post(`${base()}/${uuid}/confirm`, { via })).data
 	},
 
 	/**
-	 * Who confirmed and who has not yet, for the author (REQ-ANN-007).
+	 * Record the announcements that came into view as seen; sent once,
+	 * after render, never blocking it (REQ-ANN-009).
+	 *
+	 * @param {Array<string>} uuids The announcements on screen.
+	 * @return {Promise<Array<string>>} The uuids recorded by this call.
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 */
+	async markSeen(uuids) {
+		if (!Array.isArray(uuids) || uuids.length === 0) {
+			return []
+		}
+		return (await axios.post(`${base()}/seen`, { uuids })).data.recorded ?? []
+	},
+
+	/**
+	 * Seen and confirmed for one announcement, for managers (REQ-ANN-009).
 	 *
 	 * @param {string} uuid The announcement.
-	 * @return {Promise<object>} The report the Read confirmations dialog shows.
-	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 * @return {Promise<object>} The report: figures and one row per person.
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	async receipts(uuid) {
 		return (await axios.get(`${base()}/${uuid}/receipts`)).data
+	},
+
+	/**
+	 * Send reminder to everyone who has not confirmed; once a day (REQ-ANN-009).
+	 *
+	 * @param {string} uuid The announcement.
+	 * @return {Promise<object>} `{uuid, sent, remindedAt}`.
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 */
+	async remind(uuid) {
+		return (await axios.post(`${base()}/${uuid}/remind`)).data
 	},
 
 	async groups() {

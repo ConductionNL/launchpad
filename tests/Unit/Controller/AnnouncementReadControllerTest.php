@@ -21,6 +21,7 @@ use InvalidArgumentException;
 use OCA\LaunchPad\Controller\AnnouncementReadController;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\AnnouncementReadConfirmations;
+use OCA\LaunchPad\Service\AnnouncementReceiptReport;
 use OCA\LaunchPad\Service\ReadReceiptPeople;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -48,6 +49,20 @@ class AnnouncementReadControllerTest extends TestCase {
 	private AnnouncementReadConfirmations $confirmations;
 
 	/**
+	 * The report double.
+	 *
+	 * @var AnnouncementReceiptReport&MockObject
+	 */
+	private AnnouncementReceiptReport $report;
+
+	/**
+	 * The request parameters.
+	 *
+	 * @var array<string, mixed>
+	 */
+	private array $params = [];
+
+	/**
 	 * The actions checked, in order.
 	 *
 	 * @var list<string>
@@ -61,6 +76,7 @@ class AnnouncementReadControllerTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		$this->confirmations = $this->createMock(originalClassName: AnnouncementReadConfirmations::class);
+		$this->report        = $this->createMock(originalClassName: AnnouncementReceiptReport::class);
 	}//end setUp()
 
 	/**
@@ -93,9 +109,13 @@ class AnnouncementReadControllerTest extends TestCase {
 		$people = $this->createMock(originalClassName: ReadReceiptPeople::class);
 		$people->method('withPeople')->willReturnCallback(static fn (array $report): array => $report + ['departmentLabel' => '']);
 
+		$request = $this->createMock(originalClassName: IRequest::class);
+		$request->method('getParam')->willReturnCallback(fn (string $key, mixed $default = null): mixed => $this->params[$key] ?? $default);
+
 		return new AnnouncementReadController(
-			request: $this->createMock(originalClassName: IRequest::class),
+			request: $request,
 			confirmations: $this->confirmations,
+			report: $this->report,
 			people: $people,
 			guard: $guard
 		);
@@ -107,7 +127,7 @@ class AnnouncementReadControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testConfirmAnswersTheReceiptOrTheRefusal(): void {
-		$this->confirmations->method('confirm')->with('pieter', self::UUID)->willReturnOnConsecutiveCalls(
+		$this->confirmations->method('confirm')->with('pieter', self::UUID, 'check')->willReturnOnConsecutiveCalls(
 			['uuid' => self::UUID, 'confirmed' => true, 'confirmedAt' => '2026-10-27 09:15:00'],
 			$this->throwException(exception: new InvalidArgumentException('This announcement does not ask for a read confirmation')),
 			$this->throwException(exception: new ForbiddenException(message: 'This announcement is not addressed to you')),
@@ -128,7 +148,7 @@ class AnnouncementReadControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testReceiptsAreTheAuthorsReport(): void {
-		$this->confirmations->method('report')->with('pieter', self::UUID)->willReturn(['pendingCount' => 2]);
+		$this->report->method('report')->with('pieter', self::UUID)->willReturn(['pendingCount' => 2]);
 
 		$this->assertSame(expected: ['pendingCount' => 2, 'departmentLabel' => ''], actual: $this->controller()->receipts(self::UUID)->getData());
 		$this->assertSame(expected: ['announcement.manage'], actual: $this->checked);
@@ -142,10 +162,63 @@ class AnnouncementReadControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testStateAnswersWhatTheReaderConfirmed(): void {
-		$this->confirmations->method('stateOfVisible')->with('pieter')->willReturn(['confirmed' => ['u1'], 'receipts' => []]);
+		$state = ['seen' => ['u1'], 'confirmed' => ['u1'], 'closed' => [], 'receipts' => []];
+		$this->confirmations->method('stateOfVisible')->with('pieter')->willReturn($state);
 
-		$this->assertSame(expected: ['confirmed' => ['u1'], 'receipts' => []], actual: $this->controller()->state()->getData());
+		$this->assertSame(expected: $state, actual: $this->controller()->state()->getData());
 		$this->assertSame(expected: ['announcement.read'], actual: $this->checked);
 		$this->assertSame(expected: 403, actual: $this->controller(refused: ['announcement.read'])->state()->getStatus());
 	}//end testStateAnswersWhatTheReaderConfirmed()
+
+	/**
+	 * Confirm passes `via` (the check or the x) through; without it, the check.
+	 *
+	 * @return void
+	 */
+	public function testConfirmViaPassesTheCheckOrTheX(): void {
+		$this->confirmations->expects($this->exactly(2))->method('confirm')->willReturnCallback(
+			static fn (string $userId, string $uuid, string $via): array => ['uuid' => $uuid, 'confirmed' => true, 'confirmedVia' => $via]
+		);
+
+		$this->params = ['via' => 'x'];
+		$this->assertSame(expected: 'x', actual: $this->controller()->confirmVia(self::UUID)->getData()['confirmedVia']);
+		$this->params = [];
+		$this->assertSame(expected: 'check', actual: $this->controller()->confirmVia(self::UUID)->getData()['confirmedVia']);
+		$this->assertSame(expected: 403, actual: $this->controller(refused: ['announcement.read'])->confirmVia(self::UUID)->getStatus());
+	}//end testConfirmViaPassesTheCheckOrTheX()
+
+	/**
+	 * Seen records the uuids of the request; a non-list is an empty list.
+	 *
+	 * @return void
+	 */
+	public function testSeenRecordsTheBatch(): void {
+		$this->confirmations->expects($this->exactly(2))->method('markSeen')->willReturnCallback(
+			static fn (string $userId, array $uuids): array => $uuids
+		);
+
+		$this->params = ['uuids' => ['a', 'b']];
+		$this->assertSame(expected: ['recorded' => ['a', 'b']], actual: $this->controller()->seen()->getData());
+		$this->params = ['uuids' => 'a'];
+		$this->assertSame(expected: ['recorded' => []], actual: $this->controller()->seen()->getData());
+		$this->assertSame(expected: ['announcement.read', 'announcement.read'], actual: $this->checked);
+	}//end testSeenRecordsTheBatch()
+
+	/**
+	 * Send reminder goes through the manage check; a second one the same day is 400.
+	 *
+	 * @return void
+	 */
+	public function testRemindIsForManagersOnceADay(): void {
+		$this->report->method('remind')->with('pieter', self::UUID)->willReturnOnConsecutiveCalls(
+			['uuid' => self::UUID, 'sent' => 3, 'remindedAt' => '2026-11-27T16:00:00+00:00'],
+			$this->throwException(exception: new InvalidArgumentException('A reminder was already sent in the last 24 hours'))
+		);
+		$controller = $this->controller();
+
+		$this->assertSame(expected: 3, actual: $controller->remind(self::UUID)->getData()['sent']);
+		$this->assertSame(expected: 400, actual: $controller->remind(self::UUID)->getStatus());
+		$this->assertSame(expected: ['announcement.manage', 'announcement.manage'], actual: $this->checked);
+		$this->assertSame(expected: 403, actual: $this->controller(refused: ['announcement.manage'])->remind(self::UUID)->getStatus());
+	}//end testRemindIsForManagersOnceADay()
 }//end class

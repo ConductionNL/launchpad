@@ -301,3 +301,30 @@ describe('AdminSettings: first reads', () => {
 		expect(wrapper.vm.loading).toBe(false)
 	})
 })
+
+describe('AdminSettings: General cards below the fold', () => {
+	const DEFERRED = ['AllowedSitesSettings', 'DiscoverableServicesSettings', 'TileLaunchSettings', 'AdminCustomCss', 'EmbedsTab', 'SearchShortcutsTab']
+
+	function lazyHosts(wrapper) {
+		return wrapper.findAllComponents({ name: 'LazyMount' })
+	}
+
+	it('mounts the six cards only when they come on screen', async () => {
+		const wrapper = await mountSettings()
+		const hosts = lazyHosts(wrapper)
+		expect(hosts).toHaveLength(DEFERRED.length)
+		for (const host of hosts) {
+			expect(host.props('rootMargin')).toBe('0px')
+			expect(host.props('eager')).toBe(false)
+		}
+	})
+
+	it('mounts them at once when the page opens on a named section', async () => {
+		const wrapper = shallowMount(AdminSettings, {
+			props: { section: 'embeds' },
+			global: { provide: { configuredGroups: ['staff'] }, mocks: { t } },
+		})
+		await flushPromises()
+		expect(lazyHosts(wrapper).every((host) => host.props('eager') === true)).toBe(true)
+	})
+})

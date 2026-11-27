@@ -99,6 +99,16 @@ export default {
 
 	props: {
 		eager: FLAG_PROP,
+
+		/**
+		 * How far ahead of the visible area the slot mounts, as an
+		 * IntersectionObserver rootMargin. Defaults to one viewport height;
+		 * '0px' mounts it only once it is actually on screen.
+		 */
+		rootMargin: {
+			type: String,
+			default: ROOT_MARGIN,
+		},
 	},
 
 	data() {
@@ -133,7 +143,7 @@ export default {
 			return
 		}
 		const Observer = LazyMountSupport.observer()
-		this.observer = new Observer(this.onIntersect, { rootMargin: ROOT_MARGIN })
+		this.observer = new Observer(this.onIntersect, { rootMargin: this.rootMargin })
 		this.observer.observe(this.$el)
 		this.cancelIdle = LazyMountSupport.whenSettled(() => this.reveal(), SETTLE_DELAY_MS, IDLE_TIMEOUT_MS)
 		this.onBeforePrint = () => this.reveal()

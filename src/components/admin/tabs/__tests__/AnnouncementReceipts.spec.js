@@ -10,7 +10,7 @@
 
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import AnnouncementReceipts, { filterReceipts, receiptStatus, receiptsCsv } from '../AnnouncementReceipts.vue'
+import AnnouncementReceipts, { filterReceipts, receiptsCsv, receiptStatus } from '../AnnouncementReceipts.vue'
 import { announcementsApi } from '../../../../services/announcementsApi.js'
 
 vi.mock('@nextcloud/l10n', async (importOriginal) => ({
@@ -35,10 +35,12 @@ const ROWS = [
 ]
 const REPORT = { audienceCount: 4, seenCount: 3, notSeenCount: 1, confirmedCount: 2, confirmedViaCheck: 1, confirmedViaX: 1, notConfirmedCount: 2, canRemind: true, departmentLabel: '', rows: ROWS }
 
-const mountWith = (report = REPORT, status = 'published') => mount(AnnouncementReceipts, {
+function mountWith (report = REPORT, status = 'published') {
+  return mount(AnnouncementReceipts, {
 	props: { announcement: { uuid: 'u1', title: 'Woo', status }, report },
 	global: { mocks, stubs: { NcButton } },
 })
+}
 
 beforeEach(() => {
 	vi.clearAllMocks()

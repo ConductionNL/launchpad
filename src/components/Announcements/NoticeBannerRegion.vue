@@ -48,6 +48,7 @@ export default {
 			timer: null,
 		}
 	},
+
 	computed: {
 		/** @return {Array<object>} The notices to show now. */
 		visible() {
@@ -60,6 +61,7 @@ export default {
 			})
 		},
 	},
+
 	/** @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-8 */
 	created() {
 		this.load()
@@ -67,10 +69,12 @@ export default {
 			this.now = Date.now()
 		}, TICK_MS)
 	},
+
 	/** @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-8 */
 	beforeUnmount() {
 		clearInterval(this.timer)
 	},
+
 	methods: {
 		/** @spec openspec/changes/announcements-managed-in-settings/tasks.md#task-8 */
 		async load() {
@@ -103,6 +107,7 @@ export default {
 			}
 			this.$nextTick(() => this.markSeen())
 		},
+
 		/**
 		 * Record the notices on screen as seen, after render, without waiting.
 		 *
@@ -117,6 +122,7 @@ export default {
 				logger.error('Failed to record the notices as seen:', error)
 			})
 		},
+
 		/**
 		 * The check or the x on a notice: both confirm; the x also hides it.
 		 *

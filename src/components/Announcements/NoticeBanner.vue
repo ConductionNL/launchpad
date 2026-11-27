@@ -152,6 +152,7 @@ export default {
 	flex: none;
 	gap: 4px;
 }
+
 .notice-banner--warning .notice-banner__body {
 	color: var(--color-primary-element-light);
 }

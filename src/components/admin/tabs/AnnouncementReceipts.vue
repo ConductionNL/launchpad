@@ -182,6 +182,7 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		/** The report of GET /api/announcements/{uuid}/receipts. */
 		report: {
 			type: Object,

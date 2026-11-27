@@ -341,7 +341,7 @@ export async function setActivePreference(
  * @param api the caller's context.
  * @param uuid the dashboard uuid, or '' to clear.
  * @return nothing.
- * @spec openspec/changes/start-page-stays-vandaag/specs/dashboards/spec.md
+ * @spec openspec/changes/archive/2026-11-27-start-page-stays-vandaag/specs/dashboards/spec.md
  */
 export async function setStartDashboard(
 	api: APIRequestContext,

@@ -92,8 +92,8 @@ test('Files in the picker: an app tile for Files is placed and marked On this da
 
 test('Add a link tile: a link tile with the title and web address is placed', async ({ page }) => {
 	await openTileForm(page)
-	await page.getByLabel('Name').fill('Intranet')
-	await page.getByLabel('Web address').fill('https://intranet.zuiddrecht.nl')
+	await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Intranet')
+	await page.getByRole('textbox', { name: 'Web address', exact: true }).fill('https://intranet.zuiddrecht.nl')
 	await page.getByTestId('tile-editor-save').click()
 
 	const link = page.getByTestId('launchpad-dashboard-region').locator('a[href="https://intranet.zuiddrecht.nl"]')
@@ -103,8 +103,8 @@ test('Add a link tile: a link tile with the title and web address is placed', as
 
 test('Black on a dark tile warns, Save stays available, and the tile draws in black', async ({ page }) => {
 	await openTileForm(page)
-	await page.getByLabel('Name').fill('Donker')
-	await page.getByLabel('Web address').fill('https://donker.example.org')
+	await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Donker')
+	await page.getByRole('textbox', { name: 'Web address', exact: true }).fill('https://donker.example.org')
 	await page.locator('[data-test="tile-editor-swatch--sc-work-text"]').check()
 	await page.getByTestId('tile-editor-text-black').check()
 

@@ -5,6 +5,7 @@
 
 const webpackConfig = require('@nextcloud/webpack-vue-config')
 const path = require('path')
+const fs = require('fs')
 const webpack = require('webpack')
 
 webpackConfig.entry = {
@@ -119,6 +120,25 @@ for (const rule of webpackConfig.module.rules) {
 		? { loader: 'css-loader', options: { sourceMap: false } }
 		: loader))
 }
+
+// nextcloud-vue's stylesheet goes to css/nextcloud-vue.css, which the
+// workspace page links (PageController::stylesFor) instead of launchpad-main
+// inserting it as text: a linked sheet stays parsed between page loads. The
+// file is what '@conduction/nextcloud-vue/css/index.css' @imports.
+class LibraryStylesheetCopy {
+
+	apply(compiler) {
+		compiler.hooks.afterEmit.tap('LibraryStylesheetCopy', () => {
+			const entry = require.resolve('@conduction/nextcloud-vue/css/index.css')
+			const imported = /@import\s+['"]([^'"]+)['"]/.exec(fs.readFileSync(entry, 'utf8'))
+			const source = imported ? path.resolve(path.dirname(entry), imported[1]) : entry
+			fs.mkdirSync(path.join(__dirname, 'css'), { recursive: true })
+			fs.copyFileSync(source, path.join(__dirname, 'css', 'nextcloud-vue.css'))
+		})
+	}
+
+}
+webpackConfig.plugins.push(new LibraryStylesheetCopy())
 
 module.exports = webpackConfig
 

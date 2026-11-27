@@ -327,6 +327,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'announcement#manage', 'url' => '/api/announcements/manage', 'verb' => 'GET'],
 		['name' => 'announcementGroups#index', 'url' => '/api/announcements/groups', 'verb' => 'GET'],
 		['name' => 'announcementRead#state', 'url' => '/api/announcements/read-state', 'verb' => 'GET'],
+		// REQ-ANN-009: the announcements that came into view, batched after render.
+		['name' => 'announcementRead#seen', 'url' => '/api/announcements/seen', 'verb' => 'POST'],
 		['name' => 'announcement#follow', 'url' => '/api/announcements/follows', 'verb' => 'POST'],
 		['name' => 'announcement#unfollow', 'url' => '/api/announcements/follows/{category}', 'verb' => 'DELETE'],
 		['name' => 'announcement#show',
@@ -357,6 +359,13 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
 		['name' => 'announcementRead#receipts',
 		 'url' => '/api/announcements/{uuid}/receipts', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		// REQ-ANN-007/-009: the check or the x confirms; Send reminder, once a day.
+		['name' => 'announcementRead#confirmVia',
+		 'url' => '/api/announcements/{uuid}/confirm', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcementRead#remind',
+		 'url' => '/api/announcements/{uuid}/remind', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
 		['name' => 'announcement#unlike',
 		 'url' => '/api/announcements/{uuid}/like', 'verb' => 'DELETE',

@@ -32,6 +32,7 @@ use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementCommentServiceInterface;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementFollowServiceInterface;
 use OCA\LaunchPad\Kernel\Contracts\AnnouncementServiceInterface;
+use OCA\LaunchPad\Service\AnnouncementReceiptReport;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCA\LaunchPad\Settings\LaunchPadAnnouncementsAdmin;
@@ -77,6 +78,7 @@ class AnnouncementController extends Controller {
 	 * @param RequestGuard        $guard         The session user and the action check.
 	 * @param AnnouncementFollowServiceInterface $follows The followed categories.
 	 * @param AnnouncementCommentServiceInterface|null $reactions Likes and comments through Nextcloud's comments service.
+	 * @param AnnouncementReceiptReport|null $receipts The seen and confirmed counts (REQ-ANN-008, REQ-ANN-009).
 	 */
 	public function __construct(
 		IRequest $request,
@@ -84,6 +86,7 @@ class AnnouncementController extends Controller {
 		private readonly RequestGuard $guard,
 		private readonly AnnouncementFollowServiceInterface $follows,
 		private readonly ?AnnouncementCommentServiceInterface $reactions = null,
+		private readonly ?AnnouncementReceiptReport $receipts = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -119,18 +122,29 @@ class AnnouncementController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+	 * @spec openspec/changes/announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
 	 */
 	#[AuthorizedAdminSetting(settings: LaunchPadAnnouncementsAdmin::class)]
 	#[AuthorizedAdminSetting(settings: LaunchPadAdmin::class)]
 	public function manage(): JSONResponse {
-		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(run: fn (string $userId): JSONResponse => new JSONResponse(
-			[
-				'announcements' => array_map(
-					static fn (Announcement $item): array => $item->jsonSerialize(),
-					$this->announcements->allFor(userId: $userId)
-				),
-			]
-		));
+		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(run: function (string $userId): JSONResponse {
+			$all    = $this->announcements->allFor(userId: $userId);
+			$counts = $this->receipts?->countsFor(
+				uuids: array_map(static fn (Announcement $item): string => (string) $item->getUuid(), $all)
+			) ?? [];
+
+			return new JSONResponse(
+				[
+					'announcements' => array_map(
+						static fn (Announcement $item): array => $item->jsonSerialize() + [
+							'seenCount'      => $counts[(string) $item->getUuid()]['seen'] ?? 0,
+							'confirmedCount' => $counts[(string) $item->getUuid()]['confirmed'] ?? 0,
+						],
+						$all
+					),
+				]
+			);
+		});
 	}//end manage()
 
 	/**
@@ -214,6 +228,7 @@ class AnnouncementController extends Controller {
 		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(run: function (string $userId) use ($uuid): JSONResponse {
 			$this->announcements->delete(userId: $userId, uuid: $uuid);
 			$this->reactions?->purge(uuid: $uuid);
+			$this->receipts?->purge(uuid: $uuid);
 			return new JSONResponse(['deleted' => $uuid]);
 		});
 	}//end destroy()

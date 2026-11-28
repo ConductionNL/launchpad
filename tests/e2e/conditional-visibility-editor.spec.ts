@@ -670,10 +670,11 @@ function lastWrite(
  * placement.
  *
  * @param page The page, in edit mode with the dialog open.
+ * @param stored Whether the Save must be stored (HTTP 200); false only reads what it sent.
  * @return The rules the Save carried for the placement.
  * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
-async function saveRulesDraft(page: Page): Promise<Array<Record<string, unknown>>> {
+async function saveRulesDraft(page: Page, stored = true): Promise<Array<Record<string, unknown>>> {
 	await page.keyboard.press('Escape')
 	await expect(page.locator(EDITOR)).toHaveCount(0, { timeout: 10_000 })
 	const save = page.locator('[data-testid="launchpad-edit-bar-save"]')
@@ -685,7 +686,9 @@ async function saveRulesDraft(page: Page): Promise<Array<Record<string, unknown>
 	)
 	await save.click()
 	const response = await saved
-	expect(response.status(), await response.text()).toBe(200)
+	if (stored) {
+		expect(response.status(), await response.text()).toBe(200)
+	}
 	const body = response.request().postDataJSON() as { placements: Array<{ id?: number, rules?: Array<Record<string, unknown>> }> }
 	const item = body.placements.find((p) => Number(p.id) === placementId)
 	expect(item?.rules, `the Save must carry the rules of placement ${placementId}`).toBeDefined()
@@ -1052,20 +1055,12 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 
 		await row.locator('[data-test="rule-save"]').click()
 
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) => w.method === 'POST' && w.url.includes('/rules'),
-					).length,
-				{
-					message: 'saving a time row must POST it',
-					timeout: 15_000,
-				},
-			)
-			.toBeGreaterThan(0)
+		// REQ-EDIT-001/002: the row is in the draft; the edit bar's Save sends it
+		// on its placement.
+		const draftRules = await saveRulesDraft(page)
 
-		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		expectNoRuleRouteWrites(writes)
+		const sent = draftRules[0]
 		expect(sent.ruleType).toBe('time')
 		expect(
 			sent.ruleConfig,
@@ -1090,17 +1085,12 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 		await row.locator('[data-test="rule-start-date"]').fill('2026-12-01')
 		await row.locator('[data-test="rule-save"]').click()
 
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) => w.method === 'POST' && w.url.includes('/rules'),
-					).length,
-				{ timeout: 15_000 },
-			)
-			.toBeGreaterThan(0)
+		// REQ-EDIT-001/002: the row is in the draft; the edit bar's Save sends it
+		// on its placement.
+		const draftRules = await saveRulesDraft(page)
 
-		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		expectNoRuleRouteWrites(writes)
+		const sent = draftRules[0]
 		expect(sent.ruleConfig).toEqual({ startDate: '2026-12-01' })
 		// Spelled out separately: `toEqual` above would also pass for
 		// `{startDate, endDate: undefined}` in some serialisers, and the
@@ -1125,17 +1115,12 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 		await row.locator('[data-test="rule-value"]').fill('nl')
 		await row.locator('[data-test="rule-save"]').click()
 
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) => w.method === 'POST' && w.url.includes('/rules'),
-					).length,
-				{ timeout: 15_000 },
-			)
-			.toBeGreaterThan(0)
+		// REQ-EDIT-001/002: the row is in the draft; the edit bar's Save sends it
+		// on its placement.
+		const draftRules = await saveRulesDraft(page)
 
-		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		expectNoRuleRouteWrites(writes)
+		const sent = draftRules[0]
 		expect(sent.ruleType).toBe('attribute')
 		expect(sent.ruleConfig).toEqual({
 			attribute: 'language',
@@ -1154,9 +1139,9 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 		 * Both are observable before the request leaves the browser, and both
 		 * are asserted below.
 		 *
-		 * What is NOT asserted is that the rule is then stored, because it is
-		 * not: the server refuses every `isInclude: false` write with HTTP 400
-		 * (launchpad#96). Asserting persistence here would be asserting that a
+		 * What is NOT asserted is that the rule is then stored: the server has
+		 * refused `isInclude: false` writes with HTTP 400 (launchpad#96). Only
+		 * what the draft Save sends for the row is read. Asserting persistence here would be asserting that a
 		 * different, unfixed defect is fixed, and would make this test red for
 		 * a reason that has nothing to do with the row editor.
 		 */
@@ -1197,21 +1182,12 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 			.first()
 			.locator('[data-test="rule-save"]')
 			.click()
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) => w.method === 'POST' && w.url.includes('/rules'),
-					).length,
-				{
-					message:
-						'saving the toggled row must emit a request carrying its state',
-					timeout: 15_000,
-				},
-			)
-			.toBeGreaterThan(0)
+		// REQ-EDIT-001/002: the row is in the draft; the edit bar's Save sends it
+		// on its placement.
+		const draftRules = await saveRulesDraft(page, false)
 
-		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		expectNoRuleRouteWrites(writes)
+		const sent = draftRules[0]
 		expect(sent.isInclude, 'an exclude row must emit isInclude false').toBe(
 			false,
 		)
@@ -1255,18 +1231,10 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 			.first()
 			.locator('[data-test="rule-save"]')
 			.click()
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) =>
-							w.method === 'POST'
-							&& w.url.includes(`/api/widgets/${placementId}/rules`),
-					).length,
-				{ message: 'saving the group row must POST it', timeout: 15_000 },
-			)
-			.toBeGreaterThan(0)
-		const saved = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		// REQ-EDIT-001/002: the row is in the draft; the edit bar's Save sends it
+		// on its placement.
+		const draftRules = await saveRulesDraft(page)
+		const saved = draftRules[0]
 		expect(
 			saved.ruleConfig,
 			'the saved row must emit the same groups shape',
@@ -1557,22 +1525,10 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 		)[0]
 
 		await row.locator('[data-test="rule-save"]').click()
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) =>
-							w.method === 'POST'
-							&& w.url.includes(`/api/widgets/${placementId}/rules`),
-					).length,
-				{ timeout: 15_000 },
-			)
-			.toBeGreaterThan(0)
-		const persisted = lastWrite(
-			writes,
-			'POST',
-			`/api/widgets/${placementId}/rules`,
-		)
+		// REQ-EDIT-001/002: the row is in the draft; the edit bar's Save sends it
+		// on its placement.
+		const draftRules = await saveRulesDraft(page)
+		const persisted = draftRules[0]
 
 		// The requirement is "no translation layer that could drift", so the
 		// two shapes are compared directly rather than each being checked

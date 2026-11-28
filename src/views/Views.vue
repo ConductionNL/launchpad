@@ -574,7 +574,7 @@ import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
 import { addressWithPeriod, namesPeriod, readPeriod } from '../utils/dashboardPeriod.js'
 import { appTileFromDiscoveredApp, discoveredAppIdsOnDashboard, tileFromCatalogueApp } from '../utils/discoveredTile.js'
-import { handOver, settleFirstLayout } from '../utils/firstPaintHandover.js'
+import { handOver, settleFirstLayout, whenLayoutSettles } from '../utils/firstPaintHandover.js'
 import { adoptStatusLine, countWaitingWidgets } from '../utils/firstPaintStatus.js'
 import { preloadFirstViewportRenderers } from '../utils/firstViewport.js'
 import { gridItemLabel } from '../utils/gridItemLabel.js'
@@ -2226,9 +2226,10 @@ export default {
 		},
 
 		/**
-		 * The grid has laid out (GridStack lays out in its mounted hook): its
-		 * first layout lands in place without GridStack's slide, and the page
-		 * takes over from the server's first-paint shell in one frame.
+		 * The grid has mounted (GridStack lays out in its mounted hook): its
+		 * first layout lands in place without GridStack's slide, and once its
+		 * cards hold still the page takes over from the server's first-paint
+		 * shell in one frame.
 		 *
 		 * @return {void}
 		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
@@ -2236,7 +2237,7 @@ export default {
 		onGridMounted() {
 			settleFirstLayout(this.$refs.dashboardGrid?.grid)
 			this.startStatusLine()
-			handOver()
+			whenLayoutSettles(this.$refs.dashboardGrid?.$el, () => handOver())
 		},
 
 		/**

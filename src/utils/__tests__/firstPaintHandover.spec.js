@@ -10,7 +10,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { handOver, holdMountWhileShellShows, MOUNT_ID, settleFirstLayout, SHELL_ID } from '../firstPaintHandover.js'
+import { handOver, holdMountWhileShellShows, MOUNT_ID, SETTLE_MAX_FRAMES, settleFirstLayout, SHELL_ID, whenLayoutSettles } from '../firstPaintHandover.js'
 
 /**
  * A page with the mount point and, when asked, the shell beside it.
@@ -95,5 +95,54 @@ describe('settleFirstLayout (first-paint-skeleton REQ-FPS-003)', () => {
 		frames.shift()()
 		frames.shift()()
 		expect(grid.setAnimation).toHaveBeenCalledTimes(1)
+	})
+})
+
+describe('whenLayoutSettles (first-paint-skeleton REQ-FPS-003)', () => {
+	/**
+	 * A grid element whose cards are at the given places, frame by frame.
+	 *
+	 * @param {Array<Array<number>>} places One x per card per frame.
+	 * @return {{ root: object, step: Function }}
+	 */
+	function gridAt(places) {
+		let index = 0
+		const root = {
+			querySelectorAll: () => places[Math.min(index, places.length - 1)].map((x) => ({
+				getBoundingClientRect: () => ({ x, y: 0, width: 100, height: 60 }),
+			})),
+		}
+		return { root, step: () => { index += 1 } }
+	}
+
+	it('waits until two frames see the cards in the same places', () => {
+		const { root, step } = gridAt([[0, 300], [0, 20], [0, 20]])
+		const frames = []
+		const done = vi.fn()
+		whenLayoutSettles(root, done, (fn) => frames.push(fn))
+		frames.shift()()
+		step()
+		frames.shift()()
+		expect(done).not.toHaveBeenCalled()
+		step()
+		frames.shift()()
+		expect(done).toHaveBeenCalledTimes(1)
+		expect(frames).toHaveLength(0)
+	})
+
+	it('gives up after SETTLE_MAX_FRAMES and hands over at once without a grid', () => {
+		let x = 0
+		const root = { querySelectorAll: () => [{ getBoundingClientRect: () => ({ x: x++, y: 0, width: 1, height: 1 }) }] }
+		const frames = []
+		const done = vi.fn()
+		whenLayoutSettles(root, done, (fn) => frames.push(fn))
+		for (let i = 0; i < SETTLE_MAX_FRAMES && frames.length; i++) {
+			frames.shift()()
+		}
+		expect(done).toHaveBeenCalledTimes(1)
+
+		const none = vi.fn()
+		whenLayoutSettles(null, none, () => {})
+		expect(none).toHaveBeenCalledTimes(1)
 	})
 })

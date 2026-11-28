@@ -78,7 +78,7 @@ export function handOver(doc = document, frame = globalThis.requestAnimationFram
  * later, once the final places have painted, for dragging and resizing.
  *
  * @param {object|null|undefined} grid The GridStack instance (CnDashboardGrid's `grid`).
- * @param {Function} [frame] requestAnimationFrame, or a stand-in.
+ * @param {(callback: () => void) => unknown} [frame] requestAnimationFrame, or a stand-in.
  * @return {boolean} Whether there was a grid to settle.
  * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
  */
@@ -97,4 +97,56 @@ export function settleFirstLayout(grid, frame = globalThis.requestAnimationFrame
 		}))
 	}
 	return true
+}
+
+/** The longest the shell waits for the grid to hold still, in frames (about a second). */
+export const SETTLE_MAX_FRAMES = 60
+
+/**
+ * Call `done` once the grid's cards hold still: when two frames in a row see
+ * every `.grid-stack-item` in `root` at the same place and size, or after
+ * SETTLE_MAX_FRAMES frames. GridStack can paint a frame of the dashboard's
+ * wide layout before it applies the breakpoint for this width (live 28 Nov,
+ * 390 px: cards moved from three columns to one about a frame after mount);
+ * the mounted page is hidden until the hand-over, so a reflow before it is
+ * neither seen nor counted as a layout shift.
+ *
+ * @param {Element|null|undefined} root The grid's element.
+ * @param {() => void} done What to do once it holds still.
+ * @param {(callback: () => void) => unknown} [frame] requestAnimationFrame, or a stand-in.
+ * @return {void}
+ * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
+ */
+export function whenLayoutSettles(root, done, frame = globalThis.requestAnimationFrame?.bind(globalThis)) {
+	if (!root || typeof root.querySelectorAll !== 'function' || typeof frame !== 'function') {
+		done()
+		return
+	}
+	let previous = null
+	let frames = 0
+	const look = () => {
+		const now = layoutSignature(root)
+		frames += 1
+		if (now === previous || frames >= SETTLE_MAX_FRAMES) {
+			done()
+			return
+		}
+		previous = now
+		frame(look)
+	}
+	frame(look)
+}
+
+/**
+ * Where every card of the grid is, rounded to whole pixels, as one string.
+ *
+ * @param {Element} root The grid's element.
+ * @return {string}
+ * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
+ */
+export function layoutSignature(root) {
+	return Array.from(root.querySelectorAll('.grid-stack-item'), (item) => {
+		const box = item.getBoundingClientRect()
+		return [box.x, box.y, box.width, box.height].map(Math.round).join(',')
+	}).join(';')
 }

@@ -42,7 +42,7 @@
 			:showRefresh="false"
 			:showRequestFeature="false"
 			:showActions="showActionsMenu"
-			:loading="!contentShown"
+			:loading="!contentLoaded"
 			:placeholder="placeholder">
 			<!-- REQ-IFRAME-005: the "Outage" tag in the card head, by icon-free
 			     text so it never relies on colour alone. -->
@@ -57,12 +57,15 @@
 			     declared placeholder (widget-declared-placeholders: CnWidgetWrapper
 			     draws it, aria-busy on the card), and a widget that fails to show
 			     keeps its error inside this card. -->
-			<LazyMount :eager="mountsAtOnce" @shown="contentShown = true">
-				<WidgetErrorBoundary>
+			<!-- REQ-FPS-004: the card leaves its placeholder when the renderer
+			     says its first content has settled (`loaded`), or fails to show. -->
+			<LazyMount :eager="mountsAtOnce">
+				<WidgetErrorBoundary @failed="contentLoaded = true">
 					<WidgetRenderer
 						:widget="widget"
 						:placement="placement"
 						:editMode="editMode"
+						@loaded="contentLoaded = true"
 						@status="onRendererStatus"
 						@editRequest="$emit('edit', placement)" />
 				</WidgetErrorBoundary>
@@ -278,9 +281,11 @@ export default {
 			// What the renderer reports for the card head (REQ-IFRAME-005):
 			// the source line under the title and the outage tag.
 			headStatus: { subtitle: '', outage: false },
-			// Whether LazyMount has mounted the content; until then the card
-			// waits in its placeholder (widget-declared-placeholders).
-			contentShown: false,
+			// Whether the content has settled: the renderer's `loaded`, or its
+			// first render when it does not emit one, or a failure to show.
+			// Until then the card waits in its placeholder (REQ-FPS-004,
+			// widget-declared-placeholders).
+			contentLoaded: false,
 		}
 	},
 

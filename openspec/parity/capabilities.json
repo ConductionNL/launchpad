@@ -454,7 +454,6 @@
 				"runtime-shell",
 				"dashboard-language-content",
 				"dashboard-metadata-fields",
-				"dashboard-switcher",
 				"effective-default-marker"
 			]
 		},
@@ -1548,15 +1547,15 @@
 			"dashy": "yes",
 			"built": {
 				"state": "built",
-				"evidence": "src/components/Workspace/DashboardSwitcherSidebar.vue:224",
+				"evidence": "src/components/Workspace/DashboardMoreMenu.vue:178",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-dashboard-switcher-sidebar",
+				"change": "openspec/changes/archive/2026-11-28-more-menu-favourites",
 				"requirement": [
-					"openspec/specs/dashboard-switcher :: REQ-SWITCH-001 Three-section navigation",
-					"openspec/specs/dashboard-switcher :: REQ-SWITCH-002 Switch click semantics"
+					"openspec/specs/runtime-shell :: REQ-SHELL-014 The Dashboards column lists the favourite dashboards",
+					"openspec/specs/runtime-shell :: REQ-SHELL-015 More turns the column into the list of every dashboard"
 				]
 			},
-			"reachedOn": "Workspace page, Dashboards sidebar",
+			"reachedOn": "Workspace page, More menu, Dashboards column",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/703640-using-and-organising-spaces-in-workspace-365 'A space is an area in the navigation menu'; one Personal space plus Shared spaces 'intended for teams, departments or specific topics' (read 2026-09-26)",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:52 one route '/' and apps/dashboard/lib/Service/DashboardService.php:33-38 one layout value per user; searched apps/dashboard for a dashboard id or list: each user has exactly one dashboard",

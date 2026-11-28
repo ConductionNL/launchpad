@@ -46,7 +46,7 @@ class FavouriteDashboardApiController extends Controller {
 	 * @param FavouriteDashboardService $favourites  The favourites store.
 	 * @param IUserSession              $userSession The signed-in person.
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-1
 	 */
 	public function __construct(
 		IRequest $request,
@@ -63,7 +63,7 @@ class FavouriteDashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse `{favourites: string[]}`, 404 or 401.
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-1
 	 */
 	#[NoAdminRequired]
 	public function star(string $uuid): JSONResponse {
@@ -77,7 +77,7 @@ class FavouriteDashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse `{favourites: string[]}`, 404 or 401.
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-1
 	 */
 	#[NoAdminRequired]
 	public function unstar(string $uuid): JSONResponse {

@@ -27,7 +27,7 @@ use OCA\LaunchPad\Db\Dashboard;
 /**
  * The root and deletion time of one subtree delete.
  *
- * @spec openspec/specs/dashboard-switcher/spec.md
+ * @spec openspec/specs/dashboards/spec.md
  */
 final class SubtreeDeletion {
 	/**

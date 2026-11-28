@@ -571,7 +571,11 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	public function linkTileField(string $field): ?string {
 		if ($this->keepsLinkInContent() === true) {
 			$value = $this->getContentArray()[$field] ?? null;
-			return is_scalar($value) === true ? (string)$value : null;
+			if (is_scalar($value) === false) {
+				return null;
+			}
+
+			return (string)$value;
 		}
 
 		return match ($field) {

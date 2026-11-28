@@ -178,9 +178,9 @@ test('asking the assistant proposes Case system and Place it like this opens the
 		const form = picker.getByTestId('widget-picker-tile-form')
 		await expect(form).toBeVisible()
 		await expect(form.locator('[data-testid="tile-mode"] input[value="app"]')).toBeChecked()
-		const ticked = form.locator('[data-testid^="tile-app-tick-"]:checked')
-		await expect(ticked).toHaveCount(1)
-		await expect(form.getByTestId('tile-app-row-catalogue').filter({ has: ticked })).toContainText(CASE_SYSTEM)
+		const tickedBox = '[data-testid^="tile-app-tick-"]:checked'
+		await expect(form.locator(tickedBox)).toHaveCount(1)
+		await expect(form.getByTestId('tile-app-row-catalogue').filter({ has: page.locator(tickedBox) })).toContainText(CASE_SYSTEM)
 		await form.getByTestId('tile-editor-save').click()
 		await expect(picker).toBeHidden({ timeout: 15_000 })
 		// The tile joins the edit-mode draft; the edit bar's Save places it.
@@ -189,7 +189,8 @@ test('asking the assistant proposes Case system and Place it like this opens the
 			.toBe(before.size + 1)
 		const placed = (await readPlacements(own.owner.api, own.id)).find((p) => !before.has(Number(p.id)))!
 		expect(String(placed.tileTitle ?? placed.customTitle ?? placed.content?.title ?? '')).toBe(CASE_SYSTEM)
-		expect([Number(placed.gridWidth), Number(placed.gridHeight)], 'the tile is not one cell').toEqual([1, 1])
+		// A new tile starts as one cell of two columns by two rows (app-tile-widget spec).
+		expect([Number(placed.gridWidth), Number(placed.gridHeight)], 'the tile is not one cell').toEqual([2, 2])
 	} finally {
 		await context.close()
 	}

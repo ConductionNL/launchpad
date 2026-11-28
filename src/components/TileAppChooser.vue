@@ -157,27 +157,6 @@ export default {
 		}
 	},
 
-	watch: {
-		rows: {
-			immediate: true,
-			/**
-			 * Tick each preselected app once its row is listed.
-			 *
-			 * @param {Array<object>} rows The rows.
-			 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
-			 */
-			handler(rows) {
-				for (const key of this.preselectedKeys) {
-					const row = this.preselected.has(key) ? null : rows.find((candidate) => candidate.choice.key === key)
-					if (row) {
-						this.preselected.add(key)
-						this.setChosen(row.choice, true)
-					}
-				}
-			},
-		},
-	},
-
 	computed: {
 		/**
 		 * @return {boolean} Whether the request can be sent.
@@ -256,6 +235,27 @@ export default {
 				})
 				.filter((row) => !query || row.name.toLowerCase().includes(query) || String(row.description || '').toLowerCase().includes(query))
 				.map((row) => ({ ...row, onDashboard: this.existing.has(row.choice.key) }))
+		},
+	},
+
+	watch: {
+		rows: {
+			immediate: true,
+			/**
+			 * Tick each preselected app once its row is listed.
+			 *
+			 * @param {Array<object>} rows The rows.
+			 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+			 */
+			handler(rows) {
+				for (const key of this.preselectedKeys) {
+					const row = this.preselected.has(key) ? null : rows.find((candidate) => candidate.choice.key === key)
+					if (row) {
+						this.preselected.add(key)
+						this.setChosen(row.choice, true)
+					}
+				}
+			},
 		},
 	},
 

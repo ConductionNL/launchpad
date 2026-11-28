@@ -1945,8 +1945,9 @@
         "Open LaunchPad": "Opna LaunchPad",
         "You get this mail because you asked for it in your LaunchPad settings.": "Þú færð þennan póst af því að þú baðst um hann í stillingum LaunchPad.",
         "Current version": "Núverandi útgáfa",
-        "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Allar vistaðar útgáfur þessa mælaborðs. Veldu eldri útgáfu til að endurheimta hana; núverandi útgáfa verður áfram á listanum.",
-        "Restoring it drops the changes made after it. The current version stays in this list.": "Endurheimt fellir niður breytingarnar sem gerðar voru á eftir. Núverandi útgáfa verður áfram á þessum lista.",
+        "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Hver vistuð útgáfa þessa stjórnborðs. Veldu eldri útgáfu til að endurheimta hana; núverandi útgáfa helst á listanum.",
+        "Restoring it drops the changes made after it. The current version stays in this list.": "Endurheimt fellir niður breytingar sem gerðar voru eftir hana. Núverandi útgáfa helst á þessum lista.",
+        "Version of {date}": "Útgáfa frá {date}",
         "What changed": "Hvað breyttist"
     }
 }

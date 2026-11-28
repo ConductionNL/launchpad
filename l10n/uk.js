@@ -1943,8 +1943,9 @@ OC.L10N.register(
     "Open LaunchPad" : "Відкрити LaunchPad",
     "You get this mail because you asked for it in your LaunchPad settings." : "Ви отримуєте цей лист, бо замовили його в налаштуваннях LaunchPad.",
     "Current version" : "Поточна версія",
-    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Кожна збережена версія цієї панелі. Виберіть старішу версію, щоб відновити її; поточна версія залишається в списку.",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Кожна збережена версія цієї панелі. Виберіть давнішу версію, щоб відновити її; поточна версія залишається в списку.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Відновлення скасовує зміни, зроблені після неї. Поточна версія залишається в цьому списку.",
+    "Version of {date}" : "Версія від {date}",
     "What changed" : "Що змінилося"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"

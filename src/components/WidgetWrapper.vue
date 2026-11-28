@@ -623,6 +623,18 @@ export default {
 	height: 100%;
 }
 
+/* first-paint-skeleton D7: a waiting card's frame is in work-field, as the
+   server's shell draws it, so the hand-over keeps the frame; a loaded card's
+   frame is in work-line. Without the design tokens the frames keep
+   Nextcloud's border colours. A borderless card stays borderless. */
+.launchpad-widget__wrapper[aria-busy='true']:not(.cn-widget-wrapper--borderless) {
+	border-color: var(--sc-work-field, var(--color-border-dark));
+}
+
+.launchpad-widget__wrapper:not([aria-busy='true'], .cn-widget-wrapper--borderless) {
+	border-color: var(--sc-work-line, var(--color-border));
+}
+
 /* The drag grip sits at the top left of a widget in edit mode; the card's
    title moves right to make room for it (LpBewerken). On a tile both the
    grip and the menu are small white squares. */

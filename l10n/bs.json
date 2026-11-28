@@ -1949,7 +1949,8 @@
         "You get this mail because you asked for it in your LaunchPad settings.": "Ovaj e-mail dobijate jer ste ga zatražili u postavkama LaunchPada.",
         "Current version": "Trenutna verzija",
         "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Svaka sačuvana verzija ove kontrolne table. Odaberite stariju verziju da je vratite; trenutna verzija ostaje na listi.",
-        "Restoring it drops the changes made after it. The current version stays in this list.": "Vraćanje odbacuje promjene napravljene nakon nje. Trenutna verzija ostaje na ovoj listi.",
+        "Restoring it drops the changes made after it. The current version stays in this list.": "Vraćanjem se odbacuju promjene napravljene nakon nje. Trenutna verzija ostaje na ovoj listi.",
+        "Version of {date}": "Verzija od {date}",
         "What changed": "Šta se promijenilo"
     }
 }

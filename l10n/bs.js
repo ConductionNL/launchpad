@@ -1944,7 +1944,8 @@ OC.L10N.register(
     "You get this mail because you asked for it in your LaunchPad settings." : "Ovaj e-mail dobijate jer ste ga zatražili u postavkama LaunchPada.",
     "Current version" : "Trenutna verzija",
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Svaka sačuvana verzija ove kontrolne table. Odaberite stariju verziju da je vratite; trenutna verzija ostaje na listi.",
-    "Restoring it drops the changes made after it. The current version stays in this list." : "Vraćanje odbacuje promjene napravljene nakon nje. Trenutna verzija ostaje na ovoj listi.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Vraćanjem se odbacuju promjene napravljene nakon nje. Trenutna verzija ostaje na ovoj listi.",
+    "Version of {date}" : "Verzija od {date}",
     "What changed" : "Šta se promijenilo"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"

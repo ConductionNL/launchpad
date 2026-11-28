@@ -1943,8 +1943,9 @@ OC.L10N.register(
     "Open LaunchPad" : "Άνοιγμα LaunchPad",
     "You get this mail because you asked for it in your LaunchPad settings." : "Λαμβάνετε αυτό το email επειδή το ζητήσατε στις ρυθμίσεις του LaunchPad.",
     "Current version" : "Τρέχουσα έκδοση",
-    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Κάθε αποθηκευμένη έκδοση αυτού του πίνακα. Επιλέξτε μια παλαιότερη έκδοση για να την επαναφέρετε· η τρέχουσα έκδοση μένει στη λίστα.",
-    "Restoring it drops the changes made after it. The current version stays in this list." : "Η επαναφορά απορρίπτει τις αλλαγές που έγιναν μετά. Η τρέχουσα έκδοση μένει σε αυτή τη λίστα.",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Κάθε αποθηκευμένη έκδοση αυτού του πίνακα. Επιλέξτε μια παλαιότερη έκδοση για να την επαναφέρετε· η τρέχουσα έκδοση παραμένει στη λίστα.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Η επαναφορά απορρίπτει τις αλλαγές που έγιναν μετά από αυτήν. Η τρέχουσα έκδοση παραμένει σε αυτή τη λίστα.",
+    "Version of {date}" : "Έκδοση της {date}",
     "What changed" : "Τι άλλαξε"
 },
 "nplurals=2; plural=(n != 1);"

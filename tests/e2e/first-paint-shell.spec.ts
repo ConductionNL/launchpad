@@ -90,3 +90,153 @@ test('the shell and the mounted card draw the same placeholder shape', async ({ 
 		await expect(card.locator('.cn-widget-placeholder')).toHaveAttribute('data-shape', entry.shape)
 	}
 })
+
+/**
+ * first-paint-skeleton task 8: the shell against the mounted page. One
+ * dashboard of four widgets that reflow on 8 and 4 columns, one hidden
+ * placement and one of an app the instance lacks (wiki-pages needs
+ * OpenRegister): the shell draws the four in the grid's places at every
+ * breakpoint, the other two not at all, says the page could not load when
+ * the scripts never come, and never says so on a normal load.
+ *
+ * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md
+ */
+test.describe('first paint against the mounted grid (first-paint-skeleton task 8)', () => {
+	let own: SeededDashboard | null = null
+	const NAME = `E2E First paint grid ${RUN}`
+	const DESCRIPTION = 'Shell against grid'
+	const SHOWN: Array<{ widgetId: string, x: number, y: number, w: number, h: number, id?: number }> = [
+		{ widgetId: 'text', x: 0, y: 0, w: 6, h: 3 },
+		{ widgetId: 'label', x: 6, y: 0, w: 6, h: 3 },
+		{ widgetId: 'chart', x: 0, y: 3, w: 4, h: 4 },
+		{ widgetId: 'launchpad_links', x: 4, y: 3, w: 8, h: 4 },
+	]
+	const LEFT_OUT: Array<{ widgetId: string, x: number, y: number, w: number, h: number, id?: number }> = [
+		{ widgetId: 'text', x: 0, y: 12, w: 6, h: 2 },
+		{ widgetId: 'wiki-pages', x: 6, y: 12, w: 6, h: 2 },
+	]
+	const BUNDLE = /\/apps\/launchpad\/js\//
+
+	test.beforeAll(async () => {
+		own = await seedActiveDashboard(admin, NAME)
+		await clearSeededWidgets(admin, own.id)
+		const described = await admin.put(`${API}/dashboard/${own.id}`, { data: { description: DESCRIPTION } })
+		expect(described.status(), await described.text()).toBeLessThan(300)
+		for (const entry of [...SHOWN, ...LEFT_OUT]) {
+			const res = await admin.post(`${API}/dashboard/${own.id}/widgets`, {
+				data: { widgetId: entry.widgetId, gridX: entry.x, gridY: entry.y, gridWidth: entry.w, gridHeight: entry.h },
+			})
+			expect(res.status(), await res.text()).toBeLessThan(300)
+			const body = await res.json()
+			entry.id = Number((body.data ?? body).id)
+		}
+		const hide = await admin.put(`${API}/widgets/${LEFT_OUT[0].id}`, { data: { isVisible: 0 } })
+		expect(hide.status(), await hide.text()).toBeLessThan(300)
+	})
+
+	test.afterAll(async () => {
+		await removeSeededDashboard(admin, own)
+	})
+
+	test('the header and the frames paint without script; hidden and refused widgets have none', async ({ browser }) => {
+		const context = await browser.newContext({ javaScriptEnabled: false, httpCredentials: { username: ADMIN.user, password: ADMIN.pass } })
+		const page = await context.newPage()
+		await page.goto('/index.php/apps/launchpad/')
+		const shell = page.locator('#launchpad-first-paint')
+		await expect(shell.locator('h1.lp-fp__t')).toHaveText(NAME)
+		await expect(shell.locator('.lp-fp__m')).toContainText(DESCRIPTION)
+		await expect(shell.locator('.lp-fp__f')).toHaveCount(SHOWN.length)
+		for (const entry of SHOWN) {
+			await expect(shell.locator(`[data-placement-id="${entry.id}"]`)).toHaveCount(1)
+		}
+		for (const left of LEFT_OUT) {
+			await expect(shell.locator(`[data-placement-id="${left.id}"]`)).toHaveCount(0)
+		}
+		// Placeholders are hidden from assistive tech; one status line speaks.
+		await expect(shell.locator('.cn-widget-placeholder:not([aria-hidden="true"])')).toHaveCount(0)
+		await expect(shell.locator('[role="status"]')).toHaveCount(1)
+		await context.close()
+	})
+
+	for (const viewport of [{ width: 1440, height: 900 }, { width: 1100, height: 900 }, { width: 390, height: 844 }]) {
+		test(`every frame sits where the grid puts its widget at ${viewport.width} px, without a shift`, async ({ page }) => {
+			await page.context().setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
+			await page.setViewportSize(viewport)
+			// Each box relative to its grid's top left: the frame geometry,
+			// whatever stands above the grid (a notice banner, the header).
+			const rectOf = (selector: string, gridSelector: string) => page.evaluate(([sel, gridSel]) => {
+				const element = document.querySelector(sel)
+				const grid = document.querySelector(gridSel)
+				if (!element || !grid) {
+					return null
+				}
+				const box = element.getBoundingClientRect()
+				const origin = grid.getBoundingClientRect()
+				return { x: box.x - origin.x, y: box.y - origin.y, w: box.width, h: box.height }
+			}, [selector, gridSelector])
+
+			// The shell alone, as it paints before any script.
+			await page.route(BUNDLE, (route) => route.abort())
+			await page.goto('/index.php/apps/launchpad/')
+			const shellRects: Record<number, { x: number, y: number, w: number, h: number } | null> = {}
+			for (const entry of SHOWN) {
+				shellRects[entry.id!] = await rectOf(`#launchpad-first-paint [data-placement-id="${entry.id}"]`, '#launchpad-first-paint .lp-fp__g')
+			}
+			await expect(page.locator('#launchpad-first-paint .lp-fp__d:empty')).toHaveCount(0)
+
+			// The mounted page, with the layout shifts it makes counted: those
+			// that move something inside the page (#app-workspace), not
+			// Nextcloud's own top bar filling in its icons.
+			await page.unroute(BUNDLE)
+			await page.addInitScript(() => {
+				type Shift = PerformanceEntry & { value: number, hadRecentInput: boolean, sources?: Array<{ node?: Node | null }> }
+				(window as unknown as { __lpShift: number }).__lpShift = 0
+				new PerformanceObserver((list) => {
+					for (const entry of list.getEntries() as Shift[]) {
+						const inPage = (entry.sources ?? []).some((source) => source.node instanceof Element && source.node.closest('#app-workspace') !== null)
+						if (!entry.hadRecentInput && inPage) {
+							(window as unknown as { __lpShift: number }).__lpShift += entry.value
+						}
+					}
+				}).observe({ type: 'layout-shift', buffered: true })
+			})
+			await page.goto('/index.php/apps/launchpad/')
+			await expect(page.locator('#launchpad-first-paint')).toHaveCount(0, { timeout: 30_000 })
+			for (const entry of SHOWN) {
+				const item = `.grid-stack-item:has(> .grid-stack-item-content [data-placement-id="${entry.id}"])`
+				await expect(page.locator(item)).toHaveCount(1)
+				const grid = await rectOf(item, '.cn-dashboard-grid .grid-stack')
+				const shell = shellRects[entry.id!]
+				expect(shell, `shell frame ${entry.widgetId}`).not.toBeNull()
+				for (const key of ['x', 'y', 'w', 'h'] as const) {
+					expect(Math.abs(shell![key] - grid![key]), `${entry.widgetId} ${key}: shell ${shell![key]} grid ${grid![key]}`).toBeLessThanOrEqual(1)
+				}
+			}
+			const shift = await page.evaluate(() => (window as unknown as { __lpShift: number }).__lpShift)
+			expect(shift).toBeLessThan(0.001)
+			// A normal load never shows the could-not-load line.
+			await expect(page.getByText('The page could not load')).toHaveCount(0)
+		})
+	}
+
+	test('without the scripts the shell says after 15 seconds that the page could not load', async ({ page }) => {
+		await page.context().setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
+		await page.route(BUNDLE, (route) => route.abort())
+		await page.goto('/index.php/apps/launchpad/')
+		const line = page.locator('#launchpad-first-paint [role="alert"]')
+		await expect(line).toBeHidden()
+		await expect(line).toBeVisible({ timeout: 25_000 })
+		await expect(line.getByRole('link')).toHaveAttribute('href', /\/apps\/launchpad/)
+	})
+
+	test('no shimmer under reduced motion', async ({ browser }) => {
+		const context = await browser.newContext({ reducedMotion: 'reduce', httpCredentials: { username: ADMIN.user, password: ADMIN.pass } })
+		const page = await context.newPage()
+		await page.route(BUNDLE, (route) => route.abort())
+		await page.goto('/index.php/apps/launchpad/')
+		const animation = await page.locator('#launchpad-first-paint .cn-widget-placeholder__line').first()
+			.evaluate((element) => getComputedStyle(element).animationName)
+		expect(animation).toBe('none')
+		await context.close()
+	})
+})

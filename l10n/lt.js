@@ -1945,6 +1945,7 @@ OC.L10N.register(
     "Current version" : "Dabartinė versija",
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Kiekviena išsaugota šio skydelio versija. Pasirinkite senesnę versiją, kad ją atkurtumėte; dabartinė versija lieka sąraše.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Atkūrus atmetami po jos atlikti pakeitimai. Dabartinė versija lieka šiame sąraše.",
+    "Version of {date}" : "{date} versija",
     "What changed" : "Kas pasikeitė"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"

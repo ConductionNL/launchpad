@@ -23,6 +23,7 @@ import type { APIRequestContext, Locator, Page, Response } from '@playwright/tes
 
 import { expect, request } from '@playwright/test'
 import { BASE_URL } from './baseUrl.ts'
+import { saveEditDraft } from './dashboardSwitcher.ts'
 import { chooseAndAdd } from './widgetPicker.ts'
 
 export const ADMIN = {
@@ -556,8 +557,9 @@ export async function chooseSelectOption(
 }
 
 /**
- * Press Add, wait for the dialog to close, and read back the files placement
- * it created.
+ * Press Add, wait for the dialog to close, Save the edit-mode draft (since
+ * edit-mode-draft-and-save, Add only changes the draft) and read back the
+ * files placement the Save created.
  *
  * @param page the page.
  * @param dialog the Add Widget dialog.
@@ -576,6 +578,7 @@ export async function addAndReadBack(
 	await expect(add).toBeEnabled({ timeout: 10_000 })
 	await add.click()
 	await expect(dialog).toBeHidden({ timeout: 15_000 })
+	expect(await saveEditDraft(page), 'the edit-mode Save stores the new widget').toBeLessThan(300)
 	let created: Record<string, any> | undefined
 	await expect.poll(async () => {
 		created = (await placementsOf(api, dashboardId)).find((p) => !before.has(Number(p.id)) && p.widgetId === 'files')

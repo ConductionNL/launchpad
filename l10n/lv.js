@@ -1944,7 +1944,8 @@ OC.L10N.register(
     "You get this mail because you asked for it in your LaunchPad settings." : "Jūs saņemat šo e-pastu, jo to pieprasījāt LaunchPad iestatījumos.",
     "Current version" : "Pašreizējā versija",
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Katra saglabātā šī informācijas paneļa versija. Izvēlieties vecāku versiju, lai to atjaunotu; pašreizējā versija paliek sarakstā.",
-    "Restoring it drops the changes made after it. The current version stays in this list." : "Atjaunošana atmet pēc tās veiktās izmaiņas. Pašreizējā versija paliek šajā sarakstā.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Atjaunojot tiek atmestas pēc tās veiktās izmaiņas. Pašreizējā versija paliek šajā sarakstā.",
+    "Version of {date}" : "Versija no {date}",
     "What changed" : "Kas mainījās"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"

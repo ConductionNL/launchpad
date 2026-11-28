@@ -1943,9 +1943,10 @@ OC.L10N.register(
     "Open LaunchPad" : "Avrir LaunchPad",
     "You get this mail because you asked for it in your LaunchPad settings." : "Ti retschaivas quest e-mail perquai che ti l'has dumandà en las configuraziuns da LaunchPad.",
     "Current version" : "Versiun actuala",
-    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Mintga versiun memorisada da quest dashboard. Tscherna ina versiun pli veglia per la restaurar; la versiun actuala resta en la glista.",
-    "Restoring it drops the changes made after it. The current version stays in this list." : "Restaurar stizza las midadas fatgas suenter. La versiun actuala resta en questa glista.",
-    "What changed" : "Tge ch'è sa midà"
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Mintga versiun memorisada da quest dashboard. Tscherna ina versiun pli veglia per la restituir; la versiun actuala resta en la glista.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "La restituziun annullescha las midadas fatgas suenter. La versiun actuala resta en questa glista.",
+    "Version of {date}" : "Versiun dals {date}",
+    "What changed" : "Tge è sa midà"
 },
 "nplurals=2; plural=(n != 1);"
 );

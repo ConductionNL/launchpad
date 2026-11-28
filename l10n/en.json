@@ -2518,6 +2518,7 @@
         "Current version": "Current version",
         "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.",
         "Restoring it drops the changes made after it. The current version stays in this list.": "Restoring it drops the changes made after it. The current version stays in this list.",
+        "Version of {date}": "Version of {date}",
         "What changed": "What changed"
     }
 }

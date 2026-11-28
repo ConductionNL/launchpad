@@ -1947,6 +1947,7 @@
         "Current version": "Praegune versioon",
         "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Selle töölaua iga salvestatud versioon. Vali vanem versioon, et see taastada; praegune versioon jääb loendisse.",
         "Restoring it drops the changes made after it. The current version stays in this list.": "Taastamine loobub pärast seda tehtud muudatustest. Praegune versioon jääb sellesse loendisse.",
+        "Version of {date}": "Versioon {date}",
         "What changed": "Mis muutus"
     }
 }

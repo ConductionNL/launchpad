@@ -300,19 +300,27 @@ export default {
 	display: none;
 }
 
-/* REQ-EDIT-001, board LpBewerken: the bar is one row at 1440 px. More docks
-   at its end as a square "…" button; its label, and the page's loading status
-   line docked with it, stay for screen readers. */
+/* LpBewerken draws the bar on one row. The More menu docked here shows its
+   three dots only, so it fits after Save at desktop widths instead of
+   wrapping onto a second row; the label stays for screen readers. */
 .launchpad-edit-bar__dock :deep(.lp-more-menu__trigger) {
 	min-width: 38px;
+	height: 38px;
 	padding-inline: 0;
 }
 
+.launchpad-edit-bar__dock :deep(.lp-more-menu__trigger .button-vue__wrapper) {
+	gap: 0;
+}
+
+/* The page's loading status line docks with More; in the bar it stays for
+   screen readers only, so it does not push More onto a second row. */
 .launchpad-edit-bar__dock :deep(.lp-more-menu__trigger .button-vue__text),
 .launchpad-edit-bar__dock :deep(.launchpad-status-slot) {
 	position: absolute;
 	width: 1px;
 	height: 1px;
+	margin: -1px;
 	overflow: hidden;
 	clip-path: inset(50%);
 	white-space: nowrap;

@@ -1936,6 +1936,7 @@ OC.L10N.register(
     "Current version" : "Тековна верзија",
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Секоја зачувана верзија на оваа контролна табла. Изберете постара верзија за да ја вратите; тековната верзија останува во списокот.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Враќањето ги отфрла промените направени по неа. Тековната верзија останува во овој список.",
+    "Version of {date}" : "Верзија од {date}",
     "What changed" : "Што се промени"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"

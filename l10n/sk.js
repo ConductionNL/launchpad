@@ -1943,8 +1943,9 @@ OC.L10N.register(
     "Open LaunchPad" : "Otvoriť LaunchPad",
     "You get this mail because you asked for it in your LaunchPad settings." : "Tento e-mail dostávate, pretože ste oň požiadali v nastaveniach LaunchPadu.",
     "Current version" : "Aktuálna verzia",
-    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Každá uložená verzia tohto panela. Vyberte staršiu verziu a obnovte ju; aktuálna verzia v zozname zostane.",
-    "Restoring it drops the changes made after it. The current version stays in this list." : "Obnovenie zahodí zmeny vykonané po nej. Aktuálna verzia v tomto zozname zostane.",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Každá uložená verzia tohto panela. Vyberte staršiu verziu a obnovte ju; aktuálna verzia zostane v zozname.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Obnovením sa zahodia zmeny vykonané po nej. Aktuálna verzia zostane v tomto zozname.",
+    "Version of {date}" : "Verzia z {date}",
     "What changed" : "Čo sa zmenilo"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"

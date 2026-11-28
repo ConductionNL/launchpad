@@ -1946,7 +1946,8 @@
         "You get this mail because you asked for it in your LaunchPad settings.": "Получавате този имейл, защото сте го заявили в настройките на LaunchPad.",
         "Current version": "Текуща версия",
         "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Всяка запазена версия на това табло. Изберете по-стара версия, за да я възстановите; текущата версия остава в списъка.",
-        "Restoring it drops the changes made after it. The current version stays in this list.": "Възстановяването отхвърля промените, направени след нея. Текущата версия остава в този списък.",
+        "Restoring it drops the changes made after it. The current version stays in this list.": "Възстановяването премахва промените, направени след нея. Текущата версия остава в този списък.",
+        "Version of {date}": "Версия от {date}",
         "What changed": "Какво се промени"
     }
 }

@@ -2009,8 +2009,9 @@
         "The announcement could not be deleted.": "Die Ankündigung konnte nicht gelöscht werden.",
         "Delete the announcement \"{title}\"?": "Die Ankündigung \"{title}\" löschen?",
         "Current version": "Aktuelle Version",
-        "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Jede gespeicherte Version dieses Dashboards. Wählen Sie eine ältere Version, um sie wiederherzustellen; die aktuelle Version bleibt in der Liste.",
-        "Restoring it drops the changes made after it. The current version stays in this list.": "Beim Wiederherstellen entfallen die danach vorgenommenen Änderungen. Die aktuelle Version bleibt in dieser Liste.",
+        "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Jede gespeicherte Version dieses Dashboards. Wähle eine ältere Version, um sie wiederherzustellen; die aktuelle Version bleibt in der Liste.",
+        "Restoring it drops the changes made after it. The current version stays in this list.": "Beim Wiederherstellen entfallen die Änderungen danach. Die aktuelle Version bleibt in dieser Liste.",
+        "Version of {date}": "Version vom {date}",
         "What changed": "Was sich geändert hat"
     }
 }

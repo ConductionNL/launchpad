@@ -1989,8 +1989,9 @@ OC.L10N.register(
     "Open LaunchPad" : "Abrir LaunchPad",
     "You get this mail because you asked for it in your LaunchPad settings." : "Recibes este correo porque lo pediste en tu configuración de LaunchPad.",
     "Current version" : "Versión actual",
-    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Cada versión guardada de este panel. Elige una versión anterior para restaurarla; la versión actual se queda en la lista.",
-    "Restoring it drops the changes made after it. The current version stays in this list." : "Al restaurarla se descartan los cambios posteriores. La versión actual se queda en esta lista.",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Cada versión guardada de este panel. Elige una versión anterior para restaurarla; la versión actual se mantiene en la lista.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Al restaurarla se descartan los cambios posteriores. La versión actual se mantiene en esta lista.",
+    "Version of {date}" : "Versión del {date}",
     "What changed" : "Qué cambió"
 },
 "nplurals=2; plural=(n != 1);"

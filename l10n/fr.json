@@ -1992,7 +1992,8 @@
         "You get this mail because you asked for it in your LaunchPad settings.": "Vous recevez cet e-mail parce que vous l'avez demandé dans vos paramètres LaunchPad.",
         "Current version": "Version actuelle",
         "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Chaque version enregistrée de ce tableau de bord. Choisissez une version plus ancienne pour la restaurer ; la version actuelle reste dans la liste.",
-        "Restoring it drops the changes made after it. The current version stays in this list.": "La restauration supprime les modifications faites après. La version actuelle reste dans cette liste.",
+        "Restoring it drops the changes made after it. The current version stays in this list.": "La restaurer supprime les modifications faites après elle. La version actuelle reste dans cette liste.",
+        "Version of {date}": "Version du {date}",
         "What changed": "Ce qui a changé"
     }
 }

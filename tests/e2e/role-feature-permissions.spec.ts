@@ -130,6 +130,11 @@ test.beforeAll(async () => {
 		id: String(w.id),
 		title: String(w.title),
 	}))
+	// The stand-ins must be widgets an ordinary user can be granted at all:
+	// a conditional widget Nextcloud offers administrators only (OpenRegister's
+	// operations widget) is never in a member's set, whatever the role allows.
+	const probe = await member('probe')
+	registry = await registryOfferedTo(probe.api)
 	const distinctTitles = new Set(registry.map((w) => w.title))
 	expect(
 		registry.length,

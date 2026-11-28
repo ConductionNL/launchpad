@@ -1990,7 +1990,8 @@ OC.L10N.register(
     "You get this mail because you asked for it in your LaunchPad settings." : "Ricevi questa e-mail perché l'hai richiesta nelle impostazioni di LaunchPad.",
     "Current version" : "Versione attuale",
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Ogni versione salvata di questa dashboard. Scegli una versione precedente per ripristinarla; la versione attuale resta nell'elenco.",
-    "Restoring it drops the changes made after it. The current version stays in this list." : "Il ripristino elimina le modifiche successive. La versione attuale resta in questo elenco.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Ripristinandola si perdono le modifiche successive. La versione attuale resta in questo elenco.",
+    "Version of {date}" : "Versione del {date}",
     "What changed" : "Cosa è cambiato"
 },
 "nplurals=2; plural=(n != 1);"

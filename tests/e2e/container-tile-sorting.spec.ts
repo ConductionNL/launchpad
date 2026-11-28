@@ -133,6 +133,22 @@ let dashboard: SeededDashboard | null = null
 let containerId = 0
 let containerContent: Record<string, unknown> = {}
 
+/**
+ * The key a child's usage is counted under in the browser: the key the
+ * server stamps on each child (REQ-WDG-050, ContainerChildKeys), as
+ * tileSort.childUseKey() reads it, else the renderer's `<container>-<index>`.
+ *
+ * @param index The child's index in the stored order.
+ * @return The child's usage key.
+ */
+function childKey(index: number): string {
+	const child = ((containerContent.placements ?? []) as { id?: unknown, uuid?: unknown }[])[index] ?? {}
+	if (child.id !== undefined && child.id !== null) {
+		return String(child.id)
+	}
+	return typeof child.uuid === 'string' && child.uuid !== '' ? child.uuid : `${containerId}-${index}`
+}
+
 async function sortBy(mode: string): Promise<void> {
 	const updated = await api.put(`${API}/widgets/${containerId}`, {
 		data: { content: { ...containerContent, sortBy: mode } },
@@ -271,8 +287,8 @@ test('most used: the counts stay in the browser, a click sends nothing but the t
 		),
 	)
 	expect(counts).toMatchObject({
-		[`${containerId}-0`]: 2,
-		[`${containerId}-2`]: 1,
+		[childKey(0)]: 2,
+		[childKey(2)]: 1,
 	})
 
 	// No request carries them, in its address or its body.
@@ -328,7 +344,7 @@ test('forget my usage: alphabetical again until a tile is opened', async ({
 	)
 	for (let index = 0; index < STORED_ORDER.length; index++) {
 		expect(left, 'a forgotten tile kept its count').not.toHaveProperty(
-			`${containerId}-${index}`,
+			childKey(index),
 		)
 	}
 

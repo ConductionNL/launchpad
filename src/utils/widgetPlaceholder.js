@@ -11,7 +11,8 @@ import registry from '../../lib/Service/widget-placeholders.json'
  * The registry entry the page has for a widget type, as far as its
  * placeholder goes: nextcloud-vue's declaration (the committed copy of
  * `widget-placeholders.json`, the file the server reads too), else the shape
- * of a type launchpad registers itself (`first-paint-kinds.json`).
+ * of a type launchpad registers itself (`first-paint-kinds.json`). A
+ * launcher tile (`tile-<id>`) is the `tile` type.
  *
  * @param {string|undefined} type The widget type (a placement's `widgetId`).
  * @return {{placeholder: object|string}|undefined} An entry with `placeholder`, or undefined.
@@ -20,6 +21,10 @@ import registry from '../../lib/Service/widget-placeholders.json'
 export function placeholderRegistryEntry(type) {
 	if (typeof type !== 'string' || type === '') {
 		return undefined
+	}
+	// A launcher tile (`tile-<id>`, made by the tile endpoint) is the `tile` type, as on the server.
+	if (type.startsWith('tile-')) {
+		type = 'tile'
 	}
 	const declared = Object.hasOwn(registry, type) ? registry[type] : (Object.hasOwn(kinds.kinds, type) ? kinds.kinds[type] : undefined)
 	return declared === undefined ? undefined : { placeholder: declared }

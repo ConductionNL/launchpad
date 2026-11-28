@@ -229,6 +229,47 @@ test.describe('first paint against the mounted grid (first-paint-skeleton task 8
 		await expect(line.getByRole('link')).toHaveAttribute('href', /\/apps\/launchpad/)
 	})
 
+	test('a slow widget keeps its placeholder while the others fill; the status line counts it, then says all loaded once', async ({ page }) => {
+		await page.context().setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
+		await page.setViewportSize({ width: 1440, height: 900 })
+		// The links widget's items (a Nextcloud API widget) are held back.
+		let release: () => void = () => {}
+		const held = new Promise<void>((resolve) => { release = resolve })
+		await page.route(/\/api\/widgets\/items/, async (route) => {
+			await held
+			await route.continue()
+		})
+		// Every text the status line shows, in order.
+		await page.addInitScript(() => {
+			const w = window as unknown as { __lpStatus: string[] }
+			w.__lpStatus = []
+			new MutationObserver(() => {
+				const line = document.querySelector('.lp-fp__s')
+				const text = line?.textContent?.trim() ?? ''
+				if (line && w.__lpStatus.at(-1) !== text) {
+					w.__lpStatus.push(text)
+				}
+			}).observe(document, { childList: true, subtree: true, characterData: true })
+		})
+		await page.goto('/index.php/apps/launchpad/')
+		await expect(page.locator('#launchpad-first-paint')).toHaveCount(0, { timeout: 30_000 })
+
+		const links = SHOWN.find((entry) => entry.widgetId === 'launchpad_links')!
+		const text = SHOWN.find((entry) => entry.widgetId === 'text')!
+		const waiting = page.locator(`[data-testid="widget-placement-${links.id}"] .cn-widget-wrapper`)
+		await expect(waiting).toHaveAttribute('aria-busy', 'true')
+		await expect(waiting.locator('.cn-widget-placeholder')).toHaveCount(1)
+		await expect(page.locator(`[data-testid="widget-placement-${text.id}"] .cn-widget-wrapper`)).not.toHaveAttribute('aria-busy', 'true')
+		await expect(page.locator('.lp-fp__s')).toHaveText('Still loading 1 widget', { timeout: 10_000 })
+
+		release()
+		await expect(waiting).not.toHaveAttribute('aria-busy', 'true', { timeout: 15_000 })
+		await expect(page.locator('.lp-fp__s')).toHaveText('', { timeout: 10_000 })
+		const said = await page.evaluate(() => (window as unknown as { __lpStatus: string[] }).__lpStatus)
+		expect(said.filter((line) => line === 'All widgets loaded')).toHaveLength(1)
+		expect(said).toContain('Still loading 1 widget')
+	})
+
 	test('no shimmer under reduced motion', async ({ browser }) => {
 		const context = await browser.newContext({ reducedMotion: 'reduce', httpCredentials: { username: ADMIN.user, password: ADMIN.pass } })
 		const page = await context.newPage()

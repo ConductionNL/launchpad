@@ -158,7 +158,7 @@ class PageController extends Controller {
 
 		$descriptors = $this->splitDescriptors(visible: $visible);
 		$activeState = $this->describeActive(active: $active, userId: $userId);
-		$inputs = $this->firstPaintInputs(userId: $userId, visible: $visible) + $activeState + ['widgets' => $widgets, 'active' => $active];
+		$inputs = $this->firstPaintInputs(userId: $userId, visible: $visible, active: $active, state: $activeState) + ['widgets' => $widgets];
 
 		$builder = new InitialStateBuilder(initialState: $this->sources->initialState, page: Page::WORKSPACE);
 
@@ -196,7 +196,7 @@ class PageController extends Controller {
 			->setOrgNavigation($this->settings->orgNavigation?->firstLoad(userId: $userId))
 			->setWorkspaceBootReads($this->sources->bootReads?->firstLoad(userId: $userId))
 			->setShellReads(reads: $this->sources->shell->firstLoad(userId: $userId, visible: $visible))
-			->setWorkspaceApiReads($this->sources->dashboards->payloads?->apiReads?->firstLoad(userId: $userId, opening: ($active ?? []) + $activeState))
+			->setWorkspaceApiReads($inputs['apiReads'])
 			->apply();
 
 		// First-paint-skeleton D1: the header and the widget frames in the
@@ -213,14 +213,22 @@ class PageController extends Controller {
 	 * resource route without the file name, where the shell points a
 	 * dashboard's background image as dashboardLook.js does.
 	 *
-	 * @param string $userId  The user, or ''.
-	 * @param array  $visible The visible dashboards.
+	 * The page's API reads (WorkspaceApiReads) come along too: the shell
+	 * prints the notice banners from them.
 	 *
-	 * @return array{firstLoad: array|null, apps: array, timezone: string, customCss: string, resourceUrl: string}
+	 * The opened dashboard (`active`) and its described state come along,
+	 * so the template reads everything from one array.
+	 *
+	 * @param string     $userId  The user, or ''.
+	 * @param array      $visible The visible dashboards.
+	 * @param array|null $active  The opened dashboard as resolved, or null.
+	 * @param array      $state   The opened dashboard as describeActive() describes it.
+	 *
+	 * @return array<string, mixed> `firstLoad`, `apps`, `timezone`, `customCss`, `resourceUrl`, `apiReads`, `active` and the state's keys.
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
 	 */
-	private function firstPaintInputs(string $userId, array $visible): array {
+	private function firstPaintInputs(string $userId, array $visible, ?array $active, array $state): array {
 		$resource = $this->settings->urlGenerator->linkToRoute(routeName: 'launchpad.resourceServe.getResource', arguments: ['filename' => 'x']);
 
 		return [
@@ -229,7 +237,9 @@ class PageController extends Controller {
 			'timezone'    => $this->userTimezone(userId: $userId),
 			'customCss'   => $this->settings->customCss?->getGlobalCss() ?? '',
 			'resourceUrl' => substr($resource, 0, -1),
-		];
+			'apiReads'    => $this->sources->dashboards->payloads?->apiReads?->firstLoad(userId: $userId, opening: ($active ?? []) + $state),
+			'active'      => $active,
+		] + $state;
 	}//end firstPaintInputs()
 
 	/**

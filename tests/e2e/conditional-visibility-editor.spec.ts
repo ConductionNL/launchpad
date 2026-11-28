@@ -662,6 +662,45 @@ function lastWrite(
 	return JSON.parse(hit!.body || '{}')
 }
 
+/**
+ * Close the rules dialog and store the edit-mode draft with the edit bar's
+ * Save (edit-mode-draft-and-save REQ-EDIT-001/002): the dialog changes the
+ * draft only, and Save sends each changed widget's rules on its placement in
+ * one dashboard request. Answers the rules that Save sent for this suite's
+ * placement.
+ *
+ * @param page The page, in edit mode with the dialog open.
+ * @param stored Whether the Save must be stored (HTTP 200); false only reads what it sent.
+ * @return The rules the Save carried for the placement.
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ */
+async function saveRulesDraft(page: Page, stored = true): Promise<Array<Record<string, unknown>>> {
+	await page.keyboard.press('Escape')
+	await expect(page.locator(EDITOR)).toHaveCount(0, { timeout: 10_000 })
+	const save = page.locator('[data-testid="launchpad-edit-bar-save"]')
+	await expect(save).toBeEnabled({ timeout: 10_000 })
+	const saved = page.waitForResponse(
+		(res) => res.request().method() === 'PUT'
+			&& /\/apps\/launchpad\/api\/dashboard\/\d+$/.test(new URL(res.url()).pathname)
+			&& res.request().postDataJSON()?.draft === true,
+	)
+	await save.click()
+	const response = await saved
+	if (stored) {
+		expect(response.status(), await response.text()).toBe(200)
+	}
+	const body = response.request().postDataJSON() as { placements: Array<{ id?: number, rules?: Array<Record<string, unknown>> }> }
+	const item = body.placements.find((p) => Number(p.id) === placementId)
+	expect(item?.rules, `the Save must carry the rules of placement ${placementId}`).toBeDefined()
+	return item!.rules!
+}
+
+/** No rule went over the separate rule routes: rules travel in the draft Save only. */
+function expectNoRuleRouteWrites(writes: Array<{ method: string; url: string }>): void {
+	const direct = writes.filter((w) => /\/api\/rules\/|\/api\/widgets\/\d+\/rules/.test(w.url))
+	expect(direct.map((w) => `${w.method} ${w.url}`), 'in edit mode the rules dialog changes the draft only (REQ-EDIT-001)').toEqual([])
+}
+
 test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', () => {
 	test.beforeEach(async () => {
 		const api = await adminApi()
@@ -731,7 +770,7 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 	})
 
 	// @e2e conditional-visibility-editor::edit-an-existing-rule-through-the-ui
-	test('editing a row sends PUT /api/rules/{id} with the updated ruleConfig', async ({
+	test('editing a row changes the draft, and Save stores the updated ruleConfig', async ({
 		page,
 	}) => {
 		/*
@@ -745,7 +784,7 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 		 * than quietly substituted.
 		 */
 		const api = await adminApi()
-		const ruleId = await seedRule(api, {
+		await seedRule(api, {
 			ruleType: 'attribute',
 			ruleConfig: { attribute: 'language', operator: 'equals', value: 'nl' },
 			isInclude: true,
@@ -765,29 +804,18 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 		await row.locator('[data-test="rule-value"]').fill('de')
 		await row.locator('[data-test="rule-save"]').click()
 
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) =>
-							w.method === 'PUT'
-							&& w.url.includes(`/api/rules/${ruleId}`),
-					).length,
-				{
-					message: `an edit must be persisted with PUT /api/rules/${ruleId}`,
-					timeout: 15_000,
-				},
-			)
-			.toBeGreaterThan(0)
-
-		const sent = lastWrite(writes, 'PUT', `/api/rules/${ruleId}`)
-		expect(sent.ruleConfig, 'the PUT must carry the updated ruleConfig').toEqual(
+		// REQ-EDIT-001/002: the edit sits in the draft until Save, which
+		// carries the widget's rules on its placement.
+		expectNoRuleRouteWrites(writes)
+		const sent = (await saveRulesDraft(page)).find((r) => r.ruleType === 'attribute')
+		expect(sent?.ruleConfig, 'the Save must carry the updated ruleConfig').toEqual(
 			{
 				attribute: 'language',
 				operator: 'equals',
 				value: 'de',
 			},
 		)
+		expectNoRuleRouteWrites(writes)
 
 		// And it must really be stored — a request that the server rejected
 		// would still show up in `writes`.
@@ -803,13 +831,13 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 	})
 
 	// @e2e conditional-visibility-editor::delete-a-rule-through-the-ui
-	test('removing a row sends DELETE /api/rules/{id} and the row disappears', async ({
+	test('removing a row takes it out of the draft, and Save stores the widget without it', async ({
 		page,
 	}) => {
 		// Seeded MATCHING, so the placement stays visible and right-clickable
 		// while the rule exists — see KEEP_VISIBLE.
 		const api = await adminApi()
-		const ruleId = await seedRule(api, { ...KEEP_VISIBLE })
+		await seedRule(api, { ...KEEP_VISIBLE })
 		await api.dispose()
 
 		const writes = recordWrites(page)
@@ -825,25 +853,13 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 			.locator('[data-test="rule-remove"]')
 			.click()
 
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) =>
-							w.method === 'DELETE'
-							&& w.url.includes(`/api/rules/${ruleId}`),
-					).length,
-				{
-					message: `removing a row must send DELETE /api/rules/${ruleId}`,
-					timeout: 15_000,
-				},
-			)
-			.toBeGreaterThan(0)
-
 		await expect(
 			page.locator(ROW_INCLUDE),
 			'the row must disappear from the editor',
 		).toHaveCount(0)
+
+		expectNoRuleRouteWrites(writes)
+		expect(await saveRulesDraft(page), 'the Save must carry the widget with no rules left').toEqual([])
 
 		const api2 = await adminApi()
 		expect(
@@ -854,7 +870,7 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 	})
 
 	// @e2e conditional-visibility-editor::add-a-group-inclusion-rule-through-the-ui
-	test('adding a group include rule POSTs the canonical body and, on 201, shows it in the include section', async ({
+	test('adding a group include rule shows it in the include section, and Save stores the canonical body', async ({
 		page,
 	}) => {
 		const writes = recordWrites(page)
@@ -877,31 +893,35 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 		// trusted to be the default.
 		await activateSwitch(row.locator('[data-test="rule-mode-include"]'))
 
-		const created = page.waitForResponse(
-			(res) =>
-				res.request().method() === 'POST'
-				&& res.url().includes(`/api/widgets/${placementId}/rules`),
-		)
 		await page
 			.locator(ROW_INCLUDE)
 			.first()
 			.locator('[data-test="rule-save"]')
 			.click()
-		const response = await created
 
-		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		// And the row sits in the include section, populated, while the
+		// dialog is open; the rule is in the draft only (REQ-EDIT-001).
+		await expect(
+			page.locator(`${INCLUDE_SECTION} ${ROW_INCLUDE}`),
+			'the new rule must appear as a row in the include section',
+		).toHaveCount(1)
+		await expect(page.locator(ROW_EXCLUDE)).toHaveCount(0)
+		await expect(page.locator(ROW_INCLUDE).first()).toContainText(
+			GROUP.marketing,
+		)
+		await expect(page.locator(ROW_INCLUDE).first()).toContainText(GROUP.sales)
+		await expect(page.locator(EMPTY_STATE)).toHaveCount(0)
+		expectNoRuleRouteWrites(writes)
+
+		// Save carries exactly the canonical rule, nothing more (REQ-EDIT-002).
 		expect(
-			sent,
-			'the editor must send exactly the canonical body, nothing more',
-		).toEqual({
+			await saveRulesDraft(page),
+			'the Save must send exactly the canonical rule, nothing more',
+		).toEqual([{
 			ruleType: 'group',
 			ruleConfig: { groups: [GROUP.marketing, GROUP.sales] },
 			isInclude: true,
-		})
-		expect(
-			response.status(),
-			`the create must answer HTTP 201: ${await response.text()}`,
-		).toBe(201)
+		}])
 
 		// The persisted shape, read back from the server rather than echoed.
 		const api = await adminApi()
@@ -913,18 +933,6 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 			stored[0].ruleConfig,
 			'the stored ruleConfig must be the canonical camelCase `groups` array',
 		).toEqual({ groups: [GROUP.marketing, GROUP.sales] })
-
-		// And the row sits in the include section, populated.
-		await expect(
-			page.locator(`${INCLUDE_SECTION} ${ROW_INCLUDE}`),
-			'the new rule must appear as a row in the include section',
-		).toHaveCount(1)
-		await expect(page.locator(ROW_EXCLUDE)).toHaveCount(0)
-		await expect(page.locator(ROW_INCLUDE).first()).toContainText(
-			GROUP.marketing,
-		)
-		await expect(page.locator(ROW_INCLUDE).first()).toContainText(GROUP.sales)
-		await expect(page.locator(EMPTY_STATE)).toHaveCount(0)
 	})
 
 	// @e2e conditional-visibility-editor::editor-does-not-change-evaluation-semantics
@@ -950,13 +958,9 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 			await draft
 				.locator('[data-test="rule-start-date"]')
 				.fill(MATCHING_START_DATE)
-			const created = page.waitForResponse(
-				(res) =>
-					res.request().method() === 'POST'
-					&& res.url().includes(`/api/widgets/${placementId}/rules`),
-			)
 			await draft.locator('[data-test="rule-save"]').click()
-			expect((await created).status(), 'the create must succeed').toBe(201)
+			// REQ-EDIT-001/002: the rule sits in the draft; Save stores it.
+			await saveRulesDraft(page)
 
 			const api = await adminApi()
 			const afterCreate = await api.get(
@@ -986,14 +990,8 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 				MATCHING_START_DATE,
 			)
 			await row.locator('[data-test="rule-end-date"]').fill(closedEnd)
-			const ruleId = Number(createdRules[0].id)
-			const updated = page.waitForResponse(
-				(res) =>
-					res.request().method() === 'PUT'
-					&& res.url().includes(`/api/rules/${ruleId}`),
-			)
 			await row.locator('[data-test="rule-save"]').click()
-			expect((await updated).status(), 'the edit must succeed').toBe(200)
+			await saveRulesDraft(page)
 
 			const afterEdit = await api.get(
 				`/index.php/apps/launchpad/api/widgets/${placementId}/rules`,
@@ -1017,23 +1015,9 @@ test.describe('conditional-visibility editor — rule builder (REQ-CVUI-001)', (
 				'the dashboard must render what the pipeline decided: a placement whose only include rule has closed must not render (launchpad#98)',
 			).toBe(pipeline)
 
-			// No alternative persistence path: every rule-related write went to
-			// the two canonical CRUD endpoints.
-			const ruleWrites = writes.filter((w) => /rule|visibilit/i.test(w.url))
-			expect(
-				ruleWrites.length,
-				'CONTROL: the create and the edit must both have been seen',
-			).toBeGreaterThanOrEqual(2)
-			for (const w of ruleWrites) {
-				const canonical =
-					(w.method === 'POST'
-						&& w.url.includes(`/api/widgets/${placementId}/rules`))
-					|| (w.method === 'PUT' && w.url.includes(`/api/rules/${ruleId}`))
-				expect(
-					canonical,
-					`a rule write went somewhere other than the CRUD endpoints: ${w.method} ${w.url}`,
-				).toBe(true)
-			}
+			// No alternative persistence path: in edit mode every rule change
+			// went out with the draft Save, none over the separate rule routes.
+			expectNoRuleRouteWrites(writes)
 		} finally {
 			const api = await adminApi()
 			await clearRules(api)
@@ -1071,20 +1055,12 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 
 		await row.locator('[data-test="rule-save"]').click()
 
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) => w.method === 'POST' && w.url.includes('/rules'),
-					).length,
-				{
-					message: 'saving a time row must POST it',
-					timeout: 15_000,
-				},
-			)
-			.toBeGreaterThan(0)
+		// REQ-EDIT-001/002: the row is in the draft; the edit bar's Save sends it
+		// on its placement.
+		const draftRules = await saveRulesDraft(page)
 
-		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		expectNoRuleRouteWrites(writes)
+		const sent = draftRules[0]
 		expect(sent.ruleType).toBe('time')
 		expect(
 			sent.ruleConfig,
@@ -1109,17 +1085,12 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 		await row.locator('[data-test="rule-start-date"]').fill('2026-12-01')
 		await row.locator('[data-test="rule-save"]').click()
 
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) => w.method === 'POST' && w.url.includes('/rules'),
-					).length,
-				{ timeout: 15_000 },
-			)
-			.toBeGreaterThan(0)
+		// REQ-EDIT-001/002: the row is in the draft; the edit bar's Save sends it
+		// on its placement.
+		const draftRules = await saveRulesDraft(page)
 
-		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		expectNoRuleRouteWrites(writes)
+		const sent = draftRules[0]
 		expect(sent.ruleConfig).toEqual({ startDate: '2026-12-01' })
 		// Spelled out separately: `toEqual` above would also pass for
 		// `{startDate, endDate: undefined}` in some serialisers, and the
@@ -1144,17 +1115,12 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 		await row.locator('[data-test="rule-value"]').fill('nl')
 		await row.locator('[data-test="rule-save"]').click()
 
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) => w.method === 'POST' && w.url.includes('/rules'),
-					).length,
-				{ timeout: 15_000 },
-			)
-			.toBeGreaterThan(0)
+		// REQ-EDIT-001/002: the row is in the draft; the edit bar's Save sends it
+		// on its placement.
+		const draftRules = await saveRulesDraft(page)
 
-		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		expectNoRuleRouteWrites(writes)
+		const sent = draftRules[0]
 		expect(sent.ruleType).toBe('attribute')
 		expect(sent.ruleConfig).toEqual({
 			attribute: 'language',
@@ -1173,9 +1139,9 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 		 * Both are observable before the request leaves the browser, and both
 		 * are asserted below.
 		 *
-		 * What is NOT asserted is that the rule is then stored, because it is
-		 * not: the server refuses every `isInclude: false` write with HTTP 400
-		 * (launchpad#96). Asserting persistence here would be asserting that a
+		 * What is NOT asserted is that the rule is then stored: the server has
+		 * refused `isInclude: false` writes with HTTP 400 (launchpad#96). Only
+		 * what the draft Save sends for the row is read. Asserting persistence here would be asserting that a
 		 * different, unfixed defect is fixed, and would make this test red for
 		 * a reason that has nothing to do with the row editor.
 		 */
@@ -1216,21 +1182,12 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 			.first()
 			.locator('[data-test="rule-save"]')
 			.click()
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) => w.method === 'POST' && w.url.includes('/rules'),
-					).length,
-				{
-					message:
-						'saving the toggled row must emit a request carrying its state',
-					timeout: 15_000,
-				},
-			)
-			.toBeGreaterThan(0)
+		// REQ-EDIT-001/002: the row is in the draft; the edit bar's Save sends it
+		// on its placement.
+		const draftRules = await saveRulesDraft(page, false)
 
-		const sent = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		expectNoRuleRouteWrites(writes)
+		const sent = draftRules[0]
 		expect(sent.isInclude, 'an exclude row must emit isInclude false').toBe(
 			false,
 		)
@@ -1274,18 +1231,10 @@ test.describe('conditional-visibility editor — per-row operands (REQ-CVUI-002)
 			.first()
 			.locator('[data-test="rule-save"]')
 			.click()
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) =>
-							w.method === 'POST'
-							&& w.url.includes(`/api/widgets/${placementId}/rules`),
-					).length,
-				{ message: 'saving the group row must POST it', timeout: 15_000 },
-			)
-			.toBeGreaterThan(0)
-		const saved = lastWrite(writes, 'POST', `/api/widgets/${placementId}/rules`)
+		// REQ-EDIT-001/002: the row is in the draft; the edit bar's Save sends it
+		// on its placement.
+		const draftRules = await saveRulesDraft(page)
+		const saved = draftRules[0]
 		expect(
 			saved.ruleConfig,
 			'the saved row must emit the same groups shape',
@@ -1576,22 +1525,10 @@ test.describe('conditional-visibility editor — preview (REQ-CVUI-004, REQ-CVUI
 		)[0]
 
 		await row.locator('[data-test="rule-save"]').click()
-		await expect
-			.poll(
-				() =>
-					writes.filter(
-						(w) =>
-							w.method === 'POST'
-							&& w.url.includes(`/api/widgets/${placementId}/rules`),
-					).length,
-				{ timeout: 15_000 },
-			)
-			.toBeGreaterThan(0)
-		const persisted = lastWrite(
-			writes,
-			'POST',
-			`/api/widgets/${placementId}/rules`,
-		)
+		// REQ-EDIT-001/002: the row is in the draft; the edit bar's Save sends it
+		// on its placement.
+		const draftRules = await saveRulesDraft(page)
+		const persisted = draftRules[0]
 
 		// The requirement is "no translation layer that could drift", so the
 		// two shapes are compared directly rather than each being checked

@@ -5,7 +5,7 @@
  * The children of a well or tabs widget by key (REQ-WDG-050): their embed
  * subject, every child for the embed form, and Duplicate / Remove at any depth.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 
 import { describe, expect, it } from 'vitest'

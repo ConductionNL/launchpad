@@ -417,7 +417,7 @@ describe('Views — the Meer menu wiring', () => {
 		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/fork`, expect.anything())
 	}, 90000)
 
-	// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	// @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 	it('edit mode shows the edit bar: its settings, columns into the draft, and Save', async () => {
 		const { wrapper } = await mountViews()
 		const bar = () => wrapper.findComponent({ name: 'DashboardEditBar' })

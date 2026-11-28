@@ -317,7 +317,7 @@ export async function openOwnDashboard(
  * @param page The page.
  * @param dashboardId The dashboard.
  * @return A promise-like for the response, once it arrives.
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
 export function nextLayoutSave(page: Page, dashboardId: number): PromiseLike<Response> {
 	const run = async (): Promise<Response> => {

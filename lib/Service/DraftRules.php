@@ -36,7 +36,7 @@ use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
  * rule has an allowed type and a configuration, and a Save replaces the
  * widget's rules with the draft's.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 class DraftRules {
 	/**
@@ -60,7 +60,7 @@ class DraftRules {
 	 *
 	 * @throws InvalidArgumentException When a rule is malformed.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 	 */
 	public function fromItem(array $item): ?array {
 		if (array_key_exists('rules', $item) === false) {
@@ -84,7 +84,7 @@ class DraftRules {
 	 *
 	 * @throws ForbiddenException When they may not change who sees it.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	public function assertMayReplace(string $userId, int $placementId): void {
 		try {
@@ -102,7 +102,7 @@ class DraftRules {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	public function replace(int $placementId, array $rules): void {
 		foreach ($this->rules->getRules(placementId: $placementId) as $stored) {

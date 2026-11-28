@@ -6,7 +6,7 @@
  * between the placements stored when edit mode began and the draft, how many
  * changes the draft pill counts, and the one request Save sends.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 
 /**
@@ -49,7 +49,7 @@ let draftCounter = 0
  * A new id for a widget the draft adds.
  *
  * @return {string}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 export function newDraftId() {
 	draftCounter += 1
@@ -61,7 +61,7 @@ export function newDraftId() {
  *
  * @param {object|null} placement The placement.
  * @return {boolean}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 export function isDraftPlacement(placement) {
 	return typeof placement?.id === 'string' && placement.id.startsWith(DRAFT_ID_PREFIX)
@@ -73,7 +73,7 @@ export function isDraftPlacement(placement) {
  *
  * @param {Array<object>} placements The placements.
  * @return {Array<object>}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 export function clonePlacements(placements) {
 	return JSON.parse(JSON.stringify(Array.isArray(placements) ? placements : []))
@@ -106,7 +106,7 @@ function comparable(value) {
  * @param {object} stored The placement as stored when edit mode began.
  * @param {object} draft The placement in the draft.
  * @return {object} The changed fields; empty when nothing changed.
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 export function placementChanges(stored, draft) {
 	const changes = {}
@@ -125,7 +125,7 @@ export function placementChanges(stored, draft) {
  * @param {{placements: Array<object>, columns: number}} stored The state when edit mode began.
  * @param {{placements: Array<object>, columns: number}} draft The draft.
  * @return {{added: Array<object>, removed: Array<object>, changed: Array<{placement: object, fields: object}>, columns: boolean, count: number}}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 export function draftChanges(stored, draft) {
 	const storedById = new Map(stored.placements.map((placement) => [String(placement.id), placement]))
@@ -160,7 +160,7 @@ export function draftChanges(stored, draft) {
  * @param {{placements: Array<object>, columns: number}} stored The state when edit mode began.
  * @param {{placements: Array<object>, columns: number}} draft The draft.
  * @return {{draft: true, gridColumns: number, placements: Array<object>}}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
 export function draftRequestBody(stored, draft) {
 	const storedById = new Map(stored.placements.map((placement) => [String(placement.id), placement]))
@@ -193,7 +193,7 @@ export function draftRequestBody(stored, draft) {
  * @param {{rules?: object}} draft The draft.
  * @param {Array<object>} placements The draft's placements.
  * @return {number}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 export function draftRulesCount(draft, placements) {
 	const ids = new Set((placements ?? []).map((placement) => String(placement.id)))
@@ -207,7 +207,7 @@ export function draftRulesCount(draft, placements) {
  * @param {{placements: Array<object>}} body The body `draftRequestBody` made.
  * @param {{rules?: object}} draft The draft.
  * @return {object}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
 export function withDraftRules(body, draft) {
 	const rules = draft?.rules ?? {}

@@ -5,7 +5,7 @@
  * The edit-mode draft helpers: the change count of the draft pill and the
  * one request Save sends (REQ-EDIT-001, REQ-EDIT-002).
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 
 import { describe, expect, it } from 'vitest'
@@ -61,7 +61,7 @@ describe('editDraft', () => {
 		expect(isDraftPlacement(null)).toBe(false)
 	})
 
-	// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	// @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	it('sends the full list: kept widgets by id, changed ones with their version, new ones by type', () => {
 		const placements = clonePlacements(stored.placements)
 		placements[0].gridY = 4
@@ -79,7 +79,7 @@ describe('editDraft', () => {
 	})
 })
 
-// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+// @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 describe('editDraft — visibility rules in the draft', () => {
 	it('counts the widgets whose rules the draft changed, not removed ones', () => {
 		const draft = { rules: { 1: [], 2: [{ ruleType: 'group' }], 9: [] } }

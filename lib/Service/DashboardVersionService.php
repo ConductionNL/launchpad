@@ -242,8 +242,8 @@ class DashboardVersionService {
 	 *
 	 * @throws Throwable The save's or the version write's failure, after the rollback.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-the-first-version-keeps-the-state-before-the-change-req-vers-011
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-the-first-version-keeps-the-state-before-the-change-req-vers-011
 	 */
 	public function saveWithVersion(int $dashboardId, string $createdBy, \Closure $save): Dashboard {
 		$before = $this->stateBeforeUpdate(dashboardId: $dashboardId);
@@ -271,7 +271,7 @@ class DashboardVersionService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-the-first-version-keeps-the-state-before-the-change-req-vers-011
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-the-first-version-keeps-the-state-before-the-change-req-vers-011
 	 */
 	private function captureSaved(Dashboard $after, ?array $before, string $createdBy): void {
 		$uuid = (string)$after->getUuid();

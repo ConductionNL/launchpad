@@ -186,7 +186,7 @@ class PlacementServiceBookmarkImportTest extends TestCase {
 	 * For an edit-mode draft the quota is checked for the whole import and
 	 * nothing is written (edit-mode-draft-and-save).
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 	 *
 	 * @return void
 	 */

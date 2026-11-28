@@ -6,7 +6,7 @@
  * widget's type, size, content and look, goes below the other widgets and
  * joins the draft; on a dashboard without a draft it is added at once.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 
 import { createPinia, setActivePinia } from 'pinia'

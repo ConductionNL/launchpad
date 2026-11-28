@@ -8,7 +8,7 @@
  * as `<placement id>.<child key>`; Duplicate and Remove in a child's edit
  * menu change the content of the widget on the dashboard that holds it.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 
 import { childUseKey } from './tileSort.js'
@@ -22,7 +22,7 @@ const EMBEDDABLE_KEY = /^[A-Za-z0-9_-]{1,64}$/
  * @param {number|string|null} ownerId The id of the widget on the dashboard that holds the child.
  * @param {object|null} child The child.
  * @return {string}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 export function childSubjectId(ownerId, child) {
 	const key = childUseKey(child)
@@ -38,7 +38,7 @@ export function childSubjectId(ownerId, child) {
  * @param {object|null} content The content of a well or tabs widget.
  * @param {Array<string>} trail The titles above this content.
  * @return {Array<{child: object, trail: Array<string>}>}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 export function allChildren(content, trail = []) {
 	if (!isContent(content)) {
@@ -68,7 +68,7 @@ function listChildren(list, trail) {
  *
  * @param {object} child The child.
  * @return {string}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 export function childLabel(child) {
 	const candidates = [child?.customTitle, child?.content?.title, child?.content?.label, child?.tileTitle, child?.title]
@@ -84,7 +84,7 @@ export function childLabel(child) {
  * @param {object} content The content of the widget on the dashboard.
  * @param {string} key The child's key.
  * @return {object|null}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 export function duplicateChildIn(content, key) {
 	return changeChildIn(content, { key, change: (list, at) => {
@@ -105,7 +105,7 @@ export function duplicateChildIn(content, key) {
  * @param {object} content The content of the widget on the dashboard.
  * @param {string} key The child's key.
  * @return {object|null}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 export function removeChildIn(content, key) {
 	return changeChildIn(content, { key, change: (list, at) => [...list.slice(0, at), ...list.slice(at + 1)] })
@@ -117,7 +117,7 @@ export function removeChildIn(content, key) {
  * @param {object|null} content The content of the widget on the dashboard.
  * @param {string} key The child's key.
  * @return {object|null}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 export function findChildIn(content, key) {
 	return allChildren(content).find(({ child }) => key !== '' && childUseKey(child) === key)?.child ?? null
@@ -130,7 +130,7 @@ export function findChildIn(content, key) {
  * @param {object} content The content of the widget on the dashboard.
  * @param {{key: string, patch: object}} edit The child's key and its changed fields.
  * @return {object|null}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 export function patchChildIn(content, edit) {
 	return changeChildIn(content, {

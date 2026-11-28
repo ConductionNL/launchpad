@@ -76,6 +76,7 @@ class TileLaunchController extends Controller {
 	 * @return Response The file, or the refusal.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-remote-desktop-or-a-published-program-req-tlt-002
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -87,7 +88,8 @@ class TileLaunchController extends Controller {
 
 		try {
 			$placement = $this->placements->find(id: $placementId);
-			if ($placement->getTileLinkType() !== TileLinkValidator::TYPE_REMOTE) {
+			// REQ-TILE-PLACEMENT: a tile made with the form keeps its link type in content.
+			if ($placement->linkTileField(field: 'linkType') !== TileLinkValidator::TYPE_REMOTE) {
 				return $this->notFound();
 			}
 
@@ -104,7 +106,7 @@ class TileLaunchController extends Controller {
 		$response->addHeader(name: 'Content-Type', value: RdpFileWriterInterface::MEDIA_TYPE);
 		$response->addHeader(
 			name: 'Content-Disposition',
-			value: $this->rdpFiles->disposition(fileName: $this->rdpFiles->fileName(title: $placement->getTileTitle()))
+			value: $this->rdpFiles->disposition(fileName: $this->rdpFiles->fileName(title: $placement->linkTileField(field: 'title')))
 		);
 		return $response;
 	}//end rdp()

@@ -69,7 +69,20 @@
 ### Task 9: Measure after and live check
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-first-paint-is-measured-against-the-speed-rule-req-fps-007`
 - **files**: `tests/performance/budget.json`
-- [ ] Measure after on the same reference stack and in the same way as task 1; before and after table in the PR (first paint, first useful content, total, floor, CLS)
+- [x] Measure after on the same reference stack and in the same way as task 1; before and after table in the PR (first paint, first useful content, total, floor, CLS) (28 Nov help-launchpad-2, sandbox reference stack (nginx, php-fpm 8.3 opcache, MariaDB 10.11, APCu, Redis locking), NC 34.0.6, demo seed, pieter (nl) on demo-vandaag at 1440 x 900, 2 warm-up loads then 2 rounds of 10, medians; before = task 1's commit a3befac4 and after = development 7b742b56, built and measured in the same run on the same instance:
+
+  | | before (a3befac4) | after (development) | after, shell switched off |
+  | --- | --- | --- | --- |
+  | TTFB | 88-95 ms | 98 ms | 90-102 ms |
+  | first paint | 272-284 ms | 294-304 ms | 276-284 ms |
+  | **first useful content** (before: first grid frame; after: the shell's frames, painted with the HTML) | **414-452 ms** | **294-304 ms** | 466-484 ms |
+  | mounted grid, first frame | 414-452 ms | 569-594 ms | 466-484 ms |
+  | first screen settled (last grid change before the 2.5 s LazyMount settle) | 673-740 ms | 886-889 ms | 739-806 ms |
+  | load event | 664-741 ms | 873-879 ms | 716-799 ms |
+  | layout shift in the page | 0 | 0.001 | 0.001 |
+  | HTML transferred | 24.2 KB | 28.0 KB | 24.2 KB |
+
+  First useful content meets 300 ms only just (294-304; the first-paint floor of this stack is ~275-285). The visible shell costs about 100 ms on DOMContentLoaded, the first grid frame and load against the same code without it: the shell with `display:none` or without its placeholder markup costs nothing, so it is the rendering of its ~450 placeholder elements (168 of them the 24 squares every `tiles` frame prints) while the page's scripts load; it is not the shimmer (opacity shimmer, a 1 s delay and the library's shimmer stripped measured the same). `content-visibility:auto; contain:strict` on the frames: medians 24-63 ms better in an interleaved 3x A/B, within the noise, not shipped. Next for whoever takes it: print as many placeholder items as the frame holds (a `tiles` frame of one tile placement draws one square), then measure again; the floor (bare Nextcloud Dashboard) was not re-measured in this run)
 - [ ] Budget entry `workspace-first-paint`: first useful content 300 ms, total floor plus 150 ms, CLS 0
 - [ ] Live check on a sandbox against LpLaden (first paint, throttled), LpLadenDeels (one slow app), LpLadenMislukt (scripts blocked) and LpVandaag (loaded), in light and dark, with a screen reader pass on the status line
 - [ ] Test with multiple Nextcloud widgets enabled, with a view-only shared dashboard and a group template dashboard, and with a conditional visibility rule that hides a widget

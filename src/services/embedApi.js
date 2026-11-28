@@ -18,6 +18,9 @@ import { logger } from '../utils/logger.js'
 const baseUrl = generateUrl('/apps/launchpad')
 
 const tokenUrl = (id = '') => `${baseUrl}/api/embed-tokens${id === '' ? '' : `/${encodeURIComponent(id)}`}`
+// The tenant-theme list read in flight, shared by concurrent callers.
+let themesRead = null
+
 const themeUrl = (id = '') => `${baseUrl}/api/tenant-themes${id === '' ? '' : `/${encodeURIComponent(id)}`}`
 
 /**
@@ -166,10 +169,19 @@ export const embedApi = {
 	 *
 	 * @return {Promise<Array<object>>}
 	 * @spec openspec/changes/embedded-analytics/tasks.md#task-16
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/tasks.md
 	 */
-	async listThemes() {
-		const { data } = await axios.get(themeUrl())
-		return Array.isArray(data?.results) ? data.results : []
+	listThemes() {
+		// Callers that ask while a read is in flight share it (the admin page
+		// mounts two theme lists at once); a call after it settled reads afresh.
+		if (themesRead === null) {
+			themesRead = axios.get(themeUrl())
+				.then(({ data }) => (Array.isArray(data?.results) ? data.results : []))
+				.finally(() => {
+					themesRead = null
+				})
+		}
+		return themesRead
 	},
 
 	/**

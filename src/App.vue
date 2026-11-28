@@ -319,7 +319,7 @@ export default {
 		 *
 		 * @return {{ railSuppressed: boolean, entries: object[], isAdmin: boolean, canManageAnnouncements: boolean, includePersonalSettings: boolean }}
 		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-10
 		 */
 		chromeState() {
 			return {

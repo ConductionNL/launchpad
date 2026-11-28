@@ -39,8 +39,8 @@ class ShellBootReads {
 	 * @param WalkthroughPreferencesFirstLoad|null $walkthrough The walkthrough preferences.
 	 * @param MoreMenuFirstLoad|null               $moreMenu    The favourite dashboards (REQ-SHELL-014) and who may manage announcements.
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-10
 	 */
 	public function __construct(
 		public readonly ?ManifestFirstLoad $manifest=null,
@@ -65,8 +65,8 @@ class ShellBootReads {
 	 * @return array<string, array|null> The reads by initial-state key.
 	 *
 	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-10
 	 */
 	public function firstLoad(string $userId, array $visible=[]): array {
 		return [

@@ -47,7 +47,7 @@ export default {
 	computed: {
 		/**
 		 * @return {string} The sendent logo.
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-5
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-5
 		 */
 		sendentLogo() {
 			return generateFilePath('launchpad', 'img', 'sendent-logo.png')
@@ -55,7 +55,7 @@ export default {
 
 		/**
 		 * @return {string} The Conduction logo (a white wordmark).
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-5
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-5
 		 */
 		conductionLogo() {
 			return generateFilePath('launchpad', 'img', 'conduction-logo.png')

@@ -67,6 +67,10 @@ export default {
 
 	components: { AlertCircleOutline, NcButton, NcEmptyContent },
 
+	// `failed`: a widget that could not be shown counts as loaded, so its card
+	// stops waiting in its placeholder (first-paint-skeleton REQ-FPS-004).
+	emits: ['failed'],
+
 	data() {
 		return {
 			failed: false,
@@ -89,6 +93,7 @@ export default {
 		}
 		logger.error('A widget could not be shown:', error)
 		this.failed = true
+		this.$emit('failed')
 		return false
 	},
 

@@ -7,7 +7,7 @@
  * Star and unstar answer the list, 404 for a dashboard the person cannot
  * open, 401 without a session (more-menu-favourites, REQ-SHELL-016).
  *
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-11
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-11
  */
 
 declare(strict_types=1);

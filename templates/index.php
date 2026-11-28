@@ -43,6 +43,13 @@ if (is_array($fp) === false) {
 ?>
 
 <div id="app-workspace" class="launchpad-workspace">
+<?php if (($vars['customCss'] ?? '') !== '') :
+	// The global custom CSS (REQ-THM-003) paints with the shell; outside the
+	// shell, so the hand-over keeps it, and with the id applyCustomCss reuses.
+	// FirstPaintPage::styleText() writes any `<` as a CSS escape.
+	?>
+	<style id="launchpad-custom-css"><?php print_unescaped((string) $vars['customCss']); ?></style>
+<?php endif; ?>
 <?php if ($fp !== null) :
 	// The column count of each band: wider than 1400 px the dashboard's own,
 	// then 12, 8 up to 1100 px and 4 up to 768 px (narrowGridLayout.js).
@@ -73,6 +80,15 @@ if (is_array($fp) === false) {
 		$gridStyle .= '--c'.$band.':'.$count.';--r'.$band.':'.$rows[$band].';';
 	}
 
+	// A dashboard that fills the height (LpVandaag): its rows share the
+	// height below the header, as CnDashboardGrid's fillRowTracks.
+	$fill      = ($fp['fill'] ?? false) === true && ($fp['tracks'] ?? []) !== [];
+	$gridClass = 'lp-fp__g';
+	if ($fill === true) {
+		$gridClass .= ' lp-fp__g--fill';
+		$gridStyle .= '--fr:'.implode(' ', $fp['tracks']).';';
+	}
+
 	$header = $fp['header'];
 	$kind   = '';
 	if ($fp['source'] === 'user' && $fp['isDefault'] === true) {
@@ -96,7 +112,9 @@ if (is_array($fp) === false) {
 #app-workspace{position:relative;flex:1 1 auto;min-width:0;min-height:calc(100vh - var(--header-height,50px) - var(--body-container-margin,8px))}
 .lp-fp{position:absolute;inset:0;z-index:1;overflow:hidden;background:var(--color-main-background-blur,rgba(255,255,255,.8));
 color:var(--color-main-text)}
-.lp-fp__c{box-sizing:border-box;height:100%;padding:8px 20px 0;background:var(--color-background-hover,#f5f5f5)}
+.lp-fp__c{box-sizing:border-box;display:flex;flex-direction:column;height:100%;padding:8px 20px 0;container-type:inline-size;
+background:var(--color-background-hover,#f5f5f5)}
+.lp-fp__h,.lp-fp__g{flex:none}
 .lp-fp__h{display:flex;flex-direction:column;gap:14px;padding:16px 8px 8px}
 .lp-fp__r{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px 24px}
 .lp-fp__t{flex:1 1 320px;min-width:0;margin:0;font-size:28px;font-weight:700;line-height:1.2}
@@ -114,6 +132,10 @@ left:calc(var(--x)*100%/var(--c));width:calc(var(--w)*100%/var(--c));top:calc(va
 @media (max-width:1100px){.lp-fp__g{--c:var(--c2);--r:var(--r2)}.lp-fp__f{--x:var(--x2);--w:var(--w2);--y:var(--y2);--h:var(--h2)}}
 @media (max-width:768px){.lp-fp__g{--c:var(--c3);--r:var(--r3)}.lp-fp__f{--x:var(--x3);--w:var(--w3);--y:var(--y3);
 --h:var(--h3)}.lp-fp__f--ph{display:none}}
+@container (min-width:960px){.lp-fp__g--fill{display:grid;flex:1 1 auto;min-height:0;height:auto;
+grid-template-columns:repeat(var(--c0),minmax(0,1fr));grid-template-rows:var(--fr)}
+.lp-fp__g--fill>.lp-fp__f{position:relative;inset:auto;width:auto;height:auto;min-width:0;min-height:0;
+grid-column:var(--fc);grid-row:var(--fw)}.lp-fp__g--fill>.lp-fp__f--fit{height:calc(var(--fh)*60px)}}
 .lp-fp__d{box-sizing:border-box;display:flex;flex-direction:column;height:100%;overflow:hidden;padding:17px 18px;
 border:1px solid var(--sc-work-field,var(--color-border-dark,#949494));border-radius:12px;background:var(--color-main-background)}
 .lp-fp__ft{margin:0 0 12px;overflow:hidden;font-size:16px;font-weight:700;line-height:1.2;white-space:nowrap;text-overflow:ellipsis}
@@ -131,7 +153,7 @@ background:var(--color-main-background);visibility:hidden;animation:lp-fp-x 0s 1
 @keyframes lp-fp-x{to{visibility:visible}}
 @media (prefers-reduced-motion:reduce){.lp-fp__x{animation-duration:0s}}
 		</style>
-		<div class="lp-fp__c">
+		<div class="lp-fp__c"<?php if (($fp['look'] ?? '') !== '') : ?> style="<?php p((string) $fp['look']); ?>"<?php endif; ?>>
 		<?php if ($header['mode'] === 'page') : ?>
 			<header class="lp-fp__h">
 				<div class="lp-fp__r">
@@ -146,12 +168,17 @@ background:var(--color-main-background);visibility:hidden;animation:lp-fp-x 0s 1
 				</p>
 			</header>
 		<?php endif; ?>
-			<div class="lp-fp__g" style="<?php p($gridStyle); ?>">
+			<div class="<?php p($gridClass); ?>" style="<?php p($gridStyle); ?>">
 			<?php foreach ($fp['frames'] as $frame) :
 				$style = '';
 				foreach ($bands as $band => $count) {
 					$at = $frame['positions'][$count] ?? ['x' => 0, 'y' => 0, 'w' => 1, 'h' => 1];
 					$style .= '--x'.$band.':'.(int) $at['x'].';--w'.$band.':'.(int) $at['w'].';--y'.$band.':'.(int) $at['y'].';--h'.$band.':'.(int) $at['h'].';';
+				}
+
+				if ($fill === true) {
+					$cell   = $frame['cell'];
+					$style .= '--fc:'.($cell['x'] + 1).'/span '.$cell['w'].';--fw:'.($cell['y'] + 1).'/span '.$cell['h'].';--fh:'.$cell['h'].';';
 				}
 
 				$ground  = $header['mode'] === 'greeting' && $frame['id'] === $header['groundId'];
@@ -162,6 +189,10 @@ background:var(--color-main-background);visibility:hidden;animation:lp-fp-x 0s 1
 
 				if ($frame['phoneHidden'] === true) {
 					$classes .= ' lp-fp__f--ph';
+				}
+
+				if ($fill === true && $frame['fitRows'] === true) {
+					$classes .= ' lp-fp__f--fit';
 				}
 
 				$height = (int) ($frame['positions'][$cols[0] ?? 12]['h'] ?? 2) * 60;

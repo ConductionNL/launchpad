@@ -1,0 +1,30 @@
+{
+	"description": "Row tracks of a dashboard that fills the height (first-paint-skeleton D3): each case's cells (x, y, w, h, fitRows) and the tracks CnDashboardGrid's fillRowTracks draws for them. Read by tests/Unit/Service/FirstPaintFillTest.php (the server twin) and src/utils/__tests__/firstPaintFill.fixture.spec.js (nextcloud-vue's own function).",
+	"cases": [
+		{
+			"name": "Mijn werkdag (LpVandaag): greeting, attention and counters fit, the lists share the rest",
+			"cells": [[0, 0, 12, 3, true], [0, 3, 12, 3, true], [0, 6, 4, 2, true], [4, 6, 4, 2, true], [8, 6, 4, 2, true], [0, 8, 8, 8, false], [8, 8, 4, 4, false], [8, 12, 4, 4, false]],
+			"tracks": ["auto", "auto", "auto", "auto", "auto", "auto", "auto", "auto", "minmax(0,1fr)", "minmax(0,1fr)", "minmax(0,1fr)", "minmax(0,1fr)", "minmax(0,1fr)", "minmax(0,1fr)", "minmax(0,1fr)", "minmax(0,1fr)"]
+		},
+		{
+			"name": "A fit row beside a card that runs on below it",
+			"cells": [[0, 0, 8, 3, true], [8, 0, 4, 6, false], [0, 3, 8, 3, false]],
+			"tracks": ["auto", "auto", "auto", "minmax(0,1fr)", "minmax(0,1fr)", "minmax(0,1fr)"]
+		},
+		{
+			"name": "Rows no card covers fit",
+			"cells": [[0, 0, 6, 2, false], [0, 4, 6, 2, true]],
+			"tracks": ["minmax(0,1fr)", "minmax(0,1fr)", "auto", "auto", "auto", "auto"]
+		},
+		{
+			"name": "A fit row beside a card that ends with it shares the height",
+			"cells": [[0, 0, 8, 2, true], [8, 0, 4, 2, false]],
+			"tracks": ["minmax(0,1fr)", "minmax(0,1fr)"]
+		},
+		{
+			"name": "A card beside fit rows only shares the height",
+			"cells": [[0, 0, 8, 3, true], [8, 0, 4, 6, false], [0, 3, 8, 3, true]],
+			"tracks": ["minmax(0,1fr)", "minmax(0,1fr)", "minmax(0,1fr)", "minmax(0,1fr)", "minmax(0,1fr)", "minmax(0,1fr)"]
+		}
+	]
+}

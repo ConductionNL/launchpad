@@ -33,6 +33,20 @@ describe('embedApi', () => {
 		expect(http.get.mock.calls).toEqual([[`${base}/embed-tokens`], [`${base}/tenant-themes`]])
 	})
 
+	it('shares one theme list read between callers while it is in flight, then reads afresh', async () => {
+		let settle
+		http.get.mockReturnValueOnce(new Promise((resolve) => { settle = resolve }))
+		const first = embedApi.listThemes()
+		const second = embedApi.listThemes()
+		expect(http.get).toHaveBeenCalledTimes(1)
+		settle({ data: { results: [{ id: 'th-1' }] } })
+		expect(await first).toEqual([{ id: 'th-1' }])
+		expect(await second).toEqual([{ id: 'th-1' }])
+		http.get.mockResolvedValueOnce({ data: { results: [] } })
+		expect(await embedApi.listThemes()).toEqual([])
+		expect(http.get).toHaveBeenCalledTimes(2)
+	})
+
 	it('sends each token action to its route', async () => {
 		await embedApi.createToken({ name: 'Zeist' })
 		await embedApi.updateToken('t/1', { name: 'Z' })

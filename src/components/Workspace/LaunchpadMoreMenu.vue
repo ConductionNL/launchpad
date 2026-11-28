@@ -249,7 +249,7 @@ export default {
 		/**
 		 * Leave out the "Powered by" footer under both columns.
 		 *
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-5
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-5
 		 */
 		hideFooter: {
 			type: Boolean,
@@ -272,7 +272,7 @@ export default {
 		 * The dashboard rows (and the no-favourites line) inside the scrolling list.
 		 *
 		 * @return {object[]}
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
 		 */
 		dashboardRows() {
 			return this.dashboards.filter((item) => !FOOT_ITEMS.has(item.id))
@@ -282,7 +282,7 @@ export default {
 		 * New dashboard and More/Less, below the list.
 		 *
 		 * @return {object[]}
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
 		 */
 		dashboardFoot() {
 			return this.dashboards.filter((item) => FOOT_ITEMS.has(item.id))
@@ -322,7 +322,7 @@ export default {
 		 * Whether the Dashboards column lists every dashboard.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
 		 */
 		dashboardsExpanded() {
 			return this.dashboards.some((item) => item.keepOpen === true && item.expanded === true)
@@ -366,7 +366,7 @@ export default {
 		 * @param {object} item The item.
 		 * @return {void}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
 		 */
 		choose(event, item) {
 			if (typeof item.onClick === 'function') {

@@ -31,7 +31,19 @@ const { computed, watch, methods } = WidgetRenderer
  * @return {object} the instance.
  */
 function instance(state = {}) {
-	const ctx = { refreshInterval: null, itemsLoading: false, localWidgetItemsData: { items: [], loading: false } }
+	const ctx = {
+		refreshInterval: null,
+		itemsLoading: false,
+		localWidgetItemsData: { items: [], loading: false },
+		settled: false,
+		$emit: vi.fn(),
+		$nextTick: (cb) => {
+			if (cb) {
+				cb()
+			}
+			return Promise.resolve()
+		},
+	}
 	for (const [name, fn] of Object.entries(methods)) {
 		ctx[name] = fn.bind(ctx)
 	}
@@ -220,6 +232,24 @@ describe('WidgetRenderer watchers and lifecycle', () => {
 		WidgetRenderer.mounted.call(nothing)
 		expect(nothing.setupStoreSubscription).toHaveBeenCalledTimes(1)
 		expect(nothing.initWidget).not.toHaveBeenCalled()
+	})
+
+	it('counts a renderer without a loaded event as loaded after its first render, once (REQ-FPS-004)', () => {
+		const make = (state) => instance({ setupStoreSubscription: vi.fn(), initWidget: vi.fn(), ...state })
+
+		const plain = make({ registryEntry: { renderer: { name: 'Plain' } } })
+		WidgetRenderer.mounted.call(plain)
+		expect(plain.$emit).toHaveBeenCalledWith('loaded')
+		plain.settle()
+		expect(plain.$emit.mock.calls.filter(([event]) => event === 'loaded')).toHaveLength(1)
+
+		const fetching = make({ registryEntry: { renderer: { name: 'Fetching', emits: ['loaded'] } } })
+		WidgetRenderer.mounted.call(fetching)
+		expect(fetching.$emit).not.toHaveBeenCalledWith('loaded')
+
+		const nothing = make({ registryEntry: null, widget: null, isTileWidget: false })
+		WidgetRenderer.mounted.call(nothing)
+		expect(nothing.$emit).toHaveBeenCalledWith('loaded')
 	})
 
 	it('clears the refresh timer and unsubscribes before unmount', () => {

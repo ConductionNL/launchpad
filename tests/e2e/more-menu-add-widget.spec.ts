@@ -72,14 +72,24 @@ test.afterAll(async () => {
 	await api.dispose()
 })
 
-test('"Add widget" in the More menu opens the picker with its three sections', async ({ page }) => {
+test('"Add widget" in the More menu opens the picker with the office pack, and the catalogue in the tile form', async ({ page }) => {
 	await page.goto('/index.php/apps/launchpad/')
 	await page.locator(`${MORE_MENU} button`).first().click()
 	await page.getByText('Add widget', { exact: true }).first().click()
 
 	const picker = page.locator('.widget-picker')
 	await expect(picker).toBeVisible({ timeout: 15_000 })
-	await expect(picker.locator('[data-testid="widget-picker-section-tiles"]')).toContainText(ENTRY)
-	await expect(picker.locator('[data-testid="widget-picker-office-pack"]')).toBeVisible()
-	await expect(picker.locator('[data-testid="widget-picker-section-tiles"]')).toBeVisible()
+	// app-link-tile-widget REQ-WDG-042: the picker has no Tiles section any
+	// more; the office pack sits with Launchpad's widgets, and the catalogue's
+	// apps are offered inside the App or link tile's form (board LpTegelToevoegen).
+	await expect(picker.locator('[data-testid="widget-picker-section-launchpad"] [data-testid="widget-picker-office-pack"]')).toBeVisible()
+	await expect(picker.locator('[data-testid="widget-picker-section-tiles"]')).toHaveCount(0)
+
+	await picker.locator('[data-testid="widget-picker-type-tile"]').click()
+	await picker.locator('[data-testid="widget-picker-add"]').click()
+	await page.getByTestId('tile-mode').getByText('An app', { exact: true }).click()
+	const chooser = page.getByTestId('tile-app-chooser')
+	await expect(chooser).toBeVisible({ timeout: 10_000 })
+	await chooser.getByRole('textbox', { name: 'Search apps', exact: true }).fill(STAMP)
+	await expect(chooser.getByText(ENTRY, { exact: true }).first()).toBeVisible()
 })

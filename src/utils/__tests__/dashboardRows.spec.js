@@ -4,7 +4,7 @@
  *
  * The row helpers the More menu kept from the removed dashboards sidebar.
  *
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-9
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-9
  */
 
 import { describe, expect, it, vi } from 'vitest'

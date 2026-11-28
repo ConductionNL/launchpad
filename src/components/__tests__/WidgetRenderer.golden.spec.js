@@ -41,6 +41,8 @@ function instance(state) {
 			return Promise.resolve()
 		},
 		$refs: {},
+		$emit: vi.fn(),
+		settled: false,
 	}
 	for (const [name, fn] of Object.entries(WidgetRenderer.methods)) {
 		ctx[name] = fn.bind(ctx)
@@ -103,6 +105,33 @@ describe('WidgetRenderer.initWidget', () => {
 		expect(tile.loading).toBe(false)
 		expect(tile.mountLegacyWidget).not.toHaveBeenCalled()
 		expect(logger.debug).toHaveBeenCalledTimes(2)
+		// Nothing to load: the card stops waiting (REQ-FPS-004).
+		expect(tile.$emit).toHaveBeenCalledWith('loaded')
+	})
+
+	it('says loaded once an API widget\'s items have settled, failed or not (REQ-FPS-004)', async () => {
+		const ok = instance({ widget: { id: 'w' }, isTileWidget: false, isApiWidget: true })
+		ok.loadWidgetItems = vi.fn(() => {
+			expect(ok.$emit).not.toHaveBeenCalledWith('loaded')
+			return Promise.resolve()
+		})
+		await ok.initWidget()
+		expect(ok.$emit).toHaveBeenCalledWith('loaded')
+
+		const failed = instance({ widget: { id: 'w' }, isTileWidget: false, isApiWidget: true })
+		failed.loadWidgetItems = vi.fn(() => Promise.reject(new Error('down')))
+		await failed.initWidget()
+		expect(failed.$emit).toHaveBeenCalledWith('loaded')
+	})
+
+	it('says loaded when a legacy widget mounts or gives up (REQ-FPS-004)', () => {
+		const mounted = instance({ widget: { id: 'w' }, $refs: { legacyWidgetContainer: { innerHTML: '' } } })
+		mounted.mountViaBridge()
+		expect(mounted.$emit).toHaveBeenCalledWith('loaded')
+
+		const gaveUp = instance({ widget: { id: 'w' } })
+		gaveUp.reportLegacyMountFailure()
+		expect(gaveUp.$emit).toHaveBeenCalledWith('loaded')
 	})
 
 	it('loads an API widget, syncs it, arms refresh and clears loading', async () => {

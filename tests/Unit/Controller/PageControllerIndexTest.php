@@ -496,9 +496,7 @@ class PageControllerIndexTest extends TestCase {
 		$opened = new WidgetPlacement();
 		$opened->setId(51);
 		$opened->setWidgetId('notes');
-		$this->widgets->method('getDashboardPlacements')->willReturnCallback(
-			callback: static fn (int $id): array => $id === 8 ? [$opened] : []
-		);
+		$this->widgets->method('getDashboardPlacements')->willReturnMap([[7, []], [8, [$opened]]]);
 		$this->permissions->method('hideUnpermittedPlacements')->willReturnArgument(0);
 
 		$firstPaint = $this->controller(payloads: $payloads)->index()->getParams()['firstPaint'];

@@ -239,10 +239,33 @@ describe('Views tile editor', () => {
 		await host.saveTile({ title: 'Mail', linkType: 'url', linkValue: 'https://m.test', colourToken: '' })
 		expect(updateWidgetPlacement.mock.calls[0][1].content).not.toHaveProperty('colourToken')
 
-		const addTileToDashboard = vi.fn().mockResolvedValue({ id: 30 })
-		const fresh = makeHost({ updateWidgetPlacement: vi.fn(), addTileToDashboard, closeTileEditor: vi.fn(), editingTile: null })
+		const addWidgetToDashboard = vi.fn().mockResolvedValue({ id: 30 })
+		const fresh = makeHost({ updateWidgetPlacement: vi.fn(), addWidgetToDashboard, closeTileEditor: vi.fn(), editingTile: null })
 		await fresh.saveTile({ title: 'Wiki', linkType: 'url', linkValue: 'https://w.test', colourToken: '--sc-work-ink' })
-		expect(fresh.updateWidgetPlacement).toHaveBeenCalledWith(30, { content: expect.objectContaining({ colourToken: '--sc-work-ink' }) })
+		expect(addWidgetToDashboard).toHaveBeenCalledWith({ type: 'tile', content: expect.objectContaining({ colourToken: '--sc-work-ink', title: 'Wiki' }) }, { w: 2, h: 2 })
+	})
+
+	// @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	it('pre-fills the editor from the content of a link tile that keeps its fields there', () => {
+		const openTileEditor = vi.fn()
+		makeHost({ openTileEditor }).openTileEditorForEdit({
+			id: 14,
+			widgetId: 'tile',
+			content: { mode: 'link', title: 'Wiki', icon: 'Web', iconType: 'mdi', backgroundColor: '#111', textColor: '#eee', linkType: 'url', linkValue: 'https://w.test', pinned: true },
+		})
+
+		expect(openTileEditor).toHaveBeenCalledWith(expect.objectContaining({
+			id: 14,
+			title: 'Wiki',
+			icon: 'Web',
+			iconType: 'mdi',
+			backgroundColor: '#111',
+			textColor: '#eee',
+			linkType: 'url',
+			linkValue: 'https://w.test',
+			mode: 'link',
+			pinned: true,
+		}))
 	})
 
 	it('defaults the health-ping fields for a tile without content', () => {

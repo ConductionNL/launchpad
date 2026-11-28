@@ -101,16 +101,20 @@ describe('Views Add tiles', () => {
 		const updateWidgetPlacement = vi.fn(async (id, patch) => calls.push(['patch', id, patch]))
 		const host = makeHost({ addWidgetToDashboard, addTileToDashboard, updateWidgetPlacement })
 		const word = { title: 'Word', linkType: 'create', linkValue: 'doc' }
+		const wiki = { title: 'Wiki', linkType: 'url', linkValue: 'https://w.test' }
 
 		await host.addChosenTiles([
 			{ key: 'app:grafana', kind: 'app', tile: { appId: 'grafana' } },
 			{ key: 'create:doc', kind: 'tile', tile: word },
+			{ key: 'url:wiki', kind: 'tile', tile: wiki },
 		], { colourToken: '--sc-accent', textColour: 'black', showCount: false })
 
+		// An office "New ..." tile keeps the tile route; a link tile is a tile widget in content (REQ-TILE-PLACEMENT).
 		expect(calls).toEqual([
 			['widget', { type: 'tile', content: { mode: 'app', appId: 'grafana', colourToken: '--sc-accent', textColour: 'black', showCount: false, pinned: false } }],
 			['tile', word],
 			['patch', 9, { content: { mode: 'link', textColour: 'black', colourToken: '--sc-accent' } }],
+			['widget', { type: 'tile', content: { mode: 'link', textColour: 'black', colourToken: '--sc-accent', title: 'Wiki', icon: 'icon-link', iconType: 'class', backgroundColor: '#0082c9', textColor: '#ffffff', linkType: 'url', linkValue: 'https://w.test' } }],
 		])
 	})
 
@@ -129,7 +133,10 @@ describe('Views Add tiles', () => {
 
 	it('stops and rejects when a placement fails, so the dialog stays open', async () => {
 		const host = makeHost({ addTileToDashboard: vi.fn().mockRejectedValue(new Error('409')) })
-		await expect(host.addChosenTiles([{ kind: 'tile', tile: { title: 'x' } }])).rejects.toThrow('409')
+		await expect(host.addChosenTiles([{ kind: 'tile', tile: { title: 'x', linkType: 'create' } }])).rejects.toThrow('409')
+
+		const link = makeHost({ addWidgetToDashboard: vi.fn().mockResolvedValue(undefined) })
+		await expect(link.addChosenTiles([{ kind: 'tile', tile: { title: 'x', linkType: 'url' } }])).rejects.toThrow('The tile could not be added.')
 	})
 
 	it('hands a bookmarks file to the bookmark import', () => {

@@ -179,7 +179,7 @@ export default {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 12px 16px;
+	gap: 12px;
 	margin: -8px -20px 16px;
 	padding: 12px 28px;
 	background: var(--sc-primary-deep, var(--nldesign-color-primary-hover, var(--color-primary-element)));
@@ -279,6 +279,29 @@ export default {
 
 .launchpad-edit-bar__dock:empty {
 	display: none;
+}
+
+/* LpBewerken draws the bar on one row. The More menu docked here shows its
+   three dots only, so it fits after Save at desktop widths instead of
+   wrapping onto a second row; the label stays for screen readers. */
+.launchpad-edit-bar__dock :deep(.lp-more-menu__trigger) {
+	min-width: 38px;
+	height: 38px;
+	padding-inline: 0;
+}
+
+.launchpad-edit-bar__dock :deep(.lp-more-menu__trigger .button-vue__wrapper) {
+	gap: 0;
+}
+
+.launchpad-edit-bar__dock :deep(.lp-more-menu__trigger .button-vue__text) {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
 }
 
 .launchpad-edit-bar__column:focus-visible,

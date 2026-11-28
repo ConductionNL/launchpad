@@ -1941,7 +1941,12 @@ OC.L10N.register(
     "New announcements" : "Njoftime të reja",
     "What changed on your dashboards" : "Çfarë ndryshoi në panelet tuaja",
     "Open LaunchPad" : "Hap LaunchPad",
-    "You get this mail because you asked for it in your LaunchPad settings." : "E merrni këtë email sepse e kërkuat në cilësimet e LaunchPad."
+    "You get this mail because you asked for it in your LaunchPad settings." : "E merrni këtë email sepse e kërkuat në cilësimet e LaunchPad.",
+    "Current version" : "Versioni aktual",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Çdo version i ruajtur i këtij paneli. Zgjidhni një version më të vjetër për ta rikthyer; versioni aktual mbetet në listë.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Rikthimi hedh poshtë ndryshimet e bëra pas tij. Versioni aktual mbetet në këtë listë.",
+    "Version of {date}" : "Versioni i {date}",
+    "What changed" : "Çfarë ndryshoi"
 },
 "nplurals=2; plural=(n != 1);"
 );

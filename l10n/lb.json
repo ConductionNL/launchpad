@@ -1943,6 +1943,11 @@
         "New announcements": "Nei Annoncen",
         "What changed on your dashboards": "Wat sech op Ären Dashboarde geännert huet",
         "Open LaunchPad": "LaunchPad opmaachen",
-        "You get this mail because you asked for it in your LaunchPad settings.": "Dir kritt dës Mail, well Dir se an Ären LaunchPad-Astellungen ugefrot hutt."
+        "You get this mail because you asked for it in your LaunchPad settings.": "Dir kritt dës Mail, well Dir se an Ären LaunchPad-Astellungen ugefrot hutt.",
+        "Current version": "Aktuell Versioun",
+        "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "All gespäichert Versioun vun dësem Dashboard. Wiel eng méi al Versioun, fir se zréckzesetzen; déi aktuell Versioun bleift an der Lëscht.",
+        "Restoring it drops the changes made after it. The current version stays in this list.": "Beim Zrécksetze falen d'Ännerunge vun duerno ewech. Déi aktuell Versioun bleift an dëser Lëscht.",
+        "Version of {date}": "Versioun vum {date}",
+        "What changed": "Wat geännert huet"
     }
 }

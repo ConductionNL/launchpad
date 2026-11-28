@@ -199,6 +199,20 @@
 	padding: 16px 18px 8px;
 }
 
+/* LpBewerken: in edit mode every card carries the field border and a light
+   shadow, so what can be moved reads apart from the page ground. */
+.cn-look-board .launchpad-container .launchpad-widget--editing .cn-widget-wrapper.cn-widget-wrapper--nc-dashboard {
+	border-color: var(--sc-work-field, var(--color-border-maxcontrast));
+	box-shadow: 0 1px 2px rgba(27, 28, 29, 0.06);
+}
+
+/* LpBewerken: in edit mode the drag grip sits at the card's top left and the
+   title starts right of it. This rule outranks the header padding above, which
+   otherwise kept the title at 18px under the grip. */
+.cn-look-board .launchpad-container .launchpad-widget--editing .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__header {
+	padding-inline-start: 46px;
+}
+
 .cn-look-board .launchpad-container .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__icon {
 	display: none;
 }
@@ -264,6 +278,10 @@
 
 .cn-look-board .launchpad-container .launchpad-widget--announcement .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__header {
 	padding: 16px 20px 8px 24px;
+}
+
+.cn-look-board .launchpad-container .launchpad-widget--editing.launchpad-widget--announcement .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__header {
+	padding-inline-start: 46px;
 }
 
 .cn-look-board .launchpad-container .launchpad-widget--announcement .cn-widget-wrapper--nc-dashboard .cn-widget-wrapper__content {

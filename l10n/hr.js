@@ -1941,7 +1941,12 @@ OC.L10N.register(
     "New announcements" : "Nove obavijesti",
     "What changed on your dashboards" : "Što se promijenilo na vašim nadzornim pločama",
     "Open LaunchPad" : "Otvori LaunchPad",
-    "You get this mail because you asked for it in your LaunchPad settings." : "Ovu poruku primate jer ste je zatražili u postavkama LaunchPada."
+    "You get this mail because you asked for it in your LaunchPad settings." : "Ovu poruku primate jer ste je zatražili u postavkama LaunchPada.",
+    "Current version" : "Trenutačna verzija",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Svaka spremljena verzija ove nadzorne ploče. Odaberite stariju verziju da biste je vratili; trenutačna verzija ostaje na popisu.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Vraćanjem se odbacuju promjene napravljene nakon nje. Trenutačna verzija ostaje na ovom popisu.",
+    "Version of {date}" : "Verzija od {date}",
+    "What changed" : "Što se promijenilo"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

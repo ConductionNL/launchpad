@@ -1941,7 +1941,12 @@ OC.L10N.register(
     "New announcements" : "Nye meddelelser",
     "What changed on your dashboards" : "Hvad der er ændret på dine dashboards",
     "Open LaunchPad" : "Åbn LaunchPad",
-    "You get this mail because you asked for it in your LaunchPad settings." : "Du får denne mail, fordi du har bedt om den i dine LaunchPad-indstillinger."
+    "You get this mail because you asked for it in your LaunchPad settings." : "Du får denne mail, fordi du har bedt om den i dine LaunchPad-indstillinger.",
+    "Current version" : "Aktuel version",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Alle gemte versioner af dette dashboard. Vælg en ældre version for at gendanne den; den aktuelle version bliver i listen.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Gendannelse fjerner ændringerne foretaget efter den. Den aktuelle version bliver i denne liste.",
+    "Version of {date}" : "Version fra {date}",
+    "What changed" : "Hvad der ændrede sig"
 },
 "nplurals=2; plural=(n != 1);"
 );

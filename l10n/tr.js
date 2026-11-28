@@ -1941,7 +1941,12 @@ OC.L10N.register(
     "New announcements" : "Yeni duyurular",
     "What changed on your dashboards" : "Panolarınızda neler değişti",
     "Open LaunchPad" : "LaunchPad'i aç",
-    "You get this mail because you asked for it in your LaunchPad settings." : "Bu e-postayı LaunchPad ayarlarınızda istediğiniz için alıyorsunuz."
+    "You get this mail because you asked for it in your LaunchPad settings." : "Bu e-postayı LaunchPad ayarlarınızda istediğiniz için alıyorsunuz.",
+    "Current version" : "Geçerli sürüm",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Bu panonun kaydedilen her sürümü. Geri yüklemek için daha eski bir sürüm seçin; geçerli sürüm listede kalır.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Geri yükleme, ondan sonra yapılan değişiklikleri atar. Geçerli sürüm bu listede kalır.",
+    "Version of {date}" : "{date} sürümü",
+    "What changed" : "Ne değişti"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -2005,7 +2005,12 @@ OC.L10N.register(
     "The read confirmations could not be loaded." : "Die Lesebestätigungen konnten nicht geladen werden.",
     "The announcement could not be ended." : "Die Ankündigung konnte nicht beendet werden.",
     "The announcement could not be deleted." : "Die Ankündigung konnte nicht gelöscht werden.",
-    "Delete the announcement \"{title}\"?" : "Die Ankündigung \"{title}\" löschen?"
+    "Delete the announcement \"{title}\"?" : "Die Ankündigung \"{title}\" löschen?",
+    "Current version" : "Aktuelle Version",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Jede gespeicherte Version dieses Dashboards. Wähle eine ältere Version, um sie wiederherzustellen; die aktuelle Version bleibt in der Liste.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Beim Wiederherstellen entfallen die Änderungen danach. Die aktuelle Version bleibt in dieser Liste.",
+    "Version of {date}" : "Version vom {date}",
+    "What changed" : "Was sich geändert hat"
 },
 "nplurals=2; plural=(n != 1);"
 );

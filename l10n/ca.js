@@ -1941,7 +1941,11 @@ OC.L10N.register(
     "New announcements" : "Avisos nous",
     "What changed on your dashboards" : "Què ha canviat als vostres taulers",
     "Open LaunchPad" : "Obre LaunchPad",
-    "You get this mail because you asked for it in your LaunchPad settings." : "Rebeu aquest correu perquè l'heu demanat a la configuració de LaunchPad."
+    "You get this mail because you asked for it in your LaunchPad settings." : "Rebeu aquest correu perquè l'heu demanat a la configuració de LaunchPad.",
+    "Current version" : "Versió actual",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Cada versió desada d'aquest tauler. Trieu una versió anterior per restaurar-la; la versió actual es queda a la llista.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Restaurar-la descarta els canvis fets després. La versió actual es queda en aquesta llista.",
+    "What changed" : "Què ha canviat"
 },
 "nplurals=2; plural=(n != 1);"
 );

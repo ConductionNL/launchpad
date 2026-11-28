@@ -43,6 +43,14 @@ describe('DashboardEditBar', () => {
 		expect(bar.text()).toContain('You are editing Mijn werkplek')
 	})
 
+	// Board LpBewerken: a long name is cut with an ellipsis; the tooltip keeps all of it.
+	it('gives the title its full text as a tooltip', () => {
+		const name = 'Een heel lange naam voor een dashboard van de afdeling Vergunningen en Toezicht'
+		const title = mountBar({ dashboardName: name }).find('.launchpad-edit-bar__title')
+		expect(title.attributes('title')).toBe(`You are editing ${name}`)
+		expect(title.text()).toBe(`You are editing ${name}`)
+	})
+
 	// add-widget-dialog-with-miniatures REQ-WDG-049: Add widget is the one way in, no Add tiles.
 	it('holds Columns, Add widget, Dashboard settings, Cancel and Save, in that order, and no Add tiles or Done', () => {
 		const wrapper = mountBar()

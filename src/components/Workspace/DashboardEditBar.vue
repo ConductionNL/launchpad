@@ -16,8 +16,8 @@
 		data-testid="launchpad-edit-bar"
 		@keydown.esc="$emit('leave')">
 		<Pencil :size="20" class="launchpad-edit-bar__icon" />
-		<strong class="launchpad-edit-bar__title">
-			{{ t('launchpad', 'You are editing {name}', { name: dashboardName }) }}
+		<strong class="launchpad-edit-bar__title" :title="editingLabel">
+			{{ editingLabel }}
 		</strong>
 		<!-- REQ-EDIT-001: the draft pill, "Draft · n changes" or "No changes". -->
 		<span
@@ -155,6 +155,18 @@ export default {
 		}
 	},
 
+	computed: {
+		/**
+		 * "You are editing {name}", also the tooltip of a name cut short.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 */
+		editingLabel() {
+			return t('launchpad', 'You are editing {name}', { name: this.dashboardName })
+		},
+	},
+
 	mounted() {
 		this.$emit('dock', this.$refs.dock)
 	},
@@ -179,7 +191,7 @@ export default {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 12px 16px;
+	gap: 12px;
 	margin: -8px -20px 16px;
 	padding: 12px 28px;
 	background: var(--sc-primary-deep, var(--nldesign-color-primary-hover, var(--color-primary-element)));
@@ -190,9 +202,16 @@ export default {
 	flex: none;
 }
 
+/* A long name is cut with an ellipsis (its full text in the tooltip), so the
+   actions stay on the one row board LpBewerken draws. */
 .launchpad-edit-bar__title {
+	flex: 0 1 auto;
+	min-width: 0;
+	overflow: hidden;
 	font-size: 16px;
 	font-weight: 600;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .launchpad-edit-bar__pill {
@@ -279,6 +298,24 @@ export default {
 
 .launchpad-edit-bar__dock:empty {
 	display: none;
+}
+
+/* REQ-EDIT-001, board LpBewerken: the bar is one row at 1440 px. More docks
+   at its end as a square "…" button; its label, and the page's loading status
+   line docked with it, stay for screen readers. */
+.launchpad-edit-bar__dock :deep(.lp-more-menu__trigger) {
+	min-width: 38px;
+	padding-inline: 0;
+}
+
+.launchpad-edit-bar__dock :deep(.lp-more-menu__trigger .button-vue__text),
+.launchpad-edit-bar__dock :deep(.launchpad-status-slot) {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
 }
 
 .launchpad-edit-bar__column:focus-visible,

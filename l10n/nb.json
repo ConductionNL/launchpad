@@ -1943,6 +1943,10 @@
         "New announcements": "Nye kunngjøringer",
         "What changed on your dashboards": "Hva som er endret på dashbordene dine",
         "Open LaunchPad": "Åpne LaunchPad",
-        "You get this mail because you asked for it in your LaunchPad settings.": "Du får denne e-posten fordi du ba om den i LaunchPad-innstillingene dine."
+        "You get this mail because you asked for it in your LaunchPad settings.": "Du får denne e-posten fordi du ba om den i LaunchPad-innstillingene dine.",
+        "Current version": "Gjeldende versjon",
+        "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Hver lagrede versjon av dette dashbordet. Velg en eldre versjon for å gjenopprette den; den gjeldende versjonen blir værende i listen.",
+        "Restoring it drops the changes made after it. The current version stays in this list.": "Gjenoppretting fjerner endringene som ble gjort etter den. Den gjeldende versjonen blir værende i denne listen.",
+        "What changed": "Hva som endret seg"
     }
 }

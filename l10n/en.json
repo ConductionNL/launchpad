@@ -2514,6 +2514,10 @@
         "Pinned first": "Pinned first",
         "Leave out": "Leave out",
         "Most used apps after the pinned ones (0 shows all)": "Most used apps after the pinned ones (0 shows all)",
-        "Show a search field above the apps": "Show a search field above the apps"
+        "Show a search field above the apps": "Show a search field above the apps",
+        "Current version": "Current version",
+        "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.",
+        "Restoring it drops the changes made after it. The current version stays in this list.": "Restoring it drops the changes made after it. The current version stays in this list.",
+        "What changed": "What changed"
     }
 }

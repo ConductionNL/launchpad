@@ -1941,7 +1941,11 @@ OC.L10N.register(
     "New announcements" : "Fógraí nua",
     "What changed on your dashboards" : "A bhfuil athraithe ar do dheais",
     "Open LaunchPad" : "Oscail LaunchPad",
-    "You get this mail because you asked for it in your LaunchPad settings." : "Faigheann tú an ríomhphost seo mar gur iarr tú é i socruithe LaunchPad."
+    "You get this mail because you asked for it in your LaunchPad settings." : "Faigheann tú an ríomhphost seo mar gur iarr tú é i socruithe LaunchPad.",
+    "Current version" : "Leagan reatha",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Gach leagan sábháilte den deais seo. Roghnaigh leagan níos sine chun é a athchóiriú; fanann an leagan reatha sa liosta.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Nuair a athchóirítear é, cailltear na hathruithe a rinneadh ina dhiaidh. Fanann an leagan reatha sa liosta seo.",
+    "What changed" : "Cad a d'athraigh"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

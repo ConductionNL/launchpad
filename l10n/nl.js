@@ -2996,7 +2996,11 @@ OC.L10N.register(
     "Pinned first" : "Vastgezet bovenaan",
     "Leave out" : "Weglaten",
     "Most used apps after the pinned ones (0 shows all)" : "Meest gebruikte apps na de vastgezette (0 toont alle)",
-    "Show a search field above the apps" : "Toon een zoekveld boven de apps"
+    "Show a search field above the apps" : "Toon een zoekveld boven de apps",
+    "Current version" : "Huidige versie",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Elke opgeslagen versie van dit dashboard. Kies een oudere versie om die terug te zetten; de huidige versie blijft in de lijst.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Terugzetten laat de wijzigingen van daarna vervallen. De huidige versie blijft in deze lijst.",
+    "What changed" : "Wat veranderde"
 },
 "nplurals=2; plural=(n != 1);"
 );

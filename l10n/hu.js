@@ -1941,7 +1941,11 @@ OC.L10N.register(
     "New announcements" : "Új közlemények",
     "What changed on your dashboards" : "Mi változott az irányítópultjain",
     "Open LaunchPad" : "LaunchPad megnyitása",
-    "You get this mail because you asked for it in your LaunchPad settings." : "Ezt a levelet azért kapja, mert a LaunchPad beállításaiban kérte."
+    "You get this mail because you asked for it in your LaunchPad settings." : "Ezt a levelet azért kapja, mert a LaunchPad beállításaiban kérte.",
+    "Current version" : "Jelenlegi verzió",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Az irányítópult minden mentett verziója. Válasszon egy régebbi verziót a visszaállításhoz; a jelenlegi verzió a listában marad.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "A visszaállítás elveti az utána végzett módosításokat. A jelenlegi verzió ebben a listában marad.",
+    "What changed" : "Mi változott"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -17,7 +17,11 @@ OC.L10N.register(
     "_Reaches {count} person_::_Reaches {count} people_" : ["Reaches {count} person", "Reaches {count} people"],
     "_All %n open case_::_All %n open cases_" : ["All %n open case", "All %n open cases"],
     "_You have hidden %n widget on shared dashboards_::_You have hidden %n widgets on shared dashboards_" : ["You have hidden %n widget on shared dashboards","You have hidden %n widgets on shared dashboards"],
-    "_refreshes every minute_::_refreshes every %n minutes_" : ["refreshes every minute", "refreshes every %n minutes"]
+    "_refreshes every minute_::_refreshes every %n minutes_" : ["refreshes every minute", "refreshes every %n minutes"],
+    "Current version" : "Current version",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Restoring it drops the changes made after it. The current version stays in this list.",
+    "What changed" : "What changed"
 },
 "nplurals=2; plural=(n != 1);"
 );

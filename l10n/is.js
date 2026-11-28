@@ -1941,7 +1941,11 @@ OC.L10N.register(
     "New announcements" : "Nýjar tilkynningar",
     "What changed on your dashboards" : "Hvað breyttist á stjórnborðunum þínum",
     "Open LaunchPad" : "Opna LaunchPad",
-    "You get this mail because you asked for it in your LaunchPad settings." : "Þú færð þennan póst af því að þú baðst um hann í stillingum LaunchPad."
+    "You get this mail because you asked for it in your LaunchPad settings." : "Þú færð þennan póst af því að þú baðst um hann í stillingum LaunchPad.",
+    "Current version" : "Núverandi útgáfa",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Allar vistaðar útgáfur þessa mælaborðs. Veldu eldri útgáfu til að endurheimta hana; núverandi útgáfa verður áfram á listanum.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Endurheimt fellir niður breytingarnar sem gerðar voru á eftir. Núverandi útgáfa verður áfram á þessum lista.",
+    "What changed" : "Hvað breyttist"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

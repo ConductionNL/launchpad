@@ -1941,7 +1941,11 @@ OC.L10N.register(
     "New announcements" : "Новые объявления",
     "What changed on your dashboards" : "Что изменилось на ваших панелях",
     "Open LaunchPad" : "Открыть LaunchPad",
-    "You get this mail because you asked for it in your LaunchPad settings." : "Вы получаете это письмо, потому что запросили его в настройках LaunchPad."
+    "You get this mail because you asked for it in your LaunchPad settings." : "Вы получаете это письмо, потому что запросили его в настройках LaunchPad.",
+    "Current version" : "Текущая версия",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Каждая сохранённая версия этой панели. Выберите более старую версию, чтобы восстановить её; текущая версия остаётся в списке.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "При восстановлении изменения, сделанные после неё, отменяются. Текущая версия остаётся в этом списке.",
+    "What changed" : "Что изменилось"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

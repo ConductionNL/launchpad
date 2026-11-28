@@ -1941,7 +1941,11 @@ OC.L10N.register(
     "New announcements" : "Avviżi ġodda",
     "What changed on your dashboards" : "X'inbidel fuq id-dashboards tiegħek",
     "Open LaunchPad" : "Iftaħ LaunchPad",
-    "You get this mail because you asked for it in your LaunchPad settings." : "Qed tirċievi din l-email għax tlabtha fis-settings ta' LaunchPad."
+    "You get this mail because you asked for it in your LaunchPad settings." : "Qed tirċievi din l-email għax tlabtha fis-settings ta' LaunchPad.",
+    "Current version" : "Verżjoni attwali",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Kull verżjoni salvata ta' dan id-dashboard. Agħżel verżjoni eqdem biex terġa' ġġibha; il-verżjoni attwali tibqa' fil-lista.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Meta terġa' ġġibha jintilfu l-bidliet li saru wara. Il-verżjoni attwali tibqa' f'din il-lista.",
+    "What changed" : "X'inbidel"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

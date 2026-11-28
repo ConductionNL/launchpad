@@ -192,20 +192,51 @@ describe('WidgetWrapper mounts its content through LazyMount', () => {
 		expect(mountWrapper(true).findComponent(LazyMount).props('eager')).toBe(true)
 	})
 
-	it('waits in the placement\'s placeholder until LazyMount is shown', async () => {
-		const CardStub = { name: 'CnWidgetWrapper', props: ['loading', 'placeholder'], template: '<div><slot /></div>' }
-		const wrapper = shallowMount(WidgetWrapper, {
-			propsData: { placement: { id: 1, widgetId: 'no-such-widget-type', showTitle: true }, widget: { title: 'Widget' }, editMode: false },
+	/**
+	 * A card whose LazyMount and error boundary pass their slot through, so
+	 * the renderer inside can be reached.
+	 *
+	 * @param {object} CardStub The CnWidgetWrapper stand-in.
+	 * @param {number} id The placement id.
+	 * @return {object} The wrapper.
+	 */
+	function mountOpenCard(CardStub, id) {
+		return shallowMount(WidgetWrapper, {
+			propsData: { placement: { id, widgetId: 'no-such-widget-type', showTitle: true }, widget: { title: 'Widget' }, editMode: false },
 			mocks: { t: (_app, key) => key },
-			global: { stubs: { CnWidgetWrapper: CardStub } },
+			global: {
+				stubs: {
+					CnWidgetWrapper: CardStub,
+					LazyMount: { name: 'LazyMount', props: ['eager'], template: '<div><slot /></div>' },
+					WidgetErrorBoundary: { name: 'WidgetErrorBoundary', template: '<div><slot /></div>' },
+				},
+			},
 		})
+	}
+
+	it('waits in the placement\'s placeholder until the renderer has loaded (REQ-FPS-004)', async () => {
+		const CardStub = { name: 'CnWidgetWrapper', props: ['loading', 'placeholder'], template: '<div><slot /></div>' }
+		const wrapper = mountOpenCard(CardStub, 1)
 		const card = wrapper.findComponent(CardStub)
 		expect(card.props('loading')).toBe(true)
 		expect(card.props('placeholder')).toEqual({ shape: 'rows' })
 
-		wrapper.findComponent(LazyMount).vm.$emit('shown')
+		// Shown is not loaded: the renderer has to say its content settled.
+		wrapper.findComponent({ name: 'LazyMount' }).vm.$emit('shown')
+		await wrapper.vm.$nextTick()
+		expect(card.props('loading')).toBe(true)
+
+		wrapper.findComponent({ name: 'WidgetRenderer' }).vm.$emit('loaded')
 		await wrapper.vm.$nextTick()
 		expect(card.props('loading')).toBe(false)
+	})
+
+	it('stops waiting when the widget fails to show (an error counts as loaded)', async () => {
+		const CardStub = { name: 'CnWidgetWrapper', props: ['loading', 'placeholder'], template: '<div><slot /></div>' }
+		const wrapper = mountOpenCard(CardStub, 2)
+		wrapper.findComponent({ name: 'WidgetErrorBoundary' }).vm.$emit('failed')
+		await wrapper.vm.$nextTick()
+		expect(wrapper.findComponent(CardStub).props('loading')).toBe(false)
 	})
 
 	it('draws the shape the registry declares for the type', () => {

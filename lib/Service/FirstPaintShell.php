@@ -69,9 +69,11 @@ class FirstPaintShell {
 	 * Constructor.
 	 *
 	 * @param FirstPaintLayout $layout Where the grid puts each frame per column count.
+	 * @param FirstPaintFill   $fill   The row tracks of a dashboard that fills the height.
 	 */
 	public function __construct(
 		private readonly FirstPaintLayout $layout=new FirstPaintLayout(),
+		private readonly FirstPaintFill $fill=new FirstPaintFill(),
 	) {
 	}//end __construct()
 
@@ -83,7 +85,7 @@ class FirstPaintShell {
 	 *                                              the placement ids the personal layer hides for this reader.
 	 * @param list<array<string, mixed>> $catalogue The widget catalogue the page carries (id, title, placeholder, mobileReady).
 	 *
-	 * @return array{header: array<string, mixed>, columns: list<int>, frames: list<array<string, mixed>>}
+	 * @return array{header: array<string, mixed>, columns: list<int>, frames: list<array<string, mixed>>, fill: bool, tracks: list<string>}
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
 	 */
@@ -124,10 +126,18 @@ class FirstPaintShell {
 			$frames[] = $this->frame(placement: $placement, positions: $positions);
 		}
 
+		$fill   = $this->fill->fills(placements: $shown);
+		$tracks = [];
+		if ($fill === true) {
+			$tracks = $this->fill->tracks(frames: $frames);
+		}
+
 		return [
 			'header'  => self::header(dashboard: $dashboard, placements: $shown),
 			'columns' => array_keys($positions),
 			'frames'  => $frames,
+			'fill'    => $fill,
+			'tracks'  => $tracks,
 		];
 	}//end build()
 
@@ -137,6 +147,8 @@ class FirstPaintShell {
 	 * in nextcloud-vue's widget registry (widget-placeholders.json), the
 	 * Nextcloud widget's `placeholder` in the catalogue, the fallback table,
 	 * and otherwise its default. An invalid declaration at any step is skipped.
+	 * A launcher tile (`tile-<id>`, made by the tile endpoint) is the `tile`
+	 * type, as the grid renders it.
 	 *
 	 * @param string               $widgetId  The widget type.
 	 * @param array<string, mixed> $entry     Its catalogue entry, if any.
@@ -148,6 +160,7 @@ class FirstPaintShell {
 	 * @spec openspec/changes/widget-declared-placeholders/tasks.md#task-3
 	 */
 	public function kindOf(string $widgetId, array $entry=[], array $placement=[]): string {
+		$widgetId = self::typeOf(widgetId: $widgetId);
 		$registry = $this->registry();
 		foreach ([$placement['placeholder'] ?? null, $registry[$widgetId] ?? null, $entry['placeholder'] ?? null] as $declared) {
 			$shape = self::shapeOf(declared: $declared);
@@ -160,6 +173,24 @@ class FirstPaintShell {
 
 		return $fallback['kinds'][$widgetId] ?? $fallback['default'];
 	}//end kindOf()
+
+	/**
+	 * The widget type a placement's widget id stands for: `tile` for a
+	 * launcher tile (`tile-<id>`), the id itself otherwise.
+	 *
+	 * @param string $widgetId The placement's widget id.
+	 *
+	 * @return string The widget type.
+	 *
+	 * @spec openspec/changes/widget-declared-placeholders/tasks.md#task-4
+	 */
+	private static function typeOf(string $widgetId): string {
+		if (str_starts_with($widgetId, 'tile-') === true) {
+			return 'tile';
+		}
+
+		return $widgetId;
+	}//end typeOf()
 
 	/**
 	 * The shape of a declaration: a shape name or `['shape' => <name>, 'count' => n]`.
@@ -240,6 +271,14 @@ class FirstPaintShell {
 			'kind'        => $kind,
 			'positions'   => $byColumns,
 			'phoneHidden' => ($entry['mobileReady'] ?? true) === false,
+			// The filled grid places each card at the placement's own cell.
+			'cell'        => [
+				'x' => (int) ($placement['gridX'] ?? 0),
+				'y' => (int) ($placement['gridY'] ?? 0),
+				'w' => (int) ($placement['gridWidth'] ?? 1),
+				'h' => (int) ($placement['gridHeight'] ?? 1),
+			],
+			'fitRows'     => ($content['fitRows'] ?? false) === true,
 		];
 	}//end frame()
 

@@ -119,6 +119,35 @@ public function getPlaceholder(): string|array
 
 The shape is one of `rows` (lists), `lines` (text), `block` (a field, table, chart or other single area), `tiles` (one square per app tile), `counter` (a number) or `heading` (a section title, no placeholder body). A `count` is an integer from 1 to 24 and is clipped to the frame; without it the frame's height decides. Any other value is ignored (LaunchPad logs it at debug level with your widget id) and the widget draws rows. The method is read when the widget catalogue is built, without calling `load()`, so it must not do any work. Every Conduction app's `lib/Dashboard` widget declares one (hydra gate `widget-placeholder-declared`); other vendors' widgets (Talk, Calendar, Mail, Deck) draw rows.
 
+LaunchPad's own widget types that the registry does not declare take their shape from `lib/Service/first-paint-kinds.json`; anything not listed there draws rows. The server shell (`FirstPaintShell`) and the mounted card (`src/utils/widgetPlaceholder.js`) resolve the shape in the same order, and one shared fixture tests both, so the first paint and the mounted page draw the same shape.
+
+### 7. When the placeholder goes: the `loaded` event
+
+The card keeps its placeholder (and `aria-busy`) until the widget's first content has settled, and the page's status line counts it down. When that happens depends on the renderer:
+
+- A renderer that declares `loaded` in its `emits` is waited for. Emit it once, when the first load has settled, **also when it failed** (show your error state, then emit). Do not emit it again on a refresh: the card does not go back to its placeholder.
+- A renderer that does not declare it counts as loaded after its first render. That suits a widget whose data comes with the page (tiles, headings, text) or that draws its own loading state.
+- A Nextcloud API widget counts as loaded when its items have settled, and a legacy `OCA.Dashboard.register` widget when its callback has mounted it or LaunchPad has given up waiting for the callback.
+- A widget that throws while it sets up or renders counts as loaded: its error shows inside its card.
+
+```js
+export default {
+	name: 'MyListWidget',
+	emits: ['loaded'],
+	async mounted() {
+		try {
+			this.items = await fetchItems()
+		} catch (error) {
+			this.error = error
+		} finally {
+			this.$emit('loaded')
+		}
+	},
+}
+```
+
+`rendererEmitsLoaded()` in `src/utils/widgetLoaded.js` decides which case applies. The nextcloud-vue fetching renderers (`CnWidgetRenderer` and its family) already emit `loaded`.
+
 ---
 
 ## Path 2 — Drive a widget from OpenRegister

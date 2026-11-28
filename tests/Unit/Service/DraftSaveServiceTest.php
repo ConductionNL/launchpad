@@ -416,4 +416,34 @@ class DraftSaveServiceTest extends TestCase {
 			actual: $this->writes
 		);
 	}//end testANewTileIsCreatedThroughTheTileRoute()
+	/**
+	 * An App or link tile in app mode added in the draft is a `tile` widget
+	 * with only its content: Save adds it as a widget, so it keeps its app.
+	 *
+	 * @return void
+	 */
+	public function testANewAppModeTileIsAddedAsAWidget(): void {
+		$this->widgets->expects($this->never())->method('addTileFromArray');
+		$this->widgets->method('updatePlacement')->willReturnCallback(function (int $placementId, array $data): WidgetPlacement {
+			$this->writes[] = 'change '.$placementId.' '.json_encode(value: $data);
+			return $this->placement(id: $placementId, gridY: 0);
+		});
+
+		$this->service()->save(draft: $this->draft(placements: [
+			['id' => 1],
+			['id' => 2],
+			[
+				'widgetId' => 'tile', 'gridX' => 0, 'gridY' => 8, 'gridWidth' => 4, 'gridHeight' => 4,
+				'content' => ['mode' => 'app', 'appId' => 'files'],
+			],
+		]));
+
+		$this->assertSame(
+			expected: [
+				'dashboard []',
+				'add tile {"isCompulsory":0,"gridX":0,"gridY":8,"gridWidth":4,"gridHeight":4,"content":{"mode":"app","appId":"files"}}',
+			],
+			actual: $this->writes
+		);
+	}//end testANewAppModeTileIsAddedAsAWidget()
 }//end class

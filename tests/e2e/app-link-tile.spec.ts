@@ -8,7 +8,8 @@
  * count; a link tile with a title and web address; black text on a dark tile
  * warns below WCAG AA and still saves; the tile then draws in that colour.
  *
- * Every tile is placed through the real API on a seeded dashboard, which the
+ * Every tile is placed in the edit-mode draft and the first one stored with
+ * Save (edit-mode-draft-and-save), on a seeded dashboard, which the
  * spec removes afterwards.
  *
  * Gate-19 @e2e traceability:
@@ -83,6 +84,17 @@ test('Files in the picker: an app tile for Files is placed and marked On this da
 	const tile = grid.locator('[data-testid="cn-app-tile"][href*="/apps/files"]')
 	await expect(tile).toBeVisible()
 	await expect(tile).toHaveAttribute('aria-label', /Files/)
+
+	// edit-mode-draft-and-save REQ-EDIT-002: the tile sits in the draft until
+	// Save; only a saved tile is "On this dashboard" after the page reloads.
+	const saved = page.waitForResponse((res) =>
+		res.request().method() === 'PUT'
+		&& /\/apps\/launchpad\/api\/dashboard\/\d+$/.test(new URL(res.url()).pathname)
+		&& res.request().postDataJSON()?.draft === true,
+	)
+	await page.getByTestId('launchpad-edit-bar-save').click()
+	const response = await saved
+	expect(response.status(), await response.text()).toBeLessThan(300)
 
 	await openTileForm(page)
 	await page.getByTestId('tile-mode').getByText('An app', { exact: true }).click()

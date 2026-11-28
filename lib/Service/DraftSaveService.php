@@ -365,7 +365,7 @@ class DraftSaveService {
 	 * @return void
 	 */
 	private function addPlacement(int $dashboardId, array $layout): void {
-		if ($layout['widgetId'] === 'tile') {
+		if (self::isLauncherTile(layout: $layout) === true) {
 			$this->addTile(dashboardId: $dashboardId, layout: $layout);
 			return;
 		}
@@ -378,6 +378,22 @@ class DraftSaveService {
 			$this->widgets->updatePlacement(placementId: (int)$placement->getId(), data: $rest);
 		}
 	}//end addPlacement()
+
+	/**
+	 * Whether a new placement of the draft is a launcher tile, created
+	 * through the tile route: a `tile` that carries tile fields. An App or
+	 * link tile in app mode is a `tile` widget with only its content
+	 * (`mode: app`, `appId`) and is added as a widget, as outside a draft.
+	 *
+	 * @param array<string, mixed> $layout {@see self::newPlacement()}.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 */
+	private static function isLauncherTile(array $layout): bool {
+		return $layout['widgetId'] === 'tile' && array_intersect_key($layout, self::TILE_KEYS) !== [];
+	}//end isLauncherTile()
 
 	/**
 	 * Add a tile of the draft the way the tile route does (a custom tile with

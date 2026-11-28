@@ -10,7 +10,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { handOver, holdMountWhileShellShows, MOUNT_ID, SHELL_ID } from '../firstPaintHandover.js'
+import { handOver, handOverOffTheWorkspace, holdMountWhileShellShows, MOUNT_ID, SHELL_ID, workspacePageIds } from '../firstPaintHandover.js'
 
 /**
  * A page with the mount point and, when asked, the shell beside it.
@@ -61,5 +61,40 @@ describe('firstPaintHandover', () => {
 		expect(document.getElementById(SHELL_ID)).toBeNull()
 		expect(handOver(document, null)).toBe(false)
 		expect(document.getElementById(MOUNT_ID).style.visibility).toBe('')
+	})
+})
+
+describe('handOverOffTheWorkspace', () => {
+	const manifest = { pages: [
+		{ id: 'Workspace', route: '/', component: 'WorkspaceApp' },
+		{ id: 'dashboard-detail', route: '/dashboards/:id', component: 'WorkspaceApp' },
+		{ id: 'Store', route: '/store', type: 'store' },
+	] }
+	const now = (fn) => fn()
+
+	it('names the dashboard view pages', () => {
+		expect([...workspacePageIds(manifest)]).toEqual(['Workspace', 'dashboard-detail'])
+		expect(workspacePageIds(undefined).size).toBe(0)
+	})
+
+	it('removes the shell at once on a page without the grid', () => {
+		page(true)
+		holdMountWhileShellShows()
+		expect(handOverOffTheWorkspace({ name: 'Store' }, workspacePageIds(manifest), document, now)).toBe(true)
+		expect(document.getElementById(SHELL_ID)).toBeNull()
+		expect(document.getElementById(MOUNT_ID).style.visibility).toBe('')
+	})
+
+	it('leaves the shell to the grid on the dashboard view', () => {
+		page(true)
+		holdMountWhileShellShows()
+		expect(handOverOffTheWorkspace({ name: 'Workspace' }, workspacePageIds(manifest), document, now)).toBe(false)
+		expect(document.getElementById(SHELL_ID)).not.toBeNull()
+		expect(document.getElementById(MOUNT_ID).style.visibility).toBe('hidden')
+	})
+
+	it('does nothing without a shell', () => {
+		page(false)
+		expect(handOverOffTheWorkspace({ name: 'Store' }, workspacePageIds(manifest), document, now)).toBe(false)
 	})
 })

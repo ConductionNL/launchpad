@@ -10,8 +10,10 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use DateTimeImmutable;
+use DateTimeZone;
 use OCA\LaunchPad\Service\FirstPaintGreeting;
 use OCP\IL10N;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -149,4 +151,49 @@ class FirstPaintGreetingTest extends TestCase {
 			actual: FirstPaintGreeting::line(l: $l, input: self::reader(timezone: 'Nowhere/Unknown', locale: '') + ['content' => [], 'now' => $now])
 		);
 	}//end testNameAndParts()
+	/**
+	 * The shared fixture's cases, which the page's header test reads too.
+	 *
+	 * @return array<string, array{array<string, string>}>
+	 */
+	public static function sharedCases(): array {
+		$fixture = self::sharedFixture();
+		$cases   = [];
+		foreach ($fixture['cases'] as $case) {
+			$cases[(string) $case['name']] = [$case];
+		}
+
+		return $cases;
+	}//end sharedCases()
+
+	/**
+	 * The greeting fixture both sides read.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function sharedFixture(): array {
+		return json_decode(json: (string) file_get_contents(filename: __DIR__.'/../../fixtures/first-paint-greeting.json'), associative: true);
+	}//end sharedFixture()
+
+	/**
+	 * The shell prints the same greeting line as the page's header, in Dutch
+	 * and in English, on the one shared fixture (first-paint-skeleton task 2).
+	 *
+	 * @param array<string, string> $case One fixture case.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-2
+	 */
+	#[DataProvider('sharedCases')]
+	public function testTheLineMatchesThePageOnTheSharedFixture(array $case): void {
+		$fixture = self::sharedFixture();
+		$now     = new DateTimeImmutable(datetime: $case['at'], timezone: new DateTimeZone(timezone: $case['timezone']));
+		$input   = self::reader(timezone: $case['timezone'], locale: $case['locale']) + ['content' => $fixture['content'], 'now' => $now];
+
+		$this->assertSame(
+			expected: $case['line'],
+			actual: FirstPaintGreeting::line(l: $this->l10n(language: $case['language']), input: $input)
+		);
+	}//end testTheLineMatchesThePageOnTheSharedFixture()
 }//end class

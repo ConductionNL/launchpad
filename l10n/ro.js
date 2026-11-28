@@ -1941,7 +1941,12 @@ OC.L10N.register(
     "New announcements" : "Anunțuri noi",
     "What changed on your dashboards" : "Ce s-a schimbat pe tablourile dvs. de bord",
     "Open LaunchPad" : "Deschide LaunchPad",
-    "You get this mail because you asked for it in your LaunchPad settings." : "Primiți acest e-mail pentru că l-ați cerut în setările LaunchPad."
+    "You get this mail because you asked for it in your LaunchPad settings." : "Primiți acest e-mail pentru că l-ați cerut în setările LaunchPad.",
+    "Current version" : "Versiunea curentă",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Fiecare versiune salvată a acestui tablou de bord. Alegeți o versiune mai veche pentru a o restaura; versiunea curentă rămâne în listă.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Restaurarea renunță la modificările făcute după ea. Versiunea curentă rămâne în această listă.",
+    "Version of {date}" : "Versiunea din {date}",
+    "What changed" : "Ce s-a schimbat"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

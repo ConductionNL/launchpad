@@ -76,8 +76,15 @@
 				v-if="selected && selected.versionNumber !== currentNumber"
 				class="launchpad-versions__preview"
 				data-testid="version-preview">
+				<!-- A fixed sketch of a dashboard as LpVersies draws it; the tinted
+				     block stands for what restoring changes. -->
 				<span class="launchpad-versions__thumb" aria-hidden="true">
-					<span /><span /><span /><span />
+					<span class="launchpad-versions__block launchpad-versions__block--wide" />
+					<span class="launchpad-versions__block launchpad-versions__block--two launchpad-versions__block--tall" />
+					<span class="launchpad-versions__block launchpad-versions__block--tall" />
+					<span class="launchpad-versions__block" />
+					<span class="launchpad-versions__block launchpad-versions__block--two launchpad-versions__block--change" />
+					<span class="launchpad-versions__block launchpad-versions__block--wide launchpad-versions__block--low" />
 				</span>
 				<span class="launchpad-versions__preview-text">
 					<strong>{{ t('launchpad', 'Version of {date}', { date: whenText(selected.createdAt) }) }}</strong>
@@ -417,6 +424,12 @@ export default {
 	align-items: flex-end;
 }
 
+/* The button keeps its whole label ("Deze versie nu opslaan" was cut to
+   "Deze versie nu..."); the note field takes the room that is left. */
+.launchpad-versions__save > :deep(.button-vue) {
+	flex: none;
+}
+
 .launchpad-versions__table {
 	width: 100%;
 	border-collapse: collapse;
@@ -480,35 +493,57 @@ export default {
 .launchpad-versions__preview {
 	display: flex;
 	gap: 16px;
-	align-items: center;
-	padding: 16px;
-	border: 1px solid var(--color-border);
-	border-radius: 12px;
-	background: var(--color-background-hover);
+	align-items: flex-start;
+	padding: 14px;
+	border-radius: 10px;
+	background: var(--sc-work-ground, var(--color-background-hover));
 }
 
 .launchpad-versions__thumb {
 	display: grid;
-	flex: none;
-	grid-template-columns: 1fr 1fr;
+	box-sizing: content-box;
+	flex: 0 0 220px;
+	grid-template-columns: repeat(3, 1fr);
 	gap: 6px;
-	width: 120px;
-	padding: 8px;
+	padding: 10px;
+	border: 1px solid var(--sc-work-line, var(--color-border));
 	border-radius: 8px;
 	background: var(--color-main-background);
 }
 
-.launchpad-versions__thumb > span {
-	height: 22px;
+.launchpad-versions__block {
+	height: 34px;
 	border-radius: 4px;
-	background: var(--color-border);
+	background: var(--sc-primary-light, var(--color-primary-element-light));
+}
+
+.launchpad-versions__block--wide {
+	grid-column: span 3;
+	height: 30px;
+}
+
+.launchpad-versions__block--two {
+	grid-column: span 2;
+}
+
+.launchpad-versions__block--tall {
+	height: 40px;
+}
+
+.launchpad-versions__block--low {
+	height: 24px;
+}
+
+.launchpad-versions__block--change {
+	background: var(--color-error-light, #fcedec);
 }
 
 .launchpad-versions__preview-text {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 6px;
 	font-size: 14px;
+	line-height: 1.5;
 }
 
 .launchpad-versions__actions {

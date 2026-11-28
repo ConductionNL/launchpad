@@ -1941,7 +1941,12 @@ OC.L10N.register(
     "New announcements" : "Uudet tiedotteet",
     "What changed on your dashboards" : "Mikä koontinäytöilläsi muuttui",
     "Open LaunchPad" : "Avaa LaunchPad",
-    "You get this mail because you asked for it in your LaunchPad settings." : "Saat tämän viestin, koska pyysit sitä LaunchPadin asetuksissa."
+    "You get this mail because you asked for it in your LaunchPad settings." : "Saat tämän viestin, koska pyysit sitä LaunchPadin asetuksissa.",
+    "Current version" : "Nykyinen versio",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Jokainen tämän koontinäytön tallennettu versio. Valitse vanhempi versio palauttaaksesi sen; nykyinen versio pysyy luettelossa.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Palauttaminen poistaa sen jälkeen tehdyt muutokset. Nykyinen versio pysyy tässä luettelossa.",
+    "Version of {date}" : "Versio {date}",
+    "What changed" : "Mitä muuttui"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -650,7 +650,7 @@ OC.L10N.register(
     "React" : "Reageren",
     "Reactions" : "Reacties",
     "Version history" : "Versiegeschiedenis",
-    "Restore this version" : "Deze versie herstellen",
+    "Restore this version" : "Deze versie terugzetten",
     "Save version" : "Versie opslaan",
     "Versioning backend unavailable" : "Versie-backend niet beschikbaar",
     "Version not found" : "Versie niet gevonden",
@@ -1544,7 +1544,7 @@ OC.L10N.register(
     "The version history could not be loaded." : "De versiegeschiedenis kon niet worden geladen.",
     "The version could not be saved." : "De versie kon niet worden opgeslagen.",
     "The version could not be restored." : "De versie kon niet worden hersteld.",
-    "Restore this version?" : "Deze versie herstellen?",
+    "Restore this version?" : "Deze versie terugzetten?",
     "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Het dashboard gaat terug naar hoe het was op {date}. Hoe het er nu uitziet, wordt eerst als versie opgeslagen, zodat je dit ongedaan kunt maken.",
     "This playlist is no longer available." : "Deze afspeellijst is niet meer beschikbaar.",
     "This playlist has no dashboards to show." : "Deze afspeellijst heeft geen dashboards om te tonen.",
@@ -2996,7 +2996,12 @@ OC.L10N.register(
     "Pinned first" : "Vastgezet bovenaan",
     "Leave out" : "Weglaten",
     "Most used apps after the pinned ones (0 shows all)" : "Meest gebruikte apps na de vastgezette (0 toont alle)",
-    "Show a search field above the apps" : "Toon een zoekveld boven de apps"
+    "Show a search field above the apps" : "Toon een zoekveld boven de apps",
+    "Current version" : "Huidige versie",
+    "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Elke opgeslagen versie van dit dashboard. Kies een oudere versie om die terug te zetten; de huidige versie blijft in de lijst.",
+    "Restoring it drops the changes made after it. The current version stays in this list." : "Met deze versie verdwijnen de wijzigingen van daarna. De huidige versie blijft bewaard in deze lijst.",
+    "Version of {date}" : "Versie van {date}",
+    "What changed" : "Wat veranderde"
 },
 "nplurals=2; plural=(n != 1);"
 );

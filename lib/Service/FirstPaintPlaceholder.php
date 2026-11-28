@@ -66,14 +66,21 @@ class FirstPaintPlaceholder {
 	 * The placeholder of one shape for a content area $height px high, as
 	 * CnWidgetPlaceholder renders it; '' for a heading, which waits as its text.
 	 *
-	 * @param string $shape  rows, lines, block, tiles, counter or heading.
-	 * @param int    $height The content area's height in px.
+	 * Tiles and counters wrap: with the content area's widest width known,
+	 * only as many are printed as can show there (one square for a single app
+	 * tile), not WRAPPED_ITEMS; each one is an element the page lays out while
+	 * its scripts load (live 28 Nov: ~450 placeholder elements on LpVandaag,
+	 * 168 of them squares, held the page back by about 100 ms).
+	 *
+	 * @param string   $shape  rows, lines, block, tiles, counter or heading.
+	 * @param int      $height The content area's height in px.
+	 * @param int|null $width  The content area's widest width in px, or null when unknown.
 	 *
 	 * @return string HTML; every part is a fixed class name, nothing from input.
 	 *
 	 * @spec openspec/changes/widget-declared-placeholders/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
 	 */
-	public static function markup(string $shape, int $height): string {
+	public static function markup(string $shape, int $height, ?int $width=null): string {
 		$line  = '<span class="cn-widget-placeholder__line"></span>';
 		$short = '<span class="cn-widget-placeholder__line cn-widget-placeholder__line--short"></span>';
 		$items = match ($shape) {
@@ -83,10 +90,10 @@ class FirstPaintPlaceholder {
 			),
 			'lines'   => str_repeat($line, (self::fit(space: $height, pitch: self::LINE_PITCH) - 1)).$short,
 			'block'   => '<span class="cn-widget-placeholder__block"></span>',
-			'tiles'   => str_repeat('<span class="cn-widget-placeholder__tile"></span>', self::WRAPPED_ITEMS),
+			'tiles'   => str_repeat('<span class="cn-widget-placeholder__tile"></span>', self::tilesThatFit(width: $width, height: $height)),
 			'counter' => str_repeat(
 				'<div class="cn-widget-placeholder__counter"><span class="cn-widget-placeholder__number"></span>'.$short.'</div>',
-				self::COUNTERS
+				self::countersThatFit(width: $width)
 			),
 			default   => null,
 		};
@@ -113,6 +120,39 @@ class FirstPaintPlaceholder {
 
 		return trim(str_replace(';}', '}', $css));
 	}//end css()
+
+	/**
+	 * How many 64 px squares (12 px apart) show in the area: WRAPPED_ITEMS
+	 * when its width is unknown, at least one.
+	 *
+	 * @param int|null $width  The area's width in px.
+	 * @param int      $height The area's height in px.
+	 *
+	 * @return int
+	 */
+	private static function tilesThatFit(?int $width, int $height): int {
+		if ($width === null) {
+			return self::WRAPPED_ITEMS;
+		}
+
+		return min(self::WRAPPED_ITEMS, (self::fit(space: $width, pitch: 76) * self::fit(space: $height, pitch: 76)));
+	}//end tilesThatFit()
+
+	/**
+	 * How many 96 px counters (12 px apart) show in a row: COUNTERS when the
+	 * width is unknown, at least one.
+	 *
+	 * @param int|null $width The area's width in px.
+	 *
+	 * @return int
+	 */
+	private static function countersThatFit(?int $width): int {
+		if ($width === null) {
+			return self::COUNTERS;
+		}
+
+		return min(self::COUNTERS, self::fit(space: $width, pitch: 108));
+	}//end countersThatFit()
 
 	/**
 	 * How many items of $pitch px (gap included) fit $space px: at least one.

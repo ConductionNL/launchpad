@@ -222,6 +222,13 @@ background:var(--color-main-background);visibility:hidden;animation:lp-fp-x 0s 1
 				}
 
 				$height = (int) ($frame['positions'][$cols[0] ?? 12]['h'] ?? 2) * 60;
+				// The content area at its widest: the frame's share of a 1920 px
+				// grid (or the whole of a 4-column one on a phone), less the
+				// frame and card padding. Squares and counters past it are clipped.
+				$widest = max(
+					(int) (($frame['positions'][$cols[0] ?? 12]['w'] ?? 1) * 1920 / ($cols[0] ?? 12)),
+					(int) (($frame['positions'][4]['w'] ?? 4) * 768 / 4)
+				) - 52;
 				?>
 				<div class="<?php p($classes); ?>" data-placement-id="<?php p($frame['id']); ?>" style="<?php p($style); ?>">
 					<div class="lp-fp__d">
@@ -240,7 +247,7 @@ background:var(--color-main-background);visibility:hidden;animation:lp-fp-x 0s 1
 								<p class="lp-fp__tx"><?php p($frame['text']); ?></p>
 							<?php endif; ?>
 						<?php else : ?>
-							<?php print_unescaped(FirstPaintPlaceholder::markup(shape: $frame['kind'], height: ($height - 72))); ?>
+							<?php print_unescaped(FirstPaintPlaceholder::markup(shape: $frame['kind'], height: ($height - 72), width: $widest)); ?>
 						<?php endif; ?>
 					<?php endif; ?>
 					</div>

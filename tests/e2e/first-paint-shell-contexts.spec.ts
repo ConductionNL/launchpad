@@ -25,6 +25,7 @@ import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
+import { readAllowUserDashboards, setAllowUserDashboards } from './support/adminTemplates.ts'
 import { createGroupDashboard } from './support/dashboardsSpec.ts'
 import {
 	addToGroup,
@@ -64,6 +65,8 @@ let subjectId: number
 let templateTileId: number
 let templateNcId: number
 let templateUuid = ''
+/** The admin flag as it was before this file, put back afterwards. */
+let originalAllowUserDashboards: boolean | null = null
 
 test.describe.configure({ mode: 'serial' })
 test.setTimeout(180_000)
@@ -132,6 +135,12 @@ async function handsOver(browser: Browser, who: Principal, visibleText: string):
 
 test.beforeAll(async () => {
 	admin = await adminContext()
+	// The owner makes a personal dashboard, refused with personal_dashboards_disabled
+	// while the admin flag is off (its default on a fresh instance).
+	originalAllowUserDashboards = await readAllowUserDashboards(admin)
+	if (!originalAllowUserDashboards) {
+		await setAllowUserDashboards(admin, true)
+	}
 	await createGroup(admin, RULE_GROUP)
 	await createGroup(admin, TEMPLATE_GROUP)
 	owner = await createPrincipal(admin, 'fpc-owner')
@@ -175,6 +184,9 @@ test.afterAll(async () => {
 	}
 	await removeGroup(admin, RULE_GROUP).catch(() => null)
 	await removeGroup(admin, TEMPLATE_GROUP).catch(() => null)
+	if (originalAllowUserDashboards === false) {
+		await setAllowUserDashboards(admin, false).catch(() => null)
+	}
 	await admin.dispose()
 })
 

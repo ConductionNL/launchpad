@@ -301,11 +301,13 @@ class FirstPaintShell {
 			'content'     => [],
 		];
 		foreach ($placements as $placement) {
-			if (($placement['widgetId'] ?? '') === 'header' && ($placement['content']['ground'] ?? false) === true) {
+			// An empty content arrives as `{}` (stdClass), not as an array.
+			$content = (array) ($placement['content'] ?? []);
+			if (($placement['widgetId'] ?? '') === 'header' && ($content['ground'] ?? false) === true) {
 				$header['mode']     = 'greeting';
 				$header['groundId'] = (string) ($placement['id'] ?? '');
-				$header['content']  = (array) $placement['content'];
-				$header['title']    = trim((string) ($placement['content']['title'] ?? ''));
+				$header['content']  = $content;
+				$header['title']    = trim((string) ($content['title'] ?? ''));
 				if ($header['title'] === '') {
 					$header['title'] = $header['name'];
 				}

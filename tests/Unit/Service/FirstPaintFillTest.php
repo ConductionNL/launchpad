@@ -98,4 +98,22 @@ class FirstPaintFillTest extends TestCase {
 		$this->assertFalse(condition: $plain['fill']);
 		$this->assertSame(expected: [], actual: $plain['tracks']);
 	}//end testTheShellFillsWhenAPlacementAsks()
+
+	/**
+	 * A placement created without content carries `{}`, which JSON decodes to
+	 * stdClass: the shell still builds (it answered 500 for the whole page).
+	 *
+	 * @return void
+	 */
+	public function testAnEmptyContentObjectDoesNotBreakTheShell(): void {
+		$placements = [
+			['id' => 1, 'widgetId' => 'header', 'gridX' => 0, 'gridY' => 0, 'gridWidth' => 12, 'gridHeight' => 2, 'content' => new \stdClass()],
+			['id' => 2, 'widgetId' => 'chart', 'gridX' => 0, 'gridY' => 2, 'gridWidth' => 4, 'gridHeight' => 4, 'content' => new \stdClass()],
+		];
+		$model = (new FirstPaintShell())->build(page: ['dashboard' => ['name' => 'Plain', 'gridColumns' => 12], 'placements' => $placements], catalogue: []);
+
+		$this->assertFalse(condition: $model['fill']);
+		$this->assertCount(expectedCount: 2, haystack: $model['frames']);
+		$this->assertSame(expected: 'page', actual: $model['header']['mode']);
+	}//end testAnEmptyContentObjectDoesNotBreakTheShell()
 }//end class

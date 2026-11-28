@@ -142,6 +142,8 @@ export default {
 		officeTiles: { type: Array, default: () => [] },
 		placements: { type: Array, default: () => [] },
 		requestAppFn: { type: Function, default: null },
+		// REQ-WDG-045: the choice keys to start with ticked (the app the assistant proposed).
+		preselectedKeys: { type: Array, default: () => [] },
 	},
 
 	emits: ['update:chosen', 'importBookmarks'],
@@ -151,7 +153,29 @@ export default {
 			search: '',
 			chosen: [],
 			request: emptyRequest(),
+			preselected: new Set(),
 		}
+	},
+
+	watch: {
+		rows: {
+			immediate: true,
+			/**
+			 * Tick each preselected app once its row is listed.
+			 *
+			 * @param {Array<object>} rows The rows.
+			 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+			 */
+			handler(rows) {
+				for (const key of this.preselectedKeys) {
+					const row = this.preselected.has(key) ? null : rows.find((candidate) => candidate.choice.key === key)
+					if (row) {
+						this.preselected.add(key)
+						this.setChosen(row.choice, true)
+					}
+				}
+			},
+		},
 	},
 
 	computed: {

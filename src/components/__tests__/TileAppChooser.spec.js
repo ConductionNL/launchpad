@@ -9,6 +9,7 @@
  * and the bookmark import.
  *
  * @spec openspec/changes/archive/2026-11-27-app-link-tile-widget/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
  */
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -93,6 +94,24 @@ describe('TileAppChooser', () => {
 
 		await tick(wrapper, 'app:files').setValue(false)
 		expect(wrapper.emitted('update:chosen').at(-1)[0]).toHaveLength(1)
+	})
+
+	// REQ-WDG-045: the app the assistant proposed starts ticked, once.
+	it('starts with a preselected catalogue app ticked and emits it, and lets the reader untick it', async () => {
+		const wrapper = mountChooser({ preselectedKeys: ['url:https://zaken.test'] })
+		await flushPromises()
+		expect(tick(wrapper, 'url:https://zaken.test').element.checked).toBe(true)
+		expect(wrapper.emitted('update:chosen').at(-1)[0].map((choice) => choice.tile.linkValue)).toEqual(['https://zaken.test'])
+
+		await tick(wrapper, 'url:https://zaken.test').setValue(false)
+		await wrapper.setProps({ officeTiles: [] })
+		expect(wrapper.emitted('update:chosen').at(-1)[0]).toEqual([])
+	})
+
+	it('ticks nothing for a preselected key no row offers', async () => {
+		const wrapper = mountChooser({ preselectedKeys: ['url:https://elsewhere.test'] })
+		await flushPromises()
+		expect(wrapper.emitted('update:chosen')).toBeUndefined()
 	})
 
 	it('adds a found service and a catalogue app as link tiles', async () => {

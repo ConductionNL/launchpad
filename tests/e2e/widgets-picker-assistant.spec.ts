@@ -150,7 +150,7 @@ test('without an assistant the picker shows no assistant line', async ({ browser
 })
 
 // @e2e widgets::ask-the-assistant
-test('asking the assistant proposes Case system and Place it like this places a one-cell tile for it', async ({ browser }) => {
+test('asking the assistant proposes Case system and Place it like this opens the tile form with it ticked, which places a one-cell tile', async ({ browser }) => {
 	const before = new Set((await readPlacements(own.owner.api, own.id)).map((p) => Number(p.id)))
 	const key = `catalogue:${catalogueUuid}`
 	const { context, page, picker, sent } = await openPicker(browser, true, { key, name: CASE_SYSTEM, reason: 'You handle cases there.' })
@@ -173,6 +173,15 @@ test('asking the assistant proposes Case system and Place it like this places a 
 		expect(sent[0].cards.map((card: { key: string }) => card.key)).toContain(key)
 
 		await proposal.getByRole('button', { name: 'Place it like this' }).click()
+		// One tile type, one form (REQ-APPTILE-004): Place it like this opens
+		// the App or link tile form on "An app" with Case system ticked.
+		const form = picker.getByTestId('widget-picker-tile-form')
+		await expect(form).toBeVisible()
+		await expect(form.locator('[data-testid="tile-mode"] input[value="app"]')).toBeChecked()
+		const ticked = form.locator('[data-testid^="tile-app-tick-"]:checked')
+		await expect(ticked).toHaveCount(1)
+		await expect(form.getByTestId('tile-app-row-catalogue').filter({ has: ticked })).toContainText(CASE_SYSTEM)
+		await form.getByTestId('tile-editor-save').click()
 		await expect(picker).toBeHidden({ timeout: 15_000 })
 		// The tile joins the edit-mode draft; the edit bar's Save places it.
 		expect(await saveEditDraft(page)).toBeLessThan(300)

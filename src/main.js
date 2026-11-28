@@ -51,7 +51,7 @@ import registry from './registry.js'
 import { appBase } from './utils/bootPath.js'
 import { installCarriedReads } from './utils/carriedApiReads.js'
 import { applyCustomCss, GLOBAL_STYLE_ID } from './utils/customCss.js'
-import { holdMountWhileShellShows } from './utils/firstPaintHandover.js'
+import { handOverOffTheWorkspace, holdMountWhileShellShows, workspacePageIds } from './utils/firstPaintHandover.js'
 import { mountHeaderSearch } from './utils/headerSearchMount.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { logger } from './utils/logger.js'
@@ -227,6 +227,11 @@ const router = createRouter({
 // The route half of `permission`. Without it, hiding the nav entry is the whole
 // gate and a typed URL walks straight past it.
 router.beforeEach((to) => permissionGuard(to, permissions))
+
+// first-paint-skeleton D4: only the dashboard view's grid hands the shell
+// over; on any other page (Marketplace, Reports, Flows) it goes at once.
+const workspacePages = workspacePageIds(mergedManifest)
+router.afterEach((to) => handOverOffTheWorkspace(to, workspacePages))
 
 // Shallow copies: the library exports `defaultPageTypes` and the registry as
 // FROZEN module objects in some bundle shapes, and the renderer may attach

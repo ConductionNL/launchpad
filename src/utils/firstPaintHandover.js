@@ -67,3 +67,37 @@ export function handOver(doc = document, frame = globalThis.requestAnimationFram
 	}
 	return true
 }
+
+/**
+ * The manifest pages that render the dashboard view, whose grid hands over
+ * (Views.vue). Every other page (Marketplace, Reports, Flows, Roadmap) has
+ * no grid, so nothing would ever hand over and the shell would stay over it
+ * until the 15 s 'could not load' line.
+ *
+ * @param {object} manifest The merged manifest.
+ * @return {Set<string>} The page ids (route names) of the dashboard view.
+ * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
+ */
+export function workspacePageIds(manifest) {
+	return new Set((manifest?.pages ?? [])
+		.filter((page) => page?.component === 'WorkspaceApp')
+		.map((page) => page.id))
+}
+
+/**
+ * Hand over at once when the router lands on a page other than the
+ * dashboard view; the dashboard view keeps its own hand-over.
+ *
+ * @param {{name?: string|symbol}} route The route landed on.
+ * @param {Set<string>} workspacePages From {@link workspacePageIds}.
+ * @param {Document} [doc] The document.
+ * @param {(callback: () => void) => unknown} [frame] requestAnimationFrame, or a stand-in.
+ * @return {boolean} Whether this call handed over.
+ * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
+ */
+export function handOverOffTheWorkspace(route, workspacePages, doc = document, frame = globalThis.requestAnimationFrame?.bind(globalThis)) {
+	if (workspacePages.has(route?.name) || !doc.getElementById(SHELL_ID)) {
+		return false
+	}
+	return handOver(doc, frame)
+}

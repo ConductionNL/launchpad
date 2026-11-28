@@ -10,7 +10,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { handOver, holdMountWhileShellShows, MOUNT_ID, SHELL_ID } from '../firstPaintHandover.js'
+import { handOver, handOverOffTheDashboard, holdMountWhileShellShows, MOUNT_ID, rendersDashboardView, SHELL_ID } from '../firstPaintHandover.js'
 
 /**
  * A page with the mount point and, when asked, the shell beside it.
@@ -61,5 +61,62 @@ describe('firstPaintHandover', () => {
 		expect(document.getElementById(SHELL_ID)).toBeNull()
 		expect(handOver(document, null)).toBe(false)
 		expect(document.getElementById(MOUNT_ID).style.visibility).toBe('')
+	})
+})
+
+describe('hand-over off the dashboard view', () => {
+	const manifest = {
+		pages: [
+			{ id: 'Workspace', route: '/', component: 'WorkspaceApp' },
+			{ id: 'dashboard-detail', route: '/dashboards/:id', component: 'WorkspaceApp' },
+			{ id: 'Store', route: '/store', type: 'store' },
+		],
+	}
+
+	/**
+	 * A router stand-in that records its afterEach hook.
+	 *
+	 * @return {{afterEach: Function, land: Function}} The stand-in.
+	 */
+	function fakeRouter() {
+		let hook = null
+		return {
+			afterEach: (fn) => { hook = fn },
+			land: (to) => hook(to),
+		}
+	}
+
+	it('knows which pages render the dashboard view', () => {
+		expect(rendersDashboardView({ name: 'Workspace' }, manifest)).toBe(true)
+		expect(rendersDashboardView({ name: 'dashboard-detail' }, manifest)).toBe(true)
+		expect(rendersDashboardView({ name: 'Store' }, manifest)).toBe(false)
+		expect(rendersDashboardView({ name: undefined }, manifest)).toBe(false)
+		expect(rendersDashboardView({ name: 'Workspace' }, null)).toBe(false)
+	})
+
+	it('a page without a grid shows itself and removes the shell when it is routed', () => {
+		page(true)
+		holdMountWhileShellShows()
+		const router = fakeRouter()
+		const raf = globalThis.requestAnimationFrame
+		globalThis.requestAnimationFrame = (callback) => callback()
+		try {
+			handOverOffTheDashboard(router, () => manifest)
+			router.land({ name: 'Store' })
+		} finally {
+			globalThis.requestAnimationFrame = raf
+		}
+		expect(document.getElementById(SHELL_ID)).toBeNull()
+		expect(document.getElementById(MOUNT_ID).style.visibility).toBe('')
+	})
+
+	it('the dashboard view keeps the shell until its grid hands over', () => {
+		page(true)
+		holdMountWhileShellShows()
+		const router = fakeRouter()
+		handOverOffTheDashboard(router, () => manifest)
+		router.land({ name: 'Workspace' })
+		expect(document.getElementById(SHELL_ID)).not.toBeNull()
+		expect(document.getElementById(MOUNT_ID).style.visibility).toBe('hidden')
 	})
 })

@@ -67,3 +67,37 @@ export function handOver(doc = document, frame = globalThis.requestAnimationFram
 	}
 	return true
 }
+
+/**
+ * Whether the route renders the dashboard view, the one page whose grid hands
+ * the shell over itself (Views.vue). The manifest names that page's component
+ * `WorkspaceApp`; every other page (Marketplace, Reports, Flows, ...) does not.
+ *
+ * @param {object} route The resolved route; its name is the page id.
+ * @param {object} manifest The app manifest.
+ * @return {boolean} Whether the route renders the dashboard view.
+ * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
+ */
+export function rendersDashboardView(route, manifest) {
+	const page = (manifest?.pages ?? []).find((candidate) => candidate?.id === route?.name)
+	return page?.component === 'WorkspaceApp'
+}
+
+/**
+ * Hand the shell over on every navigation that lands on a page other than the
+ * dashboard view. Those pages draw no grid, so nothing else would hand over
+ * and the mounted page would stay hidden behind the dashboard's shell.
+ *
+ * @param {object} router The vue-router instance.
+ * @param {() => object} manifest Returns the current manifest.
+ * @param {Document} [doc] The document.
+ * @return {void}
+ * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
+ */
+export function handOverOffTheDashboard(router, manifest, doc = document) {
+	router.afterEach((to) => {
+		if (!rendersDashboardView(to, manifest())) {
+			handOver(doc)
+		}
+	})
+}

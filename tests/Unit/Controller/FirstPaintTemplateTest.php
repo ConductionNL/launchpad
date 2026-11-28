@@ -115,7 +115,7 @@ class FirstPaintTemplateTest extends TestCase {
 		$calendar = ['id' => 7, 'widgetId' => 'calendar', 'gridX' => 0, 'gridY' => 0, 'gridWidth' => 6, 'gridHeight' => 4];
 		$params   = FirstPaintPage::params(
 			page: self::page(dashboard: ['themeBackgroundColor' => '#000000'], placements: [$calendar]),
-			context: ['customCss' => '.launchpad-workspace a{color:red}</style><b>', 'resourceUrl' => '/r/']
+			context: ['customCss' => '.launchpad-workspace a{color:red}</style><b>', 'resourceUrl' => '/r/', 'reloadUrl' => '/apps/launchpad/team']
 		);
 		$html   = $this->render(params: $params);
 
@@ -124,6 +124,12 @@ class FirstPaintTemplateTest extends TestCase {
 		$this->assertLessThan(expected: strpos($html, 'id="launchpad-first-paint"'), actual: strpos($html, 'id="launchpad-custom-css"'));
 		$region = '<div class="lp-fp__c" style="background-color:#000000;color:#ffffff;--color-main-text:#ffffff;">';
 		$this->assertStringContainsString(needle: $region, haystack: $html);
+
+		// REQ-FPS-008: the could-not-load line with its Reload link, an alert shown by CSS after 15 s.
+		$this->assertMatchesRegularExpression(
+			pattern: '#<p class="lp-fp__x" role="alert">\s*The page could not load\s*<a href="/apps/launchpad/team">Reload</a>#',
+			string: $html
+		);
 
 		$plain = $this->render(params: FirstPaintPage::params(page: self::page(dashboard: [], placements: []), context: []));
 		$this->assertStringNotContainsString(needle: 'launchpad-custom-css', haystack: $plain);

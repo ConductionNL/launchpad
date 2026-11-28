@@ -147,6 +147,8 @@ class FirstPaintShell {
 	 * in nextcloud-vue's widget registry (widget-placeholders.json), the
 	 * Nextcloud widget's `placeholder` in the catalogue, the fallback table,
 	 * and otherwise its default. An invalid declaration at any step is skipped.
+	 * A launcher tile (`tile-<id>`, made by the tile endpoint) is the `tile`
+	 * type, as the grid renders it.
 	 *
 	 * @param string               $widgetId  The widget type.
 	 * @param array<string, mixed> $entry     Its catalogue entry, if any.
@@ -158,6 +160,7 @@ class FirstPaintShell {
 	 * @spec openspec/changes/widget-declared-placeholders/tasks.md#task-3
 	 */
 	public function kindOf(string $widgetId, array $entry=[], array $placement=[]): string {
+		$widgetId = self::typeOf(widgetId: $widgetId);
 		$registry = $this->registry();
 		foreach ([$placement['placeholder'] ?? null, $registry[$widgetId] ?? null, $entry['placeholder'] ?? null] as $declared) {
 			$shape = self::shapeOf(declared: $declared);
@@ -170,6 +173,24 @@ class FirstPaintShell {
 
 		return $fallback['kinds'][$widgetId] ?? $fallback['default'];
 	}//end kindOf()
+
+	/**
+	 * The widget type a placement's widget id stands for: `tile` for a
+	 * launcher tile (`tile-<id>`), the id itself otherwise.
+	 *
+	 * @param string $widgetId The placement's widget id.
+	 *
+	 * @return string The widget type.
+	 *
+	 * @spec openspec/changes/widget-declared-placeholders/tasks.md#task-4
+	 */
+	private static function typeOf(string $widgetId): string {
+		if (str_starts_with($widgetId, 'tile-') === true) {
+			return 'tile';
+		}
+
+		return $widgetId;
+	}//end typeOf()
 
 	/**
 	 * The shape of a declaration: a shape name or `['shape' => <name>, 'count' => n]`.

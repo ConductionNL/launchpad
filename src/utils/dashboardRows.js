@@ -35,7 +35,7 @@ export function embedAdminHref(dashboard, placement = null) {
  * @param {object|null} dashboard The dashboard.
  * @param {string} source The dashboard's section.
  * @return {boolean}
- * @spec openspec/specs/dashboard-switcher/spec.md
+ * @spec openspec/specs/runtime-shell/spec.md
  */
 export function isOwnedDashboard(dashboard, source) {
 	if (source === 'user') {

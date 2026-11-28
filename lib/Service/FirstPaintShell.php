@@ -106,6 +106,12 @@ class FirstPaintShell {
 					&& in_array((string) ($placement['id'] ?? ''), $hiddenIds, true) === false
 			)
 		);
+		// An empty content blob is on the wire as `{}` (WidgetPlacement::wireObject):
+		// read every content as an array, so a key lookup never meets an object.
+		$shown = array_map(
+			static fn (array $placement): array => ['content' => (array) ($placement['content'] ?? [])] + $placement,
+			$shown
+		);
 
 		$positions = $this->layout->layout(
 			nodes: array_map(
@@ -301,13 +307,11 @@ class FirstPaintShell {
 			'content'     => [],
 		];
 		foreach ($placements as $placement) {
-			// An empty content arrives as `{}` (stdClass), not as an array.
-			$content = (array) ($placement['content'] ?? []);
-			if (($placement['widgetId'] ?? '') === 'header' && ($content['ground'] ?? false) === true) {
+			if (($placement['widgetId'] ?? '') === 'header' && ($placement['content']['ground'] ?? false) === true) {
 				$header['mode']     = 'greeting';
 				$header['groundId'] = (string) ($placement['id'] ?? '');
-				$header['content']  = $content;
-				$header['title']    = trim((string) ($content['title'] ?? ''));
+				$header['content']  = (array) $placement['content'];
+				$header['title']    = trim((string) ($placement['content']['title'] ?? ''));
 				if ($header['title'] === '') {
 					$header['title'] = $header['name'];
 				}

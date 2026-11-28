@@ -166,7 +166,7 @@ export default {
 		 *
 		 * @return {object[]}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
 		 */
 		dashboards() {
 			return dashboardItems({
@@ -207,7 +207,7 @@ export default {
 		 *
 		 * @return {object[]}
 		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-013-one-more-menu-the-same-on-every-page
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-5
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-5
 		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
 		 */
 		actions() {
@@ -229,7 +229,7 @@ export default {
 		 * More / Less; the first unfold asks the host for the detail fields.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-16
 		 */
 		onToggleExpanded() {
 			this.toggleDashboardsExpanded()

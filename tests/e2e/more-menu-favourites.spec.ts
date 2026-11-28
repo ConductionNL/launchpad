@@ -16,7 +16,7 @@
  *   @e2e runtime-shell::new-dashboard-from-the-full-list
  *   @e2e runtime-shell::favourite-of-a-hidden-dashboard-is-404
  *
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-12
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-12
  */
 
 import type { APIRequestContext, Browser, BrowserContext, Page } from '@playwright/test'

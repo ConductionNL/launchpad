@@ -56,13 +56,10 @@ class FirstPaintFill {
 	 * @return bool
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
-	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
 	 */
 	public function fills(array $placements): bool {
 		foreach ($placements as $placement) {
-			// An empty content arrives as `{}` (stdClass), not as an array.
-			$content = (array) ($placement['content'] ?? []);
-			if (($content['fillHeight'] ?? false) === true) {
+			if (($placement['content']['fillHeight'] ?? false) === true) {
 				return true;
 			}
 		}

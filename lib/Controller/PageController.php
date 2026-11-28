@@ -120,7 +120,7 @@ class PageController extends Controller {
 	 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-2
 	 * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-2
 	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-2
 	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
 	 */
 	#[NoAdminRequired]

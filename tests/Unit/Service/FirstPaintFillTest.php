@@ -100,20 +100,21 @@ class FirstPaintFillTest extends TestCase {
 	}//end testTheShellFillsWhenAPlacementAsks()
 
 	/**
-	 * A placement created without content carries `{}`, which JSON decodes to
-	 * stdClass: the shell still builds (it answered 500 for the whole page).
+	 * An empty content blob arrives as `{}` (an object, WidgetPlacement::wireObject):
+	 * the shell reads it as empty content, also on a header placement.
 	 *
 	 * @return void
 	 */
-	public function testAnEmptyContentObjectDoesNotBreakTheShell(): void {
+	public function testAnEmptyContentObjectIsEmptyContent(): void {
 		$placements = [
-			['id' => 1, 'widgetId' => 'header', 'gridX' => 0, 'gridY' => 0, 'gridWidth' => 12, 'gridHeight' => 2, 'content' => new \stdClass()],
-			['id' => 2, 'widgetId' => 'chart', 'gridX' => 0, 'gridY' => 2, 'gridWidth' => 4, 'gridHeight' => 4, 'content' => new \stdClass()],
+			['id' => 1, 'widgetId' => 'header', 'gridY' => 0, 'gridWidth' => 12, 'gridHeight' => 2, 'content' => new \stdClass()],
+			['id' => 2, 'widgetId' => 'notes', 'gridY' => 2, 'gridWidth' => 6, 'gridHeight' => 2, 'content' => new \stdClass()],
 		];
-		$model = (new FirstPaintShell())->build(page: ['dashboard' => ['name' => 'Plain', 'gridColumns' => 12], 'placements' => $placements], catalogue: []);
+		$page       = ['dashboard' => ['name' => 'Team', 'gridColumns' => 12], 'placements' => $placements];
+		$model      = (new FirstPaintShell())->build(page: $page, catalogue: []);
 
 		$this->assertFalse(condition: $model['fill']);
-		$this->assertCount(expectedCount: 2, haystack: $model['frames']);
 		$this->assertSame(expected: 'page', actual: $model['header']['mode']);
-	}//end testAnEmptyContentObjectDoesNotBreakTheShell()
+		$this->assertSame(expected: ['1', '2'], actual: array_column($model['frames'], 'id'));
+	}//end testAnEmptyContentObjectIsEmptyContent()
 }//end class

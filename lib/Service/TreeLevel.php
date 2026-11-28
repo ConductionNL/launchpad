@@ -26,7 +26,7 @@ use OCA\LaunchPad\Db\Dashboard;
 /**
  * The parent UUID and depth of one level of a tree walk.
  *
- * @spec openspec/specs/dashboard-switcher/spec.md
+ * @spec openspec/specs/dashboards/spec.md
  */
 final class TreeLevel {
 	/**
@@ -46,7 +46,7 @@ final class TreeLevel {
 	 *
 	 * @return bool True at or beyond Dashboard::MAX_DEPTH.
 	 *
-	 * @spec openspec/specs/dashboard-switcher/spec.md
+	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function isBeyondCap(): bool {
 		return $this->depth >= Dashboard::MAX_DEPTH;
@@ -59,7 +59,7 @@ final class TreeLevel {
 	 *
 	 * @return self The child's level.
 	 *
-	 * @spec openspec/specs/dashboard-switcher/spec.md
+	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function below(string $childUuid): self {
 		return new self(parentUuid: $childUuid, depth: ($this->depth + 1));

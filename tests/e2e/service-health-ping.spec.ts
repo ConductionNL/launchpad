@@ -55,7 +55,7 @@ import type { Principal } from './support/principals.ts'
 import { expect, test } from '@playwright/test'
 import { createServer } from 'node:http'
 import { loginAs } from './fixtures/secondary-user.ts'
-import { enterEditMode } from './support/dashboardSwitcher.ts'
+import { enterEditMode, saveEditDraft } from './support/dashboardSwitcher.ts'
 import { describeRun, executeJobNow } from './support/occ.ts'
 import {
 	adminContext,
@@ -436,6 +436,9 @@ test('the author enables a ping in the tile editor and it lands in the placement
 		await editor.getByLabel('Check interval (seconds)').fill('60')
 		await editor.getByRole('button', { name: 'Save' }).click()
 		await expect(editor).toBeHidden({ timeout: 10_000 })
+		// The tile form writes the edit-mode draft; the edit bar's Save
+		// stores it (edit-mode-draft-and-save REQ-EDIT-001/002).
+		expect(await saveEditDraft(page)).toBe(200)
 	} finally {
 		await context.close()
 	}

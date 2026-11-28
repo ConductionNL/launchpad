@@ -1502,7 +1502,7 @@ export default {
 		 * in the greeting row when there is one, else floating (null).
 		 *
 		 * @return {HTMLElement|null}
-		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-038-the-edit-bar
+		 * @spec openspec/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		controlsDock() {
 			return this.isEditMode ? this.editBarDock : this.headerActionsTarget
@@ -1514,7 +1514,7 @@ export default {
 		 * "Settings" menu item).
 		 *
 		 * @return {boolean}
-		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-038-the-edit-bar
+		 * @spec openspec/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		canConfigureActiveDashboard() {
 			return isOwnedDashboard(this.activeDashboard, this.activeDashboardSource)

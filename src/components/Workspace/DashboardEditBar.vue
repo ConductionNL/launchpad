@@ -313,9 +313,18 @@ export default {
 	gap: 0;
 }
 
+.launchpad-edit-bar__dock :deep(.lp-more-menu__trigger .button-vue__text) {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
 /* The page's loading status line docks with More; in the bar it stays for
    screen readers only, so it does not push More onto a second row. */
-.launchpad-edit-bar__dock :deep(.lp-more-menu__trigger .button-vue__text),
 .launchpad-edit-bar__dock :deep(.launchpad-status-slot) {
 	position: absolute;
 	width: 1px;

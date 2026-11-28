@@ -989,7 +989,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return int|null The count, or null when absent or not a number.
 	 *
-	 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-038-the-edit-bar
+	 * @spec openspec/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 	 */
 	private function requestedGridColumns(): ?int {
 		$raw   = $this->request->getParam(key: 'gridColumns', default: 0);

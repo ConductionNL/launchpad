@@ -1600,7 +1600,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 *
 		 * @param {number} columns The new column count.
 		 * @return {Promise<boolean>} Whether the server stored it.
-		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-038-the-edit-bar
+		 * @spec openspec/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		async setGridColumns(columns) {
 			const active = this.activeDashboard

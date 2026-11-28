@@ -1946,6 +1946,11 @@
         "New announcements": "Nowe ogłoszenia",
         "What changed on your dashboards": "Co się zmieniło na Twoich pulpitach",
         "Open LaunchPad": "Otwórz LaunchPad",
-        "You get this mail because you asked for it in your LaunchPad settings.": "Otrzymujesz tę wiadomość, ponieważ poprosiłeś o nią w ustawieniach LaunchPad."
+        "You get this mail because you asked for it in your LaunchPad settings.": "Otrzymujesz tę wiadomość, ponieważ poprosiłeś o nią w ustawieniach LaunchPad.",
+        "Current version": "Bieżąca wersja",
+        "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Każda zapisana wersja tego pulpitu. Wybierz starszą wersję, aby ją przywrócić; bieżąca wersja pozostaje na liście.",
+        "Restoring it drops the changes made after it. The current version stays in this list.": "Przywrócenie odrzuca zmiany wprowadzone po niej. Bieżąca wersja pozostaje na tej liście.",
+        "Version of {date}": "Wersja z {date}",
+        "What changed": "Co się zmieniło"
     }
 }

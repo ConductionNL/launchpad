@@ -290,4 +290,43 @@ describe('VersionsTab', () => {
 		await wrapper.find('[data-testid="version-close"]').trigger('click')
 		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
+
+	it('draws the sketch of six blocks LpVersies draws, one tinted for the change', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [v(2, 'Widget News moved'), v(1)], modeSupported: true } })
+		const wrapper = mountModal()
+		await flushPromises()
+		await wrapper.findAll('[data-testid="version-row"]')[1].trigger('click')
+
+		const thumb = wrapper.find('[data-testid="version-preview"] .launchpad-versions__thumb')
+		expect(thumb.attributes('aria-hidden')).toBe('true')
+		expect(thumb.findAll('.launchpad-versions__block')).toHaveLength(6)
+		expect(thumb.findAll('.launchpad-versions__block--change')).toHaveLength(1)
+	})
+})
+
+describe('VersionsTab strings in every shipped locale', () => {
+	it('translates the intro, the column, the current marker and the preview (LpVersies, nl as drawn)', async () => {
+		const { readFileSync, readdirSync } = await import('node:fs')
+		const { join } = await import('node:path')
+		const dir = join(__dirname, '../../../../../l10n')
+		const keys = [
+			'Current version',
+			'Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.',
+			'Restoring it drops the changes made after it. The current version stays in this list.',
+			'Version of {date}',
+			'What changed',
+		]
+		const locales = readdirSync(dir).filter((f) => f.endsWith('.json') && !f.startsWith('.'))
+		expect(locales.length).toBeGreaterThan(30)
+		for (const file of locales) {
+			const translations = JSON.parse(readFileSync(join(dir, file), 'utf8')).translations
+			for (const key of keys) {
+				expect(translations[key], `${file}: ${key}`).toBeTruthy()
+			}
+		}
+		const nl = JSON.parse(readFileSync(join(dir, 'nl.json'), 'utf8')).translations
+		expect(nl['What changed']).toBe('Wat veranderde')
+		expect(nl['Current version']).toBe('Huidige versie')
+		expect(nl['Restore this version']).toBe('Deze versie terugzetten')
+	})
 })

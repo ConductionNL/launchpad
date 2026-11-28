@@ -188,4 +188,26 @@ class FirstPaintTemplateTest extends TestCase {
 		$none = $this->render(params: FirstPaintPage::params(page: self::page(dashboard: [], placements: []), context: []));
 		$this->assertStringNotContainsString(needle: 'class="lp-fp__n', haystack: $none);
 	}//end testNoticeBannersArePrinted()
+	/**
+	 * The meta line carries the rights and the last change after the
+	 * description, as the page header prints them, joined to it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-the-page-header-as-text-req-fps-001
+	 */
+	public function testTheMetaLineCarriesTheRightsAndTheLastChange(): void {
+		$page = self::page(dashboard: ['description' => 'Ons team', 'updatedAt' => '2026-01-02 10:00:00'], placements: []);
+		$page['firstLoad']['active']['permissionLevel'] = 'view_only';
+
+		$html = $this->render(params: FirstPaintPage::params(page: $page, context: []));
+
+		$this->assertStringContainsString(
+			needle: '<span class="lp-fp__mr lp-fp__mr--j"> · view only · Last changed January 2</span>',
+			haystack: $html
+		);
+
+		$full = $this->render(params: FirstPaintPage::params(page: self::page(dashboard: [], placements: []), context: []));
+		$this->assertStringNotContainsString(needle: 'class="lp-fp__mr', haystack: $full);
+	}//end testTheMetaLineCarriesTheRightsAndTheLastChange()
 }//end class

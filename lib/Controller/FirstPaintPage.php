@@ -144,10 +144,11 @@ class FirstPaintPage {
 		);
 
 		return $shell + [
-			'dashboard' => $dashboard,
-			'source'    => (string) ($page['dashboardSource'] ?? ''),
-			'isDefault' => (int) ($dashboard['isDefault'] ?? 0) === 1,
-			'reader'    => [
+			'dashboard'       => $dashboard,
+			'permissionLevel' => self::permissionLevel(page: $page, uuid: $uuid),
+			'source'          => (string) ($page['dashboardSource'] ?? ''),
+			'isDefault'       => (int) ($dashboard['isDefault'] ?? 0) === 1,
+			'reader'          => [
 				'name'     => self::displayName(user: $reader['user'] ?? null),
 				'timezone' => (string) ($reader['timezone'] ?? ''),
 			],
@@ -178,6 +179,27 @@ class FirstPaintPage {
 
 		return [$dashboard, (array) ($page['layout'] ?? [])];
 	}//end opened()
+
+	/**
+	 * The reader's level on the opened dashboard, as the page knows it at
+	 * mount: the first-load envelope's for the dashboard it holds, '' for a
+	 * deep link (the page reads that level later).
+	 *
+	 * @param array<string, mixed> $page The page's values.
+	 * @param string               $uuid The opened dashboard.
+	 *
+	 * @return string full, add_only, view_only or ''.
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-the-page-header-as-text-req-fps-001
+	 */
+	private static function permissionLevel(array $page, string $uuid): string {
+		$envelope = $page['firstLoad']['active'] ?? null;
+		if (is_array($envelope) === true && (string) ($envelope['dashboard']['uuid'] ?? '') === $uuid) {
+			return (string) ($envelope['permissionLevel'] ?? '');
+		}
+
+		return '';
+	}//end permissionLevel()
 
 	/**
 	 * The reader's display name, '' without a user.

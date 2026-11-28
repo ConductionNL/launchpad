@@ -1946,7 +1946,9 @@ OC.L10N.register(
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Jokainen tämän koontinäytön tallennettu versio. Valitse vanhempi versio palauttaaksesi sen; nykyinen versio pysyy luettelossa.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Palauttaminen poistaa sen jälkeen tehdyt muutokset. Nykyinen versio pysyy tässä luettelossa.",
     "Version of {date}" : "Versio {date}",
-    "What changed" : "Mitä muuttui"
+    "What changed" : "Mitä muuttui",
+    "When is the widget visible?" : "Milloin pienoissovellus näkyy?",
+    "Check for one person whether the rules do what you mean, before you save." : "Tarkista yhden henkilön kohdalla, että säännöt toimivat tarkoitetulla tavalla, ennen kuin tallennat."
 },
 "nplurals=2; plural=(n != 1);"
 );

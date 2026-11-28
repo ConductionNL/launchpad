@@ -1951,6 +1951,8 @@
         "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Każda zapisana wersja tego pulpitu. Wybierz starszą wersję, aby ją przywrócić; bieżąca wersja pozostaje na liście.",
         "Restoring it drops the changes made after it. The current version stays in this list.": "Przywrócenie odrzuca zmiany wprowadzone po niej. Bieżąca wersja pozostaje na tej liście.",
         "Version of {date}": "Wersja z {date}",
-        "What changed": "Co się zmieniło"
+        "What changed": "Co się zmieniło",
+        "When is the widget visible?": "Kiedy widżet jest widoczny?",
+        "Check for one person whether the rules do what you mean, before you save.": "Sprawdź dla jednej osoby, czy reguły działają tak, jak chcesz, zanim zapiszesz."
     }
 }

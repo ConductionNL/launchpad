@@ -1946,7 +1946,9 @@ OC.L10N.register(
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Çdo version i ruajtur i këtij paneli. Zgjidhni një version më të vjetër për ta rikthyer; versioni aktual mbetet në listë.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Rikthimi hedh poshtë ndryshimet e bëra pas tij. Versioni aktual mbetet në këtë listë.",
     "Version of {date}" : "Versioni i {date}",
-    "What changed" : "Çfarë ndryshoi"
+    "What changed" : "Çfarë ndryshoi",
+    "When is the widget visible?" : "Kur është i dukshëm widget-i?",
+    "Check for one person whether the rules do what you mean, before you save." : "Kontrolloni për një person nëse rregullat bëjnë atë që doni, para se të ruani."
 },
 "nplurals=2; plural=(n != 1);"
 );

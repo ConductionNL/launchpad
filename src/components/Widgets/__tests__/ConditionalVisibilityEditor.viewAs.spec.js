@@ -165,6 +165,23 @@ describe('rule cards', () => {
 	})
 })
 
+describe('LpZichtbaarheid labels', () => {
+	it('asks "When is the widget visible?" above the choice cards, which it names', async () => {
+		const wrapper = await mountEditor()
+		const label = wrapper.find('.conditional-visibility-editor__modes-label')
+		expect(label.text()).toBe('When is the widget visible?')
+		expect(wrapper.find('[data-test="rule-match"]').attributes('aria-labelledby')).toBe(label.attributes('id'))
+	})
+
+	it('explains View as in one line above the person and the moment', async () => {
+		const wrapper = await mountEditor()
+		const preview = wrapper.find('[data-test="visibility-preview"]')
+		expect(preview.find('.conditional-visibility-editor__preview-intro').text())
+			.toBe('Check for one person whether the rules do what you mean, before you save.')
+		expect(preview.findAll('.conditional-visibility-editor__preview-field')).toHaveLength(2)
+	})
+})
+
 describe('View as', () => {
 	it('previews as the chosen person at the chosen moment and says why they see the widget', async () => {
 		api.searchSharees.mockResolvedValue({ data: { users: [{ id: 'sanne', displayName: 'Sanne de Vries' }], groups: [] } })

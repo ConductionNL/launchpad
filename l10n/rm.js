@@ -1946,7 +1946,9 @@ OC.L10N.register(
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Mintga versiun memorisada da quest dashboard. Tscherna ina versiun pli veglia per la restituir; la versiun actuala resta en la glista.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "La restituziun annullescha las midadas fatgas suenter. La versiun actuala resta en questa glista.",
     "Version of {date}" : "Versiun dals {date}",
-    "What changed" : "Tge è sa midà"
+    "What changed" : "Tge è sa midà",
+    "When is the widget visible?" : "Cura è il widget visibel?",
+    "Check for one person whether the rules do what you mean, before you save." : "Controllescha per ina persuna sche las reglas fan quai che ti manegias, avant che memorisar."
 },
 "nplurals=2; plural=(n != 1);"
 );

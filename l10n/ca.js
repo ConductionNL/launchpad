@@ -1946,7 +1946,9 @@ OC.L10N.register(
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Cada versió desada d'aquest tauler. Trieu una versió anterior per restaurar-la; la versió actual es manté a la llista.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Restaurar-la descarta els canvis fets després. La versió actual es manté en aquesta llista.",
     "Version of {date}" : "Versió del {date}",
-    "What changed" : "Què ha canviat"
+    "What changed" : "Què ha canviat",
+    "When is the widget visible?" : "Quan és visible el giny?",
+    "Check for one person whether the rules do what you mean, before you save." : "Comproveu per a una persona si les regles fan el que voleu, abans de desar."
 },
 "nplurals=2; plural=(n != 1);"
 );

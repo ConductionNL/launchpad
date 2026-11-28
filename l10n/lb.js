@@ -1937,7 +1937,9 @@ OC.L10N.register(
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "All gespäichert Versioun vun dësem Dashboard. Wiel eng méi al Versioun, fir se zréckzesetzen; déi aktuell Versioun bleift an der Lëscht.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Beim Zrécksetze falen d'Ännerunge vun duerno ewech. Déi aktuell Versioun bleift an dëser Lëscht.",
     "Version of {date}" : "Versioun vum {date}",
-    "What changed" : "Wat geännert huet"
+    "What changed" : "Wat geännert huet",
+    "When is the widget visible?" : "Wéini ass de Widget ze gesinn?",
+    "Check for one person whether the rules do what you mean, before you save." : "Kontrolléier fir eng Persoun, ob d'Reegele maachen, wat s du mengs, ier s du späichers."
 },
 "nplurals=2; plural=(n != 1);"
 );

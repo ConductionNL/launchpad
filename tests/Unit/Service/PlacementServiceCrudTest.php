@@ -142,10 +142,10 @@ class PlacementServiceCrudTest extends TestCase {
 
 		$placement = $this->service->addWidget(dashboardId: 7, widgetId: 'tile', layout: ['content' => $content]);
 
-		$this->assertSame('tile', $placement->getWidgetId());
-		$this->assertSame($content, $placement->getContentArray());
-		$this->assertNull($placement->getTileType());
-		$this->assertNull($placement->getTileLinkValue());
+		$this->assertSame(expected: 'tile', actual: $placement->getWidgetId());
+		$this->assertSame(expected: $content, actual: $placement->getContentArray());
+		$this->assertNull(actual: $placement->getTileType());
+		$this->assertNull(actual: $placement->getTileLinkValue());
 	}
 
 	/**
@@ -158,7 +158,7 @@ class PlacementServiceCrudTest extends TestCase {
 	public function testAddTileWidgetRefusesABadOfficeAddress(): void {
 		$this->mapper->expects($this->never())->method('insert');
 
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(exception: \InvalidArgumentException::class);
 		$this->service->addWidget(
 			dashboardId: 7,
 			widgetId: 'tile',

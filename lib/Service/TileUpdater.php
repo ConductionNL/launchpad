@@ -286,6 +286,8 @@ class TileUpdater {
 	 *
 	 * @throws InvalidArgumentException When the tile may not be saved like this (HTTP 400).
 	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) TileLinkValidator::isLaunchType holds the rule as a pure function.
+	 *
 	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
 	 */
 	private function checkContentLaunchLink(WidgetPlacement $placement): void {

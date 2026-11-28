@@ -38,6 +38,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { addAndSaveDraft } from './support/dashboardSwitcher.ts'
 import { catalogueFromApi } from './support/widgetCatalogue.ts'
 
 const ADMIN = {
@@ -232,27 +233,18 @@ test.describe('nc-dashboard-widget-proxy — the Nextcloud widget picker', () =>
 		// leaves the browser, so read it off the create request.
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
-		const created = page.waitForResponse(
-			(r) =>
-				r.request().method() === 'POST'
-				&& /\/api\/dashboard\/\d+\/widgets$/.test(new URL(r.url()).pathname),
-		)
-		await addBtn.click()
-		const res = await created
+		// Add puts the widget in the edit-mode draft; Save stores it, and the
+		// Save's body is where the chosen id leaves the browser (REQ-EDIT-002).
+		const { placement, sent } = await addAndSaveDraft(page, dialog)
 
-		let placementId = 0
 		try {
-			const body = await res.json().catch(() => ({}))
-			placementId = Number(body.id ?? body.data?.id ?? 0)
-
-			const sent = res.request().postDataJSON()
 			expect(sent.widgetId).toBe('nc-widget')
 			expect(sent.content?.widgetId).toBe(widgets[2].id)
 		} finally {
 			// The seeded dashboard's deletion would take it too; remove it
 			// now so a failed teardown leaves nothing behind.
-			if (placementId !== 0) {
-				await api.delete(`${API}/widgets/${placementId}`)
+			if (placement?.id !== undefined) {
+				await api.delete(`${API}/widgets/${placement.id}`)
 			}
 		}
 	})

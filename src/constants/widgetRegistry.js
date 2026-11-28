@@ -413,6 +413,9 @@ registerDashboardWidget('livetile', {
 	},
 	displayName: 'Live-data tile',
 	icon: 'ChartLine',
+	// The form has its own Title and Show title (Opmaak, board
+	// LpWidgetInstellen); the modal's Appearance must not repeat them.
+	ownsTitle: true,
 })
 
 // `iframe` — embeds an admin-allow-listed external URL in a sandboxed
@@ -651,6 +654,19 @@ function offerableTypes() {
 		}
 	}
 	return [...types]
+}
+
+// The communal CnAddWidgetModal names the chosen type from the SHARED
+// registry (its type select and option list), not from the decorated copy
+// below, so a Dutch reader saw "Live-data tile" in a Dutch dialog (board
+// LpWidgetInstellen). Write the localised name back into the shared entry for
+// every type LaunchPad offers. Assigned directly, not re-registered: it is the
+// same entry with its label translated, not an override worth a warning.
+for (const type of offerableTypes()) {
+	const entry = dashboardWidgetRegistry[type]
+	if (entry && typeof entry.displayName === 'string' && entry.displayName !== '') {
+		dashboardWidgetRegistry[type] = { ...entry, displayName: t('launchpad', entry.displayName) }
+	}
 }
 
 /**

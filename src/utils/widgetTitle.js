@@ -44,6 +44,7 @@
 
 import { dashboardWidgetRegistry } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
+import { isContentLinkTile } from './linkTileFields.js'
 
 /**
  * Resolve the human-readable title of a widget placement.
@@ -87,10 +88,15 @@ export function resolveWidgetTitle(placement, availableWidgets) {
  * @param {object} placement The widget placement.
  * @return {string|null} The title, or null when the placement has none.
  * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+ * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
  */
 function ownTitle(placement) {
 	if (placement.tileType === 'custom') {
 		return placement.tileTitle || t('launchpad', 'Tile')
+	}
+	// REQ-TILE-PLACEMENT: a link tile made with the form keeps its title in content.
+	if (isContentLinkTile(placement)) {
+		return placement.content?.title || t('launchpad', 'Tile')
 	}
 	return placement.customTitle || null
 }

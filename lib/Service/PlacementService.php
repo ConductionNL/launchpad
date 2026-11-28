@@ -88,8 +88,10 @@ class PlacementService {
 	 * @throws \OCA\LaunchPad\Exception\QuotaExceededException When the
 	 *                                                         dashboard is at the configured widget limit
 	 *                                                         (dashboard-quota-limits REQ-QUOTA-003).
+	 * @throws \InvalidArgumentException When a link tile's content is not allowed (HTTP 400).
 	 *
 	 * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-003-widget-count-enforcement
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
 	 */
 	public function addWidget(int $dashboardId, string $widgetId, array $layout=[]): WidgetPlacement {
 		$layout += self::DEFAULT_LAYOUT;
@@ -117,6 +119,9 @@ class PlacementService {
 		if ($layout['content'] !== null) {
 			$placement->setContentArray(VideoContent::forWidget(widgetId: $widgetId, content: $layout['content']));
 		}
+
+		// REQ-TILE-PLACEMENT: a link tile in content is checked like one made through the tile route.
+		$this->updaters->tileUpdater->checkTileWidget(placement: $placement);
 
 		$placement->setCreatedAt($now);
 		$placement->setUpdatedAt($now);

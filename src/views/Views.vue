@@ -592,6 +592,7 @@ import { dialogReturnFocus, restoreLostFocus } from '../utils/returnFocus.js'
 import { parseServerStamp } from '../utils/serverStamp.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
 import { appTileAsTileContent, RETIRED_APP_TILE, tileMode } from '../utils/tileMode.js'
+import { isContentLinkTile, linkTileFieldContent, linkTileFields } from '../utils/linkTileFields.js'
 import { busNotices } from '../utils/widgetBusNotices.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
@@ -2196,7 +2197,7 @@ export default {
 		 * @return {boolean} true for tile placements.
 		 */
 		isTilePlacement(placement) {
-			return placement.tileType === 'custom'
+			return placement.tileType === 'custom' || isContentLinkTile(placement)
 		},
 
 		/**
@@ -2211,13 +2212,8 @@ export default {
 			if (!this.isTilePlacement(placement)) return null
 			return {
 				id: placement.id,
-				title: placement.tileTitle,
-				icon: placement.tileIcon,
-				iconType: placement.tileIconType,
-				backgroundColor: placement.tileBackgroundColor,
-				textColor: placement.tileTextColor,
-				linkType: placement.tileLinkType,
-				linkValue: placement.tileLinkValue,
+				// REQ-TILE-PLACEMENT: a link tile made with the form keeps these in content.
+				...linkTileFields(placement),
 				// launcher-tile-internal-address REQ-TIA-002: the office-network address, in `content`.
 				internalUrl: (placement.content && placement.content.internalUrl) || '',
 			}
@@ -3794,15 +3790,11 @@ export default {
 		 */
 		openTileEditorForEdit(placement) {
 			const content = placement.content || {}
+			const fields = linkTileFields(placement)
 			const tileData = {
 				id: placement.id,
-				title: placement.tileTitle,
-				icon: placement.tileIcon,
-				iconType: placement.tileIconType,
-				backgroundColor: placement.tileBackgroundColor,
-				textColor: placement.tileTextColor,
-				linkType: placement.tileLinkType,
-				linkValue: placement.tileLinkValue,
+				// REQ-TILE-PLACEMENT: from content for a tile that keeps them there.
+				...fields,
 				internalUrl: content.internalUrl || '',
 				// service-health-ping: config lives in the placement's
 				// `content` JSON blob, no schema change (REQ-HPING-001).
@@ -3820,7 +3812,7 @@ export default {
 				iconOnly: content.iconOnly === true,
 				pinned: content.pinned === true,
 				// launcher-tile-launch-types: remote-desktop and sso settings.
-				...(isLaunchType(placement.tileLinkType) ? launchFields(content) : {}),
+				...(isLaunchType(fields.linkType) ? launchFields(content) : {}),
 			}
 			this.openTileEditor(tileData)
 		},
@@ -3945,7 +3937,12 @@ export default {
 				return
 			}
 			try {
-				if (this.editingTile) {
+				if (this.editingTile && this.isContentLinkTileId(this.editingTile.id)) {
+					// REQ-TILE-PLACEMENT: its fields stay in content.
+					await this.updateWidgetPlacement(this.editingTile.id, {
+						content: { ...content, ...linkTileFieldContent(tileData) },
+					})
+				} else if (this.editingTile) {
 					await this.updateWidgetPlacement(this.editingTile.id, {
 						tileTitle: tileData.title,
 						tileIcon: tileData.icon,
@@ -4046,6 +4043,21 @@ export default {
 		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
 		 */
 		async createTile(tileData, content) {
+			// REQ-TILE-PLACEMENT: a link tile is a `tile` widget with its data in
+			// content, like an app-mode tile; the flat tile columns stay empty.
+			// A launch tile (program, remote desktop, sso) and an office "New
+			// ..." tile still go through the tile route, whose launch, download
+			// and create paths read those columns.
+			if (!isLaunchType(tileData.linkType) && tileData.linkType !== 'create') {
+				const placed = await this.addWidgetToDashboard(
+					{ type: 'tile', content: { ...content, ...linkTileFieldContent(tileData) } },
+					{ w: 2, h: 2 },
+				)
+				if (!placed) {
+					throw new Error('The tile could not be added.')
+				}
+				return
+			}
 			// A launch tile is checked on create, so it carries its content.
 			const newPlacement = await this.addTileToDashboard(
 				isLaunchType(tileData.linkType) ? { ...tileData, content } : tileData,
@@ -4066,13 +4078,6 @@ export default {
 		},
 
 		/**
-		 * Log a failed tile save, and tell the author when the server refused a launch tile's settings.
-		 *
-		 * @param {object} tileData Assembled tile fields.
-		 * @param {Error} error The failure.
-		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
-		 */
-		/**
 		 * The content keys of a tile placement the tile form does not edit
 		 * (icon-only, pin, count source), so a save keeps them.
 		 *
@@ -4092,6 +4097,25 @@ export default {
 			return kept
 		},
 
+		/**
+		 * Whether the placement with this id is a link tile that keeps its
+		 * fields in content.
+		 *
+		 * @param {number|undefined} placementId The placement.
+		 * @return {boolean}
+		 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+		 */
+		isContentLinkTileId(placementId) {
+			return isContentLinkTile((this.widgetPlacements || []).find((placement) => placement.id === placementId))
+		},
+
+		/**
+		 * Log a failed tile save, and tell the author when the server refused a launch tile's settings.
+		 *
+		 * @param {object} tileData Assembled tile fields.
+		 * @param {Error} error The failure.
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
+		 */
 		reportTileSaveError(tileData, error) {
 			logger.error('[Views] Failed to save tile:', error)
 			if (isLaunchType(tileData.linkType) && error?.response?.status === 400) {

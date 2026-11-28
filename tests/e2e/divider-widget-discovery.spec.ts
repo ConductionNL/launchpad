@@ -42,7 +42,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { addWidgetFromMore, switchToDashboard } from './support/dashboardSwitcher.ts'
+import { addAndSaveDraft, addWidgetFromMore, switchToDashboard } from './support/dashboardSwitcher.ts'
 import {
 	apiAs,
 	provisionUserWithDashboard,
@@ -222,19 +222,12 @@ test.describe('REQ-DIV-001 the divider in the widget picker', () => {
 				await expect(dialog.locator('.cn-divider-widget-form')).toBeVisible({
 					timeout: 10_000,
 				})
-				const post = session.page.waitForResponse(
-					(r) =>
-						r.request().method() === 'POST'
-						&& r.url().includes(`/api/dashboard/${account!.dashboardId}/widgets`),
-					{ timeout: 10_000 },
-				)
-				await dialog.getByRole('button', { name: /^add$/i }).click()
-				const created = await post
-				expect(
-					created.status(),
-					`a plain user adds a divider: ${await created.text()}`,
-				).toBeLessThan(300)
-				expect(created.request().postDataJSON()?.widgetId).toBe('divider')
+				// Add writes the edit-mode draft; Save stores it in one request
+				// (edit-mode-draft-and-save REQ-EDIT-002), refused if the user may not.
+				const saved = await addAndSaveDraft(session.page, dialog)
+				expect(saved.dashboardId).toBe(account!.dashboardId)
+				expect(saved.sent?.widgetId, 'the Save sends the divider').toBe('divider')
+				expect(saved.placement?.widgetId, 'a plain user adds a divider').toBe('divider')
 			} finally {
 				await session.context.close()
 			}

@@ -160,7 +160,8 @@ class PageController extends Controller {
 		$activeState = $this->describeActive(active: $active, userId: $userId);
 		$inputs = $this->firstPaintInputs(userId: $userId, visible: $visible) + $activeState + ['widgets' => $widgets, 'active' => $active];
 
-		$builder = new InitialStateBuilder(initialState: $this->sources->initialState, page: Page::WORKSPACE);
+		$globalCss = $this->settings->customCss?->getGlobalCss() ?? '';
+		$builder   = new InitialStateBuilder(initialState: $this->sources->initialState, page: Page::WORKSPACE);
 
 		$builder
 			->setWidgets($widgets)
@@ -182,7 +183,7 @@ class PageController extends Controller {
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget((string)($settings['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET))
 			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
-			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
+			->setCustomCss($globalCss)
 			->setTelemetry(filters: ($settings['filterTelemetryEnabled'] ?? false) === true, views: $this->settings->analytics?->isGloballyEnabled() ?? true)
 			->setSharingPolicy(...$this->sources->dashboards->sharingPolicy(userId: $userId))
 			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
@@ -201,10 +202,30 @@ class PageController extends Controller {
 
 		// First-paint-skeleton D1: the header and the widget frames in the
 		// page's HTML, from the same values; none without a dashboard.
-		$context = ['user' => $this->userSession->getUser(), 'reloadUrl' => $this->request->getRequestUri()];
+		$context = [
+			'user'        => $this->userSession->getUser(),
+			'reloadUrl'   => $this->request->getRequestUri(),
+			'customCss'   => $globalCss,
+			'resourceUrl' => $this->resourceUrl(),
+		];
 
 		return $this->workspaceResponse(params: FirstPaintPage::params(page: $inputs, context: $context));
 	}//end index()
+
+	/**
+	 * The resource route without the file name, ending in `/`: where the
+	 * first-paint shell points a dashboard's background image, as
+	 * dashboardLook.js does with generateUrl('/apps/launchpad/resource/').
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 */
+	private function resourceUrl(): string {
+		$url = $this->settings->urlGenerator->linkToRoute(routeName: 'launchpad.resourceServe.getResource', arguments: ['filename' => 'x']);
+
+		return substr($url, 0, -1);
+	}//end resourceUrl()
 
 	/**
 	 * The values the initial state and the first-paint shell share, read

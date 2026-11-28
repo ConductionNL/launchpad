@@ -83,7 +83,7 @@ class FirstPaintShell {
 	 *                                              the placement ids the personal layer hides for this reader.
 	 * @param list<array<string, mixed>> $catalogue The widget catalogue the page carries (id, title, placeholder, mobileReady).
 	 *
-	 * @return array{header: array<string, mixed>, columns: list<int>, frames: list<array<string, mixed>>}
+	 * @return array{header: array<string, mixed>, columns: list<int>, frames: list<array<string, mixed>>, fill: bool, tracks: list<string>}
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
 	 */
@@ -124,12 +124,99 @@ class FirstPaintShell {
 			$frames[] = $this->frame(placement: $placement, positions: $positions);
 		}
 
+		$fill = false;
+		foreach ($shown as $placement) {
+			if (($placement['content']['fillHeight'] ?? false) === true) {
+				$fill = true;
+			}
+		}
+
+		$tracks = [];
+		if ($fill === true) {
+			$tracks = self::fillRowTracks(frames: $frames);
+		}
+
 		return [
 			'header'  => self::header(dashboard: $dashboard, placements: $shown),
 			'columns' => array_keys($positions),
 			'frames'  => $frames,
+			'fill'    => $fill,
+			'tracks'  => $tracks,
 		];
 	}//end build()
+
+	/**
+	 * The row tracks of a dashboard that fills the height below the top bar,
+	 * as CnDashboardGrid's `fillRowTracks` draws them in view mode: `auto` for
+	 * a row whose frames all fit their rows, or that no frame covers, and an
+	 * equal share of the free height for every other row. A row a fit-row
+	 * frame covers is also `auto` when each other frame on it reaches into a
+	 * row that no fit-row frame covers. The frames carry the placement's own
+	 * cell (`cell`), as the filled grid places them.
+	 *
+	 * @param list<array<string, mixed>> $frames The frames, with `cell` and `fitRows`.
+	 *
+	 * @return list<string> One track per row: `auto` or `minmax(0,1fr)`.
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-every-widget-frame-in-place-req-fps-002
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 */
+	public static function fillRowTracks(array $frames): array {
+		$rows = 0;
+		foreach ($frames as $frame) {
+			$rows = max($rows, ($frame['cell']['y'] + $frame['cell']['h']));
+		}
+
+		$covers = static fn (array $frame, int $row): bool => $row >= $frame['cell']['y'] && $row < ($frame['cell']['y'] + $frame['cell']['h']);
+		$fitRow = [];
+		for ($row = 0; $row < $rows; $row++) {
+			$fitRow[$row] = false;
+			foreach ($frames as $frame) {
+				if ($frame['fitRows'] === true && $covers($frame, $row) === true) {
+					$fitRow[$row] = true;
+				}
+			}
+		}
+
+		$tracks = [];
+		for ($row = 0; $row < $rows; $row++) {
+			$fits = true;
+			foreach ($frames as $frame) {
+				if ($frame['fitRows'] === true || $covers($frame, $row) === false) {
+					continue;
+				}
+
+				// Another frame on this row: the row fits only when it is a fit
+				// row and that frame takes its share on a row no fit frame covers.
+				$fits = $fits && $fitRow[$row] === true && self::stretchesElsewhere(frame: $frame, fitRow: $fitRow);
+			}
+
+			$tracks[] = 'minmax(0,1fr)';
+			if ($fits === true) {
+				$tracks[$row] = 'auto';
+			}
+		}
+
+		return $tracks;
+	}//end fillRowTracks()
+
+	/**
+	 * Whether a frame reaches into a row that no fit-row frame covers.
+	 *
+	 * @param array<string, mixed> $frame  The frame.
+	 * @param array<int, bool>     $fitRow Per row, whether a fit-row frame covers it.
+	 *
+	 * @return bool
+	 */
+	private static function stretchesElsewhere(array $frame, array $fitRow): bool {
+		for ($row = $frame['cell']['y']; $row < ($frame['cell']['y'] + $frame['cell']['h']); $row++) {
+			if (($fitRow[$row] ?? false) === false) {
+				return true;
+			}
+		}
+
+		return false;
+	}//end stretchesElsewhere()
 
 	/**
 	 * The placeholder kind of a placement, in the order of REQ-FPS-009: the
@@ -240,6 +327,14 @@ class FirstPaintShell {
 			'kind'        => $kind,
 			'positions'   => $byColumns,
 			'phoneHidden' => ($entry['mobileReady'] ?? true) === false,
+			// The filled grid places each card at the placement's own cell.
+			'cell'        => [
+				'x' => (int) ($placement['gridX'] ?? 0),
+				'y' => (int) ($placement['gridY'] ?? 0),
+				'w' => (int) ($placement['gridWidth'] ?? 1),
+				'h' => (int) ($placement['gridHeight'] ?? 1),
+			],
+			'fitRows'     => ($content['fitRows'] ?? false) === true,
 		];
 	}//end frame()
 

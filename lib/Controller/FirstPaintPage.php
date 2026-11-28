@@ -32,6 +32,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use JsonSerializable;
+use OCA\LaunchPad\Service\DashboardLook;
 use OCA\LaunchPad\Service\FirstPaintShell;
 use OCP\IUser;
 
@@ -60,19 +61,102 @@ class FirstPaintPage {
 	 * initial state carries, and the page's own address for the
 	 * could-not-load line's Reload link.
 	 *
-	 * @param array<string, mixed> $page    The page values (see model()).
-	 * @param array<string, mixed> $context `user` (IUser or null) and `reloadUrl`.
+	 * The global custom CSS goes with them, so the template prints it in the
+	 * `<style id="launchpad-custom-css">` element applyCustomCss reuses.
 	 *
-	 * @return array{firstPaint: array<string, mixed>|null, reloadUrl: string}
+	 * @param array<string, mixed> $page    The page values (see model()).
+	 * @param array<string, mixed> $context `user` (IUser or null), `reloadUrl`, `customCss` (the cleaned global
+	 *                                      custom CSS) and `resourceUrl` (the resource route with the file name
+	 *                                      left out, ending in `/`).
+	 *
+	 * @return array{firstPaint: array<string, mixed>|null, reloadUrl: string, customCss: string}
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
 	 */
 	public static function params(array $page, array $context): array {
+		$model = self::model(page: $page, reader: ['user' => $context['user'] ?? null, 'timezone' => $page['timezone'] ?? '']);
+		if ($model !== null) {
+			$model['look'] = self::lookStyle(dashboard: $model['dashboard'], resourceUrl: (string) ($context['resourceUrl'] ?? ''));
+		}
+
 		return [
-			'firstPaint' => self::model(page: $page, reader: ['user' => $context['user'] ?? null, 'timezone' => $page['timezone'] ?? '']),
+			'firstPaint' => $model,
 			'reloadUrl'  => (string) ($context['reloadUrl'] ?? ''),
+			'customCss'  => self::styleText(css: (string) ($context['customCss'] ?? '')),
 		];
 	}//end params()
+
+	/**
+	 * The dashboard's own look as the inline style of the shell's region, the
+	 * same declarations src/utils/dashboardLook.js `lookStyle` draws on the
+	 * mounted region (REQ-THM-001): the accent as Nextcloud's primary colour
+	 * variables, the background colour with black or white text, and the
+	 * background image of a LaunchPad resource. '' for a dashboard that
+	 * follows the theme. Only normalised colours and checked resource names
+	 * go in, so nothing else can end up in the attribute.
+	 *
+	 * @param array<string, mixed> $dashboard   The dashboard.
+	 * @param string               $resourceUrl The resource route without the file name.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	 */
+	public static function lookStyle(array $dashboard, string $resourceUrl): string {
+		$style  = '';
+		$accent = self::hexOrNull(colour: $dashboard['themeAccent'] ?? null);
+		if ($accent !== null) {
+			$style .= '--color-primary-element:'.$accent.';--color-primary-element-text:'.DashboardLook::textColorFor(background: $accent).';';
+		}
+
+		$background = self::hexOrNull(colour: $dashboard['themeBackgroundColor'] ?? null);
+		if ($background !== null) {
+			$text   = DashboardLook::textColorFor(background: $background);
+			$style .= 'background-color:'.$background.';color:'.$text.';--color-main-text:'.$text.';';
+		}
+
+		$resource = (string) ($dashboard['themeBackgroundResource'] ?? '');
+		if ($resource !== '' && $resourceUrl !== '' && DashboardLook::isResourceName(name: $resource) === true) {
+			$style .= 'background-image:url("'.$resourceUrl.rawurlencode($resource).'");background-size:cover;background-position:center;';
+		}
+
+		return $style;
+	}//end lookStyle()
+
+	/**
+	 * A colour as lower-case `#rrggbb`, or null when it is not a hex colour.
+	 *
+	 * @param mixed $colour The stored colour.
+	 *
+	 * @return string|null
+	 */
+	private static function hexOrNull(mixed $colour): ?string {
+		if (is_string($colour) === false || trim($colour) === '') {
+			return null;
+		}
+
+		try {
+			return DashboardLook::normaliseHex(colour: $colour, field: 'colour');
+		} catch (\InvalidArgumentException) {
+			return null;
+		}
+	}//end hexOrNull()
+
+	/**
+	 * CSS as the text of a `<style>` element: the sanitiser keeps `<` out of
+	 * stored CSS, and any that is left is written as the CSS escape `\3c `, so
+	 * the text can never close the element.
+	 *
+	 * @param string $css The cleaned CSS.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 */
+	public static function styleText(string $css): string {
+		return str_replace('<', '\\3c ', trim($css));
+	}//end styleText()
 
 	/**
 	 * The shell the template prints, or null when the page opens without a
@@ -115,6 +199,7 @@ class FirstPaintPage {
 		);
 
 		return $shell + [
+			'dashboard' => $dashboard,
 			'source'    => (string) ($page['dashboardSource'] ?? ''),
 			'isDefault' => (int) ($dashboard['isDefault'] ?? 0) === 1,
 			'reader'    => [

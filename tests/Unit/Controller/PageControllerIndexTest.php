@@ -628,4 +628,28 @@ class PageControllerIndexTest extends TestCase {
 		$this->assertStringContainsString(needle: 'https://player.vimeo.com', haystack: $policy);
 		$this->assertStringContainsString(needle: 'https://*.tile.openstreetmap.org', haystack: $policy);
 	}//end testTheWorkspaceAllowsTheEmbeddedMediaHosts()
+
+	/**
+	 * The template gets the global custom CSS the initial state carries, read
+	 * once, for the shell's `launchpad-custom-css` element (first-paint-skeleton
+	 * task 3); the workspace CSP leaves `style-src` as Nextcloud's, so the
+	 * shell's inline style block needs nothing widened.
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 *
+	 * @return void
+	 */
+	public function testTheShellGetsTheCustomCssAndTheCspKeepsStyleSrc(): void {
+		$this->session->method('getUser')->willReturn(null);
+		$this->adminSettings->method('getSettings')->willReturn([]);
+
+		$response = $this->controller()->index();
+
+		$this->assertSame(expected: '.x{}', actual: $response->getParams()['customCss']);
+		$this->assertSame(expected: '.x{}', actual: $this->state['customCss']);
+		preg_match('/style-src [^;]*/', $response->getContentSecurityPolicy()->buildPolicy(), $ours);
+		preg_match('/style-src [^;]*/', (new \OCP\AppFramework\Http\ContentSecurityPolicy())->buildPolicy(), $nextclouds);
+		$this->assertSame(expected: $nextclouds, actual: $ours);
+		$this->assertStringContainsString(needle: "'unsafe-inline'", haystack: $ours[0]);
+	}//end testTheShellGetsTheCustomCssAndTheCspKeepsStyleSrc()
 }//end class

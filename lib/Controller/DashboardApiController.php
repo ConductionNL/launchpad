@@ -835,7 +835,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return JSONResponse The stored dashboard and placements, or the refusal.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	private function saveDraft(int $dashboardId, array $fields): JSONResponse {
 		if ($this->context->userId === null || $this->services->widgets->draftSave === null) {
@@ -891,7 +891,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return list<mixed> The cleanup warnings.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	private function cleanupRemovedFields(array $removed): array {
 		$fields = $this->services->widgets->fields;
@@ -1121,8 +1121,8 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse The updated dashboard, or the error.
 	 *
 	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	private function applyUpdate(int $dashboardId, array $fields): JSONResponse {
 		// REQ-EDIT-002: an edit-mode Save sends its whole draft, marked as such,
@@ -1623,7 +1623,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @throws DoesNotExistException When the group has no dashboard with that UUID.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
 	 */
 	private function saveGroupWithVersion(GroupDashboardTarget $target, array $patch): Dashboard {
 		$service = $this->services->dashboardService;
@@ -2580,7 +2580,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return Dashboard The saved dashboard.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
 	 */
 	private function saveWithVersion(int $dashboardId, \Closure $save): Dashboard {
 		if ($this->context->userId === null) {

@@ -10,7 +10,6 @@ Enable version history and one-click restoration for LaunchPad dashboards. The f
 
 ## Data Model
 
-
 ### Database Backend (Default)
 
 Each dashboard version snapshot is stored in `oc_launchpad_dash_versions` with:
@@ -29,38 +28,6 @@ Each dashboard version snapshot is stored in `oc_launchpad_dash_versions` with:
 Versions are stored via `\OCP\IVersionManager` on the dashboard's JSON file in Nextcloud Files. LaunchPad does NOT manage retention — Nextcloud's own versioning policies apply. If versioning is unavailable, the API gracefully returns `{versions: [], modeSupported: false}` with HTTP 200.
 
 ## Requirements
-
-### Requirement: REQ-VERS-001 Snapshot Creation on Content Update
-
-The system MUST automatically capture a snapshot whenever a dashboard's content is successfully saved via PUT. Snapshots MUST be debounced — at most one snapshot per 60-second window per dashboard.
-
-#### Scenario: Automatic snapshot on PUT
-
-- GIVEN a dashboard "My Dashboard" with current content
-- WHEN a user sends PUT /api/dashboard/{uuid}/content with new widget positions
-- THEN the system MUST create a version snapshot in the appropriate backend (file-version for groupfolder, DB row for db mode) after the content is persisted
-- AND the snapshot MUST include the full widget tree and metadata as it was before the update
-
-#### Scenario: Debouncing rapid edits
-
-- GIVEN a dashboard and a user rapidly sends 5 PUT requests within 30 seconds
-- WHEN the user saves each change
-- THEN the system MUST create at most 1 snapshot for the entire burst (the first one at t=0, others ignored or batched until 60s passes)
-- AND subsequent updates after the 60-second window MUST create a new snapshot
-
-#### Scenario: Failed PUT does not create snapshot
-
-- GIVEN a PUT request that fails validation or encounters a database error
-- WHEN the request returns HTTP 400 or HTTP 500
-- THEN no version snapshot MUST be recorded
-- AND the dashboard content MUST remain unchanged
-
-#### Scenario: Snapshot captures full state
-
-- GIVEN a dashboard with 4 widgets at specific grid positions
-- WHEN a PUT updates widget positions and changes its name and description
-- THEN the snapshot MUST hold the state before the PUT, with all of its fields: the dashboard's name, description and other fields as they were stored, and all 4 widgets at their prior grid positions with their content
-- AND restoring the snapshot MUST bring the 4 widgets back to those prior positions
 
 ### Requirement: REQ-VERS-002 Explicit Snapshot Creation
 
@@ -419,7 +386,7 @@ Restore MUST ask for confirmation naming the version date, restore through the r
 
 ### Requirement: Each automatic version says what changed (REQ-VERSUI-004)
 
-An automatic snapshot (REQ-VERS-001) MUST carry a note of at most 120 characters that names what changed since the
+An automatic snapshot (REQ-VERS-010) MUST carry a note of at most 120 characters that names what changed since the
 previous snapshot: "Dashboard renamed to {name}", "Columns from {old} to {new}", "Widget {title} added", "Widget
 {title} removed", "Widget {old} renamed to {new}", "Widget {title} moved", "Widget {title} resized". When more than one
 thing changed, the note MUST name the first and count the rest ("Widget Inbox added and 2 more changes"). A widget is
@@ -449,6 +416,51 @@ ran the re-sync and a list of widget changes.
 - **GIVEN** Intranet Zuiddrecht is a copy of template "Intranet"
 - **WHEN** the administrator re-syncs the template
 - **THEN** the copy's Versions tab shows a version by "Template Intranet" with "Updated from the template"
+
+### Requirement: Every save makes one version of the whole dashboard (REQ-VERS-010)
+
+Every successful Save of edit mode (dashboards REQ-EDIT-002) and every successful save of the dashboard settings
+window MUST create exactly one automatic version of the dashboard, with no debounce (boards LpVersies,
+LpDashboardInstellingen). The version MUST hold the whole dashboard after the save: its fields (name, description,
+columns, own look) and every widget with its position, size, content and visibility rules. It MUST be written in the
+same transaction as the save, so a refused or failed save creates no version. Restoring a version (REQ-VERS-005) MUST
+bring back the layout, the widgets with their settings and the look it holds.
+
+#### Scenario: A widget change makes a version
+
+- **GIVEN** Ruben's dashboard "My Dashboard" with one version
+- **WHEN** he changes the title of a text widget in edit mode and chooses Save
+- **THEN** the Versions tab of the dashboard settings MUST list one more version, at the top
+- **AND** restoring the version before it MUST bring the old title back
+
+#### Scenario: Two saves in a minute make two versions
+
+- **GIVEN** a dashboard
+- **WHEN** the owner saves edit mode twice within 30 seconds, with a change each time
+- **THEN** two new versions MUST be listed
+
+#### Scenario: A failed save makes no version
+
+- **GIVEN** a save that the server refuses with 403
+- **THEN** no version MUST be added
+
+#### Scenario: Saving the dashboard settings makes a version
+
+- **GIVEN** the owner sets an accent colour under Own look
+- **WHEN** they choose Save in the dashboard settings window
+- **THEN** one new version MUST be listed, holding the new accent colour
+
+### Requirement: The first version keeps the state before the change (REQ-VERS-011)
+
+When a dashboard has no versions yet, its first save MUST store two versions: first the dashboard as it was before
+the save, then as it is after. So the Versions tab always offers a state to go back to.
+
+#### Scenario: The first save of an old dashboard
+
+- **GIVEN** "My Dashboard" has no versions ("No versions saved yet")
+- **WHEN** Ruben moves a widget in edit mode and chooses Save
+- **THEN** the Versions tab MUST list two versions
+- **AND** restoring the older one MUST put the widget back where it was
 
 ## Non-Functional Requirements
 

@@ -226,7 +226,7 @@ export default {
 	 * widget's children, for their edit menu (embed subject, duplicate, remove).
 	 *
 	 * @return {object}
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
 	provide() {
 		return {
@@ -307,7 +307,7 @@ export default {
 		 * stored yet: no placement, or one the draft added.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		embedDisabled() {
 			const id = this.placement?.id

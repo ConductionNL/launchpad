@@ -234,7 +234,7 @@ final class BookmarkImportPlan {
 	 *
 	 * @return list<array<string, mixed>>
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 	 */
 	public function draftPlacements(int $bottom): array {
 		return array_map(

@@ -7,7 +7,7 @@
  * version, with the state before it as the first one; restoring that one
  * brings the old widget back.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
  */
 
 import type { APIRequestContext, Page } from '@playwright/test'

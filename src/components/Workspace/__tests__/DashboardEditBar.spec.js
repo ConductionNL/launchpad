@@ -6,7 +6,7 @@
  * widget, Dashboard settings, Cancel and Save, and the dock for the More menu
  * (REQ-EDIT-001).
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 
 import { mount } from '@vue/test-utils'
@@ -111,7 +111,7 @@ describe('DashboardEditBar', () => {
 		expect(wrapper.find('[data-testid="launchpad-edit-bar-save"]').attributes('disabled')).toBeDefined()
 	})
 
-	// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+	// @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
 	it('asks to leave on Escape', async () => {
 		const wrapper = mountBar()
 		await wrapper.find('[data-testid="launchpad-edit-bar"]').trigger('keydown', { key: 'Escape' })

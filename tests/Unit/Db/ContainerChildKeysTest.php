@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * The keys of the children of wells and tabs widgets.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 #[CoversClass(ContainerChildKeys::class)]
 #[CoversClass(WidgetPlacement::class)]

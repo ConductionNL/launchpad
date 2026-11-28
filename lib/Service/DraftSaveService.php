@@ -16,7 +16,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ use OCA\LaunchPad\Exception\StalePlacementException;
  * differs from what is stored), one without an `id` is added, and a stored
  * placement missing from the list is removed.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
 class DraftSaveService {
 	/**
@@ -64,7 +64,7 @@ class DraftSaveService {
 	 * @param DashboardService        $dashboards Stores the grid columns.
 	 * @param DashboardVersionService $versions   Runs the save with its version.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	public function __construct(
 		private readonly WidgetService $widgets,
@@ -86,7 +86,7 @@ class DraftSaveService {
 	 * @throws ForbiddenException       When one change is not allowed (403); nothing is stored.
 	 * @throws DraftConflictException   When a colleague changed a widget of the draft first (409); nothing is stored.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	public function save(DashboardDraft $draft): array {
 		$plan = $this->plan(draft: $draft);
@@ -115,7 +115,7 @@ class DraftSaveService {
 	 *
 	 * @return list<WidgetPlacement>
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	private function storedPlacements(int $dashboardId, array $placementIds): array {
 		if ($placementIds === []) {
@@ -140,7 +140,7 @@ class DraftSaveService {
 	 *
 	 * @throws InvalidArgumentException When the draft is malformed or names a widget of another dashboard.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	public function plan(DashboardDraft $draft): array {
 		$stored = [];
@@ -183,7 +183,7 @@ class DraftSaveService {
 	 *
 	 * @throws InvalidArgumentException When a rule is malformed or names a new widget.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 	 */
 	private function rulesPlan(array $placements): array {
 		$rules = [];
@@ -234,7 +234,7 @@ class DraftSaveService {
 	 *
 	 * @return array<string, mixed> The changed fields; empty when nothing changed.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	public static function changedFields(WidgetPlacement $stored, array $item): array {
 		$current = $stored->jsonSerialize();
@@ -389,7 +389,7 @@ class DraftSaveService {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	private static function isLauncherTile(array $layout): bool {
 		return $layout['widgetId'] === 'tile' && array_intersect_key($layout, self::TILE_KEYS) !== [];
@@ -404,7 +404,7 @@ class DraftSaveService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	private function addTile(int $dashboardId, array $layout): void {
 		$tileData = array_intersect_key($layout, array_flip(['gridX', 'gridY', 'gridWidth', 'gridHeight', 'content']));

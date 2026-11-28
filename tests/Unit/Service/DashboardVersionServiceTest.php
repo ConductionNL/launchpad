@@ -936,7 +936,7 @@ class DashboardVersionServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-the-first-version-keeps-the-state-before-the-change-req-vers-011
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-the-first-version-keeps-the-state-before-the-change-req-vers-011
 	 */
 	public function testFirstSaveStoresTheStateBeforeAndAfter(): void {
 		$before = $this->makeDashboard();
@@ -981,7 +981,7 @@ class DashboardVersionServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
 	 */
 	public function testEverySaveStoresOneVersionWithoutDebounce(): void {
 		$dashboard = $this->makeDashboard();
@@ -1003,7 +1003,7 @@ class DashboardVersionServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
 	 */
 	public function testAFailedSaveStoresNoVersion(): void {
 		$this->dashboardMapper->method('find')->willReturn($this->makeDashboard());
@@ -1031,7 +1031,7 @@ class DashboardVersionServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
 	 */
 	public function testAFailingVersionWriteRollsTheSaveBack(): void {
 		$dashboard = $this->makeDashboard();

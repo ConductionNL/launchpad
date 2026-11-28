@@ -1405,7 +1405,7 @@ export default {
 		 * writes the draft: the widget's rules in it, and how they combine.
 		 *
 		 * @return {object|null}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		visibilityDraft() {
 			const store = useDashboardStore()
@@ -2611,7 +2611,7 @@ export default {
 		 * mode; a refused or conflicting save keeps the draft and edit mode.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 		 */
 		async onSaveEdit() {
 			if (this.savingDraft) {
@@ -2635,7 +2635,7 @@ export default {
 		 * asking "Discard changes?" first when the draft has changes.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-cancel-discards-the-draft-req-edit-004
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-cancel-discards-the-draft-req-edit-004
 		 */
 		async onCancelEdit() {
 			if (this.isDraftDirty && (await this.askDraft('cancel')) !== 'discard') {
@@ -2653,7 +2653,7 @@ export default {
 		 * editing stays.
 		 *
 		 * @return {Promise<boolean>} Whether to go on leaving.
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
 		 */
 		async confirmLeaveDraft() {
 			if (!this.isEditMode || !this.isDraftDirty) {
@@ -2681,7 +2681,7 @@ export default {
 		 *
 		 * @param {'leave'|'cancel'} mode Which question.
 		 * @return {Promise<'discard'|'keep'|'save'>}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
 		 */
 		askDraft(mode) {
 			return new Promise((resolve) => {
@@ -2701,7 +2701,7 @@ export default {
 		 *
 		 * @param {BeforeUnloadEvent} event The event.
 		 * @return {void}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
 		 */
 		onBeforeUnloadDraft(event) {
 			if (this.isEditMode && this.isDraftDirty) {
@@ -3547,7 +3547,7 @@ export default {
 		 *
 		 * @param {number|string} placementId The widget to copy.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		async duplicateWidget(placementId) {
 			await useDashboardStore().duplicatePlacement(placementId)
@@ -3561,7 +3561,7 @@ export default {
 		 * @param {object|null} owner The widget on the dashboard that holds the child.
 		 * @param {object|null} child The child.
 		 * @return {string}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		childEmbedHref(owner, child) {
 			if (this.isAdmin !== true || !this.activeDashboard?.id) {
@@ -3579,7 +3579,7 @@ export default {
 		 * @param {string} key The child's key.
 		 * @param {function(object, string): (object|null)} change Makes the new content.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		async changeChild(ownerId, key, change) {
 			const store = useDashboardStore()
@@ -3598,7 +3598,7 @@ export default {
 		 * @param {number|string} ownerId The widget on the dashboard that holds the child.
 		 * @param {string} key The child's key.
 		 * @return {void}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		configureChild(ownerId, key) {
 			const owner = useDashboardStore().widgetPlacements.find((p) => String(p.id) === String(ownerId))
@@ -3617,7 +3617,7 @@ export default {
 		 * @param {{ownerId: (number|string), key: string}} childOf The child.
 		 * @param {{content: object, chrome?: object}} payload What the form saved.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		async saveChildWidget(childOf, payload) {
 			const patch = { content: payload.content, ...this.chromePatch(payload.chrome || {}, this.customWidgetEditing?.styleConfig) }
@@ -3632,7 +3632,7 @@ export default {
 		 *
 		 * @param {string} href The embed token form of the admin page.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		async openEmbedAfterDraft(href) {
 			if (typeof href !== 'string' || href === '' || !(await this.confirmLeaveDraft())) {

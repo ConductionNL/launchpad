@@ -672,7 +672,7 @@ function lastWrite(
  * @param page The page, in edit mode with the dialog open.
  * @param stored Whether the Save must be stored (HTTP 200); false only reads what it sent.
  * @return The rules the Save carried for the placement.
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
 async function saveRulesDraft(page: Page, stored = true): Promise<Array<Record<string, unknown>>> {
 	await page.keyboard.press('Escape')

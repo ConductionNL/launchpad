@@ -160,7 +160,7 @@ export default {
 		 * "You are editing {name}", also the tooltip of a name cut short.
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		editingLabel() {
 			return t('launchpad', 'You are editing {name}', { name: this.dashboardName })

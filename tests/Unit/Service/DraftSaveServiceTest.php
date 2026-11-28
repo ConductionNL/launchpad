@@ -8,7 +8,7 @@
  * in one go, every change checked first, nothing stored when one is refused
  * or a colleague changed a widget first (REQ-EDIT-002).
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
 
 declare(strict_types=1);
@@ -187,7 +187,7 @@ class DraftSaveServiceTest extends TestCase {
 	 * The rules dialog changes the draft only: Save replaces the widget's
 	 * rules inside the version's save, after the placement changes.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 	 *
 	 * @return void
 	 */
@@ -220,7 +220,7 @@ class DraftSaveServiceTest extends TestCase {
 	 * widget; malformed rules and rules on a new widget are refused; nothing
 	 * is stored.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 *
 	 * @return void
 	 */
@@ -281,7 +281,7 @@ class DraftSaveServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	public function testSaveReturnsTheRemovedWidgets(): void {
 		$this->widgets->method('updatePlacement')->willReturnCallback(

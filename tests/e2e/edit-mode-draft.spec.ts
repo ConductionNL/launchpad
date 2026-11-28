@@ -10,7 +10,7 @@
  * Seeds its own dashboards: a new dashboard gets the default bundle (three
  * tiles and a Files widget).
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 
 import type { APIRequestContext, Page, Request } from '@playwright/test'

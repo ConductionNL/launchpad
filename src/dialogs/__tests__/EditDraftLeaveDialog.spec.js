@@ -6,7 +6,7 @@
  * Save changes? (Don't save, Keep editing, Save) or, on Cancel, Discard
  * changes? (Discard, Keep editing). Closing it keeps editing.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
  */
 
 import { mount } from '@vue/test-utils'
@@ -47,7 +47,7 @@ describe('EditDraftLeaveDialog', () => {
 		expect(wrapper.emitted('choose')).toEqual([['save'], ['discard']])
 	})
 
-	// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-cancel-discards-the-draft-req-edit-004
+	// @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-cancel-discards-the-draft-req-edit-004
 	it('asks to discard on Cancel, with Discard and Keep editing', () => {
 		const wrapper = mount(EditDraftLeaveDialog, { props: { open: true, mode: 'cancel', count: 1 } })
 		expect(wrapper.find('h2').text()).toBe('Discard changes?')

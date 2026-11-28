@@ -226,7 +226,7 @@ async function closeSwitcher(page: Page): Promise<void> {
  *
  * @param page The page, in edit mode with changes.
  * @return The answer's status.
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
 export async function saveEditDraft(page: Page): Promise<number> {
 	await closeSwitcher(page)
@@ -250,7 +250,7 @@ export async function saveEditDraft(page: Page): Promise<number> {
  * @param dialog The dialog.
  * @param button The name of its add button.
  * @return The dashboard id, the stored new placement, and what the Save sent for it.
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
 export async function addAndSaveDraft(
 	page: Page,

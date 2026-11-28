@@ -568,6 +568,8 @@ export default {
 		/**
 		 * Load an API widget's items (v1 and v2) behind a loading state and
 		 * arm its auto-refresh when it has a reload interval.
+		 *
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-each-widget-fills-its-own-frame-when-its-data-arrives-req-fps-004
 		 */
 		async initApiWidget() {
 			// Only API widgets show loading; legacy widgets render themselves.
@@ -593,7 +595,11 @@ export default {
 			}
 		},
 
-		/** Mount a legacy widget via its callback once the DOM is ready. */
+		/**
+		 * Mount a legacy widget via its callback once the DOM is ready.
+		 *
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-each-widget-fills-its-own-frame-when-its-data-arrives-req-fps-004
+		 */
 		async initLegacyWidget() {
 			try {
 				logger.debug(
@@ -653,7 +659,11 @@ export default {
 			}
 		},
 
-		/** Hand the container and widget data to the registered callback. */
+		/**
+		 * Hand the container and widget data to the registered callback; the card stops waiting.
+		 *
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-each-widget-fills-its-own-frame-when-its-data-arrives-req-fps-004
+		 */
 		mountViaBridge() {
 			logger.debug(
 				'[WidgetRenderer] Callback found! Mounting:',
@@ -685,7 +695,11 @@ export default {
 			setTimeout(() => this.tryMountLegacyWidget(attempt + 1), delay)
 		},
 
-		/** Log that the legacy widget never registered its callback. */
+		/**
+		 * Log that the legacy widget never registered its callback; its card stops waiting.
+		 *
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-each-widget-fills-its-own-frame-when-its-data-arrives-req-fps-004
+		 */
 		reportLegacyMountFailure() {
 			// A widget that never mounts counts as settled: its card stops waiting.
 			this.settle()

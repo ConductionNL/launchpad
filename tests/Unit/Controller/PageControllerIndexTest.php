@@ -52,6 +52,7 @@ use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\IUserSession;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -510,6 +511,77 @@ class PageControllerIndexTest extends TestCase {
 		$this->assertSame(expected: ['51'], actual: array_column($deep['frames'], 'id'));
 		$this->assertSame(expected: Dashboard::SOURCE_GROUP, actual: $deep['source']);
 	}//end testTheShellDrawsWhatThePageDrawsFirst()
+
+	/**
+	 * The shell's frames equal the `layout` initial state when the opened
+	 * dashboard is the first-load envelope's, for an owned and for a group
+	 * dashboard, and building the shell reads nothing the page did not read
+	 * already: one placement read and one effective-dashboard read per page
+	 * (first-paint-skeleton task 3, REQ-FPS-001).
+	 *
+	 * @param string $source The opened dashboard's source.
+	 * @param string $name   Its name.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 */
+	#[DataProvider('openedDashboards')]
+	public function testTheShellFramesAreTheLayoutStateAndCostNoExtraReads(string $source, string $name): void {
+		$this->signIn(uid: 'pieter');
+		$this->adminSettings->method('getSettings')->willReturn([]);
+		$opened = self::dashboard(id: 9, uuid: 'uuid-9', name: $name);
+		$this->dashboards->method('getVisibleToUser')->willReturn([['dashboard' => $opened, 'source' => $source]]);
+		$rows = [];
+		foreach ([61 => 'notes', 62 => 'calendar', 63 => 'notes'] as $id => $type) {
+			$row = new WidgetPlacement();
+			$row->setId($id);
+			$row->setDashboardId(9);
+			$row->setWidgetId($type);
+			$row->setGridY($id - 61);
+			$row->setGridWidth(6);
+			$row->setGridHeight(2);
+			$rows[] = $row;
+		}
+
+		$this->dashboards->expects($this->once())->method('getEffectiveDashboard')->with('pieter')->willReturn(
+			[
+				'dashboard'       => $opened,
+				'placements'      => $rows,
+				'permissionLevel' => Dashboard::PERMISSION_FULL,
+			]
+		);
+		$this->dashboards->expects($this->once())->method('resolveActiveDashboard')->willReturn(['dashboard' => $opened, 'source' => $source]);
+		$this->widgets->expects($this->once())->method('getDashboardPlacements')->with(9)->willReturn($rows);
+		$this->permissions->method('hideUnpermittedPlacements')->willReturnArgument(0);
+		$payloads = new DashboardPayloads(
+			services: new DashboardApiServices(dashboardService: $this->dashboards),
+			actor: new RequestActor(
+				userSession: $this->session,
+				actionAuth: $this->createMock(originalClassName: ActionAuthService::class)
+			)
+		);
+
+		$firstPaint = $this->controller(payloads: $payloads)->index()->getParams()['firstPaint'];
+
+		$layoutIds = array_map('strval', array_column($this->state['layout'], 'id'));
+		$this->assertSame(expected: ['61', '62', '63'], actual: $layoutIds, message: $source);
+		$this->assertSame(expected: $layoutIds, actual: array_column($firstPaint['frames'], 'id'), message: $source);
+		$this->assertSame(expected: $name, actual: $firstPaint['header']['name'], message: $source);
+		$this->assertSame(expected: $source, actual: $firstPaint['source'], message: $source);
+	}//end testTheShellFramesAreTheLayoutStateAndCostNoExtraReads()
+
+	/**
+	 * An owned and a group dashboard, each opened through the first-load envelope.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
+	public static function openedDashboards(): array {
+		return [
+			'owned' => [Dashboard::SOURCE_USER, 'Mijn werkdag'],
+			'group' => [Dashboard::SOURCE_GROUP, 'Team'],
+		];
+	}//end openedDashboards()
 
 	/**
 	 * A guest has no dashboard, so the page prints no shell (REQ-FPS-006).

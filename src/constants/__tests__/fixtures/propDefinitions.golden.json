@@ -298,6 +298,13 @@
 		"validator": false,
 		"default": null
 	},
+	"../../components/TileAppChooser.vue | preselectedKeys": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../components/TileWidget.vue | tile": {
 		"type": "Object",
 		"required": true,
@@ -2630,6 +2637,12 @@
 	},
 	"../../modals/TileEditor.vue | requestAppFn": {
 		"type": "Function",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../modals/TileEditor.vue | preselectedApp": {
+		"type": "Object",
 		"required": false,
 		"validator": false,
 		"default": null

@@ -182,7 +182,7 @@ class PageController extends Controller {
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget((string)($settings['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET))
 			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
-			->setCustomCss($this->settings->customCss?->getGlobalCss() ?? '')
+			->setCustomCss($inputs['customCss'])
 			->setTelemetry(filters: ($settings['filterTelemetryEnabled'] ?? false) === true, views: $this->settings->analytics?->isGloballyEnabled() ?? true)
 			->setSharingPolicy(...$this->sources->dashboards->sharingPolicy(userId: $userId))
 			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
@@ -201,28 +201,34 @@ class PageController extends Controller {
 
 		// First-paint-skeleton D1: the header and the widget frames in the
 		// page's HTML, from the same values; none without a dashboard.
-		$context = ['user' => $this->userSession->getUser(), 'reloadUrl' => $this->request->getRequestUri()];
+		$context = ['user' => $this->userSession->getUser(), 'reloadUrl' => $this->request->getRequestUri()] + $inputs;
 
 		return $this->workspaceResponse(params: FirstPaintPage::params(page: $inputs, context: $context));
 	}//end index()
 
 	/**
 	 * The values the initial state and the first-paint shell share, read
-	 * once: the first dashboard load, the integration apps and the reader's
-	 * time zone (first-paint-skeleton D1).
+	 * once: the first dashboard load, the integration apps, the reader's
+	 * time zone and the global custom CSS (first-paint-skeleton D1), and the
+	 * resource route without the file name, where the shell points a
+	 * dashboard's background image as dashboardLook.js does.
 	 *
 	 * @param string $userId  The user, or ''.
 	 * @param array  $visible The visible dashboards.
 	 *
-	 * @return array{firstLoad: array|null, apps: array, timezone: string}
+	 * @return array{firstLoad: array|null, apps: array, timezone: string, customCss: string, resourceUrl: string}
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
 	 */
 	private function firstPaintInputs(string $userId, array $visible): array {
+		$resource = $this->settings->urlGenerator->linkToRoute(routeName: 'launchpad.resourceServe.getResource', arguments: ['filename' => 'x']);
+
 		return [
-			'firstLoad' => $this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible),
-			'apps'      => $this->integrationApps(),
-			'timezone'  => $this->userTimezone(userId: $userId),
+			'firstLoad'   => $this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible),
+			'apps'        => $this->integrationApps(),
+			'timezone'    => $this->userTimezone(userId: $userId),
+			'customCss'   => $this->settings->customCss?->getGlobalCss() ?? '',
+			'resourceUrl' => substr($resource, 0, -1),
 		];
 	}//end firstPaintInputs()
 

@@ -75,4 +75,4 @@
 ### Task 10: Docs
 - **spec_ref**: `openspec/changes/first-paint-skeleton/proposal.md`
 - **files**: `docs/`
-- [ ] Developer note: how a widget type picks its placeholder kind, and the `loaded` event
+- [x] Developer note: how a widget type picks its placeholder kind, and the `loaded` event (`docs/extending.md` sections 6 (shape, with the fallback table and the shared resolver) and 7 (when the placeholder goes: `loaded`, first render, API and legacy widgets, errors))

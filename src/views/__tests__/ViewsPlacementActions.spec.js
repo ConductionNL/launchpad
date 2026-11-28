@@ -108,6 +108,31 @@ describe('Views placements', () => {
 		expect(host.isTilePlacement({ id: 1, widgetId: 'notes' })).toBe(false)
 		expect(host.getTileData({ id: 1, tileType: 'preset' })).toBeNull()
 	})
+
+	// @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	it('draws a link tile that keeps its fields in content as a launcher tile, from its content', () => {
+		const host = makeHost()
+		const tile = {
+			id: 10,
+			widgetId: 'tile',
+			content: { mode: 'link', title: 'Wiki', icon: 'Web', iconType: 'mdi', backgroundColor: '#123456', textColor: '#ffffff', linkType: 'url', linkValue: 'https://w.test', internalUrl: 'http://wiki.intern' },
+		}
+
+		expect(host.isTilePlacement(tile)).toBe(true)
+		expect(host.getTileData(tile)).toEqual({
+			id: 10,
+			title: 'Wiki',
+			icon: 'Web',
+			iconType: 'mdi',
+			backgroundColor: '#123456',
+			textColor: '#ffffff',
+			linkType: 'url',
+			linkValue: 'https://w.test',
+			internalUrl: 'http://wiki.intern',
+		})
+		// An app-mode tile is drawn by its widget, not as a launcher tile.
+		expect(host.isTilePlacement({ id: 11, widgetId: 'tile', content: { mode: 'app', appId: 'files' } })).toBe(false)
+	})
 })
 
 describe('Views widget context menu', () => {

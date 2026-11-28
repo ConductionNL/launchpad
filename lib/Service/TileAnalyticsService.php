@@ -272,6 +272,7 @@ class TileAnalyticsService implements TileAnalyticsServiceInterface {
 	 * @return string|null The title.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
 	 */
 	private function tileTitle(string $placementId): ?string {
 		if (ctype_digit($placementId) === false) {
@@ -284,7 +285,9 @@ class TileAnalyticsService implements TileAnalyticsServiceInterface {
 			return null;
 		}
 
-		foreach ([$placement->getCustomTitle(), $placement->getTileTitle()] as $title) {
+		// REQ-TILE-PLACEMENT: a link tile made with the form keeps its title in content.
+		$contentTitle = $placement->getContentArray()['title'] ?? null;
+		foreach ([$placement->getCustomTitle(), $placement->getTileTitle(), $contentTitle] as $title) {
 			if (is_string($title) === true && $title !== '') {
 				return $title;
 			}

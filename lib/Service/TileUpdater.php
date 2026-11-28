@@ -154,6 +154,45 @@ class TileUpdater {
 	}//end applyTileUpdates()
 
 	/**
+	 * Check the content of a new `tile` widget (a link tile that keeps its
+	 * data in content) the way the tile route checks a tile: its link target,
+	 * its office-network address and, for a program, remote-desktop or sso
+	 * tile, its launch link.
+	 *
+	 * @param WidgetPlacement $placement The new placement, with its content set.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the content may not be saved like this (HTTP 400).
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 */
+	public function checkTileWidget(WidgetPlacement $placement): void {
+		if (self::keepsLinkInContent(placement: $placement) === false) {
+			return;
+		}
+
+		$this->checkContentUpdate(content: $placement->getContentArray());
+		$this->checkLaunchLink(placement: $placement);
+	}//end checkTileWidget()
+
+	/**
+	 * Whether a placement is a `tile` widget that keeps its link in content:
+	 * no legacy `tileType` and not an app-mode tile.
+	 *
+	 * @param WidgetPlacement $placement The placement.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 */
+	private static function keepsLinkInContent(WidgetPlacement $placement): bool {
+		return $placement->getWidgetId() === 'tile'
+			&& $placement->getTileType() === null
+			&& ($placement->getContentArray()['mode'] ?? 'link') !== 'app';
+	}//end keepsLinkInContent()
+
+	/**
 	 * Refuse an update whose content carries a link target or an office-network address that is not allowed.
 	 *
 	 * @param mixed $content The `content` of the update, when given.
@@ -214,6 +253,11 @@ class TileUpdater {
 	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-2
 	 */
 	private function checkLaunchLink(WidgetPlacement $placement): void {
+		if (self::keepsLinkInContent(placement: $placement) === true) {
+			$this->checkContentLaunchLink(placement: $placement);
+			return;
+		}
+
 		$type = $placement->getTileLinkType();
 		if (TileLinkValidator::isLaunchType(type: $type) === false) {
 			return;
@@ -231,6 +275,39 @@ class TileUpdater {
 			)
 		);
 	}//end checkLaunchLink()
+
+	/**
+	 * Check the launch link of a `tile` widget that keeps its link in
+	 * content, and store the link value the check returns in that content.
+	 *
+	 * @param WidgetPlacement $placement The placement, with this save's changes applied.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the tile may not be saved like this (HTTP 400).
+	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) TileLinkValidator::isLaunchType holds the rule as a pure function.
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 */
+	private function checkContentLaunchLink(WidgetPlacement $placement): void {
+		$content = $placement->getContentArray();
+		$type    = $content['linkType'] ?? null;
+		if (is_string($type) === false || TileLinkValidator::isLaunchType(type: $type) === false) {
+			return;
+		}
+
+		if ($this->links === null) {
+			throw new InvalidArgumentException(message: 'The link type "' . $type . '" cannot be checked here.');
+		}
+
+		$content['linkValue'] = $this->links->check(
+			type: $type,
+			value: (string)($content['linkValue'] ?? ''),
+			content: $content
+		);
+		$placement->setContentArray($content);
+	}//end checkContentLaunchLink()
 
 	/**
 	 * Refuse an office-network address that is not an http or https address or a path on this instance.

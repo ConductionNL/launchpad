@@ -437,4 +437,24 @@ class TileAnalyticsServiceTest extends TestCase {
 
 		$this->assertSame('Mail', $rows[0]['tileTitle']);
 	}
+	/**
+	 * A link tile that keeps its fields in content reports its content title.
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 *
+	 * @return void
+	 */
+	public function testAContentLinkTileReportsItsContentTitle(): void {
+		$this->tileClickMapper->method('findByDashboardInRange')->willReturn(
+			[['placementUuid' => '7', 'clickCount' => 5, 'uniqueActorCount' => 2]]
+		);
+		$tile = new WidgetPlacement();
+		$tile->setWidgetId('tile');
+		$tile->setContentArray(['mode' => 'link', 'title' => 'Wiki', 'linkValue' => 'https://w.test']);
+		$this->placementMapper->method('find')->willReturn($tile);
+
+		$rows = $this->service->getDashboardBreakdown(dashboardUuid: 'team', period: '30d');
+
+		$this->assertSame(expected: 'Wiki', actual: $rows[0]['tileTitle']);
+	}
 }

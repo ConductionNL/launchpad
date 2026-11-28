@@ -348,4 +348,125 @@ class TileUpdaterTest extends TestCase {
 
 		$this->assertSame(array_fill(0, 3, 'content.linkTarget must be one of same-tab, new-tab, side-panel'), $refused);
 	}
+	/**
+	 * A content link tile: a `tile` widget that keeps its link in content.
+	 *
+	 * @param array<string, mixed> $content The content.
+	 *
+	 * @return WidgetPlacement
+	 */
+	private static function contentTile(array $content): WidgetPlacement {
+		$placement = new WidgetPlacement();
+		$placement->setWidgetId('tile');
+		$placement->setContentArray($content);
+		return $placement;
+	}
+
+	/**
+	 * A new `tile` widget's launch link in content is checked and the checked value stored in content.
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 *
+	 * @return void
+	 */
+	public function testANewContentTileHasItsLaunchLinkChecked(): void {
+		$content = [
+			'mode'      => 'link',
+			'linkType'  => 'sso',
+			'linkValue' => 'https://typed.example/',
+			'sso'       => ['template' => 'entra', 'appId' => 'a1b2c3'],
+		];
+		$links = $this->createMock(originalClassName: TileLinkValidator::class);
+		$links->expects($this->once())->method('check')
+			->with('sso', 'https://typed.example/', $content)
+			->willReturn('https://launcher.myapps.microsoft.com/api/signin/a1b2c3');
+		$placement = self::contentTile(content: $content);
+
+		(new TileUpdater(links: $links))->checkTileWidget(placement: $placement);
+
+		$this->assertSame(expected: 'https://launcher.myapps.microsoft.com/api/signin/a1b2c3', actual: $placement->getContentArray()['linkValue']);
+		$this->assertNull(actual: $placement->getTileLinkValue());
+	}
+
+	/**
+	 * A content tile's office-network address and link target are refused like on the tile route.
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 *
+	 * @return void
+	 */
+	public function testANewContentTileRefusesABadAddressOrLinkTarget(): void {
+		$refused = 0;
+		foreach ([['internalUrl' => 'javascript:alert(1)'], ['linkTarget' => 'popup']] as $bad) {
+			try {
+				$tile = self::contentTile(content: ['mode' => 'link', 'linkType' => 'url', 'linkValue' => 'https://w.test'] + $bad);
+				(new TileUpdater())->checkTileWidget(placement: $tile);
+			} catch (InvalidArgumentException) {
+				$refused++;
+			}
+		}
+
+		$this->assertSame(expected: 2, actual: $refused);
+	}
+
+	/**
+	 * A plain url content tile, an app-mode tile and other widgets pass unchanged and need no validator.
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 *
+	 * @return void
+	 */
+	public function testOtherWidgetsAndPlainContentTilesAreLeftAlone(): void {
+		$updater = new TileUpdater();
+		$url = self::contentTile(content: ['mode' => 'link', 'title' => 'Wiki', 'linkType' => 'url', 'linkValue' => 'https://w.test']);
+		$app = self::contentTile(content: ['mode' => 'app', 'appId' => 'files', 'linkType' => 'program', 'internalUrl' => 'javascript:x']);
+		$other = new WidgetPlacement();
+		$other->setWidgetId('notes');
+		$other->setContentArray(['internalUrl' => 'javascript:x', 'linkType' => 'program']);
+
+		foreach ([$url, $app, $other] as $placement) {
+			$updater->checkTileWidget(placement: $placement);
+		}
+
+		$this->assertSame(expected: 'https://w.test', actual: $url->getContentArray()['linkValue']);
+		$this->assertSame(expected: 'javascript:x', actual: $other->getContentArray()['internalUrl']);
+	}
+
+	/**
+	 * Updating a content launch tile checks its content, not the empty columns.
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 *
+	 * @return void
+	 */
+	public function testAnUpdateOfAContentLaunchTileChecksItsContent(): void {
+		$content = [
+			'mode'      => 'link',
+			'linkType'  => 'remote-desktop',
+			'linkValue' => '',
+			'remote'    => ['mode' => 'gateway', 'url' => 'https://desktop.gemeente.nl/'],
+		];
+		$links = $this->createMock(originalClassName: TileLinkValidator::class);
+		$links->expects($this->once())->method('check')
+			->with('remote-desktop', '', $content)
+			->willReturn('https://desktop.gemeente.nl/');
+		$placement = self::contentTile(content: $content);
+
+		(new TileUpdater(links: $links))->applyTileUpdates(placement: $placement, data: []);
+
+		$this->assertSame(expected: 'https://desktop.gemeente.nl/', actual: $placement->getContentArray()['linkValue']);
+		$this->assertNull(actual: $placement->getTileLinkType());
+	}
+
+	/**
+	 * Without a validator a content launch tile is refused rather than stored unchecked.
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 *
+	 * @return void
+	 */
+	public function testAContentLaunchTileWithoutAValidatorIsRefused(): void {
+		$this->expectException(exception: InvalidArgumentException::class);
+		(new TileUpdater())->checkTileWidget(placement: self::contentTile(content: ['linkType' => 'program', 'linkValue' => 'ms-word:x']));
+	}
 }

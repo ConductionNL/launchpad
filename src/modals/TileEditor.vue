@@ -50,6 +50,7 @@
 							:officeTiles="officeTiles"
 							:placements="placements"
 							:requestAppFn="requestAppFn"
+							:preselectedKeys="preselectedKeys"
 							@update:chosen="chosenApps = $event"
 							@importBookmarks="$emit('importBookmarks', $event)" />
 						<p v-else-if="isAppMode" class="tile-editor__hint" data-testid="tile-editor-app">
@@ -576,6 +577,7 @@ import { fetchHealthPingBadge, validateHealthPingConfig } from '../services/heal
 import { ICON_CATALOGUE, loadIconCatalogue, normaliseIconValue } from '../services/iconCatalogue.js'
 import { validateIframeUrl } from '../services/iframeClient.js'
 import { uploadFile } from '../services/resourceService.js'
+import { catalogueChoice } from '../utils/addTiles.js'
 import { isOnOfficeNetwork, loadInitialState } from '../utils/loadInitialState.js'
 import { lastCheckLine } from '../utils/tileAvailability.js'
 import { isColourToken, TILE_COLOUR_TOKENS, tileBackground } from '../utils/tileColour.js'
@@ -657,6 +659,10 @@ export default {
 		placements: LIST_PROP,
 
 		requestAppFn: { type: Function, default: null },
+
+		// REQ-WDG-045: a catalogue app the assistant proposed; a new tile then
+		// opens on "An app" with that app ticked.
+		preselectedApp: NULLABLE_OBJECT_PROP,
 	},
 
 	emits: ['close', 'save', 'delete', 'addApps', 'importBookmarks'],
@@ -732,6 +738,16 @@ export default {
 				label: names[token],
 				css: tileBackground(null, { colourToken: token }),
 			}))
+		},
+
+		/**
+		 * The choice keys "Choose the app" starts with ticked.
+		 *
+		 * @return {Array<string>}
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+		 */
+		preselectedKeys() {
+			return this.preselectedApp && !this.tile ? [catalogueChoice(this.preselectedApp).key] : []
 		},
 
 		/**
@@ -1201,6 +1217,10 @@ export default {
 					}
 				} else {
 					this.resetForm()
+					// REQ-WDG-045: an app the assistant proposed opens on "An app".
+					if (this.preselectedApp) {
+						this.form.mode = 'app'
+					}
 				}
 				this.lastReading = null
 				this.targetGroupId = null

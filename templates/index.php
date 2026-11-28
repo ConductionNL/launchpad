@@ -110,9 +110,9 @@ if (is_array($fp) === false) {
 	<div id="launchpad-first-paint" class="lp-fp">
 		<style>
 #app-workspace{position:relative;flex:1 1 auto;min-width:0;min-height:calc(100vh - var(--header-height,50px) - var(--body-container-margin,8px))}
-.lp-fp{position:absolute;inset:0;z-index:1;overflow:hidden;background:var(--color-main-background-blur,rgba(255,255,255,.8));
-color:var(--color-main-text)}
-.lp-fp__c{box-sizing:border-box;display:flex;flex-direction:column;height:100%;padding:8px 20px 0;container-type:inline-size;
+.lp-fp{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;overflow:hidden;
+background:var(--color-main-background-blur,rgba(255,255,255,.8));color:var(--color-main-text)}
+.lp-fp__c{box-sizing:border-box;display:flex;flex:1 1 auto;flex-direction:column;min-height:0;padding:8px 20px 0;container-type:inline-size;
 background:var(--color-background-hover,#f5f5f5)}
 .lp-fp__h,.lp-fp__g{flex:none}
 .lp-fp__h{display:flex;flex-direction:column;gap:14px;padding:16px 8px 8px}
@@ -148,11 +148,35 @@ border:1px solid var(--sc-work-field,var(--color-border-dark,#949494));border-ra
 <?php print_unescaped(FirstPaintPlaceholder::css()); ?>
 .lp-fp__d>.cn-widget-placeholder{flex:1 1 auto;min-height:0}
 .lp-fp__f--tiles .lp-fp__d{padding:0;border:0}
+.lp-fp__n{display:flex;flex:none;align-items:center;gap:10px 16px;padding:12px 28px;font-size:15px;
+background:var(--color-primary-element-light);color:var(--color-primary-element-light-text)}
+.lp-fp__n--w{background:var(--color-primary-element-hover);color:var(--color-primary-element-text)}
+.lp-fp__ni{flex:none;width:20px;height:20px}.lp-fp__na{flex:none;width:72px;height:var(--default-clickable-area,34px)}
+.lp-fp__nt{display:flex;flex:1;flex-wrap:wrap;align-items:baseline;gap:4px 16px;min-width:0}.lp-fp__nt b{font-weight:600}.lp-fp__nt span{flex:1 1 260px}
 .lp-fp__x{position:absolute;right:28px;bottom:24px;left:28px;margin:0;padding:12px 16px;border-radius:8px;
 background:var(--color-main-background);visibility:hidden;animation:lp-fp-x 0s 15s forwards}
 @keyframes lp-fp-x{to{visibility:visible}}
 @media (prefers-reduced-motion:reduce){.lp-fp__x{animation-duration:0s}}
 		</style>
+		<?php foreach (($fp['notices'] ?? []) as $notice) :
+			// The notice banners NoticeBannerRegion shows above the dashboard, in
+			// their place (FirstPaintNotices); their buttons are drawn as a box.
+			$noticeClass = 'lp-fp__n';
+			if ($notice['warning'] === true) {
+				$noticeClass .= ' lp-fp__n--w';
+			}
+			?>
+			<div class="<?php p($noticeClass); ?>">
+				<span class="lp-fp__ni" aria-hidden="true"></span>
+				<div class="lp-fp__nt">
+					<b><?php p($notice['title']); ?></b>
+					<?php if ($notice['body'] !== '') : ?>
+						<span><?php p($notice['body']); ?></span>
+					<?php endif; ?>
+				</div>
+				<span class="lp-fp__na" aria-hidden="true"></span>
+			</div>
+		<?php endforeach; ?>
 		<div class="lp-fp__c"<?php if (($fp['look'] ?? '') !== '') : ?> style="<?php p((string) $fp['look']); ?>"<?php endif; ?>>
 		<?php if ($header['mode'] === 'page') : ?>
 			<header class="lp-fp__h">

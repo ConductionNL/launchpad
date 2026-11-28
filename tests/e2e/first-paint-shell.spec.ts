@@ -184,13 +184,17 @@ test.describe('first paint against the mounted grid (first-paint-skeleton task 8
 			}
 			await expect(page.locator('#launchpad-first-paint .lp-fp__d:empty')).toHaveCount(0)
 
-			// The mounted page, with the layout shifts it makes counted.
+			// The mounted page, with the layout shifts it makes counted: those
+			// that move something inside the page (#app-workspace), not
+			// Nextcloud's own top bar filling in its icons.
 			await page.unroute(BUNDLE)
 			await page.addInitScript(() => {
+				type Shift = PerformanceEntry & { value: number, hadRecentInput: boolean, sources?: Array<{ node?: Node | null }> }
 				(window as unknown as { __lpShift: number }).__lpShift = 0
 				new PerformanceObserver((list) => {
-					for (const entry of list.getEntries() as Array<PerformanceEntry & { value: number, hadRecentInput: boolean }>) {
-						if (!entry.hadRecentInput) {
+					for (const entry of list.getEntries() as Shift[]) {
+						const inPage = (entry.sources ?? []).some((source) => source.node instanceof Element && source.node.closest('#app-workspace') !== null)
+						if (!entry.hadRecentInput && inPage) {
 							(window as unknown as { __lpShift: number }).__lpShift += entry.value
 						}
 					}

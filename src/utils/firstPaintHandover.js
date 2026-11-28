@@ -38,16 +38,18 @@ export function holdMountWhileShellShows(doc = document) {
 }
 
 /**
- * Show the mounted page and remove the shell, in one animation frame.
+ * Show the mounted page and remove the shell, in one animation frame, once
+ * the browser has reported the shell's paint (see whenShellPaintReported).
  * Safe to call more than once; without a shell it only makes sure the
  * mount point is visible.
  *
  * @param {Document} [doc] The document.
  * @param {Function} [frame] requestAnimationFrame, or a stand-in.
+ * @param {(shell: HTMLElement, done: () => void) => void} [whenReported] whenShellPaintReported, or a stand-in.
  * @return {boolean} Whether a shell was handed over.
  * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
  */
-export function handOver(doc = document, frame = globalThis.requestAnimationFrame?.bind(globalThis)) {
+export function handOver(doc = document, frame = globalThis.requestAnimationFrame?.bind(globalThis), whenReported = whenShellPaintReported) {
 	const shell = doc.getElementById(SHELL_ID)
 	const mount = doc.getElementById(MOUNT_ID)
 	const swap = () => {
@@ -60,12 +62,68 @@ export function handOver(doc = document, frame = globalThis.requestAnimationFram
 		swap()
 		return false
 	}
-	if (typeof frame === 'function') {
-		frame(swap)
-	} else {
-		swap()
-	}
+	whenReported(shell, () => {
+		if (typeof frame === 'function') {
+			frame(swap)
+		} else {
+			swap()
+		}
+	})
 	return true
+}
+
+/**
+ * Call `done` once the browser has reported the shell's paint as a
+ * largest-contentful-paint candidate, or after `cap` ms, or at once where
+ * the browser reports no such paints.
+ *
+ * Chrome reports a paint only when the frame it was in has been presented,
+ * and the page's boot holds the main thread right after the shell's first
+ * frame. A shell removed before that report never counts: the page's first
+ * useful content then read as the mounted header (~850 ms) although the
+ * shell had painted at ~300 ms.
+ *
+ * @param {HTMLElement} shell The first-paint shell.
+ * @param {() => void} done Called once.
+ * @param {object} [options] Stand-ins.
+ * @param {number} [options.cap] The longest wait in ms.
+ * @param {typeof PerformanceObserver} [options.Observer] PerformanceObserver, or a stand-in.
+ * @param {typeof setTimeout} [options.setTimer] setTimeout, or a stand-in.
+ * @param {typeof clearTimeout} [options.clearTimer] clearTimeout, or a stand-in.
+ * @return {void}
+ * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
+ */
+export function whenShellPaintReported(shell, done, {
+	cap = 500,
+	Observer = globalThis.PerformanceObserver,
+	setTimer = globalThis.setTimeout,
+	clearTimer = globalThis.clearTimeout,
+} = {}) {
+	if (typeof Observer !== 'function' || !(Observer.supportedEntryTypes ?? []).includes('largest-contentful-paint')) {
+		done()
+		return
+	}
+	let finished = false
+	let observer = null
+	let timer = null
+	const finish = () => {
+		if (finished) {
+			return
+		}
+		finished = true
+		observer?.disconnect()
+		if (timer !== null) {
+			clearTimer(timer)
+		}
+		done()
+	}
+	observer = new Observer((list) => {
+		if (list.getEntries().some((entry) => entry.element && shell.contains(entry.element))) {
+			finish()
+		}
+	})
+	observer.observe({ type: 'largest-contentful-paint', buffered: true })
+	timer = setTimer(finish, cap)
 }
 
 /**

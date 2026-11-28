@@ -135,3 +135,35 @@ describe('lastChangedText', () => {
 })
 
 // @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
+
+describe('the meta line keeps the first-paint shell\'s description box', () => {
+	// The shell prints the description as one flex item; the header must paint
+	// no larger text block when it takes over, or that paint becomes the page's
+	// largest contentful paint instead of the shell's (first-paint-skeleton).
+	it('puts the description in a flex item of its own, the rights and last change in a second one', () => {
+		const changed = new Date()
+		changed.setHours(10, 45, 0, 0)
+		const wrapper = mountHeader({
+			source: 'group',
+			permissionLevel: 'view_only',
+			dashboard: { name: 'Managementinformatie', description: ' Groepsdashboard van Bedrijfsvoering ', updatedAt: changed.toISOString() },
+		})
+		const items = wrapper.findAll('.launchpad-page-header__meta > span')
+		expect(items.map((item) => item.classes()[0])).toEqual(['launchpad-page-header__description', 'launchpad-page-header__rest'])
+		expect(items[0].text()).toBe('Groepsdashboard van Bedrijfsvoering')
+		expect(items[1].classes()).toContain('launchpad-page-header__rest--joined')
+		expect(items[1].element.textContent).toBe(' · view only · Last changed today 10:45')
+	})
+
+	it('starts the line with the rights when there is no description', () => {
+		const wrapper = mountHeader({
+			source: 'group',
+			permissionLevel: 'view_only',
+			dashboard: { name: 'Managementinformatie', description: '', updatedAt: null },
+		})
+		expect(wrapper.find('.launchpad-page-header__description').exists()).toBe(false)
+		const rest = wrapper.find('.launchpad-page-header__rest')
+		expect(rest.element.textContent).toBe('view only')
+		expect(rest.classes()).not.toContain('launchpad-page-header__rest--joined')
+	})
+})

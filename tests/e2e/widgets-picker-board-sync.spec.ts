@@ -167,7 +167,17 @@ test.beforeAll(async () => {
 	const base = shipped.find((row) => row.groupId === 'medewerkers')
 		?? own.defaultRuleBefore
 		?? shipped.find((row) => row.groupId === 'default')
-	const allowedWidgets = (base?.allowedWidgets ?? ['clock', 'graph', 'pie-chart', 'section-heading', 'tile', 'app-tile', 'text'])
+	// The board draws "From other Nextcloud apps" with cards in it, so the
+	// employee may add at least one Nextcloud widget this instance has: the
+	// shipped list names widgets of apps (Activity, Notes, Calendar) an
+	// instance need not run.
+	const offered = await admin.get(`${API}/widgets`)
+	expect(offered.status(), await offered.text()).toBe(200)
+	const ncWidgets = ((await offered.json()) as Array<{ id: string }>)
+		.map((widget) => widget.id)
+		.filter((id) => !id.startsWith('launchpad_'))
+	expect(ncWidgets.length, 'this instance offers no Nextcloud dashboard widget').toBeGreaterThan(0)
+	const allowedWidgets = [...new Set([...(base?.allowedWidgets ?? ['clock', 'graph', 'pie-chart', 'section-heading', 'tile', 'app-tile', 'text']), ncWidgets[0]])]
 		.filter((id) => id !== 'iframe')
 	rule = await saveRoleFeaturePermission(admin, {
 		groupId: EMPLOYEE,

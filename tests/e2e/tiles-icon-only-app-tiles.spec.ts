@@ -71,7 +71,7 @@ import type { OwnDashboard } from './support/ownDashboard.ts'
 
 import { expect, test } from '@playwright/test'
 import { computedColour, placeOneCellTile, rootToken, storedContent, tileOf } from './support/appTiles.ts'
-import { enterEditMode } from './support/dashboardSwitcher.ts'
+import { enterEditMode, saveEditDraft } from './support/dashboardSwitcher.ts'
 import { setLanguage } from './support/orWidget.ts'
 import { openOwnDashboard, setUpOwnDashboard, tearDownOwnDashboard } from './support/ownDashboard.ts'
 import { adminContext, API } from './support/principals.ts'
@@ -437,13 +437,14 @@ test('choosing the primary swatch in the tile form stores colourToken "--sc-prim
 				.not.toBe('')
 		}
 		await swatches.getByRole('radio', { name: /primair|primary|hoofdkleur/i }).first().check()
-		const saved = page.waitForResponse((res) => res.request().method() === 'PUT' && res.url().includes(`/api/widgets/${id}`))
+		// The form writes the edit-mode draft; the edit bar's Save stores it
+		// (edit-mode-draft-and-save REQ-EDIT-002) and ends edit mode.
 		await form.getByRole('button', { name: /^(opslaan|save)$/i }).click()
-		expect((await saved).status()).toBeLessThan(300)
+		await expect(form).toBeHidden()
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 
 		expect((await storedContent(own.owner.api, own.id, id)).colourToken).toBe('--sc-primary')
 
-		await page.getByRole('button', { name: /^(klaar|done)$/i }).click().catch(() => undefined)
 		const tile = tileOf(page, id)
 		// The tile renders through var(--sc-primary, #3669a5): on a theme that
 		// defines the token that value, on an unthemed page the fallback

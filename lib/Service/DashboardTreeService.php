@@ -40,7 +40,7 @@ use OCP\IDBConnection;
 /**
  * Service that owns the dashboard tree contract.
  *
- * @spec openspec/specs/dashboard-switcher/spec.md
+ * @spec openspec/specs/dashboards/spec.md
  */
 class DashboardTreeService {
 	/**
@@ -131,7 +131,7 @@ class DashboardTreeService {
 	 *                                  cycle, or the resulting depth
 	 *                                  exceeds the cap.
 	 *
-	 * @spec openspec/specs/dashboard-switcher/spec.md
+	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function validateParent(
 		string|null $movingUuid,
@@ -211,7 +211,7 @@ class DashboardTreeService {
 	 *
 	 * @throws InvalidArgumentException When the slug is already in use.
 	 *
-	 * @spec openspec/specs/dashboard-switcher/spec.md
+	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function validateSlugUnique(
 		?string $parentUuid,
@@ -249,7 +249,7 @@ class DashboardTreeService {
 	 *
 	 * @return string The leading-slash path.
 	 *
-	 * @spec openspec/specs/dashboard-switcher/spec.md
+	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function computePath(string $uuid): string {
 		$breadcrumbs = $this->computeBreadcrumbs(uuid: $uuid);
@@ -280,7 +280,7 @@ class DashboardTreeService {
 	 *
 	 * @return array<int, array{uuid: ?string, name: ?string, slug: ?string}>
 	 *
-	 * @spec openspec/specs/dashboard-switcher/spec.md
+	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function computeBreadcrumbs(string $uuid): array {
 		try {
@@ -320,7 +320,7 @@ class DashboardTreeService {
 	 *
 	 * @return Dashboard|null The dashboard at the path, or NULL on miss.
 	 *
-	 * @spec openspec/specs/dashboard-switcher/spec.md
+	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function resolvePath(string $path): ?Dashboard {
 		$segments = $this->splitPath(path: $path);
@@ -364,7 +364,7 @@ class DashboardTreeService {
 	 *
 	 * @return array<int, array{uuid: ?string, name: ?string, slug: ?string, sortOrder: int, children: array}>
 	 *
-	 * @spec openspec/specs/dashboard-switcher/spec.md
+	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function buildTree(
 		string|null $parentUuid,
@@ -436,7 +436,7 @@ class DashboardTreeService {
 	 * @deprecated Use getFilteredTree() for user-facing endpoints to avoid
 	 *             cross-user enumeration (C1 fix, REQ-PERM-001). Kept for
 	 *             admin-only internal usage.
-	 * @spec       openspec/specs/dashboard-switcher/spec.md
+	 * @spec       openspec/specs/dashboards/spec.md
 	 */
 	public function getFullTree(): array {
 		return $this->buildTree(parentUuid: null);
@@ -509,7 +509,7 @@ class DashboardTreeService {
 	 *
 	 * @return int The total number of dashboards removed (root + descendants).
 	 *
-	 * @spec openspec/specs/dashboard-switcher/spec.md
+	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function deleteSubtree(Dashboard $dashboard): int {
 		$this->db->beginTransaction();

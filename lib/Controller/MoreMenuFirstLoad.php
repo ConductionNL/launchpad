@@ -17,7 +17,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-2
  */
 
 declare(strict_types=1);
@@ -33,8 +33,8 @@ use OCA\LaunchPad\Service\FavouriteDashboardService;
  * Announcements entry under Settings. Opening More reads both from the page,
  * never from the API.
  *
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-10
  */
 class MoreMenuFirstLoad {
 	/**
@@ -43,7 +43,7 @@ class MoreMenuFirstLoad {
 	 * @param FavouriteDashboardService|null $favourites    The favourite dashboards.
 	 * @param AnnouncementService|null       $announcements Who may manage announcements.
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-10
 	 */
 	public function __construct(
 		public readonly ?FavouriteDashboardService $favourites=null,
@@ -63,8 +63,8 @@ class MoreMenuFirstLoad {
 	 *
 	 * @return array<string, array|null> The reads by initial-state key.
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-10
 	 */
 	public function firstLoad(string $userId, array $visible=[]): array {
 		return [
@@ -81,7 +81,7 @@ class MoreMenuFirstLoad {
 	 *
 	 * @return array{canManage: bool}|null Null when nobody is logged in or the read is not wired.
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-10
 	 */
 	private function announcementsAccess(string $userId): ?array {
 		if ($userId === '' || $this->announcements === null) {

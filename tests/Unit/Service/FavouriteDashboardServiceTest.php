@@ -7,7 +7,7 @@
  * The favourites preference: starring order, visibility, idempotency and
  * cleanup (more-menu-favourites, REQ-SHELL-014, REQ-SHELL-016).
  *
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-11
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-11
  */
 
 declare(strict_types=1);

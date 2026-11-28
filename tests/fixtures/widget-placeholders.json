@@ -16,7 +16,12 @@
 		{ "name": "an invalid Nextcloud declaration falls back to rows", "widgetId": "weird_widget", "catalogue": { "placeholder": "spinner" }, "expected": "rows" },
 		{ "name": "a launchpad type from the fallback table", "widgetId": "section-heading", "expected": "heading" },
 		{ "name": "a launchpad counter from the fallback table", "widgetId": "livetile", "expected": "counter" },
-		{ "name": "a launchpad lines type from the fallback table", "widgetId": "announcements", "expected": "lines" },
+		{ "name": "a launchpad lines type from the fallback table", "widgetId": "ai-assistant", "expected": "lines" },
+		{ "name": "announcements wait in rows, as LpLaden draws the news list", "widgetId": "announcements", "expected": "rows" },
+		{ "name": "attention waits in rows, as LpLaden draws Vandaag eerst", "widgetId": "attention", "expected": "rows" },
+		{ "name": "wiki pages wait in rows, as LpLaden draws the Wiki card", "widgetId": "wiki-pages", "expected": "rows" },
+		{ "name": "weather waits as a counter, as LpLaden draws the temperature", "widgetId": "weather", "expected": "counter" },
+		{ "name": "a launcher tile from the tile endpoint is the tile type", "widgetId": "tile-6b0aa10cab55d", "expected": "tiles" },
 		{ "name": "an unknown type draws the default", "widgetId": "never-heard-of", "expected": "rows" }
 	]
 }

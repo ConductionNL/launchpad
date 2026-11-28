@@ -137,6 +137,8 @@ describe('WidgetErrorBoundary', () => {
 		})
 		await nextTick()
 		expect(wrapper.attributes('data-failed')).toBe('true')
+		// A failure to show counts as loaded: the card stops waiting (REQ-FPS-004).
+		expect(wrapper.emitted('failed')).toHaveLength(1)
 
 		broken.on = false
 		await wrapper.find('[data-testid="widget-error-retry"]').trigger('click')
@@ -157,6 +159,7 @@ describe('WidgetErrorBoundary', () => {
 
 		expect(errorHandler).toHaveBeenCalledOnce()
 		expect(wrapper.attributes('data-failed')).toBe('false')
+		expect(wrapper.emitted('failed')).toBeUndefined()
 		expect(wrapper.find('.clicker').exists()).toBe(true)
 	})
 })

@@ -27,7 +27,7 @@ const state = reactive({ favourites: null })
  * The favourites, seeding them from the initial state on first use.
  *
  * @return {string[]} The uuids in starring order.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-2
  */
 export function favouriteDashboards() {
 	if (state.favourites === null) {
@@ -41,7 +41,7 @@ export function favouriteDashboards() {
  *
  * @param {string[]|null} uuids The uuids, or null to reseed from the initial state.
  * @return {void}
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-4
  */
 export function setFavouriteDashboards(uuids) {
 	state.favourites = Array.isArray(uuids) ? uuids.filter((u) => typeof u === 'string' && u !== '') : null
@@ -63,7 +63,7 @@ function favouriteUrl(uuid) {
  *
  * @param {string} uuid The dashboard uuid.
  * @return {Promise<boolean>} Whether the server took the change.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-4
  */
 export async function toggleDashboardFavourite(uuid) {
 	const before = favouriteDashboards()
@@ -92,7 +92,7 @@ export async function toggleDashboardFavourite(uuid) {
  * `toggleDashboardFavourite(uuid)`, `toggleDashboardsExpanded()` and
  * `foldDashboards()`.
  *
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
  */
 export const favouriteDashboardsMixin = {
 	data() {
@@ -106,7 +106,7 @@ export const favouriteDashboardsMixin = {
 	 * Seed the list from the page, outside the computed so reading never writes.
 	 *
 	 * @return {void}
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-2
 	 */
 	created() {
 		favouriteDashboards()
@@ -117,7 +117,7 @@ export const favouriteDashboardsMixin = {
 		 * The favourites in starring order.
 		 *
 		 * @return {string[]} The uuids.
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
 		 */
 		favourites() {
 			return state.favourites ?? []
@@ -129,7 +129,7 @@ export const favouriteDashboardsMixin = {
 		 * More / Less in the Dashboards column.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
 		 */
 		toggleDashboardsExpanded() {
 			this.dashboardsExpanded = !this.dashboardsExpanded
@@ -140,7 +140,7 @@ export const favouriteDashboardsMixin = {
 		 *
 		 * @param {string} uuid The parent's uuid.
 		 * @return {void}
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-16
 		 */
 		toggleTree(uuid) {
 			this.openTrees = this.openTrees.includes(uuid)
@@ -152,7 +152,7 @@ export const favouriteDashboardsMixin = {
 		 * Back to the favourites (the menu opened again).
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
 		 */
 		foldDashboards() {
 			this.dashboardsExpanded = false
@@ -163,7 +163,7 @@ export const favouriteDashboardsMixin = {
 		 *
 		 * @param {string} uuid The dashboard uuid.
 		 * @return {Promise<boolean>} Whether the server took it.
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-4
 		 */
 		toggleDashboardFavourite(uuid) {
 			return toggleDashboardFavourite(uuid)

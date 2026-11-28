@@ -17,6 +17,7 @@
 			:placement="placement"
 			v-bind="rendererProps"
 			@data="onWidgetData"
+			@loaded="settle"
 			@status="(status) => $emit('status', status)"
 			@edit="$emit('editRequest')"
 			@editRequest="$emit('editRequest')" />
@@ -100,6 +101,7 @@ import { useWidgetStore } from '../stores/widgets.js'
 import { contentWithPeriod } from '../utils/dashboardPeriod.js'
 import { logger } from '../utils/logger.js'
 import { placementContent } from '../utils/placementContent.js'
+import { rendererEmitsLoaded } from '../utils/widgetLoaded.js'
 
 /** How many times a legacy widget mount is retried before giving up. */
 const LEGACY_MOUNT_ATTEMPTS = 20
@@ -187,12 +189,14 @@ export default {
 
 	// `status`: a renderer's card-head state (the iframe widget's source line
 	// and outage tag, REQ-IFRAME-005), passed up to WidgetWrapper.
-	emits: ['editRequest', 'status'],
+	emits: ['editRequest', 'status', 'loaded'],
 
 	data() {
 		return {
 			loading: false, // Start false, will be set to true for API widgets only
 			itemsLoading: false,
+			// Whether `loaded` went out (first-paint-skeleton REQ-FPS-004): once.
+			settled: false,
 			refreshInterval: null,
 			// Local reactive data for widget items.
 			localWidgetItemsData: { items: [], loading: false },
@@ -432,10 +436,17 @@ export default {
 		// paths — skip initWidget() so we don't fire a `loadWidgetItems`
 		// fetch keyed on a Nextcloud-Dashboard widget id that doesn't exist.
 		if (this.registryEntry) {
+			// A renderer that emits `loaded` is waited for; any other counts
+			// as loaded after this first render (REQ-FPS-004).
+			if (!rendererEmitsLoaded(this.registryEntry.renderer)) {
+				this.$nextTick(this.settle)
+			}
 			return
 		}
 		if (this.widget || this.isTileWidget) {
 			this.initWidget()
+		} else {
+			this.$nextTick(this.settle)
 		}
 	},
 
@@ -452,6 +463,22 @@ export default {
 
 	methods: {
 		...mapActions(useWidgetStore, ['loadWidgetItems', 'refreshWidgetItems']),
+
+		/**
+		 * Say once that the first content has settled, loaded or failed, so
+		 * the card swaps its placeholder for it (first-paint-skeleton
+		 * REQ-FPS-004); later reloads do not emit again.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-each-widget-fills-its-own-frame-when-its-data-arrives-req-fps-004
+		 */
+		settle() {
+			if (this.settled) {
+				return
+			}
+			this.settled = true
+			this.$emit('loaded')
+		},
 
 		/**
 		 * Hand what a self-fetching widget shows to the calculated fields of
@@ -508,6 +535,7 @@ export default {
 			if (!this.widget || this.isTileWidget) {
 				// Nothing to load, and tiles don't need initialization.
 				this.loading = false
+				this.$nextTick(this.settle)
 				return
 			}
 
@@ -560,6 +588,8 @@ export default {
 				logger.error('Failed to initialize widget:', error)
 			} finally {
 				this.loading = false
+				// Loaded or failed, the items have settled (REQ-FPS-004).
+				this.$nextTick(this.settle)
 			}
 		},
 
@@ -576,6 +606,7 @@ export default {
 				this.mountLegacyWidget()
 			} catch (error) {
 				logger.error('Failed to initialize widget:', error)
+				this.settle()
 			}
 		},
 
@@ -583,6 +614,7 @@ export default {
 		mountLegacyWidget() {
 			if (!this.$refs.legacyWidgetContainer) {
 				logger.error('[WidgetRenderer] No legacyWidgetContainer ref found!')
+				this.settle()
 				return
 			}
 
@@ -637,6 +669,7 @@ export default {
 				'[WidgetRenderer] After mountWidget, container innerHTML length:',
 				this.$refs.legacyWidgetContainer?.innerHTML.length,
 			)
+			this.settle()
 		},
 
 		/**
@@ -654,6 +687,8 @@ export default {
 
 		/** Log that the legacy widget never registered its callback. */
 		reportLegacyMountFailure() {
+			// A widget that never mounts counts as settled: its card stops waiting.
+			this.settle()
 			logger.error(
 				'[WidgetRenderer] Failed to mount widget after',
 				LEGACY_MOUNT_ATTEMPTS,

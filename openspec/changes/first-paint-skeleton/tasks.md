@@ -43,9 +43,9 @@
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-each-widget-fills-its-own-frame-when-its-data-arrives-req-fps-004`
 - **files**: `src/components/WidgetWrapper.vue`, `src/utils/firstPaintStatus.js`, nextcloud-vue widget renderers
 - [ ] Widgets with carried data render filled in the first render (tiles, app tiles, headings, text, announcement, first Files page)
-- [ ] A widget is loaded on the renderer's `loaded` event, or after its first render when the renderer does not emit it; an error counts as loaded
+- [x] A widget is loaded on the renderer's `loaded` event, or after its first render when the renderer does not emit it; an error counts as loaded (28 Nov help-launchpad-2: `src/utils/widgetLoaded.js` `rendererEmitsLoaded` reads the renderer's `emits`; `WidgetRenderer` forwards a registry renderer's `loaded`, or emits it once after the first render, after an API widget's items settle (failed or not) and when a legacy widget mounts or gives up; `WidgetErrorBoundary` emits `failed`; `WidgetWrapper` keeps `CnWidgetWrapper` `loading` until either arrives, LazyMount's `shown` alone no longer ends it)
 - [ ] nextcloud-vue: the renderers that fetch emit `loaded` (own PR in nextcloud-vue, linked here)
-- [ ] Tests: `src/components/__tests__/WidgetWrapper.spec.js` (filled in first render, swap on `loaded`, error counts)
+- [x] Tests: `src/components/__tests__/WidgetWrapper.spec.js` (filled in first render, swap on `loaded`, error counts) (written in the existing card specs: `LazyMount.spec.js` (waits until `loaded`, a failure ends it), `WidgetRenderer.behaviour.spec.js` (first render counts once, a renderer declaring `loaded` is waited for), `WidgetRenderer.golden.spec.js` (API settle failed or not, legacy mount or give-up), `WidgetErrorBoundary.spec.js` (`failed` once), `src/utils/__tests__/widgetLoaded.spec.js`)
 
 ### Task 7: The status line
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-loading-state-is-calm-and-accessible-req-fps-005`

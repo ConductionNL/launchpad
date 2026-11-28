@@ -98,7 +98,14 @@ test('the Marketplace has no panel, More at its top, and Dashboards leads back',
 				`${id} is not in More`,
 			).toBeVisible()
 		}
+		// Boards LpMeer/LpMeerAlle (more-menu-favourites): folded, the list
+		// holds only the starred dashboards and 'All dashboards' unfolds the
+		// rest; a dashboard row leads back.
 		await page.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]').click()
+		await page
+			.locator('[data-testid="launchpad-more-menu-dashboard-list"] [role="menuitemradio"]')
+			.first()
+			.click()
 		// The dashboard view writes the open dashboard's own address
 		// (`/apps/launchpad/<slug>`, dashboard-deeplinking), so the URL only
 		// has to have left the Marketplace; the view itself is the proof.
@@ -130,12 +137,17 @@ test('Reports and Flows render no panel either', async ({ browser }) => {
 })
 
 // @e2e runtime-shell::no-route-renders-the-panel
-test('an admin page renders no panel', async ({ page }) => {
+test('an admin page renders no panel of LaunchPad\'s own', async ({ page }) => {
 	// The default storage state is the administrator, the one principal who
-	// may open the admin pages.
+	// may open the admin pages. Since admin-page-in-nextcloud-settings the
+	// admin page is Nextcloud's settings page (REQ-ADM-032): Nextcloud's own
+	// admin settings menu is on the left by design and LaunchPad's app shell,
+	// its More menu included, is not loaded there (REQ-ADM-035). What stays
+	// true is that LaunchPad adds no navigation panel of its own.
 	await page.goto('/index.php/settings/admin/launchpad#templates')
-	await expect(page.locator('[data-testid="launchpad-page-menu"]')).toBeVisible({ timeout: 30_000 })
-	await expectNoPanel(page)
+	await expect(page.locator('[data-testid="AdminRoot"]')).toBeVisible({ timeout: 30_000 })
+	await expect(page.locator('[data-testid="cn-nav"]')).toHaveCount(0)
+	await expect(page.locator('[data-testid="launchpad-page-menu"]')).toHaveCount(0)
 })
 
 // @e2e runtime-shell::no-destination-is-lost

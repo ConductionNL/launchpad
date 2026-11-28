@@ -303,10 +303,10 @@ export function pickerCards(input, t) {
 
 /**
  * The cards only the assistant line is offered (REQ-WDG-045): the reader's
- * catalogue apps, each placed as a one-cell app tile like the former App
- * tiles cards. They are not drawn in the picker, whose apps are chosen in
+ * catalogue apps. They are not drawn in the picker, whose apps are chosen in
  * the App or link tile's form (REQ-APPTILE-001), but the assistant may still
- * propose "the app tile Case system".
+ * propose "the app tile Case system". Placing one opens that form with the
+ * app ticked (action `tileForm`), so there is one way to add a tile.
  *
  * @param {object} input See {@link pickerCards}.
  * @param {function(string, string, object=): string} t The translate function.
@@ -325,7 +325,7 @@ export function assistantOnlyCards(input, t) {
 			line: String(app.description ?? '') || t('launchpad', 'One app or web address as a tile.'),
 			icon: { kind: 'type' },
 			disabled: !roleAllows('tile', allowedWidgets),
-			action: { event: 'addCatalogueApp', arg: app },
+			action: { event: 'tileForm', arg: app },
 			testid: `widget-picker-catalogue-${app.uuid}`,
 		}))
 }

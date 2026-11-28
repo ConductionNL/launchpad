@@ -85,6 +85,26 @@ describe('TileEditor as the App or link tile form', () => {
 		expect(wrapper.emitted('save')).toBeUndefined()
 	})
 
+	// REQ-WDG-045: the app the assistant proposed opens the form on An app, ticked.
+	it('opens on An app with a preselected catalogue app ticked, ready to add one tile', async () => {
+		const app = { uuid: 'c-1', name: 'Case system', linkType: 'url', linkValue: 'https://zaken.example/' }
+		const wrapper = mountEditor(null, { catalogueApps: [app], preselectedApp: app })
+		await wrapper.vm.$nextTick()
+		expect(wrapper.find('[data-testid="tile-mode"] input[value="app"]').element.checked).toBe(true)
+		expect(wrapper.find('[data-testid="tile-app-tick-url:https://zaken.example/"]').element.checked).toBe(true)
+		expect(saveButton(wrapper).element.disabled).toBe(false)
+		await saveButton(wrapper).trigger('click')
+		const [{ choices }] = wrapper.emitted('addApps')[0]
+		expect(choices.map((choice) => choice.tile.linkValue)).toEqual(['https://zaken.example/'])
+	})
+
+	it('ignores a preselected app when editing a placed tile', () => {
+		const app = { uuid: 'c-1', name: 'Case system', linkType: 'url', linkValue: 'https://zaken.example/' }
+		const wrapper = mountEditor({ id: 3, title: 'Intranet', linkType: 'url', linkValue: 'https://a.test' }, { catalogueApps: [app], preselectedApp: app })
+		expect(wrapper.find('[data-testid="tile-app-chooser"]').exists()).toBe(false)
+		expect(wrapper.vm.preselectedKeys).toEqual([])
+	})
+
 	it('saves a link tile with its title, address and text colour', async () => {
 		const wrapper = mountEditor()
 		await wrapper.find('.text-field[data-label="Name"] input').setValue('Intranet')

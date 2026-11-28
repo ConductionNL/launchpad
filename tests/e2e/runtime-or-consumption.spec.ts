@@ -324,6 +324,23 @@ test('after a 503 the widget fetches again on return and renders OR data', async
 	}
 })
 
+/**
+ * The session secret under a masked Nextcloud request token
+ * (`base64(otp):base64(otp XOR secret)`, OC\Security\CSRF\CsrfToken).
+ *
+ * @param masked A request token as the page or a header carries it.
+ * @return The unmasked secret, base64; the input itself when it is not masked.
+ */
+function csrfSecret(masked: string): string {
+	const [otp, value] = masked.split(':')
+	if (value === undefined) {
+		return masked
+	}
+	const pad = Buffer.from(otp, 'base64')
+	const xored = Buffer.from(value, 'base64')
+	return Buffer.from(xored.map((byte, i) => byte ^ pad[i])).toString('base64')
+}
+
 // @e2e runtime-or-consumption::widget-uses-nextcloudaxios
 test('the OR request carries the session CSRF token and no Authorization header', async ({
 	browser,
@@ -339,9 +356,12 @@ test('the OR request carries the session CSRF token and no Authorization header'
 		// axios or fetch call sends neither.
 		const token = await page.evaluate(() => document.head.dataset.requesttoken ?? '')
 		expect(headers.requesttoken, 'the CSRF token must be sent').toBeTruthy()
-		expect([token, await page.evaluate(() =>
-			(window as unknown as { OC?: { requestToken?: string } }).OC?.requestToken ?? '')])
-			.toContain(headers.requesttoken)
+		// Nextcloud masks the session token afresh on every refresh
+		// (`base64(otp):base64(otp XOR secret)`), so the header and the page may
+		// spell it differently; the session's secret under the mask is the same.
+		const pageTokens = [token, await page.evaluate(() =>
+			(window as unknown as { OC?: { requestToken?: string } }).OC?.requestToken ?? '')]
+		expect(pageTokens.filter(Boolean).map(csrfSecret)).toContain(csrfSecret(headers.requesttoken))
 		// Nextcloud's own request patcher can stamp the header a second time,
 		// which the browser reports as one comma-joined value.
 		expect(headers['x-requested-with']).toMatch(/^XMLHttpRequest(, XMLHttpRequest)*$/)

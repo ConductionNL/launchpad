@@ -310,7 +310,7 @@ import WidgetMiniature from '../components/WidgetMiniature.vue'
 import { FLAG_PROP, LIST_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { assistantAvailable, proposeWidget } from '../services/widgetAssistant.js'
-import { countByKind, filterCards, kindLabel, KINDS, pickerCards, sectionLabel, SECTIONS } from '../utils/widgetPickerCards.js'
+import { assistantOnlyCards, countByKind, filterCards, kindLabel, KINDS, pickerCards, sectionLabel, SECTIONS } from '../utils/widgetPickerCards.js'
 
 /**
  * WidgetPickerModal — "Add widget" as board LpWidgetKiezen draws it
@@ -455,6 +455,20 @@ export default {
 				placedWidgetIds: this.placedWidgetIds,
 				placedAppIds: this.placedAppIds,
 			}, t)
+		},
+
+		/**
+		 * What the assistant may propose: every card the picker offers and the
+		 * reader's catalogue apps as one-cell app tiles (REQ-WDG-045).
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+		 */
+		assistantCards() {
+			return [...this.cards, ...assistantOnlyCards({
+				catalogueApps: this.catalogueApps,
+				allowedWidgets: this.allowedWidgets,
+			}, t)]
 		},
 
 		/**
@@ -647,7 +661,7 @@ export default {
 			this.assistantBusy = true
 			this.assistantProposal = null
 			this.assistantMessage = ''
-			const outcome = await proposeWidget(need, this.cards)
+			const outcome = await proposeWidget(need, this.assistantCards)
 			this.assistantBusy = false
 			if (outcome.status === 'proposed') {
 				this.assistantProposal = { card: outcome.card, reason: outcome.reason }

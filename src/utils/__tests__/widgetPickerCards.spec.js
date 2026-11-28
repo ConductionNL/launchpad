@@ -8,7 +8,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { countByKind, filterCards, isLegacyWidget, kindLabel, kindOfType, KINDS, pickerCards, roleAllows, sectionLabel, typeLine } from '../widgetPickerCards.js'
+import { assistantOnlyCards, countByKind, filterCards, isLegacyWidget, kindLabel, kindOfType, KINDS, pickerCards, roleAllows, sectionLabel, typeLine } from '../widgetPickerCards.js'
 
 const t = (_app, text) => text
 
@@ -122,5 +122,31 @@ describe('role and older widgets', () => {
 		expect(isLegacyWidget({ itemApiVersions: [1] })).toBe(false)
 		expect(isLegacyWidget({})).toBe(false)
 		expect(isLegacyWidget(null)).toBe(false)
+	})
+})
+
+describe('assistantOnlyCards (REQ-WDG-045)', () => {
+	const t = (_app, text) => text
+
+	it('turns each catalogue app into a one-cell tile card the assistant may propose', () => {
+		const app = { uuid: 'c-1', name: 'Case system', description: 'Cases' }
+		const [entry] = assistantOnlyCards({ catalogueApps: [app] }, t)
+		expect(entry.key).toBe('catalogue:c-1')
+		expect(entry.title).toBe('Case system')
+		expect(entry.line).toBe('Cases')
+		expect(entry.disabled).toBe(false)
+		expect(entry.action).toEqual({ event: 'addCatalogueApp', arg: app })
+	})
+
+	it('skips entries without a uuid or a name, and disables them when the role may not add tiles', () => {
+		const cards = assistantOnlyCards({ catalogueApps: [{ name: 'No id' }, { uuid: 'x' }, { uuid: 'c-2', name: 'Mail' }], allowedWidgets: ['notes'] }, t)
+		expect(cards.map((entry) => entry.key)).toEqual(['catalogue:c-2'])
+		expect(cards[0].disabled).toBe(true)
+		expect(cards[0].line).toBe('One app or web address as a tile.')
+	})
+
+	it('is not part of the cards the picker draws', () => {
+		const drawn = pickerCards({ catalogueApps: [{ uuid: 'c-1', name: 'Case system' }] }, t)
+		expect(drawn.some((entry) => entry.key.startsWith('catalogue:'))).toBe(false)
 	})
 })

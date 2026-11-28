@@ -94,8 +94,8 @@ test('the shell and the mounted card draw the same placeholder shape', async ({ 
 /**
  * first-paint-skeleton task 8: the shell against the mounted page. One
  * dashboard of four widgets that reflow on 8 and 4 columns, one hidden
- * placement and one of an app the instance lacks (wiki-pages needs
- * OpenRegister): the shell draws the four in the grid's places at every
+ * placement and one of an app the instance lacks (the first `requiresApp`
+ * type whose app is off there): the shell draws the four in the grid's places at every
  * breakpoint, the other two not at all, says the page could not load when
  * the scripts never come, and never says so on a normal load.
  *
@@ -111,13 +111,29 @@ test.describe('first paint against the mounted grid (first-paint-skeleton task 8
 		{ widgetId: 'chart', x: 0, y: 3, w: 4, h: 4 },
 		{ widgetId: 'launchpad_links', x: 4, y: 3, w: 8, h: 4 },
 	]
+	// A hidden widget, and one that reads through an app the viewer does not
+	// have (`requiresApp`, offeredForViewer): which app is missing depends on
+	// the instance (OpenRegister, the wiki's app, is on wherever launchpad
+	// runs on MariaDB or PostgreSQL), so the refused type is chosen in beforeAll.
 	const LEFT_OUT: Array<{ widgetId: string, x: number, y: number, w: number, h: number, id?: number }> = [
 		{ widgetId: 'text', x: 0, y: 12, w: 6, h: 2 },
-		{ widgetId: 'wiki-pages', x: 6, y: 12, w: 6, h: 2 },
 	]
+	const REQUIRES_APP: Record<string, string> = {
+		'wiki-pages': 'openregister',
+		'work-packages': 'integration_openproject',
+		'assigned-cases': 'dossiq',
+		connections: 'integriq',
+	}
 	const BUNDLE = /\/apps\/launchpad\/js\//
 
 	test.beforeAll(async () => {
+		const apps = await admin.get('/ocs/v1.php/cloud/apps?filter=enabled&format=json', { headers: { 'OCS-APIRequest': 'true' } })
+		expect(apps.status(), await apps.text()).toBe(200)
+		const enabled = new Set<string>(((await apps.json()).ocs?.data?.apps ?? []) as string[])
+		const refused = Object.keys(REQUIRES_APP).find((type) => !enabled.has(REQUIRES_APP[type]))
+		if (refused) {
+			LEFT_OUT.push({ widgetId: refused, x: 6, y: 12, w: 6, h: 2 })
+		}
 		own = await seedActiveDashboard(admin, NAME)
 		await clearSeededWidgets(admin, own.id)
 		const described = await admin.put(`${API}/dashboard/${own.id}`, { data: { description: DESCRIPTION } })

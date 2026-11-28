@@ -31,7 +31,7 @@ import type { APIRequestContext, Browser, BrowserContext, Locator, Page } from '
 import type { OwnDashboard } from './support/ownDashboard.ts'
 
 import { expect, request as playwrightRequest, test } from '@playwright/test'
-import { enterEditMode } from './support/dashboardSwitcher.ts'
+import { enterEditMode, saveEditDraft } from './support/dashboardSwitcher.ts'
 import { setLanguage } from './support/orWidget.ts'
 import { openOwnDashboard, readPlacements, setUpOwnDashboard, tearDownOwnDashboard } from './support/ownDashboard.ts'
 import { addToGroup, adminContext, API, createGroup, removeGroup } from './support/principals.ts'
@@ -153,7 +153,7 @@ test('without an assistant the picker shows no assistant line', async ({ browser
 test('asking the assistant proposes Case system and Place it like this places a one-cell tile for it', async ({ browser }) => {
 	const before = new Set((await readPlacements(own.owner.api, own.id)).map((p) => Number(p.id)))
 	const key = `catalogue:${catalogueUuid}`
-	const { context, picker, sent } = await openPicker(browser, true, { key, name: CASE_SYSTEM, reason: 'You handle cases there.' })
+	const { context, page, picker, sent } = await openPicker(browser, true, { key, name: CASE_SYSTEM, reason: 'You handle cases there.' })
 	try {
 		const line = picker.getByTestId('widget-picker-assistant')
 		await expect(line).toBeVisible()
@@ -174,6 +174,8 @@ test('asking the assistant proposes Case system and Place it like this places a 
 
 		await proposal.getByRole('button', { name: 'Place it like this' }).click()
 		await expect(picker).toBeHidden({ timeout: 15_000 })
+		// The tile joins the edit-mode draft; the edit bar's Save places it.
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 		await expect.poll(async () => (await readPlacements(own.owner.api, own.id)).length, { timeout: 15_000 })
 			.toBe(before.size + 1)
 		const placed = (await readPlacements(own.owner.api, own.id)).find((p) => !before.has(Number(p.id)))!

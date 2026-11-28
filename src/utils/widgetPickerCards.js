@@ -302,6 +302,35 @@ export function pickerCards(input, t) {
 }
 
 /**
+ * The cards only the assistant line is offered (REQ-WDG-045): the reader's
+ * catalogue apps, each placed as a one-cell app tile like the former App
+ * tiles cards. They are not drawn in the picker, whose apps are chosen in
+ * the App or link tile's form (REQ-APPTILE-001), but the assistant may still
+ * propose "the app tile Case system".
+ *
+ * @param {object} input See {@link pickerCards}.
+ * @param {function(string, string, object=): string} t The translate function.
+ * @return {Array<object>} The cards.
+ * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+ */
+export function assistantOnlyCards(input, t) {
+	const { catalogueApps = [], allowedWidgets = null } = input
+	return (catalogueApps || [])
+		.filter((app) => app && typeof app.uuid === 'string' && app.uuid !== '' && String(app.name ?? '') !== '')
+		.map((app) => card({
+			key: `catalogue:${app.uuid}`,
+			kind: 'tiles',
+			section: 'tiles',
+			title: String(app.name),
+			line: String(app.description ?? '') || t('launchpad', 'One app or web address as a tile.'),
+			icon: { kind: 'type' },
+			disabled: !roleAllows('tile', allowedWidgets),
+			action: { event: 'addCatalogueApp', arg: app },
+			testid: `widget-picker-catalogue-${app.uuid}`,
+		}))
+}
+
+/**
  * The cards of one kind that match the search, by title or line.
  *
  * @param {Array<object>} cards The cards.

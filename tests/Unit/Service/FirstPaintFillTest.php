@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\FirstPaintFill;
 use OCA\LaunchPad\Service\FirstPaintShell;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -25,6 +26,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for the fill-height part of FirstPaintShell.
  *
+ * @covers \OCA\LaunchPad\Service\FirstPaintFill
  * @covers \OCA\LaunchPad\Service\FirstPaintShell
  * @uses   \OCA\LaunchPad\Service\FirstPaintLayout
  * @uses   \OCA\LaunchPad\Service\FirstPaintGridEngine
@@ -57,10 +59,13 @@ class FirstPaintFillTest extends TestCase {
 	#[DataProvider('cases')]
 	public function testTracksEqualTheLibrary(array $cells, array $tracks): void {
 		$frames = array_map(
-			static fn (array $cell): array => ['cell' => ['x' => $cell[0], 'y' => $cell[1], 'w' => $cell[2], 'h' => $cell[3]], 'fitRows' => $cell[4]],
+			static fn (array $cell): array => [
+				'cell'    => ['x' => $cell[0], 'y' => $cell[1], 'w' => $cell[2], 'h' => $cell[3]],
+				'fitRows' => $cell[4],
+			],
 			$cells
 		);
-		$this->assertSame(expected: $tracks, actual: FirstPaintShell::fillRowTracks(frames: $frames));
+		$this->assertSame(expected: $tracks, actual: (new FirstPaintFill())->tracks(frames: $frames));
 	}//end testTracksEqualTheLibrary()
 
 	/**
@@ -71,14 +76,20 @@ class FirstPaintFillTest extends TestCase {
 	 */
 	public function testTheShellFillsWhenAPlacementAsks(): void {
 		$placements = [
-			['id' => 1, 'widgetId' => 'header', 'gridX' => 0, 'gridY' => 0, 'gridWidth' => 12, 'gridHeight' => 3, 'content' => ['ground' => true, 'fillHeight' => true, 'fitRows' => true]],
+			[
+				'id'      => 1, 'widgetId' => 'header', 'gridX' => 0, 'gridY' => 0, 'gridWidth' => 12, 'gridHeight' => 3,
+				'content' => ['ground' => true, 'fillHeight' => true, 'fitRows' => true],
+			],
 			['id' => 2, 'widgetId' => 'calendar', 'gridX' => 0, 'gridY' => 3, 'gridWidth' => 6, 'gridHeight' => 4],
 		];
 		$shell      = new FirstPaintShell();
 		$model      = $shell->build(page: ['dashboard' => ['name' => 'Vandaag', 'gridColumns' => 12], 'placements' => $placements], catalogue: []);
 
 		$this->assertTrue(condition: $model['fill']);
-		$this->assertSame(expected: ['auto', 'auto', 'auto', 'minmax(0,1fr)', 'minmax(0,1fr)', 'minmax(0,1fr)', 'minmax(0,1fr)'], actual: $model['tracks']);
+		$this->assertSame(
+			expected: ['auto', 'auto', 'auto', 'minmax(0,1fr)', 'minmax(0,1fr)', 'minmax(0,1fr)', 'minmax(0,1fr)'],
+			actual: $model['tracks']
+		);
 		$this->assertSame(expected: [true, false], actual: array_column($model['frames'], 'fitRows'));
 		$this->assertSame(expected: ['x' => 0, 'y' => 3, 'w' => 6, 'h' => 4], actual: $model['frames'][1]['cell']);
 

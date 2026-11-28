@@ -19,7 +19,7 @@ if (function_exists('p') === false) {
 	 * @return void
 	 */
 	function p(mixed $string): void {
-		print(htmlspecialchars((string) $string, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'));
+		echo htmlspecialchars((string) $string, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 	}
 }
 
@@ -32,6 +32,6 @@ if (function_exists('print_unescaped') === false) {
 	 * @return void
 	 */
 	function print_unescaped(mixed $string): void {
-		print((string) $string);
+		echo (string) $string;
 	}
 }

@@ -3,7 +3,7 @@
 /**
  * FirstPaintTemplateTest
  *
- * templates/index.php with the first-paint shell (first-paint-skeleton
+ * The workspace template with the first-paint shell (first-paint-skeleton
  * task 3): the global custom CSS in the `launchpad-custom-css` element outside
  * the shell, the dashboard's own look on the shell's region, and a dashboard
  * that fills the height drawn as a grid of the library's row tracks with
@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use OCA\LaunchPad\Controller\FirstPaintPage;
+use OCA\LaunchPad\Service\FirstPaintLook;
 use OCP\IL10N;
 use PHPUnit\Framework\TestCase;
 
@@ -29,10 +30,12 @@ require_once __DIR__.'/fixtures/template-functions.php';
  * Tests for the shell's look, custom CSS and fill height.
  *
  * @covers \OCA\LaunchPad\Controller\FirstPaintPage
+ * @covers \OCA\LaunchPad\Service\FirstPaintLook
  * @uses   \OCA\LaunchPad\Service\FirstPaintShell
  * @uses   \OCA\LaunchPad\Service\FirstPaintLayout
  * @uses   \OCA\LaunchPad\Service\FirstPaintGridEngine
  * @uses   \OCA\LaunchPad\Service\FirstPaintPlaceholder
+ * @uses   \OCA\LaunchPad\Service\FirstPaintFill
  * @uses   \OCA\LaunchPad\Service\DashboardLook
  */
 class FirstPaintTemplateTest extends TestCase {
@@ -47,7 +50,10 @@ class FirstPaintTemplateTest extends TestCase {
 	 */
 	private static function page(array $dashboard, array $placements): array {
 		return [
-			'firstLoad'         => ['visible' => [], 'active' => ['dashboard' => $dashboard + ['uuid' => 'u-1', 'name' => 'Team', 'gridColumns' => 12], 'placements' => $placements]],
+			'firstLoad'         => [
+				'visible' => [],
+				'active'  => ['dashboard' => $dashboard + ['uuid' => 'u-1', 'name' => 'Team', 'gridColumns' => 12], 'placements' => $placements],
+			],
 			'activeDashboardId' => 'u-1',
 			'dashboardSource'   => 'group',
 			'widgets'           => [['id' => 'calendar', 'title' => 'Agenda']],
@@ -80,18 +86,19 @@ class FirstPaintTemplateTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheLook(): void {
+		$look = new FirstPaintLook();
 		$this->assertSame(
 			expected: '--color-primary-element:#1f5c3a;--color-primary-element-text:#ffffff;background-color:#ffeedd;color:#000000;--color-main-text:#000000;'
 				.'background-image:url("/apps/launchpad/resource/hero-1.png");background-size:cover;background-position:center;',
-			actual: FirstPaintPage::lookStyle(
+			actual: $look->style(
 				dashboard: ['themeAccent' => '#1F5C3A', 'themeBackgroundColor' => '#fed', 'themeBackgroundResource' => 'hero-1.png'],
 				resourceUrl: '/apps/launchpad/resource/'
 			)
 		);
-		$this->assertSame(expected: '', actual: FirstPaintPage::lookStyle(dashboard: [], resourceUrl: '/r/'));
+		$this->assertSame(expected: '', actual: $look->style(dashboard: [], resourceUrl: '/r/'));
 		$this->assertSame(
 			expected: '',
-			actual: FirstPaintPage::lookStyle(
+			actual: $look->style(
 				dashboard: ['themeAccent' => 'red;x:y', 'themeBackgroundColor' => null, 'themeBackgroundResource' => '../etc/passwd.png'],
 				resourceUrl: '/r/'
 			)
@@ -105,8 +112,9 @@ class FirstPaintTemplateTest extends TestCase {
 	 * @return void
 	 */
 	public function testCustomCssAndLookArePrinted(): void {
-		$params = FirstPaintPage::params(
-			page: self::page(dashboard: ['themeBackgroundColor' => '#000000'], placements: [['id' => 7, 'widgetId' => 'calendar', 'gridX' => 0, 'gridY' => 0, 'gridWidth' => 6, 'gridHeight' => 4]]),
+		$calendar = ['id' => 7, 'widgetId' => 'calendar', 'gridX' => 0, 'gridY' => 0, 'gridWidth' => 6, 'gridHeight' => 4];
+		$params   = FirstPaintPage::params(
+			page: self::page(dashboard: ['themeBackgroundColor' => '#000000'], placements: [$calendar]),
 			context: ['customCss' => '.launchpad-workspace a{color:red}</style><b>', 'resourceUrl' => '/r/']
 		);
 		$html   = $this->render(params: $params);
@@ -114,7 +122,8 @@ class FirstPaintTemplateTest extends TestCase {
 		$this->assertSame(expected: 1, actual: substr_count($html, '<style id="launchpad-custom-css">'));
 		$this->assertStringContainsString(needle: '.launchpad-workspace a{color:red}\3c /style>\3c b></style>', haystack: $html);
 		$this->assertLessThan(expected: strpos($html, 'id="launchpad-first-paint"'), actual: strpos($html, 'id="launchpad-custom-css"'));
-		$this->assertStringContainsString(needle: '<div class="lp-fp__c" style="background-color:#000000;color:#ffffff;--color-main-text:#ffffff;">', haystack: $html);
+		$region = '<div class="lp-fp__c" style="background-color:#000000;color:#ffffff;--color-main-text:#ffffff;">';
+		$this->assertStringContainsString(needle: $region, haystack: $html);
 
 		$plain = $this->render(params: FirstPaintPage::params(page: self::page(dashboard: [], placements: []), context: []));
 		$this->assertStringNotContainsString(needle: 'launchpad-custom-css', haystack: $plain);
@@ -129,7 +138,10 @@ class FirstPaintTemplateTest extends TestCase {
 	 */
 	public function testAFillingDashboardIsAGridOfTracks(): void {
 		$placements = [
-			['id' => 1, 'widgetId' => 'text', 'gridX' => 0, 'gridY' => 0, 'gridWidth' => 12, 'gridHeight' => 2, 'content' => ['fillHeight' => true, 'fitRows' => true]],
+			[
+				'id'      => 1, 'widgetId' => 'text', 'gridX' => 0, 'gridY' => 0, 'gridWidth' => 12, 'gridHeight' => 2,
+				'content' => ['fillHeight' => true, 'fitRows' => true],
+			],
 			['id' => 2, 'widgetId' => 'calendar', 'gridX' => 4, 'gridY' => 2, 'gridWidth' => 8, 'gridHeight' => 3],
 		];
 		$html       = $this->render(params: FirstPaintPage::params(page: self::page(dashboard: [], placements: $placements), context: []));

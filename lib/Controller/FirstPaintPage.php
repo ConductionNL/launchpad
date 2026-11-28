@@ -32,7 +32,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use JsonSerializable;
-use OCA\LaunchPad\Service\DashboardLook;
+use OCA\LaunchPad\Service\FirstPaintLook;
 use OCA\LaunchPad\Service\FirstPaintShell;
 use OCP\IUser;
 
@@ -76,7 +76,7 @@ class FirstPaintPage {
 	public static function params(array $page, array $context): array {
 		$model = self::model(page: $page, reader: ['user' => $context['user'] ?? null, 'timezone' => $page['timezone'] ?? '']);
 		if ($model !== null) {
-			$model['look'] = self::lookStyle(dashboard: $model['dashboard'], resourceUrl: (string) ($context['resourceUrl'] ?? ''));
+			$model['look'] = (new FirstPaintLook())->style(dashboard: $model['dashboard'], resourceUrl: (string) ($context['resourceUrl'] ?? ''));
 		}
 
 		return [
@@ -85,63 +85,6 @@ class FirstPaintPage {
 			'customCss'  => self::styleText(css: (string) ($context['customCss'] ?? '')),
 		];
 	}//end params()
-
-	/**
-	 * The dashboard's own look as the inline style of the shell's region, the
-	 * same declarations src/utils/dashboardLook.js `lookStyle` draws on the
-	 * mounted region (REQ-THM-001): the accent as Nextcloud's primary colour
-	 * variables, the background colour with black or white text, and the
-	 * background image of a LaunchPad resource. '' for a dashboard that
-	 * follows the theme. Only normalised colours and checked resource names
-	 * go in, so nothing else can end up in the attribute.
-	 *
-	 * @param array<string, mixed> $dashboard   The dashboard.
-	 * @param string               $resourceUrl The resource route without the file name.
-	 *
-	 * @return string
-	 *
-	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
-	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
-	 */
-	public static function lookStyle(array $dashboard, string $resourceUrl): string {
-		$style  = '';
-		$accent = self::hexOrNull(colour: $dashboard['themeAccent'] ?? null);
-		if ($accent !== null) {
-			$style .= '--color-primary-element:'.$accent.';--color-primary-element-text:'.DashboardLook::textColorFor(background: $accent).';';
-		}
-
-		$background = self::hexOrNull(colour: $dashboard['themeBackgroundColor'] ?? null);
-		if ($background !== null) {
-			$text   = DashboardLook::textColorFor(background: $background);
-			$style .= 'background-color:'.$background.';color:'.$text.';--color-main-text:'.$text.';';
-		}
-
-		$resource = (string) ($dashboard['themeBackgroundResource'] ?? '');
-		if ($resource !== '' && $resourceUrl !== '' && DashboardLook::isResourceName(name: $resource) === true) {
-			$style .= 'background-image:url("'.$resourceUrl.rawurlencode($resource).'");background-size:cover;background-position:center;';
-		}
-
-		return $style;
-	}//end lookStyle()
-
-	/**
-	 * A colour as lower-case `#rrggbb`, or null when it is not a hex colour.
-	 *
-	 * @param mixed $colour The stored colour.
-	 *
-	 * @return string|null
-	 */
-	private static function hexOrNull(mixed $colour): ?string {
-		if (is_string($colour) === false || trim($colour) === '') {
-			return null;
-		}
-
-		try {
-			return DashboardLook::normaliseHex(colour: $colour, field: 'colour');
-		} catch (\InvalidArgumentException) {
-			return null;
-		}
-	}//end hexOrNull()
 
 	/**
 	 * CSS as the text of a `<style>` element: the sanitiser keeps `<` out of

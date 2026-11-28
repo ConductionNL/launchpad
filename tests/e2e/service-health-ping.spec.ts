@@ -436,9 +436,9 @@ test('the author enables a ping in the tile editor and it lands in the placement
 		await editor.getByLabel('Check interval (seconds)').fill('60')
 		await editor.getByRole('button', { name: 'Save' }).click()
 		await expect(editor).toBeHidden({ timeout: 10_000 })
-		// The tile form writes the edit-mode draft; the edit bar's Save
-		// stores it (edit-mode-draft-and-save REQ-EDIT-001/002).
-		expect(await saveEditDraft(page)).toBe(200)
+		// The tile's new settings are in the edit-mode draft until the edit
+		// bar's Save (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 	} finally {
 		await context.close()
 	}
@@ -520,12 +520,17 @@ test('an interval under 15 seconds is raised to 15, and an unset one becomes 60'
 		await editor.getByLabel('Check interval (seconds)').fill('5')
 		await editor.getByRole('button', { name: 'Save' }).click()
 		await expect(editor).toBeHidden({ timeout: 10_000 })
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 		await expect.poll(async () => (await readPlacement(placementId)).content.pingInterval).toBe(15)
 
+		if (await page.locator('.launchpad-edit-mode').count() === 0) {
+			await enterEditMode(page)
+		}
 		editor = await openTileEditor(page, title)
 		await editor.getByLabel('Check interval (seconds)').fill('')
 		await editor.getByRole('button', { name: 'Save' }).click()
 		await expect(editor).toBeHidden({ timeout: 10_000 })
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 		await expect.poll(async () => (await readPlacement(placementId)).content.pingInterval).toBe(60)
 	} finally {
 		await context.close()

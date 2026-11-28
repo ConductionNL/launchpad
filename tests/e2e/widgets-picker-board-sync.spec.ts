@@ -304,8 +304,8 @@ test('choosing Case system in the App or link tile form and Add widget places a 
 		// Chosen, not yet placed.
 		expect((await readPlacements(own.owner.api, own.id)).length).toBe(before.size)
 		await page.getByTestId('tile-editor-save').click()
-		// Placed in the edit-mode draft; the edit bar's Save stores it
-		// (edit-mode-draft-and-save REQ-EDIT-001/002).
+		// The tile lands in the edit-mode draft; the edit bar's Save stores it
+		// (edit-mode-draft-and-save REQ-EDIT-002).
 		expect(await saveEditDraft(page)).toBe(200)
 
 		await expect.poll(async () => (await readPlacements(own.owner.api, own.id)).length, { timeout: 15_000 })

@@ -1992,7 +1992,9 @@ OC.L10N.register(
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Ogni versione salvata di questa dashboard. Scegli una versione precedente per ripristinarla; la versione attuale resta nell'elenco.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Ripristinandola si perdono le modifiche successive. La versione attuale resta in questo elenco.",
     "Version of {date}" : "Versione del {date}",
-    "What changed" : "Cosa è cambiato"
+    "What changed" : "Cosa è cambiato",
+    "When is the widget visible?" : "Quando è visibile il widget?",
+    "Check for one person whether the rules do what you mean, before you save." : "Verifica per una persona se le regole fanno ciò che intendi, prima di salvare."
 },
 "nplurals=2; plural=(n != 1);"
 );

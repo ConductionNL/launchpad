@@ -1946,7 +1946,9 @@ OC.L10N.register(
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Hver vistuð útgáfa þessa stjórnborðs. Veldu eldri útgáfu til að endurheimta hana; núverandi útgáfa helst á listanum.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Endurheimt fellir niður breytingar sem gerðar voru eftir hana. Núverandi útgáfa helst á þessum lista.",
     "Version of {date}" : "Útgáfa frá {date}",
-    "What changed" : "Hvað breyttist"
+    "What changed" : "Hvað breyttist",
+    "When is the widget visible?" : "Hvenær er græjan sýnileg?",
+    "Check for one person whether the rules do what you mean, before you save." : "Athugaðu fyrir einn einstakling hvort reglurnar geri það sem þú ætlar, áður en þú vistar."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

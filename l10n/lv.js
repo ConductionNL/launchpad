@@ -1946,7 +1946,9 @@ OC.L10N.register(
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Katra saglabātā šī informācijas paneļa versija. Izvēlieties vecāku versiju, lai to atjaunotu; pašreizējā versija paliek sarakstā.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Atjaunojot tiek atmestas pēc tās veiktās izmaiņas. Pašreizējā versija paliek šajā sarakstā.",
     "Version of {date}" : "Versija no {date}",
-    "What changed" : "Kas mainījās"
+    "What changed" : "Kas mainījās",
+    "When is the widget visible?" : "Kad logrīks ir redzams?",
+    "Check for one person whether the rules do what you mean, before you save." : "Pārbaudiet vienai personai, vai noteikumi dara to, ko domājat, pirms saglabājat."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

@@ -76,8 +76,10 @@ test('add Word and Excel from the Office section', async ({ page }) => {
 
 	const chooser = page.getByTestId('tile-app-chooser')
 	await expect(chooser).toBeVisible()
-	await chooser.getByRole('listitem').filter({ hasText: 'Word' }).getByRole('checkbox').check()
-	await chooser.getByRole('listitem').filter({ hasText: 'Excel' }).getByRole('checkbox').check()
+	// The stubbed pack's rows by their address: an instance with Nextcloud
+	// Office lists a row of its own whose text also holds "Word".
+	await chooser.getByTestId(`tile-app-tick-url:${PACK.tiles[0].linkValue}`).check()
+	await chooser.getByTestId(`tile-app-tick-url:${PACK.tiles[1].linkValue}`).check()
 	const confirm = page.getByTestId('tile-editor-save')
 	await expect(confirm).toHaveText('Add 2 tiles')
 	await confirm.click()

@@ -113,6 +113,16 @@ describe('VisibilityRulesModal — Who sees this widget?', () => {
 		expect(wrapper.findComponent(ConditionalVisibilityEditorStub).props('ruleMatch')).toBe('all')
 	})
 
+	it('puts the widget and dashboard line above the title, as LpZichtbaarheid draws it', () => {
+		const wrapper = mountModal({ widgetTitle: 'Nieuws', dashboardName: 'Intranet' })
+		const head = wrapper.find('.visibility-rules__head')
+		const children = head.element.children
+		expect(children[0].getAttribute('data-test')).toBe('visibility-rules-subtitle')
+		expect(children[0].classList.contains('launchpad-modal__kicker')).toBe(true)
+		expect(children[1].getAttribute('data-test')).toBe('visibility-rules-title')
+		expect(children[1].classList.contains('launchpad-modal__title')).toBe(true)
+	})
+
 	it('leaves the line out when neither name is known, and passes the saved mode on', async () => {
 		const wrapper = mountModal()
 		expect(wrapper.find('[data-test="visibility-rules-subtitle"]').exists()).toBe(false)

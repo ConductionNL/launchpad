@@ -114,7 +114,7 @@ describe('WidgetPickerModal assistant line', () => {
 		expect(request.cards.find((card) => card.key === 'type:pie-chart').name).toBe('Pie chart')
 	})
 
-	it('may propose a catalogue app, which Place it like this places as an app tile, while the grid shows no app cards', async () => {
+	it('may propose a catalogue app, which Place it like this opens in the tile form with the app ticked, while the grid shows no app cards', async () => {
 		const app = { uuid: 'c-1', name: 'Case system', description: 'Cases for the front office', linkType: 'url', linkValue: 'https://zaken.example/' }
 		api.proposeWidget.mockResolvedValue({ data: { proposal: { key: 'catalogue:c-1', reason: 'You handle cases there.' } } })
 		const wrapper = await mountPicker({ catalogueApps: [app], allowedWidgets: null })
@@ -126,8 +126,12 @@ describe('WidgetPickerModal assistant line', () => {
 		const proposal = wrapper.find('[data-testid="widget-picker-assistant-proposal"]')
 		expect(proposal.text()).toContain('Case system')
 		await wrapper.find('[data-testid="widget-picker-assistant-place"]').trigger('click')
-		expect(wrapper.emitted('addCatalogueApp')).toEqual([[app]])
-		expect(wrapper.emitted('close')).toHaveLength(1)
+		// One tile type, one form (REQ-APPTILE-004): nothing is placed yet.
+		expect(wrapper.emitted('addCatalogueApp')).toBeUndefined()
+		expect(wrapper.emitted('close')).toBeUndefined()
+		expect(wrapper.emitted('tileForm')).toHaveLength(1)
+		expect(wrapper.vm.tileForm).toBe(true)
+		expect(wrapper.vm.tileFormApp).toEqual(app)
 	})
 
 	it('offers no catalogue app when the role may not add tiles', async () => {

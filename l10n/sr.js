@@ -1937,6 +1937,8 @@ OC.L10N.register(
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Свака сачувана верзија ове контролне табле. Изаберите старију верзију да бисте је вратили; тренутна верзија остаје на листи.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Враћањем се одбацују измене направљене после ње. Тренутна верзија остаје на овој листи.",
     "Version of {date}" : "Верзија од {date}",
-    "What changed" : "Шта се променило"
+    "What changed" : "Шта се променило",
+    "When is the widget visible?" : "Када је виџет видљив?",
+    "Check for one person whether the rules do what you mean, before you save." : "Пре чувања проверите за једну особу да ли правила раде оно што желите."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

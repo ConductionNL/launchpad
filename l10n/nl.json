@@ -2931,6 +2931,8 @@
         "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Elke opgeslagen versie van dit dashboard. Kies een oudere versie om die terug te zetten; de huidige versie blijft in de lijst.",
         "Restoring it drops the changes made after it. The current version stays in this list.": "Met deze versie verdwijnen de wijzigingen van daarna. De huidige versie blijft bewaard in deze lijst.",
         "Version of {date}": "Versie van {date}",
-        "What changed": "Wat veranderde"
+        "What changed": "Wat veranderde",
+        "When is the widget visible?": "Wanneer is de widget zichtbaar?",
+        "Check for one person whether the rules do what you mean, before you save.": "Controleer voor één persoon of de regels doen wat u bedoelt, voordat u opslaat."
     }
 }

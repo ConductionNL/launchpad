@@ -1957,6 +1957,8 @@
         "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Gach leagan sábháilte den deais seo. Roghnaigh leagan níos sine chun é a athchóiriú; fanann an leagan reatha sa liosta.",
         "Restoring it drops the changes made after it. The current version stays in this list.": "Má athchóirítear é, caitear amach na hathruithe a rinneadh ina dhiaidh. Fanann an leagan reatha sa liosta seo.",
         "Version of {date}": "Leagan ó {date}",
-        "What changed": "Cad a d'athraigh"
+        "What changed": "Cad a d'athraigh",
+        "When is the widget visible?": "Cathain a bhíonn an giuirléid le feiceáil?",
+        "Check for one person whether the rules do what you mean, before you save.": "Seiceáil do dhuine amháin an ndéanann na rialacha an rud atá i gceist agat, sula sábhálann tú."
     }
 }

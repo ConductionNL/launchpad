@@ -119,6 +119,7 @@
 							embedded
 							:open="true"
 							:tile="null"
+							:preselectedApp="tileFormApp"
 							:dashboardName="dashboardName"
 							:catalogueApps="catalogueApps"
 							:discoveredApps="discoveredApps"
@@ -424,6 +425,8 @@ export default {
 			assistantMessage: '',
 			// REQ-WDG-040: the App or link tile's form is shown in this dialog.
 			tileForm: false,
+			// REQ-WDG-045: the catalogue app the assistant proposed, ticked in the tile form.
+			tileFormApp: null,
 		}
 	},
 
@@ -601,14 +604,17 @@ export default {
 		 * @return {void}
 		 * @spec openspec/specs/widgets/spec.md#requirement-the-widget-picker-as-lpwidgetkiezen-draws-it-req-wdg-040
 		 * @spec openspec/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
+		 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
 		 */
 		place(card) {
 			if (!card || card.disabled) {
 				return
 			}
 			const { event, arg } = card.action
-			// REQ-WDG-040: the App or link tile opens its form inside this dialog.
-			if (event === 'addCustom' && arg === 'tile') {
+			// REQ-WDG-040: the App or link tile opens its form inside this dialog;
+			// REQ-WDG-045: an app the assistant proposed opens it with that app ticked.
+			if ((event === 'addCustom' && arg === 'tile') || event === 'tileForm') {
+				this.tileFormApp = event === 'tileForm' ? arg : null
 				this.tileForm = true
 				this.$emit('tileForm')
 				return

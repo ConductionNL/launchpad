@@ -16,6 +16,41 @@ import { generateUrl } from '@nextcloud/router'
 const base = () => generateUrl('/apps/launchpad/api/announcements')
 const DISMISSED_KEY = 'dismissed-notices'
 
+/**
+ * The reader's read state, read once per page: the notice banner and the
+ * announcements widget both ask for it while the Workspace loads. A write
+ * that can change it (confirm, seen, create, update, publish, remove) drops it.
+ *
+ * @type {Promise<{confirmed: Array<string>, receipts: Array<string>}>|null}
+ */
+let readStateRead = null
+
+/**
+ * Forget the shared read state, so the next readState() asks the server.
+ *
+ * @return {void}
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ */
+export function forgetReadState() {
+	readStateRead = null
+}
+
+/**
+ * Run a write, then forget the shared read state.
+ *
+ * @template T
+ * @param {Promise<T>} write The request.
+ * @return {Promise<T>} The request's answer.
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+ */
+async function changingReadState(write) {
+	try {
+		return await write
+	} finally {
+		forgetReadState()
+	}
+}
+
 export const announcementsApi = {
 	/** @return {Promise<object>} `{announcements, drafts, followedCategories, canAuthor, reactions}`. */
 	async list() {
@@ -75,24 +110,41 @@ export const announcementsApi = {
 	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
 	 */
 	async remove(uuid) {
-		return (await axios.delete(`${base()}/${uuid}`)).data
-	},
-
-	async create(input) {
-		return (await axios.post(base(), input)).data
+		return (await changingReadState(axios.delete(`${base()}/${uuid}`))).data
 	},
 
 	/**
-	 * @param {string} uuid The announcement. @param {object} input The author fields. @return {Promise<object>} The announcement.
-	 * @param input
+	 * Create an announcement; the shared read state is read again afterwards.
+	 *
+	 * @param {object} input The author fields.
+	 * @return {Promise<object>} The announcement.
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
-	async update(uuid, input) {
-		return (await axios.put(`${base()}/${uuid}`, input)).data
+	async create(input) {
+		return (await changingReadState(axios.post(base(), input))).data
 	},
 
-	/** @param {string} uuid The announcement. @return {Promise<object>} The published announcement. */
+	/**
+	 * Update an announcement; the shared read state is read again afterwards.
+	 *
+	 * @param {string} uuid The announcement.
+	 * @param {object} input The author fields.
+	 * @return {Promise<object>} The announcement.
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	async update(uuid, input) {
+		return (await changingReadState(axios.put(`${base()}/${uuid}`, input))).data
+	},
+
+	/**
+	 * Publish an announcement; the shared read state is read again afterwards.
+	 *
+	 * @param {string} uuid The announcement.
+	 * @return {Promise<object>} The published announcement.
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
 	async publish(uuid) {
-		return (await axios.post(`${base()}/${uuid}/publish`)).data
+		return (await changingReadState(axios.post(`${base()}/${uuid}/publish`))).data
 	},
 
 	/**
@@ -109,7 +161,16 @@ export const announcementsApi = {
 	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	async readState() {
-		return (await axios.get(`${base()}/read-state`)).data
+		if (readStateRead === null) {
+			const read = axios.get(`${base()}/read-state`).then((response) => response.data)
+			readStateRead = read
+			read.catch(() => {
+				if (readStateRead === read) {
+					forgetReadState()
+				}
+			})
+		}
+		return readStateRead
 	},
 
 	/**
@@ -122,7 +183,7 @@ export const announcementsApi = {
 	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	async confirmRead(uuid, via = 'check') {
-		return (await axios.post(`${base()}/${uuid}/confirm`, { via })).data
+		return (await changingReadState(axios.post(`${base()}/${uuid}/confirm`, { via }))).data
 	},
 
 	/**
@@ -137,7 +198,7 @@ export const announcementsApi = {
 		if (!Array.isArray(uuids) || uuids.length === 0) {
 			return []
 		}
-		return (await axios.post(`${base()}/seen`, { uuids })).data.recorded ?? []
+		return (await changingReadState(axios.post(`${base()}/seen`, { uuids }))).data.recorded ?? []
 	},
 
 	/**

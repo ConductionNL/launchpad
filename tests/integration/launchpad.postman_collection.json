@@ -5546,7 +5546,11 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('200 or 403', () => pm.expect([200, 403]).to.include(pm.response.code));"
+									"pm.test('200 or 403', () => pm.expect([200, 403]).to.include(pm.response.code));",
+									"// Remember the position, so the restore request after the PUT below",
+									"// leaves the instance as this run found it (a Playwright run after",
+									"// Newman on the same instance reads the default, REQ-ONAV-004).",
+									"if (pm.response.code === 200) { pm.collectionVariables.set('orgNavPositionBefore', pm.response.json().position); }"
 								]
 							}
 						}
@@ -5589,6 +5593,58 @@
 								"type": "text/javascript",
 								"exec": [
 									"pm.test('2xx or 4xx', () => pm.expect([200, 204, 400, 403]).to.include(pm.response.code));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "PUT /api/admin/org-navigation/position (restore)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"position\":\"{{orgNavPositionBefore}}\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/org-navigation/position",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"admin",
+								"org-navigation",
+								"position"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// Nothing read (403 or no answer): put back the unset default.",
+									"if (!pm.collectionVariables.get('orgNavPositionBefore')) { pm.collectionVariables.set('orgNavPositionBefore', 'hidden'); }"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('the position is back as it was (200), or the caller may not (403)', () => pm.expect([200, 403]).to.include(pm.response.code));"
 								]
 							}
 						}

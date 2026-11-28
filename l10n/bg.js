@@ -1946,7 +1946,9 @@ OC.L10N.register(
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Всяка запазена версия на това табло. Изберете по-стара версия, за да я възстановите; текущата версия остава в списъка.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Възстановяването премахва промените, направени след нея. Текущата версия остава в този списък.",
     "Version of {date}" : "Версия от {date}",
-    "What changed" : "Какво се промени"
+    "What changed" : "Какво се промени",
+    "When is the widget visible?" : "Кога е видима джаджата?",
+    "Check for one person whether the rules do what you mean, before you save." : "Проверете за един човек дали правилата правят това, което искате, преди да запазите."
 },
 "nplurals=2; plural=(n != 1);"
 );

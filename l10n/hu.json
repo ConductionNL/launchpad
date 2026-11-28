@@ -1948,6 +1948,8 @@
         "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Az irányítópult minden mentett verziója. Válasszon egy régebbi verziót a visszaállításához; a jelenlegi verzió a listában marad.",
         "Restoring it drops the changes made after it. The current version stays in this list.": "A visszaállítás elveti az utána végzett módosításokat. A jelenlegi verzió ebben a listában marad.",
         "Version of {date}": "{date} verziója",
-        "What changed": "Mi változott"
+        "What changed": "Mi változott",
+        "When is the widget visible?": "Mikor látható a widget?",
+        "Check for one person whether the rules do what you mean, before you save.": "Mentés előtt ellenőrizze egy személyre, hogy a szabályok azt teszik-e, amit szeretne."
     }
 }

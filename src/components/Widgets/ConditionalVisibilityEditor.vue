@@ -27,10 +27,13 @@
 		<template v-else>
 			<!-- REQ-CVUI-006: all or one rule must match, as two choice cards
 			     with radio-group semantics (arrow keys move the choice). -->
+			<p :id="modesLabelId" class="conditional-visibility-editor__modes-label">
+				{{ t('launchpad', 'When is the widget visible?') }}
+			</p>
 			<div
 				class="conditional-visibility-editor__modes"
 				role="radiogroup"
-				:aria-label="t('launchpad', 'Who sees this widget?')"
+				:aria-labelledby="modesLabelId"
 				data-test="rule-match">
 				<button
 					v-for="mode in matchModes"
@@ -138,6 +141,9 @@
 				class="conditional-visibility-editor__preview"
 				data-test="visibility-preview">
 				<h3>{{ t('launchpad', 'View as') }}</h3>
+				<p class="conditional-visibility-editor__preview-intro">
+					{{ t('launchpad', 'Check for one person whether the rules do what you mean, before you save.') }}
+				</p>
 				<div class="conditional-visibility-editor__preview-fields">
 					<div class="conditional-visibility-editor__preview-field">
 						<NcSelect
@@ -327,6 +333,8 @@ function editableRules(list) {
 	}))
 }
 
+let editorCounter = 0
+
 export default {
 	name: 'ConditionalVisibilityEditor',
 
@@ -378,6 +386,8 @@ export default {
 
 	data() {
 		return {
+			// The question above the choice cards names their radiogroup.
+			modesLabelId: `cv-editor-modes-${++editorCounter}`,
 			rules: [],
 			loading: false,
 			busyKeys: {},
@@ -1050,20 +1060,43 @@ export default {
 }
 
 .conditional-visibility-editor__preview h3 {
-	margin: 0 0 8px;
+	margin: 0;
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1.3;
 }
 
+/* LpZichtbaarheid: the question above the two choice cards, and the line
+   under "View as". */
+.conditional-visibility-editor__modes-label {
+	margin: 0 0 8px;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.conditional-visibility-editor__preview-intro {
+	margin: 2px 0 12px;
+	font-size: 13px;
+	color: var(--color-text-maxcontrast);
+}
+
+/* Person and Moment side by side, each half the row, so neither field is
+   cut ("M ment", a clipped date); the Preview button goes under them. */
 .conditional-visibility-editor__preview-fields {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: flex-end;
-	gap: 12px;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	align-items: end;
+	gap: 12px 16px;
 	margin-bottom: 12px;
 }
 
+.conditional-visibility-editor__preview-fields > :last-child {
+	grid-column: 1 / -1;
+	justify-self: end;
+}
+
 .conditional-visibility-editor__preview-field {
-	min-width: 200px;
-	flex: 1 1 200px;
+	min-width: 0;
 }
 
 .conditional-visibility-editor__preview-loading {

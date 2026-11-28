@@ -98,3 +98,93 @@ describe('handOverOffTheWorkspace', () => {
 		expect(handOverOffTheWorkspace({ name: 'Store' }, workspacePageIds(manifest), document, now)).toBe(false)
 	})
 })
+
+describe('whenShellPaintReported', () => {
+	/**
+	 * A PerformanceObserver stand-in that reports largest-contentful-paint.
+	 *
+	 * @return {Function} The class; its instances are in `.instances`.
+	 */
+	function lcpObserver() {
+		class Observer {
+			static supportedEntryTypes = ['largest-contentful-paint']
+
+			static instances = []
+
+			constructor(callback) {
+				this.callback = callback
+				this.disconnected = false
+				Observer.instances.push(this)
+			}
+
+			observe(options) {
+				this.options = options
+			}
+
+			disconnect() {
+				this.disconnected = true
+			}
+
+			report(elements) {
+				this.callback({ getEntries: () => elements.map((element) => ({ element })) })
+			}
+		}
+		return Observer
+	}
+
+	it('waits until a paint inside the shell is reported, then hands over once', async () => {
+		const { whenShellPaintReported } = await import('../firstPaintHandover.js')
+		page(true)
+		const shell = document.getElementById(SHELL_ID)
+		const Observer = lcpObserver()
+		const timers = []
+		const done = vi.fn()
+		whenShellPaintReported(shell, done, { Observer, setTimer: (fn, ms) => timers.push([fn, ms]), clearTimer: vi.fn() })
+		const [observer] = Observer.instances
+		expect(observer.options).toEqual({ type: 'largest-contentful-paint', buffered: true })
+		expect(timers[0][1]).toBe(500)
+
+		observer.report([document.body, null])
+		expect(done).not.toHaveBeenCalled()
+		observer.report([shell])
+		expect(done).toHaveBeenCalledTimes(1)
+		expect(observer.disconnected).toBe(true)
+		timers[0][0]()
+		expect(done).toHaveBeenCalledTimes(1)
+	})
+
+	it('hands over after the cap when no paint inside the shell is reported', async () => {
+		const { whenShellPaintReported } = await import('../firstPaintHandover.js')
+		page(true)
+		const Observer = lcpObserver()
+		const timers = []
+		const done = vi.fn()
+		whenShellPaintReported(document.getElementById(SHELL_ID), done, { Observer, setTimer: (fn, ms) => timers.push([fn, ms]), clearTimer: vi.fn() })
+		timers[0][0]()
+		expect(done).toHaveBeenCalledTimes(1)
+		expect(Observer.instances[0].disconnected).toBe(true)
+	})
+
+	it('hands over at once where the browser reports no largest-contentful-paint', async () => {
+		const { whenShellPaintReported } = await import('../firstPaintHandover.js')
+		page(true)
+		const done = vi.fn()
+		whenShellPaintReported(document.getElementById(SHELL_ID), done, { Observer: class { static supportedEntryTypes = ['mark'] } })
+		expect(done).toHaveBeenCalledTimes(1)
+		whenShellPaintReported(document.getElementById(SHELL_ID), done, { Observer: undefined })
+		expect(done).toHaveBeenCalledTimes(2)
+	})
+
+	it('lets handOver wait for the report before the swap frame', () => {
+		page(true)
+		holdMountWhileShellShows()
+		const frames = []
+		let report
+		expect(handOver(document, (callback) => frames.push(callback), (shell, done) => { report = done })).toBe(true)
+		expect(frames).toHaveLength(0)
+		report()
+		expect(frames).toHaveLength(1)
+		frames[0]()
+		expect(document.getElementById(SHELL_ID)).toBeNull()
+	})
+})

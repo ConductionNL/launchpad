@@ -31,7 +31,15 @@
 				<component :is="kindIcon" :size="18" />
 				{{ kindLabel }}
 			</span>
-			<span v-if="metaLine">{{ metaLine }}</span>
+			<!-- The description is a flex item of its own, the same box the
+			     first-paint shell prints, so taking the page over paints no
+			     larger text than the shell did (its paint stays the first
+			     useful content). Rights and last change follow in a second one. -->
+			<span v-if="metaDescription" class="launchpad-page-header__description">{{ metaDescription }}</span>
+			<span
+				v-if="metaRest"
+				class="launchpad-page-header__rest"
+				:class="{ 'launchpad-page-header__rest--joined': metaDescription !== '' }">{{ metaDescription !== '' ? ' · ' + metaRest : metaRest }}</span>
 		</p>
 	</header>
 </template>
@@ -230,12 +238,30 @@ export default {
 		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
 		 */
 		metaLine() {
-			const parts = [
-				(this.dashboard.description ?? '').trim(),
+			return [this.metaDescription, this.metaRest].filter((part) => part !== '').join(' · ')
+		},
+
+		/**
+		 * The dashboard's description, the first part of the meta line.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md
+		 */
+		metaDescription() {
+			return (this.dashboard.description ?? '').trim()
+		},
+
+		/**
+		 * What the reader may do and the last change, the rest of the meta line.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-the-header-says-what-dashboard-this-is-and-what-the-reader-may-do-req-dpd-001
+		 */
+		metaRest() {
+			return [
 				rightsText(this.permissionLevel),
 				lastChangedText(this.dashboard.updatedAt, new Date(), getCanonicalLocale()),
-			].filter((part) => part !== '')
-			return parts.join(' · ')
+			].filter((part) => part !== '').join(' · ')
 		},
 	},
 
@@ -289,6 +315,12 @@ export default {
 	margin: 0;
 	font-size: 15px;
 	color: var(--color-text-maxcontrast);
+}
+
+/* The rest follows the description as if on one line: the 12px gap less
+   8px leaves the width of the space the joined line had before the dot. */
+.launchpad-page-header__rest--joined {
+	margin-inline-start: -8px;
 }
 
 .launchpad-page-header__kind {

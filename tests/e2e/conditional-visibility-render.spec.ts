@@ -25,6 +25,7 @@ import type { Principal } from './support/principals.ts'
 
 import { expect, request, test } from '@playwright/test'
 import { loginAs } from './fixtures/secondary-user.ts'
+import { readAllowUserDashboards, setAllowUserDashboards } from './support/adminTemplates.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 import {
 	adminContext,
@@ -49,10 +50,18 @@ let bob: Principal
 let dashboard: { id: number; uuid: string }
 let subjectId: number
 let anchorId: number
+/** The admin flag as it was before this file, put back afterwards. */
+let originalAllowUserDashboards: boolean | null = null
 
 test.describe('conditional visibility at render time (REQ-VIS-013)', () => {
 	test.beforeAll(async () => {
 		admin = await adminContext()
+		// alice makes a personal dashboard, refused with personal_dashboards_disabled
+		// while the admin flag is off (its default on a fresh instance).
+		originalAllowUserDashboards = await readAllowUserDashboards(admin)
+		if (!originalAllowUserDashboards) {
+			await setAllowUserDashboards(admin, true)
+		}
 		await createGroup(admin, GROUP)
 		alice = await createPrincipal(admin, 'cvr-alice')
 		bob = await createPrincipal(admin, 'cvr-bob')
@@ -72,10 +81,13 @@ test.describe('conditional visibility at render time (REQ-VIS-013)', () => {
 	test.afterAll(async () => {
 		for (const who of [alice, bob]) {
 			if (who) {
-				await removePrincipal(admin, who.username).catch(() => null)
+				await removePrincipal(admin, who).catch(() => null)
 			}
 		}
 		await removeGroup(admin, GROUP).catch(() => null)
+		if (originalAllowUserDashboards === false) {
+			await setAllowUserDashboards(admin, false).catch(() => null)
+		}
 		await admin.dispose()
 	})
 

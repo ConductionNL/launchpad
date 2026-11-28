@@ -114,7 +114,7 @@ class BookmarkImportController extends Controller {
 	 *
 	 * @return JSONResponse 201 with the created placements, or 200 with the draft's; `skipped` either way.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 	 */
 	private function answer(int $dashboardId, BookmarkImportPlan $plan): JSONResponse {
 		if ($this->request->getParam('draft') === true) {

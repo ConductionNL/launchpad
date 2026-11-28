@@ -222,7 +222,7 @@ class BookmarkImportControllerTest extends TestCase {
 	 * would create below the draft's lowest edge and creates nothing; a tile
 	 * carries the fields a stored tile has (edit-mode-draft-and-save).
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 	 *
 	 * @return void
 	 */

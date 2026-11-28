@@ -302,7 +302,7 @@ test.describe('REQ-WDG-006 placement visibility', () => {
 
 test.describe('REQ-WDG-008 the grid saves a rearrangement in one batch', () => {
 	// @e2e widgets::batch-update-via-dashboard-update-endpoint
-	test("moving a widget sends PUT /api/dashboard/{id} with every placement's id and rectangle", async ({
+	test("moving a widget and saving sends PUT /api/dashboard/{id} with every placement's id and the new rectangle", async ({
 		page,
 	}) => {
 		const widget = stockWidget()
@@ -340,6 +340,13 @@ test.describe('REQ-WDG-008 the grid saves a rearrangement in one batch', () => {
 		const panel = page.locator('[data-test="widget-move-panel"]')
 		await expect(panel).toBeVisible({ timeout: 5_000 })
 
+		await page.keyboard.press('ArrowDown')
+		await page.keyboard.press('ArrowDown')
+		await page.keyboard.press('Enter')
+
+		// edit-mode-draft-and-save REQ-EDIT-001/002: the move sits in the
+		// draft; the edit bar's Save sends the whole dashboard in one PUT
+		// with every placement's id, the moved one with its new rectangle.
 		const save = page.waitForRequest(
 			(req) =>
 				req.method() === 'PUT'
@@ -347,26 +354,17 @@ test.describe('REQ-WDG-008 the grid saves a rearrangement in one batch', () => {
 					`/apps/launchpad/api/dashboard/${dashboard!.id}`,
 				),
 		)
-		await page.keyboard.press('ArrowDown')
-		await page.keyboard.press('ArrowDown')
-		await page.keyboard.press('Enter')
+		await page.locator('[data-testid="launchpad-edit-bar-save"]').click()
 		const body = (await save).postDataJSON() as {
+			draft: boolean
 			placements: Array<Record<string, number>>
 		}
 
+		expect(body.draft).toBe(true)
 		expect(Array.isArray(body.placements)).toBe(true)
 		expect(body.placements.map((p) => p.id).sort()).toEqual(
 			[first.id, second.id].sort(),
 		)
-		for (const entry of body.placements) {
-			expect(Object.keys(entry).sort()).toEqual([
-				'gridHeight',
-				'gridWidth',
-				'gridX',
-				'gridY',
-				'id',
-			])
-		}
 		const moved = body.placements.find((p) => p.id === first.id)!
 		expect(moved.gridY).toBeGreaterThan(0)
 

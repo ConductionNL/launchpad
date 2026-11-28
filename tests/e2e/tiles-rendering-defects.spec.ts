@@ -32,7 +32,7 @@ import type { Browser, Locator, Page } from '@playwright/test'
 import type { OwnDashboard } from './support/ownDashboard.ts'
 
 import { expect, test } from '@playwright/test'
-import { enterEditMode } from './support/dashboardSwitcher.ts'
+import { enterEditMode, saveEditDraft } from './support/dashboardSwitcher.ts'
 import {
 	openOwnDashboard,
 	readPlacements,
@@ -142,7 +142,7 @@ test('in edit mode the tile menu button sits at the top-right of the tile and of
 })
 
 // @e2e tiles::tile-editor
-test('the tile editor has name, icon, colour, tile type and address fields and saves through the API', async ({
+test('the tile editor has name, icon, colour, tile type and address fields and saves through the edit-mode draft', async ({
 	browser,
 }) => {
 	const { context, page } = await open(browser)
@@ -164,13 +164,11 @@ test('the tile editor has name, icon, colour, tile type and address fields and s
 
 		const renamed = `${CLASS} hernoemd`
 		await editor.getByRole('textbox', { name: 'Name', exact: true }).fill(renamed)
-		const saved = page.waitForResponse(
-			(res) =>
-				res.request().method() === 'PUT'
-				&& res.url().includes(`/api/widgets/${ids[CLASS]}`),
-		)
+		// The tile form writes the edit-mode draft; the edit bar's Save
+		// stores it (edit-mode-draft-and-save REQ-EDIT-001/002).
 		await editor.getByRole('button', { name: 'Save' }).click()
-		expect((await saved).status()).toBe(200)
+		await expect(editor).not.toBeVisible()
+		expect(await saveEditDraft(page)).toBe(200)
 		const stored = (await readPlacements(own.owner.api, own.id)).find(
 			(p) => Number(p.id) === ids[CLASS],
 		)!

@@ -145,7 +145,7 @@ describe('EmbedTokenForm', () => {
 		expect(wrapper.find('[data-test="embed-token-filter-context"]').exists()).toBe(false)
 	})
 
-	// @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	// @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	it('offers the widgets inside a well or tabs widget as <placement>.<key>', async () => {
 		dashboardsApi.getDashboardById.mockResolvedValue({ data: { placements: [{
 			id: 43,

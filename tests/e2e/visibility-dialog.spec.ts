@@ -148,10 +148,10 @@ test('the widget menu in edit mode opens the dialog for that widget', async ({ p
 test('View as a person in the group on a Tuesday at 10:00 says they see the widget, and why', async ({ page }) => {
 	await openFromTheMenu(page)
 
-	// All rules must match, saved on the placement.
-	const saved = page.waitForResponse((res) => res.url().includes(`/api/widgets/${placementId}`) && res.request().method() === 'PUT')
+	// All rules must match. In edit mode the choice goes into the draft
+	// (edit-mode-draft-and-save REQ-EDIT-001) and the preview reads it from
+	// there; nothing is stored until Save, which this test never presses.
 	await page.locator('[data-test="rule-match-all"]').click()
-	expect((await saved).status()).toBe(200)
 	await expect(page.locator('[data-test="rule-match-all"]')).toHaveAttribute('aria-checked', 'true')
 
 	const person = page.locator('[data-test="preview-person"]').locator('input').first()

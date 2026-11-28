@@ -43,7 +43,7 @@ describe('TileWidget removeLocked', () => {
 	})
 })
 
-// @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+// @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 describe('TileWidget embed entry (REQ-WDG-050)', () => {
 	const href = '/index.php/apps/launchpad/admin/general?tab=embeds&embedType=widget&embedId=3'
 

@@ -30,7 +30,7 @@ The system MUST render the workspace Vue app into exactly one DOM element (id `w
 
 - The per-widget right-click context menu (REQ-WDG-015)
 - GridStack's `staticGrid` mode (false when `canEdit`, true otherwise)
-- More's edit entries: "Edit" and "Add widget" (REQ-SHELL-013), and with them the edit bar and its "Dashboard settings" (dashboards REQ-DASH-038)
+- More's edit entries: "Edit" and "Add widget" (REQ-SHELL-013), and with them the edit bar and its "Dashboard settings" (dashboards REQ-EDIT-001)
 
 `canEdit` MUST NOT gate any toolbar (none exists) or any sidebar entries (the sidebar shows the same dashboards regardless; per-row create/delete affordances have their own gating per REQ-SWITCH-005).
 

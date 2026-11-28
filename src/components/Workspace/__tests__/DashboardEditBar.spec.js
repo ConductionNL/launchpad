@@ -6,7 +6,7 @@
  * widget, Dashboard settings, Cancel and Save, and the dock for the More menu
  * (REQ-EDIT-001).
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 
 import { mount } from '@vue/test-utils'
@@ -41,6 +41,14 @@ describe('DashboardEditBar', () => {
 		expect(bar.attributes('role')).toBe('toolbar')
 		expect(bar.attributes('aria-label')).toBe('Edit dashboard')
 		expect(bar.text()).toContain('You are editing Mijn werkplek')
+	})
+
+	// Board LpBewerken: a long name is cut with an ellipsis; the tooltip keeps all of it.
+	it('gives the title its full text as a tooltip', () => {
+		const name = 'Een heel lange naam voor een dashboard van de afdeling Vergunningen en Toezicht'
+		const title = mountBar({ dashboardName: name }).find('.launchpad-edit-bar__title')
+		expect(title.attributes('title')).toBe(`You are editing ${name}`)
+		expect(title.text()).toBe(`You are editing ${name}`)
 	})
 
 	// add-widget-dialog-with-miniatures REQ-WDG-049: Add widget is the one way in, no Add tiles.
@@ -103,7 +111,7 @@ describe('DashboardEditBar', () => {
 		expect(wrapper.find('[data-testid="launchpad-edit-bar-save"]').attributes('disabled')).toBeDefined()
 	})
 
-	// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+	// @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
 	it('asks to leave on Escape', async () => {
 		const wrapper = mountBar()
 		await wrapper.find('[data-testid="launchpad-edit-bar"]').trigger('keydown', { key: 'Escape' })

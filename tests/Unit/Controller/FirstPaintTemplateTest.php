@@ -36,6 +36,7 @@ require_once __DIR__.'/fixtures/template-functions.php';
  * @uses   \OCA\LaunchPad\Service\FirstPaintGridEngine
  * @uses   \OCA\LaunchPad\Service\FirstPaintPlaceholder
  * @uses   \OCA\LaunchPad\Service\FirstPaintFill
+ * @uses   \OCA\LaunchPad\Service\FirstPaintNotices
  * @uses   \OCA\LaunchPad\Service\DashboardLook
  */
 class FirstPaintTemplateTest extends TestCase {
@@ -162,4 +163,29 @@ class FirstPaintTemplateTest extends TestCase {
 		$this->assertStringNotContainsString(needle: 'lp-fp__g--fill"', haystack: $plain);
 		$this->assertStringNotContainsString(needle: '--fc:', haystack: $plain);
 	}//end testAFillingDashboardIsAGridOfTracks()
+
+	/**
+	 * The notice banners from the page's reads stand above the dashboard in
+	 * the shell, escaped, a warning in its own colours.
+	 *
+	 * @return void
+	 */
+	public function testNoticeBannersArePrinted(): void {
+		$page = self::page(dashboard: [], placements: []) + [
+			'apiReads' => [
+				[
+					'path' => '/api/announcements',
+					'data' => ['announcements' => [['uuid' => 'n', 'kind' => 'notice', 'title' => '<i>Down</i>', 'body' => 'Sat', 'level' => 'warning']]],
+				],
+			],
+		];
+		$html = $this->render(params: FirstPaintPage::params(page: $page, context: []));
+
+		$this->assertStringContainsString(needle: '<div class="lp-fp__n lp-fp__n--w">', haystack: $html);
+		$this->assertStringContainsString(needle: '<b>&lt;i&gt;Down&lt;/i&gt;</b>', haystack: $html);
+		$this->assertLessThan(expected: strpos($html, 'class="lp-fp__c"'), actual: strpos($html, 'class="lp-fp__n'));
+
+		$none = $this->render(params: FirstPaintPage::params(page: self::page(dashboard: [], placements: []), context: []));
+		$this->assertStringNotContainsString(needle: 'class="lp-fp__n', haystack: $none);
+	}//end testNoticeBannersArePrinted()
 }//end class

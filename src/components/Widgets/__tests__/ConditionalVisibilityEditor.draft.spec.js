@@ -6,7 +6,7 @@
  * no rule request is sent; the draft gets the rules and how they combine,
  * and a dialog opened again shows the draft's rules.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 
 import { flushPromises, mount } from '@vue/test-utils'

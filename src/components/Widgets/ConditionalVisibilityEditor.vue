@@ -555,7 +555,7 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-001-rule-builder-in-placement-settings
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		async loadRules() {
 			this.loading = true
@@ -651,7 +651,7 @@ export default {
 		 * @param {object} row The rule row.
 		 * @param {object} payload Rule fields (`ruleType`, `ruleConfig`, `isInclude`).
 		 * @return {void}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		saveRowToDraft(row, payload) {
 			const index = this.rules.indexOf(row)
@@ -670,7 +670,7 @@ export default {
 		 * draft, not a new card still being filled in.
 		 *
 		 * @return {Array<object>}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		draftRules() {
 			return this.rules

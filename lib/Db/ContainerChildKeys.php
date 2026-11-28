@@ -33,7 +33,7 @@ namespace OCA\LaunchPad\Db;
  * use, ContainerWidget.vue), otherwise one derived from the child and its
  * place, so writing the same content twice gives the same keys.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 final class ContainerChildKeys {
 	/**
@@ -50,7 +50,7 @@ final class ContainerChildKeys {
 	 *
 	 * @return array<string, mixed> The content with every child keyed.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
 	public function stamp(array $content, ?int $ownerId=null): array {
 		if ($ownerId !== null && is_array($content['placements'] ?? null) === true) {
@@ -67,7 +67,7 @@ final class ContainerChildKeys {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
 	public function keyOf(array $child): string {
 		$id = ($child['id'] ?? null);
@@ -91,7 +91,7 @@ final class ContainerChildKeys {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
 	public function find(array $content, string $key): ?array {
 		if ($key === '') {
@@ -116,7 +116,7 @@ final class ContainerChildKeys {
 	 *
 	 * @return array{0: int, 1: string}|null
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
 	public function splitSubject(string $subjectId): ?array {
 		if (preg_match('/^([1-9][0-9]*)\.([A-Za-z0-9_-]{1,64})$/', $subjectId, $match) !== 1) {

@@ -485,23 +485,32 @@ test('a tile added through "Add widget" → "Custom widget" stores its data in c
 		await chooseAndAdd(page.locator('[data-testid="widget-picker-type-tile"]'))
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await expect(dialog).toBeVisible({ timeout: 10_000 })
-		await dialog.getByLabel('Title', { exact: true }).fill(title)
-		await dialog.getByLabel(/^(App route|URL)$/).fill('/apps/files')
+		// The App or link tile form (app-link-tile-widget REQ-APPTILE-001): a
+		// link with its name and web address. Adding writes to the edit-mode
+		// draft and the edit bar's Save stores it (REQ-EDIT-001/002).
+		await dialog.getByRole('textbox', { name: 'Name', exact: true }).fill(title)
+		await dialog.getByRole('textbox', { name: 'Web address', exact: true }).fill('https://example.org/nieuw')
+		await dialog.getByTestId('tile-editor-save').click()
+		await expect(dialog).not.toBeVisible({ timeout: 8_000 })
 
-		const created = page.waitForResponse(
-			(res) =>
-				res.request().method() === 'POST'
-				&& /\/api\/dashboard\/\d+\/widgets(\?|$)/.test(res.url()),
+		const saved = page.waitForResponse(
+			(res) => res.request().method() === 'PUT'
+				&& /\/apps\/launchpad\/api\/dashboard\/\d+$/.test(new URL(res.url()).pathname)
+				&& res.request().postDataJSON()?.draft === true,
 		)
-		await dialog.getByRole('button', { name: /^add$/i }).click()
-		const response = await created
-		expect(response.status(), await response.text()).toBe(201)
-		const sent = response.request().postDataJSON() as {
-			widgetId: string
-			content: Record<string, unknown>
-		}
+		await page.locator('[data-testid="launchpad-edit-bar-save"]').click()
+		const response = await saved
+		expect(response.status(), await response.text()).toBeLessThan(300)
+		const sent = (response.request().postDataJSON() as { placements: Array<{ id?: number, widgetId: string, content: Record<string, unknown> }> })
+			.placements.find((p) => p.id === undefined)!
 		expect(sent.widgetId).toBe('tile')
-		const id = Number((await response.json()).id)
+
+		// The new placement is the one the Save answered with that it was not sent with an id.
+		const kept = new Set((response.request().postDataJSON() as { placements: Array<{ id?: number }> })
+			.placements.filter((p) => p.id !== undefined).map((p) => Number(p.id)))
+		const json = await response.json()
+		const answered = ((json.data ?? json).placements ?? []) as Array<{ id: number }>
+		const id = Number(answered.find((p) => !kept.has(Number(p.id)))!.id)
 
 		const stored = (await readPlacements(own.owner.api, own.id)).find(
 			(p) => Number(p.id) === id,
@@ -511,7 +520,7 @@ test('a tile added through "Add widget" → "Custom widget" stores its data in c
 			typeof stored.content === 'string'
 				? JSON.parse(stored.content)
 				: stored.content
-		expect(content).toMatchObject({ title, linkValue: '/apps/files' })
+		expect(content).toMatchObject({ title, linkValue: 'https://example.org/nieuw' })
 		for (const column of [
 			'tileType',
 			'tileTitle',

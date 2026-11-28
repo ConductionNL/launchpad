@@ -6,7 +6,7 @@
  * dashboard request is sent, Save sends one, a refused Save keeps the draft,
  * and Cancel brings back what was stored (REQ-EDIT-001, -002, -004).
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 
 import { createPinia, setActivePinia } from 'pinia'
@@ -76,7 +76,7 @@ describe('dashboard store — edit-mode draft', () => {
 		expect(store.activeDashboard.gridColumns).toBe(8)
 	})
 
-	// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	// @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	it('saves the draft in one request and takes the stored placements back', async () => {
 		const store = storeOn()
 		store.beginDraft()
@@ -111,7 +111,7 @@ describe('dashboard store — edit-mode draft', () => {
 		expect(store.draft).not.toBeNull()
 	})
 
-	// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-cancel-discards-the-draft-req-edit-004
+	// @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-cancel-discards-the-draft-req-edit-004
 	it('discards the draft back to what was stored, sending nothing', async () => {
 		const store = storeOn()
 		store.beginDraft()
@@ -142,7 +142,7 @@ describe('dashboard store — edit-mode draft', () => {
 	})
 })
 
-// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+// @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 describe('dashboard store — visibility rules in the draft', () => {
 	beforeEach(() => {
 		setActivePinia(createPinia())
@@ -172,7 +172,7 @@ describe('dashboard store — visibility rules in the draft', () => {
 	})
 })
 
-// @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+// @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 describe('dashboard store — bookmark import in the draft', () => {
 	beforeEach(() => {
 		setActivePinia(createPinia())

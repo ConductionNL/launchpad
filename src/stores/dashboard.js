@@ -349,7 +349,7 @@ function widgetRequestBody(widgetId, placement) {
  *
  * @param {Array<object>} placements The placements.
  * @return {number}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 export function lowestEdge(placements) {
 	return (placements ?? []).reduce((max, p) => Math.max(max, (Number(p.gridY) || 0) + (Number(p.gridHeight) || 0)), 0)
@@ -365,7 +365,7 @@ const DUPLICATE_SKIPPED = new Set(['gridX', 'gridY', 'gridWidth', 'gridHeight', 
  *
  * @param {object} original The placement to copy.
  * @return {object} The fields.
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 export function duplicateFields(original) {
 	const fields = {}
@@ -397,7 +397,7 @@ const DRAFT_TILE_FIELDS = [
  *
  * @param {object} tileData The tile form's fields (`title`, `icon`, `backgroundColor`, ...).
  * @return {object} The placement's tile fields.
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
  */
 function draftTileFields(tileData) {
 	const fields = { tileType: 'custom' }
@@ -418,7 +418,7 @@ function draftTileFields(tileData) {
  *
  * @param {object} error The axios error.
  * @return {{saved: false, status: (number|null), conflicts: Array<object>}}
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
 function draftSaveFailure(error) {
 	const status = error?.response?.status ?? null
@@ -663,7 +663,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 *
 		 * @param {object} state The store state.
 		 * @return {object|null}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		draftDiff: (state) => (state.draft === null
 			? null
@@ -676,7 +676,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * REQ-EDIT-001: the number of changed things the draft pill shows.
 		 *
 		 * @return {number}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		draftChangeCount() {
 			if (this.draft === null) {
@@ -689,7 +689,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * REQ-EDIT-003: whether the open draft has changes to lose.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
 		 */
 		isDraftDirty() {
 			return this.draftChangeCount > 0
@@ -1325,7 +1325,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * dashboard keeps saving each change, until its endpoint takes drafts.
 		 *
 		 * @return {boolean} Whether a draft is open.
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		beginDraft() {
 			const active = this.activeDashboard
@@ -1349,7 +1349,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @param {number|string} placementId The widget.
 		 * @param {Array<object>} rules Its rules (`ruleType`, `ruleConfig`, `isInclude`).
 		 * @return {void}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		setDraftRules(placementId, rules) {
 			if (this.draft === null) {
@@ -1363,7 +1363,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * mode began. Nothing is sent.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-cancel-discards-the-draft-req-edit-004
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-cancel-discards-the-draft-req-edit-004
 		 */
 		discardDraft() {
 			if (this.draft === null) {
@@ -1382,7 +1382,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * or a colleague's newer widget (409) keeps the draft and says why.
 		 *
 		 * @return {Promise<{saved: boolean, status: (number|null), conflicts: Array<object>}>}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 		 */
 		async saveDraft() {
 			const draft = this.draft
@@ -1409,7 +1409,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @param {object} draft The draft that was saved.
 		 * @param {object} body The answer: `placements` and `dashboard`.
 		 * @return {void}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 		 */
 		takeSavedDraft(draft, body) {
 			if (Array.isArray(body.placements)) {
@@ -1428,7 +1428,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @param {object} body The widget as the add request would carry it (`widgetId`, grid, content, tile fields).
 		 * @param {Array<object>} pushed The push-down side effects of its spot.
 		 * @return {object} The draft placement.
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		addDraftPlacement(body, pushed = []) {
 			const placement = {
@@ -1460,7 +1460,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 *
 		 * @param {number|string} placementId The widget to copy.
 		 * @return {Promise<object|null>} The copy, or null when nothing was copied.
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		async duplicatePlacement(placementId) {
 			const original = this.widgetPlacements.find((p) => String(p.id) === String(placementId))
@@ -1600,7 +1600,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 *
 		 * @param {number} columns The new column count.
 		 * @return {Promise<boolean>} Whether the server stored it.
-		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-038-the-edit-bar
+		 * @spec openspec/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 		 */
 		async setGridColumns(columns) {
 			const active = this.activeDashboard

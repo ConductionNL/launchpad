@@ -7,7 +7,7 @@
  * cards carry the field border and a light shadow, and the edit bar stays on
  * one row with the docked More menu showing its three dots only.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/tasks.md
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/tasks.md
  */
 
 import { readFileSync } from 'node:fs'

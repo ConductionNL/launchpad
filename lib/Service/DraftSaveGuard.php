@@ -17,7 +17,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
 
 declare(strict_types=1);
@@ -32,7 +32,7 @@ use OCA\LaunchPad\Exception\ForbiddenException;
  * The per-change checks of a draft save: the same permissions the
  * per-widget routes ask, so one refused change refuses the whole save.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
  */
 class DraftSaveGuard {
 	/**
@@ -43,7 +43,7 @@ class DraftSaveGuard {
 	 * @param WidgetPlacementService       $placements  Checks container nesting.
 	 * @param DraftRules                   $rules       Reads, checks and stores the draft's visibility rules.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	public function __construct(
 		private readonly PermissionService $permissions,
@@ -65,7 +65,7 @@ class DraftSaveGuard {
 	 * @throws ForbiddenException       When one change is not allowed.
 	 * @throws InvalidArgumentException When one change is malformed.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-save-stores-the-whole-draft-at-once-req-edit-002
 	 */
 	public function authorize(DashboardDraft $draft, array $plan): void {
 		foreach ($plan['remove'] as $placementId) {

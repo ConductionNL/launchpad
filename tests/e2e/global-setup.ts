@@ -487,14 +487,14 @@ async function liftCalendarCreationLimitForRun(
 /**
  * Turn the admin flag `allowUserDashboards` on for the run.
  *
- * A fresh install has it off, and then every personal dashboard a spec seeds
- * a non-admin seeds is refused with 403 `personal_dashboards_disabled`.
- * Specs that seed one as a plain user without setting the flag passed only
- * after an earlier spec had left it on. Measured 28 Nov 2026 on Nextcloud 34
- * with the flag off: launchpad-mobile-remote-access failed this way (and
+ * A fresh install has it off, and then every personal dashboard a plain user
+ * seeds is refused with 403 `personal_dashboards_disabled`. Specs that seed
+ * one without setting the flag passed only after an earlier spec had left it
+ * on. Measured 28 Nov 2026 on Nextcloud 34 with the flag off:
+ * launchpad-mobile-remote-access failed this way (as did
  * first-paint-shell-contexts and conditional-visibility-render, fixed in
- * their own files by #2446 and #2448). Specs that test the flag off still set it themselves
- * and put back what they found.
+ * their own files by #2446 and #2448). Specs that test the flag off still
+ * set it themselves and put back what they found.
  *
  * Best-effort, like the calendar limit: a refusal is reported, never fatal.
  *

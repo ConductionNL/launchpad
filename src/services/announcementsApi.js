@@ -29,6 +29,7 @@ let readStateRead = null
  * Forget the shared read state, so the next readState() asks the server.
  *
  * @return {void}
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  */
 export function forgetReadState() {
 	readStateRead = null
@@ -40,6 +41,7 @@ export function forgetReadState() {
  * @template T
  * @param {Promise<T>} write The request.
  * @return {Promise<T>} The request's answer.
+ * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
  */
 async function changingReadState(write) {
 	try {
@@ -111,19 +113,36 @@ export const announcementsApi = {
 		return (await changingReadState(axios.delete(`${base()}/${uuid}`))).data
 	},
 
+	/**
+	 * Create an announcement; the shared read state is read again afterwards.
+	 *
+	 * @param {object} input The author fields.
+	 * @return {Promise<object>} The announcement.
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
 	async create(input) {
 		return (await changingReadState(axios.post(base(), input))).data
 	},
 
 	/**
-	 * @param {string} uuid The announcement. @param {object} input The author fields. @return {Promise<object>} The announcement.
-	 * @param input
+	 * Update an announcement; the shared read state is read again afterwards.
+	 *
+	 * @param {string} uuid The announcement.
+	 * @param {object} input The author fields.
+	 * @return {Promise<object>} The announcement.
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
 	 */
 	async update(uuid, input) {
 		return (await changingReadState(axios.put(`${base()}/${uuid}`, input))).data
 	},
 
-	/** @param {string} uuid The announcement. @return {Promise<object>} The published announcement. */
+	/**
+	 * Publish an announcement; the shared read state is read again afterwards.
+	 *
+	 * @param {string} uuid The announcement.
+	 * @return {Promise<object>} The published announcement.
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
 	async publish(uuid) {
 		return (await changingReadState(axios.post(`${base()}/${uuid}/publish`))).data
 	},

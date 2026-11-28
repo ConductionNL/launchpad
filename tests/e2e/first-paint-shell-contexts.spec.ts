@@ -152,13 +152,16 @@ test.beforeAll(async () => {
 	const preference = await viewer.api.post(`${API}/dashboards/default`, { data: { uuid: shared.uuid } })
 	expect(preference.status(), await preference.text()).toBeLessThan(300)
 
-	// A group template dashboard, made the group's default.
+	// A group template dashboard, made the group's default and the member's start dashboard.
 	const template = await createGroupDashboard(admin, TEMPLATE_GROUP, `FPC template ${RUN}`)
 	templateUuid = String(template.uuid)
 	templateTileId = await addTile(admin, Number(template.id), TEMPLATE_TILE, 0)
 	templateNcId = await addNcWidget(admin, Number(template.id), 'activity', 0)
 	const promoted = await admin.post(`${API}/dashboards/group/${encodeURIComponent(TEMPLATE_GROUP)}/default`, { data: { uuid: templateUuid } })
 	expect(promoted.status(), await promoted.text()).toBeLessThan(300)
+	// The start page is Vandaag unless the member chose another (REVIEW item 1), so the member opens the template.
+	const chosen = await member.api.post(`${API}/dashboards/default`, { data: { uuid: templateUuid } })
+	expect(chosen.status(), await chosen.text()).toBeLessThan(300)
 })
 
 test.afterAll(async () => {

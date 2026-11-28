@@ -28,13 +28,18 @@ namespace OCA\LaunchPad\Service;
 
 use DateTimeImmutable;
 use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\ActivityRow;
+use OCA\LaunchPad\Activity\ActivitySubject;
 use OCA\LaunchPad\Activity\Extension;
 use OCA\LaunchPad\Db\Acknowledgement;
 use OCA\LaunchPad\Db\AcknowledgementMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\DashboardShare;
+use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\AcknowledgementServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\DB\Exception as DbException;
 use OCP\IGroupManager;
@@ -42,9 +47,12 @@ use OCP\IGroupManager;
 /**
  * Service for mandatory-read acknowledgements and read receipts.
  *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Receipts, placements, dashboards
+ *                                                 and the activity row it writes.
+ *
  * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
  */
-class AcknowledgementService {
+class AcknowledgementService implements AcknowledgementServiceInterface {
 	/**
 	 * Constructor
 	 *
@@ -58,6 +66,11 @@ class AcknowledgementService {
 	 *                                    resolution (design D5).
 	 * @param ActivityPublisher $activityPublisher Activity emission on
 	 *                                             first acknowledgement.
+	 * @param DashboardShareMapper $shareMapper Shares of personal dashboards,
+	 *                                          whose recipients are in the
+	 *                                          audience.
+	 * @param AdminTemplateService $adminTemplateService The groups of a
+	 *                                                   share recipient.
 	 */
 	public function __construct(
 		private readonly AcknowledgementMapper $acknowledgementMapper,
@@ -65,6 +78,8 @@ class AcknowledgementService {
 		private readonly DashboardMapper $dashboardMapper,
 		private readonly IGroupManager $groupManager,
 		private readonly ActivityPublisher $activityPublisher,
+		private readonly DashboardShareMapper $shareMapper,
+		private readonly AdminTemplateService $adminTemplateService,
 	) {
 	}//end __construct()
 
@@ -129,13 +144,36 @@ class AcknowledgementService {
 			throw $exception;
 		}//end try
 
-		$this->emitAcknowledgedActivity(
-			announcementKey: $announcementKey,
-			userId: $userId
-		);
+		$this->emitAcknowledgedActivity(receipt: $receipt);
 
 		return $receipt;
 	}//end acknowledge()
+
+	/**
+	 * Whether a user may acknowledge an announcement: only its live
+	 * audience may, that is the members of the groups its template routes
+	 * to, or, without group routing, the recipients holding a copy, and in
+	 * both cases the recipients of a share of a personal dashboard holding
+	 * it. An unknown announcement has no audience. Backs the acknowledge
+	 * guard (REQ-ACK-003, ADR-005).
+	 *
+	 * @param string $announcementKey The announcement identity.
+	 * @param string $userId          The user to look for.
+	 *
+	 * @return bool True when the user is in the audience.
+	 *
+	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 */
+	public function isAllowedToAcknowledge(string $announcementKey, string $userId): bool {
+		$placements = $this->placementMapper->findByAnnouncementKey(
+			announcementKey: $announcementKey
+		);
+		if (empty($placements) === true) {
+			return false;
+		}
+
+		return in_array(needle: $userId, haystack: $this->resolveAudience(placements: $placements), strict: true);
+	}//end isAllowedToAcknowledge()
 
 	/**
 	 * Determine whether the given placement is an outstanding
@@ -185,17 +223,24 @@ class AcknowledgementService {
 
 	/**
 	 * Return the current user's outstanding mandatory items across their
-	 * own dashboards. REQ-ACK-002 (outstanding-count indicator).
+	 * own dashboards and the personal dashboards shared with them, one per
+	 * announcement, limited to announcements still addressed to them: a
+	 * copy kept after leaving the audience cannot be acknowledged, so it is
+	 * not pending. REQ-ACK-002 (outstanding-count indicator), REQ-ACK-003.
 	 *
 	 * @param string $userId The current user ID.
 	 *
 	 * @return array{count: int, items: array<int, array<string, mixed>>}
 	 *
-	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 * @spec openspec/specs/dashboard-acknowledgements/spec.md
 	 */
 	public function getPending(string $userId): array {
-		$dashboards = $this->dashboardMapper->findByUserId(userId: $userId);
+		$dashboards = array_merge(
+			$this->dashboardMapper->findByUserId(userId: $userId),
+			$this->dashboardsSharedWith(userId: $userId)
+		);
 		$items = [];
+		$addressed = [];
 
 		foreach ($dashboards as $dashboard) {
 			$placements = $this->placementMapper->findByDashboardId(
@@ -206,14 +251,15 @@ class AcknowledgementService {
 					continue;
 				}
 
-				$items[] = [
-					'placementId' => $placement->getId(),
-					'dashboardUuid' => $dashboard->getUuid(),
-					'announcementKey' => $placement->getAnnouncementKey(),
-					'prompt' => $placement->getAcknowledgementPrompt(),
-					'deadline' => $placement->getAcknowledgementDeadline(),
-					'contentVersion' => $placement->getAcknowledgementContentVersion(),
-				];
+				$key = (string)$placement->getAnnouncementKey();
+				if (array_key_exists($key, $addressed) === true) {
+					continue;
+				}
+
+				$addressed[$key] = $this->isAllowedToAcknowledge(announcementKey: $key, userId: $userId);
+				if ($addressed[$key] === true) {
+					$items[] = $this->pendingItem(dashboard: $dashboard, placement: $placement);
+				}
 			}
 		}
 
@@ -222,6 +268,52 @@ class AcknowledgementService {
 			'items' => $items,
 		];
 	}//end getPending()
+
+	/**
+	 * The current content version of an announcement for a user: the
+	 * version on its template placement, or, when the announcement has no
+	 * template (any more), the version on the user's own copy, else on a
+	 * personal dashboard shared with the user. Null when no placement
+	 * carries the key.
+	 *
+	 * @param string $announcementKey The announcement identity.
+	 * @param string $userId          The user whose copy counts without a template.
+	 *
+	 * @return int|null The current content version, or null.
+	 *
+	 * @spec openspec/specs/dashboard-acknowledgements/spec.md
+	 */
+	public function currentContentVersion(string $announcementKey, string $userId): ?int {
+		$placements = $this->placementMapper->findByAnnouncementKey(announcementKey: $announcementKey);
+		$placement = $this->templatePlacement(placements: $placements)
+			?? $this->ownCopy(placements: $placements, userId: $userId)
+			?? $this->sharedCopy(placements: $placements, userId: $userId)
+			?? ($placements[0] ?? null);
+		if ($placement === null) {
+			return null;
+		}
+
+		return $placement->getAcknowledgementContentVersion();
+	}//end currentContentVersion()
+
+	/**
+	 * Build the pending-list entry for an outstanding placement.
+	 *
+	 * @param Dashboard       $dashboard The dashboard holding the placement.
+	 * @param WidgetPlacement $placement The outstanding placement.
+	 *
+	 * @return array<string, mixed> The pending item.
+	 */
+	private function pendingItem(Dashboard $dashboard, WidgetPlacement $placement): array {
+		return [
+			'placementId' => $placement->getId(),
+			'dashboardUuid' => $dashboard->getUuid(),
+			'announcementKey' => $placement->getAnnouncementKey(),
+			'prompt' => $placement->getAcknowledgementPrompt(),
+			'deadline' => $placement->getAcknowledgementDeadline(),
+			'contentVersion' => $placement->getAcknowledgementContentVersion(),
+		];
+	}//end pendingItem()
 
 	/**
 	 * Build the audience-scoped read-receipt report for an announcement.
@@ -264,41 +356,10 @@ class AcknowledgementService {
 
 		$audience = $this->resolveAudience(placements: $placements);
 
-		// Map userId => acknowledgedAt for the current version.
-		$ackMap = [];
-		$receipts = $this->acknowledgementMapper->findByAnnouncement(
-			announcementKey: $announcementKey,
-			contentVersion: $contentVersion
-		);
-		foreach ($receipts as $receipt) {
-			$rid = (string)$receipt->getUserId();
-			$ackMap[$rid] = $receipt->getAcknowledgedAtFormatted();
-		}
-
-		$acknowledged = [];
-		$pending = [];
-		$rows = [];
-		foreach ($audience as $uid) {
-			if (array_key_exists($uid, $ackMap) === true) {
-				$acknowledged[] = [
-					'userId' => $uid,
-					'acknowledgedAt' => $ackMap[$uid],
-				];
-				$rows[] = [
-					'userId' => $uid,
-					'status' => 'acknowledged',
-					'acknowledgedAt' => $ackMap[$uid],
-				];
-				continue;
-			}
-
-			$pending[] = $uid;
-			$rows[] = [
-				'userId' => $uid,
-				'status' => 'pending',
-				'acknowledgedAt' => null,
-			];
-		}//end foreach
+		$ackMap = $this->acknowledgedAtByUser(announcementKey: $announcementKey, contentVersion: $contentVersion);
+		$rows = $this->reportRows(audience: $audience, ackMap: $ackMap);
+		$acknowledged = $this->acknowledgedEntries(rows: $rows);
+		$pending = $this->pendingUserIds(rows: $rows);
 
 		return [
 			'announcementKey' => $announcementKey,
@@ -314,6 +375,157 @@ class AcknowledgementService {
 	}//end report()
 
 	/**
+	 * The "Widgets that ask for confirmation" list (REQ-ACK-008): one row
+	 * per announcement key, from its blueprint placement and dashboard, with
+	 * the counts and deadline of its report. A key whose report cannot be
+	 * built is left out.
+	 *
+	 * @return list<array<string, mixed>>
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+	 */
+	public function listAcknowledged(): array {
+		$byKey = [];
+		foreach ($this->placementMapper->findAcknowledged(which: WidgetPlacementMapper::KEYED) as $placement) {
+			$byKey[(string)$placement->getAnnouncementKey()][] = $placement;
+		}
+
+		$rows = [];
+		foreach ($byKey as $key => $placements) {
+			try {
+				$report = $this->report(announcementKey: (string)$key);
+			} catch (DoesNotExistException) {
+				continue;
+			}
+
+			$blueprint = $this->resolveBlueprintPlacement(placements: $placements);
+			$rows[]    = [
+				'announcementKey'   => (string)$key,
+				'title'             => self::widgetTitle(placement: $blueprint),
+				'dashboard'         => (string)($this->resolveDashboard(placement: $blueprint)?->getName() ?? ''),
+				'deadline'          => $report['deadline'],
+				'overdue'           => $report['overdue'],
+				'acknowledgedCount' => $report['acknowledgedCount'],
+				'pendingCount'      => $report['pendingCount'],
+			];
+		}
+
+		return $rows;
+	}//end listAcknowledged()
+
+	/**
+	 * The widget's title as the editor named it, else its prompt, else its type.
+	 *
+	 * @param WidgetPlacement $placement The placement.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 */
+	private static function widgetTitle(WidgetPlacement $placement): string {
+		// REQ-TILE-PLACEMENT: a link tile made with the form keeps its title in content.
+		$titles = [$placement->getCustomTitle(), $placement->linkTileField(field: 'title'), $placement->getAcknowledgementPrompt()];
+		foreach ($titles as $candidate) {
+			if (is_string($candidate) === true && trim($candidate) !== '') {
+				return trim($candidate);
+			}
+		}
+
+		return (string)$placement->getWidgetId();
+	}//end widgetTitle()
+
+	/**
+	 * Map userId => acknowledgedAt for the current version.
+	 *
+	 * @param string $announcementKey The announcement key.
+	 * @param int    $contentVersion  The current content version.
+	 *
+	 * @return array<string, string|null>
+	 */
+	private function acknowledgedAtByUser(string $announcementKey, int $contentVersion): array {
+		$ackMap = [];
+		$receipts = $this->acknowledgementMapper->findByAnnouncement(
+			announcementKey: $announcementKey,
+			contentVersion: $contentVersion
+		);
+		foreach ($receipts as $receipt) {
+			$rid = (string)$receipt->getUserId();
+			$ackMap[$rid] = $receipt->getAcknowledgedAtFormatted();
+		}
+
+		return $ackMap;
+	}//end acknowledgedAtByUser()
+
+	/**
+	 * One report row per audience member, in audience order.
+	 *
+	 * @param string[]                   $audience The audience user IDs.
+	 * @param array<string, string|null> $ackMap   userId => acknowledgedAt.
+	 *
+	 * @return array<int, array{userId: string, status: string, acknowledgedAt: string|null}>
+	 */
+	private function reportRows(array $audience, array $ackMap): array {
+		$rows = [];
+		foreach ($audience as $uid) {
+			if (array_key_exists($uid, $ackMap) === true) {
+				$rows[] = [
+					'userId' => $uid,
+					'status' => 'acknowledged',
+					'acknowledgedAt' => $ackMap[$uid],
+				];
+				continue;
+			}
+
+			$rows[] = [
+				'userId' => $uid,
+				'status' => 'pending',
+				'acknowledgedAt' => null,
+			];
+		}
+
+		return $rows;
+	}//end reportRows()
+
+	/**
+	 * The acknowledged rows as `{userId, acknowledgedAt}`.
+	 *
+	 * @param array<int, array{userId: string, status: string, acknowledgedAt: string|null}> $rows The report rows.
+	 *
+	 * @return array<int, array{userId: string, acknowledgedAt: string|null}>
+	 */
+	private function acknowledgedEntries(array $rows): array {
+		$acknowledged = [];
+		foreach ($rows as $row) {
+			if ($row['status'] === 'acknowledged') {
+				$acknowledged[] = [
+					'userId' => $row['userId'],
+					'acknowledgedAt' => $row['acknowledgedAt'],
+				];
+			}
+		}
+
+		return $acknowledged;
+	}//end acknowledgedEntries()
+
+	/**
+	 * The user IDs of the pending rows.
+	 *
+	 * @param array<int, array{userId: string, status: string, acknowledgedAt: string|null}> $rows The report rows.
+	 *
+	 * @return string[]
+	 */
+	private function pendingUserIds(array $rows): array {
+		$pending = [];
+		foreach ($rows as $row) {
+			if ($row['status'] === 'pending') {
+				$pending[] = $row['userId'];
+			}
+		}
+
+		return $pending;
+	}//end pendingUserIds()
+
+	/**
 	 * Resolve the owning user id of the announcement's blueprint dashboard,
 	 * used by the controller to authorize the requirement-setting and the
 	 * read-receipt report to the template owner (REQ-ACK-004, ADR-005).
@@ -327,14 +539,11 @@ class AcknowledgementService {
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 	 */
 	public function resolveOwnerUserId(string $announcementKey): ?string {
-		$placements = $this->placementMapper->findByAnnouncementKey(
-			announcementKey: $announcementKey
-		);
-		if (empty($placements) === true) {
+		$blueprint = $this->blueprintOf(announcementKey: $announcementKey);
+		if ($blueprint === null) {
 			return null;
 		}
 
-		$blueprint = $this->resolveBlueprintPlacement(placements: $placements);
 		$dashboard = $this->resolveDashboard(placement: $blueprint);
 		if ($dashboard === null) {
 			return null;
@@ -349,6 +558,25 @@ class AcknowledgementService {
 	}//end resolveOwnerUserId()
 
 	/**
+	 * The blueprint placement of an announcement, or null when no placement
+	 * carries the key.
+	 *
+	 * @param string $announcementKey The announcement identity.
+	 *
+	 * @return WidgetPlacement|null The blueprint placement.
+	 */
+	private function blueprintOf(string $announcementKey): ?WidgetPlacement {
+		$placements = $this->placementMapper->findByAnnouncementKey(
+			announcementKey: $announcementKey
+		);
+		if (empty($placements) === true) {
+			return null;
+		}
+
+		return $this->resolveBlueprintPlacement(placements: $placements);
+	}//end blueprintOf()
+
+	/**
 	 * Resolve the dashboard that a placement belongs to, or null when the
 	 * dashboard row has gone missing.
 	 *
@@ -357,14 +585,23 @@ class AcknowledgementService {
 	 * @return Dashboard|null The owning dashboard or null.
 	 */
 	private function resolveDashboard(WidgetPlacement $placement): ?Dashboard {
+		return $this->findDashboard(id: (int)$placement->getDashboardId());
+	}//end resolveDashboard()
+
+	/**
+	 * A dashboard by id, or null when the row has gone missing.
+	 *
+	 * @param int $id The dashboard id.
+	 *
+	 * @return Dashboard|null The dashboard or null.
+	 */
+	private function findDashboard(int $id): ?Dashboard {
 		try {
-			return $this->dashboardMapper->find(
-				id: (int)$placement->getDashboardId()
-			);
+			return $this->dashboardMapper->find(id: $id);
 		} catch (DoesNotExistException) {
 			return null;
 		}
-	}//end resolveDashboard()
+	}//end findDashboard()
 
 	/**
 	 * Pick the blueprint placement — the one on the admin template — from
@@ -377,6 +614,17 @@ class AcknowledgementService {
 	 * @return WidgetPlacement The blueprint placement.
 	 */
 	private function resolveBlueprintPlacement(array $placements): WidgetPlacement {
+		return $this->templatePlacement(placements: $placements) ?? $placements[0];
+	}//end resolveBlueprintPlacement()
+
+	/**
+	 * The placement that sits on an admin template, or null.
+	 *
+	 * @param WidgetPlacement[] $placements The placements sharing the key.
+	 *
+	 * @return WidgetPlacement|null The template placement.
+	 */
+	private function templatePlacement(array $placements): ?WidgetPlacement {
 		foreach ($placements as $placement) {
 			$dashboard = $this->resolveDashboard(placement: $placement);
 			if ($dashboard !== null
@@ -386,8 +634,78 @@ class AcknowledgementService {
 			}
 		}
 
-		return $placements[0];
-	}//end resolveBlueprintPlacement()
+		return null;
+	}//end templatePlacement()
+
+	/**
+	 * The placement on a dashboard the user owns, or null.
+	 *
+	 * @param WidgetPlacement[] $placements The placements sharing the key.
+	 * @param string            $userId     The user.
+	 *
+	 * @return WidgetPlacement|null The user's copy.
+	 */
+	private function ownCopy(array $placements, string $userId): ?WidgetPlacement {
+		foreach ($placements as $placement) {
+			if ($this->resolveDashboard(placement: $placement)?->getUserId() === $userId) {
+				return $placement;
+			}
+		}
+
+		return null;
+	}//end ownCopy()
+
+	/**
+	 * The placement on a personal dashboard shared with the user, or null.
+	 *
+	 * @param WidgetPlacement[] $placements The placements sharing the key.
+	 * @param string            $userId     The share recipient.
+	 *
+	 * @return WidgetPlacement|null The shared placement.
+	 */
+	private function sharedCopy(array $placements, string $userId): ?WidgetPlacement {
+		$sharedIds = array_map(
+			callback: static fn (Dashboard $dashboard): int => (int)$dashboard->getId(),
+			array: $this->dashboardsSharedWith(userId: $userId)
+		);
+		foreach ($placements as $placement) {
+			if (in_array(needle: (int)$placement->getDashboardId(), haystack: $sharedIds, strict: true) === true) {
+				return $placement;
+			}
+		}
+
+		return null;
+	}//end sharedCopy()
+
+	/**
+	 * The personal dashboards of other users shared with the user, directly
+	 * or through one of the user's groups.
+	 *
+	 * @param string $userId The share recipient.
+	 *
+	 * @return Dashboard[] The shared dashboards.
+	 */
+	private function dashboardsSharedWith(string $userId): array {
+		$groupIds = $this->adminTemplateService->getUserGroupIdsFor(userId: $userId);
+
+		$dashboards = [];
+		foreach ($this->shareMapper->findForRecipient(userId: $userId, groupIds: $groupIds) as $share) {
+			$dashboardId = (int)$share->getDashboardId();
+			if (array_key_exists($dashboardId, $dashboards) === true) {
+				continue;
+			}
+
+			$dashboard = $this->findDashboard(id: $dashboardId);
+			if ($dashboard !== null
+				&& $dashboard->getType() === Dashboard::TYPE_USER
+				&& $dashboard->getUserId() !== $userId
+			) {
+				$dashboards[$dashboardId] = $dashboard;
+			}
+		}
+
+		return array_values($dashboards);
+	}//end dashboardsSharedWith()
 
 	/**
 	 * Resolve the current audience for an announcement, live, from the
@@ -395,7 +713,9 @@ class AcknowledgementService {
 	 * more groups the audience is the union of those groups' current
 	 * members. When the template has no group routing (applies-to-all)
 	 * the audience is the set of recipients that actually hold a cloned
-	 * placement for the announcement. REQ-ACK-004 (design D5).
+	 * placement for the announcement. In both cases the recipients of a
+	 * share of a personal dashboard holding the announcement join it.
+	 * REQ-ACK-003, REQ-ACK-004 (design D5).
 	 *
 	 * @param WidgetPlacement[] $placements The placements sharing the key.
 	 *
@@ -423,7 +743,10 @@ class AcknowledgementService {
 			$audience = $this->audienceFromRecipients(placements: $placements);
 		}
 
-		$ids = array_keys($audience);
+		$audience += $this->audienceFromShares(placements: $placements);
+
+		// Numeric user ids come back from array_keys() as int keys.
+		$ids = array_map(callback: static fn (int|string $uid): string => (string)$uid, array: array_keys($audience));
 		sort($ids);
 
 		return $ids;
@@ -482,6 +805,42 @@ class AcknowledgementService {
 	}//end audienceFromRecipients()
 
 	/**
+	 * Build the audience map (userId => true) from the shares of the
+	 * personal dashboards holding the announcement: every user a dashboard
+	 * is shared with and every live member of a group it is shared with.
+	 *
+	 * @param WidgetPlacement[] $placements The placements sharing the key.
+	 *
+	 * @return array<string, bool> The audience membership map.
+	 */
+	private function audienceFromShares(array $placements): array {
+		$audience = [];
+		$groups = [];
+		foreach ($placements as $placement) {
+			$dashboard = $this->resolveDashboard(placement: $placement);
+			if ($dashboard === null || $dashboard->getType() !== Dashboard::TYPE_USER) {
+				continue;
+			}
+
+			foreach ($this->shareMapper->findByDashboardId(dashboardId: (int)$dashboard->getId()) as $share) {
+				$with = (string)$share->getShareWith();
+				if ($with === '') {
+					continue;
+				}
+
+				if ($share->getShareType() === DashboardShare::SHARE_TYPE_GROUP) {
+					$groups[$with] = $with;
+					continue;
+				}
+
+				$audience[$with] = true;
+			}
+		}
+
+		return $audience + $this->audienceFromGroups(groups: array_values($groups));
+	}//end audienceFromShares()
+
+	/**
 	 * Whether an ISO `Y-m-d` deadline lies strictly in the past. A null or
 	 * empty deadline is never overdue. REQ-ACK-004 (overdue reporting).
 	 *
@@ -505,15 +864,14 @@ class AcknowledgementService {
 	 * and logs any failure so a broken Activity backend never rolls the
 	 * receipt back (REQ-ACK-006, mirrors the cross-capability contract).
 	 *
-	 * @param string $announcementKey The announcement identity.
-	 * @param string $userId The acknowledging user ID.
+	 * @param Acknowledgement $receipt The new receipt; its content version is
+	 *                                 part of the activity line.
 	 *
 	 * @return void
 	 */
-	private function emitAcknowledgedActivity(
-		string $announcementKey,
-		string $userId,
-	): void {
+	private function emitAcknowledgedActivity(Acknowledgement $receipt): void {
+		$announcementKey = (string)$receipt->getAnnouncementKey();
+		$userId = (string)$receipt->getUserId();
 		$dashboardUuid = $announcementKey;
 		$dashboardName = $announcementKey;
 
@@ -529,14 +887,12 @@ class AcknowledgementService {
 			}
 		}
 
-		$this->activityPublisher->publish(
+		$row = new ActivityRow(
 			type: Extension::EVENT_ACKNOWLEDGED,
 			actorUserId: $userId,
-			recipientUserId: $userId,
-			dashboardUuid: $dashboardUuid,
-			dashboardName: $dashboardName,
-			dashboardLink: '',
-			extraParams: ['self' => true]
+			dashboard: new ActivitySubject(uuid: $dashboardUuid, name: $dashboardName),
+			extraParams: ['self' => true, 'version' => (int)$receipt->getContentVersion()]
 		);
+		$this->activityPublisher->publish(row: $row, recipientUserId: $userId);
 	}//end emitAcknowledgedActivity()
 }//end class

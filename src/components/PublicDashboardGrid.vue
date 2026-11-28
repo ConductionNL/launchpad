@@ -4,22 +4,29 @@
 -->
 
 <template>
-	<div class="public-dashboard-grid">
+	<div
+		class="public-dashboard-grid"
+		:class="{ 'public-dashboard-grid--embed': embedContext !== null }"
+		:data-embed-mode="embedContext ? embedMode : undefined">
 		<div v-if="items.length > 0" class="public-share-view__grid">
 			<div
 				v-for="item in items"
 				:key="item.id"
 				class="public-share-view__cell"
-				:style="{ gridColumn: 'span ' + Math.min(item.gridWidth, 12) }">
+				:style="cellStyle(item)">
 				<!-- Tile — icon + label linking to its target. -->
 				<a
 					v-if="item.kind === 'tile'"
 					class="public-share-view__tile"
-					:href="item.tileLink || '#'"
+					:href="tileHref(item)"
+					:target="embedContext ? '_blank' : undefined"
+					:rel="embedContext ? 'noopener noreferrer' : undefined"
+					:aria-label="item.title ? undefined : t('launchpad', 'Tile')"
 					:style="{
 						backgroundColor: item.tileBackgroundColor || undefined,
 						color: item.tileTextColor || undefined,
-					}">
+					}"
+					@click="drillDown(item, $event)">
 					<img
 						v-if="
 							item.tileIcon
@@ -50,11 +57,24 @@
 						class="public-share-view__widget-heading">
 						{{ item.text || item.title }}
 					</h3>
-					<p
+					<WeatherWidget
+						v-else-if="item.kind === 'weather'"
+						:content="placementOf(item).content || {}"
+						:placement="placementOf(item)"
+						:readingSource="readingSource" />
+					<LiveTileWidget
+						v-else-if="item.kind === 'livetile'"
+						:content="placementOf(item).content || {}"
+						:placement="placementOf(item)"
+						:readingSource="readingSource" />
+					<PublicNewsWidget
+						v-else-if="item.kind === 'announcements'"
+						:placementId="item.id"
+						:readWidget="readWidget" />
+					<CnTextWidget
 						v-else-if="item.kind === 'text'"
-						class="public-share-view__widget-text">
-						{{ item.text }}
-					</p>
+						class="public-share-view__widget-text"
+						:content="textContent(item)" />
 					<img
 						v-else-if="item.kind === 'image' && item.url"
 						class="public-share-view__widget-image"
@@ -84,28 +104,164 @@
 </template>
 
 <script>
+import { CnTextWidget } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
+import { defineAsyncComponent } from 'vue'
+import { LIST_PROP } from '../constants/propDefinitions.js'
+
+// The live widgets load only when a shared dashboard has one, so a public
+// page without them does not download their code (ADR-124).
+const LiveTileWidget = defineAsyncComponent(() => import('./Widgets/Renderers/LiveTileWidget.vue'))
+const PublicNewsWidget = defineAsyncComponent(() => import('./PublicNewsWidget.vue'))
+const WeatherWidget = defineAsyncComponent(() => import('./Widgets/Renderers/WeatherWidget.vue'))
+
+const STATIC_WIDGET_KINDS = ['label', 'header', 'text', 'image', 'link', 'divider']
+
+/** The live widgets that read their data through the link's or playlist's token (REQ-PSHR-011). */
+const LIVE_WIDGET_KINDS = ['announcements', 'weather', 'livetile']
+
+/**
+ * A placement's content when it is an object, else an empty object.
+ *
+ * @param {object} p The placement.
+ * @return {object} The content.
+ */
+function placementContent(p) {
+	return p.content && typeof p.content === 'object' ? p.content : {}
+}
+
+/**
+ * How a placement renders: a tile, one of the static widget kinds, a live
+ * widget when the grid can read it through a token, or restricted (only
+ * visible to signed-in users).
+ *
+ * @param {object} p The placement.
+ * @param {boolean} live Whether the grid has a token-scoped read.
+ * @return {string} The display kind.
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ */
+function placementKind(p, live) {
+	const widgetId = p.widgetId || ''
+	if (widgetId.startsWith('tile-') || p.tileType) {
+		return 'tile'
+	}
+	if (live && LIVE_WIDGET_KINDS.includes(widgetId)) {
+		return widgetId
+	}
+	return STATIC_WIDGET_KINDS.includes(widgetId) ? widgetId : 'restricted'
+}
+
+/**
+ * The first non-empty value, else an empty string.
+ *
+ * @param {Array<string|undefined>} values The candidates, in order of preference.
+ * @return {string} The first non-empty value or ''.
+ */
+function firstFilled(values) {
+	return values.find(Boolean) || ''
+}
+
+/**
+ * The tile look and link of a placement, with empty strings for unset values.
+ *
+ * @param {object} p The placement.
+ * @return {object} Icon, background and text colour, and link.
+ */
+function tileFields(p) {
+	return {
+		tileIcon: p.tileIcon || '',
+		tileBackgroundColor: p.tileBackgroundColor || '',
+		tileTextColor: p.tileTextColor || '',
+		tileLink: p.tileLinkValue || '',
+	}
+}
+
+/**
+ * A placement normalised for display.
+ *
+ * @param {object} p The placement.
+ * @param {boolean} live Whether the grid has a token-scoped read.
+ * @return {object} The display item.
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+ */
+function displayItem(p, live) {
+	const content = placementContent(p)
+	return {
+		id: p.id,
+		kind: placementKind(p, live),
+		gridX: Number.isFinite(Number(p.gridX)) ? Number(p.gridX) : null,
+		gridY: Number.isFinite(Number(p.gridY)) ? Number(p.gridY) : null,
+		gridWidth: p.gridWidth || 4,
+		gridHeight: p.gridHeight || 4,
+		title: firstFilled([
+			p.customTitle,
+			p.tileTitle,
+			content.label,
+			content.title,
+		]),
+		showTitle: p.showTitle !== 0 && p.showTitle !== false,
+		...tileFields(p),
+		text: firstFilled([content.text, content.body]),
+		url: content.url || '',
+	}
+}
 
 /**
  * PublicDashboardGrid: the read-only, anonymous-safe rendering of a
  * dashboard's placements. Tiles and static widgets (label, header, text,
- * image, link, divider) render; any other widget shows that it is only
- * visible to signed-in users. Shared by the public share page and the
- * kiosk player.
+ * image, link, divider) render; a text widget renders through the
+ * dashboard's own CnTextWidget, so its Markdown shows as on the dashboard,
+ * sanitised (REQ-PSHR-012). With a token-scoped read (`readWidget`) the
+ * news, weather and live data widgets render with their data too
+ * (REQ-PSHR-011). Any other widget shows that it is only visible to
+ * signed-in users. Shared by the public share page and the kiosk player.
  *
  * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+ * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
  */
 export default {
 	name: 'PublicDashboardGrid',
 
+	components: { CnTextWidget, LiveTileWidget, PublicNewsWidget, WeatherWidget },
+
 	props: {
-		placements: {
-			type: Array,
-			default: () => [],
+		placements: LIST_PROP,
+
+		/**
+		 * embedded-analytics task 13: set when the grid renders inside an embed,
+		 * `{scope: {mode, allowedActions}, filters}`. The tenant theme's `--c-*`
+		 * variables then colour the tiles and widgets, a tile link opens outside
+		 * the embed and only when the scope allows `interact`. Null (the
+		 * default) is the normal public-share rendering, unchanged.
+		 */
+		embedContext: {
+			type: Object,
+			default: null,
+		},
+
+		/**
+		 * The token-scoped read of a live widget: placement id to
+		 * `{widget, data}` (REQ-PSHR-011). Set by the public share page and
+		 * the kiosk player; without it (null, the default) the news, weather
+		 * and live data widgets show that they need a sign-in.
+		 */
+		readWidget: {
+			type: Function,
+			default: null,
 		},
 	},
 
+	emits: ['drillDown'],
+
 	computed: {
+		/**
+		 * @return {string} The embed's scope mode, read when unknown.
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-13
+		 */
+		embedMode() {
+			return this.embedContext?.scope?.mode === 'read-with-interactions' ? 'read-with-interactions' : 'read'
+		},
+
 		/**
 		 * @return {Array<object>} Visible placements in reading order, normalised for display.
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
@@ -115,55 +271,149 @@ export default {
 				(p) => p.isVisible !== 0 && p.isVisible !== false,
 			)
 			list.sort((a, b) => a.gridY - b.gridY || a.gridX - b.gridX)
-			return list.map((p) => {
-				const content =
-					p.content && typeof p.content === 'object' ? p.content : {}
-				const widgetId = p.widgetId || ''
-				const isTile = widgetId.startsWith('tile-') || !!p.tileType
-				let kind = 'restricted'
-				if (isTile) {
-					kind = 'tile'
-				} else if (
-					['label', 'header', 'text', 'image', 'link', 'divider'].includes(
-						widgetId,
-					)
-				) {
-					kind = widgetId
-				}
-				return {
-					id: p.id,
-					kind,
-					gridWidth: p.gridWidth || 4,
-					gridHeight: p.gridHeight || 4,
-					title:
-						p.customTitle
-						|| p.tileTitle
-						|| content.label
-						|| content.title
-						|| '',
-					showTitle: p.showTitle !== 0 && p.showTitle !== false,
-					tileIcon: p.tileIcon || '',
-					tileBackgroundColor: p.tileBackgroundColor || '',
-					tileTextColor: p.tileTextColor || '',
-					tileLink: p.tileLinkValue || '',
-					text: content.text || content.body || '',
-					url: content.url || '',
-				}
-			})
+			const live = this.readWidget !== null
+			return list.map((p) => displayItem(p, live))
+		},
+
+		/**
+		 * The weather and live data widgets' reading source: the token-scoped
+		 * read, answering the reading itself.
+		 *
+		 * @return {(function((number|string)): Promise<object>)|null} The reading source.
+		 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+		 */
+		readingSource() {
+			const read = this.readWidget
+			if (read === null) {
+				return null
+			}
+			return async (placementId) => (await read(placementId))?.data ?? {}
 		},
 	},
 
 	methods: {
 		t,
+
+		/**
+		 * The content a text widget renders with: the placement's own content,
+		 * as the dashboard passes it to CnTextWidget (its Markdown or HTML,
+		 * sanitised there); a legacy `body` stands in for a missing `text`.
+		 *
+		 * @param {object} item The display item.
+		 * @return {object} The text widget's content.
+		 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-text-in-markdown-on-public-screens-req-pshr-012
+		 */
+		textContent(item) {
+			const placement = this.placements.find((p) => p.id === item.id)
+			const content = placement ? placementContent(placement) : {}
+			return { ...content, text: item.text }
+		},
+
+		/**
+		 * The placement a display item came from.
+		 *
+		 * @param {object} item The display item.
+		 * @return {object} The placement.
+		 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+		 */
+		placementOf(item) {
+			return this.placements.find((p) => p.id === item.id) ?? { id: item.id }
+		},
+
+		/**
+		 * Where a cell sits: at its column and row when the placement has
+		 * them, so a narrow column beside a wide card stacks as on the
+		 * dashboard (boards LpPubliek, LpKiosk); else it flows by its width.
+		 *
+		 * @param {object} item The display item.
+		 * @return {object} The cell's grid style.
+		 * @spec openspec/specs/dashboard-public-share/spec.md
+		 */
+		cellStyle(item) {
+			const width = Math.min(item.gridWidth, 12)
+			if (item.gridX === null || item.gridY === null) {
+				return { gridColumn: 'span ' + width }
+			}
+			return {
+				gridColumn: (Math.min(item.gridX, 11) + 1) + ' / span ' + width,
+				gridRow: (item.gridY + 1) + ' / span ' + item.gridHeight,
+			}
+		},
+
+		/**
+		 * Where a tile links to: its target, '#' without one; inside an embed
+		 * nowhere (no href) unless the scope allows `interact`, and '#' when it
+		 * allows only `drillDown`, so the tile stays a focusable control.
+		 *
+		 * @param {object} item The display item.
+		 * @return {string|undefined}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-13
+		 */
+		tileHref(item) {
+			if (this.embedContext !== null && !this.embedAllows('interact')) {
+				return this.embedAllows('drillDown') ? '#' : undefined
+			}
+			return item.tileLink || '#'
+		},
+
+		/**
+		 * Inside an embed whose scope allows `drillDown`, emit `drillDown` with
+		 * what the visitor opened; without `interact` the link is not followed.
+		 *
+		 * @param {object} item The display item.
+		 * @param {MouseEvent} event The click.
+		 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-006--js-sdk-exposes-render-event-and-resize-apis
+		 */
+		drillDown(item, event) {
+			if (this.embedContext === null || !this.embedAllows('drillDown')) {
+				return
+			}
+			if (!this.embedAllows('interact')) {
+				event.preventDefault()
+			}
+			this.$emit('drillDown', {
+				placementId: item.id,
+				title: item.title,
+				link: item.tileLink || null,
+				source: 'user-interaction',
+			})
+		},
+
+		/**
+		 * Whether the embed's scope allows an action.
+		 *
+		 * @param {string} action The action.
+		 * @return {boolean}
+		 * @spec openspec/changes/embedded-analytics/tasks.md#task-13
+		 */
+		embedAllows(action) {
+			const scope = this.embedContext?.scope ?? {}
+			return scope.mode === 'read-with-interactions' && (scope.allowedActions ?? []).includes(action)
+		},
 	},
 }
 </script>
 
 <style scoped>
+/* embedded-analytics task 13: inside an embed the tenant theme's variables,
+   injected on :root by the embed page, colour the grid; without a theme
+   they fall back to the Nextcloud ones. */
+.public-dashboard-grid--embed .public-share-view__tile {
+	background: var(--c-primary, var(--color-primary-element));
+}
+
+.public-dashboard-grid--embed .public-share-view__widget {
+	border-color: var(--c-border, var(--color-border));
+	background: var(--c-surface, var(--color-main-background));
+	color: var(--c-text, var(--color-main-text));
+}
+
 .public-share-view__grid {
 	display: grid;
-	grid-template-columns: repeat(12, 1fr);
-	gap: 12px;
+	grid-template-columns: repeat(12, minmax(0, 1fr));
+	grid-auto-rows: minmax(0, auto);
+	gap: 16px;
+	align-items: start;
 	max-width: 1200px;
 }
 
@@ -194,17 +444,18 @@ export default {
 }
 
 .public-share-view__widget {
-	height: 100%;
-	padding: 16px;
+	box-sizing: border-box;
+	padding: 18px 20px;
 	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius-large);
+	border-radius: 12px;
 	background: var(--color-main-background);
+	font-size: 14px;
 }
 
 .public-share-view__widget-title {
 	margin: 0 0 8px;
-	font-size: 1.05em;
-	font-weight: 700;
+	font-size: 18px !important;
+	font-weight: 700 !important;
 }
 
 .public-share-view__widget-heading {
@@ -212,9 +463,11 @@ export default {
 	font-weight: 700;
 }
 
+/* The card already pads its content; the text widget's own inline padding
+   would double it. */
 .public-share-view__widget-text {
 	margin: 0;
-	white-space: pre-wrap;
+	padding: 0 !important;
 }
 
 .public-share-view__widget-image {

@@ -50,6 +50,7 @@
 import type { APIRequestContext } from '@playwright/test'
 
 import { expect, request, test } from '@playwright/test'
+import { MORE_MENU } from '../support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -152,18 +153,20 @@ test.describe('anonymous public share', () => {
 		// --- CONTROL, before any share exists ----------------------------
 		// A well-formed token that was never issued. If this returns 200 the
 		// endpoint is not consulting the token at all, and every later
-		// assertion in this test is meaningless.
+		// assertion in this test is meaningless. REQ-PSHR-004 "Invalid token
+		// returns 404" names the exact status: a 500 or a 403 here is a
+		// failure too, not merely "not 200".
 		const unissued = 'a'.repeat(64)
 		const bogus = await anon.get(`/index.php/apps/launchpad/s/${unissued}/data`)
 		expect(
 			bogus.status(),
-			'an unissued token must not return dashboard data — if it does, the token is not being checked',
-		).not.toBe(200)
+			`an unissued token must answer 404, not dashboard data and not another error: ${await bogus.text()}`,
+		).toBe(404)
 
 		// --- publish -----------------------------------------------------
 		const share = await admin.post(
 			`/index.php/apps/launchpad/api/dashboards/${uuid}/public-share`,
-			{ data: {} },
+			{ data: { expiresAt: '2099-12-31T23:59:59Z' } },
 		)
 		expect(share.status(), await share.text()).toBeLessThan(300)
 		const shareBody = await share.json()
@@ -216,15 +219,31 @@ test.describe('anonymous public share', () => {
 		const revoked = await admin.delete(
 			`/index.php/apps/launchpad/api/dashboards/${uuid}/public-shares/${shareId}`,
 		)
-		expect(revoked.status(), await revoked.text()).toBeLessThan(300)
+		// REQ-PSHR-003 "Soft-revoke a public share": HTTP 204 (No Content).
+		expect(revoked.status(), await revoked.text()).toBe(204)
 
+		// "AND NOT hard-delete the row": `revokeShare` looks the share up
+		// among ALL of the dashboard's shares, revoked ones included, and
+		// throws not-found for an id it cannot find. So a second DELETE of
+		// the same id answers 204 only while the row still exists; after a
+		// hard delete it answers 404.
+		const revokedAgain = await admin.delete(
+			`/index.php/apps/launchpad/api/dashboards/${uuid}/public-shares/${shareId}`,
+		)
+		expect(
+			revokedAgain.status(),
+			`a second revoke must find the soft-revoked row (a 404 means it was hard-deleted): ${await revokedAgain.text()}`,
+		).toBe(204)
+
+		// REQ-PSHR-004 "Revoked token returns 404": the same status as a
+		// token that never existed, so the response does not leak that it did.
 		const afterRevoke = await anon.get(
 			`/index.php/apps/launchpad/s/${token}/data`,
 		)
 		expect(
 			afterRevoke.status(),
-			'a revoked token must stop serving data — this is the assertion that proves the token gates the route',
-		).not.toBe(200)
+			`a revoked token must answer 404, exactly as an unissued one: ${await afterRevoke.text()}`,
+		).toBe(404)
 
 		// Leave the instance as it was found.
 		if (priorAllowUserDash === false) {
@@ -299,7 +318,7 @@ test.describe('anonymous public share', () => {
 
 		const share = await admin.post(
 			`/index.php/apps/launchpad/api/dashboards/${uuid}/public-share`,
-			{ data: {} },
+			{ data: { expiresAt: '2099-12-31T23:59:59Z' } },
 		)
 		expect(share.status(), await share.text()).toBe(201)
 		const shareBody = await share.json()
@@ -321,7 +340,7 @@ test.describe('anonymous public share', () => {
 		 */
 		await page.goto('/index.php/apps/launchpad')
 		await expect(
-			page.locator('.launchpad-sidebar-toggle').first(),
+			page.locator(MORE_MENU).first(),
 			'CONTROL: the shared admin session must be live, otherwise the read-only assertions below prove nothing',
 		).toBeVisible({ timeout: 30_000 })
 
@@ -343,7 +362,7 @@ test.describe('anonymous public share', () => {
 		).toBeVisible({ timeout: 15_000 })
 
 		/*
-		 * THE assertions. `.launchpad-sidebar-toggle` is the workspace shell's
+		 * THE assertions. The More menu is the workspace shell's
 		 * entry point (the same landmark the CONTROL above waited for, and the
 		 * one `manifest-boot.spec.ts` uses to mean "the app rendered"), and
 		 * `.launchpad-grid-item` is an editable grid cell. Neither belongs on
@@ -351,7 +370,7 @@ test.describe('anonymous public share', () => {
 		 * rendering the first of them.
 		 */
 		await expect(
-			page.locator('.launchpad-sidebar-toggle'),
+			page.locator(MORE_MENU),
 			'the editable workspace shell must not render on a public-share page, even for the dashboard owner',
 		).toHaveCount(0)
 		await expect(

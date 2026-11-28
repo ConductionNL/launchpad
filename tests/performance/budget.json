@@ -1,0 +1,7 @@
+{
+	"app": "launchpad",
+	"pages": [
+		{ "name": "Workspace", "path": "/index.php/apps/launchpad/" },
+		{ "name": "Admin settings", "path": "/index.php/settings/admin/launchpad", "ready": "[data-testid=\"cn-admin-settings-tabs\"]" }
+	]
+}

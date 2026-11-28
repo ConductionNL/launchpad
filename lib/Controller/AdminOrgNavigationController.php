@@ -35,8 +35,7 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Db\AdminSettingMapper;
-use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Service\OrgNavigationService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
@@ -44,15 +43,14 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\OCS\OCSForbiddenException;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Org-wide navigation editor REST surface.
  */
 class AdminOrgNavigationController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Setting key for the global navigation rail position
 	 * (REQ-ONAV-004). Stored in `launchpad_admin_settings` rather than
@@ -79,52 +77,21 @@ class AdminOrgNavigationController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request Inbound request.
-	 * @param OrgNavigationService $service Tree storage + filter
-	 *                                      service.
-	 * @param AdminSettingMapper $settings Persistence layer for
-	 *                                     the position scalar.
-	 * @param IUserSession $userSession Current user session.
-	 * @param IGroupManager $groupManager Admin check for write endpoints.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
+	 * @param IRequest             $request Inbound request.
+	 * @param OrgNavigationSources $sources The org navigation service and the admin setting mapper.
+	 * @param RequestGuard $guard The administrator check.
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly OrgNavigationService $service,
-		private readonly AdminSettingMapper $settings,
-		private readonly IUserSession $userSession,
-		private readonly IGroupManager $groupManager,
-		private readonly ActionAuthService $actionAuth,
+		private readonly OrgNavigationSources $sources,
+		private readonly RequestGuard $guard,
+		private readonly ResponseHelper $responseHelper,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
-
-	/**
-	 * Inline admin guard (returns null when the caller is an NC admin).
-	 *
-	 * @return JSONResponse|null Non-null = caller must be rejected.
-	 */
-	private function assertAdmin(): ?JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
-		}
-
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(
-				data: ['error' => 'Admin required'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}
-
-		return null;
-	}//end assertAdmin()
 
 	/**
 	 * Read the org-navigation tree filtered for the current user.
@@ -137,41 +104,72 @@ class AdminOrgNavigationController extends Controller {
 	 *                      effective `language`.
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getOrgNavigation(string $lang = OrgNavigationService::DEFAULT_LANGUAGE): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'admin-org-navigation.get-org-navigation');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->guard->actionRefusal(action: 'admin-org-navigation.get-org-navigation');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$language = $this->validateLanguage(language: $lang);
 		if ($language === null) {
-			return new JSONResponse(
-				data: ['error' => 'Unsupported language'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		$tree = $this->service->getTree(language: $language);
-		$filtered = $this->service->filterTreeByUserGroups(
+		$user = $this->guard->sessionUser();
+		if ($user instanceof JSONResponse) {
+			return $user;
+		}
+
+		$tree = $this->sources->service->getTree(language: $language);
+		$filtered = $this->sources->service->filterTreeByUserGroups(
 			tree: $tree,
 			userId: $user->getUID()
 		);
 
-		return ResponseHelper::success(
+		return $this->responseHelper->success(
 			data: [
 				'tree' => $filtered,
 				'language' => $language,
 			]
 		);
 	}//end getOrgNavigation()
+
+	/**
+	 * Read the whole org-navigation tree for the editor (REQ-ONAV-007).
+	 *
+	 * The editor's working copy holds every node, also those in groups the
+	 * administrator is not in, so a Save never drops them. Only an
+	 * administrator, who may replace the whole tree anyway, gets it.
+	 *
+	 * @param string $lang Language code (defaults to `nl`).
+	 *
+	 * @return JSONResponse The whole tree under `tree` plus the effective
+	 *                      `language`, or the refusal.
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function getEditableOrgNavigation(string $lang = OrgNavigationService::DEFAULT_LANGUAGE): JSONResponse {
+		$refusal  = $this->guard->refusal();
+		$language = $this->validateLanguage(language: $lang);
+		if ($refusal === null && $language === null) {
+			$refusal = $this->failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
+		}
+
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		return $this->responseHelper->success(
+			data: [
+				'tree' => $this->sources->service->getTree(language: $language),
+				'language' => $language,
+			]
+		);
+	}//end getEditableOrgNavigation()
 
 	/**
 	 * Replace the org-navigation tree for the given language.
@@ -184,42 +182,34 @@ class AdminOrgNavigationController extends Controller {
 	 * @return JSONResponse The persisted tree (unchanged) on success.
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateOrgNavigation(
 		?array $tree = null,
 		string $lang = OrgNavigationService::DEFAULT_LANGUAGE,
 	): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
 
 		$language = $this->validateLanguage(language: $lang);
 		if ($language === null) {
-			return new JSONResponse(
-				data: ['error' => 'Unsupported language'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		if (is_array($tree) === false) {
-			return new JSONResponse(
-				data: ['error' => 'tree must be an array of node objects'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'tree must be an array of node objects', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		try {
-			$this->service->setTree(tree: $tree, language: $language);
+			$this->sources->service->setTree(tree: $tree, language: $language);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		return ResponseHelper::success(
+		return $this->responseHelper->success(
 			data: [
 				'tree' => $tree,
 				'language' => $language,
@@ -233,22 +223,17 @@ class AdminOrgNavigationController extends Controller {
 	 * @return JSONResponse The current effective position.
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function getPosition(): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->guard->actionRefusal(action: 'admin-org-navigation.get-position');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		try {
-			$this->actionAuth->requireAction($user, 'admin-org-navigation.get-position');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		return ResponseHelper::success(
-			data: ['position' => $this->readPosition()]
+		return $this->responseHelper->success(
+			data: ['position' => $this->sources->position()]
 		);
 	}//end getPosition()
 
@@ -262,10 +247,11 @@ class AdminOrgNavigationController extends Controller {
 	 * @return JSONResponse The persisted position on success.
 	 *
 	 * @spec openspec/specs/navigation-editor-org/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updatePosition(?string $position = null): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -279,12 +265,12 @@ class AdminOrgNavigationController extends Controller {
 			);
 		}
 
-		$this->settings->setSetting(
+		$this->sources->settings->setSetting(
 			key: self::SETTING_KEY_POSITION,
 			value: $position
 		);
 
-		return ResponseHelper::success(
+		return $this->responseHelper->success(
 			data: ['position' => $position]
 		);
 	}//end updatePosition()
@@ -310,24 +296,4 @@ class AdminOrgNavigationController extends Controller {
 
 		return $lower;
 	}//end validateLanguage()
-
-	/**
-	 * Read the persisted position with a default fallback.
-	 *
-	 * @return string Always one of {@see self::ALLOWED_POSITIONS}.
-	 */
-	private function readPosition(): string {
-		$raw = $this->settings->getValue(
-			key: self::SETTING_KEY_POSITION,
-			default: self::DEFAULT_POSITION
-		);
-
-		if (is_string($raw) === false
-			|| in_array(needle: $raw, haystack: self::ALLOWED_POSITIONS, strict: true) === false
-		) {
-			return self::DEFAULT_POSITION;
-		}
-
-		return $raw;
-	}//end readPosition()
 }//end class

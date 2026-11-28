@@ -31,9 +31,9 @@ The `content` object carries these fields:
 ### Requirement: REQ-VID-001 Register Video Widget with Nextcloud Dashboard API
 
 The system MUST register a video widget with Nextcloud's Dashboard API so it appears in widget discovery and can be added to dashboards.
-@e2e exclude widget registration tested via widget-in-picker scenario
 
 #### Scenario: Widget is discovered in the widget list
+@e2e exclude never built: the archived change openspec/changes/archive/2026-05-03-video-widget/tasks.md left it unchecked and `git log --all -S VideoWidgetProvider -- lib` is empty; `video` is a LaunchPad placement type registered client-side by nc-vue, not an IManager widget, so GET /api/widgets has no `launchpad_video`; no unit test exists
 - GIVEN Nextcloud has the Dashboard Widget API enabled
 - WHEN a user navigates to the dashboard widget picker via LaunchPad
 - THEN GET /api/widgets MUST include a widget with `id: "launchpad_video"`, `title: "Video"`, and an icon
@@ -41,18 +41,21 @@ The system MUST register a video widget with Nextcloud's Dashboard API so it app
 - AND the widget MUST implement `OCP\Dashboard\IWidget`
 
 #### Scenario: Widget metadata is localized
+@e2e exclude never built: the archived change openspec/changes/archive/2026-05-03-video-widget/tasks.md left it unchecked and `git log --all -S VideoWidgetProvider -- lib` is empty; there is no IWidget title and the description string exists nowhere in src/, lib/ or l10n/; no unit test exists
 - GIVEN the video widget is registered
 - WHEN a user requests the widget list
 - THEN the widget title MUST be localized to English ("Video") and Dutch ("Video")
 - AND the description MUST be localized (English: "Embed video from YouTube, Vimeo, PeerTube, or Nextcloud Files")
 
 #### Scenario: Widget icon is visually distinct
+@e2e exclude never built: there is no IWidget icon and no img/widgets/ directory (img/widgets/video.svg does not exist, and the AND names that file); the type is registered client-side by nc-vue with the MDI icon name `Video` (CnVideoWidget/index.js), which CnAddWidgetModal draws in front of its type select, while the Add widget picker (src/modals/WidgetPickerModal.vue) shows a LaunchPad type as its title and a Plus action only; no unit test exists
 - GIVEN the video widget is displayed in the widget picker
 - WHEN rendered alongside other widgets
 - THEN the icon MUST be a clear video-player symbol (play button or film reel)
 - AND the icon file MUST be stored at `img/widgets/video.svg`
 
 #### Scenario: Widget registration occurs on app boot
+@e2e exclude never built: the archived change openspec/changes/archive/2026-05-03-video-widget/tasks.md left it unchecked and `git log --all -S VideoWidgetProvider -- lib` is empty; nothing registers a video widget with OCP\Dashboard\IManager, and app boot has no browser-visible effect; no unit test exists
 - GIVEN the LaunchPad app is installed and enabled
 - WHEN Nextcloud boots and initializes app managers
 - THEN `VideoWidgetProvider::load()` MUST be called by Nextcloud's AppManager
@@ -61,7 +64,6 @@ The system MUST register a video widget with Nextcloud's Dashboard API so it app
 ### Requirement: REQ-VID-002 Store Video Widget Configuration per Placement
 
 The widget placement's `widgetContent` JSON MUST store source type, URL/file ID, and display options.
-@e2e exclude video widget config stored via REST widget-placement API — Newman scope
 
 #### Scenario: Widget stores YouTube URL
 - GIVEN a user adds the video widget to their dashboard
@@ -118,7 +120,6 @@ The widget placement's `widgetContent` JSON MUST store source type, URL/file ID,
 ### Requirement: REQ-VID-003 Support Multiple Video Source Types
 
 The widget MUST handle YouTube, Vimeo, PeerTube, and Nextcloud Files as distinct source types with appropriate rendering logic.
-@e2e exclude support multiple video source types tests Vue computed embed-URL logic — Vitest component scope; server-side URL parsing covered by Newman
 
 #### Scenario: YouTube URL is normalized to embed form
 - GIVEN a user submits raw YouTube URLs in various formats:
@@ -137,6 +138,7 @@ The widget MUST handle YouTube, Vimeo, PeerTube, and Nextcloud Files as distinct
 - THEN the video ID `12345` MUST be extracted and returned as `https://player.vimeo.com/video/12345`
 
 #### Scenario: PeerTube URL is preserved and validated
+@e2e exclude the allow-list check its second AND requires was never built (no `video_widget_allowed_domains` setting in lib/ or src/, `git log --all -S video_widget_allowed_domains -- lib src` is empty), so no PeerTube domain can be shown refused; the extraction itself is built (VideoParsingService::parsePeerTube behind POST /api/widgets/video/parse) and pinned by tests/Unit/Service/VideoParsingServiceTest.php::testAVideoUrlIsParsedToItsCanonicalEmbed (the `peertube watch` and `peertube videos/watch` cases)
 - GIVEN a PeerTube instance URL like `https://peertube.example.com/w/abc123`
 - WHEN `VideoParsingService::parsePeerTubeUrl()` processes it
 - THEN the domain and UUID/path MUST be extracted and validated as a PeerTube-compatible embed form
@@ -154,9 +156,9 @@ The widget MUST handle YouTube, Vimeo, PeerTube, and Nextcloud Files as distinct
 ### Requirement: REQ-VID-004 Enforce Admin-Controlled Domain Allowlist
 
 The system MUST prevent embedding videos from arbitrary domains unless explicitly allowed by the administrator.
-@e2e exclude enforce admin-controlled domain allow-list tests PHP config + IAppConfig — Newman scope
 
 #### Scenario: Allowed domains setting exists
+@e2e exclude never built: no `launchpad.video_widget_allowed_domains` setting, default or admin settings field exists in lib/ or src/ (`git log --all -S video_widget_allowed_domains -- lib src` is empty); no unit test exists
 - GIVEN no `launchpad.video_widget_allowed_domains` setting is configured
 - WHEN the system boots
 - THEN the default allowlist MUST be:
@@ -166,17 +168,20 @@ The system MUST prevent embedding videos from arbitrary domains unless explicitl
 - AND the admin MUST be able to override this via LaunchPad admin settings page
 
 #### Scenario: Widget save rejects disallowed domain
+@e2e exclude never built: the domain allow-list it configures does not exist (no setting, no server-side check; placements are stored verbatim by WidgetApiController::contentToPersist); no unit test exists
 - GIVEN admin has set `launchpad.video_widget_allowed_domains` to only `["youtube.com", "www.youtube.com", "youtu.be"]`
 - WHEN a user attempts to save a widget with `sourceType: 'vimeo'` and `videoUrl: 'https://vimeo.com/12345'`
 - THEN the backend MUST return HTTP 400 with error message (English): "Domain not allowed by administrator"
 - AND the widget MUST NOT be created/updated
 
 #### Scenario: Admin adds a custom PeerTube instance to allowlist
+@e2e exclude never built: there is no allow-list setting or admin settings field to add a domain to; no unit test exists
 - GIVEN admin edits LaunchPad settings to add `"peertube.example.com"` to the allowed list
 - WHEN a user submits a widget with `sourceType: 'peertube'` and `videoUrl: 'https://peertube.example.com/w/abc123'`
 - THEN the domain check MUST succeed and the widget MUST be saved
 
 #### Scenario: Widget render shows domain-blocked error
+@e2e exclude never built: with no allow-list there is no blocked domain, and the string "Video domain is no longer allowed by administrator" exists nowhere in src/, nc-vue or l10n/; no unit test exists
 - GIVEN an existing widget placement with a video URL from a now-blocked domain
 - WHEN the dashboard is rendered
 - THEN the widget MUST display an error message (English): "Video domain is no longer allowed by administrator"
@@ -192,7 +197,6 @@ The system MUST prevent embedding videos from arbitrary domains unless explicitl
 ### Requirement: REQ-VID-005 Parse and Validate Video URLs Server-Side
 
 The backend MUST extract video IDs from user-provided URLs and validate format before storage.
-@e2e exclude parse and validate video URLs server-side tests PHP VideoUrlParser — Newman scope
 
 #### Scenario: URL parsing endpoint is available
 - GIVEN a user is editing a widget config in the frontend
@@ -207,6 +211,7 @@ The backend MUST extract video IDs from user-provided URLs and validate format b
 - THEN it MUST return HTTP 400 with `{"isValid": false, "error": "Invalid URL format"}`
 
 #### Scenario: Domain validation happens at parse time
+@e2e exclude never built: the parse endpoint exists (POST /api/widgets/video/parse, cited by url-parsing-endpoint-is-available) but the domain allow-list it would check does not (no `video_widget_allowed_domains` setting in lib/ or src/), so no domain is blocked and "Domain not allowed by administrator" exists nowhere in lib/; no unit test exists
 - GIVEN a user submits a URL from a blocked domain
 - WHEN POST /api/widgets/video/parse is called
 - THEN it MUST return `{"isValid": false, "error": "Domain not allowed by administrator"}`
@@ -227,7 +232,6 @@ The backend MUST extract video IDs from user-provided URLs and validate format b
 ### Requirement: REQ-VID-006 Check File Access Control for Nextcloud Files
 
 When `sourceType` is `nc-file`, the system MUST verify the viewing user can read the file before allowing playback.
-@e2e exclude check file ACL tests PHP ACL + streaming endpoint — Newman scope
 
 #### Scenario: File is readable by viewer
 - GIVEN a widget with `sourceType: 'nc-file'` and `fileId: 12345`
@@ -266,7 +270,6 @@ When `sourceType` is `nc-file`, the system MUST verify the viewing user can read
 ### Requirement: REQ-VID-007 Use iframe with CSP-Safe Sandbox Attributes
 
 Hosted video platforms (YouTube, Vimeo, PeerTube) MUST be embedded via iframe with strict sandbox restrictions.
-@e2e exclude iframe with CSP-safe sandbox attributes tests HTML attribute rendering — requires a placed video widget; seeded state not in CI fixture
 
 #### Scenario: YouTube iframe uses proper sandbox
 - GIVEN a widget with `sourceType: 'youtube'` and canonical URL `https://www.youtube.com/embed/ABC123`
@@ -302,7 +305,6 @@ Hosted video platforms (YouTube, Vimeo, PeerTube) MUST be embedded via iframe wi
 ### Requirement: REQ-VID-008 Respect Autoplay, Muting, and Loop Settings
 
 The widget MUST apply user-selected playback options while respecting browser autoplay policies.
-@e2e exclude autoplay/muting/loop settings test HTML video attribute rendering — requires a placed video widget
 
 #### Scenario: Autoplay with muted enforces mute
 - GIVEN a user sets `autoplay: true` and `muted: false`
@@ -339,7 +341,6 @@ The widget MUST apply user-selected playback options while respecting browser au
 ### Requirement: REQ-VID-009 Enforce Aspect Ratio via CSS
 
 The widget MUST apply the configured aspect ratio using modern CSS and fallback techniques.
-@e2e exclude aspect ratio CSS tests CSS padding-bottom trick — visual regression scope
 
 #### Scenario: Aspect ratio options
 - GIVEN a user selects `aspectRatio` from a dropdown
@@ -354,6 +355,7 @@ The widget MUST apply the configured aspect ratio using modern CSS and fallback 
 - AND the iframe/video MUST stretch to fill: `width: 100%; height: 100%;`
 
 #### Scenario: Aspect ratio padding fallback
+@e2e exclude needs a browser without CSS aspect-ratio support, which the CI fixture's Chromium is not, and the fallback and its sentinel class were never built (CnVideoWidget.vue renders only `aspect-ratio`); no unit test exists
 - GIVEN a widget needs to support older browsers
 - WHEN the container doesn't support `aspect-ratio` CSS
 - THEN the backend SHOULD render a fallback with `padding-bottom: calc(9 / 16 * 100%)` technique
@@ -368,7 +370,6 @@ The widget MUST apply the configured aspect ratio using modern CSS and fallback 
 ### Requirement: REQ-VID-010 Support No-Cookie YouTube Embedding
 
 The system MUST support an optional admin setting to enable YouTube no-cookie embedding to reduce tracking.
-@e2e exclude no-cookie YouTube embedding tests URL-transform logic in PHP — Newman scope
 
 #### Scenario: No-cookie setting default
 - GIVEN `launchpad.video_widget_use_nocookie_youtube` is not configured
@@ -377,18 +378,21 @@ The system MUST support an optional admin setting to enable YouTube no-cookie em
 - AND YouTube's tracking cookies MUST be enabled by default
 
 #### Scenario: Admin enables no-cookie mode
+@e2e exclude never built: no `launchpad.video_widget_use_nocookie_youtube` setting exists in lib/ or src/ (`git log --all -S video_widget_use_nocookie -- lib src` is empty; only the CSP allows youtube-nocookie.com); no unit test exists
 - GIVEN admin sets `launchpad.video_widget_use_nocookie_youtube = true`
 - WHEN a widget with `sourceType: 'youtube'` is created
 - THEN the system MUST rewrite the embed URL to: `https://www.youtube-nocookie.com/embed/ABC123`
 - AND the no-cookie domain MUST be used for all subsequent renders
 
 #### Scenario: Existing widgets respect no-cookie toggle
+@e2e exclude never built: there is no no-cookie setting to toggle and no render-time rewrite; no unit test exists
 - GIVEN an existing widget with URL `https://www.youtube.com/embed/ABC123`
 - WHEN the admin toggles `use_nocookie_youtube` from false to true
 - THEN on next render, the URL MUST be dynamically rewritten to `youtube-nocookie.com` if applicable
 - NOTE: Stored URL is `www.youtube.com`; render-time transformation happens via controller logic
 
 #### Scenario: No-cookie does not affect Vimeo/PeerTube
+@e2e exclude never built: there is no no-cookie setting to toggle; no unit test exists
 - GIVEN widgets with `sourceType: 'vimeo'` or `sourceType: 'peertube'`
 - WHEN the no-cookie setting is toggled
 - THEN only YouTube URLs are affected
@@ -397,7 +401,6 @@ The system MUST support an optional admin setting to enable YouTube no-cookie em
 ### Requirement: REQ-VID-011 Display Appropriate Empty and Error States
 
 The widget MUST show user-friendly messages for missing config, access issues, and invalid domains.
-@e2e exclude display appropriate empty and error states tests Vue state inside placed widget — requires seeded placement
 
 #### Scenario: Empty state - no video configured
 - GIVEN a widget placement with `sourceType: null` or missing `videoUrl`/`fileId`
@@ -414,6 +417,7 @@ The widget MUST show user-friendly messages for missing config, access issues, a
 - AND the save button MUST be disabled
 
 #### Scenario: Domain not allowed error
+@e2e exclude never built: with no domain allow-list nothing defines a blocked domain, and neither the parse endpoint nor the "Domain not allowed by administrator" message exists; no unit test exists
 - GIVEN a user attempts to save a widget with a blocked domain
 - WHEN the parse endpoint is called
 - THEN it MUST return `{"isValid": false, "error": "Domain not allowed by administrator"}`

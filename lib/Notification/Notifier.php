@@ -25,6 +25,7 @@ namespace OCA\LaunchPad\Notification;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Settings\AdminTabs;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IL10N;
 use OCP\IURLGenerator;
@@ -36,7 +37,7 @@ use OCP\Notification\UnknownNotificationException;
 /**
  * LaunchPad notification renderer.
  *
- * Handles four subjects:
+ * Handles five subjects:
  * - `dashboard_shared` — published when a dashboard is shared with a user or
  *   when a share's permission_level is upgraded (REQ-SHARE-008).
  * - `dashboard_ownership_transferred` — published when a UserDeletedEvent
@@ -49,6 +50,12 @@ use OCP\Notification\UnknownNotificationException;
  * - `dashboard_template_resynced` — published by
  *   {@see \OCA\LaunchPad\Service\TemplateResyncService} when an admin
  *   re-sync changes a user's provisioned copy (REQ-RESYNC-005).
+ * - `announcement_published` — sent by
+ *   {@see \OCA\LaunchPad\Service\AnnouncementFollowNotifier} to the followers
+ *   of a category when an announcement in it becomes visible (REQ-ANN-003).
+ * - `announcement_reminder` — sent by
+ *   {@see \OCA\LaunchPad\Service\AnnouncementReminder} on Send reminder to
+ *   every reader who has not confirmed an announcement (REQ-ANN-009).
  */
 class Notifier implements INotifier {
 	/**
@@ -111,235 +118,345 @@ class Notifier implements INotifier {
 			app: Application::APP_ID,
 			lang: $languageCode
 		);
-		$subject = $notification->getSubject();
 
-		// The mention subject ships the dashboard UUID directly as the
-		// notification's objectId; the share / transfer subjects ship the
-		// dashboard DB id (legacy contract). REQ-CMNT-006.
-		if ($subject === 'mentioned_in_comment') {
-			$url = $this->buildDashboardUrlFromUuid(
-				uuid: $notification->getObjectId()
-			);
+		$url  = $this->linkFor(notification: $notification);
+		$copy = $this->copyFor(notification: $notification, l: $l);
 
-			return $this->prepareMentionedInComment(
-				notification: $notification,
-				l: $l,
-				url: $url
-			);
-		}
+		$notification->setRichSubject(subject: $copy->richSubject, parameters: []);
+		$notification->setParsedSubject(subject: $copy->parsedSubject);
+		$notification->setRichMessage(message: $copy->message, parameters: []);
+		$notification->setParsedMessage(message: $copy->message);
+		$notification->setLink(link: $url);
 
-		$url = $this->buildDashboardUrl(
-			objectId: $notification->getObjectId()
-		);
-
-		if ($subject === 'dashboard_shared') {
-			return $this->prepareDashboardShared(
-				notification: $notification,
-				l: $l,
-				url: $url
-			);
-		}
-
-		if ($subject === 'dashboard_ownership_transferred') {
-			return $this->prepareOwnershipTransferred(
-				notification: $notification,
-				l: $l,
-				url: $url
-			);
-		}
-
-		if ($subject === 'dashboard_template_resynced') {
-			return $this->prepareTemplateResynced(
-				notification: $notification,
-				l: $l,
-				url: $url
-			);
-		}
-
-		throw new UnknownNotificationException(
-			message: 'Unknown subject: ' . $subject
-		);
+		return $notification;
 	}//end prepare()
 
 	/**
-	 * Prepare a `mentioned_in_comment` notification (REQ-CMNT-006).
+	 * Build the deep link of a notification.
+	 *
+	 * The mention subject ships the dashboard UUID directly as the
+	 * notification's objectId; the share / transfer / resync subjects ship
+	 * the dashboard DB id (legacy contract). REQ-CMNT-006.
+	 *
+	 * @param INotification $notification The notification.
+	 *
+	 * @return string The URL.
+	 *
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+	 */
+	private function linkFor(INotification $notification): string {
+		if ($notification->getSubject() === 'announcement_published' || $notification->getSubject() === 'announcement_reminder') {
+			return $this->urlGenerator->linkToRouteAbsolute(routeName: 'launchpad.page.index');
+		}
+
+		if ($notification->getSubject() === 'mentioned_in_comment') {
+			return $this->buildDashboardUrlFromUuid(uuid: $notification->getObjectId());
+		}
+
+		if ($notification->getSubject() === 'embed_token_revoked') {
+			return $this->adminPageLink(tab: 'embeds');
+		}
+
+		// The app catalogue (launcher-app-catalogue): a request opens the admin
+		// tab where it is decided; a decision opens LaunchPad, where Add lists the catalogue.
+		if ($notification->getSubject() === 'app_requested') {
+			return $this->adminPageLink(tab: 'app-catalogue');
+		}
+
+		if ($notification->getSubject() === 'app_request_decided') {
+			return $this->buildDashboardUrl(objectId: '');
+		}
+
+		if ($notification->getSubject() === 'scheduled_export_failed') {
+			return $this->buildDashboardUrl(objectId: '');
+		}
+
+		return $this->buildDashboardUrl(objectId: $notification->getObjectId());
+	}//end linkFor()
+
+	/**
+	 * The admin settings page on one tab, `/settings/admin/launchpad#<tab>`
+	 * (REQ-ADM-032); a former tab opens its host tab at that section.
+	 *
+	 * @param string $tab The tab.
+	 *
+	 * @return string The absolute URL.
+	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) AdminTabs is a stateless list of the page's tabs.
+	 *
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+	 */
+	private function adminPageLink(string $tab): string {
+		$url = $this->urlGenerator->linkToRouteAbsolute(
+			routeName: 'settings.AdminSettings.index',
+			arguments: ['section' => Application::APP_ID]
+		);
+
+		return $url.'#'.AdminTabs::fragment(tab: $tab);
+	}//end adminPageLink()
+
+	/**
+	 * Render the subject and message text of a notification.
+	 *
+	 * @param INotification $notification The notification.
+	 * @param IL10N         $l            The L10N instance.
+	 *
+	 * @return NotificationCopy The rendered text.
+	 *
+	 * @throws UnknownNotificationException When the subject is not handled.
+	 */
+	private function copyFor(INotification $notification, IL10N $l): NotificationCopy {
+		$params = $notification->getSubjectParameters();
+
+		return match ($notification->getSubject()) {
+			'mentioned_in_comment' => $this->mentionCopy(params: $params, l: $l),
+			'embed_token_revoked' => $this->embedRevokedCopy(params: $params, l: $l),
+			'dashboard_shared' => $this->sharedCopy(params: $params, l: $l),
+			'dashboard_ownership_transferred' => $this->transferredCopy(params: $params, l: $l),
+			'dashboard_template_resynced' => $this->resyncedCopy(params: $params, l: $l),
+			'scheduled_export_failed' => $this->exportFailedCopy(params: $params, l: $l),
+			'app_requested' => $this->appRequestedCopy(params: $params, l: $l),
+			'app_request_decided' => $this->appDecidedCopy(params: $params, l: $l),
+			'announcement_published' => $this->announcementCopy(params: $params, l: $l),
+			'announcement_reminder' => $this->reminderCopy(params: $params, l: $l),
+			default => throw new UnknownNotificationException(
+				message: 'Unknown subject: ' . $notification->getSubject()
+			),
+		};
+	}//end copyFor()
+
+	/**
+	 * Render a `mentioned_in_comment` notification (REQ-CMNT-006).
 	 *
 	 * Subject parameters: [authorUserId, dashboardUuid].
 	 *
-	 * @param INotification $notification The notification.
-	 * @param IL10N $l The L10N instance.
-	 * @param string $url The deep-link URL.
+	 * @param array $params The subject parameters.
+	 * @param IL10N $l      The L10N instance.
 	 *
-	 * @return INotification The prepared notification.
+	 * @return NotificationCopy The rendered text.
 	 */
-	private function prepareMentionedInComment(
-		INotification $notification,
-		IL10N $l,
-		string $url,
-	): INotification {
-		$params = $notification->getSubjectParameters();
-		$author = (string)($params[0] ?? '');
-
-		$richSubject = $l->t(
+	private function mentionCopy(array $params, IL10N $l): NotificationCopy {
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t(
 			'%1$s mentioned you in a dashboard comment',
-			[$author]
+			[(string)($params[0] ?? '')]
 		);
-		$notification->setRichSubject(
-			subject: $richSubject,
-			parameters: []
-		);
-		$notification->setParsedSubject(subject: $richSubject);
+		$copy->parsedSubject = $copy->richSubject;
+		$copy->message       = $l->t('Open the dashboard to read the comment');
 
-		$message = $l->t('Open the dashboard to read the comment');
-		$notification->setRichMessage(
-			message: $message,
-			parameters: []
-		);
-		$notification->setParsedMessage(message: $message);
-
-		$notification->setLink(link: $url);
-
-		return $notification;
-	}//end prepareMentionedInComment()
+		return $copy;
+	}//end mentionCopy()
 
 	/**
-	 * Prepare a `dashboard_shared` notification.
+	 * Copy for an embed token that was revoked: who, why and when (REQ-EMB-009 9.2).
+	 *
+	 * @param array<int|string, mixed> $params [name, revokedBy, reason, notes, revokedAt].
+	 * @param IL10N                    $l      Translations.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-009--token-revocation-takes-effect-within-60-seconds
+	 */
+	private function embedRevokedCopy(array $params, IL10N $l): NotificationCopy {
+		$names = [(string)($params[0] ?? ''), (string)($params[1] ?? '')];
+
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('Token **%1$s** has been revoked by %2$s', $names);
+		$copy->parsedSubject = $l->t('Token %1$s has been revoked by %2$s', $names);
+		$copy->message       = $l->t('Reason: %1$s', [(string)($params[2] ?? '')]);
+		if ((string)($params[3] ?? '') !== '') {
+			$copy->message .= "\n" . $l->t('Notes: %1$s', [(string)$params[3]]);
+		}
+
+		$copy->message .= "\n" . $l->t('Revocation timestamp: %1$s', [(string)($params[4] ?? '')]);
+
+		return $copy;
+	}//end embedRevokedCopy()
+
+	/**
+	 * Render a `dashboard_shared` notification.
 	 *
 	 * Subject parameters: [sharerUserId, dashboardName, permissionLevel].
 	 *
-	 * @param INotification $notification The notification.
-	 * @param IL10N $l The L10N instance.
-	 * @param string $url The deep-link URL.
+	 * @param array $params The subject parameters.
+	 * @param IL10N $l      The L10N instance.
 	 *
-	 * @return INotification The prepared notification.
+	 * @return NotificationCopy The rendered text.
 	 */
-	private function prepareDashboardShared(
-		INotification $notification,
-		IL10N $l,
-		string $url,
-	): INotification {
-		$params = $notification->getSubjectParameters();
-		$sharer = $params[0] ?? '';
-		$name = $params[1] ?? '';
-		$level = $params[2] ?? '';
+	private function sharedCopy(array $params, IL10N $l): NotificationCopy {
+		$names = [($params[0] ?? ''), ($params[1] ?? '')];
 
-		$richSubject = $l->t(
-			'%1$s shared **%2$s** with you',
-			[$sharer, $name]
-		);
-		$notification->setRichSubject(
-			subject: $richSubject,
-			parameters: []
-		);
-		$notification->setParsedSubject(
-			subject: $l->t(
-				'%1$s shared %2$s with you',
-				[$sharer, $name]
-			)
-		);
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('%1$s shared **%2$s** with you', $names);
+		$copy->parsedSubject = $l->t('%1$s shared %2$s with you', $names);
+		$copy->message       = $this->permissionLabel(l: $l, level: ($params[2] ?? ''));
 
-		$levelLabel = $this->permissionLabel(l: $l, level: $level);
-		$notification->setRichMessage(
-			message: $levelLabel,
-			parameters: []
-		);
-		$notification->setParsedMessage(message: $levelLabel);
-
-		$notification->setLink(link: $url);
-
-		return $notification;
-	}//end prepareDashboardShared()
+		return $copy;
+	}//end sharedCopy()
 
 	/**
-	 * Prepare a `dashboard_ownership_transferred` notification.
+	 * Render a `dashboard_ownership_transferred` notification.
 	 *
 	 * Subject parameters: [dashboardName].
 	 *
-	 * @param INotification $notification The notification.
-	 * @param IL10N $l The L10N instance.
-	 * @param string $url The deep-link URL.
+	 * @param array $params The subject parameters.
+	 * @param IL10N $l      The L10N instance.
 	 *
-	 * @return INotification The prepared notification.
+	 * @return NotificationCopy The rendered text.
 	 */
-	private function prepareOwnershipTransferred(
-		INotification $notification,
-		IL10N $l,
-		string $url,
-	): INotification {
-		$params = $notification->getSubjectParameters();
-		$name = $params[0] ?? '';
+	private function transferredCopy(array $params, IL10N $l): NotificationCopy {
+		$name = [($params[0] ?? '')];
 
-		$richSubject = $l->t('**%1$s** is now yours', [$name]);
-		$notification->setRichSubject(
-			subject: $richSubject,
-			parameters: []
-		);
-		$notification->setParsedSubject(
-			subject: $l->t('%1$s is now yours', [$name])
-		);
-
-		$message = $l->t(
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('**%1$s** is now yours', $name);
+		$copy->parsedSubject = $l->t('%1$s is now yours', $name);
+		$copy->message       = $l->t(
 			'Ownership transferred after the previous owner was removed'
 		);
-		$notification->setRichMessage(
-			message: $message,
-			parameters: []
-		);
-		$notification->setParsedMessage(message: $message);
 
-		$notification->setLink(link: $url);
-
-		return $notification;
-	}//end prepareOwnershipTransferred()
+		return $copy;
+	}//end transferredCopy()
 
 	/**
-	 * Prepare a `dashboard_template_resynced` notification (REQ-RESYNC-005
+	 * Render a `dashboard_template_resynced` notification (REQ-RESYNC-005
 	 * "Affected users are notified").
 	 *
 	 * Subject parameters: [dashboardName].
 	 *
-	 * @param INotification $notification The notification.
-	 * @param IL10N $l The L10N instance.
-	 * @param string $url The deep-link URL.
+	 * @param array $params The subject parameters.
+	 * @param IL10N $l      The L10N instance.
 	 *
-	 * @return INotification The prepared notification.
+	 * @return NotificationCopy The rendered text.
 	 */
-	private function prepareTemplateResynced(
-		INotification $notification,
-		IL10N $l,
-		string $url,
-	): INotification {
-		$params = $notification->getSubjectParameters();
-		$name = $params[0] ?? '';
+	private function resyncedCopy(array $params, IL10N $l): NotificationCopy {
+		$name = [($params[0] ?? '')];
 
-		$richSubject = $l->t(
-			'An administrator updated your **%1$s** dashboard',
-			[$name]
-		);
-		$notification->setRichSubject(
-			subject: $richSubject,
-			parameters: []
-		);
-		$notification->setParsedSubject(
-			subject: $l->t(
-				'An administrator updated your %1$s dashboard',
-				[$name]
-			)
-		);
-
-		$message = $l->t(
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('An administrator updated your **%1$s** dashboard', $name);
+		$copy->parsedSubject = $l->t('An administrator updated your %1$s dashboard', $name);
+		$copy->message       = $l->t(
 			'The dashboard template you received was updated by an administrator'
 		);
-		$notification->setRichMessage(
-			message: $message,
-			parameters: []
-		);
-		$notification->setParsedMessage(message: $message);
 
-		$notification->setLink(link: $url);
+		return $copy;
+	}//end resyncedCopy()
 
-		return $notification;
-	}//end prepareTemplateResynced()
+	/**
+	 * Copy for a scheduled export that failed for good (scheduled-exports
+	 * REQ-SCH-002, REQ-SCH-006): parameters are the export name and the reason.
+	 *
+	 * @param array<int, string> $params The export name and the reason.
+	 * @param IL10N              $l      The translator.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-006-retry-with-exponential-backoff-and-dead-letter
+	 */
+	private function exportFailedCopy(array $params, IL10N $l): NotificationCopy {
+		$name = [($params[0] ?? '')];
+
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('The scheduled export **%1$s** failed', $name);
+		$copy->parsedSubject = $l->t('The scheduled export %1$s failed', $name);
+		$copy->message       = (string)($params[1] ?? '');
+
+		return $copy;
+	}//end exportFailedCopy()
+
+	/**
+	 * Copy for `app_requested`: a user asked for an app the catalogue lacks
+	 * (launcher-app-catalogue, REQ-ACAT-003).
+	 *
+	 * @param array<int, string> $params [requester display name, app name].
+	 * @param IL10N              $l      The L10N instance.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+	 */
+	private function appRequestedCopy(array $params, IL10N $l): NotificationCopy {
+		$names = [(string)($params[0] ?? ''), (string)($params[1] ?? '')];
+
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('%1$s asked for the app **%2$s**', $names);
+		$copy->parsedSubject = $l->t('%1$s asked for the app %2$s', $names);
+		$copy->message       = $l->t('Approve or decline it under App catalogue in the LaunchPad admin settings');
+
+		return $copy;
+	}//end appRequestedCopy()
+
+	/**
+	 * Copy for `app_request_decided`: the requester hears how their request
+	 * was decided (launcher-app-catalogue, REQ-ACAT-004).
+	 *
+	 * @param array<int, string> $params [app name, `approved` or `declined`, the decline note].
+	 * @param IL10N              $l      The L10N instance.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
+	 */
+	private function appDecidedCopy(array $params, IL10N $l): NotificationCopy {
+		$name = (string)($params[0] ?? '');
+		$copy = new NotificationCopy();
+
+		if (($params[1] ?? '') === 'approved') {
+			$copy->richSubject   = $l->t('**%1$s** is now in the app catalogue', [$name]);
+			$copy->parsedSubject = $l->t('%1$s is now in the app catalogue', [$name]);
+			$copy->message       = $l->t('Add it as a tile from Add on your dashboard');
+
+			return $copy;
+		}
+
+		$args = [$name, (string)($params[2] ?? '')];
+		$copy->richSubject   = $l->t('Your request for **%1$s** was declined: %2$s', $args);
+		$copy->parsedSubject = $l->t('Your request for %1$s was declined: %2$s', $args);
+		$copy->message       = $l->t('An administrator decided on your request in the app catalogue');
+
+		return $copy;
+	}//end appDecidedCopy()
+
+	/**
+	 * Copy for `announcement_published`: a new announcement in a followed category (REQ-ANN-003).
+	 *
+	 * @param array $params The subject parameters: category, title.
+	 * @param IL10N $l      The localisation.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-follow-categories-req-ann-003
+	 */
+	private function announcementCopy(array $params, IL10N $l): NotificationCopy {
+		$names = [(string)($params[0] ?? ''), (string)($params[1] ?? '')];
+
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('New announcement in %1$s: **%2$s**', $names);
+		$copy->parsedSubject = $l->t('New announcement in %1$s: %2$s', $names);
+		$copy->message       = $l->t('Open LaunchPad to read the announcement');
+
+		return $copy;
+	}//end announcementCopy()
+
+	/**
+	 * Copy for `announcement_reminder`: Send reminder to a reader who has not confirmed (REQ-ANN-009).
+	 *
+	 * @param array $params The subject parameters: title.
+	 * @param IL10N $l      The localisation.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+	 */
+	private function reminderCopy(array $params, IL10N $l): NotificationCopy {
+		$title = [(string)($params[0] ?? '')];
+
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('Please confirm you have read: **%s**', $title);
+		$copy->parsedSubject = $l->t('Please confirm you have read: %s', $title);
+		$copy->message       = $l->t('Open LaunchPad and press the check on the announcement');
+
+		return $copy;
+	}//end reminderCopy()
 
 	/**
 	 * Build the deep-link URL for a dashboard.

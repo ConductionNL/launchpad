@@ -24,60 +24,47 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
-use InvalidArgumentException;
+use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
-use OCP\App\IAppManager;
+use OCA\LaunchPad\Db\RoleAssignment;
+use OCA\LaunchPad\Db\RoleAssignmentMapper;
+use OCA\LaunchPad\Kernel\Contracts\SetupWizardServiceInterface;
+use OCP\IAppConfig;
 
 /**
  * Service backing the setup wizard state + completion endpoints.
  *
  * Status values follow the spec (REQ-WIZ-008): `'done'`, `'skipped'`,
  * `'pending'`. The wizard "pending" state means a step has not been
- * traversed yet (no sibling setting written). `'skipped'` is reserved for
- * the optional steps 5/6 — when their guarded capability isn't available,
- * the heuristic returns `'skipped'` so the UI can collapse the step.
+ * traversed yet (no sibling setting written). Step 3 is `'done'` once a
+ * demo showcase is installed and Step 4 once someone holds the LaunchPad
+ * admin role; both are `'pending'` before that, and a finished wizard
+ * without an admin role reports Step 4 `'skipped'` (the data model in the
+ * spec). Five steps: Welcome, Groups, Examples, Roles, Done
+ * (REQ-WIZ-012); the footer is set on its own admin tab, not here.
+ *
+ * @spec openspec/changes/archive/2026-11-24-setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
  */
-class SetupWizardService {
+class SetupWizardService implements SetupWizardServiceInterface {
 	/**
-	 * Total number of wizard steps (REQ-WIZ-002).
+	 * Total number of wizard steps (REQ-WIZ-012).
 	 *
 	 * @var integer
 	 */
-	public const STEP_COUNT = 7;
-
-	/**
-	 * Storage backend value: relational database (default).
-	 *
-	 * @var string
-	 */
-	public const STORAGE_DATABASE = 'database';
-
-	/**
-	 * Storage backend value: GroupFolder app.
-	 *
-	 * @var string
-	 */
-	public const STORAGE_GROUPFOLDER = 'groupfolder';
-
-	/**
-	 * GroupFolder dependency app id used by Step 2's tooltip gate.
-	 *
-	 * @var string
-	 */
-	public const GROUPFOLDER_APP_ID = 'groupfolders';
+	public const STEP_COUNT = 5;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param AdminSettingMapper $settingMapper Admin-setting persistence.
-	 * @param IAppManager $appManager Used to detect the optional
-	 *                                `groupfolders` Nextcloud
-	 *                                app for Step 2's gate.
+	 * @param AdminSettingMapper        $settingMapper   Admin-setting persistence.
+	 * @param IAppConfig|null           $appConfig       Where demo showcase installs are marked.
+	 * @param RoleAssignmentMapper|null $roleAssignments LaunchPad role assignments.
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settingMapper,
-		private readonly IAppManager $appManager,
+		private readonly ?IAppConfig $appConfig=null,
+		private readonly ?RoleAssignmentMapper $roleAssignments=null,
 	) {
 	}//end __construct()
 
@@ -86,12 +73,13 @@ class SetupWizardService {
 	 *
 	 * Shape: `{complete: bool, currentRecommendedStep: int,
 	 *         stepStatuses: array<string,string>}`. Step 1 is always
-	 * `'done'`; Step 7 stays `'pending'` until the admin clicks Finish.
+	 * `'done'`; Step 5 stays `'pending'` until the admin clicks Finish.
 	 *
 	 * @return array{complete: bool, currentRecommendedStep: int, stepStatuses: array<int,string>}
 	 *                                                                                             The wizard state payload.
 	 *
 	 * @spec openspec/specs/setup-wizard/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
 	 */
 	public function getWizardState(): array {
 		$complete = $this->isWizardComplete();
@@ -100,7 +88,8 @@ class SetupWizardService {
 		return [
 			'complete' => $complete,
 			'currentRecommendedStep' => $this->resolveRecommendedStep(
-				stepStatuses: $stepStatuses
+				stepStatuses: $stepStatuses,
+				complete: $complete
 			),
 			'stepStatuses' => $stepStatuses,
 		];
@@ -125,58 +114,6 @@ class SetupWizardService {
 	}//end markWizardComplete()
 
 	/**
-	 * Whether the GroupFolder dependency is installed (REQ-WIZ-003).
-	 *
-	 * @return boolean True when the GroupFolder option may be selected.
-	 */
-	public function hasGroupfolderApp(): bool {
-		return $this->appManager->isInstalled(self::GROUPFOLDER_APP_ID);
-	}//end hasGroupfolderApp()
-
-	/**
-	 * Persist the storage backend choice from Step 2.
-	 *
-	 * @param string $value `'database'` or `'groupfolder'`.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/specs/setup-wizard/spec.md
-	 */
-	public function setContentStorage(string $value): void {
-		$allowed = [self::STORAGE_DATABASE, self::STORAGE_GROUPFOLDER];
-		if (in_array(needle: $value, haystack: $allowed, strict: true) === false) {
-			throw new InvalidArgumentException(
-				message: 'Unsupported storage backend: ' . $value
-			);
-		}
-
-		$this->settingMapper->setSetting(
-			key: AdminSetting::KEY_CONTENT_STORAGE,
-			value: $value
-		);
-	}//end setContentStorage()
-
-	/**
-	 * Read the persisted storage backend choice with the safe default.
-	 *
-	 * @return string The persisted backend or `'database'` when unset.
-	 *
-	 * @spec openspec/specs/setup-wizard/spec.md
-	 */
-	public function getContentStorage(): string {
-		$value = $this->settingMapper->getValue(
-			key: AdminSetting::KEY_CONTENT_STORAGE,
-			default: null
-		);
-
-		if (is_string($value) === true && $value !== '') {
-			return $value;
-		}
-
-		return self::STORAGE_DATABASE;
-	}//end getContentStorage()
-
-	/**
 	 * Whether the wizard has been completed at least once.
 	 *
 	 * @return boolean True when the flag is JSON `true`.
@@ -199,33 +136,33 @@ class SetupWizardService {
 	 * @param boolean $complete Whether the wizard has been completed.
 	 *
 	 * @return array<int,string> Step number → status.
+	 *
+	 * @spec openspec/changes/archive/2026-11-24-setup-five-steps-and-admin-tour/specs/setup-wizard/spec.md#requirement-req-wiz-012-multi-step-wizard-flow-with-5-steps
 	 */
 	private function computeStepStatuses(bool $complete): array {
 		$settings = $this->settingMapper->getAllAsArray();
 
-		$hasStorage = isset($settings[AdminSetting::KEY_CONTENT_STORAGE]);
 		$groupOrder = ($settings[AdminSetting::KEY_GROUP_ORDER] ?? null);
 		$hasGroup = (is_array($groupOrder) === true && count($groupOrder) > 0);
-		$hasFooter = isset($settings[AdminSetting::KEY_FOOTER_CONFIG]);
-
-		// Steps 4 (demos) and 5 (admin-roles) live in sibling capabilities
-		// not yet implemented in this branch; surface them as `'skipped'`
-		// so the wizard advances cleanly when the embed component is a
-		// local stub. They flip to `'done'` once the sibling capability
-		// ships and writes its own settings.
-		$statusStorage = 'pending';
-		if ($hasStorage === true) {
-			$statusStorage = 'done';
-		}
 
 		$statusGroup = 'pending';
 		if ($hasGroup === true) {
 			$statusGroup = 'done';
 		}
 
-		$statusFooter = 'skipped';
-		if ($hasFooter === true) {
-			$statusFooter = 'done';
+		$statusDemo = 'pending';
+		if ($this->hasInstalledShowcase() === true) {
+			$statusDemo = 'done';
+		}
+
+		// Skip on Step 4 writes nothing, so the server reads a finished
+		// wizard without an admin role as a skipped Step 4 ("Endpoint
+		// includes skipped step status"); before the finish it is pending.
+		$statusRoles = 'pending';
+		if ($this->hasAdminRoleAssignment() === true) {
+			$statusRoles = 'done';
+		} else if ($complete === true) {
+			$statusRoles = 'skipped';
 		}
 
 		$statusDone = 'pending';
@@ -235,30 +172,89 @@ class SetupWizardService {
 
 		return [
 			'1' => 'done',
-			'2' => $statusStorage,
-			'3' => $statusGroup,
-			'4' => 'skipped',
-			'5' => 'skipped',
-			'6' => $statusFooter,
-			'7' => $statusDone,
+			'2' => $statusGroup,
+			'3' => $statusDemo,
+			'4' => $statusRoles,
+			'5' => $statusDone,
 		];
 	}//end computeStepStatuses()
 
 	/**
-	 * The first step whose status is not `'done'`, defaulting to Step 1.
+	 * Whether any demo showcase is installed: DemoShowcasesService marks
+	 * each install as `showcase_installed_<id>` holding the dashboard UUID.
 	 *
-	 * @param array<int,string> $stepStatuses Heuristic per-step statuses.
+	 * @return bool True when at least one marker holds a UUID.
 	 *
-	 * @return integer The recommended next step index (1..STEP_COUNT).
+	 * @spec openspec/specs/setup-wizard/spec.md
 	 */
-	private function resolveRecommendedStep(array $stepStatuses): int {
-		for ($step = 1; $step <= self::STEP_COUNT; $step++) {
-			$status = ($stepStatuses[$step] ?? 'pending');
-			if ($status !== 'done') {
-				return $step;
+	private function hasInstalledShowcase(): bool {
+		if ($this->appConfig === null) {
+			return false;
+		}
+
+		foreach ($this->appConfig->getKeys(app: Application::APP_ID) as $key) {
+			if (str_starts_with(haystack: $key, needle: DemoShowcasesService::CONFIG_PREFIX) === true
+				&& $this->appConfig->getValueString(app: Application::APP_ID, key: $key, default: '') !== ''
+			) {
+				return true;
 			}
 		}
 
-		return 1;
+		return false;
+	}//end hasInstalledShowcase()
+
+	/**
+	 * Whether a user or group holds the LaunchPad admin role.
+	 *
+	 * @return bool True when an `admin` role assignment exists.
+	 *
+	 * @spec openspec/specs/setup-wizard/spec.md
+	 */
+	private function hasAdminRoleAssignment(): bool {
+		if ($this->roleAssignments === null) {
+			return false;
+		}
+
+		foreach ($this->roleAssignments->findAll() as $assignment) {
+			if ($assignment->getRole() === RoleAssignment::ROLE_ADMIN) {
+				return true;
+			}
+		}
+
+		return false;
+	}//end hasAdminRoleAssignment()
+
+	/**
+	 * The step the wizard opens at. A first run (nothing after Step 1
+	 * done and the wizard not finished) starts at Step 1, Welcome; a
+	 * re-run opens at the first step whose status is not `'done'`
+	 * (REQ-WIZ-008: Step 1 on a fresh instance, the first open step on
+	 * a re-run; "Wizard starts at Step 1").
+	 *
+	 * @param array<int,string> $stepStatuses Heuristic per-step statuses.
+	 * @param bool              $complete     Whether the wizard was finished.
+	 *
+	 * @return integer The recommended next step index (1..STEP_COUNT).
+	 *
+	 * @spec openspec/specs/setup-wizard/spec.md
+	 */
+	private function resolveRecommendedStep(array $stepStatuses, bool $complete): int {
+		$firstOpen = 1;
+		$anyDone   = false;
+		for ($step = self::STEP_COUNT; $step >= 2; $step--) {
+			$status = ($stepStatuses[$step] ?? 'pending');
+			if ($status === 'done') {
+				$anyDone = true;
+				continue;
+			}
+
+			$firstOpen = $step;
+		}
+
+		if ($complete === false && $anyDone === false) {
+			return 1;
+		}
+
+		return $firstOpen;
 	}//end resolveRecommendedStep()
 }//end class

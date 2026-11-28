@@ -21,9 +21,12 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ActionCaller;
+use OCA\LaunchPad\Controller\TileSources;
 use OCA\LaunchPad\Controller\TileApiController;
 use OCA\LaunchPad\Db\Tile;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\ServiceDiscoveryService;
 use OCA\LaunchPad\Service\TileService;
 use OCP\AppFramework\Http;
 use OCP\IL10N;
@@ -32,6 +35,10 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\UserResponses;
+use OCA\LaunchPad\Service\FoundServicesService;
 
 class TileApiControllerTest extends TestCase {
 	/** @var TileService&MockObject */
@@ -44,6 +51,10 @@ class TileApiControllerTest extends TestCase {
 	private ActionAuthService $actionAuth;
 	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
+	/** @var ServiceDiscoveryService&MockObject */
+	private ServiceDiscoveryService $discovery;
+	/** @var FoundServicesService&MockObject */
+	private FoundServicesService $foundServices;
 
 	protected function setUp(): void {
 		$this->tileService = $this->createMock(TileService::class);
@@ -51,6 +62,8 @@ class TileApiControllerTest extends TestCase {
 		$this->l10n = $this->createMock(IL10N::class);
 		$this->actionAuth = $this->createMock(ActionAuthService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
+		$this->discovery = $this->createMock(ServiceDiscoveryService::class);
+		$this->foundServices = $this->createMock(originalClassName: FoundServicesService::class);
 		$this->l10n->method('t')->willReturnArgument(0);
 	}
 
@@ -65,12 +78,99 @@ class TileApiControllerTest extends TestCase {
 
 		return new TileApiController(
 			request: $this->request,
-			tileService: $this->tileService,
-			actionAuth: $this->actionAuth,
-			userSession: $this->userSession,
-			l10n: $this->l10n,
-			userId: $userId,
+			sources: new TileSources(
+				tileService: $this->tileService,
+				l10n: $this->l10n,
+				discovery: $this->discovery,
+				foundServices: $this->foundServices
+			),
+			caller: new ActionCaller(
+				actionAuth: $this->actionAuth,
+				userSession: $this->userSession
+			),
+			context: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
+	}
+
+	/**
+	 * REQ-DISC-001: the caller's own discovered apps, behind tile.discover.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
+	 */
+	public function testDiscoverAnswersTheCallersApps(): void {
+		$apps = [['appId' => 'deck', 'name' => 'Deck', 'href' => '/apps/deck/', 'icon' => '/apps/deck/img/deck.svg']];
+		$this->discovery->method('discover')->willReturn($apps);
+		$this->actionAuth->expects($this->once())->method('requireAction')
+			->with($this->isInstanceOf(IUser::class), 'tile.discover');
+
+		$response = $this->makeController()->discover();
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame(['apps' => $apps], $response->getData());
+	}
+
+	/**
+	 * Without the tile.discover action the endpoint refuses before discovering.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
+	 */
+	public function testDiscoverRefusesWithoutTheAction(): void {
+		$this->actionAuth->method('requireAction')
+			->willThrowException(new \OCP\AppFramework\OCS\OCSForbiddenException());
+		$this->discovery->expects($this->never())->method('discover');
+
+		$response = $this->makeController()->discover();
+
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
+
+	/**
+	 * An anonymous caller is refused.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
+	 */
+	public function testDiscoverRefusesAnonymous(): void {
+		$this->discovery->expects($this->never())->method('discover');
+
+		$response = $this->makeController(userId: null)->discover();
+
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+	}
+
+	/**
+	 * REQ-TILE-044: the services an administrator allowed for discovery that answered, behind tile.discover.
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 *
+	 * @return void
+	 */
+	public function testFoundServicesAnswersTheFoundServices(): void {
+		$services = [['name' => 'Grafana', 'url' => 'http://localhost:3000', 'port' => 3000, 'state' => 'running', 'foundAt' => 1795757445]];
+		$this->foundServices->method('found')->willReturn($services);
+		$this->actionAuth->expects($this->once())->method('requireAction')
+			->with($this->isInstanceOf(className: IUser::class), 'tile.discover');
+
+		$response = $this->makeController(userId: 'alice')->foundServices();
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(expected: ['services' => $services], actual: $response->getData());
+	}
+
+	/**
+	 * Without the tile.discover action no address is asked.
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 *
+	 * @return void
+	 */
+	public function testFoundServicesRefusesWithoutTheAction(): void {
+		$this->actionAuth->method('requireAction')
+			->willThrowException(new \OCP\AppFramework\OCS\OCSForbiddenException());
+		$this->foundServices->expects($this->never())->method('found');
+
+		$response = $this->makeController(userId: 'alice')->foundServices();
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
 	}
 
 	public function testCreateReturns410GoneEnvelope(): void {

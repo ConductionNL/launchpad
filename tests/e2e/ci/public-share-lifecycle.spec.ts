@@ -56,7 +56,7 @@
  *   @e2e dashboard-public-share::password-protected-share-returns-401-without-unlock
  *   @e2e dashboard-public-share::unlock-with-correct-password
  *   @e2e dashboard-public-share::unlock-with-incorrect-password
- *   @e2e dashboard-public-share::query-param-password-alternative-to-header
+ *   @e2e dashboard-public-share::the-password-travels-in-a-header-never-in-the-query
  *
  * @spec openspec/specs/dashboard-public-share/spec.md
  */
@@ -135,6 +135,9 @@ async function anonymousApi(baseURL: string): Promise<APIRequestContext> {
 
 const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'
 const DASHBOARDS = '/index.php/apps/launchpad/api/dashboard'
+/** An expiry far enough away not to matter (REQ-SHARE-015 requires one). */
+const FAR_EXPIRY = '2099-12-31T23:59:59Z'
+
 function shareUrl(uuid: string) {
 	return `/index.php/apps/launchpad/api/dashboards/${uuid}/public-share`
 }
@@ -174,7 +177,9 @@ async function createShare(
 	passwordRequired: boolean
 	expiresAt: string | null
 }> {
-	const res = await api.post(shareUrl(uuid), { data: payload })
+	// REQ-SHARE-015: every new public link has an expiry date; a far one
+	// stands in where the test is not about expiry.
+	const res = await api.post(shareUrl(uuid), { data: { expiresAt: FAR_EXPIRY, ...payload } })
 	expect(res.status(), await res.text()).toBe(201)
 	return await res.json()
 }
@@ -207,6 +212,17 @@ test.beforeAll(async () => {
 	priorAllowUserDash = (await before.json()).allowUserDashboards === true
 	const enable = await admin.put(SETTINGS, { data: { allowUserDash: true } })
 	expect(enable.status(), await enable.text()).toBeLessThan(300)
+	// The non-owner test signs in as GRANTEE; create the account when this
+	// instance does not have it, so a fresh instance answers 403, not 401.
+	const known = await admin.get(
+		`/ocs/v2.php/cloud/users/${encodeURIComponent(GRANTEE.user)}?format=json`,
+	)
+	if (!known.ok()) {
+		const created = await admin.post('/ocs/v2.php/cloud/users?format=json', {
+			form: { userid: GRANTEE.user, password: GRANTEE.pass },
+		})
+		expect(created.status(), await created.text()).toBe(200)
+	}
 	await admin.dispose()
 })
 
@@ -237,8 +253,8 @@ test.describe('public share creation options', () => {
 		).toBe(false)
 		expect(
 			share.expiresAt,
-			'a share created with `{}` must never expire',
-		).toBeNull()
+			'a share carries the expiry date it was created with',
+		).not.toBeNull()
 		expect(share.token, 'the share must carry a token').toBeTruthy()
 
 		// …and the token it handed out must actually work with no password,
@@ -258,7 +274,10 @@ test.describe('public share creation options', () => {
 		const uuid = await createDashboard(admin, 'pw-share')
 
 		const password = 'SecurePass123!'
-		const res = await admin.post(shareUrl(uuid), { data: { password } })
+		// REQ-SHARE-015: every new public link carries an expiry date.
+		const res = await admin.post(shareUrl(uuid), {
+			data: { expiresAt: FAR_EXPIRY, password },
+		})
 		expect(res.status(), await res.text()).toBe(201)
 		const raw = await res.text()
 		const share = JSON.parse(raw)
@@ -302,7 +321,9 @@ test.describe('public share creation options', () => {
 
 		const expired = await createShare(admin, uuid, { expiresAt: past })
 		const valid = await createShare(admin, uuid, { expiresAt: future })
-		const never = await createShare(admin, uuid, {})
+		// REQ-SHARE-015: a link without an expiry date is refused.
+		const never = await admin.post(shareUrl(uuid), { data: {} })
+		expect(never.status(), await never.text()).toBe(400)
 
 		// The value must survive the round trip — an `expiresAt` the server
 		// failed to parse and stored as NULL would leave the share permanently
@@ -315,12 +336,8 @@ test.describe('public share creation options', () => {
 			valid.expiresAt,
 			'a supplied expiry must be stored, not dropped',
 		).not.toBeNull()
-		expect(
-			never.expiresAt,
-			'a share created without an expiry must have none',
-		).toBeNull()
 
-		// The three arms differ ONLY in expiry, so this triple cannot be
+		// The two arms differ ONLY in expiry, so this triple cannot be
 		// satisfied by an endpoint that answers the same way for everything.
 		const past404 = await anon.get(dataUrl(expired.token))
 		expect(past404.status(), 'a share whose expiry has elapsed must 404').toBe(
@@ -330,11 +347,6 @@ test.describe('public share creation options', () => {
 		const futureOk = await anon.get(dataUrl(valid.token))
 		expect(futureOk.status(), await futureOk.text()).toBe(200)
 
-		const neverOk = await anon.get(dataUrl(never.token))
-		expect(
-			neverOk.status(),
-			'a share with expiresAt NULL must not have expiry logic applied to it',
-		).toBe(200)
 
 		await admin.dispose()
 		await anon.dispose()
@@ -489,7 +501,7 @@ test.describe('owner-only management endpoints', () => {
 		const ownerList = await admin.get(sharesUrl(uuid))
 		expect(ownerList.status(), 'control: the owner CAN list').toBe(200)
 
-		const create = await grantee.post(shareUrl(uuid), { data: {} })
+		const create = await grantee.post(shareUrl(uuid), { data: { expiresAt: FAR_EXPIRY } })
 		expect(create.status(), await create.text()).toBe(403)
 
 		const list = await grantee.get(sharesUrl(uuid))
@@ -514,7 +526,7 @@ test.describe('owner-only management endpoints', () => {
 })
 
 test.describe('the password gate', () => {
-	test('the wrong password is refused, the right one unlocks, and either transport carries it', async ({
+	test('the wrong password is refused, the right one unlocks, and only the header carries it', async ({
 		baseURL,
 	}) => {
 		const admin = await apiAs(baseURL!, ADMIN)
@@ -565,17 +577,17 @@ test.describe('the password gate', () => {
 			'the correct password must grant access',
 		).toBe(true)
 
-		// REQ-PSHR-005: the query param and the X-Share-Password header are
-		// both accepted by the render endpoint. Assert on the RENDER, since
-		// that is what the transports are for.
+		// REQ-PSHR-005: the render endpoint takes the password from the
+		// X-Share-Password header only; one in the query string does not
+		// unlock it, so it never lands in an access log.
 		const viaQuery = await anon.get(
 			`${dataUrl(share.token)}?password=${encodeURIComponent(password)}`,
 		)
-		expect(viaQuery.status(), await viaQuery.text()).toBe(200)
+		expect(viaQuery.status(), await viaQuery.text()).toBe(401)
 		expect(
 			await viaQuery.json(),
-			'an unlocked render must carry the dashboard',
-		).toHaveProperty('dashboard')
+			'a password in the query must not unlock the render',
+		).not.toHaveProperty('dashboard')
 
 		const viaHeader = await anon.get(dataUrl(share.token), {
 			headers: { 'X-Share-Password': password },

@@ -5,7 +5,7 @@
  * Playwright end-to-end tests for the `image` widget.
  *
  * Drives the real runtime-shell add-widget flow: sidebar → personal-row cog
- * → "Add custom widget…" → Add Widget modal → pick "Image".
+ * → "Add widget" → "Custom widget" → Add Widget modal → pick "Image".
  *
  * WHAT CHANGED AND WHY
  * ====================
@@ -29,31 +29,62 @@
  * "element is outside of the viewport" retries that made the popup version red.
  */
 
-import type { Page } from '@playwright/test'
+import type { APIRequestContext, Page } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, test } from '@playwright/test'
 import * as path from 'path'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
-import {
-	closeSidebar,
-	gotoLaunchPad,
-	openAddWidgetModal,
-} from './fixtures/widget-flow.ts'
+import { closeSidebar, gotoLaunchPad } from './fixtures/widget-flow.ts'
 import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl.ts'
+import {
+	clearSeededWidgets,
+	removeSeededDashboard,
+	seedActiveDashboard,
+} from './support/dashboardFixture.ts'
+import { MORE_MENU, saveEditDraft } from './support/dashboardSwitcher.ts'
+import { apiAs, openAddWidgetDialog } from './support/filesWidget.ts'
 
 const APP_ID = process.env.APP_ID || 'launchpad'
 
 // A same-origin asset, so the cell renders without outbound internet.
 const LOGO = `${NEXTCLOUD_URL}/core/img/logo/logo.svg`
 
+let api: APIRequestContext
+let dashboard: SeededDashboard | null = null
+
+// Every widget goes on a dashboard this file seeds and makes active, so the
+// cells it looks for are its own and not whatever admin's dashboard holds.
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+	api = await apiAs()
+	dashboard = await seedActiveDashboard(api, `E2E Image widget ${Date.now()}`)
+	await clearSeededWidgets(api, dashboard.id)
 })
 
-/** Open the Add Widget modal with the "Image" type already chosen. */
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
+})
+
+test.afterAll(async () => {
+	await removeSeededDashboard(api, dashboard)
+	await api.dispose()
+})
+
+/** The image placements on the seeded dashboard whose url is an uploaded file, not a web address. */
+async function uploadedImagePlacements(): Promise<Array<Record<string, unknown>>> {
+	const stored = await api.get(`/index.php/apps/launchpad/api/dashboard/${dashboard!.id}`)
+	expect(stored.status(), await stored.text()).toBe(200)
+	const body = await stored.json()
+	return ((body.placements ?? body.data?.placements ?? []) as Array<Record<string, unknown>>)
+		.filter((placement) => placement.widgetId === 'image' && !String((placement.content as Record<string, unknown> | undefined)?.url ?? '').startsWith('http'))
+}
+
+/** Open the Add Widget modal on the active dashboard with the "Image" type already chosen. */
 async function openImageForm(page: Page) {
-	await openAddWidgetModal(page)
-	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
+	const dialog = await openAddWidgetDialog(page)
 	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Image' })
 	return dialog
 }
@@ -67,7 +98,11 @@ async function openImageForm(page: Page) {
  */
 async function addUrlImage(page: Page, link: string) {
 	const dialog = await openImageForm(page)
+	// The drawn form (REQ-IMG-020) asks where the image comes from first, and
+	// requires a text for who does not see it.
+	await dialog.getByText('Web address', { exact: true }).click()
 	await dialog.getByLabel(/image url/i).fill(LOGO)
+	await dialog.getByLabel(/text for who does not see the image/i).fill('Nextcloud logo')
 	if (link !== '') {
 		await dialog.getByLabel(/link \(optional\)/i).fill(link)
 	}
@@ -98,19 +133,18 @@ test.describe('image widget', () => {
 	}) => {
 		const dialog = await openImageForm(page)
 
-		// The form moved to nc-vue's CnImageWidgetForm, which replaced the old
-		// URL/Upload radio pair with a single always-present file <label> that
-		// wraps a hidden input, and DEFERS the upload to commit() so a
-		// cancelled dialog never writes an orphaned file. Set the file on the
-		// input directly rather than driving a source toggle that no longer
-		// exists.
+		// The drawn form (REQ-IMG-020) opens on Upload file and DEFERS the
+		// upload to commit(), so a cancelled dialog never writes an orphaned
+		// file. Set the file on its input and give the required text for who
+		// does not see the image.
 		await dialog
-			.locator('.cn-image-widget-form__file-input')
+			.getByTestId('image-file-input')
 			.setInputFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
+		await dialog.getByLabel(/text for who does not see the image/i).fill('A tiny image')
 
 		// Before save the preview is a local object-URL (nothing uploaded yet);
 		// assert the preview renders so "upload → preview" is still covered.
-		await expect(dialog.locator('.cn-image-widget-form__preview')).toBeAttached({
+		await expect(dialog.getByTestId('image-chosen').locator('img')).toBeAttached({
 			timeout: 15_000,
 		})
 
@@ -127,9 +161,12 @@ test.describe('image widget', () => {
 			.last()
 		await expect(uploaded).toBeAttached({ timeout: 8_000 })
 
+		// Add put the widget in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBe(200)
+
 		// Reload and verify persistence.
 		await page.reload()
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 		await expect(
 			page
 				.locator(`.cn-image-widget__img[src*="/apps/${APP_ID}/resource/"]`)
@@ -158,15 +195,23 @@ test.describe('image widget', () => {
 	}) => {
 		const dialog = await openImageForm(page)
 
-		// No file chosen — the URL field alone must drive the preview.
-		await dialog.getByLabel(/image url/i).fill(LOGO)
+		// No file chosen: the drawn form asks for Web address first, then the
+		// URL field alone drives the preview.
+		await dialog.getByText('Web address', { exact: true }).click()
+		const urlField = dialog.getByLabel(/image url/i)
+		await urlField.fill(LOGO)
+		await urlField.blur()
 
-		const preview = dialog.locator('.cn-image-widget-form__preview')
+		const preview = dialog.getByTestId('image-url-preview')
 		await expect(preview).toBeAttached({ timeout: 10_000 })
 		await expect(preview).toHaveAttribute('src', LOGO, { timeout: 10_000 })
+		await expect
+			.poll(() => preview.evaluate((img) => (img as HTMLImageElement).naturalWidth), { timeout: 10_000 })
+			.toBeGreaterThan(0)
 
-		// A typed URL is sufficient to save — the counterpart of the
-		// empty-URL validation above.
+		// A typed URL with its required alternative text is enough to save:
+		// the counterpart of the empty-URL validation above.
+		await dialog.getByLabel(/text for who does not see the image/i).fill('Nextcloud logo')
 		await expect(dialog.getByRole('button', { name: /^add$/i })).toBeEnabled({
 			timeout: 5_000,
 		})
@@ -181,12 +226,8 @@ test.describe('image widget', () => {
 		// `fit` is an NcSelect (vue-select), not a native <select> as the
 		// scenario's prose assumes, so the options live in a popper that only
 		// exists once the control is opened.
-		const fit = dialog
-			.locator('.v-select')
-			.filter({ has: page.getByText(/^Fit$/) })
-			.first()
-		const control =
-			(await fit.count()) > 0 ? fit : dialog.locator('.v-select').last()
+		const control = dialog.getByTestId('image-fit')
+		await expect(control).toBeVisible({ timeout: 10_000 })
 
 		// The default selected value for a new placement is Cover.
 		await expect(control.locator('.vs__selected')).toHaveText(/cover/i, {
@@ -194,9 +235,7 @@ test.describe('image widget', () => {
 		})
 
 		await control.locator('.vs__dropdown-toggle').click()
-		const options = control
-			.locator('.vs__dropdown-option')
-			.or(page.locator('.vs__dropdown-menu .vs__dropdown-option'))
+		const options = page.locator('.vs__dropdown-menu .vs__dropdown-option')
 		await expect(options.first()).toBeVisible({ timeout: 5_000 })
 
 		const labels = (await options.allTextContents()).map((s) =>
@@ -222,11 +261,16 @@ test.describe('image widget', () => {
 			}),
 		)
 
+		// The upload test above stores an uploaded image on the same seeded
+		// dashboard, so only placements that appear after this Add count.
+		const before = new Set((await uploadedImagePlacements()).map((placement) => placement.id))
+
 		const dialog = await openImageForm(page)
 		await dialog
-			.locator('.cn-image-widget-form__file-input')
+			.getByTestId('image-file-input')
 			.setInputFiles(path.join(__dirname, 'fixtures', 'tiny.png'))
-		await expect(dialog.locator('.cn-image-widget-form__preview')).toBeAttached({
+		await dialog.getByLabel(/text for who does not see the image/i).fill('A tiny image')
+		await expect(dialog.getByTestId('image-chosen').locator('img')).toBeAttached({
 			timeout: 15_000,
 		})
 
@@ -241,7 +285,7 @@ test.describe('image widget', () => {
 		//    so the translated fallback the spec names is unreachable on this
 		//    path. The divergence is reported, not asserted away: what is
 		//    asserted here is that an error is shown at all.
-		await expect(dialog.locator('.cn-image-widget-form__error')).toBeVisible({
+		await expect(dialog.locator('.image-widget-form__error')).toBeVisible({
 			timeout: 15_000,
 		})
 
@@ -249,7 +293,10 @@ test.describe('image widget', () => {
 		//    reaches updateField('url', …). The modal therefore stays open
 		//    with an empty URL rather than persisting a broken placement.
 		await expect(dialog).toBeVisible()
-		await expect(dialog.getByLabel(/image url/i)).toHaveValue('')
+		expect(
+			(await uploadedImagePlacements()).filter((placement) => !before.has(placement.id)),
+			'no image placement with an uploaded file was stored',
+		).toHaveLength(0)
 	})
 
 	// @e2e image-widget::click-opens-link-in-new-tab

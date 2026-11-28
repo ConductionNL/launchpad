@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\TranslationSources;
+use OCA\LaunchPad\Controller\ActionCaller;
 use OCA\LaunchPad\Controller\DashboardTranslationApiController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -41,6 +43,9 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * Contract tests for translation-variant promotion.
@@ -116,11 +121,15 @@ class DashboardTranslationApiControllerSetPrimaryTest extends TestCase {
 
 		return new DashboardTranslationApiController(
 			request: $this->request,
-			dashboardMapper: $this->dashboardMapper,
-			translationService: $this->translationService,
-			actionAuth: $this->actionAuth,
-			userSession: $this->userSession,
-			userId: $userId,
+			translations: new TranslationSources(
+				dashboardMapper: $this->dashboardMapper,
+				translationService: $this->translationService
+			),
+			caller: new ActionCaller(
+				actionAuth: $this->actionAuth,
+				userSession: $this->userSession
+			),
+			context: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 
 	}//end makeController()

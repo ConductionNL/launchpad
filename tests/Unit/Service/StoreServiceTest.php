@@ -30,6 +30,8 @@ use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\ImportService;
 use OCA\LaunchPad\Service\StoreService;
 use OCA\OpenRegister\AppHost\Service\GenericStoreService;
+use OCA\OpenRegister\AppHost\Service\StoreDescriptor;
+use OCA\OpenRegister\AppHost\Service\StoreListing;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IAppConfig;
 use OCP\IDBConnection;
@@ -234,6 +236,73 @@ class StoreServiceTest extends TestCase {
 	}//end testCardsArePassedThroughUnchanged()
 
 	/**
+	 * The descriptor reaches the engine in OpenRegister's listing and sharing
+	 * shape, naming this app, its schema, register and card map.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-store/spec.md
+	 */
+	public function testTheDescriptorIsBuiltFromAListingAndASharingPart(): void {
+		$seen = null;
+		$discovery = $this->createMock(originalClassName: GenericStoreService::class);
+		$discovery->method('search')->willReturnCallback(
+			static function (object $descriptor) use (&$seen): array {
+				$seen = $descriptor;
+				return ['outcome' => 'ok', 'cards' => []];
+			}
+		);
+
+		$this->service(discovery: $discovery)->search(query: 'sales');
+
+		$this->assertInstanceOf(expected: StoreDescriptor::class, actual: $seen);
+		$this->assertInstanceOf(expected: StoreListing::class, actual: $seen->listing);
+		$this->assertSame(expected: 'launchpad', actual: $seen->listing->appId);
+		$this->assertSame(expected: StoreService::CARD_FIELDS, actual: $seen->listing->cardFields);
+		$this->assertSame(expected: [], actual: $seen->sharing->types);
+	}//end testTheDescriptorIsBuiltFromAListingAndASharingPart()
+
+	/**
+	 * REQ-STORE-013: a publish goes through the engine with the publish fields and admin group, and its outcome passes through.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 */
+	public function testAPublishGoesThroughTheStorePlane(): void {
+		$seen = null;
+		$sent = null;
+		$discovery = $this->createMock(originalClassName: GenericStoreService::class);
+		$discovery->method('publish')->willReturnCallback(
+			static function (object $descriptor, array $payload) use (&$seen, &$sent): array {
+				$seen = $descriptor;
+				$sent = $payload;
+				return ['outcome' => 'store_rejected', 'slug' => ''];
+			}
+		);
+
+		$result = $this->service(discovery: $discovery)->publish(item: ['slug' => 'raads-en-collegewerk', 'version' => '0.9.0']);
+
+		$this->assertSame(expected: ['outcome' => 'store_rejected', 'slug' => ''], actual: $result);
+		$this->assertSame(expected: StoreService::PUBLISH_FIELDS, actual: $seen->sharing->publishFields);
+		$this->assertSame(expected: ['admin'], actual: $seen->sharing->publishGroups);
+		$this->assertSame(expected: 'raads-en-collegewerk', actual: $sent['slug']);
+	}//end testAPublishGoesThroughTheStorePlane()
+
+	/**
+	 * REQ-STORE-013: without OpenRegister nothing is published (the caller reports not_configured).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 */
+	public function testAPublishWithoutTheEngineSendsNothing(): void {
+		$result = $this->service(discovery: null)->publish(item: ['slug' => 'a-b']);
+
+		$this->assertSame(expected: [], actual: $result);
+	}//end testAPublishWithoutTheEngineSendsNothing()
+
+	/**
 	 * REQ-STORE-002: no engine means no import, not a half-run install.
 	 *
 	 * @return void
@@ -329,6 +398,28 @@ class StoreServiceTest extends TestCase {
 	}//end testInstallIsAdditiveRatherThanReplacing()
 
 	/**
+	 * REQ-STORE-011: an install reports the version it installed and the
+	 * dashboards it created, for the install record.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
+	 */
+	public function testAnInstallReportsWhatItCreated(): void {
+		$this->importService->method('import')->willReturn(
+			[
+				'status' => 'ok', 'importedDashboardCount' => 1, 'skippedDashboardCount' => 0, 'errors' => [], 'manifest' => [],
+				'dashboards' => [['sourceUuid' => 'a', 'uuid' => 'b', 'id' => '41']],
+			]
+		);
+
+		$result = $this->serviceResolving(item: self::ITEM + ['version' => '2.3.0'])->install(slug: 'sales-overview', userId: 'alice');
+
+		$this->assertSame(expected: '2.3.0', actual: $result['version']);
+		$this->assertSame(expected: [41], actual: $result['dashboardIds']);
+	}//end testAnInstallReportsWhatItCreated()
+
+	/**
 	 * REQ-STORE-005: a failing import leaves no archive behind.
 	 *
 	 * @return void
@@ -414,7 +505,7 @@ class StoreServiceTest extends TestCase {
 	public function testTheRegistryTokenIsNeverReadBack(): void {
 		$this->configValues = [
 			StoreService::CONFIG_URL => 'https://registry.example.org/',
-			StoreService::CONFIG_TOKEN => 'super-secret-token',
+			StoreService::CONFIG_REGISTRY_AUTH => 'super-secret-token',
 			StoreService::CONFIG_REGISTER => 'launchpad',
 		];
 
@@ -432,7 +523,7 @@ class StoreServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnOmittedKeyIsLeftAloneAndAnEmptyOneClears(): void {
-		$this->configValues = [StoreService::CONFIG_TOKEN => 'super-secret-token'];
+		$this->configValues = [StoreService::CONFIG_REGISTRY_AUTH => 'super-secret-token'];
 		$service = $this->service(discovery: null);
 
 		$service->updateRegistryConfig(registryUrl: 'https://registry.example.org/');
@@ -441,6 +532,103 @@ class StoreServiceTest extends TestCase {
 		$service->updateRegistryConfig(registryToken: '');
 		$this->assertFalse($service->getRegistryConfig()['tokenConfigured'], 'an empty token must clear');
 	}//end testAnOmittedKeyIsLeftAloneAndAnEmptyOneClears()
+
+	/**
+	 * REQ-STORE-010: the banner names the register and its address, never the token.
+	 *
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
+	 *
+	 * @return void
+	 */
+	public function testTheBannerNamesTheRegisterAndItsAddress(): void {
+		$this->configValues = [
+			StoreService::CONFIG_URL => 'https://user:pw@register.vng.nl/dashboards?x=1#top',
+			StoreService::CONFIG_REGISTRY_AUTH => 'super-secret-token',
+			StoreService::CONFIG_NAME => ' VNG dashboardregister ',
+		];
+
+		$banner = $this->service(discovery: null)->registryBanner();
+
+		$this->assertSame(expected: ['name' => 'VNG dashboardregister', 'url' => 'https://register.vng.nl/dashboards'], actual: $banner);
+		$this->assertStringNotContainsString(needle: 'super-secret-token', haystack: (string)json_encode(value: $banner));
+		$this->assertStringNotContainsString(needle: 'pw', haystack: $banner['url']);
+	}//end testTheBannerNamesTheRegisterAndItsAddress()
+
+	/**
+	 * REQ-STORE-010: without a name the host names the register; without a URL there is no banner.
+	 *
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
+	 *
+	 * @return void
+	 */
+	public function testTheBannerFallsBackToTheHostAndIsNullWithoutARegister(): void {
+		$this->configValues = [StoreService::CONFIG_URL => 'http://registry.example.org:8080/'];
+		$this->assertSame(
+			expected: ['name' => 'registry.example.org', 'url' => 'http://registry.example.org:8080/'],
+			actual: $this->service(discovery: null)->registryBanner()
+		);
+
+		$this->configValues = [StoreService::CONFIG_URL => ''];
+		$this->assertNull(actual: $this->service(discovery: null)->registryBanner());
+
+		$this->configValues = [StoreService::CONFIG_URL => 'not a url'];
+		$this->assertNull(actual: $this->service(discovery: null)->registryBanner());
+	}//end testTheBannerFallsBackToTheHostAndIsNullWithoutARegister()
+
+	/**
+	 * REQ-STORE-010: the engine's check time wins; else an answered search is the check; not configured has none.
+	 *
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
+	 *
+	 * @return void
+	 */
+	public function testASearchReportsWhenTheRegisterWasChecked(): void {
+		$discovery = $this->createMock(originalClassName: GenericStoreService::class);
+		$discovery->method('search')->willReturnOnConsecutiveCalls(
+			['outcome' => 'ok', 'cards' => [], 'checkedAt' => '2026-11-25T06:00:00Z'],
+			['outcome' => 'store_unreachable', 'cards' => []],
+			['outcome' => 'not_configured', 'cards' => []]
+		);
+		$service = $this->service(discovery: $discovery);
+
+		$this->assertSame(expected: '2026-11-25T06:00:00Z', actual: $service->search()['checkedAt']);
+		$this->assertMatchesRegularExpression(pattern: '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', string: $service->search()['checkedAt']);
+		$this->assertArrayNotHasKey(key: 'checkedAt', array: $service->search());
+	}//end testASearchReportsWhenTheRegisterWasChecked()
+
+	/**
+	 * REQ-STORE-010: the register's name is read and written with the connection.
+	 *
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
+	 *
+	 * @return void
+	 */
+	public function testTheRegisterNameIsStoredWithTheConnection(): void {
+		$service = $this->service(discovery: null);
+
+		$service->updateRegistryConfig(registryName: '  VNG dashboardregister ');
+		$this->assertSame(expected: 'VNG dashboardregister', actual: $service->getRegistryConfig()['registryName']);
+
+		$service->updateRegistryConfig(registryUrl: 'https://r.example');
+		$this->assertSame(
+			expected: 'VNG dashboardregister',
+			actual: $service->getRegistryConfig()['registryName'],
+			message: 'an omitted name must survive'
+		);
+	}//end testTheRegisterNameIsStoredWithTheConnection()
+
+	/**
+	 * REQ-STORE-010: the card map carries the widget count and the usage.
+	 *
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
+	 *
+	 * @return void
+	 */
+	public function testTheCardMapCarriesWidgetsAndUsage(): void {
+		$this->assertSame(expected: 'widgets', actual: StoreService::CARD_FIELDS['widgets']);
+		$this->assertSame(expected: 'usage', actual: StoreService::CARD_FIELDS['usage']);
+		$this->assertSame(expected: 'category', actual: StoreService::CARD_FIELDS['category']);
+	}//end testTheCardMapCarriesWidgetsAndUsage()
 
 	/**
 	 * A service whose discovery client resolves to the given item.

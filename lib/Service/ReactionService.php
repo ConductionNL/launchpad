@@ -29,10 +29,9 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardReactionMapper;
+use OCA\LaunchPad\Db\DashboardVersion;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\DB\Exception as DbException;
-use OCP\IAppConfig;
-use OCP\IUserManager;
 
 /**
  * Service for managing dashboard emoji reactions.
@@ -78,22 +77,15 @@ class ReactionService {
 	 * Constructor
 	 *
 	 * @param DashboardReactionMapper $reactionMapper The reaction mapper.
-	 * @param DashboardMapper $dashboardMapper Dashboard lookups
-	 *                                         (toggle resolution).
-	 * @param PermissionService $permissionService VIEW permission gate.
-	 * @param IAppConfig $appConfig App config — admin
-	 *                              settings.
-	 * @param IUserManager $userManager Display name
-	 *                                  resolution for the
-	 *                                  reactors-by-emoji
-	 *                                  endpoint.
+	 * @param DashboardMapper         $dashboardMapper Dashboard lookups (toggle resolution).
+	 * @param PermissionService       $permissionService VIEW permission gate.
+	 * @param ReactionDirectory       $directory The app config and user manager.
 	 */
 	public function __construct(
 		private readonly DashboardReactionMapper $reactionMapper,
 		private readonly DashboardMapper $dashboardMapper,
 		private readonly PermissionService $permissionService,
-		private readonly IAppConfig $appConfig,
-		private readonly IUserManager $userManager,
+		private readonly ReactionDirectory $directory,
 	) {
 	}//end __construct()
 
@@ -125,17 +117,19 @@ class ReactionService {
 	}//end isReactionsEnabled()
 
 	/**
-	 * Read the admin global on/off toggle. Default: true.
+	 * Read the admin global on/off toggle. Default: false, so a dashboard
+	 * shows no reactions row until an administrator turns reactions on
+	 * (globally, or per dashboard with reactionsEnabled = 1).
 	 *
 	 * @return bool True when the global default is on.
 	 *
 	 * @spec openspec/specs/dashboard-reactions/spec.md
 	 */
 	public function isReactionsEnabledByDefault(): bool {
-		return $this->appConfig->getValueBool(
+		return $this->directory->appConfig->getValueBool(
 			app: Application::APP_ID,
 			key: self::KEY_ENABLED_DEFAULT,
-			default: true
+			default: false
 		);
 	}//end isReactionsEnabledByDefault()
 
@@ -148,7 +142,7 @@ class ReactionService {
 	 * @spec openspec/specs/dashboard-reactions/spec.md
 	 */
 	public function getAllowedEmojis(): array {
-		$raw = $this->appConfig->getValueString(
+		$raw = $this->directory->appConfig->getValueString(
 			app: Application::APP_ID,
 			key: self::KEY_ALLOWED_EMOJIS,
 			default: ''
@@ -385,8 +379,69 @@ class ReactionService {
 			'enabled' => true,
 			// The reactions bar offers only these (REQ-RXN-007, REQ-RXN-010).
 			'allowed' => $this->getAllowedEmojis(),
+			// The bar names who last changed the dashboard (REQ-RXN-010).
+			'lastChange' => $this->lastChange(dashboard: $dashboard),
 		];
 	}//end buildSummary()
+
+	/**
+	 * Who last changed the dashboard and when: the newest saved version's
+	 * author and time, else the dashboard's own change time without a name.
+	 * Null when neither is known.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return array{name: string, at: string|null}|null The last change.
+	 *
+	 * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 */
+	private function lastChange(Dashboard $dashboard): ?array {
+		$version = $this->newestVersion(dashboardUuid: (string)$dashboard->getUuid());
+		if ($version !== null) {
+			$author = (string)$version->getCreatedBy();
+			$name   = $author;
+			if ($author !== '') {
+				$name = $this->directory->userManager->get(uid: $author)?->getDisplayName() ?? $author;
+			}
+
+			return [
+				'name' => $name,
+				'at' => $version->getCreatedAt() ?? $dashboard->getUpdatedAt(),
+			];
+		}
+
+		$updatedAt = $dashboard->getUpdatedAt();
+		if ($updatedAt === null || $updatedAt === '') {
+			return null;
+		}
+
+		return ['name' => '', 'at' => $updatedAt];
+	}//end lastChange()
+
+	/**
+	 * The newest saved version of a dashboard, or null without versions or
+	 * when they cannot be read.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 *
+	 * @return DashboardVersion|null The newest version.
+	 *
+	 * @spec openspec/changes/archive/2026-11-24-reactions-bar-at-the-foot/specs/dashboard-reactions/spec.md#requirement-req-rxn-010-a-viewer-can-react-from-the-dashboard
+	 */
+	private function newestVersion(string $dashboardUuid): ?DashboardVersion {
+		$mapper = $this->directory->versionMapper;
+		if ($mapper === null) {
+			return null;
+		}
+
+		try {
+			$rows = $mapper->findLatestByDashboard(dashboardUuid: $dashboardUuid, limit: 1);
+		} catch (DbException) {
+			return null;
+		}
+
+		return $rows[0] ?? null;
+	}//end newestVersion()
 
 	/**
 	 * List reactors for a single emoji on a dashboard, capped at
@@ -418,13 +473,7 @@ class ReactionService {
 			userId: $userId
 		);
 
-		$offset = 0;
-		if ($cursor !== null && $cursor !== '') {
-			$candidate = (int)$cursor;
-			if ($candidate > 0) {
-				$offset = $candidate;
-			}
-		}
+		$offset = $this->cursorOffset(cursor: $cursor);
 
 		$rows = $this->reactionMapper->findByEmoji(
 			dashboardUuid: $dashboardUuid,
@@ -437,16 +486,7 @@ class ReactionService {
 			emoji: $emoji
 		);
 
-		$items = [];
-		foreach ($rows as $reaction) {
-			$reactorId = (string)$reaction->getUserId();
-			$user = $this->userManager->get(uid: $reactorId);
-			$items[] = [
-				'userId' => $reactorId,
-				'displayName' => $user?->getDisplayName() ?? $reactorId,
-				'reactedAt' => $reaction->getReactedAtFormatted(),
-			];
-		}
+		$items = $this->reactorItems(reactions: $rows);
 
 		$nextOffset = ($offset + count($items));
 		$nextCursor = null;
@@ -460,6 +500,49 @@ class ReactionService {
 			'total' => $total,
 		];
 	}//end getReactorsByEmoji()
+
+	/**
+	 * The offset an opaque reactor cursor stands for; anything but a
+	 * positive integer starts at the first page.
+	 *
+	 * @param string|null $cursor The cursor from the request.
+	 *
+	 * @return int The offset.
+	 */
+	private function cursorOffset(?string $cursor): int {
+		$offset = 0;
+		if ($cursor !== null && $cursor !== '') {
+			$candidate = (int)$cursor;
+			if ($candidate > 0) {
+				$offset = $candidate;
+			}
+		}
+
+		return $offset;
+	}//end cursorOffset()
+
+	/**
+	 * One `{userId, displayName, reactedAt}` row per reaction; a reactor
+	 * without an account is shown by user ID.
+	 *
+	 * @param array $reactions The reaction rows of one page.
+	 *
+	 * @return array<int, array{userId: string, displayName: string, reactedAt: string|null}> The page items.
+	 */
+	private function reactorItems(array $reactions): array {
+		$items = [];
+		foreach ($reactions as $reaction) {
+			$reactorId = (string)$reaction->getUserId();
+			$user = $this->directory->userManager->get(uid: $reactorId);
+			$items[] = [
+				'userId' => $reactorId,
+				'displayName' => $user?->getDisplayName() ?? $reactorId,
+				'reactedAt' => $reaction->getReactedAtFormatted(),
+			];
+		}
+
+		return $items;
+	}//end reactorItems()
 
 	/**
 	 * Cascade-delete every reaction for a dashboard. Called by the

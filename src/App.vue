@@ -14,18 +14,112 @@
 
 <template>
 	<CnAppRoot
+		ref="appRoot"
 		:manifest="liveManifest"
 		:registry="registry"
 		:pageTypes="pageTypes"
 		:customComponents="customComponents"
 		:permissions="permissions"
-		appId="launchpad" />
+		:supportDialog="supportNoteForThisAccount"
+		:userSettingsSections="userSettingsSections"
+		:translate="translateForApp"
+		:requiresApps="[]"
+		:hideMenu="true"
+		:pageGround="true"
+		appId="launchpad">
+		<!--
+		  runtime-shell REQ-SHELL-012: `pageGround` puts the board grid on the
+		  page ground instead of the white content panel.
+		  runtime-shell REQ-SHELL-009: LaunchPad renders no navigation panel.
+		  Its destinations are in the More menu: on the dashboard view the
+		  workspace's own More menu, on every other page this one.
+		-->
+		<template v-if="showsPageMenu" #header-actions>
+			<!-- Board LpStore: on a page whose header draws an action row, More
+			     is that row's last button; elsewhere it stays at the top end. -->
+			<Teleport :to="pageMenuTarget || 'body'" :disabled="!pageMenuTarget">
+				<div
+					class="launchpad-page-menu"
+					:class="{ 'launchpad-page-menu--in-header': !!pageMenuTarget }"
+					data-testid="launchpad-page-menu">
+					<StartPageMenu />
+				</div>
+			</Teleport>
+		</template>
+		<!--
+			The user settings dialog. Every per-person setting lives here;
+			LaunchPad adds nothing to Nextcloud's personal settings (Ruben,
+			11 Oct 2026). The app's own sections go in #user-settings-sections,
+			in board LpPersoonlijk's order (personal-settings REQ-PSET-001):
+			Samenvatting per e-mail, Gebruikscijfers, Verborgen widgets, Mijn profiel; the library keeps
+			drawing credentials, notifications, the walkthrough replay and
+			integrations after them, in the order of the userSettingsSections prop.
+		-->
+		<template #user-settings-sections>
+			<DigestSettings />
+			<AnalyticsOptOutSettings />
+			<HiddenWidgetsSettings />
+			<ProfileFieldsSettings />
+		</template>
+	</CnAppRoot>
 </template>
 
 <script>
 import { CnAppRoot } from '@conduction/nextcloud-vue'
+import { translate as ncTranslate } from '@nextcloud/l10n'
+import { computed } from 'vue'
+import StartPageMenu from './components/Workspace/StartPageMenu.vue'
+import AnalyticsOptOutSettings from './views/settings/AnalyticsOptOutSettings.vue'
+import DigestSettings from './views/settings/DigestSettings.vue'
+import HiddenWidgetsSettings from './views/settings/HiddenWidgetsSettings.vue'
+import ProfileFieldsSettings from './views/settings/ProfileFieldsSettings.vue'
+import { REQUIRED_OBJECT_PROP } from './constants/propDefinitions.js'
 import customComponents from './customComponents.js'
-import { ICON_CATALOGUE } from './services/iconCatalogue.js'
+import { LAZY_ICON_CATALOGUE } from './services/iconCatalogue.js'
+import { buildPeopleSource } from './services/widgetDataAdapters.js'
+import { isKioskMode } from './utils/kioskMode.js'
+import { readCanManageAnnouncements } from './utils/loadInitialState.js'
+import { watchPageMenuTarget } from './utils/pageMenuTarget.js'
+import { permits } from './utils/permissions.js'
+
+/**
+ * The routes that are the dashboard view, whose workspace carries its own
+ * More menu (REQ-SHELL-009).
+ */
+export const DASHBOARD_ROUTES = ['Workspace', 'dashboard-detail']
+
+/**
+ * The sections `CnAppNav` renders. An entry in any other section (for
+ * example `integrations`, which lives in the per-user settings dialog) is
+ * not a panel destination and is not offered as one.
+ */
+const PANEL_SECTIONS = ['main', 'footer', 'settings']
+
+/**
+ * The manifest menu entries the navigation panel would render for an
+ * account: the same permission test as `CnAppNav.passesPermission`
+ * (an entry without `permission` is for everyone), the panel's sections,
+ * sorted by `order`. `visibleIf.appInstalled` is honoured against
+ * `OC.appswebroots`, as the panel does; the app's manifest declares no
+ * other predicate.
+ *
+ * @param {object} manifest The bundled manifest (with fragments merged).
+ * @param {string[]} permissions The permission strings this account holds.
+ * @return {object[]} The entries, in panel order.
+ * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+ */
+export function panelEntriesFor(manifest, permissions) {
+	const roots = (typeof window !== 'undefined' && window.OC?.appswebroots) || null
+	return (manifest?.menu ?? [])
+		.filter((item) => item && PANEL_SECTIONS.includes(item.section ?? 'main'))
+		.filter((item) => !item.permission || permits(item.permission, permissions))
+		.filter((item) => {
+			const app = item.visibleIf?.appInstalled
+			return !app || !roots || Object.hasOwn(roots, app)
+		})
+		.slice()
+		.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+}
 
 /**
  * Root component — mounts `CnAppRoot`, which renders the shared chrome
@@ -52,6 +146,11 @@ export default {
 	name: 'App',
 	components: {
 		CnAppRoot,
+		AnalyticsOptOutSettings,
+		DigestSettings,
+		HiddenWidgetsSettings,
+		ProfileFieldsSettings,
+		StartPageMenu,
 	},
 
 	inject: {
@@ -78,7 +177,10 @@ export default {
 		},
 	},
 
-	/** @spec openspec/specs/runtime-shell/spec.md */
+	/**
+	 * @spec openspec/specs/runtime-shell/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+	 */
 	provide() {
 		// Re-provide the reactive manifest refs so deeply nested
 		// descendants don't need to prop-drill through WorkspaceApp/Views.
@@ -87,7 +189,13 @@ export default {
 		return {
 			runtimeManifest: this.runtimeManifest,
 			manifestLoading: this.manifestLoading,
-			cnIconCatalogue: ICON_CATALOGUE,
+			cnIconCatalogue: LAZY_ICON_CATALOGUE,
+			// runtime-shell REQ-SHELL-009: what `StartPageMenu` reads. A
+			// computed ref, because provide() runs once and the route changes.
+			launchpadChrome: computed(() => this.chromeState),
+			// people-new-colleagues REQ-PPL-014: the people widget form asks
+			// whether a start date field exists; placements re-provide their own.
+			cnPeopleSource: buildPeopleSource(),
 		}
 	},
 
@@ -96,27 +204,18 @@ export default {
 		 * Bundled (stub) manifest from the bootstrap. `liveManifest` prefers
 		 * the runtime one once it arrives.
 		 */
-		manifest: {
-			type: Object,
-			required: true,
-		},
+		manifest: REQUIRED_OBJECT_PROP,
 
 		/**
 		 * V2 kind-tagged registry (ADR-036). `CnPageRenderer` resolves every
 		 * `type: "custom"` page's `component` string against it.
 		 */
-		registry: {
-			type: Object,
-			required: true,
-		},
+		registry: REQUIRED_OBJECT_PROP,
 
 		/**
 		 * Declarative page-type components, from the library's defaults.
 		 */
-		pageTypes: {
-			type: Object,
-			required: true,
-		},
+		pageTypes: REQUIRED_OBJECT_PROP,
 
 		/**
 		 * The permission strings this account holds, built by
@@ -159,10 +258,98 @@ export default {
 			 * `registry`, so Add integration needs this map.
 			 */
 			customComponents,
+			/**
+			 * The page header action row the More menu sits in, or null
+			 * when the page draws none (REQ-SHELL-009, board LpStore).
+			 *
+			 * @type {Element|null}
+			 */
+			pageMenuTarget: null,
 		}
 	},
 
 	computed: {
+		/**
+		 * The sections of the user settings dialog, in board LpPersoonlijk's
+		 * order: the app's own (My profile), then the credentials, and the
+		 * library's notifications, walkthrough replay and integrations.
+		 *
+		 * @return {string[]} Section keys for CnAppRoot.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		userSettingsSections() {
+			return ['app', 'credentials', 'notifications', 'walkthrough', 'integrations']
+		},
+
+		/**
+		 * Whether this page carries the app's More menu at its top: every
+		 * page but the dashboard view, whose workspace has its own More menu,
+		 * and a kiosk view (`?kiosk=1`, REQ-KIOSK-001), which has no chrome.
+		 * It is how a member gets from the Store, Reports, Flows or an admin
+		 * page to anywhere else, now that there is no navigation panel.
+		 *
+		 * @return {boolean} True to render the More menu on this page.
+		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		showsPageMenu() {
+			if (isKioskMode()) {
+				return false
+			}
+			return !DASHBOARD_ROUTES.includes(this.$route?.name)
+		},
+
+		/**
+		 * The entries the panel would have rendered for this account, from
+		 * the app's own manifest: `CnAppNav`'s permission filter, its three
+		 * sections, its order. The runtime manifest's one-entry-per-dashboard
+		 * list is left to the dashboard switcher, which stands beside the
+		 * menu that renders these.
+		 *
+		 * @return {object[]} The visible menu entries, sorted by `order`.
+		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+		 */
+		chromeMenuEntries() {
+			return panelEntriesFor(this.manifest, this.permissions)
+		},
+
+		/**
+		 * The decision `StartPageMenu` renders from (REQ-SHELL-009). The
+		 * panel is never rendered, so the menus always carry its entries.
+		 *
+		 * @return {{ railSuppressed: boolean, entries: object[], isAdmin: boolean, canManageAnnouncements: boolean, includePersonalSettings: boolean }}
+		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-10
+		 */
+		chromeState() {
+			return {
+				railSuppressed: true,
+				entries: this.chromeMenuEntries,
+				isAdmin: permits('admin', this.permissions),
+				canManageAnnouncements: readCanManageAnnouncements(),
+				includePersonalSettings:
+					this.manifest?.nav?.includePersonalSettings !== false,
+			}
+		},
+
+		/**
+		 * Whether the shared first-open support note ("Support LaunchPad":
+		 * donate, get support, suggest a feature, review) is mounted for this
+		 * account: administrators only (REQ-SHELL-008).
+		 *
+		 * It used to open for everyone, over the start page an administrator
+		 * had just rolled out to a group (#782). The note asks for things only
+		 * an administrator can act on, so it is theirs. `CnAppRoot` takes
+		 * `false` to opt out; any other value keeps its default, which is the
+		 * library's per-user "once ever" behaviour for the administrator.
+		 *
+		 * @return {boolean} false for a non-admin account.
+		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-008
+		 */
+		supportNoteForThisAccount() {
+			return permits('admin', this.permissions)
+		},
+
 		/**
 		 * The manifest CnAppRoot should render.
 		 *
@@ -229,5 +416,95 @@ export default {
 			}
 		},
 	},
+
+	/**
+	 * @spec openspec/specs/people-widget/spec.md
+	 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
+	 */
+	mounted() {
+		window.addEventListener('hashchange', this.openUserSettingsFromHash)
+		this.openUserSettingsFromHash()
+		this.stopPageMenuWatch = watchPageMenuTarget(this.$el instanceof Element ? this.$el : null, (target) => {
+			this.pageMenuTarget = target
+		})
+	},
+
+	/**
+	 * @spec openspec/specs/people-widget/spec.md
+	 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-no-navigation-panel-the-destinations-are-in-the-more-menu
+	 */
+	beforeUnmount() {
+		window.removeEventListener('hashchange', this.openUserSettingsFromHash)
+		if (this.stopPageMenuWatch) {
+			this.stopPageMenuWatch()
+			this.stopPageMenuWatch = null
+		}
+	},
+
+	methods: {
+		/**
+		 * Translate a string the manifest carries (menu labels, page titles
+		 * and descriptions, setup and walkthrough copy) in LaunchPad's own
+		 * catalogue. `CnAppRoot` never imports an app's `t()`; without this
+		 * its default is the identity, and every manifest string stayed
+		 * English for a Dutch reader although `l10n/nl.js` has them all.
+		 *
+		 * @param {string} key The text as the manifest writes it.
+		 * @param {object} [vars] Placeholder values.
+		 * @return {string} The translation, or the key when there is none.
+		 * @spec exclude wiring only: hands the library the app's translator. Which strings exist and what they say is specified where the manifest declares them.
+		 */
+		translateForApp(key, vars) {
+			return ncTranslate('launchpad', key, vars)
+		},
+
+		/**
+		 * The mounted CnAppRoot, or null before it mounts.
+		 *
+		 * @return {object|null} The CnAppRoot instance.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		appRoot() {
+			return this.$refs.appRoot || null
+		},
+
+		/**
+		 * Open the user settings dialog when the location hash is
+		 * `#user-settings`, the deep link that replaces the old forms in
+		 * Nextcloud's personal settings.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		openUserSettingsFromHash() {
+			const root = this.appRoot()
+			if (root && window.location.hash === '#user-settings') {
+				root.userSettingsOpen = true
+			}
+		},
+	},
 }
 </script>
+
+<style>
+/* The More menu on a page other than the dashboard view: at the top end of
+   the content, which keeps the column beside it free so a page's own header
+   actions are never covered. */
+.launchpad-page-menu {
+	position: absolute;
+	top: calc(2 * var(--default-grid-baseline, 4px));
+	inset-inline-end: calc(2 * var(--default-grid-baseline, 4px));
+	z-index: 10;
+}
+
+/* Board LpStore: in the page header's action row More is the last button,
+   after Publish, whatever order the row's own buttons mount in. */
+.launchpad-page-menu--in-header {
+	position: static;
+	order: 99;
+}
+
+#app-content-vue:has(> .launchpad-page-menu) {
+	padding-inline-end: calc(var(--default-clickable-area, 34px) + 4 * var(--default-grid-baseline, 4px));
+}
+</style>

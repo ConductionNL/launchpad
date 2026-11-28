@@ -34,12 +34,18 @@
  * `npm run test:e2e` after starting the dev stack.
  *
  * Gate-19 @e2e traceability:
- *   @e2e dashboard-sharing::owner-adds-a-user-share
- *   @e2e dashboard-sharing::owner-changes-permission-level-persists
- *   @e2e dashboard-sharing::owner-removes-a-share-persists
- *   @e2e dashboard-sharing::recipient-sees-shared-dashboard
+ *   @e2e dashboard-sharing::a-user-drives-the-full-sharing-flow-through-the-browser
  *
- * @spec openspec/changes/add-dashboard-sharing-e2e-coverage/tasks.md
+ * The four tests below are the steps of that one scenario (add, change the
+ * level, remove, and the recipient's view), each asserted across a reload.
+ * They used to carry four slugs of their own (`owner-adds-a-user-share`,
+ * `owner-changes-permission-level-persists`, `owner-removes-a-share-persists`,
+ * `recipient-sees-shared-dashboard`) that match no heading in the spec. The
+ * HTTP scenarios they resemble ("Owner adds a share", "Recipient sees a
+ * shared dashboard in their list") assert status codes and response fields a
+ * DOM test does not see, and are cited by `ci/dashboard-share-api.spec.ts`.
+ *
+ * @spec openspec/specs/dashboard-sharing/spec.md
  */
 
 import type { APIRequestContext, Locator } from '@playwright/test'
@@ -53,6 +59,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { dashboardRow, MORE_MENU, openDashboardSettings, openDashboardSwitcher, switchToDashboard } from './support/dashboardSwitcher.ts'
 
 // The recipient account the owner shares to. Overridable so the same spec
 // works against fixtures that seed a different second user.
@@ -84,17 +91,7 @@ let seeded: SeededDashboard | null = null
  */
 async function openSharingTab(page: Page) {
 	await page.goto('/index.php/apps/launchpad')
-	try {
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-	} catch {
-		await page.goto('/index.php/apps/launchpad')
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-	}
-
-	await page.locator('.launchpad-sidebar-toggle').first().click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-		timeout: 8_000,
-	})
+	await openDashboardSwitcher(page)
 
 	// Open THIS FILE'S dashboard's cog menu → "Dashboard settings".
 	//
@@ -108,12 +105,8 @@ async function openSharingTab(page: Page) {
 	if (seeded === null) {
 		throw new Error('dashboard-sharing: beforeAll did not seed a dashboard')
 	}
-	const activeRow = page
-		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
-		.and(page.locator(`[aria-label="${seeded.name}"]`))
-		.first()
-	await activeRow.locator('.dashboard-row-actions button').first().click()
-	await page.locator('[data-testid="cog-dashboard-config"]').click()
+	await switchToDashboard(page, seeded.name)
+	await openDashboardSettings(page)
 
 	// The modal opens on the General tab; switch to Sharing.
 	await page
@@ -146,6 +139,33 @@ async function addSharee(page: Page, panel: Locator, sharee: string) {
 }
 
 /**
+ * Make sure the recipient account exists, so the file does not depend on an
+ * account some fixture outside it was supposed to seed (on a fresh instance
+ * there was none, and the sharee search found nothing to pick).
+ *
+ * @param admin an admin-authenticated request context.
+ * @param username the recipient's user id.
+ * @param password the password to create it with.
+ * @return nothing.
+ */
+async function ensureRecipient(
+	admin: APIRequestContext,
+	username: string,
+	password: string,
+): Promise<void> {
+	const known = await admin.get(
+		`/ocs/v2.php/cloud/users/${encodeURIComponent(username)}?format=json`,
+	)
+	if (known.ok()) {
+		return
+	}
+	const created = await admin.post('/ocs/v2.php/cloud/users?format=json', {
+		form: { userid: username, password, displayName: username },
+	})
+	expect(created.status(), await created.text()).toBe(200)
+}
+
+/**
  * Persist the config modal via its Save button and wait for it to close.
  *
  * @param {Page} page Playwright page fixture.
@@ -169,7 +189,15 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 			httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
 			extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
 		})
+		await ensureRecipient(api, SHAREE, RECIPIENT_PASSWORD)
 		seeded = await seedActiveDashboard(api, `E2E Sharing ${Date.now()}`)
+		// A new dashboard starts as a draft, and REQ-DASH-036 hides a draft
+		// from everyone but its owner, share or no share. The recipient
+		// scenario needs one they may see, so publish it.
+		const published = await api.post(
+			`/index.php/apps/launchpad/api/dashboards/${seeded.uuid}/publish`,
+		)
+		expect(published.status(), await published.text()).toBe(200)
 	})
 
 	// In afterAll, so the dashboard (and the share on it) goes even when a
@@ -274,7 +302,7 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 		).toHaveCount(0, { timeout: 8_000 })
 	})
 
-	test('recipient sees the shared dashboard in their switcher', async ({
+	test('recipient sees the shared dashboard in More, marked shared', async ({
 		page,
 		browser,
 	}) => {
@@ -309,7 +337,7 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 		//    rows. A dashboard merely SHARED with a user was in none of
 		//    those buckets, so a recipient with nothing of their own landed
 		//    on WorkspaceApp's empty state (`hasActiveDashboard` is
-		//    server-injected and was false) and `.launchpad-sidebar-toggle`
+		//    server-injected and was false) and the shell's controls
 		//    — mounted by `v-if="hasActiveDashboard"` — never rendered at
 		//    all, regardless of the share.
 		//    FIXED: shares are now a source-tagged bucket in the visibility
@@ -339,7 +367,7 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 			// a blank page), which is exactly the kind of assertion that
 			// proves nothing.
 			await recipientPage.waitForSelector(
-				'.launchpad-sidebar-toggle, .workspace-shell__empty',
+				`${MORE_MENU}, .workspace-shell__empty`,
 				{ timeout: 30_000 },
 			)
 
@@ -352,21 +380,13 @@ test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
 
 			// (3) The shell renders — which also requires every bootstrap
 			// AJAX call to have passed the action matrix as a non-admin.
-			await recipientPage.waitForSelector('.launchpad-sidebar-toggle', {
-				timeout: 30_000,
-			})
-			await recipientPage.locator('.launchpad-sidebar-toggle').first().click()
-			await recipientPage.waitForSelector('.dashboard-switcher-sidebar.open', {
-				timeout: 10_000,
-			})
+			await openDashboardSwitcher(recipientPage)
 
-			// (4) Visibility: the share shows up in its own switcher
-			// section, not smuggled in under the recipient's group heading.
-			const sharedSection = recipientPage.locator('[data-section="shared"]')
-			await expect(sharedSection).toBeVisible({ timeout: 10_000 })
-			await expect(
-				sharedSection.locator('[data-source="shared"]').first(),
-			).toBeVisible()
+			// (4) Visibility: More's full list holds the share, marked
+			// "shared" (REQ-SHELL-014), not under the recipient's group.
+			const row = dashboardRow(recipientPage, seeded!.name)
+			await expect(row).toBeVisible({ timeout: 10_000 })
+			await expect(row.locator('.lp-more-menu__meta')).toHaveText('shared')
 		} finally {
 			await context.close()
 		}

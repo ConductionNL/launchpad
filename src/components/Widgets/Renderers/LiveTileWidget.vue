@@ -7,6 +7,7 @@
 	<component
 		:is="clickThroughTag"
 		class="live-tile-widget"
+		:class="styleClasses"
 		v-bind="clickThroughAttrs"
 		@click="onActivate">
 		<div v-if="loading" class="live-tile-widget__state">
@@ -22,10 +23,10 @@
 		</div>
 
 		<div
-			v-else-if="errorMessage"
+			v-else-if="shownError"
 			class="live-tile-widget__state live-tile-widget__state--error">
 			<AlertCircleOutline :size="32" />
-			<span>{{ errorMessage }}</span>
+			<span>{{ shownError }}</span>
 			<button type="button" class="live-tile-widget__retry" @click.stop="load">
 				{{ t('launchpad', 'Retry') }}
 			</button>
@@ -39,11 +40,61 @@
 				{{ t('launchpad', 'Showing last known value') }}
 			</span>
 
-			<div v-if="label" class="live-tile-widget__label">
+			<div v-if="label && showTitle" class="live-tile-widget__label">
 				{{ label }}
 			</div>
 
-			<div class="live-tile-widget__value" :aria-label="valueAriaLabel">
+			<!-- REQ-LTC-001: a list, table or key-value tile shows the mapped
+			     rows the server sent; a link shows only when it is https
+			     (REQ-LTC-003). -->
+			<ul v-if="display === 'list'" class="live-tile-widget__list">
+				<li v-for="(item, index) in items" :key="index" class="live-tile-widget__list-item">
+					<a
+						v-if="linkOf(item)"
+						:href="linkOf(item)"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="live-tile-widget__list-title">{{ titleOf(item) }}</a>
+					<span v-else class="live-tile-widget__list-title">{{ titleOf(item) }}</span>
+					<span
+						v-for="field in detailsOf(item)"
+						:key="field.label"
+						class="live-tile-widget__list-detail">{{ field.label ? field.label + ': ' : '' }}{{ textOf(field) }}</span>
+				</li>
+			</ul>
+
+			<table v-else-if="display === 'table'" class="live-tile-widget__table">
+				<thead>
+					<tr>
+						<th v-for="column in columns" :key="column" scope="col">
+							{{ column }}
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="(item, index) in items" :key="index">
+						<td v-for="field in item" :key="field.label">
+							<a
+								v-if="field.role === 'link' && isHttps(field.value)"
+								:href="field.value"
+								target="_blank"
+								rel="noopener noreferrer">{{ field.value }}</a>
+							<template v-else>
+								{{ textOf(field) }}
+							</template>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<dl v-else-if="display === 'keyvalue'" class="live-tile-widget__pairs">
+				<template v-for="pair in pairs" :key="pair.label">
+					<dt>{{ pair.label }}</dt>
+					<dd>{{ textOf(pair) }}</dd>
+				</template>
+			</dl>
+
+			<div v-else class="live-tile-widget__value" :aria-label="valueAriaLabel">
 				{{ displayValue }}
 			</div>
 
@@ -71,7 +122,13 @@ import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue
 import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import CloudOffOutline from 'vue-material-design-icons/CloudOffOutline.vue'
+import {
+	NULLABLE_OBJECT_PROP,
+	OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
 import { fetchLiveTileValue } from '../../../services/liveTileClient.js'
+import { knownColour } from '../../../utils/liveTilePreview.js'
+import { loadPlacementReading } from '../../../utils/placementReading.js'
 
 /**
  * Maps a badge `state` to an icon component. Falls back to
@@ -110,16 +167,19 @@ export default {
 
 	props: {
 		/**
+		 * The widget is a miniature in Add widget (REQ-WDG-048): it draws
+		 * its sample content and sends no request.
+		 */
+		preview: { type: Boolean, default: false },
+
+		/**
 		 * Persisted widget content blob:
 		 * `{sourceMode, url, sourceId, valueExpr, refresh, format, badge,
 		 * label, linkUrl, linkTarget}`.
 		 *
 		 * @type {object}
 		 */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/**
 		 * The widget placement — only `placement.id` is used, to call the
@@ -127,8 +187,18 @@ export default {
 		 *
 		 * @type {{id?: number|string}|null}
 		 */
-		placement: {
-			type: Object,
+		placement: NULLABLE_OBJECT_PROP,
+
+		/**
+		 * Where the reading comes from instead of LaunchPad's per-placement
+		 * endpoint: a function of the placement id that resolves the reading.
+		 * A public link or kiosk screen passes its token-scoped read here
+		 * (REQ-PSHR-011); null (the default) is the signed-in dashboard.
+		 *
+		 * @type {(function((number|string)): Promise<object>)|null}
+		 */
+		readingSource: {
+			type: Function,
 			default: null,
 		},
 	},
@@ -148,6 +218,30 @@ export default {
 		},
 
 		/**
+		 * Whether the title shows; only an explicit `false` hides it.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		showTitle() {
+			return this.content?.showTitle !== false
+		},
+
+		/**
+		 * The colour and border the form chose.
+		 *
+		 * @return {object}
+		 * @spec openspec/changes/archive/2026-11-25-widget-content-forms-board-sync/specs/live-data-tile-widget/spec.md#requirement-the-live-data-form-as-lpwidgetinstellen-draws-it-req-livetile-020
+		 */
+		styleClasses() {
+			const colour = knownColour(this.content?.colour)
+			return {
+				['live-tile-colour--' + colour]: colour !== '',
+				'live-tile-widget--bordered': this.content?.border === true,
+			}
+		},
+
+		/**
 		 * "Data source unavailable" is distinguished from a generic error:
 		 * a `connector`-mode tile with no cached value, marked stale, is
 		 * treated as unavailable rather than a network/config error
@@ -156,12 +250,82 @@ export default {
 		 * @spec openspec/specs/live-data-tile-widget/spec.md
 		 */
 		unavailable() {
+			return this.content?.sourceMode === 'connector' && this.noValue
+		},
+
+		/**
+		 * Whether the server answered without any value: the source failed
+		 * and there was no last-known value to serve (`value: null`,
+		 * `stale: true`, nothing mapped).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
+		 */
+		noValue() {
 			return (
-				this.content?.sourceMode === 'connector'
-				&& this.reading !== null
+				this.reading !== null
 				&& this.reading.value === null
 				&& this.reading.stale === true
+				&& this.items.length === 0
+				&& this.pairs.length === 0
 			)
+		},
+
+		/**
+		 * The error the tile shows: a failed request, or a reading without
+		 * any value, which is an error rather than a "last known value".
+		 *
+		 * @return {string} The message, or '' when there is no error.
+		 * @spec openspec/specs/live-data-tile-widget/spec.md
+		 */
+		shownError() {
+			if (this.errorMessage) {
+				return this.errorMessage
+			}
+			return this.noValue
+				? t('launchpad', 'The value is currently unavailable.')
+				: ''
+		},
+
+		/**
+		 * How the tile shows its data: `value` (a single value), `list`, `table` or `keyvalue`.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		display() {
+			const display = this.reading?.display
+			return ['list', 'table', 'keyvalue'].includes(display) ? display : 'value'
+		},
+
+		/**
+		 * The mapped rows of a list or table: each an array of `{label, role, value}`.
+		 *
+		 * @return {Array<Array<object>>}
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		items() {
+			return Array.isArray(this.reading?.items) ? this.reading.items.filter(Array.isArray) : []
+		},
+
+		/**
+		 * The mapped pairs of a key-value tile.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		pairs() {
+			return Array.isArray(this.reading?.pairs) ? this.reading.pairs : []
+		},
+
+		/**
+		 * The table's column headers, from the mapping labels of the first row.
+		 *
+		 * @return {string[]}
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		columns() {
+			return (this.items[0] || []).map((field) => field.label)
 		},
 
 		/** @spec openspec/specs/live-data-tile-widget/spec.md */
@@ -218,12 +382,13 @@ export default {
 
 		/** @spec openspec/specs/live-data-tile-widget/spec.md */
 		clickThroughTag() {
-			return this.hasLink ? 'a' : 'div'
+			// A list or table holds links of its own, and a link may not hold a link.
+			return this.hasLink && this.display === 'value' ? 'a' : 'div'
 		},
 
 		/** @spec openspec/specs/live-data-tile-widget/spec.md */
 		clickThroughAttrs() {
-			if (!this.hasLink) {
+			if (this.clickThroughTag !== 'a') {
 				return {}
 			}
 			const newTab = this.content?.linkTarget === 'new-tab'
@@ -235,12 +400,92 @@ export default {
 		},
 	},
 
+	/** @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048 */
 	mounted() {
+		if (this.preview) {
+			// REQ-WDG-048: a miniature draws its sample state.
+			Object.assign(this.$data, { loading: false, ...(this.content?.sampleData || {}) })
+			return
+		}
 		this.load()
 	},
 
 	methods: {
 		t,
+
+		/**
+		 * Whether a value is an https address, the only kind shown as a link.
+		 *
+		 * @param {string|number|boolean|null} value - a mapped value.
+		 * @return {boolean}
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-only-safe-links-are-clickable-req-ltc-003
+		 */
+		isHttps(value) {
+			if (typeof value !== 'string') {
+				return false
+			}
+			try {
+				return new URL(value).protocol === 'https:'
+			} catch {
+				return false
+			}
+		},
+
+		/**
+		 * The link of a list row, or '' when it has no https link.
+		 *
+		 * @param {Array<object>} item - the row's mapped fields.
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-only-safe-links-are-clickable-req-ltc-003
+		 */
+		linkOf(item) {
+			const link = item.find((field) => field.role === 'link')
+			return link && this.isHttps(link.value) ? link.value : ''
+		},
+
+		/**
+		 * The title of a list row: its title field, else its first value.
+		 *
+		 * @param {Array<object>} item - the row's mapped fields.
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		titleOf(item) {
+			const title = item.find((field) => field.role === 'title') || item.find((field) => field.role !== 'link')
+			return title ? this.textOf(title) : ''
+		},
+
+		/**
+		 * The fields of a list row shown under its title: dates and other fields with a value.
+		 *
+		 * @param {Array<object>} item - the row's mapped fields.
+		 * @return {Array<object>}
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		detailsOf(item) {
+			const title = item.find((field) => field.role === 'title') || item.find((field) => field.role !== 'link')
+			return item.filter((field) => field !== title && field.role !== 'link' && this.textOf(field) !== '')
+		},
+
+		/**
+		 * A mapped value as text; a date shown in the reader's locale.
+		 *
+		 * @param {{role: string, value: (string|number|boolean|null)}} field - a mapped field.
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-19-integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		textOf(field) {
+			if (field.value === null || field.value === undefined) {
+				return ''
+			}
+			if (field.role === 'date' && typeof field.value === 'string') {
+				const date = new Date(field.value)
+				if (!Number.isNaN(date.getTime())) {
+					return date.toLocaleDateString()
+				}
+			}
+			return String(field.value)
+		},
 
 		/**
 		 * No-op click handler placeholder — click-through is handled by the
@@ -262,89 +507,30 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/live-data-tile-widget/spec.md
+		 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 		 */
 		async load() {
-			const placementId = this.placement?.id
-			if (placementId === undefined || placementId === null) {
-				this.loading = false
-				this.errorMessage = t(
+			await loadPlacementReading(this, {
+				placementId: this.placement?.id,
+				fetch: this.readingSource ?? fetchLiveTileValue,
+				unsaved: t(
 					'launchpad',
 					'This tile is not available until it is saved.',
-				)
-				return
-			}
-
-			this.loading = true
-			this.errorMessage = ''
-			try {
-				const data = await fetchLiveTileValue(placementId)
-				if (data && data.error) {
-					this.reading = null
-					this.errorMessage = t(
-						'launchpad',
-						'The value is currently unavailable.',
-					)
-					return
-				}
-				this.reading = data
-			} catch {
-				this.reading = null
-				this.errorMessage = t('launchpad', 'Failed to load the value.')
-			} finally {
-				this.loading = false
-			}
+				),
+				unavailable: t('launchpad', 'The value is currently unavailable.'),
+				failed: t('launchpad', 'Failed to load the value.'),
+			})
 		},
 	},
 }
 </script>
 
+<style scoped src="./readingTile.css"></style>
+
 <style scoped>
 .live-tile-widget {
-	width: 100%;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
 	text-decoration: none;
 	color: inherit;
-}
-
-.live-tile-widget__state {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 8px;
-	color: var(--color-text-maxcontrast, var(--color-main-text));
-	text-align: center;
-}
-
-.live-tile-widget__retry {
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius);
-	background: transparent;
-	padding: 4px 12px;
-	cursor: pointer;
-	color: var(--color-main-text);
-}
-
-.live-tile-widget__reading {
-	position: relative;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 4px;
-}
-
-.live-tile-widget__stale-badge {
-	position: absolute;
-	top: -8px;
-	right: -8px;
-	font-size: 0.7rem;
-	padding: 2px 6px;
-	border-radius: var(--border-radius-pill, 8px);
-	background: var(--color-warning, #ffcc00);
-	color: var(--color-main-text);
 }
 
 .live-tile-widget__label {
@@ -355,7 +541,30 @@ export default {
 .live-tile-widget__value {
 	font-size: 1.8rem;
 	font-weight: 600;
-	color: var(--color-main-text);
+	color: var(--live-tile-accent, var(--color-main-text));
+}
+
+.live-tile-widget--bordered {
+	display: block;
+	padding: 8px;
+	border: 1px solid var(--color-border-dark);
+	border-radius: var(--border-radius-large);
+}
+
+.live-tile-colour--primary {
+	--live-tile-accent: var(--color-primary-element);
+}
+
+.live-tile-colour--success {
+	--live-tile-accent: var(--color-success-text, var(--color-success));
+}
+
+.live-tile-colour--warning {
+	--live-tile-accent: var(--color-warning-text, var(--color-warning));
+}
+
+.live-tile-colour--error {
+	--live-tile-accent: var(--color-error-text, var(--color-error));
 }
 
 .live-tile-widget__badge {
@@ -366,6 +575,65 @@ export default {
 	padding: 2px 8px;
 	border-radius: var(--border-radius-pill, 8px);
 	border: 1px solid var(--color-border);
+}
+
+.live-tile-widget__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	text-align: start;
+}
+
+.live-tile-widget__list-item {
+	display: flex;
+	flex-direction: column;
+}
+
+.live-tile-widget__list-title {
+	font-weight: 600;
+	color: var(--color-main-text);
+}
+
+a.live-tile-widget__list-title {
+	text-decoration: underline;
+}
+
+.live-tile-widget__list-detail {
+	font-size: 0.85rem;
+	color: var(--color-text-maxcontrast);
+}
+
+.live-tile-widget__table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.9rem;
+	text-align: start;
+}
+
+.live-tile-widget__table th,
+.live-tile-widget__table td {
+	padding: 4px 6px;
+	border-bottom: 1px solid var(--color-border);
+	text-align: start;
+}
+
+.live-tile-widget__pairs {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 4px 12px;
+	margin: 0;
+	text-align: start;
+}
+
+.live-tile-widget__pairs dt {
+	font-weight: 600;
+}
+
+.live-tile-widget__pairs dd {
+	margin: 0;
 }
 
 .live-tile-widget__badge--ok {

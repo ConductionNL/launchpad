@@ -26,18 +26,16 @@ namespace OCA\LaunchPad\Listener;
 
 use OCA\LaunchPad\Db\DashboardViewMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
-use OCP\EventDispatcher\Event;
-use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
-use Throwable;
 
 /**
  * Deletes view-analytics rows for the deleted dashboard.
  * C4 fix (REQ-CSC-003).
  *
- * @implements IEventListener<DashboardDeletedEvent>
  */
-class ViewAnalyticsListener implements IEventListener {
+class ViewAnalyticsListener extends DashboardCleanupListener {
+	protected const CLEANED = 'deleted %d view rows';
+
 	/**
 	 * Constructor.
 	 *
@@ -48,48 +46,23 @@ class ViewAnalyticsListener implements IEventListener {
 	 */
 	public function __construct(
 		private readonly DashboardViewMapper $viewMapper,
-		private readonly LoggerInterface $logger,
+		LoggerInterface $logger,
 	) {
+		parent::__construct(logger: $logger);
 	}//end __construct()
 
 	/**
-	 * Handle the DashboardDeletedEvent.
+	 * Remove the deleted dashboard's rows.
 	 *
-	 * @param Event $event The event.
+	 * @param DashboardDeletedEvent $event The event.
 	 *
-	 * @return void
+	 * @return int The number of rows removed.
 	 *
-	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/specs/dashboard-cascade-events/spec.md
 	 */
-	public function handle(Event $event): void {
-		if (($event instanceof DashboardDeletedEvent) === false) {
-			return;
-		}
-
-		$uuid = $event->getDashboardUuid();
-
-		try {
-			$deleted = $this->viewMapper->deleteByDashboard(
-				dashboardUuid: $uuid
-			);
-
-			$this->logger->debug(
-				message: sprintf(
-					'launchpad ViewAnalyticsListener: deleted %d view rows for dashboard %s',
-					$deleted,
-					$uuid
-				),
-				context: ['app' => 'launchpad']
-			);
-		} catch (Throwable $t) {
-			$this->logger->warning(
-				message: sprintf(
-					'launchpad ViewAnalyticsListener: failed for dashboard %s: %s',
-					$uuid,
-					$t->getMessage()
-				),
-				context: ['app' => 'launchpad']
-			);
-		}//end try
-	}//end handle()
+	protected function cleanUp(DashboardDeletedEvent $event): int {
+		return $this->viewMapper->deleteByDashboard(
+			dashboardUuid: $event->getDashboardUuid()
+		);
+	}//end cleanUp()
 }//end class

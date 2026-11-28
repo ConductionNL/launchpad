@@ -12,6 +12,7 @@
 			v-model="field"
 			:inputLabel="t('launchpad', 'Filter by detail')"
 			:options="filterable"
+			:appendToBody="false"
 			label="label"
 			trackBy="key"
 			@update:modelValue="onField" />
@@ -20,6 +21,7 @@
 			v-model="value"
 			:inputLabel="field.label"
 			:options="field.options || []"
+			:appendToBody="false"
 			data-testid="detail-filter-value"
 			@update:modelValue="emitFilter" />
 	</div>
@@ -28,9 +30,12 @@
 <script>
 import { NcSelect } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { LIST_PROP } from '../../constants/propDefinitions.js'
 
 /**
- * DetailFilter: "Filter by detail" in the dashboard switcher. Offered only
+ * DetailFilter: "Filter by detail" above More's full Dashboards list
+ * (REQ-SHELL-019). Its dropdowns stay inside the menu, so a pick is not a
+ * click outside that closes it. Offered only
  * when a select or multi-select detail field exists. Emits `change` with
  * `{<key>: <value>}`, or null when cleared (REQ-MDUI-003).
  *
@@ -45,10 +50,7 @@ export default {
 
 	props: {
 		/** Detail field definitions (`key`, `label`, `type`, `options`). */
-		fields: {
-			type: Array,
-			default: () => [],
-		},
+		fields: LIST_PROP,
 	},
 
 	emits: ['change'],

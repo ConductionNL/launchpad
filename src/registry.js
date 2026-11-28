@@ -12,10 +12,13 @@
  * and the manifest names it, so it has to be resolvable by name.
  */
 
-import AdminSettingsRedirect from './views/AdminSettingsRedirect.vue'
+// The dashboard view is the page nearly every visit lands on, so it ships in
+// launchpad-main and renders in the same task as the app mount. As a lazy chunk
+// it evaluated only after Nextcloud's own load handlers, ~100 ms later on
+// screen (first useful content, ADR-124).
+// @spec openspec/specs/runtime-shell/spec.md
 import WorkspaceApp from './views/WorkspaceApp.vue'
 
 export default {
 	WorkspaceApp: { kind: 'page', component: WorkspaceApp },
-	AdminSettingsRedirect: { kind: 'page', component: AdminSettingsRedirect },
 }

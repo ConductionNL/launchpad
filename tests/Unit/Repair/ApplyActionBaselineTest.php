@@ -275,4 +275,244 @@ class ApplyActionBaselineTest extends TestCase {
 			'an admin-only restriction made after v1 must survive the v2 upgrade'
 		);
 	}//end testAnInstanceAtV1KeepsAnAdminsLaterRestriction()
+
+	/**
+	 * An instance at v2 gains the owner's own versions, metadata writes and
+	 * rule reads from v3, and nothing else: an action an admin narrowed is kept.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV2GainsTheOwnerActions(): void {
+		$this->appConfig->method('getValueInt')->willReturn(2);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'dashboard.create' => ['admin'],
+			'dashboard-version.list-versions' => ['admin'],
+			'dashboard-metadata.set-metadata' => ['admin'],
+			'rule.get-rules' => ['admin', 'editors'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$opened = [
+			'dashboard-version.list-versions',
+			'dashboard-version.fetch-version',
+			'dashboard-version.create-version',
+			'dashboard-version.restore-version',
+			'dashboard-metadata.set-metadata',
+		];
+		foreach ($opened as $action) {
+			$this->assertContains(
+				needle: ActionAuthService::GROUP_ALL_USERS,
+				haystack: $written[$action],
+				message: $action . ' must be open to the owner after v3'
+			);
+		}
+
+		$this->assertSame(expected: ['admin', 'editors'], actual: $written['rule.get-rules'], message: 'an entry an admin changed is kept');
+		$this->assertSame(expected: ['admin'], actual: $written['dashboard.create'], message: 'v3 adds only its own actions');
+	}//end testAnInstanceAtV2GainsTheOwnerActions()
+
+	/**
+	 * An instance at v3 gains the owner's own translation writes from v4, and
+	 * nothing else: an action an admin narrowed is kept.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV3GainsTheOwnersTranslationWrites(): void {
+		$this->appConfig->method('getValueInt')->willReturn(3);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'dashboard.create' => ['admin'],
+			'dashboard-translation.create' => ['admin'],
+			'dashboard-translation.set-primary' => ['admin', 'editors'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$opened = [
+			'dashboard-translation.create',
+			'dashboard-translation.update',
+			'dashboard-translation.destroy',
+		];
+		foreach ($opened as $action) {
+			$this->assertContains(
+				needle: ActionAuthService::GROUP_ALL_USERS,
+				haystack: $written[$action],
+				message: $action . ' must be open to the owner after v4'
+			);
+		}
+
+		$this->assertSame(
+			expected: ['admin', 'editors'],
+			actual: $written['dashboard-translation.set-primary'],
+			message: 'an entry an admin changed is kept'
+		);
+		$this->assertSame(expected: ['admin'], actual: $written['dashboard.create'], message: 'v4 adds only its own actions');
+	}//end testAnInstanceAtV3GainsTheOwnersTranslationWrites()
+
+	/**
+	 * An instance at v4 lets the owner add visibility rules from v5, and an
+	 * entry an admin changed is kept.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV4LetsTheOwnerAddRules(): void {
+		$this->appConfig->method('getValueInt')->willReturn(4);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'rule.add-rule' => ['admin'],
+			'tile.create' => ['admin'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['rule.add-rule']);
+		$this->assertSame(expected: ['admin'], actual: $written['tile.create'], message: 'later revisions add only their own actions');
+	}//end testAnInstanceAtV4LetsTheOwnerAddRules()
+
+	/**
+	 * An instance at v5 lets the owner publish, unpublish and schedule from
+	 * v6, and an entry an admin changed is kept.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV5LetsTheOwnerPublish(): void {
+		$this->appConfig->method('getValueInt')->willReturn(5);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'dashboard.publish' => ['admin'],
+			'dashboard.unpublish' => ['admin'],
+			'dashboard.schedule' => ['admin', 'redactie'],
+			'dashboard-lock.force-release' => ['admin'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['dashboard.publish']);
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['dashboard.unpublish']);
+		$this->assertSame(expected: ['admin', 'redactie'], actual: $written['dashboard.schedule'], message: 'an entry an admin changed is kept');
+		$this->assertSame(expected: ['admin'], actual: $written['dashboard-lock.force-release'], message: 'v6 adds only its own actions');
+	}//end testAnInstanceAtV5LetsTheOwnerPublish()
+
+	/**
+	 * An instance at v6 lets the owner change and remove rules from v7, and
+	 * an entry an admin changed is kept.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV6LetsTheOwnerChangeAndRemoveRules(): void {
+		$this->appConfig->method('getValueInt')->willReturn(6);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'rule.update-rule' => ['admin'],
+			'rule.delete-rule' => ['admin', 'redactie'],
+			'tile.create' => ['admin'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['rule.update-rule']);
+		$this->assertSame(expected: ['admin', 'redactie'], actual: $written['rule.delete-rule'], message: 'an entry an admin changed is kept');
+		$this->assertSame(expected: ['admin'], actual: $written['tile.create'], message: 'v7 adds only its own actions');
+	}//end testAnInstanceAtV6LetsTheOwnerChangeAndRemoveRules()
+
+	/**
+	 * An instance at v7 lets every user read the organisation menu and its
+	 * place from v8; writing it stays admin-only.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV7LetsUsersReadTheOrganisationMenu(): void {
+		$this->appConfig->method('getValueInt')->willReturn(7);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'admin-org-navigation.get-org-navigation' => ['admin'],
+			'admin-org-navigation.get-position' => ['admin'],
+			'tile.create' => ['admin'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['admin-org-navigation.get-org-navigation']);
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['admin-org-navigation.get-position']);
+		$this->assertSame(expected: ['admin'], actual: $written['tile.create'], message: 'v8 adds only its own actions');
+	}//end testAnInstanceAtV7LetsUsersReadTheOrganisationMenu()
+
+	/**
+	 * An instance at v8 lets every user list people from v9 (REQ-PPL-015);
+	 * an entry an admin changed is kept.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV8LetsUsersListPeople(): void {
+		$this->appConfig->method('getValueInt')->willReturn(8);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'people-widget.get-users' => ['admin'],
+			'tile.create' => ['admin'],
+		]);
+
+		$written = null;
+		$this->actionAuth->expects($this->once())->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$this->assertContains(needle: ActionAuthService::GROUP_ALL_USERS, haystack: $written['people-widget.get-users']);
+		$this->assertSame(expected: ['admin'], actual: $written['tile.create'], message: 'v9 adds only its own action');
+	}//end testAnInstanceAtV8LetsUsersListPeople()
+
+	/**
+	 * An instance at v8 whose admin narrowed people listing to a group keeps it.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV8KeepsANarrowedPeopleListing(): void {
+		$this->appConfig->method('getValueInt')->willReturn(8);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'people-widget.get-users' => ['admin', 'hr'],
+		]);
+		$this->actionAuth->expects($this->never())->method('setMatrix');
+
+		$this->step->run($this->output);
+	}//end testAnInstanceAtV8KeepsANarrowedPeopleListing()
 }//end class

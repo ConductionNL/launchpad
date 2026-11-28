@@ -7,38 +7,63 @@
  * change.
  *
  * Drives the real runtime-shell add-widget flow (sidebar → personal-row cog
- * → "Add custom widget…" → Add Widget modal → Label) and asserts the
+ * → "Add widget" → "Custom widget" → Add Widget modal → Label) and asserts the
  * collision INVARIANTS that hold regardless of the dashboard's pre-existing
  * placements:
- *   1. Sequentially-added widgets never overlap (auto-position path).
- *   2. The auto-positioner keeps every placement non-overlapping even when
- *      the top of the grid is already occupied (push-down fallback).
+ *   1. Sequentially-added widgets never overlap.
+ *   2. Adding a widget to a populated dashboard never moves an existing one
+ *      (REQ-GRID-006 bottom-append: there is no push-down).
  *   3. Position writes survive a page reload (REQ-GRID-005 persistence).
  *
- * The exact push-down arithmetic (overlappers gain `gs-y = newH`) is a pure
- * function asserted by the useGridManager Vitest unit tests; here we assert
- * the user-observable invariant (no overlap) that a populated dashboard can
- * actually exercise.
- *
- * Gate-19 @e2e traceability:
- *   @e2e grid-layout::five-widgets-no-overlap-auto-position
- *   @e2e grid-layout::sixth-widget-push-down-fallback
- *   @e2e grid-layout::pushed-widgets-keep-column-lane
- *   @e2e grid-layout::positions-survive-reload
+ * This file cites no scenario. The four it used to cite
+ * (five-widgets-no-overlap-auto-position, sixth-widget-push-down-fallback,
+ * pushed-widgets-keep-column-lane, positions-survive-reload) were never slugs
+ * of grid-layout scenarios, and the push-down rule they described was replaced
+ * by bottom-append (archive/2026-10-09-grid-bottom-append-placement). The
+ * REQ-GRID-006 scenarios are cited, coordinate by coordinate, in
+ * grid-layout-placement.spec.ts; these tests stay as regression guards on a
+ * dashboard that already carries placements.
  */
 
-import type { Page } from '@playwright/test'
+import type { BrowserContext, Page } from '@playwright/test'
+import type { OwnDashboard } from './support/ownDashboard.ts'
 
 import { expect, test } from '@playwright/test'
-import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import {
 	closeSidebar,
-	gotoLaunchPad,
 	openAddWidgetModal,
 } from './fixtures/widget-flow.ts'
+import {
+	openOwnDashboard,
+	seedTextWidget,
+	setUpOwnDashboard,
+	tearDownOwnDashboard,
+} from './support/ownDashboard.ts'
 
-test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+// Each test runs as its own throwaway account with one active personal
+// dashboard that holds one widget at the top of the grid. The flow adds
+// widgets through that dashboard's row in the sidebar, so it never depends
+// on a personal dashboard left behind on the rig by an earlier run (a fresh
+// instance has none, and the old shared-state version then failed at the
+// sidebar). setUpOwnDashboard also lifts the `default` widget rule for the
+// test and puts it back afterwards.
+let own: OwnDashboard | undefined
+let context: BrowserContext | undefined
+let page: Page
+
+test.beforeEach(async ({ browser }) => {
+	own = await setUpOwnDashboard('e2e-collide', `E2E collision ${Date.now()}`)
+	await seedTextWidget(own.owner.api, own.id, { x: 0, y: 0, w: 4, h: 2 }, 'already here')
+	const session = await openOwnDashboard(browser, own, 1)
+	context = session.context
+	page = session.page
+})
+
+test.afterEach(async () => {
+	await context?.close()
+	context = undefined
+	await tearDownOwnDashboard(own)
+	own = undefined
 })
 
 /**
@@ -84,9 +109,8 @@ function hasOverlap(items: Array<{ x: number; y: number; w: number; h: number }>
 
 /** Add a single Label widget via the cog-menu Add Widget flow. */
 async function addLabelWidget(page: Page, text: string) {
-	await openAddWidgetModal(page)
+	await openAddWidgetModal(page, 'label')
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
 	await dialog
 		.getByLabel(/label text/i)
 		.first()
@@ -99,14 +123,7 @@ async function addLabelWidget(page: Page, text: string) {
 }
 
 test.describe('widget collision placement', () => {
-	test.beforeEach(async ({ page }) => {
-		await gotoLaunchPad(page)
-	})
-
-	// @e2e grid-layout::five-widgets-no-overlap-auto-position
-	test('REQ-GRID-006: adding several widgets leaves no overlap (auto-position)', async ({
-		page,
-	}) => {
+	test('REQ-GRID-006: adding several widgets leaves no overlap', async () => {
 		const stamp = Date.now()
 		for (let i = 0; i < 3; i++) {
 			await addLabelWidget(page, `collide-${stamp}-${i}`)
@@ -116,42 +133,43 @@ test.describe('widget collision placement', () => {
 		expect(hasOverlap(items)).toBe(false)
 	})
 
-	// @e2e grid-layout::sixth-widget-push-down-fallback
-	// @e2e grid-layout::pushed-widgets-keep-column-lane
-	test('REQ-GRID-006: auto-position keeps placements non-overlapping with an occupied top row', async ({
-		page,
-	}) => {
-		// The active dashboard already carries placements (the top of the grid
-		// is occupied). Adding more widgets must engage the push-down fallback
-		// and still leave NO overlap and preserve column lanes for any widget
-		// that did not move.
+	test('REQ-GRID-006: adding widgets to an occupied grid moves no existing widget', async () => {
+		// The active dashboard already carries a placement (the top of the grid
+		// is occupied, seeded in beforeEach). Bottom-append places each new widget below the lowest
+		// bottom edge, so no two placements overlap and every pre-existing
+		// widget keeps its exact geometry.
 		const before = await getGridItems(page)
 		const stamp = Date.now()
 		await addLabelWidget(page, `push-${stamp}-a`)
 		await addLabelWidget(page, `push-${stamp}-b`)
 		const after = await getGridItems(page)
 
-		expect(after.length).toBeGreaterThan(before.length)
-		// Core invariant — no two placements overlap after the fallback.
+		expect(after.length).toBe(before.length + 2)
 		expect(hasOverlap(after)).toBe(false)
 
-		// Column-lane preservation: any pre-existing widget whose y is unchanged
-		// must keep its x and w (the fallback only ever shifts y).
 		for (const b of before) {
 			const a = after.find((item) => item.id === b.id)
-			if (a && a.y === b.y) {
-				expect(a.x).toBe(b.x)
-				expect(a.w).toBe(b.w)
-			}
+			expect(a, `widget ${b.id} is still on the grid`).toBeDefined()
+			expect({ x: a?.x, y: a?.y, w: a?.w, h: a?.h }).toEqual({
+				x: b.x,
+				y: b.y,
+				w: b.w,
+				h: b.h,
+			})
+		}
+
+		// The two new widgets sit at x=0, at or below every pre-existing bottom edge.
+		const bottom = before.reduce((max, b) => Math.max(max, b.y + b.h), 0)
+		const added = after.filter((a) => !before.some((b) => b.id === a.id))
+		expect(added).toHaveLength(2)
+		for (const a of added) {
+			expect(a.x).toBe(0)
+			expect(a.y).toBeGreaterThanOrEqual(bottom)
 		}
 	})
 
-	// @e2e grid-layout::positions-survive-reload
-	test('REQ-GRID-005: widget positions survive a page reload', async ({
-		page,
-	}) => {
-		// The shared dashboard accumulates widgets across runs, so a full
-		// re-render can be slow — give this reload-heavy test extra budget.
+	test('REQ-GRID-005: widget positions survive a page reload', async () => {
+		// A reload re-renders the whole runtime shell: give it extra budget.
 		test.setTimeout(60_000)
 
 		await addLabelWidget(page, `reload-${Date.now()}`)

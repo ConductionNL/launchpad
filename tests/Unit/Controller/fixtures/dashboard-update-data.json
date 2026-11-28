@@ -1,0 +1,145 @@
+{
+    "nothing": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": []
+    },
+    "name": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "name": "Team"
+        }
+    },
+    "empty name": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "name": ""
+        }
+    },
+    "description": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "description": "About"
+        }
+    },
+    "empty description": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "description": ""
+        }
+    },
+    "placements": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "placements": [
+                {
+                    "widgetId": "w1"
+                }
+            ]
+        }
+    },
+    "no placements": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "placements": []
+        }
+    },
+    "icon": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "icon": "star"
+        }
+    },
+    "empty icon": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "icon": ""
+        }
+    },
+    "parent": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "parentUuid": "p-1"
+        }
+    },
+    "parent sentinel": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "parentUuid": null
+        }
+    },
+    "parent empty": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "parentUuid": null
+        }
+    },
+    "parent zero": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "parentUuid": "0"
+        }
+    },
+    "slug": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "slug": "team"
+        }
+    },
+    "empty slug": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "slug": ""
+        }
+    },
+    "sort order": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "sortOrder": 3
+        }
+    },
+    "sort order zero": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "sortOrder": 0
+        }
+    },
+    "everything": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "name": "n",
+            "description": "d",
+            "placements": [],
+            "icon": "i",
+            "parentUuid": null,
+            "slug": "s",
+            "sortOrder": 2
+        }
+    },
+    "metadata with parent": {
+        "dashboardId": 7,
+        "userId": "alice",
+        "data": {
+            "name": "n",
+            "parentUuid": "p-2",
+            "sortOrder": 1
+        }
+    }
+}

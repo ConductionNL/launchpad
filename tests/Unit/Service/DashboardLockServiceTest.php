@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\LockStore;
+use OCA\LaunchPad\Service\LockDirectory;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardLock;
 use OCA\LaunchPad\Db\DashboardLockMapper;
@@ -32,6 +34,7 @@ use OCA\LaunchPad\Exception\LockNotFoundException;
 use OCA\LaunchPad\Service\DashboardLockService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\DB\Exception;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserManager;
@@ -114,12 +117,16 @@ class DashboardLockServiceTest extends TestCase {
 			->willReturn(true);
 
 		$this->service = new DashboardLockService(
-			lockMapper: $this->lockMapper,
+			locks: new LockStore(
+				lockMapper: $this->lockMapper,
+				logger: $logger
+			),
 			dashboardMapper: $this->dashboardMapper,
-			userManager: $this->userManager,
-			groupManager: $this->groupManager,
-			logger: $logger,
-			permissionService: $this->permissionService,
+			directory: new LockDirectory(
+				userManager: $this->userManager,
+				groupManager: $this->groupManager
+			),
+			permissionService: $this->permissionService
 		);
 	}
 
@@ -223,6 +230,99 @@ class DashboardLockServiceTest extends TestCase {
 		} catch (LockConflictException $e) {
 			$this->assertSame('alice', $e->getExistingLock()->getUserId());
 		}
+	}
+
+	/**
+	 * A database exception with the given reason, as the insert of a
+	 * second lock row raises it.
+	 *
+	 * @param int|null $reason One of OCP\DB\Exception::REASON_*.
+	 *
+	 * @return Exception The exception.
+	 */
+	private function dbException(?int $reason): Exception {
+		return new class('insert refused', $reason) extends Exception {
+			/**
+			 * @param string   $message The message.
+			 * @param int|null $why     The reason getReason() answers.
+			 */
+			public function __construct(string $message, private readonly ?int $why) {
+				parent::__construct(message: $message);
+			}
+
+			/**
+			 * @return int|null The reason.
+			 */
+			public function getReason(): ?int {
+				return $this->why;
+			}
+		};
+	}
+
+	/**
+	 * REQ-LOCK-007: two acquires race; the one whose insert hits the unique
+	 * key gets the conflict naming the winner, not a 500.
+	 *
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 *
+	 * @return void
+	 */
+	public function testLosingTheInsertRaceIsAConflictNamingTheWinner(): void {
+		$winner = $this->makeLock(userId: 'alice');
+		$this->lockMapper->method('findByDashboardUuid')
+			->willReturnOnConsecutiveCalls(
+				$this->throwException(exception: new DoesNotExistException(msg: 'no row')),
+				$winner
+			);
+		$this->lockMapper->method('insert')
+			->willThrowException($this->dbException(reason: Exception::REASON_UNIQUE_CONSTRAINT_VIOLATION));
+
+		try {
+			$this->service->acquireLock(dashboardUuid: 'd1', userId: 'bob');
+			$this->fail(message: 'Expected LockConflictException');
+		} catch (LockConflictException $e) {
+			$this->assertSame(expected: 'alice', actual: $e->getExistingLock()->getUserId());
+		}
+	}
+
+	/**
+	 * REQ-LOCK-007: the same user racing two tabs gets their own lock back.
+	 *
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 *
+	 * @return void
+	 */
+	public function testLosingTheInsertRaceToYourselfReturnsYourLock(): void {
+		$mine = $this->makeLock(userId: 'alice');
+		$this->lockMapper->method('findByDashboardUuid')
+			->willReturnOnConsecutiveCalls(
+				$this->throwException(exception: new DoesNotExistException(msg: 'no row')),
+				$mine
+			);
+		$this->lockMapper->method('insert')
+			->willThrowException($this->dbException(reason: Exception::REASON_UNIQUE_CONSTRAINT_VIOLATION));
+		$this->lockMapper->method('update')->willReturnArgument(0);
+
+		$lock = $this->service->acquireLock(dashboardUuid: 'd1', userId: 'alice');
+
+		$this->assertSame(expected: 'alice', actual: $lock->getUserId());
+	}
+
+	/**
+	 * Any other database failure on the insert is not a conflict.
+	 *
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 *
+	 * @return void
+	 */
+	public function testAnotherDatabaseFailureOnTheInsertIsRethrown(): void {
+		$this->lockMapper->method('findByDashboardUuid')
+			->willThrowException(new DoesNotExistException(msg: 'no row'));
+		$failure = $this->dbException(reason: Exception::REASON_CONNECTION_LOST);
+		$this->lockMapper->method('insert')->willThrowException($failure);
+
+		$this->expectExceptionObject(exception: $failure);
+		$this->service->acquireLock(dashboardUuid: 'd1', userId: 'bob');
 	}
 
 	/**
@@ -441,12 +541,16 @@ class DashboardLockServiceTest extends TestCase {
 		$dashMapper->method('findByUuid')->willReturn($defaultDashboard);
 
 		return new DashboardLockService(
-			lockMapper: $this->lockMapper,
+			locks: new LockStore(
+				lockMapper: $this->lockMapper,
+				logger: $this->createMock(originalClassName: \Psr\Log\LoggerInterface::class)
+			),
 			dashboardMapper: $dashMapper,
-			userManager: $this->userManager,
-			groupManager: $this->groupManager,
-			logger: $this->createMock(originalClassName: \Psr\Log\LoggerInterface::class),
-			permissionService: $noAccessPermission,
+			directory: new LockDirectory(
+				userManager: $this->userManager,
+				groupManager: $this->groupManager
+			),
+			permissionService: $noAccessPermission
 		);
 	}//end makeServiceWithNoViewAccess()
 

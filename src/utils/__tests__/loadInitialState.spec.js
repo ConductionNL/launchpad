@@ -97,17 +97,26 @@ describe('loadInitialState', () => {
 		const message = warn.mock.calls[0][0]
 		expect(message).toMatch(/LaunchPad initial-state schema mismatch/)
 		expect(message).toMatch(/server v99/)
-		expect(message).toMatch(/client v2/)
+		expect(message).toMatch(/client v3/)
 	})
 
 	it('does not warn when the schema versions match', async () => {
-		pushedState = { _schemaVersion: 2 }
+		pushedState = { _schemaVersion: 3 }
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
 		const { loadInitialState } = await import('../loadInitialState.js')
 		loadInitialState('workspace')
 
 		expect(warn).not.toHaveBeenCalled()
+	})
+
+	it('reads the public start page token, empty when the server pushed none', async () => {
+		pushedState = { publicStartToken: 'Bib1Noord', _schemaVersion: 3 }
+		const { loadInitialState } = await import('../loadInitialState.js')
+		expect(loadInitialState('public-start')).toEqual({ publicStartToken: 'Bib1Noord' })
+
+		pushedState = {}
+		expect(loadInitialState('public-start')).toEqual({ publicStartToken: '' })
 	})
 
 	it('throws on an unknown page identifier', async () => {
@@ -230,7 +239,7 @@ describe('loadInitialState', () => {
 	})
 
 	it('fills defaults for every admin key the server omitted', async () => {
-		pushedState = { _schemaVersion: 2 }
+		pushedState = { _schemaVersion: 3 }
 
 		const { loadInitialState } = await import('../loadInitialState.js')
 		const state = loadInitialState('admin')
@@ -254,14 +263,14 @@ describe('loadInitialState', () => {
 		}
 	})
 
-	it('exports INITIAL_STATE_SCHEMA_VERSION matching the PHP constant (2)', async () => {
+	it('exports INITIAL_STATE_SCHEMA_VERSION matching the PHP constant (3)', async () => {
 		const mod = await import('../loadInitialState.js')
-		expect(mod.INITIAL_STATE_SCHEMA_VERSION).toBe(2)
+		expect(mod.INITIAL_STATE_SCHEMA_VERSION).toBe(3)
 	})
 
 	describe('quicksearchFallbackTarget (tile-quick-search REQ-QSEARCH-004)', () => {
 		it('defaults to "none" when the server omits the key (older deploy)', async () => {
-			pushedState = { _schemaVersion: 2 }
+			pushedState = { _schemaVersion: 3 }
 			const { loadInitialState } = await import('../loadInitialState.js')
 			const state = loadInitialState('workspace')
 			expect(state.quicksearchFallbackTarget).toBe('none')
@@ -269,12 +278,150 @@ describe('loadInitialState', () => {
 
 		it('returns the server-pushed value when present', async () => {
 			pushedState = {
-				_schemaVersion: 2,
+				_schemaVersion: 3,
 				quicksearchFallbackTarget: 'unified-search',
 			}
 			const { loadInitialState } = await import('../loadInitialState.js')
 			const state = loadInitialState('workspace')
 			expect(state.quicksearchFallbackTarget).toBe('unified-search')
 		})
+	})
+})
+
+/**
+ * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-4
+ */
+describe('takeDashboardFirstLoad', () => {
+	it('hands out the first load once, then null', async () => {
+		const firstLoad = { visible: { items: [], quota: null }, active: { dashboard: { uuid: 'a' } } }
+		pushedState = { dashboardFirstLoad: firstLoad }
+
+		const { takeDashboardFirstLoad } = await import('../loadInitialState.js')
+
+		expect(takeDashboardFirstLoad()).toEqual(firstLoad)
+		expect(takeDashboardFirstLoad()).toBeNull()
+	})
+
+	it('is null when the page did not carry it', async () => {
+		const { takeDashboardFirstLoad, loadInitialState } = await import('../loadInitialState.js')
+
+		expect(loadInitialState('workspace').dashboardFirstLoad).toBeNull()
+		expect(takeDashboardFirstLoad()).toBeNull()
+	})
+
+	it('is null for a value without the visible list', async () => {
+		pushedState = { dashboardFirstLoad: { active: null } }
+
+		const { takeDashboardFirstLoad } = await import('../loadInitialState.js')
+
+		expect(takeDashboardFirstLoad()).toBeNull()
+	})
+
+	it('gives a missing active dashboard as null', async () => {
+		pushedState = { dashboardFirstLoad: { visible: [] } }
+
+		const { takeDashboardFirstLoad } = await import('../loadInitialState.js')
+
+		expect(takeDashboardFirstLoad()).toEqual({ visible: [], active: null })
+	})
+})
+
+/**
+ * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-4
+ */
+describe('takeOrgNavigation', () => {
+	it('hands out the org navigation once, then null', async () => {
+		pushedState = { orgNavigation: { position: 'left', tree: [{ id: 'n1' }], language: 'nl' } }
+
+		const { takeOrgNavigation } = await import('../loadInitialState.js')
+
+		expect(takeOrgNavigation()).toEqual({ position: 'left', tree: [{ id: 'n1' }], language: 'nl' })
+		expect(takeOrgNavigation()).toBeNull()
+	})
+
+	it('is null when the page did not carry it', async () => {
+		const { takeOrgNavigation, loadInitialState } = await import('../loadInitialState.js')
+
+		expect(loadInitialState('workspace').orgNavigation).toBeNull()
+		expect(takeOrgNavigation()).toBeNull()
+	})
+
+	it('is null for a value without a position or a tree', async () => {
+		pushedState = { orgNavigation: { position: 'left', tree: 'not a list' } }
+
+		const { takeOrgNavigation } = await import('../loadInitialState.js')
+
+		expect(takeOrgNavigation()).toBeNull()
+	})
+})
+
+/**
+ * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-4
+ */
+describe('takeBootRead', () => {
+	it('hands out each part once, then undefined', async () => {
+		pushedState = { workspaceBootReads: { tiles: [{ id: 1 }], defaultDashboard: { uuid: 'u' } } }
+
+		const { takeBootRead } = await import('../loadInitialState.js')
+
+		expect(takeBootRead('tiles')).toEqual([{ id: 1 }])
+		expect(takeBootRead('tiles')).toBeUndefined()
+		expect(takeBootRead('defaultDashboard')).toEqual({ uuid: 'u' })
+	})
+
+	it('is undefined for a part the page did not carry, and without the key', async () => {
+		pushedState = { workspaceBootReads: { tiles: [] } }
+		const { takeBootRead, loadInitialState } = await import('../loadInitialState.js')
+		expect(takeBootRead('pendingAcknowledgements')).toBeUndefined()
+
+		vi.resetModules()
+		pushedState = {}
+		const fresh = await import('../loadInitialState.js')
+		expect(fresh.loadInitialState('workspace').workspaceBootReads).toBeNull()
+		expect(fresh.takeBootRead('tiles')).toBeUndefined()
+		expect(loadInitialState).toBeTypeOf('function')
+	})
+})
+
+/**
+ * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-4
+ */
+describe('takeRuntimeManifest', () => {
+	it('hands out the kept manifest once, then null', async () => {
+		pushedState = { runtimeManifest: { $schema: 'x', pages: [] } }
+
+		const { takeRuntimeManifest } = await import('../loadInitialState.js')
+
+		expect(takeRuntimeManifest()).toEqual({ $schema: 'x', pages: [] })
+		expect(takeRuntimeManifest()).toBeNull()
+	})
+
+	it('is null without the key, and for a value that is not a manifest', async () => {
+		pushedState = { runtimeManifest: { pages: [] } }
+		const { takeRuntimeManifest, loadInitialState } = await import('../loadInitialState.js')
+		expect(takeRuntimeManifest()).toBeNull()
+		expect(loadInitialState('workspace').runtimeManifest).toEqual({ pages: [] })
+	})
+})
+
+// more-menu-favourites task 10: More's Announcements entry reads this.
+describe('readCanManageAnnouncements', () => {
+	it('is true only when the page says the viewer may manage announcements', async () => {
+		const cases = [
+			[{ canManage: true }, true],
+			[{ canManage: false }, false],
+			[{ canManage: 'yes' }, false],
+			[null, false],
+		]
+		for (const [value, expected] of cases) {
+			pushedState = { announcementsAccess: value }
+			vi.resetModules()
+			const { readCanManageAnnouncements } = await import('../loadInitialState.js')
+			expect(readCanManageAnnouncements()).toBe(expected)
+		}
+		pushedState = {}
+		vi.resetModules()
+		const { readCanManageAnnouncements } = await import('../loadInitialState.js')
+		expect(readCanManageAnnouncements()).toBe(false)
 	})
 })

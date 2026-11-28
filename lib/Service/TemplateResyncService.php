@@ -37,15 +37,14 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use InvalidArgumentException;
 use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\ActivityRow;
+use OCA\LaunchPad\Activity\ActivitySubject;
 use OCA\LaunchPad\Activity\Extension;
 use OCA\LaunchPad\BackgroundJob\TemplateResyncJob;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\TemplateResyncServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\BackgroundJob\IJobList;
-use OCP\IDBConnection;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -59,7 +58,7 @@ use Throwable;
  *  manager, and the async job dispatcher for one cohesive re-sync
  *  operation — splitting further would fragment a single atomic concern.
  */
-class TemplateResyncService {
+class TemplateResyncService implements TemplateResyncServiceInterface {
 	/**
 	 * Replace each copy's layout with the current template layout.
 	 */
@@ -72,6 +71,12 @@ class TemplateResyncService {
 	public const STRATEGY_MERGE = 'merge';
 
 	/**
+	 * Add the template placements a copy lacks, at the first free spot, and
+	 * change nothing else (REQ-RESYNC-006).
+	 */
+	public const STRATEGY_ADD_ONLY = 'add_only';
+
+	/**
 	 * The only accepted `strategy` values (REQ-RESYNC-001 "Invalid
 	 * strategy is rejected").
 	 *
@@ -80,6 +85,7 @@ class TemplateResyncService {
 	public const VALID_STRATEGIES = [
 		self::STRATEGY_OVERWRITE,
 		self::STRATEGY_MERGE,
+		self::STRATEGY_ADD_ONLY,
 	];
 
 	/**
@@ -93,57 +99,46 @@ class TemplateResyncService {
 	public const ASYNC_THRESHOLD = 50;
 
 	/**
+	 * Diffs a copy against the template (REQ-RESYNC-003, REQ-RESYNC-006, REQ-RESYNC-007).
+	 *
+	 * @var ResyncDiffer
+	 */
+	private readonly ResyncDiffer $differ;
+
+	/**
+	 * Reads and stamps a placement's layout (REQ-RESYNC-007).
+	 *
+	 * @var PlacementLayout
+	 */
+	private readonly PlacementLayout $layout;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
-	 * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
-	 * @param IDBConnection $db DB connection —
-	 *                          used for the
-	 *                          per-copy
-	 *                          transaction
-	 *                          boundary.
-	 * @param ActivityPublisher $activityPublisher Audit-trail
-	 *                                             publisher
-	 *                                             (REQ-RESYNC-005).
-	 * @param INotificationManager $notificationManager Nextcloud
-	 *                                                  notification
-	 *                                                  manager — used
-	 *                                                  for the
-	 *                                                  per-user
-	 *                                                  "your dashboard
-	 *                                                  was updated"
-	 *                                                  notification.
-	 *                                                  Canonical
-	 *                                                  fallback per
-	 *                                                  REQ-RESYNC-005;
-	 *                                                  this app has no
-	 *                                                  OpenRegister
-	 *                                                  dependency
-	 *                                                  (see the
-	 *                                                  admin-templates
-	 *                                                  storage
-	 *                                                  policy), so the
-	 *                                                  `x-openregister-
-	 *                                                  notifications`
-	 *                                                  branch is not
-	 *                                                  wired in.
-	 * @param IJobList $jobList Background job
-	 *                          list — used to
-	 *                          enqueue
-	 *                          {@see TemplateResyncJob}
-	 *                          for large
-	 *                          target groups.
-	 * @param LoggerInterface $logger PSR-3 logger.
+	 * @param ResyncStores         $stores The dashboard and placement mappers, the database and the job list.
+	 * @param ActivityPublisher    $activityPublisher Audit-trail publisher (REQ-RESYNC-005).
+	 * @param INotificationManager $notificationManager Nextcloud notification manager — used for the per-user
+	 *                                                  "your dashboard was updated" notification. Canonical
+	 *                                                  fallback per REQ-RESYNC-005; this app has no
+	 *                                                  OpenRegister dependency (see the admin-templates
+	 *                                                  storage policy), so the `x-openregister-
+	 *                                                  notifications` branch is not wired in.
+	 * @param LoggerInterface      $logger PSR-3 logger.
+	 * @param ResyncFollowUps      $followUps What happens to a changed copy: its personal layers are pruned
+	 *                                        (REQ-DWMS-001) and it gets a version by the template (REQ-VERSUI-005).
+	 *
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
 	public function __construct(
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly IDBConnection $db,
+		private readonly ResyncStores $stores,
 		private readonly ActivityPublisher $activityPublisher,
 		private readonly INotificationManager $notificationManager,
-		private readonly IJobList $jobList,
 		private readonly LoggerInterface $logger,
+		private readonly ResyncFollowUps $followUps,
 	) {
+		$this->layout = new PlacementLayout();
+		$this->differ = new ResyncDiffer(layout: $this->layout);
 	}//end __construct()
 
 	/**
@@ -155,7 +150,7 @@ class TemplateResyncService {
 	 * and the provisioned-copy count.
 	 *
 	 * @param int $templateId The admin template's dashboard ID.
-	 * @param string $strategy `'overwrite'` or `'merge'`.
+	 * @param string $strategy `'overwrite'`, `'merge'` or `'add_only'`.
 	 * @param bool $dryRun When true, compute and return the plan
 	 *                     without mutating anything.
 	 * @param string $actingAdminId The acting admin's NC user ID (for the
@@ -177,56 +172,101 @@ class TemplateResyncService {
 	): array {
 		$this->assertValidStrategy(strategy: $strategy);
 		$this->getValidatedTemplate(templateId: $templateId);
+		$request = new TemplateResyncRequest(templateId: $templateId, strategy: $strategy);
 
 		if ($dryRun === true) {
-			$plan = $this->planResync(
-				templateId: $templateId,
-				strategy: $strategy
-			);
-			$plan['dryRun'] = true;
-			$plan['async'] = false;
-
-			return $plan;
+			return $this->dryRunPlan(request: $request);
 		}
 
+		return $this->resyncNow(request: $request, actingAdminId: $actingAdminId);
+	}//end resync()
+
+	/**
+	 * The plan of a dry run, marked as such.
+	 *
+	 * @param TemplateResyncRequest $request The resync.
+	 *
+	 * @return array<string, mixed> The plan.
+	 */
+	private function dryRunPlan(TemplateResyncRequest $request): array {
+		$plan = $this->planResync(
+			templateId: $request->templateId,
+			strategy: $request->strategy
+		);
+		$plan['dryRun'] = true;
+		$plan['async'] = false;
+
+		return $plan;
+	}//end dryRunPlan()
+
+	/**
+	 * Apply a resync inline, or queue it when the template has more copies
+	 * than {@see self::ASYNC_THRESHOLD} (REQ-RESYNC-005).
+	 *
+	 * @param TemplateResyncRequest $request       The resync.
+	 * @param string                $actingAdminId The admin triggering it.
+	 *
+	 * @return array<string, mixed> The applied or the accepted report.
+	 */
+	private function resyncNow(TemplateResyncRequest $request, string $actingAdminId): array {
 		$totalCopies = count(
-			$this->dashboardMapper->findByBasedOnTemplate(
-				templateId: $templateId
+			$this->stores->dashboardMapper->findByBasedOnTemplate(
+				templateId: $request->templateId
 			)
 		);
 
 		if ($totalCopies > self::ASYNC_THRESHOLD) {
-			$plan = $this->planResync(
-				templateId: $templateId,
-				strategy: $strategy
-			);
+			$affectedCount = $this->queueResync(request: $request, actingAdminId: $actingAdminId);
+			return $this->acceptedReport(request: $request, totalCopies: $totalCopies) + ['affectedCount' => $affectedCount];
+		}
 
-			$this->jobList->add(
-				TemplateResyncJob::class,
-				[
-					'templateId' => $templateId,
-					'strategy' => $strategy,
-					'actingAdminId' => $actingAdminId,
-				]
-			);
+		return $this->applyResync(templateId: $request->templateId, strategy: $request->strategy, actingAdminId: $actingAdminId);
+	}//end resyncNow()
 
-			return [
-				'templateId' => $templateId,
-				'strategy' => $strategy,
-				'dryRun' => false,
-				'async' => true,
-				'accepted' => true,
-				'totalCopies' => $totalCopies,
-				'affectedCount' => $plan['affectedCount'],
-			];
-		}//end if
-
-		return $this->applyResync(
-			templateId: $templateId,
-			strategy: $strategy,
-			actingAdminId: $actingAdminId
+	/**
+	 * Plan a large resync and queue the background job that applies it.
+	 *
+	 * @param TemplateResyncRequest $request       The resync.
+	 * @param string                $actingAdminId The admin triggering it.
+	 *
+	 * @return mixed The planned affected-copy count.
+	 */
+	private function queueResync(TemplateResyncRequest $request, string $actingAdminId): mixed {
+		$plan = $this->planResync(
+			templateId: $request->templateId,
+			strategy: $request->strategy
 		);
-	}//end resync()
+
+		$this->stores->jobList->add(
+			TemplateResyncJob::class,
+			[
+				'templateId' => $request->templateId,
+				'strategy' => $request->strategy,
+				'actingAdminId' => $actingAdminId,
+			]
+		);
+
+		return $plan['affectedCount'];
+	}//end queueResync()
+
+	/**
+	 * The report of a queued resync, without its affected count.
+	 *
+	 * @param TemplateResyncRequest $request     The resync.
+	 * @param integer               $totalCopies The number of copies.
+	 *
+	 * @return array<string, mixed> The report.
+	 */
+	private function acceptedReport(TemplateResyncRequest $request, int $totalCopies): array {
+		return [
+			'templateId' => $request->templateId,
+			'strategy' => $request->strategy,
+			'dryRun' => false,
+			'async' => true,
+			'accepted' => true,
+			'totalCopies' => $totalCopies,
+		];
+	}//end acceptedReport()
 
 	/**
 	 * Compute the re-sync plan WITHOUT mutating anything (REQ-RESYNC-002).
@@ -240,33 +280,36 @@ class TemplateResyncService {
 	 * @param string $strategy `'overwrite'` or `'merge'`.
 	 *
 	 * @return array<string, mixed> `{templateId, strategy, totalCopies,
-	 *                              affectedCount, copies: [...]}`.
+	 *                              affectedCount, copies: [...], gained,
+	 *                              lost, changedByOwnerCount}`.
 	 *
 	 * @spec openspec/specs/admin-templates/spec.md#requirement-req-resync-002-dry-run-reports-the-plan-without-mutating
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
 	 */
 	public function planResync(int $templateId, string $strategy): array {
 		$template = $this->getValidatedTemplate(templateId: $templateId);
-		$templatePlacements = $this->placementMapper->findByDashboardId(
+		$templatePlacements = $this->stores->placementMapper->findByDashboardId(
 			dashboardId: $template->getId()
 		);
-		$copies = $this->dashboardMapper->findByBasedOnTemplate(
+		$copies = $this->stores->dashboardMapper->findByBasedOnTemplate(
 			templateId: $templateId
 		);
 
 		$copyReports = [];
 		$affectedCount = 0;
+		$copyLayouts = [];
 
 		foreach ($copies as $copy) {
-			$copyPlacements = $this->placementMapper->findByDashboardId(
+			$copyPlacements = $this->stores->placementMapper->findByDashboardId(
 				dashboardId: $copy->getId()
 			);
-			$diff = $this->diffCopy(
+			$copyLayouts[] = $copyPlacements;
+			$diff = $this->differ->bound(strategy: $strategy, columns: $this->columnsOf(copy: $copy))->diff(
 				templatePlacements: $templatePlacements,
-				copyPlacements: $copyPlacements,
-				strategy: $strategy
+				copyPlacements: $copyPlacements
 			);
 
-			$hasChanges = $this->diffHasChanges(diff: $diff);
+			$hasChanges = $this->differ->hasChanges(diff: $diff);
 			if ($hasChanges === true) {
 				$affectedCount++;
 			}
@@ -285,8 +328,29 @@ class TemplateResyncService {
 			'totalCopies' => count($copies),
 			'affectedCount' => $affectedCount,
 			'copies' => $copyReports,
-		];
+		] + (new TemplateRolloutSummary(layout: $this->layout))->summarize(
+			templatePlacements: $templatePlacements,
+			copies: $copyLayouts
+		);
 	}//end planResync()
+
+	/**
+	 * The copy's grid column count; 12 when unset.
+	 *
+	 * @param Dashboard $copy The copy.
+	 *
+	 * @return int The column count, at least 1.
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 */
+	private function columnsOf(Dashboard $copy): int {
+		$columns = (int)$copy->getGridColumns();
+		if ($columns < 1) {
+			return 12;
+		}
+
+		return $columns;
+	}//end columnsOf()
 
 	/**
 	 * Recompute the plan and apply it, per copy, inside its own
@@ -316,75 +380,157 @@ class TemplateResyncService {
 		string $strategy,
 		string $actingAdminId,
 	): array {
+		$request = new TemplateResyncRequest(templateId: $templateId, strategy: $strategy);
 		$template = $this->getValidatedTemplate(templateId: $templateId);
-		$templatePlacements = $this->placementMapper->findByDashboardId(
-			dashboardId: $template->getId()
-		);
-		$copies = $this->dashboardMapper->findByBasedOnTemplate(
-			templateId: $templateId
-		);
-
-		$copyReports = [];
-		$affectedCount = 0;
-		$notifyDashboards = [];
-
-		foreach ($copies as $copy) {
-			$copyPlacements = $this->placementMapper->findByDashboardId(
-				dashboardId: $copy->getId()
-			);
-			$diff = $this->diffCopy(
-				templatePlacements: $templatePlacements,
-				copyPlacements: $copyPlacements,
-				strategy: $strategy
-			);
-
-			if ($this->diffHasChanges(diff: $diff) === false) {
-				$copyReports[] = $this->summarizeCopy(
-					copy: $copy,
-					diff: $diff,
-					applied: true,
-					error: null
-				);
-				continue;
-			}
-
-			$error = $this->applyDiffToCopy(copy: $copy, diff: $diff);
-
-			$copyReports[] = $this->summarizeCopy(
-				copy: $copy,
-				diff: $diff,
-				applied: ($error === null),
-				error: $error
-			);
-
-			if ($error === null) {
-				$affectedCount++;
-				$notifyDashboards[] = $copy;
-			}
-		}//end foreach
+		$tally = $this->resyncCopiesOf(template: $template, request: $request);
 
 		$this->emitAuditEvent(
-			templateId: $templateId,
-			templateName: (string)$template->getName(),
-			strategy: $strategy,
-			affectedCount: $affectedCount,
-			actingAdminId: $actingAdminId
+			template: $template,
+			run: ['templateId' => $templateId, 'strategy' => $strategy, 'affectedCount' => count($tally->affected), 'actingAdminId' => $actingAdminId]
 		);
 
-		foreach ($notifyDashboards as $dashboard) {
-			$this->notifyUserResync(dashboard: $dashboard);
+		$this->notifyAffected(tally: $tally);
+
+		return $this->appliedReport(request: $request, tally: $tally);
+	}//end applyResync()
+
+	/**
+	 * Diff and update every copy of a template.
+	 *
+	 * @param Dashboard             $template The validated template.
+	 * @param TemplateResyncRequest $request  The resync.
+	 *
+	 * @return TemplateResyncTally The per-copy outcome.
+	 */
+	private function resyncCopiesOf(Dashboard $template, TemplateResyncRequest $request): TemplateResyncTally {
+		$tally = new TemplateResyncTally(
+			templatePlacements: $this->stores->placementMapper->findByDashboardId(
+				dashboardId: $template->getId()
+			),
+			strategy: $request->strategy,
+			templateName: (string)$template->getName()
+		);
+
+		foreach ($this->stores->dashboardMapper->findByBasedOnTemplate(templateId: $request->templateId) as $copy) {
+			$this->resyncCopy(tally: $tally, copy: $copy);
 		}
 
+		return $tally;
+	}//end resyncCopiesOf()
+
+	/**
+	 * Diff one copy, apply the diff when it has changes, and record the
+	 * copy's report; a copy whose change was written is affected.
+	 *
+	 * @param TemplateResyncTally $tally The run.
+	 * @param Dashboard           $copy  The copy.
+	 *
+	 * @return void
+	 */
+	private function resyncCopy(TemplateResyncTally $tally, Dashboard $copy): void {
+		$diff = $this->differ->bound(strategy: $tally->strategy, columns: $this->columnsOf(copy: $copy))->diff(
+			templatePlacements: $tally->templatePlacements,
+			copyPlacements: $this->stores->placementMapper->findByDashboardId(dashboardId: $copy->getId())
+		);
+		$changed = $this->differ->hasChanges(diff: $diff);
+		$error = null;
+		if ($changed === true) {
+			$error = $this->applyDiffToCopy(copy: $copy, diff: $diff);
+		}
+
+		$tally->reports[] = $this->summarizeCopy(copy: $copy, diff: $diff, applied: ($error === null), error: $error);
+		if ($changed === true && $error === null) {
+			$tally->affected[] = $copy;
+			$this->pruneLayers(copy: $copy, diff: $diff);
+			$this->recordTemplateVersion(copy: $copy, templateName: $tally->templateName);
+		}
+	}//end resyncCopy()
+
+	/**
+	 * Write the version a re-synced copy gets, by the template. A failure is
+	 * logged; the resync itself already landed.
+	 *
+	 * @param Dashboard $copy         The copy that took the change.
+	 * @param string    $templateName The template's name.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-24-version-change-notes/specs/dashboard-versioning/spec.md#requirement-a-template-update-is-noted-as-such-req-versui-005
+	 */
+	private function recordTemplateVersion(Dashboard $copy, string $templateName): void {
+		try {
+			$this->followUps->recordTemplateVersion(copy: $copy, templateName: $templateName);
+		} catch (Throwable $t) {
+			$this->logger->warning(
+				message: 'launchpad.template_resync.version_failed',
+				context: ['dashboardId' => $copy->getId(), 'exception' => $t]
+			);
+		}
+	}//end recordTemplateVersion()
+
+	/**
+	 * After a re-sync removed placements, drop the personal-layer entries that named them.
+	 *
+	 * @param Dashboard $copy The copy that was re-synced.
+	 * @param array     $diff The applied diff.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-001-a-personal-layer-over-a-shared-dashboard
+	 */
+	private function pruneLayers(Dashboard $copy, array $diff): void {
+		if ($diff['toRemove'] === []) {
+			return;
+		}
+
+		$liveIds = array_map(
+			static fn (WidgetPlacement $placement): int => (int)$placement->getId(),
+			$this->stores->placementMapper->findByDashboardId(dashboardId: $copy->getId())
+		);
+
+		try {
+			$this->followUps->personalLayers->pruneDashboard(dashboardId: (int)$copy->getId(), liveIds: $liveIds);
+		} catch (Throwable $t) {
+			// The re-sync itself landed; a stale layer entry is ignored at render time.
+			$this->logger->warning(
+				message: 'launchpad.template_resync.layer_prune_failed',
+				context: ['dashboardId' => $copy->getId(), 'exception' => $t]
+			);
+		}
+	}//end pruneLayers()
+
+	/**
+	 * Notify the owner of every affected copy.
+	 *
+	 * @param TemplateResyncTally $tally The run.
+	 *
+	 * @return void
+	 */
+	private function notifyAffected(TemplateResyncTally $tally): void {
+		foreach ($tally->affected as $dashboard) {
+			$this->notifyUserResync(dashboard: $dashboard);
+		}
+	}//end notifyAffected()
+
+	/**
+	 * The report of an applied resync.
+	 *
+	 * @param TemplateResyncRequest $request The resync.
+	 * @param TemplateResyncTally   $tally   The per-copy outcome.
+	 *
+	 * @return array<string, mixed> The report.
+	 */
+	private function appliedReport(TemplateResyncRequest $request, TemplateResyncTally $tally): array {
 		return [
-			'templateId' => $templateId,
-			'strategy' => $strategy,
+			'templateId' => $request->templateId,
+			'strategy' => $request->strategy,
 			'dryRun' => false,
 			'async' => false,
-			'totalCopies' => count($copies),
-			'affectedCount' => $affectedCount,
-			'copies' => $copyReports,
+			'totalCopies' => count($tally->reports),
+			'affectedCount' => count($tally->affected),
+			'copies' => $tally->reports,
 		];
-	}//end applyResync()
+	}//end appliedReport()
 
 	/**
 	 * Apply one copy's diff inside its own DB transaction. Partial
@@ -394,7 +540,7 @@ class TemplateResyncService {
 	 *
 	 * @param Dashboard $copy The provisioned copy.
 	 * @param array<string, mixed> $diff The diff computed by
-	 *                                   {@see self::diffCopy()}, whose
+	 *                                   {@see ResyncDiffer::diff()}, whose
 	 *                                   `@return` documents the exact
 	 *                                   shape: `toAdd` and `toRemove` hold
 	 *                                   {@see WidgetPlacement} lists and
@@ -404,33 +550,36 @@ class TemplateResyncService {
 	 * @return string|null The failure message, or null on success.
 	 */
 	private function applyDiffToCopy(Dashboard $copy, array $diff): ?string {
-		$this->db->beginTransaction();
+		$this->stores->db->beginTransaction();
 
 		try {
-			foreach ($diff['toAdd'] as $templatePlacement) {
-				$this->placementMapper->insert(
-					entity: $this->cloneTemplatePlacementInto(
-						template: $templatePlacement,
-						dashboardId: $copy->getId()
+			foreach ($diff['toAdd'] as $index => $templatePlacement) {
+				$this->stores->placementMapper->insert(
+					entity: $this->placedClone(
+						clone: $this->cloneTemplatePlacementInto(template: $templatePlacement, dashboardId: $copy->getId()),
+						spot: ($diff['addSpots'][$index] ?? null)
 					)
 				);
 			}
 
 			foreach ($diff['toUpdate'] as $pair) {
-				$this->applyTemplateFields(
-					copy: $pair['copy'],
-					template: $pair['template']
-				);
-				$this->placementMapper->update(entity: $pair['copy']);
+				$ownLayout = $this->layout->rectOf(placement: $pair['copy']);
+				$this->applyTemplateFields(copy: $pair['copy'], template: $pair['template']);
+				$this->layout->stamp(placement: $pair['copy']);
+				if ($pair['keepLayout'] === true) {
+					// REQ-RESYNC-007: the owner's position and size stay.
+					$this->layout->apply(placement: $pair['copy'], rect: $ownLayout);
+				}
+				$this->stores->placementMapper->update(entity: $pair['copy']);
 			}
 
 			foreach ($diff['toRemove'] as $copyPlacement) {
-				$this->placementMapper->delete(entity: $copyPlacement);
+				$this->stores->placementMapper->delete(entity: $copyPlacement);
 			}
 
-			$this->db->commit();
+			$this->stores->db->commit();
 		} catch (Throwable $t) {
-			$this->db->rollBack();
+			$this->stores->db->rollBack();
 			$this->logger->error(
 				message: 'launchpad.template_resync.copy_apply_failed',
 				context: [
@@ -445,209 +594,6 @@ class TemplateResyncService {
 		return null;
 	}//end applyDiffToCopy()
 
-	// ---------------------------------------------------------------
-	// Diff engine
-	// ---------------------------------------------------------------
-
-	/**
-	 * Partition one copy's placements against the template's current
-	 * placements (REQ-RESYNC-003, REQ-RESYNC-004).
-	 *
-	 * Matching is by {@see WidgetPlacement::getTemplatePlacementId()}:
-	 *
-	 * - Matched + fields differ  → `toUpdate` (reconcile onto the copy).
-	 * - Matched + fields equal   → `toPreserve` (no-op, both strategies).
-	 * - Template-origin but the
-	 *   matching template placement
-	 *   no longer exists           → `toRemove` (admin deleted it from the
-	 *                                template — both strategies).
-	 * - No known origin
-	 *   (user-added)                → `toPreserve` under `merge`,
-	 *                                `toRemove` under `overwrite`.
-	 * - A template placement with
-	 *   no matching copy placement  → `toAdd` (new template placement, or
-	 *                                a compulsory widget the user removed
-	 *                                — restored either way).
-	 *
-	 * Compulsory widgets receive no special-case handling: they are
-	 * ordinary template placements, so the `toAdd` (restore) / `toUpdate`
-	 * (align position+flags) branches above already reconcile them under
-	 * BOTH strategies, satisfying REQ-RESYNC-004 without a separate code
-	 * path.
-	 *
-	 * @param WidgetPlacement[] $templatePlacements The template's current
-	 *                                              placements.
-	 * @param WidgetPlacement[] $copyPlacements The copy's current
-	 *                                          placements.
-	 * @param string $strategy `'overwrite'` or
-	 *                         `'merge'`.
-	 *
-	 * @return array{
-	 *     toAdd: WidgetPlacement[],
-	 *     toUpdate: array<int, array{copy: WidgetPlacement, template: WidgetPlacement}>,
-	 *     toRemove: WidgetPlacement[],
-	 *     toPreserve: WidgetPlacement[]
-	 * }
-	 */
-	private function diffCopy(
-		array $templatePlacements,
-		array $copyPlacements,
-		string $strategy,
-	): array {
-		$templateById = [];
-		foreach ($templatePlacements as $tp) {
-			$templateById[$tp->getId()] = $tp;
-		}
-
-		$matchedTemplateIds = [];
-		$toUpdate = [];
-		$toRemove = [];
-		$toPreserve = [];
-
-		foreach ($copyPlacements as $cp) {
-			$originId = $cp->getTemplatePlacementId();
-
-			if ($originId !== null && isset($templateById[$originId]) === true) {
-				$matchedTemplateIds[$originId] = true;
-				$tp = $templateById[$originId];
-
-				if ($this->placementDiffers(copy: $cp, template: $tp) === true) {
-					$toUpdate[] = [
-						'copy' => $cp,
-						'template' => $tp,
-					];
-					continue;
-				}
-
-				$toPreserve[] = $cp;
-				continue;
-			}
-
-			if ($originId !== null && isset($templateById[$originId]) === false) {
-				// Template-origin, but the admin has since deleted this
-				// placement from the template — remove it under both
-				// strategies (REQ-RESYNC-003 "Template widget removed by
-				// admin is removed under merge").
-				$toRemove[] = $cp;
-				continue;
-			}
-
-			// No known origin — a genuinely user-added placement.
-			if ($strategy === self::STRATEGY_OVERWRITE) {
-				$toRemove[] = $cp;
-				continue;
-			}
-
-			$toPreserve[] = $cp;
-		}//end foreach
-
-		return [
-			'toAdd' => $this->unmatchedTemplatePlacements(
-				templatePlacements: $templatePlacements,
-				matchedTemplateIds: $matchedTemplateIds
-			),
-			'toUpdate' => $toUpdate,
-			'toRemove' => $toRemove,
-			'toPreserve' => $toPreserve,
-		];
-	}//end diffCopy()
-
-	/**
-	 * Template placements the copy has no counterpart for — i.e. the
-	 * additions a re-sync must make.
-	 *
-	 * @param WidgetPlacement[] $templatePlacements The template's current placements.
-	 * @param array<int, boolean> $matchedTemplateIds Set of template placement IDs
-	 *                                                already matched to a copy
-	 *                                                placement, keyed by ID.
-	 *
-	 * @return WidgetPlacement[] The unmatched template placements, in input order.
-	 */
-	private function unmatchedTemplatePlacements(array $templatePlacements, array $matchedTemplateIds): array {
-		$toAdd = [];
-		foreach ($templatePlacements as $tp) {
-			if (isset($matchedTemplateIds[$tp->getId()]) === false) {
-				$toAdd[] = $tp;
-			}
-		}
-
-		return $toAdd;
-	}//end unmatchedTemplatePlacements()
-
-	/**
-	 * Whether a diff carries any mutation (add/update/remove). Used to
-	 * decide `affectedCount` and to skip untouched copies entirely
-	 * (REQ-RESYNC-005 idempotency).
-	 *
-	 * @param array<string, mixed> $diff The diff computed by
-	 *                                   {@see self::diffCopy()}.
-	 *
-	 * @return bool True when applying the diff would change the copy.
-	 */
-	private function diffHasChanges(array $diff): bool {
-		return count($diff['toAdd']) > 0
-			|| count($diff['toUpdate']) > 0
-			|| count($diff['toRemove']) > 0;
-	}//end diffHasChanges()
-
-	/**
-	 * The reconcilable field snapshot compared for equality and applied
-	 * on update. Kept as one array so the equality check
-	 * ({@see self::placementDiffers()}) and the field-copy
-	 * ({@see self::applyTemplateFields()} / {@see self::cloneTemplatePlacementInto()})
-	 * can never silently drift apart.
-	 *
-	 * @param WidgetPlacement $placement The placement to snapshot.
-	 *
-	 * @return array<string, mixed> The comparable field values.
-	 */
-	private function templateFieldSnapshot(WidgetPlacement $placement): array {
-		return [
-			'widgetId' => $placement->getWidgetId(),
-			'gridX' => $placement->getGridX(),
-			'gridY' => $placement->getGridY(),
-			'gridWidth' => $placement->getGridWidth(),
-			'gridHeight' => $placement->getGridHeight(),
-			'isCompulsory' => $placement->getIsCompulsory(),
-			'isVisible' => $placement->getIsVisible(),
-			'styleConfig' => $placement->getStyleConfig(),
-			'customTitle' => $placement->getCustomTitle(),
-			'customIcon' => $placement->getCustomIcon(),
-			'showTitle' => $placement->getShowTitle(),
-			'sortOrder' => $placement->getSortOrder(),
-			'content' => $placement->getContent(),
-			'tileType' => $placement->getTileType(),
-			'tileTitle' => $placement->getTileTitle(),
-			'tileIcon' => $placement->getTileIcon(),
-			'tileIconType' => $placement->getTileIconType(),
-			'tileBackgroundColor' => $placement->getTileBackgroundColor(),
-			'tileTextColor' => $placement->getTileTextColor(),
-			'tileLinkType' => $placement->getTileLinkType(),
-			'tileLinkValue' => $placement->getTileLinkValue(),
-			'requiresAcknowledgement' => $placement->getRequiresAcknowledgement(),
-			'acknowledgementPrompt' => $placement->getAcknowledgementPrompt(),
-			'acknowledgementDeadline' => $placement->getAcknowledgementDeadline(),
-			'reacknowledgeOnChange' => $placement->getReacknowledgeOnChange(),
-			'acknowledgementContentVersion' => $placement->getAcknowledgementContentVersion(),
-			'announcementKey' => $placement->getAnnouncementKey(),
-		];
-	}//end templateFieldSnapshot()
-
-	/**
-	 * Whether a copy placement's reconcilable fields differ from its
-	 * matching template placement's current fields.
-	 *
-	 * @param WidgetPlacement $copy The copy's placement.
-	 * @param WidgetPlacement $template The matching template placement.
-	 *
-	 * @return bool True when the copy needs to be updated to match.
-	 */
-	private function placementDiffers(
-		WidgetPlacement $copy,
-		WidgetPlacement $template,
-	): bool {
-		return $this->templateFieldSnapshot(placement: $copy) !== $this->templateFieldSnapshot(placement: $template);
-	}//end placementDiffers()
 
 	/**
 	 * Mutate a copy placement in place so its reconcilable fields match
@@ -659,6 +605,8 @@ class TemplateResyncService {
 	 *                                  from.
 	 *
 	 * @return void
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-007-merge-leaves-a-widget-where-the-person-put-it
 	 */
 	private function applyTemplateFields(
 		WidgetPlacement $copy,
@@ -691,6 +639,7 @@ class TemplateResyncService {
 		$copy->setReacknowledgeOnChange($template->getReacknowledgeOnChange());
 		$copy->setAcknowledgementContentVersion($template->getAcknowledgementContentVersion());
 		$copy->setAnnouncementKey($template->getAnnouncementKey());
+		$copy->setRuleMatch($template->getRuleMatch());
 		$copy->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
@@ -705,6 +654,8 @@ class TemplateResyncService {
 	 * @param int $dashboardId The target copy's dashboard ID.
 	 *
 	 * @return WidgetPlacement The new (uninserted) placement entity.
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
 	private function cloneTemplatePlacementInto(
 		WidgetPlacement $template,
@@ -739,7 +690,9 @@ class TemplateResyncService {
 		$clone->setReacknowledgeOnChange($template->getReacknowledgeOnChange());
 		$clone->setAcknowledgementContentVersion($template->getAcknowledgementContentVersion());
 		$clone->setAnnouncementKey($template->getAnnouncementKey());
+		$clone->setRuleMatch($template->getRuleMatch());
 		$clone->setTemplatePlacementId($template->getId());
+		$this->layout->stamp(placement: $clone);
 
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 		$clone->setCreatedAt($now);
@@ -747,6 +700,26 @@ class TemplateResyncService {
 
 		return $clone;
 	}//end cloneTemplatePlacementInto()
+
+	/**
+	 * Put an added clone on its `add_only` spot and make that its baseline
+	 * (REQ-RESYNC-006); without a spot it keeps the template's.
+	 *
+	 * @param WidgetPlacement                                               $clone The new placement (mutated).
+	 * @param array{gridX:int,gridY:int,gridWidth:int,gridHeight:int}|null $spot  The spot, or null.
+	 *
+	 * @return WidgetPlacement The placement.
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
+	 */
+	private function placedClone(WidgetPlacement $clone, ?array $spot): WidgetPlacement {
+		if ($spot !== null) {
+			$this->layout->apply(placement: $clone, rect: $spot);
+			$this->layout->stamp(placement: $clone);
+		}
+
+		return $clone;
+	}//end placedClone()
 
 	// ---------------------------------------------------------------
 	// Validation
@@ -760,12 +733,14 @@ class TemplateResyncService {
 	 *
 	 * @return void
 	 *
-	 * @throws InvalidArgumentException When not `overwrite` or `merge`.
+	 * @throws InvalidArgumentException When not `overwrite`, `merge` or `add_only`.
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-006-add-only-strategy-adds-new-template-widgets-and-changes-nothing-else
 	 */
 	private function assertValidStrategy(string $strategy): void {
 		if (in_array(needle: $strategy, haystack: self::VALID_STRATEGIES, strict: true) === false) {
 			throw new InvalidArgumentException(
-				message: 'Invalid strategy: only "overwrite" and "merge" are accepted'
+				message: 'Invalid strategy: only "overwrite", "merge" and "add_only" are accepted'
 			);
 		}
 	}//end assertValidStrategy()
@@ -784,7 +759,7 @@ class TemplateResyncService {
 	 */
 	private function getValidatedTemplate(int $templateId): Dashboard {
 		try {
-			$template = $this->dashboardMapper->find(id: $templateId);
+			$template = $this->stores->dashboardMapper->find(id: $templateId);
 		} catch (DoesNotExistException $e) {
 			throw new InvalidArgumentException(
 				message: 'Not an admin template',
@@ -811,7 +786,7 @@ class TemplateResyncService {
 	 * @param Dashboard $copy The provisioned copy.
 	 * @param array<string, mixed> $diff The diff computed by
 	 *                                   {@see
-	 *                                   self::diffCopy()}.
+	 *                                   ResyncDiffer::diff()}.
 	 * @param bool $applied Whether the diff was applied
 	 *                      (false for dry-run reports).
 	 * @param string|null $error The failure message, or null.
@@ -832,7 +807,7 @@ class TemplateResyncService {
 			'toUpdate' => count($diff['toUpdate']),
 			'toRemove' => count($diff['toRemove']),
 			'toPreserve' => count($diff['toPreserve']),
-			'hasChanges' => $this->diffHasChanges(diff: $diff),
+			'hasChanges' => $this->differ->hasChanges(diff: $diff),
 			'applied' => $applied,
 			'error' => $error,
 		];
@@ -848,29 +823,27 @@ class TemplateResyncService {
 	 * Activity failure is swallowed by the publisher so an audit-log
 	 * problem never rolls back the re-sync itself.
 	 *
-	 * @param int $templateId The template's dashboard ID.
-	 * @param string $templateName The template's human-readable name.
-	 * @param string $strategy `'overwrite'` or `'merge'`.
-	 * @param int $affectedCount The number of copies actually changed.
-	 * @param string $actingAdminId The acting admin's NC user ID.
+	 * @param Dashboard            $template The template that was re-synced.
+	 * @param array<string, mixed> $run      The run: `templateId` (the template's dashboard ID),
+	 *                                       `strategy` (`'overwrite'` or `'merge'`), `affectedCount`
+	 *                                       (copies actually changed) and `actingAdminId`.
 	 *
 	 * @return void
 	 */
-	private function emitAuditEvent(
-		int $templateId,
-		string $templateName,
-		string $strategy,
-		int $affectedCount,
-		string $actingAdminId,
-	): void {
+	private function emitAuditEvent(Dashboard $template, array $run): void {
+		$templateId    = $run['templateId'];
+		$templateName  = (string)$template->getName();
+		$strategy      = $run['strategy'];
+		$affectedCount = $run['affectedCount'];
+		$actingAdminId = $run['actingAdminId'];
 		try {
-			$this->activityPublisher->publish(
+			$row = new ActivityRow(
 				type: Extension::EVENT_UPDATED,
 				actorUserId: $actingAdminId,
-				recipientUserId: $actingAdminId,
-				dashboardUuid: 'template-resync-' . $templateId,
-				dashboardName: 'Template resync: ' . $templateName . ' (' . $strategy . ', ' . $affectedCount . ' copies)',
-				dashboardLink: '',
+				dashboard: new ActivitySubject(
+					uuid: 'template-resync-' . $templateId,
+					name: 'Template resync: ' . $templateName . ' (' . $strategy . ', ' . $affectedCount . ' copies)'
+				),
 				extraParams: [
 					'templateResync' => true,
 					'templateId' => $templateId,
@@ -878,6 +851,7 @@ class TemplateResyncService {
 					'affectedCount' => $affectedCount,
 				]
 			);
+			$this->activityPublisher->publish(row: $row, recipientUserId: $actingAdminId);
 		} catch (Throwable $t) {
 			$this->logger->warning(
 				message: 'launchpad.template_resync.audit_event_failed',

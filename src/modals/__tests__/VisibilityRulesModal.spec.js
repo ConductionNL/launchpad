@@ -14,12 +14,17 @@
  * its own `close`.
  */
 
-import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import VisibilityRulesModal from '../VisibilityRulesModal.vue'
+import { api } from '../../services/api.js'
+
+vi.mock('../../services/api.js', () => ({
+	api: { getAdminGroups: vi.fn() },
+}))
 
 const ConditionalVisibilityEditorStub = {
-	props: ['placementId', 'availableGroups'],
+	props: ['placementId', 'availableGroups', 'ruleMatch'],
 	template: '<div class="editor-stub" :data-placement-id="placementId" />',
 }
 
@@ -37,6 +42,8 @@ function mountModal(props = {}) {
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
+	vi.clearAllMocks()
+	api.getAdminGroups.mockResolvedValue({ data: { active: [], inactive: [], allKnown: [] } })
 })
 
 describe('VisibilityRulesModal', () => {
@@ -68,5 +75,58 @@ describe('VisibilityRulesModal', () => {
 		expect(wrapper.emitted('ruleAdded')).toBeTruthy()
 		expect(wrapper.emitted('ruleUpdated')).toBeTruthy()
 		expect(wrapper.emitted('ruleRemoved')).toBeTruthy()
+	})
+
+	it('offers the instance\'s groups when none are passed (launchpad#97)', async () => {
+		const groups = [{ id: 'mkt', displayName: 'Marketing' }]
+		api.getAdminGroups.mockResolvedValue({ data: { active: [], inactive: groups, allKnown: groups } })
+		const wrapper = mountModal()
+		await flushPromises()
+
+		expect(api.getAdminGroups).toHaveBeenCalledTimes(1)
+		expect(wrapper.findComponent(ConditionalVisibilityEditorStub).props('availableGroups')).toEqual(groups)
+	})
+
+	it('does not read the groups when a list is passed or the modal is closed', async () => {
+		mountModal({ availableGroups: ['marketing'] })
+		mountModal({ open: false })
+		await flushPromises()
+
+		expect(api.getAdminGroups).not.toHaveBeenCalled()
+	})
+
+	it('offers no groups when the list is refused', async () => {
+		api.getAdminGroups.mockRejectedValue(new Error('403'))
+		const wrapper = mountModal()
+		await flushPromises()
+
+		expect(wrapper.findComponent(ConditionalVisibilityEditorStub).props('availableGroups')).toEqual([])
+	})
+})
+
+describe('VisibilityRulesModal — Who sees this widget?', () => {
+	// @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
+	it('is titled Who sees this widget? with the widget and the dashboard under it', () => {
+		const wrapper = mountModal({ widgetTitle: 'News', dashboardName: 'Home', ruleMatch: 'all' })
+		expect(wrapper.find('[data-test="visibility-rules-title"]').text()).toBe('Who sees this widget?')
+		expect(wrapper.find('[data-test="visibility-rules-subtitle"]').text()).toBe('News · Home')
+		expect(wrapper.findComponent(ConditionalVisibilityEditorStub).props('ruleMatch')).toBe('all')
+	})
+
+	it('puts the widget and dashboard line above the title, as LpZichtbaarheid draws it', () => {
+		const wrapper = mountModal({ widgetTitle: 'Nieuws', dashboardName: 'Intranet' })
+		const head = wrapper.find('.visibility-rules__head')
+		const children = head.element.children
+		expect(children[0].getAttribute('data-test')).toBe('visibility-rules-subtitle')
+		expect(children[0].classList.contains('launchpad-modal__kicker')).toBe(true)
+		expect(children[1].getAttribute('data-test')).toBe('visibility-rules-title')
+		expect(children[1].classList.contains('launchpad-modal__title')).toBe(true)
+	})
+
+	it('leaves the line out when neither name is known, and passes the saved mode on', async () => {
+		const wrapper = mountModal()
+		expect(wrapper.find('[data-test="visibility-rules-subtitle"]').exists()).toBe(false)
+		await wrapper.findComponent(ConditionalVisibilityEditorStub).vm.$emit('ruleMatchChanged', 'all')
+		expect(wrapper.emitted('ruleMatchChanged')).toEqual([['all']])
 	})
 })

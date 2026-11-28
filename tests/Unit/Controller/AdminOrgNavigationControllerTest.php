@@ -20,8 +20,10 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\OrgNavigationSources;
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\AdminOrgNavigationController;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\OrgNavigationService;
@@ -32,6 +34,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
 
 class AdminOrgNavigationControllerTest extends TestCase {
 
@@ -65,11 +69,12 @@ class AdminOrgNavigationControllerTest extends TestCase {
 
 		$this->controller = new AdminOrgNavigationController(
 			request: $this->request,
-			service: $this->service,
-			settings: $this->settings,
-			userSession: $this->userSession,
-			groupManager: $this->groupManager,
-			actionAuth: $this->actionAuth,
+			sources: new OrgNavigationSources(
+				service: $this->service,
+				settings: $this->settings
+			),
+			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->actionAuth),
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 
 	}//end setUp()
@@ -109,6 +114,69 @@ class AdminOrgNavigationControllerTest extends TestCase {
 		$this->assertSame('Filtered', $body['tree'][0]['label']);
 
 	}//end testGetReturnsFilteredTreeForLoggedInUser()
+
+	/**
+	 * The editor's copy: an administrator gets every node, also those in
+	 * groups they are not in, so a Save never drops them.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+	 */
+	public function testGetForTheEditorGivesAnAdministratorTheWholeTree(): void {
+		$this->loginAs(uid: 'admin', admin: true);
+
+		$tree = [['id' => 'hidden', 'label' => 'Elsewhere', 'groupVisibility' => ['mkt']]];
+		$this->service->method('getTree')
+			->with('nl')
+			->willReturn(value: $tree);
+		$this->service->expects(matcher: $this->never())->method('filterTreeByUserGroups');
+
+		$response = $this->controller->getEditableOrgNavigation(lang: 'nl');
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$this->assertSame(expected: ['tree' => $tree, 'language' => 'nl'], actual: $response->getData());
+
+	}//end testGetForTheEditorGivesAnAdministratorTheWholeTree()
+
+	/**
+	 * Anyone but an administrator asking for the editor's copy is refused
+	 * and sees nothing of the tree.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+	 */
+	public function testGetForTheEditorRefusesANonAdministrator(): void {
+		$this->loginAs(uid: 'bob', admin: false);
+
+		$this->service->expects(matcher: $this->never())->method('getTree');
+
+		$response = $this->controller->getEditableOrgNavigation(lang: 'nl');
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+		$this->assertArrayNotHasKey(key: 'tree', array: (array) $response->getData());
+
+	}//end testGetForTheEditorRefusesANonAdministrator()
+
+	/**
+	 * An administrator asking the editor's copy in an unknown language gets
+	 * 400 and no tree.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+	 */
+	public function testGetForTheEditorRejectsAnUnsupportedLanguage(): void {
+		$this->loginAs(uid: 'admin', admin: true);
+
+		$this->service->expects(matcher: $this->never())->method('getTree');
+
+		$response = $this->controller->getEditableOrgNavigation(lang: 'de');
+
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+
+	}//end testGetForTheEditorRejectsAnUnsupportedLanguage()
 
 	public function testGetRejectsUnsupportedLanguage(): void {
 		$this->loginAs('alice', false);

@@ -32,6 +32,8 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ActionCaller;
+use OCA\LaunchPad\Controller\VersionApiSources;
 use Exception;
 use OCA\LaunchPad\Controller\DashboardVersionApiController;
 use OCA\LaunchPad\Db\Dashboard;
@@ -44,6 +46,7 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUser;
+use OCP\IUserManager;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -123,12 +126,16 @@ class DashboardVersionApiControllerTest extends TestCase {
 
 		return new DashboardVersionApiController(
 			request: $this->request,
-			dashboardMapper: $this->dashboardMapper,
-			versionService: $this->versionService,
-			actionAuth: $this->actionAuth,
-			userSession: $this->userSession,
-			logger: $this->createMock(LoggerInterface::class),
-			userId: $userId,
+			sources: new VersionApiSources(
+				dashboardMapper: $this->dashboardMapper,
+				versionService: $this->versionService,
+				logger: $this->createMock(LoggerInterface::class)
+			),
+			caller: new ActionCaller(
+				actionAuth: $this->actionAuth,
+				userSession: $this->userSession
+			),
+			userId: $userId
 		);
 
 	}//end makeController()
@@ -435,6 +442,45 @@ class DashboardVersionApiControllerTest extends TestCase {
 		$this->assertSame(expected: $body, actual: $data['snapshot']);
 
 	}//end testFetchVersionReturnsMetadataAndTheRawSnapshotBody()
+
+	/**
+	 * The version list names each author by display name (LpVersies "By"),
+	 * and keeps the stored id for an author without one.
+	 *
+	 * @return void
+	 */
+	public function testListVersionsNamesTheAuthor(): void {
+		$this->dashboardMapper->method('findByUuid')
+			->willReturn($this->makeDashboard(uuid: 'uuid-ops'));
+		$this->versionService->method('listVersions')->willReturn(
+			[
+				'versions' => [['versionNumber' => 2, 'createdBy' => 'alice'], ['versionNumber' => 1, 'createdBy' => 'template']],
+				'modeSupported' => true,
+			]
+		);
+		$users = $this->createMock(originalClassName: IUserManager::class);
+		$users->method('getDisplayName')->willReturnMap([['alice', 'Alice Jansen'], ['template', null]]);
+
+		$user = $this->createMock(originalClassName: IUser::class);
+		$user->method('getUID')->willReturn('alice');
+		$this->userSession->method('getUser')->willReturn($user);
+		$controller = new DashboardVersionApiController(
+			request: $this->request,
+			sources: new VersionApiSources(
+				dashboardMapper: $this->dashboardMapper,
+				versionService: $this->versionService,
+				logger: $this->createMock(originalClassName: LoggerInterface::class),
+				userManager: $users
+			),
+			caller: new ActionCaller(actionAuth: $this->actionAuth, userSession: $this->userSession),
+			userId: 'alice'
+		);
+
+		$data = $controller->listVersions(uuid: 'uuid-ops')->getData();
+
+		$this->assertSame(expected: 'Alice Jansen', actual: $data['versions'][0]['createdByName']);
+		$this->assertSame(expected: 'template', actual: $data['versions'][1]['createdByName']);
+	}//end testListVersionsNamesTheAuthor()
 
 	/**
 	 * A non-owner reaching a snapshot MUST get the sentinel-mapped 403 —

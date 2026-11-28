@@ -1,0 +1,546 @@
+<!--
+  - SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
+-->
+
+<template>
+	<div class="announcements-tab" data-testid="announcements-tab">
+		<!-- The form section replaces the list while one announcement is
+		     written or edited (board LpAankondiging). -->
+		<AnnouncementEditorModal
+			v-if="editing"
+			:key="editing.uuid || 'new'"
+			inline
+			:announcement="editing.uuid ? editing : null"
+			@close="closeForm"
+			@published="onSaved" />
+
+		<CnSettingsSection
+			v-else-if="receiptsOf"
+			:name="t('launchpad', 'Seen and confirmed')"
+			:description="receiptsOf.title"
+			data-testid="admin-announcement-receipts">
+			<p v-if="receipts === null" class="announcements-tab__hint">
+				{{ t('launchpad', 'Loading…') }}
+			</p>
+			<template v-else-if="receipts.error">
+				<p class="announcements-tab__hint">
+					{{ receipts.error }}
+				</p>
+			</template>
+			<AnnouncementReceipts v-else :announcement="receiptsOf" :report="receipts" />
+			<NcButton variant="tertiary" data-testid="announcement-receipts-back" @click="openList">
+				{{ t('launchpad', 'Back to the announcements') }}
+			</NcButton>
+		</CnSettingsSection>
+
+		<CnSettingsSection
+			v-else
+			:name="t('launchpad', 'Announcements')"
+			:description="t('launchpad', 'News and maintenance notices for the people in your organisation.')"
+			data-testid="admin-announcements">
+			<NcButton variant="primary" data-testid="announcement-new" @click="openForm(null)">
+				{{ t('launchpad', 'New announcement') }}
+			</NcButton>
+			<p v-if="error" class="announcements-tab__error" role="alert">
+				{{ error }}
+			</p>
+			<p v-if="!loading && items.length === 0" class="announcements-tab__hint">
+				{{ t('launchpad', 'No announcements yet.') }}
+			</p>
+			<table v-else class="announcements-tab__table">
+				<thead>
+					<tr>
+						<th scope="col">
+							{{ t('launchpad', 'Title') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Kind') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Status') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Shown until') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Seen') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Confirmed') }}
+						</th>
+						<th scope="col">
+							<span class="hidden-visually">{{ t('launchpad', 'Actions') }}</span>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="item in items" :key="item.uuid" data-testid="announcement-row">
+						<td>{{ item.title }}</td>
+						<td>{{ item.kind === 'notice' ? t('launchpad', 'Maintenance notice') : t('launchpad', 'News') }}</td>
+						<td>{{ statusLabel(item) }}</td>
+						<td>{{ formatTime(item.expiresAt) }}</td>
+						<td data-testid="announcement-seen-count">{{ item.seenCount ?? 0 }}</td>
+						<td data-testid="announcement-confirmed-count">{{ item.confirmedCount ?? 0 }}</td>
+						<td class="announcements-tab__actions">
+							<NcButton variant="tertiary" data-testid="announcement-edit" @click="openForm(item)">
+								{{ t('launchpad', 'Edit') }}
+							</NcButton>
+							<NcButton
+								v-if="item.status === 'published'"
+								variant="tertiary"
+								data-testid="announcement-receipts"
+								@click="openReceipts(item)">
+								{{ t('launchpad', 'Seen and confirmed') }}
+							</NcButton>
+							<NcButton
+								v-if="announcementStatus(item, now()) === 'active'"
+								variant="tertiary"
+								data-testid="announcement-end"
+								@click="endNow(item)">
+								{{ t('launchpad', 'End now') }}
+							</NcButton>
+							<NcButton variant="tertiary" data-testid="announcement-delete" @click="remove(item)">
+								{{ t('launchpad', 'Delete') }}
+							</NcButton>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</CnSettingsSection>
+
+		<!-- REQ-ACK-008: the widgets that ask readers to confirm, each opening
+		     its read confirmations (REQ-ACK-010). -->
+		<CnSettingsSection
+			v-if="!editing && !receiptsOf"
+			:name="t('launchpad', 'Widgets that ask for confirmation')"
+			:description="t('launchpad', 'Widgets on dashboards that ask their readers to confirm they have read them.')"
+			data-testid="admin-acknowledged-widgets">
+			<p v-if="widgetsError" class="announcements-tab__error" role="alert">
+				{{ widgetsError }}
+			</p>
+			<p v-else-if="widgets.length === 0" class="announcements-tab__hint">
+				{{ t('launchpad', 'No widget asks for confirmation.') }}
+			</p>
+			<table v-else class="announcements-tab__table">
+				<thead>
+					<tr>
+						<th scope="col">
+							{{ t('launchpad', 'Widget') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Dashboard') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Confirmed') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Not confirmed yet') }}
+						</th>
+						<th scope="col">
+							{{ t('launchpad', 'Confirm before') }}
+						</th>
+						<th scope="col">
+							<span class="hidden-visually">{{ t('launchpad', 'Actions') }}</span>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="widget in widgets" :key="widget.announcementKey" data-testid="acknowledged-widget-row">
+						<td>{{ widget.title }}</td>
+						<td>{{ widget.dashboard || '–' }}</td>
+						<td>{{ widget.acknowledgedCount }}</td>
+						<td>{{ widget.pendingCount }}</td>
+						<td :class="{ 'announcements-tab__error': widget.overdue }">
+							{{ formatTime(widget.deadline) }}
+						</td>
+						<td class="announcements-tab__actions">
+							<NcButton variant="tertiary" data-testid="acknowledged-widget-open" @click="openWidget(widget)">
+								{{ t('launchpad', 'Read confirmations') }}
+							</NcButton>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</CnSettingsSection>
+
+		<AcknowledgementReportModal
+			:open="openWidgetItem !== null"
+			:announcementKey="openWidgetItem ? openWidgetItem.announcementKey : ''"
+			:title="openWidgetItem ? openWidgetItem.title : ''"
+			:dashboardName="openWidgetItem ? openWidgetItem.dashboard : ''"
+			:widget="true"
+			@close="openWidgetItem = null" />
+	</div>
+</template>
+
+<script>
+import { CnSettingsSection } from '@conduction/nextcloud-vue'
+import { getCanonicalLocale } from '@nextcloud/l10n'
+import { NcButton } from '@nextcloud/vue'
+import AcknowledgementReportModal from '../../../modals/AcknowledgementReportModal.vue'
+import AnnouncementEditorModal from '../../../modals/AnnouncementEditorModal.vue'
+import AnnouncementReceipts from './AnnouncementReceipts.vue'
+import { announcementsApi } from '../../../services/announcementsApi.js'
+import { logger } from '../../../utils/logger.js'
+
+/**
+ * The state of an announcement on the tab: draft, scheduled, active or ended.
+ *
+ * @param {object} item The announcement.
+ * @param {Date} now The current moment.
+ * @return {'draft'|'scheduled'|'active'|'ended'}
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+ */
+export function announcementStatus(item, now) {
+	if (item.status !== 'published') {
+		return 'draft'
+	}
+	if (item.expiresAt && new Date(item.expiresAt).getTime() <= now.getTime()) {
+		return 'ended'
+	}
+	if (item.publishAt && new Date(item.publishAt).getTime() > now.getTime()) {
+		return 'scheduled'
+	}
+	return 'active'
+}
+
+/**
+ * The tab's state in the URL fragment: `#announcements`,
+ * `#announcements/<uuid>` (its form) or `#announcements/<uuid>/receipts`.
+ *
+ * @param {string} hash The fragment.
+ * @return {{uuid: string, section: string}}
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+ */
+export function announcementsFragment(hash) {
+	const [tab, uuid = '', section = ''] = String(hash ?? '').replace(/^#/, '').split('/')
+	if (tab !== 'announcements') {
+		return { uuid: '', section: '' }
+	}
+	return { uuid, section: section === 'receipts' ? 'receipts' : (uuid ? 'edit' : '') }
+}
+
+/**
+ * The Announcements tab of the admin settings page (board LpAankondiging,
+ * admin-settings REQ-ADM-034): the one place where announcements are
+ * managed. It lists every announcement, news and notices, draft, scheduled,
+ * active and ended (REQ-ANN-008); New announcement and Edit open the form
+ * with its live preview as a section of the tab (REQ-ANN-006); End now sets
+ * the end time to now; Delete asks first; each row shows how many have
+ * seen and confirmed it, and Seen and confirmed opens the receipts of a
+ * published announcement (REQ-ANN-009, AnnouncementReceipts). The open
+ * announcement and section are in the URL fragment, so the widget's Manage
+ * link opens it directly.
+ *
+ * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+ */
+export default {
+	name: 'AnnouncementsTab',
+
+	components: {
+		AcknowledgementReportModal,
+		AnnouncementEditorModal,
+		AnnouncementReceipts,
+		CnSettingsSection,
+		NcButton,
+	},
+
+	data() {
+		return {
+			items: [],
+			loading: true,
+			error: '',
+			editing: null,
+			receiptsOf: null,
+			receipts: null,
+			widgets: [],
+			widgetsError: '',
+			openWidgetItem: null,
+		}
+	},
+
+	/** @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008 */
+	async mounted() {
+		await Promise.all([this.load(), this.loadWidgets()])
+		this.followFragment()
+	},
+
+	methods: {
+		announcementStatus,
+
+		/**
+		 * @return {Date} The current moment.
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 */
+		now() {
+			return new Date()
+		},
+
+		/**
+		 * Load every announcement.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 */
+		async load() {
+			this.loading = true
+			this.error = ''
+			try {
+				this.items = await announcementsApi.manageList()
+			} catch (error) {
+				logger.error('Loading the announcements failed:', error)
+				this.error = this.t('launchpad', 'The announcements could not be loaded.')
+			} finally {
+				this.loading = false
+			}
+			await this.loadCounts()
+		},
+
+		/**
+		 * Load the widgets that ask for confirmation (REQ-ACK-008).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-an-editor-can-see-who-has-confirmed-req-ack-008
+		 */
+		async loadWidgets() {
+			this.widgetsError = ''
+			try {
+				this.widgets = await announcementsApi.acknowledgedWidgets()
+			} catch (error) {
+				logger.error('Loading the widgets that ask for confirmation failed:', error)
+				this.widgets = []
+				this.widgetsError = this.t('launchpad', 'The widgets that ask for confirmation could not be loaded.')
+			}
+		},
+
+		/**
+		 * Open the read confirmations of one widget (REQ-ACK-010).
+		 *
+		 * @param {object} widget The row.
+		 * @return {void}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/dashboard-acknowledgements/spec.md#requirement-the-read-confirmations-dialog-req-ack-010
+		 */
+		openWidget(widget) {
+			this.openWidgetItem = widget
+		},
+
+		/**
+		 * Add how many have seen and confirmed each announcement; the list
+		 * shows without them when they cannot be loaded (REQ-ANN-008).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 */
+		async loadCounts() {
+			if (this.items.length === 0) {
+				return
+			}
+			try {
+				const counts = await announcementsApi.receiptCounts(this.items.map((item) => item.uuid))
+				this.items = this.items.map((item) => ({
+					...item,
+					seenCount: counts[item.uuid]?.seen ?? 0,
+					confirmedCount: counts[item.uuid]?.confirmed ?? 0,
+				}))
+			} catch (error) {
+				logger.error('Loading the seen and confirmed counts failed:', error)
+			}
+		},
+
+		/**
+		 * Open the announcement or section the fragment names.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 */
+		followFragment() {
+			const { uuid, section } = announcementsFragment(globalThis.location?.hash ?? '')
+			const item = this.items.find((candidate) => candidate.uuid === uuid)
+			if (!item) {
+				return
+			}
+			if (section === 'receipts') {
+				this.openReceipts(item)
+			} else {
+				this.openForm(item)
+			}
+		},
+
+		/**
+		 * Keep the tab's state in the fragment without a new history entry.
+		 *
+		 * @param {string} suffix '', `/<uuid>` or `/<uuid>/receipts`.
+		 * @return {void}
+		 */
+		setFragment(suffix) {
+			globalThis.history?.replaceState?.(null, '', `#announcements${suffix}`)
+		},
+
+		/**
+		 * Open the form for a new (null) or a stored announcement.
+		 *
+		 * @param {object|null} item The announcement.
+		 * @return {void}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 */
+		openForm(item) {
+			this.receiptsOf = null
+			this.editing = item ? { ...item } : { uuid: '' }
+			this.setFragment(item ? `/${item.uuid}` : '')
+		},
+
+		/**
+		 * @return {void}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 */
+		closeForm() {
+			this.editing = null
+			this.setFragment('')
+		},
+
+		/**
+		 * @return {void}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 */
+		openList() {
+			this.receiptsOf = null
+			this.receipts = null
+			this.setFragment('')
+		},
+
+		/**
+		 * After Save: back to the list, reloaded.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 */
+		async onSaved() {
+			this.closeForm()
+			await this.load()
+		},
+
+		/**
+		 * Show who confirmed one announcement (REQ-ANN-009).
+		 *
+		 * @param {object} item The announcement.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-seen-and-confirmed-per-announcement-req-ann-009
+		 */
+		async openReceipts(item) {
+			this.editing = null
+			this.receiptsOf = item
+			this.receipts = null
+			this.setFragment(`/${item.uuid}/receipts`)
+			try {
+				this.receipts = await announcementsApi.receipts(item.uuid)
+			} catch (error) {
+				logger.error('Loading the receipts failed:', error)
+				this.receipts = { error: this.t('launchpad', 'Seen and confirmed could not be loaded.') }
+			}
+		},
+
+		/**
+		 * End an active announcement now: its end time becomes now, so it
+		 * leaves every dashboard (REQ-ANN-006).
+		 *
+		 * @param {object} item The announcement.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 */
+		async endNow(item) {
+			try {
+				await announcementsApi.update(item.uuid, { expiresAt: new Date().toISOString() })
+				await this.load()
+			} catch (error) {
+				logger.error('Ending the announcement failed:', error)
+				this.error = this.t('launchpad', 'The announcement could not be ended.')
+			}
+		},
+
+		/**
+		 * Delete an announcement, after asking (REQ-ANN-006).
+		 *
+		 * @param {object} item The announcement.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcement-form-as-lpaankondiging-draws-it-req-ann-006
+		 */
+		async remove(item) {
+			const question = this.t('launchpad', 'Delete the announcement "{title}"?', { title: item.title })
+			if (typeof globalThis.confirm === 'function' && !globalThis.confirm(question)) {
+				return
+			}
+			try {
+				await announcementsApi.remove(item.uuid)
+				await this.load()
+			} catch (error) {
+				logger.error('Deleting the announcement failed:', error)
+				this.error = this.t('launchpad', 'The announcement could not be deleted.')
+			}
+		},
+
+		/**
+		 * The status as the list names it.
+		 *
+		 * @param {object} item The announcement.
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 */
+		statusLabel(item) {
+			const labels = {
+				draft: this.t('launchpad', 'Draft'),
+				scheduled: this.t('launchpad', 'Scheduled'),
+				active: this.t('launchpad', 'Active'),
+				ended: this.t('launchpad', 'Ended'),
+			}
+			return labels[announcementStatus(item, this.now())]
+		},
+
+		/**
+		 * A stored time in the reader's locale, or a dash.
+		 *
+		 * @param {string|null} iso The time.
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-27-announcements-managed-in-settings/specs/announcements/spec.md#requirement-the-announcements-tab-lists-every-announcement-req-ann-008
+		 */
+		formatTime(iso) {
+			if (!iso) {
+				return '–'
+			}
+			const date = new Date(iso)
+			return Number.isNaN(date.getTime())
+				? '–'
+				: date.toLocaleString(getCanonicalLocale(), { dateStyle: 'medium', timeStyle: 'short' })
+		},
+	},
+}
+</script>
+
+<style scoped>
+.announcements-tab__hint {
+	color: var(--color-text-maxcontrast);
+}
+
+.announcements-tab__error {
+	color: var(--color-error-text);
+}
+
+.announcements-tab__table {
+	width: 100%;
+	margin-top: 12px;
+	border-collapse: collapse;
+}
+
+.announcements-tab__table th,
+.announcements-tab__table td {
+	padding: 6px 8px;
+	text-align: start;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.announcements-tab__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+</style>

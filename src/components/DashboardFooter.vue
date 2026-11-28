@@ -88,10 +88,9 @@
  *    when `footer.html` or any structured-config field is a language map.
  *
  * Localisation (REQ-FTR-007):
- *  - Three-step fallback: viewer locale → first key → empty string.
- *  - The dashboard's primary-language fallback (step 2 of D3) is left
- *    to the parent that knows the dashboard context; this component
- *    ships locale + first-key for the read path.
+ *  - Fallback: viewer locale (exact, then its language part) → the
+ *    dashboard's primary language (`footer.primaryLanguage`, set by the
+ *    server) → first key → empty string.
  *
  * Print stylesheet (REQ-FTR-008): the footer renders unchanged in
  * `@media print`; no `display: none` is applied.
@@ -100,14 +99,14 @@
  * admin colour overrides; when null the CSS falls through to the NC
  * theme variables (`--color-main-background`, `--color-main-text`).
  */
+
+import { NULLABLE_OBJECT_PROP } from '../constants/propDefinitions.js'
+
 export default {
 	name: 'DashboardFooter',
 
 	props: {
-		footer: {
-			type: Object,
-			default: null,
-		},
+		footer: NULLABLE_OBJECT_PROP,
 
 		locale: {
 			type: String,
@@ -237,10 +236,9 @@ export default {
 
 	methods: {
 		/**
-		 * Locale fallback (REQ-FTR-007) — viewer locale → first key →
-		 * empty string. The parent layer is responsible for inserting the
-		 * dashboard primary-language fallback before this component sees
-		 * the map.
+		 * Locale fallback (REQ-FTR-007) — viewer locale, then its language
+		 * part → the dashboard's primary language → first key → empty
+		 * string.
 		 *
 		 * @param {Record<string, string>} map Locale-keyed variants.
 		 * @spec openspec/specs/footer-customization/spec.md
@@ -249,8 +247,14 @@ export default {
 			if (!map || typeof map !== 'object') {
 				return ''
 			}
-			if (Object.hasOwn(map, this.locale)) {
-				return map[this.locale]
+			const wanted = [
+				this.locale,
+				String(this.locale).split(/[-_]/)[0],
+				this.footer?.primaryLanguage,
+			]
+			const found = wanted.find((code) => code && Object.hasOwn(map, code))
+			if (found) {
+				return map[found]
 			}
 			const keys = Object.keys(map)
 			if (keys.length === 0) {

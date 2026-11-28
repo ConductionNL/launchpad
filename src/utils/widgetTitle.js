@@ -44,6 +44,7 @@
 
 import { dashboardWidgetRegistry } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
+import { isContentLinkTile } from './linkTileFields.js'
 
 /**
  * Resolve the human-readable title of a widget placement.
@@ -53,8 +54,10 @@ import { translate as t } from '@nextcloud/l10n'
  *  2. the author's explicit per-placement override
  *  3. the Nextcloud Dashboard widget the placement IS
  *  4. the Nextcloud Dashboard widget an `nc-widget` placement PROXIES
- *  5. the widget type's display name (`Search`, `Chart`, `Clock`, …)
- *  6. the generic fallback
+ *  5. the name of the placement's mode, where a type has one: a people
+ *     placement with `selectionMode: 'new'` is "New colleagues" (REQ-PPL-014)
+ *  6. the widget type's display name (`Search`, `Chart`, `Clock`, …)
+ *  7. the generic fallback
  *
  * @param {object} placement a `widgetPlacements` row.
  * @param {Array<object>} availableWidgets the Nextcloud Dashboard widget
@@ -66,40 +69,89 @@ export function resolveWidgetTitle(placement, availableWidgets) {
 	if (!placement) {
 		return t('launchpad', 'Widget')
 	}
+	return (
+		ownTitle(placement)
+		|| catalogTitle(placement, availableWidgets || [])
+		|| modeTitle(placement)
+		|| typeTitle(placement)
+	)
+}
 
+/**
+ * The title a placement carries itself: a launcher tile's own title (or the
+ * generic word "Tile"), else the author's per-placement override.
+ *
+ * An empty string is a real stored value for the override (the add-widget
+ * modal writes `''` when the author leaves the field alone), so truthiness is
+ * the right test: `!= null` would return the empty string and blank the header.
+ *
+ * @param {object} placement The widget placement.
+ * @return {string|null} The title, or null when the placement has none.
+ * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+ * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+ */
+function ownTitle(placement) {
 	if (placement.tileType === 'custom') {
 		return placement.tileTitle || t('launchpad', 'Tile')
 	}
-
-	// An empty string is a real stored value here (the add-widget modal writes
-	// `''` when the author leaves the field alone), so truthiness is the right
-	// test — `!= null` would return the empty string and blank the header.
-	if (placement.customTitle) {
-		return placement.customTitle
+	// REQ-TILE-PLACEMENT: a link tile made with the form keeps its title in content.
+	if (isContentLinkTile(placement)) {
+		return placement.content?.title || t('launchpad', 'Tile')
 	}
+	return placement.customTitle || null
+}
 
-	const catalog = availableWidgets || []
-
+/**
+ * The catalog title of the Nextcloud Dashboard widget a placement IS, else
+ * of the widget an `nc-widget` placement PROXIES through `content.widgetId`.
+ *
+ * @param {object} placement The widget placement.
+ * @param {Array<object>} catalog The `{id, title}` widget catalog.
+ * @return {string|null} The title, or null when the catalog has none.
+ * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+ */
+function catalogTitle(placement, catalog) {
 	const direct = catalog.find((w) => w.id === placement.widgetId)
 	if (direct?.title) {
 		return direct.title
 	}
-
 	const proxiedId = placement.content?.widgetId
-	if (proxiedId) {
-		const proxied = catalog.find((w) => w.id === proxiedId)
-		if (proxied?.title) {
-			return proxied.title
-		}
+	if (!proxiedId) {
+		return null
 	}
+	return catalog.find((w) => w.id === proxiedId)?.title || null
+}
 
-	// The communal registration stores a plain English label; re-localise it
-	// the same way `widgetRegistry.js::decorate()` does, so the picker, the
-	// grid header and the search results all read identically.
+/**
+ * The name of the mode a placement runs in, for a type whose mode changes
+ * what the list is: the people widget with `selectionMode: 'new'` lists the
+ * new colleagues, so its header reads "New colleagues" ("Nieuwe collega's"),
+ * not the type's "People" (REQ-PPL-014).
+ *
+ * @param {object} placement The widget placement.
+ * @return {string|null} The title, or null when the mode has no name.
+ * @spec openspec/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ */
+function modeTitle(placement) {
+	if (placement.widgetId === 'people' && placement.content?.selectionMode === 'new') {
+		return t('launchpad', 'New colleagues')
+	}
+	return null
+}
+
+/**
+ * The widget type's display name, re-localised the same way
+ * `widgetRegistry.js::decorate()` does so the picker, the grid header and the
+ * search results all read identically; else the generic word "Widget".
+ *
+ * @param {object} placement The widget placement.
+ * @return {string} The title.
+ * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+ */
+function typeTitle(placement) {
 	const displayName = dashboardWidgetRegistry?.[placement.widgetId]?.displayName
 	if (displayName) {
 		return t('launchpad', displayName)
 	}
-
 	return t('launchpad', 'Widget')
 }

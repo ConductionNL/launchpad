@@ -35,9 +35,6 @@ The server enforces a maximum container nesting depth of **3 levels** (REQ-CONT-
 
 ## Requirements
 
-
-@e2e exclude container-widget API and nested-grid scenarios are backend / JS composable — inner GridStack instances cannot be reliably driven headlessly
-
 ### Requirement: REQ-CONT-001 Container widget type registered
 
 The widget registry MUST include a `container` widget type whose `defaultContent` is `{placements: [], backgroundColor: 'transparent', padding: 'medium', title: ''}`. The container widget MUST be selectable from the unified Add Custom Widget picker (REQ-WDG-010 + REQ-WDG-019 EXPECTED_TYPES).
@@ -98,6 +95,8 @@ In edit mode, the container's inner grid MUST become editable independently of t
 
 #### Scenario: Add a child widget inside a container
 
+@e2e exclude never built: no control adds a child to a container. ContainerWidget.vue renders no add affordance, WidgetRenderer.vue passes the container neither `editMode` nor an `update:content` listener, and CnContainerWidgetForm.vue says so in a NOTE ("there is currently no way to add a widget to a container"); `git log --all -S` for an add-to-container identifier returns nothing. The persist path that exists is pinned only by src/components/Widgets/Renderers/__tests__/ContainerWidget.persist.spec.js.
+
 - **GIVEN** a container in edit mode with two child widgets
 - **WHEN** the user opens the container's add-widget affordance and adds a label widget
 - **THEN** the inner grid MUST gain a third child placement
@@ -124,17 +123,108 @@ Containers MAY hold containers, but the maximum nesting depth is **3 levels**. T
 
 ### Requirement: REQ-CONT-007 Form fields
 
-The container's add/edit form MUST collect three fields, all optional:
+The container's add and edit form MUST collect four fields, all optional:
 
-- `backgroundColor` — hex colour (NcColorPicker), default `'transparent'`
-- `padding` — enum `'none' | 'small' | 'medium' | 'large'` (NcSelect), default `'medium'`
-- `title` — string (NcTextField), default `''` (no title rendered when empty)
+- `backgroundColor`: hex colour (NcColorPicker), default `'transparent'`
+- `padding`: enum `'none' | 'small' | 'medium' | 'large'` (NcSelect), default `'medium'`
+- `title`: string (NcTextField), default `''` (no title rendered when empty)
+- `sortBy`: enum `'manual' | 'alphabetical' | 'most-used' | 'last-used' | 'random'` (NcSelect with an input label), default `'manual'`
 
-Children are NOT managed via this form — they're added/removed/moved via the inner grid's own affordances when the container is in edit mode.
+Children are NOT managed via this form. They are added, removed and moved through the inner grid's own affordances when the container is in edit mode.
 
 #### Scenario: Form has three fields
 
 - **GIVEN** the container form is mounted
 - **WHEN** rendered
-- **THEN** exactly three input controls MUST be present: backgroundColor picker, padding select, title text field
+- **THEN** the three communal input controls MUST be present: background colour picker, padding select and title text field
+- **AND** LaunchPad's form MUST add exactly one more control, the "Sort tiles" select
 - **AND** no "manage children" UI MUST be in the form
+
+### Requirement: A container sorts its tiles when viewed (REQ-TSO-001)
+
+In view mode a container MUST order its children by its `sortBy` setting and reflow them row by row into its inner grid, keeping each child's size. It MUST NOT write the new positions back. In edit mode it MUST show the stored positions.
+
+#### Scenario: Alphabetical order
+
+- **GIVEN** a container "Applicaties" on Pieter's dashboard with tiles "Zaaksysteem", "Agenda" and "Mail" placed in that order, and "Sort tiles" set to "Alphabetically"
+- **WHEN** Pieter opens the Workspace page
+- **THEN** he sees "Agenda", "Mail", "Zaaksysteem" from left to right
+
+#### Scenario: Back to the author's layout
+
+- **GIVEN** the same container sorted alphabetically
+- **WHEN** the author sets "Sort tiles" to "By hand" and saves
+- **THEN** the tiles show in their stored order "Zaaksysteem", "Agenda", "Mail"
+
+### Requirement: Most used and last used read the viewer's own browser (REQ-TSO-002)
+
+Most used and last used MUST order tiles by counts and times kept in the viewer's browser storage, which MUST NOT be sent to the server. Tiles with equal counts MUST fall back to alphabetical order. When browser storage is unavailable the container MUST show the stored order without an error.
+
+#### Scenario: A daily app moves to the front
+
+- **GIVEN** a container sorted "Most used" with tiles "Agenda", "Mail" and "Zaaksysteem", and Pieter has never clicked any of them
+- **WHEN** he opens "Zaaksysteem" three times and reloads the Workspace page
+- **THEN** "Zaaksysteem" is the first tile in the container
+
+#### Scenario: Counts stay on the device
+
+- **GIVEN** Pieter clicks tiles in a container sorted "Most used"
+- **WHEN** the clicks are recorded
+- **THEN** no request carries his per-tile counts, and the only server call per click is the existing anonymous `POST /api/tile-click/{placementId}`
+
+### Requirement: Viewers can forget their usage (REQ-TSO-003)
+
+A container sorted by most used or last used MUST offer "Forget my usage" in its menu, which clears the viewer's local counts for that container's tiles.
+
+#### Scenario: Forget my usage
+
+- **GIVEN** "Zaaksysteem" leads Pieter's "Most used" container
+- **WHEN** he chooses "Forget my usage" in the container menu
+- **THEN** the tiles show in alphabetical order until he clicks one again
+
+### Requirement: Random order holds for the page load (REQ-TSO-004)
+
+Random order MUST shuffle once per page load and keep that order until the page is reloaded.
+
+#### Scenario: No jumping tiles
+
+- **GIVEN** a container sorted "At random"
+- **WHEN** Pieter opens the Workspace page and a widget elsewhere refreshes its data
+- **THEN** the tile order in the container stays the same until he reloads
+
+### Requirement: A well leaves out tiles the viewer may not open (REQ-CONT-008)
+
+Inside a well (and inside a tab of the Tabs widget), an App or link tile in app mode for an app the viewer may not open
+SHALL NOT render for that viewer, and the remaining tiles SHALL close up in the well's sort order. Outside a well such a
+tile keeps saying the app is not available (app-tile-widget REQ-APPTILE-002).
+
+#### Scenario: A member without Deck
+
+- **GIVEN** a group dashboard with a well holding tiles for Files, Deck and Talk
+- **AND** a member for whom Deck is not enabled
+- **WHEN** the member opens the dashboard
+- **THEN** the well shows Files and Talk, side by side, and nothing for Deck
+
+### Requirement: A well can fill itself with the viewer's apps (REQ-CONT-009)
+
+A well SHALL accept a dynamic app list (`content.appList` with `pinned`, `exclude`, `mostUsedLimit` and `showFilter`)
+(Ruben's answer of 27 Nov 2026 on item 13). With it, the well SHALL draw, for each viewer when the dashboard renders, one
+App or link tile in app mode per app in that viewer's own app menu: the pinned apps first in their order and marked
+pinned, then the others, without the excluded apps and without Launchpad. With `mostUsedLimit` above 0 it SHALL show
+only that many apps after the pinned ones, the viewer's most used first. With `showFilter` it SHALL draw a search field
+above the tiles that narrows them by name as the viewer types. Tiles placed in the well by hand SHALL follow the dynamic
+ones. The list SHALL come from the page's boot data, so it SHALL NOT add a request. The well's settings SHALL offer these
+four under "Apps from the app menu" (board LpWellInstellen, design-system#1214).
+
+#### Scenario: Each viewer sees their own apps
+
+- **GIVEN** a group dashboard with a well whose app list pins Zaaksysteem and excludes Photos
+- **AND** Pieter has Zaaksysteem, Files, Photos and Talk, and Sanne has Zaaksysteem and Deck
+- **WHEN** each opens the dashboard
+- **THEN** Pieter's well shows Zaaksysteem (pinned), Files and Talk, and Sanne's shows Zaaksysteem (pinned) and Deck
+
+#### Scenario: Limit and filter
+
+- **GIVEN** a well whose app list has `mostUsedLimit: 3` and `showFilter: true`, for a viewer with eight apps
+- **WHEN** the viewer opens the dashboard and types "ag" in the well's search field
+- **THEN** the well first showed three apps, and now shows only the apps whose name contains "ag"

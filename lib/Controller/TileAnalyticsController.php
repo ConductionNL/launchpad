@@ -41,8 +41,8 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Kernel\Contracts\TileAnalyticsServiceInterface;
 use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\TileAnalyticsService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -54,43 +54,39 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Controller for tile usage-analytics endpoints.
  *
  * @spec openspec/specs/dashboard-view-analytics/spec.md
  *
- * @SuppressWarnings(PHPMD.StaticAccess)           {@see ResponseHelper} is an all-static,
- *  stateless response factory shared by every controller in this app; calling
- *  it statically is its intended usage and injecting it would add a
- *  collaborator with no state to every controller.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) An analytics endpoint reads
  *  across several aggregates by nature; every collaborator here is a mapper or
  *  service it must query to answer one request. Splitting the controller would
  *  move the coupling rather than remove it.
  */
 class TileAnalyticsController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
 	 * @param IRequest $request The HTTP request.
-	 * @param TileAnalyticsService $tileAnalyticsService The tile analytics
+	 * @param TileAnalyticsServiceInterface $tileAnalyticsService The tile analytics
 	 *                                                   service.
 	 * @param ActionAuthService $actionAuth ADR-023 action
 	 *                                      authorization.
-	 * @param IUserSession $userSession Current user session.
+	 * @param TileAnalyticsContext $context Holds the userSession and responseHelper.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly TileAnalyticsService $tileAnalyticsService,
+		private readonly TileAnalyticsServiceInterface $tileAnalyticsService,
 		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
+		private readonly TileAnalyticsContext $context,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -110,10 +106,11 @@ class TileAnalyticsController extends Controller {
 	 *                      does not exist.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function recordClick(string $placementId): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->context->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
@@ -130,13 +127,7 @@ class TileAnalyticsController extends Controller {
 				userId: $user->getUID()
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		return new JSONResponse(
@@ -158,15 +149,16 @@ class TileAnalyticsController extends Controller {
 	 *                      unauthenticated.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	public function config(): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->context->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		return ResponseHelper::success(
+		return $this->context->responseHelper->success(
 			data: [
 				'enabled' => $this->tileAnalyticsService->isTrackingActiveFor(userId: $user->getUID()),
 			]
@@ -182,21 +174,16 @@ class TileAnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function topTiles(
 		string $period = '30d',
 		int $limit = 10,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'tile-analytics.top-tiles');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'tile-analytics.top-tiles');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -205,17 +192,10 @@ class TileAnalyticsController extends Controller {
 				limit: $limit
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_period',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
-		return ResponseHelper::success(data: $rows);
+		return $this->context->responseHelper->success(data: $rows);
 	}//end topTiles()
 
 	/**
@@ -228,21 +208,16 @@ class TileAnalyticsController extends Controller {
 	 * @return JSONResponse The response.
 	 *
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function dashboardBreakdown(
 		string $uuid,
 		string $period = '30d',
 	): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'tile-analytics.dashboard-breakdown');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'tile-analytics.dashboard-breakdown');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -251,17 +226,10 @@ class TileAnalyticsController extends Controller {
 				period: $period
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_period',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
-		return ResponseHelper::success(data: $rows);
+		return $this->context->responseHelper->success(data: $rows);
 	}//end dashboardBreakdown()
 
 	/**
@@ -279,28 +247,15 @@ class TileAnalyticsController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function exportCsv(string $period = '30d'): Response {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'tile-analytics.export-csv');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'tile-analytics.export-csv');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
 			$csv = $this->tileAnalyticsService->generateCsvExport(period: $period);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_period',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return new DataDownloadResponse(
@@ -309,4 +264,18 @@ class TileAnalyticsController extends Controller {
 			contentType: 'text/csv'
 		);
 	}//end exportCsv()
+
+	/**
+	 * The caller guard: no session user → 401, a denied ADR-023 action → 403; NULL to proceed.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		$check = new SessionActionCheck(userSession: $this->context->userSession, actionAuth: $this->actionAuth);
+		return $check->refusal(action: $action);
+	}//end actionRefusal()
 }//end class

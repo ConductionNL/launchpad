@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * PageSettingsSources
+ *
+ * The role features, tree, log and admin settings the main page reads.
+ *
+ * @category  Controller
+ * @package   OCA\LaunchPad\Controller
+ * @author    Conduction b.v. <info@conduction.nl>
+ * @copyright 2026 Conduction b.v.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ * @version   GIT:auto
+ * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * @spec openspec/specs/dashboards/spec.md
+ */
+
+declare(strict_types=1);
+
+namespace OCA\LaunchPad\Controller;
+
+use OCA\LaunchPad\Kernel\Contracts\PublicStartPageInterface;
+use OCA\LaunchPad\Kernel\Contracts\SearchShortcutServiceInterface;
+use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\AnalyticsService;
+use OCA\LaunchPad\Service\CustomCssService;
+use OCA\LaunchPad\Service\DashboardTreeService;
+use OCA\LaunchPad\Service\RoleFeaturePermissionService;
+use OCP\IURLGenerator;
+use OCP\App\IAppManager;
+use OCP\IConfig;
+use Psr\Log\LoggerInterface;
+
+/**
+ * The role features, tree, log and admin settings the main page reads.
+ *
+ * @spec openspec/specs/dashboards/spec.md
+ * @SuppressWarnings(PHPMD.ExcessiveParameterList) Each source is one injected service the page settings read.
+ */
+class PageSettingsSources {
+	/**
+	 * Constructor.
+	 *
+	 * @param RoleFeaturePermissionService $roleFeaturePerm Per-user widget allow-list source (REQ-RFP-009..010).
+	 * @param DashboardTreeService         $treeService Slug-chain resolver used by the deep-link route.
+	 * @param LoggerInterface              $logger Used to record silent fallback when a deep-link path doesn't
+	 *                                             resolve to a visible dashboard.
+	 * @param AdminSettingsService         $adminSettingsService Source of the quick-search no-match
+	 *                                                           fallback-target admin setting (tile-quick-search
+	 *                                                           REQ-QSEARCH-004).
+	 * @param PublicStartPageInterface              $publicStartPage The public start page's link (sharing-public-start-page D3).
+	 * @param IURLGenerator                $urlGenerator The login form address the start page falls back to.
+	 * @param SearchShortcutServiceInterface        $searchShortcuts The search shortcuts every search box honours (REQ-SPX-002).
+	 * @param CustomCssService|null        $customCss The administrator CSS for all of LaunchPad (REQ-THM-003).
+	 * @param IAppManager|null             $appManager Whether Talk is enabled for the viewer
+	 *                                                 (engagement-communities REQ-COMM-004).
+	 * @param IConfig|null                 $config The viewer's Nextcloud timezone (REQ-CLOCK-002).
+	 * @param OrgNavigationFirstLoad|null  $orgNavigation The rail position and tree the shell's first load
+	 *                                                    takes from the initial state.
+	 * @param AnalyticsService|null        $analytics Whether view analytics is on, so the page sends no
+	 *                                                view-event while it is off (REQ-ANLT-011).
+	 */
+	public function __construct(
+		public readonly RoleFeaturePermissionService $roleFeaturePerm,
+		public readonly DashboardTreeService $treeService,
+		public readonly LoggerInterface $logger,
+		public readonly AdminSettingsService $adminSettingsService,
+		public readonly PublicStartPageInterface $publicStartPage,
+		public readonly IURLGenerator $urlGenerator,
+		public readonly SearchShortcutServiceInterface $searchShortcuts,
+		public readonly ?CustomCssService $customCss=null,
+		public readonly ?IAppManager $appManager = null,
+		public readonly ?IConfig $config = null,
+		public readonly ?OrgNavigationFirstLoad $orgNavigation = null,
+		public readonly ?AnalyticsService $analytics = null,
+	) {
+	}//end __construct()
+}//end class

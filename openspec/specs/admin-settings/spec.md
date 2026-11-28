@@ -10,8 +10,6 @@ Admin settings provide Nextcloud administrators with global configuration option
 
 ## Data Model
 
-@e2e exclude Most scenarios here are REST, service or config contracts, covered by PHPUnit and Newman rather than a browser. The browser-observable parts are still exercised: the two REQ-ASET-002 round-trip scenarios are cited by tests/e2e/admin-settings-key-roundtrip.spec.ts, and the personal-dashboard flag's sidebar effect is covered by tests/e2e/allow-personal-dashboards-flag.spec.ts.
-
 ### Admin Settings (oc_launchpad_admin_settings)
 Settings are stored as key-value pairs:
 - **id**: Auto-increment integer primary key
@@ -28,9 +26,10 @@ Settings are stored as key-value pairs:
 | `default_permission_level` | `defaultPermissionLevel` | string | `add_only` | Default permission level for user-created dashboards |
 | `default_grid_columns` | `defaultGridColumns` | integer | `12` | Default number of grid columns for new dashboards |
 | `link_create_file_extensions` | `linkCreateFileExtensions` | `string[]` | `["txt","md","docx","xlsx","csv","odt"]` | Extensions the link-button widget's "create file" action may create (REQ-LBN-004). An empty stored list resolves to the default. |
-| `content_storage` | `launchpad.content_storage` | string | `database` | Active content storage backend (REQ-GFSB-006). The response key is dotted, unlike the others. |
 | `default_share_permission_level` | `defaultSharePermissionLevel` | string | `add_only` | Org-wide default permission for a new share (dashboard-sharing spec) |
 | `forced_share_groups` | `forcedShareGroups` | `string[]` | `[]` | Groups every new dashboard is force-shared with (dashboard-sharing spec) |
+| `sharing_allowed_groups` | `sharingAllowedGroups` | `string[]` | `[]` | Groups whose members may share a dashboard; empty means everyone may (dashboard-sharing REQ-SHARE-014) |
+| `sharing_recipient_scope` | `sharingRecipientScope` | string | `everyone` | Whom a dashboard may be shared with: `everyone`, or `shared-groups` (only people and groups the sharer shares a group with). Anything else reads as `everyone` (dashboard-sharing REQ-SHARE-014). |
 | `legacy_widget_bridge_enabled` | `legacyWidgetBridgeEnabled` | boolean | `false` | Whether the workspace reads Nextcloud's widget registry (legacy-widget-bridge spec) |
 | `max_dashboards_per_user` | `maxDashboardsPerUser` | integer | `0` | Personal dashboard quota per user, `0` = unlimited (REQ-QUOTA-001) |
 | `max_widgets_per_dashboard` | `maxWidgetsPerDashboard` | integer | `0` | Placement quota per dashboard, `0` = unlimited (REQ-QUOTA-001) |
@@ -38,15 +37,17 @@ Settings are stored as key-value pairs:
 | `group_order` | n/a (separate `/api/admin/groups` endpoints) | `string[]` (JSON) | `[]` | Ordered list of Nextcloud group IDs that are "active" for LaunchPad workspace routing (REQ-ASET-012). Read via `AdminSettingsService::getGroupOrder()`; written via `setGroupOrder()`. Corrupt JSON resolves to `[]`. |
 
 NOTE: The DB stores settings with snake_case keys, but the API response returns camelCase keys. The factory default for `defaultPermissionLevel` is `add_only` (Dashboard::PERMISSION_ADD_ONLY), NOT `full`. The API update endpoint accepts each setting under the key the GET response uses (`defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`) and under its short parameter name (`defaultPermLevel`, `allowUserDash`, `allowMultiDash`, `defaultGridCols`, `linkCreateFileExts`). When both arrive in one body the short name wins. See REQ-ASET-002.
+
 ## Requirements
+
 ### Requirement: Retrieve Admin Settings (REQ-ASET-001)
 
-Administrators MUST be able to retrieve all current admin settings via the API. The endpoint returns a flat JSON object with the twelve settings listed under Defined Settings, each under its API response key. `group_order` is not among them; it has its own endpoints (REQ-ASET-012).
+Administrators MUST be able to retrieve all current admin settings via the API. The endpoint returns a flat JSON object with the thirteen settings listed under Defined Settings, each under its API response key. `group_order` is not among them; it has its own endpoints (REQ-ASET-012).
 
 #### Scenario: Get all settings with defaults
 - GIVEN no admin settings have been explicitly configured (fresh installation)
 - WHEN the admin sends GET /api/admin/settings
-- THEN the system MUST return HTTP 200 with all twelve settings at their default values:
+- THEN the system MUST return HTTP 200 with all thirteen settings at their default values:
   ```json
   {
     "defaultPermissionLevel": "add_only",
@@ -54,9 +55,10 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
     "allowMultipleDashboards": true,
     "defaultGridColumns": 12,
     "linkCreateFileExtensions": ["txt", "md", "docx", "xlsx", "csv", "odt"],
-    "launchpad.content_storage": "database",
     "defaultSharePermissionLevel": "add_only",
     "forcedShareGroups": [],
+    "sharingAllowedGroups": [],
+    "sharingRecipientScope": "everyone",
     "legacyWidgetBridgeEnabled": false,
     "maxDashboardsPerUser": 0,
     "maxWidgetsPerDashboard": 0,
@@ -69,7 +71,7 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
 - GIVEN the admin has set `allowUserDashboards` to `false`
 - WHEN the admin sends GET /api/admin/settings
 - THEN the response MUST carry `"allowUserDashboards": false`
-- AND the other eleven keys MUST still be present with their current values
+- AND the other twelve keys MUST still be present with their current values
 
 #### Scenario: Non-admin user retrieves settings
 - GIVEN a regular user "alice"
@@ -86,10 +88,23 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
 #### Scenario: Settings response format consistency
 - GIVEN the admin has configured various settings at different times
 - WHEN GET /api/admin/settings is called
-- THEN the response MUST always return exactly the twelve keys listed under Defined Settings: `defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`, `launchpad.content_storage`, `defaultSharePermissionLevel`, `forcedShareGroups`, `legacyWidgetBridgeEnabled`, `maxDashboardsPerUser`, `maxWidgetsPerDashboard`, `quicksearchFallbackTarget`
+- THEN the response MUST always return exactly the thirteen keys listed under Defined Settings: `defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`, `defaultSharePermissionLevel`, `forcedShareGroups`, `sharingAllowedGroups`, `sharingRecipientScope`, `legacyWidgetBridgeEnabled`, `maxDashboardsPerUser`, `maxWidgetsPerDashboard`, `quicksearchFallbackTarget`
 - AND no additional keys MUST be present in the response
 - NOTE: This scenario said "exactly four keys" long after the response had grown to twelve. The list above is taken from `AdminSettingsService::getSettings()`; a key added there MUST be added here and to the Defined Settings table.
-- AND the response MUST be a flat JSON object (no nesting)
+- AND the response MUST be a flat JSON object (no nesting), except `leaverHandover`, which is `{manager, fallbackUid}` (REQ-SHARE-016)
+- NOTE: Other capabilities added keys since (`filterTelemetryEnabled`, `tileAllowedSchemes`, `ssoLaunchTemplates`, `announcementEditorGroups`, `officeNetworks`, `currentAddress`, `currentAddressInOfficeNetworks`, `pinnedCommunities`, `defaultAppEnabled`, `sharingAllowed`, `publicLinksAllowed`, `leaverHandover`); `AdminSettingsServiceTest::testGetSettingsReturnsExactlyTheDocumentedKeysAtTheirDefaults` and `tests/e2e/admin-settings-api.spec.ts` pin the full list
+
+#### Scenario: The retired content storage key is not returned
+- GIVEN an instance that still holds a `content_storage` row written by the retired setup-wizard storage step
+- WHEN the admin sends GET /api/admin/settings
+- THEN the response MUST NOT contain `launchpad.content_storage`
+- AND the stored row MUST stay unread (decision 131)
+
+#### Scenario: The retired start-page key is not returned
+- GIVEN an instance where `start_page_without_navigation` may still be stored from when the option existed (runtime-shell REQ-SHELL-009)
+- WHEN the admin sends a PUT /api/admin/settings that still carries `"startPageWithoutNavigation": true`
+- THEN the PUT MUST answer 200 and store nothing for that key
+- AND a following GET /api/admin/settings MUST NOT contain `startPageWithoutNavigation`
 
 ### Requirement: Update Admin Settings (REQ-ASET-002)
 
@@ -131,21 +146,22 @@ Administrators MUST be able to update individual or multiple admin settings in a
 
 #### Scenario: Update with invalid permission level value
 - GIVEN the admin sends PUT /api/admin/settings with body `{"defaultPermLevel": "super_admin"}`
-- THEN the system SHOULD return HTTP 400 with a validation error
-- AND only `view_only`, `add_only`, and `full` SHOULD be accepted for this setting
-- NOTE: Permission level validation is NOT currently implemented -- any string value is accepted
+- THEN the system MUST return HTTP 400 with a validation error (`{"error": "<message>"}`)
+- AND only `view_only`, `add_only`, and `full` MUST be accepted for this setting, under either spelling
+- AND nothing in the request MUST be stored
 
 #### Scenario: Update with invalid grid columns value
 - GIVEN the admin sends PUT /api/admin/settings with body `{"defaultGridCols": 0}`
-- THEN the system SHOULD return HTTP 400 with a validation error
-- AND `defaultGridCols` SHOULD be a positive integer between 1 and 24
-- NOTE: Grid columns validation is NOT currently implemented -- any integer value is accepted
+- THEN the system MUST return HTTP 400 with a validation error (`{"error": "<message>"}`)
+- AND `defaultGridCols` MUST be a whole number from 1 to 24
+- AND nothing in the request MUST be stored
 
 #### Scenario: Update with invalid boolean value
 - GIVEN the admin sends PUT /api/admin/settings with body `{"allowUserDash": "maybe"}`
-- THEN the system SHOULD return HTTP 400 with a validation error
-- AND boolean settings SHOULD only accept `true` or `false`
-- NOTE: Boolean validation is NOT currently implemented -- PHP type coercion handles the value
+- THEN the system MUST return HTTP 400 with a validation error (`{"error": "<message>"}`)
+- AND boolean settings MUST only accept `true` or `false` (also as `0`, `1`, `"0"`, `"1"`, `"true"`, `"false"`)
+- AND nothing in the request MUST be stored
+- NOTE: Nextcloud casts a bool parameter before the controller sees it, so `AdminController` checks the raw request value
 
 #### Scenario: Non-admin cannot update settings
 - GIVEN a regular user "alice"
@@ -260,13 +276,14 @@ When `allow_multiple_dashboards` is false, users MUST be limited to one dashboar
 - AND alice MUST NOT be able to create additional dashboards
 - AND alice MUST be able to delete dashboards to get down to 1
 
-#### Scenario: Template distribution overrides multiple dashboard restriction
+#### Scenario: A new template reaches only users on their first access
 - GIVEN `allowMultipleDashboards` is set to `false`
 - AND user "alice" has 1 dashboard
-- AND a new admin template targets alice's group
-- WHEN the template distribution triggers for alice
-- THEN the system MUST still create the template copy for alice
-- AND alice MUST have 2 dashboards (the restriction applies to user-initiated creation, not admin-initiated distribution)
+- AND a new admin template targets the group of alice and of "bob", who has never opened LaunchPad
+- WHEN alice and bob open LaunchPad
+- THEN the system MUST NOT create a template copy for alice, who keeps her 1 dashboard: templates are distributed on first access only (REQ-TMPL-005), whatever this setting says
+- AND bob MUST receive the template copy as his first dashboard
+- AND an admin who wants the template on existing users' dashboards uses re-sync (REQ-TMPL-005 is unaffected by it)
 
 ### Requirement: Default Permission Level Setting (REQ-ASET-005)
 
@@ -305,13 +322,12 @@ The `defaultPermissionLevel` setting MUST be applied as a fallback when resolvin
 
 ### Requirement: Default Grid Columns Setting (REQ-ASET-006)
 
-The `defaultGridColumns` setting MUST be applied to new dashboards when no explicit gridColumns is specified.
+The `defaultGridColumns` setting MUST be applied to new dashboards when no explicit gridColumns is specified. The admin page offers it as a select of 6, 8 and 12 columns.
 
 #### Scenario: Default grid columns applied
 - GIVEN `defaultGridColumns` is set to `8`
 - WHEN user "alice" sends POST /api/dashboard with body `{"name": "My Dashboard"}`
 - THEN the created dashboard MUST have `gridColumns: 8`
-- NOTE: `DashboardFactory::create()` currently hardcodes `gridColumns: 12` and does NOT read the `defaultGridColumns` admin setting. This is a known gap.
 
 #### Scenario: Explicit grid columns overrides default
 - GIVEN `defaultGridColumns` is set to `8`
@@ -357,7 +373,8 @@ Admin settings MUST be persisted across server restarts and app updates.
 
 ### Requirement: Admin Settings UI (REQ-ASET-008)
 
-The admin settings MUST be accessible via a Nextcloud admin panel page.
+The admin settings MUST be accessible via a Nextcloud admin panel page. The
+form MUST save each change as soon as it is made; it has no Save button.
 
 #### Scenario: Admin settings page is registered
 - GIVEN a Nextcloud admin user
@@ -377,14 +394,14 @@ The admin settings MUST be accessible via a Nextcloud admin panel page.
   - A toggle for "Allow user dashboards" (on/off)
   - A toggle for "Allow multiple dashboards" (on/off)
   - A dropdown for "Default permission level" (view_only, add_only, full)
-  - A number input for "Default grid columns" (1-24)
-  - A "Save" button
+  - A select for "Default grid columns" offering 6, 8 and 12 (Ruben, 21 Nov 2026, following the product)
 - AND each setting MUST show its current value
+- AND the form MUST NOT show a Save button, since every change is saved at once
 
-#### Scenario: Settings saved via the UI
-- GIVEN the admin changes "Allow user dashboards" to off and clicks Save
-- WHEN the save completes
-- THEN the system MUST display a success notification
+#### Scenario: Each change is saved at once
+- GIVEN the admin opens the LaunchPad admin settings page
+- WHEN the admin switches "Allow user dashboards" off
+- THEN the page MUST send the change to PUT /api/admin/settings straight away, without a Save step
 - AND GET /api/admin/settings MUST reflect the change
 
 ### Requirement: Settings Impact on Existing Data (REQ-ASET-009)
@@ -605,133 +622,104 @@ The current value of `allow_user_dashboards` MUST be pushed as initial state `al
 - THEN the store MUST surface a localised toast via `@nextcloud/dialogs::showError` reading the `Personal dashboards are not enabled by your administrator` translation
 - AND the original error MUST be re-thrown so callers can short-circuit
 
-### Requirement: REQ-ASET-012 Group order setting
+### Requirement: Program schemes and single sign-on launch templates are admin settings (REQ-ASET-020)
 
-The system MUST persist an ordered list of Nextcloud group IDs as the global setting `group_order` (JSON `string[]`, default `[]`). The order MUST be preserved exactly as provided. The setting determines which groups are "active" for LaunchPad workspace routing (REQ-TMPL-012). Corrupt or unparseable JSON in the database MUST resolve to `[]` at read time without throwing — the resolver and admin UI MUST never see a fatal error from a malformed value.
+The admin settings MUST hold `tileAllowedSchemes` (stored as `tile_allowed_schemes`), a list of lower-case URL schemes a program tile may use, and `ssoLaunchTemplates` (stored as `sso_launch_templates`), a list of `{key, name, urlTemplate}` where `urlTemplate` is an https address containing `{appId}` exactly once. Both MUST be empty by default. A write MUST be refused with HTTP 400, naming the entry, when a scheme is not lower-case or is one of `javascript`, `data`, `file`, `vbscript`, `about` or `blob`, or when a template is not https, lacks or repeats `{appId}`, carries another placeholder or credentials, or reuses a key; a refused write MUST leave both lists as they were. A stored value that no longer validates MUST read as empty. With these two, `GET /api/admin/settings` (REQ-ASET-001) returns fourteen keys; the REQ-ASET-001 list is updated when this change is archived.
 
-#### Scenario: Persist ordered list
+#### Scenario: A script scheme cannot be allowed
 
-- GIVEN admin sends `POST /api/admin/groups` with body `{"groups": ["engineering", "all-staff", "marketing"]}`
-- THEN the setting `group_order` MUST be persisted as the JSON string `["engineering","all-staff","marketing"]`
-- AND a subsequent `GET /api/admin/groups` MUST return the same order in `active`
+- **GIVEN** an administrator on the LaunchPad admin page
+- **WHEN** they save `javascript` as an allowed scheme
+- **THEN** the response is 400 naming `javascript` and the allowed list is unchanged
 
-#### Scenario: Empty list clears active groups
+#### Scenario: A launch template must be https with the app id
 
-- GIVEN admin sends `POST /api/admin/groups` with body `{"groups": []}`
-- THEN the setting MUST be persisted as `[]`
-- AND `resolvePrimaryGroup` MUST return `'default'` for every user (per REQ-TMPL-012)
+- **GIVEN** an administrator defining a launch template
+- **WHEN** they save `http://idp.example.nl/{appId}`
+- **THEN** the response is 400 and no template is stored
 
-#### Scenario: Replace-wholesale, not merge
+### Requirement: One list of allowed websites with a purpose per site (REQ-ASET-021)
 
-- GIVEN current `group_order = ["a", "b", "c"]`
-- WHEN admin sends `POST /api/admin/groups` with body `{"groups": ["c", "b"]}`
-- THEN the setting MUST become exactly `["c", "b"]`
-- AND `"a"` MUST be removed (no implicit merge)
+The General tab (board LpBeheerAlgemeen) SHALL hold one block "Allowed websites" ("Toegestane websites"): a list of
+hosts, each with its purpose: Embed ("Insluiten"), Fetch ("Ophalen") or Embed and fetch, with "Add website" and Save.
+The list SHALL be stored as one admin setting. Embed SHALL allow the host for the embedded page widget and for images
+from outside; Fetch SHALL allow it for live tiles, health pings and external calendar feeds. Each of those features
+SHALL check a URL against the hosts allowed for its purpose and SHALL stay fail-closed: a host not on the list, or
+on it for the other purpose only, SHALL be refused as before. A host SHALL be saved lower case, without scheme, path
+or port, and an entry that is not a host SHALL be refused with a message. On the first upgrade, the hosts of the
+existing per-feature allow-lists SHALL be merged into the list with the purpose they had, so nothing that worked
+stops working.
 
-#### Scenario: Corrupt DB JSON falls back to empty array
+#### Scenario: Power BI may be embedded, not called
 
-- GIVEN the row `group_order` exists in `oc_launchpad_admin_settings` with `setting_value = '{not-json'`
-- WHEN any caller invokes `AdminSettingsService::getGroupOrder()`
-- THEN the method MUST return `[]`
-- AND MUST NOT throw an exception
-- AND `GET /api/admin/groups` MUST return `active: []` in this state
+- **GIVEN** the list holds `app.powerbi.com` with purpose Embed
+- **WHEN** an author places an embedded page from `https://app.powerbi.com/...`
+- **THEN** the widget saves and renders
+- **AND** a live tile with a URL on `app.powerbi.com` is refused at save time
 
-#### Scenario: Default when setting absent
+#### Scenario: The KCC API may be called, not embedded
 
-- GIVEN no `group_order` row has ever been written to `oc_launchpad_admin_settings`
-- WHEN `AdminSettingsService::getGroupOrder()` is called
-- THEN it MUST return `[]` (factory default)
+- **GIVEN** the list holds `kcc-api.zuiddrecht.nl` with purpose Fetch
+- **WHEN** an author configures a live tile on `https://kcc-api.zuiddrecht.nl/wachttijd`
+- **THEN** the tile fetches its value
+- **AND** an embedded page on that host is refused
 
-### Requirement: REQ-ASET-013 List groups for admin UI
+#### Scenario: Existing lists survive the upgrade
 
-The system MUST expose `GET /api/admin/groups` returning `{active: [id…], inactive: [id…], allKnown: [{id, displayName}…]}`:
+- **GIVEN** before the upgrade `livetile_allowed_hosts` held `kcc-api.zuiddrecht.nl` and the embed list held `app.powerbi.com`
+- **WHEN** the app is upgraded
+- **THEN** the Allowed websites block lists `kcc-api.zuiddrecht.nl` with Fetch and `app.powerbi.com` with Embed
 
-- `active`: the persisted `group_order` list (in admin-chosen order, preserved exactly).
-- `inactive`: every Nextcloud group ID NOT in `active`, sorted by display name (case-insensitive).
-- `allKnown`: full descriptor list (`{id, displayName}`) for every Nextcloud group currently known, so the UI can render display names without a second round-trip.
+### Requirement: The administration is a Launchpad page over the full width (REQ-ADM-030)
 
-Stale IDs (present in `active` but no longer in Nextcloud) MUST remain in `active` so the admin can see and remove them, but MUST NOT appear in `allKnown` (no display name available). The UI is expected to render stale IDs with a "(removed)" affix.
+The Launchpad administration SHALL be a page of Launchpad itself at `/apps/launchpad/admin/<tab>`, with Launchpad's top bar, the title "Launchpad administration: <tab>", the path "Administration settings / Launchpad / <tab>", the tabs over the full width and no left menu. The page SHALL check on the server, before it renders, that the reader is an administrator or a delegated Launchpad administrator.
 
-#### Scenario: Lists are disjoint and exhaustive
+#### Scenario: Open the administration
 
-- GIVEN Nextcloud has groups `["a", "b", "c", "d"]` and `group_order = ["b", "d"]`
-- WHEN admin sends `GET /api/admin/groups`
-- THEN the response MUST be `{active: ["b", "d"], inactive: ["a", "c"], allKnown: [{id:"a",displayName:"..."}, {id:"b",displayName:"..."}, {id:"c",displayName:"..."}, {id:"d",displayName:"..."}]}`
-- AND `active ∪ inactive` MUST equal the set of IDs in `allKnown`
-- AND `active ∩ inactive` MUST be empty
+- **GIVEN** beheer is a Launchpad administrator
+- **WHEN** she chooses Settings, Administration settings in the More menu
+- **THEN** the page opens without Nextcloud's settings menu, on the tab General
 
-#### Scenario: Order in `active` matches admin-chosen order
+#### Scenario: Not an administrator
 
-- GIVEN `group_order = ["zebra", "alpha", "marigold"]`
-- WHEN admin sends `GET /api/admin/groups`
-- THEN `active` MUST be exactly `["zebra", "alpha", "marigold"]` (no alphabetical re-sort)
-- AND `inactive` MUST be sorted alphabetically by `displayName`
+- **WHEN** Pieter opens `/apps/launchpad/admin/general`
+- **THEN** the server answers 403 and renders nothing of the page
 
-#### Scenario: Empty group_order — all groups inactive
+### Requirement: Nextcloud's settings point to the page (REQ-ADM-031)
 
-- GIVEN `group_order = []` and Nextcloud has groups `["a", "b"]`
-- WHEN admin sends `GET /api/admin/groups`
-- THEN `active` MUST be `[]`
-- AND `inactive` MUST contain both `"a"` and `"b"`
+The Launchpad entry under Nextcloud's administration settings SHALL say where the administration is and link to the page.
 
-#### Scenario: Stale group IDs surface in active list
+#### Scenario: From Nextcloud's settings
 
-- GIVEN `group_order = ["deleted-group", "engineering"]` and Nextcloud no longer has `"deleted-group"`
-- WHEN admin sends `GET /api/admin/groups`
-- THEN the response's `active` MUST still include `"deleted-group"` (so admin can see and remove it)
-- AND `allKnown` MUST NOT include it (no display name to show)
-- AND `inactive` MUST NOT include it
-- NOTE: The UI SHOULD render stale IDs with a "(removed)" affix.
+- **WHEN** an administrator opens Administration settings, Launchpad in Nextcloud
+- **THEN** she sees one line and a link that opens the Launchpad administration page
 
-### Requirement: REQ-ASET-014 Admin guard and payload validation
+### Requirement: The administration shows the twelve drawn tabs (REQ-ADM-032)
 
-`POST /api/admin/groups` MUST be admin-only (`IGroupManager::isAdmin`). Non-admins MUST receive HTTP 403 with no side effects. `GET /api/admin/groups` MUST also be admin-only because the inactive list reveals every group on the system.
+The administration page SHALL show the twelve tabs the Beheer boards draw, in this order: General, Templates, Controls,
+Roles and permissions, Versions and analytics, Sharing, Kiosk, Organisation menu, Demo data, Group dashboards, Detail
+fields, Profile fields. Embeds and Search shortcuts SHALL be cards of General, Communities a section of Group
+dashboards and App catalogue a section of Controls. An address that names a former tab (`/admin/embeds`,
+`/admin/search-shortcuts`, `/admin/communities`, `/admin/app-catalogue`) SHALL open the tab that holds it, scrolled to
+that section, keeping the embed form's pre-selection (`embedType`, `embedId`, `embedDashboard`). The check that the
+reader is a (delegated) administrator SHALL come before that redirect.
 
-The `POST` payload MUST be validated:
-- Top-level `groups` key MUST exist and MUST be a JSON array.
-- Every element MUST be a non-empty string.
-- Duplicate IDs in the payload MUST be deduplicated (first occurrence wins, preserving order).
-- Validation failures MUST return HTTP 400 with no side effects on the persisted setting.
+#### Scenario: The tab strip as drawn
 
-Unknown (not currently in Nextcloud) IDs MUST NOT cause validation failure — they are tolerated and persisted (per REQ-ASET-013 stale-ID handling).
+- **WHEN** an administrator opens the Launchpad administration
+- **THEN** the tab strip shows twelve tabs, General first and Profile fields last
+- **AND** General holds the Embeds and Search shortcuts cards
 
-#### Scenario: Non-admin POST rejected
+#### Scenario: An old address opens its section
 
-- GIVEN user "alice" who is not an administrator
-- WHEN she sends `POST /api/admin/groups` with any body
-- THEN the system MUST return HTTP 403
-- AND the persisted `group_order` MUST be unchanged
+- **WHEN** an administrator opens `/apps/launchpad/admin/app-catalogue`
+- **THEN** the address becomes `/apps/launchpad/admin/operations?section=app-catalogue`
+- **AND** Controls is the open tab, showing the app catalogue
 
-#### Scenario: Non-admin GET rejected
+#### Scenario: A link into the embeds keeps its pre-selection
 
-- GIVEN user "alice" who is not an administrator
-- WHEN she sends `GET /api/admin/groups`
-- THEN the system MUST return HTTP 403
-
-#### Scenario: Missing `groups` key rejected
-
-- GIVEN admin sends `POST /api/admin/groups` with body `{}`
-- THEN the system MUST return HTTP 400
-- AND the persisted `group_order` MUST be unchanged
-
-#### Scenario: Non-string element rejected
-
-- GIVEN admin sends `POST /api/admin/groups` with body `{"groups": ["engineering", 42, "marketing"]}`
-- THEN the system MUST return HTTP 400
-- AND the persisted `group_order` MUST be unchanged
-
-#### Scenario: Duplicate IDs deduplicated
-
-- GIVEN admin sends `POST /api/admin/groups` with body `{"groups": ["a", "b", "a", "c"]}`
-- THEN the persisted `group_order` MUST be exactly `["a", "b", "c"]` (first occurrence kept, duplicates removed)
-- AND the response MUST be HTTP 200
-
-#### Scenario: Unknown IDs accepted
-
-- GIVEN admin sends `POST /api/admin/groups` with body `{"groups": ["does-not-exist", "engineering"]}`
-- AND `"does-not-exist"` is not a known Nextcloud group
-- THEN the request MUST succeed (HTTP 200)
-- AND `group_order` MUST be persisted as `["does-not-exist", "engineering"]`
+- **WHEN** an administrator follows a dashboard's "Embed" link to `/apps/launchpad/admin/embeds?embedType=dashboard&embedId=<uuid>`
+- **THEN** General opens on the Embeds card with the create form for that dashboard
 
 ## Non-Functional Requirements
 
@@ -758,12 +746,8 @@ Unknown (not currently in Nextcloud) IDs MUST NOT cause validation failure — t
 
 **Not yet implemented:**
 - REQ-ASET-002 validation: No server-side validation for permission level values (any string accepted), grid column range (any integer accepted), or boolean type coercion. Documented as NOTEs in the spec.
-- REQ-ASET-006 default grid columns: `DashboardFactory::create()` hardcodes `gridColumns: 12` and does NOT read the `defaultGridColumns` admin setting. The admin setting exists but is not applied when creating user dashboards.
 - REQ-ASET-003 fork endpoint: The `POST /api/dashboards/{uuid}/fork` route is owned by the separate `fork-current-as-personal` capability and does not yet exist; gating will be added there with the same `PersonalDashboardsDisabledException` envelope.
 - REQ-ASET-008 localization: UI labels use `t('launchpad', ...)` translation function but actual Dutch translations are not verified in l10n files.
-
-**Partial implementations:**
-- REQ-ASET-006 (Default Grid Columns): The setting can be stored and retrieved, but `DashboardFactory::create()` ignores it, hardcoding 12. Template copies correctly use the template's `gridColumns` via `TemplateService::buildDashboardFromTemplate()`.
 
 ### Standards & References
 - Nextcloud Admin Settings API: `OCP\Settings\ISettings`, `OCP\Settings\IIconSection`

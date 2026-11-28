@@ -138,7 +138,7 @@ class WidgetBridge {
 		if (callback && typeof callback === 'function') {
 			try {
 				// Clear container first
-				container.innerHTML = ''
+				container.replaceChildren()
 				logger.debug('[WidgetBridge] Calling widget callback for:', widgetId)
 
 				// Call the widget's callback with the container and widget data
@@ -175,7 +175,7 @@ class WidgetBridge {
 
 		if (callback && typeof callback === 'function') {
 			try {
-				container.innerHTML = ''
+				container.replaceChildren()
 				callback(container)
 				logger.debug('LaunchPad: Mounted status widget:', widgetId)
 			} catch (error) {

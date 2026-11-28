@@ -1,0 +1,192 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * Two grid-layout scenarios (openspec/specs/grid-layout/spec.md) that were
+ * cited only by `test.fixme`, in grid-layout-rendering.spec.ts and
+ * grid-layout-drag-resize.spec.ts. Gate-19 counted them through those files'
+ * citation lists, but no test of theirs ever executed. They now run.
+ *
+ * They sit in their own file, without serial mode, because both files they
+ * came from run serially: a red there would skip every test after it. Each
+ * test makes its own throwaway account and dashboard (the helpers are the
+ * drag-resize file's).
+ *
+ * The height scenario states what GridStack draws: an item `h * cellHeight`
+ * tall (Views.vue passes cellHeight 60 and margin 8). A failed layout save is
+ * reported and retried by src/stores/dashboard.js updatePlacements().
+ *
+ * Gate-19 @e2e traceability:
+ *   @e2e grid-layout::12-col-60px-8px-margin-renders-predictable-height
+ *   @e2e grid-layout::save-failure-with-retry
+ *
+ * @spec openspec/specs/grid-layout/spec.md
+ */
+
+import type { Browser, Locator, Page } from '@playwright/test'
+import type { OwnDashboard, Rect } from './support/ownDashboard.ts'
+
+import { expect, test } from '@playwright/test'
+import { enterEditMode } from './support/dashboardSwitcher.ts'
+import {
+	openOwnDashboard,
+	seedTextWidget,
+	setUpOwnDashboard,
+	tearDownOwnDashboard,
+} from './support/ownDashboard.ts'
+
+const CELL_HEIGHT = 60
+
+let own: OwnDashboard | undefined
+
+test.setTimeout(120_000)
+
+test.afterEach(async () => {
+	await tearDownOwnDashboard(own)
+	own = undefined
+})
+
+/**
+ * A fresh account with text widgets at the given rectangles.
+ *
+ * @param rects The rectangles, in order.
+ * @return The placement ids, in the same order.
+ */
+async function seed(rects: Rect[]): Promise<number[]> {
+	own = await setUpOwnDashboard('e2e-grid-red', `E2E grid defects ${Date.now()}`)
+	const ids: number[] = []
+	for (const [index, rect] of rects.entries()) {
+		ids.push(
+			await seedTextWidget(own.owner.api, own.id, rect, `Widget ${index + 1}`),
+		)
+	}
+	return ids
+}
+
+/**
+ * The grid item of a placement.
+ *
+ * @param page The page.
+ * @param id The placement id.
+ * @return The item.
+ */
+function item(page: Page, id: number): Locator {
+	return page.locator(`.grid-stack > .grid-stack-item[gs-id="${id}"]`)
+}
+
+/**
+ * The width of one grid column in pixels.
+ *
+ * @param page The page.
+ * @return The width.
+ */
+async function columnWidth(page: Page): Promise<number> {
+	const box = await page.locator('.grid-stack').first().boundingBox()
+	expect(box).not.toBeNull()
+	return box!.width / 12
+}
+
+/**
+ * Drag a widget by its body over a number of columns and rows.
+ *
+ * @param page The page.
+ * @param id The placement id.
+ * @param columns Columns to the right (negative: left).
+ * @param rows Rows down (negative: up).
+ */
+async function dragBy(
+	page: Page,
+	id: number,
+	columns: number,
+	rows: number,
+): Promise<void> {
+	const colW = await columnWidth(page)
+	const box = await item(page, id)
+		.locator('.grid-stack-item-content')
+		.boundingBox()
+	expect(box).not.toBeNull()
+	// Low in the body: on a narrow widget the header's Actions button sits
+	// at the middle of the card, and GridStack starts no drag on a button.
+	const startX = box!.x + box!.width / 2
+	const startY = box!.y + box!.height * 0.8
+	await page.mouse.move(startX, startY)
+	await page.mouse.down()
+	await page.mouse.move(startX + 6, startY + 6, { steps: 3 })
+	await page.mouse.move(startX + columns * colW, startY + rows * CELL_HEIGHT, {
+		steps: 20,
+	})
+	await page.mouse.up()
+}
+
+/**
+ * Open the dashboard in edit mode.
+ *
+ * @param browser The browser.
+ * @param count How many widgets it holds.
+ * @return The context and page.
+ */
+async function openEditing(browser: Browser, count: number) {
+	const session = await openOwnDashboard(browser, own!, count)
+	await enterEditMode(session.page)
+	return session
+}
+
+// @e2e grid-layout::12-col-60px-8px-margin-renders-predictable-height
+test('a four-row widget on the 12-column grid is 4 x 60 = 240 px tall, its content inset by the margin', async ({
+	browser,
+}) => {
+	const [tall] = await seed([{ x: 8, y: 0, w: 4, h: 4 }])
+	const { context, page } = await openOwnDashboard(browser, own!, 1)
+	try {
+		const box = await item(page, tall).boundingBox()
+		expect(box!.height).toBeCloseTo(4 * CELL_HEIGHT, 0)
+		const content = await item(page, tall).locator('.grid-stack-item-content').boundingBox()
+		expect(content!.height).toBeCloseTo(4 * CELL_HEIGHT - 2 * 8, 0)
+	} finally {
+		await context.close()
+	}
+})
+
+// @e2e grid-layout::save-failure-with-retry
+// REQ-EDIT-002 (edit-mode-draft-and-save): a move goes into the draft; a Save
+// that fails says so and keeps the person in edit mode with the draft, so
+// they can Save again.
+test('a failed Save is reported, and edit mode keeps the draft to save again', async ({
+	browser,
+}) => {
+	const [a] = await seed([{ x: 0, y: 0, w: 4, h: 2 }])
+	const { context, page } = await openEditing(browser, 1)
+	try {
+		let attempts = 0
+		await page.route(
+			new RegExp(`/api/dashboard/${own!.id}(\\?|$)`),
+			async (route) => {
+				if (route.request().method() !== 'PUT') {
+					await route.fallback()
+					return
+				}
+				attempts++
+				await route.fulfill({
+					status: 500,
+					contentType: 'application/json',
+					body: '{"error":"boom"}',
+				})
+			},
+		)
+		await dragBy(page, a, 4, 0)
+		expect(attempts).toBe(0)
+		await expect(page.getByTestId('launchpad-edit-bar-draft')).toHaveText('Draft · 1 change')
+		await page.getByTestId('launchpad-edit-bar-save').click()
+		// @nextcloud/dialogs 8 renders an error toast as role="alert", with
+		// hashed CSS-module classes and no `.toastify` any more.
+		await expect(page.getByRole('alert').first()).toBeVisible({
+			timeout: 15_000,
+		})
+		expect(attempts).toBe(1)
+		await expect(page.locator('.launchpad-edit-mode')).toBeVisible()
+		await expect(page.getByTestId('launchpad-edit-bar-draft')).toHaveText('Draft · 1 change')
+		await expect(page.getByTestId('launchpad-edit-bar-save')).toBeEnabled()
+	} finally {
+		await context.close()
+	}
+})

@@ -27,7 +27,7 @@
  *   testResetDeletesTheWholeLayerAndReturnsTheOwnersArrangement,
  *   testOrphanedEntriesGoWhenAPlacementDisappears)
  *
- * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @spec openspec/changes/archive/2026-11-19-dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
  */
 
 import type { APIRequestContext, request } from '@playwright/test'
@@ -66,7 +66,7 @@ async function anyVisibleDashboard(api: APIRequestContext): Promise<{
 	const res = await api.get(`${API}/dashboards/visible`)
 	expect(res.ok(), 'the visible-dashboards route must answer').toBeTruthy()
 	const body = (await res.json()) as Record<string, unknown>
-	const list = (body.data ?? body.dashboards ?? body) as Array<
+	const list = (body.items ?? body.data ?? body.dashboards ?? body) as Array<
 		Record<string, unknown>
 	>
 	expect(
@@ -79,7 +79,7 @@ async function anyVisibleDashboard(api: APIRequestContext): Promise<{
 	)
 	expect(Number.isFinite(id) && id > 0).toBeTruthy()
 
-	const one = await api.get(`${API}/dashboards/${id}`)
+	const one = await api.get(`${API}/dashboard/${id}`)
 	expect(one.ok()).toBeTruthy()
 	const envelope = (await one.json()) as Record<string, unknown>
 	const payload = (envelope.data ?? envelope) as Record<string, unknown>

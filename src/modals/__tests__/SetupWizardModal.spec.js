@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `SetupWizardModal.vue`. Covers REQ-WIZ-002
- * (multi-step shell), REQ-WIZ-003 (storage backend persistence on
- * Step 2 → Next), REQ-WIZ-008 (state load on mount), and REQ-WIZ-009
- * (Finish triggers `completeSetupWizard`).
+ * (six-step shell; the storage step was retired by decision 131),
+ * REQ-WIZ-008 (state load on mount), and REQ-WIZ-009 (Finish triggers
+ * `completeSetupWizard`).
  *
  * The `api` module is mocked at the import boundary so no HTTP traffic
  * is generated. The embedded `GroupPriorityOrder` is stubbed to avoid
@@ -20,8 +20,11 @@ import { api } from '../../services/api.js'
 vi.mock('../../services/api.js', () => ({
 	api: {
 		getSetupWizardState: vi.fn(),
-		setSetupWizardStorage: vi.fn(),
 		completeSetupWizard: vi.fn(),
+		listDemoShowcases: vi.fn(),
+		installDemoShowcase: vi.fn(),
+		getAdminGroups: vi.fn(),
+		assignAdminRoleToGroup: vi.fn(),
 	},
 }))
 
@@ -51,17 +54,23 @@ beforeEach(() => {
 		data: {
 			complete: false,
 			currentRecommendedStep: 1,
-			contentStorage: 'database',
-			groupfolderAvailable: true,
 			stepStatuses: { 1: 'done', 2: 'pending' },
 		},
 	})
-	api.setSetupWizardStorage
-		.mockReset()
-		.mockResolvedValue({ data: { complete: false } })
 	api.completeSetupWizard
 		.mockReset()
 		.mockResolvedValue({ data: { complete: true } })
+	api.listDemoShowcases.mockReset().mockResolvedValue({
+		data: [
+			{ id: 'engineering', name: 'Engineering', language: 'en', description: '', isInstalled: false },
+			{ id: 'sales', name: 'Sales', language: 'en', description: '', isInstalled: true },
+		],
+	})
+	api.installDemoShowcase.mockReset().mockResolvedValue({ data: {} })
+	api.getAdminGroups.mockReset().mockResolvedValue({
+		data: { active: ['engineering'], inactive: ['sales', 'marketing'] },
+	})
+	api.assignAdminRoleToGroup.mockReset().mockResolvedValue({ data: {} })
 })
 
 function mountWizard() {
@@ -87,7 +96,7 @@ describe('SetupWizardModal', () => {
 		expect(api.getSetupWizardState).toHaveBeenCalledOnce()
 	})
 
-	it('REQ-WIZ-002: starts at step 1 with the counter rendered', async () => {
+	it('REQ-WIZ-012: starts at step 1 with the counter rendered', async () => {
 		const wrapper = mountWizard()
 		await flush()
 
@@ -97,7 +106,7 @@ describe('SetupWizardModal', () => {
 		expect(wrapper.find('[data-test="setup-wizard-counter"]').exists()).toBe(
 			true,
 		)
-		expect(wrapper.vm.totalSteps).toBe(7)
+		expect(wrapper.vm.totalSteps).toBe(5)
 	})
 
 	it('REQ-WIZ-002: Next advances; Back returns; counter updates', async () => {
@@ -112,30 +121,26 @@ describe('SetupWizardModal', () => {
 		expect(wrapper.vm.currentStep).toBe(1)
 	})
 
-	it('REQ-WIZ-003: Step 2 Next persists the storage choice via the API', async () => {
+	it('decision 131: Step 2 is the group order and no storage step renders', async () => {
 		const wrapper = mountWizard()
 		await flush()
 
-		// Advance to Step 2.
 		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
 		await flush()
 		expect(wrapper.vm.currentStep).toBe(2)
-
-		// Change selection then click Next.
-		wrapper.vm.storage = 'groupfolder'
-		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
-		await flush()
-
-		expect(api.setSetupWizardStorage).toHaveBeenCalledWith('groupfolder')
-		expect(wrapper.vm.currentStep).toBe(3)
+		expect(wrapper.find('.group-priority-stub').exists()).toBe(true)
+		expect(wrapper.find('[data-test="storage-database"]').exists()).toBe(false)
+		expect(wrapper.find('[data-test="storage-groupfolder"]').exists()).toBe(
+			false,
+		)
 	})
 
-	it('REQ-WIZ-002: Step 7 Next is labelled Finish and calls completeSetupWizard', async () => {
+	it('REQ-WIZ-012: Step 5 Next is labelled Finish and calls completeSetupWizard', async () => {
 		const wrapper = mountWizard()
 		await flush()
 
-		// Jump straight to step 7 to keep the test focused.
-		wrapper.vm.currentStep = 7
+		// Jump straight to step 5 to keep the test focused.
+		wrapper.vm.currentStep = 5
 		await flush()
 
 		// The Vue mixin's t() stub returns the bare key; the component
@@ -150,27 +155,6 @@ describe('SetupWizardModal', () => {
 		expect(wrapper.emitted('close')).toBeTruthy()
 	})
 
-	it('REQ-WIZ-003: GroupFolder radio is disabled when the app is missing', async () => {
-		api.getSetupWizardState.mockResolvedValueOnce({
-			data: {
-				complete: false,
-				currentRecommendedStep: 1,
-				contentStorage: 'database',
-				groupfolderAvailable: false,
-				stepStatuses: { 1: 'done' },
-			},
-		})
-		const wrapper = mountWizard()
-		await flush()
-
-		// Advance to step 2.
-		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
-		await flush()
-
-		const radio = wrapper.find('[data-test="storage-groupfolder"]')
-		expect(radio.attributes('disabled')).toBeDefined()
-	})
-
 	it('REQ-WIZ-002: Skip advances without committing on optional steps', async () => {
 		const wrapper = mountWizard()
 		await flush()
@@ -179,6 +163,117 @@ describe('SetupWizardModal', () => {
 
 		await wrapper.find('[data-test="setup-wizard-skip"]').trigger('click')
 		expect(wrapper.vm.currentStep).toBe(5)
-		expect(api.setSetupWizardStorage).not.toHaveBeenCalled()
+		expect(wrapper.vm.isFinalStep).toBe(true)
+		expect(api.completeSetupWizard).not.toHaveBeenCalled()
+	})
+
+	it('REQ-WIZ-012: no step shows the footer editor', async () => {
+		const wrapper = mountWizard()
+		await flush()
+
+		for (let step = 1; step <= 5; step++) {
+			wrapper.vm.currentStep = step
+			await flush()
+			expect(wrapper.find('[data-test="footer-stub"]').exists()).toBe(false)
+			expect(wrapper.text()).not.toContain('Footer configuration')
+		}
+	})
+
+	it('REQ-WIZ-012: the welcome step names groups, example dashboards and roles', async () => {
+		const wrapper = mountWizard()
+		await flush()
+
+		expect(wrapper.text()).toContain(
+			'This setup sets the groups, the example dashboards and the roles, in five steps. Existing dashboards stay as they are.',
+		)
+	})
+
+	it('REQ-WIZ-012: a recommended step past five opens the last step', async () => {
+		api.getSetupWizardState.mockResolvedValueOnce({
+			data: { complete: false, currentRecommendedStep: 6 },
+		})
+		const wrapper = mountWizard()
+		await flush()
+
+		expect(wrapper.vm.currentStep).toBe(5)
+	})
+	it('REQ-WIZ-005: Next on Step 3 installs only the checked demos that are not installed', async () => {
+		const wrapper = mountWizard()
+		await flush()
+		wrapper.vm.currentStep = 3
+		await flush()
+		wrapper.vm.onDemoChoose('engineering', true)
+		wrapper.vm.onDemoChoose('sales', false)
+		expect(api.installDemoShowcase).not.toHaveBeenCalled()
+
+		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
+		await flush()
+		expect(api.installDemoShowcase).toHaveBeenCalledTimes(1)
+		expect(api.installDemoShowcase).toHaveBeenCalledWith('engineering')
+		expect(wrapper.vm.currentStep).toBe(4)
+	})
+
+	it('REQ-WIZ-005: the demo choice survives Back from Step 4', async () => {
+		const wrapper = mountWizard()
+		await flush()
+		wrapper.vm.currentStep = 3
+		await flush()
+		wrapper.vm.onDemoChoose('engineering', true)
+		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
+		await flush()
+		await wrapper.find('[data-test="setup-wizard-back"]').trigger('click')
+		await flush()
+		expect(wrapper.vm.currentStep).toBe(3)
+		expect(wrapper.vm.demoChoice).toEqual({ engineering: true })
+		expect(api.installDemoShowcase).toHaveBeenCalledTimes(1)
+	})
+
+	it('REQ-WIZ-005: Next with nothing checked installs nothing', async () => {
+		const wrapper = mountWizard()
+		await flush()
+		wrapper.vm.currentStep = 3
+		await flush()
+		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
+		await flush()
+		expect(api.installDemoShowcase).not.toHaveBeenCalled()
+		expect(wrapper.vm.currentStep).toBe(4)
+	})
+
+	it('REQ-WIZ-006: Step 4 offers every group and gives the chosen one the admin role on Next', async () => {
+		const wrapper = mountWizard()
+		await flush()
+		wrapper.vm.currentStep = 4
+		await flush()
+		expect(wrapper.vm.roleGroups).toEqual(['engineering', 'sales', 'marketing'])
+
+		wrapper.vm.roleGroup = 'sales'
+		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
+		await flush()
+		expect(api.assignAdminRoleToGroup).toHaveBeenCalledOnce()
+		expect(api.assignAdminRoleToGroup).toHaveBeenCalledWith('sales')
+		expect(wrapper.vm.currentStep).toBe(5)
+	})
+
+	it('REQ-WIZ-006: Next on Step 4 without a group assigns nothing', async () => {
+		const wrapper = mountWizard()
+		await flush()
+		wrapper.vm.currentStep = 4
+		await flush()
+		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
+		await flush()
+		expect(api.assignAdminRoleToGroup).not.toHaveBeenCalled()
+		expect(wrapper.vm.currentStep).toBe(5)
+	})
+
+	it('REQ-WIZ-006: a group that already has the role still moves on', async () => {
+		api.assignAdminRoleToGroup.mockRejectedValueOnce({ response: { status: 409 } })
+		const wrapper = mountWizard()
+		await flush()
+		wrapper.vm.currentStep = 4
+		await flush()
+		wrapper.vm.roleGroup = 'sales'
+		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
+		await flush()
+		expect(wrapper.vm.currentStep).toBe(5)
 	})
 })

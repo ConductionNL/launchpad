@@ -23,6 +23,12 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardLimits;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use Exception;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
@@ -127,22 +133,34 @@ class DashboardServiceForkTest extends TestCase {
 			});
 
 		$this->service = new DashboardService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			settingMapper: $this->settingMapper,
-			templateService: $templateService,
-			dashboardFactory: new DashboardFactory(),
-			dashResolver: $dashResolver,
-			treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
-			groupManager: $this->groupManager,
-			adminTemplateService: $this->adminTemplateService,
-			db: $this->db,
-			config: $this->config,
-			l10nFactory: $this->l10nFactory,
-			logger: $logger,
-			personalLayers: $this->createMock(PersonalLayerService::class),
-			footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
-			lockingProvider: $this->lockingProvider,
+			stores: new DashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				settingMapper: $this->settingMapper
+			),
+			builders: new DashboardBuilders(
+				templateService: $templateService,
+				dashboardFactory: new DashboardFactory(),
+				dashResolver: $dashResolver,
+				adminTemplateService: $this->adminTemplateService
+			),
+			structure: new DashboardStructure(
+				treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
+				personalLayers: $this->createMock(PersonalLayerService::class),
+				footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class)
+			),
+			platform: new DashboardPlatform(
+				groupManager: $this->groupManager,
+				db: $this->db,
+				config: $this->config,
+				l10nFactory: $this->l10nFactory
+			),
+			outlets: new DashboardOutlets(
+				logger: $logger
+			),
+			limits: new DashboardLimits(
+				lockingProvider: $this->lockingProvider
+			)
 		);
 	}//end setUp()
 
@@ -276,6 +294,62 @@ class DashboardServiceForkTest extends TestCase {
 		$this->assertSame('My Marketing', $captured->getName());
 		$this->assertSame(7, $fork->getId());
 	}//end testForkHappyPathClonesGroupSharedSource()
+
+	/**
+	 * REQ-TMPL-018: a template the gallery offers the user is a fork source,
+	 * though it is not among the dashboards the user can see.
+	 *
+	 * @return void
+	 */
+	public function testForkCopiesATemplateTheGalleryOffers(): void {
+		$this->settingMapper->method('getValue')->willReturn(true);
+		$this->stubVisibleToUser(userId: 'alice', visible: []);
+		$template = $this->makeDashboard(
+			uuid: 'tpl-uuid',
+			name: 'Sprint',
+			type: Dashboard::TYPE_ADMIN_TEMPLATE,
+			userId: null,
+			groupId: null,
+			id: 55
+		);
+		$this->adminTemplateService->expects($this->once())->method('findOfferedTemplate')
+			->with('alice', 'tpl-uuid')->willReturn($template);
+		$this->dashboardMapper->method('insert')->willReturnCallback(
+			static function (Dashboard $d): Dashboard {
+				$d->setId(7);
+				return $d;
+			}
+		);
+		$this->placementMapper->expects($this->once())->method('cloneToDashboard')->with(55, 7)->willReturn(3);
+
+		$fork = $this->service->forkAsPersonal(userId: 'alice', sourceUuid: 'tpl-uuid', name: 'My sprint');
+
+		$this->assertSame(expected: Dashboard::TYPE_USER, actual: $fork->getType());
+		$this->assertSame(expected: 'alice', actual: $fork->getUserId());
+	}//end testForkCopiesATemplateTheGalleryOffers()
+
+	/**
+	 * REQ-CWF-011: the fork keeps the source's hierarchies, so its filter
+	 * bus joins widgets as the source's does.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 */
+	public function testForkKeepsTheSourcesHierarchies(): void {
+		$this->settingMapper->method('getValue')->willReturn(true);
+		$hierarchies = [['id' => 'nl-administrative', 'levels' => [['dimension' => 'provincieCode', 'label' => 'Province', 'parentDimension' => null]]]];
+		$template    = $this->makeDashboard(uuid: 'tpl-uuid', name: 'Wijken', type: Dashboard::TYPE_ADMIN_TEMPLATE, userId: null, groupId: null, id: 55);
+		$template->setHierarchiesArray(hierarchies: $hierarchies);
+		$this->stubVisibleToUser(userId: 'alice', visible: []);
+		$this->adminTemplateService->method('findOfferedTemplate')->willReturn($template);
+		$this->dashboardMapper->method('insert')->willReturnArgument(0);
+		$this->placementMapper->method('cloneToDashboard')->willReturn(0);
+
+		$fork = $this->service->forkAsPersonal(userId: 'alice', sourceUuid: 'tpl-uuid', name: 'Mijn wijken');
+
+		$this->assertSame(expected: $hierarchies, actual: $fork->getHierarchiesArray());
+	}//end testForkKeepsTheSourcesHierarchies()
 
 	/**
 	 * REQ-DASH-020 scenario: empty body uses

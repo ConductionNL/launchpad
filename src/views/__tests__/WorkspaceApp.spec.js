@@ -7,9 +7,8 @@
  *  - the in-page edit toolbar was removed — editing actions now live in
  *    the per-dashboard cog menu (DashboardRowActions), so the page chrome
  *    stays clean (regression-guarded below),
- *  - REQ-SHELL-004 (hamburger as `NcButton type="tertiary"` + active-dashboard label),
- *  - REQ-SHELL-005 (empty-state branch on `allowUserDashboards`),
- *  - REQ-SHELL-006 (SidebarBackdrop rendered when sidebarOpen).
+ *  - REQ-SHELL-004 (no sidebar toggle, no title strip),
+ *  - REQ-SHELL-005 (empty-state branch on `allowUserDashboards`).
  *
  * The embedded Views.vue child is stubbed because it depends on Pinia
  * stores + GridStack — neither is in scope for runtime-shell unit tests.
@@ -22,6 +21,11 @@ import { createPinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import RuntimeShellSearch from '../../components/RuntimeShellSearch.vue'
 import WorkspaceApp from '../WorkspaceApp.vue'
+
+vi.mock('@nextcloud/auth', async (importOriginal) => ({
+	...(await importOriginal()),
+	getCurrentUser: () => ({ uid: 'pieter', displayName: 'Pieter Jansen' }),
+}))
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
@@ -59,15 +63,14 @@ function mountShell(options = {}) {
 					openCustomWidgetModal: vi.fn(),
 				},
 			},
-			SidebarBackdrop: true,
 			DashboardSwitcherSidebar: true,
 			// Stub `NcButton` to a transparent `<button>` so the test
-			// can drive `.workspace-shell__hamburger` clicks without
+			// can drive the empty-state buttons' clicks without
 			// mounting the full Nextcloud Vue button.
 			// `emits: ['click']` is load-bearing under Vue 3: listeners now
 			// live in `$attrs` as `onClick`, so `v-bind="$attrs"` would bind
 			// the parent's handler natively *and* `$emit('click')` would
-			// fall through to it again — firing `toggleSidebar` twice.
+			// fall through to it again — firing the handler twice.
 			// Declaring the event removes `onClick` from `$attrs`, leaving
 			// `$emit` as the single path. Vue 2 kept listeners in the
 			// separate `$listeners` object, so the pattern was safe there.
@@ -142,47 +145,22 @@ describe('WorkspaceApp', () => {
 		})
 	})
 
-	describe('REQ-SHELL-004: hamburger and active-dashboard label', () => {
-		it('title strip is hidden when sidebar is closed', () => {
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			expect(wrapper.vm.sidebarOpen).toBe(false)
-			expect(wrapper.find('.workspace-shell__strip').exists()).toBe(false)
-			expect(wrapper.find('.workspace-shell__hamburger').exists()).toBe(false)
-			expect(wrapper.find('.workspace-shell__title').exists()).toBe(false)
-		})
-
-		it('title strip with hamburger appears when sidebar is open', async () => {
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			wrapper.vm.sidebarOpen = true
-			await wrapper.vm.$nextTick()
-			const strip = wrapper.find('.workspace-shell__strip')
-			expect(strip.exists()).toBe(true)
-			const hamburger = wrapper.find('.workspace-shell__hamburger')
-			expect(hamburger.exists()).toBe(true)
-			// Stubbed NcButton mirrors the `variant` prop onto a data attribute.
-			expect(hamburger.attributes('data-nc-button-variant')).toBe('tertiary')
-			// Clicking the in-strip hamburger closes the sidebar.
-			await hamburger.trigger('click')
-			expect(wrapper.vm.sidebarOpen).toBe(false)
-		})
-
-		it('title strip shows dashboard name as an H1 heading, NOT as a select', async () => {
-			const wrapper = mountShell({
-				inject: {
-					activeDashboardId: 'd1',
-					userDashboards: [{ id: 'd1', name: 'Marketing Overview' }],
-				},
-			})
-			wrapper.vm.sidebarOpen = true
-			await wrapper.vm.$nextTick()
-			const title = wrapper.find('.workspace-shell__title')
-			expect(title.exists()).toBe(true)
-			expect(title.element.tagName).toBe('H1')
-			expect(title.text()).toBe('Marketing Overview')
-			// No <select> control should appear in the title strip.
-			expect(wrapper.find('.workspace-shell__strip select').exists()).toBe(
-				false,
-			)
+	describe('REQ-SHELL-004: the dashboards are reached through More', () => {
+		it('renders no sidebar toggle and no title strip, open dashboard or not', () => {
+			for (const activeDashboardId of ['d1', '']) {
+				const wrapper = mountShell({
+					inject: {
+						activeDashboardId,
+						userDashboards: [{ id: 'd1', name: 'Marketing Overview' }],
+					},
+				})
+				expect(wrapper.find('.workspace-shell__strip').exists()).toBe(false)
+				expect(wrapper.find('.workspace-shell__hamburger').exists()).toBe(false)
+				expect(wrapper.find('[aria-label="Open menu"]').exists()).toBe(false)
+				// Without a dashboard the first-visit page title is the only h1 (LpEersteKeer).
+				expect(wrapper.find('h1').exists()).toBe(activeDashboardId === '')
+				expect(wrapper.text()).not.toContain('Marketing Overview')
+			}
 		})
 	})
 
@@ -193,7 +171,30 @@ describe('WorkspaceApp', () => {
 			})
 			const cta = wrapper.find('.workspace-shell__empty-cta')
 			expect(cta.exists()).toBe(true)
-			expect(cta.text()).toBe('Create your first dashboard')
+			expect(cta.text()).toBe('Create my first dashboard (with starter widgets)')
+			expect(wrapper.find('.workspace-shell__empty-blank').text()).toBe('Start empty')
+		})
+
+		it('empty state names itself and lists the six starter widgets, as board LpEersteKeer draws it', () => {
+			const wrapper = mountShell({
+				inject: { activeDashboardId: '', allowUserDashboards: true },
+			})
+			expect(wrapper.find('.workspace-shell__empty-title').text()).toBe('You have no dashboard yet')
+			expect(
+				wrapper.findAll('.workspace-shell__starter').map((item) => item.text()),
+			).toEqual(['Apps', 'Calendar', 'Mail', 'Files', 'Weather', 'News from the organisation'])
+			expect(wrapper.find('.workspace-shell__empty-note').text()).toBe(
+				'These 6 starter widgets go on it. Apps places one tile per app. You can move or remove everything later.',
+			)
+		})
+
+		it('empty state opens with the page title and a welcome by first name, as board LpEersteKeer draws it', () => {
+			const wrapper = mountShell({
+				inject: { activeDashboardId: '', allowUserDashboards: true },
+			})
+			const header = wrapper.find('[data-testid="workspace-empty-header"]')
+			expect(header.find('h1').text()).toBe('My workspace')
+			expect(header.find('.workspace-shell__empty-welcome').text()).toMatch(/^Welcome to Launchpad, Pieter · \S/)
 		})
 
 		it('empty state without allowUserDashboards hides Create CTA', () => {
@@ -201,31 +202,11 @@ describe('WorkspaceApp', () => {
 				inject: { activeDashboardId: '', allowUserDashboards: false },
 			})
 			expect(wrapper.find('.workspace-shell__empty-cta').exists()).toBe(false)
+			expect(wrapper.find('.workspace-shell__empty-blank').exists()).toBe(false)
+			expect(wrapper.find('.workspace-shell__starters').exists()).toBe(false)
 			expect(wrapper.find('.workspace-shell__empty-hint').text()).toBe(
 				'Contact your administrator',
 			)
-		})
-	})
-
-	describe('REQ-SHELL-006: sidebar backdrop', () => {
-		it('SidebarBackdrop is rendered when sidebarOpen is true', async () => {
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			// Initially no backdrop.
-			expect(wrapper.findComponent({ name: 'SidebarBackdrop' }).exists()).toBe(
-				false,
-			)
-			wrapper.vm.sidebarOpen = true
-			await wrapper.vm.$nextTick()
-			expect(wrapper.findComponent({ name: 'SidebarBackdrop' }).exists()).toBe(
-				true,
-			)
-		})
-
-		it('closeSidebar sets sidebarOpen to false', () => {
-			const wrapper = mountShell({ inject: { activeDashboardId: 'd1' } })
-			wrapper.vm.sidebarOpen = true
-			wrapper.vm.closeSidebar()
-			expect(wrapper.vm.sidebarOpen).toBe(false)
 		})
 	})
 

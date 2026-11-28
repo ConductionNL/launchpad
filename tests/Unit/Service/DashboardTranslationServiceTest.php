@@ -163,7 +163,9 @@ class DashboardTranslationServiceTest extends TestCase {
 		$this->service->createVariant(
 			dashboardUuid: 'uuid-x',
 			languageCode: 'nl_NL',
-			name: 'Mijn',
+			content: [
+				'name' => 'Mijn',
+			]
 		);
 	}
 
@@ -238,6 +240,27 @@ class DashboardTranslationServiceTest extends TestCase {
 		);
 	}
 
+	/**
+	 * REQ-DASH-042: the only variant is always the primary too; it is
+	 * refused as the only one, with the message the scenario names.
+	 *
+	 * @return void
+	 */
+	public function testTheOnlyVariantIsRefusedAsTheOnlyOneThoughItIsPrimary(): void {
+		$only = new DashboardTranslation();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$only->setLanguageCode('en');
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$only->setIsPrimary(1);
+		$this->translationMapper->method('findByDashboardUuidAndLanguage')->willReturn($only);
+		$this->translationMapper->method('countByDashboardUuid')->willReturn(1);
+
+		$this->expectException(exception: Exception::class);
+		$this->expectExceptionMessage(message: 'Cannot delete the only language variant. Promote another variant to primary first.');
+
+		$this->service->deleteVariant(dashboardUuid: 'uuid-x', languageCode: 'en');
+	}//end testTheOnlyVariantIsRefusedAsTheOnlyOneThoughItIsPrimary()
+
 	public function testDeleteVariantRejectsPrimary(): void {
 		$primary = new DashboardTranslation();
 		$primary->setLanguageCode('en');
@@ -246,6 +269,10 @@ class DashboardTranslationServiceTest extends TestCase {
 		$this->translationMapper
 			->method('findByDashboardUuidAndLanguage')
 			->willReturn($primary);
+
+		$this->translationMapper
+			->method('countByDashboardUuid')
+			->willReturn(3);
 
 		$this->expectException(Exception::class);
 		$this->expectExceptionMessage(DashboardTranslationService::ERR_DELETE_PRIMARY);

@@ -1,0 +1,163 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Conduction B.V.
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * Playwright e2e for openspec/specs/launchpad-mobile-remote-access, written
+ * for e2e-coverage-programme task 4.18.
+ *
+ * Hiding widgets on a phone and the notice that names them are proved in
+ * phone-hidden-widgets-named.spec.ts and phone-hidden-widgets-many.spec.ts.
+ * The registry-completeness, manifest and empty-state scenarios were never
+ * built and carry an exclusion in the spec. What the spec ALSO says is that the
+ * mobile shell's curated app list needs no new plumbing: an admin places an
+ * existing quicklinks widget, scopes it to a role with an existing
+ * visibility rule, and a phone shows it. That composition exists today and
+ * is what this file proves, at a 375 px viewport.
+ */
+
+import type { APIRequestContext } from '@playwright/test'
+import type { Principal } from './support/principals.ts'
+
+import { expect, test } from '@playwright/test'
+import { loginAs } from './fixtures/secondary-user.ts'
+import {
+	addToGroup,
+	adminContext,
+	API,
+	createGroup,
+	createPrincipal,
+	publishForRecipients,
+	removeGroup,
+	removePrincipal,
+	shareWith,
+} from './support/principals.ts'
+import { seedOwnDashboard, seedRule } from './support/visibilityRules.ts'
+
+const STAMP = Date.now().toString(36)
+const ROLE = `e2e-mra-role-${STAMP}`
+const CURATED = [
+	{ label: `Mail ${STAMP}`, url: '/index.php/apps/mail/' },
+	{ label: `Files ${STAMP}`, url: '/index.php/apps/files/' },
+]
+const OTHER_ROLE_LINK = `Finance only ${STAMP}`
+
+let admin: APIRequestContext
+let owner: Principal | null = null
+let viewer: Principal | null = null
+let dashboard: { id: number; uuid: string }
+let curatedId = 0
+let otherRoleId = 0
+
+/**
+ * Seed a quicklinks placement on the owner's dashboard, scoped by one group
+ * include rule.
+ *
+ * @param links The quicklinks.
+ * @param group The group the rule includes.
+ * @param gridY The grid row.
+ * @return The placement id.
+ */
+async function scopedQuicklinks(
+	links: Array<{ label: string; url: string }>,
+	group: string,
+	gridY: number,
+): Promise<number> {
+	const res = await owner!.api.post(`${API}/dashboard/${dashboard.id}/widgets`, {
+		data: {
+			widgetId: 'quicklinks',
+			gridX: 0,
+			gridY,
+			gridWidth: 6,
+			gridHeight: 4,
+			content: { links, showLabels: true },
+		},
+	})
+	expect(res.status(), await res.text()).toBeLessThan(300)
+	const body = await res.json()
+	const id = Number(
+		body.widget?.id ?? body.placement?.id ?? body.data?.id ?? body.id,
+	)
+	expect(id, `no placement id in ${JSON.stringify(body)}`).toBeTruthy()
+
+	await seedRule(owner!.api, id, {
+		ruleType: 'group',
+		ruleConfig: { groups: [group] },
+		isInclude: true,
+	})
+	return id
+}
+
+test.describe.configure({ mode: 'serial', timeout: 90_000 })
+
+// The owner and editors still get a widget the rules hide, dimmed and marked
+// "Hidden for viewers" (REQ-VIS-013), so the phone is a viewer's: a user in
+// the role the curated list is scoped to, with the dashboard shared to them.
+test.beforeAll(async () => {
+	admin = await adminContext()
+	await createGroup(admin, ROLE)
+	owner = await createPrincipal(admin, 'e2e-mra-owner')
+	viewer = await createPrincipal(admin, 'e2e-mra-viewer')
+	await addToGroup(admin, viewer.username, ROLE)
+
+	dashboard = await seedOwnDashboard(owner, `Mobile curated apps ${STAMP}`)
+	curatedId = await scopedQuicklinks(CURATED, ROLE, 0)
+	// A list scoped to a role the viewer does not hold: the control that
+	// shows the rule, not mere placement, decides what the phone shows.
+	otherRoleId = await scopedQuicklinks(
+		[{ label: OTHER_ROLE_LINK, url: '/index.php/apps/files/' }],
+		`e2e-no-such-role-${STAMP}`,
+		4,
+	)
+	await publishForRecipients(owner.api, dashboard.id)
+	await shareWith(owner.api, dashboard.id, viewer.username, 'view_only')
+	const active = await viewer.api.post(`${API}/dashboards/default`, {
+		data: { uuid: dashboard.uuid },
+	})
+	expect(active.status(), await active.text()).toBeLessThan(300)
+})
+
+test.afterAll(async () => {
+	if (admin) {
+		await removePrincipal(admin, owner).catch(() => null)
+		await removePrincipal(admin, viewer).catch(() => null)
+		await removeGroup(admin, ROLE).catch(() => null)
+		await admin.dispose()
+	}
+})
+
+// @e2e launchpad-mobile-remote-access::curated-app-list-comes-from-a-configured-widget-specter-source
+test('REQ-MRA-006: on a 375 px phone the role-scoped quicklinks widget renders the curated app list', async ({
+	browser,
+}) => {
+	const { context, page } = await loginAs(browser, viewer!.username, viewer!.password)
+	try {
+		await page.setViewportSize({ width: 375, height: 812 })
+		await page.goto('/index.php/apps/launchpad')
+
+		const curated = page.locator(
+			`[data-placement-id="${curatedId}"] .cn-quicklinks-widget`,
+		)
+		await expect(curated).toBeVisible({ timeout: 30_000 })
+		const links = curated.locator('a.cn-quicklinks-widget__link')
+		await expect(links).toHaveCount(CURATED.length)
+		for (const [i, link] of CURATED.entries()) {
+			await expect(links.nth(i)).toContainText(link.label)
+			await expect(links.nth(i)).toHaveAttribute('href', link.url)
+		}
+
+		// The list fits the phone: the widget sits inside the
+		// 375 px viewport width.
+		const box = await curated.boundingBox()
+		expect(box, 'the widget has a box').not.toBeNull()
+		expect(box!.x).toBeGreaterThanOrEqual(0)
+		expect(box!.x + box!.width).toBeLessThanOrEqual(375 + 1)
+
+		// The role rule is what scopes it: the list for another role is absent.
+		await expect(page.getByText(OTHER_ROLE_LINK)).toHaveCount(0)
+		await expect(
+			page.locator(`[data-placement-id="${otherRoleId}"] .cn-quicklinks-widget`),
+		).toHaveCount(0)
+	} finally {
+		await context.close()
+	}
+})

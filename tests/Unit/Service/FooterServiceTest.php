@@ -83,6 +83,38 @@ class FooterServiceTest extends TestCase {
 		$this->assertStringContainsString('href="https://example.com"', $out);
 	}
 
+	/**
+	 * Every attribute of a tag is read, in source order, and a tag whose attributes
+	 * do not parse keeps none.
+	 *
+	 * @return void
+	 */
+	public function testSanitiseReadsEachAttributeAndDropsUnparsableOnes(): void {
+		$this->assertSame(
+			expected: '<img src="https://example.com/a.png" />',
+			actual: $this->service->sanitiseHtml(html: '<img alt="x" src="https://example.com/a.png" title=\'y\'>')
+		);
+		$this->assertSame(expected: '<p>Tekst</p>', actual: $this->service->sanitiseHtml(html: '<p ="broken" !x>Tekst</p>'));
+	}
+
+	public function testSanitiseKeepsSingleQuotedAndUnquotedHref(): void {
+		$this->assertSame(
+			'<a href="https://example.com" rel="noopener noreferrer" target="_blank">Link</a>',
+			$this->service->sanitiseHtml(html: "<a href='https://example.com'>Link</a>")
+		);
+		$this->assertSame(
+			'<a href="https://example.com" rel="noopener noreferrer" target="_blank">Link</a>',
+			$this->service->sanitiseHtml(html: '<a href=https://example.com>Link</a>')
+		);
+	}
+
+	public function testSanitiseImgRejectsSingleQuotedDataUri(): void {
+		$out = $this->service->sanitiseHtml(
+			html: "<img src='data:image/png;base64,AAAA' />"
+		);
+		$this->assertStringNotContainsString('src', $out);
+	}
+
 	public function testSanitiseImgKeepsSrcOnly(): void {
 		$out = $this->service->sanitiseHtml(
 			html: '<img src="https://example.com/logo.png" alt="logo" onerror="bad()" />'
@@ -351,4 +383,27 @@ class FooterServiceTest extends TestCase {
 
 		$this->assertNull($this->service->resolveFooterForDashboard(dashboard: $dash));
 	}
+
+	/**
+	 * REQ-FTR-004: a page without an active dashboard shows the global
+	 * footer, and none while it is off.
+	 *
+	 * @return void
+	 */
+	public function testTheGlobalFooterIsWhatAnInheritDashboardShows(): void {
+		$enabled = true;
+		$this->settingMapper->method('getValue')->willReturnCallback(
+			static function (string $key, mixed $default) use (&$enabled): mixed {
+				return match ($key) {
+					AdminSetting::KEY_FOOTER_ENABLED => $enabled,
+					AdminSetting::KEY_FOOTER_HTML => '<p>Global</p>',
+					default => $default,
+				};
+			}
+		);
+
+		$this->assertSame(expected: '<p>Global</p>', actual: $this->service->resolveGlobalFooter()['html']);
+		$enabled = false;
+		$this->assertNull(actual: $this->service->resolveGlobalFooter());
+	}//end testTheGlobalFooterIsWhatAnInheritDashboardShows()
 }

@@ -170,6 +170,20 @@ describe('useDashboardStore — source-aware getters', () => {
 	})
 })
 
+describe('useDashboardStore — createDashboard widgets choice (REQ-SHELL-005)', () => {
+	it('sends the widgets choice only when one is given', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		mockApi.createDashboard.mockResolvedValue({ data: { dashboard: { id: 1 }, placements: [] } })
+
+		await store.createDashboard({ name: 'Mine', widgets: 'starters' })
+		await store.createDashboard({ name: 'Plain' })
+
+		expect(mockApi.createDashboard.mock.calls[0][0]).toEqual({ name: 'Mine', description: undefined, icon: null, widgets: 'starters' })
+		expect(mockApi.createDashboard.mock.calls[1][0]).not.toHaveProperty('widgets')
+	})
+})
+
 describe('useDashboardStore — createDashboard gating (REQ-ASET-003 extended)', () => {
 	beforeEach(async () => {
 		const { showError } = await import('@nextcloud/dialogs')
@@ -283,6 +297,28 @@ describe('useDashboardStore — forkDashboard (REQ-DASH-020)', () => {
 		expect(showError).toHaveBeenCalledWith('Dashboard not found')
 	})
 
+	it('names the dashboard limit and rereads the quota on a quota 409 (REQ-QUOTA-006)', async () => {
+		const { showError } = await import('@nextcloud/dialogs')
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+
+		const err = new Error('Conflict')
+		err.response = {
+			status: 409,
+			data: { error: 'quota_exceeded', quota: 'dashboards', limit: 5, current: 5 },
+		}
+		mockApi.forkDashboard.mockRejectedValue(err)
+		mockApi.getVisibleDashboards.mockResolvedValue({
+			data: { items: [], quota: { maxDashboards: 5, dashboardsUsed: 5, maxWidgetsPerDashboard: 0 } },
+		})
+
+		await expect(store.forkDashboard('src-uuid')).rejects.toBe(err)
+		expect(showError).toHaveBeenCalledWith(
+			'You have reached the limit of {limit} dashboards',
+		)
+		expect(mockApi.getVisibleDashboards).toHaveBeenCalled()
+	})
+
 	it('shows the generic fork-failure toast on unrelated errors', async () => {
 		const { showError } = await import('@nextcloud/dialogs')
 		const { useDashboardStore } = await import('../dashboard.js')
@@ -335,6 +371,27 @@ describe('useDashboardStore — loadDashboards source plumbing', () => {
 		expect(store.dashboards[2].source).toBe('default')
 	})
 
+	it('asks for the active dashboard without waiting for the list', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+
+		let answerList
+		mockApi.getVisibleDashboards.mockReturnValue(new Promise((resolve) => {
+			answerList = resolve
+		}))
+		mockApi.getActiveDashboard.mockResolvedValue({ data: { dashboard: { id: 1, uuid: 'a' }, placements: [{ id: 9 }] } })
+
+		const load = store.loadDashboards()
+		await Promise.resolve()
+		expect(mockApi.getActiveDashboard).toHaveBeenCalledTimes(1)
+
+		answerList({ data: [{ id: 1, uuid: 'a', source: 'user', name: 'Mine' }] })
+		await load
+
+		expect(store.dashboards).toHaveLength(1)
+		expect(store.widgetPlacements).toEqual([{ id: 9 }])
+	})
+
 	it('falls back to /api/dashboards and tags rows as `source: "user"`', async () => {
 		const { useDashboardStore } = await import('../dashboard.js')
 		const store = useDashboardStore()
@@ -374,16 +431,38 @@ describe('useDashboardStore — resolveActive (REQ-DASH-018)', () => {
 		expect(store.resolveActive).toBeNull()
 	})
 
-	it('step 1: honours the currently-active dashboard if still visible', async () => {
+	it('step 1: honours the chosen start dashboard if still visible', async () => {
 		const { useDashboardStore } = await import('../dashboard.js')
 		const store = useDashboardStore()
 		store.dashboards = [
-			make({ uuid: 'a', source: 'user' }),
+			make({ uuid: 'd', source: 'default', groupId: 'default', isDefault: 1 }),
 			make({ uuid: 'b', source: 'group', groupId: 'eng' }),
 		]
-		store.activeDashboard = { id: 'b' }
+		store.startDashboardUuid = 'b'
 		store.primaryGroup = 'eng'
 		expect(store.resolveActive.uuid).toBe('b')
+	})
+
+	it('the dashboard looked at last does not win over the start page', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.dashboards = [
+			make({ uuid: 'team', source: 'group', groupId: 'eng' }),
+			make({ uuid: 'vandaag', source: 'default', groupId: 'default', isDefault: 1 }),
+		]
+		store.activeDashboard = { id: 'team' }
+		store.primaryGroup = 'support'
+		expect(store.resolveActive.uuid).toBe('vandaag')
+	})
+
+	it('a start dashboard that is no longer visible falls through', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.dashboards = [
+			make({ uuid: 'vandaag', source: 'default', groupId: 'default', isDefault: 1 }),
+		]
+		store.startDashboardUuid = 'deleted'
+		expect(store.resolveActive.uuid).toBe('vandaag')
 	})
 
 	it('step 2: primary-group default beats default-group default', async () => {
@@ -486,6 +565,51 @@ describe('useDashboardStore — persistActivePreference (REQ-DASH-019)', () => {
 	})
 })
 
+describe('useDashboardStore — a dashboard the address names', () => {
+	it('is opened after the first load, so the stored preference does not replace it', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+
+		mockApi.getVisibleDashboards.mockResolvedValue({
+			data: [
+				{ id: 35, uuid: 'linked', source: 'user', name: 'Route check' },
+				{ id: 36, uuid: 'stored', source: 'user', name: 'Andere' },
+			],
+		})
+		mockApi.getActiveDashboard.mockResolvedValue({
+			data: { dashboard: { id: 36, uuid: 'stored' }, placements: [{ id: 9 }], permissionLevel: 'full' },
+		})
+		mockApi.getDashboardById.mockResolvedValue({
+			data: { dashboard: { id: 35, uuid: 'linked' }, placements: [], permissionLevel: 'full', isOwner: true },
+		})
+		mockApi.activateDashboard.mockResolvedValue({ data: {} })
+		mockApi.setActiveDashboardPreference.mockResolvedValue({ data: {} })
+
+		await store.openDashboard('35')
+		expect(mockApi.getDashboardById).not.toHaveBeenCalled()
+		await store.loadDashboards()
+
+		expect(store.activeDashboard.uuid).toBe('linked')
+		expect(store.widgetPlacements).toEqual([])
+		expect(mockApi.setActiveDashboardPreference).toHaveBeenCalledWith('linked')
+	})
+
+	it('is opened at once when the first load has finished', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.loadedOnce = true
+		mockApi.getDashboardById.mockResolvedValue({
+			data: { dashboard: { id: 35, uuid: 'linked' }, placements: [], permissionLevel: 'full', isOwner: true },
+		})
+		mockApi.setActiveDashboardPreference.mockResolvedValue({ data: {} })
+
+		await store.openDashboard(35)
+
+		expect(store.activeDashboard.uuid).toBe('linked')
+		expect(store.requestedDashboardId).toBeNull()
+	})
+})
+
 describe('useDashboardStore — switchDashboard wires the active-pref POST', () => {
 	it('calls setActiveDashboardPreference with the new uuid after a successful switch', async () => {
 		const { useDashboardStore } = await import('../dashboard.js')
@@ -511,6 +635,53 @@ describe('useDashboardStore — switchDashboard wires the active-pref POST', () 
 		await store.switchDashboard('d-1')
 
 		expect(mockApi.setActiveDashboardPreference).toHaveBeenCalledWith('uuid-1')
+	})
+
+	it('asks for the dashboard and persists the active flag at the same time, not one after the other', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.dashboards = [
+			{ id: 'd-2', uuid: 'uuid-2', source: 'user', isOwner: true },
+		]
+
+		let releaseActivate
+		mockApi.activateDashboard.mockReturnValue(new Promise((resolve) => { releaseActivate = resolve }))
+		mockApi.getDashboardById.mockResolvedValue({
+			data: { dashboard: { id: 'd-2', uuid: 'uuid-2' }, placements: [{ id: 7 }], permissionLevel: 'full', isOwner: true, sharedBy: null },
+		})
+		mockApi.setActiveDashboardPreference.mockResolvedValue({ data: { status: 'success' } })
+
+		const switching = store.switchDashboard('d-2')
+		await Promise.resolve()
+		// The read went out while the activate is still pending.
+		expect(mockApi.getDashboardById).toHaveBeenCalledWith('d-2')
+		expect(mockApi.activateDashboard).toHaveBeenCalledWith('d-2')
+
+		releaseActivate({ data: { status: 'ok' } })
+		await switching
+		expect(store.widgetPlacements).toEqual([{ id: 7 }])
+		expect(store.loading).toBe(false)
+	})
+
+	it('a failed activate still fails the switch and leaves the dashboard as it was', async () => {
+		const { useDashboardStore } = await import('../dashboard.js')
+		const store = useDashboardStore()
+		store.dashboards = [
+			{ id: 'd-3', uuid: 'uuid-3', source: 'user', isOwner: true },
+		]
+		store.activeDashboard = { id: 'd-0', uuid: 'uuid-0' }
+
+		mockApi.activateDashboard.mockRejectedValue(new Error('500'))
+		mockApi.getDashboardById.mockResolvedValue({
+			data: { dashboard: { id: 'd-3', uuid: 'uuid-3' }, placements: [], permissionLevel: 'full', isOwner: true, sharedBy: null },
+		})
+		mockApi.setActiveDashboardPreference.mockClear()
+
+		await store.switchDashboard('d-3')
+
+		expect(store.activeDashboard.uuid).toBe('uuid-0')
+		expect(mockApi.setActiveDashboardPreference).not.toHaveBeenCalled()
+		expect(store.loading).toBe(false)
 	})
 
 	it('does NOT call the legacy activate endpoint for a group/default dashboard', async () => {

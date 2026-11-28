@@ -9,8 +9,8 @@
  *  - the `initialTab` prop lands the modal on the requested tab
  */
 
-import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { h } from 'vue'
 import DashboardConfigModal from '../DashboardConfigModal.vue'
 
@@ -18,6 +18,9 @@ vi.mock('@nextcloud/axios', () => ({
 	default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
 }))
 vi.mock('@nextcloud/router', () => ({ generateUrl: (p) => `/index.php${p}` }))
+vi.mock('@nextcloud/capabilities', () => ({
+	getCapabilities: () => ({ nldesign: { tokenSet: { name: 'Huisstijl Zuiddrecht' } }, theming: { name: 'Nextcloud' } }),
+}))
 vi.mock('@nextcloud/l10n', () => ({ t: (_app, key) => key }))
 
 vi.mock('../../services/api.js', () => ({
@@ -70,8 +73,11 @@ const ownedDashboard = {
 	permissionLevel: 'full',
 }
 
+// Attached, because jsdom computes no style for a detached element and
+// `isVisible()` would then miss the panels' `v-show`.
 function mountModal(props = {}) {
 	return mount(DashboardConfigModal, {
+		attachTo: document.body,
 		propsData: {
 			open: true,
 			dashboard: ownedDashboard,
@@ -90,6 +96,8 @@ function mountModal(props = {}) {
 	})
 }
 
+enableAutoUnmount(afterEach)
+
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
 	vi.clearAllMocks()
@@ -101,6 +109,11 @@ describe('DashboardConfigModal tab split', () => {
 		expect(wrapper.find('[data-test="config-tabs"]').exists()).toBe(true)
 		expect(wrapper.find('[data-test="config-tab-general"]').exists()).toBe(true)
 		expect(wrapper.find('[data-test="config-tab-sharing"]').exists()).toBe(true)
+	})
+
+	it('keeps the theme button look off the tab strip', () => {
+		const wrapper = mountModal()
+		expect(wrapper.find('[data-test="config-tabs"]').classes()).toContain('cn-look-board')
 	})
 
 	it('does not show the sharee picker on the General panel', async () => {
@@ -142,5 +155,156 @@ describe('DashboardConfigModal tab split', () => {
 			initialTab: 'sharing',
 		})
 		expect(wrapper.vm.currentTab).toBe('general')
+	})
+
+	it('has the board\'s tabs: Details, Languages, Sharing', () => {
+		const wrapper = mountModal()
+		const ids = wrapper
+			.findAll('[role="tab"]')
+			.map((tab) => tab.attributes('data-test'))
+		// dashboard-theme-readonly REQ-THM-001: the look is a block on Details.
+		expect(ids).toEqual([
+			'config-tab-general',
+			'config-tab-languages',
+			'config-tab-sharing',
+		])
+		expect(wrapper.find('[data-test="config-tab-general"]').text()).toContain(
+			'Details',
+		)
+	})
+
+	it('puts the default switch under Details', () => {
+		const wrapper = mountModal()
+		const general = wrapper.find('[data-test="config-panel-general"]')
+		expect(general.text()).toContain('Default dashboard')
+		expect(wrapper.find('[data-test="config-panel-default"]').exists()).toBe(
+			false,
+		)
+	})
+
+	// @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	it('draws Own look on the Details tab, with no layout preset field', () => {
+		const wrapper = mountModal()
+		const general = wrapper.find('[data-test="config-panel-general"]')
+		const look = general.find('[data-test="config-look"]')
+		expect(look.exists()).toBe(true)
+		expect(look.text()).toContain('Own look')
+		expect(look.find('[data-testid="look-accent"]').exists()).toBe(true)
+		expect(look.find('[data-testid="look-background"]').exists()).toBe(true)
+		expect(look.find('[data-testid="look-image-input"]').exists()).toBe(true)
+		expect(general.text()).not.toMatch(/layout of this dashboard|Indeling van dit dashboard/i)
+		expect(wrapper.find('[data-test="config-panel-look"]').exists()).toBe(false)
+	})
+
+	// @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	it('labels the image as the background image, with an upload button, a preview and remove', async () => {
+		const wrapper = mountModal()
+		const image = wrapper.find('[data-testid="look-image"]')
+		expect(image.text()).toContain('Background image')
+		expect(image.text()).toContain('leave empty to follow the theme')
+		expect(image.text()).not.toMatch(/^Image$/m)
+		// The bare browser input is hidden behind a styled button.
+		const input = image.find('[data-testid="look-image-input"]')
+		expect(input.attributes('aria-hidden')).toBe('true')
+		expect(input.classes()).toContain('dashboard-config__file')
+		expect(image.find('[data-testid="look-image-upload"]').text()).toBe('Upload image')
+		expect(image.find('[data-testid="look-image-preview"]').exists()).toBe(false)
+
+		wrapper.vm.look.resource = 'achtergrond.png'
+		await wrapper.vm.$nextTick()
+		const preview = image.find('[data-testid="look-image-preview"]')
+		expect(preview.attributes('src')).toContain('/apps/launchpad/resource/achtergrond.png')
+		expect(image.find('[data-testid="look-image-upload"]').text()).toBe('Choose another image')
+		await image.find('[data-testid="look-image-clear"]').trigger('click')
+		expect(wrapper.vm.look.resource).toBe('')
+	})
+
+	// @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	it('puts each colour picker on one row with its field', () => {
+		const wrapper = mountModal()
+		const rows = wrapper.findAll('.dashboard-config__look-row')
+		expect(rows).toHaveLength(2)
+		for (const row of rows) {
+			expect(row.find('input[type="color"]').exists()).toBe(true)
+		}
+	})
+
+	// @spec openspec/changes/archive/2026-11-27-own-look-fields/specs/dashboards/spec.md#requirement-a-colour-field-shows-its-picker-beside-its-input-req-thm-005
+	it('draws Own look as on the board: a card, labels above, the swatch left of each hex field', () => {
+		const wrapper = mountModal()
+		const look = wrapper.find('[data-test="config-look"]')
+		expect(look.find('.dashboard-config__look-title').text()).toBe('Own look')
+		expect(look.text()).toContain('Only this dashboard gets these colours. The header and the navigation follow the theme.')
+		const grid = look.find('.dashboard-config__look-grid')
+		const fields = grid.findAll('.dashboard-config__look-field')
+		// Accent, background and the background image, side by side.
+		expect(fields).toHaveLength(3)
+		expect(fields[2].attributes('data-testid')).toBe('look-image')
+		for (const [i, name] of [[0, 'Accent color'], [1, 'Background color']]) {
+			const label = fields[i].find('label')
+			expect(label.text()).toBe(name)
+			const row = fields[i].find('.dashboard-config__look-row')
+			const children = row.element.children
+			expect(children[0].getAttribute('type')).toBe('color')
+			expect(label.attributes('for')).toBe(i === 0 ? 'look-accent-input' : 'look-background-input')
+		}
+	})
+
+	// @spec openspec/changes/archive/2026-11-27-own-look-fields/specs/dashboards/spec.md#requirement-a-colour-field-shows-its-picker-beside-its-input-req-thm-005
+	it('shows the readable contrast under the fields once an accent is set, and the error when it is too low', async () => {
+		const wrapper = mountModal()
+		expect(wrapper.find('[data-testid="look-contrast-ok"]').exists()).toBe(false)
+		wrapper.vm.look.accent = '#1f5c3a'
+		wrapper.vm.look.background = '#f1f6f2'
+		await wrapper.vm.$nextTick()
+		const ok = wrapper.find('[data-testid="look-contrast-ok"]')
+		expect(ok.exists()).toBe(true)
+		expect(ok.text()).toContain('Contrast of the accent colour on the background')
+		expect(ok.text()).toContain('At least 3 to 1.')
+		wrapper.vm.look.accent = '#f0f0f0'
+		await wrapper.vm.$nextTick()
+		expect(wrapper.find('[data-testid="look-contrast-ok"]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="look-contrast-error"]').exists()).toBe(true)
+	})
+
+	// @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
+	it('shows the instance theme read-only under Display, with no theme choice or layout field', () => {
+		const wrapper = mountModal()
+		const general = wrapper.find('[data-test="config-panel-general"]')
+		const display = general.find('[data-test="config-display"]')
+		expect(display.exists()).toBe(true)
+		expect(display.text()).toContain('Display')
+		const theme = display.find('[data-testid="display-theme"]')
+		expect(theme.attributes('readonly')).toBeDefined()
+		expect(wrapper.vm.themeName).toBe('Huisstijl Zuiddrecht')
+		expect(display.find('[data-testid="display-theme-hint"]').text()).toContain('Own look')
+		expect(display.find('.nc-select-stub').exists()).toBe(false)
+		expect(general.text()).not.toMatch(/layout of this dashboard|Indeling van dit dashboard/i)
+	})
+
+	it('shows no theme field while creating a dashboard', () => {
+		const wrapper = mountModal({ dashboard: null })
+		expect(wrapper.find('[data-test="config-display"]').exists()).toBe(false)
+	})
+
+	it('offers no Own look while creating a dashboard', () => {
+		const wrapper = mountModal({ dashboard: null })
+		expect(wrapper.find('[data-test="config-look"]').exists()).toBe(false)
+	})
+
+	it('lands on Details when an old caller asks for the default tab', () => {
+		const wrapper = mountModal({ initialTab: 'default' })
+		expect(wrapper.vm.currentTab).toBe('general')
+	})
+
+	it('counts the shares on the Sharing tab', async () => {
+		const wrapper = mountModal()
+		// Let the modal's own share load settle first; it resets the list.
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		wrapper.vm.localShares = [{ shareWith: 'a' }, { shareWith: 'b' }]
+		await wrapper.vm.$nextTick()
+		expect(
+			wrapper.find('[data-test="config-tab-count-sharing"]').text(),
+		).toBe('2')
 	})
 })

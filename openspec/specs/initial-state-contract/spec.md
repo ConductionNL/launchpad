@@ -12,9 +12,6 @@ A typed PHP `InitialStateBuilder` service centralises the writes; a typed JS `lo
 
 ## Requirements
 
-
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Requirement: Centralised PHP builder for initial state (REQ-INIT-001)
 
 The system MUST expose `lib/Service/InitialStateBuilder.php` with a constructor accepting an `IInitialState` and a `Page` enum (`Page::WORKSPACE` or `Page::ADMIN`). The builder MUST expose typed setter methods (e.g. `setWidgets(array $widgets): self`, `setLayout(array $layout): self`, `setIsAdmin(bool $isAdmin): self`) and a final `apply(): void` that writes every key to the initial-state service. `apply()` MUST throw `MissingInitialStateException` if any required key was not set for the chosen page. Controllers (`PageController`, `LaunchPadAdmin`) MUST use the builder; direct calls to `IInitialState::provideInitialState` from controllers are forbidden by code review (a grep lint MUST find such calls only inside `InitialStateBuilder`).
@@ -26,12 +23,14 @@ The system MUST expose `lib/Service/InitialStateBuilder.php` with a constructor 
 - **AND** the JS bundle MUST receive all 10 workspace keys declared in the Data Model
 
 #### Scenario: Missing required key raises before render
+@e2e exclude needs a controller that omits setLayout(), which only a code change produces; pinned by tests/Unit/Service/InitialStateBuilderTest.php::testWorkspaceBuilderRejectsMissingRequiredKey (MissingInitialStateException naming "layout" for page "workspace")
 
 - **WHEN** a controller constructs the builder for `Page::WORKSPACE`, omits the required `setLayout()` call, and then invokes `apply()`
 - **THEN** the system MUST throw `MissingInitialStateException` with a message naming the missing key `layout`
 - **AND** the page MUST NOT render (HTTP 500 surfaces during dev; CI test catches this earlier)
 
 #### Scenario: Direct provideInitialState call rejected
+@e2e exclude a source-code lint, not product behaviour; pinned by tests/Unit/Service/InitialStateContractLintTest.php::testNoDirectProvideInitialStateCallsOutsideBuilder (greps lib/, failure message points to InitialStateBuilder) and `composer lint:initial-state`
 
 - **WHEN** a developer adds `$initialState->provideInitialState('foo', 'bar')` directly inside `lib/Controller/PageController.php`
 - **THEN** the lint test (grep against `lib/`) MUST fail with a message pointing to `InitialStateBuilder`
@@ -41,7 +40,7 @@ The system MUST expose `lib/Service/InitialStateBuilder.php` with a constructor 
 
 The exact set of initial-state keys per page is part of the contract and MUST match the Data Model documented in this spec. Adding, removing, or renaming a key is a deliberate spec change and MUST be accompanied by (1) an update to this spec's Data Model, (2) a bump of the `INITIAL_STATE_SCHEMA_VERSION` constant (currently `1`), and (3) coordinated updates to both the PHP builder and the JS reader in the same commit. The schema version MUST itself be pushed as initial state under the key `_schemaVersion`. The JS reader MUST log a console warning when the received version differs from the compiled-in version (catches caching and deploy-skew bugs).
 
-The Workspace page (mounted into `#launchpad-app`) MUST expose exactly these keys:
+The Workspace page (mounted into `#workspace-vue`) MUST expose exactly these keys:
 
 | Key | Type | Default (if missing) |
 |---|---|---|
@@ -66,6 +65,7 @@ The Admin page (mounted into `#launchpad-admin-settings`) MUST expose exactly th
 | `allowUserDashboards` | `boolean` | `false` |
 
 #### Scenario: Adding a key bumps version
+@e2e exclude a code-review rule about a future change, nothing a running instance shows; the only automated part, PHP and JS constants in lockstep, is pinned by src/utils/__tests__/loadInitialState.spec.js 'exports INITIAL_STATE_SCHEMA_VERSION matching the PHP constant (3)'
 
 - **WHEN** a developer adds a new workspace initial-state key `theme` and submits the change for review
 - **THEN** the spec Data Model table MUST list `theme` with type and default
@@ -83,12 +83,14 @@ The Admin page (mounted into `#launchpad-admin-settings`) MUST expose exactly th
 The system MUST expose `src/utils/loadInitialState.js` exporting `loadInitialState(page: 'workspace' | 'admin'): InitialState`. The reader MUST call `loadState('launchpad', key, default)` for every key declared for `page` in the Data Model, MUST return a typed object with default-filled fields (no `undefined` values), and MUST validate the received `_schemaVersion` against the compiled-in `INITIAL_STATE_SCHEMA_VERSION` constant per REQ-INIT-002. Entry points (`src/main.js`, `src/admin.js`) MUST use the reader; direct `loadState('launchpad', ...)` calls outside the reader are forbidden by a JS-side grep lint.
 
 #### Scenario: Reader fills defaults
+@e2e exclude the reader's returned object stays inside the bundle and the page exposes none of it, so "no field is undefined" cannot be read from a browser; pinned by src/utils/__tests__/loadInitialState.spec.js 'fills defaults for every workspace key the server omitted'
 
 - **WHEN** PHP pushes only `widgets` (other keys missing for any reason) and `loadInitialState('workspace')` runs
 - **THEN** every key declared for the workspace page MUST have a defined value taken from the Data Model defaults
 - **AND** no field on the returned object MUST be `undefined`
 
 #### Scenario: Direct loadState rejected
+@e2e exclude a source-code lint, not product behaviour; enforced by scripts/lint-initial-state.js (`npm run lint:initial-state`, part of `npm run lint`), whose failure message names loadInitialState; no test exercises the lint's failure path
 
 - **WHEN** a Vue component under `src/` calls `loadState('launchpad', 'something')` directly
 - **THEN** the lint test (grep against `src/`) MUST fail
@@ -99,12 +101,14 @@ The system MUST expose `src/utils/loadInitialState.js` exporting `loadInitialSta
 After the entry point loads the initial state, it MUST expose every key via the Vue root `provide` option (Vue 2.7) — semantically equivalent to `app.provide(key, value)` in Vue 3 — so descendant components can `inject(key, default)` without re-reading from `loadState`. The provide call MUST use the same key string as the initial-state key — no renaming at the boundary (renaming is itself a spec change and bumps the schema version).
 
 #### Scenario: Provide names match initial-state keys
+@e2e exclude provide/inject wiring inside the Vue app, not observable from the page; pinned by src/utils/__tests__/loadInitialState.spec.js 'exposes every key via provide/inject for descendant components (REQ-INIT-004)'
 
 - **WHEN** the workspace entry loads 10 initial-state keys via the reader and exposes them through `provide`
 - **THEN** the entry MUST emit exactly 10 provided keys, one per initial-state key, with identical key strings
 - **AND** no key renaming MUST occur at this boundary
 
 #### Scenario: Components inject by key name
+@e2e exclude provide/inject wiring inside the Vue app, not observable from the page; pinned by src/utils/__tests__/loadInitialState.spec.js 'exposes every key via provide/inject for descendant components (REQ-INIT-004)'
 
 - **WHEN** a deep child component calls `inject('widgets', [])`
 - **THEN** the component MUST receive the value the entry point provided
@@ -115,13 +119,167 @@ After the entry point loads the initial state, it MUST expose every key via the 
 `provide`/`inject` distributes static snapshots — values are NOT reactive across writes. Components that need to mutate shared state (for example `layout` after editing) MUST clone the injected value into a local `ref` (or hand off to a Pinia store fed from the injected value). The entry-point provides MUST NEVER be wrapped in a `ref` to "make them reactive" — that would let component code accidentally mutate the boot snapshot and break re-mount semantics.
 
 #### Scenario: Mutation does not leak through inject
+@e2e exclude component-internal reactivity, not observable from the page; pinned by src/utils/__tests__/loadInitialState.spec.js 'mutating a cloned ref does not leak to a sibling (REQ-INIT-005)'
 
 - **WHEN** component `A` injects `layout`, clones into `localLayout = ref([...injectedLayout])`, and mutates `localLayout`
 - **THEN** any sibling component that injects `layout` MUST still see the original (unmutated) value
 - **AND** no console error MUST fire about reactive mutation
 
 #### Scenario: Entry point does not wrap provide in ref
+@e2e exclude a static property of src/main.js and src/admin.js checked by code review; no test exists
 
 - **WHEN** a code reviewer inspects `src/main.js` or `src/admin.js`
 - **THEN** every provided value MUST be a plain (non-reactive) value
 - **AND** no `provide(key, ref(value))` or `provide(key, reactive(value))` MUST appear at the entry-point boundary
+
+### Requirement: The workspace carries the first dashboard load (REQ-INIT-006)
+
+The Workspace page SHOULD carry the optional key `dashboardFirstLoad`: `{visible, active}`, where `visible` is exactly the payload `GET /api/dashboards/visible` answers for the caller and `active` is exactly the payload of `GET /api/dashboard`, or `null` when the caller has no dashboard. Both MUST be built by the same code as those endpoints. The key MUST be left out when the caller may not perform `dashboard.visible` or `dashboard.get-active`. The dashboard store MUST take the key once, on its first load, instead of requesting the two endpoints, and MUST request them on every later load and whenever the key is missing (default `null`).
+
+#### Scenario: The workspace opens without asking for its dashboards again
+
+- **GIVEN** Pieter may read his dashboards
+- **WHEN** he opens the workspace
+- **THEN** the page carries his visible dashboards and his active dashboard in `dashboardFirstLoad`
+- **AND** the store shows them without requesting `/api/dashboards/visible` or `/api/dashboard`
+
+#### Scenario: A later load asks the API
+@e2e exclude a second store load in the browser needs a dashboard limit refusal or another reload trigger the workspace does not offer on demand; pinned by src/stores/__tests__/dashboard.firstLoad.spec.js 'asks the API on every load after the first' (both endpoints requested on the second load) and src/utils/__tests__/loadInitialState.spec.js (takeDashboardFirstLoad hands the first load out once)
+
+- **GIVEN** the workspace has opened from `dashboardFirstLoad`
+- **WHEN** the store loads the dashboards again, for example after a dashboard limit refusal
+- **THEN** it requests both endpoints
+
+#### Scenario: A refused caller gets no first load
+
+- **GIVEN** the action matrix refuses Pieter `dashboard.visible`
+- **WHEN** he opens the workspace
+- **THEN** the page carries no `dashboardFirstLoad`
+- **AND** the store requests the endpoints and meets the same refusal
+
+### Requirement: The workspace carries the org navigation (REQ-INIT-007)
+
+The Workspace page SHOULD carry the optional key `orgNavigation`: `{position, tree, language}`, where `position` is exactly what `GET /api/admin/org-navigation/position` answers, and `tree` and `language` are exactly what `GET /api/admin/org-navigation` answers for the caller in the default language. The position MUST be read by the same code as that endpoint. The key MUST be left out when the caller may not perform `admin-org-navigation.get-org-navigation` or `admin-org-navigation.get-position`. The org navigation store MUST take the key once, on the shell's first load, instead of requesting the two endpoints, and MUST request them whenever the key is missing (default `null`).
+
+#### Scenario: The workspace opens without asking for its org navigation
+
+- **GIVEN** Pieter may read the org navigation
+- **WHEN** he opens the workspace
+- **THEN** the page carries the rail position and his filtered tree in `orgNavigation`
+- **AND** the shell places the rail without requesting `/api/admin/org-navigation/position` or `/api/admin/org-navigation`
+
+#### Scenario: A refused caller gets no org navigation
+
+- **GIVEN** the action matrix refuses Pieter `admin-org-navigation.get-position`
+- **WHEN** he opens the workspace
+- **THEN** the page carries no `orgNavigation`
+- **AND** the shell requests the endpoints and meets the same refusal
+
+### Requirement: The workspace carries its view's boot reads (REQ-INIT-008)
+
+The Workspace page SHOULD carry the optional key `workspaceBootReads`: `{tiles, pendingAcknowledgements, defaultDashboard}`, where `tiles` is exactly what `GET /api/tiles` answers for the caller, `pendingAcknowledgements` exactly what `GET /api/acknowledgements/pending` answers, and `defaultDashboard` exactly what `GET /api/dashboards/default` answers. A part MUST be left out when the caller may not perform its action (`tile.index`, `dashboard.get-default-dashboard`) or when reading it fails. The tile store, the pending-acknowledgements read and the default-dashboard read MUST each take their part once, on the first read, instead of requesting the endpoint, and MUST request it on every later read and whenever the part is missing.
+
+#### Scenario: The workspace opens without asking for its tiles, acknowledgements and default dashboard
+
+- **GIVEN** Pieter may read his tiles and his default dashboard
+- **WHEN** he opens the workspace
+- **THEN** the page carries his tiles, his pending acknowledgements and his default dashboard in `workspaceBootReads`
+- **AND** the view shows them without requesting `/api/tiles`, `/api/acknowledgements/pending` or `/api/dashboards/default`
+
+#### Scenario: A refused part is asked for
+
+- **GIVEN** the action matrix refuses Pieter `tile.index`
+- **WHEN** he opens the workspace
+- **THEN** the page carries no `tiles` part
+- **AND** the tile store requests `/api/tiles` and meets the same refusal
+
+### Requirement: A warm workspace load carries the kept manifest (REQ-INIT-009)
+
+`GET /api/manifest` SHOULD keep the manifest it builds for a user, keyed by user and installed app version, for 60 seconds, and MUST answer from the kept manifest within that time. The Workspace page SHOULD carry a kept manifest as the optional key `runtimeManifest` and MUST NOT build one itself. The key MUST be left out when the caller may not perform `manifest.index`. The page MUST take the key instead of requesting `GET /api/manifest`, and MUST request it whenever the key is missing (default `null`).
+
+#### Scenario: A warm reload does not ask for the manifest
+
+- **GIVEN** Pieter opened the workspace less than a minute ago
+- **WHEN** he opens it again
+- **THEN** the page carries his manifest in `runtimeManifest`
+- **AND** the page does not request `/api/manifest`
+
+#### Scenario: A refused caller gets no kept manifest
+
+- **GIVEN** the action matrix refuses Pieter `manifest.index`
+- **WHEN** he opens the workspace
+- **THEN** the page carries no `runtimeManifest`
+- **AND** the page requests `/api/manifest` and meets the same refusal
+
+### Requirement: The workspace carries the shell's setup status and walkthrough preferences (REQ-INIT-010)
+
+The Workspace page SHOULD carry the optional key `setup_status`: for a Nextcloud
+admin exactly what `GET /api/setup/status` answers, and `{forbidden: true}` for
+a caller that endpoint refuses (neither an admin nor in a group LaunchPad's
+admin settings are delegated to). A caller the settings are delegated to, and a
+read that fails, MUST get no key, so the shell asks the endpoint as before. The
+page SHOULD also carry `walkthrough_preferences`: `{seen, progress}`, the values
+`GET /api/preferences/{key}` answers for the walkthrough's completion key and
+its `-progress` twin (null when unset). The shell MUST take each carried value
+instead of requesting its endpoint.
+
+#### Scenario: An admin opens the workspace without asking for setup state
+
+- **GIVEN** Pieter is a Nextcloud admin
+- **WHEN** he opens the workspace
+- **THEN** the page carries the setup status document in `setup_status`
+- **AND** the shell does not request `/api/setup/status`
+
+#### Scenario: A user opens the workspace without a refused request
+
+- **GIVEN** Marieke is no admin and LaunchPad's admin settings are not delegated to her
+- **WHEN** she opens the workspace
+- **THEN** the page carries `setup_status` `{forbidden: true}`
+- **AND** no setup wizard opens and `/api/setup/status` is not requested
+
+#### Scenario: The walkthrough state comes with the page
+
+- **GIVEN** Marieke finished the tour of version 1.4.0
+- **WHEN** she opens the workspace
+- **THEN** the page carries `walkthrough_preferences` with `seen` "1.4.0"
+- **AND** the shell requests neither walkthrough preference
+
+### Requirement: The workspace carries its view's first API reads (REQ-INIT-011)
+
+The Workspace page SHOULD carry the optional key `workspaceApiReads`: a list of `{path, params, data}` where `path` is a launchpad endpoint below `/apps/launchpad`, `params` the query the view sends, and `data` exactly what that endpoint answers the caller with status 200. It covers `GET /api/announcements`, `GET /api/preferences/dismissed-notices`, `GET /api/dashboards/{uuid}/reactions` of the dashboard the page opens on, `GET /api/dashboards/{id}/personal-layer` of that dashboard when the caller does not own it, and the first page (`currentPath=/`, `limit=50`) of `GET /api/widgets/files/{placementId}/contents` for at most four visible Files widgets on it. A read MUST be answered through the endpoint's own controller action and MUST be left out when that action refuses, fails or answers anything but 200. The app's HTTP client MUST answer the first GET matching a carried read (same path and query) from the page, once, and MUST send every later GET and every request that matches nothing.
+
+#### Scenario: The workspace opens without asking for its banner, reactions and files
+
+- **GIVEN** Pieter opens the workspace on a group dashboard with a Files widget
+- **WHEN** the view mounts
+- **THEN** the notice banner, the reactions bar, his personal layer and the Files widget show their content without requesting those endpoints
+
+#### Scenario: A refused read is asked for
+
+- **GIVEN** the action matrix refuses Pieter `announcement.read`
+- **WHEN** he opens the workspace
+- **THEN** the page carries no `/api/announcements` read
+- **AND** the banner requests `/api/announcements` and meets the same refusal
+
+#### Scenario: A later read asks the server
+
+- **GIVEN** the page carried the Files widget's first page
+- **WHEN** Pieter opens a folder in it, or the widget reloads its root
+- **THEN** the widget requests that page from the server
+
+### Requirement: A dashboard switch starts its follow-up reads at once (REQ-INIT-012)
+
+When the workspace switches to another dashboard, the store SHOULD start `GET /api/dashboards/{uuid}/reactions` of the target and, when the target's switcher row says the caller does not own it (`isOwner` false), `GET /api/dashboards/{id}/personal-layer`, together with the dashboard read. The app's HTTP client MUST answer the first GET that matches one of these early reads (same path and query) from it, once, within 5 seconds of its start, and MUST send every other request. A failing early read MUST answer its matching GET with the same failure. The next switch MUST drop the early reads of the previous one.
+
+#### Scenario: The reactions bar does not ask again after a switch
+
+- **GIVEN** Pieter views the workspace on his own dashboard
+- **WHEN** he switches to the group dashboard "Team"
+- **THEN** the reactions of "Team" and his personal layer on it are requested once, while the dashboard is read
+- **AND** the reactions bar and the "Hidden (n)" control show them without another request
+
+#### Scenario: An early read nobody asks for expires
+
+- **GIVEN** Pieter switched to "Team" in edit mode, so the reactions bar is not shown
+- **WHEN** he leaves edit mode more than 5 seconds later
+- **THEN** the reactions bar requests the reactions from the server

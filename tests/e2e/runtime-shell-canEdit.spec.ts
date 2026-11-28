@@ -4,17 +4,17 @@
  *
  * End-to-end coverage for the `runtime-shell` capability.
  *
- * Covers the hamburger sidebar toggle, the fixed backdrop, and the
- * empty-state CTA branches. The in-page edit toolbar was removed — editing
+ * Covers how the dashboards are reached (More, REQ-SHELL-004) and the
+ * empty-state CTA branches. The backdrop (REQ-SHELL-006) is covered in
+ * runtime-shell.spec.ts. The in-page edit toolbar was removed — editing
  * actions now live in the per-dashboard cog menu (DashboardRowActions) — so
  * the former toolbar / Save-Layout scenarios no longer apply. These tests
  * run against a live Nextcloud instance with the launchpad app enabled.
  *
  * Gate-19 @e2e traceability:
- *   @e2e runtime-shell::hamburger-toggles-sidebar
- *   @e2e runtime-shell::backdrop-click-closes-sidebar
- *   @e2e runtime-shell::empty-state-with-allow-user-dashboards
- *   @e2e runtime-shell::empty-state-without-allow-user-dashboards
+ *   @e2e runtime-shell::no-sidebar-toggle
+ *   @e2e runtime-shell::all-dashboards-opens-the-switcher
+ *   @e2e runtime-shell::no-active-dashboard-select-control
  *   @e2e action-authorization::fresh-install-is-usable-by-non-admins
  *
  * @spec openspec/changes/runtime-shell/tasks.md#task-9
@@ -29,6 +29,8 @@ import {
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
+import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
+import { contextFor } from './support/principals.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -72,80 +74,78 @@ async function setAllowUserDashboards(enabled: boolean): Promise<void> {
 }
 
 /**
- * Wait for the Vue shell to hydrate past initial bootstrap.
- * The floating sidebar toggle indicates the workspace has mounted.
+ * Wait for the Vue shell to hydrate past initial bootstrap: the More menu
+ * renders once the workspace has mounted.
  */
 async function waitForShell(page: ReturnType<typeof test.extend>['page']) {
 	await page.goto(APP_URL)
-	await page.waitForSelector('.launchpad-floating-controls, .workspace-shell', {
-		timeout: 15_000,
-	})
+	await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 30_000 })
 }
 
-test.describe('REQ-SHELL-004: hamburger sidebar toggle (wave3 fixture)', () => {
+test.describe('REQ-SHELL-014: the dashboards are reached through More', () => {
 	test.beforeEach(async ({ page }) => {
 		await waitForShell(page)
 	})
 
-	test('hamburger opens the sidebar', async ({ page }) => {
-		const ham = page.locator('.launchpad-sidebar-toggle').first()
-		await expect(ham).toBeVisible()
-
-		// Sidebar should be closed initially.
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
-
-		await ham.click()
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(1)
+	// @e2e runtime-shell::no-sidebar-toggle
+	test('the page has no sidebar toggle, and More is its one menu', async ({ page }) => {
+		await expect(page.locator(MORE_MENU)).toHaveCount(1)
+		await expect(page.locator(MORE_MENU)).toBeVisible()
+		await expect(page.locator('.launchpad-sidebar-toggle')).toHaveCount(0)
+		await expect(page.locator('.dashboard-switcher-sidebar')).toHaveCount(0)
 	})
 
-	test('clicking the hamburger again closes the sidebar', async ({ page }) => {
-		const ham = page.locator('.launchpad-sidebar-toggle').first()
-		await ham.click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 5_000,
-		})
-
-		await ham.click()
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
-	})
-})
-
-test.describe('REQ-SHELL-006: backdrop click closes sidebar', () => {
-	test.beforeEach(async ({ page }) => {
-		await waitForShell(page)
+	// @e2e runtime-shell::more-unfolds-in-place
+	test('More in the Dashboards column unfolds it in place, and Less folds it, without a sidebar', async ({ page }) => {
+		await openDashboardSwitcher(page)
+		await expect(page.locator('.dashboard-switcher-sidebar')).toHaveCount(0)
+		const unfold = page.locator('[data-testid="launchpad-more-menu-item-all-dashboards"]')
+		await unfold.click()
+		await expect(unfold).toHaveAttribute('aria-expanded', 'false')
+		await expect(page.locator('[data-testid="launchpad-more-menu-panel"]')).toBeVisible()
 	})
 
-	test('clicking the backdrop area closes the sidebar', async ({ page }) => {
-		// Open the sidebar first.
-		const ham = page.locator('.launchpad-sidebar-toggle').first()
-		await ham.click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 5_000,
-		})
-
-		// Click the backdrop (area outside the sidebar panel).
-		const backdrop = page.locator('.launchpad-sidebar-backdrop')
-		await expect(backdrop).toBeVisible()
-		await backdrop.click()
-
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
-	})
-
-	test('clicking inside the sidebar panel does NOT close the sidebar', async ({
-		page,
-	}) => {
-		const ham = page.locator('.launchpad-sidebar-toggle').first()
-		await ham.click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 5_000,
-		})
-
-		// Click on a safe non-interactive area inside the sidebar (its header).
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		await sidebar.click({ position: { x: 10, y: 5 } })
-
-		// The sidebar should remain open.
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(1)
+	// @e2e runtime-shell::no-active-dashboard-select-control
+	test('More marks the open dashboard and the page has no dashboard select', async ({ browser }) => {
+		// A fresh member without favourites: More's expanded list holds every
+		// dashboard they can open (REQ-SHELL-015).
+		const { username, password } = await provisionThrowawayUser('e2e-more-mark')
+		// Seed a second dashboard beside the shipped default one and make it
+		// the open one, so "the open dashboard is the marked one" is checked
+		// by id with more than one entry listed, not as "some row is checked".
+		await setAllowUserDashboards(true)
+		const api = await contextFor(username, password)
+		let openId: number
+		try {
+			const created = await api.post('/index.php/apps/launchpad/api/dashboard', {
+				data: { name: `E2E More mark ${Date.now()}` },
+			})
+			expect(created.status(), await created.text()).toBeLessThan(300)
+			const body = await created.json()
+			const dash = body.dashboard ?? body.data?.dashboard ?? body
+			openId = Number(dash.id)
+			const active = await api.post('/index.php/apps/launchpad/api/dashboards/default', {
+				data: { uuid: dash.uuid },
+			})
+			expect(active.status(), await active.text()).toBeLessThan(300)
+		} finally {
+			await api.dispose()
+		}
+		const { context, page } = await loginAs(browser, username, password)
+		try {
+			await waitForShell(page)
+			await expect(page.locator('select[name="activeDashboard"]')).toHaveCount(0)
+			await openDashboardSwitcher(page)
+			const rows = page.locator('[data-testid^="launchpad-more-menu-item-dashboard-"]')
+			await expect(rows.first()).toBeVisible()
+			expect(await rows.count(), 'more than one dashboard is listed').toBeGreaterThan(1)
+			const marked = rows.and(page.locator('[aria-checked="true"]'))
+			await expect(marked).toHaveCount(1)
+			await expect(marked).toHaveAttribute('data-testid', `launchpad-more-menu-item-dashboard-${openId}`)
+		} finally {
+			await context.close()
+			await deprovisionUser(username)
+		}
 	})
 })
 
@@ -168,7 +168,9 @@ test.describe('REQ-SHELL-005: empty state', () => {
 		}
 	})
 
-	// @e2e runtime-shell::empty-state-with-allow-user-dashboards
+	// Cites no scenario: "Empty state with creation enabled", the scenario this
+	// exercises, carries a reasoned exclusion in the spec (unreachable since #361),
+	// and the slug it used to cite matches no heading in the spec.
 	test('empty state renders with Create CTA when allowUserDashboards is true', async ({
 		browser,
 	}) => {
@@ -197,7 +199,9 @@ test.describe('REQ-SHELL-005: empty state', () => {
 		}
 	})
 
-	// @e2e runtime-shell::empty-state-without-allow-user-dashboards
+	// Cites no scenario: "Empty state with creation disabled", the scenario this
+	// exercises, carries a reasoned exclusion in the spec (unreachable since #361),
+	// and the slug it used to cite matches no heading in the spec.
 	test('empty state renders without Create CTA when allowUserDashboards is false', async ({
 		browser,
 	}) => {

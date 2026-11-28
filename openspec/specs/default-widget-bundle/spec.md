@@ -47,14 +47,11 @@ WHEN a user creates a new dashboard via `POST /api/dashboard` (e.g. the sidebar'
 | 2 | `tile` | `preset` | `Nextcloud` | (8, 0, 4, 3) |
 | 3 | `files` | NULL | NULL | (0, 3, 12, 5) |
 
-Conduction tile MUST link to `https://conduction.nl` with the
-Conduction PNG asset. Sendent tile MUST link to
-`https://sendent.com` with the Sendent PNG asset. Nextcloud tile
-MUST link to `https://nextcloud.com` with the `icon-nextcloud` CSS
-class (`tileIconType: 'class'`).
+Conduction tile MUST link to `https://conduction.nl`, Sendent tile
+to `https://sendent.com` and Nextcloud tile to `https://nextcloud.com`.
+Each seeded tile follows REQ-DWB-007.
 
 #### Scenario: New dashboard ships four seeded placements
-@e2e exclude seed-bundle insertion is validated via PHPUnit/Newman create-response contract, not browser
 - **GIVEN** a user creates a new dashboard via `POST /api/dashboard`
 - **WHEN** the create completes
 - **THEN** the response MUST contain exactly four widget placements (Conduction, Sendent, Nextcloud tiles + files widget) at the grid coordinates listed above
@@ -73,7 +70,6 @@ while `'preset'` keeps the placements on the registry-backed
 `TileWidget` renderer (REQ-WDG-022).
 
 #### Scenario: Preset tiles serialize flat tile columns
-@e2e exclude jsonSerialize column emission is a PHPUnit serialization assertion, not browser
 - **GIVEN** a seeded tile placement with `tileType='preset'`
 - **WHEN** `WidgetPlacement::jsonSerialize()` runs
 - **THEN** the flat `tile*` columns (title / icon / link) MUST be emitted
@@ -88,7 +84,7 @@ delegate to `seedDefaultWidgets()` so first-login users get the same
 four-widget bundle when no admin template applies.
 
 #### Scenario: Bootstrap does not seed the default bundle
-@e2e exclude bootstrap seed-flag behaviour is a PHPUnit service assertion, not browser
+@e2e exclude the seedDefaults flag is an internal call argument a browser cannot see; pinned by tests/Unit/Service/DashboardServiceCreateDefaultsTest.php (testCreateWithoutSeedFlagInsertsNoPlacements, testEnsureDefaultDashboardProvisionsAndSeedsWhenAbsent) and DashboardServiceCreationGoldenTest::testProvisionedDashboardPlacements
 - **GIVEN** the first-login bootstrap runs `tryCreateFromTemplate()`
 - **WHEN** no admin template applies
 - **THEN** `createDashboard()` MUST be called with `seedDefaults: false` and the role-default seed MUST apply instead
@@ -98,7 +94,7 @@ four-widget bundle when no admin template applies.
 WHEN an admin template applies (the `DashboardResolver::handleTemplateResult()` path) the resolver MUST seed the dashboard with the template's declared widget set, NOT the four-widget bundle. Template authors own the layout; the default bundle is for users who didn't get an admin template.
 
 #### Scenario: Admin template overrides the default bundle
-@e2e exclude template seed selection is a PHPUnit resolver assertion, not browser
+@e2e exclude no e2e yet: needs an admin template applied to a group the account is in; pinned by tests/Unit/Service/DashboardResolverGoldenTest.php::testTemplateRung and DashboardServiceCreationGoldenTest::testProvisionWithATemplateHandsItToTheResolver
 - **GIVEN** an admin template applies during dashboard resolution
 - **WHEN** `handleTemplateResult()` seeds the dashboard
 - **THEN** the dashboard MUST receive the template's declared widget set, NOT the four-widget default bundle
@@ -122,7 +118,6 @@ backend that omits the `placements` key fall back to `[]`
 gracefully.
 
 #### Scenario: Create response includes placements envelope
-@e2e exclude create-response envelope shape is a Newman/PHPUnit HTTP-contract assertion, not browser
 - **GIVEN** a user creates a new dashboard
 - **WHEN** `POST /api/dashboard` returns
 - **THEN** the response MUST include both `dashboard` and `placements` keys, matching the `GET /api/dashboard` envelope shape
@@ -143,16 +138,83 @@ This eliminates the flash where the empty-state rendered briefly
 during the initial `loadDashboards()` call.
 
 #### Scenario: Loading shim shown during initial fetch
-@e2e exclude transient loading-state shim — not reliably observable in headless CI; covered by Vitest component test
 - **GIVEN** the workspace is loading and `activeDashboard` is null
 - **WHEN** `Views.vue` renders while `loading` is true
 - **THEN** an `NcLoadingIcon` shim MUST be shown instead of the "No dashboard yet" empty-state
+
+### Requirement: REQ-DWB-007 A default tile is the brand's white logo on the brand's colour
+
+A seeded brand tile MUST show the organisation's logo as a white SVG
+(`tileIconType: 'url'`, a file under `img/` that exists), without the
+payoff, on the brand's primary colour, with white text:
+
+| Tile | Icon | Background |
+|---|---|---|
+| Conduction | `img/conduction-white.svg` | `#21468B` |
+| Sendent | `img/sendent-white.svg` | `#141B62` |
+| Nextcloud | `img/nextcloud-white.svg` | `#0082C9` |
+
+A seeded tile MUST NOT name a CSS icon class or an image that is not
+shipped. An existing seeded tile that still carries the previous seed
+(the Conduction or Sendent PNG, or the `icon-nextcloud` class) MUST be
+restyled once on upgrade; a tile its owner changed is kept.
+
+#### Scenario: Every seeded tile icon is a shipped white SVG
+- **GIVEN** the default widget seeds
+- **WHEN** each brand tile is read
+- **THEN** its icon MUST be a `url` naming an SVG file that exists under `img/`, on the brand colour above, with `#ffffff` text
+
+#### Scenario: An old seeded tile is restyled, an edited one is kept
+- **GIVEN** a placement seeded with `icon-nextcloud` and one whose owner set their own icon
+- **WHEN** the post-migration repair runs
+- **THEN** the first MUST show `nextcloud-white.svg` on `#0082C9` and the second MUST be unchanged
+
+### Requirement: REQ-DWB-008 The start page is the Vandaag layout
+
+The dashboard everyone starts on (the `default` group's default dashboard, provisioned on install and upgrade) MUST be
+the start page of board LpVandaag, not the four-widget bundle of REQ-DWB-001. It is named "Today" in the instance
+language ("Vandaag" in Dutch), has the slug `start` and the icon `Home`, and holds, on a 12-column grid: the greeting
+header with the weather; the attention widget ("First thing today"); a heading "At work today" over unread mail,
+today's calendar and recent work; a heading "News and colleagues" over the announcements and the people widget; and
+the headings "My apps" and "Working together" over a well with a dynamic app list (container-widget REQ-CONT-009:
+the viewer's apps without Launchpad, at most six, most used first) and the default
+bundle's brand tiles (whose look REQ-DWB-007 sets). No seed names a register, a wiki space or an organisation's own
+text, and no seed places the multi-tile widget, so the page works on a plain Nextcloud.
+
+An install whose `default` group default is still the previous seed, unchanged (named "Dashboard", exactly the
+Conduction, Sendent and Nextcloud tiles and the Files widget), MUST get the start page as its new default on upgrade;
+the old dashboard stays, no longer the default. A changed dashboard, or an install that already has the start page, is
+left alone, except that a multi-tile widget on it becomes a well of tiles (app-tile-widget REQ-APPTILE-007). A user's
+own choice of start dashboard still wins (dashboards REQ-DASH-018); the bundle for a new dashboard (REQ-DWB-001) is
+unchanged.
+
+#### Scenario: A fresh install starts on Vandaag
+
+- **GIVEN** an instance without a `default`-group dashboard
+- **WHEN** the install repair step runs and a new user opens Launchpad
+- **THEN** the user MUST land on "Today" (slug `start`) with the board's sixteen placements, "My apps" being a well of
+  their own apps
+
+#### Scenario: An untouched previous seed hands over the default
+
+- **GIVEN** the `default` group's default is the unchanged previous seed
+- **WHEN** the post-migration repair step runs
+- **THEN** the start page MUST be created as the default, and the old dashboard MUST remain with `isDefault = 0`
+
+#### Scenario: A changed previous seed is kept as the start
+
+- **GIVEN** the previous seed with one widget added, or renamed
+- **WHEN** the post-migration repair step runs
+- **THEN** nothing MUST change
 
 ## Test coverage
 
 - `tests/Unit/Service/DashboardServiceCreateDefaultsTest.php` —
   asserts the four placements ship with the correct widgetId,
   tileType, tileTitle, tileLinkValue, and grid coordinates.
+- `tests/Unit/Service/DashboardServiceWidgetSeedsTest.php` — every
+  seeded brand tile icon is a shipped white SVG (REQ-DWB-007).
+- `tests/Unit/Repair/RestyleSeededTilesTest.php` — the upgrade restyle.
 - `src/views/__tests__/Views.loadingState.spec.js` — asserts the
   loading shim renders when `loading=true` and the empty-state
   renders when `loading=false`.
@@ -160,6 +222,9 @@ during the initial `loadDashboards()` call.
   pins the create-response envelope: `placements.length === 4`
   with the per-tile shape and grid coordinates listed in
   REQ-DWB-001 above.
+- `tests/Unit/Service/StartPageWidgetSeedsTest.php` and the
+  `ensureDefaultDashboard` cases of `DashboardServiceCreateDefaultsTest`
+  — the start page (REQ-DWB-008); `tests/e2e/start-page.spec.ts` live.
 
 ## References
 

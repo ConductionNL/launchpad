@@ -1,0 +1,920 @@
+{
+    "$comment": "first-paint-skeleton D3: the stored layout of a dashboard and where the grid puts every widget at each column count it shows. Read by tests/Unit/Service/FirstPaintLayoutTest.php and src/utils/__tests__/narrowGridLayout.fixture.spec.js. SPDX-FileCopyrightText: 2026 Conduction B.V. SPDX-License-Identifier: EUPL-1.2",
+    "cases": [
+        {
+            "name": "Mijn werkdag: greeting, two tile groups side by side, two widgets",
+            "columns": 12,
+            "nodes": [
+                {
+                    "id": "greeting",
+                    "x": 0,
+                    "y": 0,
+                    "w": 12,
+                    "h": 2
+                },
+                {
+                    "id": "apps-heading",
+                    "x": 0,
+                    "y": 2,
+                    "w": 6,
+                    "h": 1
+                },
+                {
+                    "id": "collab-heading",
+                    "x": 6,
+                    "y": 2,
+                    "w": 6,
+                    "h": 1
+                },
+                {
+                    "id": "tile-mail",
+                    "x": 0,
+                    "y": 3,
+                    "w": 1,
+                    "h": 2
+                },
+                {
+                    "id": "tile-files",
+                    "x": 1,
+                    "y": 3,
+                    "w": 1,
+                    "h": 2
+                },
+                {
+                    "id": "tile-calendar",
+                    "x": 2,
+                    "y": 3,
+                    "w": 1,
+                    "h": 2
+                },
+                {
+                    "id": "tile-deck",
+                    "x": 3,
+                    "y": 3,
+                    "w": 1,
+                    "h": 2
+                },
+                {
+                    "id": "tile-talk",
+                    "x": 4,
+                    "y": 3,
+                    "w": 1,
+                    "h": 2
+                },
+                {
+                    "id": "tile-collectives",
+                    "x": 6,
+                    "y": 3,
+                    "w": 1,
+                    "h": 2
+                },
+                {
+                    "id": "tile-forms",
+                    "x": 7,
+                    "y": 3,
+                    "w": 1,
+                    "h": 2
+                },
+                {
+                    "id": "activity",
+                    "x": 0,
+                    "y": 5,
+                    "w": 6,
+                    "h": 5
+                },
+                {
+                    "id": "calendar",
+                    "x": 6,
+                    "y": 5,
+                    "w": 6,
+                    "h": 5
+                }
+            ],
+            "expected": {
+                "12": {
+                    "greeting": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 12,
+                        "h": 2
+                    },
+                    "apps-heading": {
+                        "x": 0,
+                        "y": 2,
+                        "w": 6,
+                        "h": 1
+                    },
+                    "collab-heading": {
+                        "x": 6,
+                        "y": 2,
+                        "w": 6,
+                        "h": 1
+                    },
+                    "tile-mail": {
+                        "x": 0,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-files": {
+                        "x": 1,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-calendar": {
+                        "x": 2,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-deck": {
+                        "x": 3,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-talk": {
+                        "x": 4,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-collectives": {
+                        "x": 6,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-forms": {
+                        "x": 7,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "activity": {
+                        "x": 0,
+                        "y": 5,
+                        "w": 6,
+                        "h": 5
+                    },
+                    "calendar": {
+                        "x": 6,
+                        "y": 5,
+                        "w": 6,
+                        "h": 5
+                    }
+                },
+                "8": {
+                    "greeting": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 8,
+                        "h": 2
+                    },
+                    "apps-heading": {
+                        "x": 0,
+                        "y": 2,
+                        "w": 4,
+                        "h": 1
+                    },
+                    "collab-heading": {
+                        "x": 4,
+                        "y": 2,
+                        "w": 4,
+                        "h": 1
+                    },
+                    "tile-mail": {
+                        "x": 0,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-files": {
+                        "x": 1,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-calendar": {
+                        "x": 1,
+                        "y": 5,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-deck": {
+                        "x": 2,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-talk": {
+                        "x": 3,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-collectives": {
+                        "x": 4,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-forms": {
+                        "x": 5,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "activity": {
+                        "x": 0,
+                        "y": 7,
+                        "w": 4,
+                        "h": 5
+                    },
+                    "calendar": {
+                        "x": 4,
+                        "y": 5,
+                        "w": 4,
+                        "h": 5
+                    }
+                },
+                "4": {
+                    "greeting": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 4,
+                        "h": 2
+                    },
+                    "apps-heading": {
+                        "x": 0,
+                        "y": 2,
+                        "w": 4,
+                        "h": 1
+                    },
+                    "tile-mail": {
+                        "x": 0,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-files": {
+                        "x": 1,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-calendar": {
+                        "x": 2,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-deck": {
+                        "x": 3,
+                        "y": 3,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-talk": {
+                        "x": 0,
+                        "y": 5,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "collab-heading": {
+                        "x": 0,
+                        "y": 7,
+                        "w": 4,
+                        "h": 1
+                    },
+                    "tile-collectives": {
+                        "x": 0,
+                        "y": 8,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "tile-forms": {
+                        "x": 1,
+                        "y": 8,
+                        "w": 1,
+                        "h": 2
+                    },
+                    "activity": {
+                        "x": 0,
+                        "y": 10,
+                        "w": 4,
+                        "h": 5
+                    },
+                    "calendar": {
+                        "x": 0,
+                        "y": 15,
+                        "w": 4,
+                        "h": 5
+                    }
+                }
+            }
+        },
+        {
+            "name": "Stored out of order, with a tile below a later heading",
+            "columns": 12,
+            "nodes": [
+                {
+                    "id": "news",
+                    "x": 4,
+                    "y": 6,
+                    "w": 8,
+                    "h": 4
+                },
+                {
+                    "id": "tile-a",
+                    "x": 0,
+                    "y": 7,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "id": "heading",
+                    "x": 0,
+                    "y": 6,
+                    "w": 4,
+                    "h": 1
+                },
+                {
+                    "id": "files",
+                    "x": 0,
+                    "y": 0,
+                    "w": 7,
+                    "h": 6
+                },
+                {
+                    "id": "tile-b",
+                    "x": 1,
+                    "y": 7,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "id": "search",
+                    "x": 7,
+                    "y": 0,
+                    "w": 5,
+                    "h": 1
+                }
+            ],
+            "expected": {
+                "12": {
+                    "news": {
+                        "x": 4,
+                        "y": 6,
+                        "w": 8,
+                        "h": 4
+                    },
+                    "tile-a": {
+                        "x": 0,
+                        "y": 7,
+                        "w": 1,
+                        "h": 1
+                    },
+                    "heading": {
+                        "x": 0,
+                        "y": 6,
+                        "w": 4,
+                        "h": 1
+                    },
+                    "files": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 7,
+                        "h": 6
+                    },
+                    "tile-b": {
+                        "x": 1,
+                        "y": 7,
+                        "w": 1,
+                        "h": 1
+                    },
+                    "search": {
+                        "x": 7,
+                        "y": 0,
+                        "w": 5,
+                        "h": 1
+                    }
+                },
+                "8": {
+                    "news": {
+                        "x": 3,
+                        "y": 6,
+                        "w": 5,
+                        "h": 4
+                    },
+                    "tile-a": {
+                        "x": 0,
+                        "y": 7,
+                        "w": 1,
+                        "h": 1
+                    },
+                    "heading": {
+                        "x": 0,
+                        "y": 6,
+                        "w": 3,
+                        "h": 1
+                    },
+                    "files": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 5,
+                        "h": 6
+                    },
+                    "tile-b": {
+                        "x": 1,
+                        "y": 7,
+                        "w": 1,
+                        "h": 1
+                    },
+                    "search": {
+                        "x": 5,
+                        "y": 0,
+                        "w": 3,
+                        "h": 1
+                    }
+                },
+                "4": {
+                    "files": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 4,
+                        "h": 6
+                    },
+                    "search": {
+                        "x": 0,
+                        "y": 6,
+                        "w": 4,
+                        "h": 1
+                    },
+                    "heading": {
+                        "x": 0,
+                        "y": 7,
+                        "w": 4,
+                        "h": 1
+                    },
+                    "tile-a": {
+                        "x": 0,
+                        "y": 8,
+                        "w": 1,
+                        "h": 1
+                    },
+                    "tile-b": {
+                        "x": 1,
+                        "y": 8,
+                        "w": 1,
+                        "h": 1
+                    },
+                    "news": {
+                        "x": 0,
+                        "y": 9,
+                        "w": 4,
+                        "h": 4
+                    }
+                }
+            }
+        },
+        {
+            "name": "Eight columns: no step to eight, straight to four",
+            "columns": 8,
+            "nodes": [
+                {
+                    "id": "a",
+                    "x": 0,
+                    "y": 0,
+                    "w": 5,
+                    "h": 3
+                },
+                {
+                    "id": "b",
+                    "x": 5,
+                    "y": 0,
+                    "w": 3,
+                    "h": 3
+                },
+                {
+                    "id": "c",
+                    "x": 0,
+                    "y": 3,
+                    "w": 8,
+                    "h": 2
+                }
+            ],
+            "expected": {
+                "8": {
+                    "a": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 5,
+                        "h": 3
+                    },
+                    "b": {
+                        "x": 5,
+                        "y": 0,
+                        "w": 3,
+                        "h": 3
+                    },
+                    "c": {
+                        "x": 0,
+                        "y": 3,
+                        "w": 8,
+                        "h": 2
+                    }
+                },
+                "4": {
+                    "a": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 4,
+                        "h": 3
+                    },
+                    "b": {
+                        "x": 0,
+                        "y": 3,
+                        "w": 4,
+                        "h": 3
+                    },
+                    "c": {
+                        "x": 0,
+                        "y": 6,
+                        "w": 4,
+                        "h": 2
+                    }
+                }
+            }
+        },
+        {
+            "name": "Six columns, a field left out takes its default",
+            "columns": 6,
+            "nodes": [
+                {
+                    "id": "a",
+                    "w": 3,
+                    "h": 2
+                },
+                {
+                    "id": "b",
+                    "x": 3,
+                    "w": 3
+                },
+                {
+                    "id": "c",
+                    "x": 1,
+                    "y": 2,
+                    "w": 4,
+                    "h": 3
+                }
+            ],
+            "expected": {
+                "6": {
+                    "a": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 3,
+                        "h": 2
+                    },
+                    "b": {
+                        "x": 3,
+                        "y": 0,
+                        "w": 3,
+                        "h": 1
+                    },
+                    "c": {
+                        "x": 1,
+                        "y": 2,
+                        "w": 4,
+                        "h": 3
+                    }
+                },
+                "4": {
+                    "a": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 4,
+                        "h": 2
+                    },
+                    "b": {
+                        "x": 0,
+                        "y": 2,
+                        "w": 4,
+                        "h": 1
+                    },
+                    "c": {
+                        "x": 0,
+                        "y": 3,
+                        "w": 4,
+                        "h": 3
+                    }
+                }
+            }
+        },
+        {
+            "name": "Twelve columns scaled to eight: rounding of halves and the last column",
+            "columns": 12,
+            "nodes": [
+                {
+                    "id": "a",
+                    "x": 0,
+                    "y": 0,
+                    "w": 3,
+                    "h": 2
+                },
+                {
+                    "id": "b",
+                    "x": 3,
+                    "y": 0,
+                    "w": 3,
+                    "h": 2
+                },
+                {
+                    "id": "c",
+                    "x": 9,
+                    "y": 0,
+                    "w": 3,
+                    "h": 2
+                },
+                {
+                    "id": "d",
+                    "x": 11,
+                    "y": 2,
+                    "w": 1,
+                    "h": 2
+                }
+            ],
+            "expected": {
+                "12": {
+                    "a": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 3,
+                        "h": 2
+                    },
+                    "b": {
+                        "x": 3,
+                        "y": 0,
+                        "w": 3,
+                        "h": 2
+                    },
+                    "c": {
+                        "x": 9,
+                        "y": 0,
+                        "w": 3,
+                        "h": 2
+                    },
+                    "d": {
+                        "x": 11,
+                        "y": 2,
+                        "w": 1,
+                        "h": 2
+                    }
+                },
+                "8": {
+                    "a": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 2,
+                        "h": 2
+                    },
+                    "b": {
+                        "x": 2,
+                        "y": 0,
+                        "w": 2,
+                        "h": 2
+                    },
+                    "c": {
+                        "x": 6,
+                        "y": 0,
+                        "w": 2,
+                        "h": 2
+                    },
+                    "d": {
+                        "x": 7,
+                        "y": 2,
+                        "w": 1,
+                        "h": 2
+                    }
+                },
+                "4": {
+                    "a": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 4,
+                        "h": 2
+                    },
+                    "b": {
+                        "x": 0,
+                        "y": 2,
+                        "w": 4,
+                        "h": 2
+                    },
+                    "c": {
+                        "x": 0,
+                        "y": 4,
+                        "w": 4,
+                        "h": 2
+                    },
+                    "d": {
+                        "x": 0,
+                        "y": 6,
+                        "w": 1,
+                        "h": 2
+                    }
+                }
+            }
+        },
+        {
+            "name": "Mijn werkplek: move-and-scale overlaps at eight columns, GridStack pushes down and packs up",
+            "columns": 12,
+            "nodes": [
+                {
+                    "id": "clock",
+                    "x": 8,
+                    "y": 0,
+                    "w": 4,
+                    "h": 3
+                },
+                {
+                    "id": "welcome",
+                    "x": 0,
+                    "y": 0,
+                    "w": 8,
+                    "h": 2
+                },
+                {
+                    "id": "files",
+                    "x": 0,
+                    "y": 2,
+                    "w": 4,
+                    "h": 6
+                },
+                {
+                    "id": "notes",
+                    "x": 4,
+                    "y": 2,
+                    "w": 4,
+                    "h": 4
+                },
+                {
+                    "id": "tasks",
+                    "x": 8,
+                    "y": 3,
+                    "w": 4,
+                    "h": 4
+                },
+                {
+                    "id": "news",
+                    "x": 4,
+                    "y": 6,
+                    "w": 4,
+                    "h": 3
+                },
+                {
+                    "id": "calendar",
+                    "x": 8,
+                    "y": 7,
+                    "w": 4,
+                    "h": 8
+                }
+            ],
+            "expected": {
+                "12": {
+                    "clock": {
+                        "x": 8,
+                        "y": 0,
+                        "w": 4,
+                        "h": 3
+                    },
+                    "welcome": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 8,
+                        "h": 2
+                    },
+                    "files": {
+                        "x": 0,
+                        "y": 2,
+                        "w": 4,
+                        "h": 6
+                    },
+                    "notes": {
+                        "x": 4,
+                        "y": 2,
+                        "w": 4,
+                        "h": 4
+                    },
+                    "tasks": {
+                        "x": 8,
+                        "y": 3,
+                        "w": 4,
+                        "h": 4
+                    },
+                    "news": {
+                        "x": 4,
+                        "y": 6,
+                        "w": 4,
+                        "h": 3
+                    },
+                    "calendar": {
+                        "x": 8,
+                        "y": 7,
+                        "w": 4,
+                        "h": 8
+                    }
+                },
+                "8": {
+                    "clock": {
+                        "x": 5,
+                        "y": 0,
+                        "w": 3,
+                        "h": 3
+                    },
+                    "welcome": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 5,
+                        "h": 2
+                    },
+                    "files": {
+                        "x": 0,
+                        "y": 2,
+                        "w": 3,
+                        "h": 6
+                    },
+                    "notes": {
+                        "x": 3,
+                        "y": 3,
+                        "w": 3,
+                        "h": 4
+                    },
+                    "tasks": {
+                        "x": 5,
+                        "y": 7,
+                        "w": 3,
+                        "h": 4
+                    },
+                    "news": {
+                        "x": 3,
+                        "y": 11,
+                        "w": 3,
+                        "h": 3
+                    },
+                    "calendar": {
+                        "x": 5,
+                        "y": 14,
+                        "w": 3,
+                        "h": 8
+                    }
+                },
+                "4": {
+                    "clock": {
+                        "x": 0,
+                        "y": 2,
+                        "w": 4,
+                        "h": 3
+                    },
+                    "welcome": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 4,
+                        "h": 2
+                    },
+                    "files": {
+                        "x": 0,
+                        "y": 5,
+                        "w": 4,
+                        "h": 6
+                    },
+                    "notes": {
+                        "x": 0,
+                        "y": 11,
+                        "w": 4,
+                        "h": 4
+                    },
+                    "tasks": {
+                        "x": 0,
+                        "y": 15,
+                        "w": 4,
+                        "h": 4
+                    },
+                    "news": {
+                        "x": 0,
+                        "y": 19,
+                        "w": 4,
+                        "h": 3
+                    },
+                    "calendar": {
+                        "x": 0,
+                        "y": 22,
+                        "w": 4,
+                        "h": 8
+                    }
+                }
+            }
+        }
+    ]
+}

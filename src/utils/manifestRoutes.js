@@ -16,6 +16,9 @@
 
 import { permits } from './permissions.js'
 
+/** vue-router 4's spelling of "any other path". */
+const CATCH_ALL = '/:pathMatch(.*)*'
+
 /**
  * Build the vue-router config from the manifest. Each declared page becomes one
  * route, named for its `id`, so a page cannot be declared without being served.
@@ -31,6 +34,7 @@ import { permits } from './permissions.js'
  * @return {Array<object>} vue-router 4 routes.
  *
  * @spec openspec/specs/runtime-shell/spec.md
+ * @spec openspec/specs/dashboard-deeplinking/spec.md
  */
 export function routesFromManifest(manifest, component) {
 	const routes = (manifest.pages ?? []).map((page) => ({
@@ -44,7 +48,19 @@ export function routesFromManifest(manifest, component) {
 	// ⚠️ vue-router 4 REMOVED the bare `path: '*'` wildcard, and does not warn:
 	// the route simply never matches, so an unknown URL renders the shell with
 	// an empty content area. The named-param form is the v4 spelling.
-	routes.push({ path: '/:pathMatch(.*)*', redirect: '/' })
+	//
+	// Any other address is a dashboard's slug chain (dashboard-deeplinking
+	// REQ-DDL-002), so the catch-all is an ALIAS of the start page, not a
+	// redirect to it: a redirect replaced the dashboard's address with `/` in
+	// history, and Back then landed on `/` instead of the previous dashboard
+	// (REQ-DDL-006). The server resolves a stale slug and the workspace
+	// normalises the address (REQ-DDL-003). Without a start page it redirects.
+	const start = routes.find((route) => route.path === '/')
+	if (start) {
+		start.alias = CATCH_ALL
+	} else {
+		routes.push({ path: CATCH_ALL, redirect: '/' })
+	}
 	return routes
 }
 
@@ -65,8 +81,9 @@ export function routesFromManifest(manifest, component) {
  *
  * READ IT FOR WHAT IT IS. This stops the page from rendering. It is not an
  * authorization boundary and nothing behind it depends on it: launchpad's
- * two gated pages redirect to a Nextcloud settings section that Nextcloud
- * gates server-side, and its data endpoints check the caller themselves.
+ * admin page is not an app route at all but a page of Nextcloud's settings
+ * framework, checked by the server before it renders (REQ-ADM-035), and the
+ * data endpoints check the caller themselves.
  *
  * @param {object}        to          The route being entered.
  * @param {Array<string>} permissions The permissions the account holds.
@@ -74,6 +91,7 @@ export function routesFromManifest(manifest, component) {
  * @return {boolean|object} True to allow, or the redirect target.
  *
  * @spec openspec/specs/runtime-shell/spec.md
+ * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-no-admin-page-in-the-apps-router-or-manifest-req-adm-035
  */
 export function permissionGuard(to, permissions) {
 	if (permits(to?.meta?.permission, permissions)) {

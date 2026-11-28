@@ -20,6 +20,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardTranslation;
@@ -36,6 +39,11 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 class DashboardApiControllerLanguagesAndDetailsTest extends TestCase {
 	private $dashboardService;
@@ -62,17 +70,21 @@ class DashboardApiControllerLanguagesAndDetailsTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->request,
-			dashboardService: $this->dashboardService,
-			permissionService: $this->createMock(PermissionService::class),
-			treeService: $this->createMock(DashboardTreeService::class),
-			versionService: $this->createMock(DashboardVersionService::class),
-			analyticsService: $this->createMock(AnalyticsService::class),
-			logger: $this->createMock(LoggerInterface::class),
-			userSession: $session,
-			actionAuth: $this->createMock(ActionAuthService::class),
-			userId: 'jan',
-			translationService: $this->translations,
-			metadataService: $this->metadata,
+			services: new DashboardApiServices(
+				dashboardService: $this->dashboardService,
+				translationService: $this->translations,
+				metadataService: $this->metadata
+			),
+			access: new DashboardApiAccess(permissionService: $this->createMock(originalClassName: PermissionService::class), history: new DashboardApiHistory(
+				treeService: $this->createMock(DashboardTreeService::class),
+				versionService: $this->createMock(DashboardVersionService::class),
+				analyticsService: $this->createMock(AnalyticsService::class),
+				logger: $this->createMock(LoggerInterface::class)
+			)),
+			context: new ActorResponses(actor: new RequestActor(
+				userSession: $session,
+				actionAuth: $this->createMock(ActionAuthService::class)
+			), responses: new UserResponses(userId: 'jan', responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}
 
@@ -119,6 +131,56 @@ class DashboardApiControllerLanguagesAndDetailsTest extends TestCase {
 		$data = $this->controller()->visible()->getData();
 
 		$this->assertSame(['Payroll'], array_column($data, 'name'));
+	}
+
+	/**
+	 * GET /api/dashboards keeps only the dashboards matching
+	 * `?metadata.<key>=` (REQ-MDFL-007).
+	 *
+	 * @return void
+	 */
+	public function testThePersonalListFiltersOnTheDotForm(): void {
+		$payroll = $this->dashboard(uuid: 'payroll', name: 'Payroll');
+		$onboarding = $this->dashboard(uuid: 'onb', name: 'Onboarding');
+		$this->dashboardService->method('getUserDashboards')->willReturn([$payroll, $onboarding]);
+		$this->request->method('getRequestUri')
+			->willReturn('/index.php/apps/launchpad/api/dashboards?metadata.department=Finance&metadata.priority.min=5');
+		$this->metadata->expects($this->once())
+			->method('filterDashboards')
+			->with([$payroll, $onboarding], ['department' => 'Finance', 'priority' => ['min' => '5']])
+			->willReturn([$payroll]);
+
+		$data = $this->controller()->list()->getData();
+
+		$this->assertSame(expected: ['Payroll'], actual: array_column($data, 'name'));
+	}
+
+	/**
+	 * PHP turns the dots of `?metadata.<key>=` into underscores, so the
+	 * filters are read from the raw query string (REQ-MDFL-007).
+	 *
+	 * @return void
+	 */
+	public function testTheDotFormIsDecodedAndOtherParametersIgnored(): void {
+		$payroll = $this->dashboard(uuid: 'payroll', name: 'Payroll');
+		$this->dashboardService->method('getUserDashboards')->willReturn([$payroll]);
+		$this->request->method('getRequestUri')->willReturn(
+			'/index.php/apps/launchpad/api/dashboards?metadata.department=sales+team&metadata.priority.min=5'
+			.'&metadata.priority.max=7&other=1&metadata%2Ego_live.after=2026-01-01&metadata.=x&metadata.bad.key.deep=1&page'
+		);
+		$this->metadata->expects($this->once())
+			->method('filterDashboards')
+			->with(
+				[$payroll],
+				[
+					'department' => 'sales team',
+					'priority' => ['min' => '5', 'max' => '7'],
+					'go_live' => ['after' => '2026-01-01'],
+				]
+			)
+			->willReturn([$payroll]);
+
+		$this->controller()->list();
 	}
 
 	public function testNoFilterLeavesTheListAlone(): void {

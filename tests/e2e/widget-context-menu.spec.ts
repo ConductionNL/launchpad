@@ -27,10 +27,38 @@
  *   @e2e widget-context-menu::remove-persists-across-reload
  */
 
-import type { Page } from '@playwright/test'
+import type { APIRequestContext, Page } from '@playwright/test'
 import type { Locator } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
 
-import { expect, test } from '@playwright/test'
+import { expect, request, test } from '@playwright/test'
+import { BASE_URL } from './support/baseUrl.ts'
+import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
+import { enterEditMode, MORE_MENU, saveEditDraft } from './support/dashboardSwitcher.ts'
+
+// Each run brings its own active personal dashboard (with the default widget
+// bundle) instead of leaning on one an earlier spec left behind: on a fresh
+// instance the admin has none and the row menu below never appears.
+const ADMIN = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
+let api: APIRequestContext
+let seeded: SeededDashboard | null = null
+
+test.beforeAll(async () => {
+	api = await request.newContext({
+		baseURL: BASE_URL,
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	seeded = await seedActiveDashboard(api, `E2E context menu ${Date.now()}`)
+})
+
+test.afterAll(async () => {
+	await removeSeededDashboard(api, seeded)
+	await api?.dispose()
+})
 
 /**
  * Wait for a locator's `boundingBox()` to stop changing before reading it.
@@ -88,39 +116,15 @@ async function waitForStableBox(locator: Locator, timeoutMs = 2_000) {
 async function openInEditMode(page: Page) {
 	await page.goto('/index.php/apps/launchpad')
 	try {
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 	} catch {
 		await page.goto('/index.php/apps/launchpad')
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 	}
 
-	// Open the sidebar and enter edit mode for the active personal dashboard
-	// via its per-row cog menu ("Edit dashboard").
-	await page.locator('.launchpad-sidebar-toggle').first().click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-		timeout: 8_000,
-	})
-	const activeRow = page
-		.locator(
-			'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
-		)
-		.first()
-	await activeRow.locator('.dashboard-row-actions button').first().click()
-	await page.getByRole('menuitem', { name: /edit dashboard/i }).click()
-
-	// Wait for edit mode class to appear on the grid container, then close the
-	// sidebar so it does not occlude the grid for the right-click assertions.
-	await page.waitForSelector('.launchpad-edit-mode', { timeout: 8_000 })
-	const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
-	if (await closeBtn.isVisible().catch(() => false)) {
-		await closeBtn.click()
-		await page
-			.waitForFunction(
-				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-				{ timeout: 5_000 },
-			)
-			.catch(() => null)
-	}
+	// Edit mode for the open dashboard through More → Edit (the sidebar's
+	// row menu is gone, more-menu-favourites).
+	await enterEditMode(page)
 }
 
 test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
@@ -238,8 +242,10 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		await expect(page.locator(`[gs-id="${gsId}"]`)).toHaveCount(0, {
 			timeout: 5_000,
 		})
+		// The removal is part of the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 
-		// Reload and confirm the placement is absent (DELETE persisted).
+		// Reload and confirm the placement is absent (the Save persisted it).
 		await page.reload({ waitUntil: 'domcontentloaded' })
 		await page.waitForSelector('.launchpad-container', { timeout: 20_000 })
 		await page.waitForTimeout(1_000)

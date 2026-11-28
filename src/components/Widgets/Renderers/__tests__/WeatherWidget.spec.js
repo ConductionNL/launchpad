@@ -175,3 +175,44 @@ describe('WeatherWidget — REQ-WEATHER-002 stale + error degradation', () => {
 		expect(wrapper.find('.weather-widget__state--error').exists()).toBe(false)
 	})
 })
+
+describe('WeatherWidget — REQ-PSHR-011 a public screen passes its own reading source', () => {
+	it('reads through readingSource instead of the signed-in endpoint', async () => {
+		const readingSource = vi.fn().mockResolvedValue({
+			location: 'Zuiddrecht',
+			tempValue: 12,
+			units: 'metric',
+			condition: 'rain',
+			conditionText: 'Light rain',
+			stale: false,
+		})
+		const wrapper = mount(WeatherWidget, {
+			propsData: { content: {}, placement: { id: 2 }, readingSource },
+		})
+		await flushPromises()
+		expect(readingSource).toHaveBeenCalledWith(2)
+		expect(fetchWeatherReading).not.toHaveBeenCalled()
+		expect(wrapper.vm.reading.tempValue).toBe(12)
+	})
+
+	it('shows the error state when the token-scoped read is refused', async () => {
+		const readingSource = vi.fn().mockRejectedValue(new Error('404'))
+		const wrapper = mount(WeatherWidget, {
+			propsData: { content: {}, placement: { id: 2 }, readingSource },
+		})
+		await flushPromises()
+		expect(wrapper.vm.reading).toBeNull()
+		expect(wrapper.find('.weather-widget__state--error').exists()).toBe(true)
+	})
+
+	// add-widget-dialog-with-miniatures REQ-WDG-048: the weather card's miniature.
+	it('draws its sample reading as a miniature and fetches nothing', async () => {
+		const sampleReading = { location: 'Utrecht', tempValue: 7, units: 'metric', conditionCode: 'rain', conditionText: 'Light rain', stale: false }
+		const wrapper = mount(WeatherWidget, { propsData: { content: { sampleReading }, placement: { id: 0 }, preview: true } })
+		await flushPromises()
+		expect(fetchWeatherReading).not.toHaveBeenCalled()
+		expect(wrapper.text()).toContain('Utrecht')
+		expect(wrapper.text()).toContain('Light rain')
+		expect(wrapper.text()).toContain('7')
+	})
+})

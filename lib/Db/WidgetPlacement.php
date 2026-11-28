@@ -74,6 +74,8 @@ use stdClass;
  * @method void setTileLinkValue(?string $tileLinkValue)
  * @method string|null getCustomIcon()
  * @method void setCustomIcon(?string $customIcon)
+ * @method string|null getCalculatedFields()
+ * @method void setCalculatedFields(?string $calculatedFields)
  * @method string|null getContent()
  * @method void setContent(?string $content)
  * @method int getRequiresAcknowledgement()
@@ -89,13 +91,83 @@ use stdClass;
  * @method string|null getAnnouncementKey()
  * @method void setAnnouncementKey(?string $announcementKey)
  * @method int|null getTemplatePlacementId()
+ * @method int getVersion()
+ * @method void setVersion(int $version)
  * @method void setTemplatePlacementId(?int $templatePlacementId)
+ * @method string|null getSyncedLayout()
+ * @method void setSyncedLayout(?string $syncedLayout)
+ * @method void setRuleMatch(?string $ruleMatch)
  * @method string|null getCreatedAt()
  * @method void setCreatedAt(?string $createdAt)
  * @method string|null getUpdatedAt()
  * @method void setUpdatedAt(?string $updatedAt)
  */
 class WidgetPlacement extends Entity implements JsonSerializable {
+
+	/**
+	 * One include rule must match for the widget to show (the default).
+	 */
+	public const RULE_MATCH_ANY = 'any';
+
+	/**
+	 * Every include rule must match for the widget to show.
+	 */
+	public const RULE_MATCH_ALL = 'all';
+
+	/**
+	 * The values `ruleMatch` accepts.
+	 *
+	 * @var array<int, string>
+	 */
+	public const RULE_MATCHES = [self::RULE_MATCH_ANY, self::RULE_MATCH_ALL];
+
+	/**
+	 * The fields a placement update may change: the per-widget update route
+	 * and an edit-mode draft save take the same ones (REQ-EDIT-002).
+	 *
+	 * @var list<string>
+	 */
+	public const EDITABLE_FIELDS = [
+		'gridX',
+		'gridY',
+		'gridWidth',
+		'gridHeight',
+		'isVisible',
+		'showTitle',
+		'customTitle',
+		'customIcon',
+		'styleConfig',
+		'content',
+		// The widget's calculated fields (widget-calculated-fields, task 21).
+		'calculatedFields',
+		'tileTitle',
+		'tileIcon',
+		'tileIconType',
+		'tileBackgroundColor',
+		'tileTextColor',
+		'tileLinkType',
+		'tileLinkValue',
+		'requiresAcknowledgement',
+		'acknowledgementPrompt',
+		'acknowledgementDeadline',
+		'reacknowledgeOnChange',
+		'acknowledgementContentVersion',
+		// Whether all or one include rule must match (REQ-VIS-014).
+		'ruleMatch',
+	];
+
+	/**
+	 * The acknowledgement fields, which need the acknowledgement permission.
+	 *
+	 * @var list<string>
+	 */
+	public const ACKNOWLEDGEMENT_FIELDS = [
+		'requiresAcknowledgement',
+		'acknowledgementPrompt',
+		'acknowledgementDeadline',
+		'reacknowledgeOnChange',
+		'acknowledgementContentVersion',
+	];
 
 	/**
 	 * The dashboard ID.
@@ -173,6 +245,15 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	 * @var string|null
 	 */
 	protected ?string $customIcon = null;
+
+	/**
+	 * The calculated fields of the widget, a JSON list of field definitions
+	 * (id, name, label, expression, compiledExpression, returnType,
+	 * evaluationMode, ...). Null on rows saved before the column existed.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $calculatedFields = null;
 
 	/**
 	 * Whether to show the title (SMALLINT 0/1).
@@ -340,6 +421,34 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	protected ?int $templatePlacementId = null;
 
 	/**
+	 * The grid layout (`gridX,gridY,gridWidth,gridHeight`) the template gave
+	 * this placement when it was last provisioned or re-synced. Null when
+	 * unknown (user-added, or written before the column existed). A `merge`
+	 * re-sync keeps the owner's layout when the current layout differs from
+	 * it (REQ-RESYNC-007).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $syncedLayout = null;
+
+	/**
+	 * Whether all include rules must match (`all`) or one is enough (`any`).
+	 * NULL, from a row written before the column existed, reads as `any`.
+	 * REQ-VIS-014.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $ruleMatch = self::RULE_MATCH_ANY;
+
+	/**
+	 * The per-widget version, raised by one on every save
+	 * (building-edit-a-dashboard-together, task 1.2).
+	 *
+	 * @var integer
+	 */
+	protected int $version = 0;
+
+	/**
 	 * The creation timestamp as string.
 	 *
 	 * @var string|null
@@ -381,6 +490,7 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 		// SMALLINT in DB (0/1).
 		$this->addType(fieldName: 'acknowledgementContentVersion', type: 'integer');
 		$this->addType(fieldName: 'templatePlacementId', type: 'integer');
+		$this->addType(fieldName: 'version', type: 'integer');
 	}//end __construct()
 
 	/**
@@ -435,18 +545,112 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	}//end getContentArray()
 
 	/**
-	 * Set the custom widget content blob from an associative array.
+	 * Whether this is a link tile that keeps its fields in content: a
+	 * `tile` widget without the legacy tile type, not in app mode.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 */
+	public function keepsLinkInContent(): bool {
+		return $this->getWidgetId() === 'tile'
+			&& $this->getTileType() === null
+			&& ($this->getContentArray()['mode'] ?? 'link') !== 'app';
+	}//end keepsLinkInContent()
+
+	/**
+	 * One field of a link tile: from content for a tile that keeps it there
+	 * (`title`, `linkType`, `linkValue`, ...), else from its flat tile column.
+	 *
+	 * @param string $field The content key, e.g. `title`.
+	 *
+	 * @return string|null The value, or null when the tile has none.
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 */
+	public function linkTileField(string $field): ?string {
+		if ($this->keepsLinkInContent() === true) {
+			$value = $this->getContentArray()[$field] ?? null;
+			if (is_scalar($value) === false) {
+				return null;
+			}
+
+			return (string)$value;
+		}
+
+		return match ($field) {
+			'title' => $this->tileTitle,
+			'icon' => $this->tileIcon,
+			'iconType' => $this->tileIconType,
+			'backgroundColor' => $this->tileBackgroundColor,
+			'textColor' => $this->tileTextColor,
+			'linkType' => $this->tileLinkType,
+			'linkValue' => $this->tileLinkValue,
+			default => null,
+		};
+	}//end linkTileField()
+
+	/**
+	 * Set the custom widget content blob from an associative array. Every
+	 * child of a well or a tabs widget gets a key of its own on the way
+	 * (REQ-WDG-050), so an embed token can name it.
 	 *
 	 * @param array $content The content payload to JSON-encode and persist.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
 	public function setContentArray(array $content): void {
+		$ownerId = null;
+		if (is_int($this->id) === true) {
+			$ownerId = $this->id;
+		}
+
+		$content = (new ContainerChildKeys())->stamp(content: $content, ownerId: $ownerId);
 		// Entity setters resolve via __call which uses $args[0]; named args
 		// would break the magic forwarding (see project memory).
 		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$this->setContent(json_encode($content));
 	}//end setContentArray()
+
+	/**
+	 * The calculated fields of the widget as a list of field definitions.
+	 *
+	 * @return list<array<string, mixed>> The fields, [] when the column is null,
+	 *                                    unparseable or not a list.
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-21
+	 */
+	public function getCalculatedFieldsArray(): array {
+		if (empty($this->calculatedFields) === true) {
+			return [];
+		}
+
+		$decoded = json_decode(json: $this->calculatedFields, associative: true);
+		if (is_array($decoded) === false || array_is_list($decoded) === false) {
+			return [];
+		}
+
+		return array_values(array_filter($decoded, static fn (mixed $field): bool => is_array($field) === true));
+	}//end getCalculatedFieldsArray()
+
+	/**
+	 * Store the calculated fields of the widget.
+	 *
+	 * @param array<array-key, mixed> $fields The field definitions; keys are dropped, non-array entries skipped.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-21
+	 */
+	public function setCalculatedFieldsArray(array $fields): void {
+		$list = array_values(array_filter($fields, static fn (mixed $field): bool => is_array($field) === true));
+		// Entity setters resolve via __call which uses $args[0]; named args
+		// would break the magic forwarding (see project memory).
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->setCalculatedFields(json_encode($list));
+	}//end setCalculatedFieldsArray()
 
 	/**
 	 * Properties whose DB column deliberately differs from the derived name.
@@ -506,30 +710,63 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	}//end columnToProperty()
 
 	/**
+	 * Whether all include rules must match (`all`) or one is enough (`any`).
+	 *
+	 * @return string `all` or `any`; anything else stored reads as `any`.
+	 *
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	public function getRuleMatch(): string {
+		return self::normalRuleMatch(value: $this->ruleMatch);
+	}//end getRuleMatch()
+
+	/**
+	 * A match mode as stored: `all` stays `all`, everything else is `any`.
+	 *
+	 * @param mixed $value The mode from a payload or a row.
+	 *
+	 * @return string `all` or `any`.
+	 *
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	public static function normalRuleMatch(mixed $value): string {
+		if ($value === self::RULE_MATCH_ALL) {
+			return self::RULE_MATCH_ALL;
+		}
+
+		return self::RULE_MATCH_ANY;
+	}//end normalRuleMatch()
+
+	/**
 	 * Serialize to JSON.
 	 *
 	 * @return array The serialized widget placement.
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function jsonSerialize(): array {
-		// The styleConfig and content are associative JSON blobs. An empty
-		// blob decodes to a PHP `[]`, which json_encodes to a JSON array
-		// (`[]`) rather than an object (`{}`). Cast the empty case to stdClass
-		// so the wire format is always an object — clients type these fields
-		// as objects and a stray `[]` is truthy-but-wrong on the frontend.
-		$styleConfig = $this->getStyleConfigArray();
-		$content = $this->getContentArray();
+		$data = $this->placementFields() + $this->acknowledgementFields() + [
+			'templatePlacementId' => $this->templatePlacementId,
+			'version' => $this->version,
+			'createdAt' => $this->createdAt,
+			'updatedAt' => $this->updatedAt,
+		];
 
-		$styleConfigOut = new stdClass();
-		if (empty($styleConfig) === false) {
-			$styleConfigOut = $styleConfig;
+		// Include tile configuration if this is a tile.
+		if ($this->tileType !== null) {
+			$data += $this->tileFields();
 		}
 
-		$contentOut = new stdClass();
-		if (empty($content) === false) {
-			$contentOut = $content;
-		}
+		return $data;
+	}//end jsonSerialize()
 
-		$data = [
+	/**
+	 * The widget, grid, style and content fields of the wire format.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	private function placementFields(): array {
+		return [
 			'id' => $this->getId(),
 			'dashboardId' => $this->dashboardId,
 			'widgetId' => $this->widgetId,
@@ -539,35 +776,69 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 			'gridHeight' => $this->gridHeight,
 			'isCompulsory' => $this->isCompulsory,
 			'isVisible' => $this->isVisible,
-			'styleConfig' => $styleConfigOut,
+			'styleConfig' => self::wireObject(blob: $this->getStyleConfigArray()),
 			'customTitle' => $this->customTitle,
 			'customIcon' => $this->customIcon,
-			'content' => $contentOut,
+			'content' => self::wireObject(blob: $this->getContentArray()),
+			'calculatedFields' => $this->getCalculatedFieldsArray(),
 			'showTitle' => $this->showTitle,
 			'sortOrder' => $this->sortOrder,
+			'ruleMatch' => $this->getRuleMatch(),
+		];
+	}//end placementFields()
+
+	/**
+	 * An associative JSON blob for the wire.
+	 *
+	 * The styleConfig and content are associative JSON blobs. An empty
+	 * blob decodes to a PHP `[]`, which json_encodes to a JSON array
+	 * (`[]`) rather than an object (`{}`). Cast the empty case to stdClass
+	 * so the wire format is always an object — clients type these fields
+	 * as objects and a stray `[]` is truthy-but-wrong on the frontend.
+	 *
+	 * @param array<string, mixed> $blob The decoded blob.
+	 *
+	 * @return array<string, mixed>|stdClass The blob, or an empty object.
+	 */
+	private static function wireObject(array $blob): array|stdClass {
+		if (empty($blob) === false) {
+			return $blob;
+		}
+
+		return new stdClass();
+	}//end wireObject()
+
+	/**
+	 * The acknowledgement fields of the wire format.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function acknowledgementFields(): array {
+		return [
 			'requiresAcknowledgement' => $this->requiresAcknowledgement,
 			'acknowledgementPrompt' => $this->acknowledgementPrompt,
 			'acknowledgementDeadline' => $this->acknowledgementDeadline,
 			'reacknowledgeOnChange' => $this->reacknowledgeOnChange,
 			'acknowledgementContentVersion' => $this->acknowledgementContentVersion,
 			'announcementKey' => $this->announcementKey,
-			'templatePlacementId' => $this->templatePlacementId,
-			'createdAt' => $this->createdAt,
-			'updatedAt' => $this->updatedAt,
 		];
+	}//end acknowledgementFields()
 
-		// Include tile configuration if this is a tile.
-		if ($this->tileType !== null) {
-			$data['tileType'] = $this->tileType;
-			$data['tileTitle'] = $this->tileTitle;
-			$data['tileIcon'] = $this->tileIcon;
-			$data['tileIconType'] = $this->tileIconType;
-			$data['tileBackgroundColor'] = $this->tileBackgroundColor;
-			$data['tileTextColor'] = $this->tileTextColor;
-			$data['tileLinkType'] = $this->tileLinkType;
-			$data['tileLinkValue'] = $this->tileLinkValue;
-		}
-
-		return $data;
-	}//end jsonSerialize()
+	/**
+	 * The tile configuration fields of the wire format.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function tileFields(): array {
+		return [
+			'tileType' => $this->tileType,
+			'tileTitle' => $this->tileTitle,
+			'tileIcon' => $this->tileIcon,
+			'tileIconType' => $this->tileIconType,
+			'tileBackgroundColor' => $this->tileBackgroundColor,
+			'tileTextColor' => $this->tileTextColor,
+			'tileLinkType' => $this->tileLinkType,
+			'tileLinkValue' => $this->tileLinkValue,
+		];
+	}//end tileFields()
 }//end class

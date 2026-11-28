@@ -1,0 +1,136 @@
+<?php
+
+/**
+ * AdminFormState
+ *
+ * The initial state of LaunchPad's admin settings page (REQ-INIT-002): every
+ * group, the configured group order (falling back to the legacy
+ * `configured_groups` setting, REQ-ASET-012), the available widgets, whether
+ * users may make their own dashboards and the file types a link can create,
+ * provided through {@see \OCA\LaunchPad\Service\InitialStateBuilder} so the
+ * page never renders with a partial payload. Kept apart from the settings
+ * class, which every administrator endpoint depends on.
+ *
+ * @spec openspec/specs/initial-state-contract/spec.md#requirement-versioned-key-set-per-page-req-init-002
+ *
+ * @category  Settings
+ * @package   OCA\LaunchPad\Settings
+ * @author    Conduction b.v. <info@conduction.nl>
+ * @copyright 2026 Conduction b.v.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ * @version   GIT:auto
+ * @link      https://conduction.nl
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+declare(strict_types=1);
+
+namespace OCA\LaunchPad\Settings;
+
+use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\InitialState\Page;
+use OCA\LaunchPad\Service\AdminPageStateBuilder;
+use OCP\AppFramework\Services\IInitialState;
+use OCP\IGroupManager;
+
+/**
+ * Provides the admin settings page's initial state.
+ *
+ * @spec openspec/specs/initial-state-contract/spec.md#requirement-versioned-key-set-per-page-req-init-002
+ */
+class AdminFormState {
+	/**
+	 * Constructor.
+	 *
+	 * @param IInitialState        $initialState    The Nextcloud initial-state service.
+	 * @param IGroupManager        $groupManager    Group manager (full group list).
+	 * @param AdminPageSources     $sources         The widget service, setting mapper, dashboard service and file service.
+	 * @param AdminSettingsService $settingsService Admin-settings service exposing the `group_order` setting
+	 *                                              (REQ-ASET-012).
+	 */
+	public function __construct(
+		private readonly IInitialState $initialState,
+		private readonly IGroupManager $groupManager,
+		private readonly AdminPageSources $sources,
+		private readonly AdminSettingsService $settingsService,
+	) {
+	}//end __construct()
+
+	/**
+	 * Provide the full admin initial-state contract.
+	 *
+	 * @param list<string> $tabs    The tabs of the admin settings page the viewer may open (REQ-ADM-034).
+	 * @param string       $version The running app version, for the version card (REQ-ADM-032).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/initial-state-contract/spec.md#requirement-versioned-key-set-per-page-req-init-002
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-delegated-admin-settings-per-area-req-adm-034
+	 */
+	public function provide(array $tabs=AdminTabs::TABS, string $version=''): void {
+		$allGroups = [];
+		foreach ($this->groupManager->search(search: '') as $group) {
+			$allGroups[] = [
+				'id' => $group->getGID(),
+				'displayName' => $group->getDisplayName(),
+			];
+		}
+
+		// REQ-ASET-012: prefer the new `group_order` setting (defensive
+		// read returns []). Falls back to the legacy `configured_groups`
+		// key for installs that wrote it before the cutover so the
+		// initial render still shows the admin's previous selection.
+		$configuredGroups = $this->settingsService->getGroupOrder();
+		if ($configuredGroups === []) {
+			$legacy = $this->sources->settingMapper->getValue(
+				key: 'configured_groups',
+				default: []
+			);
+			if (is_array($legacy) === true) {
+				$filtered = array_filter(
+					array: $legacy,
+					callback: static function ($entry) {
+						return is_string($entry) === true && $entry !== '';
+					}
+				);
+				$configuredGroups = array_values(array: $filtered);
+			}
+		}
+
+		$allowUserDashboards = $this->sources->dashboardService->getAllowUserDashboards();
+
+		(new AdminPageStateBuilder(
+			initialState: $this->initialState,
+			page: Page::ADMIN
+		))
+			// REQ-ADM-034: the page shows only the tabs the viewer holds.
+			->setAdminPage(array_values($tabs), $version)
+			->setAllGroups($allGroups)
+			->setConfiguredGroups($configuredGroups)
+			->setWidgets($this->widgets())
+			->setAllowUserDashboards($allowUserDashboards)
+			->setLinkCreateFileExtensions(
+				$this->sources->fileService->getAllowedExtensions()
+			)
+			->apply();
+	}//end provide()
+
+	/**
+	 * The Nextcloud widgets for the admin page, read without running any
+	 * widget's `load()`. `IManager::getWidgets()` loads every widget, and each
+	 * `load()` adds that widget's dashboard script (photos, recommendations,
+	 * OpenRegister ...) to the settings page, where they run and fetch for a
+	 * dashboard that is not there. Falls back to the loading read only when
+	 * the registry cannot be read that way.
+	 *
+	 * @return array The widget descriptors.
+	 *
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+	 */
+	private function widgets(): array {
+		return $this->sources->widgetService->getWidgetCatalogue() ?? $this->sources->widgetService->getAvailableWidgets();
+	}//end widgets()
+}//end class

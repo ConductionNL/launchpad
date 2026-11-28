@@ -15,6 +15,12 @@
 			<LegacyWidgetBridgeToggle />
 		</div>
 		<div class="operations-tab__section">
+			<EmbedTelemetryToggle />
+		</div>
+		<div class="operations-tab__section">
+			<ImageHostSettings />
+		</div>
+		<div class="operations-tab__section">
 			<DashboardExportImport />
 		</div>
 		<div class="operations-tab__section" data-testid="admin-bulk-section">
@@ -23,6 +29,10 @@
 		<div class="operations-tab__section">
 			<ConfluenceImport />
 		</div>
+		<!-- REQ-SHARE-016 (board LpBeheerOnderhoud): the Clean up block. -->
+		<div class="operations-tab__section">
+			<LeaverHandoverSettings />
+		</div>
 	</div>
 </template>
 
@@ -30,14 +40,18 @@
 import ConfluenceImport from '../ConfluenceImport.vue'
 import DashboardBulkOperations from '../DashboardBulkOperations.vue'
 import DashboardExportImport from '../DashboardExportImport.vue'
+import EmbedTelemetryToggle from '../EmbedTelemetryToggle.vue'
 import HealthPanel from '../HealthPanel.vue'
+import ImageHostSettings from '../ImageHostSettings.vue'
+import LeaverHandoverSettings from '../LeaverHandoverSettings.vue'
 import LegacyWidgetBridgeToggle from '../LegacyWidgetBridgeToggle.vue'
 import PrometheusMetricsPanel from '../PrometheusMetricsPanel.vue'
 
 /**
  * OperationsTab — Beheer ▸ Operations tab. Aggregates instance health
  * (prometheus-metrics spec), the Prometheus metrics panel, the legacy widget
- * bridge toggle (legacy-widget-bridge spec), and the relocated export/import,
+ * bridge toggle (legacy-widget-bridge spec), the embed telemetry switch
+ * (embedded-analytics), the external image host allow-list (REQ-IMG-006), and the relocated export/import,
  * bulk-operations, and Confluence-import surfaces previously stacked inside
  * the monolithic `AdminSettings.vue`.
  */
@@ -48,9 +62,12 @@ export default {
 		HealthPanel,
 		PrometheusMetricsPanel,
 		LegacyWidgetBridgeToggle,
+		EmbedTelemetryToggle,
+		ImageHostSettings,
 		DashboardExportImport,
 		DashboardBulkOperations,
 		ConfluenceImport,
+		LeaverHandoverSettings,
 	},
 }
 </script>

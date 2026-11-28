@@ -42,6 +42,9 @@
 
 import { h } from 'vue'
 
+// The real loader: a registry entry built with it behaves as in the app.
+export { lazyComponent, loadLazyComponent, resolveLazyComponent } from '@conduction/nextcloud-vue/src/utils/lazyComponent.js'
+
 const stub = (name) => ({ name, render: () => h('div') })
 
 export const NcModal = stub('NcModal')
@@ -63,6 +66,12 @@ export const CnWidgetStyleEditorModal = stub('CnWidgetStyleEditorModal')
 export const CnDashboardGrid = stub('CnDashboardGrid')
 export const CnIconPicker = stub('CnIconPicker')
 export const CnIconBrowser = stub('CnIconBrowser')
+// The admin page's own tour (runtime-shell REQ-SHELL-011): the overlay and
+// the seen-version persistence. A spec that needs the real behaviour mocks
+// the module with the library's own composable (see adminWalkthrough.spec.js).
+export const CnWalkthrough = stub('CnWalkthrough')
+export const loadWalkthroughSeenVersion = async () => ''
+export const persistWalkthroughSeenVersion = async () => false
 // Bundled NL-government icon catalogues (self-contained data URIs in the real
 // library). A small grouped stand-in is enough for the pickers to build a
 // non-empty list; `NL_DESIGN_ICONS` is the flat combined list.
@@ -267,6 +276,14 @@ export const CnDashTileWidgetForm = stub('CnDashTileWidgetForm')
 export const CnSpendAnalyticsWidgetForm = stub('CnSpendAnalyticsWidgetForm')
 // Analytics widgets (OpenBuild parity) — renderers + config forms.
 export const CnStatWidget = stub('CnStatWidget')
+export const CnAppTilesWidget = stub('CnAppTilesWidget')
+export const CnAppTilesWidgetForm = stub('CnAppTilesWidgetForm')
+export const CnAppTile = stub('CnAppTile')
+export const CnAppTileWidget = stub('CnAppTileWidget')
+export const CnAppTileWidgetForm = stub('CnAppTileWidgetForm')
+export const CnStatusList = stub('CnStatusList')
+export const appTileColourValue = (key, appId = '') => `var(--cn-app-tile-${key || appId})`
+export const CnGroupedMenu = stub('CnGroupedMenu')
 export const CnStatWidgetForm = stub('CnStatWidgetForm')
 export const CnDeltaWidget = stub('CnDeltaWidget')
 export const CnDeltaWidgetForm = stub('CnDeltaWidgetForm')
@@ -278,6 +295,8 @@ export const CnChartWidget = stub('CnChartWidget')
 export const CnChartWidgetForm = stub('CnChartWidgetForm')
 export const CnStatsBlockWidget = stub('CnStatsBlockWidget')
 export const CnStatsBlockWidgetForm = stub('CnStatsBlockWidgetForm')
+export const CnMapWidget = stub('CnMapWidget')
+export const CnMapWidgetForm = stub('CnMapWidgetForm')
 
 // Communal dashboard widget catalog stub — mirrors nc-vue's
 // `dashboardWidgetRegistry` so launchpad's widgetRegistry (which now CONSUMES
@@ -379,6 +398,16 @@ const _DASH = {
 		defaultContent: { folderPath: '/' },
 	},
 	stat: { renderer: CnStatWidget, form: CnStatWidgetForm, defaultContent: {} },
+	'app-tiles': {
+		renderer: CnAppTilesWidget,
+		form: CnAppTilesWidgetForm,
+		defaultContent: {},
+	},
+	'app-tile': {
+		renderer: CnAppTileWidget,
+		form: CnAppTileWidgetForm,
+		defaultContent: { appId: '', colour: '', showCount: true },
+	},
 	delta: { renderer: CnDeltaWidget, form: CnDeltaWidgetForm, defaultContent: {} },
 	gauge: { renderer: CnGaugeWidget, form: CnGaugeWidgetForm, defaultContent: {} },
 	'object-list': {
@@ -405,6 +434,7 @@ const _DASH = {
 		defaultContent: {},
 	},
 	'nc-widget': { renderer: CnNcWidgetWidget, form: null, defaultContent: {} },
+	map: { renderer: CnMapWidget, form: CnMapWidgetForm, defaultContent: {} },
 }
 export const dashboardWidgetRegistry = Object.fromEntries(
 	Object.entries(_DASH).map(([type, e]) => [
@@ -426,6 +456,12 @@ export function listWidgetTypes() {
 		(t) => dashboardWidgetRegistry[t].form,
 	)
 }
+// The placeholder resolver is a plain module: the real one, so the card and
+// the shared placeholder fixture are tested against the library's own order.
+export {
+	normalizeWidgetPlaceholder,
+	resolveWidgetPlaceholder,
+} from '@conduction/nextcloud-vue/src/utils/resolveWidgetPlaceholder.js'
 export const getWidgetTypeEntry = (type) => dashboardWidgetRegistry[type] || null
 export function getDefaultContent(type) {
 	return {
@@ -495,6 +531,14 @@ export default {
 	CnSpendAnalyticsWidgetForm,
 	CnStatWidget,
 	CnStatWidgetForm,
+	CnAppTilesWidget,
+	CnAppTilesWidgetForm,
+	CnAppTile,
+	CnAppTileWidget,
+	CnAppTileWidgetForm,
+	CnStatusList,
+	appTileColourValue,
+	CnGroupedMenu,
 	CnDeltaWidget,
 	CnDeltaWidgetForm,
 	CnGaugeWidget,

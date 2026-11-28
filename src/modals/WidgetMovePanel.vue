@@ -6,6 +6,7 @@
 <template>
 	<NcModal
 		v-if="open"
+		class="launchpad-modal"
 		size="small"
 		:name="t('launchpad', 'Move widget')"
 		@close="onCancel">
@@ -125,6 +126,11 @@
 import { NcButton, NcModal } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { nudgePlacement } from '../composables/useGridManager.js'
+import {
+	FLAG_PROP,
+	LIST_PROP,
+	NULLABLE_OBJECT_PROP,
+} from '../constants/propDefinitions.js'
 
 /**
  * WidgetMovePanel — keyboard-operable move/resize panel for a dashboard
@@ -162,20 +168,11 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			default: false,
-		},
+		open: FLAG_PROP,
 
-		placement: {
-			type: Object,
-			default: null,
-		},
+		placement: NULLABLE_OBJECT_PROP,
 
-		allPlacements: {
-			type: Array,
-			default: () => [],
-		},
+		allPlacements: LIST_PROP,
 
 		gridColumns: {
 			type: Number,
@@ -217,18 +214,25 @@ export default {
 		 * @param {boolean} isOpen Whether the panel is now open.
 		 * @spec openspec/specs/grid-layout/spec.md
 		 */
-		open(isOpen) {
-			if (isOpen) {
-				this.working = this.initialRect()
-				this.$nextTick(() => {
-					if (
-						this.$refs.panel
-						&& typeof this.$refs.panel.focus === 'function'
-					) {
-						this.$refs.panel.focus()
-					}
-				})
-			}
+		open: {
+			immediate: true,
+			/**
+			 * @spec openspec/specs/grid-layout/spec.md
+			 * @param {boolean} isOpen Whether the panel is now open.
+			 */
+			handler(isOpen) {
+				if (isOpen) {
+					this.working = this.initialRect()
+					this.$nextTick(() => {
+						if (
+							this.$refs.panel
+							&& typeof this.$refs.panel.focus === 'function'
+						) {
+							this.$refs.panel.focus()
+						}
+					})
+				}
+			},
 		},
 
 		/** @spec openspec/specs/grid-layout/spec.md */
@@ -267,6 +271,7 @@ export default {
 		apply(action) {
 			const base = {
 				id: this.placement ? this.placement.id : undefined,
+				widgetId: this.placement ? this.placement.widgetId : undefined,
 				gridX: this.working.gridX,
 				gridY: this.working.gridY,
 				gridWidth: this.working.gridWidth,

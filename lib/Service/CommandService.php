@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -32,27 +33,7 @@ use Psr\Log\LoggerInterface;
  * The class is intentionally stateless: it holds only the platform
  * logger and exposes pure helpers so individual commands stay thin.
  */
-class CommandService {
-	/**
-	 * Exit code for successful execution (REQ-CLI-006).
-	 *
-	 * @var integer
-	 */
-	public const EXIT_SUCCESS = 0;
-
-	/**
-	 * Exit code for unhandled exceptions / generic errors (REQ-CLI-006).
-	 *
-	 * @var integer
-	 */
-	public const EXIT_ERROR = 1;
-
-	/**
-	 * Exit code for invalid / malformed CLI arguments (REQ-CLI-006).
-	 *
-	 * @var integer
-	 */
-	public const EXIT_INVALID_ARGS = 2;
+class CommandService implements CommandServiceInterface {
 
 	/**
 	 * Exit code for permission / authorization failures (REQ-CLI-006).
@@ -60,13 +41,6 @@ class CommandService {
 	 * @var integer
 	 */
 	public const EXIT_PERMISSION_DENIED = 3;
-
-	/**
-	 * Exit code for "resource not found" lookups (REQ-CLI-006).
-	 *
-	 * @var integer
-	 */
-	public const EXIT_NOT_FOUND = 4;
 
 	/**
 	 * Exit code for batch operations that partially succeeded
@@ -169,27 +143,19 @@ class CommandService {
 	 * Format: `[launchpad] cli <command> <args> exitCode=<n>
 	 * durationMs=<ms> byUser=<uid|cli>`
 	 *
-	 * @param string $command Full command name without the
-	 *                        `launchpad:` prefix (e.g.
-	 *                        `dashboard:list`).
-	 * @param string $args Space-joined argv tail. May be
-	 *                     truncated to {@see AUDIT_ARGS_MAX}.
-	 * @param int $exitCode Final exit code.
-	 * @param int $durationMs Wall-clock execution time.
-	 * @param string|null $byUser Caller user id or null for `cli`.
+	 * @param array $run The run: `command` (full command name without the
+	 *                   `launchpad:` prefix, e.g. `dashboard:list`), `args`
+	 *                   (space-joined argv tail, truncated to
+	 *                   {@see AUDIT_ARGS_MAX}), `exitCode`, `durationMs`
+	 *                   (wall-clock execution time) and `byUser` (caller
+	 *                   user id, or null for `cli`).
 	 *
 	 * @return string
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	public function formatAuditLine(
-		string $command,
-		string $args,
-		int $exitCode,
-		int $durationMs,
-		?string $byUser,
-	): string {
-		$argsClean = trim(string: $args);
+	public function formatAuditLine(array $run): string {
+		$argsClean = trim(string: $run['args']);
 		if (mb_strlen(string: $argsClean) > self::AUDIT_ARGS_MAX) {
 			$argsClean = mb_substr(
 				string: $argsClean,
@@ -198,17 +164,17 @@ class CommandService {
 			) . '...';
 		}
 
-		$user = $byUser;
+		$user = $run['byUser'];
 		if ($user === null || $user === '') {
 			$user = 'cli';
 		}
 
 		return sprintf(
 			'[launchpad] cli %s %s exitCode=%d durationMs=%d byUser=%s',
-			$command,
+			$run['command'],
 			$argsClean,
-			$exitCode,
-			$durationMs,
+			$run['exitCode'],
+			$run['durationMs'],
 			$user
 		);
 	}//end formatAuditLine()
@@ -216,37 +182,21 @@ class CommandService {
 	/**
 	 * Write the audit-log line to the platform logger (REQ-CLI-010).
 	 *
-	 * @param string $command Command name.
-	 * @param string $args Argument string.
-	 * @param int $exitCode Exit code.
-	 * @param int $durationMs Wall-clock duration.
-	 * @param string|null $byUser Caller user id.
+	 * @param array $run The run, as {@see self::formatAuditLine()} takes it.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	public function audit(
-		string $command,
-		string $args,
-		int $exitCode,
-		int $durationMs,
-		?string $byUser,
-	): void {
+	public function audit(array $run): void {
 		$this->logger->info(
-			message: $this->formatAuditLine(
-				command: $command,
-				args: $args,
-				exitCode: $exitCode,
-				durationMs: $durationMs,
-				byUser: $byUser
-			),
+			message: $this->formatAuditLine(run: $run),
 			context: [
 				'app' => 'launchpad',
-				'command' => $command,
-				'exitCode' => $exitCode,
-				'durationMs' => $durationMs,
-				'byUser' => ($byUser ?? 'cli'),
+				'command' => $run['command'],
+				'exitCode' => $run['exitCode'],
+				'durationMs' => $run['durationMs'],
+				'byUser' => ($run['byUser'] ?? 'cli'),
 			]
 		);
 	}//end audit()

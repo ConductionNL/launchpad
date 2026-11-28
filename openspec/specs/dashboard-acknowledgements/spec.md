@@ -1,7 +1,7 @@
 # dashboard-acknowledgements Specification
 
 ## Purpose
-TBD - created by archiving change dashboard-acknowledgements. Update Purpose after archive.
+Mandatory-read announcements: an author asks the readers of a widget to confirm they have read it, every reader in the announcement's audience is blocked by a sign-off prompt until they do, and the author gets a read-receipt report (with CSV export) of who confirmed which version.
 ## Requirements
 ### Requirement: REQ-ACK-001 Declare an acknowledgement requirement on a placement
 
@@ -17,8 +17,6 @@ all acknowledgement fields — to every user placement cloned from that template
 placement, so all recipients of one announcement share one identity. A caller
 who is not an admin or the template owner MUST be rejected with `403` and the
 placement MUST be unchanged.
-
-@e2e exclude Configuration + persistence + clone-propagation path; covered by PlacementUpdater / TemplateService / WidgetPlacementMapper PHPUnit and the non-author 403 by AcknowledgementControllerTest — no dedicated admin form UI in this pass.
 
 #### Scenario: Admin requires acknowledgement on a template announcement
 
@@ -42,6 +40,13 @@ placement MUST be unchanged.
 - **THEN** the placement MUST no longer force delivery
 - **AND** existing acknowledgement receipts MUST be retained as history (not deleted)
 
+#### Scenario: A recipient cannot change the requirement on their copy
+
+- **GIVEN** user "bob" holds a copy of announcement `ak-1` from a template owned by "tom"
+- **WHEN** bob updates his copy's placement with `requiresAcknowledgement = 0`, `reacknowledgeOnChange = 0` or another `acknowledgementContentVersion`
+- **THEN** the system MUST return `403` and the placement MUST be unchanged
+- **AND** without a template the author is the owner of the first placement that carried the key, never a later copy or fork
+
 ### Requirement: REQ-ACK-002 Forced delivery of unacknowledged mandatory items
 
 The system MUST apply forced delivery to a widget placement with
@@ -63,8 +68,6 @@ outstanding (unacknowledged) mandatory items.
 
 #### Scenario: Already-acknowledged item renders normally
 
-@e2e exclude Asserted in AcknowledgementServiceTest::isOutstanding (no-receipt vs receipt) and the dashboard store vitest — the "already acknowledged" state renders the plain widget, the same negative path the covered sign-off scenario exits into.
-
 - **GIVEN** user "alice" has a receipt for `announcementKey` `ak-1` at `acknowledgementContentVersion = 1`
 - **WHEN** she reopens the dashboard and the placement is still at version `1`
 - **THEN** the widget MUST render its normal content with no forced-delivery prompt
@@ -72,12 +75,17 @@ outstanding (unacknowledged) mandatory items.
 
 #### Scenario: Deadline is presented but does not auto-acknowledge
 
-@e2e exclude Deadline/overdue presentation is unit-covered (AcknowledgementService::isOverdue + AcknowledgementPrompt vitest) and requires a fixed system date; the prompt still requires an explicit sign-off, covered by the main gate scenario.
-
 - **GIVEN** placement `p-integriteitscode` with `acknowledgementDeadline = 2026-08-01` and the current date is `2026-08-02`
 - **WHEN** an unacknowledged user opens the dashboard
 - **THEN** the prompt MUST still require an explicit sign-off (a passed deadline MUST NOT auto-acknowledge)
 - **AND** the item MUST be reportable as overdue in the read-receipt report (REQ-ACK-004)
+
+#### Scenario: A copy kept after leaving the audience is not pending
+
+- **GIVEN** user "alice" holds a copy of announcement `ak-1`, whose template routes to group "sociaal-domein", and she is no longer a member of that group
+- **WHEN** her outstanding items are listed
+- **THEN** `ak-1` MUST NOT be listed and MUST NOT count toward the outstanding-acknowledgements count
+- **AND** no blocking prompt MUST be shown for it, since she can no longer acknowledge it (REQ-ACK-003)
 
 ### Requirement: REQ-ACK-003 Record an idempotent acknowledgement receipt
 
@@ -89,6 +97,16 @@ create a second row and MUST return success. A recipient MUST be able to write a
 receipt **only for their own** `userId`; any attempt to write a receipt on
 behalf of another user MUST be rejected with `403` (ADR-005, no IDOR).
 
+Only the announcement's audience MAY acknowledge it. The audience is the live
+members of the groups its template routes to or, without group routing, the
+owners of the dashboards holding a copy. In both cases the recipients of a
+share of a personal dashboard holding the announcement (every user it is
+shared with and every live member of a group it is shared with) MUST be in the
+audience: they see the widget, so they MUST confirm it like the owner, the
+announcement MUST be pending for them (REQ-ACK-002), and they MUST appear in
+the read-receipt report (REQ-ACK-004). A user reached through several
+dashboards MUST be asked once per announcement.
+
 #### Scenario: First acknowledgement writes exactly one receipt
 
 - **GIVEN** user "alice" with no receipt for `announcementKey` `ak-1` at version `1`
@@ -98,8 +116,6 @@ behalf of another user MUST be rejected with `403` (ADR-005, no IDOR).
 
 #### Scenario: Repeated acknowledgement is idempotent
 
-@e2e exclude Row-level idempotency (no second row, original timestamp) is asserted in AcknowledgementServiceTest::testRepeatedAcknowledgeIsIdempotent + the race test — not observable through the UI.
-
 - **GIVEN** user "alice" already has a receipt for `(ak-1, alice, 1)`
 - **WHEN** she `POST`s the same acknowledgement again
 - **THEN** the system MUST NOT insert a second row
@@ -107,36 +123,46 @@ behalf of another user MUST be rejected with `403` (ADR-005, no IDOR).
 
 #### Scenario: A user cannot acknowledge on behalf of another user
 
-@e2e exclude Cross-user 403 (no IDOR) is asserted in AcknowledgementControllerTest::testAcknowledgeRejectsCrossUser — a server-side auth contract, not a UI flow.
-
 - **GIVEN** authenticated user "alice"
 - **WHEN** she `POST`s an acknowledgement whose body names `userId = "bob"`
 - **THEN** the system MUST return `403`
 - **AND** MUST NOT write any receipt for bob
 
+#### Scenario: Only the announcement's audience can acknowledge it
+
+- **GIVEN** an announcement whose template routes to group "sociaal-domein", and authenticated user "mallory" who is not a member
+- **WHEN** she `POST`s an acknowledgement for that announcement, or for an announcement key that no placement carries
+- **THEN** the system MUST return `403`
+- **AND** MUST NOT write any receipt
+- **AND** the audience MUST be resolved for the session user, never for a user named in the request
+
+#### Scenario: A share recipient of a personal dashboard must confirm
+
+- **GIVEN** user "tom" asks for a read confirmation on a widget of his personal dashboard and shares the dashboard view-only with "pieter", who holds no copy
+- **WHEN** pieter's outstanding items are listed
+- **THEN** the announcement MUST be pending for pieter and his view of tom's dashboard MUST show the blocking prompt
+- **AND** pieter MUST appear as pending in tom's read-receipt report
+- **AND** a user the dashboard is not shared with, and who holds no copy, MUST still be rejected with `403`
+
 ### Requirement: REQ-ACK-004 Admin read-receipt report scoped to the audience
 
-An admin or template owner MUST be able to retrieve a read-receipt report for an
-`announcementKey`. The report MUST resolve the current audience from the source
-template's group routing (`admin-templates`) via `IGroupManager` at report time
-and, for the current `acknowledgementContentVersion`, MUST return: the
-acknowledged count, the pending count, the list of pending user ids, and the
-acknowledgement timestamp per acknowledged user. Pending MUST be computed as
-`(current audience) − (users with a receipt for the current version)`. The
-report MUST expose no PII beyond user id and timestamp. A caller who is neither
-an admin nor the template owner MUST be rejected with `403`.
+A person who holds Launchpad's announcements setting (administrators always do; admin-settings REQ-ADM-034) MUST be able
+to retrieve a read-receipt report for an `announcementKey`; the server MUST check that setting before it builds the
+report. The report MUST resolve the current audience from the source template's group routing (`admin-templates`) via
+`IGroupManager` at report time and, for the current `acknowledgementContentVersion`, MUST return: the acknowledged count,
+the pending count, the list of pending user ids, and the acknowledgement timestamp per acknowledged user. Pending MUST be
+computed as `(current audience) − (users with a receipt for the current version)`. The report MUST expose no PII beyond
+user id and timestamp. Any other caller, a template owner without the setting included, MUST be rejected with `403`.
 
 #### Scenario: Report separates acknowledged from pending against the live audience
 
 - **GIVEN** announcement `ak-1` distributed to group "sociaal-domein" whose current members are `{alice, bob, carol}`
 - **AND** only `alice` and `carol` have receipts for the current version
-- **WHEN** the template owner requests the report for `ak-1`
+- **WHEN** a holder of the announcements setting requests the report for `ak-1`
 - **THEN** the acknowledged count MUST be `2` with alice's and carol's timestamps
 - **AND** the pending count MUST be `1` with pending user ids `[bob]`
 
 #### Scenario: A newly added group member becomes pending automatically
-
-@e2e exclude Live-audience resolution via IGroupManager is asserted in AcknowledgementServiceTest::testReportSeparatesAcknowledgedFromPending — mutating group membership mid-session is out of scope for a single UI run.
 
 - **GIVEN** the report above, and `dave` is subsequently added to group "sociaal-domein"
 - **WHEN** the report is requested again
@@ -145,11 +171,10 @@ an admin nor the template owner MUST be rejected with `403`.
 
 #### Scenario: Non-author cannot read the report
 
-@e2e exclude Non-author 403 on the report is asserted in AcknowledgementControllerTest::testReportRejectsNonOwner / testReportCsvRejectsNonManager — a server-side auth contract, not a UI flow.
-
-- **GIVEN** user "bob" who is a recipient of `ak-1` but not an admin or template owner
-- **WHEN** bob requests the read-receipt report for `ak-1`
-- **THEN** the system MUST return `403`
+- **GIVEN** user "bob", a recipient of `ak-1` who does not hold the announcements setting, and the template owner "erik"
+  who does not hold it either
+- **WHEN** each requests the read-receipt report for `ak-1`
+- **THEN** the system MUST return `403` to both
 
 ### Requirement: REQ-ACK-005 Re-acknowledgement on content change
 
@@ -159,8 +184,6 @@ when an author bumps `acknowledgementContentVersion` on a placement whose
 Receipts for prior versions MUST be retained as history and MUST NOT satisfy the
 new version. When `reacknowledgeOnChange = 0`, bumping the version MUST NOT
 re-force delivery for users who already acknowledged a prior version.
-
-@e2e exclude Version-bump re-force logic (both branches) is asserted in AcknowledgementServiceTest::isOutstanding — a content-version bump is not directly UI-observable in a single session.
 
 #### Scenario: Version bump re-forces delivery when re-acknowledge is on
 
@@ -176,6 +199,19 @@ re-force delivery for users who already acknowledged a prior version.
 - **THEN** alice's item MUST NOT re-force delivery
 - **AND** the read-receipt report MAY report her against the latest version she acknowledged
 
+#### Scenario: A version that is not published yet cannot be acknowledged
+
+- **GIVEN** announcement `ak-1` at `acknowledgementContentVersion = 2`
+- **WHEN** user "alice" `POST`s an acknowledgement for `ak-1` with `contentVersion = 3`
+- **THEN** the system MUST return `400` and MUST NOT write any receipt
+- **AND** a `contentVersion` at or below `2` MUST still be accepted, so a copy that was not re-synced yet can be signed off
+
+#### Scenario: Without a template the user's own copy sets the current version
+
+- **GIVEN** announcement `ak-1` whose template was deleted, and user "alice" whose copy is at version `2` while another copy is at version `1`
+- **WHEN** alice acknowledges `ak-1` at version `2`
+- **THEN** the system MUST accept it, so her prompt can be cleared
+
 ### Requirement: REQ-ACK-006 Acknowledgement events feed activity and export
 
 Each successful acknowledgement MUST raise one entry in the existing Activity
@@ -185,14 +221,14 @@ containing one row per audience member with acknowledged/pending status and, for
 acknowledged rows, the timestamp — so the result can be filed as compliance
 evidence.
 
-@e2e exclude Single-shot activity emission and the CSV export body are asserted in AcknowledgementServiceTest / AcknowledgementControllerTest — the CSV `DataDownloadResponse` cannot be exercised under the OCP stub bootstrap and the Activity row is not UI-observable on the dashboard.
-
 #### Scenario: Acknowledging emits one activity event
 
 - **GIVEN** the Activity provider is registered
 - **WHEN** user "alice" acknowledges `ak-1`
 - **THEN** exactly one activity entry MUST be emitted for the acknowledgement (subject `dashboard_acknowledged`) naming alice and the announcement
 - **AND** no activity entry MUST be emitted for an idempotent repeat acknowledgement (REQ-ACK-003)
+
+@e2e exclude the Activity app is an optional Nextcloud app the e2e fixture does not set up (tests/e2e/seed.sh and tests/e2e/global-setup.ts enable no app), so its feed is not a surface this suite can rely on, and its OCS feed returns the rendered line rather than the `dashboard_acknowledged` subject. Pinned by tests/Unit/Service/AcknowledgementServiceTest.php testFirstAcknowledgeRecordsAndEmitsActivity (exactly one event) and testRepeatedAcknowledgeIsIdempotent / testAcknowledgeRaceReturnsWinnerWithoutActivity (none on a repeat).
 
 #### Scenario: Report exports as CSV compliance evidence
 
@@ -202,9 +238,16 @@ evidence.
 - **AND** alice's and carol's rows MUST carry status `acknowledged` and their timestamps
 - **AND** bob's row MUST carry status `pending` with an empty timestamp
 
-### Requirement: An editor can ask for confirmation from the widget form (REQ-ACK-007)
+#### Scenario: The activity line names the acknowledged version
 
-@e2e exclude asking and confirming need two people on a live dashboard; asserted in src/dialogs/__tests__/ReadConfirmationDialog.spec.js, src/views/__tests__/ViewsReadConfirmation.spec.js and tests/Unit/Service/PlacementUpdaterReadConfirmationTest.php
+- **GIVEN** user "alice" acknowledges `ak-1` at version `2`
+- **WHEN** the activity line is rendered
+- **THEN** it MUST read "You acknowledged version 2 of {dashboard}" (or "{actor} acknowledged version 2 of {dashboard}")
+- **AND** a line stored before versions were recorded MUST keep its old text
+
+@e2e exclude the Activity app is an optional Nextcloud app the e2e fixture does not set up (tests/e2e/seed.sh and tests/e2e/global-setup.ts enable no app), so its feed is not a surface this suite can rely on, and its OCS feed returns the rendered line rather than the `dashboard_acknowledged` subject. The second clause also needs an activity row stored before versions were recorded, which no HTTP call can create. Pinned by tests/Unit/Activity/ExtensionTest.php testParseNamesTheAcknowledgedVersion (both wordings, and the old text without a version) and tests/Unit/Service/AcknowledgementServiceTest.php testActivityNamesTheAcknowledgedVersion.
+
+### Requirement: An editor can ask for confirmation from the widget form (REQ-ACK-007)
 
 The widget edit form MUST offer "Ask readers to confirm they have read this". Saving with it ticked MUST send `requiresAcknowledgement: 1` in the placement update; unticking MUST send `0`.
 
@@ -216,12 +259,54 @@ The widget edit form MUST offer "Ask readers to confirm they have read this". Sa
 
 ### Requirement: An editor can see who has confirmed (REQ-ACK-008)
 
-@e2e exclude asking and confirming need two people on a live dashboard; asserted in src/dialogs/__tests__/ReadConfirmationDialog.spec.js, src/views/__tests__/ViewsReadConfirmation.spec.js and tests/Unit/Service/PlacementUpdaterReadConfirmationTest.php
-
-When a widget on the dashboard asks for confirmation, people who may edit the dashboard MUST find "Read receipts" at the top of the dashboard, showing the confirmed count, the names still pending and a CSV download from the existing report.
+The read receipts of widgets that ask readers to confirm SHALL be read on the Announcements tab of Launchpad's admin page,
+in the list "Widgets that ask for confirmation" (Ruben, 27 Nov 2026): each placement with its dashboard, its confirmed
+and pending counts and the deadline, opening its read confirmations (REQ-ACK-010). The dashboard and its More menu SHALL
+NOT offer Read receipts.
 
 #### Scenario: Read the report
 
-- **GIVEN** 3 of 5 team members confirmed "New expense rules"
-- **WHEN** Sanne opens "Read receipts"
+- **GIVEN** 3 of 5 team members confirmed "New expense rules", and Femke holds the announcements setting
+- **WHEN** Femke opens the Announcements tab and chooses "New expense rules" under Widgets that ask for confirmation
 - **THEN** she sees 3 confirmed and the 2 pending names, and can download the CSV
+- **AND** the dashboard holding the widget shows no Read receipts
+
+### Requirement: A placement that asks for confirmation has a key (REQ-ACK-009)
+
+A widget placement with `requiresAcknowledgement` SHALL carry a stable `announcementKey` in every response that returns
+the placement, the same across edits of its content, so the reader's confirmation and the report on the admin page refer
+to it.
+
+#### Scenario: The key reaches the dashboard
+
+- **GIVEN** a text widget on Intranet Zuiddrecht asks for confirmation
+- **WHEN** an editor loads the dashboard
+- **THEN** the placement carries its announcementKey, the Announcements tab lists it, and the More menu has no Read
+  receipts item
+
+### Requirement: The read confirmations dialog (REQ-ACK-010)
+
+The read confirmations of a widget SHALL open on the Announcements tab of Launchpad's admin page, in the layout of Seen
+and confirmed (board LpLeesbevestigingen), titled "Read confirmations: <title>" under "Widget · <dashboard>": the
+confirmed count over the audience with the number still to go and the deadline, a bar, the filters Everyone, Confirmed
+and Not confirmed yet, a table of Employee (initials and name), Department and Status, a line that says how many are
+shown and that Download gives the full list with the date and time of each confirmation, and Download.
+
+#### Scenario: Who has not confirmed
+
+- **GIVEN** 128 of 164 confirmed the widget "New procedure for Woo requests"
+- **WHEN** a holder of the announcements setting opens its read confirmations and chooses Not confirmed yet
+- **THEN** the table lists the 36 who have not, with their department and "Not yet"
+
+### Requirement: A placement that asks for confirmation looks like an announcement (REQ-ACK-011)
+
+In the board look, a placement that asks its readers to confirm they read it SHALL be drawn as an announcement: a 4px
+bar in the primary colour on the card's left edge, its title and content 24px in from the left and 20px from the
+right, and a 17px title. It SHALL keep this frame after the reader confirmed and in edit mode.
+
+#### Scenario: The Woo announcement on Vandaag
+- **GIVEN** Pieter's Vandaag board holds "Nieuwe werkwijze Woo-verzoeken vanaf 1 november", which asks for a read confirmation
+- **WHEN** he opens Vandaag
+- **THEN** the card has a bar in the primary colour on its left edge and a 17px title
+
+@e2e exclude A frame of the board look; pinned by src/components/__tests__/WidgetWrapper.announcement.spec.js and measured with compdiff on LpVandaag / LpIntranet.

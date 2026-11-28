@@ -1,0 +1,70 @@
+{
+    "bulk": [
+        {
+            "type": "dashboard_updated",
+            "author": "admin",
+            "affected": "admin",
+            "params": {
+                "self": true,
+                "actor": "admin",
+                "dashboard": "Bulk delete (3 dashboards)",
+                "bulkOperation": "delete",
+                "dashboardCount": 3,
+                "durationMs": 12,
+                "dryRun": false
+            },
+            "object": "bulk-delete",
+            "link": ""
+        },
+        {
+            "type": "dashboard_updated",
+            "author": "root",
+            "affected": "root",
+            "params": {
+                "self": true,
+                "actor": "root",
+                "dashboard": "Bulk status (2 dashboards)",
+                "bulkOperation": "status",
+                "dashboardCount": 2,
+                "durationMs": 5,
+                "dryRun": "x",
+                "publicationStatus": "published"
+            },
+            "object": "bulk-status",
+            "link": ""
+        }
+    ],
+    "resync": [
+        {
+            "type": "dashboard_updated",
+            "author": "admin",
+            "affected": "admin",
+            "params": {
+                "self": true,
+                "actor": "admin",
+                "dashboard": "Template resync: Intranet (merge, 4 copies)",
+                "templateResync": true,
+                "templateId": 7,
+                "strategy": "merge",
+                "affectedCount": 4
+            },
+            "object": "template-resync-7",
+            "link": ""
+        }
+    ],
+    "acknowledged": [
+        {
+            "type": "dashboard_acknowledged",
+            "author": "alice",
+            "affected": "alice",
+            "params": {
+                "self": true,
+                "actor": "alice",
+                "dashboard": "ak-1",
+                "version": 1
+            },
+            "object": "ak-1",
+            "link": ""
+        }
+    ]
+}

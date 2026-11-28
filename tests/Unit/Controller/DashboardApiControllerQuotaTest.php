@@ -22,6 +22,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
@@ -42,6 +45,11 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\DashboardApiAccess;
+use OCA\LaunchPad\Controller\UserResponses;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Mirrors the controller constructor.
@@ -90,16 +98,20 @@ class DashboardApiControllerQuotaTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->createMock(IRequest::class),
-			dashboardService: $this->dashboardService,
-			permissionService: $this->createMock(PermissionService::class),
-			treeService: $this->createMock(DashboardTreeService::class),
-			versionService: $this->createMock(DashboardVersionService::class),
-			analyticsService: $this->createMock(AnalyticsService::class),
-			logger: $this->createMock(LoggerInterface::class),
-			userSession: $this->userSession,
-			actionAuth: $this->actionAuth,
-			userId: $userId,
-			quotaService: $this->quotaService,
+			services: new DashboardApiServices(
+				dashboardService: $this->dashboardService,
+				quotaService: $this->quotaService
+			),
+			access: new DashboardApiAccess(permissionService: $this->createMock(originalClassName: PermissionService::class), history: new DashboardApiHistory(
+				treeService: $this->createMock(DashboardTreeService::class),
+				versionService: $this->createMock(DashboardVersionService::class),
+				analyticsService: $this->createMock(AnalyticsService::class),
+				logger: $this->createMock(LoggerInterface::class)
+			)),
+			context: new ActorResponses(actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 	}//end makeController()
 

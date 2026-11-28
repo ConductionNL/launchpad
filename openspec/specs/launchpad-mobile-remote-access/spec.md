@@ -40,8 +40,6 @@ remote/mobile access + curated app + news access).
 
 ## Requirements
 
-@e2e exclude proposed/unimplemented capability — adds a `mobileReady` registry/manifest field + mobile-breakpoint hide/force-desktop behaviour that is not yet built. Scenarios assert registry/manifest completeness contract, viewport-driven visibility, session-expiry from Specter sources, and curated-app/news sourcing — backend/contract and breakpoint internals belong in unit + Newman. Re-annotate with real UI tests when the capability ships.
-
 ### REQ-MRA-001: Every widget registry entry SHALL declare a `mobileReady` boolean
 
 `src/constants/widgetRegistry.js` entries MUST extend the existing
@@ -53,12 +51,16 @@ cannot render on mobile (e.g. complex multi-column tables) MUST set
 
 #### Scenario: Registry entry missing the field fails the completeness test
 
+@e2e exclude not built as specified: `mobileReady` exists since phone-hidden-widgets-named (archived 2026-11-24), but only `ai-assistant` declares it (src/constants/widgetRegistry.js) and an entry without it counts as phone-ready (src/utils/phoneHiddenWidgets.js isPhoneReady). No completeness test requires the field, and that test would be a vitest, not a browser behaviour.
+
 - **GIVEN** a registry entry omits `mobileReady`
 - **WHEN** `npm test` runs the completeness test
 - **THEN** the test MUST fail with a message naming the type
   + the missing `mobileReady` field
 
 #### Scenario: Every shipped widget declares the field
+
+@e2e exclude not built as specified: `mobileReady` exists since phone-hidden-widgets-named (archived 2026-11-24), but only `ai-assistant` declares it (src/constants/widgetRegistry.js) and an entry without it counts as phone-ready (src/utils/phoneHiddenWidgets.js isPhoneReady). The canonical widgets do not carry the field, and no test checks for it; a registry inspection, not a browser behaviour, in any case.
 
 - **GIVEN** the canonical widget set (`calendar`, `container`,
   `divider`, `files`, `header`, `image`, `label`, `link`, `links`,
@@ -79,12 +81,16 @@ extension).
 
 #### Scenario: Manifest declaration matches registry
 
+@e2e exclude never built: src/manifest.json has no top-level widgets[] since 2cf53831 and does not mention `mobileReady`, and scripts/check-manifest.js compares no such field; a CLI check in any case.
+
 - **GIVEN** the registry sets `tile.mobileReady = true`
 - **WHEN** `npm run check:manifest` runs
 - **THEN** the manifest entry for `tile` MUST also set
   `mobileReady: true`
 
 #### Scenario: Mismatch fails the check
+
+@e2e exclude never built: scripts/check-manifest.js has no registry comparison and does not mention `mobileReady`, and there is no `compliance-audit` widget type; a CLI check in any case.
 
 - **GIVEN** the registry sets `compliance-audit.mobileReady = false`
 - **AND** the manifest sets `compliance-audit.mobileReady = true`
@@ -117,6 +123,8 @@ the desktop breakpoint at the cost of horizontal scroll).
 
 #### Scenario: Force desktop layout link
 
+@e2e exclude withdrawn by REQ-MRA-007, which replaces the "view desktop layout" link and says there SHALL be no forced desktop layout on a phone. phone-hidden-widgets-named.spec.ts asserts no desktop-layout link is shown (pieter-on-his-phone).
+
 - **GIVEN** the mobile notice is visible
 - **WHEN** the viewer clicks "view desktop layout"
 - **THEN** the workspace MUST switch to the desktop grid layout
@@ -132,6 +140,8 @@ switcher, or any non-grid affordance.
 
 #### Scenario: All non-mobile dashboard shows empty-state
 
+@e2e exclude never built: phones hide `mobileReady: false` widgets since phone-hidden-widgets-named, but no empty-state exists for a dashboard where every widget is hidden: "no mobile-ready widgets" appears nowhere in src, and REQ-MRA-007 removed the desktop-layout CTA it would point at.
+
 - **GIVEN** a dashboard where all 4 placements have
   `mobileReady: false`
 - **WHEN** the viewport is 375 px
@@ -141,6 +151,8 @@ switcher, or any non-grid affordance.
 - **AND** the sidebar MUST remain usable
 
 #### Scenario: Other affordances stay live
+
+@e2e exclude never built: its GIVEN is the phone empty-state of REQ-MRA-004, which does not exist (see the scenario above). The dashboard switcher itself is cited by the dashboard-switcher specs.
 
 - **GIVEN** the empty-state is rendered
 - **WHEN** the viewer opens the dashboard switcher
@@ -161,6 +173,8 @@ MUST resume without losing in-progress widget state.
 
 #### Scenario: Session expires (Specter source)
 
+@e2e exclude nothing in launchpad to test, and the fixture cannot expire a session: launchpad has no session or heartbeat code (grep of src for heartbeat or re-auth finds only the dashboard edit-lock heartbeat), so the overlay is Nextcloud core's own. Driving it needs `session_lifetime` shortened in config.php or via occ, which the CI fixture does not do. No unit test either.
+
 - **GIVEN** a remote employee authenticated AND the session is
   idle past the Nextcloud-configured timeout
 - **WHEN** the next heartbeat fires
@@ -170,6 +184,8 @@ MUST resume without losing in-progress widget state.
 
 #### Scenario: No launchpad-local timer
 
+@e2e exclude a source scan, not a browser behaviour, and no test performs it. Checked by hand: the only setInterval near a session in src is useDashboardLock.js, which renews a dashboard edit lock and never logs out or redirects.
+
 - **GIVEN** the workspace shell source files
 - **WHEN** scanned for `setTimeout` / `setInterval` calls that
   trigger logout, redirect, or session-end
@@ -177,6 +193,8 @@ MUST resume without losing in-progress widget state.
   Nextcloud)
 
 #### Scenario: Re-auth preserves in-progress state
+
+@e2e exclude needs an expired session, which the CI fixture cannot produce (see Session expires above), and launchpad has no re-auth handling of its own to test. No unit test either.
 
 - **GIVEN** a viewer is editing a widget's config when the session
   expires
@@ -203,6 +221,8 @@ policy" table — the per-role visibility engine already exists.
 
 #### Scenario: News feed via existing news capability (Specter source)
 
+@e2e exclude needs an external service the CI fixture lacks: the news widget fetches feeds server-side, https only (NewsWidgetService::isHttpsUrl), from an allow-listed host, and CI has no https feed host Nextcloud can reach. Role scoping by a visibility rule is the same mechanism the curated-app-list test proves; the news rendering itself belongs to the news-widget spec.
+
 - **GIVEN** a `news-widget` is placed AND scoped per role
 - **WHEN** the employee opens the dashboard
 - **THEN** the news feed MUST render via that widget — no new
@@ -210,10 +230,34 @@ policy" table — the per-role visibility engine already exists.
 
 #### Scenario: No launchpad-local mobile-policy table
 
+@e2e exclude a source inspection, not a browser behaviour, and no test performs it. Checked by hand: no file in lib/Migration mentions a mobile policy or app whitelist.
+
 - **GIVEN** the launchpad migrations after this widget ships
 - **WHEN** inspected
 - **THEN** no migration introducing a "mobile policy" /
   "mobile app whitelist" / "mobile news policy" table MUST exist
+
+### Requirement: The phone notice names the hidden widgets (REQ-MRA-007)
+
+When widgets are hidden on a phone (REQ-MRA-003), the notice at the top of the workspace SHALL say how many and name
+them by title: "2 widgets do not work on a phone and are hidden: Snel beginnen (Word) and Assistent." (nl "2 widgets
+werken niet op een telefoon en zijn verborgen: ..."), followed by a link "Which?" ("Welke?") that explains why a widget
+can be hidden on a phone and that the person sees it on a larger screen. The notice SHALL replace the "view desktop
+layout" link of REQ-MRA-003; there SHALL be no forced desktop layout on a phone. With more than three hidden widgets
+the notice SHALL name three and count the rest.
+
+#### Scenario: Pieter on his phone
+
+- **GIVEN** Mijn werkplek holds Snel beginnen and Assistent, neither ready for a phone
+- **WHEN** Pieter opens it at 390 px
+- **THEN** the notice reads "2 widgets werken niet op een telefoon en zijn verborgen: Snel beginnen (Word) en Assistent." with the link "Welke?"
+- **AND** no "view desktop layout" link is shown
+
+#### Scenario: Many hidden widgets
+
+- **GIVEN** five widgets on a dashboard are not ready for a phone
+- **WHEN** it opens at 390 px
+- **THEN** the notice names three of them and says "and 2 more"
 
 ## Non-Functional Requirements
 

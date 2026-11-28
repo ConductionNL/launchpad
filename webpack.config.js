@@ -6,14 +6,21 @@
 const webpackConfig = require('@nextcloud/webpack-vue-config')
 const fs = require('fs')
 const path = require('path')
+const webpack = require('webpack')
 
 webpackConfig.entry = {
 	main: path.join(__dirname, 'src', 'main.js'),
-	admin: path.join(__dirname, 'src', 'admin.js'),
+	// The admin page in Nextcloud's settings framework (/settings/admin/launchpad, REQ-ADM-032).
+	settings: path.join(__dirname, 'src', 'settings.js'),
 	// Anonymous read-only public-share page (/apps/launchpad/s/{token}).
 	public: path.join(__dirname, 'src', 'public.js'),
+	// Login-page redirect to the public start page (sharing-public-start-page D2).
+	'start-redirect': path.join(__dirname, 'src', 'startRedirect.js'),
 	// Anonymous full-screen kiosk player (/apps/launchpad/kiosk/{token}).
 	kiosk: path.join(__dirname, 'src', 'kiosk.js'),
+	// Public embed page shown in a host site's iframe (/apps/launchpad/embed/{subjectType}/{subjectId}).
+	embed: path.join(__dirname, 'src', 'embed-entry.js'),
+	// Personal settings: the person's own profile fields (REQ-PEX-002).
 }
 
 webpackConfig.output = {
@@ -22,17 +29,19 @@ webpackConfig.output = {
 	chunkFilename: 'launchpad-[name].js?v=[contenthash]',
 }
 
-// Use local source when available (monorepo dev), otherwise fall back to npm package
-const localLib = path.resolve(__dirname, '../nextcloud-vue/src')
-const useLocalLib = fs.existsSync(localLib)
-
+// @conduction/nextcloud-vue resolves from node_modules, at the version
+// package.json pins. The build used to switch silently to the source of any
+// ../nextcloud-vue checkout next to this app, whatever branch it was on: on
+// 11 Oct 2026 that was a 2.54-era branch, so the start page lost its
+// greeting and date line while package.json asked for ^2.67.0. To build
+// against a local checkout on purpose, `npm i ../nextcloud-vue/` and build
+// the library there (the same convention as pipelinq).
 webpackConfig.resolve = {
 	...(webpackConfig.resolve || {}),
 	alias: {
 		...(webpackConfig.resolve?.alias || {}),
-		...(useLocalLib ? { '@conduction/nextcloud-vue': localLib } : {}),
-		// Deduplicate shared packages so the aliased library source uses
-		// the same instances as the app (prevents dual-Pinia / dual-Vue bugs).
+		// Deduplicate shared packages so the library uses the same
+		// instances as the app (prevents dual-Pinia / dual-Vue bugs).
 		vue$: path.resolve(__dirname, 'node_modules/vue'),
 		// pinia 4 JOINED THE ESM-ONLY CATEGORY DESCRIBED JUST BELOW. 2.1.7
 		// declared `main: index.js` and `module: dist/pinia.mjs`, so a
@@ -77,4 +86,68 @@ webpackConfig.resolve = {
 	modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
 }
 
+// @nextcloud/vue 9 declares no `sideEffects`, so webpack keeps every module
+// its barrel re-exports (the emoji picker and its data, the rich-text and
+// date-picker stacks) even where nothing imports them. Its modules have no
+// import-time side effects other than their stylesheets, which stay included
+// through the CSS rule's own default.
+webpackConfig.module.rules.push({
+	test: /[\\/]node_modules[\\/]@nextcloud[\\/]vue[\\/]dist[\\/].*\.m?js$/,
+	sideEffects: false,
+})
+
+// A dynamic `import('@mdi/js')` (the icon pickers, the icon catalogue) uses
+// every export, and webpack keeps one copy of a module, so that copy lands
+// wherever a static `import { mdiX } from '@mdi/js'` puts it: the entry bundle,
+// with all 7,000 icons. Dynamic imports get a module of their own instead, so
+// the static imports stay tree-shaken and the full set stays in its own chunk.
+webpackConfig.plugins.push(new webpack.NormalModuleReplacementPlugin(/^@mdi\/js$/, (resource) => {
+	if ((resource.dependencies || []).some((dependency) => dependency.type === 'import()')) {
+		resource.request = '@mdi/js/mdi.js?on-demand'
+	}
+}))
+
+// Stylesheets are injected by style-loader as strings in the JavaScript. With
+// the production `source-map` devtool, css-loader also embeds each sheet's own
+// source map in that string: nextcloud-vue's 2 MB stylesheet then weighed
+// 5 MB of launchpad-main.js, which every page parses before it paints. The
+// JavaScript keeps its source maps; the sheets do not need one in the bundle.
+for (const rule of webpackConfig.module.rules) {
+	if (!Array.isArray(rule.use)) {
+		continue
+	}
+	rule.use = rule.use.map((loader) => (loader === 'css-loader'
+		? { loader: 'css-loader', options: { sourceMap: false } }
+		: loader))
+}
+
+// nextcloud-vue's stylesheet goes to css/nextcloud-vue.css, which the
+// workspace page links (PageController::stylesFor) instead of launchpad-main
+// inserting it as text: a linked sheet stays parsed between page loads. The
+// file is what '@conduction/nextcloud-vue/css/index.css' @imports.
+class LibraryStylesheetCopy {
+
+	apply(compiler) {
+		compiler.hooks.afterEmit.tap('LibraryStylesheetCopy', () => {
+			const entry = require.resolve('@conduction/nextcloud-vue/css/index.css')
+			const imported = /@import\s+['"]([^'"]+)['"]/.exec(fs.readFileSync(entry, 'utf8'))
+			const source = imported ? path.resolve(path.dirname(entry), imported[1]) : entry
+			fs.mkdirSync(path.join(__dirname, 'css'), { recursive: true })
+			fs.copyFileSync(source, path.join(__dirname, 'css', 'nextcloud-vue.css'))
+		})
+	}
+
+}
+webpackConfig.plugins.push(new LibraryStylesheetCopy())
+
 module.exports = webpackConfig
+
+// The minimizer forks one worker per CPU core less one by default, and each
+// worker holds a chunk and its source map while it minifies. On a 14-core box
+// that put the production build above 10 GB; a few workers finish about as
+// fast, because the largest chunks dominate the minify time anyway.
+for (const minimizer of webpackConfig.optimization?.minimizer || []) {
+	if (minimizer && minimizer.options) {
+		minimizer.options.parallel = Number(process.env.LAUNCHPAD_MINIFY_WORKERS || 2)
+	}
+}

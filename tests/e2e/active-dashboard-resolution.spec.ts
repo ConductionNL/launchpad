@@ -28,6 +28,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -35,12 +36,12 @@ import {
 
 /**
  * Navigate to the app and wait for the Vue app to hydrate past bootstrap.
- * The sidebar toggle is the first stable landmark the app injects.
+ * The More menu is the first stable landmark the shell renders.
  * @param {any} page Playwright page object
  */
 async function gotoApp(page: any) {
 	await page.goto('/index.php/apps/launchpad')
-	await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+	await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -59,7 +60,7 @@ const seeded: SeededDashboard[] = []
  * SEED TWO DASHBOARDS FOR THE ADMIN.
  *
  * The switching test needs at least two rows in the sidebar, and every test
- * outside the empty-state block reaches `.launchpad-sidebar-toggle`, which
+ * outside the empty-state block reaches the More menu, which
  * only renders once a dashboard is ACTIVE. `tests/e2e/seed.sh` creates only
  * the `e2e-grantee` user — never a dashboard — so on a fresh instance the
  * shell renders its empty state and those waits time out. Measured in CI run
@@ -106,7 +107,7 @@ test.describe('active-dashboard-resolution — empty state', () => {
 				// the empty state for a fresh account. `SeedDefaultDashboard`
 				// now provisions an INSTANCE-WIDE, group-shared dashboard on
 				// install and after every upgrade, precisely so that
-				// "No dashboards available" can no longer greet a new user —
+				// "You have no dashboard yet" can no longer greet a new user —
 				// that message was the defect the commit set out to remove.
 				//
 				// So the empty state is unreachable by construction, and the
@@ -136,18 +137,15 @@ test.describe('active-dashboard-resolution — empty state', () => {
 
 test.describe('active-dashboard-resolution — switchDashboard wires the POST', () => {
 	// @e2e active-dashboard-resolution::switch-dashboard-posts-active-preference
-	test('clicking a sidebar row activates the chosen dashboard server-side', async ({
+	test('choosing a dashboard in More activates it server-side', async ({
 		page,
 	}) => {
 		await gotoApp(page)
 
-		// Open the sidebar so the dashboard rows are visible.
-		await page.locator('.launchpad-sidebar-toggle').first().click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 8_000,
-		})
+		// Open More with every dashboard listed.
+		await openDashboardSwitcher(page)
 
-		const rows = page.locator('.dashboard-switcher-sidebar__item')
+		const rows = page.locator('[data-testid="launchpad-more-menu-dashboard-list"] [role="menuitemradio"]')
 		const rowCount = await rows.count()
 		if (rowCount < 2) {
 			test.skip(true, 'Need at least 2 dashboards to test switching')
@@ -167,10 +165,9 @@ test.describe('active-dashboard-resolution — switchDashboard wires the POST', 
 
 		// Click a non-active PERSONAL (owned) row — only owned dashboards take
 		// an active flag, so this exercises the real switch + persistence path.
+		// A personal row carries no shared/group marker.
 		const ownedInactiveRow = page
-			.locator(
-				'[data-source="user"].dashboard-switcher-sidebar__item:not(.active)',
-			)
+			.locator('[data-testid="launchpad-more-menu-dashboard-list"] [role="menuitemradio"][aria-checked="false"]:not(:has(.lp-more-menu__meta))')
 			.first()
 		await expect(ownedInactiveRow).toBeVisible({ timeout: 5_000 })
 		await ownedInactiveRow.click()

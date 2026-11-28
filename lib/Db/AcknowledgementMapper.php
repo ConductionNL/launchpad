@@ -25,6 +25,7 @@ namespace OCA\LaunchPad\Db;
 
 use DateTime;
 use OCP\AppFramework\Db\QBMapper;
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
@@ -35,6 +36,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<Acknowledgement>
  */
 class AcknowledgementMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor
 	 *
@@ -67,40 +70,9 @@ class AcknowledgementMapper extends QBMapper {
 		string $userId,
 		int $contentVersion,
 	): bool {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select($qb->func()->count('*', 'cnt'))
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'announcement_key',
-					y: $qb->createNamedParameter(value: $announcementKey)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'content_version',
-					y: $qb->createNamedParameter(
-						value: $contentVersion,
-						type: \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$match = ['announcement_key' => $announcementKey, 'user_id' => $userId, 'content_version' => $contentVersion];
 
-		$result = $qb->executeQuery();
-		$row = $result->fetch();
-		$result->closeCursor();
-
-		if (is_array($row) === false) {
-			return false;
-		}
-
-		return ((int)($row['cnt'] ?? 0)) > 0;
+		return $this->countWhere(match: $match) > 0;
 	}//end existsFor()
 
 	/**
@@ -121,31 +93,8 @@ class AcknowledgementMapper extends QBMapper {
 		string $userId,
 		int $contentVersion,
 	): ?Acknowledgement {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'announcement_key',
-					y: $qb->createNamedParameter(value: $announcementKey)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'content_version',
-					y: $qb->createNamedParameter(
-						value: $contentVersion,
-						type: \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->setMaxResults(maxResults: 1);
+		$qb = $this->selectWhere(match: ['announcement_key' => $announcementKey, 'user_id' => $userId, 'content_version' => $contentVersion]);
+		$qb->setMaxResults(maxResults: 1);
 
 		$entities = $this->findEntities(query: $qb);
 		if (empty($entities) === true) {
@@ -170,25 +119,8 @@ class AcknowledgementMapper extends QBMapper {
 		string $announcementKey,
 		int $contentVersion,
 	): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'announcement_key',
-					y: $qb->createNamedParameter(value: $announcementKey)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'content_version',
-					y: $qb->createNamedParameter(
-						value: $contentVersion,
-						type: \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->orderBy(sort: 'acknowledged_at', order: 'ASC')
+		$qb = $this->selectWhere(match: ['announcement_key' => $announcementKey, 'content_version' => $contentVersion]);
+		$qb->orderBy(sort: 'acknowledged_at', order: 'ASC')
 			->addOrderBy(sort: 'id', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
@@ -210,22 +142,8 @@ class AcknowledgementMapper extends QBMapper {
 		string $announcementKey,
 		string $userId,
 	): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'announcement_key',
-					y: $qb->createNamedParameter(value: $announcementKey)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->orderBy(sort: 'content_version', order: 'DESC');
+		$qb = $this->selectWhere(match: ['announcement_key' => $announcementKey, 'user_id' => $userId]);
+		$qb->orderBy(sort: 'content_version', order: 'DESC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByUserForAnnouncement()
@@ -262,4 +180,40 @@ class AcknowledgementMapper extends QBMapper {
 
 		return $this->insert(entity: $entity);
 	}//end record()
+
+	/**
+	 * Of the given announcement keys, the ones the user holds a receipt
+	 * for at any version, in one query. Backs the "I have read this" state
+	 * of every card in a list (REQ-ANN-007).
+	 *
+	 * @param string   $userId           The user.
+	 * @param string[] $announcementKeys The keys to look for.
+	 *
+	 * @return string[] The keys the user confirmed.
+	 *
+	 * @spec openspec/changes/archive/2026-11-24-announcement-form-board-sync/specs/announcements/spec.md#requirement-an-announcement-asks-for-a-read-confirmation-req-ann-007
+	 */
+	public function findKeysConfirmedBy(string $userId, array $announcementKeys): array {
+		if ($announcementKeys === []) {
+			return [];
+		}
+
+		$qb = $this->selectWhere(match: ['user_id' => $userId]);
+		$qb->andWhere(
+			$qb->expr()->in(
+				x: 'announcement_key',
+				y: $qb->createNamedParameter(
+					value: array_values($announcementKeys),
+					type: IQueryBuilder::PARAM_STR_ARRAY
+				)
+			)
+		);
+
+		$keys = array_map(
+			array: $this->findEntities(query: $qb),
+			callback: static fn (Acknowledgement $receipt): string => (string) $receipt->getAnnouncementKey()
+		);
+
+		return array_values(array_unique($keys));
+	}//end findKeysConfirmedBy()
 }//end class

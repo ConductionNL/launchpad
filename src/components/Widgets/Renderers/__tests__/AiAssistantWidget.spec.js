@@ -18,15 +18,18 @@ const created = []
 vi.mock('@conduction/nextcloud-vue', () => ({
 	chatHealthUrl: (appId) => `/index.php/apps/${appId}/api/chat/health`,
 	useAiChatStream: (instance, options) => {
-		const chat = reactive({
-			messages: [],
-			isStreaming: false,
-			currentText: '',
-			error: null,
+		// The composable's real shape: reactive `state` beside the methods.
+		const chat = {
+			state: reactive({
+				messages: [],
+				isStreaming: false,
+				currentText: '',
+				error: null,
+			}),
 			options,
-		})
+		}
 		chat.send = vi.fn(async (content) => {
-			chat.messages.push(
+			chat.state.messages.push(
 				{ role: 'user', content },
 				{ role: 'assistant', content: 'Two cases are overdue.' },
 			)
@@ -110,5 +113,12 @@ describe('AiAssistantWidget', () => {
 			{ agentUuid: '' },
 		)
 		expect(wrapper.text()).toContain('Two cases are overdue.')
+	})
+
+	// add-widget-dialog-with-miniatures REQ-WDG-048: a miniature asks nothing.
+	it('sends no request as a miniature', async () => {
+		mount(AiAssistantWidget, { props: { content: { agentUuid: '' }, placement: big, preview: true } })
+		await flushPromises()
+		expect(axios.get).not.toHaveBeenCalled()
 	})
 })

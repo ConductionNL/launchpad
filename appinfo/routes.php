@@ -7,8 +7,11 @@ declare(strict_types=1);
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-return [
+// Every unversioned API route is also served under /api/v1/; see ApiPathAliases.
+return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 	'routes' => [
+		// The OpenAPI document of launchpad's own API, public, served under /api/v1/ too.
+		['name' => 'openApi#show', 'url' => '/api/openapi.json', 'verb' => 'GET'],
 		// v2 runtime manifest (ADR-036 Decision 8). Registered FIRST so the
 		// literal '/api/manifest' segment is matched before any wildcard.
 		// First-time setup wizard (ADR-042) — the standard CnSetupWizard contract.
@@ -38,13 +41,31 @@ return [
 		['name' => 'store#updateConfig', 'url' => '/api/store/config', 'verb' => 'PUT'],
 		['name' => 'store#install', 'url' => '/api/store/items/{slug}/install', 'verb' => 'POST',
 		 'requirements' => ['slug' => '[a-z0-9][a-z0-9\-]*[a-z0-9]']],
+		// REQ-STORE-012: bring an installed item to the register's newer version in place.
+		['name' => 'store#update', 'url' => '/api/store/items/{slug}/update', 'verb' => 'POST',
+		 'requirements' => ['slug' => '[a-z0-9][a-z0-9\-]*[a-z0-9]']],
+
+		// REQ-STORE-013: the publish dialog lists the dashboards and publishes one.
+		['name' => 'store#publishable', 'url' => '/api/store/publishable', 'verb' => 'GET'],
+		['name' => 'store#publish', 'url' => '/api/store/publish', 'verb' => 'POST'],
 
 		// Generic per-user preferences (used by shared nextcloud-vue widgets, e.g. CnSupportDialog).
 		['name' => 'preferences#getPreference', 'url' => '/api/preferences/{key}', 'verb' => 'GET'],
 		['name' => 'preferences#setPreference', 'url' => '/api/preferences/{key}', 'verb' => 'PUT'],
+		// The signed-in person's own analytics opt-out (REQ-ANLT-UI-001).
+		['name' => 'analyticsOptOut#show', 'url' => '/api/analytics/me', 'verb' => 'GET'],
+		['name' => 'analyticsOptOut#update', 'url' => '/api/analytics/me', 'verb' => 'PUT'],
+		// Personal-settings REQ-PSET-002: the caller's own summary email choice.
+		['name' => 'summaryMail#show', 'url' => '/api/summary-mail/me', 'verb' => 'GET'],
+		['name' => 'summaryMail#update', 'url' => '/api/summary-mail/me', 'verb' => 'PUT'],
 
 		// Main page
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
+
+		// The former administration address: a 303 to /settings/admin/launchpad#<tab>
+		// (REQ-ADM-033). Registered before the `/{deepLink}` catch-all.
+		['name' => 'adminPage#show', 'url' => '/admin/{tab}', 'verb' => 'GET',
+		 'defaults' => ['tab' => 'general'], 'requirements' => ['tab' => '[a-z0-9\-]+']],
 
 		// User dashboard endpoints (REQ-DASH-002..010).
 		// NOTE: specific routes (`/visible`, `/group/...`, `/active`, `/{uuid}/fork`) MUST precede the
@@ -173,6 +194,11 @@ return [
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		['name' => 'dashboardLockApi#get', 'url' => '/api/dashboards/{uuid}/lock', 'verb' => 'GET',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		// Who edits a dashboard right now (building-edit-a-dashboard-together 1.1).
+		['name' => 'dashboardPresenceApi#join', 'url' => '/api/dashboards/{uuid}/presence', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboardPresenceApi#leave', 'url' => '/api/dashboards/{uuid}/presence', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
 		// Public-share management endpoints (REQ-PSHR-001..003). Owner-or-admin.
 		// Registered BEFORE the wildcard `{id}` personal-scope routes above so the
@@ -197,8 +223,14 @@ return [
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
 		['name' => 'publicShare#unlock', 'url' => '/s/{token}/unlock', 'verb' => 'POST',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
+		// Public-live-widgets REQ-PSHR-011: a news, weather or live data widget's data on the shared page.
+		['name' => 'publicWidget#share', 'url' => '/s/{token}/placements/{placementId}', 'verb' => 'GET',
+		 'requirements' => ['token' => '[A-Za-z0-9]+', 'placementId' => '\d+']],
 		['name' => 'page#publicShare', 'url' => '/s/{token}', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
+		// sharing-public-start-page REQ-PSP-002: the public start page signed-out
+		// visitors land on. #[PublicPage]; falls back to the login form.
+		['name' => 'page#start', 'url' => '/start', 'verb' => 'GET'],
 
 		// Kiosk playlist management endpoints (REQ-KIOSK-002). Owner-or-admin,
 		// `#[NoAdminRequired]` + service-layer per-dashboard guards. The literal
@@ -209,11 +241,25 @@ return [
 		 'requirements' => ['id' => '\d+']],
 		['name' => 'kiosk#destroy', 'url' => '/api/kiosk/playlists/{id}', 'verb' => 'DELETE',
 		 'requirements' => ['id' => '\d+']],
+		// Screen link of one dashboard, from its Sharing tab (REQ-KIOSK-006).
+		// `#[NoAdminRequired]` + may-share guard in ScreenLinkController/KioskService.
+		['name' => 'screenLink#show', 'url' => '/api/dashboards/{uuid}/screen-link', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'screenLink#create', 'url' => '/api/dashboards/{uuid}/screen-link', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'screenLink#destroy', 'url' => '/api/dashboards/{uuid}/screen-link', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		// Public (anonymous) kiosk render (REQ-KIOSK-003). #[PublicPage] +
 		// #[NoCSRFRequired] + shared `launchpad_share_access` throttle bucket.
 		// Registered BEFORE the deep-link catch-all at the bottom.
 		['name' => 'kiosk#render', 'url' => '/kiosk/{token}', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
+		// One entry, fetched by the player just before it shows it (REQ-KIOSK-004).
+		['name' => 'kiosk#renderEntry', 'url' => '/kiosk/{token}/dashboards/{uuid}', 'verb' => 'GET',
+		 'requirements' => ['token' => '[A-Za-z0-9]+', 'uuid' => '[A-Za-z0-9\-]+']],
+		// Public-live-widgets REQ-PSHR-011: a news, weather or live data widget's data on the screen.
+		['name' => 'publicWidget#kiosk', 'url' => '/kiosk/{token}/placements/{placementId}', 'verb' => 'GET',
+		 'requirements' => ['token' => '[A-Za-z0-9]+', 'placementId' => '\d+']],
 
 		// Dashboard sharing endpoints (REQ-SHARE-001..010).
 		['name' => 'dashboardShareApi#index', 'url' => '/api/dashboard/{id}/shares', 'verb' => 'GET'],
@@ -247,6 +293,14 @@ return [
 		 'url' => '/api/dashboards/{uuid}/reactions', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
+		// The More menu's favourite dashboards (more-menu-favourites, REQ-SHELL-016).
+		['name' => 'favouriteDashboardApi#star',
+		 'url' => '/api/dashboards/{uuid}/favourite', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'favouriteDashboardApi#unstar',
+		 'url' => '/api/dashboards/{uuid}/favourite', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+
 		// A person's own arrangement of a dashboard somebody else owns
 		// (dashboards-and-who-may-see-them REQ-DWMS-001, REQ-DWMS-002). The
 		// id requirement is digits only, so these cannot swallow the
@@ -262,6 +316,80 @@ return [
 		 'url' => '/api/dashboards/{dashboardId}/personal-layer', 'verb' => 'DELETE',
 		 'requirements' => ['dashboardId' => '\d+']],
 
+		// Personal-settings REQ-PSET-003: every widget the caller hid, across
+		// dashboards, for the settings dialog. Caller's own layers only.
+		['name' => 'hiddenWidgetsApi#index',
+		 'url' => '/api/personal-layer/hidden', 'verb' => 'GET'],
+		['name' => 'hiddenWidgetsApi#showAgain',
+		 'url' => '/api/personal-layer/hidden/{placementId}', 'verb' => 'DELETE',
+		 'requirements' => ['placementId' => '\d+']],
+		['name' => 'hiddenWidgetsApi#showAll',
+		 'url' => '/api/personal-layer/hidden', 'verb' => 'DELETE'],
+
+		// engagement-announcements: news items and notices. The literal
+		// `/reach` and `/follows` routes come before `/{uuid}`.
+		['name' => 'announcement#index', 'url' => '/api/announcements', 'verb' => 'GET'],
+		['name' => 'announcement#create', 'url' => '/api/announcements', 'verb' => 'POST'],
+		['name' => 'announcement#reach', 'url' => '/api/announcements/reach', 'verb' => 'GET'],
+		// REQ-ANN-008: every announcement for the Announcements tab; managers only.
+		['name' => 'announcement#manage', 'url' => '/api/announcements/manage', 'verb' => 'GET'],
+		['name' => 'announcementGroups#index', 'url' => '/api/announcements/groups', 'verb' => 'GET'],
+		// D1: the groups delegated the announcements setting, for the Roles tab; administrators.
+		['name' => 'announcementDelegation#index', 'url' => '/api/announcements/delegation', 'verb' => 'GET'],
+		['name' => 'announcementRead#state', 'url' => '/api/announcements/read-state', 'verb' => 'GET'],
+		// REQ-ANN-009: the announcements that came into view, batched after render.
+		['name' => 'announcementRead#seen', 'url' => '/api/announcements/seen', 'verb' => 'POST'],
+		// REQ-ANN-008: seen and confirmed per announcement on the tab's list; managers only.
+		['name' => 'announcementRead#counts', 'url' => '/api/announcements/receipt-counts', 'verb' => 'GET'],
+		['name' => 'announcement#follow', 'url' => '/api/announcements/follows', 'verb' => 'POST'],
+		['name' => 'announcement#unfollow', 'url' => '/api/announcements/follows/{category}', 'verb' => 'DELETE'],
+		['name' => 'announcement#show',
+		 'url' => '/api/announcements/{uuid}', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#update',
+		 'url' => '/api/announcements/{uuid}', 'verb' => 'PUT',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#destroy',
+		 'url' => '/api/announcements/{uuid}', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#publish',
+		 'url' => '/api/announcements/{uuid}/publish', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		// REQ-ANN-002: likes and comments, stored by Nextcloud's comments service.
+		['name' => 'announcement#comments',
+		 'url' => '/api/announcements/{uuid}/comments', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#comment',
+		 'url' => '/api/announcements/{uuid}/comments', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#like',
+		 'url' => '/api/announcements/{uuid}/like', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		// REQ-ANN-007: "I have read this" and the author's read confirmations.
+		['name' => 'announcementRead#confirm',
+		 'url' => '/api/announcements/{uuid}/read', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcementRead#receipts',
+		 'url' => '/api/announcements/{uuid}/receipts', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		// REQ-ANN-007/-009: the check or the x confirms; Send reminder, once a day.
+		['name' => 'announcementRead#confirmVia',
+		 'url' => '/api/announcements/{uuid}/confirm', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcementManager#remind',
+		 'url' => '/api/announcements/{uuid}/remind', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#unlike',
+		 'url' => '/api/announcements/{uuid}/like', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+
+		// The shipped reports (dashboards-and-who-may-see-them REQ-DWMS-003).
+		['name' => 'reportApi#index', 'url' => '/api/reports', 'verb' => 'GET'],
+		['name' => 'reportApi#run', 'url' => '/api/reports/{reportId}', 'verb' => 'GET',
+		 'requirements' => ['reportId' => '[a-z0-9-]+']],
+		['name' => 'reportApi#save', 'url' => '/api/reports/{reportId}/dashboard', 'verb' => 'POST',
+		 'requirements' => ['reportId' => '[a-z0-9-]+']],
+
 		// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
 		// The `/report/{announcementKey}/csv` route is registered BEFORE the
 		// plain report route so the `/csv` suffix is matched first, and both
@@ -272,6 +400,9 @@ return [
 		['name' => 'acknowledgement#report',
 		 'url' => '/api/acknowledgements/report/{announcementKey}', 'verb' => 'GET',
 		 'requirements' => ['announcementKey' => '[A-Za-z0-9\-]+']],
+		// REQ-ACK-008: the widgets that ask for confirmation, on the Announcements tab.
+		['name' => 'announcementManager#widgets',
+		 'url' => '/api/acknowledgements/widgets', 'verb' => 'GET'],
 		['name' => 'acknowledgement#pending',
 		 'url' => '/api/acknowledgements/pending', 'verb' => 'GET'],
 		['name' => 'acknowledgement#acknowledge',
@@ -307,6 +438,8 @@ return [
 		 'requirements' => ['placementId' => '\d+']],
 		['name' => 'widgetApi#addWidget', 'url' => '/api/dashboard/{dashboardId}/widgets', 'verb' => 'POST'],
 		['name' => 'widgetApi#addTile', 'url' => '/api/dashboard/{dashboardId}/tile', 'verb' => 'POST'],
+		// launcher-bookmark-import REQ-BMI-001: chosen browser bookmarks as containers and tiles.
+		['name' => 'bookmarkImport#import', 'url' => '/api/dashboard/{dashboardId}/tiles/import', 'verb' => 'POST'],
 		// REQ-CAL-003: calendar widget events endpoint. Registered BEFORE
 		// the wildcard `/api/widgets/{placementId}` PUT/DELETE so the
 		// literal `calendar` segment is matched first.
@@ -315,14 +448,27 @@ return [
 		 'requirements' => ['placementId' => '\d+']],
 		// REQ-CAL-002: list the user's calendars for the config-form picker.
 		['name' => 'widgetApi#calendars', 'url' => '/api/widgets/calendar/calendars', 'verb' => 'GET'],
+		// REQ-VID-005: parse and validate a video URL typed into the widget form.
+		['name' => 'videoParse#parse', 'url' => '/api/widgets/video/parse', 'verb' => 'POST'],
+		// REQ-VID-006: the streaming address of a video placement's Nextcloud file, for its viewer.
+		['name' => 'videoWidget#file',
+		 'url' => '/api/widgets/video/{placementId}/file', 'verb' => 'GET',
+		 'requirements' => ['placementId' => '\d+']],
 		['name' => 'widgetApi#updatePlacement', 'url' => '/api/widgets/{placementId}', 'verb' => 'PUT'],
 		['name' => 'widgetApi#removePlacement', 'url' => '/api/widgets/{placementId}', 'verb' => 'DELETE'],
 
 		// Tile endpoints
 		['name' => 'tileApi#index', 'url' => '/api/tiles', 'verb' => 'GET'],
+		// REQ-DISC-001: the apps in the caller's own app menu, to place as tiles.
+		['name' => 'tileApi#discover', 'url' => '/api/tiles/discover', 'verb' => 'GET'],
+		['name' => 'tileApi#foundServices', 'url' => '/api/tiles/found-services', 'verb' => 'GET'],
 		['name' => 'tileApi#create', 'url' => '/api/tiles', 'verb' => 'POST'],
 		['name' => 'tileApi#update', 'url' => '/api/tiles/{id}', 'verb' => 'PUT'],
 		['name' => 'tileApi#destroy', 'url' => '/api/tiles/{id}', 'verb' => 'DELETE'],
+		// launcher-tile-launch-types D3: the .rdp file of a remote-desktop tile,
+		// for a caller who may view the tile's dashboard.
+		['name' => 'tileLaunch#rdp', 'url' => '/api/tiles/{placementId}/rdp', 'verb' => 'GET',
+		 'requirements' => ['placementId' => '\d+']],
 
 		// Conditional rules endpoints
 		['name' => 'ruleApi#getRules', 'url' => '/api/widgets/{placementId}/rules', 'verb' => 'GET'],
@@ -354,6 +500,9 @@ return [
 		// createFile flow. POST-only; validates filename, dir, and the
 		// admin-configured extension allow-list before touching storage.
 		['name' => 'file#createFile', 'url' => '/api/files/create', 'verb' => 'POST'],
+		// integrations-office-tiles: the office tile pack and a new file from an office app's blank template.
+		['name' => 'officeTiles#list', 'url' => '/api/office-tiles', 'verb' => 'GET'],
+		['name' => 'officeTiles#create', 'url' => '/api/office-tiles/create', 'verb' => 'POST'],
 
 		// Files widget endpoints (REQ-FLS-003, REQ-FLS-007, REQ-FLS-008).
 		// All three are scoped to a placement id so the controller can
@@ -402,6 +551,17 @@ return [
 		['name' => 'template#gallery', 'url' => '/api/templates/gallery', 'verb' => 'GET'],
 
 		// Admin endpoints
+		// Templates LaunchPad ships with (REQ-TMPL-018). Registered BEFORE
+		// the `/api/admin/templates/{id}` wildcard routes so the literal
+		// `shipped` segment wins.
+		['name' => 'adminShippedTemplate#index', 'url' => '/api/admin/templates/shipped', 'verb' => 'GET'],
+		['name' => 'adminShippedTemplate#install',
+		 'url' => '/api/admin/templates/shipped/{id}/install', 'verb' => 'POST',
+		 'requirements' => ['id' => '[a-z0-9\\-]+']],
+		// Update an installed shipped template in place (REQ-TMPL-020).
+		['name' => 'adminShippedTemplate#update',
+		 'url' => '/api/admin/templates/shipped/{id}/update', 'verb' => 'POST',
+		 'requirements' => ['id' => '[a-z0-9\\-]+']],
 		['name' => 'admin#listTemplates', 'url' => '/api/admin/templates', 'verb' => 'GET'],
 		['name' => 'admin#createTemplate', 'url' => '/api/admin/templates', 'verb' => 'POST'],
 		// Preview-image upload — REQ-TMPL-017. Registered BEFORE the
@@ -416,8 +576,32 @@ return [
 		['name' => 'admin#getTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'GET'],
 		['name' => 'admin#updateTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'PUT'],
 		['name' => 'admin#deleteTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'DELETE'],
+		// Activity reporting on named people (dashboards-and-who-may-see-them REQ-DWMS-005/006):
+		// off until an administrator turns it on with a purpose; anybody reads their own.
+		['name' => 'activityReport#report', 'url' => '/api/activity-report', 'verb' => 'GET'],
+		['name' => 'activityReport#export', 'url' => '/api/activity-report/export', 'verb' => 'GET'],
+		['name' => 'activityReport#policy', 'url' => '/api/admin/activity-reporting', 'verb' => 'GET'],
+		['name' => 'activityReport#updatePolicy', 'url' => '/api/admin/activity-reporting', 'verb' => 'PUT'],
+		// Recent colleague activity (dashboards-and-who-may-see-them REQ-DWMS-007): the caller's
+		// own activity stream, minus their own actions and what they may no longer see.
+		['name' => 'colleagueActivity#index', 'url' => '/api/colleague-activity', 'verb' => 'GET'],
+		// The signed-in person's open OpenProject work packages, through the
+		// official OpenProject integration (work-packages-widget REQ-WP-001).
+		['name' => 'workPackages#index', 'url' => '/api/work-packages', 'verb' => 'GET'],
+		// Storage use per workspace and service (dashboards-and-who-may-see-them REQ-DWMS-010):
+		// administrators only, with a twelve-month series and the removable total.
+		['name' => 'storageReport#report', 'url' => '/api/admin/storage-report', 'verb' => 'GET'],
+		['name' => 'storageReport#export', 'url' => '/api/admin/storage-report/export', 'verb' => 'GET'],
+		// Status reports (dashboards-and-who-may-see-them REQ-DWMS-004): the product prefills,
+		// a person may rewrite the rating and the summary, the kept report records which is which.
+		['name' => 'statusReport#draft', 'url' => '/api/status-reports/draft', 'verb' => 'POST'],
+		['name' => 'statusReport#keep', 'url' => '/api/status-reports', 'verb' => 'POST'],
 		['name' => 'admin#getSettings', 'url' => '/api/admin/settings', 'verb' => 'GET'],
 		['name' => 'admin#updateSettings', 'url' => '/api/admin/settings', 'verb' => 'PUT'],
+		// REQ-SHARE-015: who may share (Everyone, Only these groups, Nobody) and the public-link switch.
+		['name' => 'sharingPolicy#update', 'url' => '/api/admin/sharing-policy', 'verb' => 'PUT'],
+		// REQ-SHARE-016: where a leaver's dashboards go.
+		['name' => 'sharingPolicy#updateLeaverHandover', 'url' => '/api/admin/leaver-handover', 'verb' => 'PUT'],
 
 		// Admin conditional-visibility overview (Beheer ▸ Versioning &
 		// Audit). Admin-only via #[AuthorizedAdminSetting]. Literal URL —
@@ -436,11 +620,27 @@ return [
 		['name' => 'admin#getFooterSettings', 'url' => '/api/admin/footer-settings', 'verb' => 'GET'],
 		['name' => 'admin#updateFooterSettings', 'url' => '/api/admin/footer-settings', 'verb' => 'PUT'],
 
+		// Administrator CSS, cleaned and scoped on save (REQ-THM-003).
+		['name' => 'adminSettings#showCustomCss', 'url' => '/api/admin/custom-css', 'verb' => 'GET'],
+		['name' => 'adminSettings#updateCustomCss', 'url' => '/api/admin/custom-css', 'verb' => 'PUT'],
+		['name' => 'adminSettings#updateDashboardCustomCss', 'url' => '/api/admin/custom-css/dashboards/{uuid}', 'verb' => 'PUT'],
+
 		// Admin group-priority order endpoints (REQ-ASET-012,
 		// REQ-ASET-013, REQ-ASET-014). Both admin-only via runtime
 		// `IGroupManager::isAdmin` check inside the controller.
 		['name' => 'adminSettings#listGroups', 'url' => '/api/admin/groups', 'verb' => 'GET'],
 		['name' => 'adminSettings#updateGroupOrder', 'url' => '/api/admin/groups', 'verb' => 'POST'],
+		// sharing-public-start-page REQ-PSP-001: choose the public link signed-out visitors see.
+		['name' => 'publicStart#show', 'url' => '/api/admin/public-start', 'verb' => 'GET'],
+		['name' => 'publicStart#update', 'url' => '/api/admin/public-start', 'verb' => 'PUT'],
+		// REQ-IMG-006: the external hosts image widgets may load from.
+		['name' => 'imageHost#show', 'url' => '/api/admin/image-hosts', 'verb' => 'GET'],
+		['name' => 'imageHost#update', 'url' => '/api/admin/image-hosts', 'verb' => 'PUT'],
+		// REQ-ASET-021: the outside websites launchpad may embed or fetch from.
+		['name' => 'allowedSites#show', 'url' => '/api/admin/allowed-sites', 'verb' => 'GET'],
+		['name' => 'allowedSites#update', 'url' => '/api/admin/allowed-sites', 'verb' => 'PUT'],
+		['name' => 'discoverableServices#show', 'url' => '/api/admin/discoverable-services', 'verb' => 'GET'],
+		['name' => 'discoverableServices#update', 'url' => '/api/admin/discoverable-services', 'verb' => 'PUT'],
 
 		// Dashboard export / import (REQ-EXIM-002..004). Both admin-only
 		// via runtime `IGroupManager::isAdmin` check inside the
@@ -454,6 +654,33 @@ return [
 		// for the `people` LaunchPad widget. Authenticated users only;
 		// returns `{users, total, hasMore}` with offset-based pagination.
 		['name' => 'peopleWidget#getUsers', 'url' => '/api/people', 'verb' => 'GET'],
+		// REQ-PPL-014: the people widget's New colleagues selection.
+		['name' => 'newColleagues#getNew', 'url' => '/api/people/new', 'verb' => 'GET'],
+
+		// Search shortcuts (search-ai-prefix-shortcuts REQ-QSP-001): admin list.
+		['name' => 'adminSettings#listSearchShortcuts', 'url' => '/api/admin/search-shortcuts', 'verb' => 'GET'],
+		['name' => 'adminSettings#saveSearchShortcuts', 'url' => '/api/admin/search-shortcuts', 'verb' => 'PUT'],
+
+		// Custom profile fields (REQ-PEX-001, REQ-PEX-002): own values for
+		// every signed-in person, definitions for administrators.
+		// launcher-app-catalogue: the approved apps a user may see and a request
+		// for a missing one (REQ-ACAT-002/003), and the admin side (REQ-ACAT-001/004).
+		['name' => 'catalogue#index', 'url' => '/api/catalogue', 'verb' => 'GET'],
+		['name' => 'catalogue#request', 'url' => '/api/catalogue/requests', 'verb' => 'POST'],
+		// The assistant line of Add widget (widget-picker-board-sync, REQ-WDG-045).
+		['name' => 'widgetProposal#assistant', 'url' => '/api/widget-picker/assistant', 'verb' => 'GET'],
+		['name' => 'widgetProposal#propose', 'url' => '/api/widget-picker/proposal', 'verb' => 'POST'],
+		['name' => 'adminCatalogue#index', 'url' => '/api/admin/catalogue', 'verb' => 'GET'],
+		['name' => 'adminCatalogue#create', 'url' => '/api/admin/catalogue', 'verb' => 'POST'],
+		['name' => 'adminCatalogue#setManagerGroup', 'url' => '/api/admin/catalogue/settings', 'verb' => 'PUT'],
+		['name' => 'adminCatalogue#approve', 'url' => '/api/admin/catalogue/requests/{uuid}/approve', 'verb' => 'POST'],
+		['name' => 'adminCatalogue#decline', 'url' => '/api/admin/catalogue/requests/{uuid}/decline', 'verb' => 'POST'],
+		['name' => 'adminCatalogue#update', 'url' => '/api/admin/catalogue/{uuid}', 'verb' => 'PUT'],
+		['name' => 'adminCatalogue#destroy', 'url' => '/api/admin/catalogue/{uuid}', 'verb' => 'DELETE'],
+		['name' => 'profileFields#getOwn', 'url' => '/api/profile-fields/me', 'verb' => 'GET'],
+		['name' => 'profileFields#saveOwn', 'url' => '/api/profile-fields/me', 'verb' => 'PUT'],
+		['name' => 'profileFields#getDefinitions', 'url' => '/api/profile-fields/definitions', 'verb' => 'GET'],
+		['name' => 'profileFields#saveDefinitions', 'url' => '/api/profile-fields/definitions', 'verb' => 'PUT'],
 
 		// Setup wizard endpoints (REQ-WIZ-008, REQ-WIZ-009, REQ-WIZ-003).
 		// Admin-only via runtime `IGroupManager::isAdmin` check inside the
@@ -462,7 +689,6 @@ return [
 		// Step 2 choice immediately on `Next`.
 		['name' => 'admin#getWizardState', 'url' => '/api/admin/setup-wizard/state', 'verb' => 'GET'],
 		['name' => 'admin#completeWizard', 'url' => '/api/admin/setup-wizard/complete', 'verb' => 'POST'],
-		['name' => 'admin#setWizardStorage', 'url' => '/api/admin/setup-wizard/storage', 'verb' => 'POST'],
 
 		// Confluence HTML export importer (REQ-CFLI-001..012). Admin-only
 		// via runtime `IGroupManager::isAdmin` check inside the
@@ -539,6 +765,29 @@ return [
 		// `/api/admin/...` admin surface.
 		['name' => 'adminCleanup#scan', 'url' => '/api/admin/cleanup/scan', 'verb' => 'GET'],
 		['name' => 'adminCleanup#purge', 'url' => '/api/admin/cleanup/purge', 'verb' => 'POST'],
+		// Public embed render route (embedded-analytics, REQ-EMB-002/003/007/008):
+		// the token is checked by EmbedTokenMiddleware, the subject by EmbedController.
+		['name' => 'embed#render', 'url' => '/embed/{subjectType}/{subjectId}', 'verb' => 'GET'],
+		['name' => 'embed#data', 'url' => '/embed/{subjectType}/{subjectId}/data', 'verb' => 'GET'],
+		// The embed SDK bundles, served with the app (embedded-analytics task 24): public and cacheable.
+		['name' => 'embedSdk#bundle', 'url' => '/embed-sdk/{file}', 'verb' => 'GET'],
+		// Embed tokens (embedded-analytics, REQ-EMB-001/008/009): admin-only.
+		['name' => 'embedTokenApi#index', 'url' => '/api/embed-tokens', 'verb' => 'GET'],
+		['name' => 'embedTokenApi#create', 'url' => '/api/embed-tokens', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#telemetry', 'url' => '/api/embed-settings/telemetry', 'verb' => 'GET'],
+		['name' => 'embedTokenApi#setTelemetry', 'url' => '/api/embed-settings/telemetry', 'verb' => 'PUT'],
+		['name' => 'embedTokenApi#show', 'url' => '/api/embed-tokens/{id}', 'verb' => 'GET'],
+		['name' => 'embedTokenApi#update', 'url' => '/api/embed-tokens/{id}', 'verb' => 'PUT'],
+		['name' => 'embedTokenApi#revoke', 'url' => '/api/embed-tokens/{id}/revoke', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#unrevoke', 'url' => '/api/embed-tokens/{id}/unrevoke', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#reissue', 'url' => '/api/embed-tokens/{id}/re-issue', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#purgeCache', 'url' => '/api/embed-tokens/{id}/purge-cache', 'verb' => 'POST'],
+		['name' => 'embedTokenApi#usage', 'url' => '/api/embed-tokens/{id}/usage', 'verb' => 'GET'],
+		// Tenant themes (embedded-analytics, REQ-EMB-005): admin-only.
+		['name' => 'tenantThemeApi#index', 'url' => '/api/tenant-themes', 'verb' => 'GET'],
+		['name' => 'tenantThemeApi#create', 'url' => '/api/tenant-themes', 'verb' => 'POST'],
+		['name' => 'tenantThemeApi#update', 'url' => '/api/tenant-themes/{id}', 'verb' => 'PUT'],
+		['name' => 'tenantThemeApi#destroy', 'url' => '/api/tenant-themes/{id}', 'verb' => 'DELETE'],
 
 		// Org-wide navigation editor (REQ-ONAV-001..012). The /position
 		// routes MUST precede the bare /org-navigation routes so the
@@ -548,6 +797,8 @@ return [
 		 'url' => '/api/admin/org-navigation/position', 'verb' => 'GET'],
 		['name' => 'adminOrgNavigation#updatePosition',
 		 'url' => '/api/admin/org-navigation/position', 'verb' => 'PUT'],
+		['name' => 'adminOrgNavigation#getEditableOrgNavigation',
+		 'url' => '/api/admin/org-navigation/editor', 'verb' => 'GET'],
 		['name' => 'adminOrgNavigation#getOrgNavigation',
 		 'url' => '/api/admin/org-navigation', 'verb' => 'GET'],
 		['name' => 'adminOrgNavigation#updateOrgNavigation',
@@ -580,6 +831,10 @@ return [
 		 'url' => '/api/admin/demo-showcases/{id}', 'verb' => 'DELETE',
 		 'requirements' => ['id' => '[a-z0-9\-]+']],
 
+		// Attention feed: what the user's apps declare as needing attention
+		// (REQ-ATT-002). Declarations only; the widget runs the counts.
+		['name' => 'attention#sources', 'url' => '/api/attention/sources', 'verb' => 'GET'],
+
 		// Weather widget — cached reading for one placement (REQ-WEATHER-001).
 		// View-time ACL guarded in the controller; never returns the provider
 		// API key or raw provider URL.
@@ -606,6 +861,19 @@ return [
 		// widget asks the server before rendering the iframe.
 		['name' => 'iframe#checkFramable', 'url' => '/api/iframe/framable', 'verb' => 'POST'],
 
+		// Scheduled exports (scheduled-exports tasks 10-11): CRUD, run now,
+		// preview, run history and retry. Owner-or-admin checked in the service.
+		['name' => 'scheduledExport#index', 'url' => '/api/exports', 'verb' => 'GET'],
+		['name' => 'scheduledExport#create', 'url' => '/api/exports', 'verb' => 'POST'],
+		['name' => 'scheduledExport#show', 'url' => '/api/exports/{id}', 'verb' => 'GET', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#update', 'url' => '/api/exports/{id}', 'verb' => 'PATCH', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#destroy', 'url' => '/api/exports/{id}', 'verb' => 'DELETE', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#run', 'url' => '/api/exports/{id}/run', 'verb' => 'POST', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#preview', 'url' => '/api/exports/{id}/preview', 'verb' => 'POST', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#runs', 'url' => '/api/exports/{id}/runs', 'verb' => 'GET', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#showRun', 'url' => '/api/exports/{id}/runs/{runId}', 'verb' => 'GET', 'requirements' => ['id' => '[A-Za-z0-9\\-]+', 'runId' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#retry', 'url' => '/api/exports/{id}/runs/{runId}/retry', 'verb' => 'POST', 'requirements' => ['id' => '[A-Za-z0-9\\-]+', 'runId' => '[A-Za-z0-9\\-]+']],
+
 		// Service health ping — cached online/offline/degraded badge for one
 		// placement (REQ-HPING-003). View-time ACL guarded in the controller;
 		// never returns the health URL, headers, or upstream response body.
@@ -619,6 +887,9 @@ return [
 		// frontend for outbound URL sync after a sidebar switch).
 		// Registered BEFORE the catch-all deep-link route so the literal
 		// `/api/dashboards/{uuid}/path` segment is matched first.
+		// The drill-down path report over a dashboard's filter events (REQ-CWF-010).
+		['name' => 'filterEventReport#report', 'url' => '/api/dashboards/{uuid}/filter-events/report', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		['name' => 'dashboardApi#computePath', 'url' => '/api/dashboards/{uuid}/path', 'verb' => 'GET',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
@@ -626,8 +897,12 @@ return [
 		// table so every literal `/api/...` and explicit page route is
 		// matched first. The negative-lookahead requirement keeps this
 		// catch-all from swallowing API requests if a future API route is
-		// inadvertently added below.
+		// inadvertently added below. It also leaves `/resource/...` alone:
+		// a server that decodes `%2F` (nginx) turns
+		// `/resource/..%2F..%2Fetc%2Fpasswd` into a path the leaf-only
+		// `/resource/{filename}` route does not match, and that request must
+		// be a 404, not the workspace (REQ-RES-006).
 		['name' => 'page#deepLink', 'url' => '/{deepLink}', 'verb' => 'GET',
-		 'requirements' => ['deepLink' => '(?!api(?:/|$)).+']],
+		 'requirements' => ['deepLink' => '(?!(?:api|resource)(?:/|$)).+']],
 	],
-];
+]);

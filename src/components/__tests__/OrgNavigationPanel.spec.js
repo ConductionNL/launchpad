@@ -14,9 +14,10 @@
 import { mdiStar } from '@mdi/js'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import OrgNavigationItem from '../OrgNavigationItem.vue'
 import OrgNavigationPanel from '../OrgNavigationPanel.vue'
+import { loadIconCatalogue } from '../../services/iconCatalogue.js'
 
 vi.mock('@nextcloud/axios', () => ({
 	default: {
@@ -48,6 +49,9 @@ beforeEach(() => {
 	globalThis.t = (_app, key) => key
 	setActivePinia(createPinia())
 })
+
+// Legacy icon names resolve once the MDI catalogue has loaded.
+beforeAll(() => loadIconCatalogue())
 
 describe('OrgNavigationPanel', () => {
 	it('REQ-ONAV-008: panel does not render when shouldRender is false', () => {

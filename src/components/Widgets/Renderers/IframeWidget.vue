@@ -11,29 +11,56 @@
 		</div>
 
 		<!-- Fallback card — never a silent blank frame (REQ-IFRAME-004).
-		     Conveyed by icon AND text, never colour alone. -->
+		     Conveyed by icon AND text, never colour alone. When the target
+		     itself failed it is the outage state (REQ-IFRAME-005): what could
+		     not be loaded, the cause and its time, Reload and Open in a new
+		     tab. The "Outage" tag and the source line sit in the card head
+		     (emitted as `status`). -->
 		<div
 			v-else-if="state === 'failed'"
 			class="iframe-widget__fallback"
-			role="status">
+			:class="{ 'iframe-widget__fallback--outage': isOutage }"
+			role="status"
+			:data-testid="isOutage ? 'iframe-widget-outage' : 'iframe-widget-fallback'">
 			<AlertCircleOutline :size="32" />
 			<span class="iframe-widget__fallback-title">{{ displayTitle }}</span>
-			<span class="iframe-widget__fallback-text">{{ fallbackMessage }}</span>
-			<a
-				v-if="hasUrl"
-				:href="url"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="iframe-widget__fallback-link"
-				:aria-label="
-					t('launchpad', 'Open {title} in a new tab', {
-						title: displayTitle,
-					})
-				">
-				<OpenInNew :size="16" />
-				{{ t('launchpad', 'Open in new tab') }}
-			</a>
+			<span class="iframe-widget__fallback-text">{{ isOutage ? outageMessage : fallbackMessage }}</span>
+			<span
+				v-if="isOutage && outageCause"
+				class="iframe-widget__fallback-cause"
+				data-testid="iframe-widget-outage-cause">{{ outageCause }}</span>
+			<div v-if="hasUrl" class="iframe-widget__fallback-actions">
+				<NcButton
+					v-if="isOutage"
+					variant="secondary"
+					data-testid="iframe-widget-reload"
+					@click="restart">
+					<template #icon>
+						<Reload :size="16" />
+					</template>
+					{{ t('launchpad', 'Reload') }}
+				</NcButton>
+				<a
+					:href="url"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="iframe-widget__fallback-link"
+					:aria-label="
+						t('launchpad', 'Open {title} in a new tab', {
+							title: displayTitle,
+						})
+					">
+					<OpenInNew :size="16" />
+					{{ t('launchpad', 'Open in a new tab') }}
+				</a>
+			</div>
 		</div>
+
+		<!-- REQ-DPD-003: a downloaded dashboard cannot carry another site's
+		     page; the PDF names it instead (shown only in print). -->
+		<p class="iframe-widget__print-note" data-testid="iframe-widget-print-note">
+			{{ printNote }}
+		</p>
 
 		<iframe
 			v-if="hasUrl && state !== 'failed' && framableConfirmed"
@@ -51,10 +78,21 @@
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
-import { NcLoadingIcon } from '@nextcloud/vue'
+import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import OpenInNew from 'vue-material-design-icons/OpenInNew.vue'
+import Reload from 'vue-material-design-icons/Reload.vue'
+import {
+	NULLABLE_OBJECT_PROP,
+	OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
 import { checkIframeFramable } from '../../../services/iframeClient.js'
+import {
+	embedSourceLine,
+	isReport,
+	OUTAGE_REASONS,
+	outageCauseLine,
+} from '../../../utils/embedOutage.js'
 
 /**
  * How long to wait for the iframe's `load` event before treating the embed
@@ -81,6 +119,20 @@ const ASPECT_RATIO_MAP = {
 const DEFAULT_HEIGHT = 400
 
 /**
+ * The framable check's reason → the widget's failure reason. A host taken
+ * off the allow-list is policy, not an outage; a check that could not run
+ * is an outage with an unknown cause.
+ *
+ * @type {Record<string, string>}
+ */
+const CHECK_REASON_MAP = {
+	host_not_allowed: 'not_permitted',
+	x_frame_options: 'blocked',
+	frame_ancestors: 'blocked',
+	unreachable: 'unreachable',
+}
+
+/**
  * IframeWidget — the `iframe` dashboard widget type (REQ-IFRAME-001..004).
  *
  * Embeds `content.url` in a sandboxed `<iframe>`. The sandbox attribute is
@@ -99,9 +151,11 @@ export default {
 	name: 'IframeWidget',
 
 	components: {
+		NcButton,
 		NcLoadingIcon,
 		AlertCircleOutline,
 		OpenInNew,
+		Reload,
 	},
 
 	props: {
@@ -111,10 +165,7 @@ export default {
 		 *
 		 * @type {object}
 		 */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/**
 		 * The widget placement (unused directly — the iframe embeds
@@ -123,10 +174,7 @@ export default {
 		 * @type {{id?: number|string}|null}
 		 */
 		// eslint-disable-next-line vue/no-unused-properties -- absorbs WidgetRenderer's uniform binding; see above
-		placement: {
-			type: Object,
-			default: null,
-		},
+		placement: NULLABLE_OBJECT_PROP,
 
 		/**
 		 * Milliseconds to wait for the `load` event before treating the
@@ -142,10 +190,15 @@ export default {
 		},
 	},
 
+	emits: ['status'],
+
 	data() {
 		return {
 			state: 'loading',
 			failureReason: '',
+			// When the widget saw the failure (REQ-IFRAME-005 "the cause and
+			// its time"); null while nothing failed.
+			failedAt: null,
 			loadTimer: null,
 			// The iframe is NOT rendered until the server-side framable check
 			// (REQ-IFRAME-003) confirms the target permits framing. Rendering
@@ -168,6 +221,18 @@ export default {
 		/** @spec openspec/specs/iframe-embed-widget/spec.md */
 		hasUrl() {
 			return this.url !== ''
+		},
+
+		/**
+		 * The line a downloaded dashboard prints instead of the embedded page.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
+		 */
+		printNote() {
+			return t('launchpad', '{title}: embedded pages are not included in the download', {
+				title: this.displayTitle,
+			})
 		},
 
 		/** @spec openspec/specs/iframe-embed-widget/spec.md */
@@ -221,13 +286,61 @@ export default {
 			if (!this.hasUrl) {
 				return t('launchpad', 'This embed has not been configured yet.')
 			}
-			if (this.failureReason === 'blocked') {
-				return t(
-					'launchpad',
-					'This site does not allow itself to be embedded. Its owner blocks framing, which cannot be overridden here.',
-				)
+			if (this.failureReason === 'not_permitted') {
+				return t('launchpad', 'This embed is no longer permitted by your administrator.')
 			}
 			return t('launchpad', 'This page could not be loaded.')
+		},
+
+		/**
+		 * Whether the failure is an outage of the target itself, as opposed
+		 * to an unconfigured embed or one the administrator no longer permits.
+		 *
+		 * @return {boolean} True when the outage state shows.
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 */
+		isOutage() {
+			return this.state === 'failed' && OUTAGE_REASONS.includes(this.failureReason)
+		},
+
+		/**
+		 * @return {string} "The report could not be loaded" or the page variant.
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 */
+		outageMessage() {
+			return isReport(this.content)
+				? t('launchpad', 'The report could not be loaded')
+				: t('launchpad', 'The page could not be loaded')
+		},
+
+		/**
+		 * @return {string} The cause and its time, or '' when no cause is known.
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 */
+		outageCause() {
+			return outageCauseLine(
+				{
+					content: this.content,
+					reason: this.failureReason,
+					failedAt: this.failedAt,
+					now: new Date(),
+				},
+				t,
+			)
+		},
+
+		/**
+		 * What the card head shows for this embed: the source line under the
+		 * title and whether the "Outage" tag is up.
+		 *
+		 * @return {{subtitle: string, outage: boolean}} The head status.
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 */
+		headStatus() {
+			return {
+				subtitle: embedSourceLine(this.content, t),
+				outage: this.isOutage,
+			}
 		},
 	},
 
@@ -243,6 +356,26 @@ export default {
 		 */
 		url() {
 			this.restart()
+		},
+
+		/**
+		 * Tell the card head (WidgetWrapper) the source line and the outage
+		 * tag whenever either changes.
+		 *
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 */
+		headStatus: {
+			/**
+			 * @param {{subtitle: string, outage: boolean}} status The head status.
+			 * @return {void}
+			 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+			 */
+			handler(status) {
+				this.$emit('status', status)
+			},
+
+			immediate: true,
+			deep: true,
 		},
 	},
 
@@ -266,6 +399,7 @@ export default {
 		restart() {
 			this.clearTimer()
 			this.framableConfirmed = false
+			this.failedAt = null
 			if (!this.hasUrl) {
 				this.state = 'failed'
 				this.failureReason = 'unconfigured'
@@ -287,8 +421,7 @@ export default {
 				}
 				if (result && result.framable === false) {
 					this.clearTimer()
-					this.state = 'failed'
-					this.failureReason = 'blocked'
+					this.fail(CHECK_REASON_MAP[result.reason] ?? 'unknown')
 					return
 				}
 				// Server confirms framing is permitted — ONLY NOW render the
@@ -301,8 +434,7 @@ export default {
 				this.clearTimer()
 				this.loadTimer = setTimeout(() => {
 					if (this.state === 'loading') {
-						this.state = 'failed'
-						this.failureReason = 'timeout'
+						this.fail('timeout')
 					}
 				}, this.loadTimeoutMs)
 			})
@@ -343,8 +475,7 @@ export default {
 			}
 
 			if (blank) {
-				this.state = 'failed'
-				this.failureReason = 'blocked'
+				this.fail('blocked')
 				return
 			}
 
@@ -360,8 +491,20 @@ export default {
 		 */
 		onError() {
 			this.clearTimer()
+			this.fail('error')
+		},
+
+		/**
+		 * Enter the failed state with a reason and the time it was seen.
+		 *
+		 * @param {string} reason The failure reason.
+		 * @return {void}
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 */
+		fail(reason) {
 			this.state = 'failed'
-			this.failureReason = 'error'
+			this.failureReason = reason
+			this.failedAt = new Date()
 		},
 
 		/**
@@ -383,6 +526,25 @@ export default {
 </script>
 
 <style scoped>
+.iframe-widget__print-note {
+	display: none;
+	margin: 0;
+	padding: 12px;
+	color: var(--color-main-text);
+}
+
+@media print {
+	.iframe-widget__print-note {
+		display: block;
+	}
+
+	.iframe-widget__frame,
+	.iframe-widget__state,
+	.iframe-widget__fallback {
+		display: none !important;
+	}
+}
+
 .iframe-widget {
 	width: 100%;
 	position: relative;
@@ -432,11 +594,24 @@ export default {
 	font-size: 0.85rem;
 }
 
+.iframe-widget__fallback-cause {
+	font-size: 0.85rem;
+	color: var(--color-main-text);
+}
+
+.iframe-widget__fallback-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	margin-top: 6px;
+}
+
 .iframe-widget__fallback-link {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
-	margin-top: 6px;
 	color: var(--color-primary-element, var(--color-main-text));
 	text-decoration: underline;
 }

@@ -234,6 +234,11 @@ class RoleServiceTest extends TestCase {
 		$this->assertSame('editor', $assignment->getRole());
 		$this->assertSame('admin-user', $assignment->getAssignedBy());
 		$this->assertNotNull($assignment->getAssignedAt());
+		// The assigned_at column is a DATETIME: the SQL form, not ISO 8601 with an offset.
+		$this->assertMatchesRegularExpression(
+			pattern: '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/',
+			string: (string)$assignment->getAssignedAt()
+		);
 	}
 
 	public function testAssignRoleRejectsDuplicateUserRole(): void {
@@ -334,5 +339,22 @@ class RoleServiceTest extends TestCase {
 	public function testIsEditorOrHigherTrueForAdminAndEditor(): void {
 		$this->groupManager->method('isAdmin')->with('alice')->willReturn(true);
 		$this->assertTrue($this->service->isEditorOrHigher(userId: 'alice'));
+	}
+
+	/**
+	 * hasGroupRole answers from the mapper's (group, role) lookup.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/setup-wizard/spec.md#requirement-req-wiz-010-cli-command-for-non-interactive-setup-iac-friendly
+	 */
+	public function testHasGroupRoleReadsTheGroupRow(): void {
+		$this->mapper->method('findGroupRole')->willReturnMap([
+			['engineering', 'admin', new RoleAssignment()],
+			['sales', 'admin', null],
+		]);
+
+		$this->assertTrue(condition: $this->service->hasGroupRole(groupId: 'engineering', role: 'admin'));
+		$this->assertFalse(condition: $this->service->hasGroupRole(groupId: 'sales', role: 'admin'));
 	}
 }//end class

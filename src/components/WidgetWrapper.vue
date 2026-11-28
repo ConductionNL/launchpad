@@ -17,7 +17,10 @@
 <template>
 	<div
 		class="launchpad-widget"
-		:class="{ 'launchpad-widget--editing': editMode }"
+		:class="{
+			'launchpad-widget--editing': editMode,
+			'launchpad-widget--announcement': asksForConfirmation,
+		}"
 		:data-testid="
 			placement?.id ? `widget-placement-${placement.id}` : 'widget-placement'
 		"
@@ -31,11 +34,42 @@
 			:iconClass="widget && widget.iconClass ? widget.iconClass : null"
 			:styleConfig="styleConfig"
 			:buttons="widgetButtons"
+			:headerLink="headerLink"
+			:headerActions="headerActions"
+			:subtitle="headStatus.subtitle"
 			:borderless="isChromelessFrame"
 			:flush="isChromelessFrame || rendersOwnHeader"
 			:showRefresh="false"
-			:showRequestFeature="false">
-			<WidgetRenderer :widget="widget" :placement="placement" />
+			:showRequestFeature="false"
+			:showActions="showActionsMenu"
+			:loading="!contentLoaded"
+			:placeholder="placeholder">
+			<!-- REQ-IFRAME-005: the "Outage" tag in the card head, by icon-free
+			     text so it never relies on colour alone. -->
+			<template v-if="headStatus.outage" #title-meta>
+				<span class="launchpad-widget__outage-tag" data-testid="widget-outage-tag">
+					{{ t('launchpad', 'Outage') }}
+				</span>
+			</template>
+			<!-- REQ-WDG-044: the content below the fold mounts when it comes
+			     into view (or once the page has settled); the card shows at once. -->
+			<!-- REQ-WDG-046: until then the card waits in the widget's
+			     declared placeholder (widget-declared-placeholders: CnWidgetWrapper
+			     draws it, aria-busy on the card), and a widget that fails to show
+			     keeps its error inside this card. -->
+			<!-- REQ-FPS-004: the card leaves its placeholder when the renderer
+			     says its first content has settled (`loaded`), or fails to show. -->
+			<LazyMount :eager="mountsAtOnce">
+				<WidgetErrorBoundary @failed="contentLoaded = true">
+					<WidgetRenderer
+						:widget="widget"
+						:placement="placement"
+						:editMode="editMode"
+						@loaded="contentLoaded = true"
+						@status="onRendererStatus"
+						@editRequest="$emit('edit', placement)" />
+				</WidgetErrorBoundary>
+			</LazyMount>
 		</CnWidgetWrapper>
 
 		<!-- REQ-ACK-002: forced-delivery read-gate. Overlays the widget with a
@@ -50,7 +84,7 @@
 		<!-- One shared edit cog for every widget type (data, NC, chrome-less),
 		     shown in edit mode. Sits top-right over the wrapper's header area.
 		     The absolute positioning lives on this wrapper DIV, not on
-		     CnWidgetEditCog itself: the cog's root is an NcActions `.action-item`
+		     the menu itself: the cog's root is an NcActions `.action-item`
 		     which sets `position: relative` at equal specificity, so positioning
 		     the component directly loses the cascade tie and the cog drops into
 		     flow (pushing content). Wrapping matches the shared nc-vue
@@ -58,9 +92,14 @@
 		<!-- dashboards-personal-hide-ui REQ-PERSUI-001: in view mode a widget
 		     on a shared dashboard can be hidden for this person only. Not
 		     offered for a compulsory widget (the server refuses it anyway). -->
+		<!-- REQ-WDG-050: in view mode the menu only holds actions for the
+		     reader; Create embed token lives in the edit menu below. -->
 		<div v-if="showHideForMe" class="launchpad-widget__cog">
-			<NcActions :aria-label="t('launchpad', 'Widget options')">
+			<NcActions
+				:aria-label="t('launchpad', 'Widget options')"
+				:forceMenu="true">
 				<NcActionButton
+					v-if="showHideForMe"
 					:closeAfterClick="true"
 					data-testid="widget-hide-for-me"
 					@click="$emit('hideForMe', placement)">
@@ -71,12 +110,38 @@
 				</NcActionButton>
 			</NcActions>
 		</div>
+		<!-- LpBewerken: in edit mode every widget shows a drag grip at its top
+		     left and the three-dot menu at its top right. -->
+		<span
+			v-if="editMode"
+			class="launchpad-widget__grip"
+			aria-hidden="true"
+			data-testid="widget-drag-grip">
+			<DragVertical :size="16" />
+		</span>
+		<!-- REQ-PERM-004: in edit mode a compulsory widget carries a lock, beside
+		     its menu, so the author sees why it has no Delete. Never in view mode. -->
+		<span
+			v-if="showCompulsoryIndicator"
+			class="launchpad-widget__compulsory"
+			role="img"
+			:aria-label="t('launchpad', 'Required: this widget cannot be removed')"
+			:title="t('launchpad', 'Required: this widget cannot be removed')"
+			data-testid="widget-compulsory-indicator">
+			<LockOutline :size="16" />
+		</span>
 		<div v-if="editMode" class="launchpad-widget__cog">
-			<CnWidgetEditCog
+			<!-- REQ-CVUI-007: the menu also holds "Who sees this widget?". -->
+			<WidgetEditMenu
 				:menuLabel="t('launchpad', 'Widget menu')"
-				:editLabel="t('launchpad', 'Edit widget')"
-				:deleteLabel="t('launchpad', 'Delete widget')"
+				:removeLocked="!canRemove"
+				:embedHref="embedHref"
+				:embedDisabled="embedDisabled"
+				:embedAsksFirst="embedAsksFirst"
 				@edit="$emit('edit', placement)"
+				@whoSees="$emit('whoSees', placement)"
+				@duplicate="$emit('duplicate', placement.id)"
+				@embed="$emit('embed', $event)"
 				@remove="$emit('remove', placement.id)" />
 		</div>
 	</div>
@@ -84,39 +149,95 @@
 
 <script>
 import {
-	CnWidgetEditCog,
 	CnWidgetWrapper,
 	NcActionButton,
 	NcActions,
 } from '@conduction/nextcloud-vue'
+import DragVertical from 'vue-material-design-icons/DragVertical.vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
+import LockOutline from 'vue-material-design-icons/LockOutline.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
+import LazyMount from './LazyMount.vue'
+import WidgetErrorBoundary from './WidgetErrorBoundary.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
+import WidgetEditMenu from './Widgets/WidgetEditMenu.vue'
+import {
+	FLAG_PROP,
+	LIST_PROP,
+	NULLABLE_OBJECT_PROP,
+	REQUIRED_OBJECT_PROP,
+	TEXT_PROP,
+} from '../constants/propDefinitions.js'
+import { isDraftPlacement } from '../utils/editDraft.js'
+import { inFirstViewport } from '../utils/firstViewport.js'
+import { placementPlaceholder } from '../utils/widgetPlaceholder.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
+
+/**
+ * Whether two links lead to the same page, ignoring the host, `/index.php`
+ * and a trailing slash.
+ *
+ * @param {string} a A link.
+ * @param {string} b Another link.
+ * @return {boolean}
+ */
+export function sameDestination(a, b) {
+	const path = (link) =>
+		String(link ?? '')
+			.replace(/^[a-z]+:\/\/[^/]+/i, '')
+			.replace(/^\/index\.php/, '')
+			.replace(/\/+$/, '')
+	return a !== undefined && a !== null && path(a) === path(b)
+}
+
+/**
+ * Whether this page is the headless export render (`?export=1`).
+ *
+ * @param {Location} [location] Injected for tests.
+ * @return {boolean}
+ * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+ */
+export function isExportRender(location = typeof window !== 'undefined' ? window.location : null) {
+	if (!location || typeof location.search !== 'string') {
+		return false
+	}
+	return new URLSearchParams(location.search).get('export') === '1'
+}
 
 export default {
 	name: 'WidgetWrapper',
 
 	components: {
 		CnWidgetWrapper,
-		CnWidgetEditCog,
+		DragVertical,
 		EyeOff,
+		LockOutline,
 		NcActionButton,
 		NcActions,
 		WidgetRenderer,
+		WidgetEditMenu,
 		AcknowledgementPrompt,
+		LazyMount,
+		WidgetErrorBoundary,
+	},
+
+	/**
+	 * REQ-WDG-050: the widget on the dashboard that holds a well's or tabs
+	 * widget's children, for their edit menu (embed subject, duplicate, remove).
+	 *
+	 * @return {object}
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 */
+	provide() {
+		return {
+			launchpadChildOwner: () => this.placement ?? null,
+		}
 	},
 
 	props: {
-		placement: {
-			type: Object,
-			required: true,
-		},
+		placement: REQUIRED_OBJECT_PROP,
 
-		widget: {
-			type: Object,
-			default: null,
-		},
+		widget: NULLABLE_OBJECT_PROP,
 
 		/**
 		 * The Nextcloud Dashboard widget catalog.
@@ -127,35 +248,85 @@ export default {
 		 * pre-resolved entry. Passed as a prop rather than read from the store
 		 * so this stays a presentational component that mounts without pinia.
 		 */
-		availableWidgets: {
-			type: Array,
-			default: () => [],
-		},
+		availableWidgets: LIST_PROP,
 
-		editMode: {
-			type: Boolean,
-			default: false,
-		},
+		editMode: FLAG_PROP,
 
 		// REQ-ACK-002: whether this placement is an outstanding mandatory-read
 		// item for the current user. Resolved by the parent from the pending
 		// set; defaults false so widgets without a requirement are unchanged.
-		outstandingAcknowledgement: {
-			type: Boolean,
-			default: false,
-		},
+		outstandingAcknowledgement: FLAG_PROP,
 
 		// dashboards-personal-hide-ui: the host allows "Hide for me" here
 		// (a shared dashboard the viewer does not own).
-		canHideForMe: {
-			type: Boolean,
-			default: false,
-		},
+		canHideForMe: FLAG_PROP,
+
+		// REQ-PERM: the host refuses removal (a compulsory widget on a dashboard
+		// held with less than full permission), so the cog offers no Delete.
+		removeLocked: FLAG_PROP,
+
+		// embedded-analytics task 40: the Beheer ▸ Embeds link that creates an
+		// embed token for this widget; '' when the viewer may not create one.
+		embedHref: TEXT_PROP,
+
+		// REQ-WDG-050 / REQ-EDIT-003: the draft has unsaved changes, so Create
+		// embed token emits `embed` for the host to ask to save first.
+		embedAsksFirst: FLAG_PROP,
 	},
 
-	emits: ['remove', 'style', 'edit', 'acknowledged', 'hideForMe'],
+	emits: ['remove', 'style', 'edit', 'whoSees', 'duplicate', 'embed', 'acknowledged', 'hideForMe'],
+
+	data() {
+		return {
+			// What the renderer reports for the card head (REQ-IFRAME-005):
+			// the source line under the title and the outage tag.
+			headStatus: { subtitle: '', outage: false },
+			// Whether the content has settled: the renderer's `loaded`, or its
+			// first render when it does not emit one, or a failure to show.
+			// Until then the card waits in its placeholder (REQ-FPS-004,
+			// widget-declared-placeholders).
+			contentLoaded: false,
+		}
+	},
 
 	computed: {
+		/**
+		 * The shape the card waits in: the placement's own declaration, the
+		 * registry's for its type, the Nextcloud widget's from the catalogue,
+		 * else rows; the order the first-paint shell uses on the server.
+		 *
+		 * @return {{shape: string, count?: number}}
+		 * @spec openspec/changes/widget-declared-placeholders/specs/first-paint-shell/spec.md#requirement-the-placeholder-shape-comes-from-the-widgets-declaration-req-fps-009
+		 */
+		placeholder() {
+			return placementPlaceholder(this.placement, this.widget)
+		},
+
+		/**
+		 * REQ-WDG-050: Create embed token is disabled for a widget that is not
+		 * stored yet: no placement, or one the draft added.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 */
+		embedDisabled() {
+			const id = this.placement?.id
+			return id === undefined || id === null || isDraftPlacement(this.placement)
+		},
+
+		/**
+		 * Whether the content mounts at once instead of when it comes into
+		 * view: in edit mode, in the headless export render (`?export=1`),
+		 * which prints the whole dashboard, and on the first screen, where
+		 * waiting for the observer only delays the first paint by a frame.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/archive/2026-11-25-widgets-below-the-fold-load-on-view/specs/widgets/spec.md#requirement-a-widget-below-the-fold-loads-when-it-comes-into-view-req-wdg-044
+		 */
+		mountsAtOnce() {
+			return this.editMode || isExportRender() || inFirstViewport(this.placement)
+		},
+
 		/**
 		 * Whether "Hide for me" is offered: view mode, allowed by the host,
 		 * and not a compulsory widget.
@@ -186,6 +357,18 @@ export default {
 		},
 
 		/**
+		 * REQ-ACK-011: whether the placement asks its readers to confirm they
+		 * read it. Such a placement is an announcement and wears the boards'
+		 * announcement frame (LpVandaag, LpIntranet), confirmed or not.
+		 *
+		 * @spec openspec/specs/dashboard-acknowledgements/spec.md#requirement-a-placement-that-asks-for-confirmation-looks-like-an-announcement-req-ack-011
+		 * @return {boolean}
+		 */
+		asksForConfirmation() {
+			return Number(this.placement?.requiresAcknowledgement) === 1
+		},
+
+		/**
 		 * REQ-ACK-002: whether the forced-delivery read-gate should overlay
 		 * this widget — the placement requires an acknowledgement the current
 		 * user still owes, and we are NOT in edit mode (an author configuring
@@ -206,7 +389,7 @@ export default {
 
 		/**
 		 * Widget types that own their entire visual surface — labels, dividers,
-		 * header banners, and the registry-driven `tile`. They keep a borderless
+		 * header banners, the registry-driven `tile` and the `app-tile`. They keep a borderless
 		 * / flush wrapper (no frame, no wrapper header) so the renderer paints
 		 * edge to edge; the edit cog still overlays on top. (nc-widget is NOT
 		 * here: CnNcWidgetWidget renders just a header + content, so it needs the
@@ -215,7 +398,7 @@ export default {
 		 * @spec openspec/specs/widgets/spec.md
 		 */
 		isChromelessType() {
-			return ['label', 'divider', 'header', 'tile'].includes(
+			return ['label', 'section-heading', 'divider', 'header', 'tile', 'app-tile'].includes(
 				this.placement?.widgetId,
 			)
 		},
@@ -229,7 +412,46 @@ export default {
 		 * @return {boolean} true when the renderer owns the header.
 		 */
 		rendersOwnHeader() {
-			return this.placement?.widgetId === 'nc-widget'
+			return (
+				this.placement?.widgetId === 'nc-widget'
+				&& this.placement?.content?.showHeader !== false
+			)
+		},
+
+		/**
+		 * Whether the card's overflow menu shows. On by default outside edit
+		 * mode; a placement whose content says `showActions: false` hides it.
+		 * In edit mode the widget's own three-dot menu takes its place
+		 * (LpBewerken).
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 * @return {boolean} false only for an opted-out placement in view mode.
+		 */
+		showActionsMenu() {
+			return !this.editMode && this.placement?.content?.showActions !== false
+		},
+
+		/**
+		 * Buttons in the card's title row. The compact Files list draws its
+		 * Upload there (LpWerkplek "Bestanden") and asks the widget to open
+		 * its file picker.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		headerActions() {
+			const content = this.placement?.content || {}
+			if (this.editMode || this.placement?.widgetId !== 'files' || content.layout !== 'compact' || content.allowUpload !== true) {
+				return []
+			}
+			const placementId = this.placement.id
+			return [{
+				key: 'upload',
+				label: this.t('launchpad', 'Upload'),
+				icon: 'Upload',
+				variant: 'secondary',
+				run: () => window.dispatchEvent(new CustomEvent('cn-files-widget:upload', { detail: { placementId } })),
+			}]
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -295,13 +517,52 @@ export default {
 
 		/** @spec openspec/specs/widgets/spec.md */
 		widgetButtons() {
-			return this.widget?.buttons || []
+			const buttons = this.widget?.buttons || []
+			const headerHref = this.headerLink?.href
+			if (!headerHref) {
+				return buttons
+			}
+			return buttons.filter(
+				(button) => !sameDestination(button?.link, headerHref),
+			)
 		},
 
-		/** @spec openspec/specs/widgets/spec.md */
+		/**
+		 * The text link in the card's header (`content.headerLink`,
+		 * `{ label, href }`), as LpVandaag's "Open agenda". Null without a
+		 * label and a link.
+		 *
+		 * @return {{label: string, href: string}|null}
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-fits-the-screen
+		 */
+		headerLink() {
+			const link = this.placement?.content?.headerLink
+			if (
+				!link
+				|| typeof link.label !== 'string'
+				|| link.label === ''
+				|| typeof link.href !== 'string'
+				|| link.href === ''
+			) {
+				return null
+			}
+			return { label: link.label, href: link.href }
+		},
+
+		/** @spec openspec/specs/permissions/spec.md */
 		canRemove() {
-			// Can't remove compulsory widgets unless full permission
-			return !this.placement.isCompulsory
+			return !this.removeLocked
+		},
+
+		/**
+		 * Whether the compulsory lock shows: in edit mode only, on a placement
+		 * flagged compulsory (REQ-PERM-004).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/permissions/spec.md
+		 */
+		showCompulsoryIndicator() {
+			return Boolean(this.editMode) && Number(this.placement?.isCompulsory) === 1
 		},
 
 		/**
@@ -319,10 +580,40 @@ export default {
 			return this.placement.styleConfig || {}
 		},
 	},
+
+	methods: {
+		/**
+		 * Keep the card-head state a renderer reports (REQ-IFRAME-005): the
+		 * source line under the title and whether the "Outage" tag shows.
+		 *
+		 * @param {{subtitle?: string, outage?: boolean}|null} status The renderer's head status.
+		 * @return {void}
+		 * @spec openspec/changes/archive/2026-11-24-embed-outage-state/specs/iframe-embed-widget/spec.md#requirement-the-outage-state-of-an-embedded-report-req-iframe-005
+		 */
+		onRendererStatus(status) {
+			this.headStatus = {
+				subtitle: typeof status?.subtitle === 'string' ? status.subtitle : '',
+				outage: status?.outage === true,
+			}
+		},
+	},
 }
 </script>
 
 <style scoped>
+.launchpad-widget__outage-tag {
+	display: inline-flex;
+	align-items: center;
+	padding: 0 8px;
+	border-radius: var(--border-radius-pill, 12px);
+	border: 1px solid var(--color-error);
+	color: var(--color-error-text, var(--color-error));
+	font-size: 0.75rem;
+	font-weight: 600;
+	line-height: 20px;
+	white-space: nowrap;
+}
+
 .launchpad-widget {
 	position: relative;
 	height: 100%;
@@ -330,6 +621,63 @@ export default {
 
 .launchpad-widget__wrapper {
 	height: 100%;
+}
+
+/* first-paint-skeleton D7: a waiting card's frame is in work-field, as the
+   server's shell draws it, so the hand-over keeps the frame; a loaded card's
+   frame is in work-line. Without the design tokens the frames keep
+   Nextcloud's border colours. A borderless card stays borderless. */
+.launchpad-widget__wrapper[aria-busy='true']:not(.cn-widget-wrapper--borderless) {
+	border-color: var(--sc-work-field, var(--color-border-dark));
+}
+
+.launchpad-widget__wrapper:not([aria-busy='true'], .cn-widget-wrapper--borderless) {
+	border-color: var(--sc-work-line, var(--color-border));
+}
+
+/* The drag grip sits at the top left of a widget in edit mode; the card's
+   title moves right to make room for it (LpBewerken). On a tile both the
+   grip and the menu are small white squares. */
+.launchpad-widget__grip {
+	position: absolute;
+	top: 18px;
+	inset-inline-start: 14px;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	border-radius: 4px;
+	color: var(--color-text-maxcontrast);
+	pointer-events: none;
+}
+
+.launchpad-widget--editing :deep(.cn-widget-wrapper__header) {
+	padding-inline-start: 42px;
+}
+
+.launchpad-widget--editing:has(.tile-widget, .cn-app-tile-widget) .launchpad-widget__grip {
+	top: 6px;
+	inset-inline-start: 6px;
+	background: var(--color-main-background);
+	color: var(--color-main-text);
+}
+
+/* REQ-PERM-004: the compulsory lock sits left of the menu in edit mode. */
+.launchpad-widget__compulsory {
+	position: absolute;
+	top: 14px;
+	right: 52px;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: var(--color-main-background);
+	color: var(--color-text-maxcontrast);
 }
 
 /* The shared cog overlays the wrapper's top-right (the header's action area

@@ -34,7 +34,25 @@ function mountMenu(props = {}) {
 }
 
 describe('WidgetContextMenu', () => {
-	it('REQ-WDG-015: renders six items — Edit, Move, Visibility rules…, Read confirmation…, Remove, Cancel', () => {
+	it('REQ-WDG-017: moves itself up and left when its rendered box would pass the viewport edge', async () => {
+		const height = window.innerHeight
+		const width = window.innerWidth
+		const wrapper = mountMenu({ top: height - 20, left: width - 10 })
+		wrapper.element.getBoundingClientRect = () => ({ width: 170, height: 277 })
+		await wrapper.vm.fitToViewport()
+		expect(wrapper.element.style.top).toBe(`${height - 277}px`)
+		expect(wrapper.element.style.left).toBe(`${width - 170}px`)
+	})
+
+	it('REQ-WDG-017: stays at the given position when it fits', async () => {
+		const wrapper = mountMenu({ top: 100, left: 200 })
+		wrapper.element.getBoundingClientRect = () => ({ width: 170, height: 277 })
+		await wrapper.vm.fitToViewport()
+		expect(wrapper.element.style.top).toBe('100px')
+		expect(wrapper.element.style.left).toBe('200px')
+	})
+
+	it('REQ-WDG-015: renders six items — Edit, Move, Who sees this widget?, Read confirmation…, Remove, Cancel', () => {
 		const wrapper = mountMenu()
 		const buttons = wrapper.findAll('.widget-context-menu__item')
 		expect(buttons.length).toBe(6)
@@ -42,11 +60,17 @@ describe('WidgetContextMenu', () => {
 		expect(labels).toEqual([
 			'Edit',
 			'Move',
-			'Visibility rules…',
+			'Who sees this widget?',
 			'Read confirmation…',
 			'Remove',
 			'Cancel',
 		])
+	})
+
+	it('REQ-PERM-002: offers no Remove when the widget may not be removed', () => {
+		const wrapper = mountMenu({ removeLocked: true })
+		expect(wrapper.find('[data-testid="ctx-remove"]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="ctx-edit"]').exists()).toBe(true)
 	})
 
 	it('REQ-ACK-007: Read confirmation emits readConfirmation then close', async () => {
@@ -90,7 +114,7 @@ describe('WidgetContextMenu', () => {
 		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
 
-	it('conditional-visibility: clicking Visibility rules… emits visibility-rules then close', async () => {
+	it('conditional-visibility: clicking Who sees this widget? emits visibility-rules then close', async () => {
 		const wrapper = mountMenu()
 		const btn = wrapper.find('[data-testid="ctx-visibility-rules"]')
 		await btn.trigger('click')

@@ -27,27 +27,44 @@ concurrency:
   group: release-${{ github.ref_name }}
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
+# The shared package step leaves /data out. The demo seed, showcases and
+# shipped templates under data/ are read at runtime, so each job ships them.
 jobs:
   unstable:
     if: github.ref == 'refs/heads/development'
+    permissions:
+      contents: write
+      pull-requests: write
     uses: ConductionNL/.github/.github/workflows/release.yml@main
     with:
       release-type: unstable
       app-name: launchpad
+      extra-rsync-includes: "--include='/data/' --include='/data/demo-seed/***' --include='/data/demo-showcases/***' --include='/data/templates/***'"
     secrets: inherit
 
   beta:
     if: github.ref == 'refs/heads/beta'
+    permissions:
+      contents: write
+      pull-requests: write
     uses: ConductionNL/.github/.github/workflows/release.yml@main
     with:
       release-type: beta
       app-name: launchpad
+      extra-rsync-includes: "--include='/data/' --include='/data/demo-seed/***' --include='/data/demo-showcases/***' --include='/data/templates/***'"
     secrets: inherit
 
   stable:
     if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      pull-requests: write
     uses: ConductionNL/.github/.github/workflows/release.yml@main
     with:
       release-type: stable
       app-name: launchpad
+      extra-rsync-includes: "--include='/data/' --include='/data/demo-seed/***' --include='/data/demo-showcases/***' --include='/data/templates/***'"
     secrets: inherit

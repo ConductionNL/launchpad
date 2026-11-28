@@ -6,7 +6,9 @@ status: done
 
 ## Purpose
 Lets dashboard owners publish read-only public links to their dashboards, optionally protected by a password and an expiry date. Anonymous visitors render the dashboard through a unique share token while the system enforces read-only access, soft-revocation, brute-force throttling, debounced view counting, and a service-account read path for GroupFolder-backed content.
+
 ## Requirements
+
 ### Requirement: REQ-PSHR-001 Create Public Share
 
 Dashboard owners (or admins) MUST be able to create a public share with an optional password and expiry date.
@@ -147,17 +149,16 @@ Password-protected shares MUST require a POST unlock before rendering via the pu
 - AND NOT block subsequent attempts (throttle is separate)
 
 #### Scenario: Unlock is throttled to prevent brute-force
-@e2e exclude the throttle bucket is IP-global by design, so spending it would leave every later test in the same job facing 429 from a shared runner IP — playwright.config.ts runs `workers: 1`, `fullyParallel: false`, so there is no isolated IP to burn; asserted instead by PublicShareControllerTest::testUnlockReturns429WhenThrottled
 - GIVEN a public share with a password
 - WHEN an attacker sends 11 failed unlock attempts from IP `203.0.113.100` within 60 seconds
 - THEN the system MUST invoke Nextcloud's `IThrottler` service with action `launchpad_share_password` (limit: 10 per 60 s, IP-global)
 - AND return HTTP 429 (Too Many Requests) on the 11th attempt with `Retry-After` header
 
-#### Scenario: Query param password alternative to header
+#### Scenario: The password travels in a header, never in the query
 - GIVEN a password-protected share
-- WHEN an anonymous user sends `GET /s/abc123?password=SecurePass123!` OR includes header `X-Share-Password: SecurePass123!`
-- THEN the system MUST accept either method
-- AND return HTTP 200 with the rendered dashboard (server-side verification)
+- WHEN an anonymous user sends `GET /s/abc123` with header `X-Share-Password: SecurePass123!`
+- THEN the system MUST return HTTP 200 with the rendered dashboard (server-side verification)
+- AND a password in the query string (`?password=SecurePass123!`) MUST NOT unlock it: the answer is HTTP 401 `{passwordRequired: true}`, so a password never lands in an access log
 
 ### Requirement: REQ-PSHR-006 Read-Only Enforcement
 
@@ -187,8 +188,6 @@ Any mutation endpoint accessed with a public-share token (not a logged-in Nextcl
 - AND the user's normal dashboard edit permissions MUST NOT override the public-share read-only mode
 
 ### Requirement: REQ-PSHR-007 View Count Debouncing
-
-@e2e exclude viewCount and lastViewedAt are DB columns that no anonymous response echoes back, so a browser cannot read the value the debounce is about; the three scenarios additionally need either distinct client IPs (one CI runner has one) or 60-second-plus wall-clock waits inside a 60s per-test timeout
 
 View counts MUST be incremented at most once per minute per (token, client IP) pair to prevent refresh-spam inflation.
 
@@ -232,8 +231,6 @@ Shares with `expiresAt < now()` OR `revokedAt IS NOT NULL` MUST return HTTP 404 
 
 ### Requirement: REQ-PSHR-009 Brute-Force Protection
 
-@e2e exclude all three scenarios spend the IThrottler `launchpad_share_password` bucket, which the spec itself defines as IP-global; playwright.config.ts runs workers:1 / fullyParallel:false from one runner IP, so a test that exhausts it hands 429 to every test that follows and the throttle-resets scenario additionally needs a 60s+ wall-clock wait against a 60s test timeout. The 429 path is asserted by PublicShareControllerTest::testUnlockReturns429WhenThrottled
-
 Failed unlock attempts MUST be throttled via Nextcloud's `IThrottler` to prevent password guessing.
 
 #### Scenario: 10 failed unlocks per 60 seconds allowed
@@ -258,11 +255,10 @@ Failed unlock attempts MUST be throttled via Nextcloud's `IThrottler` to prevent
 
 ### Requirement: REQ-PSHR-010 Service-Account File Read for GroupFolder Content
 
-@e2e exclude both scenarios are about which account the GroupFolders backend is read as, and the GroupFolders app is not installed on the Playwright fixture — code-quality.yml `additional-apps` provisions only ConductionNL/openregister and neither seed script adds it — so the branch cannot be entered from a browser; same reason the sibling groupfolder-storage-backend spec carries
-
 Public shares referencing dashboards with GroupFolder-backed content MUST use a service-account read path, not the viewer's session.
 
 #### Scenario: Public share rendering GroupFolder content uses service account
+@e2e exclude the GroupFolders app is not installed on the Playwright fixture — code-quality.yml `additional-apps` provisions only ConductionNL/openregister and ConductionNL/integriq and neither seed script adds groupfolders — so the GroupFolder read path cannot be entered from a browser; same reason the sibling groupfolder-storage-backend spec carries
 - GIVEN a dashboard containing a widget that references a GroupFolder resource
 - WHEN an anonymous user renders the dashboard via a public share token
 - THEN the system MUST use a service-account file-read context (NOT the anonymous user's non-existent session)
@@ -270,6 +266,7 @@ Public shares referencing dashboards with GroupFolder-backed content MUST use a 
 - NOTE: The service-account context MUST be obtained before any GroupFolder filesystem call. The anonymous viewer's session (which does not exist) MUST NOT be passed to the GroupFolder ACL evaluator. Passing a null or non-existent user context causes reads to fail silently or return empty widget data.
 
 #### Scenario: Widget data accessible via service account
+@e2e exclude same as the scenario above: needs the GroupFolders app and a folder ACL limited to a group, and the app is not installed on the Playwright fixture
 - GIVEN a GroupFolder resource is readable only by members of group "Engineering"
 - AND an anonymous public-share user is not a member of "Engineering"
 - WHEN the service-account render path is used
@@ -278,3 +275,80 @@ Public shares referencing dashboards with GroupFolder-backed content MUST use a 
 
 ---
 
+### Requirement: Administrators choose a public link as the start page (REQ-PSP-001)
+
+An administrator MUST be able to pick one existing public link and switch on the public start page. The server MUST refuse a link with a password or with an expiry in the past. When the chosen link is later revoked, protected or expired, the start page MUST switch itself off and the admin section MUST say why.
+
+#### Scenario: Library start page
+
+- **GIVEN** Noor has a public link for the dashboard "Bibliotheek Noord" without a password
+- **WHEN** she picks it as the public start page on the Sharing tab and switches it on
+- **THEN** the Sharing tab shows "Public start page: Bibliotheek Noord"
+
+#### Scenario: Protected link refused
+
+- **GIVEN** a public link protected by a password
+- **WHEN** Noor tries to pick it as the start page
+- **THEN** it is not offered, and a direct request to save it returns 400
+
+### Requirement: Signed-out visitors land on the start page (REQ-PSP-002)
+
+When the public start page is on, a visitor who is not signed in and opens the plain login page (no redirect address, no `direct` parameter) MUST be taken to the start page. A visitor following a deep link MUST still get the login form with the redirect kept.
+
+#### Scenario: Visitor opens the address
+
+- **GIVEN** the public start page is on
+- **WHEN** a visitor who is not signed in opens `https://cloud.bibliotheek.nl/`
+- **THEN** they see the dashboard "Bibliotheek Noord" read-only with a "Sign in" button
+
+#### Scenario: Deep link keeps the login form
+
+- **GIVEN** the public start page is on
+- **WHEN** a signed-out staff member opens a link to `/apps/files/`
+- **THEN** the login form shows, and after signing in they land in Files
+
+### Requirement: The start page offers a way in for staff (REQ-PSP-003)
+
+The start page MUST show a "Sign in" button that opens the login form with `direct=1`, so the visitor is not sent back to the start page and single sign-on setups keep working.
+
+#### Scenario: Staff member signs in
+
+- **GIVEN** Pieter is on the public start page
+- **WHEN** he clicks "Sign in"
+- **THEN** the login form opens at `/login?direct=1`
+- **AND** after signing in he lands on his Workspace page
+
+#### Scenario: LaunchPad is the default app after install
+
+- **GIVEN** no default app is configured (Nextcloud's `defaultapp` system value is absent)
+- **WHEN** LaunchPad is installed or upgraded
+- **THEN** LaunchPad sets `defaultapp` to `launchpad`, so signing in lands on the Workspace page
+- **AND** when a default app is configured, LaunchPad keeps it, including an empty value, which is what Nextcloud's own "reset to default" writes
+- **AND** an upgrade never overwrites a default app the administrator chose after the install
+
+#### Scenario: The administrator switches it off
+
+- **GIVEN** LaunchPad set itself as the default app
+- **WHEN** the administrator switches off "Open LaunchPad after signing in" in the admin settings (`defaultAppEnabled`, on by default)
+- **THEN** LaunchPad unsets `defaultapp`, so Nextcloud's own default applies again
+- **AND** when the administrator chose another default app in the meantime, that choice is kept
+- **AND** switching it back on sets LaunchPad again only when no default app is set
+
+### Requirement: Live widgets on a public link and a kiosk screen (REQ-PSHR-011)
+
+On a public link and on a kiosk screen, the news widget SHALL list the published announcements targeted at everyone, the weather widget SHALL show its reading, and the live data widget SHALL show its value, each read through the link's or playlist's token and only for a placement that is on the shared dashboard. An announcement targeted at groups SHALL NOT be shown to an anonymous visitor.
+
+#### Scenario: The canteen screen
+
+- **GIVEN** the playlist Kantine shows Today in Zuiddrecht with News, Weather and Waiting time at the desk
+- **WHEN** the screen shows it without a login
+- **THEN** the cards show the news items, the weather and the waiting time
+
+### Requirement: Text in Markdown on public screens (REQ-PSHR-012)
+
+A text widget on a public link or kiosk screen SHALL render its Markdown (lists, emphasis, links), sanitised as on the dashboard.
+
+#### Scenario: Opening hours as a list
+
+- **GIVEN** the Opening hours widget holds a Markdown list
+- **THEN** the public start page shows it as a list, not as raw text

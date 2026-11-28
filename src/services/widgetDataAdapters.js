@@ -24,14 +24,30 @@ import {
  * launchpad's `/apps/launchpad/api/people` and returns `{ users, total, hasMore }`.
  * Axios is lazy-imported (keeps it out of the vitest css-no-op transform path).
  *
- * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy }`.
+ * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy, showBirthdays, q }`;
+ *   `q` searches the whole directory by name, email and profile fields (REQ-PEX-003).
  * @return {Promise<{users: object[], total: number, hasMore: boolean}>} page.
+ * @spec openspec/specs/people-widget/spec.md
  */
 export async function fetchPeoplePage(args = {}) {
 	const [{ default: axios }, { generateUrl: genUrl }] = await Promise.all([
 		import('@nextcloud/axios'),
 		import('@nextcloud/router'),
 	])
+	const url = `${genUrl('/apps/launchpad/api/people')}?${peopleQuery(args)}`
+	const response = await axios.get(url)
+	return peoplePageOf(response)
+}
+
+/**
+ * The people endpoint's query string: the filters, the disabled-account
+ * switch, the sort key and the search text only when given, then the page
+ * size and offset.
+ *
+ * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy, showBirthdays, q }`.
+ * @return {string} The query string.
+ */
+function peopleQuery(args) {
 	const params = new URLSearchParams()
 	if (args.filters !== undefined) {
 		params.append('filters', JSON.stringify(args.filters || []))
@@ -42,10 +58,24 @@ export async function fetchPeoplePage(args = {}) {
 	if (args.sortBy) {
 		params.append('sortBy', String(args.sortBy))
 	}
+	if (args.showBirthdays !== undefined) {
+		params.append('showBirthdays', args.showBirthdays ? '1' : '0')
+	}
+	if (args.q) {
+		params.append('q', String(args.q))
+	}
 	params.append('limit', String(args.limit ?? 50))
 	params.append('offset', String(args.offset ?? 0))
-	const url = `${genUrl('/apps/launchpad/api/people')}?${params.toString()}`
-	const response = await axios.get(url)
+	return params.toString()
+}
+
+/**
+ * The page of people in a people endpoint response, with empty defaults.
+ *
+ * @param {object} response The axios response.
+ * @return {{users: object[], total: number, hasMore: boolean}} The page.
+ */
+function peoplePageOf(response) {
 	const data = response?.data || {}
 	return {
 		users: Array.isArray(data.users) ? data.users : [],
@@ -82,17 +112,92 @@ export async function fetchCalendarEvents(placementId, args = {}) {
 }
 
 /**
+ * The new colleagues for CnPeopleWidget's `selectionMode: 'new'`:
+ * `GET /apps/launchpad/api/people/new?since=&until=`, answered as
+ * `{ configured, users }` (each with id, displayName, avatarUrl, role,
+ * organisation, startDate, starts). A failed read throws, so the widget shows
+ * its error state.
+ *
+ * @param {object} [args] `{ since, until }` in days.
+ * @return {Promise<{configured: boolean, users: Array<object>}>}
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ */
+export async function fetchNewPeople(args = {}) {
+	const [{ default: axios }, { generateUrl: genUrl }] = await Promise.all([
+		import('@nextcloud/axios'),
+		import('@nextcloud/router'),
+	])
+	const response = await axios.get(genUrl('/apps/launchpad/api/people/new'), {
+		params: { since: args.since, until: args.until },
+	})
+	const data = response?.data || {}
+	return {
+		configured: data.configured === true,
+		users: Array.isArray(data.users) ? data.users : [],
+	}
+}
+
+/** The one start-date answer of this page load (a promise), or null. */
+let startDateFieldAnswer = null
+
+/**
+ * Whether an administrator marked a profile field as the start date, which
+ * is when the people widget form offers New colleagues. Asked once per page
+ * load; a failed read offers nothing.
+ *
+ * @return {Promise<boolean>}
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ */
+export function hasStartDateField() {
+	if (startDateFieldAnswer === null) {
+		startDateFieldAnswer = fetchNewPeople({ since: 1, until: 0 })
+			.then((answer) => answer.configured === true)
+			.catch(() => {
+				startDateFieldAnswer = null
+				return false
+			})
+	}
+	return startDateFieldAnswer
+}
+
+/**
+ * The people source for places outside a placement (the widget forms):
+ * the directory, the new colleagues and the start-date question.
+ *
+ * @return {object} the `cnPeopleSource` adapter.
+ * @spec openspec/changes/archive/2026-11-25-people-new-colleagues/specs/people-widget/spec.md#requirement-the-people-widget-can-list-new-colleagues-req-ppl-014
+ */
+export function buildPeopleSource() {
+	return {
+		fetchPeople: fetchPeoplePage,
+		searchPeople: fetchPeoplePage,
+		fetchNewPeople,
+		hasStartDateField,
+	}
+}
+
+/**
  * Build the `provide()` map of data-source adapters for the nc-vue data
  * widgets. Calendar is placement-scoped, so the caller passes a getter for the
  * current placement id.
  *
  * @param {() => (string|number|undefined)} getPlacementId returns the placement id.
+ * @param {() => (object|undefined)} [getContent] returns the placement content; the people adapter sends its `showBirthdays` switch.
  * @return {object} the injected `cn*Source` adapters.
- * @spec exclude wiring-only assembly — returns a literal map of the adapter functions defined in this file, each of which carries its own @spec; it encodes no behaviour of its own beyond naming the injection keys the nc-vue widgets expect.
+ * @spec openspec/specs/people-widget/spec.md
  */
-export function buildWidgetDataProvide(getPlacementId) {
+export function buildWidgetDataProvide(getPlacementId, getContent = () => ({})) {
+	const people = (args) => fetchPeoplePage({
+		...args,
+		showBirthdays: (getContent() || {}).showBirthdays !== false,
+	})
 	return {
-		cnPeopleSource: { fetchPeople: fetchPeoplePage },
+		cnPeopleSource: {
+			fetchPeople: people,
+			searchPeople: people,
+			fetchNewPeople,
+			hasStartDateField,
+		},
 		cnCalendarSource: {
 			fetchEvents: (args) => fetchCalendarEvents(getPlacementId(), args),
 		},

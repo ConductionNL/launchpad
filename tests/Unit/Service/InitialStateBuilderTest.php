@@ -30,6 +30,239 @@ use PHPUnit\Framework\TestCase;
 
 class InitialStateBuilderTest extends TestCase {
 	/**
+	 * REQ-SPX-002: the search shortcuts reach the workspace page.
+	 *
+	 * @return void
+	 */
+	public function testSearchShortcutsReachTheWorkspace(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$shortcuts = [['prefix' => '!t', 'name' => 'TOPdesk', 'urlTemplate' => 'https://topdesk.example.nl/?q={query}']];
+
+		(new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE))
+			->setWidgets([])
+			->setLayout([])
+			->setPrimaryGroup('g')
+			->setPrimaryGroupName('G')
+			->setIsAdmin(false)
+			->setActiveDashboardId('')
+			->setDashboardSource('group')
+			->setGroupDashboards([])
+			->setUserDashboards([])
+			->setAllowUserDashboards(false)
+			->setAllowedWidgets(null)
+			->setSearchShortcuts($shortcuts)
+			->apply();
+
+		$this->assertSame($shortcuts, $sink['searchShortcuts']);
+	}//end testSearchShortcutsReachTheWorkspace()
+
+	/**
+	 * REQ-RFP-010: an unconfigured allow-list reaches the page as JSON null.
+	 * Nextcloud's initial-state service drops a plain PHP null, so the value
+	 * must be something it accepts that still encodes as `null`.
+	 *
+	 * @return void
+	 */
+	public function testANullAllowListIsPushedAsJsonNull(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+
+		(new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE))
+			->setWidgets([])
+			->setLayout([])
+			->setPrimaryGroup('g')
+			->setPrimaryGroupName('G')
+			->setIsAdmin(false)
+			->setActiveDashboardId('')
+			->setDashboardSource('group')
+			->setGroupDashboards([])
+			->setUserDashboards([])
+			->setAllowUserDashboards(false)
+			->setAllowedWidgets(null)
+			->apply();
+
+		$this->assertArrayHasKey('allowedWidgets', $sink);
+		$this->assertTrue(is_scalar($sink['allowedWidgets']) || is_array($sink['allowedWidgets']) || $sink['allowedWidgets'] instanceof \JsonSerializable);
+		$this->assertSame('null', json_encode($sink['allowedWidgets']));
+	}//end testANullAllowListIsPushedAsJsonNull()
+
+	/**
+	 * The first dashboard load reaches the workspace when given, and is left
+	 * out when null, so the store fetches.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-4
+	 */
+	public function testTheFirstDashboardLoadIsProvidedOnlyWhenGiven(): void {
+		$firstLoad = ['visible' => [], 'active' => null];
+		foreach ([[$firstLoad, true], [null, false]] as [$value, $provided]) {
+			$sink = [];
+			(new InitialStateBuilder(initialState: $this->makeRecordingState(sink: $sink), page: Page::WORKSPACE))
+				->setWidgets([])
+				->setLayout([])
+				->setPrimaryGroup('g')
+				->setPrimaryGroupName('G')
+				->setIsAdmin(false)
+				->setActiveDashboardId('')
+				->setDashboardSource('group')
+				->setGroupDashboards([])
+				->setUserDashboards([])
+				->setAllowUserDashboards(false)
+				->setAllowedWidgets(null)
+				->setDashboardFirstLoad($value)
+				->apply();
+
+			$this->assertSame(expected: $provided, actual: array_key_exists('dashboardFirstLoad', $sink));
+			if ($provided === true) {
+				$this->assertSame(expected: $firstLoad, actual: $sink['dashboardFirstLoad']);
+			}
+		}
+	}//end testTheFirstDashboardLoadIsProvidedOnlyWhenGiven()
+
+	/**
+	 * The org navigation reaches the workspace when given, and is left out
+	 * when null, so the shell fetches.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-4
+	 */
+	public function testTheOrgNavigationIsProvidedOnlyWhenGiven(): void {
+		$orgNavigation = ['position' => 'left', 'tree' => [], 'language' => 'nl'];
+		foreach ([[$orgNavigation, true], [null, false]] as [$value, $provided]) {
+			$sink = [];
+			(new InitialStateBuilder(initialState: $this->makeRecordingState(sink: $sink), page: Page::WORKSPACE))
+				->setWidgets([])
+				->setLayout([])
+				->setPrimaryGroup('g')
+				->setPrimaryGroupName('G')
+				->setIsAdmin(false)
+				->setActiveDashboardId('')
+				->setDashboardSource('group')
+				->setGroupDashboards([])
+				->setUserDashboards([])
+				->setAllowUserDashboards(false)
+				->setAllowedWidgets(null)
+				->setOrgNavigation($value)
+				->apply();
+
+			$this->assertSame(expected: $provided, actual: array_key_exists('orgNavigation', $sink));
+			if ($provided === true) {
+				$this->assertSame(expected: $orgNavigation, actual: $sink['orgNavigation']);
+			}
+		}
+	}//end testTheOrgNavigationIsProvidedOnlyWhenGiven()
+
+	/**
+	 * The workspace boot reads reach the page when given, and are left out
+	 * when null, so the view fetches.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-4
+	 */
+	public function testTheWorkspaceBootReadsAreProvidedOnlyWhenGiven(): void {
+		$bootReads = ['tiles' => [], 'defaultDashboard' => ['uuid' => '']];
+		foreach ([[$bootReads, true], [null, false]] as [$value, $provided]) {
+			$sink = [];
+			(new InitialStateBuilder(initialState: $this->makeRecordingState(sink: $sink), page: Page::WORKSPACE))
+				->setWidgets([])
+				->setLayout([])
+				->setPrimaryGroup('g')
+				->setPrimaryGroupName('G')
+				->setIsAdmin(false)
+				->setActiveDashboardId('')
+				->setDashboardSource('group')
+				->setGroupDashboards([])
+				->setUserDashboards([])
+				->setAllowUserDashboards(false)
+				->setAllowedWidgets(null)
+				->setWorkspaceBootReads($value)
+				->apply();
+
+			$this->assertSame(expected: $provided, actual: array_key_exists('workspaceBootReads', $sink));
+			if ($provided === true) {
+				$this->assertSame(expected: $bootReads, actual: $sink['workspaceBootReads']);
+			}
+		}
+	}//end testTheWorkspaceBootReadsAreProvidedOnlyWhenGiven()
+
+	/**
+	 * The workspace's carried API reads reach the page under
+	 * `workspaceApiReads` when given, and are left out when null, so every
+	 * read goes out.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-workspace-api-reads-from-initial-state/tasks.md#task-4
+	 */
+	public function testTheWorkspaceApiReadsAreProvidedOnlyWhenGiven(): void {
+		$reads = [['path' => '/api/announcements', 'params' => [], 'data' => ['announcements' => []]]];
+		foreach ([[$reads, true], [null, false]] as [$value, $provided]) {
+			$sink = [];
+			(new InitialStateBuilder(initialState: $this->makeRecordingState(sink: $sink), page: Page::WORKSPACE))
+				->setWidgets([])
+				->setLayout([])
+				->setPrimaryGroup('g')
+				->setPrimaryGroupName('G')
+				->setIsAdmin(false)
+				->setActiveDashboardId('')
+				->setDashboardSource('group')
+				->setGroupDashboards([])
+				->setUserDashboards([])
+				->setAllowUserDashboards(false)
+				->setAllowedWidgets(null)
+				->setWorkspaceApiReads($value)
+				->apply();
+
+			$this->assertSame(expected: $provided, actual: array_key_exists('workspaceApiReads', $sink));
+			if ($provided === true) {
+				$this->assertSame(expected: $reads, actual: $sink['workspaceApiReads']);
+			}
+		}
+	}//end testTheWorkspaceApiReadsAreProvidedOnlyWhenGiven()
+
+	/**
+	 * The shell's setup status and walkthrough preferences reach the page
+	 * under the keys nextcloud-vue reads when given, and are left out when
+	 * null, so the shell asks.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-3
+	 */
+	public function testTheShellBootReadsAreProvidedOnlyWhenGiven(): void {
+		$status = ['forbidden' => true];
+		$preferences = ['seen' => '1.4.0', 'progress' => null];
+		foreach ([[$status, $preferences, true], [null, null, false]] as [$statusValue, $preferenceValue, $provided]) {
+			$sink = [];
+			(new InitialStateBuilder(initialState: $this->makeRecordingState(sink: $sink), page: Page::WORKSPACE))
+				->setWidgets([])
+				->setLayout([])
+				->setPrimaryGroup('g')
+				->setPrimaryGroupName('G')
+				->setIsAdmin(false)
+				->setActiveDashboardId('')
+				->setDashboardSource('group')
+				->setGroupDashboards([])
+				->setUserDashboards([])
+				->setAllowUserDashboards(false)
+				->setAllowedWidgets(null)
+				->setShellReads(reads: ['runtimeManifest' => null, 'setup_status' => $statusValue, 'walkthrough_preferences' => $preferenceValue])
+				->apply();
+
+			$this->assertSame(expected: $provided, actual: array_key_exists('setup_status', $sink));
+			$this->assertSame(expected: $provided, actual: array_key_exists('walkthrough_preferences', $sink));
+			if ($provided === true) {
+				$this->assertSame(expected: $status, actual: $sink['setup_status']);
+				$this->assertSame(expected: $preferences, actual: $sink['walkthrough_preferences']);
+			}
+		}
+	}//end testTheShellBootReadsAreProvidedOnlyWhenGiven()
+
+	/**
 	 * In-memory IInitialState stub that records every push.
 	 *
 	 * @return IInitialState&\PHPUnit\Framework\MockObject\MockObject
@@ -104,6 +337,8 @@ class InitialStateBuilderTest extends TestCase {
 			->setUserDashboards($userDashboards)
 			->setAllowUserDashboards(true)
 			->setAllowedWidgets(null)
+			->setOnOfficeNetwork(true)
+			->setCustomCss(".launchpad-workspace p {\n  margin: 0;\n}")
 			->apply();
 
 		$this->assertSame($widgets, $sink['widgets']);
@@ -116,6 +351,88 @@ class InitialStateBuilderTest extends TestCase {
 		$this->assertSame($groupDashboards, $sink['groupDashboards']);
 		$this->assertSame($userDashboards, $sink['userDashboards']);
 		$this->assertTrue($sink['allowUserDashboards']);
+		// launcher-tile-internal-address REQ-TIA-003, an optional key: pushed when set.
+		$this->assertTrue($sink['onOfficeNetwork']);
+		// REQ-THM-003, an optional key: the stored administrator CSS.
+		$this->assertSame(".launchpad-workspace p {\n  margin: 0;\n}", $sink['customCss']);
+	}
+
+	/**
+	 * The viewer's Nextcloud timezone is an optional workspace key, pushed only
+	 * when set (REQ-CLOCK-002).
+	 *
+	 * @return void
+	 */
+	public function testTheUserTimezoneIsPushedOnlyWhenSet(): void {
+		$sink = [];
+		$this->workspaceBuilder($sink)->setUserTimezone('Asia/Tokyo')->apply();
+		$this->assertSame('Asia/Tokyo', $sink['userTimezone']);
+
+		$bare = [];
+		$this->workspaceBuilder($bare)->apply();
+		$this->assertArrayNotHasKey('userTimezone', $bare);
+	}//end testTheUserTimezoneIsPushedOnlyWhenSet()
+
+	/**
+	 * The footer and the viewer's language are optional workspace keys,
+	 * pushed only when set (REQ-FTR-004, REQ-FTR-007).
+	 *
+	 * @return void
+	 */
+	public function testTheFooterAndViewerLocaleArePushedOnlyWhenSet(): void {
+		$sink = [];
+		$this->workspaceBuilder(sink: $sink)->setFooter(footer: ['mode' => 'global', 'html' => '<p>F</p>'], viewerLocale: 'nl')->apply();
+		$this->assertSame(expected: ['mode' => 'global', 'html' => '<p>F</p>'], actual: $sink['effectiveFooter']);
+		$this->assertSame(expected: 'nl', actual: $sink['viewerLocale']);
+
+		$bare = [];
+		$this->workspaceBuilder(sink: $bare)->apply();
+		$this->assertArrayNotHasKey(key: 'effectiveFooter', array: $bare);
+		$this->assertArrayNotHasKey(key: 'viewerLocale', array: $bare);
+	}//end testTheFooterAndViewerLocaleArePushedOnlyWhenSet()
+
+	/**
+	 * Engagement-communities: whether Talk is enabled and the pinned tokens are
+	 * optional workspace keys, pushed only when set (REQ-COMM-003, REQ-COMM-004).
+	 *
+	 * @return void
+	 */
+	public function testTalkAndPinnedCommunitiesArePushedOnlyWhenSet(): void {
+		$sink = [];
+		$this->workspaceBuilder($sink)
+			->setTalkEnabled(true)
+			->setPinnedCommunities([2 => 'vraagict', 5 => 'duurzaam42'])
+			->apply();
+
+		$this->assertTrue($sink['talkEnabled']);
+		$this->assertSame(['vraagict', 'duurzaam42'], $sink['pinnedCommunities']);
+
+		$bare = [];
+		$this->workspaceBuilder($bare)->apply();
+		$this->assertArrayNotHasKey('talkEnabled', $bare);
+		$this->assertArrayNotHasKey('pinnedCommunities', $bare);
+	}
+
+	/**
+	 * A workspace builder with every required key set, writing into the sink.
+	 *
+	 * @param array $sink The recorded state.
+	 *
+	 * @return InitialStateBuilder
+	 */
+	private function workspaceBuilder(array &$sink): InitialStateBuilder {
+		return (new InitialStateBuilder(initialState: $this->makeRecordingState($sink), page: Page::WORKSPACE))
+			->setWidgets([])
+			->setLayout([])
+			->setPrimaryGroup('default')
+			->setPrimaryGroupName('')
+			->setIsAdmin(false)
+			->setActiveDashboardId('')
+			->setDashboardSource('group')
+			->setGroupDashboards([])
+			->setUserDashboards([])
+			->setAllowUserDashboards(false)
+			->setAllowedWidgets(null);
 	}
 
 	public function testAdminBuilderWritesEveryKeyWithCorrectValues(): void {
@@ -139,6 +456,34 @@ class InitialStateBuilderTest extends TestCase {
 		$this->assertSame($widgets, $sink['widgets']);
 		$this->assertTrue($sink['allowUserDashboards']);
 		$this->assertSame(['txt', 'md'], $sink['linkCreateFileExtensions']);
+	}
+
+	/**
+	 * The tile editor gets the allowed schemes and the template names, never the template addresses.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
+	 */
+	public function testTileLaunchOptionsLeaveTheTemplateAddressesOut(): void {
+		$sink = [];
+		$builder = new InitialStateBuilder(initialState: $this->makeRecordingState($sink), page: Page::ADMIN);
+
+		$builder
+			->setAllGroups([])
+			->setConfiguredGroups([])
+			->setWidgets([])
+			->setAllowUserDashboards(false)
+			->setLinkCreateFileExtensions(['txt'])
+			->setTileLaunchOptions(
+				schemes: ['ms-word', 'vscode'],
+				templates: [
+					['key' => 'entra', 'name' => 'Microsoft Entra ID', 'urlTemplate' => 'https://launcher.myapps.microsoft.com/api/signin/{appId}'],
+					'not a template',
+				]
+			)
+			->apply();
+
+		$this->assertSame(['ms-word', 'vscode'], $sink['tileAllowedSchemes']);
+		$this->assertSame([['key' => 'entra', 'name' => 'Microsoft Entra ID']], $sink['ssoLaunchTemplates']);
 	}
 
 	public function testSchemaVersionAlwaysPushedForWorkspace(): void {
@@ -181,7 +526,7 @@ class InitialStateBuilderTest extends TestCase {
 			->apply();
 
 		$this->assertArrayHasKey(InitialStateBuilder::KEY_SCHEMA_VERSION, $sink);
-		$this->assertSame(2, $sink[InitialStateBuilder::KEY_SCHEMA_VERSION]);
+		$this->assertSame(3, $sink[InitialStateBuilder::KEY_SCHEMA_VERSION]);
 	}
 
 	public function testMissingFirstKeyExceptionMessageNamesTheFirstMissingKey(): void {
@@ -192,6 +537,26 @@ class InitialStateBuilderTest extends TestCase {
 		// Set nothing — apply should fail on the first required key.
 		$this->expectException(MissingInitialStateException::class);
 		$this->expectExceptionMessage('"widgets"');
+		$builder->apply();
+	}
+
+	public function testPublicStartBuilderPushesTheTokenAndTheVersion(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$builder = new InitialStateBuilder(initialState: $state, page: Page::PUBLIC_START);
+
+		$builder->setPublicStartToken('Bib1Noord')->apply();
+
+		$this->assertSame(['publicStartToken' => 'Bib1Noord', InitialStateBuilder::KEY_SCHEMA_VERSION => 3], $sink);
+	}
+
+	public function testPublicStartBuilderRefusesToRenderWithoutTheToken(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$builder = new InitialStateBuilder(initialState: $state, page: Page::PUBLIC_START);
+
+		$this->expectException(MissingInitialStateException::class);
+		$this->expectExceptionMessage('"publicStartToken"');
 		$builder->apply();
 	}
 }

@@ -29,24 +29,20 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\AdminTemplateService;
-use OCA\LaunchPad\Service\DashboardService;
-use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\InitialState\Page;
 use OCA\LaunchPad\Service\InitialStateBuilder;
-use OCA\LaunchPad\Service\RoleFeaturePermissionService;
-use OCA\LaunchPad\Service\WidgetService;
+use OCA\LaunchPad\Support\FleetAppId;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
+use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\Services\IInitialState;
 use OCP\IRequest;
 use OCP\IUserSession;
 use OCP\Util;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -61,48 +57,16 @@ class PageController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The request.
-	 * @param IInitialState $initialState The Nextcloud initial-state service.
-	 * @param IUserSession $userSession Active user session.
-	 * @param WidgetService $widgetService Available-widgets descriptor formatter.
-	 * @param DashboardService $dashboardService Dashboard listing + resolver
-	 *                                           (also exposes the
-	 *                                           `allow_user_dashboards` flag
-	 *                                           — REQ-ASET-003).
-	 * @param AdminTemplateService $adminTemplateService Primary-group routing
-	 *                                                   resolver (REQ-TMPL-012,
-	 *                                                   REQ-TMPL-013).
-	 * @param RoleFeaturePermissionService $roleFeaturePerm Per-user widget
-	 *                                                      allow-list source
-	 *                                                      (REQ-RFP-009..010).
-	 * @param DashboardTreeService $treeService Slug-chain
-	 *                                          resolver used by the
-	 *                                          deep-link route.
-	 * @param LoggerInterface $logger Used to record
-	 *                                silent fallback
-	 *                                when a deep-link
-	 *                                path doesn't
-	 *                                resolve to a
-	 *                                visible dashboard.
-	 * @param AdminSettingsService $adminSettingsService Source of the
-	 *                                                   quick-search
-	 *                                                   no-match
-	 *                                                   fallback-target
-	 *                                                   admin setting
-	 *                                                   (tile-quick-search
-	 *                                                   REQ-QSEARCH-004).
+	 * @param IRequest            $request The request.
+	 * @param PageSources         $sources The initial state, widget, dashboard and admin template services.
+	 * @param IUserSession        $userSession Active user session.
+	 * @param PageSettingsSources $settings The role feature, tree and admin settings services and the logger.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly IInitialState $initialState,
+		private readonly PageSources $sources,
 		private readonly IUserSession $userSession,
-		private readonly WidgetService $widgetService,
-		private readonly DashboardService $dashboardService,
-		private readonly AdminTemplateService $adminTemplateService,
-		private readonly RoleFeaturePermissionService $roleFeaturePerm,
-		private readonly DashboardTreeService $treeService,
-		private readonly LoggerInterface $logger,
-		private readonly AdminSettingsService $adminSettingsService,
+		private readonly PageSettingsSources $settings,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -151,81 +115,144 @@ class PageController extends Controller {
 	 * @return TemplateResponse The template response.
 	 *
 	 * @spec openspec/specs/runtime-shell/spec.md
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-first-load-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-workspace-boot-reads-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-25-manifest-cached-per-user/tasks.md#task-2
+	 * @spec openspec/changes/shell-boot-reads-from-initial-state/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-2
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function index(string $deepLink = ''): TemplateResponse {
-		Util::addScript(application: Application::APP_ID, file: 'launchpad-main');
-		Util::addStyle(application: Application::APP_ID, file: 'launchpad');
+		$this->addAssets(script: 'launchpad-main');
 
 		// Settings are read once and reused below; getSettings() resolves every
 		// safe default, so neither read throws on an unset key.
-		$settings = $this->adminSettingsService->getSettings();
-		$bridgedWidgets = $this->resolveBridgedWidgets(settings: $settings);
-
+		$settings = $this->settings->adminSettingsService->getSettings();
 		$userId = $this->resolveUserId();
+		$allowedWidgets = $this->allowedWidgets(userId: $userId);
+		$widgets = AllowedWidgetFilter::permitted(
+			widgets: $this->resolveWidgetCatalogue(settings: $settings),
+			allowed: $allowedWidgets
+		);
 
 		$routingGroup = $this->resolveRoutingGroup(userId: $userId);
-		$primaryGroupId = $routingGroup['id'];
-		$primaryGroupName = $routingGroup['name'];
 
 		$isAdmin = false;
 		$visible = [];
 		$active = null;
 		if ($userId !== '') {
-			$isAdmin = $this->dashboardService->isAdmin(userId: $userId);
-			$visible = $this->dashboardService->getVisibleToUser(userId: $userId);
+			$isAdmin = $this->sources->dashboards->dashboardService->isAdmin(userId: $userId);
+			// Active first: resolving it can hand a first-time user their copy
+			// of an admin template (REQ-TMPL-019), and the list read after it
+			// must hold that copy or the switcher opens without it.
 			$active = $this->resolveActive(
 				userId: $userId,
 				deepLink: $deepLink,
-				primaryGroupId: $primaryGroupId
+				primaryGroupId: $routingGroup['id']
 			);
+			$visible = $this->sources->dashboards->dashboardService->getVisibleToUser(userId: $userId);
 		}
 
 		$descriptors = $this->splitDescriptors(visible: $visible);
-		$activeState = $this->describeActive(active: $active);
+		$activeState = $this->describeActive(active: $active, userId: $userId);
+		$inputs = $this->firstPaintInputs(userId: $userId, visible: $visible, active: $active, state: $activeState) + ['widgets' => $widgets];
 
-		$allowUserDashboards = $this->dashboardService->getAllowUserDashboards();
-
-		$builder = new InitialStateBuilder(
-			initialState: $this->initialState,
-			page: Page::WORKSPACE
-		);
+		$builder = new InitialStateBuilder(initialState: $this->sources->initialState, page: Page::WORKSPACE);
 
 		$builder
-			->setWidgets($bridgedWidgets)
+			->setWidgets($widgets)
 			->setLayout($activeState['layout'])
-			->setPrimaryGroup($primaryGroupId)
-			->setPrimaryGroupName($primaryGroupName)
+			->setPrimaryGroup($routingGroup['id'])
+			->setPrimaryGroupName($routingGroup['name'])
 			->setIsAdmin($isAdmin)
 			->setActiveDashboardId($activeState['activeDashboardId'])
 			->setDashboardSource($activeState['dashboardSource'])
 			->setGroupDashboards($descriptors['group'])
 			->setUserDashboards($descriptors['user'])
-			->setAllowUserDashboards($allowUserDashboards);
+			->setAllowUserDashboards($this->sources->dashboards->dashboardService->getAllowUserDashboards());
 
-		// PR #95 (role-based-content): per-user widget allow-list.
-		// `null` = no admin policy for this user (unlimited).
-		$allowedWidgets = null;
-		if ($userId !== '') {
-			$allowedWidgets = $this->roleFeaturePerm->getAllowedWidgetIds(
-				userId: $userId
-			);
-		}
-
-		// Tile-quick-search REQ-QSEARCH-004: read the admin-configured
-		// no-match fallback target. `getSettings()` already resolves the
-		// safe 'none' default when unset/invalid, so this never throws.
-		$quicksearchFallback = (string)(
-			$settings['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET
-		);
-
+		// Tile-quick-search REQ-QSEARCH-004: the admin-configured no-match
+		// fallback target; `getSettings()` already resolves the safe 'none'
+		// default when unset/invalid, so this never throws.
 		$builder
 			->setAllowedWidgets($allowedWidgets)
 			->setDeepLinkPath($activeState['deepLinkPath'])
-			->setQuicksearchFallbackTarget($quicksearchFallback)
+			->setQuicksearchFallbackTarget((string)($settings['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET))
+			->setSearchShortcuts($this->settings->searchShortcuts->getShortcuts())
+			->setCustomCss($inputs['customCss'])
+			->setTelemetry(filters: ($settings['filterTelemetryEnabled'] ?? false) === true, views: $this->settings->analytics?->isGloballyEnabled() ?? true)
+			->setSharingPolicy(...$this->sources->dashboards->sharingPolicy(userId: $userId))
+			->setTileLaunchOptions(schemes: (array)($settings['tileAllowedSchemes'] ?? []), templates: (array)($settings['ssoLaunchTemplates'] ?? []))
+			->setOnOfficeNetwork(($settings['currentAddressInOfficeNetworks'] ?? false) === true)
+			->setTalkEnabled($this->isAppEnabledForViewer(appId: 'spreed'))
+			->setIntegrationApps($inputs['apps'])
+			->setUserTimezone($inputs['timezone'])
+			->setFooter(...$this->sources->dashboards->footerState(dashboard: $active['dashboard'] ?? null, userId: $userId))
+			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
+			->setDashboardFirstLoad($inputs['firstLoad'])
+			->setOrgNavigation($this->settings->orgNavigation?->firstLoad(userId: $userId))
+			->setWorkspaceBootReads($this->sources->bootReads?->firstLoad(userId: $userId))
+			->setShellReads(reads: $this->sources->shell->firstLoad(userId: $userId, visible: $visible))
+			->setWorkspaceApiReads($inputs['apiReads'])
 			->apply();
 
+		// First-paint-skeleton D1: the header and the widget frames in the
+		// page's HTML, from the same values; none without a dashboard.
+		$context = ['user' => $this->userSession->getUser(), 'reloadUrl' => $this->request->getRequestUri()] + $inputs;
+
+		return $this->workspaceResponse(params: FirstPaintPage::params(page: $inputs, context: $context));
+	}//end index()
+
+	/**
+	 * The values the initial state and the first-paint shell share, read
+	 * once: the first dashboard load, the integration apps, the reader's
+	 * time zone and the global custom CSS (first-paint-skeleton D1), and the
+	 * resource route without the file name, where the shell points a
+	 * dashboard's background image as dashboardLook.js does.
+	 *
+	 * The page's API reads (WorkspaceApiReads) come along too: the shell
+	 * prints the notice banners from them.
+	 *
+	 * The opened dashboard (`active`) and its described state come along,
+	 * so the template reads everything from one array.
+	 *
+	 * @param string     $userId  The user, or ''.
+	 * @param array      $visible The visible dashboards.
+	 * @param array|null $active  The opened dashboard as resolved, or null.
+	 * @param array      $state   The opened dashboard as describeActive() describes it.
+	 *
+	 * @return array<string, mixed> `firstLoad`, `apps`, `timezone`, `customCss`, `resourceUrl`, `apiReads`, `active` and the state's keys.
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 */
+	private function firstPaintInputs(string $userId, array $visible, ?array $active, array $state): array {
+		$resource = $this->settings->urlGenerator->linkToRoute(routeName: 'launchpad.resourceServe.getResource', arguments: ['filename' => 'x']);
+
+		return [
+			'firstLoad'   => $this->sources->dashboards->payloads?->firstLoad(userId: $userId, visible: $visible),
+			'apps'        => $this->integrationApps(),
+			'timezone'    => $this->userTimezone(userId: $userId),
+			'customCss'   => $this->settings->customCss?->getGlobalCss() ?? '',
+			'resourceUrl' => substr($resource, 0, -1),
+			'apiReads'    => $this->sources->dashboards->payloads?->apiReads?->firstLoad(userId: $userId, opening: ($active ?? []) + $state),
+			'active'      => $active,
+		] + $state;
+	}//end firstPaintInputs()
+
+	/**
+	 * The workspace page, without the Nextcloud layout for `kiosk=1`
+	 * (REQ-KIOSK-001).
+	 *
+	 * @param array<string, mixed> $params The template's parameters (the first-paint shell).
+	 *
+	 * @return TemplateResponse The page.
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 */
+	private function workspaceResponse(array $params=[]): TemplateResponse {
 		// 🔴 NO CHROME SLOT IDS. This used to pass
 		// `'id-app-navigation' => null` (REQ-SHELL-001), which suppressed
 		// Nextcloud's left navigation panel because the app rendered its own
@@ -242,45 +269,65 @@ class PageController extends Controller {
 		// view, not in the chrome slot.
 		$response = new TemplateResponse(
 			appName: Application::APP_ID,
-			templateName: 'index'
+			templateName: 'index',
+			params: $params,
+			renderAs: $this->kioskRenderAs(default: TemplateResponse::RENDER_AS_USER)
 		);
-
 		$response->setContentSecurityPolicy(csp: $this->buildWorkspaceCsp());
 
 		return $response;
-	}//end index()
+	}//end workspaceResponse()
 
 	/**
-	 * Resolve the widgets to bridge into the workspace, if any.
+	 * The per-user widget allow-list (PR #95, role-based-content).
 	 *
-	 * Legacy-widget-bridge spec: touching the Nextcloud widget registry at all is
-	 * what costs us. `IManager::getWidgets()` is not a getter — it calls
-	 * loadLazyPanels(), which calls load() on EVERY widget of every app enabled
-	 * for the user, ignoring the dashboard layout, and load() is where widgets
-	 * call `Util::addScript()`. Measured on this instance that is ~147 MB of
-	 * widget JS injected into a page rendering no Nextcloud dashboard, every one
-	 * of which then throws because `OCA.Dashboard` exists only on
-	 * `/apps/dashboard`.
+	 * @param string $userId The user, or '' when nobody is logged in.
 	 *
-	 * So the registry is touched only when the bridge is actually on. When it is
-	 * off the workspace renders without paying for widgets it will never bridge,
-	 * and the SPA still has everything it needs: Views.vue fetches the
-	 * available-widget list from `GET /api/widgets` on boot.
+	 * @return array|null The allowed widget ids, or null when no admin policy
+	 *                    applies to this user (unlimited).
+	 */
+	private function allowedWidgets(string $userId): ?array {
+		if ($userId === '') {
+			return null;
+		}
+
+		return $this->settings->roleFeaturePerm->getAllowedWidgetIds(
+			userId: $userId
+		);
+	}//end allowedWidgets()
+
+	/**
+	 * The Nextcloud dashboard widgets the workspace page carries in its
+	 * `widgets` initial state, so the card library lists them without a
+	 * `GET /api/widgets` call (REQ-RFP-010).
+	 *
+	 * `IManager::getWidgets()` is not a getter: it calls loadLazyPanels(),
+	 * which calls load() on EVERY widget of every app enabled for the user,
+	 * and load() is where widgets call `Util::addScript()`. Measured on this
+	 * instance that is ~147 MB of widget JS injected into a page rendering no
+	 * Nextcloud dashboard, every one of which then throws because
+	 * `OCA.Dashboard` exists only on `/apps/dashboard`.
+	 *
+	 * So the registry is loaded only when the legacy widget bridge is on and
+	 * needs those scripts. When it is off the widgets are read without loading
+	 * them; when even that is not possible the list is empty and the card
+	 * library falls back to `GET /api/widgets`.
 	 *
 	 * @param array $settings Resolved admin settings (see AdminSettingsService).
 	 *
-	 * @return array The widget descriptors to bridge, empty when the bridge is off.
+	 * @return array The widget descriptors, not yet narrowed to the user's role.
 	 *
 	 * @spec openspec/specs/runtime-shell/spec.md
+	 * @spec openspec/specs/role-feature-permissions/spec.md#requirement-req-rfp-010-initial-state-widget-allowlist
 	 */
-	private function resolveBridgedWidgets(array $settings): array {
+	private function resolveWidgetCatalogue(array $settings): array {
 		$bridgeEnabled = (bool)($settings['legacyWidgetBridgeEnabled'] ?? false);
-		if ($bridgeEnabled === false) {
-			return [];
+		if ($bridgeEnabled === true) {
+			return $this->sources->widgetService->getAvailableWidgets();
 		}
 
-		return $this->widgetService->getAvailableWidgets();
-	}//end resolveBridgedWidgets()
+		return $this->sources->widgetService->getWidgetCatalogue() ?? [];
+	}//end resolveWidgetCatalogue()
 
 	/**
 	 * Resolve the primary group this request routes through.
@@ -299,14 +346,14 @@ class PageController extends Controller {
 	 */
 	private function resolveRoutingGroup(string $userId): array {
 		$primaryGroupId = Dashboard::DEFAULT_GROUP_ID;
-		$primaryGroupName = $this->adminTemplateService->resolvePrimaryGroupDisplayName(
+		$primaryGroupName = $this->sources->adminTemplateService->resolvePrimaryGroupDisplayName(
 			groupId: Dashboard::DEFAULT_GROUP_ID
 		);
 		if ($userId !== '') {
-			$primaryGroupId = $this->adminTemplateService->resolvePrimaryGroup(
+			$primaryGroupId = $this->sources->adminTemplateService->resolvePrimaryGroup(
 				userId: $userId
 			);
-			$primaryGroupName = $this->adminTemplateService->resolvePrimaryGroupDisplayName(
+			$primaryGroupName = $this->sources->adminTemplateService->resolvePrimaryGroupDisplayName(
 				groupId: $primaryGroupId
 			);
 		}
@@ -316,6 +363,93 @@ class PageController extends Controller {
 			'name' => $primaryGroupName,
 		];
 	}//end resolveRoutingGroup()
+
+	/**
+	 * The viewer's Nextcloud timezone, which a clock without its own zone
+	 * shows (REQ-CLOCK-002), or '' when it is unknown.
+	 *
+	 * @param string $userId The user, or '' when nobody is logged in.
+	 *
+	 * @return string The IANA timezone name, or ''.
+	 *
+	 * @spec openspec/specs/clock-weather-widgets/spec.md
+	 */
+	private function userTimezone(string $userId): string {
+		if ($userId === '' || $this->settings->config === null) {
+			return '';
+		}
+
+		return $this->settings->config->getUserValue(userId: $userId, appName: 'core', key: 'timezone', default: '');
+	}//end userTimezone()
+
+	/**
+	 * Which apps behind the integration widgets are enabled for the
+	 * signed-in user, by app id (wiki-widget REQ-WIKI-004).
+	 *
+	 * @return array<string, bool|string> Whether each app is enabled, or the id it is installed under.
+	 *
+	 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
+	 * @spec openspec/changes/archive/2026-11-25-dashboard-connections-widget/specs/app-connections/spec.md#requirement-req-lp-conn-005-a-dashboard-shows-the-state-of-its-own-connections
+	 */
+	private function integrationApps(): array {
+		return [
+			'openregister'            => $this->isAppEnabledForViewer(appId: 'openregister'),
+			'integration_openproject' => $this->isAppEnabledForViewer(appId: 'integration_openproject'),
+			'dossiq'                  => $this->enabledFleetAppId(canonical: 'dossiq'),
+			'integriq'                => $this->isAppEnabledForViewer(appId: 'integriq'),
+		];
+	}//end integrationApps()
+
+	/**
+	 * Whether an app is enabled for the signed-in user. Talk and the apps
+	 * behind the integration widgets are optional: when one is absent,
+	 * disabled for this user, or the check fails, its widget explains itself
+	 * or stays out of the picker (engagement-communities REQ-COMM-004,
+	 * wiki-widget REQ-WIKI-004).
+	 *
+	 * @param string $appId The app id.
+	 *
+	 * @return bool True when the app is enabled for the viewer.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-without-talk-the-widget-explains-itself-req-comm-004
+	 * @spec openspec/changes/wiki-widget/specs/wiki-widget/spec.md#requirement-the-picker-offers-the-wiki-only-where-it-can-work-req-wiki-004
+	 */
+	private function isAppEnabledForViewer(string $appId): bool {
+		$user = $this->userSession->getUser();
+		if ($user === null || $this->settings->appManager === null) {
+			return false;
+		}
+
+		try {
+			return $this->settings->appManager->isEnabledForUser(appId: $appId, user: $user);
+		} catch (Throwable) {
+			return false;
+		}
+	}//end isAppEnabledForViewer()
+
+	/**
+	 * The id under which a renamed fleet app is installed and enabled for the
+	 * signed-in user, or false. The app is looked up by every name it has had
+	 * ({@see FleetAppId}), never by one spelling (assigned-cases-widget REQ-CASES-004).
+	 *
+	 * @param string $canonical The app's current name.
+	 *
+	 * @return string|false The installed id, or false.
+	 *
+	 * @spec openspec/changes/assigned-cases-widget/specs/assigned-cases-widget/spec.md#requirement-the-widget-is-offered-only-with-dossiq-req-cases-004
+	 */
+	private function enabledFleetAppId(string $canonical): string|false {
+		if ($this->settings->appManager === null) {
+			return false;
+		}
+
+		$installed = FleetAppId::resolve(appManager: $this->settings->appManager, canonical: $canonical);
+		if ($installed === null || $this->isAppEnabledForViewer(appId: $installed) === false) {
+			return false;
+		}
+
+		return $installed;
+	}//end enabledFleetAppId()
 
 	/**
 	 * Resolve the active session's user id.
@@ -402,7 +536,7 @@ class PageController extends Controller {
 			return $active;
 		}
 
-		return $this->dashboardService->resolveActiveDashboard(
+		return $this->sources->dashboards->dashboardService->resolveActiveDashboard(
 			userId: $userId,
 			primaryGroupId: $primaryGroupId
 		);
@@ -425,15 +559,15 @@ class PageController extends Controller {
 	private function resolveDeepLink(string $userId, string $deepLink): ?array {
 		$active = null;
 		try {
-			$resolved = $this->treeService->resolvePath(path: $deepLink);
+			$resolved = $this->settings->treeService->resolvePath(path: $deepLink);
 			if ($resolved !== null) {
-				$active = $this->dashboardService->getDashboardForUser(
+				$active = $this->sources->dashboards->dashboardService->getDashboardForUser(
 					dashboardId: $resolved->getId(),
 					userId: $userId
 				);
 			}
 		} catch (Throwable $t) {
-			$this->logger->warning(
+			$this->settings->logger->warning(
 				message: 'launchpad: deep-link resolution failed for path "{path}": {message}',
 				context: [
 					'path' => $deepLink,
@@ -443,7 +577,7 @@ class PageController extends Controller {
 		}
 
 		if ($active === null) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'launchpad: deep-link path "{path}" not visible — falling back to default resolver',
 				context: ['path' => $deepLink]
 			);
@@ -458,11 +592,15 @@ class PageController extends Controller {
 	 * Returns the documented empty defaults when nothing is active, so
 	 * the contract is fully populated either way.
 	 *
+	 * The layout leaves out nothing but marks a widget the user's role does
+	 * not permit with `isVisible` 0, as the dashboard reads do (REQ-RFP-001).
+	 *
 	 * @param array{dashboard: Dashboard, source: string}|null $active The active entry.
+	 * @param string                                           $userId The user, or '' when nobody is logged in.
 	 *
 	 * @return array{activeDashboardId: string, dashboardSource: string, layout: array<int, mixed>, deepLinkPath: string}
 	 */
-	private function describeActive(?array $active): array {
+	private function describeActive(?array $active, string $userId): array {
 		if ($active === null) {
 			return [
 				'activeDashboardId' => '',
@@ -473,22 +611,47 @@ class PageController extends Controller {
 		}
 
 		$activeDashboard = $active['dashboard'];
-		$placements = $this->widgetService->getDashboardPlacements(
+		$placements = $this->sources->widgetService->getDashboardPlacements(
 			dashboardId: $activeDashboard->getId()
 		);
 
 		return [
 			'activeDashboardId' => (string)$activeDashboard->getUuid(),
 			'dashboardSource' => (string)$active['source'],
-			'layout' => array_map(
-				callback: function ($placement) {
-					return $placement->jsonSerialize();
-				},
-				array: $placements
+			'layout' => $this->hideUnpermitted(
+				placements: array_map(
+					callback: function ($placement) {
+						return $placement->jsonSerialize();
+					},
+					array: $placements
+				),
+				userId: $userId
 			),
 			'deepLinkPath' => $this->computeDeepLinkPath(dashboard: $activeDashboard),
 		];
 	}//end describeActive()
+
+	/**
+	 * The serialised placements with the ones the user's role does not
+	 * permit marked `isVisible` 0; unchanged when nobody is logged in.
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 * @param string                           $userId     The user, or ''.
+	 *
+	 * @return array<int, array<string, mixed>> The placements.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md
+	 */
+	private function hideUnpermitted(array $placements, string $userId): array {
+		if ($userId === '') {
+			return $placements;
+		}
+
+		return $this->settings->roleFeaturePerm->hideUnpermittedPlacements(
+			placements: $placements,
+			userId: $userId
+		);
+	}//end hideUnpermitted()
 
 	/**
 	 * Compute the canonical slug-chain for the active dashboard.
@@ -504,11 +667,11 @@ class PageController extends Controller {
 	 */
 	private function computeDeepLinkPath(Dashboard $dashboard): string {
 		try {
-			return $this->treeService->computePath(
+			return $this->settings->treeService->computePath(
 				uuid: (string)$dashboard->getUuid()
 			);
 		} catch (Throwable $t) {
-			$this->logger->warning(
+			$this->settings->logger->warning(
 				message: 'launchpad: failed to compute path for active dashboard {uuid}: {message}',
 				context: [
 					'uuid' => (string)$dashboard->getUuid(),
@@ -575,14 +738,59 @@ class PageController extends Controller {
 	#[NoCSRFRequired]
 	#[AnonRateLimit(limit: 120, period: 60)]
 	public function publicShare(): TemplateResponse {
-		Util::addScript(application: Application::APP_ID, file: 'launchpad-public');
-		Util::addStyle(application: Application::APP_ID, file: 'launchpad');
+		return $this->publicPage();
+	}//end publicShare()
+
+	/**
+	 * Render the public start page, `/apps/launchpad/start` (sharing-public-start-page D3).
+	 *
+	 * Signed-out visitors on the plain login page are sent here by
+	 * {@see \OCA\LaunchPad\Listener\PublicStartRedirectListener}. The page is
+	 * the public-share page for the link an administrator chose, with its
+	 * token handed over as initial state and a "Sign in" bar on top; the data
+	 * still comes from `/s/{token}/data`, so the read-only guards of REQ-PSHR
+	 * apply unchanged. When the start page is off, or its link was revoked,
+	 * protected or has expired, the visitor goes to the login form with
+	 * `direct=1`, which never sends them back here.
+	 *
+	 * Rate limit: the same generous volume ceiling as {@see self::publicShare()}.
+	 *
+	 * @return TemplateResponse|RedirectResponse The start page, or the login form.
+	 *
+	 * @spec openspec/changes/sharing-public-start-page/specs/dashboard-public-share/spec.md#requirement-signed-out-visitors-land-on-the-start-page-req-psp-002
+	 * @spec openspec/changes/sharing-public-start-page/specs/dashboard-public-share/spec.md#requirement-the-start-page-offers-a-way-in-for-staff-req-psp-003
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 120, period: 60)]
+	public function start(): TemplateResponse|RedirectResponse {
+		$share = $this->settings->publicStartPage->active();
+		if ($share === null) {
+			return new RedirectResponse(
+				redirectURL: $this->settings->urlGenerator->linkToRoute(routeName: 'core.login.showLoginForm', arguments: ['direct' => 1])
+			);
+		}
+
+		(new InitialStateBuilder(initialState: $this->sources->initialState, page: Page::PUBLIC_START))
+			->setPublicStartToken((string)$share->getToken())
+			->apply();
+
+		return $this->publicPage();
+	}//end start()
+
+	/**
+	 * The anonymous read-only page that boots `launchpad-public`.
+	 *
+	 * @return TemplateResponse The public page response.
+	 */
+	private function publicPage(): TemplateResponse {
+		$this->addAssets(script: 'launchpad-public');
 
 		$response = new TemplateResponse(
 			appName: Application::APP_ID,
 			templateName: 'public',
 			params: [],
-			renderAs: TemplateResponse::RENDER_AS_PUBLIC
+			renderAs: $this->kioskRenderAs(default: TemplateResponse::RENDER_AS_PUBLIC)
 		);
 
 		$csp = new ContentSecurityPolicy();
@@ -593,6 +801,61 @@ class PageController extends Controller {
 		$response->setContentSecurityPolicy(csp: $csp);
 
 		return $response;
-	}//end publicShare()
+	}//end publicPage()
+
+	/**
+	 * The page layout: without any Nextcloud chrome (header, navigation)
+	 * when the request carries `kiosk=1` (REQ-KIOSK-001), else the default.
+	 * The flag only changes the layout; every access check runs unchanged.
+	 *
+	 * @param string $default The layout without the flag.
+	 *
+	 * @return string The layout to render as.
+	 */
+	private function kioskRenderAs(string $default): string {
+		if ($this->request->getParam(key: 'kiosk') === '1') {
+			return TemplateResponse::RENDER_AS_BASE;
+		}
+
+		return $default;
+	}//end kioskRenderAs()
+
+	/**
+	 * Add an app script and the app stylesheet to the page.
+	 *
+	 * @param string $script The script, `launchpad-main` or `launchpad-public`.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md
+	 */
+	protected function addAssets(string $script): void {
+		Util::addScript(application: Application::APP_ID, file: $script);
+		foreach (self::stylesFor(script: $script) as $style) {
+			Util::addStyle(application: Application::APP_ID, file: $style);
+		}
+	}//end addAssets()
+
+	/**
+	 * The app stylesheets a page with this script links, in order.
+	 *
+	 * The workspace and the public page link nextcloud-vue's stylesheet (`css/nextcloud-vue.css`,
+	 * copied there by the build) instead of launchpad-main inserting its ~1 MB
+	 * as text from JavaScript: the browser keeps a linked sheet parsed between
+	 * page loads, which took ~30-100 ms off every warm Workspace load.
+	 *
+	 * @param string $script The script, `launchpad-main` or `launchpad-public`.
+	 *
+	 * @return array<int, string> The stylesheet names under css/.
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md
+	 */
+	public static function stylesFor(string $script): array {
+		if ($script === 'launchpad-main' || $script === 'launchpad-public') {
+			return ['nextcloud-vue', 'launchpad'];
+		}
+
+		return ['launchpad'];
+	}//end stylesFor()
 
 }//end class

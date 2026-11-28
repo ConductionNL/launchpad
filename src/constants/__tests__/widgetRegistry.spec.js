@@ -11,6 +11,7 @@
  * responsibility and are tested there, not re-frozen here.
  */
 
+import { loadLazyComponent } from '@conduction/nextcloud-vue'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 beforeEach(() => {
@@ -153,8 +154,8 @@ describe('widgetRegistry — news is LaunchPad-owned', () => {
 		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
 		const entry = getWidgetTypeEntry('news')
 		expect(entry).toBeTruthy()
-		expect(entry.renderer?.name).toBe('NewsWidget')
-		expect(entry.form?.name).toBe('NewsWidgetForm')
+		expect((await loadLazyComponent(entry.renderer))?.name).toBe('NewsWidget')
+		expect((await loadLazyComponent(entry.form))?.name).toBe('NewsWidgetForm')
 	})
 
 	it('keeps the content shape a pre-move placement was authored with', async () => {
@@ -174,5 +175,57 @@ describe('widgetRegistry — news is LaunchPad-owned', () => {
 	it('still offers news in the type picker', async () => {
 		const { listWidgetTypes } = await import('../widgetRegistry.js')
 		expect(listWidgetTypes()).toContain('news')
+	})
+})
+
+describe('offeredForViewer (wiki-widget REQ-WIKI-004)', () => {
+	it('offers a type without an app always, and a type with one only when it is enabled for the viewer', async () => {
+		const { offeredForViewer, getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		expect(offeredForViewer({ displayName: 'Clock' }, {})).toBe(true)
+		expect(offeredForViewer(getWidgetTypeEntry('wiki-pages'), {})).toBe(false)
+		expect(offeredForViewer(getWidgetTypeEntry('wiki-pages'), { openregister: false })).toBe(false)
+		expect(offeredForViewer(getWidgetTypeEntry('wiki-pages'), { openregister: true })).toBe(true)
+	})
+})
+
+describe('section-heading (REQ-WDG-031)', () => {
+	it('is offered to everyone as "Section heading" with the format-header-1 icon', async () => {
+		const { getWidgetTypeEntry, listWidgetTypes, offeredForViewer } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('section-heading')
+		const entry = getWidgetTypeEntry('section-heading')
+		expect(entry.icon).toBe('FormatHeader1')
+		expect((await loadLazyComponent(entry.renderer)).name).toBe('SectionHeadingWidget')
+		expect((await loadLazyComponent(entry.form)).name).toBe('SectionHeadingWidgetForm')
+		expect(offeredForViewer(entry, {})).toBe(true)
+	})
+
+	it('may take one grid row', async () => {
+		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		expect(getWidgetTypeEntry('section-heading').minHeight).toBe(1)
+	})
+})
+
+describe('phone readiness (REQ-MRA-007)', () => {
+	it('marks the assistant as not ready for a phone and leaves other types shown', async () => {
+		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		const { isPhoneReady } = await import('../../utils/phoneHiddenWidgets.js')
+		expect(isPhoneReady(getWidgetTypeEntry('ai-assistant'))).toBe(false)
+		expect(isPhoneReady(getWidgetTypeEntry('clock'))).toBe(true)
+	})
+})
+
+// app-link-tile-widget REQ-APPTILE-001, -006.
+describe('the App or link tile', () => {
+	it('offers the tile as "App or link tile" and no longer the app tile', async () => {
+		const { getWidgetTypeEntry, listWidgetTypes, getDefaultContent } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('tile')
+		expect(listWidgetTypes()).not.toContain('app-tile')
+		expect(getWidgetTypeEntry('tile').displayName).toBe('App or link tile')
+		expect(getDefaultContent('tile')).toMatchObject({ mode: 'link', textColour: 'white' })
+	})
+
+	it('still renders a retired app tile through the tile host', async () => {
+		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		expect(getWidgetTypeEntry('app-tile').renderer).toBe(getWidgetTypeEntry('tile').renderer)
 	})
 })

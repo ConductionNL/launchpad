@@ -40,6 +40,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\WidgetApiPolicy;
+use OCA\LaunchPad\Controller\WidgetApiSources;
+use OCA\LaunchPad\Controller\RequestActor;
 use DateTimeImmutable;
 use Exception;
 use OCA\LaunchPad\Controller\WidgetApiController;
@@ -59,6 +62,11 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\ActorResponses;
+use OCA\LaunchPad\Controller\UserResponses;
+use OCA\LaunchPad\Controller\WidgetApiAccess;
 
 /**
  * Contract tests for newsItems, calendarEvents and calendars.
@@ -150,16 +158,20 @@ class WidgetApiControllerDataEndpointsTest extends TestCase {
 
 		return new WidgetApiController(
 			request: $this->request,
-			widgetService: $this->widgetService,
-			permissionService: $this->permissionService,
-			newsWidgetService: $this->newsWidgetService,
-			calendarService: $this->calendarService,
-			placementService: $this->createMock(WidgetPlacementService::class),
-			roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
-			userSession: $this->userSession,
-			actionAuth: $this->actionAuth,
-			logger: $this->createMock(LoggerInterface::class),
-			userId: $userId,
+			sources: new WidgetApiSources(
+				widgetService: $this->widgetService,
+				newsWidgetService: $this->newsWidgetService,
+				calendarService: $this->calendarService,
+				placementService: $this->createMock(WidgetPlacementService::class)
+			),
+			access: new WidgetApiAccess(permissionService: $this->permissionService, policy: new WidgetApiPolicy(
+				roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
+				logger: $this->createMock(LoggerInterface::class)
+			)),
+			context: new ActorResponses(actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			), responses: new UserResponses(userId: $userId, responseHelper: new ResponseHelper(logger: new NullLogger())))
 		);
 
 	}//end makeController()
@@ -258,6 +270,29 @@ class WidgetApiControllerDataEndpointsTest extends TestCase {
 		);
 
 	}//end testNewsItemsEnforcesTheLimitRange()
+
+	/**
+	 * Nextcloud's dispatcher refuses an int parameter named `limit` outside
+	 * 1..500 with an unhandled exception (a 500) unless the method declares a
+	 * psalm int range for it. The declared range must be unbounded, so a
+	 * limit of 0 or below reaches the controller and is answered 400. The
+	 * pattern is the one Nextcloud's ControllerMethodReflector reads.
+	 *
+	 * @return void
+	 */
+	public function testNewsItemsLeavesTheLimitRangeToTheController(): void {
+		$docs = (string)(new \ReflectionMethod(WidgetApiController::class, 'newsItems'))->getDocComment();
+		$found = preg_match(
+			'/@(?:psalm-)?param\h+(\?)?int<(?P<min>-?\d+|min),\h*(?P<max>-?\d+|max)>(\|null)?\h+\$limit/',
+			$docs,
+			$range
+		);
+
+		$this->assertSame(expected: 1, actual: $found);
+		$this->assertSame(expected: 'min', actual: $range['min']);
+		$this->assertSame(expected: 'max', actual: $range['max']);
+
+	}//end testNewsItemsLeavesTheLimitRangeToTheController()
 
 	/**
 	 * Boundary cases for the news `limit` parameter.
@@ -667,4 +702,53 @@ class WidgetApiControllerDataEndpointsTest extends TestCase {
 
 	}//end testCalendarsHidesBackendFailureDetail()
 
-}//end class
+	/**
+	 * The calendar config read from every placement shape, and the range
+	 * refusals with their messages.
+	 *
+	 * @return void
+	 */
+	public function testCalendarConfigAndRangeParsing(): void {
+		$controller = $this->makeController('alice');
+		$extract    = new \ReflectionMethod(WidgetApiController::class, 'extractCalendarConfig');
+		$withJson   = $this->makePlacement(content: ['internalCalendars' => ['a', '', 7], 'externalIcsUrls' => ['', 'https://x.test/a.ics'], 'viewMode' => 'week', 'daysAhead' => '9', 'colorByCalendar' => 0]);
+		$badJson    = new WidgetPlacement();
+		$badJson->setContent('{oops');
+		$plain = new class {
+			public string $content = 'ignored';
+		};
+
+		$this->assertSame(
+			[
+				['internalCalendars' => ['a', '7'], 'externalIcsUrls' => ['https://x.test/a.ics'], 'viewMode' => 'week', 'daysAhead' => 9, 'colorByCalendar' => false],
+				['internalCalendars' => [], 'externalIcsUrls' => [], 'viewMode' => 'agenda', 'daysAhead' => 14, 'colorByCalendar' => true],
+				['internalCalendars' => [], 'externalIcsUrls' => [], 'viewMode' => 'agenda', 'daysAhead' => 14, 'colorByCalendar' => true],
+			],
+			[$extract->invoke($controller, $withJson), $extract->invoke($controller, $badJson), $extract->invoke($controller, $plain)]
+		);
+
+		$range  = new \ReflectionMethod(WidgetApiController::class, 'resolveCalendarRange');
+		$answer = static function (array $result): array {
+			if ($result['error'] !== null) {
+				return [$result['error']->getStatus(), $result['error']->getData(), $result['start'], $result['end']];
+			}
+			return [null, $result['start']->format('c'), $result['end']->format('c')];
+		};
+		$this->assertSame(
+			[
+				[400, ['error' => 'Both from and to are required ISO 8601 timestamps'], null, null],
+				[400, ['error' => 'Invalid date format'], null, null],
+				[400, ['error' => '`to` must be greater than or equal to `from`'], null, null],
+				[null, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00'],
+				[null, '2026-01-01T00:00:00+00:00', '2027-01-01T00:00:00+00:00'],
+			],
+			[
+				$answer($range->invoke($controller, '', '2026-01-01T00:00:00+00:00')),
+				$answer($range->invoke($controller, 'not a date', '2026-01-01T00:00:00+00:00')),
+				$answer($range->invoke($controller, '2026-02-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00')),
+				$answer($range->invoke($controller, '2026-01-01T00:00:00+00:00', '2026-01-01T00:00:00+00:00')),
+				$answer($range->invoke($controller, '2026-01-01T00:00:00+00:00', '2029-01-01T00:00:00+00:00')),
+			]
+		);
+	}//end testCalendarConfigAndRangeParsing()
+}

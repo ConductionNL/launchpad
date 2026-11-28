@@ -32,7 +32,7 @@
 			role="menuitem"
 			data-testid="ctx-visibility-rules"
 			@click="onVisibilityRules">
-			{{ t('launchpad', 'Visibility rules…') }}
+			{{ t('launchpad', 'Who sees this widget?') }}
 		</button>
 		<button
 			type="button"
@@ -43,6 +43,7 @@
 			{{ t('launchpad', 'Read confirmation…') }}
 		</button>
 		<button
+			v-if="!removeLocked"
 			type="button"
 			class="widget-context-menu__item widget-context-menu__item--danger"
 			role="menuitem"
@@ -79,6 +80,7 @@ import { t } from '@nextcloud/l10n'
  * Props:
  *  - `top` (number): clamped pixel offset from the viewport top
  *  - `left` (number): clamped pixel offset from the viewport left
+ *  - `removeLocked` (boolean): leave Remove out (default false)
  *
  * Emits:
  *  - `edit`: user clicked Edit — parent should open `AddWidgetModal` with
@@ -103,6 +105,12 @@ export default {
 			type: Number,
 			required: true,
 		},
+
+		/** Leaves Remove out, for a widget the user may not remove. */
+		removeLocked: {
+			type: Boolean,
+			default: false,
+		},
 	},
 
 	emits: [
@@ -114,27 +122,83 @@ export default {
 		'close',
 	],
 
+	data() {
+		return {
+			/** The position after fitting the rendered box into the viewport. */
+			fitted: null,
+		}
+	},
+
 	computed: {
 		/**
 		 * Absolute positioning + the fixed look (z-index, min-width) lives
 		 * here so the parent only has to pass coordinates. Position is
 		 * `fixed` (not `absolute`) so viewport-relative clientX/clientY
 		 * values from the right-click event map cleanly without having to
-		 * account for scroll offsets.
+		 * account for scroll offsets. The parent clamps with an estimated
+		 * size; once rendered, the popover pulls itself back inside the
+		 * viewport with its real size (REQ-WDG-017).
 		 *
 		 * @return {object}
 		 * @spec openspec/specs/widgets/spec.md
 		 */
 		positionStyle() {
+			const at = this.fitted ?? { top: this.top, left: this.left }
 			return {
-				top: `${this.top}px`,
-				left: `${this.left}px`,
+				top: `${at.top}px`,
+				left: `${at.left}px`,
 			}
 		},
 	},
 
+	watch: {
+		/**
+		 * Re-fit when the parent moves the popover.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		top() {
+			this.fitToViewport()
+		},
+
+		/**
+		 * Re-fit when the parent moves the popover.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		left() {
+			this.fitToViewport()
+		},
+	},
+
+	mounted() {
+		this.fitToViewport()
+	},
+
 	methods: {
 		t,
+
+		/**
+		 * Measure the rendered popover and move it up or left so it ends
+		 * inside the viewport (REQ-WDG-017). The item count changes over time
+		 * (and Remove can be absent), so the real box is used, not a constant.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/widgets/spec.md
+		 */
+		async fitToViewport() {
+			this.fitted = null
+			await this.$nextTick()
+			const box = this.$el?.getBoundingClientRect?.()
+			if (!box || typeof window === 'undefined') {
+				return
+			}
+			const top = Math.max(0, Math.min(this.top, window.innerHeight - box.height))
+			const left = Math.max(0, Math.min(this.left, window.innerWidth - box.width))
+			if (top !== this.top || left !== this.left) {
+				this.fitted = { top, left }
+			}
+		},
 
 		/** @spec openspec/specs/widgets/spec.md */
 		onEdit() {
@@ -148,7 +212,12 @@ export default {
 			this.$emit('close')
 		},
 
-		/** @spec openspec/specs/conditional-visibility/spec.md */
+		/**
+		 * "Who sees this widget?": open the rules dialog for this widget.
+		 *
+		 * @spec openspec/specs/conditional-visibility/spec.md
+		 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-dialog-is-in-the-widgets-menu-req-cvui-007
+		 */
 		onVisibilityRules() {
 			this.$emit('visibilityRules')
 			this.$emit('close')

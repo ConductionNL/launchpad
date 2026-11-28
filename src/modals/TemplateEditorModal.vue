@@ -18,6 +18,7 @@
 <template>
 	<NcModal
 		v-if="open"
+		class="launchpad-modal"
 		:name="
 			isEdit
 				? t('launchpad', 'Edit template')
@@ -62,12 +63,12 @@
 			</div>
 
 			<div class="launchpad-admin__field">
-				<label>{{ t('launchpad', 'Target groups') }}</label>
-				<NcSelectTags
+				<NcSelect
 					v-model="form.targetGroups"
+					class="launchpad-admin__target-groups"
 					:options="availableGroups"
 					:multiple="true"
-					:aria-label-combobox="t('launchpad', 'Target groups')"
+					:inputLabel="t('launchpad', 'Target groups')"
 					:placeholder="
 						t('launchpad', 'Select groups (leave empty for all users)')
 					" />
@@ -105,10 +106,10 @@ import {
 	NcCheckboxRadioSwitch,
 	NcModal,
 	NcSelect,
-	NcSelectTags,
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { FLAG_PROP, NULLABLE_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
 import { logger } from '../utils/logger.js'
 
@@ -135,7 +136,6 @@ export default {
 	components: {
 		NcButton,
 		NcSelect,
-		NcSelectTags,
 		NcTextField,
 		NcCheckboxRadioSwitch,
 		NcModal,
@@ -143,18 +143,12 @@ export default {
 
 	props: {
 		/** Visibility toggle owned by the parent page. */
-		open: {
-			type: Boolean,
-			default: false,
-		},
+		open: FLAG_PROP,
 
 		/**
 		 * The template to edit, or `null` to open a blank create form.
 		 */
-		template: {
-			type: Object,
-			default: null,
-		},
+		template: NULLABLE_OBJECT_PROP,
 	},
 
 	emits: ['close', 'saved'],
@@ -197,6 +191,7 @@ export default {
 			handler(isOpen) {
 				if (isOpen) {
 					this.seedForm()
+					this.loadGroups()
 				}
 			},
 		},
@@ -211,6 +206,24 @@ export default {
 
 	methods: {
 		t,
+
+		/**
+		 * Load the Nextcloud group ids the target groups field offers, once.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/admin-templates/spec.md
+		 */
+		async loadGroups() {
+			if (this.availableGroups.length > 0) {
+				return
+			}
+			try {
+				const { data } = await api.getAdminGroups()
+				this.availableGroups = [...(data?.active || []), ...(data?.inactive || [])]
+			} catch (error) {
+				logger.error('Failed to load groups:', error)
+			}
+		},
 
 		/**
 		 * Build the working copy from the `template` prop.
@@ -274,6 +287,10 @@ export default {
 	display: block;
 	margin-bottom: 4px;
 	font-weight: 500;
+}
+
+.launchpad-admin__target-groups {
+	width: 100%;
 }
 
 .launchpad-admin__modal {

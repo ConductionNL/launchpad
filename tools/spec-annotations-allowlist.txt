@@ -39,7 +39,6 @@ OCA\LaunchPad\Controller\AdminController::refreshFeedsNow
 OCA\LaunchPad\Controller\AdminController::uploadTemplatePreviewImage
 OCA\LaunchPad\Controller\AdminController::getWizardState
 OCA\LaunchPad\Controller\AdminController::completeWizard
-OCA\LaunchPad\Controller\AdminController::setWizardStorage
 OCA\LaunchPad\Controller\AdminDemoShowcasesController::index
 OCA\LaunchPad\Controller\AdminDemoShowcasesController::install
 OCA\LaunchPad\Controller\AdminDemoShowcasesController::destroy
@@ -671,9 +670,6 @@ OCA\LaunchPad\Service\RoleService::isViewer
 OCA\LaunchPad\Service\RoleService::canMutate
 OCA\LaunchPad\Service\SetupWizardService::getWizardState
 OCA\LaunchPad\Service\SetupWizardService::markWizardComplete
-OCA\LaunchPad\Service\SetupWizardService::hasGroupfolderApp
-OCA\LaunchPad\Service\SetupWizardService::setContentStorage
-OCA\LaunchPad\Service\SetupWizardService::getContentStorage
 OCA\LaunchPad\Service\SvgSanitiser::sanitize
 OCA\LaunchPad\Service\TileUpdater::applyTileConfig
 OCA\LaunchPad\Service\TileUpdater::applyTileUpdates

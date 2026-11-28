@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Db;
 
 use JsonSerializable;
+use OCA\LaunchPad\Service\DashboardLook;
 use OCP\AppFramework\Db\Entity;
 
 /**
@@ -75,8 +76,18 @@ use OCP\AppFramework\Db\Entity;
  * @method void setCommentsEnabled(?int $commentsEnabled)
  * @method int|null getReactionsEnabled()
  * @method void setReactionsEnabled(?int $reactionsEnabled)
+ * @method int|null getConversationEnabled()
+ * @method void setConversationEnabled(?int $conversationEnabled)
  * @method string getDashboardFooterMode()
  * @method void setDashboardFooterMode(string $dashboardFooterMode)
+ * @method string|null getThemeAccent()
+ * @method void setThemeAccent(?string $themeAccent)
+ * @method string|null getThemeBackgroundColor()
+ * @method void setThemeBackgroundColor(?string $themeBackgroundColor)
+ * @method string|null getThemeBackgroundResource()
+ * @method void setThemeBackgroundResource(?string $themeBackgroundResource)
+ * @method string|null getCustomCss()
+ * @method void setCustomCss(?string $customCss)
  * @method string|null getDashboardFooterHtml()
  * @method void setDashboardFooterHtml(?string $dashboardFooterHtml)
  * @method string|null getTemplateCategory()
@@ -85,6 +96,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setTemplateDescription(?string $templateDescription)
  * @method string|null getTemplatePreviewImage()
  * @method void setTemplatePreviewImage(?string $templatePreviewImage)
+ * @method string|null getDefaultLinkTarget()
+ * @method void setDefaultLinkTarget(?string $defaultLinkTarget)
+ * @method string|null getHierarchies()
+ * @method void setHierarchies(?string $hierarchies)
  *
  * @SuppressWarnings(PHPMD.TooManyFields) Each field maps to a documented
  *                                        column on `oc_launchpad_dashboards`
@@ -550,6 +565,32 @@ class Dashboard extends Entity implements JsonSerializable {
 	protected string $dashboardFooterMode = self::FOOTER_MODE_INHERIT;
 
 	/**
+	 * How a tile on this dashboard opens when the tile has no choice of its
+	 * own: `same-tab`, `new-tab` or `side-panel`. NULL keeps the rule from
+	 * before the setting existed (launcher-tile-open-behaviour D2).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $defaultLinkTarget = null;
+
+	/**
+	 * The hierarchy descriptors the filter bus joins widgets on, as JSON
+	 * (REQ-CWF-011). NULL reads as the empty list.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $hierarchies = null;
+
+	/**
+	 * Whether a shared dashboard shows its Talk conversation beside it
+	 * (REQ-LEAF-006): 0 hides it, NULL or 1 shows it. NULL is the state of
+	 * every dashboard from before the switch, so they keep showing it.
+	 *
+	 * @var int|null
+	 */
+	protected ?int $conversationEnabled = null;
+
+	/**
 	 * Per-dashboard footer HTML (REQ-FTR-006).
 	 *
 	 * Sanitised server-side via the same allow-list as the global
@@ -598,6 +639,34 @@ class Dashboard extends Entity implements JsonSerializable {
 	protected ?string $templatePreviewImage = null;
 
 	/**
+	 * The dashboard's accent colour, `#rrggbb` (REQ-THM-001). NULL follows the theme.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $themeAccent = null;
+
+	/**
+	 * The dashboard's background colour, `#rrggbb` (REQ-THM-001). NULL follows the theme.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $themeBackgroundColor = null;
+
+	/**
+	 * The dashboard's background image: the file name of a LaunchPad resource upload (REQ-THM-001).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $themeBackgroundResource = null;
+
+	/**
+	 * Administrator CSS for this dashboard, stored cleaned and scoped (REQ-THM-003). NULL when none.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $customCss = null;
+
+	/**
 	 * Constructor
 	 *
 	 * Registers column types for proper ORM handling.
@@ -618,6 +687,8 @@ class Dashboard extends Entity implements JsonSerializable {
 		// Nullable SMALLINT (NULL / 0 / 1) — REQ-CMNT-007.
 		$this->addType(fieldName: 'reactionsEnabled', type: 'integer');
 		// SMALLINT NULL in DB — null means follow global setting (REQ-RXN-006).
+		$this->addType(fieldName: 'conversationEnabled', type: 'integer');
+		// SMALLINT NULL in DB — 0 hides the conversation, null or 1 shows it (REQ-LEAF-006).
 	}//end __construct()
 
 	/**
@@ -655,12 +726,84 @@ class Dashboard extends Entity implements JsonSerializable {
 	}//end setTargetGroupsArray()
 
 	/**
+	 * The stored hierarchy descriptors as a list (REQ-CWF-011).
+	 *
+	 * @return list<array<string, mixed>> The descriptors, or the empty list.
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 */
+	public function getHierarchiesArray(): array {
+		if ($this->hierarchies === null || $this->hierarchies === '') {
+			return [];
+		}
+
+		$decoded = json_decode(json: $this->hierarchies, associative: true);
+		if (is_array($decoded) === true && array_is_list($decoded) === true) {
+			return $decoded;
+		}
+
+		return [];
+	}//end getHierarchiesArray()
+
+	/**
+	 * Store hierarchy descriptors; the empty list stores NULL (REQ-CWF-011).
+	 *
+	 * @param list<array<string, mixed>> $hierarchies The validated descriptors.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+	 */
+	public function setHierarchiesArray(array $hierarchies): void {
+		$encoded = null;
+		if ($hierarchies !== []) {
+			$encoded = json_encode($hierarchies, JSON_THROW_ON_ERROR);
+		}
+
+		// Entity setters resolve via __call which uses $args[0].
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->setHierarchies($encoded);
+	}//end setHierarchiesArray()
+
+	/**
 	 * Serialize to JSON (owner / admin view — full payload).
 	 *
 	 * @return array The serialized dashboard.
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function jsonSerialize(): array {
+		return $this->identityFields() + $this->treeAndPublicationFields() + $this->footerAndTemplateFields() + $this->lookFields();
+	}//end jsonSerialize()
+
+	/**
+	 * The look of the dashboard (REQ-THM-001): accent, background and the
+	 * derived text colour, all NULL when the dashboard follows the theme.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	 */
+	private function lookFields(): array {
+		$textColor = null;
+		if ($this->themeBackgroundColor !== null) {
+			$textColor = DashboardLook::textColorFor(background: $this->themeBackgroundColor);
+		}
+
+		return [
+			'themeAccent' => $this->themeAccent,
+			'themeBackgroundColor' => $this->themeBackgroundColor,
+			'themeBackgroundResource' => $this->themeBackgroundResource,
+			'themeTextColor' => $textColor,
+			'customCss' => $this->customCss,
+		];
+	}//end lookFields()
+
+	/**
+	 * The identity, ownership and behaviour fields of the wire format.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function identityFields(): array {
 		return [
 			'id' => $this->getId(),
 			'uuid' => $this->uuid,
@@ -679,6 +822,18 @@ class Dashboard extends Entity implements JsonSerializable {
 			'commentsEnabled' => $this->commentsEnabled,
 			// REQ-RXN-006 — null/1/0 tri-state.
 			'reactionsEnabled' => $this->reactionsEnabled,
+			// REQ-LEAF-006 — 0 hides the conversation, null/1 shows it.
+			'conversationEnabled' => $this->conversationEnabled,
+		];
+	}//end identityFields()
+
+	/**
+	 * The timestamps, tree position and publication fields of the wire format.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function treeAndPublicationFields(): array {
+		return [
 			'createdAt' => $this->createdAt,
 			'updatedAt' => $this->updatedAt,
 			'parentUuid' => $this->parentUuid,
@@ -688,35 +843,50 @@ class Dashboard extends Entity implements JsonSerializable {
 			'publishAt' => $this->publishAt,
 			'publishedAt' => $this->publishedAt,
 			'unpublishAt' => $this->unpublishAt,
-			// REQ-FTR-006 — surface the per-dashboard footer override
-			// fields on every API payload so frontend renderers can
-			// decide whether to draw an instance footer, hide it, or
-			// render the dashboard-specific HTML.
+		];
+	}//end treeAndPublicationFields()
+
+	/**
+	 * The footer override and template fields of the wire format.
+	 *
+	 * REQ-FTR-006 — surface the per-dashboard footer override fields on
+	 * every API payload so frontend renderers can decide whether to draw
+	 * an instance footer, hide it, or render the dashboard-specific HTML.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function footerAndTemplateFields(): array {
+		return [
 			'dashboardFooterMode' => $this->dashboardFooterMode,
 			'dashboardFooterHtml' => $this->dashboardFooterHtml,
+			'defaultLinkTarget' => $this->defaultLinkTarget,
+			// REQ-CWF-011: every viewer's filter bus joins widgets on these.
+			'hierarchies' => $this->getHierarchiesArray(),
 			'templateCategory' => $this->templateCategory,
 			'templateDescription' => $this->templateDescription,
 			'templatePreviewImage' => $this->templatePreviewImage,
 		];
-	}//end jsonSerialize()
+	}//end footerAndTemplateFields()
 
 	/**
 	 * Serialize for a non-owner viewer (M5 — strips internal identity
 	 * fields from the public envelope).
 	 *
-	 * Removes `userId`, `groupId`, `targetGroups`, `templateCategory`,
-	 * and `templateDescription` which are internal administration fields
-	 * that non-owner consumers have no legitimate use for.
+	 * Removes `userId`, `targetGroups`, `templateCategory`, and
+	 * `templateDescription` which are internal administration fields
+	 * that non-owner consumers have no legitimate use for. `groupId`
+	 * stays: every caller is a group-scoped read whose caller named the
+	 * group and passed its membership check, and REQ-DASH-014 requires
+	 * it on every group-shared payload.
 	 *
 	 * @return array The serialized dashboard without internal fields.
 	 *
-	 * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
+	 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-014-group-shared-dashboard-mutation-endpoints
 	 */
 	public function toViewerArray(): array {
 		$full = $this->jsonSerialize();
 		unset(
 			$full['userId'],
-			$full['groupId'],
 			$full['targetGroups'],
 			$full['templateCategory'],
 			$full['templateDescription']

@@ -25,6 +25,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
+import { MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -71,28 +72,13 @@ async function waitForShell(
 	})
 }
 
-/** Open the dashboard-switcher sidebar via the floating toggle button. */
+/** Open the dashboard-switcher sidebar through More, All dashboards. */
 async function openSidebar(
 	page: ReturnType<typeof test.extend>['page'],
 ): Promise<void> {
-	// The floating hamburger toggle is always visible in the workspace shell.
-	// Target `.launchpad-sidebar-toggle` EXACTLY: `.launchpad-floating-controls`
-	// also hosts the dashboard-cog and Share buttons, and the cog precedes the
-	// toggle in DOM order — so a comma-selector `.first()` resolves to the cog
-	// and opens the wrong popover, leaving the sidebar closed.
-	const ham = page.locator('.launchpad-sidebar-toggle').first()
-	await expect(ham).toBeVisible({ timeout: 10_000 })
-	// Only click if the sidebar is not already open.
-	const isOpen = await page
-		.locator('.dashboard-switcher-sidebar.open')
-		.isVisible()
-		.catch(() => false)
-	if (!isOpen) {
-		await ham.click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 8_000,
-		})
-	}
+	await expect(page.locator(MORE_MENU)).toBeVisible({ timeout: 10_000 })
+	// Idempotent: More with every dashboard listed (the sidebar is gone).
+	await openDashboardSwitcher(page)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -106,10 +92,8 @@ test.describe('allow-personal-dashboards-flag — sidebar button visibility', ()
 	test.beforeAll(async ({ playwright }) => {
 		api = await adminApi({ request: playwright.request })
 		/*
-		 * SEED A DASHBOARD. Both tests below reach for
-		 * `.launchpad-sidebar-toggle`, which lives in
-		 * `.launchpad-floating-controls` and only renders once a dashboard is
-		 * ACTIVE. `tests/e2e/seed.sh` creates only the `e2e-grantee` user, so on
+		 * SEED A DASHBOARD. Both tests below reach for the More menu, which
+		 * only renders once a dashboard is ACTIVE. `tests/e2e/seed.sh` creates only the `e2e-grantee` user, so on
 		 * a fresh instance LaunchPad renders its empty state instead and the
 		 * toggle is simply absent — measured in CI run 32308042394:
 		 *
@@ -140,10 +124,8 @@ test.describe('allow-personal-dashboards-flag — sidebar button visibility', ()
 		await waitForShell(page)
 
 		await openSidebar(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addBtn = sidebar.getByRole('button', {
-			name: /add dashboard|dashboard toevoegen/i,
-		})
+		// New dashboard at the foot of More's full list (REQ-SHELL-015).
+		const addBtn = page.locator('[data-testid="launchpad-more-menu-item-new-dashboard"]')
 
 		// The button MUST be absent from the DOM (v-if removes it entirely).
 		await expect(addBtn).toHaveCount(0)
@@ -159,10 +141,8 @@ test.describe('allow-personal-dashboards-flag — sidebar button visibility', ()
 		await waitForShell(page)
 
 		await openSidebar(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addBtn = sidebar.getByRole('button', {
-			name: /add dashboard|dashboard toevoegen/i,
-		})
+		// New dashboard at the foot of More's full list (REQ-SHELL-015).
+		const addBtn = page.locator('[data-testid="launchpad-more-menu-item-new-dashboard"]')
 
 		await expect(addBtn).toBeVisible({ timeout: 8_000 })
 	})

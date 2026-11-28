@@ -135,4 +135,33 @@ class StoreWiringTest extends TestCase {
 		$this->assertStringNotContainsString('—', $description);
 		$this->assertStringNotContainsString('–', $description);
 	}//end testTheStorePageCopyHasNoEmDash()
+
+	/**
+	 * REQ-STORE-010: the board-look store page shows dashboard lenses, not the engine's kind lenses.
+	 *
+	 * The engine's kinds (App template, Adapter, ...) are not dashboard kinds,
+	 * so the page offers All, Installed, Update available and the register's
+	 * categories, 8 cards a page, under the register banner.
+	 *
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
+	 *
+	 * @return void
+	 */
+	public function testTheStorePageShowsDashboardLensesAndTheBanner(): void {
+		$manifest = $this->manifest();
+		$this->assertSame(expected: 'board', actual: $manifest['look'] ?? null);
+
+		$page = array_values(
+			array: array_filter(
+				array: $manifest['pages'],
+				callback: static fn (array $candidate): bool => (($candidate['type'] ?? '') === 'store')
+			)
+		)[0];
+
+		$this->assertArrayNotHasKey(key: 'kindLenses', array: $page['config']);
+		$this->assertTrue(condition: $page['config']['categoryLenses'] ?? false);
+		$this->assertSame(expected: 8, actual: $page['config']['pageSize'] ?? null);
+		$this->assertSame(expected: '/index.php/settings/admin/launchpad#sharing', actual: $page['config']['banner']['settingsUrl'] ?? null);
+		$this->assertNotSame(expected: '', actual: (string)($page['config']['banner']['settingsLabel'] ?? ''));
+	}//end testTheStorePageShowsDashboardLensesAndTheBanner()
 }//end class

@@ -20,6 +20,7 @@ namespace OCA\LaunchPad\Service;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSetting;
+use OCA\LaunchPad\Db\AdminSettingKey;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 
@@ -36,12 +37,26 @@ class AdminSettingsService {
 	/**
 	 * Constructor
 	 *
-	 * @param AdminSettingMapper $settingMapper The admin setting mapper.
+	 * @param AdminSettingMapper        $settingMapper  The admin setting mapper.
+	 * @param TileLaunchSettings|null   $tileLaunch     Checks the program schemes and SSO launch templates; built when not injected.
+	 * @param DefaultAppSetting|null    $defaultApp     Sets or gives back the instance default app (REQ-PSP-003); without it the toggle is only stored.
+	 * @param OfficeNetworkService|null $officeNetworks Checks the office network ranges (REQ-TIA-001).
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settingMapper,
+		?TileLaunchSettings $tileLaunch = null,
+		private readonly ?DefaultAppSetting $defaultApp = null,
+		private readonly ?OfficeNetworkService $officeNetworks = null,
 	) {
+		$this->tileLaunch = ($tileLaunch ?? new TileLaunchSettings());
 	}//end __construct()
+
+	/**
+	 * Checks the program schemes and SSO launch templates (launcher-tile-launch-types).
+	 *
+	 * @var TileLaunchSettings
+	 */
+	private readonly TileLaunchSettings $tileLaunch;
 
 	/**
 	 * Default link-button-widget createFile extension allow-list
@@ -83,8 +98,6 @@ class AdminSettingsService {
 			$storedExt = self::DEFAULT_LINK_CREATE_FILE_EXTENSIONS;
 		}
 
-		$storageKey = AdminSetting::KEY_CONTENT_STORAGE;
-
 		$sharePermKey = AdminSetting::KEY_DEFAULT_SHARE_PERMISSION_LEVEL;
 		$forcedShareKey = AdminSetting::KEY_FORCED_SHARE_GROUPS;
 		$bridgeKey = AdminSetting::KEY_LEGACY_WIDGET_BRIDGE_ENABLED;
@@ -124,12 +137,18 @@ class AdminSettingsService {
 			'defaultGridColumns' => $settings[$gridKey] ?? 12,
 			'linkCreateFileExtensions' => $storedExt,
 			// REQ-GFSB-006: surface active storage backend in admin settings.
-			'launchpad.content_storage' => $settings[$storageKey] ?? 'database',
 			// Dashboard-sharing spec: org-wide share defaults surfaced in
 			// Beheer ▸ Sharing. Default permission level mirrors the
 			// dashboard default; forced-share groups default to none.
 			'defaultSharePermissionLevel' => $settings[$sharePermKey] ?? $permDef,
 			'forcedShareGroups' => array_values($forcedShareGroups),
+			// REQ-SHARE-014: who may share (empty = everyone) and with whom.
+			'sharingAllowedGroups' => $this->storedGroupList(value: $settings[AdminSettingKey::SHARING_ALLOWED_GROUPS->value] ?? null),
+			'sharingRecipientScope' => $this->storedRecipientScope(value: $settings[AdminSettingKey::SHARING_RECIPIENT_SCOPE->value] ?? null),
+			'sharingAllowed' => $this->storedAllowedMode(settings: $settings),
+			'publicLinksAllowed' => ($settings[AdminSettingKey::PUBLIC_LINKS_ALLOWED->value] ?? true) !== false,
+			'screenLinksAllowed' => ($settings[AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value] ?? true) !== false, // REQ-KIOSK-007
+			'leaverHandover' => $this->storedLeaverHandover(value: $settings[AdminSettingKey::LEAVER_HANDOVER->value] ?? null),
 			// Legacy-widget-bridge spec: the bridge defaults to OFF because
 			// turning it on makes the workspace read the Nextcloud widget
 			// registry, and IManager::getWidgets() injects the scripts of EVERY
@@ -146,8 +165,154 @@ class AdminSettingsService {
 			// Tile-quick-search REQ-QSEARCH-004: 'none' | 'unified-search'
 			// | an https URL template containing '{query}'.
 			'quicksearchFallbackTarget' => $quicksearchFallbackTarget,
+			// Drill-down-cross-widget-filter REQ-CWF-010: filter telemetry is
+			// opt-in per organisation; only a stored `true` turns it on.
+			'filterTelemetryEnabled' => ($settings[AdminSettingKey::FILTER_TELEMETRY_ENABLED->value] ?? false) === true,
+			// Launcher-tile-launch-types D1/D4: empty until an administrator fills
+			// them; a stored value that no longer validates reads as empty.
+			'tileAllowedSchemes' => $this->tileLaunch->stored(setting: 'schemes', stored: $settings[AdminSetting::KEY_TILE_ALLOWED_SCHEMES] ?? null),
+			'ssoLaunchTemplates' => $this->tileLaunch->stored(setting: 'templates', stored: $settings[AdminSetting::KEY_SSO_LAUNCH_TEMPLATES] ?? null),
+			// Engagement-announcements D6: the groups whose members may write
+			// announcements besides administrators; none until one is chosen.
+			'announcementEditorGroups' => self::groupList(stored: $settings[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS] ?? null),
+			...$this->officeNetworkSettings(stored: $settings[AdminSetting::KEY_OFFICE_NETWORKS] ?? null),
+			// REQ-COMM-003: the pinned Talk conversations; an entry that is not a token is dropped.
+			'pinnedCommunities' => $this->readPinnedCommunities(stored: $settings[AdminSetting::KEY_PINNED_COMMUNITIES] ?? null),
+			'defaultAppEnabled' => ($settings[AdminSettingKey::DEFAULT_APP_ENABLED->value] ?? true) !== false,
 		];
 	}//end getSettings()
+
+	/**
+	 * The office networks as CIDR ranges, none by default so no tile changes
+	 * address, plus the administrator's own address and whether it falls inside
+	 * them, so a wrong proxy setup shows at once (REQ-TIA-001).
+	 *
+	 * @param mixed $stored The stored ranges.
+	 *
+	 * @return array{officeNetworks: list<string>, currentAddress: string, currentAddressInOfficeNetworks: bool}
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md
+	 */
+	private function officeNetworkSettings(mixed $stored): array {
+		return [
+			'officeNetworks' => $this->storedOfficeNetworks(stored: $stored),
+			'currentAddress' => ($this->officeNetworks?->currentAddress() ?? ''),
+			'currentAddressInOfficeNetworks' => ($this->officeNetworks?->isOfficeRequest() ?? false),
+		];
+	}//end officeNetworkSettings()
+
+	/**
+	 * Most Talk conversations an administrator may pin (engagement-communities D3).
+	 *
+	 * @var int
+	 */
+	public const PINNED_COMMUNITIES_MAX = 20;
+
+	/**
+	 * The shape of a Talk conversation token (engagement-communities D3).
+	 *
+	 * @var string
+	 */
+	public const COMMUNITY_TOKEN_PATTERN = '/^[a-z0-9]{4,30}$/';
+
+	/**
+	 * The pinned communities as stored, keeping only the entries that are
+	 * tokens, without duplicates, at most {@see self::PINNED_COMMUNITIES_MAX}.
+	 *
+	 * @param mixed $stored The stored value.
+	 *
+	 * @return array<int, string> The pinned tokens, in the order pinned.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-administrators-pin-official-communities-req-comm-003
+	 */
+	private function readPinnedCommunities(mixed $stored): array {
+		if (is_array($stored) === false) {
+			return [];
+		}
+
+		$tokens = array_filter(
+			array: array_values($stored),
+			callback: fn (mixed $token): bool => $this->isCommunityToken(token: $token)
+		);
+
+		return array_slice(array: array_values(array_unique($tokens)), offset: 0, length: self::PINNED_COMMUNITIES_MAX);
+	}//end readPinnedCommunities()
+
+	/**
+	 * Validate the pinned communities an administrator saves: a list of at most
+	 * {@see self::PINNED_COMMUNITIES_MAX} Talk conversation tokens. Surrounding
+	 * blanks are trimmed, empty entries and duplicates are dropped.
+	 *
+	 * @param array $tokens The tokens as submitted.
+	 *
+	 * @return array<int, string> The tokens to store, in the order given.
+	 *
+	 * @throws InvalidArgumentException When an entry is not a token, or there are too many.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-administrators-pin-official-communities-req-comm-003
+	 */
+	public function normalisePinnedCommunities(array $tokens): array {
+		$clean = [];
+		foreach ($tokens as $token) {
+			if (is_string($token) === true) {
+				$token = trim($token);
+			}
+
+			if ($token === '') {
+				continue;
+			}
+
+			if ($this->isCommunityToken(token: $token) === false) {
+				$shown = '(not text)';
+				if (is_scalar($token) === true) {
+					$shown = (string) $token;
+				}
+
+				throw new InvalidArgumentException(
+					message: "Invalid value for pinnedCommunities: '" . $shown . "' is not a Talk conversation token "
+						. '(4 to 30 lowercase letters and digits).'
+				);
+			}
+
+			$clean[$token] = $token;
+		}//end foreach
+
+		if (count($clean) > self::PINNED_COMMUNITIES_MAX) {
+			throw new InvalidArgumentException(
+				message: 'Invalid value for pinnedCommunities: at most ' . self::PINNED_COMMUNITIES_MAX . ' conversations can be pinned.'
+			);
+		}
+
+		return array_values($clean);
+	}//end normalisePinnedCommunities()
+
+	/**
+	 * Whether a value is a Talk conversation token.
+	 *
+	 * @param mixed $token The value.
+	 *
+	 * @return bool True for 4 to 30 lowercase letters and digits.
+	 */
+	private function isCommunityToken(mixed $token): bool {
+		return is_string($token) === true && preg_match(pattern: self::COMMUNITY_TOKEN_PATTERN, subject: $token) === 1;
+	}//end isCommunityToken()
+
+	/**
+	 * A stored group-id list as it is read back: a list, empty when unset or not a list.
+	 *
+	 * @param mixed $stored The stored value.
+	 *
+	 * @return list<mixed>
+	 *
+	 * @spec openspec/changes/engagement-announcements/tasks.md#task-2
+	 */
+	private static function groupList(mixed $stored): array {
+		if (is_array($stored) === false) {
+			return [];
+		}
+
+		return array_values($stored);
+	}//end groupList()
 
 	/**
 	 * Lower bound for the numeric quota settings (dashboard-quota-limits
@@ -196,13 +361,6 @@ class AdminSettingsService {
 
 		return $int;
 	}//end clampQuota()
-
-	/**
-	 * Valid values for the `launchpad.content_storage` setting (REQ-GFSB-006).
-	 *
-	 * @var list<string>
-	 */
-	public const VALID_CONTENT_STORAGE_VALUES = ['database', 'groupfolder'];
 
 	/**
 	 * Tile-quick-search REQ-QSEARCH-004: no-match fallback disabled — Enter
@@ -266,151 +424,237 @@ class AdminSettingsService {
 	 *              containing `{query}`.
 	 */
 	private function isValidQuicksearchFallbackUrlTemplate(string $value): bool {
-		if (trim($value) === '' || str_contains(haystack: $value, needle: '{query}') === false) {
-			return false;
-		}
-
-		$probe = str_replace(search: '{query}', replace: 'quicksearch-validation-probe', subject: $value);
-
-		if (parse_url(url: $probe, component: PHP_URL_SCHEME) !== 'https') {
-			return false;
-		}
-
-		return filter_var(value: $probe, filter: FILTER_VALIDATE_URL) !== false;
+		return QueryUrlTemplate::isValid(value: $value);
 	}//end isValidQuicksearchFallbackUrlTemplate()
 
 	/**
-	 * Update admin settings.
+	 * The settings updateSettings() writes as given, by input name.
 	 *
-	 * @param string|null $defaultPermLevel Default permission level.
-	 * @param bool|null $allowUserDash Allow user dashboards.
-	 * @param bool|null $allowMultiDash Allow multiple dashboards.
-	 * @param int|null $defaultGridCols Default grid columns.
-	 * @param array|null $linkCreateFileExts link-button-widget
-	 *                                       createFile
-	 *                                       extension
-	 *                                       allow-list
-	 *                                       (REQ-LBN-004).
-	 * @param string|null $contentStorage Content storage backend
-	 *                                    (`database` or
-	 *                                    `groupfolder`).
-	 *                                    REQ-GFSB-006.
-	 * @param string|null $defaultSharePermissionLevel Org-wide default share
-	 *                                                 permission level
-	 *                                                 (dashboard-sharing spec).
-	 * @param array|null $forcedShareGroups Groups every new dashboard is
-	 *                                      force-shared with
-	 *                                      (dashboard-sharing spec).
-	 * @param bool|null $legacyWidgetBridgeEnabled Enable / disable the
-	 *                                             legacy widget bridge
-	 *                                             (legacy-widget-bridge
-	 *                                             spec).
-	 * @param int|null $maxDashboardsPerUser Maximum personal
-	 *                                       dashboards per user
-	 *                                       (`0` = unlimited;
-	 *                                       clamped to
-	 *                                       `[0, 10000]`).
-	 *                                       dashboard-quota-limits
-	 *                                       REQ-QUOTA-001.
-	 * @param int|null $maxWidgetsPerDashboard Maximum placements per
-	 *                                         dashboard (`0` =
-	 *                                         unlimited; clamped to
-	 *                                         `[0, 10000]`).
-	 *                                         dashboard-quota-limits
-	 *                                         REQ-QUOTA-001.
-	 * @param string|null $quicksearchFallbackTarget No-match fallback for
-	 *                                               the on-dashboard quick
-	 *                                               search: `'none'`,
-	 *                                               `'unified-search'`, or
-	 *                                               an `https` URL
-	 *                                               template containing
-	 *                                               `{query}`.
-	 *                                               tile-quick-search
-	 *                                               REQ-QSEARCH-004.
+	 * @var array<string, string>
+	 */
+	private const PLAIN_SETTINGS = [
+		'defaultPermLevel' => AdminSetting::KEY_DEFAULT_PERMISSION_LEVEL,
+		'allowUserDash'    => AdminSetting::KEY_ALLOW_USER_DASHBOARDS,
+		'allowMultiDash'   => AdminSetting::KEY_ALLOW_MULTIPLE_DASHBOARDS,
+		'defaultGridCols'  => AdminSetting::KEY_DEFAULT_GRID_COLUMNS,
+	];
+
+	/**
+	 * Update admin settings. A setting that is absent or null is left as it is.
+	 *
+	 * @param array<string, mixed> $settings The settings to write, by name:
+	 *                                       `defaultPermLevel` (default permission level),
+	 *                                       `allowUserDash` and `allowMultiDash` (allow user and
+	 *                                       multiple dashboards), `defaultGridCols` (default grid
+	 *                                       columns), `linkCreateFileExts` (link-button-widget
+	 *                                       createFile extension allow-list, REQ-LBN-004),
+	 *                                       `defaultSharePermissionLevel` and `forcedShareGroups`
+	 *                                       (org-wide default share permission level and the groups
+	 *                                       every new dashboard is force-shared with,
+	 *                                       dashboard-sharing spec), `legacyWidgetBridgeEnabled`
+	 *                                       (legacy-widget-bridge spec), `maxDashboardsPerUser` and
+	 *                                       `maxWidgetsPerDashboard` (quotas, `0` = unlimited,
+	 *                                       clamped to `[0, 10000]`, REQ-QUOTA-001),
+	 *                                       `quicksearchFallbackTarget` (`'none'`,
+	 *                                       `'unified-search'` or an `https` URL template containing
+	 *                                       `{query}`, REQ-QSEARCH-004) and
+	 *                                       `pinnedCommunities` (Talk conversation tokens,
+	 *                                       at most 20, REQ-COMM-003).
 	 *
 	 * @return void
 	 *
-	 * @throws \InvalidArgumentException When `$contentStorage`,
-	 *                                   `$defaultSharePermissionLevel`, or
-	 *                                   `$quicksearchFallbackTarget` is not
-	 *                                   a valid value.
+	 * @throws \InvalidArgumentException When `defaultSharePermissionLevel` or
+	 *                                   `quicksearchFallbackTarget` is not a valid value.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
 	 */
-	public function updateSettings(
-		?string $defaultPermLevel = null,
-		?bool $allowUserDash = null,
-		?bool $allowMultiDash = null,
-		?int $defaultGridCols = null,
-		?array $linkCreateFileExts = null,
-		?string $contentStorage = null,
-		?string $defaultSharePermissionLevel = null,
-		?array $forcedShareGroups = null,
-		?bool $legacyWidgetBridgeEnabled = null,
-		?int $maxDashboardsPerUser = null,
-		?int $maxWidgetsPerDashboard = null,
-		?string $quicksearchFallbackTarget = null,
-	): void {
-		if ($defaultPermLevel !== null) {
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_DEFAULT_PERMISSION_LEVEL,
-				value: $defaultPermLevel
-			);
+	public function updateSettings(array $settings): void {
+		(new AdminSettingsValidator())->assertValidCoreSettings(settings: $settings);
+		foreach (self::PLAIN_SETTINGS as $name => $key) {
+			$this->persistIfGiven(key: $key, value: $settings[$name] ?? null);
 		}
 
-		if ($allowUserDash !== null) {
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_ALLOW_USER_DASHBOARDS,
-				value: $allowUserDash
-			);
-		}
-
-		if ($allowMultiDash !== null) {
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_ALLOW_MULTIPLE_DASHBOARDS,
-				value: $allowMultiDash
-			);
-		}
-
-		if ($defaultGridCols !== null) {
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_DEFAULT_GRID_COLUMNS,
-				value: $defaultGridCols
-			);
-		}
-
-		if ($linkCreateFileExts !== null) {
+		$extensions = $settings['linkCreateFileExts'] ?? null;
+		if ($extensions !== null) {
 			$this->settingMapper->setSetting(
 				key: AdminSetting::KEY_LINK_CREATE_FILE_EXTENSIONS,
-				value: $this->normaliseExtensions(input: $linkCreateFileExts)
+				value: $this->normaliseExtensions(input: $extensions)
 			);
 		}
 
-		if ($contentStorage !== null) {
-			if (in_array(needle: $contentStorage, haystack: self::VALID_CONTENT_STORAGE_VALUES, strict: true) === false) {
-				throw new InvalidArgumentException(
-					message: "Invalid value for launchpad.content_storage. Must be 'db' or 'groupfolder'."
-				);
-			}
+		$this->persistQuotaAndQuicksearchSettings(settings: $settings);
 
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_CONTENT_STORAGE,
-				value: $contentStorage
-			);
-		}
-
-		$this->persistQuotaAndQuicksearchSettings(
-			maxDashboardsPerUser: $maxDashboardsPerUser,
-			maxWidgetsPerDashboard: $maxWidgetsPerDashboard,
-			quicksearchFallbackTarget: $quicksearchFallbackTarget
+		$this->persistSharingLimits(
+			allowedGroups: $settings['sharingAllowedGroups'] ?? null,
+			recipientScope: $settings['sharingRecipientScope'] ?? null
 		);
+		$this->persistSharingPolicy(settings: $settings);
+		$this->persistLeaverHandover(handover: $settings['leaverHandover'] ?? null);
 
 		$this->persistSharingAndBridgeSettings(
-			defaultSharePermissionLevel: $defaultSharePermissionLevel,
-			forcedShareGroups: $forcedShareGroups,
-			legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled
+			defaultSharePermissionLevel: $settings['defaultSharePermissionLevel'] ?? null,
+			forcedShareGroups: $settings['forcedShareGroups'] ?? null,
+			legacyWidgetBridgeEnabled: $settings['legacyWidgetBridgeEnabled'] ?? null
 		);
+
+		$this->persistIfGiven(key: AdminSettingKey::FILTER_TELEMETRY_ENABLED->value, value: $settings['filterTelemetryEnabled'] ?? null);
+		$this->persistTileLaunchSettings(settings: $settings);
+		$this->persistAnnouncementEditorGroups(groups: $settings['announcementEditorGroups'] ?? null);
+
+		$this->persistOfficeNetworks(ranges: $settings['officeNetworks'] ?? null);
+		$this->persistDefaultApp(enabled: $settings['defaultAppEnabled'] ?? null);
+
+		// Engagement-communities REQ-COMM-003: validated before it is stored.
+		$pinned = $settings['pinnedCommunities'] ?? null;
+		if (is_array($pinned) === true) {
+			$this->settingMapper->setSetting(
+				key: AdminSetting::KEY_PINNED_COMMUNITIES,
+				value: $this->normalisePinnedCommunities(tokens: $pinned)
+			);
+		}
 	}//end updateSettings()
+
+	/**
+	 * Switch LaunchPad being the default app (REQ-PSP-003) when a value is given.
+	 *
+	 * Through {@see DefaultAppSetting} switching off gives the default app back
+	 * and switching on sets it when none is chosen; without that service only
+	 * the toggle is stored.
+	 *
+	 * @param mixed $enabled The new toggle value, or null to leave it as it is.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the value is not a boolean.
+	 *
+	 * @spec openspec/specs/dashboard-public-share/spec.md#requirement-the-start-page-offers-a-way-in-for-staff-req-psp-003
+	 */
+	private function persistDefaultApp(mixed $enabled): void {
+		if ($enabled === null) {
+			return;
+		}
+
+		if (is_bool($enabled) === false) {
+			throw new InvalidArgumentException(message: 'defaultAppEnabled must be a boolean.');
+		}
+
+		if ($this->defaultApp !== null) {
+			$this->defaultApp->setEnabled(enabled: $enabled);
+			return;
+		}
+
+		$this->settingMapper->setSetting(key: AdminSettingKey::DEFAULT_APP_ENABLED->value, value: $enabled);
+	}//end persistDefaultApp()
+
+	/**
+	 * Persist the announcement editor groups when given, normalised like the forced-share groups.
+	 *
+	 * @param mixed $groups The group ids, or null to leave the setting as it is.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the value is not a list.
+	 *
+	 * @spec openspec/changes/engagement-announcements/tasks.md#task-2
+	 */
+	private function persistAnnouncementEditorGroups(mixed $groups): void {
+		if ($groups === null) {
+			return;
+		}
+
+		if (is_array($groups) === false) {
+			throw new InvalidArgumentException(message: 'announcementEditorGroups must be a list of group ids.');
+		}
+
+		$this->settingMapper->setSetting(
+			key: AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS,
+			value: $this->normaliseGroupList(input: $groups)
+		);
+	}//end persistAnnouncementEditorGroups()
+
+	/**
+	 * Persist the program schemes and the SSO launch templates, each checked whole first.
+	 *
+	 * Both are checked before either is written, so a refused value leaves
+	 * both as they were.
+	 *
+	 * @param array<string, mixed> $settings The settings: `tileAllowedSchemes` and `ssoLaunchTemplates`.
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException Naming the scheme or template refused.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+	 */
+	private function persistTileLaunchSettings(array $settings): void {
+		$writes = [];
+		if (($settings['tileAllowedSchemes'] ?? null) !== null) {
+			$writes[AdminSetting::KEY_TILE_ALLOWED_SCHEMES] = $this->tileLaunch->schemes(input: $settings['tileAllowedSchemes']);
+		}
+
+		if (($settings['ssoLaunchTemplates'] ?? null) !== null) {
+			$writes[AdminSetting::KEY_SSO_LAUNCH_TEMPLATES] = $this->tileLaunch->templates(input: $settings['ssoLaunchTemplates']);
+		}
+
+		foreach ($writes as $key => $value) {
+			$this->settingMapper->setSetting(key: $key, value: $value);
+		}
+	}//end persistTileLaunchSettings()
+
+	/**
+	 * Store the office networks when given, refusing the whole list when one range is malformed.
+	 *
+	 * @param array<mixed>|null $ranges The entered ranges, or null to leave them as they are.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When a range is not a valid CIDR range; nothing is stored then.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+	 */
+	private function persistOfficeNetworks(?array $ranges): void {
+		if ($ranges === null) {
+			return;
+		}
+
+		if ($this->officeNetworks === null) {
+			throw new InvalidArgumentException(message: 'Office networks cannot be checked here');
+		}
+
+		$this->settingMapper->setSetting(
+			key: AdminSetting::KEY_OFFICE_NETWORKS,
+			value: $this->officeNetworks->normaliseRanges(ranges: $ranges)
+		);
+	}//end persistOfficeNetworks()
+
+	/**
+	 * The stored office networks as a list of strings.
+	 *
+	 * @param mixed $stored The stored value.
+	 *
+	 * @return array<int,string>
+	 */
+	private function storedOfficeNetworks(mixed $stored): array {
+		if (is_array($stored) === false) {
+			return [];
+		}
+
+		return array_values(array_filter($stored, 'is_string'));
+	}//end storedOfficeNetworks()
+
+	/**
+	 * Write one setting when a value is given.
+	 *
+	 * @param string $key   The setting key.
+	 * @param mixed  $value The value, or null to leave the setting as it is.
+	 *
+	 * @return void
+	 */
+	private function persistIfGiven(string $key, mixed $value): void {
+		if ($value !== null) {
+			$this->settingMapper->setSetting(key: $key, value: $value);
+		}
+	}//end persistIfGiven()
 
 	/**
 	 * Persist the per-user quota limits and the quick-search fallback target.
@@ -419,19 +663,19 @@ class AdminSettingsService {
 	 * stays under the method-length threshold. Each value is only written
 	 * when non-null (partial-patch contract).
 	 *
-	 * @param int|null $maxDashboardsPerUser Per-user dashboard quota.
-	 * @param int|null $maxWidgetsPerDashboard Per-dashboard widget quota.
-	 * @param string|null $quicksearchFallbackTarget No-match fallback target.
+	 * @param array<string, mixed> $settings The settings: `maxDashboardsPerUser` (per-user
+	 *                                       dashboard quota), `maxWidgetsPerDashboard`
+	 *                                       (per-dashboard widget quota) and
+	 *                                       `quicksearchFallbackTarget` (no-match fallback target).
 	 *
 	 * @return void
 	 *
 	 * @throws \InvalidArgumentException When the fallback target is invalid.
 	 */
-	private function persistQuotaAndQuicksearchSettings(
-		?int $maxDashboardsPerUser,
-		?int $maxWidgetsPerDashboard,
-		?string $quicksearchFallbackTarget,
-	): void {
+	private function persistQuotaAndQuicksearchSettings(array $settings): void {
+		$maxDashboardsPerUser      = $settings['maxDashboardsPerUser'] ?? null;
+		$maxWidgetsPerDashboard    = $settings['maxWidgetsPerDashboard'] ?? null;
+		$quicksearchFallbackTarget = $settings['quicksearchFallbackTarget'] ?? null;
 		// Dashboard-quota-limits REQ-QUOTA-001 / REQ-ASET-014: persist the
 		// numeric quotas clamped into `[0, 10000]` so a negative or
 		// out-of-range value is never stored.
@@ -468,6 +712,164 @@ class AdminSettingsService {
 			value: $quicksearchFallbackTarget
 		);
 	}//end persistQuotaAndQuicksearchSettings()
+
+	/**
+	 * A stored group list as ids, empty for anything else.
+	 *
+	 * @param mixed $value The stored value.
+	 *
+	 * @return list<string> The group ids.
+	 */
+	private function storedGroupList(mixed $value): array {
+		if (is_array($value) === false) {
+			return [];
+		}
+
+		return array_values(array_filter(array_map('strval', $value), static fn (string $id): bool => $id !== ''));
+	}//end storedGroupList()
+
+	/**
+	 * A stored recipient scope, `everyone` for anything unknown (today's behaviour).
+	 *
+	 * @param mixed $value The stored value.
+	 *
+	 * @return string One of SharingLimits::SCOPES.
+	 */
+	private function storedRecipientScope(mixed $value): string {
+		if (in_array($value, SharingLimits::SCOPES, true) === false) {
+			return SharingLimits::SCOPE_EVERYONE;
+		}
+
+		return $value;
+	}//end storedRecipientScope()
+
+	/**
+	 * The "Sharing allowed for" choice: Nobody when stored, otherwise `groups`
+	 * when groups are set and `everyone` when not (REQ-SHARE-014).
+	 *
+	 * REQ-SHARE-015: Everyone, Only these groups or Nobody.
+	 *
+	 * @param array<string, mixed> $settings The stored settings by key.
+	 *
+	 * @return string One of SharingLimits::ALLOWED_MODES.
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	private function storedAllowedMode(array $settings): string {
+		if (($settings[AdminSettingKey::SHARING_ALLOWED->value] ?? null) === SharingLimits::ALLOWED_NONE) {
+			return SharingLimits::ALLOWED_NONE;
+		}
+
+		if ($this->storedGroupList(value: $settings[AdminSettingKey::SHARING_ALLOWED_GROUPS->value] ?? null) === []) {
+			return SharingLimits::ALLOWED_EVERYONE;
+		}
+
+		return SharingLimits::ALLOWED_GROUPS;
+	}//end storedAllowedMode()
+
+	/**
+	 * Persist who may share and whether public and screen links may be made
+	 * (REQ-SHARE-015, REQ-KIOSK-007). A null value is left as it is.
+	 *
+	 * @param array<string, mixed> $settings `sharingAllowed`, `publicLinksAllowed`, `screenLinksAllowed`.
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException When the choice is unknown.
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-2
+	 */
+	private function persistSharingPolicy(array $settings): void {
+		$allowed = $settings['sharingAllowed'] ?? null;
+		if ($allowed !== null) {
+			if (in_array(needle: $allowed, haystack: SharingLimits::ALLOWED_MODES, strict: true) === false) {
+				throw new InvalidArgumentException(
+					message: "Invalid value for sharingAllowed. Must be 'everyone', 'groups' or 'none'."
+				);
+			}
+
+			$this->settingMapper->setSetting(key: AdminSettingKey::SHARING_ALLOWED->value, value: $allowed);
+		}
+
+		$this->persistIfGiven(key: AdminSettingKey::PUBLIC_LINKS_ALLOWED->value, value: $settings['publicLinksAllowed'] ?? null);
+		$this->persistIfGiven(key: AdminSettingKey::KIOSK_SCREEN_LINKS_ALLOWED->value, value: $settings['screenLinksAllowed'] ?? null);
+	}//end persistSharingPolicy()
+
+	/**
+	 * Persist where a leaver's dashboards go (REQ-SHARE-016), in its stored
+	 * shape. A null value is left as it is.
+	 *
+	 * @param array|null $handover `{manager: bool, fallbackUid: string}`.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 */
+	private function persistLeaverHandover(?array $handover): void {
+		if ($handover !== null) {
+			$this->settingMapper->setSetting(
+				key: AdminSettingKey::LEAVER_HANDOVER->value,
+				value: $this->storedLeaverHandover(value: $handover)
+			);
+		}
+	}//end persistLeaverHandover()
+
+	/**
+	 * A leaver handover in its stored shape; anything else reads as not set.
+	 *
+	 * @param mixed $value The raw value.
+	 *
+	 * @return array{manager: bool, fallbackUid: string}
+	 *
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 */
+	private function storedLeaverHandover(mixed $value): array {
+		if (is_array($value) === false) {
+			$value = [];
+		}
+
+		$fallback = $value['fallbackUid'] ?? '';
+		if (is_string($fallback) === false) {
+			$fallback = '';
+		}
+
+		return [
+			'manager'     => ($value['manager'] ?? false) === true,
+			'fallbackUid' => trim(string: $fallback),
+		];
+	}//end storedLeaverHandover()
+
+	/**
+	 * Persist who may share and with whom (REQ-SHARE-014). A null value is left as it is.
+	 *
+	 * @param array|null  $allowedGroups  The groups whose members may share; empty means everyone.
+	 * @param string|null $recipientScope `everyone` or `shared-groups`.
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException When the recipient scope is unknown.
+	 *
+	 * @spec openspec/changes/record-parity-requirements/specs/dashboard-sharing/spec.md#requirement-administrators-decide-who-may-share-and-with-whom-req-share-014
+	 */
+	private function persistSharingLimits(?array $allowedGroups, ?string $recipientScope): void {
+		if ($allowedGroups !== null) {
+			$this->settingMapper->setSetting(
+				key: AdminSettingKey::SHARING_ALLOWED_GROUPS->value,
+				value: $this->normaliseGroupList(input: $allowedGroups)
+			);
+		}
+
+		if ($recipientScope !== null) {
+			if (in_array(needle: $recipientScope, haystack: SharingLimits::SCOPES, strict: true) === false) {
+				throw new InvalidArgumentException(
+					message: "Invalid value for sharingRecipientScope. Must be 'everyone' or 'shared-groups'."
+				);
+			}
+
+			$this->settingMapper->setSetting(key: AdminSettingKey::SHARING_RECIPIENT_SCOPE->value, value: $recipientScope);
+		}
+	}//end persistSharingLimits()
 
 	/**
 	 * Persist the dashboard-sharing + legacy-widget-bridge admin settings.

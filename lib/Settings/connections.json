@@ -6,7 +6,7 @@
             "title": "Dashboard registry",
             "description": "A registry of another instance, where you find and install dashboards other organisations published.",
             "order": 10,
-            "settingsUrl": "/settings/admin/launchpad?tab=sharing#section-dashboard-registry",
+            "settingsUrl": "/settings/admin/launchpad#sharing/section-dashboard-registry",
             "requiredConfig": ["registry_url"],
             "unconfiguredMessage": "No registry address is set. Set the registry URL on the Sharing tab of the LaunchPad settings."
         },

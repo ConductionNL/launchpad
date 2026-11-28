@@ -1,0 +1,27 @@
+{
+	"_comment": "widget-declared-placeholders D1: one set of placements with the placeholder shape both resolvers must give, read by tests/Unit/Service/FirstPaintShellPlaceholderTest.php (FirstPaintShell::kindOf) and src/utils/__tests__/widgetPlaceholder.fixture.spec.js (nextcloud-vue's resolveWidgetPlaceholder over the same registry copy and fallback table). 'catalogue' is the Nextcloud widget's catalogue entry; 'placement' may carry a manifest declaration. SPDX-FileCopyrightText: 2026 Conduction B.V. SPDX-License-Identifier: EUPL-1.2",
+	"cases": [
+		{ "name": "a registry type uses the library's declaration", "widgetId": "chart", "expected": "block" },
+		{ "name": "a registry list type", "widgetId": "object-table", "expected": "rows" },
+		{ "name": "a registry counter", "widgetId": "stat", "expected": "counter" },
+		{ "name": "a registry tile type", "widgetId": "app-tiles", "expected": "tiles" },
+		{ "name": "a registry heading", "widgetId": "divider", "expected": "heading" },
+		{ "name": "the manifest wins over the registry", "widgetId": "chart", "placement": { "placeholder": "counter" }, "expected": "counter" },
+		{ "name": "a manifest shape with a count", "widgetId": "object-table", "placement": { "placeholder": { "shape": "lines", "count": 4 } }, "expected": "lines" },
+		{ "name": "an invalid manifest declaration is skipped", "widgetId": "chart", "placement": { "placeholder": "spinner" }, "expected": "block" },
+		{ "name": "a Conduction Nextcloud widget declaring rows", "widgetId": "shillinq_revenue", "catalogue": { "placeholder": "rows" }, "expected": "rows" },
+		{ "name": "a Conduction Nextcloud widget declaring counter", "widgetId": "opencatalogi_retention", "catalogue": { "placeholder": "counter" }, "expected": "counter" },
+		{ "name": "a Nextcloud widget declaring a count", "widgetId": "deck_due", "catalogue": { "placeholder": { "shape": "rows", "count": 5 } }, "expected": "rows" },
+		{ "name": "another vendor's widget draws rows", "widgetId": "spreed", "catalogue": {}, "expected": "rows" },
+		{ "name": "an invalid Nextcloud declaration falls back to rows", "widgetId": "weird_widget", "catalogue": { "placeholder": "spinner" }, "expected": "rows" },
+		{ "name": "a launchpad type from the fallback table", "widgetId": "section-heading", "expected": "heading" },
+		{ "name": "a launchpad counter from the fallback table", "widgetId": "livetile", "expected": "counter" },
+		{ "name": "a launchpad lines type from the fallback table", "widgetId": "ai-assistant", "expected": "lines" },
+		{ "name": "announcements wait in rows, as LpLaden draws the news list", "widgetId": "announcements", "expected": "rows" },
+		{ "name": "attention waits in rows, as LpLaden draws Vandaag eerst", "widgetId": "attention", "expected": "rows" },
+		{ "name": "wiki pages wait in rows, as LpLaden draws the Wiki card", "widgetId": "wiki-pages", "expected": "rows" },
+		{ "name": "weather waits as a counter, as LpLaden draws the temperature", "widgetId": "weather", "expected": "counter" },
+		{ "name": "a launcher tile from the tile endpoint is the tile type", "widgetId": "tile-6b0aa10cab55d", "expected": "tiles" },
+		{ "name": "an unknown type draws the default", "widgetId": "never-heard-of", "expected": "rows" }
+	]
+}

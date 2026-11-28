@@ -5,54 +5,153 @@
 
 <template>
 	<div class="launchpad-admin">
-		<CnSettingsSection
-			:name="t('launchpad', 'LaunchPad settings')"
-			:description="
-				t('launchpad', 'Configure dashboard permissions and defaults')
-			"
-			docUrl="https://launchpad.conduction.nl/docs/intro">
-			<!-- Setup wizard banner (REQ-WIZ-001). Stays at the top of the
-			     page, above the Beheer tabs, so the call-to-action is always
-			     the first thing the admin sees regardless of active tab. -->
-			<div
-				v-if="wizardState && !wizardState.complete"
-				class="launchpad-admin__wizard-banner"
-				data-test="setup-wizard-banner">
-				<div>
-					<strong>{{ t('launchpad', 'Run setup wizard') }}</strong>
-					<p>
-						{{
-							t(
-								'launchpad',
-								'Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.',
-							)
-						}}
-					</p>
+		<!-- The board look: the shell draws the h1, the path line and the
+		     Documentatie button, and lays its sections out as cards in two
+		     columns (board LpBeheerAlgemeen). The shell's own `look` switches
+		     the board look on. The page sits in Nextcloud's settings
+		     framework (`/settings/admin/launchpad`, REQ-ADM-032); the open
+		     tab is the URL fragment, which AdminRoot keeps, not `?tab=`.
+		     The version card comes first on General (Restart setup, Tour).
+		     Board LpBeheerAlgemeen: one column of cards, and the card reads
+		     "Configured version <v>, up to date" without an application-name
+		     row (launchpad has no separate configuration version, so the
+		     installed version is the configured one). -->
+		<CnAdminSettingsShell
+			ref="shell"
+			appId="launchpad"
+			appName="Launchpad"
+			look="board"
+			:title="pageTitle"
+			docUrl="https://launchpad.conduction.nl/docs/intro"
+			:breadcrumbs="breadcrumbs"
+			:breadcrumbNote="breadcrumbNote"
+			:showVersionCard="showsVersionCard"
+			:appVersion="appVersion"
+			:configuredVersion="appVersion"
+			:isUpToDate="true"
+			inlineUpToDate
+			:showAppName="false"
+			:sectionColumns="1"
+			:showReimport="false"
+			:showUpdateButton="true"
+			:tabs="beheerTabs"
+			tabsVariant="underline"
+			tabQueryKey=""
+			lazyTabs
+			@tabChange="onTabChange">
+			<!-- REQ-ADM-032: the version card's own actions. -->
+			<template #actions>
+				<NcButton
+					variant="secondary"
+					data-testid="admin-version-restart-setup"
+					@click="openWizard">
+					{{ t('launchpad', 'Restart setup') }}
+				</NcButton>
+				<NcButton
+					v-if="adminTour"
+					variant="secondary"
+					data-testid="admin-version-tour"
+					@click="startAdminTour">
+					{{ t('launchpad', 'Tour') }}
+				</NcButton>
+			</template>
+			<!-- REQ-ADM-034: the Announcements tab, the one a delegated
+			     announcements manager holds. -->
+			<template #tab-announcements>
+				<AnnouncementsTab />
+			</template>
+			<!-- Each tab draws its own content in the shell's `tab-<id>` slot.
+			     With `lazyTabs` the shell mounts only the open tab's slot: it
+			     fetches fresh on each visit, and the page does not load all
+			     tabs at once. Algemeen's panel
+			     holds the setup wizard banner (REQ-WIZ-001); its cards are the
+			     shell's default slot, which shows on the first tab only. -->
+			<template #tab-general>
+				<div
+					v-if="wizardState && !wizardState.complete"
+					class="launchpad-admin__wizard-banner"
+					data-test="setup-wizard-banner">
+					<div>
+						<strong>{{ t('launchpad', 'Run setup wizard') }}</strong>
+						<p>
+							{{
+								t(
+									'launchpad',
+									'Get your intranet started: configure groups, install demo data, and set up admin roles.',
+								)
+							}}
+						</p>
+					</div>
+					<NcButton
+						variant="secondary"
+						data-test="setup-wizard-open"
+						@click="openWizard">
+						{{ t('launchpad', 'Run setup wizard') }}
+					</NcButton>
 				</div>
-				<NcButton
-					variant="primary"
-					data-test="setup-wizard-open"
-					@click="openWizard">
-					{{ t('launchpad', 'Run setup wizard') }}
-				</NcButton>
-			</div>
-			<div
-				v-else-if="wizardState && wizardState.complete"
-				class="launchpad-admin__wizard-rerun"
-				data-test="setup-wizard-rerun">
-				<NcButton
-					variant="tertiary"
-					data-test="setup-wizard-rerun-open"
-					@click="openWizard">
-					{{ t('launchpad', 'Run setup wizard again') }}
-				</NcButton>
-			</div>
+				<div
+					v-else-if="wizardState && wizardState.complete"
+					class="launchpad-admin__wizard-rerun"
+					data-test="setup-wizard-rerun">
+					<NcButton
+						variant="tertiary"
+						data-test="setup-wizard-rerun-open"
+						@click="openWizard">
+						{{ t('launchpad', 'Run setup wizard again') }}
+					</NcButton>
+				</div>
+			</template>
+			<template #tab-templates>
+				<TemplatesPage />
+			</template>
+			<template #tab-operations>
+				<OperationsTab />
+				<!-- REQ-ADM-032: the app catalogue is a section of Bediening. -->
+				<div class="launchpad-admin__folded" data-admin-section="app-catalogue">
+					<AppCatalogueTab :groups="injectedAllGroups" />
+				</div>
+			</template>
+			<template #tab-roles-permissions>
+				<RolesPermissionsTab />
+			</template>
+			<template #tab-versioning-audit>
+				<VersioningAuditTab />
+			</template>
+			<template #tab-sharing>
+				<SharingTab
+					:groups="injectedAllGroups"
+					:configuredGroups="configuredGroups" />
+			</template>
+			<template #tab-kiosk>
+				<KioskTab />
+			</template>
+			<template #tab-org-navigation>
+				<OrgNavigationTab :groups="injectedAllGroups" />
+			</template>
+			<template #tab-demo-data>
+				<DemoDataTab />
+			</template>
+			<template #tab-group-dashboards>
+				<GroupDashboardsTab />
+				<!-- REQ-ADM-032: pinned communities are a section of Groepsdashboards. -->
+				<div class="launchpad-admin__folded" data-admin-section="communities">
+					<CommunitiesTab />
+				</div>
+			</template>
+			<template #tab-detail-fields>
+				<MetadataFieldsSettings />
+			</template>
+			<template #tab-profile-fields>
+				<ProfileFieldsTab />
+			</template>
 
-			<!-- Global Settings — always visible above the tab strip. -->
-			<div
-				class="launchpad-admin__section"
-				data-testid="admin-default-settings">
-				<h3>{{ t('launchpad', 'Default settings') }}</h3>
+			<!-- Algemeen (board LpBeheerAlgemeen): the organisation-wide
+			     defaults, group-shared dashboards and the default-app note,
+			     each a card of the shell's grid. -->
+			<template v-if="activeTab === 'general'">
+				<CnSettingsSection
+					:name="t('launchpad', 'Default settings')"
+					data-testid="admin-default-settings">
 
 				<div class="launchpad-admin__field">
 					<NcSelect
@@ -66,6 +165,7 @@
 				</div>
 
 				<NcCheckboxRadioSwitch
+					type="switch"
 					:modelValue="settings.allowUserDashboards"
 					data-testid="admin-allow-user-dashboards"
 					@update:modelValue="
@@ -83,12 +183,53 @@
 				</p>
 
 				<NcCheckboxRadioSwitch
+					type="switch"
 					:modelValue="settings.allowMultipleDashboards"
 					@update:modelValue="
 						updateSetting('allowMultipleDashboards', $event)
 					">
 					{{ t('launchpad', 'Allow users to have multiple dashboards') }}
 				</NcCheckboxRadioSwitch>
+
+				<!-- REQ-PSP-003: on by default; switching it off gives the
+				     default app back. -->
+				<NcCheckboxRadioSwitch
+					type="switch"
+					:modelValue="settings.defaultAppEnabled"
+					data-testid="admin-default-app-enabled"
+					@update:modelValue="
+						updateSetting('defaultAppEnabled', $event)
+					">
+					{{ t('launchpad', 'Open LaunchPad after signing in') }}
+				</NcCheckboxRadioSwitch>
+				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+					{{
+						t(
+							'launchpad',
+							'When on, LaunchPad is the default app, so people land on their Workspace page after signing in. A default app chosen by the administrator is kept. Switching this off restores Nextcloud\'s own default.',
+						)
+					}}
+				</p>
+
+				<!-- drill-down-cross-widget-filter REQ-CWF-010: off by default;
+				     only later filter changes are recorded. -->
+				<NcCheckboxRadioSwitch
+					type="switch"
+					:modelValue="settings.filterTelemetryEnabled"
+					data-testid="admin-filter-telemetry-enabled"
+					@update:modelValue="
+						updateSetting('filterTelemetryEnabled', $event)
+					">
+					{{ t('launchpad', 'Record how dashboard filters are used') }}
+				</NcCheckboxRadioSwitch>
+				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+					{{
+						t(
+							'launchpad',
+							'When on, applying, resetting or bookmarking dashboard filters records which dimensions were filtered, never the values. Earlier filter changes are not recorded.',
+						)
+					}}
+				</p>
 
 				<div class="launchpad-admin__field">
 					<NcSelect
@@ -101,6 +242,8 @@
 
 				<!-- dashboard-quota-limits REQ-QUOTA-001: numeric governance
 				     quotas. `0` = unlimited (no enforcement). -->
+				<!-- Board LpBeheerAlgemeen: the two limits side by side. -->
+				<div class="launchpad-admin__quota-row">
 				<div
 					class="launchpad-admin__field"
 					data-testid="admin-quota-dashboards">
@@ -144,15 +287,67 @@
 						}}
 					</p>
 				</div>
-			</div>
-
-			<!-- Group-shared dashboards (REQ-DASH-015..017). Kept above the
-			     tabs because it owns the `set-group-default` /
-			     `group-default-badge` data-test hooks (task 12.2). -->
-			<div class="launchpad-admin__section">
-				<div class="launchpad-admin__section-header">
-					<h3>{{ t('launchpad', 'Group-shared dashboards') }}</h3>
 				</div>
+				</CnSettingsSection>
+
+				<!-- REQ-ASET-021: the outside websites widgets may embed or fetch from. -->
+				<LazyMount rootMargin="0px" :eager="opensOnSection">
+					<AllowedSitesSettings />
+				</LazyMount>
+
+				<!-- REQ-TILE-044: the services on the server Add tiles may list. -->
+				<LazyMount rootMargin="0px" :eager="opensOnSection">
+					<DiscoverableServicesSettings />
+				</LazyMount>
+
+				<!-- launcher-tile-launch-types: program schemes and sign-on templates. -->
+				<LazyMount rootMargin="0px" :eager="opensOnSection">
+					<TileLaunchSettings />
+				</LazyMount>
+
+				<!-- launcher-tile-internal-address REQ-TIA-001: the office networks a
+				     tile's office-network address is used on. Saved on its own, so a
+				     malformed range never blocks the other settings. -->
+				<CnSettingsSection
+					:name="t('launchpad', 'Office networks')"
+					data-testid="admin-office-networks">
+					<p class="launchpad-admin__hint">
+						{{
+							t(
+								'launchpad',
+								'On these networks a tile with an address on the office network opens that address. One IPv4 or IPv6 range per line, such as 10.20.0.0/16.',
+							)
+						}}
+					</p>
+					<label class="launchpad-admin__label" for="launchpad-office-networks">
+						{{ t('launchpad', 'Office network ranges') }}
+					</label>
+					<textarea
+						id="launchpad-office-networks"
+						v-model="officeNetworksText"
+						class="launchpad-admin__textarea"
+						rows="4"
+						data-testid="admin-office-networks-input" />
+					<p
+						v-if="officeNetworksError"
+						class="launchpad-admin__error"
+						role="alert"
+						data-testid="admin-office-networks-error">
+						{{ officeNetworksError }}
+					</p>
+					<p class="launchpad-admin__hint" data-testid="admin-office-networks-current">
+						{{ currentAddressLine }}
+					</p>
+					<NcButton
+						data-testid="admin-office-networks-save"
+						@click="saveOfficeNetworks">
+						{{ t('launchpad', 'Save office networks') }}
+					</NcButton>
+				</CnSettingsSection>
+
+				<!-- Group-shared dashboards (REQ-DASH-015..017). Owns the
+				     `set-group-default` / `group-default-badge` data-test hooks. -->
+				<CnSettingsSection :name="t('launchpad', 'Group-shared dashboards')">
 
 				<p class="launchpad-admin__hint">
 					{{
@@ -210,51 +405,9 @@
 						</div>
 					</div>
 				</div>
-			</div>
+				</CnSettingsSection>
 
-			<!-- Beheer tabs — the IA's discrete admin areas. Each tab's
-			     content only renders when active (admin-settings spec). -->
-			<BeheerTabs
-				:tabs="beheerTabs"
-				defaultTab="templates"
-				@change="onTabChange">
-				<template #templates>
-					<TemplatesPage />
-				</template>
-				<template #operations>
-					<OperationsTab />
-				</template>
-				<template #roles-permissions>
-					<RolesPermissionsTab />
-				</template>
-				<template #versioning-audit>
-					<VersioningAuditTab />
-				</template>
-				<template #sharing>
-					<SharingTab
-						:groups="injectedAllGroups"
-						:configuredGroups="configuredGroups" />
-				</template>
-				<template #kiosk>
-					<KioskTab />
-				</template>
-				<template #org-navigation>
-					<OrgNavigationTab :groups="injectedAllGroups" />
-				</template>
-				<template #demo-data>
-					<DemoDataTab />
-				</template>
-				<template #group-dashboards>
-					<GroupDashboardsTab />
-				</template>
-				<template #detail-fields>
-					<MetadataFieldsSettings />
-				</template>
-			</BeheerTabs>
-
-			<!-- Info -->
-			<div class="launchpad-admin__section">
-				<h3>{{ t('launchpad', 'Setting as default app') }}</h3>
+				<CnSettingsSection :name="t('launchpad', 'Setting as default app')">
 				<p>
 					{{
 						t(
@@ -263,8 +416,33 @@
 						)
 					}}
 				</p>
-			</div>
-		</CnSettingsSection>
+				</CnSettingsSection>
+
+				<!-- Administrator CSS, cleaned and scoped on save (REQ-THM-003). -->
+				<CnSettingsSection :name="t('launchpad', 'Custom CSS')">
+					<LazyMount rootMargin="0px" :eager="opensOnSection">
+						<AdminCustomCss />
+					</LazyMount>
+				</CnSettingsSection>
+
+				<!-- REQ-ADM-032: embeds and search shortcuts are cards of
+				     Algemeen, not tabs of their own (boards LpBeheer*). -->
+				<CnSettingsSection
+					:name="t('launchpad', 'Embeds')"
+					data-admin-section="embeds">
+					<LazyMount rootMargin="0px" :eager="opensOnSection">
+						<EmbedsTab />
+					</LazyMount>
+				</CnSettingsSection>
+				<CnSettingsSection
+					:name="t('launchpad', 'Search shortcuts')"
+					data-admin-section="search-shortcuts">
+					<LazyMount rootMargin="0px" :eager="opensOnSection">
+						<SearchShortcutsTab />
+					</LazyMount>
+				</CnSettingsSection>
+			</template>
+		</CnAdminSettingsShell>
 
 		<!-- Setup wizard modal (REQ-WIZ-002). -->
 		<SetupWizardModal
@@ -272,59 +450,108 @@
 			data-test="setup-wizard-modal"
 			@close="closeWizard"
 			@completed="onWizardCompleted" />
+
+		<!-- runtime-shell REQ-SHELL-011: the admin page's own first-visit
+		     tour. Mounted once the General tab has been open, so it starts on
+		     the general settings and keeps running when the tab changes. -->
+		<CnWalkthrough
+			v-if="adminTourMounted"
+			:appId="adminTourWalkthroughKey"
+			:manifest="adminTour"
+			:seenVersion="adminTourSeen"
+			:translate="translateTour"
+			look="board"
+			@complete="onAdminTourComplete" />
 	</div>
 </template>
 
 <script>
 import {
+	CnAdminSettingsShell,
 	CnDashboardIcon,
 	CnSettingsSection,
+	CnWalkthrough,
 	NcButton,
 	NcCheckboxRadioSwitch,
 	NcSelect,
 	NcTextField,
 } from '@conduction/nextcloud-vue'
-import SetupWizardModal from '../../modals/SetupWizardModal.vue'
-import BeheerTabs from './BeheerTabs.vue'
-import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
-import DemoDataTab from './tabs/DemoDataTab.vue'
-import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
-import KioskTab from './tabs/KioskTab.vue'
-import OperationsTab from './tabs/OperationsTab.vue'
-import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
-import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
-import SharingTab from './tabs/SharingTab.vue'
-import TemplatesPage from './tabs/TemplatesPage.vue'
-import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
+import { generateUrl } from '@nextcloud/router'
+import { defineAsyncComponent } from 'vue'
+import LazyMount from '../LazyMount.vue'
+import AdminCustomCss from './AdminCustomCss.vue'
+import AllowedSitesSettings from './AllowedSitesSettings.vue'
+import DiscoverableServicesSettings from './DiscoverableServicesSettings.vue'
+import EmbedsTab from './tabs/EmbedsTab.vue'
+import SearchShortcutsTab from './tabs/SearchShortcutsTab.vue'
+import TileLaunchSettings from './TileLaunchSettings.vue'
+import manifest from '../../manifest.json'
 import { api } from '../../services/api.js'
+import { ADMIN_TABS, adminTab } from '../../utils/adminPage.js'
+import { ADMIN_TOUR_WALKTHROUGH_KEY, adminTourManifest, loadAdminTourSeen, persistAdminTourSeen } from '../../utils/adminWalkthrough.js'
 import { logger } from '../../utils/logger.js'
+
+// Only General shows on arrival: every other tab (lazyTabs mounts a tab's
+// slot when it opens), the detail-fields panel and the setup wizard load
+// their code when first shown, so the settings bundle the page parses first
+// holds General alone.
+const SetupWizardModal = defineAsyncComponent(() => import('../../modals/SetupWizardModal.vue'))
+const MetadataFieldsSettings = defineAsyncComponent(() => import('./MetadataFieldsSettings.vue'))
+const AnnouncementsTab = defineAsyncComponent(() => import('./tabs/AnnouncementsTab.vue'))
+const AppCatalogueTab = defineAsyncComponent(() => import('./tabs/AppCatalogueTab.vue'))
+const CommunitiesTab = defineAsyncComponent(() => import('./tabs/CommunitiesTab.vue'))
+const DemoDataTab = defineAsyncComponent(() => import('./tabs/DemoDataTab.vue'))
+const GroupDashboardsTab = defineAsyncComponent(() => import('./tabs/GroupDashboardsTab.vue'))
+const KioskTab = defineAsyncComponent(() => import('./tabs/KioskTab.vue'))
+const OperationsTab = defineAsyncComponent(() => import('./tabs/OperationsTab.vue'))
+const OrgNavigationTab = defineAsyncComponent(() => import('./tabs/OrgNavigationTab.vue'))
+const ProfileFieldsTab = defineAsyncComponent(() => import('./tabs/ProfileFieldsTab.vue'))
+const RolesPermissionsTab = defineAsyncComponent(() => import('./tabs/RolesPermissionsTab.vue'))
+const SharingTab = defineAsyncComponent(() => import('./tabs/SharingTab.vue'))
+const TemplatesPage = defineAsyncComponent(() => import('./tabs/TemplatesPage.vue'))
+const VersioningAuditTab = defineAsyncComponent(() => import('./tabs/VersioningAuditTab.vue'))
+
+/** How long an old address keeps its section in view while the tab above it loads (REQ-ADM-032). */
+const REVEAL_SETTLE_MS = 3000
 
 export default {
 	name: 'AdminSettings',
 
 	components: {
+		AdminCustomCss,
+		AllowedSitesSettings,
+		AnnouncementsTab,
+		CnAdminSettingsShell,
 		CnSettingsSection,
+		CnWalkthrough,
+		DiscoverableServicesSettings,
+		LazyMount,
 		NcButton,
 		NcSelect,
 		NcCheckboxRadioSwitch,
 		NcTextField,
 		CnDashboardIcon,
 		SetupWizardModal,
-		BeheerTabs,
 		TemplatesPage,
 		OperationsTab,
+		EmbedsTab,
 		RolesPermissionsTab,
 		VersioningAuditTab,
 		MetadataFieldsSettings,
+		TileLaunchSettings,
 		KioskTab,
+		CommunitiesTab,
+		ProfileFieldsTab,
+		SearchShortcutsTab,
 		SharingTab,
 		OrgNavigationTab,
 		DemoDataTab,
 		GroupDashboardsTab,
+		AppCatalogueTab,
 	},
 
-	// REQ-INIT-004: read the initial-state snapshot the PHP admin form
-	// pushes via `LaunchPadAdmin::getForm()`. Treated as a hint for the
+	// REQ-INIT-004: read the initial-state snapshot the administration page
+	// pushes via `AdminPageController::show()`. Treated as a hint for the
 	// initial render only — `loadData()` overwrites with the API truth.
 	inject: {
 		injectedAllGroups: { from: 'allGroups', default: () => [] },
@@ -338,8 +565,43 @@ export default {
 			from: 'configuredGroups',
 			default: () => [],
 		},
+
+		// REQ-ADM-032: the running version for the version card.
+		appVersion: { from: 'version', default: '' },
 	},
 
+	props: {
+		/**
+		 * The tab the page's address names (REQ-ADM-032). An unknown or
+		 * empty tab opens General.
+		 */
+		tab: {
+			type: String,
+			default: '',
+		},
+
+		/**
+		 * A former tab the address points at (REQ-ADM-032), e.g. `embeds`:
+		 * the page opens its host tab scrolled to that section.
+		 */
+		section: {
+			type: String,
+			default: '',
+		},
+
+		/**
+		 * The tabs the viewer holds (REQ-ADM-034), in the page's order; the
+		 * page shows only these.
+		 */
+		heldTabs: {
+			type: Array,
+			default: () => [...ADMIN_TABS],
+		},
+	},
+
+	emits: ['tabChange'],
+
+	/** @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036 */
 	data() {
 		return {
 			loading: true,
@@ -351,11 +613,19 @@ export default {
 
 				allowUserDashboards: this.allowUserDashboards ?? false,
 				allowMultipleDashboards: true,
+				// drill-down-cross-widget-filter REQ-CWF-010: off by default.
+				filterTelemetryEnabled: false,
+				// REQ-PSP-003: on by default.
+				defaultAppEnabled: true,
 				defaultGridColumns: 12,
 				// dashboard-quota-limits REQ-QUOTA-001 — `0` = unlimited.
 				maxDashboardsPerUser: 0,
 				maxWidgetsPerDashboard: 0,
 			},
+
+			// launcher-tile-internal-address REQ-TIA-001.
+			officeNetworksText: '',
+			officeNetworksError: '',
 
 			permissionOptions: [
 				{ id: 'view_only', label: this.t('launchpad', 'View only') },
@@ -371,65 +641,363 @@ export default {
 			// Setup wizard banner state (REQ-WIZ-001).
 			wizardState: null,
 			showWizard: false,
-			activeTab: 'templates',
+			activeTab: adminTab(this.tab),
+			// runtime-shell REQ-SHELL-011: the admin tour, its seen version
+			// (null until loaded) and whether it has been mounted.
+			adminTour: adminTourManifest(manifest),
+			adminTourWalkthroughKey: ADMIN_TOUR_WALKTHROUGH_KEY,
+			adminTourSeen: null,
+			adminTourMounted: false,
 		}
 	},
 
 	computed: {
 		/**
-		 * Ordered Beheer tab descriptors. Labels live here so they stay
-		 * translatable in one place; the slugs match the named slots.
+		 * Whether the page opens on a named section: then the General cards
+		 * below the fold mount at once, so the scroll lands where it should
+		 * and nothing above it grows afterwards.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+		 */
+		opensOnSection() {
+			return Boolean(this.section)
+		},
+
+		/**
+		 * Whether the admin tour may be mounted now: there is one, its seen
+		 * version is loaded, and the General tab is open (REQ-SHELL-011).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/record-parity-requirements/specs/runtime-shell/spec.md#requirement-the-admin-area-has-its-own-first-visit-tour-req-shell-011
+		 */
+		adminTourReady() {
+			// The tour waits while the setup wizard is open (REQ-ADM-032, D6).
+			return this.adminTour !== null && this.adminTourSeen !== null && this.activeTab === 'general' && !this.showWizard
+		},
+
+		/**
+		 * The administrator's own address and whether it is inside the
+		 * office networks, so a wrong proxy setup shows at once.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+		 */
+		currentAddressLine() {
+			const address = this.settings.currentAddress || ''
+			if (address === '') {
+				return ''
+			}
+			if (this.settings.currentAddressInOfficeNetworks === true) {
+				return this.t('launchpad', 'Your current address is {address}, which is inside the office networks.', { address })
+			}
+			return this.t('launchpad', 'Your current address is {address}, which is outside the office networks.', { address })
+		},
+
+		/**
+		 * The page title names the open tab, as the boards do
+		 * ("Launchpad-beheer: algemeen").
+		 *
+		 * @spec openspec/specs/admin-settings/spec.md
+		 * @return {string}
+		 */
+		pageTitle() {
+			const tab = this.beheerTabs.find((entry) => entry.id === this.activeTab)
+			const label = tab ? tab.label.toLocaleLowerCase() : ''
+			// The tab name goes into text interpolation, which escapes it again.
+			return this.t('launchpad', 'Launchpad administration: {tab}', { tab: label }, undefined, { escape: false })
+		},
+
+		/**
+		 * The path line under the title: the Nextcloud administration
+		 * settings, the app, then the open tab.
+		 *
+		 * @spec openspec/specs/admin-settings/spec.md
+		 * @return {Array<{label: string, href?: string}>}
+		 */
+		breadcrumbs() {
+			const tab = this.beheerTabs.find((entry) => entry.id === this.activeTab)
+			const crumbs = [
+				{
+					label: this.t('launchpad', 'Administration settings'),
+					href: generateUrl('/settings/admin'),
+				},
+				{ label: 'Launchpad' },
+			]
+			if (tab) {
+				crumbs.push({ label: tab.label })
+			}
+			return crumbs
+		},
+
+		/**
+		 * The note after the path. Only Algemeen has one: its settings hold
+		 * for the whole organisation.
+		 *
+		 * @spec openspec/specs/admin-settings/spec.md
+		 * @return {string}
+		 */
+		breadcrumbNote() {
+			return this.activeTab === 'general'
+				? this.t('launchpad', 'applies to the whole organisation')
+				: ''
+		},
+
+		/**
+		 * Ordered Beheer tab descriptors: the thirteen tabs the Beheer boards
+		 * draw, those the viewer holds (REQ-ADM-032, REQ-ADM-034). Labels live here so they stay translatable in
+		 * one place; each `id` after the first names the shell slot
+		 * `tab-<id>`; the first tab is the default slot.
 		 *
 		 * @spec openspec/changes/admin-group-management/tasks.md#task-1
-		 * @return {Array<{slug: string, label: string}>}
+		 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+		 * @return {Array<{id: string, label: string}>}
 		 */
 		beheerTabs() {
-			return [
-				{ slug: 'templates', label: this.t('launchpad', 'Templates') },
-				{ slug: 'operations', label: this.t('launchpad', 'Operations') },
-				{
-					slug: 'roles-permissions',
-					label: this.t('launchpad', 'Roles & Permissions'),
-				},
-				{
-					slug: 'versioning-audit',
-					label: this.t('launchpad', 'Versioning & Audit'),
-				},
-				{ slug: 'sharing', label: this.t('launchpad', 'Sharing') },
-				{ slug: 'kiosk', label: this.t('launchpad', 'Kiosk') },
-				{
-					slug: 'org-navigation',
-					label: this.t('launchpad', 'Org navigation'),
-				},
-				{ slug: 'demo-data', label: this.t('launchpad', 'Demo data') },
-				{
-					slug: 'group-dashboards',
-					label: this.t('launchpad', 'Group dashboards'),
-				},
-				{
-					slug: 'detail-fields',
-					label: this.t('launchpad', 'Detail fields'),
-				},
-			]
+			const labels = {
+				general: this.t('launchpad', 'General'),
+				announcements: this.t('launchpad', 'Announcements'),
+				templates: this.t('launchpad', 'Templates'),
+				'roles-permissions': this.t('launchpad', 'Roles and permissions'),
+				sharing: this.t('launchpad', 'Sharing'),
+				'org-navigation': this.t('launchpad', 'Organisation menu'),
+				kiosk: this.t('launchpad', 'Kiosk'),
+				'versioning-audit': this.t('launchpad', 'Versions and analytics'),
+				operations: this.t('launchpad', 'Controls'),
+				'demo-data': this.t('launchpad', 'Demo data'),
+				'group-dashboards': this.t('launchpad', 'Group dashboards'),
+				'detail-fields': this.t('launchpad', 'Detail fields'),
+				'profile-fields': this.t('launchpad', 'Profile fields'),
+			}
+			const held = Array.isArray(this.heldTabs) ? this.heldTabs : ADMIN_TABS
+			return ADMIN_TABS
+				.filter((id) => held.includes(id))
+				.map((id) => ({ id, label: labels[id] }))
+		},
+
+		/**
+		 * The version card shows on General, so only to a viewer who holds
+		 * the whole page; an announcements manager sees none (REQ-ADM-034).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-delegated-admin-settings-per-area-req-adm-034
+		 */
+		showsVersionCard() {
+			return !Array.isArray(this.heldTabs) || this.heldTabs.includes('general')
 		},
 	},
 
 	/** @spec openspec/specs/admin-settings/spec.md */
+	watch: {
+		/**
+		 * Open the tab the address names when it changes (Back, Forward).
+		 *
+		 * @param {string} tab The tab the address names.
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+		 */
+		tab(tab) {
+			this.showTab(adminTab(tab))
+		},
+
+		/**
+		 * Scroll to a former tab's section when the fragment names one.
+		 *
+		 * @param {string} section The section.
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+		 */
+		section(section) {
+			this.revealSection(section)
+		},
+
+		/**
+		 * Mount the admin tour once it is ready, and keep it mounted when the
+		 * tab changes so a running tour continues (REQ-SHELL-011).
+		 *
+		 * @param {boolean} ready Whether the tour may be mounted.
+		 * @spec openspec/changes/record-parity-requirements/specs/runtime-shell/spec.md#requirement-the-admin-area-has-its-own-first-visit-tour-req-shell-011
+		 */
+		adminTourReady: {
+			immediate: true,
+			handler(ready) {
+				if (ready) {
+					this.adminTourMounted = true
+				}
+			},
+		},
+	},
+
+	/**
+	 * Load the admin tour, the settings, the group dashboards and the wizard state.
+	 *
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+	 */
 	async created() {
-		await this.loadData()
-		await this.loadGroupSharedDashboards()
-		await this.loadWizardState()
+		this.loadAdminTour()
+		// The three reads do not depend on each other: ask together, so the
+		// wizard banner is not the third round trip of the page.
+		await Promise.all([this.loadData(), this.loadGroupSharedDashboards(), this.loadWizardState()])
+	},
+
+	/**
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+	 */
+	mounted() {
+		this.showTab(this.activeTab)
+		this.revealSection(this.section)
+	},
+
+	/**
+	 * Stop following a section that is still being revealed.
+	 *
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+	 */
+	beforeUnmount() {
+		if (typeof this.stopReveal === 'function') {
+			this.stopReveal()
+		}
 	},
 
 	methods: {
 		/**
-		 * Switch the active admin tab.
+		 * Switch the active admin tab, and tell the page so its address
+		 * names the tab.
 		 *
-		 * @param {string} slug Slug of the newly selected tab.
+		 * @param {string} id The id of the newly opened tab.
 		 * @spec openspec/specs/admin-settings/spec.md
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
 		 */
-		onTabChange(slug) {
-			this.activeTab = slug
+		onTabChange(id) {
+			this.activeTab = id
+			this.$emit('tabChange', id)
+		},
+
+		/**
+		 * Scroll a folded section into view: the former tab an old address
+		 * or link names (REQ-ADM-032).
+		 *
+		 * The tab's content mounts and reads its data after the first tick,
+		 * so the cards above the section grow after it was scrolled to and
+		 * push it out of view. For a short while (REVEAL_SETTLE_MS) the
+		 * section is scrolled to again whenever it moved, until the
+		 * administrator scrolls, clicks or types.
+		 *
+		 * @param {string} section A key of FOLDED_ADMIN_TABS, a `section-*` element id, or ''.
+		 * @return {void}
+		 * @spec openspec/specs/admin-settings/spec.md#requirement-the-administration-shows-the-twelve-drawn-tabs-req-adm-032
+		 */
+		revealSection(section) {
+			if (typeof this.stopReveal === 'function') {
+				this.stopReveal()
+			}
+			if (!section) {
+				return
+			}
+			// A former tab's section, or an element id a settings link names.
+			const selector = section.startsWith('section-') ? `#${section}` : `[data-admin-section="${section}"]`
+			const topOf = (el) => (typeof el.getBoundingClientRect === 'function' ? el.getBoundingClientRect().top : null)
+			let placedAt = null
+			const reveal = () => {
+				const target = this.$el?.querySelector?.(selector)
+				if (!target || typeof target.scrollIntoView !== 'function') {
+					return
+				}
+				const top = topOf(target)
+				if (placedAt === null || top === null || Math.abs(top - placedAt) > 1) {
+					target.scrollIntoView({ block: 'start' })
+					placedAt = topOf(target)
+				}
+			}
+			this.$nextTick(reveal)
+			if (typeof window === 'undefined' || typeof window.setInterval !== 'function') {
+				return
+			}
+			const events = ['wheel', 'touchstart', 'keydown', 'mousedown']
+			let timer = null
+			const stop = () => {
+				window.clearInterval(timer)
+				events.forEach((name) => window.removeEventListener(name, stop, true))
+				if (this.stopReveal === stop) {
+					this.stopReveal = null
+				}
+			}
+			const started = Date.now()
+			timer = window.setInterval(() => {
+				if (Date.now() - started > REVEAL_SETTLE_MS) {
+					stop()
+					return
+				}
+				reveal()
+			}, 100)
+			events.forEach((name) => window.addEventListener(name, stop, true))
+			this.stopReveal = stop
+		},
+
+		/**
+		 * Open a tab without a click: the one the address names.
+		 *
+		 * @param {string} id The tab's id.
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+		 */
+		showTab(id) {
+			this.activeTab = id
+			const shell = this.$refs.shell
+			if (shell && shell.chosenTabId !== id) {
+				shell.chosenTabId = id
+			}
+		},
+
+		/**
+		 * Read whether this administrator finished the admin tour (REQ-SHELL-011).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/record-parity-requirements/specs/runtime-shell/spec.md#requirement-the-admin-area-has-its-own-first-visit-tour-req-shell-011
+		 */
+		async loadAdminTour() {
+			if (this.adminTour) {
+				this.adminTourSeen = await loadAdminTourSeen('launchpad')
+			}
+		},
+
+		/**
+		 * Start the admin tour again from the version card's Tour button: on
+		 * General, as if it had not been seen (REQ-ADM-032, REQ-SHELL-011).
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+		 */
+		startAdminTour() {
+			this.adminTourMounted = false
+			this.adminTourSeen = ''
+			if (this.activeTab !== 'general') {
+				this.onTabChange('general')
+				this.showTab('general')
+			}
+			this.$nextTick(() => {
+				this.adminTourMounted = true
+			})
+		},
+
+		/**
+		 * Record the admin tour as finished, so it does not start again (REQ-SHELL-011).
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/record-parity-requirements/specs/runtime-shell/spec.md#requirement-the-admin-area-has-its-own-first-visit-tour-req-shell-011
+		 */
+		onAdminTourComplete() {
+			this.adminTourSeen = String(this.adminTour.version || '')
+			persistAdminTourSeen('launchpad', this.adminTourSeen)
+		},
+
+		/**
+		 * Translate a tour title, body or task through LaunchPad's catalogue.
+		 *
+		 * @param {string} text The source string.
+		 * @return {string}
+		 */
+		translateTour(text) {
+			return this.t('launchpad', text)
 		},
 
 		/** @spec openspec/specs/admin-settings/spec.md */
@@ -439,6 +1007,7 @@ export default {
 				const settingsRes = await api.getAdminSettings()
 				const data = settingsRes.data?.data ?? settingsRes.data
 				if (data) {
+					this.officeNetworksText = (Array.isArray(data.officeNetworks) ? data.officeNetworks : []).join('\n')
 					this.settings = {
 						...this.settings,
 						...data,
@@ -462,6 +1031,9 @@ export default {
 					defaultPermLevel: this.settings.defaultPermissionLevel?.id,
 					allowUserDash: this.settings.allowUserDashboards,
 					allowMultiDash: this.settings.allowMultipleDashboards,
+					filterTelemetryEnabled:
+						this.settings.filterTelemetryEnabled === true,
+					defaultAppEnabled: this.settings.defaultAppEnabled !== false,
 					defaultGridCols: this.settings.defaultGridColumns,
 					// dashboard-quota-limits REQ-QUOTA-001 — sent as integers;
 					// the server clamps into [0, 10000].
@@ -475,6 +1047,36 @@ export default {
 			} catch (error) {
 				logger.error('Failed to save settings:', error)
 			}
+		},
+
+		/**
+		 * Save the office networks, one range per line, and show the server's
+		 * verdict on the administrator's own address. A malformed range is
+		 * refused by the server and nothing is stored.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+		 */
+		async saveOfficeNetworks() {
+			this.officeNetworksError = ''
+			const ranges = this.officeNetworksText
+				.split(/[\n,]+/)
+				.map((range) => range.trim())
+				.filter((range) => range !== '')
+			try {
+				await api.updateAdminSettings({ officeNetworks: ranges })
+			} catch (error) {
+				this.officeNetworksError = this.t('launchpad', 'This is not a valid network range')
+				// The server names the range it refused after a colon; keep the
+				// translated sentence and add that range to it.
+				const detail = error?.response?.data?.error || error?.response?.data?.message
+				const named = typeof detail === 'string' ? detail.match(/^This is not a valid network range: (.+)$/) : null
+				if (named) {
+					this.officeNetworksError += ': ' + named[1]
+				}
+				return
+			}
+			await this.loadData()
 		},
 
 		/**
@@ -583,10 +1185,36 @@ export default {
 			try {
 				const { data } = await api.getSetupWizardState()
 				this.wizardState = data || null
+				this.offerWizardOnce()
 			} catch (e) {
 				logger.warn('Failed to load setup wizard state:', e)
 				this.wizardState = null
 			}
+		},
+
+		/**
+		 * Open the setup wizard by itself on the first visit of the settings
+		 * page while setup is not done (ADR-042): once per browser session,
+		 * and only for a viewer who holds General (REQ-ADM-032, D6).
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
+		 */
+		offerWizardOnce() {
+			if (!this.wizardState || this.wizardState.complete || !this.showsVersionCard) {
+				return
+			}
+			const key = 'launchpad:setup-wizard-offered'
+			try {
+				if (globalThis.sessionStorage?.getItem(key)) {
+					return
+				}
+				globalThis.sessionStorage?.setItem(key, '1')
+			} catch {
+				// Without storage the banner still offers the wizard.
+				return
+			}
+			this.showWizard = true
 		},
 
 		/** @spec openspec/specs/admin-settings/spec.md */
@@ -655,31 +1283,6 @@ export default {
 </script>
 
 <style scoped>
-.launchpad-admin {
-	max-width: 900px;
-}
-
-.launchpad-admin__section {
-	margin-bottom: 32px;
-	padding-bottom: 32px;
-	border-bottom: 1px solid var(--color-border);
-}
-
-.launchpad-admin__section h3 {
-	margin: 0 0 16px;
-}
-
-.launchpad-admin__section-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 16px;
-}
-
-.launchpad-admin__section-header h3 {
-	margin: 0;
-}
-
 .launchpad-admin__hint {
 	color: var(--color-text-maxcontrast);
 	margin-bottom: 16px;
@@ -687,6 +1290,14 @@ export default {
 
 .launchpad-admin__field {
 	margin-bottom: 16px;
+}
+
+/* Board LpBeheerAlgemeen: the quota fields share one row, apart from the field above. */
+.launchpad-admin__quota-row {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 12px;
+	margin-top: 16px;
 }
 
 .launchpad-admin__field label {
@@ -749,10 +1360,8 @@ export default {
 	justify-content: space-between;
 	gap: 16px;
 	padding: 16px 20px;
-	margin-bottom: 24px;
 	background: var(--color-primary-element-light);
-	border: 1px solid var(--color-primary-element);
-	border-radius: var(--border-radius);
+	border-radius: 12px;
 }
 
 .launchpad-admin__wizard-banner p {
@@ -762,8 +1371,23 @@ export default {
 }
 
 .launchpad-admin__wizard-rerun {
-	margin-bottom: 16px;
 	display: flex;
 	justify-content: flex-end;
+}
+
+.launchpad-admin__label {
+	display: block;
+	margin-top: 8px;
+	font-weight: bold;
+}
+
+.launchpad-admin__textarea {
+	width: 100%;
+	max-width: 480px;
+	font-family: monospace;
+}
+
+.launchpad-admin__error {
+	color: var(--color-error-text);
 }
 </style>

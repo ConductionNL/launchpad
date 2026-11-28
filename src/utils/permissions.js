@@ -17,16 +17,13 @@
  * so the second line fired for everyone and the declaration was inert. A gate
  * that fails open is not a gate.
  *
- * WHAT THOSE TWO ENTRIES ACTUALLY REACH, said plainly rather than implied.
- * Both `/admin/templates` and `/admin/settings` render
- * `views/AdminSettingsRedirect.vue`, which bounces to
- * `/settings/admin/launchpad` — a Nextcloud settings section registered by
- * `lib/Settings/LaunchPadAdmin.php` and gated by Nextcloud's own settings
- * framework. So an ordinary account following either entry today lands on a
- * page the server refuses it. This is a broken affordance, not a disclosure:
- * no launchpad data was ever served through those two routes. It is worth
- * fixing anyway, because the next admin surface added under `/admin/*`
- * inherits whichever behaviour is in place when it arrives.
+ * WHAT THE ADMIN ENTRY ACTUALLY REACHES, said plainly rather than implied.
+ * `admin-templates` links to the admin settings page in Nextcloud's settings
+ * framework (`/settings/admin/launchpad#templates`, admin-settings
+ * REQ-ADM-032), which Nextcloud renders only for a (delegated)
+ * administrator. An ordinary account following it lands on a page the server
+ * refuses it. This is a broken affordance, not a disclosure, and still worth
+ * hiding.
  *
  * @spec openspec/specs/runtime-shell/spec.md
  */

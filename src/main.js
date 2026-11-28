@@ -36,11 +36,10 @@ import {
 	registerBuiltinDashboardWidgets,
 	registerDashboardWidget,
 	registerIcons,
+	registerTranslations,
 	useAppManifest,
 } from '@conduction/nextcloud-vue'
-import axios from '@nextcloud/axios'
 import { translatePlural as n, translate as t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
 import { createPinia } from 'pinia'
 import { createApp, h, reactive } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -48,17 +47,41 @@ import App from './App.vue'
 import { LAUNCHPAD_ICONS } from './icons.js'
 import bundledStub from './manifest.json'
 import registry from './registry.js'
+// Captures the boot address before the router's catch-all redirects it.
+import { appBase } from './utils/bootPath.js'
+import { installCarriedReads } from './utils/carriedApiReads.js'
+import { applyCustomCss, GLOBAL_STYLE_ID } from './utils/customCss.js'
+import { handOverOffTheWorkspace, holdMountWhileShellShows, workspacePageIds } from './utils/firstPaintHandover.js'
+import { mountHeaderSearch } from './utils/headerSearchMount.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { logger } from './utils/logger.js'
 import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import { currentPermissions } from './utils/permissions.js'
+import { runtimeManifestRequest } from './utils/runtimeManifestRequest.js'
 
 import './publicPath.js'
 import './services/widgetBridge.js'
+// Captures the browser's install prompt early, for the phone install banner
+// (platform-baseline REQ-PLB-009).
+import './utils/installPrompt.js'
 import 'gridstack/dist/gridstack.min.css'
+// The library's own stylesheet (board look, widgets, dialogs) is not imported
+// here: the build copies it to css/nextcloud-vue.css and the page links it
+// (PageController::stylesFor), so the browser keeps it parsed between loads
+// instead of this bundle inserting ~1 MB of CSS text on every page load.
 import './styles/workspace.css'
+import './styles/modals.css'
+import './styles/kiosk.css'
+import './styles/print.css'
 registerBuiltinDashboardWidgets()
+
+// The library's own strings ("Good afternoon, {name}" in the greeting header,
+// its dialogs and empty states) live in the `nextcloud-vue` translation
+// domain, which only exists once the app registers it. Without this call a
+// Dutch start page greeted in English.
+// @spec openspec/changes/archive/2026-11-24-start-page-board-sync/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-greets-the-reader
+registerTranslations()
 
 // Populate the shared CnIcon registry with the MDI icons LaunchPad's
 // manifests name (ADR-077 rule 3).
@@ -104,7 +127,8 @@ registerDashboardWidget('nc-widget', {
 // does not expose (it declares no `exports` map) — so the require always threw
 // and the surrounding try/catch silently skipped manifest registration
 // entirely. Importing it from the barrel makes the registration actually run.
-useAppManifest('launchpad', bundledStub)
+// nc-vue's merge and the runtime loader below share one `/api/manifest` request.
+useAppManifest('launchpad', bundledStub, { fetcher: runtimeManifestRequest })
 // Note: GridStack v12 dropped the separate `gridstack-extra.min.css`
 // helper file — the per-column-count CSS rules used by responsive
 // breakpoints are now generated dynamically by the engine at init time.
@@ -122,6 +146,10 @@ const pinia = createPinia()
 // declared in REQ-INIT-002 is filled (defaults applied for missing keys
 // by the reader); descendants `inject(key, default)` to read.
 const initialState = loadInitialState('workspace')
+
+// platform-dashboard-theme-and-css REQ-THM-003 / D4: the administrator CSS for
+// all of LaunchPad, already cleaned and scoped by the server, inserted as text.
+applyCustomCss(GLOBAL_STYLE_ID, initialState.customCss)
 
 // --- Runtime manifest loader (ADR-036 Decision 8) ---
 //
@@ -141,8 +169,7 @@ const manifestLoading = reactive({ value: true })
 
 ;(async () => {
 	try {
-		const url = generateUrl('/apps/launchpad/api/manifest')
-		const response = await axios.get(url)
+		const response = await runtimeManifestRequest()
 
 		if (
 			response
@@ -181,8 +208,7 @@ const RoutePageRenderer = { ...CnPageRenderer }
  * @return {string} The router base.
  */
 function routerBase() {
-	const match = window.location.pathname.match(/^(.*\/apps\/launchpad)(?:\/|$)/)
-	return match ? match[1] : generateUrl('/apps/launchpad')
+	return appBase(window.location.pathname)
 }
 
 // The permissions this account holds, from the server's own answer rather than
@@ -202,11 +228,20 @@ const router = createRouter({
 // gate and a typed URL walks straight past it.
 router.beforeEach((to) => permissionGuard(to, permissions))
 
+// first-paint-skeleton D4: only the dashboard view's grid hands the shell
+// over; on any other page (Marketplace, Reports, Flows) it goes at once.
+const workspacePages = workspacePageIds(mergedManifest)
+router.afterEach((to) => handOverOffTheWorkspace(to, workspacePages))
+
 // Shallow copies: the library exports `defaultPageTypes` and the registry as
 // FROZEN module objects in some bundle shapes, and the renderer may attach
 // bookkeeping to what it is handed.
 const pageTypesProp = { ...defaultPageTypes }
 const registryProp = { ...registry }
+
+// The GETs the workspace page answered while it rendered (workspaceApiReads)
+// are served from the page once, before any component asks for them.
+installCarriedReads()
 
 const app = createApp({
 	name: 'LaunchpadRoot',
@@ -236,6 +271,15 @@ for (const [key, value] of Object.entries(initialState)) {
 app.provide('runtimeManifest', runtimeManifest)
 app.provide('manifestLoading', manifestLoading)
 
+// first-paint-skeleton D4: while the server's shell shows, the mounted page
+// is laid out but hidden; the grid's first layout hands over (Views.vue).
+holdMountWhileShellShows()
 app.mount('#workspace-vue')
+
+// header-search-dropdown REQ-SRCH-013: the top bar's search field shows its
+// results under the field on LaunchPad pages, with the first search shortcut
+// as the tip.
+// @spec openspec/changes/archive/2026-11-25-header-search-dropdown/specs/nc-unified-search-integration/spec.md#requirement-req-srch-013-the-top-bar-search-shows-its-results-under-the-field
+mountHeaderSearch(initialState.searchShortcuts)
 
 export default app

@@ -109,6 +109,35 @@ describe('DashboardFooter', () => {
 		expect(wrapper.html()).toContain('Bonjour')
 	})
 
+	it('falls back to the dashboard primary language before the first key (REQ-FTR-007)', () => {
+		const wrapper = mount(DashboardFooter, {
+			propsData: {
+				footer: {
+					mode: 'global',
+					html: { en: '<p>English</p>', fr: '<p>Français</p>' },
+					config: null,
+					primaryLanguage: 'fr',
+				},
+				locale: 'de',
+			},
+		})
+		expect(wrapper.html()).toContain('Français')
+	})
+
+	it('matches the language part of a regional locale (REQ-FTR-007)', () => {
+		const wrapper = mount(DashboardFooter, {
+			propsData: {
+				footer: {
+					mode: 'global',
+					html: { en: '<p>English</p>', nl: '<p>Welkom</p>' },
+					config: null,
+				},
+				locale: 'nl_BE',
+			},
+		})
+		expect(wrapper.html()).toContain('Welkom')
+	})
+
 	it('applies admin colour overrides as inline style (REQ-FTR-009)', () => {
 		const wrapper = mount(DashboardFooter, {
 			propsData: {

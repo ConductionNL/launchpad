@@ -1,0 +1,190 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Conduction B.V.
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * Playwright end-to-end test for discovering the server's apps
+ * (launcher-discover-server-services, task 5): Deck is listed under
+ * "App tiles", one click places it as its own app tile
+ * (a square, coloured link named "Deck" with no visible text) that opens
+ * /apps/deck/, and the next time the add flow opens it is marked
+ * "On this dashboard". LaunchPad itself is never listed.
+ *
+ * Deck is enabled through the OCS apps API first; on an instance where Deck
+ * is not installed the test is skipped with that reason.
+ *
+ * The add flow is opened through "More" → "Add widget". The
+ * account is a throwaway non-admin account logged in from an empty storage
+ * state.
+ *
+ * Gate-19 @e2e traceability:
+ *   @e2e discover-server-services::deck-discovered-and-placed
+ *   @e2e app-tile-widget::files-in-the-picker
+ *
+ * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md
+ * @spec openspec/changes/app-tile-widget/specs/app-tile-widget/spec.md#requirement-the-add-flow-offers-every-app-as-its-own-tile-req-apptile-001
+ */
+
+import type { APIRequestContext, Locator, Page } from '@playwright/test'
+
+import { expect, test } from '@playwright/test'
+import {
+	deprovisionUser,
+	loginAs,
+	provisionThrowawayUser,
+} from './fixtures/secondary-user.ts'
+import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { contextFor } from './support/principals.ts'
+
+const ADMIN = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
+
+const API = '/index.php/apps/launchpad/api'
+
+type Account = { username: string; password: string }
+
+let account: Account | null = null
+let deckEnabled = false
+
+/**
+ * An API context as the administrator, or as the given account.
+ *
+ * @param who the account; the administrator when omitted.
+ * @return the context; the caller disposes it.
+ */
+async function apiAs(who?: Account): Promise<APIRequestContext> {
+	return contextFor(who?.username ?? ADMIN.user, who?.password ?? ADMIN.pass)
+}
+
+/**
+ * Open the add flow ("More" → "Add widget"), choose the App or link tile and
+ * then "An app", and return the "Choose the app" list that replaced the
+ * picker's App tiles section (app-link-tile-widget REQ-APPTILE-004).
+ *
+ * @param page the page.
+ * @return the "Choose the app" list.
+ */
+async function openAddFlow(page: Page): Promise<Locator> {
+	await page.goto('/index.php/apps/launchpad')
+	const more = page.locator(MORE_MENU)
+	await expect(more).toBeVisible({ timeout: 30_000 })
+	await more.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	await page.locator('[data-testid="launchpad-more-menu-item-add-widget"]').click()
+	const picker = page.getByRole('dialog', { name: /add widget/i }).first()
+	await expect(picker).toBeVisible({ timeout: 10_000 })
+	await picker.getByTestId('widget-picker-type-tile').click()
+	await picker.getByTestId('widget-picker-add').click()
+	await page.getByTestId('tile-mode').getByText('An app', { exact: true }).click()
+	const chooser = page.getByTestId('tile-app-chooser')
+	await expect(chooser).toBeVisible({ timeout: 10_000 })
+	await expect(chooser).toContainText('Choose the app')
+	return chooser
+}
+
+/**
+ * The row of a Nextcloud app in "Choose the app".
+ *
+ * @param chooser the "Choose the app" list.
+ * @param name the app name.
+ * @return the row.
+ */
+function appRow(chooser: Locator, name: string): Locator {
+	return chooser
+		.getByTestId('tile-app-row-nextcloud')
+		.filter({ has: chooser.page().locator('.add-tiles__row-name').getByText(name, { exact: true }) })
+}
+
+test.beforeAll(async () => {
+	const admin = await apiAs()
+	try {
+		const enable = await admin.put(`${API}/admin/settings`, { data: { allowUserDash: true } })
+		expect(enable.status(), await enable.text()).toBeLessThan(300)
+		// OCS v2: an app that is not installed answers 404 ("The request app
+		// was not found"). OCS v1 answers HTTP 200 with that failure in the
+		// body, so `ok()` read true and the test ran without Deck.
+		const deck = await admin.post('/ocs/v2.php/cloud/apps/deck')
+		deckEnabled = deck.ok()
+	} finally {
+		await admin.dispose()
+	}
+
+	account = await provisionThrowawayUser('e2e-discover')
+	const api = await apiAs(account)
+	try {
+		const created = await api.post(`${API}/dashboard`, { data: { name: 'E2E Mijn werkplek' } })
+		expect(created.status(), await created.text()).toBeLessThan(300)
+		const body = await created.json()
+		const dash = body.dashboard ?? body.data?.dashboard ?? body
+		const activate = await api.post(`${API}/dashboard/${dash.id}/activate`)
+		expect(activate.status(), await activate.text()).toBeLessThan(300)
+		const preference = await api.post(`${API}/dashboards/default`, { data: { uuid: dash.uuid } })
+		expect(preference.status(), await preference.text()).toBeLessThan(300)
+	} finally {
+		await api.dispose()
+	}
+})
+
+test.afterAll(async () => {
+	if (account) {
+		await deprovisionUser(account.username)
+	}
+})
+
+// @e2e discover-server-services::deck-discovered-and-placed
+// @e2e app-tile-widget::files-in-the-picker
+test('Deck is discovered, placed in one click and then marked as on this dashboard', async ({
+	browser,
+}) => {
+	// The server's own list, as the account sees it: Deck in, LaunchPad out.
+	const api = await apiAs(account!)
+	let apps: Array<{ appId: string; name: string; href: string }>
+	try {
+		const res = await api.get(`${API}/tiles/discover`)
+		expect(res.status(), await res.text()).toBe(200)
+		apps = (await res.json()).apps ?? []
+	} finally {
+		await api.dispose()
+	}
+	expect(apps.map((app) => app.appId)).not.toContain('launchpad')
+	const deck = apps.find((app) => app.appId === 'deck')
+	test.skip(!deckEnabled && !deck, 'Deck is not installed on this instance')
+	expect(deck, 'Deck is enabled for everyone, so it is discovered').toBeDefined()
+
+	const { context, page } = await loginAs(browser, account!.username, account!.password)
+	try {
+		const chooser = await openAddFlow(page)
+		const entry = appRow(chooser, deck!.name)
+		await expect(entry).toBeVisible()
+		await expect(entry.locator('.tile-app-chooser__icon')).toHaveAttribute('style', /url\(/)
+		await expect(entry).not.toContainText('On this dashboard')
+
+		const placed = page.waitForResponse((res) =>
+			/\/api\/dashboard\/\d+\/widgets$/.test(res.url()) && res.request().method() === 'POST',
+		)
+		await entry.getByRole('checkbox').check()
+		await page.getByTestId('tile-editor-save').click()
+		const response = await placed
+		expect(response.status(), await response.text()).toBeLessThan(300)
+		expect(response.request().postDataJSON()).toMatchObject({
+			widgetId: 'tile',
+			content: { mode: 'app', appId: 'deck' },
+		})
+		await expect(chooser).toBeHidden({ timeout: 10_000 })
+
+		const tile = page.getByRole('link', { name: new RegExp(`^${deck!.name}`) }).and(page.locator('[data-testid="cn-app-tile"]'))
+		await expect(tile).toBeVisible({ timeout: 10_000 })
+		await expect(tile).toHaveAttribute('href', /\/apps\/deck\/?/)
+		await expect(tile).toHaveAttribute('title', deck!.name)
+		expect((await tile.innerText()).replace(/\d+\+?/, '').trim()).toBe('')
+		const box = await tile.boundingBox()
+		expect(box, 'the tile is drawn').not.toBeNull()
+		expect(Math.abs(box!.width - box!.height)).toBeLessThanOrEqual(1)
+
+		// The next time the add flow opens, Deck is marked.
+		const again = await openAddFlow(page)
+		await expect(appRow(again, deck!.name)).toContainText('On this dashboard')
+	} finally {
+		await context.close()
+	}
+})

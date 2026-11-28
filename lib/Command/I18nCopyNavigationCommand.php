@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Command;
 
-use OCA\LaunchPad\Service\CommandService;
+use OCA\LaunchPad\Kernel\Contracts\CommandServiceInterface;
 use OCP\IDBConnection;
 use OCP\IUserSession;
 use Symfony\Component\Console\Input\InputInterface;
@@ -45,12 +45,12 @@ class I18nCopyNavigationCommand extends CommandBase {
 	/**
 	 * Constructor.
 	 *
-	 * @param CommandService $commandService Shared CLI helper.
+	 * @param CommandServiceInterface $commandService Shared CLI helper.
 	 * @param IUserSession $userSession Caller resolution.
 	 * @param IDBConnection $db Database connection.
 	 */
 	public function __construct(
-		CommandService $commandService,
+		CommandServiceInterface $commandService,
 		IUserSession $userSession,
 		private readonly IDBConnection $db,
 	) {
@@ -76,7 +76,7 @@ class I18nCopyNavigationCommand extends CommandBase {
 						'',
 						'Examples:',
 						'  php occ launchpad:i18n:copy-navigation --from=nl --to=en',
-						'  php occ launchpad:i18n:copy-navigation --from=nl --to=en --overwrite --json',
+						'  php occ launchpad:i18n:copy-navigation --from=nl --to=en --overwrite --json | jq .data',
 					]
 				)
 			)
@@ -110,35 +110,18 @@ class I18nCopyNavigationCommand extends CommandBase {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	protected function handle(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function handle(InputInterface $input, OutputInterface $output): int {
 		$from = $input->getOption(name: 'from');
 		$to = $input->getOption(name: 'to');
 
 		if ($from === null || $to === null
 			|| (string)$from === '' || (string)$to === ''
 		) {
-			return $this->emitError(
-				input: $input,
-				output: $output,
-				exitCode: CommandService::EXIT_INVALID_ARGS,
-				code: 'INVALID_ARGUMENT',
-				message: 'Both --from and --to are required',
-				context: ['from' => $from, 'to' => $to]
-			);
+			return $this->emitError(input: $input, output: $output, error: self::missingLanguagesError(from: $from, to: $to));
 		}
 
 		if ($this->db->tableExists(table: self::NAV_TABLE) === false) {
-			return $this->emitError(
-				input: $input,
-				output: $output,
-				exitCode: CommandService::EXIT_NOT_FOUND,
-				code: 'NOT_FOUND',
-				message: "No navigation tree found for language '" . (string)$from . "'",
-				context: ['language' => (string)$from]
-			);
+			return $this->emitError(input: $input, output: $output, error: self::noNavigationError(from: (string)$from));
 		}
 
 		$copied = 0;
@@ -154,6 +137,39 @@ class I18nCopyNavigationCommand extends CommandBase {
 			human: 'Copied ' . $copied . ' nodes from ' . (string)$from . ' to ' . (string)$to
 		);
 
-		return CommandService::EXIT_SUCCESS;
+		return CommandServiceInterface::EXIT_SUCCESS;
 	}//end handle()
+
+	/**
+	 * The error of a run without both languages.
+	 *
+	 * @param mixed $from The `--from` value.
+	 * @param mixed $to   The `--to` value.
+	 *
+	 * @return array<string, mixed> The exit code, code, message and context.
+	 */
+	private static function missingLanguagesError(mixed $from, mixed $to): array {
+		return [
+			'exitCode' => CommandServiceInterface::EXIT_INVALID_ARGS,
+			'code'     => 'INVALID_ARGUMENT',
+			'message'  => 'Both --from and --to are required',
+			'context'  => ['from' => $from, 'to' => $to],
+		];
+	}//end missingLanguagesError()
+
+	/**
+	 * The error of a run on an instance without a navigation tree.
+	 *
+	 * @param string $from The source language.
+	 *
+	 * @return array<string, mixed> The exit code, code, message and context.
+	 */
+	private static function noNavigationError(string $from): array {
+		return [
+			'exitCode' => CommandServiceInterface::EXIT_NOT_FOUND,
+			'code'     => 'NOT_FOUND',
+			'message'  => "No navigation tree found for language '" . $from . "'",
+			'context'  => ['language' => $from],
+		];
+	}//end noNavigationError()
 }//end class

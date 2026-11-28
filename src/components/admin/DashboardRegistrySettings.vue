@@ -6,8 +6,8 @@
 <template>
 	<!-- `section-dashboard-registry` is the anchor lib/Settings/connections.json
 	     links the Dashboard registry row to (adopt-connection-registry). Keep the
-	     id stable. The link also carries ?tab=sharing, because BeheerTabs only
-	     renders the active tab. -->
+	     id stable. The link also carries ?tab=sharing, because the admin page
+	     only mounts the open tab's content. -->
 	<div
 		id="section-dashboard-registry"
 		class="registry-settings"
@@ -44,6 +44,17 @@
 					autocomplete="off"
 					:disabled="!loaded || saving"
 					data-test="registry-url" />
+			</div>
+
+			<div class="registry-settings__field">
+				<!-- REQ-STORE-010: the name the marketplace banner shows. -->
+				<NcTextField
+					v-model="registryName"
+					:label="t('launchpad', 'Register name')"
+					:helperText="t('launchpad', 'Shown on the marketplace. Leave empty to show the address.')"
+					autocomplete="off"
+					:disabled="!loaded || saving"
+					data-test="registry-name" />
 			</div>
 
 			<div class="registry-settings__field">
@@ -146,6 +157,7 @@ export default {
 		return {
 			registryUrl: '',
 			registryRegister: '',
+			registryName: '',
 			tokenInput: '',
 			tokenConfigured: false,
 			available: true,
@@ -181,15 +193,17 @@ export default {
 		},
 
 		/**
-		 * Save the URL and register, and the token only when one was typed.
+		 * Save the URL, register and name, and the token only when one was typed.
 		 *
 		 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-009-an-administrator-must-be-able-to-connect-a-registry-without-a-shell
+		 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
 		 * @return {Promise<void>}
 		 */
 		async save() {
 			const payload = {
 				registryUrl: this.registryUrl.trim(),
 				registryRegister: this.registryRegister.trim(),
+				registryName: this.registryName.trim(),
 			}
 			if (this.tokenInput !== '') {
 				payload.registryToken = this.tokenInput
@@ -236,6 +250,7 @@ export default {
 		 * nothing to give back.
 		 *
 		 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-009-an-administrator-must-be-able-to-connect-a-registry-without-a-shell
+		 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
 		 * @param {object} data The redacted connection.
 		 */
 		apply(data) {
@@ -245,6 +260,8 @@ export default {
 				typeof data?.registryRegister === 'string'
 					? data.registryRegister
 					: ''
+			this.registryName =
+				typeof data?.registryName === 'string' ? data.registryName : ''
 			this.tokenConfigured = data?.tokenConfigured === true
 			this.tokenInput = ''
 		},

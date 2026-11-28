@@ -166,6 +166,21 @@ describe('IframeWidget — REQ-IFRAME-003 graceful degradation', () => {
 		expect(checkIframeFramable).toHaveBeenCalledWith('https://github.com/')
 	})
 
+	it('says the embed is no longer permitted when its host was taken off the allow-list (REQ-IFRAME-002)', async () => {
+		checkIframeFramable.mockResolvedValue({ framable: false, reason: 'host_not_allowed' })
+		const wrapper = mount(IframeWidget, {
+			propsData: {
+				content: { url: 'https://status.example.com/board', title: 'Status' },
+				loadTimeoutMs: TEST_TIMEOUT_MS,
+			},
+		})
+		await flushPromises()
+		const fallback = wrapper.find('.iframe-widget__fallback')
+		expect(fallback.text()).toContain('This embed is no longer permitted by your administrator')
+		expect(fallback.text()).not.toContain('does not allow itself to be embedded')
+		expect(wrapper.find('iframe').exists()).toBe(false)
+	})
+
 	it('does NOT render the iframe while the framable check is still pending (prevents the blocked-frame load event from masking the fallback)', async () => {
 		// Regression: a live XFO-deny target fires a browser "refused to
 		// connect" load event with a null contentDocument that onLoad cannot
@@ -295,5 +310,103 @@ describe('IframeWidget — REQ-IFRAME-003 graceful degradation', () => {
 		await wrapper.vm.$nextTick()
 		expect(wrapper.find('iframe').exists()).toBe(false)
 		expect(wrapper.find('.iframe-widget__fallback').exists()).toBe(true)
+	})
+})
+
+describe('IframeWidget outage state (REQ-IFRAME-005)', () => {
+	it('shows the outage with the cause, its time, Reload and Open in a new tab', async () => {
+		checkIframeFramable.mockResolvedValue({ framable: false, reason: 'x_frame_options' })
+		const wrapper = mount(IframeWidget, {
+			propsData: {
+				content: { url: 'https://app.powerbi.com/r', title: 'Sales', kind: 'report' },
+				loadTimeoutMs: TEST_TIMEOUT_MS,
+			},
+		})
+		await flushPromises()
+		const outage = wrapper.find('[data-testid="iframe-widget-outage"]')
+		expect(outage.exists()).toBe(true)
+		expect(outage.text()).toContain('The report could not be loaded')
+		expect(wrapper.find('[data-testid="iframe-widget-outage-cause"]').text())
+			.toMatch(/^Gave an error today at \d\d:\d\d: the site refuses to be embedded$/)
+		expect(wrapper.find('[data-testid="iframe-widget-reload"]').exists()).toBe(true)
+		expect(wrapper.find('.iframe-widget__fallback-link').text()).toContain('Open in a new tab')
+		const statuses = wrapper.emitted('status')
+		expect(statuses.at(-1)[0]).toEqual({ subtitle: 'Embedded report · app.powerbi.com', outage: true })
+	})
+
+	it('prefers the connection cause and time and names the signed-in account', async () => {
+		checkIframeFramable.mockResolvedValue({ framable: false, reason: 'unreachable' })
+		const errorAt = new Date()
+		errorAt.setHours(9, 30, 0, 0)
+		const wrapper = mount(IframeWidget, {
+			propsData: {
+				content: {
+					url: 'https://app.powerbi.com/r',
+					kind: 'report',
+					connection: { account: 'Pieter Jansen', error: 'token expired', errorAt: errorAt.toISOString() },
+				},
+				loadTimeoutMs: TEST_TIMEOUT_MS,
+			},
+		})
+		await flushPromises()
+		expect(wrapper.find('[data-testid="iframe-widget-outage-cause"]').text()).toBe('Gave an error today at 09:30: token expired')
+		expect(wrapper.emitted('status').at(-1)[0].subtitle).toBe('Embedded report · app.powerbi.com · Signed in as Pieter Jansen')
+	})
+
+	it('shows the outage without a cause line when the cause is unknown', async () => {
+		checkIframeFramable.mockResolvedValue({ framable: false, reason: 'check_unavailable' })
+		const wrapper = mount(IframeWidget, {
+			propsData: { content: { url: 'https://example.com/' }, loadTimeoutMs: TEST_TIMEOUT_MS },
+		})
+		await flushPromises()
+		expect(wrapper.find('[data-testid="iframe-widget-outage"]').text()).toContain('The page could not be loaded')
+		expect(wrapper.find('[data-testid="iframe-widget-outage-cause"]').exists()).toBe(false)
+		expect(wrapper.emitted('status').at(-1)[0].outage).toBe(true)
+	})
+
+	it('reloads: Reload runs the check again and shows the frame once it passes', async () => {
+		checkIframeFramable.mockResolvedValueOnce({ framable: false, reason: 'unreachable' })
+		const wrapper = mount(IframeWidget, {
+			propsData: { content: { url: 'https://example.com/' }, loadTimeoutMs: 5000 },
+		})
+		await flushPromises()
+		await wrapper.find('[data-testid="iframe-widget-reload"]').trigger('click')
+		await flushPromises()
+		expect(checkIframeFramable).toHaveBeenCalledTimes(2)
+		expect(wrapper.find('iframe').exists()).toBe(true)
+		expect(wrapper.emitted('status').at(-1)[0].outage).toBe(false)
+	})
+
+	it('is no outage when the host is not permitted or nothing is configured', async () => {
+		checkIframeFramable.mockResolvedValue({ framable: false, reason: 'host_not_allowed' })
+		const refused = mount(IframeWidget, {
+			propsData: { content: { url: 'https://example.com/' }, loadTimeoutMs: TEST_TIMEOUT_MS },
+		})
+		await flushPromises()
+		expect(refused.find('[data-testid="iframe-widget-fallback"]').exists()).toBe(true)
+		expect(refused.find('[data-testid="iframe-widget-reload"]').exists()).toBe(false)
+		expect(refused.emitted('status').at(-1)[0].outage).toBe(false)
+
+		const empty = mount(IframeWidget, { propsData: { content: {} } })
+		await flushPromises()
+		expect(empty.emitted('status').at(-1)[0]).toEqual({ subtitle: '', outage: false })
+	})
+})
+
+// @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-reader-can-download-the-dashboard-req-dpd-003
+describe('IframeWidget — REQ-DPD-003 in a downloaded dashboard', () => {
+	it('names the embedded page with a line that it is not included', async () => {
+		const wrapper = mount(IframeWidget, {
+			propsData: { content: { url: 'https://bi.example.com/report', title: 'Rapport Sociaal domein' } },
+		})
+		await flushPromises()
+		const note = wrapper.find('[data-testid="iframe-widget-print-note"]')
+		expect(note.exists()).toBe(true)
+		expect(note.text()).toBe('Rapport Sociaal domein: embedded pages are not included in the download')
+	})
+
+	it('names an untitled embed as an embedded page', () => {
+		const wrapper = mount(IframeWidget, { propsData: { content: { url: 'https://bi.example.com/report' } } })
+		expect(wrapper.find('[data-testid="iframe-widget-print-note"]').text()).toBe('Embedded page: embedded pages are not included in the download')
 	})
 })

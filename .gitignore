@@ -19,10 +19,12 @@ Thumbs.db
 
 # Dependencies
 /vendor/
-/node_modules/
+/node_modules
 
 # Build artifacts
 /js/
+# nextcloud-vue's stylesheet, copied by webpack.config.js (LibraryStylesheetCopy)
+/css/nextcloud-vue.css
 
 # Documentation
 /docs/node_modules/
@@ -62,8 +64,7 @@ Thumbs.db
 /custom_apps/
 /config/
 
-# SBOM is published as release asset (see SECURITY.md), not stored in repo
-sbom.cdx.json
+# Intermediate SBOM files. The merged sbom.cdx.json at the root is committed.
 bom-php.cdx.json
 bom-npm.cdx.json
 
@@ -81,3 +82,6 @@ bom-npm.cdx.json
 .stale/
 /.e2e-state/
 .phpunit.cache
+
+# embed-sdk build output (npm run build:embed-sdk) and its test builds
+/src/embed-sdk/__tests__/.dist-*/

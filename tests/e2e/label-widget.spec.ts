@@ -5,7 +5,7 @@
  * Playwright end-to-end tests for the `label` widget.
  *
  * Drives the real runtime-shell add-widget flow: sidebar → personal-row cog
- * → "Add custom widget…" → Add Widget modal → pick "Label".
+ * → "Add widget" → "Custom widget" → Add Widget modal → pick "Label".
  *
  * WHAT CHANGED AND WHY
  * ====================
@@ -23,16 +23,57 @@
  * that the two green tests here can finally stand behind a claim.
  */
 
-import { expect, test } from '@playwright/test'
+import type { APIRequestContext } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
+
+import { expect, request, test } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import {
 	closeSidebar,
 	gotoLaunchPad,
 	openAddWidgetModal,
 } from './fixtures/widget-flow.ts'
+import { BASE_URL } from './support/baseUrl.ts'
+import {
+	removeSeededDashboard,
+	seedActiveDashboard,
+} from './support/dashboardFixture.ts'
+import { MORE_MENU, saveEditDraft } from './support/dashboardSwitcher.ts'
+
+const ADMIN = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
+
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+let api: APIRequestContext | null = null
+let seeded: SeededDashboard | null = null
 
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+
+	/*
+	 * SEED A DASHBOARD. openAddWidgetModal() opens the cog of a personal
+	 * dashboard row, and on a fresh instance the admin has none: the sidebar
+	 * lists only the default dashboard, so every test here missed the row
+	 * (live, 27 Nov 2026, launchpad shard 5/8). Seed and activate this file's
+	 * own, as label-widget-content-edit.spec.ts does, instead of leaning on a
+	 * dashboard an earlier spec happened to leave behind.
+	 */
+	api = await request.newContext({
+		baseURL: BASE_URL,
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	seeded = await seedActiveDashboard(api, `E2E Label ${Date.now()}`)
+})
+
+test.afterAll(async () => {
+	await restoreWidgetRestriction?.()
+	if (api !== null) {
+		await removeSeededDashboard(api, seeded)
+		await api.dispose()
+	}
 })
 
 /**
@@ -42,9 +83,8 @@ test.beforeAll(async () => {
  * @param text The label text to type into the content form.
  */
 async function addLabel(page: any, text: string): Promise<void> {
-	await openAddWidgetModal(page)
+	await openAddWidgetModal(page, 'label')
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
 	await dialog
 		.getByLabel(/label text/i)
 		.first()
@@ -71,9 +111,8 @@ test.describe('label widget', () => {
 		page,
 	}) => {
 		const text = `Sales Q4 ${Date.now()}`
-		await openAddWidgetModal(page)
+		await openAddWidgetModal(page, 'label')
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
 
 		await dialog
 			.getByLabel(/label text/i)
@@ -104,9 +143,12 @@ test.describe('label widget', () => {
 			.evaluate((el) => window.getComputedStyle(el).fontSize)
 		expect(fontSize).toBe('24px')
 
+		// Add put the label in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBe(200)
+
 		// Persistence: the placement survives a full page reload.
 		await page.reload()
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
+		await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 		await expect(
 			page.locator('.cn-label-widget').filter({ hasText: text }).first(),
 		).toBeVisible({ timeout: 10_000 })

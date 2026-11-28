@@ -12,7 +12,10 @@ Turns LaunchPad dashboards into unattended signage by rendering them chrome-less
 The system MUST support a `kiosk=1` query flag on the authenticated single-dashboard
 route and on the public-share render route that renders the dashboard full-viewport
 with all Nextcloud and LaunchPad chrome suppressed (header, app navigation, switcher
-sidebar, edit and context-menu affordances, scrollbars).
+sidebar, edit and context-menu affordances, scrollbars). The server renders both pages
+without the Nextcloud layout when the flag is set; the flag changes no access check.
+Escape reloads the same route without the flag, so the chrome comes back (Ruben,
+21 Nov 2026).
 
 #### Scenario: Authenticated kiosk render hides all chrome
 - GIVEN a logged-in user "display-lobby" with access to dashboard uuid `550e8400-e29b-41d4-a716-446655440001`
@@ -118,11 +121,17 @@ HTTP 404 without leaking whether the token ever existed, and the route MUST shar
 - THEN the system MUST return HTTP 404 in both cases with an identical response shape
 
 #### Scenario: Playlist render is read-only
+
+@e2e exclude no request a browser can issue is both a playlist bearer and a mutation: the read-only marker is PublicShareContext, request-scoped and set only inside KioskController::render(), and every mutation endpoint sent with nothing but the token is refused as unauthenticated (401) before that marker matters, so a passing test would prove the wrong thing; the marker is asserted by KioskControllerTest::testRenderReturns200AndMarksBearer and its refusal by PublicShareContextTest::testRequireMutableThrowsAfterMarkBearer, the same split as dashboard-public-share's read-only scenarios
+
 - GIVEN a client rendering a playlist token
 - WHEN any mutation endpoint (placement create, dashboard update/delete) is attempted with the playlist bearer context
 - THEN the system MUST return HTTP 403, identically to public-share read-only enforcement (REQ-PSHR-006 of `dashboard-public-share`)
 
 #### Scenario: Token scanning shares the public-share throttle bucket
+
+@e2e exclude the `launchpad_share_access` bucket is IP-global, and playwright.config.ts runs every spec serially from one runner IP, so driving it to 429 would hand 429 to every later public-share and kiosk test in the job; that the kiosk 404 registers its attempt on the shared action is asserted by KioskControllerTest::testRenderReturns404WithThrottleOnUnknownToken (and the 429 path by PublicShareControllerTest::testUnlockReturns429WhenThrottled)
+
 - GIVEN an IP that has already accumulated failed `launchpad_share_access` attempts via the `/s/{token}` route
 - WHEN the same IP probes `/kiosk/{token}` with invalid tokens
 - THEN the attempts MUST count against the same `launchpad_share_access` throttle bucket
@@ -139,7 +148,12 @@ HTTP 404 without leaking whether the token ever existed, and the route MUST shar
 A kiosk view MUST re-fetch the visible dashboard's widget data every `refreshSeconds`
 (playlist setting, or default 300 for flag-based kiosk views) and update widgets in
 place without a full page reload. Rotation entries MUST be fetched just-in-time so each
-dwell slot shows data no older than one dwell cycle.
+dwell slot shows data no older than one dwell cycle: the player reads one entry from
+`GET /kiosk/{token}/dashboards/{uuid}` about 5 seconds before its turn. That route
+answers only for a dashboard that is an entry of the playlist; an unknown or revoked
+token answers 404 and counts against the `launchpad_share_access` throttle bucket, and
+a dashboard that is not an entry, or was deleted, answers the same 404 without a
+throttle attempt (Ruben, 21 Nov 2026).
 
 #### Scenario: Widget data refreshes without page reload
 - GIVEN a kiosk view displaying a dashboard with `refreshSeconds: 300`
@@ -154,6 +168,9 @@ dwell slot shows data no older than one dwell cycle.
 - AND the switch at dwell expiry MUST display the freshly fetched data without a visible loading state
 
 #### Scenario: Refresh interval respects the clamp
+
+@e2e exclude the flag-based view re-reads every 300 seconds (KIOSK_REFRESH_MS in src/utils/kioskMode.js), and neither the spec nor the product names any way to configure a refresh value for it, so the clamp clause has no input a test could drive; the 300-second constant is used by src/views/Views.vue and the in-place reload is pinned by src/stores/__tests__/dashboard.visibility.spec.js
+
 - GIVEN a flag-based kiosk view (`?kiosk=1`) with no playlist configuration
 - WHEN the view initializes
 - THEN the refresh interval MUST default to 300 seconds
@@ -186,6 +203,9 @@ trace), and a watchdog restarts a stalled rotation.
 - AND the client MUST continue polling and recover automatically once a fetch succeeds
 
 #### Scenario: Watchdog restarts a stalled rotation
+
+@e2e exclude never built: src/views/KioskPlayerView.vue has no watchdog, and the kioskRotationEngine.js the archived tasks.md (task 6) describes never existed in git history; a stall cannot be induced from outside a player whose dwell timers work, so there is nothing a browser test can trigger. No unit test pins it
+
 - GIVEN a playlist whose longest dwell is 90 seconds
 - WHEN no rotation advance has occurred within 180 seconds (2 × max dwell)
 - THEN the client MUST restart its rotation engine from the first available entry
@@ -194,8 +214,6 @@ trace), and a watchdog restarts a stalled rotation.
 ---
 
 ### Requirement: An administrator manages kiosk playlists (REQ-KIOSKUI-001)
-
-@e2e exclude the player needs a live playlist and a logged-out browser; rotation, refresh, revocation and the network blip are asserted in src/views/__tests__/KioskPlayerView.spec.js, the playlist form in src/dialogs/__tests__/KioskPlaylistDialog.spec.js and src/components/admin/tabs/__tests__/KioskTab.spec.js, the HTML route in tests/Unit/Controller/KioskControllerTest.php
 
 Administration MUST have a Kiosk section that lists playlists and creates, edits and revokes them, with a dwell time per dashboard within the service limits and a public link that can be copied.
 
@@ -212,8 +230,6 @@ Administration MUST have a Kiosk section that lists playlists and creates, edits
 - **THEN** the form shows the minimum of 10 seconds and does not save
 
 ### Requirement: The kiosk link plays the playlist without a login (REQ-KIOSKUI-002)
-
-@e2e exclude the player needs a live playlist and a logged-out browser; rotation, refresh, revocation and the network blip are asserted in src/views/__tests__/KioskPlayerView.spec.js, the playlist form in src/dialogs/__tests__/KioskPlaylistDialog.spec.js and src/components/admin/tabs/__tests__/KioskTab.spec.js, the HTML route in tests/Unit/Controller/KioskControllerTest.php
 
 Opening `/kiosk/{token}` in a browser MUST show each dashboard of the playlist full screen for its dwell time in order, repeat from the start, and re-read the playlist on the refresh interval, with no login and no controls.
 
@@ -234,3 +250,150 @@ Opening `/kiosk/{token}` in a browser MUST show each dashboard of the playlist f
 - **GIVEN** the screen loses its connection for one minute
 - **WHEN** the refresh interval passes
 - **THEN** it keeps showing the last playlist and tries again
+
+### Requirement: The kiosk screen shows where the playlist is (REQ-KIOSKUI-003)
+
+While a kiosk link plays a playlist of more than one dashboard, the screen SHALL show in its bottom right corner the
+position of the current dashboard and the seconds until the next one ("2 van 4 · volgende over 18 s", in the
+playlist's language), updated every second, in small text that meets AA contrast on the dashboard's background. It
+SHALL NOT be a control and SHALL NOT take focus. A playlist of one dashboard SHALL show no position line. The line
+SHALL be hidden from screen readers except for a polite announcement when the dashboard changes, naming the new one.
+
+#### Scenario: The canteen screen
+
+- **GIVEN** the playlist "Kantine" holds four dashboards of 30 seconds each, and the second has shown for 12 seconds
+- **WHEN** someone looks at the screen
+- **THEN** the bottom right reads "2 van 4 · volgende over 18 s"
+
+#### Scenario: One dashboard
+
+- **GIVEN** a playlist with one dashboard
+- **THEN** the screen shows no position line
+
+### Requirement: REQ-KIOSK-006 Show one dashboard on a screen from its Sharing tab
+
+The Sharing tab of the dashboard settings (boards LpDashboardInstellingen, LpDelen) SHALL have a block "Show on a
+screen" ("Op een scherm tonen") for whoever may share the dashboard (dashboard-sharing REQ-SHARE-001, REQ-SHARE-014,
+REQ-SHARE-015). Without a screen link the block SHALL offer "Create screen link"; with one it SHALL show the link
+(`/apps/launchpad/kiosk/{token}`) with Copy and Revoke. Revoke SHALL ask for confirmation first.
+
+A screen link SHALL be a kiosk playlist (REQ-KIOSK-002) of exactly that one dashboard, played at `/kiosk/{token}` like
+every playlist (REQ-KIOSK-003, REQ-KIOSK-004, REQ-KIOSK-005, REQ-KIOSKUI-002), so it shows no position line
+(REQ-KIOSKUI-003). A dashboard SHALL have at most one active screen link: creating one when one exists SHALL return the
+existing link. The server SHALL check on every create and revoke request that the caller may share the dashboard, and
+SHALL refuse with HTTP 403 otherwise, also for a dashboard that does not exist. A screen link SHALL NOT be turned into a
+playlist of more dashboards: `PUT /api/kiosk/playlists/{id}` on a screen link SHALL answer HTTP 400. When the dashboard
+is deleted its screen link SHALL be revoked.
+
+#### Scenario: The owner puts a dashboard on the canteen screen
+
+- **GIVEN** Pieter owns the dashboard "Kantine" and may share it
+- **AND** the dashboard has no screen link
+- **WHEN** he opens the dashboard settings, tab Sharing, and chooses Create screen link in Show on a screen
+- **THEN** the block MUST show a link of the form `/apps/launchpad/kiosk/{token}` with Copy and Revoke
+- **AND** opening that link in a browser without a login MUST show "Kantine" full screen, without controls and without
+  a position line
+
+#### Scenario: A second create returns the same link
+
+- **GIVEN** "Kantine" has an active screen link
+- **WHEN** Pieter sends `POST /api/dashboards/{uuid}/screen-link` again
+- **THEN** the server MUST answer HTTP 200 with the existing token
+- **AND** no second screen link MUST exist for "Kantine"
+
+#### Scenario: The owner revokes the screen link
+
+- **GIVEN** "Kantine" has an active screen link that a screen is playing
+- **WHEN** Pieter chooses Revoke and confirms
+- **THEN** the block MUST offer Create screen link again
+- **AND** `GET /kiosk/{token}` with the old token MUST answer HTTP 404
+- **AND** the screen MUST show that the playlist is no longer available (REQ-KIOSKUI-002)
+
+#### Scenario: A reader of a shared dashboard cannot put it on a screen
+
+- **GIVEN** Ella reads "Kantine" through a share and may not share it
+- **WHEN** she opens the dashboard
+- **THEN** she MUST NOT be offered Show on a screen
+- **AND** a `POST /api/dashboards/{uuid}/screen-link` she sends MUST be refused with HTTP 403
+
+#### Scenario: Sharing set to Nobody
+
+- **GIVEN** the administrator set Sharing allowed for to Nobody (REQ-SHARE-015)
+- **WHEN** Pieter, who is not an administrator, opens the Sharing tab of his own dashboard
+- **THEN** the tab MUST NOT offer Create screen link
+- **AND** a create request he sends MUST be refused with HTTP 403
+
+#### Scenario: A screen link does not grow into a rotation
+
+@e2e exclude a back-door API call with no UI path; pinned by KioskServiceTest and the controller test for PUT on a screen link
+
+- **GIVEN** "Kantine" has an active screen link
+- **WHEN** anyone sends `PUT /api/kiosk/playlists/{id}` for it with a second dashboard
+- **THEN** the server MUST answer HTTP 400 and the screen link MUST keep its one dashboard
+
+#### Scenario: Deleting the dashboard revokes its screen link
+
+- **GIVEN** "Kantine" has an active screen link
+- **WHEN** Pieter deletes "Kantine"
+- **THEN** the screen link MUST be revoked and `GET /kiosk/{token}` MUST answer HTTP 404
+
+### Requirement: REQ-KIOSK-007 The administrator switches screen links on or off
+
+The Kiosk tab of Launchpad's admin page (`/settings/admin/launchpad#kiosk`, admin-settings REQ-ADM-032) SHALL have a
+switch "Allow showing dashboards on a screen" ("Dashboards op een scherm toestaan"), stored as the admin setting
+`kiosk_screen_links_allowed`, on when not set. It SHALL be saved at once, like every admin setting (REQ-ASET-008).
+
+With the switch off, the Sharing tab SHALL NOT offer Create screen link, and the server SHALL refuse a create request
+with HTTP 403. Existing screen links SHALL keep playing until they are revoked; the Sharing tab SHALL still show an
+existing link with Revoke, and a line that new screen links are switched off. The switch SHALL NOT affect playlists
+made on the Kiosk tab (REQ-KIOSKUI-001), and it is separate from "Allow public links" (REQ-SHARE-015).
+
+#### Scenario: The administrator switches screen links off
+
+- **GIVEN** Noor is an administrator and screen links are allowed
+- **WHEN** she switches off Allow showing dashboards on a screen on the Kiosk tab
+- **THEN** `GET /api/admin/settings` MUST return the setting as off without a Save step
+- **AND** when Pieter opens the Sharing tab of a dashboard without a screen link, the tab MUST NOT offer Create screen
+  link
+- **AND** a create request he sends MUST be refused with HTTP 403
+
+#### Scenario: An existing screen link keeps playing
+
+- **GIVEN** "Kantine" has an active screen link and Noor switched screen links off
+- **WHEN** the canteen screen re-reads the playlist
+- **THEN** it MUST keep showing "Kantine"
+- **AND** Pieter's Sharing tab MUST show the link with Revoke and the line that new screen links are switched off
+
+#### Scenario: Not set means on
+
+- **GIVEN** an instance where `kiosk_screen_links_allowed` was never stored
+- **WHEN** Pieter, who may share his dashboard, opens its Sharing tab
+- **THEN** the tab MUST offer Create screen link
+
+#### Scenario: Admin playlists are not affected
+
+- **GIVEN** screen links are switched off
+- **WHEN** Noor creates the playlist "Lobby" on the Kiosk tab
+- **THEN** the playlist MUST be created with its link, as in REQ-KIOSKUI-001
+
+### Requirement: REQ-KIOSK-008 The administrator sees every screen link
+
+The Kiosk tab SHALL list every active screen link after the playlists, labelled "Screen link", with the dashboard's
+title, the person who made it and Copy and Revoke; it SHALL NOT offer Edit on a screen link.
+`GET /api/kiosk/playlists` SHALL return `screenDashboardUuid` on each row, null for a playlist made on the Kiosk tab.
+An administrator SHALL be able to revoke any screen link, and the dashboard's owner SHALL be able to revoke the screen
+link of their dashboard; anyone else SHALL be refused with HTTP 403.
+
+#### Scenario: Noor finds the canteen screen
+
+- **GIVEN** Pieter made a screen link for "Kantine"
+- **WHEN** Noor opens the Kiosk tab
+- **THEN** the table MUST show a row labelled Screen link with "Kantine" and Pieter, with Copy and Revoke and without
+  Edit
+
+#### Scenario: Noor revokes it
+
+- **GIVEN** the same row
+- **WHEN** Noor chooses Revoke and confirms
+- **THEN** the row MUST disappear, `GET /kiosk/{token}` MUST answer HTTP 404, and Pieter's Sharing tab MUST offer Create
+  screen link again

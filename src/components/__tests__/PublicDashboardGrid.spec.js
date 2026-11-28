@@ -11,6 +11,12 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import PublicDashboardGrid from '../PublicDashboardGrid.vue'
 
+// The dashboard's own text widget, not the library stub, so the grid's text is real (REQ-PSHR-012).
+vi.mock('@conduction/nextcloud-vue', async (importOriginal) => ({
+	...(await importOriginal()),
+	CnTextWidget: (await import('@conduction/nextcloud-vue/src/components/CnTextWidget/CnTextWidget.vue')).default,
+}))
+
 vi.mock('@nextcloud/l10n', () => ({ translate: (_app, text) => text }))
 
 describe('PublicDashboardGrid', () => {
@@ -64,4 +70,22 @@ describe('PublicDashboardGrid', () => {
 		const wrapper = mount(PublicDashboardGrid, { props: { placements: [] } })
 		expect(wrapper.text()).toContain('no publicly viewable content')
 	})
+
+	it('names a tile that shows only its icon, and leaves a titled tile to its text', () => {
+		const tile = { widgetId: 'tile-mail', tileType: 'app', gridX: 0, gridY: 0, tileLinkValue: '/apps/mail', tileIcon: '/apps/mail/img/mail.svg' }
+		const wrapper = mount(PublicDashboardGrid, { props: { placements: [{ id: 1, ...tile }, { id: 2, ...tile, gridX: 1, tileTitle: 'Mail' }] } })
+		const [untitled, titled] = wrapper.findAll('.public-share-view__tile')
+		expect(untitled.attributes('aria-label')).toBe('Tile')
+		expect(titled.attributes('aria-label')).toBeUndefined()
+		expect(titled.text()).toBe('Mail')
+	})
+
+	it('places a card at its column and row, so a narrow column stacks beside a wide card (LpPubliek)', () => {
+		const text = (id, gridX, gridY, gridWidth, gridHeight) => ({ id, widgetId: 'text', gridX, gridY, gridWidth, gridHeight, showTitle: 1, customTitle: String(id), content: { text: 'x' } })
+		const wrapper = mount(PublicDashboardGrid, { props: { placements: [text(1, 0, 0, 8, 8), text(2, 8, 0, 4, 3), text(3, 8, 3, 4, 3)] } })
+		const cells = wrapper.findAll('.public-share-view__cell')
+		expect(cells[0].attributes('style')).toContain('grid-area: 1 / 1 / span 8 / span 8')
+		expect(cells[2].attributes('style')).toContain('grid-area: 4 / 9 / span 3 / span 4')
+	})
 })
+

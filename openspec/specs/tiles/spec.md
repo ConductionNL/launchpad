@@ -38,7 +38,6 @@ This means tile placements store a COPY of the tile configuration at creation ti
 ### Requirement: REQ-TILE-001 Reusable tile entity model \u2014 DEPRECATED
 
 The reusable tile entity model (rows in `oc_launchpad_tiles`, accessed via `TileService::createTile / updateTile / deleteTile` and `POST/PUT/DELETE /api/tiles[/{id}]`) MUST be treated as deprecated as of the `unified-add-widget-flow` change. The unified add-widget flow (REQ-WDG-022) introduces `tile` as a registry-driven widget type that stores its data inline on each placement, removing the need for a separate reusable-entity table; existing rows MUST remain readable for backwards compatibility.
-@e2e exclude tile entity DEPRECATED — write endpoints return 410; checked by Newman, not UI The unified add-widget flow (REQ-WDG-022) introduces `tile` as a registry-driven widget type that stores its data inline on each placement, removing the need for a separate reusable-entity table; existing rows MUST remain readable for backwards compatibility.
 
 The following behaviour MUST hold during the deprecation window:
 
@@ -61,6 +60,7 @@ The following behaviour MUST hold during the deprecation window:
 - **WHEN** an authenticated user calls `GET /api/tiles`
 - **THEN** the response MUST be HTTP 200 with the row's fields in the documented shape
 - **AND** this MUST work as long as the `oc_launchpad_tiles` table exists in the schema
+@e2e exclude needs rows in oc_launchpad_tiles, which no API can create any more (POST /api/tiles is 410 Gone, cited by tiles::write-endpoints-return-410-gone) and the CI instance seeds none; pinned by tests/Unit/Controller/TileApiControllerTest.php testIndexStillReturnsExistingRowsForBackwardsCompat; the empty-list read is cited by tiles::list-tiles-when-none-exist
 
 #### Scenario: Existing tile placements still render
 
@@ -72,19 +72,20 @@ The following behaviour MUST hold during the deprecation window:
 ### Requirement: List User Tiles (REQ-TILE-002)
 
 Users MUST be able to retrieve all their custom tile definitions, scoped to their user ID.
-@e2e exclude list user tiles tests REST endpoint — Newman scope
 
 #### Scenario: List tiles for a user
 - GIVEN user "alice" has 5 custom tiles
 - WHEN she sends GET /api/tiles
 - THEN the system MUST return HTTP 200 with an array of all 5 tiles
 - AND each tile MUST include: id, userId, title, icon, iconType, backgroundColor, textColor, linkType, linkValue, createdAt, updatedAt
+@e2e exclude needs rows in oc_launchpad_tiles, which no API can create any more (POST /api/tiles is 410 Gone, cited by tiles::write-endpoints-return-410-gone) and the CI instance seeds none; pinned by tests/Unit/Controller/TileApiControllerTest.php testIndexStillReturnsExistingRowsForBackwardsCompat and tests/Unit/Db/TileMapperTest.php
 
 #### Scenario: Tiles are user-scoped
 - GIVEN user "alice" has 5 tiles and user "bob" has 3 tiles
 - WHEN "alice" sends GET /api/tiles
 - THEN the response MUST contain only alice's 5 tiles
 - AND bob's tiles MUST NOT be included
+@e2e exclude needs rows in oc_launchpad_tiles, which no API can create any more (POST /api/tiles is 410 Gone, cited by tiles::write-endpoints-return-410-gone) and the CI instance seeds none; user scoping is pinned by tests/Unit/Db/TileMapperTest.php (findByUserId)
 
 #### Scenario: List tiles when none exist
 - GIVEN user "carol" has no custom tiles
@@ -94,7 +95,7 @@ Users MUST be able to retrieve all their custom tile definitions, scoped to thei
 ### Requirement: Update Custom Tile (REQ-TILE-003)
 
 Users MUST be able to update the properties of their custom tiles with ownership verification.
-@e2e exclude update tile tests REST PUT — Newman scope
+@e2e exclude superseded by REQ-TILE-001: PUT /api/tiles/{id} answers 410 Gone for every caller (cited by tiles::write-endpoints-return-410-gone; pinned by tests/Unit/Controller/TileApiControllerTest.php testUpdateReturns410GoneEnvelope), and no tile row can be created to update since POST /api/tiles is 410 too
 
 #### Scenario: Update tile title and colors
 - GIVEN user "alice" has tile id 3 with title "My Files"
@@ -132,7 +133,7 @@ Users MUST be able to update the properties of their custom tiles with ownership
 ### Requirement: Delete Custom Tile (REQ-TILE-004)
 
 Users MUST be able to delete their custom tile definitions with ownership verification.
-@e2e exclude delete tile tests REST DELETE — Newman scope
+@e2e exclude superseded by REQ-TILE-001: DELETE /api/tiles/{id} answers 410 Gone for every caller (cited by tiles::write-endpoints-return-410-gone; pinned by tests/Unit/Controller/TileApiControllerTest.php testDestroyReturns410GoneEnvelope), and no tile row can be created to delete since POST /api/tiles is 410 too
 
 #### Scenario: Delete a tile not placed on any dashboard
 - GIVEN user "alice" has tile id 3 that is not placed on any dashboard
@@ -156,14 +157,14 @@ Users MUST be able to delete their custom tile definitions with ownership verifi
 ### Requirement: Place Tile on Dashboard (REQ-TILE-005)
 
 Users MUST be able to place tile data onto a dashboard, creating a widget placement with inline tile data.
-@e2e exclude place tile on dashboard tests REST POST — Newman scope
 
 #### Scenario: Place a tile on a dashboard
 - GIVEN user "alice" has dashboard id 5
 - WHEN she sends POST /api/dashboard/5/tile with body:
   ```json
-  {"tileTitle": "My Files", "tileIcon": "icon-folder", "tileIconType": "class", "tileBackgroundColor": "#3b82f6", "tileTextColor": "#ffffff", "tileLinkType": "app", "tileLinkValue": "/apps/files", "gridX": 0, "gridY": 0, "gridWidth": 2, "gridHeight": 2}
+  {"title": "My Files", "icon": "icon-folder", "iconType": "class", "bgColor": "#3b82f6", "textColor": "#ffffff", "linkType": "app", "linkValue": "/apps/files", "gridX": 0, "gridY": 0, "gridWidth": 2, "gridHeight": 2}
   ```
+- NOTE: the request names are `title`, `icon`, `iconType`, `bgColor`, `textColor`, `linkType` and `linkValue` (RequestDataExtractor::TILE_PARAMS, sent so by the frontend); the placement stores them as `tileTitle`, `tileIcon`, `tileIconType`, `tileBackgroundColor`, `tileTextColor`, `tileLinkType` and `tileLinkValue`. The body used to show the stored names, which the endpoint never read.
 - THEN the system MUST create a widget placement record with `tileType` set to `"custom"`
 - AND `widgetId` MUST be set to `'tile-' + uniqid()` (NOT null)
 - AND the tile data MUST be stored inline on the placement via `TileUpdater::applyTileConfig()`
@@ -197,7 +198,6 @@ Users MUST be able to place tile data onto a dashboard, creating a widget placem
 ### Requirement: Tile Icon Rendering (REQ-TILE-006)
 
 The frontend MUST support four icon formats: emoji, CSS class, URL, and SVG path.
-@e2e exclude tile icon rendering (emoji/CSS/URL/SVG path) requires a pre-placed tile on the dashboard — needs seeded state not available in CI fixture
 
 #### Scenario: Render emoji icon
 - GIVEN a tile with `iconType: "emoji"` and `icon: "\ud83d\udcc1"`
@@ -226,7 +226,6 @@ The frontend MUST support four icon formats: emoji, CSS class, URL, and SVG path
 ### Requirement: Tile Color Validation (REQ-TILE-007)
 
 Tile colors MUST be validated to ensure proper display and accessibility.
-@e2e exclude tile color validation tests server-side validator — Newman scope
 
 #### Scenario: Valid hex colors accepted
 - GIVEN a tile creation request with `backgroundColor: "#3b82f6"` and `textColor: "#ffffff"`
@@ -238,6 +237,7 @@ Tile colors MUST be validated to ensure proper display and accessibility.
 - WHEN the tile is created
 - THEN the system SHOULD return HTTP 400 with a validation error
 - NOTE: Color format validation is NOT currently implemented
+@e2e exclude never built: no colour validation exists, TileUpdater::applyTileConfig() stores `bgColor` and `textColor` as given (lib/Service/TileUpdater.php) and no unit test pins a format check; the default colours are cited under default-colors-when-not-specified
 
 #### Scenario: Default colors when not specified
 - GIVEN a tile creation request without `backgroundColor` or `textColor`
@@ -247,7 +247,6 @@ Tile colors MUST be validated to ensure proper display and accessibility.
 ### Requirement: Tile Link Navigation (REQ-TILE-008)
 
 Tiles MUST navigate correctly based on their linkType.
-@e2e exclude tile link navigation tests window.location or router.push inside a widget click — requires a placed tile; seeding not available
 
 #### Scenario: App link navigation
 - GIVEN a tile with `linkType: "app"` and `linkValue: "files"`
@@ -268,7 +267,6 @@ Tiles MUST navigate correctly based on their linkType.
 ### Requirement: Tile Styling (REQ-TILE-009)
 
 Tiles MUST apply their configured colors as CSS custom properties for consistent rendering.
-@e2e exclude tile background/text colour CSS tests require a pre-placed tile — seeded state not available in CI fixture
 
 #### Scenario: Tile background and text colors applied
 - GIVEN a tile with `backgroundColor: "#3b82f6"` and `textColor: "#ffffff"`
@@ -292,13 +290,13 @@ Tiles MUST apply their configured colors as CSS custom properties for consistent
 ### Requirement: Tile Edit Mode (REQ-TILE-010)
 
 Tiles MUST support an edit mode that allows configuration changes.
-@e2e exclude tile edit-mode button visibility requires a placed tile in edit mode — seeded state not available
 
 #### Scenario: Edit button visible in edit mode
 - GIVEN a tile on a dashboard in edit mode
 - WHEN the tile is rendered
-- THEN an edit button (settings icon) MUST appear at the top-right corner of the tile
-- AND the button MUST have `aria-label="Edit tile"` for accessibility
+- THEN the tile menu button (the shared widget edit cog) MUST appear at the top-right corner of the tile
+- AND the button MUST have `aria-label="Tile menu"` for accessibility
+- AND the menu it opens MUST offer "Edit tile"
 
 #### Scenario: Edit button hidden in view mode
 - GIVEN a tile on a dashboard in view mode
@@ -307,30 +305,30 @@ Tiles MUST support an edit mode that allows configuration changes.
 
 #### Scenario: Edit button click emits event
 - GIVEN a tile in edit mode
-- WHEN the user clicks the edit button
+- WHEN the user chooses "Edit tile" in the tile menu
 - THEN the `TileWidget` component MUST emit an `edit` event
 - AND `click.prevent` MUST prevent link navigation when clicking the edit button
 
 ### Requirement: Tile Management UI (REQ-TILE-011)
 
 Users MUST be able to manage their tile definitions through a dedicated UI.
-@e2e exclude tile management UI (modal form) requires an existing tile placement — seeded state not available
 
 #### Scenario: Tile card display
 - GIVEN user "alice" has custom tiles
 - WHEN she views the tile management panel
 - THEN each tile MUST be displayed as a `TileCard` component with its icon, title, and colors
+@e2e exclude never built: no TileCard component or tile management panel exists (`git log --all --diff-filter=A -- '*TileCard.vue'` finds nothing); tiles are managed on the grid through TileEditor, cited by tiles::tile-editor
 
 #### Scenario: Tile editor
 - GIVEN the user wants to create or edit a tile
 - WHEN the tile editor opens
-- THEN `TileEditor.vue` MUST provide fields for title, icon, iconType, colors, linkType, and linkValue
-- AND changes MUST be saved via the tile API
+- THEN `TileEditor.vue` MUST provide fields for the name, the icon, the background and text colours, the tile type (linkType) and its address (linkValue)
+- AND the icon type (iconType) MUST follow from the chosen icon, not from a field of its own
+- AND changes MUST be saved via `PUT /api/widgets/{placementId}` (the `/api/tiles` endpoints are gone, REQ-TILE-001)
 
 ### Requirement: REQ-TILE-PLACEMENT Inline-content placement model — promoted to canonical
 
 Tile placements (rows in `oc_launchpad_widget_placements` with `tileType: 'custom'` historically, or `widgetId: 'tile'` going forward) MUST store their data INLINE on the placement. This MUST be treated as the canonical model for tile data on dashboards going forward.
-@e2e exclude inline-content placement model is a data-model spec — no distinct UI surface beyond what REQ-TILE-010/011 cover
 
 New tile placements created via the unified add-widget flow (REQ-WDG-010 + REQ-WDG-022) MUST store their data in `placement.content.{title, icon, iconType, backgroundColor, textColor, linkType, linkValue}` — the standard widget-content shape. Legacy placements with the flat `placement.tileTitle / tileIcon / ...` shape MUST continue to work via the renderer's dual-shape support (REQ-WDG-022 scenario "Tile renderer supports legacy and new content shapes").
 
@@ -342,6 +340,438 @@ A future migration MAY rewrite legacy placements into the new content shape, but
 - **WHEN** they fill the form and save
 - **THEN** the resulting `oc_launchpad_widget_placements` row MUST have its data in `content` (JSON column)
 - **AND** the legacy flat `tileTitle`/`tileIcon`/etc. columns MUST NOT be populated for new placements
+
+### Requirement: Users can import a browser bookmarks file as tiles (REQ-BMI-001)
+
+A user with add rights on a dashboard MUST be able to choose a bookmarks file in the HTML format browsers export, see its folders and bookmarks, pick which to import, and have them added as tiles. Each chosen top-level folder MUST become a container titled with the folder name holding its bookmarks as tiles, with nested folders flattened into it. Loose bookmarks MUST become tiles on the dashboard. New items MUST be appended at the bottom of the dashboard.
+
+#### Scenario: Import one folder
+
+- **GIVEN** Pieter has full permission on "Mijn werkplek" and a bookmarks file with folders "Werk" (12 bookmarks) and "Privé" (30 bookmarks)
+- **WHEN** he chooses "Import bookmarks", selects the file, ticks only "Werk" and confirms
+- **THEN** a container "Werk" with 12 tiles appears at the bottom of "Mijn werkplek"
+- **AND** nothing from "Privé" is imported
+
+#### Scenario: View-only dashboard offers no import
+
+- **GIVEN** Pieter views the group dashboard "Organisatie" with view-only permission
+- **WHEN** he opens the dashboard menu
+- **THEN** "Import bookmarks" is not in the menu
+
+### Requirement: The import checks every address (REQ-BMI-002)
+
+The server MUST import only `http` and `https` addresses that pass the shared URL safety check. Other bookmarks MUST be skipped and listed back to the user with the reason.
+
+#### Scenario: A script bookmark is skipped
+
+- **GIVEN** the chosen folder holds a bookmarklet `javascript:alert(1)` and 5 normal bookmarks
+- **WHEN** Pieter confirms the import
+- **THEN** 5 tiles are created
+- **AND** the result says "1 bookmark skipped: only web addresses can become tiles"
+
+### Requirement: The import respects the widget quota as one operation (REQ-BMI-003)
+
+The server MUST check the dashboard's widget quota for the whole import before creating anything, and MUST create all items in one transaction. When the quota would be exceeded it MUST return HTTP 409 with the quota body and create nothing.
+
+#### Scenario: Import too large for the quota
+
+- **GIVEN** the administrator limits dashboards to 20 widgets and "Mijn werkplek" has 18
+- **WHEN** Pieter imports 3 folders
+- **THEN** the response is 409, the dialog says the dashboard has room for 2 more items, and no container or tile is created
+
+### Requirement: Large files are refused in the browser (REQ-BMI-004)
+
+The browser MUST refuse bookmark files over 5 MB or with more than 2,000 bookmarks before sending anything, with a message naming the limit.
+
+#### Scenario: Oversized file
+
+- **GIVEN** a bookmarks file with 3,500 bookmarks
+- **WHEN** Pieter selects it
+- **THEN** the dialog says "This file has more than 2,000 bookmarks. Export one folder at a time." and nothing is sent to the server
+
+### Requirement: Administrators declare the office networks (REQ-TIA-001)
+
+An administrator MUST be able to list the office networks as IPv4 and IPv6 CIDR ranges on the LaunchPad admin page. The server MUST reject a malformed range with HTTP 400. The page MUST show the administrator's own current address and whether it falls inside the listed ranges.
+
+#### Scenario: Administrator adds the office range
+
+- **GIVEN** Noor is a Nextcloud administrator on the LaunchPad admin page
+- **WHEN** she adds `10.20.0.0/16` under "Office networks" and saves
+- **THEN** the list shows `10.20.0.0/16`
+- **AND** the page says whether her current address is inside the office networks
+
+#### Scenario: Malformed range is refused
+
+- **GIVEN** Noor edits the office networks
+- **WHEN** she enters `10.20.0.0/40` and saves
+- **THEN** the save fails with the message "This is not a valid network range" and the stored list is unchanged
+
+### Requirement: A tile can hold an office-network address (REQ-TIA-002)
+
+A tile MUST accept an optional second address for use on the office network. The server MUST validate it with the same rules as the tile's main address.
+
+#### Scenario: Author adds the internal address
+
+- **GIVEN** Ella may edit the dashboard "Team Vergunningen" with a tile "Zaaksysteem" at `https://zaken.gemeente.nl`
+- **WHEN** she sets "Internal address (optional)" to `http://zaken.intern` and saves
+- **THEN** the tile keeps both addresses
+
+### Requirement: The tile opens the address that fits the network (REQ-TIA-003)
+
+When a request comes from an address inside the office networks, a tile with an office-network address MUST open that address. Everywhere else, and whenever no office networks are set, it MUST open its main address. The decision MUST be made by the server from the request address, not by probing hosts from the browser.
+
+#### Scenario: At the office
+
+- **GIVEN** the office networks include `10.20.0.0/16` and Pieter's request comes from `10.20.4.7`
+- **WHEN** he clicks "Zaaksysteem"
+- **THEN** his browser opens `http://zaken.intern`
+
+#### Scenario: At home
+
+- **GIVEN** Pieter's request comes from `84.1.2.3`, outside the office networks
+- **WHEN** he clicks "Zaaksysteem"
+- **THEN** his browser opens `https://zaken.gemeente.nl`
+
+#### Scenario: Editor shows the address in effect
+
+- **GIVEN** Ella is on the office network and edits "Zaaksysteem"
+- **WHEN** she looks below "Internal address (optional)"
+- **THEN** she reads "You are on the office network: this tile opens the internal address"
+
+### Requirement: The add flow lists the apps this server runs for the user (REQ-DISC-001)
+
+The add flow MUST show a "Discovered on this server" section with every app in the user's Nextcloud app menu except LaunchPad, including AppAPI external apps that have a page, with each app's name and icon. The server MUST build the list from the user's own app menu, so apps restricted to groups the user is not in MUST NOT appear.
+
+#### Scenario: Deck is discovered
+
+- **GIVEN** the server has Deck enabled for everyone and Pieter edits "Mijn werkplek"
+- **WHEN** he opens "Add"
+- **THEN** "Deck" appears under "Discovered on this server" with the Deck icon
+
+#### Scenario: Restricted app stays hidden
+
+- **GIVEN** the app "Forms" is enabled only for group "Communicatie" and Pieter is not a member
+- **WHEN** he opens "Add"
+- **THEN** "Forms" is not under "Discovered on this server"
+
+### Requirement: One click turns a discovered app into a tile (REQ-DISC-002)
+
+Choosing a discovered app MUST place a tile with the app's name, icon and address in one action, through the normal tile creation path. Apps already on the dashboard MUST be marked "On this dashboard".
+
+#### Scenario: Place Deck
+
+- **GIVEN** "Deck" is listed under "Discovered on this server"
+- **WHEN** Pieter clicks it
+- **THEN** a tile "Deck" appears at the bottom of "Mijn werkplek" and opens `/apps/deck/`
+- **AND** the next time he opens "Add", "Deck" shows "On this dashboard"
+
+### Requirement: Discovery never touches the container host (REQ-DISC-003)
+
+Discovery MUST read only the Nextcloud app menu. It MUST NOT read a Docker socket, container labels or AppAPI deployment data.
+
+#### Scenario: No socket access
+
+- **GIVEN** an instance where AppAPI runs the external app "Context Chat" with a page
+- **WHEN** Pieter opens "Add"
+- **THEN** "Context Chat" is discovered from the app menu
+- **AND** LaunchPad makes no call to a Docker or AppAPI daemon endpoint
+@e2e exclude needs AppAPI with an external app (Context Chat), which the CI instance lacks, and the absence of a server-side daemon call is not observable from the browser; pinned by tests/Unit/Service/ServiceDiscoveryServiceTest.php (testKeepsAnExternalApp, testListsTheMenuAppsWithoutLaunchPad: discovery reads only INavigationManager)
+
+### Requirement: A tile can start a program on the user's computer (REQ-TLT-001)
+
+A tile MUST accept link type `program` with an address whose scheme is on the administrator's allowed-scheme list. The server MUST refuse `javascript`, `data`, `file`, `vbscript`, `about` and `blob` schemes even when an administrator lists them. The allowed list MUST be empty until an administrator fills it.
+
+#### Scenario: Word tile
+
+- **GIVEN** Noor allowed the scheme `ms-word` on the LaunchPad admin page
+- **WHEN** Ella adds a tile "Word" of type "Program on this computer" with address `ms-word:ofe|u|https://docs.example.nl/sjabloon.docx` and Pieter clicks it
+- **THEN** Pieter's browser hands the address to the installed Word program
+- **AND** the tile shows "Nothing happened? The program may not be installed on this computer."
+
+#### Scenario: Script scheme is refused
+
+- **GIVEN** any administrator setting
+- **WHEN** a client saves a tile of type `program` with address `javascript:alert(1)`
+- **THEN** the response is 400 and no tile is saved
+
+### Requirement: A tile can start a remote desktop or a published program (REQ-TLT-002)
+
+A tile MUST accept link type `remote-desktop` in one of two modes: a web gateway address (https only), or an RDP connection with host, port, an optional published program and an optional gateway. For the RDP mode the server MUST generate a `.rdp` file from the validated fields only, MUST check that the caller may view the tile's dashboard, and MUST NOT write any credential into the file.
+
+#### Scenario: Published Windows program through a gateway
+
+- **GIVEN** a tile "Belastingen (oud)" of type "Remote desktop" in RDP mode with host `rds01.gemeente.local`, program `||Belastingen` and gateway `rdgw.gemeente.nl`
+- **WHEN** Pieter clicks it
+- **THEN** his browser downloads `Belastingen (oud).rdp` containing `full address:s:rds01.gemeente.local`, `remoteapplicationprogram:s:||Belastingen` and `gatewayhostname:s:rdgw.gemeente.nl`
+- **AND** the file contains no user name or password
+
+#### Scenario: Someone without access asks for the file
+
+- **GIVEN** the tile sits on a dashboard Sanne may not view
+- **WHEN** Sanne requests `GET /api/tiles/{placementId}/rdp`
+- **THEN** the response is 403
+
+#### Scenario: Web gateway
+
+- **GIVEN** a tile "Werkplek" of type "Remote desktop" in gateway mode with address `https://desktop.gemeente.nl/guacamole/#/client/werkplek`
+- **WHEN** Pieter clicks it
+- **THEN** the gateway opens, and the gateway signs him in through the organisation's identity provider
+
+### Requirement: A tile can start single sign-on into a company app (REQ-TLT-003)
+
+An administrator MUST be able to define identity-provider launch templates, each an https address containing `{appId}`. A tile of link type `sso` MUST name a template and an app identifier, and MUST open the template with the URL-encoded identifier. LaunchPad MUST NOT pass any token or password.
+
+#### Scenario: Entra ID app
+
+- **GIVEN** Noor defined the template "Microsoft Entra ID" as `https://launcher.myapps.microsoft.com/api/signin/{appId}?tenantId=contoso`
+- **WHEN** Ella adds a tile "Salarisstrook" of type "Single sign-on app" with template "Microsoft Entra ID" and app id `a1b2c3` and Pieter clicks it
+- **THEN** his browser opens `https://launcher.myapps.microsoft.com/api/signin/a1b2c3?tenantId=contoso`
+- **AND** Entra ID signs him in with the session from his Nextcloud sign-in
+
+#### Scenario: Author cannot type an identity-provider address
+
+- **GIVEN** Ella edits a single sign-on tile
+- **WHEN** she looks at the fields
+- **THEN** she can pick a template and enter an app id, and there is no free address field
+
+### Requirement: A tile carries its own link target (REQ-TOB-001)
+
+Every tile placement MUST accept a link target of `same-tab`, `new-tab` or `side-panel` in its content, set in the tile editor by anyone who may edit the tile. The server MUST reject any other value with HTTP 400 and leave the placement unchanged.
+
+#### Scenario: Author makes a web tile open in the same tab
+
+- **GIVEN** Ella has full permission on her dashboard "Mijn werkplek" with a tile "Intranet" pointing at `https://intranet.example.nl`
+- **WHEN** she opens the tile editor, sets "Opens in" to "Same tab" and saves
+- **THEN** clicking "Intranet" on the Workspace page opens the intranet in the current tab
+
+#### Scenario: Unknown target is refused
+
+- **GIVEN** a tile placement on a dashboard Ella may edit
+- **WHEN** a client sends `PUT /api/widgets/{placementId}` with `content.linkTarget = "popup"`
+- **THEN** the response is 400 and the stored target is unchanged
+
+### Requirement: A dashboard sets the default target for its tiles (REQ-TOB-002)
+
+A dashboard MUST accept a default link target. A tile without its own target MUST use the dashboard default, and a dashboard without a default MUST keep the current rule: a web address opens in a new tab and an app opens in the same tab.
+
+#### Scenario: Dashboard default applies to tiles without their own choice
+
+- **GIVEN** the group dashboard "Team Burgerzaken" has default target "Same tab" and a tile "Zaaksysteem" with no target of its own
+- **WHEN** Pieter clicks "Zaaksysteem" on the Workspace page
+- **THEN** it opens in the current tab
+
+#### Scenario: Upgrade keeps today's behaviour
+
+- **GIVEN** a dashboard created before this change, with no default and tiles with no target
+- **WHEN** a user clicks a tile pointing at `https://example.org`
+- **THEN** it opens in a new tab, and an app tile opens in the same tab
+
+### Requirement: A tile can open its app in a panel beside the tiles (REQ-TOB-003)
+
+A tile with target `side-panel` MUST open its address in a panel on the Workspace page next to the grid, keep the grid usable, show a close button and an "Open in new tab" link, close on Escape and return focus to the tile. Only one panel MUST be open at a time.
+
+#### Scenario: Files opens beside the tiles
+
+- **GIVEN** Ella's dashboard has a tile "Bestanden" linking to the Files app with target "Panel beside the tiles"
+- **WHEN** she clicks "Bestanden"
+- **THEN** the Files app shows in a panel next to her tiles, and the tiles stay visible and clickable
+- **AND WHEN** she presses Escape, the panel closes and focus is back on "Bestanden"
+
+#### Scenario: Opening a second tile replaces the panel
+
+- **GIVEN** the panel shows "Bestanden"
+- **WHEN** Ella clicks a second panel tile "Agenda"
+- **THEN** the panel shows the Calendar app and no second panel appears
+
+### Requirement: The panel only frames allowed pages (REQ-TOB-004)
+
+The panel MUST frame a Nextcloud address on the same instance, and MUST frame an outside address only when its host is on the embed allow-list (`iframe_allowed_hosts`). Otherwise, or when the page refuses to be framed, the panel MUST show a fallback card with the page title and an "Open in new tab" link, never an empty frame.
+
+#### Scenario: Outside host not on the allow-list
+
+- **GIVEN** the allow-list holds only `kaart.example.nl` and a tile points at `https://portal.example.com` with target "Panel beside the tiles"
+- **WHEN** Pieter clicks the tile
+- **THEN** the panel shows the fallback card "This page could not be loaded." with "Open in new tab"
+
+#### Scenario: Editor explains why the panel is unavailable
+
+- **GIVEN** Ella edits a tile pointing at `https://portal.example.com`, whose host is not on the allow-list
+- **WHEN** she opens "Opens in"
+- **THEN** "Panel beside the tiles" is disabled with the text "This address cannot open in the panel."
+
+### Requirement: Quick search opens a tile the way a click does (REQ-TOB-005)
+
+Activating a tile from quick search MUST use the same resolved target as clicking the tile, including the side panel.
+
+#### Scenario: Search result opens in the panel
+
+- **GIVEN** a tile "Bestanden" with target "Panel beside the tiles"
+- **WHEN** Pieter types "best" in the quick-search box and presses Enter on "Bestanden"
+- **THEN** the Files app opens in the panel beside the tiles
+
+### Requirement: A tile can be an app tile with only its icon (REQ-ICT-001)
+
+A tile placement with `content.iconOnly: true` SHALL render as an app tile: a square in the tile's colour, as wide as
+one grid column, with the tile's icon in the tile's text colour (white by default, app-tile-widget REQ-APPTILE-005) at
+about 45% of the square and no printed label, card, header or padding around it. The tile's title SHALL be its
+accessible name and its tooltip. In edit mode the tile SHALL have its own drag handle and widget menu and SHALL move and
+resize like any widget. With `content.pinned: true` it SHALL show a pin at the top left. The marks SHALL be decorative
+(`aria-hidden`); what they say SHALL be part of the accessible name ("Zaaksysteem, 14 open", "Raadsinformatie,
+storing").
+
+#### Scenario: Six app tiles under Mijn apps
+
+- **GIVEN** Pieter's dashboard holds a section heading "Mijn apps" and six icon-only tiles with the default text colour
+- **WHEN** he opens the dashboard
+- **THEN** each tile is a coloured square with a white icon and no visible name
+- **AND** hovering Zaaksysteem shows the tooltip "Zaaksysteem", and a screen reader reads its name
+
+#### Scenario: Four tiles per row on a phone
+
+- **GIVEN** the same dashboard at 390 px wide
+- **WHEN** it renders
+- **THEN** the app tiles stand four to a row
+
+### Requirement: An app tile shows a live count (REQ-ICT-002)
+
+An icon-only tile MAY name a count source in `content.countSource`:
+
+- `{"type": "register", "register": …, "schema": …, "filter": {…}}`: the number of OpenRegister objects the viewer may
+  read that match the filter, asked with the viewer's own session; the filter value `@me` stands for the viewer;
+- `{"type": "nc-widget", "widgetId": …}`: the number of items a Nextcloud dashboard widget (API v2) returns for the
+  viewer.
+
+The count SHALL show as a white pill at the top right, "99+" above 99, and SHALL NOT show when it is 0 or the source
+does not answer. The tile SHALL refresh the count when the dashboard refreshes, at most once a minute. A count source
+whose app is not installed SHALL show no pill and no error.
+
+#### Scenario: Open cases on the Zaaksysteem tile
+
+- **GIVEN** a tile Zaaksysteem with `countSource` type register, register `dossiq`, schema `case`, filter `{"assignee": "@me", "isFinalStatus": false}`
+- **AND** 14 open cases are assigned to Pieter
+- **WHEN** Pieter opens the dashboard
+- **THEN** the tile shows the pill "14"
+
+#### Scenario: The source app is missing
+
+- **GIVEN** the same tile on an instance without the register `dossiq`
+- **WHEN** the dashboard renders
+- **THEN** the tile shows no pill and no error
+
+### Requirement: An app tile shows an outage (REQ-ICT-003)
+
+When the tile's health ping (service-health-ping) reports the service down, an icon-only tile SHALL show a red dot at
+the top right in place of the count, and its accessible name SHALL say the service is down since the time of the
+first failed check. When the service answers again, the dot SHALL go and the count SHALL return.
+
+#### Scenario: Raadsinformatie is down
+
+- **GIVEN** the tile Raadsinformatie has a health ping and its last checks failed since 09:12
+- **WHEN** Pieter opens the dashboard
+- **THEN** the tile shows the red dot and no count
+- **AND** its accessible name reads "Raadsinformatie, storing sinds 09:12"
+
+### Requirement: The tile colour is one of eight theme colours (REQ-ICT-004)
+
+The tile form (boards LpTegelToevoegen and LpTegelBewerken, "Tile colour") SHALL offer the colour as a radio group of
+eight swatches, one per theme token: `--sc-primary`, `--sc-primary-deep`, `--sc-accent`, `--sc-accent-deep`,
+`--sc-work-ink`, `--sc-work-text`, `--sc-work-muted`, `--sc-work-field`, each previewing the icon in the chosen text
+colour. The tile SHALL store the token name (`content.colourToken`) and SHALL render through the token, so the colour
+follows the theme. Each swatch SHALL have a name for screen readers. A tile that stores a hex colour SHALL keep
+rendering it. When a theme adds tokens, the palette MAY grow; a token the theme does not define SHALL fall back to
+`--sc-primary`.
+
+#### Scenario: Pieter colours Zaaksysteem
+
+- **GIVEN** Pieter edits the tile Zaaksysteem with the default text colour
+- **WHEN** he chooses the swatch for the primary colour and saves
+- **THEN** the tile stores `colourToken: "--sc-primary"` and renders in the theme's primary colour with a white icon
+
+#### Scenario: The theme changes
+
+- **GIVEN** a tile with `colourToken: "--sc-accent"`
+- **WHEN** the administrator switches the instance theme
+- **THEN** the tile takes the new theme's accent colour without being edited
+
+### Requirement: The tile form as LpTegelBewerken draws it (REQ-TILE-040)
+
+Editing a tile SHALL open the App or link tile form (app-tile-widget REQ-APPTILE-004) as the widget's settings, titled
+"Edit tile: <name>" under "<container> · <dashboard>" (board LpTegelBewerken). For a link it SHALL hold, in this order:
+the choice An app / A link with A link chosen, Title, Container, Web address with Internal address (optional) beside it,
+Open in as three choice cards (Same tab, New tab, In Launchpad, next to the tiles), Icon (choose or upload, drawn in the
+text colour), Check availability; beside them the Appearance panel with the preview, Tile colour, Text colour with its
+contrast line, what is on the tile and Pin. Delete tile SHALL sit at the bottom left, Cancel and Save at the bottom
+right. The former tile types (single sign-on, legacy Windows program, program on this computer) SHALL NOT be offered as
+choice cards: an app that opens that way is chosen from the app list, where its catalogue entry says how it opens. A
+tile stored with one of those types SHALL keep opening as before and its form SHALL show its launch fields under "How it
+opens".
+
+#### Scenario: Edit the case system tile
+
+- **WHEN** Pieter opens the settings of the link tile Zaaksysteem
+- **THEN** the form shows A link chosen, the fields in the order above, New tab chosen, and the Appearance panel with
+  Tile colour and Text colour
+
+### Requirement: A tile's group and the group's order (REQ-TILE-041)
+
+The form SHALL show the tile's group and let the editor change it, and SHALL show the sort order of that group: Last used first, Alphabetical, Random or As placed.
+
+#### Scenario: Sort a group by use
+
+- **WHEN** the editor sets Sort order in this group to Last used first and saves
+- **THEN** the tiles of Work apps are ordered by last use for every reader
+
+#### Scenario: Move a tile from the dashboard into a group
+
+- **GIVEN** the tile Case system stands on the dashboard with Check availability on and an office-network address, and the dashboard has the group Work apps
+- **WHEN** the editor chooses Work apps as the tile's Group and saves
+- **THEN** Work apps holds Case system as a tile at its bottom, with its availability check and office-network address kept
+- **AND** Case system no longer stands on the dashboard on its own
+- **AND** a tile the administrator's start page makes compulsory does not move
+
+### Requirement: The last availability check in the form (REQ-TILE-042)
+
+When Check availability is on, the form SHALL show under the switch the result of the last check with its time, such as "Reachable at the last check, today 10:40".
+
+#### Scenario: A reachable tile
+
+- **GIVEN** the last health ping of Case system succeeded at 10:40
+- **THEN** the form reads "Reachable at the last check, today 10:40"
+
+### Requirement: Tiles for services found on the server (REQ-TILE-044)
+
+The "Choose the app" list of the App or link tile form (app-tile-widget REQ-APPTILE-004, board LpTegelToevoegen) SHALL
+list web services that run on the server, that an administrator allowed for discovery and that have no tile yet, with
+their state, port and when they were found; ticking one adds it as a link tile.
+
+An administrator allows a service for discovery by putting it on the Services to discover list (General tab: a name and
+a web address per service, `GET`/`PUT /api/admin/discoverable-services`, launchpad administrators only). Launchpad SHALL
+ask only the addresses on that list, with one GET each, no redirects, short timeouts and the answer kept for five
+minutes; it SHALL NOT scan ports or hosts. A listed service is found once it answers with an HTTP status below 500; it
+is then listed with its state (Running, or Not responding when it stops answering), its port (the one its address names,
+else its scheme's) and the time it first answered, in the reader's Nextcloud locale. Removing a service from the list
+forgets when it was found. An entry without a name or a web address starting with http:// or https:// is refused with
+400 and the reason. The form reads the found services through `GET /api/tiles/found-services`, behind the same
+`tile.discover` action as the app-menu discovery.
+
+#### Scenario: Grafana found
+
+- **GIVEN** Grafana answers on port 3000 and has no tile
+- **WHEN** Pieter opens the App or link tile form on "An app"
+- **THEN** Grafana is listed as Running and can be ticked
+
+#### Scenario: Only the listed addresses are asked
+
+- **GIVEN** the Services to discover list holds Grafana at http://localhost:3000 and Uptime Kuma at http://localhost:3001, and only Grafana answers
+- **WHEN** Pieter opens the form on "An app"
+- **THEN** launchpad asked those two addresses and no other
+- **AND** Grafana is listed with port 3000 and the time it was found, and Uptime Kuma is not listed
+@e2e exclude a browser test cannot observe which addresses the Nextcloud server asked, so "no other" has nothing to assert on; pinned by tests/Unit/Service/FoundServicesServiceTest.php testAServiceThatAnswersIsFound; the Grafana row is cited by tiles::grafana-found
+
+#### Scenario: An address that is not a web address is refused
+
+- **WHEN** an administrator saves a service whose address is `ftp://files.example.org`
+- **THEN** the save answers 400 saying it is not a web address starting with http:// or https://, and the list is unchanged
 
 ## Non-Functional Requirements
 

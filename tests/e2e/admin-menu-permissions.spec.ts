@@ -34,10 +34,14 @@
  * So the identity is asserted FIRST, and every absence assertion is paired
  * with a presence assertion that fails if the shell did not render.
  *
- * Gate-19 @e2e traceability:
- *   @e2e runtime-shell::admin-menu-entries-are-hidden-from-non-admins
- *   @e2e runtime-shell::admin-routes-redirect-non-admins
- *   @e2e runtime-shell::admin-menu-entries-render-for-admins
+ * Gate-19 traceability: this file cites no scenario. It used to carry three
+ * runtime-shell slugs (admin-menu-entries-are-hidden-from-non-admins,
+ * admin-routes-redirect-non-admins, admin-menu-entries-render-for-admins)
+ * that match no heading in openspec/specs/runtime-shell/spec.md, or in any
+ * other spec, at any point in its history: the rule came in with #587
+ * without a scenario. The tests stay, because they are the only run of the
+ * real permission filter; the rule needs a scenario of its own (a spec
+ * change) before this file can cite it.
  *
  * @spec openspec/specs/runtime-shell/spec.md
  */
@@ -51,6 +55,7 @@ import {
 	provisionThrowawayUser,
 } from './fixtures/secondary-user.ts'
 import { installBundleOverride } from './support/bundleOverride.ts'
+import { openSettingsGroup } from './support/dashboardSwitcher.ts'
 
 const APP_BASE = '/apps/launchpad'
 
@@ -79,17 +84,31 @@ const APP_BASE = '/apps/launchpad'
  * absence is asserted on. `route` stays, used only where the question really
  * is about the route: whether an admin's entry resolves to a working link.
  */
+/*
+ * `menuId` and `href` are what the More menu renders for the surface. More
+ * offers the administration page once, as the Settings group's
+ * `admin-settings-link` to `/settings/admin/launchpad#general`, and not the
+ * manifest entry beside it.
+ */
 const ADMIN_PAGES = [
 	{
 		id: 'admin-templates',
+		menuId: 'admin-templates',
 		path: '/admin/templates',
+		href: '/settings/admin/launchpad#templates',
 		route: 'admin-templates-index',
 	},
-	{ id: 'admin-settings', path: '/admin/settings', route: 'admin-settings' },
+	{
+		id: 'admin-settings',
+		menuId: 'admin-settings-link',
+		path: '/admin/general',
+		href: '/settings/admin/launchpad#general',
+		route: 'admin-settings',
+	},
 ] as const
 
 /** A menu entry every account holds, as the positive control. */
-const UNGATED_ENTRY_ID = 'dashboards'
+const UNGATED_ENTRY_ID = 'StoreMenu'
 
 /**
  * Who the browser is actually signed in as, read from Nextcloud itself rather
@@ -107,77 +126,50 @@ async function whoami(page: Page): Promise<{ uid: unknown; isAdmin: unknown }> {
 }
 
 /**
- * Open the app and wait for the shell AND the shared navigation to be present.
+ * Open the app on a page other than the dashboard view and open the More
+ * menu there, which holds every entry the navigation panel used to hold
+ * (runtime-shell REQ-SHELL-009: LaunchPad renders no panel).
  *
- * Waiting for the nav specifically is load-bearing: every assertion below is
- * about which entries the nav holds, and a nav that never rendered holds none
- * of them.
+ * Waiting for the menu items specifically is load-bearing: every assertion
+ * below is about which entries the menu holds, and a menu that never opened
+ * holds none of them.
  *
  * @param page The page.
  */
 async function openApp(page: Page): Promise<void> {
-	await page.goto(`${APP_BASE}/`, { waitUntil: 'domcontentloaded' })
-
 	// 60s, not 30s. A cold boot of this app on a loaded instance went past 30s
-	// and turned a run that had already passed on the same bundle red at
-	// `.workspace-shell`. A guard test whose setup is marginal reports the
-	// environment, not the guard.
-	await expect(page.locator('.workspace-shell')).toBeVisible({ timeout: 60_000 })
-	await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
-		timeout: 60_000,
-	})
+	// and turned a run that had already passed on the same bundle red. A guard
+	// test whose setup is marginal reports the environment, not the guard.
+	await page.goto(`${APP_BASE}/store`, { waitUntil: 'domcontentloaded' })
+	const holder = page.locator('[data-testid="launchpad-page-menu"]')
+	await expect(holder).toBeVisible({ timeout: 60_000 })
+	await holder.locator('[data-testid="launchpad-more-menu-trigger"]').click()
+	await openSettingsGroup(page)
+	await expect(
+		page.locator(`[data-testid="launchpad-more-menu-item-${UNGATED_ENTRY_ID}"]`),
+	).toBeVisible({ timeout: 15_000 })
 }
 
 /**
- * The manifest routes the navigation currently holds, read from
- * `CnAppNav`'s own `data-cn-route` attribute.
+ * The manifest menu-entry IDS the More menu currently holds.
  *
- * ⚠️ BY ATTRIBUTE, NOT BY LABEL OR BY LINK, and both alternatives were tried
- * and rejected against the running instance:
+ * The More menu renders `data-testid="launchpad-more-menu-item-${item.id}"`
+ * on every entry, keyed on the manifest id, which does not move when a route
+ * is re-pointed. See the note on ADMIN_PAGES for what keying the question on
+ * the route instead cost.
  *
- *  - By anchor. `CnAppNav.itemTo` builds `{ name: item.route }`, so an entry
- *    whose route name vue-router cannot resolve renders a nav item with NO
- *    `<a>` at all. Counting anchors therefore reports zero for an entry that
- *    is on screen, which is the exact false pass this test exists to prevent.
- *  - By label. The settings foldout also contains the LIBRARY's own
- *    auto-injected "Admin settings" link to `/settings/admin/launchpad`
- *    (`CnAppNav.showAdminSettingsLink`), which is gated separately on
- *    `isAdmin` and is not a manifest entry. Matching the text "Admin
- *    settings" cannot tell the two apart, so a passing run would prove the
- *    library's gate and say nothing about this app's.
- *
- * `data-cn-route` is rendered on the nav item itself and carries the manifest
- * `route` verbatim, so it identifies exactly the entries under test.
- *
- * @param page The page.
- * @return The manifest route names present in the nav.
- */
-async function navRoutes(page: Page): Promise<string[]> {
-	return page
-		.locator('[data-testid="cn-nav"] [data-cn-route]')
-		.evaluateAll((nodes) =>
-			nodes.map((n) => n.getAttribute('data-cn-route') ?? ''),
-		)
-}
-
-/**
- * The manifest menu-entry IDS the navigation currently holds.
- *
- * `CnAppNav` renders `data-testid="cn-nav-entry-${item.id}"` on every
- * non-caption entry. Unlike `data-cn-route` this does not move when a route is
- * re-pointed, which is what makes it the right key for asking whether an entry
- * is on screen at all. See the note on ADMIN_PAGES for what keying the
- * question on the route instead cost.
- *
- * @param page The page.
- * @return The manifest menu entry ids present in the nav.
+ * @param page The page, with the More menu open.
+ * @return The manifest menu entry ids present in the menu.
  */
 async function navEntryIds(page: Page): Promise<string[]> {
 	return page
-		.locator('[data-testid="cn-nav"] [data-testid^="cn-nav-entry-"]')
+		.locator('[data-testid^="launchpad-more-menu-item-"]')
 		.evaluateAll((nodes) =>
 			nodes.map((n) =>
-				(n.getAttribute('data-testid') ?? '').replace(/^cn-nav-entry-/, ''),
+				(n.getAttribute('data-testid') ?? '').replace(
+					/^launchpad-more-menu-item-/,
+					'',
+				),
 			),
 		)
 }
@@ -238,11 +230,11 @@ test.describe('manifest permission: the admin surfaces', () => {
 				'the navigation rendered its ungated entries',
 			).toContain(UNGATED_ENTRY_ID)
 
-			for (const { id } of ADMIN_PAGES) {
+			for (const { menuId } of ADMIN_PAGES) {
 				expect(
 					entryIds,
-					`admin-gated menu entry "${id}" rendered for a non-admin`,
-				).not.toContain(id)
+					`admin-gated menu entry "${menuId}" rendered for a non-admin`,
+				).not.toContain(menuId)
 			}
 		} finally {
 			await context.close()
@@ -250,27 +242,15 @@ test.describe('manifest permission: the admin surfaces', () => {
 	})
 
 	for (const { path: route } of ADMIN_PAGES) {
-		test(`redirects a non-admin off ${route}`, async ({ browser }) => {
+		test(`refuses a non-admin ${route} on the server`, async ({ browser }) => {
 			const { context, page } = await loginAs(
 				browser,
 				account.username,
 				account.password,
 			)
 			try {
-				// IDENTITY FIRST, AND ON A PAGE THAT CAN ANSWER IT.
-				//
-				// `whoami` used to be read after navigating to the gated
-				// route. Against an unguarded bundle that lands on
-				// /settings/admin/launchpad, which Nextcloud refuses to a
-				// non-admin with an error page that loads no `OC` bundle at
-				// all, so `OC.getCurrentUser()` returned null and the test
-				// died on "expected e2e-perm-..., received null". Red for the
-				// right underlying reason, reported as something else
-				// entirely.
-				//
-				// Reading it here also puts the check where it belongs: the
-				// session is confirmed to be the throwaway non-admin BEFORE
-				// the action under test, not after.
+				// IDENTITY FIRST, AND ON A PAGE THAT CAN ANSWER IT: Nextcloud's
+				// 403 page loads no `OC` bundle, so `whoami` there reads null.
 				await openApp(page)
 
 				const who = await whoami(page)
@@ -282,78 +262,24 @@ test.describe('manifest permission: the admin surfaces', () => {
 					false,
 				)
 
-				await page.goto(`${APP_BASE}${route}`, {
+				// The former administration address only redirects to the
+				// settings page (admin-settings REQ-ADM-033) and stays an
+				// administrator's route: a non-admin gets 403 and nothing.
+				const response = await page.goto(`${APP_BASE}${route}`, {
 					waitUntil: 'domcontentloaded',
 				})
-				// A SETTLE, NOT AN ASSERTION, and the rejection is swallowed
-				// on purpose: the shell is asserted properly further down,
-				// once the URL has been checked.
-				//
-				// The order matters more than it looks. This wait used to be
-				// an assertion in this position, and against an unguarded
-				// bundle it is the FIRST thing to fail, so both tests
-				// reported `.workspace-shell` not visible. That is true, and
-				// it is not the point: the shell is missing because the
-				// browser left LaunchPad for /settings/admin/launchpad, which
-				// is to say the non-admin reached the admin surface. "Shell
-				// not visible" equally describes an app that failed to boot,
-				// so the run could not tell a security failure from a broken
-				// build. Checking the URL first makes the failure name
-				// itself.
-				await page
-					.locator('.workspace-shell')
-					.waitFor({ state: 'visible', timeout: 30_000 })
-					.catch(() => undefined)
-
-				// WHERE IT LANDED, not merely that it left, and not pinned to
-				// one exact path.
-				//
-				// Two different wrong outcomes look alike if you only assert
-				// that the admin page is absent. The guard letting the route
-				// through lands on Nextcloud's own admin settings, because
-				// `AdminSettingsRedirect` bounces there; the app failing to
-				// boot lands nowhere at all. Both are "not the admin route".
-				// So the assertion is that the browser is still inside this
-				// app and no longer on an admin path.
-				//
-				// Pinning the exact landing URL was the earlier mistake here,
-				// and it was made twice. First the pattern was
-				// `${APP_BASE}/?$`, but the guard sends the browser to '/'
-				// and LaunchPad resolves '/' onward to its active dashboard,
-				// so a WORKING redirect arrives at `/apps/launchpad/dashboard`
-				// and was called a failure. Then the replacement anchored the
-				// path at the start with `^`, which passes locally and fails
-				// in CI: Nextcloud there serves `index.php` routing, so the
-				// same working redirect arrives at
-				// `/index.php/apps/launchpad/dashboard`.
-				//
-				// So the test is UNANCHORED and built from APP_BASE rather
-				// than a literal. It asks the only question that matters,
-				// which is whether the browser is somewhere under this app,
-				// and it stays false for the unguarded outcome: an unguarded
-				// route lands on `/settings/admin/launchpad`, under either
-				// routing style, which does not contain `/apps/launchpad/`.
-				const landed = new URL(page.url())
 				expect(
-					landed.pathname,
-					'a non-admin was not bounced back into the app',
-				).toMatch(new RegExp(`${APP_BASE}/`))
-				expect(
-					landed.pathname,
-					'a non-admin still reached an admin surface',
-				).not.toMatch(/\/admin\//)
+					response?.status(),
+					'the server served the administration to a non-admin',
+				).toBe(403)
 				await expect(
-					page.locator('[data-testid="AdminSettingsRedirect"]'),
-					'the admin redirect page rendered for a non-admin',
+					page.locator('[data-testid="AdminPage"]'),
+					'the administration page rendered for a non-admin',
 				).toHaveCount(0)
-
-				// And the app is genuinely on screen. Without this, a page
-				// that rendered nothing at all satisfies every assertion
-				// above.
 				await expect(
-					page.locator('.workspace-shell'),
-					'the app did not render after the redirect',
-				).toBeVisible({ timeout: 30_000 })
+					page.locator('[data-testid="cn-admin-settings-tabs"]'),
+					'the administration tabs rendered for a non-admin',
+				).toHaveCount(0)
 			} finally {
 				await context.close()
 			}
@@ -377,36 +303,24 @@ test.describe('manifest permission: the admin surfaces', () => {
 		expect(who.isAdmin, 'the default e2e session is the admin').toBe(true)
 
 		const entryIds = await navEntryIds(page)
-		for (const { id } of ADMIN_PAGES) {
+		for (const { menuId } of ADMIN_PAGES) {
 			expect(
 				entryIds,
-				`admin-gated menu entry "${id}" is missing for an admin`,
-			).toContain(id)
-		}
-
-		// And the entries point where they are supposed to. This is the one
-		// question that really is about the route, so it reads `data-cn-route`
-		// rather than the id: an entry can be present and still declare a
-		// route name vue-router cannot resolve, which is what both of these
-		// used to do.
-		const routes = await navRoutes(page)
-		for (const { route } of ADMIN_PAGES) {
-			expect(
-				routes,
-				`admin-gated menu entry "${route}" declares no resolvable route`,
-			).toContain(route)
+				`admin-gated menu entry "${menuId}" is missing for an admin`,
+			).toContain(menuId)
 		}
 
 		// The entry must also WORK, not merely render. Both entries used to
-		// declare a URL path where CnAppNav expects a route NAME, so
-		// vue-router could not resolve either one and both rendered as nav
-		// items with no anchor — visible, inert, and for everybody.
-		for (const { path: routePath, route } of ADMIN_PAGES) {
+		// declare a URL path where a route NAME was expected, so vue-router
+		// could not resolve either one and both rendered with no anchor:
+		// visible, inert, and for everybody.
+		for (const { menuId: id, href: routePath } of ADMIN_PAGES) {
 			await expect(
 				page
-					.locator(`[data-cn-route="${route}"] a, a[href$="${routePath}"]`)
+					.locator(`[data-testid="launchpad-more-menu-item-${id}"]`)
+					.locator(`xpath=descendant-or-self::a[contains(@href, "${routePath}")]`)
 					.first(),
-				`admin-gated menu entry "${route}" renders no working link`,
+				`admin-gated menu entry "${id}" renders no working link`,
 			).toBeAttached()
 		}
 	})

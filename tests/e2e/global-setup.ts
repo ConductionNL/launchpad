@@ -23,6 +23,7 @@ import { chromium, request } from '@playwright/test'
 import { execSync } from 'child_process'
 import * as fs from 'fs'
 import * as path from 'path'
+import { healLeftoverWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import { BASE_URL } from './support/baseUrl.ts'
 
 const AUTH_DIR = path.resolve(__dirname, '.auth')
@@ -119,8 +120,15 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 	}
 
 	await dismissFirstRunWizard(page)
+	await disableFirstRunWizardForRun(baseURL, username, password)
+	await liftCalendarCreationLimitForRun(baseURL, username, password)
+	await allowUserDashboardsForRun(baseURL, username, password)
 	await markSupportNoteSeen(page)
 	await settleSetupWizard(page)
+	await completeAdminSetupWizard(page)
+	if (await healLeftoverWidgetRestriction()) {
+		console.warn('[global-setup] put back the shipped default widget rule over a leftover e2e restriction')
+	}
 
 	// Persist the storage state so individual specs reuse the session.
 	/*
@@ -150,6 +158,11 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 			try {
 				window.localStorage.setItem(
 					'cn-walkthrough-seen:launchpad',
+					'999.0.0',
+				)
+				// The admin settings page has its own tour under its own key.
+				window.localStorage.setItem(
+					'cn-walkthrough-seen:launchpad:admin-tour',
 					'999.0.0',
 				)
 			} catch {
@@ -279,6 +292,50 @@ async function settleSetupWizard(page: Page): Promise<void> {
 	}
 }
 
+/**
+ * Mark launchpad's own admin setup wizard complete, so it does not open over
+ * the admin page.
+ *
+ * This is a different wizard from the one `settleSetupWizard` settles: the
+ * LaunchPad setup wizard of the admin page (ADR-042, `setup_wizard_complete`
+ * in `oc_launchpad_admin_settings`). Since the admin page moved into
+ * Nextcloud's settings (REQ-ADM-032) it opens by itself on the first visit in
+ * a browser session while that flag is false, which is every fresh instance,
+ * CI's included. Its `aria-modal` intercepts every click on the tabs, so each
+ * spec that opens a tab failed there with "subtree intercepts pointer
+ * events" (prometheus-metrics, public-start-page-admin, role-based-content,
+ * runtime-shell's admin tour, sharing-policy ... on 27 Nov 2026, NC 34).
+ * setup-wizard.spec.ts removes the flag itself before each test that needs
+ * a fresh instance, so a completed flag here takes nothing from it.
+ *
+ * @param page A page already authenticated against the instance.
+ */
+async function completeAdminSetupWizard(page: Page): Promise<void> {
+	try {
+		const status = await page.evaluate(async () => {
+			const token =
+				document
+					.querySelector('head[data-requesttoken]')
+					?.getAttribute('data-requesttoken')
+				?? document.getElementById('requesttoken')?.getAttribute('value')
+				?? ''
+			const res = await fetch('/index.php/apps/launchpad/api/admin/setup-wizard/complete', {
+				method: 'POST',
+				headers: { requesttoken: token, 'OCS-APIRequest': 'true' },
+			})
+			return res.status
+		})
+		if (status >= 400) {
+			console.warn(
+				`[playwright globalSetup] admin setup wizard complete returned ${status}; `
+					+ 'it will open over the admin page tabs.',
+			)
+		}
+	} catch (error) {
+		console.warn('[playwright globalSetup] could not complete the admin setup wizard:', error)
+	}
+}
+
 async function markSupportNoteSeen(page: Page): Promise<void> {
 	try {
 		const status = await page.evaluate(async () => {
@@ -328,6 +385,147 @@ async function markSupportNoteSeen(page: Page): Promise<void> {
 			'[playwright globalSetup] could not record the support note as seen:',
 			error,
 		)
+	}
+}
+
+/**
+ * Switch the first-run wizard off for every account the run creates.
+ *
+ * {@link dismissFirstRunWizard} only clears it for the admin. Most specs log
+ * in as throwaway accounts made mid-run (createPrincipal, loginAs,
+ * seeded users), and each of those meets the wizard on its first page load:
+ * its modal sits over the More menu, so `launchpad-more-menu-trigger` never
+ * becomes clickable and the spec times out without naming the modal. Measured
+ * 25 Nov 2026 on a fresh Nextcloud 34: app-catalogue, divider-widget-discovery
+ * and add-widget-modal failed this way, and passed with the wizard off.
+ *
+ * The suite only runs against an instance it may write to (support/baseUrl),
+ * so it turns the app off through the provisioning API rather than
+ * dismissing it once per account in every helper that makes one.
+ * Best-effort: an instance without the app answers non-2xx, which is fine.
+ *
+ * @param {string} baseURL the instance under test.
+ * @param {string} username an admin account.
+ * @param {string} password its password.
+ * @return {Promise<void>}
+ */
+async function disableFirstRunWizardForRun(
+	baseURL: string,
+	username: string,
+	password: string,
+): Promise<void> {
+	try {
+		const res = await fetch(new URL('/ocs/v1.php/cloud/apps/firstrunwizard', baseURL), {
+			method: 'DELETE',
+			headers: {
+				Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+				'OCS-APIRequest': 'true',
+			},
+		})
+		if (!res.ok && res.status !== 404) {
+			console.warn(
+				`[playwright globalSetup] turning the first-run wizard off returned ${res.status}; `
+					+ 'specs that log in as a new account may hit its modal.',
+			)
+		}
+	} catch (error) {
+		console.warn('[playwright globalSetup] could not turn the first-run wizard off:', error)
+	}
+}
+
+/**
+ * Lift Nextcloud's calendar-creation rate limit for the run.
+ *
+ * The calendar-widget specs each create their own calendar over CalDAV
+ * (support/calendarFixture.ts) and delete it afterwards, but the `dav` app
+ * allows one user 10 new calendars per hour (`rateLimitCalendarCreation`).
+ * The suite creates more than that as admin, so from the eleventh on every
+ * MKCALENDAR answers 429 "Too many calendars created" and the calendar specs
+ * fail with nothing wrong in LaunchPad. Measured 27 Nov 2026 on a fresh
+ * Nextcloud 34: shard 1/8 failed 7 calendar tests this way, and all 21 tests
+ * of calendar-widget-config and calendar-widget-rendering passed with the
+ * limit raised.
+ *
+ * The suite only runs against an instance it may write to (support/baseUrl),
+ * so it raises the limit through the provisioning API, as it turns the
+ * first-run wizard off. Best-effort: a refusal is reported, never fatal.
+ *
+ * @param {string} baseURL the instance under test.
+ * @param {string} username an admin account.
+ * @param {string} password its password.
+ * @return {Promise<void>}
+ */
+async function liftCalendarCreationLimitForRun(
+	baseURL: string,
+	username: string,
+	password: string,
+): Promise<void> {
+	try {
+		const res = await fetch(
+			new URL('/ocs/v2.php/apps/provisioning_api/api/v1/config/apps/dav/rateLimitCalendarCreation', baseURL),
+			{
+				method: 'POST',
+				headers: {
+					Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+					'OCS-APIRequest': 'true',
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: 'value=1000',
+			},
+		)
+		if (!res.ok) {
+			console.warn(
+				`[playwright globalSetup] raising the calendar-creation limit returned ${res.status}; `
+					+ 'calendar specs past the tenth calendar this hour may get 429.',
+			)
+		}
+	} catch (error) {
+		console.warn('[playwright globalSetup] could not raise the calendar-creation limit:', error)
+	}
+}
+
+/**
+ * Turn the admin flag `allowUserDashboards` on for the run.
+ *
+ * A fresh install has it off, and then every personal dashboard a plain user
+ * seeds is refused with 403 `personal_dashboards_disabled`. Specs that seed
+ * one without setting the flag passed only after an earlier spec had left it
+ * on. Measured 28 Nov 2026 on Nextcloud 34 with the flag off:
+ * launchpad-mobile-remote-access failed this way (as did
+ * first-paint-shell-contexts and conditional-visibility-render, fixed in
+ * their own files by #2446 and #2448). Specs that test the flag off still
+ * set it themselves and put back what they found.
+ *
+ * Best-effort, like the calendar limit: a refusal is reported, never fatal.
+ *
+ * @param {string} baseURL the instance under test.
+ * @param {string} username an admin account.
+ * @param {string} password its password.
+ * @return {Promise<void>}
+ */
+async function allowUserDashboardsForRun(
+	baseURL: string,
+	username: string,
+	password: string,
+): Promise<void> {
+	try {
+		const res = await fetch(new URL('/index.php/apps/launchpad/api/admin/settings', baseURL), {
+			method: 'PUT',
+			headers: {
+				Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+				'OCS-APIRequest': 'true',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ allowUserDashboards: true }),
+		})
+		if (!res.ok) {
+			console.warn(
+				`[playwright globalSetup] turning allowUserDashboards on returned ${res.status}; `
+					+ 'specs that seed a personal dashboard may get 403 personal_dashboards_disabled.',
+			)
+		}
+	} catch (error) {
+		console.warn('[playwright globalSetup] could not turn allowUserDashboards on:', error)
 	}
 }
 

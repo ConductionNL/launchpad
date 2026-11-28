@@ -21,13 +21,13 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
-use Exception;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 
@@ -109,9 +109,8 @@ class PermissionService {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-22
 	 */
 	public function canEditDashboard(string $userId, int $dashboardId): bool {
-		try {
-			$dashboard = $this->dashboardMapper->find(id: $dashboardId);
-		} catch (DoesNotExistException) {
+		$dashboard = $this->findDashboard(dashboardId: $dashboardId);
+		if ($dashboard === null) {
 			return false;
 		}
 
@@ -120,21 +119,44 @@ class PermissionService {
 			return false;
 		}
 
-		// REQ-ROLE-001 / REQ-ROLE-007: LaunchPad Admin can edit any
-		// dashboard except for the admin-template type which is gated
-		// by Nextcloud admin status only (REQ-PERM-011).
-		if ($this->roleService->isAdmin(userId: $userId) === true
-			&& $dashboard->getType() !== Dashboard::TYPE_ADMIN_TEMPLATE
-		) {
+		if ($this->isAdminEditable(userId: $userId, dashboard: $dashboard) === true) {
 			return true;
 		}
 
-		// Admin templates can only be edited by admins.
+		// REQ-PERM-011: admin templates are edited by Nextcloud admins only.
 		if ($dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
-			return false;
+			return $this->groupManager->isAdmin(userId: $userId);
 		}
 
-		$level = $this->resolveAccessLevel(userId: $userId, dashboard: $dashboard);
+		return $this->allowsEditing(
+			level: $this->resolveAccessLevel(userId: $userId, dashboard: $dashboard)
+		);
+	}//end canEditDashboard()
+
+	/**
+	 * REQ-ROLE-001 / REQ-ROLE-007: LaunchPad Admin can edit any dashboard
+	 * except for the admin-template type which is gated by Nextcloud admin
+	 * status only (REQ-PERM-011).
+	 *
+	 * @param string    $userId    The user ID.
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return bool TRUE when the admin role alone grants editing.
+	 */
+	private function isAdminEditable(string $userId, Dashboard $dashboard): bool {
+		return $this->roleService->isAdmin(userId: $userId) === true
+			&& $dashboard->getType() !== Dashboard::TYPE_ADMIN_TEMPLATE;
+	}//end isAdminEditable()
+
+	/**
+	 * Whether an access level lets its holder change the dashboard:
+	 * add_only and full do, view_only and no access do not.
+	 *
+	 * @param string|null $level The resolved access level.
+	 *
+	 * @return bool TRUE for add_only or full.
+	 */
+	private function allowsEditing(?string $level): bool {
 		if ($level === null) {
 			return false;
 		}
@@ -146,7 +168,7 @@ class PermissionService {
 				Dashboard::PERMISSION_FULL,
 			]
 		);
-	}//end canEditDashboard()
+	}//end allowsEditing()
 
 	/**
 	 * Check if user can edit dashboard metadata (name, description). Owner only.
@@ -162,23 +184,41 @@ class PermissionService {
 		string $userId,
 		int $dashboardId,
 	): bool {
-		try {
-			$dashboard = $this->dashboardMapper->find(id: $dashboardId);
-		} catch (DoesNotExistException) {
+		$dashboard = $this->findDashboard(dashboardId: $dashboardId);
+		if ($dashboard === null) {
 			return false;
 		}
 
-		// L4: admin-template owners retain full metadata-edit rights
-		// (REQ-PERM-011). An admin who owns a template must not be blocked
-		// from renaming it. Non-admin users can never edit admin templates.
+		// REQ-ROLE-008: Viewer role blocks any mutation, renames included.
+		if ($this->roleService->isViewer(userId: $userId) === true) {
+			return false;
+		}
+
+		// REQ-PERM-011: admin templates are edited by Nextcloud admins only,
+		// and belong to nobody (their userId is null), so ownership is not
+		// asked. Non-admin users can never edit admin templates.
 		if ($dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
-			return $dashboard->getUserId() === $userId
-				&& $this->groupManager->isAdmin(userId: $userId);
+			return $this->groupManager->isAdmin(userId: $userId);
 		}
 
 		// Only owner can rename / change description.
 		return $dashboard->getUserId() === $userId;
 	}//end canEditDashboardMetadata()
+
+	/**
+	 * Check if the user's role lets them delete dashboards at all. Which
+	 * dashboard they may delete is the owner check of the delete itself.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return bool Whether the user may delete dashboards.
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md#requirement-req-role-008-authorize-viewer-read-only-access
+	 */
+	public function canDeleteDashboards(string $userId): bool {
+		// REQ-ROLE-008: Viewer role blocks any mutation, even of what they own.
+		return $this->roleService->isViewer(userId: $userId) === false;
+	}//end canDeleteDashboards()
 
 	/**
 	 * Check if user can add widgets to a dashboard.
@@ -198,19 +238,72 @@ class PermissionService {
 			return false;
 		}
 
-		$level = $this->resolveAccessLevel(userId: $userId, dashboardId: $dashboardId);
-		if ($level === null) {
+		$dashboard = $this->findDashboard(dashboardId: $dashboardId);
+		if ($dashboard === null) {
 			return false;
 		}
 
-		return in_array(
-			needle: $level,
-			haystack: [
-				Dashboard::PERMISSION_ADD_ONLY,
-				Dashboard::PERMISSION_FULL,
-			]
+		// REQ-PERM-011 / REQ-TMPL-007: an admin template belongs to nobody;
+		// a Nextcloud admin manages its widgets through the same API.
+		if ($dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
+			return $this->groupManager->isAdmin(userId: $userId);
+		}
+
+		return $this->allowsEditing(
+			level: $this->resolveAccessLevel(userId: $userId, dashboard: $dashboard)
 		);
 	}//end canAddWidget()
+
+	/**
+	 * Whether a widget the user adds may be marked compulsory: only a
+	 * Nextcloud admin adding it to an admin template (REQ-TMPL-007).
+	 *
+	 * @param string $userId      The user ID.
+	 * @param int    $dashboardId The dashboard ID.
+	 *
+	 * @return bool TRUE when the compulsory flag is honoured.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#requirement-template-widget-management-req-tmpl-007
+	 */
+	public function mayPlaceCompulsory(string $userId, int $dashboardId): bool {
+		$dashboard = $this->findDashboard(dashboardId: $dashboardId);
+
+		return $dashboard !== null
+			&& $dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE
+			&& $this->groupManager->isAdmin(userId: $userId) === true;
+	}//end mayPlaceCompulsory()
+
+	/**
+	 * Why a widget change was refused, in the words of REQ-PERM-001 and
+	 * REQ-PERM-004: a view-only dashboard says so, and so does a compulsory
+	 * widget on an add-only dashboard; anything else is "Access denied".
+	 *
+	 * @param string   $userId      The user ID.
+	 * @param int|null $dashboardId The dashboard, for an add.
+	 * @param int|null $placementId The placement, for a removal.
+	 *
+	 * @return string The refusal message.
+	 *
+	 * @spec openspec/specs/permissions/spec.md
+	 */
+	public function widgetRefusal(string $userId, ?int $dashboardId = null, ?int $placementId = null): string {
+		$placement = null;
+		if ($placementId !== null) {
+			$placement   = $this->findPlacement(placementId: $placementId);
+			$dashboardId = $placement?->getDashboardId();
+		}
+
+		$level = $this->resolveAccessLevel(userId: $userId, dashboardId: $dashboardId);
+		if ($level === Dashboard::PERMISSION_VIEW_ONLY) {
+			return 'This dashboard is view-only';
+		}
+
+		if ($level === Dashboard::PERMISSION_ADD_ONLY && $placement?->getIsCompulsory() === 1) {
+			return 'Compulsory widgets cannot be removed at this permission level';
+		}
+
+		return 'Access denied';
+	}//end widgetRefusal()
 
 	/**
 	 * Check if user can remove a widget.
@@ -228,24 +321,33 @@ class PermissionService {
 			return false;
 		}
 
-		try {
-			$placement = $this->placementMapper->find(id: $placementId);
-			$dashboard = $this->dashboardMapper->find(
-				id: $placement->getDashboardId()
-			);
-		} catch (DoesNotExistException) {
+		$placed = $this->findPlacedWidget(placementId: $placementId);
+		if ($placed === null) {
 			return false;
 		}
 
-		$level = $this->resolveAccessLevel(userId: $userId, dashboard: $dashboard);
-		if ($level === null) {
-			return false;
+		// REQ-PERM-011 / REQ-TMPL-007: only a Nextcloud admin removes a
+		// widget from an admin template.
+		if ($placed->dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
+			return $this->groupManager->isAdmin(userId: $userId);
 		}
 
-		if ($level === Dashboard::PERMISSION_VIEW_ONLY) {
-			return false;
-		}
+		$level = $this->resolveAccessLevel(userId: $userId, dashboard: $placed->dashboard);
 
+		return $this->allowsRemoval(level: $level, placement: $placed->placement);
+	}//end canRemoveWidget()
+
+	/**
+	 * Whether an access level lets its holder remove a placement: full
+	 * removes any, add_only only a non-compulsory one, view_only and no
+	 * access none.
+	 *
+	 * @param string|null     $level     The resolved access level.
+	 * @param WidgetPlacement $placement The placement to remove.
+	 *
+	 * @return bool TRUE when removal is allowed.
+	 */
+	private function allowsRemoval(?string $level, WidgetPlacement $placement): bool {
 		if ($level === Dashboard::PERMISSION_FULL) {
 			return true;
 		}
@@ -255,7 +357,7 @@ class PermissionService {
 		}
 
 		return false;
-	}//end canRemoveWidget()
+	}//end allowsRemoval()
 
 	/**
 	 * Check if user can view a widget's data (read-path).
@@ -273,9 +375,8 @@ class PermissionService {
 	 * @spec openspec/specs/permissions/spec.md
 	 */
 	public function canViewPlacement(string $userId, int $placementId): bool {
-		try {
-			$placement = $this->placementMapper->find(id: $placementId);
-		} catch (DoesNotExistException) {
+		$placement = $this->findPlacement(placementId: $placementId);
+		if ($placement === null) {
 			return false;
 		}
 
@@ -301,26 +402,19 @@ class PermissionService {
 			return false;
 		}
 
-		try {
-			$placement = $this->placementMapper->find(id: $placementId);
-			$dashboard = $this->dashboardMapper->find(
-				id: $placement->getDashboardId()
-			);
-		} catch (DoesNotExistException) {
+		$placed = $this->findPlacedWidget(placementId: $placementId);
+		if ($placed === null) {
 			return false;
 		}
 
-		$level = $this->resolveAccessLevel(userId: $userId, dashboard: $dashboard);
-		if ($level === null) {
-			return false;
+		// REQ-PERM-011: an admin template belongs to nobody and is never
+		// shared, so only Nextcloud admin status lets its widgets change.
+		if ($placed->dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
+			return $this->groupManager->isAdmin(userId: $userId);
 		}
 
-		return in_array(
-			needle: $level,
-			haystack: [
-				Dashboard::PERMISSION_ADD_ONLY,
-				Dashboard::PERMISSION_FULL,
-			]
+		return $this->allowsEditing(
+			level: $this->resolveAccessLevel(userId: $userId, dashboard: $placed->dashboard)
 		);
 	}//end canStyleWidget()
 
@@ -396,43 +490,24 @@ class PermissionService {
 	 * @return string The effective permission level.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-24
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-retrieve-admin-settings-req-aset-001
 	 */
 	public function getEffectivePermissionLevel(
 		Dashboard $dashboard,
 		?string $userId = null,
 	): string {
-		// REQ-DASH-014: group-shared dashboards are read-only for
-		// non-admin members and fully editable for admins, regardless of
-		// the row's persisted `permissionLevel` field (which is kept on
-		// the row for forward-compat with future per-tile editing).
+		// REQ-DASH-014: group-shared dashboards are fully editable for
+		// admins and editors, and read-only for other members unless the
+		// row says `add_only`: an intranet colleagues add widgets to
+		// (demo-data-showcases, REQ-DEMO-001; board LpIntranet).
 		if ($dashboard->getType() === Dashboard::TYPE_GROUP_SHARED) {
-			// REQ-ROLE-001 / REQ-ROLE-007: NC admin OR a LaunchPad Admin
-			// role grants full permissions on group_shared dashboards.
-			// Editors get full access only when the underlying group
-			// membership check (in `resolveAccessLevel`) has already
-			// succeeded — they edit through the membership path, not
-			// an unconditional override.
-			if ($userId !== null
-				&& ($this->groupManager->isAdmin(userId: $userId) === true
-				|| $this->roleService->isAdmin(userId: $userId) === true
-				|| $this->roleService->isEditorOrHigher(userId: $userId) === true)
-			) {
-				return Dashboard::PERMISSION_FULL;
-			}
-
-			return Dashboard::PERMISSION_VIEW_ONLY;
+			return $this->groupSharedPermissionLevel(dashboard: $dashboard, userId: $userId);
 		}
 
 		// If based on a template, use template's permission level.
-		if ($dashboard->getBasedOnTemplate() !== null) {
-			try {
-				$template = $this->dashboardMapper->find(
-					id: $dashboard->getBasedOnTemplate()
-				);
-				return $template->getPermissionLevel();
-			} catch (DoesNotExistException) {
-				// Template deleted, use dashboard's level.
-			}
+		$templateLevel = $this->templatePermissionLevel(dashboard: $dashboard);
+		if ($templateLevel !== null) {
+			return $templateLevel;
 		}
 
 		// Use dashboard's permission level or default.
@@ -441,11 +516,69 @@ class PermissionService {
 			return $level;
 		}
 
+		// The factory default is add_only, the value GET /api/admin/settings
+		// reports while no level is stored (REQ-ASET-001); both read it here.
 		return $this->settingMapper->getValue(
 			key: AdminSetting::KEY_DEFAULT_PERMISSION_LEVEL,
-			default: Dashboard::PERMISSION_FULL
+			default: Dashboard::PERMISSION_ADD_ONLY
 		);
 	}//end getEffectivePermissionLevel()
+
+	/**
+	 * REQ-ROLE-001 / REQ-ROLE-007: NC admin OR a LaunchPad Admin role
+	 * grants full permissions on group_shared dashboards. Editors get full
+	 * access only when the underlying group membership check (in
+	 * `resolveAccessLevel`) has already succeeded — they edit through the
+	 * membership path, not an unconditional override.
+	 *
+	 * A member who is neither keeps the row's `add_only`, so a group
+	 * dashboard stored as add-only (the Zuiddrecht intranet) takes their
+	 * widgets; every other stored level reads view_only for them.
+	 *
+	 * @param Dashboard   $dashboard The group-shared dashboard.
+	 * @param string|null $userId    The user ID, or NULL for no user.
+	 *
+	 * @return string Full for admins and editors, add_only when the row says so, view_only otherwise.
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md
+	 */
+	private function groupSharedPermissionLevel(Dashboard $dashboard, ?string $userId): string {
+		if ($userId !== null
+			&& ($this->groupManager->isAdmin(userId: $userId) === true
+			|| $this->roleService->isAdmin(userId: $userId) === true
+			|| $this->roleService->isEditorOrHigher(userId: $userId) === true)
+		) {
+			return Dashboard::PERMISSION_FULL;
+		}
+
+		if ($userId !== null && $dashboard->getPermissionLevel() === Dashboard::PERMISSION_ADD_ONLY) {
+			return Dashboard::PERMISSION_ADD_ONLY;
+		}
+
+		return Dashboard::PERMISSION_VIEW_ONLY;
+	}//end groupSharedPermissionLevel()
+
+	/**
+	 * The permission level of the template a dashboard is based on; NULL
+	 * when it is not based on one or the template was deleted.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return string|null The template's permission level.
+	 */
+	private function templatePermissionLevel(Dashboard $dashboard): ?string {
+		if ($dashboard->getBasedOnTemplate() === null) {
+			return null;
+		}
+
+		$template = $this->findDashboard(dashboardId: $dashboard->getBasedOnTemplate());
+		if ($template === null) {
+			// Template deleted, use dashboard's level.
+			return null;
+		}
+
+		return $template->getPermissionLevel();
+	}//end templatePermissionLevel()
 
 	/**
 	 * Resolve the effective permission level a user has on a dashboard:
@@ -468,42 +601,31 @@ class PermissionService {
 		?int $dashboardId = null,
 		?Dashboard $dashboard = null,
 	): ?string {
+		$dashboard = ($dashboard ?? $this->findDashboard(dashboardId: $dashboardId));
 		if ($dashboard === null) {
-			try {
-				$dashboard = $this->dashboardMapper->find(id: $dashboardId);
-			} catch (DoesNotExistException) {
-				return null;
-			}
+			return null;
 		}
 
 		// Group-shared dashboards bypass the ownership-vs-share path:
 		// visibility is by group membership, not by per-row sharing.
 		// REQ-DASH-014.
 		if ($dashboard->getType() === Dashboard::TYPE_GROUP_SHARED) {
-			$groupId = (string)$dashboard->getGroupId();
-			if ($groupId === Dashboard::DEFAULT_GROUP_ID) {
-				return $this->getEffectivePermissionLevel(
-					dashboard: $dashboard,
-					userId: $userId
-				);
-			}
+			return $this->groupSharedAccessLevel(userId: $userId, dashboard: $dashboard);
+		}
 
-			$userGroupIds = $this->adminTemplateService->getUserGroupIdsFor(
-				userId: $userId
-			);
-			if (in_array(needle: $groupId, haystack: $userGroupIds, strict: true) === true
-				|| $this->groupManager->isAdmin(userId: $userId) === true
-				|| $this->roleService->isAdmin(userId: $userId) === true
-			) {
-				return $this->getEffectivePermissionLevel(
-					dashboard: $dashboard,
-					userId: $userId
-				);
-			}//end if
+		return $this->ownedOrSharedAccessLevel(userId: $userId, dashboard: $dashboard);
+	}//end resolveAccessLevel()
 
-			return null;
-		}//end if
-
+	/**
+	 * The access level on a personal dashboard: its effective level for
+	 * the owner, the shared level for anyone else.
+	 *
+	 * @param string    $userId    The user ID.
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return string|null The access level, or NULL for no access.
+	 */
+	private function ownedOrSharedAccessLevel(string $userId, Dashboard $dashboard): ?string {
 		if ($dashboard->getUserId() === $userId) {
 			return $this->getEffectivePermissionLevel(
 				dashboard: $dashboard,
@@ -511,6 +633,65 @@ class PermissionService {
 			);
 		}
 
+		return $this->sharedAccessLevel(userId: $userId, dashboard: $dashboard);
+	}//end ownedOrSharedAccessLevel()
+
+	/**
+	 * The access level on a group-shared dashboard: its effective level
+	 * for members of its group (everyone for the default group) and for
+	 * admins, NULL for anyone else.
+	 *
+	 * @param string    $userId    The user ID.
+	 * @param Dashboard $dashboard The group-shared dashboard.
+	 *
+	 * @return string|null The access level, or NULL for no access.
+	 */
+	private function groupSharedAccessLevel(string $userId, Dashboard $dashboard): ?string {
+		if ($this->reachesGroupDashboard(userId: $userId, dashboard: $dashboard) === false) {
+			return null;
+		}
+
+		return $this->getEffectivePermissionLevel(
+			dashboard: $dashboard,
+			userId: $userId
+		);
+	}//end groupSharedAccessLevel()
+
+	/**
+	 * Whether a user reaches a group-shared dashboard: it is shared with
+	 * the default group, the user is in its group, or the user is an NC
+	 * admin or a LaunchPad Admin.
+	 *
+	 * @param string    $userId    The user ID.
+	 * @param Dashboard $dashboard The group-shared dashboard.
+	 *
+	 * @return bool TRUE when the user reaches it.
+	 */
+	private function reachesGroupDashboard(string $userId, Dashboard $dashboard): bool {
+		$groupId = (string)$dashboard->getGroupId();
+		if ($groupId === Dashboard::DEFAULT_GROUP_ID) {
+			return true;
+		}
+
+		$userGroupIds = $this->adminTemplateService->getUserGroupIdsFor(
+			userId: $userId
+		);
+
+		return in_array(needle: $groupId, haystack: $userGroupIds, strict: true) === true
+			|| $this->groupManager->isAdmin(userId: $userId) === true
+			|| $this->roleService->isAdmin(userId: $userId) === true;
+	}//end reachesGroupDashboard()
+
+	/**
+	 * The access level a user holds on someone else's dashboard through a
+	 * user or group share, NULL when it is not shared with them.
+	 *
+	 * @param string    $userId    The user ID.
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return string|null The shared access level.
+	 */
+	private function sharedAccessLevel(string $userId, Dashboard $dashboard): ?string {
 		$shares = $this->shareService->resolveSharedDashboards(
 			userId: $userId,
 			groupIds: $this->adminTemplateService->getUserGroupIdsFor(
@@ -519,7 +700,7 @@ class PermissionService {
 		);
 
 		return $shares[$dashboard->getId()] ?? null;
-	}//end resolveAccessLevel()
+	}//end sharedAccessLevel()
 
 	/**
 	 * Verify user owns a dashboard.
@@ -540,7 +721,7 @@ class PermissionService {
 		$dashboard = $this->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		return $dashboard;
@@ -548,11 +729,14 @@ class PermissionService {
 
 	/**
 	 * Whether the user may set/change/clear the mandatory-read
-	 * acknowledgement requirement on a placement — a Nextcloud admin, a
-	 * LaunchPad admin, or the owner of the placement's dashboard (the
-	 * template author). A non-author MUST be rejected (REQ-ACK-001,
-	 * ADR-005). Returns false when the placement or its dashboard is
-	 * missing.
+	 * acknowledgement requirement on a placement: a Nextcloud admin, a
+	 * LaunchPad admin, or the author of the announcement. Once a placement
+	 * carries an announcement key the author is the owner of the
+	 * announcement's admin template, or, without a template, the owner of
+	 * the first placement that carried the key; a recipient of a copy is not
+	 * the author. Before that, the owner of the placement's dashboard may set
+	 * a requirement. A non-author MUST be rejected (REQ-ACK-001, ADR-005).
+	 * Returns false when the placement or its dashboard is missing.
 	 *
 	 * @param string $userId The acting user ID.
 	 * @param int $placementId The placement ID.
@@ -571,20 +755,117 @@ class PermissionService {
 			return true;
 		}
 
-		try {
-			$placement = $this->placementMapper->find(id: $placementId);
-			$dashboard = $this->dashboardMapper->find(
-				id: $placement->getDashboardId()
-			);
-		} catch (DoesNotExistException) {
+		$placed = $this->findPlacedWidget(placementId: $placementId);
+		if ($placed === null) {
 			return false;
 		}
 
-		return $dashboard->getUserId() === $userId;
+		$key = (string)$placed->placement->getAnnouncementKey();
+		if ($key === '') {
+			return $placed->dashboard->getUserId() === $userId;
+		}
+
+		return $this->announcementAuthor(announcementKey: $key) === $userId;
 	}//end canManageAcknowledgement()
 
 	/**
-	 * Verify user owns a placement's dashboard.
+	 * The author of an announcement: the owner of the admin template that
+	 * carries the key, or, without one, the owner of the placement with the
+	 * lowest id (the original; copies and forks are created later).
+	 *
+	 * @param string $announcementKey The announcement identity.
+	 *
+	 * @return string|null The author's user id, or null.
+	 */
+	private function announcementAuthor(string $announcementKey): ?string {
+		$original = null;
+		foreach ($this->placementMapper->findByAnnouncementKey(announcementKey: $announcementKey) as $placement) {
+			$dashboard = $this->findDashboard(dashboardId: $placement->getDashboardId());
+			if ($dashboard === null) {
+				continue;
+			}
+
+			if ($dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
+				return $dashboard->getUserId();
+			}
+
+			if ($this->isEarlierCopy(placement: $placement, original: $original) === true) {
+				$original = [$placement->getId(), $dashboard->getUserId()];
+			}
+		}
+
+		return $original[1] ?? null;
+	}//end announcementAuthor()
+
+	/**
+	 * Whether a placement is an earlier copy of the announcement than the
+	 * earliest one seen so far.
+	 *
+	 * @param WidgetPlacement           $placement The placement.
+	 * @param array{0: int, 1: string}|null $original The earliest copy so far: [placement id, owner].
+	 *
+	 * @return bool TRUE when it is the first or an earlier copy.
+	 */
+	private function isEarlierCopy(WidgetPlacement $placement, ?array $original): bool {
+		return $original === null || $placement->getId() < $original[0];
+	}//end isEarlierCopy()
+
+	/**
+	 * Find a dashboard by id, NULL when it does not exist.
+	 *
+	 * @param int|null $dashboardId The dashboard ID.
+	 *
+	 * @return Dashboard|null The dashboard.
+	 */
+	private function findDashboard(?int $dashboardId): ?Dashboard {
+		try {
+			return $this->dashboardMapper->find(id: $dashboardId);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+	}//end findDashboard()
+
+	/**
+	 * Find a placement by id, NULL when it does not exist.
+	 *
+	 * @param int $placementId The placement ID.
+	 *
+	 * @return WidgetPlacement|null The placement.
+	 */
+	private function findPlacement(int $placementId): ?WidgetPlacement {
+		try {
+			return $this->placementMapper->find(id: $placementId);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+	}//end findPlacement()
+
+	/**
+	 * Find a placement and the dashboard it sits on, NULL when either does
+	 * not exist.
+	 *
+	 * @param int $placementId The placement ID.
+	 *
+	 * @return PlacedWidget|null The placement and its dashboard.
+	 */
+	private function findPlacedWidget(int $placementId): ?PlacedWidget {
+		$placement = $this->findPlacement(placementId: $placementId);
+		if ($placement === null) {
+			return null;
+		}
+
+		$dashboard = $this->findDashboard(dashboardId: $placement->getDashboardId());
+		if ($dashboard === null) {
+			return null;
+		}
+
+		return new PlacedWidget(placement: $placement, dashboard: $dashboard);
+	}//end findPlacedWidget()
+
+	/**
+	 * Verify user owns a placement's dashboard, or is a Nextcloud
+	 * administrator, who may manage the visibility rules of every dashboard
+	 * (REQ-VIS-001..004).
 	 *
 	 * @param string $userId The user ID.
 	 * @param int $placementId The placement ID.
@@ -594,12 +875,17 @@ class PermissionService {
 	 * @throws \Exception If access is denied.
 	 *
 	 * @spec openspec/specs/permissions/spec.md
+	 * @spec openspec/specs/conditional-visibility/spec.md
 	 */
 	public function verifyPlacementOwnership(
 		string $userId,
 		int $placementId,
 	): WidgetPlacement {
 		$placement = $this->placementMapper->find(id: $placementId);
+		if ($this->groupManager->isAdmin(userId: $userId) === true) {
+			return $placement;
+		}
+
 		$this->verifyDashboardOwnership(
 			userId: $userId,
 			dashboardId: $placement->getDashboardId()

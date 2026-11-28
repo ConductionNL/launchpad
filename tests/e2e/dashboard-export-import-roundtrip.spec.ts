@@ -49,6 +49,7 @@
 import type { APIRequestContext, request } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
+import { adminTab } from './support/adminTab.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
 
 const ADMIN = {
@@ -153,7 +154,7 @@ test.describe('dashboard export and import — widget configuration survives', (
 			}
 		}
 		if (previousActiveUuid !== null) {
-			await api.post(`${API}/dashboards/active`, {
+			await api.post(`${API}/dashboards/default`, {
 				data: { uuid: previousActiveUuid },
 			})
 		}
@@ -179,7 +180,7 @@ test.describe('dashboard export and import — widget configuration survives', (
 			.context()
 			.setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
 		await page.goto(SETTINGS_PAGE, { waitUntil: 'domcontentloaded' })
-		await page.locator('[data-test="tab-operations"]').click({ timeout: 30_000 })
+		await adminTab(page, 'operations').click({ timeout: 30_000 })
 
 		await page.locator('[data-test="import-file-input"]').setInputFiles({
 			name: `launchpad-roundtrip-${STAMP}.zip`,
@@ -239,7 +240,7 @@ test.describe('dashboard export and import — widget configuration survives', (
 		expect(removed.status(), await removed.text()).toBeLessThan(300)
 		sourceId = null
 
-		const activate = await api.post(`${API}/dashboards/active`, {
+		const activate = await api.post(`${API}/dashboards/default`, {
 			data: { uuid: imported.uuid },
 		})
 		expect(activate.status(), await activate.text()).toBeLessThan(300)

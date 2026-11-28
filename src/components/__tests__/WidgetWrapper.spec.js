@@ -10,7 +10,7 @@
 
 import { shallowMount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
-import WidgetWrapper from '../WidgetWrapper.vue'
+import WidgetWrapper, { sameDestination } from '../WidgetWrapper.vue'
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
@@ -89,5 +89,149 @@ describe('WidgetWrapper — edit cog', () => {
 		expect(
 			mountWrapper(placement, true).find('.launchpad-widget__cog').exists(),
 		).toBe(true)
+	})
+
+	it('hands the edit mode to the renderer and opens the editor on its edit request', async () => {
+		const placement = { id: 4, widgetId: 'menu', styleConfig: {} }
+		const wrapper = shallowMount(WidgetWrapper, {
+			propsData: { placement, widget: { title: 'Widget' }, editMode: true },
+			mocks: { t: (_app, key) => key },
+			global: {
+				stubs: {
+					CnWidgetWrapper: { template: '<div><slot /></div>' },
+					// The real LazyMount: edit mode mounts the renderer at once.
+					LazyMount: false,
+					// The real boundary passes the renderer through (REQ-WDG-046).
+					WidgetErrorBoundary: false,
+				},
+			},
+		})
+		const renderer = wrapper.findComponent({ name: 'WidgetRenderer' })
+		expect(renderer.props('editMode')).toBe(true)
+		renderer.vm.$emit('editRequest')
+		await wrapper.vm.$nextTick()
+		expect(wrapper.emitted('edit')).toEqual([[placement]])
+	})
+})
+
+describe('WidgetWrapper — header link (LpVandaag "Open agenda")', () => {
+	it('hands content.headerLink to the card', () => {
+		const wrapper = mountWrapper({
+			id: 2,
+			widgetId: 'calendar',
+			showTitle: true,
+			content: {
+				headerLink: {
+					label: 'Open agenda',
+					href: '/index.php/apps/calendar/',
+				},
+			},
+		})
+		expect(wrapper.vm.headerLink).toEqual({
+			label: 'Open agenda',
+			href: '/index.php/apps/calendar/',
+		})
+	})
+
+	it('hands none without a label or a link', () => {
+		for (const headerLink of [
+			undefined,
+			{ label: 'Open agenda' },
+			{ href: '/x' },
+			{ label: '', href: '/x' },
+		]) {
+			const wrapper = mountWrapper({
+				id: 3,
+				widgetId: 'calendar',
+				showTitle: true,
+				content: { headerLink },
+			})
+			expect(wrapper.vm.headerLink).toBeNull()
+		}
+	})
+})
+
+describe('WidgetWrapper — footer buttons and the Nextcloud widget header', () => {
+	it('leaves out a footer button that leads where the header link does', () => {
+		const wrapper = shallowMount(WidgetWrapper, {
+			propsData: {
+				placement: {
+					id: 4,
+					widgetId: 'calendar',
+					showTitle: true,
+					content: {
+						headerLink: {
+							label: 'Open agenda',
+							href: '/index.php/apps/calendar/',
+						},
+					},
+				},
+				widget: {
+					title: 'Agenda',
+					buttons: [
+						{
+							text: 'Meer activiteiten',
+							link: 'http://localhost:8080/apps/calendar',
+						},
+						{ text: 'Nieuw', link: '/apps/calendar/new' },
+					],
+				},
+			},
+			mocks: { t: (_app, key) => key },
+		})
+		expect(wrapper.vm.widgetButtons.map((b) => b.text)).toEqual(['Nieuw'])
+	})
+
+	it('keeps every footer button without a header link', () => {
+		const wrapper = shallowMount(WidgetWrapper, {
+			propsData: {
+				placement: { id: 5, widgetId: 'calendar', showTitle: true },
+				widget: { title: 'Agenda', buttons: [{ text: 'A', link: '/a' }] },
+			},
+			mocks: { t: (_app, key) => key },
+		})
+		expect(wrapper.vm.widgetButtons).toHaveLength(1)
+	})
+
+	it('lets the card title a Nextcloud widget that draws no header of its own', () => {
+		const own = mountWrapper({
+			id: 6,
+			widgetId: 'nc-widget',
+			showTitle: true,
+			content: {},
+		})
+		expect(own.vm.showHeader).toBe(false)
+		const titled = mountWrapper({
+			id: 7,
+			widgetId: 'nc-widget',
+			showTitle: true,
+			customTitle: 'Verder waar u was',
+			content: { showHeader: false },
+		})
+		expect(titled.vm.showHeader).toBe(true)
+	})
+})
+
+describe('sameDestination', () => {
+	it('compares the path, ignoring the host, /index.php and a trailing slash', () => {
+		expect(
+			sameDestination(
+				'http://localhost:8080/apps/calendar',
+				'/index.php/apps/calendar/',
+			),
+		).toBe(true)
+		expect(sameDestination('/apps/calendar/new', '/apps/calendar')).toBe(false)
+		expect(sameDestination(undefined, '/apps/calendar')).toBe(false)
+	})
+})
+
+describe('WidgetWrapper — first screen (first-viewport-widgets)', () => {
+	it('mounts a widget on the first screen at once and leaves one further down to the observer', () => {
+		const top = mountWrapper({ id: 20, widgetId: 'data', gridY: 0, styleConfig: {} })
+		const below = mountWrapper({ id: 21, widgetId: 'data', gridY: 500, styleConfig: {} })
+		const unplaced = mountWrapper({ id: 22, widgetId: 'data', styleConfig: {} })
+		expect(top.vm.mountsAtOnce).toBe(true)
+		expect(below.vm.mountsAtOnce).toBe(false)
+		expect(unplaced.vm.mountsAtOnce).toBe(false)
 	})
 })

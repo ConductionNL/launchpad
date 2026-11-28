@@ -3,15 +3,25 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
+import { DASHBOARD_ICONS } from '@conduction/nextcloud-vue'
 import * as mdi from '@mdi/js'
-import { describe, expect, it } from 'vitest'
-import { ICON_CATALOGUE, normaliseIconValue } from '../iconCatalogue.js'
+import { beforeAll, describe, expect, it } from 'vitest'
+import { DASHBOARD_ICON_CATALOGUE, ICON_CATALOGUE, loadIconCatalogue, normaliseIconValue } from '../iconCatalogue.js'
+
+describe('before @mdi/js has loaded', () => {
+	it('has an empty catalogue and leaves names unchanged', () => {
+		expect(ICON_CATALOGUE).toHaveLength(0)
+		expect(normaliseIconValue('star')).toBe('star')
+	})
+})
 
 describe('ICON_CATALOGUE', () => {
-	it('is a frozen, non-empty array', () => {
+	beforeAll(() => loadIconCatalogue())
+
+	it('is a non-empty array once loaded', async () => {
 		expect(Array.isArray(ICON_CATALOGUE)).toBe(true)
 		expect(ICON_CATALOGUE.length).toBeGreaterThan(0)
-		expect(Object.isFrozen(ICON_CATALOGUE)).toBe(true)
+		expect(await loadIconCatalogue()).toBe(ICON_CATALOGUE)
 	})
 
 	it('produces entries shaped { key, label, value, search, path }', () => {
@@ -32,7 +42,26 @@ describe('ICON_CATALOGUE', () => {
 	})
 })
 
+describe('DASHBOARD_ICON_CATALOGUE', () => {
+	it('offers exactly the shared registry names, stored as the name', () => {
+		expect(Object.isFrozen(DASHBOARD_ICON_CATALOGUE)).toBe(true)
+		expect(DASHBOARD_ICON_CATALOGUE.map((entry) => entry.key)).toEqual(Object.keys(DASHBOARD_ICONS))
+		for (const entry of DASHBOARD_ICON_CATALOGUE) {
+			expect(entry.value).toBe(entry.key)
+			expect(entry.search).toBe(entry.key.toLowerCase())
+			expect(entry.component).toBe(DASHBOARD_ICONS[entry.key])
+		}
+	})
+
+	it('spaces the camel-cased name for its label', () => {
+		const entry = DASHBOARD_ICON_CATALOGUE.find((e) => e.key === 'ViewDashboard')
+		expect(entry.label).toBe('View Dashboard')
+	})
+})
+
 describe('normaliseIconValue', () => {
+	beforeAll(() => loadIconCatalogue())
+
 	it('maps a lowercase legacy name to its MDI path', () => {
 		expect(normaliseIconValue('star')).toBe(mdi.mdiStar)
 		expect(normaliseIconValue('folder')).toBe(mdi.mdiFolder)

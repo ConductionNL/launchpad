@@ -1,0 +1,258 @@
+{
+    "listAvailable / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "listAvailable / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "widget.list-available"
+        ]
+    },
+    "listAvailable / no user id": {
+        "thrown": "Error",
+        "asked": [
+            "widget.list-available"
+        ]
+    },
+    "listAvailable / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "widget.list-available"
+        ]
+    },
+    "getItems / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "getItems / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "widget.get-items"
+        ]
+    },
+    "getItems / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": []
+    },
+    "getItems / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "widget.get-items"
+        ]
+    },
+    "addWidget / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "addWidget / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "widget.add-widget"
+        ]
+    },
+    "addWidget / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "widget.add-widget"
+        ]
+    },
+    "addWidget / allowed": {
+        "status": 400,
+        "asked": [
+            "widget.add-widget"
+        ]
+    },
+    "addTile / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "addTile / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "widget.add-tile"
+        ]
+    },
+    "addTile / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "widget.add-tile"
+        ]
+    },
+    "addTile / allowed": {
+        "status": 403,
+        "asked": [
+            "widget.add-tile"
+        ]
+    },
+    "updatePlacement / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "updatePlacement / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "widget.update-placement"
+        ]
+    },
+    "updatePlacement / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "widget.update-placement"
+        ]
+    },
+    "updatePlacement / allowed": {
+        "status": 403,
+        "asked": [
+            "widget.update-placement"
+        ]
+    },
+    "removePlacement / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "removePlacement / action denied": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "asked": [
+            "widget.remove-placement"
+        ]
+    },
+    "removePlacement / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": [
+            "widget.remove-placement"
+        ]
+    },
+    "removePlacement / allowed": {
+        "status": 403,
+        "asked": [
+            "widget.remove-placement"
+        ]
+    },
+    "newsItems / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "newsItems / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "widget.news-items"
+        ]
+    },
+    "newsItems / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": []
+    },
+    "newsItems / allowed": {
+        "status": 403,
+        "asked": [
+            "widget.news-items"
+        ]
+    },
+    "calendarEvents / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "calendarEvents / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "widget.calendar-events"
+        ]
+    },
+    "calendarEvents / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": []
+    },
+    "calendarEvents / allowed": {
+        "status": 400,
+        "asked": [
+            "widget.calendar-events"
+        ]
+    },
+    "calendars / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": []
+    },
+    "calendars / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "widget.calendar-events"
+        ]
+    },
+    "calendars / no user id": {
+        "status": 401,
+        "body": {
+            "error": "Not logged in"
+        },
+        "asked": []
+    },
+    "calendars / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "widget.calendar-events"
+        ]
+    }
+}

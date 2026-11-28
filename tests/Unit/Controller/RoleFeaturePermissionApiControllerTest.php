@@ -36,6 +36,8 @@ use OCP\AppFramework\Http;
 use OCP\IRequest;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
 
 /**
  * Unit tests for RoleFeaturePermissionApiController.
@@ -79,6 +81,7 @@ class RoleFeaturePermissionApiControllerTest extends TestCase {
 		$this->controller = new RoleFeaturePermissionApiController(
 			request: $this->request,
 			service: $this->service,
+			responseHelper: new ResponseHelper(logger: new NullLogger()),
 		);
 	}//end setUp()
 
@@ -313,4 +316,104 @@ class RoleFeaturePermissionApiControllerTest extends TestCase {
 
 		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
 	}//end testSaveLayoutDefaultReturns400OnMissingFields()
+
+	/**
+	 * Every answer of the save and delete endpoints, payload forwarded as
+	 * given, for both permission rows and layout defaults.
+	 *
+	 * @return void
+	 */
+	public function testSaveAndDeleteAnswersForBothResources(): void {
+		$this->request->method('getParams')->willReturn(['groupId' => 'g']);
+		$permission = $this->makePermission(groupId: 'g', id: 4);
+		$layout = $this->makeLayoutDefault(groupId: 'g', id: 5);
+		$saves = [$permission, new \InvalidArgumentException('bad'), new \RuntimeException('boom')];
+		$layouts = [$layout, new \InvalidArgumentException('bad'), new \RuntimeException('boom')];
+		$next = static function (array &$queue) {
+			$answer = array_shift($queue);
+			if ($answer instanceof \Throwable) {
+				throw $answer;
+			}
+
+			return $answer;
+		};
+		$this->service->method('savePermission')->with(['groupId' => 'g'])->willReturnCallback(function () use (&$saves, $next) {
+			return $next($saves);
+		});
+		$this->service->method('saveLayoutDefault')->with(['groupId' => 'g'])->willReturnCallback(function () use (&$layouts, $next) {
+			return $next($layouts);
+		});
+		$this->service->method('deletePermission')->willReturnCallback(static function (int $id): void {
+			if ($id === 9) {
+				throw new \OCP\AppFramework\Db\DoesNotExistException('gone');
+			}
+		});
+		$this->service->method('deleteLayoutDefault')->willReturnCallback(static function (int $id): void {
+			if ($id === 9) {
+				throw new \OCP\AppFramework\Db\DoesNotExistException('gone');
+			}
+		});
+
+		$answers = [];
+		foreach (['savePermission', 'saveLayoutDefault'] as $save) {
+			for ($i = 0; $i < 3; $i++) {
+				$response = $this->controller->$save();
+				$answers[] = [$response->getStatus(), $response->getData()];
+			}
+		}
+
+		foreach (['deletePermission', 'deleteLayoutDefault'] as $delete) {
+			foreach ([1, 9] as $id) {
+				$response = $this->controller->$delete(id: $id);
+				$answers[] = [$response->getStatus(), $response->getData()];
+			}
+		}
+
+		$this->assertSame(
+			json_encode([
+				[201, $permission->jsonSerialize()],
+				[400, ResponseHelperProbe::error(new \InvalidArgumentException('bad'), 400)],
+				[ResponseHelperProbe::status(new \RuntimeException('boom')), ResponseHelperProbe::error(new \RuntimeException('boom'), 500)],
+				[201, $layout->jsonSerialize()],
+				[400, ResponseHelperProbe::error(new \InvalidArgumentException('bad'), 400)],
+				[ResponseHelperProbe::status(new \RuntimeException('boom')), ResponseHelperProbe::error(new \RuntimeException('boom'), 500)],
+				[204, []],
+				[404, ResponseHelperProbe::error(new \OCP\AppFramework\Db\DoesNotExistException('gone'), 404)],
+				[204, []],
+				[404, ResponseHelperProbe::error(new \OCP\AppFramework\Db\DoesNotExistException('gone'), 404)],
+			]),
+			json_encode($answers)
+		);
+	}//end testSaveAndDeleteAnswersForBothResources()
 }//end class
+
+/**
+ * The answer ResponseHelper::error() gives, for comparison.
+ */
+final class ResponseHelperProbe {
+	/**
+	 * @param \Throwable $e The failure.
+	 *
+	 * @return int The default status.
+	 */
+	public static function status(\Throwable $e): int {
+		return self::helper()->error(exception: $e)->getStatus();
+	}
+
+	/**
+	 * @return \OCA\LaunchPad\Controller\ResponseHelper A helper with a silent logger.
+	 */
+	private static function helper(): \OCA\LaunchPad\Controller\ResponseHelper {
+		return new \OCA\LaunchPad\Controller\ResponseHelper(logger: new \Psr\Log\NullLogger());
+	}
+
+	/**
+	 * @param \Throwable $e      The failure.
+	 * @param int        $status The status.
+	 *
+	 * @return mixed
+	 */
+	public static function error(\Throwable $e, int $status): mixed {
+		return self::helper()->error(exception: $e, statusCode: $status)->getData();
+	}
+}

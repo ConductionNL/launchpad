@@ -4,11 +4,24 @@
 -->
 
 <template>
-	<NcModal v-if="open" size="normal" :name="modalTitle" @close="$emit('close')">
+	<NcModal
+		v-if="open"
+		class="launchpad-modal launchpad-modal--wide"
+		size="normal"
+		:name="modalTitle"
+		@close="$emit('close')">
 		<div class="dashboard-config">
-			<h2 class="dashboard-config__title">
-				{{ modalTitle }}
-			</h2>
+			<header class="dashboard-config__head">
+				<p
+					v-if="!isCreate && dashboard?.name"
+					class="launchpad-modal__kicker"
+					data-testid="dashboard-config-kicker">
+					{{ dashboard.name }}
+				</p>
+				<h2 class="dashboard-config__title launchpad-modal__title">
+					{{ modalTitle }}
+				</h2>
+			</header>
 
 			<!-- Tab strip (dashboard-sharing spec). Sharing is no longer a
 			     free-floating field set in the modal body — it lives in its
@@ -17,9 +30,11 @@
 			     follow the fleet tablist pattern (nc-vue CnTabbedFormDialog /
 			     NC sidebar tabs): justified tabs, icon + label, active
 			     primary underline. -->
+			<!-- cn-look-board keeps the theme's button rules off the tabs,
+			     which are drawn as words on an underline, not as buttons. -->
 			<ul
 				v-if="!isCreate"
-				class="dashboard-config__tabs"
+				class="dashboard-config__tabs cn-look-board"
 				role="tablist"
 				data-test="config-tabs">
 				<li
@@ -38,8 +53,15 @@
 						}"
 						:data-test="`config-tab-${tab.id}`"
 						@click="currentTab = tab.id">
-						<component :is="tab.icon" v-if="tab.icon" :size="16" />
+						<!-- LpDashboardInstellingen draws the tabs as words alone, so the
+						     strip fits the dialog without scrolling sideways. -->
 						<span>{{ tab.label }}</span>
+						<span
+							v-if="tab.count"
+							class="dashboard-config__tab-count"
+							:data-test="`config-tab-count-${tab.id}`">
+							{{ tab.count }}
+						</span>
 					</button>
 				</li>
 			</ul>
@@ -93,6 +115,9 @@
 							trackBy="uuid"
 							:clearable="false"
 							data-testid="dashboard-parent-select" />
+						<span class="dashboard-config__hint" data-testid="dashboard-parent-hint">
+							{{ t('launchpad', 'This builds a tree of dashboards under Dashboards in the More menu') }}
+						</span>
 					</div>
 					<div class="dashboard-config__field">
 						<NcTextField
@@ -106,6 +131,34 @@
 							"
 							data-testid="dashboard-slug-input"
 							@update:modelValue="form.slug = $event" />
+					</div>
+					<!-- launcher-tile-open-behaviour D2: how a tile without its
+					     own choice opens on this dashboard. -->
+					<div class="dashboard-config__field">
+						<NcSelect
+							v-model="form.defaultLinkTarget"
+							:inputLabel="t('launchpad', 'Opens in')"
+							:options="linkTargetChoices"
+							label="label"
+							trackBy="id"
+							:clearable="false"
+							data-testid="dashboard-link-target-select" />
+					</div>
+					<!-- REQ-CWF-011: the hierarchies the filter bus joins widgets on. -->
+					<div class="dashboard-config__field">
+						<NcSelect
+							v-model="form.hierarchies"
+							:inputLabel="t('launchpad', 'Drill-down levels')"
+							:options="hierarchyChoices"
+							label="name"
+							trackBy="id"
+							multiple
+							keepOpen
+							:placeholder="t('launchpad', 'None')"
+							data-testid="dashboard-hierarchies-select" />
+						<span class="dashboard-config__hint">
+							{{ t('launchpad', 'A click on an area in one widget filters the other widgets, and a click on a smaller area also selects the area it belongs to.') }}
+						</span>
 					</div>
 				</template>
 				<p
@@ -125,21 +178,9 @@
 						:uploadFn="iconUploadFn"
 						@input="form.icon = $event" />
 				</div>
-			</div>
-			<!-- /general panel -->
-
-			<!--
-				Wave3.8 — explicit "default dashboard" pin. Lives in its own
-				Default tab now (dashboard-sharing spec tab split). Wrapped in
-				`v-if="!isCreate"` because pinning a not-yet-saved dashboard is
-				meaningless.
-			-->
-			<div
-				v-show="!isCreate && currentTab === 'default'"
-				id="config-panel-default"
-				role="tabpanel"
-				data-test="config-panel-default"
-				class="dashboard-config__panel">
+				<!-- The default switch and the detail fields live under Details,
+				     as board LpDashboardInstellingen draws them (three tabs:
+				     Details, Talen, Delen). -->
 				<div
 					v-if="!isCreate"
 					class="dashboard-config__field dashboard-config__field--toggle">
@@ -158,8 +199,149 @@
 						</span>
 					</NcCheckboxRadioSwitch>
 				</div>
+				<DetailsTab
+					v-if="!isCreate && canManageShares && dashboard?.uuid"
+					:dashboardUuid="dashboard.uuid" />
+				<!-- Display (REQ-THM-004): the instance theme, read-only; a
+				     dashboard picks no theme and no layout preset. -->
+				<section
+					v-if="!isCreate && canManageShares"
+					class="dashboard-config__display"
+					data-test="config-display">
+					<h3 class="dashboard-config__section-heading">
+						{{ t('launchpad', 'Display') }}
+					</h3>
+					<div class="dashboard-config__field">
+						<NcTextField
+							:modelValue="themeName"
+							:label="t('launchpad', 'Theme')"
+							readonly
+							data-testid="display-theme" />
+						<p class="dashboard-config__hint" data-testid="display-theme-hint">
+							{{ t('launchpad', 'The theme is the same for every dashboard. Set this dashboard\'s own colours under Own look.') }}
+						</p>
+					</div>
+				</section>
+				<!-- Own look (REQ-THM-001/002, board LpDashboardInstellingen):
+				     accent, background colour and background image of THIS
+				     dashboard, a block on Details with the same contrast check
+				     the server applies; there is no separate Look tab. -->
+				<section
+					v-if="!isCreate && canManageShares"
+					class="dashboard-config__look"
+					data-test="config-look">
+					<!-- Board LpDashboardInstellingen: an inset card, the title and
+					     its hint, then the colour fields and the image side by
+					     side, each colour field with its swatch left of the hex. -->
+					<div class="dashboard-config__look-head">
+						<h3 class="dashboard-config__look-title">
+							{{ t('launchpad', 'Own look') }}
+						</h3>
+						<p class="dashboard-config__hint">
+							{{ t('launchpad', 'Only this dashboard gets these colours. The header and the navigation follow the theme.') }}
+						</p>
+					</div>
+					<div class="dashboard-config__look-grid">
+						<div
+							v-for="field in lookColourFields"
+							:key="field.key"
+							class="dashboard-config__look-field">
+							<label :for="field.inputId" class="dashboard-config__look-label">
+								{{ field.label }}
+							</label>
+							<div class="dashboard-config__field dashboard-config__look-row">
+								<input
+									type="color"
+									class="dashboard-config__swatch"
+									:value="field.hex || field.fallback"
+									:aria-label="field.label"
+									:data-testid="field.testid + '-picker'"
+									@input="look[field.key] = $event.target.value">
+								<NcTextField
+									:id="field.inputId"
+									:modelValue="look[field.key]"
+									:label="field.label"
+									labelOutside
+									:placeholder="field.placeholder"
+									:data-testid="field.testid"
+									@update:modelValue="look[field.key] = $event" />
+							</div>
+						</div>
+						<!-- The dashboard's background image (review 27 Nov item 17):
+						     a styled upload button, a small preview and a remove
+						     action instead of the bare browser file input. -->
+						<div class="dashboard-config__field dashboard-config__look-field" data-testid="look-image">
+							<span id="look-image-label" class="dashboard-config__look-label">
+								{{ t('launchpad', 'Background image') }}
+							</span>
+							<p class="dashboard-config__hint">
+								{{ t('launchpad', 'Shown behind this dashboard; leave empty to follow the theme.') }}
+							</p>
+							<div class="dashboard-config__image-row">
+								<img
+									v-if="look.resource"
+									class="dashboard-config__image-preview"
+									:src="lookImageUrl"
+									alt=""
+									data-testid="look-image-preview">
+								<span v-if="look.resource" class="dashboard-config__image-name" data-testid="look-image-name">
+									{{ look.resource }}
+								</span>
+								<NcButton
+									aria-describedby="look-image-label"
+									data-testid="look-image-upload"
+									:disabled="lookUploading"
+									@click="pickLookImage">
+									{{ look.resource ? t('launchpad', 'Choose another image') : t('launchpad', 'Upload image') }}
+								</NcButton>
+								<NcButton
+									v-if="look.resource"
+									variant="tertiary"
+									data-testid="look-image-clear"
+									@click="look.resource = ''">
+									{{ t('launchpad', 'Remove') }}
+								</NcButton>
+								<input
+									id="look-image-input"
+									ref="lookImageFile"
+									class="dashboard-config__file"
+									type="file"
+									accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+									tabindex="-1"
+									aria-hidden="true"
+									data-testid="look-image-input"
+									:disabled="lookUploading"
+									@change="onLookImage">
+							</div>
+							<p v-if="lookUploadError" class="dashboard-config__error" role="alert">
+								{{ lookUploadError }}
+							</p>
+						</div>
+					</div>
+					<p
+						v-if="lookFormatError"
+						class="dashboard-config__error"
+						role="alert"
+						data-testid="look-format-error">
+						{{ lookFormatError }}
+					</p>
+					<p
+						v-else-if="!lookAccentCheck.readable"
+						class="dashboard-config__error"
+						role="alert"
+						data-testid="look-contrast-error">
+						{{ t('launchpad', 'Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)', { ratio: lookAccentCheck.ratio.toFixed(1) }) }}
+					</p>
+					<p
+						v-else-if="lookAccentCheck.ratio !== null"
+						class="dashboard-config__look-ok"
+						data-testid="look-contrast-ok">
+						{{ t('launchpad', 'Contrast of the accent colour on the background: {ratio} to 1. At least 3 to 1.', { ratio: lookAccentCheck.ratio.toFixed(1) }) }}
+					</p>
+				</section>
 			</div>
-			<!-- /default panel -->
+			<!-- /general panel -->
+
 
 			<div
 				v-if="!isCreate && currentTab === 'languages' && dashboard?.uuid"
@@ -170,14 +352,6 @@
 				<LanguagesTab :dashboardUuid="dashboard.uuid" />
 			</div>
 
-			<div
-				v-if="!isCreate && currentTab === 'details' && dashboard?.uuid"
-				id="config-panel-details"
-				role="tabpanel"
-				data-test="config-panel-details"
-				class="dashboard-config__panel">
-				<DetailsTab :dashboardUuid="dashboard.uuid" />
-			</div>
 
 			<!-- Sharing panel (dashboard-sharing spec). The sharee picker and
 			     per-share permission rows are reachable ONLY from this tab. -->
@@ -194,30 +368,39 @@
 						{{ t('launchpad', 'Share with users and groups') }}
 					</label>
 
-					<NcSelect
-						:modelValue="null"
-						:options="shareeOptions"
-						:filterable="false"
-						:loading="shareeLoading"
-						:aria-label-combobox="
-							t('launchpad', 'Share with users and groups')
-						"
-						:placeholder="t('launchpad', 'Search users and groups…')"
-						label="displayName"
-						trackBy="key"
-						:clearable="false"
-						@search="onShareeSearch"
-						@update:modelValue="onShareeSelected">
-						<template #option="option">
-							<span class="sharee-option">
-								<AccountGroup
-									v-if="option.shareType === 'group'"
-									:size="18" />
-								<Account v-else :size="18" />
-								{{ option.displayName }}
-							</span>
-						</template>
-					</NcSelect>
+					<!-- REQ-SHARE-015: under Nobody only an administrator adds shares. -->
+					<template v-if="sharingPolicy.mayShare">
+						<NcSelect
+							:modelValue="null"
+							:options="shareeOptions"
+							:filterable="false"
+							:loading="shareeLoading"
+							:aria-label-combobox="
+								t('launchpad', 'Share with users and groups')
+							"
+							:placeholder="t('launchpad', 'Search users and groups…')"
+							label="displayName"
+							trackBy="key"
+							:clearable="false"
+							@search="onShareeSearch"
+							@update:modelValue="onShareeSelected">
+							<template #option="option">
+								<span class="sharee-option">
+									<AccountGroup
+										v-if="option.shareType === 'group'"
+										:size="18" />
+									<Account v-else :size="18" />
+									{{ option.displayName }}
+								</span>
+							</template>
+						</NcSelect>
+					</template>
+					<p
+						v-else
+						class="dashboard-config__hint"
+						data-test="share-not-allowed-hint">
+						{{ t('launchpad', 'Your administrator does not allow you to share dashboards.') }}
+					</p>
 
 					<ul
 						v-if="localShares.length > 0"
@@ -258,6 +441,14 @@
 					</ul>
 					<p v-else class="dashboard-config__hint">
 						{{ t('launchpad', 'Not shared with anyone yet.') }}
+					</p>
+					<p
+						v-if="localShares.length > 0 && isUnpublished"
+						class="dashboard-config__hint"
+						data-test="share-unpublished-hint">
+						{{
+							t('launchpad', 'Colleagues see this dashboard once you publish it')
+						}}
 					</p>
 					<p
 						v-if="sharesDirty"
@@ -352,20 +543,31 @@
 						{{ t('launchpad', 'No public links yet.') }}
 					</p>
 
-					<div class="dashboard-config__public-create">
+					<p
+						v-if="!canCreatePublicLink"
+						class="dashboard-config__hint"
+						data-test="public-share-off-hint">
+						{{ t('launchpad', 'Public links are switched off.') }}
+					</p>
+					<div v-else class="dashboard-config__public-create">
 						<NcTextField
 							v-model="newSharePassword"
 							type="password"
 							:label="t('launchpad', 'Password (optional)')"
 							autocomplete="new-password" />
+						<!-- REQ-SHARE-015: every new public link has an expiry date. -->
 						<input
 							v-model="newShareExpiry"
 							class="dashboard-config__public-date"
 							type="date"
-							:aria-label="t('launchpad', 'Expiry date (optional)')" />
+							required
+							aria-required="true"
+							data-test="public-share-expiry"
+							:aria-label="t('launchpad', 'Expiry date (required)')" />
 						<NcButton
 							variant="secondary"
-							:disabled="creatingPublicShare"
+							data-test="public-share-create"
+							:disabled="creatingPublicShare || !newShareExpiry"
 							@click="onCreatePublicShare">
 							<template #icon>
 								<Plus :size="20" />
@@ -374,10 +576,66 @@
 						</NcButton>
 					</div>
 				</div>
+
+				<!-- REQ-KIOSK-006: show this dashboard on a screen, between the
+				     public link and the embed tokens. Applies immediately. -->
+				<SharingScreenLink
+					v-if="!isCreate && canManageShares && currentTab === 'sharing'"
+					:dashboard="dashboard" />
+
+				<!-- REQ-LEAF-006: the Talk conversation beside a shared dashboard. -->
+				<SharingConversation
+					v-if="!isCreate && canManageShares"
+					:dashboard="dashboard"
+					:shared="isSharedDashboard"
+					@update:conversationEnabled="onConversationChanged" />
+
+				<!-- REQ-EMB-011: the dashboard's embed tokens. The embed token
+				     API is admin-only, so the part is too. -->
+				<SharingEmbedTokens
+					v-if="!isCreate && canManageShares && isAdmin && currentTab === 'sharing'"
+					:dashboard="dashboard" />
 			</div>
 			<!-- /sharing panel -->
 
-			<div class="dashboard-config__actions">
+			<!-- REQ-SCHEDUI-001: publish, unpublish and the schedule. -->
+			<div
+				v-if="!isCreate && currentTab === 'publication'"
+				id="config-panel-publication"
+				role="tabpanel"
+				data-test="config-panel-publication"
+				class="dashboard-config__panel">
+				<PublicationTab :dashboard="dashboard" />
+			</div>
+
+			<!-- REQ-SCH-011: the scheduled exports of this dashboard. -->
+			<div
+				v-if="!isCreate && currentTab === 'exports'"
+				id="config-panel-exports"
+				role="tabpanel"
+				data-test="config-panel-exports"
+				class="dashboard-config__panel">
+				<ExportsTab
+					:subjects="exportSubjects"
+					:defaultSubject="{ type: 'dashboard', id: dashboard.uuid }" />
+			</div>
+
+			<!-- Board LpVersies: the saved versions of this dashboard. -->
+			<div
+				v-if="!isCreate && currentTab === 'versions'"
+				id="config-panel-versions"
+				role="tabpanel"
+				data-test="config-panel-versions"
+				class="dashboard-config__panel">
+				<VersionsTab
+					:dashboardUuid="dashboard.uuid"
+					@restored="$emit('versionRestored', $event)"
+					@close="$emit('close')" />
+			</div>
+
+			<!-- The Versions tab ends in its own Close and Restore this version
+			     (LpVersies); the dialog's Save does not apply there. -->
+			<div v-if="currentTab !== 'versions' || isCreate" class="dashboard-config__actions">
 				<NcButton
 					v-if="canDelete && !isCreate"
 					variant="error"
@@ -424,27 +682,44 @@ import {
 	NcSelect,
 	NcTextField,
 } from '@nextcloud/vue'
+import { defineAsyncComponent } from 'vue'
 import Account from 'vue-material-design-icons/Account.vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
+import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
+import CalendarExport from 'vue-material-design-icons/CalendarExport.vue'
 import Check from 'vue-material-design-icons/Check.vue'
 import Close from 'vue-material-design-icons/Close.vue'
 import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
 import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue'
+import History from 'vue-material-design-icons/History.vue'
 import Lock from 'vue-material-design-icons/Lock.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
-import StarOutline from 'vue-material-design-icons/StarOutline.vue'
 import Translate from 'vue-material-design-icons/Translate.vue'
-import Tune from 'vue-material-design-icons/Tune.vue'
 import DetailsTab from '../components/Workspace/config/DetailsTab.vue'
 import LanguagesTab from '../components/Workspace/config/LanguagesTab.vue'
+import SharingConversation from '../components/Workspace/config/SharingConversation.vue'
+import { FLAG_PROP, LIST_PROP, NULLABLE_OBJECT_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
-import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
-import { uploadDataUrl } from '../services/resourceService.js'
+import { DASHBOARD_ICON_CATALOGUE } from '../services/iconCatalogue.js'
+import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
+import { isCollaborative } from '../utils/dashboardDiscussion.js'
+import { accentCheck, normaliseHex } from '../utils/dashboardLook.js'
+import { hierarchyPresets } from '../utils/hierarchyPresets.js'
+import { instanceThemeName } from '../utils/instanceTheme.js'
+import { readSharingPolicy } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
+import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
+
+/* Loaded when their tab opens: they bring the export editor and the store. */
+const SharingEmbedTokens = defineAsyncComponent(() => import('../components/Workspace/config/SharingEmbedTokens.vue'))
+const SharingScreenLink = defineAsyncComponent(() => import('../components/Workspace/config/SharingScreenLink.vue'))
+const ExportsTab = defineAsyncComponent(() => import('../components/Workspace/config/ExportsTab.vue'))
+const PublicationTab = defineAsyncComponent(() => import('../components/Workspace/config/PublicationTab.vue'))
+const VersionsTab = defineAsyncComponent(() => import('../components/Workspace/config/VersionsTab.vue'))
 
 const PERMISSION_OPTIONS = [
 	{ value: 'view_only', label: 'View only' },
@@ -452,12 +727,29 @@ const PERMISSION_OPTIONS = [
 	{ value: 'full', label: 'Full access' },
 ]
 
+/**
+ * The ids of picked hierarchy choices, as one comparable string.
+ *
+ * @param {Array<{id: string}>} choices The choices.
+ * @return {string}
+ * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+ */
+function hierarchyIds(choices) {
+	return (choices || []).map((choice) => choice.id).join('\n')
+}
+
 export default {
 	name: 'DashboardConfigModal',
 
 	components: {
 		DetailsTab,
+		ExportsTab,
 		LanguagesTab,
+		SharingConversation,
+		SharingEmbedTokens,
+		SharingScreenLink,
+		PublicationTab,
+		VersionsTab,
 		NcModal,
 		NcButton,
 		NcTextField,
@@ -469,30 +761,27 @@ export default {
 		Close,
 		Account,
 		AccountGroup,
-		Tune,
-		ShareVariant,
-		StarOutline,
 		ContentCopy,
 		Check,
 		Lock,
 		CnIconBrowser,
 	},
 
+	inject: {
+		// Server-computed admin flag (PageController initial state); only
+		// decides whether the embed tokens show. The server checks again.
+		isAdmin: {
+			from: 'isAdmin',
+			default: false,
+		},
+	},
+
 	props: {
-		open: {
-			type: Boolean,
-			default: false,
-		},
+		open: FLAG_PROP,
 
-		dashboard: {
-			type: Object,
-			default: null,
-		},
+		dashboard: NULLABLE_OBJECT_PROP,
 
-		canDelete: {
-			type: Boolean,
-			default: false,
-		},
+		canDelete: FLAG_PROP,
 
 		mode: {
 			type: String,
@@ -507,25 +796,28 @@ export default {
 		 * fetches it once via `GET /api/dashboards/default` and
 		 * passes it down both here and to `DashboardSwitcherSidebar`.
 		 */
-		defaultUuid: {
-			type: String,
-			default: '',
-		},
+		defaultUuid: TEXT_PROP,
 
 		/**
 		 * Dashboards that may be chosen as parent (dashboard-tree-navigation).
 		 * The server refuses a cycle; the host leaves the dashboard itself out.
 		 */
-		parentOptions: {
-			type: Array,
-			default: () => [],
-		},
+		parentOptions: LIST_PROP,
 
 		/** Why the last save was refused, shown in the General tab. */
-		saveError: {
-			type: String,
-			default: '',
-		},
+		saveError: TEXT_PROP,
+
+		/** Whether the Publication tab is offered: the owner or an administrator. */
+		canManagePublication: FLAG_PROP,
+
+		/** Whether the Exports tab is offered. */
+		canScheduleExports: FLAG_PROP,
+
+		/** Whether the Versions tab is offered: the owner or an administrator. */
+		canViewVersions: FLAG_PROP,
+
+		/** This dashboard and its widgets as export subjects: `{type, id, label}`. */
+		exportSubjects: LIST_PROP,
 
 		/**
 		 * Tab to land on when the modal opens (dashboard-sharing spec). The
@@ -535,15 +827,17 @@ export default {
 		initialTab: {
 			type: String,
 			default: 'general',
-			validator: (v) => ['general', 'sharing', 'default'].includes(v),
+			validator: (v) => ['general', 'sharing', 'default', 'publication', 'exports'].includes(v),
 		},
 	},
 
-	emits: ['close', 'save', 'delete', 'setDefault'],
+	emits: ['close', 'save', 'delete', 'setDefault', 'versionRestored'],
 
 	data() {
 		return {
-			currentTab: this.initialTab || 'general',
+			currentTab:
+				this.initialTab === 'default' ? 'general' : this.initialTab || 'general',
+
 			form: {
 				name: '',
 				description: '',
@@ -561,9 +855,19 @@ export default {
 				// (uuid '' for none) and the web address name.
 				parent: null,
 				slug: '',
+				// launcher-tile-open-behaviour D2: `{id, label}`, id '' for
+				// the link-type rule.
+				defaultLinkTarget: null,
+				// REQ-CWF-011: the picked hierarchy choices, `{id, name, descriptor}`.
+				hierarchies: [],
 			},
 
 			saving: false,
+			// REQ-THM-001: the look being edited, and the stored one it started from.
+			look: { accent: '', background: '', resource: '' },
+			initialLook: { accent: '', background: '', resource: '' },
+			lookUploading: false,
+			lookUploadError: '',
 			// Server snapshot of shares as last loaded; used to compute dirty state.
 			serverShares: [],
 			// Local in-progress edit list; mutations buffer here until Save.
@@ -587,6 +891,47 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The instance theme's name, shown read-only on Details.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-the-details-tab-shows-the-instance-theme-read-only-req-thm-004
+		 */
+		themeName() {
+			return instanceThemeName()
+		},
+
+		/**
+		 * The hierarchies an owner can pick: the presets, then any other
+		 * hierarchy the dashboard stores, so saving does not drop it.
+		 *
+		 * @return {Array<{id: string, name: string, descriptor: object}>}
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+		 */
+		hierarchyChoices() {
+			const presets = hierarchyPresets()
+			const stored = Array.isArray(this.dashboard?.hierarchies) ? this.dashboard.hierarchies : []
+			const others = stored
+				.filter((entry) => entry && typeof entry.id === 'string' && !presets.some((preset) => preset.id === entry.id))
+				.map((entry) => ({ id: entry.id, name: entry.id, descriptor: entry }))
+			return [...presets, ...others]
+		},
+
+		/**
+		 * The dashboard default choices for how tiles open.
+		 *
+		 * @return {Array<{id: string, label: string}>}
+		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-open-behaviour/specs/tiles/spec.md
+		 */
+		linkTargetChoices() {
+			return [
+				{ id: '', label: t('launchpad', 'Web addresses in a new tab, apps in the same tab') },
+				{ id: SAME_TAB, label: t('launchpad', 'Same tab') },
+				{ id: NEW_TAB, label: t('launchpad', 'New tab') },
+				{ id: SIDE_PANEL, label: t('launchpad', 'Panel beside the tiles') },
+			]
+		},
+
 		/**
 		 * Parent choices: "No parent" first, then the other dashboards.
 		 *
@@ -616,7 +961,7 @@ export default {
 		 * @return {object} the frozen icon catalogue.
 		 */
 		iconCatalogue() {
-			return ICON_CATALOGUE
+			return DASHBOARD_ICON_CATALOGUE
 		},
 
 		/**
@@ -638,47 +983,77 @@ export default {
 		 * Config-drawer tab descriptors. The Sharing tab is only offered when
 		 * the user can manage shares — REQ-SHARE-001 is owner-only, so a
 		 * recipient must not be shown a share-management surface at all.
+		 * Publication is for the owner or an administrator (REQ-SCHEDUI-001),
+		 * and so are the Versions (board LpVersies).
 		 *
 		 * @spec openspec/specs/dashboard-sharing/spec.md#req-share-001
+		 * @spec openspec/specs/dashboards/spec.md#requirement-req-dash-039-versions-are-a-tab-of-the-dashboard-settings
+		 * @spec openspec/specs/dashboards/spec.md#requirement-a-manager-can-publish-unpublish-and-schedule-a-dashboard-req-schedui-001
+		 * @spec openspec/specs/scheduled-exports/spec.md#requirement-req-sch-011-scheduled-exports-live-in-the-dashboard-settings
+		 * @spec openspec/changes/archive/2026-11-24-dashboard-theme-readonly/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
 		 * @return {Array<{id: string, label: string}>}
 		 */
 		tabs() {
-			const list = [
-				{ id: 'general', label: t('launchpad', 'General'), icon: Tune },
+			const hasUuid = Boolean(this.dashboard?.uuid)
+			return [
+				{ id: 'general', label: t('launchpad', 'Details'), icon: FormatListBulleted, offered: true },
+				// dashboard-language-and-details-tabs: language versions, for the
+				// owner (a dashboard needs a uuid first, so the strip is hidden
+				// while creating).
+				{ id: 'languages', label: t('launchpad', 'Languages'), icon: Translate, offered: this.canManageShares && hasUuid },
+				{ id: 'sharing', label: t('launchpad', 'Sharing'), icon: ShareVariant, count: this.localShares.length, offered: this.canManageShares },
+				{ id: 'publication', label: t('launchpad', 'Publication'), icon: CalendarClock, offered: this.canManagePublication && hasUuid },
+				{ id: 'exports', label: t('launchpad', 'Exports'), icon: CalendarExport, offered: this.canScheduleExports && hasUuid },
+				{ id: 'versions', label: t('launchpad', 'Versions'), icon: History, offered: this.canViewVersions && hasUuid },
 			]
-			if (this.canManageShares) {
-				list.push({
-					id: 'sharing',
-					label: t('launchpad', 'Sharing'),
-					icon: ShareVariant,
-				})
-			}
-			list.push({
-				id: 'default',
-				label: t('launchpad', 'Default'),
-				icon: StarOutline,
-			})
-			// dashboard-language-and-details-tabs: language versions and
-			// detail fields, for the owner (a dashboard needs a uuid first,
-			// so the strip is hidden while creating).
-			if (this.canManageShares && this.dashboard?.uuid) {
-				list.push(
-					{
-						id: 'languages',
-						label: t('launchpad', 'Languages'),
-						icon: Translate,
-					},
-					{
-						id: 'details',
-						label: t('launchpad', 'Details'),
-						icon: FormatListBulleted,
-					},
-				)
-			}
-			return list
+				.filter((tab) => tab.offered)
+				.map(({ offered, ...tab }) => tab)
+		},
+
+		/**
+		 * Whether the dashboard is a draft or still scheduled, so share
+		 * recipients do not see it yet (REQ-DASH-036).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/dashboard-sharing/spec.md
+		 */
+		isUnpublished() {
+			const status = this.dashboard?.publicationStatus || 'published'
+			return status === 'draft' || status === 'scheduled'
+		},
+
+		/**
+		 * Whether the dashboard is shared: a group dashboard or one with stored shares.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+		 */
+		isSharedDashboard() {
+			return isCollaborative({ dashboard: this.dashboard, ownShares: this.serverShares })
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
+		/**
+		 * What the Sharing tab may offer the viewer (REQ-SHARE-015).
+		 *
+		 * @return {{mayShare: boolean, publicLinksAllowed: boolean}}
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+		 */
+		sharingPolicy() {
+			return readSharingPolicy()
+		},
+
+		/**
+		 * Whether the viewer may create a public link: they may share and
+		 * public links are on (REQ-SHARE-015). Existing links stay listed.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+		 */
+		canCreatePublicLink() {
+			return this.sharingPolicy.mayShare && this.sharingPolicy.publicLinksAllowed
+		},
+
 		canManageShares() {
 			// Only the owner can see / manage shares.
 			return (
@@ -691,7 +1066,7 @@ export default {
 		modalTitle() {
 			return this.isCreate
 				? t('launchpad', 'Create dashboard')
-				: t('launchpad', 'Dashboard configuration')
+				: t('launchpad', 'Dashboard settings')
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -730,7 +1105,84 @@ export default {
 
 		/** @spec openspec/specs/dashboards/spec.md */
 		canSave() {
-			return this.form.name.trim().length > 0
+			return this.form.name.trim().length > 0 && this.lookValid
+		},
+
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
+		lookAccentHex() {
+			return normaliseHex(this.look.accent)
+		},
+
+		/**
+		 * The two colour fields of Own look, each drawn as on board
+		 * LpDashboardInstellingen: its label above, the swatch (the colour
+		 * picker) left of the hex field, on one row.
+		 *
+		 * @return {object[]}
+		 * @spec openspec/changes/archive/2026-11-27-own-look-fields/specs/dashboards/spec.md#requirement-a-colour-field-shows-its-picker-beside-its-input-req-thm-005
+		 */
+		lookColourFields() {
+			return [
+				{ key: 'accent', label: t('launchpad', 'Accent color'), testid: 'look-accent', inputId: 'look-accent-input', placeholder: '#1f5c3a', hex: this.lookAccentHex, fallback: '#000000' },
+				{ key: 'background', label: t('launchpad', 'Background color'), testid: 'look-background', inputId: 'look-background-input', placeholder: '#ffffff', hex: this.lookBackgroundHex, fallback: '#ffffff' },
+			]
+		},
+
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
+		lookImageUrl() {
+			return this.look.resource
+				? generateUrl('/apps/launchpad/resource/' + encodeURIComponent(this.look.resource))
+				: ''
+		},
+
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
+		lookBackgroundHex() {
+			return normaliseHex(this.look.background)
+		},
+
+		/**
+		 * A colour field that holds something other than a colour.
+		 *
+		 * @return {string} the message, or '' when both fields are empty or colours.
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		lookFormatError() {
+			const bad = [this.look.accent, this.look.background].some(
+				(value) => String(value).trim() !== '' && normaliseHex(value) === null,
+			)
+			return bad ? t('launchpad', 'Enter colors like #1f5c3a.') : ''
+		},
+
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002 */
+		lookAccentCheck() {
+			return accentCheck(this.lookAccentHex, this.lookBackgroundHex)
+		},
+
+		/** @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002 */
+		lookValid() {
+			return this.lookFormatError === '' && this.lookAccentCheck.readable
+		},
+
+		/**
+		 * The look fields that changed, as the update route takes them ('' clears),
+		 * or null when nothing changed, so a rename stays a metadata edit.
+		 *
+		 * @return {object|null}
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		lookPayload() {
+			const fields = {
+				themeAccent: ['accent', this.lookAccentHex ?? ''],
+				themeBackgroundColor: ['background', this.lookBackgroundHex ?? ''],
+				themeBackgroundResource: ['resource', this.look.resource || ''],
+			}
+			const payload = {}
+			for (const [field, [key, value]] of Object.entries(fields)) {
+				if (value !== (this.initialLook[key] || '')) {
+					payload[field] = value
+				}
+			}
+			return Object.keys(payload).length > 0 ? payload : null
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -770,7 +1222,9 @@ export default {
 				// top-bar share action opens directly on Sharing). Fall back
 				// to General if the requested tab is the share tab but the
 				// user cannot manage shares.
-				const wanted = this.initialTab || 'general'
+				// `default` was its own tab; the switch now sits under Details.
+				const wanted
+					= this.initialTab === 'default' ? 'general' : this.initialTab || 'general'
 				this.currentTab =
 					wanted === 'sharing' && !this.canManageShares
 						? 'general'
@@ -784,6 +1238,13 @@ export default {
 					this.form.name = this.dashboard.name || ''
 					this.form.description = this.dashboard.description || ''
 					this.form.slug = this.dashboard.slug || ''
+					this.form.defaultLinkTarget =
+						this.linkTargetChoices.find(
+							(c) => c.id === (this.dashboard.defaultLinkTarget || ''),
+						) || this.linkTargetChoices[0]
+					this._initialLinkTarget = this.form.defaultLinkTarget.id
+					this.form.hierarchies = this.storedHierarchyChoices()
+					this._initialHierarchies = hierarchyIds(this.form.hierarchies)
 					this.form.parent =
 						this.parentChoices.find(
 							(p) => p.uuid === (this.dashboard.parentUuid || ''),
@@ -794,6 +1255,14 @@ export default {
 					// only null/empty falls back to DEFAULT_ICON
 					// (REQ-ICON-002 + REQ-ICON-009).
 					this.form.icon = this.dashboard.icon || DEFAULT_ICON
+					// REQ-THM-001: the stored look, and a snapshot to send only what changes.
+					this.initialLook = {
+						accent: this.dashboard.themeAccent || '',
+						background: this.dashboard.themeBackgroundColor || '',
+						resource: this.dashboard.themeBackgroundResource || '',
+					}
+					this.look = { ...this.initialLook }
+					this.lookUploadError = ''
 					// Wave3.8 — initial toggle state mirrors whether
 					// THIS dashboard's UUID matches the user's pinned
 					// default. Snapshot for the dirty-check in onSave.
@@ -812,7 +1281,78 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * The conversation switch was stored: let the open page follow it.
+		 *
+		 * @param {number} value 1 shows the conversation, 0 hides it.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-24-sharing-tab-embed-and-conversation/specs/dashboard-talk-leaf/spec.md#requirement-the-conversation-is-switched-on-from-the-sharing-tab-req-leaf-006
+		 */
+		async onConversationChanged(value) {
+			// Loaded on use: the store module reads the user's language on import.
+			const { useDashboardStore } = await import('../stores/dashboard.js')
+			useDashboardStore().applyFieldsPatch(this.dashboard?.uuid, { conversationEnabled: value })
+		},
+
 		t,
+
+		/**
+		 * The choices of the hierarchies the dashboard stores, in stored order.
+		 *
+		 * @return {Array<{id: string, name: string, descriptor: object}>}
+		 * @spec openspec/changes/archive/2026-11-25-drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-011-a-dashboard-stores-its-hierarchies
+		 */
+		storedHierarchyChoices() {
+			const stored = Array.isArray(this.dashboard?.hierarchies) ? this.dashboard.hierarchies : []
+			return stored
+				.map((entry) => this.hierarchyChoices.find((choice) => choice.id === entry?.id))
+				.filter(Boolean)
+		},
+
+		/**
+		 * Upload a chosen background image through LaunchPad's resource
+		 * uploads and keep its file name (REQ-THM-001).
+		 *
+		 * @param {Event} event The file input's change event.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		/**
+		 * Open the browser's file picker behind the styled upload button.
+		 *
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		pickLookImage() {
+			this.$refs.lookImageFile?.click()
+		},
+
+		/**
+		 * Upload the picked background image and keep its resource name.
+		 *
+		 * @param {Event} event The file input's change event.
+		 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		async onLookImage(event) {
+			const file = event?.target?.files?.[0]
+			if (!file) {
+				return
+			}
+			this.lookUploading = true
+			this.lookUploadError = ''
+			try {
+				const resource = await uploadFile(file)
+				this.look.resource = resource.name
+			} catch (error) {
+				logger.error('Failed to upload the background image:', error)
+				this.lookUploadError = t('launchpad', 'Failed to upload image')
+			} finally {
+				this.lookUploading = false
+				if (event?.target) {
+					event.target.value = ''
+				}
+			}
+		},
+
 		/**
 		 * Resolve a permission level to its select option, falling back to
 		 * the first option for unknown levels.
@@ -869,18 +1409,18 @@ export default {
 		 * Mint a new public link, optionally password-protected and/or expiring.
 		 *
 		 * @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
+		 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
 		 */
 		async onCreatePublicShare() {
-			if (!this.dashboard?.uuid) {
+			// REQ-SHARE-015: the server refuses a link without an expiry date.
+			if (!this.dashboard?.uuid || !this.newShareExpiry) {
 				return
 			}
 			this.creatingPublicShare = true
 			try {
 				// The date input yields `YYYY-MM-DD`; the backend expects an
 				// ISO 8601 instant, so pin expiry to end-of-day UTC.
-				const expiresAt = this.newShareExpiry
-					? `${this.newShareExpiry}T23:59:59Z`
-					: null
+				const expiresAt = `${this.newShareExpiry}T23:59:59Z`
 				await usePublicShareStore().createShare(this.dashboard.uuid, {
 					password: this.newSharePassword || null,
 					expiresAt,
@@ -1105,6 +1645,16 @@ export default {
 						: {
 								parentUuid: this.form.parent?.uuid ?? '',
 								slug: this.form.slug.trim(),
+								...(this.lookPayload ? { look: this.lookPayload } : {}),
+								// Only when changed: it needs full edit rights, so a
+								// metadata-only editor's save must not carry it.
+								...((this.form.defaultLinkTarget?.id ?? '') !== this._initialLinkTarget
+									? { defaultLinkTarget: this.form.defaultLinkTarget?.id ?? '' }
+									: {}),
+								// REQ-CWF-011: only when changed, for the same reason.
+								...(hierarchyIds(this.form.hierarchies) !== this._initialHierarchies
+									? { hierarchies: this.form.hierarchies.map((choice) => choice.descriptor) }
+									: {}),
 							}),
 				})
 
@@ -1214,52 +1764,77 @@ export default {
 	font-weight: 600;
 }
 
-/* Fleet tablist design (nc-vue CnTabbedFormDialog / NC sidebar tabs):
-   justified full-width tabs, icon + label, primary underline on the
-   active tab, border underline on hover. */
+/* Tabs as boards LpDashboardInstellingen and LpDelen draw them: words on
+   the strip's rule, 44px high, the active one bold over a 3px primary line. */
 .dashboard-config__tabs {
 	display: flex;
-	justify-content: space-between;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	gap: 4px;
 	list-style: none;
-	margin: 8px 0 16px;
+	/* Against the dialog's 20px gap: 12px under the title, 16px over the panel. */
+	margin: -8px 0 -4px;
 	padding: 0;
 	border-bottom: 1px solid var(--color-border);
 }
 
 .dashboard-config__tab-item {
 	display: flex;
-	flex: 1;
+	flex: none;
 }
 
-.dashboard-config__tab-item:hover {
-	background-color: var(--color-background-hover);
-}
-
-.dashboard-config__tab {
-	flex: 1;
-	display: flex;
+.dashboard-config__tabs .dashboard-config__tab {
+	display: inline-flex;
 	align-items: center;
-	justify-content: center;
 	gap: 8px;
-	background: transparent;
+	width: auto;
+	height: 44px;
+	min-height: 44px;
+	margin: 0;
+	padding: 0 14px;
 	border: 0;
-	border-bottom: 2px solid transparent;
-	padding: 10px;
+	/* Core's hover and focus rules for buttons colour the border with a
+	   stronger selector; the underline is the tab's state, not the pointer's. */
+	border-bottom: 3px solid transparent !important;
+	border-radius: 0;
+	background: transparent;
 	cursor: pointer;
-	font: inherit;
-	text-align: center;
-	color: var(--color-text-maxcontrast);
+	font-family: var(--font-face);
+	font-size: 15px;
+	font-weight: 500;
+	white-space: nowrap;
+	color: color-mix(in srgb, var(--color-main-text) 85%, var(--color-main-background));
 }
 
-.dashboard-config__tab:hover {
-	border-bottom-color: var(--color-border);
+.dashboard-config__tabs .dashboard-config__tab:hover {
+	background: transparent;
+	border-bottom-color: var(--color-border) !important;
 }
 
-.dashboard-config__tab--active,
-.dashboard-config__tab--active:hover {
+.dashboard-config__tabs .dashboard-config__tab--active,
+.dashboard-config__tabs .dashboard-config__tab--active:hover {
 	color: var(--color-main-text);
-	border-bottom-color: var(--color-primary-element);
-	font-weight: 600;
+	border-bottom-color: var(--color-primary-element) !important;
+	font-weight: 700;
+}
+
+/*
+ * Phone width (NcModal's own breakpoint): four labelled tabs need more room
+ * than the screen has, so the strip scrolls inside its own row instead of
+ * widening the modal body.
+ */
+@media only screen and (max-width: 512px) {
+	.dashboard-config__tabs {
+		overflow-x: auto;
+	}
+
+	.dashboard-config__tab-item {
+		flex: 1 0 auto;
+	}
+
+	.dashboard-config__tab {
+		white-space: nowrap;
+	}
 }
 
 .dashboard-config__panel {
@@ -1394,6 +1969,7 @@ export default {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	flex-wrap: wrap;
 	gap: 12px;
 	margin-top: 8px;
 }
@@ -1443,5 +2019,146 @@ export default {
 
 .dashboard-config__error {
 	color: var(--color-error-text);
+}
+
+/* The count on the Delen tab (board LpDashboardInstellingen). */
+.dashboard-config__tab-count {
+	min-width: 22px;
+	box-sizing: border-box;
+	padding: 0 6px;
+	border-radius: 11px;
+	background: var(--color-border);
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 22px;
+	text-align: center;
+}
+
+/* Board LpDashboardInstellingen: Own look is an inset card on Details. */
+.dashboard-config__look {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-top: 16px;
+	padding: 14px 16px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-large, 10px);
+	/* The board's #fafbfc: a lighter step than the hover background. */
+	background: color-mix(in srgb, var(--color-background-hover) 40%, var(--color-main-background));
+}
+
+.dashboard-config__look-head {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.dashboard-config__look-head .dashboard-config__hint {
+	margin: 0;
+}
+
+.dashboard-config__look-title {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.dashboard-config__section-heading {
+	margin: 0 0 8px;
+	font-size: 1.1em;
+	font-weight: bold;
+}
+
+/* The colour fields and the image side by side, two to a row in the dialog. */
+.dashboard-config__look-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 14px 18px;
+	align-items: start;
+}
+
+.dashboard-config__look-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-inline-size: 0;
+}
+
+.dashboard-config__look-label {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--color-main-text);
+}
+
+/* .dashboard-config__field stacks its children (flex-direction: column);
+   a look row puts the swatch (the colour picker) NEXT TO its field. */
+.dashboard-config__look-row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 8px;
+}
+
+.dashboard-config__look-row > :last-child {
+	flex: 1 1 auto;
+	min-inline-size: 0;
+}
+
+.dashboard-config__look-ok {
+	margin: 0;
+	padding: 10px 12px;
+	border-radius: var(--border-radius-element, 8px);
+	background: color-mix(in srgb, var(--color-success) 12%, var(--color-main-background));
+	color: var(--color-success-text);
+	font-size: 13px;
+	line-height: 1.45;
+}
+
+.dashboard-config__swatch {
+	flex: 0 0 auto;
+}
+
+.dashboard-config__image-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+.dashboard-config__image-preview {
+	inline-size: 64px;
+	block-size: 40px;
+	object-fit: cover;
+	border: 1px solid var(--color-border-dark);
+	border-radius: var(--border-radius);
+}
+
+.dashboard-config__image-name {
+	overflow: hidden;
+	max-inline-size: 16em;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--color-text-maxcontrast);
+}
+
+/* The real file input stays in the DOM for the picker, out of sight. */
+.dashboard-config__file {
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.dashboard-config__swatch {
+	inline-size: 40px;
+	block-size: 40px;
+	padding: 2px;
+	border: 1px solid var(--color-border-maxcontrast, var(--color-border-dark));
+	border-radius: var(--border-radius-element, 8px);
+	background: var(--color-main-background);
+	cursor: pointer;
 }
 </style>

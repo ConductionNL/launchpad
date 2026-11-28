@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use OCA\LaunchPad\Db\WidgetPlacement;
+
 use OCP\IRequest;
 
 /**
@@ -29,6 +31,50 @@ use OCP\IRequest;
  */
 class RequestDataExtractor {
 	/**
+	 * The tile fields read from the request: field => [parameter, default].
+	 *
+	 * @var array<string, array{0: string, 1: string|null}>
+	 */
+	private const TILE_PARAMS = [
+		'title'    => ['title', 'New Tile'],
+		'icon'     => ['icon', 'icon-link'],
+		'iconType' => ['iconType', 'class'],
+		'bgColor'  => ['bgColor', '#0082c9'],
+		'txtColor' => ['textColor', '#ffffff'],
+		'linkType' => ['linkType', 'app'],
+		'linkVal'  => ['linkValue', ''],
+		// Launcher-tile-open-behaviour D1: absent means "follow the dashboard".
+		'linkTarget' => ['linkTarget', null],
+	];
+
+	/**
+	 * The tile grid coordinates read from the request, as integers defaulting to 0.
+	 *
+	 * @var list<string>
+	 */
+	private const TILE_GRID_PARAMS = ['gridX', 'gridY'];
+
+	/**
+	 * The tile size read from the request when the caller gives one (a positive
+	 * whole number of cells); left out otherwise, so the placement keeps its
+	 * default size.
+	 *
+	 * @var list<string>
+	 */
+	private const TILE_SIZE_PARAMS = ['gridWidth', 'gridHeight'];
+
+	/**
+	 * The placement fields a placement update may carry.
+	 *
+	 * @var list<string>
+	 */
+	private const PLACEMENT_FIELDS = [
+		// The widget version the change was made on (building-edit-a-dashboard-together, task 1.2).
+		'version',
+		...WidgetPlacement::EDITABLE_FIELDS,
+	];
+
+	/**
 	 * Extract tile data from the request parameters.
 	 *
 	 * @param IRequest $request The request.
@@ -36,46 +82,34 @@ class RequestDataExtractor {
 	 * @return array The tile configuration data.
 	 *
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-infrastructure-helpers/tasks.md#task-3
+	 * @spec openspec/specs/app-tile-widget/spec.md#requirement-the-tile-form-starts-with-app-or-link-req-apptile-004
 	 */
 	public static function extractTileData(IRequest $request): array {
-		return [
-			'title' => $request->getParam(
-				key: 'title',
-				default: 'New Tile'
-			),
-			'icon' => $request->getParam(
-				key: 'icon',
-				default: 'icon-link'
-			),
-			'iconType' => $request->getParam(
-				key: 'iconType',
-				default: 'class'
-			),
-			'bgColor' => $request->getParam(
-				key: 'bgColor',
-				default: '#0082c9'
-			),
-			'txtColor' => $request->getParam(
-				key: 'textColor',
-				default: '#ffffff'
-			),
-			'linkType' => $request->getParam(
-				key: 'linkType',
-				default: 'app'
-			),
-			'linkVal' => $request->getParam(
-				key: 'linkValue',
-				default: ''
-			),
-			'gridX' => (int)$request->getParam(
-				key: 'gridX',
+		$data = [];
+		foreach (self::TILE_PARAMS as $field => $param) {
+			$data[$field] = $request->getParam(
+				key: $param[0],
+				default: $param[1]
+			);
+		}
+
+		foreach (self::TILE_GRID_PARAMS as $field) {
+			$data[$field] = (int)$request->getParam(
+				key: $field,
 				default: 0
-			),
-			'gridY' => (int)$request->getParam(
-				key: 'gridY',
-				default: 0
-			),
-		];
+			);
+		}
+
+		// REQ-WDG-042: an app tile from the picker asks for one cell; without
+		// this the size was dropped and every tile landed as 2x2.
+		foreach (self::TILE_SIZE_PARAMS as $field) {
+			$size = $request->getParam(key: $field, default: null);
+			if (is_numeric($size) === true && (int)$size > 0) {
+				$data[$field] = (int)$size;
+			}
+		}
+
+		return $data;
 	}//end extractTileData()
 
 	/**
@@ -88,33 +122,8 @@ class RequestDataExtractor {
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-infrastructure-helpers/tasks.md#task-3
 	 */
 	public static function extractPlacementData(IRequest $request): array {
-		$fields = [
-			'gridX',
-			'gridY',
-			'gridWidth',
-			'gridHeight',
-			'isVisible',
-			'showTitle',
-			'customTitle',
-			'customIcon',
-			'styleConfig',
-			'content',
-			'tileTitle',
-			'tileIcon',
-			'tileIconType',
-			'tileBackgroundColor',
-			'tileTextColor',
-			'tileLinkType',
-			'tileLinkValue',
-			'requiresAcknowledgement',
-			'acknowledgementPrompt',
-			'acknowledgementDeadline',
-			'reacknowledgeOnChange',
-			'acknowledgementContentVersion',
-		];
-
 		$data = [];
-		foreach ($fields as $field) {
+		foreach (self::PLACEMENT_FIELDS as $field) {
 			$value = $request->getParam(key: $field);
 			if ($value !== null) {
 				$data[$field] = $value;

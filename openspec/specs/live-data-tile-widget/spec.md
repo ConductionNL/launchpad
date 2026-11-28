@@ -1,13 +1,16 @@
 # live-data-tile-widget Specification
 
 ## Purpose
-TBD - created by archiving change live-data-tile-widget. Update Purpose after archive.
+A tile that shows live data from an outside source: one value with a format and a badge, or a list, a table or key-value pairs, fetched and mapped on the server from an allowed host or an OpenConnector source, so personal fields and unsafe links never reach the page.
+
 ## Requirements
+
 ### Requirement: REQ-LIVETILE-001 Register live-data tile widget
 
 The system MUST register a `launchpad_livetile` widget with the Nextcloud Dashboard Widget API (v2) so it appears in the widget picker.
 
 #### Scenario: Widget appears in discovery
+@e2e exclude never built as written: there is no `launchpad_livetile` Dashboard API widget, no `supportsV2`/`IReloadableWidget` (`git log --all -S launchpad_livetile -- src lib appinfo templates` finds only 5c110d12, which registered the frontend-only `livetile` type in src/constants/widgetRegistry.js instead and dropped the provider task); no test pins that registry entry.
 - GIVEN the LaunchPad app is installed and enabled
 - WHEN the user opens the "Add Widget" modal on a dashboard
 - THEN the live-data tile MUST appear in the widget list with id `launchpad_livetile`
@@ -15,6 +18,7 @@ The system MUST register a `launchpad_livetile` widget with the Nextcloud Dashbo
 - AND the widget MUST declare `supportsV2 = true` and implement `IReloadableWidget`
 
 #### Scenario: Registration via IManager
+@e2e exclude never built: no `LiveTileWidgetProvider` exists and nothing registers with `IManager` (`git log --all -S LiveTileWidgetProvider -- src lib appinfo templates` returns nothing; 5c110d12 notes the app has no lib/Widget provider layer); no test pins it.
 - GIVEN `OCP\Dashboard\IManager` is available
 - WHEN the LaunchPad app boots
 - THEN the app MUST register `LiveTileWidgetProvider`
@@ -100,7 +104,65 @@ The system MUST treat OpenConnector as an optional leaf and remain functional wh
 - AND existing `connector`-mode tiles MUST render an informative "data source unavailable" state, not crash
 
 #### Scenario: No direct class dependency
+@e2e exclude a code-structure property with no browser surface; the capability probe and the container lookup are pinned by tests/Unit/Service/LiveTileServiceTest.php (testProbeAsksForTheConnectorsRealServiceClass, testResolvesViaConnectorWhenAvailable, testIsConnectorAvailableFalseWhenAppDisabled); no test checks for a static import.
 - GIVEN the LaunchPad codebase
 - WHEN resolving a `connector`-mode tile
 - THEN LaunchPad MUST call OpenConnector through its documented runtime source-run API guarded by a capability probe, and MUST NOT statically import OpenConnector PHP classes
 
+### Requirement: A live tile can show a list, a table or key-value pairs (REQ-LTC-001)
+
+A live tile MUST accept a display of `value` (the default), `list`, `table` or `keyvalue`, a mapping of up to six fields each with a label, a path and a role (title, link, date or field), and a limit between 1 and 50. A tile saved before this change MUST keep rendering its single value.
+
+#### Scenario: Ticket list from a connected system
+
+@e2e exclude needs an Integriq "TOPdesk" source, which the CI fixture does not have and which Nextcloud resolves server-side; the connector node mapping is pinned by tests/Unit/Service/LiveTileListsTest.php::testAConnectorNodeIsMappedTheSameWay, the list rendering by live-tile-lists.spec.ts and src/components/Widgets/Renderers/__tests__/LiveTileWidget.lists.spec.js.
+
+- **GIVEN** Integriq holds a source "TOPdesk" with stored credentials and Ella adds a live tile in connector mode with source "TOPdesk", expression `$.incidents`, display "List", limit 5, and mapping title `briefDescription`, link `url`, date `callDate`
+- **WHEN** Pieter opens the Workspace page
+- **THEN** the tile lists five incidents, each title linking to the incident
+
+#### Scenario: Existing single-value tile
+
+- **GIVEN** a live tile saved last month with `valueExpr: "$.open"` and no display
+- **WHEN** it renders after this change
+- **THEN** it shows the single value as before
+
+### Requirement: Mapping happens on the server and drops unmapped data (REQ-LTC-002)
+
+The server MUST evaluate the mapping, return only mapped fields, truncate to the limit, and cache the mapped result. The raw response MUST NOT be sent to the browser.
+
+#### Scenario: Personal data in the payload stays on the server
+
+- **GIVEN** a source whose items include `callerEmail`, and a mapping without it
+- **WHEN** the tile's data is requested
+- **THEN** the response items hold only the mapped fields and no `callerEmail`
+
+### Requirement: Only safe links are clickable (REQ-LTC-003)
+
+A mapped link MUST render as a link only when it is an `https` address, opening in a new tab; any other value MUST render as plain text.
+
+#### Scenario: Script link shown as text
+
+- **GIVEN** an item whose mapped link is `javascript:alert(1)`
+- **WHEN** the list renders
+- **THEN** the title shows as plain text without a link
+
+### Requirement: A preset shows another intranet's latest documents (REQ-LTC-004)
+
+The tile form MUST offer a "Latest documents" preset with SharePoint and Confluence variants that fill a list display with title, link, last modified and modified by, for the author to confirm.
+
+#### Scenario: SharePoint library
+
+- **GIVEN** Integriq holds a source "Intranet documenten" for a SharePoint document library through Microsoft Graph
+- **WHEN** Ella picks the preset "Latest documents", variant SharePoint, and the source, and saves
+- **THEN** the tile lists the ten latest documents with title, last modified date and editor, and each title opens the document in SharePoint
+
+### Requirement: The Live data form as LpWidgetInstellen draws it (REQ-LIVETILE-020)
+
+The content part of a Live data widget SHALL ask "Where does the value come from?" with two choice cards, Connection (a system the administrator has connected) and Web address (an address that returns JSON). With Connection it SHALL show the chosen connection and when it last succeeded. It SHALL then ask the path in the response, the view (Value, List, Table, Key-value), an optional unit and the refresh interval, and under Formatting the title, colour, border and whether the title shows, with a preview that follows the fields.
+
+#### Scenario: KCC waiting time
+
+- **GIVEN** the connection Contact centre queue last succeeded at 10:38
+- **WHEN** the editor chooses it, path `wait.minutes`, view Value, unit minutes
+- **THEN** the preview shows the current value with "minutes" and "Refreshes every 5 minutes"

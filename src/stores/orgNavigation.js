@@ -18,6 +18,7 @@
 
 import { defineStore } from 'pinia'
 import { api } from '../services/api.js'
+import { takeOrgNavigation } from '../utils/loadInitialState.js'
 
 /**
  * Allowed values for the global rail position (REQ-ONAV-004).
@@ -25,6 +26,19 @@ import { api } from '../services/api.js'
  * @type {string[]}
  */
 export const ORG_NAV_POSITIONS = Object.freeze(['left', 'right', 'top', 'hidden'])
+
+/**
+ * The message for a failed tree save: the `error` string of the response
+ * body when the backend sent one, a generic message otherwise.
+ *
+ * @param {unknown} err The caught request error.
+ * @return {string} The message.
+ */
+function saveErrorOf(err) {
+	const responseError =
+		err && err.response && err.response.data ? err.response.data.error : null
+	return responseError || 'Failed to save navigation'
+}
 
 export const useOrgNavigationStore = defineStore('orgNavigation', {
 	state: () => ({
@@ -110,6 +124,33 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 		},
 
 		/**
+		 * Fetch the editor's copy of the tree: every node, also those in
+		 * groups the administrator is not in (REQ-ONAV-007). The rail's
+		 * filtered `state.tree` is left alone.
+		 *
+		 * @param {string} lang ISO language code (defaults to current
+		 *                      `state.language`).
+		 * @return {Promise<Array<object>>} The whole tree; `[]` on failure.
+		 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+		 */
+		async fetchEditableTree(lang) {
+			const language = lang || this.language || 'nl'
+			this.loading = true
+			try {
+				const response = await api.getEditableOrgNavigation(language)
+				const data = response && response.data ? response.data : {}
+				this.error = null
+				return Array.isArray(data.tree) ? data.tree : []
+			} catch (err) {
+				this.error =
+					err && err.message ? err.message : 'Failed to load navigation'
+				return []
+			} finally {
+				this.loading = false
+			}
+		},
+
+		/**
 		 * Persist a new tree (admin-only on the backend).
 		 *
 		 * On success the local `tree` is replaced with the returned
@@ -134,15 +175,32 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 				this.error = null
 				return true
 			} catch (err) {
-				const responseError =
-					err && err.response && err.response.data
-						? err.response.data.error
-						: null
-				this.error = responseError || 'Failed to save navigation'
+				this.error = saveErrorOf(err)
 				return false
 			} finally {
 				this.loading = false
 			}
+		},
+
+		/**
+		 * The shell's first load: the position and tree the page carries,
+		 * or both from the API when it carries none.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/archive/2026-11-25-org-navigation-from-initial-state/tasks.md#task-3
+		 */
+		async loadFirst() {
+			const firstLoad = takeOrgNavigation()
+			if (firstLoad === null) {
+				await Promise.all([this.fetchPosition(), this.fetchTree()])
+				return
+			}
+			if (ORG_NAV_POSITIONS.includes(firstLoad.position)) {
+				this.position = firstLoad.position
+			}
+			this.tree = firstLoad.tree
+			this.language = firstLoad.language
+			this.error = null
 		},
 
 		/**

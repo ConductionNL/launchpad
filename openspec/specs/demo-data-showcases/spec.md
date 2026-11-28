@@ -117,7 +117,6 @@ The system maintains a registry of installed showcases by querying existing dash
 
 ## Requirements
 
-
 ### Requirement: REQ-DEMO-001 Bundled showcase ZIP archives
 
 The system MUST ship a showcase ZIP archive per bundled id under
@@ -133,9 +132,7 @@ tree. Each `manifest.json` MUST contain:
 - `showcaseDescription`: one sentence saying what the dashboard shows
 - `showcaseLanguage`: locale code of the dashboard's own copy
 
-Each `dashboards/{uuid}.json` MUST declare `type: "group_shared"`, a null `userId`,
-`permissionLevel: "view_only"` and a `showcase-{id}` slug, so an installed showcase
-is a read-only group dashboard rather than someone's personal one.
+Each `dashboards/{uuid}.json` MUST declare `type: "group_shared"`, a null `userId` and a `showcase-{id}` slug, so an installed showcase is a group dashboard rather than someone's personal one. Its `permissionLevel` MUST be `view_only`, except for a showcase that shows a shared intranet colleagues add to, which MAY be `add_only`.
 
 **This paragraph previously described an `export.json` plus a `nl/` locale tree, and
 neither has ever been in any bundled ZIP.** The archives have always been
@@ -153,6 +150,8 @@ screenshots stay reusable:
 - `gemeente-duin`, a municipality
 - `horizon-labs`, a tech startup
 - `van-der-berg`, a law firm
+- `zuiddrecht-intranet`, the intranet of the demo municipality Zuiddrecht, which every colleague may add widgets to (`add_only`)
+- `zuiddrecht-management`, the management information of Zuiddrecht (`view_only`)
 
 **Role showcases** answer a different question: what one person's working day looks
 like on one page.
@@ -201,6 +200,16 @@ remain a v2 goal.
 - **AND** installation attempts MUST return HTTP 500
 
 @e2e exclude The bundled archives are all valid, so a browser run cannot arrange a broken one; a missing archive is pinned by DemoShowcasesServiceTest::testDescribeShowcaseReturnsNullWhenZipMissing, a malformed one by no test yet.
+
+#### Scenario: The Zuiddrecht intranet lets colleagues add widgets
+- **GIVEN** an administrator installed the `zuiddrecht-intranet` showcase
+- **WHEN** a colleague opens "Intranet Zuiddrecht"
+- **THEN** the dashboard is a group dashboard the colleague may add widgets to, and not edit or delete
+
+#### Scenario: The management information is read only
+- **GIVEN** an administrator installed the `zuiddrecht-management` showcase
+- **WHEN** a colleague opens "Managementinformatie"
+- **THEN** the dashboard shows the counts from the registers and offers no editing
 
 ### Requirement: REQ-DEMO-002 List available showcases endpoint
 
@@ -551,3 +560,44 @@ Both commands MUST validate admin role (require Nextcloud admin user credentials
 - **WHEN** the command runs
 - **THEN** the system MUST output an error "Showcase not found"
 - **AND** exit with code 1
+
+### Requirement: REQ-DEMO-010 Demo seed of the boards
+
+LaunchPad SHALL ship a demo seed that reproduces the LaunchPad boards: demo users and groups, an app tile catalogue,
+announcements, a shared team folder and one dashboard per board, each with a fixed UUID. `occ launchpad:demo:load`
+SHALL write it. Users that exist keep their password; dashboards with the seeded UUID are updated and get the seeded
+placements and shares again.
+
+#### Scenario: Running the seed twice
+
+- **GIVEN** an instance where the seed ran once
+- **WHEN** an administrator runs `occ launchpad:demo:load` again
+- **THEN** no user, group, catalogue entry or dashboard is added
+- **AND** every seeded dashboard has the same widgets, positions and shares as after the first run
+
+#### Scenario: Pieter opens LaunchPad
+
+- **GIVEN** the seed ran
+- **WHEN** `pieter` opens LaunchPad
+- **THEN** his dashboard Vandaag opens first
+- **AND** Mijn werkplek, Intranet Zuiddrecht, Team Vergunningen and Managementinformatie are in his dashboard list
+
+#### Scenario: A first visit
+
+- **GIVEN** the seed ran with `--retire-showcases`
+- **WHEN** `nieuw` opens LaunchPad
+- **THEN** the page says "U heeft nog geen dashboard" and offers to start with the starter widgets
+
+### Requirement: REQ-DEMO-011 Seed widgets wait for their type
+
+A seed widget whose type is not registered on the instance SHALL be placed as its `fallback` entry when it has one and
+that type is registered, and SHALL otherwise be skipped and reported. A seed tile SHALL be an `app-tile` when its app is
+enabled and the `app-tile` type is registered, and a launcher tile in the tile's colour otherwise.
+
+#### Scenario: The wiki widget is not built yet
+@e2e exclude its GIVEN (no `wiki` widget type registered) no longer holds on a running instance, since the wiki widget ships; the skip and the later placement are pinned by tests/Unit/Service/DemoSeedServiceTest.php::testUnregisteredWidgetsAreSkippedOrFallBack, and the e2e demo-seed-boards.spec.ts run shows other unregistered types listed as 'Not registered yet, skipped'
+
+- **GIVEN** no `wiki` widget type is registered
+- **WHEN** the seed runs
+- **THEN** Mijn werkplek has no wiki widget and the command lists `wiki (Wiki)` as skipped
+- **AND** after the type ships, the next run places it

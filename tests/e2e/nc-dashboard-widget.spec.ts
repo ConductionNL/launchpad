@@ -6,7 +6,7 @@
  * Task 8 of the `nc-dashboard-widget-proxy` OpenSpec change.
  *
  * Drives the real runtime-shell add-widget flow: sidebar → personal-row cog
- * → "Add custom widget…" → Add Widget modal → pick "Nextcloud Widget" →
+ * → "Add widget" → "Custom widget" → Add Widget modal → pick "Nextcloud Widget" →
  * choose a widget in the grid picker → save.
  *
  * Scenarios (REQ-WDG-018, REQ-WDG-019, REQ-WDG-021):
@@ -22,7 +22,8 @@
  * @spec openspec/changes/nc-dashboard-widget-proxy/tasks.md#task-8
  */
 
-import type { Page } from '@playwright/test'
+import type { APIRequestContext, Page } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
 
 import { expect, test } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
@@ -31,9 +32,31 @@ import {
 	gotoLaunchPad,
 	openAddWidgetModal,
 } from './fixtures/widget-flow.ts'
+import {
+	removeSeededDashboard,
+	seedActiveDashboard,
+} from './support/dashboardFixture.ts'
+import { adminContext } from './support/principals.ts'
+
+let restoreWidgetRestriction: (() => Promise<void>) | null = null
+let api: APIRequestContext | null = null
+let seeded: SeededDashboard | null = null
 
 test.beforeAll(async () => {
-	await ensureDefaultWidgetRestriction()
+	restoreWidgetRestriction = await ensureDefaultWidgetRestriction()
+	// openAddWidgetModal drives the cog of a PERSONAL dashboard row. Since a
+	// read no longer mints 'My Dashboard' (REQ-SHELL-005 first-visit choice),
+	// the admin may have none, so the file brings its own active one.
+	api = await adminContext()
+	seeded = await seedActiveDashboard(api, `E2E nc-widget ${Date.now()}`)
+})
+
+test.afterAll(async () => {
+	if (api) {
+		await removeSeededDashboard(api, seeded)
+		await api.dispose()
+	}
+	await restoreWidgetRestriction?.()
 })
 
 /**
@@ -44,11 +67,8 @@ test.beforeAll(async () => {
  *   had no widgets (NC instance without dashboard widgets).
  */
 async function addNcWidget(page: Page): Promise<boolean> {
-	await openAddWidgetModal(page)
+	await openAddWidgetModal(page, 'nc-widget')
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
-	await dialog
-		.getByLabel(/widget type/i)
-		.selectOption({ label: 'Nextcloud widget' })
 
 	// The grid picker lists discovered Nextcloud dashboard widgets.
 	const cards = dialog.locator('.cn-nc-widget-grid-picker__card')

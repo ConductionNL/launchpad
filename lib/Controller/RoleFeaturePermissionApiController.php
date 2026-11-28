@@ -23,11 +23,13 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use Closure;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Db\Entity;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
@@ -44,15 +46,16 @@ class RoleFeaturePermissionApiController extends Controller {
 	 *
 	 * @param IRequest $request The HTTP request.
 	 * @param RoleFeaturePermissionService $service Permission service.
+	 * @param ResponseHelper $responseHelper Builds the JSON response envelopes.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly RoleFeaturePermissionService $service,
+		private readonly ResponseHelper $responseHelper,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -61,13 +64,11 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @return JSONResponse The list of permission rows.
 	 *
 	 * @spec openspec/specs/admin-roles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listPermissions(): JSONResponse {
-		$rows = $this->service->listPermissions();
-		return ResponseHelper::success(
-			data: ResponseHelper::serializeList(entities: $rows)
-		);
+		return $this->listed(rows: $this->service->listPermissions());
 	}//end listPermissions()
 
 	/**
@@ -82,21 +83,7 @@ class RoleFeaturePermissionApiController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function savePermission(): JSONResponse {
-		try {
-			$payload = $this->readJsonBody();
-			$entity = $this->service->savePermission(data: $payload);
-			return ResponseHelper::success(
-				data: $entity->jsonSerialize(),
-				statusCode: Http::STATUS_CREATED
-			);
-		} catch (\InvalidArgumentException $e) {
-			return ResponseHelper::error(
-				exception: $e,
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
-		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
-		}//end try
+		return $this->created(save: fn (array $data): Entity => $this->service->savePermission(data: $data));
 	}//end savePermission()
 
 	/**
@@ -107,18 +94,11 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @return JSONResponse Empty 204 on success.
 	 *
 	 * @spec openspec/specs/admin-roles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deletePermission(int $id): JSONResponse {
-		try {
-			$this->service->deletePermission(id: $id);
-			return new JSONResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
-		} catch (DoesNotExistException $e) {
-			return ResponseHelper::error(
-				exception: $e,
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		}//end try
+		return $this->deleted(delete: fn () => $this->service->deletePermission(id: $id));
 	}//end deletePermission()
 
 	/**
@@ -127,13 +107,11 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @return JSONResponse The list of layout default rows.
 	 *
 	 * @spec openspec/specs/admin-roles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listLayoutDefaults(): JSONResponse {
-		$rows = $this->service->listLayoutDefaults();
-		return ResponseHelper::success(
-			data: ResponseHelper::serializeList(entities: $rows)
-		);
+		return $this->listed(rows: $this->service->listLayoutDefaults());
 	}//end listLayoutDefaults()
 
 	/**
@@ -145,21 +123,7 @@ class RoleFeaturePermissionApiController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function saveLayoutDefault(): JSONResponse {
-		try {
-			$payload = $this->readJsonBody();
-			$entity = $this->service->saveLayoutDefault(data: $payload);
-			return ResponseHelper::success(
-				data: $entity->jsonSerialize(),
-				statusCode: Http::STATUS_CREATED
-			);
-		} catch (\InvalidArgumentException $e) {
-			return ResponseHelper::error(
-				exception: $e,
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
-		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
-		}//end try
+		return $this->created(save: fn (array $data): Entity => $this->service->saveLayoutDefault(data: $data));
 	}//end saveLayoutDefault()
 
 	/**
@@ -170,19 +134,75 @@ class RoleFeaturePermissionApiController extends Controller {
 	 * @return JSONResponse Empty 204 on success.
 	 *
 	 * @spec openspec/specs/admin-roles/spec.md
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deleteLayoutDefault(int $id): JSONResponse {
+		return $this->deleted(delete: fn () => $this->service->deleteLayoutDefault(id: $id));
+	}//end deleteLayoutDefault()
+
+	/**
+	 * The 200 answer of a list endpoint.
+	 *
+	 * @param Entity[] $rows The rows.
+	 *
+	 * @return JSONResponse The serialised rows.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function listed(array $rows): JSONResponse {
+		return $this->responseHelper->success(
+			data: $this->responseHelper->serializeList(entities: $rows)
+		);
+	}//end listed()
+
+	/**
+	 * Save the request body and answer 201 with the saved row; 400 when
+	 * the service rejects the payload, the generic error otherwise.
+	 *
+	 * @param Closure(array): Entity $save Saves the payload.
+	 *
+	 * @return JSONResponse The saved row, or the error.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function created(Closure $save): JSONResponse {
 		try {
-			$this->service->deleteLayoutDefault(id: $id);
+			$entity = $save($this->readJsonBody());
+			return $this->responseHelper->success(
+				data: $entity->jsonSerialize(),
+				statusCode: Http::STATUS_CREATED
+			);
+		} catch (\InvalidArgumentException $e) {
+			return $this->responseHelper->error(
+				exception: $e,
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		} catch (\Exception $e) {
+			return $this->responseHelper->error(exception: $e);
+		}//end try
+	}//end created()
+
+	/**
+	 * Delete a row and answer 204; 404 when it does not exist.
+	 *
+	 * @param Closure(): void $delete Deletes the row.
+	 *
+	 * @return JSONResponse The empty answer, or the error.
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-responsehelper-instance-api/tasks.md#task-2
+	 */
+	private function deleted(Closure $delete): JSONResponse {
+		try {
+			$delete();
 			return new JSONResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
 		} catch (DoesNotExistException $e) {
-			return ResponseHelper::error(
+			return $this->responseHelper->error(
 				exception: $e,
 				statusCode: Http::STATUS_NOT_FOUND
 			);
 		}//end try
-	}//end deleteLayoutDefault()
+	}//end deleted()
 
 	/**
 	 * Read the request body as a JSON object (best-effort).

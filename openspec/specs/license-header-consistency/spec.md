@@ -3,10 +3,9 @@
 ## Purpose
 TBD - created by archiving change align-source-license-headers-to-eupl. Update Purpose after archive.
 
-> @e2e exclude every scenario in this spec asserts a property of the repository's own source files (SPDX identifiers, PHPDoc `@license`/`@copyright` tags, the README badge) rather than any behaviour of a running instance, so there is nothing for a browser to observe. The real coverage is static and it is wired: `scripts/check-license-headers.sh` fails the build on a reintroduced `AGPL-3.0` identifier under `lib/`, `src/` or `appinfo/` (REQ-LIC-005), and it runs as composer `lint:licenses` inside `composer check:strict`; hydra gate-1 (`check_spdx_headers.py`) enforces the `@license`/`@copyright` PHPDoc pair on every file under `lib/`, and the hydra `license-triangle` gate (`scripts/lib/check_license_triangle.py`) cross-checks `LICENSE`, `composer.json`, `publiccode.yml` and `REUSE.toml` against each other. `REUSE.toml` is what makes the PHPDoc form acceptable to `reuse lint` (REQ-LIC-002/003).
-
 ## Requirements
 ### Requirement: REQ-LIC-001 Source-file SPDX identifier is EUPL-1.2
+
 
 LaunchPad-authored source files MUST declare `EUPL-1.2` as their
 `SPDX-License-Identifier`, matching `REUSE.toml`, `composer.json`,
@@ -28,6 +27,7 @@ carry an `AGPL-3.0-or-later` (or any non-`EUPL-1.2`) `SPDX-License-Identifier`.
 
 ### Requirement: REQ-LIC-002 No in-file licence contradiction
 
+
 A source file MUST NOT declare two different licences. When a file carries both
 a PHPDoc `@license` tag and an `SPDX-License-Identifier`, the two MUST name the
 same licence (`EUPL-1.2`).
@@ -40,6 +40,7 @@ same licence (`EUPL-1.2`).
 - **AND** the file MUST contain no other licence identifier
 
 ### Requirement: REQ-LIC-003 Consistent copyright holder
+
 
 Every LaunchPad-authored source file's `SPDX-FileCopyrightText` MUST name the
 same copyright holder as `REUSE.toml`, `publiccode.yml`, and the PHPDoc
@@ -54,6 +55,7 @@ same copyright holder as `REUSE.toml`, `publiccode.yml`, and the PHPDoc
 
 ### Requirement: REQ-LIC-004 README licence badge matches the declared licence
 
+
 The README licence badge MUST state the same licence as the README §License
 prose and the rest of the repository (`EUPL-1.2`).
 
@@ -65,6 +67,7 @@ prose and the rest of the repository (`EUPL-1.2`).
 - **AND** it MUST NOT display `AGPL-3.0`
 
 ### Requirement: REQ-LIC-005 Regression guard for licence drift
+
 
 The repository MUST carry an automated check that fails if a LaunchPad-authored
 source file reintroduces an `AGPL-3.0` `SPDX-License-Identifier`, and `reuse
@@ -78,6 +81,7 @@ lint` MUST pass against the reconciled tree.
 - **AND** the failure message MUST name the offending file and the expected `EUPL-1.2` identifier
 
 #### Scenario: reuse lint passes on the reconciled tree
+@e2e exclude the subject is the `reuse lint` tool's verdict on the repository (REUSE.toml, LICENSES/, dep5 coverage of non-source files), and neither the e2e runner nor the instance has the `reuse` tool installed, so an e2e run cannot produce that verdict. It is the shared quality workflow's `REUSE compliance` job (`fsfe/reuse-action`), which runs for this app with `reuse-blocking` false. The headers it would read are asserted in tests/e2e/license-header-consistency.spec.ts.
 
 - **GIVEN** all source headers reconciled to EUPL-1.2 and Conduction B.V.
 - **WHEN** `reuse lint` runs

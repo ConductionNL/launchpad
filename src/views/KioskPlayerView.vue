@@ -16,10 +16,56 @@
 			v-else-if="current"
 			class="kiosk-player__dashboard"
 			data-testid="kiosk-dashboard">
-			<h1 class="kiosk-player__title">
-				{{ current.dashboard?.name || current.dashboard?.title || '' }}
-			</h1>
-			<PublicDashboardGrid :placements="current.placements || []" />
+			<!-- Board LpKiosk: a band in the house colour with the emblem, the
+			     dashboard's name and the time, over the cards. -->
+			<header class="kiosk-player__band">
+				<img
+					v-if="emblem"
+					class="kiosk-player__emblem"
+					:src="emblem"
+					alt="" />
+				<h1 class="kiosk-player__title">
+					{{ current.dashboard?.name || current.dashboard?.title || '' }}
+				</h1>
+				<p class="kiosk-player__clock" data-testid="kiosk-clock">
+					<span class="kiosk-player__time">{{ clockTime }}</span>
+					<span class="kiosk-player__date">{{ clockDate }}</span>
+				</p>
+			</header>
+			<PublicDashboardGrid
+				class="kiosk-player__grid"
+				:placements="current.placements || []"
+				:readWidget="readWidget" />
+			<!-- REQ-KIOSKUI-003: where the playlist is, as text, not a control;
+			     hidden from screen readers, which hear the change below. -->
+			<p
+				v-if="positionText"
+				class="kiosk-player__position"
+				aria-hidden="true"
+				data-testid="kiosk-position">
+				<span class="kiosk-player__dots">
+					<span
+						v-for="(entry, i) in entries"
+						:key="i"
+						class="kiosk-player__dot"
+						:class="{ 'kiosk-player__dot--current': i === index }" />
+				</span>
+				{{ positionText }}
+			</p>
+			<p
+				class="kiosk-player__announce"
+				aria-live="polite"
+				data-testid="kiosk-announcement">
+				{{ announcement }}
+			</p>
+			<p
+				v-if="offline"
+				class="kiosk-player__reconnect"
+				:class="{ 'kiosk-player__reconnect--above': positionText !== '' }"
+				role="status"
+				data-testid="kiosk-reconnecting">
+				{{ t('launchpad', 'Reconnecting…') }}
+			</p>
 		</div>
 		<p v-else-if="loaded" class="kiosk-player__message" role="status">
 			{{ t('launchpad', 'This playlist has no dashboards to show.') }}
@@ -32,16 +78,44 @@ import axios from '@nextcloud/axios'
 import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import PublicDashboardGrid from '../components/PublicDashboardGrid.vue'
+import { REQUIRED_TEXT_PROP } from '../constants/propDefinitions.js'
+import { kioskWidgetReader } from '../services/publicWidgetClient.js'
+import { houseEmblem } from '../utils/houseEmblem.js'
+import { hideCursorWhenIdle } from '../utils/kioskMode.js'
+
+/**
+ * The locale Nextcloud renders the page in (`<html data-locale>`), for the
+ * band's clock; undefined lets the browser choose.
+ *
+ * @return {string|undefined}
+ */
+function pageLocale() {
+	const locale = document.documentElement?.dataset?.locale || ''
+	return locale === '' ? undefined : locale.replace('_', '-')
+}
 
 /** A network failure is retried this soon, whatever the refresh interval. */
 const RETRY_MS = 30 * 1000
+
+/** The next entry is fetched this long before its turn (REQ-KIOSK-004). */
+export const PREFETCH_LEAD_MS = 5 * 1000
+
+/** An entry that has not loaded this long after its turn is skipped (REQ-KIOSK-005). */
+export const ENTRY_TIMEOUT_MS = 10 * 1000
 
 /**
  * KioskPlayerView: the full-screen player behind a kiosk link. It shows
  * each dashboard of the playlist for its dwell time, starts over at the
  * end, re-reads the playlist every `refreshSeconds`, shows a message once
  * the link is revoked (404), and keeps the last good playlist when the
- * network fails, retrying every 30 seconds. No login and no controls.
+ * network fails, retrying every 30 seconds with a small reconnect indicator
+ * on screen until a read succeeds. No login and no controls.
+ *
+ * Each next entry is fetched on its own about 5 seconds before its turn, so
+ * the screen shows fresh data without a loading state (REQ-KIOSK-004). An
+ * entry that fails, or has not loaded 10 seconds after its turn, is skipped
+ * without a message and tried again on the next loop (REQ-KIOSK-005). The
+ * cursor hides after 10 seconds without pointer movement (REQ-KIOSK-001).
  *
  * @spec openspec/specs/dashboard-kiosk-mode/spec.md
  */
@@ -53,13 +127,13 @@ export default {
 	},
 
 	props: {
-		token: {
-			type: String,
-			required: true,
-		},
+		token: REQUIRED_TEXT_PROP,
 	},
 
-	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */
+	/**
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+	 */
 	data() {
 		return {
 			entries: [],
@@ -67,12 +141,60 @@ export default {
 			refreshSeconds: 300,
 			unavailable: false,
 			loaded: false,
+			offline: false,
 			dwellTimer: null,
+			prefetchTimer: null,
 			refreshTimer: null,
+			prefetched: null,
+			advancing: false,
+			stopCursor: null,
+			shownAt: 0,
+			dwellMs: 0,
+			nowMs: Date.now(),
+			tickTimer: null,
+			announcement: '',
+			clockMs: Date.now(),
+			clockTimer: null,
 		}
 	},
 
 	computed: {
+		/**
+		 * The live widgets' token-scoped read through this playlist (REQ-PSHR-011).
+		 *
+		 * @return {function((number|string)): Promise<object>} The read.
+		 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+		 */
+		readWidget() {
+			return kioskWidgetReader(this.token)
+		},
+
+		/**
+		 * The emblem of the house style, else Nextcloud's logo.
+		 *
+		 * @return {string} The image address, or ''.
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		emblem() {
+			return houseEmblem()
+		},
+
+		/**
+		 * @return {string} The time in the band, hours and minutes.
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		clockTime() {
+			return new Date(this.clockMs).toLocaleTimeString(pageLocale(), { hour: '2-digit', minute: '2-digit' })
+		},
+
+		/**
+		 * @return {string} The date in the band, weekday, day and month.
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		clockDate() {
+			return new Date(this.clockMs).toLocaleDateString(pageLocale(), { weekday: 'long', day: 'numeric', month: 'long' })
+		},
+
 		/**
 		 * @return {object|null} The entry on screen now.
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
@@ -80,16 +202,64 @@ export default {
 		current() {
 			return this.entries[this.index] ?? null
 		},
+
+		/**
+		 * The position line: "2 of 4 · next in 18 s", or '' for a playlist
+		 * of one dashboard or none.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+		 */
+		positionText() {
+			if (this.entries.length <= 1 || !this.current) {
+				return ''
+			}
+			const seconds = Math.max(0, Math.ceil((this.shownAt + this.dwellMs - this.nowMs) / 1000))
+			return t('launchpad', '{index} of {total} · next in {seconds} s', {
+				index: this.index + 1,
+				total: this.entries.length,
+				seconds,
+			})
+		},
 	},
 
-	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */
+	watch: {
+		/**
+		 * The band's clock runs while a dashboard shows.
+		 *
+		 * @param {object|null} entry The entry on screen.
+		 * @return {void}
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		current(entry) {
+			if (entry && this.clockTimer === null) {
+				this.clockMs = Date.now()
+				this.clockTimer = setInterval(() => {
+					this.clockMs = Date.now()
+				}, 15000)
+			}
+		},
+	},
+
+	/**
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+	 */
 	async mounted() {
+		this.stopCursor = hideCursorWhenIdle(document)
 		await this.load()
 	},
 
-	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */
+	/**
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+	 */
 	beforeUnmount() {
+		this.stopCursor?.()
+		clearInterval(this.tickTimer)
+		clearInterval(this.clockTimer)
 		clearTimeout(this.dwellTimer)
+		clearTimeout(this.prefetchTimer)
 		clearTimeout(this.refreshTimer)
 	},
 
@@ -112,6 +282,7 @@ export default {
 					{ headers: { Accept: 'application/json' } },
 				)
 				this.apply(data)
+				this.offline = false
 				next = this.refreshSeconds * 1000
 			} catch (error) {
 				const status = error?.response?.status
@@ -124,6 +295,7 @@ export default {
 				// Anything else is a blip: keep what is on screen.
 				next = RETRY_MS
 				this.loaded = true
+				this.offline = true
 			}
 			clearTimeout(this.refreshTimer)
 			this.refreshTimer = setTimeout(() => this.load(), next)
@@ -148,27 +320,152 @@ export default {
 			this.entries = entries
 			this.unavailable = false
 			this.loaded = true
-			if (firstLoad || this.dwellTimer === null) {
+			if (firstLoad || (this.dwellTimer === null && !this.advancing)) {
 				this.scheduleNext()
 			}
 		},
 
 		/**
-		 * Show the current entry for its dwell time, then move on.
+		 * Show the current entry for its dwell time, fetch the next one
+		 * shortly before the end, then move on.
 		 *
 		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
 		 */
 		scheduleNext() {
 			clearTimeout(this.dwellTimer)
+			clearTimeout(this.prefetchTimer)
 			this.dwellTimer = null
+			this.syncTick()
 			if (this.entries.length === 0) {
 				return
 			}
-			const dwell = Math.max(10, Number(this.current?.dwellSeconds) || 10)
-			this.dwellTimer = setTimeout(() => {
-				this.index = (this.index + 1) % this.entries.length
-				this.scheduleNext()
-			}, dwell * 1000)
+			const dwellMs = Math.max(10, Number(this.current?.dwellSeconds) || 10) * 1000
+			this.dwellMs = dwellMs
+			this.shownAt = Date.now()
+			this.nowMs = this.shownAt
+			const next = (this.index + 1) % this.entries.length
+			this.prefetchTimer = setTimeout(
+				() => this.prefetch(next),
+				Math.max(0, dwellMs - PREFETCH_LEAD_MS),
+			)
+			this.dwellTimer = setTimeout(() => this.advance(), dwellMs)
+		},
+
+		/**
+		 * Start fetching an entry before its turn.
+		 *
+		 * @param {number} index The entry's position in the playlist.
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		prefetch(index) {
+			const entry = this.entries[index]
+			if (entry) {
+				this.prefetched = { index, uuid: entry.dashboard?.uuid, result: this.fetchEntry(entry) }
+			}
+		},
+
+		/**
+		 * Fetch one entry's render payload, or null when it fails.
+		 *
+		 * @param {object} entry The entry as the playlist read gave it.
+		 * @return {Promise<object|null>} The fresh entry, or null.
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		fetchEntry(entry) {
+			const uuid = entry?.dashboard?.uuid
+			if (!uuid) {
+				return Promise.resolve(null)
+			}
+			return axios
+				.get(
+					generateUrl(
+						`/apps/launchpad/kiosk/${encodeURIComponent(this.token)}/dashboards/${encodeURIComponent(uuid)}`,
+					),
+					{ headers: { Accept: 'application/json' } },
+				)
+				.then(({ data }) => (data?.dashboard ? { ...entry, ...data } : null))
+				.catch(() => null)
+		},
+
+		/**
+		 * Wait for an entry's read from the moment its turn comes, or null
+		 * once it has not answered within the entry timeout (REQ-KIOSK-005).
+		 *
+		 * @param {Promise<object|null>} read The entry's read.
+		 * @return {Promise<object|null>} The fresh entry, or null.
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 */
+		withinEntryTimeout(read) {
+			let timer = null
+			const timeout = new Promise((resolve) => {
+				timer = setTimeout(() => resolve(null), ENTRY_TIMEOUT_MS)
+			})
+			return Promise.race([read, timeout]).finally(() => clearTimeout(timer))
+		},
+
+		/**
+		 * Move to the next entry that loads: the prefetched one when it
+		 * arrived, otherwise each following entry in turn. A failed entry
+		 * is skipped this loop only. When none loads, the screen keeps what
+		 * it shows.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+		 */
+		async advance() {
+			this.dwellTimer = null
+			this.advancing = true
+			const count = this.entries.length
+			for (let step = 1; step <= count; step++) {
+				const index = (this.index + step) % count
+				const entry = this.entries[index]
+				const ready = this.prefetched?.index === index && this.prefetched.uuid === entry?.dashboard?.uuid
+				const fresh = await this.withinEntryTimeout(ready ? this.prefetched.result : this.fetchEntry(entry))
+				if (fresh !== null && this.entries[index]?.dashboard?.uuid === fresh.dashboard?.uuid) {
+					const moved = index !== this.index
+					this.entries.splice(index, 1, fresh)
+					this.index = index
+					if (moved) {
+						this.announce(fresh)
+					}
+					break
+				}
+			}
+			this.prefetched = null
+			this.advancing = false
+			this.scheduleNext()
+		},
+
+		/**
+		 * Count the seconds down only while a playlist of more than one
+		 * dashboard plays; a single dashboard or none needs no clock.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+		 */
+		syncTick() {
+			if (this.entries.length > 1 && this.tickTimer === null) {
+				this.tickTimer = setInterval(() => {
+					this.nowMs = Date.now()
+				}, 1000)
+			} else if (this.entries.length <= 1 && this.tickTimer !== null) {
+				clearInterval(this.tickTimer)
+				this.tickTimer = null
+			}
+		},
+
+		/**
+		 * Tell screen readers, politely, which dashboard now shows.
+		 *
+		 * @param {object} entry The entry now on screen.
+		 * @return {void}
+		 * @spec openspec/changes/archive/2026-11-24-kiosk-position-indicator/specs/dashboard-kiosk-mode/spec.md#requirement-the-kiosk-screen-shows-where-the-playlist-is-req-kioskui-003
+		 */
+		announce(entry) {
+			const name = entry?.dashboard?.name || entry?.dashboard?.title || ''
+			this.announcement = name === '' ? '' : t('launchpad', 'Now showing {name}', { name })
 		},
 
 		/**
@@ -178,24 +475,165 @@ export default {
 		 */
 		stop() {
 			clearTimeout(this.dwellTimer)
+			clearTimeout(this.prefetchTimer)
 			this.dwellTimer = null
+			this.prefetched = null
 			this.entries = []
+			this.syncTick()
 		},
 	},
 }
 </script>
 
 <style scoped>
+/* Board LpKiosk: a canteen screen at 1920 x 1080 seen from across the room. */
 .kiosk-player {
+	/* The whole screen, whatever frame the page puts around the app. */
+	position: fixed;
+	inset: 0;
+	z-index: 10000;
+	overflow: auto;
 	min-height: 100vh;
-	padding: 24px;
-	background: var(--color-main-background);
+	background: var(--color-background-hover, var(--color-main-background));
 	color: var(--color-main-text);
 }
 
+.kiosk-player__band {
+	display: flex;
+	align-items: center;
+	gap: 24px;
+	height: 128px;
+	padding: 0 56px;
+	background: var(--color-primary-element);
+	color: var(--color-primary-element-text);
+}
+
+.kiosk-player__emblem {
+	box-sizing: border-box;
+	width: 72px;
+	height: 72px;
+	padding: 8px;
+	border-radius: 14px;
+	background: #ffffff;
+	object-fit: contain;
+}
+
 .kiosk-player__title {
-	margin: 0 0 16px;
-	font-size: 2em;
+	flex: 1 1 auto;
+	margin: 0;
+	font-size: 48px !important;
+	font-weight: 700 !important;
+	line-height: 1.1;
+	color: inherit !important;
+}
+
+.kiosk-player__clock {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	margin: 0;
+	line-height: 1.1;
+}
+
+/* The house style colours every paragraph with !important; the band and the
+   pill keep their own light text. */
+.kiosk-player__clock,
+.kiosk-player__clock span {
+	color: inherit !important;
+}
+
+.kiosk-player__time {
+	font-size: 48px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
+.kiosk-player__date {
+	font-size: 22px;
+}
+
+.kiosk-player__grid {
+	padding: 36px 56px;
+}
+
+.kiosk-player__grid :deep(.public-share-view__grid) {
+	max-width: none;
+	gap: 28px;
+}
+
+.kiosk-player__grid :deep(.public-share-view__widget) {
+	padding: 32px 36px;
+	border: 0;
+	border-radius: 18px;
+	font-size: 22px;
+}
+
+.kiosk-player__grid :deep(.public-share-view__widget-title) {
+	margin: 0 0 24px;
+	padding-bottom: 20px;
+	border-bottom: 2px solid var(--color-border);
+	font-size: 34px !important;
+	line-height: 1.2;
+}
+
+.kiosk-player__reconnect {
+	position: fixed;
+	inset-inline-end: 16px;
+	inset-block-end: 16px;
+	margin: 0;
+	padding: 4px 12px;
+	border-radius: var(--border-radius-pill);
+	background: var(--color-background-dark);
+	color: var(--color-text-maxcontrast);
+	font-size: 0.875em;
+}
+
+.kiosk-player__announce {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.kiosk-player__reconnect--above {
+	inset-block-end: 72px;
+}
+
+/* REQ-KIOSKUI-003: a quiet pill in the corner, text and not a control; white
+   text on the dark pill keeps AA contrast whatever the dashboard draws. */
+.kiosk-player__position {
+	position: fixed;
+	inset-inline-end: 40px;
+	inset-block-end: 32px;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	margin: 0;
+	padding: 10px 22px;
+	border-radius: 999px;
+	background: rgba(27, 28, 29, 0.82);
+	color: #ffffff !important;
+	font-size: 20px;
+	font-variant-numeric: tabular-nums;
+	pointer-events: none;
+}
+
+.kiosk-player__dots {
+	display: inline-flex;
+	gap: 8px;
+}
+
+.kiosk-player__dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.45);
+}
+
+.kiosk-player__dot--current {
+	background: #ffffff;
 }
 
 .kiosk-player__message {

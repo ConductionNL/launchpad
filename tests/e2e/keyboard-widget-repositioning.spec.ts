@@ -17,11 +17,11 @@
  *   - Accessibility: the move panel exposes an accessible group name and
  *     traps focus (focus stays inside the panel, not the canvas behind it).
  *
- * NOTE: These tests require a running Nextcloud instance with the launchpad
- * app installed and at least one widget placement on the active dashboard.
- * The harness supplies authenticated storage state via the global setup at
- * `tests/e2e/global-setup.ts`. In CI, the Hydra pipeline wires this up; run
- * locally with `npm run test:e2e` after starting the dev stack.
+ * The file seeds its own personal dashboard with one text widget and makes
+ * it the admin's active one, so it does not depend on what the instance
+ * already holds (a fresh install has no personal dashboard, and the old
+ * "first user row in the switcher" route found nothing to edit). The
+ * dashboard is removed afterwards. The tests share it, so they run serially.
  *
  * Gate-19 @e2e traceability:
  *   @e2e keyboard-widget-repositioning::grid-item-keyboard-focusable-and-named
@@ -29,53 +29,39 @@
  *   @e2e keyboard-widget-repositioning::move-panel-traps-focus
  */
 
-import type { Page } from '@playwright/test'
+import type { Placement } from './support/widgetPlacements.ts'
 
 import { expect, test } from '@playwright/test'
+import { saveEditDraft } from './support/dashboardSwitcher.ts'
+import { adminApi, openInEditMode, Seeds } from './support/widgetPlacements.ts'
 
-/**
- * Navigate to launchpad, wait for the grid to hydrate, and switch into edit
- * mode so grid items become keyboard-focusable and the context menu opens.
- *
- * @param {import('@playwright/test').Page} page Playwright page fixture.
- */
-async function openInEditMode(page: Page) {
-	await page.goto('/index.php/apps/launchpad')
-	try {
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-	} catch {
-		await page.goto('/index.php/apps/launchpad')
-		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-	}
+const RUN = Date.now()
 
-	await page.locator('.launchpad-sidebar-toggle').first().click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-		timeout: 8_000,
+let seeds: Seeds
+let placement: Placement
+
+test.describe.configure({ mode: 'serial' })
+
+test.beforeAll(async () => {
+	seeds = new Seeds(await adminApi())
+	const dash = await seeds.dashboard(`E2E Keyboard move ${RUN}`)
+	placement = await seeds.widget(dash, {
+		widgetId: 'text',
+		gridX: 0,
+		gridY: 0,
+		gridWidth: 4,
+		gridHeight: 2,
+		content: { text: 'keyboard move', contentMode: 'markdown' },
 	})
-	const activeRow = page
-		.locator(
-			'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
-		)
-		.first()
-	await activeRow.locator('.dashboard-row-actions button').first().click()
-	await page.getByRole('menuitem', { name: /edit dashboard/i }).click()
+})
 
-	await page.waitForSelector('.launchpad-edit-mode', { timeout: 8_000 })
-	const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
-	if (await closeBtn.isVisible().catch(() => false)) {
-		await closeBtn.click()
-		await page
-			.waitForFunction(
-				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-				{ timeout: 5_000 },
-			)
-			.catch(() => null)
-	}
-}
+test.afterAll(async () => {
+	await seeds?.cleanup()
+})
 
 test.describe('keyboard-accessible widget repositioning (grid-layout)', () => {
 	test.beforeEach(async ({ page }) => {
-		await openInEditMode(page)
+		await openInEditMode(page, placement.id)
 	})
 
 	test('SC 4.1.2: grid items are keyboard-focusable and expose a role + accessible name', async ({
@@ -132,6 +118,9 @@ test.describe('keyboard-accessible widget repositioning (grid-layout)', () => {
 			10,
 		)
 		expect(movedX).toBeGreaterThan(startX)
+
+		// The move lands in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBe(200)
 
 		// Reload and confirm the new position persisted.
 		await page.reload({ waitUntil: 'domcontentloaded' })

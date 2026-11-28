@@ -174,6 +174,92 @@ class PublicShareServiceTest extends TestCase {
 		);
 	}
 
+	public function testCreateShareRefusesAnUnparsableExpiry(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->secureRandom->method('generate')->willReturn(str_repeat('a', 64));
+		$this->shareMapper->expects($this->never())->method('insert');
+
+		$this->expectException(\InvalidArgumentException::class);
+
+		$this->service->createPublicShare(
+			dashboardUuid: 'some-uuid',
+			callerId: 'alice',
+			expiresAt: 'next tuesday-ish'
+		);
+	}
+
+	public function testCreateShareStoresAParsableExpiry(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->secureRandom->method('generate')->willReturn(str_repeat('a', 64));
+		$this->shareMapper->expects($this->once())->method('insert')->willReturnCallback(
+			function (PublicShare $share): PublicShare {
+				$this->assertSame('2030-01-02 03:04:05', $share->getExpiresAt());
+				return $share;
+			}
+		);
+
+		$this->service->createPublicShare(
+			dashboardUuid: 'some-uuid',
+			callerId: 'alice',
+			expiresAt: '2030-01-02T03:04:05Z'
+		);
+	}
+
+	public function testAFailedInsertKeepsTokenAndHashOutOfTheError(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->secureRandom->method('generate')->willReturn(str_repeat('k', 64));
+		$this->hasher->method('hash')->willReturn('$2y$secret-hash');
+		$this->shareMapper->method('insert')->willThrowException(
+			new \RuntimeException('INSERT failed with params ["' . str_repeat('k', 64) . '", "$2y$secret-hash"]')
+		);
+
+		$logged = [];
+		$this->logger->method('error')->willReturnCallback(
+			function (string $message, array $context = []) use (&$logged): void {
+				$logged[] = $message . json_encode($context);
+			}
+		);
+
+		try {
+			$this->service->createPublicShare(dashboardUuid: 'some-uuid', callerId: 'alice', password: 'pw');
+			$this->fail('A failed insert must throw');
+		} catch (\RuntimeException $e) {
+			$this->assertNull($e->getPrevious());
+			$this->assertStringNotContainsString(str_repeat('k', 64), $e->getMessage());
+			$this->assertStringNotContainsString('secret-hash', $e->getMessage());
+		}
+
+		$this->assertCount(1, $logged);
+		$this->assertStringNotContainsString(str_repeat('k', 64), $logged[0]);
+		$this->assertStringNotContainsString('secret-hash', $logged[0]);
+	}
+
+	public function testPasswordParametersAreMarkedSensitive(): void {
+		foreach ([
+			[PublicShareService::class, 'createPublicShare', 'password'],
+			[PublicShareService::class, 'renderShareContent', 'password'],
+			[PublicShareService::class, 'sharedDashboardId', 'password'],
+			[PublicShareService::class, 'unlockShare', 'password'],
+			[\OCA\LaunchPad\Controller\PublicShareController::class, 'create', 'password'],
+			[\OCA\LaunchPad\Controller\PublicShareController::class, 'unlock', 'password'],
+		] as [$class, $method, $name]) {
+			$parameter = array_values(array_filter(
+				(new \ReflectionMethod($class, $method))->getParameters(),
+				static fn (\ReflectionParameter $p): bool => $p->getName() === $name
+			))[0];
+			$this->assertNotEmpty($parameter->getAttributes(\SensitiveParameter::class), $class . '::' . $method);
+		}
+	}
+
 	// -------------------------------------------------------------------------
 	// renderShareContent
 	// -------------------------------------------------------------------------
@@ -227,6 +313,54 @@ class PublicShareServiceTest extends TestCase {
 		$this->expectException(SharePasswordRequiredException::class);
 
 		$this->service->renderShareContent(token: 'tok', ipAddress: '127.0.0.1');
+	}
+
+	/**
+	 * A widget's read opens the share's dashboard without counting a visit.
+	 *
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 *
+	 * @return void
+	 */
+	public function testSharedDashboardIdOpensTheShareWithoutCountingAVisit(): void {
+		$share = new PublicShare();
+		$share->setToken('tok');
+		$share->setRevokedAt(null);
+		$share->setExpiresAt(null);
+		$share->setPasswordHash(null);
+		$share->setDashboardUuid('some-uuid');
+
+		$this->shareMapper->method('findByToken')->willReturn($share);
+		$this->shareMapper->expects($this->never())->method('incrementViewCount');
+		$dashboard = new Dashboard();
+		$dashboard->setId(7);
+		$this->dashMapper->method('findByUuid')->with('some-uuid')->willReturn($dashboard);
+
+		$this->assertSame(expected: 7, actual: $this->service->sharedDashboardId(token: 'tok', ipAddress: '127.0.0.1'));
+	}
+
+	/**
+	 * A widget's read is behind the share's password gate.
+	 *
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 *
+	 * @return void
+	 */
+	public function testSharedDashboardIdNeedsThePassword(): void {
+		$share = new PublicShare();
+		$share->setToken('tok');
+		$share->setRevokedAt(null);
+		$share->setExpiresAt(null);
+		$share->setPasswordHash('$2y$hash');
+		$share->setDashboardUuid('some-uuid');
+
+		$this->shareMapper->method('findByToken')->willReturn($share);
+		$this->hasher->method('verify')->willReturn(false);
+		$this->throttler->expects($this->once())->method('registerAttempt');
+
+		$this->expectException(exception: SharePasswordRequiredException::class);
+
+		$this->service->sharedDashboardId(token: 'tok', ipAddress: '127.0.0.1', password: 'wrong');
 	}
 
 	public function testRenderValidTokenWithoutPasswordSucceeds(): void {
@@ -288,7 +422,7 @@ class PublicShareServiceTest extends TestCase {
 		$this->throttler
 			->expects($this->once())
 			->method('registerAttempt')
-			->with(PublicShareService::ACTION_SHARE_PASSWORD, '127.0.0.1');
+			->with(PublicShareService::BRUTE_FORCE_ACTION_SHARE_UNLOCK, '127.0.0.1');
 
 		$result = $this->service->unlockShare(
 			token: 'tok',
@@ -297,5 +431,103 @@ class PublicShareServiceTest extends TestCase {
 		);
 
 		$this->assertFalse($result);
+	}
+	/**
+	 * The owner gets the active shares of the dashboard.
+	 *
+	 * @return void
+	 */
+	public function testListActiveSharesReturnsTheDashboardsActiveShares(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+		$active = new PublicShare();
+
+		$this->dashMapper->method('findByUuid')->with('dash-1')->willReturn($dashboard);
+		$this->shareMapper->expects($this->once())->method('findActiveByDashboardUuid')
+			->with('dash-1')->willReturn([$active]);
+
+		$this->assertSame(expected: [$active], actual: $this->service->listActiveShares(dashboardUuid: 'dash-1', callerId: 'alice'));
+	}
+
+	/**
+	 * Someone who is neither owner nor admin sees no shares.
+	 *
+	 * @return void
+	 */
+	public function testListActiveSharesRefusesSomeoneElse(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->shareMapper->expects($this->never())->method('findActiveByDashboardUuid');
+
+		$this->expectException(exception: OCSForbiddenException::class);
+		$this->service->listActiveShares(dashboardUuid: 'dash-1', callerId: 'bob');
+	}
+
+	/**
+	 * The owner revokes a share of the dashboard by its id.
+	 *
+	 * @return void
+	 */
+	public function testRevokeShareRevokesAShareOfTheDashboard(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->shareMapper->method('findByDashboardUuid')->with('dash-1')
+			->willReturn([$this->shareWithId(id: 3), $this->shareWithId(id: 7)]);
+		$this->shareMapper->expects($this->once())->method('softRevoke')->with(7);
+
+		$this->service->revokeShare(dashboardUuid: 'dash-1', shareId: 7, callerId: 'alice');
+	}
+
+	/**
+	 * A share id of another dashboard is not found, so an owner cannot revoke someone else's link.
+	 *
+	 * @return void
+	 */
+	public function testRevokeShareRefusesAShareOfAnotherDashboard(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->shareMapper->method('findByDashboardUuid')->willReturn([$this->shareWithId(id: 3)]);
+		$this->shareMapper->expects($this->never())->method('softRevoke');
+
+		$this->expectException(exception: ShareNotFoundException::class);
+		$this->service->revokeShare(dashboardUuid: 'dash-1', shareId: 99, callerId: 'alice');
+	}
+
+	/**
+	 * Someone who is neither owner nor admin is refused before any share is looked up.
+	 *
+	 * @return void
+	 */
+	public function testRevokeShareRefusesSomeoneElseBeforeLookingUpShares(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->shareMapper->expects($this->never())->method('findByDashboardUuid');
+		$this->shareMapper->expects($this->never())->method('softRevoke');
+
+		$this->expectException(exception: OCSForbiddenException::class);
+		$this->service->revokeShare(dashboardUuid: 'dash-1', shareId: 3, callerId: 'bob');
+	}
+
+	/**
+	 * A stored share with the given id.
+	 *
+	 * @param int $id The share id.
+	 *
+	 * @return PublicShare
+	 */
+	private function shareWithId(int $id): PublicShare {
+		$share = new PublicShare();
+		$share->setId($id);
+		return $share;
 	}
 }//end class

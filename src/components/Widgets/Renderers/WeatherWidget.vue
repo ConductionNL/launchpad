@@ -69,7 +69,12 @@ import WeatherRainy from 'vue-material-design-icons/WeatherRainy.vue'
 import WeatherSnowy from 'vue-material-design-icons/WeatherSnowy.vue'
 import WeatherSunny from 'vue-material-design-icons/WeatherSunny.vue'
 import WeatherWindy from 'vue-material-design-icons/WeatherWindy.vue'
+import {
+	NULLABLE_OBJECT_PROP,
+	OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
 import { fetchWeatherReading } from '../../../services/weatherClient.js'
+import { loadPlacementReading } from '../../../utils/placementReading.js'
 
 /**
  * Maps a normalised `condition` code (returned by `WeatherService`) to an
@@ -116,21 +121,21 @@ export default {
 
 	props: {
 		/**
+		 * The widget is a miniature in Add widget (REQ-WDG-048): it draws
+		 * its sample content and sends no request.
+		 */
+		preview: { type: Boolean, default: false },
+
+		/**
 		 * Persisted widget content blob: `{location, unitsOverride}`.
 		 *
-		 * Declared but not read here on purpose: the reading is resolved
-		 * SERVER-side by `GET /api/weather/{placementId}`, which loads this
-		 * same blob off the placement row. Keeping the prop absorbs
-		 * `WidgetRenderer.vue`'s uniform `:content` binding and documents what
-		 * the type persists.
+		 * The reading is resolved SERVER-side by `GET /api/weather/{placementId}`,
+		 * which loads this same blob off the placement row; here only a
+		 * miniature reads its `sampleReading` (REQ-WDG-048).
 		 *
-		 * @type {{location?: string, unitsOverride?: string}}
+		 * @type {{location?: string, unitsOverride?: string, sampleReading?: object}}
 		 */
-		// eslint-disable-next-line vue/no-unused-properties -- resolved server-side; see above
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/**
 		 * The widget placement — only `placement.id` is used, to call the
@@ -138,8 +143,18 @@ export default {
 		 *
 		 * @type {{id?: number|string}|null}
 		 */
-		placement: {
-			type: Object,
+		placement: NULLABLE_OBJECT_PROP,
+
+		/**
+		 * Where the reading comes from instead of LaunchPad's per-placement
+		 * endpoint: a function of the placement id that resolves the reading.
+		 * A public link or kiosk screen passes its token-scoped read here
+		 * (REQ-PSHR-011); null (the default) is the signed-in dashboard.
+		 *
+		 * @type {(function((number|string)): Promise<object>)|null}
+		 */
+		readingSource: {
+			type: Function,
 			default: null,
 		},
 	},
@@ -217,7 +232,13 @@ export default {
 		},
 	},
 
+	/** @spec openspec/changes/archive/2026-11-27-add-widget-dialog-with-miniatures/specs/widgets/spec.md#requirement-a-widgets-miniature-is-the-widget-itself-scaled-down-req-wdg-048 */
 	mounted() {
+		if (this.preview) {
+			this.reading = this.content?.sampleReading || null
+			this.loading = false
+			return
+		}
 		this.load()
 	},
 
@@ -234,90 +255,28 @@ export default {
 		 * reachable from here.
 		 *
 		 * @spec openspec/specs/clock-weather-widgets/spec.md#req-weather-001
+		 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
 		 * @return {Promise<void>}
 		 */
 		async load() {
-			const placementId = this.placement?.id
-			if (placementId === undefined || placementId === null) {
-				this.loading = false
-				this.errorMessage = t(
+			await loadPlacementReading(this, {
+				placementId: this.placement?.id,
+				fetch: this.readingSource ?? fetchWeatherReading,
+				unsaved: t(
 					'launchpad',
 					'Weather is not available until this tile is saved.',
-				)
-				return
-			}
-
-			this.loading = true
-			this.errorMessage = ''
-			try {
-				const data = await fetchWeatherReading(placementId)
-				if (data && data.error) {
-					this.reading = null
-					this.errorMessage = t(
-						'launchpad',
-						'Weather is currently unavailable.',
-					)
-					return
-				}
-				this.reading = data
-			} catch {
-				this.reading = null
-				this.errorMessage = t('launchpad', 'Failed to load weather.')
-			} finally {
-				this.loading = false
-			}
+				),
+				unavailable: t('launchpad', 'Weather is currently unavailable.'),
+				failed: t('launchpad', 'Failed to load weather.'),
+			})
 		},
 	},
 }
 </script>
 
+<style scoped src="./readingTile.css"></style>
+
 <style scoped>
-.weather-widget {
-	width: 100%;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.weather-widget__state {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 8px;
-	color: var(--color-text-maxcontrast, var(--color-main-text));
-	text-align: center;
-}
-
-.weather-widget__retry {
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius);
-	background: transparent;
-	padding: 4px 12px;
-	cursor: pointer;
-	color: var(--color-main-text);
-}
-
-.weather-widget__reading {
-	position: relative;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 4px;
-}
-
-.weather-widget__badge {
-	position: absolute;
-	top: -8px;
-	right: -8px;
-	font-size: 0.7rem;
-	padding: 2px 6px;
-	border-radius: var(--border-radius-pill, 8px);
-	background: var(--color-warning, #ffcc00);
-	color: var(--color-main-text);
-}
-
 .weather-widget__location {
 	font-weight: 600;
 	color: var(--color-main-text);

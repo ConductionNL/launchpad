@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\MetadataField;
 use OCA\LaunchPad\Db\MetadataFieldMapper;
 use OCA\LaunchPad\Db\MetadataValue;
@@ -136,7 +137,9 @@ class MetadataServiceTest extends TestCase {
 			key: 'department',
 			label: 'Department',
 			type: MetadataField::TYPE_TEXT,
-			options: ['foo'],
+			settings: [
+				'options' => ['foo'],
+			]
 		);
 	}
 
@@ -166,7 +169,9 @@ class MetadataServiceTest extends TestCase {
 			key: 'department',
 			label: 'Department',
 			type: MetadataField::TYPE_TEXT,
-			required: 1,
+			settings: [
+				'required' => 1,
+			]
 		);
 
 		$this->assertSame('department', $field->getFieldKey());
@@ -174,6 +179,33 @@ class MetadataServiceTest extends TestCase {
 		$this->assertSame(MetadataField::TYPE_TEXT, $field->getType());
 		$this->assertSame(1, $field->getRequired());
 		$this->assertNotNull($field->getCreatedAt());
+	}
+
+	/**
+	 * The DATETIME columns get a value MySQL/MariaDB strict mode accepts:
+	 * `Y-m-d H:i:s`, not ISO-8601 with `T` and an offset.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	public function testCreateAndUpdateWriteDatabaseDatetimeFormat(): void {
+		$this->fieldMapper->method('findByKey')->willThrowException(new DoesNotExistException(''));
+		$this->fieldMapper->method('insert')->willReturnArgument(0);
+		$this->fieldMapper->method('update')->willReturnArgument(0);
+
+		$field = $this->service->createFieldDefinition(
+			key: 'cost_centre',
+			label: 'Cost centre',
+			type: MetadataField::TYPE_TEXT,
+		);
+		$pattern = '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/';
+		$this->assertMatchesRegularExpression(pattern: $pattern, string: (string) $field->getCreatedAt());
+		$this->assertMatchesRegularExpression(pattern: $pattern, string: (string) $field->getUpdatedAt());
+
+		$this->fieldMapper->method('findById')->willReturn($this->makeField(id: 5, key: 'department'));
+		$updated = $this->service->updateFieldDefinition(id: 5, patch: ['label' => 'Dept']);
+		$this->assertMatchesRegularExpression(pattern: $pattern, string: (string) $updated->getUpdatedAt());
 	}
 
 	public function testUpdateFieldDefinitionForbidsKeyRename(): void {
@@ -340,6 +372,30 @@ class MetadataServiceTest extends TestCase {
 
 		$this->assertCount(1, $result);
 		$this->assertSame('uuid-a', $result[0]['uuid']);
+	}
+
+	/**
+	 * The controllers pass Dashboard entities, whose getUuid() is a magic
+	 * Entity getter, not serialised rows.
+	 *
+	 * @return void
+	 */
+	public function testFilterDashboardsKeepsMatchingEntities(): void {
+		$this->fieldMapper->method('findByKey')->willReturn($this->makeField(id: 1, key: 'department', type: MetadataField::TYPE_SELECT));
+		$this->valueMapper->method('findByField')->willReturn([
+			$this->makeValue(fieldId: 1, value: 'Finance', uuid: 'payroll'),
+			$this->makeValue(fieldId: 1, value: 'HR', uuid: 'onboarding'),
+		]);
+		$payroll = new Dashboard();
+		$onboarding = new Dashboard();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$payroll->setUuid('payroll');
+		$onboarding->setUuid('onboarding');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$result = $this->service->filterDashboards(dashboards: [$payroll, $onboarding], metadataFilters: ['department' => 'Finance']);
+
+		$this->assertSame(expected: [$payroll], actual: $result);
 	}
 
 	public function testFilterDashboardsNumberRange(): void {

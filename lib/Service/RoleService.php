@@ -301,11 +301,26 @@ class RoleService {
 		$assignment->setGroupId($groupId);
 		$assignment->setRole($role);
 		$assignment->setAssignedBy($assignedBy);
-		$assignment->setAssignedAt((new DateTime())->format('c'));
+		// The assigned_at column is a DATETIME: MySQL and MariaDB refuse ISO 8601 with an offset.
+		$assignment->setAssignedAt((new DateTime())->format('Y-m-d H:i:s'));
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
 		return $this->mapper->insert(entity: $assignment);
 	}//end assignRole()
+
+	/**
+	 * Whether a group already holds a role through a direct group row.
+	 *
+	 * @param string $groupId The group ID.
+	 * @param string $role    The role name.
+	 *
+	 * @return bool True when the (group, role) row exists.
+	 *
+	 * @spec openspec/specs/setup-wizard/spec.md#requirement-req-wiz-010-cli-command-for-non-interactive-setup-iac-friendly
+	 */
+	public function hasGroupRole(string $groupId, string $role): bool {
+		return $this->mapper->findGroupRole(groupId: $groupId, role: $role) !== null;
+	}//end hasGroupRole()
 
 	/**
 	 * Remove a role assignment by ID (REQ-ROLE-004).

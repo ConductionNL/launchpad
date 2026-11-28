@@ -19,6 +19,7 @@ vi.mock('@conduction/nextcloud-vue', async (importOriginal) => ({
 	},
 	NcActions: {
 		name: 'NcActions',
+		props: ['forceMenu'],
 		template: '<div class="actions"><slot /></div>',
 	},
 	NcActionButton: {
@@ -43,6 +44,13 @@ describe('WidgetWrapper hide for me', () => {
 		expect(button.exists()).toBe(true)
 		await button.trigger('click')
 		expect(wrapper.emitted('hideForMe')[0][0].id).toBe(5)
+	})
+
+	it('keeps Hide for me inside the Widget options menu when it is the only item', () => {
+		const actions = mountWidget({ canHideForMe: true }).findComponent({
+			name: 'NcActions',
+		})
+		expect(actions.props('forceMenu')).toBe(true)
 	})
 
 	it('offers nothing for a compulsory widget, in edit mode, or when not allowed', () => {

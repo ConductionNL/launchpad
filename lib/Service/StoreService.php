@@ -82,15 +82,33 @@ class StoreService {
 		'category' => 'category',
 		'version' => 'version',
 		'publisher' => 'publisher',
+		// REQ-STORE-010: the card's widget count and how many organisations use it.
+		'widgets' => 'widgets',
+		'usage' => 'usage',
 	];
 
 	/**
-	 * Fully-qualified name of the engine's descriptor value object.
+	 * The fields of a publication that may leave this server (REQ-STORE-013).
 	 *
-	 * Held as a string so no `OCA\OpenRegister\…` symbol is touched at load
-	 * time. Instantiated only after the injected client proved non-null.
+	 * The engine sends the slug plus exactly these fields, never anything else
+	 * the payload carries, so an owner or a share field a caller forgot to
+	 * strip still never reaches the register.
+	 *
+	 * @var list<string>
 	 */
-	private const DESCRIPTOR_CLASS = 'OCA\\OpenRegister\\AppHost\\Service\\StoreDescriptor';
+	public const PUBLISH_FIELDS = ['title', 'description', 'category', 'version', 'publisher', 'widgets', 'dashboards'];
+
+	/**
+	 * Who may publish: Nextcloud administrators (REQ-STORE-013).
+	 *
+	 * @var list<string>
+	 */
+	public const PUBLISH_GROUPS = ['admin'];
+
+	/**
+	 * Outcome reported when the engine cannot take a publication.
+	 */
+	public const OUTCOME_NOT_PUBLISHABLE = 'not_publishable';
 
 	/**
 	 * Outcome reported when there is nothing to talk to.
@@ -105,12 +123,24 @@ class StoreService {
 	/**
 	 * Config key holding the registry Bearer token.
 	 */
-	public const CONFIG_TOKEN = 'registry_token';
+	public const CONFIG_REGISTRY_AUTH = 'registry_token';
+
+	/**
+	 * Former name of CONFIG_REGISTRY_AUTH.
+	 *
+	 * @deprecated Use CONFIG_REGISTRY_AUTH.
+	 */
+	public const CONFIG_TOKEN = self::CONFIG_REGISTRY_AUTH;
 
 	/**
 	 * Config key holding the remote register segment.
 	 */
 	public const CONFIG_REGISTER = 'registry_register';
+
+	/**
+	 * Config key holding the register's display name for the marketplace banner.
+	 */
+	public const CONFIG_NAME = 'registry_name';
 
 	/**
 	 * Constructor.
@@ -163,7 +193,7 @@ class StoreService {
 	 * @param string|null $query Optional free-text search term.
 	 * @param string|null $kind  Optional kind filter.
 	 *
-	 * @return array{outcome: string, cards: array<int, array<string, mixed>>}
+	 * @return array{outcome: string, cards: array<int, array<string, mixed>>, checkedAt?: string}
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-003-the-engines-outcome-must-reach-the-caller-unchanged
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
@@ -182,7 +212,7 @@ class StoreService {
 	 * @param string|null $query Optional free-text search term.
 	 * @param string|null $kind  Optional kind filter.
 	 *
-	 * @return array{outcome: string, cards: array<int, array<string, mixed>>}
+	 * @return array{outcome: string, cards: array<int, array<string, mixed>>, checkedAt?: string}
 	 *
 	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
 	 *
@@ -208,11 +238,38 @@ class StoreService {
 			$cards = [];
 		}
 
-		return [
-			'outcome' => (string)($result['outcome'] ?? self::OUTCOME_NOT_CONFIGURED),
-			'cards' => $cards,
-		];
+		$outcome = (string)($result['outcome'] ?? self::OUTCOME_NOT_CONFIGURED);
+		$answer = ['outcome' => $outcome, 'cards' => $cards];
+
+		// REQ-STORE-010: when the register was last checked. The engine's own
+		// time wins (it may answer from a cache); otherwise this search was it.
+		$checkedAt = ($result['checkedAt'] ?? null);
+		if (is_string($checkedAt) === true && $checkedAt !== '') {
+			$answer['checkedAt'] = $checkedAt;
+		} else if ($outcome !== self::OUTCOME_NOT_CONFIGURED) {
+			$answer['checkedAt'] = gmdate(format: 'Y-m-d\TH:i:s\Z');
+		}
+
+		return $answer;
 	}//end searchRegistry()
+
+	/**
+	 * The connected register as the marketplace banner names it.
+	 *
+	 * The address is the configured base URL without credentials, query or
+	 * fragment; the name is the one the administrator gave, else the host.
+	 * Null when no register URL is configured. The token never rides along.
+	 *
+	 * @return array{name: string, url: string}|null
+	 *
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
+	 */
+	public function registryBanner(): ?array {
+		return (new StoreRegistryBanner())->from(
+			url: $this->config(key: self::CONFIG_URL),
+			name: $this->config(key: self::CONFIG_NAME)
+		);
+	}//end registryBanner()
 
 	/**
 	 * Install one remote dashboard template into this instance.
@@ -229,26 +286,21 @@ class StoreService {
 	 * @param string $slug   The remote item slug.
 	 * @param string $userId The installing administrator's UID.
 	 *
-	 * @return array{success: bool, message: string, components: array<int, array<string, string>>}
+	 * @return array{success: bool, message: string, components: array<int, array<string, string>>,
+	 *     version?: string, dashboardIds?: list<int>, created?: list<array<string, mixed>>}
 	 *
 	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-005-an-install-must-reuse-importservice-not-reimplement-it
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-011-an-installed-template-opens-instead-of-installing-again
 	 */
 	public function install(string $slug, string $userId): array {
-		if ($this->discovery === null) {
-			return $this->failure(message: 'No dashboard registry is available on this instance.');
+		$resolved = $this->resolveItem(slug: $slug);
+		if (isset($resolved['dashboards']) === false) {
+			return $this->failure(message: $resolved['message']);
 		}
 
-		$item = $this->discovery->resolve(descriptor: $this->descriptor(), slug: $slug);
-		if (is_array($item) === false) {
-			return $this->failure(message: 'That template could not be found in the registry.');
-		}
-
-		$dashboards = $this->dashboardsFrom(item: $item);
-		if ($dashboards === []) {
-			return $this->failure(message: 'That template carries no dashboard.');
-		}
+		$dashboards = $resolved['dashboards'];
 
 		try {
 			$archivePath = $this->materialise(dashboards: $dashboards, slug: $slug, userId: $userId);
@@ -280,8 +332,72 @@ class StoreService {
 			$this->discard(path: $archivePath);
 		}//end try
 
-		return $this->report(report: $report, dashboards: $dashboards);
+		// REQ-STORE-011: what the install created, for the install record.
+		return $this->report(report: $report, dashboards: $dashboards) + [
+			'version'      => $resolved['version'],
+			'dashboardIds' => array_values(array_map('intval', array_column((array)($report['dashboards'] ?? []), 'id'))),
+			'created'      => array_values((array)($report['dashboards'] ?? [])),
+		];
 	}//end install()
+
+	/**
+	 * Resolve one register item to its version and dashboard payloads.
+	 *
+	 * Install and update read the register the same way, so a payload an
+	 * install accepts is the payload an update accepts.
+	 *
+	 * @param string $slug The remote item slug.
+	 *
+	 * @return array{version: string, dashboards: array<int, array<string, mixed>>}|array{message: string}
+	 *     The item, or the sentence the administrator reads when there is none.
+	 *
+	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
+	 *
+	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-005-an-install-must-reuse-importservice-not-reimplement-it
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-012-update-brings-an-installed-dashboard-to-the-newer-version-in-place
+	 */
+	public function resolveItem(string $slug): array {
+		if ($this->discovery === null) {
+			return ['message' => 'No dashboard registry is available on this instance.'];
+		}
+
+		$item = $this->discovery->resolve(descriptor: $this->descriptor(), slug: $slug);
+		if (is_array($item) === false) {
+			return ['message' => 'That template could not be found in the registry.'];
+		}
+
+		$dashboards = $this->dashboardsFrom(item: $item);
+		if ($dashboards === []) {
+			return ['message' => 'That template carries no dashboard.'];
+		}
+
+		return ['version' => (string)($item['version'] ?? ''), 'dashboards' => $dashboards];
+	}//end resolveItem()
+
+	/**
+	 * Publish one item to the connected register through OpenRegister's store plane.
+	 *
+	 * LaunchPad never talks to the register itself: the engine owns the
+	 * transport guard, sends only {@see self::PUBLISH_FIELDS} and checks that
+	 * the register stored the slug it was sent. Its outcome is passed through
+	 * verbatim, like a search's (REQ-STORE-003).
+	 *
+	 * @param array<string, mixed> $item The item, carrying its slug.
+	 *
+	 * The caller checks {@see self::isAvailable()} first: without OpenRegister
+	 * the outcome it reports is not_configured, and this answers an empty array.
+	 *
+	 * @return array<string, mixed> `{outcome, slug}` as the engine answered.
+	 *
+	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
+	 * @psalm-suppress MixedReturnStatement The engine's outcome passes through verbatim.
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-store-update-and-publish/specs/dashboard-store/spec.md#requirement-req-store-013-an-administrator-publishes-a-dashboard-to-the-connected-register
+	 */
+	public function publish(array $item): array {
+		// Without OpenRegister nothing is sent and the answer is empty.
+		return (array)$this->discovery?->publish(descriptor: $this->descriptor(), payload: $item);
+	}//end publish()
 
 	/**
 	 * The registry connection, with the token redacted.
@@ -291,15 +407,17 @@ class StoreService {
 	 * credential in a browser response, and the form does not need it: an empty
 	 * submission clears the token and a non-empty one replaces it.
 	 *
-	 * @return array{registryUrl: string, registryRegister: string, tokenConfigured: bool}
+	 * @return array{registryUrl: string, registryRegister: string, registryName: string, tokenConfigured: bool}
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-007-the-registry-token-must-not-be-readable-back
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
 	 */
 	public function getRegistryConfig(): array {
 		return [
 			'registryUrl' => $this->config(key: self::CONFIG_URL),
 			'registryRegister' => $this->config(key: self::CONFIG_REGISTER),
-			'tokenConfigured' => ($this->config(key: self::CONFIG_TOKEN) !== ''),
+			'registryName' => $this->config(key: self::CONFIG_NAME),
+			'tokenConfigured' => ($this->config(key: self::CONFIG_REGISTRY_AUTH) !== ''),
 		];
 	}//end getRegistryConfig()
 
@@ -313,6 +431,7 @@ class StoreService {
 	 * @param string|null $registryUrl      Registry base URL, or null to leave it.
 	 * @param string|null $registryToken    Bearer token, or null to leave it.
 	 * @param string|null $registryRegister Remote register segment, or null to leave it.
+	 * @param string|null $registryName     Display name for the marketplace banner, or null to leave it.
 	 *
 	 * After the write it asks integriq to resolve the dashboard registry again
 	 * when a registry key was written (adopt-connection-registry). That never
@@ -323,28 +442,33 @@ class StoreService {
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-007-the-registry-token-must-not-be-readable-back
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-002-a-registry-settings-save-asks-integriq-to-look-again
+	 * @spec openspec/changes/store-page-board-sync/specs/dashboard-store/spec.md#requirement-req-store-010-the-marketplace-shows-dashboard-templates-as-cards
 	 */
 	public function updateRegistryConfig(
 		?string $registryUrl = null,
 		?string $registryToken = null,
 		?string $registryRegister = null,
+		?string $registryName = null,
 	): void {
+		$values = [
+			self::CONFIG_URL           => $registryUrl,
+			self::CONFIG_REGISTRY_AUTH => $registryToken,
+			self::CONFIG_REGISTER      => $registryRegister,
+			self::CONFIG_NAME          => $registryName,
+		];
+
 		$written = [];
+		foreach ($values as $key => $value) {
+			if ($value === null) {
+				continue;
+			}
 
-		if ($registryUrl !== null) {
-			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_URL, trim($registryUrl));
-			$written[] = self::CONFIG_URL;
+			$this->appConfig->setValueString(Application::APP_ID, $key, trim($value));
+			$written[] = $key;
 		}
 
-		if ($registryToken !== null) {
-			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_TOKEN, trim($registryToken));
-			$written[] = self::CONFIG_TOKEN;
-		}
-
-		if ($registryRegister !== null) {
-			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_REGISTER, trim($registryRegister));
-			$written[] = self::CONFIG_REGISTER;
-		}
+		// A name is a label only; it does not ask integriq to look again.
+		$written = array_values(array_diff($written, [self::CONFIG_NAME]));
 
 		$this->connectionReporter?->refreshFromSave(savedKeys: $written);
 	}//end updateRegistryConfig()
@@ -359,21 +483,10 @@ class StoreService {
 	 *
 	 * @throws RuntimeException When OpenRegister supplied a client but not a descriptor class.
 	 *
-	 * @psalm-suppress MixedMethodCall Instantiated from a class string by design.
+	 * @spec openspec/specs/dashboard-store/spec.md
 	 */
 	private function descriptor(): object {
-		$class = self::DESCRIPTOR_CLASS;
-		if (class_exists($class) === false) {
-			throw new RuntimeException(message: 'OpenRegister store descriptor is unavailable.');
-		}
-
-		return new $class(
-			appId: Application::APP_ID,
-			schema: self::REMOTE_SCHEMA,
-			defaultRegister: self::DEFAULT_REGISTER,
-			cardFields: self::CARD_FIELDS,
-			types: []
-		);
+		return (new StoreDescriptorBuilder())->build();
 	}//end descriptor()
 
 	/**
@@ -422,16 +535,8 @@ class StoreService {
 	 * @throws RuntimeException When the archive cannot be allocated or opened.
 	 */
 	private function materialise(array $dashboards, string $slug, string $userId): string {
-		$tempPath = tempnam(directory: sys_get_temp_dir(), prefix: 'launchpad-store-');
-		if ($tempPath === false) {
-			throw new RuntimeException(message: 'Could not allocate a temporary file for the install.');
-		}
-
 		$zip = new ZipArchive();
-		if ($zip->open(filename: $tempPath, flags: ZipArchive::OVERWRITE) !== true) {
-			unlink(filename: $tempPath);
-			throw new RuntimeException(message: 'Could not open the store archive for writing.');
-		}
+		$tempPath = $this->openArchive(zip: $zip);
 
 		$manifest = [
 			'schemaVersion' => ImportService::SCHEMA_VERSION,
@@ -445,19 +550,52 @@ class StoreService {
 		];
 
 		$zip->addFromString(name: 'manifest.json', content: $this->encode(payload: $manifest));
+		$this->addDashboards(zip: $zip, dashboards: $dashboards);
+		$zip->addFromString(name: 'metadata-fields.json', content: $this->encode(payload: []));
+		$zip->close();
 
+		return $tempPath;
+	}//end materialise()
+
+	/**
+	 * Allocate a temporary file and open it as a fresh archive.
+	 *
+	 * @param ZipArchive $zip The archive to open.
+	 *
+	 * @return string Path to the temporary archive.
+	 *
+	 * @throws RuntimeException When the archive cannot be allocated or opened.
+	 */
+	private function openArchive(ZipArchive $zip): string {
+		$tempPath = tempnam(directory: sys_get_temp_dir(), prefix: 'launchpad-store-');
+		if ($tempPath === false) {
+			throw new RuntimeException(message: 'Could not allocate a temporary file for the install.');
+		}
+
+		if ($zip->open(filename: $tempPath, flags: ZipArchive::OVERWRITE) !== true) {
+			unlink(filename: $tempPath);
+			throw new RuntimeException(message: 'Could not open the store archive for writing.');
+		}
+
+		return $tempPath;
+	}//end openArchive()
+
+	/**
+	 * Add one `dashboards/<uuid>.json` entry per dashboard payload.
+	 *
+	 * @param ZipArchive                       $zip        The open archive.
+	 * @param array<int, array<string, mixed>> $dashboards The dashboard payloads.
+	 *
+	 * @return void
+	 */
+	private function addDashboards(ZipArchive $zip, array $dashboards): void {
 		foreach ($dashboards as $payload) {
 			$zip->addFromString(
 				name: 'dashboards/' . (string)$payload['uuid'] . '.json',
 				content: $this->encode(payload: $payload)
 			);
 		}
-
-		$zip->addFromString(name: 'metadata-fields.json', content: $this->encode(payload: []));
-		$zip->close();
-
-		return $tempPath;
-	}//end materialise()
+	}//end addDashboards()
 
 	/**
 	 * Turn the importer's result into the store page's per-component report.

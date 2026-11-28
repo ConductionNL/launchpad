@@ -14,8 +14,6 @@ Widgets are the primary content blocks on LaunchPad dashboards. LaunchPad integr
 
 ## Data Model
 
-@e2e exclude all 89 scenarios test REST widget-discovery/placement/update/batch API — widget add/edit UI flows are covered by the widget-specific specs (label-widget, text-display-widget, image-widget etc.)
-
 ### Widget Discovery
 Widgets are discovered at runtime from Nextcloud's `IManager::getWidgets()`. Each widget provides:
 - **id**: Widget identifier (e.g., `weather_status`, `recommendations`)
@@ -43,7 +41,9 @@ Widgets are discovered at runtime from Nextcloud's `IManager::getWidgets()`. Eac
 - **tileTitle**, **tileIcon**, **tileIconType**, **tileBackgroundColor**, **tileTextColor**, **tileLinkType**, **tileLinkValue**: Tile-specific fields stored directly on the placement (nullable STRING)
 - **createdAt**: Timestamp string (DATETIME)
 - **updatedAt**: Timestamp string (DATETIME)
+
 ## Requirements
+
 ### Requirement: Discover Available Widgets (REQ-WDG-001)
 
 The system MUST provide an API to list all Nextcloud dashboard widgets available for placement.
@@ -136,6 +136,7 @@ Users MUST be able to place a discovered widget onto their dashboard with grid c
 - WHEN the user sends POST /api/dashboard/5/widgets with `gridX: 10, gridWidth: 4` (exceeds column count)
 - THEN the system SHOULD return HTTP 400 with a validation error
 - NOTE: Grid bounds validation is NOT currently implemented in the backend. GridStack on the frontend handles constraint enforcement.
+@e2e exclude never built: no bounds check exists, WidgetApiController::addWidget passes the coordinates to PlacementService::addWidget, whose freeSpot() moves a placement that does not fit instead of refusing it (lib/Service/PlacementService.php); placement on a free spot is cited under add-a-widget-to-a-dashboard
 
 #### Scenario: Add widget with non-existent widgetId
 - GIVEN widget "fake_widget" is not registered in Nextcloud
@@ -258,11 +259,13 @@ Widget placements MUST maintain a sort order for consistent rendering and tab na
 - GIVEN dashboard id 5 has placements with sortOrder 1 (weather), 2 (notes), 3 (calendar)
 - WHEN the user rearranges them so calendar is first
 - THEN sortOrder MUST be updated to: calendar (1), weather (2), notes (3)
+@e2e exclude never built: no write path renumbers a placement's sort_order on a rearrange, the batch save (WidgetPlacementMapper::updatePosition) writes only grid_x, grid_y, grid_width and grid_height, `sortOrder` is not an accepted PUT field (RequestDataExtractor) and the grid orders by position; sort_order is set only when a placement is created or copied (PlacementPayloadHydrator, WidgetPlacementMapper clone)
 
 #### Scenario: Sort order used for tab navigation
 - GIVEN a dashboard with multiple placements ordered by sortOrder
 - WHEN the user presses Tab in view mode
 - THEN focus MUST move through widgets in sortOrder sequence
+@e2e exclude no write path sets a placement's sortOrder (not a PUT field in lib/Controller/RequestDataExtractor.php, not written by WidgetPlacementMapper::updatePositions), so a dashboard ordered by sortOrder cannot be arranged; never built (see widgets::reorder-widgets, test.fixme), and no unit test pins tab order
 
 ### Requirement: Batch Update Placements (REQ-WDG-008)
 
@@ -319,6 +322,15 @@ The frontend MUST use a layered rendering architecture: `DashboardGrid` -> `Widg
 - AND render `TileWidget` directly instead of `WidgetWrapper`
 - AND WidgetWrapper applies transparent background and no padding for tile-type widgetIds
 
+#### Scenario: Chart, stat and table widgets pass through to the nextcloud-vue renderers
+- GIVEN OpenRegister is installed and an author places a `chart`, `stats-block`, `stat`, `gauge`, `delta` or `table` widget whose content names an OpenRegister data source
+- WHEN the widget is rendered
+- THEN `chart` MUST render through `ChartHost.vue` onto nextcloud-vue's `CnChartWidget`, and `stats-block` through `StatsBlockHost.vue` onto `CnStatsBlockWidget` (`RENDERER_OVERRIDES` in `src/constants/widgetRegistry.js`)
+- AND `stat`, `gauge`, `delta` and `table` MUST use the nextcloud-vue registry renderer unchanged
+- AND the figures MUST come from the OpenRegister data source through nextcloud-vue (specs `nextcloud-vue/widget-renderer` and `openregister/aggregation-api`), not from a LaunchPad endpoint
+- AND each of these types MUST be listed in `lib/widget-types.json` so it appears in the widget picker
+@e2e exclude needs an OpenRegister register, schema and objects seeded as a data source, and the clauses name internal component wiring (ChartHost/StatsBlockHost onto CnChartWidget/CnStatsBlockWidget, RENDERER_OVERRIDES) and a source file; pinned by src/components/Widgets/Renderers/__tests__/chartAndStatsHosts.spec.js and src/constants/__tests__/widgetRegistry.completeness.spec.js
+
 ### Requirement: Widget Picker (REQ-WDG-010)
 
 The widget picker MUST be implemented as a single modal that handles both creation and editing flows. The modal MUST present a type selector at the top (unless a type was preselected by the caller) followed by the per-type configuration sub-form for the currently selected type. Submit MUST emit `{type, content}` where `content` carries only the fields relevant to the selected type — fields belonging to other types MUST NOT be included.
@@ -328,7 +340,7 @@ The widget picker MUST be implemented as a single modal that handles both creati
 - GIVEN no widget is being edited and no type was preselected
 - WHEN the user opens the modal with `show=true, preselectedType=null, editingWidget=null`
 - THEN the modal MUST render a `<select>` listing every registered widget type
-- AND the form area MUST render the sub-form for the first type (alphabetical or registry order)
+- AND the form area MUST render the sub-form for the `initialType` the host passed (the type picked in the widget picker), or for the first type (alphabetical or registry order) when none was passed
 - AND the action button MUST read `t('Add')`
 
 #### Scenario: Open in create mode with preselected type
@@ -338,6 +350,7 @@ The widget picker MUST be implemented as a single modal that handles both creati
 - THEN the type `<select>` MUST NOT be visible
 - AND the form area MUST render the text sub-form
 - AND the action button MUST read `t('Add')`
+@e2e exclude no LaunchPad control opens the modal with a preselected type: the toolbar dropdown is gone and Views.vue openCustomWidgetModal() is only ever called without one (Views.vue:3109); pinned by src/views/__tests__/ViewsEditorsAndRowActions.spec.js ("opens in create mode with the preselected type")
 
 #### Scenario: Open in edit mode
 
@@ -362,6 +375,17 @@ The widget picker MUST be implemented as a single modal that handles both creati
 - WHEN they click `Add`
 - THEN the modal MUST emit `submit({type: 'text', content: {text: 'Hello', fontSize: '16px'}})`
 - AND `content` MUST NOT contain image fields like `url`, `alt`, etc.
+
+#### Scenario: One entry point adds every kind of widget
+
+- GIVEN a user who may edit the dashboard
+- WHEN they open the More menu or a dashboard's row menu
+- THEN there MUST be one "Add widget" entry, and no separate "Add custom widget" entry
+- AND "Add widget" MUST open the widget picker, which lists the Nextcloud widgets, the apps and, under "Widgets from Launchpad", each Launchpad widget type (Text, Image, News and the rest)
+- AND picking a Launchpad type MUST close the picker and open the custom widget form in create mode on that type, with its type select still visible and changeable
+- AND a search MUST filter the Launchpad types by name, as it filters the other widgets
+
+Decided on 22 Nov 2026 (Ruben): two add buttons for one job confused people; the board LpWidgetKiezen draws one "Add widget" window that lists the Launchpad widgets in it.
 
 #### Scenario: Widget picker displays available widgets
 - GIVEN the user wants to add a widget
@@ -469,6 +493,7 @@ The set of supported widget types MUST come from a single in-frontend registry t
 - AND the modal type selector MUST list it
 - AND the grid renderer MUST render placements of the new type
 - AND no other UI code MUST need to be changed to support the new type
+@e2e exclude a developer adding a registry entry is a source change, not a runtime action; pinned by src/constants/__tests__/widgetRegistry.completeness.spec.js and src/constants/__tests__/widgetRegistry.spec.js
 
 #### Scenario: Registry is the single source of truth
 
@@ -476,6 +501,7 @@ The set of supported widget types MUST come from a single in-frontend registry t
 - WHEN any consumer (toolbar, modal, renderer) enumerates widget types
 - THEN it MUST list those 5 types
 - AND MUST NOT hard-code any type name elsewhere in the codebase
+@e2e exclude a claim about the source (no hard-coded type names) checked by grep, not by a browser; the registry no longer has 5 entries (lib/widget-types.json lists 38); pinned by src/constants/__tests__/widgetRegistry.completeness.spec.js
 
 ### Requirement: Right-click context menu in edit mode (REQ-WDG-015)
 
@@ -542,6 +568,7 @@ The popover MUST close when the user clicks anywhere outside its bounding box (i
 - WHEN the unmount lifecycle runs
 - THEN the document-level `click` listener MUST be removed
 - AND no popover state MUST leak into a subsequent mount
+@e2e exclude a document-level listener's removal on unmount is not observable from a browser test; pinned by src/composables/__tests__/useGridManager.spec.js ("REQ-WDG-016: detach removes the document click listener (no leaks across mounts)")
 
 ### Requirement: Position constraints (REQ-WDG-017)
 
@@ -678,7 +705,7 @@ The widget registry (`src/constants/widgetRegistry.js`) MUST include a `tile` wi
 - Suppresses click handling while the dashboard is in edit mode (consistent with REQ-WDG-014)
 - Has `defaultContent: {title:'', icon:'', iconType:'class', backgroundColor:'#3b82f6', textColor:'#ffffff', linkType:'app', linkValue:''}`
 
-The tile widget type MUST be selectable from the unified "Add custom widget" picker (REQ-WDG-010) and surfaced alongside `label`, `text`, `image`, `link`, and `nc-widget`.
+The tile widget type MUST be selectable from the custom widget form that "Custom widget" in the widget picker opens (REQ-WDG-010) and surfaced alongside `label`, `text`, `image`, `link`, and `nc-widget`.
 
 #### Scenario: Tile widget appears in the picker
 
@@ -702,6 +729,8 @@ The tile widget type MUST be selectable from the unified "Add custom widget" pic
 - **AND** no console errors MUST occur from the missing `placement.content` field
 
 ### Requirement: REQ-WDG-023 Widget registry completeness verifiable in CI
+
+@e2e exclude these scenarios are about the Vitest suite failing on a broken registry, not about runtime behaviour; pinned by src/constants/__tests__/widgetRegistry.completeness.spec.js itself (EXPECTED_TYPES set equality, listWidgetTypes surfacing, required-field checks)
 
 The widget registry (`src/constants/widgetRegistry.js`) MUST be covered by an explicit completeness test (`src/constants/__tests__/widgetRegistry.completeness.spec.js`) that asserts a canonical EXPECTED_TYPES set:
 
@@ -899,6 +928,7 @@ The popover MUST close when the user clicks anywhere outside its bounding box (i
 - WHEN the unmount lifecycle runs
 - THEN the document-level `click` listener MUST be removed
 - AND no popover state MUST leak into a subsequent mount
+@e2e exclude a document-level listener's removal on unmount is not observable from a browser test; pinned by src/composables/__tests__/useGridManager.spec.js ("REQ-WDG-016: detach removes the document click listener (no leaks across mounts)")
 
 ### Requirement: REQ-WDG-017 Position constraints
 
@@ -944,6 +974,343 @@ The workspace MUST render the dashboard canvas as its only content region. There
 - **WHEN** they open the Add-widget flow (`WidgetPickerModal`)
 - **THEN** every available widget MUST be listed there
 - **AND** selecting one MUST place it on the active dashboard
+
+### Requirement: The widget picker narrows its list as you type (REQ-WDG-028)
+
+The widget picker MUST show a search box above the list of widgets and apps you may add. Typing MUST narrow both lists to the entries whose title contains the typed text, ignoring case. Clearing the box MUST bring back the full lists. When nothing matches, the picker MUST say so instead of showing empty lists.
+
+#### Scenario: Typing narrows the list
+
+- **GIVEN** Pieter opens "Add widget" on his dashboard
+- **WHEN** he types "cal" in "Search widgets"
+- **THEN** the picker lists only the widgets and apps whose title contains "cal", such as "Calendar"
+
+#### Scenario: Clearing the search
+
+- **GIVEN** Pieter typed "cal" in "Search widgets"
+- **WHEN** he clears the search box
+- **THEN** the picker lists every widget and app again
+
+#### Scenario: Nothing matches
+
+- **GIVEN** Pieter opens "Add widget"
+- **WHEN** he types "zzz"
+- **THEN** the picker says that no widget matches
+- **AND** it shows no empty list
+
+### Requirement: A Nextcloud widget with a reload interval refreshes itself (REQ-WDG-029)
+
+When a Nextcloud dashboard widget declares a reload interval above zero, LaunchPad MUST fetch its items again at that interval while the widget is on the page. The page MUST NOT reload. The timer MUST stop when the widget leaves the page. A widget without a reload interval MUST load its items once.
+
+#### Scenario: Items refresh on the widget's interval
+
+- **GIVEN** a widget on Pieter's dashboard declares a reload interval of 60 seconds
+- **WHEN** 60 seconds pass with the dashboard open
+- **THEN** the widget shows its items fetched again
+- **AND** the page itself does not reload
+
+#### Scenario: No interval, no refresh
+
+- **GIVEN** a widget declares a reload interval of 0
+- **WHEN** Pieter keeps the dashboard open
+- **THEN** the widget loads its items once and does not fetch them again
+
+#### Scenario: Leaving the dashboard stops the timer
+
+- **GIVEN** a widget with a reload interval is on the page
+- **WHEN** Pieter switches to another dashboard
+- **THEN** the widget's refresh timer stops
+
+### Requirement: Another app's widget shows that app's items for the viewer (REQ-WDG-030)
+
+@e2e exclude needs the Mail and Deck apps, which the CI instance (NC 32 + openregister) does not have; no Mail- or Deck-specific test exists — the generic item path is pinned by tests/Unit/Service/WidgetItemLoaderTest.php and the nc-widget list rendering by tests/e2e/widgets-nc-widget.spec.ts
+
+When a person places a widget that another Nextcloud app registers, such as the Mail app's mailbox widget or Deck's upcoming cards, LaunchPad MUST ask that app for the items it holds for the viewer and list them with their title, subtitle and icon. Each item MUST link to the item in its own app. When the app returns no items, the widget MUST show the app's own empty message.
+
+#### Scenario: A mailbox preview
+
+- **GIVEN** the Mail app is enabled and Pieter placed its mailbox widget on "Mijn werkplek"
+- **WHEN** he opens the Workspace page
+- **THEN** the widget lists his latest messages with sender and subject
+- **AND** clicking a message opens it in Mail
+
+#### Scenario: Open tasks from a planning app
+
+- **GIVEN** Deck is enabled and Sanne placed its upcoming cards widget on her dashboard
+- **WHEN** she opens the Workspace page
+- **THEN** the widget lists the cards assigned to her with their due dates
+- **AND** clicking a card opens it in Deck
+
+#### Scenario: Nothing to show
+
+- **GIVEN** Pieter's mailbox has no messages the Mail widget returns
+- **WHEN** he opens the Workspace page
+- **THEN** the widget shows the empty message the Mail app supplies
+
+### Requirement: REQ-WDG-031 A section heading widget
+
+The `section-heading` widget ("Tussenkop", boards `launchpad/LpIntranet` and `launchpad/LpWerkplek`) MUST head the widgets or app tiles that follow it on the grid. It MUST draw a 20px bold title, one 14px muted line of explanation when it has one, and a 1px rule below, on the page ground without a card. A new one MUST span the grid's full width and be one row tall. Its content is `{title, description}`, and its form requires a title.
+
+The picker MUST offer it as "Section heading" (nl "Tussenkop") among the widgets from Launchpad, with the icon `format-header-1`, to everyone. The Zuiddrecht demo seed heads its groups with it as the boards draw them (Mijn werkplek, Intranet Zuiddrecht, Team Vergunningen), and the start page Vandaag keeps its six app tiles straight on the grid with no heading. The label widget's group heading stays for existing placements; it has no line of explanation, so it is not the Tussenkop.
+
+#### Scenario: A section heading heads a group
+- GIVEN an editor in edit mode
+- WHEN they add a Section heading titled "Samenwerken" with the line "De tegels van het team"
+- THEN the grid MUST show a full-width heading "Samenwerken" with that line below it and a rule under both, without a card
+
+@e2e openspec/specs/widgets/spec.md#req-wdg-031
+
+### Requirement: Recent work shows where the reader left off (REQ-WDG-032)
+
+LaunchPad SHALL offer a `recent-work` widget type ("Verder waar u was", boards LpVandaag and LpStart). It SHALL read
+the reader's own activity from the Activity app (`GET /ocs/v2.php/apps/activity/api/v2/activity/self`), so what
+colleagues did never shows, and SHALL list one row per thing the reader worked on, newest first, at most
+`content.limit` rows (default 6). Each row SHALL be named by the thing (the last part of its name), with below it the
+app and when: "vanochtend", "vanmiddag" or "vanavond" for today, the weekday within the last week, and the day and
+month before that. A row SHALL link to the thing.
+
+The widget SHALL leave out what the reader deleted, things named only by an id, and activity without a link. The same
+thing saved again under a new id SHALL count once. With `content.apps` it SHALL show only those apps' work. When the
+Activity app does not answer, the widget SHALL say "Recent work needs the Activity app."; with no activity it SHALL
+say "Nothing you worked on recently."
+
+#### Scenario: Pieter picks up where he left off
+
+- **GIVEN** this morning Pieter edited "Besluit Woo-verzoek jeugdzorg.docx" twice and on Friday commented on decision "Collegevoorstel Havenpark"
+- **WHEN** he opens the start page with the Verder waar u was widget
+- **THEN** the widget shows "Besluit Woo-verzoek jeugdzorg.docx" once with "files · vanochtend", then "Collegevoorstel Havenpark" with its app and "vrijdag"
+
+#### Scenario: A deleted file is not work to pick up
+
+- **GIVEN** Pieter deleted "concept.docx" an hour ago
+- **WHEN** the widget renders
+- **THEN** "concept.docx" is not listed
+
+#### Scenario: Only the apps the author chose
+
+- **GIVEN** a recent-work widget with `apps: ["files"]`
+- **WHEN** the widget renders
+- **THEN** it lists only work in Files
+
+#### Scenario: Without the Activity app
+
+- **GIVEN** the Activity app is disabled
+- **WHEN** the widget renders
+- **THEN** it says "Recent work needs the Activity app."
+
+### Requirement: The search widget can search the internet (REQ-WDG-033)
+
+A `search` widget with `content.layout: 'web'` SHALL draw an internet search form (board LpWerkplek, "Zoeken op
+internet"): a labelled search field, the name of the search engine, a Search button and the line "Opens the results
+in a new tab". The engine SHALL be `content.engine` `{name, url}` when its url holds `{q}`, else DuckDuckGo
+(`https://duckduckgo.com/?q={q}`). Submitting SHALL open the engine's url with the URL-encoded words in a new tab,
+with `noopener` and `noreferrer`; an empty field SHALL do nothing. Without `layout: 'web'` the widget SHALL stay the
+tile search of tile-quick-search.
+
+#### Scenario: Pieter searches the internet
+
+- **GIVEN** a search widget with `layout: 'web'` and no engine set
+- **WHEN** Pieter types "omgevingswet termijnen" and chooses Search
+- **THEN** a new tab opens `https://duckduckgo.com/?q=omgevingswet%20termijnen`
+
+#### Scenario: An engine without a placeholder is ignored
+
+- **GIVEN** a search widget with `engine: {name: "Intranet", url: "https://intranet.example.nl/search"}`
+- **WHEN** the widget renders
+- **THEN** it names DuckDuckGo as the engine
+
+### Requirement: A widget below the fold loads when it comes into view (REQ-WDG-044)
+
+On a dashboard in view mode, a widget's content SHALL mount, and so ask its source, only when its card comes within one
+viewport height of the visible area, or once the page has settled (2.5 seconds after the card appeared, at the browser's next
+idle moment), or when the page is about to print, whichever comes first. Its card (frame, title, place in the grid) SHALL
+show from the start. A widget whose content has mounted SHALL stay mounted. In edit mode, in the headless export render
+(`?export=1`) and in a browser without IntersectionObserver every widget's content SHALL mount at once.
+
+#### Scenario: The case list below the fold waits for the reader
+
+- **GIVEN** Pieter's start page has the case list widget below the fold
+- **WHEN** he opens the start page
+- **THEN** the widgets on screen ask their sources and the case list does not yet
+- **AND** when he scrolls towards the case list it asks its source and shows the cases
+
+#### Scenario: Everything has loaded before a download
+
+- **GIVEN** Pieter opened his start page and did not scroll
+- **WHEN** the page has settled, or he chooses Download
+- **THEN** every widget has mounted, so the printed dashboard shows every widget's content
+
+#### Scenario: Edit mode shows every widget at once
+
+- **GIVEN** Pieter edits his start page
+- **WHEN** the dashboard shows in edit mode
+- **THEN** every widget's content mounts at once
+
+### Requirement: Every widget shows its own loading and error state (REQ-WDG-046)
+
+No widget SHALL hold up the first render of a dashboard. Every widget's card (frame, title, place in the grid) SHALL
+render at once, with a loading state (a busy status, "Loading…") in place of its content until the content mounts and
+asks its source (REQ-WDG-044). A widget whose content fails to show (an error while it sets up, renders or runs a
+lifecycle hook) SHALL show "Widget not available" with Retry inside its own card, and every other widget SHALL render
+as if it were not there. Retry SHALL mount the content afresh. An error in a widget's event handler or watcher SHALL
+NOT replace the widget.
+
+#### Scenario: A widget's card shows a loading state first
+
+- **GIVEN** Pieter's start page has a widget below the fold
+- **WHEN** he opens the start page
+- **THEN** that widget's card is in the grid with a loading state until it comes into view
+
+#### Scenario: A failing widget stays in its own card
+@e2e exclude no shipped widget can be made to throw while it renders without changing its code; pinned by src/components/__tests__/WidgetErrorBoundary.spec.js ('keeps a widget that fails to render inside its card, beside a working one', 'mounts the widget afresh on Retry')
+
+- **GIVEN** Pieter's start page has a weather widget whose content throws while it renders, and a news widget
+- **WHEN** he opens the start page
+- **THEN** the weather widget's card says "Widget not available" with Retry
+- **AND** the news widget shows its news
+
+### Requirement: The widget picker as LpWidgetKiezen draws it (REQ-WDG-040)
+
+Add widget SHALL open one dialog, 1120 px wide, titled with the dashboard name over "Add widget" (board LpWidgetKiezen).
+It SHALL hold a search field, a column of kinds (REQ-WDG-041) and, to its right, the widgets as cards, each card with a
+miniature of the widget (REQ-WDG-048) above its icon, its name and one line that says what the widget does. The cards
+SHALL be grouped under "Widgets from Launchpad" and "From other Nextcloud apps". The dialog SHALL end with Cancel and
+Add widget; a card is chosen by clicking it and placed with Add widget. A widget whose settings need choices before it
+can be placed (the App/Link tile) SHALL open its form inside this dialog.
+
+#### Scenario: Open the picker
+
+- **GIVEN** Pieter edits My workspace
+- **WHEN** he chooses Add widget
+- **THEN** the dialog, 1120 px wide, shows the search, the kinds and the card sections in that order
+- **AND** every card shows a miniature above its icon, name and line
+
+### Requirement: Kinds with counts (REQ-WDG-041)
+
+The kind column SHALL list All, Content, Tiles and links, Layout, People, Data and charts, From other apps and Office
+(nl Alles, Inhoud, Tegels en links, Indeling, Mensen, Data en grafieken, Uit andere apps, Office), each with the number
+of widgets in it, and SHALL filter the cards to the chosen kind. Layout SHALL hold the widgets that group other widgets
+(Container, and Tabs once it exists). The search SHALL filter within the chosen kind.
+
+#### Scenario: Filter by kind
+
+- **GIVEN** the picker is open on All
+- **WHEN** Pieter chooses Data and charts
+- **THEN** only the data and chart widgets are shown and the kind shows their count
+
+#### Scenario: Layout holds the container
+
+- **GIVEN** the picker is open
+- **WHEN** Pieter chooses Layout
+- **THEN** Container is shown, and it is no longer under Tiles and links
+
+### Requirement: Widgets the role may not add (REQ-WDG-043)
+
+A widget type the reader's role may not add (role feature permissions) SHALL be shown as a grey card that says "Not allowed for your role" and SHALL NOT be chosen. A legacy widget type SHALL carry the label "Older widget type".
+
+#### Scenario: Embedded page not allowed
+
+- **GIVEN** the role Employee may not add Embedded page
+- **THEN** its card is grey, says "Not allowed for your role" and cannot be chosen
+
+### Requirement: The assistant line (REQ-WDG-045)
+
+When the server has a text-to-text assistant for the reader (Nextcloud task processing, `core:text2text`), the picker SHALL show, above the search, a line "Describe what you need" with a field and an Ask button. Asking SHALL send the need and the cards the reader may add (key, name, what it does) and SHALL show the proposal as the proposed widget's name with one sentence why, and the button "Place it like this", which places that widget as Add widget does. The proposal SHALL always be one of the offered cards; any other answer SHALL be shown as "No widget fits; choose one below". Without an assistant the line SHALL NOT be shown. Nothing about the need SHALL be stored by Launchpad, and a proposal SHALL be rate limited per user.
+
+#### Scenario: Ask the assistant
+
+- **GIVEN** the server has a text-to-text assistant
+- **AND** Pieter opens Add widget on My workspace
+- **WHEN** he describes "where I handle my cases" and asks
+- **THEN** the line proposes the app tile Case system with one sentence why
+- **AND** Place it like this places a one-cell tile for Case system on My workspace
+
+#### Scenario: No assistant
+
+- **GIVEN** the server has no text-to-text assistant
+- **THEN** the picker shows no assistant line
+
+### Requirement: The widgets on the first screen render in the first pass (REQ-WDG-047)
+
+A widget whose top row starts within the first screen of the workspace SHALL mount in the dashboard's first render,
+without waiting for it to be reported in view. As soon as the dashboard's placements are known, the renderer of every
+widget type on the first screen SHALL start loading. Widgets further down SHALL keep loading when they come into view
+(REQ-WDG-044).
+
+#### Scenario: The first screen renders at once
+@e2e exclude a timing property (no observer round, chunk requested early); pinned by src/utils/__tests__/firstViewport.spec.js and src/components/__tests__/WidgetWrapper.spec.js ('mounts a widget on the first screen at once and leaves one further down to the observer'); measured in the PR on the reference stack
+
+- **GIVEN** Pieter's start page has tiles in its top rows and a chart far below
+- **WHEN** he opens the start page
+- **THEN** the tiles render in the first pass, with their renderer requested as soon as the dashboard is known
+- **AND** the chart shows a loading state until it comes into view
+
+### Requirement: A widget's miniature is the widget itself, scaled down (REQ-WDG-048)
+
+Every card in the picker SHALL show a miniature drawn by the widget type's own renderer with the type's sample
+content, scaled down inside a fixed frame, not a static image (board LpWidgetKiezen; Ruben's review of 27 Nov 2026,
+item 11). Every launchpad widget type SHALL declare sample content. In the miniature the renderer SHALL NOT send any
+request, poll or record use. The frame SHALL be hidden from assistive technology and SHALL NOT take focus or clicks of
+its own. A miniature SHALL render when its card comes into view; one that fails SHALL show the type's icon in its frame.
+A widget from another Nextcloud app SHALL show the frame of a Nextcloud widget with that app's icon and three neutral
+rows.
+
+#### Scenario: The weather card shows a weather widget
+
+- **GIVEN** the picker is open on Content
+- **THEN** the Weather card's miniature shows a scaled-down weather widget with a temperature and an icon, drawn by the
+  weather widget's renderer
+- **AND** opening the picker sent no weather request
+
+#### Scenario: Every type has sample content
+
+- **GIVEN** the widget registry
+- **WHEN** each type is rendered as a miniature
+- **THEN** each renders without a request, and a type without sample content fails the check
+@e2e exclude a registry-wide check over every widget type with the network watched is a unit test, not a browser journey; pinned by the miniature registry test in this change's tasks
+
+### Requirement: Add widget is the only way to add to a dashboard (REQ-WDG-049)
+
+Tiles SHALL be added through Add widget, kind Tiles and links (Ruben's review of 27 Nov 2026, item 9). The edit bar,
+the empty state and the More menu SHALL NOT offer a separate "Add tiles" button or dialog.
+
+#### Scenario: No Add tiles button
+
+- **GIVEN** the owner in edit mode
+- **THEN** the edit bar offers Add widget and no Add tiles
+- **AND** Add widget, kind Tiles and links, lists the tile widgets
+
+### Requirement: The widget action menu follows the mode (REQ-WDG-050)
+
+In view mode a widget MUST show an action menu ("...") only when it has an action for the reader: its own user
+actions (such as refresh) or Hide for me on a dashboard the reader does not own. A widget without such an action, a
+tile among them, MUST show no action menu. "Create embed token" MUST NOT be offered in view mode.
+
+In edit mode every widget, at the top level and inside a well (container) or a tabs widget, MUST have an action menu
+with Configure, Duplicate, Create embed token and Remove. Create embed token MUST be offered only to people who may
+create embed tokens, MUST open the embed token form of launchpad's admin page with this widget chosen, MUST ask to
+save first when the draft has changes (REQ-EDIT-003), and MUST be disabled for a widget the draft added but has not
+saved. There is no board for this menu yet (Ruben's review of 27 Nov 2026, item 21).
+
+#### Scenario: View mode shows no embed action
+
+- **GIVEN** an administrator views a dashboard with a tile, a text widget and a news widget
+- **WHEN** they hover over each widget
+- **THEN** the tile and the text widget MUST show no action menu
+- **AND** no widget MUST offer Create embed token
+
+#### Scenario: Edit mode offers the embed action
+
+- **GIVEN** an administrator in edit mode with no unsaved changes, on a dashboard with a chart and a well holding a tile
+- **WHEN** they open the action menu of the chart and then of the tile inside the well
+- **THEN** each menu MUST list Configure, Duplicate, Create embed token and Remove
+- **AND** choosing Create embed token on the chart MUST open the embed token form with that chart chosen
+
+#### Scenario: A member without embed rights
+
+- **GIVEN** a member who may edit the dashboard but may not create embed tokens
+- **WHEN** they open a widget's action menu in edit mode
+- **THEN** it MUST list Configure, Duplicate and Remove, and not Create embed token
 
 ## Non-Functional Requirements
 
@@ -1003,18 +1370,21 @@ Widgets that implement none of the optional capability interfaces MUST receive t
 - WHEN `WidgetFormatter::format($widget, $userId)` is called
 - THEN the result has `itemApiVersions: []`, `buttons: []`, `reloadInterval: 0`, `iconUrl: null`, `itemIconsRound: false`
 - AND the result still includes the base `id`, `title`, `order`, `iconClass`, `widgetUrl` from the widget
+@e2e exclude a PHP formatter contract over mock IWidget implementations, no browser surface; pinned by tests/Unit/Service/WidgetFormatterTest.php::testPlainWidgetGetsTheBaseShapeWithDefaults
 
 #### Scenario: Format a widget that implements both API versions
 
 - GIVEN an `IWidget` that implements both `IAPIWidget` and `IAPIWidgetV2`
 - WHEN `WidgetFormatter::format($widget, $userId)` is called
 - THEN the result has `itemApiVersions: [1, 2]` (in declaration order, V1 first)
+@e2e exclude a PHP formatter contract over mock IWidget implementations, no browser surface; pinned by tests/Unit/Service/WidgetFormatterTest.php::testApiVersionsListV1ThenV2
 
 #### Scenario: Format a button widget includes per-button serialization
 
 - GIVEN an `IButtonWidget` whose `getWidgetButtons($userId)` returns two buttons (Add: `link=/add`, Settings: `link=/settings`)
 - WHEN `WidgetFormatter::format($widget, $userId)` is called
 - THEN `result.buttons` is `[{type: 'Add', text: '...', link: '/add'}, {type: 'Settings', text: '...', link: '/settings'}]`
+@e2e exclude a PHP formatter contract over mock IButtonWidget implementations, no browser surface; pinned by tests/Unit/Service/WidgetFormatterTest.php::testButtonsAreAskedForTheUserAndFlattened
 
 ### REQ-WDG-025: Widget item loader strategy
 
@@ -1032,18 +1402,21 @@ The result MUST be keyed by widget ID and MUST contain one entry per non-skipped
 - GIVEN a registered-widgets map containing only `widget-a`
 - WHEN `loadItems($widgets, $userId, ['widget-a', 'widget-unknown'], 7)` is called
 - THEN the result contains exactly one key `'widget-a'` (no entry for `'widget-unknown'`)
+@e2e exclude a PHP loader contract over mock widgets, no browser surface; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testUnknownIdsAreSkippedAndOnlyRequestedWidgetsLoad
 
 #### Scenario: V2-capable widget uses V2 API
 
 - GIVEN a widget that implements both `IAPIWidget` and `IAPIWidgetV2`
 - WHEN the loader processes that widget
 - THEN `getItemsV2()` is called (V1 API is NOT called)
+@e2e exclude which PHP interface method the loader calls is not observable over HTTP; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testV2IsPreferredWhenTheWidgetImplementsBoth
 
 #### Scenario: Non-API widget gets empty-default envelope
 
 - GIVEN a widget that implements neither `IAPIWidget` nor `IAPIWidgetV2`
 - WHEN the loader processes that widget
 - THEN the entry for that widget ID is `{items: [], emptyContentMessage: '', halfEmptyContentMessage: ''}`
+@e2e exclude needs a registered widget implementing neither item API, which the CI instance cannot be given; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testWidgetWithoutItemApiGetsAnEmptyEntry
 
 ### REQ-WDG-026: Widget item serialization and empty-content messaging
 
@@ -1054,12 +1427,14 @@ The system MUST serialize widget items via `WidgetItem::jsonSerialize()` (both V
 - GIVEN a V2 widget returning two items + empty message `'No items'` + half-empty message `'Almost empty'`
 - WHEN the loader processes that widget
 - THEN the entry has `items: [<2 serialized items>], emptyContentMessage: 'No items', halfEmptyContentMessage: 'Almost empty'`
+@e2e exclude needs a V2 widget with fixed items and messages, which the CI instance cannot be given; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testV2WidgetReturnsSerializedItemsAndMessages
 
 #### Scenario: V1 serializes items and returns empty messages
 
 - GIVEN a V1 widget returning three items
 - WHEN the loader processes that widget
 - THEN the entry has `items: [<3 serialized items>], emptyContentMessage: '', halfEmptyContentMessage: ''`
+@e2e exclude needs a V1 widget with fixed items, which the CI instance cannot be given; pinned by tests/Unit/Service/WidgetItemLoaderTest.php::testV1WidgetReturnsSerializedItemsWithEmptyMessages
 
 #### Notes (REQ-WDG-024..026)
 

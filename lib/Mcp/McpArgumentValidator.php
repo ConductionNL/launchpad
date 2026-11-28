@@ -1,0 +1,244 @@
+<?php
+
+/**
+ * LaunchPad McpArgumentValidator
+ *
+ * Typed argument checks for the MCP tools: each returns a structured error
+ * envelope, or null when the argument is valid, so a handler refuses before it
+ * authorises or calls a service (mcp-tool-surface REQ-MCP-005).
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * @category Mcp
+ * @package  OCA\LaunchPad\Mcp
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @link https://conduction.nl
+ *
+ * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+ */
+
+declare(strict_types=1);
+
+namespace OCA\LaunchPad\Mcp;
+
+use InvalidArgumentException;
+use OCA\LaunchPad\Exception\ResourceException;
+use OCP\AppFramework\Db\DoesNotExistException;
+use Throwable;
+
+/**
+ * Argument checks returning structured MCP errors.
+ *
+ * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+ */
+class McpArgumentValidator {
+
+	private const UUID_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
+
+	/**
+	 * The structured error envelope every tool answers a refusal with.
+	 *
+	 * @param string $code    The machine code: invalid_arguments, unauthenticated, forbidden, not_found, unknown_tool.
+	 * @param string $message A sentence for the agent.
+	 *
+	 * @return array{isError: true, error: string, message: string}
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	public static function error(string $code, string $message): array {
+		return ['isError' => true, 'error' => $code, 'message' => $message];
+	}//end error()
+
+	/**
+	 * A required UUID argument.
+	 *
+	 * @param array<string, mixed> $args The arguments.
+	 * @param string               $name The argument name.
+	 *
+	 * @return array<string, mixed>|null The error, or null.
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	public function uuid(array $args, string $name): ?array {
+		$value = ($args[$name] ?? null);
+		if (is_string($value) === false || preg_match(self::UUID_PATTERN, $value) !== 1) {
+			return self::error(code: 'invalid_arguments', message: "Argument {$name} must be a UUID.");
+		}
+
+		return null;
+	}//end uuid()
+
+	/**
+	 * A required positive integer id argument.
+	 *
+	 * @param array<string, mixed> $args The arguments.
+	 * @param string               $name The argument name.
+	 *
+	 * @return array<string, mixed>|null The error, or null.
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	public function positiveId(array $args, string $name): ?array {
+		$value = ($args[$name] ?? null);
+		if (is_int($value) === false || $value < 1) {
+			return self::error(code: 'invalid_arguments', message: "Argument {$name} must be a positive integer.");
+		}
+
+		return null;
+	}//end positiveId()
+
+	/**
+	 * A required string argument between a minimum and a maximum length.
+	 *
+	 * @param array<string, mixed> $args The arguments.
+	 * @param string               $name The argument name.
+	 * @param int                  $min  The minimum length.
+	 * @param int                  $max  The maximum length.
+	 *
+	 * @return array<string, mixed>|null The error, or null.
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	public function string(array $args, string $name, int $min, int $max): ?array {
+		$value = ($args[$name] ?? null);
+		if (is_string($value) === false || mb_strlen($value) < $min || mb_strlen($value) > $max) {
+			return self::error(
+				code: 'invalid_arguments',
+				message: "Argument {$name} must be a string of {$min} to {$max} characters."
+			);
+		}
+
+		return null;
+	}//end string()
+
+
+	/**
+	 * A required argument that must be one of a fixed set.
+	 *
+	 * @param array<string, mixed> $args    The arguments.
+	 * @param string               $name    The argument name.
+	 * @param list<string>         $allowed The allowed values.
+	 *
+	 * @return array<string, mixed>|null The error, or null.
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	public function oneOf(array $args, string $name, array $allowed): ?array {
+		if (in_array(($args[$name] ?? null), $allowed, true) === false) {
+			return self::error(
+				code: 'invalid_arguments',
+				message: "Argument {$name} must be one of: " . implode(', ', $allowed) . '.'
+			);
+		}
+
+		return null;
+	}//end oneOf()
+
+	/**
+	 * An optional argument: absent passes, present answers the check run on it.
+	 *
+	 * Wrap a required check to make it optional:
+	 * `optional(args: $args, name: 'note', refusal: $this->string(args: $args, name: 'note', min: 1, max: 500))`.
+	 *
+	 * @param array<string, mixed>      $args    The arguments.
+	 * @param string                    $name    The argument name.
+	 * @param array<string, mixed>|null $refusal What the required check answered.
+	 *
+	 * @return array<string, mixed>|null The error, or null.
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	public function optional(array $args, string $name, ?array $refusal): ?array {
+		if (array_key_exists($name, $args) === false) {
+			return null;
+		}
+
+		return $refusal;
+	}//end optional()
+
+	/**
+	 * Grid bounds of a placement: each given coordinate or size is an integer in range.
+	 *
+	 * @param array<string, mixed> $args The arguments, with any of gridX, gridY, gridWidth, gridHeight.
+	 *
+	 * @return array<string, mixed>|null The error, or null.
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	public function grid(array $args): ?array {
+		$bounds = ['gridX' => [0, 1000], 'gridY' => [0, 1000], 'gridWidth' => [1, 12], 'gridHeight' => [1, 100]];
+		foreach ($bounds as $name => [$min, $max]) {
+			if (array_key_exists($name, $args) === false) {
+				continue;
+			}
+
+			$value = $args[$name];
+			if (is_int($value) === false || $value < $min || $value > $max) {
+				return self::error(
+					code: 'invalid_arguments',
+					message: "Argument {$name} must be an integer from {$min} to {$max}."
+				);
+			}
+		}
+
+		return null;
+	}//end grid()
+
+	/**
+	 * The error envelope, for callers that hold a validator instance.
+	 *
+	 * @param string $code    The machine code.
+	 * @param string $message A sentence for the agent.
+	 *
+	 * @return array{isError: true, error: string, message: string}
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-6
+	 */
+	public function refuse(string $code, string $message): array {
+		return self::error(code: $code, message: $message);
+	}//end refuse()
+
+	/**
+	 * The error envelope for an exception a service threw. A missing target,
+	 * a refused argument and the app's own resource exceptions (forbidden,
+	 * not found, ...) are named; any other failure stays generic, so no raw
+	 * exception message reaches the agent.
+	 *
+	 * @param Throwable $exception The failure.
+	 *
+	 * @return array{isError: true, error: string, message: string}
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-6
+	 */
+	public function failure(Throwable $exception): array {
+		return match (true) {
+			$exception instanceof DoesNotExistException => self::error(code: 'not_found', message: 'The target does not exist.'),
+			$exception instanceof ResourceException => self::error(code: $exception->getErrorCode(), message: $exception->getDisplayMessage()),
+			$exception instanceof InvalidArgumentException => self::error(code: 'invalid_arguments', message: $exception->getMessage()),
+			default => self::error(code: 'failed', message: 'The operation failed.'),
+		};
+	}//end failure()
+
+	/**
+	 * Run a service call and answer its result, or the envelope of the
+	 * exception it threw (see failure()).
+	 *
+	 * @param \Closure(): array<string, mixed> $operation The service call.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/tasks.md#task-10
+	 */
+	public function attempt(\Closure $operation): array {
+		try {
+			return $operation();
+		} catch (Throwable $e) {
+			return $this->failure(exception: $e);
+		}
+	}//end attempt()
+}//end class

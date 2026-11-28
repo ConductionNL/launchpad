@@ -1,0 +1,330 @@
+/**
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * Vitest unit tests for `TileWidget.vue`: where a tile links to, how its icon
+ * renders, the edit cog and health badge it shows, the click it records and
+ * the title-colour style it injects once per tile.
+ */
+
+import { mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+const recordTileClick = vi.fn()
+
+vi.mock('@conduction/nextcloud-vue', () => ({
+	CnDashboardIcon: { name: 'CnDashboardIcon', props: ['name', 'size'], template: '<i class="mdi" :data-name="name" />' },
+}))
+vi.mock('../Widgets/WidgetEditMenu.vue', () => ({ default: {
+	name: 'WidgetEditMenu',
+	emits: ['edit', 'remove'],
+	template: '<div class="cog"><button class="cog-edit" @click="$emit(\'edit\')" /><button class="cog-remove" @click="$emit(\'remove\')" /></div>',
+} }))
+vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => '/nc' + path }))
+vi.mock('../../composables/useTileClickTracking.js', () => ({
+	useTileClickTracking: () => ({ recordTileClick }),
+}))
+vi.mock('../HealthPingBadge.vue', () => ({
+	default: { name: 'HealthPingBadge', props: ['placementId', 'interval', 'hidden'], emits: ['reading'], template: '<span class="badge" />' },
+}))
+vi.mock('../../services/tileCount.js', async (importOriginal) => ({
+	...(await importOriginal()),
+	resolveTileCount: vi.fn(),
+}))
+
+const { default: TileWidget } = await import('../TileWidget.vue')
+const { resolveTileCount } = await import('../../services/tileCount.js')
+
+const SOURCE = { type: 'register', register: 'cases', schema: 'case', filter: { assignee: '@me' } }
+
+/**
+ * Mount an icon-only tile whose count source answers `count`.
+ *
+ * @param {object} fields Tile fields
+ * @param {object} content Placement content
+ * @param {number|null} count The count the source answers
+ * @return {Promise<object>} The wrapper
+ */
+async function mountCounted(fields, content, count) {
+	resolveTileCount.mockResolvedValue(count)
+	const wrapper = mount(TileWidget, { props: { tile: tile(fields), content: { iconOnly: true, countSource: SOURCE, ...content }, healthPingEnabled: true, placementId: 7 } })
+	await new Promise((resolve) => setTimeout(resolve, 0))
+	await wrapper.vm.$nextTick()
+	return wrapper
+}
+
+let nextId = 1
+
+/**
+ * A tile with a unique id, overridden by the given fields.
+ *
+ * @param {object} fields The fields to set
+ * @return {object} The tile
+ */
+function tile(fields = {}) {
+	return { id: nextId++, title: 'Deck', linkType: 'url', linkValue: 'https://example.org', iconType: 'emoji', icon: '📋', ...fields }
+}
+
+describe('TileWidget', () => {
+	beforeEach(() => {
+		recordTileClick.mockReset()
+	})
+
+	afterEach(() => {
+		document.head.querySelectorAll('style[id^="tile-"]').forEach((el) => el.remove())
+	})
+
+	it('shows only the glyph of an icon-only tile, with its name as tooltip and accessible name', () => {
+		const wrapper = mount(TileWidget, { props: { tile: tile({ title: 'TOPdesk' }), content: { iconOnly: true } } })
+
+		expect(wrapper.classes()).toContain('tile-widget--icon-only')
+		expect(wrapper.find('.tile-widget__title').exists()).toBe(false)
+		expect(wrapper.find('a').attributes('title')).toBe('TOPdesk')
+		expect(wrapper.find('a').attributes('aria-label')).toBe('TOPdesk')
+	})
+
+	// @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-an-outage-req-ict-003
+	it('marks an icon-only tile with its pin, live count and outage, and names them', async () => {
+		const marked = await mountCounted({ title: 'Outlook web' }, { pinned: true }, 3)
+		expect(marked.find('[data-testid="tile-pin"]').exists()).toBe(true)
+		expect(marked.find('[data-testid="tile-badge"]').text()).toBe('3')
+		expect(marked.find('a').attributes('aria-label')).toBe('Outlook web, 3 open, pinned')
+		expect(marked.findComponent({ name: 'HealthPingBadge' }).props('hidden')).toBe(true)
+
+		const down = await mountCounted({ title: 'Council' }, {}, 4)
+		down.findComponent({ name: 'HealthPingBadge' }).vm.$emit('reading', { state: 'offline', downSince: null })
+		await down.vm.$nextTick()
+		expect(down.find('[data-testid="tile-outage"]').exists()).toBe(true)
+		expect(down.find('[data-testid="tile-badge"]').exists()).toBe(false)
+		expect(down.find('a').attributes('aria-label')).toBe('Council, outage')
+
+		// The time follows the viewer's Nextcloud locale, not the browser's:
+		// a Dutch user read "storing sinds 10:28 PM" on an en-US browser.
+		const previousLocale = globalThis._nc_l10n_locale
+		globalThis._nc_l10n_locale = 'nl_NL'
+		try {
+			const since = new Date(2026, 10, 25, 21, 12).toISOString()
+			down.findComponent({ name: 'HealthPingBadge' }).vm.$emit('reading', { state: 'offline', downSince: since })
+			await down.vm.$nextTick()
+			expect(down.find('a').attributes('aria-label')).toBe('Council, outage since 21:12')
+		} finally {
+			globalThis._nc_l10n_locale = previousLocale
+		}
+
+		down.findComponent({ name: 'HealthPingBadge' }).vm.$emit('reading', { state: 'online', downSince: null })
+		await down.vm.$nextTick()
+		expect(down.find('[data-testid="tile-outage"]').exists()).toBe(false)
+		expect(down.find('[data-testid="tile-badge"]').text()).toBe('4')
+
+		const many = await mountCounted({}, {}, 140)
+		expect(many.find('[data-testid="tile-badge"]').text()).toBe('99+')
+	})
+
+	// @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-an-app-tile-shows-a-live-count-req-ict-002
+	it('ignores the static badge and status of older placements', async () => {
+		const wrapper = await mountCounted({ title: 'Mail' }, { countSource: undefined, badge: 5, status: 'down' }, 9)
+		expect(resolveTileCount).not.toHaveBeenCalled()
+		expect(wrapper.find('[data-testid="tile-badge"]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="tile-outage"]').exists()).toBe(false)
+	})
+
+	// @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-the-tile-colour-is-one-of-eight-theme-colours-req-ict-004
+	it('renders through its colour token, else its hex colour', () => {
+		const token = mount(TileWidget, { props: { tile: tile({ backgroundColor: '#123456' }), content: { colourToken: '--sc-accent' } } })
+		expect(token.find('.tile-widget').attributes('style')).toContain('--tile-bg-color: var(--sc-accent, #cc0000)')
+		const hex = mount(TileWidget, { props: { tile: tile({ backgroundColor: '#123456' }), content: {} } })
+		expect(hex.find('.tile-widget').attributes('style')).toContain('--tile-bg-color: #123456')
+	})
+
+	// @spec openspec/changes/archive/2026-11-25-icon-only-app-tiles/specs/tiles/spec.md#requirement-a-tile-can-be-an-app-tile-with-only-its-icon-req-ict-001
+	it('reads "Zaaksysteem, 14 open" and keeps every mark decorative', async () => {
+		const wrapper = await mountCounted({ title: 'Zaaksysteem' }, { pinned: true }, 14)
+		const link = wrapper.find('a')
+		expect(link.attributes('aria-label')).toBe('Zaaksysteem, 14 open, pinned')
+		expect(link.attributes('title')).toBe('Zaaksysteem')
+		expect(wrapper.find('[data-testid="tile-badge"]').attributes('aria-hidden')).toBe('true')
+		expect(wrapper.find('[data-testid="tile-pin"]').attributes('aria-hidden')).toBe('true')
+		expect(wrapper.text()).not.toContain('Zaaksysteem')
+	})
+
+	it('names no count for 0, a negative, an unreadable or no answer', async () => {
+		for (const count of [0, -2, 'many', null]) {
+			const wrapper = await mountCounted({ title: 'Mail' }, {}, count)
+			expect(wrapper.find('[data-testid="tile-badge"]').exists()).toBe(false)
+			expect(wrapper.find('a').attributes('aria-label')).toBe('Mail')
+		}
+	})
+
+	it('keeps its own drag grip and menu in edit mode as an app tile', () => {
+		const wrapper = mount(TileWidget, { props: { tile: tile({ title: 'Mail' }), content: { iconOnly: true }, editMode: true } })
+		expect(wrapper.find('[data-testid="tile-drag-grip"]').exists()).toBe(true)
+		expect(wrapper.find('.tile-widget__edit').exists()).toBe(true)
+	})
+
+	it('keeps the name under the glyph without iconOnly', () => {
+		const wrapper = mount(TileWidget, { props: { tile: tile({ title: 'TOPdesk' }) } })
+
+		expect(wrapper.classes()).not.toContain('tile-widget--icon-only')
+		expect(wrapper.find('.tile-widget__title').text()).toBe('TOPdesk')
+		expect(wrapper.find('a').attributes('title')).toBeUndefined()
+	})
+
+	it('shows a drag grip in edit mode only (LpBewerken)', () => {
+		expect(mount(TileWidget, { props: { tile: tile() } }).find('[data-testid="tile-drag-grip"]').exists()).toBe(false)
+		expect(mount(TileWidget, { props: { tile: tile(), editMode: true } }).find('[data-testid="tile-drag-grip"]').exists()).toBe(true)
+	})
+
+	it('links an app tile through generateUrl in the same tab', () => {
+		const link = mount(TileWidget, { props: { tile: tile({ linkType: 'app', linkValue: 'deck' }) } }).find('a')
+
+		expect(link.attributes('href')).toBe('/nc/apps/deck')
+		expect(link.attributes('target')).toBe('_self')
+	})
+
+	it('links an app tile that stores the app path (a content link tile) without doubling /apps/', () => {
+		const files = mount(TileWidget, { props: { tile: tile({ linkType: 'app', linkValue: '/apps/files' }) } }).find('a')
+		const pack = mount(TileWidget, { props: { tile: tile({ linkType: 'app', linkValue: '/apps/deck/' }) } }).find('a')
+
+		expect(files.attributes('href')).toBe('/nc/apps/files')
+		expect(pack.attributes('href')).toBe('/nc/apps/deck/')
+		expect(files.attributes('target')).toBe('_self')
+	})
+
+	it('routes an internal absolute path through generateUrl', () => {
+		const link = mount(TileWidget, { props: { tile: tile({ linkType: 'internal', linkValue: '/apps/text' }) } }).find('a')
+
+		expect(link.attributes('href')).toBe('/nc/apps/text')
+	})
+
+	it('passes external, protocol-relative and mailto links through, opening urls in a new tab', () => {
+		const external = mount(TileWidget, { props: { tile: tile() } }).find('a')
+		expect(external.attributes('href')).toBe('https://example.org')
+		expect(external.attributes('target')).toBe('_blank')
+		expect(external.attributes('rel')).toBe('noopener noreferrer')
+
+		expect(mount(TileWidget, { props: { tile: tile({ linkValue: '//cdn.example.org' }) } }).find('a').attributes('href'))
+			.toBe('//cdn.example.org')
+		expect(mount(TileWidget, { props: { tile: tile({ linkType: 'mail', linkValue: 'mailto:a@example.org' }) } }).find('a').attributes('href'))
+			.toBe('mailto:a@example.org')
+	})
+
+	it('renders each icon type', () => {
+		expect(mount(TileWidget, { props: { tile: tile({ iconType: 'svg', icon: 'M0 0h24' }) } }).find('path').attributes('d')).toBe('M0 0h24')
+		expect(mount(TileWidget, { props: { tile: tile({ iconType: 'class', icon: 'icon-deck' }) } }).find('span.icon').classes()).toContain('icon-deck')
+		expect(mount(TileWidget, { props: { tile: tile({ iconType: 'url', icon: '/img/a.png' }) } }).find('img').attributes('src')).toBe('/img/a.png')
+		expect(mount(TileWidget, { props: { tile: tile() } }).find('.tile-widget__emoji').text()).toBe('📋')
+		expect(mount(TileWidget, { props: { tile: tile({ iconType: 'mdi', icon: 'Calendar' }) } }).find('.mdi').attributes('data-name')).toBe('Calendar')
+	})
+
+	it('shows the edit cog only in edit mode and forwards its events', async () => {
+		expect(mount(TileWidget, { props: { tile: tile() } }).find('.cog').exists()).toBe(false)
+
+		const wrapper = mount(TileWidget, { props: { tile: tile(), editMode: true } })
+		await wrapper.find('.cog-edit').trigger('click')
+		await wrapper.find('.cog-remove').trigger('click')
+
+		expect(wrapper.emitted('edit')).toHaveLength(1)
+		expect(wrapper.emitted('remove')).toHaveLength(1)
+	})
+
+	it('shows the health badge only when a ping is configured', () => {
+		expect(mount(TileWidget, { props: { tile: tile() } }).findComponent({ name: 'HealthPingBadge' }).exists()).toBe(false)
+
+		const badge = mount(TileWidget, { props: { tile: tile(), healthPingEnabled: true, placementId: 12, pingInterval: 30 } })
+			.findComponent({ name: 'HealthPingBadge' })
+
+		expect(badge.props()).toEqual({ placementId: 12, interval: 30, hidden: false })
+	})
+
+	it('records a click on the tile', async () => {
+		const item = tile()
+		const wrapper = mount(TileWidget, { props: { tile: item } })
+		wrapper.find('a').element.addEventListener('click', (event) => event.preventDefault())
+
+		await wrapper.find('a').trigger('click')
+
+		expect(recordTileClick).toHaveBeenCalledWith(item.id)
+	})
+
+	it('injects one title-colour style per tile, defaulting to white', () => {
+		const item = tile({ textColor: '#123456' })
+		mount(TileWidget, { props: { tile: item } })
+		mount(TileWidget, { props: { tile: item } })
+
+		const styles = document.head.querySelectorAll(`#tile-${item.id}-style`)
+		expect(styles).toHaveLength(1)
+		expect(styles[0].textContent).toContain('color: #123456 !important')
+
+		const plain = tile()
+		mount(TileWidget, { props: { tile: plain } })
+		expect(document.getElementById(`tile-${plain.id}-style`).textContent).toContain('color: #ffffff !important')
+	})
+
+	it('exposes its colours as CSS variables', () => {
+		const style = mount(TileWidget, { props: { tile: tile({ backgroundColor: '#000000' }) } }).find('.tile-widget').attributes('style')
+
+		expect(style).toContain('--tile-bg-color: #000000')
+		expect(style).toContain('--tile-text-color: #ffffff')
+	})
+
+	describe('launch tiles (launcher-tile-launch-types)', () => {
+		it('hands a program address to the browser and shows the hint after a click', async () => {
+			const wrapper = mount(TileWidget, { props: { tile: tile({ linkType: 'program', linkValue: 'ms-word:ofe|u|https://docs.example.nl/a.docx' }) } })
+			const link = wrapper.find('a')
+			expect(link.attributes('href')).toBe('ms-word:ofe|u|https://docs.example.nl/a.docx')
+			expect(link.attributes('target')).toBe('_self')
+			expect(wrapper.find('[role="status"]').exists()).toBe(false)
+
+			await link.trigger('click')
+
+			expect(wrapper.find('[role="status"]').text()).toBe('Nothing happened? The program may not be installed on this computer.')
+		})
+
+		it('links an RDP tile to its file and a gateway tile to the gateway in a new tab', () => {
+			const rdp = mount(TileWidget, { props: { tile: tile({ linkType: 'remote-desktop', linkValue: '' }), placementId: 9, content: { remote: { mode: 'rdp', host: 'pc12' } } } }).find('a')
+			expect(rdp.attributes('href')).toBe('/nc/apps/launchpad/api/tiles/9/rdp')
+			expect(rdp.attributes('target')).toBe('_self')
+
+			const gateway = mount(TileWidget, { props: { tile: tile({ linkType: 'remote-desktop', linkValue: 'https://desktop.gemeente.nl/' }), content: { remote: { mode: 'gateway' } } } }).find('a')
+			expect(gateway.attributes('href')).toBe('https://desktop.gemeente.nl/')
+			expect(gateway.attributes('target')).toBe('_blank')
+		})
+
+		it('opens an sso tile at the address the server stored, and shows no hint for it', async () => {
+			const wrapper = mount(TileWidget, { props: { tile: tile({ linkType: 'sso', linkValue: 'https://launcher.myapps.microsoft.com/api/signin/a1b2c3?tenantId=contoso' }) } })
+			const link = wrapper.find('a')
+			expect(link.attributes('href')).toBe('https://launcher.myapps.microsoft.com/api/signin/a1b2c3?tenantId=contoso')
+			expect(link.attributes('target')).toBe('_blank')
+			await link.trigger('click')
+			expect(wrapper.find('[role="status"]').exists()).toBe(false)
+		})
+	})
+})
+
+// app-link-tile-widget REQ-APPTILE-005: the tile's own text colour.
+describe('TileWidget text colour', () => {
+	it('draws the title in the stored text colour', () => {
+		const wrapper = mount(TileWidget, { props: { tile: tile({ textColor: '#ff0000' }), content: { textColour: '--sc-primary-deep' } } })
+
+		expect(wrapper.find('.tile-widget').attributes('style')).toContain('--tile-text-color: var(--sc-primary-deep, #234a78)')
+		expect(wrapper.find('.tile-widget__title').attributes('style')).toContain('var(--sc-primary-deep, #234a78)')
+	})
+
+	it('keeps the tile\'s own text colour, else white, without one stored', () => {
+		expect(mount(TileWidget, { props: { tile: tile({ textColor: '#ff0000' }), content: {} } }).vm.textCss).toBe('#ff0000')
+		expect(mount(TileWidget, { props: { tile: tile({ textColor: '' }), content: null } }).vm.textCss).toBe('#ffffff')
+	})
+
+	it('paints an SVG icon in the text colour and shows another image as it is', () => {
+		const svg = mount(TileWidget, { props: { tile: tile({ iconType: 'url', icon: '/apps/launchpad/img/nextcloud-white.svg' }), content: { textColour: 'black' } } })
+		expect(svg.find('[data-testid="tile-icon-mask"]').exists()).toBe(true)
+		expect(svg.find('img').exists()).toBe(false)
+
+		const png = mount(TileWidget, { props: { tile: tile({ iconType: 'url', icon: '/logo.png' }), content: { textColour: 'black' } } })
+		expect(png.find('[data-testid="tile-icon-mask"]').exists()).toBe(false)
+		expect(png.find('img').exists()).toBe(true)
+
+		const unset = mount(TileWidget, { props: { tile: tile({ iconType: 'url', icon: '/logo.svg' }), content: {} } })
+		expect(unset.find('img').exists()).toBe(true)
+	})
+})

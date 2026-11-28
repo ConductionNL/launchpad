@@ -133,7 +133,8 @@
 import { CnIconBrowser } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
 import draggable from 'vuedraggable'
-import { ICON_CATALOGUE } from '../../services/iconCatalogue.js'
+import { LIST_PROP, REQUIRED_OBJECT_PROP } from '../../constants/propDefinitions.js'
+import { ICON_CATALOGUE, loadIconCatalogue } from '../../services/iconCatalogue.js'
 
 /**
  * OrgNavigationEditorRow — single row inside the admin tree editor.
@@ -158,10 +159,7 @@ export default {
 	},
 
 	props: {
-		node: {
-			type: Object,
-			required: true,
-		},
+		node: REQUIRED_OBJECT_PROP,
 
 		level: {
 			type: Number,
@@ -183,10 +181,7 @@ export default {
 			default: 3,
 		},
 
-		groups: {
-			type: Array,
-			default: () => [],
-		},
+		groups: LIST_PROP,
 	},
 
 	emits: ['update', 'delete', 'moveUp', 'moveDown', 'addChild'],
@@ -243,6 +238,10 @@ export default {
 		indentPx() {
 			return (this.level - 1) * 16 + 'px'
 		},
+	},
+
+	created() {
+		loadIconCatalogue().catch(() => {})
 	},
 
 	methods: {

@@ -8,7 +8,7 @@
  * ===============
  * `tests/e2e/seed.sh` creates exactly one thing: the `e2e-grantee` USER. It
  * creates no dashboard. On a fresh instance — which is what CI provisions —
- * LaunchPad therefore renders its empty state ("No dashboards available"),
+ * LaunchPad therefore renders its empty state ("You have no dashboard yet"),
  * and every control that lives in the workspace shell is simply absent.
  *
  * That is why `active-dashboard-resolution`, `add-widget-modal` and
@@ -31,9 +31,11 @@
  * ACTIVATION IS TWO MECHANISMS, NOT ONE
  * =====================================
  * `POST /api/dashboard/{id}/activate` sets the legacy id-based `is_active`
- * column. `POST /api/dashboards/active` sets a per-user UUID PREFERENCE, and
- * the shell resolves its dashboard through THAT. Calling only the first one
- * loads whatever dashboard a previous spec's preference points at — measured,
+ * column. `POST /api/dashboards/default` sets the per-user START DASHBOARD
+ * (Set as default), and the shell resolves `/apps/launchpad/` through THAT
+ * (REQ-DASH-018). The last-used preference (`POST /api/dashboards/active`)
+ * no longer decides where launchpad opens. Calling only the first one loads
+ * whatever dashboard a previous spec's start dashboard points at — measured,
  * and the reason tile-quick-search calls both.
  */
 
@@ -80,7 +82,7 @@ export async function seedActiveDashboard(
 	expect(activate.status(), await activate.text()).toBeLessThan(300)
 
 	const preference = await api.post(
-		'/index.php/apps/launchpad/api/dashboards/active',
+		'/index.php/apps/launchpad/api/dashboards/default',
 		{ data: { uuid: dash.uuid } },
 	)
 	expect(preference.status(), await preference.text()).toBeLessThan(300)
@@ -103,4 +105,26 @@ export async function removeSeededDashboard(
 		return
 	}
 	await api.delete(`${DASHBOARDS}/${dashboard.id}`)
+}
+
+/**
+ * Remove the widgets a new dashboard is seeded with.
+ *
+ * `POST /api/dashboard` places the default bundle (three tiles and a files
+ * widget) on every dashboard a person creates. A spec that counts or compares
+ * placements starts from an empty grid by calling this right after creating.
+ *
+ * @param api a context that may edit the dashboard.
+ * @param dashboardId the dashboard.
+ * @return nothing.
+ */
+export async function clearSeededWidgets(api: APIRequestContext, dashboardId: number): Promise<void> {
+	const res = await api.get(`${DASHBOARDS}/${dashboardId}`)
+	expect(res.status(), await res.text()).toBe(200)
+	const body = await res.json()
+	const placements = ((body.data ?? body).placements ?? []) as Array<{ id: number }>
+	for (const placement of placements) {
+		const removed = await api.delete(`/index.php/apps/launchpad/api/widgets/${placement.id}`)
+		expect(removed.status(), await removed.text()).toBeLessThan(300)
+	}
 }

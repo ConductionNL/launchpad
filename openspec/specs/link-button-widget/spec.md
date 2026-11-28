@@ -36,7 +36,6 @@ The renderer MUST output a `<button>` whose click handler dispatches based on th
 3. `createFile` → open an inline filename-prompt modal (REQ-LBN-003)
 
 The renderer MUST suppress all click handlers when `isAdmin === true` AND the surrounding dashboard is in edit mode, so that configuring the widget cannot accidentally fire actions. The button MUST carry a `disabled` attribute while an action is in flight (`isExecuting === true`).
-@e2e exclude renderer with three action types tests click handlers on a placed link-button widget — requires seeded placement; covered by REQ-LBN-001 UI tests
 
 #### Scenario: External link opens in new tab
 
@@ -68,7 +67,6 @@ The `icon` field of a link-button widget MUST follow the same dual-mode conventi
 - An empty or null value MUST render no icon (label-only)
 
 Icon size MUST be 48 px square; the label MUST be vertically stacked below the icon.
-@e2e exclude icon resolution tests IconRenderer dispatch logic — Vitest component scope
 
 #### Scenario: Custom URL icon
 
@@ -93,7 +91,6 @@ When `actionType === 'createFile'`, click MUST open an inline secondary modal co
 - Cancel and Create buttons (Create disabled when filename empty)
 
 On Create, the system MUST POST `/api/files/create` with body `{filename: <name>.<ext>, dir: '/', content: '', overwrite: false}`. When the server answers HTTP 409 `file_exists`, the modal MUST show a warning naming the existing file and relabel Create as Replace; only a click on Replace for that same name MUST send `overwrite: true`, and changing the name MUST return to a normal Create. On HTTP 200, the response's `url` MUST be opened in a new tab via `window.open(url, '_blank')`. On error, a translated toast MUST display `t('Failed to create document')`. The modal MUST close on Cancel or after a successful create.
-@e2e exclude createFile flow tests server-side file-creation endpoint — Newman scope; UI trigger covered by REQ-LBN-001
 
 #### Scenario: Document modal opens with prefilled name
 
@@ -128,28 +125,27 @@ On Create, the system MUST POST `/api/files/create` with body `{filename: <name>
 
 The system MUST expose `POST /api/files/create` accepting `{filename: string, dir: string = '/', content: string = '', overwrite: bool = true}`. The endpoint MUST:
 
-1. Validate filename: non-empty, ≤255 chars, no `..`, no `/`, no `\`, no null byte, must match `^[a-zA-Z0-9_\-. ]+$`. Otherwise return HTTP 400 `{error: 'Invalid filename'}`.
+1. Validate filename: non-empty, ≤255 chars, no `..`, no `/`, no `\`, no null byte, must match `^[a-zA-Z0-9_\-. ]+$`. Otherwise return HTTP 400 `{status: 'error', error: 'invalid_filename', message: 'Invalid filename'}`.
 2. Validate dir: no `..`, no null byte. Otherwise return HTTP 400.
-3. Validate extension: must be in the admin-configured allow-list (default: `txt, md, docx, xlsx, csv, odt`). Otherwise return HTTP 400 `{error: 'File type not allowed'}`.
+3. Validate extension: must be in the admin-configured allow-list (default: `txt, md, docx, xlsx, csv, odt`). Otherwise return HTTP 400 `{status: 'error', error: 'file_type_not_allowed', message: 'File type not allowed'}`.
 4. Resolve user folder via `IRootFolder::getUserFolder($userId)` and create the subdirectory if missing.
 5. If a file with the same name already exists at the target path, OVERWRITE its content, unless `overwrite` is `false`: then return HTTP 409 `{error: 'file_exists'}` and leave the file unchanged.
 6. Return `{status: 'success', fileId: int, url: string}` where `url` opens the Files app at `openfile={fileId}` via `URLGenerator::linkToRouteAbsolute('files.view.index', ['openfile' => fileId])`.
 
 Internal exceptions MUST be wrapped; raw exception messages MUST NOT be returned to the caller.
-@e2e exclude server-side file-creation endpoint tests PHP validator and extension allow-list — Newman scope
 
 #### Scenario: Path traversal rejected
 
 - GIVEN body `{filename: '../../etc/passwd'}`
 - WHEN POSTed
-- THEN the system MUST return HTTP 400 with error `Invalid filename`
+- THEN the system MUST return HTTP 400 with error `invalid_filename` and message `Invalid filename`
 - AND no file MUST be created on disk
 
 #### Scenario: Disallowed extension rejected
 
 - GIVEN allow-list `[txt, md, docx]` AND body `{filename: 'foo.exe'}`
 - WHEN POSTed
-- THEN the system MUST return HTTP 400 with `{error: 'File type not allowed'}`
+- THEN the system MUST return HTTP 400 with `{error: 'file_type_not_allowed', message: 'File type not allowed'}`
 
 #### Scenario: Existing file overwritten
 
@@ -162,9 +158,9 @@ Internal exceptions MUST be wrapped; raw exception messages MUST NOT be returned
 ### Requirement: REQ-LBN-005 Internal action registry
 
 The system MUST expose a frontend composable `useInternalActions()` returning a singleton `Map<actionId, () => void | Promise<void>>` plus three methods: `register(id, fn)`, `invoke(id)`, and `has(id)`. Other frontend modules MAY register actions at any time. Click on an `internal` link button MUST look up `url` (the action ID) in the map and invoke the registered function. Missing IDs MUST log `console.warn('Unknown internal action: <id>')` but MUST NOT throw.
-@e2e exclude internal action registry tests client-side JS singleton — Vitest scope
 
 #### Scenario: Register and invoke an internal action
+@e2e exclude no production module registers an internal action (src/ has no `useInternalActions().register(` call outside tests) and the registry is a module-scoped Map the page does not expose, so the GIVEN cannot be set up from a browser. Pinned by Vitest src/composables/__tests__/useInternalActions.spec.js (register + invoke runs once) and src/components/Widgets/Renderers/__tests__/LinkButtonHost.actions.spec.js (the host dispatches the widget's action id through the registry).
 
 - GIVEN a module registered `useInternalActions().register('open-talk', () => router.push('/talk'))`
 - AND content `{actionType: 'internal', url: 'open-talk'}`
@@ -192,7 +188,6 @@ The link sub-form for `AddWidgetModal` MUST expose six fields:
 | `textColor` | colour picker | no |
 
 Validation: `validate()` MUST require `label` AND `url` non-empty and return a non-empty error array otherwise. The form MUST pre-fill from `editingWidget.content` when editing an existing widget.
-@e2e exclude add/edit form tests the AddWidgetModal form fields — form open requires widget picker; covered by spec-coverage widget form tests
 
 #### Scenario: Validation requires both label and url
 
@@ -211,7 +206,6 @@ Validation: `validate()` MUST require `label` AND `url` non-empty and return a n
 ### Requirement: REQ-LBN-007 Default styling
 
 When the colour fields are empty, the renderer MUST default to `backgroundColor: var(--color-primary)` and `textColor: var(--color-primary-text)` (Nextcloud theme primary). Hover MUST translate the button up by 2 px and add a soft drop shadow.
-@e2e exclude default styling tests CSS variables on a placed widget — visual regression / Vitest scope
 
 #### Scenario: Theme defaults
 
@@ -230,7 +224,6 @@ When the colour fields are empty, the renderer MUST default to `backgroundColor:
 ### Requirement: REQ-LBLM-001 Display mode configuration
 
 The link-button widget MUST support a `displayMode ENUM('button','list')` field on its widget-config record. The field MUST default to `'button'` to preserve backward compatibility with existing single-button placements. When `displayMode = 'button'`, the widget renders a single button using only the first entry from the `links` array (or legacy single-link fields). When `displayMode = 'list'`, the widget renders a full vertical or horizontal list of multiple links per the list rendering requirements.
-@e2e exclude display mode configuration tests JSON field and CSS class — Vitest scope
 
 #### Scenario: Display mode field exists with button default
 - GIVEN a new link-button-widget placement is created without specifying `displayMode`
@@ -262,13 +255,20 @@ The widget placement MUST support a `links JSON` field typed as an array of link
 }
 ```
 
+The list spellings `url` and `action_id` are aliases of the single-button types `external` and `internal`: the renderer and the form MUST accept all five values and treat each alias exactly as its single-button type. The form MUST open an entry in either spelling and save the single-button spelling (`external`, `internal`, `createFile`). An unknown value MUST be treated as `external`.
+
 When `displayMode = 'button'`, only the first entry in the `links` array is used, preserving existing single-button behaviour. When `displayMode = 'list'`, all entries in the array are rendered. The `links` field MAY be empty or null for `displayMode = 'button'` placements (legacy single-link fields take precedence); it MUST be a non-empty array for `displayMode = 'list'`.
-@e2e exclude links array schema tests JSON blob validation — Vitest/Newman scope
 
 #### Scenario: Links array stored on placement
 - GIVEN a placement with `displayMode = 'list'` and `links = [{label: 'Docs', url: '...', actionType: 'url', ...}, ...]`
 - WHEN the placement is retrieved
 - THEN the full `links` array MUST be present in the response
+
+#### Scenario: An action_id entry is never rendered as a link
+- GIVEN a placement with `displayMode = 'list'` and `links = [{label: 'Files', url: 'open-files', actionType: 'action_id'}]`
+- WHEN the widget renders outside edit mode
+- THEN the entry MUST render as a `<button>` with no `href`
+- AND a click MUST open no new tab and MUST dispatch `open-files` as an internal action
 
 #### Scenario: Single-button mode ignores links array
 - GIVEN a placement with `displayMode = 'button'`, a populated `links` array, AND legacy single-link fields (`url`, `icon`)
@@ -291,7 +291,6 @@ Each link entry in the `links` array MUST follow the same three action-type spec
 3. `'createFile'` — File creation: opens a filename-prompt modal (per REQ-LBN-003) and creates a new file via `POST /api/files/create`
 
 For `'createFile'` actions, the `value` field MUST contain the file extension (e.g., `'docx'`, `'txt'`). Per-link click handlers MUST respect the dashboard edit-mode suppression (no actions fire when `canEdit === true` and `isAdmin === true`).
-@e2e exclude action type reuse tests TypeScript enum — Vitest scope
 
 #### Scenario: List item with external link
 - GIVEN a list item with `actionType: 'url'` and `url: 'https://example.com'`
@@ -299,6 +298,7 @@ For `'createFile'` actions, the `value` field MUST contain the file extension (e
 - THEN the system MUST open the URL in a new tab
 
 #### Scenario: List item with internal action
+@e2e exclude no production module registers `open-files` or any other internal action, and the registry is not reachable from the page, so no click can be shown to invoke one. The host-side dispatch is pinned by Vitest src/components/Widgets/Renderers/__tests__/LinkButtonHost.actions.spec.js; that an `action_id` entry must not render as an external link is the REQ-LBLM-002 scenario "An action_id entry is never rendered as a link".
 - GIVEN a list item with `actionType: 'action_id'` and `url: 'open-files'` (a registered internal action)
 - WHEN the user clicks the list item
 - THEN the system MUST invoke the registered function for `'open-files'`
@@ -324,7 +324,6 @@ Each link entry's `icon` field MUST follow the same dual-mode convention as REQ-
 - An empty or null value MUST render no icon
 
 Icon size MUST be consistent across all list items (24 px square for list mode; 48 px for compact/normal/spacious variants may adjust padding but not icon size). The icon MUST appear inline (left of the label in vertical mode, above in horizontal mode per list orientation).
-@e2e exclude icon resolution per list item tests IconRenderer dispatch — Vitest scope
 
 #### Scenario: Custom icon URL in list item
 - GIVEN a list item with `icon: '/apps/launchpad/icons/report.png'` and `label: 'Q4 Report'`
@@ -352,8 +351,6 @@ The `listItemGap` values control inter-item spacing:
 - `'compact'` — 0.5 rem gap
 - `'normal'` — 1 rem gap
 - `'spacious'` — 1.5 rem gap
-
-@e2e exclude list orientation and spacing tests CSS flexbox layout — visual regression scope
 
 #### Scenario: Vertical list orientation
 - GIVEN a widget with `displayMode: 'list'`, `listOrientation: 'vertical'`, and 3 links
@@ -384,14 +381,13 @@ The `listItemGap` values control inter-item spacing:
 The edit form for a link-button-widget placement MUST gain:
 
 1. A "Display mode" toggle/select switching between `'button'` and `'list'`
-2. A list editor UI (only visible when `displayMode = 'list'`) with:
-   - A drag-to-reorder handle for each link
-   - An "Add link" button to append a new entry
-   - An "Edit" button per link opening a modal with the existing single-link form (label, url, actionType, icon, backgroundColor, textColor)
-   - A "Remove" button per link to delete that entry
+2. A list editor UI (only visible when `displayMode = 'list'`) with one row per link. Each row MUST carry:
+   - The single-link fields, edited in place: label, action type, url, icon, and the file extension for a `createFile` link
+   - A "Move link up" and a "Move link down" button that reorder the link (the first row cannot move up, the last cannot move down)
+   - A "Remove" button that deletes that entry
+3. An "Add link" button that appends a new empty row
 
-The single-link form MUST be reused unchanged inside the list editor modal for consistency. When editing in button mode, only the first link's fields are exposed; the full links array remains hidden to the user.
-@e2e exclude edit form integration tests the inline editor inside AddWidgetModal — requires seeded link-button-list placement
+Reordering with buttons is the single-pointer alternative to dragging (WCAG 2.2 SC 2.5.7) and works from the keyboard. The background and text colours are set once for the widget and apply to every list item. When editing in button mode, only the first link's fields are exposed; the full links array remains hidden to the user.
 
 #### Scenario: Display mode toggle in edit form
 - GIVEN the edit form for a link-button-widget placement
@@ -403,12 +399,13 @@ The single-link form MUST be reused unchanged inside the list editor modal for c
 - GIVEN the list editor with 2 existing links
 - WHEN the user clicks "Add link"
 - THEN a new empty entry MUST be appended to the `links` array
-- AND a form modal MUST open for the user to fill in the new link's details
+- AND a third row MUST appear with empty fields for the new link's details
 
-#### Scenario: Edit link reuses single-link form
+#### Scenario: Edit link in its row
 - GIVEN the list editor with 3 links
-- WHEN the user clicks "Edit" on the second link
-- THEN the existing single-link form modal MUST open pre-populated with that link's values
+- WHEN the user looks at the second row
+- THEN its single-link fields MUST be pre-populated with that link's values
+- AND a change in those fields MUST be saved to the second entry of the `links` array
 
 #### Scenario: Remove link deletes from array
 - GIVEN the list editor with 3 links
@@ -416,9 +413,9 @@ The single-link form MUST be reused unchanged inside the list editor modal for c
 - THEN the first link MUST be deleted from the `links` array
 - AND the remaining 2 links MUST shift down in order
 
-#### Scenario: Drag to reorder list items
+#### Scenario: Reorder list items
 - GIVEN the list editor with 3 links A, B, C
-- WHEN the user drags B above A
+- WHEN the user clicks "Move link up" on B
 - THEN the `links` array order MUST become [B, A, C]
 
 ### Requirement: REQ-LBLM-007 Validation and constraints
@@ -429,8 +426,6 @@ The system MUST enforce the following validation rules:
 - Each link in the `links` array MUST have non-empty `label` and `url` fields; if either is empty, the form MUST prevent saving.
 - When `displayMode = 'button'`, the `links` field MAY be empty or contain up to one entry; if `links` is empty, the legacy single-link fields (URL, icon) MUST be used.
 - The invariant `displayMode = 'button' XOR links is non-empty array` MUST NOT be enforced by the backend — the frontend form ensures this before submission.
-
-@e2e exclude validation and constraints tests PHP and client-side field validators — Newman + Vitest scope
 
 #### Scenario: List mode requires non-empty links array
 - GIVEN a placement with `displayMode: 'list'` and `links: []`
@@ -461,7 +456,6 @@ The list-mode renderer MUST:
 5. Inline styles MUST use CSS variables and inline `style` attributes; no hardcoded colours in the HTML
 
 When icon + label are present, the layout MUST be: icon (left, inline) followed by label text (no wrapping). Icon size MUST be 24 px in list mode. Label text MUST be left-aligned.
-@e2e exclude rendering semantics tests a vs button element choice — Vitest snapshot scope
 
 #### Scenario: Vertical list renders as ul with li
 - GIVEN a widget with `displayMode: 'list'`, `listOrientation: 'vertical'`, and 2 links
@@ -501,7 +495,6 @@ When icon + label are present, the layout MUST be: icon (left, inline) followed 
 Existing widget placements created before list-mode support MUST remain valid and render correctly without data migration. Placements lacking a `displayMode` field MUST be treated as `displayMode = 'button'` implicitly. Placements lacking a `links` field MUST use the legacy single-link fields (`url`, `icon`) for rendering.
 
 No schema migration is required — the system MUST support both the old (single-link fields) and new (links array + displayMode) representations side-by-side. The frontend form MUST detect which representation a placement uses and offer the appropriate edit interface: single-link form for `displayMode = 'button'` with no `links` array, list editor for `displayMode = 'list'`.
-@e2e exclude backward compatibility migration tests PHP migration script — Newman/migration scope
 
 #### Scenario: Pre-list-mode placement renders with legacy fields
 - GIVEN a placement created before list-mode support, with fields: `{url: 'https://example.com', icon: 'external', label: 'Go'}`
@@ -523,6 +516,7 @@ No schema migration is required — the system MUST support both the old (single
 - AND the placement MUST save successfully
 
 #### Scenario: No schema change needed
+@e2e exclude observing it needs version N installed, then an upgrade to N+1 on the same instance; the CI fixture installs one build. No unit test pins it either: the claim rests on lib/Migration having no step that touches link placements, which no test asserts.
 - GIVEN the app schema at version N (before list-mode support)
 - WHEN the app is updated to version N+1 (with list-mode support)
 - THEN no Nextcloud migration step MUST run

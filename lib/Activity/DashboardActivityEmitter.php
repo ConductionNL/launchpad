@@ -4,7 +4,8 @@
  * DashboardActivityEmitter
  *
  * Sends the activity events a digest needs from the places where a
- * dashboard changes state: `dashboard_shared` when a share is created,
+ * dashboard changes state: `dashboard_shared` when shares are created (one
+ * row for the sharer naming every recipient, one row per recipient),
  * `dashboard_published` when a dashboard becomes published (directly or
  * when a scheduled one is materialised), and `dashboard_updated` when a
  * shared or group dashboard is saved, at most once per dashboard per day
@@ -63,33 +64,53 @@ class DashboardActivityEmitter {
 	}//end __construct()
 
 	/**
-	 * A share was created or upgraded: tell its recipients.
+	 * Shares were created or upgraded: the sharer gets one row naming every
+	 * recipient, and each recipient gets a row of their own.
 	 *
-	 * @param Dashboard      $dashboard  The shared dashboard.
-	 * @param DashboardShare $share      The share row.
-	 * @param string         $actor      The user who shared it.
-	 * @param string[]       $recipients The resolved recipient user ids (the sharer excluded).
+	 * @param Dashboard        $dashboard  The shared dashboard.
+	 * @param DashboardShare[] $shares     The share rows written in one action.
+	 * @param string           $actor      The user who shared it.
+	 * @param string[]         $recipients The resolved recipient user ids (the sharer excluded).
 	 *
 	 * @return int The number of activity rows written.
 	 *
 	 * @spec openspec/specs/activity-feed-integration/spec.md
 	 */
-	public function shared(Dashboard $dashboard, DashboardShare $share, string $actor, array $recipients): int {
-		return $this->guard(
-			step: fn (): int => $this->publisher->publishToRecipients(
-				type: Extension::EVENT_SHARED,
-				actorUserId: $actor,
-				dashboardUuid: (string) $dashboard->getUuid(),
-				dashboardName: (string) $dashboard->getName(),
-				dashboardLink: '',
-				recipientUserIds: $recipients,
-				extraParams: [
-					'recipient' => (string) $share->getShareWith(),
-					'role'      => (string) $share->getPermissionLevel(),
-				]
-			)
+	public function shared(Dashboard $dashboard, array $shares, string $actor, array $recipients): int {
+		if ($shares === []) {
+			return 0;
+		}
+
+		$row = new ActivityRow(
+			type: Extension::EVENT_SHARED,
+			actorUserId: $actor,
+			dashboard: $this->subjectOf(dashboard: $dashboard),
+			extraParams: [
+				'recipient' => $this->joined(shares: $shares, value: static fn (DashboardShare $share): string => (string) $share->getShareWith()),
+				'role'      => $this->joined(shares: $shares, value: static fn (DashboardShare $share): string => (string) $share->getPermissionLevel()),
+			]
+		);
+
+		$count = $this->guard(
+			step: fn (): int => (int) $this->publisher->publish(row: $row->forRecipient(recipientUserId: $actor), recipientUserId: $actor)
+		);
+
+		return $count + $this->guard(
+			step: fn (): int => $this->publisher->publishToRecipients(row: $row->withoutActor(), recipientUserIds: $recipients)
 		);
 	}//end shared()
+
+	/**
+	 * The distinct values of a list of shares, joined for an activity line.
+	 *
+	 * @param DashboardShare[] $shares The shares.
+	 * @param callable         $value  Reads one value from a share.
+	 *
+	 * @return string The values, comma separated, in share order.
+	 */
+	private function joined(array $shares, callable $value): string {
+		return implode(separator: ', ', array: array_values(array_unique(array_map($value, $shares))));
+	}//end joined()
 
 	/**
 	 * A dashboard became published: tell its audience once.
@@ -104,6 +125,26 @@ class DashboardActivityEmitter {
 	public function published(Dashboard $dashboard, string $actor): int {
 		return $this->toAudience(type: Extension::EVENT_PUBLISHED, dashboard: $dashboard, actor: $actor);
 	}//end published()
+
+	/**
+	 * A scheduled dashboard surfaced as published: tell its audience once,
+	 * and not the owner who scheduled it (REQ-DIGE-002).
+	 *
+	 * @param Dashboard $dashboard The dashboard that went live.
+	 *
+	 * @return int The number of activity rows written.
+	 *
+	 * @spec openspec/specs/activity-feed-integration/spec.md
+	 */
+	public function surfaced(Dashboard $dashboard): int {
+		$row = new ActivityRow(
+			type: Extension::EVENT_PUBLISHED,
+			actorUserId: (string) $dashboard->getUserId(),
+			dashboard: $this->subjectOf(dashboard: $dashboard)
+		);
+
+		return $this->rowToAudience(row: $row->withoutActor(), dashboard: $dashboard, shares: $this->shares(dashboard: $dashboard));
+	}//end surfaced()
 
 	/**
 	 * A shared or group dashboard was saved: tell its audience, at most
@@ -141,47 +182,71 @@ class DashboardActivityEmitter {
 	 * @return int The number of activity rows written.
 	 */
 	private function toAudience(string $type, Dashboard $dashboard, string $actor, ?array $shares=null): int {
-		$uuid  = (string) $dashboard->getUuid();
-		$name  = (string) $dashboard->getName();
+		$row = new ActivityRow(type: $type, actorUserId: $actor, dashboard: $this->subjectOf(dashboard: $dashboard));
+
+		return $this->rowToAudience(row: $row, dashboard: $dashboard, shares: ($shares ?? $this->shares(dashboard: $dashboard)));
+	}//end toAudience()
+
+	/**
+	 * Send one row to the groups and share recipients of a dashboard.
+	 *
+	 * @param ActivityRow      $row       The activity row.
+	 * @param Dashboard        $dashboard The dashboard.
+	 * @param DashboardShare[] $shares    The dashboard's shares.
+	 *
+	 * @return int The number of activity rows written.
+	 */
+	private function rowToAudience(ActivityRow $row, Dashboard $dashboard, array $shares): int {
+		return $this->toGroups(row: $row, dashboard: $dashboard)
+			+ $this->toShares(row: $row, shares: $shares);
+	}//end rowToAudience()
+
+	/**
+	 * Publish a row to every group the dashboard is assigned to; the
+	 * default group publishes globally.
+	 *
+	 * @param ActivityRow $row       The activity row.
+	 * @param Dashboard   $dashboard The dashboard.
+	 *
+	 * @return int The number of activity rows written.
+	 */
+	private function toGroups(ActivityRow $row, Dashboard $dashboard): int {
 		$count = 0;
 
 		foreach ($this->groups(dashboard: $dashboard) as $groupId) {
 			if ($groupId === Dashboard::DEFAULT_GROUP_ID) {
 				$count += $this->guard(
-					step: fn (): int => $this->publisher->publishGlobal(
-						type: $type,
-						actorUserId: $actor,
-						dashboardUuid: $uuid,
-						dashboardName: $name,
-						dashboardLink: ''
-					)
+					step: fn (): int => $this->publisher->publishGlobal(row: $row)
 				);
 				continue;
 			}
 
 			$count += $this->guard(
-				step: fn (): int => $this->publisher->publishToGroup(
-					type: $type,
-					actorUserId: $actor,
-					groupId: $groupId,
-					dashboardUuid: $uuid,
-					dashboardName: $name,
-					dashboardLink: ''
-				)
+				step: fn (): int => $this->publisher->publishToGroup(row: $row, groupId: $groupId)
 			);
 		}//end foreach
 
+		return $count;
+	}//end toGroups()
+
+	/**
+	 * Publish a row to the dashboard's share recipients: group shares per
+	 * group, user shares in one recipient batch.
+	 *
+	 * @param ActivityRow      $row    The activity row.
+	 * @param DashboardShare[] $shares The dashboard's shares.
+	 *
+	 * @return int The number of activity rows written.
+	 */
+	private function toShares(ActivityRow $row, array $shares): int {
+		$count = 0;
 		$users = [];
-		foreach (($shares ?? $this->shares(dashboard: $dashboard)) as $share) {
+		foreach ($shares as $share) {
 			if ($share->getShareType() === DashboardShare::SHARE_TYPE_GROUP) {
 				$count += $this->guard(
 					step: fn (): int => $this->publisher->publishToGroup(
-						type: $type,
-						actorUserId: $actor,
-						groupId: (string) $share->getShareWith(),
-						dashboardUuid: $uuid,
-						dashboardName: $name,
-						dashboardLink: ''
+						row: $row,
+						groupId: (string) $share->getShareWith()
 					)
 				);
 				continue;
@@ -192,19 +257,29 @@ class DashboardActivityEmitter {
 
 		if ($users !== []) {
 			$count += $this->guard(
-				step: fn (): int => $this->publisher->publishToRecipients(
-					type: $type,
-					actorUserId: $actor,
-					dashboardUuid: $uuid,
-					dashboardName: $name,
-					dashboardLink: '',
-					recipientUserIds: $users
-				)
+				step: fn (): int => $this->publisher->publishToRecipients(row: $row, recipientUserIds: $users)
 			);
 		}
 
 		return $count;
-	}//end toAudience()
+	}//end toShares()
+
+	/**
+	 * The activity subject for a dashboard: its UUID and name, no link.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return ActivitySubject The subject.
+	 */
+	private function subjectOf(Dashboard $dashboard): ActivitySubject {
+		$uuid = (string) $dashboard->getUuid();
+
+		return new ActivitySubject(
+			uuid: $uuid,
+			name: (string) $dashboard->getName(),
+			link: $this->publisher->dashboardLink(uuid: $uuid)
+		);
+	}//end subjectOf()
 
 	/**
 	 * The groups a dashboard is aimed at: its group for a group dashboard,

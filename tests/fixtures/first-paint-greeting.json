@@ -1,0 +1,45 @@
+{
+	"about": "The start page's greeting line as the first-paint shell (lib/Service/FirstPaintGreeting.php) and the page (nextcloud-vue CnHeaderWidget) both print it, so the shell and the mounted header read the same (first-paint-skeleton task 2, REQ-FPS-001). Read by tests/Unit/Service/FirstPaintGreetingTest.php and src/components/Workspace/__tests__/StartPageGreeting.fixture.spec.js. en-GB is left out on purpose: its full date differs by one comma between ICU 74 (PHP on the sandbox: 'Monday 5 October 2026') and ICU 78 (Node, Chromium: 'Monday, 5 October 2026'), a CLDR data change outside launchpad; nl and en-US read the same on both versions.",
+	"words": {
+		"nl": {
+			"Good morning, {name}": "Goedemorgen, {name}",
+			"Good afternoon, {name}": "Goedemiddag, {name}",
+			"Good evening, {name}": "Goedenavond, {name}",
+			"week {number}": "week {number}"
+		}
+	},
+	"content": {
+		"greeting": true,
+		"showDate": true,
+		"showWeek": true
+	},
+	"cases": [
+		{
+			"name": "nl afternoon",
+			"language": "nl",
+			"locale": "nl_NL",
+			"canonical": "nl-NL",
+			"at": "2026-10-05T13:10:00",
+			"timezone": "Europe/Amsterdam",
+			"line": "Goedemiddag, Pieter · maandag 5 oktober 2026 · week 41"
+		},
+		{
+			"name": "nl morning, ISO week 53",
+			"language": "nl",
+			"locale": "nl_NL",
+			"canonical": "nl-NL",
+			"at": "2026-12-29T08:00:00",
+			"timezone": "Europe/Amsterdam",
+			"line": "Goedemorgen, Pieter · dinsdag 29 december 2026 · week 53"
+		},
+		{
+			"name": "en-US evening",
+			"language": "en",
+			"locale": "en_US",
+			"canonical": "en-US",
+			"at": "2026-10-05T19:30:00",
+			"timezone": "Europe/Amsterdam",
+			"line": "Good evening, Pieter · Monday, October 5, 2026 · week 41"
+		}
+	]
+}

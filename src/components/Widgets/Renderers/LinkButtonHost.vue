@@ -13,6 +13,8 @@
 		<CnLinkButtonWidget
 			:content="content"
 			:placement="placement"
+			:isAdmin="isAdmin"
+			:canEdit="canEdit"
 			@internalAction="onInternalAction"
 			@createFile="onCreateFile" />
 
@@ -89,6 +91,7 @@
 import { CnLinkButtonWidget } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
 import { useInternalActions } from '../../../composables/useInternalActions.js'
+import { FLAG_PROP, OBJECT_PROP } from '../../../constants/propDefinitions.js'
 
 // `@nextcloud/axios` / `@nextcloud/router` / `@nextcloud/dialogs` are loaded
 // lazily inside `onCreateConfirm()` so the registry import graph doesn't drag
@@ -110,16 +113,16 @@ export default {
 
 	props: {
 		/** The placement content blob (`{label, url, actionType, …}`). */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/** The placement (carries `id`). */
-		placement: {
-			type: Object,
-			default: () => ({}),
-		},
+		placement: OBJECT_PROP,
+
+		/** Set with `canEdit` in edit mode, where the widget suppresses clicks. */
+		isAdmin: FLAG_PROP,
+
+		/** Set with `isAdmin` in edit mode, where the widget suppresses clicks. */
+		canEdit: FLAG_PROP,
 	},
 
 	data() {

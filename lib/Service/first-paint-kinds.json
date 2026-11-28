@@ -1,0 +1,27 @@
+{
+	"_comment": "first-paint-skeleton D5 as widget-declared-placeholders D4 leaves it: the fallback for a widget that declares no placeholder. 'kinds' holds only launchpad's own widget types, which nextcloud-vue's registry (widget-placeholders.json) does not declare; a declared type never has an entry here. Anything else draws the default. announcements, attention, wiki-pages (rows) and weather (counter) checked against boards LpLaden and LpLadenDeels on 28 Nov 2026. SPDX-FileCopyrightText: 2026 Conduction B.V. SPDX-License-Identifier: EUPL-1.2",
+	"default": "rows",
+	"kinds": {
+		"activity-report": "rows",
+		"assigned-cases": "rows",
+		"colleague-activity": "rows",
+		"communities": "rows",
+		"connections": "rows",
+		"news": "rows",
+		"recent-work": "rows",
+		"work-packages": "rows",
+		"announcements": "rows",
+		"attention": "rows",
+		"wiki-pages": "rows",
+		"ai-assistant": "lines",
+		"graph": "block",
+		"iframe": "block",
+		"pie-chart": "block",
+		"search": "block",
+		"status-report": "block",
+		"clock": "block",
+		"livetile": "counter",
+		"weather": "counter",
+		"section-heading": "heading"
+	}
+}

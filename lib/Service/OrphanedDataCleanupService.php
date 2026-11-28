@@ -40,19 +40,19 @@ namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\CleanupResult;
+use OCA\LaunchPad\Kernel\Contracts\OrphanedDataCleanupServiceInterface;
 use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
 use OCP\Activity\Exceptions\IncompleteActivityException;
-use OCP\Activity\IManager as IActivityManager;
+use OCP\Activity\IEvent;
 use OCP\ICache;
 use OCP\ICacheFactory;
 use OCP\IDBConnection;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
  * Orchestrates scan + purge across all registered cleanup categories.
  */
-class OrphanedDataCleanupService {
+class OrphanedDataCleanupService implements OrphanedDataCleanupServiceInterface {
 	/**
 	 * Cache TTL for scan results, in seconds (REQ-CLN-010).
 	 *
@@ -89,23 +89,15 @@ class OrphanedDataCleanupService {
 	 * Constructor.
 	 *
 	 * @param CategoryRegistryService $registry Category registry.
-	 * @param ICacheFactory $cacheFactory Distributed-cache
-	 *                                    factory.
-	 * @param IDBConnection $db DB connection
-	 *                          (for dry-run
-	 *                          transactions).
-	 * @param IActivityManager $activityManager Activity event
-	 *                                          publisher.
-	 * @param LoggerInterface $logger PSR-3 logger
-	 *                                used for purge
-	 *                                audit lines.
+	 * @param ICacheFactory           $cacheFactory Distributed-cache factory.
+	 * @param IDBConnection           $db DB connection (for dry-run transactions).
+	 * @param CleanupReporting        $reporting The activity manager and logger.
 	 */
 	public function __construct(
 		private readonly CategoryRegistryService $registry,
 		private readonly ICacheFactory $cacheFactory,
 		private readonly IDBConnection $db,
-		private readonly IActivityManager $activityManager,
-		private readonly LoggerInterface $logger,
+		private readonly CleanupReporting $reporting,
 	) {
 	}//end __construct()
 
@@ -204,34 +196,15 @@ class OrphanedDataCleanupService {
 		?string $userId = null,
 		string $source = 'api',
 	): CleanupResult {
-		$names = $this->resolveCategoryNames(requested: $categoryNames);
-		$start = (int)round(num: (microtime(as_float: true) * 1000));
-		$byCategory = [];
-		$skipped = [];
-
-		if ($dryRun === true) {
-			$this->db->beginTransaction();
-		}
-
-		$this->runCategoryPurges(
-			names: $names,
-			dryRun: $dryRun,
-			byCategory: $byCategory,
-			skipped: $skipped,
-		);
-
-		$duration = ((int)round(num: (microtime(as_float: true) * 1000)) - $start);
-		$result = CleanupResult::fromCounts(
-			byCategory: $byCategory,
-			durationMs: $duration,
-			dryRun: $dryRun,
-			skipped: $skipped,
+		$result = $this->timedPurge(
+			names: $this->resolveCategoryNames(requested: $categoryNames),
+			dryRun: $dryRun
 		);
 
 		if ($dryRun === false) {
 			$this->recordPurgeOutcome(
 				result: $result,
-				byCategory: $byCategory,
+				byCategory: $result->getByCategory(),
 				userId: $userId,
 				source: $source,
 			);
@@ -241,7 +214,39 @@ class OrphanedDataCleanupService {
 	}//end purge()
 
 	/**
-	 * Run every named category's purge, filling the count and skip lists.
+	 * Purge the named categories and time the run.
+	 *
+	 * A dry run opens a transaction first; {@see self::runCategoryPurges()}
+	 * rolls it back (REQ-CLN-003).
+	 *
+	 * @param array<int, string> $names  The resolved category names.
+	 * @param bool               $dryRun True for simulation.
+	 *
+	 * @return CleanupResult The result, with its duration.
+	 */
+	private function timedPurge(array $names, bool $dryRun): CleanupResult {
+		$start = (int)round(num: (microtime(as_float: true) * 1000));
+
+		if ($dryRun === true) {
+			$this->db->beginTransaction();
+		}
+
+		[$byCategory, $skipped] = $this->runCategoryPurges(
+			names: $names,
+			dryRun: $dryRun,
+		);
+
+		$duration = ((int)round(num: (microtime(as_float: true) * 1000)) - $start);
+		return CleanupResult::fromCounts(
+			byCategory: $byCategory,
+			durationMs: $duration,
+			dryRun: $dryRun,
+			skipped: $skipped,
+		);
+	}//end timedPurge()
+
+	/**
+	 * Run every named category's purge and collect the counts and skips.
 	 *
 	 * A category that is unregistered or reports itself unavailable is
 	 * skipped rather than failing the whole run. On a dry run the caller
@@ -249,21 +254,17 @@ class OrphanedDataCleanupService {
 	 * happy path and the failure path — REQ-CLN-003 requires a simulation
 	 * to leave zero persistent side effect.
 	 *
-	 * @param array<int, string> $names The category names to purge.
-	 * @param bool $dryRun True for simulation.
-	 * @param array<string, int> $byCategory Per-category row counts, filled in place.
-	 * @param array<int, string> $skipped Skipped category names, filled in place.
+	 * @param array<int, string> $names  The category names to purge.
+	 * @param bool               $dryRun True for simulation.
 	 *
-	 * @return void
+	 * @return array{0: array<string, int>, 1: array<int, string>} Per-category
+	 *     row counts and skipped category names.
 	 *
 	 * @throws Throwable Re-thrown after the dry-run transaction is rolled back.
 	 */
-	private function runCategoryPurges(
-		array $names,
-		bool $dryRun,
-		array &$byCategory,
-		array &$skipped,
-	): void {
+	private function runCategoryPurges(array $names, bool $dryRun): array {
+		$byCategory = [];
+		$skipped = [];
 		try {
 			foreach ($names as $name) {
 				$category = $this->registry->getCategoryByName(name: $name);
@@ -292,6 +293,8 @@ class OrphanedDataCleanupService {
 
 			throw $t;
 		}//end try
+
+		return [$byCategory, $skipped];
 	}//end runCategoryPurges()
 
 	/**
@@ -324,7 +327,7 @@ class OrphanedDataCleanupService {
 			);
 		}
 
-		$this->logger->info(
+		$this->reporting->logger->info(
 			message: sprintf(
 				'launchpad.cleanup.purge source=%s user=%s rows=%d duration_ms=%d categories=%s',
 				$source,
@@ -455,36 +458,21 @@ class OrphanedDataCleanupService {
 		string $source,
 	): void {
 		try {
-			$event = $this->activityManager->generateEvent();
-			$event->setApp(app: Application::APP_ID)
-				->setType(type: self::ACTIVITY_TYPE)
-				->setAffectedUser(affectedUser: ($userId ?? ''))
-				->setAuthor(author: ($userId ?? ''))
-				->setSubject(
-					subject: 'launchpad_cleanup_purge',
-					parameters: [
-						'totalRows' => $result->getTotalRows(),
-						'byCategory' => $result->getByCategory(),
-						'durationMs' => $result->getDurationMs(),
-						'source' => $source,
-					]
-				)
-				->setObject(
-					objectType: 'launchpad_cleanup',
-					objectId: 0,
-					objectName: $source
-				);
+			$event = $this->purgeEvent(
+				userId: $userId,
+				parameters: $this->purgeParameters(result: $result, source: $source)
+			);
 
-			$this->activityManager->publish(event: $event);
+			$this->reporting->activityManager->publish(event: $event);
 		} catch (IncompleteActivityException $e) {
-			$this->logger->warning(
+			$this->reporting->logger->warning(
 				message: sprintf(
 					'launchpad.cleanup.activity_emit_failed: %s',
 					$e->getMessage()
 				)
 			);
 		} catch (Throwable $t) {
-			$this->logger->warning(
+			$this->reporting->logger->warning(
 				message: sprintf(
 					'launchpad.cleanup.activity_emit_threw: %s',
 					$t->getMessage()
@@ -492,4 +480,48 @@ class OrphanedDataCleanupService {
 			);
 		}//end try
 	}//end emitActivityEvent()
+
+	/**
+	 * The subject parameters of the Activity event of a purge run.
+	 *
+	 * @param CleanupResult $result The purge result.
+	 * @param string $source The source label.
+	 *
+	 * @return array{totalRows: int, byCategory: array<string, int>, durationMs: int, source: string}
+	 */
+	private function purgeParameters(CleanupResult $result, string $source): array {
+		return [
+			'totalRows' => $result->getTotalRows(),
+			'byCategory' => $result->getByCategory(),
+			'durationMs' => $result->getDurationMs(),
+			'source' => $source,
+		];
+	}//end purgeParameters()
+
+	/**
+	 * The Activity event of a purge run, named after its source.
+	 *
+	 * @param string|null $userId The actor (null = system).
+	 * @param array{totalRows: int, byCategory: array<string, int>, durationMs: int, source: string} $parameters The subject parameters.
+	 *
+	 * @return IEvent
+	 */
+	private function purgeEvent(?string $userId, array $parameters): IEvent {
+		$event = $this->reporting->activityManager->generateEvent();
+		$event->setApp(app: Application::APP_ID)
+			->setType(type: self::ACTIVITY_TYPE)
+			->setAffectedUser(affectedUser: ($userId ?? ''))
+			->setAuthor(author: ($userId ?? ''))
+			->setSubject(
+				subject: 'launchpad_cleanup_purge',
+				parameters: $parameters
+			)
+			->setObject(
+				objectType: 'launchpad_cleanup',
+				objectId: 0,
+				objectName: $parameters['source']
+			);
+
+		return $event;
+	}//end purgeEvent()
 }//end class

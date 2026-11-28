@@ -1,0 +1,313 @@
+/**
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * The admin page opens on Algemeen (board LpBeheerAlgemeen). The library's
+ * admin shell draws the title, the path line and the cards; the defaults,
+ * group-shared dashboards and the default-app note are cards of Algemeen.
+ */
+
+import { readFileSync } from 'fs'
+import { join } from 'path'
+import { describe, expect, it, vi } from 'vitest'
+import AdminSettings from '../AdminSettings.vue'
+
+vi.mock('@nextcloud/router', async (importOriginal) => ({
+	...(await importOriginal()),
+	generateUrl: (path) => `/index.php${path}`,
+}))
+
+/**
+ * A stand-in for `t()` that fills `{placeholders}`.
+ *
+ * @param {string} _app the app id (unused)
+ * @param {string} text the English source string
+ * @param {object} vars the placeholder values
+ * @return {string} the filled string
+ */
+function t(_app, text, vars = {}) {
+	return text.replace(/{(\w+)}/g, (_match, key) => vars[key] ?? `{${key}}`)
+}
+
+/**
+ * Build a `this` for the computed properties, on one active tab.
+ *
+ * @param {string} activeTab the open tab's slug
+ * @return {object} the context
+ */
+function context(activeTab) {
+	const ctx = { t, activeTab }
+	ctx.beheerTabs = AdminSettings.computed.beheerTabs.call(ctx)
+	return ctx
+}
+
+const source = readFileSync(join(__dirname, '../AdminSettings.vue'), 'utf8')
+
+describe('AdminSettings tabs', () => {
+	const tabs = AdminSettings.computed.beheerTabs.call({ t })
+	const render = AdminSettings.render?.toString() ?? ''
+
+	it('puts General first, the tab the shell opens on', () => {
+		expect(tabs[0]).toEqual({ id: 'general', label: 'General' })
+		expect(tabs[1].id).toBe('announcements')
+	})
+
+	it('hands the thirteen drawn tabs to the admin shell in the boards\' order (REQ-ADM-032)', () => {
+		expect(tabs.map((tab) => tab.id)).toEqual([
+			'general',
+			'announcements',
+			'templates',
+			'roles-permissions',
+			'sharing',
+			'org-navigation',
+			'kiosk',
+			'versioning-audit',
+			'operations',
+			'demo-data',
+			'group-dashboards',
+			'detail-fields',
+			'profile-fields',
+		])
+		expect(source).toContain(':tabs="beheerTabs"')
+		expect(render).toContain('tabsVariant: "underline"')
+	})
+
+	it('shows only the tabs the viewer holds, and the version card only with General (REQ-ADM-034)', () => {
+		const held = AdminSettings.computed.beheerTabs.call({ t, heldTabs: ['announcements'] })
+		expect(held).toEqual([{ id: 'announcements', label: 'Announcements' }])
+		expect(AdminSettings.computed.showsVersionCard.call({ heldTabs: ['announcements'] })).toBe(false)
+		expect(AdminSettings.computed.showsVersionCard.call({ heldTabs: ['general', 'announcements'] })).toBe(true)
+		expect(source).toContain(':showVersionCard="showsVersionCard"')
+	})
+
+	it('opens the setup wizard once on a first visit while setup is not done (D6)', () => {
+		globalThis.sessionStorage.clear()
+		const ctx = { wizardState: { complete: false }, showsVersionCard: true, showWizard: false }
+		AdminSettings.methods.offerWizardOnce.call(ctx)
+		expect(ctx.showWizard).toBe(true)
+		ctx.showWizard = false
+		AdminSettings.methods.offerWizardOnce.call(ctx)
+		expect(ctx.showWizard).toBe(false)
+		globalThis.sessionStorage.clear()
+		const done = { wizardState: { complete: true }, showsVersionCard: true, showWizard: false }
+		AdminSettings.methods.offerWizardOnce.call(done)
+		expect(done.showWizard).toBe(false)
+		const manager = { wizardState: { complete: false }, showsVersionCard: false, showWizard: false }
+		AdminSettings.methods.offerWizardOnce.call(manager)
+		expect(manager.showWizard).toBe(false)
+		expect(AdminSettings.computed.adminTourReady.call({ adminTour: {}, adminTourSeen: '', activeTab: 'general', showWizard: true })).toBe(false)
+	})
+
+	it('offers Restart setup and Tour on the version card (REQ-ADM-032)', () => {
+		expect(source).toContain('data-testid="admin-version-restart-setup"')
+		expect(source).toContain('data-testid="admin-version-tour"')
+		const ctx = {
+			activeTab: 'kiosk',
+			adminTourMounted: true,
+			adminTourSeen: '1.0.0',
+			onTabChange: vi.fn(),
+			showTab: vi.fn(),
+			$nextTick: (fn) => fn(),
+		}
+		AdminSettings.methods.startAdminTour.call(ctx)
+		expect(ctx.adminTourSeen).toBe('')
+		expect(ctx.adminTourMounted).toBe(true)
+		expect(ctx.onTabChange).toHaveBeenCalledWith('general')
+		expect(ctx.showTab).toHaveBeenCalledWith('general')
+	})
+
+	it('keeps the open tab out of ?tab= and browser storage (the fragment is AdminRoot\'s)', () => {
+		expect(render).toContain('tabQueryKey: ""')
+		expect(source).not.toContain('tabStorageKey')
+	})
+
+	it('opens the tab the route names, and General for an unknown one', () => {
+		const data = (tab) => AdminSettings.data.call({ t, tab }).activeTab
+		expect(data('sharing')).toBe('sharing')
+		expect(data('nonsense')).toBe('general')
+		expect(data('embeds')).toBe('general')
+		expect(data('communities')).toBe('group-dashboards')
+		expect(data('app-catalogue')).toBe('operations')
+		expect(data('')).toBe('general')
+	})
+
+	it('opens the route\'s tab in the shell without a click', () => {
+		const shell = { chosenTabId: '' }
+		const ctx = { activeTab: 'general', $refs: { shell } }
+		AdminSettings.methods.showTab.call(ctx, 'kiosk')
+		expect(ctx.activeTab).toBe('kiosk')
+		expect(shell.chosenTabId).toBe('kiosk')
+	})
+
+	it('draws the former tabs as sections of the tabs that hold them (REQ-ADM-032)', () => {
+		const slot = (id) => {
+			const start = source.indexOf(`<template #tab-${id}>`)
+			return source.slice(start, source.indexOf('</template>', start))
+		}
+		expect(slot('operations')).toContain('data-admin-section="app-catalogue"')
+		expect(slot('operations')).toContain('<AppCatalogueTab')
+		expect(slot('group-dashboards')).toContain('data-admin-section="communities"')
+		expect(slot('group-dashboards')).toContain('<CommunitiesTab')
+		expect(source).toContain('data-admin-section="embeds"')
+		expect(source).toContain('data-admin-section="search-shortcuts"')
+		for (const id of ['embeds', 'communities', 'search-shortcuts', 'app-catalogue']) {
+			expect(source).not.toContain(`<template #tab-${id}>`)
+		}
+	})
+
+	it('scrolls the section an old address names into view', async () => {
+		const target = { scrollIntoView: vi.fn() }
+		const ctx = {
+			$el: { querySelector: vi.fn(() => target) },
+			$nextTick: (fn) => fn(),
+		}
+		AdminSettings.methods.revealSection.call(ctx, 'embeds')
+		expect(ctx.$el.querySelector).toHaveBeenCalledWith('[data-admin-section="embeds"]')
+		expect(target.scrollIntoView).toHaveBeenCalledWith({ block: 'start' })
+
+		ctx.$el.querySelector.mockClear()
+		AdminSettings.methods.revealSection.call(ctx, '')
+		expect(ctx.$el.querySelector).not.toHaveBeenCalled()
+	})
+
+	it('scrolls to the section again when the tab above it grows, until the administrator scrolls', () => {
+		vi.useFakeTimers()
+		let top = 0
+		let target = null
+		const ctx = {
+			$el: { querySelector: vi.fn(() => target) },
+			$nextTick: (fn) => fn(),
+		}
+		try {
+			// The tab's async content is not there at the first tick.
+			AdminSettings.methods.revealSection.call(ctx, 'app-catalogue')
+			target = {
+				scrollIntoView: vi.fn(() => { top = 0 }),
+				getBoundingClientRect: () => ({ top }),
+			}
+			vi.advanceTimersByTime(100)
+			expect(target.scrollIntoView).toHaveBeenCalledTimes(1)
+			// Nothing moved: no new scroll.
+			vi.advanceTimersByTime(300)
+			expect(target.scrollIntoView).toHaveBeenCalledTimes(1)
+			// The cards above it loaded and pushed it down.
+			top = 640
+			vi.advanceTimersByTime(100)
+			expect(target.scrollIntoView).toHaveBeenCalledTimes(2)
+			// The administrator scrolls: the page stops following.
+			window.dispatchEvent(new Event('wheel'))
+			expect(ctx.stopReveal).toBeNull()
+			top = 900
+			vi.advanceTimersByTime(500)
+			expect(target.scrollIntoView).toHaveBeenCalledTimes(2)
+		} finally {
+			vi.useRealTimers()
+		}
+	})
+
+	it('stops following the section after the settle time', () => {
+		vi.useFakeTimers()
+		let top = 0
+		const target = {
+			scrollIntoView: vi.fn(() => { top = 0 }),
+			getBoundingClientRect: () => ({ top }),
+		}
+		const ctx = {
+			$el: { querySelector: vi.fn(() => target) },
+			$nextTick: (fn) => fn(),
+		}
+		try {
+			AdminSettings.methods.revealSection.call(ctx, 'communities')
+			expect(target.scrollIntoView).toHaveBeenCalledTimes(1)
+			vi.advanceTimersByTime(3_200)
+			top = 500
+			vi.advanceTimersByTime(500)
+			expect(target.scrollIntoView).toHaveBeenCalledTimes(1)
+			expect(ctx.stopReveal).toBeNull()
+		} finally {
+			vi.useRealTimers()
+		}
+	})
+
+	it('follows a new route tab (Back, Forward)', () => {
+		const ctx = { showTab: vi.fn() }
+		AdminSettings.watch.tab.call(ctx, 'kiosk')
+		expect(ctx.showTab).toHaveBeenCalledWith('kiosk')
+		AdminSettings.watch.tab.call(ctx, 'settings')
+		expect(ctx.showTab).toHaveBeenLastCalledWith('general')
+	})
+
+	it('gives every tab its own slot', () => {
+		for (const tab of tabs) {
+			expect(source).toContain(`<template #tab-${tab.id}>`)
+		}
+	})
+
+	it('lets the shell mount a tab\'s content only while that tab is open', () => {
+		expect(render).toContain('lazyTabs: ""')
+		for (const tab of tabs.slice(1)) {
+			const slot = new RegExp(`<template #tab-${tab.id}>\\s*<\\w+[^>]*>`)
+			const panel = source.match(slot)
+			expect(panel).not.toBeNull()
+			expect(panel[0]).not.toContain('v-if')
+		}
+	})
+
+	it('follows the tab the shell reports', () => {
+		expect(source).toContain('@tabChange="onTabChange"')
+		const ctx = { activeTab: 'general', $emit: vi.fn() }
+		AdminSettings.methods.onTabChange.call(ctx, 'sharing')
+		expect(ctx.activeTab).toBe('sharing')
+		// The page puts the tab in its address.
+		expect(ctx.$emit).toHaveBeenCalledWith('tabChange', 'sharing')
+	})
+
+	it('shows the setup wizard banner in the General panel', () => {
+		const general = source.indexOf('<template #tab-general>')
+		const banner = source.indexOf('data-test="setup-wizard-banner"')
+		const templates = source.indexOf('<template #tab-templates>')
+		expect(general).toBeGreaterThan(-1)
+		expect(banner).toBeGreaterThan(general)
+		expect(banner).toBeLessThan(templates)
+	})
+
+	it('draws the defaults as a card of General only', () => {
+		const general = source.indexOf('v-if="activeTab === \'general\'"')
+		const defaults = source.indexOf('data-testid="admin-default-settings"')
+		expect(general).toBeGreaterThan(-1)
+		expect(defaults).toBeGreaterThan(general)
+	})
+})
+
+describe('AdminSettings page header', () => {
+	it('draws in the board look of the admin shell', () => {
+		expect(source).toContain('<CnAdminSettingsShell')
+		expect(source).toContain('look="board"')
+		expect(source).toContain(':showVersionCard="showsVersionCard"')
+	})
+
+	it('names the open tab in the title', () => {
+		expect(AdminSettings.computed.pageTitle.call(context('general'))).toBe(
+			'Launchpad administration: general',
+		)
+		expect(AdminSettings.computed.pageTitle.call(context('templates'))).toBe(
+			'Launchpad administration: templates',
+		)
+	})
+
+	it('ends the path on the open tab, the first step a link', () => {
+		const crumbs = AdminSettings.computed.breadcrumbs.call(context('general'))
+		expect(crumbs).toEqual([
+			{ label: 'Administration settings', href: '/index.php/settings/admin' },
+			{ label: 'Launchpad' },
+			{ label: 'General' },
+		])
+	})
+
+	it('notes the reach of Algemeen only', () => {
+		expect(AdminSettings.computed.breadcrumbNote.call(context('general'))).toBe(
+			'applies to the whole organisation',
+		)
+		expect(AdminSettings.computed.breadcrumbNote.call(context('kiosk'))).toBe('')
+	})
+})

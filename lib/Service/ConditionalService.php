@@ -22,11 +22,12 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use DateTimeInterface;
 use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Db\ConditionalRuleMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
@@ -34,7 +35,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
  *
  * @spec openspec/specs/conditional-visibility/spec.md
  */
-class ConditionalService {
+class ConditionalService implements ConditionalServiceInterface {
 	/**
 	 * Constructor
 	 *
@@ -79,7 +80,8 @@ class ConditionalService {
 	 * Fetches the rules for the placement and delegates to
 	 * {@see VisibilityChecker::checkRules()} for include/exclude
 	 * aggregation logic (REQ-VIS-003). Returns `true` when no rules
-	 * are configured (no restriction = visible).
+	 * are configured (no restriction = visible). A placement with
+	 * `isVisible: 0` is hidden without evaluating its rules (REQ-VIS-010).
 	 *
 	 * @param int $placementId The widget placement ID.
 	 * @param string $userId The acting user's UID.
@@ -87,8 +89,14 @@ class ConditionalService {
 	 * @return bool `true` when the placement is visible for the user.
 	 *
 	 * @spec openspec/specs/conditional-visibility/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
 	 */
 	public function checkRulesForPlacement(int $placementId, string $userId): bool {
+		$placement = $this->placementMapper->find(id: $placementId);
+		if ($placement->getIsVisible() === 0) {
+			return false;
+		}
+
 		$rules = $this->ruleMapper->findByPlacementId(
 			placementId: $placementId
 		);
@@ -99,9 +107,72 @@ class ConditionalService {
 
 		return $this->visibilityChecker->checkRules(
 			rules: $rules,
-			userId: $userId
+			userId: $userId,
+			match: $placement->getRuleMatch()
 		);
 	}//end checkRulesForPlacement()
+
+	/**
+	 * Apply the visibility rules to the placements a dashboard renders.
+	 *
+	 * A placement whose rules hide it for this user, or whose `isVisible`
+	 * flag is 0 (REQ-VIS-010), is left out, unless the
+	 * user may edit the dashboard: then it stays, marked `hiddenForViewers`,
+	 * so the owner and editors still see and edit it. Every other placement
+	 * carries `hiddenForViewers: false`.
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 * @param string                           $userId     The viewing user, '' for a visitor without an account.
+	 * @param bool                             $canEdit    Whether the viewer may edit the dashboard.
+	 *
+	 * @return array<int, array<string, mixed>> The placements to render, in order.
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility/spec.md#requirement-all-or-one-rule-must-match-req-vis-014
+	 */
+	public function visiblePlacements(array $placements, string $userId, bool $canEdit): array {
+		$rulesByPlacement = $this->rulesByPlacement(placements: $placements);
+
+		$visible = [];
+		foreach ($placements as $placement) {
+			$rules  = ($rulesByPlacement[(int)($placement['id'] ?? 0)] ?? []);
+			$match  = (string)($placement['ruleMatch'] ?? WidgetPlacement::RULE_MATCH_ANY);
+			$hidden = (int)($placement['isVisible'] ?? 1) === 0
+				|| ($rules !== [] && $this->visibilityChecker->checkRules(rules: $rules, userId: $userId, match: $match) === false);
+			if ($hidden === true && $canEdit === false) {
+				continue;
+			}
+
+			$placement['hiddenForViewers'] = $hidden;
+			$visible[] = $placement;
+		}
+
+		return $visible;
+	}//end visiblePlacements()
+
+
+	/**
+	 * The rules of the given placements, keyed by placement ID.
+	 *
+	 * @param array<int, array<string, mixed>> $placements The serialised placements.
+	 *
+	 * @return array<int, ConditionalRule[]> The rules per placement ID.
+	 */
+	private function rulesByPlacement(array $placements): array {
+		$ids = [];
+		foreach ($placements as $placement) {
+			if (isset($placement['id']) === true) {
+				$ids[] = (int)$placement['id'];
+			}
+		}
+
+		$grouped = [];
+		foreach ($this->ruleMapper->findByPlacementIds(placementIds: $ids) as $rule) {
+			$grouped[(int)$rule->getWidgetPlacementId()][] = $rule;
+		}
+
+		return $grouped;
+	}//end rulesByPlacement()
 
 	/**
 	 * Evaluate an in-memory (not persisted) rule set against a supplied
@@ -117,36 +188,25 @@ class ConditionalService {
 	 * the controller from the request body, never loaded from or written to
 	 * `ConditionalRuleMapper`.
 	 *
-	 * @param ConditionalRule[] $rules The candidate rule set
-	 *                                 (not persisted).
-	 * @param string $userId The previewing user's
-	 *                       UID (used only for
-	 *                       `attribute` rules,
-	 *                       which have no override
-	 *                       in the preview
-	 *                       context).
-	 * @param string[] $groupsOverride The audience groups to
-	 *                                 test `group` rules
-	 *                                 against.
-	 * @param DateTimeInterface|null $nowOverride The moment to test
-	 *                                            `time` / `date` rules
-	 *                                            against.
+	 * @param ConditionalRule[] $rules   The candidate rule set (not
+	 *                                   persisted).
+	 * @param string            $userId  The user to evaluate as: their
+	 *                                   profile values for `attribute`
+	 *                                   rules, and their own groups when
+	 *                                   the context names none.
+	 * @param RuleSetContext    $context The groups, moment and match mode
+	 *                                   (REQ-VIS-014) to test against.
 	 *
 	 * @return array{visible: bool, matchedIncludeRuleIds: int[], matchedExcludeRuleIds: int[]}
 	 *
 	 * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
+	 * @spec openspec/changes/archive/2026-11-24-visibility-dialog-board-sync/specs/conditional-visibility-editor/spec.md#requirement-the-rules-dialog-as-lpzichtbaarheid-draws-it-req-cvui-006
 	 */
-	public function previewRules(
-		array $rules,
-		string $userId,
-		array $groupsOverride,
-		?DateTimeInterface $nowOverride,
-	): array {
+	public function previewRules(array $rules, string $userId, RuleSetContext $context): array {
 		return $this->visibilityChecker->evaluateRuleSet(
 			rules: $rules,
 			userId: $userId,
-			groupsOverride: $groupsOverride,
-			nowOverride: $nowOverride
+			context: $context
 		);
 	}//end previewRules()
 
@@ -182,9 +242,28 @@ class ConditionalService {
 	 * @spec openspec/specs/conditional-visibility/spec.md
 	 */
 	public function listAllRules(): array {
-		$rules = $this->ruleMapper->findAll();
+		$counts = self::countsByPlacement(rules: $this->ruleMapper->findAll());
 
-		// Aggregate per placement id.
+		$rows = [];
+		foreach ($counts as $placementId => $agg) {
+			$row = $this->overviewRow(placementId: $placementId, counts: $agg);
+			if ($row !== null) {
+				$rows[] = $row;
+			}
+		}
+
+		return $rows;
+	}//end listAllRules()
+
+	/**
+	 * Aggregate the rules per placement id: the rule count and the
+	 * include / exclude breakdown, in first-seen order.
+	 *
+	 * @param ConditionalRule[] $rules Every rule.
+	 *
+	 * @return array<int, array{placementId: int, ruleCount: int, includeCount: int, excludeCount: int}>
+	 */
+	private static function countsByPlacement(array $rules): array {
 		$byPlacement = [];
 		foreach ($rules as $rule) {
 			$placementId = $rule->getWidgetPlacementId();
@@ -206,40 +285,72 @@ class ConditionalService {
 			$byPlacement[$placementId][$counterKey]++;
 		}
 
-		$rows = [];
-		foreach ($byPlacement as $placementId => $agg) {
-			try {
-				$placement = $this->placementMapper->find(id: $placementId);
-			} catch (DoesNotExistException) {
-				// Orphaned rule — placement gone. Skip so the overview only
-				// lists live placements.
-				continue;
-			}
+		return $byPlacement;
+	}//end countsByPlacement()
 
-			$dashboardId = $placement->getDashboardId();
-			$dashboardName = null;
-			try {
-				$dashboard = $this->dashboardMapper->find(id: $dashboardId);
-				$dashboardName = $dashboard->getName();
-			} catch (DoesNotExistException) {
-				// Dashboard gone but placement somehow remains — still list
-				// the placement, just without a resolved name.
-				$dashboardId = null;
-			}
+	/**
+	 * The overview row of one rule-bearing placement; null for an
+	 * orphaned rule whose placement is gone, so the overview only lists
+	 * live placements.
+	 *
+	 * @param int                $placementId The placement id.
+	 * @param array<string, int> $counts      The placement's rule counts.
+	 *
+	 * @return array<string, mixed>|null The row, or null.
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md#requirement-admin-overview-of-widgets-with-visibility-rules-req-vis-012
+	 */
+	private function overviewRow(int $placementId, array $counts): array|null {
+		try {
+			$placement = $this->placementMapper->find(id: $placementId);
+		} catch (DoesNotExistException) {
+			return null;
+		}
 
-			$rows[] = [
-				'placementId' => $placementId,
-				'dashboardId' => $dashboardId,
-				'dashboardName' => $dashboardName,
-				'widgetType' => $placement->getWidgetId(),
-				'ruleCount' => $agg['ruleCount'],
-				'includeCount' => $agg['includeCount'],
-				'excludeCount' => $agg['excludeCount'],
-			];
-		}//end foreach
+		return ['placementId' => $placementId] + $this->owningDashboard(placement: $placement) + [
+			'widgetType' => self::widgetType(widgetId: (string)$placement->getWidgetId()),
+			'ruleCount' => $counts['ruleCount'],
+			'includeCount' => $counts['includeCount'],
+			'excludeCount' => $counts['excludeCount'],
+		];
+	}//end overviewRow()
 
-		return $rows;
-	}//end listAllRules()
+	/**
+	 * The widget type of a placement. A tile placement stores a per-placement
+	 * id (`tile-<uniqid>`); its type is `tile` (REQ-VIS-012 lists the type).
+	 *
+	 * @param string $widgetId The stored widget id.
+	 *
+	 * @return string The widget type.
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md#requirement-admin-overview-of-widgets-with-visibility-rules-req-vis-012
+	 */
+	private static function widgetType(string $widgetId): string {
+		if (str_starts_with(haystack: $widgetId, needle: 'tile-') === true) {
+			return 'tile';
+		}
+
+		return $widgetId;
+	}//end widgetType()
+
+	/**
+	 * The id and name of a placement's dashboard. When the dashboard is
+	 * gone but the placement somehow remains, the placement is still
+	 * listed, just without a resolved dashboard.
+	 *
+	 * @param WidgetPlacement $placement The placement.
+	 *
+	 * @return array{dashboardId: int|null, dashboardName: string|null}
+	 */
+	private function owningDashboard(WidgetPlacement $placement): array {
+		try {
+			$dashboard = $this->dashboardMapper->find(id: $placement->getDashboardId());
+		} catch (DoesNotExistException) {
+			return ['dashboardId' => null, 'dashboardName' => null];
+		}
+
+		return ['dashboardId' => $placement->getDashboardId(), 'dashboardName' => $dashboard->getName()];
+	}//end owningDashboard()
 
 	/**
 	 * Fetch a single rule by its primary key.
@@ -272,6 +383,7 @@ class ConditionalService {
 	 * @return ConditionalRule The created rule.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-8
+	 * @spec openspec/specs/conditional-visibility/spec.md
 	 */
 	public function addRule(
 		int $placementId,
@@ -286,7 +398,9 @@ class ConditionalService {
 		$rule->setRuleType($ruleType);
 		$rule->setRuleConfigArray($ruleConfig);
 		$rule->setIsInclude($isInclude);
-		$rule->setCreatedAt((new DateTime())->format(format: 'c'));
+		// The column is a DATETIME: MySQL and MariaDB refuse an ISO 8601 value
+		// with a 'T' and an offset (SQLSTATE 22007), so write the SQL form.
+		$rule->setCreatedAt((new DateTime())->format(format: 'Y-m-d H:i:s'));
 
 		return $this->ruleMapper->insert(entity: $rule);
 	}//end addRule()

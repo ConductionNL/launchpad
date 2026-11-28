@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\AdminCallerAndRoles;
+use OCA\LaunchPad\Controller\AdminSettingsTools;
+use OCA\LaunchPad\Controller\AdminTemplateTools;
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\AdminController;
 use OCA\LaunchPad\Service\ActionAuthService;
@@ -42,6 +45,9 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\AdminContext;
 
 class AdminControllerResyncTemplateTest extends TestCase {
 	/** @var IRequest&MockObject */
@@ -66,18 +72,24 @@ class AdminControllerResyncTemplateTest extends TestCase {
 
 		$this->controller = new AdminController(
 			request: $this->request,
-			templateService: $this->createMock(AdminTemplateService::class),
-			settingsService: $this->createMock(AdminSettingsService::class),
-			groupManager: $this->groupManager,
-			userSession: $this->userSession,
-			exportService: $this->createMock(ExportService::class),
-			importService: $this->createMock(ImportService::class),
-			roleService: $this->createMock(RoleService::class),
-			feedRefresh: $this->createMock(FeedRefreshService::class),
-			footerService: $this->createMock(FooterService::class),
-			setupWizardService: $this->createMock(SetupWizardService::class),
-			actionAuth: $this->createMock(ActionAuthService::class),
-			resyncService: $this->resyncService,
+			templates: new AdminTemplateTools(
+				templateService: $this->createMock(AdminTemplateService::class),
+				exportService: $this->createMock(ExportService::class),
+				importService: $this->createMock(ImportService::class),
+				resyncService: $this->resyncService
+			),
+			settings: new AdminSettingsTools(
+				settingsService: $this->createMock(AdminSettingsService::class),
+				groupManager: $this->groupManager,
+				footerService: $this->createMock(FooterService::class),
+				setupWizardService: $this->createMock(SetupWizardService::class)
+			),
+			context: new AdminContext(caller: new AdminCallerAndRoles(
+				roleService: $this->createMock(RoleService::class),
+				feedRefresh: $this->createMock(FeedRefreshService::class),
+				userSession: $this->userSession,
+				actionAuth: $this->createMock(ActionAuthService::class)
+			), responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}
 

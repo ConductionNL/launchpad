@@ -30,12 +30,15 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\AdminTemplateStores;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\AdminTemplateService;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
+use OCP\IUser;
 use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -76,11 +79,13 @@ class AdminTemplateServiceGalleryTest extends TestCase {
 		$this->userManager = $this->createMock(IUserManager::class);
 
 		$this->service = new AdminTemplateService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
+			stores: new AdminTemplateStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper
+			),
 			settingsService: $this->settingsService,
 			groupManager: $this->groupManager,
-			userManager: $this->userManager,
+			userManager: $this->userManager
 		);
 	}//end setUp()
 
@@ -118,6 +123,7 @@ class AdminTemplateServiceGalleryTest extends TestCase {
 			->willReturn(4);
 
 		$result = $this->service->getGallery(
+			userId: 'alice',
 			category: 'marketing',
 			sortBy: 'name'
 		);
@@ -161,7 +167,7 @@ class AdminTemplateServiceGalleryTest extends TestCase {
 
 		$this->assertSame(
 			expected: [],
-			actual: $this->service->getGallery()
+			actual: $this->service->getGallery(userId: 'alice')
 		);
 	}//end testGalleryReturnsEmptyListWhenNoTemplates()
 
@@ -188,7 +194,7 @@ class AdminTemplateServiceGalleryTest extends TestCase {
 			->method('countByDashboardId')
 			->willReturn(0);
 
-		$result = $this->service->getGallery();
+		$result = $this->service->getGallery(userId: 'alice');
 
 		$this->assertSame(
 			expected: 'Regular description',
@@ -197,4 +203,83 @@ class AdminTemplateServiceGalleryTest extends TestCase {
 		$this->assertNull(actual: $result[0]['category']);
 	}//end testGalleryFallsBackToRegularDescription()
 
+	/**
+	 * A template for the given groups.
+	 *
+	 * @param string   $uuid   The UUID.
+	 * @param string[] $groups The target groups.
+	 * @param string   $type   The dashboard type.
+	 *
+	 * @return Dashboard
+	 */
+	private static function template(string $uuid, array $groups, string $type=Dashboard::TYPE_ADMIN_TEMPLATE): Dashboard {
+		$template = new Dashboard();
+		$template->setUuid($uuid);
+		$template->setName($uuid);
+		$template->setType($type);
+		$template->setTargetGroupsArray($groups);
+		return $template;
+	}//end template()
+
+	/**
+	 * Let alice be in the given groups.
+	 *
+	 * @param string[] $groups The groups.
+	 *
+	 * @return void
+	 */
+	private function aliceIsIn(array $groups): void {
+		$alice = $this->createMock(originalClassName: IUser::class);
+		$this->userManager->method('get')->willReturn($alice);
+		$this->groupManager->method('getUserGroupIds')->willReturn($groups);
+	}//end aliceIsIn()
+
+	/**
+	 * REQ-TMPL-018: the gallery lists a template without groups, one for the
+	 * `default` group and one for a group of the user, and no other.
+	 *
+	 * @return void
+	 */
+	public function testGalleryListsOnlyTheTemplatesOfferedToTheUser(): void {
+		$this->aliceIsIn(groups: ['sales']);
+		$this->dashboardMapper->method('findAllTemplatesForGallery')->willReturn([
+			self::template(uuid: 'everyone', groups: []),
+			self::template(uuid: 'default-group', groups: ['default']),
+			self::template(uuid: 'sales', groups: ['sales', 'hr']),
+			self::template(uuid: 'finance', groups: ['finance']),
+		]);
+
+		$this->assertSame(
+			expected: ['everyone', 'default-group', 'sales'],
+			actual: array_column(array: $this->service->getGallery(userId: 'alice'), column_key: 'uuid')
+		);
+	}//end testGalleryListsOnlyTheTemplatesOfferedToTheUser()
+
+	/**
+	 * REQ-TMPL-018: a fork source is a template the gallery offers, and nothing else.
+	 *
+	 * @return void
+	 */
+	public function testFindOfferedTemplateAcceptsExactlyWhatTheGalleryOffers(): void {
+		$this->aliceIsIn(groups: ['sales']);
+		$rows = [
+			'sales' => self::template(uuid: 'sales', groups: ['sales']),
+			'finance' => self::template(uuid: 'finance', groups: ['finance']),
+			'personal' => self::template(uuid: 'personal', groups: [], type: Dashboard::TYPE_USER),
+		];
+		$this->dashboardMapper->method('findByUuid')->willReturnCallback(
+			static function (string $uuid) use ($rows): Dashboard {
+				if (isset($rows[$uuid]) === false) {
+					throw new DoesNotExistException(msg: 'gone');
+				}
+
+				return $rows[$uuid];
+			}
+		);
+
+		$this->assertSame(expected: $rows['sales'], actual: $this->service->findOfferedTemplate(userId: 'alice', uuid: 'sales'));
+		$this->assertNull(actual: $this->service->findOfferedTemplate(userId: 'alice', uuid: 'finance'));
+		$this->assertNull(actual: $this->service->findOfferedTemplate(userId: 'alice', uuid: 'personal'));
+		$this->assertNull(actual: $this->service->findOfferedTemplate(userId: 'alice', uuid: 'missing'));
+	}//end testFindOfferedTemplateAcceptsExactlyWhatTheGalleryOffers()
 }//end class

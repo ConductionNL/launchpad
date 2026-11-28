@@ -11,8 +11,6 @@ Nextcloud's unified search (Ctrl+K / Cmd+K) provides a global discovery mechanis
 ## Requirements
 
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Requirement: REQ-SRCH-001 Search Provider Registration
 
 The LaunchPad app MUST register a search provider implementing Nextcloud's `OCP\Search\IProvider` interface so that pressing Ctrl+K / Cmd+K in Nextcloud automatically includes LaunchPad dashboards in the unified search results.
@@ -26,12 +24,14 @@ The LaunchPad app MUST register a search provider implementing Nextcloud's `OCP\
 - AND the provider's `getOrder()` MUST return `50` to position it mid-range (admin-search providers typically have lower order values)
 
 #### Scenario: Provider implements the IProvider contract
+@e2e exclude a PHP type contract with no HTTP outcome of its own: `implements IProvider` and its method types are enforced by PHP when the class loads, and the four methods are exercised by tests/Unit/Search/LaunchPadSearchProviderTest.php::testGetIdReturnsLaunchPad, ::testGetNameIsTranslated, ::testGetOrderIsMidRange and ::testEmptyTermReturnsEmptyResult
 - GIVEN the LaunchPad app is installed
 - WHEN Nextcloud's search dispatcher calls the provider interface
 - THEN the provider class MUST implement all required methods: `getId()`, `getName()`, `getOrder()`, `search(IUser, ISearchQuery): SearchResult`
 - AND the methods MUST have correct type hints matching `OCP\Search\IProvider`
 
 #### Scenario: Provider initialization via app bootstrap
+@e2e exclude internal PHP wiring: the registration is the registerSearchProvider() call in lib/AppInfo/Application.php and the other clause is a source-tree file location; no PHPUnit test pins the registration call, and its observable effect (the provider listed by /ocs/v2.php/search/providers) is cited under provider-is-registered-and-discoverable
 - GIVEN LaunchPad app info.xml declares `<types><search/></types>`
 - WHEN the LaunchPad app boots
 - THEN the container MUST register an instance of `LaunchPadSearchProvider` with the Nextcloud search registry
@@ -141,6 +141,7 @@ When the `dashboard-metadata-fields` capability is enabled, the search provider 
 - AND the resourceUrl MUST deep-link to the dashboard
 
 #### Scenario: Metadata search falls back gracefully
+@e2e exclude needs the dashboard-metadata-fields capability absent, which a running instance cannot be put into (MetadataService is always installed); the degradation path (metadata lookup throws, dashboard match still returned, no error) is pinned by tests/Unit/Search/LaunchPadSearchProviderEdgeCaseTest.php::testFailingLookupsKeepTheDashboardMatch
 - GIVEN the `dashboard-metadata-fields` capability is NOT available in the LaunchPad app
 - WHEN user "bob" performs a search
 - THEN the search provider MUST still return dashboard-name, description, and widget-content results
@@ -187,6 +188,7 @@ The search provider MUST never return search results for dashboards that the use
 - NOTE: Permission checking delegates to the existing `permissions` capability's group-membership logic
 
 #### Scenario: Permission service unavailable (fail safe)
+@e2e exclude needs DashboardService::getVisibleToUser() to throw, which cannot be induced on a running instance; pinned by tests/Unit/Search/LaunchPadSearchProviderTest.php::testGetVisibleToUserFailureReturnsEmpty
 - GIVEN the `permissions` capability or visibility service throws unexpectedly
 - WHEN a search is performed
 - THEN the search provider MUST catch the failure and return an empty `SearchResult`
@@ -313,12 +315,14 @@ When a search query matches no dashboards, widgets, or metadata fields, the prov
 The search provider MUST complete typical queries inside Nextcloud's unified-search response budget by capping the per-bucket result count and reusing the canonical visibility boundary as the upstream filter.
 
 #### Scenario: Bounded scan over the visible set
+@e2e exclude internal query count with no HTTP read (needs 1,000 dashboards and SQL instrumentation); the per-bucket cap stopping placement and metadata lookups is pinned by tests/Unit/Search/LaunchPadSearchProviderTest.php::testEachBucketIsCappedAndRankedDashboardsWidgetsMetadata, and the response-size cap is cited under the REQ-SRCH-007 scenarios
 - GIVEN a LaunchPad instance where user "alice" can view 1,000 dashboards
 - WHEN she performs a search query
 - THEN the provider's `search()` method MUST complete a single in-memory pass over the visible set without making per-dashboard SQL queries beyond the placement and metadata fetches needed for matching
 - AND the per-bucket cap (10 dashboards, 10 widgets, 10 metadata) bounds the response size
 
 #### Scenario: Permission checks do not degrade performance
+@e2e exclude internal call count with no HTTP read; no test exists that asserts getVisibleToUser() is called exactly once per search (the unit tests stub it with method(), not expects(once()))
 - GIVEN user "bob" performs a search
 - WHEN the provider invokes `DashboardService::getVisibleToUser()`
 - THEN the visibility resolution MUST happen exactly once per search (single set returned)
@@ -374,6 +378,44 @@ The LaunchPad search provider MUST be positioned at order `50` so that it appear
 - WHEN the search is invoked
 - THEN `getOrder()` MAY return a lower numeric value (e.g., `5`) to surface LaunchPad results first
 
+### Requirement: REQ-SRCH-013 The top bar search shows its results under the field
+
+On a LaunchPad page, typing two or more characters in the top bar's search field MUST open a results list under the field, as wide as the field. The list MUST start with "You searched for <query>", MUST group the results per search provider under the provider's name in capitals, with LaunchPad's dashboards first, and MUST show each result with its icon, its name and one line of detail (for a dashboard: who shared it and how many widgets it has, or the group it belongs to). When search shortcuts are configured, the list MUST end with "Tip: type <prefix> to search <name> directly" for the first one.
+
+The list MUST behave as a combobox (WAI-ARIA 1.2): the field has `role="combobox"` and `aria-expanded`, the list has `role="listbox"`, and each result has `role="option"`. The first result is selected when the list opens. Arrow keys move the selection, Enter opens the selected result, and Escape closes the list and keeps the query. A "Show all results" row MUST hand the query to Nextcloud's own search dialog.
+
+#### Scenario: Results under the field
+
+- **GIVEN** Pieter is on My workspace and can see the dashboards "Permits team" and "Zuiddrecht intranet"
+- **WHEN** he types "team" in the top bar's search field
+- **THEN** a list opens under the field that starts with "You searched for team"
+- **AND** under "DASHBOARDS" it shows "Permits team" with "Shared by Marieke Jansen · 14 widgets", selected, and "Zuiddrecht intranet" with "Group dashboard of Communications"
+
+#### Scenario: The keyboard drives the list
+
+- **GIVEN** the list is open for "team" with "Permits team" selected
+- **WHEN** Pieter presses Arrow down and then Enter
+- **THEN** "Zuiddrecht intranet" opens
+
+#### Scenario: The shortcut tip
+
+- **GIVEN** the shortcut "!top" for TOPdesk is configured
+- **WHEN** the list opens
+- **THEN** its last row reads "Tip: type !top to search TOPdesk directly"
+
+#### Scenario: Escape closes the list
+
+- **GIVEN** the list is open
+- **WHEN** Pieter presses Escape
+- **THEN** the list closes, the field keeps "team" and keeps the focus
+
+#### Scenario: A top bar without a field
+
+- **GIVEN** the Nextcloud version's desktop top bar has only a button that opens the search dialog (Nextcloud 31 and later)
+- **WHEN** Pieter opens a LaunchPad page
+- **THEN** a search field stands in the button's place, with the button's words
+- **AND** typing in it opens the list as above, and "Show all results" still opens Nextcloud's search dialog
+
 ---
 
 ## Dependencies
@@ -406,4 +448,5 @@ The LaunchPad search provider MUST be positioned at order `50` so that it appear
 - REQ-SRCH-010 (Performance): One `getVisibleToUser()` call yields the candidate set; placement and metadata fetches are O(matching dashboards) and bounded by the per-bucket cap.
 - REQ-SRCH-011 (UI integration): Result `resourceUrl` is built via `IURLGenerator::linkToRouteAbsolute('launchpad.page.index')` plus a `#dashboard/<uuid>` fragment, and (for widget matches) a `;widget=<placementId>` hint inside the same fragment so the SPA can deep-link without a separate redirect route.
 - REQ-SRCH-012 (Order): `getOrder()` returns `50` by default; when the current route starts with `launchpad.`, it returns `5` to boost in-app discoverability.
+- REQ-SRCH-013 (Results under the field): `src/components/HeaderSearchDropdown.vue`, mounted by `src/utils/headerSearchMount.js`, binds to the top bar's field through `src/utils/headerSearchField.js`; on Nextcloud 31+ (button only) that places LaunchPad's own field in the button's place. Archived change: `openspec/changes/archive/2026-11-25-header-search-dropdown`.
 - Tests: `tests/Unit/Search/LaunchPadSearchProviderTest.php` covers id/name/order, empty term, name/description matches, case-insensitive matching, widget-content matches with deep-link, HTML stripping, non-text widget skipping, metadata value matches, key-vs-value distinction, permission denial, visibility-boundary failure, the 10-result cap, and malformed `styleConfig` resilience.

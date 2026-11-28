@@ -119,7 +119,7 @@ class SeedDefaultDashboard implements IRepairStep {
 			message: '[SeedDefaultDashboard] provisioned the default dashboard.'
 		);
 		$output->info(
-			message: 'LaunchPad default dashboard seeded (Conduction, Sendent, Nextcloud + Files).'
+			message: 'LaunchPad start page seeded (board LpVandaag).'
 		);
 	}//end run()
 }//end class

@@ -8,9 +8,9 @@
  * future runtime-shell or sidebar refactors.
  *
  * Acts as the smoke harness for:
- *   - PR #111 — title strip hidden when sidebar closed, secondary-style
- *     hamburger, drop the literal "Default" group pill, sidebar footer
- *     centered with both "Powered by" logos.
+ *   - PR #111 — drop the literal "Default" group pill, sidebar footer
+ *     centered with both "Powered by" logos. (Its hamburger is gone: the
+ *     sidebar opens from More → All dashboards, REQ-SHELL-004.)
  *   - PR #112 — restore dashboard render width (.launchpad-workspace flex
  *     layout), drop the dead leftover Edit/Remove/Cancel context menu,
  *     trim the floating cog menu to remove Create dashboard +
@@ -24,64 +24,39 @@
  *     shell (Views.vue owns the only one).
  *
  * Gate-19 @e2e traceability:
- *   @e2e runtime-shell::mount-point-present
- *   @e2e runtime-shell::toggle-button-matches-account-button-styling
- *   @e2e runtime-shell::no-active-dashboard-select-control
- *   @e2e runtime-shell::active-dashboard-name-visible
- *   @e2e runtime-shell::empty-label-on-empty-state
- *   @e2e dashboard-switcher::footer-renders-both-brand-logos-with-safe-target-attributes
- *   @e2e dashboard-switcher::footer-documentation-link-uses-the-same-url-as-the-gear-menu-link-did
- *   @e2e dashboard-switcher::footer-stays-visible-while-list-scrolls
- *   @e2e dashboard-switcher::click-a-personal-dashboard
- *   @e2e dashboard-switcher::click-a-default-group-dashboard
+ *   @e2e runtime-shell::no-sidebar-toggle
  */
 
 import { expect, test } from '@playwright/test'
+import { dashboardRow, MORE_MENU, openDashboardSwitcher } from './support/dashboardSwitcher.ts'
 
-test.describe('wave3 runtime-shell + sidebar UX', () => {
+test.describe('wave3 runtime-shell + More menu UX', () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto('/index.php/apps/launchpad')
-		// Wait for the floating sidebar toggle — its presence indicates
-		// the Vue app has hydrated past initial bootstrap. Retry once to
-		// absorb the dev instance's transient 503 (needsDbUpgrade blip).
+		// Wait for the More menu — its presence indicates the Vue app has
+		// hydrated past initial bootstrap. Retry once to absorb the dev
+		// instance's transient 503 (needsDbUpgrade blip).
 		try {
-			await page.waitForSelector('.launchpad-sidebar-toggle', {
-				timeout: 20_000,
-			})
+			await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 		} catch {
 			await page.goto('/index.php/apps/launchpad')
-			await page.waitForSelector('.launchpad-sidebar-toggle', {
-				timeout: 20_000,
-			})
+			await page.waitForSelector(MORE_MENU, { timeout: 20_000 })
 		}
 	})
 
-	test('default state: no leftover popover, sidebar closed, hamburger matches cog style', async ({
+	test('default state: no leftover popover, no sidebar, no hamburger, one More', async ({
 		page,
 	}) => {
 		// PR #112: the dead WidgetContextMenu in DashboardGrid no longer
 		// renders unconditionally on initial load.
 		await expect(page.locator('.widget-context-menu')).toHaveCount(0)
 
-		// PR #111: sidebar starts closed — the open variant is gated on
-		// the `open` modifier class.
-		await expect(page.locator('.dashboard-switcher-sidebar.open')).toHaveCount(0)
+		// more-menu-favourites: there is no dashboards sidebar at all.
+		await expect(page.locator('.dashboard-switcher-sidebar')).toHaveCount(0)
 
-		// PR #111: hamburger is `type="secondary"` so it visually matches
-		// the cog action menu sitting next to it (was tertiary before).
-		// The Vue stub mirrors the prop onto a data attribute.
-		const ham = page.locator('.launchpad-sidebar-toggle').first()
-		await expect(ham).toBeVisible()
-
-		// PR #111 + PR #113: the floating controls host exactly one
-		// sidebar-toggle hamburger — the per-dashboard cog menu moved into
-		// the sidebar header in PR #113. (A separate top-bar Share action may
-		// also live in the floating controls when the active dashboard is
-		// shareable — that is the dashboard-sharing feature, not the removed
-		// cog menu — so assert the hamburger count specifically.)
-		await expect(
-			page.locator('.launchpad-floating-controls .launchpad-sidebar-toggle'),
-		).toHaveCount(1)
+		// REQ-SHELL-004: no hamburger; the page's one menu is More.
+		await expect(page.locator('.launchpad-sidebar-toggle')).toHaveCount(0)
+		await expect(page.locator(MORE_MENU)).toHaveCount(1)
 
 		// PR #111: the literal "Default" group pill is suppressed.
 		await expect(
@@ -104,113 +79,64 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 		expect(box!.width).toBeGreaterThan(800)
 	})
 
-	test('wave3.6: each dashboard row has its own cog menu with Edit/Configure/Add-widget/Delete', async ({
+	test('PR #113: choosing a dashboard in More switches the active dashboard server-side', async ({
 		page,
 	}) => {
-		await page.locator('.launchpad-sidebar-toggle').click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 5_000,
-		})
+		// Two personal dashboards of this account, the first one active, so
+		// the row clicked is an owned, inactive one whatever else the shared
+		// admin account holds. The activate endpoint only persists an active
+		// flag for owned dashboards (a group/default dashboard returns 400).
+		const api = page.request
+		const headers = { 'OCS-APIREQUEST': 'true' }
+		const stamp = Date.now()
+		const create = async (name: string) => {
+			const res = await api.post('/index.php/apps/launchpad/api/dashboard', { headers, data: { name } })
+			expect(res.status(), await res.text()).toBeLessThan(300)
+			return (await res.json()).dashboard as { id: number, uuid: string, name: string }
+		}
+		const open = await create(`Wave3 open ${stamp}`)
+		const target = await create(`Wave3 target ${stamp}`)
+		try {
+			const active = await api.post('/index.php/apps/launchpad/api/dashboards/default', {
+				headers,
+				data: { uuid: open.uuid },
+			})
+			expect(active.status(), await active.text()).toBeLessThan(300)
+			await page.goto('/index.php/apps/launchpad')
+			await openDashboardSwitcher(page)
 
-		// Header has NO cog after wave3.6 — only the X close button.
-		await expect(page.locator('.dashboard-switcher-sidebar__menu')).toHaveCount(
-			0,
-		)
-
-		// One cog per dashboard row, rendered by `<DashboardRowActions>`.
-		const rowCogs = page.locator('.dashboard-row-actions button')
-		const cogCount = await rowCogs.count()
-		expect(cogCount).toBeGreaterThan(0)
-
-		// Open the cog on a personal dashboard (admin owns all rows in
-		// the test fixture, so the personal section always exposes the
-		// full action set including the owner-gated Configure / Delete).
-		const personalRow = page
-			.locator('[data-section="user"] li.dashboard-switcher-sidebar__item')
-			.first()
-		await expect(personalRow).toBeVisible()
-		await personalRow.locator('.dashboard-row-actions button').click()
-
-		await expect(
-			page.getByRole('menuitem', { name: /Edit dashboard/ }),
-		).toBeVisible()
-		await expect(
-			page.getByRole('menuitem', { name: /Dashboard configuration/ }),
-		).toBeVisible()
-		await expect(
-			page.getByRole('menuitem', { name: /Add custom widget/ }),
-		).toBeVisible()
-		await expect(
-			page.getByRole('menuitem', { name: /Delete dashboard/ }),
-		).toBeVisible()
-	})
-
-	test('PR #113: per-row X delete buttons have been removed from the dashboard list', async ({
-		page,
-	}) => {
-		await page.locator('.launchpad-sidebar-toggle').click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 5_000,
-		})
-
-		// Wave3.3 dropped the inline `.__delete` X buttons; wave3.6
-		// moved Delete into the per-row cog (DashboardRowActions).
-		await expect(
-			page.locator('.dashboard-switcher-sidebar__delete'),
-		).toHaveCount(0)
-	})
-
-	test('PR #113: clicking a sidebar row switches the active dashboard server-side', async ({
-		page,
-	}) => {
-		await page.locator('.launchpad-sidebar-toggle').click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 5_000,
-		})
-
-		// Switching the active dashboard persists the choice via
-		// POST /api/dashboard/{id}/activate. Arm the listener before clicking.
-		const activateRequest = page.waitForRequest(
-			(req) =>
-				req.method() === 'POST'
-				&& /\/api\/dashboard\/\d+\/activate(?:\?|$)/.test(req.url()),
-			{ timeout: 8_000 },
-		)
-
-		// Click a NON-active PERSONAL (owned) dashboard row. The activate
-		// endpoint only persists an active flag for owned dashboards — a
-		// group/default dashboard returns 400 — so target a `data-source="user"`
-		// row that is not already active to assert the 200 success path.
-		const rows = page.locator(
-			'.dashboard-switcher-sidebar li.dashboard-switcher-sidebar__item',
-		)
-		expect(await rows.count()).toBeGreaterThan(1)
-		const ownedInactiveRow = page
-			.locator(
-				'[data-source="user"].dashboard-switcher-sidebar__item:not(.active)',
+			// Switching the active dashboard persists the choice via
+			// POST /api/dashboard/{id}/activate. Arm the listener before clicking.
+			const activateRequest = page.waitForRequest(
+				(req) =>
+					req.method() === 'POST'
+					&& new RegExp(`/api/dashboard/${target.id}/activate(?:\\?|$)`).test(req.url()),
+				{ timeout: 8_000 },
 			)
-			.first()
-		await expect(ownedInactiveRow).toBeVisible({ timeout: 5_000 })
-		await ownedInactiveRow.click()
+			const row = dashboardRow(page, target.name)
+			await expect(row).toHaveAttribute('aria-checked', 'false')
+			await row.click()
 
-		const req = await activateRequest
-		const res = await req.response()
-		expect(res?.status()).toBe(200)
+			const req = await activateRequest
+			const res = await req.response()
+			expect(res?.status()).toBe(200)
+		} finally {
+			await api.delete(`/index.php/apps/launchpad/api/dashboard/${open.id}`, { headers })
+			await api.delete(`/index.php/apps/launchpad/api/dashboard/${target.id}`, { headers })
+		}
 	})
 
 	test('PR #111 + PR #113: footer renders Powered by + both Sendent and Conduction logos visible', async ({
 		page,
 	}) => {
-		await page.locator('.launchpad-sidebar-toggle').click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 5_000,
-		})
+		await openDashboardSwitcher(page)
 
-		const footer = page.locator('.dashboard-switcher-sidebar-footer')
+		// The Powered by footer is the foot of the More menu (REQ-SHELL-017).
+		const footer = page.locator('[data-testid="more-menu-footer"]')
 		await expect(footer).toBeVisible()
 		await expect(footer.getByText(/Powered by/i)).toBeVisible()
 
-		const sendent = footer.locator('img[alt="Sendent"]')
+		const sendent = footer.locator('img[alt="sendent"]')
 		const conduction = footer.locator('img[alt="Conduction"]')
 		await expect(sendent).toBeVisible()
 		await expect(conduction).toBeVisible()
@@ -225,18 +151,5 @@ test.describe('wave3 runtime-shell + sidebar UX', () => {
 		expect(sBox!.width).toBeGreaterThan(0)
 		expect(cBox!.width).toBeGreaterThan(0)
 		expect(Math.abs(sBox!.y - cBox!.y)).toBeLessThanOrEqual(4)
-	})
-
-	test('PR #114: only one DashboardSwitcherSidebar mount in the runtime shell', async ({
-		page,
-	}) => {
-		// The duplicate WorkspaceApp mount was removed; Views.vue now
-		// owns the sole instance. Two `.dashboard-switcher-sidebar` nodes
-		// in the DOM would indicate the duplicate has crept back.
-		await page.locator('.launchpad-sidebar-toggle').click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
-			timeout: 5_000,
-		})
-		await expect(page.locator('.dashboard-switcher-sidebar')).toHaveCount(1)
 	})
 })

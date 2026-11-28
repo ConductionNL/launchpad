@@ -2,135 +2,333 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Shared e2e fixture that seeds a real, outstanding mandatory-read
- * acknowledgement widget on the admin's active dashboard.
+ * Shared seeding for the dashboard-acknowledgements e2e specs.
  *
- * REQ-ACK-001 ships no admin-facing form UI for declaring an
- * acknowledgement requirement in this pass (the requirement carries an
- * `@e2e exclude` for its configuration path — see
- * openspec/specs/dashboard-acknowledgements/spec.md). The only way to put
- * a placement into that state is the real, authorised
- * `PUT /api/widgets/{id}` contract, which is itself PHPUnit-covered
- * (PlacementUpdater / TemplateService / WidgetPlacementMapper). The
- * dashboard-acknowledgements e2e specs (REQ-ACK-002 forced-delivery gate,
- * REQ-ACK-004 read-receipt report) are still genuinely UI-observable and
- * need a real placement in that state to drive them, so this fixture
- * creates one through the real API — the same pattern
- * `role-feature-permissions.ts` uses for the widget allow-list — rather
- * than faking DOM state inside the spec.
+ * Every helper here goes through the product's own HTTP contract, as the
+ * principal it names, so a seed that the product refuses fails loudly at the
+ * call that was refused instead of leaving a spec to assert against a state
+ * that was never built.
  *
- * Idempotent: the placement is matched across runs by a `content.text`
- * marker and reused (no unbounded row growth on the shared dev dashboard).
- * Each call bumps `acknowledgementContentVersion` with
- * `reacknowledgeOnChange = 1` so any acknowledgement recorded by a
- * previous run no longer satisfies the gate — the item is guaranteed
- * outstanding for the admin user at the start of every run.
+ * TWO WAYS AN ANNOUNCEMENT REACHES MORE THAN ONE PERSON
+ * =====================================================
+ * An announcement is one `announcementKey` carried by several placements.
+ * The product copies a placement's acknowledgement fields, key included, in
+ * exactly two places:
+ *
+ *  - `TemplateService::clonePlacement()` when a member of a template's target
+ *    group gets their personal copy of an admin template;
+ *  - `WidgetPlacementMapper::cloneToDashboard()` when somebody forks a
+ *    dashboard they can see (`POST /api/dashboards/{uuid}/fork`).
+ *
+ * With a template the audience is the template's target groups; without one
+ * it is the owners of the dashboards that hold a copy
+ * (`AcknowledgementService::resolveAudience()`), and the author is the owner
+ * of the first placement that carried the key
+ * (`PermissionService::announcementAuthor()`).
  */
 
-import type { APIRequestContext } from '@playwright/test'
+import type { APIRequestContext, APIResponse } from '@playwright/test'
+import type { Principal } from '../support/principals.ts'
 
-import { request as pwRequest } from '@playwright/test'
-import { BASE_URL as BASE } from '../support/baseUrl.ts'
+import { expect } from '@playwright/test'
 
-const ADMIN = {
-	user: process.env.NC_ADMIN_USER ?? 'admin',
-	pass: process.env.NC_ADMIN_PASS ?? 'admin',
-}
-const ACTIVE_DASHBOARD_URL = `${BASE}/index.php/apps/launchpad/api/dashboard`
-function ADD_WIDGET_URL(dashboardId: number) {
-	return `${BASE}/index.php/apps/launchpad/api/dashboard/${dashboardId}/widgets`
-}
-function UPDATE_PLACEMENT_URL(placementId: number) {
-	return `${BASE}/index.php/apps/launchpad/api/widgets/${placementId}`
-}
+/** The LaunchPad API root. */
+export const API = '/index.php/apps/launchpad/api'
 
-const MARKER = 'E2E acknowledgement fixture — do not remove'
-const PROMPT_TEXT = 'E2E: please confirm you have read this.'
+/** The receipt endpoint. */
+export const ACKS = `${API}/acknowledgements`
 
-interface Placement {
+/** A placement as the API serialises it, with the fields these specs read. */
+export interface AckPlacement {
 	id: number
-	content?: { text?: string }
-	acknowledgementContentVersion?: number
+	dashboardId: number
+	widgetId: string
+	content?: { text?: string } | null
+	requiresAcknowledgement: number
+	acknowledgementPrompt: string | null
+	acknowledgementDeadline: string | null
+	reacknowledgeOnChange: number
+	acknowledgementContentVersion: number
+	announcementKey: string | null
 }
 
-/** Build an admin API context (HTTP Basic auth + OCS header). */
-async function adminApi(): Promise<APIRequestContext> {
-	return pwRequest.newContext({
-		baseURL: BASE,
-		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
-		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
-	})
+/** A dashboard id + uuid. */
+export interface DashboardRef {
+	id: number
+	uuid: string
 }
 
 /**
- * Ensure the admin's active dashboard carries a widget placement with
- * `requiresAcknowledgement = 1` for which the admin currently has no
- * receipt. Backs the dashboard-acknowledgements e2e specs (REQ-ACK-002 /
- * REQ-ACK-004). Safe to call in `beforeAll` — idempotent and reuses the
- * marked placement across runs.
+ * A calendar date `days` away from today, as `YYYY-MM-DD`.
+ *
+ * @param days offset in days, negative for the past.
+ * @return the date.
  */
-export async function ensureOutstandingAcknowledgement(): Promise<void> {
-	const api = await adminApi()
-	try {
-		const activeRes = await api.get(ACTIVE_DASHBOARD_URL)
-		if (!activeRes.ok()) {
-			throw new Error(`GET /api/dashboard failed: ${activeRes.status()}`)
-		}
-		const body = (await activeRes.json()) as {
-			dashboard: { id: number }
-			placements: Placement[]
-		}
-		const dashboardId = body.dashboard.id
-		const existing = (body.placements ?? []).find(
-			(p) => p.content?.text === MARKER,
-		)
+export function isoDate(days: number): string {
+	const d = new Date()
+	d.setDate(d.getDate() + days)
+	return d.toISOString().slice(0, 10)
+}
 
-		if (!existing) {
-			const createRes = await api.post(ADD_WIDGET_URL(dashboardId), {
-				data: {
-					widgetId: 'label',
-					gridX: 0,
-					gridY: 0,
-					gridWidth: 4,
-					gridHeight: 2,
-					content: { text: MARKER },
-				},
-			})
-			if (!createRes.ok()) {
-				throw new Error(`POST addWidget failed: ${createRes.status()}`)
-			}
-			const created = (await createRes.json()) as Placement
-			const setRes = await api.put(UPDATE_PLACEMENT_URL(created.id), {
-				data: {
-					requiresAcknowledgement: 1,
-					acknowledgementPrompt: PROMPT_TEXT,
-					reacknowledgeOnChange: 1,
-				},
-			})
-			if (!setRes.ok()) {
-				throw new Error(
-					`PUT requiresAcknowledgement (create path) failed: ${setRes.status()}`,
-				)
-			}
-			return
-		}
+/**
+ * Read `allowUserDashboards`, so a spec can switch it on and put it back.
+ *
+ * @param admin an admin context.
+ * @return the current value.
+ */
+export async function readUserDashboardsFlag(
+	admin: APIRequestContext,
+): Promise<boolean> {
+	const res = await admin.get(`${API}/admin/settings`)
+	expect(res.status(), await res.text()).toBe(200)
+	return (await res.json()).allowUserDashboards === true
+}
 
-		// Reuse the existing marked placement — bump the content version so
-		// any prior acknowledgement (from an earlier run) no longer satisfies
-		// the gate, guaranteeing the item is outstanding for this run.
-		const nextVersion = (existing.acknowledgementContentVersion ?? 0) + 1
-		const bumpRes = await api.put(UPDATE_PLACEMENT_URL(existing.id), {
-			data: {
-				requiresAcknowledgement: 1,
-				acknowledgementPrompt: PROMPT_TEXT,
-				reacknowledgeOnChange: 1,
-				acknowledgementContentVersion: nextVersion,
-			},
-		})
-		if (!bumpRes.ok()) {
-			throw new Error(`PUT version bump failed: ${bumpRes.status()}`)
-		}
-	} finally {
-		await api.dispose()
-	}
+/**
+ * Set `allowUserDashboards` (a personal dashboard and a fork both need it).
+ *
+ * @param admin an admin context.
+ * @param allowed the value.
+ * @return nothing.
+ */
+export async function setUserDashboardsFlag(
+	admin: APIRequestContext,
+	allowed: boolean,
+): Promise<void> {
+	const res = await admin.put(`${API}/admin/settings`, {
+		data: { allowUserDash: allowed },
+	})
+	expect(res.status(), await res.text()).toBeLessThan(300)
+}
+
+/**
+ * Create a personal dashboard as `owner`.
+ *
+ * @param owner the principal.
+ * @param name the dashboard name.
+ * @return its id and uuid.
+ */
+export async function createPersonalDashboard(
+	owner: Principal,
+	name: string,
+): Promise<DashboardRef> {
+	const res = await owner.api.post(`${API}/dashboard`, { data: { name } })
+	expect(res.status(), await res.text()).toBeLessThan(300)
+	const body = await res.json()
+	const dash = body.dashboard ?? body
+	return { id: Number(dash.id), uuid: String(dash.uuid) }
+}
+
+/**
+ * Put a markdown text widget on a dashboard.
+ *
+ * @param api the acting context (needs add rights on the dashboard).
+ * @param dashboardId the dashboard.
+ * @param text the widget's text, which is also how a spec finds it again.
+ * @param gridX the column it starts in.
+ * @return the new placement id.
+ */
+export async function addTextWidget(
+	api: APIRequestContext,
+	dashboardId: number,
+	text: string,
+	gridX: number,
+): Promise<number> {
+	const res = await api.post(`${API}/dashboard/${dashboardId}/widgets`, {
+		data: {
+			widgetId: 'text',
+			gridX,
+			gridY: 0,
+			gridWidth: 4,
+			gridHeight: 3,
+			content: { text, contentMode: 'markdown' },
+		},
+	})
+	expect(res.status(), await res.text()).toBe(201)
+	return Number((await res.json()).id)
+}
+
+/**
+ * The placements of a dashboard, as the given principal reads them.
+ *
+ * @param api the reading context.
+ * @param dashboardId the dashboard.
+ * @return its placements.
+ */
+export async function placementsOf(
+	api: APIRequestContext,
+	dashboardId: number,
+): Promise<AckPlacement[]> {
+	const res = await api.get(`${API}/dashboard/${dashboardId}`)
+	expect(res.status(), await res.text()).toBe(200)
+	const body = await res.json()
+	return (body.placements ?? body.dashboard?.placements ?? []) as AckPlacement[]
+}
+
+/**
+ * The one placement on a dashboard whose text widget carries `text`.
+ *
+ * @param api the reading context.
+ * @param dashboardId the dashboard.
+ * @param text the widget text.
+ * @return the placement.
+ */
+export async function placementWithText(
+	api: APIRequestContext,
+	dashboardId: number,
+	text: string,
+): Promise<AckPlacement> {
+	const all = await placementsOf(api, dashboardId)
+	const hits = all.filter((p) => p.content?.text === text)
+	expect(hits, JSON.stringify(all)).toHaveLength(1)
+	return hits[0]
+}
+
+/**
+ * `PUT /api/widgets/{id}` with the given body.
+ *
+ * @param api the acting context.
+ * @param placementId the placement.
+ * @param data the body.
+ * @return the response.
+ */
+export async function updatePlacement(
+	api: APIRequestContext,
+	placementId: number,
+	data: Record<string, unknown>,
+): Promise<APIResponse> {
+	return api.put(`${API}/widgets/${placementId}`, { data })
+}
+
+/**
+ * Share a dashboard with a user (the caller must own it).
+ *
+ * @param owner the owner's context.
+ * @param dashboardId the dashboard.
+ * @param username the recipient.
+ * @param permissionLevel the level.
+ * @return nothing.
+ */
+export async function share(
+	owner: APIRequestContext,
+	dashboardId: number,
+	username: string,
+	permissionLevel: 'view_only' | 'add_only' | 'full',
+): Promise<void> {
+	const res = await owner.post(`${API}/dashboard/${dashboardId}/shares`, {
+		data: { shareType: 'user', shareWith: username, permissionLevel },
+	})
+	expect(res.status(), await res.text()).toBeLessThan(300)
+}
+
+/**
+ * Make a dashboard the principal's active one (the per-user preference the
+ * workspace resolves through).
+ *
+ * @param api the principal's context.
+ * @param uuid the dashboard uuid.
+ * @return nothing.
+ */
+export async function activate(api: APIRequestContext, uuid: string): Promise<void> {
+	const res = await api.post(`${API}/dashboards/default`, { data: { uuid } })
+	expect(res.status(), await res.text()).toBeLessThan(300)
+}
+
+/**
+ * Fork a visible dashboard as `who` and make the fork their active one.
+ *
+ * @param who the principal.
+ * @param sourceUuid the dashboard to fork.
+ * @param name the fork's name.
+ * @return the fork.
+ */
+export async function forkAndActivate(
+	who: Principal,
+	sourceUuid: string,
+	name: string,
+): Promise<DashboardRef> {
+	const res = await who.api.post(`${API}/dashboards/${sourceUuid}/fork`, {
+		data: { name },
+	})
+	expect(res.status(), await res.text()).toBe(201)
+	const dash = (await res.json()).dashboard
+	const ref = { id: Number(dash.id), uuid: String(dash.uuid) }
+	await activate(who.api, ref.uuid)
+	return ref
+}
+
+/**
+ * `POST /api/acknowledgements`.
+ *
+ * @param api the acting context.
+ * @param body the body.
+ * @return the response.
+ */
+export async function postAcknowledgement(
+	api: APIRequestContext,
+	body: Record<string, unknown>,
+): Promise<APIResponse> {
+	return api.post(ACKS, { data: body })
+}
+
+/** The pending list as `GET /api/acknowledgements/pending` returns it. */
+export interface PendingList {
+	count: number
+	items: Array<{
+		placementId: number
+		announcementKey: string
+		contentVersion: number
+		deadline: string | null
+		prompt: string | null
+	}>
+}
+
+/**
+ * The calling user's outstanding items.
+ *
+ * @param api the user's context.
+ * @return the list.
+ */
+export async function pendingFor(api: APIRequestContext): Promise<PendingList> {
+	const res = await api.get(`${ACKS}/pending`)
+	expect(res.status(), await res.text()).toBe(200)
+	return (await res.json()) as PendingList
+}
+
+/** The read-receipt report as `GET /api/acknowledgements/report/{key}` returns it. */
+export interface Report {
+	announcementKey: string
+	contentVersion: number
+	deadline: string | null
+	overdue: boolean
+	acknowledgedCount: number
+	pendingCount: number
+	pending: string[]
+	acknowledged: Array<{ userId: string; acknowledgedAt: string }>
+	rows: Array<{
+		userId: string
+		status: 'acknowledged' | 'pending'
+		acknowledgedAt: string | null
+	}>
+}
+
+/**
+ * Read the report as a principal allowed to (asserts the 200).
+ *
+ * @param api the reading context.
+ * @param key the announcement key.
+ * @return the report.
+ */
+export async function reportOf(
+	api: APIRequestContext,
+	key: string,
+): Promise<Report> {
+	const res = await api.get(`${ACKS}/report/${key}`)
+	expect(res.status(), await res.text()).toBe(200)
+	return (await res.json()) as Report
+}
+
+/** The forced-delivery prompt over one placement. */
+export function promptSelector(placementId: number): string {
+	return `[data-placement-id="${placementId}"] [data-testid="acknowledgement-prompt"]`
 }

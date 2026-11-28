@@ -1,0 +1,10 @@
+# Tasks: people-new-colleagues
+
+- [x] Custom profile fields: type `date` and a single `isStartDate` marker in the admin form and storage
+- [x] (as `GET /api/people/new?since=&until=`) Users endpoint: `selection=new&since=&until=` filtering and sorting by the start date, through the visibility checks of REQ-PEX-004
+- [x] People widget form: "New colleagues" with the two windows, offered only when a start date field exists — built in nextcloud-vue#2349 (CnPeopleWidgetForm Selection, asks `cnPeopleSource.hasStartDateField()`); LaunchPad provides `hasStartDateField` app-wide and per placement; LaunchPad requires `@conduction/nextcloud-vue` ^2.223.1, the release carrying #2349
+- [x] People widget renderer: the list with role and team, "begint {weekday}" for a future start, the no-field message — built in nextcloud-vue#2349 (CnPeopleWidget `fetchNewPeople`); `GET /api/people/new` now carries avatarUrl, role and organisation and the adapter `fetchNewPeople` reads it; LaunchPad's source drives it (peopleNewColleaguesWidget.spec.js), and both seeded "Nieuwe collega's" placements use `selectionMode: 'new'`
+- [x] Demo seed: a start date field and start dates for the new colleagues (`startDates` in zuiddrecht-boards.json, Lotte added; `DemoSeedContent::seedStartDates`)
+- [x] Translations in every shipped locale — the new strings are nextcloud-vue's (en and nl in #2349, the other 35 locales in nextcloud-vue#2354); LaunchPad adds none and requires `@conduction/nextcloud-vue` ^2.225.0 (peopleNewColleaguesWidget.spec.js checks every LaunchPad locale against the installed catalogue)
+- [x] Unit tests: date field type, one start-date marker; window bounds and order; hidden start dates left out; form without a start field (NewColleaguesTest, DemoSeedStartDatesTest, widgetDataAdapters.spec.js; the form in nextcloud-vue CnPeopleWidgetNewColleagues.spec.js)
+- [x] Playwright: an intranet dashboard with a New colleagues widget lists a colleague who starts next week — written (`tests/e2e/people-widget-new-colleagues.spec.ts`), runs in nightly

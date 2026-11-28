@@ -46,7 +46,9 @@ import type { Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 
-const APP_BASE = '/apps/launchpad'
+// index.php keeps the routes working on a server without pretty URLs
+// (php -S, a rig without the rewrite rules), as every other spec does.
+const APP_BASE = '/index.php/apps/launchpad'
 
 /**
  * Dismiss the first-run setup wizard if it is open.
@@ -84,9 +86,12 @@ test.describe('app chrome (ADR-114)', () => {
 		// `launchpad-manifest-tier-3` this app did not root on `CnAppRoot` and
 		// rendered no `CnAppNav`, so the test asserted the ABSENCE of one and
 		// existed as a tripwire for exactly this change. Adoption inverted it.
-		await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
+		// Since runtime-shell REQ-SHELL-009 the shared chrome renders WITHOUT
+		// its navigation panel: the destinations are in the More menu.
+		await expect(page.locator('[data-testid="cn-app-root"]')).toBeVisible({
 			timeout: 30_000,
 		})
+		await expect(page.locator('[data-testid="cn-nav"]')).toHaveCount(0)
 
 		// ...and the workspace is still the thing on the dashboard route. The
 		// grid IS this app; a shell that renders without it would be a
@@ -95,7 +100,7 @@ test.describe('app chrome (ADR-114)', () => {
 		await expect(page.locator('#launchpad-main-content')).toBeAttached()
 	})
 
-	test('the chrome declares Documentation, Store, Reports and Features & roadmap', async () => {
+	test('the chrome declares Documentation, Store and Features & roadmap', async () => {
 		// The manifest is read here rather than restated, so a renamed or
 		// dropped entry is a failure instead of a silently stale literal.
 
@@ -113,8 +118,8 @@ test.describe('app chrome (ADR-114)', () => {
 
 		expect(
 			footer.map((e: any) => e.label),
-			'ADR-114 declares four footer destinations, in this order',
-		).toEqual(['Documentation', 'Store', 'Reports', 'Features & roadmap'])
+			'the footer declares three destinations, in this order; Reports sits in the Advanced foldout',
+		).toEqual(['Documentation', 'Marketplace', 'Features & roadmap'])
 
 		// A GLYPH ON EVERY ONE. An icon name that is not registered renders no
 		// glyph — not a fallback, not a console error; this app shipped one.
@@ -123,7 +128,7 @@ test.describe('app chrome (ADR-114)', () => {
 		}
 
 		// Documentation leaves the app, so it is an href and there is nothing
-		// here to render. The other three name a page this app must host.
+		// here to render. The other two name a page this app must host.
 		expect(footer[0].href, 'Documentation must be an external href').toMatch(
 			/^https:\/\//,
 		)
@@ -197,8 +202,10 @@ test.describe('app chrome (ADR-114)', () => {
 		// workspace here, and it passed for the wrong reason: before
 		// `launchpad-manifest-tier-3` every URL fell back to the dashboard, so
 		// the workspace was on every page. It routes now, and this page is the
-		// report — the workspace being ABSENT is the change working.
-		await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
+		// report — the workspace being ABSENT is the change working. The
+		// chrome on a page other than the dashboard view is the More menu at
+		// its top (runtime-shell REQ-SHELL-009).
+		await expect(page.locator('[data-testid="launchpad-page-menu"]')).toBeVisible({
 			timeout: 30_000,
 		})
 		await expect(
@@ -226,44 +233,26 @@ test.describe('app chrome (ADR-114)', () => {
 		// app ships NO store controller (ADR-080, ADR-114 Decision 4). With no
 		// registry configured it renders the app's own items and makes NO
 		// network call, so this must pass on a plain instance.
-		await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
+		await expect(page.locator('[data-testid="launchpad-page-menu"]')).toBeVisible({
 			timeout: 30_000,
 		})
 	})
 
-	test('the admin manifest pages redirect to where the admin surface is', async ({
+	test('the admin manifest pages open the administration page', async ({
 		page,
 	}) => {
-		// 🔴 THESE TWO WERE NOT PAGES. `admin-settings` named a component,
-		// AdminSettingsPage, that has never existed; `admin-templates-index`
-		// named TemplatesPage, which is a TAB inside the Nextcloud admin
-		// section. Routing them would have rendered half an admin surface
-		// beside the real one, so both resolve to AdminSettingsRedirect.
-		for (const path of ['/admin/settings', '/admin/templates']) {
+		// The administration is a LaunchPad page over the full width
+		// (REQ-ADM-030): `/admin/settings` opens it on General and
+		// `/admin/templates` on Templates, where they used to redirect to
+		// Nextcloud's admin settings.
+		for (const [path, tab] of [['/admin/settings', 'general'], ['/admin/templates', 'templates']]) {
 			await page.goto(`${APP_BASE}${path}`, {
 				waitUntil: 'domcontentloaded',
 			})
-
-			// The redirect renders a real anchor as well as navigating, so a
-			// visitor whose navigation is slow or blocked still has something
-			// to act on. Either outcome is correct; both are asserted.
-			const landed = await Promise.race([
-				page
-					.waitForURL(/\/settings\/admin\/launchpad(\?|$)/, {
-						timeout: 20_000,
-					})
-					.then(() => 'navigated')
-					.catch(() => null),
-				page
-					.getByTestId('AdminSettingsRedirect')
-					.waitFor({ state: 'visible', timeout: 20_000 })
-					.then(() => 'rendered')
-					.catch(() => null),
-			])
-			expect(
-				landed,
-				`${path} neither redirected nor rendered the notice`,
-			).toBeTruthy()
+			await expect(
+				page.getByRole('heading', { level: 1, name: `Launchpad administration: ${tab}` }),
+				`${path} opens the administration on ${tab}`,
+			).toBeVisible({ timeout: 60_000 })
 		}
 	})
 
@@ -273,14 +262,14 @@ test.describe('app chrome (ADR-114)', () => {
 		// personal-settings entry in particular is a nav widget with no
 		// equivalent in `.workspace-shell`, so there is nothing here to assert
 		// about it. What survives is the half that is about LaunchPad rather
-		// than about the nav component, and it is a Nextcloud settings route
-		// rather than one of this app's own, which is why it still passes.
-		await page.goto('/settings/admin/launchpad', {
+		// than about the nav component: the administration, a page of the app
+		// itself (admin-settings REQ-ADM-030).
+		await page.goto('/index.php/settings/admin/launchpad', {
 			waitUntil: 'domcontentloaded',
 		})
 		await expect(
 			page.locator('#app-content, main').first(),
-			'the admin settings section did not render',
+			'the administration page did not render',
 		).toBeVisible({ timeout: 30_000 })
 	})
 
@@ -291,37 +280,46 @@ test.describe('app chrome (ADR-114)', () => {
 		// touched the URL, so `/dashboards/:id` — declared in the manifest all
 		// along — routed nowhere and a dashboard could not be linked,
 		// bookmarked or reopened (`dashboard-deeplinking`).
-		await page.goto(`${APP_BASE}/`, { waitUntil: 'domcontentloaded' })
-		await expect(page.locator('.workspace-shell')).toBeVisible({
-			timeout: 30_000,
-		})
+		//
+		// Two dashboards of this user, the OTHER one active, so opening the
+		// address has something to change. The test used to read the id off
+		// `GET /api/dashboard`, which answers the active dashboard rather than
+		// a list, so it found no id and skipped on every run.
+		const stamp = Date.now()
+		const api = page.request
+		const headers = { 'OCS-APIREQUEST': 'true' }
+		const create = async (name: string) => {
+			const res = await api.post('/index.php/apps/launchpad/api/dashboard', { headers, data: { name } })
+			expect(res.status(), await res.text()).toBeLessThan(300)
+			return (await res.json()).dashboard as { id: number, uuid: string, slug: string }
+		}
+		const linked = await create(`Linked ${stamp}`)
+		const other = await create(`Other ${stamp}`)
+		try {
+			const active = await api.post('/index.php/apps/launchpad/api/dashboards/default', {
+				headers,
+				data: { uuid: other.uuid },
+			})
+			expect(active.status(), await active.text()).toBeLessThan(300)
 
-		// Ask the app which dashboards this user has, rather than seeding an
-		// id: a hardcoded one passes on the instance it was written against
-		// and nowhere else.
-		const dashboards = await page.evaluate(async () => {
-			const res = await fetch(
-				`${window.location.origin}/index.php/apps/launchpad/api/dashboard`,
-				{ headers: { 'OCS-APIREQUEST': 'true' } },
-			)
-			return res.ok ? await res.json() : null
-		})
-		const id = dashboards?.dashboards?.[0]?.id ?? dashboards?.[0]?.id
-		test.skip(
-			id === undefined || id === null,
-			'no dashboard is visible to this user, so there is no address to assert',
-		)
-
-		await page.goto(`${APP_BASE}/dashboards/${id}`, {
-			waitUntil: 'domcontentloaded',
-		})
-		await expect(page).toHaveURL(
-			new RegExp(`/dashboards/${String(id)}(\\?|$)`),
-			{ timeout: 15_000 },
-		)
-		await expect(page.locator('.workspace-shell')).toBeVisible({
-			timeout: 30_000,
-		})
+			await page.goto(`${APP_BASE}/dashboards/${linked.id}`, {
+				waitUntil: 'domcontentloaded',
+			})
+			await expect(page.locator('.workspace-shell')).toBeVisible({
+				timeout: 30_000,
+			})
+			// The shell writes the opened dashboard's own address back, and the
+			// address, not the start dashboard, decides what is open
+			// (REQ-DASH-018: a link opens its dashboard). `GET /api/dashboard`
+			// answers the start dashboard since start-page-stays-vandaag.
+			await expect(page).toHaveURL(new RegExp(`/${linked.slug}(\\?|$)`), { timeout: 15_000 })
+			await expect(
+				page.locator(`[data-testid="launchpad-dashboard-region"][data-dashboard-uuid="${linked.uuid}"]`),
+			).toBeVisible({ timeout: 15_000 })
+		} finally {
+			await api.delete(`/index.php/apps/launchpad/api/dashboard/${linked.id}`, { headers })
+			await api.delete(`/index.php/apps/launchpad/api/dashboard/${other.id}`, { headers })
+		}
 	})
 
 	test('the Flows page opens', async ({ page }) => {

@@ -2,10 +2,13 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Vitest tests for `TemplateResyncModal.vue` (admin-template-resync).
- * Covers: Apply gated behind a completed Dry-run for the current
- * strategy, strategy selection binding, and strategy-change resetting
- * a stale plan.
+ * Vitest tests for `TemplateResyncModal.vue`, the rollout window
+ * (admin-templates REQ-RESYNC-008, board LpBeheerSjablonen).
+ * Covers: the dry run on open for Keep personal changes, the change summary
+ * and changed-copies count, the three choices, a fresh dry run per choice,
+ * the push button naming the dashboards, and a stale answer being dropped.
+ *
+ * @spec openspec/changes/archive/2026-11-25-template-rollout-choices/specs/admin-templates/spec.md#requirement-req-resync-008-the-rollout-window-says-what-will-happen
  */
 
 import { mount } from '@vue/test-utils'
@@ -23,30 +26,26 @@ vi.mock('../../services/api.js', () => ({
 }))
 
 const stubs = {
-	NcModal: { template: '<div class="nc-modal"><slot /></div>' },
+	NcModal: {
+		props: ['name'],
+		template: '<div class="nc-modal" :data-name="name"><slot /></div>',
+	},
 	NcButton: {
 		emits: ['click'],
 		template:
 			'<button class="nc-button" :data-testid="$attrs[\'data-testid\']" :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>',
 	},
-	// Vue 3 renamed the `v-model` contract: the prop is `modelValue`
-	// (was `value`) and the event is `update:modelValue` (was `input`).
-	// The component under test uses `v-model="strategy"`, so a stub still
-	// emitting `input` never writes back — `strategy` stayed on its
-	// initial option and the plan-reset assertions failed.
-	NcSelect: {
-		props: ['modelValue', 'options'],
-		emits: ['update:modelValue'],
-		template:
-			'<select class="nc-select" :data-testid="$attrs[\'data-testid\']" @change="onChange"><option v-for="o in options" :key="o.id" :value="o.id">{{ o.label }}</option></select>',
-		methods: {
-			onChange(event) {
-				const opt = this.options.find((o) => o.id === event.target.value)
-				this.$emit('update:modelValue', opt)
-			},
-		},
-	},
 	NcLoadingIcon: { template: '<div class="nc-loading" />' },
+}
+
+const PLAN = {
+	templateId: 1,
+	totalCopies: 212,
+	affectedCount: 200,
+	copies: [],
+	gained: ['Leesbevestiging', 'Verjaardagen'],
+	lost: ['Oud nieuws'],
+	changedByOwnerCount: 38,
 }
 
 let TemplateResyncModal
@@ -60,98 +59,150 @@ beforeEach(async () => {
 	TemplateResyncModal = (await import('../TemplateResyncModal.vue')).default
 })
 
+async function flush (wrapper) {
+	await new Promise((resolve) => setTimeout(resolve, 0))
+	await wrapper.vm.$nextTick()
+}
+
 function mountModal(propsData = {}) {
 	return mount(TemplateResyncModal, {
 		propsData: {
 			open: true,
-			template: { id: 1, name: 'Marketing Dashboard' },
+			template: { id: 1, name: 'Intranet medewerkers' },
 			...propsData,
 		},
 		stubs,
 	})
 }
 
-describe('TemplateResyncModal', () => {
-	it('disables Apply until a dry-run has been reviewed', async () => {
-		const wrapper = mountModal()
-		const apply = wrapper.find('[data-testid="template-resync-apply"]')
-		expect(apply.attributes('disabled')).toBeDefined()
-	})
+const apply = (w) => w.find('[data-testid="template-resync-apply"]')
 
-	it('enables Apply once a dry-run resolves, and calls the API with dryRun:true', async () => {
-		resyncAdminTemplateMock.mockResolvedValueOnce({
-			data: { totalCopies: 8, affectedCount: 3, copies: [] },
-		})
-
+describe('TemplateResyncModal (rollout window)', () => {
+	it('runs a dry run for Keep personal changes on open and keeps the push disabled until it answers', async () => {
+		resyncAdminTemplateMock.mockReturnValueOnce(new Promise(() => {}))
 		const wrapper = mountModal()
-		await wrapper.find('[data-testid="template-resync-dryrun"]').trigger('click')
-		await new Promise((resolve) => setTimeout(resolve, 0))
-		await wrapper.vm.$nextTick()
 
 		expect(resyncAdminTemplateMock).toHaveBeenCalledWith(1, {
-			strategy: 'overwrite',
+			strategy: 'merge',
 			dryRun: true,
 		})
-
-		const apply = wrapper.find('[data-testid="template-resync-apply"]')
-		expect(apply.attributes('disabled')).toBeUndefined()
+		expect(
+			wrapper.find('[data-testid="template-resync-choice-merge"]').element.checked,
+		).toBe(true)
+		expect(
+			wrapper.find('[data-testid="template-resync-choice-add_only"]').element.checked,
+		).toBe(false)
+		expect(apply(wrapper).attributes('disabled')).toBeDefined()
 	})
 
-	it('resets the plan (re-disabling Apply) when the strategy changes after a dry-run', async () => {
+	it('says what the template gained and lost, how many people changed their copy, and names the dashboards', async () => {
+		resyncAdminTemplateMock.mockResolvedValueOnce({ data: PLAN })
+		const wrapper = mountModal()
+		await flush(wrapper)
+
+		expect(wrapper.find('[data-testid="template-resync-title"]').text()).toBe(
+			'Push changes to 212 dashboards',
+		)
+		expect(wrapper.find('[data-testid="template-resync-template"]').text()).toBe(
+			'Template "Intranet medewerkers" has 212 copies.',
+		)
+		expect(wrapper.find('[data-testid="template-resync-gained"]').text()).toBe(
+			'Added since the last sync: Leesbevestiging, Verjaardagen',
+		)
+		expect(wrapper.find('[data-testid="template-resync-lost"]').text()).toBe(
+			'Removed since the last sync: Oud nieuws',
+		)
+		expect(
+			wrapper.find('[data-testid="template-resync-changed-count"]').text(),
+		).toBe('38 people changed their dashboard.')
+		expect(apply(wrapper).text()).toBe('Push to 212 dashboards')
+		expect(apply(wrapper).attributes('disabled')).toBeUndefined()
+	})
+
+	it('offers the three choices, each with its consequence', async () => {
+		resyncAdminTemplateMock.mockResolvedValueOnce({ data: PLAN })
+		const wrapper = mountModal()
+		await flush(wrapper)
+
+		const text = wrapper.find('[data-testid="template-resync-strategy"]').text()
+		expect(text).toContain('How to update?')
+		expect(text).toContain('Only add new widgets')
+		expect(text).toContain('Nothing disappears; personal layout stays.')
+		expect(text).toContain('Keep personal changes')
+		expect(text).toContain('The template wins, except what someone moved or added themselves.')
+		expect(text).toContain('Replace everything with the template')
+		expect(text).toContain('Personal changes are lost.')
+	})
+
+	it('says nothing changed when the template gained and lost nothing', async () => {
 		resyncAdminTemplateMock.mockResolvedValueOnce({
-			data: { totalCopies: 8, affectedCount: 3, copies: [] },
+			data: { ...PLAN, gained: [], lost: [], changedByOwnerCount: 0 },
 		})
-
 		const wrapper = mountModal()
-		await wrapper.find('[data-testid="template-resync-dryrun"]').trigger('click')
-		await new Promise((resolve) => setTimeout(resolve, 0))
-		await wrapper.vm.$nextTick()
+		await flush(wrapper)
 
-		expect(
-			wrapper
-				.find('[data-testid="template-resync-apply"]')
-				.attributes('disabled'),
-		).toBeUndefined()
-
-		// Switch strategy — the previous plan no longer applies.
-		await wrapper
-			.find('[data-testid="template-resync-strategy"]')
-			.setValue('merge')
-
-		expect(wrapper.vm.strategy.id).toBe('merge')
-		expect(
-			wrapper
-				.find('[data-testid="template-resync-apply"]')
-				.attributes('disabled'),
-		).toBeDefined()
+		expect(wrapper.find('[data-testid="template-resync-no-changes"]').exists()).toBe(true)
+		expect(wrapper.find('[data-testid="template-resync-changed-count"]').exists()).toBe(false)
 	})
 
-	it('applies with dryRun:false using the selected strategy and emits "resynced"', async () => {
+	it('runs a fresh dry run for another choice and pushes with that strategy', async () => {
 		resyncAdminTemplateMock
-			.mockResolvedValueOnce({
-				data: { totalCopies: 8, affectedCount: 3, copies: [] },
-			})
-			.mockResolvedValueOnce({
-				data: { async: false, affectedCount: 3, totalCopies: 8 },
-			})
-
+			.mockResolvedValueOnce({ data: PLAN })
+			.mockResolvedValueOnce({ data: { ...PLAN, affectedCount: 150 } })
+			.mockResolvedValueOnce({ data: { async: false, affectedCount: 150, totalCopies: 212 } })
 		const wrapper = mountModal()
-		await wrapper.find('[data-testid="template-resync-dryrun"]').trigger('click')
-		await new Promise((resolve) => setTimeout(resolve, 0))
-		await wrapper.vm.$nextTick()
+		await flush(wrapper)
 
-		await wrapper.find('[data-testid="template-resync-apply"]').trigger('click')
-		await new Promise((resolve) => setTimeout(resolve, 0))
-		await wrapper.vm.$nextTick()
-
+		await wrapper.find('[data-testid="template-resync-choice-add_only"]').trigger('change')
 		expect(resyncAdminTemplateMock).toHaveBeenLastCalledWith(1, {
-			strategy: 'overwrite',
+			strategy: 'add_only',
+			dryRun: true,
+		})
+		await flush(wrapper)
+		expect(wrapper.vm.plan.strategy).toBe('add_only')
+		expect(apply(wrapper).attributes('disabled')).toBeUndefined()
+
+		await apply(wrapper).trigger('click')
+		await flush(wrapper)
+		expect(resyncAdminTemplateMock).toHaveBeenLastCalledWith(1, {
+			strategy: 'add_only',
 			dryRun: false,
 		})
 		expect(wrapper.emitted('resynced')).toBeTruthy()
+		expect(wrapper.find('[data-testid="template-resync-success"]').text()).toBe(
+			'Re-sync applied — 150 copies updated.',
+		)
+	})
+
+	it('drops a slower answer for an earlier choice', async () => {
+		let resolveFirst
+		resyncAdminTemplateMock
+			.mockReturnValueOnce(new Promise((resolve) => { resolveFirst = resolve }))
+			.mockResolvedValueOnce({ data: { ...PLAN, totalCopies: 5 } })
+		const wrapper = mountModal()
+
+		await wrapper.find('[data-testid="template-resync-choice-overwrite"]').trigger('change')
+		await flush(wrapper)
+		resolveFirst({ data: PLAN })
+		await flush(wrapper)
+
+		expect(wrapper.vm.plan.strategy).toBe('overwrite')
+		expect(apply(wrapper).text()).toBe('Push to 5 dashboards')
+	})
+
+	it('shows an error and keeps the push disabled when the dry run fails', async () => {
+		resyncAdminTemplateMock.mockRejectedValueOnce(new Error('boom'))
+		const wrapper = mountModal()
+		await flush(wrapper)
+
+		expect(wrapper.find('[data-testid="template-resync-error"]').text()).toBe(
+			'Could not compute the re-sync plan.',
+		)
+		expect(apply(wrapper).attributes('disabled')).toBeDefined()
 	})
 
 	it('emits "close" when Close is clicked', async () => {
+		resyncAdminTemplateMock.mockResolvedValueOnce({ data: PLAN })
 		const wrapper = mountModal()
 		await wrapper.find('[data-testid="template-resync-cancel"]').trigger('click')
 		expect(wrapper.emitted('close')).toBeTruthy()

@@ -25,10 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Db;
 
-use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Db\Entity;
 use OCP\AppFramework\Db\QBMapper;
-use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 use OCP\IURLGenerator;
 
@@ -40,6 +39,8 @@ use OCP\IURLGenerator;
  * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-2
  */
 class KioskPlaylistMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor.
 	 *
@@ -78,6 +79,33 @@ class KioskPlaylistMapper extends QBMapper {
 	}//end hydrateUrl()
 
 	/**
+	 * Insert a playlist and return it with its computed URL, so the create
+	 * response carries it (REQ-KIOSK-002).
+	 *
+	 * @param KioskPlaylist $entity The playlist.
+	 *
+	 * @return KioskPlaylist The stored playlist.
+	 *
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 */
+	public function insert(Entity $entity): Entity {
+		return $this->hydrateUrl(playlist: parent::insert(entity: $entity));
+	}//end insert()
+
+	/**
+	 * Update a playlist and return it with its computed URL.
+	 *
+	 * @param KioskPlaylist $entity The playlist.
+	 *
+	 * @return KioskPlaylist The stored playlist.
+	 *
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 */
+	public function update(Entity $entity): Entity {
+		return $this->hydrateUrl(playlist: parent::update(entity: $entity));
+	}//end update()
+
+	/**
 	 * Find an active (non-revoked) playlist by its unique token.
 	 *
 	 * @param string $token The playlist token.
@@ -89,16 +117,8 @@ class KioskPlaylistMapper extends QBMapper {
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-2
 	 */
 	public function findByToken(string $token): KioskPlaylist {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'token',
-					y: $qb->createNamedParameter(value: $token)
-				)
-			)
-			->andWhere($qb->expr()->isNull(x: 'revoked_at'));
+		$qb = $this->selectWhere(match: ['token' => $token]);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'));
 
 		// @phpstan-ignore-next-line
 		$playlist = $this->findEntity(query: $qb);
@@ -117,24 +137,57 @@ class KioskPlaylistMapper extends QBMapper {
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-2
 	 */
 	public function findById(int $id): KioskPlaylist {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->andWhere($qb->expr()->isNull(x: 'revoked_at'));
+		$qb = $this->selectWhere(match: ['id' => $id]);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'));
 
 		// @phpstan-ignore-next-line
 		$playlist = $this->findEntity(query: $qb);
 		return $this->hydrateUrl(playlist: $playlist);
 	}//end findById()
+
+	/**
+	 * Find the active screen link of a dashboard (REQ-KIOSK-006): the
+	 * newest playlist marked with that dashboard that is not revoked.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 *
+	 * @return KioskPlaylist|null The screen link, or null when there is none.
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-1
+	 */
+	public function findActiveScreenLink(string $dashboardUuid): ?KioskPlaylist {
+		$qb = $this->selectWhere(match: ['screen_dashboard_uuid' => $dashboardUuid]);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'))
+			->orderBy(sort: 'id', order: 'DESC')
+			->setMaxResults(maxResults: 1);
+
+		$found = $this->findEntities(query: $qb);
+		if ($found === []) {
+			return null;
+		}
+
+		return $this->hydrateUrl(playlist: $found[0]);
+	}//end findActiveScreenLink()
+
+	/**
+	 * Soft-revoke every active screen link of a dashboard, when the
+	 * dashboard is deleted (REQ-KIOSK-006).
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 *
+	 * @return int The number of screen links revoked.
+	 *
+	 * @spec openspec/changes/archive/2026-11-27-dashboard-show-on-a-screen/tasks.md#task-3
+	 */
+	public function revokeScreenLinksOf(string $dashboardUuid): int {
+		$qb = $this->updateWhere(
+			set: ['revoked_at' => $this->now()],
+			match: ['screen_dashboard_uuid' => $dashboardUuid]
+		);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'));
+
+		return $qb->executeStatement();
+	}//end revokeScreenLinksOf()
 
 	/**
 	 * Find all active playlists created by a given user.
@@ -146,16 +199,8 @@ class KioskPlaylistMapper extends QBMapper {
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-2
 	 */
 	public function findByCreator(string $createdBy): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'created_by',
-					y: $qb->createNamedParameter(value: $createdBy)
-				)
-			)
-			->andWhere($qb->expr()->isNull(x: 'revoked_at'))
+		$qb = $this->selectWhere(match: ['created_by' => $createdBy]);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'))
 			->orderBy(sort: 'created_at', order: 'DESC');
 
 		$playlists = $this->findEntities(query: $qb);
@@ -198,24 +243,8 @@ class KioskPlaylistMapper extends QBMapper {
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-2
 	 */
 	public function softRevoke(int $id): void {
-		$now = (new DateTime())->format('Y-m-d H:i:s');
-
-		$qb = $this->db->getQueryBuilder();
-		$qb->update(update: $this->getTableName())
-			->set(
-				key: 'revoked_at',
-				value: $qb->createNamedParameter(value: $now)
-			)
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->andWhere($qb->expr()->isNull(x: 'revoked_at'));
+		$qb = $this->updateWhere(set: ['revoked_at' => $this->now()], match: ['id' => $id]);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'));
 
 		$qb->executeStatement();
 	}//end softRevoke()

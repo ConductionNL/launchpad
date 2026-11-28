@@ -70,6 +70,15 @@
 				@change="onFileInputChange" />
 		</div>
 
+		<ul
+			v-if="uploadErrors.length > 0"
+			class="files-widget__upload-errors"
+			role="alert">
+			<li v-for="(message, index) in uploadErrors" :key="index">
+				{{ message }}
+			</li>
+		</ul>
+
 		<div v-if="loading" class="files-widget__state">
 			{{ t('launchpad', 'Loading folder…') }}
 		</div>
@@ -204,21 +213,111 @@
  * changes so re-configuring the widget root never leaves the user on
  * a stale path.
  */
+
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
+
+/**
+ * Load the HTTP client and build one files-widget endpoint URL.
+ *
+ * @param {string} path The route template.
+ * @param {object} params The route parameters.
+ * @return {Promise<{axios: object, url: string}>} the client and the URL.
+ */
+async function filesEndpoint(path, params) {
+	const [{ default: axios }, { generateUrl }] = await Promise.all([
+		import('@nextcloud/axios'),
+		import('@nextcloud/router'),
+	])
+
+	return { axios, url: generateUrl(path, params) }
+}
+
+/**
+ * A multipart form carrying every chosen file as `files[]`.
+ *
+ * @param {FileList} fileList The chosen files.
+ * @return {FormData} the upload form.
+ */
+function uploadFormData(fileList) {
+	const formData = new FormData()
+	for (let i = 0; i < fileList.length; i++) {
+		formData.append('files[]', fileList[i])
+	}
+	return formData
+}
+
+/**
+ * The sentence for one upload refusal code.
+ *
+ * @param {string} code The code the upload endpoint answered.
+ * @return {string} Why the upload did not happen.
+ * @spec openspec/specs/files-widget/spec.md
+ */
+function uploadReason(code) {
+	switch (code) {
+	case 'upload_too_large':
+		return t('launchpad', 'The upload is larger than this server accepts.')
+	case 'file_too_large':
+		return t('launchpad', 'The file is too large.')
+	case 'file_type_not_allowed':
+		return t('launchpad', 'This type of file is not allowed here.')
+	case 'no_access':
+		return t('launchpad', "You don't have access to this folder.")
+	case 'folder_not_found':
+		return t('launchpad', 'Folder no longer exists.')
+	default:
+		return t('launchpad', 'The upload failed.')
+	}
+}
+
+/**
+ * What to tell the user after an upload: one line per file the server
+ * refused in a 200 answer, or one line when the whole request was refused.
+ *
+ * @param {object|null} response The upload response, or null when the request failed.
+ * @param {object|null} err The request error, or null when it succeeded.
+ * @return {string[]} The lines to show; empty when everything was stored.
+ * @spec openspec/specs/files-widget/spec.md
+ */
+function uploadErrorMessages(response, err) {
+	if (err) {
+		return [uploadReason(err?.response?.status === 413 ? 'upload_too_large' : err?.response?.data?.error)]
+	}
+
+	const errors = Array.isArray(response?.data?.errors) ? response.data.errors : []
+	return errors.map((entry) => t('launchpad', '{name} was not uploaded: {reason}', {
+		name: entry?.name ?? '',
+		reason: uploadReason(entry?.error),
+	}))
+}
+
+/**
+ * The error state a failed contents request maps to.
+ *
+ * @param {object} err The request error.
+ * @return {string} `folder_not_found`, `no_access` or `unknown_error`.
+ */
+function contentsErrorCode(err) {
+	const status = err?.response?.status
+	const code = err?.response?.data?.error
+	if (status === 404 || code === 'folder_not_found') {
+		return 'folder_not_found'
+	}
+	if (status === 403 || code === 'no_access') {
+		return 'no_access'
+	}
+	return 'unknown_error'
+}
+
 export default {
 	name: 'FilesWidget',
 
 	props: {
 		/** Persisted content blob: see FilesForm for shape. */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/** Placement entity (provides `id` for endpoint scoping). */
-		placement: {
-			type: Object,
-			default: () => ({}),
-		},
+		placement: OBJECT_PROP,
 
 		/*
 		 * `isAdmin` / `canEdit` used to be declared here and were removed: no
@@ -239,6 +338,7 @@ export default {
 			nextCursor: null,
 			searchQuery: '',
 			confirmTarget: null,
+			uploadErrors: [],
 		}
 	},
 
@@ -341,44 +441,70 @@ export default {
 			this.errorCode = null
 
 			try {
-				const [{ default: axios }, { generateUrl }] = await Promise.all([
-					import('@nextcloud/axios'),
-					import('@nextcloud/router'),
-				])
-
-				const url = generateUrl(
-					'/apps/launchpad/api/widgets/files/{placementId}/contents',
-					{ placementId: this.placementId },
-				)
-				const params = {
-					currentPath: this.currentSubPath,
-					limit: 50,
-				}
-				if (append && this.nextCursor) {
-					params.cursor = this.nextCursor
-				}
-
-				const response = await axios.get(url, { params })
-				const data = response?.data || {}
-				const nextItems = Array.isArray(data.items) ? data.items : []
-				this.items = append ? this.items.concat(nextItems) : nextItems
-				this.nextCursor = data.nextCursor || null
+				const data = await this.requestContents(append)
+				this.applyContents(data, append)
 			} catch (err) {
-				const status = err?.response?.status
-				const code = err?.response?.data?.error
-				if (status === 404 || code === 'folder_not_found') {
-					this.errorCode = 'folder_not_found'
-				} else if (status === 403 || code === 'no_access') {
-					this.errorCode = 'no_access'
-				} else {
-					this.errorCode = 'unknown_error'
-				}
-				if (!append) {
-					this.items = []
-					this.nextCursor = null
-				}
+				this.applyContentsError(err, append)
 			} finally {
 				this.loading = false
+			}
+		},
+
+		/**
+		 * Request one page of the current folder's contents.
+		 *
+		 * @param {boolean} append True to ask for the next cursor page.
+		 * @return {Promise<object>} the response body, `{}` when absent.
+		 */
+		async requestContents(append) {
+			const { axios, url } = await filesEndpoint(
+				'/apps/launchpad/api/widgets/files/{placementId}/contents',
+				{ placementId: this.placementId },
+			)
+			const response = await axios.get(url, { params: this.contentsParams(append) })
+			return response?.data || {}
+		},
+
+		/**
+		 * The query parameters of a contents request.
+		 *
+		 * @param {boolean} append True to add the next-page cursor.
+		 * @return {object} the request parameters.
+		 */
+		contentsParams(append) {
+			const params = {
+				currentPath: this.currentSubPath,
+				limit: 50,
+			}
+			if (append && this.nextCursor) {
+				params.cursor = this.nextCursor
+			}
+			return params
+		},
+
+		/**
+		 * Store a fetched page: appended to or replacing the list.
+		 *
+		 * @param {object} data The response body.
+		 * @param {boolean} append True to append to the existing list.
+		 */
+		applyContents(data, append) {
+			const nextItems = Array.isArray(data.items) ? data.items : []
+			this.items = append ? this.items.concat(nextItems) : nextItems
+			this.nextCursor = data.nextCursor || null
+		},
+
+		/**
+		 * Record a failed fetch; a failed first page also clears the list.
+		 *
+		 * @param {object} err The request error.
+		 * @param {boolean} append True when the failed request was a next page.
+		 */
+		applyContentsError(err, append) {
+			this.errorCode = contentsErrorCode(err)
+			if (!append) {
+				this.items = []
+				this.nextCursor = null
 			}
 		},
 
@@ -506,19 +632,7 @@ export default {
 				return
 			}
 			try {
-				const [{ default: axios }, { generateUrl }] = await Promise.all([
-					import('@nextcloud/axios'),
-					import('@nextcloud/router'),
-				])
-
-				const url = generateUrl(
-					'/apps/launchpad/api/widgets/files/{placementId}/files/{fileId}',
-					{ placementId: this.placementId, fileId: target.fileId },
-				)
-				await axios.delete(url)
-				this.items = this.items.filter(
-					(item) => item.fileId !== target.fileId,
-				)
+				await this.deleteFile(target)
 			} catch {
 				// Swallow — refresh the listing so the UI stays
 				// truthful even if the optimistic remove failed.
@@ -526,6 +640,22 @@ export default {
 			} finally {
 				this.confirmTarget = null
 			}
+		},
+
+		/**
+		 * Delete one file and drop it from the list.
+		 *
+		 * @param {object} target The directory entry to delete.
+		 */
+		async deleteFile(target) {
+			const { axios, url } = await filesEndpoint(
+				'/apps/launchpad/api/widgets/files/{placementId}/files/{fileId}',
+				{ placementId: this.placementId, fileId: target.fileId },
+			)
+			await axios.delete(url)
+			this.items = this.items.filter(
+				(item) => item.fileId !== target.fileId,
+			)
 		},
 
 		/** @spec openspec/specs/files-widget/spec.md */
@@ -547,32 +677,54 @@ export default {
 				return
 			}
 
-			const formData = new FormData()
-			for (let i = 0; i < fileList.length; i++) {
-				formData.append('files[]', fileList[i])
-			}
+			const formData = uploadFormData(fileList)
+			this.showUploadErrors([])
 
 			try {
-				const [{ default: axios }, { generateUrl }] = await Promise.all([
-					import('@nextcloud/axios'),
-					import('@nextcloud/router'),
-				])
-
-				const url = generateUrl(
-					'/apps/launchpad/api/widgets/files/{placementId}/upload',
-					{ placementId: this.placementId },
-				)
-				await axios.post(url, formData, {
-					params: { currentPath: this.currentSubPath },
-				})
-				this.fetchContents()
-			} catch {
-				// Surface failure by re-fetching; the user can retry.
-				this.fetchContents()
+				const response = await this.postUpload(formData)
+				this.showUploadErrors(uploadErrorMessages(response, null))
+			} catch (err) {
+				// Say why, and re-fetch so the listing stays true; the user can retry.
+				this.showUploadErrors(uploadErrorMessages(null, err))
 			} finally {
-				if (this.$refs.fileInput) {
-					this.$refs.fileInput.value = ''
-				}
+				this.fetchContents()
+				this.resetFileInput()
+			}
+		},
+
+		/**
+		 * Upload a form of files into the current folder.
+		 *
+		 * @param {FormData} formData The files to upload.
+		 * @return {Promise<object>} The upload response.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
+		async postUpload(formData) {
+			const { axios, url } = await filesEndpoint(
+				'/apps/launchpad/api/widgets/files/{placementId}/upload',
+				{ placementId: this.placementId },
+			)
+			return axios.post(url, formData, {
+				params: { currentPath: this.currentSubPath },
+			})
+		},
+
+		/**
+		 * Show the lines of the last upload's refusals; unchanged when both are empty.
+		 *
+		 * @param {string[]} messages The lines to show.
+		 * @spec openspec/specs/files-widget/spec.md
+		 */
+		showUploadErrors(messages) {
+			if (messages.length > 0 || this.uploadErrors.length > 0) {
+				this.uploadErrors = messages
+			}
+		},
+
+		/** Clear the hidden file input so the same file can be chosen again. */
+		resetFileInput() {
+			if (this.$refs.fileInput) {
+				this.$refs.fileInput.value = ''
 			}
 		},
 
@@ -612,6 +764,13 @@ export default {
 	gap: 8px;
 	height: 100%;
 	overflow: hidden;
+}
+
+.files-widget__upload-errors {
+	margin: 0;
+	padding: 4px 8px;
+	list-style: none;
+	color: var(--color-error-text, var(--color-error));
 }
 
 .files-widget__toolbar {

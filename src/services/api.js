@@ -8,6 +8,10 @@ import { generateUrl } from '@nextcloud/router'
 
 const baseUrl = generateUrl('/apps/launchpad')
 
+// The admin settings read in flight, shared by every caller that asks while
+// it runs (the General tab mounts several sections that each read it).
+let adminSettingsRead = null
+
 export const api = {
 	// Dashboard endpoints
 	getDashboards() {
@@ -282,6 +286,36 @@ export const api = {
 		return axios.delete(
 			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`,
 			{ adapter: 'fetch', fetchOptions: { keepalive: true } },
+		)
+	},
+
+	/**
+	 * Announce or renew editing a dashboard; resolves to
+	 * `{editors: [{displayName, since}]}`, the colleagues editing it.
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response.
+	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
+	 */
+	joinPresence(uuid) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/presence`,
+		)
+	},
+
+	/**
+	 * Stop editing a dashboard. With `onPageHide` the request survives the
+	 * page closing (fetch adapter with `keepalive`).
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @param {boolean} [onPageHide] Whether the page is closing.
+	 * @return {Promise} Axios response (204).
+	 * @spec openspec/changes/archive/2026-11-19-building-edit-a-dashboard-together/tasks.md#task-1.1
+	 */
+	leavePresence(uuid, onPageHide = false) {
+		return axios.delete(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/presence`,
+			onPageHide ? { adapter: 'fetch', fetchOptions: { keepalive: true } } : undefined,
 		)
 	},
 
@@ -661,6 +695,102 @@ export const api = {
 	},
 
 	/**
+	 * Import chosen browser bookmarks onto a dashboard as containers and tiles.
+	 *
+	 * @param {number|string} dashboardId Numeric id of the target dashboard.
+	 * @param {{folders: Array<object>, bookmarks: Array<object>}} data The chosen folders and loose bookmarks.
+	 * @return {Promise} Axios response with `{placements, skipped}`; 409 when the import does not fit the quota.
+	 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+	 */
+	importBookmarks(dashboardId, data) {
+		return axios.post(`${baseUrl}/api/dashboard/${dashboardId}/tiles/import`, data)
+	},
+
+	/**
+	 * The apps this server runs for the current user, to place as tiles.
+	 *
+	 * @return {Promise} Axios response resolving to `{ apps: [{ appId, name, href, icon }] }`.
+	 * @spec openspec/changes/archive/2026-11-19-launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+	 */
+	discoverApps() {
+		return axios.get(`${baseUrl}/api/tiles/discover`)
+	},
+	/**
+	 * The services an administrator allowed for discovery that answered (REQ-TILE-044).
+	 *
+	 * @return {Promise} `{services: [{name, url, port, state, foundAt}]}`.
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 */
+	foundServices() {
+		return axios.get(`${baseUrl}/api/tiles/found-services`)
+	},
+
+
+	/**
+	 * The app catalogue entries the current user's groups may see.
+	 *
+	 * @return {Promise} Axios response resolving to `{ apps: [{ uuid, name, description, icon, iconType, linkType, linkValue }] }`.
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+	 */
+	catalogueApps() {
+		return axios.get(`${baseUrl}/api/catalogue`)
+	},
+
+	/**
+	 * Ask IT for an app the catalogue lacks.
+	 *
+	 * @param {{appName: string, purpose: string}} request The app and what it is needed for.
+	 * @return {Promise} Axios response resolving to `{ request }`; a 429 carries `code: 'request_limit'`.
+	 * @spec openspec/changes/archive/2026-11-19-launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+	 */
+	requestCatalogueApp(request) {
+		return axios.post(`${baseUrl}/api/catalogue/requests`, request)
+	},
+
+	/**
+	 * Whether the server has a text-to-text assistant for the widget picker.
+	 *
+	 * @return {Promise} Axios response resolving to `{ available }`.
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+	 */
+	widgetAssistant() {
+		return axios.get(`${baseUrl}/api/widget-picker/assistant`)
+	},
+
+	/**
+	 * Ask the assistant which offered widget fits a described need.
+	 *
+	 * @param {{need: string, cards: Array<{key: string, name: string, description: string}>}} request The need and the cards on offer.
+	 * @return {Promise} Axios response resolving to `{ proposal: {key, name, reason}|null }`.
+	 * @spec openspec/specs/widgets/spec.md#requirement-the-assistant-line-req-wdg-045
+	 */
+	proposeWidget(request) {
+		return axios.post(`${baseUrl}/api/widget-picker/proposal`, request)
+	},
+
+	/**
+	 * The office tile pack for the current user: a "New ..." tile per file
+	 * creator the server's office apps register, and the enabled office apps.
+	 *
+	 * @return {Promise} Axios response resolving to `{ tiles: [{ title, linkType, linkValue, icon, iconType }] }`.
+	 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-the-add-flow-offers-an-office-tile-pack-built-from-what-the-server-has-req-oft-001
+	 */
+	officeTilePack() {
+		return axios.get(`${baseUrl}/api/office-tiles`)
+	},
+
+	/**
+	 * Create a file from an office app's blank template under a free name.
+	 *
+	 * @param {{creatorId: string, name: string, folder: string}} request The creator, the name without extension and the folder.
+	 * @return {Promise} Axios response resolving to `{ fileId, path, url }`.
+	 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-a-new-tile-creates-a-real-document-and-never-overwrites-req-oft-002
+	 */
+	createOfficeFile(request) {
+		return axios.post(`${baseUrl}/api/office-tiles/create`, request)
+	},
+
+	/**
 	 * Update an existing widget placement.
 	 *
 	 * @param {number|string} placementId Id of the placement to update.
@@ -770,6 +900,44 @@ export const api = {
 	},
 
 	/**
+	 * List the templates LaunchPad ships with, and whether each is installed.
+	 *
+	 * @return {Promise} Axios response resolving to the shipped templates.
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
+	 */
+	getShippedTemplates() {
+		return axios.get(`${baseUrl}/api/admin/templates/shipped`)
+	},
+
+	/**
+	 * Add a shipped template as an admin template.
+	 *
+	 * @param {string} id Shipped template id, for example `mijn-werkdag`.
+	 * @return {Promise} Axios response resolving to the installed template.
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
+	 */
+	installShippedTemplate(id) {
+		return axios.post(`${baseUrl}/api/admin/templates/shipped/${id}/install`)
+	},
+
+	/**
+	 * Update an installed shipped template to the version LaunchPad ships
+	 * now, in place. With `dryRun` the server only reports what would change.
+	 *
+	 * @param {string} id Shipped template id, for example `mijn-werkdag`.
+	 * @param {object} [options] Call options.
+	 * @param {boolean} [options.dryRun] Report the changes, write nothing.
+	 * @return {Promise} Axios response resolving to the widgets added,
+	 *   removed and changed.
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+	 */
+	updateShippedTemplate(id, { dryRun = false } = {}) {
+		return axios.post(`${baseUrl}/api/admin/templates/shipped/${id}/update`, {
+			dryRun,
+		})
+	},
+
+	/**
 	 * Create an admin dashboard template.
 	 *
 	 * @param {object} data Template attributes (name, layout, widgets, …).
@@ -822,9 +990,114 @@ export const api = {
 		})
 	},
 
+	/**
+	 * Read the admin settings. Callers that ask while a read is in flight
+	 * share that read, so a tab whose sections each need the settings sends
+	 * one request; a call after it settled reads afresh.
+	 *
+	 * @return {Promise} Axios response resolving to the admin settings.
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/tasks.md
+	 */
 	getAdminSettings() {
-		return axios.get(`${baseUrl}/api/admin/settings`)
+		if (adminSettingsRead === null) {
+			adminSettingsRead = axios.get(`${baseUrl}/api/admin/settings`)
+				.finally(() => {
+					adminSettingsRead = null
+				})
+		}
+		return adminSettingsRead
 	},
+
+	/**
+	 * Read the public start page: whether it is on, the chosen link, whether
+	 * it can be shown and why not, and the links that may be chosen.
+	 * Admin-only on the server (sharing-public-start-page REQ-PSP-001).
+	 *
+	 * @return {Promise} Axios response resolving to
+	 *   `{ enabled, token, active, reason, candidates }`.
+	 */
+	getPublicStart() {
+		return axios.get(`${baseUrl}/api/admin/public-start`)
+	},
+
+	/**
+	 * Choose the public start page's link and switch it on or off. Admin-only
+	 * on the server; a link with a password or a past expiry answers 400
+	 * (sharing-public-start-page REQ-PSP-001).
+	 *
+	 * @param {{enabled: boolean, token: string}} data The choice.
+	 * @return {Promise} The axios response, the new status.
+	 */
+	updatePublicStart(data) {
+		return axios.put(`${baseUrl}/api/admin/public-start`, data)
+	},
+
+	/**
+	 * Read the external hosts image widgets may load pictures from.
+	 * Admin-only on the server (REQ-IMG-006).
+	 *
+	 * @return {Promise} Axios response resolving to `{ hosts }`.
+	 * @spec openspec/specs/image-widget/spec.md#requirement-req-img-006-external-image-hosts-are-allow-listed-by-an-administrator
+	 */
+	getImageHosts() {
+		return axios.get(`${baseUrl}/api/admin/image-hosts`)
+	},
+
+	/**
+	 * Replace the image host allow-list. Admin-only on the server; an entry
+	 * that is not a bare host name answers 400 with `{ message }` (REQ-IMG-006).
+	 *
+	 * @param {string[]} hosts The host names.
+	 * @return {Promise} Axios response resolving to the stored `{ hosts }`.
+	 * @spec openspec/specs/image-widget/spec.md#requirement-req-img-006-external-image-hosts-are-allow-listed-by-an-administrator
+	 */
+	updateImageHosts(hosts) {
+		return axios.put(`${baseUrl}/api/admin/image-hosts`, { hosts })
+	},
+
+	/**
+	 * Read the allowed websites, each `{host, embed, fetch}`. Admin-only on
+	 * the server (REQ-ASET-021).
+	 *
+	 * @return {Promise} Axios response resolving to `{ sites }`.
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 */
+	getAllowedSites() {
+		return axios.get(`${baseUrl}/api/admin/allowed-sites`)
+	},
+
+	/**
+	 * Replace the allowed websites. Admin-only on the server; an entry that is
+	 * not a host, or has no purpose, answers 400 with `{ message }` (REQ-ASET-021).
+	 *
+	 * @param {Array<{host: string, embed: boolean, fetch: boolean}>} sites The sites.
+	 * @return {Promise} Axios response resolving to the stored `{ sites }`.
+	 * @spec openspec/changes/archive/2026-11-24-allowed-websites-list/specs/admin-settings/spec.md#requirement-one-list-of-allowed-websites-with-a-purpose-per-site-req-aset-021
+	 */
+	updateAllowedSites(sites) {
+		return axios.put(`${baseUrl}/api/admin/allowed-sites`, { sites })
+	},
+	/**
+	 * The services an administrator allowed for discovery (REQ-TILE-044).
+	 *
+	 * @return {Promise} `{services: [{name, url}]}`.
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 */
+	getDiscoverableServices() {
+		return axios.get(`${baseUrl}/api/admin/discoverable-services`)
+	},
+
+	/**
+	 * Replace the services an administrator allowed for discovery.
+	 *
+	 * @param {Array<{name: string, url: string}>} services The services.
+	 * @return {Promise} `{services}` as stored, or 400 `{message}`.
+	 * @spec openspec/changes/archive/2026-11-27-add-tiles-dialog/specs/tiles/spec.md#requirement-tiles-for-services-found-on-the-server-req-tile-044
+	 */
+	updateDiscoverableServices(services) {
+		return axios.put(`${baseUrl}/api/admin/discoverable-services`, { services })
+	},
+
 
 	/**
 	 * Read the dashboard registry connection. Admin-only on the server.
@@ -862,6 +1135,51 @@ export const api = {
 	 */
 	updateAdminSettings(data) {
 		return axios.put(`${baseUrl}/api/admin/settings`, data)
+	},
+
+	/**
+	 * Set who may share (`everyone`, `groups`, `none`) and whether public
+	 * links may be created. Admin-only on the server; a partial patch.
+	 *
+	 * @param {{sharingAllowed?: string, publicLinksAllowed?: boolean}} data The policy fields to change.
+	 * @return {Promise} The axios response.
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-can-stop-sharing-and-limit-public-links-req-share-015
+	 */
+	updateSharingPolicy(data) {
+		return axios.put(`${baseUrl}/api/admin/sharing-policy`, data)
+	},
+
+	/**
+	 * Set where a leaver's dashboards go: their manager or not, and the person
+	 * otherwise ('' for nobody). Admin-only on the server.
+	 *
+	 * @param {{manager: boolean, fallbackUid: string}} data The handover.
+	 * @return {Promise} The axios response.
+	 * @spec openspec/changes/archive/2026-11-25-sharing-policy-board-sync/specs/dashboard-sharing/spec.md#requirement-administrators-choose-where-a-leavers-dashboards-go-req-share-016
+	 */
+	updateLeaverHandover(data) {
+		return axios.put(`${baseUrl}/api/admin/leaver-handover`, data)
+	},
+
+	/**
+	 * Read the administrator CSS for all of LaunchPad. Admin-only on the server.
+	 *
+	 * @return {Promise} Axios response resolving to `{ customCss }`.
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	getCustomCss() {
+		return axios.get(`${baseUrl}/api/admin/custom-css`)
+	},
+
+	/**
+	 * Save the administrator CSS for all of LaunchPad; the server cleans and scopes it.
+	 *
+	 * @param {string} customCss The CSS; '' clears it.
+	 * @return {Promise} Axios response resolving to `{ customCss, removed }`.
+	 * @spec openspec/changes/archive/2026-11-19-platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	updateCustomCss(customCss) {
+		return axios.put(`${baseUrl}/api/admin/custom-css`, { customCss })
 	},
 
 	// Admin group-priority order (REQ-ASET-012/013/014).
@@ -912,17 +1230,6 @@ export const api = {
 	/** @spec openspec/specs/dashboards/spec.md */
 	completeSetupWizard() {
 		return axios.post(`${baseUrl}/api/admin/setup-wizard/complete`)
-	},
-
-	/**
-	 * Persist the setup wizard's content-storage choice (REQ-WIZ-003).
-	 *
-	 * @param {string} storage Backend to store widget content in —
-	 *   `database` or `groupfolder`.
-	 * @return {Promise} Axios response resolving to the updated wizard state.
-	 */
-	setSetupWizardStorage(storage) {
-		return axios.post(`${baseUrl}/api/admin/setup-wizard/storage`, { storage })
 	},
 
 	/**
@@ -1189,6 +1496,19 @@ export const api = {
 	},
 
 	/**
+	 * Read the whole org-navigation tree for the editor, nodes in groups the
+	 * administrator is not in included, so its Save never drops them.
+	 * Administrators only on the server.
+	 *
+	 * @param {string} [lang] Which per-language tree to read.
+	 * @return {Promise} Axios response resolving to `{tree, language}`.
+	 * @spec openspec/specs/navigation-editor-org/spec.md#requirement-req-onav-007-admin-editor
+	 */
+	getEditableOrgNavigation(lang = 'nl') {
+		return axios.get(`${baseUrl}/api/admin/org-navigation/editor`, { params: { lang } })
+	},
+
+	/**
 	 * Replace the org-wide navigation tree for one language
 	 * (REQ-ONAV-001..012). Admin-only server-side.
 	 *
@@ -1351,6 +1671,17 @@ export const api = {
 		return axios.delete(
 			`${baseUrl}/api/admin/demo-showcases/${encodeURIComponent(id)}`,
 		)
+	},
+
+	/**
+	 * Give a Nextcloud group the LaunchPad admin role (REQ-WIZ-006). Admin-only.
+	 *
+	 * @param {string} groupId The group id.
+	 * @return {Promise} Axios response resolving to the created assignment.
+	 * @spec openspec/specs/setup-wizard/spec.md#req-wiz-006
+	 */
+	assignAdminRoleToGroup(groupId) {
+		return axios.post(`${baseUrl}/api/admin/roles`, { groupId, role: 'admin' })
 	},
 
 	// Tile endpoints

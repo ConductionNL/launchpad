@@ -13,17 +13,26 @@
 		<component
 			:is="registryEntry.renderer"
 			v-if="registryEntry"
-			:content="normalizedContent"
+			:content="periodContent"
 			:placement="placement"
-			v-bind="rendererProps" />
+			v-bind="rendererProps"
+			@data="onWidgetData"
+			@loaded="settle"
+			@status="(status) => $emit('status', status)"
+			@edit="$emit('editRequest')"
+			@editRequest="$emit('editRequest')" />
+
+		<CalculatedValues v-if="registryEntry" :placement="placement" />
 
 		<!-- Custom Tile Widget (legacy path: widgetId === 'tile-{id}') -->
 		<TileWidget
 			v-else-if="isTileWidget && tileData"
 			:tile="tileData"
 			:placementId="placement.id"
+			:content="normalizedContent"
 			:healthPingEnabled="normalizedContent.healthPingEnabled === true"
-			:pingInterval="normalizedContent.pingInterval" />
+			:pingInterval="normalizedContent.pingInterval"
+			:linkTarget="normalizedContent.linkTarget || null" />
 
 		<!-- API Widget V1 or V2 - Use NcDashboardWidget -->
 		<template v-else-if="isApiWidget">
@@ -46,16 +55,16 @@
 
 		<!-- Legacy Widget - Mount via callback -->
 		<div
-			v-else-if="!loading"
+			v-else-if="(widget || isTileWidget) && !loading"
 			ref="legacyWidgetContainer"
 			class="widget-renderer__legacy" />
 
-		<!-- Loading state for unknown widget types -->
+		<!-- Loading state while a widget initialises -->
 		<div v-else-if="loading" class="widget-renderer__loading">
 			<NcLoadingIcon :size="32" />
 		</div>
 
-		<!-- Unknown widget type -->
+		<!-- Unknown widget type: no registry entry, tile or installed widget -->
 		<NcEmptyContent v-else :description="t('launchpad', 'Widget not available')">
 			<template #icon>
 				<AlertCircleOutline :size="48" />
@@ -71,17 +80,75 @@ import {
 	NcLoadingIcon,
 } from '@conduction/nextcloud-vue'
 import { mapActions, storeToRefs } from 'pinia'
+import { unref } from 'vue'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import TileWidget from './TileWidget.vue'
+import CalculatedValues from './Widgets/CalculatedFields/CalculatedValues.vue'
+import {
+	FLAG_PROP,
+	NULLABLE_OBJECT_PROP,
+	REQUIRED_OBJECT_PROP,
+} from '../constants/propDefinitions.js'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { widgetBridge } from '../services/widgetBridge.js'
 import {
 	buildRendererExtraProps,
 	buildWidgetDataProvide,
 } from '../services/widgetDataAdapters.js'
+import { useCalculatedFieldsStore } from '../stores/calculatedFields.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useWidgetStore } from '../stores/widgets.js'
+import { contentWithPeriod } from '../utils/dashboardPeriod.js'
 import { logger } from '../utils/logger.js'
+import { placementContent } from '../utils/placementContent.js'
+import { rendererEmitsLoaded } from '../utils/widgetLoaded.js'
+
+/** How many times a legacy widget mount is retried before giving up. */
+const LEGACY_MOUNT_ATTEMPTS = 20
+
+/*
+ * Shared widgets that read edit mode from `isAdmin` + `canEdit`: they suppress
+ * their clicks then, and the menu's empty-state gear asks for the editor.
+ */
+const EDIT_FLAG_WIDGETS = ['menu', 'link', 'links', 'quicklinks', 'tile', 'video']
+
+/**
+ * The first truthy value among an item's fields, or ''.
+ *
+ * @param {object} item The API item.
+ * @param {Array<string>} keys The field names, in order of preference.
+ * @return {string} the value.
+ */
+function firstOf(item, keys) {
+	for (const key of keys) {
+		if (item[key]) {
+			return item[key]
+		}
+	}
+	return ''
+}
+
+/**
+ * Map an API item onto the NcDashboardWidgetItem props, keeping every
+ * original field. The key is a compound of stable per-row data (sinceId +
+ * id + link/targetUrl/title); the index is only a last-resort fallback.
+ *
+ * @param {object} item The API item.
+ * @param {number} index Its position in the list.
+ * @return {object} the dashboard item.
+ */
+function toDashboardItem(item, index) {
+	return {
+		...item,
+		id: `${firstOf(item, ['sinceId'])}-${firstOf(item, ['id'])}-${firstOf(item, ['link', 'targetUrl', 'title']) || index}`,
+		targetUrl: firstOf(item, ['link', 'targetUrl']),
+		avatarUrl: firstOf(item, ['iconUrl', 'avatarUrl']),
+		avatarUsername: firstOf(item, ['avatarUsername']),
+		overlayIconUrl: firstOf(item, ['overlayIconUrl']),
+		mainText: firstOf(item, ['title', 'mainText']),
+		subText: firstOf(item, ['subtitle', 'subText']),
+	}
+}
 
 export default {
 	name: 'WidgetRenderer',
@@ -91,6 +158,7 @@ export default {
 		NcEmptyContent,
 		NcLoadingIcon,
 		AlertCircleOutline,
+		CalculatedValues,
 		TileWidget,
 	},
 
@@ -103,25 +171,32 @@ export default {
 	 * @return {object} the injected data-source adapters.
 	 */
 	provide() {
-		return buildWidgetDataProvide(() => this.placement?.id)
+		return buildWidgetDataProvide(() => this.placement?.id, () => this.placement?.content)
+	},
+
+	inject: {
+		/** The period the dashboard's dated widgets follow (REQ-DPD-002), a ref, or null. */
+		dashboardPeriod: { from: 'dashboardPeriod', default: null },
 	},
 
 	props: {
-		widget: {
-			type: Object,
-			default: null,
-		},
+		widget: NULLABLE_OBJECT_PROP,
 
-		placement: {
-			type: Object,
-			required: true,
-		},
+		placement: REQUIRED_OBJECT_PROP,
+
+		editMode: FLAG_PROP,
 	},
+
+	// `status`: a renderer's card-head state (the iframe widget's source line
+	// and outage tag, REQ-IFRAME-005), passed up to WidgetWrapper.
+	emits: ['editRequest', 'status', 'loaded'],
 
 	data() {
 		return {
 			loading: false, // Start false, will be set to true for API widgets only
 			itemsLoading: false,
+			// Whether `loaded` went out (first-paint-skeleton REQ-FPS-004): once.
+			settled: false,
 			refreshInterval: null,
 			// Local reactive data for widget items.
 			localWidgetItemsData: { items: [], loading: false },
@@ -139,9 +214,28 @@ export default {
 		 * @return {object} the content object (empty when unset).
 		 *
 		 * @spec openspec/specs/widgets/spec.md
+		 * @spec openspec/specs/files-widget/spec.md
 		 */
 		normalizedContent() {
-			return this.placement?.content || {}
+			return placementContent(this.placement)
+		},
+
+		/**
+		 * The content a registry renderer gets: with the dashboard's period on
+		 * every register source that names a period field, so the stat card,
+		 * stats block, chart and table count only the chosen period. A widget
+		 * without a period field gets its content as stored.
+		 *
+		 * @return {object} the content.
+		 *
+		 * @spec openspec/changes/archive/2026-11-25-dashboard-period-and-download/specs/dashboards/spec.md#requirement-a-dashboard-can-have-a-period-that-its-figures-follow-req-dpd-002
+		 */
+		periodContent() {
+			const period = unref(this.dashboardPeriod)
+			if (!period) {
+				return this.normalizedContent
+			}
+			return contentWithPeriod(this.normalizedContent, period, new Date())
 		},
 
 		/**
@@ -177,7 +271,7 @@ export default {
 		 * @return {boolean} true when the widget should render edge-to-edge.
 		 */
 		isFullBleed() {
-			return ['header', 'image', 'divider'].includes(this.placement?.widgetId)
+			return ['header', 'image', 'divider', 'section-heading'].includes(this.placement?.widgetId)
 		},
 
 		/**
@@ -186,9 +280,19 @@ export default {
 		 * prop rather than an injection.
 		 *
 		 * @return {object} extra props for `<component :is>` (empty for most types).
+		 * @spec openspec/changes/archive/2026-11-25-tile-form-board-sync/specs/tiles/spec.md#requirement-a-tiles-group-and-the-groups-order-req-tile-041
 		 */
 		rendererProps() {
-			return buildRendererExtraProps(this.placement?.widgetId)
+			const props = buildRendererExtraProps(this.placement?.widgetId)
+			if (EDIT_FLAG_WIDGETS.includes(this.placement?.widgetId)) {
+				return { ...props, isAdmin: this.editMode, canEdit: this.editMode }
+			}
+			// REQ-TILE-041: a group shows its tiles' menu, and its stored
+			// layout, only in edit mode, so it is told when that is.
+			if (this.placement?.widgetId === 'container') {
+				return { ...props, editMode: this.editMode }
+			}
+			return props
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -228,6 +332,7 @@ export default {
 					textColor: this.placement.tileTextColor,
 					linkType: this.placement.tileLinkType,
 					linkValue: this.placement.tileLinkValue,
+					internalUrl: (this.placement.content && this.placement.content.internalUrl) || '',
 				}
 			}
 			// Referenced tile: resolve the Tile entity from the store by id.
@@ -275,16 +380,7 @@ export default {
 			// reorder of the upstream items moves DOM nodes instead of tearing
 			// them down. `index` is only a last-resort fallback when a row
 			// carries no stable identifying field at all.
-			return items.map((item, index) => ({
-				...item,
-				id: `${item.sinceId || ''}-${item.id || ''}-${item.link || item.targetUrl || item.title || index}`,
-				targetUrl: item.link || item.targetUrl || '',
-				avatarUrl: item.iconUrl || item.avatarUrl || '',
-				avatarUsername: item.avatarUsername || '',
-				overlayIconUrl: item.overlayIconUrl || '',
-				mainText: item.title || item.mainText || '',
-				subText: item.subtitle || item.subText || '',
-			}))
+			return items.map(toDashboardItem)
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -340,10 +436,17 @@ export default {
 		// paths — skip initWidget() so we don't fire a `loadWidgetItems`
 		// fetch keyed on a Nextcloud-Dashboard widget id that doesn't exist.
 		if (this.registryEntry) {
+			// A renderer that emits `loaded` is waited for; any other counts
+			// as loaded after this first render (REQ-FPS-004).
+			if (!rendererEmitsLoaded(this.registryEntry.renderer)) {
+				this.$nextTick(this.settle)
+			}
 			return
 		}
 		if (this.widget || this.isTileWidget) {
 			this.initWidget()
+		} else {
+			this.$nextTick(this.settle)
 		}
 	},
 
@@ -360,6 +463,36 @@ export default {
 
 	methods: {
 		...mapActions(useWidgetStore, ['loadWidgetItems', 'refreshWidgetItems']),
+
+		/**
+		 * Say once that the first content has settled, loaded or failed, so
+		 * the card swaps its placeholder for it (first-paint-skeleton
+		 * REQ-FPS-004); later reloads do not emit again.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-each-widget-fills-its-own-frame-when-its-data-arrives-req-fps-004
+		 */
+		settle() {
+			if (this.settled) {
+				return
+			}
+			this.settled = true
+			this.$emit('loaded')
+		},
+
+		/**
+		 * Hand what a self-fetching widget shows to the calculated fields of
+		 * its placement, so they evaluate over it (REQ-CALC-003).
+		 *
+		 * @param {object} data The widget's `data` summary.
+		 * @return {void}
+		 * @spec openspec/changes/widget-calculated-fields/tasks.md#task-19
+		 */
+		onWidgetData(data) {
+			if (this.placement?.id !== undefined && this.placement?.id !== null) {
+				useCalculatedFieldsStore().setWidgetData(String(this.placement.id), data)
+			}
+		},
 
 		/** @spec openspec/specs/widgets/spec.md */
 		setupStoreSubscription() {
@@ -397,24 +530,12 @@ export default {
 
 		/** @spec openspec/specs/widgets/spec.md */
 		async initWidget() {
-			logger.debug('[WidgetRenderer] initWidget called:', {
-				widgetId: this.widget?.id,
-				isTileWidget: this.isTileWidget,
-				isApiWidget: this.isApiWidget,
-				isApiWidgetV1: this.isApiWidgetV1,
-				isApiWidgetV2: this.isApiWidgetV2,
-				itemApiVersions: this.widget?.itemApiVersions,
-				fullWidget: this.widget,
-			})
+			this.logInitWidget()
 
-			if (!this.widget && !this.isTileWidget) {
+			if (!this.widget || this.isTileWidget) {
+				// Nothing to load, and tiles don't need initialization.
 				this.loading = false
-				return
-			}
-
-			// Tiles don't need initialization.
-			if (this.isTileWidget) {
-				this.loading = false
+				this.$nextTick(this.settle)
 				return
 			}
 
@@ -424,46 +545,74 @@ export default {
 				this.widget,
 			)
 
-			// Only show loading for API widgets
-			// Legacy widgets render themselves, so we don't need a loading state
-			const isLegacy = !this.isApiWidget
-			if (!isLegacy) {
-				this.loading = true
+			if (this.isApiWidget) {
+				await this.initApiWidget()
+			} else {
+				await this.initLegacyWidget()
 			}
+		},
 
+		/** Log the widget kind flags `initWidget` decides on. */
+		logInitWidget() {
+			logger.debug('[WidgetRenderer] initWidget called:', {
+				widgetId: this.widget?.id,
+				isTileWidget: this.isTileWidget,
+				isApiWidget: this.isApiWidget,
+				isApiWidgetV1: this.isApiWidgetV1,
+				isApiWidgetV2: this.isApiWidgetV2,
+				itemApiVersions: this.widget?.itemApiVersions,
+				fullWidget: this.widget,
+			})
+		},
+
+		/**
+		 * Load an API widget's items (v1 and v2) behind a loading state and
+		 * arm its auto-refresh when it has a reload interval.
+		 *
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-each-widget-fills-its-own-frame-when-its-data-arrives-req-fps-004
+		 */
+		async initApiWidget() {
+			// Only API widgets show loading; legacy widgets render themselves.
+			this.loading = true
 			try {
-				if (this.isApiWidget) {
-					logger.debug('[WidgetRenderer] Detected as API widget')
-					// Load widget items from API (supports both v1 and v2).
-					await this.loadWidgetItems([this.widget.id])
-					// Explicitly sync local data from store after loading.
-					this.updateLocalWidgetItems()
+				logger.debug('[WidgetRenderer] Detected as API widget')
+				await this.loadWidgetItems([this.widget.id])
+				// Explicitly sync local data from store after loading.
+				this.updateLocalWidgetItems()
 
-					// Set up auto-refresh if widget supports it.
-					if (
-						this.widget.reloadInterval
-						&& this.widget.reloadInterval > 0
-					) {
-						this.setupAutoRefresh(this.widget.reloadInterval)
-					}
-				} else {
-					logger.debug(
-						'[WidgetRenderer] Legacy widget detected:',
-						this.widget.id,
-					)
-					// Legacy widget - mount via callback.
-					// Wait for DOM to be ready
-					await this.$nextTick()
-					// Give it a bit more time for the ref to be available
-					await new Promise((resolve) => setTimeout(resolve, 50))
-					this.mountLegacyWidget()
+				if (
+					this.widget.reloadInterval
+					&& this.widget.reloadInterval > 0
+				) {
+					this.setupAutoRefresh(this.widget.reloadInterval)
 				}
 			} catch (error) {
 				logger.error('Failed to initialize widget:', error)
 			} finally {
-				if (!isLegacy) {
-					this.loading = false
-				}
+				this.loading = false
+				// Loaded or failed, the items have settled (REQ-FPS-004).
+				this.$nextTick(this.settle)
+			}
+		},
+
+		/**
+		 * Mount a legacy widget via its callback once the DOM is ready.
+		 *
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-each-widget-fills-its-own-frame-when-its-data-arrives-req-fps-004
+		 */
+		async initLegacyWidget() {
+			try {
+				logger.debug(
+					'[WidgetRenderer] Legacy widget detected:',
+					this.widget.id,
+				)
+				// Wait for DOM to be ready, then a bit more for the ref.
+				await this.$nextTick()
+				await new Promise((resolve) => setTimeout(resolve, 50))
+				this.mountLegacyWidget()
+			} catch (error) {
+				logger.error('Failed to initialize widget:', error)
+				this.settle()
 			}
 		},
 
@@ -471,6 +620,7 @@ export default {
 		mountLegacyWidget() {
 			if (!this.$refs.legacyWidgetContainer) {
 				logger.error('[WidgetRenderer] No legacyWidgetContainer ref found!')
+				this.settle()
 				return
 			}
 
@@ -483,53 +633,86 @@ export default {
 
 			// Widget scripts are loaded with defer, so we need to wait for them
 			// to register their callbacks. Try multiple times with increasing delays.
-			const tryMount = (attempt = 0, maxAttempts = 20) => {
-				logger.debug(
-					`[WidgetRenderer] Mount attempt ${attempt + 1}/${maxAttempts} for:`,
-					this.widget.id,
-				)
-
-				// Check if callback is registered
-				if (widgetBridge.hasWidgetCallback(this.widget.id)) {
-					logger.debug(
-						'[WidgetRenderer] Callback found! Mounting:',
-						this.widget.id,
-					)
-					// Pass widget data to the bridge so callbacks can access it
-					widgetBridge.mountWidget(
-						this.widget.id,
-						this.$refs.legacyWidgetContainer,
-						this.widget,
-					)
-					logger.debug(
-						'[WidgetRenderer] After mountWidget, container innerHTML length:',
-						this.$refs.legacyWidgetContainer?.innerHTML.length,
-					)
-				} else if (attempt < maxAttempts) {
-					// Try again after a short delay
-					const delay = Math.min(100 * (attempt + 1), 1000) // Exponential backoff up to 1s
-					logger.debug(
-						`[WidgetRenderer] Callback not found yet, retrying in ${delay}ms...`,
-					)
-					setTimeout(() => tryMount(attempt + 1, maxAttempts), delay)
-				} else {
-					logger.error(
-						'[WidgetRenderer] Failed to mount widget after',
-						maxAttempts,
-						'attempts:',
-						this.widget.id,
-					)
-					logger.debug(
-						'[WidgetRenderer] Available callbacks:',
-						widgetBridge.getRegisteredWidgetIds(),
-					)
-				}
-			}
-
-			// Start trying immediately
 			this.$nextTick(() => {
-				tryMount()
+				this.tryMountLegacyWidget()
 			})
+		},
+
+		/**
+		 * Mount the legacy widget when its callback is registered, else retry
+		 * with a growing delay until the attempts run out.
+		 *
+		 * @param {number} [attempt] Zero-based attempt number.
+		 */
+		tryMountLegacyWidget(attempt = 0) {
+			logger.debug(
+				`[WidgetRenderer] Mount attempt ${attempt + 1}/${LEGACY_MOUNT_ATTEMPTS} for:`,
+				this.widget.id,
+			)
+
+			if (widgetBridge.hasWidgetCallback(this.widget.id)) {
+				this.mountViaBridge()
+			} else if (attempt < LEGACY_MOUNT_ATTEMPTS) {
+				this.retryLegacyMount(attempt)
+			} else {
+				this.reportLegacyMountFailure()
+			}
+		},
+
+		/**
+		 * Hand the container and widget data to the registered callback; the card stops waiting.
+		 *
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-each-widget-fills-its-own-frame-when-its-data-arrives-req-fps-004
+		 */
+		mountViaBridge() {
+			logger.debug(
+				'[WidgetRenderer] Callback found! Mounting:',
+				this.widget.id,
+			)
+			// Pass widget data to the bridge so callbacks can access it
+			widgetBridge.mountWidget(
+				this.widget.id,
+				this.$refs.legacyWidgetContainer,
+				this.widget,
+			)
+			logger.debug(
+				'[WidgetRenderer] After mountWidget, container innerHTML length:',
+				this.$refs.legacyWidgetContainer?.innerHTML.length,
+			)
+			this.settle()
+		},
+
+		/**
+		 * Schedule the next mount attempt.
+		 *
+		 * @param {number} attempt Zero-based number of the attempt that failed.
+		 */
+		retryLegacyMount(attempt) {
+			const delay = Math.min(100 * (attempt + 1), 1000) // Exponential backoff up to 1s
+			logger.debug(
+				`[WidgetRenderer] Callback not found yet, retrying in ${delay}ms...`,
+			)
+			setTimeout(() => this.tryMountLegacyWidget(attempt + 1), delay)
+		},
+
+		/**
+		 * Log that the legacy widget never registered its callback; its card stops waiting.
+		 *
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-each-widget-fills-its-own-frame-when-its-data-arrives-req-fps-004
+		 */
+		reportLegacyMountFailure() {
+			// A widget that never mounts counts as settled: its card stops waiting.
+			this.settle()
+			logger.error(
+				'[WidgetRenderer] Failed to mount widget after',
+				LEGACY_MOUNT_ATTEMPTS,
+				'attempts:',
+				this.widget.id,
+			)
+			logger.debug(
+				'[WidgetRenderer] Available callbacks:',
+				widgetBridge.getRegisteredWidgetIds(),
+			)
 		},
 
 		/**
@@ -561,7 +744,8 @@ export default {
 	padding: 16px;
 }
 
-/* Full-bleed widgets (header banner, image, divider) paint edge-to-edge. */
+/* Full-bleed widgets (header banner, image, divider) paint edge-to-edge; a
+   section heading starts on the grid's line, as the boards draw it. */
 .widget-renderer--flush {
 	padding: 0;
 }

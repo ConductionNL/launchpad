@@ -40,9 +40,6 @@ The events endpoint returns a flat array of normalised event objects with shape:
 
 ## Requirements
 
-
-@e2e exclude all scenarios test REST API / ICS-fetch / backend aggregation — widget rendering requires real calendar data and NC Calendar integration not available in test env
-
 ### Requirement: REQ-CAL-001 Widget registration
 
 The system MUST register a LaunchPad dashboard widget with id `launchpad_calendar` via `OCP\Dashboard\IManager::registerWidget()` so it appears in the widget picker alongside other Nextcloud dashboard widgets.
@@ -68,6 +65,7 @@ The system MUST register a LaunchPad dashboard widget with id `launchpad_calenda
 - THEN the `launchpad_calendar` widget MUST still be discoverable in the picker
 
 #### Scenario: Widget registration includes metadata
+@e2e exclude never built: no Nextcloud dashboard widget (IWidget / IManager::registerWidget) named launchpad_calendar exists in lib/ or appinfo/, and `git log --all -S launchpad_calendar -- lib src appinfo` is empty, so there is no OCS widget metadata to read. That the LaunchPad picker offers type `calendar` with a form is pinned by src/constants/__tests__/widgetRegistry.spec.js ("supplies a form for types the communal registry leaves form-less") and cited by widget-appears-in-picker
 
 - GIVEN the widget is registered
 - WHEN the widget picker fetches widget metadata
@@ -82,8 +80,8 @@ The system MUST store per-placement widget configuration in the `oc_launchpad_wi
 - GIVEN a user is configuring a calendar widget placement
 - WHEN they select internal Nextcloud Calendar sources
 - THEN the configuration MUST store an `internalCalendars: string[]` field
-- AND each entry MUST be a valid NC Calendar principal URI (e.g., `principals/users/alice/calendar-id`)
-- NOTE: Principal resolution is delegated to `OCP\Calendar\IManager`
+- AND each entry MUST be the key of a calendar the user can read, as `GET /api/widgets/calendar/calendars` lists it (the picker's source)
+- NOTE: Calendar resolution is delegated to `OCP\Calendar\IManager`
 
 #### Scenario: Config for external ICS URLs
 
@@ -97,8 +95,8 @@ The system MUST store per-placement widget configuration in the `oc_launchpad_wi
 
 - GIVEN a user is configuring a calendar widget placement
 - WHEN they choose a display mode
-- THEN the configuration MUST store a `viewMode: 'month'|'week'|'agenda'|'upcoming-list'` field
-- AND the default viewMode MUST be `'upcoming-list'` when not explicitly set
+- THEN the configuration MUST store a `viewMode: 'month'|'week'|'agenda'` field
+- AND the default viewMode MUST be `'agenda'` when not explicitly set
 
 #### Scenario: Config for days-ahead threshold
 
@@ -131,14 +129,14 @@ The system MUST expose `GET /api/widgets/calendar/{placementId}/events?from=ISO&
 - GIVEN a calendar widget placement with internalCalendars=[...] and externalIcsUrls=[...]
 - AND the requesting user has read access to those internal calendars
 - WHEN the frontend sends GET /api/widgets/calendar/{placementId}/events?from=2026-05-01&to=2026-05-31
-- THEN the system MUST return HTTP 200 with a JSON array of event objects
+- THEN the system MUST return HTTP 200 with a JSON object whose `events` member is an array of event objects (and whose `failures` member lists the sources that were skipped)
 - AND each event MUST include: uid, title, start (ISO 8601), end (ISO 8601), allDay (boolean), location (string, nullable), description (string, nullable), calendarId (string), calendarName (string), color (string, hex or NC theme var), source ('internal'|'external')
 
 #### Scenario: No events returns empty array
 
 - GIVEN a calendar widget with valid config but no events in the date range
 - WHEN the frontend fetches events
-- THEN the system MUST return HTTP 200 with an empty array `[]`
+- THEN the system MUST return HTTP 200 with an empty `events` array `[]`
 
 #### Scenario: Missing placement returns 404
 
@@ -177,6 +175,7 @@ The system MUST expand recurring events into individual instances for the reques
 - AND each instance MUST have a distinct start/end time while sharing uid root + recurrence-id
 
 #### Scenario: RRULE expansion for external ICS
+@e2e exclude needs an external HTTPS ICS feed on a public address; the SSRF guard (UrlSafetyValidator::isSafe) refuses every host the CI fixture can serve. No unit test pins external RRULE expansion: tests/Unit/Service/CalendarWidgetServiceSourcesTest.php only parses an empty VCALENDAR. Internal expansion is cited by rrule-expansion-for-internal-events
 
 - GIVEN an external ICS URL contains a weekly recurring event "Team meeting" with RRULE:FREQ=WEEKLY;UNTIL=2026-05-31
 - WHEN the frontend fetches events for 2026-05-01 to 2026-05-31
@@ -198,6 +197,7 @@ The system MUST expand recurring events into individual instances for the reques
 - AND other instances MUST be included normally
 
 #### Scenario: Invalid RRULE is skipped
+@e2e exclude needs an external HTTPS ICS feed serving a malformed RRULE, which the CI fixture cannot provide (SSRF guard refuses local hosts), and a malformed RRULE cannot be relied on to survive the CalDAV PUT validation, so the internal path cannot carry it either. No unit test pins the malformed-RRULE branch of CalendarWidgetService::parseAndExpandIcs
 
 - GIVEN an external ICS contains a malformed RRULE
 - WHEN expansion is attempted
@@ -210,6 +210,7 @@ The system MUST expand recurring events into individual instances for the reques
 The system MUST cache fetched external ICS content for 30 minutes (default) using Nextcloud's `ICache` to reduce load on external servers and improve dashboard load time.
 
 #### Scenario: First fetch populates cache
+@e2e exclude needs an external HTTPS ICS feed the CI fixture cannot serve, and the ICache is not observable over HTTP; pinned by tests/Unit/Service/CalendarWidgetServiceTest.php::testFetchIcsBodyFetchesAndCachesOnMiss (the key is `ics_` + md5(url), not the placement-scoped pattern this scenario names)
 
 - GIVEN an external ICS URL is configured on a placement
 - WHEN the frontend fetches events and this is the first request to that URL from this placement
@@ -218,6 +219,7 @@ The system MUST cache fetched external ICS content for 30 minutes (default) usin
 - AND return the parsed events
 
 #### Scenario: Subsequent fetch uses cache
+@e2e exclude needs an external HTTPS ICS feed the CI fixture cannot serve, and whether a fetch happened is not observable over HTTP; pinned by tests/Unit/Service/CalendarWidgetServiceTest.php::testFetchIcsBodyServesFromCache
 
 - GIVEN the cache is populated with fresh ICS content
 - WHEN the frontend fetches events again within 30 minutes
@@ -226,6 +228,7 @@ The system MUST cache fetched external ICS content for 30 minutes (default) usin
 - AND return the same events (with timing variation only from new expansion)
 
 #### Scenario: Cache TTL is admin-configurable
+@e2e exclude a 30- or 60-minute expiry cannot be waited out in e2e and needs an external feed the fixture cannot serve; pinned by tests/Unit/Service/CalendarWidgetServiceTest.php::testFetchIcsBodyFetchesAndCachesOnMiss (reads `calendar_widget_ics_cache_ttl_seconds`, writes the entry with that TTL)
 
 - GIVEN the admin sets `launchpad.calendar_widget_ics_cache_ttl_seconds` to 3600 (1 hour)
 - WHEN events are fetched
@@ -233,6 +236,7 @@ The system MUST cache fetched external ICS content for 30 minutes (default) usin
 - AND the system MUST read the setting from `IAppConfig::getValueInt('launchpad', 'launchpad.calendar_widget_ics_cache_ttl_seconds', 1800)`
 
 #### Scenario: Cache key includes URL hash
+@e2e exclude the shared cache entry and the single external fetch are not observable over HTTP and need an external feed the fixture cannot serve; pinned by tests/Unit/Service/CalendarWidgetServiceTest.php::testFetchIcsBodyServesFromCache (the key is derived from the URL alone)
 
 - GIVEN two placements reference the same external ICS URL
 - WHEN both fetch events
@@ -240,6 +244,7 @@ The system MUST cache fetched external ICS content for 30 minutes (default) usin
 - AND only one external fetch occurs across both placements
 
 #### Scenario: Cache is invalidated on settings change
+@e2e exclude needs an external feed the fixture cannot serve, and which body was used is not observable over HTTP. No unit test changes a placement's URL; the behaviour follows from the URL-only key pinned by tests/Unit/Service/CalendarWidgetServiceTest.php::testFetchIcsBodyServesFromCache
 
 - GIVEN a placement is reconfigured to use a different ICS URL
 - WHEN events are fetched
@@ -358,6 +363,7 @@ The frontend MUST support four distinct calendar display modes, selectable via `
 - AND each event entry MUST show title, time range, and calendar name/color
 
 #### Scenario: Upcoming-list view shows next N events flat
+@e2e exclude never built: no `upcoming-list` mode exists in the renderer (CnCalendarWidget VIEW_MODES is month/week/agenda), the form or the service, and `git log --all -S upcoming-list -- src lib` is empty; no test exists
 
 - GIVEN a placement is configured with viewMode: 'upcoming-list' and daysAhead: 14
 - WHEN the widget is rendered
@@ -383,6 +389,7 @@ The frontend MUST support four distinct calendar display modes, selectable via `
 The system MUST handle failures in fetching external ICS sources gracefully so that a single failed URL does not prevent the entire widget from rendering.
 
 #### Scenario: Single ICS URL fetch timeout
+@e2e exclude needs an external HTTPS host that stalls, which the CI fixture cannot provide (the SSRF guard refuses local hosts). No unit test drives a timeout; tests/Unit/Service/CalendarWidgetServiceTest.php::testFetchIcsBodyFetchesAndCachesOnMiss pins the 10-second timeout option only
 
 - GIVEN a placement references two external ICS URLs: A (responsive) and B (times out after 10 seconds)
 - WHEN the frontend fetches events with a 15-second timeout per URL
@@ -392,6 +399,7 @@ The system MUST handle failures in fetching external ICS sources gracefully so t
 - AND the response MUST still return HTTP 200 with events from A
 
 #### Scenario: Single ICS URL returns 4xx
+@e2e exclude needs an external HTTPS host that answers 404 on demand, which the CI fixture cannot provide (the SSRF guard refuses local hosts). No unit test pins the HTTP-error branch of fetchExternalIcsEvents
 
 - GIVEN a placement references a URL that returns HTTP 404
 - WHEN the frontend fetches events
@@ -401,6 +409,7 @@ The system MUST handle failures in fetching external ICS sources gracefully so t
 - AND return HTTP 200 with events from other sources
 
 #### Scenario: Single ICS URL returns 5xx
+@e2e exclude needs an external HTTPS host that answers 500 on demand, which the CI fixture cannot provide (the SSRF guard refuses local hosts). No unit test pins the HTTP-error branch of fetchExternalIcsEvents
 
 - GIVEN a placement references a URL that returns HTTP 500
 - WHEN the frontend fetches events
@@ -426,6 +435,7 @@ The system MUST handle failures in fetching external ICS sources gracefully so t
 - AND the dashboard MUST not be blocked (the widget gracefully degrades)
 
 #### Scenario: Internal calendar fetch error
+@e2e exclude an exception from OCP\Calendar\IManager::search() cannot be provoked from a browser or the API; pinned by tests/Unit/Service/CalendarWidgetServiceTest.php::testFetchInternalEventsGuardsAndFiltersByPrincipal (a throwing search is logged, reported in `failures`, and answers no events)
 
 - GIVEN an internal calendar fetch via `OCP\Calendar\IManager::search()` throws an exception
 - WHEN the widget fetches events
@@ -474,3 +484,12 @@ The system MUST display appropriate empty-state messaging when there are no even
 - THEN an error message MUST be displayed (e.g., "Failed to load events")
 - AND a retry button MUST be present
 - AND clicking retry MUST re-fetch events
+
+### Requirement: The Calendar content form (REQ-CAL-020)
+
+The content part of a Calendar widget SHALL list the reader's calendars to choose from, SHALL accept an external calendar by ICS address, and SHALL offer the period 7 days or Month.
+
+#### Scenario: Add an external calendar
+
+- **WHEN** the editor adds an ICS address and chooses 7 days
+- **THEN** the widget shows that calendar's events of the next seven days with the chosen Nextcloud calendars

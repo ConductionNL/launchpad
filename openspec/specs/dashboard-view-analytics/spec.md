@@ -27,9 +27,9 @@ Two settings gate tracking:
 |---------|-------|---------|-----------------|
 | `launchpad.analytics_enabled` | global | `true` | All view events are no-ops. |
 | `launchpad.analytics_optout` | per-user pref | `false` | This user's view events are no-ops. |
+
 ## Requirements
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
 
 ### Requirement: REQ-ANLT-001 Dashboard Views Table Schema
 
@@ -66,6 +66,8 @@ The system MUST track dashboard view events in a dedicated relational table with
   - Row 2: `(dashboardUuid = 'uuid-456', viewBucket = '2026-05-02', viewCount = 1, uniqueViewerCount = Y)`
 
 #### Scenario: Schema supports multiple databases
+
+@e2e exclude needs the migration run on SQLite, MySQL and PostgreSQL, and one e2e run is one database. The PHPUnit job runs the migrations on all three (database-test-matrix in .github/workflows/code-quality.yml). On the database the e2e instance runs, tests/e2e/dashboard-view-analytics-history.spec.ts introspects the live table and asserts the composite unique index refuses a second row for the same day; no test asserts that refusal on the other two backends.
 
 - GIVEN the Nextcloud instance may use SQLite, MySQL, or PostgreSQL
 - WHEN the migration runs on any of these databases
@@ -443,7 +445,7 @@ The system MUST call the view-event endpoint from the Vue frontend when a dashbo
 - WHEN both tabs load and try to post view events within 1 second
 - THEN only ONE `POST /api/dashboards/{uuid}/view-event` MUST be sent
 - AND the second tab's event MUST be debounced/cancelled
-- NOTE: Debounce window is 1 second per dashboard instance; debounce is per-tab-session, not cross-tab
+- NOTE: The debounce holds across the open tabs of one browser: the tab that sends holds a Web Lock named after the dashboard for 1 second, and another tab that finds it held sends nothing. Within one tab the window is 1 second per dashboard. A browser without the Locks API sends from every tab.
 
 #### Scenario: Different dashboards are not debounced against each other
 
@@ -496,6 +498,8 @@ The system MUST track per-tile (per-widget-placement) click events in a dedicate
 - AND the system MUST NOT persist any per-event row
 
 #### Scenario: Schema supports multiple databases
+
+@e2e exclude needs the migration run on SQLite, MySQL and PostgreSQL, and one e2e run is one database. The PHPUnit job runs the migrations on all three (database-test-matrix in .github/workflows/code-quality.yml). On the database the e2e instance runs, tests/e2e/dashboard-view-analytics-history.spec.ts introspects the live table and asserts the composite unique index refuses a second row for the same day; no test asserts that refusal on the other two backends.
 
 - GIVEN the Nextcloud instance may use SQLite, MySQL, or PostgreSQL
 - WHEN the migration runs on any of these databases
@@ -632,8 +636,6 @@ The system MUST expose an admin-only CSV export of tile analytics, MUST reuse th
 
 ### Requirement: An administrator sees the most clicked tiles (REQ-TILEUI-001)
 
-@e2e exclude reading a count needs clicks recorded on a live instance; the report is asserted in src/components/admin/__tests__/TileClickReport.spec.js and the names in tests/Unit/Service/TileAnalyticsServiceTest.php
-
 The analytics page in administration MUST show the most clicked tiles for the selected period with dashboard name, tile title, click count and distinct people, and MUST offer the CSV export.
 
 #### Scenario: Top tiles for thirty days
@@ -650,8 +652,6 @@ The analytics page in administration MUST show the most clicked tiles for the se
 
 ### Requirement: Tile numbers are not shown when tracking is off (REQ-TILEUI-002)
 
-@e2e exclude reading a count needs clicks recorded on a live instance; the report is asserted in src/components/admin/__tests__/TileClickReport.spec.js and the names in tests/Unit/Service/TileAnalyticsServiceTest.php
-
 When tile tracking is inactive, the tiles section MUST state that clicks are not recorded and MUST NOT show a table or an export button.
 
 #### Scenario: Tracking off
@@ -659,3 +659,27 @@ When tile tracking is inactive, the tiles section MUST state that clicks are not
 - **GIVEN** the administrator switched tile tracking off
 - **WHEN** Ruben opens the Tiles section
 - **THEN** a message says clicks are not being recorded and no table is rendered
+
+### Requirement: A person turns view counting off in their own settings (REQ-ANLT-UI-001)
+
+LaunchPad's personal settings MUST show a "Count my visits" switch, on by default. Turning it off MUST store `analytics_optout = true` for that person, so REQ-ANLT-004 ignores their view and tile-click events. Turning it on again MUST store `false`. The switch MUST NOT show when an administrator has turned analytics off for everyone.
+
+#### Scenario: A person stops their visits being counted
+
+- **GIVEN** Eva is signed in and analytics is on for the organisation
+- **WHEN** she opens her LaunchPad settings and turns "Count my visits" off
+- **THEN** her user value `analytics_optout` is `true`
+- **AND** her next dashboard visit adds nothing to the view counts
+
+#### Scenario: A person counts again
+
+- **GIVEN** Eva turned "Count my visits" off earlier
+- **WHEN** she turns it on again
+- **THEN** her user value `analytics_optout` is `false`
+- **AND** her next dashboard visit is counted
+
+#### Scenario: Analytics is off for everyone
+
+- **GIVEN** an administrator turned analytics off for the organisation
+- **WHEN** Eva opens her LaunchPad settings
+- **THEN** the "Count my visits" switch is not shown

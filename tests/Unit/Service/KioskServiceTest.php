@@ -23,13 +23,16 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\KioskStores;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\KioskPlaylist;
 use OCA\LaunchPad\Db\KioskPlaylistMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Kernel\Contracts\ConditionalServiceInterface;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
+use OCA\LaunchPad\Service\KioskPlaylistDraft;
 use OCA\LaunchPad\Service\KioskService;
 use OCA\LaunchPad\Service\PublicShareService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -75,13 +78,15 @@ class KioskServiceTest extends TestCase {
 		$this->placementMapper = $this->createMock(WidgetPlacementMapper::class);
 
 		$this->service = new KioskService(
-			playlistMapper: $this->playlistMapper,
-			dashMapper: $this->dashMapper,
-			shareService: $this->shareService,
+			stores: new KioskStores(
+				playlistMapper: $this->playlistMapper,
+				dashMapper: $this->dashMapper,
+				shareService: $this->shareService,
+				placementMapper: $this->placementMapper
+			),
 			groupManager: $this->groupManager,
 			secureRandom: $this->secureRandom,
-			logger: $this->logger,
-			placementMapper: $this->placementMapper,
+			logger: $this->logger
 		);
 	}
 
@@ -118,9 +123,7 @@ class KioskServiceTest extends TestCase {
 			);
 
 		$result = $this->service->createPlaylist(
-			name: 'Lobby',
-			entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 20]],
-			refresh: 60,
+			draft: new KioskPlaylistDraft(name: 'Lobby', entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 20]], refresh: 60),
 			callerId: 'alice'
 		);
 
@@ -146,9 +149,7 @@ class KioskServiceTest extends TestCase {
 		$this->expectException(OCSForbiddenException::class);
 
 		$this->service->createPlaylist(
-			name: 'Lobby',
-			entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 20]],
-			refresh: 60,
+			draft: new KioskPlaylistDraft(name: 'Lobby', entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 20]], refresh: 60),
 			callerId: 'bob'
 		);
 	}
@@ -163,9 +164,7 @@ class KioskServiceTest extends TestCase {
 		$this->expectException(OCSForbiddenException::class);
 
 		$this->service->createPlaylist(
-			name: 'Lobby',
-			entries: [['dashboardUuid' => 'missing', 'dwellSeconds' => 20]],
-			refresh: 60,
+			draft: new KioskPlaylistDraft(name: 'Lobby', entries: [['dashboardUuid' => 'missing', 'dwellSeconds' => 20]], refresh: 60),
 			callerId: 'alice'
 		);
 	}
@@ -197,9 +196,7 @@ class KioskServiceTest extends TestCase {
 			);
 
 		$this->service->createPlaylist(
-			name: 'Lobby',
-			entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => $dwellIn]],
-			refresh: $refreshIn,
+			draft: new KioskPlaylistDraft(name: 'Lobby', entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => $dwellIn]], refresh: $refreshIn),
 			callerId: 'alice'
 		);
 
@@ -240,9 +237,7 @@ class KioskServiceTest extends TestCase {
 
 		$this->service->updatePlaylist(
 			id: 5,
-			name: 'Changed',
-			entries: [['dashboardUuid' => 'uuid-new', 'dwellSeconds' => 99]],
-			refresh: 120,
+			draft: new KioskPlaylistDraft(name: 'Changed', entries: [['dashboardUuid' => 'uuid-new', 'dwellSeconds' => 99]], refresh: 120),
 			callerId: 'alice'
 		);
 	}
@@ -258,9 +253,7 @@ class KioskServiceTest extends TestCase {
 
 		$this->service->updatePlaylist(
 			id: 999,
-			name: 'Changed',
-			entries: [],
-			refresh: 120,
+			draft: new KioskPlaylistDraft(name: 'Changed', entries: [], refresh: 120),
 			callerId: 'alice'
 		);
 	}
@@ -291,9 +284,7 @@ class KioskServiceTest extends TestCase {
 
 		$result = $this->service->updatePlaylist(
 			id: 5,
-			name: 'Changed',
-			entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 30]],
-			refresh: 120,
+			draft: new KioskPlaylistDraft(name: 'Changed', entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 30]], refresh: 120),
 			callerId: 'alice'
 		);
 
@@ -383,6 +374,56 @@ class KioskServiceTest extends TestCase {
 	// renderPlaylist
 	// -------------------------------------------------------------------------
 
+	/**
+	 * A playlist's widgets read through the dashboards it shows, each once, without deleted ones.
+	 *
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 *
+	 * @return void
+	 */
+	public function testPlaylistDashboardIdsListsEachDashboardOnce(): void {
+		$playlist = new KioskPlaylist();
+		$playlist->setToken('tok');
+		$playlist->setEntries(
+			(string)json_encode(
+				[
+					['dashboardUuid' => 'today', 'dwellSeconds' => 15],
+					['dashboardUuid' => 'menu', 'dwellSeconds' => 25],
+					['dashboardUuid' => 'gone', 'dwellSeconds' => 25],
+					['dashboardUuid' => 'today', 'dwellSeconds' => 15],
+				]
+			)
+		);
+		$this->playlistMapper->method('findByToken')->willReturn($playlist);
+		$this->dashMapper->method('findByUuid')->willReturnCallback(
+			function (string $uuid): Dashboard {
+				if ($uuid === 'gone') {
+					throw new DoesNotExistException('deleted');
+				}
+				$dashboard = new Dashboard();
+				$dashboard->setId(['today' => 7, 'menu' => 3][$uuid]);
+				return $dashboard;
+			}
+		);
+
+		$this->assertSame(expected: [7, 3], actual: $this->service->playlistDashboardIds(token: 'tok'));
+	}
+
+	/**
+	 * An unknown playlist token reads nothing.
+	 *
+	 * @spec openspec/changes/archive/2026-11-24-public-live-widgets/specs/dashboard-public-share/spec.md#requirement-live-widgets-on-a-public-link-and-a-kiosk-screen-req-pshr-011
+	 *
+	 * @return void
+	 */
+	public function testPlaylistDashboardIdsUnknownTokenThrowsNotFound(): void {
+		$this->playlistMapper->method('findByToken')->willThrowException(new DoesNotExistException('not found'));
+
+		$this->expectException(exception: PlaylistNotFoundException::class);
+
+		$this->service->playlistDashboardIds(token: 'bogus');
+	}
+
 	public function testRenderPlaylistUnknownTokenThrowsNotFound(): void {
 		$this->playlistMapper
 			->method('findByToken')
@@ -463,5 +504,114 @@ class KioskServiceTest extends TestCase {
 
 		$this->assertCount(1, $result['entries'][0]['placements']);
 		$this->assertSame('text', $result['entries'][0]['placements'][0]['widgetId']);
+	}
+
+	/**
+	 * A screen has no viewer who can edit: its placements go through the
+	 * visibility rules for a visitor without an account (REQ-VIS-013).
+	 *
+	 * @return void
+	 */
+	public function testRenderPlaylistAppliesTheVisibilityRulesForAVisitor(): void {
+		$playlist = new KioskPlaylist();
+		$playlist->setToken('tok');
+		$playlist->setName('Lobby');
+		$playlist->setEntries((string)json_encode([['dashboardUuid' => 'nieuws', 'dwellSeconds' => 30]]));
+		$this->playlistMapper->method('findByToken')->willReturn($playlist);
+		$dashboard = $this->dashboard(owner: 'alice');
+		$dashboard->setId(42);
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$placement = new WidgetPlacement();
+		$placement->setId(5);
+		$this->placementMapper->method('findByDashboardId')->willReturn([$placement]);
+
+		$visibility = $this->createMock(originalClassName: ConditionalServiceInterface::class);
+		$visibility->expects($this->once())
+			->method('visiblePlacements')
+			->with($this->callback(callback: static fn (array $placements): bool => $placements[0]['id'] === 5), '', false)
+			->willReturn([]);
+		$service = new KioskService(
+			stores: new KioskStores(
+				playlistMapper: $this->playlistMapper,
+				dashMapper: $this->dashMapper,
+				shareService: $this->shareService,
+				placementMapper: $this->placementMapper
+			),
+			groupManager: $this->groupManager,
+			secureRandom: $this->secureRandom,
+			logger: $this->logger,
+			visibility: $visibility
+		);
+
+		$this->assertSame(expected: [], actual: $service->renderPlaylist(token: 'tok')['entries'][0]['placements']);
+	}
+
+	/**
+	 * A playlist with entries for dashboards "nieuws" and "kantine".
+	 *
+	 * @return KioskPlaylist The playlist.
+	 */
+	private function twoEntryPlaylist(): KioskPlaylist {
+		$playlist = new KioskPlaylist();
+		$playlist->setToken('tok');
+		$playlist->setEntries(
+			(string)json_encode([['dashboardUuid' => 'nieuws', 'dwellSeconds' => 30], ['dashboardUuid' => 'kantine', 'dwellSeconds' => 20]])
+		);
+
+		return $playlist;
+	}
+
+	/**
+	 * One entry renders with its own dwell time and placements (REQ-KIOSK-004).
+	 *
+	 * @return void
+	 */
+	public function testRenderEntryRendersThatEntry(): void {
+		$this->playlistMapper->method('findByToken')->willReturn($this->twoEntryPlaylist());
+		$dashboard = $this->dashboard(owner: 'alice');
+		$dashboard->setId(43);
+		$dashboard->setUuid('kantine');
+		$this->dashMapper->expects($this->once())->method('findByUuid')->with(uuid: 'kantine')->willReturn($dashboard);
+		$placement = new WidgetPlacement();
+		$placement->setWidgetId('text');
+		$this->placementMapper->method('findByDashboardId')->with(dashboardId: 43)->willReturn([$placement]);
+
+		$entry = $this->service->renderEntry(token: 'tok', dashboardUuid: 'kantine');
+
+		$this->assertSame(expected: 20, actual: $entry['dwellSeconds']);
+		$this->assertSame(expected: 'text', actual: $entry['placements'][0]['widgetId']);
+		$this->assertArrayNotHasKey(key: 'userId', array: $entry['dashboard']);
+	}
+
+	/**
+	 * A dashboard that is no entry of the playlist, or was deleted, is not found.
+	 *
+	 * @return void
+	 */
+	public function testRenderEntryRefusesAnythingButALiveEntry(): void {
+		$this->playlistMapper->method('findByToken')->willReturn($this->twoEntryPlaylist());
+		$this->dashMapper->method('findByUuid')->willThrowException(new DoesNotExistException('gone'));
+
+		foreach (['elsewhere', 'nieuws'] as $uuid) {
+			try {
+				$this->service->renderEntry(token: 'tok', dashboardUuid: $uuid);
+				$this->fail(message: $uuid.' must not render');
+			} catch (DoesNotExistException) {
+				$this->addToAssertionCount(count: 1);
+			}
+		}
+	}
+
+	/**
+	 * An unknown token is a missing playlist, as for the whole render.
+	 *
+	 * @return void
+	 */
+	public function testRenderEntryUnknownTokenThrowsNotFound(): void {
+		$this->playlistMapper->method('findByToken')->willThrowException(new DoesNotExistException('none'));
+
+		$this->expectException(exception: PlaylistNotFoundException::class);
+
+		$this->service->renderEntry(token: 'bogus', dashboardUuid: 'nieuws');
 	}
 }//end class

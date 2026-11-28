@@ -28,6 +28,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\AdminCallerAndRoles;
+use OCA\LaunchPad\Controller\AdminSettingsTools;
+use OCA\LaunchPad\Controller\AdminTemplateTools;
 use OCA\LaunchPad\Controller\AdminController;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\AdminSettingsService;
@@ -39,7 +42,11 @@ use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Controller\ResponseHelper;
+use Psr\Log\NullLogger;
+use OCA\LaunchPad\Controller\AdminContext;
 
 class AdminControllerSettingsAliasTest extends TestCase {
 	private AdminController $controller;
@@ -52,20 +59,39 @@ class AdminControllerSettingsAliasTest extends TestCase {
 
 		$this->controller = new AdminController(
 			request: $this->createMock(IRequest::class),
-			templateService: $this->createMock(AdminTemplateService::class),
-			settingsService: $this->settingsService,
-			groupManager: $this->createMock(IGroupManager::class),
-			userSession: $this->createMock(IUserSession::class),
-			exportService: $this->createMock(ExportService::class),
-			importService: $this->createMock(ImportService::class),
-			roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
-			feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class),
-			footerService: $this->createMock(FooterService::class),
-			setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class),
-			actionAuth: $this->createMock(ActionAuthService::class),
-			resyncService: $this->createMock(\OCA\LaunchPad\Service\TemplateResyncService::class),
+			templates: new AdminTemplateTools(
+				templateService: $this->createMock(AdminTemplateService::class),
+				exportService: $this->createMock(ExportService::class),
+				importService: $this->createMock(ImportService::class),
+				resyncService: $this->createMock(\OCA\LaunchPad\Service\TemplateResyncService::class)
+			),
+			settings: new AdminSettingsTools(
+				settingsService: $this->settingsService,
+				groupManager: $this->createMock(IGroupManager::class),
+				footerService: $this->createMock(FooterService::class),
+				setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class)
+			),
+			context: new AdminContext(caller: new AdminCallerAndRoles(
+				roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
+				feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class),
+				userSession: $this->createMock(IUserSession::class),
+				actionAuth: $this->createMock(ActionAuthService::class)
+			), responseHelper: new ResponseHelper(logger: new NullLogger()))
 		);
 	}//end setUp()
+
+	/**
+	 * A matcher for a full settings map (sixteen entries) that holds the expected entries.
+	 *
+	 * @param array<string, mixed> $expected The entries the map must hold.
+	 *
+	 * @return Callback<array<string, mixed>>
+	 */
+	private function settingsMatching(array $expected): Callback {
+		return $this->callback(
+			static fn (array $settings): bool => count($settings) === 20 && array_intersect_key($settings, $expected) === $expected
+		);
+	}//end settingsMatching()
 
 	/**
 	 * A payload spelled the way GET spells it must reach the service.
@@ -76,11 +102,15 @@ class AdminControllerSettingsAliasTest extends TestCase {
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
 			->with(
-				$this->equalTo('full'),
-				$this->isTrue(),
-				$this->isFalse(),
-				$this->equalTo(8),
-				$this->equalTo(['md']),
+				$this->settingsMatching(
+					[
+						'defaultPermLevel' => 'full',
+						'allowUserDash' => true,
+						'allowMultiDash' => false,
+						'defaultGridCols' => 8,
+						'linkCreateFileExts' => ['md'],
+					]
+				)
 			);
 
 		$this->controller->updateSettings(
@@ -101,10 +131,14 @@ class AdminControllerSettingsAliasTest extends TestCase {
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
 			->with(
-				$this->equalTo('view_only'),
-				$this->isTrue(),
-				$this->isNull(),
-				$this->equalTo(12),
+				$this->settingsMatching(
+					[
+						'defaultPermLevel' => 'view_only',
+						'allowUserDash' => true,
+						'allowMultiDash' => null,
+						'defaultGridCols' => 12,
+					]
+				)
 			);
 
 		$this->controller->updateSettings(
@@ -126,7 +160,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	public function testShortNameWinsWhenBothAreSupplied(): void {
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
-			->with($this->anything(), $this->isFalse());
+			->with($this->settingsMatching(['allowUserDash' => false]));
 
 		$this->controller->updateSettings(
 			allowUserDash: false,
@@ -146,13 +180,131 @@ class AdminControllerSettingsAliasTest extends TestCase {
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
 			->with(
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
+				$this->settingsMatching(
+					[
+						'defaultPermLevel' => null,
+						'allowUserDash' => null,
+						'allowMultiDash' => null,
+						'defaultGridCols' => null,
+						'linkCreateFileExts' => null,
+					]
+				)
 			);
 
 		$this->controller->updateSettings(allowUserDash: null);
 	}//end testUnsuppliedSettingsStayNull()
+
+	/**
+	 * The retired start-page option (runtime-shell REQ-SHELL-009) never
+	 * reaches the service, so an older client that still sends it stores
+	 * nothing.
+	 *
+	 * @return void
+	 */
+	public function testRetiredStartPageOptionIsNotForwarded(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with(
+				$this->callback(
+					callback: static fn (array $settings): bool => array_key_exists(key: 'startPageWithoutNavigation', array: $settings) === false
+				)
+			);
+
+		$this->controller->updateSettings(filterTelemetryEnabled: true);
+	}//end testRetiredStartPageOptionIsNotForwarded()
+
+	/**
+	 * Launcher-tile-launch-types: the program schemes and SSO launch templates reach the service under their own names.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+	 */
+	public function testTileLaunchSettingsArePassedThrough(): void {
+		$templates = [['key' => 'entra', 'name' => 'Microsoft Entra ID', 'urlTemplate' => 'https://launcher.myapps.microsoft.com/api/signin/{appId}']];
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(expected: ['tileAllowedSchemes' => ['ms-word'], 'ssoLaunchTemplates' => $templates]));
+
+		$this->controller->updateSettings(tileAllowedSchemes: ['ms-word'], ssoLaunchTemplates: $templates);
+	}//end testTileLaunchSettingsArePassedThrough()
+	/**
+	 * Engagement-announcements D6: the announcement editor groups reach the service under their own name.
+	 *
+	 * @return void
+	 */
+	public function testAnnouncementEditorGroupsArePassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['forcedShareGroups' => null, 'announcementEditorGroups' => ['communicatie']]));
+
+		$this->controller->updateSettings(announcementEditorGroups: ['communicatie']);
+	}//end testAnnouncementEditorGroupsArePassedThrough()
+
+	/**
+	 * Drill-down-cross-widget-filter REQ-CWF-010: the telemetry switch reaches the service.
+	 *
+	 * @return void
+	 */
+	public function testFilterTelemetrySwitchIsPassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(expected: ['filterTelemetryEnabled' => true]));
+
+		$this->controller->updateSettings(filterTelemetryEnabled: true);
+	}//end testFilterTelemetrySwitchIsPassedThrough()
+
+	/**
+	 * The office networks reach the service as given (launcher-tile-internal-address REQ-TIA-001).
+	 *
+	 * @return void
+	 */
+	public function testOfficeNetworksArePassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(expected: ['officeNetworks' => ['10.20.0.0/16']]));
+
+		$this->controller->updateSettings(officeNetworks: ['10.20.0.0/16']);
+	}//end testOfficeNetworksArePassedThrough()
+
+	/**
+	 * REQ-PSP-003: the default app switch reaches the service.
+	 *
+	 * @return void
+	 */
+	public function testDefaultAppSwitchIsPassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['filterTelemetryEnabled' => null, 'defaultAppEnabled' => false]));
+
+		$this->controller->updateSettings(defaultAppEnabled: false);
+	}//end testDefaultAppSwitchIsPassedThrough()
+
+	/**
+	 * Engagement-communities REQ-COMM-003: the pinned tokens reach the
+	 * service, and a refused list answers 400 with the service's reason.
+	 *
+	 * @return void
+	 */
+	public function testPinnedCommunitiesArePassedThroughAndARefusalIsABadRequest(): void {
+		$calls = 0;
+		$this->settingsService->expects($this->exactly(2))
+			->method('updateSettings')
+			->with($this->settingsMatching(expected: ['pinnedCommunities' => ['vraagict']]))
+			->willReturnCallback(
+				static function () use (&$calls): void {
+					$calls++;
+					if ($calls === 2) {
+						throw new \InvalidArgumentException('at most 20 conversations can be pinned');
+					}
+				}
+			);
+
+		$first = $this->controller->updateSettings(pinnedCommunities: ['vraagict']);
+		$this->assertSame(200, $first->getStatus(), json_encode($first->getData()));
+
+		$refused = $this->controller->updateSettings(pinnedCommunities: ['vraagict']);
+		$this->assertSame(400, $refused->getStatus());
+		$this->assertSame(['error' => 'at most 20 conversations can be pinned'], $refused->getData());
+	}//end testPinnedCommunitiesArePassedThroughAndARefusalIsABadRequest()
 }//end class

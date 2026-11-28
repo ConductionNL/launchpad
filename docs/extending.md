@@ -101,6 +101,53 @@ Each widget entry-point is currently bundled independently, which means Vue + `@
 
 LaunchPad's `index()` controller builds the **Add Widget** picker from `IManager::getWidgets()` (via `WidgetService::getAvailableWidgets()`). Your widget shows up automatically with the title and icon-class declared in your `IWidget`. No template hooks, no front-end registration step in LaunchPad.
 
+### 6. Declare the placeholder shape
+
+While a dashboard loads, LaunchPad draws every widget frame at its place with a grey placeholder, first from the server and then in the mounted page, so nothing jumps when the content arrives. The shape of that placeholder comes from the widget's own declaration. The first of these wins:
+
+1. **The app manifest**: a page's widget definition may set `placeholder` (`widgetDef.placeholder`) to override its type's shape.
+2. **The nextcloud-vue widget registry**: a widget type registered in `@conduction/nextcloud-vue` declares its shape once on the type (LaunchPad reads the package's `widget-placeholders.json`).
+3. **Your Nextcloud widget class**: add a public `getPlaceholder()` method. Nextcloud's `IWidget` has no such method, so it is duck-typed; no extra interface is needed.
+4. Otherwise the widget draws **rows**.
+
+```php
+public function getPlaceholder(): string|array
+{
+    return 'rows';                              // or ['shape' => 'rows', 'count' => 5]
+}
+```
+
+The shape is one of `rows` (lists), `lines` (text), `block` (a field, table, chart or other single area), `tiles` (one square per app tile), `counter` (a number) or `heading` (a section title, no placeholder body). A `count` is an integer from 1 to 24 and is clipped to the frame; without it the frame's height decides. Any other value is ignored (LaunchPad logs it at debug level with your widget id) and the widget draws rows. The method is read when the widget catalogue is built, without calling `load()`, so it must not do any work. Every Conduction app's `lib/Dashboard` widget declares one (hydra gate `widget-placeholder-declared`); other vendors' widgets (Talk, Calendar, Mail, Deck) draw rows.
+
+LaunchPad's own widget types that the registry does not declare take their shape from `lib/Service/first-paint-kinds.json`; anything not listed there draws rows. The server shell (`FirstPaintShell`) and the mounted card (`src/utils/widgetPlaceholder.js`) resolve the shape in the same order, and one shared fixture tests both, so the first paint and the mounted page draw the same shape.
+
+### 7. When the placeholder goes: the `loaded` event
+
+The card keeps its placeholder (and `aria-busy`) until the widget's first content has settled, and the page's status line counts it down. When that happens depends on the renderer:
+
+- A renderer that declares `loaded` in its `emits` is waited for. Emit it once, when the first load has settled, **also when it failed** (show your error state, then emit). Do not emit it again on a refresh: the card does not go back to its placeholder.
+- A renderer that does not declare it counts as loaded after its first render. That suits a widget whose data comes with the page (tiles, headings, text) or that draws its own loading state.
+- A Nextcloud API widget counts as loaded when its items have settled, and a legacy `OCA.Dashboard.register` widget when its callback has mounted it or LaunchPad has given up waiting for the callback.
+- A widget that throws while it sets up or renders counts as loaded: its error shows inside its card.
+
+```js
+export default {
+	name: 'MyListWidget',
+	emits: ['loaded'],
+	async mounted() {
+		try {
+			this.items = await fetchItems()
+		} catch (error) {
+			this.error = error
+		} finally {
+			this.$emit('loaded')
+		}
+	},
+}
+```
+
+`rendererEmitsLoaded()` in `src/utils/widgetLoaded.js` decides which case applies. The nextcloud-vue fetching renderers (`CnWidgetRenderer` and its family) already emit `loaded`.
+
 ---
 
 ## Path 2 — Drive a widget from OpenRegister

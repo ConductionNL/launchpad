@@ -116,6 +116,7 @@
 import { translate as t } from '@nextcloud/l10n'
 import draggable from 'vuedraggable'
 import OrgNavigationEditorRow from './OrgNavigationEditorRow.vue'
+import { LIST_PROP } from '../../constants/propDefinitions.js'
 import {
 	ORG_NAV_POSITIONS,
 	useOrgNavigationStore,
@@ -154,10 +155,7 @@ export default {
 		 * editor still functions, but the visibility selector falls
 		 * back to a free-text input.
 		 */
-		groups: {
-			type: Array,
-			default: () => [],
-		},
+		groups: LIST_PROP,
 	},
 
 	data() {
@@ -194,8 +192,9 @@ export default {
 		async bootstrap() {
 			await this.store.fetchPosition()
 			this.selectedPosition = this.store.position
-			await this.store.fetchTree(this.selectedLanguage)
-			this.workingTree = this.cloneTree(this.store.visibleTree)
+			this.workingTree = this.cloneTree(
+				await this.store.fetchEditableTree(this.selectedLanguage),
+			)
 		},
 
 		/**
@@ -337,8 +336,9 @@ export default {
 
 		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		async onLanguageChange() {
-			await this.store.fetchTree(this.selectedLanguage)
-			this.workingTree = this.cloneTree(this.store.visibleTree)
+			this.workingTree = this.cloneTree(
+				await this.store.fetchEditableTree(this.selectedLanguage),
+			)
 		},
 
 		/** @spec openspec/specs/navigation-editor-org/spec.md */
@@ -359,6 +359,9 @@ export default {
 			)
 			this.saving = false
 			if (ok) {
+				// The editor saved the whole tree (REQ-ONAV-007); the rail
+				// shows the admin's filtered view of it, so read that back.
+				await this.store.fetchTree(this.selectedLanguage)
 				this.successFlag = true
 				// Hide the toast after a short delay.
 				setTimeout(() => {

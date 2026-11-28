@@ -67,16 +67,10 @@ factory was reachable only through the three orphaned facade methods.
 The `launchpad.content_storage` admin setting, `AdminSettingKey::CONTENT_STORAGE`,
 `SetupWizardService::{getContentStorage,setContentStorage,hasGroupfolderApp}`,
 `AdminController::setWizardStorage`, its route, and step 2 of the setup wizard
-are **retained**. They belong to the `setup-wizard` capability, which *writes*
-the setting; this capability was the *reader*. The setting was already inert
-before this change — nothing read it, because the readers were orphaned — so
-removing the reader does not make it worse.
-
-Retiring the wizard step is a separate, reviewable decision that changes the
-`setup-wizard` spec, and it is tracked on launchpad#87 rather than folded into
-this retirement. Anyone completing that follow-up should note that
-`tools/spec-annotations-allowlist.txt` carries entries for those three
-`SetupWizardService` methods and for `AdminController::setWizardStorage`.
+were retained by this retirement, because they belonged to the `setup-wizard`
+capability. They were removed afterwards, on 9 Oct 2026, by the change
+`retire-setup-wizard-storage-step` (decision 131). A `content_storage` row
+already stored stays in the table, unread.
 
 `lib/Migration/Version002001Date20260603000000.php` and
 `DashboardTableBuilder::addContentStorageColumns()` are also retained: a shipped
@@ -85,7 +79,25 @@ instances that have already run it. The new migration drops what it added.
 
 ## Requirements
 
-None. This capability has no requirements; it is withdrawn. Its original
+### Requirement: Dashboards are stored in the database only (REQ-GFSB-011)
+
+LaunchPad SHALL keep a dashboard's layout in its `WidgetPlacement` rows only. It SHALL NOT offer a storage backend
+choice, a GroupFolder backend, or the `launchpad:storage:*` commands, and the dashboard response SHALL NOT carry a
+`content` key.
+
+#### Scenario: No storage commands
+
+- **GIVEN** LaunchPad is installed
+- **WHEN** an administrator lists the `occ` commands
+- **THEN** no `launchpad:storage:migrate-to-groupfolder` or storage toggle command is listed
+
+#### Scenario: A dashboard has no content blob
+
+- **GIVEN** a dashboard with widgets
+- **WHEN** it is read through `GET /api/dashboards`
+- **THEN** its widgets come from its placements and the dashboard has no `content` key
+
+This is the only requirement; the capability is otherwise withdrawn. Its original
 requirements REQ-GFSB-001 through REQ-GFSB-010 and their 35 scenarios are
 preserved in the archived change at
 `openspec/changes/archive/2026-06-14-groupfolder-storage-backend/`, and the

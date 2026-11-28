@@ -10,9 +10,6 @@ The CLI commands suite establishes a coherent, standardized operator interface f
 
 ## Data Model
 
-
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Command Namespace Convention
 
 All LaunchPad CLI commands MUST use the `launchpad:` prefix followed by a verb-noun pattern:
@@ -164,6 +161,7 @@ The system MUST establish `launchpad:` as the canonical namespace prefix for ALL
 - AND there are no namespace collisions
 
 #### Scenario: Future commands follow the convention
+@e2e exclude A code-review convention, not runtime behaviour; nothing to run and no test exists.
 
 - GIVEN a developer adds a new command for LaunchPad
 - WHEN they name it `launchpad:custom:action` and register it in `appinfo/info.xml`
@@ -212,6 +210,7 @@ Every LaunchPad command MUST support three consistent global flags: `--quiet|-q`
 - AND the exit code is 0 on success or 3 on permission denied
 
 #### Scenario: All three flags combine cleanly
+@e2e exclude Never built: lib/Command/ImportCommand.php extends Symfony Command, not CommandBase, so `launchpad:import --json` is an unknown option and the scenario has no product to run against. No test exists.
 
 - GIVEN `php occ launchpad:import --file=/tmp/x.zip --quiet --no-interaction --json`
 - WHEN the import runs
@@ -273,6 +272,7 @@ The system MUST provide four new operator-facing dashboard commands: `launchpad:
 The system MUST provide the command `launchpad:user:revoke-feed-token <uid>` to revoke a user's RSS feed token. The command MUST depend on the `dashboard-rss-feeds` capability being enabled and MUST refuse gracefully when that capability is absent.
 
 #### Scenario: Revoke token for a valid user
+@e2e exclude Never built: there is no launchpad:user:revoke-feed-token command in lib/Command/ or appinfo/info.xml, nor an RSS feed-token route in appinfo/routes.php (git log --all on lib/ finds none); the HTTP 401 cannot be set up without it. No test exists.
 
 - GIVEN user "alice" has an active RSS feed token
 - WHEN an admin runs `php occ launchpad:user:revoke-feed-token alice`
@@ -281,6 +281,7 @@ The system MUST provide the command `launchpad:user:revoke-feed-token <uid>` to 
 - AND the exit code MUST be 0
 
 #### Scenario: Revoke token for unknown user returns exit code 4
+@e2e exclude Never built: no launchpad:user:revoke-feed-token command exists in lib/Command/ or appinfo/info.xml. No test exists.
 
 - GIVEN no Nextcloud user with uid "nonexistent" exists
 - WHEN an admin runs `php occ launchpad:user:revoke-feed-token nonexistent`
@@ -288,6 +289,7 @@ The system MUST provide the command `launchpad:user:revoke-feed-token <uid>` to 
 - AND stderr MUST print "User not found: 'nonexistent'"
 
 #### Scenario: Command fails gracefully when RSS capability is absent
+@e2e exclude Never built: no launchpad:user:revoke-feed-token command exists in lib/Command/ or appinfo/info.xml. No test exists.
 
 - GIVEN the `dashboard-rss-feeds` capability is not installed or disabled
 - WHEN any operator runs `php occ launchpad:user:revoke-feed-token alice`
@@ -295,12 +297,14 @@ The system MUST provide the command `launchpad:user:revoke-feed-token <uid>` to 
 - AND stderr MUST print "The dashboard-rss-feeds capability is not available"
 
 #### Scenario: JSON output on success
+@e2e exclude Never built: no launchpad:user:revoke-feed-token command exists in lib/Command/ or appinfo/info.xml. No test exists.
 
 - GIVEN `php occ launchpad:user:revoke-feed-token alice --json`
 - WHEN the command successfully revokes the token
 - THEN stdout MUST be `{success: true, exitCode: 0, data: {uid: "alice", revokedAt: "<iso8601>"}, errors: []}`
 
 #### Scenario: Non-admin is denied
+@e2e exclude Never built: no launchpad:user:revoke-feed-token command exists, and no command returns EXIT_PERMISSION_DENIED. No test exists.
 
 - GIVEN a regular (non-admin) Nextcloud user runs the command
 - WHEN authorization is checked
@@ -333,6 +337,7 @@ The system MUST provide three i18n commands: `launchpad:i18n:export-strings` (ex
 - AND the exit code MUST be 0
 
 #### Scenario: Migrate language structure one-time
+@e2e exclude Never built: the command body migrates nothing (lib/Command/I18nMigrateLanguageStructureCommand.php sets $migrated = 0), so there is no migration to observe; tests/Unit/Command/I18nNavigationCommandsGoldenTest.php::testMigrateLanguageStructure pins only the zero-row run. tests/e2e/cli-commands.spec.ts runs the command with --json for its envelope.
 
 - GIVEN the old flat-language storage schema is in place
 - AND the `dashboard-language-content` capability is enabled
@@ -342,6 +347,7 @@ The system MUST provide three i18n commands: `launchpad:i18n:export-strings` (ex
 - AND rerunning the command MUST be idempotent (already migrated rows are skipped, exit code 0)
 
 #### Scenario: Migration aborts when capability is absent
+@e2e exclude Needs an instance without the dashboard-language-content table; the e2e instance has it, and dropping a schema table from a test is not something to do to a running instance. Pinned by tests/Unit/Command/I18nNavigationCommandsGoldenTest.php::testMigrateLanguageStructure (exit 1, CAPABILITY_MISSING, the message).
 
 - GIVEN the `dashboard-language-content` capability is not installed
 - WHEN an admin runs `php occ launchpad:i18n:migrate-language-structure`
@@ -349,6 +355,7 @@ The system MUST provide three i18n commands: `launchpad:i18n:export-strings` (ex
 - AND stderr MUST print "dashboard-language-content capability is required"
 
 #### Scenario: Copy navigation tree between language variants
+@e2e exclude Never built: lib/Command/I18nCopyNavigationCommand.php reports `copied: 0` without copying, so no node can be seen to be cloned; tests/Unit/Command/I18nNavigationCommandsGoldenTest.php::testCopyNavigation pins only that zero-node run.
 
 - GIVEN a Dutch (`nl`) navigation tree with 12 nodes exists
 - WHEN an admin runs `php occ launchpad:i18n:copy-navigation --from=nl --to=en`
@@ -381,6 +388,7 @@ All LaunchPad commands MUST emit exactly one of the six standard exit codes (0, 
 - AND stderr MUST print "Invalid UUID format: 'not-a-uuid'"
 
 #### Scenario: Permission denied exit code 3
+@e2e exclude Never built: no command checks for an administrator or returns EXIT_PERMISSION_DENIED (grep lib/Command). tests/Unit/Service/CommandServiceTest.php::testExitCodeConstantsAreDistinctAndCoverContract pins only the constant.
 
 - GIVEN a regular (non-admin) user runs `php occ launchpad:dashboard:delete a1b2c3d4`
 - WHEN the command checks authorization
@@ -395,6 +403,7 @@ All LaunchPad commands MUST emit exactly one of the six standard exit codes (0, 
 - AND stderr MUST print "Dashboard not found"
 
 #### Scenario: Partial success exit code 5
+@e2e exclude Never built: lib/Command/ImportCommand.php always returns 0 after printing "Imported N dashboards, skipped M"; nothing returns EXIT_PARTIAL_SUCCESS. No test exists.
 
 - GIVEN `php occ launchpad:import --file=/tmp/batch.zip` with 10 dashboards where 7 succeed and 3 fail
 - WHEN the batch import completes
@@ -413,6 +422,7 @@ All commands invoked with `--json` MUST emit a single JSON object to stdout conf
 - AND the `data.dashboards` field MUST be an array
 
 #### Scenario: Error JSON response
+@e2e exclude Never built for this command (no launchpad:user:revoke-feed-token). The envelope shape is pinned by tests/Unit/Service/CommandServiceTest.php::testEnvelopeErrorShape and the list command's user-not-found by tests/Unit/Command/DashboardListCommandGoldenTest.php::testRefusedFilters.
 
 - GIVEN `php occ launchpad:user:revoke-feed-token unknown-user --json`
 - WHEN the command does not find the user
@@ -420,6 +430,7 @@ All commands invoked with `--json` MUST emit a single JSON object to stdout conf
 - AND `exitCode` in JSON MUST match the process exit code
 
 #### Scenario: Multiple errors in JSON
+@e2e exclude Never built: lib/Command/ImportCommand.php has no --json option (it does not extend CommandBase). No test exists.
 
 - GIVEN `php occ launchpad:import --file=/tmp/corrupt.zip --json`
 - WHEN the ZIP contains 3 invalid dashboards
@@ -434,6 +445,7 @@ All commands invoked with `--json` MUST emit a single JSON object to stdout conf
 - NOTE Any debug or progress output MUST go to stderr only
 
 #### Scenario: Partial success exitCode in JSON
+@e2e exclude Never built: lib/Command/ImportCommand.php has no --json option and never returns 5. No test exists.
 
 - GIVEN `php occ launchpad:import --file=/tmp/mix.zip --json`
 - WHEN 7 succeed and 3 fail
@@ -458,6 +470,7 @@ All LaunchPad CLI commands MUST be registered in `appinfo/info.xml` under a `<co
 - THEN `php occ list launchpad` MUST include `launchpad:export` without further manual registration
 
 #### Scenario: CommandBase centralizes shared flag logic
+@e2e exclude Internal PHP wiring: lib/Command/CommandBase.php::configure() is final and registers the three flags; exercised through children by tests/Unit/Command/DashboardListCommandGoldenTest.php::testScopesAndOutput and tests/Unit/Command/I18nNavigationCommandsGoldenTest.php::testMigrateLanguageStructure.
 
 - GIVEN a command class extends `CommandBase`
 - WHEN `CommandBase::configure()` registers `--quiet`, `--json`, and `--no-interaction`
@@ -520,6 +533,7 @@ Every LaunchPad command MUST write exactly one audit line to Nextcloud's main lo
 - NOTE `byUser` is the Nextcloud user ID running occ, or `cli` if called from cron/automation
 
 #### Scenario: Audit log on permission error
+@e2e exclude Never built: no command returns exit 3 (no permission check in lib/Command). The audit line of a failing run is pinned by tests/Unit/Command/CommandAuditTrailTest.php::testARunIsAuditedUnderItsOwnName.
 
 - GIVEN a non-admin user runs `php occ launchpad:dashboard:delete a1b2c3d4`
 - WHEN the command exits with exit code 3
@@ -542,6 +556,7 @@ Every LaunchPad command MUST write exactly one audit line to Nextcloud's main lo
 - THEN the audit line MUST use `byUser=cli`
 
 #### Scenario: Log written even on unhandled exception
+@e2e exclude No input makes a command throw on a healthy instance, so an e2e cannot provoke the uncaught exception. Pinned by tests/Unit/Command/CommandBaseFailureTest.php::testJsonFailureEmitsAnErrorEnvelope (exit 1, one audit line with exitCode=1).
 
 - GIVEN a command throws an uncaught exception
 - WHEN the exception propagates
@@ -573,6 +588,7 @@ The command `php occ list launchpad` MUST enumerate all registered `launchpad:*`
 - AND it MUST NOT be forcibly renamed or removed by this change
 
 #### Scenario: New commands must comply with namespace
+@e2e exclude A code-review convention, explicitly not runtime validation; nothing to run and no test exists.
 
 - GIVEN a developer opens a PR adding a new occ command `occ myd:something`
 - WHEN code review checks compliance with this spec
@@ -584,3 +600,45 @@ The command `php occ list launchpad` MUST enumerate all registered `launchpad:*`
 - GIVEN an operator sees `launchpad:i18n:export-strings` in `php occ list launchpad` output
 - WHEN they run `php occ launchpad:i18n:export-strings --help`
 - THEN the detailed help text MUST be displayed, providing a path from discovery to usage
+
+### Requirement: REQ-CLI-012 Install a shipped template
+
+`php occ launchpad:template:install <id> [--group=<gid>]... [--default] [--force]`, or `<id> --update [--dry-run]`, MUST add a template that ships with LaunchPad (REQ-TMPL-018) as an admin template, for scripted deploys.
+
+- `--group` names a group whose members get the template. It may be repeated. A group that does not exist MUST fail the command before anything is added.
+- `--default` makes it the default template for everyone without a group template (REQ-TMPL-008).
+- `--force` adds a fresh copy even when the template is already installed.
+
+- `--update` brings the installed template to the version LaunchPad ships, in place, and re-syncs the copies members already have (REQ-TMPL-020). It keeps the template's groups, default flag and name, so it MUST refuse `--group`, `--default` and `--force` with exit 1, before anything runs. It MUST print the old and the new version and one line per widget added (`+`), removed (`-`) and changed (`~`, with what changed), the number of unchanged widgets, and how many members have a copy and how many copies changed. When the installed version is already the shipped one it MUST say so, change nothing and exit 0. When the template is not installed it MUST say so and exit 1.
+- `--dry-run`, with `--update` only, prints the same lines and MUST write nothing. Without `--update` it MUST exit 1.
+
+The command MUST print the template's UUID, its version, its groups and whether it is the default. It MUST name the widgets no app on the instance registers. When personal dashboards are off it MUST say that members will see the template read-only and that its compulsory widgets have no effect (REQ-TMPL-019). Run a second time without `--force`, it MUST add nothing and MUST apply `--group` and `--default` again. It MUST exit 0 on success and 1 on an unknown id, an unknown group or a failed install.
+
+#### Scenario: A deploy script installs the template for a group
+- GIVEN the group "medewerkers" exists and `mijn-werkdag` is not installed
+- WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --group=medewerkers`
+- THEN the command MUST exit 0 and print the new template's UUID
+- AND the template MUST target the group "medewerkers"
+
+#### Scenario: An unknown group stops the install
+- GIVEN no group "medewerkerz" exists
+- WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --group=medewerkerz`
+- THEN the command MUST exit 1 and name the group
+- AND no template MUST be added
+
+#### Scenario: An operator updates the installed template and reads what changed
+- GIVEN `mijn-werkdag` is installed at version 2 and LaunchPad ships version 3
+- WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --update --dry-run`
+- THEN the command MUST exit 0, print "Dry run, nothing written." and one line per widget added, removed and changed
+- AND nothing MUST be written
+- WHEN the operator runs the command again without `--dry-run`
+- THEN the command MUST exit 0, print the same lines and how many members' copies changed
+
+#### Scenario: An update refuses the options that change who gets the template
+- WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --update --group=bestuur`
+- THEN the command MUST exit 1 and say `--update` cannot be combined with `--group`, `--default` or `--force`
+- AND nothing MUST be written
+
+#### Scenario: An unknown template id lists the shipped ones
+- WHEN an operator runs `php occ launchpad:template:install does-not-exist`
+- THEN the command MUST exit 1 and list the shipped template ids

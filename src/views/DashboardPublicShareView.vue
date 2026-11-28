@@ -3,12 +3,37 @@ SPDX-FileCopyrightText: 2026 Conduction B.V.
 SPDX-License-Identifier: EUPL-1.2
 
 Anonymous read-only view of a shared dashboard. Delegates password-unlock
-UI to PublicSharePasswordDialog. Requires no Nextcloud login.
+UI to PublicSharePasswordDialog. Requires no Nextcloud login. As the public
+start page (`startPage`) it carries a bar with the organisation's name and a
+"Sign in" button to the login form with `direct=1`
+(sharing-public-start-page REQ-PSP-003).
 
 @spec openspec/changes/dashboard-public-share/specs/dashboard-public-share/spec.md
 -->
 <template>
-	<div class="public-share-view">
+	<div class="public-share-view" :class="{ 'public-share-view--kiosk': kiosk }">
+		<!-- The way in for staff on the public start page (REQ-PSP-003) -->
+		<nav
+			v-if="startPage"
+			class="public-share-view__start-bar"
+			:aria-label="t('launchpad', 'Sign in')">
+			<img
+				v-if="emblem"
+				class="public-share-view__emblem"
+				:src="emblem"
+				:alt="organisationName" />
+			<span class="public-share-view__brand">
+				<span class="public-share-view__organisation">{{ organisationName }}</span>
+				<strong v-if="dashboard" class="public-share-view__brand-name">
+					{{ dashboard.name || dashboard.title }}
+				</strong>
+			</span>
+			<a class="button primary public-share-view__sign-in" :href="signInHref">
+				<LoginIcon :size="18" />
+				{{ t('launchpad', 'Sign in for employees') }}
+			</a>
+		</nav>
+
 		<!-- Password unlock dialog (extracted per ADR-004) -->
 		<PublicSharePasswordDialog
 			v-if="showPasswordModal"
@@ -34,15 +59,18 @@ UI to PublicSharePasswordDialog. Requires no Nextcloud login.
 		<div v-else-if="dashboard" class="public-share-view__content">
 			<header class="public-share-view__header">
 				<h1>{{ dashboard.name || dashboard.title }}</h1>
-				<span class="public-share-view__badge">{{
-					t('launchpad', 'Read-only view')
-				}}</span>
+				<p class="public-share-view__meta">
+					<span class="public-share-view__badge">
+						<EyeOutlineIcon :size="16" />
+						{{ t('launchpad', 'Read-only view') }}
+					</span>
+					<span v-if="dashboard.description" class="public-share-view__description">
+						{{ dashboard.description }}
+					</span>
+				</p>
 			</header>
-			<p v-if="dashboard.description" class="public-share-view__description">
-				{{ dashboard.description }}
-			</p>
 
-			<PublicDashboardGrid :placements="placements" />
+			<PublicDashboardGrid :placements="placements" :readWidget="readWidget" />
 		</div>
 	</div>
 </template>
@@ -51,13 +79,19 @@ UI to PublicSharePasswordDialog. Requires no Nextcloud login.
 import axios from '@nextcloud/axios'
 import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
-import { defineComponent, onMounted, ref } from 'vue'
+import { computed, defineComponent, onMounted, ref } from 'vue'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import AlertCircleIcon from 'vue-material-design-icons/AlertCircle.vue'
+import EyeOutlineIcon from 'vue-material-design-icons/EyeOutline.vue'
+import LoginIcon from 'vue-material-design-icons/Login.vue'
 import PublicDashboardGrid from '../components/PublicDashboardGrid.vue'
 import PublicSharePasswordDialog from '../dialogs/PublicSharePasswordDialog.vue'
+import { shareWidgetReader } from '../services/publicWidgetClient.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
+import { houseEmblem } from '../utils/houseEmblem.js'
+import { isKioskMode } from '../utils/kioskMode.js'
+import { signInUrl } from '../utils/publicStart.js'
 
 const baseUrl = generateUrl('/apps/launchpad')
 
@@ -66,6 +100,8 @@ export default defineComponent({
 
 	components: {
 		AlertCircleIcon,
+		EyeOutlineIcon,
+		LoginIcon,
 		NcEmptyContent,
 		NcLoadingIcon,
 		PublicDashboardGrid,
@@ -77,6 +113,12 @@ export default defineComponent({
 		token: {
 			type: String,
 			required: true,
+		},
+
+		/** Rendered as the public start page: shows the sign-in bar (REQ-PSP-003). */
+		startPage: {
+			type: Boolean,
+			default: false,
 		},
 	},
 
@@ -101,6 +143,10 @@ export default defineComponent({
 		const showPasswordModal = ref(false)
 		const unlocking = ref(false)
 		const unlockError = ref(null)
+		// The password the link opened with: the live widgets' reads pass
+		// it too, behind the same gate (REQ-PSHR-011).
+		const sharePassword = ref(null)
+		const readWidget = computed(() => shareWidgetReader(props.token, sharePassword.value))
 
 		const errorTitle = ref(t('launchpad', 'Not available'))
 		const errorDescription = ref(
@@ -124,6 +170,7 @@ export default defineComponent({
 				placements.value = Array.isArray(data.placements)
 					? data.placements
 					: []
+				sharePassword.value = password
 				showPasswordModal.value = false
 			} catch (err) {
 				if (
@@ -197,10 +244,23 @@ export default defineComponent({
 			await loadShare()
 		})
 
+		// The start page's sign-in bar: the instance's name from Nextcloud's
+		// theming, and the login form with direct=1 (REQ-PSP-003).
+		const organisationName = window.OC?.theme?.name || ''
+		const emblem = houseEmblem()
+		const signInHref = signInUrl(generateUrl)
+
 		return {
+			// REQ-KIOSK-001: `?kiosk=1` fills the screen, chrome-less.
+			kiosk: isKioskMode(),
+			organisationName,
+			emblem,
+			signInHref,
 			loading,
 			dashboard,
 			share,
+			placements,
+			readWidget,
 			error,
 			errorTitle,
 			errorDescription,
@@ -217,7 +277,74 @@ export default defineComponent({
 <style scoped>
 .public-share-view {
 	min-height: 100vh;
-	padding: 1.5rem;
+	background: var(--color-background-hover, var(--color-main-background));
+	color: var(--color-main-text);
+}
+
+.public-share-view--kiosk {
+	position: fixed;
+	inset: 0;
+	min-height: 0;
+	overflow: hidden;
+	padding: 0.75rem;
+	background-color: var(--color-main-background);
+}
+
+.public-share-view--kiosk :deep(.public-share-view__grid) {
+	max-width: none;
+}
+
+/* REQ-KIOSK-001: on a kiosk screen the content fills the viewport like the
+   authenticated kiosk view; the centred 1200px column of the share page
+   does not apply. */
+.public-share-view--kiosk .public-share-view__content {
+	max-width: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* The bar of board LpPubliek: 72px, the emblem, the organisation over the
+   page's name, and the way in for staff at the end. */
+.public-share-view__start-bar {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	height: 72px;
+	padding: 0 32px;
+	background: var(--color-main-background);
+	border-bottom: 1px solid var(--color-border);
+}
+
+.public-share-view__emblem {
+	width: auto;
+	height: 44px;
+}
+
+.public-share-view__brand {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	line-height: 1.15;
+}
+
+.public-share-view__organisation {
+	font-size: 13px;
+	color: var(--color-text-maxcontrast);
+}
+
+.public-share-view__brand-name {
+	font-size: 18px;
+	font-weight: 700;
+}
+
+.public-share-view__sign-in {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	height: 40px;
+	padding: 0 16px;
+	font-size: 14px;
+	font-weight: 600;
 }
 
 .public-share-view__loading {
@@ -226,24 +353,48 @@ export default defineComponent({
 	padding-top: 4rem;
 }
 
+.public-share-view__content {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 32px 32px 40px;
+}
+
 .public-share-view__header {
 	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 20px;
+}
+
+.public-share-view__header h1 {
+	margin: 0;
+	font-size: 28px;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.public-share-view__meta {
+	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.75rem;
-	margin-bottom: 0.5rem;
+	gap: 8px 12px;
+	margin: 0;
+	font-size: 15px;
+	color: var(--color-text-maxcontrast);
 }
 
 .public-share-view__badge {
-	background: var(--color-primary-light);
-	color: var(--color-primary-text);
-	border-radius: 1rem;
-	padding: 0.2em 0.7em;
-	font-size: 0.8em;
-}
-
-.public-share-view__description {
-	color: var(--color-text-lighter);
-	margin-bottom: 1.5rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 3px 10px;
+	border-radius: 12px;
+	background: var(--color-background-dark);
+	color: var(--color-main-text);
+	font-size: 13px;
+	font-weight: 600;
 }
 
 .public-share-view__widgets-note {

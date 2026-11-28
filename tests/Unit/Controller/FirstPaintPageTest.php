@@ -200,4 +200,26 @@ class FirstPaintPageTest extends TestCase {
 		$this->assertNotEmpty(actual: $found);
 		$this->assertSame(expected: $expected, actual: $found);
 	}//end testRequiresAppMatchesTheWidgetRegistry()
+	/**
+	 * The shell knows the reader's level on the dashboard the first-load
+	 * envelope holds, as the page does at mount; a deep link has none yet.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-the-page-header-as-text-req-fps-001
+	 */
+	public function testThePermissionLevelOfTheEnvelope(): void {
+		$envelope = [
+			'dashboard'       => ['uuid' => 'u-1', 'name' => 'Vandaag', 'gridColumns' => 12],
+			'placements'      => [self::placement(id: 1, widgetId: 'text')],
+			'permissionLevel' => 'view_only',
+		];
+
+		$model = FirstPaintPage::model(page: ['firstLoad' => ['visible' => [], 'active' => $envelope]] + self::page(), reader: []);
+		$this->assertSame(expected: 'view_only', actual: $model['permissionLevel']);
+
+		$other = ['dashboard' => ['uuid' => 'u-9'] + $envelope['dashboard']] + $envelope;
+		$deep  = FirstPaintPage::model(page: ['firstLoad' => ['visible' => [], 'active' => $other]] + self::page(), reader: []);
+		$this->assertSame(expected: '', actual: $deep['permissionLevel']);
+	}//end testThePermissionLevelOfTheEnvelope()
 }//end class

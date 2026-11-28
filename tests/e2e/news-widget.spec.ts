@@ -38,7 +38,7 @@ import type { NewsPlacement } from './support/newsWidget.ts'
 
 import { expect, test } from '@playwright/test'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
-import { MORE_MENU } from './support/dashboardSwitcher.ts'
+import { MORE_MENU, saveEditDraft } from './support/dashboardSwitcher.ts'
 import {
 	adminApi,
 	API,
@@ -106,16 +106,18 @@ async function fillFeedUrl(dialog: Locator, index: number, url: string): Promise
 async function submit(page: Page, dialog: Locator, method: 'POST' | 'PUT'): Promise<number> {
 	const save = dialog.locator('[data-testid="add-widget-save"]')
 	await expect(save).toBeEnabled({ timeout: 5_000 })
-	const answered = page.waitForResponse((res) => res.request().method() === method
-		&& (method === 'POST'
-			? res.url().includes(`/api/dashboard/${dashboard!.id}/widgets`)
-			: /\/api\/widgets\/\d+(\?|$)/.test(res.url())))
+	const before = new Set((await readPlacements(api, dashboard!.id)).map((p) => Number(p.id)))
+	// The form puts the widget (or its new settings) in the edit-mode draft;
+	// the edit bar's Save stores it (REQ-EDIT-001/002).
 	await save.click()
-	const res = await answered
-	expect(res.status(), await res.text()).toBeLessThan(300)
 	await expect(dialog).not.toBeVisible({ timeout: 10_000 })
-	const body = await res.json()
-	return Number(body.id ?? body.data?.id ?? body.placement?.id)
+	expect(await saveEditDraft(page)).toBeLessThan(300)
+	if (method === 'PUT') {
+		return 0
+	}
+	const fresh = (await readPlacements(api, dashboard!.id)).filter((p) => !before.has(Number(p.id)))
+	expect(fresh, 'exactly one placement was stored').toHaveLength(1)
+	return Number(fresh[0].id)
 }
 
 test.beforeAll(async () => {
@@ -186,6 +188,7 @@ test('the widget picker lists the news widget among the discovered widgets, and 
 	await news.click()
 	await picker.getByRole('button', { name: 'Add widget', exact: true }).click()
 	await expect(picker).toBeHidden({ timeout: 15_000 })
+	expect(await saveEditDraft(page)).toBeLessThan(300)
 
 	await expect.poll(async () => (await readPlacements(api, dashboard!.id))
 		.filter((p) => p.widgetId === NC_WIDGET_ID).length, { timeout: 15_000 }).toBe(1)

@@ -51,7 +51,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { addWidgetFromMore, switchToDashboard } from './support/dashboardSwitcher.ts'
+import { addWidgetFromMore, saveEditDraft, switchToDashboard } from './support/dashboardSwitcher.ts'
 import { contextFor } from './support/principals.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 
@@ -267,6 +267,8 @@ async function addAndRead(
 	await add.click()
 	await expect(dialog).not.toBeVisible({ timeout: 10_000 })
 	await closeSidebar(page)
+	// Edit mode keeps the new tile as a draft until Save (REQ-EDIT-002).
+	expect(await saveEditDraft(page)).toBeLessThan(300)
 	const added = (await placementsOf(shownDash!.id)).filter(
 		(p) => !before.includes(Number(p.id)),
 	)

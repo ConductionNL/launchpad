@@ -448,6 +448,86 @@ class PageControllerIndexTest extends TestCase {
 	}//end testTheWorkspaceCarriesTheFirstDashboardLoad()
 
 	/**
+	 * The first-paint shell draws what the mounted page draws first: the
+	 * first-load envelope's placements when it is the opened dashboard, the
+	 * opened dashboard's `layout` state otherwise (a deep link), and no shell
+	 * for a guest without a dashboard (first-paint-skeleton task 3, REQ-FPS-006).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 */
+	public function testTheShellDrawsWhatThePageDrawsFirst(): void {
+		$this->signIn(uid: 'pieter');
+		$this->adminSettings->method('getSettings')->willReturn([]);
+		$owned = self::dashboard(id: 7, uuid: 'uuid-7', name: 'Mijn werkdag');
+		$group = self::dashboard(id: 8, uuid: 'uuid-8', name: 'Team');
+		$this->dashboards->method('getVisibleToUser')->willReturn([
+			['dashboard' => $owned, 'source' => Dashboard::SOURCE_USER],
+			['dashboard' => $group, 'source' => Dashboard::SOURCE_GROUP],
+		]);
+		$envelope = [];
+		foreach ([41 => 'notes', 42 => 'calendar'] as $id => $type) {
+			$row = new WidgetPlacement();
+			$row->setId($id);
+			$row->setWidgetId($type);
+			$row->setGridWidth(6);
+			$row->setGridHeight(2);
+			$envelope[] = $row;
+		}
+
+		$this->dashboards->method('getEffectiveDashboard')->with('pieter')->willReturn([
+			'dashboard'       => $owned,
+			'placements'      => $envelope,
+			'permissionLevel' => Dashboard::PERMISSION_FULL,
+		]);
+		$payloads = new DashboardPayloads(
+			services: new DashboardApiServices(dashboardService: $this->dashboards),
+			actor: new RequestActor(
+				userSession: $this->session,
+				actionAuth: $this->createMock(originalClassName: ActionAuthService::class)
+			)
+		);
+
+		$this->dashboards->method('resolveActiveDashboard')->willReturnOnConsecutiveCalls(
+			['dashboard' => $owned, 'source' => Dashboard::SOURCE_USER],
+			['dashboard' => $group, 'source' => Dashboard::SOURCE_GROUP]
+		);
+		$opened = new WidgetPlacement();
+		$opened->setId(51);
+		$opened->setWidgetId('notes');
+		$this->widgets->method('getDashboardPlacements')->willReturnCallback(
+			callback: static fn (int $id): array => $id === 8 ? [$opened] : []
+		);
+		$this->permissions->method('hideUnpermittedPlacements')->willReturnArgument(0);
+
+		$firstPaint = $this->controller(payloads: $payloads)->index()->getParams()['firstPaint'];
+		$this->assertSame(expected: ['41', '42'], actual: array_column($firstPaint['frames'], 'id'));
+		$this->assertSame(expected: 'Mijn werkdag', actual: $firstPaint['header']['name']);
+
+		// Another dashboard opens than the envelope holds: its layout state.
+		$deep = $this->controller(payloads: $payloads)->index()->getParams()['firstPaint'];
+		$layoutIds = array_map('strval', array_column($this->state['layout'], 'id'));
+		$this->assertSame(expected: $layoutIds, actual: array_column($deep['frames'], 'id'));
+		$this->assertSame(expected: ['51'], actual: array_column($deep['frames'], 'id'));
+		$this->assertSame(expected: Dashboard::SOURCE_GROUP, actual: $deep['source']);
+	}//end testTheShellDrawsWhatThePageDrawsFirst()
+
+	/**
+	 * A guest has no dashboard, so the page prints no shell (REQ-FPS-006).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 */
+	public function testNoShellWithoutADashboard(): void {
+		$this->session->method('getUser')->willReturn(null);
+		$this->adminSettings->method('getSettings')->willReturn([]);
+
+		$this->assertNull(actual: $this->controller()->index()->getParams()['firstPaint']);
+	}//end testNoShellWithoutADashboard()
+
+	/**
 	 * REQ-SHARE-015: the page says whether the viewer may share and whether
 	 * public links are on; without the policy it offers both.
 	 *

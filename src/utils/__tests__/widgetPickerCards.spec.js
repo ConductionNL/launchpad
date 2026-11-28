@@ -128,14 +128,14 @@ describe('role and older widgets', () => {
 describe('assistantOnlyCards (REQ-WDG-045)', () => {
 	const t = (_app, text) => text
 
-	it('turns each catalogue app into a one-cell tile card the assistant may propose', () => {
+	it('turns each catalogue app into a card the assistant may propose, which opens the tile form with it', () => {
 		const app = { uuid: 'c-1', name: 'Case system', description: 'Cases' }
 		const [entry] = assistantOnlyCards({ catalogueApps: [app] }, t)
 		expect(entry.key).toBe('catalogue:c-1')
 		expect(entry.title).toBe('Case system')
 		expect(entry.line).toBe('Cases')
 		expect(entry.disabled).toBe(false)
-		expect(entry.action).toEqual({ event: 'addCatalogueApp', arg: app })
+		expect(entry.action).toEqual({ event: 'tileForm', arg: app })
 	})
 
 	it('skips entries without a uuid or a name, and disables them when the role may not add tiles', () => {

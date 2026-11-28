@@ -98,4 +98,23 @@ class FirstPaintFillTest extends TestCase {
 		$this->assertFalse(condition: $plain['fill']);
 		$this->assertSame(expected: [], actual: $plain['tracks']);
 	}//end testTheShellFillsWhenAPlacementAsks()
+
+	/**
+	 * An empty content blob arrives as `{}` (an object, WidgetPlacement::wireObject):
+	 * the shell reads it as empty content, also on a header placement.
+	 *
+	 * @return void
+	 */
+	public function testAnEmptyContentObjectIsEmptyContent(): void {
+		$placements = [
+			['id' => 1, 'widgetId' => 'header', 'gridY' => 0, 'gridWidth' => 12, 'gridHeight' => 2, 'content' => new \stdClass()],
+			['id' => 2, 'widgetId' => 'notes', 'gridY' => 2, 'gridWidth' => 6, 'gridHeight' => 2, 'content' => new \stdClass()],
+		];
+		$page       = ['dashboard' => ['name' => 'Team', 'gridColumns' => 12], 'placements' => $placements];
+		$model      = (new FirstPaintShell())->build(page: $page, catalogue: []);
+
+		$this->assertFalse(condition: $model['fill']);
+		$this->assertSame(expected: 'page', actual: $model['header']['mode']);
+		$this->assertSame(expected: ['1', '2'], actual: array_column($model['frames'], 'id'));
+	}//end testAnEmptyContentObjectIsEmptyContent()
 }//end class

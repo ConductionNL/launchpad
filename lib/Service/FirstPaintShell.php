@@ -106,6 +106,12 @@ class FirstPaintShell {
 					&& in_array((string) ($placement['id'] ?? ''), $hiddenIds, true) === false
 			)
 		);
+		// An empty content blob is on the wire as `{}` (WidgetPlacement::wireObject):
+		// read every content as an array, so a key lookup never meets an object.
+		$shown = array_map(
+			static fn (array $placement): array => ['content' => (array) ($placement['content'] ?? [])] + $placement,
+			$shown
+		);
 
 		$positions = $this->layout->layout(
 			nodes: array_map(

@@ -4041,39 +4041,19 @@ export default {
 		 * @param {object} content The placement's content blob.
 		 * @spec openspec/specs/service-health-ping/spec.md
 		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-4
+		 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
 		 */
 		async createTile(tileData, content) {
-			// REQ-TILE-PLACEMENT: a link tile is a `tile` widget with its data in
-			// content, like an app-mode tile; the flat tile columns stay empty.
-			// A launch tile (program, remote desktop, sso) and an office "New
-			// ..." tile still go through the tile route, whose launch, download
-			// and create paths read those columns.
-			if (!isLaunchType(tileData.linkType) && tileData.linkType !== 'create') {
-				const placed = await this.addWidgetToDashboard(
-					{ type: 'tile', content: { ...content, ...linkTileFieldContent(tileData) } },
-					{ w: 2, h: 2 },
-				)
-				if (!placed) {
-					throw new Error('The tile could not be added.')
-				}
-				return
-			}
-			// A launch tile is checked on create, so it carries its content.
-			const newPlacement = await this.addTileToDashboard(
-				isLaunchType(tileData.linkType) ? { ...tileData, content } : tileData,
+			// REQ-TILE-PLACEMENT: every tile the form makes is a `tile` widget
+			// with its data in content, like an app-mode tile; the flat tile
+			// columns stay empty. The server checks a launch tile's link (and
+			// its link target and office address) on this path too.
+			const placed = await this.addWidgetToDashboard(
+				{ type: 'tile', content: { ...content, ...linkTileFieldContent(tileData) } },
+				{ w: 2, h: 2 },
 			)
-			// `addTile` has no `content` parameter (mirrors the
-			// `addWidget` create-then-patch pattern above) — persist
-			// the health-ping block (and the office-network address,
-			// launcher-tile-internal-address REQ-TIA-002, and the link target)
-			// with a follow-up patch only when the author actually set one.
-			// app-link-tile-widget REQ-APPTILE-005: also a text colour other than
-			// white, an icon-only tile or a pin.
-			const looks = (content.textColour && content.textColour !== 'white') || content.iconOnly || content.pinned
-			if (newPlacement?.id && (content.healthPingEnabled || content.internalUrl || content.linkTarget || content.colourToken || looks)) {
-				await this.updateWidgetPlacement(newPlacement.id, {
-					content,
-				})
+			if (!placed) {
+				throw new Error('The tile could not be added.')
 			}
 		},
 

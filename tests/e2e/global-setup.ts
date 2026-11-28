@@ -122,6 +122,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 	await dismissFirstRunWizard(page)
 	await disableFirstRunWizardForRun(baseURL, username, password)
 	await liftCalendarCreationLimitForRun(baseURL, username, password)
+	await allowUserDashboardsForRun(baseURL, username, password)
 	await markSupportNoteSeen(page)
 	await settleSetupWizard(page)
 	await completeAdminSetupWizard(page)
@@ -480,6 +481,51 @@ async function liftCalendarCreationLimitForRun(
 		}
 	} catch (error) {
 		console.warn('[playwright globalSetup] could not raise the calendar-creation limit:', error)
+	}
+}
+
+/**
+ * Turn the admin flag `allowUserDashboards` on for the run.
+ *
+ * A fresh install has it off, and then every personal dashboard a plain user
+ * seeds is refused with 403 `personal_dashboards_disabled`. Specs that seed
+ * one without setting the flag passed only after an earlier spec had left it
+ * on. Measured 28 Nov 2026 on Nextcloud 34 with the flag off:
+ * launchpad-mobile-remote-access failed this way (as did
+ * first-paint-shell-contexts and conditional-visibility-render, fixed in
+ * their own files by #2446 and #2448). Specs that test the flag off still
+ * set it themselves and put back what they found.
+ *
+ * Best-effort, like the calendar limit: a refusal is reported, never fatal.
+ *
+ * @param {string} baseURL the instance under test.
+ * @param {string} username an admin account.
+ * @param {string} password its password.
+ * @return {Promise<void>}
+ */
+async function allowUserDashboardsForRun(
+	baseURL: string,
+	username: string,
+	password: string,
+): Promise<void> {
+	try {
+		const res = await fetch(new URL('/index.php/apps/launchpad/api/admin/settings', baseURL), {
+			method: 'PUT',
+			headers: {
+				Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+				'OCS-APIRequest': 'true',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ allowUserDashboards: true }),
+		})
+		if (!res.ok) {
+			console.warn(
+				`[playwright globalSetup] turning allowUserDashboards on returned ${res.status}; `
+					+ 'specs that seed a personal dashboard may get 403 personal_dashboards_disabled.',
+			)
+		}
+	} catch (error) {
+		console.warn('[playwright globalSetup] could not turn allowUserDashboards on:', error)
 	}
 }
 

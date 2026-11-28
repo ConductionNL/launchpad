@@ -1946,7 +1946,9 @@ OC.L10N.register(
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Každá uložená verze tohoto panelu. Vyberte starší verzi a obnovte ji; aktuální verze zůstane v seznamu.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Obnovením se zahodí změny provedené po ní. Aktuální verze zůstane v tomto seznamu.",
     "Version of {date}" : "Verze z {date}",
-    "What changed" : "Co se změnilo"
+    "What changed" : "Co se změnilo",
+    "When is the widget visible?" : "Kdy je widget viditelný?",
+    "Check for one person whether the rules do what you mean, before you save." : "Před uložením ověřte pro jednu osobu, že pravidla dělají, co zamýšlíte."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

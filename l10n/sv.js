@@ -1946,7 +1946,9 @@ OC.L10N.register(
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Varje sparad version av den här instrumentpanelen. Välj en äldre version för att återställa den; den aktuella versionen finns kvar i listan.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Återställning tar bort ändringarna som gjorts efter den. Den aktuella versionen finns kvar i den här listan.",
     "Version of {date}" : "Version från {date}",
-    "What changed" : "Vad som ändrades"
+    "What changed" : "Vad som ändrades",
+    "When is the widget visible?" : "När är widgeten synlig?",
+    "Check for one person whether the rules do what you mean, before you save." : "Kontrollera för en person att reglerna gör det du menar innan du sparar."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1946,7 +1946,9 @@ OC.L10N.register(
     "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list." : "Kull verżjoni ssejvjata ta' dan id-dashboard. Agħżel verżjoni eqdem biex terġa' ġġibha lura; il-verżjoni kurrenti tibqa' fil-lista.",
     "Restoring it drops the changes made after it. The current version stays in this list." : "Meta terġa' ġġibha lura, il-bidliet magħmula wara jintilfu. Il-verżjoni kurrenti tibqa' f'din il-lista.",
     "Version of {date}" : "Verżjoni tal-{date}",
-    "What changed" : "X'inbidel"
+    "What changed" : "X'inbidel",
+    "When is the widget visible?" : "Meta jidher il-widget?",
+    "Check for one person whether the rules do what you mean, before you save." : "Iċċekkja għal persuna waħda jekk ir-regoli jagħmlux dak li trid, qabel ma tissejvja."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

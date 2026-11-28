@@ -1948,6 +1948,8 @@
         "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Selle töölaua iga salvestatud versioon. Vali vanem versioon, et see taastada; praegune versioon jääb loendisse.",
         "Restoring it drops the changes made after it. The current version stays in this list.": "Taastamine loobub pärast seda tehtud muudatustest. Praegune versioon jääb sellesse loendisse.",
         "Version of {date}": "Versioon {date}",
-        "What changed": "Mis muutus"
+        "What changed": "Mis muutus",
+        "When is the widget visible?": "Millal vidin nähtav on?",
+        "Check for one person whether the rules do what you mean, before you save.": "Kontrolli ühe inimese puhul, kas reeglid teevad seda, mida mõtled, enne salvestamist."
     }
 }

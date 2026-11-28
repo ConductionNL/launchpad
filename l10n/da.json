@@ -1948,6 +1948,8 @@
         "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Alle gemte versioner af dette dashboard. Vælg en ældre version for at gendanne den; den aktuelle version bliver i listen.",
         "Restoring it drops the changes made after it. The current version stays in this list.": "Gendannelse fjerner ændringerne foretaget efter den. Den aktuelle version bliver i denne liste.",
         "Version of {date}": "Version fra {date}",
-        "What changed": "Hvad der ændrede sig"
+        "What changed": "Hvad der ændrede sig",
+        "When is the widget visible?": "Hvornår er widgetten synlig?",
+        "Check for one person whether the rules do what you mean, before you save.": "Kontrollér for én person, om reglerne gør det, du mener, før du gemmer."
     }
 }

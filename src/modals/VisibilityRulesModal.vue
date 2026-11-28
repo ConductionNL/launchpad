@@ -11,15 +11,19 @@
 		:name="t('launchpad', 'Who sees this widget?')"
 		@close="$emit('close')">
 		<div class="visibility-rules" data-test="visibility-rules-modal">
-			<h2 class="visibility-rules__title" data-test="visibility-rules-title">
-				{{ t('launchpad', 'Who sees this widget?') }}
-			</h2>
-			<p
-				v-if="subtitle"
-				class="visibility-rules__subtitle"
-				data-test="visibility-rules-subtitle">
-				{{ subtitle }}
-			</p>
+			<!-- LpZichtbaarheid: "<widget> · <dashboard>" small above the title
+			     (REQ-CVUI-006), as the other launchpad dialogs draw it. -->
+			<header class="visibility-rules__head">
+				<p
+					v-if="subtitle"
+					class="visibility-rules__subtitle launchpad-modal__kicker"
+					data-test="visibility-rules-subtitle">
+					{{ subtitle }}
+				</p>
+				<h2 class="visibility-rules__title launchpad-modal__title" data-test="visibility-rules-title">
+					{{ t('launchpad', 'Who sees this widget?') }}
+				</h2>
+			</header>
 
 			<ConditionalVisibilityEditor
 				:placementId="placementId"
@@ -171,12 +175,11 @@ export default {
 	padding: 24px;
 }
 
-.visibility-rules__title {
-	margin: 0 0 4px;
-}
-
-.visibility-rules__subtitle {
-	margin: 0 0 16px;
-	color: var(--color-text-maxcontrast);
+.visibility-rules__head {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin: 0 0 20px;
+	padding-inline-end: 32px;
 }
 </style>

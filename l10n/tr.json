@@ -1948,6 +1948,8 @@
         "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Bu panonun kaydedilen her sürümü. Geri yüklemek için daha eski bir sürüm seçin; geçerli sürüm listede kalır.",
         "Restoring it drops the changes made after it. The current version stays in this list.": "Geri yükleme, ondan sonra yapılan değişiklikleri atar. Geçerli sürüm bu listede kalır.",
         "Version of {date}": "{date} sürümü",
-        "What changed": "Ne değişti"
+        "What changed": "Ne değişti",
+        "When is the widget visible?": "Bileşen ne zaman görünür?",
+        "Check for one person whether the rules do what you mean, before you save.": "Kaydetmeden önce bir kişi için kuralların istediğinizi yapıp yapmadığını kontrol edin."
     }
 }

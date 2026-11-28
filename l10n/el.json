@@ -1948,6 +1948,8 @@
         "Every saved version of this dashboard. Pick an older version to restore it; the current version stays in the list.": "Κάθε αποθηκευμένη έκδοση αυτού του πίνακα. Επιλέξτε μια παλαιότερη έκδοση για να την επαναφέρετε· η τρέχουσα έκδοση παραμένει στη λίστα.",
         "Restoring it drops the changes made after it. The current version stays in this list.": "Η επαναφορά απορρίπτει τις αλλαγές που έγιναν μετά από αυτήν. Η τρέχουσα έκδοση παραμένει σε αυτή τη λίστα.",
         "Version of {date}": "Έκδοση της {date}",
-        "What changed": "Τι άλλαξε"
+        "What changed": "Τι άλλαξε",
+        "When is the widget visible?": "Πότε είναι ορατό το widget;",
+        "Check for one person whether the rules do what you mean, before you save.": "Ελέγξτε για ένα άτομο αν οι κανόνες κάνουν αυτό που θέλετε, πριν αποθηκεύσετε."
     }
 }

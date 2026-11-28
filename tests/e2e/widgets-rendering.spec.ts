@@ -340,6 +340,11 @@ test.describe('REQ-WDG-008 the grid saves a rearrangement in one batch', () => {
 		const panel = page.locator('[data-test="widget-move-panel"]')
 		await expect(panel).toBeVisible({ timeout: 5_000 })
 
+		await page.keyboard.press('ArrowDown')
+		await page.keyboard.press('ArrowDown')
+		await page.keyboard.press('Enter')
+		// The move joins the edit-mode draft; the edit bar's Save sends the whole
+		// draft in one PUT /api/dashboard/{id} (edit-mode-draft-and-save REQ-EDIT-002).
 		const save = page.waitForRequest(
 			(req) =>
 				req.method() === 'PUT'
@@ -347,26 +352,17 @@ test.describe('REQ-WDG-008 the grid saves a rearrangement in one batch', () => {
 					`/apps/launchpad/api/dashboard/${dashboard!.id}`,
 				),
 		)
-		await page.keyboard.press('ArrowDown')
-		await page.keyboard.press('ArrowDown')
-		await page.keyboard.press('Enter')
+		await page.locator('[data-testid="launchpad-edit-bar-save"]').click()
 		const body = (await save).postDataJSON() as {
+			draft: boolean
 			placements: Array<Record<string, number>>
 		}
 
+		expect(body.draft).toBe(true)
 		expect(Array.isArray(body.placements)).toBe(true)
 		expect(body.placements.map((p) => p.id).sort()).toEqual(
 			[first.id, second.id].sort(),
 		)
-		for (const entry of body.placements) {
-			expect(Object.keys(entry).sort()).toEqual([
-				'gridHeight',
-				'gridWidth',
-				'gridX',
-				'gridY',
-				'id',
-			])
-		}
 		const moved = body.placements.find((p) => p.id === first.id)!
 		expect(moved.gridY).toBeGreaterThan(0)
 

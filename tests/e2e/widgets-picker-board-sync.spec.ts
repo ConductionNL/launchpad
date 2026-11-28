@@ -58,7 +58,7 @@ import {
 	saveRoleFeaturePermission,
 	writeGroupOrder,
 } from './fixtures/role-feature-permissions.ts'
-import { enterEditMode } from './support/dashboardSwitcher.ts'
+import { enterEditMode, saveEditDraft } from './support/dashboardSwitcher.ts'
 import { setLanguage } from './support/orWidget.ts'
 import { openOwnDashboard, readPlacements, setUpOwnDashboard, tearDownOwnDashboard } from './support/ownDashboard.ts'
 import { addToGroup, adminContext, API, createGroup, removeGroup } from './support/principals.ts'
@@ -304,6 +304,8 @@ test('choosing Case system in the App or link tile form and Add widget places a 
 		// Chosen, not yet placed.
 		expect((await readPlacements(own.owner.api, own.id)).length).toBe(before.size)
 		await page.getByTestId('tile-editor-save').click()
+		// The form adds to the edit-mode draft; the edit bar's Save places it.
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 
 		await expect.poll(async () => (await readPlacements(own.owner.api, own.id)).length, { timeout: 15_000 })
 			.toBe(before.size + 1)

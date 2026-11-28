@@ -445,6 +445,7 @@ export default {
 		 * @spec openspec/specs/tiles/spec.md
 		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-5
 		 * @spec openspec/changes/archive/2026-11-19-launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+		 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
 		 */
 		tileUrl() {
 			const launch = launchHref(this.tile, this.content, this.placementId, generateUrl)
@@ -455,7 +456,11 @@ export default {
 			if (this.isCreateTile) {
 				return '#'
 			}
-			if (this.opensInternalUrl === false && this.tile.linkType === 'app') {
+			// An app tile names the app ('deck') in the flat tile columns; a tile
+			// that keeps its link in content (REQ-TILE-PLACEMENT, office packs)
+			// stores the app's path ('/apps/files'), which the generic path rule
+			// below routes as it is.
+			if (this.opensInternalUrl === false && this.tile.linkType === 'app' && !String(value || '').startsWith('/')) {
 				return generateUrl('/apps/' + value)
 			}
 			// Internal absolute paths (e.g. /apps/deck, /apps/text) MUST go

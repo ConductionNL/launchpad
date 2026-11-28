@@ -181,6 +181,15 @@ describe('TileWidget', () => {
 		expect(link.attributes('target')).toBe('_self')
 	})
 
+	it('links an app tile that stores the app path (a content link tile) without doubling /apps/', () => {
+		const files = mount(TileWidget, { props: { tile: tile({ linkType: 'app', linkValue: '/apps/files' }) } }).find('a')
+		const pack = mount(TileWidget, { props: { tile: tile({ linkType: 'app', linkValue: '/apps/deck/' }) } }).find('a')
+
+		expect(files.attributes('href')).toBe('/nc/apps/files')
+		expect(pack.attributes('href')).toBe('/nc/apps/deck/')
+		expect(files.attributes('target')).toBe('_self')
+	})
+
 	it('routes an internal absolute path through generateUrl', () => {
 		const link = mount(TileWidget, { props: { tile: tile({ linkType: 'internal', linkValue: '/apps/text' }) } }).find('a')
 

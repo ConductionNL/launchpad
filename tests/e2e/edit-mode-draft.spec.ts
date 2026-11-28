@@ -129,7 +129,10 @@ test('Save sends the draft in one request, stores it and leaves edit mode', asyn
 	await expect(page.locator(PILL)).toHaveText('Draft · 2 changes')
 	expect(writes).toHaveLength(0)
 
-	const saved = page.waitForResponse((res) => res.request().method() === 'PUT' && res.url().endsWith(`${DASHBOARDS}/${dashboard!.id}`))
+	// The browser calls /apps/launchpad/... with or without index.php,
+	// depending on whether the server runs with the front controller.
+	const saved = page.waitForResponse((res) => res.request().method() === 'PUT'
+		&& new URL(res.url()).pathname.endsWith(`/apps/launchpad/api/dashboard/${dashboard!.id}`))
 	await page.locator(SAVE).click()
 	expect((await saved).status()).toBe(200)
 	await expect(page.locator(BAR)).toHaveCount(0)

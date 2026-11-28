@@ -33,6 +33,7 @@ namespace OCA\LaunchPad\Controller;
 
 use JsonSerializable;
 use OCA\LaunchPad\Service\FirstPaintLook;
+use OCA\LaunchPad\Service\FirstPaintNotices;
 use OCA\LaunchPad\Service\FirstPaintShell;
 use OCP\IUser;
 
@@ -76,7 +77,8 @@ class FirstPaintPage {
 	public static function params(array $page, array $context): array {
 		$model = self::model(page: $page, reader: ['user' => $context['user'] ?? null, 'timezone' => $page['timezone'] ?? '']);
 		if ($model !== null) {
-			$model['look'] = (new FirstPaintLook())->style(dashboard: $model['dashboard'], resourceUrl: (string) ($context['resourceUrl'] ?? ''));
+			$model['look']    = (new FirstPaintLook())->style(dashboard: $model['dashboard'], resourceUrl: (string) ($context['resourceUrl'] ?? ''));
+			$model['notices'] = (new FirstPaintNotices())->shown(reads: (array) ($page['apiReads'] ?? []), now: time());
 		}
 
 		return [

@@ -44,6 +44,7 @@ use OCA\LaunchPad\Exception\LockForbiddenException;
 use OCA\LaunchPad\Exception\LockNotFoundException;
 use OCA\LaunchPad\Kernel\Contracts\DashboardLockServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\DB\Exception;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 
@@ -124,8 +125,41 @@ class DashboardLockService implements DashboardLockServiceInterface {
 			return $this->reenterLock(existing: $existing, userId: $userId);
 		}
 
-		return $this->insertLock(dashboardUuid: $dashboardUuid, userId: $userId);
+		return $this->insertOrReenter(dashboardUuid: $dashboardUuid, userId: $userId);
 	}//end acquireLock()
+
+	/**
+	 * Insert the caller's lock; when a concurrent acquire inserted first
+	 * (the unique key on the dashboard refuses the second row), answer as
+	 * if that lock had been there: a conflict naming the winner, or the
+	 * caller's own lock again (REQ-LOCK-007 contention).
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 * @param string $userId        The caller.
+	 *
+	 * @return DashboardLock The caller's lock.
+	 *
+	 * @throws LockConflictException When another user won the race.
+	 * @throws Exception             Any other database failure.
+	 *
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 */
+	private function insertOrReenter(string $dashboardUuid, string $userId): DashboardLock {
+		try {
+			return $this->insertLock(dashboardUuid: $dashboardUuid, userId: $userId);
+		} catch (Exception $exception) {
+			if ($exception->getReason() !== Exception::REASON_UNIQUE_CONSTRAINT_VIOLATION) {
+				throw $exception;
+			}
+
+			$winner = $this->storedLock(dashboardUuid: $dashboardUuid);
+			if ($winner === null) {
+				throw $exception;
+			}
+
+			return $this->reenterLock(existing: $winner, userId: $userId);
+		}
+	}//end insertOrReenter()
 
 	/**
 	 * Refuse a caller without at least view access to the dashboard.

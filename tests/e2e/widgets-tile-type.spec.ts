@@ -88,18 +88,22 @@ test.describe('tile widget type (REQ-WDG-022)', () => {
 		await openWorkspace(page, placement.id)
 		await expect(page.locator('.launchpad-edit-mode')).toHaveCount(0)
 
-		const tile = gridItem(page, placement.id).locator('.cn-dash-tile-widget')
+		// REQ-TILE-PLACEMENT (#2429): a tile with its link in content renders
+		// through LaunchPad's TileWidget, like a tile from the App or link form.
+		const tile = gridItem(page, placement.id).locator('.tile-widget')
 		await expect(tile).toBeVisible()
-		await expect(tile).toHaveCSS('background-color', 'rgb(59, 130, 246)')
+		const link = tile.locator('a.tile-widget__link')
+		await expect(link).toHaveCSS('background-color', 'rgb(59, 130, 246)')
 		await expect(
-			tile.locator('.cn-dash-tile-widget__icon-class.icon-folder'),
+			tile.locator('.tile-widget__icon .icon.icon-folder'),
 		).toHaveCount(1)
-		const title = tile.locator('.cn-dash-tile-widget__title')
+		const title = tile.locator('.tile-widget__title')
 		await expect(title).toHaveText('Files')
 		await expect(title).toHaveCSS('color', 'rgb(255, 255, 255)')
 
-		const link = tile.locator('a.cn-dash-tile-widget__link')
+		// The stored app path opens the app, not /apps//apps/files.
 		await expect(link).toHaveAttribute('href', /\/apps\/files$/)
+		await expect(link).not.toHaveAttribute('href', /\/apps\/\/apps\//)
 		await link.click()
 		await page.waitForURL(/\/apps\/files(\/|\?|$)/, { timeout: 30_000 })
 	})

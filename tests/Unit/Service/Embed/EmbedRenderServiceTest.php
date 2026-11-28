@@ -120,7 +120,7 @@ class EmbedRenderServiceTest extends TestCase {
 	 * A widget inside a well, or inside a tab of a widget in it, is drawn as a
 	 * widget of its own.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 *
 	 * @return void
 	 */
@@ -168,7 +168,7 @@ class EmbedRenderServiceTest extends TestCase {
 	/**
 	 * A missing child or well is null, and a hidden well hides its child.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 *
 	 * @return void
 	 */

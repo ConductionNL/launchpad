@@ -176,7 +176,7 @@ export default {
 		 * on a dashboard that offers the child actions, or as a group tile.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		showsMenu() {
 			return this.showsTileEdit || (this.editMode && this.launchpadChildActions !== null && this.owner !== null)
@@ -186,7 +186,7 @@ export default {
 		 * The widget on the dashboard that holds this child, or null.
 		 *
 		 * @return {object|null}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		owner() {
 			return this.launchpadChildOwner() ?? null
@@ -198,7 +198,7 @@ export default {
 		 * left out by the menu).
 		 *
 		 * @return {string}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		embedHref() {
 			return this.launchpadChildActions?.embedHref(this.owner, this.placement) ?? ''
@@ -208,7 +208,7 @@ export default {
 		 * The draft has unsaved changes, so Create embed token asks first.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		embedAsksFirst() {
 			return this.launchpadChildActions?.asksFirst() === true
@@ -219,13 +219,13 @@ export default {
 		 * widget with a form), when it is not a group tile.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		canConfigure() {
 			return childUseKey(this.placement) !== '' && this.launchpadChildActions?.canConfigure?.(this.placement) === true
 		},
 
-		/** @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050 */
+		/** @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050 */
 		widgetMenuLabel() {
 			return t('launchpad', 'Widget menu')
 		},
@@ -243,7 +243,7 @@ export default {
 		 * form (REQ-WDG-050 Configure).
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		edit() {
 			if (this.showsTileEdit) {
@@ -257,7 +257,7 @@ export default {
 		 * REQ-WDG-050: Duplicate places a copy after this child, in its list.
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		duplicate() {
 			const key = childUseKey(this.placement)
@@ -271,7 +271,7 @@ export default {
 		 * child is taken out of its list (REQ-WDG-050).
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		remove() {
 			if (this.showsTileEdit) {
@@ -289,7 +289,7 @@ export default {
 		 *
 		 * @param {string} href The embed token form.
 		 * @return {void}
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 		 */
 		openEmbed(href) {
 			this.launchpadChildActions?.openEmbed(href)

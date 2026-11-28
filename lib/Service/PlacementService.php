@@ -408,7 +408,7 @@ class PlacementService {
 	 *
 	 * @throws \OCA\LaunchPad\Exception\QuotaExceededException When the import does not fit the quota.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
 	 */
 	public function assertImportFits(int $dashboardId, BookmarkImportPlan $plan): void {
 		$this->quotaService?->assertCanAddPlacements(dashboardId: $dashboardId, count: $plan->placementCount());

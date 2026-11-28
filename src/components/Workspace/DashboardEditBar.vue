@@ -16,8 +16,8 @@
 		data-testid="launchpad-edit-bar"
 		@keydown.esc="$emit('leave')">
 		<Pencil :size="20" class="launchpad-edit-bar__icon" />
-		<strong class="launchpad-edit-bar__title">
-			{{ t('launchpad', 'You are editing {name}', { name: dashboardName }) }}
+		<strong class="launchpad-edit-bar__title" :title="editingLabel">
+			{{ editingLabel }}
 		</strong>
 		<!-- REQ-EDIT-001: the draft pill, "Draft · n changes" or "No changes". -->
 		<span
@@ -155,6 +155,18 @@ export default {
 		}
 	},
 
+	computed: {
+		/**
+		 * "You are editing {name}", also the tooltip of a name cut short.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-the-edit-bar-holds-a-draft-req-edit-001
+		 */
+		editingLabel() {
+			return t('launchpad', 'You are editing {name}', { name: this.dashboardName })
+		},
+	},
+
 	mounted() {
 		this.$emit('dock', this.$refs.dock)
 	},
@@ -190,9 +202,16 @@ export default {
 	flex: none;
 }
 
+/* A long name is cut with an ellipsis (its full text in the tooltip), so the
+   actions stay on the one row board LpBewerken draws. */
 .launchpad-edit-bar__title {
+	flex: 0 1 auto;
+	min-width: 0;
+	overflow: hidden;
 	font-size: 16px;
 	font-weight: 600;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .launchpad-edit-bar__pill {
@@ -295,6 +314,18 @@ export default {
 }
 
 .launchpad-edit-bar__dock :deep(.lp-more-menu__trigger .button-vue__text) {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+/* The page's loading status line docks with More; in the bar it stays for
+   screen readers only, so it does not push More onto a second row. */
+.launchpad-edit-bar__dock :deep(.launchpad-status-slot) {
 	position: absolute;
 	width: 1px;
 	height: 1px;

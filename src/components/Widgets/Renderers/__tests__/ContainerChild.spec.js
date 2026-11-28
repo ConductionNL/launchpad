@@ -109,7 +109,7 @@ describe('ContainerChild — provided data sources', () => {
 	})
 })
 
-// @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+// @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 describe('ContainerChild — the edit menu of a widget inside a well (REQ-WDG-050)', () => {
 	/**
 	 * A child mounted with the dashboard's child actions.

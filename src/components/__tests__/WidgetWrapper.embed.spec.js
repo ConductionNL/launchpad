@@ -8,7 +8,7 @@
  * mode the widget's edit menu holds it, linking to the admin page's Embeds
  * section with the widget pre-selected, disabled for an unsaved widget.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 
 import { mount } from '@vue/test-utils'

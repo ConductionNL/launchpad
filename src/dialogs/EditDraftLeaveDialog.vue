@@ -47,8 +47,8 @@ import { n, t } from '@nextcloud/l10n'
  * (REQ-EDIT-003); on Cancel: "Discard changes?" with Discard and Keep
  * editing (REQ-EDIT-004). Closing the dialog keeps editing.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
- * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-cancel-discards-the-draft-req-edit-004
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-cancel-discards-the-draft-req-edit-004
  */
 export default {
 	name: 'EditDraftLeaveDialog',
@@ -89,7 +89,7 @@ export default {
 		 * Closing the dialog (Escape, the close button) keeps editing.
 		 *
 		 * @param {boolean} open Whether it stays open.
-		 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
+		 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboards/spec.md#requirement-leaving-with-unsaved-changes-asks-first-req-edit-003
 		 */
 		onOpen(open) {
 			if (!open) {

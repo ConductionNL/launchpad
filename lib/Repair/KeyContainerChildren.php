@@ -37,7 +37,7 @@ use Throwable;
  * Key the children of every stored well and tabs widget. Idempotent: a widget
  * whose children all have a key is not written again.
  *
- * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+ * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
  */
 class KeyContainerChildren implements IRepairStep {
 	/**
@@ -70,7 +70,7 @@ class KeyContainerChildren implements IRepairStep {
 	 *
 	 * @return string The step name.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
 	public function getName(): string {
 		return 'Give every widget inside a well or tabs widget a key of its own';
@@ -83,7 +83,7 @@ class KeyContainerChildren implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
 	public function run(IOutput $output): void {
 		$keyed = 0;
@@ -120,7 +120,7 @@ class KeyContainerChildren implements IRepairStep {
 	 *
 	 * @return int
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
 	private function keyRow(int $id, string $json): int {
 		$content = json_decode(json: $json, associative: true);

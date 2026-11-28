@@ -118,6 +118,21 @@ test('edit mode shows the edit bar with its controls and the draft pill', async 
 	await expect(bar.locator(MORE_MENU)).toBeVisible()
 })
 
+test('at 1440 px the edit bar is one row, with More docked as a square button named More', async ({ page }) => {
+	// Board LpBewerken: the bar is one row of 62 px; the docked More keeps
+	// its accessible name and shows only its icon (REQ-EDIT-001).
+	await page.setViewportSize({ width: 1440, height: 900 })
+	const bar = await openInEditMode(page)
+	const trigger = bar.locator(MORE_MENU).getByTestId('launchpad-more-menu-trigger')
+	await expect(trigger).toBeVisible()
+	await expect(trigger).toHaveAccessibleName(/^(More|Meer)$/)
+	const triggerBox = (await trigger.boundingBox())!
+	expect(triggerBox.width, 'the docked More is a square button').toBeLessThanOrEqual(48)
+	const saveBox = (await bar.getByRole('button', { name: 'Save' }).boundingBox())!
+	expect(Math.abs(triggerBox.y - saveBox.y), 'More sits on the row of Save').toBeLessThanOrEqual(8)
+	expect((await bar.boundingBox())!.height, 'the bar is one row').toBeLessThanOrEqual(80)
+})
+
 test('columns change the grid and are kept', async ({ page }) => {
 	// @e2e dashboards::columns-change-the-grid-and-are-kept
 	// At 1600 px no breakpoint narrows the grid, so GridStack runs the

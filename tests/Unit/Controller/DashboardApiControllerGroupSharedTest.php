@@ -467,7 +467,7 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/dashboard-versioning/spec.md#requirement-every-save-makes-one-version-of-the-whole-dashboard-req-vers-010
 	 */
 	public function testUpdateGroupSavesWithItsVersion(): void {
 		$stored = $this->makeDashboard(uuid: 'dash-1', groupId: 'marketing', type: Dashboard::TYPE_GROUP_SHARED);

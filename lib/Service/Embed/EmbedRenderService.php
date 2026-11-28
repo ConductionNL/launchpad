@@ -91,7 +91,7 @@ class EmbedRenderService {
 	 *
 	 * @return array<int, array<string, mixed>>|null Null when it does not name a widget that exists.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
 	private function widgetPlacements(string $widgetId): ?array {
 		$child = (new ContainerChildKeys())->splitSubject(subjectId: $widgetId);
@@ -121,7 +121,7 @@ class EmbedRenderService {
 	 *
 	 * @return array<int, array<string, mixed>>|null Null when the well or the child no longer exists.
 	 *
-	 * @spec openspec/changes/edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
+	 * @spec openspec/changes/archive/2026-11-28-edit-mode-draft-and-save/specs/widgets/spec.md#requirement-the-widget-action-menu-follows-the-mode-req-wdg-050
 	 */
 	private function childPlacements(array $subject): ?array {
 		try {

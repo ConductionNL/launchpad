@@ -80,6 +80,25 @@ class FirstPaintPlaceholderTest extends TestCase {
 	}//end testBlockTilesAndCounters()
 
 	/**
+	 * With the area's width known only the squares and counters that show
+	 * are printed: one square for a single app tile, at least one, at most
+	 * the unknown-width count.
+	 *
+	 * @return void
+	 */
+	public function testTilesAndCountersFitTheArea(): void {
+		$count = static fn (string $shape, int $height, int $width, string $part): int => substr_count(
+			FirstPaintPlaceholder::markup(shape: $shape, height: $height, width: $width),
+			$part
+		);
+		$this->assertSame(expected: 1, actual: $count('tiles', -12, 108, 'cn-widget-placeholder__tile'));
+		$this->assertSame(expected: 6, actual: $count('tiles', 140, 220, 'cn-widget-placeholder__tile'));
+		$this->assertSame(expected: 24, actual: $count('tiles', 2000, 2000, 'cn-widget-placeholder__tile'));
+		$this->assertSame(expected: 2, actual: $count('counter', 100, 220, 'cn-widget-placeholder__number'));
+		$this->assertSame(expected: 6, actual: $count('counter', 100, 2000, 'cn-widget-placeholder__number'));
+	}//end testTilesAndCountersFitTheArea()
+
+	/**
 	 * A heading waits as its own text, and an unknown shape draws nothing.
 	 *
 	 * @return void

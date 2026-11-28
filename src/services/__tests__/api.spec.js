@@ -104,7 +104,6 @@ describe('api: plain calls', () => {
 		['updateAdminTemplate', [2, data], 'put', [`${B}/api/admin/templates/2`, data]],
 		['deleteAdminTemplate', [2], 'delete', [`${B}/api/admin/templates/2`]],
 		['resyncAdminTemplate', [2, { strategy: 'merge', dryRun: true }], 'post', [`${B}/api/admin/templates/2/resync`, { strategy: 'merge', dryRun: true }]],
-		['getAdminSettings', [], 'get', [`${B}/api/admin/settings`]],
 		['getStoreConfig', [], 'get', [`${B}/api/store/config`]],
 		['updateStoreConfig', [data], 'put', [`${B}/api/store/config`, data]],
 		['updateAdminSettings', [data], 'put', [`${B}/api/admin/settings`, data]],
@@ -349,5 +348,28 @@ describe('api: optional parameters', () => {
 		for (const verb of VERBS) {
 			expect(axios[verb]).not.toHaveBeenCalled()
 		}
+	})
+
+	it('getAdminSettings shares one read between callers while it is in flight, then reads afresh', async () => {
+		let settle
+		axios.get.mockReturnValueOnce(new Promise((resolve) => { settle = resolve }))
+		const first = api.getAdminSettings()
+		const second = api.getAdminSettings()
+		expect(axios.get).toHaveBeenCalledTimes(1)
+		expect(axios.get).toHaveBeenCalledWith(`${B}/api/admin/settings`)
+		settle({ data: { a: 1 } })
+		expect(await first).toEqual({ data: { a: 1 } })
+		expect(await second).toEqual({ data: { a: 1 } })
+		axios.get.mockResolvedValueOnce({ data: { a: 2 } })
+		expect(await api.getAdminSettings()).toEqual({ data: { a: 2 } })
+		expect(axios.get).toHaveBeenCalledTimes(2)
+	})
+
+	it('getAdminSettings reads afresh after a failed read', async () => {
+		axios.get.mockRejectedValueOnce(new Error('down'))
+		await expect(api.getAdminSettings()).rejects.toThrow('down')
+		axios.get.mockResolvedValueOnce({ data: {} })
+		expect(await api.getAdminSettings()).toEqual({ data: {} })
+		expect(axios.get).toHaveBeenCalledTimes(2)
 	})
 })

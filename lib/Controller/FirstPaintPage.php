@@ -32,6 +32,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use JsonSerializable;
+use OCA\LaunchPad\Service\FirstPaintLook;
 use OCA\LaunchPad\Service\FirstPaintShell;
 use OCP\IUser;
 
@@ -60,19 +61,45 @@ class FirstPaintPage {
 	 * initial state carries, and the page's own address for the
 	 * could-not-load line's Reload link.
 	 *
-	 * @param array<string, mixed> $page    The page values (see model()).
-	 * @param array<string, mixed> $context `user` (IUser or null) and `reloadUrl`.
+	 * The global custom CSS goes with them, so the template prints it in the
+	 * `<style id="launchpad-custom-css">` element applyCustomCss reuses.
 	 *
-	 * @return array{firstPaint: array<string, mixed>|null, reloadUrl: string}
+	 * @param array<string, mixed> $page    The page values (see model()).
+	 * @param array<string, mixed> $context `user` (IUser or null), `reloadUrl`, `customCss` (the cleaned global
+	 *                                      custom CSS) and `resourceUrl` (the resource route with the file name
+	 *                                      left out, ending in `/`).
+	 *
+	 * @return array{firstPaint: array<string, mixed>|null, reloadUrl: string, customCss: string}
 	 *
 	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
 	 */
 	public static function params(array $page, array $context): array {
+		$model = self::model(page: $page, reader: ['user' => $context['user'] ?? null, 'timezone' => $page['timezone'] ?? '']);
+		if ($model !== null) {
+			$model['look'] = (new FirstPaintLook())->style(dashboard: $model['dashboard'], resourceUrl: (string) ($context['resourceUrl'] ?? ''));
+		}
+
 		return [
-			'firstPaint' => self::model(page: $page, reader: ['user' => $context['user'] ?? null, 'timezone' => $page['timezone'] ?? '']),
+			'firstPaint' => $model,
 			'reloadUrl'  => (string) ($context['reloadUrl'] ?? ''),
+			'customCss'  => self::styleText(css: (string) ($context['customCss'] ?? '')),
 		];
 	}//end params()
+
+	/**
+	 * CSS as the text of a `<style>` element: the sanitiser keeps `<` out of
+	 * stored CSS, and any that is left is written as the CSS escape `\3c `, so
+	 * the text can never close the element.
+	 *
+	 * @param string $css The cleaned CSS.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/tasks.md#task-3
+	 */
+	public static function styleText(string $css): string {
+		return str_replace('<', '\\3c ', trim($css));
+	}//end styleText()
 
 	/**
 	 * The shell the template prints, or null when the page opens without a
@@ -115,6 +142,7 @@ class FirstPaintPage {
 		);
 
 		return $shell + [
+			'dashboard' => $dashboard,
 			'source'    => (string) ($page['dashboardSource'] ?? ''),
 			'isDefault' => (int) ($dashboard['isDefault'] ?? 0) === 1,
 			'reader'    => [

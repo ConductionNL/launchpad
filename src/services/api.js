@@ -8,6 +8,10 @@ import { generateUrl } from '@nextcloud/router'
 
 const baseUrl = generateUrl('/apps/launchpad')
 
+// The admin settings read in flight, shared by every caller that asks while
+// it runs (the General tab mounts several sections that each read it).
+let adminSettingsRead = null
+
 export const api = {
 	// Dashboard endpoints
 	getDashboards() {
@@ -986,8 +990,22 @@ export const api = {
 		})
 	},
 
+	/**
+	 * Read the admin settings. Callers that ask while a read is in flight
+	 * share that read, so a tab whose sections each need the settings sends
+	 * one request; a call after it settled reads afresh.
+	 *
+	 * @return {Promise} Axios response resolving to the admin settings.
+	 * @spec openspec/changes/admin-page-in-nextcloud-settings/tasks.md
+	 */
 	getAdminSettings() {
-		return axios.get(`${baseUrl}/api/admin/settings`)
+		if (adminSettingsRead === null) {
+			adminSettingsRead = axios.get(`${baseUrl}/api/admin/settings`)
+				.finally(() => {
+					adminSettingsRead = null
+				})
+		}
+		return adminSettingsRead
 	},
 
 	/**

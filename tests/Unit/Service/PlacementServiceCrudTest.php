@@ -130,6 +130,43 @@ class PlacementServiceCrudTest extends TestCase {
 	}
 
 	/**
+	 * REQ-TILE-PLACEMENT: a link tile added as a `tile` widget keeps its fields in content, the tile columns empty.
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 *
+	 * @return void
+	 */
+	public function testAddTileWidgetKeepsItsLinkInContent(): void {
+		$this->insertReturnsArgument();
+		$content = ['mode' => 'link', 'title' => 'Wiki', 'linkType' => 'url', 'linkValue' => 'https://w.test'];
+
+		$placement = $this->service->addWidget(dashboardId: 7, widgetId: 'tile', layout: ['content' => $content]);
+
+		$this->assertSame(expected: 'tile', actual: $placement->getWidgetId());
+		$this->assertSame(expected: $content, actual: $placement->getContentArray());
+		$this->assertNull(actual: $placement->getTileType());
+		$this->assertNull(actual: $placement->getTileLinkValue());
+	}
+
+	/**
+	 * REQ-TILE-PLACEMENT: a `tile` widget's office-network address is checked like on the tile route; nothing is stored.
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 *
+	 * @return void
+	 */
+	public function testAddTileWidgetRefusesABadOfficeAddress(): void {
+		$this->mapper->expects($this->never())->method('insert');
+
+		$this->expectException(exception: \InvalidArgumentException::class);
+		$this->service->addWidget(
+			dashboardId: 7,
+			widgetId: 'tile',
+			layout: ['content' => ['mode' => 'link', 'linkType' => 'url', 'linkValue' => 'https://w.test', 'internalUrl' => 'javascript:alert(1)']]
+		);
+	}
+
+	/**
 	 * REQ-TMPL-007: the compulsory flag the caller passes is stored.
 	 *
 	 * @return void

@@ -43,6 +43,12 @@ describe('resolveWidgetTitle', () => {
 		expect(resolveWidgetTitle({ tileType: 'custom' }, CATALOG)).toBe('Tile')
 	})
 
+	// @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	it('uses the content title of a link tile that keeps its fields in content', () => {
+		expect(resolveWidgetTitle({ widgetId: 'tile', content: { mode: 'link', title: 'Wiki' } }, CATALOG)).toBe('Wiki')
+		expect(resolveWidgetTitle({ widgetId: 'tile', content: { mode: 'link' } }, CATALOG)).toBe('Tile')
+	})
+
 	it('prefers the author’s explicit override over everything else', () => {
 		expect(
 			resolveWidgetTitle(

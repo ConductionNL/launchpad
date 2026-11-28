@@ -525,37 +525,80 @@ describe('Views saving tiles and custom widgets', () => {
 		expect(host.closeTileEditor).toHaveBeenCalledTimes(1)
 	})
 
-	it('adds a new tile, patching the health ping only when it is enabled', async () => {
+	// @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	it('adds a new link tile as a tile widget with its fields and the health ping in content', async () => {
 		const host = makeHost({
 			editingTile: null,
-			addTileToDashboard: vi.fn(async () => ({ id: 9 })),
+			addWidgetToDashboard: vi.fn(async () => ({ id: 9 })),
+			addTileToDashboard: vi.fn(),
 			updateWidgetPlacement: vi.fn(),
 			closeTileEditor: vi.fn(),
 		})
 
 		await host.saveTile(tile)
-		expect(host.addTileToDashboard).toHaveBeenCalledWith(tile)
+		expect(host.addWidgetToDashboard).toHaveBeenCalledWith({
+			type: 'tile',
+			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60, internalUrl: '', mode: 'link', textColour: 'white', ...tile },
+		}, { w: 2, h: 2 })
+		expect(host.addTileToDashboard).not.toHaveBeenCalled()
 		expect(host.updateWidgetPlacement).not.toHaveBeenCalled()
 
 		await host.saveTile({ ...tile, healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30 })
-		expect(host.updateWidgetPlacement).toHaveBeenCalledWith(9, {
-			content: { healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30, internalUrl: '', mode: 'link', textColour: 'white' },
-		})
+		expect(host.addWidgetToDashboard.mock.calls[1][0].content).toMatchObject({ healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30, linkValue: 'https://example.org' })
 		expect(host.closeTileEditor).toHaveBeenCalledTimes(2)
 	})
 
-	it('adds a new tile with an office-network address, patching it in (launcher-tile-internal-address)', async () => {
+	// @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	it('adds a new link tile with an office-network address in its content (launcher-tile-internal-address)', async () => {
 		const host = makeHost({
 			editingTile: null,
-			addTileToDashboard: vi.fn(async () => ({ id: 9 })),
+			addWidgetToDashboard: vi.fn(async () => ({ id: 9 })),
 			updateWidgetPlacement: vi.fn(),
 			closeTileEditor: vi.fn(),
 		})
 
 		await host.saveTile({ ...tile, internalUrl: 'http://zaken.intern' })
-		expect(host.updateWidgetPlacement).toHaveBeenCalledWith(9, {
-			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60, internalUrl: 'http://zaken.intern', mode: 'link', textColour: 'white' },
+		expect(host.addWidgetToDashboard.mock.calls[0][0].content).toMatchObject({ internalUrl: 'http://zaken.intern', title: 'Mail' })
+	})
+
+	// @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	it('keeps the tile editor open when the new link tile could not be added', async () => {
+		const host = makeHost({ editingTile: null, addWidgetToDashboard: vi.fn(async () => undefined), closeTileEditor: vi.fn() })
+
+		await host.saveTile(tile)
+
+		expect(host.closeTileEditor).not.toHaveBeenCalled()
+		expect(logger.error).toHaveBeenCalledWith('[Views] Failed to save tile:', expect.any(Error))
+	})
+
+	// @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	it('still adds a remote-desktop tile through the tile route, which checks its launch link', async () => {
+		const host = makeHost({
+			editingTile: null,
+			addWidgetToDashboard: vi.fn(),
+			addTileToDashboard: vi.fn(async () => ({ id: 9 })),
+			updateWidgetPlacement: vi.fn(),
+			closeTileEditor: vi.fn(),
 		})
+
+		await host.saveTile({ ...tile, linkType: 'remote-desktop', linkValue: '' })
+
+		expect(host.addWidgetToDashboard).not.toHaveBeenCalled()
+		expect(host.addTileToDashboard).toHaveBeenCalledWith(expect.objectContaining({ linkType: 'remote-desktop' }))
+	})
+
+	// @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	it('saves an edited link tile that keeps its fields in content into its content only', async () => {
+		const placement = { id: 12, widgetId: 'tile', content: { mode: 'link', title: 'Old', linkType: 'url', linkValue: 'https://old.test', pinned: true, countSource: { register: 'r' } } }
+		const host = makeHost({ editingTile: { id: 12 }, widgetPlacements: [placement], updateWidgetPlacement: vi.fn(), closeTileEditor: vi.fn() })
+
+		await host.saveTile({ ...tile, pinned: true })
+
+		expect(host.updateWidgetPlacement).toHaveBeenCalledTimes(1)
+		const [id, patch] = host.updateWidgetPlacement.mock.calls[0]
+		expect(id).toBe(12)
+		expect(Object.keys(patch)).toEqual(['content'])
+		expect(patch.content).toMatchObject({ ...tile, mode: 'link', pinned: true, countSource: { register: 'r' } })
 	})
 
 	it('keeps the tile editor open and logs when saving fails', async () => {

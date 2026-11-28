@@ -545,6 +545,48 @@ class WidgetPlacement extends Entity implements JsonSerializable {
 	}//end getContentArray()
 
 	/**
+	 * Whether this is a link tile that keeps its fields in content: a
+	 * `tile` widget without the legacy tile type, not in app mode.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 */
+	public function keepsLinkInContent(): bool {
+		return $this->getWidgetId() === 'tile'
+			&& $this->getTileType() === null
+			&& ($this->getContentArray()['mode'] ?? 'link') !== 'app';
+	}//end keepsLinkInContent()
+
+	/**
+	 * One field of a link tile: from content for a tile that keeps it there
+	 * (`title`, `linkType`, `linkValue`, ...), else from its flat tile column.
+	 *
+	 * @param string $field The content key, e.g. `title`.
+	 *
+	 * @return string|null The value, or null when the tile has none.
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 */
+	public function linkTileField(string $field): ?string {
+		if ($this->keepsLinkInContent() === true) {
+			$value = $this->getContentArray()[$field] ?? null;
+			return is_scalar($value) === true ? (string)$value : null;
+		}
+
+		return match ($field) {
+			'title' => $this->tileTitle,
+			'icon' => $this->tileIcon,
+			'iconType' => $this->tileIconType,
+			'backgroundColor' => $this->tileBackgroundColor,
+			'textColor' => $this->tileTextColor,
+			'linkType' => $this->tileLinkType,
+			'linkValue' => $this->tileLinkValue,
+			default => null,
+		};
+	}//end linkTileField()
+
+	/**
 	 * Set the custom widget content blob from an associative array. Every
 	 * child of a well or a tabs widget gets a key of its own on the way
 	 * (REQ-WDG-050), so an embed token can name it.

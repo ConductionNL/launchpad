@@ -109,11 +109,11 @@ describe('Views Add tiles', () => {
 			{ key: 'url:wiki', kind: 'tile', tile: wiki },
 		], { colourToken: '--sc-accent', textColour: 'black', showCount: false })
 
-		// An office "New ..." tile keeps the tile route; a link tile is a tile widget in content (REQ-TILE-PLACEMENT).
+		// An office "New ..." tile and a link tile are tile widgets with their data in content (REQ-TILE-PLACEMENT).
+		const look = { mode: 'link', textColour: 'black', colourToken: '--sc-accent' }
 		expect(calls).toEqual([
 			['widget', { type: 'tile', content: { mode: 'app', appId: 'grafana', colourToken: '--sc-accent', textColour: 'black', showCount: false, pinned: false } }],
-			['tile', word],
-			['patch', 9, { content: { mode: 'link', textColour: 'black', colourToken: '--sc-accent' } }],
+			['widget', { type: 'tile', content: { ...look, title: 'Word', icon: 'icon-link', iconType: 'class', backgroundColor: '#0082c9', textColor: '#ffffff', linkType: 'create', linkValue: 'doc' } }],
 			['widget', { type: 'tile', content: { mode: 'link', textColour: 'black', colourToken: '--sc-accent', title: 'Wiki', icon: 'icon-link', iconType: 'class', backgroundColor: '#0082c9', textColor: '#ffffff', linkType: 'url', linkValue: 'https://w.test' } }],
 		])
 	})
@@ -132,7 +132,7 @@ describe('Views Add tiles', () => {
 	})
 
 	it('stops and rejects when a placement fails, so the dialog stays open', async () => {
-		const host = makeHost({ addTileToDashboard: vi.fn().mockRejectedValue(new Error('409')) })
+		const host = makeHost({ addWidgetToDashboard: vi.fn().mockRejectedValue(new Error('409')) })
 		await expect(host.addChosenTiles([{ kind: 'tile', tile: { title: 'x', linkType: 'create' } }])).rejects.toThrow('409')
 
 		const link = makeHost({ addWidgetToDashboard: vi.fn().mockResolvedValue(undefined) })

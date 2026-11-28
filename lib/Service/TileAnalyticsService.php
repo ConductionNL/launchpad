@@ -286,8 +286,7 @@ class TileAnalyticsService implements TileAnalyticsServiceInterface {
 		}
 
 		// REQ-TILE-PLACEMENT: a link tile made with the form keeps its title in content.
-		$contentTitle = $placement->getContentArray()['title'] ?? null;
-		foreach ([$placement->getCustomTitle(), $placement->getTileTitle(), $contentTitle] as $title) {
+		foreach ([$placement->getCustomTitle(), $placement->linkTileField(field: 'title')] as $title) {
 			if (is_string($title) === true && $title !== '') {
 				return $title;
 			}

@@ -149,12 +149,7 @@ class FirstPaintGreeting {
 			return '';
 		}
 
-		$locale = (string) ($input['locale'] ?? '');
-		if ($locale === '') {
-			$locale = 'en_US';
-		}
-
-		$formatter = new IntlDateFormatter($locale, IntlDateFormatter::FULL, IntlDateFormatter::NONE, $moment->getTimezone());
+		$formatter = new IntlDateFormatter(self::locale(input: $input), IntlDateFormatter::FULL, IntlDateFormatter::NONE, $moment->getTimezone());
 		$text      = $formatter->format($moment);
 		if (is_string($text) === false) {
 			return '';
@@ -164,13 +159,33 @@ class FirstPaintGreeting {
 	}//end date()
 
 	/**
+	 * The reader's locale from the input, en_US when it is unknown.
+	 *
+	 * @param array<string, mixed> $input With `locale`.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-the-page-header-as-text-req-fps-001
+	 */
+	public static function locale(array $input): string {
+		$locale = (string) ($input['locale'] ?? '');
+		if ($locale === '') {
+			return 'en_US';
+		}
+
+		return $locale;
+	}//end locale()
+
+	/**
 	 * The reader's zone, the server's when it is unknown.
 	 *
 	 * @param string $timezone The zone name.
 	 *
 	 * @return DateTimeZone
+	 *
+	 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-server-renders-the-page-header-as-text-req-fps-001
 	 */
-	private static function zone(string $timezone): DateTimeZone {
+	public static function zone(string $timezone): DateTimeZone {
 		if ($timezone !== '') {
 			try {
 				return new DateTimeZone($timezone);

@@ -57,12 +57,12 @@
 ### Task 8: End-to-end
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md`
 - **files**: `tests/e2e/first-paint-shell.spec.ts`
-- [ ] Header and frames with JavaScript disabled (greeting, name, description)
-- [ ] Every frame's rect in the shell equals its grid item's rect after the hand-over, within 1 px, at 1440, 1100 and 390 px wide; layout shift 0; no blank frame
-- [ ] Hidden and refused widgets have no frame; no shell without a dashboard
+- [x] Header and frames with JavaScript disabled (greeting, name, description) (live 28 Nov, NC 34 sqlite sandbox: name and description in the page header, one frame per shown widget; the greeting row is covered by `FirstPaintGreetingTest` and the template test)
+- [ ] Every frame's rect in the shell equals its grid item's rect after the hand-over, within 1 px, at 1440, 1100 and 390 px wide; layout shift 0; no blank frame (written and run live 28 Nov: every frame equals its grid item within 1 px, measured from the grid's top left, at 1440, 1100 and 390; no blank frame; layout shift after the hand-over 0 at 1440 but RED at 1100 (0.007) and 390 (0.08): about 250 ms after mount the mounted grid, already at its narrow column count, moves cards from a move-and-scale placement to the reading-order/8-column placement the shell drew (some cards are removed and re-added), a CnDashboardGrid item re-add after the breakpoint, to fix in nextcloud-vue; switching GridStack's animation off at mount and waiting for two still frames did not help. Separately, a notice banner (the demo's maintenance notice) stands above the mounted page but not in the shell, so the page drops by its height (58 px) at the hand-over)
+- [x] Hidden and refused widgets have no frame; no shell without a dashboard (live: a placement with `isVisible` 0 and a `wiki-pages` placement without OpenRegister have no frame; no shell without a dashboard in `PageControllerIndexTest::testNoShellWithoutADashboard`)
 - [ ] A slow route (Playwright `route` delay on one widget's source): the others fill, that one keeps its placeholder, the status line counts it
-- [ ] Accessibility: placeholders `aria-hidden`, waiting cards `aria-busy`, one `role=status` announcing "All widgets loaded" once; no shimmer animation with `reducedMotion: 'reduce'`
-- [ ] Scripts blocked (`route` abort on the launchpad bundle): after 15 seconds the could-not-load message and Reload show; a normal load never shows them
+- [ ] Accessibility: placeholders `aria-hidden`, waiting cards `aria-busy`, one `role=status` announcing "All widgets loaded" once; no shimmer animation with `reducedMotion: 'reduce'` (live 28 Nov: shell placeholders all `aria-hidden`, one `role=status`, no shimmer animation under reduced motion; open: waiting cards `aria-busy` and the single "All widgets loaded" announcement in the e2e)
+- [x] Scripts blocked (`route` abort on the launchpad bundle): after 15 seconds the could-not-load message and Reload show; a normal load never shows them (live 28 Nov: hidden at first, shown within 25 s with its Reload link; absent after a normal load at every width)
 
 ### Task 9: Measure after and live check
 - **spec_ref**: `openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-first-paint-is-measured-against-the-speed-rule-req-fps-007`

@@ -10,7 +10,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { handOver, holdMountWhileShellShows, MOUNT_ID, SETTLE_MAX_FRAMES, settleFirstLayout, SHELL_ID, whenLayoutSettles } from '../firstPaintHandover.js'
+import { handOver, handOverOffTheWorkspace, holdMountWhileShellShows, MOUNT_ID, SHELL_ID, workspacePageIds } from '../firstPaintHandover.js'
 
 /**
  * A page with the mount point and, when asked, the shell beside it.
@@ -64,85 +64,37 @@ describe('firstPaintHandover', () => {
 	})
 })
 
-describe('settleFirstLayout (first-paint-skeleton REQ-FPS-003)', () => {
-	it('switches the animation off at once and back on two frames later', () => {
-		const calls = []
-		const grid = { opts: { animate: true }, setAnimation: vi.fn((on) => calls.push(on)) }
-		const frames = []
-		expect(settleFirstLayout(grid, (fn) => frames.push(fn))).toBe(true)
-		expect(calls).toEqual([false])
-		frames.shift()()
-		expect(calls).toEqual([false])
-		frames.shift()()
-		expect(calls).toEqual([false, true])
+describe('handOverOffTheWorkspace', () => {
+	const manifest = { pages: [
+		{ id: 'Workspace', route: '/', component: 'WorkspaceApp' },
+		{ id: 'dashboard-detail', route: '/dashboards/:id', component: 'WorkspaceApp' },
+		{ id: 'Store', route: '/store', type: 'store' },
+	] }
+	const now = (fn) => fn()
+
+	it('names the dashboard view pages', () => {
+		expect([...workspacePageIds(manifest)]).toEqual(['Workspace', 'dashboard-detail'])
+		expect(workspacePageIds(undefined).size).toBe(0)
 	})
 
-	it('leaves a grid without animation off, and does nothing without a grid', () => {
-		const grid = { opts: { animate: false }, setAnimation: vi.fn() }
-		const frame = vi.fn()
-		expect(settleFirstLayout(grid, frame)).toBe(true)
-		expect(grid.setAnimation).toHaveBeenCalledTimes(1)
-		expect(frame).not.toHaveBeenCalled()
-		expect(settleFirstLayout(null, frame)).toBe(false)
-		expect(settleFirstLayout({}, frame)).toBe(false)
+	it('removes the shell at once on a page without the grid', () => {
+		page(true)
+		holdMountWhileShellShows()
+		expect(handOverOffTheWorkspace({ name: 'Store' }, workspacePageIds(manifest), document, now)).toBe(true)
+		expect(document.getElementById(SHELL_ID)).toBeNull()
+		expect(document.getElementById(MOUNT_ID).style.visibility).toBe('')
 	})
 
-	it('does not switch a destroyed grid back on', () => {
-		const grid = { opts: { animate: true }, setAnimation: vi.fn() }
-		const frames = []
-		settleFirstLayout(grid, (fn) => frames.push(fn))
-		grid.opts = undefined
-		frames.shift()()
-		frames.shift()()
-		expect(grid.setAnimation).toHaveBeenCalledTimes(1)
-	})
-})
-
-describe('whenLayoutSettles (first-paint-skeleton REQ-FPS-003)', () => {
-	/**
-	 * A grid element whose cards are at the given places, frame by frame.
-	 *
-	 * @param {Array<Array<number>>} places One x per card per frame.
-	 * @return {{ root: object, step: Function }}
-	 */
-	function gridAt(places) {
-		let index = 0
-		const root = {
-			querySelectorAll: () => places[Math.min(index, places.length - 1)].map((x) => ({
-				getBoundingClientRect: () => ({ x, y: 0, width: 100, height: 60 }),
-			})),
-		}
-		return { root, step: () => { index += 1 } }
-	}
-
-	it('waits until two frames see the cards in the same places', () => {
-		const { root, step } = gridAt([[0, 300], [0, 20], [0, 20]])
-		const frames = []
-		const done = vi.fn()
-		whenLayoutSettles(root, done, (fn) => frames.push(fn))
-		frames.shift()()
-		step()
-		frames.shift()()
-		expect(done).not.toHaveBeenCalled()
-		step()
-		frames.shift()()
-		expect(done).toHaveBeenCalledTimes(1)
-		expect(frames).toHaveLength(0)
+	it('leaves the shell to the grid on the dashboard view', () => {
+		page(true)
+		holdMountWhileShellShows()
+		expect(handOverOffTheWorkspace({ name: 'Workspace' }, workspacePageIds(manifest), document, now)).toBe(false)
+		expect(document.getElementById(SHELL_ID)).not.toBeNull()
+		expect(document.getElementById(MOUNT_ID).style.visibility).toBe('hidden')
 	})
 
-	it('gives up after SETTLE_MAX_FRAMES and hands over at once without a grid', () => {
-		let x = 0
-		const root = { querySelectorAll: () => [{ getBoundingClientRect: () => ({ x: x++, y: 0, width: 1, height: 1 }) }] }
-		const frames = []
-		const done = vi.fn()
-		whenLayoutSettles(root, done, (fn) => frames.push(fn))
-		for (let i = 0; i < SETTLE_MAX_FRAMES && frames.length; i++) {
-			frames.shift()()
-		}
-		expect(done).toHaveBeenCalledTimes(1)
-
-		const none = vi.fn()
-		whenLayoutSettles(null, none, () => {})
-		expect(none).toHaveBeenCalledTimes(1)
+	it('does nothing without a shell', () => {
+		page(false)
+		expect(handOverOffTheWorkspace({ name: 'Store' }, workspacePageIds(manifest), document, now)).toBe(false)
 	})
 })

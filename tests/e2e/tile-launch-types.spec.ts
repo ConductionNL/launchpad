@@ -119,3 +119,37 @@ test('someone who may not view the dashboard cannot fetch the file', async () =>
 		await deprovisionUser(outsider.username)
 	}
 })
+
+// REQ-TILE-PLACEMENT: a launch tile made with the App or link tile form is a
+// `tile` widget with its fields in content; the server checks it on that path
+// and the connection file is read from content.
+// @e2e tiles::new-tile-placement-uses-standard-content-shape
+test('a remote-desktop tile that keeps its link in content downloads its file, and a refused program link is not stored', async ({ page }) => {
+	const title = `Werkplek ${STAMP}`
+	const added = await admin.post(`${API}/dashboard/${dashboard!.id}/widgets`, {
+		data: {
+			widgetId: 'tile',
+			gridX: 4,
+			gridY: 0,
+			gridWidth: 2,
+			gridHeight: 2,
+			content: { mode: 'link', title, linkType: 'remote-desktop', linkValue: '', remote: { mode: 'rdp', host: 'rds02.gemeente.local' } },
+		},
+	})
+	expect(added.status(), await added.text()).toBe(201)
+	const placement = await added.json()
+	expect(placement.widgetId).toBe('tile')
+	expect(placement.tileLinkType ?? null).toBeNull()
+
+	await page.goto('/index.php/apps/launchpad/')
+	const link = page.locator('.tile-widget__link').filter({ hasText: title })
+	await expect(link).toBeVisible({ timeout: 30_000 })
+	const [download] = await Promise.all([page.waitForEvent('download'), link.click()])
+	expect(download.suggestedFilename()).toBe(`${title}.rdp`)
+	expect(fs.readFileSync(await download.path(), 'utf-8')).toContain('full address:s:rds02.gemeente.local')
+
+	const refused = await admin.post(`${API}/dashboard/${dashboard!.id}/widgets`, {
+		data: { widgetId: 'tile', gridX: 6, gridY: 0, gridWidth: 2, gridHeight: 2, content: { mode: 'link', title: 'Bad', linkType: 'program', linkValue: 'javascript:alert(1)' } },
+	})
+	expect(refused.status(), await refused.text()).toBe(400)
+})

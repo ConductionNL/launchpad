@@ -32,6 +32,7 @@
  */
 
 use OCA\LaunchPad\Service\FirstPaintGreeting;
+use OCA\LaunchPad\Service\FirstPaintMeta;
 use OCA\LaunchPad\Service\FirstPaintPlaceholder;
 
 // Nextcloud's template loader hands the parameters over as $_, a name we cannot choose.
@@ -100,6 +101,15 @@ if (is_array($fp) === false) {
 	}
 
 	$greeting = $fp['reader'] + ['content' => $header['content'], 'locale' => $l->getLocaleCode()];
+	$rest     = FirstPaintMeta::rest(
+		l: $l,
+		input: [
+			'permissionLevel' => (string) ($fp['permissionLevel'] ?? ''),
+			'updatedAt'       => (string) ($fp['dashboard']['updatedAt'] ?? ''),
+			'timezone'        => (string) ($fp['reader']['timezone'] ?? ''),
+			'locale'          => $l->getLocaleCode(),
+		]
+	);
 	$actions  = static function () use ($l): void {
 		?><div class="lp-fp__a">
 			<p class="lp-fp__s" role="status"><?php p($l->t('Loading widgets')); ?></p>
@@ -124,6 +134,7 @@ background:var(--color-background-hover,#f5f5f5)}
 border:2px solid var(--color-border-dark,#949494);border-radius:var(--border-radius-element,8px);font-weight:700}
 .lp-fp__s{margin:0;font-size:13px;color:var(--color-text-maxcontrast)}
 .lp-fp__m{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0;font-size:15px;color:var(--color-text-maxcontrast)}
+.lp-fp__mr--j{margin-inline-start:-8px}
 .lp-fp__k{display:inline-flex;align-items:center;padding:3px 12px;border-radius:var(--border-radius-pill,14px);
 background:var(--color-primary-element-light);color:var(--color-primary-element-light-text);font-size:14px;font-weight:600}
 .lp-fp__g{position:relative;--c:var(--c0);--r:var(--r0);height:calc(var(--r)*60px)}
@@ -191,6 +202,18 @@ background:var(--color-main-background);visibility:hidden;animation:lp-fp-x 0s 1
 					<span class="lp-fp__k"><?php p($kind); ?></span>
 				<?php endif; ?>
 					<span><?php p(trim($header['description']." \u{00a0}")); ?></span>
+				<?php if ($rest !== '') :
+					// The rights and the last change follow the description as
+					// DashboardPageHeader prints them (FirstPaintMeta).
+					$restClass = 'lp-fp__mr';
+					$restText  = $rest;
+					if (trim($header['description']) !== '') {
+						$restClass .= ' lp-fp__mr--j';
+						$restText   = ' · '.$rest;
+					}
+					?>
+					<span class="<?php p($restClass); ?>"><?php p($restText); ?></span>
+				<?php endif; ?>
 				</p>
 			</header>
 		<?php endif; ?>

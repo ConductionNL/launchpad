@@ -22,7 +22,6 @@ const require = createRequire(import.meta.url)
 const packageRoot = dirname(require.resolve('@conduction/nextcloud-vue/package.json'))
 const source = readFileSync(join(packageRoot, 'src/components/CnDashboardGrid/CnDashboardGrid.vue'), 'utf8')
 const body = source.match(/export function fillRowTracks[\s\S]*?\n}\n/)?.[0]?.replace('export ', '')
-// eslint-disable-next-line no-new-func -- the library's own function, read from its source
 const fillRowTracks = body ? new Function(`${body}; return fillRowTracks`)() : null
 
 describe('fill row tracks fixture (first-paint-skeleton D3)', () => {

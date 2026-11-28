@@ -572,19 +572,21 @@ describe('Views saving tiles and custom widgets', () => {
 	})
 
 	// @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
-	it('still adds a remote-desktop tile through the tile route, which checks its launch link', async () => {
+	it('adds a remote-desktop tile as a tile widget too, its launch settings in content', async () => {
 		const host = makeHost({
 			editingTile: null,
-			addWidgetToDashboard: vi.fn(),
-			addTileToDashboard: vi.fn(async () => ({ id: 9 })),
+			addWidgetToDashboard: vi.fn(async () => ({ id: 9 })),
+			addTileToDashboard: vi.fn(),
 			updateWidgetPlacement: vi.fn(),
 			closeTileEditor: vi.fn(),
 		})
 
-		await host.saveTile({ ...tile, linkType: 'remote-desktop', linkValue: '' })
+		await host.saveTile({ ...tile, linkType: 'remote-desktop', linkValue: '', remoteMode: 'gateway', remoteUrl: 'https://desktop.gemeente.nl/' })
 
-		expect(host.addWidgetToDashboard).not.toHaveBeenCalled()
-		expect(host.addTileToDashboard).toHaveBeenCalledWith(expect.objectContaining({ linkType: 'remote-desktop' }))
+		expect(host.addTileToDashboard).not.toHaveBeenCalled()
+		const [payload] = host.addWidgetToDashboard.mock.calls[0]
+		expect(payload.type).toBe('tile')
+		expect(payload.content).toMatchObject({ linkType: 'remote-desktop', remote: { mode: 'gateway', url: 'https://desktop.gemeente.nl/' } })
 	})
 
 	// @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical

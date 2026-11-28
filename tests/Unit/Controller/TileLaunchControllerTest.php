@@ -191,4 +191,32 @@ class TileLaunchControllerTest extends TestCase {
 			$this->assertSame(Http::STATUS_NOT_FOUND, $controller->rdp(placementId: 7)->getStatus());
 		}
 	}//end testATileWithoutAnRdpConnectionGets404()
+	/**
+	 * A remote-desktop tile made with the form keeps its link type and title in content (REQ-TILE-PLACEMENT).
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 *
+	 * @return void
+	 */
+	public function testATileThatKeepsItsLinkInContentDownloadsTheFile(): void {
+		$this->permissions->method('canViewPlacement')->willReturn(true);
+		$placement = new WidgetPlacement();
+		$placement->setWidgetId('tile');
+		$placement->setContentArray(
+			[
+				'mode'     => 'link',
+				'title'    => 'Werkplek',
+				'linkType' => 'remote-desktop',
+				'remote'   => ['mode' => 'rdp', 'host' => 'rds01.gemeente.local'],
+			]
+		);
+		$this->placements->method('find')->willReturn($placement);
+
+		$response = $this->controller()->rdp(placementId: 7);
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+		$headers = (new ReflectionProperty(Response::class, 'headers'))->getValue($response);
+		$this->assertStringContainsString(needle: 'filename="Werkplek.rdp"', haystack: $headers['Content-Disposition']);
+		$this->assertStringContainsString(needle: "full address:s:rds01.gemeente.local\r\n", haystack: $response->render());
+	}//end testATileThatKeepsItsLinkInContentDownloadsTheFile()
 }//end class

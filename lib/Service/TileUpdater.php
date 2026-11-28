@@ -168,7 +168,7 @@ class TileUpdater {
 	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
 	 */
 	public function checkTileWidget(WidgetPlacement $placement): void {
-		if (self::keepsLinkInContent(placement: $placement) === false) {
+		if ($placement->keepsLinkInContent() === false) {
 			return;
 		}
 
@@ -176,21 +176,6 @@ class TileUpdater {
 		$this->checkLaunchLink(placement: $placement);
 	}//end checkTileWidget()
 
-	/**
-	 * Whether a placement is a `tile` widget that keeps its link in content:
-	 * no legacy `tileType` and not an app-mode tile.
-	 *
-	 * @param WidgetPlacement $placement The placement.
-	 *
-	 * @return bool
-	 *
-	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
-	 */
-	private static function keepsLinkInContent(WidgetPlacement $placement): bool {
-		return $placement->getWidgetId() === 'tile'
-			&& $placement->getTileType() === null
-			&& ($placement->getContentArray()['mode'] ?? 'link') !== 'app';
-	}//end keepsLinkInContent()
 
 	/**
 	 * Refuse an update whose content carries a link target or an office-network address that is not allowed.
@@ -253,7 +238,7 @@ class TileUpdater {
 	 * @spec openspec/changes/archive/2026-11-19-launcher-tile-launch-types/tasks.md#task-2
 	 */
 	private function checkLaunchLink(WidgetPlacement $placement): void {
-		if (self::keepsLinkInContent(placement: $placement) === true) {
+		if ($placement->keepsLinkInContent() === true) {
 			$this->checkContentLaunchLink(placement: $placement);
 			return;
 		}

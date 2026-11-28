@@ -228,11 +228,14 @@ class SubjectTables {
 	 * @param WidgetPlacement $placement The placement.
 	 *
 	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
 	 */
 	private static function widgetOf(WidgetPlacement $placement): array {
 		$title = (string)($placement->getCustomTitle() ?? '');
 		if ($title === '') {
-			$title = (string)($placement->getTileTitle() ?? '');
+			// REQ-TILE-PLACEMENT: a link tile made with the form keeps its title in content.
+			$title = (string)($placement->linkTileField(field: 'title') ?? '');
 		}
 
 		if ($title === '') {

@@ -219,4 +219,48 @@ class WidgetPlacementTest extends TestCase {
 		$this->assertSame($style, $serialized['styleConfig']);
 		$this->assertSame($content, $serialized['content']);
 	}
+	/**
+	 * A `tile` widget without a tile type reads its link fields from content; an app tile and a legacy tile do not.
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 *
+	 * @return void
+	 */
+	public function testALinkTileInContentReadsItsFieldsFromContent(): void {
+		$content = new WidgetPlacement();
+		$content->setWidgetId('tile');
+		$content->setContentArray(['mode' => 'link', 'title' => 'Wiki', 'linkType' => 'url', 'linkValue' => 'https://w.test']);
+
+		$this->assertTrue(condition: $content->keepsLinkInContent());
+		$this->assertSame(expected: 'Wiki', actual: $content->linkTileField(field: 'title'));
+		$this->assertSame(expected: 'url', actual: $content->linkTileField(field: 'linkType'));
+		$this->assertNull(actual: $content->linkTileField(field: 'icon'));
+
+		$app = new WidgetPlacement();
+		$app->setWidgetId('tile');
+		$app->setContentArray(['mode' => 'app', 'appId' => 'files', 'title' => 'Files']);
+		$this->assertFalse(condition: $app->keepsLinkInContent());
+		$this->assertNull(actual: $app->linkTileField(field: 'title'));
+	}
+
+	/**
+	 * A tile made before reads its link fields from its flat columns.
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
+	 *
+	 * @return void
+	 */
+	public function testALegacyTileReadsItsFieldsFromItsColumns(): void {
+		$legacy = new WidgetPlacement();
+		$legacy->setWidgetId('tile-abc');
+		$legacy->setTileType('custom');
+		$legacy->setTileTitle('Mail');
+		$legacy->setTileLinkType('app');
+		$legacy->setContentArray(['title' => 'ignored']);
+
+		$this->assertFalse(condition: $legacy->keepsLinkInContent());
+		$this->assertSame(expected: 'Mail', actual: $legacy->linkTileField(field: 'title'));
+		$this->assertSame(expected: 'app', actual: $legacy->linkTileField(field: 'linkType'));
+		$this->assertNull(actual: $legacy->linkTileField(field: 'unknown'));
+	}
 }

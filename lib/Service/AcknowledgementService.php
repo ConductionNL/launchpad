@@ -419,9 +419,13 @@ class AcknowledgementService implements AcknowledgementServiceInterface {
 	 * @param WidgetPlacement $placement The placement.
 	 *
 	 * @return string
+	 *
+	 * @spec openspec/specs/tiles/spec.md#requirement-req-tile-placement-inline-content-placement-model-promoted-to-canonical
 	 */
 	private static function widgetTitle(WidgetPlacement $placement): string {
-		foreach ([$placement->getCustomTitle(), $placement->getTileTitle(), $placement->getAcknowledgementPrompt()] as $candidate) {
+		// REQ-TILE-PLACEMENT: a link tile made with the form keeps its title in content.
+		$titles = [$placement->getCustomTitle(), $placement->linkTileField(field: 'title'), $placement->getAcknowledgementPrompt()];
+		foreach ($titles as $candidate) {
 			if (is_string($candidate) === true && trim($candidate) !== '') {
 				return trim($candidate);
 			}

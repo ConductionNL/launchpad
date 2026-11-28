@@ -205,9 +205,14 @@ background:var(--color-main-background);visibility:hidden;animation:lp-fp-x 0s 1
 				<?php if ($rest !== '') :
 					// The rights and the last change follow the description as
 					// DashboardPageHeader prints them (FirstPaintMeta).
-					$described = trim($header['description']) !== '';
+					$restClass = 'lp-fp__mr';
+					$restText  = $rest;
+					if (trim($header['description']) !== '') {
+						$restClass .= ' lp-fp__mr--j';
+						$restText   = ' · '.$rest;
+					}
 					?>
-					<span class="lp-fp__mr<?php if ($described === true) : ?> lp-fp__mr--j<?php endif; ?>"><?php p(($described === true ? ' · ' : '').$rest); ?></span>
+					<span class="<?php p($restClass); ?>"><?php p($restText); ?></span>
 				<?php endif; ?>
 				</p>
 			</header>

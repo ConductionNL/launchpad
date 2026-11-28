@@ -32,7 +32,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTimeImmutable;
-use DateTimeZone;
 use Exception;
 use IntlDateFormatter;
 use IntlDatePatternGenerator;
@@ -94,9 +93,11 @@ class FirstPaintMeta {
 	 * @param array<string, mixed> $input See rest().
 	 *
 	 * @return string
+	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) FirstPaintGreeting holds the reader's zone and locale as pure functions.
 	 */
 	private static function changed(IL10N $l, array $input): string {
-		$zone = self::zone(timezone: (string) ($input['timezone'] ?? ''));
+		$zone = FirstPaintGreeting::zone(timezone: (string) ($input['timezone'] ?? ''));
 		$now  = ($input['now'] ?? null);
 		if ($now instanceof DateTimeImmutable === false) {
 			$now = new DateTimeImmutable();
@@ -114,14 +115,11 @@ class FirstPaintMeta {
 			return '';
 		}
 
-		$locale = (string) ($input['locale'] ?? '');
-		if ($locale === '') {
-			$locale = 'en_US';
-		}
-
+		$locale = FirstPaintGreeting::locale(input: $input);
 		$today = $now->setTime(0, 0);
 		if ($changed >= $today) {
-			return self::fill(text: $l->t('Last changed today {time}'), key: 'time', value: self::format(moment: $changed, locale: $locale, skeleton: 'jjmm'));
+			$time = self::format(moment: $changed, locale: $locale, skeleton: 'jjmm');
+			return self::fill(text: $l->t('Last changed today {time}'), key: 'time', value: $time);
 		}
 
 		$skeleton = 'MMMMd';
@@ -129,7 +127,8 @@ class FirstPaintMeta {
 			$skeleton = 'EEEE';
 		}
 
-		return self::fill(text: $l->t('Last changed {when}'), key: 'when', value: self::format(moment: $changed, locale: $locale, skeleton: $skeleton));
+		$when = self::format(moment: $changed, locale: $locale, skeleton: $skeleton);
+		return self::fill(text: $l->t('Last changed {when}'), key: 'when', value: $when);
 	}//end changed()
 
 	/**
@@ -174,23 +173,4 @@ class FirstPaintMeta {
 	private static function fill(string $text, string $key, string $value): string {
 		return str_replace('{'.$key.'}', $value, $text);
 	}//end fill()
-
-	/**
-	 * The reader's zone, the server's when it is unknown.
-	 *
-	 * @param string $timezone The zone name.
-	 *
-	 * @return DateTimeZone
-	 */
-	private static function zone(string $timezone): DateTimeZone {
-		if ($timezone !== '') {
-			try {
-				return new DateTimeZone($timezone);
-			} catch (Exception) {
-				// An unknown zone name: the server's zone below.
-			}
-		}
-
-		return new DateTimeZone(date_default_timezone_get());
-	}//end zone()
 }//end class

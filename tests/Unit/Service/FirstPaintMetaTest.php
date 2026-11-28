@@ -79,8 +79,14 @@ class FirstPaintMetaTest extends TestCase {
 	 * @return void
 	 */
 	public function testAChangeTodayShowsItsTime(): void {
-		$this->assertSame(expected: 'Last changed today 11:43 AM', actual: FirstPaintMeta::rest(l: $this->l10n(), input: self::input(updatedAt: '2026-11-28 11:43:00')));
-		$this->assertSame(expected: 'Last changed today 09:05 AM', actual: FirstPaintMeta::rest(l: $this->l10n(), input: self::input(updatedAt: '2026-11-28 09:05:00')));
+		$this->assertSame(
+			expected: 'Last changed today 11:43 AM',
+			actual: FirstPaintMeta::rest(l: $this->l10n(), input: self::input(updatedAt: '2026-11-28 11:43:00'))
+		);
+		$this->assertSame(
+			expected: 'Last changed today 09:05 AM',
+			actual: FirstPaintMeta::rest(l: $this->l10n(), input: self::input(updatedAt: '2026-11-28 09:05:00'))
+		);
 		$this->assertSame(
 			expected: 'Laatst gewijzigd vandaag 09:05',
 			actual: FirstPaintMeta::rest(l: $this->l10n(language: 'nl'), input: self::input(updatedAt: '2026-11-28 09:05:00', locale: 'nl_NL'))
@@ -93,9 +99,18 @@ class FirstPaintMetaTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnOlderChangeShowsTheWeekdayOrTheDate(): void {
-		$this->assertSame(expected: 'Last changed Wednesday', actual: FirstPaintMeta::rest(l: $this->l10n(), input: self::input(updatedAt: '2026-11-25 10:00:00')));
-		$this->assertSame(expected: 'Last changed Sunday', actual: FirstPaintMeta::rest(l: $this->l10n(), input: self::input(updatedAt: '2026-11-22 00:00:00')));
-		$this->assertSame(expected: 'Last changed November 21', actual: FirstPaintMeta::rest(l: $this->l10n(), input: self::input(updatedAt: '2026-11-21 23:59:00')));
+		$this->assertSame(
+			expected: 'Last changed Wednesday',
+			actual: FirstPaintMeta::rest(l: $this->l10n(), input: self::input(updatedAt: '2026-11-25 10:00:00'))
+		);
+		$this->assertSame(
+			expected: 'Last changed Sunday',
+			actual: FirstPaintMeta::rest(l: $this->l10n(), input: self::input(updatedAt: '2026-11-22 00:00:00'))
+		);
+		$this->assertSame(
+			expected: 'Last changed November 21',
+			actual: FirstPaintMeta::rest(l: $this->l10n(), input: self::input(updatedAt: '2026-11-21 23:59:00'))
+		);
 		$this->assertSame(
 			expected: 'Laatst gewijzigd 18 november',
 			actual: FirstPaintMeta::rest(l: $this->l10n(language: 'nl'), input: self::input(updatedAt: '2026-11-18 12:00:00', locale: 'nl_NL'))

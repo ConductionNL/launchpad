@@ -17,7 +17,7 @@ import type { SeededDashboard } from './support/dashboardFixture.ts'
 import { expect, request, test } from '@playwright/test'
 import { BASE_URL } from './support/baseUrl.ts'
 import { removeSeededDashboard, seedActiveDashboard } from './support/dashboardFixture.ts'
-import { openTileAppChooser, switchToDashboard } from './support/dashboardSwitcher.ts'
+import { openTileAppChooser, saveEditDraft, switchToDashboard } from './support/dashboardSwitcher.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -117,6 +117,14 @@ test('one ticked folder becomes a container at the bottom, the other is left out
 	await expect(container).toBeVisible({ timeout: 15_000 })
 	await expect(container.locator('.container-widget__child')).toHaveCount(3)
 	await expect(page.locator('.container-widget').filter({ hasText: PRIVATE })).toHaveCount(0)
+	// The script bookmark was skipped, so the dialog stays open to say so
+	// (REQ-BMI-001); close it to reach the edit bar.
+	await expect(dialog).toContainText('1 skipped')
+	await dialog.getByRole('button', { name: 'Cancel' }).click()
+	await expect(dialog).not.toBeVisible()
+	// In edit mode the import joins the draft (edit-mode-draft-and-save,
+	// REQ-EDIT-002): the server holds it only after Save.
+	expect(await saveEditDraft(page)).toBe(200)
 
 	const listed = await api.get(`/index.php/apps/launchpad/api/dashboard/${dashboard!.id}`)
 	expect(listed.status(), await listed.text()).toBe(200)

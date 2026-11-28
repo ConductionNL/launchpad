@@ -127,6 +127,7 @@
 			:class="{
 				'launchpad-edit-mode': isEditMode,
 				'launchpad-container--fill': fillsHeight,
+				'launchpad-container--settling': !gridSettled,
 			}"
 			:data-dashboard-uuid="activeDashboard?.uuid || null"
 			:style="dashboardLookStyle"
@@ -997,6 +998,13 @@ export default {
 			draftPrompt: null,
 			/** REQ-EDIT-002: a Save of the draft is under way. */
 			savingDraft: false,
+			/**
+			 * first-paint-skeleton REQ-FPS-003: false until the grid has been on
+			 * screen for two frames. Until then GridStack's slide is off, so the
+			 * first layout (the breakpoint applied while the page is still
+			 * hidden behind the shell) lands in place instead of sliding in.
+			 */
+			gridSettled: false,
 			/** The viewport width, for the phone rule (REQ-MRA-007). */
 			viewportWidth: typeof window === 'undefined' ? 0 : window.innerWidth,
 			/** The dialogs and modals opened at least once, which stay mounted from then on. */
@@ -2235,6 +2243,29 @@ export default {
 		onGridMounted() {
 			this.startStatusLine()
 			handOver()
+			this.settleGridAfterHandOver()
+		},
+
+		/**
+		 * Two frames after the hand-over, the grid's own slide comes back
+		 * (dragging and resizing in edit mode): by then its first layout is on
+		 * screen. GridStack applies the breakpoint for this width while the
+		 * page is hidden behind the shell, and its 0.3 s transition only runs
+		 * once the page shows, so the cards slid from the dashboard's wide
+		 * layout into the narrow one after the hand-over (live 28 Nov: CLS
+		 * 0.08 at 390 px, 0.007 at 1100 px). Once per page.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
+		 */
+		settleGridAfterHandOver() {
+			if (this.gridSettled) {
+				return
+			}
+			const frame = globalThis.requestAnimationFrame?.bind(globalThis) || ((fn) => setTimeout(fn, 0))
+			frame(() => frame(() => {
+				this.gridSettled = true
+			}))
 		},
 
 		/**
@@ -4819,6 +4850,12 @@ export default {
 
 /* A dashboard that fills the height (LpVandaag): the page keeps the height
    below the top bar and the grid divides it, so nothing here scrolls. */
+/* first-paint-skeleton REQ-FPS-003: no GridStack slide until the grid's
+   first layout is on screen (see settleGridAfterHandOver). */
+.launchpad-container--settling :deep(.grid-stack-item) {
+	transition: none !important;
+}
+
 #launchpad-app.launchpad-app--fill {
 	height: 100%;
 	display: flex;

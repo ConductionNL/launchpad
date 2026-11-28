@@ -10,7 +10,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { handOver, holdMountWhileShellShows, MOUNT_ID, SHELL_ID } from '../firstPaintHandover.js'
+import { handOver, holdMountWhileShellShows, MOUNT_ID, settleFirstLayout, SHELL_ID } from '../firstPaintHandover.js'
 
 /**
  * A page with the mount point and, when asked, the shell beside it.
@@ -61,5 +61,39 @@ describe('firstPaintHandover', () => {
 		expect(document.getElementById(SHELL_ID)).toBeNull()
 		expect(handOver(document, null)).toBe(false)
 		expect(document.getElementById(MOUNT_ID).style.visibility).toBe('')
+	})
+})
+
+describe('settleFirstLayout (first-paint-skeleton REQ-FPS-003)', () => {
+	it('switches the animation off at once and back on two frames later', () => {
+		const calls = []
+		const grid = { opts: { animate: true }, setAnimation: vi.fn((on) => calls.push(on)) }
+		const frames = []
+		expect(settleFirstLayout(grid, (fn) => frames.push(fn))).toBe(true)
+		expect(calls).toEqual([false])
+		frames.shift()()
+		expect(calls).toEqual([false])
+		frames.shift()()
+		expect(calls).toEqual([false, true])
+	})
+
+	it('leaves a grid without animation off, and does nothing without a grid', () => {
+		const grid = { opts: { animate: false }, setAnimation: vi.fn() }
+		const frame = vi.fn()
+		expect(settleFirstLayout(grid, frame)).toBe(true)
+		expect(grid.setAnimation).toHaveBeenCalledTimes(1)
+		expect(frame).not.toHaveBeenCalled()
+		expect(settleFirstLayout(null, frame)).toBe(false)
+		expect(settleFirstLayout({}, frame)).toBe(false)
+	})
+
+	it('does not switch a destroyed grid back on', () => {
+		const grid = { opts: { animate: true }, setAnimation: vi.fn() }
+		const frames = []
+		settleFirstLayout(grid, (fn) => frames.push(fn))
+		grid.opts = undefined
+		frames.shift()()
+		frames.shift()()
+		expect(grid.setAnimation).toHaveBeenCalledTimes(1)
 	})
 })

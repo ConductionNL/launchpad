@@ -67,3 +67,34 @@ export function handOver(doc = document, frame = globalThis.requestAnimationFram
 	}
 	return true
 }
+
+/**
+ * Let the grid's first layout land in place: GridStack is created with its
+ * animation on at the dashboard's own column count, and the breakpoint for
+ * this width is applied right after, so without this the cards slide from the
+ * wide layout into the narrow one after the shell has gone, a layout shift
+ * (live 28 Nov: CLS 0.08 at 390 px, 0.007 at 1100 px). The animation goes off
+ * at once, which ends the slide where it is heading, and comes back two frames
+ * later, once the final places have painted, for dragging and resizing.
+ *
+ * @param {object|null|undefined} grid The GridStack instance (CnDashboardGrid's `grid`).
+ * @param {Function} [frame] requestAnimationFrame, or a stand-in.
+ * @return {boolean} Whether there was a grid to settle.
+ * @spec openspec/changes/first-paint-skeleton/specs/first-paint-shell/spec.md#requirement-the-page-takes-over-without-a-layout-shift-req-fps-003
+ */
+export function settleFirstLayout(grid, frame = globalThis.requestAnimationFrame?.bind(globalThis)) {
+	if (!grid || typeof grid.setAnimation !== 'function') {
+		return false
+	}
+	const animate = grid.opts?.animate !== false
+	grid.setAnimation(false)
+	if (animate) {
+		const later = typeof frame === 'function' ? frame : (fn) => setTimeout(fn, 0)
+		later(() => later(() => {
+			if (grid.opts) {
+				grid.setAnimation(true)
+			}
+		}))
+	}
+	return true
+}

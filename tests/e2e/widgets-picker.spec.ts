@@ -52,7 +52,7 @@ import {
 	removeSeededDashboard,
 	seedActiveDashboard,
 } from './support/dashboardFixture.ts'
-import { addAndSaveDraft, enterEditMode, MORE_MENU } from './support/dashboardSwitcher.ts'
+import { addAndSaveDraft, enterEditMode, MORE_MENU, saveEditDraft } from './support/dashboardSwitcher.ts'
 import { adminContext, API } from './support/principals.ts'
 import { chooseAndAdd } from './support/widgetPicker.ts'
 import {
@@ -476,15 +476,9 @@ test.describe('REQ-WDG-010 the widget picker', () => {
 			.first()
 		await expect(placed).toContainText('Already added')
 
-		const created = page.waitForResponse(
-			(res) =>
-				res.request().method() === 'POST'
-				&& new URL(res.url()).pathname.endsWith(
-					`/api/dashboard/${dashboard!.id}/widgets`,
-				),
-		)
 		await chooseAndAdd(placed)
-		expect((await created).status()).toBe(201)
+		// The second copy lands in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 		const stored = (await placementsOf(admin, dashboard!.id)).filter(
 			(p) => p.widgetId === widget.id,
 		)
@@ -492,7 +486,7 @@ test.describe('REQ-WDG-010 the widget picker', () => {
 	})
 
 	// @e2e widgets::widget-selection-creates-placement
-	test('choosing a widget POSTs its id and the new placement lands on a free spot', async ({
+	test('choosing a widget and saving stores its id, and the new placement lands on a free spot', async ({
 		page,
 	}) => {
 		const existing = await seedPlacement(admin, dashboard!.id, {
@@ -515,29 +509,19 @@ test.describe('REQ-WDG-010 the widget picker', () => {
 				}),
 			})
 			.first()
-		const created = page.waitForResponse(
-			(res) =>
-				res.request().method() === 'POST'
-				&& new URL(res.url()).pathname.endsWith(
-					`/api/dashboard/${dashboard!.id}/widgets`,
-				),
-		)
 		await chooseAndAdd(row)
-		const response = await created
-		expect(response.status()).toBe(201)
-		expect(response.request().postDataJSON().widgetId).toBe(pick.id)
+		// The new widget lands in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 
-		const placement = (await response.json()) as Placement
-		expect(placement.widgetId).toBe(pick.id)
+		const stored = await placementsOf(admin, dashboard!.id)
+		const placement = stored.find(
+			(p) => p.widgetId === pick.id && p.id !== existing.id,
+		) as Placement
+		expect(placement, 'the chosen widget is stored').toBeTruthy()
 		expect(
 			overlaps(placement, existing),
 			'the new widget was placed on top of the existing one',
 		).toBe(false)
-		const stored = await placementsOf(admin, dashboard!.id)
-		expect(stored.find((p) => p.id === placement.id)).toMatchObject({
-			gridX: placement.gridX,
-			gridY: placement.gridY,
-		})
 		await expect(
 			page.locator(`[data-testid="widget-placement-${placement.id}"]`),
 		).toBeVisible()
@@ -580,7 +564,7 @@ test.describe('REQ-WDG-011 the style editor', () => {
 	})
 
 	// @e2e widgets::style-changes-saved-via-api
-	test('saving a new background PUTs the styleConfig and the widget shows it at once', async ({
+	test('a new background shows at once and is stored with the edit-mode Save', async ({
 		page,
 	}) => {
 		const widget = stockWidget()
@@ -608,20 +592,7 @@ test.describe('REQ-WDG-011 the style editor', () => {
 		).trim()
 		expect(picked).toMatch(/^#[0-9a-f]{6}$/i)
 
-		const put = page.waitForRequest(
-			(req) =>
-				req.method() === 'PUT'
-				&& new URL(req.url()).pathname.endsWith(
-					`/api/widgets/${placement.id}`,
-				),
-		)
 		await page.locator('[data-testid="cn-widget-style-save"]').click()
-		const body = (await put).postDataJSON() as {
-			styleConfig: Record<string, unknown>
-		}
-		expect(String(body.styleConfig.backgroundColor).toLowerCase()).toBe(
-			picked.toLowerCase(),
-		)
 
 		// Immediately, without a reload.
 		const wrapper = page
@@ -634,6 +605,9 @@ test.describe('REQ-WDG-011 the style editor', () => {
 				wrapper.evaluate((el) => (el as HTMLElement).style.backgroundColor),
 			)
 			.toBe(rgb(picked))
+
+		// The style lands in the edit-mode draft; Save stores it (REQ-EDIT-002).
+		expect(await saveEditDraft(page)).toBeLessThan(300)
 		const stored = (await placementsOf(admin, dashboard!.id)).find(
 			(p) => p.id === placement.id,
 		)

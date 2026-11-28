@@ -179,7 +179,7 @@ test.afterAll(async () => {
 	}
 	for (const who of [owner, viewer, member]) {
 		if (who) {
-			await removePrincipal(admin, who.username).catch(() => null)
+			await removePrincipal(admin, who).catch(() => null)
 		}
 	}
 	await removeGroup(admin, RULE_GROUP).catch(() => null)

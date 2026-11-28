@@ -273,8 +273,13 @@ test.describe('REQ-SHELL-001: a single mount point', () => {
 		expect(res.status()).toBe(200)
 		const html = await res.text()
 		expect(html.match(/<div id="app-workspace" class="launchpad-workspace">/g) ?? []).toHaveLength(1)
-		// templates/index.php: the mount element is the one child of the wrapper.
-		expect(html).toMatch(/<div id="app-workspace" class="launchpad-workspace">\s*<div id="workspace-vue"><\/div>\s*<\/div>/)
+		// templates/index.php: the mount element is empty and sits in the
+		// wrapper; first-paint-skeleton D4 prints the server's shell beside it
+		// (`#launchpad-first-paint`, a sibling, never inside the mount point),
+		// so the wrapper holds the shell and then the mount point.
+		expect(html).toMatch(/<div id="workspace-vue"><\/div>\s*<\/div>/)
+		expect(html).toMatch(/<div id="app-workspace" class="launchpad-workspace">\s*<div id="(?:launchpad-first-paint|workspace-vue)"/)
+		expect(html.match(/id="launchpad-first-paint"/g)?.length ?? 0).toBeLessThanOrEqual(1)
 		expect(html.match(/id="workspace-vue"/g) ?? []).toHaveLength(1)
 
 		// And in the live page: Vue mounted into that one element, which is

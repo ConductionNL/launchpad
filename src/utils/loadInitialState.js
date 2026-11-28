@@ -196,7 +196,7 @@ export function loadInitialState(page) {
  * a list of non-empty strings reads as no favourites.
  *
  * @return {string[]} The uuids in starring order.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-2
  */
 export function readFavouriteDashboards() {
 	const value = readKey('favouriteDashboards', [])
@@ -209,7 +209,7 @@ export function readFavouriteDashboards() {
  * it; More offers its Announcements entry from this, without a request.
  *
  * @return {boolean} True only when the page says so.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-10
  */
 export function readCanManageAnnouncements() {
 	const value = readKey('announcementsAccess', null)

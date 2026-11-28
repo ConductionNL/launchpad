@@ -49,7 +49,7 @@ class FavouriteDashboardService {
 	 * @param IConfig          $config           The user preference store.
 	 * @param DashboardService $dashboardService Reads the dashboards a person can open.
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-1
 	 */
 	public function __construct(
 		private readonly IConfig $config,
@@ -68,8 +68,8 @@ class FavouriteDashboardService {
 	 *
 	 * @return array<string> The favourite dashboard UUIDs.
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-1
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-2
 	 */
 	public function listFor(string $userId, ?array $visibleUuids=null): array {
 		$stored = $this->read(userId: $userId);
@@ -102,7 +102,7 @@ class FavouriteDashboardService {
 	 *
 	 * @return array<string>|null The favourite UUIDs in starring order.
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-2
 	 */
 	public function forPage(string $userId, array $visible): ?array {
 		if ($userId === '') {
@@ -127,7 +127,7 @@ class FavouriteDashboardService {
 	 *
 	 * @throws DoesNotExistException When the person cannot open the dashboard.
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-1
 	 */
 	public function star(string $userId, string $uuid): array {
 		$visible    = $this->requireVisible(userId: $userId, uuid: $uuid);
@@ -150,7 +150,7 @@ class FavouriteDashboardService {
 	 *
 	 * @throws DoesNotExistException When the person cannot open the dashboard.
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-1
 	 */
 	public function unstar(string $userId, string $uuid): array {
 		$visible    = $this->requireVisible(userId: $userId, uuid: $uuid);

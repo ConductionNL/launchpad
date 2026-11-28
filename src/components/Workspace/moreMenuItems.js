@@ -178,7 +178,7 @@ export function resolveMenuItem(item, openUserSettings) {
  * @param {(() => void)|null} openUserSettings The injected personal-settings opener.
  * @return {Record<string, object[]>} The menu items by section.
  * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-10
  * @spec openspec/changes/admin-page-in-nextcloud-settings/specs/admin-settings/spec.md#requirement-the-admin-page-lives-in-nextclouds-settings-framework-req-adm-036
  */
 export function startPageSections(chrome, openUserSettings) {
@@ -317,7 +317,7 @@ export function dashboardIcon(dashboard, isDefault) {
  * @param {string} pinned The uuid of the person's pinned default, or ''.
  * @param {object[]} groupDashboards The group, default and shared dashboards.
  * @return {string} The uuid, or ''.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-15
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-15
  */
 export function effectiveDefaultUuid(pinned, groupDashboards = []) {
 	if (pinned) {
@@ -335,7 +335,7 @@ export function effectiveDefaultUuid(pinned, groupDashboards = []) {
  * a badge, not a star; the star is the favourite.
  *
  * @return {{label: string, title: string, ariaLabel: string}} The pill.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-15
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-15
  */
 function DEFAULT_PILL () {
   return {
@@ -386,7 +386,7 @@ const DASHBOARD_ITEM_DEFAULTS = {
  * @param {(() => void)|null} options.onNewDashboard Create and open a personal dashboard; null when
  *   personal dashboards are off or the quota is reached, which leaves New dashboard out.
  * @return {object[]} The items.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
  */
 export function dashboardItems(options) {
 	const o = { ...DASHBOARD_ITEM_DEFAULTS, ...options }
@@ -410,7 +410,7 @@ export function dashboardItems(options) {
  * @param {object[]} rows The `{d, source}` rows, in list order.
  * @param {Set<string>} open The uuids of the open parents.
  * @return {object[]} The rows with `depth`, `hasChildren` and `open`.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-16
  */
 function treeRows(rows, open) {
 	const byUuid = new Map(rows.filter(({ d }) => Boolean(d.uuid)).map((row) => [row.d.uuid, row]))
@@ -449,7 +449,7 @@ function treeRows(rows, open) {
  * @param {object} row The row, with `depth`, `hasChildren` and `open` in the expanded list.
  * @param {(uuid: string) => void} onToggleTree Show or hide a parent's children.
  * @return {object} The fields.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-16
  */
 function treeFields(row, onToggleTree) {
 	if (row.depth === undefined) {
@@ -468,7 +468,7 @@ function treeFields(row, onToggleTree) {
  *
  * @param {boolean} show Whether the column shows it.
  * @return {object[]} The line, or nothing.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
  */
 function hintItems(show) {
 	if (!show) {
@@ -490,7 +490,7 @@ function hintItems(show) {
  * @param {string[]} options.openTrees The uuids of the parents whose children show (expanded list).
  * @return {{rows: object[], starred: Set<string>, showHint: boolean, hidden: number}} The rows,
  *   and how many dashboards the folded column leaves out.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
  */
 function columnRows(all, { favourites, expanded, activeId, openTrees = [] }) {
 	const byUuid = new Map(all.filter(({ d }) => Boolean(d.uuid)).map((row) => [row.d.uuid, row]))
@@ -520,7 +520,7 @@ function columnRows(all, { favourites, expanded, activeId, openTrees = [] }) {
  * @param {(uuid: string) => void} context.onToggleFavourite Mark or unmark a favourite.
  * @param {(uuid: string) => void} context.onToggleTree Show or hide a parent's children.
  * @return {object} The item.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-4
  */
 function dashboardRowItem(row, { activeId, defaultUuid, starred, onSwitch, onToggleFavourite, onToggleTree }) {
 	const { d, source } = row
@@ -550,8 +550,8 @@ function dashboardRowItem(row, { activeId, defaultUuid, starred, onSwitch, onTog
  * @param {() => void} onToggleExpanded Unfold or fold the column.
  * @param {(() => void)|null} onNewDashboard Create a dashboard, or null.
  * @return {object[]} The items.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-16
  */
 function columnFoot(hidden, expanded, onToggleExpanded, onNewDashboard) {
 	const foot = []
@@ -584,7 +584,7 @@ function columnFoot(hidden, expanded, onToggleExpanded, onNewDashboard) {
  * @param {string[]} favourites The uuids that are favourites now.
  * @param {string} uuid The dashboard the star belongs to.
  * @return {string[]} The new list: the uuid added at the end, or removed.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-4
  */
 export function toggleFavourite(favourites, uuid) {
 	const list = Array.isArray(favourites) ? favourites.filter((u) => typeof u === 'string' && u !== '') : []
@@ -600,7 +600,7 @@ export function toggleFavourite(favourites, uuid) {
  *
  * @param {string|null} stored The stored value.
  * @return {string[]} The uuids.
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-4
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-4
  */
 export function parseFavourites(stored) {
 	if (typeof stored !== 'string' || stored === '') {

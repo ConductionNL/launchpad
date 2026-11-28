@@ -1533,7 +1533,7 @@ export default {
 		 * REQ-ASET-003, REQ-QUOTA-006).
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
 		 */
 		canCreatePersonalDashboard() {
 			return this.allowUserDashboards === true && !this.dashboardQuotaReached
@@ -1680,7 +1680,7 @@ export default {
 		 * flag when the record is not in any bucket yet.
 		 *
 		 * @return {'group'|'default'|'user'|'shared'} The active dashboard's source.
-		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 * @spec openspec/specs/runtime-shell/spec.md
 		 */
 		activeDashboardSource() {
 			const id = this.activeDashboard?.id
@@ -2364,7 +2364,7 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-16
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-16
 		 */
 		loadDetailFieldsOnce() {
 			if (this.detailFieldsRequested) {
@@ -4550,7 +4550,7 @@ export default {
 		 * (Ruben's review item 8).
 		 *
 		 * @return {void}
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-5
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-5
 		 */
 		downloadActiveDashboard() {
 			printDashboard(this.activeDashboard?.name ?? '')
@@ -4722,7 +4722,7 @@ export default {
 		 * shows the toast when the server refuses (REQ-ASET-003, quota).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
 		 */
 		async createWorkspaceDashboard() {
 			try {

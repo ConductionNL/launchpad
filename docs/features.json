@@ -58,7 +58,7 @@
     "title": "Multiple dashboards",
     "summary": "You build a homepage per role and switch in one click.",
     "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-switcher/spec.md",
+    "docsUrl": "openspec/specs/runtime-shell/spec.md",
     "title_nl": "Meerdere dashboards",
     "summary_nl": "Je bouwt een startpagina per rol en wisselt met een klik."
   },

@@ -6,7 +6,7 @@
  * offered only with personal dashboards allowed and the quota not reached,
  * administrators included, and it creates "My workspace".
  *
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-3
  */
 
 import { createPinia, setActivePinia } from 'pinia'

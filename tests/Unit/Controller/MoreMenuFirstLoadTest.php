@@ -7,7 +7,7 @@
  * What the workspace page carries for the More menu: the favourite
  * dashboards and whether the viewer may manage announcements.
  *
- * @spec openspec/changes/more-menu-favourites/tasks.md#task-13
+ * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-13
  */
 
 declare(strict_types=1);
@@ -30,7 +30,7 @@ class MoreMenuFirstLoadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-2
 	 */
 	public function testTheFavouritesComeWithTheVisibleEntries(): void {
 		$favourites = $this->createMock(originalClassName: FavouriteDashboardService::class);
@@ -48,7 +48,7 @@ class MoreMenuFirstLoadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-10
 	 */
 	public function testTheAnnouncementsAccessComesForALoggedInViewer(): void {
 		$announcements = $this->createMock(originalClassName: AnnouncementService::class);
@@ -67,7 +67,7 @@ class MoreMenuFirstLoadTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/more-menu-favourites/tasks.md#task-10
+	 * @spec openspec/changes/archive/2026-11-28-more-menu-favourites/tasks.md#task-10
 	 */
 	public function testUnwiredReadsAreNull(): void {
 		$this->assertSame(

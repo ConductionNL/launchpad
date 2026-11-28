@@ -44,6 +44,7 @@ import type { NavNode, Snapshot } from './support/orgNavigation.ts'
 import type { Principal } from './support/principals.ts'
 
 import { expect, test } from '@playwright/test'
+import { dropSettingRows } from './support/adminSettingRows.ts'
 import {
 	adminTree,
 	depthOf,
@@ -77,10 +78,12 @@ let firstPosition: { status: number; body: any } | null = null
 
 test.beforeAll(async () => {
 	admin = await adminContext()
-	// Read before anything in this suite writes the position: this is the
-	// value a fresh installation answers with.
-	firstPosition = await readPosition(admin)
+	// Snapshot first, so afterAll puts back what an earlier spec left; then
+	// clear the stored position (an earlier spec in the same run may have
+	// set one) and read the value a fresh installation answers with.
 	snap = await snapshot(admin)
+	await dropSettingRows('org_navigation_position')
+	firstPosition = await readPosition(admin)
 })
 
 test.afterAll(async () => {
@@ -111,9 +114,9 @@ test.describe
 	.serial('navigation-editor-org — position default (REQ-ONAV-004)', () => {
 	// @e2e navigation-editor-org::position-defaults-to-hidden
 	test('a fresh installation answers {position: "hidden"}', async () => {
-		// Recorded before this suite wrote anything. On the CI instance nothing
-		// has written the setting yet, so this is the unset default from
-		// AdminOrgNavigationController::readPosition.
+		// Recorded with the setting cleared in beforeAll, so this is the unset
+		// default from AdminOrgNavigationController::readPosition whatever ran
+		// before this suite.
 		expect(firstPosition?.status).toBe(200)
 		expect(firstPosition?.body).toEqual({ position: 'hidden' })
 	})
